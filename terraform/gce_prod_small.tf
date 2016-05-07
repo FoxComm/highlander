@@ -4,6 +4,9 @@ variable "ssh_private_key" {}
 variable "network" { 
     default = "prodsmall"
 }
+variable "zone" {
+    default = "us-central1-a"
+}
 
 ##############################################
 # Network
@@ -85,7 +88,7 @@ module "prodsmall_vpn" {
 }
 
 ##############################################
-#Setup consul cluster
+#Consul Cluster
 ##############################################
 
 variable "consul_cluser_image" { 
@@ -98,6 +101,30 @@ module "prodsmall_consul_cluster" {
     datacenter = "${var.network}"
     servers = 3
     image = "${var.consul_cluser_image}"
+    ssh_user = "${var.ssh_user}"
+    ssh_private_key = "${var.ssh_private_key}"
+}
+
+##############################################
+#Small Production Stack
+##############################################
+
+variable "kakfa_image" { 
+    default = "prod-small-kakfa-1462576822"
+}
+
+variable "db_image" { 
+    default = "prod-small-db-1462578920"
+}
+
+module "prodsmall_stack" {
+    source = "./gce/prodsmall_stack"
+    zone = "${var.zone}"
+    network = "${var.network}"
+    datacenter = "${var.network}"
+    kafka_image = "${var.kakfa_image}"
+    db_image = "${var.db_image}"
+    consul_leader = "${module.prodsmall_consul_cluster.leader}"
     ssh_user = "${var.ssh_user}"
     ssh_private_key = "${var.ssh_private_key}"
 }

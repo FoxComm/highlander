@@ -1,8 +1,5 @@
 ---
 
-- name: Add Adiscon rsyslog repo
-  apt_repository: repo='ppa:adiscon/v8-stable' state=present update_cache=yes
-
 - name: Install rsyslog
   apt: name={{item}} state=installed
   with_items:
