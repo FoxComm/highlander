@@ -8,7 +8,7 @@ create table object_links(
 
     foreign key (left_id) references object_shadows(id) on update restrict on delete restrict,
     foreign key (right_id) references object_shadows(id) on update restrict on delete restrict,
-    constraint valid_link_type check (link_type in ('productAlbum', 'productSku', 'promotionDiscount'))
+    constraint valid_link_type check (link_type in ('productAlbum', 'productSku', 'promotionDiscount', 'skuAlbum'))
 );
 
 create index object_link_left_idx on object_links (left_id);
