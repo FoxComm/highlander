@@ -9,10 +9,14 @@ import MultiSelectRow from '../../table/multi-select-row';
 
 function setCellContentsFunctionFactory(onDelete: Function): Function {
   const setCellContents = (item: Object, field: string) => {
-    if (field === 'edit') {
-      return <DeleteButton onClick={onDelete} />;
-    }
-    return get(item, ['attributes', field, 'v'], '');
+    switch (field) {
+      case 'edit':
+        return <DeleteButton onClick={onDelete} />;
+      case 'code':
+        return get(item, ['code'], '');
+      default:
+        return get(item, ['coupon', 'attributes', field, 'v'], '');
+    ;}
   };
   return setCellContents;
 }
