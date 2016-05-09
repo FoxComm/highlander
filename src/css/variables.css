@@ -3,6 +3,7 @@
 
 :root {
   --grid-margin: 1.7%;
+  --header-height: 80px;
 }
 
 @media (--small-viewport) {
