@@ -48,16 +48,6 @@
 - name: Copy Phoenix
   copy: src="{{phoenix_jar_src}}" dest="{{phoenix_jar}}" owner="{{user}}"
 
-- name: Clean Db
-  shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} clean
-  args:
-    chdir: "{{phoenix_dir}}"
-
-- name: Migrate Db
-  shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
-  args:
-    chdir: "{{phoenix_dir}}"
-
 - name: Setup Update Materialzied Views Sql
   copy: src=update_materialized_views.sql dest={{update_materialized_views_sql}}
   sudo: true
@@ -69,6 +59,16 @@
 - name: Setup Materialized Views Service
   copy: src=materialized_views.service dest="{{dest_services}}/materialized_views.service"
   sudo: true
+
+- name: Clean Db
+  shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} clean
+  args:
+    chdir: "{{phoenix_dir}}"
+
+- name: Migrate Db
+  shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
+  args:
+    chdir: "{{phoenix_dir}}"
 
 - name: Seed Db
   shell: java -cp {{phoenix_jar}} {{seeds_cmd}}
