@@ -38,14 +38,9 @@ object ImageRoutes {
               }
             } ~
             pathPrefix("images") {
-              (post & pathEnd) {
-                extractRequest { request ⇒
-                  val file = File.createTempFile("debug",".jpg")
-                  val futureDone = request.entity.dataBytes.runWith(FileIO.toFile(file))
-
-                  onComplete(futureDone) { result =>
-                    complete(s"path:${file.getAbsolutePath}, size:${result.get}")
-                  }
+              (post & pathEnd & extractRequest) { request ⇒
+                goodOrFailures {
+                  ImageManager.uploadImage(albumId, context, request.entity.dataBytes)
                 }
               }
             }

@@ -1,8 +1,15 @@
 package services.image
 
+import java.io.File
 import java.time.Instant
 
+import akka.stream.ActorMaterializer
+import akka.stream.scaladsl.{FileIO, Source}
+import akka.util.ByteString
+
+import cats.data.Xor.{left, right}
 import cats.implicits._
+import failures.GeneralFailure
 import failures.ImageFailures._
 import models.StoreAdmin
 import models.image._
@@ -96,6 +103,23 @@ object ImageManager {
         } yield AlbumResponse.build(upAlbum, images)).runTxn()
       case None ⇒
         getAlbum(id, contextName)
+    }
+  }
+
+  def uploadImage(albumId: Int, contextName: String, bytes: Source[ByteString, Any])
+    (implicit ec: EC, db: DB, am: ActorMaterializer): Result[AlbumResponse.Root] = (for {
+    context  ← * <~ ObjectManager.mustFindByName404(contextName)
+    filePath ← * <~ getFileFromRequest(bytes)
+    album    ← * <~ mustFindFullAlbumByIdAndContext404(albumId, context)
+    images   ← * <~ Image.buildFromAlbum(album)
+  } yield AlbumResponse.build(album, images)).runTxn()
+
+  private def getFileFromRequest(bytes: Source[ByteString, Any])
+    (implicit ec: EC, am: ActorMaterializer) = {
+    val file = File.createTempFile("debug", ".jpg")
+    bytes.runWith(FileIO.toFile(file)).map { up ⇒
+      if (up.wasSuccessful) right(file.getAbsolutePath)
+      else left(GeneralFailure("CC").single)
     }
   }
 
