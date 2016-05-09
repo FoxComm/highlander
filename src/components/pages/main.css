@@ -9,12 +9,8 @@
   background-size: cover;
 }
 
-.block-wrap {
-  height: 100%;
-  display: flex;
-  align-items: center;
-  padding-left: var(--grid-margin);
-  padding-right: var(--grid-margin);
+.wrap {
+  composes: wrap from "ui/css/layout.css";
 }
 
 .top-banner-info {
@@ -92,7 +88,7 @@
   background: url('images/banners/try_at_home.jpg') 50% 0;
   background-size: cover;
 
-  & .block-wrap {
+  & .wrap {
     justify-content: flex-end;
   }
 }
@@ -137,7 +133,7 @@
   width: 100%;
   height: 608px;
 
-  & .block-wrap {
+  & .wrap {
     justify-content: space-between;
   }
 }
@@ -185,9 +181,4 @@
   background-size: cover;
 }
 
-@media (--large-viewport-up) {
-  .block-wrap {
-    lost-column: 9/11;
-    lost-offset: -1/11;
-  }
-}
+

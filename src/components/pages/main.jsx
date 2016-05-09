@@ -12,7 +12,7 @@ class Main extends Component {
   get topBanner(): HTMLElement {
     return (
       <div styleName="top-banner">
-        <div styleName="block-wrap">
+        <div styleName="wrap">
           <div styleName="top-banner-info">
             <div styleName="top-banner-header">Summer 2016</div>
             <div styleName="top-banner-description">New collection is here</div>
@@ -33,7 +33,7 @@ class Main extends Component {
   get categories(): HTMLElement {
     return (
       <div styleName="categories">
-        <div styleName="block-wrap">
+        <div styleName="wrap">
           <div styleName="category-link">
             <div styleName="category-name">
               EYEGLASSES
@@ -58,7 +58,7 @@ class Main extends Component {
   get tryAtHomeBanner(): HTMLElement {
     return (
       <div styleName="try-at-home-banner">
-        <div styleName="block-wrap">
+        <div styleName="wrap">
           <div styleName="try-at-home-info">
             <div styleName="try-at-home-header">Try @ home</div>
             <div styleName="try-at-home-description">5 pairs. 5 days. Free</div>
@@ -74,7 +74,7 @@ class Main extends Component {
   get visitAStoreBanner(): HTMLElement {
     return (
       <div styleName="visit-a-store-banner">
-        <div styleName="block-wrap">
+        <div styleName="wrap">
           <div styleName="visit-a-store-info">
             <div styleName="visit-a-store-header">Visit a store</div>
             <div styleName="visit-a-store-description">Try them on in person!</div>
