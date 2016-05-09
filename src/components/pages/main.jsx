@@ -2,8 +2,8 @@
 
 import React, { Component } from 'react';
 import type { HTMLElement } from 'types';
-import { Link } from 'react-router';
 
+import Banner from '../banner/banner';
 import styles from './main.css';
 
 
@@ -12,19 +12,15 @@ class Main extends Component {
   get topBanner(): HTMLElement {
     return (
       <div styleName="top-banner">
-        <div styleName="block-wrap">
-          <div styleName="top-banner-info">
-            <div styleName="top-banner-header">Summer 2016</div>
-            <div styleName="top-banner-description">New collection is here</div>
-            <div styleName="top-banner-links">
-              <Link to="/all?shop=men" styleName="top-banner-shop-link">
-                Shop Men
-              </Link>
-              <Link to="/all?shop=women" styleName="top-banner-shop-link">
-                Shop Women
-              </Link>
-            </div>
-          </div>
+        <div styleName="wrap">
+          <Banner
+            header="Summer 2016"
+            description="New collection is here"
+            links={[
+              {to: '/all?shop=men', text: 'Shop Men'},
+              {to: '/all?shop=women', text: 'Shop Women'},
+            ]}
+          />
         </div>
       </div>
     );
@@ -33,23 +29,23 @@ class Main extends Component {
   get categories(): HTMLElement {
     return (
       <div styleName="categories">
-        <div styleName="block-wrap">
-          <div styleName="category-link">
-            <div styleName="category-name">
+        <div styleName="wrap">
+          <article styleName="categories__link">
+            <h2 styleName="categories__name">
               EYEGLASSES
-            </div>
-            <div styleName="category-image">
+            </h2>
+            <div styleName="categories__image">
               <img src="images/banners/eyeglasses.jpg" />
             </div>
-          </div>
-          <div styleName="category-link">
-            <div styleName="category-name">
+          </article>
+          <article styleName="categories__link">
+            <h2 styleName="categories__name">
               SUNGLASSES
-            </div>
-            <div styleName="category-image">
+            </h2>
+            <div styleName="categories__image">
               <img src="images/banners/sunglasses.jpg" />
             </div>
-          </div>
+          </article>
         </div>
       </div>
     );
@@ -58,14 +54,14 @@ class Main extends Component {
   get tryAtHomeBanner(): HTMLElement {
     return (
       <div styleName="try-at-home-banner">
-        <div styleName="block-wrap">
-          <div styleName="try-at-home-info">
-            <div styleName="try-at-home-header">Try @ home</div>
-            <div styleName="try-at-home-description">5 pairs. 5 days. Free</div>
-            <Link to="/try-at-home" styleName="try-at-home-link">
-              Learn More
-            </Link>
-          </div>
+        <div styleName="wrap">
+          <Banner
+            header="Try @ home"
+            description="5 pairs. 5 days. Free"
+            links={[
+              {to: '/try-at-home', text: 'Learn More'},
+            ]}
+          />
         </div>
       </div>
     );
@@ -74,15 +70,15 @@ class Main extends Component {
   get visitAStoreBanner(): HTMLElement {
     return (
       <div styleName="visit-a-store-banner">
-        <div styleName="block-wrap">
-          <div styleName="visit-a-store-info">
-            <div styleName="visit-a-store-header">Visit a store</div>
-            <div styleName="visit-a-store-description">Try them on in person!</div>
-            <Link to="/locations" styleName="visit-a-store-link">
-              Locations
-            </Link>
-          </div>
-          <div styleName="visit-a-store-image"></div>
+        <div styleName="wrap">
+          <Banner
+            header="Visit a store"
+            description="Try them on in person!"
+            links={[
+              {to: 'locations', text: 'Locations'},
+            ]}
+          />
+          <div styleName="visit-a-store-banner__image"></div>
         </div>
       </div>
     );

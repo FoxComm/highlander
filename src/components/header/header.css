@@ -8,6 +8,7 @@
   font-weight: 300;
   background: rgba(255, 255, 255, .34);
   transition: background 300ms;
+  height: 80px;
 }
 
 .header-scrolled {
@@ -16,11 +17,7 @@
 }
 
 .wrap {
-  display: flex;
-  align-items: center;
-  padding-left: var(--grid-margin);
-  padding-right: var(--grid-margin);
-  height: 80px;
+  composes: wrap from "ui/css/layout.css";
 }
 
 .hamburger {
@@ -78,11 +75,4 @@
       cursor: pointer;
     }
   }
-}
-
-@media (--large-viewport-up) {
- .wrap {
-   lost-column: 9/11;
-   lost-offset: -1/11;
- }
 }

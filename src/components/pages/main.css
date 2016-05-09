@@ -7,57 +7,16 @@
   height: 846px;
   background: url('images/banners/top.jpg') 50% 0;
   background-size: cover;
-}
-
-.block-wrap {
-  height: 100%;
-  display: flex;
-  align-items: center;
-  padding-left: var(--grid-margin);
-  padding-right: var(--grid-margin);
-}
-
-.top-banner-info {
-  width: 490px;
   color: var(--whitish);
 
-  & .top-banner-header {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    font-size: 47px;
-    margin-bottom: 20px;
-  }
-
-  & .top-banner-description {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 27px;
-    height: 30px;
-    margin-bottom: 50px;
-  }
-
-  & .top-banner-links {
-    display: flex;
-  }
-
-  & .top-banner-shop-link {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 230px;
-    height: 80px;
+  & a {
     color: var(--whitish);
-    border: 3px solid var(--whitish);
-    font-size: 23px;
-    text-decoration: none;
+    border-color: var(--whitish);
   }
+}
 
-  & .top-banner-shop-link:not(:last-child) {
-    margin-right: 30px;
-  }
+.wrap {
+  composes: wrap from "ui/css/layout.css";
 }
 
 .categories {
@@ -66,128 +25,61 @@
   background: var(--whitish);
   padding-top: 80px;
   padding-bottom: 40px;
-}
 
-.category-link {
-  & .category-name {
+  & .categories__name {
     color: var(--blackish);
     font-weight: 300;
     font-size: 15px;
     text-align: center;
   }
 
-  & .category-image {
+  & .categories__image {
     width: 483px;
     height: 242px;
   }
-}
 
-.category-link:not(:last-child) {
-  margin-right: 100px;
+  & .categories__link:not(:last-child) {
+    margin-right: 100px;
+  }
 }
 
 .try-at-home-banner {
+  --blueish: #314664;
   width: 100%;
   height: 720px;
   background: url('images/banners/try_at_home.jpg') 50% 0;
   background-size: cover;
-
-  & .block-wrap {
-    justify-content: flex-end;
-  }
-}
-
-.try-at-home-info {
-  --blueish: #314664;
   color: var(--blueish);
 
-  & .try-at-home-header {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    font-size: 47px;
-    margin-bottom: 20px;
+  & .wrap {
+    justify-content: flex-end;
   }
 
-  & .try-at-home-description {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 27px;
-    height: 30px;
-    margin-bottom: 50px;
-  }
-
-  & .try-at-home-link {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto;
-    width: 230px;
-    height: 80px;
+  & a {
     color: var(--blueish);
-    border: 3px solid var(--blueish);
-    font-size: 23px;
-    text-decoration: none;
+    border-color: var(--blueish);
   }
 }
 
 .visit-a-store-banner {
   width: 100%;
   height: 608px;
-
-  & .block-wrap {
-    justify-content: space-between;
-  }
-}
-
-.visit-a-store-info {
   --dark-greyish: #454545;
   color: var(--dark-greyish);
 
-  & .visit-a-store-header {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    font-size: 47px;
-    margin-bottom: 20px;
+  & .wrap {
+    justify-content: space-between;
   }
 
-  & .visit-a-store-description {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 27px;
-    height: 30px;
-    margin-bottom: 50px;
-  }
-
-  & .visit-a-store-link {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto;
-    width: 230px;
-    height: 80px;
+  & a {
     color: var(--dark-greyish);
-    border: 3px solid var(--dark-greyish);
-    font-size: 23px;
-    text-decoration: none;
+    border-color: var(--dark-greyish);
   }
-}
 
-.visit-a-store-image {
-  width: 741px;
-  height: 416px;
-  background: url('images/banners/visit_a_store.jpg') 50% 0;
-  background-size: cover;
-}
-
-@media (--large-viewport-up) {
-  .block-wrap {
-    lost-column: 9/11;
-    lost-offset: -1/11;
+  & .visit-a-store-banner__image {
+    width: 741px;
+    height: 416px;
+    background: url('images/banners/visit_a_store.jpg') 50% 0;
+    background-size: cover;
   }
 }
