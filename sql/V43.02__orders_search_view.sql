@@ -1,6 +1,6 @@
 create table orders_search_view
 (
-    id bigint not null,
+    id bigint not null unique,
     reference_number reference_number not null unique,
     state generic_string not null,
     created_at text,
@@ -32,8 +32,6 @@ create table orders_search_view
     rma_count bigint,
     rmas jsonb
 );
-
-create unique index orders_search_view_idx on orders_search_view (id);
 
 create or replace function update_orders_view_from_orders_fn() returns trigger as $emp_stamp$
     begin
@@ -100,7 +98,7 @@ create or replace function update_orders_view_from_orders_fn() returns trigger a
             left join order_rmas_view as rma on (new.id = rma.order_id)
             where (new.customer_id = c.id)
           -- update only order stuff
-on conflict (id) do update set
+on conflict do update set
     id = excluded.id,
     reference_number = excluded.reference_number,
     state = excluded.state,
