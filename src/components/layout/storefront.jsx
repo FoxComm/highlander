@@ -20,9 +20,7 @@ const StoreFront = (props: Props) => {
     <div styleName="container">
       <Header path={props.location.pathname}/>
       <div styleName="content-container">
-        <div styleName="storefront">
           {props.children}
-        </div>
       </div>
       <div styleName="footer">
         <Footer />

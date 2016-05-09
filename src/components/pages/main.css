@@ -1,0 +1,85 @@
+@import "media-queries.css";
+@import "variables.css";
+@import "colors.css";
+
+.top-banner {
+  width: 100%;
+  height: 846px;
+  background: url('images/banners/top.jpg') 50% 0;
+  background-size: cover;
+  color: var(--whitish);
+
+  & a {
+    color: var(--whitish);
+    border-color: var(--whitish);
+  }
+}
+
+.wrap {
+  composes: wrap from "ui/css/layout.css";
+}
+
+.categories {
+  width: 100%;
+  height: 384px;
+  background: var(--whitish);
+  padding-top: 80px;
+  padding-bottom: 40px;
+
+  & .categories__name {
+    color: var(--blackish);
+    font-weight: 300;
+    font-size: 15px;
+    text-align: center;
+  }
+
+  & .categories__image {
+    width: 483px;
+    height: 242px;
+  }
+
+  & .categories__link:not(:last-child) {
+    margin-right: 100px;
+  }
+}
+
+.try-at-home-banner {
+  --blueish: #314664;
+  width: 100%;
+  height: 720px;
+  background: url('images/banners/try_at_home.jpg') 50% 0;
+  background-size: cover;
+  color: var(--blueish);
+
+  & .wrap {
+    justify-content: flex-end;
+  }
+
+  & a {
+    color: var(--blueish);
+    border-color: var(--blueish);
+  }
+}
+
+.visit-a-store-banner {
+  width: 100%;
+  height: 608px;
+  --dark-greyish: #454545;
+  color: var(--dark-greyish);
+
+  & .wrap {
+    justify-content: space-between;
+  }
+
+  & a {
+    color: var(--dark-greyish);
+    border-color: var(--dark-greyish);
+  }
+
+  & .visit-a-store-banner__image {
+    width: 741px;
+    height: 416px;
+    background: url('images/banners/visit_a_store.jpg') 50% 0;
+    background-size: cover;
+  }
+}

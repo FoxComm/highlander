@@ -1,0 +1,42 @@
+@import "media-queries.css";
+@import "variables.css";
+@import "colors.css";
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 47px;
+  margin-bottom: 20px;
+}
+
+.description {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 27px;
+  height: 30px;
+  margin-bottom: 50px;
+}
+
+.links {
+  display: flex;
+  justify-content: center;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 230px;
+  height: 80px;
+  border-width: 3px;
+  border-style: solid;
+  font-size: 23px;
+  text-decoration: none;
+}
+
+.link:not(:last-child) {
+  margin-right: 30px;
+}

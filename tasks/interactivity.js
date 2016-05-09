@@ -12,6 +12,9 @@ function listen(cb) {
 
   process.stdin.on('data', function(chunk) {
     switch (chunk) {
+      case 'i':
+        runSequence('images');
+        break;
       case 'j':
         runSequence('browserify.purge_cache', 'browserify');
         break;
