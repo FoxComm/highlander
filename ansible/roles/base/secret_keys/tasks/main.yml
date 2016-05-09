@@ -1,20 +1,19 @@
 ---
 
 - name: Create dirs for public keys
-  file: path={{ public_keys_dest_dir }} state=directory mode=0700 owner={{ansible_ssh_user}}
-  become: true
-  become_user: root
+  file: path={{ public_keys_dest_dir }} state=directory mode=0700 owner={{user}}
+  sudo: true
   when: public_keys_dest_dir is defined and install_public_keys
 
 - name: Create dirs for private keys
-  file: path={{ private_keys_dest_dir }} state=directory mode=0700 owner={{ansible_ssh_user}}
-  become: true
-  become_user: root
+  file: path={{ private_keys_dest_dir }} state=directory mode=0700 owner={{user}}
+  sudo: true
   when: private_keys_dest_dir is defined and install_private_keys
 
 - name: Copy public keys
   copyv: src={{item}} dest="{{public_keys_dest_dir}}/{{item}}" mode="600"
   when: public_keys_dest_dir is defined and install_public_keys
+  sudo: true
   with_items:
       - public_key.der
       - public_key.pem
@@ -22,6 +21,7 @@
 - name: Copy secret keys
   copyv: src={{item}} dest="{{private_keys_dest_dir}}/{{item}}" mode="600"
   when: private_keys_dest_dir is defined and install_private_keys
+  sudo: true
   with_items:
       - private_key.der
       - private_key.pem

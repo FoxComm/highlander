@@ -10,11 +10,11 @@
             "project_id" : "foxcomm-staging",
             "source_image": "{{user `base_image`}}",
             "zone": "us-central1-f",
-            "image_name": "prod-small-kafka-{{timestamp}}",
-            "image_description": "prod small kafka image",
-            "instance_name": "packer-prod-small-kafka-{{uuid}}",
+            "image_name": "prod-small-es-{{timestamp}}",
+            "image_description": "prod small es image",
+            "instance_name": "packer-prod-small-es-{{uuid}}",
             "machine_type": "n1-standard-1",
-            "tags": ["ssh", "no-ip", "prod-small", "kafka"],
+            "tags": ["ssh", "no-ip", "prod-small", "elasticsearch"],
             "use_internal_ip": true,
             "ssh_username" : "ubuntu"
         }
@@ -22,7 +22,7 @@
     "provisioners" : [
         {
             "type": "ansible",
-            "playbook_file" : "ansible/packer_prod_small_kafka.yml"
+            "playbook_file" : "ansible/packer_prod_small_es.yml"
         }
     ]
 }

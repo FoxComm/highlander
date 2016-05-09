@@ -10,6 +10,8 @@ sudo bash -c "echo '$US ALL=NOPASSWD: ALL' >> /etc/sudoers.bk"
 sudo visudo -c -f /etc/sudoers.bk || { echo 'bad sudoers'; exit 1; }
 sudo cp /etc/sudoers.bk /etc/sudoers
 
+sudo chown -R $US:$US /home/$US
+sudo rm -rf /home/$US/.ssh
 sudo su $US -c "mkdir /home/$US/.ssh"
 sudo su $US -c "echo '$PUB_KEY' >> /home/$US/.ssh/authorized_keys"
 

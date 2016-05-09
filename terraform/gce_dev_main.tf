@@ -45,11 +45,11 @@ module "buildagents" {
 ##############################################
 
 variable "tiny_backend_image" {
-    default = "tinystack-backend-1461799315"
+    default = "tinystack-backend-1462817075"
 } 
 
 variable "tiny_frontend_image" {
-    default = "tinystack-frontend-1461787500"
+    default = "tinystack-frontend-1462818081"
 } 
 
 variable "consul_server_image" { 

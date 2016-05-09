@@ -1,0 +1,21 @@
+---
+
+- name: Provision Packer Prod Small Kafka
+  hosts: all
+  tags:
+      - packer-prod-small-phoenix
+  vars:
+    user: ubuntu
+    phoenix_env: production
+    db_host: db.service.consul
+    db_user: phoenix
+    db_name: phoenix_development
+    phoenix_service_requires: ""
+    phoenix_service_after: ""
+
+  roles:
+    - { role: base/ssh_keys}
+    - { role: base/rsyslog, sudo: yes }
+    - { role: base/consul_agent}
+    - { role: base/scala}
+    - { role: dev/phoenix}

@@ -1,0 +1,17 @@
+---
+
+- name: Syncrhonize Phoenix Sql
+  synchronize: src="{{phoenix_src}}/sql" dest="{{phoenix_dir}}" delete=yes recursive=yes
+  sudo: true
+
+- name: Copy Phoenix
+  copy: src="{{phoenix_jar_src}}" dest="{{phoenix_jar}}" owner="{{user}}"
+
+- name: Migrate Db
+  shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
+  args:
+    chdir: "{{phoenix_dir}}"
+
+- name: Setup Update Materialzied Views Sql
+  copy: src=../../dev/db/files/update_materialized_views.sql dest={{update_materialized_views_sql}}
+  sudo: true

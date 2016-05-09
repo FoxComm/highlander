@@ -8,7 +8,6 @@
   shell: systemctl stop materialized_views || true
   sudo: true
 
-
 - name: Create Db
   postgresql_db: name={{phoenix_db_name}}
   sudo: true

@@ -114,7 +114,23 @@ variable "kakfa_image" {
 }
 
 variable "db_image" { 
-    default = "prod-small-db-1462578920"
+    default = "prod-small-db-1462770003"
+}
+
+variable "es_image" { 
+    default = "prod-small-es-1462774093"
+}
+
+variable "phoenix_image" { 
+    default = "prod-small-phoenix-1462779854"
+}
+
+variable "green_image" { 
+    default = ""
+}
+
+variable "frontend_image" { 
+    default = ""
 }
 
 module "prodsmall_stack" {
@@ -124,6 +140,8 @@ module "prodsmall_stack" {
     datacenter = "${var.network}"
     kafka_image = "${var.kakfa_image}"
     db_image = "${var.db_image}"
+    es_image = "${var.es_image}"
+    phoenix_image = "${var.phoenix_image}"
     consul_leader = "${module.prodsmall_consul_cluster.leader}"
     ssh_user = "${var.ssh_user}"
     ssh_private_key = "${var.ssh_private_key}"
