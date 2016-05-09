@@ -36,7 +36,6 @@ import CustomerCart from './components/customers/transactions/cart';
 import CustomerItems from './components/customers/transactions/items';
 import InventoryListPage from './components/inventory/list-page';
 import InventoryList from './components/inventory/list';
-import InventoryItem from './components/inventory/item';
 import InventoryItemDetailsBase from './components/inventory/item-details-base';
 import InventoryItemDetails from './components/inventory/item-details';
 import InventoryItemTransactions from './components/inventory/item-transactions';
