@@ -12,7 +12,7 @@ import styles from './header.css';
 import Icon from 'ui/icon';
 import Search from '../search/search';
 import UserTools from '../usertools/usertools';
-import Categories from '../categories/categories';
+import Categories from '../navigation/navigation';
 
 type Props = {
   toggleSidebar: Function;

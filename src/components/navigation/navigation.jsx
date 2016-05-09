@@ -3,7 +3,6 @@
 import React, { PropTypes } from 'react';
 import type { HTMLElement } from 'types';
 import _ from 'lodash';
-import styles from './categories.css';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import { browserHistory } from 'react-router';
@@ -12,6 +11,8 @@ import localized from 'lib/i18n';
 
 import * as actions from 'modules/categories';
 
+import styles from './navigation.css';
+
 type Category = {
   name: string;
   id: number;
@@ -19,7 +20,7 @@ type Category = {
 
 const getState = state => ({...state.categories});
 
-class Categories extends React.Component {
+class Navigation extends React.Component {
 
   static propTypes = {
     list: PropTypes.array,
@@ -86,4 +87,4 @@ class Categories extends React.Component {
   }
 }
 
-export default connect(getState, actions)(localized(Categories));
+export default connect(getState, actions)(localized(Navigation));
