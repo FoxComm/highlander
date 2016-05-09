@@ -18,6 +18,8 @@
   text-decoration: none;
   opacity: .7;
   cursor: pointer;
+  white-space: nowrap;
+  text-transform: uppercase;
 
   &:hover {
     opacity: 1;

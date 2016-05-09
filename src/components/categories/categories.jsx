@@ -25,10 +25,12 @@ class Categories extends React.Component {
     list: PropTypes.array,
     fetch: PropTypes.func.isRequired,
     onClick: PropTypes.func,
+    all: PropTypes.bool,
   };
 
   static defaultProps = {
     onClick: _.noop,
+    all: false,
   };
 
   componentWillMount() {
@@ -36,13 +38,17 @@ class Categories extends React.Component {
   }
 
   @autobind
-  onClick(category : ?Category) {
+  onClick(category : ?Category, type : ?string) {
     this.props.onClick(category);
     if (category == undefined) {
       browserHistory.push('/');
     } else {
       const dashedName = category.name.replace(/\s/g, '-');
-      browserHistory.push(`/${dashedName}`);
+      if (type) {
+        browserHistory.push({pathname: `/${dashedName}`, query: {type}});
+      } else {
+        browserHistory.push(`/${dashedName}`);
+      }
     }
   }
 
@@ -57,16 +63,24 @@ class Categories extends React.Component {
           <a onClick={() => this.onClick(item)} styleName="item-link">
           {t(item.name.toUpperCase())}
           </a>
+          <ul>
+            <li><a onClick={() => this.onClick(item, 'men')}>MEN'S</a></li>
+            <li><a onClick={() => this.onClick(item, 'women')}>WOMEN'S</a></li>
+          </ul>
         </li>
       );
     });
 
     return (
       <ul styleName="list">
-        <li styleName="item" key="category-all">
-          <a onClick={() => this.onClick()} styleName="item-link">{t('ALL')}</a>
-        </li>
+        {this.props.all && (
+          <li styleName="item" key="category-all">
+            <a onClick={() => this.onClick()} styleName="item-link">{t('ALL')}</a>
+          </li>
+        )}
         {categoryItems}
+        <li styleName="item" ><a href="/" styleName="item-link">Locations</a></li>
+        <li styleName="item" ><a href="/" styleName="item-link">Our story</a></li>
       </ul>
     );
   }
