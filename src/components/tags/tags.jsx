@@ -33,7 +33,8 @@ export default class Tags extends Component<void, Props, State> {
         <TextInput
           styleName="text-input"
           placeholder="Separate tags with a comma"
-          onBlur={this.handleBlur}
+          onBlur={this.submitTags}
+          onKeyDown={this.handleKeyDown}
           onChange={this.handleChange}
           value={this.state.addingValue} />
       );
@@ -46,7 +47,7 @@ export default class Tags extends Component<void, Props, State> {
   }
 
   @autobind
-  handleBlur() {
+  submitTags() {
     const tags = _.compact(this.state.addingValue.trim().split(',').map(s => s.trim()));
     const nTags = [...this.tags, ...tags];
 
@@ -54,6 +55,18 @@ export default class Tags extends Component<void, Props, State> {
       isAdding: false,
       addingValue: '',
     }, () => this.updateTags(nTags));
+  }
+
+  @autobind
+  handleKeyDown(event: Object) {
+    const {key} = event;
+    if (key === 'Enter') {
+      this.submitTags();
+    } else if (key === 'Escape') {
+      this.setState({
+        isAdding: false,
+      });
+    }
   }
 
   @autobind
