@@ -1,6 +1,7 @@
 
 module.exports = function(gulp, $) {
   const src = [
+    'src/css/fonts.css',
     'node_modules/evil-icons/assets/evil-icons.css',
     'src/css/reset.css',
     'src/css/inputs.css',

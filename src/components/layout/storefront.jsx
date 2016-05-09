@@ -22,9 +22,7 @@ const StoreFront = (props: Props) => {
       <div styleName="content-container">
           {props.children}
       </div>
-      <div styleName="footer">
-        <Footer />
-      </div>
+      <Footer />
       <div styleName="mobile-sidebar">
         <Sidebar path={props.location.pathname} />
       </div>
