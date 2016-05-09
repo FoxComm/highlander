@@ -18,9 +18,12 @@ const ProductsList = (props: ProductsListParams):HTMLElement => {
     : <div styleName="not-found">No products found.</div>;
 
   return (
-    <div styleName="catalog">
+    <section styleName="catalog">
+      <header>
+        <h1></h1>
+      </header>
       {items}
-    </div>
+    </section>
   );
 };
 

@@ -1,4 +1,4 @@
-
+@import "variables";
 @import "media-queries";
 
 .catalog {
@@ -6,6 +6,8 @@
   flex-direction: row;
   flex-wrap: wrap;
   margin: 60px 0;
+  padding-left: var(--grid-margin);
+  padding-right: var(--grid-margin);
 }
 
 .not-found {
@@ -25,5 +27,12 @@
   .catalog {
     justify-content: space-between;
     margin: 20px 0 80px;
+  }
+}
+
+@media (--large-viewport-up) {
+  .catalog {
+    lost-column: 7/11;
+    lost-offset: -2/11;
   }
 }
