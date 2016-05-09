@@ -62,6 +62,10 @@ export default class Tags extends Component<void, Props, State> {
     const {key} = event;
     if (key === 'Enter') {
       this.submitTags();
+    } else if (key === 'Escape') {
+      this.setState({
+        isAdding: false,
+      });
     }
   }
 
