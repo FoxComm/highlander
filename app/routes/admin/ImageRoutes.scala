@@ -1,19 +1,24 @@
 package routes.admin
 
+import java.io.File
+
 import scala.concurrent.ExecutionContext
-import akka.http.scaladsl.server.Directives._
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import payloads._
 import models.StoreAdmin
 import services.image.ImageManager
 import slick.driver.PostgresDriver.api._
-import utils.db._
 import utils.http.Http._
 import utils.http.CustomDirectives._
 
+import akka.http.scaladsl.server.Directives._
+import akka.stream.scaladsl._
+
+import akka.stream.ActorMaterializer
+
 object ImageRoutes {
-  def routes(implicit ec: ExecutionContext, db: Database, admin: StoreAdmin) = {
-    activityContext(admin) { implicit ac ⇒  
+  def routes(implicit ec: ExecutionContext, db: Database, am: ActorMaterializer, admin: StoreAdmin) = {
+    activityContext(admin) { implicit ac ⇒
       pathPrefix("albums") {
         pathPrefix(Segment) { context ⇒
           (post & pathEnd & entity(as[AlbumPayload])) { payload ⇒
@@ -30,6 +35,18 @@ object ImageRoutes {
             (patch & pathEnd & entity(as[AlbumPayload])) { payload ⇒
               goodOrFailures {
                 ImageManager.updateAlbum(albumId, payload, context)
+              }
+            } ~
+            pathPrefix("images") {
+              (post & pathEnd) {
+                extractRequest { request ⇒
+                  val file = File.createTempFile("debug",".jpg")
+                  val futureDone = request.entity.dataBytes.runWith(FileIO.toFile(file))
+
+                  onComplete(futureDone) { result =>
+                    complete(s"path:${file.getAbsolutePath}, size:${result.get}")
+                  }
+                }
               }
             }
           } 
