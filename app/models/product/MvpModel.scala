@@ -18,14 +18,14 @@ import utils.Money.Currency
 import utils.db._
 import utils.db.DbResultT._
 
-object SimpleContext { 
+object SimpleContext {
   val id = 1
   val ruId = 2
   val default = "default"
   val ru = "ru"
 
-  def create(id: Int = 0, name: String = "default", lang: String = "en", modality: String = "desktop"): 
-  ObjectContext = 
+  def create(id: Int = 0, name: String = "default", lang: String = "en", modality: String = "desktop"):
+  ObjectContext =
     ObjectContext(
       id = id,
       name = name,
@@ -54,11 +54,11 @@ case class SimpleProduct(title: String, description: String, image: String,
     }"""))
 
     def create : ObjectForm = ObjectForm(kind = Product.kind, attributes = form)
-    def update(oldForm: ObjectForm) : ObjectForm = 
+    def update(oldForm: ObjectForm): ObjectForm =
       oldForm.copy(attributes = oldForm.attributes merge form)
 }
 
-case class SimpleProductShadow(p: SimpleProduct) { 
+case class SimpleProductShadow(p: SimpleProduct) {
 
     val shadow = ObjectUtils.newShadow(parse(
       """
@@ -70,44 +70,44 @@ case class SimpleProductShadow(p: SimpleProduct) {
           "skus" : {"type": "skus", "ref": "skus"},
           "activeFrom" : {"type": "date", "ref": "activeFrom"},
           "tags" : {"type": "tags", "ref": "tags"}
-        }"""), 
+        }"""),
       p.keyMap)
 
-    def create : ObjectShadow = 
+    def create : ObjectShadow =
       ObjectShadow(attributes = shadow)
 }
 
 case class SimpleSku(code: String, title: String, image: String,
-  price: Int, currency: Currency, active: Boolean = false, 
+  price: Int, currency: Currency, active: Boolean = false,
   tags: Seq[String] = Seq.empty) {
 
     val activeFrom = if(active) s""""${Instant.now}"""" else "null";
     val ts: String = compact(render(JArray(tags.map(t ⇒ JString(t)).toList)))
 
     val (keyMap, form) =  ObjectUtils.createForm(parse(
-      s""" 
+      s"""
       {
         "title" : "$title",
         "images" : ["$image"],
         "retailPrice" : {
           "value" : ${price + 500},
-          "currency" : "${currency.getCode}" 
+          "currency" : "${currency.getCode}"
         },
         "salePrice" : {
           "value" : $price,
-          "currency" : "${currency.getCode}" 
+          "currency" : "${currency.getCode}"
         },
         "activeFrom" : $activeFrom,
         "tags" : $ts
       } """))
 
-    def create : ObjectForm = 
-      ObjectForm(kind = Sku.kind, attributes = form) 
-    def update(oldForm: ObjectForm) : ObjectForm = 
+    def create : ObjectForm =
+      ObjectForm(kind = Sku.kind, attributes = form)
+    def update(oldForm: ObjectForm) : ObjectForm =
       oldForm.copy(attributes = oldForm.attributes merge form)
 }
 
-case class SimpleSkuShadow(s: SimpleSku) { 
+case class SimpleSkuShadow(s: SimpleSku) {
 
     val shadow = ObjectUtils.newShadow(parse(
       """
@@ -118,34 +118,34 @@ case class SimpleSkuShadow(s: SimpleSku) {
           "salePrice" : {"type": "price", "ref": "salePrice"},
           "activeFrom" : {"type": "date", "ref": "activeFrom"},
           "tags" : {"type": "tags", "ref": "tags"}
-        }"""), 
-      s.keyMap) 
+        }"""),
+      s.keyMap)
 
-    def create : ObjectShadow = 
+    def create : ObjectShadow =
       ObjectShadow(attributes = shadow)
 }
 
-case class SimpleProductData(productId: Int = 0, skuId: Int = 0, title: String, 
-  description: String, image: String = SimpleProductDefaults.imageUrl, code: String, 
-  price: Int, currency: Currency = Currency.USD, active: Boolean = false, 
+case class SimpleProductData(productId: Int = 0, skuId: Int = 0, title: String,
+  description: String, image: String = SimpleProductDefaults.imageUrl, code: String,
+  price: Int, currency: Currency = Currency.USD, active: Boolean = false,
   tags: Seq[String] = Seq.empty)
 
-case class SimpleProductTuple(product: Product, sku: Sku, 
-  productForm: ObjectForm, skuForm: ObjectForm, productShadow: ObjectShadow, 
+case class SimpleProductTuple(product: Product, sku: Sku,
+  productForm: ObjectForm, skuForm: ObjectForm, productShadow: ObjectShadow,
   skuShadow: ObjectShadow)
 
-object Mvp { 
-  def insertProductNewContext(oldContextId: Int, contextId: Int, p: SimpleProductData)(implicit db: Database): 
+object Mvp {
+  def insertProductNewContext(oldContextId: Int, contextId: Int, p: SimpleProductData)(implicit db: Database):
   DbResultT[SimpleProductData] = for {
     simpleProduct   ← * <~ SimpleProduct(p.title, p.description, p.image, p.code, p.active, p.tags)
     //find product form other context, get old form and merge with new
     product       ← * <~ Products.filter(_.contextId === oldContextId).filter(_.id === p.productId).one.
-        mustFindOr(ProductNotFoundForContext(p.productId, oldContextId)) 
+        mustFindOr(ProductNotFoundForContext(p.productId, oldContextId))
     oldForm         ← * <~ ObjectForms.mustFindById404(product.formId)
     productForm     ← * <~ ObjectForms.update(oldForm, simpleProduct.update(oldForm))
 
     //find sku form for the product and update it with new sku
-    link ← * <~ ObjectLinks.filter(_.leftId === product.shadowId).one.
+    link ← * <~ ObjectLinks.findByLeftAndType(product.shadowId, ObjectLink.ProductSku).one.
       mustFindOr(ObjectLeftLinkCannotBeFound(product.shadowId))
     sku ← * <~ Skus.filter(_.contextId === oldContextId).
       filter(_.shadowId === link.rightId).one.
@@ -169,8 +169,8 @@ object Mvp {
       simpleProduct, simpleSku, p)
   } yield r
 
-  def insertProductIntoContext(contextId: Int, productForm: ObjectForm, 
-    skuForm: ObjectForm, simpleProduct: SimpleProduct, simpleSku: SimpleSku, 
+  def insertProductIntoContext(contextId: Int, productForm: ObjectForm,
+    skuForm: ObjectForm, simpleProduct: SimpleProduct, simpleSku: SimpleSku,
     p: SimpleProductData): DbResultT[SimpleProductData] = for {
 
     simpleShadow    ← * <~ SimpleProductShadow(simpleProduct)
@@ -181,7 +181,7 @@ object Mvp {
       ObjectCommit(formId = productForm.id, shadowId = productShadow.id))
 
     product   ← * <~ Products.create(
-      Product(contextId = contextId, formId = productForm.id, 
+      Product(contextId = contextId, formId = productForm.id,
         shadowId = productShadow.id, commitId = productCommit.id))
 
     simpleSkuShadow ← * <~ SimpleSkuShadow(simpleSku)
@@ -189,13 +189,13 @@ object Mvp {
         copy(formId = skuForm.id))
 
     link            ← * <~ ObjectLinks.create(ObjectLink(
-      leftId = productShadow.id, rightId = skuShadow.id))
+      leftId = productShadow.id, rightId = skuShadow.id, linkType = ObjectLink.ProductSku))
 
     skuCommit       ← * <~ ObjectCommits.create(
       ObjectCommit(formId = skuForm.id, shadowId = skuShadow.id))
 
-    sku   ← * <~ Skus.create(Sku(contextId = contextId, code = p.code, 
-      formId = skuForm.id, shadowId = skuShadow.id, commitId = 
+    sku   ← * <~ Skus.create(Sku(contextId = contextId, code = p.code,
+      formId = skuForm.id, shadowId = skuShadow.id, commitId =
           skuCommit.id))
 
   } yield p.copy(productId = product.id, skuId = sku.id)
@@ -240,8 +240,8 @@ object Mvp {
     }
   }
 
-  def priceAsInt(f: ObjectForm, s: ObjectShadow) : Int = 
-    price(f, s).getOrElse((0, Currency.USD))._1
+  def priceAsInt(f: ObjectForm, s: ObjectShadow): Int =
+    price(f, s).map { case (value, _) ⇒ value }.getOrElse(0)
 
   def name(f: ObjectForm, s: ObjectShadow) : Option[String] = {
     ObjectUtils.get("title", f, s) match {
@@ -252,7 +252,7 @@ object Mvp {
 
   def firstImage(f: ObjectForm, s: ObjectShadow) : Option[String] = {
     ObjectUtils.get("images", f, s) match {
-      case JArray(images) ⇒ images.headOption.flatMap { 
+      case JArray(images) ⇒ images.headOption.flatMap {
         case JString(image) ⇒ image.some
         case _ ⇒ None
       }

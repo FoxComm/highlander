@@ -40,8 +40,7 @@ object ObjectManager {
 
   def getContextByName(name: String)
     (implicit ec: EC, db: DB): Result[ObjectContextResponse.Root] = (for {
-    context ← * <~ ObjectContexts.filterByName(name).one.
-      mustFindOr(ObjectContextNotFound(name))
+    context ← * <~ mustFindByName404(name)
   } yield ObjectContextResponse.build(context)).run()
 
   def createContext(payload: CreateObjectContext) 
@@ -52,9 +51,13 @@ object ObjectManager {
 
   def updateContextByName(name: String, payload: UpdateObjectContext) 
     (implicit ec: EC, db: DB): Result[ObjectContextResponse.Root] = (for {
+    context ← * <~ mustFindByName404(name)
+    update  ← * <~ ObjectContexts.update(context,
+      context.copy(name = payload.name, attributes = payload.attributes))
+  } yield ObjectContextResponse.build(update)).runTxn()
+
+  def mustFindByName404(name: String)(implicit ec: EC): DbResultT[ObjectContext] = for {
     context ← * <~ ObjectContexts.filterByName(name).one.
       mustFindOr(ObjectContextNotFound(name))
-    context  ← * <~ ObjectContexts.update(context, 
-      context.copy(name = payload.name, attributes = payload.attributes))
-  } yield ObjectContextResponse.build(context)).runTxn()
+  } yield context
 }

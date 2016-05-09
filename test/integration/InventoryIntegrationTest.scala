@@ -43,7 +43,7 @@ class InventoryIntegrationTest extends IntegrationTestBase with HttpSupport with
     "errors on wrong SKU code" in {
       val response = GET("v1/inventory/skus/NOPE/1")
       response.status must ===(StatusCodes.NotFound)
-      response.error must ===(SkuNotFoundForContext("NOPE", "default").description)
+      response.error must ===(SkuNotFoundForContext("NOPE", SimpleContext.id).description)
     }
 
     "errors on wrong warehouse id" in {
@@ -72,7 +72,7 @@ class InventoryIntegrationTest extends IntegrationTestBase with HttpSupport with
     "errors on wrong SKU code" in {
       val response = GET("v1/inventory/skus/NOPE/summary")
       response.status must ===(StatusCodes.NotFound)
-      response.error must ===(SkuNotFoundForContext("NOPE", "default").description)
+      response.error must ===(SkuNotFoundForContext("NOPE", SimpleContext.id).description)
     }
   }
 
@@ -86,7 +86,7 @@ class InventoryIntegrationTest extends IntegrationTestBase with HttpSupport with
       warehouse1 ← * <~ Warehouses.create(Warehouse(name = "first"))
       summaries  ← * <~ generateInventory(sku.id, warehouse1.id)
       (sellable, backorder, preorder, nonsellable) = summaries
-    } yield (productContext, product, sku, skuForm, skuShadow, warehouse1, 
+    } yield (productContext, product, sku, skuForm, skuShadow, warehouse1,
       sellable, backorder, preorder, nonsellable)).run().futureValue.rightVal
   }
 

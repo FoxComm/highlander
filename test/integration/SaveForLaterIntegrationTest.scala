@@ -24,7 +24,7 @@ class SaveForLaterIntegrationTest extends IntegrationTestBase with HttpSupport w
       val emptyResponse = GET(s"v1/save-for-later/${customer.id}")
       emptyResponse.status must === (StatusCodes.OK)
       emptyResponse.as[SavedForLater].result mustBe empty
-      
+
 
       SaveForLaters.create(SaveForLater(customerId = customer.id, skuId = product.skuId)).run().futureValue.rightVal
       val notEmptyResponse = GET(s"v1/save-for-later/${customer.id}")
@@ -72,7 +72,7 @@ class SaveForLaterIntegrationTest extends IntegrationTestBase with HttpSupport w
     "404 if sku is not found" in new Fixture {
       val response = POST(s"v1/save-for-later/${customer.id}/NOPE")
       response.status must === (StatusCodes.NotFound)
-      response.error must === (SkuNotFoundForContext("NOPE", "default").description)
+      response.error must === (SkuNotFoundForContext("NOPE", SimpleContext.id).description)
     }
   }
 

@@ -5,6 +5,8 @@ import akka.http.scaladsl.server.Directives._
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 
 import models.StoreAdmin
+import payloads._
+import services.image.ImageManager
 import services.inventory.SkuManager
 import slick.driver.PostgresDriver.api._
 import utils.http.Http._
@@ -60,7 +62,19 @@ object SkuRoutes {
                 SkuManager.getIlluminatedSku(code, context)
               }
             }
-          } 
+          } ~
+          pathPrefix(Segment / Segment / "albums") { (context, code) ⇒
+            (get & pathEnd) {
+              goodOrFailures {
+                ImageManager.getAlbumsForSku(code, context)
+              }
+            } ~
+            (post & pathEnd & entity(as[AlbumPayload])) { payload ⇒
+              goodOrFailures {
+                ImageManager.createAlbumForSku(admin, code, payload, context)
+              }
+            }
+          }
         }
       }
   }

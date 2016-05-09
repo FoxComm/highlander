@@ -15,7 +15,7 @@ import utils.aliases._
 import utils.db.DbResultT._
 import utils.db._
 
-object ObjectUtils { 
+object ObjectUtils {
 
   def get(attr: String, form: ObjectForm, shadow: ObjectShadow) : JValue = {
     IlluminateAlgorithm.get(attr, form.attributes, shadow.attributes)
@@ -27,18 +27,18 @@ object ObjectUtils {
     md.digest(compact(render(content)).getBytes).slice(0, KEY_LENGTH).map("%02x".format(_)).mkString
   }
 
-  def key(content: String) : String = key(JString(content)) 
+  def key(content: String) : String = key(JString(content))
 
   def attribute(content: JValue) : JField = {
     (key(content), content)
   }
 
-  def attributes(values: Seq[JValue]) : JValue = 
+  def attributes(values: Seq[JValue]) : JValue =
     JObject(values.map(attribute).toList)
 
   type KeyMap = Map[String, String]
   def createForm(form: JValue) : (KeyMap, JValue) = {
-    form match { 
+    form match {
       case JObject(o) ⇒
         val m = o.obj.map {
           case (attr, value) ⇒
@@ -48,7 +48,8 @@ object ObjectUtils {
         val keyMap = m.map(_._1).reduce(_++_)
         val newForm = JObject(m.map(_._2).toList)
         (keyMap, newForm)
-      case _ ⇒  (Map(), JNothing)
+      case _ ⇒
+        (Map(), JNothing)
     }
   }
 
@@ -57,8 +58,8 @@ object ObjectUtils {
     (keyMap, oldForm merge newForm)
   }
 
-  def newShadow(oldShadow: JValue, keyMap: KeyMap) : JValue = 
-    oldShadow match { 
+  def newShadow(oldShadow: JValue, keyMap: KeyMap) : JValue =
+    oldShadow match {
       case JObject(o) ⇒
         o.obj.map {
           case (key, value) ⇒
@@ -97,7 +98,7 @@ object ObjectUtils {
     }
   }
 
-  def bakedToFormShadow(baked: JValue) : (JValue, JValue) = 
+  def bakedToFormShadow(baked: JValue) : (JValue, JValue) =
     baked match {
       case JObject(b) ⇒
         val formShadowPairs = b.obj.map {
@@ -113,30 +114,30 @@ object ObjectUtils {
   case class InsertResult(form: ObjectForm, shadow: ObjectShadow, commit: ObjectCommit)
 
   def insert(formProto: ObjectForm, shadowProto: ObjectShadow)(implicit ec: EC):
-  DbResultT[InsertResult] ={  
+  DbResultT[InsertResult] ={
     val n = ObjectUtils.newFormAndShadow(formProto.attributes, shadowProto.attributes)
 
     for {
       //Make sure form is correct and shadow links are correct
       form     ← * <~ ObjectForms.create(formProto.copy(attributes=n.form))
-      shadow   ← * <~ ObjectShadows.create(shadowProto.copy(formId = form.id, 
+      shadow   ← * <~ ObjectShadows.create(shadowProto.copy(formId = form.id,
         attributes = n.shadow))
-      commit   ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, 
+      commit   ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id,
         shadowId = shadow.id))
     } yield InsertResult(form, shadow, commit)
   }
 
   case class UpdateResult(form: ObjectForm, shadow: ObjectShadow, updated: Boolean)
 
-  def update(formId: Int, shadowId: Int, formAttributes: JValue, shadowAttributes: JValue, 
-    force: Boolean = false)(implicit db: DB, ec: EC): 
-  DbResultT[UpdateResult] = {  
+  def update(formId: Int, shadowId: Int, formAttributes: JValue, shadowAttributes: JValue,
+    force: Boolean = false)(implicit db: DB, ec: EC):
+  DbResultT[UpdateResult] = {
     for {
       oldForm     ← * <~ ObjectForms.mustFindById404(formId)
       oldShadow   ← * <~ ObjectShadows.mustFindById404(shadowId)
-      newAttributes ← * <~ ObjectUtils.updateFormAndShadow(oldForm.attributes, 
+      newAttributes ← * <~ ObjectUtils.updateFormAndShadow(oldForm.attributes,
         formAttributes, shadowAttributes)
-      result ← * <~ updateIfDifferent(oldForm, oldShadow, newAttributes.form, 
+      result ← * <~ updateIfDifferent(oldForm, oldShadow, newAttributes.form,
         newAttributes.shadow, force)
     } yield result
   }
@@ -144,35 +145,37 @@ object ObjectUtils {
   def commit(u: UpdateResult)(implicit ec: EC): DbResultT[Option[ObjectCommit]] = commit(u.form, u.shadow, u.updated)
 
   def commit(form: ObjectForm, shadow: ObjectShadow, doIt: Boolean)(implicit ec: EC): DbResultT[Option[ObjectCommit]] = {
-    if(doIt) 
-      for { 
-        commit   ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, 
+    if (doIt)
+      for {
+        commit   ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id,
           shadowId = shadow.id))
       } yield commit.some
     else DbResultT.pure(None)
   }
 
-  def updateLink(oldLeftId: Int, leftId: Int, oldRightId: Int, rightId: Int)(implicit ec: EC): DbResultT[Unit] =
+  def updateLink(oldLeftId: Int, leftId: Int, oldRightId: Int, rightId: Int, linkType: ObjectLink.LinkType)
+    (implicit ec: EC): DbResultT[Unit] =
     //Create a new link a product changes.
-    if(oldLeftId != leftId) 
+    if(oldLeftId != leftId)
       for {
-      _ ← * <~ ObjectLinks.create(ObjectLink(leftId = leftId, rightId = rightId)) 
-    } yield Unit 
+      _ ← * <~ ObjectLinks.create(ObjectLink(leftId = leftId, rightId = rightId, linkType = linkType))
+    } yield Unit
     //If the product didn't change but the sku changed, update the link
-    //This is because we never want two skus of the same type pointing to 
+    //This is because we never want two skus of the same type pointing to
     //the same sku shadow.
     else if(oldRightId != rightId) for {
       link ← * <~ ObjectLinks.findByLeftRight(leftId, oldRightId).one.mustFindOr(
         ObjectLinkCannotBeFound(leftId, oldRightId))
-      _ ← * <~ ObjectLinks.update(link, link.copy(leftId = leftId, rightId = rightId)) 
-    } yield Unit 
+      _ ← * <~ ObjectLinks.update(link, link.copy(leftId = leftId, rightId = rightId))
+    } yield Unit
     //otherwise nothing changed so do nothing.
   else DbResultT.pure(Unit)
 
   case class Child(form: ObjectForm, shadow: ObjectShadow)
 
-  def getChildren(leftId: Int)(implicit ec: EC): DbResultT[Seq[Child]] = for {
-    links   ← * <~ ObjectLinks.filter(_.leftId === leftId).result
+  def getChildren(leftId: Int, linkType: ObjectLink.LinkType)
+    (implicit ec: EC): DbResultT[Seq[Child]] = for {
+    links   ← * <~ ObjectLinks.findByLeftAndType(leftId, linkType).result
     shadowIds = links.map(_.rightId)
     shadows ← * <~ ObjectShadows.filter(_.id.inSet(shadowIds)).result
     formIds = shadows.map(_.formId)
@@ -180,23 +183,15 @@ object ObjectUtils {
     pairs   ← * <~ forms.sortBy(_.id).zip(shadows.sortBy(_.formId))
     result  ← * <~ pairs.map { case (form, shadow) ⇒ Child(form, shadow) }
   } yield result
-  
-  def getChild(leftId: Int)
-    (implicit ec: EC, db: DB): DbResultT[Child] = for {
-      link   ← * <~ ObjectLinks.filter(_.leftId === leftId).one.mustFindOr(
-        ObjectLeftLinkCannotBeFound(leftId))
-      shadow ← * <~ ObjectShadows.mustFindById404(link.rightId)
-      form   ← * <~ ObjectForms.mustFindById404(shadow.formId)
-  } yield Child(form, shadow)
 
   private def updateIfDifferent(oldForm: ObjectForm, oldShadow: ObjectShadow,
     newFormAttributes: JValue, newShadowAttributes: JValue, force: Boolean = false)
   (implicit ec: EC): DbResultT[UpdateResult] = {
     if(oldShadow.attributes != newShadowAttributes || force)
       for {
-        form   ← * <~ ObjectForms.update(oldForm, oldForm.copy(attributes = 
+        form   ← * <~ ObjectForms.update(oldForm, oldForm.copy(attributes =
           newFormAttributes, updatedAt = Instant.now))
-        shadow ← * <~ ObjectShadows.create(ObjectShadow(formId = form.id, 
+        shadow ← * <~ ObjectShadows.create(ObjectShadow(formId = form.id,
           attributes = newShadowAttributes))
         _    ← * <~ validateShadow(form, shadow)
       } yield UpdateResult(form, shadow, updated = true)
@@ -211,4 +206,3 @@ object ObjectUtils {
     case Nil          ⇒ DbResultT.pure(Unit)
   }
 }
-

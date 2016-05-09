@@ -90,6 +90,7 @@ class Service(
         routes.admin.SkuRoutes.routes ~
         routes.admin.DiscountRoutes.routes ~
         routes.admin.PromotionRoutes.routes ~
+        routes.admin.ImageRoutes.routes ~
         routes.admin.CouponRoutes.routes
       }
     }

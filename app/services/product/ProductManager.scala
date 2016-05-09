@@ -3,15 +3,19 @@ package services.product
 import failures.ObjectFailures._
 import failures.ProductFailures._
 import models.StoreAdmin
+import models.image._
 import models.inventory._
 import models.objects._
 import models.product._
-import payloads.{CreateFullProduct, CreateFullSkuForm, CreateSkuShadow, UpdateFullProduct, UpdateFullSkuForm,
-UpdateFullSkuShadow}
+import payloads.{AlbumPayload, CreateFullProduct, CreateFullSkuForm, CreateSkuShadow, UpdateFullProduct,
+UpdateFullSkuForm, UpdateFullSkuShadow}
+import responses.ImageResponses.AlbumResponse
 import responses.ObjectResponses.ObjectContextResponse
 import responses.ProductResponses._
 import services.{LogActivity, Result}
+import services.image.ImageManager
 import services.inventory.SkuManager
+import services.objects.ObjectManager
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db.DbResultT._
@@ -49,7 +53,7 @@ object ProductManager {
       mustFindOr(ObjectContextNotFound(contextName))
     product       ← * <~ Products.filter(_.contextId === context.id).
       filter(_.formId === productId).one.
-        mustFindOr(ProductNotFoundForContext(productId, context.id)) 
+        mustFindOr(ProductNotFoundForContext(productId, context.id))
     form       ← * <~ ObjectForms.mustFindById404(product.formId)
     shadow       ← * <~ ObjectShadows.mustFindById404(product.shadowId)
   } yield IlluminatedProductResponse.build(
@@ -61,7 +65,7 @@ object ProductManager {
       mustFindOr(ObjectContextNotFound(contextName))
     product       ← * <~ Products.filter(_.contextId === context.id).
       filter(_.formId === productId).one.mustFindOr(
-        ProductNotFoundForContext(productId, context.id)) 
+        ProductNotFoundForContext(productId, context.id))
     productForm    ← * <~ ObjectForms.mustFindById404(product.formId)
     productShadow  ← * <~ ObjectShadows.mustFindById404(product.shadowId)
     skuData       ← * <~ getSkuData(productShadow.id)
@@ -72,13 +76,13 @@ object ProductManager {
 
     context       ← * <~ ObjectContexts.filterByName(contextName).one.
       mustFindOr(ObjectContextNotFound(contextName))
-    productForm ← * <~ ObjectForm(kind = Product.kind, attributes = 
+    productForm ← * <~ ObjectForm(kind = Product.kind, attributes =
       payload.form.product.attributes)
     productShadow ← * <~ ObjectShadow(attributes = payload.shadow.product.attributes)
     ins  ← * <~ ObjectUtils.insert(productForm, productShadow)
-    product     ← * <~ Products.create(Product(contextId = context.id, 
+    product     ← * <~ Products.create(Product(contextId = context.id,
       formId = ins.form.id, shadowId = ins.shadow.id, commitId = ins.commit.id))
-    skuData ← * <~ createSkuData(context, ins.shadow.id, 
+    skuData ← * <~ createSkuData(context, ins.shadow.id,
       payload.form.skus, payload.shadow.skus)
     productResponse      = FullProductResponse.build(product, ins.form, ins.shadow, skuData)
     contextResp   = ObjectContextResponse.build(context)
@@ -92,11 +96,11 @@ object ProductManager {
       mustFindOr(ObjectContextNotFound(contextName))
     product       ← * <~ Products.filter(_.contextId === context.id).
       filter(_.formId === productId).one.mustFindOr(
-        ProductNotFoundForContext(productId, context.id)) 
-    updatedProduct ← * <~ ObjectUtils.update(product.formId, 
-      product.shadowId, payload.form.product.attributes, 
+        ProductNotFoundForContext(productId, context.id))
+    updatedProduct ← * <~ ObjectUtils.update(product.formId,
+      product.shadowId, payload.form.product.attributes,
       payload.shadow.product.attributes)
-    updatedSkuData ← * <~ updateSkuData(context, product.shadowId, 
+    updatedSkuData ← * <~ updateSkuData(context, product.shadowId,
       updatedProduct.shadow.id, payload.form.skus, payload.shadow.skus)
     skusChanged ← * <~ anyChanged(updatedSkuData.map(_._4))
     skuData  ← * <~ updatedSkuData.map( t ⇒ (t._1, t._2, t._3))
@@ -107,6 +111,13 @@ object ProductManager {
     contextResp = ObjectContextResponse.build(context)
     _ ← * <~ LogActivity.fullProductUpdated(Some(admin), productResponse, contextResp)
   } yield productResponse).runTxn()
+
+  def mustFindProductByContextAndId404(contextId: Int, productId: Int)
+    (implicit ec: EC, db: DB): DbResultT[Product] = for {
+    product ← * <~ Products.filter(_.contextId === contextId).
+      filter(_.formId === productId).one.mustFindOr(
+        ProductNotFoundForContext(productId, contextId))
+  } yield product
 
   def getIlluminatedFullProductByContextName(productId: Int, contextName: String)
     (implicit ec: EC, db: DB): Result[IlluminatedFullProductResponse.Root] = (for {
@@ -125,15 +136,15 @@ object ProductManager {
 
     product       ← * <~ Products.filter(_.contextId === context.id).
       filter(_.formId === productId).one.mustFindOr(
-        ProductNotFoundForContext(productId, context.id)) 
-      
+        ProductNotFoundForContext(productId, context.id))
+
     productForm   ← * <~ ObjectForms.mustFindById404(product.formId)
     productShadow  ← * <~ ObjectShadows.mustFindById404(product.shadowId)
     skuData ← * <~ getSkuData(productShadow.id)
 
   } yield IlluminatedFullProductResponse.build(
     IlluminatedProduct.illuminate(context, product, productForm, productShadow),
-    skuData.map { 
+    skuData.map {
       case (s, f, sh) ⇒ IlluminatedSku.illuminate(context, s, f, sh)
     })
 
@@ -144,17 +155,17 @@ object ProductManager {
       mustFindOr(ObjectContextNotFound(contextName))
     product       ← * <~ Products.filter(_.contextId === context.id).
       filter(_.formId === productId).one.mustFindOr(
-        ProductNotFoundForContext(productId, context.id)) 
+        ProductNotFoundForContext(productId, context.id))
     commit       ← * <~ ObjectCommits.filter(_.id === commitId).
       filter(_.formId === productId).one.mustFindOr(
-        ProductNotFoundAtCommit(productId, commitId)) 
+        ProductNotFoundAtCommit(productId, commitId))
     productForm   ← * <~ ObjectForms.mustFindById404(commit.formId)
     productShadow  ← * <~ ObjectShadows.mustFindById404(commit.shadowId)
     skuData ← * <~ getSkuData(productShadow.id)
 
   } yield IlluminatedFullProductResponse.build(
     IlluminatedProduct.illuminate(context, product, productForm, productShadow),
-    skuData.map { 
+    skuData.map {
       case (s, f, sh) ⇒ IlluminatedSku.illuminate(context, s, f, sh)
     })).run()
 
@@ -164,13 +175,13 @@ object ProductManager {
     contexts   ← * <~ ObjectContexts.filter(_.id.inSet(contextIds)).sortBy(_.id).result
   } yield contexts.map(ObjectContextResponse.build _)).run()
 
-  private def anyChanged(changes: Seq[Boolean]) : Boolean = 
+  private def anyChanged(changes: Seq[Boolean]) : Boolean =
     changes.contains(true)
 
-  private def updateProductHead(product: Product, productShadow: ObjectShadow, 
+  private def updateProductHead(product: Product, productShadow: ObjectShadow,
     maybeCommit: Option[ObjectCommit])(implicit ec: EC): DbResultT[Product] =
       maybeCommit match {
-        case Some(commit) ⇒  for { 
+        case Some(commit) ⇒  for {
           product   ← * <~ Products.update(product, product.copy(
             shadowId = productShadow.id, commitId = commit.id))
         } yield product
@@ -178,13 +189,13 @@ object ProductManager {
       }
 
   private def validateSkuPayload(skuGroup : Seq[(CreateFullSkuForm, CreateSkuShadow)])(implicit ec: EC) : DbResultT[Unit] =
-    ObjectUtils.failIfErrors(skuGroup.flatMap { case (f, s) ⇒ 
+    ObjectUtils.failIfErrors(skuGroup.flatMap { case (f, s) ⇒
       if(f.code == s.code) Seq.empty
       else Seq(SkuShadowNotFoundInPayload(f.code))
     })
 
   private def validateSkuPayload2(skuGroup : Seq[(UpdateFullSkuForm, UpdateFullSkuShadow)])(implicit ec: EC) : DbResultT[Unit] =
-    ObjectUtils.failIfErrors(skuGroup.flatMap { case (f, s) ⇒ 
+    ObjectUtils.failIfErrors(skuGroup.flatMap { case (f, s) ⇒
       if(f.code == s.code) Seq.empty
       else Seq(SkuShadowNotFoundInPayload(f.code))
     })
@@ -192,28 +203,27 @@ object ProductManager {
   private def validateShadow(product: Product, form: ObjectForm, shadow: ObjectShadow)(implicit ec: EC) : DbResultT[Unit] =
     ObjectUtils.failIfErrors(ProductValidator.validate(product, form, shadow))
 
-  private def createSku(context: ObjectContext, productShadowId: Int, 
+  private def createSku(context: ObjectContext, productShadowId: Int,
     formPayload: CreateFullSkuForm, shadowPayload: CreateSkuShadow)(implicit ec: EC) = {
     require(formPayload.code == shadowPayload.code)
 
     for {
-      form    ← * <~ ObjectForms.create(ObjectForm(kind = Sku.kind, 
+      form    ← * <~ ObjectForms.create(ObjectForm(kind = Sku.kind,
         attributes = formPayload.attributes))
       shadow  ← * <~ ObjectShadows.create(
         ObjectShadow(formId = form.id, attributes = shadowPayload.attributes))
       _    ← * <~ SkuManager.validateShadow(form, shadow)
-      _    ← * <~ ObjectLinks.create(ObjectLink(leftId = productShadowId, 
-        rightId = shadow.id))
+      _    ← * <~ ObjectLinks.create(ObjectLink(leftId = productShadowId,
+        rightId = shadow.id, linkType = ObjectLink.ProductSku))
       commit  ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
-      sku ← * <~ Skus.create(Sku(contextId = context.id, code = formPayload.code, 
+      sku ← * <~ Skus.create(Sku(contextId = context.id, code = formPayload.code,
         formId = form.id, shadowId = shadow.id, commitId = commit.id))
     } yield (sku, form, shadow)
   }
-    
+
   private def getSkuData(productShadowId: Int)(implicit ec: EC):
     DbResultT[Seq[(Sku, ObjectForm, ObjectShadow)]] = for {
-
-    links     ← * <~ ObjectLinks.filter(_.leftId === productShadowId).result
+    links     ← * <~ ObjectLinks.findByLeftAndType(productShadowId, ObjectLink.ProductSku).result
     shadowIds ← * <~ links.map(_.rightId)
     shadows   ← * <~ ObjectShadows.filter(_.id.inSet(shadowIds)).sortBy(_.formId).result
     formIds   ← * <~ shadows.map(_.formId)
@@ -222,42 +232,42 @@ object ProductManager {
 
   } yield (skus.zip(forms.zip(shadows))).map{ case (a, b) ⇒ (a, b._1, b._2)}
 
-  private def createSkuData(context: ObjectContext, productShadowId: Int, 
+  private def createSkuData(context: ObjectContext, productShadowId: Int,
     formPayloads: Seq[CreateFullSkuForm], shadowPayloads: Seq[CreateSkuShadow])
   (implicit ec: EC) : DbResultT[Seq[(Sku, ObjectForm, ObjectShadow)]] = for {
 
     skuGroup    ← * <~ groupSkuFormsAndShadows(formPayloads, shadowPayloads)
-    _            ← * <~ validateSkuPayload(skuGroup) 
-    skuData ← * <~ DbResultT.sequence( 
+    _            ← * <~ validateSkuPayload(skuGroup)
+    skuData ← * <~ DbResultT.sequence(
       skuGroup map { case (f, sh) ⇒  createSku(context, productShadowId, f, sh)}
     )
   } yield skuData
 
-  private def updateSkuData(context: ObjectContext, oldProductShadowId: Int, productShadowId: Int, 
+  private def updateSkuData(context: ObjectContext, oldProductShadowId: Int, productShadowId: Int,
     formPayloads: Seq[UpdateFullSkuForm], shadowPayloads: Seq[UpdateFullSkuShadow])
   (implicit ec: EC, db: DB) : DbResultT[Seq[(Sku, ObjectForm, ObjectShadow, Boolean)]] = for {
 
     skuGroup    ← * <~ groupSkuFormsAndShadows2(formPayloads, shadowPayloads)
-    _            ← * <~ validateSkuPayload2(skuGroup) 
-    skuData ← * <~ DbResultT.sequence( 
-      skuGroup map { 
+    _            ← * <~ validateSkuPayload2(skuGroup)
+    skuData ← * <~ DbResultT.sequence(
+      skuGroup map {
         case (f, sh) ⇒  updateSku(context, oldProductShadowId, productShadowId, f, sh)
       }
     )
   } yield skuData
 
-  private def updateSku(context: ObjectContext, oldProductShadowId: Int, productShadowId: Int, 
+  private def updateSku(context: ObjectContext, oldProductShadowId: Int, productShadowId: Int,
     formPayload: UpdateFullSkuForm, shadowPayload: UpdateFullSkuShadow)
   (implicit ec: EC, db: DB): DbResultT[(Sku, ObjectForm, ObjectShadow, Boolean)] = {
     require(formPayload.code == shadowPayload.code)
     for {
       sku   ← * <~ Skus.filterByContextAndCode(context.id, formPayload.code).one.mustFindOr(
-        SkuNotFoundForContext(formPayload.code, context.name)) 
+        SkuNotFoundForContext(formPayload.code, context.id))
       updatedSku  ← * <~ ObjectUtils.update(
         sku.formId, sku.shadowId, formPayload.attributes, shadowPayload.attributes)
-      _ ← * <~ ObjectUtils.updateLink(oldProductShadowId, productShadowId, 
-        sku.shadowId, updatedSku.shadow.id)
-      commit ← * <~ ObjectUtils.commit(updatedSku.form, updatedSku.shadow, 
+      _ ← * <~ ObjectUtils.updateLink(oldProductShadowId, productShadowId,
+        sku.shadowId, updatedSku.shadow.id, ObjectLink.ProductSku)
+      commit ← * <~ ObjectUtils.commit(updatedSku.form, updatedSku.shadow,
         updatedSku.updated)
       sku  ← * <~ SkuManager.updateSkuHead(sku, updatedSku.shadow, commit)
     } yield (sku, updatedSku.form, updatedSku.shadow, updatedSku.updated)

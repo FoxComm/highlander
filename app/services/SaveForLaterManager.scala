@@ -5,6 +5,7 @@ import models.inventory.Skus
 import models.objects.ObjectContext
 import models.{SaveForLater, SaveForLaters}
 import responses.{SaveForLaterResponse, TheResponse}
+import services.inventory.SkuManager
 import utils.db._
 import utils.db.DbResultT._
 import utils.aliases._
@@ -26,11 +27,10 @@ object SaveForLaterManager {
   def saveForLater(customerId: Int, skuCode: String, context: ObjectContext)
     (implicit db: DB, ec: EC): Result[SavedForLater] = (for {
     customer ← * <~ Customers.mustFindById404(customerId)
-    sku ← * <~ Skus.filterByContextAndCode(context.id, skuCode).one
-      .mustFindOr(SkuNotFoundForContext(skuCode, context.name))
+    sku ← * <~ SkuManager.mustFindSkuByContextAndCode(context.id, skuCode)
     _   ← * <~ SaveForLaters.find(customerId = customer.id, skuId = sku.id).one
                  .mustNotFindOr(AlreadySavedForLater(customerId = customer.id, skuId = sku.id))
-    _   ← * <~ SaveForLaters.create(SaveForLater(customerId = customer.id, 
+    _   ← * <~ SaveForLaters.create(SaveForLater(customerId = customer.id,
                 skuId = sku.id))
     response ← * <~ findAllDbio(customer, context.id).toXor
   } yield response).runTxn()

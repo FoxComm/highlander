@@ -2,11 +2,11 @@ package failures
 
 object ProductFailures {
 
-  object SkuNotFound { 
+  object SkuNotFound {
     def apply(code: String) = NotFoundFailure404(s"Sku $code not found")
   }
 
-  object SkuWithShadowNotFound { 
+  object SkuWithShadowNotFound {
     def apply(shadowId: Int) = NotFoundFailure404(s"Sku with shadow id $shadowId not found")
   }
 
@@ -14,15 +14,15 @@ object ProductFailures {
     override def description = s"Product $id not with at commit $commit"
   }
 
-  object SkuShadowNotFoundInPayload { 
+  object SkuShadowNotFoundInPayload {
     def apply(code: String)  = NotFoundFailure404(s"Sku shadow with code $code not found in payload")
   }
 
-  object SkuNotFoundForContext { def apply(code: String, productContext: String) =
-      NotFoundFailure404(s"Sku $code with product context $productContext cannot be found")
+  object SkuNotFoundForContext { def apply(code: String, productContextId: Int) =
+      NotFoundFailure404(s"Sku $code with product context $productContextId cannot be found")
   }
 
-  object ProductNotFoundForContext { 
+  object ProductNotFoundForContext {
     def apply(productId: Int, productContextId: Int) =
       NotFoundFailure404(s"Product with id=$productId with product context $productContextId cannot be found")
   }
@@ -43,7 +43,7 @@ object ProductFailures {
     override def description = "Product shadow attributes are empty"
   }
 
-  object ProductFormNotFound { 
+  object ProductFormNotFound {
     def apply(id: Int) = NotFoundFailure404(s"Product Form with id $id cannot be found")
   }
 

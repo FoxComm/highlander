@@ -13,6 +13,7 @@ import payloads.{RmaGiftCardLineItemsPayload, RmaShippingCostLineItemsPayload, R
 import responses.RmaResponse
 import responses.RmaResponse.Root
 import services.Result
+import services.inventory.SkuManager
 import services.rmas.Helpers._
 import utils.aliases._
 import utils.db._
@@ -29,8 +30,7 @@ object RmaLineItemUpdater {
       rma       ← * <~ mustFindPendingRmaByRefNum(refNum)
       reason    ← * <~ RmaReasons.filter(_.id === payload.reasonId)
         .one.mustFindOr(NotFoundFailure400(RmaReason, payload.reasonId))
-      sku       ← * <~ Skus.filterByContextAndCode(context.id, payload.sku)
-        .one.mustFindOr(SkuNotFoundForContext(payload.sku, context.name))
+      sku       ← * <~ SkuManager.mustFindSkuByContextAndCode(context.id, payload.sku)
       skuShadow ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
       // Inserts
       origin    ← * <~ RmaLineItemSkus.create(RmaLineItemSku(rmaId = rma.id, skuId = sku.id, skuShadowId = skuShadow.id))
