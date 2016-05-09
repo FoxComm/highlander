@@ -40,7 +40,7 @@ bootstrap-prod-small:
 	ansible-playbook -v -i prod_small_vpn ansible/bootstrap_prod_small.yml
 
 lint:
-	ansible-lint ansible/*.yml
+	ansible-lint -x ANSIBLE0007 ansible/*.yml
 
 test: lint
 	$(GO) test -v ./
