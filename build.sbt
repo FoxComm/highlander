@@ -47,7 +47,7 @@ lazy val phoenixScala = (project in file(".")).
       val akkaV      = "2.4.4"
       val scalaTestV = "2.2.6"
       val json4sV    = "3.3.0"
-      val slickPgV   = "0.13.0"
+      val slickPgV   = "0.14.0"
 
       Seq(
         // Akka
@@ -56,7 +56,7 @@ lazy val phoenixScala = (project in file(".")).
         "com.typesafe.akka"          %% "akka-agent"             % akkaV,
         "com.typesafe.akka"          %% "akka-stream"            % akkaV,
         "com.typesafe.akka"          %% "akka-http-core"         % akkaV,
-        "de.heikoseeberger"          %% "akka-sse"               % "1.7.3",
+        "de.heikoseeberger"          %% "akka-sse"               % "1.7.4",
         // http
         "net.databinder.dispatch"    %% "dispatch-core"          % "0.11.3",
         "net.databinder.dispatch"    %% "dispatch-json4s-native" % "0.11.3",
@@ -70,16 +70,16 @@ lazy val phoenixScala = (project in file(".")).
         "com.typesafe.slick"         %% "slick-hikaricp"         % slickV,
         "com.github.tminglei"        %% "slick-pg"               % slickPgV,
         "com.github.tminglei"        %% "slick-pg_json4s"        % slickPgV,
-        "com.zaxxer"                 %  "HikariCP"               % "2.4.5"    % "provided",
+        "com.zaxxer"                 %  "HikariCP"               % "2.4.6"    % "provided",
         "org.postgresql"             %  "postgresql"             % "9.4.1208",
-        "org.flywaydb"               %  "flyway-core"            % "4.0",
+        "org.flywaydb"               %  "flyway-core"            % "4.0.1",
         "com.github.mauricio"        %% "postgresql-async"       % "0.2.19",
         // Elasticsearch
         //"com.sksamuel.elastic4s"     %% "elastic4s-core"         % "2.3.0",
         // Validations
         "com.wix"                    %% "accord-core"            % "0.5",
         // Auth
-        "org.bitbucket.b_c"          %  "jose4j"                 % "0.5.0",
+        "org.bitbucket.b_c"          %  "jose4j"                 % "0.5.1",
         "com.lambdaworks"            %  "scrypt"                 % "1.4.0",
         // Logging
         "ch.qos.logback"             %  "logback-classic"        % "1.1.7",
@@ -87,7 +87,7 @@ lazy val phoenixScala = (project in file(".")).
         "com.lihaoyi"                %% "sourcecode"             % "0.1.1",
         // Other
        ("org.spire-math"             %% "cats"                   % "0.3.0").excludeAll(noScalaCheckPlease),
-        "com.stripe"                 %  "stripe-java"            % "2.4.0",
+        "com.stripe"                 %  "stripe-java"            % "2.5.0",
         "org.slf4j"                  %  "slf4j-api"              % "1.7.21",
         "org.joda"                   %  "joda-money"             % "0.11",
         "com.pellucid"               %% "sealerate"              % "0.0.3",
