@@ -1,0 +1,74 @@
+@import "colors.css";
+
+:root {
+  --image-width: 483px;
+  --image-height: 242px;
+}
+.category {
+  position: relative;
+}
+
+.name {
+  color: var(--blackish);
+  font-weight: 300;
+  font-size: 15px;
+  text-align: center;
+}
+
+.image {
+  width: var(--image-width);
+  height: var(--image-height);
+  position: absolute;
+  bottom: 0;
+}
+
+.image:hover {
+  & img {
+    display: none;
+  }
+}
+
+.links {
+  width: var(--image-width);
+  height: var(--image-height);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--whitish);
+}
+
+.link {
+  color: #5BB0DE;
+  border-color: #5BB0DE;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 230px;
+  height: 80px;
+  border-width: 3px;
+  border-style: solid;
+  font-size: 23px;
+  text-decoration: none;
+  position: relative;
+}
+
+.link:before {
+  background-color: #5BB0DE;
+
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+}
+
+.link:hover:before {
+  opacity: 0.16;
+}
+
+.link:not(:last-child) {
+  margin-right: 30px;
+}

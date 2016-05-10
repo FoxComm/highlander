@@ -1,7 +1,3 @@
-@import "media-queries.css";
-@import "variables.css";
-@import "colors.css";
-
 .header {
   display: flex;
   align-items: center;

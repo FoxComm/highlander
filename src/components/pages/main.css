@@ -43,20 +43,8 @@
     justify-content: center;
   }
 
-  & .categories__link:not(:last-child) {
+  & article:not(:last-child) {
     lost-offset: 1/5;
-  }
-
-  & .categories__name {
-    color: var(--blackish);
-    font-weight: 300;
-    font-size: 15px;
-    text-align: center;
-  }
-
-  & .categories__image {
-    width: 483px;
-    height: 242px;
   }
 }
 
