@@ -14,6 +14,7 @@ import Delivery from './delivery';
 import Billing from './billing';
 import OrderSummary from './order-summary';
 import GiftCard from './gift-card';
+import CouponCode from './coupon-code';
 
 import type { Promise as PromiseType } from 'types/promise';
 
@@ -157,6 +158,7 @@ class Checkout extends Component {
           </div>
           <div styleName="right-forms">
             <OrderSummary />
+            <CouponCode />
             <GiftCard />
           </div>
         </div>
