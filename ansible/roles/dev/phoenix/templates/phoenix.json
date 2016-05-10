@@ -3,5 +3,10 @@
         "name": "phoenix",
         "tags": ["phoenix"], 
         "port": 9090
+    },
+    "check" : {
+        "name": "ping",
+        "script": "curl localhost:9090/v1/public/ping",
+        "interval": "30s"
     }
 }

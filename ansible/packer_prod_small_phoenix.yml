@@ -6,7 +6,7 @@
       - packer-prod-small-phoenix
   vars:
     user: ubuntu
-    phoenix_env: production
+    phoenix_env: staging
     db_host: db.service.consul
     db_user: phoenix
     db_name: phoenix_development

@@ -122,7 +122,7 @@ variable "es_image" {
 }
 
 variable "phoenix_image" { 
-    default = "prod-small-phoenix-1462779854"
+    default = "prod-small-phoenix-1462900739"
 }
 
 variable "green_image" { 
