@@ -4,6 +4,7 @@ import React, { Component } from 'react';
 import type { HTMLElement } from 'types';
 
 import Banner from '../banner/banner';
+import Category from '../main-category/main-category';
 import styles from './main.css';
 
 
@@ -17,8 +18,8 @@ class Main extends Component {
             header="Summer 2016"
             description="New collection is here"
             links={[
-              {to: '/all?shop=men', text: 'Shop Men'},
-              {to: '/all?shop=women', text: 'Shop Women'},
+              {to: '/all?type=men', text: 'Shop Men'},
+              {to: '/all?type=women', text: 'Shop Women'},
             ]}
           />
         </div>
@@ -29,24 +30,16 @@ class Main extends Component {
   get categories(): HTMLElement {
     return (
       <div styleName="categories">
-        <div styleName="wrap">
-          <article styleName="categories__link">
-            <h2 styleName="categories__name">
-              EYEGLASSES
-            </h2>
-            <div styleName="categories__image">
-              <img src="images/banners/eyeglasses.jpg" />
-            </div>
-          </article>
-          <article styleName="categories__link">
-            <h2 styleName="categories__name">
-              SUNGLASSES
-            </h2>
-            <div styleName="categories__image">
-              <img src="images/banners/sunglasses.jpg" />
-            </div>
-          </article>
-        </div>
+        <Category
+          name="EYEGLASSES"
+          category="eyeglasses"
+          image="images/banners/eyeglasses.jpg"
+        />
+        <Category
+          name="SUNGLASSES"
+          category="sunglasses"
+          image="images/banners/sunglasses.jpg"
+        />
       </div>
     );
   }

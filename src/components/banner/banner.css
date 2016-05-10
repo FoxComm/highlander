@@ -1,6 +1,6 @@
-@import "media-queries.css";
-@import "variables.css";
-@import "colors.css";
+.banner {
+  min-width: 360px;
+}
 
 .header {
   display: flex;
@@ -21,22 +21,9 @@
 }
 
 .links {
-  display: flex;
-  justify-content: center;
+  composes: links from 'ui/css/links.css';
 }
 
 .link {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 230px;
-  height: 80px;
-  border-width: 3px;
-  border-style: solid;
-  font-size: 23px;
-  text-decoration: none;
-}
-
-.link:not(:last-child) {
-  margin-right: 30px;
+  composes: link from 'ui/css/links.css';
 }
