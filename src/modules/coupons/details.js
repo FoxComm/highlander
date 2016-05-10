@@ -48,16 +48,6 @@ export function fetchCoupon(id: string, context: string = defaultContext) {
 
 export const createCoupon = _createCoupon.perform;
 export const updateCoupon = _updateCoupon.perform;
-export const generateCode = _generateCode.perform;
-
-export function generateCodes(prefix: string, length: number, quantity: number) {
-  return (dispatch, getState) => {
-    const id = _.get(getState(), 'coupons.details.coupon.id');
-    if (!id) return;
-
-    dispatch(_generateCodes.perform(id, prefix, length, quantity));
-  };
-}
 
 function updateCouponInState(state, response) {
   return {
@@ -67,6 +57,10 @@ function updateCouponInState(state, response) {
 }
 
 /* coupon code generation actions */
+
+export const couponsGenerationReset = createAction('COUPONS_GENERATION_RESET');
+export const couponsGenerationShowDialog = createAction('COUPONS_GENERATION_SHOW_DIALOG');
+export const couponsGenerationHideDialog = createAction('COUPONS_GENERATION_HIDE_DIALOG');
 
 const _generateCodes = createAsyncActions(
   'generateCouponCodes',
@@ -93,20 +87,33 @@ const _getCodes = createAsyncActions(
   }
 );
 
+export const generateCode = _generateCode.perform;
+
+export function generateCodes(prefix: string, length: number, quantity: number) {
+  return (dispatch, getState) => {
+    const id = _.get(getState(), 'coupons.details.coupon.id');
+    if (!id) return;
+
+    dispatch(_generateCodes.perform(id, prefix, length, quantity));
+  };
+}
+
 /* module state */
+
+const initialCodeGenerationState = {
+  bulk: void 0,
+  codesPrefix: '',
+  singleCode: '',
+  codesQuantity: 1,
+  codesLength: 1,
+  isDialogVisible: false,
+};
 
 const initialState = {
   coupon: null,
   codes: [],
   selectedPromotions: [],
-  codeGeneration: {
-    bulk: void 0,
-    codesPrefix: '',
-    singleCode: '',
-    codesQuantity: 1,
-    codesLength: 1,
-    isDialogVisible: false,
-  }
+  codeGeneration: initialCodeGenerationState,
 };
 
 const reducer = createReducer({
@@ -140,6 +147,18 @@ const reducer = createReducer({
       ...state,
       codes: [...oldCodes, code]
     };
+  },
+  [couponsGenerationReset]: (state) => {
+    return {
+      ...state,
+      codeGeneration: initialCodeGenerationState,
+    };
+  },
+  [couponsGenerationShowDialog]: (state) => {
+    return assoc(state, 'codeGeneration.isDialogVisible', true);
+  },
+  [couponsGenerationHideDialog]: (state) => {
+    return assoc(state, 'codeGeneration.isDialogVisible', false);
   },
 }, initialState);
 
