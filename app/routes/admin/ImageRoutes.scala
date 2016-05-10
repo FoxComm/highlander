@@ -1,6 +1,8 @@
 package routes.admin
 
+import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.ActorMaterializer
 import scala.concurrent.ExecutionContext
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
@@ -33,9 +35,11 @@ object ImageRoutes {
               }
             } ~
             pathPrefix("images") {
-              (post & pathEnd & extractRequest) { request ⇒
-                goodOrFailures {
-                  ImageManager.uploadImage(albumId, context, request.entity.dataBytes)
+              (post & pathEnd) {
+                extractRequest { req ⇒
+                  goodOrFailures {
+                    ImageManager.uploadImage(albumId, context, req)
+                  }
                 }
               }
             }

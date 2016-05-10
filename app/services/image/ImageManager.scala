@@ -5,7 +5,8 @@ import java.time.Instant
 
 import scala.concurrent.Future
 import scala.util.Try
-import akka.http.scaladsl.model.Multipart
+import akka.http.scaladsl.model.{HttpRequest, Multipart}
+import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Sink, FileIO, Source}
 import akka.util.ByteString
@@ -138,16 +139,21 @@ object ImageManager {
     }
   }
 
-  def uploadImage(albumId: Int, contextName: String, bytes: Source[ByteString, Any])
+  def uploadImage(albumId: Int, contextName: String, request: HttpRequest)
     (implicit ec: EC, db: DB, am: ActorMaterializer): Result[AlbumResponse.Root] = {
-    (for {
-      context  ← * <~ ObjectManager.mustFindByName404(contextName)
-      file     ← * <~ getFileFromRequest(bytes)
-      album    ← * <~ mustFindFullAlbumByIdAndContext404(albumId, context)
-      s3       ← * <~ AmazonS3.uploadFile("test.jpg", file)
-      payload  = payloadForNewImage(album, s3)
-      album    ← * <~ updateAlbumInner(albumId, payload, context)
-    } yield album).runTxn()
+    Unmarshal(request.entity).to[Multipart.FormData].flatMap { formData ⇒
+      val error: Result[AlbumResponse.Root] = Future.successful(left(GeneralFailure("SS").single))
+      formData.parts.filter(_.name == "upload-file").runFold(error) { (_, part) ⇒
+        (for {
+          context  ← * <~ ObjectManager.mustFindByName404(contextName)
+          file     ← * <~ getFileFromRequest(part.entity.dataBytes)
+          album    ← * <~ mustFindFullAlbumByIdAndContext404(albumId, context)
+          s3       ← * <~ AmazonS3.uploadFile("test.jpg", file)
+          payload  = payloadForNewImage(album, s3)
+          album    ← * <~ updateAlbumInner(albumId, payload, context)
+        } yield album).runTxn()
+      }.flatMap(a ⇒ a)
+    }
   }
 
   private def getFileFromRequest(bytes: Source[ByteString, Any])
