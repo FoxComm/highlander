@@ -18,14 +18,6 @@
 .image {
   width: var(--image-width);
   height: var(--image-height);
-  position: absolute;
-  bottom: 0;
-}
-
-.image:hover {
-  & img {
-    display: none;
-  }
 }
 
 .links {
@@ -33,6 +25,14 @@
   width: var(--image-width);
   height: var(--image-height);
   background: var(--whitish);
+  position: absolute;
+  bottom: 0;
+  opacity: 0;
+  transition: all 300ms ease-in;
+
+  &:hover {
+    opacity: 1;
+  }
 }
 
 .link {

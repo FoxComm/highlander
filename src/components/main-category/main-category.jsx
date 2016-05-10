@@ -18,6 +18,7 @@ const Banner = (props: Props): HTMLElement => (
     <h2 styleName="name">
       {props.name}
     </h2>
+    <img styleName="image" src={props.image} />
     <div styleName="links">
       {['men', 'women'].map(shop => (
         <Link
@@ -28,9 +29,6 @@ const Banner = (props: Props): HTMLElement => (
           {`Shop ${_.capitalize(shop)}`}
         </Link>
       ))}
-    </div>
-    <div styleName="image">
-      <img src={props.image} />
     </div>
   </article>
 );
