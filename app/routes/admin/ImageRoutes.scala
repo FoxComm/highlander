@@ -1,7 +1,7 @@
 package routes.admin
 
-import java.io.File
-
+import akka.http.scaladsl.server.Directives._
+import akka.stream.ActorMaterializer
 import scala.concurrent.ExecutionContext
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import payloads._
@@ -10,11 +10,6 @@ import services.image.ImageManager
 import slick.driver.PostgresDriver.api._
 import utils.http.Http._
 import utils.http.CustomDirectives._
-
-import akka.http.scaladsl.server.Directives._
-import akka.stream.scaladsl._
-
-import akka.stream.ActorMaterializer
 
 object ImageRoutes {
   def routes(implicit ec: ExecutionContext, db: Database, am: ActorMaterializer, admin: StoreAdmin) = {

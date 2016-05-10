@@ -95,6 +95,7 @@ lazy val phoenixScala = (project in file(".")).
         "it.justwrote"               %% "scala-faker"            % "0.3",
         "io.backchat.inflector"      %% "scala-inflector"        % "1.3.5",
         "com.github.tototoshi"       %% "scala-csv"              % "1.3.1",
+        "com.amazonaws"              % "aws-java-sdk"            % "1.10.76",
         // Testing
         "org.conbere"                %  "markov_2.10"            % "0.2.0",
         "com.typesafe.akka"          %% "akka-testkit"           % akkaV      % "test",
