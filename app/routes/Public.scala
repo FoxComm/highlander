@@ -11,7 +11,6 @@ import services.orders.OrderPromotionUpdater
 import services.product.ProductManager
 import services.{ReasonService, StoreCreditService}
 import services.PublicService._
-import services.Result
 import utils.http.CustomDirectives._
 import utils.aliases._
 
@@ -22,13 +21,6 @@ object Public {
 
     activityContext() { implicit ac ⇒
       pathPrefix("public") {
-        pathPrefix("ping") {
-          (get & pathEnd) { 
-            nothingOrFailures {
-              Result.unit
-            }
-          }
-        } ~
         pathPrefix("registrations") {
           (post & path("new") & pathEnd & entity(as[CreateCustomerPayload])) { regRequest ⇒
             goodOrFailures {
