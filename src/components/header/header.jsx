@@ -12,7 +12,7 @@ import styles from './header.css';
 import Icon from 'ui/icon';
 import Search from '../search/search';
 import UserTools from '../usertools/usertools';
-import Categories from '../categories/categories';
+import Navigation from '../navigation/navigation';
 
 type Props = {
   toggleSidebar: Function;
@@ -69,9 +69,7 @@ class Header extends React.Component {
           <Link to="/" styleName="logo-link">
             <Icon styleName="logo" name="fc-some_brand_logo"/>
           </Link>
-          <div styleName="categories">
-            <Categories onClick={this.changeCategoryCallback}/>
-          </div>
+          <Navigation onClick={this.changeCategoryCallback}/>
           <div styleName="search">
             <Search onSearch={this.props.toggleSearch}/>
           </div>
