@@ -75,7 +75,7 @@ lazy val phoenixScala = (project in file(".")).
         "org.flywaydb"               %  "flyway-core"            % "4.0.1",
         "com.github.mauricio"        %% "postgresql-async"       % "0.2.19",
         // Elasticsearch
-        //"com.sksamuel.elastic4s"     %% "elastic4s-core"         % "2.3.0",
+        "com.sksamuel.elastic4s"     %% "elastic4s-core"         % "2.3.0",
         // Validations
         "com.wix"                    %% "accord-core"            % "0.5",
         // Auth
@@ -161,7 +161,14 @@ lazy val gatling = (project in file("gatling")).
     mainClass in Compile := Some("seeds.GatlingApp"),
     cleanFiles <+= baseDirectory(_ / "../gatling-classes"),
     cleanFiles <+= baseDirectory(_ / "../gatling-results"),
-    assemblyJarName := (AssemblyKeys.assemblyJarName in assembly in phoenixScala).value
+    assemblyJarName := (AssemblyKeys.assemblyJarName in assembly in phoenixScala).value,
+    // Resolve elastic4s assembly conflicts
+    assemblyMergeStrategy in assembly := {
+      case PathList("org", "joda", "time", "base", "BaseDateTime.class") ⇒ MergeStrategy.first
+      case x ⇒
+        val oldStrategy = (assemblyMergeStrategy in assembly).value
+        oldStrategy(x)
+    }
   )
 
 lazy val seedGatling = inputKey[Unit]("Seed DB with Gatling")

@@ -1,4 +1,4 @@
-package concepts.discounts.offers
+package models.discount.offers
 
 import com.pellucid.sealerate
 import utils.ADT

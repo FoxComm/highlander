@@ -19,7 +19,7 @@ import utils.aliases._
 
 object OrderRoutes {
 
-  def routes(implicit ec: EC, db: DB, admin: StoreAdmin, apis: Apis) = {
+  def routes(implicit ec: EC, es: ES, db: DB, admin: StoreAdmin, apis: Apis) = {
 
     activityContext(admin) { implicit ac ⇒
       determineObjectContext(db, ec) { productContext ⇒

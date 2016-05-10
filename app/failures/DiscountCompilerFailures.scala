@@ -1,11 +1,24 @@
 package failures
 
-import concepts.discounts.qualifiers.QualifierType.show
-import concepts.discounts.offers.{Offer, OfferType}
-import concepts.discounts.qualifiers.{Qualifier, QualifierType}
+import models.discount.qualifiers.QualifierType.show
+import models.discount.offers.{Offer, OfferType}
+import models.discount.qualifiers.{Qualifier, QualifierType}
 import utils.friendlyClassName
 
 object DiscountCompilerFailures {
+
+  /* General errors */
+  case object EmptyDiscountFailure extends Failure {
+    override def description = "Promotion is missing discount object"
+  }
+
+  case object EmptyOfferFailure extends Failure {
+    override def description = "Discount is missing offer object"
+  }
+
+  case object EmptyQualifierFailure extends Failure {
+    override def description = "Discount is missing qualifier object"
+  }
 
   /* Qualifier AST compiler */
   case class QualifierAstParseFailure(json: String) extends Failure {

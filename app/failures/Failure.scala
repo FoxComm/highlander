@@ -16,6 +16,10 @@ case class DatabaseFailure(message: String) extends Failure {
   override def description = message
 }
 
+case class ElasticsearchFailure(message: String) extends Failure {
+  override def description = s"Elasticsearch communication error: $message"
+}
+
 case class NotFoundFailure404(message: String) extends Failure {
   override def description = message
 }

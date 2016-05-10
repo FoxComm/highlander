@@ -1,9 +1,9 @@
-package concepts.discounts
+package services.discount.compilers
 
-import offers._
 import cats.data.Xor
 import failures.DiscountCompilerFailures._
 import failures._
+import models.discount.offers._
 import org.json4s._
 import utils.JsonFormatters
 

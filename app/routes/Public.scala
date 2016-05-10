@@ -15,7 +15,7 @@ import utils.http.CustomDirectives._
 import utils.aliases._
 
 object Public {
-  def routes(implicit ec: EC, db: DB) = {
+  def routes(implicit ec: EC, db: DB, es: ES) = {
     import Json4sSupport._
     import utils.http.Http._
 

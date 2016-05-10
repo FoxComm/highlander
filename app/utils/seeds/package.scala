@@ -2,8 +2,8 @@ package utils
 
 import java.time.Instant
 
-import concepts.discounts.offers.{Offer, OfferType}
-import concepts.discounts.qualifiers.{Qualifier, QualifierType}
+import models.discount.offers.{Offer, OfferType}
+import models.discount.qualifiers.{Qualifier, QualifierType}
 import models.objects.ObjectUtils
 import models.promotion.Promotion
 import org.json4s.jackson.JsonMethods._

@@ -22,7 +22,7 @@ import utils.db._
 import utils.aliases._
 
 object Customer {
-  def routes(implicit ec: EC, db: DB, customerAuth: AsyncAuthenticator[models.customer.Customer], apis: Apis) = {
+  def routes(implicit ec: EC, es: ES, db: DB, customerAuth: AsyncAuthenticator[models.customer.Customer], apis: Apis) = {
 
     pathPrefix("my") {
       requireAuth(customerAuth) { customer ⇒

@@ -1,8 +1,8 @@
 package concepts
 
-import concepts.discounts._
-import concepts.discounts.qualifiers._
+import models.discount.qualifiers._
 import failures.DiscountCompilerFailures._
+import services.discount.compilers.QualifierAstCompiler
 import util.TestBase
 
 class QualifierAstCompilerTest extends TestBase {

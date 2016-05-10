@@ -1,8 +1,9 @@
 package concepts
 
-import concepts.discounts._
-import concepts.discounts.offers._
+import models.discount._
+import models.discount.offers._
 import failures.DiscountCompilerFailures._
+import services.discount.compilers.OfferAstCompiler
 import util.TestBase
 
 class OfferAstCompilerTest extends TestBase {

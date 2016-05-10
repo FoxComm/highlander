@@ -48,7 +48,7 @@ object OrderTotaler {
 
   def adjustmentsTotal(order: Order)(implicit ec: EC): DbResult[Int] = (for {
     lineItemAdjustments ← * <~ OrderLineItemAdjustments.filter(_.orderId === order.id).result.toXor
-    sum = lineItemAdjustments.foldLeft(0)(_ + _.subtract)
+    sum = lineItemAdjustments.foldLeft(0)(_ + _.substract)
   } yield sum).value
 
   def totals(order: Order)(implicit ec: EC): DbResult[Totals] = (for {

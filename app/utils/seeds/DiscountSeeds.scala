@@ -1,7 +1,7 @@
 package utils.seeds
 
-import concepts.discounts.offers._
-import concepts.discounts.qualifiers._
+import models.discount.offers._
+import models.discount.qualifiers._
 import models.objects._
 import models.discount._
 import models.product.SimpleContext
@@ -40,16 +40,12 @@ trait DiscountSeeds {
       offerPair = OfferPair(OrderPercentOff, OrderPercentOffer(25))
     ),
     createDiscount(title = "Get 5$ shipping when you have more than 5 items in order",
-      qualifierPair = QualifierPair(OrderNumUnits, OrderNumUnitsQualifier(500)),
+      qualifierPair = QualifierPair(OrderNumUnits, OrderNumUnitsQualifier(5)),
       offerPair = OfferPair(DiscountedShipping, DiscountedShippingOffer(500))
     ),
     createDiscount(title = "Get FREE shipping when you have more than 10 items in order",
       qualifierPair = QualifierPair(OrderNumUnits, OrderNumUnitsQualifier(10)),
       offerPair = OfferPair(FreeShipping, FreeShippingOffer)
-    ),
-    createDiscount(title = "Pay 2000$ if your total amount is more than 2016", // TBD: Make something more realistic
-      qualifierPair = QualifierPair(OrderNumUnits, OrderTotalAmountQualifier(201600)),
-      offerPair = OfferPair(SetPrice, SetPriceOffer(200000))
     )
   )
 

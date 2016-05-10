@@ -1,4 +1,4 @@
-package concepts.discounts.qualifiers
+package models.discount.qualifiers
 
 import com.pellucid.sealerate
 import utils.ADT

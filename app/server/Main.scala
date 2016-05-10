@@ -29,7 +29,7 @@ import slick.driver.PostgresDriver.api._
 import utils.FoxConfig.{Development, Staging}
 import utils.http.CustomHandlers
 import utils.http.HttpLogger.logFailedRequests
-import utils.{Apis, FoxConfig, WiredStripeApi}
+import utils.{Apis, ElasticsearchApi, FoxConfig, WiredStripeApi}
 
 object Main extends App with LazyLogging {
   logger.info("Starting phoenix server")
@@ -42,9 +42,10 @@ object Main extends App with LazyLogging {
 }
 
 class Service(
-  systemOverride: Option[ActorSystem]  = None,
-  dbOverride:     Option[Database]     = None,
-  apisOverride:   Option[Apis]         = None,
+  systemOverride: Option[ActorSystem]      = None,
+  dbOverride:     Option[Database]         = None,
+  apisOverride:   Option[Apis]             = None,
+  esOverride:     Option[ElasticsearchApi] = None,
   addRoutes:      immutable.Seq[Route] = immutable.Seq.empty)(implicit val env: FoxConfig.Environment) {
 
   import utils.JsonFormatters._
@@ -64,8 +65,9 @@ class Service(
 
   val logger = Logging(system, getClass)
 
-  implicit val db:   Database = dbOverride.getOrElse(Database.forConfig("db", config))
-  implicit val apis: Apis     = apisOverride.getOrElse(Apis(new WiredStripeApi))
+  implicit val db:   Database         = dbOverride.getOrElse(Database.forConfig("db", config))
+  implicit val apis: Apis             = apisOverride.getOrElse(Apis(new WiredStripeApi))
+  implicit val es:   ElasticsearchApi = esOverride.getOrElse(ElasticsearchApi.fromConfig(config))
 
   val storeAdminAuth: AsyncAuthenticator[StoreAdmin] = Authenticator.forAdminFromConfig
   implicit val customerAuth: AsyncAuthenticator[Customer] = Authenticator.forCustomerFromConfig

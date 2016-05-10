@@ -1,7 +1,7 @@
 package utils
 
-import concepts.discounts.offers.OfferType
-import concepts.discounts.qualifiers.QualifierType
+import models.discount.offers.OfferType
+import models.discount.qualifiers.QualifierType
 import models.inventory.SkuType
 import models.Note
 import models.order.Order

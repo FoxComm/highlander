@@ -2,14 +2,14 @@ package services.orders
 
 import cats.data.Xor
 import cats.implicits._
-import concepts.discounts.{OfferAstCompiler, QualifierAstCompiler}
-import concepts.discounts.qualifiers._
-import concepts.discounts.offers._
 import failures.OrderFailures._
 import failures.CouponFailures._
 import failures.PromotionFailures._
-import failures.GeneralFailure
-import models.discount.IlluminatedDiscount
+import failures.DiscountCompilerFailures._
+import services.discount.compilers._
+import models.discount.qualifiers._
+import models.discount.offers._
+import models.discount.{DiscountInput, IlluminatedDiscount}
 import models.discount.IlluminatedDiscount.illuminate
 import models.objects._
 import models.order._
@@ -29,52 +29,10 @@ import utils.aliases._
 import utils.db._
 import utils.db.DbResultT._
 
-/*
-import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri}
-import com.sksamuel.elastic4s.ElasticDsl._
-import org.elasticsearch.common.settings.Settings
-import org.elasticsearch.search.aggregations.bucket.filter.InternalFilter
-import scala.collection.JavaConverters._
-import scala.util.control.NonFatal
-*/
-
 object OrderPromotionUpdater {
 
-  /*
-  def elasticTest()(implicit ec: EC): Result[String] = {
-    val uri = "elasticsearch://10.240.0.8:9300"
-
-    val settings = Settings.settingsBuilder().put("cluster.name", "elasticsearch").build()
-    val client = ElasticClient.transport(settings, ElasticsearchClientUri(uri))
-
-    //val rawJson = """{"bool": {"filter": [{"range": {"subTotal": {"gte": 10000}}}]}}"""
-    val rawJson = """{"query":{"bool":{"filter":[{"range":{"subTotal":{"gte":10000}}}]}}}"""
-    val refList = Seq("BR10387", "BR10022", "BR10566").toList
-
-    val req1 = search in "phoenix/orders_search_view" rawQuery rawJson aggregations(
-      aggregation filter "qualifier" filter termsQuery("referenceNumber", refList: _*)
-    ) size 0
-
-    try {
-      val future = client.execute(req1)
-      Console.println(req1.show)
-
-      Result.fromFuture(future.map { response ⇒
-        val qualifierOpt = response.aggregations.getAsMap.asScala.get("qualifier")
-        qualifierOpt match {
-          case Some(q) ⇒ q.asInstanceOf[InternalFilter].getDocCount.toString
-          case _       ⇒ "0"
-        }
-      })
-    } catch {
-      case NonFatal(e) ⇒
-        Result.failure(GeneralFailure(e.getMessage))
-    }
-  }
-  */
-
   def attachCoupon(originator: Originator, refNum: Option[String] = None, context: ObjectContext, code: String)
-    (implicit ec: EC, db: DB): Result[Root] = (for {
+    (implicit ec: EC, es: ES, db: DB): Result[Root] = (for {
     // Fetch base data
     order             ← * <~ getCartByOriginator(originator, refNum)
     _                 ← * <~ order.mustBeCart
@@ -107,7 +65,7 @@ object OrderPromotionUpdater {
     discount          ← * <~ tryDiscount(discounts)
     qualifier         ← * <~ tryQualifier(discount)
     offer             ← * <~ tryOffer(discount)
-    adjustments       ← * <~ getAdjustments(order, promoShadow.id, qualifier, offer)
+    adjustments       ← * <~ getAdjustments(promoShadow, order, qualifier, offer)
     // Create connected promotion and line item adjustments
     _                 ← * <~ OrderPromotions.create(OrderPromotion.buildCoupon(order, promotion, couponCode))
     _                 ← * <~ OrderLineItemAdjustments.createAll(adjustments)
@@ -117,7 +75,7 @@ object OrderPromotionUpdater {
   } yield response).runTxn()
 
   def detachCoupon(originator: Originator, refNum: Option[String] = None)
-    (implicit ec: EC, db: DB): Result[Root] = (for {
+    (implicit ec: EC, es: ES, db: DB): Result[Root] = (for {
     // Read
     order           ← * <~ getCartByOriginator(originator, refNum)
     _               ← * <~ order.mustBeCart
@@ -134,26 +92,27 @@ object OrderPromotionUpdater {
 
   private def tryDiscount(discounts: Seq[IlluminatedDiscount]) = discounts.headOption match {
     case Some(discount) ⇒ Xor.Right(discount)
-    case _              ⇒ Xor.Left(GeneralFailure("Invalid discount object for promotion").single) // FIXME
+    case _              ⇒ Xor.Left(EmptyDiscountFailure.single)
   }
 
   private def tryQualifier(discount: IlluminatedDiscount) = discount.attributes \ "qualifier" \ "v" match {
     case JObject(o) ⇒ QualifierAstCompiler(compact(render(JObject(o)))).compile()
-    case _          ⇒ Xor.Left(GeneralFailure("Invalid qualifier object for promotion").single) // FIXME
+    case _          ⇒ Xor.Left(EmptyQualifierFailure.single)
   }
 
   private def tryOffer(discount: IlluminatedDiscount) = discount.attributes \ "offer" \ "v" match {
     case JObject(o) ⇒ OfferAstCompiler(compact(render(JObject(o)))).compile()
-    case _          ⇒ Xor.Left(GeneralFailure("Invalid offer object for promotion").single) // FIXME
+    case _          ⇒ Xor.Left(EmptyOfferFailure.single)
   }
 
-  private def getAdjustments(order: Order, promoId: Int, qualifier: Qualifier, offer: Offer)
-    (implicit ec: EC, db: DB) = for {
+  private def getAdjustments(promo: ObjectShadow, order: Order, qualifier: Qualifier, offer: Offer)
+    (implicit ec: EC, es: ES, db: DB) = for {
     orderDetails                ← * <~ fetchOrderDetails(order).toXor
     (lineItems, shippingMethod) = orderDetails
-    _                           ← * <~ qualifier.check(order, lineItems, shippingMethod)
-    lineItemAdjustments         ← * <~ offer.adjust(order, promoId, lineItems, shippingMethod)
-  } yield lineItemAdjustments
+    input                       = DiscountInput(promo, order, lineItems, shippingMethod)
+    _                           ← * <~ qualifier.check(input)
+    adjustments                 ← * <~ offer.adjust(input)
+  } yield adjustments
 
   private def fetchOrderDetails(order: Order)(implicit ec: EC) = for {
     lineItemTup ← OrderLineItemSkus.findLineItemsByOrder(order).result

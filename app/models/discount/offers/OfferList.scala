@@ -1,18 +1,24 @@
-package concepts.discounts.offers
+package models.discount.offers
 
-import Offer._
 import cats.data.Xor
 import models.order.Order
 import models.order.lineitems._
 import models.shipping.ShippingMethod
 import cats.data.NonEmptyList
 import cats.std.list._
+import models.discount.DiscountInput
+import models.order.lineitems.OrderLineItemAdjustment._
+import services.Result
+import utils.aliases._
 
 case class OfferList(offers: Seq[Offer]) extends Offer {
 
-  def adjust(order: Order, promoId: Int, lineItems: Seq[OrderLineItemProductData],
-    shippingMethod: Option[ShippingMethod]): AdjustmentResult = {
+  val adjustmentType: AdjustmentType = ComplexAdjustment
 
+  def adjust(input: DiscountInput)(implicit ec: EC, es: ES): Result[Seq[OrderLineItemAdjustment]] = {
+    reject(input, "Not implemented yet")
+
+    /*
     val adjustmentAttempts = offers.map(_.adjust(order, promoId, lineItems, shippingMethod))
 
     val adjustments: Seq[OrderLineItemAdjustment] = adjustmentAttempts.flatMap {
@@ -27,5 +33,6 @@ case class OfferList(offers: Seq[Offer]) extends Offer {
       case head :: tail ⇒ Xor.Left(NonEmptyList(head, tail))
       case Nil          ⇒ Xor.Right(adjustments)
     }
+    */
   }
 }

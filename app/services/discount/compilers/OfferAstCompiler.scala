@@ -1,14 +1,13 @@
-package concepts.discounts
+package services.discount.compilers
 
-import cats.data.Xor
-import offers._
-import failures._
+import cats.data.{NonEmptyList, Xor}
+import cats.std.list._
 import failures.DiscountCompilerFailures._
+import failures._
+import models.discount.offers._
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import utils.JsonFormatters
-import cats.data.NonEmptyList
-import cats.std.list._
 
 case class OfferAstCompiler(input: String) {
 
