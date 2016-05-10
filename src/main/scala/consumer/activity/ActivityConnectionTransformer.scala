@@ -20,7 +20,7 @@ import consumer.utils.Phoenix
 import consumer.utils.HttpResponseExtensions._
 
 final case class ActivityConnectionTransformer(conn: PhoenixConnectionInfo)
-  (implicit ec: EC, mat: AM, ac: AS, cp: CP) extends JsonTransformer {
+  (implicit ec: EC, mat: AM, ac: AS, cp: CP, sc: SC) extends JsonTransformer {
 
   implicit val formats: DefaultFormats.type = DefaultFormats
 
@@ -50,20 +50,18 @@ final case class ActivityConnectionTransformer(conn: PhoenixConnectionInfo)
   )
 
   def transform(json: String) : Future[String] = {
-
     Console.out.println(json)
 
     parse(json) \ "id" \ "int" match {
       case JInt(id) ⇒ queryPhoenixForConnection(id)
-      case _ ⇒  throw new IllegalArgumentException("Activity connection is missing id")
+      case _        ⇒ throw new IllegalArgumentException("Activity connection is missing id")
     }
   }
 
   private def queryPhoenixForConnection(id: BigInt) : Future[String] = {
     val uri = s"connections/$id"
     Console.err.println(s"Requesting Phoenix $uri")
-
-    phoenix.get(uri).flatMap { _.bodyText}
+    phoenix.get(uri).flatMap(_.bodyText)
   }
 
 }

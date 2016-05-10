@@ -69,7 +69,7 @@ final case class FailedToConnectNotification(
  * using a sequence of activity connectors
  */
 class ActivityProcessor(conn: PhoenixConnectionInfo, connectors: Seq[ActivityConnector])
-  (implicit ec: EC, ac: AS, mat: AM, cp: CP) extends JsonProcessor {
+  (implicit ec: EC, ac: AS, mat: AM, cp: CP, sc: SC) extends JsonProcessor {
 
     implicit val formats: DefaultFormats.type = DefaultFormats
 
@@ -93,7 +93,7 @@ class ActivityProcessor(conn: PhoenixConnectionInfo, connectors: Seq[ActivityCon
       val responses = Future.sequence(result).map(_.flatten)
 
       //TODO check errors
-      responses map { r ⇒  ()}
+      responses.map(r ⇒ ())
     }
 
     private def process(cs: Seq[Connection]) : Future[Seq[HttpResponse]] = { 
