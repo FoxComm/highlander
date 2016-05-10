@@ -2,27 +2,16 @@ package consumer.activity
 
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 
+import consumer.{AvroJsonHelper, JsonProcessor}
+import consumer.aliases._
+import consumer.utils.{Phoenix, PhoenixConnectionInfo}
 import org.json4s.DefaultFormats
 import org.json4s.JsonAST.{JNothing, JValue}
 import org.json4s.jackson.JsonMethods.parse
 import org.json4s.jackson.Serialization.{write ⇒ render}
-
-import akka.actor.ActorSystem
-import akka.http.ConnectionPoolSettings
-import akka.stream.Materializer
-
-import consumer.JsonProcessor
-import consumer.AvroJsonHelper
-
-import consumer.aliases._
-import consumer.utils.PhoenixConnectionInfo
-import consumer.utils.Phoenix
-import consumer.utils.HttpResponseExtensions._
-import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.model.HttpResponse
 
 final case class ActivityContext(
   userId: Int,

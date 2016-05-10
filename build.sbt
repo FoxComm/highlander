@@ -1,6 +1,6 @@
 lazy val commonSettings = Seq(
   version       := "1.0",
-  scalaVersion  := "2.11.7",
+  scalaVersion  := "2.11.8",
   updateOptions := updateOptions.value.withCachedResolution(true),
   scalacOptions ++= List(
     "-encoding", "UTF-8",
@@ -29,11 +29,9 @@ lazy val phoenixScala = (project in file(".")).
       "confluent" at "http://packages.confluent.io/maven"
     ),
     libraryDependencies ++= {
-      val akkaV      = "2.4.2"
-      val akkaHttpV  = "2.0.3"
-      val scalaTestV = "2.2.5"
-      val monocleV   = "1.1.1"
-      val json4sVersion = "3.3.0.RC3"
+      val akkaV      = "2.4.4"
+      val scalaTestV = "2.2.6"
+      val json4sV    = "3.3.0"
 
       Seq(
         // Config
@@ -41,20 +39,20 @@ lazy val phoenixScala = (project in file(".")).
         // Cache
         "com.github.cb372"          %% "scalacache-lrumap"        % "0.8.1",
         // JSON
-        "org.json4s"                %% "json4s-core"              % json4sVersion,
-        "org.json4s"                %% "json4s-jackson"           % json4sVersion,
-        "org.json4s"                %% "json4s-ext"               % json4sVersion,
+        "org.json4s"                %% "json4s-core"              % json4sV,
+        "org.json4s"                %% "json4s-jackson"           % json4sV,
+        "org.json4s"                %% "json4s-ext"               % json4sV,
         // Search
-        "org.apache.kafka"          % "kafka_2.11"                % "0.9.0.0",
+        "org.apache.kafka"          % "kafka_2.11"                % "0.9.0.1",
         "io.confluent"              % "kafka-avro-serializer"     % "1.0",
-        "com.sksamuel.elastic4s"    %% "elastic4s-core"           % "2.1.2",
+        "com.sksamuel.elastic4s"    %% "elastic4s-core"           % "2.3.0",
         // Akka
         "com.typesafe.akka"         %% "akka-slf4j"               % akkaV,
         "com.typesafe.akka"         %% "akka-actor"               % akkaV,
         "com.typesafe.akka"         %% "akka-agent"               % akkaV,
-        "com.typesafe.akka"         %% "akka-stream-experimental" % akkaHttpV,
-        "com.typesafe.akka"         %% "akka-http-experimental"   % akkaHttpV,
-        "de.heikoseeberger"         %% "akka-http-json4s"         % "1.0.0",
+        "com.typesafe.akka"         %% "akka-stream"              % akkaV,
+        "com.typesafe.akka"         %% "akka-http-core"           % akkaV,
+        "de.heikoseeberger"         %% "akka-http-json4s"         % "1.6.0",
         // Cats
         "org.spire-math"            %% "cats"                     % "0.3.0",
         // Testing

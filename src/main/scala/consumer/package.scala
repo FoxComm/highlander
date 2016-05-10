@@ -1,7 +1,7 @@
 package consumer
 
 import akka.actor.ActorSystem
-import akka.http.ConnectionPoolSettings
+import akka.http.scaladsl.settings.ConnectionPoolSettings
 import akka.stream.Materializer
 
 import com.sksamuel.elastic4s.source.DocumentSource

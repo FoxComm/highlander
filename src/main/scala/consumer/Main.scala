@@ -6,7 +6,7 @@ import scala.concurrent.duration.Duration
 import scalacache.ScalaCache
 import scalacache.lrumap.LruMapCache
 import akka.actor.ActorSystem
-import akka.http.ConnectionPoolSettings
+import akka.http.scaladsl.settings.ConnectionPoolSettings
 import akka.stream.ActorMaterializer
 
 import consumer.elastic.ElasticSearchProcessor
@@ -75,11 +75,11 @@ object Main {
     Console.out.println(s"Host: ${conf.elasticSearchUrl}")
     Console.out.println(s"Cluster: ${conf.elasticSearchCluster}")
 
-    implicit val connectionPoolSettings =
-      ConnectionPoolSettings.create(system).copy(
-        maxConnections  = conf.maxConnections,
-        maxOpenRequests = conf.maxConnections,
-        maxRetries      = 1)
+    implicit val connectionPoolSettings: ConnectionPoolSettings =
+      ConnectionPoolSettings.default(implicitly[ActorSystem])
+        .withMaxConnections(conf.maxConnections)
+        .withMaxOpenRequests(conf.maxConnections)
+        .withMaxRetries(1)
 
     val esProcessor = new ElasticSearchProcessor(
       uri = conf.elasticSearchUrl,
@@ -99,11 +99,11 @@ object Main {
     val threadPool = java.util.concurrent.Executors.newCachedThreadPool()
     implicit val ec = ExecutionContext.fromExecutor(threadPool)
 
-    implicit val connectionPoolSettings =
-      ConnectionPoolSettings.create(system).copy(
-        maxConnections  = conf.maxConnections,
-        maxOpenRequests = conf.maxConnections,
-        maxRetries      = 1)
+    implicit val connectionPoolSettings: ConnectionPoolSettings =
+      ConnectionPoolSettings.default(implicitly[ActorSystem])
+        .withMaxConnections(conf.maxConnections)
+        .withMaxOpenRequests(conf.maxConnections)
+        .withMaxRetries(1)
 
     Console.out.println(s"Running Green River...")
     Console.out.println(s"ES: ${conf.elasticSearchUrl}")
