@@ -23,11 +23,10 @@ type ProductsListParams = {
   location: any;
 }
 
-const mapStateToProps = state => ({
-  categories: state.categories.list
-});
+const mapStateToProps = state => ({categories: state.categories.list});
 
 class ProductsList extends React.Component {
+  props: ProductsListParams;
 
   renderHeader() {
     const props = this.props;
@@ -42,7 +41,7 @@ class ProductsList extends React.Component {
 
     if (props.location.query && props.location.query.type) {
       className = `${className}-${props.location.query.type}`;
-      title = `${props.location.query.type}'s ${title}`
+      title = `${props.location.query.type}'s ${title}`;
     }
 
     return (
@@ -52,10 +51,10 @@ class ProductsList extends React.Component {
           {description}
         </div>
       </header>
-    )
+    );
   }
 
-  render() {
+  render() : HTMLElement {
     const props = this.props;
     const items = props.list && props.list.length > 0
       ? _.map(props.list, (item) => <ListItem {...item} key={`product-${item.id}`}/>)
@@ -70,6 +69,6 @@ class ProductsList extends React.Component {
       </section>
     );
   }
-};
+}
 
 export default connect(mapStateToProps, {})(ProductsList);
