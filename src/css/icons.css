@@ -21,3 +21,8 @@
   width: 44px;
   height: 30px;
 }
+
+:global(.icon--fc-cvv-visa),
+:global(.icon--fc-cvv-amex) {
+  stroke: none;
+}

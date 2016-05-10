@@ -12,7 +12,7 @@ import { detectCardType, cardMask, cvvLength, isCardNumberValid, isCvvValid} fro
 import localized from 'lib/i18n';
 
 import { Form, FormField } from 'ui/forms';
-import { TextInput } from 'ui/inputs';
+import { TextInput, TextInputWithLabel } from 'ui/inputs';
 import Button from 'ui/buttons';
 import Checkbox from 'ui/checkbox';
 import EditableBlock from 'ui/editable-block';
@@ -21,6 +21,7 @@ import InputMask from 'react-input-mask';
 import EditAddress from './edit-address';
 import Icon from 'ui/icon';
 import ViewAddress from './view-address';
+import CvvHelp from './cvv-help';
 
 import type { CheckoutBlockProps } from './types';
 import * as checkoutActions from 'modules/checkout';
@@ -139,6 +140,10 @@ class EditBilling extends Component {
     return isCvvValid(cvv, this.cardType) ? null : t(`Please enter a valid cvv number`);
   }
 
+  get cvvHelp() {
+    return <CvvHelp/>;
+  }
+
   render() {
     const { props } = this;
     const { data, t } = props;
@@ -170,8 +175,9 @@ class EditBilling extends Component {
             />
           </FormField>
           <FormField styleName="text-field" validator={this.validateCvvNumber}>
-            <TextInput
+            <TextInputWithLabel
               required
+              label={this.cvvHelp}
               type="number"
               maxLength={cvvLength(this.cardType)}
               placeholder={t('CVV')}
