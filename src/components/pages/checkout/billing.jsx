@@ -124,6 +124,12 @@ class EditBilling extends Component {
     return cardMask(this.cardType);
   }
 
+  get paymentIcon() {
+    if (this.cardType) {
+      return <Icon styleName="payment-icon" name={`fc-payment-${this.cardType}`} />;
+    }
+  }
+
   @autobind
   validateCardNumber() {
     const { cardNumber } = this.props.data;
@@ -161,18 +167,23 @@ class EditBilling extends Component {
         </FormField>
         <div styleName="union-fields">
           <FormField styleName="text-field" validator={this.validateCardNumber}>
-            <InputMask
-              required
-              className={textStyles['text-input']}
-              maskChar=" "
-              type="text"
-              mask={this.cardMask}
-              name="cardNumber"
-              placeholder={t('CARD NUMBER')}
-              size="20"
-              value={data.cardNumber}
-              onChange={this.changeCardNumber}
-            />
+            <TextInputWithLabel
+              label={this.paymentIcon}
+            >
+              <InputMask
+                required
+                styleName="payment-input"
+                className={textStyles['text-input']}
+                maskChar=" "
+                type="text"
+                mask={this.cardMask}
+                name="cardNumber"
+                placeholder={t('CARD NUMBER')}
+                size="20"
+                value={data.cardNumber}
+                onChange={this.changeCardNumber}
+              />
+            </TextInputWithLabel>
           </FormField>
           <FormField styleName="text-field" validator={this.validateCvvNumber}>
             <TextInputWithLabel
