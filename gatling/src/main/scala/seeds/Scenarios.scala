@@ -9,8 +9,14 @@ import seeds.Auth._
 import seeds.Cart._
 import seeds.Customers._
 import seeds.GatlingApp._
+import seeds.Products._
 
 object Scenarios {
+
+  val baseData = scenario("Base data")
+    .exec(loginAsRandomAdmin).stopOnFailure.doPause
+    .exec(createAllProducts).stopOnFailure.doPause
+    .inject(atOnceUsers(1))
 
   val randomCustomerActivity = scenario("Random customer activity")
     .exec(loginAsRandomAdmin).stopOnFailure.doPause

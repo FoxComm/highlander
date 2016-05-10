@@ -17,6 +17,12 @@ object Simulations {
     .maxDuration(Conf.phoenixStartupTimeout)
   }
 
+  class BaseSeeds extends Simulation {
+   setUp(baseData)
+    .assertions(global.failedRequests.percent.lessThan(99))
+    .protocols(Conf.httpConf)
+  }
+
   class GatlingSeeds extends Simulation {
     setUp(pacificNwVips, randomCustomerActivity)
     .assertions(Conf.defaultAssertion)

@@ -1,0 +1,92 @@
+{
+  "form": {
+    "product": {
+      "attributes": {
+        "description": "<p>${newProductDescription}</p>",
+        "title": "${newProductTitle}",
+        "variants": "${newProductSku}",
+        "skus": "${newProductSku}",
+        "tags": [
+          "${newProductTags}"
+        ]
+      }
+    },
+    "skus": [
+      {
+        "code": "${newProductSku}",
+        "attributes": {
+          "salePrice": {
+            "value": "${newProductPrice}",
+            "currency": "${newProductCurrency}"
+          },
+          "retailPrice": {
+            "value": "${newProductPrice}",
+            "currency": "${newProductCurrency}"
+          },
+          "title": "${newProductTitle}"
+        }
+      }
+    ]
+  },
+  "shadow": {
+    "product": {
+      "attributes": {
+        "url": {
+          "ref": "url",
+          "type": "string"
+        },
+        "skus": {
+          "ref": "skus",
+          "type": "skus"
+        },
+        "title": {
+          "ref": "title",
+          "type": "string"
+        },
+        "variants": {
+          "ref": "variants",
+          "type": "variants"
+        },
+        "metaTitle": {
+          "ref": "metaTitle",
+          "type": "string"
+        },
+        "description": {
+          "ref": "description",
+          "type": "richText"
+        },
+        "metaDescription": {
+          "ref": "metaDescription",
+          "type": "string"
+        },
+        "tags": {
+          "type": "tags",
+          "ref": "tags"
+        },
+        "activeFrom": {
+          "type": "datetime",
+          "ref": "activeFrom"
+        }
+      }
+    },
+    "skus": [
+      {
+        "code": "${newProductSku}",
+        "attributes": {
+          "salePrice": {
+            "type": "price",
+            "ref": "salePrice"
+          },
+          "retailPrice": {
+            "type": "price",
+            "ref": "retailPrice"
+          },
+          "title": {
+            "type": "string",
+            "ref": "title"
+          }
+        }
+      }
+    ]
+  }
+}
