@@ -3,7 +3,7 @@
 
 // libs
 import _ from 'lodash';
-import React, { Component } from 'react';
+import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { assoc } from 'sprout-data';
 import { searchCouponPromotions } from '../../elastic/promotions';
@@ -19,6 +19,7 @@ import UsageRules from './form/usage-rules';
 import { FormField, Form } from '../forms';
 import Tags from '../tags/tags';
 import ObjectScheduler from '../object-scheduler/object-scheduler';
+import Watchers from '../watchers/watchers';
 
 // styles
 import styles from './form.css';
@@ -135,6 +136,14 @@ export default class CouponForm extends Component {
     return _.get(this.props, 'coupon.form.attributes.usageRules', {});
   }
 
+  get watchersBlock(): ?Element {
+    const { coupon } = this.props;
+
+    if (coupon.form.id) {
+      return <Watchers entity={{entityId: coupon.form.id, entityType: 'coupons'}} />;
+    }
+  }
+
   render() {
     const formAttributes = _.get(this.props, 'coupon.form.attributes', []);
     const shadowAttributes = _.get(this.props, 'coupon.shadow.attributes', []);
@@ -169,6 +178,7 @@ export default class CouponForm extends Component {
             onChange={this.handleChange}
             title="State"
           />
+          {this.watchersBlock}
         </div>
       </Form>
     );

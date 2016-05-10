@@ -13,6 +13,10 @@
 
 .aside {
   lost-column: 4/12;
+
+  & > :global(.fc-product-state) {
+    margin-bottom: 20px;
+  }
 }
 
 .sub-title {

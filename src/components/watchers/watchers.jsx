@@ -20,14 +20,26 @@ import SelectWatcherModal from './select-modal';
 
 const maxDisplayed = 7;
 
+const getGroupData = (watchState, group) => ({
+  entries: _.get(watchState, [group, 'entries'], []),
+  listModalDisplayed: _.get(watchState, [group, 'listModalDisplayed'], false),
+});
+
+
 const mapStateToProps = (state, { entity: { entityType, entityId } }) => {
   const basePath = [entityType, 'watchers', entityId];
+
+  const watchState = _.get(state, basePath);
 
   return {
     currentUser: state.user.current,
     isFetching: {
-      [groups.assignees]: _.get(state, [...basePath, groups.assignees, 'isFetching']),
-      [groups.watchers]: _.get(state, [...basePath, groups.watchers, 'isFetching']),
+      [groups.assignees]: _.get(watchState, [groups.assignees, 'isFetching']),
+      [groups.watchers]: _.get(state, [groups.watchers, 'isFetching']),
+    },
+    data: {
+      assignees: getGroupData(watchState, groups.assignees),
+      watchers: getGroupData(watchState, groups.watchers),
     }
   };
 };
@@ -36,8 +48,8 @@ const mapDispatchToProps = (dispatch, { entity: { entityType, entityId } }) => {
   const { actions } = getStore('watchers', entityType);
 
   return {
-    fetch: (group)=>dispatch(actions.fetchWatchers(entityId, group)),
-    watch: (group, id)=>dispatch(actions.watch(entityId, group, id)),
+    fetch: (group) => dispatch(actions.fetchWatchers(entityId, group)),
+    watch: (group, id) => dispatch(actions.watch(entityId, group, id)),
     showSelectModal: (group) => dispatch(actions.showSelectModal(entityId, group)),
     hideSelectModal: () => dispatch(actions.hideSelectModal(entityId)),
     toggleListModal: (group) => dispatch(actions.toggleListModal(entityId, group)),

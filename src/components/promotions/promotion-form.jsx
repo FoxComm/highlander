@@ -18,6 +18,7 @@ import Tags from '../tags/tags';
 import DiscountAttrs from './discount-attrs';
 import offers from './offers';
 import qualifiers from './qualifiers';
+import Watchers from '../watchers/watchers';
 
 import { setDiscountAttr } from '../../paragons/promotion';
 
@@ -101,6 +102,14 @@ export default class PromotionForm extends Component {
     );
   }
 
+  get watchersBlock(): ?Element {
+    const { promotion } = this.props;
+
+    if (promotion.form.id) {
+      return <Watchers entity={{entityId: promotion.form.id, entityType: 'promotions'}} />;
+    }
+  }
+
   checkValidity(): bool {
     return this.refs.form.checkValidity();
   }
@@ -180,6 +189,7 @@ export default class PromotionForm extends Component {
             onChange={this.handleChange}
           />
           {this.promotionState}
+          {this.watchersBlock}
         </div>
       </Form>
     );

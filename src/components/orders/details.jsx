@@ -11,9 +11,9 @@ import OrderLineItems from './order-line-items';
 import OrderShippingAddress from './shipping-address';
 import OrderShippingMethod from './order-shipping-method';
 import Payments from './payments';
-import Watchers from './watchers';
 import OrderDiscounts from './order-discounts';
 import OrderCoupons from './order-coupons';
+import Watchers from '../watchers/watchers';
 
 const OrderDetails = props => {
   const {order} = props;
@@ -50,7 +50,7 @@ const OrderDetails = props => {
           <Messages errors={errors} warnings={warnings} />
           <TotalsSummary entity={currentOrder} title={currentOrder.title} />
           <CustomerInfo order={currentOrder} />
-          <Watchers order={currentOrder} />
+          <Watchers entity={{entityId: currentOrder.referenceNumber, entityType: 'orders'}} />
         </div>
       </div>
     </div>
