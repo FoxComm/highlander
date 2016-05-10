@@ -2,15 +2,19 @@
 @import "media-queries";
 
 .catalog {
-  margin: 60px 0;
   padding-left: var(--grid-margin);
   padding-right: var(--grid-margin);
+  composes: inner-wrap from 'ui/css/layout.css';
 }
 
 .list {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+
+  &:first-child {
+    margin-top: 120px;
+  }
 }
 
 .header {
@@ -40,13 +44,5 @@
   .catalog {
     justify-content: space-between;
     margin: 20px 0 80px;
-  }
-}
-
-@media (--large-viewport-up) {
-  .catalog {
-    display: flex;
-    lost-column: 7/11;
-    lost-offset: -2/11;
   }
 }
