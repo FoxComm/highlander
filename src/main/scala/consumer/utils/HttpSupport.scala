@@ -49,7 +49,7 @@ case class Phoenix(conn: PhoenixConnectionInfo)(implicit ec: EC, ac: AS, mat: AM
         ByteString(authBodyTemplate.format(conn.user, conn.pass))
       ))
 
-    Http().singleRequest(request, cp)
+    Http().singleRequest(request, settings = cp)
   }
 
   private def extractJwtToken(response: HttpResponse): String =
@@ -57,7 +57,7 @@ case class Phoenix(conn: PhoenixConnectionInfo)(implicit ec: EC, ac: AS, mat: AM
 
   private def getRequest(suffix: String, token: String): Future[HttpResponse] = {
     val request = HttpRequest(HttpMethods.GET, fullUri(suffix)).addHeader(RawHeader(authHeaderName, token))
-    Http().singleRequest(request, cp)
+    Http().singleRequest(request, settings = cp)
   }
 
   private def postRequest(suffix: String, body: String, token: String): Future[HttpResponse] = {
@@ -68,8 +68,8 @@ case class Phoenix(conn: PhoenixConnectionInfo)(implicit ec: EC, ac: AS, mat: AM
         ContentTypes.`application/json`,
         ByteString(body)
       )).addHeader(RawHeader(authHeaderName, token))
-    
-    Http().singleRequest(request, cp)
+
+    Http().singleRequest(request, settings = cp)
   }
 
   private def fullUri(suffix: String) = s"${conn.uri}/$suffix"
