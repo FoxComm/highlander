@@ -37,26 +37,28 @@ lazy val phoenixScala = (project in file(".")).
 
       Seq(
         // Config
-        "com.typesafe"              % "config"                % "1.3.0",
+        "com.typesafe"              % "config"                    % "1.3.0",
+        // Cache
+        "com.github.cb372"          %% "scalacache-lrumap"        % "0.8.1",
         // JSON
-        "org.json4s"                %% "json4s-core"          % json4sVersion,
-        "org.json4s"                %% "json4s-jackson"       % json4sVersion,
-        "org.json4s"                %% "json4s-ext"           % json4sVersion,        
+        "org.json4s"                %% "json4s-core"              % json4sVersion,
+        "org.json4s"                %% "json4s-jackson"           % json4sVersion,
+        "org.json4s"                %% "json4s-ext"               % json4sVersion,
         // Search
-        "org.apache.kafka"          % "kafka_2.11"            % "0.9.0.0",
-        "io.confluent"              % "kafka-avro-serializer" % "1.0",
-        "com.sksamuel.elastic4s"    %% "elastic4s-core"       % "2.1.2",
+        "org.apache.kafka"          % "kafka_2.11"                % "0.9.0.0",
+        "io.confluent"              % "kafka-avro-serializer"     % "1.0",
+        "com.sksamuel.elastic4s"    %% "elastic4s-core"           % "2.1.2",
         // Akka
-        "com.typesafe.akka"    %% "akka-slf4j"               % akkaV,
-        "com.typesafe.akka"    %% "akka-actor"               % akkaV,
-        "com.typesafe.akka"    %% "akka-agent"               % akkaV,
-        "com.typesafe.akka"    %% "akka-stream-experimental" % akkaHttpV,
-        "com.typesafe.akka"    %% "akka-http-experimental"   % akkaHttpV,
-        "de.heikoseeberger"    %% "akka-http-json4s"         % "1.0.0",
+        "com.typesafe.akka"         %% "akka-slf4j"               % akkaV,
+        "com.typesafe.akka"         %% "akka-actor"               % akkaV,
+        "com.typesafe.akka"         %% "akka-agent"               % akkaV,
+        "com.typesafe.akka"         %% "akka-stream-experimental" % akkaHttpV,
+        "com.typesafe.akka"         %% "akka-http-experimental"   % akkaHttpV,
+        "de.heikoseeberger"         %% "akka-http-json4s"         % "1.0.0",
         // Cats
-        "org.spire-math"       %% "cats"                      % "0.3.0",
+        "org.spire-math"            %% "cats"                     % "0.3.0",
         // Testing
-        "org.scalatest"        %% "scalatest"                 % scalaTestV % "test"    
+        "org.scalatest"             %% "scalatest"                % scalaTestV % "test"
       )
     },
     (mainClass in Compile) := Some("consumer.Main"),

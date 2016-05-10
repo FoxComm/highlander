@@ -10,11 +10,17 @@ import akka.util.ByteString
 
 import consumer.aliases._
 
+import scalacache._
+import lrumap._
+import memoization._
+
 import scala.language.postfixOps
 
 final case class PhoenixConnectionInfo(uri: String, user: String, pass: String)
 
 case class Phoenix(conn: PhoenixConnectionInfo)(implicit ec: EC, ac: AS, mat: AM, cp: CP) {
+
+  implicit val scalaCache = ScalaCache(LruMapCache(1))
 
   val authUri = fullUri("public/login")
 
@@ -25,16 +31,18 @@ case class Phoenix(conn: PhoenixConnectionInfo)(implicit ec: EC, ac: AS, mat: AM
   val authHeaderName = "JWT"
 
   def get(suffix: String): Future[HttpResponse] = for {
-    authResponse ← authenticate()
-    jwtToken     = extractJwtToken(authResponse)
-    response     ← getInner(suffix, jwtToken)
+    jwtToken ← getJwtToken
+    response ← getRequest(suffix, jwtToken)
   } yield response
 
   def post(suffix: String, body: String): Future[HttpResponse] = for {
-    authResponse ← authenticate()
-    jwtToken     = extractJwtToken(authResponse)
-    response     ← postInner(suffix, body, jwtToken)
+    jwtToken ← getJwtToken
+    response ← postRequest(suffix, body, jwtToken)
   } yield response
+
+  private def getJwtToken: Future[String] = memoize(7 days) {
+    authenticate().map(extractJwtToken)
+  }
 
   private def authenticate(): Future[HttpResponse] = {
     val request = HttpRequest(
@@ -48,12 +56,15 @@ case class Phoenix(conn: PhoenixConnectionInfo)(implicit ec: EC, ac: AS, mat: AM
     Http().singleRequest(request, cp)
   }
 
-  private def getInner(suffix: String, token: String): Future[HttpResponse] = {
+  private def extractJwtToken(response: HttpResponse): String =
+    response.headers.find(_.name() == jwtHeaderName).map(_.value()).getOrElse("")
+
+  private def getRequest(suffix: String, token: String): Future[HttpResponse] = {
     val request = HttpRequest(HttpMethods.GET, fullUri(suffix)).addHeader(RawHeader(authHeaderName, token))
     Http().singleRequest(request, cp)
   }
 
-  private def postInner(suffix: String, body: String, token: String): Future[HttpResponse] = {
+  private def postRequest(suffix: String, body: String, token: String): Future[HttpResponse] = {
     val request = HttpRequest(
       method = HttpMethods.POST,
       uri    = fullUri(suffix),
@@ -66,9 +77,6 @@ case class Phoenix(conn: PhoenixConnectionInfo)(implicit ec: EC, ac: AS, mat: AM
   }
 
   private def fullUri(suffix: String) = s"${conn.uri}/$suffix"
-
-  private def extractJwtToken(response: HttpResponse): String =
-    response.headers.find(_.name() == jwtHeaderName).map(_.value()).getOrElse("")
 }
 
 /**
