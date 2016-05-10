@@ -1,3 +1,7 @@
+.banner {
+  min-width: 360px;
+}
+
 .header {
   display: flex;
   align-items: center;

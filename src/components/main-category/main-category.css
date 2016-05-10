@@ -5,6 +5,8 @@
   --image-height: 242px;
 }
 .category {
+  display: inline-block;
+  margin: 0 5%;
   position: relative;
 }
 

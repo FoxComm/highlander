@@ -20,13 +20,13 @@ const Banner = (props: Props): HTMLElement => (
     </h2>
     <img styleName="image" src={props.image} />
     <div styleName="links">
-      {['men', 'women'].map(shop => (
+      {['men', 'women'].map(type => (
         <Link
-          key={`link-${props.category}-${shop}`}
+          key={`link-${props.category}-${type}`}
           styleName="link"
-          to={{pathname: `/${props.category}`, query: {shop}}}
+          to={{pathname: `/${props.category}`, query: {type}}}
         >
-          {`Shop ${_.capitalize(shop)}`}
+          {`Shop ${_.capitalize(type)}`}
         </Link>
       ))}
     </div>

@@ -18,8 +18,8 @@ class Main extends Component {
             header="Summer 2016"
             description="New collection is here"
             links={[
-              {to: '/all?shop=men', text: 'Shop Men'},
-              {to: '/all?shop=women', text: 'Shop Women'},
+              {to: '/all?type=men', text: 'Shop Men'},
+              {to: '/all?type=women', text: 'Shop Women'},
             ]}
           />
         </div>
@@ -30,18 +30,16 @@ class Main extends Component {
   get categories(): HTMLElement {
     return (
       <div styleName="categories">
-        <div styleName="wrap">
-          <Category
-            name="EYEGLASSES"
-            category="eyeglasses"
-            image="images/banners/eyeglasses.jpg"
-          />
-          <Category
-            name="SUNGLASSES"
-            category="sunglasses"
-            image="images/banners/sunglasses.jpg"
-          />
-        </div>
+        <Category
+          name="EYEGLASSES"
+          category="eyeglasses"
+          image="images/banners/eyeglasses.jpg"
+        />
+        <Category
+          name="SUNGLASSES"
+          category="sunglasses"
+          image="images/banners/sunglasses.jpg"
+        />
       </div>
     );
   }

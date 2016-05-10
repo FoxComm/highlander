@@ -25,19 +25,10 @@
 
 .categories {
   width: 100%;
-  height: 384px;
   background: var(--whitish);
   padding-top: 80px;
   padding-bottom: 40px;
-
-  & .wrap {
-    display: flex;
-    justify-content: center;
-  }
-
-  & article:not(:last-child) {
-    lost-offset: 1/5;
-  }
+  text-align: center;
 }
 
 .try-at-home-banner {
