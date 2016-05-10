@@ -8,6 +8,8 @@ import { createEmptyCoupon, configureCoupon} from '../../paragons/coupons';
 import createAsyncActions from '../async-utils';
 import Api from '../../lib/api';
 
+/* coupon actions */
+
 export const couponsNew = createAction('COUPONS_NEW');
 const defaultContext = 'default';
 
@@ -30,31 +32,6 @@ const _updateCoupon = createAsyncActions(
   (coupon, context = defaultContext) => {
     const id = coupon.form.id;
     return Api.patch(`/coupons/${context}/${id}`, coupon);
-  }
-);
-
-const _getCodes = createAsyncActions(
-  'getCouponCodes',
-  (id: number) => {
-    return Api.get(`/coupons/codes/${id}`);
-  }
-);
-
-const _generateCodes = createAsyncActions(
-  'generateCouponCodes',
-  (id: number, prefix: string, length: number, quantity: number) => {
-    return Api.post(`/coupons/codes/generate/${id}`, {
-      prefix,
-      length: prefix.length + length,
-      quantity,
-    });
-  }
-);
-
-const _generateCode = createAsyncActions(
-  'generateCouponCode',
-  (id: number, code: string) => {
-    return Api.post(`/coupons/codes/generate/${id}/${code}`);
   }
 );
 
@@ -89,10 +66,47 @@ function updateCouponInState(state, response) {
   };
 }
 
+/* coupon code generation actions */
+
+const _generateCodes = createAsyncActions(
+  'generateCouponCodes',
+  (id: number, prefix: string, length: number, quantity: number) => {
+    return Api.post(`/coupons/codes/generate/${id}`, {
+      prefix,
+      length: prefix.length + length,
+      quantity,
+    });
+  }
+);
+
+const _generateCode = createAsyncActions(
+  'generateCouponCode',
+  (id: number, code: string) => {
+    return Api.post(`/coupons/codes/generate/${id}/${code}`);
+  }
+);
+
+const _getCodes = createAsyncActions(
+  'getCouponCodes',
+  (id: number) => {
+    return Api.get(`/coupons/codes/${id}`);
+  }
+);
+
+/* module state */
+
 const initialState = {
   coupon: null,
   codes: [],
   selectedPromotions: [],
+  codeGeneration: {
+    bulk: void 0,
+    codesPrefix: '',
+    singleCode: '',
+    codesQuantity: 1,
+    codesLength: 1,
+    isDialogVisible: false,
+  }
 };
 
 const reducer = createReducer({
