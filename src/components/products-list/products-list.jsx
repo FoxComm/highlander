@@ -20,6 +20,7 @@ type ProductsListParams = {
   list: ?Array<Product>;
   categories: ?Array<Category>;
   category: ?string;
+  location: any;
 }
 
 const mapStateToProps = state => ({
@@ -30,19 +31,28 @@ class ProductsList extends React.Component {
 
   renderHeader() {
     const props = this.props;
-    const category = props.category
-      ? _.find(props.categories, {name: props.category})
-      : '';
 
-    if (category && category.description) {
-      return (
-        <header styleName="header">
-          <h1>{props.category}</h1>
-          <p>{category.description}</p>
+    if (!props.category) return;
 
-        </header>
-      )
-    };
+    const category = _.find(props.categories, {name: props.category});
+    const description = (category && category.description) ? <p styleName="description">{category.description}</p> : '';
+
+    let className = `header-${props.category}`;
+    let title = props.category;
+
+    if (props.location.query && props.location.query.type) {
+      className = `${className}-${props.location.query.type}`;
+      title = `${props.location.query.type}'s ${title}`
+    }
+
+    return (
+      <header styleName={className}>
+        <div styleName="header-wrap">
+          <h1 styleName="title">{title}</h1>
+          {description}
+        </div>
+      </header>
+    )
   }
 
   render() {
