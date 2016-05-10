@@ -6,6 +6,8 @@ import akka.stream.Materializer
 
 import com.sksamuel.elastic4s.source.DocumentSource
 import scala.concurrent.Future
+import scalacache.ScalaCache
+import scalacache.serialization.InMemoryRepr
 
 /**
   * Aliases
@@ -15,6 +17,7 @@ object aliases {
   type AS = ActorSystem
   type CP = ConnectionPoolSettings
   type EC = scala.concurrent.ExecutionContext
+  type SC = ScalaCache[InMemoryRepr]
 }
 
 /**

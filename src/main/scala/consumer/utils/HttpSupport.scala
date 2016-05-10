@@ -2,6 +2,7 @@ package consumer.utils
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
+import scala.language.postfixOps
 
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.headers.RawHeader
@@ -11,16 +12,11 @@ import akka.util.ByteString
 import consumer.aliases._
 
 import scalacache._
-import lrumap._
 import memoization._
-
-import scala.language.postfixOps
 
 final case class PhoenixConnectionInfo(uri: String, user: String, pass: String)
 
-case class Phoenix(conn: PhoenixConnectionInfo)(implicit ec: EC, ac: AS, mat: AM, cp: CP) {
-
-  implicit val scalaCache = ScalaCache(LruMapCache(1))
+case class Phoenix(conn: PhoenixConnectionInfo)(implicit ec: EC, ac: AS, mat: AM, cp: CP, sc: SC) {
 
   val authUri = fullUri("public/login")
 

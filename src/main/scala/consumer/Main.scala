@@ -3,7 +3,8 @@ package consumer
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
-
+import scalacache.ScalaCache
+import scalacache.lrumap.LruMapCache
 import akka.actor.ActorSystem
 import akka.http.ConnectionPoolSettings
 import akka.stream.ActorMaterializer
@@ -57,6 +58,7 @@ import consumer.elastic.ElasticSearchProcessor
 object Main {
   implicit val system = ActorSystem("system")
   implicit val materializer = ActorMaterializer()
+  implicit val scalaCache = ScalaCache(LruMapCache(1))
   
   def main(args: Array[String]): Unit = {
     val conf = MainConfig.loadFromConfig()
