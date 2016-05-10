@@ -18,18 +18,15 @@
 
 .wrap {
   composes: wrap from "ui/css/layout.css";
+  display: flex;
 }
 
 .hamburger {
   display: none;
 }
 
-.search, .hamburger, .cart {
-  width: 20px;
-}
-
-.search, .hamburger, .tools {
-  width: 30%;
+.search {
+  flex: 1;
 }
 
 .search {
@@ -39,6 +36,7 @@
 }
 
 .tools {
+  flex: 1;
   display: flex;
   justify-content: flex-end;
 }
