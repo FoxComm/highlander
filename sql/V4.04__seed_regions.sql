@@ -3026,7 +3026,6 @@ insert into regions (id, country_id, name, abbreviation) values
  (3025, 178, 'Masbate', NULL),
  (3026, 178, 'Mindoro Occidental', NULL),
  (3027, 178, 'Mindoro Oriental', NULL),
- (3028, 178, '', NULL),
  (3029, 178, 'Mountain Province', NULL),
  (3030, 178, 'Misamis Occidental', NULL),
  (3031, 178, 'Misamis Oriental', NULL),
