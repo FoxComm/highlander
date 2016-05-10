@@ -2,12 +2,25 @@
 @import "media-queries";
 
 .catalog {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
   margin: 60px 0;
   padding-left: var(--grid-margin);
   padding-right: var(--grid-margin);
+}
+
+.list {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.header {
+  height: 400px;
+  margin-bottom: 40px;
+  padding-top: 150px;
+
+  & h1 {
+    text-transform: capitalize;
+  }
 }
 
 .not-found {
@@ -32,6 +45,7 @@
 
 @media (--large-viewport-up) {
   .catalog {
+    display: flex;
     lost-column: 7/11;
     lost-offset: -2/11;
   }
