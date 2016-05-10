@@ -23,8 +23,10 @@ class Albums(tag: Tag) extends ObjectHeads[Album](tag, "albums") {
     createdAt) <> ((Album.apply _).tupled, Album.unapply)
 }
 
-object Albums extends FoxTableQuery[Album, Albums](
-  idLens = lens[Album].id)(new Albums(_)) {
+object Albums extends FoxTableQuery[Album, Albums](new Albums(_))
+  with ReturningId[Album, Albums] {
+
+  val returningLens: Lens[Album, Int] = lens[Album].id
 
   implicit val formats = JsonFormatters.phoenixFormats
 

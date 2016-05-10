@@ -1,16 +1,10 @@
 package models.image
 
-import java.time.Instant
-
 import cats.data.Xor
 import cats.data.Xor.{left, right}
 import failures.{Failures, GeneralFailure}
 import models.objects._
-import shapeless._
-import slick.driver.PostgresDriver.api._
-import slick.lifted.Tag
-import utils.db._
-import utils.{IlluminateAlgorithm, JsonFormatters, Validation}
+import utils.{IlluminateAlgorithm, JsonFormatters}
 
 case class Image(src: String, title: Option[String] = None, alt: Option[String] = None)
 

@@ -27,7 +27,7 @@ trait PromotionSeeds {
     ins       ← * <~ ObjectUtils.insert(form, shadow)
     promotion ← * <~ Promotions.create(Promotion(contextId = context.id, applyType = payload.applyType,
       formId = ins.form.id, shadowId = ins.shadow.id, commitId = ins.commit.id))
-    link      ← * <~ ObjectLinks.create(ObjectLink(leftId = promotion.shadowId, rightId = discount.shadowId))
+    link      ← * <~ ObjectLinks.create(ObjectLink.buildDiscount(promotion.shadowId, discount.shadowId))
   } yield BasePromotion(promotion.id, ins.form.id, ins.shadow.id, payload.applyType, discount.title)
 
   def createPromotion(name: String, applyType: Promotion.ApplyType): CreatePromotion = {

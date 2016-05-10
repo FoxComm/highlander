@@ -35,6 +35,9 @@ object ObjectLink {
 
   implicit val linkTypeColumnType: JdbcType[LinkType] with BaseTypedType[LinkType] =
     LinkType.slickColumn
+
+  def buildDiscount(leftId: Int, rightId: Int): ObjectLink =
+    ObjectLink(leftId = leftId, rightId = rightId, linkType = PromotionDiscount)
 }
 
 class ObjectLinks(tag: Tag) extends FoxTable[ObjectLink](tag, "object_links")  {
