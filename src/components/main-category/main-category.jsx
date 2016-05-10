@@ -23,7 +23,7 @@ const Banner = (props: Props): HTMLElement => (
         <Link
           key={`link-${props.category}-${shop}`}
           styleName="link"
-          to={{pathname: props.category, query: {shop}}}
+          to={{pathname: `/${props.category}`, query: {shop}}}
         >
           {`Shop ${_.capitalize(shop)}`}
         </Link>
