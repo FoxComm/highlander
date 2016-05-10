@@ -1,17 +1,7 @@
 @import 'media-queries.css';
 @import 'variables.css';
 @import 'colors.css';
-
-@define-mixin link $color {
-  & a {
-    color: $color;
-    border-color: $color;
-  }
-
-  & a:before {
-    background-color: $color;
-  }
-}
+@import 'ui/css/links.css';
 
 .top-banner {
   width: 100%;
@@ -20,7 +10,9 @@
   background-size: cover;
   color: var(--whitish);
 
-  @mixin link var(--whitish);
+  & a {
+    @mixin link-color var(--whitish);
+  }
 
   & article {
     lost-column: 1/3;
@@ -61,7 +53,9 @@
     lost-offset: -2/3;
   }
 
-  @mixin link var(--blueish);
+  & a {
+    @mixin link-color var(--blueish);
+  }
 }
 
 .visit-a-store-banner {
@@ -74,7 +68,9 @@
     lost-column: 1/3;
   }
 
-  @mixin link var(--dark-greyish);
+  & a {
+    @mixin link-color var(--dark-greyish);
+  }
 
   & .visit-a-store-banner__image {
     lost-column: 2/3;
