@@ -35,6 +35,21 @@
   border-style: solid;
   font-size: 23px;
   text-decoration: none;
+  position: relative;
+}
+
+.link:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+}
+
+.link:hover:before {
+  opacity: 0.16;
 }
 
 .link:not(:last-child) {

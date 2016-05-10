@@ -25,7 +25,7 @@ const Banner = (props: Props): HTMLElement => (
     <div styleName="links">
       {props.links.map((link: LinkInfo, index) => (
         <Link
-          key={`link-${link.to}-${link-index}`}
+          key={`link-${link.to}-${index}`}
           styleName="link"
           to={link.to ? link.to : null}
           onClick={link.onClick ? link.onClick : null}

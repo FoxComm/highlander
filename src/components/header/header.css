@@ -9,6 +9,7 @@
   background: rgba(255, 255, 255, .34);
   transition: background 300ms;
   height: 80px;
+  z-index: 1;
 }
 
 .header-scrolled {
