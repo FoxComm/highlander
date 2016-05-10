@@ -33,7 +33,9 @@ create table orders_search_view
     rmas jsonb
 );
 
-create or replace function update_orders_view_from_orders_fn() returns trigger as $emp_stamp$
+
+-- update on orders changes
+create or replace function update_orders_view_from_orders_fn() returns trigger as $$
     begin
         insert into orders_search_view select distinct on (new.id)
             -- order
@@ -58,44 +60,9 @@ create or replace function update_orders_view_from_orders_fn() returns trigger a
                 'joined_at', to_char(c.created_at, 'yyyy-mm-dd"t"hh24:mi:ss.ms"z"'),
                 'rank', rank.rank,
                 'revenue', coalesce(rank.revenue, 0)
-            ) as customer,
-            -- line items
-            li.count as line_item_count,
-            li.items as line_items,
-            -- payments
-            p.payments as payments,
-            ccp.count as credit_card_count,
-            ccp.total as credit_card_total,
-            gcp.count as gift_card_count,
-            gcp.total as gift_card_total,
-            scp.count as store_credit_count,
-            scp.total as store_credit_total,
-            -- shipments
-            s.count as shipment_count,
-            s.shipments as shipments,
-            -- addresses
-            osa.count as shipping_addresses_count,
-            osa.addresses as shipping_addresses,
-            oba.count as billing_addresses_count,
-            oba.addresses as billing_addresses,
-            -- assignments
-            a.count as assignment_count,
-            a.assignees as assignees,
-            -- rmas
-            rma.count as rma_count,
-            rma.rmas as rmas
+            ) as customer
             from customers as c
             left join customers_ranking as rank on (c.id = rank.id)
-            left join order_line_items_view as li on (new.id = li.order_id)
-            left join order_payments_view as p on (new.id = p.order_id)
-            left join order_credit_card_payments_view as ccp on (new.id = ccp.order_id)
-            left join order_gift_card_payments_view as gcp on (new.id = gcp.order_id)
-            left join order_store_credit_payments_view as scp on (new.id = scp.order_id)
-            left join order_shipments_view as s on (new.id = s.order_id)
-            left join order_shipping_addresses_view as osa on (new.id = osa.order_id)
-            left join order_billing_addresses_view as oba on (new.id = oba.order_id)
-            left join order_assignments_view as a on (new.id = a.order_id)
-            left join order_rmas_view as rma on (new.id = rma.order_id)
             where (new.customer_id = c.id)
           -- update only order stuff
 on conflict do update set
@@ -108,7 +75,7 @@ on conflict do update set
 
       return null;
   end;
-$emp_stamp$ language plpgsql;
+$$ language plpgsql;
 
 
 create trigger update_orders_view_from_orders
@@ -116,4 +83,9 @@ create trigger update_orders_view_from_orders
     for each row
     execute procedure update_orders_view_from_orders_fn();
 
--- drop trigger if exists update_orders_view_from_orders on orders;
+-- update on customers changes
+create or replace function update_orders_view_from_customers_fn() returns trigger as $$
+  begin
+    return null;
+  end;
+$$ language plpgsql;
