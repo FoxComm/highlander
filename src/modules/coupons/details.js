@@ -11,6 +11,8 @@ import Api from '../../lib/api';
 /* coupon actions */
 
 export const couponsNew = createAction('COUPONS_NEW');
+export const couponsChange = createAction('COUPONS_CHANGE');
+
 const defaultContext = 'default';
 
 const getCoupon = createAsyncActions(
@@ -61,6 +63,8 @@ function updateCouponInState(state, response) {
 export const couponsGenerationReset = createAction('COUPONS_GENERATION_RESET');
 export const couponsGenerationShowDialog = createAction('COUPONS_GENERATION_SHOW_DIALOG');
 export const couponsGenerationHideDialog = createAction('COUPONS_GENERATION_HIDE_DIALOG');
+export const couponsGenerationSelectSingle = createAction('COUPONS_GENERATION_SELECT_SINGLE');
+export const couponsGenerationSelectBulk = createAction('COUPONS_GENERATION_SELECT_BULK');
 
 const _generateCodes = createAsyncActions(
   'generateCouponCodes',
@@ -102,8 +106,8 @@ export function generateCodes(prefix: string, length: number, quantity: number) 
 
 const initialCodeGenerationState = {
   bulk: void 0,
-  codesPrefix: '',
-  singleCode: '',
+  codesPrefix: null,
+  singleCode: null,
   codesQuantity: 1,
   codesLength: 1,
   isDialogVisible: false,
@@ -121,6 +125,12 @@ const reducer = createReducer({
     return {
       ...state,
       coupon: createEmptyCoupon(),
+    };
+  },
+  [couponsChange]: (state, coupon) => {
+    return {
+      ...state,
+      coupon,
     };
   },
   [getCoupon.succeeded]: updateCouponInState,
@@ -155,10 +165,16 @@ const reducer = createReducer({
     };
   },
   [couponsGenerationShowDialog]: (state) => {
-    return assoc(state, 'codeGeneration.isDialogVisible', true);
+    return assoc(state, ['codeGeneration', 'isDialogVisible'], true);
   },
   [couponsGenerationHideDialog]: (state) => {
-    return assoc(state, 'codeGeneration.isDialogVisible', false);
+    return assoc(state, ['codeGeneration', 'isDialogVisible'], false);
+  },
+  [couponsGenerationSelectSingle]: (state) => {
+    return assoc(state, ['codeGeneration', 'bulk'], false);
+  },
+  [couponsGenerationSelectBulk]: (state) => {
+    return assoc(state, ['codeGeneration', 'bulk'], true);
   },
 }, initialState);
 

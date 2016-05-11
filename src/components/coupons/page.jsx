@@ -104,13 +104,14 @@ class CouponPage extends Component {
   save(): ?Promise {
     let willBeCoupon = Promise.resolve();
 
-    if (!_.isNumber(this.state.coupon.promotion)) {
+    if (!_.isNumber(this.props.coupon.promotion)) {
       this.setState({promotionError: true});
       return null;
     }
 
-    if (this.state.coupon) {
-      const { coupon, couponCode } = this.state;
+    if (this.props.coupon) {
+      const { coupon } = this.props;
+      const couponCode = this.props.codeGeneration.singleCode;
 
       if (this.isNew) {
         willBeCoupon = this.props.actions.createCoupon(coupon);
@@ -131,11 +132,7 @@ class CouponPage extends Component {
 
   @autobind
   handleUpdateCoupon(coupon: Object): void {
-    let errors = {};
-    if (_.isNumber(coupon.promotion)) {
-      errors = { promotionError: false };
-    }
-    this.setState({ coupon, ...errors });
+    this.props.actions.couponsChange(coupon);
   }
 
   @autobind
@@ -190,6 +187,7 @@ class CouponPage extends Component {
   render(): Element {
     const props = this.props;
     const { coupon, promotionError } = this.state;
+    const { codeGeneration } = props;
 
     if (!coupon || props.isFetching) {
       return <div><WaitAnimation /></div>;
@@ -199,6 +197,7 @@ class CouponPage extends Component {
       ...props.children.props,
       coupon,
       promotionError,
+      codeGeneration,
       selectedPromotions: this.selectedPromotions,
       onUpdateCoupon: this.handleUpdateCoupon,
       onUpdateCouponCode: this.handleUpdateCouponCode,
@@ -239,6 +238,7 @@ class CouponPage extends Component {
 export default connect(
   state => ({
     details: state.coupons.details,
+    codeGeneration: state.coupons.details.codeGeneration,
     isFetching: _.get(state.asyncActions, 'getCoupon.inProgress', false),
   }),
   dispatch => ({ actions: bindActionCreators(CouponActions, dispatch), dispatch })

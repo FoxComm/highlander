@@ -5,6 +5,7 @@
 import _ from 'lodash';
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
+import { connect } from 'react-redux';
 
 // components
 import ContentBox from '../../content-box/content-box';
@@ -18,13 +19,15 @@ import CodeCreationModal from './code-creation-modal';
 // styles
 import styles from './styles.css';
 
+// redux
+import * as actions from '../../../modules/coupons/details';
+
 type Props = {
   onChangeSingleCode: (code: ?string) => any;
   onGenerateBulkCodes: (prefix: string, length: number, quantity: number) => any;
 };
 
 type State = {
-  bulk: ?boolean,
   codesPrefix: string,
   singleCode: string,
   codesQuantity: number,
@@ -37,11 +40,10 @@ type Target = {
   value: string,
 };
 
-export default class CouponCodes extends Component {
+class CouponCodes extends Component {
   props: Props;
 
   state: State = {
-    bulk: void 0,
     codesPrefix: '',
     singleCode: '',
     codesQuantity: 1,
@@ -50,7 +52,7 @@ export default class CouponCodes extends Component {
   };
 
   get singleCouponFormPart(): ?Element {
-    if (this.state.bulk !== false) {
+    if (this.props.codeGeneration.bulk !== false) {
       return null;
     }
 
@@ -149,7 +151,7 @@ export default class CouponCodes extends Component {
   }
 
   get bulkCouponFormPart(): ?Element {
-    if (this.state.bulk !== true) {
+    if (this.props.codeGeneration.bulk !== true) {
       return null;
     }
 
@@ -220,13 +222,12 @@ export default class CouponCodes extends Component {
 
   @autobind
   handleSingleSelect(): void {
-    this.setState({bulk: false});
+    this.props.couponsGenerationSelectSingle();
   }
 
   @autobind
   handleBulkSelect(): void {
-    this.props.onChangeSingleCode(null);
-    this.setState({bulk: true});
+    this.props.couponsGenerationSelectBulk();
   }
 
   render(): Element {
@@ -234,7 +235,7 @@ export default class CouponCodes extends Component {
       <ContentBox title="Coupon Code">
         <div>
           <RadioButton id="singleCouponCodeRadio"
-                       checked={this.state.bulk === false}
+                       checked={this.props.codeGeneration.bulk === false}
                        onChange={this.handleSingleSelect} >
             <label htmlFor="singleCouponCodeRadio" styleName="field-label">Single coupon code</label>
           </RadioButton>
@@ -242,7 +243,7 @@ export default class CouponCodes extends Component {
         {this.singleCouponFormPart}
         <div>
           <RadioButton id="bulkCouponCodeRadio"
-                       checked={this.state.bulk === true}
+                       checked={this.props.codeGeneration.bulk === true}
                        onChange={this.handleBulkSelect} >
             <label htmlFor="bulkCouponCodeRadio" styleName="field-label">Bulk generate coupon codes</label>
           </RadioButton>
@@ -258,3 +259,5 @@ export default class CouponCodes extends Component {
     );
   }
 }
+
+export default connect(null, actions)(CouponCodes);

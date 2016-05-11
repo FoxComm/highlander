@@ -138,6 +138,7 @@ export default class CouponForm extends Component {
   render() {
     const formAttributes = _.get(this.props, 'coupon.form.attributes', []);
     const shadowAttributes = _.get(this.props, 'coupon.shadow.attributes', []);
+    console.log(this.props);
 
     return (
       <Form styleName="coupon-form">
@@ -154,6 +155,7 @@ export default class CouponForm extends Component {
           <CouponCodes
             onGenerateBulkCodes={this.handleGenerateBulkCodes}
             onChangeSingleCode={this.handleChangeSingleCode}
+            codeGeneration={this.props.codeGeneration}
           />
           <UsageRules {...(this.usageRules)} onChange={this.handleUsageRulesChange}/>
         </div>
