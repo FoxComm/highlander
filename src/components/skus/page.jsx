@@ -101,6 +101,7 @@ export class SkuPage extends Component<void, Props, State> {
         <LocalNav>
           <IndexLink to="sku-details" params={params}>Details</IndexLink>
           <Link to="sku-images" params={params}>Images</Link>
+          <Link to="sku-inventory-details" params={params}>Inventory</Link>
           <Link to="sku-notes" params={params}>Notes</Link>
           <Link to="sku-activity-trail" params={params}>Activity Trail</Link>
         </LocalNav>
