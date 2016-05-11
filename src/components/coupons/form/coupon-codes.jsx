@@ -24,6 +24,7 @@ import * as actions from '../../../modules/coupons/details';
 
 type Props = {
   isNew: boolean,
+  isValid: boolean,
   codeGeneration: Object,
   coupon: Object,
   saveCoupon: Function,
@@ -36,7 +37,6 @@ type Props = {
   couponsGenerationChange: Function,
   couponsGenerationReset: Function,
   codeIsOfValidLength: Function,
-  promotionPresent: Function,
 };
 
 type Target = {
@@ -95,7 +95,13 @@ class CouponCodes extends Component {
   @autobind
   handleGenerateBulkClick(): void {
     if (this.codeIsOfValidLength()) {
-      this.props.couponsGenerationShowDialog();
+      let willBeCoupon = this.props.isNew ? this.props.saveCoupon() : Promise.resolve();
+
+      if (willBeCoupon == null) return;
+
+      willBeCoupon.then(() => {
+        this.props.couponsGenerationShowDialog();
+      });
     }
   }
 
@@ -106,16 +112,9 @@ class CouponCodes extends Component {
 
   @autobind
   handleConfirmOfCodeGeneration(): void {
-    const { coupon } = this.props;
     const { codesPrefix, codesLength, codesQuantity } = this.props.codeGeneration;
 
-    let willBeCoupon = this.props.isNew ? this.props.saveCoupon() : Promise.resolve();
-
-    if (willBeCoupon == null) return;
-
-    willBeCoupon.then(() => {
-      this.props.generateCodes(codesPrefix, codesLength, codesQuantity);
-    }).then(() => {
+    this.props.generateCodes(codesPrefix, codesLength, codesQuantity).then(() => {
       this.props.couponsGenerationReset();
     });
   }
@@ -125,9 +124,7 @@ class CouponCodes extends Component {
   }
 
   get generateCodesDisabled(): boolean {
-    return !(this.props.codeGeneration.codesPrefix
-      && this.codeIsOfValidLength()
-      && this.props.promotionPresent());
+    return !(this.props.codeGeneration.codesPrefix && this.codeIsOfValidLength());
   }
 
   get guessProbability(): number {

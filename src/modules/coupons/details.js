@@ -99,7 +99,7 @@ export function generateCodes(prefix: string, length: number, quantity: number) 
     const id = _.get(getState(), 'coupons.details.coupon.id');
     if (!id) return;
 
-    dispatch(_generateCodes.perform(id, prefix, length, quantity));
+    return dispatch(_generateCodes.perform(id, prefix, length, quantity));
   };
 }
 
@@ -109,14 +109,6 @@ export function codeIsOfValidLength(): Function {
     const quantity = _.get(state, 'coupons.details.codeGeneration.codesQuantity');
     const length = _.get(state, 'coupons.details.codeGeneration.codesLength');
     return length >= Math.ceil(Math.log10(quantity));
-  };
-}
-
-export function promotionPresent(): Function {
-  return (dispatch: Function, getState: Function) => {
-    const state = getState();
-    const promo = _.get(state, 'coupons.details.coupon.promotion');
-    return _.isNumber(promo);
   };
 }
 
