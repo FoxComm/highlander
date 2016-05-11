@@ -9,7 +9,7 @@ import { connect } from 'react-redux';
 import styles from './products-list.css';
 
 import ListItem from '../products-item/list-item';
-import Banner from '../banner/banner';
+import BannerWithImage from '../banner/bannerWithImage';
 
 type Category = {
   name: string;
@@ -21,7 +21,7 @@ type ProductsListParams = {
   list: ?Array<Product>;
   categories: ?Array<Category>;
   category: ?string;
-  location: any;
+  location: ?any;
   hasBanners: boolean;
 }
 
@@ -36,14 +36,17 @@ class ProductsList extends React.Component {
 
   renderHeader() {
     const props = this.props;
+    const categoryName = props.category;
 
-    if (!props.category) return;
+    if (!categoryName) return;
 
-    const category = _.find(props.categories, {name: props.category});
-    const description = (category && category.description) ? <p styleName="description">{category.description}</p> : '';
+    const categoryInfo = _.find(props.categories, {name: categoryName});
+    const description = (categoryInfo && categoryInfo.description)
+      ? <p styleName="description">{categoryInfo.description}</p>
+      : '';
 
-    let className = `header-${props.category}`;
-    let title = props.category;
+    let className = `header-${categoryName}`;
+    let title = categoryName;
 
     if (props.location.query && props.location.query.type) {
       className = `${className}-${props.location.query.type}`;
@@ -69,30 +72,27 @@ class ProductsList extends React.Component {
 
     if (!this.props.hasBanners) return items;
 
-    const banner1 = (
-      <div styleName="banner-sunglasses" key="banner-sunglasses">
-        <Banner
-          header="Summer 2016"
-          description="Bring on the sun"
-          links={[{to: '/sunglasses', text: 'Shop Sunglasses'}]}
-        />
-        <div styleName="banner-sunglasses__image"></div>
-      </div>
-    );
+    const bannersData = [
+      {
+        styleName: "banner-sunglasses",
+        header: "Summer 2016",
+        description: "Bring on the sun",
+        links: [{to: '/sunglasses', text: 'Shop Sunglasses'}],
+      },
+      {
+        styleName: "banner-eyeglasses",
+        header: "Summer 2016",
+        description: "Better to see you with, my dear",
+        links: [{to: '/eyeglasses', text: 'Shop Eyeglasses'}],
+      }
+    ];
 
-    const banner2 = (
-      <div styleName="banner-eyeglasses" key="banner-eyeglasses">
-        <Banner
-          header="Summer 2016"
-          description="Better to see you with, my dear"
-          links={[{to: '/eyeglasses', text: 'Shop Eyeglasses'}]}
-        />
-        <div styleName="banner-eyeglasses__image"></div>
-      </div>
-    );
+    const banners = bannersData.map((banner, i) => {
+      return <BannerWithImage { ...banner } key={`banner-${i}`}/>
+    });
 
-    if (items.length > 6) items.splice(6, 0, banner1);
-    if (items.length > 13) items.splice(13, 0, banner2);
+    if (items.length > 6) items.splice(6, 0, banners[0]);
+    if (items.length > 13) items.splice(13, 0, banners[1]);
 
     return items;
   }
