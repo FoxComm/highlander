@@ -6,12 +6,39 @@
   composes: wrap from "ui/css/layout.css";
   margin-top: 80px;
   padding-top: 16px;
+  align-items: stretch;
 }
 
 .gallery {
-  lost-column: 2/3;
+  lost-column: 3/5;
 }
 
 .details {
-  lost-column: 1/3;
+  display: flex;
+  lost-column: 2/5;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.name {
+  margin: 0;
+  color: var(--blackish);
+  font-size: 50px;
+  font-weight: normal;
+  line-height: 1;
+}
+
+.price {
+  margin-top: 20px;
+  color: var(--blackish);
+  font-size: 20px;
+  line-height: 1;
+}
+
+.description {
+  margin-top: 20px;
+  color: var(--blackish);
+  font-size: 15px;
+  line-height: 1.5;
 }

@@ -22,8 +22,9 @@ import type { HTMLElement } from 'types';
 import type { ProductResponse } from 'modules/product-details';
 
 // components
-import Loader from 'ui/loader';
+import Currency from 'ui/currency';
 import Gallery from 'ui/gallery/gallery';
+import Loader from 'ui/loader';
 
 // styles
 import styles from './pdp.css';
@@ -161,7 +162,11 @@ class Pdp extends Component {
           <Gallery images={images} />
         </div>
         <div styleName="details">
-          details here
+          <h1 styleName="name">{title}</h1>
+          <div styleName="price">
+            <Currency value={price} currency={currency} />
+          </div>
+          <div styleName="description" dangerouslySetInnerHTML={{__html: description}}></div>
         </div>
       </div>
     );
