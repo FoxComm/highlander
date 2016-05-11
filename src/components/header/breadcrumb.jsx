@@ -25,8 +25,13 @@ export default class Breadcrumb extends React.Component {
       .join(' ')
       .value());
 
-    if (route.path != null && route.path[0] === ':') {
-      return _.get(this.props, ['params', route.path.slice(1)], title);
+    let titleParam = route.titleParam;
+    if (!titleParam && route.path && route.path[0] === ':') {
+      titleParam = route.path;
+    }
+
+    if (titleParam) {
+      return _.get(this.props, ['params', titleParam.slice(1)], title);
     } else {
       return title;
     }
