@@ -1,18 +1,22 @@
 package services.image
 
-import java.time.Instant
+import java.io.File
 
+import akka.http.scaladsl.model.{HttpRequest, Multipart}
+import akka.http.scaladsl.unmarshalling.Unmarshal
+import akka.stream.ActorMaterializer
+import akka.stream.scaladsl.{Sink, FileIO, Source}
+import akka.util.ByteString
+
+import cats.data.Xor.{left, right}
 import cats.implicits._
 import failures.ImageFailures._
 import models.StoreAdmin
 import models.image._
 import models.objects._
-import org.json4s.JsonAST.{JField, JNothing, JObject, JString, JValue}
-import org.json4s.JsonDSL._
-import org.json4s.jackson.JsonMethods._
 import payloads.{AlbumPayload, ImagePayload}
 import responses.ImageResponses._
-import services.Result
+import services.{AmazonS3, Result}
 import services.inventory.SkuManager
 import services.objects.ObjectManager
 import services.product.ProductManager
@@ -28,9 +32,15 @@ object ImageManager {
   def getAlbum(id: Int, contextName: String)
     (implicit ec: EC, db: DB): Result[AlbumResponse.Root] = (for {
     context ← * <~ ObjectManager.mustFindByName404(contextName)
+    album   ← * <~ getAlbumInner(id, context)
+  } yield album).run()
+
+  def getAlbumInner(id: Int, context: ObjectContext)
+    (implicit ec: EC, db: DB): DbResultT[AlbumResponse.Root] = for {
     album   ← * <~ mustFindFullAlbumByIdAndContext404(id, context)
     images  ← * <~ Image.buildFromAlbum(album)
-  } yield AlbumResponse.build(album, images)).run()
+  } yield AlbumResponse.build(album, images)
+
 
   def getAlbumsForProduct(productId: Int, contextName: String)
     (implicit ec: EC, db: DB): Result[Seq[AlbumResponse.Root]] = (for {
@@ -97,6 +107,73 @@ object ImageManager {
       case None ⇒
         getAlbum(id, contextName)
     }
+  }
+
+  private def updateAlbumInner(id: Int, album: AlbumPayload, context: ObjectContext)
+    (implicit ec: EC, db: DB): DbResultT[AlbumResponse.Root] = {
+    album.images match {
+      case Some(_) ⇒
+        val form = album.objectForm
+        val shadow = album.objectShadow
+
+        for {
+          album   ← * <~ mustFindFullAlbumByIdAndContext404(id, context)
+          update  ← * <~ ObjectUtils.update(album.form.id, album.shadow.id, form.attributes, shadow.attributes)
+          upAlbum ← * <~ commitAlbumUpdate(album.model, update)
+          images  ← * <~ Image.buildFromAlbum(upAlbum)
+        } yield AlbumResponse.build(upAlbum, images)
+      case None ⇒
+        getAlbumInner(id, context)
+    }
+  }
+
+  def uploadImage(albumId: Int, contextName: String, request: HttpRequest)
+    (implicit ec: EC, db: DB, am: ActorMaterializer): Result[AlbumResponse.Root] = {
+    Unmarshal(request.entity).to[Multipart.FormData].flatMap { formData ⇒
+      val error: Result[AlbumResponse.Root] = Result.failure(ImageNotFoundInPayload)
+      formData.parts.filter(_.name == "upload-file").runFold(error) { (_, part) ⇒
+        (for {
+          context  ← * <~ ObjectManager.mustFindByName404(contextName)
+          file     ← * <~ getFileFromRequest(part.entity.dataBytes)
+          album    ← * <~ mustFindFullAlbumByIdAndContext404(albumId, context)
+          filename ← * <~ getFileNameFromBodyPart(part)
+          fullPath ← * <~ s"albums/${context.id}/${albumId}/${filename}"
+          s3       ← * <~ AmazonS3.uploadFile(fullPath, file)
+          payload  = payloadForNewImage(album, s3)
+          album    ← * <~ updateAlbumInner(albumId, payload, context)
+        } yield album).runTxn()
+      }.flatMap(a ⇒ a)
+    }
+  }
+
+  private def getFileFromRequest(bytes: Source[ByteString, Any])
+    (implicit ec: EC, am: ActorMaterializer) = {
+    val file = File.createTempFile("tmp", ".jpg")
+    bytes.runWith(FileIO.toFile(file)).map { up ⇒
+      if (up.wasSuccessful) right(file)
+      else left(ErrorReceivingImage.single)
+    }
+  }
+
+  private def getFileNameFromBodyPart(part: Multipart.FormData.BodyPart)(implicit ec: EC) = {
+    part.filename match {
+      case Some(name) ⇒ Result.good(name)
+      case None       ⇒ Result.failure(ImageFilenameNotFoundInPayload)
+    }
+  }
+
+  private def payloadForNewImage(album: FullAlbum, imageUrl: String) = {
+    val formAttrs = album.form.attributes
+    val shadowAttrs = album.shadow.attributes
+
+    val name = IlluminateAlgorithm.get("name", formAttrs, shadowAttrs).extract[String]
+    val existingImages = IlluminateAlgorithm.get("images", formAttrs, shadowAttrs)
+    val imageSeq = existingImages.extractOpt[Seq[ImagePayload]] match {
+      case Some(images) ⇒ images :+ ImagePayload(src = imageUrl)
+      case None ⇒         Seq(ImagePayload(src = imageUrl))
+    }
+
+    AlbumPayload(name = name, images = imageSeq.some)
   }
 
   private def getAlbumsForObject(shadowId: Int, context: ObjectContext,

@@ -140,3 +140,14 @@ export GOOGLE_OAUTH_CUSTOMER_REDIRECT_URI=http://localhost:1080/api/v1/public/oa
 ```
 
 These keys works only for `localhost` domain and ports `4000`, `1080`
+
+### Image uploading to S3
+
+To upload images to S3, you should set the following environment variables:
+
+- `AWS_ACCESS_KEY`
+- `AWS_SECRET_KEY`
+- `S3_BUCKET`
+- `S3_REGION`
+
+These settings are in `prov-shit` in the location: `ansible/roles/dev/phoenix/vars/aws.yml`. You'll need to use `ansible-vault` to decrypt and get the settings.
