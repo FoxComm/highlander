@@ -7,8 +7,7 @@ import models.image._
 import models.inventory._
 import models.objects._
 import models.product._
-import payloads.{AlbumPayload, CreateFullProduct, CreateFullSkuForm, CreateSkuShadow, UpdateFullProduct,
-UpdateFullSkuForm, UpdateFullSkuShadow}
+import payloads.{AlbumPayload, CreateFullProduct, CreateFullSkuForm, CreateSkuShadow, UpdateFullProduct, UpdateFullSkuForm, UpdateFullSkuShadow}
 import responses.ImageResponses.AlbumResponse
 import responses.ObjectResponses.ObjectContextResponse
 import responses.ProductResponses._
@@ -16,6 +15,7 @@ import services.{LogActivity, Result}
 import services.image.ImageManager
 import services.inventory.SkuManager
 import services.objects.ObjectManager
+import services.variant.VariantManager
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db.DbResultT._
@@ -141,12 +141,15 @@ object ProductManager {
     productForm   ← * <~ ObjectForms.mustFindById404(product.formId)
     productShadow  ← * <~ ObjectShadows.mustFindById404(product.shadowId)
     skuData ← * <~ getSkuData(productShadow.id)
+    fullProduct = FullObject(product, productForm, productShadow)
+    variants ← * <~ VariantManager.mustFindVariantsByFullProduct(fullProduct)
 
   } yield IlluminatedFullProductResponse.build(
     IlluminatedProduct.illuminate(context, product, productForm, productShadow),
     skuData.map {
       case (s, f, sh) ⇒ IlluminatedSku.illuminate(context, s, f, sh)
-    })
+    },
+    variants.map(v ⇒ IlluminatedVariant.illuminate(context, v)))
 
   def getIlluminatedFullProductAtCommit(productId: Int, contextName: String, commitId: Int)
     (implicit ec: EC, db: DB): Result[IlluminatedFullProductResponse.Root] = (for {
@@ -161,13 +164,16 @@ object ProductManager {
         ProductNotFoundAtCommit(productId, commitId))
     productForm   ← * <~ ObjectForms.mustFindById404(commit.formId)
     productShadow  ← * <~ ObjectShadows.mustFindById404(commit.shadowId)
+    fullProduct ← * <~ FullObject(product, productForm, productShadow)
     skuData ← * <~ getSkuData(productShadow.id)
+    variants ← * <~ VariantManager.mustFindVariantsByFullProduct(fullProduct)
 
   } yield IlluminatedFullProductResponse.build(
     IlluminatedProduct.illuminate(context, product, productForm, productShadow),
     skuData.map {
       case (s, f, sh) ⇒ IlluminatedSku.illuminate(context, s, f, sh)
-    })).run()
+    },
+    variants.map(v ⇒ IlluminatedVariant.illuminate(context, v)))).run()
 
   def getContextsForProduct(formId: Int)(implicit ec: EC, db: DB): Result[Seq[ObjectContextResponse.Root]] = (for {
     products   ← * <~ Products.filterByFormId(formId).result

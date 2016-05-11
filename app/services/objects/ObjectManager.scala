@@ -60,4 +60,14 @@ object ObjectManager {
     context ← * <~ ObjectContexts.filterByName(name).one.
       mustFindOr(ObjectContextNotFound(name))
   } yield context
+
+  def mustFindFormById404(id: Int)(implicit ec: EC): DbResultT[ObjectForm] = for {
+    form ← * <~ ObjectForms.filter(_.id === id).one.
+      mustFindOr(ObjectFormNotFound(id))
+  } yield form
+
+  def mustFindShadowById404(id: Int)(implicit ec: EC): DbResultT[ObjectShadow] = for {
+    shadow ← * <~ ObjectShadows.filter(_.id === id).one.
+      mustFindOr(ObjectShadowNotFound(id))
+  } yield shadow
 }

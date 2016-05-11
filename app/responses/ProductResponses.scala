@@ -9,6 +9,7 @@ import models.objects._
 import models.product._
 import responses.ObjectResponses.ObjectContextResponse
 import responses.SkuResponses._
+import responses.VariantResponses._
 
 object ProductResponses {
 
@@ -93,14 +94,16 @@ object ProductResponses {
   object IlluminatedFullProductResponse {
 
     case class Root(id: Int, context: ObjectContextResponse.Root, product: IlluminatedProductResponse.Root, 
-      skus: Seq[IlluminatedSkuResponse.Root]) extends ResponseItem
+      skus: Seq[IlluminatedSkuResponse.Root], variants: Seq[IlluminatedVariantResponse.Root]) 
+      extends ResponseItem
 
-    def build(p: IlluminatedProduct, skus: Seq[IlluminatedSku]): Root = 
+    def build(p: IlluminatedProduct, skus: Seq[IlluminatedSku], variants: Seq[IlluminatedVariant]): Root = 
       Root(
         id = p.id, 
         product = IlluminatedProductResponse.buildLite(p),
         context = ObjectContextResponse.build(p.context),
-        skus = skus.map{ s ⇒ IlluminatedSkuResponse.buildLite(s)})
+        skus = skus.map(IlluminatedSkuResponse.buildLite _),
+        variants = variants.map(IlluminatedVariantResponse.buildLite _))
   }
 
 }

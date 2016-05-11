@@ -26,6 +26,7 @@ object ObjectLink {
 
   case object ProductAlbum extends LinkType
   case object ProductSku extends LinkType
+  case object ProductVariant extends LinkType
   case object PromotionDiscount extends LinkType
   case object SkuAlbum extends LinkType
 
