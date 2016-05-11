@@ -23,6 +23,11 @@ Environment=GOOGLE_OAUTH_CUSTOMER_CLIENT_ID={{ google_oauth_frontend_client_id }
 Environment=GOOGLE_OAUTH_CUSTOMER_CLIENT_SECRET={{ google_oauth_frontend_secret }}
 Environment=GOOGLE_OAUTH_CUSTOMER_REDIRECT_URI={{ google_oauth_frontend_redirect_uri }}
 
+Environment=AWS_ACCESS_KEY={{ secret_key }}
+Environment=AWS_SECRET_KEY={{ secret_access_key }}
+Environment=S3_BUCKET={{ s3_bucket }}
+Environment=S3_REGION={{ s3_region }}
+
 [Install]
 WantedBy=multi-user.target
 
