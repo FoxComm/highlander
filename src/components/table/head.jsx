@@ -47,6 +47,12 @@ class TableHead extends React.Component {
           key={`${field}`}
           onClick={sortable ? this.onHeaderClick.bind(this, field) : null}>
         {contents}
+        {sortable && (
+          <span className="fc-table__sorting">
+            <i className="icon-down" />
+            <i className="icon-up" />
+          </span>
+        )}
       </th>
     );
   }

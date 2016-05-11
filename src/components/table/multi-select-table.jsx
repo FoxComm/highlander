@@ -2,11 +2,14 @@
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
+import { connect } from 'react-redux';
 import classNames from 'classnames';
+import localStorage from 'localStorage';
 
 // components
 import TableView from './tableview';
 import MultiSelectHead, { selectionState } from './multi-select-head';
+import ColumnSelector from './column-selector';
 
 export default class MultiSelectTable extends React.Component {
   static propTypes = {
@@ -20,15 +23,16 @@ export default class MultiSelectTable extends React.Component {
     renderRow: PropTypes.func,
     setState: PropTypes.func,
     emptyMessage: PropTypes.string.isRequired,
-    toggleColumnPresent: PropTypes.bool,
+    hasActionsColumn: PropTypes.bool,
     predicate: PropTypes.func,
     className: PropTypes.string,
     isLoading: PropTypes.bool,
     failed: PropTypes.bool,
+    identifier: PropTypes.string,
   };
 
   static defaultProps = {
-    toggleColumnPresent: true,
+    hasActionsColumn: true,
     predicate: entity => entity.id,
     columns: [],
   };
@@ -38,7 +42,27 @@ export default class MultiSelectTable extends React.Component {
     this.state = {
       allChecked: false,
       toggledIds: [],
+      columns: this.getSelectedColumns(),
     };
+  }
+
+  getTableIdentifier() {
+    if (!this.props.identifier) {
+      return this.props.columns.map(item => {
+        return item.text;
+      }).toString();
+    }
+    return this.props.identifier;
+  }
+
+  getSelectedColumns() {
+    const tableName = this.getTableIdentifier();
+    let savedColumns = localStorage.getItem('columns');
+    if(!savedColumns) return this.props.columns;
+
+    const columns = JSON.parse(savedColumns);
+    if(!columns[tableName]) return this.props.columns;
+    return _.filter(columns[tableName], {isVisible:true});
   }
 
   getRowSetChecked(key) {
@@ -55,6 +79,11 @@ export default class MultiSelectTable extends React.Component {
 
       this.setState({toggledIds});
     };
+  }
+
+  @autobind
+  setColumnSelected(columns) {
+    this.setState({columns});
   }
 
   @autobind
@@ -123,17 +152,20 @@ export default class MultiSelectTable extends React.Component {
 
     const toggleColumn = {
       field: 'toggleColumns',
-      icon: 'icon-settings-col',
+      control: <ColumnSelector setColumns={this.setColumnSelected}
+                               columns={this.props.columns}
+                               identifier={this.getTableIdentifier()} />,
       className: '__toggle-columns',
+      sortable: false,
     };
 
-    return this.props.toggleColumnPresent ? [
+    return this.props.hasActionsColumn ? [
       selectColumn,
-      ...this.props.columns,
+      ...this.state.columns,
       toggleColumn,
     ] : [
       selectColumn,
-      ...this.props.columns,
+      ...this.state.columns,
     ];
   }
 
