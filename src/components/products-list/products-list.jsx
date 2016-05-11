@@ -74,21 +74,21 @@ class ProductsList extends React.Component {
 
     const bannersData = [
       {
-        styleName: "banner-sunglasses",
-        header: "Summer 2016",
-        description: "Bring on the sun",
+        styleName: 'banner-sunglasses',
+        header: 'Summer 2016',
+        description: 'Bring on the sun',
         links: [{to: '/sunglasses', text: 'Shop Sunglasses'}],
       },
       {
-        styleName: "banner-eyeglasses",
-        header: "Summer 2016",
-        description: "Better to see you with, my dear",
+        styleName: 'banner-eyeglasses',
+        header: 'Summer 2016',
+        description: 'Better to see you with, my dear',
         links: [{to: '/eyeglasses', text: 'Shop Eyeglasses'}],
-      }
+      },
     ];
 
     const banners = bannersData.map((banner, i) => {
-      return <BannerWithImage { ...banner } key={`banner-${i}`}/>
+      return <BannerWithImage { ...banner } key={`banner-${i}`}/>;
     });
 
     if (items.length > 6) items.splice(6, 0, banners[0]);
