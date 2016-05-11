@@ -22,6 +22,22 @@ import styles from './styles.css';
 // redux
 import * as actions from '../../../modules/coupons/details';
 
+type Props = {
+  isNew: boolean,
+  codeGeneration: Object,
+  coupon: Object,
+  saveCoupon: Function,
+  couponsGenerationSelectBulk: Function,
+  couponsGenerationSelectSingle: Function,
+  generateCodes: Function,
+  persistCoupon: Function,
+  couponsGenerationShowDialog: Function,
+  couponsGenerationHideDialog: Function,
+  couponsGenerationChange: Function,
+  couponsGenerationReset: Function,
+  codeIsOfValidLength: Function,
+};
+
 type Target = {
   name: string,
   value: string,
@@ -41,6 +57,7 @@ class CouponCodes extends Component {
           <input
             type="text"
             styleName="full-width-field"
+            name="singleCode"
             value={this.props.codeGeneration.singleCode}
             onChange={this.handleChangeSingleCode}
           />
@@ -88,14 +105,20 @@ class CouponCodes extends Component {
 
   @autobind
   handleConfirmOfCodeGeneration(): void {
+    const { coupon } = this.props;
     const { codesPrefix, codesLength, codesQuantity } = this.props.codeGeneration;
-    this.props.onGenerateBulkCodes(codesPrefix, codesLength, codesQuantity);
+
+    let willBeCoupon = this.props.isNew ? this.props.saveCoupon() : Promise.resolve();
+
+    willBeCoupon.then(() => {
+      this.props.generateCodes(codesPrefix, codesLength, codesQuantity);
+    }).then(() => {
+      this.props.couponsGenerationReset();
+    });
   }
 
   codeIsOfValidLength(): boolean {
-    const quantity = this.props.codeGeneration.codesQuantity;
-    const length = this.props.codeGeneration.codesLength;
-    return length >= Math.ceil(Math.log10(quantity));
+    return this.props.codeIsOfValidLength();
   }
 
   get generateCodesDisabled(): boolean {
@@ -120,6 +143,8 @@ class CouponCodes extends Component {
       return null;
     }
 
+    const { codesQuantity } = this.props.codeGeneration;
+
     return (
       <div styleName="form-subset">
         <div styleName="form-group">
@@ -128,9 +153,9 @@ class CouponCodes extends Component {
               <Counter
                 id="codesQuantity"
                 name="codesQuantity"
-                value={this.props.codeGeneration.codesQuantity}
-                decreaseAction={() => this.setCounterValue('codesQuantity', this.props.codeGeneration.codesQuantity - 1)}
-                increaseAction={() => this.setCounterValue('codesQuantity', this.props.codeGeneration.codesQuantity + 1)}
+                value={codesQuantity}
+                decreaseAction={() => this.setCounterValue('codesQuantity', codesQuantity - 1)}
+                increaseAction={() => this.setCounterValue('codesQuantity', codesQuantity + 1)}
                 onChange={this.handleCounterChange}
                 min={1}
               />

@@ -103,6 +103,15 @@ export function generateCodes(prefix: string, length: number, quantity: number) 
   };
 }
 
+export function codeIsOfValidLength(): Function {
+  return (dispatch: Function, getState: Function) => {
+    const state = getState();
+    const quantity = _.get(state, 'coupons.details.codeGeneration.codesQuantity');
+    const length = _.get(state, 'coupons.details.codeGeneration.codesLength');
+    return length >= Math.ceil(Math.log10(quantity));
+  };
+}
+
 /* module state */
 
 const initialCodeGenerationState = {

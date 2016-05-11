@@ -24,7 +24,6 @@ import * as CouponActions from '../../modules/coupons/details';
 
 type CouponPageState = {
   coupon: Object,
-  couponCode: ?string,
   promotionError: boolean,
 };
 
@@ -34,6 +33,8 @@ type CouponPageParams = {
 
 type CouponPageProps = {
   params: CouponPageParams,
+  coupon: Object,
+  codeGeneration: Object,
   actions: Object,
   dispatch: Function,
   details: Object,
@@ -103,14 +104,13 @@ class CouponPage extends Component {
   save(): ?Promise {
     let willBeCoupon = Promise.resolve();
 
-    if (!_.isNumber(this.props.coupon.promotion)) {
+    if (!_.isNumber(this.state.coupon.promotion)) {
       this.setState({promotionError: true});
       return null;
     }
 
-    if (this.props.coupon) {
-      const { coupon } = this.props;
-      const couponCode = this.props.codeGeneration.singleCode;
+    if (this.state.coupon) {
+      const { coupon } = this.state;
 
       if (this.isNew) {
         willBeCoupon = this.props.actions.createCoupon(coupon);
@@ -118,11 +118,23 @@ class CouponPage extends Component {
         willBeCoupon = this.props.actions.updateCoupon(coupon);
       }
 
-      if (couponCode != undefined) {
+      const { bulk, couponCode, codesPrefix, codesLength, codesQuantity } = this.props.codeGeneration;
+
+      if (bulk === false && couponCode != undefined) {
         willBeCoupon.then(() => {
           const couponId = this.state.coupon.id;
           this.props.actions.generateCode(couponId, couponCode);
-        });
+        }).then(() => {
+          this.props.actions.couponsGenerationReset();
+        });;
+      }
+
+      if (bulk === true && this.props.actions.codeIsOfValidLength()) {
+        willBeCoupon.then(() => {
+          this.props.actions.couponsGenerationShowDialog();
+        }).then(() => {
+          this.props.actions.couponsGenerationReset();
+        });;
       }
     }
 
@@ -132,17 +144,6 @@ class CouponPage extends Component {
   @autobind
   handleUpdateCoupon(coupon: Object): void {
     this.props.actions.couponsChange(coupon);
-  }
-
-  @autobind
-  handleGenerateBulkCodes(prefix, length, quantity): void {
-    const { coupon } = this.state;
-
-    let willBeCoupon = this.isNew ? this.props.actions.createCoupon(coupon) : Promise.resolve();
-
-    willBeCoupon.then(() => {
-      this.props.actions.generateCodes(prefix, length, quantity);
-    });
   }
 
   @autobind
@@ -190,6 +191,7 @@ class CouponPage extends Component {
       coupon,
       promotionError,
       codeGeneration,
+      saveCoupon: () => this.props.actions.createCoupon(this.state.coupon),
       selectedPromotions: this.selectedPromotions,
       onUpdateCoupon: this.handleUpdateCoupon,
       entity: { entityId: this.entityId, entityType: 'coupon' },
