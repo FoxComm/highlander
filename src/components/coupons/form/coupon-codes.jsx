@@ -22,19 +22,6 @@ import styles from './styles.css';
 // redux
 import * as actions from '../../../modules/coupons/details';
 
-type Props = {
-  onChangeSingleCode: (code: ?string) => any;
-  onGenerateBulkCodes: (prefix: string, length: number, quantity: number) => any;
-};
-
-type State = {
-  codesPrefix: string,
-  singleCode: string,
-  codesQuantity: number,
-  codesLength: number,
-  isDialogVisible: boolean,
-};
-
 type Target = {
   name: string,
   value: string,
@@ -42,14 +29,6 @@ type Target = {
 
 class CouponCodes extends Component {
   props: Props;
-
-  state: State = {
-    codesPrefix: '',
-    singleCode: '',
-    codesQuantity: 1,
-    codesLength: 1,
-    isDialogVisible: false,
-  };
 
   get singleCouponFormPart(): ?Element {
     if (this.props.codeGeneration.bulk !== false) {
@@ -98,42 +77,34 @@ class CouponCodes extends Component {
   @autobind
   handleGenerateBulkClick(): void {
     if (this.codeIsOfValidLength()) {
-      this.setState({ isDialogVisible: true });
+      this.props.couponsGenerationShowDialog();
     }
   }
 
   @autobind
   closeDialog(): void {
-    this.setState({ isDialogVisible: false });
+    this.props.couponsGenerationHideDialog();
   }
 
   @autobind
   handleConfirmOfCodeGeneration(): void {
-    const { codesPrefix, codesLength, codesQuantity } = this.state;
-    const nextState = {
-      codesPrefix: '',
-      codesQuantity: 1,
-      codesLength: 1,
-      isDialogVisible: false
-    };
-    this.setState(nextState, () =>
-      this.props.onGenerateBulkCodes(codesPrefix, codesLength, codesQuantity)
-    );
+    const { codesPrefix, codesLength, codesQuantity } = this.props.codeGeneration;
+    this.props.onGenerateBulkCodes(codesPrefix, codesLength, codesQuantity);
   }
 
   codeIsOfValidLength(): boolean {
-    const quantity = this.state.codesQuantity;
-    const length = this.state.codesLength;
+    const quantity = this.props.codeGeneration.codesQuantity;
+    const length = this.props.codeGeneration.codesLength;
     return length >= Math.ceil(Math.log10(quantity));
   }
 
   get generateCodesDisabled(): boolean {
-    return !(this.state.codesPrefix && this.codeIsOfValidLength());
+    return !(this.props.codeGeneration.codesPrefix && this.codeIsOfValidLength());
   }
 
   get guessProbability(): number {
-    const quantity = this.state.codesQuantity;
-    const length = this.state.codesLength;
+    const quantity = this.props.codeGeneration.codesQuantity;
+    const length = this.props.codeGeneration.codesLength;
     const numberOfVariants = Math.pow(10, length);
     return Math.round((quantity / numberOfVariants) * 100);
   }
@@ -245,7 +216,7 @@ class CouponCodes extends Component {
         {this.bulkCouponFormPart}
         <CodeCreationModal
           probability={this.guessProbability}
-          isVisible={this.state.isDialogVisible}
+          isVisible={this.props.codeGeneration.isDialogVisible}
           cancelAction={this.closeDialog}
           confirmAction={this.handleConfirmOfCodeGeneration}
         />

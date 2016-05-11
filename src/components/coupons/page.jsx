@@ -47,7 +47,6 @@ class CouponPage extends Component {
 
   state: CouponPageState = {
     coupon: this.props.details.coupon,
-    couponCode: null,
     promotionError: false,
   };
 
@@ -136,13 +135,6 @@ class CouponPage extends Component {
   }
 
   @autobind
-  handleUpdateCouponCode(singleCode: string): void {
-    this.setState({
-      couponCode: singleCode,
-    });
-  }
-
-  @autobind
   handleGenerateBulkCodes(prefix, length, quantity): void {
     const { coupon } = this.state;
 
@@ -200,8 +192,6 @@ class CouponPage extends Component {
       codeGeneration,
       selectedPromotions: this.selectedPromotions,
       onUpdateCoupon: this.handleUpdateCoupon,
-      onUpdateCouponCode: this.handleUpdateCouponCode,
-      onGenerateBulkCodes: this.handleGenerateBulkCodes,
       entity: { entityId: this.entityId, entityType: 'coupon' },
     });
 
