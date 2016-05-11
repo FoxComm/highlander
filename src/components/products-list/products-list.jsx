@@ -21,7 +21,7 @@ type ProductsListParams = {
   list: ?Array<Product>;
   categories: ?Array<Category>;
   category: ?string;
-  location: ?any;
+  categoryType: ?string;
   hasBanners: boolean;
 }
 
@@ -48,9 +48,9 @@ class ProductsList extends React.Component {
     let className = `header-${categoryName}`;
     let title = categoryName;
 
-    if (props.location.query && props.location.query.type) {
-      className = `${className}-${props.location.query.type}`;
-      title = `${props.location.query.type}'s ${title}`;
+    if (props.categoryType) {
+      className = `${className}-${props.categoryType}`;
+      title = `${props.categoryType}'s ${title}`;
     }
 
     return (
