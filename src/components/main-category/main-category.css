@@ -1,4 +1,5 @@
 @import 'colors.css';
+@import 'ui/css/links.css';
 
 :root {
   --image-width: 483px;
