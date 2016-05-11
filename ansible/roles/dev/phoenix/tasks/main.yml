@@ -1,4 +1,5 @@
 ---
+- include_vars: aws.yml
 
 - name: Copy Jar
   copy: src={{phoenix_jar_src}} dest={{phoenix_jar}} mode="u+x,g+x,o+x"
