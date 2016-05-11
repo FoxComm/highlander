@@ -1,6 +1,6 @@
 ---
 
-- name: Provision Vpn
+- name: Bootstrap Vpn
   hosts: prodsmall-vpn
   vars:
     vpn_server_ip: 10.0.0.2

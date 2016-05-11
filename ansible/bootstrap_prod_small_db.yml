@@ -1,6 +1,6 @@
 ---
 
-- name: Provision Db
+- name: Bootstrap Db
   hosts: prodsmall-db
   vars:
     user: '{{ansible_ssh_user}}'

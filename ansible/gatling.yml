@@ -15,6 +15,7 @@
     - { role: dev/seeder}
     - { role: dev/greenriver}
     - { role: dev/loyalty}
+    - { role: dev/messaging}
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml
@@ -30,7 +31,6 @@
     - { role: base/ssh_keys}
     - { role: dev/ashes}
     - { role: dev/firebird}
-    - { role: dev/balancer, sudo: yes }
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml

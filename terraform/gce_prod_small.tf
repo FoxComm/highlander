@@ -125,12 +125,12 @@ variable "phoenix_image" {
     default = "prod-small-phoenix-1462900739"
 }
 
-variable "green_image" { 
-    default = ""
+variable "greenriver_image" { 
+    default = "prod-small-green-1462907498"
 }
 
-variable "frontend_image" { 
-    default = ""
+variable "front_image" { 
+    default = "prod-small-front-1462926697"
 }
 
 module "prodsmall_stack" {
@@ -142,6 +142,8 @@ module "prodsmall_stack" {
     db_image = "${var.db_image}"
     es_image = "${var.es_image}"
     phoenix_image = "${var.phoenix_image}"
+    greenriver_image = "${var.greenriver_image}"
+    front_image = "${var.front_image}"
     consul_leader = "${module.prodsmall_consul_cluster.leader}"
     ssh_user = "${var.ssh_user}"
     ssh_private_key = "${var.ssh_private_key}"

@@ -18,8 +18,9 @@
     - { role: base/db}
     - { role: base/rsyslog, sudo: yes }
     - { role: base/kibana, sudo: yes }
+    - { role: base/phoenix}
+    - { role: base/greenriver}
     - { role: dev/db}
-    - { role: dev/phoenix}
     - { role: dev/seeder}
     - { role: dev/greenriver}
     - { role: dev/loyalty}
@@ -38,7 +39,7 @@
     - { role: base/rsyslog, sudo: yes }
     - { role: base/node}
     - { role: base/balancer, sudo: yes }
-    - { role: dev/ashes}
-    - { role: dev/firebird}
+    - { role: base/ashes}
+    - { role: base/firebird}
     - { role: dev/balancer, sudo: yes }
     - { role: demo/ashes, sudo: yes }

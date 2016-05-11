@@ -20,13 +20,14 @@
     - { role: base/kibana, sudo: yes }
     - { role: base/node}
     - { role: base/balancer, sudo: yes }
+    - { role: base/phoenix}
+    - { role: base/greenriver}
+    - { role: base/ashes}
+    - { role: base/firebird}
+    - { role: dev/balancer, sudo: yes }
     - { role: dev/db}
-    - { role: dev/phoenix}
     - { role: dev/seeder}
     - { role: dev/greenriver}
-    - { role: dev/ashes}
-    - { role: dev/firebird}
-    - { role: dev/balancer, sudo: yes }
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml

@@ -1,5 +1,9 @@
 ---
 
+- name: Install gulp globally
+  shell: npm install gulp -g
+  sudo: true
+
 - name: Synchronize Firebird code
   synchronize:
     src: '{{firebird_source_dir}}'
@@ -10,6 +14,11 @@
         - "--quiet"
         - "--no-motd"
         - "--exclude=./node_modules"
+
+- name: Install local gulp
+  shell: npm install gulp
+  args:
+    chdir: "{{firebird_install_dir}}"
 
 - name: Build node dependencies
   shell: npm build
@@ -26,6 +35,25 @@
   args:
     chdir: "{{firebird_install_dir}}"
 
+- name: Install firebird run script
+  sudo: true
+  template: src=run_firebird.sh.j2 dest="{{ firebird_install_dir }}/run_firebird.sh" mode="u=rwx,g=rwx,o=r"
+
+- name: Install firebird service entry
+  sudo: true
+  template:
+    src: firebird.service.j2
+    dest: "{{dest_services}}/firebird.service"
+
+- name: Reload Systemd for Firebird
+  sudo: yes
+  command: systemctl daemon-reload
+
 - name: Restart Firebird
   service: name=firebird state=restarted
   sudo: true
+
+- name: Copy Consul Service File
+  template: src=firebird.json dest="/etc/consul.d/firebird.json"
+  sudo: true
+  notify: reload consul

@@ -1,5 +1,9 @@
 ---
 
+- name: Create Phoenix Directory
+  file: path={{phoenix_dir}} state=directory owner="{{user}}"
+  sudo: true
+
 - name: Syncrhonize Phoenix Sql
   synchronize: src="{{phoenix_src}}/sql" dest="{{phoenix_dir}}" delete=yes recursive=yes
   sudo: true
@@ -18,6 +22,19 @@
   copy: src={{phoenix_jar_src}} dest={{phoenix_jar}} mode="u+x,g+x,o+x"
   sudo: true
 
+- name: Copy Service
+  template: src=phoenix.service dest="{{dest_services}}/phoenix.service"
+  sudo: true
+
+- name: Reload Systemd for Phoenix
+  sudo: yes
+  command: systemctl daemon-reload
+
 - name: Restart Phoenix
   service: name=phoenix state=restarted enabled=yes
   sudo: true
+
+- name: Copy Consul Service File
+  template: src=phoenix.json dest="/etc/consul.d/phoenix.json"
+  sudo: true
+  notify: reload consul

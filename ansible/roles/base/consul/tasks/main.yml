@@ -37,7 +37,6 @@
 
 - name: Copy Consul Web UI
   copy: src=consul_0.6.4_web_ui.zip dest={{home}}/consul_0.6.4_web_ui.zip
-  sudo: true
 
 - name: Unzip Consul Web UI
   unarchive: src="{{home}}/consul_0.6.4_web_ui.zip" dest="/usr/local/share/consul" copy=no

@@ -1,0 +1,9 @@
+---
+
+- name: Seed Db
+  hosts: prodsmall-phoenix
+  vars:
+    user: '{{ansible_ssh_user}}'
+
+  roles:
+      - { role: dev/seeder }

@@ -18,4 +18,4 @@
     - { role: base/rsyslog, sudo: yes }
     - { role: base/consul_agent}
     - { role: base/scala}
-    - { role: dev/phoenix}
+    - { role: base/phoenix}
