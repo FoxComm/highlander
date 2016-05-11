@@ -52,17 +52,17 @@ trait InventorySummaryGenerator {
 
 trait InventoryAdjustmentsGenerator {
 
-  def generateWmsAdjustments(skuId: Int, warehouseId: Int)(implicit db: DB): DbResultT[Seq[InventoryAdjustment]] =
+  def generateWmsAdjustments(skuId: Int, warehouseId: Int)(implicit db: DB): DbResultT[Unit] =
     DbResultT.sequence((1 to nextInt(10)).map { _ ⇒
       val wmsOverride = WmsOverride(skuId, warehouseId, onHandRandom / 2, onHoldRandom / 2, reservedRandom / 2)
-      InventoryAdjustmentManager.wmsOverride(wmsOverride)
-    }).map(_.flatten)
+      InventoryAdjustmentManager.applyWmsAdjustment(wmsOverride)
+    }).map(_ ⇒ Unit)
 
-  def generateWmsAdjustmentsSeq(skuIds: Seq[Int], warehouseIds: Seq[Int])(implicit db: DB): DbResultT[Seq[InventoryAdjustment]] =
+  def generateWmsAdjustmentsSeq(skuIds: Seq[Int], warehouseIds: Seq[Int])(implicit db: DB): DbResultT[Unit] =
     DbResultT.sequence(for {
       skuId ← skuIds
       warehouseId ← warehouseIds
-    } yield generateWmsAdjustments(skuId, warehouseId)).map(_.flatten)
+    } yield generateWmsAdjustments(skuId, warehouseId)).map(_ ⇒ Unit)
 }
 
 private object Rnd {

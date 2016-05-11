@@ -39,4 +39,11 @@ object InventoryResponses {
     def build(summary: SellableInventorySummary, warehouse: Warehouse, price: Int): Root =
       Root(warehouse = warehouse, counts = SkuCounts.build(summary, price))
   }
+
+  object WmsOverrideResponse {
+
+    case class Root(updatedValuesCount: Int)
+
+    def build(updatedValuesCount: Int): Root = Root(updatedValuesCount)
+  }
 }

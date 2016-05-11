@@ -71,7 +71,7 @@ class InventoryManagerIntegrationTest extends IntegrationTestBase {
         onHand = newOnHand,
         onHold = newOnHold,
         reserved = newReserved)
-      InventoryAdjustmentManager.wmsOverride(event).run().futureValue.rightVal
+      InventoryAdjustmentManager.applyWmsAdjustment(event).run().futureValue.rightVal
 
       val summary = SellableInventorySummaries.findOneById(sellable.id).run().futureValue.value
       summary.onHand must === (newOnHand)
@@ -93,7 +93,7 @@ class InventoryManagerIntegrationTest extends IntegrationTestBase {
     "does not create adjustment for zero change" in new Fixture {
       val event = WmsOverride(skuId = product.skuId, warehouseId = warehouse.id,
         onHand = sellable.onHand, onHold = sellable.onHold, reserved = sellable.reserved)
-      InventoryAdjustmentManager.wmsOverride(event).run().futureValue.rightVal
+      InventoryAdjustmentManager.applyWmsAdjustment(event).run().futureValue.rightVal
 
       val summary = SellableInventorySummaries.findOneById(sellable.id).run().futureValue.value
       summary.onHand must === (sellable.onHand)

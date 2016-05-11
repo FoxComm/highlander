@@ -10,6 +10,9 @@ import models.inventory.summary._
 import models.order.Order
 import models.order.lineitems.OrderLineItemSkus
 import org.json4s.Extraction.{decompose ⇒ toJson}
+import payloads.WmsEventPayload
+import responses.InventoryResponses.WmsOverrideResponse
+import services.Result
 import utils.JsonFormatters
 import utils.aliases._
 import utils.db._
@@ -51,12 +54,15 @@ object InventoryAdjustmentManager {
       }).value
     }
 
-  def wmsOverride(event: WmsOverride)(implicit ec: EC): DbResultT[Seq[Adj]] = for {
+  def applyWmsAdjustment(event: WmsOverride)(implicit ec: EC): DbResultT[Unit] = for {
     sum ← * <~ findSellableSummary(event.skuId, event.warehouseId)
     adj ← * <~ Adjs.createAllReturningModels(generateAdjustmentsForEvent(sum, event))
     _   ← * <~ SellableInventorySummaries.update(sum, sum.copy(onHand = event.onHand, onHold = event.onHold,
                  reserved = event.reserved, updatedAt = Instant.now))
-  } yield adj
+  } yield {}
+
+  def wmsOverride(event: WmsEventPayload)(implicit ec: EC, dn: DB): Result[Unit] =
+    applyWmsAdjustment(WmsOverride(event.skuId, event.warehouseId, event.onHand, event.onHold,event.reserved)).runTxn()
 
   private def findSellableSummary(skuId: Int, warehouseId: Int)(implicit ec: EC) =
     InventorySummaries.findSellableBySkuIdInWarehouse(skuId = skuId, warehouseId = warehouseId).one
