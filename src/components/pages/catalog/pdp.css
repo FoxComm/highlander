@@ -1,2 +1,17 @@
 @import "colors.css";
 @import "media-queries.css";
+@import 'ui/css/layout.css';
+
+.container {
+  composes: wrap from "ui/css/layout.css";
+  margin-top: 80px;
+  padding-top: 16px;
+}
+
+.gallery {
+  lost-column: 2/3;
+}
+
+.details {
+  lost-column: 1/3;
+}

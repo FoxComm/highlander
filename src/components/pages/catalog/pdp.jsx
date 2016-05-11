@@ -23,6 +23,7 @@ import type { ProductResponse } from 'modules/product-details';
 
 // components
 import Loader from 'ui/loader';
+import Gallery from 'ui/gallery/gallery';
 
 // styles
 import styles from './pdp.css';
@@ -156,6 +157,12 @@ class Pdp extends Component {
 
     return (
       <div styleName="container">
+        <div styleName="gallery">
+          <Gallery images={images} />
+        </div>
+        <div styleName="details">
+          details here
+        </div>
       </div>
     );
   }
