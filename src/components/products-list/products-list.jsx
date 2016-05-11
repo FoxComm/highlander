@@ -9,6 +9,7 @@ import { connect } from 'react-redux';
 import styles from './products-list.css';
 
 import ListItem from '../products-item/list-item';
+import Banner from '../banner/banner';
 
 type Category = {
   name: string;
@@ -21,12 +22,17 @@ type ProductsListParams = {
   categories: ?Array<Category>;
   category: ?string;
   location: any;
+  hasBanners: boolean;
 }
 
 const mapStateToProps = state => ({categories: state.categories.list});
 
 class ProductsList extends React.Component {
   props: ProductsListParams;
+
+  static defaultProps = {
+    hasBanners: true
+  };
 
   renderHeader() {
     const props = this.props;
@@ -54,10 +60,43 @@ class ProductsList extends React.Component {
     );
   }
 
+  getItemList() {
+    const items = _.map(this.props.list, (item, i) => {
+        return (
+          <ListItem {...item} key={`product-${item.id}`}/>
+        );
+    });
+
+    if (!this.props.hasBanners) return items;
+
+    const banner1 = <div styleName="banner-sunglasses" key="banner-sunglasses">
+      <Banner
+        header="Summer 2016"
+        description="Bring on the sun"
+        links={[{to: '/sunglasses', text: 'Shop Sunglasses'}]}
+      />
+      <div styleName="banner-sunglasses__image"></div>
+    </div>;
+
+    const banner2 = <div styleName="banner-eyeglasses" key="banner-eyeglasses">
+      <Banner
+        header="Summer 2016"
+        description="Better to see you with, my dear"
+        links={[{to: '/eyeglasses', text: 'Shop Eyeglasses'}]}
+      />
+      <div styleName="banner-eyeglasses__image"></div>
+    </div>;
+
+    if (items.length > 6) items.splice(6, 0, banner1);
+    if (items.length > 13) items.splice(13, 0, banner2);
+
+    return items;
+  }
+
   render() : HTMLElement {
     const props = this.props;
     const items = props.list && props.list.length > 0
-      ? _.map(props.list, (item) => <ListItem {...item} key={`product-${item.id}`}/>)
+      ? this.getItemList()
       : <div styleName="not-found">No products found.</div>;
 
     return (

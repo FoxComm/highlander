@@ -1,6 +1,7 @@
 @import "variables";
 @import "media-queries";
 @import "colors";
+@import 'ui/css/links.css';
 
 .catalog {
 
@@ -101,4 +102,66 @@
   .catalog {
     justify-content: space-between;
   }
+}
+
+.banner-sunglasses,
+.banner-eyeglasses {
+  display: flex;
+  margin-bottom: 40px;
+  width: 100%;
+  border: 6px solid #eff2f5;
+
+  & article {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    padding: 0 20px 50px;
+    justify-content: center;
+    text-align: center
+  }
+}
+
+.banner-sunglasses {
+  flex-direction: row-reverse;
+  color: #fea7d3;
+
+  & ~ div:nth-child(3n+3) {
+    margin-right: 5%;
+  }
+  & ~ div:nth-child(3n+4) {
+    margin-right: 0;
+  }
+
+  & a {
+    @mixin link-color #fea7d3;
+  }
+}
+
+.banner-eyeglasses {
+  & ~ div:nth-child(3n+4) {
+    margin-right: 5%;
+  }
+  & ~ div:nth-child(3n+5) {
+    margin-right: 0;
+  }
+
+  & a {
+    @mixin link-color #46494d;
+  }
+}
+
+.banner-sunglasses__image,
+.banner-eyeglasses__image {
+  height: 428px;
+  width: 50%;
+  background-position: 50% 0;
+  background-repeat: no-repeat;
+}
+
+.banner-sunglasses__image {
+  background-image: url('images/banners/Marketing_Womens_1.jpg');
+}
+
+.banner-eyeglasses__image {
+  background-image: url('images/banners/Marketing_Mens_2.jpg');
 }
