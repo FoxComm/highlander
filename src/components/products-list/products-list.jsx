@@ -31,7 +31,7 @@ class ProductsList extends React.Component {
   props: ProductsListParams;
 
   static defaultProps = {
-    hasBanners: true
+    hasBanners: true,
   };
 
   renderHeader() {
@@ -61,31 +61,35 @@ class ProductsList extends React.Component {
   }
 
   getItemList() {
-    const items = _.map(this.props.list, (item, i) => {
-        return (
-          <ListItem {...item} key={`product-${item.id}`}/>
-        );
+    const items = _.map(this.props.list, (item) => {
+      return (
+        <ListItem {...item} key={`product-${item.id}`}/>
+      );
     });
 
     if (!this.props.hasBanners) return items;
 
-    const banner1 = <div styleName="banner-sunglasses" key="banner-sunglasses">
-      <Banner
-        header="Summer 2016"
-        description="Bring on the sun"
-        links={[{to: '/sunglasses', text: 'Shop Sunglasses'}]}
-      />
-      <div styleName="banner-sunglasses__image"></div>
-    </div>;
+    const banner1 = (
+      <div styleName="banner-sunglasses" key="banner-sunglasses">
+        <Banner
+          header="Summer 2016"
+          description="Bring on the sun"
+          links={[{to: '/sunglasses', text: 'Shop Sunglasses'}]}
+        />
+        <div styleName="banner-sunglasses__image"></div>
+      </div>
+    );
 
-    const banner2 = <div styleName="banner-eyeglasses" key="banner-eyeglasses">
-      <Banner
-        header="Summer 2016"
-        description="Better to see you with, my dear"
-        links={[{to: '/eyeglasses', text: 'Shop Eyeglasses'}]}
-      />
-      <div styleName="banner-eyeglasses__image"></div>
-    </div>;
+    const banner2 = (
+      <div styleName="banner-eyeglasses" key="banner-eyeglasses">
+        <Banner
+          header="Summer 2016"
+          description="Better to see you with, my dear"
+          links={[{to: '/eyeglasses', text: 'Shop Eyeglasses'}]}
+        />
+        <div styleName="banner-eyeglasses__image"></div>
+      </div>
+    );
 
     if (items.length > 6) items.splice(6, 0, banner1);
     if (items.length > 13) items.splice(13, 0, banner2);
