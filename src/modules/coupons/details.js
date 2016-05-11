@@ -65,6 +65,7 @@ export const couponsGenerationShowDialog = createAction('COUPONS_GENERATION_SHOW
 export const couponsGenerationHideDialog = createAction('COUPONS_GENERATION_HIDE_DIALOG');
 export const couponsGenerationSelectSingle = createAction('COUPONS_GENERATION_SELECT_SINGLE');
 export const couponsGenerationSelectBulk = createAction('COUPONS_GENERATION_SELECT_BULK');
+export const couponsGenerationChange = createAction('COUPONS_GENERATION_CHANGE', (name, value) => [name, value]);
 
 const _generateCodes = createAsyncActions(
   'generateCouponCodes',
@@ -175,6 +176,9 @@ const reducer = createReducer({
   },
   [couponsGenerationSelectBulk]: (state) => {
     return assoc(state, ['codeGeneration', 'bulk'], true);
+  },
+  [couponsGenerationChange]: (state, [name, value]) => {
+    return assoc(state, ['codeGeneration', name], value);
   },
 }, initialState);
 

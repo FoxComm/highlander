@@ -62,7 +62,7 @@ class CouponCodes extends Component {
           <input
             type="text"
             styleName="full-width-field"
-            value={this.state.singleCode}
+            value={this.props.codeGeneration.singleCode}
             onChange={this.handleChangeSingleCode}
           />
           <div styleName="field-comment">
@@ -75,24 +75,24 @@ class CouponCodes extends Component {
 
   @autobind
   handleChangeSingleCode({target}: {target: Target}): void {
-    this.props.onChangeSingleCode(target.value);
+    this.props.couponsGenerationChange(target.name, target.value);
   }
 
   @autobind
   handleFormChange({target}: {target: Target}): void {
-    this.setFormValue(target.name, target.value);
+    this.props.couponsGenerationChange(target.name, target.value);
   }
 
   @autobind
   handleCounterChange({target}: {target: Target}): void {
-    this.setCounterValue(target.name, target.value);
+    this.props.couponsGenerationChange(target.name, target.value);
   }
 
   @autobind
   setCounterValue(name: string, value: string|number): void {
     let num = Number(value);
     num = isNaN(num) ? 1 : num;
-    this.setFormValue(name, Math.max(1, num));
+    this.props.couponsGenerationChange(name, Math.max(1, num));
   }
 
   @autobind
@@ -127,12 +127,6 @@ class CouponCodes extends Component {
     return length >= Math.ceil(Math.log10(quantity));
   }
 
-  setFormValue(name: string, value: string|number|boolean): void {
-    this.setState({
-      [name]: value
-    });
-  }
-
   get generateCodesDisabled(): boolean {
     return !(this.state.codesPrefix && this.codeIsOfValidLength());
   }
@@ -163,9 +157,9 @@ class CouponCodes extends Component {
               <Counter
                 id="codesQuantity"
                 name="codesQuantity"
-                value={this.state.codesQuantity}
-                decreaseAction={() => this.setCounterValue('codesQuantity', this.state.codesQuantity - 1)}
-                increaseAction={() => this.setCounterValue('codesQuantity', this.state.codesQuantity + 1)}
+                value={this.props.codeGeneration.codesQuantity}
+                decreaseAction={() => this.setCounterValue('codesQuantity', this.props.codeGeneration.codesQuantity - 1)}
+                increaseAction={() => this.setCounterValue('codesQuantity', this.props.codeGeneration.codesQuantity + 1)}
                 onChange={this.handleCounterChange}
                 min={1}
               />
@@ -177,7 +171,7 @@ class CouponCodes extends Component {
             <div>
               <input
                 styleName="full-width-field"
-                value={this.state.codesPrefix}
+                value={this.props.codeGeneration.codesPrefix}
                 onChange={this.handleFormChange}
                 type="text"
                 name="codesPrefix"
@@ -191,9 +185,9 @@ class CouponCodes extends Component {
               <Counter
                 id="codesLength"
                 name="codesLength"
-                value={this.state.codesLength}
-                decreaseAction={() => this.setCounterValue('codesLength', this.state.codesLength - 1)}
-                increaseAction={() => this.setCounterValue('codesLength', this.state.codesLength + 1)}
+                value={this.props.codeGeneration.codesLength}
+                decreaseAction={() => this.setCounterValue('codesLength', this.props.codeGeneration.codesLength - 1)}
+                increaseAction={() => this.setCounterValue('codesLength', this.props.codeGeneration.codesLength + 1)}
                 onChange={this.handleCounterChange}
                 min={1}
               />
