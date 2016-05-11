@@ -118,23 +118,21 @@ class CouponPage extends Component {
         willBeCoupon = this.props.actions.updateCoupon(coupon);
       }
 
-      const { bulk, couponCode, codesPrefix, codesLength, codesQuantity } = this.props.codeGeneration;
+      const { bulk, singleCode, codesPrefix, codesLength, codesQuantity } = this.props.codeGeneration;
 
-      if (bulk === false && couponCode != undefined) {
+      if (bulk === false && singleCode != undefined) {
         willBeCoupon.then(() => {
           const couponId = this.state.coupon.id;
-          this.props.actions.generateCode(couponId, couponCode);
+          this.props.actions.generateCode(couponId, singleCode);
         }).then(() => {
           this.props.actions.couponsGenerationReset();
-        });;
+        });
       }
 
       if (bulk === true && this.props.actions.codeIsOfValidLength()) {
         willBeCoupon.then(() => {
           this.props.actions.couponsGenerationShowDialog();
-        }).then(() => {
-          this.props.actions.couponsGenerationReset();
-        });;
+        });
       }
     }
 
@@ -143,7 +141,13 @@ class CouponPage extends Component {
 
   @autobind
   handleUpdateCoupon(coupon: Object): void {
-    this.props.actions.couponsChange(coupon);
+    let errors = {};
+    if (_.isNumber(coupon.promotion)) {
+      errors = { promotionError: false };
+    }
+    this.setState(errors, () => {
+      this.props.actions.couponsChange(coupon);
+    });
   }
 
   @autobind
@@ -157,7 +161,7 @@ class CouponPage extends Component {
   }
 
   @autobind
-  handleSelectSaving(value) {
+  handleSelectSaving(value: string): void {
     const { actions, dispatch } = this.props;
     const mayBeSaved = this.save();
     if (!mayBeSaved) return;
@@ -177,6 +181,16 @@ class CouponPage extends Component {
     });
   }
 
+  @autobind
+  handleSave(): ?Promise {
+    if (!_.isNumber(this.state.coupon.promotion)) {
+      this.setState({promotionError: true});
+      return null;
+    }
+
+    return this.props.actions.createCoupon(this.state.coupon);
+  }
+
   render(): Element {
     const props = this.props;
     const { coupon, promotionError } = this.state;
@@ -191,7 +205,7 @@ class CouponPage extends Component {
       coupon,
       promotionError,
       codeGeneration,
-      saveCoupon: () => this.props.actions.createCoupon(this.state.coupon),
+      saveCoupon: this.handleSave,
       selectedPromotions: this.selectedPromotions,
       onUpdateCoupon: this.handleUpdateCoupon,
       entity: { entityId: this.entityId, entityType: 'coupon' },

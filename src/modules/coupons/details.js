@@ -112,6 +112,14 @@ export function codeIsOfValidLength(): Function {
   };
 }
 
+export function promotionPresent(): Function {
+  return (dispatch: Function, getState: Function) => {
+    const state = getState();
+    const promo = _.get(state, 'coupons.details.coupon.promotion');
+    return _.isNumber(promo);
+  };
+}
+
 /* module state */
 
 const initialCodeGenerationState = {

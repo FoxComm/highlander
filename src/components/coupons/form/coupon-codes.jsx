@@ -36,6 +36,7 @@ type Props = {
   couponsGenerationChange: Function,
   couponsGenerationReset: Function,
   codeIsOfValidLength: Function,
+  promotionPresent: Function,
 };
 
 type Target = {
@@ -110,6 +111,8 @@ class CouponCodes extends Component {
 
     let willBeCoupon = this.props.isNew ? this.props.saveCoupon() : Promise.resolve();
 
+    if (willBeCoupon == null) return;
+
     willBeCoupon.then(() => {
       this.props.generateCodes(codesPrefix, codesLength, codesQuantity);
     }).then(() => {
@@ -122,7 +125,9 @@ class CouponCodes extends Component {
   }
 
   get generateCodesDisabled(): boolean {
-    return !(this.props.codeGeneration.codesPrefix && this.codeIsOfValidLength());
+    return !(this.props.codeGeneration.codesPrefix
+      && this.codeIsOfValidLength()
+      && this.props.promotionPresent());
   }
 
   get guessProbability(): number {
