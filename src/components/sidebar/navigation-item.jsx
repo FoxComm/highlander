@@ -72,7 +72,7 @@ export default class NavigationItem extends React.Component {
       <div className="fc-navigation-item">
         <IndexLink to={this.props.to} className="fc-navigation-item__link">
           <i className={this.props.icon}/>
-          {this.props.title}
+          <span>{this.props.title}</span>
         </IndexLink>
         {this.props.isExpandable && this.expandButton}
       </div>
@@ -84,7 +84,7 @@ export default class NavigationItem extends React.Component {
       <div className="fc-navigation-item">
         <Link to={this.props.to} className="fc-navigation-item__link">
           <i className={this.props.icon}/>
-          {this.props.title}
+          <span>{this.props.title}</span>
         </Link>
         {this.props.isExpandable && this.expandButton}
       </div>

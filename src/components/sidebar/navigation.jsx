@@ -178,7 +178,10 @@ const Navigation = props => {
           </NavigationItem>
         </li>
         <li>
-          <a href="" className="fc-navigation-link" onClick={goNowhere}><i className="icon-settings"></i>Settings</a>
+          <a href="" className="fc-navigation-link" onClick={goNowhere}>
+            <i className="icon-settings"></i>
+            <span>Settings</span>
+          </a>
         </li>
       </ul>
     </nav>

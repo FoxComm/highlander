@@ -1,4 +1,6 @@
 
+import React from 'react';
+
 describe('Buttons', function() {
   const Buttons = requireComponent('common/buttons.jsx', false);
 
@@ -10,7 +12,7 @@ describe('Buttons', function() {
 
     expect(button).to.be.instanceof(Object);
     expect(button.props.className).to.contain('fc-btn');
-    expect(button.props.children).to.contain('Done');
+    expect(button.props.children, 'to contain', <span>Done</span>);
   });
 
   it('should pass onClick to Button', function() {
