@@ -110,7 +110,7 @@ module "prodsmall_consul_cluster" {
 ##############################################
 
 variable "kakfa_image" { 
-    default = "prod-small-kakfa-1462576822"
+    default = "prod-small-kafka-1462989188"
 }
 
 variable "db_image" { 
@@ -122,7 +122,7 @@ variable "es_image" {
 }
 
 variable "phoenix_image" { 
-    default = "prod-small-phoenix-1462900739"
+    default = "prod-small-phoenix-1462994424"
 }
 
 variable "greenriver_image" { 
@@ -130,7 +130,7 @@ variable "greenriver_image" {
 }
 
 variable "front_image" { 
-    default = "prod-small-front-1462926697"
+    default = "prod-small-front-1462995788"
 }
 
 module "prodsmall_stack" {

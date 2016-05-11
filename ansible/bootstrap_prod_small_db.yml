@@ -4,6 +4,23 @@
   hosts: prodsmall-db
   vars:
     user: '{{ansible_ssh_user}}'
+    seeds_cmd: utils.seeds.Seeds
 
   roles:
       - { role: dev/db }
+
+- name: Bootstrap Kafka
+  hosts: prodsmall-kafka
+  vars:
+    user: '{{ansible_ssh_user}}'
+
+  roles:
+      - { role: dev/kafka }
+
+- name: Bootstrap ES
+  hosts: prodsmall-es
+  vars:
+    user: '{{ansible_ssh_user}}'
+
+  roles:
+      - { role: dev/elasticsearch }

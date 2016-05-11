@@ -50,7 +50,7 @@
   command: systemctl daemon-reload
 
 - name: Restart Ashes
-  service: name=ashes state=restarted
+  service: name=ashes state=restarted enabled=true
   sudo: true
 
 - name: Copy Consul Service File

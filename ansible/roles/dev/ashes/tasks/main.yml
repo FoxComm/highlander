@@ -31,5 +31,5 @@
   template: src=run_ashes.sh.j2 dest="{{ ashes_install_dir }}/run_ashes.sh" mode="u=rwx,g=rwx,o=r"
 
 - name: Restart Ashes
-  service: name=ashes state=restarted
+  service: name=ashes state=restarted enabled=true
   sudo: true

@@ -23,10 +23,3 @@
 
 - name: Enable Firebird hosts
   file: src=/etc/nginx/sites-available/firebird dest=/etc/nginx/sites-enabled/firebird owner=root group=root state=link
-
-- name: Restart Nginx
-  service: name=nginx state=restarted
-
-- name: Copy Consul Service File
-  template: src=balancer.json dest="/etc/consul.d/balancer.json"
-  notify: reload consul

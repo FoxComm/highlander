@@ -50,7 +50,7 @@
   command: systemctl daemon-reload
 
 - name: Restart Firebird
-  service: name=firebird state=restarted
+  service: name=firebird state=restarted enabled=true
   sudo: true
 
 - name: Copy Consul Service File
