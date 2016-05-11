@@ -171,7 +171,7 @@ export default class AddressForm extends React.Component {
 
   @autobind
   handleFormSubmit(data) {
-    const { closeAction, customerId, submitAction } = this.props;
+    const { submitAction } = this.props;
 
     const formData = _.reduce(data, (res, val, key) => {
       if (val !== '') {

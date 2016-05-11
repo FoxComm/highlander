@@ -5,7 +5,6 @@ import ContentBox from '../content-box/content-box';
 import Addresses, { createAddressBox } from '../addresses/addresses';
 import AddressBox from '../addresses/address-box';
 import AddressForm from '../addresses/address-form';
-import EditableItemContainer from '../item-card-container/editable-item-card-container';
 import ItemCardContainer from '../item-card-container/item-card-container';
 import { AddButton } from '../common/buttons';
 import { connect } from 'react-redux';
@@ -69,6 +68,7 @@ export default class CustomerAddressBook extends React.Component {
     }
   }
 
+  @autobind
   createAddressBox(address, idx, props) {
     if (_.contains(props.editingIds, address.id)) {
       return (
