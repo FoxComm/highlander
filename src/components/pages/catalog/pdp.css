@@ -4,7 +4,7 @@
 
 .container {
   composes: wrap from "ui/css/layout.css";
-  margin-top: 80px;
+  margin: 80px 0;
   padding-top: 16px;
   align-items: stretch;
 }
@@ -41,4 +41,24 @@
   color: var(--blackish);
   font-size: 15px;
   line-height: 1.5;
+}
+
+:root {
+  --control-width: 240px;
+}
+
+.counter {
+  width: var(--control-width);
+  margin-top: 20px;
+}
+
+.add-to-cart {
+  composes: button from "ui/css/buttons.css";
+  background: #A7F4FF;
+  width: var(--control-width);
+  height: 60px;
+  margin-top: 30px;
+  border: none;
+  color: #616161;
+  font-size: 16px;
 }

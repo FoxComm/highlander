@@ -22,6 +22,8 @@ import type { HTMLElement } from 'types';
 import type { ProductResponse } from 'modules/product-details';
 
 // components
+import Button from 'ui/buttons';
+import Counter from 'ui/forms/counter';
 import Currency from 'ui/currency';
 import Gallery from 'ui/gallery/gallery';
 import Loader from 'ui/loader';
@@ -143,6 +145,34 @@ class Pdp extends Component {
     };
   }
 
+  changeQuantity(change: number): void {
+    const quantity = Math.max(this.state.quantity + change, 1);
+    this.setState({quantity});
+  }
+
+  @autobind
+  addToCart(): void {
+    const { actions, auth } = this.props;
+    const user = _.get(auth, 'user', null);
+
+    if (_.isEmpty(user)) {
+      browserHistory.push({
+        pathname: `/products/${this.productId}`,
+        query: { auth: 'login' },
+      });
+
+      return;
+    }
+
+    const quantity = this.state.quantity;
+    const skuId = this.firstSku.code;
+    actions.addLineItem(skuId, quantity)
+      .then(() => {
+        actions.toggleCart();
+        this.setState({quantity: 1});
+      });
+  }
+
   render(): HTMLElement {
     const { t, isLoading, isCartLoading, notFound } = this.props;
 
@@ -167,6 +197,16 @@ class Pdp extends Component {
             <Currency value={price} currency={currency} />
           </div>
           <div styleName="description" dangerouslySetInnerHTML={{__html: description}}></div>
+          <div styleName="counter">
+            <Counter
+              value={this.state.quantity}
+              decreaseAction={() => this.changeQuantity(-1)}
+              increaseAction={() => this.changeQuantity(1)}
+            />
+          </div>
+          <Button styleName="add-to-cart" isLoading={isCartLoading} onClick={this.addToCart}>
+            {t('ADD TO CART')}
+          </Button>
         </div>
       </div>
     );
