@@ -1,10 +1,7 @@
 package services.image
 
 import java.io.File
-import java.time.Instant
 
-import scala.concurrent.Future
-import scala.util.Try
 import akka.http.scaladsl.model.{HttpRequest, Multipart}
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.ActorMaterializer
@@ -12,17 +9,11 @@ import akka.stream.scaladsl.{Sink, FileIO, Source}
 import akka.util.ByteString
 
 import cats.data.Xor.{left, right}
-import cats.data.XorT
 import cats.implicits._
-import failures.GeneralFailure
 import failures.ImageFailures._
 import models.StoreAdmin
 import models.image._
 import models.objects._
-import org.json4s.JsonAST.{JField, JNothing, JObject, JString, JValue}
-import org.json4s.JsonDSL._
-import org.json4s.jackson.JsonMethods._
-import org.json4s.native.Serialization.{read, write}
 import payloads.{AlbumPayload, ImagePayload}
 import responses.ImageResponses._
 import services.{AmazonS3, Result}
@@ -34,9 +25,6 @@ import utils.aliases._
 import utils.db.DbResultT._
 import utils.db._
 import utils.IlluminateAlgorithm
-
-import com.amazonaws.services.s3.AmazonS3Client
-import com.amazonaws.auth.BasicAWSCredentials
 
 object ImageManager {
   type FullAlbum = FullObject[Album]
@@ -142,13 +130,15 @@ object ImageManager {
   def uploadImage(albumId: Int, contextName: String, request: HttpRequest)
     (implicit ec: EC, db: DB, am: ActorMaterializer): Result[AlbumResponse.Root] = {
     Unmarshal(request.entity).to[Multipart.FormData].flatMap { formData ⇒
-      val error: Result[AlbumResponse.Root] = Future.successful(left(GeneralFailure("SS").single))
+      val error: Result[AlbumResponse.Root] = Result.failure(ImageNotFoundInPayload)
       formData.parts.filter(_.name == "upload-file").runFold(error) { (_, part) ⇒
         (for {
           context  ← * <~ ObjectManager.mustFindByName404(contextName)
           file     ← * <~ getFileFromRequest(part.entity.dataBytes)
           album    ← * <~ mustFindFullAlbumByIdAndContext404(albumId, context)
-          s3       ← * <~ AmazonS3.uploadFile("test.jpg", file)
+          filename ← * <~ getFileNameFromBodyPart(part)
+          fullPath ← * <~ s"albums/${context.id}/${albumId}/${filename}"
+          s3       ← * <~ AmazonS3.uploadFile(fullPath, file)
           payload  = payloadForNewImage(album, s3)
           album    ← * <~ updateAlbumInner(albumId, payload, context)
         } yield album).runTxn()
@@ -158,10 +148,17 @@ object ImageManager {
 
   private def getFileFromRequest(bytes: Source[ByteString, Any])
     (implicit ec: EC, am: ActorMaterializer) = {
-    val file = File.createTempFile("debug", ".jpg")
+    val file = File.createTempFile("tmp", ".jpg")
     bytes.runWith(FileIO.toFile(file)).map { up ⇒
       if (up.wasSuccessful) right(file)
-      else left(GeneralFailure("CC").single)
+      else left(ErrorReceivingImage.single)
+    }
+  }
+
+  private def getFileNameFromBodyPart(part: Multipart.FormData.BodyPart)(implicit ec: EC) = {
+    part.filename match {
+      case Some(name) ⇒ Result.good(name)
+      case None       ⇒ Result.failure(ImageFilenameNotFoundInPayload)
     }
   }
 

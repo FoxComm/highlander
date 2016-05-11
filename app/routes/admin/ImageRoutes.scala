@@ -1,8 +1,6 @@
 package routes.admin
 
-import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.ActorMaterializer
 import scala.concurrent.ExecutionContext
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
@@ -43,7 +41,7 @@ object ImageRoutes {
                 }
               }
             }
-          } 
+          }
         }
       }
     }
