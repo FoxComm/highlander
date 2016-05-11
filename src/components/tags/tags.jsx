@@ -49,7 +49,7 @@ export default class Tags extends Component<void, Props, State> {
   @autobind
   submitTags() {
     const tags = _.compact(this.state.addingValue.trim().split(',').map(s => s.trim()));
-    const nTags = [...this.tags, ...tags];
+    const nTags = _.unique([...this.tags, ...tags]);
 
     this.setState({
       isAdding: false,
