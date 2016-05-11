@@ -1,5 +1,6 @@
 .usermenu {
   position: absolute;
+  z-index: 10;
   top: 100%;
   right: 1px;
   background: #fff;
