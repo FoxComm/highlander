@@ -25,7 +25,6 @@ const plugins = [
   require('postcss-import')({
     path: ['src/css', 'node_modules'],
   }),
-  require('postcss-mixins'),
   require('postcss-css-variables'),
   require('lost')({
     flexbox: 'flex',

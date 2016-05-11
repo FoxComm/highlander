@@ -11,7 +11,12 @@
   color: var(--whitish);
 
   & a {
-    @mixin link-color var(--whitish);
+    color: var(--whitish);
+    border-color: var(--whitish);
+
+    &:before {
+      background-color: var(--whitish);
+    }
   }
 
   & article {
@@ -45,7 +50,12 @@
   }
 
   & a {
-    @mixin link-color var(--blueish);
+    color: var(--blueish);
+    border-color: var(--blueish);
+
+    &:before {
+      background-color: var(--blueish);
+    }
   }
 }
 
@@ -60,7 +70,12 @@
   }
 
   & a {
-    @mixin link-color var(--dark-greyish);
+    color: var(--dark-greyish);
+    border-color: var(--dark-greyish);
+
+    &:before {
+      background-color: var(--dark-greyish);
+    }
   }
 
   & .visit-a-store-banner__image {

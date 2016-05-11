@@ -39,5 +39,11 @@
 
 .link {
   composes: link from 'ui/css/links.css';
-  @mixin link-color #5BB0DE;
+  --light-blueish: #5BB0DE;
+  color: var(--light-blueish);
+  border-color: var(--light-blueish);
+
+  &:before {
+    background-color: var(--light-blueish);
+  }
 }
