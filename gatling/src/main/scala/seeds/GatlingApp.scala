@@ -28,10 +28,5 @@ object GatlingApp extends App {
     println(s"Phoenix did not respond in ${Conf.phoenixStartupTimeout}, exiting now!")
     System.exit(1)
   }
-  val baseExitCode = Gatling.fromArgs(Array(), Some(classOf[BaseSeeds].asInstanceOf[Class[Simulation]]))
-  if (baseExitCode != 0) {
-    println("Base seeds failed!")
-    System.exit(1)
-  }
   Gatling.fromArgs(Array(), Some(classOf[GatlingSeeds].asInstanceOf[Class[Simulation]]))
 }

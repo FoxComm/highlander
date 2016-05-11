@@ -4,7 +4,6 @@ import scala.concurrent.duration._
 
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
-import utils.Money.Currency._
 
 object Conf {
 
@@ -18,7 +17,4 @@ object Conf {
 
   val phoenixPingPause = 10.seconds
   val phoenixStartupTimeout = 1.minute
-
-  val contexts = Seq(("default", USD), ("ru", RUB))
-
 }
