@@ -2,7 +2,6 @@
 
 import React from 'react';
 import type { HTMLElement } from 'types';
-import { Link } from 'react-router';
 import Banner from '../banner/banner';
 
 import styles from './banner.css';
