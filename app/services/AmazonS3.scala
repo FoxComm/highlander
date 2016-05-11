@@ -7,7 +7,7 @@ import scala.concurrent.{Future, blocking}
 import cats.data.Xor.{left, right}
 import com.amazonaws.auth.BasicAWSCredentials
 import com.amazonaws.services.s3.AmazonS3Client
-import com.amazonaws.services.s3.model.AmazonS3Exception
+import com.amazonaws.services.s3.model.{CannedAccessControlList, PutObjectRequest, AmazonS3Exception}
 import failures.AmazonFailures._
 import failures._
 import utils.aliases.EC
@@ -24,7 +24,9 @@ object AmazonS3 {
       case (Some(access), Some(secret), Some(bucket), Some(region)) ⇒
         val credentials = new BasicAWSCredentials(access, secret)
         val client = new AmazonS3Client(credentials)
-        client.putObject(bucket, fileName, file)
+        val putRequest = new PutObjectRequest(bucket, fileName, file)
+            .withCannedAcl(CannedAccessControlList.PublicRead)
+        client.putObject(putRequest)
         right(s"https://s3-${region}.amazonaws.com/${bucket}/${fileName}")
       case (None, _, _, _) ⇒
         left(UnableToReadAwsAccessKey.single)

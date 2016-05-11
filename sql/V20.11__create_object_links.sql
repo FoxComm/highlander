@@ -7,8 +7,7 @@ create table object_links(
     updated_at timestamp without time zone default (now() at time zone 'utc'),
 
     foreign key (left_id) references object_shadows(id) on update restrict on delete restrict,
-    foreign key (right_id) references object_shadows(id) on update restrict on delete restrict,
-    constraint valid_link_type check (link_type in ('productAlbum', 'productSku', 'promotionDiscount', 'skuAlbum'))
+    foreign key (right_id) references object_shadows(id) on update restrict on delete restrict
 );
 
 create index object_link_left_idx on object_links (left_id);
