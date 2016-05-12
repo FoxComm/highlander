@@ -1,30 +1,43 @@
 
-.groups-popup {
-  position: absolute;
-  display: none;
-  z-index: 100;
-  right: 0;
-  top: 100%;
+.selectable-list {
   background-color: #ffffff;
   border: 1px solid #d9d9d9;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .5);
   user-select: none;
-  width: 396px;
   font-style: normal;
+}
+
+.popup {
+  position: absolute;
+  z-index: 100;
+  width: 396px;
+  right: 0;
+  top: 100%;
+}
+
+.visible-state {
+  display: none;
 
   &:global(._open) {
     display: block;
   }
 }
 
-.groups-list {
+.items-list {
   border-bottom: 1px solid #adadad;
   max-height: 50vh;
   overflow-y: auto;
   overflow-x: hidden;
 }
 
-.group {
+.blank-state {
+  font-size: 1.2em;
+  color: #7f7f7f;
+  text-align: center;
+  padding: 20px 10px;
+}
+
+.item {
   padding: 7px 5px;
 
   &:hover {
@@ -36,7 +49,7 @@
   }
 }
 
-.group-description {
+.item-description {
   color: #adadad;
   padding-left: 10px;
   text-transform: capitalize;
@@ -46,10 +59,12 @@
   }
 }
 
-.controls {
-  padding: 10px 20%;
+.footer {
+  padding: 10px;
 }
 
-.add-button {
-  width: 100%;
+.choose-button {
+  width: 60%;
+  margin: 0 auto;
+  display: block;
 }

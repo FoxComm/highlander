@@ -11,7 +11,6 @@ import { transitionTo } from 'browserHistory';
 
 // components
 import Counter from '../forms/counter';
-import PrependInput from '../forms/prepend-input';
 import Typeahead from '../typeahead/typeahead';
 import { Dropdown, DropdownItem } from '../dropdown';
 import { Checkbox } from '../checkbox/checkbox';

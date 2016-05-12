@@ -9,10 +9,15 @@ import styles from './select-groups.css';
 
 import RadioButton from '../forms/radio-button';
 import { Table, TableRow, TableCell } from '../table';
-import GroupsPopup from './groups-popup';
-import type { GroupType } from './groups-popup';
+import { SelectableList, SelectableItem } from '../selectable-list';
 
 import { fetchCustomerGroups } from '../../modules/customer-groups/all';
+
+type GroupType = {
+  name: string;
+  type: string;
+  id: number;
+}
 
 type Props = {
   onSelect: (groups: Array<number>) => any;
@@ -73,16 +78,28 @@ class SelectCustomerGroups extends Component {
     });
   }
 
+  @autobind
+  renderGroup(group: GroupType) {
+    return (
+      <SelectableItem id={group.id}>
+        <strong>{group.name}</strong>
+        <span styleName="group-description">• {group.type}</span>
+      </SelectableItem>
+    );
+  }
+
   get togglePopupControl(): Element {
     const iconClass = this.state.popupOpened ? 'icon-close' : 'icon-add';
     return (
       <i className={iconClass} styleName="toggle-control" onClick={this.togglePopup}>
-        <GroupsPopup
+        <SelectableList
           visible={this.state.popupOpened}
           onSelect={this.handleSelect}
-          groups={this.props.groups}
-          selectedGroupIds={this.props.selectedGroupIds}
+          items={this.props.groups}
+          selectedItemIds={this.props.selectedGroupIds}
           onBlur={this.closePopup}
+          emptyMessage="There are no customers groups."
+          renderItem={this.renderGroup}
         />
       </i>
     );

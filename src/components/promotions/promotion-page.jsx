@@ -25,6 +25,8 @@ type Actions = {
   createPromotion: Function,
   updatePromotion: Function,
   clearSubmitErrors: Function,
+  clearFetchErrors: Function,
+  reset: Function,
 };
 
 type Params = {
@@ -64,6 +66,7 @@ class PromotionPage extends Component {
   }
 
   componentDidMount() {
+    this.props.actions.clearFetchErrors();
     if (this.isNew) {
       this.props.actions.promotionsNew();
     } else {
@@ -74,7 +77,7 @@ class PromotionPage extends Component {
   componentWillReceiveProps(nextProps) {
     const { isFetching } = nextProps;
 
-    if (!isFetching) {
+    if (!isFetching && !nextProps.fetchError) {
       const nextPromotion = nextProps.details.promotion;
       if (!nextPromotion) return;
 
@@ -89,7 +92,7 @@ class PromotionPage extends Component {
   }
 
   componentWillUnmount() {
-    this.props.actions.promotionsNew();
+    this.props.actions.reset();
   }
 
   get pageTitle(): string {

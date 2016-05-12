@@ -34,3 +34,13 @@
   cursor: pointer;
   font-size: 15px;
 }
+
+.group-description {
+  color: #adadad;
+  padding-left: 10px;
+  text-transform: capitalize;
+
+  &:first-letter {
+    padding-right: 10px;
+  }
+}

@@ -1,91 +1,56 @@
-
-import _ from 'lodash';
+/* @flow weak */
 import { autobind } from 'core-decorators';
 import React, { PropTypes } from 'react';
-import { assoc, dissoc } from 'sprout-data';
 import { PrimaryButton } from '../common/buttons';
-import TypeaheadItems from '../typeahead/items';
-import { Checkbox } from '../checkbox/checkbox';
+import SelectableList from '../selectable-list/selectable-list';
+import CustomerRow from './customer-row';
+
+import styles from '../selectable-list/selectable-list.css';
+
+import type { ItemType } from '../selectable-list/selectable-list';
+
+type Props = {
+  items: Array<ItemType>;
+  onAddCustomers: (selectedItemsMap: {[key: string|number]: any}) => any;
+  toggleVisibility: (visibility: boolean) => void;
+};
+
 
 export default class ChooseCustomers extends React.Component {
+  props: Props;
 
-  static propTypes = {
-    items: PropTypes.array.isRequired,
-    updating: PropTypes.bool,
-    onAddCustomers: PropTypes.func.isRequired,
-    toggleVisibility: PropTypes.func,
-  };
-
-  state = {
-    selectedCustomers: {},
-  };
-
-  toggleCustomerSelected(customer) {
-    const selectedCustomers = this.state.selectedCustomers;
-
-    if (selectedCustomers[customer.id]) {
-      this.setState({
-        selectedCustomers: dissoc(selectedCustomers, customer.id)
-      });
-    } else {
-      this.setState({
-        selectedCustomers: assoc(selectedCustomers, customer.id, customer)
-      });
-    }
+  @autobind
+  handleClickAddCustomers(event: SyntheticEvent) {
+    event.preventDefault();
+    this.props.toggleVisibility(false);
+    this.props.onAddCustomers(this.refs.customers.selectedItemsMap());
   }
 
   @autobind
-  handleClickAddCustomers(event) {
-    event.preventDefault();
-    this.props.toggleVisibility(false);
-    this.props.onAddCustomers(this.state.selectedCustomers);
-  }
-
-  get chooseCustomers() {
-    const props = this.props;
-
-    return (
-      <div className="fc-choose-customers">
-        <ul className="fc-choose-customers__list">
-          {props.items.map(customer => {
-            return (
-              <li className="fc-choose-customers__entry" key={customer.id}>
-                <label>
-                  <Checkbox
-                    id={`choose-customers-${customer.id}`}
-                    checked={this.state.selectedCustomers[customer.id]}
-                    onChange={event => this.toggleCustomerSelected(customer)} />
-                  <span className="fc-choose-customers__customer-name">
-                    {customer.name}
-                  </span>
-                </label>
-                <div className="fc-choose-customers__info">
-                  <div className="fc-choose-customers__customer-email">
-                    {customer.email}
-                  </div>
-                  <div className="fc-choose-customers__customer-phone-number">
-                    {customer.phoneNumber}
-                  </div>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-        <footer className="fc-choose-customers__footer">
-          <PrimaryButton disabled={_.size(this.state.selectedCustomers) === 0}
-                         onClick={this.handleClickAddCustomers}>
-            Add Customers
-          </PrimaryButton>
-        </footer>
-      </div>
-    );
+  renderCustomer(customer: ItemType) {
+    return <CustomerRow customer={customer} />;
   }
 
   render() {
-    if (this.props.items.length == 0) {
-      return <TypeaheadItems {...this.props} />;
-    } else {
-      return this.chooseCustomers;
-    }
+    const { items } = this.props;
+
+    const buttonDisabled = this.refs.customers && this.refs.customers.selectedIds.length === 0;
+
+    return (
+      <SelectableList
+        popup={false}
+        items={items}
+        ref="customers"
+        emptyMessage="No customers found."
+        renderItem={this.renderCustomer}
+      >
+        <PrimaryButton
+          styleName="choose-button"
+          disabled={buttonDisabled}
+          onClick={this.handleClickAddCustomers}>
+          Add Customers
+        </PrimaryButton>
+      </SelectableList>
+    );
   }
 }
