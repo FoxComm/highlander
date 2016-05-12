@@ -26,6 +26,12 @@ run-staging: setup stop
 
 run-production: setup stop
 	export NODE_ENV=production; nohup gulp server 2>&1 &
+
+build: setup
+	gulp build
+
+package: build
+	tar --exclude 'ashes.tar.bz2' -jcf ashes.tar.bz2 ./
 	
 
-.PHONY: test test-cov tag
+.PHONY: test test-cov tag build package
