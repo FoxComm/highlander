@@ -10,6 +10,7 @@ import styles from './products-list.css';
 
 import ListItem from '../products-item/list-item';
 import BannerWithImage from '../banner/bannerWithImage';
+import ScrollToTop from '../scroll-to-top/scroll-to-top';
 
 type Category = {
   name: string;
@@ -109,6 +110,7 @@ class ProductsList extends React.Component {
         <div styleName="list">
           {items}
         </div>
+        <ScrollToTop />
       </section>
     );
   }
