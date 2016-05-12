@@ -40,8 +40,8 @@ class ImageIntegrationTest
         val image :: Nil = albumResponse.images
         val src = image.get("src")
       }
-    }
 
+    }
     "POST v1/albums/:context" - {
       "Create an album with no images" in new Fixture {
         val payload = AlbumPayload(name = "Empty album")

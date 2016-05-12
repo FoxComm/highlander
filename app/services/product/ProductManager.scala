@@ -155,7 +155,8 @@ object ProductManager {
     skuData.map {
       case (s, f, sh) ⇒ IlluminatedSku.illuminate(context, s, f, sh)
     },
-    variants.map(v ⇒ IlluminatedVariant.illuminate(context, v)))
+    variants.map(v ⇒ IlluminatedVariant.illuminate(context, v)),
+    variantMap)
 
   def getIlluminatedFullProductAtCommit(productId: Int, contextName: String, commitId: Int)
     (implicit ec: EC, db: DB): Result[IlluminatedFullProductResponse.Root] = (for {
@@ -185,7 +186,8 @@ object ProductManager {
     skuData.map {
       case (s, f, sh) ⇒ IlluminatedSku.illuminate(context, s, f, sh)
     },
-    variants.map(v ⇒ IlluminatedVariant.illuminate(context, v)))).run()
+    variants.map(v ⇒ IlluminatedVariant.illuminate(context, v)),
+    variantMap)).run()
 
   def getContextsForProduct(formId: Int)(implicit ec: EC, db: DB): Result[Seq[ObjectContextResponse.Root]] = (for {products   ← * <~ Products.filterByFormId(formId).result
     contextIds ← * <~ products.map(_.contextId)

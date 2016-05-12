@@ -7,6 +7,9 @@ import models.Aliases.Json
 import models.inventory._
 import models.objects._
 import models.product._
+import org.json4s.JsonAST.JValue
+import org.json4s.JsonDSL._
+import org.json4s.jackson.JsonMethods._
 import responses.ObjectResponses.ObjectContextResponse
 import responses.SkuResponses._
 import responses.VariantResponses._
@@ -93,17 +96,24 @@ object ProductResponses {
 
   object IlluminatedFullProductResponse {
 
-    case class Root(id: Int, context: ObjectContextResponse.Root, product: IlluminatedProductResponse.Root, 
-      skus: Seq[IlluminatedSkuResponse.Root], variants: Seq[IlluminatedVariantResponse.Root]) 
+    case class Root(id: Int, context: ObjectContextResponse.Root, product: IlluminatedProductResponse.Root,
+      skus: Seq[IlluminatedSkuResponse.Root], variants: Seq[IlluminatedVariantResponse.Root], variantMap: Json)
       extends ResponseItem
 
-    def build(p: IlluminatedProduct, skus: Seq[IlluminatedSku], variants: Seq[IlluminatedVariant]): Root = 
+    def build(p: IlluminatedProduct, skus: Seq[IlluminatedSku], variants: Seq[IlluminatedVariant],
+      variantMap: Map[String, Seq[FullObject[VariantValue]]]): Root =
       Root(
         id = p.id, 
         product = IlluminatedProductResponse.buildLite(p),
         context = ObjectContextResponse.build(p.context),
         skus = skus.map(IlluminatedSkuResponse.buildLite _),
-        variants = variants.map(IlluminatedVariantResponse.buildLite _))
+        variants = variants.map(IlluminatedVariantResponse.buildLite _),
+        variantMap = buildVariantMap(variantMap))
+
+    private def buildVariantMap(vm: Map[String, Seq[FullObject[VariantValue]]]): JValue = {
+      val idMap = vm.mapValues(_.map(_.form.id))
+      render(idMap)
+    }
   }
 
 }
