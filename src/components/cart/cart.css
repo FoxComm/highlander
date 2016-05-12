@@ -2,6 +2,10 @@
 @import "colors.css";
 @import "media-queries.css";
 
+.cart-hidden {
+  display: none;
+}
+
 .cart-shown {
   position: fixed;
   z-index: 1;

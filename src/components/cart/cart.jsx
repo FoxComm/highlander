@@ -4,6 +4,7 @@
 import _ from 'lodash';
 import React, { Component } from 'react';
 import styles from './cart.css';
+import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { browserHistory } from 'react-router';
 import { autobind } from 'core-decorators';
@@ -42,7 +43,10 @@ class Cart extends Component {
   render() {
     const { props } = this;
     const { t } = props;
-    const cartClass = props.isVisible ? 'cart-shown' : null;
+    const cartClass = classNames({
+      'cart-hidden': !props.isVisible,
+      'cart-shown': props.isVisible,
+    });
 
     const checkoutDisabled = _.size(props.skus) < 1;
 

@@ -4,6 +4,7 @@
 
 .container {
   composes: wrap from "ui/css/layout.css";
+  composes: inner-wrap from "ui/css/layout.css";
   margin: 80px 0;
   padding-top: 16px;
   align-items: stretch;
@@ -54,8 +55,9 @@
 
 .add-to-cart {
   composes: button from "ui/css/buttons.css";
-  --color: #A7F4FF;
-  background: var(--color);
+  --background-color: #A7F4FF;
+  --text-color: #616161;
+  background: var(--background-color);
   width: var(--control-width);
   height: 60px;
   margin-top: 30px;
@@ -63,9 +65,19 @@
   color: #616161;
   font-size: 16px;
   box-sizing: border-box;
-  border: 2px solid var(--color);
+  border: 2px solid var(--background-color);
+
+
+  &:disabled {
+    background: var(--background-color);
+
+    &:hover {
+      color: var(--text-color);
+    }
+  }
 
   &:hover {
     background: var(--whitish);
+    color: var(--text-color);
   }
 }
