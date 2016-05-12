@@ -25,7 +25,7 @@ case class QualifierAstCompiler(input: String) {
     }
   }
 
-  private def compile(fields: List[JField]) : Xor[Failures, Qualifier] = {
+  private def compile(fields: List[JField]): Xor[Failures, Qualifier] = {
     val qualifierCompiles = fields.map {
       case (qualifierType, value) ⇒ compile(qualifierType, value)
     }
