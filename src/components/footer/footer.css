@@ -23,6 +23,7 @@
   margin-bottom: 100px;
   padding-left: var(--grid-margin);
   padding-right: var(--grid-margin);
+  composes: inner-wrap from 'ui/css/layout.css';
 }
 
 .links {
@@ -97,8 +98,6 @@
 @media (--large-viewport-up) {
   .wrap {
     display: flex;
-    lost-column: 7/11;
-    lost-offset: -2/11;
   }
 
   .links {

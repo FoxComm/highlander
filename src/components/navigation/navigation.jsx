@@ -16,6 +16,7 @@ import styles from './navigation.css';
 type Category = {
   name: string;
   id: number;
+  description: string;
 };
 
 const getState = state => ({...state.categories});

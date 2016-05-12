@@ -54,7 +54,11 @@ class Products extends Component {
   render(): HTMLElement {
     return this.props.isLoading
       ? <Loader/>
-      : <ProductsList list={this.props.list}/>;
+      : <ProductsList
+        list={this.props.list}
+        category={this.props.params.categoryName}
+        categoryType={this.props.location.query.type}
+      />;
   }
 }
 

@@ -24,27 +24,7 @@
   display: none;
 }
 
-@media (--medium-viewport) {
-  .storefront {
-    lost-column: 1;
-    lost-offset: 0;
-  }
-
-  .content-container {
-    margin-top: 10px;
-  }
-}
-
 @media (--small-viewport) {
-  .storefront {
-    lost-column: 1;
-    lost-offset: 0;
-  }
-
-  .content-container {
-    margin-top: 10px;
-  }
-
   .categories {
     display: none;
   }
