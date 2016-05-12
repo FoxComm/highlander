@@ -19,7 +19,6 @@ class ProductIntegrationTest
   "GET v1/products/full/:context/:id/baked" - {
     "Return a product with multiple SKUs and variants" in new Fixture {
       val response = GET(s"v1/products/full/${context.name}/${prodForm.id}/baked")
-      println(response)
       response.status must === (StatusCodes.OK)
 
       val productResponse = response.as[IlluminatedFullProductResponse.Root]

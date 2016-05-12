@@ -106,7 +106,7 @@ object SkuManager {
 
   private def varValueIfInProduct(valueShadowId: Int, contextId: Int, allowedVariantIds: Seq[Int])
     (implicit ec: EC): DbResultT[Option[VariantValueMapping]] = for {
-    value ← * <~ ObjectLinks.findByRightAndType(valueShadowId, ObjectLink.SkuVariantValue).
+    value ← * <~ ObjectLinks.findByRightAndType(valueShadowId, ObjectLink.VariantValue).
       filter(_.leftId.inSet(allowedVariantIds)).one.flatMap {
       case Some(variantLink) ⇒
         (for {
