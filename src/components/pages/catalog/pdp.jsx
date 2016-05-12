@@ -1,45 +1,56 @@
 /* @flow */
 
+// libs
 import _ from 'lodash';
 import React, { Component } from 'react';
+import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import { browserHistory } from 'react-router';
 
+// i18n
 import localized from 'lib/i18n';
 import type { Localized } from 'lib/i18n';
 
-import styles from './pdp.css';
+// modules
+import { fetch as fetchProducts } from 'modules/products';
+import { fetch, getNextId, getPreviousId, resetProduct } from 'modules/product-details';
+import { addLineItem, toggleCart } from 'modules/cart';
 
+// types
+import type { HTMLElement } from 'types';
+import type { ProductResponse } from 'modules/product-details';
+
+// components
 import Button from 'ui/buttons';
 import Counter from 'ui/forms/counter';
 import Currency from 'ui/currency';
-import { Link } from 'react-router';
 import Gallery from 'ui/gallery/gallery';
 import Loader from 'ui/loader';
 
-import * as actions from 'modules/product-details';
-import { fetch as fetchProducts } from 'modules/products';
-import { addLineItem, toggleCart } from 'modules/cart';
+// styles
+import styles from './pdp.css';
 
-import type { HTMLElement } from 'types';
-import type { ProductResponse } from 'modules/product-details';
 
 type Params = {
   productId: string;
 };
 
-type Props = Localized & {
+type Actions = {
+  fetchProducts: Function;
   fetch: (id: number) => any;
-  params: Params;
-  product: ProductResponse|null;
-  auth: any;
-  addLineItem: Function;
-  toggleCart: Function;
-  resetProduct: Function;
   getNextId: Function;
   getPreviousId: Function;
-  fetchProducts: Function;
+  resetProduct: Function;
+  addLineItem: Function;
+  toggleCart: Function;
+};
+
+type Props = Localized & {
+  actions: Actions;
+  params: Params;
+  product: ?ProductResponse;
+  auth: any;
   isLoading: boolean;
   isCartLoading: boolean;
   notFound: boolean;
@@ -47,7 +58,15 @@ type Props = Localized & {
 
 type State = {
   quantity: number;
-}
+};
+
+type Product = {
+  title: string;
+  description: string;
+  images: Array<string>;
+  currency: string;
+  price: number;
+};
 
 const mapStateToProps = state => {
   const product = state.productDetails.product;
@@ -61,6 +80,19 @@ const mapStateToProps = state => {
   };
 };
 
+const mapDispatchToProps = dispatch => ({
+  actions: bindActionCreators({
+    fetch,
+    getNextId,
+    getPreviousId,
+    resetProduct,
+    addLineItem,
+    toggleCart,
+    fetchProducts,
+  }, dispatch),
+});
+
+
 class Pdp extends Component {
   props: Props;
 
@@ -69,142 +101,116 @@ class Pdp extends Component {
   };
 
   componentWillMount() {
-    this.props.fetchProducts();
-    if (!this.props.product) {
-      this.props.fetch(this.productId);
+    const {product, actions} = this.props;
+
+    actions.fetchProducts();
+    if (!product) {
+      actions.fetch(this.productId);
     }
   }
 
   componentWillUnmount() {
-    this.props.resetProduct();
+    this.props.actions.resetProduct();
   }
 
   componentWillUpdate(nextProps) {
-    const stringId = nextProps.params.productId;
-    const id = parseInt(stringId, 10);
+    const id = this.getId(nextProps);
     if (this.productId !== id) {
-      this.props.fetch(id);
+      this.props.actions.fetch(id);
     }
   }
 
   get productId(): number {
-    return parseInt(this.props.params.productId, 10);
+    return this.getId(this.props);
   }
 
-  get firstSqu(): string {
-    return _.get(this.props, ['product', 'skus', 0, 'code']);
+  getId(props: Props): number {
+    return parseInt(props.params.productId, 10);
   }
 
-  @autobind
-  onQuantityChange(value): void {
-    const newValue = this.state.quantity + value;
-    if (newValue > 0) {
-      this.setState({quantity: newValue});
-    }
+  get firstSku(): Object {
+    return _.get(this.props, ['product', 'skus', 0], {});
+  }
+
+  get product(): Product {
+    const product = _.get(this.props.product, 'product.attributes', {});
+    const price = _.get(this.firstSku, 'attributes.salePrice.v', {});
+
+    return {
+      title: _.get(product, 'title.v', ''),
+      description: _.get(product, 'description.v', ''),
+      images: _.get(product, 'images.v', []),
+      currency: _.get(price, 'currency', 'USD'),
+      price: _.get(price, 'value', 0),
+    };
+  }
+
+  changeQuantity(change: number): void {
+    const quantity = Math.max(this.state.quantity + change, 1);
+    this.setState({quantity});
   }
 
   @autobind
   addToCart(): void {
-    const user = _.get(this.props, ['auth', 'user'], null);
-    if (!_.isEmpty(user)) {
-      const quantity = this.state.quantity;
-      const skuId = this.firstSqu;
-      this.props.addLineItem(skuId, quantity).then(() => {
-        this.props.toggleCart();
-        this.setState({quantity: 1});
-      });
-    } else {
+    const { actions, auth } = this.props;
+    const user = _.get(auth, 'user', null);
+
+    if (_.isEmpty(user)) {
       browserHistory.push({
         pathname: `/products/${this.productId}`,
         query: { auth: 'login' },
       });
-    }
-  }
 
-  get pathToNext(): string {
-    const nextId = this.props.getNextId(this.productId);
-
-    if (nextId == null) {
-      return '/';
+      return;
     }
 
-    return `/products/${nextId}`;
-  }
-
-  get pathToPrevious(): string {
-    const prevId = this.props.getPreviousId(this.productId);
-
-    if (prevId == null) {
-      return '/';
-    }
-
-    return `/products/${prevId}`;
+    const quantity = this.state.quantity;
+    const skuId = this.firstSku.code;
+    actions.addLineItem(skuId, quantity)
+      .then(() => {
+        actions.toggleCart();
+        this.setState({quantity: 1});
+      });
   }
 
   render(): HTMLElement {
-    const { t } = this.props;
+    const { t, isLoading, isCartLoading, notFound } = this.props;
 
-    if (this.props.isLoading) {
+    if (isLoading) {
       return <Loader/>;
     }
 
-    if (this.props.notFound) {
+    if (notFound) {
       return <p styleName="not-found">{t('Product not found')}</p>;
     }
 
-    const { product, isCartLoading } = this.props;
-
-    const title = _.get(product, ['product', 'attributes', 'title', 'v'], '');
-    const description = _.get(product, ['product', 'attributes', 'description', 'v'], '');
-    const descriptionMarkup = { __html: description };
-    const salePrice = _.get(product, ['skus', 0, 'attributes', 'salePrice', 'v', 'value'], 0);
-    const currency = _.get(product, ['skus', 0, 'attributes', 'salePrice', 'v', 'currency'], 'USD');
-    const imageUrls = _.get(product, ['product', 'attributes', 'images', 'v'], []);
+    const { title, description, images, currency, price } = this.product;
 
     return (
       <div styleName="container">
-        <div styleName="links">
-          <div styleName="desktop-links">
-            <Link to="/" styleName="breadcrumb">{t('SHOP')}</Link>
-            &nbsp;/&nbsp;
-            <Link to={`/products/${this.productId}`} styleName="breadcrumb">{title.toUpperCase()}</Link>
-          </div>
-          <div styleName="mobile-links">
-            <Link to={this.pathToPrevious} styleName="breadcrumb">{t('< BACK')}</Link>
-          </div>
-          <div>
-            <Link to={this.pathToNext} styleName="breadcrumb">{t('NEXT >')}</Link>
-          </div>
+        <div styleName="gallery">
+          <Gallery images={images} />
         </div>
         <div styleName="details">
-          <div styleName="images">
-            <Gallery images={imageUrls} />
+          <h1 styleName="name">{title}</h1>
+          <div styleName="price">
+            <Currency value={price} currency={currency} />
           </div>
-          <div styleName="info">
-            <h1 styleName="name">{title}</h1>
-            <div styleName="salePrice">
-              <Currency value={salePrice} currency={currency} />
-            </div>
-            <div styleName="description" dangerouslySetInnerHTML={descriptionMarkup}>
-            </div>
-            <div>
-              <label>{t('QUANTITY')}</label>
-              <div styleName="counter">
-                <Counter
-                  value={this.state.quantity}
-                  decreaseAction={() => this.onQuantityChange(-1)}
-                  increaseAction={() => this.onQuantityChange(1)}
-                />
-              </div>
-            </div>
-            <Button styleName="add-to-cart" isLoading={isCartLoading} onClick={this.addToCart}>
-              {t('ADD TO CART')}
-            </Button>
+          <div styleName="description" dangerouslySetInnerHTML={{__html: description}}></div>
+          <div styleName="counter">
+            <Counter
+              value={this.state.quantity}
+              decreaseAction={() => this.changeQuantity(-1)}
+              increaseAction={() => this.changeQuantity(1)}
+            />
           </div>
+          <Button styleName="add-to-cart" isLoading={isCartLoading} onClick={this.addToCart}>
+            {t('ADD TO CART')}
+          </Button>
         </div>
       </div>
     );
   }
 }
 
-export default connect(mapStateToProps, {...actions, addLineItem, toggleCart, fetchProducts})(localized(Pdp));
+export default connect(mapStateToProps, mapDispatchToProps)(localized(Pdp));
