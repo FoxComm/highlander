@@ -24,7 +24,6 @@ import * as CouponActions from '../../modules/coupons/details';
 
 type CouponPageState = {
   coupon: Object,
-  couponCode: ?string,
   promotionError: boolean,
 };
 
@@ -34,6 +33,8 @@ type CouponPageParams = {
 
 type CouponPageProps = {
   params: CouponPageParams,
+  coupon: Object,
+  codeGeneration: Object,
   actions: Object,
   dispatch: Function,
   details: Object,
@@ -47,7 +48,6 @@ class CouponPage extends Component {
 
   state: CouponPageState = {
     coupon: this.props.details.coupon,
-    couponCode: null,
     promotionError: false,
   };
 
@@ -110,7 +110,7 @@ class CouponPage extends Component {
     }
 
     if (this.state.coupon) {
-      const { coupon, couponCode } = this.state;
+      const { coupon } = this.state;
 
       if (this.isNew) {
         willBeCoupon = this.props.actions.createCoupon(coupon);
@@ -118,10 +118,20 @@ class CouponPage extends Component {
         willBeCoupon = this.props.actions.updateCoupon(coupon);
       }
 
-      if (couponCode != undefined) {
+      const { bulk, singleCode, codesPrefix, codesLength, codesQuantity } = this.props.codeGeneration;
+
+      if (bulk === false && singleCode != undefined) {
         willBeCoupon.then(() => {
           const couponId = this.state.coupon.id;
-          this.props.actions.generateCode(couponId, couponCode);
+          this.props.actions.generateCode(couponId, singleCode);
+        }).then(() => {
+          this.props.actions.couponsGenerationReset();
+        });
+      }
+
+      if (bulk === true && this.props.actions.codeIsOfValidLength()) {
+        willBeCoupon.then(() => {
+          this.props.actions.couponsGenerationShowDialog();
         });
       }
     }
@@ -135,24 +145,8 @@ class CouponPage extends Component {
     if (_.isNumber(coupon.promotion)) {
       errors = { promotionError: false };
     }
-    this.setState({ coupon, ...errors });
-  }
-
-  @autobind
-  handleUpdateCouponCode(singleCode: string): void {
-    this.setState({
-      couponCode: singleCode,
-    });
-  }
-
-  @autobind
-  handleGenerateBulkCodes(prefix, length, quantity): void {
-    const { coupon } = this.state;
-
-    let willBeCoupon = this.isNew ? this.props.actions.createCoupon(coupon) : Promise.resolve();
-
-    willBeCoupon.then(() => {
-      this.props.actions.generateCodes(prefix, length, quantity);
+    this.setState(errors, () => {
+      this.props.actions.couponsChange(coupon);
     });
   }
 
@@ -167,7 +161,7 @@ class CouponPage extends Component {
   }
 
   @autobind
-  handleSelectSaving(value) {
+  handleSelectSaving(value: string): void {
     const { actions, dispatch } = this.props;
     const mayBeSaved = this.save();
     if (!mayBeSaved) return;
@@ -187,9 +181,20 @@ class CouponPage extends Component {
     });
   }
 
+  @autobind
+  handleSave(): ?Promise {
+    if (!_.isNumber(this.state.coupon.promotion)) {
+      this.setState({promotionError: true});
+      return null;
+    }
+
+    return this.props.actions.createCoupon(this.state.coupon);
+  }
+
   render(): Element {
     const props = this.props;
     const { coupon, promotionError } = this.state;
+    const { codeGeneration } = props;
 
     if (!coupon || props.isFetching) {
       return <div><WaitAnimation /></div>;
@@ -199,10 +204,10 @@ class CouponPage extends Component {
       ...props.children.props,
       coupon,
       promotionError,
+      codeGeneration,
+      saveCoupon: this.handleSave,
       selectedPromotions: this.selectedPromotions,
       onUpdateCoupon: this.handleUpdateCoupon,
-      onUpdateCouponCode: this.handleUpdateCouponCode,
-      onGenerateBulkCodes: this.handleGenerateBulkCodes,
       entity: { entityId: this.entityId, entityType: 'coupon' },
     });
 
@@ -239,6 +244,7 @@ class CouponPage extends Component {
 export default connect(
   state => ({
     details: state.coupons.details,
+    codeGeneration: state.coupons.details.codeGeneration,
     isFetching: _.get(state.asyncActions, 'getCoupon.inProgress', false),
   }),
   dispatch => ({ actions: bindActionCreators(CouponActions, dispatch), dispatch })
