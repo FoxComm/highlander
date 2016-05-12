@@ -10,7 +10,7 @@ import classNames from 'classnames';
 //data
 import criterions from '../../../paragons/customer-groups/criterions';
 import operators from '../../../paragons/customer-groups/operators';
-import queryAdapter from '../../../modules/customer-groups/query-adapter';
+import requestAdapter from '../../../modules/customer-groups/request-adapter';
 import { actions as groupActions } from '../../../modules/customer-groups/dynamic/group';
 import { actions as listActions } from '../../../modules/customer-groups/dynamic/list';
 
@@ -58,10 +58,16 @@ export default class DynamicGroup extends Component {
         operators.or,
       ]),
       conditions: PropTypes.arrayOf(PropTypes.array),
-      filterTerm: PropTypes.string,
+      stats: PropTypes.objectOf({
+        ordersCount: PropTypes.number,
+        totalSales: PropTypes.number,
+        averageOrderSize: PropTypes.number,
+        averageOrderSum: PropTypes.number,
+      }),
     }),
     groupActions: PropTypes.shape({
       setFilterTerm: PropTypes.func.isRequired,
+      fetchGroupStats: PropTypes.func.isRequired,
     }).isRequired,
     listActions: PropTypes.shape({
       fetch: PropTypes.func.isRequired,
@@ -73,25 +79,27 @@ export default class DynamicGroup extends Component {
   };
 
   componentDidMount() {
-    this.setGroupQuery(this.props.group);
+    this.refreshGroupData(this.props.group);
   }
 
   componentWillReceiveProps({group}) {
-    if (group !== this.props.group) {
-      this.setGroupQuery(group);
+    if (group.id !== this.props.group.id) {
+      this.refreshGroupData(group);
     }
   }
 
-  setGroupQuery({mainCondition, conditions}) {
-    const {listActions} = this.props;
+  refreshGroupData({mainCondition, conditions}) {
+    const {listActions, groupActions} = this.props;
 
     listActions.resetSearch();
 
     listActions.setExtraFilters([
-      queryAdapter(criterions, mainCondition, conditions).toRequest().filter,
+      requestAdapter(criterions, mainCondition, conditions).toRequest().query,
     ]);
 
     listActions.fetch();
+
+    groupActions.fetchGroupStats(mainCondition, conditions);
   }
 
   @autobind
@@ -167,25 +175,21 @@ export default class DynamicGroup extends Component {
 
 
   get stats() {
-    const customersTotal = _.get(this.props.list, 'savedSearches.0.results.total', 0);
-    const avgOrderValue = 83250;
+    const {stats} = this.props.group;
 
     return (
       <PanelList className={prefixed('stats')}>
         <PanelListItem title="Total Orders">
-          132
+          {stats.ordersCount}
         </PanelListItem>
         <PanelListItem title="Total Sales">
-          <Currency value={avgOrderValue*customersTotal} />
+          <Currency value={stats.totalSales} />
         </PanelListItem>
         <PanelListItem title="Avg. Order Size">
-          2
+          {Math.floor(stats.averageOrderSize)}
         </PanelListItem>
         <PanelListItem title="Avg. Order Value">
-          <Currency value={avgOrderValue} />
-        </PanelListItem>
-        <PanelListItem title="Return Rate">
-          14%
+          <Currency value={stats.averageOrderSum} />
         </PanelListItem>
       </PanelList>
     );
@@ -200,16 +204,6 @@ export default class DynamicGroup extends Component {
   @debounce(200)
   updateSearch() {
     this.props.listActions.fetch();
-  }
-
-  get filter() {
-    return (
-      <PrependIconInput className={prefixed('filter')}>
-        <input type="text"
-               onChange={this.setFilterTerm}
-               value={this.props.group.filterTerm} />
-      </PrependIconInput>
-    );
   }
 
   goToCustomer(id) {

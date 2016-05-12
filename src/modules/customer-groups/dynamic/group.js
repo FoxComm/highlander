@@ -7,7 +7,8 @@ import Api from '../../../lib/api';
 import * as search from '../../../lib/search';
 import createStore from '../../../lib/store-creator';
 import criterions, { getCriterion, getWidget } from './../../../paragons/customer-groups/criterions';
-import queryAdapter from './../query-adapter';
+import requestAdapter from './../request-adapter';
+import { aggregations } from '../../customer-groups/request';
 
 
 const initialState = {
@@ -21,6 +22,12 @@ const initialState = {
   isSaved: false,
   createdAt: null,
   updatedAt: null,
+  stats: {
+    ordersCount: null,
+    totalSales: null,
+    averageOrderSize: null,
+    averageOrderSum: null,
+  }
 };
 
 const fetchGroup = (actions, id) => dispatch => {
@@ -40,14 +47,13 @@ const saveGroup = actions => (dispatch, getState) => {
   const mainCondition = getValue('mainCondition');
   const conditions = getValue('conditions');
 
-  const query = queryAdapter(criterions, mainCondition, conditions);
   const data = {
     name,
     clientState: {
       mainCondition,
       conditions,
     },
-    elasticRequest: query.toRequest(),
+    elasticRequest: requestAdapter(criterions, mainCondition, conditions).toRequest(),
   };
 
   //create or update
@@ -62,6 +68,34 @@ const saveGroup = actions => (dispatch, getState) => {
     (data) => {
       dispatch(actions.setData(data));
       dispatch(actions.setIsSaved());
+    }
+  );
+};
+
+const fetchGroupStats = (actions, mainCondition, conditions) => dispatch => {
+  const request = requestAdapter(criterions, mainCondition, conditions);
+  request.aggregations
+    .add(
+      new aggregations.Count('ordersCount', 'orders.referenceNumber')
+    )
+    .add(
+      new aggregations.Sum('totalSales', 'revenue')
+    )
+    .add(
+      new aggregations.Average('averageOrderSize', 'orders.itemsCount')
+    )
+    .add(
+      new aggregations.Average('averageOrderSum', 'orders.grandTotal')
+    );
+
+  return search.post('customers_search_view/_search?size=0', request.toRequest()).then(
+    ({aggregations}) => {
+      dispatch(actions.setGroupStats({
+        ordersCount: aggregations.ordersCount.ordersCount.value,
+        totalSales: aggregations.totalSales.value,
+        averageOrderSize: aggregations.averageOrderSize.averageOrderSize.value,
+        averageOrderSum: aggregations.averageOrderSum.averageOrderSum.value,
+      }));
     }
   );
 };
@@ -128,12 +162,19 @@ const reducers = {
       isSaved: true,
     };
   },
+  setGroupStats: (state, stats) => {
+    return {
+      ...state,
+      stats,
+    };
+  }
 };
 
 const { actions, reducer } = createStore({
   entity: 'customer-groups',
   actions: {
     fetchGroup,
+    fetchGroupStats,
     saveGroup,
   },
   reducers,
