@@ -54,11 +54,18 @@
 
 .add-to-cart {
   composes: button from "ui/css/buttons.css";
-  background: #A7F4FF;
+  --color: #A7F4FF;
+  background: var(--color);
   width: var(--control-width);
   height: 60px;
   margin-top: 30px;
   border: none;
   color: #616161;
   font-size: 16px;
+  box-sizing: border-box;
+  border: 2px solid var(--color);
+
+  &:hover {
+    background: var(--whitish);
+  }
 }

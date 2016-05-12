@@ -5,7 +5,6 @@ import _ from 'lodash';
 import React, { Component } from 'react';
 import styles from './cart.css';
 import { connect } from 'react-redux';
-import classNames from 'classnames';
 import { browserHistory } from 'react-router';
 import { autobind } from 'core-decorators';
 
