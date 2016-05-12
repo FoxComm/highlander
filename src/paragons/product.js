@@ -265,9 +265,10 @@ export function configureProduct(product: FullProduct): FullProduct {
 
 export function addProductAttribute(product: FullProduct,
                                     label: string,
-                                    type: string): FullProduct {
+                                    type: string,
+                                    value: any): FullProduct {
 
-  const formValue = type == 'price' ? { currency: 'USD', value: null } : null;
+  const formValue = type == 'price' ? { currency: 'USD', value: value } : value;
   const newFormAttr = { [label]: formValue };
   const newShadowAttr = { [label]: {type: type, ref: label }};
 
@@ -294,7 +295,7 @@ export function setProductAttribute(product: FullProduct,
   const shadow = _.get(product, shadowPath);
 
   if (!shadow) {
-    return addProductAttribute(product, label, type);
+    return addProductAttribute(product, label, type, value);
   }
 
   const path = ['form', 'product', 'attributes', shadow.ref];
