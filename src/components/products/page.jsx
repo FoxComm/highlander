@@ -88,9 +88,13 @@ export class ProductPage extends Component<void, Props, State> {
   componentDidMount() {
     if (this.isNew) {
       this.props.actions.productNew();
-    } else if (!this.props.products.product) {
+    } else {
       this.props.actions.fetchProduct(this.props.params.productId, this.props.params.context);
     }
+  }
+
+  componentWillUnmount() {
+    this.props.actions.productNew();
   }
 
   componentWillReceiveProps(nextProps: Props) {
