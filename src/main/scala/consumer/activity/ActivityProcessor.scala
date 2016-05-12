@@ -68,7 +68,7 @@ class ActivityProcessor(conn: PhoenixConnectionInfo, connectors: Seq[ActivityCon
     def process(offset: Long, topic: String, inputJson: String): Future[Unit] = {
 
       val activityJson = AvroJsonHelper.transformJson(inputJson, activityJsonFields)
-      val activity =  parse(activityJson).extract[Activity]
+      val activity = parse(activityJson).extract[Activity]
 
       Console.err.println()
       Console.err.println(s"Got Activity ${activity.activityType} with ID ${activity.id}")
