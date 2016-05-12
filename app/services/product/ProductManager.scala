@@ -137,12 +137,18 @@ object ProductManager {
     product       ← * <~ Products.filter(_.contextId === context.id).
       filter(_.formId === productId).one.mustFindOr(
         ProductNotFoundForContext(productId, context.id))
-
     productForm   ← * <~ ObjectForms.mustFindById404(product.formId)
-    productShadow  ← * <~ ObjectShadows.mustFindById404(product.shadowId)
-    skuData ← * <~ getSkuData(productShadow.id)
-    fullProduct = FullObject(product, productForm, productShadow)
-    variants ← * <~ VariantManager.mustFindVariantsByFullProduct(fullProduct)
+    productShadow ← * <~ ObjectShadows.mustFindById404(product.shadowId)
+    skuData       ← * <~ getSkuData(productShadow.id)
+    variants      ← * <~ VariantManager.findVariantsByProduct(product)
+    empty         = DbResultT.pure(Map.empty[String, Seq[FullObject[VariantValue]]])
+    variantMap    ← * <~ skuData.foldLeft(empty) { (acc, sd) ⇒
+      val sku = sd._1
+      for {
+        values  ← * <~ SkuManager.findVariantValuesForSkuInProduct(sku, variants)
+        current ← * <~ acc
+      } yield current + (sku.code → values)
+    }
 
   } yield IlluminatedFullProductResponse.build(
     IlluminatedProduct.illuminate(context, product, productForm, productShadow),
@@ -154,20 +160,26 @@ object ProductManager {
   def getIlluminatedFullProductAtCommit(productId: Int, contextName: String, commitId: Int)
     (implicit ec: EC, db: DB): Result[IlluminatedFullProductResponse.Root] = (for {
 
-    context ← * <~ ObjectContexts.filterByName(contextName).one.
+    context       ← * <~ ObjectContexts.filterByName(contextName).one.
       mustFindOr(ObjectContextNotFound(contextName))
     product       ← * <~ Products.filter(_.contextId === context.id).
       filter(_.formId === productId).one.mustFindOr(
         ProductNotFoundForContext(productId, context.id))
-    commit       ← * <~ ObjectCommits.filter(_.id === commitId).
+    commit        ← * <~ ObjectCommits.filter(_.id === commitId).
       filter(_.formId === productId).one.mustFindOr(
         ProductNotFoundAtCommit(productId, commitId))
     productForm   ← * <~ ObjectForms.mustFindById404(commit.formId)
-    productShadow  ← * <~ ObjectShadows.mustFindById404(commit.shadowId)
-    fullProduct ← * <~ FullObject(product, productForm, productShadow)
-    skuData ← * <~ getSkuData(productShadow.id)
-    variants ← * <~ VariantManager.mustFindVariantsByFullProduct(fullProduct)
-
+    productShadow ← * <~ ObjectShadows.mustFindById404(commit.shadowId)
+    skuData       ← * <~ getSkuData(productShadow.id)
+    variants      ← * <~ VariantManager.findVariantsByProduct(product)
+    empty         = DbResultT.pure(Map.empty[String, Seq[FullObject[VariantValue]]])
+    variantMap    ← * <~ skuData.foldLeft(empty) { (acc, sd) ⇒
+      val sku = sd._1
+      for {
+        values  ← * <~ SkuManager.findVariantValuesForSkuInProduct(sku, variants)
+        current ← * <~ acc
+      } yield current + (sku.code → values)
+    }
   } yield IlluminatedFullProductResponse.build(
     IlluminatedProduct.illuminate(context, product, productForm, productShadow),
     skuData.map {
@@ -175,8 +187,7 @@ object ProductManager {
     },
     variants.map(v ⇒ IlluminatedVariant.illuminate(context, v)))).run()
 
-  def getContextsForProduct(formId: Int)(implicit ec: EC, db: DB): Result[Seq[ObjectContextResponse.Root]] = (for {
-    products   ← * <~ Products.filterByFormId(formId).result
+  def getContextsForProduct(formId: Int)(implicit ec: EC, db: DB): Result[Seq[ObjectContextResponse.Root]] = (for {products   ← * <~ Products.filterByFormId(formId).result
     contextIds ← * <~ products.map(_.contextId)
     contexts   ← * <~ ObjectContexts.filter(_.id.inSet(contextIds)).sortBy(_.id).result
   } yield contexts.map(ObjectContextResponse.build _)).run()

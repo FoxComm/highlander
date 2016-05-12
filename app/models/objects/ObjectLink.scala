@@ -29,6 +29,8 @@ object ObjectLink {
   case object ProductVariant extends LinkType
   case object PromotionDiscount extends LinkType
   case object SkuAlbum extends LinkType
+  case object SkuVariantValue extends LinkType
+  case object VariantValue extends LinkType
 
   object LinkType extends ADT[LinkType] {
     def types = sealerate.values[LinkType]
@@ -69,5 +71,7 @@ object ObjectLinks extends FoxTableQuery[ObjectLink, ObjectLinks](new ObjectLink
     filter(_.rightId === rightId)
   def findByLeftAndType(leftId: Int, linkType: ObjectLink.LinkType): QuerySeq =
     filter(_.leftId === leftId).filter(_.linkType === linkType)
+  def findByRightAndType(rightId: Int, linkType: ObjectLink.LinkType): QuerySeq =
+    filter(_.rightId === rightId).filter(_.linkType === linkType)
 
 }

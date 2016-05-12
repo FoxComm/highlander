@@ -42,13 +42,15 @@ object SkuResponses {
   object IlluminatedSkuResponse {
 
     case class Root(code: String, context: Option[ObjectContextResponse.Root], 
-      attributes: Json) extends ResponseItem
+      attributes: Json, variantValueIds: Option[Seq[Int]]) extends ResponseItem
 
     def build(s: IlluminatedSku): Root = 
       Root(code = s.code, attributes = s.attributes, 
-        context = ObjectContextResponse.build(s.context).some)
+        context = ObjectContextResponse.build(s.context).some,
+        variantValueIds = None)
     def buildLite(s: IlluminatedSku): Root = 
-      Root(code = s.code, attributes = s.attributes, context = None)
+      Root(code = s.code, attributes = s.attributes, context = None,
+        variantValueIds = None)
   }
 
   object FullSkuResponse {

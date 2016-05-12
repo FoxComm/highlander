@@ -23,7 +23,8 @@ create domain zip_code text check (
 
 -- Object link types
 create domain object_link_type text check (value in ('productAlbum', 'productSku', 'productVariant',
-                                                     'promotionDiscount', 'skuAlbum'));
+                                                     'promotionDiscount', 'skuAlbum', 'skuVariantValue',
+                                                     'variantValue'));
 
 -- Assignments
 create domain assignment_type text check (value in ('assignee', 'watcher'));

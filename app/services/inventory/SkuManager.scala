@@ -1,16 +1,20 @@
 package services.inventory
 
 import cats.data.NonEmptyList
+import cats.implicits._
+import cats.data.Xor.right
 import failures.ObjectFailures._
 import failures.ProductFailures._
 import models.StoreAdmin
 import models.inventory._
 import models.objects._
+import models.product._
 import payloads.{CreateFullSku, UpdateFullSku}
 import responses.ObjectResponses.ObjectContextResponse
 import responses.SkuResponses._
 import services.{LogActivity, Result}
 import services.objects.ObjectManager
+import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db.DbResultT._
 import utils.db._
@@ -99,6 +103,35 @@ object SkuManager {
         } yield sku
         case None ⇒ DbResultT.pure(sku)
       }
+
+  private def varValueIfInProduct(valueShadowId: Int, contextId: Int, allowedVariantIds: Seq[Int])
+    (implicit ec: EC): DbResultT[Option[FullObject[VariantValue]]] = for {
+    value ← * <~ ObjectLinks.findByRightAndType(valueShadowId, ObjectLink.SkuVariantValue).
+      filter(_.leftId.inSet(allowedVariantIds)).one.flatMap { _ ⇒
+      (for {
+        shadow ← * <~ ObjectManager.mustFindShadowById404(valueShadowId)
+        form   ← * <~ ObjectManager.mustFindFormById404(shadow.formId)
+        value  ← * <~ VariantValues.filterByContextAndFormId(contextId, form.id).one.
+          mustFindOr(VariantValueNotFoundForContext(form.id, contextId))
+      } yield FullObject(value, form, shadow).some).value
+    }
+  } yield value
+
+  def findVariantValuesForSkuInProduct(sku: Sku, variants: Seq[FullObject[Variant]])
+    (implicit ec: EC): DbResultT[Seq[FullObject[VariantValue]]] = for {
+    // Since not all of a variant's values must be used in a product,
+    // and SKU + Variant may exist in multiple products: get all of a
+    // SKUs VariantValues if the Variant is in the Product.
+    links  ← * <~ ObjectLinks.findByLeftAndType(sku.shadowId, ObjectLink.SkuVariantValue).result
+    varIds ← * <~ variants.map(_.shadow.id)
+    toOpt  ← * <~ DbResultT.sequence(links.map(l ⇒ varValueIfInProduct(l.rightId, sku.contextId, varIds)))
+    avail  ← * <~ toOpt.foldLeft(Seq.empty[FullObject[VariantValue]]) { (acc, potentialValue) ⇒
+      potentialValue match {
+        case Some(value) ⇒ acc :+ value
+        case None ⇒ acc
+      }
+    }
+  } yield avail
 
   def mustFindSkuByContextAndCode(contextId: Int, code: String)
     (implicit ec: EC, db: DB): DbResultT[Sku] = for {

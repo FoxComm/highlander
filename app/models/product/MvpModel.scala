@@ -142,6 +142,30 @@ case class SimpleVariantShadow(v: SimpleVariant) {
   def create: ObjectShadow = ObjectShadow(attributes = shadow)
 }
 
+case class SimpleVariantValue(name: String, swatch: String) {
+  val (keyMap, form) = ObjectUtils.createForm(parse(
+    s"""{ "name": "$name", "swatch": "$swatch" }"""))
+
+  def create: ObjectForm = ObjectForm(kind = VariantValue.kind, attributes = form)
+
+  def update(oldForm: ObjectForm): ObjectForm =
+    oldForm.copy(attributes = oldForm.attributes merge form)
+}
+
+case class SimpleVariantValueShadow(v: SimpleVariantValue) {
+  val shadow = ObjectUtils.newShadow(parse(
+    """
+      {
+        "name": { "type": "string", "ref": "name" },
+        "swatch": { "type": "string", "ref": "swatch" }
+      }
+    """), v.keyMap)
+
+  def create: ObjectShadow = ObjectShadow(attributes = shadow)
+}
+
+case class SimpleCompleteVariant(v: SimpleVariant, vs: Seq[SimpleVariantValue])
+
 case class SimpleProductData(productId: Int = 0, skuId: Int = 0, title: String,
   description: String, image: String = SimpleProductDefaults.imageUrl, code: String,
   price: Int, currency: Currency = Currency.USD, active: Boolean = false,
