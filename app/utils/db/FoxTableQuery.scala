@@ -44,7 +44,7 @@ abstract class FoxTableQuery[M <: FoxModel[M], T <: FoxTable[M]]
   def createAllReturningModels(unsaved: Iterable[M])(implicit ec: EC): DbResult[Seq[M]] = (for {
     prepared ← * <~ beforeSaveBatch(unsaved)
     returned ← * <~ wrapDbio(returningTable ++= prepared)
-  } yield for (m ← prepared; r ← returned) yield returningLens.set(m)(r)).value
+  } yield for ((m,r) ← prepared.zip(returned)) yield returningLens.set(m)(r)).value
 
   def create(unsaved: M)(implicit ec: EC): DbResult[M] = (for {
     prepared ← * <~ beforeSave(unsaved)
