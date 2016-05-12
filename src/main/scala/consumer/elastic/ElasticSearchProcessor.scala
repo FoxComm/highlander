@@ -69,17 +69,16 @@ class ElasticSearchProcessor(uri: String, cluster: String, indexName: String, to
   private def createIndex() {
     Console.out.println("Creating index and type mappings...")
     try {
-      //define mappings an analyzer
+      // Define analyzer in mapping
       val jsonMappings = jsonTransformers.mapValues(_.mapping()).values.toSeq
       val customAnalyzer =
         CustomAnalyzerDefinition(
           "autocomplete",
-          WhitespaceTokenizer,
-          LowercaseTokenFilter,
-          EdgeNGramTokenFilter("autocomplete_filter", 1, 20)
+          EdgeNGramTokenizer("autocomplete_tokenizer", 1, 20, Seq("letter", "digit", "punctuation", "symbol")),
+          LowercaseTokenFilter
         )
 
-      //execute es query
+      // Execute Elasticsearch query
       client.execute {
         create index indexName mappings (jsonMappings: _*) analysis customAnalyzer
       }.await

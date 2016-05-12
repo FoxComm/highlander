@@ -49,7 +49,7 @@ final case class ActivityConnectionTransformer(conn: PhoenixConnectionInfo)
     field("createdAt", DateType).format(dateFormat)
   )
 
-  def transform(json: String) : Future[String] = {
+  def transform(json: String): Future[String] = {
     Console.out.println(json)
 
     parse(json) \ "id" \ "int" match {
@@ -58,7 +58,7 @@ final case class ActivityConnectionTransformer(conn: PhoenixConnectionInfo)
     }
   }
 
-  private def queryPhoenixForConnection(id: BigInt) : Future[String] = {
+  private def queryPhoenixForConnection(id: BigInt): Future[String] = {
     val uri = s"connections/$id"
     Console.err.println(s"Requesting Phoenix $uri")
     phoenix.get(uri).flatMap(_.bodyText)
