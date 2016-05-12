@@ -13,21 +13,23 @@ API.js will be build in ES6 and transpiled to ES5. It won't use ES7 features.
 
 ### WIP: Discussion on the Javascript client library for interacting with the FoxComm API
 
-This is pseudocode / spec to come to an agreement on what a pure javascript API client wrapper library's API should look like. In describing each method I'm aiming for the minimum human-readable info: method name, arguments accepted, return value. Going for brevity here, aiming to distill the API signature maximizing developer conceptual simplicity. 
+This is pseudocode / spec to come to an agreement on what a pure javascript API client wrapper library's API should look like. In describing each method I'm aiming for the minimum human-readable info: method name, arguments accepted, return value. Going for brevity here, aiming to distill the API signature maximizing developer conceptual simplicity.
 
 I've divided into logical sections, maybe these sections can be namespaced within the library itself, as I've done with `checkout` methods.
 
-The library should have simple method names that match core API methods. 
+The library should have simple method names that match core API methods.
 
-It should make instantiation/authentication as simple as possible. 
+It should make instantiation/authentication as simple as possible.
 
 It should deal with Async, probably a Fetch/Promise-based model.
 
 It should be designed to be used as follows:
 
 ```
-import FxC from FoxComm/api-client-js
+import FoxCommAPI from FoxComm/api-client-js
+const FxC = new FoxCommAPI()
 ```
+
 
 # Auth
 
