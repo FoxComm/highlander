@@ -19,7 +19,7 @@
   }
 
   &:hover {
-    box-shadow: 0 0 0 4px white, 0 0 0 5px lightgrey;
+    box-shadow: 0 0 0 1vw var(--whitish), 0 0 0 1.1vw var(--greyish);
     cursor: pointer;
   }
 }
