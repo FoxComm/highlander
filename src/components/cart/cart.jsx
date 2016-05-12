@@ -43,10 +43,7 @@ class Cart extends Component {
   render() {
     const { props } = this;
     const { t } = props;
-    const cartClass = classNames({
-      'cart-hidden': !props.isVisible,
-      'cart-shown': props.isVisible,
-    });
+    const cartClass = props.isVisible ? 'cart-shown' : null;
 
     const checkoutDisabled = _.size(props.skus) < 1;
 

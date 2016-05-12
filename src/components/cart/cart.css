@@ -2,12 +2,19 @@
 @import "colors.css";
 @import "media-queries.css";
 
-.overlay {
+.cart-shown {
   position: fixed;
+  z-index: 1;
   top: 0;
   left: 0;
   bottom: 0;
   right: 0;
+  display: flex;
+}
+
+.overlay {
+  flex: 1;
+  height: 100%;
   background: var(--light-grayish);
   opacity: 0;
   transition: opacity .1s;
@@ -20,10 +27,7 @@
 }
 
 .cart-box {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  right: 0;
+  height: 100%;
   background: var(--whitish);
   lost-column: 4/11;
   min-width: 280px;
@@ -39,12 +43,12 @@
   background: var(--blackish);
   color: var(--whitish);
   width: 100%;
-  height: 60px;
+  height: 80px;
   position: absolute;
   top: 0;
   text-align: center;
   font-size: 15px;
-  line-height: 17px;
+  line-height: 1;
   display: flex;
   align-content: space-around;
   justify-content: center;
