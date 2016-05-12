@@ -100,14 +100,15 @@ object ProductResponses {
       skus: Seq[IlluminatedSkuResponse.Root], variants: Seq[IlluminatedVariantResponse.Root], variantMap: Json)
       extends ResponseItem
 
-    def build(p: IlluminatedProduct, skus: Seq[IlluminatedSku], variants: Seq[IlluminatedVariant],
+    def build(p: IlluminatedProduct, skus: Seq[IlluminatedSku],
+      variants: Seq[(IlluminatedVariant, Seq[FullObject[VariantValue]])],
       variantMap: Map[String, Seq[FullObject[VariantValue]]]): Root =
       Root(
         id = p.id, 
         product = IlluminatedProductResponse.buildLite(p),
         context = ObjectContextResponse.build(p.context),
         skus = skus.map(IlluminatedSkuResponse.buildLite _),
-        variants = variants.map(IlluminatedVariantResponse.buildLite _),
+        variants = variants.map { case (variant, values) ⇒ IlluminatedVariantResponse.buildLite(variant, values) },
         variantMap = buildVariantMap(variantMap))
 
     private def buildVariantMap(vm: Map[String, Seq[FullObject[VariantValue]]]): JValue = {

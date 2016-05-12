@@ -105,27 +105,30 @@ object SkuManager {
       }
 
   private def varValueIfInProduct(valueShadowId: Int, contextId: Int, allowedVariantIds: Seq[Int])
-    (implicit ec: EC): DbResultT[Option[FullObject[VariantValue]]] = for {
+    (implicit ec: EC): DbResultT[Option[VariantValueMapping]] = for {
     value ← * <~ ObjectLinks.findByRightAndType(valueShadowId, ObjectLink.SkuVariantValue).
-      filter(_.leftId.inSet(allowedVariantIds)).one.flatMap { _ ⇒
-      (for {
-        shadow ← * <~ ObjectManager.mustFindShadowById404(valueShadowId)
-        form   ← * <~ ObjectManager.mustFindFormById404(shadow.formId)
-        value  ← * <~ VariantValues.filterByContextAndFormId(contextId, form.id).one.
-          mustFindOr(VariantValueNotFoundForContext(form.id, contextId))
-      } yield FullObject(value, form, shadow).some).value
+      filter(_.leftId.inSet(allowedVariantIds)).one.flatMap {
+      case Some(variantLink) ⇒
+        (for {
+          shadow ← * <~ ObjectManager.mustFindShadowById404(valueShadowId)
+          form   ← * <~ ObjectManager.mustFindFormById404(shadow.formId)
+          value  ← * <~ VariantValues.filterByContextAndFormId(contextId, form.id).one.
+            mustFindOr(VariantValueNotFoundForContext(form.id, contextId))
+        } yield VariantValueMapping(variantLink.leftId, FullObject(value, form, shadow)).some).value
+      case None ⇒
+        DbResultT.pure(None).value
     }
   } yield value
 
   def findVariantValuesForSkuInProduct(sku: Sku, variants: Seq[FullObject[Variant]])
-    (implicit ec: EC): DbResultT[Seq[FullObject[VariantValue]]] = for {
+    (implicit ec: EC): DbResultT[Seq[VariantValueMapping]] = for {
     // Since not all of a variant's values must be used in a product,
     // and SKU + Variant may exist in multiple products: get all of a
     // SKUs VariantValues if the Variant is in the Product.
     links  ← * <~ ObjectLinks.findByLeftAndType(sku.shadowId, ObjectLink.SkuVariantValue).result
     varIds ← * <~ variants.map(_.shadow.id)
     toOpt  ← * <~ DbResultT.sequence(links.map(l ⇒ varValueIfInProduct(l.rightId, sku.contextId, varIds)))
-    avail  ← * <~ toOpt.foldLeft(Seq.empty[FullObject[VariantValue]]) { (acc, potentialValue) ⇒
+    avail  ← * <~ toOpt.foldLeft(Seq.empty[VariantValueMapping]) { (acc, potentialValue) ⇒
       potentialValue match {
         case Some(value) ⇒ acc :+ value
         case None ⇒ acc

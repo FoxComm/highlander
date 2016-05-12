@@ -1,5 +1,6 @@
 package services.product
 
+import failures.GeneralFailure
 import failures.ObjectFailures._
 import failures.ProductFailures._
 import models.StoreAdmin
@@ -134,28 +135,22 @@ object ProductManager {
   def getIlluminatedFullProductInner(productId: Int, context: ObjectContext)
     (implicit ec: EC, db: DB): DbResultT[IlluminatedFullProductResponse.Root] = for {
 
-    product       ← * <~ Products.filter(_.contextId === context.id).
+    product        ← * <~ Products.filter(_.contextId === context.id).
       filter(_.formId === productId).one.mustFindOr(
         ProductNotFoundForContext(productId, context.id))
-    productForm   ← * <~ ObjectForms.mustFindById404(product.formId)
-    productShadow ← * <~ ObjectShadows.mustFindById404(product.shadowId)
-    skuData       ← * <~ getSkuData(productShadow.id)
-    variants      ← * <~ VariantManager.findVariantsByProduct(product)
-    empty         = DbResultT.pure(Map.empty[String, Seq[FullObject[VariantValue]]])
-    variantMap    ← * <~ skuData.foldLeft(empty) { (acc, sd) ⇒
-      val sku = sd._1
-      for {
-        values  ← * <~ SkuManager.findVariantValuesForSkuInProduct(sku, variants)
-        current ← * <~ acc
-      } yield current + (sku.code → values)
-    }
-
+    productForm    ← * <~ ObjectForms.mustFindById404(product.formId)
+    productShadow  ← * <~ ObjectShadows.mustFindById404(product.shadowId)
+    skuData        ← * <~ getSkuData(productShadow.id)
+    variants       ← * <~ VariantManager.findVariantsByProduct(product)
+    fullVariantMap ← * <~ getFullVariantMapForSkus(skuData, variants)
+    variantMap    ← * <~ fullVariantMap.mapValues(_.map(_.value))
+    variantsWithValues ← * <~ combineVariantsAndValues(variants, fullVariantMap)
   } yield IlluminatedFullProductResponse.build(
     IlluminatedProduct.illuminate(context, product, productForm, productShadow),
     skuData.map {
       case (s, f, sh) ⇒ IlluminatedSku.illuminate(context, s, f, sh)
     },
-    variants.map(v ⇒ IlluminatedVariant.illuminate(context, v)),
+    variantsWithValues.map { case (vars, vals) ⇒ (IlluminatedVariant.illuminate(context, vars), vals) },
     variantMap)
 
   def getIlluminatedFullProductAtCommit(productId: Int, contextName: String, commitId: Int)
@@ -173,26 +168,63 @@ object ProductManager {
     productShadow ← * <~ ObjectShadows.mustFindById404(commit.shadowId)
     skuData       ← * <~ getSkuData(productShadow.id)
     variants      ← * <~ VariantManager.findVariantsByProduct(product)
-    empty         = DbResultT.pure(Map.empty[String, Seq[FullObject[VariantValue]]])
-    variantMap    ← * <~ skuData.foldLeft(empty) { (acc, sd) ⇒
-      val sku = sd._1
-      for {
-        values  ← * <~ SkuManager.findVariantValuesForSkuInProduct(sku, variants)
-        current ← * <~ acc
-      } yield current + (sku.code → values)
-    }
+    fullVariantMap ← * <~ getFullVariantMapForSkus(skuData, variants)
+    variantMap    ← * <~ fullVariantMap.mapValues(_.map(_.value))
+    variantsWithValues ← * <~ combineVariantsAndValues(variants, fullVariantMap)
   } yield IlluminatedFullProductResponse.build(
     IlluminatedProduct.illuminate(context, product, productForm, productShadow),
     skuData.map {
       case (s, f, sh) ⇒ IlluminatedSku.illuminate(context, s, f, sh)
     },
-    variants.map(v ⇒ IlluminatedVariant.illuminate(context, v)),
+    variantsWithValues.map { case (vars, vals) ⇒ (IlluminatedVariant.illuminate(context, vars), vals) },
     variantMap)).run()
 
   def getContextsForProduct(formId: Int)(implicit ec: EC, db: DB): Result[Seq[ObjectContextResponse.Root]] = (for {products   ← * <~ Products.filterByFormId(formId).result
     contextIds ← * <~ products.map(_.contextId)
     contexts   ← * <~ ObjectContexts.filter(_.id.inSet(contextIds)).sortBy(_.id).result
   } yield contexts.map(ObjectContextResponse.build _)).run()
+
+  // Iterates through all SKU data and gets all VariantValues (and corresponding
+  // Variant shadow IDs) that are used by the set of SKUs. The return set is
+  // constrained by the set of Variants used on the project.
+  private def getFullVariantMapForSkus(skus: Seq[(Sku, ObjectForm, ObjectShadow)], variants: Seq[FullObject[Variant]])
+    (implicit ec: EC) = {
+    val empty = DbResultT.pure(Map.empty[String, Seq[VariantValueMapping]])
+    for {
+      fullVariantMap ← * <~ skus.foldLeft(empty) { (acc, sd) ⇒
+        val sku = sd._1
+        for {
+          values  ← * <~ SkuManager.findVariantValuesForSkuInProduct(sku, variants)
+          current ← * <~ acc
+        } yield current + (sku.code → values)
+      }
+    } yield fullVariantMap
+  }
+
+  private def combineVariantsAndValues(variants: Seq[FullObject[Variant]],
+    mapping: Map[String, Seq[VariantValueMapping]]) = {
+    val combinedMap = mapping.foldLeft(Seq.empty[VariantValueMapping]) { (acc, item) ⇒
+      val mapSeq = item._2
+      acc ++ mapSeq
+    }
+
+    val mapPartition = combinedMap.foldLeft(Map.empty[Int, Seq[FullObject[VariantValue]]]) { (acc, mapItem) ⇒
+      val valueList = acc.get(mapItem.variantShadowId) match {
+        case Some(currentValues) ⇒
+          if (currentValues contains mapItem.value) currentValues
+          else currentValues :+ mapItem.value
+        case None ⇒
+          Seq(mapItem.value)
+      }
+
+      acc + (mapItem.variantShadowId → valueList)
+    }
+
+    variants.map { variant ⇒
+      val values = mapPartition.get(variant.shadow.id).getOrElse(Seq.empty)
+      (variant, values)
+    }
+  }
 
   private def anyChanged(changes: Seq[Boolean]) : Boolean =
     changes.contains(true)
