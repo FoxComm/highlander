@@ -1,93 +1,75 @@
+/* @flow */
+
 import _ from 'lodash';
-import React, { PropTypes } from 'react';
+import React, { PropTypes, Element } from 'react';
+import static_url from '../../../lib/s3';
+
+import styles from './payments.css';
+
 import Currency from '../../common/currency';
 import TableRow from '../../table/row';
 import TableCell from '../../table/cell';
-import { autobind } from 'core-decorators';
+import { DateTime } from '../../common/datetime';
+import { EditButton, DeleteButton } from '../../common/buttons';
 
-export default class Row extends React.Component {
-  constructor(...args) {
-    super(...args);
+type Props = {
+  isEditing: boolean;
+  type: string;
+  title: string|Element;
+  subtitle?: string|Element;
+  amount: number;
+  details: Element;
+  showDetails: boolean;
+  even: boolean;
+  toggleDetails: Function;
+  editAction: Function;
+  deleteAction: Function;
+  paymentMethod: Object;
+}
 
-    this.state = {
-      showDetails: false
-    };
-  }
+const PaymentRow = (props: Props) => {
+  const editAction = props.isEditing ? (
+      <TableCell>
+        <EditButton onClick={props.editAction} />
+        <DeleteButton onClick={props.deleteAction} />
+      </TableCell>
+    ) : null;
+  const trClass = props.even ? 'even' : null;
 
-  static propTypes = {
-    isEditing: PropTypes.bool.isRequired,
-    icon: PropTypes.node.isRequired,
-    summary: PropTypes.node.isRequired,
-    amount: PropTypes.number,
-    details: PropTypes.func.isRequired,
-    editAction: PropTypes.node.isRequired,
-  };
+  const amount = _.isNumber(props.amount) ? <Currency value={props.amount} /> : null;
+  const detailsRow = props.showDetails ? (
+    <TableRow className={trClass} styleName="details-row">
+      <TableCell colspan={5}>
+        {props.details}
+      </TableCell>
+    </TableRow>
+  ) : null;
 
-  get editAction() {
-    if (this.props.isEditing) {
-      return (
-        <TableCell>
-          {this.props.editAction}
-        </TableCell>
-      );
-    }
-  }
+  const { type, title, subtitle } = props;
+  const nextDetailAction = props.showDetails ? 'up' : 'down';
+  const icon = static_url(`images/payments/payment_${type}.svg`);
 
-  get amount() {
-    const amount = this.props.amount;
-    return _.isNumber(amount) ? <Currency value={amount} /> : null;
-  }
-
-  @autobind
-  toggleDetails() {
-    this.setState({
-      ...this.state,
-      showDetails: !this.state.showDetails
-    });
-  }
-
-  render() {
-    const { icon, summary, amount, editAction } = this.props;
-    let details = null;
-    let nextDetailAction = null;
-
-    if (this.state.showDetails) {
-      nextDetailAction = 'up';
-      details = this.props.details();
-    } else {
-      nextDetailAction = 'down';
-      details = '';
-    }
-
-    return (
-      <TableRow>
-        <TableCell>
-          <div className="fc-payment-method fc-grid">
-            <div className="fc-left">
-              <i className={`icon-chevron-${nextDetailAction}`} onClick={this.toggleDetails}></i>
-            </div>
-            <div className="fc-col-md-8-12">
-              <div className="fc-left">
-                <img className="fc-icon-lg" src={icon}></img>
-              </div>
-              {summary}
-            </div>
-            <div className="fc-payment-method-details">
-              <div className="fc-push-md-3-12 fc-col-md-9-12">
-                {details}
-              </div>
-            </div>
-          </div>
-        </TableCell>
-        <TableCell>
-          <div>
-            <div>
-              {this.amount}
-            </div>
-          </div>
-        </TableCell>
-        {this.editAction}
-      </TableRow>
-    );
-  }
+  return [
+    <TableRow className={trClass} styleName="payment-row">
+      <TableCell>
+        <i styleName="row-toggle" className={`icon-chevron-${nextDetailAction}`} onClick={props.toggleDetails} />
+        <img styleName="payment-icon" className="fc-icon-lg" src={icon} />
+        <div styleName="payment-summary">
+          <strong>{title}</strong>
+          <div>{subtitle}</div>
+        </div>
+      </TableCell>
+      <TableCell>
+        {amount}
+      </TableCell>
+      <TableCell></TableCell>
+      <TableCell>
+        <DateTime value={props.paymentMethod.createdAt}></DateTime>
+      </TableCell>
+      {editAction}
+    </TableRow>,
+    detailsRow
+  ];
 };
+
+export default PaymentRow;

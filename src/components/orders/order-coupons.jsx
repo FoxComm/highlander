@@ -173,7 +173,6 @@ class OrderCoupons extends Component {
     return (
       <CouponsContentBox
         title={this.title}
-        isTable={true}
         indentContent={false}
         viewContent={this.viewContent}
         editContent={this.viewContent}

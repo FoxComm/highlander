@@ -1,0 +1,86 @@
+
+.row-toggle {
+  vertical-align: top;
+  margin: 5px 15px 0 0;
+  font-size: 22px;
+  line-height: 26px;
+  cursor: pointer;
+}
+
+.payment-icon {
+  height: 38px;
+  width: 56px;
+}
+
+.payment-summary {
+  vertical-align: top;
+  display: inline-block;
+
+  & > strong {
+    font-size: 13px;
+    color: #1C1C1C;
+    line-height: 18px;
+  }
+}
+
+.payment-row {
+  & td {
+    padding: 15px;
+    vertical-align: top;
+  }
+}
+
+:global(.fc-editable-content-box.is-editing) {
+  & .payment-row {
+    & td:last-child {
+      width: 100px;
+      padding: 1.5rem 0;
+
+      & > :global(.fc-btn) {
+        margin: 0 5px;
+      }
+    }
+  }
+}
+
+:global(.fc-table) tbody .details-row td {
+  vertical-align: top;
+  padding: 0 15px 15px 15px;
+}
+
+.details-row {
+  & dt {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 24px;
+  }
+
+  & dd {
+    font-size: 13px;
+    line-height: 19px;
+    -webkit-margin-start: 0;
+  }
+
+  & :global .fc-address-details {
+    height: auto;
+    margin-bottom: 0;
+
+    & :global .name {
+      font-weight: 400;
+      font-size: inherit;
+    }
+  }
+}
+
+:global(.fc-table) tbody tr.payment-row,
+:global(.fc-table) tbody tr.details-row {
+  background: #fff;
+  border-bottom: 0;
+}
+:global .fc-table tbody tr.even {
+  background: #f7f7f7;
+}
+
+:global(.fc-table) tbody tr.details-row {
+  border: 0;
+}

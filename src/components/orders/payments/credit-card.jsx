@@ -2,58 +2,40 @@ import * as CardUtils from '../../../lib/credit-card-utils';
 import React, { PropTypes } from 'react';
 import CreditCardDetails from '../../../components/credit-cards/card-details';
 import AddressDetails from '../../addresses/address-details';
-import static_url from '../../../lib/s3';
-import { Button, EditButton } from '../../common/buttons';
-import Row from './row';
+import PaymentRow from './row';
 
 const CreditCard = props => {
   const card = props.paymentMethod;
   const brand = card.brand.toLowerCase();
-  const icon = static_url(`images/payments/payment_${brand}.svg`);
 
   const deletePayment = () => {
     props.deleteOrderCreditCardPayment(props.order.currentOrder.refNum);
   };
 
-  const editAction = (
+  const details = (
     <div>
-      <EditButton onClick={() => console.log('not implemented')} />
-      <Button icon="trash" className="fc-btn-remove" onClick={deletePayment} />
-    </div>
-  );
-
-  const details = () => {
-    return(
-      <div>
-        <dl>
-          <dt>Name on Card</dt>
-          <dd>{card.holderName}</dd>
-        </dl>
-        <dl>
-          <dt>Billing Address</dt>
-          <AddressDetails address={card.address} />
-        </dl>
-      </div>
-    );
-  };
-
-  const summary = (
-    <div className="fc-left">
-      <div className="fc-strong">{CardUtils.formatNumber(card)}</div>
-      <div>{CardUtils.formatExpiration(card)}</div>
+      <dl>
+        <dt>Name on Card</dt>
+        <dd>{card.holderName}</dd>
+      </dl>
+      <dl>
+        <dt>Billing Address</dt>
+        <AddressDetails address={card.address} />
+      </dl>
     </div>
   );
 
   const params = {
     details: details,
     amount: null,
-    icon: icon,
-    summary: summary,
-    editAction: editAction,
-    isEditing: props.isEditing
+    type: brand,
+    title: CardUtils.formatNumber(card),
+    subtitle: CardUtils.formatExpiration(card),
+    deleteAction: deletePayment,
+    ...props,
   };
 
-  return <Row {...params} />;
+  return PaymentRow(params);
 };
 
 CreditCard.propTypes = {
