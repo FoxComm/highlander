@@ -17,7 +17,7 @@ const representatives = {
     },
     details: data => {
       return {
-        newOne: <PaymentMethod card={data.creditCard} />,
+        newOne: <PaymentMethod paymentMethod={data.creditCard} />,
         previous: null
       };
     }
@@ -33,7 +33,7 @@ const representatives = {
     details: data => {
       return {
         newOne: null,
-        previous: <PaymentMethod card={data.creditCard} />
+        previous: <PaymentMethod paymentMethod={data.creditCard} />
       };
     }
   },
@@ -47,8 +47,8 @@ const representatives = {
     },
     details: data => {
       return {
-        newOne: <PaymentMethod card={data.newInfo} />,
-        previous: <PaymentMethod card={data.oldInfo} />
+        newOne: <PaymentMethod paymentMethod={data.newInfo} />,
+        previous: <PaymentMethod paymentMethod={data.oldInfo} />
       };
     }
   },

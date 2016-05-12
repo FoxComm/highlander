@@ -28,8 +28,6 @@ const StoreCredit = props => {
   const params = {
     details: details,
     amount: amount,
-    type: 'store_credit',
-    title: 'Store Credit',
     deleteAction: deletePayment,
     ...props,
   };

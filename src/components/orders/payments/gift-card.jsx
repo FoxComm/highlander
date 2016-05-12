@@ -1,5 +1,4 @@
 import React, { PropTypes } from 'react';
-import GiftCardCode from '../../../components/gift-cards/gift-card-code';
 import Currency from '../../common/currency';
 import PaymentRow from './row';
 
@@ -29,9 +28,6 @@ const GiftCard = props => {
   const params = {
     details: details,
     amount: amount,
-    type: 'gift_card',
-    title: 'Gift Card',
-    subtitle: <GiftCardCode value={code} />,
     deleteAction: deletePayment,
     ...props,
   };

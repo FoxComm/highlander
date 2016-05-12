@@ -1,4 +1,3 @@
-import * as CardUtils from '../../../lib/credit-card-utils';
 import React, { PropTypes } from 'react';
 import CreditCardDetails from '../../../components/credit-cards/card-details';
 import AddressDetails from '../../addresses/address-details';
@@ -6,7 +5,6 @@ import PaymentRow from './row';
 
 const CreditCard = props => {
   const card = props.paymentMethod;
-  const brand = card.brand.toLowerCase();
 
   const deletePayment = () => {
     props.deleteOrderCreditCardPayment(props.order.currentOrder.refNum);
@@ -28,9 +26,6 @@ const CreditCard = props => {
   const params = {
     details: details,
     amount: null,
-    type: brand,
-    title: CardUtils.formatNumber(card),
-    subtitle: CardUtils.formatExpiration(card),
     deleteAction: deletePayment,
     ...props,
   };
