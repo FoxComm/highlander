@@ -15,6 +15,10 @@
   template: src=elasticsearch.service dest={{dest_services}}/
   sudo: true
 
+- name: Setting Up Admin User Group
+  group: name=admin state=present
+  sudo: true
+
 - name: Setting Up Elasticsearch User
   user: name=elasticsearch groups=admin
   sudo: true
