@@ -11,6 +11,7 @@ import styles from './products-list.css';
 import ListItem from '../products-item/list-item';
 import BannerWithImage from '../banner/bannerWithImage';
 import ScrollToTop from '../scroll-to-top/scroll-to-top';
+import ViewIndicator from '../view-indicator/view-indicator';
 
 type Category = {
   name: string;
@@ -111,6 +112,7 @@ class ProductsList extends React.Component {
           {items}
         </div>
         <ScrollToTop />
+        <ViewIndicator />
       </section>
     );
   }
