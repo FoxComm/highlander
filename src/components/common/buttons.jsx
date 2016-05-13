@@ -13,10 +13,12 @@ const Button = (props = {}) => {
     props.className,
   );
 
+  const content = children != null ? <span>{children}</span> : children;
+
   return (
     <button {...restProps} className={className}>
       {icon && <i className={`icon-${icon}`}/>}
-      {children}
+      {content}
     </button>
   );
 };
