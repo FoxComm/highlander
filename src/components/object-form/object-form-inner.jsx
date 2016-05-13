@@ -221,9 +221,13 @@ export default class ObjectFormInner extends Component<void, Props, State> {
 
     const renderedAttributes: Array<Element> = _.map(fieldsToRender, name => {
       const attribute = attributes[name];
-      const { label, type, value } = attribute;
-      const renderFn = _.get(this.renderFunctions, type, this.renderString);
-      return React.cloneElement(renderFn(label, value), {key: name});
+      if (attribute) {
+        const { label, type, value } = attribute;
+        const renderFn = _.get(this.renderFunctions, type, this.renderString);
+        return React.cloneElement(renderFn(label, value), {key: name});
+      } else {
+        console.warn(`You tried to render ${name} attribute, but there is no such attribute in a model`);
+      }
     });
 
     return (

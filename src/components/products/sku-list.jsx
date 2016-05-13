@@ -63,7 +63,7 @@ export default class SkuList extends Component<void, Props, void> {
       <div className="fc-sku-list">
         <MultiSelectTable
           columns={tableColumns}
-          data={{ rows: this.illuminatedSkus }}
+          data={{ rows: skus }}
           renderRow={renderRow}
           emptyMessage="This product does not have any SKUs."
           hasActionsColumn={false} />
