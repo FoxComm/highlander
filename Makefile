@@ -31,6 +31,7 @@ build: setup
 	gulp build
 
 package: build
+	touch ashes.tar.bz2
 	tar --exclude 'ashes.tar.bz2' -jcf ashes.tar.bz2 ./
 	
 
