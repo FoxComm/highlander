@@ -1,10 +1,19 @@
 package models.discount.qualifiers
 
-import models.discount.{DiscountInput, ReferenceTuple}
+import cats.data.Xor
+import failures.DiscountFailures._
+import models.discount.{DiscountInput, SearchReference}
 import services.Result
 import utils.aliases._
 
-case class ItemsAnyQualifier(references: Seq[ReferenceTuple]) extends Qualifier {
+case class ItemsAnyQualifier(search: SearchReference) extends Qualifier {
 
-  def check(input: DiscountInput)(implicit ec: EC, es: ES): Result[Unit] = reject(input, "Not implemented")
+  def check(input: DiscountInput)(implicit ec: EC, es: ES): Result[Unit] = {
+    val future = for { result ← SearchReference.query(input, search) } yield result
+
+    Result.fromFuture(future.map {
+      case Xor.Right(count) if count > 0 ⇒ Xor.Right(Unit)
+      case _                             ⇒ Xor.Left(SearchFailure)
+    })
+  }
 }

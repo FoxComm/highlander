@@ -39,4 +39,8 @@ object DiscountFailures {
     def apply(id: Int) = NotFoundFailure404(s"Discount Form with id $id cannot be found")
   }
 
+  // TBD - more friendly
+  case object SearchFailure extends Failure {
+    override def description = "No matching items found during search"
+  }
 }

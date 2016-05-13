@@ -35,7 +35,7 @@ object OrderLineItemAdjustment {
   case object LineItemAdjustment extends AdjustmentType
   case object OrderAdjustment extends AdjustmentType
   case object ShippingAdjustment extends AdjustmentType
-  case object ComplexAdjustment extends AdjustmentType
+  case object Combinator extends AdjustmentType
 
   object AdjustmentType extends ADT[AdjustmentType] {
     def types = sealerate.values[AdjustmentType]

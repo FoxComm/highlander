@@ -78,12 +78,12 @@ object FullOrder {
 
   case class DisplayLineItem(
     imagePath: String,
-    referenceNumber: String = "",
-    name: String = "donkey product",
+    referenceNumber: String,
+    name: String,
     sku: String,
-    price: Int = 33,
+    price: Int,
     quantity: Int = 1,
-    totalPrice: Int = 33,
+    totalPrice: Int,
     state: OrderLineItem.State) extends ResponseItem
 
   sealed trait Payments
@@ -169,9 +169,10 @@ object FullOrder {
  
         DisplayLineItem(imagePath = image, sku = data.sku.code, 
           referenceNumber = data.lineItem.referenceNumber, 
-          state = data.lineItem.state, name = name, price = price, 
+          state = data.lineItem.state, name = name, price = price,
           totalPrice = price)
     }
+
     val gcList = giftCards.map { case (gc, li) ⇒ GiftCardResponse.build(gc) }
 
     Root(id = order.id,
@@ -258,8 +259,8 @@ object FullOrder {
       customer     ← Customers.findById(order.customerId).extract.one
       lineItemTup  ← OrderLineItemSkus.findLineItemsByOrder(order).result
       lineItems    = lineItemTup.map {
-        case (sku, skuForm, skuShadow, lineItem) ⇒ 
-          OrderLineItemProductData(sku, skuForm, skuShadow, lineItem)
+        case (sku, skuForm, skuShadow, productShadow, lineItem) ⇒
+          OrderLineItemProductData(sku, skuForm, skuShadow, productShadow, lineItem)
       }
       giftCards    ← OrderLineItemGiftCards.findLineItemsByOrder(order).result
       shipMethod   ← shipping.ShippingMethods.forOrder(order).one

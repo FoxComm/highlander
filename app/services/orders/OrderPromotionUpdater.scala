@@ -1,7 +1,6 @@
 package services.orders
 
 import cats.data.Xor
-import cats.implicits._
 import failures.OrderFailures._
 import failures.CouponFailures._
 import failures.PromotionFailures._
@@ -9,8 +8,8 @@ import failures.DiscountCompilerFailures._
 import services.discount.compilers._
 import models.discount.qualifiers._
 import models.discount.offers._
-import models.discount.{DiscountInput, IlluminatedDiscount}
-import models.discount.IlluminatedDiscount.illuminate
+import models.discount._
+import models.discount.DiscountHelpers._
 import models.objects._
 import models.order._
 import models.order.OrderPromotions.scope._
@@ -20,8 +19,6 @@ import models.promotion._
 import models.promotion.Promotions.scope._
 import models.shipping
 import models.traits.Originator
-import org.json4s.JsonAST._
-import org.json4s.jackson.JsonMethods._
 import responses.order.FullOrder._
 import services.Result
 import slick.driver.PostgresDriver.api._
@@ -59,12 +56,12 @@ object OrderPromotionUpdater {
     discountShadows   ← * <~ ObjectShadows.filter(_.id.inSet(discountShadowIds)).result
     discountFormIds   = discountShadows.map(_.formId)
     discountForms     ← * <~ ObjectForms.filter(_.id.inSet(discountFormIds)).result
-    discountsTupled   = for (f ← discountForms; s ← discountShadows if s.formId == f.id) yield (s, f)
-    discounts         = discountsTupled.map { case (shad, form) ⇒ illuminate(context.some, form, shad) }
+    discounts         = for (f ← discountForms; s ← discountShadows if s.formId == f.id) yield (f, s)
     // Safe AST compilation
     discount          ← * <~ tryDiscount(discounts)
-    qualifier         ← * <~ tryQualifier(discount)
-    offer             ← * <~ tryOffer(discount)
+    (form, shadow)    = discount
+    qualifier         ← * <~ QualifierAstCompiler(qualifier(form, shadow)).compile()
+    offer             ← * <~ OfferAstCompiler(offer(form, shadow)).compile()
     adjustments       ← * <~ getAdjustments(promoShadow, order, qualifier, offer)
     // Create connected promotion and line item adjustments
     _                 ← * <~ OrderPromotions.create(OrderPromotion.buildCoupon(order, promotion, couponCode))
@@ -90,19 +87,12 @@ object OrderPromotionUpdater {
     response        ← * <~ refreshAndFullOrder(order).toXor
   } yield response).runTxn()
 
-  private def tryDiscount(discounts: Seq[IlluminatedDiscount]) = discounts.headOption match {
+  /**
+    * Getting only first discount now
+    */
+  def tryDiscount(discounts: Seq[(ObjectForm, ObjectShadow)]) = discounts.headOption match {
     case Some(discount) ⇒ Xor.Right(discount)
     case _              ⇒ Xor.Left(EmptyDiscountFailure.single)
-  }
-
-  private def tryQualifier(discount: IlluminatedDiscount) = discount.attributes \ "qualifier" \ "v" match {
-    case JObject(o) ⇒ QualifierAstCompiler(compact(render(JObject(o)))).compile()
-    case _          ⇒ Xor.Left(EmptyQualifierFailure.single)
-  }
-
-  private def tryOffer(discount: IlluminatedDiscount) = discount.attributes \ "offer" \ "v" match {
-    case JObject(o) ⇒ OfferAstCompiler(compact(render(JObject(o)))).compile()
-    case _          ⇒ Xor.Left(EmptyOfferFailure.single)
   }
 
   private def getAdjustments(promo: ObjectShadow, order: Order, qualifier: Qualifier, offer: Offer)
@@ -115,10 +105,10 @@ object OrderPromotionUpdater {
   } yield adjustments
 
   private def fetchOrderDetails(order: Order)(implicit ec: EC) = for {
-    lineItemTup ← OrderLineItemSkus.findLineItemsByOrder(order).result
-    lineItems   = lineItemTup.map {
-      case (sku, skuForm, skuShadow, lineItem) ⇒
-        OrderLineItemProductData(sku, skuForm, skuShadow, lineItem)
+    lineItemTup  ← OrderLineItemSkus.findLineItemsByOrder(order).result
+    lineItems    = lineItemTup.map {
+      case (sku, skuForm, skuShadow,productShadow, lineItem) ⇒
+        OrderLineItemProductData(sku, skuForm, skuShadow, productShadow, lineItem)
     }
     shipMethod  ← shipping.ShippingMethods.forOrder(order).one
   } yield (lineItems, shipMethod)

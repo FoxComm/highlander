@@ -1,8 +1,9 @@
-package concepts
+package services
 
 import models.discount.qualifiers._
 import failures.DiscountCompilerFailures._
 import services.discount.compilers.QualifierAstCompiler
+import org.json4s.jackson.JsonMethods._
 import util.TestBase
 
 class QualifierAstCompilerTest extends TestBase {
@@ -20,18 +21,10 @@ class QualifierAstCompilerTest extends TestBase {
     "fails when typo in configuration found" in new OrderTotalAmountTypoFixture {
       leftValue(compiler.compile()) must === (QualifierAttributesExtractionFailure(OrderTotalAmount).single)
     }
-
-    "fails when invalid json provided" in new InvalidJsonFixture {
-      leftValue(compiler.compile()) must === (QualifierAstParseFailure(json).single)
-    }
-
-    "fails when invalid json format provided" in new InvalidJsonFormatFixture {
-      leftValue(compiler.compile()) must === (QualifierAstInvalidFormatFailure.single)
-    }
   }
 
   def getTuple(json: String): (String, QualifierAstCompiler) =
-    (json, QualifierAstCompiler(json))
+    (json, QualifierAstCompiler(parse(json)))
 
   trait OrderAnyValidFixture {
     val typeName         = QualifierType.show(OrderAny)
@@ -46,13 +39,5 @@ class QualifierAstCompilerTest extends TestBase {
   trait OrderTotalAmountTypoFixture {
     val typeName          = QualifierType.show(OrderTotalAmount)
     val (json, compiler)  = getTuple(s"""{"$typeName": {"totalAmounts": 1}}""")
-  }
-
-  trait InvalidJsonFixture {
-    val (json, compiler) = getTuple("""""")
-  }
-
-  trait InvalidJsonFormatFixture {
-    val (json, compiler) = getTuple("""[1, 2, 3]""")
   }
 }

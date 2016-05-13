@@ -2,9 +2,8 @@ package models.order.lineitems
 
 import models.inventory.{Sku, Skus}
 import models.order.Order
-import models.product.{Product, Products}
 import models.objects._
-import utils.Money.Currency
+import models.objects.ObjectLink._
 import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
@@ -16,7 +15,8 @@ case class OrderLineItemSku(id: Int = 0, skuId: Int, skuShadowId: Int)
 case class OrderLineItemProductData(
   sku: Sku, 
   skuForm: ObjectForm, 
-  skuShadow: ObjectShadow, 
+  skuShadow: ObjectShadow,
+  product: ObjectShadow,
   lineItem: OrderLineItem)
 
 object OrderLineItemSku {}
@@ -49,15 +49,18 @@ object OrderLineItemSkus extends FoxTableQuery[OrderLineItemSku, OrderLineItemSk
     skuLis  ← lis.skuLineItems
   } yield skuLis
 
-  type FindLineItemResult = (Sku, ObjectForm, ObjectShadow, OrderLineItem)
+  type FindLineItemResult      = (Sku, ObjectForm, ObjectShadow, ObjectShadow, OrderLineItem)
+  type FindLineItemResultMulti = (Skus, ObjectForms, ObjectShadows, ObjectShadows, OrderLineItems)
 
-  def findLineItemsByOrder(order: Order): Query[ (Skus, ObjectForms, ObjectShadows, OrderLineItems), FindLineItemResult, Seq] = for {
-    lis     ← OrderLineItems.filter(_.orderId === order.id)
-    skuLis  ← lis.skuLineItems
-    sku     ← skuLis.sku
-    form ← ObjectForms if form.id === sku.formId
-    shadow     ← skuLis.shadow
-  } yield (sku, form, shadow, lis)
+  def findLineItemsByOrder(order: Order): Query[FindLineItemResultMulti, FindLineItemResult, Seq] = for {
+    lineItems     ← OrderLineItems.filter(_.orderId === order.id)
+    skuLineItems  ← lineItems.skuLineItems
+    sku           ← skuLineItems.sku
+    skuForm       ← ObjectForms if skuForm.id === sku.formId
+    skuShadow     ← skuLineItems.shadow
+    link          ← ObjectLinks if link.rightId === skuShadow.id && link.linkType === (ProductSku: LinkType)
+    productShadow ← ObjectShadows if productShadow.id === link.rightId
+  } yield (sku, skuForm, skuShadow, productShadow, lineItems)
 
   object scope {
     implicit class OrderLineItemSkusQuerySeqConversions(q: QuerySeq) {

@@ -1,20 +1,16 @@
 package models.discount.offers
 
 import models.discount.DiscountInput
-import models.order.lineitems._
+import models.discount.offers.Offer.OfferResult
 import models.order.lineitems.OrderLineItemAdjustment._
-import services._
-import utils.aliases._
 
-case class OrderPercentOffer(discount: Int) extends Offer {
+case class OrderPercentOffer(discount: Int) extends Offer with PercentOffer {
 
   val adjustmentType: AdjustmentType = OrderAdjustment
 
-  def adjust(input: DiscountInput)(implicit ec: EC, es: ES): Result[Seq[OrderLineItemAdjustment]] = {
+  def adjust(input: DiscountInput): OfferResult = {
     if (discount > 0 && discount < 100) {
-      val amount = (input.order.subTotal * discount) / 100.0d
-      val substract = Math.ceil(amount).toInt // This will give a bigger discount by one penny
-      accept(input, substract)
+      accept(input, substract(input.order.subTotal, discount))
     } else {
       reject(input, "Invalid discount value provided (should be between 1 and 99)")
     }

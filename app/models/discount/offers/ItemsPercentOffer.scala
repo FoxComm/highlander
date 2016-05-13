@@ -1,15 +1,21 @@
 package models.discount.offers
 
-import models.discount.{DiscountInput, ReferenceTuple}
+import models.discount._
+import models.discount.offers.Offer.OfferResult
 import models.order.lineitems.OrderLineItemAdjustment._
-import models.order.lineitems.OrderLineItemAdjustment
-import services._
-import utils.aliases._
+import models.product.Mvp
 
-case class ItemsPercentOffer(discount: Int, references: Seq[ReferenceTuple]) extends Offer {
+case class ItemsPercentOffer(discount: Int, search: SearchReference) extends Offer with PercentOffer {
 
   val adjustmentType: AdjustmentType = LineItemAdjustment
 
-  def adjust(input: DiscountInput)(implicit ec: EC, es: ES): Result[Seq[OrderLineItemAdjustment]] =
-    reject(input, "Not implemented yet")
+  def adjust(input: DiscountInput): OfferResult = {
+    if (discount > 0 && discount < 100) adjustInner(input) else reject(input, "Invalid discount value")
+  }
+
+  private def adjustInner(input: DiscountInput): OfferResult = search match {
+    case ProductSearch(formId) ⇒ accept(input, substract(totalByProduct(input.lineItems, formId), discount))
+    case SkuSearch(code)       ⇒ accept(input, substract(totalBySku(input.lineItems, code), discount))
+    case _                     ⇒ reject(input, "Invalid search type")
+  }
 }

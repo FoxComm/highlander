@@ -6,22 +6,15 @@ import failures.DiscountCompilerFailures._
 import failures._
 import models.discount.offers._
 import org.json4s._
-import org.json4s.jackson.JsonMethods._
 import utils.JsonFormatters
 
-case class OfferAstCompiler(input: String) {
+case class OfferAstCompiler(data: JValue) {
 
   implicit val formats: Formats = JsonFormatters.phoenixFormats
-  def compile(): Xor[Failures, Offer] = parseOpt(input) match {
-    case Some(json) ⇒ compile(json)
-    case _          ⇒ Xor.Left(OfferAstParseFailure(input).single)
-  }
 
-  private def compile(data: JValue): Xor[Failures, Offer] = {
-    data match {
-      case JObject(fields) ⇒ compile(fields)
-      case _               ⇒ Xor.Left(OfferAstInvalidFormatFailure.single)
-    }
+  def compile(): Xor[Failures, Offer] = data match {
+    case JObject(fields) ⇒ compile(fields)
+    case _               ⇒ Xor.Left(OfferAstInvalidFormatFailure.single)
   }
 
   private def compile(fields: List[JField]) : Xor[Failures, Offer] = {
