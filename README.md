@@ -11,23 +11,21 @@ on customers.
 
 API.js will be build in ES6 and transpiled to ES5. It won't use ES7 features.
 
-### WIP: Discussion on the Javascript client library for interacting with the FoxComm API
 
-This is pseudocode / spec to come to an agreement on what a pure javascript API client wrapper library's API should look like. In describing each method I'm aiming for the minimum human-readable info: method name, arguments accepted, return value. Going for brevity here, aiming to distill the API signature maximizing developer conceptual simplicity.
+### Spec
 
-I've divided into logical sections, maybe these sections can be namespaced within the library itself, as I've done with `checkout` methods.
+Principles:
 
-The library should have simple method names that match core API methods.
+- The library should have simple method names that match core API methods, or simplifications or sugar on the core API.
+- It should make instantiation/authentication as simple as possible.
+- It should deal with Async, probably a Fetch/Promise-based model.
+- As a rule of thumb, `.then()` should be left to the implementation of the library [ie. not in this codebase]. Possible exception here is Auth section, storage of `jwt` tokens, handling oAuth redirects etc.
 
-It should make instantiation/authentication as simple as possible.
-
-It should deal with Async, probably a Fetch/Promise-based model.
-
-It should be designed to be used as follows:
+# Usage
 
 ```
-import FoxCommAPI from FoxComm/api-client-js
-const FxC = new FoxCommAPI()
+import FoxCommAPI from FoxComm/api-js
+const FxC = new FoxCommAPI({ args })  // args could include API domain & path data, public_key, etc
 ```
 
 
@@ -47,12 +45,10 @@ FxC.logout()
     → success | err
 ```
 
-Q: should auth methods return JWT, or also deal with storing and retrieving jwt from local storage? I'm tempted to say it basically returns true/false and does all `localStorage` work for you.
-
-Any below methods requiring login should therefore return an err if we try to use them before running auth functions.
-
 
 # Product catalog
+
+In Process...
 
 ```
 FxC.getProduct(id | slug)
@@ -65,8 +61,6 @@ FxC.search(query)
     → [{ products }]
 ```
 
-Q: We could do a lot of different things here, from keeping everything in one function that accepts complex filtering/searching on the one hand, to breaking out different methods for `getProductsByCategory`, `getProductsByTag`, `getProductsByAttributeFilter` etc etc. Also not sure `getProducts` and `search` are different.
-
 
 # Cart
 
@@ -75,35 +69,36 @@ FxC.getCart()
     → { meta, [items]}
 
 FxC.addToCart({item} | [{items}])
-    → { cart }
-    → success | err
+    → { cart } or success | err
 
 FxC.removeFromCart({item} | [{items}])
-    → { cart }
-    → success | err
+    → { cart } or success | err
 
 FxC.emptyCart()
-    → { cart }
-    → success | err
+    → { cart } or success | err
 
 ```
-
-Q: do cart update functions just return true/false, item, or the whole cart object again? I'm tempted to return the whole cart again so that we don't have to make another trip to the server to update cart.
 
 
 # Checkout
 
 ```
-FxC.checkout.shippingMethods()
-    → [{ methods }] | [] err_no_country_set
+FxC.checkout.getShippingMethods()
+    → [{ methods }] | err [eg. shipping address not set]
 
-FxC.checkout.setAddressData()
+FxC.checkout.setAddressData(address)
     → ?
 
-FxC.checkout.setBillingData()
+FxC.checkout.setBillingData(data)
     → ?
 
-FxC.checkout.reset()
+FxC.checkout.addCreditCard(data)
+    → ?
+
+FxC.checkout.applyGiftCard(code)
+    → success | err
+
+FxC.checkout.applyPromoCode(code)
     → success | err
 
 FxC.checkout.getCountries()
@@ -114,5 +109,11 @@ FxC.checkout.getStates(country)
 
 FxC.checkout.getCityFromZip(zip)
     → [{ city, state }]
+
+FxC.checkout.reset()
+    → success | err
+
+FxC.checkout.finish()
+    → success | err
 
 ```

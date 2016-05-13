@@ -1,10 +1,9 @@
 
-
-// WIP: moving `lib/api.js` straight over from Firebird because
-// it does a lot of good stuff around the mechanics of requests.
-// Needs work. We kinda have to decide if we really want to stick to
+// WIP. We kinda have to decide if we really want to stick to
 // ES6 not ES7 because spread operator is pretty useful here...
 
+
+// Helper / Utility functions
 
 export function appendQueryString(url, queryString) {
   if (!queryString) {
@@ -93,9 +92,9 @@ export function request(method, uri, data, options) {
 /* eslint-enable no-param-reassign */
 
 
+// Core API class
+
 class Api {
-  prefix;
-  version;
   headers;
 
   constructor() {}
@@ -114,7 +113,6 @@ class Api {
   }
 
   request(method, uri, data, options = {}) {
-    const finalUrl = uri;
 
     if (this.headers) {
       options.headers = { // eslint-disable-line no-param-reassign
@@ -123,7 +121,7 @@ class Api {
       };
     }
 
-    return request(method, finalUrl, data, options);
+    return request(method, uri, data, options);
   }
 
   get(...args) {
