@@ -17,3 +17,8 @@
 - name: Restart Buildkite Agent
   sudo: true
   command: systemctl restart buildkite-agent
+
+
+- name: Make sure buildkite keys are available.
+  file: path="/var/lib/buildkite-agent/.ssh/id_rsa" owner=buildkite-agent group=buildkite-agent mode="600"
+  sudo: true
