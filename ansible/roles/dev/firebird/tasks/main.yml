@@ -4,36 +4,22 @@
   shell: npm install gulp -g
   sudo: true
 
-- name: Synchronize Firebird code
-  synchronize:
-    src: '{{firebird_source_dir}}'
-    dest: '{{home}}'
-    delete: true
-    recursive: true
-    rsync_opts:
-        - "--quiet"
-        - "--no-motd"
-        - "--exclude=./node_modules"
+- name: Remove Firebird Dir
+  file: path={{firebird_install_dir}} state=absent
 
-- name: Install local gulp
-  shell: npm install gulp
-  args:
-    chdir: "{{firebird_install_dir}}"
+- name: Add Firebird Dir
+  file: path={{firebird_install_dir}} state=directory
 
-- name: Build node dependencies
-  shell: npm build
-  args:
-    chdir: "{{firebird_install_dir}}"
-
-- name: Build node dependencies
-  shell: npm install
-  args:
-    chdir: "{{firebird_install_dir}}"
+- name: Untar Firebird code
+  unarchive:
+    src: '{{firebird_source_package}}'
+    dest: '{{firebird_install_dir}}'
 
 - name: Build Firebird
   shell: NODE_ENV={{firebird_env}} DEMO_USER={{demo_user}} DEMO_PASS={{demo_pass}} FIREBIRD_LANGUAGE={{firebird_default_language}} gulp build
   args:
     chdir: "{{firebird_install_dir}}"
+  when: demo_user != ""
 
 - name: Install firebird run script
   sudo: true
