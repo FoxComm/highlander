@@ -42,6 +42,7 @@ object Seeds {
       case "ranking" ⇒ 
         createRankingSeeds()
       case "demo" ⇒   
+        createStageSeeds()
         createDemoSeeds()
         createRandomSeeds(scale)
       case _ ⇒ None
@@ -51,9 +52,15 @@ object Seeds {
   }
 
   def createBaseSeeds()(implicit db: Database) {
-    Console.err.println("Inserting seeds")
-    val result: Failures Xor Unit = Await.result(createAll().runTxn(), 4.minutes)
+    Console.err.println("Inserting Base Seeds")
+    val result: Failures Xor Unit = Await.result(createBase().runTxn(), 4.minutes)
     validateResults("base", result)
+  }
+
+  def createStageSeeds()(implicit db: Database) {
+    Console.err.println("Inserting Stage seeds")
+    val result: Failures Xor Unit = Await.result(createStage().runTxn(), 4.minutes)
+    validateResults("stage", result)
   }
 
   def createDemoSeeds()(implicit db: Database) {
@@ -88,9 +95,14 @@ object Seeds {
 
   val today = Instant.now().atZone(ZoneId.of("UTC"))
 
-  def createAll()(implicit db: Database): DbResultT[Unit] = for {
+  def createBase()(implicit db: Database): DbResultT[Unit] = for {
     _           ← * <~ Warehouses.create(Factories.warehouse)
     context     ← * <~ ObjectContexts.create(SimpleContext.create())
+    admin       ← * <~ Factories.createStoreAdmins
+  } yield {}
+
+  def createStage()(implicit db: Database): DbResultT[Unit] = for {
+    context     ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
     ruContext   ← * <~ ObjectContexts.create(SimpleContext.create(name = SimpleContext.ru, lang = "ru"))
     admin       ← * <~ Factories.createStoreAdmins
     customers   ← * <~ Factories.createCustomers
