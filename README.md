@@ -19,6 +19,10 @@
     $ sbt assembly
     $ cd ../green-river
     $ sbt assembly
+    $ cd ../ashes
+    $ make package
+    $ cd ../firebird
+    $ make package
     $ cd ../prov-shit
     $ make build
     ```
