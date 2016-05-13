@@ -7,11 +7,13 @@ import { makeElasticProxy } from './routes/elastic';
 import zipcodes from './routes/zipcodes';
 import loadI18n from './i18n';
 import verifyJwt from './verify-jwt';
+import onerror from 'koa-onerror';
 
 export default class App extends KoaApp {
 
   constructor(...args) {
     super(...args);
+    onerror(this);
 
     this.use(serve('public'))
       .use(makeApiProxy())
