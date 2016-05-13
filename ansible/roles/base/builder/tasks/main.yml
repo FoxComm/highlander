@@ -1,5 +1,9 @@
 ---
 
+- name: Install gulp globally
+  shell: npm install gulp -g
+  sudo: true
+
 - name: Install Boot for Clojure
   shell: 'bash -c "cd /usr/local/bin && curl -fsSLo boot https://github.com/boot-clj/boot-bin/releases/download/latest/boot.sh && chmod 755 boot"'
   sudo: true
@@ -13,3 +17,8 @@
 - name: Restart Buildkite Agent
   sudo: true
   command: systemctl restart buildkite-agent
+
+
+- name: Make sure buildkite keys are available.
+  file: path="/var/lib/buildkite-agent/.ssh/id_rsa" owner=buildkite-agent group=buildkite-agent mode="600"
+  sudo: true
