@@ -38,5 +38,8 @@ object ObjectFailures {
     override def description = s"Object link with left id $left cannot be found"
   }
 
+  case class ObjectRightLinkCannotBeFound(right: Int) extends Failure {
+    override def description = s"Object link with right id $right cannot be found"
+  }
 
 }

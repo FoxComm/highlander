@@ -18,7 +18,7 @@ class ProductIntegrationTest
 
   "GET v1/products/full/:context/:id/baked" - {
     "Return a product with multiple SKUs and variants" in new Fixture {
-      val response = GET(s"v1/products/full/${context.name}/${prodForm.id}/baked")
+      val response = GET(s"v1/products/full/${context.name}/${product.formId}/baked")
       response.status must === (StatusCodes.OK)
 
       val productResponse = response.as[IlluminatedFullProductResponse.Root]
@@ -35,8 +35,8 @@ class ProductIntegrationTest
   }
 
   trait Fixture {
-    val simpleProd = SimpleProduct(title = "Test Product", code = "TEST",
-      description = "Test product description", image = "image.png")
+    val simpleProd = SimpleProductData(title = "Test Product", code = "TEST",
+      description = "Test product description", image = "image.png", price = 5999)
 
     val simpleSkus = Seq(
         SimpleSku("SKU-RED-SMALL", "A small, red item", "http://small-red.com", 9999, Currency.USD),
@@ -57,33 +57,18 @@ class ProductIntegrationTest
       ("SKU-GREEN-LARGE", "green", "large"))
 
 
-    val (context, product, prodForm, prodShadow, skus, variants) = (for {
+    val (context, product, skus, variants) = (for {
       // Create common objects.
       storeAdmin  ← * <~ StoreAdmins.create(authedStoreAdmin)
       context     ← * <~ ObjectContexts.filterByName(SimpleContext.default).one.
                           mustFindOr(ObjectContextNotFound(SimpleContext.default))
 
-      // Create the product.
-      prodForm    ← * <~ ObjectForms.create(simpleProd.create)
-      sProdShadow ← * <~ SimpleProductShadow(simpleProd)
-      prodShadow  ← * <~ ObjectShadows.create(sProdShadow.create.copy(formId = prodForm.id))
-      prodCommit  ← * <~ ObjectCommits.create(ObjectCommit(formId = prodForm.id,
-                          shadowId = prodShadow.id))
-      product     ← * <~ Products.create(Product(contextId = context.id, formId = prodForm.id,
-                          shadowId = prodShadow.id, commitId = prodCommit.id))
-
       // Create the SKUs.
-      skus        ← * <~ DbResultT.sequence(simpleSkus.map(rawSku ⇒
-        for {
-          form    ← * <~ ObjectForms.create(rawSku.create)
-          sShadow ← * <~ SimpleSkuShadow(rawSku)
-          shadow  ← * <~ ObjectShadows.create(sShadow.create.copy(formId = form.id))
-          commit  ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
-          sku     ← * <~ Skus.create(Sku(contextId = context.id, code = rawSku.code,
-                          formId = form.id, shadowId = shadow.id, commitId = commit.id))
-          _       ← * <~ ObjectLinks.create(ObjectLink(leftId = prodShadow.id,
-                          rightId = shadow.id, linkType = ObjectLink.ProductSku))
-        } yield sku))
+      skus        ← * <~ Mvp.insertSkus(context.id, simpleSkus)
+
+      // Create the product.
+      product     ← * <~ Mvp.insertProductWithExistingSkus(context.id, simpleProd, skus) 
+
 
       // Create the Variants and their Values.
       variantsAndValues ← * <~ DbResultT.sequence(variantsWithValues.map { scv ⇒
@@ -94,7 +79,7 @@ class ProductIntegrationTest
           commit  ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
           variant ← * <~ Variants.create(Variant(contextId = context.id, variantType = scv.v.name,
                           formId = form.id, shadowId = shadow.id, commitId = commit.id))
-          _       ← * <~ ObjectLinks.create(ObjectLink(leftId = prodShadow.id,
+          _       ← * <~ ObjectLinks.create(ObjectLink(leftId = product.shadowId,
                           rightId = shadow.id, linkType = ObjectLink.ProductVariant))
 
           values  ← * <~ DbResultT.sequence(scv.vs.map(variantValue ⇒
@@ -130,6 +115,6 @@ class ProductIntegrationTest
         } yield (colorLink, sizeLink)
       })
 
-    } yield (context, product, prodForm, prodShadow, skus, variantsAndValues)).runTxn().futureValue.rightVal
+    } yield (context, product, skus, variantsAndValues)).runTxn().futureValue.rightVal
   }
 }

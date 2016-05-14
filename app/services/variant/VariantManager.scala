@@ -1,6 +1,7 @@
 package services.variant
 
 import failures.GeneralFailure
+import failures.ObjectFailures._
 import failures.ProductFailures._
 import models.objects._
 import models.product._
@@ -22,7 +23,7 @@ object VariantManager {
   def findVariantForValue(variantValue: VariantValue)
     (implicit ec: EC): DbResultT[FullObject[Variant]] = for {
     link    ← * <~ ObjectLinks.findByRightAndType(variantValue.shadowId, ObjectLink.VariantValue).
-      one.mustFindOr(GeneralFailure("ST"))
+      one.mustFindOr(ObjectRightLinkCannotBeFound(variantValue.shadowId))
     variant ← * <~ mustFindVariantByContextAndShadow(variantValue.contextId, variantValue.shadowId)
   } yield variant
 

@@ -210,6 +210,43 @@ object Mvp {
       simpleProduct, simpleSku, p)
   } yield r
 
+  def insertProductWithExistingSkus(contextId: Int, p: SimpleProductData, ss: Seq[Sku]): DbResultT[Product] = for {
+    simpleProduct   ← * <~ SimpleProduct(p.title, p.description, p.image, p.code, p.active, p.tags)
+    productForm     ← * <~ ObjectForms.create(simpleProduct.create)
+    simpleShadow    ← * <~ SimpleProductShadow(simpleProduct)
+    productShadow   ← * <~ ObjectShadows.create(simpleShadow.create.
+        copy(formId = productForm.id))
+
+    productCommit   ← * <~ ObjectCommits.create(
+      ObjectCommit(formId = productForm.id, shadowId = productShadow.id))
+
+    product   ← * <~ Products.create(
+      Product(contextId = contextId, formId = productForm.id,
+        shadowId = productShadow.id, commitId = productCommit.id))
+
+    _ ← * <~ DbResultT.sequence(ss.map { s ⇒
+      for {
+        link ← * <~ ObjectLinks.create(ObjectLink(leftId = product.shadowId,
+                    rightId = s.shadowId, linkType = ObjectLink.ProductSku))
+      } yield link
+    })
+  } yield product
+
+  def insertSku(contextId: Int, s: SimpleSku): DbResultT[Sku] = for {
+    form    ← * <~ ObjectForms.create(s.create)
+    sShadow ← * <~ SimpleSkuShadow(s)
+    shadow  ← * <~ ObjectShadows.create(sShadow.create.copy(formId = form.id))
+    commit  ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
+    sku     ← * <~ Skus.create(Sku(contextId = contextId, code = s.code,
+                    formId = form.id, shadowId = shadow.id, commitId = commit.id))
+  } yield sku
+
+  def insertSkus(contextId: Int, ss: Seq[SimpleSku]): DbResultT[Seq[Sku]] = for {
+    skus ← * <~ DbResultT.sequence(ss.map(s ⇒
+      for { sku ← * <~ insertSku(contextId, s) } yield sku))
+  } yield skus
+    
+
   def insertProductIntoContext(contextId: Int, productForm: ObjectForm,
     skuForm: ObjectForm, simpleProduct: SimpleProduct, simpleSku: SimpleSku,
     p: SimpleProductData): DbResultT[SimpleProductData] = for {
