@@ -26,12 +26,12 @@ type Props = {
 };
 
 const defaultKeys = {
-  base: ['title', 'images', 'tags'],
+  base: ['title'],
   general: ['upc', 'description'],
   pricing: ['retailPrice', 'salePrice', 'unitCost'],
 };
 
-const keysToOmit = ['activeFrom', 'activeTo'];
+const keysToOmit = ['activeFrom', 'activeTo', 'tags'];
 
 export default class SkuDetails extends Component<void, Props, void> {
   static propTypes = {
