@@ -175,6 +175,13 @@ case class SimpleProductTuple(product: Product, sku: Sku,
   productForm: ObjectForm, skuForm: ObjectForm, productShadow: ObjectShadow,
   skuShadow: ObjectShadow)
 
+case class SimpleVariantData(variantId: Int, productShadowId: Int, shadowId: Int, name: String)
+
+case class SimpleVariantValueData(valueId: Int, variantShadowId: Int,
+  shadowId: Int, name: String, swatch: String )
+
+case class SimpleCompleteVariantData(v: SimpleVariantData, vs: Seq[SimpleVariantValueData])
+
 object Mvp {
   def insertProductNewContext(oldContextId: Int, contextId: Int, p: SimpleProductData)(implicit db: Database):
   DbResultT[SimpleProductData] = for {
@@ -244,7 +251,7 @@ object Mvp {
   } yield skus
 
   def insertVariant(contextId: Int, v: SimpleVariant, productShadowId: Int):
-    DbResultT[Variant] = for {
+    DbResultT[SimpleVariantData] = for {
     form    ← * <~ ObjectForms.create(v.create)
     sShadow ← * <~ SimpleVariantShadow(v)
     shadow  ← * <~ ObjectShadows.create(sShadow.create.copy(formId = form.id))
@@ -253,10 +260,11 @@ object Mvp {
                     formId = form.id, shadowId = shadow.id, commitId = commit.id))
     _       ← * <~ ObjectLinks.create(ObjectLink(leftId = productShadowId,
                     rightId = shadow.id, linkType = ObjectLink.ProductVariant))
-  } yield variant
+  } yield SimpleVariantData(variantId = variant.id, productShadowId = productShadowId,
+    shadowId = shadow.id, name = v.name)
 
   def insertVariantValue(contextId: Int, v: SimpleVariantValue, variantShadowId: Int):
-    DbResultT[VariantValue] = for {
+    DbResultT[SimpleVariantValueData] = for {
     form    ← * <~ ObjectForms.create(v.create)
     sShadow ← * <~ SimpleVariantValueShadow(v)
     shadow  ← * <~ ObjectShadows.create(sShadow.create.copy(formId = form.id))
@@ -265,7 +273,15 @@ object Mvp {
                     formId = form.id, shadowId = shadow.id, commitId = commit.id))
     _       ← * <~ ObjectLinks.create(ObjectLink(leftId = variantShadowId,
                     rightId = shadow.id, linkType = ObjectLink.VariantValue))
-  } yield value
+  } yield SimpleVariantValueData(valueId = value.id, variantShadowId = variantShadowId,
+    shadowId = shadow.id, name = v.name, swatch = v.swatch)
+
+  def insertVariantWithValues(contextId: Int, productShadowId: Int, scv: SimpleCompleteVariant):
+    DbResultT[SimpleCompleteVariantData] = for {
+    variant ← * <~ insertVariant(contextId, scv.v, productShadowId)
+    values  ← * <~ DbResultT.sequence(scv.vs.map(variantValue ⇒
+      insertVariantValue(contextId, variantValue, variant.shadowId)))
+  } yield SimpleCompleteVariantData(variant, values)
 
   def insertProductIntoContext(contextId: Int, productForm: ObjectForm,
     skuForm: ObjectForm, simpleProduct: SimpleProduct, simpleSku: SimpleSku,

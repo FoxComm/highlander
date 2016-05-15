@@ -71,25 +71,19 @@ class ProductIntegrationTest
 
       // Create the Variants and their Values.
       variantsAndValues ← * <~ DbResultT.sequence(variantsWithValues.map { scv ⇒
-        for {
-          variant ← * <~ Mvp.insertVariant(context.id, scv.v, product.shadowId)
-          values  ← * <~ DbResultT.sequence(scv.vs.map(variantValue ⇒
-            for {
-              value ← * <~ Mvp.insertVariantValue(context.id, variantValue, variant.shadowId)
-          } yield (variantValue.name, value)))
-        } yield (variant, values) } )
+        Mvp.insertVariantWithValues(context.id, product.shadowId, scv)
+      })
 
-      variants      ← * <~ variantsAndValues.map { case (variant, values) ⇒ variant }
-      variantValues ← * <~ variantsAndValues.foldLeft(Seq.empty[(String, VariantValue)]) { (acc, item) ⇒
-        val nameValuePair = item._2
-        acc ++ nameValuePair
+      variants      ← * <~ variantsAndValues.map(_.v)
+      variantValues ← * <~ variantsAndValues.foldLeft(Seq.empty[SimpleVariantValueData]) { (acc, item) ⇒
+        acc ++ item.vs
       }
 
       // Map the SKUs to the Variant Values
       skuMap ← * <~ DbResultT.sequence(skuValueMapping.map { case (code, colorName, sizeName) ⇒
         val selectedSku = skus.filter(_.code == code).head
-        val colorValue = variantValues.filter { case (n, _) ⇒ n == colorName }.map { case (_, v) ⇒ v }.head
-        val sizeValue = variantValues.filter { case (n, _) ⇒ n == sizeName }.map { case (_, v) ⇒ v }.head
+        val colorValue = variantValues.filter(_.name == colorName).head
+        val sizeValue = variantValues.filter(_.name == sizeName).head
 
         for {
           colorLink ← * <~ ObjectLinks.create(ObjectLink(leftId = selectedSku.shadowId,
