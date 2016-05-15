@@ -225,10 +225,8 @@ object Mvp {
         shadowId = productShadow.id, commitId = productCommit.id))
 
     _ ← * <~ DbResultT.sequence(ss.map { s ⇒
-      for {
-        link ← * <~ ObjectLinks.create(ObjectLink(leftId = product.shadowId,
-                    rightId = s.shadowId, linkType = ObjectLink.ProductSku))
-      } yield link
+      DbResultT(ObjectLinks.create(ObjectLink(leftId = product.shadowId,
+        rightId = s.shadowId, linkType = ObjectLink.ProductSku)))
     })
   } yield product
 
@@ -242,10 +240,32 @@ object Mvp {
   } yield sku
 
   def insertSkus(contextId: Int, ss: Seq[SimpleSku]): DbResultT[Seq[Sku]] = for {
-    skus ← * <~ DbResultT.sequence(ss.map(s ⇒
-      for { sku ← * <~ insertSku(contextId, s) } yield sku))
+    skus ← * <~ DbResultT.sequence(ss.map(s ⇒ insertSku(contextId, s)))
   } yield skus
-    
+
+  def insertVariant(contextId: Int, v: SimpleVariant, productShadowId: Int):
+    DbResultT[Variant] = for {
+    form    ← * <~ ObjectForms.create(v.create)
+    sShadow ← * <~ SimpleVariantShadow(v)
+    shadow  ← * <~ ObjectShadows.create(sShadow.create.copy(formId = form.id))
+    commit  ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
+    variant ← * <~ Variants.create(Variant(contextId = contextId, variantType = v.name,
+                    formId = form.id, shadowId = shadow.id, commitId = commit.id))
+    _       ← * <~ ObjectLinks.create(ObjectLink(leftId = productShadowId,
+                    rightId = shadow.id, linkType = ObjectLink.ProductVariant))
+  } yield variant
+
+  def insertVariantValue(contextId: Int, v: SimpleVariantValue, variantShadowId: Int):
+    DbResultT[VariantValue] = for {
+    form    ← * <~ ObjectForms.create(v.create)
+    sShadow ← * <~ SimpleVariantValueShadow(v)
+    shadow  ← * <~ ObjectShadows.create(sShadow.create.copy(formId = form.id))
+    commit  ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
+    value   ← * <~ VariantValues.create(VariantValue(contextId = contextId,
+                    formId = form.id, shadowId = shadow.id, commitId = commit.id))
+    _       ← * <~ ObjectLinks.create(ObjectLink(leftId = variantShadowId,
+                    rightId = shadow.id, linkType = ObjectLink.VariantValue))
+  } yield value
 
   def insertProductIntoContext(contextId: Int, productForm: ObjectForm,
     skuForm: ObjectForm, simpleProduct: SimpleProduct, simpleSku: SimpleSku,

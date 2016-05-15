@@ -67,31 +67,15 @@ class ProductIntegrationTest
       skus        ← * <~ Mvp.insertSkus(context.id, simpleSkus)
 
       // Create the product.
-      product     ← * <~ Mvp.insertProductWithExistingSkus(context.id, simpleProd, skus) 
-
+      product     ← * <~ Mvp.insertProductWithExistingSkus(context.id, simpleProd, skus)
 
       // Create the Variants and their Values.
       variantsAndValues ← * <~ DbResultT.sequence(variantsWithValues.map { scv ⇒
         for {
-          form    ← * <~ ObjectForms.create(scv.v.create)
-          sShadow ← * <~ SimpleVariantShadow(scv.v)
-          shadow  ← * <~ ObjectShadows.create(sShadow.create.copy(formId = form.id))
-          commit  ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
-          variant ← * <~ Variants.create(Variant(contextId = context.id, variantType = scv.v.name,
-                          formId = form.id, shadowId = shadow.id, commitId = commit.id))
-          _       ← * <~ ObjectLinks.create(ObjectLink(leftId = product.shadowId,
-                          rightId = shadow.id, linkType = ObjectLink.ProductVariant))
-
+          variant ← * <~ Mvp.insertVariant(context.id, scv.v, product.shadowId)
           values  ← * <~ DbResultT.sequence(scv.vs.map(variantValue ⇒
             for {
-              form    ← * <~ ObjectForms.create(variantValue.create)
-              sShadow ← * <~ SimpleVariantValueShadow(variantValue)
-              shadow  ← * <~ ObjectShadows.create(sShadow.create.copy(formId = form.id))
-              commit  ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
-              value   ← * <~ VariantValues.create(VariantValue(contextId = context.id,
-                              formId = form.id, shadowId = shadow.id, commitId = commit.id))
-              _       ← * <~ ObjectLinks.create(ObjectLink(leftId = variant.shadowId,
-                              rightId = shadow.id, linkType = ObjectLink.VariantValue))
+              value ← * <~ Mvp.insertVariantValue(context.id, variantValue, variant.shadowId)
           } yield (variantValue.name, value)))
         } yield (variant, values) } )
 
