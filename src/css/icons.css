@@ -20,4 +20,10 @@
 :global(.icon--fc-payment-jsb) {
   width: 44px;
   height: 30px;
+  stroke: none;
+}
+
+:global(.icon--fc-cvv-visa),
+:global(.icon--fc-cvv-amex) {
+  stroke: none;
 }

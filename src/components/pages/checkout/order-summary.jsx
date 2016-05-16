@@ -27,9 +27,24 @@ const OrderSummary = props => {
     );
   };
 
+  const renderCoupon = (amount) => {
+    return (
+      <li>
+        <TermValueLine>
+          <span>{t('PROMO CODE')}</span>
+          <span>- &nbsp;<Currency value={amount} /></span>
+        </TermValueLine>
+      </li>
+    );
+  };
+
   const giftCardPresent = _.some(props.paymentMethods, {type: 'giftCard'});
   const giftCardAmount = _.get(_.find(props.paymentMethods, {type: 'giftCard'}), 'amount', 0);
   const giftCardBlock = giftCardPresent ? renderGiftCard(giftCardAmount) : null;
+
+  const couponAmount = _.get(props, 'totals.adjustments');
+  const couponPresent = _.isNumber(couponAmount) && couponAmount > 0;
+  const couponBlock = couponPresent ? renderCoupon(couponAmount) : null;
 
   const grandTotal = giftCardPresent ? props.totals.total - giftCardAmount : props.totals.total;
   const grandTotalResult = grandTotal > 0 ? grandTotal : 0;
@@ -70,6 +85,7 @@ const OrderSummary = props => {
           </TermValueLine>
         </li>
         {giftCardBlock}
+        {couponBlock}
       </ul>
       <TermValueLine styleName="grand-total">
         <span>{t('GRAND TOTAL')}</span>

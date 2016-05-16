@@ -100,6 +100,14 @@
 
 .payment-icon {
   vertical-align: middle;
+  width: 44px;
+  height: 30px;
+  margin-top: -3px;
+  margin-right: 4px;
+}
+
+.payment-input {
+  padding-right: 64px;
 }
 
 .payment-card-info {
@@ -130,12 +138,40 @@
   width: 100%;
   height: 55px;
   border: 1px solid var(--whitish);
-  margin-bottom: 5px;
 }
 
 .gift-card-submit {
   composes: button from "ui/css/buttons.css";
-  width: auto;
+  width: 100px;
+  height: 55px;
+  background: var(--whitish);
+  border: 1px solid var(--blackish);
+  font-size: 14px;
+  color: var(--blackish);
+  line-height: 17px;
+  text-transform: uppercase;
+}
+
+.coupon-content {
+  composes: checkout-block-content;
+  display: flex;
+}
+
+.coupon-code-field {
+  flex-grow: 1;
+}
+
+.coupon-code {
+  composes: text-input from "ui/css/input.css";
+  width: 100%;
+  height: 55px;
+  border: 1px solid var(--whitish);
+}
+
+.coupon-submit {
+  composes: button from "ui/css/buttons.css";
+  width: 100px;
+  height: 55px;
   background: var(--whitish);
   border: 1px solid var(--blackish);
   font-size: 14px;
