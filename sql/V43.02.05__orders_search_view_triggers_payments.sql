@@ -22,15 +22,18 @@ begin
   end case;
 
   update orders_search_view_test set
-    payments = (select
+    (payments,credit_card_count,credit_card_total) = (select
       case when count(op) = 0
       then
           '[]'
       else
           json_agg((op.payment_method_type, op.amount, op.currency, ccp.state, gcc.state, sca.state)::export_payments)
-      end as payments
+      end as payments,
+      count(opc.id) as credit_card_count,
+      coalesce(sum(opc.amount), 0) as credit_card_total
       from orders as o
       left join order_payments as op on (o.id = op.order_id)
+      left join order_payments as opc on (o.id = opc.order_id and opc.payment_method_type = 'creditCard')
       left join credit_card_charges as ccp on (op.id = ccp.order_payment_id)
       left join gift_card_adjustments as gcc on (op.id = gcc.order_payment_id)
       left join store_credit_adjustments as sca on (op.id = sca.order_payment_id)
@@ -60,5 +63,3 @@ create trigger update_orders_view_from_line_items
     after update or insert on store_credit_adjustments
     for each row
     execute procedure update_orders_view_from_payments_fn();
-
-
