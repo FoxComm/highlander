@@ -5,7 +5,6 @@ import React, { PropTypes, Component } from 'react';
 
 import TableRow from './row';
 import TableCell from './cell';
-import WaitAnimation from '../common/wait-animation';
 
 export default class TableBody extends Component {
 
@@ -19,22 +18,13 @@ export default class TableBody extends Component {
     predicate: PropTypes.func,
     processRows: PropTypes.func,
     detectNewRows: PropTypes.bool,
-    emptyMessage: PropTypes.string,
-    errorMessage: PropTypes.string,
-    isLoading: PropTypes.bool,
-    failed: PropTypes.bool,
-    showLoadingOnMount: PropTypes.bool,
+    children: PropTypes.node,
   };
 
   static defaultProps = {
     predicate: entity => entity.id,
     processRows: _.identity,
     detectNewRows: false,
-    emptyMessage: '',
-    errorMessage: '',
-    isLoading: false,
-    failed: false,
-    showLoadingOnMount: true,
   };
 
   state = {
@@ -72,41 +62,7 @@ export default class TableBody extends Component {
     }
   }
 
-  message(message) {
-    return (
-      <tr>
-        <td colSpan={this.props.columns.length}>
-          <div className="fc-content-box__empty-row">
-            {message}
-          </div>
-        </td>
-      </tr>
-    );
-  }
-
-  get loadingAnimation() {
-    return (
-      <tr>
-        <td colSpan={this.props.columns.length}>
-          <div className="fc-content-box__empty-row">
-            <WaitAnimation />
-          </div>
-        </td>
-      </tr>
-    );
-  }
-
   get tableRows() {
-    const showLoading = this.props.showLoadingOnMount && this.props.isLoading === null || this.props.isLoading;
-
-    if (showLoading) {
-      return this.loadingAnimation;
-    } else if (this.props.failed && this.props.errorMessage) {
-      return this.message(this.props.errorMessage);
-    } else if (_.isEmpty(this.props.rows) && this.props.emptyMessage) {
-      return this.message(this.props.emptyMessage);
-    }
-
     const renderRow = this.props.renderRow || this.defaultRenderRow;
 
     return flatMap(this.props.rows, ((row, index) => {
@@ -119,9 +75,11 @@ export default class TableBody extends Component {
   }
 
   render() {
+    const { children } = this.props;
+    const rows = _.isEmpty(children) ? this.tableRows : React.Children.toArray(children);
     return (
       <tbody className="fc-table-tbody">
-        {this.props.processRows(this.tableRows, this.props.columns)}
+        {this.props.processRows(rows, this.props.columns)}
       </tbody>
     );
   }

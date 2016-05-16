@@ -1,16 +1,50 @@
+import _ from 'lodash';
 import React, { PropTypes } from 'react';
-import TableHead from './head';
-import TableBody from './body';
-
 import classNames from 'classnames';
 
+import TableHead from './head';
+import TableBody from './body';
+import WaitAnimation from '../common/wait-animation';
+
+export function tableMessage(message, props) {
+  return (
+    <TableBody {...props}>
+      <tr>
+        <td colSpan={props.columns.length}>
+          <div className="fc-content-box__empty-row">
+            {message}
+          </div>
+        </td>
+      </tr>
+    </TableBody>
+  );
+}
+
+function edgeCases(props, rows) {
+  const showLoading = props.showLoadingOnMount && props.isLoading === null || props.isLoading;
+
+  if (showLoading) {
+    return tableMessage(<WaitAnimation />, props);
+  } else if (props.failed && props.errorMessage) {
+    return tableMessage(props.errorMessage, props);
+  } else if (_.isEmpty(rows) && props.emptyMessage) {
+    return tableMessage(props.emptyMessage, props);
+  }
+}
+
+function renderBody(props, rows) {
+  return <TableBody {...props} rows={rows} />;
+}
+
 const Table = props => {
-  const {data, setState, renderRow, className, ...rest} = props;
+  const {data, setState, className, renderBody, ...rest} = props;
+
+  const body = edgeCases(rest, data.rows) || renderBody(rest, data.rows);
 
   return (
     <table className={classNames('fc-table', className)}>
       <TableHead {...rest} sortBy={data.sortBy} setState={setState}/>
-      <TableBody {...rest} rows={data.rows} renderRow={renderRow}/>
+      {body}
     </table>
   );
 };
@@ -18,6 +52,7 @@ const Table = props => {
 Table.propTypes = {
   data: PropTypes.object.isRequired,
   renderRow: PropTypes.func,
+  renderBody: PropTypes.func,
   setState: PropTypes.func,
   predicate: PropTypes.func,
   processRows: PropTypes.func,
@@ -27,6 +62,7 @@ Table.propTypes = {
   emptyMessage: PropTypes.string,
   errorMessage: PropTypes.string,
   className: PropTypes.string,
+  showLoadingOnMount: PropTypes.bool,
 };
 
 Table.defaultProps = {
@@ -37,8 +73,12 @@ Table.defaultProps = {
     size: 0,
     total: 0
   },
+  showLoadingOnMount: true,
+  isLoading: false,
+  failed: false,
   errorMessage: 'An error occurred. Try again later.',
   emptyMessage: 'No data found.',
+  renderBody,
 };
 
 export default Table;

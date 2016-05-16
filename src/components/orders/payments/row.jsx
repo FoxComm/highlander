@@ -1,7 +1,7 @@
 /* @flow */
 
 import _ from 'lodash';
-import React, { PropTypes, Element } from 'react';
+import React, { Component, PropTypes, Element } from 'react';
 
 import styles from './payments.css';
 
@@ -19,50 +19,73 @@ type Props = {
   amount: number;
   details: Element;
   showDetails: boolean;
-  even: boolean;
   toggleDetails: Function;
   editAction: Function;
   deleteAction: Function;
   paymentMethod: Object;
 }
 
-const PaymentRow = (props: Props) => {
-  const editAction = props.editMode ? (
-      <TableCell>
-        <EditButton onClick={props.editAction} />
-        <DeleteButton onClick={props.deleteAction} />
-      </TableCell>
-    ) : null;
-  const trClass = props.even ? 'even' : null;
+export default class PaymentRow extends Component {
+  props: Props;
 
-  const amount = _.isNumber(props.amount) ? <Currency value={props.amount} /> : null;
-  const detailsRow = props.showDetails ? (
-    <TableRow className={trClass} styleName="details-row">
-      <TableCell colspan={5}>
-        {props.details}
-      </TableCell>
-    </TableRow>
-  ) : null;
+  get editAction() {
+    if (this.props.editMode) {
+      return (
+        <TableCell>
+          <EditButton onClick={this.props.editAction} />
+          <DeleteButton onClick={this.props.deleteAction} />
+        </TableCell>
+      );
+    }
+  }
 
-  const nextDetailAction = props.showDetails ? 'up' : 'down';
+  get amount() {
+    const { amount } = this.props;
+    return _.isNumber(amount) ? <Currency value={amount} /> : null;
+  }
 
-  return [
-    <TableRow className={trClass} styleName="payment-row">
-      <TableCell>
-        <i styleName="row-toggle" className={`icon-chevron-${nextDetailAction}`} onClick={props.toggleDetails} />
-        <PaymentMethod paymentMethod={props.paymentMethod} />
-      </TableCell>
-      <TableCell>
-        {amount}
-      </TableCell>
-      <TableCell></TableCell>
-      <TableCell>
-        <DateTime value={props.paymentMethod.createdAt}></DateTime>
-      </TableCell>
-      {editAction}
-    </TableRow>,
-    detailsRow
-  ];
+  get detailsRow() {
+    if (this.props.showDetails) {
+      return (
+        <TableRow styleName="details-row">
+          <TableCell colspan={5}>
+            {this.props.details}
+          </TableCell>
+        </TableRow>
+      );
+    }
+  }
+
+  get summaryRow() {
+    const { props } = this;
+    const nextDetailAction = props.showDetails ? 'up' : 'down';
+
+    return (
+      <TableRow styleName="payment-row">
+        <TableCell>
+          <i styleName="row-toggle" className={`icon-chevron-${nextDetailAction}`} onClick={props.toggleDetails} />
+          <PaymentMethod paymentMethod={props.paymentMethod} />
+        </TableCell>
+        <TableCell>
+          {this.amount}
+        </TableCell>
+        <TableCell></TableCell>
+        <TableCell>
+          <DateTime value={props.paymentMethod.createdAt}></DateTime>
+        </TableCell>
+        {this.editAction}
+      </TableRow>
+    );
+  }
+
+  render() {
+    return (
+      <tbody>
+        {this.summaryRow}
+        {this.detailsRow}
+      </tbody>
+    );
+  }
 };
 
 export default PaymentRow;

@@ -32,7 +32,7 @@ const GiftCard = props => {
     ...props,
   };
 
-  return PaymentRow(params);
+  return <PaymentRow {...params} />;
 };
 
 GiftCard.propTypes = {

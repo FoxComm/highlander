@@ -30,7 +30,7 @@ const CreditCard = props => {
     ...props,
   };
 
-  return PaymentRow(params);
+  return <PaymentRow {...params} />;
 };
 
 CreditCard.propTypes = {

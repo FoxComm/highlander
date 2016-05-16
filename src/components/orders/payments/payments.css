@@ -63,7 +63,7 @@
   background: #fff;
   border-bottom: 0;
 }
-:global .fc-table tbody tr.even {
+:global .fc-table tbody:nth-child(even) tr {
   background: #f7f7f7;
 }
 

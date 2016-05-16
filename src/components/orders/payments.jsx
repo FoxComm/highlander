@@ -64,31 +64,31 @@ export default class Payments extends React.Component {
     return _.get(this.props, 'order.currentOrder.customer.id');
   }
 
-  get viewContent() {
-    const paymentMethods = this.props.order.currentOrder.paymentMethods;
+  get paymentMethods() {
+    return this.props.order.currentOrder.paymentMethods;
+  }
 
-    if (_.isEmpty(paymentMethods)) {
+  get viewContent() {
+    if (_.isEmpty(this.paymentMethods)) {
       return <div className="fc-content-box__empty-text">No payment method applied.</div>;
     } else {
       return (
         <TableView
           columns={viewColumns}
-          data={{rows: paymentMethods}}
-          renderRow={this.renderRow(false)} />
+          data={{rows: this.paymentMethods}}
+          renderBody={this.renderBody(false)}
+        />
       );
     }
   }
 
   get editContent() {
-    const paymentMethods = this.props.order.currentOrder.paymentMethods;
-
     return (
       <TableView
         columns={editColumns}
-        data={{rows: paymentMethods}}
-        processRows={this.processRows}
+        renderBody={this.renderBody(true)}
+        data={{rows: this.paymentMethods}}
         emptyMessage="No payment method applied."
-        renderRow={this.renderRow(true)}
       />
     );
   }
@@ -104,18 +104,34 @@ export default class Payments extends React.Component {
     this.props.orderPaymentMethodStopEdit();
   }
 
-  @autobind
-  processRows(rows) {
-    if (this.props.payments.isAdding) {
-      const order = _.get(this.props, 'order.currentOrder');
-      return [
-        <NewPayment order={order} customerId={this.currentCustomerId} />,
-        ...rows
-      ];
-    }
+  get newPayment() {
+    const order = _.get(this.props, 'order.currentOrder');
 
-    return rows;
+    return (
+      <tbody>
+        <NewPayment order={order} customerId={this.currentCustomerId} />
+      </tbody>
+    );
   }
+
+  @autobind
+  renderBody(editMode) {
+    return (props) => {
+      let rows = this.paymentMethods.map(row => {
+        return this.renderRow(editMode, row);
+      });
+
+      if (editMode && this.props.payments.isAdding) {
+        rows = [
+          this.newPayment,
+          ...rows
+        ];
+      }
+
+      return rows;
+    };
+  }
+
 
   getRowRenderer(type) {
     switch(type) {
@@ -128,30 +144,27 @@ export default class Payments extends React.Component {
     }
   }
 
-  @autobind
-  renderRow(editMode) {
-    return (row, index) => {
-      const even = index % 2 == 0;
-      const id = row.id || row.code;
-      const renderer = this.getRowRenderer(row.type);
+  renderRow(editMode, row) {
+    const id = row.id || row.code;
+    const Renderer = this.getRowRenderer(row.type);
 
-      return renderer({
-        paymentMethod: row,
-        editMode,
-        even,
-        customerId: this.currentCustomerId,
-        ...this.props,
-        showDetails: this.state.showDetails[id],
-        toggleDetails: () => {
-          this.setState({
-            showDetails: {
-              ...this.state.showDetails,
-              [id]: !this.state.showDetails[id],
-            }
-          });
-        }
-      });
+    const props = {
+      paymentMethod: row,
+      editMode,
+      customerId: this.currentCustomerId,
+      ...this.props,
+      showDetails: this.state.showDetails[id],
+      toggleDetails: () => {
+        this.setState({
+          showDetails: {
+            ...this.state.showDetails,
+            [id]: !this.state.showDetails[id],
+          }
+        });
+      }
     };
+
+    return <Renderer {...props} />;
   };
 
   render() {

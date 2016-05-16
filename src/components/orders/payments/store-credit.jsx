@@ -32,7 +32,7 @@ const StoreCredit = props => {
     ...props,
   };
 
-  return PaymentRow(params);
+  return <PaymentRow {...params} />;
 };
 
 StoreCredit.propTypes = {
