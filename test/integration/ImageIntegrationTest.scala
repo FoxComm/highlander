@@ -82,6 +82,7 @@ class ImageIntegrationTest
         response.status must === (StatusCodes.OK)
 
         val albumResponse = response.as[AlbumResponse.Root]
+        albumResponse.name must === ("now-empty album")
         albumResponse.images.length must === (0)
       }
     }
