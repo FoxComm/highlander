@@ -1,8 +1,19 @@
 ---
 
 - name: Gatling Seed Db
-  shell: java -cp {{phoenix_jar}} {{gatling_seeds_cmd}}
+  shell: java -cp {{phoenix_jar}} {{gatling_oneshot_seeds_cmd}}
   sudo: true
   args:
     chdir: "{{phoenix_dir}}"
 
+- name: Copy Service
+  template: src=seeder.service dest="{{dest_services}}/seeder.service"
+  sudo: true
+
+- name: Reload Systemd for Seeder
+  sudo: yes
+  command: systemctl daemon-reload
+
+- name: Restart Seeder
+  service: name=seeder state=restarted enabled=yes
+  sudo: true
