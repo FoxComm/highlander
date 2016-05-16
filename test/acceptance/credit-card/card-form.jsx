@@ -3,7 +3,7 @@ import ShallowTestUtils from 'react-shallow-testutils';
 
 describe('CreditCardForm', function() {
 
-  const CreditCardForm = requireComponent('credit-cards/card-form.jsx');
+  const CreditCardForm = requireComponent('credit-cards/card-form.jsx').WrappedComponent;
 
   let form;
 
