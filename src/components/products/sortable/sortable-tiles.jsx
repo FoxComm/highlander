@@ -83,6 +83,10 @@ class SortableTiles extends Component {
   }
 
   componentWillUnmount(): void {
+    window.removeEventListener('touchmove', this.handleTouchMove);
+    window.removeEventListener('mousemove', this.handleMouseMove);
+    window.removeEventListener('touchend', this.handleMouseUp);
+    window.removeEventListener('mouseup', this.handleMouseUp);
     window.removeEventListener('resize', this.handleResize);
   }
 

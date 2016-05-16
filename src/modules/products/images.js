@@ -1,6 +1,6 @@
 import createImages from '../images';
 
-const { actions, reducer } = createImages('images', 'products');
+const { actions, reducer } = createImages('products');
 
 export {
   actions,

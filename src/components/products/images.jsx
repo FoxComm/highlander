@@ -25,33 +25,36 @@ import BulkMessages from '../bulk-actions/bulk-messages';
 
 import SortableTiles from './sortable/sortable-tiles';
 
-// helpers
-import { getProductAttributes, setProductAttribute } from '../../paragons/product';
-
 // types
-import type { Image, ImageInfo } from '../../modules/images';
-import type { FullProduct } from '../../modules/products/details';
+import type { Album, Image, ImageInfo } from '../../modules/images';
 
 type Props = {
-  product: FullProduct;
-  fetch: (id: number|string) => void;
-  editImage: (album: string, idx: number, info: any) => void;
-  deleteImage: (album: string, idx: number) => void;
-  editAlbum: (albumName: string, newName: string) => void;
-  deleteAlbum: (album: string) => void;
+  albums: Array<Album>;
   list: any;
   isLoading: boolean;
+  addAlbumInProgress: boolean;
+  editAlbumInProgress: boolean;
   isImageLoading: (idx: number) => boolean;
+
+  uploadImage: (context: string, albumId: number, file: any) => Promise;
+  editImage: (album: string, idx: number, info: any) => Promise;
+  deleteImage: (album: string, idx: number) => Promise;
+  fetchAlbums: (context: string, entityId: number) => Promise;
+  addAlbum: (context: string, entityId: number, album: Album) => Promise;
+  editAlbum: (context: string, albumId: number, album: Album) => Promise;
+  deleteAlbum: (context: string, albumId: number) => Promise;
 };
 
 type State = {
   files: Array<any>;
+  newAlbumMode: boolean;
+  addImagesMode: boolean;
+  editAlbumMode: boolean;
   isEditImageDialogVisible: boolean;
   isDeleteImageDialogVisible: boolean;
-  isEditAlbumVisible: boolean;
   isDeleteAlbumDialogVisible: boolean;
   selectedImage?: SelectedImage;
-  selectedAlbum?: string;
+  selectedAlbumId?: number;
 }
 
 type SelectedImage = {
@@ -64,24 +67,24 @@ class ProductImages extends Component<void, Props, State> {
 
   state: State = {
     files: [],
+    newAlbumMode: false,
+    addImagesMode: false,
+    editAlbumMode: false,
     isEditImageDialogVisible: false,
     isDeleteImageDialogVisible: false,
-    isEditAlbumVisible: false,
     isDeleteAlbumDialogVisible: false,
     selectedImage: void 0,
-    selectedAlbum: void 0,
+    selectedAlbumId: void 0,
   };
 
-  componentDidMount() {
-    const id = this.props.product.form.product.id;
+  componentDidMount(): void {
+    const { context, productId } = this.props.params;
 
-    if (id) {
-      this.props.fetch(id);
-    }
+    this.props.fetchAlbums(context, productId);
   }
 
   @autobind
-  handleEditImage(selectedImage: SelectedImage) {
+  handleEditImage(selectedImage: SelectedImage): void {
     this.setState({
       selectedImage,
       isEditImageDialogVisible: true,
@@ -89,7 +92,7 @@ class ProductImages extends Component<void, Props, State> {
   }
 
   @autobind
-  handleCancelEditImage() {
+  handleCancelEditImage(): void {
     this.setState({
       selectedImage: void 0,
       isEditImageDialogVisible: false,
@@ -97,7 +100,7 @@ class ProductImages extends Component<void, Props, State> {
   }
 
   @autobind
-  handleRemoveImage(selectedImage: SelectedImage) {
+  handleDeleteImage(selectedImage: SelectedImage): void {
     this.setState({
       selectedImage,
       isDeleteImageDialogVisible: true,
@@ -105,43 +108,98 @@ class ProductImages extends Component<void, Props, State> {
   }
 
   @autobind
-  handleCancelRemoveImage() {
+  handleAddAlbum() {
     this.setState({
-      selectedImage: void 0,
-      isDeleteImageDialogVisible: false,
+      newAlbumMode: true,
     });
   }
 
   @autobind
-  handleEditAlbum(selectedAlbum: string) {
+  handleAddImages(selectedAlbumId: number) {
+    if (!this.state.addImagesMode) {
+      this.setState({
+        selectedAlbumId,
+        addImagesMode: true,
+      });
+    } else {
+      this.setState({
+        selectedAlbumId: void 0,
+        addImagesMode: false,
+      });
+    }
+  }
+
+  @autobind
+  handleEditAlbum(selectedAlbumId: number): void {
     this.setState({
-      selectedAlbum,
-      isEditAlbumVisible: true,
+      selectedAlbumId,
+      editAlbumMode: true,
     });
   }
 
   @autobind
-  handleCancelEditAlbum() {
+  handleCancelEditAlbum(): void {
     this.setState({
-      selectedAlbum: void 0,
-      isEditAlbumVisible: false,
+      editAlbumMode: false,
+      selectedAlbumId: void 0,
+      newAlbumMode: false,
     });
   }
 
   @autobind
-  handleRemoveAlbum(selectedAlbum: string) {
+  handleEditAlbumComplete(name: string): void {
+    const { context, productId } = this.props.params;
+
+    if (!name.length) {
+      return this.handleCancelEditAlbum();
+    }
+
+    if (this.state.newAlbumMode) {
+      this.props.addAlbum(context, productId, { name }).then(this.handleCancelEditAlbum);
+    } else {
+      const album = this.album;
+      album.name = name;
+
+      this.props.editAlbum(context, album.id, album).then(this.handleCancelEditAlbum);
+    }
+  }
+
+  @autobind
+  handleDeleteAlbum(selectedAlbumId: number): void {
     this.setState({
-      selectedAlbum,
+      selectedAlbumId,
       isDeleteAlbumDialogVisible: true,
     });
   }
 
   @autobind
-  handleCancelRemoveAlbum() {
+  handleCancelDeleteAlbum(): void {
     this.setState({
-      selectedAlbum: void 0,
+      selectedAlbumId: void 0,
       isDeleteAlbumDialogVisible: false,
     });
+  }
+
+  @autobind
+  handleConfirmDeleteAlbum(): void {
+    const { selectedAlbumId } = this.state;
+
+    if (selectedAlbumId === void 0) {
+      return;
+    }
+
+    const { context } = this.props.params;
+
+    this.props.deleteAlbum(context, this.album.id);
+
+    this.setState({
+      isDeleteAlbumDialogVisible: false,
+      selectedAlbumId: void 0,
+    });
+  }
+
+  get album(): Album {
+    return this.props.albums.find((album:Album) => album.id === this.state.selectedAlbumId);
   }
 
   get bulkActions(): Array<Array<any>> {
@@ -150,14 +208,6 @@ class ProductImages extends Component<void, Props, State> {
       ['Move to a different album', _.noop, 'successfully moved', 'could not be moved'],
       ['Delete', _.noop, 'successfully deleted', 'could not be deleted'],
     ];
-  }
-
-  get emptyContainer(): Element {
-    return (
-      <div className="fc-product-details__upload-empty">
-        <i className="icon-upload" /> Drag & Drop to upload or click here
-      </div>
-    );
   }
 
   get deleteImageDialog(): ?Element {
@@ -179,13 +229,9 @@ class ProductImages extends Component<void, Props, State> {
           }
           const { image, idx } = this.state.selectedImage;
 
-          this.setState(
-            {
-              isDeleteImageDialogVisible: false,
-              // selectedImage: void 0,
-             },
-            () => this.props.deleteImage(image.album, idx)
-          );
+          this.props.deleteImage(image.album, idx);
+
+          this.setState({ isDeleteImageDialogVisible: false });
         }} />
     );
   }
@@ -208,29 +254,25 @@ class ProductImages extends Component<void, Props, State> {
 
           const { image, idx } = this.state.selectedImage;
 
-          this.setState(
-            { isEditImageDialogVisible: false },
-            () => this.props.editImage(image.album, idx, form)
-          );
+          this.props.editImage(image.album, idx, form)
+
+          this.setState({ isEditImageDialogVisible: false });
         }} />
     );
   }
 
   get deleteAlbumDialog(): ?Element {
-    const { selectedAlbum } = this.state;
-
-    if (!selectedAlbum) {
+    if (this.state.selectedAlbumId === void 0) {
       return;
     }
 
-    const imageCount = this.props.list[selectedAlbum].length;
     const body = (
       <div>
         <Alert type="warning">
-          Deleting this album will delete <strong>{imageCount} images</strong> from the product.
+          Deleting this album will delete <strong>{this.album.images.length} images</strong> from the product.
         </Alert>
         <span>
-          Are you sure you want to delete <strong>{selectedAlbum}</strong> album?
+          Are you sure you want to delete <strong>{this.album.name}</strong> album?
         </span>
       </div>
     );
@@ -242,20 +284,8 @@ class ProductImages extends Component<void, Props, State> {
         body={body}
         cancel='Cancel'
         confirm='Yes, Delete'
-        cancelAction={this.handleCancelRemoveAlbum}
-        confirmAction={() => {
-          if (!selectedAlbum) {
-            return;
-          }
-
-          this.setState(
-            {
-              isDeleteAlbumDialogVisible: false,
-              selectedAlbum: void 0,
-            },
-            () => this.props.deleteAlbum(selectedAlbum)
-          );
-        }} />
+        cancelAction={this.handleCancelDeleteAlbum}
+        confirmAction={this.handleConfirmDeleteAlbum} />
     );
   }
 
@@ -271,31 +301,67 @@ class ProductImages extends Component<void, Props, State> {
     return [
       { name: 'external-link', handler: actionsHandler(() => window.open(selectedImage.image.src)) },
       { name: 'edit', handler: actionsHandler(() => this.handleEditImage(selectedImage)) },
-      { name: 'trash', handler: actionsHandler(() => this.handleRemoveImage(selectedImage)) },
+      { name: 'trash', handler: actionsHandler(() => this.handleDeleteImage(selectedImage)) },
     ];
   }
 
   @autobind
-  getAlbumActions(selectedAlbum: string): Array<any> {
+  getAlbumActions(selectedAlbumId: id): Array<any> {
     return [
-      { name: 'edit', handler: () => this.handleEditAlbum(selectedAlbum) },
-      { name: 'trash', handler: () => this.handleRemoveAlbum(selectedAlbum) },
+      { name: 'add', handler: () => this.handleAddImages(selectedAlbumId) },
+      { name: 'edit', handler: () => this.handleEditAlbum(selectedAlbumId) },
+      { name: 'trash', handler: () => this.handleDeleteAlbum(selectedAlbumId) },
     ];
   }
 
   @autobind
   onAddFile(res: any): void {
-    const newFile = {
+    const file = {
       id: guid(),
       name: res.file.name,
       size: res.file.size,
       altText: '',
       caption: '',
       file: res.file,
-      url: res.imageUrl
+      src: res.src
     };
 
-    this.setState({ files: [...this.state.files, newFile] });
+    this.setState(
+      { files: [...this.state.files, file] },
+      () => this.props.uploadImage(this.props.params.context, this.album.id, file)
+    );
+  }
+
+  get dropzone() {
+    const { newAlbumMode, files } = this.state;
+    const { addAlbumInProgress } = this.props;
+
+    if (!newAlbumMode && !addAlbumInProgress) {
+      return;
+    }
+
+    return (
+      <div className="fc-grid fc-grid-no-gutter">
+        <div className="fc-col-md-1-1">
+          <Accordion
+            placeholder="New album"
+            editMode={newAlbumMode}
+            loading={addAlbumInProgress}
+            onEditComplete={this.handleEditAlbumComplete}
+            onEditCancel={this.handleCancelEditAlbum}
+            key="new-album"
+          >
+            <Upload onDrop={this.onAddFile}>
+              {files.map((file, i) => {
+                return <ImageCard src={file.src} key={i}
+                                  title={file.name}
+                                  secondaryTitle={`Uploaded ${moment().format('MM/DD/YYYY HH: mm')}`} />;
+              })}
+            </Upload>
+          </Accordion>
+        </div>
+      </div>
+    );
   }
 
   render(): Element {
@@ -314,7 +380,7 @@ class ProductImages extends Component<void, Props, State> {
                            allChecked={false}
                            toggledIds={[]}
                            total={0} />
-          <AddButton>Album</AddButton>
+          <AddButton onClick={this.handleAddAlbum}>Album</AddButton>
         </div>
         {/**
          <div className="fc-grid fc-grid-no-gutter">
@@ -323,56 +389,71 @@ class ProductImages extends Component<void, Props, State> {
          </div>
          </div>
          */}
-        <div className="fc-grid fc-grid-no-gutter">
-          <div className="fc-col-md-1-1">
-            <Upload onDrop={this.onAddFile}>
-              {this.state.files.length ?
-                this.state.files.map((file, i) => {
-                  return <ImageCard src={file.url} key={i}
-                                    title={file.name}
-                                    secondaryTitle={`Uploaded ${moment().format('MM/DD/YYYY HH: mm')}`} />;
-                }) : this.emptyContainer}
-            </Upload>
-          </div>
-        </div>
-        {_.values(_.mapValues(this.props.list, this.renderAlbum))}
+            {this.dropzone}
+        {_.values(_.map(this.props.albums, this.renderAlbum))}
       </div>
     );
   }
 
   @autobind
-  renderAlbum(images: Array<Image>, albumName: string): Element {
+  renderAlbum(album: Album): Element {
+    const { selectedAlbumId, addImagesMode, editAlbumMode } = this.state;
+    const { editAlbumInProgress } = this.props;
+
+    const activeAlbum = selectedAlbumId === album.id;
+    const addMode = activeAlbum && addImagesMode;
+    const editTitleMode = activeAlbum && editAlbumMode;
+    const loading = activeAlbum && editAlbumInProgress;
+
+    const files = album ? [...album.images, ...this.state.files] : this.state.files;
+
+    let accordionContent;
+
+    if (addMode) {
+      accordionContent = (
+        <Upload onDrop={this.onAddFile}>
+          {files.map((file, i) => {
+            return <ImageCard src={file.src}
+                              key={i}
+                              title={file.name}
+                              secondaryTitle={`Uploaded ${moment().format('MM/DD/YYYY HH: mm')}`} />;
+          })}
+        </Upload>
+      );
+    } else {
+      accordionContent = (
+        <SortableTiles itemWidth={298} itemHeight={372} gutter={10}>
+          {album.images.map((image:Image, idx:number) => {
+            return (
+              <ImageCard
+                src={`${image.src}`}
+                title={image.title}
+                secondaryTitle={`Uploaded ${image.du || moment().format('MM/DD/YYYY HH: mm')}`}
+                actions={this.getImageActions({image, idx})}
+                loading={image.inProgress}
+                key={image.id}
+              />
+            );
+          })}
+        </SortableTiles>
+      );
+    }
+
     return (
-      <div className="fc-grid fc-grid-no-gutter" key={albumName}>
+      <div className="fc-grid fc-grid-no-gutter" key={album.id}>
         <div className="fc-col-md-1-1">
           <Accordion
-            title={albumName}
-            titleWrapper={(title: string) => this.renderTitle(title, images.length)}
-            placeholder="New album"
-            editMode={this.state.isEditAlbumVisible && this.state.selectedAlbum == albumName}
-            onEditComplete={(newTitle: string) => {
-              this.setState({
-                isEditAlbumVisible: false,
-                selectedAlbum: void 0,
-              }, this.props.editAlbum(albumName, newTitle));
-            }}
-            onEditCancel={() => this.setState({isEditAlbumVisible: false, selectedAlbum: void 0})}
-            actions={this.getAlbumActions(albumName)}
+            title={album.name}
+            titleWrapper={(title: string) => this.renderTitle(title, album.images.length)}
+            placeholder="Album Name"
+            open={addMode}
+            loading={loading}
+            editMode={editTitleMode}
+            onEditComplete={this.handleEditAlbumComplete}
+            onEditCancel={this.handleCancelEditAlbum}
+            actions={this.getAlbumActions(album.id)}
           >
-            <SortableTiles itemWidth={298} itemHeight={372} gutter={10}>
-              {images.map((image: Image, idx: number) => {
-                return (
-                  <ImageCard
-                    src={`${image.src}`}
-                    title={image.title}
-                    secondaryTitle={image.du}
-                    actions={this.getImageActions({image, idx})}
-                    loading={image.inProgress}
-                    key={image.id}
-                  />
-                );
-              })}
-            </SortableTiles>
+            {accordionContent}
           </Accordion>
         </div>
       </div>
@@ -393,7 +474,9 @@ class ProductImages extends Component<void, Props, State> {
 const mapState = (state) => ({
   list: _.get(state, ['products', 'images', 'list'], []),
   albums: _.get(state, ['products', 'images', 'albums'], []),
-  isLoading: _.get(state, ['asyncActions', 'productsFetchImages', 'inProgress'], true),
+  isLoading: _.get(state, ['asyncActions', 'productsFetchAlbums', 'inProgress'], true),
+  addAlbumInProgress: _.get(state, ['asyncActions', 'productsAddAlbum', 'inProgress'], false),
+  editAlbumInProgress: _.get(state, ['asyncActions', 'productsEditAlbum', 'inProgress'], false),
 });
 
 export default connect(mapState, actions)(ProductImages);

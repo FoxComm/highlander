@@ -8,6 +8,7 @@ import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
 import React, { Component, Element } from 'react';
+import { findDOMNode } from 'react-dom';
 
 type Props = {
   children?: Element;
@@ -72,30 +73,61 @@ export default class Upload extends Component {
 
     reader.onloadend = () => this.props.onDrop({
       file: file,
-      imageUrl: reader.result,
+      src: reader.result,
     });
 
     reader.readAsDataURL(file);
   }
 
   @autobind
-  onClick(): void {
+  onClick(e: MouseEvent): void {
+    console.log('onClick');
+
     this.refs.fileInput.click();
   }
 
-  render(): Element {
-    const cls = classNames(styles.upload, {
+  @autobind
+  onItemClick(e: MouseEvent) {
+    e.stopPropagation();
+    e.preventDefault();
+
+    console.log('onItemClick');
+  }
+
+  get container() {
+    const { children } = this.props;
+
+    let content;
+
+    if (!React.Children.count(children)) {
+      content = (
+        <div className={styles.empty}>
+          <i className="icon-upload" /> Drag & Drop to upload or click here
+        </div>
+      );
+    } else {
+      content = React.Children.map(
+        this.props.children,
+        child => React.cloneElement(child, { className: styles.uploadItem, onClick: this.onItemClick })
+      );
+    }
+
+    const cls = classNames(styles.container, {
       [styles.dragActive]: this.state.dragActive,
     });
 
+    return <div className={cls}
+                onClick={this.onClick}
+                onDragOver={this.onDragOver}
+                onDragLeave={this.onDragLeave}
+                onDrop={this.onDrop}>{content}</div>;
+  }
+
+  render(): Element {
     return (
-      <div className={cls}
-           onClick={this.onClick}
-           onDragOver={this.onDragOver}
-           onDragLeave={this.onDragLeave}
-           onDrop={this.onDrop}>
-          <input className={styles.input} type="file" onChange={this.onDrop} ref="fileInput" />
-          {this.props.children}
+      <div className={styles.upload}>
+        <input className={styles.input} type="file" onChange={this.onDrop} ref="fileInput" />
+        {this.container}
       </div>
     );
   }

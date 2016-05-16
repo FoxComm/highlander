@@ -57,10 +57,15 @@
     cursor: default;
   }
 
-  & input {
+  & .input {
     font-weight: normal;
     text-align: center;
     width: 184px;
+
+    &.loading {
+      background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUAQMAAAC3R49OAAAABlBMVEUAAAAAAAClZ7nPAAAAAnRSTlMAF/VASP8AAABBSURBVHheZckxFYAgFADA8zkwYgMr2MBKNpBoRCHCHxl4YADnsxymy/DoQmyh7aGmUHJwBnfjraxiW+yTNMj9xx9ZVxpfjbpEWgAAAABJRU5ErkJggg==);
+      animation: caramel .5s linear infinite;
+    }
   }
 }
 
@@ -117,4 +122,14 @@
   opacity: .01;
 
   transition: opacity .2s ease-in, height .3s ease-out, max-height .3s ease-out;
+}
+
+@keyframes caramel {
+  from {
+    background-position: 0 0;
+  }
+
+  to {
+    background-position: 20px 0;
+  }
 }

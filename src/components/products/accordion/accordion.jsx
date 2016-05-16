@@ -15,15 +15,16 @@ type Action = {
 }
 
 type Props = {
-  children?: Array<Element>|Element;
-  actions?: Array<Action>;
-  title?: string;
-  placeholder?: string;
-  open?: boolean;
-  editMode?: boolean;
+  children: ?Array<Element>|Element;
+  actions: ?Array<Action>;
+  title: ?string;
+  placeholder: ?string;
+  open: ?boolean;
+  loading: ?boolean;
+  editMode: ?boolean;
   onEditComplete: Function;
   onEditCancel: Function;
-  titleWrapper?: (title: string) => Element;
+  titleWrapper: ?(title: string) => Element;
   resetOverflowTimeout: ?number;
 }
 
@@ -37,7 +38,9 @@ export default class Accordion extends Component {
   static props: Props;
 
   static defaultProps = {
+    title: '',
     open: true,
+    loading: false,
     editMode: false,
     placeholder: 'Enter text',
     actions: [],
@@ -49,31 +52,43 @@ export default class Accordion extends Component {
     open: this.props.open,
   };
 
+  mounted: bool;
+
   componentDidMount(): void {
     window.addEventListener('resize', this.handleResize);
+    this.mounted = true;
 
     this.recalculateHeight();
   }
 
   componentWillUnmount(): void {
     window.removeEventListener('resize', this.handleResize);
-  }
-
-  componentWillReceiveProps(nextProps: Props) {
-    this.setState({
-      title: nextProps.title,
-    });
+    this.mounted = false;
   }
 
   componentDidUpdate(): void {
     this.recalculateHeight();
   }
 
+  componentWillReceiveProps(nextProps: Props) {
+    if (!this.state.open && nextProps.open) {
+      this.setState({ open: nextProps.open });
+    }
+  }
+
   recalculateHeight(): void {
     let maxHeight = 0;
+
     if (this.state.open) {
       maxHeight = this.refs.content.scrollHeight;
-      setTimeout(() => this.refs.content.style.overflow = 'visible', this.props.resetOverflowTimeout);
+
+      setTimeout(() => {
+        if (!this.mounted) {
+          return;
+        }
+
+        this.refs.content.style.overflow = 'visible';
+      }, this.props.resetOverflowTimeout);
     }
 
     this.refs.content.style.maxHeight = `${maxHeight}px`;
@@ -93,6 +108,11 @@ export default class Accordion extends Component {
   }
 
   @autobind
+  onClick(e: MouseEvent) {
+    e.stopPropagation();
+  }
+
+  @autobind
   onFocus({ target }: { target: HTMLInputElement }): void {
     /* set cursor to the end of the text */
     if (target.setSelectionRange) {
@@ -105,7 +125,7 @@ export default class Accordion extends Component {
   }
 
   @autobind
-  changeInput({ target }: { target: HTMLInputElement }): void {
+  onChange({ target }: { target: HTMLInputElement }): void {
     this.setState({ title: target.value });
   }
 
@@ -140,11 +160,13 @@ export default class Accordion extends Component {
     if (editMode) {
       titleElement = <div className="fc-form-field">
         <input
+          className={classNames(styles.input, {[styles.loading]: this.props.loading})}
           autoFocus
           type="text"
+          onClick={this.onClick}
           onFocus={this.onFocus}
-          onBlur={this.endEdit}
-          onChange={this.changeInput}
+          // onBlur={this.endEdit}
+          onChange={this.onChange}
           onKeyDown={this.keyDown}
           placeholder={placeholder}
           value={this.state.title}

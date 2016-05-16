@@ -23,6 +23,7 @@ type Props = {
   title: string;
   loading: boolean;
   secondaryTitle?: string;
+  className?: string;
 };
 
 type State = {
@@ -76,10 +77,10 @@ export default class ImageCard extends Component {
   }
 
   get description(): ?Element {
-    const { title, secondaryTitle } = this.props;
+    let { title, secondaryTitle, src } = this.props;
 
-    if (!title && !secondaryTitle) {
-      return null;
+    if (!title) {
+      title = src;
     }
 
     return (
@@ -91,11 +92,11 @@ export default class ImageCard extends Component {
   }
 
   render(): Element {
-    const { src, loading } = this.props;
+    const { src, loading, className } = this.props;
 
     const cls = classNames(styles.card, {
       [styles._loading]: loading,
-    });
+    }, className);
 
     return (
       <div className={cls}>
