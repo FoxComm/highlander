@@ -51,7 +51,7 @@ begin
       left join skus as sku on (oli_skus.sku_id = sku.id)
       left join object_forms as sku_form on (sku.form_id = sku_form.id)
       left join object_shadows as sku_shadow on (oli_skus.sku_shadow_id = sku_shadow.id)
-      where orders.id = ANY(order_ids));
+      where o.id = ANY(order_ids));
 
     return null;
 end;
