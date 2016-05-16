@@ -1,9 +1,8 @@
-package seeds
-
+package seeds.requests
 
 import io.gatling.core.Predef._
-import seeds.CreditCards._
-import seeds.GiftCards._
+import seeds.requests.CreditCards._
+import seeds.requests.GiftCards._
 
 object Payments {
 

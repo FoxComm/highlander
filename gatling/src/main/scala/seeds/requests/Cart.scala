@@ -1,4 +1,4 @@
-package seeds
+package seeds.requests
 
 import java.time.Instant
 
@@ -9,9 +9,9 @@ import io.gatling.http.Predef._
 import io.gatling.http.request.StringBody
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import payloads.{CreateOrder, OrderTimeMachine, UpdateLineItemsPayload, UpdateShippingMethod}
-import seeds.Auth._
-import seeds.GatlingApp.dbFeeder
-import seeds.Payments.pay
+import seeds.dbFeeder
+import seeds.requests.Auth._
+import seeds.requests.Payments._
 
 object Cart {
 

@@ -1,9 +1,8 @@
-package seeds
-
-import scala.concurrent.duration._
+package seeds.requests
 
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
+import seeds.Conf
 
 object Ping {
 

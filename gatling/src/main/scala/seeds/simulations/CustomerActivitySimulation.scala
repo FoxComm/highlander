@@ -1,16 +1,25 @@
-package seeds
+package seeds.simulations
 
-import scala.concurrent.duration._
-import scala.util.Random.nextInt
+import scala.util.Random._
 
 import io.gatling.core.Predef._
-import seeds.Addresses._
-import seeds.Auth._
-import seeds.Cart._
-import seeds.Customers._
-import seeds.GatlingApp._
+import io.gatling.core.scenario.Simulation
+import seeds._
+import seeds.requests.Addresses._
+import seeds.requests.Auth._
+import seeds.requests.Cart._
+import seeds.requests.Customers._
 
-object Scenarios {
+class CustomerActivitySimulation extends Simulation {
+
+  import CustomerActivityScenarios._
+
+  setUp(pacificNwVips, randomCustomerActivity)
+    .assertions(Conf.defaultAssertion)
+    .protocols(Conf.httpConf)
+}
+
+object CustomerActivityScenarios {
 
   val randomCustomerActivity = scenario("Random customer activity")
     .exec(loginAsRandomAdmin).stopOnFailure.doPause
@@ -21,7 +30,7 @@ object Scenarios {
     .exec(addCustomerAddress).stopOnFailure.doPause
     .exec(setDefaultShipping).stopOnFailure.doPause
     .repeat(_ ⇒ nextInt(3))(placeOrder.exec(ageOrder)).stopOnFailure.doPause
-    .inject(rampUsers(100) over 5.minutes)
+    .inject(atOnceUsers(2))
 
   val pacificNwVips = scenario("Pacific Northwest VIPs")
     .exec(loginAsRandomAdmin).stopOnFailure.doPause
@@ -32,6 +41,5 @@ object Scenarios {
     .exec(addCustomerAddress).stopOnFailure.doPause
     .exec(setDefaultShipping).stopOnFailure.doPause
     .repeat(_ ⇒ nextInt(10) + 5)(placeOrder.exec(ageOrder)).stopOnFailure.doPause
-    .inject(rampUsers(50) over 5.minutes)
-
+    .inject(atOnceUsers(1))
 }

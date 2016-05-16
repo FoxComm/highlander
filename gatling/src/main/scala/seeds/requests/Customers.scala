@@ -1,11 +1,11 @@
-package seeds
+package seeds.requests
 
 import faker._
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import payloads.CreateCustomerPayload
-import seeds.Auth._
+import seeds.requests.Auth._
 
 object Customers {
 

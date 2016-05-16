@@ -173,4 +173,4 @@ lazy val gatling = (project in file("gatling")).
   )
 
 lazy val seedGatling = inputKey[Unit]("Seed DB with Gatling")
-seedGatling := { (runMain in Compile in gatling).partialInput(" seeds.GatlingApp").evaluated }
+seedGatling := { (runMain in Compile in gatling).partialInput(" seeds.OneshotSeeds").evaluated }

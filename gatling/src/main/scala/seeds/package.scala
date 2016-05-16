@@ -2,11 +2,12 @@ import scala.concurrent.duration._
 
 import io.gatling.core.Predef._
 import io.gatling.core.structure.StructureBuilder
-import utils.JsonFormatters
+import io.gatling.jdbc.Predef._
+import seeds.Conf._
 
 package object seeds {
 
-  implicit val formats = JsonFormatters.phoenixFormats
+  def dbFeeder(sql: String) = jdbcFeeder(dbUrl, dbUser, dbPassword, sql)
 
   implicit class StopOnFailure[B <: StructureBuilder[B]](val builder: B) extends AnyVal {
     def stopOnFailure = builder.exec(doIf(session ⇒ session.isFailed)(exec { session ⇒

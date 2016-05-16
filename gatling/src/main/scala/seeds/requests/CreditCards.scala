@@ -1,4 +1,4 @@
-package seeds
+package seeds.requests
 
 import java.time.{Instant, LocalDateTime, ZoneId}
 

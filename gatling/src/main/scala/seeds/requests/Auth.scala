@@ -1,4 +1,4 @@
-package seeds
+package seeds.requests
 
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._

@@ -4,7 +4,8 @@ import scala.concurrent.duration._
 
 import io.gatling.core.Predef._
 import io.gatling.core.scenario.Simulation
-import seeds.Scenarios._
+import seeds.requests.Ping
+import seeds.simulations.CustomerActivityScenarios._
 
 object Simulations {
 
