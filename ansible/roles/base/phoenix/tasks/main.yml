@@ -1,5 +1,7 @@
 ---
 
+- include_vars: aws.yml
+
 - name: Create Phoenix Directory
   file: path={{phoenix_dir}} state=directory owner="{{user}}"
   sudo: true

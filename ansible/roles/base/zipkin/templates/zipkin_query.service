@@ -1,0 +1,12 @@
+[Service]
+WorkingDirectory=/usr/local/lib/zipkin
+ExecStart=/usr/local/lib/zipkin/bin/query
+Restart=always
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=zipkin_query
+TimeoutStartSec=5m
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

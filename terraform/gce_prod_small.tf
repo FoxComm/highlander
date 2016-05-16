@@ -118,11 +118,11 @@ variable "db_image" {
 }
 
 variable "es_image" { 
-    default = "prod-small-es-1462774093"
+    default = "prod-small-es-1463165866"
 }
 
 variable "phoenix_image" { 
-    default = "prod-small-phoenix-1462994424"
+    default = "prod-small-phoenix-1463379225"
 }
 
 variable "greenriver_image" { 
@@ -130,7 +130,7 @@ variable "greenriver_image" {
 }
 
 variable "front_image" { 
-    default = "prod-small-front-1462995788"
+    default = "prod-small-front-1463162013"
 }
 
 module "prodsmall_stack" {

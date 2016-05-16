@@ -1,6 +1,4 @@
 ---
-- include_vars: aws.yml
-
 - name: Syncrhonize Phoenix Sql
   synchronize: src="{{phoenix_src}}/sql" dest="{{phoenix_dir}}" delete=yes recursive=yes
   sudo: true

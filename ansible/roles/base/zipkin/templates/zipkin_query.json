@@ -1,0 +1,12 @@
+{
+    "service" : {
+        "name": "zipkin_query",
+        "tags": ["zipkin_query"], 
+        "port": 9411
+    },
+    "check" : {
+        "name": "ping",
+        "script": "curl localhost:9411",
+        "interval": "30s"
+    }
+}

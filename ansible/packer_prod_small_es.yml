@@ -12,3 +12,4 @@
     - { role: base/rsyslog, sudo: yes }
     - { role: base/consul_agent}
     - { role: base/elasticsearch}
+    - { role: base/zipkin}
