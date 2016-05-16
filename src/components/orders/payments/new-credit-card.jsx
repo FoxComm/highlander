@@ -1,5 +1,4 @@
 import React, { Component, PropTypes } from 'react';
-import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -11,13 +10,11 @@ import CreditCardForm from '../../credit-cards/card-form';
 import SaveCancel from '../../common/save-cancel';
 import TileSelector from '../../tile-selector/tile-selector';
 
-import * as AddressActions from '../../../modules/customers/addresses';
 import * as CreditCardActions from '../../../modules/customers/credit-cards';
 import * as PaymentMethodActions from '../../../modules/orders/payment-methods';
 
 function mapStateToProps(state, props) {
   return {
-    addresses: state.customers.addresses[props.customerId],
     creditCards: state.customers.creditCards[props.customerId],
     paymentMethods: state.orders.paymentMethods,
   };
@@ -34,7 +31,6 @@ function mapActionsToCustomer(dispatch, actions, customerId) {
 function mapDispatchToProps(dispatch, props) {
   return {
     actions: {
-      ...mapActionsToCustomer(dispatch, AddressActions, props.customerId),
       ...mapActionsToCustomer(dispatch, CreditCardActions, props.customerId),
       ...bindActionCreators(PaymentMethodActions, dispatch),
     },
@@ -44,7 +40,6 @@ function mapDispatchToProps(dispatch, props) {
 @connect(mapStateToProps, mapDispatchToProps)
 export default class NewCreditCard extends Component {
   static propTypes = {
-    addresses: PropTypes.object.isRequired,
     creditCards: PropTypes.object.isRequired,
     customerId: PropTypes.number.isRequired,
     order: PropTypes.object.isRequired,
@@ -70,7 +65,6 @@ export default class NewCreditCard extends Component {
 
   componentDidMount() {
     this.props.actions.fetchCreditCards();
-    this.props.actions.fetchAddresses();
   }
 
   get creditCards() {
@@ -88,17 +82,15 @@ export default class NewCreditCard extends Component {
     if (this.state.showForm) {
       return (
         <div className="fc-order-credit-card-form">
-          <CreditCardForm card={this.state.newCard}
-                          customerId={this.props.customerId}
-                          addresses={this.props.addresses.addresses}
-                          form={this.state.newCard}
-                          isDefaultEnabled={false}
-                          showFormControls={false}
-                          isNew={true}
-                          onCancel={() => this.setState({ showForm: false })}
-                          onSubmit={this.handleCreditCardSubmit}
-                          saveText="Add Payment Method"
-                          showSelectedAddress={true} />
+          <CreditCardForm
+            card={this.state.newCard}
+            customerId={this.props.customerId}
+            isDefaultEnabled={false}
+            isNew={true}
+            onCancel={() => this.setState({ showForm: false })}
+            onSubmit={this.handleCreditCardSubmit}
+            saveText="Add Payment Method"
+          />
         </div>
       );
     }

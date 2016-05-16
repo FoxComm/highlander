@@ -55,6 +55,7 @@ export function createAndAddOrderCreditCardPayment(orderRefNum, creditCard, cust
 
     const ccPayload = {
       isDefault: creditCard.isDefault,
+      cardNumber: creditCard.cardNumber,
       holderName: creditCard.holderName,
       number: creditCard.number,
       cvv: creditCard.cvv,

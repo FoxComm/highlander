@@ -60,7 +60,7 @@ export default class Payments extends React.Component {
     showDetails: {},
   };
 
-  get currentCustomer() {
+  get currentCustomerId() {
     return _.get(this.props, 'order.currentOrder.customer.id');
   }
 
@@ -109,7 +109,7 @@ export default class Payments extends React.Component {
     if (this.props.payments.isAdding) {
       const order = _.get(this.props, 'order.currentOrder');
       return [
-        <NewPayment order={order} customerId={this.currentCustomer} />,
+        <NewPayment order={order} customerId={this.currentCustomerId} />,
         ...rows
       ];
     }
@@ -129,7 +129,7 @@ export default class Payments extends React.Component {
   }
 
   @autobind
-  renderRow(isEditing) {
+  renderRow(editMode) {
     return (row, index) => {
       const even = index % 2 == 0;
       const id = row.id || row.code;
@@ -137,8 +137,9 @@ export default class Payments extends React.Component {
 
       return renderer({
         paymentMethod: row,
-        isEditing,
+        editMode,
         even,
+        customerId: this.currentCustomerId,
         ...this.props,
         showDetails: this.state.showDetails[id],
         toggleDetails: () => {

@@ -13,7 +13,7 @@ import { EditButton, DeleteButton } from '../../common/buttons';
 import PaymentMethod from '../../payment/payment-method';
 
 type Props = {
-  isEditing: boolean;
+  editMode: boolean;
   title: string|Element;
   subtitle?: string|Element;
   amount: number;
@@ -27,7 +27,7 @@ type Props = {
 }
 
 const PaymentRow = (props: Props) => {
-  const editAction = props.isEditing ? (
+  const editAction = props.editMode ? (
       <TableCell>
         <EditButton onClick={props.editAction} />
         <DeleteButton onClick={props.deleteAction} />

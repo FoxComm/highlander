@@ -31,7 +31,6 @@ export default class CustomerCreditCards extends React.Component {
     customerId: PropTypes.number.isRequired,
     fetchCreditCards: PropTypes.func,
     cards: PropTypes.array,
-    addresses: PropTypes.array
   };
 
   componentDidMount() {
@@ -120,7 +119,6 @@ export default class CustomerCreditCards extends React.Component {
           card={ card }
           form={ this.props.editingCreditCard }
           customerId={ this.props.customerId }
-          addresses={ this.props.addresses }
           onCancel={ this.onEditCancel }
           onChange={ this.onEditFormChange }
           onSubmit={ this.onEditFormSubmit }
@@ -161,8 +159,7 @@ export default class CustomerCreditCards extends React.Component {
           {props.newCreditCard ?
             <CustomerCreditCardForm
               customerId={ props.customerId }
-              form={ props.newCreditCard }
-              addresses={ props.addresses }
+              card={ props.newCreditCard }
               onCancel={ this.onAddingCancel }
               onSubmit={ this.onSubmitNewForm }
               onChange={ this.onChangeNewFormValue }

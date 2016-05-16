@@ -12,7 +12,7 @@ describe('CreditCardForm', function() {
     onSubmit: () => {},
     onCancel: () => {},
     customerId: Math.floor(Math.random() * 10) + 1,
-    form: {}
+    card: {}
   };
 
   const card = {

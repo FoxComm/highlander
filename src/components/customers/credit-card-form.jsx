@@ -1,23 +1,23 @@
 import React, { PropTypes } from 'react';
 import classnames from 'classnames';
-import _ from 'lodash';
 
 import CreditCardForm from '../credit-cards/card-form';
 
 const CustomerCreditCardForm = props => {
-  const { isNew, ...rest } = props;
   const containerClass = classnames(
     'fc-card-container',
     'fc-credit-cards',
-    {'fc-credit-cards-new' : isNew },
-    {'fc-credit-cards-edit' : !isNew }
+    {'fc-credit-cards-new' : props.isNew },
+    {'fc-credit-cards-edit' : !props.isNew }
   );
 
   return (
     <li className={containerClass}>
-      <CreditCardForm className="fc-customer-credit-card-form"
-                      isNew={isNew}
-                      {...rest} />
+      <CreditCardForm
+        showSelectedAddress={true}
+        className="fc-customer-credit-card-form"
+        {...props}
+      />
     </li>
   );
 };
