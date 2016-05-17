@@ -13,6 +13,8 @@ import styles from './payment-method.css';
 type Props = {
   paymentMethod: {
     type?: string;
+    brand: string;
+    code: string;
   };
   type?: string;
   className?: string;

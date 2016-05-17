@@ -18,7 +18,7 @@ type Props = {
   title: string|Element;
   subtitle?: string|Element;
   amount: number;
-  details: Element;
+  details: (editProps: Object) => Element;
   showDetails: boolean;
   toggleDetails: Function;
   editAction: Function;
@@ -117,5 +117,3 @@ export default class PaymentRow extends Component {
     );
   }
 };
-
-export default PaymentRow;

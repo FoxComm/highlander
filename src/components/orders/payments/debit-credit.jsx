@@ -1,14 +1,50 @@
-import React, { PropTypes } from 'react';
+/* @flow */
+import React, { PropTypes, Component } from 'react';
+import { autobind } from 'core-decorators';
 
 import Currency from '../../common/currency';
 import CurrencyInput from '../../forms/currency-input';
 import { Form, FormField } from '../../forms';
 import SaveCancel from '../../common/save-cancel';
 
-const DebitCredit = props => {
-  const newAvailable = props.availableBalance - props.amountToUse;
+type Props = {
+  amountToUse: number,
+  availableBalance: number,
+  onCancel: Function,
+  onSubmit: Function,
+  title: string,
+  amountToUse?: number,
+  saveText: string,
+}
 
-  const valueBlock = (label, amount) => {
+type State = {
+  amountToUse: number,
+}
+
+export default class DebitCredit extends Component {
+  props: Props;
+
+  state: State = {
+    amountToUse: this.props.amountToUse || 0,
+  };
+
+  static defaultProps = {
+    saveText: 'Add Payment Method',
+  };
+
+  componentWillReceiveProps(nextProps: Props) {
+    if (nextProps.amountToUse != this.props.amountToUse) {
+      this.setState({
+        amountToUse: nextProps.amountToUse,
+      });
+    }
+  }
+
+  get newAvailable(): number {
+    return this.props.availableBalance - this.state.amountToUse;
+  }
+
+  valueBlock(label: string, amount: number) {
     return (
       <div className="fc-order-debit-credit__statistic">
         <div className="fc-order-debit-credit__statistic-label">
@@ -19,39 +55,49 @@ const DebitCredit = props => {
         </div>
       </div>
     );
-  };
+  }
 
-  return (
-    <Form className="fc-order-debit-credit" onSubmit={props.onSubmit}>
-      <div className="fc-order-debit-credit__title">
-        {props.title}
-      </div>
-      <div className="fc-order-debit-credit__form">
-        {valueBlock('Available Balance', props.availableBalance)}
-        <FormField className="fc-order-debit-credit__amount-form"
-                   label="Amount to Use"
-                   labelClassName="fc-order-debit-credit__amount-form-value">
-          <CurrencyInput onChange={props.onChange}
-                         value={props.amountToUse} />
-        </FormField>
-        {valueBlock('New Available Balance', newAvailable)}
-      </div>
-      <div className="fc-order-debit-credit__submit">
-        <SaveCancel saveText="Add Payment Method"
-                    saveDisabled={props.amountToUse == 0}
-                    onCancel={props.onCancel} />
-      </div>
-    </Form>
-  );
-};
+  @autobind
+  handleAmountToUseChange(value: string) {
+    this.setState({
+      amountToUse: Math.min(Number(value), this.props.availableBalance),
+    });
+  }
 
-DebitCredit.propTypes = {
-  amountToUse: PropTypes.number.isRequired,
-  availableBalance: PropTypes.number.isRequired,
-  onCancel: PropTypes.func.isRequired,
-  onChange: PropTypes.func.isRequired,
-  onSubmit: PropTypes.func.isRequired,
-  title: PropTypes.string.isRequired,
-};
+  @autobind
+  handleSubmit(event: SyntheticEvent) {
+    event.preventDefault();
+    this.props.onSubmit(this.state.amountToUse);
+  }
 
-export default DebitCredit;
+  render() {
+    const { props } = this;
+
+    return (
+      <Form className="fc-order-debit-credit" onSubmit={this.handleSubmit}>
+        <div className="fc-order-debit-credit__title">
+          {props.title}
+        </div>
+        <div className="fc-order-debit-credit__form">
+          {this.valueBlock('Available Balance', props.availableBalance)}
+          <FormField className="fc-order-debit-credit__amount-form"
+                     label="Amount to Use"
+                     labelClassName="fc-order-debit-credit__amount-form-value">
+            <CurrencyInput
+              onChange={this.handleAmountToUseChange}
+              value={this.state.amountToUse}
+            />
+          </FormField>
+          {this.valueBlock('New Available Balance', this.newAvailable)}
+        </div>
+        <div className="fc-order-debit-credit__submit">
+          <SaveCancel
+            saveText={props.saveText}
+            saveDisabled={this.state.amountToUse == 0}
+            onCancel={props.onCancel}
+          />
+        </div>
+      </Form>
+    );
+  }
+}

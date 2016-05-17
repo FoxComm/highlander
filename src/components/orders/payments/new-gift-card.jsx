@@ -2,12 +2,10 @@ import React, { Component, PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import formatCurrency from '../../../lib/format-currency';
 import _ from 'lodash';
 
 import * as PaymentMethodActions from '../../../modules/orders/payment-methods';
 
-import CurrencyInput from '../../forms/currency-input';
 import DebitCredit from './debit-credit';
 import { Form, FormField } from '../../forms';
 
@@ -43,7 +41,6 @@ export default class NewGiftCard extends Component {
     super(...args);
 
     this.state = {
-      amountToUse: 0,
       giftCard: null,
       giftCardCode: null,
       showGiftCardSummary: false,
@@ -69,36 +66,36 @@ export default class NewGiftCard extends Component {
   get giftCardSummary() {
     if (this.state.showGiftCardSummary) {
       return (
-        <DebitCredit amountToUse={this.state.amountToUse}
-                     availableBalance={this.availableBalance}
-                     onCancel={this.props.actions.orderPaymentMethodStopEdit}
-                     onChange={this.handleAmountToUseChange}
-                     onSubmit={this.handleGiftCardSubmit} />
+        <DebitCredit
+          availableBalance={this.availableBalance}
+          onCancel={this.props.actions.orderPaymentMethodStopEdit}
+          onSubmit={this.handleGiftCardSubmit}
+        />
       );
     }
   }
 
-  @autobind
-  handleAmountToUseChange(value) {
-    this.setState({
-      amountToUse: Math.min(value, this.availableBalance),
-    });
+  get codeValue() {
+    const { giftCardCode } = this.state;
+    if (giftCardCode) {
+      return giftCardCode.replace(/\s+/g, '');
+    }
+    return giftCardCode;
   }
 
   @autobind
   handleGiftCardChange({target}) {
     this.setState({
       giftCardCode: target.value,
-    }, () => this.props.actions.giftCardSearch(target.value));
+    }, () => this.props.actions.giftCardSearch(this.codeValue));
   }
 
   @autobind
-  handleGiftCardSubmit(event) {
-    event.preventDefault();
+  handleGiftCardSubmit(amountToUse) {
     this.props.actions.addOrderGiftCardPayment(
       this.props.order.referenceNumber,
-      this.state.giftCardCode,
-      this.state.amountToUse
+      this.codeValue,
+      amountToUse
     );
   }
 

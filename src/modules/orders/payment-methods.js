@@ -119,6 +119,18 @@ export function addOrderGiftCardPayment(orderRefNum, code, amount) {
   };
 }
 
+export function editOrderGiftCardPayment(orderRefNum, code, amount) {
+  return dispatch => {
+    return Api.patch(`${basePath(orderRefNum)}/gift-cards`, { code: code, amount: amount })
+      .then(
+        order => {
+          dispatch(orderSuccess(order));
+        },
+        err => dispatch(setError(err))
+      );
+  };
+}
+
 const _giftCardSearch = createAsyncActions(
   'orders/giftCards',
   code => {

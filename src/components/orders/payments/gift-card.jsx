@@ -1,32 +1,65 @@
 import React, { PropTypes } from 'react';
+import { connect } from 'react-redux';
+
 import Currency from '../../common/currency';
 import PaymentRow from './row';
+import DebitCredit from './debit-credit';
 
-const GiftCard = props => {
+import * as PaymentMethodActions from '../../../modules/orders/payment-methods';
+
+let GiftCardDetails = props => {
+  const orderRefNum = props.order.referenceNumber;
   const { amount, availableBalance, code } = props.paymentMethod;
 
-  const orderRefNum = props.order.referenceNumber;
+  const handleSave = (amount) => {
+    props
+      .editOrderGiftCardPayment(orderRefNum, code, amount)
+      .then(props.cancelEditing);
+  };
+
   const futureBalance = availableBalance - amount;
+
+  if (!props.isEditing) {
+    return (
+      <div>
+        <dl>
+          <dt>Available Balance</dt>
+          <dd><Currency value={availableBalance} /></dd>
+        </dl>
+        <dl>
+          <dt>Future Available Balance</dt>
+          <dd><Currency value={futureBalance} /></dd>
+        </dl>
+      </div>
+    );
+  } else {
+    return (
+      <DebitCredit
+        amountToUse={amount}
+        availableBalance={availableBalance}
+        onCancel={props.cancelEditing}
+        onSubmit={handleSave}
+        saveText="Save"
+      />
+    );
+  }
+};
+GiftCardDetails = connect(null, PaymentMethodActions)(GiftCardDetails);
+
+const GiftCard = props => {
+  const { amount, code } = props.paymentMethod;
+  const orderRefNum = props.order.referenceNumber;
 
   const deletePayment = () => {
     props.deleteOrderGiftCardPayment(orderRefNum, code);
   };
 
-  const details = (
-    <div>
-      <dl>
-        <dt>Available Balance</dt>
-        <dd><Currency value={availableBalance} /></dd>
-      </dl>
-      <dl>
-        <dt>Future Available Balance</dt>
-        <dd><Currency value={futureBalance} /></dd>
-      </dl>
-    </div>
-  );
+  const details = editProps => {
+    return <GiftCardDetails {...props} {...editProps} />;
+  };
 
   const params = {
-    details: details,
+    details,
     amount: amount,
     deleteAction: deletePayment,
     ...props,
