@@ -11,12 +11,12 @@
 }
 
 .gallery {
-  lost-column: 3/5;
+  lost-column: 2/3;
 }
 
 .details {
   display: flex;
-  lost-column: 2/5;
+  lost-column: 1/3;
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
@@ -44,12 +44,8 @@
   line-height: 1.5;
 }
 
-:root {
-  --control-width: 240px;
-}
-
 .counter {
-  width: var(--control-width);
+  lost-column: 2/3;
   margin-top: 20px;
 }
 
@@ -58,7 +54,7 @@
   --background-color: #A7F4FF;
   --text-color: #616161;
   background: var(--background-color);
-  width: var(--control-width);
+  lost-column: 2/3;
   height: 60px;
   margin-top: 30px;
   border: none;
