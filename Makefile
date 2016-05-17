@@ -8,7 +8,7 @@ build: setup
 
 package: build
 	touch firebird.tar.bz2
-	tar --exclude 'firebird.tar.bz2' -jcf firebird.tar.bz2 ./
+	tar --exclude 'firebird.tar.bz2' --exclude '.git' -jcf firebird.tar.bz2 ./
 	
 
 .PHONY: setup build package
