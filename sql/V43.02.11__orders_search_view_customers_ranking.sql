@@ -1,37 +1,7 @@
 create or replace function update_orders_view_from_customers_ranking_fn() returns trigger as $$
-declare order_ids int[];
 begin
-  case TG_TABLE_NAME
-    when 'orders' then
-      order_ids := array_agg(NEW.id);
-    when 'order_payments' then
-      order_ids := array_agg(NEW.order_id);
-    when 'credit_card_charges' then
-      select array_agg(op.order_id) into strict order_ids
-        from credit_card_charges as ccp
-        inner join order_payments as op on (op.id = ccp.order_payment_id)
-        WHERE ccp.id = NEW.id;
-    when 'gift_card_adjustments' then
-      select array_agg(op.order_id) into strict order_ids
-        from gift_card_adjustments as gcc
-        inner join order_payments as op on (op.id = gcc.order_payment_id)
-        WHERE gcc.id = NEW.id;
-    when 'store_credit_adjustments' then
-      select array_agg(op.order_id) into strict order_ids
-        from store_credit_adjustments as sca
-        inner join order_payments as op on (op.id = sca.order_payment_id)
-        WHERE sca.id = NEW.id;
-    when 'rmas' THEN
-      order_ids := array_agg(NEW.order_id);
-    when 'rma_payments' then
-      select array_agg(rmas.order_id) into strict order_ids
-      from rma_payments as rp
-      inner join rmas on (rp.rma_id = rmas.id)
-      where rp.id = NEW.id;
-  end case;
 
   -- TODO: update to || jsonb feature when 9.5 will be available
-
   update orders_search_view set
     customer =
       json_build_object(
@@ -59,7 +29,7 @@ begin
                 left join gift_card_adjustments as GCa on (GCa.order_payment_id = op.id and GCa.state in ('auth', 'capture'))
                 left join rmas on(rmas.order_id = orders.id and rmas.state = 'complete')
                 left join rma_payments as rp on (rp.rma_id = rmas.id and rp.amount is not null)
-                where is_guest = false AND orders.id = ANY(order_ids)
+                where is_guest = false
                 group by (c.id)
                 order by revenue desc
               ) as ranking
