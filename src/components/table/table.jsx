@@ -20,7 +20,7 @@ export function tableMessage(message, props) {
   );
 }
 
-function edgeCases(props, rows) {
+export function renderBodyDefault(props, rows) {
   const showLoading = props.showLoadingOnMount && props.isLoading === null || props.isLoading;
 
   if (showLoading) {
@@ -29,17 +29,15 @@ function edgeCases(props, rows) {
     return tableMessage(props.errorMessage, props);
   } else if (_.isEmpty(rows) && props.emptyMessage) {
     return tableMessage(props.emptyMessage, props);
+  } else {
+    return <TableBody {...props} rows={rows} />;
   }
-}
-
-function renderBody(props, rows) {
-  return <TableBody {...props} rows={rows} />;
 }
 
 const Table = props => {
   const {data, setState, className, renderBody, ...rest} = props;
 
-  const body = edgeCases(rest, data.rows) || renderBody(rest, data.rows);
+  const body = renderBody(rest, data.rows, renderBodyDefault);
 
   return (
     <table className={classNames('fc-table', className)}>
@@ -78,7 +76,7 @@ Table.defaultProps = {
   failed: false,
   errorMessage: 'An error occurred. Try again later.',
   emptyMessage: 'No data found.',
-  renderBody,
+  renderBody: renderBodyDefault,
 };
 
 export default Table;

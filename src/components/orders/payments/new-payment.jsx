@@ -105,7 +105,7 @@ class NewPayment extends Component {
   render() {
     return (
       <TableRow>
-        <TableCell className="fc-new-order-payment" colspan={3}>
+        <TableCell className="fc-new-order-payment" colspan={5}>
           {this.paymentForm}
           {this.newPaymentMethod}
         </TableCell>

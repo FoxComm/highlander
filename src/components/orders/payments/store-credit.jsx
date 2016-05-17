@@ -5,7 +5,7 @@ import PaymentRow from './row';
 const StoreCredit = props => {
   const { amount, availableBalance } = props.paymentMethod;
 
-  const orderRefNum = props.order.currentOrder.referenceNumber;
+  const orderRefNum = props.order.referenceNumber;
   const futureBalance = availableBalance - amount;
 
   const deletePayment = () => {
@@ -37,15 +37,11 @@ const StoreCredit = props => {
 
 StoreCredit.propTypes = {
   paymentMethod: PropTypes.shape({
-    paymentMethod: PropTypes.shape({
-      amount: PropTypes.number.isRequired,
-      availableBalance: PropTypes.number.isRequired
-    })
+    amount: PropTypes.number.isRequired,
+    availableBalance: PropTypes.number.isRequired
   }),
   order: PropTypes.shape({
-    currentOrder: PropTypes.shape({
-      referenceNumber: PropTypes.string.isRequired
-    })
+    referenceNumber: PropTypes.string.isRequired
   }),
   isEditing: PropTypes.bool.isRequired,
   deleteOrderStoreCreditPayment: PropTypes.func.isRequired

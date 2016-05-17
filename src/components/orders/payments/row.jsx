@@ -2,6 +2,7 @@
 
 import _ from 'lodash';
 import React, { Component, PropTypes, Element } from 'react';
+import { autobind } from 'core-decorators';
 
 import styles from './payments.css';
 
@@ -25,14 +26,39 @@ type Props = {
   paymentMethod: Object;
 }
 
+type State = {
+  isEditing: boolean;
+}
+
 export default class PaymentRow extends Component {
   props: Props;
+
+  state: State = {
+    isEditing: false,
+  };
+
+  @autobind
+  handleStartEdit() {
+    this.setState({
+      isEditing: true,
+    });
+    if (!this.props.showDetails) {
+      this.props.toggleDetails();
+    }
+  }
+
+  @autobind
+  cancelEditing() {
+    this.setState({
+      isEditing: false,
+    });
+  }
 
   get editAction() {
     if (this.props.editMode) {
       return (
         <TableCell>
-          <EditButton onClick={this.props.editAction} />
+          <EditButton onClick={this.handleStartEdit} />
           <DeleteButton onClick={this.props.deleteAction} />
         </TableCell>
       );
@@ -46,10 +72,14 @@ export default class PaymentRow extends Component {
 
   get detailsRow() {
     if (this.props.showDetails) {
+      const detailsProps = {
+        isEditing: this.state.isEditing,
+        cancelEditing: this.cancelEditing,
+      };
       return (
         <TableRow styleName="details-row">
           <TableCell colspan={5}>
-            {this.props.details}
+            {this.props.details(detailsProps)}
           </TableCell>
         </TableRow>
       );

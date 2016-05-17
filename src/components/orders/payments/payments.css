@@ -70,3 +70,7 @@
 :global(.fc-table) tbody tr.details-row {
   border: 0;
 }
+
+:global .fc-order-payment .fc-credit-card-form {
+  width: 410px;
+}

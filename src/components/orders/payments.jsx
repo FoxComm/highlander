@@ -116,7 +116,7 @@ export default class Payments extends React.Component {
 
   @autobind
   renderBody(editMode) {
-    return (props) => {
+    return (props, _rows, renderBodyDefault) => {
       let rows = this.paymentMethods.map(row => {
         return this.renderRow(editMode, row);
       });
@@ -126,6 +126,10 @@ export default class Payments extends React.Component {
           this.newPayment,
           ...rows
         ];
+      }
+
+      if (!rows.length) {
+        return renderBodyDefault(props, rows);
       }
 
       return rows;
@@ -153,6 +157,7 @@ export default class Payments extends React.Component {
       editMode,
       customerId: this.currentCustomerId,
       ...this.props,
+      order: _.get(this.props, 'order.currentOrder'),
       showDetails: this.state.showDetails[id],
       toggleDetails: () => {
         this.setState({

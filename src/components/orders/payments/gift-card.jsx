@@ -5,7 +5,7 @@ import PaymentRow from './row';
 const GiftCard = props => {
   const { amount, availableBalance, code } = props.paymentMethod;
 
-  const orderRefNum = props.order.currentOrder.referenceNumber;
+  const orderRefNum = props.order.referenceNumber;
   const futureBalance = availableBalance - amount;
 
   const deletePayment = () => {
@@ -37,16 +37,12 @@ const GiftCard = props => {
 
 GiftCard.propTypes = {
   paymentMethod: PropTypes.shape({
-    paymentMethod: PropTypes.shape({
-      amount: PropTypes.number.isRequired,
-      availableBalance: PropTypes.number.isRequired,
-      code: PropTypes.string.isRequired
-    })
+    amount: PropTypes.number.isRequired,
+    availableBalance: PropTypes.number.isRequired,
+    code: PropTypes.string.isRequired
   }),
   order: PropTypes.shape({
-    currentOrder: PropTypes.shape({
-      referenceNumber: PropTypes.string.isRequired
-    })
+    referenceNumber: PropTypes.string.isRequired
   }),
   isEditing: PropTypes.bool.isRequired,
   deleteOrderGiftCardPayment: PropTypes.func.isRequired
