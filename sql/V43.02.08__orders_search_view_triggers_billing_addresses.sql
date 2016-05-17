@@ -41,7 +41,8 @@ begin
         left join credit_cards as cc on (cc.id = op_cc.payment_method_id)
         left join regions as r2 on (cc.region_id = r2.id)
         left join countries as c2 on (r2.country_id = c2.id)
-        where o.id = ANY(order_ids)) AS subquery
+        where o.id = ANY(order_ids)
+        group by o.id) AS subquery
   WHERE orders_search_view_test.id = subquery.id;
 
     return null;

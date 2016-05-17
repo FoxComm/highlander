@@ -1,6 +1,4 @@
 create or replace function update_orders_view_from_customers_fn() returns trigger as $$
-declare
-    affected_orders record;
 begin
 
   UPDATE orders_search_view_test SET

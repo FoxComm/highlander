@@ -33,7 +33,8 @@ begin
         left join order_shipping_addresses as osa on (o.id = osa.order_id)
         left join regions as r1 on (osa.region_id = r1.id)
         left join countries as c1 on (r1.country_id = c1.id)
-        where o.id = ANY(order_ids)) AS subquery
+        where o.id = ANY(order_ids)
+        group by o.id) AS subquery
   WHERE orders_search_view_test.id = subquery.id;
 
     return null;

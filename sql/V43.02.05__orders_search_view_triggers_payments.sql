@@ -36,7 +36,8 @@ begin
       left join credit_card_charges as ccp on (op.id = ccp.order_payment_id)
       left join gift_card_adjustments as gcc on (op.id = gcc.order_payment_id)
       left join store_credit_adjustments as sca on (op.id = sca.order_payment_id)
-      where o.id = ANY(order_ids)) AS subquery
+      where o.id = ANY(order_ids)
+      group by o.id) AS subquery
     WHERE orders_search_view_test.id = subquery.id;
 
     return null;
@@ -56,6 +57,7 @@ begin
         coalesce(sum(op.amount), 0) as credit_card_total
         from order_payments as op
         WHERE op.id = NEW.id AND op.payment_method_type = 'creditCard'
+        group by op.order_id
       ) AS subquery
   WHERE orders_search_view_test.id = subquery.order_id;
   return NULL;
@@ -74,6 +76,7 @@ begin
         coalesce(sum(op.amount), 0) as gift_card_total
         from order_payments as op
         WHERE op.id = NEW.id AND op.payment_method_type = 'giftCard'
+        group by op.order_id
       ) AS subquery
   WHERE orders_search_view_test.id = subquery.order_id;
   return NULL;
@@ -92,6 +95,7 @@ begin
         coalesce(sum(op.amount), 0) as store_credit_total
         from order_payments as op
         WHERE op.id = NEW.id AND op.payment_method_type = 'storeCredit'
+        group by op.order_id
       ) AS subquery
   WHERE orders_search_view_test.id = subquery.order_id;
   return NULL;

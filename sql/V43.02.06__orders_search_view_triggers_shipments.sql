@@ -26,7 +26,8 @@ begin
           from orders as o
           left join shipments on (o.id = shipments.order_id)
           left join shipping_methods as sm on (shipments.order_shipping_method_id = sm.id)
-          where o.id = ANY(order_ids)) AS subquery
+          where o.id = ANY(order_ids)
+          group by o.id) AS subquery
   WHERE orders_search_view_test.id = subquery.id;
 
     return null;
