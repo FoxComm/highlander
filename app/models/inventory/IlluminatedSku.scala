@@ -13,13 +13,15 @@ case class IlluminatedSku(code: String, context: IlluminatedContext,
 
 object IlluminatedSku { 
 
-  def illuminate(productContext: ObjectContext, sku: Sku, form: ObjectForm, 
-    shadow: ObjectShadow) : IlluminatedSku = { 
+  def illuminate(context: ObjectContext, sku: FullObject[Sku]) : IlluminatedSku = {
+    val model = sku.model
+    val formAttrs = sku.form.attributes
+    val shadowAttrs = sku.shadow.attributes
 
     IlluminatedSku(
-      code = sku.code, 
-      context = IlluminatedContext(productContext.name, productContext.attributes),
-      attributes = IlluminateAlgorithm.projectAttributes(form.attributes, shadow.attributes))
+      code = model.code,
+      context = IlluminatedContext(context.name, context.attributes),
+      attributes = IlluminateAlgorithm.projectAttributes(formAttrs, shadowAttrs))
   }
 }
 

@@ -14,6 +14,7 @@ import responses.ObjectResponses.ObjectContextResponse
 import responses.SkuResponses._
 import services.{LogActivity, Result}
 import services.objects.ObjectManager
+import services.variant.VariantManager
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db.DbResultT._
@@ -56,7 +57,7 @@ object SkuManager {
     form    ← * <~ ObjectForms.mustFindById404(sku.formId)
     shadow  ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
   } yield IlluminatedSkuResponse.build(IlluminatedSku.illuminate(
-    context, sku, form, shadow))).run()
+    context, FullObject(sku, form, shadow)))).run()
 
   def validateShadow(form: ObjectForm, shadow: ObjectShadow)(implicit ec: EC) : DbResultT[Unit] =
     SkuValidator.validate(form, shadow) match {
@@ -109,12 +110,8 @@ object SkuManager {
     value ← * <~ ObjectLinks.findByRightAndType(valueShadowId, ObjectLink.VariantValue).
       filter(_.leftId.inSet(allowedVariantIds)).one.flatMap {
       case Some(variantLink) ⇒
-        (for {
-          shadow ← * <~ ObjectManager.mustFindShadowById404(valueShadowId)
-          form   ← * <~ ObjectManager.mustFindFormById404(shadow.formId)
-          value  ← * <~ VariantValues.filterByContextAndFormId(contextId, form.id).one.
-            mustFindOr(VariantValueNotFoundForContext(form.id, contextId))
-        } yield VariantValueMapping(variantLink.leftId, FullObject(value, form, shadow)).some).value
+        val fullValue = VariantManager.mustFindVariantValueByContextAndShadow(contextId, valueShadowId)
+        fullValue.map(value ⇒ VariantValueMapping(variantLink.leftId, value).some).value
       case None ⇒
         DbResultT.pure(None).value
     }
@@ -126,13 +123,10 @@ object SkuManager {
     // and SKU + Variant may exist in multiple products: get all of a
     // SKUs VariantValues if the Variant is in the Product.
     links  ← * <~ ObjectLinks.findByLeftAndType(sku.shadowId, ObjectLink.SkuVariantValue).result
-    varIds ← * <~ variants.map(_.shadow.id)
+    varIds = variants.map(_.shadow.id)
     toOpt  ← * <~ DbResultT.sequence(links.map(l ⇒ varValueIfInProduct(l.rightId, sku.contextId, varIds)))
     avail  ← * <~ toOpt.foldLeft(Seq.empty[VariantValueMapping]) { (acc, potentialValue) ⇒
-      potentialValue match {
-        case Some(value) ⇒ acc :+ value
-        case None ⇒ acc
-      }
+      potentialValue.foldLeft(acc)(_ :+ _)
     }
   } yield avail
 

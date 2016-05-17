@@ -164,7 +164,7 @@ case class SimpleVariantValueShadow(v: SimpleVariantValue) {
   def create: ObjectShadow = ObjectShadow(attributes = shadow)
 }
 
-case class SimpleCompleteVariant(v: SimpleVariant, vs: Seq[SimpleVariantValue])
+case class SimpleCompleteVariant(variant: SimpleVariant, variantValues: Seq[SimpleVariantValue])
 
 case class SimpleProductData(productId: Int = 0, skuId: Int = 0, title: String,
   description: String, image: String = SimpleProductDefaults.imageUrl, code: String,
@@ -180,7 +180,7 @@ case class SimpleVariantData(variantId: Int, productShadowId: Int, shadowId: Int
 case class SimpleVariantValueData(valueId: Int, variantShadowId: Int,
   shadowId: Int, name: String, swatch: String )
 
-case class SimpleCompleteVariantData(v: SimpleVariantData, vs: Seq[SimpleVariantValueData])
+case class SimpleCompleteVariantData(variant: SimpleVariantData, variantValues: Seq[SimpleVariantValueData])
 
 object Mvp {
   def insertProductNewContext(oldContextId: Int, contextId: Int, p: SimpleProductData)(implicit db: Database):
@@ -217,8 +217,10 @@ object Mvp {
       simpleProduct, simpleSku, p)
   } yield r
 
-  def insertProductWithExistingSkus(contextId: Int, p: SimpleProductData, ss: Seq[Sku]): DbResultT[Product] = for {
-    simpleProduct   ← * <~ SimpleProduct(p.title, p.description, p.image, p.code, p.active, p.tags)
+  def insertProductWithExistingSkus(contextId: Int, productData: SimpleProductData, skus: Seq[Sku]):
+    DbResultT[Product] = for {
+    simpleProduct   ← * <~ SimpleProduct(productData.title, productData.description, 
+      productData.image, productData.code, productData.active, productData.tags)
     productForm     ← * <~ ObjectForms.create(simpleProduct.create)
     simpleShadow    ← * <~ SimpleProductShadow(simpleProduct)
     productShadow   ← * <~ ObjectShadows.create(simpleShadow.create.
@@ -231,9 +233,9 @@ object Mvp {
       Product(contextId = contextId, formId = productForm.id,
         shadowId = productShadow.id, commitId = productCommit.id))
 
-    _ ← * <~ DbResultT.sequence(ss.map { s ⇒
+    _ ← * <~ DbResultT.sequence(skus.map { sku ⇒
       DbResultT(ObjectLinks.create(ObjectLink(leftId = product.shadowId,
-        rightId = s.shadowId, linkType = ObjectLink.ProductSku)))
+        rightId = sku.shadowId, linkType = ObjectLink.ProductSku)))
     })
   } yield product
 
@@ -276,10 +278,11 @@ object Mvp {
   } yield SimpleVariantValueData(valueId = value.id, variantShadowId = variantShadowId,
     shadowId = shadow.id, name = v.name, swatch = v.swatch)
 
-  def insertVariantWithValues(contextId: Int, productShadowId: Int, scv: SimpleCompleteVariant):
+  def insertVariantWithValues(contextId: Int, productShadowId: Int, 
+    simpleCompleteVariant: SimpleCompleteVariant):
     DbResultT[SimpleCompleteVariantData] = for {
-    variant ← * <~ insertVariant(contextId, scv.v, productShadowId)
-    values  ← * <~ DbResultT.sequence(scv.vs.map(variantValue ⇒
+    variant ← * <~ insertVariant(contextId, simpleCompleteVariant.variant, productShadowId)
+    values  ← * <~ DbResultT.sequence(simpleCompleteVariant.variantValues.map(variantValue ⇒
       insertVariantValue(contextId, variantValue, variant.shadowId)))
   } yield SimpleCompleteVariantData(variant, values)
 

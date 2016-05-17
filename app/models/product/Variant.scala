@@ -35,8 +35,6 @@ object Variants extends FoxTableQuery[Variant, Variants](new Variants(_))
 
   val returningLens: Lens[Variant, Int] = lens[Variant].id
 
-  implicit val formats = JsonFormatters.phoenixFormats
-
   def filterByContext(contextId: Int): QuerySeq = 
     filter(_.contextId === contextId)
 

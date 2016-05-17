@@ -88,10 +88,10 @@ object ProductResponses {
       product: Product,
       productForm: ObjectForm, 
       productShadow: ObjectShadow,
-      skus: Seq[(Sku, ObjectForm, ObjectShadow)]): Root =
+      skus: Seq[FullObject[Sku]]): Root =
         Root(
-          form = FullProductFormResponse.build(product, productForm, skus.map{ t ⇒ (t._1, t._2)}),
-          shadow = FullProductShadowResponse.build(productShadow, skus.map{ t ⇒ (t._1, t._3)}))
+          form = FullProductFormResponse.build(product, productForm, skus.map{ sku ⇒ (sku.model, sku.form)}),
+          shadow = FullProductShadowResponse.build(productShadow, skus.map{ sku ⇒ (sku.model, sku.shadow)}))
   }
 
   object IlluminatedFullProductResponse {

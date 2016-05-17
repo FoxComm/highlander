@@ -56,18 +56,12 @@ object ObjectManager {
       context.copy(name = payload.name, attributes = payload.attributes))
   } yield ObjectContextResponse.build(update)).runTxn()
 
-  def mustFindByName404(name: String)(implicit ec: EC): DbResultT[ObjectContext] = for {
-    context ← * <~ ObjectContexts.filterByName(name).one.
-      mustFindOr(ObjectContextNotFound(name))
-  } yield context
+  def mustFindByName404(name: String)(implicit ec: EC): DbResultT[ObjectContext] =
+    DbResultT(ObjectContexts.filterByName(name).one.mustFindOr(ObjectContextNotFound(name)))
 
-  def mustFindFormById404(id: Int)(implicit ec: EC): DbResultT[ObjectForm] = for {
-    form ← * <~ ObjectForms.filter(_.id === id).one.
-      mustFindOr(ObjectFormNotFound(id))
-  } yield form
+  def mustFindFormById404(id: Int)(implicit ec: EC): DbResultT[ObjectForm] =
+    DbResultT(ObjectForms.findOneById(id).mustFindOr(ObjectFormNotFound(id)))
 
-  def mustFindShadowById404(id: Int)(implicit ec: EC): DbResultT[ObjectShadow] = for {
-    shadow ← * <~ ObjectShadows.filter(_.id === id).one.
-      mustFindOr(ObjectShadowNotFound(id))
-  } yield shadow
+  def mustFindShadowById404(id: Int)(implicit ec: EC): DbResultT[ObjectShadow] =
+    DbResultT(ObjectShadows.findOneById(id).mustFindOr(ObjectShadowNotFound(id)))
 }

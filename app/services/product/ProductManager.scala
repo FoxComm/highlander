@@ -103,8 +103,8 @@ object ProductManager {
       payload.shadow.product.attributes)
     updatedSkuData ← * <~ updateSkuData(context, product.shadowId,
       updatedProduct.shadow.id, payload.form.skus, payload.shadow.skus)
-    skusChanged ← * <~ anyChanged(updatedSkuData.map(_._4))
-    skuData  ← * <~ updatedSkuData.map( t ⇒ (t._1, t._2, t._3))
+    skusChanged ← * <~ anyChanged(updatedSkuData.map { case (_, isUpdated) ⇒ isUpdated })
+    skuData  ← * <~ updatedSkuData.map { case (fullSku, _) ⇒ fullSku }
     commit ← * <~ ObjectUtils.commit(updatedProduct.form, updatedProduct.shadow,
       updatedProduct.updated || skusChanged)
     product ← * <~ updateProductHead(product, updatedProduct.shadow, commit)
@@ -147,9 +147,7 @@ object ProductManager {
     variantsWithValues ← * <~ combineVariantsAndValues(variants, fullVariantMap)
   } yield IlluminatedFullProductResponse.build(
     IlluminatedProduct.illuminate(context, product, productForm, productShadow),
-    skuData.map {
-      case (s, f, sh) ⇒ IlluminatedSku.illuminate(context, s, f, sh)
-    },
+    skuData.map(sku ⇒ IlluminatedSku.illuminate(context, sku)),
     variantsWithValues.map { case (vars, vals) ⇒ (IlluminatedVariant.illuminate(context, vars), vals) },
     variantMap)
 
@@ -173,9 +171,7 @@ object ProductManager {
     variantsWithValues ← * <~ combineVariantsAndValues(variants, fullVariantMap)
   } yield IlluminatedFullProductResponse.build(
     IlluminatedProduct.illuminate(context, product, productForm, productShadow),
-    skuData.map {
-      case (s, f, sh) ⇒ IlluminatedSku.illuminate(context, s, f, sh)
-    },
+    skuData.map(sku ⇒ IlluminatedSku.illuminate(context, sku)),
     variantsWithValues.map { case (vars, vals) ⇒ (IlluminatedVariant.illuminate(context, vars), vals) },
     variantMap)).run()
 
@@ -187,31 +183,27 @@ object ProductManager {
   // Iterates through all SKU data and gets all VariantValues (and corresponding
   // Variant shadow IDs) that are used by the set of SKUs. The return set is
   // constrained by the set of Variants used on the project.
-  private def getFullVariantMapForSkus(skus: Seq[(Sku, ObjectForm, ObjectShadow)], variants: Seq[FullObject[Variant]])
+  private def getFullVariantMapForSkus(skus: Seq[FullObject[Sku]], variants: Seq[FullObject[Variant]])
     (implicit ec: EC) = {
     val empty = DbResultT.pure(Map.empty[String, Seq[VariantValueMapping]])
     for {
-      fullVariantMap ← * <~ skus.foldLeft(empty) { (acc, sd) ⇒
-        val sku = sd._1
+      fullVariantMap ← * <~ skus.foldLeft(empty) { (acc, sku) ⇒
         for {
-          values  ← * <~ SkuManager.findVariantValuesForSkuInProduct(sku, variants)
+          values  ← * <~ SkuManager.findVariantValuesForSkuInProduct(sku.model, variants)
           current ← * <~ acc
-        } yield current + (sku.code → values)
+        } yield current + (sku.model.code → values)
       }
     } yield fullVariantMap
   }
 
   private def combineVariantsAndValues(variants: Seq[FullObject[Variant]],
     mapping: Map[String, Seq[VariantValueMapping]]) = {
-    val combinedMap = mapping.foldLeft(Seq.empty[VariantValueMapping]) { (acc, item) ⇒
-      val mapSeq = item._2
-      acc ++ mapSeq
-    }
+    val combinedMap = mapping.foldLeft(Seq.empty[VariantValueMapping]) { case (acc, (_, mappings)) ⇒ acc ++ mappings }
 
     val mapPartition = combinedMap.foldLeft(Map.empty[Int, Seq[FullObject[VariantValue]]]) { (acc, mapItem) ⇒
       val valueList = acc.get(mapItem.variantShadowId) match {
         case Some(currentValues) ⇒
-          if (currentValues contains mapItem.value) currentValues
+          if (currentValues.contains(mapItem.value)) currentValues
           else currentValues :+ mapItem.value
         case None ⇒
           Seq(mapItem.value)
@@ -269,11 +261,11 @@ object ProductManager {
       commit  ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
       sku ← * <~ Skus.create(Sku(contextId = context.id, code = formPayload.code,
         formId = form.id, shadowId = shadow.id, commitId = commit.id))
-    } yield (sku, form, shadow)
+    } yield FullObject(sku, form, shadow)
   }
 
   private def getSkuData(productShadowId: Int)(implicit ec: EC):
-    DbResultT[Seq[(Sku, ObjectForm, ObjectShadow)]] = for {
+    DbResultT[Seq[FullObject[Sku]]] = for {
     links     ← * <~ ObjectLinks.findByLeftAndType(productShadowId, ObjectLink.ProductSku).result
     shadowIds ← * <~ links.map(_.rightId)
     shadows   ← * <~ ObjectShadows.filter(_.id.inSet(shadowIds)).sortBy(_.formId).result
@@ -281,11 +273,13 @@ object ProductManager {
     forms     ← * <~ ObjectForms.filter(_.id.inSet(formIds)).sortBy(_.id).result
     skus      ← * <~ Skus.filter(_.formId.inSet(formIds)).sortBy(_.formId).result
 
-  } yield (skus.zip(forms.zip(shadows))).map{ case (a, b) ⇒ (a, b._1, b._2)}
+  } yield skus.zip(forms.zip(shadows)).map{
+    case (sku, formAndShadow) ⇒ FullObject(sku, formAndShadow._1, formAndShadow._2)
+  }
 
   private def createSkuData(context: ObjectContext, productShadowId: Int,
     formPayloads: Seq[CreateFullSkuForm], shadowPayloads: Seq[CreateSkuShadow])
-  (implicit ec: EC) : DbResultT[Seq[(Sku, ObjectForm, ObjectShadow)]] = for {
+  (implicit ec: EC) : DbResultT[Seq[FullObject[Sku]]] = for {
 
     skuGroup    ← * <~ groupSkuFormsAndShadows(formPayloads, shadowPayloads)
     _            ← * <~ validateSkuPayload(skuGroup)
@@ -296,7 +290,7 @@ object ProductManager {
 
   private def updateSkuData(context: ObjectContext, oldProductShadowId: Int, productShadowId: Int,
     formPayloads: Seq[UpdateFullSkuForm], shadowPayloads: Seq[UpdateFullSkuShadow])
-  (implicit ec: EC, db: DB) : DbResultT[Seq[(Sku, ObjectForm, ObjectShadow, Boolean)]] = for {
+  (implicit ec: EC, db: DB) : DbResultT[Seq[(FullObject[Sku], Boolean)]] = for {
 
     skuGroup    ← * <~ groupSkuFormsAndShadows2(formPayloads, shadowPayloads)
     _            ← * <~ validateSkuPayload2(skuGroup)
@@ -309,7 +303,7 @@ object ProductManager {
 
   private def updateSku(context: ObjectContext, oldProductShadowId: Int, productShadowId: Int,
     formPayload: UpdateFullSkuForm, shadowPayload: UpdateFullSkuShadow)
-  (implicit ec: EC, db: DB): DbResultT[(Sku, ObjectForm, ObjectShadow, Boolean)] = {
+  (implicit ec: EC, db: DB): DbResultT[(FullObject[Sku], Boolean)] = {
     require(formPayload.code == shadowPayload.code)
     for {
       sku   ← * <~ Skus.filterByContextAndCode(context.id, formPayload.code).one.mustFindOr(
@@ -321,7 +315,7 @@ object ProductManager {
       commit ← * <~ ObjectUtils.commit(updatedSku.form, updatedSku.shadow,
         updatedSku.updated)
       sku  ← * <~ SkuManager.updateSkuHead(sku, updatedSku.shadow, commit)
-    } yield (sku, updatedSku.form, updatedSku.shadow, updatedSku.updated)
+    } yield (FullObject(sku, updatedSku.form, updatedSku.shadow), updatedSku.updated)
   }
 
   private def groupSkuFormsAndShadows(forms: Seq[CreateFullSkuForm], shadows: Seq[CreateSkuShadow]) = {

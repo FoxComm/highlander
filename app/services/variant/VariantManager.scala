@@ -27,6 +27,15 @@ object VariantManager {
     variant ← * <~ mustFindVariantByContextAndShadow(variantValue.contextId, variantValue.shadowId)
   } yield variant
 
+  def mustFindVariantValueByContextAndShadow(contextId: Int, shadowId: Int)
+    (implicit ec: EC): DbResultT[FullObject[VariantValue]] = for {
+
+    shadow ← * <~ ObjectManager.mustFindShadowById404(shadowId)
+    form   ← * <~ ObjectManager.mustFindFormById404(shadow.formId)
+    value  ← * <~ VariantValues.filterByContextAndFormId(contextId, form.id).one.
+      mustFindOr(VariantValueNotFoundForContext(form.id, contextId))
+  } yield FullObject(value, form, shadow)
+
   private def mustFindVariantByContextAndShadow(contextId: Int, shadowId: Int)
     (implicit ec: EC): DbResultT[FullObject[Variant]] = for {
     shadow ← * <~ ObjectManager.mustFindShadowById404(shadowId)
@@ -34,5 +43,4 @@ object VariantManager {
     variant ← * <~ Variants.filterByContextAndFormId(contextId, form.id).one.
       mustFindOr(VariantNotFoundForContext(form.id, contextId))
   } yield FullObject(variant, form, shadow)
-
 }
