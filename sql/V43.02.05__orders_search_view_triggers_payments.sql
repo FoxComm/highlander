@@ -29,7 +29,8 @@ begin
       then
           '[]'
       else
-          json_agg((op.payment_method_type, op.amount, op.currency, ccp.state, gcc.state, sca.state)::export_payments)
+          json_agg((op.payment_method_type, op.amount, op.currency, ccp.state, gcc.state, sca.state)
+          ::export_payments)::jsonb
       end as payments
       from orders as o
       left join order_payments as op on (o.id = op.order_id)

@@ -23,7 +23,7 @@ create or replace function update_orders_view_from_orders_insert_fn() returns tr
                 'joined_at', to_char(c.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
                 'rank', rank.rank,
                 'revenue', coalesce(rank.revenue, 0)
-            ) as customer
+            )::jsonb as customer
             from customers as c
             left join customers_ranking as rank on (c.id = rank.id)
             where (new.customer_id = c.id);

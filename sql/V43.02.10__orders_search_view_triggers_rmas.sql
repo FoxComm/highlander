@@ -11,7 +11,8 @@ begin
             then
                 '[]'
             else
-                json_agg((rmas.reference_number, rmas.state, rmas.rma_type, to_char(rmas.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'))::export_rmas)
+                json_agg((rmas.reference_number, rmas.state, rmas.rma_type, to_char(rmas.created_at,
+                'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'))::export_rmas)::jsonb
             end as rmas
         from orders as o
         left join rmas on (o.id = rmas.order_id)

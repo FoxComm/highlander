@@ -10,7 +10,7 @@ begin
         'joined_at', to_char(new.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
         'rank', customer ->> 'rank',
         'revenue', customer ->> 'revenue'
-    ) where customer ->> 'id' = new.id::varchar;
+    )::jsonb where customer ->> 'id' = new.id::varchar;
 
     return null;
 end;

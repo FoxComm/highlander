@@ -34,7 +34,8 @@ begin
             then
                 '[]'
             else
-                json_agg((cc.address1, cc.address2, cc.city, cc.zip, r2.name, c2.name, c2.continent, c2.currency)::export_addresses)
+                json_agg((cc.address1, cc.address2, cc.city, cc.zip, r2.name, c2.name, c2.continent, c2.currency)
+                ::export_addresses)::jsonb
             end as addresses
         from orders as o
         left join order_payments as op_cc on (o.id = op_cc.order_id and op_cc.payment_method_type = 'creditCard')

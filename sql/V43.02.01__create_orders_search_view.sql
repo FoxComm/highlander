@@ -33,3 +33,4 @@ create table orders_search_view
     rmas jsonb not null default '[]'
 );
 
+create index orders_search_view_customer_idx on orders_search_view((customer->>'id'));

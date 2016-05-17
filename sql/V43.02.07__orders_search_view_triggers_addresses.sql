@@ -27,7 +27,8 @@ begin
             then
                 '[]'
             else
-                json_agg((osa.address1, osa.address2, osa.city, osa.zip, r1.name, c1.name, c1.continent, c1.currency)::export_addresses)
+                json_agg((osa.address1, osa.address2, osa.city, osa.zip, r1.name, c1.name, c1.continent, c1.currency)
+                ::export_addresses)::jsonb
             end as addresses
         from orders as o
         left join order_shipping_addresses as osa on (o.id = osa.order_id)
