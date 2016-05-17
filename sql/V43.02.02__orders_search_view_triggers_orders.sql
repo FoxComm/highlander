@@ -28,7 +28,7 @@ create or replace function update_orders_view_from_orders_fn() returns trigger a
             left join customers_ranking as rank on (c.id = rank.id)
             where (new.customer_id = c.id)
           -- update only order stuff
-on conflict do update set
+on conflict(id) do update set
     id = excluded.id,
     reference_number = excluded.reference_number,
     state = excluded.state,
