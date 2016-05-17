@@ -30,7 +30,7 @@ begin
         WHERE oli_skus.sku_shadow_id = NEW.id;
   end case;
 
-  update orders_search_view_test set
+  update orders_search_view set
     (line_item_count, line_items) = (select
       count(sku.id) as count,
       case when count(sku) = 0

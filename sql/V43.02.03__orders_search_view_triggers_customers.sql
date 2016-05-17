@@ -1,7 +1,7 @@
 create or replace function update_orders_view_from_customers_fn() returns trigger as $$
 begin
 
-  UPDATE orders_search_view_test SET
+  UPDATE orders_search_view SET
     customer = json_build_object(
         'id', new.id,
         'name', new.name,

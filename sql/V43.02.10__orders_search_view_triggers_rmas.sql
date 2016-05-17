@@ -1,7 +1,7 @@
 create or replace function update_orders_view_from_rmas_fn() returns trigger as $$
 begin
 
-  update orders_search_view_test set
+  update orders_search_view set
     rma_count = subquery.count,
     rmas = subquery.rmas
     from (select
@@ -17,7 +17,7 @@ begin
         left join rmas on (o.id = rmas.order_id)
         where o.id = NEW.order_id
         GROUP BY o.id) AS subquery
-  WHERE orders_search_view_test.id = subquery.order_id;
+  WHERE orders_search_view.id = subquery.order_id;
 
     return null;
 end;

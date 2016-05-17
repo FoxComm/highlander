@@ -17,7 +17,7 @@ begin
       where c1.id = NEW.id;
   end case;
 
-  update orders_search_view_test set
+  update orders_search_view set
     shipping_addresses_count = subquery.count,
     shipping_addresses = subquery.addresses
     from (select
@@ -35,7 +35,7 @@ begin
         left join countries as c1 on (r1.country_id = c1.id)
         where o.id = ANY(order_ids)
         group by o.id) AS subquery
-  WHERE orders_search_view_test.id = subquery.id;
+  WHERE orders_search_view.id = subquery.id;
 
     return null;
 end;

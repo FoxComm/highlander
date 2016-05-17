@@ -21,7 +21,7 @@ begin
         WHERE sca.id = NEW.id;
   end case;
 
-  update orders_search_view_test set
+  update orders_search_view set
     payments = subquery.payments
       from (select
       o.id,
@@ -38,7 +38,7 @@ begin
       left join store_credit_adjustments as sca on (op.id = sca.order_payment_id)
       where o.id = ANY(order_ids)
       group by o.id) AS subquery
-    WHERE orders_search_view_test.id = subquery.id;
+    WHERE orders_search_view.id = subquery.id;
 
     return null;
 end;
@@ -47,7 +47,7 @@ $$ language plpgsql;
 
 create or replace function update_orders_from_payments_creditCard_fn() returns trigger as $$
 begin
-  update orders_search_view_test set
+  update orders_search_view set
     credit_card_count = subquery.credit_card_count,
     credit_card_total = subquery.credit_card_total
     FROM (
@@ -59,14 +59,14 @@ begin
         WHERE op.id = NEW.id AND op.payment_method_type = 'creditCard'
         group by op.order_id
       ) AS subquery
-  WHERE orders_search_view_test.id = subquery.order_id;
+  WHERE orders_search_view.id = subquery.order_id;
   return NULL;
 END;
 $$ LANGUAGE plpgsql;
 
 create or replace function update_orders_from_payments_giftCard_fn() returns trigger as $$
 begin
-  update orders_search_view_test set
+  update orders_search_view set
     gift_card_count = subquery.gift_card_count,
     gift_card_total = subquery.gift_card_total
     FROM (
@@ -78,14 +78,14 @@ begin
         WHERE op.id = NEW.id AND op.payment_method_type = 'giftCard'
         group by op.order_id
       ) AS subquery
-  WHERE orders_search_view_test.id = subquery.order_id;
+  WHERE orders_search_view.id = subquery.order_id;
   return NULL;
 END;
 $$ LANGUAGE plpgsql;
 
 create or replace function update_orders_from_payments_storeCredit_fn() returns trigger as $$
 begin
-  update orders_search_view_test set
+  update orders_search_view set
     store_credit_count = subquery.store_credit_count,
     store_credit_total = subquery.store_credit_total
     FROM (
@@ -97,7 +97,7 @@ begin
         WHERE op.id = NEW.id AND op.payment_method_type = 'storeCredit'
         group by op.order_id
       ) AS subquery
-  WHERE orders_search_view_test.id = subquery.order_id;
+  WHERE orders_search_view.id = subquery.order_id;
   return NULL;
 END;
 $$ LANGUAGE plpgsql;

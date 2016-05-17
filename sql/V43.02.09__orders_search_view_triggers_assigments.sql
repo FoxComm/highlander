@@ -15,7 +15,7 @@ begin
       where sa.id = NEW.id;
   end case;
 
-  update orders_search_view_test set
+  update orders_search_view set
     assignment_count = subquery.count,
     assignees = subquery.assignees
     from (select
@@ -32,7 +32,7 @@ begin
         left join store_admins as sa on (sa.id = a.store_admin_id)
         where o.id = ANY(order_ids)
         group by o.id) AS subquery
-  WHERE orders_search_view_test.id = subquery.id;
+  WHERE orders_search_view.id = subquery.id;
 
     return null;
 end;
