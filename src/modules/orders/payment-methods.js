@@ -105,6 +105,18 @@ export function addOrderStoreCreditPayment(orderRefNum, amount) {
   };
 }
 
+export function editOrderStoreCreditPayment(orderRefNum, amount) {
+  return dispatch => {
+    return Api.post(`${basePath(orderRefNum)}/store-credit`, { amount: amount })
+      .then(
+        order => {
+          dispatch(orderSuccess(order));
+        },
+        err => dispatch(setError(err))
+      );
+  };
+}
+
 export function addOrderGiftCardPayment(orderRefNum, code, amount) {
   return dispatch => {
     dispatch(orderPaymentMethodAddNewPaymentStart());

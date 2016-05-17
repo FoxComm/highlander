@@ -1,9 +1,9 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 
-import Currency from '../../common/currency';
 import PaymentRow from './row';
 import DebitCredit from './debit-credit';
+import DebitCreditInfo from './debit-credit-info';
 
 import * as PaymentMethodActions from '../../../modules/orders/payment-methods';
 
@@ -17,20 +17,12 @@ let GiftCardDetails = props => {
       .then(props.cancelEditing);
   };
 
-  const futureBalance = availableBalance - amount;
-
   if (!props.isEditing) {
     return (
-      <div>
-        <dl>
-          <dt>Available Balance</dt>
-          <dd><Currency value={availableBalance} /></dd>
-        </dl>
-        <dl>
-          <dt>Future Available Balance</dt>
-          <dd><Currency value={futureBalance} /></dd>
-        </dl>
-      </div>
+      <DebitCreditInfo
+        availableBalance={availableBalance}
+        amount={amount}
+      />
     );
   } else {
     return (
@@ -78,7 +70,8 @@ GiftCard.propTypes = {
     referenceNumber: PropTypes.string.isRequired
   }),
   isEditing: PropTypes.bool.isRequired,
-  deleteOrderGiftCardPayment: PropTypes.func.isRequired
+  deleteOrderGiftCardPayment: PropTypes.func.isRequired,
+  editOrderGiftCardPayment: PropTypes.func.isRequired,
 };
 
 export default GiftCard;
