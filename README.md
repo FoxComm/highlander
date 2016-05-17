@@ -6,9 +6,7 @@ Green river currently represents consumers that capture [Phoenix](https://github
 
 ## Running
 
-```
-$ sbt -Denv=localhost consume
-```
+	$ sbt -Denv=localhost consume
 
 ## Vagrant
 
@@ -18,19 +16,11 @@ You can use vagrant to have a ready to run system with all dependencies installe
 
 2. Make sure you have [phoenix-scala](https://github.com/FoxComm/phoenix-scala) and [green-river](https://github.com/FoxComm/green-river) checked out
 
-3. Checkout the [Provisioning Repository](https://github.com/FoxComm/prov-shit) at the same 
-   directory level as ashes.
-
+3. Checkout the [Provisioning Repository](https://github.com/FoxComm/prov-shit) at the same directory level as ashes.
 
   _Ashes can be run through either a VirtualBox or VMWare Fusion provider._
 
   ```
-  cd prov-shit
-  vagrant up
+  $ cd prov-shit
+  $ vagrant up
   ```
-
-
-## Docs
-
-* [Install](docs/Install.md)
-* [Query](docs/Query.md)
