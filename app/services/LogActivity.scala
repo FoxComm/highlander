@@ -252,6 +252,14 @@ object LogActivity {
     (implicit ec: EC, ac: AC): DbResult[Activity] =
     Activities.log(OrderPaymentMethodAddedGiftCard(order, GiftCardResponse.build(gc), amount, buildOriginator(originator)))
 
+  def orderPaymentMethodUpdatedGc(originator: Originator, order: FullOrder.Root, gc: GiftCard, oldAmount: Option[Int],
+    amount: Int)(implicit ec: EC, ac: AC): DbResult[Activity] = {
+    val activity = OrderPaymentMethodUpdatedGiftCard(order, GiftCardResponse.build(gc), oldAmount, amount,
+      buildOriginator(originator))
+
+    Activities.log(activity)
+  }
+
   def orderPaymentMethodAddedSc(originator: Originator, order: FullOrder.Root, amount: Int)
     (implicit ec: EC, ac: AC): DbResult[Activity] =
     Activities.log(OrderPaymentMethodAddedStoreCredit(order, amount, buildOriginator(originator)))

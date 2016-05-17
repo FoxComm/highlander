@@ -97,6 +97,10 @@ object OrderPayments extends FoxTableQuery[OrderPayment, OrderPayments](new Orde
       def storeCredits: QuerySeq = q.byType(PaymentMethod.StoreCredit)
 
       def byType(pmt: PaymentMethod.Type): QuerySeq = q.filter(_.paymentMethodType === (pmt: PaymentMethod.Type))
+
+      def byOrderAndGiftCard(order: Order, giftCard: GiftCard): QuerySeq = q.giftCards
+        .filter(_.paymentMethodId === giftCard.id)
+        .filter(_.orderId === order.id)
     }
   }
 }

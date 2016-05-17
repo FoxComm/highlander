@@ -80,6 +80,10 @@ object OrderTailored {
     admin: Option[StoreAdminResponse.Root])
     extends ActivityBase[OrderPaymentMethodAddedGiftCard]
 
+  case class OrderPaymentMethodUpdatedGiftCard(order: FullOrder.Root, giftCard: GiftCardResponse.Root,
+    oldAmount: Option[Int], amount: Int, admin: Option[StoreAdminResponse.Root])
+    extends ActivityBase[OrderPaymentMethodUpdatedGiftCard]
+
   case class OrderPaymentMethodAddedStoreCredit(order: FullOrder.Root, amount: Int,
     admin: Option[StoreAdminResponse.Root])
     extends ActivityBase[OrderPaymentMethodAddedStoreCredit]

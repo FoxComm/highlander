@@ -131,6 +131,11 @@ object OrderRoutes {
                 OrderPaymentUpdater.addGiftCard(Originator(admin), payload, Some(refNum))
               }
             } ~
+            (patch & pathEnd & entity(as[GiftCardPayment])) { payload ⇒
+              goodOrFailures {
+                OrderPaymentUpdater.editGiftCard(Originator(admin), payload, Some(refNum))
+              }
+            } ~
             (delete & path(GiftCard.giftCardCodeRegex) & pathEnd) { code ⇒
               goodOrFailures {
                 OrderPaymentUpdater.deleteGiftCard(Originator(admin), code, Some(refNum))

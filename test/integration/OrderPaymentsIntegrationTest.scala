@@ -130,6 +130,34 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       }
     }
 
+    "PATCH /v1/orders/:ref/payment-methods/gift-cards" - {
+      "successfully updates giftCard payment" in new GiftCardFixture {
+        val payload = payloads.GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance.some)
+        val create = POST(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
+        create.status must ===(StatusCodes.OK)
+
+        val update = PATCH(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload.copy(amount = Some(10)))
+        update.status must ===(StatusCodes.OK)
+      }
+
+      "fails if the order is not found" in new GiftCardFixture {
+        val payload = payloads.GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance.some)
+        val response = PATCH(s"v1/orders/ABC123/payment-methods/gift-cards", payload)
+
+        response.status must === (StatusCodes.NotFound)
+        giftCardPayments(order) mustBe 'empty
+      }
+
+      "fails if the giftCard is not found" in new GiftCardFixture {
+        val payload = payloads.GiftCardPayment(code = giftCard.code ++ "xyz", amount = giftCard.availableBalance.some)
+        val response = PATCH(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
+
+        response.status must === (StatusCodes.BadRequest)
+        response.error must === (NotFoundFailure404(GiftCard, payload.code).description)
+        giftCardPayments(order) mustBe 'empty
+      }
+    }
+
     "DELETE /v1/orders/:ref/payment-methods/gift-cards/:code" - {
       "successfully deletes a giftCard" in new GiftCardFixture {
         val payload = payloads.GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance.some)

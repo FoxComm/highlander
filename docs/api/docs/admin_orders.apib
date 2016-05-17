@@ -163,8 +163,18 @@ Order must be in `remorseHold` state.
 + Response 200 (application/json)
     + Attributes (FullOrder)
 
-### Delete [DELETE]
+### Edit [PATCH]
 
++ Request (application/json)
+    + Attributes (GiftCardPaymentPayload)
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+### Delete [DELETE /v1/orders/{refNum}/payment-methods/gift-cards/{code}]
+
++ Parameters
+    + refNum: `ABC-123` (required, string) - Order reference number
+    + code: `ABC-123` (required, string) - Gift card code.
 + Response 200 (application/json)
     + Attributes (FullOrder)
 

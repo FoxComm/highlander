@@ -1,6 +1,10 @@
 package services.orders
 
 import cats.implicits._
+import failures._
+import failures.GiftCardFailures._
+import failures.OrderFailures._
+import failures.StoreCreditFailures._
 import models.order._
 import models.traits.Originator
 import OrderPayments.scope._
@@ -12,10 +16,6 @@ import models.payment.storecredit._
 import payloads.{GiftCardPayment, StoreCreditPayment}
 import responses.order.FullOrder
 import FullOrder.refreshAndFullOrder
-import failures.GiftCardFailures.GiftCardPaymentAlreadyAdded
-import failures.{NotFoundFailure400, OpenTransactionsFailure}
-import failures.OrderFailures.OrderPaymentNotFoundFailure
-import failures.StoreCreditFailures.CustomerHasInsufficientStoreCredit
 import responses.TheResponse
 import services.{CartValidator, LogActivity, Result}
 import slick.driver.PostgresDriver.api._
@@ -27,22 +27,38 @@ object OrderPaymentUpdater {
 
   def addGiftCard(originator: Originator, payload: GiftCardPayment, refNum: Option[String] = None)
     (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] = (for {
-    order  ← * <~ getCartByOriginator(originator, refNum)
-    _      ← * <~ order.mustBeCart
-    gc     ← * <~ GiftCards.mustFindByCode(payload.code, c ⇒ NotFoundFailure400(GiftCard, c))
+    order        ← * <~ getCartByOriginator(originator, refNum)
+    _            ← * <~ order.mustBeCart
+    result       ← * <~ validGiftCardWithAmount(payload)
+    (gc, amount) = result
+    _            ← * <~ OrderPayments.byOrderAndGiftCard(order, gc).one.mustNotFindOr(GiftCardPaymentAlreadyAdded(order.refNum, payload.code))
+    _            ← * <~ OrderPayments.create(OrderPayment.build(gc).copy(orderId = order.id, amount = amount.some))
+    resp         ← * <~ refreshAndFullOrder(order).toXor
+    valid        ← * <~ CartValidator(order).validate()
+    _            ← * <~ LogActivity.orderPaymentMethodAddedGc(originator, resp, gc, amount)
+  } yield TheResponse.build(resp, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
+
+  def editGiftCard(originator: Originator, payload: GiftCardPayment, refNum: Option[String] = None)
+    (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] = (for {
+    order        ← * <~ getCartByOriginator(originator, refNum)
+    _            ← * <~ order.mustBeCart
+    result       ← * <~ validGiftCardWithAmount(payload)
+    (gc, amount) = result
+    orderPayment ← * <~ OrderPayments.byOrderAndGiftCard(order, gc).one.mustFindOr(GiftCardPaymentNotFound(order.refNum, payload.code))
+    _            ← * <~ OrderPayments.update(orderPayment, orderPayment.copy(amount = amount.some))
+    resp         ← * <~ refreshAndFullOrder(order).toXor
+    valid        ← * <~ CartValidator(order).validate()
+    _            ← * <~ LogActivity.orderPaymentMethodUpdatedGc(originator, resp, gc, orderPayment.amount, amount)
+  } yield TheResponse.build(resp, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
+
+  private def validGiftCardWithAmount(payload: GiftCardPayment)(implicit ec: EC, db: DB, ac: AC) = for {
+    gc     ← * <~ GiftCards.mustFindByCode(payload.code, code ⇒ NotFoundFailure400(GiftCard, code))
     _      ← * <~ gc.mustNotBeCart
     _      ← * <~ gc.mustBeActive
     _      ← * <~ GiftCardAdjustments.lastAuthByGiftCardId(gc.id).one.mustNotFindOr(OpenTransactionsFailure)
-    _      ← * <~ OrderPayments.giftCards.filter(_.paymentMethodId === gc.id)
-                                        .filter(_.orderId === order.id)
-                                        .one.mustNotFindOr(GiftCardPaymentAlreadyAdded(order.refNum, payload.code))
     amount = selectGiftCardAmount(payload, gc)
     _      ← * <~ gc.mustHaveEnoughBalance(amount)
-    _      ← * <~ OrderPayments.create(OrderPayment.build(gc).copy(orderId = order.id, amount = amount.some))
-    resp   ← * <~ refreshAndFullOrder(order).toXor
-    valid  ← * <~ CartValidator(order).validate()
-    _      ← * <~ LogActivity.orderPaymentMethodAddedGc(originator, resp, gc, amount)
-  } yield TheResponse.build(resp, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
+  } yield (gc, amount)
 
   private def selectGiftCardAmount(payload: GiftCardPayment, gc: GiftCard): Int = payload.amount match {
     case Some(amount) ⇒ amount
@@ -55,8 +71,8 @@ object OrderPaymentUpdater {
       order        ← * <~ getCartByOriginator(originator, refNum)
       _            ← * <~ order.mustBeCart
       storeCredits ← * <~ StoreCredits.findAllActiveByCustomerId(order.customerId).result.toXor
-      reqAmount = payload.amount
-      available = storeCredits.map(_.availableBalance).sum
+      reqAmount    = payload.amount
+      available    = storeCredits.map(_.availableBalance).sum
       actions      ← * <~ (if (available < reqAmount) {
         DbResult.failure(CustomerHasInsufficientStoreCredit(id = order.customerId, has = available, want = reqAmount))
       } else {
