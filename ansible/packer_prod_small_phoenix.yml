@@ -10,6 +10,7 @@
     db_host: db.service.consul
     db_user: phoenix
     db_name: phoenix_development
+    zipkin_collector: zipkin_collector.service.consul
     phoenix_service_requires: ""
     phoenix_service_after: ""
 

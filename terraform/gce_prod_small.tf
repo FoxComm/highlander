@@ -122,7 +122,7 @@ variable "es_image" {
 }
 
 variable "phoenix_image" { 
-    default = "prod-small-phoenix-1463379225"
+    default = "prod-small-phoenix-1463409411"
 }
 
 variable "greenriver_image" { 

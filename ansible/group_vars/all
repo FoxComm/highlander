@@ -81,3 +81,6 @@ consul_data_dir: /var/consul
 
 #used to prefix service names in consul
 namespace: setme
+
+#zipkin
+zipkin_collector: ""
