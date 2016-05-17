@@ -51,14 +51,10 @@ export default class BulkActions extends Component {
       const count = toggledIds.length;
       let label = null;
 
-      if (isDirectAction && group === 'assignees') {
-        label = 'Assign';
-      } else if (!isDirectAction && group === 'assignees') {
-        label = 'Unassign';
-      } else if (isDirectAction && group === 'watchers') {
-        label = 'Watchers for';
-      } else if (!isDirectAction && group === 'watchers') {
-        label = 'Remove watchers for';
+      if (group === 'watchers') {
+        label = isDirectAction ? 'Watchers for' : 'Remove watchers for';
+      } else {
+        label = isDirectAction ? 'Assign' : 'Unassign';
       }
 
       const bulkAction = isDirectAction ? bulkActions.watch : bulkActions.unwatch;
