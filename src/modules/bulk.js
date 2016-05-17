@@ -75,6 +75,9 @@ export function toggleWatch(isDirectAction) {
       dispatch(actions.bulkRequest());
 
       const url = isDirectAction ? `/${prefix}/${group}` : `/${prefix}/${group}/delete`;
+      // UI modal popup has restriction to have only one watcher
+      // but interface of this function is not limited to this behaviour and it's more general than
+      // so we take first entry here since ui popup can't produce more anyway
       const storeAdminId = watchers[0];
 
       Api.post(url, {
