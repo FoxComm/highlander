@@ -15,7 +15,7 @@ begin
         inner join order_payments as op on (op.id = gcc.order_payment_id)
         WHERE gcc.id = NEW.id;
     when 'store_credit_adjustments' then
-      select array_agg(order_id) into strict order_ids
+      select array_agg(op.order_id) into strict order_ids
         from store_credit_adjustments as sca
         inner join order_payments as op on (op.id = sca.order_payment_id)
         WHERE sca.id = NEW.id;
@@ -127,17 +127,17 @@ create trigger update_orders_view_from_payments_storeCredits
   execute procedure update_orders_from_payments_storeCredit_fn();
 
 
-create trigger update_orders_view_from_payments
+create trigger update_orders_view_from_payments_ccc
     after update or insert on credit_card_charges
     for each row
     execute procedure update_orders_view_from_payments_fn();
 
-create trigger update_orders_view_from_payments
+create trigger update_orders_view_from_payments_gca
     after update or insert on gift_card_adjustments
     for each row
     execute procedure update_orders_view_from_payments_fn();
 
-create trigger update_orders_view_from_payments
+create trigger update_orders_view_from_payments_sca
     after update or insert on store_credit_adjustments
     for each row
     execute procedure update_orders_view_from_payments_fn();
