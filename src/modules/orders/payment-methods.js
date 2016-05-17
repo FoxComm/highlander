@@ -30,7 +30,7 @@ function deleteOrderPaymentMethod(path) {
   };
 }
 
-export function addOrderCreditCardPayment(orderRefNum, creditCardId) {
+function setOrderCreditCardPayment(orderRefNum, creditCardId) {
   return dispatch => {
     return Api.post(`${basePath(orderRefNum)}/credit-cards`, { creditCardId: creditCardId })
       .then(
@@ -39,6 +39,14 @@ export function addOrderCreditCardPayment(orderRefNum, creditCardId) {
         },
         err => dispatch(setError(err))
       );
+  };
+}
+
+export function addOrderCreditCardPayment(orderRefNum, creditCardId) {
+  return dispatch => {
+    dispatch(orderPaymentMethodAddNewPaymentStart());
+    return dispatch(setOrderCreditCardPayment(orderRefNum, creditCardId))
+      .then(() => dispatch(orderPaymentMethodAddNewPaymentSuccess()));
   };
 }
 
@@ -58,7 +66,7 @@ export function createAndAddOrderCreditCardPayment(orderRefNum, creditCard, cust
 
     return Api.post(`/customers/${customerId}/payment-methods/credit-cards`, ccPayload)
       .then(
-        res => dispatch(addOrderCreditCardPayment(orderRefNum, res.id)),
+        res => dispatch(setOrderCreditCardPayment(orderRefNum, res.id)),
         err => dispatch(setError(err))
       )
       .then(() => dispatch(orderPaymentMethodAddNewPaymentSuccess()));
@@ -77,7 +85,7 @@ export function editCreditCardPayment(orderRefNum, creditCard, customerId) {
   return dispatch => {
     return Api.patch(`/customers/${customerId}/payment-methods/credit-cards/${creditCard.id}`, ccPayload)
       .then(
-        res => dispatch(addOrderCreditCardPayment(orderRefNum, res.id)),
+        res => dispatch(setOrderCreditCardPayment(orderRefNum, res.id)),
         err => dispatch(setError(err))
       );
   };
