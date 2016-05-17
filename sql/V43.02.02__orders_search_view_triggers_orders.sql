@@ -1,12 +1,12 @@
-create or replace function update_orders_view_from_orders_fn() returns trigger as $$
+create or replace function update_orders_view_from_orders_insert_fn() returns trigger as $$
     begin
         insert into orders_search_view select distinct on (new.id)
             -- order
             new.id as id,
             new.reference_number as reference_number,
             new.state as state,
-            to_char(new.created_at, 'yyyy-mm-dd"t"hh24:mi:ss.ms"z"') as created_at,
-            to_char(new.placed_at, 'yyyy-mm-dd"t"hh24:mi:ss.ms"z"') as placed_at,
+            to_char(new.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as created_at,
+            to_char(new.placed_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as placed_at,
             new.currency as currency,
             -- totals
             new.sub_total as sub_total,
@@ -20,28 +20,43 @@ create or replace function update_orders_view_from_orders_fn() returns trigger a
                 'name', c.name,
                 'email', c.email,
                 'is_blacklisted', c.is_blacklisted,
-                'joined_at', to_char(c.created_at, 'yyyy-mm-dd"t"hh24:mi:ss.ms"z"'),
+                'joined_at', to_char(c.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
                 'rank', rank.rank,
                 'revenue', coalesce(rank.revenue, 0)
             ) as customer
             from customers as c
             left join customers_ranking as rank on (c.id = rank.id)
-            where (new.customer_id = c.id)
-          -- update only order stuff
-on conflict(id) do update set
-    id = excluded.id,
-    reference_number = excluded.reference_number,
-    state = excluded.state,
-    created_at = excluded.created_at,
-    placed_at = excluded.placed_at,
-    currency = excluded.currency;
-
+            where (new.customer_id = c.id);
       return null;
   end;
 $$ language plpgsql;
 
+create or replace function update_orders_view_from_orders_update_fn() returns trigger as $$
+begin
+    update orders_search_view set
+        reference_number = new.reference_number,
+        state = new.state,
+        created_at = to_char(new.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
+        placed_at = to_char(new.placed_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
+        currency = new.currency,
+        sub_total = new.sub_total,
+        shipping_total = new.shipping_total,
+        adjustments_total = new.adjustments_total,
+        taxes_total = new.taxes_total,
+        grand_total = new.grand_total
+     where id = NEW.id;
 
-create trigger update_orders_view_from_orders
-    after update or insert on orders
+    return null;
+    end;
+$$ language plpgsql;
+
+
+create trigger update_orders_view_from_orders_insert
+    after insert on orders
     for each row
-    execute procedure update_orders_view_from_orders_fn();
+    execute procedure update_orders_view_from_orders_insert_fn();
+
+create trigger update_orders_view_from_orders_update
+    after update on orders
+    for each row
+    execute procedure update_orders_view_from_orders_update_fn();

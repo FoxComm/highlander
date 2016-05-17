@@ -1,7 +1,7 @@
 create or replace function update_orders_view_from_customers_fn() returns trigger as $$
 begin
 
-  UPDATE orders_search_view SET
+  update orders_search_view set
     customer = json_build_object(
         'id', new.id,
         'name', new.name,
@@ -10,7 +10,7 @@ begin
         'joined_at', to_char(new.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
         'rank', customer ->> 'rank',
         'revenue', customer ->> 'revenue'
-    ) WHERE customer ->> 'id' = new.id::VARCHAR;
+    ) where customer ->> 'id' = new.id::varchar;
 
     return null;
 end;
