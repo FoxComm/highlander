@@ -5,7 +5,7 @@ import scala.concurrent.duration.DurationInt
 import akka.stream.scaladsl._
 import akka.stream.{Materializer, OverflowStrategy}
 
-import de.heikoseeberger.akkasse.{ServerSentEvent ⇒ SSE}
+import de.heikoseeberger.akkasse.{EventStreamElement, ServerSentEvent ⇒ SSE}
 import failures._
 import models.Notification._
 import models.activity._
@@ -26,11 +26,11 @@ object NotificationManager {
   implicit val formats = JsonFormatters.phoenixFormats
 
   def streamByAdminId(adminId: StoreAdmin#Id)
-    (implicit ec: EC, db: DB, mat: Materializer): Future[Source[SSE, Any]] = {
+    (implicit ec: EC, db: DB, mat: Materializer): Future[Source[EventStreamElement, Any]] = {
     StoreAdmins.findOneById(adminId).run().map {
       case Some(admin) ⇒
         oldNotifications(adminId).merge(newNotifications(adminId))
-          .keepAlive(30.seconds, () ⇒ SSE.heartbeat)
+          .keepAlive(30.seconds, () ⇒ SSE.Heartbeat)
       case None ⇒
         Source.single(SSE(s"Error! Store admin with id=$adminId not found"))
     }

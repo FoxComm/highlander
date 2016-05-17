@@ -243,7 +243,7 @@ trait HttpSupport
     }
 
     def skipHeartbeats(sse: Source[String, Any]): Source[String, Any] =
-      sse.via(Flow[String].filter(_ != ServerSentEvent.heartbeat.data))
+      sse.via(Flow[String].filter(_.nonEmpty))
 
     def probe(source: Source[String, Any]) =
       source.runWith(TestSink.probe[String])

@@ -1,11 +1,11 @@
 package services.image
 
-import java.io.File
+import java.nio.file.Files
 
 import akka.http.scaladsl.model.{HttpRequest, Multipart}
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.ActorMaterializer
-import akka.stream.scaladsl.{Sink, FileIO, Source}
+import akka.stream.scaladsl.{FileIO, Source}
 import akka.util.ByteString
 
 import cats.data.Xor.{left, right}
@@ -134,11 +134,11 @@ object ImageManager {
       formData.parts.filter(_.name == "upload-file").runFold(error) { (_, part) ⇒
         (for {
           context  ← * <~ ObjectManager.mustFindByName404(contextName)
-          file     ← * <~ getFileFromRequest(part.entity.dataBytes)
+          path     ← * <~ getFileFromRequest(part.entity.dataBytes)
           album    ← * <~ mustFindFullAlbumByIdAndContext404(albumId, context)
           filename ← * <~ getFileNameFromBodyPart(part)
           fullPath ← * <~ s"albums/${context.id}/${albumId}/${filename}"
-          s3       ← * <~ AmazonS3.uploadFile(fullPath, file)
+          s3       ← * <~ AmazonS3.uploadFile(fullPath, path.toFile)
           payload  = payloadForNewImage(album, s3)
           album    ← * <~ updateAlbumInner(albumId, payload, context)
         } yield album).runTxn()
@@ -148,8 +148,8 @@ object ImageManager {
 
   private def getFileFromRequest(bytes: Source[ByteString, Any])
     (implicit ec: EC, am: ActorMaterializer) = {
-    val file = File.createTempFile("tmp", ".jpg")
-    bytes.runWith(FileIO.toFile(file)).map { up ⇒
+    val file = Files.createTempFile("tmp", ".jpg")
+    bytes.runWith(FileIO.toPath(file)).map { up ⇒
       if (up.wasSuccessful) right(file)
       else left(ErrorReceivingImage.single)
     }

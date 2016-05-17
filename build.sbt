@@ -44,7 +44,7 @@ lazy val phoenixScala = (project in file(".")).
       "justwrote"          at "http://repo.justwrote.it/releases/"
     ),
     libraryDependencies ++= {
-      val akkaV      = "2.4.4"
+      val akkaV      = "2.4.5"
       val scalaTestV = "2.2.6"
       val json4sV    = "3.3.0"
       val slickPgV   = "0.14.0"
@@ -56,7 +56,7 @@ lazy val phoenixScala = (project in file(".")).
         "com.typesafe.akka"          %% "akka-agent"             % akkaV,
         "com.typesafe.akka"          %% "akka-stream"            % akkaV,
         "com.typesafe.akka"          %% "akka-http-core"         % akkaV,
-        "de.heikoseeberger"          %% "akka-sse"               % "1.7.4",
+        "de.heikoseeberger"          %% "akka-sse"               % "1.8.0",
         // http
         "net.databinder.dispatch"    %% "dispatch-core"          % "0.11.3",
         "net.databinder.dispatch"    %% "dispatch-json4s-native" % "0.11.3",
@@ -91,11 +91,11 @@ lazy val phoenixScala = (project in file(".")).
         "org.slf4j"                  %  "slf4j-api"              % "1.7.21",
         "org.joda"                   %  "joda-money"             % "0.11",
         "com.pellucid"               %% "sealerate"              % "0.0.3",
-        "com.chuusai"                %% "shapeless"              % "2.3.0",
+        "com.chuusai"                %% "shapeless"              % "2.3.1",
         "it.justwrote"               %% "scala-faker"            % "0.3",
         "io.backchat.inflector"      %% "scala-inflector"        % "1.3.5",
         "com.github.tototoshi"       %% "scala-csv"              % "1.3.1",
-        "com.amazonaws"              % "aws-java-sdk"            % "1.10.76",
+        "com.amazonaws"              % "aws-java-sdk"            % "1.11.0",
         // Testing
         "org.conbere"                %  "markov_2.10"            % "0.2.0",
         "com.typesafe.akka"          %% "akka-testkit"           % akkaV      % "test",
