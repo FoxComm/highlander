@@ -65,7 +65,7 @@ const LOCATION_DATA = [
 ];
 
 class Locations extends Component {
-  renderinfo(info: Array) {
+  renderinfo(info: Array<string>) {
     return info.map((line, i) => {
       return <span key={i}>{line}</span>;
     });
