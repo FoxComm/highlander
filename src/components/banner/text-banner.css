@@ -1,0 +1,17 @@
+.banner {
+  color: #314664;
+  font-family: Lato, 'Open Sans', sans-serif;
+}
+
+.header {
+  margin-bottom: 30px;
+  font-size: 47px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.description {
+  font-size: 17px;
+  line-height: 39px;
+  font-weight: 400;
+}

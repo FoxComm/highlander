@@ -82,7 +82,7 @@ class Navigation extends React.Component {
         )}
         {categoryItems}
         <li styleName="item" ><a href="/" styleName="item-link">Locations</a></li>
-        <li styleName="item" ><a href="/" styleName="item-link">Our story</a></li>
+        <li styleName="item" ><a href="/our-story" styleName="item-link">Our story</a></li>
       </ul>
     );
   }
