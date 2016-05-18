@@ -7,7 +7,6 @@ import { autobind } from 'core-decorators';
 import _ from 'lodash';
 
 import ContentBox from '../content-box/content-box';
-import TableBody from '../table/body';
 import TextInput from '../forms/text-input';
 import VariantValueEntry from './variant-value-entry';
 
@@ -62,7 +61,7 @@ export default class VariantEntry extends Component<void, Props, State> {
       return (
         <div className="fc-variant-entry">
           <table className="fc-table">
-            <tbody className="fc-table-tbody">
+            <tbody>
               {entries}
             </tbody>
           </table>

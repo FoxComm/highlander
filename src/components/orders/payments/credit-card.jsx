@@ -77,7 +77,6 @@ CreditCard.propTypes = {
   order: PropTypes.shape({
     referenceNumber: PropTypes.string.isRequired
   }),
-  isEditing: PropTypes.bool.isRequired,
   deleteOrderCreditCardPayment: PropTypes.func.isRequired,
   editCreditCardPayment: PropTypes.func.isRequired,
 };

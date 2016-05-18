@@ -3,7 +3,7 @@ import React from 'react';
 ////
 // A set of utilities needed for interacting with a table.
 const getTableRow = (doc, idx) => {
-  const query = `.fc-shipping-methods .fc-table-tbody .fc-table-tr:nth-child(${idx + 1})`;
+  const query = `.fc-shipping-methods tbody .fc-table-tr:nth-child(${idx + 1})`;
   return doc.querySelector(query);
 };
 

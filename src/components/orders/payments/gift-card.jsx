@@ -52,7 +52,6 @@ GiftCard.propTypes = {
   order: PropTypes.shape({
     referenceNumber: PropTypes.string.isRequired
   }),
-  isEditing: PropTypes.bool.isRequired,
   deleteOrderGiftCardPayment: PropTypes.func.isRequired,
   editOrderGiftCardPayment: PropTypes.func.isRequired,
 };

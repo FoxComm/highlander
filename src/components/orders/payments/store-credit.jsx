@@ -47,7 +47,6 @@ StoreCredit.propTypes = {
   order: PropTypes.shape({
     referenceNumber: PropTypes.string.isRequired
   }),
-  isEditing: PropTypes.bool.isRequired,
   deleteOrderStoreCreditPayment: PropTypes.func.isRequired,
   editOrderStoreCreditPayment: PropTypes.func.isRequired,
 };
