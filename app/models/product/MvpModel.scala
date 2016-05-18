@@ -125,6 +125,47 @@ case class SimpleSkuShadow(s: SimpleSku) {
       ObjectShadow(attributes = shadow)
 }
 
+case class SimpleVariant(name: String) {
+  val (keyMap, form) = ObjectUtils.createForm(parse(
+    s"""{ "name": "$name" }"""))
+
+  def create: ObjectForm = ObjectForm(kind = Variant.kind, attributes = form)
+
+  def update(oldForm: ObjectForm): ObjectForm =
+    oldForm.copy(attributes = oldForm.attributes merge form)
+}
+
+case class SimpleVariantShadow(v: SimpleVariant) {
+  val shadow = ObjectUtils.newShadow(parse(
+    """{ "name": { "type": "string", "ref": "name" } }"""), v.keyMap)
+
+  def create: ObjectShadow = ObjectShadow(attributes = shadow)
+}
+
+case class SimpleVariantValue(name: String, swatch: String) {
+  val (keyMap, form) = ObjectUtils.createForm(parse(
+    s"""{ "name": "$name", "swatch": "$swatch" }"""))
+
+  def create: ObjectForm = ObjectForm(kind = VariantValue.kind, attributes = form)
+
+  def update(oldForm: ObjectForm): ObjectForm =
+    oldForm.copy(attributes = oldForm.attributes merge form)
+}
+
+case class SimpleVariantValueShadow(v: SimpleVariantValue) {
+  val shadow = ObjectUtils.newShadow(parse(
+    """
+      {
+        "name": { "type": "string", "ref": "name" },
+        "swatch": { "type": "string", "ref": "swatch" }
+      }
+    """), v.keyMap)
+
+  def create: ObjectShadow = ObjectShadow(attributes = shadow)
+}
+
+case class SimpleCompleteVariant(variant: SimpleVariant, variantValues: Seq[SimpleVariantValue])
+
 case class SimpleProductData(productId: Int = 0, skuId: Int = 0, title: String,
   description: String, image: String = SimpleProductDefaults.imageUrl, code: String,
   price: Int, currency: Currency = Currency.USD, active: Boolean = false,
@@ -133,6 +174,13 @@ case class SimpleProductData(productId: Int = 0, skuId: Int = 0, title: String,
 case class SimpleProductTuple(product: Product, sku: Sku,
   productForm: ObjectForm, skuForm: ObjectForm, productShadow: ObjectShadow,
   skuShadow: ObjectShadow)
+
+case class SimpleVariantData(variantId: Int, productShadowId: Int, shadowId: Int, name: String)
+
+case class SimpleVariantValueData(valueId: Int, variantShadowId: Int,
+  shadowId: Int, name: String, swatch: String )
+
+case class SimpleCompleteVariantData(variant: SimpleVariantData, variantValues: Seq[SimpleVariantValueData])
 
 object Mvp {
   def insertProductNewContext(oldContextId: Int, contextId: Int, p: SimpleProductData)(implicit db: Database):
@@ -168,6 +216,75 @@ object Mvp {
     r ← * <~ insertProductIntoContext(contextId, productForm, skuForm,
       simpleProduct, simpleSku, p)
   } yield r
+
+  def insertProductWithExistingSkus(contextId: Int, productData: SimpleProductData, skus: Seq[Sku]):
+    DbResultT[Product] = for {
+    simpleProduct   ← * <~ SimpleProduct(productData.title, productData.description, 
+      productData.image, productData.code, productData.active, productData.tags)
+    productForm     ← * <~ ObjectForms.create(simpleProduct.create)
+    simpleShadow    ← * <~ SimpleProductShadow(simpleProduct)
+    productShadow   ← * <~ ObjectShadows.create(simpleShadow.create.
+        copy(formId = productForm.id))
+
+    productCommit   ← * <~ ObjectCommits.create(
+      ObjectCommit(formId = productForm.id, shadowId = productShadow.id))
+
+    product   ← * <~ Products.create(
+      Product(contextId = contextId, formId = productForm.id,
+        shadowId = productShadow.id, commitId = productCommit.id))
+
+    _ ← * <~ DbResultT.sequence(skus.map { sku ⇒
+      DbResultT(ObjectLinks.create(ObjectLink(leftId = product.shadowId,
+        rightId = sku.shadowId, linkType = ObjectLink.ProductSku)))
+    })
+  } yield product
+
+  def insertSku(contextId: Int, s: SimpleSku): DbResultT[Sku] = for {
+    form    ← * <~ ObjectForms.create(s.create)
+    sShadow ← * <~ SimpleSkuShadow(s)
+    shadow  ← * <~ ObjectShadows.create(sShadow.create.copy(formId = form.id))
+    commit  ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
+    sku     ← * <~ Skus.create(Sku(contextId = contextId, code = s.code,
+                    formId = form.id, shadowId = shadow.id, commitId = commit.id))
+  } yield sku
+
+  def insertSkus(contextId: Int, ss: Seq[SimpleSku]): DbResultT[Seq[Sku]] = for {
+    skus ← * <~ DbResultT.sequence(ss.map(s ⇒ insertSku(contextId, s)))
+  } yield skus
+
+  def insertVariant(contextId: Int, v: SimpleVariant, productShadowId: Int):
+    DbResultT[SimpleVariantData] = for {
+    form    ← * <~ ObjectForms.create(v.create)
+    sShadow ← * <~ SimpleVariantShadow(v)
+    shadow  ← * <~ ObjectShadows.create(sShadow.create.copy(formId = form.id))
+    commit  ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
+    variant ← * <~ Variants.create(Variant(contextId = contextId, variantType = v.name,
+                    formId = form.id, shadowId = shadow.id, commitId = commit.id))
+    _       ← * <~ ObjectLinks.create(ObjectLink(leftId = productShadowId,
+                    rightId = shadow.id, linkType = ObjectLink.ProductVariant))
+  } yield SimpleVariantData(variantId = variant.id, productShadowId = productShadowId,
+    shadowId = shadow.id, name = v.name)
+
+  def insertVariantValue(contextId: Int, v: SimpleVariantValue, variantShadowId: Int):
+    DbResultT[SimpleVariantValueData] = for {
+    form    ← * <~ ObjectForms.create(v.create)
+    sShadow ← * <~ SimpleVariantValueShadow(v)
+    shadow  ← * <~ ObjectShadows.create(sShadow.create.copy(formId = form.id))
+    commit  ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
+    value   ← * <~ VariantValues.create(VariantValue(contextId = contextId,
+                    formId = form.id, shadowId = shadow.id, commitId = commit.id))
+    _       ← * <~ ObjectLinks.create(ObjectLink(leftId = variantShadowId,
+                    rightId = shadow.id, linkType = ObjectLink.VariantValue))
+  } yield SimpleVariantValueData(valueId = value.id, variantShadowId = variantShadowId,
+    shadowId = shadow.id, name = v.name, swatch = v.swatch)
+
+  def insertVariantWithValues(contextId: Int, productShadowId: Int, 
+    simpleCompleteVariant: SimpleCompleteVariant):
+    DbResultT[SimpleCompleteVariantData] = for {
+    variant ← * <~ insertVariant(contextId, simpleCompleteVariant.variant, productShadowId)
+    values  ← * <~ DbResultT.sequence(simpleCompleteVariant.variantValues.map(variantValue ⇒
+      insertVariantValue(contextId, variantValue, variant.shadowId)))
+  } yield SimpleCompleteVariantData(variant, values)
 
   def insertProductIntoContext(contextId: Int, productForm: ObjectForm,
     skuForm: ObjectForm, simpleProduct: SimpleProduct, simpleSku: SimpleSku,

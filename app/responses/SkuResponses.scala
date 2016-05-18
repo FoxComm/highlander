@@ -47,7 +47,7 @@ object SkuResponses {
     def build(s: IlluminatedSku): Root = 
       Root(code = s.code, attributes = s.attributes, 
         context = ObjectContextResponse.build(s.context).some)
-    def buildLite(s: IlluminatedSku): Root = 
+    def buildLite(s: IlluminatedSku): Root =
       Root(code = s.code, attributes = s.attributes, context = None)
   }
 

@@ -1,16 +1,21 @@
 package services.inventory
 
 import cats.data.NonEmptyList
+import cats.implicits._
+import cats.data.Xor.right
 import failures.ObjectFailures._
 import failures.ProductFailures._
 import models.StoreAdmin
 import models.inventory._
 import models.objects._
+import models.product._
 import payloads.{CreateFullSku, UpdateFullSku}
 import responses.ObjectResponses.ObjectContextResponse
 import responses.SkuResponses._
 import services.{LogActivity, Result}
 import services.objects.ObjectManager
+import services.variant.VariantManager
+import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db.DbResultT._
 import utils.db._
@@ -52,7 +57,7 @@ object SkuManager {
     form    ← * <~ ObjectForms.mustFindById404(sku.formId)
     shadow  ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
   } yield IlluminatedSkuResponse.build(IlluminatedSku.illuminate(
-    context, sku, form, shadow))).run()
+    context, FullObject(sku, form, shadow)))).run()
 
   def validateShadow(form: ObjectForm, shadow: ObjectShadow)(implicit ec: EC) : DbResultT[Unit] =
     SkuValidator.validate(form, shadow) match {
@@ -99,6 +104,31 @@ object SkuManager {
         } yield sku
         case None ⇒ DbResultT.pure(sku)
       }
+
+  private def varValueIfInProduct(valueShadowId: Int, contextId: Int, allowedVariantIds: Seq[Int])
+    (implicit ec: EC): DbResultT[Option[VariantValueMapping]] = for {
+    value ← * <~ ObjectLinks.findByRightAndType(valueShadowId, ObjectLink.VariantValue).
+      filter(_.leftId.inSet(allowedVariantIds)).one.flatMap {
+      case Some(variantLink) ⇒
+        val fullValue = VariantManager.mustFindVariantValueByContextAndShadow(contextId, valueShadowId)
+        fullValue.map(value ⇒ VariantValueMapping(variantLink.leftId, value).some).value
+      case None ⇒
+        DbResultT.pure(None).value
+    }
+  } yield value
+
+  def findVariantValuesForSkuInProduct(sku: Sku, variants: Seq[FullObject[Variant]])
+    (implicit ec: EC): DbResultT[Seq[VariantValueMapping]] = for {
+    // Since not all of a variant's values must be used in a product,
+    // and SKU + Variant may exist in multiple products: get all of a
+    // SKUs VariantValues if the Variant is in the Product.
+    links  ← * <~ ObjectLinks.findByLeftAndType(sku.shadowId, ObjectLink.SkuVariantValue).result
+    varIds = variants.map(_.shadow.id)
+    toOpt  ← * <~ DbResultT.sequence(links.map(l ⇒ varValueIfInProduct(l.rightId, sku.contextId, varIds)))
+    avail  ← * <~ toOpt.foldLeft(Seq.empty[VariantValueMapping]) { (acc, potentialValue) ⇒
+      potentialValue.foldLeft(acc)(_ :+ _)
+    }
+  } yield avail
 
   def mustFindSkuByContextAndCode(contextId: Int, code: String)
     (implicit ec: EC, db: DB): DbResultT[Sku] = for {

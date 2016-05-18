@@ -26,8 +26,11 @@ object ObjectLink {
 
   case object ProductAlbum extends LinkType
   case object ProductSku extends LinkType
+  case object ProductVariant extends LinkType
   case object PromotionDiscount extends LinkType
   case object SkuAlbum extends LinkType
+  case object SkuVariantValue extends LinkType
+  case object VariantValue extends LinkType
 
   object LinkType extends ADT[LinkType] {
     def types = sealerate.values[LinkType]
