@@ -130,6 +130,8 @@ class ProductsList extends React.Component {
       ? this.getItemList()
       : <div styleName="not-found">No products found.</div>;
 
+    const totalItems = this.props.list ? this.props.list.length : 0;
+
     return (
       <section styleName="catalog">
         {this.renderHeader()}
@@ -138,7 +140,7 @@ class ProductsList extends React.Component {
         </div>
         <ScrollToTop />
         <ViewIndicator
-          totalItems={this.props.list.length}
+          totalItems={totalItems}
           viewedItems={this.state.viewedItems}
           countViewedItems={this.countViewedItems}
         />
