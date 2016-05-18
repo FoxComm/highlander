@@ -1,6 +1,6 @@
 .scroller {
   position: fixed;
-  top: 40%;
+  top: 120px;
   right: 1vw;
   opacity: 1;
   transition: opacity 300ms;

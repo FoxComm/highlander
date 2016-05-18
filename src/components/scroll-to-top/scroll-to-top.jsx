@@ -21,8 +21,7 @@ class ScrollToTop extends React.Component {
 
   checkScroll = () => {
     const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-    const viewportHeight = window.innerHeight;
-    const isScrolled = scrollTop > (viewportHeight / 2);
+    const isScrolled = scrollTop > 320;
 
     this.setState({isScrolled});
   };

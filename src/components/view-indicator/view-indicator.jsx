@@ -11,14 +11,30 @@ type Props = {
 export default class ViewIndicator extends React.Component {
   props: Props;
 
+  state = {
+    isScrolled: false,
+  };
+
   componentDidMount() {
-    this.props.countViewedItems();
-    window.addEventListener('scroll', this.props.countViewedItems);
+    this.handleScroll();
+    window.addEventListener('scroll', this.handleScroll);
   }
 
   componentWillUnmount() {
-    window.removeEventListener('scroll', this.props.countViewedItems);
+    window.removeEventListener('scroll', this.handleScroll);
   }
+
+  handleScroll = () => {
+    this.props.countViewedItems();
+    this.checkScroll();
+  };
+
+  checkScroll = () => {
+    const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+    const isScrolled = scrollTop > 320;
+
+    this.setState({isScrolled});
+  };
 
   rotateWheel() {
     const degrees = this.getViewedPercent() * 360 / 100;
@@ -32,9 +48,10 @@ export default class ViewIndicator extends React.Component {
   }
 
   render() {
+    const indicatorStyleName = this.state.isScrolled ? 'view-indicator_fixed' : 'view-indicator_static';
     const wrapStyleName = (this.getViewedPercent() > 50) ? 'wheel-wrap_51-100' : 'wheel-wrap';
     return (
-      <span styleName="view-indicator">
+      <span styleName={indicatorStyleName}>
         <span styleName="spinner">
           <span styleName={wrapStyleName}>
             <span styleName="wheel" style={this.rotateWheel()} />

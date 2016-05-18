@@ -1,8 +1,18 @@
 .view-indicator {
-  position: fixed;
-  top: 40%;
   left: 1vw;
   font-size: 6px;
+}
+
+.view-indicator_static {
+  composes: view-indicator;
+  position: absolute;
+  top: 440px;
+}
+
+.view-indicator_fixed {
+  composes: view-indicator;
+  position: fixed;
+  top: 120px;
 }
 
 .text {
