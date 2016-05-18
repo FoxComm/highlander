@@ -2,13 +2,23 @@ import React, {PropTypes} from 'react';
 
 import styles from './view-indicator.css';
 
-export default class ViewIndicator extends React.Component {
-  static propTypes = {};
+type Props = {
+  totalItems: number;
+  viewedItems: number;
+  countViewedItems: Function;
+}
 
-  state = {
-    allItems: 80,
-    viewedItems: 25,
-  };
+export default class ViewIndicator extends React.Component {
+  props: Props;
+
+  componentDidMount() {
+    this.props.countViewedItems();
+    window.addEventListener('scroll', this.props.countViewedItems);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('scroll', this.props.countViewedItems);
+  }
 
   rotateWheel() {
     const degrees = this.getViewedPercent() * 360 / 100;
@@ -18,7 +28,7 @@ export default class ViewIndicator extends React.Component {
   }
 
   getViewedPercent() {
-    return this.state.viewedItems / this.state.allItems * 100;
+    return this.props.viewedItems / this.props.totalItems * 100;
   }
 
   render() {
@@ -29,7 +39,7 @@ export default class ViewIndicator extends React.Component {
           <span styleName={wheel1StyleName}/>
           <span styleName="wheel2"  style={this.rotateWheel()}/>
         </span>
-        <span styleName="text">Total<br /> items</span>
+        <span styleName="text">Total<br /> items {this.props.totalItems}</span>
       </span>
     );
   }
