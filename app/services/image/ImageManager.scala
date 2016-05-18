@@ -11,9 +11,12 @@ import akka.util.ByteString
 import cats.data.Xor.{left, right}
 import cats.implicits._
 import failures.ImageFailures._
+import failures.ProductFailures._
 import models.StoreAdmin
 import models.image._
+import models.inventory._
 import models.objects._
+import models.product._
 import payloads.{AlbumPayload, ImagePayload}
 import responses.ImageResponses._
 import services.{AmazonS3, Result}
@@ -103,6 +106,10 @@ object ImageManager {
           update  ← * <~ ObjectUtils.update(album.form.id, album.shadow.id, form.attributes, shadow.attributes)
           upAlbum ← * <~ commitAlbumUpdate(album.model, update)
           images  ← * <~ Image.buildFromAlbum(upAlbum)
+          _       ← * <~ ObjectUtils.updateAssociatedLefts(Products, context.id,
+            album.shadow.id, upAlbum.shadow.id, ObjectLink.ProductAlbum)
+          _       ← * <~ ObjectUtils.updateAssociatedLefts(Skus, context.id,
+            album.shadow.id, upAlbum.shadow.id, ObjectLink.SkuAlbum)
         } yield AlbumResponse.build(upAlbum, images)).runTxn()
       case None ⇒
         getAlbum(id, contextName)
@@ -139,7 +146,7 @@ object ImageManager {
           filename ← * <~ getFileNameFromBodyPart(part)
           fullPath ← * <~ s"albums/${context.id}/${albumId}/${filename}"
           s3       ← * <~ AmazonS3.uploadFile(fullPath, path.toFile)
-          payload  = payloadForNewImage(album, s3)
+          payload  = payloadForNewImage(album, s3, filename)
           album    ← * <~ updateAlbumInner(albumId, payload, context)
         } yield album).runTxn()
       }.flatMap(a ⇒ a)
@@ -162,15 +169,15 @@ object ImageManager {
     }
   }
 
-  private def payloadForNewImage(album: FullAlbum, imageUrl: String) = {
+  private def payloadForNewImage(album: FullAlbum, imageUrl: String, filename: String) = {
     val formAttrs = album.form.attributes
     val shadowAttrs = album.shadow.attributes
 
     val name = IlluminateAlgorithm.get("name", formAttrs, shadowAttrs).extract[String]
     val existingImages = IlluminateAlgorithm.get("images", formAttrs, shadowAttrs)
-    val imageSeq = existingImages.extractOpt[Seq[ImagePayload]] match {
-      case Some(images) ⇒ images :+ ImagePayload(src = imageUrl)
-      case None ⇒         Seq(ImagePayload(src = imageUrl))
+    val payload = ImagePayload(src = imageUrl, title = filename.some, alt = filename.some)
+    val imageSeq = existingImages.extractOpt[Seq[ImagePayload]].foldLeft(Seq(payload)) { (payload, existing) ⇒
+      existing ++ payload
     }
 
     AlbumPayload(name = name, images = imageSeq.some)

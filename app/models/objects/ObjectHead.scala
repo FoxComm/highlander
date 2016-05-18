@@ -5,6 +5,17 @@ import java.time.Instant
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 
+trait ObjectHead[M <: ObjectHead[M]] extends FoxModel[M] { self: M ⇒
+  def contextId: Int
+  def shadowId: Int
+  def formId: Int
+  def commitId: Int
+  def updatedAt: Instant
+  def createdAt: Instant
+
+  def withNewShadowAndCommit(shadowId: Int, commitId: Int): M
+}
+
 /**
  * Abstract class to help define an object head object which points to the latest
  * version of some object in the context specified.

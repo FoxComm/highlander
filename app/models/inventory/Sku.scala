@@ -14,14 +14,19 @@ object Sku {
 }
 
 /**
- * A Sku represents the latest version of Stock Keeping Unit. 
- * This data structure stores a pointer to a commit of a version of a sku in 
+ * A Sku represents the latest version of Stock Keeping Unit.
+ * This data structure stores a pointer to a commit of a version of a sku in
  * the object context referenced. The same Sku can have a different version
  * in a different context.
  */
-case class Sku(id: Int = 0, code: String, contextId: Int, shadowId: Int, formId: Int, 
+case class Sku(id: Int = 0, code: String, contextId: Int, shadowId: Int, formId: Int,
   commitId: Int, updatedAt: Instant = Instant.now, createdAt: Instant = Instant.now)
   extends FoxModel[Sku]
+  with ObjectHead[Sku] {
+
+  def withNewShadowAndCommit(shadowId: Int, commitId: Int): Sku =
+    this.copy(shadowId = shadowId, commitId = commitId)
+}
 
 class Skus(tag: Tag) extends ObjectHeads[Sku](tag, "skus")  {
 
@@ -39,12 +44,12 @@ object Skus extends FoxTableQuery[Sku, Skus](new Skus(_))
 
   implicit val formats = JsonFormatters.phoenixFormats
 
-  def filterByContext(contextId: Int): QuerySeq = 
+  def filterByContext(contextId: Int): QuerySeq =
     filter(_.contextId === contextId)
-  def filterByContextAndCode(contextId: Int, code: String): QuerySeq = 
+  def filterByContextAndCode(contextId: Int, code: String): QuerySeq =
     filter(_.contextId === contextId).filter(_.code.toLowerCase === code.toLowerCase)
-  def filterByCode(code: String): QuerySeq = 
+  def filterByCode(code: String): QuerySeq =
     filter(_.code.toLowerCase === code.toLowerCase)
-  def findOneByCode(code: String): DBIO[Option[Sku]] = 
+  def findOneByCode(code: String): DBIO[Option[Sku]] =
     filter(_.code.toLowerCase === code.toLowerCase).one
 }

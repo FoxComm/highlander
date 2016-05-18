@@ -85,6 +85,18 @@ class ImageIntegrationTest
         albumResponse.name must === ("now-empty album")
         albumResponse.images.length must === (0)
       }
+
+      "Request the album after updating" in new Fixture {
+        val payload = AlbumPayload(name = "Name 2.0", images = Some(Seq.empty))
+        val response = PATCH(s"v1/albums/${context.name}/${album.formId}", payload)
+        response.status must === (StatusCodes.OK)
+
+        val response2 = GET(s"v1/albums/${context.name}/${album.formId}")
+        response2.status must === (StatusCodes.OK)
+
+        val albumResponse = response2.as[AlbumResponse.Root]
+        albumResponse.name must === ("Name 2.0")
+      }
     }
 
     "POST v1/products/:context/:id/albums" - {
@@ -113,6 +125,18 @@ class ImageIntegrationTest
         albumResponse.name must === ("Sample Album")
         albumResponse.images.head.src must === ("http://lorem.png")
       }
+
+      "Retrieves a correct version of an album after an update" in new ProductFixture {
+        val payload = AlbumPayload(name = "Name 2.0", images = Some(Seq.empty))
+        val response = PATCH(s"v1/albums/${context.name}/${album.formId}", payload)
+        response.status must === (StatusCodes.OK)
+
+        val response2 = GET(s"v1/products/${context.name}/${prodForm.id}/albums")
+        response2.status must === (StatusCodes.OK)
+
+        val albumResponse = response2.as[AlbumResponse.Root]
+        albumResponse.name must === ("Name 2.0")
+      }
     }
 
     "POST v1/skus/:context/:id/albums" - {
@@ -140,6 +164,18 @@ class ImageIntegrationTest
 
         albumResponse.name must === ("Sample Album")
         albumResponse.images.head.src must === ("http://lorem.png")
+      }
+
+      "Retrieves a correct version of an album after an update" in new ProductFixture {
+        val payload = AlbumPayload(name = "Name 3.0", images = Some(Seq.empty))
+        val response = PATCH(s"v1/albums/${context.name}/${album.formId}", payload)
+        response.status must === (StatusCodes.OK)
+
+        val response2 = GET(s"v1/skus/${context.name}/${sku.code}/albums")
+        response2.status must === (StatusCodes.OK)
+
+        val albumResponse = response2.as[AlbumResponse.Root]
+        albumResponse.name must === ("Name 3.0")
       }
     }
   }
