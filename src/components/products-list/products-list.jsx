@@ -48,7 +48,7 @@ class ProductsList extends React.Component {
   countViewedItems = () => {
     let viewedItems = 0;
 
-    for (let item in this.refs) {
+    for (const item in this.refs) {
       if (this.refs.hasOwnProperty(item)) {
         const product = this.refs[item];
         const productRect = findDOMNode(product).getBoundingClientRect();
