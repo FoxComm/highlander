@@ -6,11 +6,15 @@
   composes: inner-wrap from 'ui/css/layout.css';
 }
 
-.our-story-banner {
+.banner {
   width: 100%;
+  background-size: cover;
+}
+
+.our-story-banner {
+  composes: banner;
   height: 640px;
   background: url('images/banners/our-story-hero.jpg') 100% 0;
-  background-size: cover;
 
   & article {
     lost-column: 1/3;
@@ -18,10 +22,9 @@
 }
 
 .design-banner {
-  width: 100%;
+  composes: banner;
   height: 620px;
   background: url('images/banners/our-story-design.jpg') 100% 0;
-  background-size: cover;
 
   & article {
     lost-column: 4/9;
@@ -29,10 +32,9 @@
 }
 
 .handmade-banner {
-  width: 100%;
+  composes: banner;
   height: 640px;
   background: url('images/banners/our-story-handmade.jpg') 50% 0;
-  background-size: cover;
 
   & article {
     lost-column: 1/3;
@@ -42,10 +44,9 @@
 }
 
 .materials-banner {
-  width: 100%;
+  composes: banner;
   height: 620px;
   background: url('images/banners/our-story-materials.jpg') 100% 0;
-  background-size: cover;
 
   & article {
     lost-column: 4/9;

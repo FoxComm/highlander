@@ -13,7 +13,7 @@ type Props = {
 const TextBanner = (props: Props): HTMLElement => (
   <article styleName="banner">
     <h2 styleName="header">{props.header}</h2>
-    <span styleName="description">{props.children}</span>
+    <div styleName="description">{props.children}</div>
   </article>
 );
 
