@@ -54,7 +54,7 @@ lazy val phoenixScala = (project in file(".")).
         "com.typesafe.akka"         %% "akka-http-core"           % akkaV,
         "de.heikoseeberger"         %% "akka-http-json4s"         % "1.6.0",
         // Cats
-        "org.spire-math"            %% "cats"                     % "0.3.0",
+        "org.typelevel"             %% "cats"                     % "0.5.0",
         // Testing
         "org.scalatest"             %% "scalatest"                % scalaTestV % "test"
       )

@@ -18,6 +18,9 @@ import consumer.elastic.MappingHelpers._
 import consumer.utils.PhoenixConnectionInfo
 import consumer.utils.Phoenix
 import consumer.utils.HttpResponseExtensions._
+import cats.implicits._
+import cats.data.XorT
+import consumer.failures.Failures
 
 final case class ActivityConnectionTransformer(conn: PhoenixConnectionInfo)
   (implicit ec: EC, mat: AM, ac: AS, cp: CP, sc: SC) extends JsonTransformer {
@@ -61,7 +64,11 @@ final case class ActivityConnectionTransformer(conn: PhoenixConnectionInfo)
   private def queryPhoenixForConnection(id: BigInt): Future[String] = {
     val uri = s"connections/$id"
     Console.err.println(s"Requesting Phoenix $uri")
-    phoenix.get(uri).flatMap(_.bodyText)
+    phoenix.get(uri).flatMap {
+      resp ⇒ XorT.right[Future, Failures, String](resp.bodyText)
+    }.fold({ failures ⇒
+      throw new RuntimeException(s"Error during requesting phoenix $failures")
+    }, identity)
   }
 
 }
