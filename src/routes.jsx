@@ -4,6 +4,7 @@ import Site from './components/layout/site';
 import StoreFront from './components/layout/storefront';
 import Main from './components/pages/main';
 import Products from './components/pages/catalog/products';
+import OurStory from './components/pages/our-story/our-story';
 import Pdp from './components/pages/catalog/pdp';
 import Search from './components/pages/search/search';
 
@@ -16,6 +17,7 @@ const routes = (
     <Route component={StoreFront}>
       <IndexRoute component={Main} />
       <Route path="/all" component={Products} />
+      <Route path="/our-story" component={OurStory} />
       <Route name="category" path=":categoryName" component={Products} />
       <Route name="product" path="/products/:productId" component={Pdp} />
       <Route name="search" path="/search/:term" component={Search} />
