@@ -17,7 +17,7 @@ export const optimisticRevertShippingMethod = createAction('ORDER_REVERT_SHIPPIN
 
 const checkoutRequest = createAction('ORDER_CHECKOUT_REQUEST');
 const checkoutSuccess = createAction('ORDER_CHECKOUT_SUCCESS');
-const checkoutFailure = createAction('ORDER_CHECKOUT_FAILURE');
+const checkoutFailed = createAction('ORDER_CHECKOUT_FAILURE');
 
 
 function baseFetchOrder(url, actionBefore) {
@@ -204,7 +204,7 @@ const reducer = createReducer({
   [checkoutSuccess]: (state) => {
     return { ...state, isCheckingOut: false };
   },
-  [checkoutFailure]: (state, err) => {
+  [checkoutFailed]: (state, err) => {
     console.error(err);
     return { ...state, isCheckingOut: false };
   },
