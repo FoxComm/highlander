@@ -1,4 +1,4 @@
-import React, {PropTypes} from 'react';
+import React from 'react';
 
 import styles from './view-indicator.css';
 
@@ -39,7 +39,7 @@ export default class ViewIndicator extends React.Component {
   rotateWheel() {
     const degrees = this.getViewedPercent() * 360 / 100;
     return {
-      transform: `rotate(${degrees}deg)`
+      transform: `rotate(${degrees}deg)`,
     };
   }
 

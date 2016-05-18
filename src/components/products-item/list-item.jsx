@@ -21,7 +21,7 @@ type Product = {
 class ListItem extends React.Component {
   props: Product;
 
-  render() {
+  render(): HTMLElement {
     const {productId, title, images, salePrice, currency} = this.props;
 
     const image = images && images.length > 0
@@ -44,6 +44,6 @@ class ListItem extends React.Component {
       </div>
     );
   }
-};
+}
 
 export default ListItem;

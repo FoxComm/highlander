@@ -48,20 +48,18 @@ class ProductsList extends React.Component {
   countViewedItems = () => {
     let viewedItems = 0;
 
-    for (const item in this.refs) {
-      const product = this.refs[item] ;
-      const productRect = findDOMNode(product).getBoundingClientRect();
-      const windowHeight = window.innerHeight;
+    for (let item in this.refs) {
+      if (this.refs.hasOwnProperty(item)) {
+        const product = this.refs[item];
+        const productRect = findDOMNode(product).getBoundingClientRect();
+        const windowHeight = window.innerHeight;
 
-      if (productRect.bottom < windowHeight) viewedItems++;
+        if (productRect.bottom < windowHeight) viewedItems++;
+      }
     }
 
-    this.setState({
-      viewedItems
-    })
-
+    this.setState({viewedItems});
   };
-
 
   renderHeader() {
     const props = this.props;
@@ -142,7 +140,8 @@ class ProductsList extends React.Component {
         <ViewIndicator
           totalItems={this.props.list.length}
           viewedItems={this.state.viewedItems}
-          countViewedItems={this.countViewedItems}/>
+          countViewedItems={this.countViewedItems}
+        />
       </section>
     );
   }
