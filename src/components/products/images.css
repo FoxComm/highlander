@@ -1,0 +1,5 @@
+.addImages {
+  & :global(.icon-add) {
+    transform: rotate(135deg);
+  }
+}

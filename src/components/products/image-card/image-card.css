@@ -13,6 +13,8 @@
 
   & img {
     display: flex;
+    height: 286px;
+    max-width: none;
     pointer-events: none;
   }
 }
@@ -50,7 +52,7 @@
   background: #fff;
 }
 
-._loading {
+.loading {
   & .description {
     background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUAQMAAAC3R49OAAAABlBMVEUAAAAAAAClZ7nPAAAAAnRSTlMAF/VASP8AAABBSURBVHheZckxFYAgFADA8zkwYgMr2MBKNpBoRCHCHxl4YADnsxymy/DoQmyh7aGmUHJwBnfjraxiW+yTNMj9xx9ZVxpfjbpEWgAAAABJRU5ErkJggg==);
     animation: caramel .5s linear infinite;

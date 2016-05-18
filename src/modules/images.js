@@ -16,18 +16,18 @@ type Module = {
 export type Album = {
   id: number;
   name: string;
-  images: ?Array<Image>;
+  images: ?Array<FileInfo>;
 }
 
-export type Image = {
-  id: string;
-  src: string;
-  album: string;
+export type FileInfo = {
+  id: ?number;
   title: ?string;
   alt: ?string;
-  du: ?string;
-  inProgress: boolean;
-};
+  src: string;
+  file: File;
+  loading: ?boolean;
+  uploadedAt: ?string;
+}
 
 export type ImageInfo = {
   title: ?string;
@@ -44,31 +44,9 @@ const initialState: State = {
   albums: []
 };
 
-const images: Array<Image> = [];
-
 function actionPath(entity: string, action: string) {
   return `${entity}${_.capitalize(action)}`;
 }
-
-const b64toBlob = (b64Data: string, contentType = '', sliceSize = 512): Blob => {
-  const byteCharacters = atob(b64Data);
-  const byteArrays = [];
-
-  for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-    const slice = byteCharacters.slice(offset, offset + sliceSize);
-
-    const byteNumbers = new Array(slice.length);
-    for (let i = 0; i < slice.length; i++) {
-      byteNumbers[i] = slice.charCodeAt(i);
-    }
-
-    const byteArray = new Uint8Array(byteNumbers);
-
-    byteArrays.push(byteArray);
-  }
-
-  return new Blob(byteArrays, { type: contentType });
-};
 
 /**
  * Generate module for handling images for given entity
@@ -80,18 +58,15 @@ const b64toBlob = (b64Data: string, contentType = '', sliceSize = 512): Blob => 
 export default function createImagesModule(entity: string): Module {
 
   /** Internal async actions */
-  const fetchAsync = createAsyncActions(actionPath(entity, 'fetchImages'), (id: string|number) => {
-    return new Promise(resolve => {
-      setTimeout(() => resolve(images), _.random(100, 1000));
-    });
-  });
 
-  const _uploadImage = createAsyncActions(
-    actionPath(entity, 'uploadImage'),
-    (context:string, albumId: string, file: File) => {
+  const _uploadImages = createAsyncActions(
+    actionPath(entity, 'uploadImages'),
+    (context:string, albumId: string, files: FileInfo) => {
       const formData = new FormData();
-      formData.append('title', file.file.name);
-      formData.append('upload-file', file.file);
+
+      files.forEach((file: FileInfo) => {
+        formData.append('upload-file', file.file);
+      });
 
       return Api.post(`/albums/${context}/${albumId}/images`, formData);
     }
@@ -146,16 +121,15 @@ export default function createImagesModule(entity: string): Module {
     dispatch(fetchAsync.perform(entityId));
   };
 
-  const uploadImage = (context: string, albumId: number, image: any) => dispatch => {
-    return dispatch(_uploadImage.perform(context, albumId, image));
-  };
-
-  const editImage = (album: string, idx: number, imageInfo: ImageInfo) => dispatch => {
-    dispatch(editImageAsync.perform(album, idx, imageInfo));
-  };
-
-  const deleteImage = (album: string, idx: number) => dispatch => {
-    dispatch(deleteImageAsync.perform(album, idx));
+  /**
+   * Upload images array
+   *
+   * @param {String} context System context
+   * @param {Number} albumId Album id
+   * @param {FileInfo[]} files Array if files to upload
+     */
+  const uploadImages = (context: string, albumId: number, files: Array<FileInfo>) => dispatch => {
+    return dispatch(_uploadImages.perform(context, albumId, files));
   };
 
   /**
@@ -202,29 +176,28 @@ export default function createImagesModule(entity: string): Module {
     return dispatch(_deleteAlbum.perform(context, albumId));
   };
 
+  const editImage = (album: string, idx: number, imageInfo: ImageInfo) => (dispatch, getState) => {
+    const album = get(getState, ['albums']).find((album: Album) => album.id === id);
+    dispatch(editImageAsync.perform(album, idx, imageInfo));
+  };
+
+  const deleteImage = (context:string, albumId: number, idx: number) => (dispatch, getState) => {
+    let albums = get(getState(), [entity, 'images', 'albums']);
+    let album  = albums.find((album: Album) => album.id === albumId);
+
+    album = assoc(album, ['images'], [...album.images.slice(0, idx), ...album.images.slice(idx + 1)]);
+
+    dispatch(editAlbum(context, albumId, album));
+  };
+
   /** Reducers */
   const asyncReducer = createReducer({
-    [fetchAsync.succeeded]: (state: State, images: Array<Image>) => {
-      const byAlbum = _.groupBy(images, 'album');
-
-      return assoc(state,
-        'list', byAlbum,
-        'albums', _.mapValues(byAlbum, (_, album: string) => ({ id: album })),
-      );
-    },
-
-    [_uploadImage.succeeded]: (state: State, response: Album) => {
+    [_uploadImages.succeeded]: (state: State, response: Album) => {
       const idx = _.findIndex(state.albums, (album: Album) => album.id === response.id);
 
       return assoc(state, ['albums', idx], response);
     },
 
-    [editImageAsync.started]: (state: State, [album, idx]) => {
-      return assoc(state, ['list', album, idx, 'inProgress'], true);
-    },
-    [editImageAsync.failed]: (state: State, [err, [album, idx]]) => {
-      return assoc(state, ['list', album, idx, 'inProgress'], false);
-    },
     [editImageAsync.succeeded]: (state: State, [[album, idx, imageInfo]]) => {
       const path = ['list', album, idx];
       return assoc(state,
@@ -234,12 +207,6 @@ export default function createImagesModule(entity: string): Module {
       );
     },
 
-    [deleteImageAsync.started]: (state: State, [album, idx]) => {
-      return assoc(state, ['list', album, idx, 'inProgress'], true);
-    },
-    [deleteImageAsync.failed]: (state: State, [err, [album, idx]]) => {
-      return assoc(state, ['list', album, idx, 'inProgress'], false);
-    },
     [deleteImageAsync.succeeded]: (state: State, [[album, idx]]) => {
       const path = ['list', album];
       const images = get(state, path, []);
@@ -267,7 +234,7 @@ export default function createImagesModule(entity: string): Module {
     reducer: asyncReducer,
     actions: {
       fetch,
-      uploadImage,
+      uploadImages,
       editImage,
       deleteImage,
       fetchAlbums,
@@ -277,11 +244,3 @@ export default function createImagesModule(entity: string): Module {
     }
   };
 };
-
-const s = {
-  createdAt: "2016-05-14T03:30:53.501Z",
-  id: 62,
-  images: [{ src: "https://s3-us-west-1.amazonaws.com/foxcomm-images/albums/1/62/okt1left.jpg" }],
-  name: "First Album 4.0",
-  updatedAt: "2016-05-14T03:30:53.501Z",
-}

@@ -26,6 +26,7 @@ type Props = {
   onEditCancel: Function;
   titleWrapper: ?(title: string) => Element;
   resetOverflowTimeout: ?number;
+  className: ?string;
 }
 
 type State = {
@@ -210,7 +211,7 @@ export default class Accordion extends Component {
   render(): Element {
     const cls = classNames(styles.accordion, {
       [styles._open]: this.state.open,
-    });
+    }, this.props.className);
 
     return (
       <div className={cls}>

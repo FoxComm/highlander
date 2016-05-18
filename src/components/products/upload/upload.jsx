@@ -5,10 +5,12 @@ import styles from './upload.css';
 
 // libs
 import _ from 'lodash';
-import { autobind } from 'core-decorators';
+import { autobind, debounce } from 'core-decorators';
 import classNames from 'classnames';
 import React, { Component, Element } from 'react';
 import { findDOMNode } from 'react-dom';
+
+import type { FileInfo } from '../../../modules/images';
 
 type Props = {
   children?: Element;
@@ -30,6 +32,8 @@ export default class Upload extends Component {
   state:State = {
     dragActive: false,
   };
+
+  files: Array<FileInfo> = [];
 
   @autobind
   onDragOver(e: SyntheticDragEvent): void {
@@ -71,27 +75,36 @@ export default class Upload extends Component {
   processFile(file: File): void {
     const reader = new FileReader();
 
-    reader.onloadend = () => this.props.onDrop({
-      file: file,
-      src: reader.result,
-    });
+    reader.onloadend = () => {
+      this.files.push({
+        file: file,
+        src: reader.result,
+      });
+
+      this.flushFiles();
+    };
 
     reader.readAsDataURL(file);
   }
 
   @autobind
-  onClick(e: MouseEvent): void {
-    console.log('onClick');
+  @debounce(100)
+  flushFiles() {
+    this.props.onDrop(this.files);
 
+    this.files = [];
+  }
+
+  @autobind
+  onClick(): void {
     this.refs.fileInput.click();
   }
 
+  // TODO: fix item click handling
   @autobind
   onItemClick(e: MouseEvent) {
     e.stopPropagation();
     e.preventDefault();
-
-    console.log('onItemClick');
   }
 
   get container() {

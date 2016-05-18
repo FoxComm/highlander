@@ -45,7 +45,7 @@ class EditImage extends Component {
   }
 
   render(): Element {
-    const saveDisabled = _.isEmpty(this.state.title) || _.isEmpty(this.state.alt);
+    const saveDisabled = _.isEmpty(this.state.title);
 
     return (
       <div className="fc-product-details__custom-property">

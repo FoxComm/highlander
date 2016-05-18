@@ -1,12 +1,17 @@
 .upload {
-  margin-left: -5px;
-  margin-right: -5px;
+  margin-left: -3px;
+  margin-right: -3px;
   padding: 10px 3px;
 
   transition: border .3s;
 
   &.dragActive {
     border: 3px dashed #49cac2;
+  }
+
+  & .uploadItem {
+    margin: 20px 10px;
+    cursor: default;
   }
 }
 
@@ -31,11 +36,6 @@
     font-size: 96px;
     line-height: .8;
   }
-}
-
-.uploadItem {
-  margin: 20px 10px;
-  cursor: default;
 }
 
 .input {

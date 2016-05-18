@@ -1,11 +1,15 @@
 /* @flow */
 
+// styles
+
+import styles from './images.css';
+
 // libs
+import _ from 'lodash';
+import classNames from 'classnames';
+import { autobind } from 'core-decorators';
 import React, { Component, Element, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { assoc } from 'sprout-data';
-import { autobind } from 'core-decorators';
-import _ from 'lodash';
 import moment from 'moment';
 
 import { actions } from '../../modules/products/images';
@@ -26,7 +30,7 @@ import BulkMessages from '../bulk-actions/bulk-messages';
 import SortableTiles from './sortable/sortable-tiles';
 
 // types
-import type { Album, Image, ImageInfo } from '../../modules/images';
+import type { Album, ImageInfo, FileInfo } from '../../modules/images';
 
 type Props = {
   albums: Array<Album>;
@@ -34,11 +38,12 @@ type Props = {
   isLoading: boolean;
   addAlbumInProgress: boolean;
   editAlbumInProgress: boolean;
+  uploadImagesInProgress: boolean;
   isImageLoading: (idx: number) => boolean;
 
-  uploadImage: (context: string, albumId: number, file: any) => Promise;
+  uploadImages: (context: string, albumId: number, files: Array<FileInfo>) => Promise;
   editImage: (album: string, idx: number, info: any) => Promise;
-  deleteImage: (album: string, idx: number) => Promise;
+  deleteImage: (context: string, albumId: number, idx: number) => Promise;
   fetchAlbums: (context: string, entityId: number) => Promise;
   addAlbum: (context: string, entityId: number, album: Album) => Promise;
   editAlbum: (context: string, albumId: number, album: Album) => Promise;
@@ -46,7 +51,7 @@ type Props = {
 };
 
 type State = {
-  files: Array<any>;
+  files: Array<FileInfo>;
   newAlbumMode: boolean;
   addImagesMode: boolean;
   editAlbumMode: boolean;
@@ -59,7 +64,8 @@ type State = {
 
 type SelectedImage = {
   idx: number;
-  image: Image;
+  album: Album;
+  image: FileInfo;
 }
 
 class ProductImages extends Component<void, Props, State> {
@@ -83,6 +89,14 @@ class ProductImages extends Component<void, Props, State> {
     this.props.fetchAlbums(context, productId);
   }
 
+  componentWillReceiveProps(nextProps: Props): void {
+    if (this.props.uploadImagesInProgress && !nextProps.uploadImagesInProgress) {
+      this.setState({
+        files: [],
+      });
+    }
+  }
+
   @autobind
   handleEditImage(selectedImage: SelectedImage): void {
     this.setState({
@@ -104,6 +118,14 @@ class ProductImages extends Component<void, Props, State> {
     this.setState({
       selectedImage,
       isDeleteImageDialogVisible: true,
+    });
+  }
+
+  @autobind
+  handleCancelRemoveImage(): void {
+    this.setState({
+      selectedImage: void 0,
+      isDeleteImageDialogVisible: false,
     });
   }
 
@@ -227,9 +249,9 @@ class ProductImages extends Component<void, Props, State> {
           if (!this.state.selectedImage) {
             return;
           }
-          const { image, idx } = this.state.selectedImage;
+          const { image, album, idx } = this.state.selectedImage;
 
-          this.props.deleteImage(image.album, idx);
+          this.props.deleteImage(this.props.params.context, album.id, idx);
 
           this.setState({ isDeleteImageDialogVisible: false });
         }} />
@@ -252,9 +274,9 @@ class ProductImages extends Component<void, Props, State> {
             return;
           }
 
-          const { image, idx } = this.state.selectedImage;
+          const { image, album, idx } = this.state.selectedImage;
 
-          this.props.editImage(image.album, idx, form)
+          this.props.editImage(this.props.params.context, album.id, idx, form);
 
           this.setState({ isEditImageDialogVisible: false });
         }} />
@@ -315,20 +337,17 @@ class ProductImages extends Component<void, Props, State> {
   }
 
   @autobind
-  onAddFile(res: any): void {
-    const file = {
-      id: guid(),
-      name: res.file.name,
-      size: res.file.size,
-      altText: '',
-      caption: '',
-      file: res.file,
-      src: res.src
-    };
+  onAddFiles(files: Array<FileInfo>): void {
+    const f = files.map((file: FileInfo) => ({
+      title: file.file.name,
+      src: file.src,
+      file: file.file,
+      loading: true,
+    }));
 
     this.setState(
-      { files: [...this.state.files, file] },
-      () => this.props.uploadImage(this.props.params.context, this.album.id, file)
+      { files: [...this.state.files, ...f] },
+      () => this.props.uploadImages(this.props.params.context, this.album.id, f)
     );
   }
 
@@ -344,6 +363,7 @@ class ProductImages extends Component<void, Props, State> {
       <div className="fc-grid fc-grid-no-gutter">
         <div className="fc-col-md-1-1">
           <Accordion
+            className={classNames({ [styles.addImages] : this.state.addImagesMode })}
             placeholder="New album"
             editMode={newAlbumMode}
             loading={addAlbumInProgress}
@@ -351,10 +371,11 @@ class ProductImages extends Component<void, Props, State> {
             onEditCancel={this.handleCancelEditAlbum}
             key="new-album"
           >
-            <Upload onDrop={this.onAddFile}>
-              {files.map((file, i) => {
-                return <ImageCard src={file.src} key={i}
-                                  title={file.name}
+            <Upload onDrop={this.onAddFiles}>
+              {files.map((image: FileInfo, i) => {
+                return <ImageCard src={image.src} key={i}
+                                  title={image.title}
+                                  loading={image.loading}
                                   secondaryTitle={`Uploaded ${moment().format('MM/DD/YYYY HH: mm')}`} />;
               })}
             </Upload>
@@ -411,11 +432,12 @@ class ProductImages extends Component<void, Props, State> {
 
     if (addMode) {
       accordionContent = (
-        <Upload onDrop={this.onAddFile}>
-          {files.map((file, i) => {
-            return <ImageCard src={file.src}
+        <Upload onDrop={this.onAddFiles}>
+          {files.map((image: FileInfo, i) => {
+            return <ImageCard src={image.src}
                               key={i}
-                              title={file.name}
+                              title={image.title}
+                              loading={image.loading}
                               secondaryTitle={`Uploaded ${moment().format('MM/DD/YYYY HH: mm')}`} />;
           })}
         </Upload>
@@ -423,14 +445,14 @@ class ProductImages extends Component<void, Props, State> {
     } else {
       accordionContent = (
         <SortableTiles itemWidth={298} itemHeight={372} gutter={10}>
-          {album.images.map((image:Image, idx:number) => {
+          {album.images.map((image: FileInfo, idx: number) => {
             return (
               <ImageCard
                 src={`${image.src}`}
                 title={image.title}
-                secondaryTitle={`Uploaded ${image.du || moment().format('MM/DD/YYYY HH: mm')}`}
-                actions={this.getImageActions({image, idx})}
-                loading={image.inProgress}
+                secondaryTitle={`Uploaded ${image.uploadedAt || moment().format('MM/DD/YYYY HH: mm')}`}
+                actions={this.getImageActions({image, album, idx})}
+                loading={image.loading}
                 key={image.id}
               />
             );
@@ -443,6 +465,7 @@ class ProductImages extends Component<void, Props, State> {
       <div className="fc-grid fc-grid-no-gutter" key={album.id}>
         <div className="fc-col-md-1-1">
           <Accordion
+            className={classNames({ [styles.addImages] : activeAlbum && this.state.addImagesMode })}
             title={album.name}
             titleWrapper={(title: string) => this.renderTitle(title, album.images.length)}
             placeholder="Album Name"
@@ -477,6 +500,7 @@ const mapState = (state) => ({
   isLoading: _.get(state, ['asyncActions', 'productsFetchAlbums', 'inProgress'], true),
   addAlbumInProgress: _.get(state, ['asyncActions', 'productsAddAlbum', 'inProgress'], false),
   editAlbumInProgress: _.get(state, ['asyncActions', 'productsEditAlbum', 'inProgress'], false),
+  uploadImagesInProgress: _.get(state, ['asyncActions', 'productsUploadImages', 'inProgress'], false),
 });
 
 export default connect(mapState, actions)(ProductImages);

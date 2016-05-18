@@ -95,7 +95,7 @@ export default class ImageCard extends Component {
     const { src, loading, className } = this.props;
 
     const cls = classNames(styles.card, {
-      [styles._loading]: loading,
+      [styles.loading]: loading,
     }, className);
 
     return (
