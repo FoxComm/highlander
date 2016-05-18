@@ -67,8 +67,8 @@ const LOCATION_DATA = [
 class Locations extends Component {
   renderinfo(info) {
     return info.map((line, i) => {
-      return <span key={i}>{line}</span>
-    })
+      return <span key={i}>{line}</span>;
+    });
   }
 
   renderLocationList() {
@@ -90,7 +90,7 @@ class Locations extends Component {
             <button styleName="button">Get Directions</button>
           </span>
         </li>
-      )
+      );
     });
   }
 
