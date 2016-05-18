@@ -7,8 +7,6 @@
   cursor: pointer;
 }
 
-
-
 .payment-row {
   & td {
     padding: 15px;
@@ -56,6 +54,10 @@
       font-size: inherit;
     }
   }
+}
+
+.actions-cell {
+  text-align: right;
 }
 
 :global(.fc-table) tbody tr.payment-row,

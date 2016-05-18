@@ -56,9 +56,10 @@ export default class PaymentRow extends Component {
 
   get editAction() {
     if (this.props.editMode) {
+      const editButton = !this.state.isEditing ? <EditButton onClick={this.handleStartEdit} /> : null;
       return (
-        <TableCell>
-          <EditButton onClick={this.handleStartEdit} />
+        <TableCell styleName="actions-cell">
+          {editButton}
           <DeleteButton onClick={this.props.deleteAction} />
         </TableCell>
       );
@@ -99,9 +100,9 @@ export default class PaymentRow extends Component {
         <TableCell>
           {this.amount}
         </TableCell>
-        <TableCell></TableCell>
+        <TableCell />
         <TableCell>
-          <DateTime value={props.paymentMethod.createdAt}></DateTime>
+          <DateTime value={props.paymentMethod.createdAt} />
         </TableCell>
         {this.editAction}
       </TableRow>

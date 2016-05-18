@@ -2,39 +2,22 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 
 import PaymentRow from './row';
-import DebitCredit from './debit-credit';
-import DebitCreditInfo from './debit-credit-info';
+import DebitCreditDetails from './debit-credit-details';
 
 import * as PaymentMethodActions from '../../../modules/orders/payment-methods';
 
 let GiftCardDetails = props => {
-  const orderRefNum = props.order.referenceNumber;
-  const { amount, availableBalance, code } = props.paymentMethod;
-
-  const handleSave = (amount) => {
-    props
-      .editOrderGiftCardPayment(orderRefNum, code, amount)
-      .then(props.cancelEditing);
+  const saveAction = (orderRefNum, amount) => {
+    return props
+      .editOrderGiftCardPayment(orderRefNum, props.paymentMethod.code, amount);
   };
 
-  if (!props.isEditing) {
-    return (
-      <DebitCreditInfo
-        availableBalance={availableBalance}
-        amount={amount}
-      />
-    );
-  } else {
-    return (
-      <DebitCredit
-        amountToUse={amount}
-        availableBalance={availableBalance}
-        onCancel={props.cancelEditing}
-        onSubmit={handleSave}
-        saveText="Save"
-      />
-    );
-  }
+  return (
+    <DebitCreditDetails
+      {...props}
+      saveAction={saveAction}
+    />
+  );
 };
 GiftCardDetails = connect(null, PaymentMethodActions)(GiftCardDetails);
 

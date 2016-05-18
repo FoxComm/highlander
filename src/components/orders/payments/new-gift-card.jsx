@@ -50,7 +50,7 @@ export default class NewGiftCard extends Component {
   componentWillReceiveProps(nextProps) {
     const gcResults = _.get(nextProps, 'paymentMethods.giftCards', []);
     const gcCode = _.get(gcResults, [0, 'code'], '');
-    if (gcResults.length == 1 && _.startsWith(gcCode, this.state.giftCardCode)) {
+    if (gcResults.length == 1 && _.startsWith(gcCode, this.codeValue)) {
       this.setState({
         giftCard: gcResults[0],
         giftCardCode: gcCode,

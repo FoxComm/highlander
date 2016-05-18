@@ -1,5 +1,5 @@
 /* @flow */
-import React, { PropTypes, Component } from 'react';
+import React, { PropTypes, Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 
 import Currency from '../../common/currency';
@@ -12,7 +12,7 @@ type Props = {
   availableBalance: number,
   onCancel: Function,
   onSubmit: Function,
-  title: string,
+  title?: string|Element,
   amountToUse?: number,
   saveText: string,
 }
@@ -70,14 +70,24 @@ export default class DebitCredit extends Component {
     this.props.onSubmit(this.state.amountToUse);
   }
 
+  get title(): ?Element {
+    const { title } = this.props;
+
+    if (title) {
+      return (
+        <div className="fc-order-debit-credit__title">
+          {title}
+        </div>
+      );
+    }
+  }
+
   render() {
     const { props } = this;
 
     return (
       <Form className="fc-order-debit-credit" onSubmit={this.handleSubmit}>
-        <div className="fc-order-debit-credit__title">
-          {props.title}
-        </div>
+        {this.title}
         <div className="fc-order-debit-credit__form">
           {this.valueBlock('Available Balance', props.availableBalance)}
           <FormField className="fc-order-debit-credit__amount-form"
