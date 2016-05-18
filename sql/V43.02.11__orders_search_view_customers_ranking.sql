@@ -38,10 +38,20 @@ begin
     inner join customers as c on (orders.customer_id = c.id)
     where orders.id = ANY(order_ids);
 
-  -- TODO: update to || jsonb feature when 9.5 will be available
+
   update orders_search_view set
     customer =
-       jsonb_set(customer, '{revenue}', jsonb (subquery.revenue::varchar), true)
+       -- TODO: uncomment when jsonb_set in 9.5 will be available
+       -- jsonb_set(customer, '{revenue}', jsonb (subquery.revenue::varchar), true)
+       json_build_object(
+               'id', customer ->> 'id',
+               'name', customer ->> 'name',
+               'email', customer ->> 'email',
+               'is_blacklisted', customer ->> 'is_blacklisted',
+               'joined_at', customer ->> 'joined_at',
+               'rank', customer ->> 'rank',
+               'revenue', subquery.revenue
+           )::jsonb
       from (
             select
                 c.id,
