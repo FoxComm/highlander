@@ -32,14 +32,18 @@ export default class ViewIndicator extends React.Component {
   }
 
   render() {
-    const wheel1StyleName = (this.getViewedPercent() > 50) ? 'wheel1_51-100' : 'wheel1';
+    const wrapStyleName = (this.getViewedPercent() > 50) ? 'wheel-wrap_51-100' : 'wheel-wrap';
     return (
-      <span styleName="viewIndicator">
+      <span styleName="view-indicator">
         <span styleName="spinner">
-          <span styleName={wheel1StyleName}/>
-          <span styleName="wheel2"  style={this.rotateWheel()}/>
+          <span styleName={wrapStyleName}>
+            <span styleName="wheel" style={this.rotateWheel()} />
+          </span>
+          <span styleName="number">
+            {this.props.viewedItems}
+          </span>
         </span>
-        <span styleName="text">Total<br /> items {this.props.totalItems}</span>
+        <span styleName="text">Total<br /> items</span>
       </span>
     );
   }
