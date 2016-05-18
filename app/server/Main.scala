@@ -25,6 +25,7 @@ import org.json4s._
 import services.Authenticator
 import services.Authenticator.{AsyncAuthenticator, requireAuth}
 import services.actors._
+import services.jobs
 import slick.driver.PostgresDriver.api._
 import utils.FoxConfig.{Development, Staging}
 import utils.http.CustomHandlers
@@ -38,6 +39,9 @@ object Main extends App with LazyLogging {
   service.performSelfCheck()
   service.bind()
   service.setupRemorseTimers()
+
+  jobs.startJobs(service.system)(service.executionContext)
+
   logger.info("Startup process complete")
 }
 
@@ -122,6 +126,8 @@ class Service(
   implicit def exceptionHandler: ExceptionHandler = CustomHandlers.jsonExceptionHandler
 
   private final val serverBinding = Agent[Option[ServerBinding]](None)
+
+  jobs.registerJobs()
 
   def bind(config: Config = config): Future[ServerBinding] = {
     val host = config.getString("http.interface")
