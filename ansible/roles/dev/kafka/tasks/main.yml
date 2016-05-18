@@ -33,14 +33,14 @@
   service: name=schema-registry state=started enabled=yes
   sudo: true
 
-- name: Sleep
-  shell: sleep 5
+- name: Wait schema-registry is up
+  wait_for: port=8081 delay=5 timeout=60
 
 #https://github.com/confluentinc/bottledwater-pg/issues/1
 - name:
   uri:
     url: http://localhost:8081/config
-    method: "PUT"
+    method: PUT
     body: "{\"compatibility\": \"NONE\"}"
     HEADER_Content-Type: "application/vnd.schemaregistry.v1+json"
   register: uri_result
