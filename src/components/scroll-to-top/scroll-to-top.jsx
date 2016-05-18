@@ -4,8 +4,6 @@ import styles from './scroll-to-top.css';
 
 
 class ScrollToTop extends React.Component {
-  static propTypes = {};
-
   state = {
     isScrolled: false,
   };
