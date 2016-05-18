@@ -98,7 +98,7 @@
 }
 
 @media (--small-viewport) {
-  .catalog {
+  .list {
     justify-content: space-between;
   }
 }

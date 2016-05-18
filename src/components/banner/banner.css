@@ -52,13 +52,6 @@
   --color: #fea7d3;
   color: var(--color);
 
-  & ~ div:nth-child(3n+3) {
-    margin-right: 5%;
-  }
-  & ~ div:nth-child(3n+4) {
-    margin-right: 0;
-  }
-
   & a {
     color: var(--color);
     border-color: var(--color);
@@ -71,13 +64,6 @@
 
 .banner-eyeglasses {
   --color: #46494d;
-
-  & ~ div:nth-child(3n+4) {
-    margin-right: 5%;
-  }
-  & ~ div:nth-child(3n+5) {
-    margin-right: 0;
-  }
 
   & a {
     color: var(--color);
@@ -103,4 +89,24 @@
 
 .banner-eyeglasses__image {
   background-image: url('images/banners/Marketing_Mens_2.jpg');
+}
+
+@media (--medium-viewport-up) {
+  .banner-sunglasses {
+    & ~ div:nth-child(3n+3) {
+      margin-right: 5%;
+    }
+    & ~ div:nth-child(3n+4) {
+      margin-right: 0;
+    }
+  }
+
+  .banner-eyeglasses {
+    & ~ div:nth-child(3n+4) {
+      margin-right: 5%;
+    }
+    & ~ div:nth-child(3n+5) {
+      margin-right: 0;
+    }
+  }
 }

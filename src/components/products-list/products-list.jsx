@@ -2,6 +2,7 @@
 
 import _ from 'lodash';
 import React from 'react';
+import { findDOMNode } from 'react-dom';
 import type { HTMLElement } from 'types';
 import type { Product } from 'modules/products';
 import { connect } from 'react-redux';
@@ -11,6 +12,7 @@ import styles from './products-list.css';
 import ListItem from '../products-item/list-item';
 import BannerWithImage from '../banner/bannerWithImage';
 import ScrollToTop from '../scroll-to-top/scroll-to-top';
+import ViewIndicator from '../view-indicator/view-indicator';
 
 type Category = {
   name: string;
@@ -26,6 +28,10 @@ type ProductsListParams = {
   hasBanners: boolean;
 }
 
+type State = {
+  viewedItems: number;
+}
+
 const mapStateToProps = state => ({categories: state.categories.list});
 
 class ProductsList extends React.Component {
@@ -33,6 +39,26 @@ class ProductsList extends React.Component {
 
   static defaultProps = {
     hasBanners: true,
+  };
+
+  state: State = {
+    viewedItems: 0,
+  };
+
+  countViewedItems = () => {
+    let viewedItems = 0;
+
+    for (const item in this.refs) {
+      if (this.refs.hasOwnProperty(item)) {
+        const product = this.refs[item];
+        const productRect = findDOMNode(product).getBoundingClientRect();
+        const windowHeight = window.innerHeight;
+
+        if (productRect.bottom < windowHeight) viewedItems++;
+      }
+    }
+
+    this.setState({viewedItems});
   };
 
   renderHeader() {
@@ -67,7 +93,7 @@ class ProductsList extends React.Component {
   getItemList() {
     const items = _.map(this.props.list, (item) => {
       return (
-        <ListItem {...item} key={`product-${item.id}`}/>
+        <ListItem {...item} key={`product-${item.id}`} ref={`product-${item.id}`}/>
       );
     });
 
@@ -104,6 +130,8 @@ class ProductsList extends React.Component {
       ? this.getItemList()
       : <div styleName="not-found">No products found.</div>;
 
+    const totalItems = this.props.list ? this.props.list.length : 0;
+
     return (
       <section styleName="catalog">
         {this.renderHeader()}
@@ -111,6 +139,11 @@ class ProductsList extends React.Component {
           {items}
         </div>
         <ScrollToTop />
+        <ViewIndicator
+          totalItems={totalItems}
+          viewedItems={this.state.viewedItems}
+          countViewedItems={this.countViewedItems}
+        />
       </section>
     );
   }
