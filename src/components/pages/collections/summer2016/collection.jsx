@@ -31,7 +31,7 @@ class Collection extends Component {
           <CollectionBanner
             header="Harper"
             description="on her in honey"
-            link={{ to: '#', text: 'shop' }}
+            link={{ to: '/sunglasses?type=women', text: 'shop' }}
           />
         </div>
       </div>
@@ -45,7 +45,7 @@ class Collection extends Component {
           <CollectionBanner
             header="Greyson"
             description="on him in gold"
-            link={{ to: '#', text: 'shop' }}
+            link={{ to: 'sunglasses?type=men', text: 'shop' }}
           />
         </div>
       </div>
@@ -59,7 +59,7 @@ class Collection extends Component {
           <CollectionBanner
             header="Chloe"
             description="on her in black"
-            link={{ to: '#', text: 'shop' }}
+            link={{ to: 'sunglasses?type=women', text: 'shop' }}
           />
         </div>
       </div>
@@ -73,7 +73,7 @@ class Collection extends Component {
           <CollectionBanner
             header="Amelia"
             description="on her in tortoise"
-            link={{ to: '#', text: 'shop' }}
+            link={{ to: 'eyeglasses?type=women', text: 'shop' }}
           />
         </div>
       </div>
@@ -87,7 +87,7 @@ class Collection extends Component {
           <CollectionBanner
             header="Connor"
             description="on him in black"
-            link={{ to: '#', text: 'shop' }}
+            link={{ to: 'sunglasses?type=men', text: 'shop' }}
           />
         </div>
       </div>
@@ -101,7 +101,7 @@ class Collection extends Component {
           <CollectionBanner
             header="Olivia"
             description="on her in block"
-            link={{ to: '#', text: 'shop' }}
+            link={{ to: 'sunglasses?type=women', text: 'shop' }}
           />
         </div>
       </div>
@@ -115,7 +115,7 @@ class Collection extends Component {
           <CollectionBanner
             header="Connor"
             description="on him in honey"
-            link={{ to: '#', text: 'shop' }}
+            link={{ to: 'sunglasses?type=men', text: 'shop' }}
           />
         </div>
       </div>
@@ -129,7 +129,7 @@ class Collection extends Component {
           <CollectionBanner
             header="Ella"
             description="on her in tortoise"
-            link={{ to: '#', text: 'shop' }}
+            link={{ to: 'eyeglasses?type=women', text: 'shop' }}
           />
         </div>
       </div>
