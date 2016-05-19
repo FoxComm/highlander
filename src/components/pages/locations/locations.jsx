@@ -65,37 +65,33 @@ const LOCATION_DATA = [
 ];
 
 class Locations extends Component {
-  renderInfo(info: Array<string>): HTMLElement {
-    return (
-      info.map((line, i) => {
-        return <span key={i}>{line}</span>;
-      })
-    );
+  renderInfo(info: Array<string>): Array<HTMLElement> {
+    return info.map((line, i) => {
+      return <span key={i}>{line}</span>;
+    });
   }
 
-  renderLocationList(): HTMLElement {
-    return (
-      LOCATION_DATA.map((location, i) => {
-        return (
-          <li styleName="list__item" key={i}>
-          <span styleName="image">
-            <img src={`./images/locations/${location.image}`} alt={location.title} />
-          </span>
-          <span styleName="address">
-            <h2 styleName="subtitle">{location.title}</h2>
-            <p>{this.renderInfo(location.address)}</p>
-          </span>
-          <span styleName="digs">
-            <h3 styleName="subtitle">The Digs</h3>
-            <p>{this.renderInfo(location.digs)}</p>
-          </span>
-          <span styleName="actions">
-            <button styleName="button">Get Directions</button>
-          </span>
-          </li>
-        );
-      })
-    );
+  renderLocationList(): Array<HTMLElement> {
+    return LOCATION_DATA.map((location, i) => {
+      return (
+        <li styleName="list__item" key={i}>
+        <span styleName="image">
+          <img src={`./images/locations/${location.image}`} alt={location.title} />
+        </span>
+        <span styleName="address">
+          <h2 styleName="subtitle">{location.title}</h2>
+          <p>{this.renderInfo(location.address)}</p>
+        </span>
+        <span styleName="digs">
+          <h3 styleName="subtitle">The Digs</h3>
+          <p>{this.renderInfo(location.digs)}</p>
+        </span>
+        <span styleName="actions">
+          <button styleName="button">Get Directions</button>
+        </span>
+        </li>
+      );
+    });
   }
 
   render(): HTMLElement {
