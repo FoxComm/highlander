@@ -3,12 +3,12 @@
 import React, { Component } from 'react';
 import type { HTMLElement } from 'types';
 
-import Banner from '../banner/banner';
-import Category from '../main-category/main-category';
-import styles from './main.css';
+import Banner from '../../banner/banner';
+import Category from './category';
+import styles from './home.css';
 
 
-class Main extends Component {
+class Home extends Component {
 
   get topBanner(): HTMLElement {
     return (
@@ -18,8 +18,8 @@ class Main extends Component {
             header="Summer 2016"
             description="New collection is here"
             links={[
-              {to: '/all?type=men', text: 'Shop Men'},
-              {to: '/all?type=women', text: 'Shop Women'},
+              {to: '/collections/summer2016?type=men', text: 'Shop Men'},
+              {to: '/collections/summer2016?type=women', text: 'Shop Women'},
             ]}
           />
         </div>
@@ -52,7 +52,7 @@ class Main extends Component {
             header="Try @ home"
             description="5 pairs. 5 days. Free"
             links={[
-              {to: '/try-at-home', text: 'Learn More'},
+              {to: '/collections/summer2016', text: 'Learn More'},
             ]}
           />
         </div>
@@ -89,4 +89,4 @@ class Main extends Component {
   }
 }
 
-export default Main;
+export default Home;

@@ -62,7 +62,7 @@ class Navigation extends React.Component {
       const key = `category-${dashedName}`;
       return (
         <li styleName="item" key={key}>
-          <a onClick={() => this.onClick(item)} styleName="item-link">
+          <a styleName="item-link">
           {t(item.name.toUpperCase())}
           </a>
           <ul>

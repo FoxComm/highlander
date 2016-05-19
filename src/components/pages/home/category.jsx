@@ -5,7 +5,7 @@ import React from 'react';
 import type { HTMLElement } from 'types';
 import { Link } from 'react-router';
 
-import styles from './main-category.css';
+import styles from './category.css';
 
 type Props = {
   name: string;
