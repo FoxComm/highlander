@@ -1,6 +1,6 @@
 package services.image
 
-import java.nio.file.Files
+import java.io.File
 
 import akka.http.scaladsl.model.{HttpRequest, Multipart}
 import akka.http.scaladsl.unmarshalling.Unmarshal
@@ -11,7 +11,6 @@ import akka.util.ByteString
 import cats.data.Xor.{left, right}
 import cats.implicits._
 import failures.ImageFailures._
-import failures.ProductFailures._
 import models.StoreAdmin
 import models.image._
 import models.inventory._
@@ -141,11 +140,11 @@ object ImageManager {
       formData.parts.filter(_.name == "upload-file").runFold(error) { (_, part) ⇒
         (for {
           context  ← * <~ ObjectManager.mustFindByName404(contextName)
-          path     ← * <~ getFileFromRequest(part.entity.dataBytes)
+          file     ← * <~ getFileFromRequest(part.entity.dataBytes)
           album    ← * <~ mustFindFullAlbumByIdAndContext404(albumId, context)
           filename ← * <~ getFileNameFromBodyPart(part)
           fullPath ← * <~ s"albums/${context.id}/${albumId}/${filename}"
-          s3       ← * <~ AmazonS3.uploadFile(fullPath, path.toFile)
+          s3       ← * <~ AmazonS3.uploadFile(fullPath, file)
           payload  = payloadForNewImage(album, s3, filename)
           album    ← * <~ updateAlbumInner(albumId, payload, context)
         } yield album).runTxn()
@@ -155,8 +154,8 @@ object ImageManager {
 
   private def getFileFromRequest(bytes: Source[ByteString, Any])
     (implicit ec: EC, am: ActorMaterializer) = {
-    val file = Files.createTempFile("tmp", ".jpg")
-    bytes.runWith(FileIO.toPath(file)).map { up ⇒
+    val file = File.createTempFile("tmp", ".jpg")
+    bytes.runWith(FileIO.toFile(file)).map { up ⇒
       if (up.wasSuccessful) right(file)
       else left(ErrorReceivingImage.single)
     }

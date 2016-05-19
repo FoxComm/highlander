@@ -44,7 +44,7 @@ lazy val phoenixScala = (project in file(".")).
       "justwrote"          at "http://repo.justwrote.it/releases/"
     ),
     libraryDependencies ++= {
-      val akkaV      = "2.4.5"
+      val akkaV      = "2.4.4"
       val scalaTestV = "2.2.6"
       val json4sV    = "3.3.0"
       val slickPgV   = "0.14.0"
