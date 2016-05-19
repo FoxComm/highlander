@@ -50,30 +50,7 @@
 }
 
 .add-to-cart {
-  composes: button from "ui/css/buttons.css";
-  --background-color: #A7F4FF;
-  --text-color: #616161;
-  background: var(--background-color);
+  composes: button-primary from "ui/css/buttons.css";
   lost-column: 2/3;
-  height: 60px;
   margin-top: 30px;
-  border: none;
-  color: #616161;
-  font-size: 16px;
-  box-sizing: border-box;
-  border: 2px solid var(--background-color);
-
-
-  &:disabled {
-    background: var(--background-color);
-
-    &:hover {
-      color: var(--text-color);
-    }
-  }
-
-  &:hover {
-    background: var(--whitish);
-    color: var(--text-color);
-  }
 }
