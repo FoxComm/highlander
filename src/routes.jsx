@@ -19,7 +19,7 @@ const routes = (
     <Route component={StoreFront}>
       <IndexRoute component={Main} />
       <Route path="/all" component={Products} />
-      <Route path="/collection/summer2016" component={CollectionSummer2016} />
+      <Route path="/collections/summer2016" component={CollectionSummer2016} />
       <Route path="/locations" component={Locations} />
       <Route path="/our-story" component={OurStory} />
       <Route name="category" path=":categoryName" component={Products} />
