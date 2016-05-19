@@ -1,16 +1,16 @@
-@import 'variables.css';
-@import 'colors.css';
+@import "variables.css";
+@import "colors.css";
 
 .wrap {
-  composes: wrap from 'ui/css/layout.css';
-  composes: inner-wrap from 'ui/css/layout.css';
+  composes: wrap from "ui/css/layout.css";
+  composes: inner-wrap from "ui/css/layout.css";
 }
 
 .hero-block {
   --block-height: 736;
   --banner-height: 280;
   height: var(--block-height)px;
-  background: url('images/collection/summer2016/hero.jpg') 50% 0;
+  background: url("images/collection/summer2016/hero.jpg") 50% 0;
   background-size: cover;
 
   & article {
@@ -22,7 +22,6 @@
     box-sizing: border-box;
     border-top: 8px solid #FFA0E0;
     margin-top: var(--block-height)px;
-    z-index: 1;
 
     & > h2 {
       font-size: 60px;
@@ -34,5 +33,17 @@
       line-height: 40px;
       font-weight: 300;
     }
+  }
+}
+
+.harper-block {
+  margin-top: 140px;
+  height: 895px;
+  background: url("images/collection/summer2016/image_2.jpg") 50% 0;
+  background-size: cover;
+
+  & article {
+    lost-offset: -2/3;
+    lost-column: 2/9;
   }
 }

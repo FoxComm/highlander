@@ -5,7 +5,7 @@ import type { HTMLElement } from 'types';
 
 import styles from './collection.css';
 
-import Banner from '../../../banner/banner';
+import CollectionBanner from '../../../banner/collection-banner';
 import TextBanner from '../../../banner/text-banner';
 
 
@@ -24,10 +24,25 @@ class Collection extends Component {
     );
   }
 
+  get harper(): HTMLElement {
+    return (
+      <div styleName="harper-block">
+        <div styleName="wrap">
+          <CollectionBanner
+            header="Harper"
+            description="on her in honey"
+            link={{ to: '/products/7', text: 'shop' }}
+          />
+        </div>
+      </div>
+    );
+  }
+
   render(): HTMLElement {
     return (
       <div>
         {this.hero}
+        {this.harper}
       </div>
     );
   }
