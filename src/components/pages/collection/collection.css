@@ -1,0 +1,14 @@
+@import 'variables.css';
+@import 'colors.css';
+
+.wrap {
+  composes: wrap from 'ui/css/layout.css';
+  composes: inner-wrap from 'ui/css/layout.css';
+}
+
+.hero-banner {
+  width: 100%;
+  height: 736px;
+  background: url('images/banners/collection_hero.jpg') 100% 0;
+  background-size: cover;
+}
