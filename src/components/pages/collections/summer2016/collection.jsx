@@ -108,9 +108,37 @@ class Collection extends Component {
     );
   }
 
+  get ella(): HTMLElement {
+    return (
+      <div styleName="ella-block">
+        <div styleName="wrap">
+          <CollectionBanner
+            header="Connor"
+            description="on him in honey"
+            link={{ to: '#', text: 'shop' }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  get connor2(): HTMLElement {
+    return (
+      <div styleName="connor2-block">
+        <div styleName="wrap">
+          <CollectionBanner
+            header="Ella"
+            description="on her in tortoise"
+            link={{ to: '#', text: 'shop' }}
+          />
+        </div>
+      </div>
+    );
+  }
+
   render(): HTMLElement {
     return (
-      <div>
+      <div styleName="collection">
         {this.hero}
         {this.harper}
         {this.greyson}
@@ -118,6 +146,8 @@ class Collection extends Component {
         {this.amelia}
         {this.olivia}
         {this.connor}
+        {this.ella}
+        {this.connor2}
       </div>
     );
   }

@@ -1,6 +1,10 @@
 @import "variables.css";
 @import "colors.css";
 
+.collection {
+  margin-bottom: 60px;
+}
+
 .wrap {
   composes: wrap from "ui/css/layout.css";
   composes: inner-wrap from "ui/css/layout.css";
@@ -135,5 +139,39 @@
     lost-offset: -3/18;
     lost-column: 2/9;
     margin-bottom: -50px;
+  }
+}
+
+.ella-block {
+  margin-top: 191px;
+  height: 599px;
+  background: url("images/collection/summer2016/image_8.jpg") 0 0;
+  background-repeat: no-repeat;
+
+  & > div {
+    align-items: flex-start;
+  }
+
+  & article {
+    lost-offset: -13/18;
+    lost-column: 2/9;
+    margin-top: -60px;
+  }
+}
+
+.connor2-block {
+  margin-top: -465px;
+  height: 564px;
+  background: url("images/collection/summer2016/image_7.jpg") 100% 0;
+  background-repeat: no-repeat;
+
+  & > div {
+    align-items: flex-end;
+  }
+
+  & article {
+    lost-offset: -1/9;
+    lost-column: 2/9;
+    margin-bottom: 90px;
   }
 }
