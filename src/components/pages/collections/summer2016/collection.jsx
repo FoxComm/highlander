@@ -6,7 +6,7 @@ import type { HTMLElement } from 'types';
 import styles from './collection.css';
 
 
-class OurStory extends Component {
+class Collection extends Component {
 
   get hero(): HTMLElement {
     return (
@@ -23,4 +23,4 @@ class OurStory extends Component {
   }
 }
 
-export default OurStory;
+export default Collection;
