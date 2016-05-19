@@ -54,12 +54,34 @@ lazy val phoenixScala = (project in file(".")).
         "com.typesafe.akka"         %% "akka-http-core"           % akkaV,
         "de.heikoseeberger"         %% "akka-http-json4s"         % "1.6.0",
         // Cats
-        "org.spire-math"            %% "cats"                     % "0.3.0",
+        "org.typelevel"             %% "cats"                     % "0.5.0",
         // Testing
         "org.scalatest"             %% "scalatest"                % scalaTestV % "test"
       )
     },
     (mainClass in Compile) := Some("consumer.Main"),
+    initialCommands in console :=
+      """
+        |import scala.concurrent.ExecutionContext.Implicits.global
+        |import scala.concurrent.Future
+        |import scala.concurrent.duration._
+        |import scalacache.ScalaCache
+        |import scalacache.lrumap.LruMapCache
+        |import akka.actor.ActorSystem
+        |import akka.stream.ActorMaterializer
+        |import cats.implicits._
+        |import consumer.MainConfig
+        |import consumer.utils.{Phoenix, PhoenixConnectionInfo}
+        |implicit val system = ActorSystem("system")
+        |implicit val materializer = ActorMaterializer()
+        |import akka.http.scaladsl.settings.ConnectionPoolSettings
+        |implicit val connectionPoolSettings = ConnectionPoolSettings.default(implicitly[ActorSystem])
+        |implicit val scalaCache = ScalaCache(LruMapCache(1))
+
+        |val config = MainConfig.loadFromConfig
+        |val connInfo = PhoenixConnectionInfo(config.phoenixUri, config.phoenixUser, config.phoenixPass)
+        |val conn = Phoenix(connInfo)
+      """.stripMargin,
     assemblyMergeStrategy in assembly := {
         case PathList("org", "joda", xs @ _*) ⇒  MergeStrategy.last
         case x ⇒ { 

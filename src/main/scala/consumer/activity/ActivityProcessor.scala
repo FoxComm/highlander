@@ -7,11 +7,14 @@ import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 
 import consumer.{AvroJsonHelper, JsonProcessor}
 import consumer.aliases._
+import consumer.failures.{Failures, GeneralFailure}
+import consumer.utils.HttpSupport.HttpResult
 import consumer.utils.{Phoenix, PhoenixConnectionInfo}
 import org.json4s.DefaultFormats
 import org.json4s.JsonAST.{JNothing, JValue}
 import org.json4s.jackson.JsonMethods.parse
 import org.json4s.jackson.Serialization.{write ⇒ render}
+import cats.implicits._
 
 final case class ActivityContext(
   userId: Int,
@@ -42,8 +45,9 @@ final case class FailedToConnectActivity (
   activityId: Int,
   dimension: String,
   objectId: String,
-  response: HttpResponse) 
-  extends RuntimeException(s"Failed to connect activity $activityId to dimension '$dimension' and object $objectId response: $response")
+  failures: Failures)
+  extends RuntimeException(s"Failed to connect activity $activityId to dimension '$dimension' and object $objectId " +
+    s"failures: $failures")
 
 final case class FailedToConnectNotification(
   activityId: Int,
@@ -98,18 +102,21 @@ class ActivityProcessor(conn: PhoenixConnectionInfo, connectors: Seq[ActivityCon
       val body = render(append)
 
       //make request
-      phoenix.post(uri, body).map {
-        resp ⇒ 
-          if (resp.status == StatusCodes.OK) {
+      phoenix.post(uri, body).fold({ failures ⇒
+          throw FailedToConnectActivity(c.activityId, c.dimension, c.objectId, failures)
+       }, { resp ⇒
+        if (resp.status == StatusCodes.OK) {
+            // TODO: check errors?
             createPhoenixNotification(c, phoenix)
-          } else {
-            throw FailedToConnectActivity(c.activityId, c.dimension, c.objectId, resp)
-          }
-          resp
-      }
+        } else {
+              throw FailedToConnectActivity(c.activityId, c.dimension, c.objectId,
+                      GeneralFailure(s"response: $resp").single)
+        }
+        resp
+      })
     }
 
-  private def createPhoenixNotification(conn: Connection, phoenix: Phoenix): Future[HttpResponse] = {
+  private def createPhoenixNotification(conn: Connection, phoenix: Phoenix): HttpResult = {
     val body = AppendNotification(
       sourceDimension = conn.dimension,
       sourceObjectId = conn.objectId,
