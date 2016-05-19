@@ -17,6 +17,7 @@
     :refer [<!! chan thread go]])
  (:import [javax.script ScriptEngineManager]))
 
+
 (def topics ["activities"])
 
 (def slack-webhook-url (delay (:slack-webhook-url env)))
@@ -71,8 +72,13 @@
   (let [props (assoc activity
                 :isRead false
                 :kind (:activity_type activity))
-        html (.eval react-app (str "renderNotificationItem(" (json/write-str props) ")"))
-        text (ffirst (re-seq #"(<div class=\"fc-activity-notification-item__text\".+?</div>)" html))]
+        html (try
+               (.eval react-app (str "renderNotificationItem(" (json/write-str props) ")"))
+               (catch Exception e (println "Can't render activity" activity "\n" e)))
+        text (some->> html
+                      (re-seq #"(<div class=\"fc-activity-notification-item__text\".+?</div>)")
+                      ffirst)]
+
     (some->>
       (some-> text
           (string/replace #"(<(?!(a\s|/a)).+?>)" " ")
@@ -126,3 +132,4 @@
     (.eval nashorn (slurp (io/resource "polyfill.js")))
     (.eval nashorn (slurp (io/resource "admin-dbg.js")))
     nashorn))
+
