@@ -20,7 +20,6 @@ refresh materialized view concurrently order_billing_addresses_view;
 refresh materialized view concurrently order_assignments_view;
 refresh materialized view concurrently order_rmas_view;
 refresh materialized view concurrently order_stats_view;
-refresh materialized view concurrently orders_search_view;
 
 -- store_admins
 refresh materialized view concurrently store_admins_search_view;
