@@ -15,7 +15,6 @@
     - { role: base/kafka}
     - { role: base/schema-registry}
     - { role: base/elasticsearch}
-    - { role: base/zipkin}
     - { role: base/db}
     - { role: base/rsyslog, sudo: yes }
     - { role: base/kibana, sudo: yes }
@@ -25,6 +24,8 @@
     - { role: base/greenriver}
     - { role: base/ashes}
     - { role: base/firebird}
+    - { role: dev/kafka }
+    - { role: dev/elasticsearch }
     - { role: dev/balancer, sudo: yes }
     - { role: dev/db}
     - { role: dev/seeder}
