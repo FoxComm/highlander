@@ -24,6 +24,7 @@ phoenix_dir: /phoenix
 phoenix_jar: "{{phoenix_dir}}/phoenix.jar"
 phoenix_db_name: phoenix_development
 phoenix_test_db_name: phoenix_test
+phoenix_tracing: "false"
 
 #ashes variables
 ashes_env: production
@@ -84,4 +85,4 @@ consul_data_dir: /var/consul
 namespace: setme
 
 #zipkin
-zipkin_collector: ""
+zipkin_collector: localhost
