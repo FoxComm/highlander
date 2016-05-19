@@ -4,7 +4,7 @@ import Site from './components/layout/site';
 import StoreFront from './components/layout/storefront';
 import Main from './components/pages/main';
 import Products from './components/pages/catalog/products';
-import Collection from './components/pages/collection/collection';
+import CollectionSummer2016 from './components/pages/collections/summer2016/collection';
 import Locations from './components/pages/locations/locations';
 import OurStory from './components/pages/our-story/our-story';
 import Pdp from './components/pages/catalog/pdp';
@@ -19,7 +19,7 @@ const routes = (
     <Route component={StoreFront}>
       <IndexRoute component={Main} />
       <Route path="/all" component={Products} />
-      <Route path="/collection" component={Collection} />
+      <Route path="/collections/summer2016" component={CollectionSummer2016} />
       <Route path="/locations" component={Locations} />
       <Route path="/our-story" component={OurStory} />
       <Route name="category" path=":categoryName" component={Products} />
