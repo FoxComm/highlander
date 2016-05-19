@@ -31,7 +31,7 @@ class Collection extends Component {
           <CollectionBanner
             header="Harper"
             description="on her in honey"
-            link={{ to: '/products/7', text: 'shop' }}
+            link={{ to: '#', text: 'shop' }}
           />
         </div>
       </div>
@@ -45,7 +45,35 @@ class Collection extends Component {
           <CollectionBanner
             header="Greyson"
             description="on him in gold"
-            link={{ to: '/products/6', text: 'shop' }}
+            link={{ to: '#', text: 'shop' }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  get chloe(): HTMLElement {
+    return (
+      <div styleName="chloe-block">
+        <div styleName="wrap">
+          <CollectionBanner
+            header="Chloe"
+            description="on her in black"
+            link={{ to: '#', text: 'shop' }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  get amelia(): HTMLElement {
+    return (
+      <div styleName="amelia-block">
+        <div styleName="wrap">
+          <CollectionBanner
+            header="Amelia"
+            description="on her in tortoise"
+            link={{ to: '#', text: 'shop' }}
           />
         </div>
       </div>
@@ -58,6 +86,8 @@ class Collection extends Component {
         {this.hero}
         {this.harper}
         {this.greyson}
+        {this.chloe}
+        {this.amelia}
       </div>
     );
   }

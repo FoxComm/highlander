@@ -56,7 +56,7 @@
 .greyson-block {
   margin-top: -437px;
   height: 599px;
-  background: url("images/collection/summer2016/image_1.jpg") 75% 0;
+  background: url("images/collection/summer2016/image_1.jpg") 100% 0;
   background-repeat: no-repeat;
 
   & > div {
@@ -67,5 +67,39 @@
     lost-offset: -1/9;
     lost-column: 2/9;
     margin-bottom: -30px;
+  }
+}
+
+.chloe-block {
+  margin-top: 90px;
+  height: 646px;
+  background: url("images/collection/summer2016/image_4.jpg") 0 0;
+  background-repeat: no-repeat;
+
+  & > div {
+    align-items: flex-start;
+  }
+
+  & article {
+    lost-offset: -13/18;
+    lost-column: 2/9;
+    margin-top: 100px;
+  }
+}
+
+.amelia-block {
+  margin-top: -358px;
+  height: 671px;
+  background: url("images/collection/summer2016/image_3.jpg") 100% 0;
+  background-repeat: no-repeat;
+
+  & > div {
+    align-items: flex-end;
+  }
+
+  & article {
+    lost-offset: -3/18;
+    lost-column: 2/9;
+    margin-bottom: 120px;
   }
 }
