@@ -65,7 +65,7 @@
   background: #fff;
   border-bottom: 0;
 }
-:global .fc-table tbody:nth-child(even) tr {
+:global .fc-order-payment .fc-table tbody:nth-child(odd) tr {
   background: #f7f7f7;
 }
 
