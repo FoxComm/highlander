@@ -38,11 +38,26 @@ class Collection extends Component {
     );
   }
 
+  get greyson(): HTMLElement {
+    return (
+      <div styleName="greyson-block">
+        <div styleName="wrap">
+          <CollectionBanner
+            header="Greyson"
+            description="on him in gold"
+            link={{ to: '/products/6', text: 'shop' }}
+          />
+        </div>
+      </div>
+    );
+  }
+
   render(): HTMLElement {
     return (
       <div>
         {this.hero}
         {this.harper}
+        {this.greyson}
       </div>
     );
   }
