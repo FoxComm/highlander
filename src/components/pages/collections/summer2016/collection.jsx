@@ -80,6 +80,34 @@ class Collection extends Component {
     );
   }
 
+  get olivia(): HTMLElement {
+    return (
+      <div styleName="olivia-block">
+        <div styleName="wrap">
+          <CollectionBanner
+            header="Connor"
+            description="on him in black"
+            link={{ to: '#', text: 'shop' }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  get connor(): HTMLElement {
+    return (
+      <div styleName="connor-block">
+        <div styleName="wrap">
+          <CollectionBanner
+            header="Olivia"
+            description="on her in block"
+            link={{ to: '#', text: 'shop' }}
+          />
+        </div>
+      </div>
+    );
+  }
+
   render(): HTMLElement {
     return (
       <div>
@@ -88,6 +116,8 @@ class Collection extends Component {
         {this.greyson}
         {this.chloe}
         {this.amelia}
+        {this.olivia}
+        {this.connor}
       </div>
     );
   }
