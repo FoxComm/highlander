@@ -69,7 +69,7 @@ class Locations extends Component {
     return (
       info.map((line, i) => {
         return <span key={i}>{line}</span>;
-      });
+      })
     );
   }
 
@@ -94,7 +94,7 @@ class Locations extends Component {
           </span>
           </li>
         );
-      });
+      })
     );
   }
 
