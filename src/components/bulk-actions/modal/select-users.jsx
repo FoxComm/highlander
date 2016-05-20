@@ -22,7 +22,7 @@ const mapStateToProps = (state, {storePath, module}) => {
   };
 };
 
-const SelectUsersModal = (params) => {
+const SelectUsersModal = (props) => {
   const { module,
           action,
           entity,
@@ -31,7 +31,7 @@ const SelectUsersModal = (params) => {
           maxUsers,
           onCancel,
           onConfirm,
-          selected } = params;
+          selected } = props;
 
   const actionBlock = <i onClick={onCancel} className="fc-btn-close icon-close" title="Close" />;
   const actionForm = _.capitalize(action);

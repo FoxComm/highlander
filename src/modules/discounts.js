@@ -1,7 +1,7 @@
 
 import createStore from '../lib/store-creator';
 
-import { initialState, reducers } from './bulk';
+import { initialState, reducers, bulkActions } from './bulk';
 
 export default function makeBulkActions(entity) {
   const changeState = (actions, ids, isActive) => {
@@ -30,6 +30,7 @@ export default function makeBulkActions(entity) {
     actions: {
       changeState,
       updateAttributes,
+      ...bulkActions,
     },
     reducers,
     initialState,

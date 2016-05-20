@@ -47,6 +47,8 @@ const mapDispatchToProps = (dispatch, { entity: { entityType, entityId }, fieldN
 const WatcherTypeahead = (props) => {
   const { className, label, suggested, suggestWatchers, hideOnBlur, isFetching } = props;
 
+  const placeholder = props.selected.length >= props.maxUsers ? '' : 'Name or email...';
+
   return (
     <div className={classNames('fc-watcher-typeahead', className)}>
       <div className="fc-watcher-typeahead__label">
@@ -62,7 +64,7 @@ const WatcherTypeahead = (props) => {
         component={WatcherTypeaheadItem}
         items={suggested}
         name="watchersSelect"
-        placeholder="Name or email..."
+        placeholder={placeholder}
         inputElement={renderPilledInput(props)}
         hideOnBlur={hideOnBlur}
         onItemSelected={(item, event) => selectItem(props, item, event)}/>
