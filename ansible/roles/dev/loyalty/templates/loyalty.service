@@ -1,6 +1,6 @@
 [Service]
 WorkingDirectory=/usr/share
-ExecStart=/usr/bin/java -Dzookeeper={{zookeeper_server}} -Dschema-registry=http://{{schema_server}} -Dphoenix-uri=http://{{phoenix_server}}/{{phoenix_api_version}} -jar {{loyalty_jar}}
+ExecStart=/usr/bin/java -Dzookeeper={{zookeeper_server}} -Dschema-registry=http://{{schema_server}} -Dphoenix-uri=http://{{phoenix_server}}/{{phoenix_api_version}} -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port={{loyalty_jmx_port}} -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -jar {{loyalty_jar}}
 Restart=always
 StandardOutput=syslog
 StandardError=syslog

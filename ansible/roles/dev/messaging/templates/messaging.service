@@ -1,6 +1,6 @@
 [Service]
 WorkingDirectory=/usr/share
-ExecStart=/usr/bin/java -Dslack-webhook-url={{messaging_slack_webhook_url}} -Dkafka-broker={{kafka_server}} -Dschema-registry-url=http://{{schema_server}} -Dfc-admin-url=http://admin.{{demo_domain}} -jar {{messaging_jar}}
+ExecStart=/usr/bin/java -Dslack-webhook-url={{messaging_slack_webhook_url}} -Dkafka-broker={{kafka_server}} -Dschema-registry-url=http://{{schema_server}} -Dfc-admin-url=http://admin.{{demo_domain}} -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port={{messaging_jmx_port}} -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -jar {{messaging_jar}}
 Restart=always
 StandardOutput=syslog
 StandardError=syslog
