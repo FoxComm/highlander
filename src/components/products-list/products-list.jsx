@@ -104,13 +104,13 @@ class ProductsList extends React.Component {
         styleName: 'banner-sunglasses',
         header: 'Summer 2016',
         description: 'Bring on the sun',
-        links: [{to: '/sunglasses', text: 'Shop Sunglasses'}],
+        links: [{to: '/collections/summer2016', text: 'Shop Sunglasses'}],
       },
       {
         styleName: 'banner-eyeglasses',
         header: 'Summer 2016',
         description: 'Better to see you with, my dear',
-        links: [{to: '/eyeglasses', text: 'Shop Eyeglasses'}],
+        links: [{to: '/collections/summer2016', text: 'Shop Eyeglasses'}],
       },
     ];
 

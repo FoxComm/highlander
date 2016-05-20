@@ -3,11 +3,12 @@
 import React, { Component } from 'react';
 import type { HTMLElement } from 'types';
 import type { Product } from 'modules/products';
-import styles from './product.css';
 import { connect } from 'react-redux';
 
 import Loader from 'ui/loader';
 import ProductsList from '../../products-list/products-list';
+
+import styles from './products.css';
 
 import * as actions from 'modules/products';
 

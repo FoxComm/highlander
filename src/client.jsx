@@ -1,5 +1,6 @@
 import React from 'react';
-import { Router, browserHistory } from 'react-router';
+import { Router, browserHistory, applyRouterMiddleware } from 'react-router';
+import useScroll from 'react-router-scroll';
 import { Provider } from 'react-redux';
 import { render } from 'react-dom';
 import makeStore from './store';
@@ -20,7 +21,7 @@ export function renderApp() {
   render((
     <I18nProvider locale={language} translation={translation}>
       <Provider store={store} key="provider">
-        <Router history={browserHistory}>
+        <Router history={browserHistory} render={applyRouterMiddleware(useScroll())}>
           {routes}
         </Router>
       </Provider>

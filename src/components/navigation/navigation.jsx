@@ -3,6 +3,7 @@
 import React, { PropTypes } from 'react';
 import type { HTMLElement } from 'types';
 import _ from 'lodash';
+import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import { browserHistory } from 'react-router';
@@ -62,7 +63,7 @@ class Navigation extends React.Component {
       const key = `category-${dashedName}`;
       return (
         <li styleName="item" key={key}>
-          <a onClick={() => this.onClick(item)} styleName="item-link">
+          <a styleName="item-link">
           {t(item.name.toUpperCase())}
           </a>
           <ul>
@@ -81,8 +82,8 @@ class Navigation extends React.Component {
           </li>
         )}
         {categoryItems}
-        <li styleName="item" ><a href="/locations" styleName="item-link">Locations</a></li>
-        <li styleName="item" ><a href="/our-story" styleName="item-link">Our story</a></li>
+        <li styleName="item" ><Link to="/locations" styleName="item-link">Locations</Link></li>
+        <li styleName="item" ><Link to="/our-story" styleName="item-link">Our story</Link></li>
       </ul>
     );
   }
