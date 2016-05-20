@@ -19,3 +19,9 @@ logs
 # Vim
 *.swp
 *.iml
+
+# certificates
+public_key.pem
+
+# package
+firebird.tar.bz2
