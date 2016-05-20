@@ -53,10 +53,10 @@ schema_server: 127.0.0.1:8081
 api_server: 127.0.0.1
 
 # JMX ports
-phoenix_jmx_port=39010
-greenriver_jmx_port=39011
-messaging_jmx_port=39012
-loyalty_jmx_port=39013
+phoenix_jmx_port: 39010
+greenriver_jmx_port: 39011
+messaging_jmx_port: 39012
+loyalty_jmx_port: 39013
 
 seeds_cmd: utils.seeds.Seeds demo 1
 gatling_oneshot_seeds_cmd: seeds.OneshotSeeds
