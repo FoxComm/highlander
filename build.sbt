@@ -60,6 +60,7 @@ lazy val phoenixScala = (project in file(".")).
       )
     },
     (mainClass in Compile) := Some("consumer.Main"),
+    cleanupCommands in console := """system.terminate""",
     initialCommands in console :=
       """
         |import scala.concurrent.ExecutionContext.Implicits.global
