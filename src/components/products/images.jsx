@@ -24,24 +24,29 @@ import ImageCard from './image-card/image-card';
 import Upload from './upload/upload';
 import EditImage from './edit-image';
 import ActionsDropdown from '../bulk-actions/actions-dropdown';
-import BulkActions from '../bulk-actions/bulk-actions';
-import BulkMessages from '../bulk-actions/bulk-messages';
 
 import SortableTiles from './sortable/sortable-tiles';
 
 // types
-import type { Album, ImageInfo, FileInfo } from '../../modules/images';
+import type { Album, ImageInfo, ImageFile } from '../../modules/images';
+import type { Action } from './image-card/image-card';
+
+type Params = {
+  productId: number;
+  context: string;
+};
 
 type Props = {
+  params: Params;
   albums: Array<Album>;
   list: any;
   isLoading: boolean;
   addAlbumInProgress: boolean;
   editAlbumInProgress: boolean;
   uploadImagesInProgress: boolean;
-  isImageLoading: (idx: number) => boolean;
+  isImageLoading: (idx:number) => boolean;
 
-  uploadImages: (context: string, albumId: number, files: Array<FileInfo>) => Promise;
+  uploadImages: (context: string, albumId: number, files: Array<ImageFile>) => Promise;
   editImage: (album: string, idx: number, info: any) => Promise;
   deleteImage: (context: string, albumId: number, idx: number) => Promise;
   fetchAlbums: (context: string, entityId: number) => Promise;
@@ -51,7 +56,7 @@ type Props = {
 };
 
 type State = {
-  files: Array<FileInfo>;
+  files: Array<ImageFile>;
   newAlbumMode: boolean;
   addImagesMode: boolean;
   editAlbumMode: boolean;
@@ -65,7 +70,7 @@ type State = {
 type SelectedImage = {
   idx: number;
   album: Album;
-  image: FileInfo;
+  image: ImageFile;
 }
 
 class ProductImages extends Component<void, Props, State> {
@@ -114,6 +119,19 @@ class ProductImages extends Component<void, Props, State> {
   }
 
   @autobind
+  handleConfirmEditImage(form: ImageInfo): void {
+    if (!this.state.selectedImage) {
+      return;
+    }
+
+    const { album, idx } = this.state.selectedImage;
+
+    this.props.editImage(this.props.params.context, Number(album.id), idx, form);
+
+    this.setState({ isEditImageDialogVisible: false });
+  }
+
+  @autobind
   handleDeleteImage(selectedImage: SelectedImage): void {
     this.setState({
       selectedImage,
@@ -122,11 +140,23 @@ class ProductImages extends Component<void, Props, State> {
   }
 
   @autobind
-  handleCancelRemoveImage(): void {
+  handleCancelDeleteImage(): void {
     this.setState({
       selectedImage: void 0,
       isDeleteImageDialogVisible: false,
     });
+  }
+
+  @autobind
+  handleConfirmDeleteImage(): void {
+    if (!this.state.selectedImage) {
+      return;
+    }
+    const { album, idx } = this.state.selectedImage;
+
+    this.props.deleteImage(this.props.params.context, Number(album.id), idx);
+
+    this.setState({ isDeleteImageDialogVisible: false });
   }
 
   @autobind
@@ -169,7 +199,7 @@ class ProductImages extends Component<void, Props, State> {
   }
 
   @autobind
-  handleEditAlbumComplete(name: string): void {
+  handleConfirmEditAlbum(name: string): void {
     const { context, productId } = this.props.params;
 
     if (!name.length) {
@@ -177,10 +207,9 @@ class ProductImages extends Component<void, Props, State> {
     }
 
     if (this.state.newAlbumMode) {
-      this.props.addAlbum(context, productId, { name }).then(this.handleCancelEditAlbum);
+      this.props.addAlbum(context, productId, { name, images: [] }).then(this.handleCancelEditAlbum);
     } else {
-      const album = this.album;
-      album.name = name;
+      const album = { ...this.album, name };
 
       this.props.editAlbum(context, album.id, album).then(this.handleCancelEditAlbum);
     }
@@ -210,9 +239,7 @@ class ProductImages extends Component<void, Props, State> {
       return;
     }
 
-    const { context } = this.props.params;
-
-    this.props.deleteAlbum(context, this.album.id);
+    this.props.deleteAlbum(this.props.params.context, selectedAlbumId);
 
     this.setState({
       isDeleteAlbumDialogVisible: false,
@@ -244,17 +271,8 @@ class ProductImages extends Component<void, Props, State> {
         body={'Are you sure you want to delete this image?'}
         cancel='Cancel'
         confirm='Yes, Delete'
-        cancelAction={this.handleCancelRemoveImage}
-        confirmAction={() => {
-          if (!this.state.selectedImage) {
-            return;
-          }
-          const { image, album, idx } = this.state.selectedImage;
-
-          this.props.deleteImage(this.props.params.context, album.id, idx);
-
-          this.setState({ isDeleteImageDialogVisible: false });
-        }} />
+        cancelAction={this.handleCancelDeleteImage}
+        confirmAction={this.handleConfirmDeleteImage} />
     );
   }
 
@@ -266,20 +284,9 @@ class ProductImages extends Component<void, Props, State> {
     return (
       <EditImage
         isVisible={this.state.isEditImageDialogVisible}
-        title={_.get(this.state, ['selectedImage', 'image', 'title'], '')}
-        alt={_.get(this.state, ['selectedImage', 'image', 'alt'], '')}
+        image={_.get(this.state, ['selectedImage', 'image'])}
         onCancel={this.handleCancelEditImage}
-        onSave={(form: ImageInfo) => {
-          if (!this.state.selectedImage) {
-            return;
-          }
-
-          const { image, album, idx } = this.state.selectedImage;
-
-          this.props.editImage(this.props.params.context, album.id, idx, form);
-
-          this.setState({ isEditImageDialogVisible: false });
-        }} />
+        onSave={this.handleConfirmEditImage} />
     );
   }
 
@@ -312,8 +319,8 @@ class ProductImages extends Component<void, Props, State> {
   }
 
   @autobind
-  getImageActions(selectedImage: SelectedImage): Array<any> {
-    const actionsHandler = (handler: Function) => {
+  getImageActions(selectedImage: SelectedImage): Array<Action> {
+    const actionsHandler = (handler: () => void) => {
       return (e: MouseEvent) => {
         e.stopPropagation();
         handler();
@@ -328,7 +335,7 @@ class ProductImages extends Component<void, Props, State> {
   }
 
   @autobind
-  getAlbumActions(selectedAlbumId: id): Array<any> {
+  getAlbumActions(selectedAlbumId: number): Array<any> {
     return [
       { name: 'add', handler: () => this.handleAddImages(selectedAlbumId) },
       { name: 'edit', handler: () => this.handleEditAlbum(selectedAlbumId) },
@@ -337,9 +344,10 @@ class ProductImages extends Component<void, Props, State> {
   }
 
   @autobind
-  onAddFiles(files: Array<FileInfo>): void {
-    const f = files.map((file: FileInfo) => ({
+  onAddFiles(files: Array<ImageFile>): void {
+    const f = files.map((file: ImageFile) => ({
       title: file.file.name,
+      alt: file.file.name,
       src: file.src,
       file: file.file,
       loading: true,
@@ -347,7 +355,7 @@ class ProductImages extends Component<void, Props, State> {
 
     this.setState(
       { files: [...this.state.files, ...f] },
-      () => this.props.uploadImages(this.props.params.context, this.album.id, f)
+      () => void this.props.uploadImages(this.props.params.context, Number(this.state.selectedAlbumId), f)
     );
   }
 
@@ -367,12 +375,12 @@ class ProductImages extends Component<void, Props, State> {
             placeholder="New album"
             editMode={newAlbumMode}
             loading={addAlbumInProgress}
-            onEditComplete={this.handleEditAlbumComplete}
+            onEditComplete={this.handleConfirmEditAlbum}
             onEditCancel={this.handleCancelEditAlbum}
             key="new-album"
           >
             <Upload onDrop={this.onAddFiles}>
-              {files.map((image: FileInfo, i) => {
+              {files.map((image: ImageFile, i) => {
                 return <ImageCard src={image.src} key={i}
                                   title={image.title}
                                   loading={image.loading}
@@ -403,14 +411,7 @@ class ProductImages extends Component<void, Props, State> {
                            total={0} />
           <AddButton onClick={this.handleAddAlbum}>Album</AddButton>
         </div>
-        {/**
-         <div className="fc-grid fc-grid-no-gutter">
-         <div className="fc-col-md-1-1">
-         {this.contentBox}
-         </div>
-         </div>
-         */}
-            {this.dropzone}
+        {this.dropzone}
         {_.values(_.map(this.props.albums, this.renderAlbum))}
       </div>
     );
@@ -432,10 +433,10 @@ class ProductImages extends Component<void, Props, State> {
 
     if (addMode) {
       accordionContent = (
-        <Upload onDrop={this.onAddFiles}>
-          {files.map((image: FileInfo, i) => {
+        <Upload className={styles.upload} onDrop={this.onAddFiles}>
+          {files.map((image: ImageFile, idx: number) => {
             return <ImageCard src={image.src}
-                              key={i}
+                              key={`${image.src}-${idx}`}
                               title={image.title}
                               loading={image.loading}
                               secondaryTitle={`Uploaded ${moment().format('MM/DD/YYYY HH: mm')}`} />;
@@ -444,8 +445,8 @@ class ProductImages extends Component<void, Props, State> {
       );
     } else {
       accordionContent = (
-        <SortableTiles itemWidth={298} itemHeight={372} gutter={10}>
-          {album.images.map((image: FileInfo, idx: number) => {
+        <SortableTiles itemWidth={298} itemHeight={372} gutter={10} gutterY={40}>
+          {album.images.map((image: ImageFile, idx: number) => {
             return (
               <ImageCard
                 src={`${image.src}`}
@@ -453,7 +454,7 @@ class ProductImages extends Component<void, Props, State> {
                 secondaryTitle={`Uploaded ${image.uploadedAt || moment().format('MM/DD/YYYY HH: mm')}`}
                 actions={this.getImageActions({image, album, idx})}
                 loading={image.loading}
-                key={image.id}
+                key={`${image.src}-${idx}` /** replace with id*/}
               />
             );
           })}
@@ -472,9 +473,9 @@ class ProductImages extends Component<void, Props, State> {
             open={addMode}
             loading={loading}
             editMode={editTitleMode}
-            onEditComplete={this.handleEditAlbumComplete}
+            onEditComplete={this.handleConfirmEditAlbum}
             onEditCancel={this.handleCancelEditAlbum}
-            actions={this.getAlbumActions(album.id)}
+            actions={this.getAlbumActions(Number(album.id))}
           >
             {accordionContent}
           </Accordion>

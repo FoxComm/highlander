@@ -61,16 +61,14 @@ export default class ImageLoader extends Component {
 
   @autobind
   handleLoad(): void {
-    setTimeout(() => {
-      if (!this.img) {
-        return;
-      }
+    if (!this.img) {
+      return;
+    }
 
-      this.setState({
-        ready: true,
-        error: !this.img.width && !this.img.height,
-      }, this.destroyImage);
-    }, Math.random() * 500);
+    this.setState({
+      ready: true,
+      error: !this.img.width && !this.img.height,
+    }, this.destroyImage);
   }
 
   get loader(): ?Element {

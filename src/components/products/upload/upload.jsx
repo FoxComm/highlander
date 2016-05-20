@@ -14,7 +14,8 @@ import type { FileInfo } from '../../../modules/images';
 
 type Props = {
   children?: Element;
-  onDrop?: Function;
+  onDrop: ?Function;
+  className: ?string;
 }
 
 type State = {
@@ -27,6 +28,7 @@ export default class Upload extends Component {
 
   static defaultProps: Props = {
     onDrop: _.noop,
+    className: '',
   };
 
   state:State = {
@@ -79,6 +81,7 @@ export default class Upload extends Component {
       this.files.push({
         file: file,
         src: reader.result,
+        loading: false,
       });
 
       this.flushFiles();
@@ -137,8 +140,10 @@ export default class Upload extends Component {
   }
 
   render(): Element {
+    const { className } = this.props;
+
     return (
-      <div className={styles.upload}>
+      <div className={classNames(styles.upload, className)}>
         <input className={styles.input} type="file" onChange={this.onDrop} ref="fileInput" />
         {this.container}
       </div>

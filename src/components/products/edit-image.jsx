@@ -15,18 +15,18 @@ import SaveCancel from '../common/save-cancel';
 import type { ImageInfo } from '../../modules/images';
 
 type Props = {
-  title: string,
-  alt: string,
-  onSave: (info: ImageInfo) => void,
-  onCancel: () => void,
+  image: ImageInfo;
+  onSave: (info: ImageInfo) => void;
+  onCancel: () => void;
 };
 
 class EditImage extends Component {
   static props: Props;
 
   state: ImageInfo = {
-    title: this.props.title,
-    alt: this.props.alt,
+    src: this.props.image.src,
+    title: this.props.image.title,
+    alt: this.props.image.alt,
   };
 
   get closeAction(): Element {

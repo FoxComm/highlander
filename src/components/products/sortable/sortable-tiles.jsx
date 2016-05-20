@@ -4,7 +4,7 @@
 import _ from 'lodash';
 import classNames from 'classnames';
 import { autobind } from 'core-decorators';
-import React, { Component, Children } from 'react';
+import React, { Component, Children, Element } from 'react';
 import { Motion, spring } from 'react-motion';
 
 // styles
@@ -20,6 +20,7 @@ type Props = {
   itemHeight: number;
   gutterX: number;
   gutterY: number;
+  spaceBetween: boolean;
   children: ?Array<Element>;
   itemStyles: ?{[key: string]: number};
 }
@@ -51,6 +52,7 @@ class SortableTiles extends Component {
     itemStyles: {},
     gutterX: 10,
     gutterY: 20,
+    spaceBetween: false,
   };
 
   state: State = {
@@ -67,7 +69,7 @@ class SortableTiles extends Component {
 
   container: HTMLElement; // Container element
 
-  items: Array<HTMLElement> = []; // Array of items nodes
+  initialMount = true;
 
   resizeTimeout: ?number = null;
 
@@ -78,8 +80,17 @@ class SortableTiles extends Component {
     window.addEventListener('mouseup', this.handleMouseUp);
     window.addEventListener('resize', this.handleResize);
 
+    this.initialMount = true;
     this.recalculateLayout();
     this.forceUpdate();
+  }
+
+  componentDidUpdate() {
+    if (this.initialMount) {
+      this.recalculateLayout();
+
+      this.initialMount = false;
+    }
   }
 
   componentWillUnmount(): void {
@@ -101,7 +112,7 @@ class SortableTiles extends Component {
   }
 
   recalculateLayout(prevOrder: ?Array<number> = null): void {
-    const { itemWidth, itemHeight, gutterX, gutterY } = this.props;
+    const { itemWidth, itemHeight, gutterX, gutterY, spaceBetween } = this.props;
 
     const order = prevOrder ? prevOrder : this.state.order;
     const containerWidth = this.container ? this.container.clientWidth : 0;
@@ -109,7 +120,7 @@ class SortableTiles extends Component {
     /** calculate max columns count for given width of container */
     const columns = Math.floor((containerWidth + gutterX) / (itemWidth + gutterX));
     const rows = Math.ceil(order.length / columns);
-    const gutter = rows > 1 ? (containerWidth - itemWidth * columns) / (columns - 1) : gutterX;
+    const gutter = spaceBetween && rows > 1 ? (containerWidth - itemWidth * columns) / (columns - 1) : gutterX;
 
     const layout = order.map((_: any, index: number) => {
       const column = index % columns;
@@ -199,40 +210,52 @@ class SortableTiles extends Component {
     this.setState({ isResizing });
   }
 
+  getItemStyle(isActive: boolean, index: number): Object {
+    const { mouse, isResizing, layout } = this.state;
+
+    let style, x, y;
+
+    if (isActive) {
+      [x, y] = mouse;
+      style = {
+        translateX: x,
+        translateY: y,
+        scale: spring(1.1, springSetting1)
+      };
+    } else if (isResizing) {
+      [x, y] = layout[index];
+      style = {
+        translateX: spring(x, springSetting2),
+        translateY: spring(y, springSetting2),
+        scale: 1
+      };
+    } else {
+      [x, y] = layout[index];
+
+      // disabled animation on initial mount
+      style = {
+        translateX: this.initialMount ? x : spring(x, springSetting2),
+        translateY: this.initialMount ? y : spring(y, springSetting2),
+        scale: this.initialMount ? 1 : spring(1, springSetting1)
+      };
+    }
+
+    return {
+      x,
+      y,
+      style
+    };
+  }
+
   render() {
-    const { order, activeIndex, isPressed, mouse, isResizing, layout } = this.state;
+    const { order, activeIndex, isPressed } = this.state;
     const children = Children.toArray(this.props.children);
 
     return (
       <div className={styles.items} ref={element => this.container = element}>
         {order.map((item, index) => {
-          let style,
-            x,
-            y,
-            isActive = (index === activeIndex && isPressed);
-
-          if (isActive) {
-            [x, y] = mouse;
-            style = {
-              translateX: x,
-              translateY: y,
-              scale: spring(1.1, springSetting1)
-            };
-          } else if (isResizing) {
-            [x, y] = layout[index];
-            style = {
-              translateX: spring(x, springSetting2),
-              translateY: spring(y, springSetting2),
-              scale: 1
-            };
-          } else {
-            [x, y] = layout[index];
-            style = {
-              translateX: spring(x, springSetting2),
-              translateY: spring(y, springSetting2),
-              scale: spring(1, springSetting1)
-            };
-          }
+          const isActive = (index === activeIndex && isPressed);
+          const { style, x, y } = this.getItemStyle(isActive, index);
 
           return (
             <Motion key={item} style={style}>
@@ -255,7 +278,6 @@ class SortableTiles extends Component {
                     onTouchStart={this.handleTouchStart.bind(null, index, [x, y])}
                     className={classNames(styles.item, { [styles.isActive]: isActive })}
                     style={itemStyles}
-                    ref={(item => this.items.push(item))}
                   >
                     {children[item]}
                   </div>

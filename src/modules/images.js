@@ -1,12 +1,10 @@
 /* @flow */
 
-import Api from '../lib/api';
 import _ from 'lodash';
-import { get, assoc, dissoc } from 'sprout-data';
+import { get, assoc } from 'sprout-data';
 import { createReducer } from 'redux-act';
-import reduceReducers from 'reduce-reducers';
-import createStore from '../lib/store-creator';
 import createAsyncActions from './async-utils';
+import Api from '../lib/api';
 
 type Module = {
   reducer: Function;
@@ -14,33 +12,31 @@ type Module = {
 }
 
 export type Album = {
-  id: number;
+  id?: number;
   name: string;
-  images: ?Array<FileInfo>;
+  images: Array<ImageFile>;
 }
 
 export type FileInfo = {
-  id: ?number;
-  title: ?string;
-  alt: ?string;
+  id?: number;
   src: string;
   file: File;
-  loading: ?boolean;
-  uploadedAt: ?string;
+  loading: boolean;
+  uploadedAt?: string;
 }
 
 export type ImageInfo = {
-  title: ?string;
+  title: string;
   alt: ?string;
 }
 
+export type ImageFile = FileInfo & ImageInfo;
+
 type State = {
-  list: any;
-  albums: any;
+  albums: Array<Album>;
 }
 
 const initialState: State = {
-  list: {},
   albums: []
 };
 
@@ -61,29 +57,16 @@ export default function createImagesModule(entity: string): Module {
 
   const _uploadImages = createAsyncActions(
     actionPath(entity, 'uploadImages'),
-    (context:string, albumId: string, files: FileInfo) => {
+    (context:string, albumId: string, files: Array<ImageFile>) => {
       const formData = new FormData();
 
-      files.forEach((file: FileInfo) => {
+      files.forEach((file: ImageFile) => {
         formData.append('upload-file', file.file);
       });
 
       return Api.post(`/albums/${context}/${albumId}/images`, formData);
     }
   );
-
-  const editImageAsync = createAsyncActions(actionPath(entity, 'editImage'), (album: string, idx: number, imageInfo: ImageInfo) => {
-    return new Promise(resolve => {
-      setTimeout(() => resolve([album, idx, imageInfo]), _.random(100, 1000));
-    });
-  }, (...args) => args);
-
-  const deleteImageAsync = createAsyncActions(actionPath(entity, 'deleteImage'), (album: string, idx: number) => {
-    return new Promise(resolve => {
-      setTimeout(() => resolve([album, idx]), _.random(100, 1000));
-    });
-  }, (...args) => args);
-
 
   const _fetchAlbums = createAsyncActions(
     actionPath(entity, 'fetchAlbums'),
@@ -114,23 +97,7 @@ export default function createImagesModule(entity: string): Module {
   );
 
 
-
   /** External actions */
-
-  const fetch = (entityId: string|number) => dispatch => {
-    dispatch(fetchAsync.perform(entityId));
-  };
-
-  /**
-   * Upload images array
-   *
-   * @param {String} context System context
-   * @param {Number} albumId Album id
-   * @param {FileInfo[]} files Array if files to upload
-     */
-  const uploadImages = (context: string, albumId: number, files: Array<FileInfo>) => dispatch => {
-    return dispatch(_uploadImages.perform(context, albumId, files));
-  };
 
   /**
    * Fetch all available albums for given context/entity
@@ -157,6 +124,7 @@ export default function createImagesModule(entity: string): Module {
 
   /**
    * Edit album (used w/o entity specification)
+   * Accepts album name change and array of images, so images can be edited/deleted using this method.
    *
    * @param {String} context System context
    * @param {Number} albumId Album id
@@ -176,46 +144,55 @@ export default function createImagesModule(entity: string): Module {
     return dispatch(_deleteAlbum.perform(context, albumId));
   };
 
-  const editImage = (album: string, idx: number, imageInfo: ImageInfo) => (dispatch, getState) => {
-    const album = get(getState, ['albums']).find((album: Album) => album.id === id);
-    dispatch(editImageAsync.perform(album, idx, imageInfo));
+  /**
+   * Upload images array
+   *
+   * @param {String} context System context
+   * @param {Number} albumId Album id
+   * @param {ImageFile[]} files Array of image files to upload
+   */
+  const uploadImages = (context: string, albumId: number, files: Array<ImageFile>) => dispatch => {
+    return dispatch(_uploadImages.perform(context, albumId, files));
   };
 
+  /**
+   * Edit image info
+   *
+   * @param {String} context System context
+   * @param {Number} albumId Album id
+   * @param {Number} idx Image index to delete
+   * @param {ImageFile} image Updated image object
+     */
+  const editImage = (context: string, albumId: number, idx: number, image: ImageFile) => (dispatch, getState) => {
+    let album = get(getState(), [entity, 'images', 'albums']).find((album: Album) => album.id === albumId);
+
+    album = assoc(album, ['images', idx], image);
+
+    return dispatch(editAlbum(context, albumId, album));
+  };
+
+  /**
+   * Delete image from album
+   *
+   * @param {String} context System context
+   * @param {Number} albumId Album id
+   * @param {Number} idx Image index to delete
+     */
   const deleteImage = (context:string, albumId: number, idx: number) => (dispatch, getState) => {
-    let albums = get(getState(), [entity, 'images', 'albums']);
-    let album  = albums.find((album: Album) => album.id === albumId);
+    let album = get(getState(), [entity, 'images', 'albums']).find((album: Album) => album.id === albumId);
 
-    album = assoc(album, ['images'], [...album.images.slice(0, idx), ...album.images.slice(idx + 1)]);
+    album = assoc(album, ['images', idx], [...album.images.slice(0, idx), ...album.images.slice(idx + 1)]);
 
-    dispatch(editAlbum(context, albumId, album));
+    return dispatch(editAlbum(context, albumId, album));
   };
 
   /** Reducers */
   const asyncReducer = createReducer({
-    [_uploadImages.succeeded]: (state: State, response: Album) => {
-      const idx = _.findIndex(state.albums, (album: Album) => album.id === response.id);
-
-      return assoc(state, ['albums', idx], response);
-    },
-
-    [editImageAsync.succeeded]: (state: State, [[album, idx, imageInfo]]) => {
-      const path = ['list', album, idx];
-      return assoc(state,
-        [...path, 'title'], imageInfo.title,
-        [...path, 'alt'], imageInfo.alt,
-        [...path, 'inProgress'], false,
-      );
-    },
-
-    [deleteImageAsync.succeeded]: (state: State, [[album, idx]]) => {
-      const path = ['list', album];
-      const images = get(state, path, []);
-
-      return assoc(state, path, [...images.slice(0, idx), ...images.slice(idx + 1)]);
-    },
-
     [_fetchAlbums.succeeded]: (state: State, response: Array<Album>) => {
-      return assoc(state, ['albums'], response.sort((a: Album, b: Album) => b.id - a.id));
+      return assoc(state,
+        ['albums'],
+        response.sort((a: Album, b: Album) => Number(b.id) - Number(a.id)),
+      );
     },
     [_addAlbum.succeeded]: (state: State, response: Album) => {
       return assoc(state, ['albums'], [response, ...state.albums]);
@@ -228,12 +205,16 @@ export default function createImagesModule(entity: string): Module {
     [_deleteAlbum.succeeded]: (state: State, response: any) => {
       return assoc(state, ['albums'], state.albums);
     },
+    [_uploadImages.succeeded]: (state: State, response: Album) => {
+      const idx = _.findIndex(state.albums, (album: Album) => album.id === response.id);
+
+      return assoc(state, ['albums', idx], response);
+    },
   }, initialState);
 
   return {
     reducer: asyncReducer,
     actions: {
-      fetch,
       uploadImages,
       editImage,
       deleteImage,

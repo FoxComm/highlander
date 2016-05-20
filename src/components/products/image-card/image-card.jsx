@@ -12,9 +12,9 @@ import React, { Component, Element } from 'react';
 // components
 import Image from '../image/image';
 
-type Action = {
+export type Action = {
   name: string;
-  handler: Function;
+  handler: (e: MouseEvent) => void;
 }
 
 type Props = {
@@ -41,7 +41,7 @@ export default class ImageCard extends Component {
   overTimeout: ?number = null;
 
   @autobind
-  showActions() {
+  showActions(): void {
     clearTimeout(this.overTimeout);
 
     this.setState({
@@ -50,7 +50,7 @@ export default class ImageCard extends Component {
   }
 
   @autobind
-  hideActions() {
+  hideActions(): void {
     this.overTimeout = setTimeout(() => {
       this.setState({
         actionsVisible: false,
