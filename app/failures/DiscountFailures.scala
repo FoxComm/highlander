@@ -2,10 +2,6 @@ package failures
 
 object DiscountFailures {
 
-  object DiscountNotFound { 
-    def apply(id: Int) = NotFoundFailure404(s"Discount $id not found")
-  }
-
   case class DiscountNotFoundAtCommit(id: Int, commit: Int) extends Failure {
     override def description = s"Discount $id not with at commit $commit"
   }
