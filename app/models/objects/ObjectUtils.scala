@@ -164,7 +164,7 @@ object ObjectUtils {
     //This is because we never want two skus of the same type pointing to
     //the same sku shadow.
     else if(oldRightId != rightId) for {
-      link ← * <~ ObjectLinks.findByLeftRight(leftId, oldRightId).one.mustFindOr(
+      link ← * <~ ObjectLinks.findByLeftRight(leftId, oldRightId).mustFindOneOr(
         ObjectLinkCannotBeFound(leftId, oldRightId))
       _ ← * <~ ObjectLinks.update(link, link.copy(leftId = leftId, rightId = rightId))
     } yield Unit

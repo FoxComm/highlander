@@ -66,12 +66,12 @@ trait DemoSeedHelpers extends CreditCardSeeds with InventoryGenerator with Inven
     } yield {}
 
   private def getCc(customerId: Customer#Id)(implicit db: Database) =
-    CreditCards.findDefaultByCustomerId(customerId).one
-      .mustFindOr(CustomerHasNoCreditCard(customerId))
+    CreditCards.findDefaultByCustomerId(customerId)
+      .mustFindOneOr(CustomerHasNoCreditCard(customerId))
 
   private def getDefaultAddress(customerId: Customer#Id)(implicit db: Database) =
-    Addresses.findAllByCustomerId(customerId).filter(_.isDefaultShipping).one
-      .mustFindOr(CustomerHasNoDefaultAddress(customerId))
+    Addresses.findAllByCustomerId(customerId).filter(_.isDefaultShipping)
+      .mustFindOneOr(CustomerHasNoDefaultAddress(customerId))
 
   def createAddresses(customers: Seq[Customer#Id], address: Address): DbResultT[Seq[Int]] = for {
     addressIds ← * <~ Addresses.createAllReturningIds(customers.map{ id ⇒ address.copy(customerId = id)})
@@ -161,7 +161,7 @@ trait DemoScenario3 extends DemoSeedHelpers {
 
   def createScenario3(implicit db: Database) = for {
     context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-    shippingMethod  ← * <~ ShippingMethods.filter(_.adminDisplayName === "UPS 2-day").one.mustFindOr(
+    shippingMethod  ← * <~ ShippingMethods.filter(_.adminDisplayName === "UPS 2-day").mustFindOneOr(
       NotFoundFailure404("Unable to find 2-day shipping method"))
     warehouseIds ← * <~ Warehouses.map(_.id).result.toXor
     customerIds ← * <~ Customers.createAllReturningIds(customers3)

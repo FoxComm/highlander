@@ -40,7 +40,7 @@ object OrderShippingMethodUpdater {
     (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] = (for {
     order       ← * <~ getCartByOriginator(originator, refNum)
     _           ← * <~ order.mustBeCart
-    shipMethod  ← * <~ ShippingMethods.forOrder(order).one.mustFindOr(NoShipMethod(order.refNum))
+    shipMethod  ← * <~ ShippingMethods.forOrder(order).mustFindOneOr(NoShipMethod(order.refNum))
     _           ← * <~ OrderShippingMethods.findByOrderId(order.id).delete
     // update changed totals
     order       ← * <~ OrderTotaler.saveTotals(order)

@@ -41,7 +41,7 @@ object ObjectManager {
   } yield ObjectContextResponse.build(update)).runTxn()
 
   def mustFindByName404(name: String)(implicit ec: EC): DbResultT[ObjectContext] =
-    DbResultT(ObjectContexts.filterByName(name).one.mustFindOr(ObjectContextNotFound(name)))
+    DbResultT(ObjectContexts.filterByName(name).mustFindOneOr(ObjectContextNotFound(name)))
 
   def mustFindFormById404(id: Int)(implicit ec: EC): DbResultT[ObjectForm] =
     DbResultT(ObjectForms.findOneById(id).mustFindOr(ObjectFormNotFound(id)))

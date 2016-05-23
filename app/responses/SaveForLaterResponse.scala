@@ -25,8 +25,8 @@ object SaveForLaterResponse {
   )
 
   def forSkuId(skuId: Int, contextId: Int)(implicit ec: EC, db: DB): DbResultT[Root] = for {
-    sfl ← * <~ SaveForLaters.filter(_.skuId === skuId).one
-      .mustFindOr(NotFoundFailure404(s"Save for later entry for sku with id=$skuId not found"))
+    sfl ← * <~ SaveForLaters.filter(_.skuId === skuId)
+      .mustFindOneOr(NotFoundFailure404(s"Save for later entry for sku with id=$skuId not found"))
     sku ← * <~ Skus.mustFindById404(skuId)
     form  ← * <~ ObjectForms.mustFindById404(sku.formId)
     shadow  ← * <~ ObjectShadows.mustFindById404(sku.shadowId)

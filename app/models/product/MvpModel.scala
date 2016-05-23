@@ -187,17 +187,17 @@ object Mvp {
   DbResultT[SimpleProductData] = for {
     simpleProduct   ← * <~ SimpleProduct(p.title, p.description, p.image, p.code, p.active, p.tags)
     //find product form other context, get old form and merge with new
-    product       ← * <~ Products.filter(_.contextId === oldContextId).filter(_.id === p.productId).one.
-        mustFindOr(ProductNotFoundForContext(p.productId, oldContextId))
+    product       ← * <~ Products.filter(_.contextId === oldContextId).filter(_.id === p.productId)
+        .mustFindOneOr(ProductNotFoundForContext(p.productId, oldContextId))
     oldForm         ← * <~ ObjectForms.mustFindById404(product.formId)
     productForm     ← * <~ ObjectForms.update(oldForm, simpleProduct.update(oldForm))
 
     //find sku form for the product and update it with new sku
-    link ← * <~ ObjectLinks.findByLeftAndType(product.shadowId, ObjectLink.ProductSku).one.
-      mustFindOr(ObjectLeftLinkCannotBeFound(product.shadowId))
+    link ← * <~ ObjectLinks.findByLeftAndType(product.shadowId, ObjectLink.ProductSku)
+        .mustFindOneOr(ObjectLeftLinkCannotBeFound(product.shadowId))
     sku ← * <~ Skus.filter(_.contextId === oldContextId).
-      filter(_.shadowId === link.rightId).one.
-        mustFindOr(SkuWithShadowNotFound(link.rightId))
+      filter(_.shadowId === link.rightId).
+      mustFindOneOr(SkuWithShadowNotFound(link.rightId))
 
     simpleSku  ← * <~ SimpleSku(p.code, p.title, p.image, p.price, p.currency, p.active, p.tags)
     oldSkuForm ← * <~ ObjectForms.mustFindById404(sku.formId)

@@ -11,18 +11,17 @@ object Simulations {
 
   class PhoenixPing extends Simulation {
     setUp(scenario("Ping phoenix")
-    .exec(Ping.waitForPhoenix)
-    .inject(atOnceUsers(1)))
-    .assertions(global.failedRequests.percent.lessThan(99))
-    .protocols(Conf.httpConf)
-    .maxDuration(Conf.phoenixStartupTimeout)
+          .exec(Ping.waitForPhoenix)
+          .inject(atOnceUsers(1)))
+      .assertions(global.failedRequests.percent.lessThan(99))
+      .protocols(Conf.httpConf)
+      .maxDuration(Conf.phoenixStartupTimeout)
   }
 
   class GatlingSeeds extends Simulation {
     setUp(pacificNwVips, randomCustomerActivity)
-    .assertions(Conf.defaultAssertion)
-    .protocols(Conf.httpConf)
-    .maxDuration(10.minutes)
+      .assertions(Conf.defaultAssertion)
+      .protocols(Conf.httpConf)
+      .maxDuration(10.minutes)
   }
-
 }

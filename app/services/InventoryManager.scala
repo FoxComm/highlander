@@ -22,8 +22,8 @@ object InventoryManager {
     skuForm   ← * <~ ObjectForms.mustFindById404(sku.formId)
     skuShadow ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
     warehouse ← * <~ Warehouses.mustFindById404(warehouseId)
-    summaries ← * <~ InventorySummaries.findBySkuIdInWarehouse(warehouseId = warehouseId, skuId = sku.id).one
-                                       .mustFindOr(InventorySummaryNotFound(sku.id, warehouseId))
+    summaries ← * <~ InventorySummaries.findBySkuIdInWarehouse(warehouseId = warehouseId, skuId = sku.id)
+                                       .mustFindOneOr(InventorySummaryNotFound(sku.id, warehouseId))
   } yield SkuDetailsResponse.build(summaries, Mvp.priceAsInt(skuForm, skuShadow))).run()
 
   // Summary for sellable SKU across all warehouses

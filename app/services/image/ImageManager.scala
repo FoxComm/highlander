@@ -217,7 +217,7 @@ object ImageManager {
 
   private def mustFindAlbumByIdAndContext404(id: Int, context: ObjectContext)
     (implicit ec: EC, db: DB) = for {
-    album   ← * <~ Albums.filterByContextAndFormId(context.id, id).one.
-      mustFindOr(AlbumNotFoundForContext(id, context.id))
+    album   ← * <~ Albums.filterByContextAndFormId(context.id, id)
+        .mustFindOneOr(AlbumNotFoundForContext(id, context.id))
   } yield album
 }

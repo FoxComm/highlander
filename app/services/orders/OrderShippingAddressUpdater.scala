@@ -19,12 +19,11 @@ import utils.db.DbResultT._
 object OrderShippingAddressUpdater {
 
   def mustFindAddressWithRegion(id: Int)(implicit ec: EC): DbResult[(Address, Region)] = {
-    val justOne = Addresses.findById(id).extract.withRegions.one
-    justOne.mustFindOr(NotFoundFailure404(Address, id))
+    Addresses.findById(id).extract.withRegions.mustFindOneOr(NotFoundFailure404(Address, id))
   }
 
   def mustFindShipAddressForOrder(order: Order)(implicit ec: EC): DbResult[OrderShippingAddress] =
-    OrderShippingAddresses.findByOrderId(order.id).one.mustFindOr(NoShipAddress(order.refNum))
+    OrderShippingAddresses.findByOrderId(order.id).mustFindOneOr(NoShipAddress(order.refNum))
 
   def createShippingAddressFromAddressId(originator: Originator, addressId: Int, refNum: Option[String] = None)
     (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] = (for {

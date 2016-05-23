@@ -238,16 +238,16 @@ trait OrderGenerator extends ShipmentSeeds {
   }
 
   private def getCc(customerId: Customer#Id)(implicit db: DB) =
-    CreditCards.findDefaultByCustomerId(customerId).one
-      .mustFindOr(CustomerHasNoCreditCard(customerId))
+    CreditCards.findDefaultByCustomerId(customerId)
+      .mustFindOneOr(CustomerHasNoCreditCard(customerId))
 
   private def getDefaultAddress(customerId: Customer#Id)(implicit db: DB) =
-    Addresses.findAllByCustomerId(customerId).filter(_.isDefaultShipping).one
-      .mustFindOr(CustomerHasNoDefaultAddress(customerId))
+    Addresses.findAllByCustomerId(customerId).filter(_.isDefaultShipping)
+      .mustFindOneOr(CustomerHasNoDefaultAddress(customerId))
 
   private def getShipMethod(shipMethodId: Int)(implicit db: DB) =
-    ShippingMethods.findActiveById(shipMethodId).one
-      .mustFindOr(ShippingMethodIsNotFound(shipMethodId))
+    ShippingMethods.findActiveById(shipMethodId)
+      .mustFindOneOr(ShippingMethodIsNotFound(shipMethodId))
 
   private def authGiftCard(results: Seq[(OrderPayment, GiftCard)]):
   DbResultT[Seq[GiftCardAdjustment]] =

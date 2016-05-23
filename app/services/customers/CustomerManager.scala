@@ -120,8 +120,8 @@ object CustomerManager {
 
   def getById(id: Int)(implicit ec: EC, db: DB): Result[Root] = {
     (for {
-      customers    ← * <~ Customers.filter(_.id === id).withRegionsAndRank.one
-        .mustFindOr(NotFoundFailure404(Customer, id))
+      customers    ← * <~ Customers.filter(_.id === id).withRegionsAndRank
+        .mustFindOneOr(NotFoundFailure404(Customer, id))
       (customer, shipRegion, billRegion, rank) = customers
       maxOrdersDate ← * <~ Orders.filter(_.customerId === id).map(_.placedAt).max.result
       phoneOverride ← * <~ (if (customer.phoneNumber.isEmpty) resolvePhoneNumber(id) else DbResultT.rightLift(None))

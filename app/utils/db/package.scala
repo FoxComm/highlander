@@ -130,6 +130,8 @@ package object db {
   implicit class EnrichedQuery[E, U, C[_]](val query: Query[E, U, C]) extends AnyVal {
     def one: DBIO[Option[U]] = query.result.headOption
 
+    def mustFindOneOr(notFoundFailure: Failure)(implicit ec: EC): DbResult[U] = query.one.mustFindOr(notFoundFailure)
+
     def paged(implicit sortAndPage: SortAndPage): Query[E, U, C] = _paged(query)
 
     def withEmptyMetadata: QueryWithMetadata[E, U, C] = QueryWithMetadata(query, QueryMetadata.empty)

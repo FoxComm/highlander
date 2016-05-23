@@ -13,5 +13,5 @@ object ProductNoteManager extends NoteManager[Int, ObjectForm] {
   def noteType(): Note.ReferenceType = Note.Product
 
   def fetchEntity(id: Int)(implicit ec: EC, db: DB, ac: AC): DbResult[ObjectForm] =
-    ObjectForms.filter(_.kind === ObjectForm.product).one.mustFindOr(NotFoundFailure404(Product, id))
+    ObjectForms.filter(_.kind === ObjectForm.product).mustFindOneOr(NotFoundFailure404(Product, id))
 }

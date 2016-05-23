@@ -14,12 +14,17 @@ object Auth {
 
   val loginAsAdmin = http("Login as Admin")
     .post("/v1/public/login")
-    .body(StringBody(json(LoginPayload(email = "${adminEmail}", password = "${adminPassword}", kind = Admin))))
+    .body(StringBody(json(LoginPayload(email = "${adminEmail}",
+                                       password = "${adminPassword}",
+                                       kind = Admin))))
     .check(header("JWT").saveAs("jwtTokenAdmin"))
 
-  val loginAsRandomAdmin = feed(csv("data/store_admins.csv").random).exec(loginAsAdmin)
+  val loginAsRandomAdmin =
+    feed(csv("data/store_admins.csv").random).exec(loginAsAdmin)
 
-  implicit class RequireAuth(val httpBuilder: HttpRequestBuilder) extends AnyVal {
-    def requireAdminAuth = httpBuilder.header("Authorization", "${jwtTokenAdmin}")
+  implicit class RequireAuth(val httpBuilder: HttpRequestBuilder)
+      extends AnyVal {
+    def requireAdminAuth =
+      httpBuilder.header("Authorization", "${jwtTokenAdmin}")
   }
 }

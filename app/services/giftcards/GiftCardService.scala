@@ -62,8 +62,8 @@ object GiftCardService {
     _        ← * <~ Reasons.mustFindById400(payload.reasonId)
     // If `subTypeId` is absent, don't query. Check for model existence otherwise.
     subtype  ← * <~ payload.subTypeId.fold(DbResult.none[GiftCardSubtype]) { subId ⇒
-                      GiftCardSubtypes.csrAppeasements.filter(_.id === subId).one
-                        .mustFindOr(NotFoundFailure400(GiftCardSubtype, subId))
+                      GiftCardSubtypes.csrAppeasements.filter(_.id === subId)
+                        .mustFindOneOr(NotFoundFailure400(GiftCardSubtype, subId))
                         .map(_.map(Some(_))) // A bit silly but need to rewrap it back
                     }
     origin   ← * <~ GiftCardManuals.create(GiftCardManual(adminId = admin.id, reasonId = payload.reasonId))

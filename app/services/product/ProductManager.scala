@@ -27,36 +27,36 @@ object ProductManager {
 
   def getForm(id: Int)(implicit ec: EC, db: DB): Result[ProductFormResponse.Root] = (for {
     // guard to make sure the form is a product.
-    product ← * <~ Products.filter(_.formId === id).one.mustFindOr(ProductFormNotFound(id))
+    product ← * <~ Products.filter(_.formId === id).mustFindOneOr(ProductFormNotFound(id))
     form    ← * <~ ObjectForms.mustFindById404(id)
   } yield ProductFormResponse.build(product, form)).run()
 
   def getShadow(id: Int, contextName: String)(implicit ec: EC, db: DB): Result[ProductShadowResponse.Root] = (for {
-    context ← * <~ ObjectContexts.filterByName(contextName).one.mustFindOr(ObjectContextNotFound(contextName))
-    product ← * <~ Products.filter(_.contextId === context.id).filter(_.formId === id).one
-                           .mustFindOr(ProductNotFoundForContext(id, context.id))
+    context ← * <~ ObjectContexts.filterByName(contextName).mustFindOneOr(ObjectContextNotFound(contextName))
+    product ← * <~ Products.filter(_.contextId === context.id).filter(_.formId === id)
+                           .mustFindOneOr(ProductNotFoundForContext(id, context.id))
     shadow  ← * <~ ObjectShadows.mustFindById404(product.shadowId)
   } yield ProductShadowResponse.build(shadow)).run()
 
   def getShadow(id: Int)(implicit ec: EC, db: DB): Result[ProductFormResponse.Root] = (for {
     form    ← * <~ ObjectForms.mustFindById404(id)
-    product ← * <~ Products.filter(_.formId === id).one.mustFindOr(ProductFormNotFound(id))
+    product ← * <~ Products.filter(_.formId === id).mustFindOneOr(ProductFormNotFound(id))
   } yield ProductFormResponse.build(product, form)).run()
 
   def getIlluminatedProduct(productId: Int, contextName: String)
     (implicit ec: EC, db: DB): Result[IlluminatedProductResponse.Root] = (for {
-    context ← * <~ ObjectContexts.filterByName(contextName).one.mustFindOr(ObjectContextNotFound(contextName))
-    product ← * <~ Products.filter(_.contextId === context.id).filter(_.formId === productId).one
-                           .mustFindOr(ProductNotFoundForContext(productId, context.id))
+    context ← * <~ ObjectContexts.filterByName(contextName).mustFindOneOr(ObjectContextNotFound(contextName))
+    product ← * <~ Products.filter(_.contextId === context.id).filter(_.formId === productId)
+                           .mustFindOneOr(ProductNotFoundForContext(productId, context.id))
     form    ← * <~ ObjectForms.mustFindById404(product.formId)
     shadow  ← * <~ ObjectShadows.mustFindById404(product.shadowId)
   } yield IlluminatedProductResponse.build(IlluminatedProduct.illuminate(context, product, form, shadow))).run()
 
   def getFullProduct(productId: Int, contextName: String)
     (implicit ec: EC, db: DB): Result[FullProductResponse.Root] = (for {
-    context       ← * <~ ObjectContexts.filterByName(contextName).one.mustFindOr(ObjectContextNotFound(contextName))
-    product       ← * <~ Products.filter(_.contextId === context.id).filter(_.formId === productId).one
-                                 .mustFindOr(ProductNotFoundForContext(productId, context.id))
+    context       ← * <~ ObjectContexts.filterByName(contextName).mustFindOneOr(ObjectContextNotFound(contextName))
+    product       ← * <~ Products.filter(_.contextId === context.id).filter(_.formId === productId)
+                                 .mustFindOneOr(ProductNotFoundForContext(productId, context.id))
     productForm   ← * <~ ObjectForms.mustFindById404(product.formId)
     productShadow ← * <~ ObjectShadows.mustFindById404(product.shadowId)
     skuData       ← * <~ getSkuData(productShadow.id)
@@ -64,7 +64,7 @@ object ProductManager {
 
   def createFullProduct(admin: StoreAdmin, payload: CreateFullProduct, contextName: String)
     (implicit ec: EC, db: DB, ac: AC): Result[FullProductResponse.Root] = (for {
-    context       ← * <~ ObjectContexts.filterByName(contextName).one.mustFindOr(ObjectContextNotFound(contextName))
+    context       ← * <~ ObjectContexts.filterByName(contextName).mustFindOneOr(ObjectContextNotFound(contextName))
     productForm   ← * <~ ObjectForm(kind = Product.kind, attributes = payload.form.product.attributes)
     productShadow ← * <~ ObjectShadow(attributes = payload.shadow.product.attributes)
     ins           ← * <~ ObjectUtils.insert(productForm, productShadow)
@@ -78,9 +78,9 @@ object ProductManager {
 
   def updateFullProduct(admin: StoreAdmin, productId: Int, payload: UpdateFullProduct, contextName: String)
     (implicit ec: EC, db: DB, ac: AC): Result[FullProductResponse.Root] = (for {
-    context        ← * <~ ObjectContexts.filterByName(contextName).one.mustFindOr(ObjectContextNotFound(contextName))
-    product        ← * <~ Products.filter(_.contextId === context.id).filter(_.formId === productId).one
-                                  .mustFindOr(ProductNotFoundForContext(productId, context.id))
+    context        ← * <~ ObjectContexts.filterByName(contextName).mustFindOneOr(ObjectContextNotFound(contextName))
+    product        ← * <~ Products.filter(_.contextId === context.id).filter(_.formId === productId)
+                                  .mustFindOneOr(ProductNotFoundForContext(productId, context.id))
     updatedProduct ← * <~ ObjectUtils.update(product.formId, product.shadowId, payload.form.product.attributes,
                                              payload.shadow.product.attributes)
     updatedSkuData ← * <~ updateSkuData(context, product.shadowId, updatedProduct.shadow.id, payload.form.skus,
@@ -106,12 +106,12 @@ object ProductManager {
 
   def mustFindProductByContextAndId404(contextId: Int, productId: Int)
     (implicit ec: EC, db: DB): DbResult[Product] =
-    Products.filter(_.contextId === contextId).filter(_.formId === productId).one
-            .mustFindOr(ProductNotFoundForContext(productId, contextId))
+    Products.filter(_.contextId === contextId).filter(_.formId === productId)
+            .mustFindOneOr(ProductNotFoundForContext(productId, contextId))
 
   def getIlluminatedFullProductByContextName(productId: Int, contextName: String)
     (implicit ec: EC, db: DB): Result[IlluminatedFullProductResponse.Root] = (for {
-    context ← * <~ ObjectContexts.filterByName(contextName).one.mustFindOr(ObjectContextNotFound(contextName))
+    context ← * <~ ObjectContexts.filterByName(contextName).mustFindOneOr(ObjectContextNotFound(contextName))
     result  ← * <~ getIlluminatedFullProductInner(productId, context)
   } yield result).run()
 
@@ -121,8 +121,8 @@ object ProductManager {
 
   def getIlluminatedFullProductInner(productId: Int, context: ObjectContext)
     (implicit ec: EC, db: DB): DbResultT[IlluminatedFullProductResponse.Root] = for {
-    product            ← * <~ Products.filter(_.contextId === context.id).filter(_.formId === productId).one
-                                      .mustFindOr(ProductNotFoundForContext(productId, context.id))
+    product            ← * <~ Products.filter(_.contextId === context.id).filter(_.formId === productId)
+                                      .mustFindOneOr(ProductNotFoundForContext(productId, context.id))
     productForm        ← * <~ ObjectForms.mustFindById404(product.formId)
     productShadow      ← * <~ ObjectShadows.mustFindById404(product.shadowId)
     skuData            ← * <~ getSkuData(productShadow.id)
@@ -138,12 +138,12 @@ object ProductManager {
 
   def getIlluminatedFullProductAtCommit(productId: Int, contextName: String, commitId: Int)
     (implicit ec: EC, db: DB): Result[IlluminatedFullProductResponse.Root] = (for {
-    context            ← * <~ ObjectContexts.filterByName(contextName).one
-                                            .mustFindOr(ObjectContextNotFound(contextName))
-    product            ← * <~ Products.filter(_.contextId === context.id).filter(_.formId === productId).one
-                                      .mustFindOr(ProductNotFoundForContext(productId, context.id))
-    commit             ← * <~ ObjectCommits.filter(_.id === commitId).filter(_.formId === productId).one
-                                           .mustFindOr(ProductNotFoundAtCommit(productId, commitId))
+    context            ← * <~ ObjectContexts.filterByName(contextName)
+                                            .mustFindOneOr(ObjectContextNotFound(contextName))
+    product            ← * <~ Products.filter(_.contextId === context.id).filter(_.formId === productId)
+                                      .mustFindOneOr(ProductNotFoundForContext(productId, context.id))
+    commit             ← * <~ ObjectCommits.filter(_.id === commitId).filter(_.formId === productId)
+                                           .mustFindOneOr(ProductNotFoundAtCommit(productId, commitId))
     productForm        ← * <~ ObjectForms.mustFindById404(commit.formId)
     productShadow      ← * <~ ObjectShadows.mustFindById404(commit.shadowId)
     skuData            ← * <~ getSkuData(productShadow.id)
@@ -273,8 +273,8 @@ object ProductManager {
     (implicit ec: EC, db: DB): DbResultT[(FullObject[Sku], Boolean)] = {
     require(formPayload.code == shadowPayload.code)
     for {
-      sku        ← * <~ Skus.filterByContextAndCode(context.id, formPayload.code).one
-                            .mustFindOr(SkuNotFoundForContext(formPayload.code, context.id))
+      sku        ← * <~ Skus.filterByContextAndCode(context.id, formPayload.code)
+                            .mustFindOneOr(SkuNotFoundForContext(formPayload.code, context.id))
       updatedSku ← * <~ ObjectUtils.update(sku.formId, sku.shadowId, formPayload.attributes, shadowPayload.attributes)
       _          ← * <~ ObjectUtils.updateLink(oldProductShadowId, productShadowId, sku.shadowId, updatedSku.shadow.id,
                                                ObjectLink.ProductSku)

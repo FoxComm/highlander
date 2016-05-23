@@ -17,6 +17,6 @@ package object rmas {
 
     def mustFindCcPaymentsByOrderId(orderId: Int)(implicit ec: EC): DbResult[OrderPayment] =
       OrderPayments.findAllByOrderId(orderId).creditCards
-        .one.mustFindOr(OrderPaymentNotFoundFailure(Order))
+        .mustFindOneOr(OrderPaymentNotFoundFailure(Order))
   }
 }

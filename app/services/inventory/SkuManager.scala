@@ -35,7 +35,7 @@ object SkuManager {
 
   def getFormInner(code: String)
     (implicit ec: EC, db: DB): DbResultT[SkuFormResponse.Root] = for {
-    sku  ← * <~ Skus.filterByCode(code).one.mustFindOr(SkuNotFound(code))
+    sku  ← * <~ Skus.filterByCode(code).mustFindOneOr(SkuNotFound(code))
     form ← * <~ ObjectForms.mustFindById404(sku.formId)
   } yield SkuFormResponse.build(sku, form)
 
@@ -132,7 +132,7 @@ object SkuManager {
 
   def mustFindSkuByContextAndCode(contextId: Int, code: String)
     (implicit ec: EC, db: DB): DbResultT[Sku] = for {
-    sku ← * <~ Skus.filterByContextAndCode(contextId, code).one
-      .mustFindOr(SkuNotFoundForContext(code, contextId))
+    sku ← * <~ Skus.filterByContextAndCode(contextId, code)
+      .mustFindOneOr(SkuNotFoundForContext(code, contextId))
   } yield sku
 }

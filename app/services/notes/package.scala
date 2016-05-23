@@ -27,7 +27,7 @@ package object notes {
 
   def updateNote[T](entity: T, noteId: Int, author: StoreAdmin, payload: UpdateNote)
     (implicit ec: EC, ac: AC): DbResultT[Root] = for {
-    oldNote ← * <~ Notes.filterByIdAndAdminId(noteId, author.id).one.mustFindOr(NotFoundFailure404(Note, noteId))
+    oldNote ← * <~ Notes.filterByIdAndAdminId(noteId, author.id).mustFindOneOr(NotFoundFailure404(Note, noteId))
     newNote ← * <~ Notes.update(oldNote, oldNote.copy(body = payload.body))
     _       ← * <~ LogActivity.noteUpdated(author, entity, oldNote, newNote)
   } yield AdminNotes.build(newNote, author)

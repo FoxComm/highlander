@@ -9,16 +9,20 @@ package object seeds {
 
   def dbFeeder(sql: String) = jdbcFeeder(dbUrl, dbUser, dbPassword, sql)
 
-  implicit class StopOnFailure[B <: StructureBuilder[B]](val builder: B) extends AnyVal {
-    def stopOnFailure = builder.exec(doIf(session ⇒ session.isFailed)(exec { session ⇒
-      Console.err.println("[ERROR] Seeds failed, exiting.")
-      session.terminate
-      System.exit(1)
-      session
-    }))
+  implicit class StopOnFailure[B <: StructureBuilder[B]](val builder: B)
+      extends AnyVal {
+    def stopOnFailure =
+      builder.exec(
+          doIf(session ⇒ session.isFailed)(exec { session ⇒
+        Console.err.println("[ERROR] Seeds failed, exiting.")
+        session.terminate
+        System.exit(1)
+        session
+      }))
   }
 
-  implicit class DefaultPause[B <: StructureBuilder[B]](val builder: B) extends AnyVal {
+  implicit class DefaultPause[B <: StructureBuilder[B]](val builder: B)
+      extends AnyVal {
     def doPause = builder.pause(100.milliseconds, 1.second)
   }
 }

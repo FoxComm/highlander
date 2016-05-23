@@ -194,8 +194,8 @@ class ImageIntegrationTest
 
     val (context, album) = (for {
       storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
-      context    ← * <~ ObjectContexts.filterByName(SimpleContext.default).one.
-        mustFindOr(ObjectContextNotFound(SimpleContext.default))
+      context    ← * <~ ObjectContexts.filterByName(SimpleContext.default)
+          .mustFindOneOr(ObjectContextNotFound(SimpleContext.default))
       ins        ← * <~ ObjectUtils.insert(form, shadow)
       album  ← * <~ Albums.create(Album(contextId = context.id,
         shadowId = ins.shadow.id, formId = ins.form.id, commitId = ins.commit.id))

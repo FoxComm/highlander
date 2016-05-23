@@ -60,8 +60,8 @@ class ProductIntegrationTest
     val (context, product, skus, variants) = (for {
       // Create common objects.
       storeAdmin  ← * <~ StoreAdmins.create(authedStoreAdmin)
-      context     ← * <~ ObjectContexts.filterByName(SimpleContext.default).one.
-                          mustFindOr(ObjectContextNotFound(SimpleContext.default))
+      context     ← * <~ ObjectContexts.filterByName(SimpleContext.default)
+          .mustFindOneOr(ObjectContextNotFound(SimpleContext.default))
 
       // Create the SKUs.
       skus        ← * <~ Mvp.insertSkus(context.id, simpleSkus)

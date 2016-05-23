@@ -44,7 +44,7 @@ object OrderPaymentUpdater {
     _            ← * <~ order.mustBeCart
     result       ← * <~ validGiftCardWithAmount(payload)
     (gc, amount) = result
-    orderPayment ← * <~ OrderPayments.byOrderAndGiftCard(order, gc).one.mustFindOr(GiftCardPaymentNotFound(order.refNum, payload.code))
+    orderPayment ← * <~ OrderPayments.byOrderAndGiftCard(order, gc).mustFindOneOr(GiftCardPaymentNotFound(order.refNum, payload.code))
     _            ← * <~ OrderPayments.update(orderPayment, orderPayment.copy(amount = amount.some))
     resp         ← * <~ refreshAndFullOrder(order).toXor
     valid        ← * <~ CartValidator(order).validate()

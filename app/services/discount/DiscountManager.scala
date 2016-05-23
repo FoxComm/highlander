@@ -18,28 +18,28 @@ object DiscountManager {
 
   def getForm(id: Int)(implicit ec: EC, db: DB): Result[DiscountFormResponse.Root] = (for {
     // guard to make sure the form is a discount
-    _    ← * <~ Discounts.filter(_.formId === id).one.mustFindOr(NotFoundFailure404(Discount, id))
+    _    ← * <~ Discounts.filter(_.formId === id).mustFindOneOr(NotFoundFailure404(Discount, id))
     form ← * <~ ObjectForms.mustFindById404(id)
   } yield DiscountFormResponse.build(form)).run()
 
   def getShadow(id: Int, contextName: String)(implicit ec: EC, db: DB): Result[DiscountShadowResponse.Root] = (for {
-    context  ← * <~ ObjectContexts.filterByName(contextName).one.mustFindOr(ObjectContextNotFound(contextName))
-    discount ← * <~ Discounts.filter(_.contextId === context.id).filter(_.formId === id).one
-                             .mustFindOr(NotFoundFailure404(Discount, id))
+    context  ← * <~ ObjectContexts.filterByName(contextName).mustFindOneOr(ObjectContextNotFound(contextName))
+    discount ← * <~ Discounts.filter(_.contextId === context.id).filter(_.formId === id)
+                             .mustFindOneOr(NotFoundFailure404(Discount, id))
     shadow   ← * <~ ObjectShadows.mustFindById404(discount.shadowId)
   } yield DiscountShadowResponse.build(shadow)).run()
 
   def get(discountId: Int, contextName: String)(implicit ec: EC, db: DB): Result[DiscountResponse.Root] = (for {
-    context  ← * <~ ObjectContexts.filterByName(contextName).one.mustFindOr(ObjectContextNotFound(contextName))
-    discount ← * <~ Discounts.filter(_.contextId === context.id).filter(_.formId === discountId).one
-                             .mustFindOr(DiscountNotFoundForContext(discountId, context.id))
+    context  ← * <~ ObjectContexts.filterByName(contextName).mustFindOneOr(ObjectContextNotFound(contextName))
+    discount ← * <~ Discounts.filter(_.contextId === context.id).filter(_.formId === discountId)
+                             .mustFindOneOr(DiscountNotFoundForContext(discountId, context.id))
     form     ← * <~ ObjectForms.mustFindById404(discount.formId)
     shadow   ← * <~ ObjectShadows.mustFindById404(discount.shadowId)
   } yield DiscountResponse.build(form, shadow)).run()
 
   def create(payload: CreateDiscount, contextName: String)
     (implicit ec: EC, db: DB): Result[DiscountResponse.Root] = (for {
-    context  ← * <~ ObjectContexts.filterByName(contextName).one.mustFindOr(ObjectContextNotFound(contextName))
+    context  ← * <~ ObjectContexts.filterByName(contextName).mustFindOneOr(ObjectContextNotFound(contextName))
     discount ← * <~ createInternal(payload, context)
   } yield DiscountResponse.build(discount.form, discount.shadow)).runTxn()
 
@@ -56,7 +56,7 @@ object DiscountManager {
 
   def update(discountId: Int, payload: UpdateDiscount, contextName: String)
     (implicit ec: EC, db: DB): Result[DiscountResponse.Root] = (for {
-    context  ← * <~ ObjectContexts.filterByName(contextName).one.mustFindOr(ObjectContextNotFound(contextName))
+    context  ← * <~ ObjectContexts.filterByName(contextName).mustFindOneOr(ObjectContextNotFound(contextName))
     discount ← * <~ updateInternal(discountId, payload, context)
   } yield DiscountResponse.build(discount.form, discount.shadow)).runTxn()
 
@@ -64,8 +64,8 @@ object DiscountManager {
 
   def updateInternal(discountId: Int, payload: UpdateDiscount, context: ObjectContext, forceUpdate: Boolean = false)
     (implicit ec: EC, db: DB): DbResultT[UpdateInternalResult] = for {
-    discount ← * <~ Discounts.filter(_.contextId === context.id).filter(_.formId === discountId).one
-                             .mustFindOr(DiscountNotFoundForContext(discountId, context.id))
+    discount ← * <~ Discounts.filter(_.contextId === context.id).filter(_.formId === discountId)
+                             .mustFindOneOr(DiscountNotFoundForContext(discountId, context.id))
     update   ← * <~ ObjectUtils.update(discount.formId, discount.shadowId, payload.form.attributes,
                                        payload.shadow.attributes, forceUpdate)
     commit   ← * <~ ObjectUtils.commit(update)
@@ -74,9 +74,9 @@ object DiscountManager {
 
   def getIlluminated(id: Int, contextName: String)
     (implicit ec: EC, db: DB): Result[IlluminatedDiscountResponse.Root] = (for {
-    context  ← * <~ ObjectContexts.filterByName(contextName).one.mustFindOr(ObjectContextNotFound(contextName))
-    discount ← * <~ Discounts.filter(_.contextId === context.id).filter(_.formId === id).one
-                             .mustFindOr(NotFoundFailure404(Discount, id))
+    context  ← * <~ ObjectContexts.filterByName(contextName).mustFindOneOr(ObjectContextNotFound(contextName))
+    discount ← * <~ Discounts.filter(_.contextId === context.id).filter(_.formId === id)
+                             .mustFindOneOr(NotFoundFailure404(Discount, id))
     form     ← * <~ ObjectForms.mustFindById404(discount.formId)
     shadow   ← * <~ ObjectShadows.mustFindById404(discount.shadowId)
   } yield IlluminatedDiscountResponse.build(IlluminatedDiscount.illuminate(context = context.some, form, shadow))).run()

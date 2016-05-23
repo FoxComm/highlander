@@ -128,8 +128,8 @@ object CreditCardManager {
     }
 
     val getCardAndAddressChange = for {
-      creditCard ← * <~ CreditCards.findById(id).extract.filter(_.customerId === customerId).one
-        .mustFindOr(NotFoundFailure404(CreditCard, id))
+      creditCard ← * <~ CreditCards.findById(id).extract.filter(_.customerId === customerId)
+        .mustFindOneOr(NotFoundFailure404(CreditCard, id))
       shippingAddress ← * <~ getOptionalShippingAddress(payload.addressId, payload.isShipping).toXor
       address ← * <~ getAddressFromPayload(payload.addressId, payload.address, shippingAddress).toXor
       _       ← * <~ validateOptionalAddressOwnership(address, customerId)
@@ -152,8 +152,7 @@ object CreditCardManager {
 
   def getByIdAndCustomer(creditCardId: Int, customer: Customer)(implicit ec: EC, db: DB): Result[Root] = (for {
     cc      ← * <~ CreditCards.findByIdAndCustomerId(creditCardId, customer.id)
-                              .one
-                              .mustFindOr(NotFoundFailure404(CreditCard, creditCardId))
+                              .mustFindOneOr(NotFoundFailure404(CreditCard, creditCardId))
     region  ← * <~ Regions.mustFindById404(cc.regionId)
   } yield buildResponse(cc, region)).run()
 

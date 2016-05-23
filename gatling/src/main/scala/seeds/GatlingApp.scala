@@ -23,10 +23,13 @@ object GatlingApp extends App {
   def dbFeeder(sql: String) = jdbcFeeder(dbUrl, dbUser, dbPassword, sql)
 
   // Gatling API is weird...
-  val pingExitCode = Gatling.fromArgs(Array(), Some(classOf[PhoenixPing].asInstanceOf[Class[Simulation]]))
+  val pingExitCode = Gatling.fromArgs(
+      Array(), Some(classOf[PhoenixPing].asInstanceOf[Class[Simulation]]))
   if (pingExitCode != 0) {
-    println(s"Phoenix did not respond in ${Conf.phoenixStartupTimeout}, exiting now!")
+    println(
+        s"Phoenix did not respond in ${Conf.phoenixStartupTimeout}, exiting now!")
     System.exit(1)
   }
-  Gatling.fromArgs(Array(), Some(classOf[GatlingSeeds].asInstanceOf[Class[Simulation]]))
+  Gatling.fromArgs(
+      Array(), Some(classOf[GatlingSeeds].asInstanceOf[Class[Simulation]]))
 }

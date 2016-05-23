@@ -76,7 +76,7 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
     entity     ← * <~ fetchEntity(key)
     admin      ← * <~ StoreAdmins.mustFindById404(assigneeId)
     querySeq   = Assignments.byEntityAndAdmin(assignmentType, entity, referenceType, admin)
-    assignment ← * <~ querySeq.one.mustFindOr(AssigneeNotFoundFailure(entity, key, assigneeId))
+    assignment ← * <~ querySeq.mustFindOneOr(AssigneeNotFoundFailure(entity, key, assigneeId))
     _          ← * <~ querySeq.delete
     // Response builder
     assignments    ← * <~ fetchAssignments(entity).toXor

@@ -81,8 +81,7 @@ object OrderQueries {
   def findOneByCustomer(refNum: String, customer: Customer)
     (implicit ec: EC, db: DB): Result[TheResponse[FullOrder.Root]] = (for {
     order     ← * <~ Orders.findOneByRefNumAndCustomer(refNum, customer)
-                           .one
-                           .mustFindOr(NotFoundFailure404(Orders, refNum))
+                           .mustFindOneOr(NotFoundFailure404(Orders, refNum))
     validated ← * <~ CartValidator(order).validate()
     response  ← * <~ FullOrder.fromOrder(order).toXor
   } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).run()

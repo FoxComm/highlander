@@ -51,7 +51,7 @@ object ShippingManager {
 
   private def findByRefNumAndOptionalCustomer(refNum: String, customer: Option[Customer] = None)
     (implicit ec: EC, db: DB): DbResult[Order] = customer match {
-    case Some(c)  ⇒ Orders.findOneByRefNumAndCustomer(refNum, c).one.mustFindOr(NotFoundFailure404(Orders, refNum))
+    case Some(c)  ⇒ Orders.findOneByRefNumAndCustomer(refNum, c).mustFindOneOr(NotFoundFailure404(Orders, refNum))
     case _        ⇒ Orders.mustFindByRefNum(refNum)
   }
 

@@ -19,7 +19,7 @@ object CouponAssignmentsManager extends AssignmentsManager[Int, ObjectForm] {
   def buildResponse(model: ObjectForm): Root = build(model)
 
   def fetchEntity(id: Int)(implicit ec: EC, db: DB, ac: AC): DbResult[ObjectForm] =
-    ObjectForms.filter(_.kind === ObjectForm.coupon).one.mustFindOr(NotFoundFailure404(Coupon, id))
+    ObjectForms.filter(_.kind === ObjectForm.coupon).mustFindOneOr(NotFoundFailure404(Coupon, id))
 
   def fetchSequence(ids: Seq[Int])(implicit ec: EC, db: DB, ac: AC): DbResult[Seq[ObjectForm]] =
     ObjectForms.filter(_.kind === ObjectForm.coupon).filter(_.id.inSetBind(ids)).result.toXor

@@ -19,14 +19,14 @@ object PromotionManager {
 
   def getForm(id: Int)(implicit ec: EC, db: DB): Result[PromotionFormResponse.Root] = (for {
     //guard to make sure the form is a promotion
-    _    ← * <~ Promotions.filter(_.formId === id).one.mustFindOr(PromotionNotFound(id))
+    _    ← * <~ Promotions.filter(_.formId === id).mustFindOneOr(PromotionNotFound(id))
     form ← * <~ ObjectForms.mustFindById404(id)
   } yield PromotionFormResponse.build(form)).run()
 
   def getShadow(id: Int, contextName: String)(implicit ec: EC, db: DB): Result[PromotionShadowResponse.Root] = (for {
-    context         ← * <~ ObjectContexts.filterByName(contextName).one.mustFindOr(ObjectContextNotFound(contextName))
-    promotion       ← * <~ Promotions.filterByContextAndFormId(context.id, id).one
-                                     .mustFindOr(PromotionNotFoundForContext(id, contextName))
+    context         ← * <~ ObjectContexts.filterByName(contextName).mustFindOneOr(ObjectContextNotFound(contextName))
+    promotion       ← * <~ Promotions.filterByContextAndFormId(context.id, id)
+                                     .mustFindOneOr(PromotionNotFoundForContext(id, contextName))
     shadow          ← * <~ ObjectShadows.mustFindById404(promotion.shadowId)
     discountLinks   ← * <~ ObjectLinks.findByLeftAndType(shadow.id, ObjectLink.PromotionDiscount).result
     discountShadowIds = discountLinks.map(_.rightId)
@@ -34,9 +34,9 @@ object PromotionManager {
   } yield PromotionShadowResponse.build(shadow, discountShadows)).run()
 
   def get(id: Int, contextName: String)(implicit ec: EC, db: DB): Result[PromotionResponse.Root] = (for {
-    context         ← * <~ ObjectContexts.filterByName(contextName).one.mustFindOr(ObjectContextNotFound(contextName))
-    promotion       ← * <~ Promotions.filterByContextAndFormId(context.id, id).one
-                                     .mustFindOr(PromotionNotFoundForContext(id, contextName))
+    context         ← * <~ ObjectContexts.filterByName(contextName).mustFindOneOr(ObjectContextNotFound(contextName))
+    promotion       ← * <~ Promotions.filterByContextAndFormId(context.id, id)
+                                     .mustFindOneOr(PromotionNotFoundForContext(id, contextName))
     form            ← * <~ ObjectForms.mustFindById404(promotion.formId)
     shadow          ← * <~ ObjectShadows.mustFindById404(promotion.shadowId)
     discounts       ← * <~ ObjectUtils.getChildren(promotion.shadowId, ObjectLink.PromotionDiscount)
@@ -46,7 +46,7 @@ object PromotionManager {
 
   def create(payload: CreatePromotion, contextName: String)
     (implicit ec: EC, db: DB): Result[PromotionResponse.Root] = (for {
-    context   ← * <~ ObjectContexts.filterByName(contextName).one.mustFindOr(ObjectContextNotFound(contextName))
+    context   ← * <~ ObjectContexts.filterByName(contextName).mustFindOneOr(ObjectContextNotFound(contextName))
     form      ← * <~ ObjectForm(kind = Promotion.kind, attributes = payload.form.attributes)
     shadow    ← * <~ ObjectShadow(attributes = payload.shadow.attributes)
     ins       ← * <~ ObjectUtils.insert(form, shadow)
@@ -78,9 +78,9 @@ object PromotionManager {
 
   def update(id: Int, payload: UpdatePromotion, contextName: String)
     (implicit ec: EC, db: DB): Result[PromotionResponse.Root] = (for {
-    context   ← * <~ ObjectContexts.filterByName(contextName).one.mustFindOr(ObjectContextNotFound(contextName))
-    promotion ← * <~ Promotions.filterByContextAndFormId(context.id, id).one
-                               .mustFindOr(PromotionNotFoundForContext(id, contextName))
+    context   ← * <~ ObjectContexts.filterByName(contextName).mustFindOneOr(ObjectContextNotFound(contextName))
+    promotion ← * <~ Promotions.filterByContextAndFormId(context.id, id)
+                               .mustFindOneOr(PromotionNotFoundForContext(id, contextName))
     updated   ← * <~ ObjectUtils.update(promotion.formId, promotion.shadowId, payload.form.attributes,
                                         payload.shadow.attributes)
     discount  ← * <~ updateDiscounts(context, promotion.shadowId, updated.shadow.id, payload)
@@ -123,9 +123,9 @@ object PromotionManager {
 
   def getIlluminated(id: Int, contextName: String)
     (implicit ec: EC, db: DB): Result[IlluminatedPromotionResponse.Root] = (for {
-    context   ← * <~ ObjectContexts.filterByName(contextName).one.mustFindOr(ObjectContextNotFound(contextName))
-    promotion ← * <~ Promotions.filter(_.contextId === context.id).filter(_.formId === id).one
-                               .mustFindOr(PromotionNotFound(id))
+    context   ← * <~ ObjectContexts.filterByName(contextName).mustFindOneOr(ObjectContextNotFound(contextName))
+    promotion ← * <~ Promotions.filter(_.contextId === context.id).filter(_.formId === id)
+                               .mustFindOneOr(PromotionNotFound(id))
     form      ← * <~ ObjectForms.mustFindById404(promotion.formId)
     shadow    ← * <~ ObjectShadows.mustFindById404(promotion.shadowId)
     discounts ← * <~ ObjectUtils.getChildren(promotion.shadowId, ObjectLink.PromotionDiscount)

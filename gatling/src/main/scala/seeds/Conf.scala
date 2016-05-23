@@ -15,7 +15,10 @@ object Conf {
 
   val (appConfig, dbUrl, dbUser, dbPassword) = {
     val appConfig: Config = FoxConfig.loadWithEnv()
-    (appConfig, appConfig.getString("db.baseUrl"), appConfig.getString("db.user"), "")
+    (appConfig,
+     appConfig.getString("db.baseUrl"),
+     appConfig.getString("db.user"),
+     "")
   }
 
   // Loads the driver...
@@ -33,5 +36,4 @@ object Conf {
   val phoenixStartupTimeout = 1.minute
 
   val contexts = Seq(("default", USD), ("ru", RUB))
-
 }

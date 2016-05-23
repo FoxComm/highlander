@@ -65,8 +65,8 @@ object InventoryAdjustmentManager {
     applyWmsAdjustment(WmsOverride(event.skuId, event.warehouseId, event.onHand, event.onHold,event.reserved)).runTxn()
 
   private def findSellableSummary(skuId: Int, warehouseId: Int)(implicit ec: EC) =
-    InventorySummaries.findSellableBySkuIdInWarehouse(skuId = skuId, warehouseId = warehouseId).one
-                      .mustFindOr(InventorySummaryNotFound(skuId, warehouseId))
+    InventorySummaries.findSellableBySkuIdInWarehouse(skuId = skuId, warehouseId = warehouseId)
+                      .mustFindOneOr(InventorySummaryNotFound(skuId, warehouseId))
 
   private def groupSkusByQtys(skuIds: Seq[Int]): Map[Int, Int] =
     skuIds.foldLeft(Map[Int, Int]()) { (map, skuId) ⇒

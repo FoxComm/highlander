@@ -50,7 +50,7 @@ object AddressManager {
     (implicit ec: EC, db: DB, ac: AC): Result[Root] = (for {
 
     customer    ← * <~ Customers.mustFindById404(customerId)
-    oldAddress  ← * <~ Addresses.findActiveByIdAndCustomer(addressId, customerId).one.mustFindOr(addressNotFound(addressId))
+    oldAddress  ← * <~ Addresses.findActiveByIdAndCustomer(addressId, customerId).mustFindOneOr(addressNotFound(addressId))
     oldRegion   ← * <~ Regions.findOneById(oldAddress.regionId).safeGet.toXor
     address     ← * <~ Address.fromPayload(payload).copy(customerId = customerId, id = addressId).validate
     _           ← * <~ Addresses.insertOrUpdate(address).toXor
@@ -62,7 +62,7 @@ object AddressManager {
     (implicit ec: EC, db: DB, ac: AC): Result[Unit] = (for {
 
     customer    ← * <~ Customers.mustFindById404(customerId)
-    address     ← * <~ Addresses.findActiveByIdAndCustomer(addressId, customerId).one.mustFindOr(addressNotFound(addressId))
+    address     ← * <~ Addresses.findActiveByIdAndCustomer(addressId, customerId).mustFindOneOr(addressNotFound(addressId))
     region      ← * <~ Regions.findOneById(address.regionId).safeGet.toXor
     softDelete  ← * <~ address.updateTo(address.copy(deletedAt = Instant.now.some, isDefaultShipping = false))
     updated     ← * <~ Addresses.update(address, softDelete)
@@ -73,7 +73,7 @@ object AddressManager {
     (implicit ec: EC, db: DB): Result[Root] = (for {
     customer    ← * <~ Customers.mustFindById404(customerId)
     _           ← * <~ Addresses.findShippingDefaultByCustomerId(customerId).map(_.isDefaultShipping).update(false)
-    address     ← * <~ Addresses.findActiveByIdAndCustomer(addressId, customerId).one.mustFindOr(addressNotFound
+    address     ← * <~ Addresses.findActiveByIdAndCustomer(addressId, customerId).mustFindOneOr(addressNotFound
     (addressId))
     newAddress  = address.copy(isDefaultShipping = true)
     address     ← * <~ Addresses.update(address, newAddress)
@@ -88,9 +88,9 @@ object AddressManager {
   private def findByOriginator(originator: Originator, addressId: Int, customerId: Int)
     (implicit ec: EC) = originator match {
     case AdminOriginator(_) ⇒
-      Addresses.findByIdAndCustomer(addressId, customerId).one.mustFindOr(addressNotFound(addressId))
+      Addresses.findByIdAndCustomer(addressId, customerId).mustFindOneOr(addressNotFound(addressId))
     case CustomerOriginator(_) ⇒
-      Addresses.findActiveByIdAndCustomer(addressId, customerId).one.mustFindOr(addressNotFound(addressId))
+      Addresses.findActiveByIdAndCustomer(addressId, customerId).mustFindOneOr(addressNotFound(addressId))
   }
 
   private def addressNotFound(id: Int) = NotFoundFailure404(Address, id)

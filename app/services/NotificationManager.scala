@@ -86,7 +86,7 @@ object NotificationManager {
   def updateLastSeen(adminId: Int, activityId: Int)(implicit ec: EC, db: DB): Result[LastSeenActivityResponse] = (for {
     _ ← * <~ StoreAdmins.mustFindById404(adminId)
     _ ← * <~ Activities.mustFindById404(activityId)
-    trail ← * <~ Trails.findNotificationByAdminId(adminId).one.mustFindOr(NotificationTrailNotFound400(adminId))
+    trail ← * <~ Trails.findNotificationByAdminId(adminId).mustFindOneOr(NotificationTrailNotFound400(adminId))
     _ ← * <~ Trails.update(trail, trail.copy(data = Some(decompose(NotificationTrailMetadata(activityId)))))
   } yield LastSeenActivityResponse(trailId = trail.id, lastSeenActivityId = activityId)).runTxn()
 
@@ -122,5 +122,5 @@ object NotificationManager {
   } yield {}
 
   private def dimensionIdByName(name: String)(implicit ec: EC) =
-    Dimensions.findByName(name).map(_.id).one.mustFindOr(NotFoundFailure400(Dimension, name))
+    Dimensions.findByName(name).map(_.id).mustFindOneOr(NotFoundFailure400(Dimension, name))
 }
