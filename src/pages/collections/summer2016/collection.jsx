@@ -6,7 +6,7 @@ import type { HTMLElement } from 'types';
 import styles from './collection.css';
 
 import CollectionBlock from '../components/collection-block';
-import TextBanner from '../../../banner/text-banner';
+import TextBanner from '../../../components/banner/text-banner';
 
 
 class Collection extends Component {

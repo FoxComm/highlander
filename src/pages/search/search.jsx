@@ -10,7 +10,7 @@ import styles from './search.css';
 import localized from 'lib/i18n';
 import type { Localized } from 'lib/i18n';
 
-import ProductsList from '../../products-list/products-list';
+import ProductsList from '../../components/products-list/products-list';
 
 import { setTerm, fetch } from 'modules/search';
 

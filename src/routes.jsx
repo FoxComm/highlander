@@ -2,16 +2,16 @@ import React from 'react';
 import { Route, IndexRoute } from 'react-router';
 import Site from './components/layout/site';
 import StoreFront from './components/layout/storefront';
-import Home from './components/pages/home/home';
-import Products from './components/pages/catalog/products';
-import CollectionSummer2016 from './components/pages/collections/summer2016/collection';
-import Locations from './components/pages/locations/locations';
-import OurStory from './components/pages/our-story/our-story';
-import Pdp from './components/pages/catalog/pdp';
-import Search from './components/pages/search/search';
+import Home from './pages/home/home';
+import Products from './pages/catalog/products';
+import CollectionSummer2016 from './pages/collections/summer2016/collection';
+import Locations from './pages/locations/locations';
+import OurStory from './pages/our-story/our-story';
+import Pdp from './pages/catalog/pdp';
+import Search from './pages/search/search';
 
-import Checkout from './components/pages/checkout/checkout';
-import OrderPlaced from './components/pages/checkout/order-placed';
+import Checkout from './pages/checkout/checkout';
+import OrderPlaced from './pages/checkout/order-placed';
 
 const routes = (
   <Route path="/" component={Site}>
