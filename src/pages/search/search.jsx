@@ -21,8 +21,8 @@ type SearchParams = {
 type SearchResult = {
   total: number,
   pagination: { total: number },
-  max_score: number,
-  result: Array<Product>,
+  max_score: ?number,
+  result: Array<Product>|Object,
 };
 
 type SearchProps = Localized & {
