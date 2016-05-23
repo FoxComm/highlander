@@ -1,7 +1,7 @@
 phoenix_server: 127.0.0.1:9090
 ashes_server: ashes.service.consul
 api_server: balancer.service.consul 
-es_heap_size: 1g
+es_heap_size: 2g
 seeds_cmd: utils.seeds.Seeds demo 1
 
 demo_domain: stage.foxcommerce.com
