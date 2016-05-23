@@ -5,6 +5,7 @@ import akka.http.scaladsl.server.Directives._
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.auth.Identity
+import payloads.LoginPayload
 import services.Authenticator
 import services.auth.GoogleOauth.oauthServiceFromConfig
 import services.auth.OauthDirectives._
@@ -18,7 +19,7 @@ object AuthRoutes {
 
   def routes(implicit ec: EC, db: DB) = {
     pathPrefix("public") {
-      (post & path("login") & entity(as[payloads.LoginPayload])) { payload ⇒
+      (post & path("login") & entity(as[LoginPayload])) { payload ⇒
         onSuccess(Authenticator.authenticate(payload)) { result ⇒
           result.fold({ f ⇒ complete(renderFailure(f)) }, identity)
         }

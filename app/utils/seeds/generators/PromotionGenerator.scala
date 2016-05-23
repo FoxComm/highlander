@@ -1,28 +1,28 @@
 package utils.seeds.generators
 
-import models.product.SimpleContext
-import models.promotion._
-import models.objects._
-import services.Result
-import utils.db._
-import utils.db.DbResultT._
-
-import payloads.{CreatePromotion, CreatePromotionForm, CreatePromotionShadow,
-  CreateDiscountForm, CreateDiscountShadow}
-import services.promotion.PromotionManager
-
-import cats.data.Xor
 import java.time.Instant
-import org.json4s._
-import org.json4s.jackson.JsonMethods._
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
+
+import cats.data.Xor
+import models.objects._
+import models.product.SimpleContext
+import models.promotion._
+import org.json4s._
+import org.json4s.jackson.JsonMethods._
+import payloads.DiscountPayloads._
+import payloads.PromotionPayloads._
+import services.Result
+import services.promotion.PromotionManager
 import slick.driver.PostgresDriver.api._
+import utils.db.DbResultT._
+import utils.db._
 
 object SimplePromotion {
   type Percent = Int
 }
-import SimplePromotion._
+import utils.seeds.generators.SimplePromotion._
 
 case class SimplePromotion(promotionId: Int = 0, formId: Int = 0, shadowId: Int = 0,  
   percentOff: Percent, totalAmount: Int, applyType: Promotion.ApplyType = Promotion.Auto)

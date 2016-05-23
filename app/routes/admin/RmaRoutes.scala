@@ -5,8 +5,7 @@ import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.order.Order
 import models.rma.{Rmas, Rma}
 import models.StoreAdmin
-import payloads.{RmaCreatePayload, RmaGiftCardLineItemsPayload, RmaMessageToCustomerPayload, RmaPaymentPayload,
-RmaShippingCostLineItemsPayload, RmaSkuLineItemsPayload, RmaUpdateStatePayload}
+import payloads.RmaPayloads._
 import services.rmas._
 import utils.http.CustomDirectives._
 import utils.http.Http._

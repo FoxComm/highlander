@@ -5,7 +5,7 @@ import failures.{AlreadyAssignedFailure, AssigneeNotFoundFailure, NotAssignedFai
 import models.{Assignment, Assignments, StoreAdmin, StoreAdmins}
 import models.customer.Customers
 import models.order.{Order, Orders}
-import payloads.{AssignmentPayload, BulkAssignmentPayload}
+import payloads.AssignmentPayloads._
 import responses.{AssignmentResponse, BatchMetadata, BatchMetadataSource, BatchResponse, TheResponse}
 import util.IntegrationTestBase
 import utils.seeds.Seeds.Factories

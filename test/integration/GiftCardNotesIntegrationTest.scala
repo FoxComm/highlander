@@ -16,6 +16,7 @@ import utils.time.RichInstant
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import failures.NotFoundFailure404
+import payloads.NotePayloads._
 
 class GiftCardNotesIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
 
@@ -23,8 +24,7 @@ class GiftCardNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
 
   "POST /v1/notes/gift-card/:code" - {
     "can be created by an admin for a gift card" in new Fixture {
-      val response = POST(s"v1/notes/gift-card/${giftCard.code}",
-        payloads.CreateNote(body = "Hello, FoxCommerce!"))
+      val response = POST(s"v1/notes/gift-card/${giftCard.code}", CreateNote(body = "Hello, FoxCommerce!"))
 
       response.status must === (StatusCodes.OK)
 
@@ -34,14 +34,14 @@ class GiftCardNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
     }
 
     "returns a validation error if failed to create" in new Fixture {
-      val response = POST(s"v1/notes/gift-card/${giftCard.code}", payloads.CreateNote(body = ""))
+      val response = POST(s"v1/notes/gift-card/${giftCard.code}", CreateNote(body = ""))
 
       response.status must === (StatusCodes.BadRequest)
       response.error must === ("body must not be empty")
     }
 
     "returns a 404 if the gift card is not found" in new Fixture {
-      val response = POST(s"v1/notes/gift-card/999999", payloads.CreateNote(body = ""))
+      val response = POST(s"v1/notes/gift-card/999999", CreateNote(body = ""))
 
       response.status must === (StatusCodes.NotFound)
       response.error must === (NotFoundFailure404(GiftCard, 999999).description)
@@ -52,7 +52,7 @@ class GiftCardNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
 
     "can be listed" in new Fixture {
       List("abc", "123", "xyz").map { body ⇒
-        GiftCardNoteManager.create(giftCard.code, admin, payloads.CreateNote(body = body)).futureValue
+        GiftCardNoteManager.create(giftCard.code, admin, CreateNote(body = body)).futureValue
       }
 
       val response = GET(s"v1/notes/gift-card/${giftCard.code}")
@@ -68,9 +68,9 @@ class GiftCardNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
 
     "can update the body text" in new Fixture {
       val rootNote = rightValue(GiftCardNoteManager.create(giftCard.code, admin,
-        payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue)
+        CreateNote(body = "Hello, FoxCommerce!")).futureValue)
 
-      val response = PATCH(s"v1/notes/gift-card/${giftCard.code}/${rootNote.id}", payloads.UpdateNote(body = "donkey"))
+      val response = PATCH(s"v1/notes/gift-card/${giftCard.code}/${rootNote.id}", UpdateNote(body = "donkey"))
       response.status must === (StatusCodes.OK)
 
       val note = response.as[AdminNotes.Root]
@@ -81,7 +81,7 @@ class GiftCardNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
   "DELETE /v1/notes/gift-card/:code/:noteId" - {
 
     "can soft delete note" in new Fixture {
-      val createResp = POST(s"v1/notes/gift-card/${giftCard.code}", payloads.CreateNote(body = "Hello, FoxCommerce!"))
+      val createResp = POST(s"v1/notes/gift-card/${giftCard.code}", CreateNote(body = "Hello, FoxCommerce!"))
       val note = createResp.as[AdminNotes.Root]
 
       val response = DELETE(s"v1/notes/gift-card/${giftCard.code}/${note.id}")

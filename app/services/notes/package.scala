@@ -4,6 +4,7 @@ import java.time.Instant
 
 import failures.NotFoundFailure404
 import models.{Note, Notes, StoreAdmin}
+import payloads.NotePayloads._
 import responses.AdminNotes
 import responses.AdminNotes.Root
 import slick.driver.PostgresDriver.api._
@@ -18,13 +19,13 @@ package object notes {
   }
 
   def createNote[T](entity: T, refId: Int, refType: Note.ReferenceType, author: StoreAdmin,
-    payload: payloads.CreateNote)(implicit ec: EC, ac: AC): DbResultT[Note] = for {
+    payload: CreateNote)(implicit ec: EC, ac: AC): DbResultT[Note] = for {
     note ← * <~ Notes.create(Note(storeAdminId = author.id, referenceId = refId, referenceType = refType,
       body = payload.body))
     _    ← * <~ LogActivity.noteCreated(author, entity, note)
   } yield note
 
-  def updateNote[T](entity: T, noteId: Int, author: StoreAdmin, payload: payloads.UpdateNote)
+  def updateNote[T](entity: T, noteId: Int, author: StoreAdmin, payload: UpdateNote)
     (implicit ec: EC, ac: AC): DbResultT[Root] = for {
     oldNote ← * <~ Notes.filterByIdAndAdminId(noteId, author.id).one.mustFindOr(NotFoundFailure404(Note, noteId))
     newNote ← * <~ Notes.update(oldNote, oldNote.copy(body = payload.body))

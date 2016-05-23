@@ -4,7 +4,7 @@ import java.time.Instant
 
 import shapeless._
 import org.json4s.JsonAST.{JValue ⇒ Json}
-import payloads.CustomerDynamicGroupPayload
+import payloads.CustomerGroupPayloads.CustomerDynamicGroupPayload
 import slick.lifted.Tag
 import utils.http.CustomDirectives.SortAndPage
 import utils.db.ExPostgresDriver.api._

@@ -1,13 +1,15 @@
 package routes.admin
 
 import akka.http.scaladsl.server.Directives._
+
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.StoreAdmin
 import models.traits.Originator
-import payloads._
+import payloads.AddressPayloads.CreateAddressPayload
+import payloads.PaymentPayloads._
+import payloads.CustomerPayloads._
 import services.customers._
-import services.{AddressManager, CreditCardManager, CustomerCreditConverter, StoreCreditAdjustmentsService,
-StoreCreditService}
+import services.{AddressManager, CreditCardManager, CustomerCreditConverter, StoreCreditAdjustmentsService, StoreCreditService}
 import services.orders.OrderQueries
 import utils.Apis
 import utils.http.CustomDirectives._
@@ -25,14 +27,14 @@ object CustomerRoutes {
             CustomerManager.findAll
           }
         } ~
-        (get & pathPrefix("searchForNewOrder") & pathEnd & parameters('term).as(payloads.CustomerSearchForNewOrder)) { p ⇒
+        (get & pathPrefix("searchForNewOrder") & pathEnd & parameters('term).as(CustomerSearchForNewOrder)) { p ⇒
           sortAndPage { implicit sortAndPage ⇒
             goodOrFailures {
               CustomerManager.searchForNewOrder(p)
             }
           }
         } ~
-        (post & pathEnd & entity(as[payloads.CreateCustomerPayload])) { payload ⇒
+        (post & pathEnd & entity(as[CreateCustomerPayload])) { payload ⇒
           goodOrFailures {
             CustomerManager.create(payload, Some(admin))
           }
@@ -61,12 +63,12 @@ object CustomerRoutes {
             CustomerManager.activate(customerId, payload, admin)
           }
         } ~
-        (post & path("disable") & pathEnd & entity(as[payloads.ToggleCustomerDisabled])) { payload ⇒
+        (post & path("disable") & pathEnd & entity(as[ToggleCustomerDisabled])) { payload ⇒
           goodOrFailures {
             CustomerManager.toggleDisabled(customerId, payload.disabled, admin)
           }
         } ~
-        (post & path("blacklist") & pathEnd & entity(as[payloads.ToggleCustomerBlacklisted])) { payload ⇒
+        (post & path("blacklist") & pathEnd & entity(as[ToggleCustomerBlacklisted])) { payload ⇒
           goodOrFailures {
             CustomerManager.toggleBlacklisted(customerId, payload.blacklisted, admin)
           }
@@ -116,17 +118,17 @@ object CustomerRoutes {
               CreditCardManager.creditCardsInWalletFor(customerId)
             }
           } ~
-          (post & path(IntNumber / "default") & pathEnd & entity(as[payloads.ToggleDefaultCreditCard])) { (cardId, payload) ⇒
+          (post & path(IntNumber / "default") & pathEnd & entity(as[ToggleDefaultCreditCard])) { (cardId, payload) ⇒
             goodOrFailures {
               CreditCardManager.toggleCreditCardDefault(customerId, cardId, payload.isDefault)
             }
           } ~
-          (post & pathEnd & entity(as[payloads.CreateCreditCard])) { payload ⇒
+          (post & pathEnd & entity(as[CreateCreditCard])) { payload ⇒
             goodOrFailures {
               CreditCardManager.createCardThroughGateway(customerId, payload, Some(admin))
             }
           } ~
-          (patch & path(IntNumber) & pathEnd & entity(as[payloads.EditCreditCard])) { (cardId, payload) ⇒
+          (patch & path(IntNumber) & pathEnd & entity(as[EditCreditCard])) { (cardId, payload) ⇒
             goodOrFailures {
               CreditCardManager.editCreditCard(customerId, cardId, payload, Some(admin))
             }
@@ -155,12 +157,12 @@ object CustomerRoutes {
               StoreCreditService.findAllByCustomer(customerId)
             }
           } ~
-          (post & pathEnd & entity(as[payloads.CreateManualStoreCredit])) { payload ⇒
+          (post & pathEnd & entity(as[CreateManualStoreCredit])) { payload ⇒
             goodOrFailures {
               StoreCreditService.createManual(admin, customerId, payload)
             }
           } ~
-          (post & path("custom") & pathEnd & entity(as[payloads.CreateExtensionStoreCredit])) { payload ⇒
+          (post & path("custom") & pathEnd & entity(as[CreateExtensionStoreCredit])) { payload ⇒
             goodOrFailures {
               // TODO: prohibit access from non-extensions? by user probably?
               StoreCreditService.createFromExtension(admin, customerId, payload)

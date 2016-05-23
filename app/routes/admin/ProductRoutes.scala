@@ -2,9 +2,12 @@ package routes.admin
 
 import scala.concurrent.ExecutionContext
 import akka.http.scaladsl.server.Directives._
+
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
-import payloads._
 import models.StoreAdmin
+import payloads.ContextPayloads._
+import payloads.ImagePayloads.AlbumPayload
+import payloads.ProductPayloads._
 import services.image.ImageManager
 import services.objects.ObjectManager
 import services.product.ProductManager

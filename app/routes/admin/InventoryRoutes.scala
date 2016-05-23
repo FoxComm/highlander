@@ -1,14 +1,15 @@
 package routes.admin
 
 import akka.http.scaladsl.server.Directives._
+
+import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.StoreAdmin
-import models.inventory.InventoryAdjustment.WmsOverride
+import payloads.InventoryPayloads.WmsEventPayload
 import services.InventoryManager
 import services.inventory.InventoryAdjustmentManager
-import utils.http.CustomDirectives._
 import utils.aliases._
+import utils.http.CustomDirectives._
 import utils.http.Http._
-import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 
 object InventoryRoutes {
 
@@ -31,7 +32,7 @@ object InventoryRoutes {
             }
           } ~
           pathPrefix("wms" / "override") {
-            (post & pathEnd & entity(as[payloads.WmsEventPayload])) { event ⇒
+            (post & pathEnd & entity(as[WmsEventPayload])) { event ⇒
               nothingOrFailures {
                  InventoryAdjustmentManager.wmsOverride(event)
               }

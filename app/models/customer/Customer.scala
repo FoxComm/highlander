@@ -8,8 +8,8 @@ import failures.CustomerFailures.CustomerEmailNotUnique
 import failures.Failure
 import models.location._
 import models.payment.creditcard.CreditCards
+import payloads.CustomerPayloads.CreateCustomerPayload
 import shapeless._
-import payloads.CreateCustomerPayload
 import slick.driver.PostgresDriver.api._
 import utils.Passwords._
 import utils.Validation

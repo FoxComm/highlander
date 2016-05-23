@@ -1,15 +1,16 @@
 package routes.admin
 
 import akka.http.scaladsl.server.Directives._
+
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.StoreAdmin
 import models.payment.giftcard.GiftCard.giftCardCodeRegex
-import payloads._
-import services.giftcards._
+import payloads.GiftCardPayloads._
 import services.CustomerCreditConverter
+import services.giftcards._
+import utils.aliases._
 import utils.http.CustomDirectives._
 import utils.http.Http._
-import utils.aliases._
 
 object GiftCardRoutes {
 

@@ -8,7 +8,7 @@ import faker.Lorem
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import org.json4s.jackson.Serialization.{write ⇒ json}
-import payloads.{CreateCreditCard, CreditCardPayment}
+import payloads.PaymentPayloads._
 
 object CreditCards {
 

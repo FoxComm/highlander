@@ -8,7 +8,6 @@ import models.customer.Customer
 import models.order._
 import models.payment.giftcard._
 import models.StoreAdmin
-import payloads.{AddGiftCardLineItem, UpdateLineItemsPayload}
 import responses.order.FullOrder
 import FullOrder.refreshAndFullOrder
 import responses.TheResponse
@@ -17,6 +16,7 @@ import utils.aliases._
 import utils.db._
 import utils.db.DbResultT._
 import models.objects.ObjectContext
+import payloads.LineItemPayloads.{AddGiftCardLineItem, UpdateLineItemsPayload}
 import slick.driver.PostgresDriver.api._
 
 object LineItemUpdater {

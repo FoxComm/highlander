@@ -1,15 +1,16 @@
 package services
 
-import java.time.{ZoneId, Instant}
+import java.time.{Instant, ZoneId}
 
-import failures.CreditCardFailures.{IncorrectCvc, CardDeclined}
-import util.{StripeSupport, IntegrationTestBase}
+import failures.CreditCardFailures.{CardDeclined, IncorrectCvc}
+import util.{IntegrationTestBase, StripeSupport}
 import utils.seeds.Seeds
-import utils.{WiredStripeApi, Apis}
+import utils.{Apis, WiredStripeApi}
 import utils.Money.Currency
 import Seeds.Factories
 import utils.db._
 import cats.implicits._
+import payloads.PaymentPayloads.CreateCreditCard
 import slick.driver.PostgresDriver.api._
 
 class StripeTest
@@ -50,7 +51,7 @@ class StripeTest
 
     "createCard" - {
       "fails if the card is declined" taggedAs External in {
-        val payload = payloads.CreateCreditCard(holderName = "yax", cardNumber = StripeSupport.declinedCard,
+        val payload = CreateCreditCard(holderName = "yax", cardNumber = StripeSupport.declinedCard,
           cvv = "123", expYear = today.getYear, expMonth = today.getMonthValue)
         val result = service.createCard("yax@yax.com", payload, none, Factories.address).futureValue
 
@@ -58,7 +59,7 @@ class StripeTest
       }
 
       "fails if the cvc is incorrect" taggedAs External in {
-        val payload = payloads.CreateCreditCard(holderName = "yax", cardNumber = StripeSupport.incorrectCvc,
+        val payload = CreateCreditCard(holderName = "yax", cardNumber = StripeSupport.incorrectCvc,
           cvv = "123", expYear = today.getYear, expMonth = today.getMonthValue)
         val result = service.createCard("yax@yax.com", payload, none, Factories.address).futureValue
 
@@ -67,7 +68,7 @@ class StripeTest
 
       "successfully creates a card and new customer when given no customerId" taggedAs External in {
         val address = Factories.address
-        val payload = payloads.CreateCreditCard(holderName = "yax", cardNumber = StripeSupport.successfulCard,
+        val payload = CreateCreditCard(holderName = "yax", cardNumber = StripeSupport.successfulCard,
           cvv = "123", expYear = today.getYear, expMonth = today.getMonthValue)
         val result = service.createCard("yax@yax.com", payload, none, address).futureValue
 
@@ -89,7 +90,7 @@ class StripeTest
 
       "successfully creates a card using an existing customer given a customerId" taggedAs External in {
         val address = Factories.address
-        val payload = payloads.CreateCreditCard(holderName = "yax", cardNumber = StripeSupport.successfulCard,
+        val payload = CreateCreditCard(holderName = "yax", cardNumber = StripeSupport.successfulCard,
           cvv = "123", expYear = today.getYear, expMonth = today.getMonthValue)
         val result = service.createCard("yax@yax.com", payload, existingCustId.some, address).futureValue
 

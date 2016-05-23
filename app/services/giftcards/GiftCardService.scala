@@ -9,7 +9,7 @@ import models.payment.giftcard.GiftCard.Canceled
 import models.payment.giftcard.GiftCardSubtypes.scope._
 import models.payment.giftcard._
 import models.{Reasons, StoreAdmin, StoreAdmins}
-import payloads.{GiftCardCreateByCsr, GiftCardUpdateStateByCsr}
+import payloads.GiftCardPayloads._
 import responses.GiftCardBulkResponse._
 import responses.GiftCardResponse._
 import responses.{CustomerResponse, GiftCardResponse, GiftCardSubTypesResponse, StoreAdminResponse, TheResponse}
@@ -56,7 +56,7 @@ object GiftCardService {
     case _ ⇒ DBIO.successful(GiftCardResponse.build(giftCard, None, None))
   }
 
-  def createByAdmin(admin: StoreAdmin, payload: payloads.GiftCardCreateByCsr)
+  def createByAdmin(admin: StoreAdmin, payload: GiftCardCreateByCsr)
     (implicit ec: EC, db: DB, ac: AC): Result[Root] = (for {
     _        ← * <~ payload.validate
     _        ← * <~ Reasons.mustFindById400(payload.reasonId)
@@ -72,7 +72,7 @@ object GiftCardService {
     _        ← * <~ LogActivity.gcCreated(admin, giftCard)
   } yield build(gc = giftCard, admin = adminResp)).runTxn()
 
-  def createBulkByAdmin(admin: StoreAdmin, payload: payloads.GiftCardBulkCreateByCsr)
+  def createBulkByAdmin(admin: StoreAdmin, payload: GiftCardBulkCreateByCsr)
     (implicit ec: EC, db: DB, ac: AC): Result[Seq[ItemResult]] = (for {
     _        ← ResultT.fromXor(payload.validate.toXor)
     gcCreatePayload = GiftCardCreateByCsr(balance = payload.balance, reasonId = payload.reasonId, currency = payload.currency)
@@ -81,7 +81,7 @@ object GiftCardService {
                }))
   } yield response).value
 
-  def bulkUpdateStateByCsr(payload: payloads.GiftCardBulkUpdateStateByCsr, admin: StoreAdmin)
+  def bulkUpdateStateByCsr(payload: GiftCardBulkUpdateStateByCsr, admin: StoreAdmin)
     (implicit ec: EC, db: DB, ac: AC): Result[Seq[ItemResult]] = (for {
     _        ← ResultT.fromXor(payload.validate.toXor)
     response ← ResultT.right(Future.sequence(payload.codes.map { code ⇒
@@ -90,7 +90,7 @@ object GiftCardService {
                }))
   } yield response).value
 
-  def updateStateByCsr(code: String, payload: payloads.GiftCardUpdateStateByCsr, admin: StoreAdmin)
+  def updateStateByCsr(code: String, payload: GiftCardUpdateStateByCsr, admin: StoreAdmin)
     (implicit ec: EC, db: DB, ac: AC): Result[Root] = (for {
     _        ← * <~ payload.validate
     _        ← * <~ payload.reasonId.map(id ⇒ Reasons.mustFindById400(id)).getOrElse(DbResult.unit)

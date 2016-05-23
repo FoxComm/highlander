@@ -8,7 +8,11 @@ import models.payment.giftcard.GiftCard
 import models.order.Order.orderRefNumRegex
 import models.inventory.Sku.skuCodeRegex
 import models.traits.Originator
-import payloads._
+import payloads.AddressPayloads._
+import payloads.CustomerPayloads.UpdateCustomerPayload
+import payloads.LineItemPayloads.UpdateLineItemsPayload
+import payloads.PaymentPayloads._
+import payloads.UpdateShippingMethod
 import services.customers.CustomerManager
 import services.orders._
 import services.{AddressManager, Checkout, CreditCardManager, LineItemUpdater, SaveForLaterManager, ShippingManager, StoreCreditAdjustmentsService, StoreCreditService}

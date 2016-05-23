@@ -6,7 +6,7 @@ import models.StoreAdmins
 import models.order.Order
 import models.product.SimpleContext
 import models.objects._
-import payloads.CreateOrder
+import payloads.OrderPayloads.CreateOrder
 import responses.order.FullOrder
 import FullOrder.Root
 import services.orders.OrderCreator

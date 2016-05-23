@@ -2,7 +2,7 @@ package services.objects
 
 import failures.ObjectFailures._
 import models.objects._
-import payloads.{CreateObjectContext, UpdateObjectContext}
+import payloads.ContextPayloads._
 import responses.ObjectResponses._
 import services._
 import utils.aliases._

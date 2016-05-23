@@ -14,15 +14,16 @@ import models.payment.storecredit.StoreCredit._
 import models.payment.storecredit.{StoreCreditAdjustment ⇒ Adj, StoreCreditAdjustments ⇒ Adjs}
 import shapeless._
 import failures.{Failure, Failures, GeneralFailure}
+import payloads.PaymentPayloads._
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.http.CustomDirectives.SortAndPage
 import utils.Money._
 import utils.Validation._
-import utils.{Validation, _}
+import utils._
 import utils.aliases._
-import utils.db.{FoxModel, _}
+import utils.db._
 
 case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, originType: OriginType = CsrAppeasement,
   subTypeId: Option[Int] = None, currency: Currency = Currency.USD, originalBalance: Int, currentBalance: Int = 0,
@@ -93,13 +94,13 @@ object StoreCredit {
       currency = gc.currency, originalBalance = gc.currentBalance, currentBalance = gc.currentBalance)
   }
 
-  def buildAppeasement(customerId: Int, originId: Int, payload: payloads.CreateManualStoreCredit): StoreCredit = {
+  def buildAppeasement(customerId: Int, originId: Int, payload: CreateManualStoreCredit): StoreCredit = {
     StoreCredit(customerId = customerId, originId = originId, originType = StoreCredit.CsrAppeasement,
       subTypeId = payload.subTypeId, currency = payload.currency, originalBalance = payload.amount)
   }
 
   def buildFromExtension(customerId: Int,
-    payload: payloads.CreateExtensionStoreCredit,
+    payload: CreateExtensionStoreCredit,
     originType: StoreCredit.OriginType = StoreCredit.Custom,
     originId: Int): StoreCredit = {
     StoreCredit(customerId = customerId,

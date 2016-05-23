@@ -10,7 +10,7 @@ import failures.{CreditCardFailures, Failures}
 import models.location.Address
 import models.payment.creditcard.CreditCard
 import models.stripe._
-import payloads.CreateCreditCard
+import payloads.PaymentPayloads.CreateCreditCard
 import utils.Money._
 import utils.{Apis, StripeApi}
 import utils.aliases._

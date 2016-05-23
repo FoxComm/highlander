@@ -8,7 +8,9 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import io.gatling.http.request.StringBody
 import org.json4s.jackson.Serialization.{write ⇒ json}
-import payloads.{CreateOrder, OrderTimeMachine, UpdateLineItemsPayload, UpdateShippingMethod}
+import payloads.LineItemPayloads.UpdateLineItemsPayload
+import payloads.OrderPayloads.{CreateOrder, OrderTimeMachine}
+import payloads.UpdateShippingMethod
 import seeds.dbFeeder
 import seeds.requests.Auth._
 import seeds.requests.Payments._

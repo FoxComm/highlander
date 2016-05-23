@@ -6,7 +6,7 @@ import models.payment.storecredit._
 import models.rma._
 import RmaPayments.scope._
 import models.StoreAdmin
-import payloads.RmaPaymentPayload
+import payloads.RmaPayloads.RmaPaymentPayload
 import responses.RmaResponse
 import responses.RmaResponse.Root
 import services.Result

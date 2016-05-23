@@ -10,7 +10,7 @@ import models.inventory.summary._
 import models.order._
 import models.product.SimpleContext
 import models.objects._
-import payloads.UpdateLineItemsPayload
+import payloads.LineItemPayloads.UpdateLineItemsPayload
 import services.inventory.InventoryAdjustmentManager
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase

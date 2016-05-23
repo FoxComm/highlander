@@ -6,7 +6,7 @@ import scala.util.Random
 import utils.db._
 import utils.db.DbResultT._
 
-import payloads.{CreateDiscount, CreateDiscountForm, CreateDiscountShadow}
+import payloads.DiscountPayloads._
 import services.discount.DiscountManager
 
 import org.json4s._

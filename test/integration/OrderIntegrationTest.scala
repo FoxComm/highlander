@@ -19,7 +19,6 @@ import models.{StoreAdmin, StoreAdmins}
 import models.product.{Mvp, SimpleContext}
 import models.objects._
 import org.json4s.jackson.JsonMethods._
-import payloads.{AssignmentPayload, UpdateLineItemsPayload, UpdateOrderPayload}
 import responses.StoreAdminResponse
 import responses.order.FullOrder
 import services.actors.{RemorseTimer, Tick}
@@ -35,6 +34,10 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import failures.CartFailures._
 import failures.LockFailures._
 import failures.{NotFoundFailure404, StateTransitionNotAllowed}
+import payloads.AddressPayloads.UpdateAddressPayload
+import payloads.LineItemPayloads.UpdateLineItemsPayload
+import payloads.OrderPayloads.UpdateOrderPayload
+import payloads.UpdateShippingMethod
 
 class OrderIntegrationTest extends IntegrationTestBase
   with HttpSupport
@@ -443,7 +446,7 @@ class OrderIntegrationTest extends IntegrationTestBase
   "PATCH /v1/orders/:refNum/shipping-address" - {
 
     "succeeds when a subset of the fields in the address change" in new ShippingAddressFixture {
-      val updateAddressPayload = payloads.UpdateAddressPayload(name = Some("New name"), city = Some("Queen Anne"))
+      val updateAddressPayload = UpdateAddressPayload(name = Some("New name"), city = Some("Queen Anne"))
       val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-address", updateAddressPayload)
 
       response.status must === (StatusCodes.OK)
@@ -459,7 +462,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
 
     "does not update the address book" in new ShippingAddressFixture {
-      val updateAddressPayload = payloads.UpdateAddressPayload(name = Some("Another name"), city = Some("Fremont"))
+      val updateAddressPayload = UpdateAddressPayload(name = Some("Another name"), city = Some("Fremont"))
       val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-address", updateAddressPayload)
 
       response.status must === (StatusCodes.OK)
@@ -473,7 +476,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     "full order returns updated shipping address" in new ShippingAddressFixture {
       val name = "Even newer name"
       val city = "Queen Max"
-      val updateAddressPayload = payloads.UpdateAddressPayload(name = Some(name), city = Some(city))
+      val updateAddressPayload = UpdateAddressPayload(name = Some(name), city = Some(city))
       val addressUpdateResponse = PATCH(s"v1/orders/${order.referenceNumber}/shipping-address", updateAddressPayload)
       addressUpdateResponse.status must === (StatusCodes.OK)
       checkOrder(addressUpdateResponse.ignoreFailuresAndGiveMe[FullOrder.Root])
@@ -541,7 +544,7 @@ class OrderIntegrationTest extends IntegrationTestBase
   "PATCH /v1/orders/:refNum/shipping-method" - {
     "succeeds if the order meets the shipping restrictions" in new ShippingMethodFixture {
       val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-method",
-        payloads.UpdateShippingMethod(shippingMethodId = lowShippingMethod.id))
+        UpdateShippingMethod(shippingMethodId = lowShippingMethod.id))
 
       response.status must === (StatusCodes.OK)
       val fullOrder = response.ignoreFailuresAndGiveMe[FullOrder.Root]
@@ -554,21 +557,21 @@ class OrderIntegrationTest extends IntegrationTestBase
 
     "fails if the order does not meet the shipping restrictions" in new ShippingMethodFixture {
       val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-method",
-        payloads.UpdateShippingMethod(shippingMethodId = highShippingMethod.id))
+        UpdateShippingMethod(shippingMethodId = highShippingMethod.id))
 
       response.status must === (StatusCodes.BadRequest)
     }
 
     "fails if the shipping method isn't found" in new ShippingMethodFixture {
       val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-method",
-        payloads.UpdateShippingMethod(shippingMethodId = 999))
+        UpdateShippingMethod(shippingMethodId = 999))
 
       response.status must === (StatusCodes.BadRequest)
     }
 
     "fails if the shipping method isn't active" in new ShippingMethodFixture {
       val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-method",
-        payloads.UpdateShippingMethod(shippingMethodId = inactiveShippingMethod.id))
+        UpdateShippingMethod(shippingMethodId = inactiveShippingMethod.id))
 
       response.status must === (StatusCodes.BadRequest)
     }

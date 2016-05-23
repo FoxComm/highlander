@@ -33,6 +33,7 @@ import failures.OrderFailures.OrderPaymentNotFoundFailure
 import failures.StoreCreditFailures.CustomerHasInsufficientStoreCredit
 import org.mockito.Matchers
 import org.mockito.Mockito._
+import payloads.PaymentPayloads._
 import services.{CreditCardManager, Result}
 import utils.{Apis, StripeApi}
 import utils.db.javaTimeSlickMapper
@@ -52,7 +53,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
   "gift cards" - {
     "POST /v1/orders/:ref/payment-methods/gift-cards" - {
       "succeeds" in new GiftCardFixture {
-        val payload = payloads.GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance.some)
+        val payload = GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance.some)
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
 
         response.status must === (StatusCodes.OK)
@@ -64,7 +65,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       }
 
       "fails when adding same gift card twice" in new GiftCardFixture {
-        val payload = payloads.GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance.some)
+        val payload = GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance.some)
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
         response.status must === (StatusCodes.OK)
 
@@ -74,7 +75,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       }
 
       "fails if the order is not found" in new GiftCardFixture {
-        val payload = payloads.GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance.some)
+        val payload = GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance.some)
         val response = POST(s"v1/orders/ABC123/payment-methods/gift-cards", payload)
 
         response.status must === (StatusCodes.NotFound)
@@ -82,7 +83,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       }
 
       "fails if the giftCard is not found" in new GiftCardFixture {
-        val payload = payloads.GiftCardPayment(code = giftCard.code ++ "xyz", amount = giftCard.availableBalance.some)
+        val payload = GiftCardPayment(code = giftCard.code ++ "xyz", amount = giftCard.availableBalance.some)
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
 
         response.status must === (StatusCodes.BadRequest)
@@ -92,7 +93,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
 
       "fails if the giftCard does not have sufficient available balance" in new GiftCardFixture {
         val requestedAmount = giftCard.availableBalance + 1
-        val payload = payloads.GiftCardPayment(code = giftCard.code, amount = requestedAmount.some)
+        val payload = GiftCardPayment(code = giftCard.code, amount = requestedAmount.some)
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
 
         response.status must === (StatusCodes.BadRequest)
@@ -102,7 +103,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
 
       "FIXME fails if the order is not in cart status" in new GiftCardFixture {
         Orders.findByRefNum(order.referenceNumber).map(_.state).update(Order.RemorseHold).run().futureValue
-        val payload = payloads.GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance.some)
+        val payload = GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance.some)
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
 
         response.status must === (StatusCodes.BadRequest)
@@ -112,7 +113,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
 
       "fails if the giftCard is inactive" in new GiftCardFixture {
         GiftCards.findByCode(giftCard.code).map(_.state).update(GiftCard.Canceled).run().futureValue
-        val payload = payloads.GiftCardPayment(code = giftCard.code, amount = (giftCard.availableBalance + 1).some)
+        val payload = GiftCardPayment(code = giftCard.code, amount = (giftCard.availableBalance + 1).some)
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
 
         response.status must === (StatusCodes.BadRequest)
@@ -122,7 +123,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
 
       "fails to add GC with cart status as payment method" in new GiftCardFixture {
         GiftCards.findByCode(giftCard.code).map(_.state).update(GiftCard.Cart).run().futureValue
-        val payload = payloads.GiftCardPayment(code = giftCard.code, amount = Some(15))
+        val payload = GiftCardPayment(code = giftCard.code, amount = Some(15))
         val response = POST(s"v1/orders/${order.refNum}/payment-methods/gift-cards", payload)
 
         response.status must ===(StatusCodes.BadRequest)
@@ -132,7 +133,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
 
     "PATCH /v1/orders/:ref/payment-methods/gift-cards" - {
       "successfully updates giftCard payment" in new GiftCardFixture {
-        val payload = payloads.GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance.some)
+        val payload = GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance.some)
         val create = POST(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
         create.status must ===(StatusCodes.OK)
 
@@ -141,7 +142,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       }
 
       "fails if the order is not found" in new GiftCardFixture {
-        val payload = payloads.GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance.some)
+        val payload = GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance.some)
         val response = PATCH(s"v1/orders/ABC123/payment-methods/gift-cards", payload)
 
         response.status must === (StatusCodes.NotFound)
@@ -149,7 +150,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       }
 
       "fails if the giftCard is not found" in new GiftCardFixture {
-        val payload = payloads.GiftCardPayment(code = giftCard.code ++ "xyz", amount = giftCard.availableBalance.some)
+        val payload = GiftCardPayment(code = giftCard.code ++ "xyz", amount = giftCard.availableBalance.some)
         val response = PATCH(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
 
         response.status must === (StatusCodes.BadRequest)
@@ -160,7 +161,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
 
     "DELETE /v1/orders/:ref/payment-methods/gift-cards/:code" - {
       "successfully deletes a giftCard" in new GiftCardFixture {
-        val payload = payloads.GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance.some)
+        val payload = GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance.some)
         val create = POST(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
         create.status must ===(StatusCodes.OK)
 
@@ -205,7 +206,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
           StoreCredits.filter(_.id === 3).map(_.createdAt).update(ZonedDateTime.now().minusMonths(2).toInstant).run().futureValue
           StoreCredits.filter(_.id === 4).map(_.createdAt).update(ZonedDateTime.now().minusMonths(1).toInstant).run().futureValue
 
-          val payload = payloads.StoreCreditPayment(amount = 7500)
+          val payload = StoreCreditPayment(amount = 7500)
           val response = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
           val payments = storeCreditPayments(order)
 
@@ -221,7 +222,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
           StoreCredits.filter(_.id === 1).map(_.state).update(StoreCredit.Canceled).run().futureValue
           StoreCredits.filter(_.id === 2).map(_.availableBalance).update(0).run().futureValue
 
-          val payload = payloads.StoreCreditPayment(amount = 7500)
+          val payload = StoreCreditPayment(amount = 7500)
           val response = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
 
           response.status must ===(StatusCodes.OK)
@@ -231,7 +232,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         }
 
         "adding store credit should remove previous order payments" in new StoreCreditFixture {
-          val payload = payloads.StoreCreditPayment(amount = 7500)
+          val payload = StoreCreditPayment(amount = 7500)
           val createdResponse = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
           val createdPayments = storeCreditPayments(order)
 
@@ -250,7 +251,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
 
       "fails if the order is not found" in new Fixture {
         val notFound = order.copy(referenceNumber = "ABC123")
-        val payload = payloads.StoreCreditPayment(amount = 50)
+        val payload = StoreCreditPayment(amount = 50)
         val response = POST(s"v1/orders/${notFound.refNum}/payment-methods/store-credit", payload)
 
         response.status must ===(StatusCodes.NotFound)
@@ -259,7 +260,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       }
 
       "fails if the customer has no active store credit" in new Fixture {
-        val payload = payloads.StoreCreditPayment(amount = 50)
+        val payload = StoreCreditPayment(amount = 50)
         val response = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
 
         response.status must ===(StatusCodes.BadRequest)
@@ -269,7 +270,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       }
 
       "fails if the customer has insufficient available store credit" in new StoreCreditFixture {
-        val payload = payloads.StoreCreditPayment(amount = 25100)
+        val payload = StoreCreditPayment(amount = 25100)
         val response = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
 
         response.status must ===(StatusCodes.BadRequest)
@@ -281,7 +282,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
 
       "fails if the order is not in cart status" in new StoreCreditFixture {
         Orders.findCartByRefNum(order.referenceNumber).map(_.state).update(Order.RemorseHold).run().futureValue
-        val payload = payloads.StoreCreditPayment(amount = 50)
+        val payload = StoreCreditPayment(amount = 50)
         val response = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
 
         response.status must === (StatusCodes.BadRequest)
@@ -291,7 +292,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
 
     "DELETE /v1/orders/:ref/payment-methods/store-credit" - {
       "successfully deletes all store credit payments" in new StoreCreditFixture {
-        val payload = payloads.StoreCreditPayment(amount = 75)
+        val payload = StoreCreditPayment(amount = 75)
         val create = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
 
         create.status must ===(StatusCodes.OK)
@@ -307,7 +308,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
   "credit cards" - {
     "POST /v1/orders/:ref/payment-methods/credit-cards" - {
       "succeeds" in new CreditCardFixture {
-        val payload = payloads.CreditCardPayment(creditCard.id)
+        val payload = CreditCardPayment(creditCard.id)
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards", payload)
         val payments = creditCardPayments(order)
 
@@ -318,12 +319,12 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
 
       "successfully replaces an existing card" in new CreditCardFixture {
         val first = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards",
-          payloads.CreditCardPayment(creditCard.id))
+          CreditCardPayment(creditCard.id))
         first.status must ===(StatusCodes.OK)
 
         val newCreditCard = CreditCards.create(creditCard.copy(id = 0, isDefault = false)).run().futureValue.rightVal
         val second = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards",
-          payloads.CreditCardPayment(newCreditCard.id))
+          CreditCardPayment(newCreditCard.id))
         second.status must ===(StatusCodes.OK)
 
         val payments = creditCardPayments(order)
@@ -332,7 +333,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       }
 
       "fails if the order is not found" in new CreditCardFixture {
-        val payload = payloads.CreditCardPayment(creditCard.id)
+        val payload = CreditCardPayment(creditCard.id)
         val response = POST(s"v1/orders/99/payment-methods/credit-cards", payload)
 
         response.status must === (StatusCodes.NotFound)
@@ -341,7 +342,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       }
 
       "fails if the creditCard is not found" in new CreditCardFixture {
-        val payload = payloads.CreditCardPayment(99)
+        val payload = CreditCardPayment(99)
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards", payload)
 
         response.status must === (StatusCodes.BadRequest)
@@ -361,7 +362,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         when(stripeApi.deleteExternalAccount(m.any(), m.any())).
           thenReturn(Result.good(new DeletedExternalAccount))
 
-        val payload = payloads.CreditCardPayment(creditCard.id)
+        val payload = CreditCardPayment(creditCard.id)
         CreditCardManager.deleteCreditCard(customer.id, creditCard.id, Some(admin)).futureValue
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards", payload)
 
@@ -372,7 +373,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
 
       "fails if the order is not in cart status" in new CreditCardFixture {
         Orders.findCartByRefNum(order.referenceNumber).map(_.state).update(Order.RemorseHold).run().futureValue
-        val payload = payloads.CreditCardPayment(creditCard.id)
+        val payload = CreditCardPayment(creditCard.id)
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards", payload)
 
         response.status must === (StatusCodes.BadRequest)
@@ -384,7 +385,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
     "DELETE /v1/orders/:ref/payment-methods/credit-cards" - {
       "successfully deletes an existing card" in new CreditCardFixture {
         val create = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards",
-          payloads.CreditCardPayment(creditCard.id))
+          CreditCardPayment(creditCard.id))
         create.status must ===(StatusCodes.OK)
 
         val response = DELETE(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards")
@@ -395,7 +396,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       }
 
       "fails if the order is not found" in new CreditCardFixture {
-        val payload = payloads.CreditCardPayment(creditCard.id)
+        val payload = CreditCardPayment(creditCard.id)
         val response = POST(s"v1/orders/99/payment-methods/credit-cards", payload)
 
         response.status must === (StatusCodes.NotFound)

@@ -1,10 +1,10 @@
 package routes
 
 import akka.http.scaladsl.server.Directives._
-import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 
+import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import models.Reason.reasonTypeRegex
-import payloads._
+import payloads.CustomerPayloads.CreateCustomerPayload
 import services.customers.CustomerManager
 import services.giftcards.GiftCardService
 import services.product.ProductManager

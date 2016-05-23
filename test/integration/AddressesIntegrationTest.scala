@@ -1,17 +1,18 @@
-import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 import java.time.Instant
 
+import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
+
+import failures.NotFoundFailure404
 import models.customer.{Customer, Customers}
 import models.location.{Address, Addresses, Regions}
 import models.order.{OrderShippingAddresses, Orders}
+import payloads.AddressPayloads.CreateAddressPayload
 import util.IntegrationTestBase
 import util.SlickSupport.implicits._
-import utils.seeds.Seeds
-import Seeds.Factories
-import failures.NotFoundFailure404
-import utils.seeds.RankingSeedsGenerator
-import utils.db._
 import utils.db.DbResultT._
+import utils.db._
+import utils.seeds.RankingSeedsGenerator
+import utils.seeds.Seeds.Factories
 
 class AddressesIntegrationTest extends IntegrationTestBase
   with HttpSupport
@@ -22,7 +23,6 @@ class AddressesIntegrationTest extends IntegrationTestBase
 
   import Extensions._
   import api._
-  import org.json4s.jackson.JsonMethods._
 
   // paging and sorting API
   private var currentCustomer: Customer = _
@@ -71,7 +71,7 @@ class AddressesIntegrationTest extends IntegrationTestBase
 
   "POST /v1/customers/:customerId/addresses" - {
     "creates an address" in new CustomerFixture {
-      val payload = payloads.CreateAddressPayload(name = "Home Office", regionId = 1, address1 = "3000 Coolio Dr",
+      val payload = CreateAddressPayload(name = "Home Office", regionId = 1, address1 = "3000 Coolio Dr",
         city = "Seattle", zip = "55555")
       val response = POST(s"v1/customers/${customer.id}/addresses", payload)
 
@@ -123,7 +123,7 @@ class AddressesIntegrationTest extends IntegrationTestBase
 
   "PATCH /v1/customers/:customerId/addresses/:addressId" - {
     "can be edited" in new AddressFixture {
-      val payload = payloads.CreateAddressPayload(name = "Home Office", regionId = 1, address1 = "3000 Coolio Dr",
+      val payload = CreateAddressPayload(name = "Home Office", regionId = 1, address1 = "3000 Coolio Dr",
         city = "Seattle", zip = "55555")
       (payload.name, payload.address1) must !== ((address.name, address.address1))
 
@@ -141,7 +141,7 @@ class AddressesIntegrationTest extends IntegrationTestBase
     "can be deleted" in new AddressFixture {
 
       //notice the payload is a default shipping address. Delete should make it not default.
-      val payload = payloads.CreateAddressPayload(
+      val payload = CreateAddressPayload(
         name = "Delete Me", regionId = 1, address1 = "5000 Delete Dr",
         city = "Deattle", zip = "666", isDefault = true)
 

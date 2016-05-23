@@ -19,6 +19,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import failures.StoreCreditFailures.StoreCreditConvertFailure
 import failures._
+import payloads.PaymentPayloads.CreateManualStoreCredit
+import payloads.StoreCreditPayloads._
 
 class StoreCreditIntegrationTest extends IntegrationTestBase
   with HttpSupport
@@ -79,7 +81,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
     "POST /v1/customers/:id/payment-methods/store-credit" - {
       "when successful" - {
         "responds with the new storeCredit" in new Fixture {
-          val payload = payloads.CreateManualStoreCredit(amount = 25, reasonId = scReason.id)
+          val payload = CreateManualStoreCredit(amount = 25, reasonId = scReason.id)
           val response = POST(s"v1/customers/${customer.id}/payment-methods/store-credit", payload)
           response.status must === (StatusCodes.OK)
 
@@ -94,7 +96,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
       }
 
       "succeeds with valid subTypeId" in new Fixture {
-        val payload = payloads.CreateManualStoreCredit(amount = 25, reasonId = scReason.id, subTypeId = Some(1))
+        val payload = CreateManualStoreCredit(amount = 25, reasonId = scReason.id, subTypeId = Some(1))
         val response = POST(s"v1/customers/${customer.id}/payment-methods/store-credit", payload)
         response.status must === (StatusCodes.OK)
 
@@ -103,7 +105,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
       }
 
       "fails if subtypeId is not found" in new Fixture {
-        val payload = payloads.CreateManualStoreCredit(amount = 25, reasonId = scReason.id, subTypeId = Some(255))
+        val payload = CreateManualStoreCredit(amount = 25, reasonId = scReason.id, subTypeId = Some(255))
         val response = POST(s"v1/customers/${customer.id}/payment-methods/store-credit", payload)
 
         response.status must === (StatusCodes.BadRequest)
@@ -111,7 +113,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
       }
 
       "fails if the customer is not found" in {
-        val payload = payloads.CreateManualStoreCredit(amount = 25, reasonId = 1)
+        val payload = CreateManualStoreCredit(amount = 25, reasonId = 1)
         val response = POST(s"v1/customers/99/payment-methods/store-credit", payload)
 
         response.status must === (StatusCodes.NotFound)
@@ -119,7 +121,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
       }
 
       "fails if the reason is not found" in new Fixture {
-        val payload = payloads.CreateManualStoreCredit(amount = 25, reasonId = 255)
+        val payload = CreateManualStoreCredit(amount = 25, reasonId = 255)
         val response = POST(s"v1/customers/${customer.id}/payment-methods/store-credit", payload)
 
         response.status must === (StatusCodes.BadRequest)
@@ -219,21 +221,21 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
 
     "PATCH /v1/store-credits/:id" - {
       "successfully changes status from Active to OnHold and vice-versa" in new Fixture {
-        val response = PATCH(s"v1/store-credits/${storeCredit.id}", payloads.StoreCreditUpdateStateByCsr(state = OnHold))
+        val response = PATCH(s"v1/store-credits/${storeCredit.id}", StoreCreditUpdateStateByCsr(state = OnHold))
         response.status must ===(StatusCodes.OK)
 
-        val responseBack = PATCH(s"v1/store-credits/${storeCredit.id}", payloads.StoreCreditUpdateStateByCsr(state = Active))
+        val responseBack = PATCH(s"v1/store-credits/${storeCredit.id}", StoreCreditUpdateStateByCsr(state = Active))
         responseBack.status must ===(StatusCodes.OK)
       }
 
       "returns error if no cancellation reason provided" in new Fixture {
-        val response = PATCH(s"v1/store-credits/${storeCredit.id}", payloads.StoreCreditUpdateStateByCsr(state = Canceled))
+        val response = PATCH(s"v1/store-credits/${storeCredit.id}", StoreCreditUpdateStateByCsr(state = Canceled))
         response.status must ===(StatusCodes.BadRequest)
         response.error must ===(EmptyCancellationReasonFailure.description)
       }
 
       "returns error on cancellation if store credit has auths" in new Fixture {
-        val response = PATCH(s"v1/store-credits/${storeCredit.id}", payloads.StoreCreditUpdateStateByCsr(state = Canceled,
+        val response = PATCH(s"v1/store-credits/${storeCredit.id}", StoreCreditUpdateStateByCsr(state = Canceled,
           reasonId = Some(1)))
         response.status must ===(StatusCodes.BadRequest)
         response.error must ===(OpenTransactionsFailure.description)
@@ -243,7 +245,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         // Cancel pending adjustment (should be done before cancellation)
         StoreCreditAdjustments.cancel(adjustment.id).run().futureValue
 
-        val response = PATCH(s"v1/store-credits/${storeCredit.id}", payloads.StoreCreditUpdateStateByCsr(state = Canceled,
+        val response = PATCH(s"v1/store-credits/${storeCredit.id}", StoreCreditUpdateStateByCsr(state = Canceled,
           reasonId = Some(1)))
         response.status must ===(StatusCodes.OK)
 
@@ -262,7 +264,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         // Update balance
         StoreCredits.update(storeCredit, storeCredit.copy(availableBalance = 0)).run().futureValue
 
-        val response = PATCH(s"v1/store-credits/${storeCredit.id}", payloads.StoreCreditUpdateStateByCsr(state = Canceled,
+        val response = PATCH(s"v1/store-credits/${storeCredit.id}", StoreCreditUpdateStateByCsr(state = Canceled,
           reasonId = Some(1)))
         response.status must ===(StatusCodes.OK)
 
@@ -279,7 +281,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         // Cancel pending adjustment
         StoreCreditAdjustments.cancel(adjustment.id).run().futureValue
 
-        val response = PATCH(s"v1/store-credits/${storeCredit.id}", payloads.StoreCreditUpdateStateByCsr(state = Canceled,
+        val response = PATCH(s"v1/store-credits/${storeCredit.id}", StoreCreditUpdateStateByCsr(state = Canceled,
           reasonId = Some(999)))
         response.status must ===(StatusCodes.BadRequest)
         response.error must ===(NotFoundFailure400(Reason, 999).description)
@@ -288,7 +290,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
 
     "PATCH /v1/store-credits" - {
       "successfully changes statuses of multiple store credits" in new Fixture {
-        val payload = payloads.StoreCreditBulkUpdateStateByCsr(
+        val payload = StoreCreditBulkUpdateStateByCsr(
           ids = Seq(storeCredit.id, scSecond.id),
           state = StoreCredit.OnHold
         )
@@ -304,7 +306,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
       }
 
       "returns multiple errors if no cancellation reason provided" in new Fixture {
-        val payload = payloads.StoreCreditBulkUpdateStateByCsr(
+        val payload = StoreCreditBulkUpdateStateByCsr(
           ids = Seq(storeCredit.id, scSecond.id),
           state = StoreCredit.Canceled
         )

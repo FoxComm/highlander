@@ -5,9 +5,8 @@ import Addresses.scope._
 import failures.CartFailures.NoShipAddress
 import failures.NotFoundFailure404
 import models.order._
-import models.StoreAdmin
 import models.traits.Originator
-import payloads.{CreateAddressPayload, UpdateAddressPayload}
+import payloads.AddressPayloads._
 import responses.TheResponse
 import responses.Addresses.buildOneShipping
 import responses.order.FullOrder

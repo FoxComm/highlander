@@ -7,7 +7,7 @@ import responses.DiscountResponses._
 import utils.db._
 import utils.db.DbResultT._
 import slick.driver.PostgresDriver.api._
-import payloads.{CreateDiscount, UpdateDiscount}
+import payloads.DiscountPayloads._
 import utils.aliases._
 import cats.implicits._
 import failures.DiscountFailures._

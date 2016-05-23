@@ -15,7 +15,6 @@ import models.shipping.ShippingMethod
 import models.{Note, StoreAdmin}
 import models.activity.{Activities, Activity}
 import models.traits.{AdminOriginator, CustomerOriginator, Originator}
-import payloads.UpdateLineItemsPayload
 import responses.order.FullOrder
 import responses.{Addresses, CreditCardsResponse, CustomerResponse, GiftCardResponse, StoreAdminResponse, StoreCreditResponse}
 import services.LineItemUpdater.foldQuantityPayload
@@ -31,6 +30,9 @@ import services.activity.StoreCreditTailored._
 import StoreAdminResponse.{Root ⇒ AdminResponse, build ⇒ buildAdmin}
 import CustomerResponse.{Root ⇒ CustomerResponse, build ⇒ buildCustomer}
 import CreditCardsResponse.{buildSimple ⇒ buildCc}
+import payloads.GiftCardPayloads.GiftCardUpdateStateByCsr
+import payloads.LineItemPayloads.UpdateLineItemsPayload
+import payloads.StoreCreditPayloads.StoreCreditUpdateStateByCsr
 import responses.ProductResponses.FullProductResponse
 import responses.ObjectResponses.ObjectContextResponse
 import responses.SkuResponses.FullSkuResponse
@@ -162,7 +164,7 @@ object LogActivity {
     (implicit ec: EC, ac: AC): DbResult[Activity] =
     Activities.log(GiftCardCreated(buildAdmin(admin), GiftCardResponse.build(giftCard)))
 
-  def gcUpdated(admin: StoreAdmin, giftCard: GiftCard, payload: payloads.GiftCardUpdateStateByCsr)
+  def gcUpdated(admin: StoreAdmin, giftCard: GiftCard, payload: GiftCardUpdateStateByCsr)
     (implicit ec: EC, ac: AC): DbResult[Activity] =
     Activities.log(GiftCardStateChanged(buildAdmin(admin), GiftCardResponse.build(giftCard), payload))
 
@@ -181,7 +183,7 @@ object LogActivity {
     Activities.log(StoreCreditCreated(buildAdmin(admin), buildCustomer(customer),
       StoreCreditResponse.build(sc)))
 
-  def scUpdated(admin: StoreAdmin, sc: StoreCredit, payload: payloads.StoreCreditUpdateStateByCsr)
+  def scUpdated(admin: StoreAdmin, sc: StoreCredit, payload: StoreCreditUpdateStateByCsr)
     (implicit ec: EC, ac: AC): DbResult[Activity] =
     Activities.log(StoreCreditStateChanged(buildAdmin(admin), StoreCreditResponse.build(sc), payload))
 

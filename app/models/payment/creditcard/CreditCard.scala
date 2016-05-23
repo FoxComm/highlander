@@ -12,7 +12,7 @@ import models.payment.PaymentMethod
 import models.traits.Addressable
 import models.stripe._
 import shapeless._
-import payloads.CreateCreditCard
+import payloads.PaymentPayloads.CreateCreditCard
 import slick.driver.PostgresDriver.api._
 import utils.http.CustomDirectives.SortAndPage
 import utils._

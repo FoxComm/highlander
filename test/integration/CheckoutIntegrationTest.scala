@@ -14,11 +14,14 @@ import models.location.Addresses
 import models.order.{Order, Orders}
 import models.shipping.ShippingMethods
 import models.{Reasons, StoreAdmins}
-import payloads.{CreateOrder, GiftCardCreateByCsr, GiftCardPayment, UpdateLineItemsPayload, UpdateShippingMethod}
 import responses.order.FullOrder
 import FullOrder.Root
-import failures.CartFailures.CustomerHasNoActiveOrder
 import failures.NotFoundFailure404
+import payloads.GiftCardPayloads.GiftCardCreateByCsr
+import payloads.LineItemPayloads.UpdateLineItemsPayload
+import payloads.OrderPayloads.CreateOrder
+import payloads.PaymentPayloads.GiftCardPayment
+import payloads.UpdateShippingMethod
 import responses.GiftCardResponse
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase

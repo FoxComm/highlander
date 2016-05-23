@@ -1,7 +1,8 @@
 package services.activity
 
 import models.order.Order
-import responses.{CustomerResponse, GiftCardResponse, StoreCreditResponse, StoreAdminResponse}
+import payloads.StoreCreditPayloads.StoreCreditUpdateStateByCsr
+import responses.{CustomerResponse, GiftCardResponse, StoreAdminResponse, StoreCreditResponse}
 
 object StoreCreditTailored {
   case class StoreCreditCreated(admin: StoreAdminResponse.Root, customer: CustomerResponse.Root,
@@ -9,7 +10,7 @@ object StoreCreditTailored {
     extends ActivityBase[StoreCreditCreated]
 
   case class StoreCreditStateChanged(admin: StoreAdminResponse.Root, storeCredit: StoreCreditResponse.Root,
-    payload: payloads.StoreCreditUpdateStateByCsr)
+    payload: StoreCreditUpdateStateByCsr)
     extends ActivityBase[StoreCreditStateChanged]
 
   case class StoreCreditConvertedToGiftCard(admin: StoreAdminResponse.Root, giftCard: GiftCardResponse.Root,

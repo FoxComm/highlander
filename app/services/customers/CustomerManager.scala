@@ -12,7 +12,7 @@ import models.customer.{Customer, Customers}
 import models.location.Addresses
 import models.order.{OrderShippingAddresses, Orders}
 import models.shipping.Shipments
-import payloads.{ActivateCustomerPayload, CreateCustomerPayload, CustomerSearchForNewOrder, UpdateCustomerPayload}
+import payloads.CustomerPayloads._
 import responses.CustomerResponse.{Root, build}
 import responses.TheResponse
 import services._

@@ -8,8 +8,8 @@ import models.order.OrderShippingAddress
 import models.payment.creditcard.CreditCard
 import models.traits.Addressable
 import shapeless._
-import payloads.CreateAddressPayload
 import failures.{Failures, NotFoundFailure404}
+import payloads.AddressPayloads.CreateAddressPayload
 import slick.driver.PostgresDriver.api._
 import utils.http.CustomDirectives.SortAndPage
 import utils.Validation

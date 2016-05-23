@@ -13,7 +13,8 @@ import models.{NotificationTrailMetadata, StoreAdmin, StoreAdmins, NotificationS
 import org.json4s.Extraction.decompose
 import org.json4s.jackson.Serialization.write
 import org.postgresql.core.{Utils ⇒ PgjdbcUtils}
-import payloads.{AppendActivity, CreateNotification}
+import payloads.ActivityTrailPayloads.AppendActivity
+import payloads.CreateNotification
 import responses.{ActivityConnectionResponse, ActivityResponse, LastSeenActivityResponse, TheResponse}
 import services.activity.TrailManager
 import slick.driver.PostgresDriver.api._

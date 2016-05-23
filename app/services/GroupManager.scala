@@ -1,8 +1,8 @@
 package services
 
-import models.customer.{CustomerDynamicGroups, CustomerDynamicGroup}
+import models.customer.{CustomerDynamicGroup, CustomerDynamicGroups}
 import models.StoreAdmin
-import payloads.CustomerDynamicGroupPayload
+import payloads.CustomerGroupPayloads.CustomerDynamicGroupPayload
 import responses.DynamicGroupResponse.{Root, build}
 import responses.TheResponse
 import utils.http.CustomDirectives.SortAndPage

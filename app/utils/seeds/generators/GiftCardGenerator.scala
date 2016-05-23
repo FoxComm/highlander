@@ -6,7 +6,7 @@ import scala.util.Random
 import models.objects.ObjectContext
 import models.order.{Order, Orders}
 import models.payment.giftcard._
-import payloads.GiftCardCreateByCsr
+import payloads.GiftCardPayloads.GiftCardCreateByCsr
 import slick.driver.PostgresDriver.api._
 import utils.Money.Currency
 import utils.db.DbResultT._

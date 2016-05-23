@@ -4,7 +4,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.StoreAdmin
-import payloads.{AssignmentPayload, BulkAssignmentPayload}
+import payloads.AssignmentPayloads._
 import services.assignments._
 import utils.Apis
 import utils.http.CustomDirectives._

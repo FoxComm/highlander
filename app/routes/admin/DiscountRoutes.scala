@@ -5,7 +5,7 @@ import akka.http.scaladsl.server.Directives._
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 
 import models.StoreAdmin
-import payloads.{CreateDiscount, UpdateDiscount}
+import payloads.DiscountPayloads._
 import services.discount.DiscountManager
 import slick.driver.PostgresDriver.api._
 import utils.http.CustomDirectives._

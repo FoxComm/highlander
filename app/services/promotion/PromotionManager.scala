@@ -1,22 +1,19 @@
 package services.promotion
 
-import services.Result
-import services.discount.DiscountManager
-
+import failures.ObjectFailures._
+import failures.PromotionFailures._
+import models.discount._
 import models.objects._
 import models.promotion._
-import models.discount._
-
+import payloads.DiscountPayloads._
+import payloads.PromotionPayloads._
 import responses.PromotionResponses._
-import utils.db._
-import utils.db.DbResultT._
+import services.Result
+import services.discount.DiscountManager
 import slick.driver.PostgresDriver.api._
-import payloads.{CreatePromotion, UpdatePromotion, CreateDiscount,
-UpdateDiscount, CreateDiscountForm, CreateDiscountShadow, UpdatePromoDiscountForm,
-UpdatePromoDiscountShadow, UpdateDiscountForm, UpdateDiscountShadow}
 import utils.aliases._
-import failures.PromotionFailures._
-import failures.ObjectFailures._
+import utils.db.DbResultT._
+import utils.db._
 
 object PromotionManager {
 

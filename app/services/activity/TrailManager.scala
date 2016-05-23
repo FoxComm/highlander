@@ -3,7 +3,7 @@ package services.activity
 import models.Aliases
 import Aliases.Json
 import models.activity._
-import payloads.{AppendActivity, CreateTrail}
+import payloads.ActivityTrailPayloads._
 import responses.{ActivityConnectionResponse, FullActivityConnectionResponse}
 import services.Result
 import utils.aliases._

@@ -10,13 +10,14 @@ import util.CustomMatchers._
 import cats.data.NonEmptyList
 import cats.implicits._
 import failures.GeneralFailure
+import payloads.PaymentPayloads._
 
 class PaymentPayloadsTest extends TestBase {
   val today = ZonedDateTime.now()
   val cc = Factories.creditCard
 
   "CreateCreditCard" - {
-    val valid = payloads.CreateCreditCard(holderName = cc.holderName, cardNumber = "4242424242424242",
+    val valid = CreateCreditCard(holderName = cc.holderName, cardNumber = "4242424242424242",
       cvv = "123", expYear = cc.expYear, expMonth = cc.expMonth, addressId = Some(1))
 
     "validate" - {
@@ -31,7 +32,7 @@ class PaymentPayloadsTest extends TestBase {
   }
 
   "EditCreditCard" - {
-    val valid = payloads.EditCreditCard(holderName = cc.holderName.some, expYear = cc.expYear.some,
+    val valid = EditCreditCard(holderName = cc.holderName.some, expYear = cc.expYear.some,
       expMonth = cc.expMonth.some, addressId = 1.some)
 
     "validate" - {

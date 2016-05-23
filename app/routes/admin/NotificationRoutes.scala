@@ -6,11 +6,11 @@ import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import de.heikoseeberger.akkasse.EventStreamMarshalling._
 import models.StoreAdmin
-import payloads._
+import payloads.CreateNotification
 import services.NotificationManager
+import utils.aliases._
 import utils.http.CustomDirectives._
 import utils.http.Http._
-import utils.aliases._
 
 object NotificationRoutes {
 

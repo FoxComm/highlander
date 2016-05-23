@@ -13,7 +13,7 @@ import models.payment.PaymentMethod
 import models.payment.creditcard._
 import models.payment.giftcard._
 import models.payment.storecredit._
-import payloads.{GiftCardPayment, StoreCreditPayment}
+import payloads.PaymentPayloads._
 import responses.order.FullOrder
 import FullOrder.refreshAndFullOrder
 import responses.TheResponse

@@ -8,7 +8,7 @@ import SharedSearchAssociation.{build ⇒ buildAssociation}
 import models.sharedsearch.SharedSearch._
 import failures.NotFoundFailure404
 import failures.SharedSearchFailures._
-import payloads.{SharedSearchAssociationPayload, SharedSearchPayload}
+import payloads.SharedSearchPayloads._
 import responses.StoreAdminResponse.{Root ⇒ AdminRoot, build ⇒ buildAdmin}
 import util.IntegrationTestBase
 import utils.db._

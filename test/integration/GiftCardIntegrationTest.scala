@@ -23,6 +23,7 @@ import scala.util.Random
 
 import failures.GiftCardFailures.GiftCardConvertFailure
 import failures._
+import payloads.GiftCardPayloads._
 
 class GiftCardIntegrationTest extends IntegrationTestBase
   with HttpSupport
@@ -83,7 +84,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
 
     "POST /v1/gift-cards" - {
       "successfully creates gift card from payload" in new Fixture {
-        val response = POST(s"v1/gift-cards", payloads.GiftCardCreateByCsr(balance = 555, reasonId = 1))
+        val response = POST(s"v1/gift-cards", GiftCardCreateByCsr(balance = 555, reasonId = 1))
         response.status must ===(StatusCodes.OK)
 
         val root = response.as[GiftCardResponse.Root]
@@ -98,7 +99,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       }
 
       "create two gift cards with unique codes" in new Fixture {
-        val payload = payloads.GiftCardCreateByCsr(balance = 555, reasonId = 1)
+        val payload = GiftCardCreateByCsr(balance = 555, reasonId = 1)
 
         val responseFirst = POST(s"v1/gift-cards", payload)
         responseFirst.status must ===(StatusCodes.OK)
@@ -112,7 +113,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       }
 
       "succeeds with valid subTypeId" in new Fixture {
-        val payload = payloads.GiftCardCreateByCsr(balance = 25, reasonId = 1, subTypeId = Some(1))
+        val payload = GiftCardCreateByCsr(balance = 25, reasonId = 1, subTypeId = Some(1))
         val response = POST(s"v1/gift-cards", payload)
         val sc = response.as[GiftCardResponse.Root]
 
@@ -121,7 +122,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       }
 
       "fails if subtypeId is not found" in new Fixture {
-        val payload = payloads.GiftCardCreateByCsr(balance = 25, reasonId = 1, subTypeId = Some(255))
+        val payload = GiftCardCreateByCsr(balance = 25, reasonId = 1, subTypeId = Some(255))
         val response = POST(s"v1/gift-cards", payload)
 
         response.status must ===(StatusCodes.BadRequest)
@@ -129,13 +130,13 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       }
 
       "fails to create gift card with negative balance" in new Fixture {
-        val response = POST(s"v1/gift-cards", payloads.GiftCardCreateByCsr(balance = -555, reasonId = 1))
+        val response = POST(s"v1/gift-cards", GiftCardCreateByCsr(balance = -555, reasonId = 1))
         response.status must ===(StatusCodes.BadRequest)
         response.error must ===(GeneralFailure("Balance got -555, expected more than 0").description)
       }
 
       "fails to create gift card with invalid reason" in new Fixture {
-        val response = POST(s"v1/gift-cards", payloads.GiftCardCreateByCsr(balance = 555, reasonId = 999))
+        val response = POST(s"v1/gift-cards", GiftCardCreateByCsr(balance = 555, reasonId = 999))
         response.status must ===(StatusCodes.BadRequest)
         response.error must ===(NotFoundFailure404(Reason, 999).description)
       }
@@ -143,7 +144,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
 
     "POST /v1/gift-cards (bulk)" - {
       "successfully creates multiple gift cards from payload" in new Fixture {
-        val response = POST(s"v1/gift-cards", payloads.GiftCardBulkCreateByCsr(quantity = 5, balance = 256,
+        val response = POST(s"v1/gift-cards", GiftCardBulkCreateByCsr(quantity = 5, balance = 256,
           reasonId = 1))
         response.status must ===(StatusCodes.OK)
 
@@ -152,7 +153,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       }
 
       "fails to create multiple gift cards with zero balance" in new Fixture {
-        val response = POST(s"v1/gift-cards", payloads.GiftCardBulkCreateByCsr(quantity = 5, balance = 0,
+        val response = POST(s"v1/gift-cards", GiftCardBulkCreateByCsr(quantity = 5, balance = 0,
           reasonId = 1))
 
         response.status must ===(StatusCodes.BadRequest)
@@ -160,7 +161,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       }
 
       "fails to create multiple gift cards with negative balance" in new Fixture {
-        val response = POST(s"v1/gift-cards", payloads.GiftCardBulkCreateByCsr(quantity = 5, balance = -555,
+        val response = POST(s"v1/gift-cards", GiftCardBulkCreateByCsr(quantity = 5, balance = -555,
           reasonId = 1))
 
         response.status must ===(StatusCodes.BadRequest)
@@ -168,14 +169,14 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       }
 
       "fails to create multiple gift cards with negative quantity" in new Fixture {
-        val response = POST(s"v1/gift-cards", payloads.GiftCardBulkCreateByCsr(quantity = -5, balance = 256,
+        val response = POST(s"v1/gift-cards", GiftCardBulkCreateByCsr(quantity = -5, balance = 256,
           reasonId = 1))
         response.status must ===(StatusCodes.BadRequest)
         response.error must ===(GeneralFailure("Quantity got -5, expected more than 0").description)
       }
 
       "fails to create multiple gift cards with count more than limit" in new Fixture {
-        val response = POST(s"v1/gift-cards", payloads.GiftCardBulkCreateByCsr(quantity = 25, balance = 256,
+        val response = POST(s"v1/gift-cards", GiftCardBulkCreateByCsr(quantity = 25, balance = 256,
           reasonId = 1))
         response.status must ===(StatusCodes.BadRequest)
         response.error must ===(GeneralFailure("Quantity got 25, expected 20 or less").description)
@@ -200,21 +201,21 @@ class GiftCardIntegrationTest extends IntegrationTestBase
 
     "PATCH /v1/gift-cards/:code" - {
       "successfully changes state from Active to OnHold and vice-versa" in new Fixture {
-        val response = PATCH(s"v1/gift-cards/${giftCard.code}", payloads.GiftCardUpdateStateByCsr(state = OnHold))
+        val response = PATCH(s"v1/gift-cards/${giftCard.code}", GiftCardUpdateStateByCsr(state = OnHold))
         response.status must ===(StatusCodes.OK)
 
-        val responseBack = PATCH(s"v1/gift-cards/${giftCard.code}", payloads.GiftCardUpdateStateByCsr(state = Active))
+        val responseBack = PATCH(s"v1/gift-cards/${giftCard.code}", GiftCardUpdateStateByCsr(state = Active))
         responseBack.status must ===(StatusCodes.OK)
       }
 
       "returns error if no cancellation reason provided" in new Fixture {
-        val response = PATCH(s"v1/gift-cards/${giftCard.code}", payloads.GiftCardUpdateStateByCsr(state = Canceled))
+        val response = PATCH(s"v1/gift-cards/${giftCard.code}", GiftCardUpdateStateByCsr(state = Canceled))
         response.status must ===(StatusCodes.BadRequest)
         response.error must ===(EmptyCancellationReasonFailure.description)
       }
 
       "returns error on cancellation if gift card has auths" in new Fixture {
-        val response = PATCH(s"v1/gift-cards/${giftCard.code}", payloads.GiftCardUpdateStateByCsr(state = Canceled,
+        val response = PATCH(s"v1/gift-cards/${giftCard.code}", GiftCardUpdateStateByCsr(state = Canceled,
           reasonId = Some(1)))
         response.status must ===(StatusCodes.BadRequest)
         response.error must ===(OpenTransactionsFailure.description)
@@ -224,7 +225,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
         // Cancel pending adjustment (should be done before cancellation)
         GiftCardAdjustments.cancel(adjustment1.id).run().futureValue
 
-        val response = PATCH(s"v1/gift-cards/${giftCard.code}", payloads.GiftCardUpdateStateByCsr(state = Canceled,
+        val response = PATCH(s"v1/gift-cards/${giftCard.code}", GiftCardUpdateStateByCsr(state = Canceled,
           reasonId = Some(1)))
         response.status must ===(StatusCodes.OK)
 
@@ -243,7 +244,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
         // Update balance
         GiftCards.update(giftCard, giftCard.copy(availableBalance = 0)).run().futureValue
 
-        val response = PATCH(s"v1/gift-cards/${giftCard.code}", payloads.GiftCardUpdateStateByCsr(state = Canceled,
+        val response = PATCH(s"v1/gift-cards/${giftCard.code}", GiftCardUpdateStateByCsr(state = Canceled,
           reasonId = Some(1)))
         response.status must ===(StatusCodes.OK)
 
@@ -260,7 +261,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
         // Cancel pending adjustment
         GiftCardAdjustments.cancel(adjustment1.id).run().futureValue
 
-        val response = PATCH(s"v1/gift-cards/${giftCard.code}", payloads.GiftCardUpdateStateByCsr(state = Canceled,
+        val response = PATCH(s"v1/gift-cards/${giftCard.code}", GiftCardUpdateStateByCsr(state = Canceled,
           reasonId = Some(999)))
         response.status must ===(StatusCodes.BadRequest)
         response.error must ===(NotFoundFailure400(Reason, 999).description)
@@ -301,7 +302,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
 
     "PATCH /v1/gift-cards" - {
       "successfully changes statuses of multiple gift cards" in new Fixture {
-        val payload = payloads.GiftCardBulkUpdateStateByCsr(
+        val payload = GiftCardBulkUpdateStateByCsr(
           codes = Seq(giftCard.code, gcSecond.code),
           state = GiftCard.OnHold
         )
@@ -317,7 +318,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       }
 
       "returns multiple errors if no cancellation reason provided" in new Fixture {
-        val payload = payloads.GiftCardBulkUpdateStateByCsr(
+        val payload = GiftCardBulkUpdateStateByCsr(
           codes = Seq(giftCard.code, gcSecond.code),
           state = GiftCard.Canceled
         )

@@ -10,7 +10,7 @@ import models.inventory.summary._
 import models.order.Order
 import models.order.lineitems.OrderLineItemSkus
 import org.json4s.Extraction.{decompose ⇒ toJson}
-import payloads.WmsEventPayload
+import payloads.InventoryPayloads.WmsEventPayload
 import responses.InventoryResponses.WmsOverrideResponse
 import services.Result
 import utils.JsonFormatters

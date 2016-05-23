@@ -6,7 +6,7 @@ import models.customer.Customers
 import models.order.{Orders, Order}
 import models.rma.{Rmas, Rma}
 import models.StoreAdmins
-import payloads.RmaCreatePayload
+import payloads.RmaPayloads.RmaCreatePayload
 import services.rmas.RmaService
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase

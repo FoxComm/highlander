@@ -5,7 +5,7 @@ import models.StoreAdmins
 import models.activity._
 import models.customer.Customers
 import org.scalatest.mock.MockitoSugar
-import payloads.AppendActivity
+import payloads.ActivityTrailPayloads.AppendActivity
 import responses.ActivityConnectionResponse
 import services.activity.CustomerTailored.CustomerUpdated
 import util.IntegrationTestBase
@@ -22,7 +22,7 @@ import scala.language.implicitConversions
 
 import Extensions._
 import failures.NotFoundFailure404
-
+import payloads.CustomerPayloads.UpdateCustomerPayload
 import utils.db._
 import utils.db.DbResultT._
 
@@ -55,7 +55,7 @@ class ActivityTrailIntegrationTest extends IntegrationTestBase
     "successfully creates activity after updating customer attributes" in new Fixture {
 
       // Update email, name, and phone number
-      val payload = payloads.UpdateCustomerPayload(name = "Crazy Larry".some, email = "crazy.lary@crazy.com".some,
+      val payload = UpdateCustomerPayload(name = "Crazy Larry".some, email = "crazy.lary@crazy.com".some,
         phoneNumber = "666 666 6666".some)
 
       val response = PATCH(s"v1/customers/${customer.id}", payload)
@@ -80,7 +80,7 @@ class ActivityTrailIntegrationTest extends IntegrationTestBase
     "successfully append one activity to new trail" in new Fixture {
 
       // Update email, name, and phone number. This should generate a CustomerUpdated activity
-      val payload = payloads.UpdateCustomerPayload(
+      val payload = UpdateCustomerPayload(
         name = "Updated Name".some,
         email = "updated.name@name.com".some,
         phoneNumber = "666 666 6666".some)

@@ -9,7 +9,11 @@ import GiftCard.giftCardCodeRegex
 import Order.orderRefNumRegex
 import models.StoreAdmin
 import models.traits.Originator
-import payloads._
+import payloads.AddressPayloads._
+import payloads.LineItemPayloads._
+import payloads.OrderPayloads._
+import payloads.PaymentPayloads._
+import payloads.UpdateShippingMethod
 import services.orders._
 import services.{Checkout, LineItemUpdater}
 import utils.http.CustomDirectives._

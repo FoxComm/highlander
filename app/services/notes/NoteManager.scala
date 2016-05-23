@@ -5,6 +5,7 @@ import java.time.Instant
 import failures.NotFoundFailure404
 import models.{Note, Notes, StoreAdmin}
 import models.Notes.scope._
+import payloads.NotePayloads._
 import responses.AdminNotes
 import responses.AdminNotes.Root
 import services._
@@ -24,13 +25,13 @@ trait NoteManager[K, T <: FoxModel[T]] {
     response ← * <~ forModel(entityQuerySeq(entity.id))
   } yield response).run()
 
-  def create(key: K, author: StoreAdmin, payload: payloads.CreateNote)
+  def create(key: K, author: StoreAdmin, payload: CreateNote)
     (implicit ec: EC, db: DB, ac: AC): Result[Root] = (for {
     entity ← * <~ fetchEntity(key)
     note   ← * <~ createInner(entity, entity.id, noteType(), author, payload)
   } yield AdminNotes.build(note, author)).runTxn()
 
-  def update(key: K, noteId: Int, author: StoreAdmin, payload: payloads.UpdateNote)
+  def update(key: K, noteId: Int, author: StoreAdmin, payload: UpdateNote)
     (implicit ec: EC, db: DB, ac: AC): Result[Root] = (for {
     entity  ← * <~ fetchEntity(key)
     note    ← * <~ updateInner(entity, noteId, author, payload)
@@ -47,13 +48,13 @@ trait NoteManager[K, T <: FoxModel[T]] {
     Notes.filter(_.referenceType === noteType()).filter(_.referenceId === entityId).notDeleted
 
   private def createInner(entity: T, refId: Int, refType: Note.ReferenceType, author: StoreAdmin,
-    payload: payloads.CreateNote)(implicit ec: EC, db: DB, ac: AC): DbResultT[Note] = for {
+    payload: CreateNote)(implicit ec: EC, db: DB, ac: AC): DbResultT[Note] = for {
     note   ← * <~ Notes.create(Note(storeAdminId = author.id, referenceId = refId, referenceType = refType,
       body = payload.body))
     _      ← * <~ LogActivity.noteCreated(author, entity, note)
   } yield note
 
-  private def updateInner(entity: T, noteId: Int, author: StoreAdmin, payload: payloads.UpdateNote)
+  private def updateInner(entity: T, noteId: Int, author: StoreAdmin, payload: UpdateNote)
     (implicit ec: EC, db: DB, ac: AC): DbResultT[Root] = for {
     oldNote ← * <~ Notes.filterByIdAndAdminId(noteId, author.id).one.mustFindOr(NotFoundFailure404(Note, noteId))
     newNote ← * <~ Notes.update(oldNote, oldNote.copy(body = payload.body))

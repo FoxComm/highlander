@@ -16,7 +16,7 @@ import models.image._
 import models.inventory._
 import models.objects._
 import models.product._
-import payloads.{AlbumPayload, ImagePayload}
+import payloads.ImagePayloads._
 import responses.ImageResponses._
 import services.{AmazonS3, Result}
 import services.inventory.SkuManager

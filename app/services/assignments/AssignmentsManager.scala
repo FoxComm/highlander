@@ -7,7 +7,7 @@ import failures.{AlreadyAssignedFailure, AssigneeNotFoundFailure, NotAssignedFai
 import failures.Util._
 import models.Assignment._
 import models.{Assignment, Assignments, NotificationSubscription, StoreAdmin, StoreAdmins}
-import payloads.{AssignmentPayload, BulkAssignmentPayload}
+import payloads.AssignmentPayloads._
 import responses.{BatchMetadata, BatchMetadataSource, ResponseItem, TheResponse}
 import responses.AssignmentResponse.{Root, build ⇒ buildAssignment}
 import responses.StoreAdminResponse.{build ⇒ buildAdmin}

@@ -6,7 +6,7 @@ import models.rma.{Rma, Rmas}
 import Rma.Canceled
 import failures.InvalidCancellationReasonFailure
 import models.{Reason, Reasons, StoreAdmin}
-import payloads.{RmaCreatePayload, RmaMessageToCustomerPayload, RmaUpdateStatePayload}
+import payloads.RmaPayloads._
 import responses.RmaResponse._
 import responses.{AllRmas, BatchResponse, CustomerResponse, RmaResponse, StoreAdminResponse}
 import services.rmas.Helpers._

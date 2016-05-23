@@ -5,7 +5,7 @@ import java.time.Instant
 import com.pellucid.sealerate
 import models.rma.RmaLineItem._
 import shapeless._
-import payloads.RmaSkuLineItemsPayload
+import payloads.RmaPayloads.RmaSkuLineItemsPayload
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType

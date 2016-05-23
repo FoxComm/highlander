@@ -6,7 +6,7 @@ import faker.Lorem.numerify
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import org.json4s.jackson.Serialization.{write ⇒ json}
-import payloads.CreateAddressPayload
+import payloads.AddressPayloads.CreateAddressPayload
 import seeds.requests.Auth._
 
 object Addresses {

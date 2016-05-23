@@ -1,7 +1,6 @@
 package utils.seeds
 
 import cats.implicits._
-import models.inventory.Sku
 import models.product.{SimpleProductData, Mvp}
 import models.objects.ObjectContext
 import models.order.lineitems._
@@ -68,8 +67,8 @@ trait OrderSeeds {
   } yield order
 
   def createOrder3(customerId: Customer#Id, context: ObjectContext, products: Seq[SimpleProductData])(implicit db: Database): DbResultT[Order] = {
-    import GiftCard.{buildAppeasement => build}
-    import payloads.{GiftCardCreateByCsr => payload}
+    import GiftCard.{buildAppeasement ⇒ build}
+    import payloads.GiftCardPayloads.{GiftCardCreateByCsr ⇒ payload}
 
     for {
       order  ← * <~ Orders.create(Order(state = Cart, customerId = customerId, contextId = context.id))

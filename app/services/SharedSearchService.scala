@@ -3,11 +3,11 @@ package services
 import java.time.Instant
 
 import failures.NotFoundFailure404
-import failures.SharedSearchFailures.{SharedSearchScopeNotFound, SharedSearchAssociationNotFound}
+import failures.SharedSearchFailures._
 import failures.Util.diffToFailures
 import models.sharedsearch._
 import models.{StoreAdmin, StoreAdmins}
-import payloads.SharedSearchPayload
+import payloads.SharedSearchPayloads._
 import responses.{StoreAdminResponse, TheResponse}
 import slick.driver.PostgresDriver.api._
 import utils.db._

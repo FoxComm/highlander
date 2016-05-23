@@ -1,14 +1,15 @@
 package services.activity
 
 import models.order.Order
-import responses.{CustomerResponse, GiftCardResponse, StoreCreditResponse, StoreAdminResponse}
+import payloads.GiftCardPayloads.GiftCardUpdateStateByCsr
+import responses.{CustomerResponse, GiftCardResponse, StoreAdminResponse, StoreCreditResponse}
 
 object GiftCardTailored {
   case class GiftCardCreated(admin: StoreAdminResponse.Root, giftCard: GiftCardResponse.Root)
     extends ActivityBase[GiftCardCreated]
 
   case class GiftCardStateChanged(admin: StoreAdminResponse.Root, giftCard: GiftCardResponse.Root,
-    payload: payloads.GiftCardUpdateStateByCsr)
+    payload: GiftCardUpdateStateByCsr)
     extends ActivityBase[GiftCardStateChanged]
 
   case class GiftCardConvertedToStoreCredit(admin: StoreAdminResponse.Root, giftCard: GiftCardResponse.Root,

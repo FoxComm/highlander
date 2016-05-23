@@ -1,9 +1,9 @@
 package utils.seeds
 
-import models.objects.{ObjectContext, ObjectContexts, ObjectForm, ObjectShadow, ObjectUtils}
+import models.objects._
 import models.product.SimpleContext
-import models.coupon.{Coupon, CouponCode, CouponCodes, Coupons}
-import payloads.{CreateCoupon, CreateCouponForm, CreateCouponShadow}
+import models.coupon._
+import payloads.CouponPayloads._
 import utils.db._
 import utils.db.DbResultT._
 import slick.driver.PostgresDriver.api._

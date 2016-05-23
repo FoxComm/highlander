@@ -4,7 +4,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.stream.ActorMaterializer
 import scala.concurrent.ExecutionContext
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
-import payloads._
+import payloads.ImagePayloads._
 import models.StoreAdmin
 import services.image.ImageManager
 import slick.driver.PostgresDriver.api._

@@ -9,7 +9,7 @@ import failures.OrderFailures.SkuNotFoundInOrder
 import failures.ProductFailures.SkuNotFoundForContext
 import models.rma._
 import models.shipping.Shipments
-import payloads.{RmaGiftCardLineItemsPayload, RmaShippingCostLineItemsPayload, RmaSkuLineItemsPayload}
+import payloads.RmaPayloads._
 import responses.RmaResponse
 import responses.RmaResponse.Root
 import services.Result

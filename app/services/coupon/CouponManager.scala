@@ -10,7 +10,7 @@ import responses.CouponResponses.{IlluminatedCouponResponse ⇒ Illuminated, _}
 import utils.db._
 import utils.db.DbResultT._
 import slick.driver.PostgresDriver.api._
-import payloads.{CreateCoupon, UpdateCoupon, GenerateCouponCodes}
+import payloads.CouponPayloads._
 import utils.aliases._
 import failures.CouponFailures._
 import failures.PromotionFailures._

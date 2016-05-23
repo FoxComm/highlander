@@ -9,7 +9,7 @@ import models.order.{Orders, Order}
 import models.StoreAdmins
 import models.product.{Mvp, SimpleContext, SimpleProductData}
 import models.objects._
-import payloads.{UpdateLineItemsPayload => Payload}
+import payloads.LineItemPayloads.{UpdateLineItemsPayload ⇒ Payload}
 import util.IntegrationTestBase
 import utils.db._
 import utils.db.DbResultT._

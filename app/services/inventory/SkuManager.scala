@@ -9,7 +9,7 @@ import models.StoreAdmin
 import models.inventory._
 import models.objects._
 import models.product._
-import payloads.{CreateFullSku, UpdateFullSku}
+import payloads.SkuPayloads._
 import responses.ObjectResponses.ObjectContextResponse
 import responses.SkuResponses._
 import services.{LogActivity, Result}

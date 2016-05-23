@@ -13,7 +13,7 @@ import models.product._
 import models.StoreAdmins
 import org.json4s.JsonAST.JValue
 import org.json4s.JsonDSL._
-import payloads._
+import payloads.ImagePayloads._
 import responses.ImageResponses.AlbumResponse
 import util.IntegrationTestBase
 import util.SlickSupport.implicits._

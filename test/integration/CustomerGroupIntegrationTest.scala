@@ -7,7 +7,7 @@ import models.customer.{CustomerDynamicGroup, CustomerDynamicGroups}
 import org.json4s.JObject
 import org.mockito.{Matchers ⇒ m}
 import org.scalatest.mock.MockitoSugar
-import payloads.CustomerDynamicGroupPayload
+import payloads.CustomerGroupPayloads.CustomerDynamicGroupPayload
 import responses.CreditCardsResponse.{Root ⇒ CardResponse}
 import responses.DynamicGroupResponse
 import slick.driver.PostgresDriver.api._

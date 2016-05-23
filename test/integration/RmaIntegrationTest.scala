@@ -14,7 +14,7 @@ import models.shipping.{Shipments, ShippingMethods}
 import models.{Reasons, StoreAdmins}
 import models.product.{Mvp, SimpleContext}
 import models.objects._
-import payloads.{RmaCreatePayload, RmaGiftCardLineItemsPayload, RmaMessageToCustomerPayload, RmaShippingCostLineItemsPayload, RmaSkuLineItemsPayload}
+import payloads.RmaPayloads._
 import responses.{AllRmas, RmaLockResponse, RmaResponse}
 import services.rmas.{RmaLineItemUpdater, RmaLockUpdater}
 import slick.driver.PostgresDriver.api._
@@ -98,7 +98,7 @@ class RmaIntegrationTest extends IntegrationTestBase
 
     "PATCH /v1/rmas/:refNum" - {
       "successfully changes status of RMA" in new Fixture {
-        val response = PATCH(s"v1/rmas/${rma.referenceNumber}", payloads.RmaUpdateStatePayload(state = Processing))
+        val response = PATCH(s"v1/rmas/${rma.referenceNumber}", RmaUpdateStatePayload(state = Processing))
         response.status must ===(StatusCodes.OK)
 
         val root = response.as[RmaResponse.Root]
@@ -106,7 +106,7 @@ class RmaIntegrationTest extends IntegrationTestBase
       }
 
       "successfully cancels RMA with valid reason" in new Fixture {
-        val payload = payloads.RmaUpdateStatePayload(state = Canceled, reasonId = Some(reason.id))
+        val payload = RmaUpdateStatePayload(state = Canceled, reasonId = Some(reason.id))
         val response = PATCH(s"v1/rmas/${rma.referenceNumber}", payload)
         response.status must ===(StatusCodes.OK)
 
@@ -115,14 +115,14 @@ class RmaIntegrationTest extends IntegrationTestBase
       }
 
       "fails to cancel RMA if invalid reason provided" in new Fixture {
-        val response = PATCH(s"v1/rmas/${rma.referenceNumber}", payloads.RmaUpdateStatePayload(state = Canceled,
+        val response = PATCH(s"v1/rmas/${rma.referenceNumber}", RmaUpdateStatePayload(state = Canceled,
           reasonId = Some(999)))
         response.status must ===(StatusCodes.BadRequest)
         response.error must ===(InvalidCancellationReasonFailure.description)
       }
 
       "fails if refNum is not found" in new LineItemFixture {
-        val response = PATCH(s"v1/rmas/ABC-666", payloads.RmaUpdateStatePayload(state = Processing))
+        val response = PATCH(s"v1/rmas/ABC-666", RmaUpdateStatePayload(state = Processing))
         response.status must === (StatusCodes.NotFound)
         response.error must === (NotFoundFailure404(Rma, "ABC-666").description)
       }

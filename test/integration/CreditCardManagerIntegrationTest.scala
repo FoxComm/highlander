@@ -7,9 +7,10 @@ import failures.NotFoundFailure404
 import models.customer.{Customer, Customers}
 import models.location.{Address, Addresses}
 import models.payment.creditcard.CreditCards
-import payloads.CreateAddressPayload
 import util.{IntegrationTestBase, StripeSupport}
 import cats.implicits._
+import payloads.AddressPayloads.CreateAddressPayload
+import payloads.PaymentPayloads.CreateCreditCard
 import utils.db._
 import utils.seeds.Seeds.Factories
 
@@ -26,10 +27,10 @@ class CreditCardManagerIntegrationTest extends IntegrationTestBase
   "CreditCardManagerTest" - {
     "POST /v1/customers/:id/payment-methods/credit-cards" - {
       val tomorrow = ZonedDateTime.now().plusDays(1)
-      val payloadStub = payloads.CreateCreditCard(holderName = "yax", cardNumber = StripeSupport.successfulCard,
+      val payloadStub = CreateCreditCard(holderName = "yax", cardNumber = StripeSupport.successfulCard,
         cvv = "123", expYear = tomorrow.getYear, expMonth = tomorrow.getMonthValue)
 
-      def payloadWithFullAddress(p: payloads.CreateCreditCard, a: Address): payloads.CreateCreditCard = {
+      def payloadWithFullAddress(p: CreateCreditCard, a: Address): CreateCreditCard = {
         p.copy(addressId = None, address = Some(CreateAddressPayload(
           name = a.name, address1 = a.address1, address2 = a.address2,
           city = a.city, zip = a.zip, regionId = a.regionId)))

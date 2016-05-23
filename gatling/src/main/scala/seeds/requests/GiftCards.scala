@@ -6,7 +6,8 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import models.Reason
 import org.json4s.jackson.Serialization.{write ⇒ json}
-import payloads.{GiftCardCreateByCsr, GiftCardPayment}
+import payloads.GiftCardPayloads._
+import payloads.PaymentPayloads.GiftCardPayment
 import seeds.dbFeeder
 import utils.Money.Currency
 import utils.Strings._

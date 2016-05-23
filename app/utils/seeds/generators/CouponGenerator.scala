@@ -1,30 +1,25 @@
 package utils.seeds.generators
 
-import models.product.SimpleContext
-import models.coupon._
-import models.objects._
-import services.Result
-import utils.db._
-import utils.db.DbResultT._
+import java.time.Instant
 
-import payloads.{CreateCoupon, CreateCouponForm, CreateCouponShadow,
-  CreateDiscountForm, CreateDiscountShadow}
-import services.coupon.CouponManager
+import scala.concurrent.ExecutionContext.Implicits.global
 
 import cats.data.Xor
-import java.time.Instant
-import org.json4s.JsonAST.{JValue, JString, JObject, JField, JNothing}
+import models.objects._
+import models.product.SimpleContext
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.io.Source
-import scala.util.Random
+import payloads.CouponPayloads._
+import services.Result
+import services.coupon.CouponManager
 import slick.driver.PostgresDriver.api._
+import utils.db.DbResultT._
+import utils.db._
 
 object SimpleCoupon {
   type Percent = Int
 }
-import SimpleCoupon._
+import utils.seeds.generators.SimpleCoupon._
 
 case class SimpleCoupon(formId: Int = 0, shadowId: Int = 0,  
   percentOff: Percent, totalAmount: Int, promotionId: Int)

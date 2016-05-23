@@ -18,7 +18,8 @@ import models.location._
 import models.payment.creditcard.{CreditCard, CreditCards}
 import models.stripe._
 import models.StoreAdmin
-import payloads.{CreateAddressPayload, CreateCreditCard, EditCreditCard}
+import payloads.AddressPayloads.CreateAddressPayload
+import payloads.PaymentPayloads._
 import slick.driver.PostgresDriver.api._
 import utils.Apis
 import utils.aliases._

@@ -2,9 +2,9 @@ package utils
 
 import util.TestBase
 import utils.Strings._
-
-import payloads.{GiftCardCreateByCsr, CreateNote}
 import models.activity.Trail
+import payloads.GiftCardPayloads.GiftCardCreateByCsr
+import payloads.NotePayloads.CreateNote
 
 class UtilsTest extends TestBase {
 

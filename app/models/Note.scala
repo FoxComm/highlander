@@ -7,6 +7,7 @@ import cats.implicits._
 import com.pellucid.sealerate
 import shapeless._
 import failures.Failure
+import payloads.NotePayloads.CreateNote
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
@@ -44,7 +45,7 @@ object Note {
 
   implicit val noteColumnType: JdbcType[ReferenceType] with BaseTypedType[ReferenceType] = ReferenceType.slickColumn
 
-  def forOrder(orderId: Int, adminId: Int, payload: payloads.CreateNote): Note = Note(
+  def forOrder(orderId: Int, adminId: Int, payload: CreateNote): Note = Note(
     storeAdminId = adminId,
     referenceId = orderId,
     referenceType = Note.Order,

@@ -13,8 +13,9 @@ import models.order.OrderPayment
 import models.payment.PaymentMethod
 import models.payment.giftcard.GiftCard._
 import models.payment.giftcard.{GiftCardAdjustment ⇒ Adj, GiftCardAdjustments ⇒ Adjs}
+import payloads.GiftCardPayloads.GiftCardCreateByCsr
 import shapeless._
-import payloads.AddGiftCardLineItem
+import payloads.LineItemPayloads.AddGiftCardLineItem
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
@@ -118,7 +119,7 @@ object GiftCard {
     )
   }
 
-  def buildAppeasement(payload: payloads.GiftCardCreateByCsr, originId: Int): GiftCard = {
+  def buildAppeasement(payload: GiftCardCreateByCsr, originId: Int): GiftCard = {
     GiftCard(
       originId = originId,
       originType = GiftCard.CsrAppeasement,

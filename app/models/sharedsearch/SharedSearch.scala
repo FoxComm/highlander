@@ -7,6 +7,7 @@ import models.sharedsearch.SharedSearch._
 import models.StoreAdmin
 import shapeless._
 import org.json4s.JsonAST.JValue
+import payloads.SharedSearchPayloads.SharedSearchPayload
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import utils.db.ExPostgresDriver.api._
@@ -37,7 +38,7 @@ object SharedSearch {
 
   val sharedSearchRegex = """([a-z0-9]*)""".r
 
-  def byAdmin(admin: StoreAdmin, payload: payloads.SharedSearchPayload): SharedSearch =
+  def byAdmin(admin: StoreAdmin, payload: SharedSearchPayload): SharedSearch =
     SharedSearch(
       title = payload.title,
       query = payload.query,

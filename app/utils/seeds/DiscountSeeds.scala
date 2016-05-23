@@ -5,7 +5,7 @@ import models.discount.qualifiers._
 import models.objects._
 import models.discount._
 import models.product.SimpleContext
-import payloads.{CreateDiscount, CreateDiscountForm, CreateDiscountShadow}
+import payloads.DiscountPayloads._
 import utils.db._
 import utils.db.DbResultT._
 

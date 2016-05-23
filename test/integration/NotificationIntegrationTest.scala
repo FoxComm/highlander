@@ -8,10 +8,12 @@ import failures._
 import models.NotificationSubscription._
 import models.activity._
 import models.customer.Customers
-import models.{Notification, NotificationSubscriptions, NotificationTrailMetadata, StoreAdmin, StoreAdmins}
+import models.{NotificationSubscriptions, NotificationTrailMetadata, StoreAdmin, StoreAdmins}
 import org.json4s.JsonAST.JString
 import org.json4s.jackson.Serialization.write
-import payloads.{AppendActivity, CreateNotification, UpdateCustomerPayload}
+import payloads.ActivityTrailPayloads.AppendActivity
+import payloads.CreateNotification
+import payloads.CustomerPayloads.UpdateCustomerPayload
 import responses.ActivityConnectionResponse.Root
 import responses.{ActivityResponse, LastSeenActivityResponse}
 import services.NotificationManager.unsubscribe

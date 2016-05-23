@@ -7,8 +7,9 @@ import models.image._
 import models.inventory._
 import models.objects._
 import models.product._
-import payloads.{AlbumPayload, CreateFullProduct, CreateFullSkuForm, CreateSkuShadow, UpdateFullProduct,
-UpdateFullSkuForm, UpdateFullSkuShadow}
+import payloads.ImagePayloads.AlbumPayload
+import payloads.ProductPayloads._
+import payloads.SkuPayloads._
 import responses.ImageResponses.AlbumResponse
 import responses.ObjectResponses.ObjectContextResponse
 import responses.ProductResponses._

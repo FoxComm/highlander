@@ -9,7 +9,7 @@ import failures.NotFoundFailure404
 import models.customer._
 import models.location._
 import models.traits.{AdminOriginator, CustomerOriginator, Originator}
-import payloads.CreateAddressPayload
+import payloads.AddressPayloads._
 import responses.Addresses._
 import responses.{TheResponse, Addresses ⇒ Response}
 import slick.driver.PostgresDriver.api._

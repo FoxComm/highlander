@@ -9,7 +9,8 @@ import StoreCreditSubtypes.scope._
 import failures.{NotFoundFailure400, NotFoundFailure404, OpenTransactionsFailure}
 import models.customer.{Customer, Customers}
 import models.{Reason, Reasons, StoreAdmin}
-import payloads.{StoreCreditBulkUpdateStateByCsr, StoreCreditUpdateStateByCsr}
+import payloads.PaymentPayloads._
+import payloads.StoreCreditPayloads._
 import responses.StoreCreditBulkResponse._
 import responses.StoreCreditResponse._
 import responses.{StoreCreditResponse, StoreCreditSubTypesResponse, TheResponse}
@@ -65,7 +66,7 @@ object StoreCreditService {
       .map(_.map { case (avail, curr) ⇒ StoreCreditResponse.Totals(avail.getOrElse(0), curr.getOrElse(0)) })
   }
 
-  def createManual(admin: StoreAdmin, customerId: Int, payload: payloads.CreateManualStoreCredit)
+  def createManual(admin: StoreAdmin, customerId: Int, payload: CreateManualStoreCredit)
     (implicit ec: EC, db: DB, ac: AC): Result[Root] = {
     val reason400 = NotFoundFailure400(Reason, payload.reasonId)
     (for {
@@ -83,7 +84,7 @@ object StoreCreditService {
 
   // API routes
 
-  def createFromExtension(admin: StoreAdmin, customerId: Int, payload: payloads.CreateExtensionStoreCredit)
+  def createFromExtension(admin: StoreAdmin, customerId: Int, payload: CreateExtensionStoreCredit)
     (implicit ec: EC, db: DB, ac: AC): Result[Root] = (for {
     customer    ← * <~ Customers.mustFindById404(customerId)
     _           ← * <~ checkSubTypeExists(payload.subTypeId, StoreCredit.Custom)

@@ -1,17 +1,16 @@
 package services
 
+import models.StoreAdmins
 import models.activity.ActivityContext
 import models.customer.Customers
 import models.location.Addresses
 import models.order._
-import models.StoreAdmins
 import models.traits.Originator
+import payloads.AddressPayloads._
 import services.orders.OrderShippingAddressUpdater._
 import util.IntegrationTestBase
-import utils.db._
 import utils.db.DbResultT._
-import utils.seeds.Seeds
-import Seeds.Factories
+import utils.seeds.Seeds.Factories
 
 class OrderShippingAddressUpdaterTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global
@@ -33,7 +32,7 @@ class OrderShippingAddressUpdaterTest extends IntegrationTestBase {
     }
 
     "Adds a shipping address by creating a new address in the payload" in new Fixture {
-      val newAddress = payloads.CreateAddressPayload(name = "Home Office", regionId = 1, address1 = "3000 Coolio Dr",
+      val newAddress = CreateAddressPayload(name = "Home Office", regionId = 1, address1 = "3000 Coolio Dr",
         city = "Seattle", zip = "55555")
 
       val fullOrder = createShippingAddressFromPayload(Originator(admin), newAddress, Some(order.refNum)).futureValue.get
@@ -60,7 +59,7 @@ class OrderShippingAddressUpdaterTest extends IntegrationTestBase {
     }
 
     "Updates a shipping address by sending fields in the payload" in new UpdateAddressFixture {
-      val payload = payloads.UpdateAddressPayload(name = Some("Don Keyhote"))
+      val payload = UpdateAddressPayload(name = Some("Don Keyhote"))
       val fullOrder = updateShippingAddressFromPayload(Originator(admin), payload, Some(order.refNum)).futureValue.get
       fullOrder.result.shippingAddress must not be 'empty
       val orderAddress = fullOrder.result.shippingAddress.value
