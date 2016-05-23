@@ -4,7 +4,7 @@ import React from 'react';
 import type { HTMLElement } from 'types';
 import { Link } from 'react-router';
 
-import styles from './collection-banner.css';
+import styles from './collection-block.css';
 
 type LinkInfo = {
   to?: string;
