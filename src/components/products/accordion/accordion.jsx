@@ -27,6 +27,7 @@ type Props = {
   titleWrapper: ?(title: string) => Element;
   resetOverflowTimeout: ?number;
   className: ?string;
+  contentClassName: ?string;
 }
 
 type State = {
@@ -67,8 +68,8 @@ export default class Accordion extends Component {
     this.mounted = false;
   }
 
-  componentDidUpdate(): void {
-    this.recalculateHeight();
+  componentDidUpdate(prevProps: Props, prevState: State): void {
+    this.recalculateHeight(this.state.open !== prevState.open);
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -77,23 +78,28 @@ export default class Accordion extends Component {
     }
   }
 
-  recalculateHeight(): void {
+  recalculateHeight(visibilityChanged: boolean = false): void {
     let maxHeight = 0;
+    let overflow = 'hidden';
 
     if (this.state.open) {
       maxHeight = this.refs.content.scrollHeight;
 
-      setTimeout(() => {
-        if (!this.mounted) {
-          return;
-        }
+      if (visibilityChanged) {
+        setTimeout(() => {
+          if (!this.mounted) {
+            return;
+          }
 
-        this.refs.content.style.overflow = 'visible';
-      }, this.props.resetOverflowTimeout);
+          this.refs.content.style.overflow = 'visible';
+        }, this.props.resetOverflowTimeout);
+      } else {
+        overflow = 'visible';
+      }
     }
 
     this.refs.content.style.maxHeight = `${maxHeight}px`;
-    this.refs.content.style.overflow = 'hidden';
+    this.refs.content.style.overflow = overflow;
   }
 
   @autobind
@@ -209,9 +215,11 @@ export default class Accordion extends Component {
   }
 
   render(): Element {
+    const { className, contentClassName } = this.props;
+
     const cls = classNames(styles.accordion, {
       [styles._open]: this.state.open,
-    }, this.props.className);
+    }, className);
 
     return (
       <div className={cls}>
@@ -219,7 +227,7 @@ export default class Accordion extends Component {
           {this.title}
           {this.controls}
         </div>
-        <div className={styles.content} ref="content">
+        <div className={classNames(styles.content, contentClassName)} ref="content">
           {this.props.children}
         </div>
       </div>

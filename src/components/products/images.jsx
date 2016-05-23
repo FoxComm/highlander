@@ -7,7 +7,7 @@ import styles from './images.css';
 // libs
 import _ from 'lodash';
 import classNames from 'classnames';
-import { autobind } from 'core-decorators';
+import { autobind, debounce } from 'core-decorators';
 import React, { Component, Element, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import moment from 'moment';
@@ -344,8 +344,26 @@ class ProductImages extends Component<void, Props, State> {
   }
 
   @autobind
-  onAddFiles(files: Array<ImageFile>): void {
-    const f = files.map((file: ImageFile) => ({
+  @debounce(300)
+  onSort(albumId: number, order: Array<number>) {
+    const album = { ...this.props.albums.find((album:Album) => album.id === albumId) };
+
+    const newOrder = [];
+
+    order.forEach((pos: number) => {
+      newOrder.push(album.images[pos]);
+    });
+
+    album.images = newOrder;
+    this.setState({ selectedAlbumId: albumId });
+
+    this.props.editAlbum(this.props.params.context, albumId, album)
+      .then(() => this.setState({ selectedAlbumId: void 0 }));
+  }
+
+  @autobind
+  onAddFiles(images: Array<ImageFile>): void {
+    const newImages = images.map((file: ImageFile) => ({
       title: file.file.name,
       alt: file.file.name,
       src: file.src,
@@ -353,10 +371,7 @@ class ProductImages extends Component<void, Props, State> {
       loading: true,
     }));
 
-    this.setState(
-      { files: [...this.state.files, ...f] },
-      () => void this.props.uploadImages(this.props.params.context, Number(this.state.selectedAlbumId), f)
-    );
+    this.props.uploadImages(this.props.params.context, Number(this.state.selectedAlbumId), newImages);
   }
 
   get dropzone() {
@@ -445,7 +460,13 @@ class ProductImages extends Component<void, Props, State> {
       );
     } else {
       accordionContent = (
-        <SortableTiles itemWidth={298} itemHeight={372} gutter={10} gutterY={40}>
+        <SortableTiles itemWidth={298}
+                       itemHeight={372}
+                       gutter={10}
+                       gutterY={40}
+                       loading={loading}
+                       onSort={this.onSort.bind(this, Number(album.id))}
+        >
           {album.images.map((image: ImageFile, idx: number) => {
             return (
               <ImageCard
@@ -454,7 +475,7 @@ class ProductImages extends Component<void, Props, State> {
                 secondaryTitle={`Uploaded ${image.uploadedAt || moment().format('MM/DD/YYYY HH: mm')}`}
                 actions={this.getImageActions({image, album, idx})}
                 loading={image.loading}
-                key={`${image.src}-${idx}` /** replace with id*/}
+                key={`${image.src}` /** replace with id*/}
               />
             );
           })}
@@ -475,6 +496,7 @@ class ProductImages extends Component<void, Props, State> {
             editMode={editTitleMode}
             onEditComplete={this.handleConfirmEditAlbum}
             onEditCancel={this.handleCancelEditAlbum}
+            contentClassName={styles.accordionContent}
             actions={this.getAlbumActions(Number(album.id))}
           >
             {accordionContent}

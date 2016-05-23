@@ -21,7 +21,9 @@ type Props = {
   gutterX: number;
   gutterY: number;
   spaceBetween: boolean;
+  onSort: (order: Array<number>) => void;
   children: ?Array<Element>;
+  loading: boolean;
   itemStyles: ?{[key: string]: number};
 }
 
@@ -44,6 +46,9 @@ const clamp = (n, min, max) => Math.max(Math.min(n, max), min);
 const springSetting1 = { stiffness: 180, damping: 10 };
 const springSetting2 = { stiffness: 150, damping: 16 };
 
+/** Map of sorted indexes of initial elements array to keep kind of an identifier to prevent children rerendering */
+let initialOrder;
+
 class SortableTiles extends Component {
 
   static props: Props;
@@ -53,11 +58,13 @@ class SortableTiles extends Component {
     gutterX: 10,
     gutterY: 20,
     spaceBetween: false,
+    loading: false,
+    onSort: _.noop,
   };
 
   state: State = {
     order: _.range(Children.count(this.props.children)),
-    layout: Array(Children.count(this.props.children)).fill([0, 0]),
+    layout: new Array(Children.count(this.props.children)).fill([0, 0]),
     columns: 3,
     gutter: this.props.gutterX,
     mouse: [0, 0],
@@ -73,6 +80,10 @@ class SortableTiles extends Component {
 
   resizeTimeout: ?number = null;
 
+  componentWillMount() {
+    initialOrder = _.range(Children.count(this.props.children));
+  }
+
   componentDidMount(): void {
     window.addEventListener('touchmove', this.handleTouchMove);
     window.addEventListener('mousemove', this.handleMouseMove);
@@ -85,7 +96,19 @@ class SortableTiles extends Component {
     this.forceUpdate();
   }
 
-  componentDidUpdate() {
+  componentWillReceiveProps(nextProps: Props) {
+    const childrenChanged = !nextProps.loading && this.props.loading;
+    const childrenNumberChanged = Children.count(nextProps.children) !== Children.count(this.props.children);
+
+    if (childrenChanged || childrenNumberChanged) {
+      /** reset order to [0, ..., n-1] when new children array arrives */
+      const order = _.range(Children.count(nextProps.children));
+
+      this.recalculateLayout(order);
+    }
+  }
+
+  componentDidUpdate(): void {
     if (this.initialMount) {
       this.recalculateLayout();
 
@@ -130,12 +153,14 @@ class SortableTiles extends Component {
 
       return [Math.round(itemWidth * column + offsetX), Math.round(itemHeight * row + offsetY)];
     });
+
     this.container.style.height = `${rows * (itemHeight + gutterY)}px`;
 
     this.setState({
       layout,
       columns,
       gutter,
+      order,
     });
   }
 
@@ -148,6 +173,11 @@ class SortableTiles extends Component {
     const movedValue = order[from];
     order.splice(from, 1);
     order.splice(to, 0, movedValue);
+
+    /** move initial indexes to keep relation between initial array of elements indexes and current state */
+    const movedInitial = initialOrder[from];
+    initialOrder.splice(from, 1);
+    initialOrder.splice(to, 0, movedInitial);
 
     this.setState({ order });
   }
@@ -176,7 +206,6 @@ class SortableTiles extends Component {
 
   @autobind
   handleMouseDown(from: number, [itemX, itemY]: Coords, { pageX, pageY }: MousePosition) {
-
     this.setState({
       activeIndex: from,
       isPressed: true,
@@ -187,6 +216,10 @@ class SortableTiles extends Component {
 
   @autobind
   handleMouseUp() {
+    if (this.state.isPressed) {
+      this.props.onSort(this.state.order);
+    }
+
     this.setState({
       isPressed: false,
       delta: [0, 0]
@@ -258,7 +291,7 @@ class SortableTiles extends Component {
           const { style, x, y } = this.getItemStyle(isActive, index);
 
           return (
-            <Motion key={item} style={style}>
+            <Motion key={initialOrder[index]} style={style}>
               {({ translateX, translateY, scale }) => {
 
                 const transitionStyles = {

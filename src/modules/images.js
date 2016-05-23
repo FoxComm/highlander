@@ -2,7 +2,7 @@
 
 import _ from 'lodash';
 import { get, assoc } from 'sprout-data';
-import { createReducer } from 'redux-act';
+import { createReducer, createAction } from 'redux-act';
 import createAsyncActions from './async-utils';
 import Api from '../lib/api';
 
@@ -53,7 +53,11 @@ function actionPath(entity: string, action: string) {
  */
 export default function createImagesModule(entity: string): Module {
 
-  /** Internal async actions */
+  /** Internal actions */
+
+  // workaround action to handle image editing/deleting progress state
+  // as images actions performed through album
+  const _editImageStarted = createAction(`${entity.toUpperCase()}_EDIT_IMAGE_STARTED`, (...args) => [...args]);
 
   const _uploadImages = createAsyncActions(
     actionPath(entity, 'uploadImages'),
@@ -65,7 +69,8 @@ export default function createImagesModule(entity: string): Module {
       });
 
       return Api.post(`/albums/${context}/${albumId}/images`, formData);
-    }
+    },
+    (...args) => [...args]
   );
 
   const _fetchAlbums = createAsyncActions(
@@ -168,6 +173,8 @@ export default function createImagesModule(entity: string): Module {
 
     album = assoc(album, ['images', idx], image);
 
+    dispatch(_editImageStarted(albumId, idx));
+
     return dispatch(editAlbum(context, albumId, album));
   };
 
@@ -181,7 +188,9 @@ export default function createImagesModule(entity: string): Module {
   const deleteImage = (context:string, albumId: number, idx: number) => (dispatch, getState) => {
     let album = get(getState(), [entity, 'images', 'albums']).find((album: Album) => album.id === albumId);
 
-    album = assoc(album, ['images', idx], [...album.images.slice(0, idx), ...album.images.slice(idx + 1)]);
+    album = assoc(album, ['images'], [...album.images.slice(0, idx), ...album.images.slice(idx + 1)]);
+
+    dispatch(_editImageStarted(albumId, idx));
 
     return dispatch(editAlbum(context, albumId, album));
   };
@@ -205,11 +214,25 @@ export default function createImagesModule(entity: string): Module {
     [_deleteAlbum.succeeded]: (state: State, response: any) => {
       return assoc(state, ['albums'], state.albums);
     },
-    [_uploadImages.succeeded]: (state: State, response: Album) => {
+    [_uploadImages.started]: (state: State, [context, albumId, images]) => {
+      const idx = _.findIndex(state.albums, (album: Album) => album.id === albumId);
+      const album = get(state, ['albums', idx]);
+
+      images = images.map((image: ImageFile) => assoc(image, 'loading', true));
+
+      return assoc(state, ['albums', idx, 'images'], [...album.images, ...images]);
+    },
+    [_uploadImages.succeeded]: (state: State, [response]) => {
       const idx = _.findIndex(state.albums, (album: Album) => album.id === response.id);
 
       return assoc(state, ['albums', idx], response);
     },
+
+    [_editImageStarted]: (state, [albumId, imageIndex]) => {
+      const albumIndex = _.findIndex(state.albums, (album: Album) => album.id === albumId);
+
+      return assoc(state, ['albums', albumIndex, 'images', imageIndex, 'loading'], true);
+    }
   }, initialState);
 
   return {
