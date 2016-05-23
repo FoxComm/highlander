@@ -53,6 +53,7 @@ schema_server: 127.0.0.1:8081
 api_server: 127.0.0.1
 
 # JMX ports
+es_jmx_port: 29010
 phoenix_jmx_port: 39010
 greenriver_jmx_port: 39011
 messaging_jmx_port: 39012
