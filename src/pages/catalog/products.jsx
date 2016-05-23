@@ -6,7 +6,7 @@ import type { Product } from 'modules/products';
 import { connect } from 'react-redux';
 
 import Loader from 'ui/loader';
-import ProductsList from '../../products-list/products-list';
+import ProductsList from '../../components/products-list/products-list';
 
 import styles from './products.css';
 

@@ -3,7 +3,7 @@
 import React, { Component } from 'react';
 import type { HTMLElement } from 'types';
 
-import TextBanner from '../../banner/text-banner';
+import TextBanner from '../../components/banner/text-banner';
 import styles from './our-story.css';
 
 

@@ -5,8 +5,8 @@ import type { HTMLElement } from 'types';
 
 import styles from './collection.css';
 
-import CollectionBanner from '../../../banner/collection-banner';
-import TextBanner from '../../../banner/text-banner';
+import CollectionBlock from '../components/collection-block';
+import TextBanner from '../../../components/banner/text-banner';
 
 
 class Collection extends Component {
@@ -28,7 +28,7 @@ class Collection extends Component {
     return (
       <div styleName="harper-block">
         <div styleName="wrap">
-          <CollectionBanner
+          <CollectionBlock
             header="Harper"
             description="on her in honey"
             link={{ to: '/sunglasses?type=women', text: 'shop' }}
@@ -42,7 +42,7 @@ class Collection extends Component {
     return (
       <div styleName="greyson-block">
         <div styleName="wrap">
-          <CollectionBanner
+          <CollectionBlock
             header="Greyson"
             description="on him in gold"
             link={{ to: 'sunglasses?type=men', text: 'shop' }}
@@ -56,7 +56,7 @@ class Collection extends Component {
     return (
       <div styleName="chloe-block">
         <div styleName="wrap">
-          <CollectionBanner
+          <CollectionBlock
             header="Chloe"
             description="on her in black"
             link={{ to: 'sunglasses?type=women', text: 'shop' }}
@@ -70,7 +70,7 @@ class Collection extends Component {
     return (
       <div styleName="amelia-block">
         <div styleName="wrap">
-          <CollectionBanner
+          <CollectionBlock
             header="Amelia"
             description="on her in tortoise"
             link={{ to: 'eyeglasses?type=women', text: 'shop' }}
@@ -84,7 +84,7 @@ class Collection extends Component {
     return (
       <div styleName="olivia-block">
         <div styleName="wrap">
-          <CollectionBanner
+          <CollectionBlock
             header="Connor"
             description="on him in black"
             link={{ to: 'sunglasses?type=men', text: 'shop' }}
@@ -98,7 +98,7 @@ class Collection extends Component {
     return (
       <div styleName="connor-block">
         <div styleName="wrap">
-          <CollectionBanner
+          <CollectionBlock
             header="Olivia"
             description="on her in block"
             link={{ to: 'sunglasses?type=women', text: 'shop' }}
@@ -112,7 +112,7 @@ class Collection extends Component {
     return (
       <div styleName="ella-block">
         <div styleName="wrap">
-          <CollectionBanner
+          <CollectionBlock
             header="Connor"
             description="on him in honey"
             link={{ to: 'sunglasses?type=men', text: 'shop' }}
@@ -126,7 +126,7 @@ class Collection extends Component {
     return (
       <div styleName="connor2-block">
         <div styleName="wrap">
-          <CollectionBanner
+          <CollectionBlock
             header="Ella"
             description="on her in tortoise"
             link={{ to: 'eyeglasses?type=women', text: 'shop' }}
