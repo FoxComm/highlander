@@ -1,0 +1,11 @@
+[Service]
+WorkingDirectory={{ firebrand_install_dir }}
+ExecStart=/bin/bash ./run_firebrand.sh
+Restart=always
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=firebrand
+Environment=PHOENIX_PUBLIC_KEY={{ public_keys_dest_dir }}/public_key.pem
+
+[Install]
+WantedBy=multi-user.target
