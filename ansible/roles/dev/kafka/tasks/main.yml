@@ -19,6 +19,10 @@
   file: path=/var/lib/kafka state=directory
   sudo: true
 
+- name: Override Kafka config
+  template: src=server.properties dest="/etc/kafka/server.properties"
+  sudo: true
+
 - name: Kafka and Zookeeper
   service: name={{ item }} state=started enabled=yes
   sudo: true
