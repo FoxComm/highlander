@@ -19,7 +19,8 @@ Principles:
 - The library should have simple method names that match core API methods, or simplifications or sugar on the core API.
 - It should make instantiation/authentication as simple as possible.
 - It should deal with Async, probably a Fetch/Promise-based model.
-- As a rule of thumb, `.then()` should be left to the implementation of the library [ie. not in this codebase]. Possible exception here is Auth section, storage of `jwt` tokens, handling oAuth redirects etc.
+- As a rule of thumb, `.then()` should be left to the implementation of the library [ie. not in this codebase].
+  Possible exception here is Auth section, storage of `jwt` tokens, handling oAuth redirects etc.
 
 # Usage
 

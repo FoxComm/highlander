@@ -2,8 +2,7 @@
 // WIP. We kinda have to decide if we really want to stick to
 // ES6 not ES7 because spread operator is pretty useful here...
 
-
-// Helper / Utility functions
+import fetch from 'isomorphic-fetch';
 
 export function appendQueryString(url, queryString) {
   if (!queryString) {
@@ -30,7 +29,7 @@ function serialize(data) {
 }
 
 
-export function request(method, uri, data, options) {
+export default function request(method, uri, data, options) {
   const defaultHeaders = {
     'Content-Type': 'application/json;charset=UTF-8',
   };
@@ -56,14 +55,12 @@ export function request(method, uri, data, options) {
     }
   }
 
-  // $FlowFixMe
   let error = null;
 
   return fetch(uri, options)
     .then(response => {
       if (response.status < 200 || response.status >= 300) {
         error = new Error(response.statusText);
-        // $FlowFixMe
         error.response = response;
       }
 
@@ -89,56 +86,4 @@ export function request(method, uri, data, options) {
     });
 }
 
-/* eslint-enable no-param-reassign */
 
-
-// Core API class
-
-class Api {
-  headers;
-
-  constructor() {}
-
-  addHeaders(headers) {
-    this.headers = headers;
-    return this;
-  }
-
-  addAuth(jwt) {
-    this.headers = {
-      ...this.headers,
-      JWT: jwt,
-    };
-    return this;
-  }
-
-  request(method, uri, data, options = {}) {
-
-    if (this.headers) {
-      options.headers = { // eslint-disable-line no-param-reassign
-        ...this.headers,
-        ...(options.headers || {}),
-      };
-    }
-
-    return request(method, uri, data, options);
-  }
-
-  get(...args) {
-    return this.request('get', ...args);
-  }
-
-  post(...args) {
-    return this.request('post', ...args);
-  }
-
-  patch(...args) {
-    return this.request('patch', ...args);
-  }
-
-  delete(...args) {
-    return this.request('delete', ...args);
-  }
-}
-
-export const api = new Api(args)
