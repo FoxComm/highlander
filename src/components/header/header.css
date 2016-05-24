@@ -1,0 +1,76 @@
+@import "media-queries.css";
+@import "colors.css";
+
+.header {
+  position: fixed;
+  width: 100%;
+  height: 80px;
+  font-weight: 300;
+  background: rgba(255, 255, 255, .34);
+  transition: background 300ms;
+  z-index: 1;
+}
+
+.header-scrolled {
+  composes: header;
+  background: var(--whitish);
+  box-shadow: 0 1px #e9e9e9;
+}
+
+.wrap {
+  composes: wrap from "ui/css/layout.css";
+  display: flex;
+}
+
+.hamburger {
+  display: none;
+}
+
+.search {
+  flex: 1;
+}
+
+.search {
+  & :global(.icon__cnt) {
+    fill: var(--blackish);
+  }
+}
+
+.tools {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.logo-link {
+  margin-right: 30px;
+  text-align: center;
+}
+
+:global(.icon).logo {
+  width: 57px;
+  height: 57px;
+}
+
+:global(.icon--fc-some_brand_logo) {
+  stroke: none;
+}
+
+@media (--small-viewport) {
+  :global(.icon).logo {
+    width: 40px;
+    height: 40px;
+  }
+
+  .search {
+    display: none;
+  }
+
+  .hamburger {
+    display: block;
+
+    & :global(.icon) {
+      cursor: pointer;
+    }
+  }
+}

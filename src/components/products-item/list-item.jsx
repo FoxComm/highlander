@@ -16,30 +16,34 @@ type Product = {
   images: ?Array<string>,
   salePrice: string,
   currency: string,
-}
-
-const ListItem = (props: Product): HTMLElement => {
-  const {productId, title, images, salePrice, currency} = props;
-
-  const image = images && images.length > 0
-    ? <img src={images[0]} styleName="preview-image" />
-    : null;
-
-  const click = () => browserHistory.push(`/products/${productId}`);
-
-  return (
-    <div styleName="list-item" onClick={click}>
-      <div styleName="preview">
-        {image}
-      </div>
-      <div styleName="name">
-        {title}
-      </div>
-      <div styleName="price">
-        <Currency value={salePrice} currency={currency} />
-      </div>
-    </div>
-  );
 };
+
+class ListItem extends React.Component {
+  props: Product;
+
+  render(): HTMLElement {
+    const {productId, title, images, salePrice, currency} = this.props;
+
+    const image = images && images.length > 0
+      ? <img src={images[0]} styleName="preview-image" />
+      : null;
+
+    const click = () => browserHistory.push(`/products/${productId}`);
+
+    return (
+      <div styleName="list-item" onClick={click}>
+        <div styleName="preview">
+          {image}
+        </div>
+        <div styleName="name">
+          {title}
+        </div>
+        <div styleName="price">
+          <Currency value={salePrice} currency={currency}/>
+        </div>
+      </div>
+    );
+  }
+}
 
 export default ListItem;

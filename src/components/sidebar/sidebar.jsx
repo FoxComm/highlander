@@ -12,7 +12,7 @@ import type { Localized } from 'lib/i18n';
 import styles from './sidebar.css';
 
 import Icon from 'ui/icon';
-import Categories from '../categories/categories';
+import Categories from '../navigation/navigation';
 import Search from '../search/search';
 
 import * as actions from 'modules/sidebar';

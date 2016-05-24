@@ -10,7 +10,7 @@ import styles from './search.css';
 import localized from 'lib/i18n';
 import type { Localized } from 'lib/i18n';
 
-import ProductsList from '../../products-list/products-list';
+import ProductsList from '../../components/products-list/products-list';
 
 import { setTerm, fetch } from 'modules/search';
 
@@ -21,8 +21,8 @@ type SearchParams = {
 type SearchResult = {
   total: number,
   pagination: { total: number },
-  max_score: number,
-  result: Array<Product>,
+  max_score: ?number,
+  result: Array<Product>|Object,
 };
 
 type SearchProps = Localized & {
