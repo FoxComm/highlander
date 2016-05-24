@@ -5,4 +5,5 @@ demo_user: demo
 demo_pass: Xv6yEcAzXv6yEcAz
 demo_domain: demo2.foxcommerce.com
 ashes_server_name: "admin.{{demo_domain}}"
-firebird_server_name: "{{demo_domain}}"
+firebird_server_name: "firebird.{{demo_domain}}"
+firebrand_server_name: "{{demo_domain}}"

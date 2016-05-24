@@ -1,5 +1,5 @@
-upstream firebird {
-    server {{ firebird_server }} fail_timeout=15s;
+upstream firebrand {
+  server {{ firebrand_server }} fail_timeout=15s;
 }
 
 server {
@@ -8,22 +8,22 @@ server {
   #ssl_certificate    server.crt;
   #ssl_certificate_key server.key;
 
-  listen 80;
-  listen [::]:80;
+  listen 80 default_server;
+  listen [::]:80 default_server;
 
   index index.html;
 
-  server_name {{firebird_server_name}};
+  server_name {{firebrand_server_name}};
 
 
   # variables
 
   # language
-  set $accept_language {{firebird_default_language}};
+  set $accept_language {{firebrand_default_language}};
   if ($http_accept_language) {
       set $accept_language $http_accept_language;
   }
-  {% if firebird_fixed_language %}set $accept_language {{firebird_default_language}};{% endif %}
+  {% if firebrand_fixed_language %}set $accept_language {{firebrand_default_language}};{% endif %}
 
 
   error_page 500 @500;
@@ -155,14 +155,14 @@ server {
       proxy_cache off;
   }
 
-  # Proxy to firebird
+  # Proxy to firebrand
   location / {
-      root {{firebird_root_dir}};
-      try_files $uri @firebird;
+      root {{firebrand_root_dir}};
+      try_files $uri @firebrand;
   }
 
-  location @firebird {
-      proxy_pass http://firebird;
+  location @firebrand {
+      proxy_pass http://firebrand;
   }
 
   # Error pages

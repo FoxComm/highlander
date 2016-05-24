@@ -18,11 +18,11 @@
 - name: Enable Firebird hosts
   file: src=/etc/nginx/sites-available/firebird dest=/etc/nginx/sites-enabled/firebird owner=root group=root state=link
 
-- name: Install Firebird hosts
-  template: src=firebird.j2 dest=/etc/nginx/sites-available/firebird
+- name: Install Firebrand hosts
+  template: src=firebrand.j2 dest=/etc/nginx/sites-available/firebrand
 
-- name: Enable Firebird hosts
-  file: src=/etc/nginx/sites-available/firebird dest=/etc/nginx/sites-enabled/firebird owner=root group=root state=link
+- name: Enable Firebrand hosts
+  file: src=/etc/nginx/sites-available/firebrand dest=/etc/nginx/sites-enabled/firebrand owner=root group=root state=link
 
 - name: Restart Nginx
   service: name=nginx state=restarted

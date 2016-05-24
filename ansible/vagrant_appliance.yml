@@ -4,7 +4,8 @@
   hosts: all
   vars:
     ashes_server_name: admin.foxcommerce.local
-    firebird_server_name: foxcommerce.local
+    firebird_server_name: firebird.foxcommerce.local
+    firebrand_server_name: foxcommerce.local
   roles:
     - {role: base/common}
     - {role: base/consul}
@@ -23,6 +24,7 @@
     - {role: dev/greenriver}
     - {role: dev/ashes}
     - {role: dev/firebird}
+    - {role: dev/firebrand}
     - {role: dev/balancer, sudo: yes }
 
   handlers:

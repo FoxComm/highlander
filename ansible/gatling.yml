@@ -29,6 +29,7 @@
     - { role: base/ssh_keys}
     - { role: dev/ashes}
     - { role: dev/firebird}
+    - { role: dev/firebrand}
     - { role: dev/balancer, sudo: yes }
 
   handlers:
