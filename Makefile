@@ -32,7 +32,6 @@ build: setup
 
 package: build
 	touch ashes.tar.bz2
-	tar --exclude 'ashes.tar.bz2' --exclude '.git' -jcf ashes.tar.bz2 ./
-	
+	tar --exclude 'ashes.tar.bz2' --exclude '.git' --exclude '.gitignore' --exclude '.gitattributes' -jcf ashes.tar.bz2 ./
 
 .PHONY: test test-cov tag build package
