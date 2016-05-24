@@ -9,11 +9,12 @@ import consumer.elastic.AvroTransformer
 
 final case class SkuSearchView()(implicit ec: EC) extends AvroTransformer {
   def mapping() = esMapping("sku_search_view").fields(
-    field("id", IntegerType),
-    field("code", StringType) index "not_analyzed",    
-    field("context", StringType) index "not_analyzed",
-    field("title", StringType).analyzer("autocomplete")
-      .fields(field("raw", StringType).index("not_analyzed")),
-    field("price", IntegerType)
+      field("id", IntegerType),
+      field("code", StringType) index "not_analyzed",
+      field("context", StringType) index "not_analyzed",
+      field("title", StringType)
+        .analyzer("autocomplete")
+        .fields(field("raw", StringType).index("not_analyzed")),
+      field("price", IntegerType)
   )
 }

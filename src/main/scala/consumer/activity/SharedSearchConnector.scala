@@ -19,11 +19,10 @@ final case class SharedSearchConnector()(implicit ec: EC) extends ActivityConnec
   }
 
   def createConnection(adminId: String, activityId: Int): Connection = {
-    Connection(
-      dimension = "notification",
-      objectId = adminId,
-      data = JNothing,
-      activityId = activityId)
+    Connection(dimension = "notification",
+               objectId = adminId,
+               data = JNothing,
+               activityId = activityId)
   }
 
   private def byAssociateData(activity: Activity): Seq[String] = {
@@ -33,5 +32,6 @@ final case class SharedSearchConnector()(implicit ec: EC) extends ActivityConnec
     }
   }
 
-  private def byAssociatesData(activity: Activity): Seq[String] = extractStringSeq(activity.data, "associates")
+  private def byAssociatesData(activity: Activity): Seq[String] =
+    extractStringSeq(activity.data, "associates")
 }

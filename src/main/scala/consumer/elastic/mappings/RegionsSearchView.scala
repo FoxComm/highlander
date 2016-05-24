@@ -9,21 +9,21 @@ import consumer.elastic.AvroTransformer
 
 final case class RegionsSearchView()(implicit ec: EC) extends AvroTransformer {
   def mapping() = esMapping("regions_search_view").fields(
-    field("id", IntegerType),
-    field("name", StringType).analyzer("autocomplete"),
-    field("abbreviation", StringType) index "not_analyzed",
-    field("country").nested(
       field("id", IntegerType),
       field("name", StringType).analyzer("autocomplete"),
-      field("alpha2", StringType) index "not_analyzed",
-      field("alpha3", StringType) index "not_analyzed",
-      field("code", StringType) index "not_analyzed",
-      field("continent", StringType).analyzer("autocomplete"),
-      field("currency", StringType) index "not_analyzed",
-      field("uses_postal_code", BooleanType),
-      field("is_billable", BooleanType),
-      field("is_shippable", BooleanType)
-    )
+      field("abbreviation", StringType) index "not_analyzed",
+      field("country").nested(
+          field("id", IntegerType),
+          field("name", StringType).analyzer("autocomplete"),
+          field("alpha2", StringType) index "not_analyzed",
+          field("alpha3", StringType) index "not_analyzed",
+          field("code", StringType) index "not_analyzed",
+          field("continent", StringType).analyzer("autocomplete"),
+          field("currency", StringType) index "not_analyzed",
+          field("uses_postal_code", BooleanType),
+          field("is_billable", BooleanType),
+          field("is_shippable", BooleanType)
+      )
   )
 
   override def nestedFields() = List("country")

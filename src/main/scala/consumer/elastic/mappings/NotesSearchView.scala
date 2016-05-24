@@ -10,72 +10,72 @@ import consumer.elastic.MappingHelpers._
 
 final case class NotesSearchView()(implicit ec: EC) extends AvroTransformer {
   def mapping() = esMapping("notes_search_view").fields(
-    // Note
-    field("id", IntegerType),
-    field("referenceId", IntegerType),
-    field("referenceType", StringType) index "not_analyzed",
-    field("body", StringType) analyzer "autocomplete",
-    field("priority", StringType) index "not_analyzed",
-    field("createdAt", DateType) format dateFormat,
-    field("deletedAt", DateType) format dateFormat,
-    field("author").nested (
-      field("email", StringType) analyzer "autocomplete",
-      field("name", StringType) analyzer "autocomplete",
-      field("department", StringType) analyzer "autocomplete"
-    ),
-    field("order").nested(
-      field("customerId", IntegerType),
-      field("referenceNumber", StringType) index "not_analyzed",
-      field("state", StringType) index "not_analyzed",
+      // Note
+      field("id", IntegerType),
+      field("referenceId", IntegerType),
+      field("referenceType", StringType) index "not_analyzed",
+      field("body", StringType) analyzer "autocomplete",
+      field("priority", StringType) index "not_analyzed",
       field("createdAt", DateType) format dateFormat,
-      field("placedAt", DateType) format dateFormat,
-      field("subTotal", IntegerType),
-      field("shippingTotal", IntegerType),
-      field("adjustmentsTotal", IntegerType),
-      field("taxesTotal", IntegerType),
-      field("grandTotal", IntegerType),
-      field("itemsCount", IntegerType)
-    ),
-    field("customer").nested (
-      field("id", IntegerType),
-      field("name", StringType) analyzer "autocomplete",
-      field("email", StringType) analyzer "autocomplete",
-      field("isBlacklisted", BooleanType),
-      field("joinedAt", DateType) format dateFormat
-    ),
-    field("giftCard").nested (
-      field("code", StringType) index "not_analyzed",
-      field("originType", StringType) index "not_analyzed",
-      field("currency", StringType) index "not_analyzed",
-      field("createdAt", DateType) format dateFormat
-    ),
-    field("skuItem").nested (
-      field("id", IntegerType),
-      field("sku", StringType) index "not_analyzed",
-      field("type", ObjectType),
-      field("attributes", ObjectType),
-      field("createdAt", DateType) format dateFormat
-    ),
-    field("product").nested (
-      field("id", IntegerType),
-      field("attributes", ObjectType),
-      field("variants", ObjectType),
-      field("createdAt", DateType) format dateFormat
-    ),
-    field("promotion").nested (
-      field("id", IntegerType),
-      field("applyType", StringType) index "not_analyzed",
-      field("attributes", ObjectType),
-      field("createdAt", DateType) format dateFormat
-    ),
-    field("coupon").nested (
-      field("id", IntegerType),
-      field("promotion_id", IntegerType),
-      field("attributes", ObjectType),
-      field("createdAt", DateType) format dateFormat
-    )            
+      field("deletedAt", DateType) format dateFormat,
+      field("author").nested(
+          field("email", StringType) analyzer "autocomplete",
+          field("name", StringType) analyzer "autocomplete",
+          field("department", StringType) analyzer "autocomplete"
+      ),
+      field("order").nested(
+          field("customerId", IntegerType),
+          field("referenceNumber", StringType) index "not_analyzed",
+          field("state", StringType) index "not_analyzed",
+          field("createdAt", DateType) format dateFormat,
+          field("placedAt", DateType) format dateFormat,
+          field("subTotal", IntegerType),
+          field("shippingTotal", IntegerType),
+          field("adjustmentsTotal", IntegerType),
+          field("taxesTotal", IntegerType),
+          field("grandTotal", IntegerType),
+          field("itemsCount", IntegerType)
+      ),
+      field("customer").nested(
+          field("id", IntegerType),
+          field("name", StringType) analyzer "autocomplete",
+          field("email", StringType) analyzer "autocomplete",
+          field("isBlacklisted", BooleanType),
+          field("joinedAt", DateType) format dateFormat
+      ),
+      field("giftCard").nested(
+          field("code", StringType) index "not_analyzed",
+          field("originType", StringType) index "not_analyzed",
+          field("currency", StringType) index "not_analyzed",
+          field("createdAt", DateType) format dateFormat
+      ),
+      field("skuItem").nested(
+          field("id", IntegerType),
+          field("sku", StringType) index "not_analyzed",
+          field("type", ObjectType),
+          field("attributes", ObjectType),
+          field("createdAt", DateType) format dateFormat
+      ),
+      field("product").nested(
+          field("id", IntegerType),
+          field("attributes", ObjectType),
+          field("variants", ObjectType),
+          field("createdAt", DateType) format dateFormat
+      ),
+      field("promotion").nested(
+          field("id", IntegerType),
+          field("applyType", StringType) index "not_analyzed",
+          field("attributes", ObjectType),
+          field("createdAt", DateType) format dateFormat
+      ),
+      field("coupon").nested(
+          field("id", IntegerType),
+          field("promotion_id", IntegerType),
+          field("attributes", ObjectType),
+          field("createdAt", DateType) format dateFormat
+      )
   )
 
-  override def nestedFields() = List("author", "order", "customer", "gift_card", 
-    "product", "sku_item", "promotion", "coupon")
+  override def nestedFields() =
+    List("author", "order", "customer", "gift_card", "product", "sku_item", "promotion", "coupon")
 }

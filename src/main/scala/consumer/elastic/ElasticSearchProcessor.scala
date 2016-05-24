@@ -18,18 +18,23 @@ import org.json4s.JsonAST.JInt
 import org.json4s.jackson.JsonMethods.parse
 
 /**
- * This is a JsonProcessor which processes json and indexs it into elastic search.
- * It calls a json transform function before sending it to elastic search.
- *
- * If the json has a {"id" : <id>} field after transformation, it extracts that
- * id and uses it as the _id in elasticsearch for that item. This is important so that
- * we don't duplicate entries in ES.
- */
-class ElasticSearchProcessor(uri: String, cluster: String, indexName: String, topics: Seq[String],
-  jsonTransformers: Map[String, JsonTransformer])(implicit ec: ExecutionContext) extends JsonProcessor {
+  * This is a JsonProcessor which processes json and indexs it into elastic search.
+  * It calls a json transform function before sending it to elastic search.
+  *
+  * If the json has a {"id" : <id>} field after transformation, it extracts that
+  * id and uses it as the _id in elasticsearch for that item. This is important so that
+  * we don't duplicate entries in ES.
+  */
+class ElasticSearchProcessor(
+    uri: String,
+    cluster: String,
+    indexName: String,
+    topics: Seq[String],
+    jsonTransformers: Map[String, JsonTransformer])(implicit ec: ExecutionContext)
+    extends JsonProcessor {
 
   val settings = Settings.settingsBuilder().put("cluster.name", cluster).build()
-  val client = ElasticClient.transport(settings, ElasticsearchClientUri(uri))
+  val client   = ElasticClient.transport(settings, ElasticsearchClientUri(uri))
 
   def createMappings(): Unit = {
     removeIndex()
@@ -40,17 +45,16 @@ class ElasticSearchProcessor(uri: String, cluster: String, indexName: String, to
     // Find json transformer
     jsonTransformers get topic match {
       case Some(t) ⇒
-        t.transform(inputJson).map{
-          outJson ⇒
-            save(outJson, topic)
+        t.transform(inputJson).map { outJson ⇒
+          save(outJson, topic)
         }
-      case None ⇒ 
+      case None ⇒
         Console.out.println(s"Skipping information from topic $topic")
-        Future {()}
+        Future { () }
     }
   }
 
-  private def removeIndex() { 
+  private def removeIndex() {
     try {
       Console.out.println(s"""Deleting index "$indexName"...""")
       client.execute(deleteIndex(indexName)).await
@@ -71,18 +75,17 @@ class ElasticSearchProcessor(uri: String, cluster: String, indexName: String, to
     try {
       // Define analyzer in mapping
       val jsonMappings = jsonTransformers.mapValues(_.mapping()).values.toSeq
-      val customAnalyzer =
-        CustomAnalyzerDefinition(
+      val customAnalyzer = CustomAnalyzerDefinition(
           "autocomplete",
-          EdgeNGramTokenizer("autocomplete_tokenizer", 1, 20, Seq("letter", "digit", "punctuation", "symbol")),
+          EdgeNGramTokenizer(
+              "autocomplete_tokenizer", 1, 20, Seq("letter", "digit", "punctuation", "symbol")),
           LowercaseTokenFilter
-        )
+      )
 
       // Execute Elasticsearch query
       client.execute {
         create index indexName mappings (jsonMappings: _*) analysis customAnalyzer
       }.await
-
     } catch {
       case e: RemoteTransportException ⇒
         Console.err.println(s"Error connecting to ES: $e")
@@ -107,7 +110,9 @@ class ElasticSearchProcessor(uri: String, cluster: String, indexName: String, to
           case NonFatal(e) ⇒ Console.err.println(s"Error while indexing: $e")
         }
 
-        req.map{ r ⇒ ()}
+        req.map { r ⇒
+          ()
+        }
       case _ ⇒
         Console.out.println(s"Skipping unidentified document from topic $topic...\r\n$document")
         Future { () }

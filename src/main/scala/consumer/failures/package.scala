@@ -8,5 +8,4 @@ package object failures {
   implicit class FailureOps(val underlying: Failure) extends AnyVal {
     def single: Failures = NonEmptyList(underlying)
   }
-
 }
