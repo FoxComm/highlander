@@ -139,11 +139,7 @@ object Seeds {
       orders      ← * <~ Factories.createOrders(customers, products, shipMethods, context)
       _           ← * <~ Factories.createRmas
       // Promotions
-      discounts ← * <~ Factories.createDiscounts
-      _ = discounts.foreach { discount ⇒
-        Console.out.println(
-            "Created discount form ID %d: %s".format(discount.formId, discount.title))
-      }
+      discounts  ← * <~ Factories.createDiscounts
       promotions ← * <~ Factories.createCouponPromotions(discounts)
       coupons    ← * <~ Factories.createCoupons(promotions)
     } yield {}
