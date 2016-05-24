@@ -12,7 +12,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 trait CouponSeeds {
 
   val codePrefix = "BASE"
-  val codeLength = 10
+  val codeLength = 15
   val codesQty   = 10
 
   def createCoupons(
