@@ -19,11 +19,9 @@ object Auth {
                                        kind = Admin))))
     .check(header("JWT").saveAs("jwtTokenAdmin"))
 
-  val loginAsRandomAdmin =
-    feed(csv("data/store_admins.csv").random).exec(loginAsAdmin)
+  val loginAsRandomAdmin = feed(csv("data/store_admins.csv").random).exec(loginAsAdmin)
 
-  implicit class RequireAuth(val httpBuilder: HttpRequestBuilder)
-      extends AnyVal {
+  implicit class RequireAuth(val httpBuilder: HttpRequestBuilder) extends AnyVal {
     def requireAdminAuth =
       httpBuilder.header("Authorization", "${jwtTokenAdmin}")
   }

@@ -24,5 +24,4 @@ object LockFailures {
       NotLockedFailure(s"${friendlyClassName(a)} with ${searchTerm(a)}=$searchKey is not locked")
     }
   }
-
 }

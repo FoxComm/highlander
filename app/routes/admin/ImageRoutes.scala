@@ -12,7 +12,8 @@ import utils.http.Http._
 import utils.http.CustomDirectives._
 
 object ImageRoutes {
-  def routes(implicit ec: ExecutionContext, db: Database, am: ActorMaterializer, admin: StoreAdmin) = {
+  def routes(
+      implicit ec: ExecutionContext, db: Database, am: ActorMaterializer, admin: StoreAdmin) = {
     activityContext(admin) { implicit ac ⇒
       pathPrefix("albums") {
         pathPrefix(Segment) { context ⇒

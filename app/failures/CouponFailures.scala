@@ -34,12 +34,14 @@ object CouponFailures {
   }
 
   object CouponShadowNotFoundInPayload {
-    def apply(code: String)  = NotFoundFailure404(s"Coupon shadow with code $code not found in payload")
+    def apply(code: String) =
+      NotFoundFailure404(s"Coupon shadow with code $code not found in payload")
   }
 
   object CouponNotFoundForContext {
     def apply(couponId: Int, contextName: String) =
-      NotFoundFailure404(s"Coupon with id=$couponId with coupon context $contextName cannot be found")
+      NotFoundFailure404(
+          s"Coupon with id=$couponId with coupon context $contextName cannot be found")
   }
 
   case class CouponShadowHasInvalidAttribute(key: String, value: String) extends Failure {
@@ -61,6 +63,4 @@ object CouponFailures {
   object CouponFormNotFound {
     def apply(id: Int) = NotFoundFailure404(s"Coupon Form with id $id cannot be found")
   }
-
-
 }

@@ -13,18 +13,22 @@ object Album {
   val kind = "album"
 }
 
-case class Album(id: Int = 0, contextId: Int, shadowId: Int, formId: Int,
-  commitId: Int, updatedAt: Instant = Instant.now, createdAt: Instant = Instant.now)
-  extends FoxModel[Album]
-  with Validation[Album]
+case class Album(id: Int = 0,
+                 contextId: Int,
+                 shadowId: Int,
+                 formId: Int,
+                 commitId: Int,
+                 updatedAt: Instant = Instant.now,
+                 createdAt: Instant = Instant.now)
+    extends FoxModel[Album]
+    with Validation[Album]
 
 class Albums(tag: Tag) extends ObjectHeads[Album](tag, "albums") {
-  def * = (id, contextId, shadowId, formId, commitId, updatedAt, 
-    createdAt) <> ((Album.apply _).tupled, Album.unapply)
+  def * =
+    (id, contextId, shadowId, formId, commitId, updatedAt, createdAt) <> ((Album.apply _).tupled, Album.unapply)
 }
 
-object Albums extends FoxTableQuery[Album, Albums](new Albums(_))
-  with ReturningId[Album, Albums] {
+object Albums extends FoxTableQuery[Album, Albums](new Albums(_)) with ReturningId[Album, Albums] {
 
   val returningLens: Lens[Album, Int] = lens[Album].id
 

@@ -9,27 +9,30 @@ import utils.db._
 import utils.{JsonFormatters, Validation}
 
 /**
- * A ObjectShadow is what you get when a context illuminates a Object.
- * The ObjectShadow, when applied to a Object is what is displayed on the 
- * storefront.
- */
-case class ObjectShadow(id: Int = 0, formId: Int = 0, attributes: Json, createdAt: Instant = Instant.now)
-  extends FoxModel[ObjectShadow]
-  with Validation[ObjectShadow]
+  * A ObjectShadow is what you get when a context illuminates a Object.
+  * The ObjectShadow, when applied to a Object is what is displayed on the 
+  * storefront.
+  */
+case class ObjectShadow(
+    id: Int = 0, formId: Int = 0, attributes: Json, createdAt: Instant = Instant.now)
+    extends FoxModel[ObjectShadow]
+    with Validation[ObjectShadow]
 
-class ObjectShadows(tag: Tag) extends FoxTable[ObjectShadow](tag, "object_shadows")  {
-  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def formId = column[Int]("form_id")
+class ObjectShadows(tag: Tag) extends FoxTable[ObjectShadow](tag, "object_shadows") {
+  def id         = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def formId     = column[Int]("form_id")
   def attributes = column[Json]("attributes")
-  def createdAt = column[Instant]("created_at")
+  def createdAt  = column[Instant]("created_at")
 
-  def * = (id, formId, attributes, createdAt) <> ((ObjectShadow.apply _).tupled, ObjectShadow.unapply)
+  def * =
+    (id, formId, attributes, createdAt) <> ((ObjectShadow.apply _).tupled, ObjectShadow.unapply)
 
   def form = foreignKey(ObjectForms.tableName, formId, ObjectForms)(_.id)
 }
 
-object ObjectShadows extends FoxTableQuery[ObjectShadow, ObjectShadows](new ObjectShadows(_))
-  with ReturningId[ObjectShadow, ObjectShadows] {
+object ObjectShadows
+    extends FoxTableQuery[ObjectShadow, ObjectShadows](new ObjectShadows(_))
+    with ReturningId[ObjectShadow, ObjectShadows] {
 
   val returningLens: Lens[ObjectShadow, Int] = lens[ObjectShadow].id
 

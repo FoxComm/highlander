@@ -14,13 +14,13 @@ object ImagePayloads {
   case class AlbumPayload(name: String, images: Option[Seq[ImagePayload]] = None) {
     def objectForm: ObjectForm = {
       val imageJson = images.map(_.map(_.toJson))
-      val json = ("name" -> name) ~ ("images" -> imageJson)
+      val json      = ("name" -> name) ~ ("images" -> imageJson)
       ObjectForm(kind = Album.kind, attributes = json)
     }
 
     def objectShadow: ObjectShadow = {
       val imageJson = images.map(_ ⇒ ("type" -> "images") ~ ("ref" -> "images"))
-      val json = ("name" -> ("type" -> "string") ~ ("ref" -> "name")) ~ ("images" -> imageJson)
+      val json      = ("name"                -> ("type"            -> "string") ~ ("ref" -> "name")) ~ ("images" -> imageJson)
       ObjectShadow(attributes = json)
     }
   }

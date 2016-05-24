@@ -8,11 +8,9 @@ trait Seeder {
 
   def pingPhoenix(): Unit = {
     val pingExitCode = Gatling.fromArgs(
-        Array(),
-        Some(classOf[PhoenixPingSimulation].asInstanceOf[Class[Simulation]]))
+        Array(), Some(classOf[PhoenixPingSimulation].asInstanceOf[Class[Simulation]]))
     if (pingExitCode != 0) {
-      println(
-          s"Phoenix did not respond in ${Conf.phoenixStartupTimeout}, exiting now!")
+      println(s"Phoenix did not respond in ${Conf.phoenixStartupTimeout}, exiting now!")
       System.exit(1)
     }
   }
@@ -20,15 +18,11 @@ trait Seeder {
 
 object OneshotSeeds extends App with Seeder {
   pingPhoenix()
-  Gatling.fromArgs(
-      Array(),
-      Some(classOf[OneshotSeedsSimulation].asInstanceOf[Class[Simulation]]))
+  Gatling.fromArgs(Array(), Some(classOf[OneshotSeedsSimulation].asInstanceOf[Class[Simulation]]))
 }
 
 object ContinuousSeeds extends App with Seeder {
   pingPhoenix()
-  Gatling.fromArgs(
-      Array(),
-      Some(
-          classOf[CustomerActivitySimulation].asInstanceOf[Class[Simulation]]))
+  Gatling.fromArgs(Array(),
+                   Some(classOf[CustomerActivitySimulation].asInstanceOf[Class[Simulation]]))
 }

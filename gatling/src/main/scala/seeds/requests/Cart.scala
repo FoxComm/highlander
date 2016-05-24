@@ -21,11 +21,9 @@ object Cart {
     .post("/v1/orders")
     .requireAdminAuth
     .body(StringBody(session ⇒
-              json(CreateOrder(customerId =
-                        Some(session.get("customerId").as[Integer])))))
-    .check(
-        status.is(200),
-        jsonPath("$.referenceNumber").ofType[String].saveAs("referenceNumber"))
+              json(CreateOrder(customerId = Some(session.get("customerId").as[Integer])))))
+    .check(status.is(200),
+           jsonPath("$.referenceNumber").ofType[String].saveAs("referenceNumber"))
 
   val addSkusToCart = http("Add SKUs to cart")
     .post("/v1/orders/${referenceNumber}/line-items")
@@ -34,20 +32,19 @@ object Cart {
 
   val pickRandomSkus = {
     val skuQty = Random.nextInt(5) + 1
-    feed(dbFeeder("select code as sku from skus").random, _ ⇒ skuQty).exec {
-      session ⇒
-        def newPayloadItem(skuCode: String) =
-          UpdateLineItemsPayload(skuCode, Random.nextInt(3) + 1)
+    feed(dbFeeder("select code as sku from skus").random, _ ⇒ skuQty).exec { session ⇒
+      def newPayloadItem(skuCode: String) =
+        UpdateLineItemsPayload(skuCode, Random.nextInt(3) + 1)
 
-        val payload =
-          if (skuQty == 1)
-            Seq(newPayloadItem(session.get("sku").as[String]))
-          else
-            (1 until skuQty).map { i ⇒
-              val skuCode = session.get(s"sku$i").as[String]
-              newPayloadItem(skuCode)
-            }
-        session.set("skuPayload", json(payload))
+      val payload =
+        if (skuQty == 1)
+          Seq(newPayloadItem(session.get("sku").as[String]))
+        else
+          (1 until skuQty).map { i ⇒
+            val skuCode = session.get(s"sku$i").as[String]
+            newPayloadItem(skuCode)
+          }
+      session.set("skuPayload", json(payload))
     }
   }
 
@@ -59,24 +56,18 @@ object Cart {
     .get("/v1/shipping-methods/${referenceNumber}")
     .requireAdminAuth
     .check(status.is(200),
-           jsonPath("$..id")
-             .ofType[Int]
-             .findAll
-             .saveAs("possibleShippingMethods"))
+           jsonPath("$..id").ofType[Int].findAll.saveAs("possibleShippingMethods"))
 
   val setShippingMethod = http("Set shipping method")
     .patch("/v1/orders/${referenceNumber}/shipping-method")
     .requireAdminAuth
     .body(StringBody { session ⇒
-      val shippingMethodIds =
-        session.get("possibleShippingMethods").as[Seq[Int]]
-      val randomShippingMethodId =
-        shippingMethodIds(Random.nextInt(shippingMethodIds.size))
+      val shippingMethodIds      = session.get("possibleShippingMethods").as[Seq[Int]]
+      val randomShippingMethodId = shippingMethodIds(Random.nextInt(shippingMethodIds.size))
       json(UpdateShippingMethod(randomShippingMethodId))
     })
 
-  val checkout =
-    http("Checkout").post("/v1/orders/${referenceNumber}/checkout")
+  val checkout = http("Checkout").post("/v1/orders/${referenceNumber}/checkout")
 
   val placeOrder = exec(newCart)
     .exec(pickRandomSkus)
@@ -92,8 +83,7 @@ object Cart {
     .requireAdminAuth
     .body(StringBody(session ⇒
               json(OrderTimeMachine(
-                      referenceNumber =
-                        session.get("referenceNumber").as[String],
+                      referenceNumber = session.get("referenceNumber").as[String],
                       placedAt = Instant.now.minusSeconds(
                           (Random.nextInt(15) * 60 * 60 * 24 * 30).toLong) // Minus ~15 months
                   ))))

@@ -16,28 +16,35 @@ import utils.http.CustomDirectives._
 import utils.{ADT, FSM}
 import utils.db._
 
-case class StoreCreditAdjustment(id: Int = 0, storeCreditId: Int, orderPaymentId: Option[Int],
-  storeAdminId: Option[Int] = None, debit: Int, availableBalance: Int, state: State = Auth, createdAt: Instant = Instant.now())
-  extends FoxModel[StoreCreditAdjustment]
-  with FSM[StoreCreditAdjustment.State, StoreCreditAdjustment] {
+case class StoreCreditAdjustment(id: Int = 0,
+                                 storeCreditId: Int,
+                                 orderPaymentId: Option[Int],
+                                 storeAdminId: Option[Int] = None,
+                                 debit: Int,
+                                 availableBalance: Int,
+                                 state: State = Auth,
+                                 createdAt: Instant = Instant.now())
+    extends FoxModel[StoreCreditAdjustment]
+    with FSM[StoreCreditAdjustment.State, StoreCreditAdjustment] {
 
   import StoreCreditAdjustment._
 
   def stateLens = lens[StoreCreditAdjustment].state
-  override def updateTo(newModel: StoreCreditAdjustment): Failures Xor StoreCreditAdjustment = super.transitionModel(newModel)
+  override def updateTo(newModel: StoreCreditAdjustment): Failures Xor StoreCreditAdjustment =
+    super.transitionModel(newModel)
 
   def getAmount: Int = debit
 
   val fsm: Map[State, Set[State]] = Map(
-    Auth → Set(Canceled, Capture)
+      Auth → Set(Canceled, Capture)
   )
 }
 
 object StoreCreditAdjustment {
   sealed trait State
-  case object Auth extends State
-  case object Canceled extends State
-  case object Capture extends State
+  case object Auth                extends State
+  case object Canceled            extends State
+  case object Capture             extends State
   case object CancellationCapture extends State
 
   object State extends ADT[State] {
@@ -48,27 +55,28 @@ object StoreCreditAdjustment {
 }
 
 class StoreCreditAdjustments(tag: Tag)
-  extends FoxTable[StoreCreditAdjustment](tag, "store_credit_adjustments") {
+    extends FoxTable[StoreCreditAdjustment](tag, "store_credit_adjustments") {
 
-  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def storeCreditId = column[Int]("store_credit_id")
-  def storeAdminId = column[Option[Int]]("store_admin_id")
-  def orderPaymentId = column[Option[Int]]("order_payment_id")
-  def debit = column[Int]("debit")
+  def id               = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def storeCreditId    = column[Int]("store_credit_id")
+  def storeAdminId     = column[Option[Int]]("store_admin_id")
+  def orderPaymentId   = column[Option[Int]]("order_payment_id")
+  def debit            = column[Int]("debit")
   def availableBalance = column[Int]("available_balance")
-  def state = column[StoreCreditAdjustment.State]("state")
-  def createdAt = column[Instant]("created_at")
+  def state            = column[StoreCreditAdjustment.State]("state")
+  def createdAt        = column[Instant]("created_at")
 
-  def * = (id, storeCreditId, orderPaymentId, storeAdminId, debit, availableBalance,
-    state, createdAt) <> ((StoreCreditAdjustment.apply _).tupled, StoreCreditAdjustment.unapply)
+  def * =
+    (id, storeCreditId, orderPaymentId, storeAdminId, debit, availableBalance, state, createdAt) <> ((StoreCreditAdjustment.apply _).tupled, StoreCreditAdjustment.unapply)
 
-  def payment = foreignKey(OrderPayments.tableName, orderPaymentId, OrderPayments)(_.id.?)
+  def payment     = foreignKey(OrderPayments.tableName, orderPaymentId, OrderPayments)(_.id.?)
   def storeCredit = foreignKey(StoreCredits.tableName, storeCreditId, StoreCredits)(_.id)
 }
 
 object StoreCreditAdjustments
-  extends FoxTableQuery[StoreCreditAdjustment, StoreCreditAdjustments](new StoreCreditAdjustments(_))
-  with ReturningId[StoreCreditAdjustment, StoreCreditAdjustments]{
+    extends FoxTableQuery[StoreCreditAdjustment, StoreCreditAdjustments](
+        new StoreCreditAdjustments(_))
+    with ReturningId[StoreCreditAdjustment, StoreCreditAdjustments] {
 
   val returningLens: Lens[StoreCreditAdjustment, Int] = lens[StoreCreditAdjustment].id
 
@@ -76,19 +84,21 @@ object StoreCreditAdjustments
 
   def matchSortColumn(s: Sort, adj: StoreCreditAdjustments): ColumnOrdered[_] = {
     s.sortColumn match {
-      case "id"               ⇒ if (s.asc) adj.id.asc               else adj.id.desc
-      case "storeCreditId"    ⇒ if (s.asc) adj.storeCreditId.asc    else adj.storeCreditId.desc
-      case "orderPaymentId"   ⇒ if (s.asc) adj.orderPaymentId.asc   else adj.orderPaymentId.desc
-      case "debit"            ⇒ if (s.asc) adj.debit.asc            else adj.debit.desc
+      case "id"               ⇒ if (s.asc) adj.id.asc else adj.id.desc
+      case "storeCreditId"    ⇒ if (s.asc) adj.storeCreditId.asc else adj.storeCreditId.desc
+      case "orderPaymentId"   ⇒ if (s.asc) adj.orderPaymentId.asc else adj.orderPaymentId.desc
+      case "debit"            ⇒ if (s.asc) adj.debit.asc else adj.debit.desc
       case "availableBalance" ⇒ if (s.asc) adj.availableBalance.asc else adj.availableBalance.desc
-      case "state"            ⇒ if (s.asc) adj.state.asc            else adj.state.desc
-      case "createdAt"        ⇒ if (s.asc) adj.createdAt.asc        else adj.createdAt.desc
+      case "state"            ⇒ if (s.asc) adj.state.asc else adj.state.desc
+      case "createdAt"        ⇒ if (s.asc) adj.createdAt.asc else adj.createdAt.desc
       case other              ⇒ invalidSortColumn(other)
     }
   }
 
   def sortedAndPaged(query: QuerySeq)(implicit sortAndPage: SortAndPage): QuerySeqWithMetadata = {
-    query.withMetadata.sortAndPageIfNeeded { (s, adj) ⇒ matchSortColumn(s, adj) }
+    query.withMetadata.sortAndPageIfNeeded { (s, adj) ⇒
+      matchSortColumn(s, adj)
+    }
   }
 
   def queryAll(implicit sortAndPage: SortAndPage): QuerySeqWithMetadata =

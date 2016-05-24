@@ -11,9 +11,7 @@ trait RmaValidation {
   def validate: DbResult[RmaValidatorResponse]
 }
 
-case class RmaValidatorResponse(
-  alerts:   Option[Failures] = None,
-  warnings: Option[Failures] = None)
+case class RmaValidatorResponse(alerts: Option[Failures] = None, warnings: Option[Failures] = None)
 
 case class RmaValidator(rma: Rma)(implicit ec: EC) extends RmaValidation {
 
@@ -34,11 +32,11 @@ case class RmaValidator(rma: Rma)(implicit ec: EC) extends RmaValidation {
   }
 
   /**
-   * TODO: Implement stub methods
-   */
-
+    * TODO: Implement stub methods
+    */
   // Query previous completed RMAs, find matches between line items
-  private def hasNoPreviouslyRefundedItems(response: RmaValidatorResponse): DBIO[RmaValidatorResponse] = {
+  private def hasNoPreviouslyRefundedItems(
+      response: RmaValidatorResponse): DBIO[RmaValidatorResponse] = {
     lift(response)
   }
 
@@ -50,6 +48,6 @@ case class RmaValidator(rma: Rma)(implicit ec: EC) extends RmaValidation {
   }
 
   private def warning(response: RmaValidatorResponse, failure: Failure): RmaValidatorResponse =
-    response.copy(warnings = response.warnings.fold(Failures(failure))
-      (current ⇒ Failures(current.toList :+ failure: _*)))
+    response.copy(warnings = response.warnings.fold(Failures(failure))(current ⇒
+              Failures(current.toList :+ failure: _*)))
 }

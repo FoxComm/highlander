@@ -13,13 +13,14 @@ import utils.db.DbResultT._
 
 object ReasonService {
 
-  def listReasons(implicit ec: EC, db: DB, sortAndPage: SortAndPage): Result[TheResponse[Seq[Reason]]] = {
+  def listReasons(
+      implicit ec: EC, db: DB, sortAndPage: SortAndPage): Result[TheResponse[Seq[Reason]]] = {
     Reasons.queryAll.result.toTheResponse.run()
   }
 
   // FIXME: ugly `_ <: Seq` should be just `Seq`
-  def listReasonsByType(reasonType: String)
-    (implicit ec: EC, db: DB, sortAndPage: SortAndPage): Result[TheResponse[_ <: Seq[Reason]]] = {
+  def listReasonsByType(reasonType: String)(
+      implicit ec: EC, db: DB, sortAndPage: SortAndPage): Result[TheResponse[_ <: Seq[Reason]]] = {
 
     val toAdt = ReasonType.read(reasonType)
 
@@ -33,7 +34,8 @@ object ReasonService {
     rwm.toTheResponse.run()
   }
 
-  def listRmaReasons(implicit ec: EC, db: DB, sortAndPage: SortAndPage): Result[TheResponse[Seq[RmaReason]]] = {
+  def listRmaReasons(
+      implicit ec: EC, db: DB, sortAndPage: SortAndPage): Result[TheResponse[Seq[RmaReason]]] = {
     RmaReasons.queryAll.result.toTheResponse.run()
   }
 }

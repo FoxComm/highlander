@@ -1,5 +1,3 @@
 package responses
 
-trait ResponseItem {
-
-}
+trait ResponseItem {}

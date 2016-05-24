@@ -1,6 +1,4 @@
 package models
 
 // Inherits from SuperTable 'fulfillments'
-class InventoryPickup {
-
-}
+class InventoryPickup {}

@@ -28,5 +28,6 @@ trait FoxModel[M <: FoxModel[M]] extends Validation[M] { self: M ⇒
   def primarySearchKey: String = id.toString
 
   def mustBeCreated: Failures Xor M =
-    if (id == 0) Xor.Left(GeneralFailure("Refusing to update unsaved model").single) else Xor.right(this)
+    if (id == 0) Xor.Left(GeneralFailure("Refusing to update unsaved model").single)
+    else Xor.right(this)
 }

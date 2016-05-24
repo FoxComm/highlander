@@ -26,95 +26,98 @@ object ProductResponses {
 
   object ProductFormResponse {
 
-    case class Root(id: Int, attributes: Json, createdAt: Instant)
-      extends ResponseItem
+    case class Root(id: Int, attributes: Json, createdAt: Instant) extends ResponseItem
 
     //Product here is a placeholder for future. Using only form
-    def build(p: Product, f: ObjectForm): Root = 
+    def build(p: Product, f: ObjectForm): Root =
       Root(id = f.id, attributes = f.attributes, createdAt = p.createdAt)
   }
 
   object ProductShadowResponse {
 
     case class Root(id: Int, formId: Int, attributes: Json, createdAt: Instant)
-      extends ResponseItem
+        extends ResponseItem
 
-    def build(p: ObjectShadow): Root = 
+    def build(p: ObjectShadow): Root =
       Root(id = p.id, formId = p.formId, attributes = p.attributes, createdAt = p.createdAt)
   }
 
   object IlluminatedProductResponse {
 
-    case class Root(id: Int, context: Option[ObjectContextResponse.Root], 
-      attributes: Json) extends ResponseItem
+    case class Root(id: Int, context: Option[ObjectContextResponse.Root], attributes: Json)
+        extends ResponseItem
 
-    def build(p: IlluminatedProduct): Root = 
-      Root(id = p.id, context = ObjectContextResponse.build(p.context).some, 
-        attributes = p.attributes)
-    def buildLite(p: IlluminatedProduct): Root = 
+    def build(p: IlluminatedProduct): Root =
+      Root(id = p.id,
+           context = ObjectContextResponse.build(p.context).some,
+           attributes = p.attributes)
+    def buildLite(p: IlluminatedProduct): Root =
       Root(id = p.id, context = None, attributes = p.attributes)
   }
 
-  object FullProductFormResponse { 
+  object FullProductFormResponse {
 
-    case class Root(
-      product: ProductFormResponse.Root,
-      skus: Seq[SkuFormResponse.Root]) extends ResponseItem
+    case class Root(product: ProductFormResponse.Root, skus: Seq[SkuFormResponse.Root])
+        extends ResponseItem
 
-    def build(product: Product, productForm: ObjectForm, 
-      skus: Seq[(Sku, ObjectForm)]) : Root = 
-      Root(
-        product = ProductFormResponse.build(product, productForm),
-        skus = skus.map { case (s, f) ⇒ SkuFormResponse.build(s, f) })
+    def build(product: Product, productForm: ObjectForm, skus: Seq[(Sku, ObjectForm)]): Root =
+      Root(product = ProductFormResponse.build(product, productForm), skus = skus.map {
+        case (s, f) ⇒ SkuFormResponse.build(s, f)
+      })
   }
 
-  object FullProductShadowResponse { 
+  object FullProductShadowResponse {
 
-    case class Root(
-      product: ProductShadowResponse.Root,
-      skus: Seq[SkuShadowResponse.Root]) extends ResponseItem
+    case class Root(product: ProductShadowResponse.Root, skus: Seq[SkuShadowResponse.Root])
+        extends ResponseItem
 
-    def build(shadow: ObjectShadow, skus: Seq[(Sku, ObjectShadow)]) : Root = 
-      Root(
-        product = ProductShadowResponse.build(shadow),
-        skus = skus.map { case (s, ss) ⇒  SkuShadowResponse.build(s, ss) })
+    def build(shadow: ObjectShadow, skus: Seq[(Sku, ObjectShadow)]): Root =
+      Root(product = ProductShadowResponse.build(shadow), skus = skus.map {
+        case (s, ss) ⇒ SkuShadowResponse.build(s, ss)
+      })
   }
 
-  object FullProductResponse { 
+  object FullProductResponse {
     case class Root(form: FullProductFormResponse.Root, shadow: FullProductShadowResponse.Root)
-      extends ResponseItem
+        extends ResponseItem
 
-    def build(
-      product: Product,
-      productForm: ObjectForm, 
-      productShadow: ObjectShadow,
-      skus: Seq[FullObject[Sku]]): Root =
-        Root(
-          form = FullProductFormResponse.build(product, productForm, skus.map{ sku ⇒ (sku.model, sku.form)}),
-          shadow = FullProductShadowResponse.build(productShadow, skus.map{ sku ⇒ (sku.model, sku.shadow)}))
+    def build(product: Product,
+              productForm: ObjectForm,
+              productShadow: ObjectShadow,
+              skus: Seq[FullObject[Sku]]): Root =
+      Root(form = FullProductFormResponse.build(product, productForm, skus.map { sku ⇒
+        (sku.model, sku.form)
+      }), shadow = FullProductShadowResponse.build(productShadow, skus.map { sku ⇒
+        (sku.model, sku.shadow)
+      }))
   }
 
   object IlluminatedFullProductResponse {
 
-    case class Root(id: Int, context: ObjectContextResponse.Root, product: IlluminatedProductResponse.Root,
-      skus: Seq[IlluminatedSkuResponse.Root], variants: Seq[IlluminatedVariantResponse.Root], variantMap: Json)
-      extends ResponseItem
+    case class Root(id: Int,
+                    context: ObjectContextResponse.Root,
+                    product: IlluminatedProductResponse.Root,
+                    skus: Seq[IlluminatedSkuResponse.Root],
+                    variants: Seq[IlluminatedVariantResponse.Root],
+                    variantMap: Json)
+        extends ResponseItem
 
-    def build(p: IlluminatedProduct, skus: Seq[IlluminatedSku],
-      variants: Seq[(IlluminatedVariant, Seq[FullObject[VariantValue]])],
-      variantMap: Map[String, Seq[FullObject[VariantValue]]]): Root =
-      Root(
-        id = p.id, 
-        product = IlluminatedProductResponse.buildLite(p),
-        context = ObjectContextResponse.build(p.context),
-        skus = skus.map(IlluminatedSkuResponse.buildLite _),
-        variants = variants.map { case (variant, values) ⇒ IlluminatedVariantResponse.buildLite(variant, values) },
-        variantMap = buildVariantMap(variantMap))
+    def build(p: IlluminatedProduct,
+              skus: Seq[IlluminatedSku],
+              variants: Seq[(IlluminatedVariant, Seq[FullObject[VariantValue]])],
+              variantMap: Map[String, Seq[FullObject[VariantValue]]]): Root =
+      Root(id = p.id,
+           product = IlluminatedProductResponse.buildLite(p),
+           context = ObjectContextResponse.build(p.context),
+           skus = skus.map(IlluminatedSkuResponse.buildLite _),
+           variants = variants.map {
+             case (variant, values) ⇒ IlluminatedVariantResponse.buildLite(variant, values)
+           },
+           variantMap = buildVariantMap(variantMap))
 
     private def buildVariantMap(vm: Map[String, Seq[FullObject[VariantValue]]]): JValue = {
       val idMap = vm.mapValues(_.map(_.form.id))
       render(idMap)
     }
   }
-
 }

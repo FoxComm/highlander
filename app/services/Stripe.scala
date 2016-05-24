@@ -21,20 +21,22 @@ case class Stripe(apiKey: String = "sk_test_uvaf3GCFsjCsvvKO7FsQhNRm")(implicit 
   val api: StripeApi = apis.stripe
 
   // Creates a customer in Stripe along with their first CC
-  def createCard(email: String, card: CreateCreditCard,
-    stripeCustomerId: Option[String], address: Address): Result[(StripeCustomer, StripeCard)] = {
+  def createCard(email: String,
+                 card: CreateCreditCard,
+                 stripeCustomerId: Option[String],
+                 address: Address): Result[(StripeCustomer, StripeCard)] = {
 
     val source = Map[String, Object](
-      "object"        → "card",
-      "number"        → card.cardNumber,
-      "exp_month"     → card.expMonth.toString,
-      "exp_year"      → card.expYear.toString,
-      "cvc"           → card.cvv,
-      "name"          → card.holderName,
-      "address_line1" → address.address1,
-      "address_line2" → address.address2.orNull,
-      "address_city"  → address.city,
-      "address_zip"   → address.zip
+        "object"        → "card",
+        "number"        → card.cardNumber,
+        "exp_month"     → card.expMonth.toString,
+        "exp_year"      → card.expYear.toString,
+        "cvc"           → card.cvv,
+        "name"          → card.holderName,
+        "address_line1" → address.address1,
+        "address_line2" → address.address2.orNull,
+        "address_city"  → address.city,
+        "address_zip"   → address.zip
     )
 
     def existingCustomer(id: String): ResultT[(StripeCustomer, StripeCard)] = {
@@ -48,15 +50,15 @@ case class Stripe(apiKey: String = "sk_test_uvaf3GCFsjCsvvKO7FsQhNRm")(implicit 
 
     def newCustomer: ResultT[(StripeCustomer, StripeCard)] = {
       val params = Map[String, Object](
-        "description" → "FoxCommerce",
-        "email"       → email,
-        "source"      → mapAsJavaMap(source)
+          "description" → "FoxCommerce",
+          "email"       → email,
+          "source"      → mapAsJavaMap(source)
       )
 
       for {
-        cust  ← ResultT(api.createCustomer(params, apiKey))
-        card  ← ResultT(getCard(cust))
-        _     ← ResultT.fromXor(cvcCheck(card))
+        cust ← ResultT(api.createCustomer(params, apiKey))
+        card ← ResultT(getCard(cust))
+        _    ← ResultT.fromXor(cvcCheck(card))
       } yield (cust, card)
     }
 
@@ -65,10 +67,10 @@ case class Stripe(apiKey: String = "sk_test_uvaf3GCFsjCsvvKO7FsQhNRm")(implicit 
 
   def authorizeAmount(customerId: String, amount: Int, currency: Currency): Result[StripeCharge] = {
     val chargeMap: Map[String, Object] = Map(
-      "amount"    → amount.toString,
-      "currency"  → currency.toString,
-      "customer"  → customerId,
-      "capture"   → (false: java.lang.Boolean)
+        "amount"   → amount.toString,
+        "currency" → currency.toString,
+        "customer" → customerId,
+        "capture"  → (false: java.lang.Boolean)
     )
 
     api.createCharge(chargeMap, apiKey)
@@ -82,31 +84,31 @@ case class Stripe(apiKey: String = "sk_test_uvaf3GCFsjCsvvKO7FsQhNRm")(implicit 
     def update(stripeCard: StripeCard): Result[ExternalAccount] = {
 
       val params = Map[String, Object](
-        "address_line1" → cc.address1,
-        "address_line2" → cc.address2,
-        // ("address_state" → cc.region),
-        "address_zip" → cc.zip,
-        "address_city" → cc.city,
-        "name" → cc.addressName,
-        "exp_year" → cc.expYear.toString,
-        "exp_month" → cc.expMonth.toString
+          "address_line1" → cc.address1,
+          "address_line2" → cc.address2,
+          // ("address_state" → cc.region),
+          "address_zip"  → cc.zip,
+          "address_city" → cc.city,
+          "name"         → cc.addressName,
+          "exp_year"     → cc.expYear.toString,
+          "exp_month"    → cc.expMonth.toString
       )
 
       api.updateExternalAccount(stripeCard, params, this.apiKey)
     }
 
     (for {
-      customer    ← ResultT(getCustomer(cc.gatewayCustomerId))
-      stripeCard  ← ResultT(getCard(customer))
-      updated     ← ResultT(update(stripeCard))
+      customer   ← ResultT(getCustomer(cc.gatewayCustomerId))
+      stripeCard ← ResultT(getCard(customer))
+      updated    ← ResultT(update(stripeCard))
     } yield updated).value
   }
 
   def deleteCard(cc: CreditCard): Result[DeletedExternalAccount] = {
     (for {
-      customer    ← ResultT(getCustomer(cc.gatewayCustomerId))
-      stripeCard  ← ResultT(getCard(customer))
-      updated     ← ResultT(api.deleteExternalAccount(stripeCard, this.apiKey))
+      customer   ← ResultT(getCustomer(cc.gatewayCustomerId))
+      stripeCard ← ResultT(getCard(customer))
+      updated    ← ResultT(api.deleteExternalAccount(stripeCard, this.apiKey))
     } yield updated).value
   }
 
@@ -123,4 +125,3 @@ case class Stripe(apiKey: String = "sk_test_uvaf3GCFsjCsvvKO7FsQhNRm")(implicit 
     }
   }
 }
-

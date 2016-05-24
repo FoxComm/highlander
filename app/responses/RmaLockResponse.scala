@@ -6,14 +6,9 @@ import models.rma.{RmaLockEvent, Rma}
 import models.StoreAdmin
 
 object RmaLockResponse {
-  case class Root(
-    isLocked: Boolean,
-    lock: Option[Lock])
+  case class Root(isLocked: Boolean, lock: Option[Lock])
 
-  case class Lock(
-    id: Int,
-    lockedBy: StoreAdminResponse.Root,
-    lockedAt: Instant)
+  case class Lock(id: Int, lockedBy: StoreAdminResponse.Root, lockedAt: Instant)
 
   def build(rma: Rma, event: Option[RmaLockEvent], admin: Option[StoreAdmin]): Root = {
     (rma.isLocked, event, admin) match {

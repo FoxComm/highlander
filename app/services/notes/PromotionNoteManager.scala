@@ -13,5 +13,7 @@ object PromotionNoteManager extends NoteManager[Int, ObjectForm] {
   def noteType(): Note.ReferenceType = Note.Promotion
 
   def fetchEntity(id: Int)(implicit ec: EC, db: DB, ac: AC): DbResult[ObjectForm] =
-    ObjectForms.filter(_.kind === ObjectForm.promotion).mustFindOneOr(NotFoundFailure404(Promotion, id))
+    ObjectForms
+      .filter(_.kind === ObjectForm.promotion)
+      .mustFindOneOr(NotFoundFailure404(Promotion, id))
 }

@@ -40,10 +40,11 @@ RemorseTimer replies with (currently empty) future, so this may be extended to l
 class RemorseTimerMate(implicit ec: EC) extends Actor with ActorLogging {
 
   override def receive = {
-    case response: RemorseTimerResponse ⇒ response.updatedQuantity.onComplete {
-      case Success(quantity) ⇒ log.debug(s"Remorse timer updated $quantity orders")
-      case _ ⇒ log.error("Remorse timer failed")
-    }
+    case response: RemorseTimerResponse ⇒
+      response.updatedQuantity.onComplete {
+        case Success(quantity) ⇒ log.debug(s"Remorse timer updated $quantity orders")
+        case _                 ⇒ log.error("Remorse timer failed")
+      }
     case _ ⇒ log.error("Remorse timer is in trouble, it can't communicate properly :(")
   }
 }

@@ -17,8 +17,11 @@ trait Offer extends DiscountBase {
   // Returns single line item adjustment for now
   def accept(input: DiscountInput, substract: Int, lineItemId: Option[Int] = None): OfferResult = {
 
-    val adj = OrderLineItemAdjustment(orderId = input.order.id, promotionShadowId = input.promotion.id,
-      adjustmentType = adjustmentType, substract = substract, lineItemId = lineItemId)
+    val adj = OrderLineItemAdjustment(orderId = input.order.id,
+                                      promotionShadowId = input.promotion.id,
+                                      adjustmentType = adjustmentType,
+                                      substract = substract,
+                                      lineItemId = lineItemId)
 
     Xor.Right(Seq(adj))
   }
@@ -45,8 +48,8 @@ trait AmountOffer {
 }
 
 /**
- * Offers that substract percent from base price
- */
+  * Offers that substract percent from base price
+  */
 trait PercentOffer {
 
   // Ceiling will give a discount bigger by one penny

@@ -27,7 +27,8 @@ object CustomerRoutes {
             CustomerManager.findAll
           }
         } ~
-        (get & pathPrefix("searchForNewOrder") & pathEnd & parameters('term).as(CustomerSearchForNewOrder)) { p ⇒
+        (get & pathPrefix("searchForNewOrder") & pathEnd & parameters('term).as(
+                CustomerSearchForNewOrder)) { p ⇒
           sortAndPage { implicit sortAndPage ⇒
             goodOrFailures {
               CustomerManager.searchForNewOrder(p)
@@ -47,7 +48,7 @@ object CustomerRoutes {
           }
         } ~
         (get & path("cart")) {
-          determineObjectContext(db, ec) { productContext ⇒ 
+          determineObjectContext(db, ec) { productContext ⇒
             goodOrFailures {
               OrderQueries.findOrCreateCartByCustomerId(customerId, productContext, Some(admin))
             }
@@ -104,12 +105,13 @@ object CustomerRoutes {
               AddressManager.removeDefaultShippingAddress(customerId)
             }
           } ~
-          (patch & path(IntNumber) & pathEnd & entity(as[CreateAddressPayload])) { (addressId, payload) ⇒
-            activityContext(admin) { implicit ac ⇒
-              goodOrFailures {
-                AddressManager.edit(Originator(admin), addressId, customerId, payload)
+          (patch & path(IntNumber) & pathEnd & entity(as[CreateAddressPayload])) {
+            (addressId, payload) ⇒
+              activityContext(admin) { implicit ac ⇒
+                goodOrFailures {
+                  AddressManager.edit(Originator(admin), addressId, customerId, payload)
+                }
               }
-            }
           }
         } ~
         pathPrefix("payment-methods" / "credit-cards") {
@@ -118,10 +120,11 @@ object CustomerRoutes {
               CreditCardManager.creditCardsInWalletFor(customerId)
             }
           } ~
-          (post & path(IntNumber / "default") & pathEnd & entity(as[ToggleDefaultCreditCard])) { (cardId, payload) ⇒
-            goodOrFailures {
-              CreditCardManager.toggleCreditCardDefault(customerId, cardId, payload.isDefault)
-            }
+          (post & path(IntNumber / "default") & pathEnd & entity(as[ToggleDefaultCreditCard])) {
+            (cardId, payload) ⇒
+              goodOrFailures {
+                CreditCardManager.toggleCreditCardDefault(customerId, cardId, payload.isDefault)
+              }
           } ~
           (post & pathEnd & entity(as[CreateCreditCard])) { payload ⇒
             goodOrFailures {

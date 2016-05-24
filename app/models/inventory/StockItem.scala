@@ -3,8 +3,9 @@ package models.inventory
 import slick.driver.PostgresDriver.api._
 import utils.db._
 
-case class StockItem(id: Int, productId: Int, stockLocationId: Int, onHold: Int, onHand: Int,
-  allocatedToSales: Int) extends FoxModel[StockItem] {
+case class StockItem(
+    id: Int, productId: Int, stockLocationId: Int, onHold: Int, onHand: Int, allocatedToSales: Int)
+    extends FoxModel[StockItem] {
 
   def available: Int = {
     this.onHand - this.onHold - this.allocatedToSales
@@ -19,7 +20,8 @@ class StockItems(tag: Tag) extends Table[StockItem](tag, "stock_items") {
   def onHand           = column[Int]("on_hand")
   def allocatedToSales = column[Int]("allocated_to_sales")
 
-  def * = (id, productId, stockLocationId, onHold, onHand, allocatedToSales) <>((StockItem.apply _).tupled, StockItem.unapply)
+  def * =
+    (id, productId, stockLocationId, onHold, onHand, allocatedToSales) <> ((StockItem.apply _).tupled, StockItem.unapply)
 }
 
 object StockItems {

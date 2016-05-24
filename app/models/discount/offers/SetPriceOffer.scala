@@ -5,12 +5,15 @@ import models.discount.offers.Offer.OfferResult
 import models.order.lineitems.OrderLineItemAdjustment._
 import models.product.Mvp
 
-case class SetPriceOffer(setPrice: Int, numUnits: Int, search: SearchReference) extends Offer with SetOffer {
+case class SetPriceOffer(setPrice: Int, numUnits: Int, search: SearchReference)
+    extends Offer
+    with SetOffer {
 
   val adjustmentType: AdjustmentType = LineItemAdjustment
 
   def adjust(input: DiscountInput): OfferResult = {
-    if (setPrice > 0 && numUnits > 0) adjustInner(input) else reject(input, "Invalid offer attributes")
+    if (setPrice > 0 && numUnits > 0) adjustInner(input)
+    else reject(input, "Invalid offer attributes")
   }
 
   private def adjustInner(input: DiscountInput): OfferResult = search match {
@@ -20,7 +23,7 @@ case class SetPriceOffer(setPrice: Int, numUnits: Int, search: SearchReference) 
     case SkuSearch(code) ⇒
       val takeItems = input.lineItems.filter(_.sku.code == code).take(numUnits)
       accept(input, substract(totalBySku(takeItems, code), setPrice))
-    case _  ⇒
+    case _ ⇒
       reject(input, "Invalid search type")
   }
 }

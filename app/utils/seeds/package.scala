@@ -39,8 +39,8 @@ package object seeds {
 
   case class BaseDiscountShadow(f: BaseDiscountForm) {
 
-    val shadow = ObjectUtils.newShadow(parse(
-      """
+    val shadow = ObjectUtils.newShadow(
+        parse("""
         {
           "title" : {"type": "string", "ref": "title"},
           "description" : {"type": "richText", "ref": "description"},
@@ -48,11 +48,14 @@ package object seeds {
           "qualifier" : {"type": "qualifier", "ref": "qualifier"},
           "offer" : {"type": "offer", "ref": "offer"}
         }"""),
-      f.keyMap)
+        f.keyMap)
   }
 
-  case class BasePromotion(promotionId: Int = 0, formId: Int = 0, shadowId: Int = 0, applyType: Promotion.ApplyType,
-    title: String)
+  case class BasePromotion(promotionId: Int = 0,
+                           formId: Int = 0,
+                           shadowId: Int = 0,
+                           applyType: Promotion.ApplyType,
+                           title: String)
 
   case class BasePromotionForm(name: String, applyType: Promotion.ApplyType) {
 
@@ -71,8 +74,8 @@ package object seeds {
 
   case class BasePromotionShadow(f: BasePromotionForm) {
 
-    val shadow = ObjectUtils.newShadow(parse(
-      """
+    val shadow = ObjectUtils.newShadow(
+        parse("""
         {
           "name" : {"type": "string", "ref": "name"},
           "storefrontName" : {"type": "richText", "ref": "storefrontName"},
@@ -82,7 +85,7 @@ package object seeds {
           "activeTo" : {"type": "date", "ref": "activeTo"},
           "tags" : {"type": "tags", "ref": "tags"}
         }"""),
-      f.keyMap)
+        f.keyMap)
   }
 
   case class BaseCoupon(formId: Int = 0, shadowId: Int = 0, promotionId: Int)
@@ -104,8 +107,8 @@ package object seeds {
 
   case class BaseCouponShadow(f: BaseCouponForm) {
 
-    val shadow = ObjectUtils.newShadow(parse(
-      """
+    val shadow = ObjectUtils.newShadow(
+        parse("""
         {
           "name" : {"type": "string", "ref": "name"},
           "storefrontName" : {"type": "richText", "ref": "storefrontName"},
@@ -115,6 +118,6 @@ package object seeds {
           "activeTo" : {"type": "date", "ref": "activeTo"},
           "tags" : {"type": "tags", "ref": "tags"}
         }"""),
-      f.keyMap)
+        f.keyMap)
   }
 }

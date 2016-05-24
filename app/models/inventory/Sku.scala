@@ -9,36 +9,43 @@ import utils.db.ExPostgresDriver.api._
 import utils.db._
 
 object Sku {
-  val kind = "sku"
+  val kind         = "sku"
   val skuCodeRegex = """([a-zA-Z0-9-_]*)""".r
 }
 
 /**
- * A Sku represents the latest version of Stock Keeping Unit.
- * This data structure stores a pointer to a commit of a version of a sku in
- * the object context referenced. The same Sku can have a different version
- * in a different context.
- */
-case class Sku(id: Int = 0, code: String, contextId: Int, shadowId: Int, formId: Int,
-  commitId: Int, updatedAt: Instant = Instant.now, createdAt: Instant = Instant.now)
-  extends FoxModel[Sku]
-  with ObjectHead[Sku] {
+  * A Sku represents the latest version of Stock Keeping Unit.
+  * This data structure stores a pointer to a commit of a version of a sku in
+  * the object context referenced. The same Sku can have a different version
+  * in a different context.
+  */
+case class Sku(id: Int = 0,
+               code: String,
+               contextId: Int,
+               shadowId: Int,
+               formId: Int,
+               commitId: Int,
+               updatedAt: Instant = Instant.now,
+               createdAt: Instant = Instant.now)
+    extends FoxModel[Sku]
+    with ObjectHead[Sku] {
 
   def withNewShadowAndCommit(shadowId: Int, commitId: Int): Sku =
     this.copy(shadowId = shadowId, commitId = commitId)
 }
 
-class Skus(tag: Tag) extends ObjectHeads[Sku](tag, "skus")  {
+class Skus(tag: Tag) extends ObjectHeads[Sku](tag, "skus") {
 
   def code = column[String]("code")
 
-  def * = (id, code, contextId, shadowId, formId, commitId, updatedAt, createdAt) <> ((Sku.apply _).tupled, Sku.unapply)
-
+  def * =
+    (id, code, contextId, shadowId, formId, commitId, updatedAt, createdAt) <> ((Sku.apply _).tupled, Sku.unapply)
 }
 
-object Skus extends FoxTableQuery[Sku, Skus](new Skus(_))
-  with ReturningId[Sku, Skus]
-  with SearchByCode[Sku, Skus] {
+object Skus
+    extends FoxTableQuery[Sku, Skus](new Skus(_))
+    with ReturningId[Sku, Skus]
+    with SearchByCode[Sku, Skus] {
 
   val returningLens: Lens[Sku, Int] = lens[Sku].id
 

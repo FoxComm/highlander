@@ -45,4 +45,4 @@ object CustomerQueries {
     sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): DbResultT[TheResponse[Seq[RootSimple]]] =
     findAllByQuery(Customers)
 }
-*/
+ */

@@ -24,16 +24,21 @@ case class ElasticsearchApi(host: String, cluster: String, index: String)(implic
   /**
     * Injects aggregation by specified field name into prepared query
     */
-  def checkAggregation(typeName: String, query: String, fieldName: String, references: Seq[String]): Result[Long] = {
+  def checkAggregation(typeName: String,
+                       query: String,
+                       fieldName: String,
+                       references: Seq[String]): Result[Long] = {
     // Extract matched document count from aggregation
-    def getDocCount(resp: RichSearchResponse): Long = resp.aggregations.getAsMap.asScala.get(aggregationName) match {
-      case Some(q) ⇒ q.asInstanceOf[InternalFilter].getDocCount
-      case _       ⇒ 0
-    }
+    def getDocCount(resp: RichSearchResponse): Long =
+      resp.aggregations.getAsMap.asScala.get(aggregationName) match {
+        case Some(q) ⇒ q.asInstanceOf[InternalFilter].getDocCount
+        case _       ⇒ 0
+      }
 
-    val request = search in s"$index/$typeName" rawQuery query aggregations(
-      aggregation filter aggregationName filter termsQuery(fieldName, references.toList: _*)
-    ) size 0
+    val request =
+      search in s"$index/$typeName" rawQuery query aggregations (
+          aggregation filter aggregationName filter termsQuery(fieldName, references.toList: _*)
+      ) size 0
 
     logQuery(request.show)
 
@@ -52,10 +57,12 @@ case class ElasticsearchApi(host: String, cluster: String, index: String)(implic
 
 object ElasticsearchApi {
 
-  val hostKey     = "elasticsearch.host"
-  val clusterKey  = "elasticsearch.cluster"
-  val indexKey    = "elasticsearch.index"
+  val hostKey    = "elasticsearch.host"
+  val clusterKey = "elasticsearch.cluster"
+  val indexKey   = "elasticsearch.index"
 
-  def fromConfig(config: Config)(implicit ec: EC): ElasticsearchApi = ElasticsearchApi(host = config.getString(hostKey),
-    cluster = config.getString(clusterKey), index = config.getString(indexKey))
+  def fromConfig(config: Config)(implicit ec: EC): ElasticsearchApi =
+    ElasticsearchApi(host = config.getString(hostKey),
+                     cluster = config.getString(clusterKey),
+                     index = config.getString(indexKey))
 }

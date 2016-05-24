@@ -7,14 +7,14 @@ import models.objects._
 
 object ObjectResponses {
 
-  object ObjectContextResponse { 
+  object ObjectContextResponse {
 
     case class Root(name: String, attributes: Json)
 
-    def build(c: ObjectContext) : Root = 
+    def build(c: ObjectContext): Root =
       Root(name = c.name, attributes = c.attributes)
 
-    def build(c: IlluminatedContext) : Root = 
+    def build(c: IlluminatedContext): Root =
       Root(name = c.name, attributes = c.attributes)
   }
 
@@ -22,7 +22,7 @@ object ObjectResponses {
 
     case class Root(id: Int, attributes: Json, createdAt: Instant)
 
-    def build(f: ObjectForm): Root = 
+    def build(f: ObjectForm): Root =
       Root(id = f.id, attributes = f.attributes, createdAt = f.createdAt)
   }
 
@@ -30,16 +30,15 @@ object ObjectResponses {
 
     case class Root(id: Int, formId: Int, attributes: Json, createdAt: Instant)
 
-    def build(s: ObjectShadow): Root = 
-      Root(id = s.id, formId = s.formId, attributes = s.attributes, 
-        createdAt = s.createdAt)
+    def build(s: ObjectShadow): Root =
+      Root(id = s.id, formId = s.formId, attributes = s.attributes, createdAt = s.createdAt)
   }
 
   object IlluminatedObjectResponse {
 
     case class Root(id: Int, attributes: Json)
 
-    def build(s: IlluminatedObject): Root = 
+    def build(s: IlluminatedObject): Root =
       Root(id = s.id, attributes = s.attributes)
   }
 }

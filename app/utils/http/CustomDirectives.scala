@@ -19,17 +19,16 @@ import utils._
 
 object CustomDirectives {
 
-  val DefaultPageSize = 50
+  val DefaultPageSize    = 50
   val DefaultContextName = SimpleContext.default
 
   case class Sort(sortColumn: String, asc: Boolean = true)
-  case class SortAndPage(
-    from: Option[Int] = Some(0),
-    size: Option[Int] = Some(DefaultPageSize),
-    sortBy: Option[String]) {
+  case class SortAndPage(from: Option[Int] = Some(0),
+                         size: Option[Int] = Some(DefaultPageSize),
+                         sortBy: Option[String]) {
 
     require(from.getOrElse(1) >= 0, "from parameter must be non-negative")
-    require(size.getOrElse(1) >  0, "size parameter must be positive")
+    require(size.getOrElse(1) > 0, "size parameter must be positive")
 
     def sort: Option[Sort] = sortBy.map { f ⇒
       if (f.startsWith("-")) Sort(f.drop(1), asc = false)
@@ -37,19 +36,18 @@ object CustomDirectives {
     }
   }
 
-
   val EmptySortAndPage: SortAndPage = SortAndPage(None, None, None)
 
-  def activityContext(admin: StoreAdmin) : Directive1[ActivityContext] = {
+  def activityContext(admin: StoreAdmin): Directive1[ActivityContext] = {
     optionalHeaderValueByName("x-request-id").map {
-      case (Some(uuid)) ⇒  
+      case (Some(uuid)) ⇒
         ActivityContext(userId = admin.id, userType = "admin", transactionId = uuid)
       case (None) ⇒
         ActivityContext(userId = admin.id, userType = "admin", transactionId = generateUuid)
     }
   }
 
-  def activityContext(customer: Customer) : Directive1[ActivityContext] = {
+  def activityContext(customer: Customer): Directive1[ActivityContext] = {
     optionalHeaderValueByName("x-request-id").map {
       case (Some(uuid)) ⇒
         ActivityContext(userId = customer.id, userType = "customer", transactionId = uuid)
@@ -58,7 +56,7 @@ object CustomDirectives {
     }
   }
 
-  def activityContext() : Directive1[ActivityContext] = {
+  def activityContext(): Directive1[ActivityContext] = {
     optionalHeaderValueByName("x-request-id").map {
       case (Some(uuid)) ⇒
         ActivityContext(userId = 0, userType = "guest", transactionId = uuid)
@@ -68,29 +66,29 @@ object CustomDirectives {
   }
 
   /**
-   * At the moment we support one context. The input to this function will
-   * and it will become a combination of of things which will then search
-   * for the correct context.
-   */
-  def determineObjectContext(implicit db: DB, ec: EC) : Directive1[ObjectContext] = {
+    * At the moment we support one context. The input to this function will
+    * and it will become a combination of of things which will then search
+    * for the correct context.
+    */
+  def determineObjectContext(implicit db: DB, ec: EC): Directive1[ObjectContext] = {
     optionalHeaderValueByName("Accept-Language").flatMap {
-      case Some(lang) ⇒  onSuccess(getContextByLanguage(lang))
-      case None ⇒ onSuccess(getContextByName(DefaultContextName))
+      case Some(lang) ⇒ onSuccess(getContextByLanguage(lang))
+      case None       ⇒ onSuccess(getContextByName(DefaultContextName))
     }
   }
 
-  private def getContextByName(name: String)(implicit db: DB, ec: EC) = 
-    db.run(ObjectContexts.filterByName(name).result.headOption).map { 
-      case Some(c) ⇒  c
-      case None ⇒ throw new Exception("Unable to find default context. Is the DB seeded?")
+  private def getContextByName(name: String)(implicit db: DB, ec: EC) =
+    db.run(ObjectContexts.filterByName(name).result.headOption).map {
+      case Some(c) ⇒ c
+      case None    ⇒ throw new Exception("Unable to find default context. Is the DB seeded?")
     }
 
   //This is a really trivial version. We are not handling language weights, 
   //and multiple options.
-  private def getContextByLanguage(lang: String)(implicit db: DB, ec: EC) = 
-    db.run(ObjectContexts.filterByLanguage(lang).result.headOption).flatMap { 
-      case Some(c) ⇒ Future{c}
-      case None ⇒  getContextByName(DefaultContextName)
+  private def getContextByLanguage(lang: String)(implicit db: DB, ec: EC) =
+    db.run(ObjectContexts.filterByLanguage(lang).result.headOption).flatMap {
+      case Some(c) ⇒ Future { c }
+      case None    ⇒ getContextByName(DefaultContextName)
     }
 
   def sortAndPage: Directive1[SortAndPage] =
@@ -119,11 +117,16 @@ object CustomDirectives {
         case Failure(Unmarshaller.UnsupportedContentTypeException(x)) ⇒
           reject(UnsupportedRequestContentTypeRejection(x))
         case Failure(x: Throwable) ⇒
-          ctx.log.error("Error unmarshalling request {} body: {}", ctx.request, failure.description)
+          ctx.log.error("Error unmarshalling request {} body: {}",
+                        ctx.request,
+                        failure.description)
           reject(ValidationRejection(s"${failure.description}", None))
         case Failure(x) ⇒
-          ctx.log.error("Error unmarshalling request {} body: {}", ctx.request, failure.description)
+          ctx.log.error("Error unmarshalling request {} body: {}",
+                        ctx.request,
+                        failure.description)
           reject(MalformedRequestContentRejection(s"${failure.description}", None))
       }
-    } & cancelRejections(RequestEntityExpectedRejection.getClass, classOf[UnsupportedRequestContentTypeRejection])
+    } & cancelRejections(
+        RequestEntityExpectedRejection.getClass, classOf[UnsupportedRequestContentTypeRejection])
 }

@@ -17,11 +17,13 @@ object GiftCardFailures {
   }
 
   case class GiftCardPaymentAlreadyAdded(refNum: String, code: String) extends Failure {
-    override def description = s"giftCard with code=$code already added as payment method to order with refNum=$refNum"
+    override def description =
+      s"giftCard with code=$code already added as payment method to order with refNum=$refNum"
   }
 
   case class GiftCardPaymentNotFound(refNum: String, code: String) extends Failure {
-    override def description = s"giftCard with code=$code is not added as payment method to order with refNum=$refNum"
+    override def description =
+      s"giftCard with code=$code is not added as payment method to order with refNum=$refNum"
   }
 
   case class GiftCardNotEnoughBalance(gc: GiftCard, requestedAmount: Int) extends Failure {
@@ -36,5 +38,4 @@ object GiftCardFailures {
   case object CreditCardMustHaveAddress extends Failure {
     override def description = "cannot create creditCard without an address"
   }
-
 }

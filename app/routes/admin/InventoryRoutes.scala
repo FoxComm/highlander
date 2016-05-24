@@ -17,7 +17,6 @@ object InventoryRoutes {
 
     activityContext(admin) { implicit ac ⇒
       determineObjectContext(db, ec) { productContext ⇒
-
         pathPrefix("inventory") {
           pathPrefix("skus" / Segment) { skuCode ⇒
             (get & path(IntNumber) & pathEnd) { warehouseId ⇒
@@ -34,7 +33,7 @@ object InventoryRoutes {
           pathPrefix("wms" / "override") {
             (post & pathEnd & entity(as[WmsEventPayload])) { event ⇒
               nothingOrFailures {
-                 InventoryAdjustmentManager.wmsOverride(event)
+                InventoryAdjustmentManager.wmsOverride(event)
               }
             }
           }

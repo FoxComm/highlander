@@ -8,15 +8,17 @@ case class StoreCreditRefund(id: Int = 0, rmaId: Int) extends FoxModel[StoreCred
 
 object StoreCreditRefund {}
 
-class StoreCreditRefunds(tag: Tag) extends FoxTable[StoreCreditRefund](tag, "store_credit_refunds") {
-  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+class StoreCreditRefunds(tag: Tag)
+    extends FoxTable[StoreCreditRefund](tag, "store_credit_refunds") {
+  def id    = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def rmaId = column[Int]("rma_id")
 
   def * = (id, rmaId) <> ((StoreCreditRefund.apply _).tupled, StoreCreditRefund.unapply)
 }
 
-object StoreCreditRefunds extends FoxTableQuery[StoreCreditRefund, StoreCreditRefunds](new StoreCreditRefunds(_))
-  with ReturningId[StoreCreditRefund, StoreCreditRefunds] {
+object StoreCreditRefunds
+    extends FoxTableQuery[StoreCreditRefund, StoreCreditRefunds](new StoreCreditRefunds(_))
+    with ReturningId[StoreCreditRefund, StoreCreditRefunds] {
 
   val returningLens: Lens[StoreCreditRefund, Int] = lens[StoreCreditRefund].id
 }

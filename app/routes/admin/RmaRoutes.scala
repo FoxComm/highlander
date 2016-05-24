@@ -16,8 +16,7 @@ object RmaRoutes {
   def routes(implicit ec: EC, db: DB, admin: StoreAdmin) = {
 
     activityContext(admin) { implicit ac ⇒
-      determineObjectContext(db, ec) { productContext ⇒ 
-
+      determineObjectContext(db, ec) { productContext ⇒
         pathPrefix("rmas") {
           (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
             goodOrFailures {
@@ -157,4 +156,3 @@ object RmaRoutes {
     }
   }
 }
-

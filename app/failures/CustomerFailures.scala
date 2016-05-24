@@ -13,5 +13,4 @@ object CustomerFailures {
   case object CustomerHasDefaultShippingAddress extends Failure {
     override def description = "customer already has default shipping address"
   }
-
 }

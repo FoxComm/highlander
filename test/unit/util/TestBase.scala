@@ -7,22 +7,23 @@ import cats.data.Xor
 import failures.Failures
 import utils.FoxConfig
 
-trait TestBase extends FreeSpecLike
-  with MustMatchers
-  with ScalaFutures
-  with OptionValues
-  with TypeCheckedTripleEquals
-  with CatsHelpers {
+trait TestBase
+    extends FreeSpecLike
+    with MustMatchers
+    with ScalaFutures
+    with OptionValues
+    with TypeCheckedTripleEquals
+    with CatsHelpers {
 
   val config = TestBase.config
 
   object Tags {
-    object Slow extends Tag("tags.Slow")
+    object Slow     extends Tag("tags.Slow")
     object External extends Tag("tags.External")
   }
 
   implicit class XorTestOps[G, B](val xor: B Xor G) {
-    def get: G = xor.fold(l ⇒ fail(s".get on a Xor.Left: ${ l }"), r ⇒ r)
+    def get: G = xor.fold(l ⇒ fail(s".get on a Xor.Left: ${l}"), r ⇒ r)
   }
 
   implicit class FailuresTestOps(val failures: Failures) {

@@ -15,48 +15,47 @@ object DiscountRoutes {
 
   def routes(implicit ec: ExecutionContext, db: Database, admin: StoreAdmin) = {
 
-      activityContext(admin) { implicit ac ⇒
-
-        pathPrefix("discounts") {
-          pathPrefix("forms" / IntNumber) { id ⇒
-            (get & pathEnd) {
-              goodOrFailures {
-                DiscountManager.getForm(id)
-              }
+    activityContext(admin) { implicit ac ⇒
+      pathPrefix("discounts") {
+        pathPrefix("forms" / IntNumber) { id ⇒
+          (get & pathEnd) {
+            goodOrFailures {
+              DiscountManager.getForm(id)
+            }
+          }
+        } ~
+        pathPrefix("shadows" / Segment / IntNumber) { (context, id) ⇒
+          (get & pathEnd) {
+            goodOrFailures {
+              DiscountManager.getShadow(id, context)
+            }
+          }
+        } ~
+        pathPrefix(Segment) { (context) ⇒
+          (post & pathEnd & entity(as[CreateDiscount])) { payload ⇒
+            goodOrFailures {
+              DiscountManager.create(payload, context)
             }
           } ~
-          pathPrefix("shadows" / Segment / IntNumber) { (context, id)  ⇒
+          pathPrefix(IntNumber) { id ⇒
+            (get & path("baked")) {
+              goodOrFailures {
+                DiscountManager.getIlluminated(id, context)
+              }
+            } ~
             (get & pathEnd) {
               goodOrFailures {
-                DiscountManager.getShadow(id, context)
+                DiscountManager.get(id, context)
               }
-            }
-          } ~
-          pathPrefix(Segment) { (context)  ⇒
-            (post & pathEnd & entity(as[CreateDiscount])) { payload ⇒
+            } ~
+            (patch & pathEnd & entity(as[UpdateDiscount])) { payload ⇒
               goodOrFailures {
-                DiscountManager.create(payload, context)
+                DiscountManager.update(id, payload, context)
               }
-            } ~ 
-            pathPrefix(IntNumber) { id ⇒ 
-              (get & path("baked")) {
-                goodOrFailures {
-                  DiscountManager.getIlluminated(id, context)
-                }
-              } ~
-              (get & pathEnd) {
-                goodOrFailures {
-                  DiscountManager.get(id, context)
-                }
-              } ~
-              (patch & pathEnd & entity(as[UpdateDiscount])) { payload ⇒
-                goodOrFailures {
-                  DiscountManager.update(id, payload, context)
-                }
-              } 
             }
           }
         }
       }
+    }
   }
 }

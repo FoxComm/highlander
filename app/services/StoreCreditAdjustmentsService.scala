@@ -14,39 +14,56 @@ import utils.db.DbResultT._
 
 object StoreCreditAdjustmentsService {
 
-  def forStoreCredit(id: Int)(implicit ec: EC, db: DB, sortAndPage: SortAndPage): Result[TheResponse[Seq[Root]]] = (for {
-    storeCredit ← * <~ StoreCredits.mustFindById404(id)
-    query = StoreCreditAdjustments.filterByStoreCreditId(storeCredit.id)
-      .joinLeft(OrderPayments).on(_.orderPaymentId === _.id)
-      .joinLeft(Orders).on(_._2.map(_.orderId) === _.id)
+  def forStoreCredit(
+      id: Int)(implicit ec: EC, db: DB, sortAndPage: SortAndPage): Result[TheResponse[Seq[Root]]] =
+    (for {
+      storeCredit ← * <~ StoreCredits.mustFindById404(id)
+      query = StoreCreditAdjustments
+        .filterByStoreCreditId(storeCredit.id)
+        .joinLeft(OrderPayments)
+        .on(_.orderPaymentId === _.id)
+        .joinLeft(Orders)
+        .on(_._2.map(_.orderId) === _.id)
 
-    queryWithMetadata = query.withMetadata.sortAndPageIfNeeded { case (s, ((storeCreditAdj, _), _)) ⇒
-      StoreCreditAdjustments.matchSortColumn(s, storeCreditAdj)
-    }
+      queryWithMetadata = query.withMetadata.sortAndPageIfNeeded {
+        case (s, ((storeCreditAdj, _), _)) ⇒
+          StoreCreditAdjustments.matchSortColumn(s, storeCreditAdj)
+      }
 
-    response ← * <~ queryWithMetadata.result.map(_.map {
-      case ((adj, Some(payment)), Some(order)) ⇒ build(adj, Some(order.referenceNumber))
-      case ((adj, _), _) ⇒ build(adj)
-    }).toTheResponse
-  } yield response).run()
+      response ← * <~ queryWithMetadata.result
+                  .map(_.map {
+                    case ((adj, Some(payment)), Some(order)) ⇒
+                      build(adj, Some(order.referenceNumber))
+                    case ((adj, _), _) ⇒ build(adj)
+                  })
+                  .toTheResponse
+    } yield response).run()
 
-  def forCustomer(customerId: Int)(implicit ec: EC, db: DB, sortAndPage: SortAndPage): Result[TheResponse[Seq[Root]]] = (for {
-    _ ← * <~ Customers.mustFindById404(customerId)
+  def forCustomer(customerId: Int)(
+      implicit ec: EC, db: DB, sortAndPage: SortAndPage): Result[TheResponse[Seq[Root]]] =
+    (for {
+      _ ← * <~ Customers.mustFindById404(customerId)
 
-    query = StoreCreditAdjustments
-      .joinLeft(OrderPayments).on(_.orderPaymentId === _.id)
-      .joinLeft(Orders).on(_._2.map(_.orderId) === _.id)
-      .joinLeft(StoreCredits).on(_._1._1.storeCreditId === _.id)
-      .filter(_._2.map(_.customerId) === customerId).map { case (((adjs, pmts), orders), _) ⇒
-      (adjs, orders.map(_.referenceNumber))
-    }
+      query = StoreCreditAdjustments
+        .joinLeft(OrderPayments)
+        .on(_.orderPaymentId === _.id)
+        .joinLeft(Orders)
+        .on(_._2.map(_.orderId) === _.id)
+        .joinLeft(StoreCredits)
+        .on(_._1._1.storeCreditId === _.id)
+        .filter(_._2.map(_.customerId) === customerId)
+        .map {
+          case (((adjs, pmts), orders), _) ⇒
+            (adjs, orders.map(_.referenceNumber))
+        }
 
-    paginated = query.withMetadata.sortAndPageIfNeeded { case (s, (adj, _)) ⇒
-      StoreCreditAdjustments.matchSortColumn(s, adj)
-    }.result.map { results ⇒
-      results.map((build _).tupled)
-    }
+      paginated = query.withMetadata.sortAndPageIfNeeded {
+        case (s, (adj, _)) ⇒
+          StoreCreditAdjustments.matchSortColumn(s, adj)
+      }.result.map { results ⇒
+        results.map((build _).tupled)
+      }
 
-    response ← * <~ ResultWithMetadata(result = paginated.result, metadata = paginated.metadata).toTheResponse
-  } yield response).run()
+      response ← * <~ ResultWithMetadata(result = paginated.result, metadata = paginated.metadata).toTheResponse
+    } yield response).run()
 }

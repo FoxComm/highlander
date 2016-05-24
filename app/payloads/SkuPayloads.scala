@@ -23,5 +23,4 @@ object SkuPayloads {
   case class CreateFullSku(form: CreateFullSkuForm, shadow: CreateFullSkuShadow)
 
   case class UpdateFullSku(form: UpdateFullSkuForm, shadow: UpdateFullSkuShadow)
-
 }

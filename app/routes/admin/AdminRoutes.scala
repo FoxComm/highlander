@@ -228,7 +228,7 @@ object AdminRoutes {
         }
       } ~
       pathPrefix("save-for-later") {
-        determineObjectContext(db, ec) { productContext ⇒ 
+        determineObjectContext(db, ec) { productContext ⇒
           (get & path(IntNumber) & pathEnd) { customerId ⇒
             goodOrFailures {
               SaveForLaterManager.findAll(customerId, productContext.id)
@@ -252,10 +252,11 @@ object AdminRoutes {
             SharedSearchService.getAll(admin, scope)
           }
         } ~
-        (post & pathEnd & entityOr(as[SharedSearchPayload], SharedSearchInvalidQueryFailure)) { payload ⇒
-          goodOrFailures {
-            SharedSearchService.create(admin, payload)
-          }
+        (post & pathEnd & entityOr(as[SharedSearchPayload], SharedSearchInvalidQueryFailure)) {
+          payload ⇒
+            goodOrFailures {
+              SharedSearchService.create(admin, payload)
+            }
         }
       } ~
       pathPrefix("shared-search" / SharedSearch.sharedSearchRegex) { code ⇒
@@ -264,10 +265,11 @@ object AdminRoutes {
             SharedSearchService.get(code)
           }
         } ~
-        (patch & pathEnd & entityOr(as[SharedSearchPayload], SharedSearchInvalidQueryFailure)) { payload ⇒
-          goodOrFailures {
-            SharedSearchService.update(admin, code, payload)
-          }
+        (patch & pathEnd & entityOr(as[SharedSearchPayload], SharedSearchInvalidQueryFailure)) {
+          payload ⇒
+            goodOrFailures {
+              SharedSearchService.update(admin, code, payload)
+            }
         } ~
         (delete & pathEnd) {
           nothingOrFailures {

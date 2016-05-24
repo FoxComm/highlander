@@ -17,11 +17,13 @@ trait FSM[S, M <: FSM[S, M]] { self: M ⇒
 
   def transitionState(newState: S): Failures Xor M =
     if (newState == currentState) Xor.right(this)
-    else fsm.get(currentState) match {
-      case Some(states) if states.contains(newState) ⇒
-        Xor.right(stateLens.set(this)(newState))
-      case _ ⇒
-        Xor.left(StateTransitionNotAllowed(self, currentState.toString, newState.toString, primarySearchKey).single)
+    else
+      fsm.get(currentState) match {
+        case Some(states) if states.contains(newState) ⇒
+          Xor.right(stateLens.set(this)(newState))
+        case _ ⇒
+          Xor.left(StateTransitionNotAllowed(
+                  self, currentState.toString, newState.toString, primarySearchKey).single)
       }
 
   def transitionAllowed(newState: S): Boolean = transitionState(newState).isRight

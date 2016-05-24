@@ -11,7 +11,8 @@ case class ItemsAnyQualifier(search: SearchReference) extends Qualifier {
   def check(input: DiscountInput)(implicit ec: EC, es: ES): Result[Unit] = {
     val future = for { result ← SearchReference.query(input, search) } yield result
 
-    Result.fromFuture(future.map {
+    Result.fromFuture(
+        future.map {
       case Xor.Right(count) if count > 0 ⇒ Xor.Right(Unit)
       case _                             ⇒ Xor.Left(SearchFailure)
     })

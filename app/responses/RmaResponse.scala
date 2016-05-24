@@ -26,87 +26,101 @@ object RmaResponse {
   case class RmaTotals(subTotal: Int, shipping: Int, taxes: Int, total: Int) extends ResponseItem
 
   case class LineItemSku(lineItemId: Int, sku: DisplaySku) extends ResponseItem
-  case class LineItemGiftCard(lineItemId: Int, giftCard: GiftCardResponse.Root) extends ResponseItem
-  case class LineItemShippingCost(lineItemId: Int, shippingCost: ShipmentResponse.Root) extends ResponseItem
+  case class LineItemGiftCard(lineItemId: Int, giftCard: GiftCardResponse.Root)
+      extends ResponseItem
+  case class LineItemShippingCost(lineItemId: Int, shippingCost: ShipmentResponse.Root)
+      extends ResponseItem
 
-  case class LineItems(
-    skus: Seq[LineItemSku] = Seq.empty,
-    giftCards: Seq[LineItemGiftCard] = Seq.empty,
-    shippingCosts: Seq[LineItemShippingCost] = Seq.empty) extends ResponseItem
+  case class LineItems(skus: Seq[LineItemSku] = Seq.empty,
+                       giftCards: Seq[LineItemGiftCard] = Seq.empty,
+                       shippingCosts: Seq[LineItemShippingCost] = Seq.empty)
+      extends ResponseItem
 
-  case class DisplayPayment(
-    id: Int,
-    amount: Int,
-    currency: Currency = Currency.USD,
-    paymentMethodId: Int,
-    paymentMethodType: PaymentMethod.Type) extends ResponseItem
+  case class DisplayPayment(id: Int,
+                            amount: Int,
+                            currency: Currency = Currency.USD,
+                            paymentMethodId: Int,
+                            paymentMethodType: PaymentMethod.Type)
+      extends ResponseItem
 
-  case class DisplaySku(
-    imagePath: String = "http://lorempixel.com/75/75/fashion",
-    name: String = "donkey product",
-    sku: String,
-    price: Int = 33,
-    quantity: Int = 1,
-    totalPrice: Int = 33) extends ResponseItem
+  case class DisplaySku(imagePath: String = "http://lorempixel.com/75/75/fashion",
+                        name: String = "donkey product",
+                        sku: String,
+                        price: Int = 33,
+                        quantity: Int = 1,
+                        totalPrice: Int = 33)
+      extends ResponseItem
 
-  case class Root(
-    id: Int,
-    referenceNumber: String,
-    orderRefNum: String,
-    rmaType: Rma.RmaType,
-    state: Rma.State,
-    lineItems: LineItems,
-    payments: Seq[DisplayPayment],
-    customer: Option[Customer] = None,
-    storeAdmin: Option[StoreAdmin] = None,
-    messageToCustomer: Option[String] = None,
-    canceledReason: Option[Int] = None,
-    createdAt: Instant,
-    updatedAt: Instant,
-    totals: Option[RmaTotals]) extends ResponseItem
+  case class Root(id: Int,
+                  referenceNumber: String,
+                  orderRefNum: String,
+                  rmaType: Rma.RmaType,
+                  state: Rma.State,
+                  lineItems: LineItems,
+                  payments: Seq[DisplayPayment],
+                  customer: Option[Customer] = None,
+                  storeAdmin: Option[StoreAdmin] = None,
+                  messageToCustomer: Option[String] = None,
+                  canceledReason: Option[Int] = None,
+                  createdAt: Instant,
+                  updatedAt: Instant,
+                  totals: Option[RmaTotals])
+      extends ResponseItem
 
-  case class RootExpanded(
-    id: Int,
-    referenceNumber: String,
-    order: Option[FullOrder.Root],
-    rmaType: Rma.RmaType,
-    state: Rma.State,
-    lineItems: LineItems,
-    payments: Seq[DisplayPayment],
-    customer: Option[Customer] = None,
-    storeAdmin: Option[StoreAdmin] = None,
-    messageToCustomer: Option[String] = None,
-    canceledReason: Option[Int] = None,
-    createdAt: Instant,
-    updatedAt: Instant,
-    totals: Option[RmaTotals]) extends ResponseItem
+  case class RootExpanded(id: Int,
+                          referenceNumber: String,
+                          order: Option[FullOrder.Root],
+                          rmaType: Rma.RmaType,
+                          state: Rma.State,
+                          lineItems: LineItems,
+                          payments: Seq[DisplayPayment],
+                          customer: Option[Customer] = None,
+                          storeAdmin: Option[StoreAdmin] = None,
+                          messageToCustomer: Option[String] = None,
+                          canceledReason: Option[Int] = None,
+                          createdAt: Instant,
+                          updatedAt: Instant,
+                          totals: Option[RmaTotals])
+      extends ResponseItem
 
   def buildPayment(pmt: RmaPayment): DisplayPayment =
     DisplayPayment(
-      id = pmt.id,
-      amount = pmt.amount,
-      currency = pmt.currency,
-      paymentMethodId = pmt.paymentMethodId,
-      paymentMethodType = pmt.paymentMethodType
+        id = pmt.id,
+        amount = pmt.amount,
+        currency = pmt.currency,
+        paymentMethodId = pmt.paymentMethodId,
+        paymentMethodType = pmt.paymentMethodType
     )
 
-  def buildLineItems(skus: Seq[(Sku, ObjectForm, ObjectShadow, RmaLineItem)], giftCards: Seq[(GiftCard, RmaLineItem)],
-    shipments: Seq[(Shipment, RmaLineItem)]): LineItems = {
+  def buildLineItems(skus: Seq[(Sku, ObjectForm, ObjectShadow, RmaLineItem)],
+                     giftCards: Seq[(GiftCard, RmaLineItem)],
+                     shipments: Seq[(Shipment, RmaLineItem)]): LineItems = {
     LineItems(
-      skus = skus.map { case (sku, form, shadow, li) ⇒ LineItemSku(
-          lineItemId = li.id, sku = DisplaySku(sku = sku.code, price = Mvp.priceAsInt(form, shadow))) 
-      },
-      giftCards = giftCards.map { case (gc, li) ⇒
-        LineItemGiftCard(lineItemId = li.id, giftCard = GiftCardResponse.build(gc)) },
-      shippingCosts = shipments.map { case (shipment, li) ⇒
-        LineItemShippingCost(lineItemId = li.id, shippingCost = ShipmentResponse.build(shipment)) }
+        skus = skus.map {
+          case (sku, form, shadow, li) ⇒
+            LineItemSku(lineItemId = li.id,
+                        sku = DisplaySku(sku = sku.code, price = Mvp.priceAsInt(form, shadow)))
+        },
+        giftCards = giftCards.map {
+          case (gc, li) ⇒
+            LineItemGiftCard(lineItemId = li.id, giftCard = GiftCardResponse.build(gc))
+        },
+        shippingCosts = shipments.map {
+          case (shipment, li) ⇒
+            LineItemShippingCost(lineItemId = li.id,
+                                 shippingCost = ShipmentResponse.build(shipment))
+        }
     )
   }
 
-  def buildTotals(subtotal: Option[Int], taxes: Option[Int], shipments: Seq[(Shipment, RmaLineItem)]): RmaTotals = {
+  def buildTotals(subtotal: Option[Int],
+                  taxes: Option[Int],
+                  shipments: Seq[(Shipment, RmaLineItem)]): RmaTotals = {
     val finalSubtotal = subtotal.getOrElse(0)
-    val finalTaxes = taxes.getOrElse(0)
-    val finalShipping = shipments.foldLeft(0){ case (acc, (shipment, li)) ⇒ acc + shipment.shippingPrice.getOrElse(0) }
+    val finalTaxes    = taxes.getOrElse(0)
+    val finalShipping = shipments.foldLeft(0) {
+      case (acc, (shipment, li)) ⇒ acc + shipment.shippingPrice.getOrElse(0)
+    }
     val grandTotal = finalSubtotal + finalShipping + finalTaxes
     RmaTotals(finalSubtotal, finalTaxes, finalShipping, grandTotal)
   }
@@ -115,12 +129,12 @@ object RmaResponse {
     fetchRmaDetails(rma).map {
       case (_, customer, storeAdmin, payments, lineItemData, giftCards, shipments, subtotal) ⇒
         build(
-          rma = rma,
-          customer = customer.map(CustomerResponse.build(_)),
-          storeAdmin = storeAdmin.map(StoreAdminResponse.build),
-          payments = payments.map(buildPayment),
-          lineItems = buildLineItems(lineItemData, giftCards, shipments),
-          totals = Some(buildTotals(subtotal, None, shipments))
+            rma = rma,
+            customer = customer.map(CustomerResponse.build(_)),
+            storeAdmin = storeAdmin.map(StoreAdminResponse.build),
+            payments = payments.map(buildPayment),
+            lineItems = buildLineItems(lineItemData, giftCards, shipments),
+            totals = Some(buildTotals(subtotal, None, shipments))
         )
     }
   }
@@ -129,53 +143,61 @@ object RmaResponse {
     fetchRmaDetails(rma = rma, withOrder = true).map {
       case (order, customer, storeAdmin, payments, lineItemData, giftCards, shipments, subtotal) ⇒
         buildExpanded(
-          rma = rma,
-          order = order,
-          customer = customer.map(CustomerResponse.build(_)),
-          storeAdmin = storeAdmin.map(StoreAdminResponse.build),
-          payments = payments.map(buildPayment),
-          lineItems = buildLineItems(lineItemData, giftCards, shipments),
-          totals = Some(buildTotals(subtotal, None, shipments))
+            rma = rma,
+            order = order,
+            customer = customer.map(CustomerResponse.build(_)),
+            storeAdmin = storeAdmin.map(StoreAdminResponse.build),
+            payments = payments.map(buildPayment),
+            lineItems = buildLineItems(lineItemData, giftCards, shipments),
+            totals = Some(buildTotals(subtotal, None, shipments))
         )
     }
   }
 
-  def build(rma: Rma, customer: Option[Customer] = None, storeAdmin: Option[StoreAdmin] = None,
-    lineItems: LineItems = LineItems(), payments: Seq[DisplayPayment] = Seq.empty,
-    totals: Option[RmaTotals] = None): Root = Root(id = rma.id,
-    referenceNumber = rma.refNum,
-    orderRefNum = rma.orderRefNum,
-    rmaType = rma.rmaType,
-    state = rma.state,
-    customer = customer,
-    storeAdmin = storeAdmin,
-    payments = payments,
-    lineItems = lineItems,
-    messageToCustomer = rma.messageToCustomer,
-    canceledReason = rma.canceledReason,
-    createdAt = rma.createdAt,
-    updatedAt = rma.updatedAt,
-    totals = totals
-  )
+  def build(rma: Rma,
+            customer: Option[Customer] = None,
+            storeAdmin: Option[StoreAdmin] = None,
+            lineItems: LineItems = LineItems(),
+            payments: Seq[DisplayPayment] = Seq.empty,
+            totals: Option[RmaTotals] = None): Root =
+    Root(id = rma.id,
+         referenceNumber = rma.refNum,
+         orderRefNum = rma.orderRefNum,
+         rmaType = rma.rmaType,
+         state = rma.state,
+         customer = customer,
+         storeAdmin = storeAdmin,
+         payments = payments,
+         lineItems = lineItems,
+         messageToCustomer = rma.messageToCustomer,
+         canceledReason = rma.canceledReason,
+         createdAt = rma.createdAt,
+         updatedAt = rma.updatedAt,
+         totals = totals)
 
-  def buildExpanded(rma: Rma, order: Option[FullOrder.Root] = None, customer: Option[Customer] = None,
-    lineItems: LineItems = LineItems(), storeAdmin: Option[StoreAdmin] = None,
-    payments: Seq[DisplayPayment] = Seq.empty, totals: Option[RmaTotals] = None): RootExpanded = RootExpanded(
-    id = rma.id,
-    referenceNumber = rma.refNum,
-    order = order,
-    rmaType = rma.rmaType,
-    state = rma.state,
-    customer = customer,
-    storeAdmin = storeAdmin,
-    payments = payments,
-    lineItems = lineItems,
-    messageToCustomer = rma.messageToCustomer,
-    canceledReason = rma.canceledReason,
-    createdAt = rma.createdAt,
-    updatedAt = rma.updatedAt,
-    totals = totals
-  )
+  def buildExpanded(rma: Rma,
+                    order: Option[FullOrder.Root] = None,
+                    customer: Option[Customer] = None,
+                    lineItems: LineItems = LineItems(),
+                    storeAdmin: Option[StoreAdmin] = None,
+                    payments: Seq[DisplayPayment] = Seq.empty,
+                    totals: Option[RmaTotals] = None): RootExpanded =
+    RootExpanded(
+        id = rma.id,
+        referenceNumber = rma.refNum,
+        order = order,
+        rmaType = rma.rmaType,
+        state = rma.state,
+        customer = customer,
+        storeAdmin = storeAdmin,
+        payments = payments,
+        lineItems = lineItems,
+        messageToCustomer = rma.messageToCustomer,
+        canceledReason = rma.canceledReason,
+        createdAt = rma.createdAt,
+        updatedAt = rma.updatedAt,
+        totals = totals
+    )
 
   private def fetchRmaDetails(rma: Rma, withOrder: Boolean = false)(implicit ec: EC) = {
     val orderQ = for {
@@ -187,18 +209,20 @@ object RmaResponse {
 
     for {
       // Order, if necessary
-      fullOrder   ← orderDbio
+      fullOrder ← orderDbio
       // Either customer or storeAdmin as creator
-      customer    ← Customers.findById(rma.customerId).extract.one
-      storeAdmin  ← rma.storeAdminId.map(id ⇒ StoreAdmins.findById(id).extract.one).getOrElse(lift(None))
+      customer ← Customers.findById(rma.customerId).extract.one
+      storeAdmin ← rma.storeAdminId
+                    .map(id ⇒ StoreAdmins.findById(id).extract.one)
+                    .getOrElse(lift(None))
       // Payment methods
-      payments    ← RmaPayments.filter(_.rmaId === rma.id).result
+      payments ← RmaPayments.filter(_.rmaId === rma.id).result
       // Line items of each subtype
-      lineItems   ← RmaLineItemSkus.findLineItemsByRma(rma).result
-      giftCards   ← RmaLineItemGiftCards.findLineItemsByRma(rma).result
-      shipments   ← RmaLineItemShippingCosts.findLineItemsByRma(rma).result
+      lineItems ← RmaLineItemSkus.findLineItemsByRma(rma).result
+      giftCards ← RmaLineItemGiftCards.findLineItemsByRma(rma).result
+      shipments ← RmaLineItemShippingCosts.findLineItemsByRma(rma).result
       // Subtotal
-      subtotal    ← RmaTotaler.subTotal(rma)
+      subtotal ← RmaTotaler.subTotal(rma)
     } yield (fullOrder, customer, storeAdmin, payments, lineItems, giftCards, shipments, subtotal)
   }
 }

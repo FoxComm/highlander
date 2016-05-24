@@ -28,14 +28,14 @@ object Public {
           }
         } ~
         pathPrefix("products") {
-          determineObjectContext(db, ec) { productContext ⇒ 
+          determineObjectContext(db, ec) { productContext ⇒
             pathPrefix(IntNumber) { productId ⇒
               (get & pathEnd) {
                 goodOrFailures {
                   ProductManager.getIlluminatedFullProductByContext(productId, productContext)
                 }
               }
-            }  
+            }
           }
         } ~
         pathPrefix("regions") {

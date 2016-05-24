@@ -24,6 +24,6 @@ trait StoreAdminSeeds {
     } yield admins.head
   }
 
-  def storeAdmin = StoreAdmin.build(email = "admin@admin.com", password = "password".some, name = "Frankly Admin")
-
+  def storeAdmin =
+    StoreAdmin.build(email = "admin@admin.com", password = "password".some, name = "Frankly Admin")
 }

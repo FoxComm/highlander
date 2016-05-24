@@ -15,5 +15,4 @@ object DiscountPayloads {
   case class UpdateDiscountShadow(attributes: Json)
 
   case class UpdateDiscount(form: UpdateDiscountForm, shadow: UpdateDiscountShadow)
-
 }

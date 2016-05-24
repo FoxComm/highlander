@@ -11,12 +11,14 @@ object PromotionFailures {
   }
 
   object PromotionShadowNotFoundInPayload {
-    def apply(code: String)  = NotFoundFailure404(s"Promotion shadow with code $code not found in payload")
+    def apply(code: String) =
+      NotFoundFailure404(s"Promotion shadow with code $code not found in payload")
   }
 
   object PromotionNotFoundForContext {
     def apply(promotionId: Int, contextName: String) =
-      NotFoundFailure404(s"Promotion with id=$promotionId with promotion context $contextName cannot be found")
+      NotFoundFailure404(
+          s"Promotion with id=$promotionId with promotion context $contextName cannot be found")
   }
 
   case object PromotionIsNotActive extends Failure {
@@ -42,5 +44,4 @@ object PromotionFailures {
   object PromotionFormNotFound {
     def apply(id: Int) = NotFoundFailure404(s"Promotion Form with id $id cannot be found")
   }
-
 }

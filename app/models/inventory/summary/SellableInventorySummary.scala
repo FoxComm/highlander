@@ -11,28 +11,39 @@ import slick.lifted.Tag
 import utils.Validation
 import utils.db._
 
-case class SellableInventorySummary(id: Int = 0, onHand: Int, onHold: Int, reserved: Int,
-  availableForSale: Int = 0, safetyStock: Int, updatedAt: Instant = Instant.now)
-  extends InventorySummaryBase[SellableInventorySummary] {
+case class SellableInventorySummary(id: Int = 0,
+                                    onHand: Int,
+                                    onHold: Int,
+                                    reserved: Int,
+                                    availableForSale: Int = 0,
+                                    safetyStock: Int,
+                                    updatedAt: Instant = Instant.now)
+    extends InventorySummaryBase[SellableInventorySummary] {
 
   import Validation._
 
   override def validate: ValidatedNel[Failure, SellableInventorySummary] =
-    (greaterThanOrEqual(safetyStock, 0, "Safety stock quantity")
-      |@| super.validate).map { case _ ⇒ this }
-  }
+    (greaterThanOrEqual(safetyStock, 0, "Safety stock quantity") |@| super.validate).map {
+      case _ ⇒ this
+    }
+}
 
 class SellableInventorySummaries(tag: Tag)
-  extends InventorySummariesTableBase[SellableInventorySummary](tag, "sellable_inventory_summaries") {
+    extends InventorySummariesTableBase[SellableInventorySummary](
+        tag, "sellable_inventory_summaries") {
 
   def safetyStock = column[Int]("safety_stock")
 
-  def * = (id, onHand, onHold, reserved, availableForSale, safetyStock, updatedAt) <>((SellableInventorySummary.apply _).tupled,
-    SellableInventorySummary.unapply)
+  def * =
+    (id, onHand, onHold, reserved, availableForSale, safetyStock, updatedAt) <> ((SellableInventorySummary.apply _).tupled,
+        SellableInventorySummary.unapply)
 }
 
 object SellableInventorySummaries
-  extends InventorySummariesBase[SellableInventorySummary, SellableInventorySummaries](new SellableInventorySummaries(_)) {
+    extends InventorySummariesBase[SellableInventorySummary, SellableInventorySummaries](
+        new SellableInventorySummaries(_)) {
 
   private val rootLens = lens[SellableInventorySummary]
-  val returningLens: Lens[SellableInventorySummary, (Int, Int)] = rootLens.id ~ rootLens.availableForSale}
+  val returningLens: Lens[SellableInventorySummary, (Int, Int)] =
+    rootLens.id ~ rootLens.availableForSale
+}

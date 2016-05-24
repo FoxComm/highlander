@@ -24,16 +24,21 @@ object Money {
     def unapply(c: Currency): Option[String] = Some(c.getCode)
   }
 
-  val currencyColumnType: JdbcType[Currency] with BaseTypedType[Currency] = MappedColumnType.base[Currency, String](
-    { c ⇒ c.getCode },
-    { s ⇒ Currency(s) })
+  val currencyColumnType: JdbcType[Currency] with BaseTypedType[Currency] =
+    MappedColumnType.base[Currency, String]({ c ⇒
+      c.getCode
+    }, { s ⇒
+      Currency(s)
+    })
 
   /**
-   * Json4s works by matching types against Any at runtime so we need to support these features.
-   */
-  val jsonFormat = new CustomSerializer[Currency](format ⇒ ({
-    case JString(str) ⇒ Currency(str.toUpperCase)
-  }, {
-    case c: Currency ⇒ JString(c.getCode)
-  }))
+    * Json4s works by matching types against Any at runtime so we need to support these features.
+    */
+  val jsonFormat = new CustomSerializer[Currency](
+      format ⇒
+        ({
+      case JString(str) ⇒ Currency(str.toUpperCase)
+    }, {
+      case c: Currency ⇒ JString(c.getCode)
+    }))
 }

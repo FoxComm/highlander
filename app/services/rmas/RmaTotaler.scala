@@ -19,6 +19,6 @@ object RmaTotaler {
        |	where rli.rma_id = ${rma.id}
        | """.stripMargin.as[(Int, Int)].headOption.map {
       case Some((count, total)) if count > 0 ⇒ total.some
-      case _ ⇒ None
+      case _                                 ⇒ None
     }
 }

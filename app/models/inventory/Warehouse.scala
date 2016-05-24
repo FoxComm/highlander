@@ -6,23 +6,23 @@ import utils.db._
 
 case class Warehouse(id: Int = 0, name: String) extends FoxModel[Warehouse]
 
-class Warehouses(tag: Tag)
-  extends FoxTable[Warehouse](tag, "warehouses")  {
+class Warehouses(tag: Tag) extends FoxTable[Warehouse](tag, "warehouses") {
 
-  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def id   = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def name = column[String]("name")
 
-  def * = (id, name) <> (( Warehouse.apply _).tupled, Warehouse.unapply)
+  def * = (id, name) <> ((Warehouse.apply _).tupled, Warehouse.unapply)
 }
 
 object Warehouse {
-  def buildDefault(): Warehouse = Warehouse( id = 1, name = "default")
+  def buildDefault(): Warehouse = Warehouse(id = 1, name = "default")
 
   val HARDCODED_WAREHOUSE_ID = 1
 }
 
-object Warehouses extends FoxTableQuery[Warehouse, Warehouses](new Warehouses(_))
-  with ReturningId[Warehouse, Warehouses] {
+object Warehouses
+    extends FoxTableQuery[Warehouse, Warehouses](new Warehouses(_))
+    with ReturningId[Warehouse, Warehouses] {
 
   val returningLens: Lens[Warehouse, Int] = lens[Warehouse].id
 

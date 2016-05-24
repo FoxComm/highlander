@@ -12,17 +12,18 @@ import utils.seeds.Seeds.Factories
 
 class CreditCardTest extends TestBase {
   val today = ZonedDateTime.now()
-  val card = Factories.creditCard
+  val card  = Factories.creditCard
 
   "CreditCard" - {
     "validateNew" - {
       "disallows cards with expired dates" in {
-        val expiredCard = card.copy(expMonth = today.getMonthValue, expYear = today.minusYears(1).getYear)
+        val expiredCard =
+          card.copy(expMonth = today.getMonthValue, expYear = today.minusYears(1).getYear)
 
         val cards = Table(
-          ("card", "errors"),
-          (expiredCard, NonEmptyList(GeneralFailure("credit card is expired"))),
-          (card.copy(expYear = 2000), NonEmptyList(GeneralFailure("credit card is expired")))
+            ("card", "errors"),
+            (expiredCard, NonEmptyList(GeneralFailure("credit card is expired"))),
+            (card.copy(expYear = 2000), NonEmptyList(GeneralFailure("credit card is expired")))
         )
 
         forAll(cards) { (card, errors) ⇒
@@ -41,16 +42,16 @@ class CreditCardTest extends TestBase {
       }
 
       "returns errors when zip is invalid" in {
-        val zipFailure: NonEmptyList[Failure] =
-          NonEmptyList(GeneralFailure(s"zip must fully match regular expression '${Address.zipPatternUs}'"))
+        val zipFailure: NonEmptyList[Failure] = NonEmptyList(
+            GeneralFailure(s"zip must fully match regular expression '${Address.zipPatternUs}'"))
 
-        val badZip = card.copy(zip = "AB+123")
+        val badZip         = card.copy(zip = "AB+123")
         val wrongLengthZip = card.copy(zip = "1")
 
         val cards = Table(
-          ("creditCards", "errors"),
-          (badZip, zipFailure),
-          (wrongLengthZip, zipFailure)
+            ("creditCards", "errors"),
+            (badZip, zipFailure),
+            (wrongLengthZip, zipFailure)
         )
 
         forAll(cards) { (cc, errors) ⇒

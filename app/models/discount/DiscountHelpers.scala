@@ -3,7 +3,7 @@ package models.discount
 import models.objects._
 import org.json4s.JsonAST.JValue
 
-object DiscountHelpers { 
+object DiscountHelpers {
 
   def offer(f: ObjectForm, s: ObjectShadow): JValue = {
     ObjectUtils.get("offer", f, s)

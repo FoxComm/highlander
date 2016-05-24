@@ -13,9 +13,9 @@ class HttpTest extends TestBase {
   "renderFailure" - {
     "returns a notFoundResponse if any failure is a NotFoundFailure" in {
       val failures = Failures(GeneralFailure("general"),
-        CustomerHasDefaultCreditCard,
-        NotFoundFailure404(Order, "ABC-123")).value
-      renderFailure(failures).status must === (StatusCodes.NotFound)
+                              CustomerHasDefaultCreditCard,
+                              NotFoundFailure404(Order, "ABC-123")).value
+      renderFailure(failures).status must ===(StatusCodes.NotFound)
     }
   }
 }

@@ -22,12 +22,12 @@ case class QualifierAstCompiler(data: JValue) {
       case (qualifierType, value) ⇒ compile(qualifierType, value)
     }
 
-    val qualifiers: Seq[Qualifier] = qualifierCompiles.flatMap { 
-      o ⇒ o.fold(f ⇒ Seq.empty, q ⇒ Seq(q))
+    val qualifiers: Seq[Qualifier] = qualifierCompiles.flatMap { o ⇒
+      o.fold(f ⇒ Seq.empty, q ⇒ Seq(q))
     }
 
-    val failures = qualifierCompiles.flatMap { 
-      o ⇒ o.fold(fs ⇒ fs.unwrap, q ⇒ Seq.empty)
+    val failures = qualifierCompiles.flatMap { o ⇒
+      o.fold(fs ⇒ fs.unwrap, q ⇒ Seq.empty)
     }
 
     failures match {
@@ -36,7 +36,7 @@ case class QualifierAstCompiler(data: JValue) {
     }
   }
 
-  private def compile(qualifierTypeString: String, attributes: JValue): Xor[Failures, Qualifier] = 
+  private def compile(qualifierTypeString: String, attributes: JValue): Xor[Failures, Qualifier] =
     QualifierType.read(qualifierTypeString) match {
       case Some(qualifierType) ⇒ QualifierCompiler(qualifierType, attributes).compile()
       case _                   ⇒ Xor.Left(QualifierNotValid(qualifierTypeString).single)

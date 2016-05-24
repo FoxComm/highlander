@@ -14,8 +14,7 @@ import utils.Strings._
 
 object GiftCards {
 
-  private val reasonType =
-    Reason.GiftCardCreation.toString.lowerCaseFirstLetter
+  private val reasonType = Reason.GiftCardCreation.toString.lowerCaseFirstLetter
   private val reasonFeeder = dbFeeder(
       s"""select id as "reasonId" from reasons where reason_type = '$reasonType'""")
 
@@ -27,15 +26,12 @@ object GiftCards {
                       currency = Currency.USD,
                       balance = Random.nextInt(9500) + 500 // from $5 to $100
                   ))))
-    .check(status.is(200),
-           jsonPath("$.code").ofType[String].saveAs("giftCardCode"))
+    .check(status.is(200), jsonPath("$.code").ofType[String].saveAs("giftCardCode"))
 
   val payWithGiftCard = http("Pay with gift card")
     .post("/v1/orders/${referenceNumber}/payment-methods/gift-cards")
     .body(StringBody(session ⇒
-              json(GiftCardPayment(
-                      code = session.get("giftCardCode").as[String]))))
+              json(GiftCardPayment(code = session.get("giftCardCode").as[String]))))
 
-  val payWithGc =
-    feed(reasonFeeder.random).exec(createGiftCard).exec(payWithGiftCard)
+  val payWithGc = feed(reasonFeeder.random).exec(createGiftCard).exec(payWithGiftCard)
 }

@@ -15,7 +15,9 @@ class NotificationListener(adminId: Int, action: String ⇒ Unit)(implicit ec: E
   connection.connect.map { _ ⇒
     if (connection.isConnected) {
       connection.sendQuery(s"LISTEN ${notificationChannel(adminId)}")
-      connection.registerNotifyListener { message ⇒ action(message.payload) }
+      connection.registerNotifyListener { message ⇒
+        action(message.payload)
+      }
     } else {
       Console.err.println("Invalid attempt to start publisher, connection is not active!")
     }
@@ -25,19 +27,18 @@ class NotificationListener(adminId: Int, action: String ⇒ Unit)(implicit ec: E
     import scala.collection.JavaConverters._
 
     val emptyProps = new java.util.Properties
-    val props = Driver.parseURL(url, emptyProps).asScala.toMap
+    val props      = Driver.parseURL(url, emptyProps).asScala.toMap
 
     Configuration(username = props("user"),
-      host = props("PGHOST"), port = props("PGPORT").toInt,
-      password = Some(props.getOrElse("password", "")),
-      database = Some(props("PGDBNAME"))
-    )
+                  host = props("PGHOST"),
+                  port = props("PGPORT").toInt,
+                  password = Some(props.getOrElse("password", "")),
+                  database = Some(props("PGDBNAME")))
   }
 
   private def createConnection() = {
-    val config = FoxConfig.loadWithEnv()
+    val config        = FoxConfig.loadWithEnv()
     val configuration = parseUrl(config.getString("db.url"))
     new PostgreSQLConnection(configuration)
   }
-
 }

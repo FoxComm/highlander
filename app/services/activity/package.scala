@@ -13,7 +13,8 @@ trait ActivityBase[A] { self: A ⇒
 
   implicit val formats = JsonFormatters.phoenixFormats
 
-  def toOpaque[AB <: ActivityBase[AB]]: OpaqueActivity = OpaqueActivity(typeName, Extraction.decompose(this))
+  def toOpaque[AB <: ActivityBase[AB]]: OpaqueActivity =
+    OpaqueActivity(typeName, Extraction.decompose(this))
 }
 
 object ActivityBase {

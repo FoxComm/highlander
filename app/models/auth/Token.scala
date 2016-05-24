@@ -25,7 +25,7 @@ object Keys {
 
   def loadPrivateKey: Try[PrivateKey] = Try {
     val fileName = config.getOptString("auth.privateKey").getOrElse("")
-    val is = new FileInputStream(fileName)
+    val is       = new FileInputStream(fileName)
     val keyBytes = Array.ofDim[Byte](is.available)
     is.read(keyBytes)
     is.close()
@@ -34,18 +34,19 @@ object Keys {
     KeyFactory.getInstance("RSA").generatePrivate(spec)
   }
 
-  def loadPublicKey: Try[PublicKey] = Try {
-    val fileName = config.getOptString("auth.publicKey").getOrElse("")
-    val is = new FileInputStream(fileName)
-    val keyBytes = Array.ofDim[Byte](is.available)
-    is.read(keyBytes)
-    is.close()
+  def loadPublicKey: Try[PublicKey] =
+    Try {
+      val fileName = config.getOptString("auth.publicKey").getOrElse("")
+      val is       = new FileInputStream(fileName)
+      val keyBytes = Array.ofDim[Byte](is.available)
+      is.read(keyBytes)
+      is.close()
 
-    val spec = new X509EncodedKeySpec(keyBytes)
-    KeyFactory.getInstance("RSA").generatePublic(spec)
-  }.recover {
-    case e ⇒ throw new KeyLoadException(e)
-  }
+      val spec = new X509EncodedKeySpec(keyBytes)
+      KeyFactory.getInstance("RSA").generatePublic(spec)
+    }.recover {
+      case e ⇒ throw new KeyLoadException(e)
+    }
 
   private[auth] lazy val authPrivateKey: Failures Xor PrivateKey =
     loadPrivateKey.toOption.toXor(GeneralFailure("Server error: can't load key").single)
@@ -84,13 +85,13 @@ object Token {
     claims.setIssuer("FC")
     token match {
       case _: AdminToken ⇒ {
-        claims.setAudience("admin")
-        claims.setClaim("admin", true)
-      }
+          claims.setAudience("admin")
+          claims.setClaim("admin", true)
+        }
       case _: CustomerToken ⇒ {
-        claims.setAudience("customer")
-        claims.setClaim("admin", false)
-      }
+          claims.setAudience("customer")
+          claims.setClaim("admin", false)
+        }
     }
 
     claims
@@ -113,7 +114,6 @@ object Token {
 
   def fromString(rawToken: String, kind: Identity.IdentityKind): Failures Xor Token = {
     Keys.authPublicKey.flatMap { publicKey ⇒
-
       val builder = new JwtConsumerBuilder()
         .setRequireExpirationTime()
         .setAllowedClockSkewInSeconds(30)
@@ -123,18 +123,19 @@ object Token {
       Try {
         kind match {
           case Identity.Customer ⇒ builder.setExpectedAudience("customer")
-          case Identity.Admin ⇒ builder.setExpectedAudience("admin")
-          case _ ⇒ throw new RuntimeException("unknown kind of identity")
+          case Identity.Admin    ⇒ builder.setExpectedAudience("admin")
+          case _                 ⇒ throw new RuntimeException("unknown kind of identity")
         }
 
-        val consumer = builder.build()
+        val consumer  = builder.build()
         val jwtClaims = consumer.processToClaims(rawToken)
-        val jValue = parse(jwtClaims.toJson)
+        val jValue    = parse(jwtClaims.toJson)
         jValue \ "admin" match {
-          case JBool(isAdmin) ⇒ if (isAdmin)
-            Extraction.extract[AdminToken](jValue)
-          else
-            Extraction.extract[CustomerToken](jValue)
+          case JBool(isAdmin) ⇒
+            if (isAdmin)
+              Extraction.extract[AdminToken](jValue)
+            else
+              Extraction.extract[CustomerToken](jValue)
           case _ ⇒ throw new InvalidJwtException(s"missing claim: admin")
         }
       } match {
@@ -145,33 +146,32 @@ object Token {
       }
     }
   }
-
 }
 
 case class AdminToken(id: Int,
-  admin: Boolean = true,
-  name: Option[String],
-  email: String,
-  scopes: Seq[String],
-  department: Option[String] = None
-) extends Token
+                      admin: Boolean = true,
+                      name: Option[String],
+                      email: String,
+                      scopes: Seq[String],
+                      department: Option[String] = None)
+    extends Token
 
 object AdminToken {
   def fromAdmin(admin: StoreAdmin): AdminToken = {
-    AdminToken(id = admin.id, name = Some(admin.name), email = admin.email,
-      scopes = Array("admin"),
-      department = admin.department)
+    AdminToken(id = admin.id,
+               name = Some(admin.name),
+               email = admin.email,
+               scopes = Array("admin"),
+               department = admin.department)
   }
 }
 
-case class CustomerToken(id: Int,
-  admin: Boolean = false,
-  name: Option[String],
-  email: String,
-  scopes: Seq[String]
-  ) extends Token
+case class CustomerToken(
+    id: Int, admin: Boolean = false, name: Option[String], email: String, scopes: Seq[String])
+    extends Token
 
 object CustomerToken {
   def fromCustomer(customer: Customer): CustomerToken =
-    CustomerToken(id = customer.id, name = customer.name, email = customer.email, scopes = Array[String]())
+    CustomerToken(
+        id = customer.id, name = customer.name, email = customer.email, scopes = Array[String]())
 }

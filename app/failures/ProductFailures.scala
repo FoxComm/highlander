@@ -15,10 +15,12 @@ object ProductFailures {
   }
 
   object SkuShadowNotFoundInPayload {
-    def apply(code: String)  = NotFoundFailure404(s"Sku shadow with code $code not found in payload")
+    def apply(code: String) =
+      NotFoundFailure404(s"Sku shadow with code $code not found in payload")
   }
 
-  object SkuNotFoundForContext { def apply(code: String, productContextId: Int) =
+  object SkuNotFoundForContext {
+    def apply(code: String, productContextId: Int) =
       NotFoundFailure404(s"Sku $code with product context $productContextId cannot be found")
   }
 
@@ -34,7 +36,8 @@ object ProductFailures {
 
   object ProductNotFoundForContext {
     def apply(productId: Int, productContextId: Int) =
-      NotFoundFailure404(s"Product with id=$productId with product context $productContextId cannot be found")
+      NotFoundFailure404(
+          s"Product with id=$productId with product context $productContextId cannot be found")
   }
 
   case class ProductShadowHasInvalidAttribute(key: String, value: String) extends Failure {
@@ -60,5 +63,4 @@ object ProductFailures {
   case class NoVariantForContext(context: String) extends Failure {
     override def description = s"No variant context $context"
   }
-
 }

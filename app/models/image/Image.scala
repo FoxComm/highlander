@@ -14,9 +14,8 @@ object Image {
   def buildFromAlbum(album: FullObject[Album]): Failures Xor Seq[Image] = {
     val images = IlluminateAlgorithm.get("images", album.form.attributes, album.shadow.attributes)
     images.extractOpt[Seq[Image]] match {
-      case Some(seq) ⇒  right(seq)
-      case None      ⇒  left(GeneralFailure("Image sequence could not be retrieved from album").single)
+      case Some(seq) ⇒ right(seq)
+      case None      ⇒ left(GeneralFailure("Image sequence could not be retrieved from album").single)
     }
   }
 }
-

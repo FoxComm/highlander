@@ -20,19 +20,20 @@ object HttpLogger {
   implicit val formats = JsonFormatters.phoenixFormats
 
   private val fieldsToMaskCompletely = Seq("cvv")
-  private val marker = "routes"
-  private val errorLevel = Logging.ErrorLevel
+  private val marker                 = "routes"
+  private val errorLevel             = Logging.ErrorLevel
 
   def logFailedRequests(route: Route, logger: LoggingAdapter)(implicit mat: Mat, ec: EC) = {
     def loggingFn(logger: LoggingAdapter)(request: HttpRequest)(res: Any): Unit = {
 
       val entry: Future[Option[LogEntry]] = res match {
-        case Complete(response) ⇒ response.status match {
-          case StatusCodes.OK ⇒
-            Future.successful(None)
-          case _ ⇒
-            logError(request, response)
-        }
+        case Complete(response) ⇒
+          response.status match {
+            case StatusCodes.OK ⇒
+              Future.successful(None)
+            case _ ⇒
+              logError(request, response)
+          }
         case Rejected(rejections) ⇒
           Future.successful(LogEntry(s"${rejections.mkString(", ")}", marker, errorLevel).some)
       }
@@ -41,18 +42,19 @@ object HttpLogger {
     DebuggingDirectives.logRequestResult(LoggingMagnet(_ ⇒ loggingFn(logger)))(route)
   }
 
-  private def logError(request: HttpRequest, response: HttpResponse)(implicit mat: Mat, ec: EC): Future[Option[LogEntry]] = {
+  private def logError(request: HttpRequest, response: HttpResponse)(
+      implicit mat: Mat, ec: EC): Future[Option[LogEntry]] = {
     for {
-      requestEntity ← entityToString(request.entity)
+      requestEntity  ← entityToString(request.entity)
       responseEntity ← entityToString(response.entity)
     } yield {
-      val requestJson = maskSensitiveData(parseJson(requestEntity))
+      val requestJson  = maskSensitiveData(parseJson(requestEntity))
       val responseJson = parseJson(responseEntity)
-      LogEntry(
-        s"""|${request.method.name} ${request.uri}: ${response.status}
+      LogEntry(s"""|${request.method.name} ${request.uri}: ${response.status}
             |Request entity:  ${Serialization.write(requestJson)}
-            |Response entity: ${Serialization.write(responseJson)}"""
-          .stripMargin, marker, errorLevel).some
+            |Response entity: ${Serialization.write(responseJson)}""".stripMargin,
+               marker,
+               errorLevel).some
     }
   }
 

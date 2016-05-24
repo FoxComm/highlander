@@ -17,17 +17,17 @@ case class OfferAstCompiler(data: JValue) {
     case _               ⇒ Xor.Left(OfferAstInvalidFormatFailure.single)
   }
 
-  private def compile(fields: List[JField]) : Xor[Failures, Offer] = {
+  private def compile(fields: List[JField]): Xor[Failures, Offer] = {
     val offerCompiles = fields.map {
       case (offerType, value) ⇒ compile(offerType, value)
     }
 
-    val offers: Seq[Offer] = offerCompiles.flatMap { 
-      o ⇒ o.fold(f ⇒ Seq.empty, q ⇒ Seq(q))
+    val offers: Seq[Offer] = offerCompiles.flatMap { o ⇒
+      o.fold(f ⇒ Seq.empty, q ⇒ Seq(q))
     }
 
-    val failures = offerCompiles.flatMap { 
-      o ⇒ o.fold(fs ⇒ fs.unwrap, q ⇒ Seq.empty)
+    val failures = offerCompiles.flatMap { o ⇒
+      o.fold(fs ⇒ fs.unwrap, q ⇒ Seq.empty)
     }
 
     failures match {
@@ -36,7 +36,7 @@ case class OfferAstCompiler(data: JValue) {
     }
   }
 
-  private def compile(offerTypeString: String, attributes: JValue): Xor[Failures, Offer] = 
+  private def compile(offerTypeString: String, attributes: JValue): Xor[Failures, Offer] =
     OfferType.read(offerTypeString) match {
       case Some(offerType) ⇒ OfferCompiler(offerType, attributes).compile()
       case _               ⇒ Xor.Left(OfferNotValid(offerTypeString).single)

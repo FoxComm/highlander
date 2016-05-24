@@ -14,14 +14,15 @@ import utils.db.DbResultT._
 
 object PublicService {
 
-  def findCountry(countryId: Int)(implicit ec: EC, db: DB): Result[CountryWithRegions] = (for {
-    country ← * <~ Countries.mustFindById404(countryId)
-    regions ← * <~ Regions.filter(_.countryId === country.id).result.toXor
-  } yield CountryWithRegions(country, sortRegions(regions.to[Seq]))).run()
+  def findCountry(countryId: Int)(implicit ec: EC, db: DB): Result[CountryWithRegions] =
+    (for {
+      country ← * <~ Countries.mustFindById404(countryId)
+      regions ← * <~ Regions.filter(_.countryId === country.id).result.toXor
+    } yield CountryWithRegions(country, sortRegions(regions.to[Seq]))).run()
 
   def listCountries(implicit ec: EC, db: DB): Future[Seq[Country]] =
     db.run(Countries.result).map { countries ⇒
-      val usa = countries.filter(_.id == unitedStatesId)
+      val usa          = countries.filter(_.id == unitedStatesId)
       val othersSorted = countries.filterNot(_.id == unitedStatesId).sortBy(_.name)
       (usa ++ othersSorted).to[Seq]
     }

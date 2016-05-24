@@ -48,4 +48,4 @@ object GiftCardQueries {
     sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): DbResultT[TheResponse[Seq[RootSimple]]] =
     findAllByQuery(GiftCards)
 }
-*/
+ */

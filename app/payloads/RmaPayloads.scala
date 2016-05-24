@@ -15,7 +15,7 @@ object RmaPayloads {
   case class RmaCreatePayload(orderRefNum: String, rmaType: Rma.RmaType)
 
   case class RmaUpdateStatePayload(state: Rma.State, reasonId: Option[Int] = None)
-    extends Validation[RmaUpdateStatePayload] {
+      extends Validation[RmaUpdateStatePayload] {
 
     def validate: ValidatedNel[Failure, RmaUpdateStatePayload] = {
       Rma.validateStateReason(state, reasonId).map { case _ ⇒ this }
@@ -24,8 +24,12 @@ object RmaPayloads {
 
   /* Line item updater payloads */
 
-  case class RmaSkuLineItemsPayload(sku: String, quantity: Int, reasonId: Int, isReturnItem: Boolean,
-    inventoryDisposition: InventoryDisposition) extends Validation[RmaSkuLineItemsPayload] {
+  case class RmaSkuLineItemsPayload(sku: String,
+                                    quantity: Int,
+                                    reasonId: Int,
+                                    isReturnItem: Boolean,
+                                    inventoryDisposition: InventoryDisposition)
+      extends Validation[RmaSkuLineItemsPayload] {
 
     def validate: ValidatedNel[Failure, RmaSkuLineItemsPayload] = {
       greaterThan(quantity, 0, "Quantity").map { case _ ⇒ this }
@@ -54,12 +58,14 @@ object RmaPayloads {
 
   /* Misc */
 
-  case class RmaMessageToCustomerPayload(message: String) extends Validation[RmaMessageToCustomerPayload] {
+  case class RmaMessageToCustomerPayload(message: String)
+      extends Validation[RmaMessageToCustomerPayload] {
 
     def validate: ValidatedNel[Failure, RmaMessageToCustomerPayload] = {
-      (greaterThanOrEqual(message.length, 0, "Message length")
-        |@| lesserThanOrEqual(message.length, Rma.messageToCustomerMaxLength, "Message length")
-        ).map { case _ ⇒ this }
+      (greaterThanOrEqual(message.length, 0, "Message length") |@| lesserThanOrEqual(
+              message.length, Rma.messageToCustomerMaxLength, "Message length")).map {
+        case _ ⇒ this
+      }
     }
   }
 }

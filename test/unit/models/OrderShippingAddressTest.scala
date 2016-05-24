@@ -15,13 +15,13 @@ class OrderShippingAddressTest extends TestBase {
         NonEmptyList(GeneralFailure(s"zip must fully match regular expression '$pattern'"))
 
       "returns errors when zip is invalid" in {
-        val badZip = Factories.shippingAddress.copy(regionId = 1, zip = "AB+123")
+        val badZip         = Factories.shippingAddress.copy(regionId = 1, zip = "AB+123")
         val wrongLengthZip = Factories.shippingAddress.copy(regionId = 1, zip = "1")
 
         val addresses = Table(
-          ("address", "errors"),
-          (badZip, zipFailure(Address.zipPattern)),
-          (wrongLengthZip, zipFailure(Address.zipPattern))
+            ("address", "errors"),
+            (badZip, zipFailure(Address.zipPattern)),
+            (wrongLengthZip, zipFailure(Address.zipPattern))
         )
 
         forAll(addresses) { (address, errors) ⇒

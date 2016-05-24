@@ -11,7 +11,8 @@ import utils.db.ExPostgresDriver.api._
 import utils.{ADT, JsonFormatters}
 
 case class QueryStatement(comparison: QueryStatement.Comparison,
-  conditions: Seq[Condition] = Seq.empty, statements: Seq[QueryStatement] = Seq.empty)
+                          conditions: Seq[Condition] = Seq.empty,
+                          statements: Seq[QueryStatement] = Seq.empty)
 
 object QueryStatement {
   sealed trait Comparison {
@@ -33,8 +34,8 @@ object QueryStatement {
   implicit val QueryStatementColumn: JdbcType[QueryStatement] with BaseTypedType[QueryStatement] = {
     implicit val formats = JsonFormatters.phoenixFormats
     MappedColumnType.base[QueryStatement, JValue](
-      q ⇒ Extraction.decompose(q),
-      j ⇒ j.extract[QueryStatement]
+        q ⇒ Extraction.decompose(q),
+        j ⇒ j.extract[QueryStatement]
     )
   }
 

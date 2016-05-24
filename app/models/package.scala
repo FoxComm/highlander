@@ -1,5 +1,3 @@
-
-
 package object models {
 
   object stripe {

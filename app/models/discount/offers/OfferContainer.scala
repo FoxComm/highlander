@@ -5,7 +5,8 @@ import cats.data.Xor
 import failures._
 import models.order.lineitems.OrderLineItemAdjustment
 
-case class OfferContainer(adjustments: Seq[OrderLineItemAdjustment] = Seq.empty, warnings: Option[Failures] = None)
+case class OfferContainer(
+    adjustments: Seq[OrderLineItemAdjustment] = Seq.empty, warnings: Option[Failures] = None)
 
 object OfferContainer {
 

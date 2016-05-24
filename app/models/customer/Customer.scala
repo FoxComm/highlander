@@ -16,13 +16,21 @@ import utils.Validation
 import utils.aliases.EC
 import utils.db._
 
-case class Customer(id: Int = 0, email: String, hashedPassword: Option[String] = None,
-  name: Option[String] = None, isDisabled: Boolean = false, disabledBy: Option[Int] = None,
-  isBlacklisted: Boolean = false, blacklistedBy: Option[Int] = None,
-  phoneNumber: Option[String] = None, location: Option[String] = None,
-  modality: Option[String] = None, isGuest: Boolean = false, createdAt: Instant = Instant.now)
-  extends FoxModel[Customer]
-  with Validation[Customer] {
+case class Customer(id: Int = 0,
+                    email: String,
+                    hashedPassword: Option[String] = None,
+                    name: Option[String] = None,
+                    isDisabled: Boolean = false,
+                    disabledBy: Option[Int] = None,
+                    isBlacklisted: Boolean = false,
+                    blacklistedBy: Option[Int] = None,
+                    phoneNumber: Option[String] = None,
+                    location: Option[String] = None,
+                    modality: Option[String] = None,
+                    isGuest: Boolean = false,
+                    createdAt: Instant = Instant.now)
+    extends FoxModel[Customer]
+    with Validation[Customer] {
 
   import Validation._
 
@@ -30,11 +38,10 @@ case class Customer(id: Int = 0, email: String, hashedPassword: Option[String] =
     if (isGuest) {
       notEmpty(email, "email").map { case _ ⇒ this }
     } else {
-      (notEmpty(name, "name")
-        |@| notEmpty(name.getOrElse(""), "name")
-        |@| matches(name.getOrElse(""), Customer.namePattern , "name")
-        |@| notEmpty(email, "email")
-        ).map { case _ ⇒ this }
+      (notEmpty(name, "name") |@| notEmpty(name.getOrElse(""), "name") |@| matches(
+              name.getOrElse(""), Customer.namePattern, "name") |@| notEmpty(email, "email")).map {
+        case _ ⇒ this
+      }
     }
   }
 }
@@ -47,43 +54,70 @@ object Customer {
     Customer(isGuest = true, email = email)
 
   def buildFromPayload(payload: CreateCustomerPayload): Customer = {
-    build(email = payload.email, password = payload.password, name = payload.name,
-      isGuest = payload.isGuest.getOrElse(false))
+    build(email = payload.email,
+          password = payload.password,
+          name = payload.name,
+          isGuest = payload.isGuest.getOrElse(false))
   }
 
-  def build(id: Int = 0, email: String, name: Option[String] = None, isGuest: Boolean = false,
-    password: Option[String] = None, phoneNumber: Option[String] = None, modality: Option[String] = None,
-    location: Option[String] = None, isDisabled: Boolean = false): Customer = {
+  def build(id: Int = 0,
+            email: String,
+            name: Option[String] = None,
+            isGuest: Boolean = false,
+            password: Option[String] = None,
+            phoneNumber: Option[String] = None,
+            modality: Option[String] = None,
+            location: Option[String] = None,
+            isDisabled: Boolean = false): Customer = {
 
     val optHash = password.map(hashPassword)
-    Customer(id = id, name = name, email = email, hashedPassword = optHash, isGuest = isGuest,
-      phoneNumber = phoneNumber, modality = modality, location = location, isDisabled = isDisabled)
+    Customer(id = id,
+             name = name,
+             email = email,
+             hashedPassword = optHash,
+             isGuest = isGuest,
+             phoneNumber = phoneNumber,
+             modality = modality,
+             location = location,
+             isDisabled = isDisabled)
   }
 }
 
 class Customers(tag: Tag) extends FoxTable[Customer](tag, "customers") {
-  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def isDisabled = column[Boolean]("is_disabled")
-  def disabledBy = column[Option[Int]]("disabled_by")
-  def isBlacklisted = column[Boolean]("is_blacklisted")
-  def blacklistedBy = column[Option[Int]]("blacklisted_by")
+  def id                = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def isDisabled        = column[Boolean]("is_disabled")
+  def disabledBy        = column[Option[Int]]("disabled_by")
+  def isBlacklisted     = column[Boolean]("is_blacklisted")
+  def blacklistedBy     = column[Option[Int]]("blacklisted_by")
   def blacklistedReason = column[Option[String]]("blacklisted_reason")
-  def email = column[String]("email")
-  def hashedPassword = column[Option[String]]("hashed_password")
-  def name = column[Option[String]]("name")
-  def phoneNumber = column[Option[String]]("phone_number")
-  def location = column[Option[String]]("location")
-  def modality = column[Option[String]]("modality")
-  def isGuest = column[Boolean]("is_guest")
-  def createdAt = column[Instant]("created_at")
+  def email             = column[String]("email")
+  def hashedPassword    = column[Option[String]]("hashed_password")
+  def name              = column[Option[String]]("name")
+  def phoneNumber       = column[Option[String]]("phone_number")
+  def location          = column[Option[String]]("location")
+  def modality          = column[Option[String]]("modality")
+  def isGuest           = column[Boolean]("is_guest")
+  def createdAt         = column[Instant]("created_at")
 
-  def * = (id, email, hashedPassword, name,
-    isDisabled, disabledBy, isBlacklisted, blacklistedBy, phoneNumber,
-    location, modality, isGuest, createdAt) <>((Customer.apply _).tupled, Customer.unapply)
+  def * =
+    (id,
+     email,
+     hashedPassword,
+     name,
+     isDisabled,
+     disabledBy,
+     isBlacklisted,
+     blacklistedBy,
+     phoneNumber,
+     location,
+     modality,
+     isGuest,
+     createdAt) <> ((Customer.apply _).tupled, Customer.unapply)
 }
 
-object Customers extends FoxTableQuery[Customer, Customers](new Customers(_))
-  with ReturningId[Customer, Customers] {
+object Customers
+    extends FoxTableQuery[Customer, Customers](new Customers(_))
+    with ReturningId[Customer, Customers] {
 
   val returningLens: Lens[Customer, Int] = lens[Customer].id
 
@@ -100,13 +134,24 @@ object Customers extends FoxTableQuery[Customer, Customers](new Customers(_))
        * - billingRegion comes from default creditCard of customer
        * - rank is calculated as percentile from net revenue
        */
-      def withRegionsAndRank: Query[(Customers, Rep[Option[Regions]], Rep[Option[Regions]],
-        Rep[Option[CustomersRanks]]), (Customer, Option[Region], Option[Region], Option[CustomerRank]), Seq] = {
+      def withRegionsAndRank: Query[(Customers,
+                                     Rep[Option[Regions]],
+                                     Rep[Option[Regions]],
+                                     Rep[Option[CustomersRanks]]),
+                                    (Customer,
+                                     Option[Region],
+                                     Option[Region],
+                                     Option[CustomerRank]),
+                                    Seq] = {
 
         val customerWithShipRegion = for {
-          ((c, a), r) ← query.joinLeft(Addresses).on {
-            case (a, b) ⇒ a.id === b.customerId && b.isDefaultShipping === true
-          }.joinLeft(Regions).on(_._2.map(_.regionId) === _.id)
+          ((c, a), r) ← query
+                         .joinLeft(Addresses)
+                         .on {
+                           case (a, b) ⇒ a.id === b.customerId && b.isDefaultShipping === true
+                         }
+                         .joinLeft(Regions)
+                         .on(_._2.map(_.regionId) === _.id)
         } yield (c, r)
 
         val CcWithRegions = CreditCards.join(Regions).on {
@@ -114,15 +159,17 @@ object Customers extends FoxTableQuery[Customer, Customers](new Customers(_))
         }
 
         val withRegions = for {
-          ((c, shipRegion), billInfo) ←
-          customerWithShipRegion.joinLeft(CcWithRegions).on(_._1.id === _._1.customerId)
+          ((c, shipRegion), billInfo) ← customerWithShipRegion
+                                         .joinLeft(CcWithRegions)
+                                         .on(_._1.id === _._1.customerId)
         } yield (c, shipRegion, billInfo.map(_._2))
 
         for {
-          ((c, shipRegion, billRegion), rank) ← withRegions.joinLeft(CustomersRanks).on(_._1.id === _.id)
+          ((c, shipRegion, billRegion), rank) ← withRegions
+                                                 .joinLeft(CustomersRanks)
+                                                 .on(_._1.id === _.id)
         } yield (c, shipRegion, billRegion, rank)
       }
-
     }
   }
 
@@ -133,7 +180,8 @@ object Customers extends FoxTableQuery[Customer, Customers](new Customers(_))
     activeCustomerByEmail(email).one.mustNotFindOr(CustomerEmailNotUnique)
 
   def updateEmailMustBeUnique(email: String, customerId: Int)(implicit ec: EC): DbResult[Unit] =
-    activeCustomerByEmail(email).filterNot(_.id === customerId).one.mustNotFindOr(CustomerEmailNotUnique)
-
+    activeCustomerByEmail(email)
+      .filterNot(_.id === customerId)
+      .one
+      .mustNotFindOr(CustomerEmailNotUnique)
 }
-

@@ -61,7 +61,7 @@ object AssignmentsRoutes {
             goodOrFailures {
               CustomerAssignmentsManager.list(customerId)
             }
-          } ~         
+          } ~
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
             goodOrFailures {
               CustomerAssignmentsManager.assign(customerId, payload, admin)
@@ -78,7 +78,7 @@ object AssignmentsRoutes {
             goodOrFailures {
               CustomerWatchersManager.list(customerId)
             }
-          } ~           
+          } ~
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
             goodOrFailures {
               CustomerWatchersManager.assign(customerId, payload, admin)
@@ -125,13 +125,13 @@ object AssignmentsRoutes {
           }
         }
       } ~
-      pathPrefix("gift-cards" / giftCardCodeRegex) { code ⇒       
+      pathPrefix("gift-cards" / giftCardCodeRegex) { code ⇒
         pathPrefix("assignees") {
           (get & pathEnd) {
             goodOrFailures {
               GiftCardAssignmentsManager.list(code)
             }
-          } ~           
+          } ~
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
             goodOrFailures {
               GiftCardAssignmentsManager.assign(code, payload, admin)
@@ -148,7 +148,7 @@ object AssignmentsRoutes {
             goodOrFailures {
               GiftCardWatchersManager.list(code)
             }
-          } ~          
+          } ~
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
             goodOrFailures {
               GiftCardWatchersManager.assign(code, payload, admin)
@@ -195,7 +195,7 @@ object AssignmentsRoutes {
           }
         }
       } ~
-      pathPrefix("orders"/ orderRefNumRegex) { refNum ⇒
+      pathPrefix("orders" / orderRefNumRegex) { refNum ⇒
         pathPrefix("assignees") {
           (get & pathEnd) {
             goodOrFailures {
@@ -218,7 +218,7 @@ object AssignmentsRoutes {
             goodOrFailures {
               OrderWatchersManager.list(refNum)
             }
-          } ~           
+          } ~
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
             goodOrFailures {
               OrderWatchersManager.assign(refNum, payload, admin)
@@ -265,13 +265,13 @@ object AssignmentsRoutes {
           }
         }
       } ~
-      pathPrefix("rmas"/ rmaRefNumRegex) { refNum ⇒
+      pathPrefix("rmas" / rmaRefNumRegex) { refNum ⇒
         pathPrefix("assignees") {
           (get & pathEnd) {
             goodOrFailures {
               RmaAssignmentsManager.list(refNum)
             }
-          } ~           
+          } ~
           (post & entity(as[AssignmentPayload])) { payload ⇒
             goodOrFailures {
               RmaAssignmentsManager.assign(refNum, payload, admin)
@@ -288,7 +288,7 @@ object AssignmentsRoutes {
             goodOrFailures {
               RmaWatchersManager.list(refNum)
             }
-          } ~           
+          } ~
           (post & entity(as[AssignmentPayload])) { payload ⇒
             goodOrFailures {
               RmaWatchersManager.assign(refNum, payload, admin)
@@ -341,7 +341,7 @@ object AssignmentsRoutes {
             goodOrFailures {
               ProductAssignmentsManager.list(productId)
             }
-          } ~           
+          } ~
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
             goodOrFailures {
               ProductAssignmentsManager.assign(productId, payload, admin)
@@ -358,7 +358,7 @@ object AssignmentsRoutes {
             goodOrFailures {
               ProductWatchersManager.list(productId)
             }
-          } ~          
+          } ~
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
             goodOrFailures {
               ProductWatchersManager.assign(productId, payload, admin)
@@ -405,13 +405,13 @@ object AssignmentsRoutes {
           }
         }
       } ~
-      pathPrefix("skus"/ skuCodeRegex) { refNum ⇒
+      pathPrefix("skus" / skuCodeRegex) { refNum ⇒
         pathPrefix("assignees") {
           (get & pathEnd) {
             goodOrFailures {
               SkuAssignmentsManager.list(refNum)
             }
-          } ~           
+          } ~
           (post & entity(as[AssignmentPayload])) { payload ⇒
             goodOrFailures {
               SkuAssignmentsManager.assign(refNum, payload, admin)
@@ -428,7 +428,7 @@ object AssignmentsRoutes {
             goodOrFailures {
               SkuWatchersManager.list(refNum)
             }
-          } ~           
+          } ~
           (post & entity(as[AssignmentPayload])) { payload ⇒
             goodOrFailures {
               SkuWatchersManager.assign(refNum, payload, admin)
@@ -481,7 +481,7 @@ object AssignmentsRoutes {
             goodOrFailures {
               PromotionAssignmentsManager.list(promotionId)
             }
-          } ~           
+          } ~
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
             goodOrFailures {
               PromotionAssignmentsManager.assign(promotionId, payload, admin)
@@ -498,7 +498,7 @@ object AssignmentsRoutes {
             goodOrFailures {
               PromotionWatchersManager.list(promotionId)
             }
-          } ~          
+          } ~
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
             goodOrFailures {
               PromotionWatchersManager.assign(promotionId, payload, admin)
@@ -551,7 +551,7 @@ object AssignmentsRoutes {
             goodOrFailures {
               CouponAssignmentsManager.list(couponId)
             }
-          } ~           
+          } ~
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
             goodOrFailures {
               CouponAssignmentsManager.assign(couponId, payload, admin)
@@ -568,7 +568,7 @@ object AssignmentsRoutes {
             goodOrFailures {
               CouponWatchersManager.list(couponId)
             }
-          } ~          
+          } ~
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
             goodOrFailures {
               CouponWatchersManager.assign(couponId, payload, admin)

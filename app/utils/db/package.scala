@@ -17,7 +17,7 @@ import utils.time.JavaTimeSlickMapper
 
 package object db {
 
-  type DbResult[T] = DBIO[Failures Xor T]
+  type DbResult[T]  = DBIO[Failures Xor T]
   type DbResultT[A] = XorT[DBIO, Failures, A]
   // Return B whenever A is inserted
   type Returning[A, B] = slick.driver.JdbcActionComponent#ReturningInsertActionComposer[A, B]
@@ -42,24 +42,21 @@ package object db {
       action.copy(action.queryParts.map(_.asInstanceOf[String].stripMargin))
   }
 
-  case class QueryMetadata(
-    sortBy    : Option[String]      = None,
-    from      : Option[Int]         = None,
-    size      : Option[Int]         = None,
-    pageNo    : Option[Int]         = None,
-    total     : Option[DBIO[Int]] = None)
+  case class QueryMetadata(sortBy: Option[String] = None,
+                           from: Option[Int] = None,
+                           size: Option[Int] = None,
+                           pageNo: Option[Int] = None,
+                           total: Option[DBIO[Int]] = None)
 
   object QueryMetadata {
     def empty = QueryMetadata()
   }
 
-  case class ResponseMetadata(
-    sortBy    : Option[String] = None,
-    from      : Option[Int]    = None,
-    size      : Option[Int]    = None,
-    pageNo    : Option[Int]    = None,
-    total     : Option[Int]    = None)
-
+  case class ResponseMetadata(sortBy: Option[String] = None,
+                              from: Option[Int] = None,
+                              size: Option[Int] = None,
+                              pageNo: Option[Int] = None,
+                              total: Option[Int] = None)
 
   case class ResponseWithMetadata[A](result: Failures Xor A, metadata: ResponseMetadata)
 
@@ -75,13 +72,16 @@ package object db {
       this.copy(result = result.flatMap(f))
 
     def toTheResponse(implicit ec: EC): DbResultT[TheResponse[A]] = {
-      val pagingMetadata = PaginationMetadata(from = metadata.from, size = metadata.size, pageNo = metadata.pageNo)
+      val pagingMetadata = PaginationMetadata(
+          from = metadata.from, size = metadata.size, pageNo = metadata.pageNo)
 
       for {
         result ← * <~ this.result
         total  ← * <~ metadata.total.map(_.map(Some(_)).toXor).getOrElse(DbResult.none[Int])
-      } yield TheResponse(result, pagination = Some(pagingMetadata.copy(total = total)),
-        sorting    = Some(SortingMetadata(sortBy = metadata.sortBy)))
+      } yield
+        TheResponse(result,
+                    pagination = Some(pagingMetadata.copy(total = total)),
+                    sorting = Some(SortingMetadata(sortBy = metadata.sortBy)))
     }
   }
 
@@ -111,14 +111,15 @@ package object db {
     def sortBy(f: E ⇒ Ordered): QueryWithMetadata[E, U, C] =
       this.copy(query = query.sortBy(f))
 
-    def sortIfNeeded(f: (Sort, E) ⇒ Ordered)(implicit sortAndPage: SortAndPage): QueryWithMetadata[E, U, C] =
+    def sortIfNeeded(
+        f: (Sort, E) ⇒ Ordered)(implicit sortAndPage: SortAndPage): QueryWithMetadata[E, U, C] =
       sortAndPage.sort match {
         case Some(s) ⇒ this.copy(query = query.sortBy(f.curried(s)))
         case None    ⇒ this
       }
 
-    def sortAndPageIfNeeded(f: (Sort, E) ⇒ Ordered)
-      (implicit sortAndPage: SortAndPage): QueryWithMetadata[E, U, C] = sortIfNeeded(f).paged
+    def sortAndPageIfNeeded(f: (Sort, E) ⇒ Ordered)(
+        implicit sortAndPage: SortAndPage): QueryWithMetadata[E, U, C] = sortIfNeeded(f).paged
 
     def paged(implicit sortAndPage: SortAndPage): QueryWithMetadata[E, U, C] =
       this.copy(query = _paged(query))
@@ -130,13 +131,16 @@ package object db {
   implicit class EnrichedQuery[E, U, C[_]](val query: Query[E, U, C]) extends AnyVal {
     def one: DBIO[Option[U]] = query.result.headOption
 
-    def mustFindOneOr(notFoundFailure: Failure)(implicit ec: EC): DbResult[U] = query.one.mustFindOr(notFoundFailure)
+    def mustFindOneOr(notFoundFailure: Failure)(implicit ec: EC): DbResult[U] =
+      query.one.mustFindOr(notFoundFailure)
 
     def paged(implicit sortAndPage: SortAndPage): Query[E, U, C] = _paged(query)
 
-    def withEmptyMetadata: QueryWithMetadata[E, U, C] = QueryWithMetadata(query, QueryMetadata.empty)
+    def withEmptyMetadata: QueryWithMetadata[E, U, C] =
+      QueryWithMetadata(query, QueryMetadata.empty)
 
-    def withMetadata(metadata: QueryMetadata): QueryWithMetadata[E, U, C] = QueryWithMetadata(query, metadata)
+    def withMetadata(metadata: QueryMetadata): QueryWithMetadata[E, U, C] =
+      QueryWithMetadata(query, metadata)
 
     def withMetadata(implicit sortAndPage: SortAndPage): QueryWithMetadata[E, U, C] = {
 
@@ -146,19 +150,19 @@ package object db {
       // size > 0 costraint is defined in SortAndPage
       val pageNo = (from / size) + 1
 
-      val metadata = QueryMetadata(
-        sortBy = sortAndPage.sortBy,
-        from   = Some(from),
-        size   = Some(size),
-        pageNo = Some(pageNo),
-        total  = Some(query.length.result))
+      val metadata = QueryMetadata(sortBy = sortAndPage.sortBy,
+                                   from = Some(from),
+                                   size = Some(size),
+                                   pageNo = Some(pageNo),
+                                   total = Some(query.length.result))
 
       withMetadata(metadata)
     }
   }
 
-  implicit class EnrichedSqlStreamingAction[R, T, E <: Effect](val action: SqlStreamingAction[R, T, E])
-    extends AnyVal {
+  implicit class EnrichedSqlStreamingAction[R, T, E <: Effect](
+      val action: SqlStreamingAction[R, T, E])
+      extends AnyVal {
 
     def one(implicit db: DB): Future[Option[T]] =
       db.run(action.headOption)
@@ -173,34 +177,34 @@ package object db {
   }
 
   sealed trait FoundOrCreated
-  case object Found extends FoundOrCreated
+  case object Found   extends FoundOrCreated
   case object Created extends FoundOrCreated
 
   implicit class EnrichedDBIOpt[R](val dbio: DBIO[Option[R]]) extends AnyVal {
 
     def findOrCreate(r: DbResult[R])(implicit ec: EC): DbResult[R] = {
       dbio.flatMap {
-        case Some(model)  ⇒ DbResult.good(model)
-        case None         ⇒ r
+        case Some(model) ⇒ DbResult.good(model)
+        case None        ⇒ r
       }
     }
 
     // Last item in tuple determines if cart was created or not
     def findOrCreateExtended(r: DbResult[R])(implicit ec: EC): DbResult[(R, FoundOrCreated)] = {
       dbio.flatMap {
-        case Some(model)  ⇒ DbResult.good((model, Found))
-        case _            ⇒ r.map(_.map(result ⇒ (result, Created)))
+        case Some(model) ⇒ DbResult.good((model, Found))
+        case _           ⇒ r.map(_.map(result ⇒ (result, Created)))
       }
     }
 
     def mustFindOr(notFoundFailure: Failure)(implicit ec: EC): DbResult[R] = dbio.flatMap {
-      case Some(model)  ⇒ DbResult.good(model)
-      case None         ⇒ DbResult.failure(notFoundFailure)
+      case Some(model) ⇒ DbResult.good(model)
+      case None        ⇒ DbResult.failure(notFoundFailure)
     }
 
     def mustNotFindOr(shouldNotBeHere: Failure)(implicit ec: EC): DbResult[Unit] = dbio.flatMap {
-      case None     ⇒ DbResult.unit
-      case Some(_)  ⇒ DbResult.failure(shouldNotBeHere)
+      case None    ⇒ DbResult.unit
+      case Some(_) ⇒ DbResult.failure(shouldNotBeHere)
     }
 
     // we only use this when we *know* we can call head safely on a query. (e.g., you've created a record which
@@ -213,11 +217,11 @@ package object db {
     def toXorT: DbResultT[A] = DbResultT(r)
   }
 
-  def xorMapDbio[LeftX, RightX, RightY](xor: Xor[LeftX, RightX])(f: RightX ⇒ DBIO[RightY])
-    (implicit ec: EC): DBIO[Xor[LeftX, RightY]] = {
+  def xorMapDbio[LeftX, RightX, RightY](xor: Xor[LeftX, RightX])(
+      f: RightX ⇒ DBIO[RightY])(implicit ec: EC): DBIO[Xor[LeftX, RightY]] = {
     xor.fold(
-      fs ⇒ lift(Xor.left(fs)),
-      v  ⇒ f(v).map(Xor.right)
+        fs ⇒ lift(Xor.left(fs)),
+        v ⇒ f(v).map(Xor.right)
     )
   }
 }

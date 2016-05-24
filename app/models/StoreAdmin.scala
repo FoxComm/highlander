@@ -10,40 +10,50 @@ import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
 
-case class StoreAdmin(id: Int = 0, name: String, email: String, hashedPassword: Option[String] = None,
-  department: Option[String] = None)
-  extends FoxModel[StoreAdmin]
-  with Validation[StoreAdmin] {
+case class StoreAdmin(id: Int = 0,
+                      name: String,
+                      email: String,
+                      hashedPassword: Option[String] = None,
+                      department: Option[String] = None)
+    extends FoxModel[StoreAdmin]
+    with Validation[StoreAdmin] {
 
   import Validation._
 
   override def validate: ValidatedNel[Failure, StoreAdmin] = {
-    ( notEmpty(name, "name")
-      |@| notEmpty(email, "email")
-      ).map { case _ ⇒ this }
+    (notEmpty(name, "name") |@| notEmpty(email, "email")).map { case _ ⇒ this }
   }
 }
 
 object StoreAdmin {
-  def build(id: Int = 0, email: String, password: Option[String], name: String,
-    department: Option[String] = None): StoreAdmin = {
+  def build(id: Int = 0,
+            email: String,
+            password: Option[String],
+            name: String,
+            department: Option[String] = None): StoreAdmin = {
     val passwordHash = password.map(hashPassword)
-    StoreAdmin(id = id, email = email, hashedPassword = passwordHash, name = name, department = department)
+    StoreAdmin(id = id,
+               email = email,
+               hashedPassword = passwordHash,
+               name = name,
+               department = department)
   }
 }
 
-class StoreAdmins(tag: Tag) extends FoxTable[StoreAdmin](tag, "store_admins")  {
-  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def email = column[String]("email")
+class StoreAdmins(tag: Tag) extends FoxTable[StoreAdmin](tag, "store_admins") {
+  def id             = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def email          = column[String]("email")
   def hashedPassword = column[Option[String]]("hashed_password")
-  def name = column[String]("name")
-  def department = column[Option[String]]("department")
+  def name           = column[String]("name")
+  def department     = column[Option[String]]("department")
 
-  def * = (id, name, email, hashedPassword, department) <> ((StoreAdmin.apply _).tupled, StoreAdmin.unapply)
+  def * =
+    (id, name, email, hashedPassword, department) <> ((StoreAdmin.apply _).tupled, StoreAdmin.unapply)
 }
 
-object StoreAdmins extends FoxTableQuery[StoreAdmin, StoreAdmins](new StoreAdmins(_))
-  with ReturningId[StoreAdmin, StoreAdmins] {
+object StoreAdmins
+    extends FoxTableQuery[StoreAdmin, StoreAdmins](new StoreAdmins(_))
+    with ReturningId[StoreAdmin, StoreAdmins] {
 
   val returningLens: Lens[StoreAdmin, Int] = lens[StoreAdmin].id
 

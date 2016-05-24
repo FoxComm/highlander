@@ -21,12 +21,12 @@ object SimpleCoupon {
 }
 import utils.seeds.generators.SimpleCoupon._
 
-case class SimpleCoupon(formId: Int = 0, shadowId: Int = 0,  
-  percentOff: Percent, totalAmount: Int, promotionId: Int)
+case class SimpleCoupon(
+    formId: Int = 0, shadowId: Int = 0, percentOff: Percent, totalAmount: Int, promotionId: Int)
 
 case class SimpleCouponForm(percentOff: Percent, totalAmount: Int) {
 
-    val (keyMap, form) = ObjectUtils.createForm(parse(s"""
+  val (keyMap, form) = ObjectUtils.createForm(parse(s"""
     {
       "name" : "$percentOff% off over $totalAmount",
       "storefrontName" : "Get $percentOff% off over $totalAmount dollars",
@@ -39,10 +39,10 @@ case class SimpleCouponForm(percentOff: Percent, totalAmount: Int) {
     }"""))
 }
 
-case class SimpleCouponShadow(f: SimpleCouponForm) { 
+case class SimpleCouponShadow(f: SimpleCouponForm) {
 
-    val shadow = ObjectUtils.newShadow(parse(
-      """
+  val shadow = ObjectUtils.newShadow(
+      parse("""
         {
           "name" : {"type": "string", "ref": "name"},
           "storefrontName" : {"type": "richText", "ref": "storefrontName"},
@@ -51,33 +51,35 @@ case class SimpleCouponShadow(f: SimpleCouponForm) {
           "activeFrom" : {"type": "date", "ref": "activeFrom"},
           "activeTo" : {"type": "date", "ref": "activeTo"},
           "tags" : {"type": "tags", "ref": "tags"}
-        }"""), 
+        }"""),
       f.keyMap)
 }
 
 trait CouponGenerator {
 
   def generateCoupon(promotion: SimplePromotion): SimpleCoupon = {
-    SimpleCoupon(
-      percentOff = promotion.percentOff,
-      totalAmount = promotion.totalAmount,
-      promotionId = promotion.promotionId)
+    SimpleCoupon(percentOff = promotion.percentOff,
+                 totalAmount = promotion.totalAmount,
+                 promotionId = promotion.promotionId)
   }
 
-  def generateCoupons(data: Seq[SimpleCoupon])(implicit db: Database) = for {
-    context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-    coupons ← * <~ DbResultT.sequence(data.map(d ⇒ {
-      val couponForm = SimpleCouponForm(d.percentOff, d.totalAmount)
-      val couponShadow = SimpleCouponShadow(couponForm)
-      val payload = CreateCoupon(
-        form = CreateCouponForm(attributes = couponForm.form),
-        shadow = CreateCouponShadow(attributes = couponShadow.shadow),
-        d.promotionId)
-      DbResultT(DBIO.from(CouponManager.create(payload, context.name).flatMap {
-        case Xor.Right(r) ⇒ Result.right(d.copy(formId = r.form.id, shadowId = r.shadow.id))
-        case Xor.Left(l) ⇒  Result.failures(l)
-      }))
-    }))
-  } yield coupons
-
+  def generateCoupons(data: Seq[SimpleCoupon])(implicit db: Database) =
+    for {
+      context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
+      coupons ← * <~ DbResultT.sequence(data.map(d ⇒ {
+                 val couponForm   = SimpleCouponForm(d.percentOff, d.totalAmount)
+                 val couponShadow = SimpleCouponShadow(couponForm)
+                 val payload =
+                   CreateCoupon(form = CreateCouponForm(attributes = couponForm.form),
+                                shadow = CreateCouponShadow(attributes = couponShadow.shadow),
+                                d.promotionId)
+                 DbResultT(DBIO.from(CouponManager
+                           .create(payload, context.name)
+                           .flatMap {
+                     case Xor.Right(r) ⇒
+                       Result.right(d.copy(formId = r.form.id, shadowId = r.shadow.id))
+                     case Xor.Left(l) ⇒ Result.failures(l)
+                   }))
+               }))
+    } yield coupons
 }

@@ -10,7 +10,7 @@ import utils.seeds.Seeds.Factories
 
 class OrderPayloadsTest extends TestBase {
   val today = ZonedDateTime.now()
-  val cc = Factories.creditCard
+  val cc    = Factories.creditCard
 
   "CreateOrder" - {
     val valid = CreateOrder(customerId = 1.some)
@@ -36,4 +36,3 @@ class OrderPayloadsTest extends TestBase {
     }
   }
 }
-

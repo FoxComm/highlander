@@ -31,8 +31,8 @@ object CustomerActivityScenarios {
     .exec(randomAddressLine1("customerAddress"))
     .stopOnFailure
     .doPause
-    .feed(dbFeeder(
-            """select id as "customerRegionId", name as "customerCity" from regions""").random)
+    .feed(
+        dbFeeder("""select id as "customerRegionId", name as "customerCity" from regions""").random)
     .stopOnFailure
     .doPause
     .randomSwitch(50.0 → randomAddressLine2("customerAddress2"))
@@ -59,8 +59,7 @@ object CustomerActivityScenarios {
     .exec(randomAddressLine1("customerAddress"))
     .stopOnFailure
     .doPause
-    .feed(
-        csv("data/scenarios/pacific_northwest_vips/regions_cities.csv").random)
+    .feed(csv("data/scenarios/pacific_northwest_vips/regions_cities.csv").random)
     .stopOnFailure
     .doPause
     .randomSwitch(50.0 → randomAddressLine2("customerAddress2"))

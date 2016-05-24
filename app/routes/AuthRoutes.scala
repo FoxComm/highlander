@@ -15,13 +15,15 @@ import utils.aliases._
 object AuthRoutes {
 
   lazy val customerGoogleOauth = oauthServiceFromConfig(Identity.Customer)
-  lazy val adminGoogleOauth = oauthServiceFromConfig(Identity.Admin)
+  lazy val adminGoogleOauth    = oauthServiceFromConfig(Identity.Admin)
 
   def routes(implicit ec: EC, db: DB) = {
     pathPrefix("public") {
       (post & path("login") & entity(as[LoginPayload])) { payload ⇒
         onSuccess(Authenticator.authenticate(payload)) { result ⇒
-          result.fold({ f ⇒ complete(renderFailure(f)) }, identity)
+          result.fold({ f ⇒
+            complete(renderFailure(f))
+          }, identity)
         }
       } ~
       (post & path("logout")) {

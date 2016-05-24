@@ -9,23 +9,23 @@ import utils.aliases._
 import utils.db._
 
 class GoogleOauthStoreAdmin(options: GoogleOauthOptions)
-  extends Oauth(options)
+    extends Oauth(options)
     with OauthService[StoreAdmin]
     with GoogleProvider {
 
-    def createByUserInfo(userInfo: UserInfo)(implicit ec: EC): DbResult[StoreAdmin] = {
-      StoreAdmins.create(StoreAdmin(email = userInfo.email, name = userInfo.name) )
-    }
+  def createByUserInfo(userInfo: UserInfo)(implicit ec: EC): DbResult[StoreAdmin] = {
+    StoreAdmins.create(StoreAdmin(email = userInfo.email, name = userInfo.name))
+  }
 
-    def findByEmail(email: String)(implicit ec: EC, db: DB) = StoreAdmins.findByEmail(email)
+  def findByEmail(email: String)(implicit ec: EC, db: DB) = StoreAdmins.findByEmail(email)
 
-    def createToken(admin: StoreAdmin): Token = {
-      AdminToken.fromAdmin(admin)
-    }
+  def createToken(admin: StoreAdmin): Token = {
+    AdminToken.fromAdmin(admin)
+  }
 }
 
 class GoogleOauthCustomer(options: GoogleOauthOptions)
-  extends Oauth(options)
+    extends Oauth(options)
     with OauthService[Customer]
     with GoogleProvider {
 
@@ -46,18 +46,16 @@ object GoogleOauth {
     val configPrefix = identity.toString.toLowerCase
 
     val opts = GoogleOauthOptions(
-      clientId = config.getString(s"oauth.$configPrefix.google.client_id"),
-      clientSecret = config.getString(s"oauth.$configPrefix.google.client_secret"),
-      redirectUri = config.getString(s"oauth.$configPrefix.google.redirect_uri"),
-      hostedDomain = config.getOptString(s"oauth.$configPrefix.google.hosted_domain"))
+        clientId = config.getString(s"oauth.$configPrefix.google.client_id"),
+        clientSecret = config.getString(s"oauth.$configPrefix.google.client_secret"),
+        redirectUri = config.getString(s"oauth.$configPrefix.google.redirect_uri"),
+        hostedDomain = config.getOptString(s"oauth.$configPrefix.google.hosted_domain"))
 
     identity match {
       case Identity.Customer ⇒ new GoogleOauthCustomer(opts)
-      case Identity.Admin ⇒ new GoogleOauthStoreAdmin(opts)
-      case _ ⇒ throw new RuntimeException(s"Identity $configPrefix not supported for google oauth.")
+      case Identity.Admin    ⇒ new GoogleOauthStoreAdmin(opts)
+      case _ ⇒
+        throw new RuntimeException(s"Identity $configPrefix not supported for google oauth.")
     }
-
   }
-
 }
-

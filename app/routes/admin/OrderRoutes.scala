@@ -59,14 +59,17 @@ object OrderRoutes {
           } ~
           (post & path("coupon" / Segment) & pathEnd) { code ⇒
             goodOrFailures {
-              OrderPromotionUpdater.attachCoupon(Originator(admin), refNum.some, productContext, code)
+              OrderPromotionUpdater.attachCoupon(Originator(admin),
+                                                 refNum.some,
+                                                 productContext,
+                                                 code)
             }
           } ~
           (delete & path("coupon") & pathEnd) {
             goodOrFailures {
               OrderPromotionUpdater.detachCoupon(Originator(admin), refNum.some)
             }
-          } ~          
+          } ~
           (post & path("increase-remorse-period") & pathEnd) {
             goodOrFailures {
               OrderUpdater.increaseRemorsePeriod(refNum, admin)
@@ -89,25 +92,30 @@ object OrderRoutes {
           } ~
           (post & path("coupon" / Segment) & pathEnd) { code ⇒
             goodOrFailures {
-              OrderPromotionUpdater.attachCoupon(Originator(admin), Some(refNum), productContext, code)
+              OrderPromotionUpdater.attachCoupon(Originator(admin),
+                                                 Some(refNum),
+                                                 productContext,
+                                                 code)
             }
           } ~
           (delete & path("coupon") & pathEnd) {
             nothingOrFailures {
               OrderPromotionUpdater.detachCoupon(Originator(admin), Some(refNum))
             }
-          } ~          
-          (post & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems ⇒
-            goodOrFailures {
-              LineItemUpdater.updateQuantitiesOnOrder(admin, refNum, reqItems)
-            }
+          } ~
+          (post & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) {
+            reqItems ⇒
+              goodOrFailures {
+                LineItemUpdater.updateQuantitiesOnOrder(admin, refNum, reqItems)
+              }
           } ~
           (post & path("gift-cards") & pathEnd & entity(as[AddGiftCardLineItem])) { payload ⇒
             goodOrFailures {
               LineItemUpdater.addGiftCard(admin, refNum, payload)
             }
           } ~
-          (patch & path("gift-cards" / giftCardCodeRegex) & pathEnd & entity(as[AddGiftCardLineItem])) { (code, payload) ⇒
+          (patch & path("gift-cards" / giftCardCodeRegex) & pathEnd & entity(
+                  as[AddGiftCardLineItem])) { (code, payload) ⇒
             goodOrFailures {
               LineItemUpdater.editGiftCard(admin, refNum, code, payload)
             }
@@ -120,7 +128,9 @@ object OrderRoutes {
           pathPrefix("payment-methods" / "credit-cards") {
             (post & pathEnd & entity(as[CreditCardPayment])) { payload ⇒
               goodOrFailures {
-                OrderPaymentUpdater.addCreditCard(Originator(admin), payload.creditCardId, Some(refNum))
+                OrderPaymentUpdater.addCreditCard(Originator(admin),
+                                                  payload.creditCardId,
+                                                  Some(refNum))
               }
             } ~
             (delete & pathEnd) {
@@ -161,18 +171,23 @@ object OrderRoutes {
           pathPrefix("shipping-address") {
             (post & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
               goodOrFailures {
-                OrderShippingAddressUpdater.createShippingAddressFromPayload(Originator(admin), payload, Some(refNum))
+                OrderShippingAddressUpdater.createShippingAddressFromPayload(Originator(admin),
+                                                                             payload,
+                                                                             Some(refNum))
               }
             } ~
             (patch & path(IntNumber) & pathEnd) { addressId ⇒
               goodOrFailures {
-                OrderShippingAddressUpdater.createShippingAddressFromAddressId(Originator(admin), addressId,
-                  Some(refNum))
+                OrderShippingAddressUpdater.createShippingAddressFromAddressId(Originator(admin),
+                                                                               addressId,
+                                                                               Some(refNum))
               }
             } ~
             (patch & pathEnd & entity(as[UpdateAddressPayload])) { payload ⇒
               goodOrFailures {
-                OrderShippingAddressUpdater.updateShippingAddressFromPayload(Originator(admin), payload, Some(refNum))
+                OrderShippingAddressUpdater.updateShippingAddressFromPayload(Originator(admin),
+                                                                             payload,
+                                                                             Some(refNum))
               }
             } ~
             (delete & pathEnd) {
@@ -184,7 +199,9 @@ object OrderRoutes {
           pathPrefix("shipping-method") {
             (patch & pathEnd & entity(as[UpdateShippingMethod])) { payload ⇒
               goodOrFailures {
-                OrderShippingMethodUpdater.updateShippingMethod(Originator(admin), payload, Some(refNum))
+                OrderShippingMethodUpdater.updateShippingMethod(Originator(admin),
+                                                                payload,
+                                                                Some(refNum))
               }
             } ~
             (delete & pathEnd) {
@@ -195,6 +212,6 @@ object OrderRoutes {
           }
         }
       }
-    }  
+    }
   }
 }

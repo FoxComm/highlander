@@ -24,7 +24,7 @@ case class ItemAmountOffer(discount: Int, search: SearchReference) extends Offer
         case Some(data) ⇒ accept(input, substract(price(data), discount))
         case _          ⇒ reject(input, "Sku magically dissapeared from the order")
       }
-    case _  ⇒
+    case _ ⇒
       reject(input, "Invalid search type")
   }
 }

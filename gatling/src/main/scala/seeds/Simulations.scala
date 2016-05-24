@@ -10,9 +10,7 @@ import seeds.simulations.CustomerActivityScenarios._
 object Simulations {
 
   class PhoenixPing extends Simulation {
-    setUp(scenario("Ping phoenix")
-          .exec(Ping.waitForPhoenix)
-          .inject(atOnceUsers(1)))
+    setUp(scenario("Ping phoenix").exec(Ping.waitForPhoenix).inject(atOnceUsers(1)))
       .assertions(global.failedRequests.percent.lessThan(99))
       .protocols(Conf.httpConf)
       .maxDuration(Conf.phoenixStartupTimeout)

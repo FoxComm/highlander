@@ -11,5 +11,5 @@ case class AdminOriginator(admin: StoreAdmin) extends Originator
 
 object Originator {
   def apply(customer: Customer): CustomerOriginator = CustomerOriginator(customer)
-  def apply(admin: StoreAdmin): AdminOriginator = AdminOriginator(admin)
+  def apply(admin: StoreAdmin): AdminOriginator     = AdminOriginator(admin)
 }

@@ -5,7 +5,9 @@ import models.discount.offers.Offer.OfferResult
 import models.order.lineitems.OrderLineItemAdjustment.{AdjustmentType, LineItemAdjustment}
 import models.product.Mvp
 
-case class ItemsAmountOffer(discount: Int, search: SearchReference) extends Offer with AmountOffer {
+case class ItemsAmountOffer(discount: Int, search: SearchReference)
+    extends Offer
+    with AmountOffer {
 
   val adjustmentType: AdjustmentType = LineItemAdjustment
 
@@ -14,8 +16,9 @@ case class ItemsAmountOffer(discount: Int, search: SearchReference) extends Offe
   }
 
   private def adjustInner(input: DiscountInput): OfferResult = search match {
-    case ProductSearch(formId) ⇒ accept(input, substract(totalByProduct(input.lineItems, formId), discount))
-    case SkuSearch(code)       ⇒ accept(input, substract(totalBySku(input.lineItems, code), discount))
-    case _                     ⇒ reject(input, "Invalid search type")
+    case ProductSearch(formId) ⇒
+      accept(input, substract(totalByProduct(input.lineItems, formId), discount))
+    case SkuSearch(code) ⇒ accept(input, substract(totalBySku(input.lineItems, code), discount))
+    case _               ⇒ reject(input, "Invalid search type")
   }
 }

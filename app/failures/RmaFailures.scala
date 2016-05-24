@@ -8,9 +8,8 @@ object RmaFailures {
     override def description = s"rma with referenceNumber=$refNum has no line items"
   }
 
-
   object RmaPaymentNotFoundFailure {
-    def apply[M](m: M): NotFoundFailure400 = NotFoundFailure400(s"${friendlyClassName(m)} payment not found")
+    def apply[M](m: M): NotFoundFailure400 =
+      NotFoundFailure400(s"${friendlyClassName(m)} payment not found")
   }
-
 }

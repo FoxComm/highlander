@@ -50,11 +50,8 @@ trait Addressable[M] {
         matches(zipValue, Address.zipPattern, "zip")
     }
 
-    ( notEmpty(name, "name")
-      |@| notEmpty(address1, "address1")
-      |@| notEmpty(city, "city")
-      |@| zipValidation
-      |@| phone
-      ).map { case _ ⇒ instance }
+    (notEmpty(name, "name") |@| notEmpty(address1, "address1") |@| notEmpty(city, "city") |@| zipValidation |@| phone).map {
+      case _ ⇒ instance
+    }
   }
 }

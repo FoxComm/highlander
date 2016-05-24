@@ -9,3 +9,5 @@ addSbtPlugin("com.softwaremill.clippy" % "plugin-sbt" % "0.2.5")
 addSbtPlugin("com.sksamuel.scapegoat" %% "sbt-scapegoat" % "1.0.4")
 
 addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.8.2")
+
+addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "0.2.5")

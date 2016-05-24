@@ -14,62 +14,68 @@ import slick.jdbc.JdbcType
 import utils.{ADT, Validation}
 import utils.db._
 
-case class Note(id: Int = 0, storeAdminId: Int, referenceId: Int, referenceType: Note.ReferenceType, body: String,
-  createdAt: Instant = Instant.now, deletedAt: Option[Instant] = None, deletedBy: Option[Int] = None)
-  extends FoxModel[Note]
-  with Validation[Note] {
+case class Note(id: Int = 0,
+                storeAdminId: Int,
+                referenceId: Int,
+                referenceType: Note.ReferenceType,
+                body: String,
+                createdAt: Instant = Instant.now,
+                deletedAt: Option[Instant] = None,
+                deletedBy: Option[Int] = None)
+    extends FoxModel[Note]
+    with Validation[Note] {
 
   import Validation._
 
   override def validate: ValidatedNel[Failure, Note] = {
-    ( notEmpty(body, "body")
-      |@| lesserThanOrEqual(body.length, 1000, "bodySize")
-      ).map { case _ ⇒ this }
+    (notEmpty(body, "body") |@| lesserThanOrEqual(body.length, 1000, "bodySize")).map {
+      case _ ⇒ this
+    }
   }
 }
 
 object Note {
   sealed trait ReferenceType
-  case object Order extends ReferenceType
-  case object GiftCard extends ReferenceType
-  case object Customer extends ReferenceType
-  case object Rma extends ReferenceType
-  case object Sku extends ReferenceType
-  case object Product extends ReferenceType
+  case object Order     extends ReferenceType
+  case object GiftCard  extends ReferenceType
+  case object Customer  extends ReferenceType
+  case object Rma       extends ReferenceType
+  case object Sku       extends ReferenceType
+  case object Product   extends ReferenceType
   case object Promotion extends ReferenceType
-  case object Coupon extends ReferenceType
+  case object Coupon    extends ReferenceType
 
   object ReferenceType extends ADT[ReferenceType] {
     def types = sealerate.values[ReferenceType]
   }
 
-  implicit val noteColumnType: JdbcType[ReferenceType] with BaseTypedType[ReferenceType] = ReferenceType.slickColumn
+  implicit val noteColumnType: JdbcType[ReferenceType] with BaseTypedType[ReferenceType] =
+    ReferenceType.slickColumn
 
-  def forOrder(orderId: Int, adminId: Int, payload: CreateNote): Note = Note(
-    storeAdminId = adminId,
-    referenceId = orderId,
-    referenceType = Note.Order,
-    body = payload.body)
+  def forOrder(orderId: Int, adminId: Int, payload: CreateNote): Note =
+    Note(storeAdminId = adminId,
+         referenceId = orderId,
+         referenceType = Note.Order,
+         body = payload.body)
 }
 
-class Notes(tag: Tag) extends FoxTable[Note](tag, "notes")  {
-  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def storeAdminId = column[Int]("store_admin_id")
-  def referenceId = column[Int]("reference_id")
+class Notes(tag: Tag) extends FoxTable[Note](tag, "notes") {
+  def id            = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def storeAdminId  = column[Int]("store_admin_id")
+  def referenceId   = column[Int]("reference_id")
   def referenceType = column[Note.ReferenceType]("reference_type")
-  def body = column[String]("body")
-  def createdAt = column[Instant]("created_at")
-  def deletedAt = column[Option[Instant]]("deleted_at")
-  def deletedBy = column[Option[Int]]("deleted_by")
+  def body          = column[String]("body")
+  def createdAt     = column[Instant]("created_at")
+  def deletedAt     = column[Option[Instant]]("deleted_at")
+  def deletedBy     = column[Option[Int]]("deleted_by")
 
-  def * = (id, storeAdminId, referenceId, referenceType, body, createdAt,
-    deletedAt, deletedBy) <> ((Note.apply _).tupled, Note.unapply)
+  def * =
+    (id, storeAdminId, referenceId, referenceType, body, createdAt, deletedAt, deletedBy) <> ((Note.apply _).tupled, Note.unapply)
 
   def author = foreignKey(StoreAdmins.tableName, storeAdminId, StoreAdmins)(_.id)
 }
 
-object Notes extends FoxTableQuery[Note, Notes](new Notes(_))
-  with ReturningId[Note, Notes] {
+object Notes extends FoxTableQuery[Note, Notes](new Notes(_)) with ReturningId[Note, Notes] {
 
   val returningLens: Lens[Note, Int] = lens[Note].id
 

@@ -13,19 +13,28 @@ import utils.db.DbResultT._
 
 object GiftCardAdjustmentsService {
 
-  def forGiftCard(code: String)(implicit ec: EC, db: DB, sortAndPage: SortAndPage): Result[TheResponse[Seq[Root]]] = (for {
-    giftCard ← * <~ GiftCards.mustFindByCode(code)
-    query = GiftCardAdjustments.filterByGiftCardId(giftCard.id)
-          .joinLeft(OrderPayments).on(_.orderPaymentId === _.id)
-          .joinLeft(Orders).on(_._2.map(_.orderId) === _.id)
+  def forGiftCard(code: String)(
+      implicit ec: EC, db: DB, sortAndPage: SortAndPage): Result[TheResponse[Seq[Root]]] =
+    (for {
+      giftCard ← * <~ GiftCards.mustFindByCode(code)
+      query = GiftCardAdjustments
+        .filterByGiftCardId(giftCard.id)
+        .joinLeft(OrderPayments)
+        .on(_.orderPaymentId === _.id)
+        .joinLeft(Orders)
+        .on(_._2.map(_.orderId) === _.id)
 
-    queryWithMetadata = query.withMetadata.sortAndPageIfNeeded { case (s, ((giftCardAdj, _), _)) ⇒
+      queryWithMetadata = query.withMetadata.sortAndPageIfNeeded {
+        case (s, ((giftCardAdj, _), _)) ⇒
           GiftCardAdjustments.matchSortColumn(s, giftCardAdj)
-        }
+      }
 
-    response ← * <~ queryWithMetadata.result.map(_.map {
-          case ((adj, Some(payment)), Some(order)) ⇒ build(adj, Some(order.referenceNumber))
-          case ((adj, _), _) ⇒ build(adj)
-    }).toTheResponse
-  } yield response).run()
+      response ← * <~ queryWithMetadata.result
+                  .map(_.map {
+                    case ((adj, Some(payment)), Some(order)) ⇒
+                      build(adj, Some(order.referenceNumber))
+                    case ((adj, _), _) ⇒ build(adj)
+                  })
+                  .toTheResponse
+    } yield response).run()
 }

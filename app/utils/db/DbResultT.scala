@@ -40,7 +40,7 @@ object DbResultT {
 
   final implicit class EnrichedOption[A](val option: Option[A]) extends AnyVal {
     def toXor[F](or: F): F Xor A =
-      option.fold { Xor.left[F, A](or) } (Xor.right[F,A])
+      option.fold { Xor.left[F, A](or) }(Xor.right[F, A])
   }
 
   def apply[A](v: DBIO[Failures Xor A]): DbResultT[A] =
@@ -64,11 +64,13 @@ object DbResultT {
   def leftLift[A](v: Failures)(implicit ec: EC): DbResultT[A] =
     left(DBIO.successful(v))
 
-  def sequence[A, M[X] <: TraversableOnce[X]](values: M[DbResultT[A]])
-    (implicit buildFrom: CanBuildFrom[M[DbResultT[A]], A, M[A]], ec: EC): DbResultT[M[A]] =
-    values.foldLeft(rightLift(buildFrom(values))) {
-      (liftedBuilder, liftedValue) ⇒ for (builder ← liftedBuilder; value ← liftedValue) yield builder += value
-    }.map(_.result)
+  def sequence[A, M[X] <: TraversableOnce[X]](values: M[DbResultT[A]])(
+      implicit buildFrom: CanBuildFrom[M[DbResultT[A]], A, M[A]], ec: EC): DbResultT[M[A]] =
+    values
+      .foldLeft(rightLift(buildFrom(values))) { (liftedBuilder, liftedValue) ⇒
+        for (builder ← liftedBuilder; value ← liftedValue) yield builder += value
+      }
+      .map(_.result)
 
   object * {
     def <~[A](v: DBIO[Failures Xor A]): DbResultT[A] =

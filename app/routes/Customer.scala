@@ -25,7 +25,11 @@ import utils.db._
 import utils.aliases._
 
 object Customer {
-  def routes(implicit ec: EC, es: ES, db: DB, customerAuth: AsyncAuthenticator[models.customer.Customer], apis: Apis) = {
+  def routes(implicit ec: EC,
+             es: ES,
+             db: DB,
+             customerAuth: AsyncAuthenticator[models.customer.Customer],
+             apis: Apis) = {
 
     pathPrefix("my") {
       requireAuth(customerAuth) { customer ⇒
@@ -49,10 +53,11 @@ object Customer {
                   OrderQueries.findOrCreateCartByCustomer(customer, context)
                 }
               } ~
-              (post & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems ⇒
-                goodOrFailures {
-                  LineItemUpdater.updateQuantitiesOnCustomersOrder(customer, reqItems, context)
-                }
+              (post & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) {
+                reqItems ⇒
+                  goodOrFailures {
+                    LineItemUpdater.updateQuantitiesOnCustomersOrder(customer, reqItems, context)
+                  }
               } ~
               (post & path("coupon" / Segment) & pathEnd) { code ⇒
                 goodOrFailures {
@@ -113,17 +118,20 @@ object Customer {
               pathPrefix("shipping-address") {
                 (post & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
                   goodOrFailures {
-                    OrderShippingAddressUpdater.createShippingAddressFromPayload(Originator(customer), payload)
+                    OrderShippingAddressUpdater.createShippingAddressFromPayload(
+                        Originator(customer), payload)
                   }
                 } ~
                 (patch & path(IntNumber) & pathEnd) { addressId ⇒
                   goodOrFailures {
-                    OrderShippingAddressUpdater.createShippingAddressFromAddressId(Originator(customer), addressId)
+                    OrderShippingAddressUpdater.createShippingAddressFromAddressId(
+                        Originator(customer), addressId)
                   }
                 } ~
                 (patch & pathEnd & entity(as[UpdateAddressPayload])) { payload ⇒
                   goodOrFailures {
-                    OrderShippingAddressUpdater.updateShippingAddressFromPayload(Originator(customer), payload)
+                    OrderShippingAddressUpdater.updateShippingAddressFromPayload(
+                        Originator(customer), payload)
                   }
                 } ~
                 (delete & pathEnd) {
@@ -229,10 +237,11 @@ object Customer {
                 CreditCardManager.getByIdAndCustomer(creditCardId, customer)
               }
             } ~
-            (post & path(IntNumber / "default") & pathEnd & entity(as[ToggleDefaultCreditCard])) { (cardId, payload) ⇒
-              goodOrFailures {
-                CreditCardManager.toggleCreditCardDefault(customer.id, cardId, payload.isDefault)
-              }
+            (post & path(IntNumber / "default") & pathEnd & entity(as[ToggleDefaultCreditCard])) {
+              (cardId, payload) ⇒
+                goodOrFailures {
+                  CreditCardManager.toggleCreditCardDefault(customer.id, cardId, payload.isDefault)
+                }
             } ~
             (post & pathEnd & entity(as[CreateCreditCard])) { payload ⇒
               goodOrFailures {
@@ -299,5 +308,3 @@ object Customer {
     }
   }
 }
-
-

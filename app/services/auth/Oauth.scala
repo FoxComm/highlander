@@ -15,9 +15,7 @@ import utils.aliases._
 import utils.db._
 import utils.db.DbResultT._
 
-case class OauthCallbackResponse(
-  code: Option[String] = None,
-  error: Option[String] = None) {
+case class OauthCallbackResponse(code: Option[String] = None, error: Option[String] = None) {
 
   def getCode: Xor[Throwable, String] =
     if (this.error.isEmpty && this.code.nonEmpty) {
@@ -27,7 +25,6 @@ case class OauthCallbackResponse(
     }
 }
 
-
 object OauthDirectives {
 
   def oauthResponse: Directive1[OauthCallbackResponse] =
@@ -36,7 +33,8 @@ object OauthDirectives {
     }
 }
 
-trait OauthService[M] { this: Oauth ⇒
+trait OauthService[M] {
+  this: Oauth ⇒
 
   def createByUserInfo(info: UserInfo)(implicit ec: EC): DbResult[M]
   def findByEmail(email: String)(implicit ec: EC, db: DB): DBIO[Option[M]]
@@ -45,16 +43,26 @@ trait OauthService[M] { this: Oauth ⇒
   /*
     1. Exchange code to access token
     2. Get base user info: email and name
-  */
-  def fetchUserInfoFromCode(oauthResponse: OauthCallbackResponse)(implicit ec: EC): DbResultT[UserInfo] = {
+   */
+  def fetchUserInfoFromCode(oauthResponse: OauthCallbackResponse)(
+      implicit ec: EC): DbResultT[UserInfo] = {
     for {
-      code ← XorT.fromXor[DBIO](oauthResponse.getCode).leftMap(t ⇒ GeneralFailure(t.toString).single)
-      accessTokenResp ← * <~ this.accessToken(code).leftMap(t ⇒ GeneralFailure(t.toString).single).value
-      info ← * <~ this.userInfo(accessTokenResp.access_token).leftMap(t ⇒ GeneralFailure(t.toString).single).value
+      code ← XorT
+              .fromXor[DBIO](oauthResponse.getCode)
+              .leftMap(t ⇒ GeneralFailure(t.toString).single)
+      accessTokenResp ← * <~ this
+                         .accessToken(code)
+                         .leftMap(t ⇒ GeneralFailure(t.toString).single)
+                         .value
+      info ← * <~ this
+              .userInfo(accessTokenResp.access_token)
+              .leftMap(t ⇒ GeneralFailure(t.toString).single)
+              .value
     } yield info
   }
 
-  def findOrCreateUserFromInfo(userInfo: UserInfo)(implicit ec: EC, db: DB): DbResultT[M] = for {
+  def findOrCreateUserFromInfo(userInfo: UserInfo)(implicit ec: EC, db: DB): DbResultT[M] =
+    for {
       result ← * <~ findByEmail(userInfo.email).findOrCreateExtended(createByUserInfo(userInfo))
       (user, foundOrCreated) = result
     } yield user
@@ -64,21 +72,22 @@ trait OauthService[M] { this: Oauth ⇒
     2. Get base user info: email and name
     3. FindOrCreate<UserModel>
     4. respondWithToken
-  */
-  def oauthCallback(oauthResponse: OauthCallbackResponse)(implicit ec: EC, db: DB): DbResultT[Token] = for {
+   */
+  def oauthCallback(
+      oauthResponse: OauthCallbackResponse)(implicit ec: EC, db: DB): DbResultT[Token] =
+    for {
       info ← fetchUserInfoFromCode(oauthResponse)
       user ← findOrCreateUserFromInfo(info)
       token = createToken(user)
     } yield token
 
-
   def akkaCallback(oauthResponse: OauthCallbackResponse)(implicit ec: EC, db: DB): Route = {
     onSuccess(oauthCallback(oauthResponse).run()) { tokenOrFailure ⇒
-      tokenOrFailure.flatMap(Authenticator.oauthTokenLoginResponse).fold(
-        { f ⇒ complete(renderFailure(f)) },
-        identity _
-      )
+      tokenOrFailure
+        .flatMap(Authenticator.oauthTokenLoginResponse)
+        .fold({ f ⇒
+          complete(renderFailure(f))
+        }, identity _)
     }
   }
-
 }

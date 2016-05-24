@@ -13,13 +13,17 @@ import utils.Validation._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 
-case class OrderPayment(id: Int = 0, orderId: Int = 0, amount: Option[Int] = None,
-  currency: Currency = Currency.USD, paymentMethodId: Int, paymentMethodType: PaymentMethod.Type)
-  extends FoxModel[OrderPayment] {
+case class OrderPayment(id: Int = 0,
+                        orderId: Int = 0,
+                        amount: Option[Int] = None,
+                        currency: Currency = Currency.USD,
+                        paymentMethodId: Int,
+                        paymentMethodType: PaymentMethod.Type)
+    extends FoxModel[OrderPayment] {
 
-  def isCreditCard:   Boolean = paymentMethodType == PaymentMethod.CreditCard
-  def isGiftCard:     Boolean = paymentMethodType == PaymentMethod.GiftCard
-  def isStoreCredit:  Boolean = paymentMethodType == PaymentMethod.StoreCredit
+  def isCreditCard: Boolean  = paymentMethodType == PaymentMethod.CreditCard
+  def isGiftCard: Boolean    = paymentMethodType == PaymentMethod.GiftCard
+  def isStoreCredit: Boolean = paymentMethodType == PaymentMethod.StoreCredit
 
   override def validate: ValidatedNel[Failure, OrderPayment] = {
     val amountOk = paymentMethodType match {
@@ -35,7 +39,8 @@ case class OrderPayment(id: Int = 0, orderId: Int = 0, amount: Option[Int] = Non
 
 object OrderPayment {
   def fromStripeCustomer(stripeCustomer: StripeCustomer, order: Order): OrderPayment =
-    OrderPayment(orderId = order.id, paymentMethodId = 1, paymentMethodType = PaymentMethod.CreditCard)
+    OrderPayment(
+        orderId = order.id, paymentMethodId = 1, paymentMethodType = PaymentMethod.CreditCard)
 
   def build(method: PaymentMethod): OrderPayment = method match {
     case gc: GiftCard ⇒
@@ -45,27 +50,28 @@ object OrderPayment {
     case sc: StoreCredit ⇒
       OrderPayment(paymentMethodId = sc.id, paymentMethodType = PaymentMethod.StoreCredit)
   }
-
 }
 
 class OrderPayments(tag: Tag) extends FoxTable[OrderPayment](tag, "order_payments") {
 
-  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def orderId = column[Int]("order_id")
-  def paymentMethodId = column[Int]("payment_method_id")
+  def id                = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def orderId           = column[Int]("order_id")
+  def paymentMethodId   = column[Int]("payment_method_id")
   def paymentMethodType = column[PaymentMethod.Type]("payment_method_type")
-  def amount = column[Option[Int]]("amount")
-  def currency = column[Currency]("currency")
+  def amount            = column[Option[Int]]("amount")
+  def currency          = column[Currency]("currency")
 
-  def * = (id, orderId, amount, currency, paymentMethodId, paymentMethodType) <> ((OrderPayment.apply _).tupled,
-    OrderPayment.unapply )
+  def * =
+    (id, orderId, amount, currency, paymentMethodId, paymentMethodType) <> ((OrderPayment.apply _).tupled,
+        OrderPayment.unapply)
 
-  def order       = foreignKey(Orders.tableName, orderId, Orders)(_.id)
-  def creditCard  = foreignKey(CreditCards.tableName, paymentMethodId, CreditCards)(_.id)
+  def order      = foreignKey(Orders.tableName, orderId, Orders)(_.id)
+  def creditCard = foreignKey(CreditCards.tableName, paymentMethodId, CreditCards)(_.id)
 }
 
-object OrderPayments extends FoxTableQuery[OrderPayment, OrderPayments](new OrderPayments(_))
-  with ReturningId[OrderPayment, OrderPayments] {
+object OrderPayments
+    extends FoxTableQuery[OrderPayment, OrderPayments](new OrderPayments(_))
+    with ReturningId[OrderPayment, OrderPayments] {
 
   val returningLens: Lens[OrderPayment, Int] = lens[OrderPayment].id
 
@@ -75,32 +81,35 @@ object OrderPayments extends FoxTableQuery[OrderPayment, OrderPayments](new Orde
   def findAllStoreCredit: QuerySeq =
     filter(_.paymentMethodType === (PaymentMethod.StoreCredit: PaymentMethod.Type))
 
-  def findAllGiftCardsByOrderId(id: Int): Query[(OrderPayments, GiftCards), (OrderPayment, GiftCard), Seq] =
+  def findAllGiftCardsByOrderId(
+      id: Int): Query[(OrderPayments, GiftCards), (OrderPayment, GiftCard), Seq] =
     for {
-      pmts  ← OrderPayments.filter(_.orderId === id)
-      gc    ← GiftCards if gc.id === pmts.paymentMethodId
+      pmts ← OrderPayments.filter(_.orderId === id)
+      gc   ← GiftCards if gc.id === pmts.paymentMethodId
     } yield (pmts, gc)
 
-  def findAllStoreCreditsByOrderId(id: Int): Query[(OrderPayments, StoreCredits), (OrderPayment, StoreCredit), Seq] =
+  def findAllStoreCreditsByOrderId(
+      id: Int): Query[(OrderPayments, StoreCredits), (OrderPayment, StoreCredit), Seq] =
     for {
-      pmts  ← OrderPayments.filter(_.orderId === id)
-      sc    ← StoreCredits if sc.id === pmts.paymentMethodId
+      pmts ← OrderPayments.filter(_.orderId === id)
+      sc   ← StoreCredits if sc.id === pmts.paymentMethodId
     } yield (pmts, sc)
 
   def findAllCreditCardsForOrder(orderId: Rep[Int]): QuerySeq =
-    filter(_.orderId === orderId).filter(_.paymentMethodType === (PaymentMethod.CreditCard: PaymentMethod.Type))
+    filter(_.orderId === orderId)
+      .filter(_.paymentMethodType === (PaymentMethod.CreditCard: PaymentMethod.Type))
 
   object scope {
     implicit class OrderPaymentsQuerySeqConversions(q: QuerySeq) {
-      def giftCards:    QuerySeq = q.byType(PaymentMethod.GiftCard)
-      def creditCards:  QuerySeq = q.byType(PaymentMethod.CreditCard)
+      def giftCards: QuerySeq    = q.byType(PaymentMethod.GiftCard)
+      def creditCards: QuerySeq  = q.byType(PaymentMethod.CreditCard)
       def storeCredits: QuerySeq = q.byType(PaymentMethod.StoreCredit)
 
-      def byType(pmt: PaymentMethod.Type): QuerySeq = q.filter(_.paymentMethodType === (pmt: PaymentMethod.Type))
+      def byType(pmt: PaymentMethod.Type): QuerySeq =
+        q.filter(_.paymentMethodType === (pmt: PaymentMethod.Type))
 
-      def byOrderAndGiftCard(order: Order, giftCard: GiftCard): QuerySeq = q.giftCards
-        .filter(_.paymentMethodId === giftCard.id)
-        .filter(_.orderId === order.id)
+      def byOrderAndGiftCard(order: Order, giftCard: GiftCard): QuerySeq =
+        q.giftCards.filter(_.paymentMethodId === giftCard.id).filter(_.orderId === order.id)
     }
   }
 }

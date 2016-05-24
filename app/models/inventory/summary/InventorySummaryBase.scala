@@ -12,9 +12,7 @@ import utils.Validation
 import utils.aliases.EC
 import utils.db._
 
-trait InventorySummaryBase[A <: FoxModel[A]]
-  extends FoxModel[A]
-  with Validation[A] { self: A ⇒
+trait InventorySummaryBase[A <: FoxModel[A]] extends FoxModel[A] with Validation[A] { self: A ⇒
 
   def onHand: Int
   def onHold: Int
@@ -27,31 +25,34 @@ trait InventorySummaryBase[A <: FoxModel[A]]
   import Validation._
 
   override def validate: ValidatedNel[Failure, A] =
-    (greaterThanOrEqual(onHand, 0, "On hand quantity")
-      |@| greaterThanOrEqual(onHold, 0, "On hold quantity")
-      |@| greaterThanOrEqual(reserved, 0, "Reserved quantity")
-      ).map { case _ ⇒ this }
+    (greaterThanOrEqual(onHand, 0, "On hand quantity") |@| greaterThanOrEqual(
+            onHold, 0, "On hold quantity") |@| greaterThanOrEqual(
+            reserved, 0, "Reserved quantity")).map {
+      case _ ⇒ this
+    }
 }
 
-abstract class InventorySummariesTableBase[A <: InventorySummaryBase[A]](tag: Tag, tableName: String)
-  extends FoxTable[A](tag, tableName) {
+abstract class InventorySummariesTableBase[A <: InventorySummaryBase[A]](
+    tag: Tag, tableName: String)
+    extends FoxTable[A](tag, tableName) {
 
-  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def onHand = column[Int]("on_hand")
-  def onHold = column[Int]("on_hold")
-  def reserved = column[Int]("reserved")
+  def id               = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def onHand           = column[Int]("on_hand")
+  def onHold           = column[Int]("on_hold")
+  def reserved         = column[Int]("reserved")
   def availableForSale = column[Int]("available_for_sale")
-  def updatedAt = column[Instant]("updated_at")
+  def updatedAt        = column[Instant]("updated_at")
 }
 
-abstract class InventorySummariesBase[A <: InventorySummaryBase[A], As <: InventorySummariesTableBase[A]]
-  (construct: Tag ⇒ As)
-  extends FoxTableQuery[A, As](construct) {
+abstract class InventorySummariesBase[A <: InventorySummaryBase[A],
+    As <: InventorySummariesTableBase[A]](construct: Tag ⇒ As)
+    extends FoxTableQuery[A, As](construct) {
 
   override type QuerySeq = Query[As, A, Seq]
 
-  type Ret = (Int, Int)
+  type Ret       = (Int, Int)
   type PackedRet = (Rep[Int], Rep[Int])
-  override val returningQuery = map { o ⇒ (o.id, o.availableForSale) }
-
+  override val returningQuery = map { o ⇒
+    (o.id, o.availableForSale)
+  }
 }

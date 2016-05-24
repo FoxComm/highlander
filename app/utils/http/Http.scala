@@ -15,11 +15,11 @@ object Http {
   import utils.JsonFormatters._
 
   implicit lazy val serialization: Serialization.type = jackson.Serialization
-  implicit lazy val formats:       Formats = phoenixFormats
+  implicit lazy val formats: Formats                  = phoenixFormats
 
-  val notFoundResponse:   HttpResponse  = HttpResponse(NotFound)
-  val noContentResponse:  HttpResponse  = HttpResponse(NoContent)
-  val badRequestResponse: HttpResponse  = HttpResponse(BadRequest)
+  val notFoundResponse: HttpResponse   = HttpResponse(NotFound)
+  val noContentResponse: HttpResponse  = HttpResponse(NoContent)
+  val badRequestResponse: HttpResponse = HttpResponse(BadRequest)
 
   def renderGoodOrFailures[G <: AnyRef](or: Failures Xor G): HttpResponse =
     or.fold(renderFailure(_), render(_))
@@ -27,11 +27,12 @@ object Http {
   def renderNothingOrFailures(or: Failures Xor _): HttpResponse =
     or.fold(renderFailure(_), _ ⇒ noContentResponse)
 
-  def renderOrNotFound[A <: AnyRef](resource: Future[Option[A]],
-    onFound: (A ⇒ HttpResponse) = (r: A) ⇒ render(r))(implicit ec: EC) = {
+  def renderOrNotFound[A <: AnyRef](
+      resource: Future[Option[A]], onFound: (A ⇒ HttpResponse) = (r: A) ⇒ render(r))(
+      implicit ec: EC) = {
     resource.map {
       case Some(r) ⇒ onFound(r)
-      case None ⇒ notFoundResponse
+      case None    ⇒ notFoundResponse
     }
   }
 
@@ -49,12 +50,13 @@ object Http {
 
   def renderFailure(failures: Failures, statusCode: ClientError = BadRequest): HttpResponse = {
     val failuresList = failures.unwrap
-    val notFound = failuresList.collectFirst { case f: NotFoundFailure404 ⇒ f }
-    notFound.fold(HttpResponse(statusCode, entity = jsonEntity("errors" → failuresList.map(_.description)))) { nf ⇒
+    val notFound     = failuresList.collectFirst { case f: NotFoundFailure404 ⇒ f }
+    notFound.fold(HttpResponse(
+            statusCode, entity = jsonEntity("errors" → failuresList.map(_.description)))) { nf ⇒
       renderNotFoundFailure(nf)
     }
   }
 
-  def jsonEntity[A <: AnyRef](resource: A): ResponseEntity = HttpEntity(ContentTypes.`application/json`,
-    json(resource))
+  def jsonEntity[A <: AnyRef](resource: A): ResponseEntity =
+    HttpEntity(ContentTypes.`application/json`, json(resource))
 }

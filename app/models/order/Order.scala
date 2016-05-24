@@ -20,15 +20,26 @@ import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 
-case class Order(
-  id: Int = 0, referenceNumber: String = "", customerId: Int, contextId: Int,
-  state: State = Cart, isLocked: Boolean = false, placedAt: Option[Instant] = None, fraudScore: Int = 0,
-  remorsePeriodEnd: Option[Instant] = None, rmaCount: Int = 0, currency: Currency = Currency.USD,
-  subTotal: Int = 0, shippingTotal: Int = 0, adjustmentsTotal: Int = 0, taxesTotal: Int = 0, grandTotal: Int = 0)
-  extends FoxModel[Order]
-  with FSM[Order.State, Order]
-  with Lockable[Order]
-  with Validation[Order] {
+case class Order(id: Int = 0,
+                 referenceNumber: String = "",
+                 customerId: Int,
+                 contextId: Int,
+                 state: State = Cart,
+                 isLocked: Boolean = false,
+                 placedAt: Option[Instant] = None,
+                 fraudScore: Int = 0,
+                 remorsePeriodEnd: Option[Instant] = None,
+                 rmaCount: Int = 0,
+                 currency: Currency = Currency.USD,
+                 subTotal: Int = 0,
+                 shippingTotal: Int = 0,
+                 adjustmentsTotal: Int = 0,
+                 taxesTotal: Int = 0,
+                 grandTotal: Int = 0)
+    extends FoxModel[Order]
+    with FSM[Order.State, Order]
+    with Lockable[Order]
+    with Validation[Order] {
 
   // TODO: Add order validations
   override def validate: ValidatedNel[Failure, Order] = {
@@ -39,27 +50,27 @@ case class Order(
 
   def refNum: String = referenceNumber
 
-  def stateLens = lens[Order].state
+  def stateLens                                              = lens[Order].state
   override def updateTo(newModel: Order): Failures Xor Order = super.transitionModel(newModel)
-  override def primarySearchKey: String = referenceNumber
+  override def primarySearchKey: String                      = referenceNumber
 
   val fsm: Map[State, Set[State]] = Map(
-    Cart →
+      Cart →
       Set(FraudHold, RemorseHold, Canceled, FulfillmentStarted),
-    FraudHold →
+      FraudHold →
       Set(ManualHold, RemorseHold, FulfillmentStarted, Canceled),
-    RemorseHold →
+      RemorseHold →
       Set(FraudHold, ManualHold, FulfillmentStarted, Canceled),
-    ManualHold →
+      ManualHold →
       Set(FraudHold, RemorseHold, FulfillmentStarted, Canceled),
-    FulfillmentStarted →
+      FulfillmentStarted →
       Set(Shipped, Canceled)
   )
 
   // If order is not in RemorseHold, remorsePeriodEnd should be None, but extra check wouldn't hurt
   val getRemorsePeriodEnd: Option[Instant] = state match {
     case RemorseHold if !isLocked ⇒ remorsePeriodEnd
-    case _ ⇒ None
+    case _                        ⇒ None
   }
 
   def getShippingState: Option[State] = state match {
@@ -71,19 +82,20 @@ case class Order(
     if (isCart) right(this) else left(OrderMustBeCart(this.refNum).single)
 
   def mustBeRemorseHold: Failures Xor Order =
-    if (state == RemorseHold) right(this) else left(GeneralFailure("Order is not in RemorseHold state").single)
+    if (state == RemorseHold) right(this)
+    else left(GeneralFailure("Order is not in RemorseHold state").single)
 }
 
 object Order {
   sealed trait State
 
-  case object Cart extends State
-  case object FraudHold extends State
-  case object RemorseHold extends State
-  case object ManualHold extends State
-  case object Canceled extends State
+  case object Cart               extends State
+  case object FraudHold          extends State
+  case object RemorseHold        extends State
+  case object ManualHold         extends State
+  case object Canceled           extends State
   case object FulfillmentStarted extends State
-  case object Shipped extends State
+  case object Shipped            extends State
 
   object State extends ADT[State] {
     def types = sealerate.values[State]
@@ -91,39 +103,56 @@ object Order {
 
   implicit val stateColumnType: JdbcType[State] with BaseTypedType[State] = State.slickColumn
 
-  def buildCart(customerId: Int, contextId: Int): Order = Order(customerId = customerId, contextId = contextId, state = Order.Cart)
+  def buildCart(customerId: Int, contextId: Int): Order =
+    Order(customerId = customerId, contextId = contextId, state = Order.Cart)
 
   val orderRefNumRegex = """([a-zA-Z0-9-_]*)""".r
 }
 
-class Orders(tag: Tag) extends FoxTable[Order](tag, "orders")  {
+class Orders(tag: Tag) extends FoxTable[Order](tag, "orders") {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   // TODO: Find a way to deal with guest checkouts...
-  def referenceNumber = column[String]("reference_number") //we should generate this based on certain rules; nullable until then
-  def customerId = column[Int]("customer_id")
-  def contextId = column[Int]("context_id")
-  def state = column[Order.State]("state")
-  def isLocked = column[Boolean]("is_locked")
-  def placedAt = column[Option[Instant]]("placed_at")
+  def referenceNumber =
+    column[String]("reference_number") //we should generate this based on certain rules; nullable until then
+  def customerId       = column[Int]("customer_id")
+  def contextId        = column[Int]("context_id")
+  def state            = column[Order.State]("state")
+  def isLocked         = column[Boolean]("is_locked")
+  def placedAt         = column[Option[Instant]]("placed_at")
   def remorsePeriodEnd = column[Option[Instant]]("remorse_period_end")
-  def rmaCount = column[Int]("rma_count")
-  def currency = column[Currency]("currency")
-  def fraudScore = column[Int]("fraud_score")
+  def rmaCount         = column[Int]("rma_count")
+  def currency         = column[Currency]("currency")
+  def fraudScore       = column[Int]("fraud_score")
 
-  def subTotal = column[Int]("sub_total")
-  def shippingTotal = column[Int]("shipping_total")
+  def subTotal         = column[Int]("sub_total")
+  def shippingTotal    = column[Int]("shipping_total")
   def adjustmentsTotal = column[Int]("adjustments_total")
-  def taxesTotal = column[Int]("taxes_total")
-  def grandTotal = column[Int]("grand_total")
+  def taxesTotal       = column[Int]("taxes_total")
+  def grandTotal       = column[Int]("grand_total")
 
-  def * = (id, referenceNumber, customerId, contextId, state, isLocked, placedAt, fraudScore, remorsePeriodEnd,
-    rmaCount, currency, subTotal, shippingTotal, adjustmentsTotal,
-    taxesTotal, grandTotal) <>((Order.apply _).tupled, Order.unapply)
+  def * =
+    (id,
+     referenceNumber,
+     customerId,
+     contextId,
+     state,
+     isLocked,
+     placedAt,
+     fraudScore,
+     remorsePeriodEnd,
+     rmaCount,
+     currency,
+     subTotal,
+     shippingTotal,
+     adjustmentsTotal,
+     taxesTotal,
+     grandTotal) <> ((Order.apply _).tupled, Order.unapply)
 }
 
-object Orders extends FoxTableQuery[Order, Orders](new Orders(_))
-  with ReturningIdAndString[Order, Orders]
-  with SearchByRefNum[Order, Orders] {
+object Orders
+    extends FoxTableQuery[Order, Orders](new Orders(_))
+    with ReturningIdAndString[Order, Orders]
+    with SearchByRefNum[Order, Orders] {
 
   import scope._
 
@@ -155,7 +184,9 @@ object Orders extends FoxTableQuery[Order, Orders](new Orders(_))
     }
   }
 
-  private val rootLens = lens[Order]
+  private val rootLens                          = lens[Order]
   val returningLens: Lens[Order, (Int, String)] = rootLens.id ~ rootLens.referenceNumber
-  override val returningQuery = map { o ⇒ (o.id, o.referenceNumber) }
+  override val returningQuery = map { o ⇒
+    (o.id, o.referenceNumber)
+  }
 }

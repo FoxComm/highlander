@@ -17,5 +17,4 @@ object CouponPayloads {
   case class UpdateCoupon(form: UpdateCouponForm, shadow: UpdateCouponShadow, promotion: Int)
 
   case class GenerateCouponCodes(prefix: String, quantity: Int, length: Int)
-
 }

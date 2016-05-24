@@ -4,38 +4,36 @@ import responses.BatchMetadata.{BatchFailures, BatchSuccess, SuccessData, Failur
 import failures.Failures
 import utils.friendlyClassName
 
-case class TheResponse[A](
-  result     : A,
-  pagination : Option[PaginationMetadata] = None,
-  sorting    : Option[SortingMetadata] = None,
-  alerts     : Option[List[String]] = None,
-  errors     : Option[List[String]] = None,
-  warnings   : Option[List[String]] = None,
-  batch      : Option[BatchMetadata] = None)
+case class TheResponse[A](result: A,
+                          pagination: Option[PaginationMetadata] = None,
+                          sorting: Option[SortingMetadata] = None,
+                          alerts: Option[List[String]] = None,
+                          errors: Option[List[String]] = None,
+                          warnings: Option[List[String]] = None,
+                          batch: Option[BatchMetadata] = None)
 
 object TheResponse {
 
-  def build[A](value       : A,
-               pagination  : Option[PaginationMetadata] = None,
-               sorting     : Option[SortingMetadata] = None,
-               alerts      : Option[Failures] = None,
-               errors      : Option[Failures] = None,
-               warnings    : Option[Failures] = None,
-               batch       : Option[BatchMetadata] = None): TheResponse[A] =
-    TheResponse(result     = value,
+  def build[A](value: A,
+               pagination: Option[PaginationMetadata] = None,
+               sorting: Option[SortingMetadata] = None,
+               alerts: Option[Failures] = None,
+               errors: Option[Failures] = None,
+               warnings: Option[Failures] = None,
+               batch: Option[BatchMetadata] = None): TheResponse[A] =
+    TheResponse(result = value,
                 pagination = pagination,
-                sorting    = sorting,
-                alerts     = alerts.map(_.flatten),
-                errors     = errors.map(_.flatten),
-                warnings   = warnings.map(_.flatten),
-                batch      = batch)
+                sorting = sorting,
+                alerts = alerts.map(_.flatten),
+                errors = errors.map(_.flatten),
+                warnings = warnings.map(_.flatten),
+                batch = batch)
 }
 
-case class PaginationMetadata(
-  from      : Option[Int] = None,
-  size      : Option[Int] = None,
-  pageNo    : Option[Int] = None,
-  total     : Option[Int] = None)
+case class PaginationMetadata(from: Option[Int] = None,
+                              size: Option[Int] = None,
+                              pageNo: Option[Int] = None,
+                              total: Option[Int] = None)
 
 case class SortingMetadata(sortBy: Option[String] = None)
 
@@ -48,23 +46,25 @@ case class BatchMetadata(success: BatchSuccess, failures: BatchFailures) {
 }
 
 object BatchMetadata {
-  type EntityType   = String
-  type SuccessData  = Seq[String]
-  type FailureData  = Map[String, String]
+  type EntityType  = String
+  type SuccessData = Seq[String]
+  type FailureData = Map[String, String]
 
-  type BatchSuccess   = Map[EntityType, SuccessData]
-  type BatchFailures  = Map[EntityType, FailureData]
+  type BatchSuccess  = Map[EntityType, SuccessData]
+  type BatchFailures = Map[EntityType, FailureData]
 
-  def apply(input: BatchMetadataSource): BatchMetadata = buildInner(Seq(input))
+  def apply(input: BatchMetadataSource): BatchMetadata      = buildInner(Seq(input))
   def apply(input: Seq[BatchMetadataSource]): BatchMetadata = buildInner(input)
 
   private def buildInner(input: Seq[BatchMetadataSource]): BatchMetadata = {
-    val success = input.foldLeft(Map[EntityType, SuccessData]()) { case (acc, src) ⇒
-      acc.updated(src.className, src.success)
+    val success = input.foldLeft(Map[EntityType, SuccessData]()) {
+      case (acc, src) ⇒
+        acc.updated(src.className, src.success)
     }
 
-    val failures = input.foldLeft(Map[EntityType, FailureData]()) { case (acc, src) ⇒
-      acc.updated(src.className, src.failures)
+    val failures = input.foldLeft(Map[EntityType, FailureData]()) {
+      case (acc, src) ⇒
+        acc.updated(src.className, src.failures)
     }
 
     BatchMetadata(success = success, failures = failures)

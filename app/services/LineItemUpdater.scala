@@ -20,56 +20,62 @@ import payloads.LineItemPayloads.{AddGiftCardLineItem, UpdateLineItemsPayload}
 import slick.driver.PostgresDriver.api._
 
 object LineItemUpdater {
-  def addGiftCard(admin: StoreAdmin, refNum: String, payload: AddGiftCardLineItem)
-    (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] = (for {
-    p      ← * <~ payload.validate
-    order  ← * <~ Orders.mustFindByRefNum(refNum)
-    _      ← * <~ order.mustBeCart
-    origin ← * <~ GiftCardOrders.create(GiftCardOrder(orderId = order.id))
-    gc     ← * <~ GiftCards.create(GiftCard.buildLineItem(balance = p.balance, originId = origin.id, currency = p.currency))
-    liGc   ← * <~ OrderLineItemGiftCards.create(OrderLineItemGiftCard(giftCardId = gc.id, orderId = order.id))
-    _      ← * <~ OrderLineItems.create(OrderLineItem.buildGiftCard(order, liGc))
-    // update changed totals
-    order  ← * <~ OrderTotaler.saveTotals(order)
-    valid  ← * <~ CartValidator(order).validate()
-    result ← * <~ refreshAndFullOrder(order).toXor
-    _      ← * <~ LogActivity.orderLineItemsAddedGc(admin, result, gc)
-  } yield TheResponse.build(result, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
+  def addGiftCard(admin: StoreAdmin, refNum: String, payload: AddGiftCardLineItem)(
+      implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] =
+    (for {
+      p      ← * <~ payload.validate
+      order  ← * <~ Orders.mustFindByRefNum(refNum)
+      _      ← * <~ order.mustBeCart
+      origin ← * <~ GiftCardOrders.create(GiftCardOrder(orderId = order.id))
+      gc ← * <~ GiftCards.create(GiftCard.buildLineItem(
+                  balance = p.balance, originId = origin.id, currency = p.currency))
+      liGc ← * <~ OrderLineItemGiftCards.create(
+                OrderLineItemGiftCard(giftCardId = gc.id, orderId = order.id))
+      _ ← * <~ OrderLineItems.create(OrderLineItem.buildGiftCard(order, liGc))
+      // update changed totals
+      order  ← * <~ OrderTotaler.saveTotals(order)
+      valid  ← * <~ CartValidator(order).validate()
+      result ← * <~ refreshAndFullOrder(order).toXor
+      _      ← * <~ LogActivity.orderLineItemsAddedGc(admin, result, gc)
+    } yield TheResponse.build(result, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 
-  def editGiftCard(admin: StoreAdmin, refNum: String, code: String, payload: AddGiftCardLineItem)
-    (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] = (for {
-    _        ← * <~ payload.validate
-    giftCard ← * <~ GiftCards.mustFindByCode(code)
-    _        ← * <~ giftCard.mustBeCart
-    order    ← * <~ Orders.mustFindByRefNum(refNum)
-    _        ← * <~ order.mustBeCart
-    _        ← * <~ GiftCards.filter(_.id === giftCard.id).update(GiftCard.update(giftCard, payload))
-    // update changed totals
-    order    ← * <~ OrderTotaler.saveTotals(order)
-    valid    ← * <~ CartValidator(order).validate()
-    result   ← * <~ refreshAndFullOrder(order).toXor
-    _        ← * <~ LogActivity.orderLineItemsUpdatedGc(admin, result, giftCard)
-  } yield TheResponse.build(result, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
+  def editGiftCard(admin: StoreAdmin, refNum: String, code: String, payload: AddGiftCardLineItem)(
+      implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] =
+    (for {
+      _        ← * <~ payload.validate
+      giftCard ← * <~ GiftCards.mustFindByCode(code)
+      _        ← * <~ giftCard.mustBeCart
+      order    ← * <~ Orders.mustFindByRefNum(refNum)
+      _        ← * <~ order.mustBeCart
+      _        ← * <~ GiftCards.filter(_.id === giftCard.id).update(GiftCard.update(giftCard, payload))
+      // update changed totals
+      order  ← * <~ OrderTotaler.saveTotals(order)
+      valid  ← * <~ CartValidator(order).validate()
+      result ← * <~ refreshAndFullOrder(order).toXor
+      _      ← * <~ LogActivity.orderLineItemsUpdatedGc(admin, result, giftCard)
+    } yield TheResponse.build(result, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 
-  def deleteGiftCard(admin: StoreAdmin, refNum: String, code: String)
-    (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] = (for {
-    gc    ← * <~ GiftCards.mustFindByCode(code)
-    _     ← * <~ gc.mustBeCart
-    order ← * <~ Orders.mustFindByRefNum(refNum)
-    _     ← * <~ order.mustBeCart
-    _     ← * <~ OrderLineItemGiftCards.findByGcId(gc.id).delete
-    _     ← * <~ OrderLineItems.filter(_.originId === order.id).giftCards.delete
-    _     ← * <~ GiftCards.filter(_.id === gc.id).delete
-    _     ← * <~ GiftCardOrders.filter(_.id === gc.originId).delete
-    // update changed totals
-    order ← * <~ OrderTotaler.saveTotals(order)
-    valid ← * <~ CartValidator(order).validate()
-    res   ← * <~ refreshAndFullOrder(order).toXor
-    _     ← * <~ LogActivity.orderLineItemsDeletedGc(admin, res, gc)
-  } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
+  def deleteGiftCard(admin: StoreAdmin, refNum: String, code: String)(
+      implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] =
+    (for {
+      gc    ← * <~ GiftCards.mustFindByCode(code)
+      _     ← * <~ gc.mustBeCart
+      order ← * <~ Orders.mustFindByRefNum(refNum)
+      _     ← * <~ order.mustBeCart
+      _     ← * <~ OrderLineItemGiftCards.findByGcId(gc.id).delete
+      _     ← * <~ OrderLineItems.filter(_.originId === order.id).giftCards.delete
+      _     ← * <~ GiftCards.filter(_.id === gc.id).delete
+      _     ← * <~ GiftCardOrders.filter(_.id === gc.originId).delete
+      // update changed totals
+      order ← * <~ OrderTotaler.saveTotals(order)
+      valid ← * <~ CartValidator(order).validate()
+      res   ← * <~ refreshAndFullOrder(order).toXor
+      _     ← * <~ LogActivity.orderLineItemsDeletedGc(admin, res, gc)
+    } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 
-  def updateQuantitiesOnOrder(admin: StoreAdmin, refNum: String, payload: Seq[UpdateLineItemsPayload])
-    (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] = {
+  def updateQuantitiesOnOrder(
+      admin: StoreAdmin, refNum: String, payload: Seq[UpdateLineItemsPayload])(
+      implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] = {
 
     val finder = Orders.mustFindByRefNum(refNum)
     val logActivity = (order: FullOrder.Root, oldQtys: Map[String, Int]) ⇒
@@ -78,10 +84,12 @@ object LineItemUpdater {
     runUpdates(finder, logActivity, payload)
   }
 
-  def updateQuantitiesOnCustomersOrder(customer: Customer, payload: Seq[UpdateLineItemsPayload], context: ObjectContext)
-    (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] = {
+  def updateQuantitiesOnCustomersOrder(
+      customer: Customer, payload: Seq[UpdateLineItemsPayload], context: ObjectContext)(
+      implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] = {
 
-    val findOrCreate = Orders.findActiveOrderByCustomer(customer)
+    val findOrCreate = Orders
+      .findActiveOrderByCustomer(customer)
       .one
       .findOrCreateExtended(Orders.create(Order.buildCart(customer.id, context.id)))
 
@@ -94,28 +102,31 @@ object LineItemUpdater {
   }
 
   private def runUpdates(finder: DbResult[Order],
-    logAct: (FullOrder.Root, Map[String, Int]) ⇒ DbResult[Activity],
-    payload: Seq[UpdateLineItemsPayload])
-    (implicit ec: EC, db: DB): Result[TheResponse[FullOrder.Root]] = (for {
+                         logAct: (FullOrder.Root, Map[String, Int]) ⇒ DbResult[Activity],
+                         payload: Seq[UpdateLineItemsPayload])(
+      implicit ec: EC, db: DB): Result[TheResponse[FullOrder.Root]] =
+    (for {
 
-    order ← * <~ finder
-    _     ← * <~ order.mustBeCart
-    // load old line items for activity trail
-    li    ← * <~ OrderLineItemSkus.findLineItemsByOrder(order).result
-    lineItems = li.foldLeft(Map[String, Int]()) { case (acc, (sku, form, shadow, _, _)) ⇒
-      val quantity = acc.getOrElse(sku.code, 0)
-      acc.updated(sku.code, quantity + 1)
-    }
-    // update quantities
-    _     ← * <~ updateQuantities(order, payload)
-    // update changed totals
-    order ← * <~ OrderTotaler.saveTotals(order)
-    valid ← * <~ CartValidator(order).validate()
-    res   ← * <~ refreshAndFullOrder(order).toXor
-    _     ← * <~ logAct(res, lineItems)
-  } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
+      order ← * <~ finder
+      _     ← * <~ order.mustBeCart
+      // load old line items for activity trail
+      li ← * <~ OrderLineItemSkus.findLineItemsByOrder(order).result
+      lineItems = li.foldLeft(Map[String, Int]()) {
+        case (acc, (sku, form, shadow, _, _)) ⇒
+          val quantity = acc.getOrElse(sku.code, 0)
+          acc.updated(sku.code, quantity + 1)
+      }
+      // update quantities
+      _ ← * <~ updateQuantities(order, payload)
+      // update changed totals
+      order ← * <~ OrderTotaler.saveTotals(order)
+      valid ← * <~ CartValidator(order).validate()
+      res   ← * <~ refreshAndFullOrder(order).toXor
+      _     ← * <~ logAct(res, lineItems)
+    } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 
-  private def qtyAvailableForSkus(order: Order, skus: Seq[String])(implicit ec: EC): DBIO[Map[Sku, Int]] = {
+  private def qtyAvailableForSkus(order: Order, skus: Seq[String])(
+      implicit ec: EC): DBIO[Map[Sku, Int]] = {
     // TODO: inventory... 'nuff said. (aka FIXME)
     // Skus.qtyAvailableForSkus(updateQuantities.keys.toSeq).flatMap { availableQuantities ⇒
     (for {
@@ -130,16 +141,17 @@ object LineItemUpdater {
     }
   }
 
-  private def updateQuantities(order: Order, payload: Seq[UpdateLineItemsPayload])
-    (implicit ec: EC): DbResult[Seq[OrderLineItem]] = {
+  private def updateQuantities(order: Order, payload: Seq[UpdateLineItemsPayload])(
+      implicit ec: EC): DbResult[Seq[OrderLineItem]] = {
 
     val updateQuantities = foldQuantityPayload(payload)
 
     qtyAvailableForSkus(order, updateQuantities.keys.toSeq).flatMap { availableQuantities ⇒
-      val enoughOnHand = availableQuantities.foldLeft(Map.empty[Sku, Int]) { case (acc, (sku, numAvailable)) ⇒
-        val numRequested = updateQuantities.getOrElse(sku.code, 0)
-        if (numRequested >= 0) acc.updated(sku, numRequested) else acc
-          // TODO: reinstate when we have real inventory
+      val enoughOnHand = availableQuantities.foldLeft(Map.empty[Sku, Int]) {
+        case (acc, (sku, numAvailable)) ⇒
+          val numRequested = updateQuantities.getOrElse(sku.code, 0)
+          if (numRequested >= 0) acc.updated(sku, numRequested) else acc
+        // TODO: reinstate when we have real inventory
 //        if (numAvailable >= numRequested && numRequested >= 0)
 //          acc.updated(sku, numRequested)
 //        else
@@ -150,41 +162,54 @@ object LineItemUpdater {
       // left join order_line_item_skus as oli_skus on origin_id = oli_skus.id
       // where order_id = $ and origin_type = 'skuItem' group by sku_id
       val counts = for {
-        (skuId, q) ← OrderLineItems.filter(_.orderId === order.id).skuItems
-          .join(OrderLineItemSkus).on(_.originId === _.id).groupBy(_._2.skuId)
+        (skuId, q) ← OrderLineItems
+                      .filter(_.orderId === order.id)
+                      .skuItems
+                      .join(OrderLineItemSkus)
+                      .on(_.originId === _.id)
+                      .groupBy(_._2.skuId)
       } yield (skuId, q.length)
 
       counts.result.flatMap { (items: Seq[(Int, Int)]) ⇒
         val existingSkuCounts = items.toMap
 
-        val changes = enoughOnHand.map { case (sku, newQuantity) ⇒
-          val current = existingSkuCounts.getOrElse(sku.id, 0)
+        val changes = enoughOnHand.map {
+          case (sku, newQuantity) ⇒
+            val current = existingSkuCounts.getOrElse(sku.id, 0)
 
-          // we're using absolute values from payload, so if newQuantity is greater then create N items
-          if (newQuantity > current) {
-            val delta = newQuantity - current
+            // we're using absolute values from payload, so if newQuantity is greater then create N items
+            if (newQuantity > current) {
+              val delta = newQuantity - current
 
-            val queries = for {
-              origin      ← OrderLineItemSkus.safeFindBySkuId(sku.id)
-              // FIXME: should use `createAll` instead of `++=` but this method is a nightmare to refactor
-              bulkInsert  ← OrderLineItems ++= (1 to delta).map { _ ⇒ 
-                OrderLineItem(orderId = order.id, originId = origin.id) 
-              }.toSeq
-            } yield ()
+              val queries = for {
+                origin ← OrderLineItemSkus.safeFindBySkuId(sku.id)
+                // FIXME: should use `createAll` instead of `++=` but this method is a nightmare to refactor
+                bulkInsert ← OrderLineItems ++= (1 to delta).map { _ ⇒
+                              OrderLineItem(orderId = order.id, originId = origin.id)
+                            }.toSeq
+              } yield ()
 
-            DbResult.fromDbio(queries)
-          } else if (current - newQuantity > 0) {
-            // otherwise delete N items
-            val queries = for {
-              deleteLi ← OrderLineItems.filter(_.id in OrderLineItems.filter(_.orderId === order.id).skuItems
-                .join(OrderLineItemSkus).on(_.originId === _.id).filter(_._2.skuId === sku.id).sortBy(_._1.id.asc)
-                .take(current - newQuantity).map(_._1.id)).delete
-            } yield ()
+              DbResult.fromDbio(queries)
+            } else if (current - newQuantity > 0) {
+              // otherwise delete N items
+              val queries = for {
+                deleteLi ← OrderLineItems
+                            .filter(_.id in OrderLineItems
+                                  .filter(_.orderId === order.id)
+                                  .skuItems
+                                  .join(OrderLineItemSkus)
+                                  .on(_.originId === _.id)
+                                  .filter(_._2.skuId === sku.id)
+                                  .sortBy(_._1.id.asc)
+                                  .take(current - newQuantity)
+                                  .map(_._1.id))
+                            .delete
+              } yield ()
 
-            DbResult.fromDbio(queries)
-          } else {
-            DbResult.unit
-          }
+              DbResult.fromDbio(queries)
+            } else {
+              DbResult.unit
+            }
         }.to[Seq]
 
         DBIO.seq(changes: _*)

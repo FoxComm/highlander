@@ -14,22 +14,27 @@ import utils.db.ExPostgresDriver.api._
 import utils.db._
 import utils.{ADT, JsonFormatters}
 
-case class SharedSearch(id: Int = 0, code: String = "", title: String, query: JValue, rawQuery: JValue,
-  scope: Scope = CustomersScope, storeAdminId: Int, createdAt: Instant = Instant.now, deletedAt: Option[Instant] = None)
-  extends FoxModel[SharedSearch] {
-
-}
+case class SharedSearch(id: Int = 0,
+                        code: String = "",
+                        title: String,
+                        query: JValue,
+                        rawQuery: JValue,
+                        scope: Scope = CustomersScope,
+                        storeAdminId: Int,
+                        createdAt: Instant = Instant.now,
+                        deletedAt: Option[Instant] = None)
+    extends FoxModel[SharedSearch] {}
 
 object SharedSearch {
   sealed trait Scope
-  case object CustomersScope extends Scope
-  case object OrdersScope extends Scope
-  case object GiftCardsScope extends Scope
-  case object ProductsScope extends Scope
-  case object InventoryScope extends Scope
+  case object CustomersScope   extends Scope
+  case object OrdersScope      extends Scope
+  case object GiftCardsScope   extends Scope
+  case object ProductsScope    extends Scope
+  case object InventoryScope   extends Scope
   case object StoreAdminsScope extends Scope
-  case object PromotionsScope extends Scope
-  case object CouponsScope extends Scope
+  case object PromotionsScope  extends Scope
+  case object CouponsScope     extends Scope
   case object CouponCodesScope extends Scope
 
   object Scope extends ADT[Scope] {
@@ -40,40 +45,43 @@ object SharedSearch {
 
   def byAdmin(admin: StoreAdmin, payload: SharedSearchPayload): SharedSearch =
     SharedSearch(
-      title = payload.title,
-      query = payload.query,
-      rawQuery = payload.rawQuery,
-      storeAdminId = admin.id,
-      scope = payload.scope
+        title = payload.title,
+        query = payload.query,
+        rawQuery = payload.rawQuery,
+        storeAdminId = admin.id,
+        scope = payload.scope
     )
 
   implicit val scopeColumnType: JdbcType[Scope] with BaseTypedType[Scope] = Scope.slickColumn
 }
 
-class SharedSearches(tag: Tag) extends FoxTable[SharedSearch](tag, "shared_searches")  {
-  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def code = column[String]("code")
-  def title = column[String]("title")
-  def query = column[JValue]("query")
-  def rawQuery = column[JValue]("raw_query")
-  def scope = column[Scope]("scope")
+class SharedSearches(tag: Tag) extends FoxTable[SharedSearch](tag, "shared_searches") {
+  def id           = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def code         = column[String]("code")
+  def title        = column[String]("title")
+  def query        = column[JValue]("query")
+  def rawQuery     = column[JValue]("raw_query")
+  def scope        = column[Scope]("scope")
   def storeAdminId = column[Int]("store_admin_id")
-  def createdAt = column[Instant]("created_at")
-  def deletedAt = column[Option[Instant]]("deleted_at")
+  def createdAt    = column[Instant]("created_at")
+  def deletedAt    = column[Option[Instant]]("deleted_at")
 
-  def * = (id, code, title, query, rawQuery,
-    scope, storeAdminId, createdAt, deletedAt) <> ((SharedSearch.apply _).tupled, SharedSearch.unapply)
+  def * =
+    (id, code, title, query, rawQuery, scope, storeAdminId, createdAt, deletedAt) <> ((SharedSearch.apply _).tupled, SharedSearch.unapply)
 }
 
-object SharedSearches extends FoxTableQuery[SharedSearch, SharedSearches](new SharedSearches(_))
-  with ReturningIdAndString[SharedSearch, SharedSearches]
-  with SearchByCode[SharedSearch, SharedSearches] {
+object SharedSearches
+    extends FoxTableQuery[SharedSearch, SharedSearches](new SharedSearches(_))
+    with ReturningIdAndString[SharedSearch, SharedSearches]
+    with SearchByCode[SharedSearch, SharedSearches] {
 
   implicit val formats = JsonFormatters.phoenixFormats
 
   import scope._
 
-  override val returningQuery = map { s ⇒ (s.id, s.code) }
+  override val returningQuery = map { s ⇒
+    (s.id, s.code)
+  }
 
   def findOneByCode(code: String): DBIO[Option[SharedSearch]] =
     filter(_.code === code).one
@@ -96,6 +104,6 @@ object SharedSearches extends FoxTableQuery[SharedSearch, SharedSearches](new Sh
     }
   }
 
-  private val rootLens = lens[SharedSearch]
+  private val rootLens                                 = lens[SharedSearch]
   val returningLens: Lens[SharedSearch, (Int, String)] = rootLens.id ~ rootLens.code
 }

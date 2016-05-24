@@ -11,15 +11,16 @@ class OfferAstCompilerTest extends TestBase {
   "OfferAstCompiler" - {
 
     "succeeds for case object with valid, but empty attributes" in new FreeShippingValidFixture {
-      rightValue(compiler.compile()) must === (OfferList(List(FreeShippingOffer)))
+      rightValue(compiler.compile()) must ===(OfferList(List(FreeShippingOffer)))
     }
 
     "succeeds for case class with valid attributes" in new OrderPercentOfferValidFixture {
-      rightValue(compiler.compile()) must === (OfferList(List(OrderPercentOffer(discount = 30))))
+      rightValue(compiler.compile()) must ===(OfferList(List(OrderPercentOffer(discount = 30))))
     }
 
     "fails when typo in configuration found" in new OrderPercentOfferTypoFixture {
-      leftValue(compiler.compile()) must === (OfferAttributesExtractionFailure(OrderPercentOff).single)
+      leftValue(compiler.compile()) must ===(
+          OfferAttributesExtractionFailure(OrderPercentOff).single)
     }
   }
 
@@ -37,7 +38,7 @@ class OfferAstCompilerTest extends TestBase {
   }
 
   trait OrderPercentOfferTypoFixture {
-    val typeName          = OfferType.show(OrderPercentOff)
-    val (json, compiler)  = getTuple(s"""{"$typeName": {"discounts": 30}}""")
+    val typeName         = OfferType.show(OrderPercentOff)
+    val (json, compiler) = getTuple(s"""{"$typeName": {"discounts": 30}}""")
   }
 }

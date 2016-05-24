@@ -14,7 +14,7 @@ package object jobs {
     val interval: FiniteDuration
   }
 
-  private[this] val jobs: ListBuffer[SimpleJob] = ListBuffer.empty[SimpleJob]
+  private[this] val jobs: ListBuffer[SimpleJob]     = ListBuffer.empty[SimpleJob]
   private[this] val runningJobs: Queue[Cancellable] = Queue.empty[Cancellable]
 
   private[jobs] def registerJob(j: SimpleJob): Unit = {
@@ -38,5 +38,4 @@ package object jobs {
       j ← runningJobs
     } j.cancel()
   }
-
 }

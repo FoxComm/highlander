@@ -14,8 +14,8 @@ case class OfferList(offers: Seq[Offer]) extends Offer {
   def adjust(input: DiscountInput): OfferResult = {
     val adjustmentAttempts = offers.map(_.adjust(input))
 
-    val adjustments = adjustmentAttempts.flatMap {
-      o ⇒ o.fold(f ⇒ Seq.empty, qs ⇒ qs.flatMap(q ⇒ Seq(q)))
+    val adjustments = adjustmentAttempts.flatMap { o ⇒
+      o.fold(f ⇒ Seq.empty, qs ⇒ qs.flatMap(q ⇒ Seq(q)))
     }
 
     val failures = adjustmentAttempts.flatMap(o ⇒ o.fold(fs ⇒ fs.unwrap, q ⇒ Seq.empty))

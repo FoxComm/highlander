@@ -11,7 +11,7 @@ object ExceptionWrapper {
 
     dbio.asTry.flatMap {
       case Success(value) ⇒ DbResult.good(value)
-      case Failure(e) ⇒ DbResult.failure(DatabaseFailure(e.getMessage))
+      case Failure(e)     ⇒ DbResult.failure(DatabaseFailure(e.getMessage))
     }
   }
 
@@ -20,7 +20,7 @@ object ExceptionWrapper {
 
     dbresult.asTry.flatMap {
       case Success(value) ⇒ lift(value)
-      case Failure(e) ⇒ DbResult.failure(DatabaseFailure(e.getMessage))
+      case Failure(e)     ⇒ DbResult.failure(DatabaseFailure(e.getMessage))
     }
   }
 }

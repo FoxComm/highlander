@@ -24,5 +24,4 @@ object ProductPayloads {
   case class CreateFullProduct(form: CreateFullProductForm, shadow: CreateFullProductShadow)
 
   case class UpdateFullProduct(form: UpdateFullProductForm, shadow: UpdateFullProductShadow)
-
 }

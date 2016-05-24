@@ -27,9 +27,9 @@ trait OauthClientOptions {
 abstract class Oauth(oauthOptions: OauthClientOptions) extends OauthProvider {
 
   val authorizationParams = Map(
-    "client_id" → oauthOptions.clientId,
-    "redirect_uri" → oauthOptions.redirectUri,
-    "response_type" → "code"
+      "client_id"     → oauthOptions.clientId,
+      "redirect_uri"  → oauthOptions.redirectUri,
+      "response_type" → "code"
   )
 
   /* "Returns the OAuth authorization url." */
@@ -41,17 +41,15 @@ abstract class Oauth(oauthOptions: OauthClientOptions) extends OauthProvider {
       .url
   }
 
-  def accessToken(code: String)(implicit ec: EC): XorT[Future, Throwable, AccessTokenResponse] = xorTryFuture {
-    val req = request(oauthAccessTokenUrl)
-      .POST
-      .<<(Map(
-          "client_id" → oauthOptions.clientId,
-          "client_secret" → oauthOptions.clientSecret,
-          "code" → code,
-          "redirect_uri" → oauthOptions.redirectUri,
-          "grant_type" → "authorization_code"))
+  def accessToken(code: String)(implicit ec: EC): XorT[Future, Throwable, AccessTokenResponse] =
+    xorTryFuture {
+      val req = request(oauthAccessTokenUrl).POST.<<(
+          Map("client_id"     → oauthOptions.clientId,
+              "client_secret" → oauthOptions.clientSecret,
+              "code"          → code,
+              "redirect_uri"  → oauthOptions.redirectUri,
+              "grant_type"    → "authorization_code"))
 
-    Http(req OK as.json4s.Json).map(_.extract[AccessTokenResponse])
-  }
-
+      Http(req OK as.json4s.Json).map(_.extract[AccessTokenResponse])
+    }
 }

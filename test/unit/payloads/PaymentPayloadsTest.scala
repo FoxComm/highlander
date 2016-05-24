@@ -14,11 +14,15 @@ import payloads.PaymentPayloads._
 
 class PaymentPayloadsTest extends TestBase {
   val today = ZonedDateTime.now()
-  val cc = Factories.creditCard
+  val cc    = Factories.creditCard
 
   "CreateCreditCard" - {
-    val valid = CreateCreditCard(holderName = cc.holderName, cardNumber = "4242424242424242",
-      cvv = "123", expYear = cc.expYear, expMonth = cc.expMonth, addressId = Some(1))
+    val valid = CreateCreditCard(holderName = cc.holderName,
+                                 cardNumber = "4242424242424242",
+                                 cvv = "123",
+                                 expYear = cc.expYear,
+                                 expMonth = cc.expMonth,
+                                 addressId = Some(1))
 
     "validate" - {
       "fails if neither addressId nor address are provided" in {
@@ -32,8 +36,10 @@ class PaymentPayloadsTest extends TestBase {
   }
 
   "EditCreditCard" - {
-    val valid = EditCreditCard(holderName = cc.holderName.some, expYear = cc.expYear.some,
-      expMonth = cc.expMonth.some, addressId = 1.some)
+    val valid = EditCreditCard(holderName = cc.holderName.some,
+                               expYear = cc.expYear.some,
+                               expMonth = cc.expMonth.some,
+                               addressId = 1.some)
 
     "validate" - {
       "fails if holderName is an empty string" in {
@@ -51,12 +57,14 @@ class PaymentPayloadsTest extends TestBase {
       }
 
       "fails with expired date" in {
-        val expired = valid.copy(expMonth = today.getMonthValue.some, expYear = today.minusYears(1).getYear.some)
+        val expired = valid.copy(expMonth = today.getMonthValue.some,
+                                 expYear = today.minusYears(1).getYear.some)
 
         val cards = Table(
-          ("payload", "errors"),
-          (expired, NonEmptyList(GeneralFailure("credit card is expired"))),
-          (expired.copy(expYear = 2000.some), NonEmptyList(GeneralFailure("credit card is expired")))
+            ("payload", "errors"),
+            (expired, NonEmptyList(GeneralFailure("credit card is expired"))),
+            (expired.copy(expYear = 2000.some),
+             NonEmptyList(GeneralFailure("credit card is expired")))
         )
 
         forAll(cards) { (card, errors) ⇒

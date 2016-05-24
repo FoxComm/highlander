@@ -14,9 +14,9 @@ package object services {
 
     val unit = right(())
 
-    def good[A](value: A):  Result[A] = Future.successful(Xor.right(value))
-    def right[A](value: A): Result[A] = good(value)
-    def left[A](fs: Failures): Result[A] = failures(fs)
+    def good[A](value: A): Result[A]                     = Future.successful(Xor.right(value))
+    def right[A](value: A): Result[A]                    = good(value)
+    def left[A](fs: Failures): Result[A]                 = failures(fs)
     def leftNel[A](fs: NonEmptyList[Failure]): Result[A] = Future.successful(Xor.left(fs))
 
     def failures(fs: Failures): Result[Nothing] =
@@ -31,7 +31,8 @@ package object services {
   object ResultT {
     def apply[A](xor: Result[A]): ResultT[A] = XorT[Future, Failures, A](xor)
 
-    def fromXor[A](xor: Failures Xor A)(implicit ec: EC): ResultT[A] = xor.fold(leftAsync, rightAsync)
+    def fromXor[A](xor: Failures Xor A)(implicit ec: EC): ResultT[A] =
+      xor.fold(leftAsync, rightAsync)
 
     def rightAsync[A](value: A)(implicit ec: EC): ResultT[A] = XorT.right(Future.successful(value))
 
@@ -41,5 +42,4 @@ package object services {
 
     def leftAsync[A](f: Failures)(implicit ec: EC): ResultT[A] = XorT.left(Future.successful(f))
   }
-
 }

@@ -28,20 +28,20 @@ object Seeds {
 
   def main(args: Array[String]): Unit = {
     Console.err.println("Cleaning DB and running migrations")
-    val config: Config = FoxConfig.loadWithEnv()
+    val config: Config           = FoxConfig.loadWithEnv()
     implicit val db: DatabaseDef = Database.forConfig("db", config)
     flyWayMigrate(config)
 
     createBaseSeeds()
 
-    val scale = if (args.length == 2) args(1).toInt else  1 
+    val scale = if (args.length == 2) args(1).toInt else 1
 
     args.headOption.map {
-      case "random" ⇒  
+      case "random" ⇒
         createRandomSeeds(scale)
-      case "ranking" ⇒ 
+      case "ranking" ⇒
         createRankingSeeds()
-      case "demo" ⇒   
+      case "demo" ⇒
         createStageSeeds()
         createDemoSeeds()
         createRandomSeeds(scale)
@@ -76,10 +76,10 @@ object Seeds {
   def createRandomSeeds(scale: Int)(implicit db: Database) {
     Console.err.println("Inserting random seeds")
 
-    val customers = 1000 * scale
-    val batchSize = 100
-    val appeasementsPerBatch = 8 
-    val batchs = customers / batchSize
+    val customers            = 1000 * scale
+    val batchSize            = 100
+    val appeasementsPerBatch = 8
+    val batchs               = customers / batchSize
 
     Console.err.println(s"Generating $customers customers in $batchs batches")
 
@@ -88,47 +88,76 @@ object Seeds {
     (1 to batchs).foreach { b ⇒
       Console.err.println(s"Generating random batch $b of $batchSize customers")
       val result = Await.result(
-        SeedsGenerator.insertRandomizedSeeds(batchSize, appeasementsPerBatch).runTxn(), (120 * scale).second)
+          SeedsGenerator.insertRandomizedSeeds(batchSize, appeasementsPerBatch).runTxn(),
+          (120 * scale).second)
       validateResults(s"random batch $b", result)
     }
   }
 
   val today = Instant.now().atZone(ZoneId.of("UTC"))
 
-  def createBase()(implicit db: Database): DbResultT[Unit] = for {
-    _           ← * <~ Warehouses.create(Factories.warehouse)
-    context     ← * <~ ObjectContexts.create(SimpleContext.create())
-    admin       ← * <~ Factories.createStoreAdmins
-  } yield {}
+  def createBase()(implicit db: Database): DbResultT[Unit] =
+    for {
+      _       ← * <~ Warehouses.create(Factories.warehouse)
+      context ← * <~ ObjectContexts.create(SimpleContext.create())
+      admin   ← * <~ Factories.createStoreAdmins
+    } yield {}
 
-  def createStage()(implicit db: Database): DbResultT[Unit] = for {
-    context     ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-    ruContext   ← * <~ ObjectContexts.create(SimpleContext.create(name = SimpleContext.ru, lang = "ru"))
-    admin       ← * <~ Factories.createStoreAdmins
-    customers   ← * <~ Factories.createCustomers
-    _           ← * <~ Factories.createAddresses(customers)
-    _           ← * <~ Factories.createCreditCards(customers)
-    products    ← * <~ Factories.createProducts
-    ruProducts  ← * <~ Factories.createRuProducts(products)
-    skus        ← * <~ Factories.createInventory(Seq(products._1, products._2, products._3, products._4, products._5,
-      products._6, products._7))
-    ruSkus      ← * <~ Factories.createInventory(Seq(ruProducts._1, ruProducts._2, ruProducts._3, ruProducts._4,
-      ruProducts._5, ruProducts._6, ruProducts._7))
-    shipMethods ← * <~ Factories.createShipmentRules
-    _           ← * <~ Reasons.createAll(Factories.reasons.map(_.copy(storeAdminId = admin)))
-    _           ← * <~ Factories.createGiftCards
-    _           ← * <~ Factories.createStoreCredits(admin, customers._1, customers._3)
-    orders      ← * <~ Factories.createOrders(customers, products, shipMethods, context)
-    _           ← * <~ Factories.createRmas
-    // Promotions
-    discounts   ← * <~ Factories.createDiscounts
-    promotions  ← * <~ Factories.createCouponPromotions(discounts)
-    coupons     ← * <~ Factories.createCoupons(promotions)
-  } yield {}
+  def createStage()(implicit db: Database): DbResultT[Unit] =
+    for {
+      context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
+      ruContext ← * <~ ObjectContexts.create(
+                     SimpleContext.create(name = SimpleContext.ru, lang = "ru"))
+      admin      ← * <~ Factories.createStoreAdmins
+      customers  ← * <~ Factories.createCustomers
+      _          ← * <~ Factories.createAddresses(customers)
+      _          ← * <~ Factories.createCreditCards(customers)
+      products   ← * <~ Factories.createProducts
+      ruProducts ← * <~ Factories.createRuProducts(products)
+      skus ← * <~ Factories.createInventory(
+                Seq(products._1,
+                    products._2,
+                    products._3,
+                    products._4,
+                    products._5,
+                    products._6,
+                    products._7))
+      ruSkus ← * <~ Factories.createInventory(
+                  Seq(ruProducts._1,
+                      ruProducts._2,
+                      ruProducts._3,
+                      ruProducts._4,
+                      ruProducts._5,
+                      ruProducts._6,
+                      ruProducts._7))
+      shipMethods ← * <~ Factories.createShipmentRules
+      _           ← * <~ Reasons.createAll(Factories.reasons.map(_.copy(storeAdminId = admin)))
+      _           ← * <~ Factories.createGiftCards
+      _           ← * <~ Factories.createStoreCredits(admin, customers._1, customers._3)
+      orders      ← * <~ Factories.createOrders(customers, products, shipMethods, context)
+      _           ← * <~ Factories.createRmas
+      // Promotions
+      discounts  ← * <~ Factories.createDiscounts
+      promotions ← * <~ Factories.createCouponPromotions(discounts)
+      coupons    ← * <~ Factories.createCoupons(promotions)
+    } yield {}
 
-  object Factories extends CustomerSeeds with GiftCardSeeds with StoreCreditSeeds with RmaSeeds with ProductSeeds 
-    with InventorySeeds with ShipmentSeeds with OrderSeeds with StoreAdminSeeds with AddressSeeds with CreditCardSeeds
-    with CustomersGroupSeeds with DiscountSeeds with PromotionSeeds with CouponSeeds {
+  object Factories
+      extends CustomerSeeds
+      with GiftCardSeeds
+      with StoreCreditSeeds
+      with RmaSeeds
+      with ProductSeeds
+      with InventorySeeds
+      with ShipmentSeeds
+      with OrderSeeds
+      with StoreAdminSeeds
+      with AddressSeeds
+      with CreditCardSeeds
+      with CustomersGroupSeeds
+      with DiscountSeeds
+      with PromotionSeeds
+      with CouponSeeds {
 
     implicit val formats = JsonFormatters.phoenixFormats
 
@@ -138,26 +167,57 @@ object Seeds {
 
     def storeCreditPayment = OrderPayment.build(storeCredit)
 
-    def shippingAddress = OrderShippingAddress(regionId = 4174, name = "Old Yax", address1 = "9313 Olde Mill Pond Dr",
-      address2 = None, city = "Glen Allen", zip = "23060", phoneNumber = None)
+    def shippingAddress =
+      OrderShippingAddress(regionId = 4174,
+                           name = "Old Yax",
+                           address1 = "9313 Olde Mill Pond Dr",
+                           address2 = None,
+                           city = "Glen Allen",
+                           zip = "23060",
+                           phoneNumber = None)
 
-    def creditCardCharge = CreditCardCharge(creditCardId = creditCard.id, orderPaymentId = orderPayment.id,
-      chargeId = "foo", amount = 25)
+    def creditCardCharge =
+      CreditCardCharge(creditCardId = creditCard.id,
+                       orderPaymentId = orderPayment.id,
+                       chargeId = "foo",
+                       amount = 25)
 
     def reason = Reason(id = 0, storeAdminId = 0, body = "I'm a reason", parentId = None)
 
-    def reasons: Seq[Reason] = Seq(
-      // Gift card creation reasons
-      Reason(body = "Gift to loyal customer", reasonType = GiftCardCreation, parentId = None, storeAdminId = 0),
-      Reason(body = "New year GC giveaway", reasonType = GiftCardCreation, parentId = None, storeAdminId = 0),
-      // Store credit creation reasons
-      Reason(body = "Gift to loyal customer", reasonType = StoreCreditCreation, parentId = None, storeAdminId = 0),
-      Reason(body = "New year SC giveaway", reasonType = StoreCreditCreation, parentId = None, storeAdminId = 0),
-      // Cancellation reasons
-      Reason(body = "Cancelled by customer request", reasonType = Cancellation, parentId = None, storeAdminId = 0),
-      Reason(body = "Cancelled because duplication", reasonType = Cancellation, parentId = None, storeAdminId = 0),
-      Reason(body = "Other cancellation reason", reasonType = Cancellation, parentId = None, storeAdminId = 0)
-    )
+    def reasons: Seq[Reason] =
+      Seq(
+          // Gift card creation reasons
+          Reason(body = "Gift to loyal customer",
+                 reasonType = GiftCardCreation,
+                 parentId = None,
+                 storeAdminId = 0),
+          Reason(body = "New year GC giveaway",
+                 reasonType = GiftCardCreation,
+                 parentId = None,
+                 storeAdminId = 0),
+          // Store credit creation reasons
+          Reason(body = "Gift to loyal customer",
+                 reasonType = StoreCreditCreation,
+                 parentId = None,
+                 storeAdminId = 0),
+          Reason(body = "New year SC giveaway",
+                 reasonType = StoreCreditCreation,
+                 parentId = None,
+                 storeAdminId = 0),
+          // Cancellation reasons
+          Reason(body = "Cancelled by customer request",
+                 reasonType = Cancellation,
+                 parentId = None,
+                 storeAdminId = 0),
+          Reason(body = "Cancelled because duplication",
+                 reasonType = Cancellation,
+                 parentId = None,
+                 storeAdminId = 0),
+          Reason(body = "Other cancellation reason",
+                 reasonType = Cancellation,
+                 parentId = None,
+                 storeAdminId = 0)
+      )
   }
 
   private def flyWayMigrate(config: Config): Unit = {
@@ -182,8 +242,6 @@ object Seeds {
       Console.err.println(s"Failed generating $seed seeds!")
       failures.flatten.foreach(Console.err.println)
       System.exit(1)
-    },
-    _ ⇒ Console.err.println(s"Successfully created $seed seeds!"))
+    }, _ ⇒ Console.err.println(s"Successfully created $seed seeds!"))
   }
-
 }

@@ -13,24 +13,30 @@ object VariantValue {
   val kind = "variant-value"
 }
 
-case class VariantValue(id: Int = 0, contextId: Int, shadowId: Int, formId: Int,
-  commitId: Int, updatedAt: Instant = Instant.now, createdAt: Instant = Instant.now)
-  extends FoxModel[VariantValue]
-  with Validation[VariantValue]
+case class VariantValue(id: Int = 0,
+                        contextId: Int,
+                        shadowId: Int,
+                        formId: Int,
+                        commitId: Int,
+                        updatedAt: Instant = Instant.now,
+                        createdAt: Instant = Instant.now)
+    extends FoxModel[VariantValue]
+    with Validation[VariantValue]
 
 class VariantValues(tag: Tag) extends ObjectHeads[VariantValue](tag, "variant_values") {
-  def * = (id, contextId, shadowId, formId, commitId, updatedAt,
-    createdAt) <> ((VariantValue.apply _).tupled, VariantValue.unapply)
+  def * =
+    (id, contextId, shadowId, formId, commitId, updatedAt, createdAt) <> ((VariantValue.apply _).tupled, VariantValue.unapply)
 }
 
-object VariantValues extends FoxTableQuery[VariantValue, VariantValues](new VariantValues(_))
-  with ReturningId[VariantValue, VariantValues] {
+object VariantValues
+    extends FoxTableQuery[VariantValue, VariantValues](new VariantValues(_))
+    with ReturningId[VariantValue, VariantValues] {
 
   val returningLens: Lens[VariantValue, Int] = lens[VariantValue].id
 
   implicit val formats = JsonFormatters.phoenixFormats
 
-  def filterByContext(contextId: Int): QuerySeq = 
+  def filterByContext(contextId: Int): QuerySeq =
     filter(_.contextId === contextId)
 
   def filterByFormId(formId: Int): QuerySeq =

@@ -16,45 +16,50 @@ object Promotion {
 
   sealed trait ApplyType
 
-  case object Auto extends ApplyType
+  case object Auto   extends ApplyType
   case object Coupon extends ApplyType
 
   object ApplyType extends ADT[ApplyType] {
     def types = sealerate.values[ApplyType]
   }
 
-  implicit val stateColumnType: JdbcType[ApplyType] with BaseTypedType[ApplyType] = ApplyType.slickColumn
-
+  implicit val stateColumnType: JdbcType[ApplyType] with BaseTypedType[ApplyType] =
+    ApplyType.slickColumn
 }
 
 /**
- * A Promotion is a way to bundle several discounts into a presentable form.
- * ObjectLinks are used to connect a promotion to several discounts.
- */
-case class Promotion(id: Int = 0, contextId: Int, shadowId: Int, formId: Int, 
-  commitId: Int, applyType: Promotion.ApplyType = Promotion.Auto, 
-  updatedAt: Instant = Instant.now, createdAt: Instant = Instant.now)
-  extends FoxModel[Promotion]
-  with Validation[Promotion]
+  * A Promotion is a way to bundle several discounts into a presentable form.
+  * ObjectLinks are used to connect a promotion to several discounts.
+  */
+case class Promotion(id: Int = 0,
+                     contextId: Int,
+                     shadowId: Int,
+                     formId: Int,
+                     commitId: Int,
+                     applyType: Promotion.ApplyType = Promotion.Auto,
+                     updatedAt: Instant = Instant.now,
+                     createdAt: Instant = Instant.now)
+    extends FoxModel[Promotion]
+    with Validation[Promotion]
 
 class Promotions(tag: Tag) extends ObjectHeads[Promotion](tag, "promotions") {
 
-
   def requireCoupon = column[Promotion.ApplyType]("apply_type")
 
-  def * = (id, contextId, shadowId, formId, commitId, requireCoupon, updatedAt, createdAt) <> ((Promotion.apply _).tupled, Promotion.unapply)
-
+  def * =
+    (id, contextId, shadowId, formId, commitId, requireCoupon, updatedAt, createdAt) <> ((Promotion.apply _).tupled, Promotion.unapply)
 }
 
-object Promotions extends FoxTableQuery[Promotion, Promotions](new Promotions(_))
-  with ReturningId[Promotion, Promotions] {
+object Promotions
+    extends FoxTableQuery[Promotion, Promotions](new Promotions(_))
+    with ReturningId[Promotion, Promotions] {
 
   val returningLens: Lens[Promotion, Int] = lens[Promotion].id
 
-  def filterByContext(contextId: Int): QuerySeq = 
+  def filterByContext(contextId: Int): QuerySeq =
     filter(_.contextId === contextId)
 
-  def filterByContextAndFormId(contextId: Int, formId: Int): QuerySeq = 
+  def filterByContextAndFormId(contextId: Int, formId: Int): QuerySeq =
     filter(_.contextId === contextId).filter(_.formId === formId)
 
   object scope {

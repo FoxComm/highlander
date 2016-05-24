@@ -8,14 +8,15 @@ case class GiftCardRefund(id: Int = 0, rmaId: Int) extends FoxModel[GiftCardRefu
 
 object GiftCardRefund {}
 
-class GiftCardRefunds(tag: Tag) extends FoxTable[GiftCardRefund](tag, "gift_card_refunds")  {
-  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+class GiftCardRefunds(tag: Tag) extends FoxTable[GiftCardRefund](tag, "gift_card_refunds") {
+  def id    = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def rmaId = column[Int]("rma_id")
 
   def * = (id, rmaId) <> ((GiftCardRefund.apply _).tupled, GiftCardRefund.unapply)
 }
 
-object GiftCardRefunds extends FoxTableQuery[GiftCardRefund, GiftCardRefunds](new GiftCardRefunds(_))
-  with ReturningId[GiftCardRefund, GiftCardRefunds] {
+object GiftCardRefunds
+    extends FoxTableQuery[GiftCardRefund, GiftCardRefunds](new GiftCardRefunds(_))
+    with ReturningId[GiftCardRefund, GiftCardRefunds] {
   val returningLens: Lens[GiftCardRefund, Int] = lens[GiftCardRefund].id
 }

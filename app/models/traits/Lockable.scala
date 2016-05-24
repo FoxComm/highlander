@@ -16,5 +16,4 @@ trait Lockable[A] { self: A ⇒
 
   def mustNotBeLocked: Failures Xor A =
     if (!isLocked) right(this) else left(LockedFailure(this, primarySearchKey).single)
-
 }

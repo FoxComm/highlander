@@ -22,7 +22,8 @@ case class QualifierCompiler(qualifierType: QualifierType, attributes: JValue) {
     case _                ⇒ Xor.Left(QualifierNotImplementedFailure(qualifierType).single)
   }
 
-  private def extract[T <: Qualifier](json: JValue)(implicit m: Manifest[T]): Xor[Failures, Qualifier] = {
+  private def extract[T <: Qualifier](json: JValue)(
+      implicit m: Manifest[T]): Xor[Failures, Qualifier] = {
     json.extractOpt[T] match {
       case Some(q) ⇒ Xor.Right(q)
       case None    ⇒ Xor.Left(QualifierAttributesExtractionFailure(qualifierType).single)

@@ -16,7 +16,9 @@ package object rmas {
       Rmas.findOnePendingByRefNum(refNum).mustFindOr(rmaNotFound(refNum))
 
     def mustFindCcPaymentsByOrderId(orderId: Int)(implicit ec: EC): DbResult[OrderPayment] =
-      OrderPayments.findAllByOrderId(orderId).creditCards
+      OrderPayments
+        .findAllByOrderId(orderId)
+        .creditCards
         .mustFindOneOr(OrderPaymentNotFoundFailure(Order))
   }
 }

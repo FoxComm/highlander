@@ -6,21 +6,23 @@ import responses.{CustomerResponse, GiftCardResponse, StoreAdminResponse, StoreC
 
 object GiftCardTailored {
   case class GiftCardCreated(admin: StoreAdminResponse.Root, giftCard: GiftCardResponse.Root)
-    extends ActivityBase[GiftCardCreated]
+      extends ActivityBase[GiftCardCreated]
 
-  case class GiftCardStateChanged(admin: StoreAdminResponse.Root, giftCard: GiftCardResponse.Root,
-    payload: GiftCardUpdateStateByCsr)
-    extends ActivityBase[GiftCardStateChanged]
+  case class GiftCardStateChanged(admin: StoreAdminResponse.Root,
+                                  giftCard: GiftCardResponse.Root,
+                                  payload: GiftCardUpdateStateByCsr)
+      extends ActivityBase[GiftCardStateChanged]
 
-  case class GiftCardConvertedToStoreCredit(admin: StoreAdminResponse.Root, giftCard: GiftCardResponse.Root,
-    storeCredit: StoreCreditResponse.Root)
-    extends ActivityBase[GiftCardConvertedToStoreCredit]
+  case class GiftCardConvertedToStoreCredit(admin: StoreAdminResponse.Root,
+                                            giftCard: GiftCardResponse.Root,
+                                            storeCredit: StoreCreditResponse.Root)
+      extends ActivityBase[GiftCardConvertedToStoreCredit]
 
-  case class GiftCardAuthorizedFunds(customer: CustomerResponse.Root, order: Order, giftCardCodes: Seq[String],
-    amount: Int)
-    extends ActivityBase[GiftCardAuthorizedFunds]
+  case class GiftCardAuthorizedFunds(
+      customer: CustomerResponse.Root, order: Order, giftCardCodes: Seq[String], amount: Int)
+      extends ActivityBase[GiftCardAuthorizedFunds]
 
-  case class GiftCardCapturedFunds(customer: CustomerResponse.Root, order: Order, giftCardCodes: Seq[String],
-    amount: Int)
-    extends ActivityBase[GiftCardCapturedFunds]
+  case class GiftCardCapturedFunds(
+      customer: CustomerResponse.Root, order: Order, giftCardCodes: Seq[String], amount: Int)
+      extends ActivityBase[GiftCardCapturedFunds]
 }

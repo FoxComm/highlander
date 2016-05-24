@@ -16,5 +16,4 @@ object IlluminateFailures {
   case object ShadowAttributesAreEmpty extends Failure {
     override def description = "Shadow attributes are empty"
   }
-
 }

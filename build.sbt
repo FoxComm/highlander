@@ -132,6 +132,8 @@ lazy val phoenixScala = (project in file(".")).
     test in assembly := {},
     addCommandAlias("assembly", "gatling/assembly"),
     addCommandAlias("all", "; clean; gatling/clean; it:compile; gatling/compile; test; gatling/assembly"),
+    scalafmtConfig := Some(file(".scalafmt")),
+    reformatOnCompileSettings, // scalafmt
     test <<= Def.task {
       /** We need to do nothing here. Unit and ITs will run in parallel
         * and this task will fail if any of those fail. */
@@ -163,6 +165,8 @@ lazy val gatling = (project in file("gatling")).
     cleanFiles <+= baseDirectory(_ / "../gatling-classes"),
     cleanFiles <+= baseDirectory(_ / "../gatling-results"),
     assemblyJarName := (AssemblyKeys.assemblyJarName in assembly in phoenixScala).value,
+    scalafmtConfig := Some(file(".scalafmt")),
+    reformatOnCompileSettings, // scalafmt
     // Resolve elastic4s assembly conflicts
     assemblyMergeStrategy in assembly := {
       case PathList("org", "joda", "time", "base", "BaseDateTime.class") ⇒ MergeStrategy.first
@@ -170,7 +174,7 @@ lazy val gatling = (project in file("gatling")).
         val oldStrategy = (assemblyMergeStrategy in assembly).value
         oldStrategy(x)
     }
-  )
+  ).enablePlugins(ScalaFmtPlugin)
 
 lazy val seedGatling = inputKey[Unit]("Seed DB with Gatling")
 seedGatling := { (runMain in Compile in gatling).partialInput(" seeds.OneshotSeeds").evaluated }

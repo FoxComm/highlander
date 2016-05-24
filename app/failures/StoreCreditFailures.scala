@@ -13,7 +13,7 @@ object StoreCreditFailures {
   }
 
   case class CustomerHasInsufficientStoreCredit(id: Int, has: Int, want: Int) extends Failure {
-    override def description = s"customer with id=$id has storeCredit=$has less than requestedAmount=$want"
+    override def description =
+      s"customer with id=$id has storeCredit=$has less than requestedAmount=$want"
   }
-
 }

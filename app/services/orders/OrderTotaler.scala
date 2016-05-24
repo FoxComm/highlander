@@ -18,11 +18,14 @@ object OrderTotaler {
     def build(subTotal: Int, shipping: Int, adjustments: Int): Totals = {
       val taxes = ((subTotal - adjustments + shipping) * 0.05).toInt
 
-      Totals(subTotal = subTotal, taxes = taxes, shipping = shipping, adjustments = adjustments,
-        total = (adjustments - (subTotal + taxes + shipping)).abs)
+      Totals(subTotal = subTotal,
+             taxes = taxes,
+             shipping = shipping,
+             adjustments = adjustments,
+             total = (adjustments - (subTotal + taxes + shipping)).abs)
     }
 
-    def empty: Totals = Totals(0,0,0,0,0)
+    def empty: Totals = Totals(0, 0, 0, 0, 0)
   }
 
   def subTotal(order: Order)(implicit ec: EC): DBIO[Int] =
@@ -38,29 +41,39 @@ object OrderTotaler {
          |	where oli.order_id = ${order.id}
          | """.stripMargin.as[(Int, Int)].headOption.map {
       case Some((count, total)) if count > 0 ⇒ total
-      case _ ⇒ 0
+      case _                                 ⇒ 0
     }
 
-  def shippingTotal(order: Order)(implicit ec: EC): DbResult[Int] = (for {
-    orderShippingMethods ← * <~ OrderShippingMethods.findByOrderId(order.id).result.toXor
-    sum = orderShippingMethods.foldLeft(0)(_ + _.price)
-  } yield sum).value
+  def shippingTotal(order: Order)(implicit ec: EC): DbResult[Int] =
+    (for {
+      orderShippingMethods ← * <~ OrderShippingMethods.findByOrderId(order.id).result.toXor
+      sum = orderShippingMethods.foldLeft(0)(_ + _.price)
+    } yield sum).value
 
-  def adjustmentsTotal(order: Order)(implicit ec: EC): DbResult[Int] = (for {
-    lineItemAdjustments ← * <~ OrderLineItemAdjustments.filter(_.orderId === order.id).result.toXor
-    sum = lineItemAdjustments.foldLeft(0)(_ + _.substract)
-  } yield sum).value
+  def adjustmentsTotal(order: Order)(implicit ec: EC): DbResult[Int] =
+    (for {
+      lineItemAdjustments ← * <~ OrderLineItemAdjustments
+                             .filter(_.orderId === order.id)
+                             .result
+                             .toXor
+      sum = lineItemAdjustments.foldLeft(0)(_ + _.substract)
+    } yield sum).value
 
-  def totals(order: Order)(implicit ec: EC): DbResult[Totals] = (for {
-    sub   ← * <~ subTotal(order).toXor
-    ship  ← * <~ shippingTotal(order)
-    adj   ← * <~ adjustmentsTotal(order)
-  } yield Totals.build(subTotal = sub, shipping = ship, adjustments = adj)).value
+  def totals(order: Order)(implicit ec: EC): DbResult[Totals] =
+    (for {
+      sub  ← * <~ subTotal(order).toXor
+      ship ← * <~ shippingTotal(order)
+      adj  ← * <~ adjustmentsTotal(order)
+    } yield Totals.build(subTotal = sub, shipping = ship, adjustments = adj)).value
 
-  def saveTotals(order: Order)(implicit ec: EC): DbResult[Order] = (for {
-    t           ← * <~ totals(order)
-    withTotals  = order.copy(subTotal = t.subTotal, shippingTotal = t.shipping,
-      adjustmentsTotal = t.adjustments, taxesTotal = t.taxes, grandTotal = t.total)
-    updated     ← * <~ Orders.update(order, withTotals)
-  } yield updated).value
+  def saveTotals(order: Order)(implicit ec: EC): DbResult[Order] =
+    (for {
+      t ← * <~ totals(order)
+      withTotals = order.copy(subTotal = t.subTotal,
+                              shippingTotal = t.shipping,
+                              adjustmentsTotal = t.adjustments,
+                              taxesTotal = t.taxes,
+                              grandTotal = t.total)
+      updated ← * <~ Orders.update(order, withTotals)
+    } yield updated).value
 }

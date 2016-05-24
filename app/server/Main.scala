@@ -35,7 +35,7 @@ import utils.{Apis, ElasticsearchApi, FoxConfig, WiredStripeApi}
 object Main extends App with LazyLogging {
   logger.info("Starting phoenix server")
   implicit val env = FoxConfig.environment
-  val service = new Service()
+  val service      = new Service()
   service.performSelfCheck()
   service.bind()
   service.setupRemorseTimers()
@@ -45,17 +45,17 @@ object Main extends App with LazyLogging {
   logger.info("Startup process complete")
 }
 
-class Service(
-  systemOverride: Option[ActorSystem]      = None,
-  dbOverride:     Option[Database]         = None,
-  apisOverride:   Option[Apis]             = None,
-  esOverride:     Option[ElasticsearchApi] = None,
-  addRoutes:      immutable.Seq[Route] = immutable.Seq.empty)(implicit val env: FoxConfig.Environment) {
+class Service(systemOverride: Option[ActorSystem] = None,
+              dbOverride: Option[Database] = None,
+              apisOverride: Option[Apis] = None,
+              esOverride: Option[ElasticsearchApi] = None,
+              addRoutes: immutable.Seq[Route] = immutable.Seq.empty)(
+    implicit val env: FoxConfig.Environment) {
 
   import utils.JsonFormatters._
 
   implicit val serialization: Serialization.type = jackson.Serialization
-  implicit val formats: Formats = phoenixFormats
+  implicit val formats: Formats                  = phoenixFormats
 
   val config: Config = FoxConfig.loadWithEnv()
 
@@ -69,11 +69,11 @@ class Service(
 
   val logger = Logging(system, getClass)
 
-  implicit val db:   Database         = dbOverride.getOrElse(Database.forConfig("db", config))
-  implicit val apis: Apis             = apisOverride.getOrElse(Apis(new WiredStripeApi))
-  implicit val es:   ElasticsearchApi = esOverride.getOrElse(ElasticsearchApi.fromConfig(config))
+  implicit val db: Database         = dbOverride.getOrElse(Database.forConfig("db", config))
+  implicit val apis: Apis           = apisOverride.getOrElse(Apis(new WiredStripeApi))
+  implicit val es: ElasticsearchApi = esOverride.getOrElse(ElasticsearchApi.fromConfig(config))
 
-  val storeAdminAuth: AsyncAuthenticator[StoreAdmin] = Authenticator.forAdminFromConfig
+  val storeAdminAuth: AsyncAuthenticator[StoreAdmin]      = Authenticator.forAdminFromConfig
   implicit val customerAuth: AsyncAuthenticator[Customer] = Authenticator.forCustomerFromConfig
 
   val defaultRoutes = {
@@ -132,8 +132,8 @@ class Service(
   def bind(config: Config = config): Future[ServerBinding] = {
     val host = config.getString("http.interface")
     val port = config.getInt("http.port")
-    val bind = Http().bindAndHandle(allRoutes, host, port).flatMap {
-      binding ⇒ serverBinding.alter(Some(binding)).map(_ ⇒ binding)
+    val bind = Http().bindAndHandle(allRoutes, host, port).flatMap { binding ⇒
+      serverBinding.alter(Some(binding)).map(_ ⇒ binding)
     }
     logger.info(s"Bound to $host:$port")
     bind
@@ -147,9 +147,10 @@ class Service(
 
   def setupRemorseTimers(): Unit = {
     logger.info("Scheduling remorse timer")
-    val remorseTimer = system.actorOf(Props(new RemorseTimer()), "remorse-timer")
+    val remorseTimer      = system.actorOf(Props(new RemorseTimer()), "remorse-timer")
     val remorseTimerBuddy = system.actorOf(Props(new RemorseTimerMate()), "remorse-timer-mate")
-    system.scheduler.schedule(Duration.Zero, 1.minute, remorseTimer, Tick)(executionContext, remorseTimerBuddy)
+    system.scheduler.schedule(Duration.Zero, 1.minute, remorseTimer, Tick)(
+        executionContext, remorseTimerBuddy)
   }
 
   def performSelfCheck(): Unit = {

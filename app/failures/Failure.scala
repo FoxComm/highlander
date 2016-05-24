@@ -49,9 +49,11 @@ case class StateTransitionNotAllowed(message: String) extends Failure {
 }
 
 object StateTransitionNotAllowed {
-  def apply[A](a: A, fromState: String, toState: String, searchKey: Any): StateTransitionNotAllowed = {
-    StateTransitionNotAllowed(s"Transition from $fromState to $toState is not allowed for ${friendlyClassName(a)} " +
-      s"with ${searchTerm(a)}=$searchKey")
+  def apply[A](
+      a: A, fromState: String, toState: String, searchKey: Any): StateTransitionNotAllowed = {
+    StateTransitionNotAllowed(
+        s"Transition from $fromState to $toState is not allowed for ${friendlyClassName(a)} " +
+        s"with ${searchTerm(a)}=$searchKey")
   }
 
   def apply(from: Order.State, to: Order.State, refNum: String): StateTransitionNotAllowed = {
@@ -71,7 +73,6 @@ case object EmptyCancellationReasonFailure extends Failure {
   override def description = "Please provide valid cancellation reason"
 }
 
-
 case object InvalidCancellationReasonFailure extends Failure {
   override def description = "Cancellation reason doesn't exist"
 }
@@ -85,7 +86,8 @@ case class InvalidFieldFailure(name: String) extends Failure {
 }
 
 case class AlreadySavedForLater(customerId: Int, skuId: Int) extends Failure {
-  override def description = s"Customer with id=$customerId already has SKU with id=$skuId saved for later"
+  override def description =
+    s"Customer with id=$customerId already has SKU with id=$skuId saved for later"
 }
 
 case class ShipmentNotFoundFailure(orderRefNum: String) extends Failure {

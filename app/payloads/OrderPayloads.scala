@@ -17,17 +17,15 @@ object OrderPayloads {
   case class CreateOrderNotePayload(body: String)
 
   case class CreateOrder(customerId: Option[Int] = None, email: Option[String] = None)
-    extends Validation[CreateOrder] {
+      extends Validation[CreateOrder] {
 
     def validate: ValidatedNel[Failure, CreateOrder] = {
       import Validation._
 
-      (validExpr(customerId.isDefined || email.isDefined, "customerId or email must be given")
-        |@| email.fold(ok)(notEmpty(_, "email"))
-        ).map { case _ ⇒ this }
+      (validExpr(customerId.isDefined || email.isDefined, "customerId or email must be given") |@| email
+            .fold(ok)(notEmpty(_, "email"))).map { case _ ⇒ this }
     }
   }
 
   case class OrderTimeMachine(referenceNumber: String, placedAt: Instant)
-
 }

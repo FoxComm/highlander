@@ -10,7 +10,7 @@ package object time {
   def yesterday: ZonedDateTime = Instant.now().atZone(UTC).minusDays(1)
 
   implicit class RichInstant(val instant: Instant) extends AnyVal {
-    def minuteOfHour: Int          = utc.getMinute
+    def minuteOfHour: Int = utc.getMinute
 
     // The follow methods assume UTC
     def plusMinutes(minutes: Long)  = instant.plusSeconds(minutes * 60)
@@ -19,7 +19,7 @@ package object time {
     def durationUntil(other: Instant) = Duration.between(instant, other)
 
     def isBeforeNow: Boolean = instant.toEpochMilli <= Instant.now.toEpochMilli
-    def utc = instant.atZone(UTC)
+    def utc                  = instant.atZone(UTC)
   }
 
   implicit class RichDuration(val duration: Duration) extends AnyVal {

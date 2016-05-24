@@ -10,43 +10,49 @@ import java.time.Instant
 
 import slick.ast.BaseTypedType
 
-final case class OrderLineItemAdjustment(id: Int = 0, orderId: Int, promotionShadowId: Int,
-  adjustmentType: OrderLineItemAdjustment.AdjustmentType, substract: Int,
-  lineItemId: Option[Int] = None, createdAt: Instant = Instant.now)
-  extends FoxModel[OrderLineItemAdjustment]
+final case class OrderLineItemAdjustment(id: Int = 0,
+                                         orderId: Int,
+                                         promotionShadowId: Int,
+                                         adjustmentType: OrderLineItemAdjustment.AdjustmentType,
+                                         substract: Int,
+                                         lineItemId: Option[Int] = None,
+                                         createdAt: Instant = Instant.now)
+    extends FoxModel[OrderLineItemAdjustment]
 
-class OrderLineItemAdjustments(tag: Tag) extends 
-  FoxTable[OrderLineItemAdjustment](tag, "order_line_item_adjustments")  {
+class OrderLineItemAdjustments(tag: Tag)
+    extends FoxTable[OrderLineItemAdjustment](tag, "order_line_item_adjustments") {
 
-  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def orderId = column[Int]("order_id")
+  def id                = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def orderId           = column[Int]("order_id")
   def promotionShadowId = column[Int]("promotion_shadow_id")
-  def adjustmentType = column[OrderLineItemAdjustment.AdjustmentType]("adjustment_type")
-  def substract = column[Int]("substract")
-  def lineItemId = column[Option[Int]]("line_item_id")
-  def createdAt = column[Instant]("created_at")
+  def adjustmentType    = column[OrderLineItemAdjustment.AdjustmentType]("adjustment_type")
+  def substract         = column[Int]("substract")
+  def lineItemId        = column[Option[Int]]("line_item_id")
+  def createdAt         = column[Instant]("created_at")
 
-  def * = (id, orderId, promotionShadowId, adjustmentType, substract,
-    lineItemId, createdAt) <> ((OrderLineItemAdjustment.apply _).tupled, OrderLineItemAdjustment.unapply)
+  def * =
+    (id, orderId, promotionShadowId, adjustmentType, substract, lineItemId, createdAt) <> ((OrderLineItemAdjustment.apply _).tupled, OrderLineItemAdjustment.unapply)
 }
 
 object OrderLineItemAdjustment {
   sealed trait AdjustmentType
   case object LineItemAdjustment extends AdjustmentType
-  case object OrderAdjustment extends AdjustmentType
+  case object OrderAdjustment    extends AdjustmentType
   case object ShippingAdjustment extends AdjustmentType
-  case object Combinator extends AdjustmentType
+  case object Combinator         extends AdjustmentType
 
   object AdjustmentType extends ADT[AdjustmentType] {
     def types = sealerate.values[AdjustmentType]
   }
 
-  implicit val adjustmentTypeColumnType: JdbcType[AdjustmentType]
-    with BaseTypedType[AdjustmentType] = AdjustmentType.slickColumn
+  implicit val adjustmentTypeColumnType: JdbcType[AdjustmentType] with BaseTypedType[
+      AdjustmentType] = AdjustmentType.slickColumn
 }
 
-object OrderLineItemAdjustments extends FoxTableQuery[OrderLineItemAdjustment, OrderLineItemAdjustments](new OrderLineItemAdjustments(_))
-  with ReturningId[OrderLineItemAdjustment, OrderLineItemAdjustments] {
+object OrderLineItemAdjustments
+    extends FoxTableQuery[OrderLineItemAdjustment, OrderLineItemAdjustments](
+        new OrderLineItemAdjustments(_))
+    with ReturningId[OrderLineItemAdjustment, OrderLineItemAdjustments] {
 
   val returningLens: Lens[OrderLineItemAdjustment, Int] = lens[OrderLineItemAdjustment].id
 
@@ -55,5 +61,4 @@ object OrderLineItemAdjustments extends FoxTableQuery[OrderLineItemAdjustment, O
 
   def filterByOrderIdAndShadows(orderId: Int, shadows: Seq[Int]): QuerySeq =
     filter(_.orderId === orderId).filter(_.promotionShadowId.inSet(shadows))
-
 }

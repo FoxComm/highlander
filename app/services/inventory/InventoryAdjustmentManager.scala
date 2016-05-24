@@ -24,49 +24,90 @@ object InventoryAdjustmentManager {
 
   def orderPlaced(order: Order)(implicit ec: EC): DbResult[Iterable[Adj]] =
     lineItemSkus(order.id).flatMap { skuIds ⇒
-      DbResultT.sequence(groupSkusByQtys(skuIds).map { case (skuId, qty) ⇒
-        for {
-          sum ← * <~ findSellableSummary(skuId = skuId, warehouseId = HARDCODED_WAREHOUSE_ID)
-          event = OrderPlaced(warehouseId = HARDCODED_WAREHOUSE_ID, skuId = skuId, orderRef = order.refNum, quantity = qty)
-          adj ← * <~ Adjs.create(Adj(summaryId = sum.id, change = event.quantity, state = OnHold, skuType = Sellable,
-                       metadata = toJson(event), newQuantity = sum.onHold + qty, newAfs = sum.availableForSale - qty))
-          _   ← * <~ SellableInventorySummaries.update(sum, sum.copy(onHold = sum.onHold + qty, updatedAt = Instant.now))
-        } yield adj
-      }).value
+      DbResultT
+        .sequence(groupSkusByQtys(skuIds).map {
+          case (skuId, qty) ⇒
+            for {
+              sum ← * <~ findSellableSummary(skuId = skuId, warehouseId = HARDCODED_WAREHOUSE_ID)
+              event = OrderPlaced(warehouseId = HARDCODED_WAREHOUSE_ID,
+                                  skuId = skuId,
+                                  orderRef = order.refNum,
+                                  quantity = qty)
+              adj ← * <~ Adjs.create(Adj(summaryId = sum.id,
+                                         change = event.quantity,
+                                         state = OnHold,
+                                         skuType = Sellable,
+                                         metadata = toJson(event),
+                                         newQuantity = sum.onHold + qty,
+                                         newAfs = sum.availableForSale - qty))
+              _ ← * <~ SellableInventorySummaries.update(
+                     sum, sum.copy(onHold = sum.onHold + qty, updatedAt = Instant.now))
+            } yield adj
+        })
+        .value
     }
 
   def orderPropagated(order: Order)(implicit ec: EC) =
     lineItemSkus(order.id).flatMap { skuIds ⇒
-      DbResultT.sequence(groupSkusByQtys(skuIds).map { case (skuId, qty) ⇒
-        for {
-          sum ← * <~ findSellableSummary(skuId = skuId, warehouseId = HARDCODED_WAREHOUSE_ID)
-          event = OrderPropagated(warehouseId = HARDCODED_WAREHOUSE_ID, skuId = skuId, orderRef = order.refNum, quantity = qty)
-          metadata = toJson(event)
-          adj ← * <~ Adjs.createAll(Seq(
-                       Adj(summaryId = sum.id, skuType = Sellable, state = OnHold, change = -qty,
-                         newQuantity = sum.onHold - qty, newAfs = sum.availableForSale + qty, metadata = metadata),
-                       Adj(summaryId = sum.id, skuType = Sellable, state = Reserved, change = qty,
-                         newQuantity = sum.reserved + qty, newAfs = sum.availableForSale, metadata = metadata)
-                     ))
-          _   ← * <~ SellableInventorySummaries.update(sum, sum.copy(
-                       onHold = sum.onHold - qty, reserved = sum.reserved + qty, updatedAt = Instant.now))
-        } yield adj
-      }).value
+      DbResultT
+        .sequence(groupSkusByQtys(skuIds).map {
+          case (skuId, qty) ⇒
+            for {
+              sum ← * <~ findSellableSummary(skuId = skuId, warehouseId = HARDCODED_WAREHOUSE_ID)
+              event = OrderPropagated(warehouseId = HARDCODED_WAREHOUSE_ID,
+                                      skuId = skuId,
+                                      orderRef = order.refNum,
+                                      quantity = qty)
+              metadata = toJson(event)
+              adj ← * <~ Adjs
+                     .createAll(Seq(
+                           Adj(
+                               summaryId = sum.id,
+                               skuType = Sellable,
+                               state =
+                                 OnHold,
+                               change =
+                                 -qty,
+                               newQuantity = sum.onHold - qty,
+                               newAfs = sum.availableForSale + qty,
+                               metadata = metadata),
+                           Adj(summaryId = sum.id,
+                               skuType = Sellable,
+                               state = Reserved,
+                               change = qty,
+                               newQuantity = sum.reserved + qty,
+                               newAfs = sum.availableForSale,
+                               metadata = metadata)
+                       ))
+              _ ← * <~ SellableInventorySummaries.update(sum,
+                                                         sum.copy(onHold = sum.onHold - qty,
+                                                                  reserved = sum.reserved + qty,
+                                                                  updatedAt = Instant.now))
+            } yield adj
+        })
+        .value
     }
 
-  def applyWmsAdjustment(event: WmsOverride)(implicit ec: EC): DbResultT[Unit] = for {
-    sum ← * <~ findSellableSummary(event.skuId, event.warehouseId)
-    adj ← * <~ Adjs.createAllReturningModels(generateAdjustmentsForEvent(sum, event))
-    _   ← * <~ SellableInventorySummaries.update(sum, sum.copy(onHand = event.onHand, onHold = event.onHold,
-                 reserved = event.reserved, updatedAt = Instant.now))
-  } yield {}
+  def applyWmsAdjustment(event: WmsOverride)(implicit ec: EC): DbResultT[Unit] =
+    for {
+      sum ← * <~ findSellableSummary(event.skuId, event.warehouseId)
+      adj ← * <~ Adjs.createAllReturningModels(generateAdjustmentsForEvent(sum, event))
+      _ ← * <~ SellableInventorySummaries.update(sum,
+                                                 sum.copy(onHand = event.onHand,
+                                                          onHold = event.onHold,
+                                                          reserved = event.reserved,
+                                                          updatedAt = Instant.now))
+    } yield {}
 
   def wmsOverride(event: WmsEventPayload)(implicit ec: EC, dn: DB): Result[Unit] =
-    applyWmsAdjustment(WmsOverride(event.skuId, event.warehouseId, event.onHand, event.onHold,event.reserved)).runTxn()
+    applyWmsAdjustment(
+        WmsOverride(event.skuId, event.warehouseId, event.onHand, event.onHold, event.reserved))
+      .runTxn()
 
   private def findSellableSummary(skuId: Int, warehouseId: Int)(implicit ec: EC) =
-    InventorySummaries.findSellableBySkuIdInWarehouse(skuId = skuId, warehouseId = warehouseId)
-                      .mustFindOneOr(InventorySummaryNotFound(skuId, warehouseId))
+    InventorySummaries
+      .findSellableBySkuIdInWarehouse(skuId = skuId, warehouseId = warehouseId)
+      .mustFindOneOr(InventorySummaryNotFound(skuId, warehouseId))
 
   private def groupSkusByQtys(skuIds: Seq[Int]): Map[Int, Int] =
     skuIds.foldLeft(Map[Int, Int]()) { (map, skuId) ⇒
@@ -74,36 +115,44 @@ object InventoryAdjustmentManager {
       map.updated(skuId, quantity + 1)
     }
 
-  private def lineItemSkus(orderId: Int) = OrderLineItemSkus.findByOrderId(orderId).map(_.skuId).result
+  private def lineItemSkus(orderId: Int) =
+    OrderLineItemSkus.findByOrderId(orderId).map(_.skuId).result
 
-  private def generateAdjustmentsForEvent(summary: SellableInventorySummary, event: WmsOverride): Seq[Adj] = {
+  private def generateAdjustmentsForEvent(
+      summary: SellableInventorySummary, event: WmsOverride): Seq[Adj] = {
     lazy val metadata = toJson(event)
 
     def buildAdjustment(currentQty: Int, newQty: Int, state: State, currentAfs: Int): Adj = {
       val change = newQty - currentQty
       val newAfs = state match {
         case OnHand ⇒ currentAfs + change
-        case      _ ⇒ currentAfs - change
+        case _      ⇒ currentAfs - change
       }
-      Adj(change = change, newQuantity = newQty, state = state, metadata = metadata, skuType = Sellable,
-        newAfs = newAfs, summaryId = summary.id)
+      Adj(change = change,
+          newQuantity = newQty,
+          state = state,
+          metadata = metadata,
+          skuType = Sellable,
+          newAfs = newAfs,
+          summaryId = summary.id)
     }
 
     // Split WMS update into multiple adjustments for each state
     val allStates = Seq(
-      (summary.onHand, event.onHand, OnHand),
-      (summary.onHold, event.onHold, OnHold),
-      (summary.reserved, event.reserved, Reserved)
+        (summary.onHand, event.onHand, OnHand),
+        (summary.onHold, event.onHold, OnHold),
+        (summary.reserved, event.reserved, Reserved)
     )
 
     // Recalculate new AFS after each adjustment
     allStates
-      // Make sure we don't create adjustment with change = 0
-      .filterNot { case (currentQty, newQty, _) ⇒ currentQty == newQty }
-      // Use previously calculated AFS. If this is the first adjustment for this event, use AFS from inventory summary
-      .foldLeft(List[Adj]()) { case (accum, (currentQty, newQty, state)) ⇒
+    // Make sure we don't create adjustment with change = 0
+    .filterNot { case (currentQty, newQty, _) ⇒ currentQty == newQty }
+    // Use previously calculated AFS. If this is the first adjustment for this event, use AFS from inventory summary
+      .foldLeft(List[Adj]()) {
+      case (accum, (currentQty, newQty, state)) ⇒
         val afs = accum.headOption.map(_.newAfs).getOrElse(summary.availableForSale)
         buildAdjustment(currentQty, newQty, state, afs) :: accum
-      }
+    }
   }
 }

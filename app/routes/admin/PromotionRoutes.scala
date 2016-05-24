@@ -21,14 +21,14 @@ object PromotionRoutes {
             }
           }
         } ~
-        pathPrefix("shadows" / Segment / IntNumber) { (context, id)  ⇒
+        pathPrefix("shadows" / Segment / IntNumber) { (context, id) ⇒
           (get & pathEnd) {
             goodOrFailures {
               PromotionManager.getShadow(id, context)
             }
           }
         } ~
-        pathPrefix(Segment) { (context)  ⇒
+        pathPrefix(Segment) { (context) ⇒
           (post & pathEnd & entity(as[CreatePromotion])) { payload ⇒
             goodOrFailures {
               PromotionManager.create(payload, context)
