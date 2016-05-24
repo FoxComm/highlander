@@ -1,15 +1,29 @@
-
 import React, { PropTypes } from 'react';
+import Transition from 'react-addons-css-transition-group';
 
 const ModalContainer = props => {
-  if (!props.isVisible) return <div></div>;
+  let content;
+
+  if (props.isVisible) {
+    content = (
+      <div className="fc-modal">
+        <div className="fc-modal-container">
+          {props.children}
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="fc-modal">
-      <div className="fc-modal-container">
-        {props.children}
-      </div>
-    </div>
+    <Transition component="div"
+                transitionName="modal"
+                transitionAppear={true}
+                transitionAppearTimeout={120}
+                transitionEnterTimeout={120}
+                transitionLeaveTimeout={100}
+    >
+      {content}
+    </Transition>
   );
 };
 

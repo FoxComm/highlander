@@ -1,0 +1,46 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 40px;
+}
+
+.addImages {
+  & :global(.icon-add) {
+    transform: rotate(135deg);
+  }
+}
+
+.upload {
+  margin: -33px -11px 5px -11px;
+
+  &.disabled {
+    margin: -30px -8px 7px -8px;
+  }
+}
+
+.accordionContent {
+  padding: 3px;
+}
+
+.accordionTitleText {
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+.accordionTitleCount {
+  display: inline-block;
+  width: 32px;
+  line-height: 30px;
+  font-size: 13px;
+  border: 1px solid #484848;
+  border-radius: 50%;
+}
+
+.modal {
+  & :global(.fc-modal-container) {
+    min-width: 720px;
+  }
+  & :global(.fc-alert) {
+    margin-bottom: 20px;
+  }
+}

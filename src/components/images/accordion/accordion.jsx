@@ -82,18 +82,20 @@ export default class Accordion extends Component {
     let maxHeight = 0;
     let overflow = 'hidden';
 
+    if (visibilityChanged) {
+      setTimeout(() => {
+        if (!this.mounted) {
+          return;
+        }
+
+        this.refs.content.style.overflow = 'visible';
+      }, this.props.resetOverflowTimeout);
+    }
+
     if (this.state.open) {
       maxHeight = this.refs.content.scrollHeight;
 
-      if (visibilityChanged) {
-        setTimeout(() => {
-          if (!this.mounted) {
-            return;
-          }
-
-          this.refs.content.style.overflow = 'visible';
-        }, this.props.resetOverflowTimeout);
-      } else {
+      if (!visibilityChanged) {
         overflow = 'visible';
       }
     }

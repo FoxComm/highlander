@@ -10,11 +10,11 @@ import classNames from 'classnames';
 import React, { Component, Element } from 'react';
 import { findDOMNode } from 'react-dom';
 
-import type { FileInfo } from '../../../modules/images';
+import type { FileInfo } from '../../modules/images';
 
 type Props = {
   children?: Element;
-  onDrop: ?Function;
+  onDrop?: Function;
   className: ?string;
 }
 
@@ -27,7 +27,6 @@ export default class Upload extends Component {
   static props: Props;
 
   static defaultProps: Props = {
-    onDrop: _.noop,
     className: '',
   };
 
@@ -57,6 +56,10 @@ export default class Upload extends Component {
   @autobind
   onDrop(e: any): void {
     e.preventDefault();
+
+    if (!this.props.onDrop) {
+      return;
+    }
 
     this.setState({
       dragActive: false,
@@ -91,7 +94,7 @@ export default class Upload extends Component {
   }
 
   @autobind
-  @debounce(100)
+  @debounce(200)
   flushFiles() {
     this.props.onDrop(this.files);
 
@@ -100,7 +103,12 @@ export default class Upload extends Component {
 
   @autobind
   onClick(): void {
+    if (!this.props.onDrop) {
+      return;
+    }
+
     this.refs.fileInput.click();
+
   }
 
   // TODO: fix item click handling
@@ -140,10 +148,10 @@ export default class Upload extends Component {
   }
 
   render(): Element {
-    const { className } = this.props;
+    const { onDrop, className } = this.props;
 
     return (
-      <div className={classNames(styles.upload, className)}>
+      <div className={classNames(styles.upload, { [styles.disabled]: !onDrop }, className)}>
         <input className={styles.input} type="file" onChange={this.onDrop} ref="fileInput" />
         {this.container}
       </div>

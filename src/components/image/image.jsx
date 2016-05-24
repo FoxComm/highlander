@@ -10,7 +10,7 @@ import React, { Component, Element } from 'react';
 import Transition from 'react-addons-css-transition-group';
 
 // components
-import WaitAnimation from '../../common/wait-animation';
+import WaitAnimation from '../common/wait-animation';
 
 type Props = {
   src: string,
