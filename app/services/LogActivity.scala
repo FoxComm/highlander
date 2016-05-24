@@ -15,9 +15,11 @@ import models.shipping.ShippingMethod
 import models.{Note, StoreAdmin}
 import models.activity.{Activities, Activity}
 import models.traits.{AdminOriginator, CustomerOriginator, Originator}
+import responses.CategoryResponses.FullCategoryResponse
 import responses.order.FullOrder
 import responses.{Addresses, CreditCardsResponse, CustomerResponse, GiftCardResponse, StoreAdminResponse, StoreCreditResponse}
 import services.LineItemUpdater.foldQuantityPayload
+import services.activity.CategoryTailored.{FullCategoryUpdated, FullCategoryCreated}
 import utils.aliases._
 import utils.db._
 import services.activity.AssignmentsTailored._
@@ -351,6 +353,15 @@ object LogActivity {
       implicit ec: EC, ac: AC): DbResult[Activity] =
     Activities.log(OrderShippingMethodRemoved(order, shippingMethod, buildOriginator(originator)))
 
+  /* Categories */
+  def fullCategoryCreated(admin: Option[StoreAdmin], category: FullCategoryResponse.Root, context: ObjectContextResponse.Root)
+    (implicit ec: EC, ac: AC): DbResult[Activity] =
+    Activities.log(FullCategoryCreated(admin.map(buildAdmin), category, context))
+
+  def fullCategoryUpdated(admin: Option[StoreAdmin], category: FullCategoryResponse.Root, context: ObjectContextResponse.Root)
+    (implicit ec: EC, ac: AC): DbResult[Activity] =
+    Activities.log(FullCategoryUpdated(admin.map(buildAdmin), category, context))
+  
   /* Products */
   def fullProductCreated(admin: Option[StoreAdmin],
                          product: FullProductResponse.Root,
