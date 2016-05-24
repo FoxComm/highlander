@@ -22,8 +22,7 @@ object Cart {
     .requireAdminAuth
     .body(StringBody(session ⇒
               json(CreateOrder(customerId = Some(session.get("customerId").as[Integer])))))
-    .check(status.is(200),
-           jsonPath("$.referenceNumber").ofType[String].saveAs("referenceNumber"))
+    .check(status.is(200), jsonPath("$.referenceNumber").ofType[String].saveAs("referenceNumber"))
 
   val addSkusToCart = http("Add SKUs to cart")
     .post("/v1/orders/${referenceNumber}/line-items")
@@ -55,8 +54,7 @@ object Cart {
   val findShippingMethods = http("Get shipping methods for order")
     .get("/v1/shipping-methods/${referenceNumber}")
     .requireAdminAuth
-    .check(status.is(200),
-           jsonPath("$..id").ofType[Int].findAll.saveAs("possibleShippingMethods"))
+    .check(status.is(200), jsonPath("$..id").ofType[Int].findAll.saveAs("possibleShippingMethods"))
 
   val setShippingMethod = http("Set shipping method")
     .patch("/v1/orders/${referenceNumber}/shipping-method")

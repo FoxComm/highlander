@@ -21,58 +21,28 @@ class CustomerActivitySimulation extends Simulation {
 
 object CustomerActivityScenarios {
 
+  private val addressFeeder = dbFeeder(
+      """select id as "customerRegionId", name as "customerCity" from regions""")
+
   val randomCustomerActivity = scenario("Random customer activity")
-    .exec(loginAsRandomAdmin)
-    .stopOnFailure
-    .doPause
-    .exec(createRandomCustomers)
-    .stopOnFailure
-    .doPause
-    .exec(randomAddressLine1("customerAddress"))
-    .stopOnFailure
-    .doPause
-    .feed(
-        dbFeeder("""select id as "customerRegionId", name as "customerCity" from regions""").random)
-    .stopOnFailure
-    .doPause
+    .step(loginAsRandomAdmin)
+    .step(createRandomCustomers)
+    .step(randomAddressLine1("customerAddress"))
+    .feed(addressFeeder.random)
     .randomSwitch(50.0 → randomAddressLine2("customerAddress2"))
-    .stopOnFailure
-    .doPause
-    .exec(addCustomerAddress)
-    .stopOnFailure
-    .doPause
-    .exec(setDefaultShipping)
-    .stopOnFailure
-    .doPause
-    .repeat(_ ⇒ nextInt(3))(placeOrder.exec(ageOrder))
-    .stopOnFailure
-    .doPause
+    .step(addCustomerAddress)
+    .step(setDefaultShipping)
+    .repeat(_ ⇒ nextInt(3))(placeOrder.step(ageOrder))
     .inject(atOnceUsers(2))
 
   val pacificNwVips = scenario("Pacific Northwest VIPs")
-    .exec(loginAsRandomAdmin)
-    .stopOnFailure
-    .doPause
-    .exec(createRandomCustomers)
-    .stopOnFailure
-    .doPause
-    .exec(randomAddressLine1("customerAddress"))
-    .stopOnFailure
-    .doPause
+    .step(loginAsRandomAdmin)
+    .step(createRandomCustomers)
+    .step(randomAddressLine1("customerAddress"))
     .feed(csv("data/scenarios/pacific_northwest_vips/regions_cities.csv").random)
-    .stopOnFailure
-    .doPause
     .randomSwitch(50.0 → randomAddressLine2("customerAddress2"))
-    .stopOnFailure
-    .doPause
-    .exec(addCustomerAddress)
-    .stopOnFailure
-    .doPause
-    .exec(setDefaultShipping)
-    .stopOnFailure
-    .doPause
-    .repeat(_ ⇒ nextInt(10) + 5)(placeOrder.exec(ageOrder))
-    .stopOnFailure
-    .doPause
+    .step(addCustomerAddress)
+    .step(setDefaultShipping)
+    .repeat(_ ⇒ nextInt(10) + 5)(placeOrder.step(ageOrder))
     .inject(atOnceUsers(1))
 }

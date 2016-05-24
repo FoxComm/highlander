@@ -23,6 +23,6 @@ object OneshotSeeds extends App with Seeder {
 
 object ContinuousSeeds extends App with Seeder {
   pingPhoenix()
-  Gatling.fromArgs(Array(),
-                   Some(classOf[CustomerActivitySimulation].asInstanceOf[Class[Simulation]]))
+  Gatling.fromArgs(
+      Array(), Some(classOf[CustomerActivitySimulation].asInstanceOf[Class[Simulation]]))
 }
