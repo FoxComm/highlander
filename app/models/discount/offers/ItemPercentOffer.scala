@@ -3,12 +3,12 @@ package models.discount.offers
 import models.discount._
 import models.discount.offers.Offer.OfferResult
 import models.order.lineitems.OrderLineItemAdjustment._
-import models.product.Mvp
 
 case class ItemPercentOffer(discount: Int, search: SearchReference)
     extends Offer
     with PercentOffer {
 
+  val offerType: OfferType           = ItemPercentOff
   val adjustmentType: AdjustmentType = LineItemAdjustment
 
   def adjust(input: DiscountInput): OfferResult = {

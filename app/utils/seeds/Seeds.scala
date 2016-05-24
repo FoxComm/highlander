@@ -39,6 +39,8 @@ object Seeds {
     args.headOption.map {
       case "random" ⇒
         createRandomSeeds(scale)
+      case "stage" ⇒
+        createStageSeeds()
       case "ranking" ⇒
         createRankingSeeds()
       case "demo" ⇒
@@ -83,8 +85,8 @@ object Seeds {
 
     Console.err.println(s"Generating $customers customers in $batchs batches")
 
-    //Have to generate data in batches because of DBIO.seq stack overflow bug.
-    //https://github.com/slick/slick/issues/1186
+    // Have to generate data in batches because of DBIO.seq stack overflow bug.
+    // https://github.com/slick/slick/issues/1186
     (1 to batchs).foreach { b ⇒
       Console.err.println(s"Generating random batch $b of $batchSize customers")
       val result = Await.result(
@@ -137,7 +139,11 @@ object Seeds {
       orders      ← * <~ Factories.createOrders(customers, products, shipMethods, context)
       _           ← * <~ Factories.createRmas
       // Promotions
-      discounts  ← * <~ Factories.createDiscounts
+      discounts ← * <~ Factories.createDiscounts
+      _ = discounts.foreach { discount ⇒
+        Console.out.println(
+            "Created discount form ID %d: %s".format(discount.formId, discount.title))
+      }
       promotions ← * <~ Factories.createCouponPromotions(discounts)
       coupons    ← * <~ Factories.createCoupons(promotions)
     } yield {}

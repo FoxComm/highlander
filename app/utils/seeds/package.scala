@@ -11,21 +11,17 @@ import org.json4s.jackson.Serialization._
 import utils.JsonFormatters.phoenixFormats
 
 package object seeds {
-  case class QualifierPair(qualifierType: QualifierType, qualifier: Qualifier)
-
-  case class OfferPair(offerType: OfferType, offer: Offer)
-
   case class BaseDiscount(title: String, discountId: Int = 0, formId: Int = 0, shadowId: Int = 0)
 
-  case class BaseDiscountForm(title: String, qualifierPair: QualifierPair, offerPair: OfferPair) {
+  case class BaseDiscountForm(title: String, qualifier: Qualifier, offer: Offer) {
 
     implicit val formats = phoenixFormats
 
-    val qualifierType = QualifierType.show(qualifierPair.qualifierType)
-    val offerType     = OfferType.show(offerPair.offerType)
+    val qualifierType = QualifierType.show(qualifier.qualifierType)
+    val offerType     = OfferType.show(offer.offerType)
 
-    val qualifierJson = s"""{"$qualifierType": ${write(qualifierPair.qualifier)}}"""
-    val offerJson     = s"""{"$offerType": ${write(offerPair.offer)}}"""
+    val qualifierJson = s"""{"$qualifierType": ${write(qualifier)}}"""
+    val offerJson     = s"""{"$offerType": ${write(offer)}}"""
 
     val (keyMap, form) = ObjectUtils.createForm(parse(s"""
     {

@@ -6,6 +6,7 @@ import models.order.lineitems.OrderLineItemAdjustment._
 
 case class OrderPercentOffer(discount: Int) extends Offer with PercentOffer {
 
+  val offerType: OfferType           = OrderPercentOff
   val adjustmentType: AdjustmentType = OrderAdjustment
 
   def adjust(input: DiscountInput): OfferResult = {

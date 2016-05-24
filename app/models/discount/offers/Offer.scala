@@ -10,6 +10,8 @@ import models.order.lineitems.OrderLineItemAdjustment._
 
 trait Offer extends DiscountBase {
 
+  val offerType: OfferType
+
   val adjustmentType: AdjustmentType
 
   def adjust(input: DiscountInput): OfferResult

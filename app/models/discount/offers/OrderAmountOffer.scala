@@ -6,6 +6,7 @@ import models.order.lineitems.OrderLineItemAdjustment._
 
 case class OrderAmountOffer(discount: Int) extends Offer with AmountOffer {
 
+  val offerType: OfferType           = OrderAmountOff
   val adjustmentType: AdjustmentType = OrderAdjustment
 
   def adjust(input: DiscountInput): OfferResult = {

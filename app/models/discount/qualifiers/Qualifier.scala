@@ -9,6 +9,8 @@ import utils.aliases._
 
 trait Qualifier extends DiscountBase {
 
+  val qualifierType: QualifierType
+
   def check(input: DiscountInput)(implicit ec: EC, es: ES): Result[Unit]
 
   def accept()(implicit ec: EC, es: ES): Result[Unit] = Result.unit

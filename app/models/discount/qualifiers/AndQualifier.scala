@@ -11,6 +11,8 @@ import utils.aliases._
 
 case class AndQualifier(qualifiers: Seq[Qualifier]) extends Qualifier {
 
+  val qualifierType: QualifierType = And
+
   def check(input: DiscountInput)(implicit ec: EC, es: ES): Result[Unit] = {
     val checks = Future.sequence(qualifiers.map(_.check(input)))
 

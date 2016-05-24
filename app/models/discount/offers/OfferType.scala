@@ -14,6 +14,7 @@ case object ItemsAmountOff     extends OfferType
 case object FreeShipping       extends OfferType
 case object DiscountedShipping extends OfferType
 case object SetPrice           extends OfferType
+case object ListCombinator     extends OfferType
 
 object OfferType extends ADT[OfferType] {
   def types = sealerate.values[OfferType]

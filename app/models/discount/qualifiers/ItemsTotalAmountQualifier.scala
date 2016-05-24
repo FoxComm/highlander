@@ -9,6 +9,8 @@ import utils.aliases._
 
 case class ItemsTotalAmountQualifier(totalAmount: Int, search: SearchReference) extends Qualifier {
 
+  val qualifierType: QualifierType = ItemsTotalAmount
+
   def check(input: DiscountInput)(implicit ec: EC, es: ES): Result[Unit] = {
     val future = for { result ← SearchReference.query(input, search) } yield result
 

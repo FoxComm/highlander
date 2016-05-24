@@ -9,6 +9,8 @@ import utils.aliases._
 
 case class ItemsNumUnitsQualifier(numUnits: Int, search: SearchReference) extends Qualifier {
 
+  val qualifierType: QualifierType = ItemsNumUnits
+
   def check(input: DiscountInput)(implicit ec: EC, es: ES): Result[Unit] = {
     val future = for { result ← SearchReference.query(input, search) } yield result
 
