@@ -16,11 +16,10 @@ final case class StoreCreditConnector()(implicit ec: EC) extends ActivityConnect
   }
 
   def createConnection(storeCreditId: String, activityId: Int): Connection = {
-    Connection(
-      dimension = dimension,
-      objectId = storeCreditId,
-      data = JNothing,
-      activityId = activityId)
+    Connection(dimension = dimension,
+               objectId = storeCreditId,
+               data = JNothing,
+               activityId = activityId)
   }
 
   private def byStoreCreditData(activity: Activity): Seq[String] = {
@@ -30,5 +29,6 @@ final case class StoreCreditConnector()(implicit ec: EC) extends ActivityConnect
     }
   }
 
-  private def byBulkData(activity: Activity): Seq[String] = extractBigIntSeq(activity.data, "storeCreditIds")
+  private def byBulkData(activity: Activity): Seq[String] =
+    extractBigIntSeq(activity.data, "storeCreditIds")
 }

@@ -7,13 +7,13 @@ object MappingHelpers {
   val dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
 
   def address(name: String) = field(name).nested(
-    field("address1", StringType).analyzer("autocomplete"),
-    field("address2", StringType).analyzer("autocomplete"),
-    field("city", StringType).analyzer("autocomplete"),
-    field("zip", StringType).index("not_analyzed"),
-    field("region", StringType).index("not_analyzed"),
-    field("country", StringType).analyzer("autocomplete"),
-    field("continent", StringType).analyzer("autocomplete"),
-    field("currency", StringType).analyzer("autocomplete")
+      field("address1", StringType).analyzer("autocomplete"),
+      field("address2", StringType).analyzer("autocomplete"),
+      field("city", StringType).analyzer("autocomplete"),
+      field("zip", StringType).index("not_analyzed"),
+      field("region", StringType).index("not_analyzed"),
+      field("country", StringType).analyzer("autocomplete"),
+      field("continent", StringType).analyzer("autocomplete"),
+      field("currency", StringType).analyzer("autocomplete")
   )
 }

@@ -21,10 +21,10 @@ object HttpSupport {
   type HttpResult = XorT[Future, Failures, HttpResponse]
 
   object HttpResult {
-    def right(v: Future[HttpResponse])(implicit ec: EC): HttpResult = XorT.right[Future, Failures, HttpResponse](v)
+    def right(v: Future[HttpResponse])(implicit ec: EC): HttpResult =
+      XorT.right[Future, Failures, HttpResponse](v)
   }
 }
-
 
 import HttpSupport._
 
@@ -40,35 +40,37 @@ case class Phoenix(conn: PhoenixConnectionInfo)(implicit ec: EC, ac: AS, mat: AM
 
   val cache = typed[String, NoSerialization]
 
-  def get(suffix: String): HttpResult = for {
-    jwtToken     ← getJwtToken
-    response     ← getRequest(suffix, jwtToken)
-  } yield response
+  def get(suffix: String): HttpResult =
+    for {
+      jwtToken ← getJwtToken
+      response ← getRequest(suffix, jwtToken)
+    } yield response
 
-
-  def post(suffix: String, body: String): HttpResult = for {
-    jwtToken ← getJwtToken
-    response ← postRequest(suffix, body, jwtToken)
-  } yield response
+  def post(suffix: String, body: String): HttpResult =
+    for {
+      jwtToken ← getJwtToken
+      response ← postRequest(suffix, body, jwtToken)
+    } yield response
 
   private def getJwtToken: XorT[Future, Failures, String] = {
-    cache.sync.get("jwtAuth").fold {
-      for {
-        authResponse ← authenticate()
-        jwtToken     ← XorT.fromXor[Future](extractJwtToken(authResponse))
-        _            ← XorT.right[Future, Failures, Unit](cache.put("jwtAuth")(jwtToken, Some(7.days)))
-      } yield jwtToken
-    } (XorT.pure[Future, Failures, String])
+    cache.sync
+      .get("jwtAuth")
+      .fold {
+        for {
+          authResponse ← authenticate()
+          jwtToken     ← XorT.fromXor[Future](extractJwtToken(authResponse))
+          _            ← XorT.right[Future, Failures, Unit](cache.put("jwtAuth")(jwtToken, Some(7.days)))
+        } yield jwtToken
+      }(XorT.pure[Future, Failures, String])
   }
 
   private def authenticate(): HttpResult = {
-    val request = HttpRequest(
-      method = HttpMethods.POST,
-      uri    = authUri,
-      entity = HttpEntity.Strict(
-        ContentTypes.`application/json`,
-        ByteString(authBodyTemplate.format(conn.user, conn.pass))
-      ))
+    val request = HttpRequest(method = HttpMethods.POST,
+                              uri = authUri,
+                              entity = HttpEntity.Strict(
+                                  ContentTypes.`application/json`,
+                                  ByteString(authBodyTemplate.format(conn.user, conn.pass))
+                              ))
 
     HttpResult.right(Http().singleRequest(request, settings = cp))
   }
@@ -79,18 +81,18 @@ case class Phoenix(conn: PhoenixConnectionInfo)(implicit ec: EC, ac: AS, mat: AM
   }
 
   private def getRequest(suffix: String, token: String): HttpResult = {
-    val request = HttpRequest(HttpMethods.GET, fullUri(suffix)).addHeader(RawHeader(authHeaderName, token))
+    val request =
+      HttpRequest(HttpMethods.GET, fullUri(suffix)).addHeader(RawHeader(authHeaderName, token))
     HttpResult.right(Http().singleRequest(request, settings = cp))
   }
 
   private def postRequest(suffix: String, body: String, token: String): HttpResult = {
-    val request = HttpRequest(
-      method = HttpMethods.POST,
-      uri    = fullUri(suffix),
-      entity = HttpEntity.Strict(
-        ContentTypes.`application/json`,
-        ByteString(body)
-      )).addHeader(RawHeader(authHeaderName, token))
+    val request = HttpRequest(method = HttpMethods.POST,
+                              uri = fullUri(suffix),
+                              entity = HttpEntity.Strict(
+                                  ContentTypes.`application/json`,
+                                  ByteString(body)
+                              )).addHeader(RawHeader(authHeaderName, token))
 
     HttpResult.right(Http().singleRequest(request, settings = cp))
   }
@@ -99,12 +101,14 @@ case class Phoenix(conn: PhoenixConnectionInfo)(implicit ec: EC, ac: AS, mat: AM
 }
 
 /**
- * Stolen from phoenix
- */
+  * Stolen from phoenix
+  */
 object HttpResponseExtensions {
 
   implicit class RichHttpResponse(val res: HttpResponse) extends AnyVal {
-    def bodyText(implicit ec: EC, mat: AM): Future[String] = res.entity.dataBytes.runFold(ByteString(""))(_ ++ _)
-      .map { b ⇒ b.utf8String}
+    def bodyText(implicit ec: EC, mat: AM): Future[String] =
+      res.entity.dataBytes.runFold(ByteString(""))(_ ++ _).map { b ⇒
+        b.utf8String
+      }
   }
 }

@@ -22,34 +22,35 @@ import cats.implicits._
 import cats.data.XorT
 import consumer.failures.Failures
 
-final case class ActivityConnectionTransformer(conn: PhoenixConnectionInfo)
-  (implicit ec: EC, mat: AM, ac: AS, cp: CP, sc: SC) extends JsonTransformer {
+final case class ActivityConnectionTransformer(
+    conn: PhoenixConnectionInfo)(implicit ec: EC, mat: AM, ac: AS, cp: CP, sc: SC)
+    extends JsonTransformer {
 
   implicit val formats: DefaultFormats.type = DefaultFormats
 
   val phoenix = Phoenix(conn)
 
   def mapping() = esMapping("activity_connections").fields(
-    field("id", IntegerType),
-    field("dimensionId", IntegerType),
-    field("objectId", StringType).index("not_analyzed"),
-    field("trailId", IntegerType),
-    field("activity").nested(
       field("id", IntegerType),
-      field("createdAt", DateType).format(dateFormat),
-      field("kind", StringType).index("not_analyzed"),
-      field("context").nested(
-        field("transactionId", StringType).index("not_analyzed"),
-        field("userId", IntegerType),
-        field("userType", StringType).index("not_analyzed")
+      field("dimensionId", IntegerType),
+      field("objectId", StringType).index("not_analyzed"),
+      field("trailId", IntegerType),
+      field("activity").nested(
+          field("id", IntegerType),
+          field("createdAt", DateType).format(dateFormat),
+          field("kind", StringType).index("not_analyzed"),
+          field("context").nested(
+              field("transactionId", StringType).index("not_analyzed"),
+              field("userId", IntegerType),
+              field("userType", StringType).index("not_analyzed")
+          ),
+          field("data", ObjectType)
       ),
-      field("data", ObjectType)
-    ),
-    field("previousId", IntegerType),
-    field("nextId", IntegerType),
-    field("data", ObjectType),
-    field("connectedBy", ObjectType),
-    field("createdAt", DateType).format(dateFormat)
+      field("previousId", IntegerType),
+      field("nextId", IntegerType),
+      field("data", ObjectType),
+      field("connectedBy", ObjectType),
+      field("createdAt", DateType).format(dateFormat)
   )
 
   def transform(json: String): Future[String] = {
@@ -64,11 +65,13 @@ final case class ActivityConnectionTransformer(conn: PhoenixConnectionInfo)
   private def queryPhoenixForConnection(id: BigInt): Future[String] = {
     val uri = s"connections/$id"
     Console.err.println(s"Requesting Phoenix $uri")
-    phoenix.get(uri).flatMap {
-      resp ⇒ XorT.right[Future, Failures, String](resp.bodyText)
-    }.fold({ failures ⇒
-      throw new RuntimeException(s"Error during requesting phoenix $failures")
-    }, identity)
+    phoenix
+      .get(uri)
+      .flatMap { resp ⇒
+        XorT.right[Future, Failures, String](resp.bodyText)
+      }
+      .fold({ failures ⇒
+        throw new RuntimeException(s"Error during requesting phoenix $failures")
+      }, identity)
   }
-
 }

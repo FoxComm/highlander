@@ -11,7 +11,8 @@ final case class CustomerConnector()(implicit ec: EC) extends ActivityConnector 
   val dimension = "customer"
 
   def process(offset: Long, activity: Activity): Future[Seq[Connection]] = Future {
-    val customerIds = byContextUserType(activity) ++: byCustomerData(activity) ++:
+    val customerIds =
+      byContextUserType(activity) ++: byCustomerData(activity) ++:
       byCustomerUpdatedActivity(activity) ++: byAssignmentBulkData(activity) ++:
       byAssignmentSingleData(activity) ++: byNoteData(activity)
 
@@ -19,17 +20,17 @@ final case class CustomerConnector()(implicit ec: EC) extends ActivityConnector 
   }
 
   def createConnection(customerId: String, activityId: Int): Connection = {
-    Connection(
-      dimension = dimension,
-      objectId = customerId,
-      data = JNothing,
-      activityId = activityId)
+    Connection(dimension = dimension,
+               objectId = customerId,
+               data = JNothing,
+               activityId = activityId)
   }
 
-  private def byContextUserType(activity: Activity): Seq[String] = activity.context.userType match {
-    case "customer" ⇒ Seq(activity.context.userId.toString)
-    case _          ⇒ Seq.empty
-  }
+  private def byContextUserType(activity: Activity): Seq[String] =
+    activity.context.userType match {
+      case "customer" ⇒ Seq(activity.context.userId.toString)
+      case _          ⇒ Seq.empty
+    }
 
   private def byNoteData(activity: Activity): Seq[String] = {
     (activity.data \ "note" \ "referenceType", activity.data \ "entity" \ "id") match {
@@ -38,10 +39,11 @@ final case class CustomerConnector()(implicit ec: EC) extends ActivityConnector 
     }
   }
 
-  private def byCustomerData(activity: Activity): Seq[String] = activity.data \ "customer" \ "id" match {
-    case JInt(customerId) ⇒ Seq(customerId.toString)
-    case _                ⇒ Seq.empty
-  }
+  private def byCustomerData(activity: Activity): Seq[String] =
+    activity.data \ "customer" \ "id" match {
+      case JInt(customerId) ⇒ Seq(customerId.toString)
+      case _                ⇒ Seq.empty
+    }
 
   private def byCustomerUpdatedActivity(activity: Activity): Seq[String] = {
     (activity.activityType, activity.data \ "oldInfo" \ "id") match {

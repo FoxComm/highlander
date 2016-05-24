@@ -10,30 +10,30 @@ import consumer.elastic.MappingHelpers._
 
 final case class GiftCardTransactionsSearchView()(implicit ec: EC) extends AvroTransformer {
   def mapping() = esMapping("gift_card_transactions_view").fields(
-    // Adjustment
-    field("id", IntegerType),
-    field("debit", IntegerType),
-    field("credit", IntegerType),
-    field("availableBalance", IntegerType),
-    field("state", StringType) index "not_analyzed",
-    field("createdAt", DateType) format dateFormat,
-    // Gift Card
-    field("code", StringType) index "not_analyzed",
-    field("originType", StringType) index "not_analyzed",
-    field("currency", StringType) index "not_analyzed",
-    field("giftCardCreatedAt", DateType) format dateFormat,
-    // Order Payment
-    field("orderPayment").nested (
-      field("orderReferenceNumber", StringType) index "not_analyzed",
-      field("orderCreatedAt", DateType) format dateFormat,
-      field("orderPaymentCreatedAt", DateType) format dateFormat
-    ),
-    // Store Admins
-    field("storeAdmin").nested (
-      field("email", StringType) analyzer "autocomplete",
-      field("name", StringType) analyzer "autocomplete",
-      field("department", StringType) analyzer "autocomplete"
-    )
+      // Adjustment
+      field("id", IntegerType),
+      field("debit", IntegerType),
+      field("credit", IntegerType),
+      field("availableBalance", IntegerType),
+      field("state", StringType) index "not_analyzed",
+      field("createdAt", DateType) format dateFormat,
+      // Gift Card
+      field("code", StringType) index "not_analyzed",
+      field("originType", StringType) index "not_analyzed",
+      field("currency", StringType) index "not_analyzed",
+      field("giftCardCreatedAt", DateType) format dateFormat,
+      // Order Payment
+      field("orderPayment").nested(
+          field("orderReferenceNumber", StringType) index "not_analyzed",
+          field("orderCreatedAt", DateType) format dateFormat,
+          field("orderPaymentCreatedAt", DateType) format dateFormat
+      ),
+      // Store Admins
+      field("storeAdmin").nested(
+          field("email", StringType) analyzer "autocomplete",
+          field("name", StringType) analyzer "autocomplete",
+          field("department", StringType) analyzer "autocomplete"
+      )
   )
 
   override def nestedFields() = List("store_admin", "order_payment")

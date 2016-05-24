@@ -10,6 +10,6 @@ import com.sksamuel.elastic4s.mappings.MappingDefinition
   * before it is saved to ES
   */
 trait JsonTransformer {
-  def mapping() : MappingDefinition
-  def transform(json: String) : Future[String]
+  def mapping(): MappingDefinition
+  def transform(json: String): Future[String]
 }

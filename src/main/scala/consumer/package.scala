@@ -21,17 +21,17 @@ object aliases {
 }
 
 /**
- * A processor that expects json.
- */
+  * A processor that expects json.
+  */
 trait JsonProcessor {
-  def process(offset: Long, topic: String, json: String) : Future[Unit]
+  def process(offset: Long, topic: String, json: String): Future[Unit]
 }
 
 /**
- * Simple interface to abstract out how we get messages from kafka
- */
+  * Simple interface to abstract out how we get messages from kafka
+  */
 trait MessageProcessor {
-  def process(offset: Long, topic: String, message: Array[Byte]) : Future[Unit]
+  def process(offset: Long, topic: String, message: Array[Byte]): Future[Unit]
 }
 
 final case class PassthroughSource(json: String) extends DocumentSource
