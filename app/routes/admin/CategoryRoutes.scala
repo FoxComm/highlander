@@ -15,7 +15,6 @@ object CategoryRoutes {
   def routes(implicit ec: ExecutionContext, db: Database, admin: StoreAdmin) = {
 
     activityContext(admin) { implicit ac ⇒
-
       pathPrefix("categories") {
         pathPrefix(Segment / IntNumber) { (context, categoryId) ⇒
           (get & pathEnd) {

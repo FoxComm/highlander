@@ -12,11 +12,10 @@ import java.time.Instant
   */
 final case class CouponUsage(id: Int = 0,
                              couponFormId: Int,
-                             count: Int,
+                             count: Int = 0,
                              updatedAt: Instant = Instant.now,
                              createdAt: Instant = Instant.now)
     extends FoxModel[CouponUsage]
-    with Validation[CouponUsage]
 
 class CouponUsages(tag: Tag) extends FoxTable[CouponUsage](tag, "coupon_usages") {
 

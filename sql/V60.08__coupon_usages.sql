@@ -1,7 +1,7 @@
 create table coupon_usages(
     id serial primary key,
     coupon_form_id integer not null references object_forms(id) on update restrict on delete restrict,
-    count integer default 0,
+    count integer not null default 0,
     updated_at timestamp without time zone default (now() at time zone 'utc'),
     created_at timestamp without time zone default (now() at time zone 'utc')
 );

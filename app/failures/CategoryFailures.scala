@@ -3,12 +3,14 @@ package failures
 object CategoryFailures {
 
   object CategoryNotFoundAtCommit {
-    def apply(id: Int, commit: Int) = NotFoundFailure404(s"Category $id not found at commit $commit")
+    def apply(id: Int, commit: Int) =
+      NotFoundFailure404(s"Category $id not found at commit $commit")
   }
 
   object CategoryNotFoundForContext {
     def apply(categoryId: Int, categoryContextId: Int) =
-      NotFoundFailure404(s"Category with id=$categoryId with category context $categoryContextId cannot be found")
+      NotFoundFailure404(
+          s"Category with id=$categoryId with category context $categoryContextId cannot be found")
   }
 
   object CategoryFormNotFound {

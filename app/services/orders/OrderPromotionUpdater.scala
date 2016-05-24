@@ -44,16 +44,19 @@ object OrderPromotionUpdater {
       couponCode ← * <~ CouponCodes.mustFindByCode(code)
       coupon ← * <~ Coupons
                 .filterByContextAndFormId(context.id, couponCode.couponFormId)
-                .mustFindOneOr(CouponWithCodeCannotBeFound(code))
+                .one
+                .mustFindOr(CouponWithCodeCannotBeFound(code))
       couponForm   ← * <~ ObjectForms.mustFindById404(coupon.formId)
       couponShadow ← * <~ ObjectShadows.mustFindById404(coupon.shadowId)
       couponObject = IlluminatedCoupon.illuminate(context, coupon, couponForm, couponShadow)
       _ ← * <~ couponObject.mustBeActive
+      _ ← * <~ couponObject.mustBeApplicable(couponCode, order.customerId)
       // Fetch promotion + validate
       promotion ← * <~ Promotions
                    .filterByContextAndFormId(context.id, coupon.promotionId)
                    .requiresCoupon
-                   .mustFindOneOr(PromotionNotFoundForContext(coupon.promotionId, context.name))
+                   .one
+                   .mustFindOr(PromotionNotFoundForContext(coupon.promotionId, context.name))
       promoForm   ← * <~ ObjectForms.mustFindById404(promotion.formId)
       promoShadow ← * <~ ObjectShadows.mustFindById404(promotion.shadowId)
       promoObject = IlluminatedPromotion.illuminate(context, promotion, promoForm, promoShadow)

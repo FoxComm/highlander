@@ -26,25 +26,28 @@ object CategoryResponses {
 
   object CategoryShadowResponse {
 
-    case class Root(id: Int, formId: Int, attributes: Json, createdAt: Instant) extends ResponseItem
+    case class Root(id: Int, formId: Int, attributes: Json, createdAt: Instant)
+        extends ResponseItem
 
     def build(c: ObjectShadow): Root = Root(c.id, c.formId, c.attributes, c.createdAt)
   }
 
   object IlluminatedCategoryResponse {
 
-    case class Root(id: Int, context: Option[ObjectContextResponse.Root], attributes: Json) extends ResponseItem
+    case class Root(id: Int, context: Option[ObjectContextResponse.Root], attributes: Json)
+        extends ResponseItem
 
-    def build(c: IlluminatedCategory): Root = Root(c.id, ObjectContextResponse.build(c.context).some, c.attributes)
+    def build(c: IlluminatedCategory): Root =
+      Root(c.id, ObjectContextResponse.build(c.context).some, c.attributes)
   }
 
   object FullCategoryResponse {
 
     case class Root(form: CategoryFormResponse.Root, shadow: CategoryShadowResponse.Root)
-      extends ResponseItem
+        extends ResponseItem
 
-    def build(category: Category,categoryForm: ObjectForm,categoryShadow: ObjectShadow): Root =
-      Root(CategoryFormResponse.build(category, categoryForm), CategoryShadowResponse.build(categoryShadow))
+    def build(category: Category, categoryForm: ObjectForm, categoryShadow: ObjectShadow): Root =
+      Root(CategoryFormResponse.build(category, categoryForm),
+           CategoryShadowResponse.build(categoryShadow))
   }
-
 }

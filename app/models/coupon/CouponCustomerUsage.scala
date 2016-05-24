@@ -13,11 +13,10 @@ import java.time.Instant
 final case class CouponCustomerUsage(id: Int = 0,
                                      couponFormId: Int,
                                      customerId: Int,
-                                     count: Int,
+                                     count: Int = 0,
                                      updatedAt: Instant = Instant.now,
                                      createdAt: Instant = Instant.now)
     extends FoxModel[CouponCustomerUsage]
-    with Validation[CouponCustomerUsage]
 
 class CouponCustomerUsages(tag: Tag)
     extends FoxTable[CouponCustomerUsage](tag, "coupon_customer_usages") {
@@ -41,4 +40,7 @@ object CouponCustomerUsages
 
   def filterByCoupon(couponFormId: Int): QuerySeq =
     filter(_.couponFormId === couponFormId)
+
+  def filterByCouponAndCustomer(couponFormId: Int, customerId: Int): QuerySeq =
+    filterByCoupon(couponFormId).filter(_.customerId === customerId)
 }

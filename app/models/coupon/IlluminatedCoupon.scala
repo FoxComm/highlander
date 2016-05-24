@@ -3,11 +3,14 @@ package models.coupon
 import java.time.Instant
 
 import cats.data.Xor
-import cats.data.Xor._
-import failures._
 import failures.CouponFailures._
+import failures._
 import models.Aliases.Json
 import models.objects._
+import services.coupon.CouponUsageService
+import utils.aliases._
+import utils.db.DbResultT._
+import utils.db._
 import utils.{IlluminateAlgorithm, JsonFormatters}
 
 /**
@@ -26,12 +29,48 @@ case class IlluminatedCoupon(
 
     (activeFrom, activeTo) match {
       case (Some(from), Some(to)) ⇒
-        if (from.isBefore(now) && to.isAfter(now)) right(this) else Left(CouponIsNotActive.single)
+        if (from.isBefore(now) && to.isAfter(now)) Xor.right(this)
+        else Xor.left(CouponIsNotActive.single)
       case (Some(from), None) ⇒
-        if (from.isBefore(now)) right(this) else Left(CouponIsNotActive.single)
+        if (from.isBefore(now)) Xor.right(this) else Xor.left(CouponIsNotActive.single)
       case (_, _) ⇒
-        Left(CouponIsNotActive.single)
+        Xor.left(CouponIsNotActive.single)
     }
+  }
+
+  def mustBeApplicable(code: CouponCode, customerId: Int)(
+      implicit ec: EC, db: DB): DbResultT[IlluminatedCoupon] = {
+    val usageRules = (attributes \ "usageRules" \ "v").extractOpt[CouponUsageRules]
+
+    val validation = usageRules match {
+      case Some(rules) if !rules.isUnlimitedPerCode && !rules.isUnlimitedPerCustomer ⇒
+        CouponUsageService
+          .mustBeUsableByCustomer(id,
+                                  code.id,
+                                  rules.usesPerCode.getOrElse(0),
+                                  customerId,
+                                  rules.usesPerCustomer.getOrElse(0),
+                                  code.code)
+          .value
+
+      case Some(rules) if !rules.isUnlimitedPerCode && rules.isUnlimitedPerCustomer ⇒
+        CouponUsageService
+          .couponCodeMustBeUsable(id, code.id, rules.usesPerCode.getOrElse(0), code.code)
+          .value
+
+      case Some(rules) if rules.isUnlimitedPerCode && !rules.isUnlimitedPerCustomer ⇒
+        CouponUsageService
+          .couponMustBeUsable(id, customerId, rules.usesPerCustomer.getOrElse(0), code.code)
+          .value
+
+      case Some(rules) if rules.isUnlimitedPerCode && rules.isUnlimitedPerCustomer ⇒
+        DbResult.unit
+
+      case _ ⇒
+        DbResult.failure(CouponUsageRulesAreEmpty(code.code))
+    }
+
+    for (_ ← * <~ validation) yield this
   }
 }
 

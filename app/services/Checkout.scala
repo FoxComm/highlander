@@ -6,14 +6,16 @@ import cats.implicits._
 import models.order.lineitems.OrderLineItemGiftCards
 import models.order._
 import Order.RemorseHold
-import failures.CartFailures.CustomerHasNoActiveOrder
+import failures.CouponFailures.CouponNotFoundForContext
 import failures.GeneralFailure
+import models.coupon.{CouponCodes, Coupons}
 import models.customer.{Customer, Customers}
-import models.objects.ObjectContext
+import models.objects.{ObjectContext, ObjectContexts, ObjectForms}
 import models.payment.creditcard.{CreditCardCharge, CreditCardCharges}
 import models.payment.giftcard.{GiftCard, GiftCards}
 import models.payment.storecredit.StoreCredits
 import responses.order.FullOrder
+import services.coupon.CouponUsageService
 import services.inventory.InventoryAdjustmentManager
 import slick.driver.PostgresDriver.api._
 import utils.Apis
@@ -67,6 +69,7 @@ case class Checkout(cart: Order, cartValidator: CartValidation)(
       _         ← * <~ fraudScore
       _         ← * <~ remorseHold
       _         ← * <~ createNewCart
+      _         ← * <~ updateCouponCountersForPromotion(customer)
       updated   ← * <~ Orders.refresh(cart).toXor
       _         ← * <~ InventoryAdjustmentManager.orderPlaced(cart)
       fullOrder ← * <~ FullOrder.fromOrder(updated).toXor
@@ -75,6 +78,14 @@ case class Checkout(cart: Order, cartValidator: CartValidation)(
   private def checkInventory: DbResult[Unit] = DbResult.unit
 
   private def activePromos: DbResult[Unit] = DbResult.unit
+
+  private def updateCouponCountersForPromotion(customer: Customer): DbResultT[Unit] =
+    for {
+      maybePromo ← * <~ OrderPromotions.filterByOrderId(cart.id).one.toXor
+      _ ← * <~ maybePromo.map { promo ⇒
+           CouponUsageService.updateUsageCounts(promo.couponCodeId, cart.contextId, customer)
+         }
+    } yield {}
 
   private def authPayments(customer: Customer): DbResult[Unit] =
     (for {

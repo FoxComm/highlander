@@ -100,7 +100,11 @@ package object seeds {
       "details" : "",
       "activeFrom" : "${Instant.now}",
       "activeTo" : null,
-      "tags" : []
+      "tags" : [],
+      "usageRules": {
+        "isExclusive": false,
+        "isUnlimitedPerCode": true,
+        "isUnlimitedPerCustomer": true
       }
     }"""))
   }
@@ -116,7 +120,8 @@ package object seeds {
           "details" : {"type": "richText", "ref": "details"},
           "activeFrom" : {"type": "date", "ref": "activeFrom"},
           "activeTo" : {"type": "date", "ref": "activeTo"},
-          "tags" : {"type": "tags", "ref": "tags"}
+          "tags" : {"type": "tags", "ref": "tags"},
+          "usageRules" : {"type": "usageRules", "ref": "usageRules"}
         }"""),
         f.keyMap)
   }

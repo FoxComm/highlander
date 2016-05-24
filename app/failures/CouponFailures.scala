@@ -63,4 +63,19 @@ object CouponFailures {
   object CouponFormNotFound {
     def apply(id: Int) = NotFoundFailure404(s"Coupon Form with id $id cannot be found")
   }
+
+  case class CouponUsageRulesAreEmpty(couponCode: String) extends Failure {
+    override def description =
+      s"Coupon usage rules are not set for coupon with code: '${couponCode}'"
+  }
+
+  case class CouponCodeCannotBeUsedAnymore(couponCode: String) extends Failure {
+    override def description = s"Coupon code '${couponCode}' cannot be used anymore"
+  }
+
+  case class CouponCodeCannotBeUsedByCustomerAnymore(couponCode: String, customerId: Int)
+      extends Failure {
+    override def description =
+      s"Coupon code '${couponCode}' cannot be used by this customer ${customerId} anymore"
+  }
 }
