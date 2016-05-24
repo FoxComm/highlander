@@ -7,8 +7,8 @@ build: setup
 	gulp build
 
 package: build
-	touch firebird.tar.bz2
-	tar --exclude 'firebird.tar.bz2' -jcf firebird.tar.bz2 ./
+	touch firebrand.tar.bz2
+	tar --exclude 'firebrand.tar.bz2' -jcf firebrand.tar.bz2 ./
 	
 
 .PHONY: setup build package
