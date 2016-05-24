@@ -7,6 +7,7 @@ import cats.data.Xor._
 import failures._
 import failures.PromotionFailures._
 import models.Aliases.Json
+import models.promotion.Promotion._
 import models.objects._
 import utils.{IlluminateAlgorithm, JsonFormatters}
 
@@ -15,7 +16,7 @@ import utils.{IlluminateAlgorithm, JsonFormatters}
   * the form. 
   */
 case class IlluminatedPromotion(
-    id: Int, context: IlluminatedContext, applyType: Promotion.ApplyType, attributes: Json) {
+    id: Int, context: IlluminatedContext, applyType: ApplyType, attributes: Json) {
 
   implicit val formats = JsonFormatters.phoenixFormats
 
@@ -24,14 +25,16 @@ case class IlluminatedPromotion(
     val activeTo   = (attributes \ "activeTo" \ "v").extractOpt[Instant]
     val now        = Instant.now
 
-    (activeFrom, activeTo) match {
-      case (Some(from), Some(to)) ⇒
+    (applyType, activeFrom, activeTo) match {
+      case (Auto, Some(from), Some(to)) ⇒
         if (from.isBefore(now) && to.isAfter(now)) right(this)
         else Left(PromotionIsNotActive.single)
-      case (Some(from), None) ⇒
+      case (Auto, Some(from), None) ⇒
         if (from.isBefore(now)) right(this) else Left(PromotionIsNotActive.single)
-      case (_, _) ⇒
+      case (Auto, _, _) ⇒
         Left(PromotionIsNotActive.single)
+      case (Coupon, _, _) ⇒
+        right(this)
     }
   }
 }
