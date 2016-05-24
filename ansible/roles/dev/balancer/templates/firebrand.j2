@@ -2,10 +2,6 @@ upstream firebrand {
   server {{ firebrand_server }} fail_timeout=15s;
 }
 
-upstream firebrand {
-  server {{ firebrand_server }} fail_timeout=15s;
-}
-
 server {
   # TODO(jpfuentes2): enable me when we have nginx + lua + HTTP2
   # listen 443 ssl http2 default_server;
