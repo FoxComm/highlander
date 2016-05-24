@@ -28,8 +28,7 @@ object CategoryManager {
       context ← * <~ contextByName(contextName)
       category ← * <~ Categories
                   .withContextAndForm(context.id, formId)
-                  .one
-                  .mustFindOr(CategoryNotFoundForContext(formId, context.id))
+                  .mustFindOneOr(CategoryNotFoundForContext(formId, context.id))
       shadow ← * <~ ObjectShadows.mustFindById404(category.shadowId)
     } yield CategoryShadowResponse.build(shadow)).run()
 
