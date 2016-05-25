@@ -25,11 +25,10 @@ const PlatedInput = props => {
     ? <input name={inputName} type="hidden" value={value} />
     : null;
 
-
   const inputs = [hiddenInput, visibleInput];
   const plateInner = plate !== void 0 ? <span>{plate}</span> : <i className={`icon-${icon}`} />;
   const plateWrapper = (
-    <div className={`${baseClass}__icon`}>
+    <div className={`${baseClass}__icon`} key="wrapper">
       {plateInner}
     </div>
   );

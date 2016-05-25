@@ -3,6 +3,7 @@
  */
 
 // libs
+import _ from 'lodash';
 import React, { Component, Element, PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
@@ -13,75 +14,85 @@ import { Link, IndexLink } from '../link';
 import { PageTitle } from '../section-title';
 import { PrimaryButton } from '../common/buttons';
 import LocalNav from '../local-nav/local-nav';
+import WaitAnimation from '../common/wait-animation';
 
 // actions
 import * as SkuActions from '../../modules/skus/details';
 
 // types
-import type { FullSku, SkuState } from '../../modules/skus/details';
+import type { FullSku } from '../../paragons/sku';
 
 type Props = {
   actions: {
+    newSku: () => void,
     fetchSku: (code: string, context?: string) => void,
     updateSku: (sku: FullSku, context?: string) => void,
   },
-  children: Element,
+  sku: ?FullSku,
+  isFetching: boolean,
+  isUpdating: boolean,
   params: { skuCode: string },
-  skus: SkuState,
+  children: Element,
 };
 
 type State = {
   sku: ?FullSku,
 };
 
-export class SkuPage extends Component<void, Props, State> {
-  static propTypes = {
-    actions: PropTypes.shape({
-      fetchSku: PropTypes.func.isRequired,
-      updateSku: PropTypes.func.isRequired,
-    }).isRequired,
-    children: PropTypes.node,
-    params: PropTypes.shape({
-      skuCode: PropTypes.string.isRequired,
-    }),
-    skus: PropTypes.object,
+export class SkuPage extends Component {
+  props: Props;
+
+  state: State = {
+    sku: this.props.sku,
   };
 
-  state: State;
-
-  constructor(props: Props, ...args: any) {
-    super(props, ...args);
-    this.state = { sku: this.props.skus.sku };
+  componentDidMount(): void {
+    if (this.isNew) {
+      this.props.actions.newSku();
+    } else {
+      this.props.actions.fetchSku(this.entityId);
+    }
   }
 
-  componentDidMount() {
-    this.props.actions.fetchSku(this.props.params.skuCode);
+  componentWillReceiveProps({ sku, isFetching, isUpdating }: Props) {
+    if (isFetching || isUpdating) {
+      return;
+    }
+
+    this.setState({ sku });
   }
 
-  componentWillReceiveProps(nextProps: Props) {
-    this.setState({ sku: nextProps.skus.sku });
+  get entityId(): string {
+    return this.props.params.skuCode;
+  }
+
+  get isNew(): boolean {
+    return this.entityId === 'new';
   }
 
   @autobind
-  handleChange(sku: FullSku) {
+  handleChange(sku: FullSku): void {
     this.setState({ sku });
   }
 
   @autobind
-  handleSubmit() {
+  handleSubmit(): void {
     if (this.state.sku) {
       this.props.actions.updateSku(this.state.sku);
     }
   }
 
   render(): Element {
-    const { params } = this.props;
-    const { isUpdating } = this.props.skus;
-    const title = params.skuCode.toUpperCase();
+    const { sku, isFetching, isUpdating, params } = this.props;
+
+    if (!sku || isFetching) {
+      return <div className="fc-sku"><WaitAnimation /></div>;
+    }
+
+    const title = sku.code.toUpperCase();
     const children = React.cloneElement(this.props.children, {
-      ...this.props.children.props,
-      code: params.skuCode,
-      entity: { entityId: params.skuCode, entityType: 'sku' },
+      code: sku.code,
+      entity: { entityId: this.entityId, entityType: 'sku' },
       onChange: this.handleChange,
       sku: this.state.sku,
     });
@@ -116,6 +127,10 @@ export class SkuPage extends Component<void, Props, State> {
 }
 
 export default connect(
-  state => ({ skus: state.skus.details }),
+  state => ({
+    sku: _.get(state, ['skus', 'details', 'sku']),
+    isFetching: _.get(state, ['skus', 'details', 'isFetching']),
+    isUpdating: _.get(state, ['skus', 'details', 'isUpdating']),
+  }),
   dispatch => ({ actions: bindActionCreators(SkuActions, dispatch) })
 )(SkuPage);

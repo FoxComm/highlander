@@ -24,7 +24,7 @@
 
     &._active {
       border: 1px solid @color-decor9;
-      box-shadow: inset 1px 1px 1px 0 rgba(0,0,0,0.1);
+      box-shadow: inset 1px 1px 1px 0 rgba(0, 0, 0, 0.1);
       font-weight: 600;
     }
 
@@ -40,6 +40,8 @@
       &__button, &__controls, &__value {
         background: transparent;
         border: none;
+        height: 34px;
+        line-height: 34px;
       }
 
       &__value {
@@ -77,5 +79,20 @@
   &__ul-block-style {
     list-style-type: disc;
     margin-left: 20px;
+  }
+
+  .fc-btn {
+    padding: 0;
+    width: 34px;
+    height: 34px;
+    background: none;
+    border-color: @color-decor9;
+    border-radius: 3px;
+    line-height: normal;
+
+    &:hover {
+      background: none;
+      border: 1px solid @color-decor9;
+    }
   }
 }

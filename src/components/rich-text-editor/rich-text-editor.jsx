@@ -77,7 +77,7 @@ export default class RichTextEditor extends Component<void, Props, State> {
       .getBlockForKey(selection.getStartKey())
       .getType();
 
-    const items = headerStyles.map(t => <DropdownItem value={t.style}>{t.label}</DropdownItem>);
+    const items = headerStyles.map(t => <DropdownItem value={t.style} key={t.label}>{t.label}</DropdownItem>);
 
     return (
       <div className="fc-rich-text-editor__command-set">
@@ -163,7 +163,9 @@ export default class RichTextEditor extends Component<void, Props, State> {
           isActive={isActive(type.style)}
           labelIcon={type.label}
           onClick={onClick}
-          style={type.style} />
+          style={type.style}
+          key={type.label}
+        />
       );
     });
 

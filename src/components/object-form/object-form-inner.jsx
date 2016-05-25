@@ -168,6 +168,9 @@ export default class ObjectFormInner extends Component<void, Props, State> {
     const onChange = ({target}) => {
       return this.handleChange(label, 'richText', target.value);
     };
+
+    value = value || '';
+
     const stringInput = (
       <input
         className={inputClass}
@@ -204,6 +207,9 @@ export default class ObjectFormInner extends Component<void, Props, State> {
     const onChange = ({target}) => {
       return this.handleChange(label, 'richText', target.value);
     };
+
+    value = value || '';
+
     const textInput = (
       <textarea
         className={inputClass}

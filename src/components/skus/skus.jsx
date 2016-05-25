@@ -26,6 +26,7 @@ type Props = {
 };
 
 type Sku = {
+  id: number;
   code: string,
   title: string,
   price: string,
@@ -41,7 +42,7 @@ export class Skus extends Component<void, Props, void> {
   ];
 
   renderRow(row: Sku, index: number, columns: Array<Column>, params: Object) {
-    const key = `skus-${row.code}`;
+    const key = `skus-${row.id}`;
     return <SkuRow key={key} sku={row} columns={columns} params={params} />;
   }
 

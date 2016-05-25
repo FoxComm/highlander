@@ -11,7 +11,7 @@ function setCellContents(sku, field) {
 
 const SkuRow = (props) => {
   const { sku, columns, params } = props;
-  const key = `sku-${sku.code}`;
+  const key = `sku-${sku.id}`;
   const clickAction = () => {
     transitionTo('sku-details', { skuCode: sku.code});
   };

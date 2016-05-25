@@ -17,7 +17,7 @@ import ObjectScheduler from '../object-scheduler/object-scheduler';
 import WaitAnimation from '../common/wait-animation';
 
 // types
-import type { FullSku } from '../../modules/skus/details';
+import type { FullSku } from '../../paragons/sku';
 
 type Props = {
   code: string,
@@ -33,12 +33,8 @@ const defaultKeys = {
 
 const keysToOmit = ['activeFrom', 'activeTo', 'tags'];
 
-export default class SkuDetails extends Component<void, Props, void> {
-  static propTypes = {
-    code: PropTypes.string.isRequired,
-    onChange: PropTypes.func.isRequired,
-    sku: PropTypes.object,
-  };
+export default class SkuDetails extends Component {
+  props: Props;
 
   get generalAttrs(): Array<string> {
     const toOmitArray = [

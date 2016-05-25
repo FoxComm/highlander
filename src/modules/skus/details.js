@@ -8,6 +8,9 @@ import { createAction, createReducer } from 'redux-act';
 import _ from 'lodash';
 
 import { addAttribute } from '../../paragons/form-shadow-object';
+import { createEmptySku } from '../../paragons/sku';
+
+import type { FullSku } from '../../paragons/sku';
 
 const defaultContext = 'default';
 
@@ -26,6 +29,8 @@ const skuUpdateStart = createAction('SKU_UPDATE_START');
 const skuUpdateSuccess = createAction('SKU_UPDATE_SUCCESS');
 const skuUpdateFailure = createAction('SKU_UPDATE_FAILURE');
 const setError = createAction('SKU_SET_ERROR');
+
+export const newSku = createAction('SKU_NEW');
 
 export function fetchSku(code: string, context: string = defaultContext): ActionDispatch {
   return dispatch => {
@@ -55,22 +60,6 @@ export function updateSku(sku: FullSku, context: string = defaultContext): Actio
   };
 }
 
-type SkuForm = {
-  code: string,
-  attributes: FormAttributes,
-};
-
-type SkuShadow = {
-  code: string,
-  attributes: ShadowAttributes,
-};
-
-export type FullSku = {
-  code: string,
-  form: SkuForm,
-  shadow: SkuShadow,
-};
-
 export type SkuState = {
   err: ?HttpError,
   isFetching: boolean,
@@ -86,6 +75,9 @@ const initialState: SkuState = {
 };
 
 const reducer = createReducer({
+  [newSku]: (state) => {
+    return assoc(state, 'sku', createEmptySku());
+  },
   [skuRequestStart]: (state: SkuState) => {
     return assoc(state,
       'err', null,
