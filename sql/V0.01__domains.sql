@@ -45,4 +45,5 @@ create domain rma_inventory_disposition text check (value in ('putaway', 'damage
 create domain rma_line_item_origin_type text check (value in ('skuItem', 'giftCardItem', 'shippingCost'));
 create domain shared_search_scope text check (value in ('customersScope', 'ordersScope', 'storeAdminsScope',
                                                         'giftCardsScope', 'productsScope', 'inventoryScope',
-                                                        'promotionsScope', 'couponsScope', 'couponCodesScope'));
+                                                        'promotionsScope', 'couponsScope', 'couponCodesScope',
+                                                        'skusScope'));
