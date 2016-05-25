@@ -6,7 +6,6 @@ import { assoc, update, merge, dissoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
 
 import Api from '../../lib/api';
-import { haveType } from './../state-helpers';
 
 const _createAction = (description, ...args) => {
   return createAction('CUSTOMER_ADDRESSES_' + description, ...args);

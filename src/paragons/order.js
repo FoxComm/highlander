@@ -38,7 +38,7 @@ export default class Order {
   }
 
   get entityId() {
-    return this.id;
+    return this.referenceNumber;
   }
 
   get entityType() {
