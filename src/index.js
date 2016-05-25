@@ -1,4 +1,3 @@
-
 import request from './utils/request';
 import setup from './api/index'
 
@@ -28,14 +27,12 @@ class Api {
 
   request(method, uri, data, options = {}) {
     const finalUrl = this.uri(uri);
-
     if (this.headers) {
       options.headers = { // eslint-disable-line no-param-reassign
         ...this.headers,
         ...(options.headers || {}),
       };
     }
-
     return request(method, finalUrl, data, options);
   }
 
@@ -54,6 +51,7 @@ class Api {
   delete(...args) {
     return this.request('delete', ...args);
   }
+
 }
-// export default Api;
+
 export default setup(Api);

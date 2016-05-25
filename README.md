@@ -25,7 +25,7 @@ Principles:
 # Usage
 
 ```
-import FoxCommAPI from FoxComm/api-js
+import FoxCommAPI from `FoxComm/api-js`
 const FxC = new FoxCommAPI({ args })  // args could include API domain & path data, public_key, etc
 ```
 
@@ -60,6 +60,71 @@ FxC.getProducts(null | filters/categories/etc)
 
 FxC.search(query)
     → [{ products }]
+```
+
+### `getProducts` Filters/Queries
+
+The idea of this function is to be as flexible and forgiving as possible to return the most useful set of products. There are different levels of sugar:
+
+* full, complex query object
+* simplified query object [auto-detect fields]
+* simple query string
+
+Heavily inspired by WordPress’ [Taxonomy querying](https://codex.wordpress.org/Class_Reference/WP_Query#Taxonomy_Parameters).
+
+#### Arguments
+
+- `condition (array|object)` - Required, however if no `relation` is given, both `relation` and `condition` can be implied by passing an array of conditions or a single object at the root of the query [see examples below].
+  - `taxon|optionType (string)` - Required. Taxonomy or OptionType name.
+  - `value (string|array)` - Required. Taxonomy term(s) to filter by.
+  - `field (string)` - Optional. Field to search taxonomy term by. Possible values: `name`, `slug` or any defined custom property. Default: `slug`.
+  - `include_children (bool)` - Optional. Whether or not to include children for hierarchical taxonomies. Default: `true`.
+  - `operator (string)` - Optional. Operator to test. Possible values are `IN`, `NOT IN`, `AND`, `EXISTS` and `NOT EXISTS`. Default: `IN`.
+- `relation (string)` - Optional [only needed with multiple `conditions`]. Possible values: `AND`, `OR`. Default: `AND`.
+
+All the below data can be passed to `getProducts` and will return the same result:
+
+
+```
+{
+  taxon: 'gender',
+  value: 'men'
+}
+-------
+{
+  gender: 'men'
+}
+-------
+'gender=men'
+```
+
+Multiple filters are considered `AND` by default [i.e. `select * from products where {condition} AND {condition}`].
+
+```
+{
+  relation: 'AND',
+  conditions: [
+    {
+      taxon: 'gender',
+      value: 'men'
+    },
+    {
+      optionType: 'color',
+      value: 'green'
+    }
+  ]
+}
+-------
+[
+  {
+    gender: 'men'
+  },
+  {
+    color: 'green'
+  }
+]
+-------
+'gender=men&color=green'
 ```
 
 
