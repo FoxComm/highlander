@@ -1,20 +1,16 @@
 
-// Need to move cart data marshalling functions from
-// https://github.com/FoxComm/firebird/blob/master/src/node_modules/modules/cart.js#L40-L107
+export function updateQty(item_id, qty) {  
+  return this.patch(`${this.path.editItem}/${item_id}`, { qty })
+}
 
-function removeFromCart(items, cart) {}
-function emptyCart() {}
+export function addToCart(items) {
+  return this.post(this.path.addToCart, items)
+}
 
-export function addToCart(items, cart) {
-  // TODO: should handle items as either
-  // { item }
-  // or
-  // [ { item }, { item }]
-  // should detect & normalize data, same for `removeFromCart()`
+export function removeFromCart(items) {
+  return this.post(this.path.addToCart, items)
+}
 
-  // Weird. We have to hold or pass the full current cart state
-  // so that we can marshall the data to the new desired state. TBD
-  // see: https://github.com/FoxComm/api-js/issues/2
-  // cartUtils.marshallItems(items)  // eg.
-  return this.post('/my/cart/line-items')
+export function emptyCart() {
+  return this.post(this.path.emptyCart)
 }
