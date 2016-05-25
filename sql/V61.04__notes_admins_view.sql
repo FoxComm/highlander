@@ -10,6 +10,7 @@ select
     end as store_admin
 from notes as n
 inner join store_admins as sa on (n.store_admin_id = sa.id)
-group by n.id, sa.id;
+group by n.id, sa.id
+order by id;
 
 create unique index notes_admins_view_idx on notes_admins_view (id);

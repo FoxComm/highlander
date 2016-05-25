@@ -14,8 +14,9 @@ select
         )::export_promotions_raw)
     end as promotion
 from notes as n
-left join promotions as p on (n.reference_id = p.id AND n.reference_type = 'promotion')
-left join object_forms as f on f.id = p.form_id
-group by n.id, p.id, f.id;
+left join promotions as p on (p.form_id = n.reference_id and n.reference_type = 'promotion')
+left join object_forms as f on (f.id = p.form_id and f.kind = 'promotion')
+group by n.id, p.id, f.id
+order by id;
 
 create unique index notes_promotions_view_idx on notes_promotions_view (id);

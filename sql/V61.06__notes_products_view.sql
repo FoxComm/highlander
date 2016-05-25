@@ -13,8 +13,9 @@ select
         )::export_products_raw)
     end as product
 from notes as n
-left join products as p on (n.reference_id = p.id AND n.reference_type = 'product')
-left join object_forms as f on f.id = p.form_id
-group by n.id, p.id, f.id;
+left join products as p on (p.form_id = n.reference_id and n.reference_type = 'product')
+left join object_forms as f on (f.id = p.form_id and f.kind = 'product')
+group by n.id, p.id, f.id
+order by id;
 
 create unique index notes_products_view_idx on notes_products_view (id);

@@ -10,6 +10,7 @@ select
     end as gift_card
 from notes as n
 left join gift_cards as gc on (n.reference_id = gc.id AND n.reference_type = 'giftCard')
-group by n.id, gc.id;
+group by n.id, gc.id
+order by id;
 
 create unique index notes_gift_cards_view_idx on notes_gift_cards_view (id);

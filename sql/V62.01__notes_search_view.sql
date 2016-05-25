@@ -14,7 +14,9 @@ select distinct on (n.id)
     customers.customer,
     gift_cards.gift_card,
     skus.sku as sku_item,
-    products.product
+    products.product,
+    promotions.promotion,
+    coupons.coupon
 from notes as n
 inner join notes_admins_view as admins on (n.id = admins.id)
 inner join notes_orders_view as orders on (n.id = orders.id)
@@ -22,6 +24,8 @@ inner join notes_customers_view as customers on (n.id = customers.id)
 inner join notes_gift_cards_view as gift_cards on (n.id = gift_cards.id)
 inner join notes_skus_view as skus on (n.id = skus.id)
 inner join notes_products_view as products on (n.id = products.id)
-order by n.id;
+inner join notes_promotions_view as promotions on (n.id = promotions.id)
+inner join notes_coupons_view as coupons on (n.id = coupons.id)
+order by id;
 
 create unique index notes_search_view_idx on notes_search_view (id);

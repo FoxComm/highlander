@@ -13,5 +13,8 @@ object CouponNoteManager extends NoteManager[Int, ObjectForm] {
   def noteType(): Note.ReferenceType = Note.Coupon
 
   def fetchEntity(id: Int)(implicit ec: EC, db: DB, ac: AC): DbResult[ObjectForm] =
-    ObjectForms.filter(_.kind === ObjectForm.coupon).mustFindOneOr(NotFoundFailure404(Coupon, id))
+    ObjectForms
+      .filter(_.id === id)
+      .filter(_.kind === ObjectForm.coupon)
+      .mustFindOneOr(NotFoundFailure404(Coupon, id))
 }

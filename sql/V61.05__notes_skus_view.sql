@@ -14,8 +14,9 @@ select
         )::export_skus_raw)
     end as sku
 from notes as n
-left join skus as s on (n.reference_id = s.id AND n.reference_type = 'sku')
-left join object_forms as f on f.id = s.form_id
-group by n.id, s.id, f.id;
+left join skus as s on (n.reference_id = s.id and n.reference_type = 'sku')
+left join object_forms as f on (f.id = s.form_id and f.kind = 'sku')
+group by n.id, s.id, f.id
+order by id;
 
 create unique index notes_skus_view_idx on notes_skus_view (id);

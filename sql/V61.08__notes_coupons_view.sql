@@ -12,10 +12,11 @@ select
             f.attributes,
             to_char(c.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
         )::export_coupons_raw)
-    end as promotion
+    end as coupon
 from notes as n
-left join coupons as c on (n.reference_id = c.id AND n.reference_type = 'coupon')
-left join object_forms as f on f.id = c.form_id
-group by n.id, c.id, f.id;
+left join coupons as c on (c.form_id = n.reference_id and n.reference_type = 'coupon')
+left join object_forms as f on (f.id = c.form_id and f.kind = 'coupon')
+group by n.id, c.id, f.id
+order by id;
 
 create unique index notes_coupons_view_idx on notes_coupons_view (id);

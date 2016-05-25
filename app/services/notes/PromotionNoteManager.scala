@@ -14,6 +14,7 @@ object PromotionNoteManager extends NoteManager[Int, ObjectForm] {
 
   def fetchEntity(id: Int)(implicit ec: EC, db: DB, ac: AC): DbResult[ObjectForm] =
     ObjectForms
+      .filter(_.id === id)
       .filter(_.kind === ObjectForm.promotion)
       .mustFindOneOr(NotFoundFailure404(Promotion, id))
 }
