@@ -8,7 +8,7 @@ module.exports = function() {
     favicon: path.resolve('public/favicon.ico'),
     publicDir: path.resolve('public'),
     pageConstants: {
-      title: 'FoxCommerce | Ashes',
+      title: 'FoxCommerce',
       analytics: 'UA-XXXXXXXX-1',
       appStart: 'App.start();'
     }

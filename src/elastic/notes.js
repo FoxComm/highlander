@@ -1,34 +1,32 @@
+import _ from 'lodash';
 import * as dsl from './dsl';
 import { addNativeFilters } from './common';
 
 export default function processQuery({ entityType, entityId }, query) {
+  /** convert to camelCased types as in ES index */
+  const type = _.camelCase(entityType);
+
+  query = addNativeFilters(query,[
+    dsl.termFilter('referenceType', type),
+    dsl.existsFilter('deletedAt', 'missing'),
+  ]);
+
   switch (entityType) {
-    case 'customer':
-      return addNativeFilters(query, [
-        dsl.nestedTermFilter('customer.id', entityId),
-        dsl.existsFilter('deletedAt', 'missing'),
-      ]);
     case 'order':
       return addNativeFilters(query, [
-        dsl.nestedMatchFilter('order.referenceNumber', entityId),
-        dsl.existsFilter('deletedAt', 'missing'),
+        dsl.nestedTermFilter('order.referenceNumber', entityId),
+      ]);
+    case 'sku':
+      return addNativeFilters(query, [
+        dsl.nestedTermFilter('skuItem.sku', entityId),
       ]);
     case 'gift-card':
       return addNativeFilters(query, [
         dsl.nestedTermFilter('giftCard.code', entityId),
-        dsl.existsFilter('deletedAt', 'missing'),
-      ]);
-    case 'inventory-item':
-      return addNativeFilters(query, [
-        dsl.nestedTermFilter('inventoryItem.code', entityId),
-        dsl.existsFilter('deletedAt', 'missing'),
       ]);
     default:
       return addNativeFilters(query, [
-        dsl.nestedTermFilter(`${entityType}.id`, entityId),
-        dsl.existsFilter('deletedAt', 'missing'),
+        dsl.termFilter('referenceId', entityId),
       ]);
   }
-
-  return query;
 }

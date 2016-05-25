@@ -2,7 +2,6 @@ import _ from 'lodash';
 import { assoc, dissoc, update, merge } from 'sprout-data';
 import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
-import { haveType } from '../state-helpers';
 
 const _createAction = (description, ...args) => {
   return createAction('CUSTOMER_CREDIT_CARD_' + description, ...args);

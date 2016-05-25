@@ -15,6 +15,7 @@ import TabListView from '../tabs/tabs';
 import EditableTabView from '../tabs/editable-tab';
 import DatePicker from '../datepicker/datepicker';
 import ShareSearch from '../share-search/share-search';
+import { Button } from '../common/buttons';
 import ButtonWithMenu from '../common/button-with-menu';
 
 import SearchTerm, { getInputMask } from '../../paragons/search-term';
@@ -63,6 +64,7 @@ export default class LiveSearch extends React.Component {
 
   static propTypes = {
     children: PropTypes.node,
+    placeholder: PropTypes.string,
     deleteSearch: PropTypes.func.isRequired,
     saveSearch: PropTypes.func,
     selectSavedSearch: PropTypes.func.isRequired,
@@ -85,6 +87,7 @@ export default class LiveSearch extends React.Component {
   };
 
   static defaultProps = {
+    placeholder: 'filter or keyword search',
     singleSearch: false,
     isEditable: true,
     noGutter: false,
@@ -92,7 +95,10 @@ export default class LiveSearch extends React.Component {
 
   componentDidMount() {
     this.props.submitFilters(this.currentSearch.query, true);
-    this.props.fetchSearches();
+
+    if (!this.props.singleSearch) {
+      this.props.fetchSearches();
+    }
   }
 
   componentDidUpdate() {
@@ -210,9 +216,7 @@ export default class LiveSearch extends React.Component {
   }
 
   get savedSearches() {
-    if (this.props.singleSearch) {
-      return;
-    }
+    if (this.props.singleSearch) return;
 
     const { searches } = this.props;
 
@@ -244,9 +248,18 @@ export default class LiveSearch extends React.Component {
   }
 
   get controls() {
+    const { searchDisplay, pills } = this.state;
+    const { searches, singleSearch } = this.props;
+
+    const buttonDisabled = searchDisplay.length == 0 || searches.isSavingSearch || this.isDisabled;
+
+    if (singleSearch) {
+      return <Button icon="search" onClick={this.handleSearchClick} disabled={buttonDisabled} />;
+    }
+
     let menuItems = [];
 
-    const clearAction = this.state.pills.length ? [[SEARCH_MENU_ACTION_CLEAR, 'Clear All Filters']] : [];
+    const clearAction = pills.length ? [[SEARCH_MENU_ACTION_CLEAR, 'Clear All Filters']] : [];
 
     if (this.currentSearch.id) {
       const saveAction = this.currentSearch.isDirty ? [[SEARCH_MENU_ACTION_UPDATE, 'Update Search']] : [];
@@ -265,8 +278,7 @@ export default class LiveSearch extends React.Component {
       ];
     }
 
-    const buttonDisabled = this.state.searchDisplay.length == 0 || this.props.searches.isSavingSearch || this.isDisabled;
-    const menuDisabled = this.props.searches.isSavingSearch || this.isDisabled;
+    const menuDisabled = searches.isSavingSearch || this.isDisabled;
 
     return (
       <ButtonWithMenu
@@ -574,7 +586,7 @@ export default class LiveSearch extends React.Component {
                   onFocus={this.inputFocus}
                   onBlur={this.blur}
                   onKeyDown={this.keyDown}
-                  placeholder="filter or keyword search"
+                  placeholder={this.props.placeholder}
                   prepend={this.state.searchPrepend}
                   value={this.state.searchDisplay}
                   disabled={this.isDisabled}

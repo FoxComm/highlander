@@ -120,9 +120,12 @@ export default class CouponCodes extends Component {
             renderRow={this.renderRow}
             tableColumns={tableColumns}
             searchActions={this.props.actions}
-            searchOptions={{singleSearch: true}}
+            searchOptions={{
+              singleSearch: true,
+              placeholder: 'keyword search',
+            }}
           />
-         </BulkActions>
+        </BulkActions>
       </div>
     );
   }

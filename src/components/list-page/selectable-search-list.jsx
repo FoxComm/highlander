@@ -31,6 +31,7 @@ export default class SelectableSearchList extends React.Component {
       refresh: PropTypes.func.isRequired,
     }).isRequired,
     searchOptions: PropTypes.shape({
+      placeholder: PropTypes.string,
       singleSearch: PropTypes.bool,
     }),
     processRows: PropTypes.func,
