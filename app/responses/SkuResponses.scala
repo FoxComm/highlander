@@ -20,10 +20,11 @@ object SkuResponses {
 
   object SkuFormResponse {
 
-    case class Root(code: String, attributes: Json, createdAt: Instant) extends ResponseItem
+    case class Root(id: Int, code: String, attributes: Json, createdAt: Instant)
+        extends ResponseItem
 
     def build(sku: Sku, form: ObjectForm): Root =
-      Root(code = sku.code, attributes = form.attributes, createdAt = form.createdAt)
+      Root(id = form.id, code = sku.code, attributes = form.attributes, createdAt = form.createdAt)
   }
 
   object SkuShadowResponse {
