@@ -158,6 +158,7 @@ export default class Notes extends React.Component {
           searches={props.list}
           searchActions={props.searchActions}
           singleSearch={true}
+          placeholder="keyword search"
           >
           <TableView
             emptyMessage="No notes found."
