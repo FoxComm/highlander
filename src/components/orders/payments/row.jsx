@@ -1,93 +1,120 @@
+/* @flow */
+
 import _ from 'lodash';
-import React, { PropTypes } from 'react';
+import React, { Component, PropTypes, Element } from 'react';
+import { autobind } from 'core-decorators';
+
+import styles from './payments.css';
+
 import Currency from '../../common/currency';
 import TableRow from '../../table/row';
 import TableCell from '../../table/cell';
-import { autobind } from 'core-decorators';
+import { DateTime } from '../../common/datetime';
+import { EditButton, DeleteButton } from '../../common/buttons';
+import PaymentMethod from '../../payment/payment-method';
 
-export default class Row extends React.Component {
-  constructor(...args) {
-    super(...args);
+type Props = {
+  editMode: boolean;
+  title: string|Element;
+  subtitle?: string|Element;
+  amount: number;
+  details: (editProps: Object) => Element;
+  showDetails: boolean;
+  toggleDetails: Function;
+  editAction: Function;
+  deleteAction: Function;
+  paymentMethod: Object;
+}
 
-    this.state = {
-      showDetails: false
-    };
-  }
+type State = {
+  isEditing: boolean;
+}
 
-  static propTypes = {
-    isEditing: PropTypes.bool.isRequired,
-    icon: PropTypes.node.isRequired,
-    summary: PropTypes.node.isRequired,
-    amount: PropTypes.number,
-    details: PropTypes.func.isRequired,
-    editAction: PropTypes.node.isRequired,
+export default class PaymentRow extends Component {
+  props: Props;
+
+  state: State = {
+    isEditing: false,
   };
 
+  @autobind
+  handleStartEdit() {
+    this.setState({
+      isEditing: true,
+    });
+    if (!this.props.showDetails) {
+      this.props.toggleDetails();
+    }
+  }
+
+  @autobind
+  cancelEditing() {
+    this.setState({
+      isEditing: false,
+    });
+  }
+
   get editAction() {
-    if (this.props.isEditing) {
+    if (this.props.editMode) {
+      const editButton = !this.state.isEditing ? <EditButton onClick={this.handleStartEdit} /> : null;
       return (
-        <TableCell>
-          {this.props.editAction}
+        <TableCell styleName="actions-cell">
+          {editButton}
+          <DeleteButton onClick={this.props.deleteAction} />
         </TableCell>
       );
     }
   }
 
   get amount() {
-    const amount = this.props.amount;
+    const { amount } = this.props;
     return _.isNumber(amount) ? <Currency value={amount} /> : null;
   }
 
-  @autobind
-  toggleDetails() {
-    this.setState({
-      ...this.state,
-      showDetails: !this.state.showDetails
-    });
+  get detailsRow() {
+    if (this.props.showDetails) {
+      const detailsProps = {
+        isEditing: this.state.isEditing,
+        cancelEditing: this.cancelEditing,
+      };
+      return (
+        <TableRow styleName="details-row">
+          <TableCell colspan={5}>
+            {this.props.details(detailsProps)}
+          </TableCell>
+        </TableRow>
+      );
+    }
   }
 
-  render() {
-    const { icon, summary, amount, editAction } = this.props;
-    let details = null;
-    let nextDetailAction = null;
-
-    if (this.state.showDetails) {
-      nextDetailAction = 'up';
-      details = this.props.details();
-    } else {
-      nextDetailAction = 'down';
-      details = '';
-    }
+  get summaryRow() {
+    const { props } = this;
+    const nextDetailAction = props.showDetails ? 'up' : 'down';
 
     return (
-      <TableRow>
+      <TableRow styleName="payment-row">
         <TableCell>
-          <div className="fc-payment-method fc-grid">
-            <div className="fc-left">
-              <i className={`icon-chevron-${nextDetailAction}`} onClick={this.toggleDetails}></i>
-            </div>
-            <div className="fc-col-md-8-12">
-              <div className="fc-left">
-                <img className="fc-icon-lg" src={icon}></img>
-              </div>
-              {summary}
-            </div>
-            <div className="fc-payment-method-details">
-              <div className="fc-push-md-3-12 fc-col-md-9-12">
-                {details}
-              </div>
-            </div>
-          </div>
+          <i styleName="row-toggle" className={`icon-chevron-${nextDetailAction}`} onClick={props.toggleDetails} />
+          <PaymentMethod paymentMethod={props.paymentMethod} />
         </TableCell>
         <TableCell>
-          <div>
-            <div>
-              {this.amount}
-            </div>
-          </div>
+          {this.amount}
+        </TableCell>
+        <TableCell />
+        <TableCell>
+          <DateTime value={props.paymentMethod.createdAt} />
         </TableCell>
         {this.editAction}
       </TableRow>
+    );
+  }
+
+  render() {
+    return (
+      <tbody>
+        {this.summaryRow}
+        {this.detailsRow}
+      </tbody>
     );
   }
 };

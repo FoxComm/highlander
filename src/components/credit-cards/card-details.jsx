@@ -8,17 +8,13 @@ export default class CreditCardDetails extends React.Component {
     card: PropTypes.object
   };
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   render() {
     const card = this.props.card;
 
     return (
       <div className="fc-credit-card">
         <div>
-          <PaymentMethod card={card} />
+          <PaymentMethod paymentMethod={card} />
         </div>
         <dl>
           <dt className="fc-credit-card__label">Name on Card</dt>

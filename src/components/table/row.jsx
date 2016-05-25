@@ -3,10 +3,10 @@ import classNames from 'classnames';
 import React, { PropTypes } from 'react';
 
 const TableRow = props => {
-  const { children, isNew, ...rest } = props;
+  const { children, isNew, className, ...rest } = props;
 
   return (
-    <tr className={classNames('fc-table-tr', {'is-new': isNew })} {...rest}>
+    <tr className={classNames('fc-table-tr', {'is-new': isNew }, className)} {...rest}>
       {children}
     </tr>
   );

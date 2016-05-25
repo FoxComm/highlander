@@ -74,7 +74,6 @@ export default class OrderDiscounts extends Component {
     return (
       <ContentBox
         title={this.title}
-        isTable={true}
         indentContent={false}
         viewContent={this.viewContent}
       />

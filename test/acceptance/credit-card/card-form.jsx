@@ -3,7 +3,7 @@ import ShallowTestUtils from 'react-shallow-testutils';
 
 describe('CreditCardForm', function() {
 
-  const CreditCardForm = requireComponent('credit-cards/card-form.jsx');
+  const CreditCardForm = requireComponent('credit-cards/card-form.jsx').WrappedComponent;
 
   let form;
 
@@ -12,7 +12,7 @@ describe('CreditCardForm', function() {
     onSubmit: () => {},
     onCancel: () => {},
     customerId: Math.floor(Math.random() * 10) + 1,
-    form: {}
+    card: {}
   };
 
   const card = {

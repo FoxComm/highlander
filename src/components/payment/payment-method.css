@@ -1,0 +1,20 @@
+
+.payment-method {
+  display: inline-block;
+}
+
+.payment-icon {
+  height: 38px;
+  width: 56px;
+}
+
+.payment-summary {
+  vertical-align: top;
+  display: inline-block;
+
+  & > strong {
+    font-size: 13px;
+    color: #1C1C1C;
+    line-height: 18px;
+  }
+}

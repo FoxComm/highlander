@@ -4,6 +4,8 @@ import React, { PropTypes } from 'react';
 import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
 // utils
 import * as CardUtils from '../../lib/credit-card-utils';
@@ -19,6 +21,23 @@ import AddressSelect from '../addresses/address-select';
 import SaveCancel from '../common/save-cancel';
 import InputMask from 'react-input-mask';
 
+import * as AddressActions from '../../modules/customers/addresses';
+
+function mapStateToProps(state, props) {
+  return {
+    addresses: _.get(state.customers.addresses, [props.customerId, 'addresses'], []),
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    actions: {
+      ...bindActionCreators(AddressActions, dispatch),
+    },
+  };
+}
+
+@connect(mapStateToProps, mapDispatchToProps)
 export default class CreditCardForm extends React.Component {
 
   static propTypes = {
@@ -27,7 +46,6 @@ export default class CreditCardForm extends React.Component {
     onCancel: PropTypes.func,
     isNew: PropTypes.bool,
     isDefaultEnabled: PropTypes.bool,
-    form: PropTypes.object,
     addresses: PropTypes.array,
     card: PropTypes.shape({
       address: PropTypes.shape({
@@ -36,14 +54,12 @@ export default class CreditCardForm extends React.Component {
     }),
     customerId: PropTypes.number,
     className: PropTypes.string,
-    showSelectedAddress: PropTypes.bool,
     saveText: PropTypes.string,
   };
 
   static defaultProps = {
     isDefaultEnabled: true,
     onChange: _.noop,
-    showSelectedAddress: false,
     saveText: 'Save',
   };
 
@@ -51,6 +67,10 @@ export default class CreditCardForm extends React.Component {
     card: this.props.card,
     editingAddress: this.props.isNew,
   };
+
+  componentDidMount() {
+    this.props.actions.fetchAddresses(this.props.customerId);
+  }
 
   get header() {
     if (this.props.isNew) {
@@ -63,7 +83,7 @@ export default class CreditCardForm extends React.Component {
   }
 
   get defaultCheckboxBlock() {
-    const { form, isDefaultEnabled } = this.props;
+    const { isDefaultEnabled } = this.props;
 
     const className = classNames('fc-credit-card-form__default', {
       '_disabled': !isDefaultEnabled,
@@ -215,13 +235,13 @@ export default class CreditCardForm extends React.Component {
   }
 
   get billingAddress() {
-    const { customerId, showSelectedAddress } = this.props;
+    const { customerId } = this.props;
     const address = _.get(this.state, 'card.address');
 
     let addressDetails = null;
     let changeLink = null;
 
-    if (!this.state.editingAddress && showSelectedAddress) {
+    if (!this.state.editingAddress) {
       changeLink = (
         <span>
           - <a className="fc-btn-link" onClick={this.toggleSelectAddress}>Change</a>
@@ -244,10 +264,10 @@ export default class CreditCardForm extends React.Component {
   }
 
   get addressBook() {
-    const { addresses, customerId, showSelectedAddress } = this.props;
+    const { addresses, customerId } = this.props;
     const addressId = _.get(this.state, 'card.address.id');
 
-    if (this.state.editingAddress || !showSelectedAddress) {
+    if (this.state.editingAddress) {
       return (
         <li className="fc-credit-card-form__addresses">
           <div>

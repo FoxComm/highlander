@@ -1,20 +1,16 @@
 import React, { Component, PropTypes } from 'react';
-import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 
 import AutoScroll from '../../common/auto-scroll';
-import CreditCardBox from '../../credit-cards/card-box';
-import CreditCardDetails from '../../credit-cards/card-details';
 import { Dropdown, DropdownItem } from '../../dropdown';
 import ErrorAlerts from '../../alerts/error-alerts';
 import { Form, FormField } from '../../forms';
 import NewGiftCard from './new-gift-card';
 import NewStoreCredit from './new-store-credit';
 import NewCreditCard from './new-credit-card';
-import TileSelector from '../../tile-selector/tile-selector';
 import TableCell from '../../table/cell';
 import TableRow from '../../table/row';
 
@@ -109,13 +105,13 @@ class NewPayment extends Component {
   render() {
     return (
       <TableRow>
-        <TableCell className="fc-new-order-payment" colspan={3}>
+        <TableCell className="fc-new-order-payment" colspan={5}>
           {this.paymentForm}
           {this.newPaymentMethod}
         </TableCell>
       </TableRow>
     );
   }
-};
+}
 
 export default NewPayment;

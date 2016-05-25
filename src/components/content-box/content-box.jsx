@@ -13,15 +13,20 @@ const ContextBox = props => {
     }
   }
 
+  const bodyClassName = classNames(
+    props.bodyClassName,
+    {'fc-content-box-indent': props.indentContent}
+  );
+
   return (
     <div className={ classNames('fc-content-box', props.className) }>
       <header className="fc-content-box-header">
         <div className="fc-title">{ props.title }</div>
         <div className="fc-controls">{ props.actionBlock }</div>
       </header>
-      <article className={ classNames(props.bodyClassName,{'fc-content-box-indent':props.indentContent}) }>
+      <div className={ bodyClassName }>
         { body }
-      </article>
+      </div>
       { props.footer }
     </div>
   );

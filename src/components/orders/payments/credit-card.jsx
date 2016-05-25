@@ -1,29 +1,24 @@
-import * as CardUtils from '../../../lib/credit-card-utils';
+import _ from 'lodash';
 import React, { PropTypes } from 'react';
-import CreditCardDetails from '../../../components/credit-cards/card-details';
+import { connect } from 'react-redux';
+
+import CreditCardForm from '../../credit-cards/card-form';
 import AddressDetails from '../../addresses/address-details';
-import static_url from '../../../lib/s3';
-import { Button, EditButton } from '../../common/buttons';
-import Row from './row';
+import PaymentRow from './row';
 
-const CreditCard = props => {
+import * as PaymentMethodActions from '../../../modules/orders/payment-methods';
+
+let CreditCardDetails = (props) => {
   const card = props.paymentMethod;
-  const brand = card.brand.toLowerCase();
-  const icon = static_url(`images/payments/payment_${brand}.svg`);
 
-  const deletePayment = () => {
-    props.deleteOrderCreditCardPayment(props.order.currentOrder.refNum);
+  const handleSave = (event, creditCard) => {
+    props
+      .editCreditCardPayment(props.order.referenceNumber, creditCard, props.customerId)
+      .then(props.cancelEditing);
   };
 
-  const editAction = (
-    <div>
-      <EditButton onClick={() => console.log('not implemented')} />
-      <Button icon="trash" className="fc-btn-remove" onClick={deletePayment} />
-    </div>
-  );
-
-  const details = () => {
-    return(
+  if (!props.isEditing) {
+    return (
       <div>
         <dl>
           <dt>Name on Card</dt>
@@ -35,45 +30,55 @@ const CreditCard = props => {
         </dl>
       </div>
     );
+  } else {
+    return (
+      <CreditCardForm
+        card={card}
+        customerId={props.customerId}
+        isDefaultEnabled={false}
+        isNew={false}
+        onCancel={props.cancelEditing}
+        onSubmit={handleSave}
+      />
+    );
+  }
+};
+CreditCardDetails = connect(null, PaymentMethodActions)(CreditCardDetails);
+
+
+const CreditCard = props => {
+  const deletePayment = () => {
+    props.deleteOrderCreditCardPayment(props.order.referenceNumber);
   };
 
-  const summary = (
-    <div className="fc-left">
-      <div className="fc-strong">{CardUtils.formatNumber(card)}</div>
-      <div>{CardUtils.formatExpiration(card)}</div>
-    </div>
-  );
+  const details = editProps => {
+    return <CreditCardDetails {...props} {...editProps} />;
+  };
 
   const params = {
-    details: details,
+    details,
     amount: null,
-    icon: icon,
-    summary: summary,
-    editAction: editAction,
-    isEditing: props.isEditing
+    deleteAction: deletePayment,
+    ...props,
   };
 
-  return <Row {...params} />;
+  return <PaymentRow {...params} />;
 };
 
 CreditCard.propTypes = {
   paymentMethod: PropTypes.shape({
-    paymentMethod: PropTypes.shape({
-      brand: PropTypes.string.isRequired,
-      holderName: PropTypes.string.isRequired,
-      address: PropTypes.object.isRequired,
-      expMonth: PropTypes.number.isRequired,
-      expYear: PropTypes.number.isRequired,
-      lastFour: PropTypes.string.isRequired
-    })
+    brand: PropTypes.string.isRequired,
+    holderName: PropTypes.string.isRequired,
+    address: PropTypes.object.isRequired,
+    expMonth: PropTypes.number.isRequired,
+    expYear: PropTypes.number.isRequired,
+    lastFour: PropTypes.string.isRequired
   }),
   order: PropTypes.shape({
-    currentOrder: PropTypes.shape({
-      referenceNumber: PropTypes.string.isRequired
-    })
+    referenceNumber: PropTypes.string.isRequired
   }),
-  isEditing: PropTypes.bool.isRequired,
-  deleteOrderCreditCardPayment: PropTypes.func.isRequired
+  deleteOrderCreditCardPayment: PropTypes.func.isRequired,
+  editCreditCardPayment: PropTypes.func.isRequired,
 };
 
 export default CreditCard;

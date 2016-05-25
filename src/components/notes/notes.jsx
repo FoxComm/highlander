@@ -165,7 +165,7 @@ export default class Notes extends React.Component {
             renderRow={this.renderNoteRow}
             columns={this.tableColumns}
             processRows={this.injectAddingForm}
-            />
+          />
         </LiveSearchAdapter>
         <ConfirmationDialog
           {...Notes.deleteOptions}

@@ -2,7 +2,6 @@ import React, { Component, PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import formatCurrency from '../../../lib/format-currency';
 import _ from 'lodash';
 
 import * as PaymentMethodActions from '../../../modules/orders/payment-methods';
@@ -49,14 +48,6 @@ export default class NewStoreCredit extends Component {
     }).isRequired,
   };
 
-  constructor(...args) {
-    super(...args);
-
-    this.state = {
-      amountToUse: 0,
-    };
-  }
-
   componentDidMount() {
     this.props.actions.fetchTotals();
   }
@@ -66,30 +57,22 @@ export default class NewStoreCredit extends Component {
   }
 
   @autobind
-  handleChange(amount) {
-    this.setState({
-      amountToUse: Math.min(amount, this.availableBalance),
-    });
-  }
-
-  @autobind
-  handleSubmit(event) {
-    event.preventDefault();
+  handleSubmit(amountToUse) {
     this.props.actions.addOrderStoreCreditPayment(
       this.props.order.referenceNumber,
-      this.state.amountToUse);
+      amountToUse
+    );
   }
 
   render() {
     return (
       <div className="fc-order-apply-store-credit">
-        <DebitCredit amountToUse={this.state.amountToUse}
-                     availableBalance={this.availableBalance}
-                     onCancel={this.props.actions.orderPaymentMethodStopEdit}
-                     onChange={this.handleChange}
-                     onSubmit={this.handleSubmit}
-                     title="Customer's Store Credit" />
+        <DebitCredit
+          availableBalance={this.availableBalance}
+          onCancel={this.props.actions.orderPaymentMethodStopEdit}
+          onSubmit={this.handleSubmit}
+          title="Customer's Store Credit"
+        />
       </div>
     );
-  }
-}
+  }}
