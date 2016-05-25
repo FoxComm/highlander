@@ -19,8 +19,10 @@ import models.promotion._
 import models.promotion.Promotions.scope._
 import models.shipping
 import models.traits.Originator
+import responses.TheResponse
+import responses.order.FullOrder
 import responses.order.FullOrder._
-import services.Result
+import services.{CartValidator, Result}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
@@ -30,7 +32,7 @@ object OrderPromotionUpdater {
 
   def attachCoupon(
       originator: Originator, refNum: Option[String] = None, context: ObjectContext, code: String)(
-      implicit ec: EC, es: ES, db: DB): Result[Root] =
+      implicit ec: EC, es: ES, db: DB): Result[TheResponse[FullOrder.Root]] =
     (for {
       // Fetch base data
       order ← * <~ getCartByOriginator(originator, refNum)
@@ -78,12 +80,14 @@ object OrderPromotionUpdater {
       _ ← * <~ OrderPromotions.create(OrderPromotion.buildCoupon(order, promotion, couponCode))
       _ ← * <~ OrderLineItemAdjustments.createAll(adjustments)
       // Response
-      order    ← * <~ OrderTotaler.saveTotals(order)
-      response ← * <~ refreshAndFullOrder(order).toXor
-    } yield response).runTxn()
+      order     ← * <~ OrderTotaler.saveTotals(order)
+      validated ← * <~ CartValidator(order).validate()
+      response  ← * <~ refreshAndFullOrder(order).toXor
+    } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings))
+      .runTxn()
 
   def detachCoupon(originator: Originator, refNum: Option[String] = None)(
-      implicit ec: EC, es: ES, db: DB): Result[Root] =
+      implicit ec: EC, es: ES, db: DB): Result[TheResponse[FullOrder.Root]] =
     (for {
       // Read
       order           ← * <~ getCartByOriginator(originator, refNum)
@@ -93,11 +97,13 @@ object OrderPromotionUpdater {
       promotions ← * <~ Promotions.filter(_.shadowId.inSet(shadowIds)).requiresCoupon.result
       deleteShadowIds = promotions.map(_.shadowId)
       // Write
-      _        ← * <~ OrderPromotions.filterByOrderIdAndShadows(order.id, deleteShadowIds).delete
-      _        ← * <~ OrderLineItemAdjustments.filterByOrderIdAndShadows(order.id, deleteShadowIds).delete
-      _        ← * <~ OrderTotaler.saveTotals(order)
-      response ← * <~ refreshAndFullOrder(order).toXor
-    } yield response).runTxn()
+      _         ← * <~ OrderPromotions.filterByOrderIdAndShadows(order.id, deleteShadowIds).delete
+      _         ← * <~ OrderLineItemAdjustments.filterByOrderIdAndShadows(order.id, deleteShadowIds).delete
+      _         ← * <~ OrderTotaler.saveTotals(order)
+      validated ← * <~ CartValidator(order).validate()
+      response  ← * <~ refreshAndFullOrder(order).toXor
+    } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings))
+      .runTxn()
 
   /**
     * Getting only first discount now
