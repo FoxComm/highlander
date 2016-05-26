@@ -55,7 +55,9 @@ export default class SkuList extends Component<void, Props, void> {
           columns={columns}
           sku={row}
           params={params}
-          updateField={this.props.updateField} />
+          updateField={this.props.updateField}
+          key={key}
+        />
       );
     };
 

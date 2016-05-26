@@ -56,29 +56,8 @@ type State = {
  * ProductPage represents the default layout of a product details page.
  * It displays the title, sub nav, and save button.
  */
-export class ProductPage extends Component<void, Props, State> {
-  static propTypes = {
-    actions: PropTypes.shape({
-      createProduct: PropTypes.func.isRequired,
-      fetchProduct: PropTypes.func.isRequired,
-      productNew: PropTypes.func.isRequired,
-      updateProduct: PropTypes.func.isRequired,
-    }).isRequired,
-
-    children: PropTypes.node,
-
-    params: PropTypes.shape({
-      productId: PropTypes.string.isRequired,
-      context: PropTypes.string,
-    }).isRequired,
-
-    products: PropTypes.shape({
-      isFetching: PropTypes.bool.isRequired,
-      isUpdating: PropTypes.bool.isRequired,
-      product: PropTypes.object,
-      err: PropTypes.object,
-    }).isRequired,
-  };
+export class ProductPage extends Component {
+  props: Props;
 
   state: State = {
     product: this.props.products.product,

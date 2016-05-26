@@ -1,11 +1,12 @@
 import React, { PropTypes } from 'react';
 import Initials from '../users/initials';
+import DetailedInitials from '../users/detailed-initials';
 import { EditButton, DeleteButton } from '../common/buttons';
 
 const NoteControls = props => {
   return (
     <div className="fc-notes-item-controls">
-      <Initials {...props.model.author}/>
+      <DetailedInitials {...props.model.author}/>
       <DeleteButton onClick={() => props.onDeleteClick(props.model)} />
       <EditButton onClick={() => props.onEditClick(props.model)} />
     </div>
