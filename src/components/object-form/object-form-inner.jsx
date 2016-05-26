@@ -164,13 +164,10 @@ export default class ObjectFormInner extends Component<void, Props, State> {
   }
 
   @autobind
-  renderString(label: string, value: string): Element {
+  renderString(label: string, value: string = ''): Element {
     const onChange = ({target}) => {
       return this.handleChange(label, 'richText', target.value);
     };
-
-    value = value || '';
-
     const stringInput = (
       <input
         className={inputClass}
@@ -203,13 +200,10 @@ export default class ObjectFormInner extends Component<void, Props, State> {
   }
 
   @autobind
-  renderText(label: string, value: string): Element {
+  renderText(label: string, value: string = ''): Element {
     const onChange = ({target}) => {
       return this.handleChange(label, 'richText', target.value);
     };
-
-    value = value || '';
-
     const textInput = (
       <textarea
         className={inputClass}
