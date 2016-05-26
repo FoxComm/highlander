@@ -35,6 +35,8 @@ export function processActivities(activities) {
 
       _.each(newQuantities, (quantity, skuName) => {
         const oldQuantity = skuName in oldQuantities ? oldQuantities[skuName] : 0;
+        if (oldQuantity === quantity) return;
+
         const kind = oldQuantity > quantity ?
           derivedTypes.ORDER_LINE_ITEMS_REMOVED_SKU : derivedTypes.ORDER_LINE_ITEMS_ADDED_SKU;
 
@@ -78,8 +80,15 @@ export function fetchActivityTrail({dimension, objectId = null}, from) {
   };
 }
 
-function mergeActivities(activities = [], newActivities) {
-  const merged = updateItems(activities, newActivities);
+export function mergeActivities(activities = [], newActivities) {
+  const merged = updateItems(activities, newActivities, activity => {
+    if (activity.kind === derivedTypes.ORDER_LINE_ITEMS_REMOVED_SKU ||
+      activity.kind == derivedTypes.ORDER_LINE_ITEMS_ADDED_SKU) {
+      return `${activity.id}-${activity.data.skuName}`;
+    }
+
+    return activity.id;
+  });
 
   return _.values(merged).sort((a, b) => {
     return new Date(b.createdAt) - new Date(a.createdAt) || b.id - a.id;
