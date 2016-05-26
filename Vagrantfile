@@ -9,7 +9,8 @@ $vb_memory = 6048
 $vb_cpu = 4
 $backend_ip = "192.168.10.111"
 $ashes_ip = "192.168.10.112"
-$user = ENV['GOOGLE_SSH_USERNAME'] || "vagrant"
+# $user = ENV['GOOGLE_SSH_USERNAME'] || "vagrant"
+$user = "vagrant"
 
 require CONFIG if File.readable?(CONFIG)
 

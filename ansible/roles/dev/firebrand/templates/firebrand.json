@@ -1,0 +1,7 @@
+{
+    "service" : {
+        "name": "firebrand",
+        "tags": ["firebrand"],
+        "port": 4041
+    }
+}

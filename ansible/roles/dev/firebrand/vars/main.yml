@@ -1,0 +1,2 @@
+firebrand_source_package: "{{role_path}}/../../../../../firebrand/firebrand.tar.bz2"
+firebrand_install_dir: "{{home}}/firebrand"

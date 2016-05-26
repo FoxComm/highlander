@@ -34,6 +34,11 @@ firebird_env: production
 firebird_default_language: en
 firebird_fixed_language: false
 
+#firebrand variables
+firebrand_env: production
+firebrand_default_language: en
+firebrand_fixed_language: false
+
 # Loyalty
 loyalty_jar_src: ../../fox-loyalty/target/loyalty.jar
 loyalty_jar: /usr/local/bin/loyalty.jar
@@ -51,14 +56,23 @@ search_server_http: "{{search_host}}:9200"
 search_server: "{{search_host}}:9300"
 ashes_server: 127.0.0.1:4000
 firebird_server: 127.0.0.1:4040
+firebrand_server: 127.0.0.1:4041
 kafka_server: 127.0.0.1:9092
 zookeeper_server: 127.0.0.1:2181
 schema_server: 127.0.0.1:8081
 api_server: 127.0.0.1
 
+# JMX ports
+es_jmx_port: 29010
+phoenix_jmx_port: 39010
+greenriver_jmx_port: 39011
+messaging_jmx_port: 39012
+loyalty_jmx_port: 39013
+
 seeds_cmd: utils.seeds.Seeds demo 1
 gatling_oneshot_seeds_cmd: seeds.OneshotSeeds
 gatling_continuous_seeds_cmd: seeds.ContinuousSeeds
+
 
 # Google oauth
 
