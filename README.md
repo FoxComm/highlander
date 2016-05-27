@@ -11,6 +11,7 @@ on customers.
 
 API.js will be build in ES6 and transpiled to ES5. It won't use ES7 features.
 
+[API documentation](http://foxcomm.github.io/api-js/)
 
 ### Spec
 
