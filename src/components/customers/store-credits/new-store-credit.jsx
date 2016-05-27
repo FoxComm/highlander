@@ -83,7 +83,7 @@ export default class NewStoreCredit extends React.Component {
   onChangeValue({target}) {
     if (target.name === 'code') {
       //remove whitespaces
-      this.props.changeGCCode(target.value.split(' ').join(''));
+      this.props.changeGCCode(target.value.replace(' ', ''));
     } else {
       this.props.changeScFormData(target.name, target.value);
     }
