@@ -82,7 +82,8 @@ export default class NewStoreCredit extends React.Component {
   @autobind
   onChangeValue({target}) {
     if (target.name === 'code') {
-      this.props.changeGCCode(target.value);
+      //remove whitespaces
+      this.props.changeGCCode(target.value.split(' ').join(''));
     } else {
       this.props.changeScFormData(target.name, target.value);
     }
