@@ -105,13 +105,12 @@ class Images extends Component {
     }
 
     return (
-      <Accordion
-        className={styles.addImages}
-        placeholder="New album"
-        editMode={newAlbumMode}
-        loading={addAlbumInProgress}
-        onEditComplete={this.handleCompleteEditAlbum}
-        onEditCancel={this.handleCancelEditAlbum}
+      <Accordion className={styles.addImages}
+                 placeholder="New album"
+                 editMode={newAlbumMode}
+                 loading={addAlbumInProgress}
+                 onEditComplete={this.handleCompleteEditAlbum}
+                 onEditCancel={this.handleCancelEditAlbum}
       >
         <Upload className={classNames(styles.upload, styles.disabled)} />
       </Accordion>

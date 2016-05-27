@@ -167,20 +167,21 @@ export default class Accordion extends Component {
     let titleElement: Element;
 
     if (editMode) {
-      titleElement = <div className="fc-form-field">
-        <input
-          className={classNames(styles.input, {[styles.loading]: this.props.loading})}
-          autoFocus
-          type="text"
-          onClick={this.onClick}
-          onFocus={this.onFocus}
-          // onBlur={this.endEdit}
-          onChange={this.onChange}
-          onKeyDown={this.keyDown}
-          placeholder={placeholder}
-          value={this.state.title}
-        />
-      </div>;
+      titleElement = (
+        <div className="fc-form-field">
+          <input className={classNames(styles.input, {[styles.loading]: this.props.loading})}
+                 autoFocus
+                 type="text"
+                 onClick={this.onClick}
+                 onFocus={this.onFocus}
+                 // onBlur={this.endEdit}
+                 onChange={this.onChange}
+                 onKeyDown={this.keyDown}
+                 placeholder={placeholder}
+                 value={this.state.title}
+          />
+        </div>
+      );
     } else {
       titleElement = <span>{titleWrapper ? titleWrapper(title) : title}</span>;
     }

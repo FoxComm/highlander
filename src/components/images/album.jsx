@@ -160,14 +160,13 @@ export default class Album extends Component {
 
     return (
       <BodyPortal className={styles.modal}>
-        <ConfirmationDialog
-          isVisible={true}
-          header='Delete Album'
-          body={body}
-          cancel='Cancel'
-          confirm='Yes, Delete'
-          cancelAction={this.handleCancelDeleteAlbum}
-          confirmAction={this.handleConfirmDeleteAlbum}
+        <ConfirmationDialog isVisible={true}
+                            header='Delete Album'
+                            body={body}
+                            cancel='Cancel'
+                            confirm='Yes, Delete'
+                            cancelAction={this.handleCancelDeleteAlbum}
+                            confirmAction={this.handleConfirmDeleteAlbum}
         />
       </BodyPortal>
     );
@@ -231,19 +230,18 @@ export default class Album extends Component {
     return (
       <div>
         {this.deleteAlbumDialog}
-        <Accordion
-          className={classNames({ [styles.addImages] : addMode })}
-          title={album.name}
-          titleWrapper={(title: string) => this.renderTitle(title, album.images.length)}
-          placeholder="Album Name"
-          open={addMode || album.images.length}
-          loading={loading}
-          editMode={editMode}
-          onEditComplete={this.handleConfirmEditAlbum}
-          onEditCancel={this.handleCancelEditAlbum}
-          contentClassName={styles.accordionContent}
-          actions={this.getAlbumActions()}
-          key={album.name}
+        <Accordion className={classNames({ [styles.addImages] : addMode })}
+                   title={album.name}
+                   titleWrapper={(title: string) => this.renderTitle(title, album.images.length)}
+                   placeholder="Album Name"
+                   open={addMode || album.images.length}
+                   loading={loading}
+                   editMode={editMode}
+                   onEditComplete={this.handleConfirmEditAlbum}
+                   onEditCancel={this.handleCancelEditAlbum}
+                   contentClassName={styles.accordionContent}
+                   actions={this.getAlbumActions()}
+                   key={album.name}
         >
           {accordionContent}
         </Accordion>
