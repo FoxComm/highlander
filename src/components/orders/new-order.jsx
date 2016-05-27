@@ -93,7 +93,7 @@ export default class NewOrder extends Component {
       <PrimaryButton type="submit"
                      onClick={this.submitAction}
                      className="fc-order-create__submit fc-btn fc-btn-primary fc-right" >
-        Next
+        <span>Next</span>
         <i className="icon-chevron-right" />
       </PrimaryButton>
     );

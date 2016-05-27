@@ -11,6 +11,8 @@ import {
   setProductAttribute,
 } from '../../paragons/product';
 
+import type { SkuForm, SkuShadow } from '../../paragons/sku';
+
 import _ from 'lodash';
 
 export type Error = {
@@ -48,22 +50,10 @@ export type ShadowAttributes = {
   [key:string]: { type: string, ref: string};
 };
 
-export type SkuForm = {
-  code: ?string,
-  attributes: Attributes,
-  createdAt: ?string,
-};
-
 export type ProductShadow = {
   id: ?number,
   productId: ?number,
   attributes: ShadowAttributes,
-  createdAt: ?string,
-};
-
-export type SkuShadow = {
-  code: ?string,
-  attributes: Attributes,
   createdAt: ?string,
 };
 

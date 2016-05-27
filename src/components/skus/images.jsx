@@ -19,7 +19,7 @@ import ContentBox from '../content-box/content-box';
 import { illuminateAttributes, setAttribute } from '../../paragons/form-shadow-object';
 
 // types
-import type { FullSku } from '../../modules/skus/details';
+import type { FullSku } from '../../paragons/sku';
 
 type Props = {
   code: string,

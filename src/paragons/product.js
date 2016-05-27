@@ -4,8 +4,10 @@
 
 import _ from 'lodash';
 import { assoc, merge } from 'sprout-data';
-import { stringToCurrency } from '../lib/format-currency';
 import { copyShadowAttributes } from './form-shadow-object';
+import { generateSkuCode } from './sku';
+
+import type { SkuForm, SkuShadow } from './sku';
 
 import type {
   FullProduct,
@@ -14,8 +16,6 @@ import type {
   ProductForm,
   ProductShadow,
   ShadowAttributes,
-  SkuForm,
-  SkuShadow,
   Variant,
 } from '../modules/products/details';
 
@@ -159,7 +159,7 @@ export function createEmptyProduct(): FullProduct {
 }
 
 export function addEmptySku(product: FullProduct): FullProduct {
-  const pseudoRandomCode: string = Math.random().toString(36).substring(7);
+  const pseudoRandomCode = generateSkuCode();
 
   const emptySkuForm: SkuForm = {
     code: pseudoRandomCode,
