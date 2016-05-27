@@ -49,7 +49,7 @@
     - { role: base/balancer, sudo: yes }
     - { role: base/ashes}
     - { role: base/firebird}
-    - { role: dev/firebrand}
+    - { role: base/firebrand}
     - { role: dev/balancer, sudo: yes }
     - { role: demo/ashes, sudo: yes }
 

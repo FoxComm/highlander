@@ -22,5 +22,6 @@
     - { role: base/node}
     - { role: base/ashes}
     - { role: base/firebird}
+    - { role: base/firebrand}
     - { role: base/balancer, sudo: yes }
     - { role: dev/balancer, sudo: yes }

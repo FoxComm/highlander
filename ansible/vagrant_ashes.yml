@@ -16,7 +16,7 @@
     - { role: base/node }
     - { role: base/ashes }
     - { role: base/firebird }
-    - { role: dev/firebrand }
+    - { role: base/firebrand }
     - { role: dev/balancer, sudo: yes }
 
   handlers:
