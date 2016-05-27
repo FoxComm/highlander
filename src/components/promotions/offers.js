@@ -33,7 +33,7 @@ const offers = [
   },
   {
     type: 'itemPercentOff',
-    title: 'Percent off select item',
+    title: 'Percent off single item',
     content: [
       [
         {type: 'type'},
@@ -54,7 +54,7 @@ const offers = [
   },
   {
     type: 'itemAmountOff',
-    title: 'Amount off select item',
+    title: 'Amount off single item',
     content: [
       [
         {type: 'type'},
