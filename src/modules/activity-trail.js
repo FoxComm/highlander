@@ -83,7 +83,7 @@ export function fetchActivityTrail({dimension, objectId = null}, from) {
 export function mergeActivities(activities = [], newActivities) {
   const merged = updateItems(activities, newActivities, activity => {
     if (activity.kind === derivedTypes.ORDER_LINE_ITEMS_REMOVED_SKU ||
-      activity.kind == derivedTypes.ORDER_LINE_ITEMS_ADDED_SKU) {
+      activity.kind === derivedTypes.ORDER_LINE_ITEMS_ADDED_SKU) {
       return `${activity.id}-${activity.data.skuName}`;
     }
 
