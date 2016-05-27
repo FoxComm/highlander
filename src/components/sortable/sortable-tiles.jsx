@@ -15,6 +15,10 @@ type Coords = [number, number];
 
 type MousePosition = { pageX: number, pageY: number };
 
+type MotionStyle = { x: number, y: number, style: Object};
+
+type Transform = { translateX: number, translateY: number, scale: number };
+
 type Props = {
   itemWidth: number;
   itemHeight: number;
@@ -243,7 +247,7 @@ class SortableTiles extends Component {
     this.setState({ isResizing });
   }
 
-  getItemStyle(isActive: boolean, index: number): Object {
+  getItemStyle(isActive: boolean, index: number): MotionStyle {
     const { mouse, isResizing, layout } = this.state;
 
     let style, x, y;
@@ -280,42 +284,42 @@ class SortableTiles extends Component {
     };
   }
 
+  renderItem(item: number, index: number, isActive: boolean, { x, y }: MotionStyle, transform: Transform) {
+    const { activeIndex } = this.state;
+    const { translateX, translateY, scale } = transform;
+    const transformStyles = {
+      transform: `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale})`,
+      zIndex: index === activeIndex ? 99 : 1,
+    };
+    const itemStyles = {
+      ...transformStyles,
+      ...this.props.itemStyles,
+    };
+
+    return (
+      <div
+        onMouseDown={this.handleMouseDown.bind(null, index, [x, y])}
+        onTouchStart={this.handleTouchStart.bind(null, index, [x, y])}
+        className={classNames(styles.item, { [styles.isActive]: isActive })}
+        style={itemStyles}
+      >
+        {this.props.children[item]}
+      </div>
+    );
+  }
+
   render() {
     const { order, activeIndex, isPressed } = this.state;
-    const children = Children.toArray(this.props.children);
 
     return (
       <div className={styles.items} ref={element => this.container = element}>
         {order.map((item, index) => {
           const isActive = (index === activeIndex && isPressed);
-          const { style, x, y } = this.getItemStyle(isActive, index);
+          const style = this.getItemStyle(isActive, index);
 
           return (
-            <Motion key={initialOrder[index]} style={style}>
-              {({ translateX, translateY, scale }) => {
-
-                const transitionStyles = {
-                  WebkitTransform: `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale})`,
-                  transform: `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale})`,
-                  zIndex: (index === activeIndex) ? 99 : 1,
-                };
-
-                const itemStyles = {
-                  ...transitionStyles,
-                  ...this.props.itemStyles,
-                };
-
-                return (
-                  <div
-                    onMouseDown={this.handleMouseDown.bind(null, index, [x, y])}
-                    onTouchStart={this.handleTouchStart.bind(null, index, [x, y])}
-                    className={classNames(styles.item, { [styles.isActive]: isActive })}
-                    style={itemStyles}
-                  >
-                    {children[item]}
-                  </div>
-                );
-              }}
+            <Motion key={initialOrder[index]} style={style.style}>
+              {this.renderItem.bind(this, item, index, isActive, style)}
             </Motion>
           );
         })}

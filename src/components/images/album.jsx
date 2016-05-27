@@ -194,11 +194,14 @@ export default class Album extends Component {
       accordionContent = (
         <Upload className={styles.upload} onDrop={this.handleNewFiles}>
           {files.map((image: ImageFile, idx: number) => {
-            return <ImageCard src={image.src}
-                              key={`${image.src}-${idx}`}
-                              title={image.title}
-                              loading={image.loading}
-                              secondaryTitle={`Uploaded ${moment().format('MM/DD/YYYY HH: mm')}`} />;
+            return (
+              <ImageCard src={image.src}
+                         key={`${image.src}-${idx}`}
+                         title={image.title}
+                         loading={image.loading}
+                         secondaryTitle={`Uploaded ${moment().format('MM/DD/YYYY HH: mm')}`}
+              />
+            );
           })}
         </Upload>
       );
@@ -217,7 +220,8 @@ export default class Album extends Component {
                      idx={idx}
                      editImage={(form: ImageInfo) => this.props.editImage(idx, form)}
                      deleteImage={() => this.props.deleteImage(idx)}
-                     key={`${image.src}` /** replace with id*/} />
+                     key={`${image.src}` /** replace with id*/}
+              />
             );
           })}
         </SortableTiles>

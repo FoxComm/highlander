@@ -1,7 +1,5 @@
 /* @flow */
 
-// styles
-
 // libs
 import _ from 'lodash';
 import React, { Component, Element, PropTypes } from 'react';
@@ -25,7 +23,7 @@ type Props = ImagesProps & {
   params: Params;
 };
 
-class SkuImages extends Component<void, Props, void> {
+class SkuImages extends Component {
   static props: Props;
 
   componentDidMount(): void {
