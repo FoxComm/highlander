@@ -62,7 +62,7 @@ export function changeGCCode(value) {
     if (!_.isEmpty(value)) {
       Api.get(`/gift-cards/${value}`)
         .then(
-          json => dispatch(changeScFormData('availableAmount', json.currentBalance)),
+          json => dispatch(changeScFormData('availableAmount', json.availableBalance)),
           err => dispatch(changeScFormData('availableAmount', 0.0))
         );
     }
