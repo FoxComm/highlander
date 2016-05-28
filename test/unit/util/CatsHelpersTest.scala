@@ -16,7 +16,8 @@ class CatsHelpersTest extends TestBase with CatsHelpers {
       "throws an exception with a good error message" in {
         val exception =
           the[RuntimeException] thrownBy {
-            rightValue(left[String, Option[Long]]("Invalid number")) must ===(Some(42L))
+            rightValue(left[String, Option[Long]]("Invalid number")) must ===(
+                Some(42L))
           }
 
         exception.getMessage must (include("Expected Right") and
@@ -33,7 +34,8 @@ class CatsHelpersTest extends TestBase with CatsHelpers {
       "throws an exception with a good error message" in {
         val exception =
           the[RuntimeException] thrownBy {
-            leftValue(right[String, Option[Long]](Some(42L))) must ===("Invalid number")
+            leftValue(right[String, Option[Long]](Some(42L))) must ===(
+                "Invalid number")
           }
 
         exception.getMessage must (include("Expected Left") and
@@ -61,7 +63,8 @@ class CatsHelpersTest extends TestBase with CatsHelpers {
     }
 
     "on Invalid" - {
-      val example = Validated.invalid[String, Option[Long]]("That is not a number!")
+      val example =
+        Validated.invalid[String, Option[Long]]("That is not a number!")
 
       "throws an exception with a good error message" in {
         val exception =
@@ -95,7 +98,8 @@ class CatsHelpersTest extends TestBase with CatsHelpers {
     }
 
     "on Invalid" - {
-      val example = Validated.invalid[String, Option[Long]]("That is not a number!")
+      val example =
+        Validated.invalid[String, Option[Long]]("That is not a number!")
 
       "returns the value" in {
         invalidValue(example) must ===("That is not a number!")

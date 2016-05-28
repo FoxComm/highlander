@@ -11,7 +11,8 @@ class QualifierAstCompilerTest extends TestBase {
   "QualifierAstCompiler" - {
 
     "succeeds for case object with valid, but empty attributes" in new OrderAnyValidFixture {
-      rightValue(compiler.compile()) must ===(AndQualifier(Seq(OrderAnyQualifier)))
+      rightValue(compiler.compile()) must ===(
+          AndQualifier(Seq(OrderAnyQualifier)))
     }
 
     "succeeds for case class with valid attributes" in new OrderTotalAmountValidFixture {
@@ -29,17 +30,17 @@ class QualifierAstCompilerTest extends TestBase {
     (json, QualifierAstCompiler(parse(json)))
 
   trait OrderAnyValidFixture {
-    val typeName         = QualifierType.show(OrderAny)
+    val typeName = QualifierType.show(OrderAny)
     val (json, compiler) = getTuple(s"""{"$typeName": {}}""")
   }
 
   trait OrderTotalAmountValidFixture {
-    val typeName         = QualifierType.show(OrderTotalAmount)
+    val typeName = QualifierType.show(OrderTotalAmount)
     val (json, compiler) = getTuple(s"""{"$typeName": {"totalAmount": 1}}""")
   }
 
   trait OrderTotalAmountTypoFixture {
-    val typeName         = QualifierType.show(OrderTotalAmount)
+    val typeName = QualifierType.show(OrderTotalAmount)
     val (json, compiler) = getTuple(s"""{"$typeName": {"totalAmounts": 1}}""")
   }
 }

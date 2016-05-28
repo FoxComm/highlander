@@ -29,19 +29,22 @@ case class AuthFailWith[M](challenge: HttpChallenge) extends FakeAuth[M] {
   }
 }
 
-trait AutomaticAuth extends SuiteMixin
-  with ScalaFutures
-  with HttpSupport { this: Suite with PatienceConfiguration with DbTestSupport ⇒
+trait AutomaticAuth extends SuiteMixin with ScalaFutures with HttpSupport {
+  this: Suite with PatienceConfiguration with DbTestSupport ⇒
 
-  val authedStoreAdmin = StoreAdmin.build(id = 1, email = "donkey@donkey.com", password = Some("donkeyPass"),
-          name = "Mister Donkey")
+  val authedStoreAdmin = StoreAdmin.build(id = 1,
+                                          email = "donkey@donkey.com",
+                                          password = Some("donkeyPass"),
+                                          name = "Mister Donkey")
 
-  val authedCustomer = Customer.build(id = 1, email = "donkey@donkey.com", password = Some("donkeyPass"),
-          name = Some("Mister Donkey"))
+  val authedCustomer = Customer.build(id = 1,
+                                      email = "donkey@donkey.com",
+                                      password = Some("donkeyPass"),
+                                      name = Some("Mister Donkey"))
 
+  override def overrideStoreAdminAuth: AsyncAuthenticator[StoreAdmin] =
+    AuthAs(authedStoreAdmin)
 
-  override def overrideStoreAdminAuth: AsyncAuthenticator[StoreAdmin] = AuthAs(authedStoreAdmin)
-
-  override def overrideCustomerAuth: AsyncAuthenticator[Customer] = AuthAs(authedCustomer)
-
+  override def overrideCustomerAuth: AsyncAuthenticator[Customer] =
+    AuthAs(authedCustomer)
 }

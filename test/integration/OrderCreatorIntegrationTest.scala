@@ -18,14 +18,16 @@ import Seeds.Factories
 import cats.implicits._
 import failures.NotFoundFailure400
 
-class OrderCreatorIntegrationTest extends IntegrationTestBase
-  with HttpSupport
-  with AutomaticAuth {
+class OrderCreatorIntegrationTest
+    extends IntegrationTestBase
+    with HttpSupport
+    with AutomaticAuth {
 
   import concurrent.ExecutionContext.Implicits.global
   import Extensions._
 
-  implicit val ac = ActivityContext(userId = 1, userType = "b", transactionId = "c")
+  implicit val ac = ActivityContext(
+      userId = 1, userType = "b", transactionId = "c")
 
   "POST /v1/orders" - {
     "for an existing customer" - {
@@ -49,7 +51,9 @@ class OrderCreatorIntegrationTest extends IntegrationTestBase
 
       "returns current cart if customer already has one" in new Fixture {
         val payload = CreateOrder(customerId = customer.id.some)
-        OrderCreator.createCart(storeAdmin, payload, productContext).futureValue
+        OrderCreator
+          .createCart(storeAdmin, payload, productContext)
+          .futureValue
         val response = POST(s"v1/orders", payload)
 
         response.status must ===(StatusCodes.OK)
@@ -85,9 +89,9 @@ class OrderCreatorIntegrationTest extends IntegrationTestBase
   trait Fixture {
     val (productContext, storeAdmin, customer) = (for {
       productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-      customer   ← * <~ Customers.create(Factories.customer)
+      customer ← * <~ Customers.create(Factories.customer)
       storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
-    } yield (productContext, storeAdmin, customer)).runTxn().futureValue.rightVal
+    } yield
+      (productContext, storeAdmin, customer)).runTxn().futureValue.rightVal
   }
 }
-

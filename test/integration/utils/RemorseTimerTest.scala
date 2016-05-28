@@ -16,7 +16,10 @@ import util.IntegrationTestBase
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class RemorseTimerTest(_system: ActorSystem) extends TestKit(_system) with IntegrationTestBase with BeforeAndAfterAll {
+class RemorseTimerTest(_system: ActorSystem)
+    extends TestKit(_system)
+    with IntegrationTestBase
+    with BeforeAndAfterAll {
 
   def this() = this(ActorSystem("RemorseTimerTest"))
 
@@ -42,15 +45,20 @@ class RemorseTimerTest(_system: ActorSystem) extends TestKit(_system) with Integ
   def tick(): Unit = {
     // Response received
     (timer ? Tick).futureValue match {
-      case r: RemorseTimerResponse ⇒ r.updatedQuantity.futureValue // Response contains future, so wait on that
-      case _ ⇒ fail("Remorse timer had to reply with Future but something went wrong")
+      case r: RemorseTimerResponse ⇒
+        r.updatedQuantity.futureValue // Response contains future, so wait on that
+      case _ ⇒
+        fail("Remorse timer had to reply with Future but something went wrong")
     }
   }
 
   trait Fixture {
-    val order = Orders.create(Factories.order.copy(
-      state = Order.RemorseHold,
-      remorsePeriodEnd = Some(Instant.now.plusSeconds(30 * 60))))
-      .run().futureValue.rightVal
+    val order = Orders
+      .create(Factories.order.copy(state = Order.RemorseHold,
+                                   remorsePeriodEnd =
+                                     Some(Instant.now.plusSeconds(30 * 60))))
+      .run()
+      .futureValue
+      .rightVal
   }
 }

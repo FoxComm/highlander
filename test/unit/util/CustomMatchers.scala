@@ -7,7 +7,8 @@ import failures.{Failure, GeneralFailure}
 
 object CustomMatchers {
   // Same as `include`, used for Failure inner Strings
-  class IncludeFailureMatcher(f: Failure) extends Matcher[NonEmptyList[Failure]] {
+  class IncludeFailureMatcher(f: Failure)
+      extends Matcher[NonEmptyList[Failure]] {
     def apply(left: NonEmptyList[Failure]) = {
       MatchResult(
           left.exists(_.description.toSet.subsetOf(f.description.toSet)),
@@ -23,7 +24,8 @@ object CustomMatchers {
   def includeFailure(f: Failure) = new IncludeFailureMatcher(f)
 
   def buildMatchesFailure(constraint: String, pattern: String) = {
-    GeneralFailure(s"$constraint must fully match regular expression '$pattern'")
+    GeneralFailure(
+        s"$constraint must fully match regular expression '$pattern'")
   }
 
   def includeMatchesFailure(constraint: String, pattern: String) = {

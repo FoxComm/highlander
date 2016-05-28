@@ -5,7 +5,10 @@ import akka.http.scaladsl.server.Directives._
 
 import util.IntegrationTestBase
 
-class JsonExceptionHandlerIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
+class JsonExceptionHandlerIntegrationTest
+    extends IntegrationTestBase
+    with HttpSupport
+    with AutomaticAuth {
 
   import Extensions._
 
@@ -13,13 +16,14 @@ class JsonExceptionHandlerIntegrationTest extends IntegrationTestBase with HttpS
   val exceptionText = "A test exception"
 
   override protected def additionalRoutes = immutable.Seq(
-    path("testThrowAnExcepton") {
-      complete(throw new Exception(exceptionText))
-    },
-    path("testThrowAnIllegalRequestException") {
-      complete(throw new IllegalRequestException(new ErrorInfo(illegalRequestExceptionText), StatusCodes.custom(400, "test")
-        .asInstanceOf[ClientError]))
-    }
+      path("testThrowAnExcepton") {
+        complete(throw new Exception(exceptionText))
+      },
+      path("testThrowAnIllegalRequestException") {
+        complete(throw new IllegalRequestException(
+                new ErrorInfo(illegalRequestExceptionText),
+                StatusCodes.custom(400, "test").asInstanceOf[ClientError]))
+      }
   )
 
   "return a valid JSON exception on an IllegalRequestException" in {
@@ -38,4 +42,3 @@ class JsonExceptionHandlerIntegrationTest extends IntegrationTestBase with HttpS
     response.error must startWith(exceptionText)
   }
 }
-

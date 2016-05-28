@@ -18,7 +18,8 @@ import slick.driver.PostgresDriver.api.Database
 import slick.jdbc.hikaricp.HikariCPJdbcDataSource
 import utils.db.flyway.newFlyway
 
-trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
+trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll {
+  this: Suite ⇒
   import DbTestSupport._
   val api = slick.driver.PostgresDriver.api
 
@@ -42,7 +43,8 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
   }
 
   private def setupObjectContext(): Failures Xor ObjectContext = {
-    Await.result(db.run(ObjectContexts.create(SimpleContext.create())), 60.seconds)
+    Await.result(
+        db.run(ObjectContexts.create(SimpleContext.create())), 60.seconds)
   }
 
   def isTableEmpty(table: String)(implicit conn: Connection): Boolean = {
@@ -52,10 +54,11 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
   }
 
   override abstract protected def withFixture(test: NoArgTest): Outcome = {
-    implicit val conn      = jdbcDataSourceFromSlickDB(db).getConnection
+    implicit val conn = jdbcDataSourceFromSlickDB(db).getConnection
 
-    val config    = conn.getMetaData
-    val allTables = conn.getMetaData.getTables(conn.getCatalog, "public", "%", Array("TABLE"))
+    val config = conn.getMetaData
+    val allTables = conn.getMetaData.getTables(
+        conn.getCatalog, "public", "%", Array("TABLE"))
 
     @tailrec
     def iterate(in: Seq[String]): Seq[String] = {
@@ -66,12 +69,15 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
       }
     }
 
-    val tables = iterate(Seq()).filterNot {
-      t ⇒ t.startsWith("pg_") || doNotTruncate.contains(t) || isTableEmpty(t)
+    val tables = iterate(Seq()).filterNot { t ⇒
+      t.startsWith("pg_") || doNotTruncate.contains(t) || isTableEmpty(t)
     }
 
     if (tables.nonEmpty) {
-      conn.createStatement().execute(s"truncate ${tables.mkString(", ")} restart identity cascade;")
+      conn
+        .createStatement()
+        .execute(
+            s"truncate ${tables.mkString(", ")} restart identity cascade;")
     }
     setupObjectContext()
     conn.close()
@@ -79,9 +85,10 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
     super.withFixture(test)
   }
 
-  def jdbcDataSourceFromSlickDB(db: api.Database): DataSource = db.source match {
-    case source: HikariCPJdbcDataSource ⇒ source.ds
-  }
+  def jdbcDataSourceFromSlickDB(db: api.Database): DataSource =
+    db.source match {
+      case source: HikariCPJdbcDataSource ⇒ source.ds
+    }
 }
 
 object DbTestSupport {

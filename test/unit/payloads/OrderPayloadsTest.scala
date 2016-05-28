@@ -10,7 +10,7 @@ import utils.seeds.Seeds.Factories
 
 class OrderPayloadsTest extends TestBase {
   val today = ZonedDateTime.now()
-  val cc    = Factories.creditCard
+  val cc = Factories.creditCard
 
   "CreateOrder" - {
     val valid = CreateOrder(customerId = 1.some)
@@ -20,7 +20,8 @@ class OrderPayloadsTest extends TestBase {
         val result = valid.copy(customerId = None).validate
 
         result mustBe 'invalid
-        invalidValue(result) must includeFailure("customerId or email must be given")
+        invalidValue(result) must includeFailure(
+            "customerId or email must be given")
       }
 
       "fails if email is blank" in {

@@ -20,36 +20,42 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import failures.NotFoundFailure404
 import payloads.NotePayloads._
 
-class RmaNotesIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
+class RmaNotesIntegrationTest
+    extends IntegrationTestBase
+    with HttpSupport
+    with AutomaticAuth {
 
-  implicit val ac = ActivityContext(userId = 1, userType = "b", transactionId = "c")
+  implicit val ac = ActivityContext(
+      userId = 1, userType = "b", transactionId = "c")
 
   "RMA Notes" - {
     pending
 
     "POST /v1/notes/rma/:code" - {
       "can be created by an admin for a gift card" in new Fixture {
-        val response = POST(s"v1/notes/rma/${rma.refNum}", CreateNote(body = "Hello, FoxCommerce!"))
+        val response = POST(s"v1/notes/rma/${rma.refNum}",
+                            CreateNote(body = "Hello, FoxCommerce!"))
 
-        response.status must === (StatusCodes.OK)
+        response.status must ===(StatusCodes.OK)
 
         val note = response.as[AdminNotes.Root]
-        note.body must === ("Hello, FoxCommerce!")
-        note.author must === (AdminNotes.buildAuthor(admin))
+        note.body must ===("Hello, FoxCommerce!")
+        note.author must ===(AdminNotes.buildAuthor(admin))
       }
 
       "returns a validation error if failed to create" in new Fixture {
-        val response = POST(s"v1/notes/rma/${rma.refNum}", CreateNote(body = ""))
+        val response =
+          POST(s"v1/notes/rma/${rma.refNum}", CreateNote(body = ""))
 
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === ("body must not be empty")
+        response.status must ===(StatusCodes.BadRequest)
+        response.error must ===("body must not be empty")
       }
 
       "returns a 404 if the gift card is not found" in new Fixture {
         val response = POST(s"v1/notes/rma/RMA-666", CreateNote(body = ""))
 
-        response.status must === (StatusCodes.NotFound)
-        response.error must === (NotFoundFailure404(Rma, "RMA-666").description)
+        response.status must ===(StatusCodes.NotFound)
+        response.error must ===(NotFoundFailure404(Rma, "RMA-666").description)
       }
     }
 
@@ -57,40 +63,46 @@ class RmaNotesIntegrationTest extends IntegrationTestBase with HttpSupport with 
 
       "can be listed" in new Fixture {
         List("abc", "123", "xyz").map { body ⇒
-          RmaNoteManager.create(rma.refNum, admin, CreateNote(body = body)).futureValue
+          RmaNoteManager
+            .create(rma.refNum, admin, CreateNote(body = body))
+            .futureValue
         }
 
         val response = GET(s"v1/notes/rma/${rma.refNum}")
-        response.status must === (StatusCodes.OK)
+        response.status must ===(StatusCodes.OK)
 
         val notes = response.as[Seq[AdminNotes.Root]]
         notes must have size 3
-        notes.map(_.body).toSet must === (Set("abc", "123", "xyz"))
+        notes.map(_.body).toSet must ===(Set("abc", "123", "xyz"))
       }
     }
 
     "PATCH /v1/notes/rma/:code/:noteId" - {
 
       "can update the body text" in new Fixture {
-        val rootNote = rightValue(RmaNoteManager.create(rma.refNum, admin,
-          CreateNote(body = "Hello, FoxCommerce!")).futureValue)
+        val rootNote = rightValue(RmaNoteManager
+              .create(
+                  rma.refNum, admin, CreateNote(body = "Hello, FoxCommerce!"))
+              .futureValue)
 
-        val response = PATCH(s"v1/notes/rma/${rma.refNum}/${rootNote.id}", UpdateNote(body = "donkey"))
-        response.status must === (StatusCodes.OK)
+        val response = PATCH(s"v1/notes/rma/${rma.refNum}/${rootNote.id}",
+                             UpdateNote(body = "donkey"))
+        response.status must ===(StatusCodes.OK)
 
         val note = response.as[AdminNotes.Root]
-        note.body must === ("donkey")
+        note.body must ===("donkey")
       }
     }
 
     "DELETE /v1/notes/rma/:code/:noteId" - {
 
       "can soft delete note" in new Fixture {
-        val createResp = POST(s"v1/notes/rma/${rma.refNum}", CreateNote(body = "Hello, FoxCommerce!"))
+        val createResp = POST(s"v1/notes/rma/${rma.refNum}",
+                              CreateNote(body = "Hello, FoxCommerce!"))
         val note = createResp.as[AdminNotes.Root]
 
         val response = DELETE(s"v1/notes/rma/${rma.refNum}/${note.id}")
-        response.status must === (StatusCodes.NoContent)
+        response.status must ===(StatusCodes.NoContent)
         response.bodyText mustBe empty
 
         val updatedNote = Notes.findOneById(note.id).run().futureValue.value
@@ -102,28 +114,31 @@ class RmaNotesIntegrationTest extends IntegrationTestBase with HttpSupport with 
 
         // Deleted note should not be returned
         val allNotesResponse = GET(s"v1/notes/rma/${rma.refNum}")
-        allNotesResponse.status must === (StatusCodes.OK)
+        allNotesResponse.status must ===(StatusCodes.OK)
         val allNotes = allNotesResponse.as[Seq[AdminNotes.Root]]
         allNotes.map(_.id) must not contain note.id
 
-        val getDeletedNoteResponse = GET(s"v1/notes/rma/${rma.refNum}/${note.id}")
-        getDeletedNoteResponse.status must === (StatusCodes.NotFound)
+        val getDeletedNoteResponse =
+          GET(s"v1/notes/rma/${rma.refNum}/${note.id}")
+        getDeletedNoteResponse.status must ===(StatusCodes.NotFound)
       }
-    }    
+    }
   }
-
 
   trait Fixture {
     val (admin, rma) = (for {
       admin ← StoreAdmins.create(authedStoreAdmin).map(rightValue)
       customer ← Customers.create(Factories.customer).map(rightValue)
-      order ← Orders.create(Factories.order.copy(
-        state = Order.RemorseHold,
-        remorsePeriodEnd = Some(Instant.now.plusMinutes(30)))).map(rightValue)
-      rma ← Rmas.create(Factories.rma.copy(
-        orderId = order.id,
-        orderRefNum = order.referenceNumber,
-        customerId = customer.id)).map(rightValue)
+      order ← Orders
+               .create(Factories.order.copy(
+                       state = Order.RemorseHold,
+                       remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
+               .map(rightValue)
+      rma ← Rmas
+             .create(Factories.rma.copy(orderId = order.id,
+                                        orderRefNum = order.referenceNumber,
+                                        customerId = customer.id))
+             .map(rightValue)
     } yield (admin, rma)).run().futureValue
   }
 }

@@ -45,30 +45,34 @@ import utils.aliases.EC
 object HttpSupport {
   @volatile var akkaConfigured = false
 
-  protected var system:        ActorSystem       = _
-  protected var materializer:  ActorMaterializer = _
-  protected var service:       Service           = _
-  protected var serverBinding: ServerBinding     = _
+  protected var system: ActorSystem = _
+  protected var materializer: ActorMaterializer = _
+  protected var service: Service = _
+  protected var serverBinding: ServerBinding = _
 }
 
 trait HttpSupport
-  extends SuiteMixin
-  with ScalaFutures
-  with MustMatchers
-  with BeforeAndAfterAll
-  with MockitoSugar { this: Suite with PatienceConfiguration with DbTestSupport ⇒
+    extends SuiteMixin
+    with ScalaFutures
+    with MustMatchers
+    with BeforeAndAfterAll
+    with MockitoSugar {
+  this: Suite with PatienceConfiguration with DbTestSupport ⇒
 
   import HttpSupport._
 
   implicit val formats: Formats = JsonFormatters.phoenixFormats
 
-  private val ActorSystemNameChars = ('a' to 'z').toSet | ('A' to 'Z').toSet | ('0' to '9').toSet | Set('-', '_')
+  private val ActorSystemNameChars =
+    ('a' to 'z').toSet | ('A' to 'Z').toSet | ('0' to '9').toSet | Set(
+        '-', '_')
 
-  private val ValidResponseContentTypes = Set(ContentTypes.`application/json`, ContentTypes.NoContentType)
+  private val ValidResponseContentTypes = Set(
+      ContentTypes.`application/json`, ContentTypes.NoContentType)
 
   import Extensions._
 
-  protected implicit lazy val mat:  ActorMaterializer = materializer
+  protected implicit lazy val mat: ActorMaterializer = materializer
   protected implicit lazy val actorSystem: ActorSystem = system
 
   protected def additionalRoutes: immutable.Seq[Route] = immutable.Seq.empty
@@ -84,13 +88,11 @@ trait HttpSupport
 
     service = makeService
 
-    serverBinding = service.bind(ConfigFactory.parseString(
-        s"""
+    serverBinding = service.bind(ConfigFactory.parseString(s"""
            |http.interface = 127.0.0.1
            |http.port      = ${getFreePort}
         """.stripMargin)).futureValue
   }
-
 
   override protected def afterAll: Unit = {
     super.afterAll
@@ -100,8 +102,8 @@ trait HttpSupport
     } yield {}, 1.minute)
   }
 
-  private def actorSystemConfig = ConfigFactory.parseString(
-    """
+  private def actorSystemConfig =
+    ConfigFactory.parseString("""
       |akka {
       |  log-dead-letters = off
       |}
@@ -109,80 +111,79 @@ trait HttpSupport
 
   def makeApis: Option[Apis] = Some(Apis(mock[StripeApi]))
 
-  def overrideStoreAdminAuth: AsyncAuthenticator[StoreAdmin] = Authenticator.BasicStoreAdmin()
+  def overrideStoreAdminAuth: AsyncAuthenticator[StoreAdmin] =
+    Authenticator.BasicStoreAdmin()
 
-  def overrideCustomerAuth: AsyncAuthenticator[Customer] = Authenticator.BasicCustomer()
+  def overrideCustomerAuth: AsyncAuthenticator[Customer] =
+    Authenticator.BasicCustomer()
 
   implicit val env = FoxConfig.Test
 
-  private def makeService: Service = new Service(
-    dbOverride = Some(db),
-    systemOverride = Some(system),
-    apisOverride = makeApis,
-    addRoutes = additionalRoutes) {
+  private def makeService: Service =
+    new Service(dbOverride = Some(db),
+                systemOverride = Some(system),
+                apisOverride = makeApis,
+                addRoutes = additionalRoutes) {
 
-    override val storeAdminAuth: AsyncAuthenticator[StoreAdmin] = overrideStoreAdminAuth
+      override val storeAdminAuth: AsyncAuthenticator[StoreAdmin] =
+        overrideStoreAdminAuth
 
-    override val customerAuth: AsyncAuthenticator[Customer] = overrideCustomerAuth
-  }
+      override val customerAuth: AsyncAuthenticator[Customer] =
+        overrideCustomerAuth
+    }
 
   def POST(path: String, rawBody: String): HttpResponse = {
-    val request = HttpRequest(
-      method = HttpMethods.POST,
-      uri    = pathToAbsoluteUrl(path),
-      entity = HttpEntity.Strict(
-        ContentTypes.`application/json`,
-        ByteString(rawBody)
-      ))
+    val request = HttpRequest(method = HttpMethods.POST,
+                              uri = pathToAbsoluteUrl(path),
+                              entity = HttpEntity.Strict(
+                                  ContentTypes.`application/json`,
+                                  ByteString(rawBody)
+                              ))
 
     dispatchRequest(request)
   }
 
   def POST(path: String): HttpResponse = {
     val request = HttpRequest(
-      method = HttpMethods.POST,
-      uri    = pathToAbsoluteUrl(path))
+        method = HttpMethods.POST, uri = pathToAbsoluteUrl(path))
 
     dispatchRequest(request)
   }
 
   def PATCH(path: String, rawBody: String): HttpResponse = {
-    val request = HttpRequest(
-      method = HttpMethods.PATCH,
-      uri    = pathToAbsoluteUrl(path),
-      entity = HttpEntity.Strict(
-        ContentTypes.`application/json`,
-        ByteString(rawBody)
-      ))
+    val request = HttpRequest(method = HttpMethods.PATCH,
+                              uri = pathToAbsoluteUrl(path),
+                              entity = HttpEntity.Strict(
+                                  ContentTypes.`application/json`,
+                                  ByteString(rawBody)
+                              ))
 
     dispatchRequest(request)
   }
 
-
   def PATCH(path: String): HttpResponse = {
     val request = HttpRequest(
-      method = HttpMethods.PATCH,
-      uri    = pathToAbsoluteUrl(path))
+        method = HttpMethods.PATCH, uri = pathToAbsoluteUrl(path))
 
     dispatchRequest(request)
   }
 
   def GET(path: String): HttpResponse = {
     val request = HttpRequest(
-      method = HttpMethods.GET,
-      uri    = pathToAbsoluteUrl(path))
+        method = HttpMethods.GET, uri = pathToAbsoluteUrl(path))
 
     dispatchRequest(request)
   }
 
-  def POST[T <: AnyRef](path: String, payload: T): HttpResponse = POST(path, writeJson(payload))
+  def POST[T <: AnyRef](path: String, payload: T): HttpResponse =
+    POST(path, writeJson(payload))
 
-  def PATCH[T <: AnyRef](path: String, payload: T): HttpResponse = PATCH(path, writeJson(payload))
+  def PATCH[T <: AnyRef](path: String, payload: T): HttpResponse =
+    PATCH(path, writeJson(payload))
 
   def DELETE(path: String): HttpResponse = {
     val request = HttpRequest(
-      method = HttpMethods.DELETE,
-      uri    = pathToAbsoluteUrl(path))
+        method = HttpMethods.DELETE, uri = pathToAbsoluteUrl(path))
 
     dispatchRequest(request)
   }
@@ -195,18 +196,18 @@ trait HttpSupport
   }
 
   /**
-   * Returns an ephemeral port that is free, that is not currently used by the
-   * OS and not likely to be used.
-   *
-   * Ephemeral ports are part of a pool that is managed by the kernel.
-   * We get a port and immediately release it.
-   *
-   * Those ports are assigned in ascending order from the kernel until it wraps over,
-   * so this must be quite safe.
-   */
+    * Returns an ephemeral port that is free, that is not currently used by the
+    * OS and not likely to be used.
+    *
+    * Ephemeral ports are part of a pool that is managed by the kernel.
+    * We get a port and immediately release it.
+    *
+    * Those ports are assigned in ascending order from the kernel until it wraps over,
+    * so this must be quite safe.
+    */
   def getFreePort: Int = {
     val socket = new ServerSocket(0)
-    val port   = socket.getLocalPort
+    val port = socket.getLocalPort
     socket.close()
 
     port
@@ -216,29 +217,34 @@ trait HttpSupport
     response.errors
 
   private def dispatchRequest(req: HttpRequest): HttpResponse = {
-    val response = Http().singleRequest(req, settings = connectionPoolSettings).futureValue
+    val response =
+      Http().singleRequest(req, settings = connectionPoolSettings).futureValue
     ValidResponseContentTypes must contain(response.entity.contentType)
     response
   }
 
-  lazy final val connectionPoolSettings =
-    ConnectionPoolSettings.default(implicitly[ActorSystem])
-      .withMaxConnections(32)
-      .withMaxOpenRequests(32)
-      .withMaxRetries(0)
+  lazy final val connectionPoolSettings = ConnectionPoolSettings
+    .default(implicitly[ActorSystem])
+    .withMaxConnections(32)
+    .withMaxOpenRequests(32)
+    .withMaxRetries(0)
 
   object SSE {
 
     def sseProbe(path: String, skipHeartbeat: Boolean = true): Probe[String] =
-      probe(if (skipHeartbeat) skipHeartbeats(sseSource(path)) else sseSource(path))
+      probe(if (skipHeartbeat) skipHeartbeats(sseSource(path))
+          else sseSource(path))
 
     def sseSource(path: String): Source[String, Any] = {
       val localAddress = serverBinding.localAddress
 
-      Source.single(Get(pathToAbsoluteUrl(path)))
-        .via(Http().outgoingConnection(localAddress.getHostString, localAddress.getPort))
+      Source
+        .single(Get(pathToAbsoluteUrl(path)))
+        .via(Http().outgoingConnection(localAddress.getHostString,
+                                       localAddress.getPort))
         .mapAsync(1)(Unmarshal(_).to[Source[ServerSentEvent, Any]])
-        .runWith(Sink.head).futureValue
+        .runWith(Sink.head)
+        .futureValue
         .map(_.data)
     }
 
@@ -248,7 +254,6 @@ trait HttpSupport
     def probe(source: Source[String, Any]) =
       source.runWith(TestSink.probe[String])
   }
-
 }
 
 object Extensions {
@@ -258,19 +263,27 @@ object Extensions {
     def bodyText(implicit ec: EC, mat: Materializer): String =
       result(res.entity.toStrict(1.second).map(_.data.utf8String), 1.second)
 
-    def as[A <: AnyRef](implicit fm: Formats, mf: scala.reflect.Manifest[A], mat: Materializer): A =
+    def as[A <: AnyRef](implicit fm: Formats,
+                        mf: scala.reflect.Manifest[A],
+                        mat: Materializer): A =
       parse(bodyText).extract[A]
 
-    def ignoreFailuresAndGiveMe[A <: AnyRef](implicit fm: Formats, mf: scala.reflect.Manifest[A], mat: Materializer): A =
+    def ignoreFailuresAndGiveMe[A <: AnyRef](implicit fm: Formats,
+                                             mf: scala.reflect.Manifest[A],
+                                             mat: Materializer): A =
       parse(bodyText).extract[TheResponse[A]].result
 
-    def withResultTypeOf[A <: AnyRef](implicit fm: Formats, mf: scala.reflect.Manifest[A], mat: Materializer): TheResponse[A] =
+    def withResultTypeOf[A <: AnyRef](implicit fm: Formats,
+                                      mf: scala.reflect.Manifest[A],
+                                      mat: Materializer): TheResponse[A] =
       parse(bodyText).extract[TheResponse[A]]
 
     def errors(implicit fm: Formats, mat: Materializer): List[String] =
-      (parse(bodyText) \ "errors").extractOrElse[List[String]](List.empty[String])
+      (parse(bodyText) \ "errors")
+        .extractOrElse[List[String]](List.empty[String])
 
     def error(implicit fm: Formats, mat: Materializer): String =
-      errors.headOption.getOrElse("never gonna give you up. never gonna let you down.")
+      errors.headOption.getOrElse(
+          "never gonna give you up. never gonna let you down.")
   }
 }

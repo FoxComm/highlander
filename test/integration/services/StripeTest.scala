@@ -13,8 +13,7 @@ import cats.implicits._
 import payloads.PaymentPayloads.CreateCreditCard
 import slick.driver.PostgresDriver.api._
 
-class StripeTest
-  extends IntegrationTestBase {
+class StripeTest extends IntegrationTestBase {
 
   import concurrent.ExecutionContext.Implicits.global
   import Tags._
@@ -29,85 +28,110 @@ class StripeTest
   "Stripe" - {
     "authorizeAmount" - {
       "fails if the customerId doesn't exist" taggedAs External in {
-        val result = service.authorizeAmount("BAD-CUSTOMER", 100, currency = Currency.USD).futureValue
+        val result = service
+          .authorizeAmount("BAD-CUSTOMER", 100, currency = Currency.USD)
+          .futureValue
 
         result.leftVal.getMessage must include("No such customer")
       }
 
       "successfully creates an authorization charge" taggedAs External in {
-        val result = service.authorizeAmount(existingCustId, 100, currency = Currency.USD).futureValue
+        val result = service
+          .authorizeAmount(existingCustId, 100, currency = Currency.USD)
+          .futureValue
         val charge = result.rightVal
 
-        charge.getAmount.toInt must === (100)
-        charge.getCurrency.toUpperCase must === (Currency.USD.getCode)
-        charge.getStatus must === ("succeeded")
+        charge.getAmount.toInt must ===(100)
+        charge.getCurrency.toUpperCase must ===(Currency.USD.getCode)
+        charge.getStatus must ===("succeeded")
         charge.getPaid mustBe true
         charge.getCaptured mustBe false
         charge.getFailureCode.some mustBe 'empty
-        charge.getAmountRefunded.toInt must === (0)
-        charge.getCustomer must === (existingCustId)
+        charge.getAmountRefunded.toInt must ===(0)
+        charge.getCustomer must ===(existingCustId)
       }
     }
 
     "createCard" - {
       "fails if the card is declined" taggedAs External in {
-        val payload = CreateCreditCard(holderName = "yax", cardNumber = StripeSupport.declinedCard,
-          cvv = "123", expYear = today.getYear, expMonth = today.getMonthValue)
-        val result = service.createCard("yax@yax.com", payload, none, Factories.address).futureValue
+        val payload = CreateCreditCard(holderName = "yax",
+                                       cardNumber = StripeSupport.declinedCard,
+                                       cvv = "123",
+                                       expYear = today.getYear,
+                                       expMonth = today.getMonthValue)
+        val result = service
+          .createCard("yax@yax.com", payload, none, Factories.address)
+          .futureValue
 
-        result.leftVal.head must === (CardDeclined)
+        result.leftVal.head must ===(CardDeclined)
       }
 
       "fails if the cvc is incorrect" taggedAs External in {
-        val payload = CreateCreditCard(holderName = "yax", cardNumber = StripeSupport.incorrectCvc,
-          cvv = "123", expYear = today.getYear, expMonth = today.getMonthValue)
-        val result = service.createCard("yax@yax.com", payload, none, Factories.address).futureValue
+        val payload = CreateCreditCard(holderName = "yax",
+                                       cardNumber = StripeSupport.incorrectCvc,
+                                       cvv = "123",
+                                       expYear = today.getYear,
+                                       expMonth = today.getMonthValue)
+        val result = service
+          .createCard("yax@yax.com", payload, none, Factories.address)
+          .futureValue
 
-        result.leftVal.head must === (IncorrectCvc)
+        result.leftVal.head must ===(IncorrectCvc)
       }
 
       "successfully creates a card and new customer when given no customerId" taggedAs External in {
         val address = Factories.address
-        val payload = CreateCreditCard(holderName = "yax", cardNumber = StripeSupport.successfulCard,
-          cvv = "123", expYear = today.getYear, expMonth = today.getMonthValue)
-        val result = service.createCard("yax@yax.com", payload, none, address).futureValue
+        val payload =
+          CreateCreditCard(holderName = "yax",
+                           cardNumber = StripeSupport.successfulCard,
+                           cvv = "123",
+                           expYear = today.getYear,
+                           expMonth = today.getMonthValue)
+        val result =
+          service.createCard("yax@yax.com", payload, none, address).futureValue
 
         val (cust, card) = result.rightVal
-        cust.getDescription must === ("FoxCommerce")
-        cust.getEmail must === ("yax@yax.com")
+        cust.getDescription must ===("FoxCommerce")
+        cust.getEmail must ===("yax@yax.com")
 
-        card.getAddressLine1 must === (address.address1)
+        card.getAddressLine1 must ===(address.address1)
         card.getAddressLine2 mustBe 'empty
-        card.getAddressZip must === (address.zip)
-        card.getAddressCity must === (address.city)
-        card.getBrand must === ("Visa")
-        card.getName must === ("yax")
-        card.getExpMonth.toInt must === (today.getMonthValue)
-        card.getExpYear.toInt must === (today.getYear)
-        card.getLast4 must === (payload.lastFour)
-        card.getCountry must === ("US")
+        card.getAddressZip must ===(address.zip)
+        card.getAddressCity must ===(address.city)
+        card.getBrand must ===("Visa")
+        card.getName must ===("yax")
+        card.getExpMonth.toInt must ===(today.getMonthValue)
+        card.getExpYear.toInt must ===(today.getYear)
+        card.getLast4 must ===(payload.lastFour)
+        card.getCountry must ===("US")
       }
 
       "successfully creates a card using an existing customer given a customerId" taggedAs External in {
         val address = Factories.address
-        val payload = CreateCreditCard(holderName = "yax", cardNumber = StripeSupport.successfulCard,
-          cvv = "123", expYear = today.getYear, expMonth = today.getMonthValue)
-        val result = service.createCard("yax@yax.com", payload, existingCustId.some, address).futureValue
+        val payload =
+          CreateCreditCard(holderName = "yax",
+                           cardNumber = StripeSupport.successfulCard,
+                           cvv = "123",
+                           expYear = today.getYear,
+                           expMonth = today.getMonthValue)
+        val result = service
+          .createCard("yax@yax.com", payload, existingCustId.some, address)
+          .futureValue
 
         val (cust, card) = result.rightVal
 
-        cust.getId must === (existingCustId)
+        cust.getId must ===(existingCustId)
 
-        card.getAddressLine1 must === (address.address1)
+        card.getAddressLine1 must ===(address.address1)
         card.getAddressLine2 mustBe 'empty
-        card.getAddressZip must === (address.zip)
-        card.getAddressCity must === (address.city)
-        card.getBrand must === ("Visa")
-        card.getName must === ("yax")
-        card.getExpMonth.toInt must === (today.getMonthValue)
-        card.getExpYear.toInt must === (today.getYear)
-        card.getLast4 must === (payload.lastFour)
-        card.getCountry must === ("US")
+        card.getAddressZip must ===(address.zip)
+        card.getAddressCity must ===(address.city)
+        card.getBrand must ===("Visa")
+        card.getName must ===("yax")
+        card.getExpMonth.toInt must ===(today.getMonthValue)
+        card.getExpYear.toInt must ===(today.getYear)
+        card.getLast4 must ===(payload.lastFour)
+        card.getCountry must ===("US")
       }
     }
 
@@ -119,13 +143,16 @@ class StripeTest
       }
 
       "successfully captures a charge" taggedAs External in {
-        val auth = service.authorizeAmount(existingCustId, 100, currency = Currency.USD).futureValue
-        val capture = service.captureCharge(auth.rightVal.getId, 75).futureValue.rightVal
+        val auth = service
+          .authorizeAmount(existingCustId, 100, currency = Currency.USD)
+          .futureValue
+        val capture =
+          service.captureCharge(auth.rightVal.getId, 75).futureValue.rightVal
 
         capture.getCaptured mustBe true
         capture.getPaid mustBe true
-        capture.getAmount.toInt must === (100)
-        capture.getAmountRefunded.toInt must === (25)
+        capture.getAmount.toInt must ===(100)
+        capture.getAmountRefunded.toInt must ===(25)
       }
     }
   }

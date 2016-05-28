@@ -12,7 +12,8 @@ class UtilsTest extends TestBase {
     "should convert camelCase string to snake_case string" in {
       camelToUnderscores("order") must ===("order")
       camelToUnderscores("orderShipping") must ===("order_shipping")
-      camelToUnderscores("orderShippingAddress") must ===("order_shipping_address")
+      camelToUnderscores("orderShippingAddress") must ===(
+          "order_shipping_address")
     }
   }
 

@@ -13,10 +13,7 @@ import utils.db._
 import utils.db.DbResultT._
 import util.SlickSupport.implicits._
 
-class DbResultTTest
-  extends TestBase
-  with DbTestSupport
-  with CatsHelpers{
+class DbResultTTest extends TestBase with DbTestSupport with CatsHelpers {
 
   import scala.concurrent.ExecutionContext.Implicits.global
   import util.CustomMatchers._
@@ -53,8 +50,10 @@ class DbResultTTest
     "using toXorT on a DbResult[A]" - {
       "succeeds when everything is Xor.Right" in {
         val transformer = for {
-          customer  ← Customers.create(Factories.customer).toXorT
-          order     ← Orders.create(Factories.order.copy(customerId = customer.id)).toXorT
+          customer ← Customers.create(Factories.customer).toXorT
+          order ← Orders
+                   .create(Factories.order.copy(customerId = customer.id))
+                   .toXorT
         } yield (customer, order)
 
         val result = db.run(transformer.value.transactionally).futureValue
@@ -63,9 +62,12 @@ class DbResultTTest
 
       "fails when anything is Xor.Left" in {
         val transformer = for {
-          customer  ← Customers.create(Factories.customer).toXorT
+          customer ← Customers.create(Factories.customer).toXorT
           // force validation failure
-          address   ← Addresses.create(Factories.address.copy(name = "", customerId = customer.id)).toXorT
+          address ← Addresses
+                     .create(Factories.address.copy(name = "",
+                                                    customerId = customer.id))
+                     .toXorT
         } yield (customer, address)
 
         val result = db.run(transformer.value.transactionally).futureValue
@@ -73,10 +75,10 @@ class DbResultTTest
         result.leftVal must includeFailure("name must not be empty")
 
         // creates the customer
-        Customers.length.result.futureValue must === (1)
+        Customers.length.result.futureValue must ===(1)
 
         // won't create address
-        Addresses.length.result.futureValue must === (0)
+        Addresses.length.result.futureValue must ===(0)
       }
     }
   }

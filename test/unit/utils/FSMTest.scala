@@ -10,21 +10,22 @@ import utils.db._
 class FSMTest extends TestBase {
 
   sealed trait Operation
-  case object Pop         extends Operation
-  case object Lock        extends Operation
-  case object PopAndLock  extends Operation
-  case object LockAndPop  extends Operation
+  case object Pop extends Operation
+  case object Lock extends Operation
+  case object PopAndLock extends Operation
+  case object LockAndPop extends Operation
   case object BreakItDown extends Operation
 
   case class Robot(id: Int = 0, state: Operation)
       extends FoxModel[Robot]
       with FSM[Operation, Robot] {
-    def stateLens                                              = lens[Robot].state
-    override def updateTo(newModel: Robot): Failures Xor Robot = super.transitionModel(newModel)
+    def stateLens = lens[Robot].state
+    override def updateTo(newModel: Robot): Failures Xor Robot =
+      super.transitionModel(newModel)
 
     val fsm: Map[Operation, Set[Operation]] = Map(
-        Pop        → Set(Lock, LockAndPop),
-        Lock       → Set(Pop, PopAndLock),
+        Pop → Set(Lock, LockAndPop),
+        Lock → Set(Pop, PopAndLock),
         PopAndLock → Set(Pop, BreakItDown),
         LockAndPop → Set(Lock, BreakItDown)
     )
@@ -37,7 +38,7 @@ class FSMTest extends TestBase {
 
     "transitions the model" in {
       val fineRobot = Robot(state = Pop)
-      val newRobot  = rightValue(fineRobot.transitionState(Lock))
+      val newRobot = rightValue(fineRobot.transitionState(Lock))
 
       newRobot.state must ===(Lock)
       newRobot must ===(fineRobot.copy(state = Lock))

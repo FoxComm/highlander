@@ -12,9 +12,10 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import failures.InvalidReasonTypeFailure
 
-class ReasonsIntegrationTest extends IntegrationTestBase
-with HttpSupport
-with AutomaticAuth {
+class ReasonsIntegrationTest
+    extends IntegrationTestBase
+    with HttpSupport
+    with AutomaticAuth {
 
   "Reasons" - {
     "GET /v1/public/reasons" - {
@@ -43,7 +44,8 @@ with AutomaticAuth {
         val reasonType = "lolwut"
         val response = GET(s"v1/public/reasons/$reasonType")
         response.status must ===(StatusCodes.BadRequest)
-        response.error must ===(InvalidReasonTypeFailure(reasonType).description)
+        response.error must ===(
+            InvalidReasonTypeFailure(reasonType).description)
       }
     }
   }
@@ -64,8 +66,10 @@ with AutomaticAuth {
   trait Fixture {
     val (reason, rmaReason) = (for {
       storeAdmin ← * <~ StoreAdmins.create(Factories.storeAdmin)
-      reason ← * <~ Reasons.create(Factories.reasons.head.copy(reasonType = Reason.GiftCardCreation,
-        storeAdminId = storeAdmin.id))
+      reason ← * <~ Reasons.create(
+                  Factories.reasons.head.copy(reasonType =
+                                                Reason.GiftCardCreation,
+                                              storeAdminId = storeAdmin.id))
       rmaReason ← * <~ RmaReasons.create(Factories.rmaReasons.head)
     } yield (reason, rmaReason)).runTxn().futureValue.rightVal
   }

@@ -19,15 +19,18 @@ import utils.seeds.Seeds.Factories
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
+class ShippingMethodsIntegrationTest
+    extends IntegrationTestBase
+    with HttpSupport
+    with AutomaticAuth {
 
   "GET /v1/shipping-methods/:refNum" - {
 
     "Evaluates shipping rule: order total is greater than $25" - {
 
       "Shipping method is returned when actual order total is greater than $25" in new ShippingMethodsFixture {
-        val conditions = parse(
-          """
+        val conditions =
+          parse("""
             | {
             |   "comparison": "and",
             |   "conditions": [{
@@ -36,26 +39,26 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
             | }
           """.stripMargin).extract[QueryStatement]
 
-        val action = shipping.ShippingMethods.create(Factories.shippingMethods.head.copy(
-          conditions = Some(conditions)))
+        val action = shipping.ShippingMethods.create(
+            Factories.shippingMethods.head.copy(conditions = Some(conditions)))
         val shippingMethod = db.run(action).futureValue.rightVal
 
         val response = GET(s"v1/shipping-methods/${order.referenceNumber}")
         response.status must ===(StatusCodes.OK)
 
-        val methodResponse = response.as[Seq[responses.ShippingMethods.Root]].head
+        val methodResponse =
+          response.as[Seq[responses.ShippingMethods.Root]].head
         methodResponse.id must ===(shippingMethod.id)
         methodResponse.name must ===(shippingMethod.adminDisplayName)
         methodResponse.price must ===(shippingMethod.price)
       }
-
     }
 
     "Evaluates shipping rule: order total is greater than $100" - {
 
       "No shipping rules found when order total is less than $100" in new ShippingMethodsFixture {
-        val conditions = parse(
-          """
+        val conditions =
+          parse("""
             | {
             |   "comparison": "and",
             |   "conditions": [{
@@ -64,7 +67,8 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
             | }
           """.stripMargin).extract[QueryStatement]
 
-        val action = shipping.ShippingMethods.create(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
+        val action = shipping.ShippingMethods.create(
+            Factories.shippingMethods.head.copy(conditions = Some(conditions)))
         val shippingMethod = db.run(action).futureValue.rightVal
 
         val response = GET(s"v1/shipping-methods/${order.referenceNumber}")
@@ -73,7 +77,6 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
         val methodResponse = response.as[Seq[responses.ShippingMethods.Root]]
         methodResponse mustBe 'empty
       }
-
     }
 
     "Evaluates shipping rule: shipping to CA, OR, or WA" - {
@@ -82,7 +85,8 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
         val response = GET(s"v1/shipping-methods/${order.referenceNumber}")
         response.status must ===(StatusCodes.OK)
 
-        val methodResponse = response.as[Seq[responses.ShippingMethods.Root]].head
+        val methodResponse =
+          response.as[Seq[responses.ShippingMethods.Root]].head
         methodResponse.id must ===(shippingMethod.id)
         methodResponse.name must ===(shippingMethod.adminDisplayName)
         methodResponse.price must ===(shippingMethod.price)
@@ -95,12 +99,12 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
         val response = GET(s"v1/shipping-methods/${order.referenceNumber}")
         response.status must ===(StatusCodes.OK)
 
-        val methodResponse = response.as[Seq[responses.ShippingMethods.Root]].head
+        val methodResponse =
+          response.as[Seq[responses.ShippingMethods.Root]].head
         methodResponse.id must ===(shippingMethod.id)
         methodResponse.name must ===(shippingMethod.adminDisplayName)
         methodResponse.price must ===(shippingMethod.price)
       }
-
     }
 
     "Evaluates shipping rule: ships to CA but has a restriction for hazardous items" - {
@@ -109,7 +113,8 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
         val response = GET(s"v1/shipping-methods/${order.referenceNumber}")
         response.status must ===(StatusCodes.OK)
 
-        val methodResponse = response.as[Seq[responses.ShippingMethods.Root]].head
+        val methodResponse =
+          response.as[Seq[responses.ShippingMethods.Root]].head
         methodResponse.id must ===(shippingMethod.id)
         methodResponse.name must ===(shippingMethod.adminDisplayName)
         methodResponse.price must ===(shippingMethod.price)
@@ -120,8 +125,9 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
 
   trait Fixture {
     val (order, storeAdmin, customer) = (for {
-      customer   ← * <~ Customers.create(Factories.customer)
-      order      ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
+      customer ← * <~ Customers.create(Factories.customer)
+      order ← * <~ Orders.create(
+                 Factories.order.copy(customerId = customer.id))
       storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
     } yield (order, storeAdmin, customer)).runTxn().futureValue.rightVal
   }
@@ -134,18 +140,22 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
 
     val (address, orderShippingAddress) = (for {
       productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-      address     ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id, regionId = californiaId))
-      shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
-      product     ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head.copy(title = "Donkey", price = 27))
+      address ← * <~ Addresses.create(Factories.address.copy(
+                       customerId = customer.id, regionId = californiaId))
+      shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(
+                       address = address, orderId = order.id)
+      product ← * <~ Mvp.insertProduct(
+                   productContext.id,
+                   Factories.products.head.copy(title = "Donkey", price = 27))
       lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(product.skuId).toXor
-      lineItems   ← * <~ OrderLineItems.create(OrderLineItem(orderId = order.id, originId = lineItemSku.id))
-      _           ← * <~ OrderTotaler.saveTotals(order)
+      lineItems ← * <~ OrderLineItems.create(OrderLineItem(
+                         orderId = order.id, originId = lineItemSku.id))
+      _ ← * <~ OrderTotaler.saveTotals(order)
     } yield (address, shipAddress)).runTxn().futureValue.rightVal
   }
 
   trait WestCoastShippingMethodsFixture extends ShippingMethodsFixture {
-    val conditions = parse(
-      s"""
+    val conditions = parse(s"""
          |{
          |"comparison": "or",
          |"conditions": [
@@ -169,13 +179,13 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
           |}
         """.stripMargin).extract[QueryStatement]
 
-    val action = ShippingMethods.create(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
+    val action = ShippingMethods.create(
+        Factories.shippingMethods.head.copy(conditions = Some(conditions)))
     val shippingMethod = db.run(action).futureValue.rightVal
   }
 
   trait ShippingMethodsStateAndPriceCondition extends ShippingMethodsFixture {
-    val conditions = parse(
-      s"""
+    val conditions = parse(s"""
          |{
          |"comparison": "and",
          |"statements": [
@@ -219,13 +229,13 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
           |}
       """.stripMargin).extract[QueryStatement]
 
-    val action = shipping.ShippingMethods.create(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
+    val action = shipping.ShippingMethods.create(
+        Factories.shippingMethods.head.copy(conditions = Some(conditions)))
     val shippingMethod = db.run(action).futureValue.rightVal
   }
 
   trait ShipToCaliforniaButNotHazardous extends ShippingMethodsFixture {
-    val conditions = parse(
-      s"""
+    val conditions = parse(s"""
          |{
          |"comparison": "and",
          |"conditions": [
@@ -239,8 +249,7 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
           |}
        """.stripMargin).extract[QueryStatement]
 
-    val restrictions = parse(
-      """
+    val restrictions = parse("""
         | {
         |   "comparison": "and",
         |   "conditions": [
@@ -255,9 +264,10 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
       """.stripMargin).extract[QueryStatement]
 
     val shippingMethod = (for {
-      shippingMethod ← shipping.ShippingMethods.create(Factories.shippingMethods.head.copy(
-        conditions = Some(conditions), restrictions = Some(restrictions)))
+      shippingMethod ← shipping.ShippingMethods.create(
+                          Factories.shippingMethods.head.copy(
+                              conditions = Some(conditions),
+                              restrictions = Some(restrictions)))
     } yield shippingMethod).run().futureValue.rightVal
   }
-
 }

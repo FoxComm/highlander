@@ -20,7 +20,7 @@ class DbResultSequenceIntegrationTest extends IntegrationTestBase {
 
       val allCustomers = Customers.result.run().futureValue
       allCustomers must have size 3
-      allCustomers.map(_.email) must contain allOf("1", "2", "3")
+      allCustomers.map(_.email) must contain allOf ("1", "2", "3")
     }
 
     "must rollback transaction on errors" in {
@@ -43,13 +43,13 @@ class DbResultSequenceIntegrationTest extends IntegrationTestBase {
 
       val failures = cool.run().futureValue.leftVal
       val expectedFailure = DatabaseFailure(
-        "ERROR: duplicate key value violates unique constraint \"customers_active_non_guest_email\"\n" +
+          "ERROR: duplicate key value violates unique constraint \"customers_active_non_guest_email\"\n" +
           "  Detail: Key (email, is_disabled, is_guest)=(boom, f, f) already exists.")
-      failures must === (expectedFailure.single)
+      failures must ===(expectedFailure.single)
 
       val allCustomers = Customers.result.run().futureValue
       allCustomers must have size 1
-      allCustomers.head.email must === ("boom")
+      allCustomers.head.email must ===("boom")
     }
   }
 }

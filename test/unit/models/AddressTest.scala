@@ -25,7 +25,7 @@ class AddressTest extends TestBase {
         NonEmptyList(buildMatchesFailure("zip", pattern))
 
       "returns errors when zip is invalid" in {
-        val badZip         = valid.copy(zip = "AB+123")
+        val badZip = valid.copy(zip = "AB+123")
         val wrongLengthZip = valid.copy(zip = "1")
 
         val addresses = Table(
@@ -40,7 +40,7 @@ class AddressTest extends TestBase {
       }
 
       "return errors when US address and zip is not 5 or 9 digits" in {
-        val tooShortZip    = valid.copy(zip = "1234")
+        val tooShortZip = valid.copy(zip = "1234")
         val wrongLengthZip = valid.copy(zip = "123456")
 
         val addresses = Table(
@@ -56,20 +56,23 @@ class AddressTest extends TestBase {
 
       "returns errors when name or address1 is empty" in {
         val result = valid.copy(name = "", address1 = "").validate
-        invalidValue(result) must ===(
-            NonEmptyList[Failure](GeneralFailure("name must not be empty"),
-                                  GeneralFailure("address1 must not be empty")))
+        invalidValue(result) must ===(NonEmptyList[Failure](
+                GeneralFailure("name must not be empty"),
+                GeneralFailure("address1 must not be empty")))
       }
 
       "returns errors if US address and Some(phoneNumber) < 10 digits" in {
-        val result =
-          valid.copy(regionId = Region.usRegions.head, phoneNumber = Some("5551234")).validate
+        val result = valid
+          .copy(regionId = Region.usRegions.head,
+                phoneNumber = Some("5551234"))
+          .validate
         invalidValue(result) must includeFailure(
             "phoneNumber must fully match regular expression '[0-9]{10}'")
       }
 
       "returns errors if non-US address and Some(phoneNumber) > 15 digits" in {
-        val result = valid.copy(regionId = 1, phoneNumber = Some("1" * 16)).validate
+        val result =
+          valid.copy(regionId = 1, phoneNumber = Some("1" * 16)).validate
         invalidValue(result) must includeFailure(
             "phoneNumber must fully match regular expression '[0-9]{0,15}'")
       }

@@ -30,20 +30,21 @@ class OrderTotalerTest extends IntegrationTestBase {
       "includes both SKU line items and purchased gift cards" in new AllLineItemsFixture {
         val subTotal = OrderTotaler.subTotal(order).run().futureValue
 
-        subTotal must === (skuPrice + giftCard.originalBalance)
+        subTotal must ===(skuPrice + giftCard.originalBalance)
       }
 
       "uses SKU line items only if order purchases no gift cards" in new SkuLineItemsFixture {
         val subTotal = OrderTotaler.subTotal(order).run().futureValue
 
-        subTotal must === (skuPrice)
+        subTotal must ===(skuPrice)
       }
     }
 
     "shipping" - {
       "sums the shipping total from both shipping methods" in new ShippingMethodFixture {
-        val subTotal = OrderTotaler.shippingTotal(order).run().futureValue.rightVal
-        subTotal must === (295)
+        val subTotal =
+          OrderTotaler.shippingTotal(order).run().futureValue.rightVal
+        subTotal must ===(295)
       }
     }
 
@@ -76,34 +77,51 @@ class OrderTotalerTest extends IntegrationTestBase {
   trait Fixture {
     val (customer, address, order) = (for {
       customer ← * <~ Customers.create(Factories.customer)
-      address  ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
-      order    ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
+      address ← * <~ Addresses.create(
+                   Factories.address.copy(customerId = customer.id))
+      order ← * <~ Orders.create(
+                 Factories.order.copy(customerId = customer.id))
     } yield (customer, address, order)).runTxn().futureValue.rightVal
   }
 
   trait SkuLineItemsFixture extends Fixture {
-    val (productContext, product, productShadow, sku, skuShadow, skuPrice) = (for {
-      productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-      simpleProduct ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head)
-      tup ← * <~ Mvp.getProductTuple(simpleProduct)
-      _   ← * <~ OrderLineItems.create(OrderLineItem.buildSku(order, tup.sku))
-      skuPrice ← * <~ Mvp.priceAsInt(tup.skuForm, tup.skuShadow)
-    } yield (productContext, tup.product, tup.productShadow, tup.sku, tup.skuShadow, skuPrice)).runTxn().futureValue.rightVal
+    val (productContext, product, productShadow, sku, skuShadow, skuPrice) =
+      (for {
+        productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
+        simpleProduct ← * <~ Mvp.insertProduct(productContext.id,
+                                               Factories.products.head)
+        tup ← * <~ Mvp.getProductTuple(simpleProduct)
+        _ ← * <~ OrderLineItems.create(OrderLineItem.buildSku(order, tup.sku))
+        skuPrice ← * <~ Mvp.priceAsInt(tup.skuForm, tup.skuShadow)
+      } yield
+        (productContext,
+         tup.product,
+         tup.productShadow,
+         tup.sku,
+         tup.skuShadow,
+         skuPrice)).runTxn().futureValue.rightVal
   }
 
   trait AllLineItemsFixture extends SkuLineItemsFixture {
     val (giftCard, lineItems) = (for {
-      origin    ← * <~ GiftCardOrders.create(GiftCardOrder(orderId = order.id))
-      giftCard  ← * <~ GiftCards.create(GiftCard.buildLineItem(balance = 150, originId = origin.id, currency = Currency.USD))
-      gcLi      ← * <~ OrderLineItemGiftCards.create(OrderLineItemGiftCard(giftCardId = giftCard.id, orderId = order.id))
-      lineItems ← * <~ OrderLineItems.create(OrderLineItem.buildGiftCard(order, gcLi))
+      origin ← * <~ GiftCardOrders.create(GiftCardOrder(orderId = order.id))
+      giftCard ← * <~ GiftCards.create(
+                    GiftCard.buildLineItem(balance = 150,
+                                           originId = origin.id,
+                                           currency = Currency.USD))
+      gcLi ← * <~ OrderLineItemGiftCards.create(OrderLineItemGiftCard(
+                    giftCardId = giftCard.id, orderId = order.id))
+      lineItems ← * <~ OrderLineItems.create(
+                     OrderLineItem.buildGiftCard(order, gcLi))
     } yield (giftCard, lineItems)).runTxn().futureValue.rightVal
   }
 
   trait ShippingMethodFixture extends Fixture {
     val orderShippingMethods = (for {
-      shipM ← * <~ ShippingMethods.create(Factories.shippingMethods.head.copy(price = 295))
-      osm   ← * <~ OrderShippingMethods.create(OrderShippingMethod.build(order, shipM))
+      shipM ← * <~ ShippingMethods.create(
+                 Factories.shippingMethods.head.copy(price = 295))
+      osm ← * <~ OrderShippingMethods.create(
+               OrderShippingMethod.build(order, shipM))
     } yield osm).runTxn().futureValue.rightVal
   }
 }

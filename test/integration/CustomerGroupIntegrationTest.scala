@@ -17,18 +17,21 @@ import utils.db.DbResultT._
 import utils.seeds.RankingSeedsGenerator.generateGroup
 import utils.seeds.Seeds.Factories
 
-class CustomerGroupIntegrationTest extends IntegrationTestBase
-  with HttpSupport
-  with AutomaticAuth
-  with SortingAndPaging[DynamicGroupResponse.Root]
-  with MockitoSugar {
+class CustomerGroupIntegrationTest
+    extends IntegrationTestBase
+    with HttpSupport
+    with AutomaticAuth
+    with SortingAndPaging[DynamicGroupResponse.Root]
+    with MockitoSugar {
 
   import concurrent.ExecutionContext.Implicits.global
 
   def responseItems = {
     val admin = StoreAdmins.create(authedStoreAdmin).run().futureValue.rightVal
 
-    val insertGroups = (1 to numOfResults).map { _ ⇒ generateGroup(admin.id) }
+    val insertGroups = (1 to numOfResults).map { _ ⇒
+      generateGroup(admin.id)
+    }
     val dbio = for {
       groups ← CustomerDynamicGroups.createAll(insertGroups) >> CustomerDynamicGroups.result
     } yield groups.map(DynamicGroupResponse.build)
@@ -38,7 +41,8 @@ class CustomerGroupIntegrationTest extends IntegrationTestBase
 
   val sortColumnName = "name"
 
-  def responseItemsSort(items: IndexedSeq[DynamicGroupResponse.Root]) = items.sortBy(_.name)
+  def responseItemsSort(items: IndexedSeq[DynamicGroupResponse.Root]) =
+    items.sortBy(_.name)
 
   def mf = implicitly[scala.reflect.Manifest[DynamicGroupResponse.Root]]
   // paging and sorting API end
@@ -50,21 +54,27 @@ class CustomerGroupIntegrationTest extends IntegrationTestBase
       val response = GET(s"$uriPrefix")
       val groupRoot = DynamicGroupResponse.build(group)
 
-      response.status must === (StatusCodes.OK)
-      response.ignoreFailuresAndGiveMe[Seq[DynamicGroupResponse.Root]] must === (Seq(groupRoot))
+      response.status must ===(StatusCodes.OK)
+      response.ignoreFailuresAndGiveMe[Seq[DynamicGroupResponse.Root]] must ===(
+          Seq(groupRoot))
     }
   }
 
   "POST /v1/groups" - {
     "successfully creates customer group from payload" in new Fixture {
-      val response = POST(s"v1/groups", CustomerDynamicGroupPayload(name = "Group number one",
-        clientState = JObject(), elasticRequest = JObject(), customersCount = Some(1)))
+      val response =
+        POST(s"v1/groups",
+             CustomerDynamicGroupPayload(name = "Group number one",
+                                         clientState = JObject(),
+                                         elasticRequest = JObject(),
+                                         customersCount = Some(1)))
 
       response.status must ===(StatusCodes.OK)
 
       val root = response.as[DynamicGroupResponse.Root]
-      val created = CustomerDynamicGroups.findOneById(root.id).run().futureValue.value
-      created.id must === (root.id)
+      val created =
+        CustomerDynamicGroups.findOneById(root.id).run().futureValue.value
+      created.id must ===(root.id)
     }
   }
 
@@ -73,45 +83,54 @@ class CustomerGroupIntegrationTest extends IntegrationTestBase
       val response = GET(s"$uriPrefix/${group.id}")
       val root = DynamicGroupResponse.build(group)
 
-      response.status must === (StatusCodes.OK)
-      response.as[DynamicGroupResponse.Root] must === (root)
+      response.status must ===(StatusCodes.OK)
+      response.as[DynamicGroupResponse.Root] must ===(root)
     }
 
     "404 if group not found" in new Fixture {
       val response = GET(s"$uriPrefix/999")
 
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(CustomerDynamicGroup, 999).description)
+      response.status must ===(StatusCodes.NotFound)
+      response.error must ===(
+          NotFoundFailure404(CustomerDynamicGroup, 999).description)
     }
   }
 
   "PATCH /v1/groups/:groupId" - {
     "successfully updates group attributes" in new Fixture {
-      val payload = CustomerDynamicGroupPayload(name = "New name for group", customersCount = Some(777),
-            clientState = JObject(), elasticRequest = JObject())
-      (payload.name, payload.customersCount) must !== ((group.name, group.customersCount))
+      val payload = CustomerDynamicGroupPayload(name = "New name for group",
+                                                customersCount = Some(777),
+                                                clientState = JObject(),
+                                                elasticRequest = JObject())
+      (payload.name, payload.customersCount) must !==(
+          (group.name, group.customersCount))
 
       val response = PATCH(s"$uriPrefix/${group.id}", payload)
-      response.status must === (StatusCodes.OK)
+      response.status must ===(StatusCodes.OK)
 
       val updated = response.as[DynamicGroupResponse.Root]
-      (updated.name, updated.customersCount) must === ((payload.name, payload.customersCount))
+      (updated.name, updated.customersCount) must ===(
+          (payload.name, payload.customersCount))
     }
 
     "404 if group not found" in new Fixture {
-      val payload = CustomerDynamicGroupPayload(name = "New name for group", customersCount = Some(777),
-        clientState = JObject(), elasticRequest = JObject())
+      val payload = CustomerDynamicGroupPayload(name = "New name for group",
+                                                customersCount = Some(777),
+                                                clientState = JObject(),
+                                                elasticRequest = JObject())
       val response = PATCH(s"$uriPrefix/999", payload)
 
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(CustomerDynamicGroup, 999).description)
+      response.status must ===(StatusCodes.NotFound)
+      response.error must ===(
+          NotFoundFailure404(CustomerDynamicGroup, 999).description)
     }
   }
 
   trait Fixture {
     val (group, admin) = (for {
       admin ← * <~ StoreAdmins.create(authedStoreAdmin)
-      group ← * <~ CustomerDynamicGroups.create(Factories.group.copy(createdBy = admin.id))
+      group ← * <~ CustomerDynamicGroups.create(
+                 Factories.group.copy(createdBy = admin.id))
     } yield (group, admin)).runTxn().futureValue.rightVal
   }
 }

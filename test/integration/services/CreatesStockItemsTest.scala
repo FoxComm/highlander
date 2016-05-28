@@ -12,19 +12,21 @@ class CreatesStockItemsTest extends IntegrationTestBase with Inside {
 
   "CreatesStockItems" - {
     "creates a new stock item" in withStockItemSchema {
-      val item = CreatesStockItems(productId = 1, onHand = 1, onHold = 0).futureValue
+      val item =
+        CreatesStockItems(productId = 1, onHand = 1, onHold = 0).futureValue
       item mustBe 'right
     }
 
     "returns error messages on invalid input parameters" in withStockItemSchema {
-      val result = CreatesStockItems(productId = 1, onHand = -1, onHold = 0).futureValue
+      val result =
+        CreatesStockItems(productId = 1, onHand = -1, onHold = 0).futureValue
       result mustBe 'left
 
       inside(result) {
         case Xor.Left(nel) ⇒
           inside(nel.head) {
             case GeneralFailure(message) ⇒
-              message must include ("On hand must be >= 0")
+              message must include("On hand must be >= 0")
           }
       }
     }

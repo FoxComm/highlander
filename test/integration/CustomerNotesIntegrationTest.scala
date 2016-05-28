@@ -19,33 +19,39 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import failures.NotFoundFailure404
 import payloads.NotePayloads._
 
-class CustomerNotesIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
+class CustomerNotesIntegrationTest
+    extends IntegrationTestBase
+    with HttpSupport
+    with AutomaticAuth {
 
-  implicit val ac = ActivityContext(userId = 1, userType = "b", transactionId = "c")
+  implicit val ac = ActivityContext(
+      userId = 1, userType = "b", transactionId = "c")
 
   "POST /v1/notes/customer/:customerId" - {
     "can be created by an admin for a customer" in new Fixture {
-      val response = POST(s"v1/notes/customer/${customer.id}", CreateNote(body = "Hello, FoxCommerce!"))
+      val response = POST(s"v1/notes/customer/${customer.id}",
+                          CreateNote(body = "Hello, FoxCommerce!"))
 
-      response.status must === (StatusCodes.OK)
+      response.status must ===(StatusCodes.OK)
 
       val note = response.as[AdminNotes.Root]
-      note.body must === ("Hello, FoxCommerce!")
-      note.author must === (AdminNotes.buildAuthor(admin))
+      note.body must ===("Hello, FoxCommerce!")
+      note.author must ===(AdminNotes.buildAuthor(admin))
     }
 
     "returns a validation error if failed to create" in new Fixture {
-      val response = POST(s"v1/notes/customer/${customer.id}", CreateNote(body = ""))
+      val response =
+        POST(s"v1/notes/customer/${customer.id}", CreateNote(body = ""))
 
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === ("body must not be empty")
+      response.status must ===(StatusCodes.BadRequest)
+      response.error must ===("body must not be empty")
     }
 
     "returns a 404 if the customer is not found" in new Fixture {
       val response = POST(s"v1/notes/customer/999999", CreateNote(body = ""))
 
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Customer, 999999).description)
+      response.status must ===(StatusCodes.NotFound)
+      response.error must ===(NotFoundFailure404(Customer, 999999).description)
     }
   }
 
@@ -53,40 +59,46 @@ class CustomerNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
 
     "can be listed" in new Fixture {
       List("abc", "123", "xyz").map { body ⇒
-        CustomerNoteManager.create(customer.id, admin, CreateNote(body = body)).futureValue
+        CustomerNoteManager
+          .create(customer.id, admin, CreateNote(body = body))
+          .futureValue
       }
 
       val response = GET(s"v1/notes/customer/${customer.id}")
-      response.status must === (StatusCodes.OK)
+      response.status must ===(StatusCodes.OK)
 
       val notes = response.as[Seq[AdminNotes.Root]]
       notes must have size 3
-      notes.map(_.body).toSet must === (Set("abc", "123", "xyz"))
+      notes.map(_.body).toSet must ===(Set("abc", "123", "xyz"))
     }
   }
 
   "PATCH /v1/notes/customer/:customerId/:noteId" - {
 
     "can update the body text" in new Fixture {
-      val rootNote = rightValue(CustomerNoteManager.create(customer.id, admin,
-        CreateNote(body = "Hello, FoxCommerce!")).futureValue)
+      val rootNote = rightValue(CustomerNoteManager
+            .create(
+                customer.id, admin, CreateNote(body = "Hello, FoxCommerce!"))
+            .futureValue)
 
-      val response = PATCH(s"v1/notes/customer/${customer.id}/${rootNote.id}", UpdateNote(body = "donkey"))
-      response.status must === (StatusCodes.OK)
+      val response = PATCH(s"v1/notes/customer/${customer.id}/${rootNote.id}",
+                           UpdateNote(body = "donkey"))
+      response.status must ===(StatusCodes.OK)
 
       val note = response.as[AdminNotes.Root]
-      note.body must === ("donkey")
+      note.body must ===("donkey")
     }
   }
 
   "DELETE /v1/notes/customer/:customerId/:noteId" - {
 
     "can soft delete note" in new Fixture {
-      val createResp = POST(s"v1/notes/customer/${customer.id}", CreateNote(body = "Hello, FoxCommerce!"))
+      val createResp = POST(s"v1/notes/customer/${customer.id}",
+                            CreateNote(body = "Hello, FoxCommerce!"))
       val note = createResp.as[AdminNotes.Root]
 
       val response = DELETE(s"v1/notes/customer/${customer.id}/${note.id}")
-      response.status must === (StatusCodes.NoContent)
+      response.status must ===(StatusCodes.NoContent)
       response.bodyText mustBe empty
 
       val updatedNote = Notes.findOneById(note.id).run().futureValue.value
@@ -98,20 +110,20 @@ class CustomerNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
 
       // Deleted note should not be returned
       val allNotesResponse = GET(s"v1/notes/customer/${customer.id}")
-      allNotesResponse.status must === (StatusCodes.OK)
+      allNotesResponse.status must ===(StatusCodes.OK)
       val allNotes = allNotesResponse.as[Seq[AdminNotes.Root]]
       allNotes.map(_.id) must not contain note.id
 
-      val getDeletedNoteResponse = GET(s"v1/notes/customer/${customer.id}/${note.id}")
-      getDeletedNoteResponse.status must === (StatusCodes.NotFound)
+      val getDeletedNoteResponse =
+        GET(s"v1/notes/customer/${customer.id}/${note.id}")
+      getDeletedNoteResponse.status must ===(StatusCodes.NotFound)
     }
   }
 
   trait Fixture {
     val (admin, customer) = (for {
-      admin    ← * <~ StoreAdmins.create(authedStoreAdmin)
+      admin ← * <~ StoreAdmins.create(authedStoreAdmin)
       customer ← * <~ Customers.create(Factories.customer)
     } yield (admin, customer)).runTxn().futureValue.rightVal
   }
-
 }

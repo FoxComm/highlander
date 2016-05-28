@@ -14,10 +14,11 @@ import utils.db._
 import utils.seeds.RankingSeedsGenerator
 import utils.seeds.Seeds.Factories
 
-class AddressesIntegrationTest extends IntegrationTestBase
-  with HttpSupport
-  with SortingAndPaging[responses.Addresses.Root]
-  with AutomaticAuth {
+class AddressesIntegrationTest
+    extends IntegrationTestBase
+    with HttpSupport
+    with SortingAndPaging[responses.Addresses.Root]
+    with AutomaticAuth {
 
   import concurrent.ExecutionContext.Implicits.global
 
@@ -36,8 +37,9 @@ class AddressesIntegrationTest extends IntegrationTestBase
   def responseItems = {
     val items = (1 to numOfResults).map { i ⇒
       for {
-        address ← * <~ Addresses.create(RankingSeedsGenerator.generateAddress.copy(customerId = currentCustomer.id))
-        region  ← * <~ Regions.mustFindById404(address.regionId)
+        address ← * <~ Addresses.create(RankingSeedsGenerator.generateAddress
+                       .copy(customerId = currentCustomer.id))
+        region ← * <~ Regions.mustFindById404(address.regionId)
       } yield responses.Addresses.build(address, region)
     }
 
@@ -46,57 +48,66 @@ class AddressesIntegrationTest extends IntegrationTestBase
 
   val sortColumnName = "name"
 
-  def responseItemsSort(items: IndexedSeq[responses.Addresses.Root]) = items.sortBy(_.name)
+  def responseItemsSort(items: IndexedSeq[responses.Addresses.Root]) =
+    items.sortBy(_.name)
 
   def mf = implicitly[scala.reflect.Manifest[responses.Addresses.Root]]
   // paging and sorting API end
 
   def validateDeleteResponse(response: HttpResponse) {
-      response.status must === (StatusCodes.NoContent)
-      response.bodyText mustBe 'empty
+    response.status must ===(StatusCodes.NoContent)
+    response.bodyText mustBe 'empty
   }
 
   "GET /v1/customers/:customerId/addresses" - {
     "lists addresses" in new AddressFixture {
       val response = GET(s"v1/customers/${customer.id}/addresses")
 
-      response.status must === (StatusCodes.OK)
+      response.status must ===(StatusCodes.OK)
 
-      val addresses = response.ignoreFailuresAndGiveMe[Seq[responses.Addresses.Root]]
+      val addresses =
+        response.ignoreFailuresAndGiveMe[Seq[responses.Addresses.Root]]
 
       addresses must have size 1
-      addresses.head.name must === (address.name)
+      addresses.head.name must ===(address.name)
     }
   }
 
   "POST /v1/customers/:customerId/addresses" - {
     "creates an address" in new CustomerFixture {
-      val payload = CreateAddressPayload(name = "Home Office", regionId = 1, address1 = "3000 Coolio Dr",
-        city = "Seattle", zip = "55555")
+      val payload = CreateAddressPayload(name = "Home Office",
+                                         regionId = 1,
+                                         address1 = "3000 Coolio Dr",
+                                         city = "Seattle",
+                                         zip = "55555")
       val response = POST(s"v1/customers/${customer.id}/addresses", payload)
 
-      response.status must === (StatusCodes.OK)
+      response.status must ===(StatusCodes.OK)
 
       val newAddress = response.as[responses.Addresses.Root]
 
-      newAddress.name must === (payload.name)
-      newAddress.isDefault must === (Some(false))
+      newAddress.name must ===(payload.name)
+      newAddress.isDefault must ===(Some(false))
     }
-
   }
 
   "POST /v1/customers/:customerId/addresses/:addressId/default" - {
     "sets the isDefaultShippingAddress flag on an address" in new NoDefaultAddressFixture {
-      val response = POST(s"v1/customers/${customer.id}/addresses/${address.id}/default")
-      response.status must === (StatusCodes.OK)
+      val response =
+        POST(s"v1/customers/${customer.id}/addresses/${address.id}/default")
+      response.status must ===(StatusCodes.OK)
       Addresses.findOneById(address.id).futureValue.value.isDefaultShipping mustBe true
     }
 
     "sets a new shipping address if there's already a default shipping address" in new AddressFixture {
-      val another = Addresses.create(address.copy(id = 0, isDefaultShipping = false)).futureValue.rightVal
-      val response = POST(s"v1/customers/${customer.id}/addresses/${another.id}/default")
+      val another = Addresses
+        .create(address.copy(id = 0, isDefaultShipping = false))
+        .futureValue
+        .rightVal
+      val response =
+        POST(s"v1/customers/${customer.id}/addresses/${another.id}/default")
 
-      response.status must === (StatusCodes.OK)
+      response.status must ===(StatusCodes.OK)
 
       Addresses.findOneById(another.id).futureValue.value.isDefaultShipping mustBe true
       Addresses.findOneById(address.id).futureValue.value.isDefaultShipping mustBe false
@@ -117,68 +128,85 @@ class AddressesIntegrationTest extends IntegrationTestBase
 
       validateDeleteResponse(response)
 
-      Addresses.findAllByCustomerId(customer.id).length.result.run().futureValue must === (0)
+      Addresses
+        .findAllByCustomerId(customer.id)
+        .length
+        .result
+        .run()
+        .futureValue must ===(0)
     }
   }
 
   "PATCH /v1/customers/:customerId/addresses/:addressId" - {
     "can be edited" in new AddressFixture {
-      val payload = CreateAddressPayload(name = "Home Office", regionId = 1, address1 = "3000 Coolio Dr",
-        city = "Seattle", zip = "55555")
-      (payload.name, payload.address1) must !== ((address.name, address.address1))
+      val payload = CreateAddressPayload(name = "Home Office",
+                                         regionId = 1,
+                                         address1 = "3000 Coolio Dr",
+                                         city = "Seattle",
+                                         zip = "55555")
+      (payload.name, payload.address1) must !==(
+          (address.name, address.address1))
 
-      val response = PATCH(s"v1/customers/${customer.id}/addresses/${address.id}", payload)
+      val response =
+        PATCH(s"v1/customers/${customer.id}/addresses/${address.id}", payload)
 
       val updated = response.as[responses.Addresses.Root]
-      response.status must === (StatusCodes.OK)
+      response.status must ===(StatusCodes.OK)
 
-      (updated.name, updated.address1) must === ((payload.name, payload.address1))
+      (updated.name, updated.address1) must ===(
+          (payload.name, payload.address1))
     }
-
   }
 
   "DELETE /v1/customers/:customerId/addresses/:addressId" - {
     "can be deleted" in new AddressFixture {
 
       //notice the payload is a default shipping address. Delete should make it not default.
-      val payload = CreateAddressPayload(
-        name = "Delete Me", regionId = 1, address1 = "5000 Delete Dr",
-        city = "Deattle", zip = "666", isDefault = true)
+      val payload = CreateAddressPayload(name = "Delete Me",
+                                         regionId = 1,
+                                         address1 = "5000 Delete Dr",
+                                         city = "Deattle",
+                                         zip = "666",
+                                         isDefault = true)
 
       val response = POST(s"v1/customers/${customer.id}/addresses", payload)
-      response.status must === (StatusCodes.OK)
+      response.status must ===(StatusCodes.OK)
       val newAddress = response.as[responses.Addresses.Root]
 
       //now delete
-      val deleteResponse = DELETE(s"v1/customers/${customer.id}/addresses/${newAddress.id}")
+      val deleteResponse =
+        DELETE(s"v1/customers/${customer.id}/addresses/${newAddress.id}")
       validateDeleteResponse(deleteResponse)
 
-      val deletedAddress = Addresses.findOneById(newAddress.id).run().futureValue.value
+      val deletedAddress =
+        Addresses.findOneById(newAddress.id).run().futureValue.value
       deletedAddress.isDefaultShipping mustBe false
       deletedAddress.deletedAt mustBe defined
     }
 
     "deleted address should be visible to StoreAdmin" in new DeletedAddressFixture {
-      val response = GET(s"v1/customers/${customer.id}/addresses/${address.id}")
-      response.status must === (StatusCodes.OK)
+      val response =
+        GET(s"v1/customers/${customer.id}/addresses/${address.id}")
+      response.status must ===(StatusCodes.OK)
     }
 
     "deleted address should be invisible to Customer" in new DeletedAddressFixture {
       val response = GET(s"v1/my/addresses/${address.id}")
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Address, address.id).description)
+      response.status must ===(StatusCodes.NotFound)
+      response.error must ===(
+          NotFoundFailure404(Address, address.id).description)
     }
 
     "fails deleting using wrong address id" in new AddressFixture {
       val response = DELETE(s"v1/customers/${customer.id}/addresses/65536")
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Address, 65536).description)
+      response.status must ===(StatusCodes.NotFound)
+      response.error must ===(NotFoundFailure404(Address, 65536).description)
     }
 
     "fails deleting using wrong customer id" in new AddressFixture {
       val response = DELETE(s"v1/customers/65536/addresses/${address.id}")
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Customer, 65536).description)
+      response.status must ===(StatusCodes.NotFound)
+      response.error must ===(NotFoundFailure404(Customer, 65536).description)
     }
   }
 
@@ -187,29 +215,38 @@ class AddressesIntegrationTest extends IntegrationTestBase
   }
 
   trait AddressFixture extends CustomerFixture {
-    val address = Addresses.create(Factories.address.copy(customerId = customer.id,
-      isDefaultShipping = true)).futureValue.rightVal
+    val address = Addresses
+      .create(Factories.address.copy(
+              customerId = customer.id, isDefaultShipping = true))
+      .futureValue
+      .rightVal
   }
 
   trait DeletedAddressFixture {
-    val (customer,address) = (for {
-      customer  ← * <~ Customers.create(authedCustomer)
-      address   ← * <~ Addresses.create(Factories.address.copy(customerId = authedCustomer.id,
-        isDefaultShipping = false, deletedAt = Some(Instant.now)))
+    val (customer, address) = (for {
+      customer ← * <~ Customers.create(authedCustomer)
+      address ← * <~ Addresses.create(
+                   Factories.address.copy(customerId = authedCustomer.id,
+                                          isDefaultShipping = false,
+                                          deletedAt = Some(Instant.now)))
     } yield (customer, address)).runTxn().futureValue.rightVal
   }
 
   trait ShippingAddressFixture extends AddressFixture {
     (for {
-      order           ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
-      shippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address, order.id)
+      order ← * <~ Orders.create(
+                 Factories.order.copy(customerId = customer.id))
+      shippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address,
+                                                                    order.id)
     } yield (order, shippingAddress)).runTxn().futureValue.rightVal
   }
 
   trait NoDefaultAddressFixture extends CustomerFixture {
     val (address, order, shippingAddress) = (for {
-      address ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id, isDefaultShipping = false))
-      order   ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
+      address ← * <~ Addresses.create(Factories.address.copy(
+                       customerId = customer.id, isDefaultShipping = false))
+      order ← * <~ Orders.create(
+                 Factories.order.copy(customerId = customer.id))
       shipAdd ← * <~ OrderShippingAddresses.copyFromAddress(address, order.id)
     } yield (address, order, shipAdd)).runTxn().futureValue.rightVal
   }
