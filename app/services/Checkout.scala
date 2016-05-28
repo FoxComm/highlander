@@ -6,14 +6,16 @@ import cats.implicits._
 import models.order.lineitems.OrderLineItemGiftCards
 import models.order._
 import Order.RemorseHold
-import failures.CouponFailures.CouponNotFoundForContext
+import failures.CouponFailures.{CouponNotFoundForContext, CouponWithCodeCannotBeFound}
 import failures.GeneralFailure
-import models.coupon.{CouponCodes, Coupons}
+import failures.PromotionFailures.PromotionNotFoundForContext
+import models.coupon.{CouponCodes, Coupons, IlluminatedCoupon}
 import models.customer.{Customer, Customers}
-import models.objects.{ObjectContext, ObjectContexts, ObjectForms}
+import models.objects.{ObjectContext, ObjectContexts, ObjectForms, ObjectShadows}
 import models.payment.creditcard.{CreditCardCharge, CreditCardCharges}
 import models.payment.giftcard.{GiftCard, GiftCards}
 import models.payment.storecredit.StoreCredits
+import models.promotion.{IlluminatedPromotion, Promotions}
 import responses.order.FullOrder
 import services.coupon.CouponUsageService
 import services.inventory.InventoryAdjustmentManager
@@ -77,7 +79,40 @@ case class Checkout(cart: Order, cartValidator: CartValidation)(
 
   private def checkInventory: DbResult[Unit] = DbResult.unit
 
-  private def activePromos: DbResult[Unit] = DbResult.unit
+  private def activePromos: DbResultT[Unit] =
+    for {
+      maybePromo ← * <~ OrderPromotions.filterByOrderId(cart.id).one.toXor
+      context    ← * <~ ObjectContexts.mustFindById400(cart.contextId)
+      maybeCodeId = maybePromo.flatMap(_.couponCodeId)
+      _ ← * <~ maybePromo.fold(DbResultT.unit)(promotionMustBeActive(_, context))
+      _ ← * <~ maybeCodeId.fold(DbResultT.unit)(couponMustBeApplicable(_, context))
+    } yield {}
+
+  private def promotionMustBeActive(
+      orderPromotion: OrderPromotion, context: ObjectContext): DbResultT[Unit] =
+    for {
+      promotion ← * <~ Promotions
+                   .filterByContextAndShadowId(context.id, orderPromotion.promotionShadowId)
+                   .mustFindOneOr(
+                       PromotionNotFoundForContext(orderPromotion.promotionShadowId, context.name))
+      promoForm   ← * <~ ObjectForms.mustFindById404(promotion.formId)
+      promoShadow ← * <~ ObjectShadows.mustFindById404(promotion.shadowId)
+      promoObject = IlluminatedPromotion.illuminate(context, promotion, promoForm, promoShadow)
+      _ ← * <~ promoObject.mustBeActive
+    } yield {}
+
+  private def couponMustBeApplicable(codeId: Int, context: ObjectContext): DbResultT[Unit] =
+    for {
+      couponCode ← * <~ CouponCodes.findById(codeId).extract.one.safeGet.toXor
+      coupon ← * <~ Coupons
+                .filterByContextAndFormId(context.id, couponCode.couponFormId)
+                .mustFindOneOr(CouponWithCodeCannotBeFound(couponCode.code))
+      couponForm   ← * <~ ObjectForms.mustFindById404(coupon.formId)
+      couponShadow ← * <~ ObjectShadows.mustFindById404(coupon.shadowId)
+      couponObject = IlluminatedCoupon.illuminate(context, coupon, couponForm, couponShadow)
+      _ ← * <~ couponObject.mustBeActive
+      _ ← * <~ couponObject.mustBeApplicable(couponCode, cart.customerId)
+    } yield {}
 
   private def updateCouponCountersForPromotion(customer: Customer): DbResultT[Unit] =
     for {

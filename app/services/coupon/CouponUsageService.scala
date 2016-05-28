@@ -95,7 +95,7 @@ object CouponUsageService {
                  couponUsageByCustomer.copy(count = couponUsageByCustomer.count + 1))
         } yield {}
       case _ ⇒
-        DbResultT(DbResult.unit)
+        DbResultT.unit
     }
   }
 }

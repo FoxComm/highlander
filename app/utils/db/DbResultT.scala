@@ -11,6 +11,7 @@ import scala.concurrent.Future
 import slick.driver.PostgresDriver.api._
 import slick.profile.SqlAction
 import utils.aliases._
+import utils.db._
 
 object DbResultT {
 
@@ -70,6 +71,8 @@ object DbResultT {
         for (builder ← liftedBuilder; value ← liftedValue) yield builder += value
       }
       .map(_.result)
+
+  def unit: DbResultT[Unit] = apply(DbResult.unit)
 
   object * {
     def <~[A](v: DBIO[Failures Xor A]): DbResultT[A] =
