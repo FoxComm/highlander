@@ -17,3 +17,7 @@ TYPE_NAMES=(							# Specific types to dump, others are ignored
 BACKUP_DIR=$PWD/backup 					# Backup directory, will be cleaned before and after proceeding
 DUMP_FILENAME=data.json					# Dump filename suffix
 ```
+
+## Credits
+
+* [taskrabbit/elasticsearch-dump](https://github.com/taskrabbit/elasticsearch-dump)
