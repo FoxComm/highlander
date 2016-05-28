@@ -1,0 +1,21 @@
+# Elasticdump
+
+Dumps specified Elasticsearch types to your local machine for debugging.
+
+## Configuration
+
+Please take a look at configuration options before proceeding:
+
+```
+# Configuration
+SOURCE_URL=http://10.240.0.7:9200		# Staging URL
+DESTINATION_URL=http://localhost:9200	# Local installation of Elasticsearch
+INDEX_NAME=phoenix						# Specific index to dump
+TYPE_NAMES=(							# Specific types to dump, others are ignored
+	"products_search_view"  			# ~20 records
+	"sku_search_view"	    			# ~20 records
+	"customers_search_view" 			# ~3000 records, will take some time
+)
+BACKUP_DIR=$PWD/backup 					# Backup directory, will be cleaned before proceeding
+DUMP_FILENAME=data.json					# Dump filename suffix
+```

@@ -1,0 +1,39 @@
+{
+   "settings": {
+      "number_of_shards": 1,
+      "analysis": {
+         "tokenizer": {
+            "autocomplete_tokenizer": {
+               "type": "edgeNGram",
+               "min_gram": 1,
+               "max_gram": 20,
+               "token_chars": [
+                    "letter",
+                    "digit",
+                    "punctuation",
+                    "symbol"
+                ]
+            }
+         },
+         "analyzer": {
+            "autocomplete": {
+               "type": "custom",
+               "tokenizer": "autocomplete_tokenizer",
+               "filter": [
+                  "lowercase"
+               ]
+            }
+         }
+      }
+   },
+   "mappings": {
+      "doc": {
+         "properties": {
+            "text_field": {
+               "type": "string",
+               "analyzer": "autocomplete"
+            }
+         }
+      }
+   }
+}
