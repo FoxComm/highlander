@@ -14,6 +14,6 @@ TYPE_NAMES=(							# Specific types to dump, others are ignored
 	"products_search_view"
 	"sku_search_view"
 )
-BACKUP_DIR=$PWD/backup 					# Backup directory, will be cleaned before proceeding
+BACKUP_DIR=$PWD/backup 					# Backup directory, will be cleaned before and after proceeding
 DUMP_FILENAME=data.json					# Dump filename suffix
 ```

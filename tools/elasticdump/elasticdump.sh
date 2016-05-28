@@ -2,15 +2,15 @@
 # A script to partially dump Elasticsearch index to local machine for debugging
 
 # Configuration
-SOURCE_URL=http://10.240.0.7:9200		# Staging URL
-DESTINATION_URL=http://localhost:9200	# Local installation of Elasticsearch
-INDEX_NAME=phoenix						# Specific index to dump
-TYPE_NAMES=(							# Specific types to dump, others are ignored
-	"products_search_view"  			# ~20 records
-	"sku_search_view"	    			# ~20 records
+SOURCE_URL=http://10.240.0.7:9200
+DESTINATION_URL=http://localhost:9200
+INDEX_NAME=phoenix
+TYPE_NAMES=(
+	"products_search_view"
+	"sku_search_view"
 )
-BACKUP_DIR=$PWD/backup 					# Backup directory, will be cleaned before proceeding
-DUMP_FILENAME=data.json					# Dump filename suffix
+BACKUP_DIR=$PWD/backup
+DUMP_FILENAME=data.json
 
 # Prepare
 echo '⇒ Installing elasticdump if necessary...'
