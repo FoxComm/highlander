@@ -1,7 +1,5 @@
 package services
 
-import java.time.Instant
-
 import models.activity.ActivityContext
 import models.inventory._
 import models.order.lineitems._
@@ -20,7 +18,8 @@ class LineItemUpdaterTest extends IntegrationTestBase {
 
   import concurrent.ExecutionContext.Implicits.global
 
-  implicit val ac = ActivityContext(userId = 1, userType = "b", transactionId = "c")
+  implicit val activityContext = ActivityContext(userId = 1, userType = "b", transactionId = "c")
+  implicit val elaticsearchApi = utils.ElasticsearchApi.default()
 
   val lineItems = TableQuery[OrderLineItems]
   val lineItemSkus = TableQuery[OrderLineItemSkus]
@@ -95,7 +94,7 @@ class LineItemUpdaterTest extends IntegrationTestBase {
   }
 
   // if we've asked for more than available we will "reserve" up to available_on_hand in Skus
-  "Adds line_items up to availableOnHand" in (pending)
+  "Adds line_items up to availableOnHand" in pending
 
   trait Fixture {
     val (admin) = (for {

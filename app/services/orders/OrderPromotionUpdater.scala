@@ -1,6 +1,7 @@
 package services.orders
 
 import cats.data.Xor
+import failures.ObjectFailures._
 import failures.OrderFailures._
 import failures.CouponFailures._
 import failures.PromotionFailures._
@@ -30,35 +31,22 @@ import utils.db.DbResultT._
 
 object OrderPromotionUpdater {
 
-  def attachCoupon(
-      originator: Originator, refNum: Option[String] = None, context: ObjectContext, code: String)(
-      implicit ec: EC, es: ES, db: DB): Result[TheResponse[FullOrder.Root]] =
-    (for {
-      // Fetch base data
-      order ← * <~ getCartByOriginator(originator, refNum)
-      _     ← * <~ order.mustBeCart
-      orderPromotions ← * <~ OrderPromotions
-                         .filterByOrderId(order.id)
-                         .requiresCoupon
-                         .one
-                         .mustNotFindOr(OrderAlreadyHasCoupon)
-      // Fetch coupon + validate
-      couponCode ← * <~ CouponCodes.mustFindByCode(code)
-      coupon ← * <~ Coupons
-                .filterByContextAndFormId(context.id, couponCode.couponFormId)
-                .one
-                .mustFindOr(CouponWithCodeCannotBeFound(code))
-      couponForm   ← * <~ ObjectForms.mustFindById404(coupon.formId)
-      couponShadow ← * <~ ObjectShadows.mustFindById404(coupon.shadowId)
-      couponObject = IlluminatedCoupon.illuminate(context, coupon, couponForm, couponShadow)
-      _ ← * <~ couponObject.mustBeActive
-      _ ← * <~ couponObject.mustBeApplicable(couponCode, order.customerId)
-      // Fetch promotion + validate
+  def readjust(order: Order)(implicit ec: EC, es: ES, db: DB): DbResultT[Unit] =
+    for {
+      // Fetch base stuff
+      context ← * <~ ObjectContexts
+                 .filter(_.id === order.contextId)
+                 .mustFindOneOr(ObjectContextIdNotFound(order.contextId))
+      orderPromo ← * <~ OrderPromotions
+                    .filterByOrderId(order.id)
+                    .requiresCoupon
+                    .mustFindOneOr(OrderHasNoPromotions)
+      // Fetch promotion
       promotion ← * <~ Promotions
-                   .filterByContextAndFormId(context.id, coupon.promotionId)
+                   .filterByContextAndShadowId(order.contextId, orderPromo.promotionShadowId)
                    .requiresCoupon
-                   .one
-                   .mustFindOr(PromotionNotFoundForContext(coupon.promotionId, context.name))
+                   .mustFindOneOr(PromotionShadowNotFoundForContext(orderPromo.promotionShadowId,
+                                                                    order.contextId))
       promoForm   ← * <~ ObjectForms.mustFindById404(promotion.formId)
       promoShadow ← * <~ ObjectShadows.mustFindById404(promotion.shadowId)
       promoObject = IlluminatedPromotion.illuminate(context, promotion, promoForm, promoShadow)
@@ -76,9 +64,42 @@ object OrderPromotionUpdater {
       qualifier   ← * <~ QualifierAstCompiler(qualifier(form, shadow)).compile()
       offer       ← * <~ OfferAstCompiler(offer(form, shadow)).compile()
       adjustments ← * <~ getAdjustments(promoShadow, order, qualifier, offer)
+      // Delete previous adjustments and create new
+      _ ← * <~ OrderLineItemAdjustments
+           .filterByOrderIdAndShadow(order.id, orderPromo.promotionShadowId)
+           .delete
+      _ ← * <~ OrderLineItemAdjustments.createAll(adjustments)
+    } yield {}
+
+  def attachCoupon(
+      originator: Originator, refNum: Option[String] = None, context: ObjectContext, code: String)(
+      implicit ec: EC, es: ES, db: DB): Result[TheResponse[FullOrder.Root]] =
+    (for {
+      // Fetch base data
+      order ← * <~ getCartByOriginator(originator, refNum)
+      _     ← * <~ order.mustBeCart
+      orderPromotions ← * <~ OrderPromotions
+                         .filterByOrderId(order.id)
+                         .requiresCoupon
+                         .mustNotFindOneOr(OrderAlreadyHasCoupon)
+      // Fetch coupon + validate
+      couponCode ← * <~ CouponCodes.mustFindByCode(code)
+      coupon ← * <~ Coupons
+                .filterByContextAndFormId(context.id, couponCode.couponFormId)
+                .mustFindOneOr(CouponWithCodeCannotBeFound(code))
+      couponForm   ← * <~ ObjectForms.mustFindById404(coupon.formId)
+      couponShadow ← * <~ ObjectShadows.mustFindById404(coupon.shadowId)
+      couponObject = IlluminatedCoupon.illuminate(context, coupon, couponForm, couponShadow)
+      _ ← * <~ couponObject.mustBeActive
+      _ ← * <~ couponObject.mustBeApplicable(couponCode, order.customerId)
+      // Fetch promotion + validate
+      promotion ← * <~ Promotions
+                   .filterByContextAndFormId(context.id, coupon.promotionId)
+                   .requiresCoupon
+                   .mustFindOneOr(PromotionNotFoundForContext(coupon.promotionId, context.name))
       // Create connected promotion and line item adjustments
       _ ← * <~ OrderPromotions.create(OrderPromotion.buildCoupon(order, promotion, couponCode))
-      _ ← * <~ OrderLineItemAdjustments.createAll(adjustments)
+      _ ← * <~ readjust(order)
       // Response
       order     ← * <~ OrderTotaler.saveTotals(order)
       validated ← * <~ CartValidator(order).validate()

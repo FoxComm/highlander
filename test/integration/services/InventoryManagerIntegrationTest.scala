@@ -23,6 +23,7 @@ import utils.seeds.generators._
 class InventoryManagerIntegrationTest extends IntegrationTestBase {
 
   implicit val activityContext = ActivityContext(userId = 1, userType = "admin", transactionId = "foo")
+  implicit val elaticsearchApi = utils.ElasticsearchApi.default()
 
   "Inventory adjustment manager" - {
     "adjusts inventory on order placement" in new Fixture {

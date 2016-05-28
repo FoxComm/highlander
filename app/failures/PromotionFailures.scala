@@ -41,6 +41,15 @@ object PromotionFailures {
     override def description = "Promotion shadow attributes are empty"
   }
 
+  case class PromotionShadowNotFoundForContext(shadowId: Int, contextId: Int) extends Failure {
+    override def description =
+      s"Promotion shadow with id=$shadowId not found for contextId=$contextId"
+  }
+
+  case object OrderHasNoPromotions extends Failure {
+    override def description = "Order has no promotions"
+  }
+
   object PromotionFormNotFound {
     def apply(id: Int) = NotFoundFailure404(s"Promotion Form with id $id cannot be found")
   }

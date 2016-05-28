@@ -2,6 +2,10 @@ package failures
 
 object ObjectFailures {
 
+  case class ObjectContextIdNotFound(id: Int) extends Failure {
+    override def description = s"Context with id $id cannot be found"
+  }
+
   case class ObjectContextNotFound(name: String) extends Failure {
     override def description = s"Context with name $name cannot be found"
   }

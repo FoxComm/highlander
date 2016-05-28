@@ -1,8 +1,5 @@
 package models.discount.offers
 
-import cats.data.Xor
-import failures._
-import failures.DiscountCompilerFailures.OfferRejectionFailure
 import models.discount.{DiscountBase, DiscountInput}
 import models.discount.offers.Offer.OfferResult
 import models.order.lineitems._
@@ -25,16 +22,15 @@ trait Offer extends DiscountBase {
                                       substract = substract,
                                       lineItemId = lineItemId)
 
-    Xor.Right(Seq(adj))
+    Seq(adj)
   }
 
-  def reject(input: DiscountInput, message: String): OfferResult =
-    Xor.Left(OfferRejectionFailure(this, input, message).single)
+  def reject(): OfferResult = Seq.empty
 }
 
 object Offer {
 
-  type OfferResult = Failures Xor Seq[OrderLineItemAdjustment]
+  type OfferResult = Seq[OrderLineItemAdjustment]
 }
 
 /**

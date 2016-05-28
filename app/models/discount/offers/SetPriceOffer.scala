@@ -11,10 +11,8 @@ case class SetPriceOffer(setPrice: Int, numUnits: Int, search: SearchReference)
   val offerType: OfferType           = SetPrice
   val adjustmentType: AdjustmentType = LineItemAdjustment
 
-  def adjust(input: DiscountInput): OfferResult = {
-    if (setPrice > 0 && numUnits > 0) adjustInner(input)
-    else reject(input, "Invalid offer attributes")
-  }
+  def adjust(input: DiscountInput): OfferResult =
+    if (setPrice > 0 && numUnits > 0) adjustInner(input) else reject()
 
   private def adjustInner(input: DiscountInput): OfferResult = search match {
     case ProductSearch(formId) ⇒
@@ -24,6 +22,6 @@ case class SetPriceOffer(setPrice: Int, numUnits: Int, search: SearchReference)
       val takeItems = input.lineItems.filter(_.sku.code == code).take(numUnits)
       accept(input, substract(totalBySku(takeItems, code), setPrice))
     case _ ⇒
-      reject(input, "Invalid search type")
+      reject()
   }
 }

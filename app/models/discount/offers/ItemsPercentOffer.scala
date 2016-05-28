@@ -11,15 +11,13 @@ case class ItemsPercentOffer(discount: Int, search: SearchReference)
   val offerType: OfferType           = ItemsPercentOff
   val adjustmentType: AdjustmentType = LineItemAdjustment
 
-  def adjust(input: DiscountInput): OfferResult = {
-    if (discount > 0 && discount < 100) adjustInner(input)
-    else reject(input, "Invalid discount value")
-  }
+  def adjust(input: DiscountInput): OfferResult =
+    if (discount > 0 && discount < 100) adjustInner(input) else reject()
 
   private def adjustInner(input: DiscountInput): OfferResult = search match {
     case ProductSearch(formId) ⇒
       accept(input, substract(totalByProduct(input.lineItems, formId), discount))
     case SkuSearch(code) ⇒ accept(input, substract(totalBySku(input.lineItems, code), discount))
-    case _               ⇒ reject(input, "Invalid search type")
+    case _               ⇒ reject()
   }
 }

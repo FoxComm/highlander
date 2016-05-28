@@ -1,6 +1,5 @@
 package utils.db
 
-import scala.collection.IterableLike
 import scala.collection.generic.CanBuildFrom
 
 import cats.data.{Validated, Xor, XorT}

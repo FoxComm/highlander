@@ -62,6 +62,9 @@ object Promotions
   def filterByContextAndFormId(contextId: Int, formId: Int): QuerySeq =
     filter(_.contextId === contextId).filter(_.formId === formId)
 
+  def filterByContextAndShadowId(contextId: Int, shadowId: Int): QuerySeq =
+    filter(_.contextId === contextId).filter(_.shadowId === shadowId)
+
   object scope {
     implicit class PromotionQuerySeqConversions(q: QuerySeq) {
       def autoApplied: QuerySeq =

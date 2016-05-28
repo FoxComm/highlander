@@ -134,6 +134,9 @@ package object db {
     def mustFindOneOr(notFoundFailure: Failure)(implicit ec: EC): DbResult[U] =
       query.one.mustFindOr(notFoundFailure)
 
+    def mustNotFindOneOr(notFoundFailure: Failure)(implicit ec: EC): DbResult[Unit] =
+      query.one.mustNotFindOr(notFoundFailure)
+
     def paged(implicit sortAndPage: SortAndPage): Query[E, U, C] = _paged(query)
 
     def withEmptyMetadata: QueryWithMetadata[E, U, C] =

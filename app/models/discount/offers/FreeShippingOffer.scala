@@ -11,6 +11,6 @@ case object FreeShippingOffer extends Offer {
 
   def adjust(input: DiscountInput): OfferResult = input.shippingMethod match {
     case Some(sm) ⇒ accept(input, sm.price)
-    case _        ⇒ reject(input, "Order has no shipping method")
+    case _        ⇒ reject()
   }
 }

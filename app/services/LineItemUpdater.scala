@@ -11,7 +11,7 @@ import models.StoreAdmin
 import responses.order.FullOrder
 import FullOrder.refreshAndFullOrder
 import responses.TheResponse
-import services.orders.OrderTotaler
+import services.orders.{OrderPromotionUpdater, OrderTotaler}
 import utils.aliases._
 import utils.db._
 import utils.db.DbResultT._
@@ -75,7 +75,7 @@ object LineItemUpdater {
 
   def updateQuantitiesOnOrder(
       admin: StoreAdmin, refNum: String, payload: Seq[UpdateLineItemsPayload])(
-      implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] = {
+      implicit ec: EC, es: ES, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] = {
 
     val finder = Orders.mustFindByRefNum(refNum)
     val logActivity = (order: FullOrder.Root, oldQtys: Map[String, Int]) ⇒
@@ -86,7 +86,7 @@ object LineItemUpdater {
 
   def updateQuantitiesOnCustomersOrder(
       customer: Customer, payload: Seq[UpdateLineItemsPayload], context: ObjectContext)(
-      implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] = {
+      implicit ec: EC, es: ES, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] = {
 
     val findOrCreate = Orders
       .findActiveOrderByCustomer(customer)
@@ -104,7 +104,7 @@ object LineItemUpdater {
   private def runUpdates(finder: DbResult[Order],
                          logAct: (FullOrder.Root, Map[String, Int]) ⇒ DbResult[Activity],
                          payload: Seq[UpdateLineItemsPayload])(
-      implicit ec: EC, db: DB): Result[TheResponse[FullOrder.Root]] =
+      implicit ec: EC, es: ES, db: DB): Result[TheResponse[FullOrder.Root]] =
     (for {
 
       order ← * <~ finder
@@ -119,6 +119,7 @@ object LineItemUpdater {
       // update quantities
       _ ← * <~ updateQuantities(order, payload)
       // update changed totals
+      _     ← * <~ OrderPromotionUpdater.readjust(order).recover { case _ ⇒ Unit }
       order ← * <~ OrderTotaler.saveTotals(order)
       valid ← * <~ CartValidator(order).validate()
       res   ← * <~ refreshAndFullOrder(order).toXor

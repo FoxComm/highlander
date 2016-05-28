@@ -59,6 +59,9 @@ object OrderLineItemAdjustments
   def findByOrderId(orderId: Int): QuerySeq =
     filter(_.orderId === orderId)
 
+  def filterByOrderIdAndShadow(orderId: Int, shadowId: Int): QuerySeq =
+    filter(_.orderId === orderId).filter(_.promotionShadowId === shadowId)
+
   def filterByOrderIdAndShadows(orderId: Int, shadows: Seq[Int]): QuerySeq =
     filter(_.orderId === orderId).filter(_.promotionShadowId.inSet(shadows))
 }

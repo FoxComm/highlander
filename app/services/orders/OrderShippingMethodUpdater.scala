@@ -18,7 +18,7 @@ object OrderShippingMethodUpdater {
 
   def updateShippingMethod(
       originator: Originator, payload: UpdateShippingMethod, refNum: Option[String] = None)(
-      implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] =
+      implicit ec: EC, es: ES, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] =
     (for {
       order          ← * <~ getCartByOriginator(originator, refNum)
       _              ← * <~ order.mustBeCart
@@ -37,6 +37,7 @@ object OrderShippingMethodUpdater {
            .map(_.orderShippingMethodId)
            .update(orderShipMethod.id.some)
       // update changed totals
+      _         ← * <~ OrderPromotionUpdater.readjust(order).recover { case _ ⇒ Unit }
       order     ← * <~ OrderTotaler.saveTotals(order)
       validated ← * <~ CartValidator(order).validate()
       response  ← * <~ FullOrder.refreshAndFullOrder(order).toXor
@@ -45,13 +46,14 @@ object OrderShippingMethodUpdater {
       .runTxn()
 
   def deleteShippingMethod(originator: Originator, refNum: Option[String] = None)(
-      implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] =
+      implicit ec: EC, es: ES, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] =
     (for {
       order      ← * <~ getCartByOriginator(originator, refNum)
       _          ← * <~ order.mustBeCart
       shipMethod ← * <~ ShippingMethods.forOrder(order).mustFindOneOr(NoShipMethod(order.refNum))
       _          ← * <~ OrderShippingMethods.findByOrderId(order.id).delete
       // update changed totals
+      _     ← * <~ OrderPromotionUpdater.readjust(order).recover { case _ ⇒ Unit }
       order ← * <~ OrderTotaler.saveTotals(order)
       valid ← * <~ CartValidator(order).validate()
       resp  ← * <~ FullOrder.refreshAndFullOrder(order).toXor
