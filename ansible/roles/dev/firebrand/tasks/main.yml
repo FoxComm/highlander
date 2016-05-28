@@ -6,6 +6,9 @@
 - name: Add Firebrand Dir
   file: path={{firebrand_install_dir}} state=directory
 
+- name: Sleep
+  shell: sleep 1
+
 - name: Untar Firebrand code
   unarchive:
     src: '{{firebrand_source_package}}'

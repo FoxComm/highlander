@@ -10,6 +10,9 @@
 - name: Add Firebird Dir
   file: path={{firebird_install_dir}} state=directory
 
+- name: Sleep
+  shell: sleep 1
+
 - name: Untar Firebird code
   unarchive:
     src: '{{firebird_source_package}}'
