@@ -11,8 +11,8 @@ case class ItemsTotalAmountQualifier(totalAmount: Int, search: SearchReference) 
 
   val qualifierType: QualifierType = ItemsTotalAmount
 
-  def check(input: DiscountInput)(implicit ec: EC, es: ES): Result[Unit] = {
-    val future = for { result ← SearchReference.query(input, search) } yield result
+  def check(input: DiscountInput)(implicit db: DB, ec: EC, es: ES): Result[Unit] = {
+    val future = for { result ← search.query(input) } yield result
 
     Result.fromFuture(
         future.map {
@@ -25,8 +25,8 @@ case class ItemsTotalAmountQualifier(totalAmount: Int, search: SearchReference) 
     search match {
       case ProductSearch(formId) if totalAmount >= totalByProduct(input.lineItems, formId) ⇒
         Xor.Right(Unit)
-      case SkuSearch(code) if totalAmount >= totalBySku(input.lineItems, code) ⇒ Xor.Right(Unit)
-      case CustomerSearch(_)                                                   ⇒ rejectXor(input, "Invalid search type")
-      case _                                                                   ⇒ rejectXor(input, "Total amount is less than required")
+      //case SkuSearch(code) if totalAmount >= totalBySku(input.lineItems, code) ⇒ Xor.Right(Unit)
+      case CustomerSearch(_) ⇒ rejectXor(input, "Invalid search type")
+      case _                 ⇒ rejectXor(input, "Total amount is less than required")
     }
 }

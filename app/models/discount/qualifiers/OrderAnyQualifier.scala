@@ -8,5 +8,5 @@ case object OrderAnyQualifier extends Qualifier {
 
   val qualifierType: QualifierType = OrderAny
 
-  def check(input: DiscountInput)(implicit ec: EC, es: ES): Result[Unit] = Result.unit
+  def check(input: DiscountInput)(implicit db: DB, ec: EC, es: ES): Result[Unit] = Result.unit
 }

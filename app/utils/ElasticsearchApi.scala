@@ -1,6 +1,6 @@
 package utils
 
-import scala.util.{Failure, Success, Try}
+import scala.concurrent.Future
 
 import com.typesafe.config.Config
 import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri, RichSearchResponse}
@@ -9,9 +9,8 @@ import org.elasticsearch.common.settings.Settings
 import org.elasticsearch.search.aggregations.bucket.filter.InternalFilter
 import scala.collection.JavaConverters._
 
+import org.json4s.JsonAST.JValue
 import org.json4s.jackson.JsonMethods.{compact, parse, render}
-import failures.ElasticsearchFailure
-import services.Result
 import utils.aliases._
 
 case class ElasticsearchApi(host: String, cluster: String, index: String)(implicit ec: EC) {
@@ -25,9 +24,9 @@ case class ElasticsearchApi(host: String, cluster: String, index: String)(implic
     * Injects aggregation by specified field name into prepared query
     */
   def checkAggregation(typeName: String,
-                       query: String,
+                       query: JValue,
                        fieldName: String,
-                       references: Seq[String]): Result[Long] = {
+                       references: Seq[String]): Future[Long] = {
     // Extract matched document count from aggregation
     def getDocCount(resp: RichSearchResponse): Long =
       resp.aggregations.getAsMap.asScala.get(aggregationName) match {
@@ -35,24 +34,22 @@ case class ElasticsearchApi(host: String, cluster: String, index: String)(implic
         case _       ⇒ 0
       }
 
+    val queryString = compact(render(query))
+
     val request =
-      search in s"$index/$typeName" rawQuery query aggregations (
+      search in s"$index/$typeName" rawQuery queryString aggregations (
           aggregation filter aggregationName filter termsQuery(fieldName, references.toList: _*)
       ) size 0
 
     logQuery(request.show)
-
-    Try(client.execute(request)) match {
-      case Success(f) ⇒ Result.fromFuture(f.map(getDocCount))
-      case Failure(e) ⇒ Result.failure(ElasticsearchFailure(e.getMessage))
-    }
+    client.execute(request).map(getDocCount)
   }
 
   /**
     * Render compact query for logging
     */
   private def logQuery(query: String): Unit =
-    Console.out.println(s"Requesting Elasticsearch with query: ${compact(render(parse(query)))}")
+    Console.out.println(s"Preparing Elasticsearch query: ${compact(render(parse(query)))}")
 }
 
 object ElasticsearchApi {

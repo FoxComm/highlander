@@ -4,6 +4,8 @@ import models.discount.{DiscountBase, DiscountInput}
 import models.discount.offers.Offer.OfferResult
 import models.order.lineitems._
 import models.order.lineitems.OrderLineItemAdjustment._
+import services.Result
+import utils.aliases._
 
 trait Offer extends DiscountBase {
 
@@ -11,7 +13,7 @@ trait Offer extends DiscountBase {
 
   val adjustmentType: AdjustmentType
 
-  def adjust(input: DiscountInput): OfferResult
+  def adjust(input: DiscountInput)(implicit db: DB, ec: EC, es: ES): OfferResult
 
   // Returns single line item adjustment for now
   def accept(input: DiscountInput, substract: Int, lineItemId: Option[Int] = None): OfferResult = {
@@ -22,15 +24,15 @@ trait Offer extends DiscountBase {
                                       substract = substract,
                                       lineItemId = lineItemId)
 
-    Seq(adj)
+    Result.good(Seq(adj))
   }
 
-  def reject(): OfferResult = Seq.empty
+  def reject(): OfferResult = Result.good(Seq.empty)
 }
 
 object Offer {
 
-  type OfferResult = Seq[OrderLineItemAdjustment]
+  type OfferResult = Result[Seq[OrderLineItemAdjustment]]
 }
 
 /**

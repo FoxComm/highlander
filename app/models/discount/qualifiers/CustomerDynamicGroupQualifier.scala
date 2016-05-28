@@ -2,13 +2,13 @@ package models.discount.qualifiers
 
 import cats.data.Xor
 import failures.DiscountFailures._
-import models.discount.{DiscountInput, SearchReference}
+import models.discount.{CustomerSearch, DiscountInput}
 import services.Result
 import utils.aliases._
 
-case class ItemsAnyQualifier(search: SearchReference) extends Qualifier {
+case class CustomerDynamicGroupQualifier(search: CustomerSearch) extends Qualifier {
 
-  val qualifierType: QualifierType = ItemsAny
+  val qualifierType: QualifierType = CustomerDynamicGroup
 
   def check(input: DiscountInput)(implicit db: DB, ec: EC, es: ES): Result[Unit] = {
     val future = for { result ← search.query(input) } yield result
