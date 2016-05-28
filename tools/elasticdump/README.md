@@ -6,8 +6,7 @@ Dumps specified Elasticsearch types to your local machine for debugging.
 
 Please take a look at configuration options before proceeding:
 
-```
-# Configuration
+```sh
 SOURCE_URL=http://10.240.0.7:9200		# Staging URL
 DESTINATION_URL=http://localhost:9200	# Local installation of Elasticsearch
 INDEX_NAME=phoenix						# Specific index to dump
