@@ -25,37 +25,26 @@ class GiftCardIntegrationTest extends IntegrationTestBase {
     }
 
     "updates availableBalance if auth adjustment is created + cancel handling" in new Fixture {
-      val adjustment = GiftCards
-        .capture(giftCard, Some(payment.id), 10)
-        .run()
-        .futureValue
-        .rightVal
+      val adjustment = GiftCards.capture(giftCard, Some(payment.id), 10).run().futureValue.rightVal
 
-      val updatedGiftCard =
-        GiftCards.findOneById(giftCard.id).run().futureValue.value
+      val updatedGiftCard = GiftCards.findOneById(giftCard.id).run().futureValue.value
       updatedGiftCard.availableBalance must ===(giftCard.availableBalance - 10)
 
       GiftCardAdjustments.cancel(adjustment.id).run().futureValue
-      val canceledGiftCard =
-        GiftCards.findOneById(giftCard.id).run().futureValue.value
+      val canceledGiftCard = GiftCards.findOneById(giftCard.id).run().futureValue.value
       canceledGiftCard.availableBalance must ===(giftCard.availableBalance)
     }
 
     "updates availableBalance and currentBalance if capture adjustment is created + cancel handling" in new Fixture {
-      val adjustment = GiftCards
-        .capture(giftCard, Some(payment.id), 0, 10)
-        .run()
-        .futureValue
-        .rightVal
+      val adjustment =
+        GiftCards.capture(giftCard, Some(payment.id), 0, 10).run().futureValue.rightVal
 
-      val updatedGiftCard =
-        GiftCards.findOneById(giftCard.id).run().futureValue.value
+      val updatedGiftCard = GiftCards.findOneById(giftCard.id).run().futureValue.value
       updatedGiftCard.availableBalance must ===(giftCard.availableBalance + 10)
       updatedGiftCard.currentBalance must ===(giftCard.currentBalance + 10)
 
       GiftCardAdjustments.cancel(adjustment.id).run().futureValue
-      val canceledGiftCard =
-        GiftCards.findOneById(giftCard.id).run().futureValue.value
+      val canceledGiftCard = GiftCards.findOneById(giftCard.id).run().futureValue.value
       canceledGiftCard.availableBalance must ===(giftCard.availableBalance)
       canceledGiftCard.currentBalance must ===(giftCard.currentBalance)
     }
@@ -64,22 +53,19 @@ class GiftCardIntegrationTest extends IntegrationTestBase {
   trait Fixture {
     val (origin, giftCard, payment) = (for {
       customer ← * <~ Customers.create(Factories.customer)
-      order ← * <~ Orders.create(
-                 Factories.order.copy(customerId = customer.id))
-      admin ← * <~ StoreAdmins.create(Factories.storeAdmin)
-      reason ← * <~ Reasons.create(
-                  Factories.reason.copy(storeAdminId = admin.id))
+      order    ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
+      admin    ← * <~ StoreAdmins.create(Factories.storeAdmin)
+      reason   ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
       origin ← * <~ GiftCardManuals.create(
                   GiftCardManual(adminId = admin.id, reasonId = reason.id))
-      gc ← * <~ GiftCards.create(Factories.giftCard.copy(originalBalance = 50,
-                                                         originId = origin.id))
+      gc ← * <~ GiftCards.create(
+              Factories.giftCard.copy(originalBalance = 50, originId = origin.id))
       giftCard ← * <~ GiftCards.findOneById(gc.id).toXor
       payment ← * <~ OrderPayments.create(
-                   Factories.giftCardPayment.copy(
-                       orderId = order.id,
-                       paymentMethodId = gc.id,
-                       paymentMethodType = PaymentMethod.GiftCard,
-                       amount = Some(gc.availableBalance)))
+                   Factories.giftCardPayment.copy(orderId = order.id,
+                                                  paymentMethodId = gc.id,
+                                                  paymentMethodType = PaymentMethod.GiftCard,
+                                                  amount = Some(gc.availableBalance)))
     } yield (origin, giftCard.value, payment)).runTxn().futureValue.rightVal
   }
 }

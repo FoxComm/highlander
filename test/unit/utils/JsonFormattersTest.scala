@@ -16,8 +16,7 @@ class JsonFormattersTest extends TestBase {
 
   implicit val formats: Formats = phoenixFormats
 
-  case class Test(
-      order: Order.State, gc: GiftCard.State, cc: CreditCardCharge.State)
+  case class Test(order: Order.State, gc: GiftCard.State, cc: CreditCardCharge.State)
   case class Product(price: Int, currency: Currency)
 
   "Adt serialization" - {
@@ -38,11 +37,9 @@ class JsonFormattersTest extends TestBase {
   }
 
   "(de)serializes java.time.Instant" in {
-    val instant =
-      ZonedDateTime.of(2015, 9, 14, 15, 38, 46, 0, time.UTC).toInstant
+    val instant = ZonedDateTime.of(2015, 9, 14, 15, 38, 46, 0, time.UTC).toInstant
 
     write("hello" → instant) must ===("""{"hello":"2015-09-14T15:38:46Z"}""")
-    (parse("""{"hello":"2015-09-14T15:38:46Z"}""") \ "hello").extract[Instant] must ===(
-        instant)
+    (parse("""{"hello":"2015-09-14T15:38:46Z"}""") \ "hello").extract[Instant] must ===(instant)
   }
 }

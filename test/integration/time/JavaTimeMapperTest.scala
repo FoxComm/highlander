@@ -11,11 +11,10 @@ class JavaTimeMapperTest extends IntegrationTestBase with DbTestSupport {
   import api._
 
   "java.time mapper" - {
-    class Cards(tag: Tag)
-        extends Table[(Long, Instant)](tag, "java_time_test") {
-      def id = column[Long]("id", O.PrimaryKey)
+    class Cards(tag: Tag) extends Table[(Long, Instant)](tag, "java_time_test") {
+      def id        = column[Long]("id", O.PrimaryKey)
       def deletedAt = column[Instant]("deleted_at")
-      def * = (id, deletedAt)
+      def *         = (id, deletedAt)
     }
 
     val query = TableQuery[Cards]
@@ -29,8 +28,8 @@ class JavaTimeMapperTest extends IntegrationTestBase with DbTestSupport {
         .run((for {
           schema ← ddl
           insert ← query += ((1, originalInstant))
-          read ← query.filter(_.id === 1L).result.head
-          _ ← query.schema.drop
+          read   ← query.filter(_.id === 1L).result.head
+          _      ← query.schema.drop
         } yield read).transactionally)
         .futureValue
 
@@ -42,14 +41,13 @@ class JavaTimeMapperTest extends IntegrationTestBase with DbTestSupport {
         .run((for {
           schema ← ddl
           insert ← sqlu"""insert into java_time_test (id, deleted_at) values (1, '2015-07-01 15:17:38.0Z' at time zone 'utc')"""
-          read ← query.filter(_.id === 1L).result.head
-          _ ← query.schema.drop
+          read   ← query.filter(_.id === 1L).result.head
+          _      ← query.schema.drop
         } yield read).withPinnedSession)
         .futureValue
 
-      timestampAfterRoundtrip must ===(ZonedDateTime
-            .of(2015, 7, 1, 15, 17, 38, 0, ZoneId.of("UTC"))
-            .toInstant)
+      timestampAfterRoundtrip must ===(
+          ZonedDateTime.of(2015, 7, 1, 15, 17, 38, 0, ZoneId.of("UTC")).toInstant)
     }
   }
 }

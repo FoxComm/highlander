@@ -39,22 +39,20 @@ class RmaServiceTest extends IntegrationTestBase {
       val orderUpdated = Orders.findOneById(order.id).run().futureValue.value
       orderUpdated.rmaCount must ===(numberOfInserts)
 
-      val rmaCount =
-        Rmas.findByOrderRefNum(order.refNum).length.result.run().futureValue
+      val rmaCount = Rmas.findByOrderRefNum(order.refNum).length.result.run().futureValue
       rmaCount must ===(numberOfInserts)
     }
   }
 
   trait Fixture {
     val (admin, order) = (for {
-      admin ← * <~ StoreAdmins.create(Factories.storeAdmin)
+      admin    ← * <~ StoreAdmins.create(Factories.storeAdmin)
       customer ← * <~ Customers.create(Factories.customer)
       order ← * <~ Orders.create(
                  Factories.order.copy(referenceNumber = "ABC-123",
                                       state = Order.RemorseHold,
                                       customerId = customer.id,
-                                      remorsePeriodEnd =
-                                        Some(Instant.now.plusMinutes(30))))
+                                      remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
     } yield (admin, order)).runTxn().futureValue.rightVal
   }
 }

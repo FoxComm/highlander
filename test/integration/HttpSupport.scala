@@ -45,10 +45,10 @@ import utils.aliases.EC
 object HttpSupport {
   @volatile var akkaConfigured = false
 
-  protected var system: ActorSystem = _
+  protected var system: ActorSystem             = _
   protected var materializer: ActorMaterializer = _
-  protected var service: Service = _
-  protected var serverBinding: ServerBinding = _
+  protected var service: Service                = _
+  protected var serverBinding: ServerBinding    = _
 }
 
 trait HttpSupport
@@ -64,15 +64,14 @@ trait HttpSupport
   implicit val formats: Formats = JsonFormatters.phoenixFormats
 
   private val ActorSystemNameChars =
-    ('a' to 'z').toSet | ('A' to 'Z').toSet | ('0' to '9').toSet | Set(
-        '-', '_')
+    ('a' to 'z').toSet | ('A' to 'Z').toSet | ('0' to '9').toSet | Set('-', '_')
 
   private val ValidResponseContentTypes = Set(
       ContentTypes.`application/json`, ContentTypes.NoContentType)
 
   import Extensions._
 
-  protected implicit lazy val mat: ActorMaterializer = materializer
+  protected implicit lazy val mat: ActorMaterializer   = materializer
   protected implicit lazy val actorSystem: ActorSystem = system
 
   protected def additionalRoutes: immutable.Seq[Route] = immutable.Seq.empty
@@ -125,11 +124,9 @@ trait HttpSupport
                 apisOverride = makeApis,
                 addRoutes = additionalRoutes) {
 
-      override val storeAdminAuth: AsyncAuthenticator[StoreAdmin] =
-        overrideStoreAdminAuth
+      override val storeAdminAuth: AsyncAuthenticator[StoreAdmin] = overrideStoreAdminAuth
 
-      override val customerAuth: AsyncAuthenticator[Customer] =
-        overrideCustomerAuth
+      override val customerAuth: AsyncAuthenticator[Customer] = overrideCustomerAuth
     }
 
   def POST(path: String, rawBody: String): HttpResponse = {
@@ -144,8 +141,7 @@ trait HttpSupport
   }
 
   def POST(path: String): HttpResponse = {
-    val request = HttpRequest(
-        method = HttpMethods.POST, uri = pathToAbsoluteUrl(path))
+    val request = HttpRequest(method = HttpMethods.POST, uri = pathToAbsoluteUrl(path))
 
     dispatchRequest(request)
   }
@@ -162,15 +158,13 @@ trait HttpSupport
   }
 
   def PATCH(path: String): HttpResponse = {
-    val request = HttpRequest(
-        method = HttpMethods.PATCH, uri = pathToAbsoluteUrl(path))
+    val request = HttpRequest(method = HttpMethods.PATCH, uri = pathToAbsoluteUrl(path))
 
     dispatchRequest(request)
   }
 
   def GET(path: String): HttpResponse = {
-    val request = HttpRequest(
-        method = HttpMethods.GET, uri = pathToAbsoluteUrl(path))
+    val request = HttpRequest(method = HttpMethods.GET, uri = pathToAbsoluteUrl(path))
 
     dispatchRequest(request)
   }
@@ -182,8 +176,7 @@ trait HttpSupport
     PATCH(path, writeJson(payload))
 
   def DELETE(path: String): HttpResponse = {
-    val request = HttpRequest(
-        method = HttpMethods.DELETE, uri = pathToAbsoluteUrl(path))
+    val request = HttpRequest(method = HttpMethods.DELETE, uri = pathToAbsoluteUrl(path))
 
     dispatchRequest(request)
   }
@@ -207,7 +200,7 @@ trait HttpSupport
     */
   def getFreePort: Int = {
     val socket = new ServerSocket(0)
-    val port = socket.getLocalPort
+    val port   = socket.getLocalPort
     socket.close()
 
     port
@@ -217,8 +210,7 @@ trait HttpSupport
     response.errors
 
   private def dispatchRequest(req: HttpRequest): HttpResponse = {
-    val response =
-      Http().singleRequest(req, settings = connectionPoolSettings).futureValue
+    val response = Http().singleRequest(req, settings = connectionPoolSettings).futureValue
     ValidResponseContentTypes must contain(response.entity.contentType)
     response
   }
@@ -240,8 +232,7 @@ trait HttpSupport
 
       Source
         .single(Get(pathToAbsoluteUrl(path)))
-        .via(Http().outgoingConnection(localAddress.getHostString,
-                                       localAddress.getPort))
+        .via(Http().outgoingConnection(localAddress.getHostString, localAddress.getPort))
         .mapAsync(1)(Unmarshal(_).to[Source[ServerSentEvent, Any]])
         .runWith(Sink.head)
         .futureValue
@@ -279,11 +270,9 @@ object Extensions {
       parse(bodyText).extract[TheResponse[A]]
 
     def errors(implicit fm: Formats, mat: Materializer): List[String] =
-      (parse(bodyText) \ "errors")
-        .extractOrElse[List[String]](List.empty[String])
+      (parse(bodyText) \ "errors").extractOrElse[List[String]](List.empty[String])
 
     def error(implicit fm: Formats, mat: Materializer): String =
-      errors.headOption.getOrElse(
-          "never gonna give you up. never gonna let you down.")
+      errors.headOption.getOrElse("never gonna give you up. never gonna let you down.")
   }
 }

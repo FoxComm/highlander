@@ -27,8 +27,7 @@ class PaymentTypesIntegrationTest
         val root = response.as[Seq[GiftCardSubTypesResponse.Root]]
         root.size must ===(GiftCard.OriginType.types.size)
         root.map(_.originType) must ===(GiftCard.OriginType.types.toSeq)
-        root.filter(_.originType == gcSubType.originType).head.subTypes must ===(
-            Seq(gcSubType))
+        root.filter(_.originType == gcSubType.originType).head.subTypes must ===(Seq(gcSubType))
       }
     }
   }
@@ -41,39 +40,34 @@ class PaymentTypesIntegrationTest
 
         val root = response.as[Seq[StoreCreditSubTypesResponse.Root]]
         root.size must ===(StoreCredit.OriginType.publicTypes.size)
-        root.map(_.originType) must ===(
-            StoreCredit.OriginType.publicTypes.toSeq)
-        root.filter(_.originType == scSubType.originType).head.subTypes must ===(
-            Seq(scSubType))
+        root.map(_.originType) must ===(StoreCredit.OriginType.publicTypes.toSeq)
+        root.filter(_.originType == scSubType.originType).head.subTypes must ===(Seq(scSubType))
       }
     }
   }
 
   trait GiftCardFixture {
     val (giftCard, gcSubType) = (for {
-      admin ← * <~ StoreAdmins.create(Factories.storeAdmin)
-      reason ← * <~ Reasons.create(
-                  Factories.reason.copy(storeAdminId = admin.id))
+      admin     ← * <~ StoreAdmins.create(Factories.storeAdmin)
+      reason    ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
       gcSubType ← * <~ GiftCardSubtypes.create(Factories.giftCardSubTypes.head)
       origin ← * <~ GiftCardManuals.create(
                   GiftCardManual(adminId = admin.id, reasonId = reason.id))
-      giftCard ← * <~ GiftCards.create(Factories.giftCard.copy(
-                        originId = origin.id, state = GiftCard.Active))
+      giftCard ← * <~ GiftCards.create(
+                    Factories.giftCard.copy(originId = origin.id, state = GiftCard.Active))
     } yield (giftCard, gcSubType)).runTxn().futureValue.rightVal
   }
 
   trait StoreCreditFixture {
     val (storeCredit, scSubType) = (for {
-      admin ← * <~ StoreAdmins.create(Factories.storeAdmin)
-      customer ← * <~ Customers.create(Factories.customer)
-      scReason ← * <~ Reasons.create(
-                    Factories.reason.copy(storeAdminId = admin.id))
-      scSubType ← * <~ StoreCreditSubtypes.create(
-                     Factories.storeCreditSubTypes.head)
-      scOrigin ← * <~ StoreCreditManuals.create(StoreCreditManual(
-                        adminId = admin.id, reasonId = scReason.id))
-      storeCredit ← * <~ StoreCredits.create(Factories.storeCredit.copy(
-                           originId = scOrigin.id, customerId = customer.id))
+      admin     ← * <~ StoreAdmins.create(Factories.storeAdmin)
+      customer  ← * <~ Customers.create(Factories.customer)
+      scReason  ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
+      scSubType ← * <~ StoreCreditSubtypes.create(Factories.storeCreditSubTypes.head)
+      scOrigin ← * <~ StoreCreditManuals.create(
+                    StoreCreditManual(adminId = admin.id, reasonId = scReason.id))
+      storeCredit ← * <~ StoreCredits.create(Factories.storeCredit.copy(originId = scOrigin.id,
+                                                                        customerId = customer.id))
     } yield (storeCredit, scSubType)).runTxn().futureValue.rightVal
   }
 }

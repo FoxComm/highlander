@@ -24,10 +24,7 @@ import utils.db._
 import utils.db.DbResultT._
 import utils.seeds.Seeds.Factories
 
-class NotificationIntegrationTest
-    extends IntegrationTestBase
-    with HttpSupport
-    with AutomaticAuth {
+class NotificationIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
 
   import SSE._
 
@@ -37,8 +34,7 @@ class NotificationIntegrationTest
       subscribeToNotifications()
       val notifications = skipHeartbeats(sseSource(s"v1/notifications"))
       val requests = Source(1 to 2).map { activityId ⇒
-        val response = POST("v1/notifications",
-                            newNotification.copy(activityId = activityId))
+        val response = POST("v1/notifications", newNotification.copy(activityId = activityId))
         s"notification $activityId: ${response.status}"
       }
 
@@ -55,8 +51,7 @@ class NotificationIntegrationTest
       val notifications = skipHeartbeats(sseSource(s"v1/notifications"))
 
       val requests = Source.single(2).map { activityId ⇒
-        val response = POST("v1/notifications",
-                            newNotification.copy(activityId = activityId))
+        val response = POST("v1/notifications", newNotification.copy(activityId = activityId))
         s"notification $activityId: ${response.status}"
       }
 
@@ -69,10 +64,7 @@ class NotificationIntegrationTest
     "streams error and closes stream if admin not found" in {
       val message = s"Error! Store admin with id=1 not found"
 
-      sseProbe("v1/notifications")
-        .request(2)
-        .expectNext(message)
-        .expectComplete()
+      sseProbe("v1/notifications").request(2).expectNext(message).expectComplete()
     }
   }
 
@@ -110,8 +102,7 @@ class NotificationIntegrationTest
     }
 
     "404 if activity not found" in {
-      val adminId =
-        StoreAdmins.create(Factories.storeAdmin).run().futureValue.rightVal.id
+      val adminId  = StoreAdmins.create(Factories.storeAdmin).run().futureValue.rightVal.id
       val response = POST(s"v1/notifications/last-seen/666")
       response.status must ===(StatusCodes.NotFound)
       response.error must ===(NotFoundFailure404(Activity, 666).description)
@@ -144,8 +135,7 @@ class NotificationIntegrationTest
     "400 if source dimension not found" in {
       val response = POST("v1/notifications", newNotification)
       response.status must ===(StatusCodes.BadRequest)
-      response.error must ===(
-          NotFoundFailure400(Dimension, Dimension.order).description)
+      response.error must ===(NotFoundFailure400(Dimension, Dimension.order).description)
     }
 
     "400 if source activity not found" in {
@@ -159,18 +149,15 @@ class NotificationIntegrationTest
   "Inner methods" - {
     "Subscribe" - {
       "successfully subscribes" in new Fixture {
-        POST("v1/notifications", newNotification).status must ===(
-            StatusCodes.OK)
+        POST("v1/notifications", newNotification).status must ===(StatusCodes.OK)
         Connections.result.run().futureValue mustBe empty
         subscribeToNotifications().result.value must ===(1)
-        val sub =
-          NotificationSubscriptions.result.headOption.run().futureValue.value
+        val sub = NotificationSubscriptions.result.headOption.run().futureValue.value
         sub.adminId must ===(1)
         sub.dimensionId must ===(1)
         sub.objectId must ===("1")
         sub.reason must ===(Watching)
-        POST("v1/notifications", newNotification).status must ===(
-            StatusCodes.OK)
+        POST("v1/notifications", newNotification).status must ===(StatusCodes.OK)
         val connections = Connections.result.run().futureValue
         connections must have size 1
         val connection = connections.headOption.value
@@ -181,8 +168,7 @@ class NotificationIntegrationTest
       "warns about absent admins" in new Fixture {
         val result = subscribeToNotifications(adminIds = Seq(1, 2))
         result.result.value must ===(1)
-        result.warnings.value must ===(
-            List(NotFoundFailure404(StoreAdmin, 2).description))
+        result.warnings.value must ===(List(NotFoundFailure404(StoreAdmin, 2).description))
       }
 
       "subscribes twice for different reasons" in new Fixture {
@@ -207,12 +193,10 @@ class NotificationIntegrationTest
     "Unsubscribe" - {
       "successfully unsubscribes" in new Fixture {
         subscribeToNotifications()
-        POST("v1/notifications", newNotification).status must ===(
-            StatusCodes.OK)
+        POST("v1/notifications", newNotification).status must ===(StatusCodes.OK)
         Connections.result.run().futureValue must have size 1
         unsubscribeFromNotifications()
-        POST("v1/notifications", newNotification).status must ===(
-            StatusCodes.OK)
+        POST("v1/notifications", newNotification).status must ===(StatusCodes.OK)
         Connections.result.run().futureValue must have size 1
       }
 
@@ -253,20 +237,12 @@ class NotificationIntegrationTest
       subscribeToNotifications(dimension = customerDimension)
       createActivityAndConnections("Y")
       // Both connections must be created this time
-      connections must contain allOf ((customerDimension, 1), (customerDimension,
-                                                               2), (Dimension.notification,
-                                                                    2))
+      connections must contain allOf ((customerDimension, 1), (customerDimension, 2), (Dimension.notification,
+                                                                                       2))
       // Trail must be created
-      val newTrail = Trails
-        .findNotificationByAdminId(1)
-        .result
-        .headOption
-        .run()
-        .futureValue
-        .value
+      val newTrail = Trails.findNotificationByAdminId(1).result.headOption.run().futureValue.value
       newTrail.tailConnectionId.value must ===(3)
-      newTrail.data.value.extract[NotificationTrailMetadata].lastSeenActivityId must ===(
-          0)
+      newTrail.data.value.extract[NotificationTrailMetadata].lastSeenActivityId must ===(0)
 
       unsubscribe(adminIds = Seq(1),
                   objectIds = Seq("1"),
@@ -275,9 +251,8 @@ class NotificationIntegrationTest
       createActivityAndConnections("Z")
       Activities.result.run().futureValue must have size 3
       // No new notification connections must appear
-      connections must contain allOf ((customerDimension, 1), (customerDimension,
-                                                               2), (customerDimension,
-                                                                    3),
+      connections must contain allOf ((customerDimension, 1), (customerDimension, 2), (customerDimension,
+                                                                                       3),
           (Dimension.notification, 2))
     }
 
@@ -292,16 +267,8 @@ class NotificationIntegrationTest
       PATCH("v1/customers/1", UpdateCustomerPayload(name = newName.some)).status must ===(
           StatusCodes.OK)
       // Emulate Green river calls
-      val aId = Activities
-        .sortBy(_.id.desc)
-        .result
-        .run()
-        .futureValue
-        .headOption
-        .value
-        .id
-      POST("v1/trails/" + customerDimension + "/1",
-           AppendActivity(activityId = aId, data = None)).status must ===(
+      val aId = Activities.sortBy(_.id.desc).result.run().futureValue.headOption.value.id
+      POST("v1/trails/" + customerDimension + "/1", AppendActivity(activityId = aId, data = None)).status must ===(
           StatusCodes.OK)
       val payload = CreateNotification(sourceDimension = customerDimension,
                                        sourceObjectId = "1",
@@ -317,8 +284,8 @@ class NotificationIntegrationTest
 
   val createActivity = Activities.create(newActivity)
 
-  val createDimension = Dimensions.create(
-      Dimension(name = Dimension.order, description = Dimension.order))
+  val createDimension =
+    Dimensions.create(Dimension(name = Dimension.order, description = Dimension.order))
 
   def activityJson(id: Int) =
     write(ActivityResponse.build(newActivity.copy(id = id)))
@@ -350,17 +317,17 @@ class NotificationIntegrationTest
 
   trait Fixture {
     val (adminId, activityId) = (for {
-      _ ← * <~ createDimension
-      admin ← * <~ StoreAdmins.create(Factories.storeAdmin)
+      _        ← * <~ createDimension
+      admin    ← * <~ StoreAdmins.create(Factories.storeAdmin)
       activity ← * <~ createActivity
     } yield (admin.id, activity.id)).runTxn().futureValue.rightVal
   }
 
   trait Fixture2 {
     val adminId = (for {
-      _ ← * <~ createDimension
+      _     ← * <~ createDimension
       admin ← * <~ StoreAdmins.create(Factories.storeAdmin)
-      _ ← * <~ Activities.createAll(List.fill(2)(newActivity))
+      _     ← * <~ Activities.createAll(List.fill(2)(newActivity))
     } yield admin.id).runTxn().futureValue.rightVal
   }
 }

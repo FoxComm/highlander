@@ -24,13 +24,12 @@ class CustomerNotesIntegrationTest
     with HttpSupport
     with AutomaticAuth {
 
-  implicit val ac = ActivityContext(
-      userId = 1, userType = "b", transactionId = "c")
+  implicit val ac = ActivityContext(userId = 1, userType = "b", transactionId = "c")
 
   "POST /v1/notes/customer/:customerId" - {
     "can be created by an admin for a customer" in new Fixture {
-      val response = POST(s"v1/notes/customer/${customer.id}",
-                          CreateNote(body = "Hello, FoxCommerce!"))
+      val response =
+        POST(s"v1/notes/customer/${customer.id}", CreateNote(body = "Hello, FoxCommerce!"))
 
       response.status must ===(StatusCodes.OK)
 
@@ -40,8 +39,7 @@ class CustomerNotesIntegrationTest
     }
 
     "returns a validation error if failed to create" in new Fixture {
-      val response =
-        POST(s"v1/notes/customer/${customer.id}", CreateNote(body = ""))
+      val response = POST(s"v1/notes/customer/${customer.id}", CreateNote(body = ""))
 
       response.status must ===(StatusCodes.BadRequest)
       response.error must ===("body must not be empty")
@@ -59,9 +57,7 @@ class CustomerNotesIntegrationTest
 
     "can be listed" in new Fixture {
       List("abc", "123", "xyz").map { body ⇒
-        CustomerNoteManager
-          .create(customer.id, admin, CreateNote(body = body))
-          .futureValue
+        CustomerNoteManager.create(customer.id, admin, CreateNote(body = body)).futureValue
       }
 
       val response = GET(s"v1/notes/customer/${customer.id}")
@@ -77,12 +73,11 @@ class CustomerNotesIntegrationTest
 
     "can update the body text" in new Fixture {
       val rootNote = rightValue(CustomerNoteManager
-            .create(
-                customer.id, admin, CreateNote(body = "Hello, FoxCommerce!"))
+            .create(customer.id, admin, CreateNote(body = "Hello, FoxCommerce!"))
             .futureValue)
 
-      val response = PATCH(s"v1/notes/customer/${customer.id}/${rootNote.id}",
-                           UpdateNote(body = "donkey"))
+      val response =
+        PATCH(s"v1/notes/customer/${customer.id}/${rootNote.id}", UpdateNote(body = "donkey"))
       response.status must ===(StatusCodes.OK)
 
       val note = response.as[AdminNotes.Root]
@@ -93,8 +88,8 @@ class CustomerNotesIntegrationTest
   "DELETE /v1/notes/customer/:customerId/:noteId" - {
 
     "can soft delete note" in new Fixture {
-      val createResp = POST(s"v1/notes/customer/${customer.id}",
-                            CreateNote(body = "Hello, FoxCommerce!"))
+      val createResp =
+        POST(s"v1/notes/customer/${customer.id}", CreateNote(body = "Hello, FoxCommerce!"))
       val note = createResp.as[AdminNotes.Root]
 
       val response = DELETE(s"v1/notes/customer/${customer.id}/${note.id}")
@@ -114,15 +109,14 @@ class CustomerNotesIntegrationTest
       val allNotes = allNotesResponse.as[Seq[AdminNotes.Root]]
       allNotes.map(_.id) must not contain note.id
 
-      val getDeletedNoteResponse =
-        GET(s"v1/notes/customer/${customer.id}/${note.id}")
+      val getDeletedNoteResponse = GET(s"v1/notes/customer/${customer.id}/${note.id}")
       getDeletedNoteResponse.status must ===(StatusCodes.NotFound)
     }
   }
 
   trait Fixture {
     val (admin, customer) = (for {
-      admin ← * <~ StoreAdmins.create(authedStoreAdmin)
+      admin    ← * <~ StoreAdmins.create(authedStoreAdmin)
       customer ← * <~ Customers.create(Factories.customer)
     } yield (admin, customer)).runTxn().futureValue.rightVal
   }

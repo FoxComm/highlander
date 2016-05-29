@@ -33,8 +33,7 @@ class LocationsIntegrationTest extends IntegrationTestBase with HttpSupport {
       response.status must ===(StatusCodes.OK)
       val countryWithRegions = response.as[CountryWithRegions]
       countryWithRegions.regions must ===(Seq.empty[Region])
-      countryWithRegions.country must ===(
-          Countries.findOneById(27).run().futureValue.value)
+      countryWithRegions.country must ===(Countries.findOneById(27).run().futureValue.value)
     }
   }
 
@@ -45,7 +44,7 @@ class LocationsIntegrationTest extends IntegrationTestBase with HttpSupport {
       response.status must ===(StatusCodes.OK)
 
       val countries = response.as[Seq[Country]]
-      val us = countries.find(_.id === unitedStatesId).value
+      val us        = countries.find(_.id === unitedStatesId).value
 
       us.name mustBe "United States"
 

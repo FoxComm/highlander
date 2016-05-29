@@ -55,8 +55,7 @@ class RemorseTimerTest(_system: ActorSystem)
   trait Fixture {
     val order = Orders
       .create(Factories.order.copy(state = Order.RemorseHold,
-                                   remorsePeriodEnd =
-                                     Some(Instant.now.plusSeconds(30 * 60))))
+                                   remorsePeriodEnd = Some(Instant.now.plusSeconds(30 * 60))))
       .run()
       .futureValue
       .rightVal

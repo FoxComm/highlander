@@ -18,15 +18,13 @@ class LineItemUpdaterTest extends IntegrationTestBase {
 
   import concurrent.ExecutionContext.Implicits.global
 
-  implicit val activityContext = ActivityContext(
-      userId = 1, userType = "b", transactionId = "c")
+  implicit val activityContext = ActivityContext(userId = 1, userType = "b", transactionId = "c")
   implicit val elaticsearchApi = utils.ElasticsearchApi.default()
 
-  val lineItems = TableQuery[OrderLineItems]
+  val lineItems    = TableQuery[OrderLineItems]
   val lineItemSkus = TableQuery[OrderLineItemSkus]
 
-  def createProducts(
-      num: Int): DbResultT[(ObjectContext, Seq[SimpleProductData])] =
+  def createProducts(num: Int): DbResultT[(ObjectContext, Seq[SimpleProductData])] =
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       products ← * <~ Mvp.insertProducts((1 to num).map { i ⇒
@@ -45,11 +43,8 @@ class LineItemUpdaterTest extends IntegrationTestBase {
 
     "Adds line items when the sku doesn't exist in order" in new Fixture {
       val (context, products) = createProducts(2).run().futureValue.rightVal
-      val order = Orders
-        .create(Order(customerId = 1, contextId = context.id))
-        .run()
-        .futureValue
-        .rightVal
+      val order =
+        Orders.create(Order(customerId = 1, contextId = context.id)).run().futureValue.rightVal
       //      val warehouse = createDefaultWarehouse()
       //      createDefaultWarehouse()
 
@@ -78,11 +73,8 @@ class LineItemUpdaterTest extends IntegrationTestBase {
 
     "Updates line items when the Sku already is in order" in new Fixture {
       val (context, products) = createProducts(3).run().futureValue.rightVal
-      val order = Orders
-        .create(Order(customerId = 1, contextId = context.id))
-        .run()
-        .futureValue
-        .rightVal
+      val order =
+        Orders.create(Order(customerId = 1, contextId = context.id)).run().futureValue.rightVal
       //      val warehouse = createDefaultWarehouse()
       //      createInventory(warehouse.id, 1, 100)
       //      createInventory(warehouse.id, 2, 100)

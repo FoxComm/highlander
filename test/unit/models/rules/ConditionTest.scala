@@ -97,28 +97,25 @@ class ConditionTest extends TestBase {
 
       "GreaterThanOrEquals" - {
         "returns true when value is greater than condition" in {
-          val c =
-            Factories.condition.copy(operator = Condition.GreaterThanOrEquals,
-                                     valInt = Some(50),
-                                     valString = None)
+          val c = Factories.condition.copy(operator = Condition.GreaterThanOrEquals,
+                                           valInt = Some(50),
+                                           valString = None)
           val result = Condition.matches(51, c)
           result must ===(true)
         }
 
         "returns true when value is equal to condition" in {
-          val c =
-            Factories.condition.copy(operator = Condition.GreaterThanOrEquals,
-                                     valInt = Some(50),
-                                     valString = None)
+          val c = Factories.condition.copy(operator = Condition.GreaterThanOrEquals,
+                                           valInt = Some(50),
+                                           valString = None)
           val result = Condition.matches(50, c)
           result must ===(true)
         }
 
         "returns false when value is less than condition" in {
-          val c =
-            Factories.condition.copy(operator = Condition.GreaterThanOrEquals,
-                                     valInt = Some(50),
-                                     valString = None)
+          val c = Factories.condition.copy(operator = Condition.GreaterThanOrEquals,
+                                           valInt = Some(50),
+                                           valString = None)
           val result = Condition.matches(49, c)
           result must ===(false)
         }
@@ -126,28 +123,25 @@ class ConditionTest extends TestBase {
 
       "LessThanOrEquals" - {
         "returns false when value is greater than condition" in {
-          val c =
-            Factories.condition.copy(operator = Condition.LessThanOrEquals,
-                                     valInt = Some(50),
-                                     valString = None)
+          val c = Factories.condition.copy(operator = Condition.LessThanOrEquals,
+                                           valInt = Some(50),
+                                           valString = None)
           val result = Condition.matches(51, c)
           result must ===(false)
         }
 
         "returns true when value is equal to condition" in {
-          val c =
-            Factories.condition.copy(operator = Condition.LessThanOrEquals,
-                                     valInt = Some(50),
-                                     valString = None)
+          val c = Factories.condition.copy(operator = Condition.LessThanOrEquals,
+                                           valInt = Some(50),
+                                           valString = None)
           val result = Condition.matches(50, c)
           result must ===(true)
         }
 
         "returns true when value is less than condition" in {
-          val c =
-            Factories.condition.copy(operator = Condition.LessThanOrEquals,
-                                     valInt = Some(50),
-                                     valString = None)
+          val c = Factories.condition.copy(operator = Condition.LessThanOrEquals,
+                                           valInt = Some(50),
+                                           valString = None)
           val result = Condition.matches(49, c)
           result must ===(true)
         }
@@ -189,15 +183,15 @@ class ConditionTest extends TestBase {
 
       "Contains" - {
         "returns true with the condition contains the value" in {
-          val c = Factories.condition.copy(operator = Condition.Contains,
-                                           valString = Some("me str"))
+          val c =
+            Factories.condition.copy(operator = Condition.Contains, valString = Some("me str"))
           val result = Condition.matches("some string", c)
           result must ===(true)
         }
 
         "returns false with the condition doesn't contains the value" in {
-          val c = Factories.condition.copy(operator = Condition.Contains,
-                                           valString = Some("me str"))
+          val c =
+            Factories.condition.copy(operator = Condition.Contains, valString = Some("me str"))
           val result = Condition.matches("another string", c)
           result must ===(false)
         }
@@ -255,15 +249,15 @@ class ConditionTest extends TestBase {
 
       "Contains" - {
         "returns true with the condition contains the value" in {
-          val c = Factories.condition.copy(operator = Condition.Contains,
-                                           valString = Some("me str"))
+          val c =
+            Factories.condition.copy(operator = Condition.Contains, valString = Some("me str"))
           val result = Condition.matches(Some("some string"), c)
           result must ===(true)
         }
 
         "returns false with the condition doesn't contains the value" in {
-          val c = Factories.condition.copy(operator = Condition.Contains,
-                                           valString = Some("me str"))
+          val c =
+            Factories.condition.copy(operator = Condition.Contains, valString = Some("me str"))
           val result = Condition.matches(Some("another string"), c)
           result must ===(false)
         }

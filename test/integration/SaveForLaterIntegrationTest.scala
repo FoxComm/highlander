@@ -17,10 +17,7 @@ import utils.db._
 import utils.db.DbResultT._
 import slick.driver.PostgresDriver.api._
 
-class SaveForLaterIntegrationTest
-    extends IntegrationTestBase
-    with HttpSupport
-    with AutomaticAuth {
+class SaveForLaterIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
 
   "GET v1/save-for-later/:customerId" - {
     "shows all save for later items for customer" in new Fixture {
@@ -64,8 +61,7 @@ class SaveForLaterIntegrationTest
 
       val duplicate = POST(s"v1/save-for-later/${customer.id}/${product.code}")
       duplicate.status must ===(StatusCodes.BadRequest)
-      duplicate.error must ===(
-          AlreadySavedForLater(customer.id, product.skuId).description)
+      duplicate.error must ===(AlreadySavedForLater(customer.id, product.skuId).description)
 
       SaveForLaters.result.run().futureValue must have size 1
     }
@@ -79,18 +75,14 @@ class SaveForLaterIntegrationTest
     "404 if sku is not found" in new Fixture {
       val response = POST(s"v1/save-for-later/${customer.id}/NOPE")
       response.status must ===(StatusCodes.NotFound)
-      response.error must ===(
-          SkuNotFoundForContext("NOPE", SimpleContext.id).description)
+      response.error must ===(SkuNotFoundForContext("NOPE", SimpleContext.id).description)
     }
   }
 
   "DELETE v1/save-for-later/:id" - {
     "deletes save for later" in new Fixture {
-      val sflId = POST(s"v1/save-for-later/${customer.id}/${product.code}")
-        .as[SavedForLater]
-        .result
-        .head
-        .id
+      val sflId =
+        POST(s"v1/save-for-later/${customer.id}/${product.code}").as[SavedForLater].result.head.id
 
       val response = DELETE(s"v1/save-for-later/$sflId")
       response.status must ===(StatusCodes.NoContent)
@@ -99,24 +91,20 @@ class SaveForLaterIntegrationTest
     "404 if save for later is not found" in {
       val response = DELETE("v1/save-for-later/666")
       response.status must ===(StatusCodes.NotFound)
-      response.error must ===(
-          NotFoundFailure404(SaveForLater, 666).description)
+      response.error must ===(NotFoundFailure404(SaveForLater, 666).description)
     }
   }
 
   trait Fixture {
     val (customer, product, productContext) = (for {
       productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-      customer ← * <~ Customers.create(Factories.customer)
-      product ← * <~ Mvp.insertProduct(productContext.id,
-                                       Factories.products.head)
+      customer       ← * <~ Customers.create(Factories.customer)
+      product        ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head)
     } yield (customer, product, productContext)).runTxn().futureValue.rightVal
 
     def roots =
       Seq(
-          rightValue(SaveForLaterResponse
-                .forSkuId(product.skuId, productContext.id)
-                .run()
-                .futureValue))
+          rightValue(
+              SaveForLaterResponse.forSkuId(product.skuId, productContext.id).run().futureValue))
   }
 }

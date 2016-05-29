@@ -19,8 +19,8 @@ class StripeTest extends IntegrationTestBase {
   import Tags._
 
   implicit val apis: Apis = Apis(new WiredStripeApi)
-  val service = Stripe()
-  val today = Instant.now().atZone(ZoneId.of("UTC"))
+  val service             = Stripe()
+  val today               = Instant.now().atZone(ZoneId.of("UTC"))
 
   // Re-use this existing customer so we don't have to create new customers for every test
   val existingCustId: String = "cus_7Ktq659oRPXB1U"
@@ -28,17 +28,15 @@ class StripeTest extends IntegrationTestBase {
   "Stripe" - {
     "authorizeAmount" - {
       "fails if the customerId doesn't exist" taggedAs External in {
-        val result = service
-          .authorizeAmount("BAD-CUSTOMER", 100, currency = Currency.USD)
-          .futureValue
+        val result =
+          service.authorizeAmount("BAD-CUSTOMER", 100, currency = Currency.USD).futureValue
 
         result.leftVal.getMessage must include("No such customer")
       }
 
       "successfully creates an authorization charge" taggedAs External in {
-        val result = service
-          .authorizeAmount(existingCustId, 100, currency = Currency.USD)
-          .futureValue
+        val result =
+          service.authorizeAmount(existingCustId, 100, currency = Currency.USD).futureValue
         val charge = result.rightVal
 
         charge.getAmount.toInt must ===(100)
@@ -59,9 +57,8 @@ class StripeTest extends IntegrationTestBase {
                                        cvv = "123",
                                        expYear = today.getYear,
                                        expMonth = today.getMonthValue)
-        val result = service
-          .createCard("yax@yax.com", payload, none, Factories.address)
-          .futureValue
+        val result =
+          service.createCard("yax@yax.com", payload, none, Factories.address).futureValue
 
         result.leftVal.head must ===(CardDeclined)
       }
@@ -72,23 +69,20 @@ class StripeTest extends IntegrationTestBase {
                                        cvv = "123",
                                        expYear = today.getYear,
                                        expMonth = today.getMonthValue)
-        val result = service
-          .createCard("yax@yax.com", payload, none, Factories.address)
-          .futureValue
+        val result =
+          service.createCard("yax@yax.com", payload, none, Factories.address).futureValue
 
         result.leftVal.head must ===(IncorrectCvc)
       }
 
       "successfully creates a card and new customer when given no customerId" taggedAs External in {
         val address = Factories.address
-        val payload =
-          CreateCreditCard(holderName = "yax",
-                           cardNumber = StripeSupport.successfulCard,
-                           cvv = "123",
-                           expYear = today.getYear,
-                           expMonth = today.getMonthValue)
-        val result =
-          service.createCard("yax@yax.com", payload, none, address).futureValue
+        val payload = CreateCreditCard(holderName = "yax",
+                                       cardNumber = StripeSupport.successfulCard,
+                                       cvv = "123",
+                                       expYear = today.getYear,
+                                       expMonth = today.getMonthValue)
+        val result = service.createCard("yax@yax.com", payload, none, address).futureValue
 
         val (cust, card) = result.rightVal
         cust.getDescription must ===("FoxCommerce")
@@ -108,15 +102,13 @@ class StripeTest extends IntegrationTestBase {
 
       "successfully creates a card using an existing customer given a customerId" taggedAs External in {
         val address = Factories.address
-        val payload =
-          CreateCreditCard(holderName = "yax",
-                           cardNumber = StripeSupport.successfulCard,
-                           cvv = "123",
-                           expYear = today.getYear,
-                           expMonth = today.getMonthValue)
-        val result = service
-          .createCard("yax@yax.com", payload, existingCustId.some, address)
-          .futureValue
+        val payload = CreateCreditCard(holderName = "yax",
+                                       cardNumber = StripeSupport.successfulCard,
+                                       cvv = "123",
+                                       expYear = today.getYear,
+                                       expMonth = today.getMonthValue)
+        val result =
+          service.createCard("yax@yax.com", payload, existingCustId.some, address).futureValue
 
         val (cust, card) = result.rightVal
 
@@ -143,11 +135,9 @@ class StripeTest extends IntegrationTestBase {
       }
 
       "successfully captures a charge" taggedAs External in {
-        val auth = service
-          .authorizeAmount(existingCustId, 100, currency = Currency.USD)
-          .futureValue
-        val capture =
-          service.captureCharge(auth.rightVal.getId, 75).futureValue.rightVal
+        val auth =
+          service.authorizeAmount(existingCustId, 100, currency = Currency.USD).futureValue
+        val capture = service.captureCharge(auth.rightVal.getId, 75).futureValue.rightVal
 
         capture.getCaptured mustBe true
         capture.getPaid mustBe true

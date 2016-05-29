@@ -15,13 +15,11 @@ class ReasonTest extends TestBase {
 
         val reasons = Table(
             ("reason", "errors"),
-            (emptyBodyReason,
-             NonEmptyList(GeneralFailure("body must not be empty")))
+            (emptyBodyReason, NonEmptyList(GeneralFailure("body must not be empty")))
         )
 
-        forAll(reasons) {
-          (reason: Reason, errors: NonEmptyList[GeneralFailure]) ⇒
-            invalidValue(reason.validate) mustBe (errors)
+        forAll(reasons) { (reason: Reason, errors: NonEmptyList[GeneralFailure]) ⇒
+          invalidValue(reason.validate) mustBe (errors)
         }
       }
     }

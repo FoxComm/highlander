@@ -38,11 +38,9 @@ class AllOrdersIntegrationTest
       customer ← * <~ Customers.create(RankingSeedsGenerator.generateCustomer)
       insertOrders = (1 to numOfResults).map { _ ⇒
         Factories.order.copy(customerId = customer.id,
-                             referenceNumber =
-                               RankingSeedsGenerator.randomString(10),
+                             referenceNumber = RankingSeedsGenerator.randomString(10),
                              state = Order.RemorseHold,
-                             remorsePeriodEnd =
-                               Some(Instant.now.plusMinutes(30)))
+                             remorsePeriodEnd = Some(Instant.now.plusMinutes(30)))
       }
 
       _ ← * <~ Orders.createAll(insertOrders)
@@ -62,20 +60,15 @@ class AllOrdersIntegrationTest
 
   def getAllOrders: Seq[AllOrders.Root] = {
     OrderQueries.list.futureValue match {
-      case Xor.Left(s) ⇒ fail(s.toList.mkString(";"))
+      case Xor.Left(s)    ⇒ fail(s.toList.mkString(";"))
       case Xor.Right(seq) ⇒ seq.result
     }
   }
 
   "GET /v1/orders" - {
     "find all" in {
-      val cId =
-        Customers.create(Factories.customer).run().futureValue.rightVal.id
-      Orders
-        .create(Factories.order.copy(customerId = cId))
-        .run()
-        .futureValue
-        .rightVal
+      val cId = Customers.create(Factories.customer).run().futureValue.rightVal.id
+      Orders.create(Factories.order.copy(customerId = cId)).run().futureValue.rightVal
 
       val responseJson = GET(s"v1/orders")
       responseJson.status must ===(StatusCodes.OK)
@@ -103,12 +96,11 @@ class AllOrdersIntegrationTest
     "bulk update states" in new StateUpdateFixture {
       val response =
         PATCH("v1/orders",
-              BulkUpdateOrdersPayload(Seq("foo", "bar", "nonExistent"),
-                                      FulfillmentStarted))
+              BulkUpdateOrdersPayload(Seq("foo", "bar", "nonExistent"), FulfillmentStarted))
 
       response.status must ===(StatusCodes.OK)
 
-      val all = response.as[BatchResponse[AllOrders.Root]]
+      val all       = response.as[BatchResponse[AllOrders.Root]]
       val allOrders = all.result.map(o ⇒ (o.referenceNumber, o.orderState))
 
       allOrders must contain allOf (
@@ -121,36 +113,30 @@ class AllOrdersIntegrationTest
     }
 
     "refuses invalid status transition" in {
-      val customer =
-        Customers.create(Factories.customer).run().futureValue.rightVal
-      val order = Orders
-        .create(Factories.order.copy(customerId = customer.id))
-        .run()
-        .futureValue
-        .rightVal
-      val response =
-        PATCH("v1/orders", BulkUpdateOrdersPayload(Seq(order.refNum), Cart))
+      val customer = Customers.create(Factories.customer).run().futureValue.rightVal
+      val order =
+        Orders.create(Factories.order.copy(customerId = customer.id)).run().futureValue.rightVal
+      val response = PATCH("v1/orders", BulkUpdateOrdersPayload(Seq(order.refNum), Cart))
 
       response.status must ===(StatusCodes.OK)
-      val all = response.as[BatchResponse[AllOrders.Root]]
+      val all       = response.as[BatchResponse[AllOrders.Root]]
       val allOrders = all.result.map(o ⇒ (o.referenceNumber, o.orderState))
 
       allOrders must ===(Seq((order.refNum, order.state)))
 
-      all.errors.value.head must ===(StateTransitionNotAllowed(
-              order.state, Cart, order.refNum).description)
+      all.errors.value.head must ===(
+          StateTransitionNotAllowed(order.state, Cart, order.refNum).description)
     }
 
     "bulk update states with paging and sorting" in new StateUpdateFixture {
       val responseJson = PATCH(
           "v1/orders?size=2&from=1&sortBy=referenceNumber",
-          BulkUpdateOrdersPayload(Seq("foo", "bar", "nonExistent"),
-                                  FulfillmentStarted)
+          BulkUpdateOrdersPayload(Seq("foo", "bar", "nonExistent"), FulfillmentStarted)
       )
 
       responseJson.status must ===(StatusCodes.OK)
 
-      val all = responseJson.as[BatchResponse[AllOrders.Root]]
+      val all       = responseJson.as[BatchResponse[AllOrders.Root]]
       val allOrders = all.result.map(o ⇒ (o.referenceNumber, o.orderState))
 
       allOrders must contain theSameElementsInOrderAs Seq(

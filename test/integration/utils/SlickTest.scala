@@ -14,11 +14,8 @@ class SlickTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global
 
   "supports update with returning query for a single column" in {
-    val customer = Customers
-      .create(Factories.customer.copy(name = "Jane".some))
-      .run()
-      .futureValue
-      .rightVal
+    val customer =
+      Customers.create(Factories.customer.copy(name = "Jane".some)).run().futureValue.rightVal
     val update = Customers
       .filter(_.id === 1)
       .map(_.name)
@@ -29,11 +26,7 @@ class SlickTest extends IntegrationTestBase {
   }
 
   "supports update with returning query for a multiple columns" in {
-    Customers
-      .create(Factories.customer.copy(name = "Jane".some))
-      .run()
-      .futureValue
-      .rightVal
+    Customers.create(Factories.customer.copy(name = "Jane".some)).run().futureValue.rightVal
     val update = Customers
       .filter(_.id === 1)
       .map { c ⇒
@@ -49,13 +42,11 @@ class SlickTest extends IntegrationTestBase {
 
   "supports update with returning query for mapping to a new model" in {
     val (customer, updatedCustomer) = (for {
-      customer ← * <~ Customers.create(
-                    Factories.customer.copy(name = "Jane".some))
+      customer ← * <~ Customers.create(Factories.customer.copy(name = "Jane".some))
       updatedCustomer ← * <~ Customers
                          .filter(_.id === 1)
                          .map(_.name)
-                         .updateReturningHead(Customers.map(identity),
-                                              "Sally".some)
+                         .updateReturningHead(Customers.map(identity), "Sally".some)
     } yield (customer, updatedCustomer.value)).runTxn().futureValue.rightVal
 
     customer must !==(updatedCustomer)
@@ -64,8 +55,7 @@ class SlickTest extends IntegrationTestBase {
 
   "supports update with returning query for mapping to a new model for multiple columns" in {
     val (customer, updatedCustomer) = (for {
-      customer ← * <~ Customers.create(
-                    Factories.customer.copy(name = "Jane".some))
+      customer ← * <~ Customers.create(Factories.customer.copy(name = "Jane".some))
       updatedCustomer ← * <~ Customers
                          .filter(_.id === 1)
                          .map { c ⇒

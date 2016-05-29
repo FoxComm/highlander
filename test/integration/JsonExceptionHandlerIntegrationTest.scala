@@ -13,7 +13,7 @@ class JsonExceptionHandlerIntegrationTest
   import Extensions._
 
   val illegalRequestExceptionText = "A test IllegalRequestException"
-  val exceptionText = "A test exception"
+  val exceptionText               = "A test exception"
 
   override protected def additionalRoutes = immutable.Seq(
       path("testThrowAnExcepton") {

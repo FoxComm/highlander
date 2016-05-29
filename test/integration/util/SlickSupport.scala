@@ -6,8 +6,7 @@ import utils.aliases._
 
 object SlickSupport {
   object implicits {
-    implicit class EnrichedQuery[E, U, C[_]](val query: Query[E, U, C])
-        extends AnyVal {
+    implicit class EnrichedQuery[E, U, C[_]](val query: Query[E, U, C]) extends AnyVal {
 
       // allows us to do Model.someQuery.futureValue vs Model.someQuery.result.run().futureValue
       def futureValue(implicit ec: EC, db: DB): C[U] = {

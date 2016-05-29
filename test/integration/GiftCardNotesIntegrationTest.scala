@@ -23,13 +23,12 @@ class GiftCardNotesIntegrationTest
     with HttpSupport
     with AutomaticAuth {
 
-  implicit val ac = ActivityContext(
-      userId = 1, userType = "b", transactionId = "c")
+  implicit val ac = ActivityContext(userId = 1, userType = "b", transactionId = "c")
 
   "POST /v1/notes/gift-card/:code" - {
     "can be created by an admin for a gift card" in new Fixture {
-      val response = POST(s"v1/notes/gift-card/${giftCard.code}",
-                          CreateNote(body = "Hello, FoxCommerce!"))
+      val response =
+        POST(s"v1/notes/gift-card/${giftCard.code}", CreateNote(body = "Hello, FoxCommerce!"))
 
       response.status must ===(StatusCodes.OK)
 
@@ -39,8 +38,7 @@ class GiftCardNotesIntegrationTest
     }
 
     "returns a validation error if failed to create" in new Fixture {
-      val response =
-        POST(s"v1/notes/gift-card/${giftCard.code}", CreateNote(body = ""))
+      val response = POST(s"v1/notes/gift-card/${giftCard.code}", CreateNote(body = ""))
 
       response.status must ===(StatusCodes.BadRequest)
       response.error must ===("body must not be empty")
@@ -58,9 +56,7 @@ class GiftCardNotesIntegrationTest
 
     "can be listed" in new Fixture {
       List("abc", "123", "xyz").map { body ⇒
-        GiftCardNoteManager
-          .create(giftCard.code, admin, CreateNote(body = body))
-          .futureValue
+        GiftCardNoteManager.create(giftCard.code, admin, CreateNote(body = body)).futureValue
       }
 
       val response = GET(s"v1/notes/gift-card/${giftCard.code}")
@@ -76,13 +72,11 @@ class GiftCardNotesIntegrationTest
 
     "can update the body text" in new Fixture {
       val rootNote = rightValue(GiftCardNoteManager
-            .create(
-                giftCard.code, admin, CreateNote(body = "Hello, FoxCommerce!"))
+            .create(giftCard.code, admin, CreateNote(body = "Hello, FoxCommerce!"))
             .futureValue)
 
       val response =
-        PATCH(s"v1/notes/gift-card/${giftCard.code}/${rootNote.id}",
-              UpdateNote(body = "donkey"))
+        PATCH(s"v1/notes/gift-card/${giftCard.code}/${rootNote.id}", UpdateNote(body = "donkey"))
       response.status must ===(StatusCodes.OK)
 
       val note = response.as[AdminNotes.Root]
@@ -93,8 +87,8 @@ class GiftCardNotesIntegrationTest
   "DELETE /v1/notes/gift-card/:code/:noteId" - {
 
     "can soft delete note" in new Fixture {
-      val createResp = POST(s"v1/notes/gift-card/${giftCard.code}",
-                            CreateNote(body = "Hello, FoxCommerce!"))
+      val createResp =
+        POST(s"v1/notes/gift-card/${giftCard.code}", CreateNote(body = "Hello, FoxCommerce!"))
       val note = createResp.as[AdminNotes.Root]
 
       val response = DELETE(s"v1/notes/gift-card/${giftCard.code}/${note.id}")
@@ -114,25 +108,20 @@ class GiftCardNotesIntegrationTest
       val allNotes = allNotesResponse.as[Seq[AdminNotes.Root]]
       allNotes.map(_.id) must not contain note.id
 
-      val getDeletedNoteResponse =
-        GET(s"v1/notes/gift-card/${giftCard.code}/${note.id}")
+      val getDeletedNoteResponse = GET(s"v1/notes/gift-card/${giftCard.code}/${note.id}")
       getDeletedNoteResponse.status must ===(StatusCodes.NotFound)
     }
   }
 
   trait Fixture {
     val (admin, giftCard) = (for {
-      admin ← StoreAdmins.create(authedStoreAdmin).map(rightValue)
-      reason ← Reasons
-                .create(Factories.reason.copy(storeAdminId = admin.id))
-                .map(rightValue)
+      admin  ← StoreAdmins.create(authedStoreAdmin).map(rightValue)
+      reason ← Reasons.create(Factories.reason.copy(storeAdminId = admin.id)).map(rightValue)
       origin ← GiftCardManuals
-                .create(
-                    GiftCardManual(adminId = admin.id, reasonId = reason.id))
+                .create(GiftCardManual(adminId = admin.id, reasonId = reason.id))
                 .map(rightValue)
       giftCard ← GiftCards
-                  .create(Factories.giftCard.copy(originId = origin.id,
-                                                  state = GiftCard.Active))
+                  .create(Factories.giftCard.copy(originId = origin.id, state = GiftCard.Active))
                   .map(rightValue)
     } yield (admin, giftCard)).run().futureValue
   }

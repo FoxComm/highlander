@@ -11,15 +11,12 @@ class NoteIntegrationTest extends IntegrationTestBase {
   "Note" - {
     "Postgres constraints" - {
       "body is limited to 1000 characters" in new Fixture {
-        val failure =
-          Notes.create(note.copy(body = "z" * 1001)).run().futureValue.leftVal
-        failure.getMessage must include(
-            "bodySize got 1001, expected 1000 or less")
+        val failure = Notes.create(note.copy(body = "z" * 1001)).run().futureValue.leftVal
+        failure.getMessage must include("bodySize got 1001, expected 1000 or less")
       }
 
       "must have a body" in new Fixture {
-        val failure =
-          Notes.create(note.copy(body = "")).run().futureValue.leftVal
+        val failure = Notes.create(note.copy(body = "")).run().futureValue.leftVal
         failure.getMessage must include("body must not be empty")
       }
     }
@@ -44,15 +41,13 @@ class NoteIntegrationTest extends IntegrationTestBase {
         val result = note.validate
 
         result must be('invalid)
-        invalidValue(result) must includeFailure(
-            "bodySize got 1001, expected 1000 or less")
+        invalidValue(result) must includeFailure("bodySize got 1001, expected 1000 or less")
       }
     }
   }
 
   trait Fixture {
-    val admin =
-      StoreAdmins.create(Factories.storeAdmin).run().futureValue.rightVal
-    val note = Factories.orderNotes.head.copy(storeAdminId = admin.id)
+    val admin = StoreAdmins.create(Factories.storeAdmin).run().futureValue.rightVal
+    val note  = Factories.orderNotes.head.copy(storeAdminId = admin.id)
   }
 }

@@ -25,12 +25,9 @@ class OrderShippingAddressIntegrationTest extends IntegrationTestBase {
   trait Fixture {
     val (order, shippingAddress) = (for {
       customer ← Customers.create(Factories.customer).map(rightValue)
-      order ← Orders
-               .create(Factories.order.copy(customerId = customer.id))
-               .map(rightValue)
+      order    ← Orders.create(Factories.order.copy(customerId = customer.id)).map(rightValue)
       shippingAddress ← OrderShippingAddresses
-                         .create(Factories.shippingAddress.copy(
-                                 orderId = order.id))
+                         .create(Factories.shippingAddress.copy(orderId = order.id))
                          .map(rightValue)
     } yield (order, shippingAddress)).run().futureValue
   }

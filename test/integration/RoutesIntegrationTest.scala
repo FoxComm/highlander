@@ -9,9 +9,7 @@ import util.IntegrationTestBase
 
 import services.Authenticator.AsyncAuthenticator
 
-class RoutesAdminOnlyIntegrationTest
-    extends IntegrationTestBase
-    with HttpSupport {
+class RoutesAdminOnlyIntegrationTest extends IntegrationTestBase with HttpSupport {
 
   val authedStoreAdmin = StoreAdmin.build(id = 1,
                                           email = "donkey@donkey.com",
@@ -30,9 +28,7 @@ class RoutesAdminOnlyIntegrationTest
   }
 }
 
-class RoutesCustomerOnlyIntegrationTest
-    extends IntegrationTestBase
-    with HttpSupport {
+class RoutesCustomerOnlyIntegrationTest extends IntegrationTestBase with HttpSupport {
 
   val authedCustomer = Customer.build(id = 1,
                                       email = "donkey@donkey.com",

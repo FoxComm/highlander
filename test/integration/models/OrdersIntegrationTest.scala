@@ -18,8 +18,7 @@ class OrdersIntegrationTest extends IntegrationTestBase {
   "Orders" - {
     "generates a referenceNumber in Postgres after insert when blank" in new Fixture {
       val order = Orders
-        .create(Factories.cart.copy(customerId = customer.id,
-                                    referenceNumber = ""))
+        .create(Factories.cart.copy(customerId = customer.id, referenceNumber = ""))
         .run()
         .futureValue
         .rightVal
@@ -29,8 +28,7 @@ class OrdersIntegrationTest extends IntegrationTestBase {
 
     "doesn't overwrite a non-empty referenceNumber after insert" in new Fixture {
       val order = Orders
-        .create(Factories.cart.copy(customerId = customer.id,
-                                    referenceNumber = "R123456"))
+        .create(Factories.cart.copy(customerId = customer.id, referenceNumber = "R123456"))
         .run()
         .futureValue
         .rightVal
@@ -38,11 +36,8 @@ class OrdersIntegrationTest extends IntegrationTestBase {
     }
 
     "can only have one record in 'cart' status" in new Fixture {
-      val order = Orders
-        .create(Factories.cart.copy(customerId = customer.id))
-        .run()
-        .futureValue
-        .rightVal
+      val order =
+        Orders.create(Factories.cart.copy(customerId = customer.id)).run().futureValue.rightVal
 
       val failure = Orders
         .create(order.copy(id = 0, referenceNumber = order.refNum + "ZZZ"))
@@ -54,17 +49,11 @@ class OrdersIntegrationTest extends IntegrationTestBase {
     }
 
     "has a unique index on referenceNumber" in new Fixture {
-      val order = Orders
-        .create(Factories.cart.copy(customerId = customer.id))
-        .run()
-        .futureValue
-        .rightVal
+      val order =
+        Orders.create(Factories.cart.copy(customerId = customer.id)).run().futureValue.rightVal
 
-      val failure = Orders
-        .create(order.copy(id = 0).copy(state = RemorseHold))
-        .run()
-        .futureValue
-        .leftVal
+      val failure =
+        Orders.create(order.copy(id = 0).copy(state = RemorseHold)).run().futureValue.leftVal
       failure.getMessage must include(
           """value violates unique constraint "orders_reference_number_key"""")
     }
@@ -76,42 +65,29 @@ class OrdersIntegrationTest extends IntegrationTestBase {
 
       db.run(Orders.update(order, order.copy(state = RemorseHold))).futureValue mustBe 'right
 
-      val updatedOrder = Orders
-        .findByRefNum(order.referenceNumber)
-        .result
-        .run()
-        .futureValue
-        .headOption
-        .value
+      val updatedOrder =
+        Orders.findByRefNum(order.referenceNumber).result.run().futureValue.headOption.value
       updatedOrder.remorsePeriodEnd.value.minuteOfHour must ===(
           Instant.now.plusMinutes(30).minuteOfHour)
     }
 
     "trigger resets remorse period after status changes from RemorseHold" in {
       val order = Orders
-        .create(Factories.order.copy(remorsePeriodEnd = Some(Instant.now),
-                                     state = RemorseHold))
+        .create(Factories.order.copy(remorsePeriodEnd = Some(Instant.now), state = RemorseHold))
         .run()
         .futureValue
         .rightVal
 
-      db.run(Orders
-              .findByRefNum(order.referenceNumber)
-              .map(_.state)
-              .update(ManualHold))
+      db.run(Orders.findByRefNum(order.referenceNumber).map(_.state).update(ManualHold))
         .futureValue
 
-      val updated = db
-        .run(Orders.findByRefNum(order.referenceNumber).result)
-        .futureValue
-        .headOption
-        .value
+      val updated =
+        db.run(Orders.findByRefNum(order.referenceNumber).result).futureValue.headOption.value
       updated.remorsePeriodEnd must ===(None)
     }
   }
 
   trait Fixture {
-    val customer =
-      Customers.create(Factories.customer).run().futureValue.rightVal
+    val customer = Customers.create(Factories.customer).run().futureValue.rightVal
   }
 }

@@ -51,9 +51,7 @@ class DbResultTTest extends TestBase with DbTestSupport with CatsHelpers {
       "succeeds when everything is Xor.Right" in {
         val transformer = for {
           customer ← Customers.create(Factories.customer).toXorT
-          order ← Orders
-                   .create(Factories.order.copy(customerId = customer.id))
-                   .toXorT
+          order    ← Orders.create(Factories.order.copy(customerId = customer.id)).toXorT
         } yield (customer, order)
 
         val result = db.run(transformer.value.transactionally).futureValue
@@ -65,8 +63,7 @@ class DbResultTTest extends TestBase with DbTestSupport with CatsHelpers {
           customer ← Customers.create(Factories.customer).toXorT
           // force validation failure
           address ← Addresses
-                     .create(Factories.address.copy(name = "",
-                                                    customerId = customer.id))
+                     .create(Factories.address.copy(name = "", customerId = customer.id))
                      .toXorT
         } yield (customer, address)
 

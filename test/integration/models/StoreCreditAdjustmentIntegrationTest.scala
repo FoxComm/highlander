@@ -18,14 +18,12 @@ class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
   "StoreCreditAdjustment" - {
     "debit must be greater than zero" in new Fixture {
       val (sc, payment) = (for {
-        origin ← * <~ StoreCreditManuals.create(StoreCreditManual(
-                        adminId = admin.id, reasonId = reason.id))
-        sc ← * <~ StoreCredits.create(
-                Factories.storeCredit.copy(originId = origin.id))
-        payment ← * <~ OrderPayments.create(
-                     Factories.giftCardPayment.copy(orderId = order.id,
-                                                    paymentMethodId = sc.id,
-                                                    amount = Some(25)))
+        origin ← * <~ StoreCreditManuals.create(
+                    StoreCreditManual(adminId = admin.id, reasonId = reason.id))
+        sc ← * <~ StoreCredits.create(Factories.storeCredit.copy(originId = origin.id))
+        payment ← * <~ OrderPayments.create(Factories.giftCardPayment.copy(orderId = order.id,
+                                                                           paymentMethodId = sc.id,
+                                                                           amount = Some(25)))
       } yield (sc, payment)).runTxn().futureValue.rightVal
 
       val adjustments = Table(
@@ -40,21 +38,19 @@ class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
 
       forAll(adjustments) { adjustment ⇒
         val failure = adjustment.run().futureValue.leftVal
-        failure.getMessage must include(
-            """violates check constraint "valid_debit"""")
+        failure.getMessage must include("""violates check constraint "valid_debit"""")
       }
     }
 
     "updates the StoreCredit's currentBalance and availableBalance before insert" in new Fixture {
       val sc = (for {
-        origin ← * <~ StoreCreditManuals.create(StoreCreditManual(
-                        adminId = admin.id, reasonId = reason.id))
-        sc ← * <~ StoreCredits.create(Factories.storeCredit.copy(
-                    originalBalance = 500, originId = origin.id))
-        pay ← * <~ OrderPayments.create(
-                 Factories.giftCardPayment.copy(orderId = order.id,
-                                                paymentMethodId = sc.id,
-                                                amount = Some(500)))
+        origin ← * <~ StoreCreditManuals.create(
+                    StoreCreditManual(adminId = admin.id, reasonId = reason.id))
+        sc ← * <~ StoreCredits.create(
+                Factories.storeCredit.copy(originalBalance = 500, originId = origin.id))
+        pay ← * <~ OrderPayments.create(Factories.giftCardPayment.copy(orderId = order.id,
+                                                                       paymentMethodId = sc.id,
+                                                                       amount = Some(500)))
         _ ← * <~ StoreCredits.capture(storeCredit = sc,
                                       orderPaymentId = Some(pay.id),
                                       amount = 50)
@@ -88,19 +84,18 @@ class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
 
     "a Postgres trigger updates the adjustment's availableBalance before insert" in new Fixture {
       val (adj, sc) = (for {
-        origin ← * <~ StoreCreditManuals.create(StoreCreditManual(
-                        adminId = admin.id, reasonId = reason.id))
-        sc ← * <~ StoreCredits.create(Factories.storeCredit.copy(
-                    originalBalance = 500, originId = origin.id))
-        pay ← * <~ OrderPayments.create(
-                 Factories.giftCardPayment.copy(orderId = order.id,
-                                                paymentMethodId = sc.id,
-                                                amount = Some(500)))
+        origin ← * <~ StoreCreditManuals.create(
+                    StoreCreditManual(adminId = admin.id, reasonId = reason.id))
+        sc ← * <~ StoreCredits.create(
+                Factories.storeCredit.copy(originalBalance = 500, originId = origin.id))
+        pay ← * <~ OrderPayments.create(Factories.giftCardPayment.copy(orderId = order.id,
+                                                                       paymentMethodId = sc.id,
+                                                                       amount = Some(500)))
         adj ← * <~ StoreCredits.capture(storeCredit = sc,
                                         orderPaymentId = Some(pay.id),
                                         amount = 50)
         adj ← * <~ StoreCreditAdjustments.refresh(adj).toXor
-        sc ← * <~ StoreCredits.refresh(sc).toXor
+        sc  ← * <~ StoreCredits.refresh(sc).toXor
       } yield (adj, sc)).value.run().futureValue.rightVal
 
       sc.availableBalance must ===(450)
@@ -110,14 +105,13 @@ class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
 
     "cancels an adjustment and removes its effect on current/available balances" in new Fixture {
       val (sc, payment) = (for {
-        origin ← * <~ StoreCreditManuals.create(StoreCreditManual(
-                        adminId = admin.id, reasonId = reason.id))
-        sc ← * <~ StoreCredits.create(Factories.storeCredit.copy(
-                    originalBalance = 500, originId = origin.id))
-        payment ← * <~ OrderPayments.create(
-                     Factories.giftCardPayment.copy(orderId = order.id,
-                                                    paymentMethodId = sc.id,
-                                                    amount = Some(500)))
+        origin ← * <~ StoreCreditManuals.create(
+                    StoreCreditManual(adminId = admin.id, reasonId = reason.id))
+        sc ← * <~ StoreCredits.create(
+                Factories.storeCredit.copy(originalBalance = 500, originId = origin.id))
+        payment ← * <~ OrderPayments.create(Factories.giftCardPayment.copy(orderId = order.id,
+                                                                           paymentMethodId = sc.id,
+                                                                           amount = Some(500)))
       } yield (sc, payment)).runTxn().futureValue.rightVal
 
       val debits = List(50, 25, 15, 10)
@@ -135,20 +129,17 @@ class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
         .futureValue
 
       val finalSc = StoreCredits.findOneById(sc.id).run().futureValue.value
-      (finalSc.originalBalance,
-       finalSc.availableBalance,
-       finalSc.currentBalance) must ===((500, 500, 500))
+      (finalSc.originalBalance, finalSc.availableBalance, finalSc.currentBalance) must ===(
+          (500, 500, 500))
     }
   }
 
   trait Fixture {
     val (admin, customer, reason, order) = (for {
-      admin ← * <~ StoreAdmins.create(Factories.storeAdmin)
+      admin    ← * <~ StoreAdmins.create(Factories.storeAdmin)
       customer ← * <~ Customers.create(Factories.customer)
-      order ← * <~ Orders.create(
-                 Factories.order.copy(customerId = customer.id))
-      reason ← * <~ Reasons.create(
-                  Factories.reason.copy(storeAdminId = admin.id))
+      order    ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
+      reason   ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
     } yield (admin, customer, reason, order)).runTxn().futureValue.rightVal
   }
 }

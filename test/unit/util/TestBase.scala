@@ -18,7 +18,7 @@ trait TestBase
   val config = TestBase.config
 
   object Tags {
-    object Slow extends Tag("tags.Slow")
+    object Slow     extends Tag("tags.Slow")
     object External extends Tag("tags.External")
   }
 

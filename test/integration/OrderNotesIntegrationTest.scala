@@ -17,18 +17,14 @@ import utils.db._
 import utils.db.DbResultT._
 import utils.time._
 
-class OrderNotesIntegrationTest
-    extends IntegrationTestBase
-    with HttpSupport
-    with AutomaticAuth {
+class OrderNotesIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
 
-  implicit val ac = ActivityContext(
-      userId = 1, userType = "b", transactionId = "c")
+  implicit val ac = ActivityContext(userId = 1, userType = "b", transactionId = "c")
 
   "POST /v1/notes/order/:refNum" - {
     "can be created by an admin for an order" in new Fixture {
-      val response = POST(s"v1/notes/order/${order.referenceNumber}",
-                          CreateNote(body = "Hello, FoxCommerce!"))
+      val response =
+        POST(s"v1/notes/order/${order.referenceNumber}", CreateNote(body = "Hello, FoxCommerce!"))
 
       response.status must ===(StatusCodes.OK)
 
@@ -39,8 +35,7 @@ class OrderNotesIntegrationTest
     }
 
     "returns a validation error if failed to create" in new Fixture {
-      val response =
-        POST(s"v1/notes/order/${order.referenceNumber}", CreateNote(body = ""))
+      val response = POST(s"v1/notes/order/${order.referenceNumber}", CreateNote(body = ""))
 
       response.status must ===(StatusCodes.BadRequest)
       response.error must ===("body must not be empty")
@@ -50,17 +45,14 @@ class OrderNotesIntegrationTest
       val response = POST(s"v1/notes/order/ABACADSF113", CreateNote(body = ""))
 
       response.status must ===(StatusCodes.NotFound)
-      response.error must ===(
-          NotFoundFailure404(Order, "ABACADSF113").description)
+      response.error must ===(NotFoundFailure404(Order, "ABACADSF113").description)
     }
   }
 
   "GET /v1/notes/order/:refNum" - {
     "can be listed" in new Fixture {
       List("abc", "123", "xyz").map { body ⇒
-        OrderNoteManager
-          .create(order.refNum, storeAdmin, CreateNote(body = body))
-          .futureValue
+        OrderNoteManager.create(order.refNum, storeAdmin, CreateNote(body = body)).futureValue
       }
 
       val response = GET(s"v1/notes/order/${order.referenceNumber}")
@@ -76,14 +68,12 @@ class OrderNotesIntegrationTest
   "PATCH /v1/notes/order/:refNum/:noteId" - {
     "can update the body text" in new Fixture {
       val rootNote = OrderNoteManager
-        .create(
-            order.refNum, storeAdmin, CreateNote(body = "Hello, FoxCommerce!"))
+        .create(order.refNum, storeAdmin, CreateNote(body = "Hello, FoxCommerce!"))
         .futureValue
         .rightVal
 
-      val response =
-        PATCH(s"v1/notes/order/${order.referenceNumber}/${rootNote.id}",
-              UpdateNote(body = "donkey"))
+      val response = PATCH(s"v1/notes/order/${order.referenceNumber}/${rootNote.id}",
+                           UpdateNote(body = "donkey"))
       response.status must ===(StatusCodes.OK)
 
       val note = response.as[AdminNotes.Root]
@@ -100,8 +90,7 @@ class OrderNotesIntegrationTest
                     CreateNote(body = "Hello, FoxCommerce!"))
             .futureValue)
 
-      val response =
-        DELETE(s"v1/notes/order/${order.referenceNumber}/${note.id}")
+      val response = DELETE(s"v1/notes/order/${order.referenceNumber}/${note.id}")
       response.status must ===(StatusCodes.NoContent)
       response.bodyText mustBe empty
 
@@ -115,8 +104,7 @@ class OrderNotesIntegrationTest
       val allNotes = allNotesResponse.as[Seq[AdminNotes.Root]]
       allNotes.map(_.id) must not contain note.id
 
-      val getDeletedNoteResponse =
-        GET(s"v1/notes/order/${order.referenceNumber}/${note.id}")
+      val getDeletedNoteResponse = GET(s"v1/notes/order/${order.referenceNumber}/${note.id}")
       getDeletedNoteResponse.status must ===(StatusCodes.NotFound)
     }
   }
@@ -124,8 +112,8 @@ class OrderNotesIntegrationTest
   trait Fixture {
     val (order, storeAdmin, customer) = (for {
       customer ← * <~ Customers.create(Factories.customer)
-      order ← * <~ Orders.create(Factories.order.copy(customerId = customer.id,
-                                                      state = Order.Cart))
+      order ← * <~ Orders.create(
+                 Factories.order.copy(customerId = customer.id, state = Order.Cart))
       storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
     } yield (order, storeAdmin, customer)).runTxn().futureValue.rightVal
   }

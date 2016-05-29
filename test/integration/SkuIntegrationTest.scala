@@ -13,10 +13,7 @@ import utils.Money.Currency
 import utils.db._
 import utils.db.DbResultT._
 
-class SkuIntegrationTest
-    extends IntegrationTestBase
-    with HttpSupport
-    with AutomaticAuth {
+class SkuIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
   "GET v1/skus/full/:context/:code" - {
     "returns a full SKU successfully" in new Fixture {
       val response = GET(s"v1/skus/full/${context.name}/${sku.code}")
@@ -30,11 +27,7 @@ class SkuIntegrationTest
 
   trait Fixture {
     val (context, sku, skuForm, skuShadow) = (for {
-      storeAdmin ← * <~ StoreAdmins
-                    .create(authedStoreAdmin)
-                    .run()
-                    .futureValue
-                    .rightVal
+      storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin).run().futureValue.rightVal
       context ← * <~ ObjectContexts
                  .filterByName(SimpleContext.default)
                  .mustFindOneOr(ObjectContextNotFound(SimpleContext.default))
@@ -43,12 +36,11 @@ class SkuIntegrationTest
                                  "http://poop/",
                                  9999,
                                  Currency.USD)
-      skuForm ← * <~ ObjectForms.create(simpleSku.create)
+      skuForm         ← * <~ ObjectForms.create(simpleSku.create)
       simpleSkuShadow ← * <~ SimpleSkuShadow(simpleSku)
-      skuShadow ← * <~ ObjectShadows.create(
-                     simpleSkuShadow.create.copy(formId = skuForm.id))
-      skuCommit ← * <~ ObjectCommits.create(ObjectCommit(
-                         formId = skuForm.id, shadowId = skuShadow.id))
+      skuShadow       ← * <~ ObjectShadows.create(simpleSkuShadow.create.copy(formId = skuForm.id))
+      skuCommit ← * <~ ObjectCommits.create(
+                     ObjectCommit(formId = skuForm.id, shadowId = skuShadow.id))
       sku ← * <~ Skus.create(
                Sku(contextId = context.id,
                    code = simpleSku.code,

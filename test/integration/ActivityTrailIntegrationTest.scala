@@ -48,9 +48,9 @@ class ActivityTrailIntegrationTest
   // paging and sorting API
   def connectionNotFound(id: Int): NotFoundFailure404 =
     NotFoundFailure404(Connection, id)
-  val uriPrefix = "v1/trails"
+  val uriPrefix        = "v1/trails"
   val customerActivity = "customer_activity"
-  val typeName = "customer_updated"
+  val typeName         = "customer_updated"
 
   "Activity Tests" - {
     "successfully creates activity after updating customer attributes" in new Fixture {
@@ -64,8 +64,7 @@ class ActivityTrailIntegrationTest
       response.status must ===(StatusCodes.OK)
 
       // Check the activity log to see if it was created
-      val activity =
-        Activities.filterByType(typeName).result.one.futureValue.value
+      val activity = Activities.filterByType(typeName).result.one.futureValue.value
 
       // Make sure the activity has all the correct information
       activity.activityType must ===(typeName)
@@ -74,8 +73,7 @@ class ActivityTrailIntegrationTest
       customerInfoChanged.newInfo.id must ===(customer.id)
       customerInfoChanged.newInfo.name.value must ===(payload.name.head)
       customerInfoChanged.newInfo.email.value must ===(payload.email.head)
-      customerInfoChanged.newInfo.phoneNumber.value must ===(
-          payload.phoneNumber.head)
+      customerInfoChanged.newInfo.phoneNumber.value must ===(payload.phoneNumber.head)
     }
   }
 
@@ -92,34 +90,26 @@ class ActivityTrailIntegrationTest
       response.status must ===(StatusCodes.OK)
 
       // Check the activity log to see if it was created
-      val activity =
-        Activities.filterByType(typeName).result.one.futureValue.value
+      val activity = Activities.filterByType(typeName).result.one.futureValue.value
 
       // Make sure the activity has all the correct information
       activity.activityType must ===(typeName)
       val customerInfoChanged = activity.data.extract[CustomerUpdated]
 
       // Append the activity to the trail
-      val appendedConnection =
-        appendActivity(customerActivity, customer.id, activity.id)
+      val appendedConnection = appendActivity(customerActivity, customer.id, activity.id)
 
       appendedConnection.activityId must ===(activity.id)
       appendedConnection.previousId must ===(None)
       appendedConnection.nextId must ===(None)
 
       // Make sure the dimension was created
-      val dimension =
-        Dimensions.findByName(customerActivity).result.one.futureValue.value
+      val dimension = Dimensions.findByName(customerActivity).result.one.futureValue.value
 
       dimension.name must ===(customerActivity)
 
       // Make sure the trail was created
-      val trail = Trails
-        .findById(appendedConnection.trailId)
-        .result
-        .one
-        .futureValue
-        .value
+      val trail = Trails.findById(appendedConnection.trailId).result.one.futureValue.value
 
       // Make sure things are linked up correctly
       trail.id must ===(appendedConnection.trailId)
@@ -130,11 +120,10 @@ class ActivityTrailIntegrationTest
 
   "append a bunch of activities to a bunch of trails a bunch of times" in {
 
-    implicit val ac =
-      ActivityContext(userId = 1, userType = "b", transactionId = "c")
+    implicit val ac = ActivityContext(userId = 1, userType = "b", transactionId = "c")
 
     val dimensionList = Gen.oneOf("d1", "d2", "d3")
-    val objectList = Gen.oneOf(1, 2, 3, 4, 5, 6)
+    val objectList    = Gen.oneOf(1, 2, 3, 4, 5, 6)
     val wordList = Gen.oneOf("hi",
                              "ho",
                              "hum",
@@ -163,34 +152,23 @@ class ActivityTrailIntegrationTest
     val bunchOfActivitiesAndTrails =
       forAll(dimensionList, objectList, wordList, Gen.choose(0, 1000)) {
 
-        (dimensionName: String, objectId: Int, randomWord: String,
-         randomNumber: Int) ⇒
+        (dimensionName: String, objectId: Int, randomWord: String, randomNumber: Int) ⇒
           {
 
             //log activity
-            val activity = Activities
-              .log(DumbActivity(randomWord, randomNumber))
-              .run()
-              .futureValue
-              .rightVal
+            val activity =
+              Activities.log(DumbActivity(randomWord, randomNumber)).run().futureValue.rightVal
 
             //append the activity to the trail
-            val appendedConnection =
-              appendActivity(dimensionName, objectId, activity.id)
+            val appendedConnection = appendActivity(dimensionName, objectId, activity.id)
 
             //make sure the dimension was created
-            val dimension =
-              Dimensions.findByName(dimensionName).result.one.futureValue.value
+            val dimension = Dimensions.findByName(dimensionName).result.one.futureValue.value
 
             dimension.name must ===(dimensionName)
 
             //make sure the trail was created
-            val trail = Trails
-              .findById(appendedConnection.trailId)
-              .result
-              .one
-              .futureValue
-              .value
+            val trail = Trails.findById(appendedConnection.trailId).result.one.futureValue.value
 
             //make sure the trail is created correctly if it didn't exist
             trail.id must ===(appendedConnection.trailId)
@@ -214,7 +192,7 @@ class ActivityTrailIntegrationTest
     Connections.findById(id).extract.result.head.run().futureValue
 
   def appendActivity(dimension: String, objectId: Int, activityId: Int) = {
-    val appendPayload = AppendActivity(activityId)
+    val appendPayload  = AppendActivity(activityId)
     val appendResponse = POST(s"v1/trails/$dimension/$objectId", appendPayload)
 
     appendResponse.status must ===(StatusCodes.OK)
@@ -224,11 +202,11 @@ class ActivityTrailIntegrationTest
   def connectionLinkedCorrectly(a: Connection): Boolean = {
     val previousLinked = a.previousId match {
       case Some(previousId) ⇒ connectionsLinked(getConnection(previousId), a)
-      case None ⇒ true
+      case None             ⇒ true
     }
     val nextLinked = a.nextId match {
       case Some(nextId) ⇒ connectionsLinked(a, getConnection(nextId))
-      case None ⇒ true
+      case None         ⇒ true
     }
 
     previousLinked && nextLinked
@@ -259,7 +237,7 @@ class ActivityTrailIntegrationTest
   trait Fixture {
     val (customer, admin) = (for {
       customer ← * <~ Customers.create(Factories.customer)
-      admin ← * <~ StoreAdmins.create(authedStoreAdmin)
+      admin    ← * <~ StoreAdmins.create(authedStoreAdmin)
     } yield (customer, admin)).runTxn().futureValue.rightVal
   }
 }

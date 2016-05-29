@@ -46,8 +46,7 @@ class ShippingMethodsIntegrationTest
         val response = GET(s"v1/shipping-methods/${order.referenceNumber}")
         response.status must ===(StatusCodes.OK)
 
-        val methodResponse =
-          response.as[Seq[responses.ShippingMethods.Root]].head
+        val methodResponse = response.as[Seq[responses.ShippingMethods.Root]].head
         methodResponse.id must ===(shippingMethod.id)
         methodResponse.name must ===(shippingMethod.adminDisplayName)
         methodResponse.price must ===(shippingMethod.price)
@@ -85,8 +84,7 @@ class ShippingMethodsIntegrationTest
         val response = GET(s"v1/shipping-methods/${order.referenceNumber}")
         response.status must ===(StatusCodes.OK)
 
-        val methodResponse =
-          response.as[Seq[responses.ShippingMethods.Root]].head
+        val methodResponse = response.as[Seq[responses.ShippingMethods.Root]].head
         methodResponse.id must ===(shippingMethod.id)
         methodResponse.name must ===(shippingMethod.adminDisplayName)
         methodResponse.price must ===(shippingMethod.price)
@@ -99,8 +97,7 @@ class ShippingMethodsIntegrationTest
         val response = GET(s"v1/shipping-methods/${order.referenceNumber}")
         response.status must ===(StatusCodes.OK)
 
-        val methodResponse =
-          response.as[Seq[responses.ShippingMethods.Root]].head
+        val methodResponse = response.as[Seq[responses.ShippingMethods.Root]].head
         methodResponse.id must ===(shippingMethod.id)
         methodResponse.name must ===(shippingMethod.adminDisplayName)
         methodResponse.price must ===(shippingMethod.price)
@@ -113,8 +110,7 @@ class ShippingMethodsIntegrationTest
         val response = GET(s"v1/shipping-methods/${order.referenceNumber}")
         response.status must ===(StatusCodes.OK)
 
-        val methodResponse =
-          response.as[Seq[responses.ShippingMethods.Root]].head
+        val methodResponse = response.as[Seq[responses.ShippingMethods.Root]].head
         methodResponse.id must ===(shippingMethod.id)
         methodResponse.name must ===(shippingMethod.adminDisplayName)
         methodResponse.price must ===(shippingMethod.price)
@@ -125,31 +121,29 @@ class ShippingMethodsIntegrationTest
 
   trait Fixture {
     val (order, storeAdmin, customer) = (for {
-      customer ← * <~ Customers.create(Factories.customer)
-      order ← * <~ Orders.create(
-                 Factories.order.copy(customerId = customer.id))
+      customer   ← * <~ Customers.create(Factories.customer)
+      order      ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
       storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
     } yield (order, storeAdmin, customer)).runTxn().futureValue.rightVal
   }
 
   trait ShippingMethodsFixture extends Fixture {
     val californiaId = 4129
-    val michiganId = 4148
-    val oregonId = 4164
+    val michiganId   = 4148
+    val oregonId     = 4164
     val washingtonId = 4177
 
     val (address, orderShippingAddress) = (for {
       productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-      address ← * <~ Addresses.create(Factories.address.copy(
-                       customerId = customer.id, regionId = californiaId))
-      shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(
-                       address = address, orderId = order.id)
-      product ← * <~ Mvp.insertProduct(
-                   productContext.id,
-                   Factories.products.head.copy(title = "Donkey", price = 27))
+      address ← * <~ Addresses.create(
+                   Factories.address.copy(customerId = customer.id, regionId = californiaId))
+      shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address,
+                                                                orderId = order.id)
+      product ← * <~ Mvp.insertProduct(productContext.id,
+                                       Factories.products.head.copy(title = "Donkey", price = 27))
       lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(product.skuId).toXor
-      lineItems ← * <~ OrderLineItems.create(OrderLineItem(
-                         orderId = order.id, originId = lineItemSku.id))
+      lineItems ← * <~ OrderLineItems.create(
+                     OrderLineItem(orderId = order.id, originId = lineItemSku.id))
       _ ← * <~ OrderTotaler.saveTotals(order)
     } yield (address, shipAddress)).runTxn().futureValue.rightVal
   }
@@ -179,8 +173,8 @@ class ShippingMethodsIntegrationTest
           |}
         """.stripMargin).extract[QueryStatement]
 
-    val action = ShippingMethods.create(
-        Factories.shippingMethods.head.copy(conditions = Some(conditions)))
+    val action =
+      ShippingMethods.create(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
     val shippingMethod = db.run(action).futureValue.rightVal
   }
 
@@ -265,9 +259,8 @@ class ShippingMethodsIntegrationTest
 
     val shippingMethod = (for {
       shippingMethod ← shipping.ShippingMethods.create(
-                          Factories.shippingMethods.head.copy(
-                              conditions = Some(conditions),
-                              restrictions = Some(restrictions)))
+                          Factories.shippingMethods.head.copy(conditions = Some(conditions),
+                                                              restrictions = Some(restrictions)))
     } yield shippingMethod).run().futureValue.rightVal
   }
 }

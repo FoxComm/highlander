@@ -43,22 +43,20 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll {
   }
 
   private def setupObjectContext(): Failures Xor ObjectContext = {
-    Await.result(
-        db.run(ObjectContexts.create(SimpleContext.create())), 60.seconds)
+    Await.result(db.run(ObjectContexts.create(SimpleContext.create())), 60.seconds)
   }
 
   def isTableEmpty(table: String)(implicit conn: Connection): Boolean = {
     val stmt = conn.createStatement()
-    val rs = stmt.executeQuery(s"select true from $table limit 1")
+    val rs   = stmt.executeQuery(s"select true from $table limit 1")
     !rs.isBeforeFirst
   }
 
   override abstract protected def withFixture(test: NoArgTest): Outcome = {
     implicit val conn = jdbcDataSourceFromSlickDB(db).getConnection
 
-    val config = conn.getMetaData
-    val allTables = conn.getMetaData.getTables(
-        conn.getCatalog, "public", "%", Array("TABLE"))
+    val config    = conn.getMetaData
+    val allTables = conn.getMetaData.getTables(conn.getCatalog, "public", "%", Array("TABLE"))
 
     @tailrec
     def iterate(in: Seq[String]): Seq[String] = {
@@ -76,8 +74,7 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll {
     if (tables.nonEmpty) {
       conn
         .createStatement()
-        .execute(
-            s"truncate ${tables.mkString(", ")} restart identity cascade;")
+        .execute(s"truncate ${tables.mkString(", ")} restart identity cascade;")
     }
     setupObjectContext()
     conn.close()

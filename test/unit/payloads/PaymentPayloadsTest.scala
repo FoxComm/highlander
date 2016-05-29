@@ -14,7 +14,7 @@ import payloads.PaymentPayloads._
 
 class PaymentPayloadsTest extends TestBase {
   val today = ZonedDateTime.now()
-  val cc = Factories.creditCard
+  val cc    = Factories.creditCard
 
   "CreateCreditCard" - {
     val valid = CreateCreditCard(holderName = cc.holderName,
@@ -53,8 +53,7 @@ class PaymentPayloadsTest extends TestBase {
         val res = valid.copy(expMonth = 0.some).validate
 
         res mustBe 'invalid
-        invalidValue(res) must includeFailure(
-            "expiration month got 0, expected between 1 and 12")
+        invalidValue(res) must includeFailure("expiration month got 0, expected between 1 and 12")
       }
 
       "fails with expired date" in {

@@ -15,8 +15,7 @@ import utils.seeds.Seeds.Factories
 class OrderShippingAddressUpdaterTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global
 
-  implicit val ac = ActivityContext(
-      userId = 1, userType = "b", transactionId = "c")
+  implicit val ac = ActivityContext(userId = 1, userType = "b", transactionId = "c")
 
   "OrderUpdater" - {
 
@@ -78,23 +77,21 @@ class OrderShippingAddressUpdaterTest extends IntegrationTestBase {
 
   trait Fixture {
     val (admin, customer, address, order) = (for {
-      admin ← * <~ StoreAdmins.create(Factories.storeAdmin)
+      admin    ← * <~ StoreAdmins.create(Factories.storeAdmin)
       customer ← * <~ Customers.create(Factories.customer)
-      address ← * <~ Addresses.create(
-                   Factories.address.copy(customerId = customer.id))
-      order ← * <~ Orders.create(Factories.order.copy(customerId = customer.id,
-                                                      state = Order.Cart))
+      address  ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
+      order ← * <~ Orders.create(
+                 Factories.order.copy(customerId = customer.id, state = Order.Cart))
     } yield (admin, customer, address, order)).runTxn().futureValue.rightVal
   }
 
   trait UpdateAddressFixture extends Fixture {
     val (orderShippingAddress, newAddress) = (for {
-      orderShippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(
-                                address = address, orderId = order.id)
-      newAddress ← * <~ Addresses.create(
-                      Factories.address.copy(customerId = customer.id,
-                                             name = "New Address",
-                                             isDefaultShipping = false))
+      orderShippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address,
+                                                                         orderId = order.id)
+      newAddress ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id,
+                                                                name = "New Address",
+                                                                isDefaultShipping = false))
     } yield (orderShippingAddress, newAddress)).runTxn().futureValue.rightVal
   }
 }

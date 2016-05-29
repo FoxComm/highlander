@@ -16,7 +16,7 @@ class SkuModelIntegrationTest extends IntegrationTestBase {
       val (product, liSku) = (for {
         context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
         product ← * <~ Mvp.insertProduct(context.id, Factories.products.head)
-        liSku ← * <~ OrderLineItemSkus.safeFindBySkuId(product.skuId).toXor
+        liSku   ← * <~ OrderLineItemSkus.safeFindBySkuId(product.skuId).toXor
       } yield (product, liSku)).runTxn().futureValue.rightVal
 
       product.skuId must ===(liSku.skuId)
