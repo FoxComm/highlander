@@ -45,12 +45,8 @@ const defaultKeys = {
  * ProductForm is dumb component that implements the logic needed for creating
  * or updating a product.
  */
-export default class ProductForm extends Component<void, Props, State> {
-  static propTypes = {
-    product: PropTypes.object.isRequired,
-    onSetSkuProperty: PropTypes.func.isRequired,
-    onUpdateProduct: PropTypes.func.isRequired,
-  };
+export default class ProductForm extends Component {
+  props: Props;
 
   state: State;
 
