@@ -199,7 +199,7 @@ object RmaResponse {
         totals = totals
     )
 
-  private def fetchRmaDetails(rma: Rma, withOrder: Boolean = false)(implicit ec: EC) = {
+  private def fetchRmaDetails(rma: Rma, withOrder: Boolean = false)(implicit db: DB, ec: EC) = {
     val orderQ = for {
       order     ← Orders.findById(rma.orderId).extract.one
       fullOrder ← order.map(o ⇒ FullOrder.fromOrder(o).map(Some(_))).getOrElse(lift(None))

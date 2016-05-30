@@ -5,15 +5,17 @@ import java.time.Instant
 import scala.concurrent.Future
 
 import cats.implicits._
+import failures.CouponFailures._
+import failures.PromotionFailures._
 import models.customer.{Customer, Customers}
 import models.location.Region
 import models.objects._
 import models.order._
 import models.product.Mvp
 import models.promotion._
+import models.promotion.Promotions.scope._
 import models.coupon._
 import models.discount._
-import models.objects.ObjectUtils.Child
 import models.order.lineitems._
 import models.payment.PaymentMethod
 import models.payment.creditcard._
@@ -26,8 +28,9 @@ import responses.PromotionResponses.IlluminatedPromotionResponse
 import responses._
 import services.orders.OrderQueries
 import slick.driver.PostgresDriver.api._
-import utils.db._
 import utils.aliases._
+import utils.db._
+import utils.db.DbResultT._
 
 object FullOrder {
   type Response  = Future[Root]
@@ -125,10 +128,10 @@ object FullOrder {
         extends Payments
   }
 
-  def refreshAndFullOrder(order: Order)(implicit ec: EC): DBIO[FullOrder.Root] =
+  def refreshAndFullOrder(order: Order)(implicit db: DB, ec: EC): DBIO[FullOrder.Root] =
     Orders.refresh(order).flatMap(fromOrder)
 
-  def fromOrder(order: Order)(implicit ec: EC): DBIO[Root] = {
+  def fromOrder(order: Order)(implicit db: DB, ec: EC): DBIO[Root] = {
     fetchOrderDetails(order).map {
       case (customer,
             lineItems,
@@ -269,49 +272,62 @@ object FullOrder {
            taxes = order.taxesTotal,
            total = order.grandTotal)
 
-  type PromoDetails = (IlluminatedPromotionResponse.Root, CouponPair)
+  type PromoDetails = Option[(IlluminatedPromotionResponse.Root, CouponPair)]
 
   private def fetchPromoDetails(context: ObjectContext, orderPromo: Option[OrderPromotion])(
-      implicit ec: EC): DBIO[Option[PromoDetails]] = orderPromo match {
+      implicit db: DB, ec: EC): DBIO[PromoDetails] = orderPromo match {
     case Some(op) ⇒
-      fetchCouponDetails(context, op.couponCodeId) // TBD: Handle auto-apply promos here
+      fetchCouponDetails(context, op.couponCodeId) // TBD: Handle auto-apply promos here later
     case _ ⇒ DBIO.successful(None)
   }
 
   private def fetchCouponDetails(context: ObjectContext, couponCodeId: Option[Int])(
-      implicit ec: EC): DBIO[Option[PromoDetails]] = couponCodeId match {
+      implicit db: DB, ec: EC): DBIO[PromoDetails] = couponCodeId match {
     case Some(codeId) ⇒
-      for {
-        // Fetch coupon
-        couponCode   ← CouponCodes.findById(codeId).extract.one.safeGet
-        coupon       ← Coupons.filterByContextAndFormId(context.id, codeId).one.safeGet
-        couponForm   ← ObjectForms.findById(coupon.formId).extract.one.safeGet
-        couponShadow ← ObjectShadows.findById(coupon.shadowId).extract.one.safeGet
-        // Fetch promo
-        promotion   ← Promotions.filterByContextAndFormId(context.id, coupon.promotionId).one.safeGet
-        promoForm   ← ObjectForms.findById(promotion.formId).extract.one.safeGet
-        promoShadow ← ObjectShadows.findById(promotion.shadowId).extract.one.safeGet
-        // Fetch discounts
-        links   ← ObjectLinks.filter(_.leftId === promotion.shadowId).result
-        shadows ← ObjectShadows.filter(_.id.inSet(links.map(_.rightId))).result
-        forms   ← ObjectForms.filter(_.id.inSet(shadows.map(_.formId))).result
-        discounts = forms.sortBy(_.id).zip(shadows.sortBy(_.formId)).map {
-          case (f, s) ⇒ Child(f, s)
-        }
-        // Illuminate
-        illumDiscounts = discounts.map(d ⇒
-              IlluminatedDiscount.illuminate(form = d.form, shadow = d.shadow))
-        illumPromo  = IlluminatedPromotion.illuminate(context, promotion, promoForm, promoShadow)
-        illumCoupon = IlluminatedCoupon.illuminate(context, coupon, couponForm, couponShadow)
-        // Build responses
-        respPromo      = IlluminatedPromotionResponse.build(illumPromo, illumDiscounts)
-        respCoupon     = IlluminatedCouponResponse.build(illumCoupon)
-        respCouponPair = CouponPair(coupon = respCoupon, code = couponCode.code)
-      } yield (respPromo, respCouponPair).some
+      fetchCouponInner(context, codeId).fold(_ ⇒ None, option ⇒ option)
     case _ ⇒ DBIO.successful(None)
   }
 
-  private def fetchOrderDetails(order: Order)(implicit ec: EC) = {
+  // TBD: Get discounts from cached field in `OrderPromotion` model
+  private def fetchCouponInner(context: ObjectContext, couponCodeId: Int)(
+      implicit db: DB, ec: EC) =
+    for {
+      // Coupon
+      couponCode ← * <~ CouponCodes
+                    .findOneById(couponCodeId)
+                    .mustFindOr(CouponCodeNotFound(couponCodeId))
+      coupon ← * <~ Coupons
+                .filterByContextAndFormId(context.id, couponCode.couponFormId)
+                .mustFindOneOr(CouponWithCodeCannotBeFound(couponCode.code))
+      couponForm   ← * <~ ObjectForms.mustFindById404(coupon.formId)
+      couponShadow ← * <~ ObjectShadows.mustFindById404(coupon.shadowId)
+      // Promotion
+      promotion ← * <~ Promotions
+                   .filterByContextAndFormId(context.id, coupon.promotionId)
+                   .requiresCoupon
+                   .mustFindOneOr(PromotionNotFound(coupon.promotionId))
+      promoForm   ← * <~ ObjectForms.mustFindById404(promotion.formId)
+      promoShadow ← * <~ ObjectShadows.mustFindById404(promotion.shadowId)
+      // Discount
+      discountLinks ← * <~ ObjectLinks.filter(_.leftId === promoShadow.id).result
+      discountShadowIds = discountLinks.map(_.rightId)
+      discountShadows ← * <~ ObjectShadows.filter(_.id.inSet(discountShadowIds)).result
+      discountFormIds = discountShadows.map(_.formId)
+      discountForms ← * <~ ObjectForms.filter(_.id.inSet(discountFormIds)).result
+      discounts = for (f ← discountForms; s ← discountShadows if s.formId == f.id) yield (f, s)
+      // Illuminate
+      theCoupon = IlluminatedCoupon.illuminate(context, coupon, couponForm, couponShadow)
+      theDiscounts = discounts.map {
+        case (form, shadow) ⇒ IlluminatedDiscount.illuminate(context.some, form, shadow)
+      }
+      thePromotion = IlluminatedPromotion.illuminate(context, promotion, promoForm, promoShadow)
+      // Responses
+      respPromo      = IlluminatedPromotionResponse.build(thePromotion, theDiscounts)
+      respCoupon     = IlluminatedCouponResponse.build(theCoupon)
+      respCouponPair = CouponPair(coupon = respCoupon, code = couponCode.code)
+    } yield (respPromo, respCouponPair).some
+
+  private def fetchOrderDetails(order: Order)(implicit db: DB, ec: EC) = {
     val ccPaymentQ = for {
       payment    ← OrderPayments.findAllByOrderId(order.id)
       creditCard ← CreditCards.filter(_.id === payment.paymentMethodId)

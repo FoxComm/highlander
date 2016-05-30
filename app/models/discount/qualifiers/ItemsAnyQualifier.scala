@@ -2,11 +2,11 @@ package models.discount.qualifiers
 
 import cats.data.Xor
 import failures.DiscountFailures._
-import models.discount.{DiscountInput, SearchReference}
+import models.discount.{DiscountInput, ProductSearch, SearchReference}
 import services.Result
 import utils.aliases._
 
-case class ItemsAnyQualifier(search: SearchReference) extends Qualifier {
+case class ItemsAnyQualifier(search: ProductSearch) extends Qualifier {
 
   val qualifierType: QualifierType = ItemsAny
 

@@ -7,7 +7,7 @@ import models.discount._
 import services.Result
 import utils.aliases._
 
-case class ItemsTotalAmountQualifier(totalAmount: Int, search: SearchReference) extends Qualifier {
+case class ItemsTotalAmountQualifier(totalAmount: Int, search: ProductSearch) extends Qualifier {
 
   val qualifierType: QualifierType = ItemsTotalAmount
 
@@ -21,12 +21,8 @@ case class ItemsTotalAmountQualifier(totalAmount: Int, search: SearchReference) 
     })
   }
 
-  private def checkInner(input: DiscountInput, search: SearchReference): Xor[Failures, Unit] =
-    search match {
-      case ProductSearch(formId) if totalAmount >= totalByProduct(input.lineItems, formId) ⇒
-        Xor.Right(Unit)
-      //case SkuSearch(code) if totalAmount >= totalBySku(input.lineItems, code) ⇒ Xor.Right(Unit)
-      case CustomerSearch(_) ⇒ rejectXor(input, "Invalid search type")
-      case _                 ⇒ rejectXor(input, "Total amount is less than required")
-    }
+  // FIXME
+  private def checkInner(input: DiscountInput, search: ProductSearch): Xor[Failures, Unit] =
+    if (totalAmount >= totalByProduct(input.lineItems, search.productSearchId)) Xor.Right(Unit)
+    else rejectXor(input, "Number of units is less than required")
 }

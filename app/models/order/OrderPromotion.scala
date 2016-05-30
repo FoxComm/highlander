@@ -29,7 +29,7 @@ object OrderPromotion {
     OrderPromotion(orderId = order.id,
                    promotionShadowId = promo.shadowId,
                    applyType = Promotion.Coupon,
-                   couponCodeId = code.couponFormId.some)
+                   couponCodeId = code.id.some)
 }
 
 class OrderPromotions(tag: Tag) extends FoxTable[OrderPromotion](tag, "order_promotions") {

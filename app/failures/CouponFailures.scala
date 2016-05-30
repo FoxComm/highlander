@@ -8,6 +8,10 @@ object CouponFailures {
     def apply(id: Int) = NotFoundFailure404(s"Coupon $id not found")
   }
 
+  object CouponCodeNotFound {
+    def apply(id: Int) = NotFoundFailure404(s"Coupon code with id=$id not found")
+  }
+
   object CouponWithCodeCannotBeFound {
     def apply(code: String) = NotFoundFailure404(s"Coupon with code $code not found")
   }

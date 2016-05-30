@@ -126,7 +126,7 @@ object OrderQueries {
 
   def findOrCreateCartByCustomerInner(
       customer: Customer, context: ObjectContext, admin: Option[StoreAdmin])(
-      implicit ec: EC, ac: AC): DbResultT[FullOrder.Root] =
+      implicit db: DB, ec: EC, ac: AC): DbResultT[FullOrder.Root] =
     for {
       result ← * <~ Orders
                 .findActiveOrderByCustomer(customer)

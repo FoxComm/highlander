@@ -5,27 +5,19 @@ import models.discount.offers.Offer.OfferResult
 import models.order.lineitems.OrderLineItemAdjustment._
 import utils.aliases._
 
-case class SetPriceOffer(setPrice: Int, numUnits: Int, search: SearchReference)
+case class SetPriceOffer(setPrice: Int, numUnits: Int, search: ProductSearch)
     extends Offer
     with SetOffer {
 
   val offerType: OfferType           = SetPrice
   val adjustmentType: AdjustmentType = LineItemAdjustment
 
+  // FIXME
   def adjust(input: DiscountInput)(implicit db: DB, ec: EC, es: ES): OfferResult =
-    if (setPrice > 0 && numUnits > 0) adjustInner(input) else reject()
-
-  private def adjustInner(input: DiscountInput)(implicit db: DB, ec: EC, es: ES): OfferResult =
-    search match {
-      case ProductSearch(formId) ⇒
-        val takeItems = input.lineItems.filter(_.product.formId == formId).take(numUnits)
-        accept(input, substract(totalByProduct(takeItems, formId), setPrice))
-      /*
-    case SkuSearch(code) ⇒
-      val takeItems = input.lineItems.filter(_.sku.code == code).take(numUnits)
-      accept(input, substract(totalBySku(takeItems, code), setPrice))
-       */
-      case _ ⇒
-        reject()
-    }
+    if (setPrice > 0 && numUnits > 0) {
+      val takeItems =
+        input.lineItems.filter(_.product.formId == search.productSearchId).take(numUnits)
+      accept(input, substract(totalByProduct(takeItems, search.productSearchId), setPrice))
+    } else
+      reject()
 }
