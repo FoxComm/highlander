@@ -248,7 +248,8 @@ export default class ChooseShippingAddress extends Component {
     const isEdit = address.id;
 
     if (!isEdit) {
-      this.props.actions.createShippingAddress(address);
+      this.props.actions.createShippingAddress(address)
+        .then(this.props.actions.fetchAddresses);
     } else if (this.state.isShippingAddress) {
       this.props.actions.patchShippingAddress(address);
     } else {
