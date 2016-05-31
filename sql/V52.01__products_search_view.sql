@@ -72,4 +72,4 @@ where
 	s.id = p.shadow_id and
 	link.product_id = p.id;
 
-create unique index products_search_view_idx on products_search_view_old (id, context);
+create unique index products_search_view_old_idx on products_search_view_old (id, context);

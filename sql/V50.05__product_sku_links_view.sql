@@ -55,8 +55,9 @@ begin
           from products as p
             left join object_links as link on link.left_id = p.shadow_id
             left join skus as sku on sku.shadow_id = link.right_id
-         where p.id = ANY(product_ids)) as subquery
-    WHERE subquery.id = product_sku_links_view.product_id;
+         where p.id = ANY(product_ids)
+         group by p.id) as subquery
+    where subquery.id = product_sku_links_view.product_id;
     return null;
 end;
 $$ language plpgsql;
