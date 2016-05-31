@@ -42,6 +42,8 @@ type CouponPageProps = {
   details: Object,
   children: Element,
   isFetching: boolean,
+  fetchError: ?Array<string>,
+  submitErrors: ?Array<string>,
 };
 
 class CouponPage extends Component {
@@ -196,7 +198,7 @@ class CouponPage extends Component {
   render(): Element {
     const props = this.props;
     const { coupon, promotionError } = this.state;
-    const { codeGeneration } = props;
+    const { codeGeneration, actions } = props;
 
     if (props.isFetching !== false && !coupon) {
       return <div><WaitAnimation /></div>;
@@ -240,6 +242,7 @@ class CouponPage extends Component {
         </PageTitle>
         <SubNav params={this.props.params} />
         <div styleName="coupon-details">
+          <ErrorAlerts errors={this.props.submitErrors} closeAction={actions.clearSubmitErrors} />
           {children}
         </div>
       </div>
@@ -253,6 +256,10 @@ export default connect(
     codeGeneration: state.coupons.details.codeGeneration,
     isFetching: _.get(state.asyncActions, 'getCoupon.inProgress', false),
     fetchError: _.get(state.asyncActions, 'getCoupon.err', null),
+    submitErrors: (
+      _.get(state.asyncActions, 'createCoupon.err.messages') ||
+      _.get(state.asyncActions, 'updateCoupon.err.messages')
+    )
   }),
   dispatch => ({ actions: bindActionCreators(CouponActions, dispatch), dispatch })
 )(CouponPage);
