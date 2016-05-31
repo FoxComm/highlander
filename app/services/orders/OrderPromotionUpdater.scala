@@ -23,7 +23,7 @@ import models.traits.Originator
 import responses.TheResponse
 import responses.order.FullOrder
 import responses.order.FullOrder._
-import services.{CartValidator, Result}
+import services.{CartValidator, LogActivity, Result}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
@@ -73,7 +73,7 @@ object OrderPromotionUpdater {
 
   def attachCoupon(
       originator: Originator, refNum: Option[String] = None, context: ObjectContext, code: String)(
-      implicit ec: EC, es: ES, db: DB): Result[TheResponse[FullOrder.Root]] =
+      implicit ec: EC, es: ES, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] =
     (for {
       // Fetch base data
       order ← * <~ getCartByOriginator(originator, refNum)
@@ -100,6 +100,8 @@ object OrderPromotionUpdater {
       // Create connected promotion and line item adjustments
       _ ← * <~ OrderPromotions.create(OrderPromotion.buildCoupon(order, promotion, couponCode))
       _ ← * <~ readjust(order)
+      // Write event to application logs
+      _ ← * <~ LogActivity.orderCouponAttached(order, couponCode)
       // Response
       order     ← * <~ OrderTotaler.saveTotals(order)
       validated ← * <~ CartValidator(order).validate()
@@ -108,7 +110,7 @@ object OrderPromotionUpdater {
       .runTxn()
 
   def detachCoupon(originator: Originator, refNum: Option[String] = None)(
-      implicit ec: EC, es: ES, db: DB): Result[TheResponse[FullOrder.Root]] =
+      implicit ec: EC, es: ES, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] =
     (for {
       // Read
       order           ← * <~ getCartByOriginator(originator, refNum)
@@ -121,6 +123,7 @@ object OrderPromotionUpdater {
       _         ← * <~ OrderPromotions.filterByOrderIdAndShadows(order.id, deleteShadowIds).delete
       _         ← * <~ OrderLineItemAdjustments.filterByOrderIdAndShadows(order.id, deleteShadowIds).delete
       _         ← * <~ OrderTotaler.saveTotals(order)
+      _         ← * <~ LogActivity.orderCouponDetached(order)
       validated ← * <~ CartValidator(order).validate()
       response  ← * <~ refreshAndFullOrder(order).toXor
     } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings))

@@ -19,7 +19,7 @@ import responses.CategoryResponses.FullCategoryResponse
 import responses.order.FullOrder
 import responses.{Addresses, CreditCardsResponse, CustomerResponse, GiftCardResponse, StoreAdminResponse, StoreCreditResponse}
 import services.LineItemUpdater.foldQuantityPayload
-import services.activity.CategoryTailored.{FullCategoryUpdated, FullCategoryCreated}
+import services.activity.CategoryTailored.{FullCategoryCreated, FullCategoryUpdated}
 import utils.aliases._
 import utils.db._
 import services.activity.AssignmentsTailored._
@@ -29,12 +29,15 @@ import services.activity.OrderTailored._
 import services.activity.NotesTailored._
 import services.activity.SharedSearchTailored._
 import services.activity.StoreCreditTailored._
-import StoreAdminResponse.{Root ⇒ AdminResponse, build ⇒ buildAdmin}
+import services.activity.CouponsTailored._
+import StoreAdminResponse.{Root ⇒ AdminResponse, build ⇒ buildAdmin, _}
 import CustomerResponse.{Root ⇒ CustomerResponse, build ⇒ buildCustomer}
 import CreditCardsResponse.{buildSimple ⇒ buildCc}
+import models.coupon.{Coupon, CouponCode}
 import payloads.GiftCardPayloads.GiftCardUpdateStateByCsr
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.StoreCreditPayloads.StoreCreditUpdateStateByCsr
+import responses.CouponResponses.CouponResponse
 import responses.ProductResponses.FullProductResponse
 import responses.ObjectResponses.ObjectContextResponse
 import responses.SkuResponses.FullSkuResponse
@@ -353,6 +356,14 @@ object LogActivity {
       implicit ec: EC, ac: AC): DbResult[Activity] =
     Activities.log(OrderShippingMethodRemoved(order, shippingMethod, buildOriginator(originator)))
 
+  /* Order Coupons */
+  def orderCouponAttached(order: Order, couponCode: CouponCode)(
+      implicit ec: EC, ac: AC): DbResult[Activity] =
+    Activities.log(OrderCouponAttached(order, couponCode))
+
+  def orderCouponDetached(order: Order)(implicit ec: EC, ac: AC): DbResult[Activity] =
+    Activities.log(OrderCouponDetached(order))
+
   /* Categories */
   def fullCategoryCreated(admin: Option[StoreAdmin],
                           category: FullCategoryResponse.Root,
@@ -391,6 +402,23 @@ object LogActivity {
                      context: ObjectContextResponse.Root)(
       implicit ec: EC, ac: AC): DbResult[Activity] =
     Activities.log(FullSkuUpdated(admin.map(buildAdmin), product, context))
+
+  /* Coupons */
+  def couponCreated(couponResponse: CouponResponse.Root, admin: Option[StoreAdmin])(
+      implicit ec: EC, ac: AC): DbResult[Activity] =
+    Activities.log(CouponCreated(couponResponse, admin.map(buildAdmin(_))))
+
+  def couponUpdated(couponResponse: CouponResponse.Root, admin: Option[StoreAdmin])(
+      implicit ec: EC, ac: AC): DbResult[Activity] =
+    Activities.log(CouponUpdated(couponResponse, admin.map(buildAdmin(_))))
+
+  def singleCouponCodeCreated(coupon: Coupon, admin: Option[StoreAdmin])(
+      implicit ec: EC, ac: AC): DbResult[Activity] =
+    Activities.log(SingleCouponCodeGenerated(coupon, admin.map(buildAdmin(_))))
+
+  def multipleCouponCodeCreated(coupon: Coupon, admin: Option[StoreAdmin])(
+      implicit ec: EC, ac: AC): DbResult[Activity] =
+    Activities.log(MultipleCouponCodesGenerated(coupon, admin.map(buildAdmin(_))))
 
   /* Helpers */
   private def buildOriginator(originator: Originator): Option[AdminResponse] = originator match {

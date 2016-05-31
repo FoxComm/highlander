@@ -9,11 +9,12 @@ import slick.driver.PostgresDriver.api._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import models.product.SimpleContext
+import utils.aliases.AC
 
 trait PromotionSeeds {
 
   def createCouponPromotions(
-      discounts: Seq[BaseDiscount])(implicit db: Database): DbResultT[Seq[BasePromotion]] =
+      discounts: Seq[BaseDiscount])(implicit db: Database, ac: AC): DbResultT[Seq[BasePromotion]] =
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       results ← * <~ DbResultT.sequence(discounts.map { discount ⇒
@@ -23,7 +24,7 @@ trait PromotionSeeds {
     } yield results
 
   def insertPromotion(payload: CreatePromotion, discount: BaseDiscount, context: ObjectContext)(
-      implicit db: Database): DbResultT[BasePromotion] =
+      implicit db: Database, ac: AC): DbResultT[BasePromotion] =
     for {
       form   ← * <~ ObjectForm(kind = Promotion.kind, attributes = payload.form.attributes)
       shadow ← * <~ ObjectShadow(attributes = payload.shadow.attributes)

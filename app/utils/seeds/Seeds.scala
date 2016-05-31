@@ -5,8 +5,8 @@ import java.time.{Instant, ZoneId}
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
-import com.typesafe.config.Config
 
+import com.typesafe.config.Config
 import cats.data.Xor
 import models.Reason._
 import models.inventory._
@@ -23,6 +23,8 @@ import utils.db._
 import utils.db.DbResultT._
 import utils.{FoxConfig, JsonFormatters}
 import flyway.newFlyway
+import models.activity.ActivityContext
+import utils.aliases.AC
 
 object Seeds {
 
@@ -30,6 +32,8 @@ object Seeds {
     Console.err.println("Cleaning DB and running migrations")
     val config: Config           = FoxConfig.loadWithEnv()
     implicit val db: DatabaseDef = Database.forConfig("db", config)
+    implicit val ac: ActivityContext = ActivityContext(
+        userId = 1, userType = "admin", transactionId = "seeds")
     flyWayMigrate(config)
 
     createBaseSeeds()
@@ -59,7 +63,7 @@ object Seeds {
     validateResults("base", result)
   }
 
-  def createStageSeeds()(implicit db: Database) {
+  def createStageSeeds()(implicit db: Database, ac: AC) {
     Console.err.println("Inserting Stage seeds")
     val result: Failures Xor Unit = Await.result(createStage().runTxn(), 4.minutes)
     validateResults("stage", result)
@@ -75,7 +79,7 @@ object Seeds {
     Await.result(RankingSeedsGenerator.insertRankingSeeds(1700).runTxn(), 4.minutes)
   }
 
-  def createRandomSeeds(scale: Int)(implicit db: Database) {
+  def createRandomSeeds(scale: Int)(implicit db: Database, ac: AC) {
     Console.err.println("Inserting random seeds")
 
     val customers            = 1000 * scale
@@ -105,7 +109,7 @@ object Seeds {
       admin   ← * <~ Factories.createStoreAdmins
     } yield {}
 
-  def createStage()(implicit db: Database): DbResultT[Unit] =
+  def createStage()(implicit db: Database, ac: AC): DbResultT[Unit] =
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       ruContext ← * <~ ObjectContexts.create(

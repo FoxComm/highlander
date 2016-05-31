@@ -23,14 +23,14 @@ object CouponRoutes {
             pathPrefix(IntNumber / Segment) { (id, code) ⇒
               (post & pathEnd) {
                 goodOrFailures {
-                  CouponManager.generateCode(id, code)
+                  CouponManager.generateCode(id, code, admin)
                 }
               }
             } ~
             pathPrefix(IntNumber) { id ⇒
               (post & pathEnd & entity(as[GenerateCouponCodes])) { payload ⇒
                 goodOrFailures {
-                  CouponManager.generateCodes(id, payload)
+                  CouponManager.generateCodes(id, payload, admin)
                 }
               }
             }
@@ -60,7 +60,7 @@ object CouponRoutes {
         pathPrefix(Segment) { (context) ⇒
           (post & pathEnd & entity(as[CreateCoupon])) { payload ⇒
             goodOrFailures {
-              CouponManager.create(payload, context)
+              CouponManager.create(payload, context, Some(admin))
             }
           } ~
           pathPrefix(IntNumber) { id ⇒
@@ -76,7 +76,7 @@ object CouponRoutes {
             } ~
             (patch & pathEnd & entity(as[UpdateCoupon])) { payload ⇒
               goodOrFailures {
-                CouponManager.update(id, payload, context)
+                CouponManager.update(id, payload, context, admin)
               }
             }
           } ~

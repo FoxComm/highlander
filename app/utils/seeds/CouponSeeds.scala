@@ -9,6 +9,8 @@ import utils.db.DbResultT._
 import slick.driver.PostgresDriver.api._
 import scala.concurrent.ExecutionContext.Implicits.global
 
+import utils.aliases.AC
+
 trait CouponSeeds {
 
   val codePrefix = "BASE"
@@ -16,7 +18,7 @@ trait CouponSeeds {
   val codesQty   = 10
 
   def createCoupons(
-      promotions: Seq[BasePromotion])(implicit db: Database): DbResultT[Seq[BaseCoupon]] =
+      promotions: Seq[BasePromotion])(implicit db: Database, ac: AC): DbResultT[Seq[BaseCoupon]] =
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       results ← * <~ DbResultT.sequence(promotions.map { promotion ⇒
@@ -26,7 +28,7 @@ trait CouponSeeds {
     } yield results
 
   def insertCoupon(promo: BasePromotion, payload: CreateCoupon, context: ObjectContext)(
-      implicit db: Database): DbResultT[BaseCoupon] =
+      implicit db: Database, ac: AC): DbResultT[BaseCoupon] =
     for {
       // Create coupon
       form   ← * <~ ObjectForm(kind = Coupon.kind, attributes = payload.form.attributes)

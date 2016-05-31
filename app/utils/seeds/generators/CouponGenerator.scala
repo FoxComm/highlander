@@ -13,6 +13,7 @@ import payloads.CouponPayloads._
 import services.Result
 import services.coupon.CouponManager
 import slick.driver.PostgresDriver.api._
+import utils.aliases.AC
 import utils.db.DbResultT._
 import utils.db._
 
@@ -63,7 +64,7 @@ trait CouponGenerator {
                  promotionId = promotion.promotionId)
   }
 
-  def generateCoupons(data: Seq[SimpleCoupon])(implicit db: Database) =
+  def generateCoupons(data: Seq[SimpleCoupon])(implicit db: Database, ac: AC) =
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       coupons ← * <~ DbResultT.sequence(data.map(d ⇒ {
@@ -74,7 +75,7 @@ trait CouponGenerator {
                                 shadow = CreateCouponShadow(attributes = couponShadow.shadow),
                                 d.promotionId)
                  DbResultT(DBIO.from(CouponManager
-                           .create(payload, context.name)
+                           .create(payload, context.name, None)
                            .flatMap {
                      case Xor.Right(r) ⇒
                        Result.right(d.copy(formId = r.form.id, shadowId = r.shadow.id))

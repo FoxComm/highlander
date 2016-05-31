@@ -1,11 +1,9 @@
 package services.coupon
 
-import services.Result
-
+import services.{LogActivity, Result}
 import models.objects._
 import models.coupon._
 import models.promotion._
-
 import responses.CouponResponses.{IlluminatedCouponResponse ⇒ Illuminated, _}
 import utils.db._
 import utils.db.DbResultT._
@@ -15,6 +13,7 @@ import utils.aliases._
 import failures.CouponFailures._
 import failures.PromotionFailures._
 import failures.ObjectFailures._
+import models.StoreAdmin
 
 object CouponManager {
 
@@ -49,8 +48,8 @@ object CouponManager {
       shadow ← * <~ ObjectShadows.mustFindById404(coupon.shadowId)
     } yield CouponResponse.build(coupon, form, shadow)).run()
 
-  def create(payload: CreateCoupon, contextName: String)(
-      implicit ec: EC, db: DB): Result[CouponResponse.Root] =
+  def create(payload: CreateCoupon, contextName: String, admin: Option[StoreAdmin])(
+      implicit ec: EC, db: DB, ac: AC): Result[CouponResponse.Root] =
     (for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
@@ -67,10 +66,12 @@ object CouponManager {
                          shadowId = ins.shadow.id,
                          commitId = ins.commit.id,
                          promotionId = payload.promotion))
-    } yield CouponResponse.build(coupon, ins.form, ins.shadow)).runTxn()
+      response = CouponResponse.build(coupon, ins.form, ins.shadow)
+      _ ← * <~ LogActivity.couponCreated(response, admin)
+    } yield response).runTxn()
 
-  def update(id: Int, payload: UpdateCoupon, contextName: String)(
-      implicit ec: EC, db: DB): Result[CouponResponse.Root] =
+  def update(id: Int, payload: UpdateCoupon, contextName: String, admin: StoreAdmin)(
+      implicit ec: EC, db: DB, ac: AC): Result[CouponResponse.Root] =
     (for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
@@ -87,7 +88,9 @@ object CouponManager {
                                         payload.shadow.attributes)
       commit ← * <~ ObjectUtils.commit(updated)
       coupon ← * <~ updateHead(coupon, payload.promotion, updated.shadow, commit)
-    } yield CouponResponse.build(coupon, updated.form, updated.shadow)).runTxn()
+      response = CouponResponse.build(coupon, updated.form, updated.shadow)
+      _ ← * <~ LogActivity.couponUpdated(response, Some(admin))
+    } yield response).runTxn()
 
   def getIlluminated(
       id: Int, contextName: String)(implicit ec: EC, db: DB): Result[Illuminated.Root] =
@@ -121,14 +124,16 @@ object CouponManager {
       shadow ← * <~ ObjectShadows.mustFindById404(coupon.shadowId)
     } yield Illuminated.build(IlluminatedCoupon.illuminate(context, coupon, form, shadow))
 
-  def generateCode(id: Int, code: String)(implicit ec: EC, db: DB): Result[String] =
+  def generateCode(id: Int, code: String, admin: StoreAdmin)(
+      implicit ec: EC, db: DB, ac: AC): Result[String] =
     (for {
       coupon     ← * <~ Coupons.filter(_.formId === id).mustFindOneOr(CouponNotFound(id))
       couponCode ← * <~ CouponCodes.create(CouponCode(couponFormId = id, code = code))
+      _          ← * <~ LogActivity.singleCouponCodeCreated(coupon, Some(admin))
     } yield couponCode.code).runTxn()
 
-  def generateCodes(id: Int, payload: GenerateCouponCodes)(
-      implicit ec: EC, db: DB): Result[Seq[String]] =
+  def generateCodes(id: Int, payload: GenerateCouponCodes, admin: StoreAdmin)(
+      implicit ec: EC, db: DB, ac: AC): Result[Seq[String]] =
     (for {
       _         ← * <~ validateCouponCodePayload(payload)
       coupon    ← * <~ Coupons.filter(_.formId === id).mustFindOneOr(CouponNotFound(id))
@@ -137,6 +142,7 @@ object CouponManager {
         CouponCode(couponFormId = id, code = c)
       }
       _ ← * <~ CouponCodes.createAll(unsaved)
+      _ ← * <~ LogActivity.multipleCouponCodeCreated(coupon, Some(admin))
     } yield generated).runTxn()
 
   def getCodes(id: Int)(implicit ec: EC, db: DB): Result[Seq[CouponCodesResponse.Root]] =

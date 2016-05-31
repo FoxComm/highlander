@@ -6,6 +6,7 @@ import models.order.Order
 import models.payment.PaymentMethod
 import models.shipping.ShippingMethod
 import models.Note
+import models.coupon.CouponCode
 import responses.order.FullOrder
 import responses.{Addresses, CreditCardsResponse, GiftCardResponse, StoreAdminResponse}
 import utils.Money.Currency
@@ -126,4 +127,10 @@ object OrderTailored {
 
   case class OrderNoteDeleted(admin: StoreAdminResponse.Root, order: Order, note: Note)
       extends ActivityBase[OrderNoteDeleted]
+
+  /* Order Coupons */
+  case class OrderCouponAttached(order: Order, couponCode: CouponCode)
+      extends ActivityBase[OrderCouponAttached]
+
+  case class OrderCouponDetached(order: Order) extends ActivityBase[OrderCouponDetached]
 }
