@@ -21,4 +21,5 @@
     - { role: base/db}
     - { role: base/rsyslog, sudo: yes }
     - { role: base/kibana, sudo: yes }
+    - { role: base/phoenix}
     - { role: base/greenriver}
