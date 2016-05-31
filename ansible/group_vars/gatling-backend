@@ -7,3 +7,4 @@ es_heap_size: 1g
 search_host: elasticsearch.service.consul
 search_server_http: "{{search_host}}:9200"
 search_server: "{{search_host}}:9300"
+demo_domain: gatling.foxcommerce.com
