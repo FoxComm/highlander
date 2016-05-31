@@ -34,7 +34,7 @@ const ChooseCustomer = (props) => {
     <div className="fc-orders-choose-customer__footer">
       <Button onClick={guestCheckoutAction}>Checkout As Guest</Button>
       <div>or</div>
-      <PrimaryButton onClick={() => transitionTo('customers-new')}>
+      <PrimaryButton onClick={props.onNewClick}>
         Create New Customer
       </PrimaryButton>
     </div>
@@ -65,6 +65,7 @@ ChooseCustomer.propTypes = {
   items: PropTypes.object.isRequired,
   onItemClick: PropTypes.func,
   onGuestClick: PropTypes.func.isRequired,
+  onNewClick: PropTypes.func.isRequired,
   updating: PropTypes.bool,
   toggleVisibility: PropTypes.func,
 };

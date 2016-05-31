@@ -6,23 +6,17 @@ import { autobind } from 'core-decorators';
 // redux
 import * as CustomersActions from '../../modules/customers/new';
 
-// helpers
-import { transitionTo } from 'browserHistory';
-
 // components
 import FormField from '../forms/formfield.jsx';
 import Form from '../forms/form.jsx';
 import { Link } from '../link';
 import SaveCancel from '../common/save-cancel';
 
-@connect(state => state.customers.adding, {
-  ...CustomersActions
-})
+@connect((state, ownProps) => ({
+  ...state.customers.adding,
+  ...ownProps.location.query,
+}), CustomersActions)
 export default class NewCustomer extends React.Component {
-
-  static contextTypes = {
-    router: PropTypes.object.isRequired
-  };
 
   static propTypes = {
     createCustomer: PropTypes.func.isRequired,
@@ -36,11 +30,11 @@ export default class NewCustomer extends React.Component {
   @autobind
   submitForm(event) {
     event.preventDefault();
-    this.props.createCustomer(this.context.router);
+    this.props.createCustomer();
   }
 
   @autobind
-  onChangeValue({target}) {
+  onChangeValue({ target }) {
     this.props.changeFormData(target.name, target.value);
   }
 
@@ -48,8 +42,8 @@ export default class NewCustomer extends React.Component {
     this.props.resetForm();
   }
 
-  render () {
-    const {name, email} = this.props;
+  render() {
+    const { name, email } = this.props;
 
     return (
       <div className="fc-customer-create">
