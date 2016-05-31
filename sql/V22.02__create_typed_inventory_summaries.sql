@@ -5,7 +5,7 @@ create table sellable_inventory_summaries (
   reserved integer not null default 0 check (reserved >= 0),
   safety_stock integer not null default 0 check (safety_stock >= 0),
   available_for_sale integer not null default 0 check (available_for_sale >= 0),
-  updated_at timestamp without time zone default (now() at time zone 'utc')
+  updated_at generic_timestamp
 );
 
 create table preorder_inventory_summaries (
@@ -14,7 +14,7 @@ create table preorder_inventory_summaries (
   on_hold integer not null default 0 check (on_hold >= 0),
   reserved integer not null default 0 check (reserved >= 0),
   available_for_sale integer not null default 0 check (available_for_sale >= 0),
-  updated_at timestamp without time zone default (now() at time zone 'utc')
+  updated_at generic_timestamp
 );
 
 create table backorder_inventory_summaries (
@@ -23,7 +23,7 @@ create table backorder_inventory_summaries (
   on_hold integer not null default 0 check (on_hold >= 0),
   reserved integer not null default 0 check (reserved >= 0),
   available_for_sale integer not null default 0 check (available_for_sale >= 0),
-  updated_at timestamp without time zone default (now() at time zone 'utc')
+  updated_at generic_timestamp
 );
 
 create table nonsellable_inventory_summaries (
@@ -32,7 +32,7 @@ create table nonsellable_inventory_summaries (
   on_hold integer not null default 0 check (on_hold >= 0),
   reserved integer not null default 0 check (reserved >= 0),
   available_for_sale integer not null default 0 check (available_for_sale >= 0),
-  updated_at timestamp without time zone default (now() at time zone 'utc')
+  updated_at generic_timestamp
 );
 
 create function afs(on_hand integer, on_hold integer, reserved integer, safety_stock integer default 0) returns integer as $$

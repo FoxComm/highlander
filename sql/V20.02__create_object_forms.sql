@@ -3,8 +3,8 @@ create table object_forms (
     id serial primary key,
     kind generic_string,
     attributes jsonb,
-    updated_at timestamp without time zone default (now() at time zone 'utc'),
-    created_at timestamp without time zone default (now() at time zone 'utc')
+    updated_at generic_timestamp,
+    created_at generic_timestamp
 );
 
 create index object_shadows_object_kndx on object_forms (kind);

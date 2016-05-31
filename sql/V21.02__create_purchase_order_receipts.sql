@@ -4,8 +4,8 @@ create table purchase_order_receipts (
     purchase_order_id integer not null,
     receiver_name generic_string, -- just for fun
     inventory_location_id int, -- just for fun
-    created_at timestamp without time zone default (now() at time zone 'utc'),
-    updated_at timestamp without time zone default (now() at time zone 'utc'),
+    created_at generic_timestamp,
+    updated_at generic_timestamp,
     deleted_at timestamp without time zone null,
     foreign key (id) references inventory_events(id) on update restrict on delete restrict,
     foreign key (purchase_order_id) references purchase_orders(id) on update restrict on delete restrict

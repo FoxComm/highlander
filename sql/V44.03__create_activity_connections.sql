@@ -7,7 +7,7 @@ create table activity_connections(
     next_id integer null,
     data jsonb null,
     connected_by jsonb,
-    created_at timestamp without time zone default (now() at time zone 'utc'),
+    created_at generic_timestamp,
     foreign key (dimension_id) references activity_dimensions(id) on update restrict on delete restrict,
     foreign key (activity_id) references activities(id) on update restrict on delete restrict,
     foreign key (next_id) references activity_connections(id) on update restrict on delete restrict,

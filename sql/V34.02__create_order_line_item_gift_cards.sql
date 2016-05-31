@@ -2,7 +2,7 @@ create table order_line_item_gift_cards (
     id integer primary key,
     order_id integer not null references orders(id)  on update restrict on delete restrict,
     gift_card_id integer not null references gift_cards(id) on update restrict on delete restrict,
-    created_at timestamp without time zone default (now() at time zone 'utc'),
+    created_at generic_timestamp,
     foreign key (id) references order_line_item_origins(id) on update restrict on delete restrict
 );
 

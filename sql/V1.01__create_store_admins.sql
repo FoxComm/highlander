@@ -4,8 +4,8 @@ create table store_admins (
     hashed_password generic_string,
     name generic_string,
     department generic_string,
-    created_at timestamp without time zone default (now() at time zone 'utc'),
-    updated_at timestamp without time zone default (now() at time zone 'utc'),
+    created_at generic_timestamp,
+    updated_at generic_timestamp,
     deleted_at timestamp without time zone null
 );
 

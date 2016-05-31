@@ -1,7 +1,7 @@
 create table store_credit_refunds (
     id integer primary key,
     rma_id integer not null,
-    created_at timestamp without time zone default (now() at time zone 'utc'),
+    created_at generic_timestamp,
     foreign key (id) references store_credit_origins(id) on update restrict on delete restrict,
     foreign key (rma_id) references rmas(id) on update restrict on delete restrict
 );

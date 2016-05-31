@@ -1,7 +1,7 @@
 create table rma_lock_events (
     id serial primary key,
     rma_id integer references rmas(id) on update restrict on delete restrict,
-    locked_at timestamp without time zone default (now() at time zone 'utc'),
+    locked_at generic_timestamp,
     locked_by int references store_admins(id) on update restrict on delete restrict
 );
 

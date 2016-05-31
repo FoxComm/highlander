@@ -7,7 +7,7 @@ create table inventory_adjustments (
     new_afs int not null default 0,
     state generic_string not null,
     sku_type generic_string not null,
-    created_at timestamp without time zone default (now() at time zone 'utc'),
+    created_at generic_timestamp,
     constraint nonzero_change check (change != 0),
     constraint positive_afs check (new_afs >= 0),
     constraint valid_state check (state in ('onHand', 'onHold', 'reserved', 'safetyStock')),

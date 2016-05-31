@@ -2,7 +2,7 @@ create table store_credit_customs (
     id integer primary key,
     admin_id integer not null,
     metadata jsonb null,
-    created_at timestamp without time zone default (now() at time zone 'utc'),
+    created_at generic_timestamp,
     foreign key (id) references store_credit_origins(id) on update restrict on delete restrict,
     foreign key (admin_id) references store_admins(id) on update restrict on delete restrict
 );

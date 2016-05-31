@@ -5,8 +5,8 @@ create table order_payments (
     payment_method_type generic_string not null,
     amount integer null,
     currency currency,
-    created_at timestamp without time zone default (now() at time zone 'utc'),
-    updated_at timestamp without time zone default (now() at time zone 'utc'),
+    created_at generic_timestamp,
+    updated_at generic_timestamp,
     foreign key (order_id) references orders(id) on update restrict on delete restrict,
     foreign key (payment_method_id) references payment_methods(id) on update restrict on delete restrict,
     constraint valid_payment_type check (payment_method_type in ('creditCard', 'giftCard', 'storeCredit'))

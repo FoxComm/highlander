@@ -5,8 +5,8 @@ create table promotions(
     form_id integer not null references object_forms(id) on update restrict on delete restrict,
     commit_id integer references object_commits(id) on update restrict on delete restrict,
     apply_type generic_string not null,
-    updated_at timestamp without time zone default (now() at time zone 'utc'),
-    created_at timestamp without time zone default (now() at time zone 'utc')
+    updated_at generic_timestamp,
+    created_at generic_timestamp
 );
 
 create index promotions_apply_typx on promotions (apply_type);

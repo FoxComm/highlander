@@ -10,8 +10,8 @@ create table rmas (
     customer_id integer not null references customers(id) on update restrict on delete restrict,
     store_admin_id integer null references store_admins(id) on update restrict on delete restrict,
     canceled_reason integer null references reasons(id) on update restrict on delete restrict,
-    created_at timestamp without time zone default (now() at time zone 'utc'),
-    updated_at timestamp without time zone default (now() at time zone 'utc'),
+    created_at generic_timestamp,
+    updated_at generic_timestamp,
     deleted_at timestamp without time zone null
 );
 

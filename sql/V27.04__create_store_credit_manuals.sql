@@ -3,7 +3,7 @@ create table store_credit_manuals (
     admin_id integer not null,
     reason_id integer not null,
     sub_reason_id integer null references reasons(id) on update restrict on delete restrict,
-    created_at timestamp without time zone default (now() at time zone 'utc'),
+    created_at generic_timestamp,
     foreign key (id) references store_credit_origins(id) on update restrict on delete restrict,
     foreign key (admin_id) references store_admins(id) on update restrict on delete restrict,
     foreign key (reason_id) references reasons(id) on update restrict on delete restrict

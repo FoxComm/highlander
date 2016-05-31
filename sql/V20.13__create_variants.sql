@@ -5,8 +5,8 @@ create table variants(
   form_id integer not null references object_forms(id) on update restrict on delete restrict,
   commit_id integer references object_commits(id) on update restrict on delete restrict,
   variant_type generic_string not null,
-  updated_at timestamp without time zone default (now() at time zone 'utc'),
-  created_at timestamp without time zone default (now() at time zone 'utc')
+  updated_at generic_timestamp,
+  created_at generic_timestamp
 );
 
 create index variants_object_context_idx on variants (context_id);

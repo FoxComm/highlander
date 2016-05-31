@@ -5,7 +5,7 @@ create table order_line_item_adjustments (
     adjustment_type generic_string not null,
     substract integer not null,
     line_item_id integer references order_line_items(id) on update restrict on delete restrict,
-    created_at timestamp without time zone default (now() at time zone 'utc')
+    created_at generic_timestamp
 );
 
 create index order_line_item_adjustments_order_idx on order_line_item_adjustments (order_id);

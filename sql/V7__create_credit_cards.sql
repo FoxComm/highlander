@@ -18,8 +18,8 @@ create table credit_cards (
     -- in_wallet: controls whether or not we display this as CC in customer's wallet. it's false when CC
     -- has been deleted and false when deprecated by a versioned child.
     in_wallet boolean default true not null,
-    created_at timestamp without time zone default (now() at time zone 'utc'),
-    updated_at timestamp without time zone default (now() at time zone 'utc'),
+    created_at generic_timestamp,
+    updated_at generic_timestamp,
     deleted_at timestamp without time zone null,
     -- address related fields
     region_id integer not null references regions(id) on update restrict on delete restrict,

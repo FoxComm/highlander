@@ -8,7 +8,7 @@ create table rma_line_items (
     origin_type rma_line_item_origin_type not null,
     is_return_item boolean not null default false,
     inventory_disposition rma_inventory_disposition not null,
-    created_at timestamp without time zone default (now() at time zone 'utc')
+    created_at generic_timestamp
 );
 
 create index rma_line_items_rma_id_and_origin_idx on rma_line_items (rma_id, origin_id);

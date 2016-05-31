@@ -9,8 +9,8 @@ create table addresses (
     zip zip_code not null,
     is_default_shipping boolean default false not null,
     phone_number phone_number null,
-    created_at timestamp without time zone default (now() at time zone 'utc'),
-    updated_at timestamp without time zone default (now() at time zone 'utc'),
+    created_at generic_timestamp,
+    updated_at generic_timestamp,
     deleted_at timestamp without time zone null,
     foreign key (customer_id) references customers(id) on update restrict on delete restrict
 );

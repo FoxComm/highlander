@@ -5,8 +5,8 @@ create table rma_payments (
     payment_method_type generic_string not null,
     amount integer not null,
     currency currency,
-    created_at timestamp without time zone default (now() at time zone 'utc'),
-    updated_at timestamp without time zone default (now() at time zone 'utc'),
+    created_at generic_timestamp,
+    updated_at generic_timestamp,
     constraint valid_payment_type check (payment_method_type in ('creditCard', 'giftCard', 'storeCredit'))
 );
 

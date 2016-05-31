@@ -21,8 +21,6 @@ import utils.db._
 import utils.db.DbResultT._
 
 object GiftCardService {
-  val mockCustomerId = 1
-
   type QuerySeq = GiftCards.QuerySeq
 
   def getOriginTypes(implicit ec: EC, db: DB): Result[Seq[GiftCardSubTypesResponse.Root]] =
@@ -44,22 +42,25 @@ object GiftCardService {
       response ← * <~ buildResponse(giftCard).toXor
     } yield response).run()
 
-  private def buildResponse(giftCard: GiftCard)(implicit ec: EC) = giftCard.originType match {
-    case GiftCard.CsrAppeasement ⇒
-      for {
-        origin ← GiftCardManuals.filter(_.id === giftCard.originId).one
-        admin  ← origin.map(o ⇒ StoreAdmins.findOneById(o.adminId)).getOrElse(DBIO.successful(None))
-        adminResponse = admin.map(StoreAdminResponse.build)
-      } yield GiftCardResponse.build(giftCard, None, adminResponse)
+  private def buildResponse(giftCard: GiftCard)(implicit ec: EC) =
+    (giftCard.originType, giftCard.customerId) match {
+      case (GiftCard.CsrAppeasement, _) ⇒
+        for {
+          origin ← GiftCardManuals.filter(_.id === giftCard.originId).one
+          admin ← origin
+                   .map(o ⇒ StoreAdmins.findOneById(o.adminId))
+                   .getOrElse(DBIO.successful(None))
+          adminResponse = admin.map(StoreAdminResponse.build)
+        } yield GiftCardResponse.build(giftCard, None, adminResponse)
 
-    case GiftCard.CustomerPurchase ⇒
-      Customers.findOneById(mockCustomerId).map { maybeCustomer ⇒
-        val customerResponse = maybeCustomer.map(c ⇒ CustomerResponse.build(c))
-        GiftCardResponse.build(giftCard, customerResponse, None)
-      }
+      case (GiftCard.CustomerPurchase, Some(customerId)) ⇒
+        Customers.findOneById(customerId).map { maybeCustomer ⇒
+          val customerResponse = maybeCustomer.map(c ⇒ CustomerResponse.build(c))
+          GiftCardResponse.build(giftCard, customerResponse, None)
+        }
 
-    case _ ⇒ DBIO.successful(GiftCardResponse.build(giftCard, None, None))
-  }
+      case _ ⇒ DBIO.successful(GiftCardResponse.build(giftCard, None, None))
+    }
 
   def createByAdmin(admin: StoreAdmin, payload: GiftCardCreateByCsr)(
       implicit ec: EC, db: DB, ac: AC): Result[Root] =

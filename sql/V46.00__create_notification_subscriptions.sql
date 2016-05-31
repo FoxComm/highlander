@@ -3,7 +3,7 @@ create table notification_subscriptions (
   admin_id int references store_admins(id) on update restrict on delete restrict,
   dimension_id int references activity_dimensions(id) on update restrict on delete restrict,
   object_id generic_string not null,
-  created_at timestamp without time zone default (now() at time zone 'utc'),
+  created_at generic_timestamp,
   reason text
 );
 

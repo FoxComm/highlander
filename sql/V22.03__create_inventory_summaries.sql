@@ -6,7 +6,7 @@ create table inventory_summaries (
     backorder_id integer not null references backorder_inventory_summaries(id) on update restrict on delete restrict,
     preorder_id integer not null references preorder_inventory_summaries(id) on update restrict on delete restrict,
     nonsellable_id integer not null references nonsellable_inventory_summaries(id) on update restrict on delete restrict,
-    created_at timestamp without time zone default (now() at time zone 'utc')
+    created_at generic_timestamp
 );
 
 create unique index inventory_summaries_sku_warehouse_idx on inventory_summaries(sku_id, warehouse_id);

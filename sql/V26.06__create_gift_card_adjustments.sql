@@ -8,7 +8,7 @@ create table gift_card_adjustments (
     debit integer not null default 0,
     available_balance integer not null default 0,
     state character varying(255) not null,
-    created_at timestamp without time zone default (now() at time zone 'utc'),
+    created_at generic_timestamp,
     foreign key (gift_card_id) references gift_cards(id) on update restrict on delete restrict,
     foreign key (order_payment_id) references order_payments(id) on update restrict on delete restrict,
     -- both credit/debit are unsigned (never negative) and only one can be > 0

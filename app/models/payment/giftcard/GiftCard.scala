@@ -40,6 +40,7 @@ case class GiftCard(id: Int = 0,
                     canceledAmount: Option[Int] = None,
                     canceledReason: Option[Int] = None,
                     reloadable: Boolean = false,
+                    customerId: Option[Int] = None,
                     createdAt: Instant = Instant.now())
     extends PaymentMethod
     with FoxModel[GiftCard]
@@ -216,6 +217,7 @@ class GiftCards(tag: Tag) extends FoxTable[GiftCard](tag, "gift_cards") {
   def canceledAmount   = column[Option[Int]]("canceled_amount")
   def canceledReason   = column[Option[Int]]("canceled_reason")
   def reloadable       = column[Boolean]("reloadable")
+  def customerId       = column[Option[Int]]("customer_id")
   def createdAt        = column[Instant]("created_at")
 
   def * =
@@ -232,6 +234,7 @@ class GiftCards(tag: Tag) extends FoxTable[GiftCard](tag, "gift_cards") {
      canceledAmount,
      canceledReason,
      reloadable,
+     customerId,
      createdAt) <> ((GiftCard.apply _).tupled, GiftCard.unapply)
 }
 
@@ -262,6 +265,7 @@ object GiftCards
         case "canceledReason" ⇒
           if (s.asc) giftCard.canceledReason.asc else giftCard.canceledReason.desc
         case "reloadable" ⇒ if (s.asc) giftCard.reloadable.asc else giftCard.reloadable.desc
+        case "customerId" ⇒ if (s.asc) giftCard.customerId.asc else giftCard.customerId.desc
         case "createdAt"  ⇒ if (s.asc) giftCard.createdAt.asc else giftCard.createdAt.desc
         case other        ⇒ invalidSortColumn(other)
       }

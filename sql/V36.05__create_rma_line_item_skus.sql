@@ -3,7 +3,7 @@ create table rma_line_item_skus (
     rma_id integer not null references rmas(id) on update restrict on delete restrict,
     sku_id integer not null references skus(id) on update restrict on delete restrict,
     sku_shadow_id integer not null references object_shadows(id) on update restrict on delete restrict,
-    created_at timestamp without time zone default (now() at time zone 'utc'),
+    created_at generic_timestamp,
     foreign key (id) references rma_line_item_origins(id) on update restrict on delete restrict
 );
 

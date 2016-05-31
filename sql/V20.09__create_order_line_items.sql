@@ -5,7 +5,7 @@ create table order_line_items (
     origin_id integer not null references order_line_item_origins(id) on update restrict on delete restrict,
     origin_type character varying(255) not null,
     state character varying(255) not null,
-    created_at timestamp without time zone default (now() at time zone 'utc'),
+    created_at generic_timestamp,
     constraint valid_origin_type check (origin_type in ('skuItem', 'giftCardItem')),
     constraint valid_state check (state in ('cart', 'pending', 'preOrdered', 'backOrdered', 'canceled', 'shipped'))
 );

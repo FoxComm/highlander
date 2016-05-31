@@ -1,7 +1,7 @@
 create table gift_card_from_store_credits (
     id integer primary key,
     store_credit_id integer not null,
-    created_at timestamp without time zone default (now() at time zone 'utc'),
+    created_at generic_timestamp,
     foreign key (id) references gift_card_origins(id) on update restrict on delete restrict,
     foreign key (store_credit_id) references store_credits(id) on update restrict on delete restrict
 );

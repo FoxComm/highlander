@@ -2,7 +2,7 @@ create table object_shadows(
     id serial primary key,
     form_id integer not null references object_forms(id) on update restrict on delete restrict,
     attributes jsonb,
-    created_at timestamp without time zone default (now() at time zone 'utc'),
+    created_at generic_timestamp,
     foreign key (form_id) references object_forms(id) on update restrict on delete restrict
 );
 

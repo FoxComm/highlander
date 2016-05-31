@@ -6,7 +6,7 @@ create table shared_searches (
     query jsonb not null,
     raw_query jsonb not null,
     store_admin_id integer not null references store_admins(id) on update restrict on delete restrict,
-    created_at timestamp without time zone default (now() at time zone 'utc'),
+    created_at generic_timestamp,
     deleted_at timestamp without time zone null
 );
 

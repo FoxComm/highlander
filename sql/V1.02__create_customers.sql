@@ -12,8 +12,8 @@ create table customers (
     is_blacklisted boolean not null default false,
     blacklisted_by integer null,
     blacklisted_reason character varying(255),
-    created_at timestamp without time zone default (now() at time zone 'utc'),
-    updated_at timestamp without time zone default (now() at time zone 'utc'),
+    created_at generic_timestamp,
+    updated_at generic_timestamp,
     deleted_at timestamp without time zone null,
     foreign key (disabled_by) references store_admins(id) on update restrict on delete restrict
 );

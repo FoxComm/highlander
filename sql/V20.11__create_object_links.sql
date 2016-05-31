@@ -3,8 +3,8 @@ create table object_links(
     left_id  integer not null references object_shadows(id) on update restrict on delete restrict,
     right_id integer not null references object_shadows(id) on update restrict on delete restrict,
     link_type object_link_type not null,
-    created_at timestamp without time zone default (now() at time zone 'utc'),
-    updated_at timestamp without time zone default (now() at time zone 'utc'),
+    created_at generic_timestamp,
+    updated_at generic_timestamp,
 
     foreign key (left_id) references object_shadows(id) on update restrict on delete restrict,
     foreign key (right_id) references object_shadows(id) on update restrict on delete restrict

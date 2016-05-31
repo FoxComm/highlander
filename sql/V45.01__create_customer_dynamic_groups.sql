@@ -5,6 +5,6 @@ create table customer_dynamic_groups (
     customers_count integer null,
     client_state jsonb not null,
     elastic_request jsonb not null,
-    updated_at timestamp without time zone default (now() at time zone 'utc'),
-    created_at timestamp without time zone default (now() at time zone 'utc')
+    updated_at generic_timestamp,
+    created_at generic_timestamp
 );
