@@ -9,3 +9,4 @@ ashes_server_name: "admin.{{demo_domain}}"
 firebird_server_name: "{{demo_domain}}"
 firebird_default_language: ru
 firebird_fixed_language: true
+firebrand_server_name: "{{demo_domain}}"
