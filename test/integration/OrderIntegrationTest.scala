@@ -97,9 +97,8 @@ class OrderIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
 
       response.status must ===(StatusCodes.OK)
       val ref = order.refNum
-      val expectedWarnings = List(EmptyCart(ref),
-                                  NoShipAddress(ref),
-                                  NoShipMethod(ref)).map(_.description)
+      val expectedWarnings =
+        List(EmptyCart(ref), NoShipAddress(ref), NoShipMethod(ref)).map(_.description)
       val responseWithValidation = response.withResultTypeOf[FullOrder.Root]
       responseWithValidation.alerts must not be defined
       responseWithValidation.warnings.value must contain theSameElementsAs expectedWarnings
@@ -157,7 +156,8 @@ class OrderIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
     /* This test should really test against an order and not a *cart*. Karin has filed a story to come back to this
     "cancels order with line items and payments" in new PaymentMethodsFixture {
       (for {
-        creditCard ← CreditCards.save(Factories.creditCard.copy(customerId = customer.id, billingAddressId = address.id))
+        creditCard ← CreditCards.save(Factories.creditCard.copy(customerId = customer.id, billingAddressId = address
+        .id))
         payment ← OrderPayments.save(Factories.orderPayment.copy(orderId = order.id, paymentMethodId = creditCard.id))
         _ ← OrderLineItems ++= Factories.orderLineItems.map(li ⇒ li.copy(orderId = order.id))
       } yield (creditCard, payment)).run().futureValue
@@ -263,7 +263,8 @@ class OrderIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
 
       POST(s"v1/orders/$refNum/lock")
 
-      (timer ? Tick).futureValue // Nothing should happen
+      (timer ? Tick).futureValue
+      // Nothing should happen
       val order1 = getUpdated(refNum)
       order1.remorsePeriodEnd must ===(order.remorsePeriodEnd)
       order1.state must ===(Order.RemorseHold)
@@ -634,23 +635,23 @@ class OrderIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
   trait ShippingMethodFixture extends AddressFixture {
     val lowConditions =
       parse("""
-        | {
-        |   "comparison": "and",
-        |   "conditions": [{
-        |     "rootObject": "Order", "field": "grandtotal", "operator": "greaterThan", "valInt": 25
-        |   }]
-        | }
-      """.stripMargin).extract[QueryStatement]
+              | {
+              |   "comparison": "and",
+              |   "conditions": [{
+              |     "rootObject": "Order", "field": "grandtotal", "operator": "greaterThan", "valInt": 25
+              |   }]
+              | }
+            """.stripMargin).extract[QueryStatement]
 
     val highConditions =
       parse("""
-        | {
-        |   "comparison": "and",
-        |   "conditions": [{
-        |     "rootObject": "Order", "field": "grandtotal", "operator": "greaterThan", "valInt": 250
-        |   }]
-        | }
-      """.stripMargin).extract[QueryStatement]
+              | {
+              |   "comparison": "and",
+              |   "conditions": [{
+              |     "rootObject": "Order", "field": "grandtotal", "operator": "greaterThan", "valInt": 250
+              |   }]
+              | }
+            """.stripMargin).extract[QueryStatement]
 
     val lowSm = Factories.shippingMethods.head
       .copy(adminDisplayName = "Low", conditions = Some(lowConditions))

@@ -24,10 +24,14 @@ scapegoatVersion := "1.2.1"
 
 lazy val slickV = "3.1.1"
 
+lazy val scalafmtAll     = taskKey[Unit]("scalafmt all the things")
+lazy val scalafmtTestAll = taskKey[Unit]("scalafmtTest all the things")
+
 lazy val phoenixScala = (project in file(".")).
   settings(commonSettings).
   configs(IT).
-  settings(inConfig(IT)(Defaults.testSettings)).
+  settings(inConfig(IT)(Defaults.itSettings)).
+  settings(inConfig(IT)(ScalaFmtPlugin.configScalafmtSettings)).
   settings(
     name      := "phoenix-scala",
     version   := "1.0",
@@ -44,6 +48,8 @@ lazy val phoenixScala = (project in file(".")).
       "justwrote"          at "http://repo.justwrote.it/releases/"
     ),
     libraryDependencies ++= {
+      val test = "test,it"
+
       val akkaV      = "2.4.4"
       val scalaTestV = "2.2.6"
       val json4sV    = "3.3.0"
@@ -98,18 +104,18 @@ lazy val phoenixScala = (project in file(".")).
         "com.amazonaws"              % "aws-java-sdk"            % "1.11.0",
         // Testing
         "org.conbere"                %  "markov_2.10"            % "0.2.0",
-        "com.typesafe.akka"          %% "akka-testkit"           % akkaV      % "test",
-        "com.typesafe.akka"          %% "akka-stream-testkit"    % akkaV      % "test",
-        "org.scalatest"              %% "scalatest"              % scalaTestV % "test",
-        "org.scalacheck"             %% "scalacheck"             % "1.13.1"   % "test",
-        "org.mockito"                %  "mockito-core"           % "1.10.19"  % "test")
+        "com.typesafe.akka"          %% "akka-testkit"           % akkaV      % test,
+        "com.typesafe.akka"          %% "akka-stream-testkit"    % akkaV      % test,
+        "org.scalatest"              %% "scalatest"              % scalaTestV % test,
+        "org.scalacheck"             %% "scalacheck"             % "1.13.1"   % test,
+        "org.mockito"                %  "mockito-core"           % "1.10.19"  % test)
     },
-    scalaSource in Compile <<= (baseDirectory in Compile)(_ / "app"),
-    scalaSource in Test <<= (baseDirectory in Test)(_ / "test" / "unit"),
-    scalaSource in IT   <<= (baseDirectory in Test)(_ / "test" / "integration"),
-    resourceDirectory in Compile := baseDirectory.value / "resources",
-    resourceDirectory in Test := baseDirectory.value / "test" / "resources",
-    resourceDirectory in IT   := baseDirectory.value / "test" / "resources",
+    scalaSource in Compile <<= baseDirectory(_ / "app"),
+    scalaSource in Test    <<= baseDirectory(_ / "test" / "unit"),
+    scalaSource in IT      <<= baseDirectory(_ / "test" / "integration"),
+    resourceDirectory in Compile <<= baseDirectory(_ / "resources"),
+    resourceDirectory in Test    <<= baseDirectory(_ / "test" / "resources"),
+    resourceDirectory in IT      <<= resourceDirectory in Test,
     Revolver.settings,
     (mainClass in Compile) := Some("server.Main"),
     initialCommands in console :=
@@ -133,7 +139,9 @@ lazy val phoenixScala = (project in file(".")).
     addCommandAlias("assembly", "gatling/assembly"),
     addCommandAlias("all", "; clean; gatling/clean; it:compile; gatling/compile; test; gatling/assembly"),
     scalafmtConfig := Some(file(".scalafmt")),
-    reformatOnCompileSettings, // scalafmt
+    reformatOnCompileWithItSettings, // scalafmt
+    scalafmtAll     <<= Def.task().dependsOn(scalafmt in Compile, scalafmt in Test, scalafmt in IT),
+    scalafmtTestAll <<= Def.task().dependsOn(scalafmtTest in Compile, scalafmtTest in Test, scalafmtTest in IT),
     test <<= Def.task {
       /** We need to do nothing here. Unit and ITs will run in parallel
         * and this task will fail if any of those fail. */
@@ -174,7 +182,7 @@ lazy val gatling = (project in file("gatling")).
         val oldStrategy = (assemblyMergeStrategy in assembly).value
         oldStrategy(x)
     }
-  ).enablePlugins(ScalaFmtPlugin)
+  )
 
 lazy val seedGatling = inputKey[Unit]("Seed DB with Gatling")
 seedGatling := { (runMain in Compile in gatling).partialInput(" seeds.OneshotSeeds").evaluated }

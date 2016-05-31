@@ -378,9 +378,8 @@ class CustomerIntegrationTest
     }
 
     "fails if email is already in use" in new Fixture {
-      val newUserResponse =
-        POST(s"v1/customers",
-             CreateCustomerPayload(email = "test@example.com", name = Some("test")))
+      val newUserResponse = POST(
+          s"v1/customers", CreateCustomerPayload(email = "test@example.com", name = Some("test")))
 
       newUserResponse.status must ===(StatusCodes.OK)
       val root = newUserResponse.as[CustomerResponse.Root]
@@ -396,8 +395,7 @@ class CustomerIntegrationTest
   "POST /v1/customers/:customerId/activate" - {
     "fails if email is already in use by non-guest user" in new Fixture {
       val newUserResponse =
-        POST(s"v1/customers",
-             CreateCustomerPayload(email = customer.email, isGuest = Some(true)))
+        POST(s"v1/customers", CreateCustomerPayload(email = customer.email, isGuest = Some(true)))
 
       newUserResponse.status must ===(StatusCodes.OK)
       val root = newUserResponse.as[CustomerResponse.Root]
