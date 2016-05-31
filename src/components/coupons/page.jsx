@@ -15,6 +15,8 @@ import { Button } from '../common/buttons';
 import SubNav from './sub-nav';
 import WaitAnimation from '../common/wait-animation';
 import ButtonWithMenu from '../common/button-with-menu';
+import ErrorAlerts from '../alerts/error-alerts';
+import Error from '../errors/error';
 
 // styles
 import styles from './form.css';
@@ -196,8 +198,12 @@ class CouponPage extends Component {
     const { coupon, promotionError } = this.state;
     const { codeGeneration } = props;
 
-    if (!coupon || props.isFetching) {
+    if (props.isFetching !== false && !coupon) {
       return <div><WaitAnimation /></div>;
+    }
+
+    if (!coupon) {
+      return <Error err={props.fetchError} notFound={`There is no coupon with id ${this.entityId}`} />;
     }
 
     const children = React.cloneElement(props.children, {
@@ -246,6 +252,7 @@ export default connect(
     details: state.coupons.details,
     codeGeneration: state.coupons.details.codeGeneration,
     isFetching: _.get(state.asyncActions, 'getCoupon.inProgress', false),
+    fetchError: _.get(state.asyncActions, 'getCoupon.err', null),
   }),
   dispatch => ({ actions: bindActionCreators(CouponActions, dispatch), dispatch })
 )(CouponPage);
