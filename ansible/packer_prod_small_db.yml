@@ -1,0 +1,16 @@
+---
+
+- name: Provision Packer Prod Small Db
+  hosts: all
+  tags:
+      - packer-prod-small-db
+  vars:
+    user: ubuntu
+    schema_server: schema-registry.service.consul:8081
+    kafka_server: kafka.service.consul:9092
+
+
+  roles:
+    - { role: base/rsyslog, sudo: yes }
+    - { role: base/consul_agent}
+    - { role: base/db}

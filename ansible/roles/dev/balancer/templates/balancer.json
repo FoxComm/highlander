@@ -3,5 +3,10 @@
         "name": "balancer",
         "tags": ["balancer"], 
         "port": 80
+    },
+    "check" : {
+        "name": "ping",
+        "script": "curl localhost",
+        "interval": "30s"
     }
 }

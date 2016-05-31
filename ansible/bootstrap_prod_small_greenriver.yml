@@ -1,0 +1,9 @@
+---
+
+- name: Bootstrap Greenriver
+  hosts: prodsmall-greenriver
+  vars:
+    user: '{{ansible_ssh_user}}'
+
+  roles:
+      - { role: prod/bootstrap_greenriver }

@@ -36,8 +36,11 @@ deploy-dem2:
 deploy-build-agents:
 	ansible-playbook -v -i ./staging ansible/build_agents.yml
 
+bootstrap-prod-small:
+	ansible-playbook -v -i prod_small_vpn ansible/bootstrap_prod_small.yml
+
 lint:
-	ansible-lint ansible/*.yml
+	ansible-lint -x ANSIBLE0007,ANSIBLE0004 ansible/*.yml
 
 test: lint
 	$(GO) test -v ./

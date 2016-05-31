@@ -1,0 +1,2 @@
+ashes_source_package: "{{role_path}}/../../../../../ashes/ashes.tar.bz2"
+ashes_install_dir: "{{home}}/ashes"

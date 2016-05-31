@@ -12,15 +12,19 @@
     - { role: base/ssh_keys}
     - { role: base/consul}
     - { role: base/scala}
+    - { role: base/confluence}
+    - { role: base/zookeeper}
     - { role: base/kafka}
+    - { role: base/schema-registry}
     - { role: base/elasticsearch}
     - { role: base/db}
     - { role: base/rsyslog, sudo: yes }
     - { role: base/kibana, sudo: yes }
+    - { role: base/phoenix}
+    - { role: base/greenriver}
     - { role: dev/kafka}
     - { role: dev/elasticsearch}
     - { role: dev/db}
-    - { role: dev/phoenix}
     - { role: dev/seeder}
     - { role: dev/greenriver}
     - { role: dev/loyalty}
@@ -43,8 +47,8 @@
     - { role: base/rsyslog, sudo: yes }
     - { role: base/node}
     - { role: base/balancer, sudo: yes }
-    - { role: dev/ashes}
-    - { role: dev/firebird}
+    - { role: base/ashes}
+    - { role: base/firebird}
     - { role: dev/balancer, sudo: yes }
     - { role: demo/ashes, sudo: yes }
 
@@ -65,7 +69,7 @@
     - { role: base/rsyslog, sudo: yes }
     - { role: base/node}
     - { role: base/balancer, sudo: yes }
-    - { role: dev/firebird}
+    - { role: base/firebird}
     - { role: dev/balancer, sudo: yes }
     - { role: demo/ashes, sudo: yes }
 

@@ -50,6 +50,7 @@
 
 - name: Copy Phoenix
   copy: src="{{phoenix_jar_src}}" dest="{{phoenix_jar}}" owner="{{user}}"
+  sudo: true
 
 - name: Setup Update Materialzied Views Sql
   copy: src=update_materialized_views.sql dest={{update_materialized_views_sql}}

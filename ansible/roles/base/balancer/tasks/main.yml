@@ -31,5 +31,5 @@
   file: path=/etc/nginx/sites-available/default state=absent
 
 - name: Restart Nginx
-  service: name=nginx state=restarted
+  service: name=nginx state=restarted enabled=true
   sudo: yes

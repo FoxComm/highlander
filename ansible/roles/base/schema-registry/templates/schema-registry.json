@@ -1,0 +1,7 @@
+{
+    "service" : {
+        "name": "schema-registry",
+        "tags": ["schema-registry"], 
+        "port": 8081
+    }
+}

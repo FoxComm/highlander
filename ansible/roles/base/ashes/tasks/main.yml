@@ -1,0 +1,48 @@
+---
+
+- name: Install gulp globally
+  shell: npm install gulp -g
+  sudo: true
+
+- name: Remove Ashes Dir
+  file: path={{ashes_install_dir}} state=absent
+
+- name: Add Ashes Dir
+  file: path={{ashes_install_dir}} state=directory
+
+- name: Sleep
+  shell: sleep 1
+
+- name: Untar Ashes code
+  unarchive:
+    src: '{{ashes_source_package}}'
+    dest: '{{ashes_install_dir}}'
+
+- name: Build Ashes
+  shell: NODE_ENV={{ashes_env}} DEMO_USER={{demo_user}} DEMO_PASS={{demo_pass}} gulp build
+  args:
+    chdir: "{{ashes_install_dir}}"
+  when: demo_user != ""
+
+- name: Install Ashes run script
+  sudo: true
+  template: src=run_ashes.sh.j2 dest="{{ ashes_install_dir }}/run_ashes.sh" mode="u=rwx,g=rwx,o=r"
+
+- name: Install Ashes service entry
+  sudo: true
+  template:
+    src: ashes.service.j2
+    dest: "{{dest_services}}/ashes.service"
+
+- name: Reload Systemd for Ashes
+  sudo: yes
+  command: systemctl daemon-reload
+
+- name: Restart Ashes
+  service: name=ashes state=restarted enabled=true
+  sudo: true
+
+- name: Copy Consul Service File
+  template: src=ashes.json dest="/etc/consul.d/ashes.json"
+  sudo: true
+  notify: reload consul

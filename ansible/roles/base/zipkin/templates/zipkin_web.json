@@ -1,0 +1,12 @@
+{
+    "service" : {
+        "name": "zipkin_web",
+        "tags": ["zipkin_web"], 
+        "port": 8080
+    },
+    "check" : {
+        "name": "ping",
+        "script": "curl localhost:8080",
+        "interval": "30s"
+    }
+}

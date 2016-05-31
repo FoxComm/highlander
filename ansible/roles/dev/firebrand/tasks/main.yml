@@ -1,14 +1,13 @@
 ---
 
-- name: Install gulp globally
-  shell: npm install gulp -g
-  sudo: true
-
 - name: Remove Firebrand Dir
   file: path={{firebrand_install_dir}} state=absent
 
 - name: Add Firebrand Dir
   file: path={{firebrand_install_dir}} state=directory
+
+- name: Sleep
+  shell: sleep 1
 
 - name: Untar Firebrand code
   unarchive:
@@ -21,25 +20,6 @@
     chdir: "{{firebrand_install_dir}}"
   when: demo_user != ""
 
-- name: Install firebrand run script
-  sudo: true
-  template: src=run_firebrand.sh.j2 dest="{{ firebrand_install_dir }}/run_firebrand.sh" mode="u=rwx,g=rwx,o=r"
-
-- name: Install firebrand service entry
-  sudo: true
-  template:
-    src: firebrand.service.j2
-    dest: "{{dest_services}}/firebrand.service"
-
-- name: Reload Systemd for Firebrand
-  sudo: yes
-  command: systemctl daemon-reload
-
 - name: Restart Firebrand
   service: name=firebrand state=restarted
   sudo: true
-
-- name: Copy Consul Service File
-  template: src=firebrand.json dest="/etc/consul.d/firebrand.json"
-  sudo: true
-  notify: reload consul

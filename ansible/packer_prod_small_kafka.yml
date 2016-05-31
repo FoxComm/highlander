@@ -1,0 +1,16 @@
+---
+
+- name: Provision Packer Prod Small Kafka
+  hosts: all
+  tags:
+      - packer-prod-small-kafka
+  vars:
+    user: ubuntu
+    search_host: elasticsearch.service.consul
+
+  roles:
+    - { role: base/rsyslog, sudo: yes }
+    - { role: base/consul_agent}
+    - { role: base/zookeeper}
+    - { role: base/kafka}
+    - { role: base/schema-registry}

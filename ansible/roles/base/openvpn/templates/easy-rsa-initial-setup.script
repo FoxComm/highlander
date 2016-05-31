@@ -1,0 +1,11 @@
+#!/bin/sh
+
+cd /etc/openvpn/easy-rsa/
+
+. ./vars
+./clean-all
+
+./pkitool --initca
+./pkitool --server {{OPENVPN_KEY_ORG}}
+
+./build-dh

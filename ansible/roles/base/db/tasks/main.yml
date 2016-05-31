@@ -106,15 +106,12 @@
     - python-psycopg2
 
 - name: Copy Bottledwater Run File
-  copy: src=run_bottledwater.sh dest="/usr/local/bin/run_bottledwater.sh" mode="u+x,g+x,o+x"
+  template: src=run_bottledwater.sh dest="/usr/local/bin/run_bottledwater.sh" mode="u+x,g+x,o+x"
   sudo: true
 
 - name: Copy Bottledwater Service
   copy: src=bottledwater.service dest="{{dest_services}}/bottledwater.service"
   sudo: true
-
-- name: Test Schema Registry to prevent bottledwater to fail.
-  uri: url=http://localhost:8081/
 
 - name: Reload Systemd for Bottledwater
   sudo: yes

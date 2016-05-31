@@ -1,0 +1,15 @@
+---
+
+- name: Provision Packer Prod Small Kafka
+  hosts: all
+  tags:
+      - packer-prod-small-kafka
+  vars:
+    user: ubuntu
+    es_heap_size: 4000m
+
+  roles:
+    - { role: base/rsyslog, sudo: yes }
+    - { role: base/consul_agent}
+    - { role: base/elasticsearch}
+    - { role: base/zipkin}

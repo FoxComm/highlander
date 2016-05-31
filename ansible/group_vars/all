@@ -3,7 +3,10 @@ dest_services: /etc/systemd/system
 usr_local: /usr/local/
 public_keys_dest_dir: /etc/keys
 private_keys_dest_dir: /etc/keys
-db_connection_string: "postgresql://localhost/phoenix_development?user={{user}}"
+db_host: localhost
+db_user: phoenix
+db_name: phoenix_development
+db_connection_string: "postgresql://{{db_host}}/phoenix_development?user={{db_user}}"
 scala_version: scala-2.11
 
 greenriver_version: 1.0
@@ -21,6 +24,7 @@ phoenix_dir: /phoenix
 phoenix_jar: "{{phoenix_dir}}/phoenix.jar"
 phoenix_db_name: phoenix_development
 phoenix_test_db_name: phoenix_test
+phoenix_tracing: "false"
 
 #ashes variables
 ashes_env: production
@@ -93,3 +97,6 @@ consul_data_dir: /var/consul
 
 #used to prefix service names in consul
 namespace: setme
+
+#zipkin
+zipkin_collector: localhost

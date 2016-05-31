@@ -1,23 +1,7 @@
 ---
-- name: Add Confluent Key
-  apt_key: url=http://packages.confluent.io/deb/2.0/archive.key
-  sudo: true
-
-- name: Add Confluent Repository
-  apt_repository: repo='deb [arch=amd64] http://packages.confluent.io/deb/2.0 stable main' state=present update_cache=yes
-  sudo: true
-
-- name: Install Packages
-  apt: name=confluent-platform-2.11.7 state=latest force=yes
-  sudo: true
-
 - name: Copy Kafka Service Files
-  copy: src={{ item }} dest={{dest_services}}/
+  copy: src=kafka.service dest={{dest_services}}/
   sudo: true
-  with_items:
-    - zookeeper.service
-    - kafka.service
-    - schema-registry.service
 
 - name: Reload Systemd for Kafka Related Services
   sudo: yes
@@ -27,18 +11,8 @@
   file: path=/var/lib/kafka state=directory
   sudo: true
 
-- name: Kafka and Zookeeper
-  service: name={{ item }} state=started enabled=yes
-  sudo: true
-  with_items:
-    - zookeeper
-    - kafka
-
-- name: Sleep
-  shell: sleep 5
-
-- name: Setup Schema Registry
-  service: name=schema-registry state=restarted enabled=yes
+- name: Start Kafka
+  service: name=kafka state=started enabled=yes
   sudo: true
 
 - name: Copy Consul Service File

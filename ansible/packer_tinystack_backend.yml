@@ -13,8 +13,12 @@
     - { role: base/consul}
     - { role: base/consul_agent}
     - { role: base/scala}
+    - { role: base/confluence}
+    - { role: base/zookeeper}
     - { role: base/kafka}
+    - { role: base/schema-registry}
     - { role: base/elasticsearch}
     - { role: base/db}
     - { role: base/rsyslog, sudo: yes }
     - { role: base/kibana, sudo: yes }
+    - { role: base/greenriver}

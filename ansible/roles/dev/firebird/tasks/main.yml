@@ -1,14 +1,13 @@
 ---
 
-- name: Install gulp globally
-  shell: npm install gulp -g
-  sudo: true
-
 - name: Remove Firebird Dir
   file: path={{firebird_install_dir}} state=absent
 
 - name: Add Firebird Dir
   file: path={{firebird_install_dir}} state=directory
+
+- name: Sleep
+  shell: sleep 1
 
 - name: Untar Firebird code
   unarchive:
@@ -21,25 +20,6 @@
     chdir: "{{firebird_install_dir}}"
   when: demo_user != ""
 
-- name: Install firebird run script
-  sudo: true
-  template: src=run_firebird.sh.j2 dest="{{ firebird_install_dir }}/run_firebird.sh" mode="u=rwx,g=rwx,o=r"
-
-- name: Install firebird service entry
-  sudo: true
-  template:
-    src: firebird.service.j2
-    dest: "{{dest_services}}/firebird.service"
-
-- name: Reload Systemd for Firebird
-  sudo: yes
-  command: systemctl daemon-reload
-
 - name: Restart Firebird
   service: name=firebird state=restarted
   sudo: true
-
-- name: Copy Consul Service File
-  template: src=firebird.json dest="/etc/consul.d/firebird.json"
-  sudo: true
-  notify: reload consul

@@ -12,6 +12,7 @@
     - { role: base/elasticsearch}
     - { role: base/rsyslog, sudo: yes }
     - { role: base/kibana, sudo: yes }
+    - { role: base/greenriver}
     - { role: dev/greenriver}
 
   handlers:

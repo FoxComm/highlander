@@ -1,0 +1,7 @@
+{
+    "service" : {
+        "name": "zookeeper",
+        "tags": ["zookeeper"], 
+        "port": 9092
+    }
+}

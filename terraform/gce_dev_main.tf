@@ -17,12 +17,10 @@ variable "consul_cluser_image" {
     default = "consul-server-1461715686"
 }
 
-variable "ssh_user" {} 
-variable "ssh_private_key" {} 
-
 module "consul_cluster" {
     source = "./gce/consul"
     datacenter = "dev"
+    network = "default"
     servers = 3
     image = "${var.consul_cluser_image}"
     ssh_user = "${var.ssh_user}"
@@ -47,11 +45,11 @@ module "buildagents" {
 ##############################################
 
 variable "tiny_backend_image" {
-    default = "tinystack-backend-1461799315"
+    default = "tinystack-backend-1462817075"
 } 
 
 variable "tiny_frontend_image" {
-    default = "tinystack-frontend-1461787500"
+    default = "tinystack-frontend-1462818081"
 } 
 
 variable "consul_server_image" { 

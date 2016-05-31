@@ -1,7 +1,0 @@
-{
-    "service" : {
-        "name": "phoenix",
-        "tags": ["phoenix"], 
-        "port": 9090
-    }
-}

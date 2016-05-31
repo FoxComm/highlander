@@ -4,14 +4,6 @@
   copy: src={{messaging_jar_src}} dest={{messaging_jar}} mode="u+x,g+x,o+x"
   sudo: true
 
-- name: Copy Service for messaging
-  template: src=messaging.service dest="{{dest_services}}/messaging.service"
-  sudo: true
-
-- name: Reload Systemd for messaging
-  sudo: yes
-  command: systemctl daemon-reload
-
 - name: Restart messaging
   service: name=messaging state=restarted enabled=yes
   sudo: true

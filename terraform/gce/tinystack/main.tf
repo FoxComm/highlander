@@ -131,7 +131,7 @@ resource "google_compute_instance" "tiny-backend" {
         inline = [
           "chmod +x /tmp/bootstrap.sh",
           "chmod +x /tmp/consul.sh",
-          "/tmp/bootstrap.sh",
+          "bash /tmp/bootstrap.sh ",
           "/tmp/consul.sh ${var.datacenter} ${google_compute_instance.tiny-consul.network_interface.0.address}"
         ]
     }
