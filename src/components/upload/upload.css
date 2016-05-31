@@ -1,0 +1,47 @@
+.upload {
+  padding: 10px 3px;
+
+  transition: border .3s;
+
+  &.dragActive {
+    border: 3px dashed #49cac2;
+  }
+
+  & .uploadItem {
+    margin: 20px 10px;
+    cursor: default;
+  }
+
+  &.disabled {
+    & .container {
+      cursor: no-drop;
+    }
+  }
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  min-height: 420px;
+  border: 3px dashed #ced2d5;
+  cursor: copy;
+}
+
+.empty {
+  text-align: center;
+  margin: 0 auto;
+  font-weight: bold;
+  color: #CED2D5;
+  opacity: .5;
+
+  & i {
+    display: block;
+    font-size: 96px;
+    line-height: .8;
+  }
+}
+
+.input {
+  display: none;
+}

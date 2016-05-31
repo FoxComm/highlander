@@ -21,7 +21,7 @@ export const PanelListItem = props => {
         {props.title}
       </div>
       <div className="fc-panel-list-content">
-        {props.content && props.content.props.children}
+        {props.container && props.container.props.children}
         {props.children}
       </div>
     </div>

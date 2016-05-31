@@ -1,0 +1,136 @@
+.accordion {
+
+  & :global(.icon-up),
+  & :global(.icon-down) {
+    transform: translateY(0);
+    transition: transform .5s;
+  }
+
+  &._open {
+    & .content {
+      max-height: 1000px;
+      opacity: 1;
+    }
+
+    & :global(.icon-up) {
+      transform: translateY(100%);
+    }
+
+    & :global(.icon-down) {
+      transform: translateY(-100%);
+    }
+  }
+}
+
+.header {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  margin: 10px 0 40px;
+}
+
+.title {
+  flex-grow: 1;
+  position: relative;
+  text-align: center;
+  line-height: 40px;
+  font-weight: bold;
+
+  &::before {
+    content: "";
+    border-top: 1px solid #ced2d5;
+    margin: 0 auto;
+    position: absolute;
+    top: 20px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+  }
+
+  & .titleWrapper {
+    display: inline-block;
+    background: #f2f2f2;
+    padding: 0 15px;
+    cursor: default;
+  }
+
+  & .input {
+    font-weight: normal;
+    text-align: center;
+    width: 184px;
+
+    &.loading {
+      background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUAQMAAAC3R49OAAAABlBMVEUAAAAAAAClZ7nPAAAAAnRSTlMAF/VASP8AAABBSURBVHheZckxFYAgFADA8zkwYgMr2MBKNpBoRCHCHxl4YADnsxymy/DoQmyh7aGmUHJwBnfjraxiW+yTNMj9xx9ZVxpfjbpEWgAAAABJRU5ErkJggg==);
+      animation: caramel .5s linear infinite;
+    }
+  }
+}
+
+.controls {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+
+  & .left,
+  & .right {
+    display: flex;
+    background: #f2f2f2;
+    pointer-events: auto;
+  }
+
+  & .left {
+    padding-right: 10px;
+    font-size: 13px;
+  }
+
+  & .right {
+    padding-left: 10px;
+    font-size: 18px;
+
+    & .controlItem {
+      margin-left: 10px;
+    }
+  }
+}
+
+.controlItem {
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  transition: color .3s;
+
+  &:hover {
+    color: #000;
+  }
+
+  & i {
+    line-height: .9;
+    transition: transform .2s ease-out;
+  }
+}
+
+.content {
+  max-height: 0;
+  opacity: .01;
+
+  transition: opacity .2s ease-in, height .3s ease-out, max-height .3s ease-out;
+}
+
+@keyframes caramel {
+  from {
+    background-position: 0 0;
+  }
+
+  to {
+    background-position: 20px 0;
+  }
+}

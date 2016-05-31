@@ -94,7 +94,7 @@ const DiscountAttrs = (props: Props): Element => {
 
   return (
     <div>
-      {_.map(currentDescription.content, renderContentRow)}
+      {_.map(currentDescription.container, renderContentRow)}
     </div>
   );
 };

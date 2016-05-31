@@ -8,7 +8,7 @@ const Panel = props => {
         {props.title}
       </div>
       <div className={classNames('fc-panel-content', {'fc-panel-content-featured': props.featured})}>
-        {props.content && props.content.props.children}
+        {props.container && props.container.props.children}
         {props.children}
       </div>
     </div>

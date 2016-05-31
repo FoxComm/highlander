@@ -1,114 +1,56 @@
-/**
- * @flow
- */
+/* @flow */
 
 // libs
-import React, { Component, Element, PropTypes } from 'react';
-import { assoc } from 'sprout-data';
-import { autobind } from 'core-decorators';
 import _ from 'lodash';
+import React, { Component, Element, PropTypes } from 'react';
+import { connect } from 'react-redux';
+
+import { actions } from '../../modules/products/images';
 
 // components
-import { FormField } from '../forms';
-import ContentBox from '../content-box/content-box';
-
-// helpers
-import { getProductAttributes, setProductAttribute } from '../../paragons/product';
+import WaitAnimation from '../common/wait-animation';
+import Images from '../images/images';
 
 // types
-import type {
-  FullProduct,
-} from '../../modules/products/details';
+import type { Props as ImagesProps } from '../images/images';
 
-type Props = {
-  product: FullProduct,
-  onUpdateProduct: (product: FullProduct) => void,
-  onSetProperty: (field: string, type: string, value: any) => void,
+type Params = {
+  productId: number;
+  context: string;
 };
 
-export default class ProductImages extends Component<void, Props, void> {
-  static propTypes = {
-    product: PropTypes.object.isRequired,
-    onSetProperty: PropTypes.func.isRequired,
-    onUpdateProduct: PropTypes.func.isRequired,
-  };
+type Props = ImagesProps & {
+  params: Params;
+};
 
-  get contentBox(): Element {
-    const imageControls = _.map(this.images, (val, idx) => {
-      return (
-        <div className="fc-product-details__image">
-          <FormField
-            className="fc-product-details__field"
-            key={`product-image-page-field-${idx}`}>
-            <input
-              className="fc-product-details__field-value"
-              type="text"
-              value={val}
-              onChange={(e) => this.handleUpdateImage(idx, e)} />
-          </FormField>
-          <i className="icon-close" onClick={() => this.handleRemoveImage(idx)} />
-        </div>
-      );
-    });
+class ProductImages extends Component {
+  static props: Props;
 
-    return (
-      <ContentBox title="Image URLs">
-        {imageControls}
-        <div className="fc-product-details__add-custom-property">
-          New Image
-          <a className="fc-product-details__add-custom-property-icon"
-             onClick={this.handleAddImage}>
-            <i className="icon-add" />
-          </a>
-        </div>
-      </ContentBox>
-    );
-  }
+  componentDidMount(): void {
+    const { context, productId } = this.props.params;
 
-  get images(): Array<?string> {
-    const attributes = getProductAttributes(this.props.product);
-    return _.get(attributes, 'images.value', [ null ]);
-  }
-
-  @autobind
-  handleAddImage() {
-    const newImages = [...this.images, null];
-    this.updateImages(newImages);
-  }
-
-  @autobind
-  handleRemoveImage(idx: number) {
-    const images = [
-      ...this.images.slice(0, idx),
-      ...this.images.slice(idx + 1),
-    ];
-
-    this.props.onSetProperty('images', 'images', images);
-  }
-
-  @autobind
-  handleUpdateImage(idx: number, event: Object) {
-    const newImages = [
-      ...this.images.slice(0, idx),
-      event.target.value,
-      ...this.images.slice(idx + 1),
-    ];
-
-    this.updateImages(newImages);
-  }
-
-  updateImages(images: Array<?string>) {
-    const product = setProductAttribute(this.props.product, 'images', 'images', images);
-    this.props.onUpdateProduct(product);
+    this.props.fetchAlbums(context, productId);
   }
 
   render(): Element {
+    const { params: { productId, context }, isLoading } = this.props;
+    if (isLoading) {
+      return <WaitAnimation />;
+    }
+
     return (
-      <div className="fc-product-details fc-grid fc-grid-no-gutter">
-        <div className="fc-col-md-1-1">
-          {this.contentBox}
-        </div>
-      </div>
+      <Images {...this.props} entityId={productId} context={context} />
     );
   }
+
 }
+
+const mapState = (state) => ({
+  albums: _.get(state, ['products', 'images', 'albums'], []),
+  isLoading: _.get(state, ['asyncActions', 'productsFetchAlbums', 'inProgress'], true),
+  addAlbumInProgress: _.get(state, ['asyncActions', 'productsAddAlbum', 'inProgress'], false),
+  editAlbumInProgress: _.get(state, ['asyncActions', 'productsEditAlbum', 'inProgress'], false),
+  uploadImagesInProgress: _.get(state, ['asyncActions', 'productsUploadImages', 'inProgress'], false),
+});
+
+export default connect(mapState, actions)(ProductImages);

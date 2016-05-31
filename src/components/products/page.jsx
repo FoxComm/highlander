@@ -180,7 +180,7 @@ export class ProductPage extends Component {
     });
 
     return (
-      <div>
+      <div className="fc-product-details">
         <PageTitle title={this.pageTitle}>
           {this.titleActions}
         </PageTitle>

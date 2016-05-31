@@ -1,0 +1,20 @@
+.title {
+  margin-top: 1.25em;
+  color: #eee;
+  text-align: center;
+  text-shadow: 1px 1px 0 black;
+}
+
+.items {
+  position: relative;
+}
+
+.item {
+  user-select: none;
+  position: absolute;
+  cursor: grab;
+
+  &.isActive {
+    cursor: grabbing;
+  }
+}

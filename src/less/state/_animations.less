@@ -5,3 +5,22 @@
 .dd-transition(up-left, '0 100%');
 .dd-transition(up-center, '50% 100%');
 .dd-transition(up-right, '100% 100%');
+
+.modal-enter,
+.modal-appear {
+  opacity: .01;
+
+  &-active {
+    transition: opacity .12s;
+    opacity: 1;
+  }
+}
+
+.modal-leave {
+  opacity: 1;
+
+  &-active {
+    transition: opacity .1s;
+    opacity: .01;
+  }
+}
