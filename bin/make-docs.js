@@ -13,6 +13,7 @@ function buildDocs() {
     leadingCharacter: '@'
   });
 
+  doc.addFile('src/query-options.leafdoc', false);
   doc.addFile('src/index.js', true);
   doc.addDir('src/api');
   doc.addDir('src/utils');
