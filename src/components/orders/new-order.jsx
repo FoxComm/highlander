@@ -2,6 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import { transitionTo } from 'browserHistory';
+import { push } from 'react-router-redux';
 import _ from 'lodash';
 
 import * as newOrderActions from '../../modules/orders/new-order';
@@ -24,7 +25,7 @@ function mapStateToProps(state) {
   };
 }
 
-@connect(mapStateToProps, { ...newOrderActions})
+@connect(mapStateToProps, { ...newOrderActions, push })
 export default class NewOrder extends Component {
   static propTypes = {
     createOrder: PropTypes.func.isRequired,
@@ -69,6 +70,7 @@ export default class NewOrder extends Component {
         items={this.suggestedCustomers}
         onItemClick={this.selectCustomer}
         onGuestClick={this.submitGuest}
+        onNewClick={this.createNewCustomer}
         isGuest={this.state.checkoutAsGuest} />
     );
   }
@@ -143,6 +145,13 @@ export default class NewOrder extends Component {
         errors: ['Please enter a valid email.'],
       });
     }
+  }
+
+  @autobind
+  createNewCustomer(e) {
+    e.preventDefault();
+
+    this.props.push({ name: 'customers-new', query: { email: this.state.query } });
   }
 
   @autobind

@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
+import { push } from 'react-router-redux';
 import { assoc } from 'sprout-data';
 
 export const changeFormData = createAction('CUSTOMER_NEW_CHANGE_FORM', (name, value) => [name, value]);
@@ -9,7 +10,7 @@ export const openCustomerDetails = createAction('CUSTOMER_OPEN_DETAILS');
 export const resetForm = createAction('CUSTOMER_RESET_FORM');
 const failNewCustomer = createAction('CUSTOMER_NEW_FAIL', (err, source) => [err, source]);
 
-export function createCustomer(router) {
+export function createCustomer() {
   return (dispatch, getState) => {
     const customerNew = getState().customers.adding;
     dispatch(submitCustomer());
@@ -18,7 +19,7 @@ export function createCustomer(router) {
       .then(
         data => {
           dispatch(openCustomerDetails(data));
-          router.push({name: 'customer', params: {customerId: data.id}});
+          dispatch(push({ name: 'customer', params: { customerId: data.id } }));
         },
         err => dispatch(failNewCustomer(err))
       );
@@ -27,8 +28,8 @@ export function createCustomer(router) {
 
 const initialState = {
   id: null,
-  email: null,
-  name: null,
+  email: '',
+  name: '',
   isFetching: false
 };
 
