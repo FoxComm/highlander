@@ -25,6 +25,7 @@
     - { role: dev/kafka}
     - { role: dev/elasticsearch}
     - { role: dev/db}
+    - { role: dev/phoenix}
     - { role: dev/seeder}
     - { role: dev/greenriver}
     - { role: dev/loyalty}
