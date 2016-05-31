@@ -11,6 +11,33 @@ create table sku_search_view
 );
 create unique index sku_search_view_idx on sku_search_view (id, context);
 
+create or replace function insert_skus_view_from_skus_fn() returns trigger as $$
+begin
+
+  insert into sku_search_view select
+    NEW.id as id,
+    NEW.code as code,
+    context.name as context,
+    context.id as context_id,
+    sku_form.attributes->>(sku_shadow.attributes->'title'->>'ref') as title,
+    sku_form.attributes->(sku_shadow.attributes->'images'->>'ref')->>0 as image,
+    sku_form.attributes->(sku_shadow.attributes->'salePrice'->>'ref')->>'value' as price,
+    sku_form.attributes->(sku_shadow.attributes->'salePrice'->>'ref')->>'currency' as currency
+    from object_contexts as context
+       left join  object_shadows as sku_shadow on (sku_shadow.id = NEW.shadow_id)
+       left join object_forms as sku_form on (sku_form.id = NEW.form_id)
+    where context.id = NEW.context_id;
+
+
+  return null;
+end;
+$$ language plpgsql;
+
+create trigger insert_skus_view_from_skus
+    after insert on skus
+    for each row
+    execute procedure insert_skus_view_from_skus_fn();
+
 create or replace function update_skus_view_from_skus_fn() returns trigger as $$
 begin
 
@@ -23,8 +50,8 @@ end;
 $$ language plpgsql;
 
 
-create trigger update_skus_view_from_skus_fn
-    after update or insert on skus
+create trigger update_skus_view_from_skus
+    after update on skus
     for each row
     execute procedure update_skus_view_from_skus_fn();
 
