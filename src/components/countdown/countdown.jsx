@@ -1,25 +1,42 @@
-import React, { PropTypes } from 'react';
+
+/* @flow */
+
+import React, { Component, Element } from 'react';
 import classNames from 'classnames';
 import moment from 'moment';
 
-export default class Countdown extends React.Component {
-  constructor(props, context) {
-    super(props, context);
-    this.state = {};
-  }
+type Props = {
+  endDate: string,
+  frozen: bool,
+  onCountdownFinished?: Function,
+};
 
-  startInterval() {
+type State = {
+  ending?: bool,
+  difference?: string,
+};
+
+export default class Countdown extends Component {
+  props: Props;
+  state: State = {};
+  interval: ?number = null;
+
+  static defaultProps = {
+    endDate: moment.utc().format(),
+  };
+
+  startInterval(): void {
     this.interval = this.interval || setInterval(this.tick.bind(this), 1000);
   }
 
-  stopInterval() {
+  stopInterval(): void {
     if (this.interval) {
       clearInterval(this.interval);
       this.interval = null;
     }
   }
 
-  tick(end) {
+  tick(end: ?string): void {
     const endDate = end || this.props.endDate;
     const timeLeft = Math.max(0, moment(endDate).utc().diff(moment.utc()));
     this.setState({
@@ -31,24 +48,27 @@ export default class Countdown extends React.Component {
     } else {
       this.startInterval();
     }
+    if (!timeLeft && this.props.onCountdownFinished) {
+      this.props.onCountdownFinished();
+    }
   }
 
-  componentDidMount() {
+  componentDidMount(): void {
     this.tick();
     this.startInterval();
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps(nextProps: Props): void {
     // force recalc of difference value
     this.tick(nextProps.endDate);
   }
 
-  componentWillUnmount() {
+  componentWillUnmount(): void {
     this.stopInterval();
   }
 
-  render() {
-    let classnames = classNames({
+  render(): Element {
+    const classnames = classNames({
       'fc-countdown': true,
       'fc-countdown_ending': this.state.ending,
       'fc-countdown_frozen': this.props.frozen
@@ -59,12 +79,3 @@ export default class Countdown extends React.Component {
     );
   }
 }
-
-Countdown.propTypes = {
-  endDate: PropTypes.string,
-  frozen: PropTypes.bool
-};
-
-Countdown.defaultProps = {
-  endDate: moment.utc().format()
-};
