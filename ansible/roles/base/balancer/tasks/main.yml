@@ -35,6 +35,6 @@
   sudo: yes
 
 - name: Copy Consul Service File
-  template: src=balancer.json dest="/etc/consul.d/firebrand.json"
+  template: src=balancer.json dest="/etc/consul.d/balancer.json"
   sudo: true
   notify: reload consul
