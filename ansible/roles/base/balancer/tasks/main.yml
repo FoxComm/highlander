@@ -33,3 +33,8 @@
 - name: Restart Nginx
   service: name=nginx state=restarted enabled=true
   sudo: yes
+
+- name: Copy Consul Service File
+  template: src=balancer.json dest="/etc/consul.d/firebrand.json"
+  sudo: true
+  notify: reload consul
