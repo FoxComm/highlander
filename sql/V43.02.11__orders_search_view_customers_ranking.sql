@@ -86,19 +86,19 @@ create trigger update_orders_view_from_customers_ranking_on_order_payments
     for each row
     execute procedure update_orders_view_from_customers_ranking_fn();
 
-create trigger update_orders_view_from_customers_ranking_on_credit_card_charges
+create trigger update_orders_view_from_customers_ranking_on_ccc
     after update or insert on credit_card_charges
     for each row
     when (new.state in ('auth', 'fullCapture'))
     execute procedure update_orders_view_from_customers_ranking_fn();
 
-create trigger update_orders_view_from_customers_ranking_on_gift_card_adjustments
+create trigger update_orders_view_from_customers_ranking_on_gfc
     after update or insert on gift_card_adjustments
     for each row
     when (new.state in ('auth', 'capture'))
     execute procedure update_orders_view_from_customers_ranking_fn();
 
-create trigger update_orders_view_from_customers_ranking_on_store_credit_adjustments
+create trigger update_orders_view_from_customers_ranking_on_sca
     after update or insert on store_credit_adjustments
     for each row
     when (new.state in ('auth', 'capture'))
