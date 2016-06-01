@@ -18,3 +18,7 @@ export const addresses = '/my/addresses';
 export const address = addressId => `/my/addresses/${addressId}`;
 export const addressDefault = addressId => `${address(addressId)}/default`;
 export const addressesDefault = '/my/address/default';
+
+// payment methods
+export const creditCards = '/my/payment-methods/credit-cards';
+export const creditCardsDefault = `${creditCards}/default`;

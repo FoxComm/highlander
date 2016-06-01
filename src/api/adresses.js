@@ -19,13 +19,13 @@ export function getAddress(addressId) {
   return this.get(endpoints.address(addressId))
 }
 
-// @method addAddress(address: Address[]): Promise<Address>
+// @method addAddress(address: CreateAddressPayload): Promise<Address>
 // Adds new address
 export function addAddress(address) {
   return this.post(endpoints.addresses, address)
 }
 
-// @method editAddress(addressId: Number, address: Address): Promise<Address>
+// @method editAddress(addressId: Number, address: UpdateAddressPayload): Promise<Address>
 // Updates selected address
 export function editAddress(addressId, address) {
   return this.patch(endpoints.address(addressId), address);
