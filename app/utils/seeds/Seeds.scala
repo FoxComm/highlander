@@ -57,7 +57,7 @@ object Seeds {
     db.close()
   }
 
-  def createBaseSeeds()(implicit db: Database, ac: AC) {
+  def createBaseSeeds()(implicit db: Database) {
     Console.err.println("Inserting Base Seeds")
     val result: Failures Xor Unit = Await.result(createBase().runTxn(), 4.minutes)
     validateResults("base", result)
@@ -102,15 +102,11 @@ object Seeds {
 
   val today = Instant.now().atZone(ZoneId.of("UTC"))
 
-  def createBase()(implicit db: Database, ac: AC): DbResultT[Unit] =
+  def createBase()(implicit db: Database): DbResultT[Unit] =
     for {
       _       ← * <~ Warehouses.create(Factories.warehouse)
       context ← * <~ ObjectContexts.create(SimpleContext.create())
       admin   ← * <~ Factories.createStoreAdmins
-      // Promotions
-      discounts  ← * <~ Factories.createDiscounts
-      promotions ← * <~ Factories.createCouponPromotions(discounts)
-      coupons    ← * <~ Factories.createCoupons(promotions)
     } yield {}
 
   def createStage()(implicit db: Database, ac: AC): DbResultT[Unit] =
@@ -146,6 +142,10 @@ object Seeds {
       _           ← * <~ Factories.createStoreCredits(admin, customers._1, customers._3)
       orders      ← * <~ Factories.createOrders(customers, products, shipMethods, context)
       _           ← * <~ Factories.createRmas
+      // Promotions
+      discounts  ← * <~ Factories.createDiscounts
+      promotions ← * <~ Factories.createCouponPromotions(discounts)
+      coupons    ← * <~ Factories.createCoupons(promotions)
     } yield {}
 
   object Factories
