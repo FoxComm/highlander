@@ -21,29 +21,19 @@ import LocalNav from '../local-nav/local-nav';
 import ConfirmationDialog from '../modal/confirmation-dialog';
 import State, { formattedStatus } from '../common/state';
 
-// redux
+// data
 import * as GiftCardActions from '../../modules/gift-cards/details';
 import * as ReasonsActions from '../../modules/reasons';
+import { states, stateTitles, stateActionTitles, getStateTransitions } from '../../paragons/gift-card';
 
-const activeStateTransitions = [
-  ['onHold', 'On Hold'],
-  ['canceled', 'Cancel Gift Card'],
-];
-
-const onHoldStateTransitions = [
-  ['active', 'Active'],
-  ['canceled', 'Cancel Gift Card'],
-];
-
-const actions = {
-  ...GiftCardActions,
-  ...ReasonsActions,
-};
 
 @connect((state, props) => ({
   ...state.giftCards.details[props.params.giftCard],
   ...state.reasons,
-}), actions)
+}), {
+  ...GiftCardActions,
+  ...ReasonsActions,
+})
 export default class GiftCard extends React.Component {
 
   static propTypes = {
@@ -120,27 +110,21 @@ export default class GiftCard extends React.Component {
   }
 
   get cardState() {
-    const {state} = this.props.card;
-    const currentStatus = formattedStatus(state);
+    const {card} = this.props;
+    const {state} = card;
+    const transitions = getStateTransitions(card);
 
-    let availableTransitions = activeStateTransitions;
-    if (state === 'onHold') {
-      availableTransitions = onHoldStateTransitions;
-    }
-
-    if (state === 'canceled' ||
-        state === 'fullyRedeemed' ||
-        state === 'cart') {
+    if (!transitions.length) {
       return <State value={state} model={"giftCard"} />;
-    } else {
-      return (
-        <Dropdown
-          placeholder={ currentStatus }
-          value={status}
-          onChange={this.onChangeState}
-          items={availableTransitions} />
-      );
     }
+
+    return (
+      <Dropdown
+        placeholder={stateTitles[state]}
+        value={state}
+        onChange={this.onChangeState}
+        items={transitions.map(state => [state, stateActionTitles[state]])} />
+    );
   }
 
   get changeConfirmationModal() {
