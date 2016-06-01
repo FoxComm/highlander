@@ -18,7 +18,7 @@ variable "consul_cluser_image" {
 }
 
 module "consul_cluster" {
-    source = "./gce/consul"
+    source = "../../gce/consul"
     datacenter = "dev"
     network = "default"
     servers = 3
@@ -32,7 +32,7 @@ module "consul_cluster" {
 ##############################################
 
 module "buildagents" {
-    source = "./gce/agent"
+    source = "../../gce/agent"
     prefix = "buildkite-agent"
     queue = "core"
     ssh_user = "${var.ssh_user}"
@@ -57,7 +57,7 @@ variable "consul_server_image" {
 }
 
 module "gatling" {
-    source = "./gce/tinystack"
+    source = "../../gce/tinystack"
     datacenter = "gatling"
     backend_image = "${var.tiny_backend_image}"
     frontend_image = "${var.tiny_frontend_image}"
@@ -118,7 +118,7 @@ resource "google_compute_instance" "gatling-gun"{
 ##############################################
 
 module "stagem" {
-    source = "./gce/tinystack"
+    source = "../../gce/tinystack"
     datacenter = "stage"
     backend_image = "${var.tiny_backend_image}"
     frontend_image = "${var.tiny_frontend_image}"
@@ -133,14 +133,14 @@ module "stagem" {
 ##############################################
 
 module "dem1" {
-    source = "./gce/demostack"
+    source = "../../gce/demostack"
     prefix = "dem1"
     ssh_user = "${var.ssh_user}"
     ssh_private_key = "${var.ssh_private_key}"
 }
 
 module "dem2" {
-    source = "./gce/demostack"
+    source = "../../gce/demostack"
     prefix = "dem2"
     ssh_user = "${var.ssh_user}"
     ssh_private_key = "${var.ssh_private_key}"
@@ -151,14 +151,14 @@ module "dem2" {
 ##############################################
 
 module "usertest1" {
-    source = "./gce/twostack"
+    source = "../../gce/twostack"
     prefix = "usertest1"
     ssh_user = "${var.ssh_user}"
     ssh_private_key = "${var.ssh_private_key}"
 }
 
 module "usertest2" {
-    source = "./gce/twostack"
+    source = "../../gce/twostack"
     prefix = "usertest2"
     ssh_user = "${var.ssh_user}"
     ssh_private_key = "${var.ssh_private_key}"

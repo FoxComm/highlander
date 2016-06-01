@@ -1,6 +1,14 @@
 
 variable "ssh_user" {} 
 variable "ssh_private_key" {} 
+
+provider "google" 
+{
+    credentials = "${file("account.json")}"
+    project = "foxcomm-staging"
+    region = "us-central1"
+}
+
 variable "network" { 
     default = "prodsmall"
 }
@@ -82,7 +90,7 @@ variable "vpn_image" {
 }
 
 module "prodsmall_vpn" {
-    source = "./gce/vpn"
+    source = "../../gce/vpn"
     image = "${var.vpn_image}"
     network = "${google_compute_network.prodsmall.name}"
 }
@@ -96,7 +104,7 @@ variable "consul_cluser_image" {
 }
 
 module "prodsmall_consul_cluster" {
-    source = "./gce/consul"
+    source = "../../gce/consul"
     network = "${var.network}"
     datacenter = "${var.network}"
     servers = 3
@@ -134,7 +142,7 @@ variable "front_image" {
 }
 
 module "prodsmall_stack" {
-    source = "./gce/prodsmall_stack"
+    source = "../../gce/prodsmall_stack"
     zone = "${var.zone}"
     network = "${var.network}"
     datacenter = "${var.network}"
