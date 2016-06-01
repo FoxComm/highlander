@@ -22,7 +22,7 @@
 
 - name: Install firebrand run script
   sudo: true
-  template: src=../../base/firebrand/run_firebrand.sh.j2 dest="{{ firebrand_install_dir }}/run_firebrand.sh" mode="u=rwx,g=rwx,o=r"
+  template: src=../../../base/firebrand/run_firebrand.sh.j2 dest="{{ firebrand_install_dir }}/run_firebrand.sh" mode="u=rwx,g=rwx,o=r"
 
 - name: Restart Firebrand
   service: name=firebrand state=restarted
