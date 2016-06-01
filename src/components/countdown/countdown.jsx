@@ -7,12 +7,12 @@ import moment from 'moment';
 
 type Props = {
   endDate: string,
-  frozen: bool,
+  frozen: boolean,
   onCountdownFinished?: Function,
 };
 
 type State = {
-  ending?: bool,
+  ending?: boolean,
   difference?: string,
 };
 
