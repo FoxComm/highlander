@@ -98,8 +98,11 @@ export default class Order extends React.Component {
     if (this.order.isRemorseHold) {
       const refNum = this.order.referenceNumber;
       return (
-        <RemorseTimer initialEndDate={this.order.remorsePeriodEnd}
-                      onIncreaseClick={ () => this.props.increaseRemorsePeriod(refNum) } />
+        <RemorseTimer
+          initialEndDate={this.order.remorsePeriodEnd}
+          onIncreaseClick={() => this.props.increaseRemorsePeriod(refNum)}
+          onCountdownFinished={() => this.props.fetchOrder(refNum)}
+        />
       );
     }
   }
