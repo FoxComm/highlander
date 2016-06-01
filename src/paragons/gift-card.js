@@ -16,7 +16,7 @@ export const stateTitles = {
   [states.onHold]: 'On Hold',
 };
 
-export const stateActionTitles= {
+export const stateActionTitles = {
   [states.active]: 'Activate',
   [states.canceled]: 'Cancel Gift Card',
   [states.cart]: 'Add to Cart',
@@ -24,7 +24,7 @@ export const stateActionTitles= {
   [states.onHold]: 'Hold',
 };
 
-export const stateTransitions = {
+const stateTransitions = {
   active: [states.onHold, states.canceled],
   onHold: [states.active, states.canceled],
   canceled: [],
@@ -32,3 +32,22 @@ export const stateTransitions = {
   cart: [],
 };
 
+const stateTransitionsFilters = [
+  (giftCard, transitions) => {
+    if (giftCard.availableBalance !== giftCard.currentBalance){
+      return transitions.filter(state => state != states.canceled);
+    }
+
+    return transitions;
+  },
+];
+
+export const getStateTransitions = giftCard => {
+  let transitions = stateTransitions[giftCard.state];
+
+  stateTransitionsFilters.forEach(filter => {
+    transitions = filter(giftCard, transitions);
+  });
+
+  return transitions;
+};

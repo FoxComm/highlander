@@ -24,7 +24,7 @@ import State, { formattedStatus } from '../common/state';
 // data
 import * as GiftCardActions from '../../modules/gift-cards/details';
 import * as ReasonsActions from '../../modules/reasons';
-import { states, stateTitles, stateActionTitles, stateTransitions } from '../../paragons/gift-card';
+import { states, stateTitles, stateActionTitles, getStateTransitions } from '../../paragons/gift-card';
 
 
 @connect((state, props) => ({
@@ -110,22 +110,20 @@ export default class GiftCard extends React.Component {
   }
 
   get cardState() {
-    const {state} = this.props.card;
-    const currentStatus = formattedStatus(state);
+    const {card} = this.props;
+    const {state} = card;
+    const transitions = getStateTransitions(card);
 
-    if (!stateTransitions[state].length) {
+    if (!transitions.length) {
       return <State value={state} model={"giftCard"} />;
     }
 
-    const current = stateTitles[state];
-    const transitions = stateTransitions[state].map(state => [state, stateActionTitles[state]]);
-
     return (
       <Dropdown
-        placeholder={current}
+        placeholder={stateTitles[state]}
         value={state}
         onChange={this.onChangeState}
-        items={transitions} />
+        items={transitions.map(state => [state, stateActionTitles[state]])} />
     );
   }
 
