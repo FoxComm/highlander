@@ -22,7 +22,7 @@
 
 - name: Install firebird run script
   sudo: true
-  template: src=../../../base/firebird/run_firebird.sh.j2 dest="{{ firebird_install_dir }}/run_firebird.sh" mode="u=rwx,g=rwx,o=r"
+  template: src=../../../base/firebird/templates/run_firebird.sh.j2 dest="{{ firebird_install_dir }}/run_firebird.sh" mode="u=rwx,g=rwx,o=r"
 
 - name: Restart Firebird
   service: name=firebird state=restarted
