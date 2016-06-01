@@ -21,29 +21,19 @@ import LocalNav from '../local-nav/local-nav';
 import ConfirmationDialog from '../modal/confirmation-dialog';
 import State, { formattedStatus } from '../common/state';
 
-// redux
+// data
 import * as GiftCardActions from '../../modules/gift-cards/details';
 import * as ReasonsActions from '../../modules/reasons';
+import { states, stateTitles, stateActionTitles, stateTransitions } from '../../paragons/gift-card';
 
-const activeStateTransitions = [
-  ['onHold', 'On Hold'],
-  ['canceled', 'Cancel Gift Card'],
-];
-
-const onHoldStateTransitions = [
-  ['active', 'Active'],
-  ['canceled', 'Cancel Gift Card'],
-];
-
-const actions = {
-  ...GiftCardActions,
-  ...ReasonsActions,
-};
 
 @connect((state, props) => ({
   ...state.giftCards.details[props.params.giftCard],
   ...state.reasons,
-}), actions)
+}), {
+  ...GiftCardActions,
+  ...ReasonsActions,
+})
 export default class GiftCard extends React.Component {
 
   static propTypes = {
@@ -123,24 +113,20 @@ export default class GiftCard extends React.Component {
     const {state} = this.props.card;
     const currentStatus = formattedStatus(state);
 
-    let availableTransitions = activeStateTransitions;
-    if (state === 'onHold') {
-      availableTransitions = onHoldStateTransitions;
+    if (!stateTransitions[state].length) {
+      return <State value={state} model={"giftCard"} />;
     }
 
-    if (state === 'canceled' ||
-        state === 'fullyRedeemed' ||
-        state === 'cart') {
-      return <State value={state} model={"giftCard"} />;
-    } else {
-      return (
-        <Dropdown
-          placeholder={ currentStatus }
-          value={status}
-          onChange={this.onChangeState}
-          items={availableTransitions} />
-      );
-    }
+    const current = stateTitles[state];
+    const transitions = stateTransitions[state].map(state => [state, stateActionTitles[state]]);
+
+    return (
+      <Dropdown
+        placeholder={current}
+        value={state}
+        onChange={this.onChangeState}
+        items={transitions} />
+    );
   }
 
   get changeConfirmationModal() {
