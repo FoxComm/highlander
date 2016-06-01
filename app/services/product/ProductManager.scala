@@ -7,7 +7,7 @@ import models.image._
 import models.inventory._
 import models.objects._
 import models.product._
-import payloads.ImagePayloads.AlbumPayload
+import payloads.ImagePayloads.CreateAlbumPayload
 import payloads.ProductPayloads._
 import payloads.SkuPayloads._
 import responses.ImageResponses.AlbumResponse
@@ -135,7 +135,7 @@ object ProductManager {
     } yield productResponse).runTxn()
 
   def addAlbumToProduct(
-      admin: StoreAdmin, productId: Int, payload: AlbumPayload, contextName: String)(
+      admin: StoreAdmin, productId: Int, payload: CreateAlbumPayload, contextName: String)(
       implicit ec: EC, db: DB, ac: AC): Result[AlbumResponse.Root] =
     (for {
       context ← * <~ ObjectManager.mustFindByName404(contextName)

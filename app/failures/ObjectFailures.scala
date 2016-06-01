@@ -2,20 +2,9 @@ package failures
 
 object ObjectFailures {
 
-  case class ObjectContextIdNotFound(id: Int) extends Failure {
-    override def description = s"Context with id $id cannot be found"
-  }
-
-  case class ObjectContextNotFound(name: String) extends Failure {
-    override def description = s"Context with name $name cannot be found"
-  }
-
-  case class ObjectFormNotFound(id: Int) extends Failure {
-    override def description = s"Form with id $id cannot be found"
-  }
-
-  case class ObjectShadowNotFound(id: Int) extends Failure {
-    override def description = s"Shadow with id $id cannot be found"
+  object ObjectContextNotFound {
+    def apply(name: String): NotFoundFailure404 =
+      NotFoundFailure404(s"Context with name $name cannot be found")
   }
 
   case class ShadowAttributeMissingRef(name: String) extends Failure {

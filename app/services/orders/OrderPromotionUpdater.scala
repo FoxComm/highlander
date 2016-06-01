@@ -6,6 +6,7 @@ import failures.OrderFailures._
 import failures.CouponFailures._
 import failures.PromotionFailures._
 import failures.DiscountCompilerFailures._
+import failures.NotFoundFailure404
 import services.discount.compilers._
 import models.discount.qualifiers._
 import models.discount.offers._
@@ -36,7 +37,7 @@ object OrderPromotionUpdater {
       // Fetch base stuff
       context ← * <~ ObjectContexts
                  .filter(_.id === order.contextId)
-                 .mustFindOneOr(ObjectContextIdNotFound(order.contextId))
+                 .mustFindOneOr(NotFoundFailure404(ObjectContext, order.contextId))
       orderPromo ← * <~ OrderPromotions
                     .filterByOrderId(order.id)
                     .requiresCoupon

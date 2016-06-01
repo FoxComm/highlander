@@ -2,6 +2,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
+import cats.implicits._
+import failures.ImageFailures._
 import failures.ObjectFailures._
 import models.StoreAdmins
 import models.image._
@@ -10,7 +12,7 @@ import models.objects._
 import models.product._
 import org.json4s.JsonDSL._
 import payloads.ImagePayloads._
-import responses.ImageResponses.AlbumResponse
+import responses.ImageResponses.AlbumResponse.{Root ⇒ AlbumRoot}
 import util.IntegrationTestBase
 import utils.Money.Currency
 import utils._
@@ -24,85 +26,114 @@ class ImageIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
         val response = GET(s"v1/albums/${context.name}/${album.formId}")
         response.status must ===(StatusCodes.OK)
 
-        val albumResponse = response.as[AlbumResponse.Root]
+        val albumResponse = response.as[AlbumRoot]
         albumResponse.images.length must ===(1)
 
         val image :: Nil = albumResponse.images
         val src          = image.get("src")
       }
+
+      "404 if wrong context name" in new Fixture {
+        val response = GET(s"v1/albums/NOPE/${album.formId}")
+        response.status must ===(StatusCodes.NotFound)
+        response.error must ===(ObjectContextNotFound("NOPE").description)
+      }
+
+      "404 if wrong album form id" in new Fixture {
+        val response = GET(s"v1/albums/${context.name}/666")
+        response.status must ===(StatusCodes.NotFound)
+        response.error must ===(AlbumNotFoundForContext(666, context.id).description)
+      }
+
+      "Retrieves a correct version of an album after an update" in new Fixture {
+        val payload  = UpdateAlbumPayload(name = "Name 2.0".some)
+        val response = PATCH(s"v1/albums/${context.name}/${album.formId}", payload)
+        response.status must ===(StatusCodes.OK)
+        response.as[AlbumRoot].name must ===("Name 2.0")
+
+        val response2 = GET(s"v1/albums/${context.name}/${album.formId}")
+        response2.status must ===(StatusCodes.OK)
+        response2.as[AlbumRoot].name must ===("Name 2.0")
+      }
     }
+
     "POST v1/albums/:context" - {
       "Create an album with no images" in new Fixture {
-        val payload  = AlbumPayload(name = "Empty album")
+        val payload  = CreateAlbumPayload(name = "Empty album")
         val response = POST(s"v1/albums/${context.name}", payload)
         response.status must ===(StatusCodes.OK)
 
-        val albumResponse = response.as[AlbumResponse.Root]
+        val albumResponse = response.as[AlbumRoot]
         albumResponse.images.length must ===(0)
       }
 
       "Create an album with one image" in new Fixture {
-        val payload = AlbumPayload(name = "Non-empty album",
-                                   images =
-                                     Some(Seq(ImagePayload(src = "http://test.com/test.jpg"))))
+        val payload = CreateAlbumPayload(name = "Non-empty album",
+                                         images = Seq(ImagePayload(src = "url")).some)
         val response = POST(s"v1/albums/${context.name}", payload)
         response.status must ===(StatusCodes.OK)
 
-        val albumResponse = response.as[AlbumResponse.Root]
+        val albumResponse = response.as[AlbumRoot]
         albumResponse.images.length must ===(1)
       }
     }
 
     "PATCH v1/albums/:context/:id" - {
       "Update the album to have another image" in new Fixture {
-        val payload =
-          AlbumPayload(name = "Sample album",
-                       images = Some(Seq(imageJson.extract[ImagePayload],
-                                         ImagePayload(src = "http://test.it/test.png"))))
+        val moreImages = Seq(images, ImagePayload(src = "http://test.it/test.png"))
+        val payload    = UpdateAlbumPayload(images = moreImages.some)
 
         val response = PATCH(s"v1/albums/${context.name}/${album.formId}", payload)
         response.status must ===(StatusCodes.OK)
 
-        val albumResponse = response.as[AlbumResponse.Root]
+        val albumResponse = response.as[AlbumRoot]
         albumResponse.images.length must ===(2)
       }
 
-      "Update the album to be empty" in new Fixture {
-        val payload  = AlbumPayload(name = "now-empty album", images = Some(Seq.empty))
+      "Ignore empty payload params" in new Fixture {
+        val payload  = UpdateAlbumPayload(name = "now-empty album".some)
         val response = PATCH(s"v1/albums/${context.name}/${album.formId}", payload)
         response.status must ===(StatusCodes.OK)
 
-        val albumResponse = response.as[AlbumResponse.Root]
+        val albumResponse = response.as[AlbumRoot]
         albumResponse.name must ===("now-empty album")
-        albumResponse.images.length must ===(0)
+        albumResponse.images.length must ===(1)
       }
 
       "Request the album after updating" in new Fixture {
-        val payload  = AlbumPayload(name = "Name 2.0", images = Some(Seq.empty))
-        val response = PATCH(s"v1/albums/${context.name}/${album.formId}", payload)
-        response.status must ===(StatusCodes.OK)
+        def checkAlbum(album: AlbumRoot) = {
+          album.name must ===("Name 2.0")
+          album.images must have size 1
+          val image = album.images.head
+          image.src must ===("http://lorem.png")
+          image.alt.value must ===("Lorem Ipsum")
+          image.title.value must ===("lorem.png")
+        }
+
+        val payload = UpdateAlbumPayload(name = "Name 2.0".some)
+
+        val response1 = PATCH(s"v1/albums/${context.name}/${album.formId}", payload)
+        response1.status must ===(StatusCodes.OK)
+        checkAlbum(response1.as[AlbumRoot])
 
         val response2 = GET(s"v1/albums/${context.name}/${album.formId}")
         response2.status must ===(StatusCodes.OK)
-
-        val albumResponse = response2.as[AlbumResponse.Root]
-        albumResponse.name must ===("Name 2.0")
+        checkAlbum(response2.as[AlbumRoot])
       }
     }
 
     "POST v1/products/:context/:id/albums" - {
       "Creates a new album on an existing product" in new ProductFixture {
-        val payload = AlbumPayload(name = "Simple Album",
-                                   images =
-                                     Some(Seq(ImagePayload(src = "http://test.com/test.jpg"))))
+        val payload =
+          CreateAlbumPayload(name = "Simple Album", images = Seq(ImagePayload(src = "url")).some)
         val response = POST(s"v1/products/${context.name}/${prodForm.id}/albums", payload)
         response.status must ===(StatusCodes.OK)
 
-        val albumResponse = response.as[AlbumResponse.Root]
+        val albumResponse = response.as[AlbumRoot]
         albumResponse.images.length must ===(1)
 
         albumResponse.name must ===("Simple Album")
-        albumResponse.images.head.src must ===("http://test.com/test.jpg")
+        albumResponse.images.head.src must ===("url")
       }
     }
 
@@ -111,7 +142,7 @@ class ImageIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
         val response = GET(s"v1/products/${context.name}/${prodForm.id}/albums")
         response.status must ===(StatusCodes.OK)
 
-        val albumResponse = response.as[AlbumResponse.Root]
+        val albumResponse = response.as[AlbumRoot]
         albumResponse.images.length must ===(1)
 
         albumResponse.name must ===("Sample Album")
@@ -119,31 +150,30 @@ class ImageIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
       }
 
       "Retrieves a correct version of an album after an update" in new ProductFixture {
-        val payload  = AlbumPayload(name = "Name 2.0", images = Some(Seq.empty))
+        val payload  = UpdateAlbumPayload(name = "Name 2.0".some)
         val response = PATCH(s"v1/albums/${context.name}/${album.formId}", payload)
         response.status must ===(StatusCodes.OK)
 
         val response2 = GET(s"v1/products/${context.name}/${prodForm.id}/albums")
         response2.status must ===(StatusCodes.OK)
 
-        val albumResponse = response2.as[AlbumResponse.Root]
+        val albumResponse = response2.as[AlbumRoot]
         albumResponse.name must ===("Name 2.0")
       }
     }
 
     "POST v1/skus/:context/:id/albums" - {
       "Creates a new album on an existing SKU" in new ProductFixture {
-        val payload = AlbumPayload(name = "Sku Album",
-                                   images =
-                                     Some(Seq(ImagePayload(src = "http://test.com/test.jpg"))))
+        val payload =
+          UpdateAlbumPayload(name = "Sku Album".some, images = Seq(ImagePayload(src = "url")).some)
         val response = POST(s"v1/skus/${context.name}/${sku.code}/albums", payload)
         response.status must ===(StatusCodes.OK)
 
-        val albumResponse = response.as[AlbumResponse.Root]
+        val albumResponse = response.as[AlbumRoot]
         albumResponse.images.length must ===(1)
 
         albumResponse.name must ===("Sku Album")
-        albumResponse.images.head.src must ===("http://test.com/test.jpg")
+        albumResponse.images.head.src must ===("url")
       }
     }
 
@@ -152,7 +182,7 @@ class ImageIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
         val response = GET(s"v1/skus/${context.name}/${sku.code}/albums")
         response.status must ===(StatusCodes.OK)
 
-        val albumResponse = response.as[AlbumResponse.Root]
+        val albumResponse = response.as[AlbumRoot]
         albumResponse.images.length must ===(1)
 
         albumResponse.name must ===("Sample Album")
@@ -160,25 +190,25 @@ class ImageIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
       }
 
       "Retrieves a correct version of an album after an update" in new ProductFixture {
-        val payload  = AlbumPayload(name = "Name 3.0", images = Some(Seq.empty))
+        val payload  = UpdateAlbumPayload(name = "Name 2.0".some)
         val response = PATCH(s"v1/albums/${context.name}/${album.formId}", payload)
         response.status must ===(StatusCodes.OK)
+        response.as[AlbumRoot].name must ===("Name 2.0")
 
         val response2 = GET(s"v1/skus/${context.name}/${sku.code}/albums")
         response2.status must ===(StatusCodes.OK)
-
-        val albumResponse = response2.as[AlbumResponse.Root]
-        albumResponse.name must ===("Name 3.0")
+        response2.as[AlbumRoot].name must ===("Name 2.0")
       }
     }
   }
 
   trait Fixture {
     def createShadowAttr(key: String, attrType: String) =
-      (key → ("type" → attrType) ~ ("ref" → key))
+      key → (("type" → attrType) ~ ("ref" → key))
 
     val imageJson =
       ("src" → "http://lorem.png") ~ ("title" → "lorem.png") ~ ("alt" → "Lorem Ipsum")
+    val images = imageJson.extract[ImagePayload]
 
     val albumFormAttrs = ("name" → "Sample Album") ~ ("images" → Seq(imageJson))
     val albumShadowAttrs =
