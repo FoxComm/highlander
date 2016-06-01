@@ -2,11 +2,13 @@ package models.objects
 
 import java.time.Instant
 
+import failures.ObjectFailures.ObjectContextNotFound
 import models.Aliases.Json
 import shapeless._
-import utils.{JsonFormatters, Validation}
+import utils.aliases.EC
 import utils.db.ExPostgresDriver.api._
 import utils.db._
+import utils.{JsonFormatters, Validation}
 
 /**
   * A ObjectContext stores information to determine which object shadow to show.
