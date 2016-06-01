@@ -108,7 +108,7 @@ export default class CreditCardForm extends React.Component {
   }
 
   get nameBlock() {
-    const holderName = _.get(this.state, 'card.holderName', '');
+    const holderName = _.get(this.state, 'card.holderName', '') || '';
     return (
       <li className="fc-credit-card-form__line">
         <FormField label="Name on Card"
@@ -161,8 +161,8 @@ export default class CreditCardForm extends React.Component {
 
   get cardNumberBlock() {
     const { isNew } = this.props;
-    const cardNumber = _.get(this.state, 'card.cardNumber', '');
-    const cvv = _.get(this.state, 'card.cvv', '');
+    const cardNumber = _.get(this.state, 'card.cardNumber', '') || '';
+    const cvv = _.get(this.state, 'card.cvv', '') || '';
 
     if (!isNew) {
       return null;
