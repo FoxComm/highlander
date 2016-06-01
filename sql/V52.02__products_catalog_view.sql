@@ -1,4 +1,19 @@
-create materialized view products_catalog_view as
+create table products_catalog_view
+(
+    id integer,
+    product_id integer,
+    context generic_string,
+    title text,
+    images jsonb,
+    description text,
+    sale_price text,
+    currency text,
+    tags text
+);
+create unique index products_catalog_view_idx on products_catalog_view (id, context);
+
+--- old TODO: delete it when PR will be ready
+create materialized view products_catalog_view_old as
 select
     p.id,
     f.id as product_id,
@@ -28,4 +43,4 @@ where
     (((f.attributes->>(s.attributes->'activeTo'->>'ref')) = '') IS NOT FALSE or
     ((f.attributes->>(s.attributes->'activeTo'->>'ref'))::timestamp >= CURRENT_TIMESTAMP));
 
-create unique index products_catalog_view_idx on products_catalog_view (id, context);
+create unique index products_catalog_view_old_idx on products_catalog_view_old (id, context);
