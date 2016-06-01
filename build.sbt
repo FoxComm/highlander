@@ -135,6 +135,8 @@ lazy val phoenixScala = (project in file(".")).
     parallelExecution in IT   := false,
     fork in Test := false,
     fork in IT   := true, /** FIXME: We couldn’t run ITs in parallel if we fork */
+    logBuffered in Test := false,
+    logBuffered in IT   := false,
     test in assembly := {},
     addCommandAlias("assembly", "gatling/assembly"),
     addCommandAlias("all", "; clean; gatling/clean; it:compile; gatling/compile; test; gatling/assembly"),
