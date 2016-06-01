@@ -14,6 +14,7 @@ import FoxyForm from '../../forms/foxy-form';
 import ErrorAlerts from '../../alerts/error-alerts';
 import SaveCancel from '../../common/save-cancel';
 import { Dropdown, DropdownItem } from '../../dropdown';
+import TextInput from '../../forms/text-input';
 
 // data
 import * as validators from '../../../lib/validators';
@@ -80,6 +81,7 @@ export default class AddressForm extends React.Component {
 
     this.state = {
       countryId: countryId,
+      phone: _.get(this.props, 'address', {}).phoneNumber
     };
   }
 
@@ -96,20 +98,20 @@ export default class AddressForm extends React.Component {
   }
 
   get phoneInput() {
-    const address = _.get(this.props, 'address', {});
-
     if (this.countryCode === 'US') {
       return (
         <InputMask type="tel"
                    name="phoneNumber"
                    mask={phoneMask(this.countryCode)}
-                   defaultValue={address.phoneNumber}
-                   placeholder={phoneExample(this.countryCode)} />
+                   value={this.state.phone}
+                   placeholder={phoneExample(this.countryCode)}
+                   onChange={({target}) => this.handlePhoneChange(target.value)}/>
       );
     }
     return (
-      <input type="tel" name="phoneNumber" defaultValue={address.phoneNumber}
-             maxLength="15" placeholder={phoneExample(this.countryCode)} />
+      <TextInput type="tel" name="phoneNumber" value={this.state.phone}
+             maxLength="15" placeholder={phoneExample(this.countryCode)}
+                 onChange={({target}) => this.handlePhoneChange(target.value)} />
     );
   }
 
@@ -167,6 +169,10 @@ export default class AddressForm extends React.Component {
     this.setState({
       countryId: countryId,
     }, () => this.props.fetchCountry(countryId));
+  }
+
+  handlePhoneChange(phone) {
+    this.setState({phone});
   }
 
   @autobind
