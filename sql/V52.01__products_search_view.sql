@@ -31,7 +31,7 @@ begin
     inner join object_contexts as context on (p.context_id = context.id)
     inner join object_forms as f on (f.id = p.form_id)
     inner join object_shadows as s on (s.id = p.shadow_id)
-    inner join product_sku_links_view as link on (link.product_id = p.id)
+    left join product_sku_links_view as link on (link.product_id = p.id)
     where p.id = NEW.id;
 
 
