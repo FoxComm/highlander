@@ -30,12 +30,12 @@ begin
     when 'products' then
       product_ids := array_agg(NEW.id);
     when 'object_links' then
-      select array_agg(p.id) into strict product_ids
+      select array_agg(p.id) into product_ids
       from products as p
       inner join object_links as link on (link.left_id = p.shadow_id)
       where link.id = NEW.id;
     when 'skus' then
-      select array_agg(p.id) into strict product_ids
+      select array_agg(p.id) into product_ids
       from products as p
       inner join object_links as link on link.left_id = p.shadow_id
       inner join skus as sku on (sku.shadow_id = link.right_id)
@@ -48,9 +48,9 @@ begin
             p.id,
             case when count(sku) = 0
               then
-                  '[]'
+                  '[]'::jsonb
               else
-              json_agg(sku.code)
+                 json_agg(sku.code)::jsonb
             end as skus
           from products as p
             left join object_links as link on link.left_id = p.shadow_id
