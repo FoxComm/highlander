@@ -13,7 +13,11 @@ type Props = {
   value: ?string,
 };
 
-export default class TextInput extends Component<void, Props, void> {
+type State = {
+  value: ?string,
+};
+
+export default class TextInput extends Component<void, Props, State> {
   static propTypes = {
     className: PropTypes.string,
     onChange: PropTypes.func,
@@ -21,15 +25,15 @@ export default class TextInput extends Component<void, Props, void> {
     value: PropTypes.string,
   };
 
-  handleChange(value) {
+  handleChange(value: string) {
     if (this.props.onChange) {
-      this.props.onChange(value)
+      this.props.onChange(value);
     } else {
       this.setState({value});
     }
   };
 
-  state = {
+  state: State = {
     value: this.props.value
   };
 

@@ -119,7 +119,6 @@ export default class CreditCardForm extends React.Component {
                className="fc-credit-card-form__input"
                name="holderName"
                maxLength="255"
-               type="text"
                required
                value={holderName} />
         </FormField>
@@ -198,7 +197,6 @@ export default class CreditCardForm extends React.Component {
                      className="fc-credit-card-form__input"
                      name="cvv"
                      maxLength={cvvLength(this.cardType)}
-                     type="text"
                      required
                      value={cvv}/>
             </FormField>

@@ -98,21 +98,17 @@ export default class AddressForm extends React.Component {
   }
 
   get phoneInput() {
-    if (this.countryCode === 'US') {
-      return (
-        <InputMask type="tel"
-                   name="phoneNumber"
-                   mask={phoneMask(this.countryCode)}
-                   value={this.state.phone}
-                   placeholder={phoneExample(this.countryCode)}
-                   onChange={({target}) => this.handlePhoneChange(target.value)}/>
-      );
-    }
-    return (
-      <TextInput type="tel" name="phoneNumber" value={this.state.phone}
-             maxLength="15" placeholder={phoneExample(this.countryCode)}
-                 onChange={({target}) => this.handlePhoneChange(target.value)} />
-    );
+    const inputAttributes = {
+      type: 'tel',
+      name: 'phoneNumber',
+      placeholder: phoneExample(this.countryCode),
+      value: this.state.phone,
+      onChange: ({target}) => this.handlePhoneChange(target.value),
+    };
+
+    return (this.countryCode === 'US')
+      ? <InputMask {...inputAttributes} mask={phoneMask(this.countryCode)}/>
+      : <TextInput {...inputAttributes} maxLength="15"/>;
   }
 
   get regionItems() {
