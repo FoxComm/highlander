@@ -29,7 +29,6 @@ export default class ExpirationBlock extends Component {
   }
 
   render(): Element {
-    console.log('rendering ExpirationBlock');
     const { month, year, onMonthChange, onYearChange } = this.props;
 
     return (

@@ -237,7 +237,6 @@ export default class ObjectScheduler extends Component {
   }
 
   render(): Element {
-    console.log('render scheduler');
     return (
       <div className="fc-product-state">
         <div className="fc-product-state__header">

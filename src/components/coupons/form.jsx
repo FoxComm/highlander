@@ -174,7 +174,7 @@ export default class CouponForm extends Component {
             form={formAttributes}
             shadow={shadowAttributes}
             onChange={this.handleChange}
-            title="State"
+            title="Coupon"
           />
           {this.watchersBlock}
         </div>
