@@ -3,55 +3,69 @@
   height: 34px;
   position: relative;
 
+  & > .fc-slide-checkbox__background:before {
+    content: 'YES';
+    background: @color-decor46;
+    color: @color-white;
+    position: absolute;
+    left: 0;
+    top: -2px;
+    width: 80px;
+    height: 34px;
+    /*
+    z-index: 0;
+    */
+    font-weight: bold;
+    border-radius: 50px;
+    padding: 6px 10px;
+    .font-spec(16px, 500, 22px);
+  }
 
-  & input[type=checkbox]:after {
+  & > .fc-slide-checkbox__background:after {
     content: 'NO';
     display: block;
     background: @color-decor47;
     color: @color-white;
     position: absolute;
     right: 0;
-    top: 0;
+    top: -2px;
     width: 80px;
     height: 34px;
+    /*
     z-index: 0;
+    */
     font-weight: bold;
     line-height: 30px;
     border-radius: 50px;
     text-align: right;
-    top: -2px;
-    padding: 6px 10px;
-    .font-spec(16px, 500, 22px);
-  }
-
-  & input[type=checkbox]:before {
-    content: 'YES';
-    background: @color-decor46;
-    color: @color-white;
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 80px;
-    height: 34px;
-    z-index: 0;
-    font-weight: bold;
-    border-radius: 50px;
-    top: -2px;
     padding: 6px 10px;
     .font-spec(16px, 500, 22px);
   }
 
   & > label {
     display: block;
+    width: 80px;
+    height: 34px;
+    cursor: pointer;
+    position: absolute;
+    top: 0;
+    left: 0;
+    /*
+    z-index: 1;
+    */
+  }
+
+  & > label:before {
+    content: "";
+    display: block;
     width: 24px;
     height: 24px;
-    border-radius: 50px;
+    border-radius: 50%;
     transition: all .4s ease;
     cursor: pointer;
     position: absolute;
     top: 3px;
     left: 3px;
-    z-index: 1;
     background: @color-white;
   }
 
@@ -59,28 +73,28 @@
     visibility: hidden;
   }
 
-  & > input[type=checkbox] + label {
+  & > input[type=checkbox] ~ label:before {
     box-shadow: 2px 3px 4px 0px rgba(0,0,0,0.30);
   }
 
-  & > input[type=checkbox]:checked + label {
+  & > input[type=checkbox]:checked ~ label:before {
     left: 52px;
     box-shadow: -2px 3px 4px 0px rgba(0,0,0,0.30);
   }
 
-  & > input[type=checkbox]:before {
+  & > input[type=checkbox] + .fc-slide-checkbox__background:before {
     visibility: hidden;
   }
 
-  & > input[type=checkbox]:after {
+  & > input[type=checkbox] + .fc-slide-checkbox__background:after {
     visibility: visible;
   }
 
-  & > input[type=checkbox]:checked:before {
+  & > input[type=checkbox]:checked + .fc-slide-checkbox__background:before {
     visibility: visible;
   }
 
-  & > input[type=checkbox]:checked:after {
+  & > input[type=checkbox]:checked + .fc-slide-checkbox__background:after {
     visibility: hidden;
   }
 
