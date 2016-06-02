@@ -1,45 +1,42 @@
 .fc-slide-checkbox {
-  width: 80px;
-  height: 34px;
+  @width: 80px;
+  @height: 34px;
+  @offsetX: 2px;
+  @offsetY: -2px;
+
+  width: @width;
+  height: @height;
   position: relative;
 
   & > .fc-slide-checkbox__background:before {
-    content: 'YES';
     background: @color-decor46;
-    color: @color-white;
     position: absolute;
     left: 0;
     top: -2px;
     width: 80px;
     height: 34px;
-    /*
-    z-index: 0;
-    */
-    font-weight: bold;
-    border-radius: 50px;
     padding: 6px 10px;
+    border-radius: 17px;
+    font-weight: bold;
     .font-spec(16px, 500, 22px);
+    color: @color-white;
+    content: 'YES';
   }
 
   & > .fc-slide-checkbox__background:after {
-    content: 'NO';
-    display: block;
     background: @color-decor47;
-    color: @color-white;
     position: absolute;
     right: 0;
     top: -2px;
     width: 80px;
     height: 34px;
-    /*
-    z-index: 0;
-    */
-    font-weight: bold;
-    line-height: 30px;
-    border-radius: 50px;
-    text-align: right;
     padding: 6px 10px;
+    border-radius: 17px;
+    font-weight: bold;
     .font-spec(16px, 500, 22px);
+    color: @color-white;
+    content: 'NO';
+    text-align: right;
   }
 
   & > label {
@@ -50,23 +47,19 @@
     position: absolute;
     top: 0;
     left: 0;
-    /*
-    z-index: 1;
-    */
   }
 
   & > label:before {
-    content: "";
-    display: block;
+    background: @color-white;
     width: 24px;
     height: 24px;
-    border-radius: 50%;
-    transition: all .4s ease;
-    cursor: pointer;
     position: absolute;
     top: 3px;
     left: 3px;
-    background: @color-white;
+    border-radius: 12px;
+    transition: all .4s ease;
+    cursor: pointer;
+    content: "";
   }
 
   & > input[type=checkbox] {
