@@ -1,30 +1,29 @@
 import java.net.ServerSocket
 
-import akka.http.scaladsl.client.RequestBuilding.Get
-import akka.http.scaladsl.unmarshalling.Unmarshal
-import akka.stream.scaladsl.{Flow, Sink, Source}
-import akka.stream.testkit.TestSubscriber.Probe
-import akka.stream.testkit.scaladsl.TestSink
-
-import de.heikoseeberger.akkasse.EventStreamUnmarshalling._
-import de.heikoseeberger.akkasse.ServerSentEvent
 import scala.collection.immutable
-import scala.concurrent.Await.result
 import scala.concurrent.Await
+import scala.concurrent.Await.result
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
+import akka.http.scaladsl.client.RequestBuilding.Get
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpMethods, HttpRequest, HttpResponse, Uri}
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.settings.ConnectionPoolSettings
-import akka.stream.{ActorMaterializer, Materializer}
+import akka.http.scaladsl.unmarshalling.Unmarshal
+import akka.stream.ActorMaterializer
+import akka.stream.scaladsl.{Flow, Sink, Source}
+import akka.stream.testkit.TestSubscriber.Probe
+import akka.stream.testkit.scaladsl.TestSink
 import akka.util.ByteString
 
 import com.typesafe.config.ConfigFactory
+import de.heikoseeberger.akkasse.EventStreamUnmarshalling._
+import de.heikoseeberger.akkasse.ServerSentEvent
 import models.StoreAdmin
 import models.customer.Customer
-import services.Authenticator.AsyncAuthenticator
 import org.json4s.Formats
 import org.json4s.jackson.Serialization.{write ⇒ writeJson}
 import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
@@ -33,13 +32,10 @@ import org.scalatest.{BeforeAndAfterAll, MustMatchers, Suite, SuiteMixin}
 import responses.TheResponse
 import server.Service
 import services.Authenticator
+import services.Authenticator.AsyncAuthenticator
 import util.DbTestSupport
+import utils.aliases._
 import utils.{Apis, FoxConfig, JsonFormatters, StripeApi}
-import concurrent.ExecutionContext.Implicits.global
-
-import cats.std.future._
-import cats.syntax.flatMap._
-import utils.aliases.EC
 
 // TODO: Move away from root package when `Service' moverd
 object HttpSupport {
@@ -251,28 +247,26 @@ object Extensions {
   implicit class RichHttpResponse(val res: HttpResponse) extends AnyVal {
     import org.json4s.jackson.JsonMethods._
 
-    def bodyText(implicit ec: EC, mat: Materializer): String =
+    def bodyText(implicit ec: EC, mat: Mat): String =
       result(res.entity.toStrict(1.second).map(_.data.utf8String), 1.second)
 
-    def as[A <: AnyRef](implicit fm: Formats,
-                        mf: scala.reflect.Manifest[A],
-                        mat: Materializer): A =
+    def as[A <: AnyRef](implicit fm: Formats, mf: Manifest[A], mat: Mat): A =
       parse(bodyText).extract[A]
 
     def ignoreFailuresAndGiveMe[A <: AnyRef](implicit fm: Formats,
-                                             mf: scala.reflect.Manifest[A],
-                                             mat: Materializer): A =
+                                             mf: Manifest[A],
+                                             mat: Mat): A =
       parse(bodyText).extract[TheResponse[A]].result
 
     def withResultTypeOf[A <: AnyRef](implicit fm: Formats,
-                                      mf: scala.reflect.Manifest[A],
-                                      mat: Materializer): TheResponse[A] =
+                                      mf: Manifest[A],
+                                      mat: Mat): TheResponse[A] =
       parse(bodyText).extract[TheResponse[A]]
 
-    def errors(implicit fm: Formats, mat: Materializer): List[String] =
+    def errors(implicit fm: Formats, mat: Mat): List[String] =
       (parse(bodyText) \ "errors").extractOrElse[List[String]](List.empty[String])
 
-    def error(implicit fm: Formats, mat: Materializer): String =
+    def error(implicit fm: Formats, mat: Mat): String =
       errors.headOption.getOrElse("never gonna give you up. never gonna let you down.")
   }
 }

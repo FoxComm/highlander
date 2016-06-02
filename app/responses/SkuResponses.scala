@@ -3,10 +3,10 @@ package responses
 import java.time.Instant
 
 import cats.implicits._
-import models.Aliases.Json
 import models.inventory._
 import models.objects._
 import responses.ObjectResponses.ObjectContextResponse
+import utils.aliases._
 
 object SkuResponses {
 

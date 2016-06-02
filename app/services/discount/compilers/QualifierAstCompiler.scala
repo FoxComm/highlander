@@ -7,8 +7,9 @@ import failures._
 import models.discount.qualifiers._
 import org.json4s._
 import utils.JsonFormatters
+import utils.aliases._
 
-case class QualifierAstCompiler(data: JValue) {
+case class QualifierAstCompiler(data: Json) {
 
   implicit val formats: Formats = JsonFormatters.phoenixFormats
 
@@ -36,7 +37,7 @@ case class QualifierAstCompiler(data: JValue) {
     }
   }
 
-  private def compile(qualifierTypeString: String, attributes: JValue): Xor[Failures, Qualifier] =
+  private def compile(qualifierTypeString: String, attributes: Json): Xor[Failures, Qualifier] =
     QualifierType.read(qualifierTypeString) match {
       case Some(qualifierType) ⇒ QualifierCompiler(qualifierType, attributes).compile()
       case _                   ⇒ Xor.Left(QualifierNotValid(qualifierTypeString).single)

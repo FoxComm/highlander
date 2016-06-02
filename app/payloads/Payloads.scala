@@ -1,7 +1,7 @@
 package payloads
 
-import models.Aliases._
 import models.auth.Identity.IdentityKind
+import utils.aliases._
 
 case class LoginPayload(email: String, password: String, kind: IdentityKind)
 

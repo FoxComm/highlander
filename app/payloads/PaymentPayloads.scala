@@ -3,10 +3,11 @@ package payloads
 import cats.data.ValidatedNel
 import cats.implicits._
 import failures.Failure
-import org.json4s.JsonAST.{JObject, JValue}
+import org.json4s.JsonAST.JObject
 import payloads.AddressPayloads.CreateAddressPayload
 import utils.Money.Currency
 import utils._
+import utils.aliases._
 
 object PaymentPayloads {
 
@@ -77,5 +78,5 @@ object PaymentPayloads {
   case class CreateExtensionStoreCredit(amount: Int,
                                         currency: Currency = Currency.USD,
                                         subTypeId: Option[Int] = None,
-                                        metadata: JValue = JObject())
+                                        metadata: Json = JObject())
 }

@@ -5,7 +5,7 @@ import failures.ObjectFailures._
 import models.StoreAdmin
 import models.category._
 import models.objects._
-import payloads.{CreateFullCategory, UpdateFullCategory}
+import payloads.CategoryPayloads._
 import responses.CategoryResponses._
 import responses.ObjectResponses.ObjectContextResponse
 import services.{LogActivity, Result}
@@ -41,58 +41,48 @@ object CategoryManager {
   def createCategory(admin: StoreAdmin, payload: CreateFullCategory, contextName: String)(
       implicit ec: EC, db: DB, ac: AC): Result[FullCategoryResponse.Root] =
     (for {
-
-      context        ← * <~ contextByName(contextName)
-      categoryForm   ← * <~ ObjectForm(kind = Category.kind, attributes = payload.form.attributes)
-      categoryShadow ← * <~ ObjectShadow(attributes = payload.shadow.attributes)
-      insertResult   ← * <~ ObjectUtils.insert(categoryForm, categoryShadow)
-      category       ← * <~ Categories.create(Category.build(context.id, insertResult))
-      categoryResponse = FullCategoryResponse.build(
-          category, insertResult.form, insertResult.shadow)
+      context  ← * <~ contextByName(contextName)
+      form     ← * <~ ObjectForm(kind = Category.kind, attributes = payload.form.attributes)
+      shadow   ← * <~ ObjectShadow(attributes = payload.shadow.attributes)
+      insert   ← * <~ ObjectUtils.insert(form, shadow)
+      category ← * <~ Categories.create(Category.build(context.id, insert))
+      response = FullCategoryResponse.build(category, insert.form, insert.shadow)
       _ ← * <~ LogActivity.fullCategoryCreated(
-             Some(admin), categoryResponse, ObjectContextResponse.build(context))
-    } yield categoryResponse).runTxn()
+             Some(admin), response, ObjectContextResponse.build(context))
+    } yield response).runTxn()
 
   def updateCategory(
       admin: StoreAdmin, categoryId: Int, payload: UpdateFullCategory, contextName: String)(
       implicit ec: EC, db: DB, ac: AC): Result[FullCategoryResponse.Root] =
     (for {
-
       context  ← * <~ contextByName(contextName)
       category ← * <~ categoryById(categoryId, context)
-      updatedCategory ← * <~ ObjectUtils.update(category.formId,
-                                                category.shadowId,
-                                                payload.form.attributes,
-                                                payload.shadow.attributes)
-      commit ← * <~ ObjectUtils.commit(
-                  updatedCategory.form, updatedCategory.shadow, updatedCategory.updated)
-      category ← * <~ updateCategoryHead(category, updatedCategory.shadow, commit)
-      categoryResponse = FullCategoryResponse.build(
-          category, updatedCategory.form, updatedCategory.shadow)
-      contextResp = ObjectContextResponse.build(context)
+      updated ← * <~ ObjectUtils.update(category.formId,
+                                        category.shadowId,
+                                        payload.form.attributes,
+                                        payload.shadow.attributes)
+      commit   ← * <~ ObjectUtils.commit(updated.form, updated.shadow, updated.updated)
+      category ← * <~ updateCategoryHead(category, updated.shadow, commit)
+      categoryResponse = FullCategoryResponse.build(category, updated.form, updated.shadow)
+      contextResp      = ObjectContextResponse.build(context)
       _ ← * <~ LogActivity.fullCategoryUpdated(Some(admin), categoryResponse, contextResp)
     } yield categoryResponse).runTxn()
 
   def getIlluminatedCategory(categoryId: Int, contextName: String)(
       implicit ec: EC, db: DB): Result[IlluminatedCategoryResponse.Root] =
-    getCategoryFull(categoryId, contextName)
-      .map(c ⇒
-            IlluminatedCategoryResponse.build(IlluminatedCategory.illuminate(c.context,
-                                                                             c.category,
-                                                                             c.form,
-                                                                             c.shadow)))
-      .run()
+    getCategoryFull(categoryId, contextName).map { full ⇒
+      val cat = IlluminatedCategory.illuminate(full.context, full.category, full.form, full.shadow)
+      IlluminatedCategoryResponse.build(cat)
+    }.run()
 
   def getIlluminatedCategoryAtCommit(categoryId: Int, contextName: String, commitId: Int)(
       implicit ec: EC, db: DB): Result[IlluminatedCategoryResponse.Root] =
     (for {
-
       context  ← * <~ contextByName(contextName)
       category ← * <~ categoryById(categoryId, context)
       commit ← * <~ ObjectCommits
                 .filter(commit ⇒ commit.id === commitId && commit.formId === categoryId)
-                .one
-                .mustFindOr(CategoryNotFoundAtCommit(categoryId, commitId))
+                .mustFindOneOr(CategoryNotFoundAtCommit(categoryId, commitId))
       categoryForm   ← * <~ ObjectForms.mustFindById404(commit.formId)
       categoryShadow ← * <~ ObjectShadows.mustFindById404(commit.shadowId)
     } yield
@@ -114,12 +104,11 @@ object CategoryManager {
   private def contextByName(contextName: String)(implicit ec: EC): DbResult[ObjectContext] =
     ObjectContexts.filterByName(contextName).mustFindOneOr(ObjectContextNotFound(contextName))
 
-  private def categoryById(
-      categoryId: Int, context: ObjectContext)(implicit ec: EC): DbResult[Category] =
+  private def categoryById(categoryId: Int, context: ObjectContext)(
+      implicit ec: EC): DbResult[Category] =
     Categories
       .withContextAndCategory(context.id, categoryId)
-      .one
-      .mustFindOr(CategoryNotFoundForContext(categoryId, context.id))
+      .mustFindOneOr(CategoryNotFoundForContext(categoryId, context.id))
 
   private def getCategoryFull(categoryId: Int, contextName: String)(
       implicit ec: EC, db: DB): DbResultT[CategoryFull] =

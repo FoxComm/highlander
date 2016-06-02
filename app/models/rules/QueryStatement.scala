@@ -4,9 +4,9 @@ import scala.collection.immutable.Seq
 
 import com.pellucid.sealerate
 import org.json4s.Extraction
-import org.json4s.JsonAST.JValue
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
+import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.{ADT, JsonFormatters}
 
@@ -33,7 +33,7 @@ object QueryStatement {
 
   implicit val QueryStatementColumn: JdbcType[QueryStatement] with BaseTypedType[QueryStatement] = {
     implicit val formats = JsonFormatters.phoenixFormats
-    MappedColumnType.base[QueryStatement, JValue](
+    MappedColumnType.base[QueryStatement, Json](
         q ⇒ Extraction.decompose(q),
         j ⇒ j.extract[QueryStatement]
     )

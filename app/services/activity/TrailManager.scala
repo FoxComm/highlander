@@ -1,14 +1,12 @@
 package services.activity
 
-import models.Aliases
-import Aliases.Json
 import models.activity._
 import payloads.ActivityTrailPayloads._
 import responses.{ActivityConnectionResponse, FullActivityConnectionResponse}
 import services.Result
 import utils.aliases._
-import utils.db._
 import utils.db.DbResultT._
+import utils.db._
 
 object TrailManager {
 
@@ -26,16 +24,14 @@ object TrailManager {
     * The idea here is to lazily create resources to save space and query time.
     */
   def appendActivityByObjectId(dimensionName: String, objectId: String, payload: AppendActivity)(
-      implicit context: ActivityContext, ec: EC, db: DB): Result[ActivityConnectionResponse.Root] =
+      implicit context: AC, ec: EC, db: DB): Result[ActivityConnectionResponse.Root] =
     appendActivityByObjectIdInner(dimensionName, objectId, payload).runTxn()
 
   private[services] def appendActivityByObjectIdInner(dimensionName: String,
                                                       objectId: String,
                                                       payload: AppendActivity,
                                                       newTrailData: Option[Json] = None)(
-      implicit context: ActivityContext,
-      ec: EC,
-      db: DB): DbResultT[ActivityConnectionResponse.Root] =
+      implicit context: AC, ec: EC, db: DB): DbResultT[ActivityConnectionResponse.Root] =
     for {
 
       //find or create the dimension

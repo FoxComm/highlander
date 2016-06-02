@@ -1,9 +1,9 @@
 import akka.http.scaladsl.model.StatusCodes
 
-import models.location.{Region, Countries, Country}
-import Country._
-import Region._
-import responses.CountryWithRegions
+import models.location.Country._
+import models.location.Region._
+import models.location.{Countries, Country, Region}
+import responses.PublicResponses.CountryWithRegions
 import util.IntegrationTestBase
 
 class LocationsIntegrationTest extends IntegrationTestBase with HttpSupport {

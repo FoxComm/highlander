@@ -1,15 +1,15 @@
 package models.discount
 
 import models.objects._
-import org.json4s.JsonAST.JValue
+import utils.aliases._
 
 object DiscountHelpers {
 
-  def offer(f: ObjectForm, s: ObjectShadow): JValue = {
-    ObjectUtils.get("offer", f, s)
+  def offer(form: ObjectForm, shadow: ObjectShadow): Json = {
+    ObjectUtils.get("offer", form, shadow)
   }
 
-  def qualifier(f: ObjectForm, s: ObjectShadow): JValue = {
-    ObjectUtils.get("qualifier", f, s)
+  def qualifier(form: ObjectForm, shadow: ObjectShadow): Json = {
+    ObjectUtils.get("qualifier", form, shadow)
   }
 }

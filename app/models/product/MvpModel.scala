@@ -9,14 +9,15 @@ import failures.ObjectFailures._
 import failures.ProductFailures._
 import models.inventory._
 import models.objects._
-import org.json4s.JsonAST.{JNothing, JString, JValue}
+import org.json4s.JsonAST.{JNothing, JString}
 import org.json4s.JsonDSL._
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import slick.driver.PostgresDriver.api._
 import utils.Money.Currency
-import utils.db._
+import utils.aliases._
 import utils.db.DbResultT._
+import utils.db._
 
 object SimpleContext {
   val id      = 1
@@ -413,7 +414,7 @@ object Mvp {
                })
     } yield results
 
-  def priceFromJson(p: JValue): Option[(Int, Currency)] = {
+  def priceFromJson(p: Json): Option[(Int, Currency)] = {
     val price = for {
       JInt(value)       ← p \ "value"
       JString(currency) ← p \ "currency"

@@ -2,8 +2,6 @@ package models.promotion
 
 import failures.Failure
 import models.objects._
-import models.Aliases.Json
-import org.json4s.JsonAST.JNothing
 import org.json4s.jackson.Serialization.{write ⇒ render}
 import utils.IlluminateAlgorithm
 

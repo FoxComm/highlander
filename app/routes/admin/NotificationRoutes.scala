@@ -1,7 +1,6 @@
 package routes.admin
 
 import akka.http.scaladsl.server.Directives._
-import akka.stream.Materializer
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import de.heikoseeberger.akkasse.EventStreamMarshalling._
@@ -14,7 +13,7 @@ import utils.http.Http._
 
 object NotificationRoutes {
 
-  def routes(implicit ec: EC, db: DB, mat: Materializer, admin: StoreAdmin) = {
+  def routes(implicit ec: EC, db: DB, mat: Mat, admin: StoreAdmin) = {
     activityContext(admin) { implicit ac ⇒
       pathPrefix("notifications") {
         (get & pathEnd) {

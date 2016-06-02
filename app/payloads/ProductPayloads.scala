@@ -1,7 +1,7 @@
 package payloads
 
-import models.Aliases.Json
 import payloads.SkuPayloads._
+import utils.aliases._
 
 object ProductPayloads {
 

@@ -1,20 +1,18 @@
 package routes.admin
 
 import akka.http.scaladsl.server.Directives._
-import akka.stream.Materializer
+
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.StoreAdmin
-import payloads.AssignmentPayloads._
-import services.assignments._
-import utils.Apis
-import utils.http.CustomDirectives._
-import utils.http.Http._
-import utils.aliases._
-
 import models.inventory.Sku.skuCodeRegex
 import models.order.Order.orderRefNumRegex
-import models.rma.Rma.rmaRefNumRegex
 import models.payment.giftcard.GiftCard.giftCardCodeRegex
+import models.rma.Rma.rmaRefNumRegex
+import payloads.AssignmentPayloads._
+import services.assignments._
+import utils.aliases._
+import utils.http.CustomDirectives._
+import utils.http.Http._
 
 object AssignmentsRoutes {
 

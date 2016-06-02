@@ -2,10 +2,10 @@ package responses
 
 import java.time.Instant
 
-import models.Aliases.Json
 import models.coupon._
 import models.objects._
 import responses.ObjectResponses.ObjectContextResponse
+import utils.aliases._
 
 object CouponResponses {
 

@@ -7,13 +7,13 @@ import models.StoreAdmins
 import models.activity.ActivityContext
 import models.objects.ObjectContexts
 import models.product.SimpleContext
-import org.json4s.JsonAST.{JObject, JString, JValue}
+import org.json4s.JsonAST.{JObject, JString}
 import org.json4s.JsonDSL._
-import payloads.{CreateCategoryForm, CreateCategoryShadow, CreateFullCategory, UpdateCategoryForm, UpdateCategoryShadow, UpdateFullCategory}
+import payloads.CategoryPayloads._
 import responses.CategoryResponses._
 import services.category.CategoryManager
 import util.IntegrationTestBase
-import utils.aliases.AC
+import utils.aliases.{AC, _}
 import utils.db.DbResultT._
 import utils.db._
 
@@ -48,7 +48,7 @@ class CategoryIntegrationTest extends IntegrationTestBase with HttpSupport with 
 
         val expectedFormValues: List[JString] =
           newValue :: testAttributes.map { case (_, value) ⇒ value }
-        val formValues: List[JValue] = content.form.attributes.asInstanceOf[JObject].children
+        val formValues: List[Json] = content.form.attributes.asInstanceOf[JObject].children
         val shadowKeys: Iterable[String] =
           content.shadow.attributes.asInstanceOf[JObject].values.keys
 
@@ -71,7 +71,7 @@ class CategoryIntegrationTest extends IntegrationTestBase with HttpSupport with 
 
         val content = response.as[FullCategoryResponse.Root]
 
-        val formValues: List[JValue] = content.form.attributes.asInstanceOf[JObject].children
+        val formValues: List[Json] = content.form.attributes.asInstanceOf[JObject].children
         val shadowKeys: Iterable[String] =
           content.shadow.attributes.asInstanceOf[JObject].values.keys
 
@@ -90,7 +90,7 @@ class CategoryIntegrationTest extends IntegrationTestBase with HttpSupport with 
         val expectedFormValues: List[JString] = testAttributes.map {
           case (_, value) ⇒ value
         }
-        val formValues: List[JValue] = content.attributes.asInstanceOf[JObject].children
+        val formValues: List[Json] = content.attributes.asInstanceOf[JObject].children
 
         formValues must contain only (expectedFormValues: _*)
         content.id must ===(category.form.id)

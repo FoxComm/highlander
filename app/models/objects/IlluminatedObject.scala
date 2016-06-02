@@ -1,7 +1,7 @@
 package models.objects
 
-import models.Aliases.Json
 import utils.IlluminateAlgorithm
+import utils.aliases._
 
 case class IlluminatedContext(name: String, attributes: Json)
 
@@ -14,8 +14,7 @@ case class IlluminatedObject(id: Int = 0, attributes: Json)
 object IlluminatedObject {
 
   def illuminate(form: ObjectForm, shadow: ObjectShadow): IlluminatedObject = {
-    IlluminatedObject(id = form.id,
-                      attributes =
-                        IlluminateAlgorithm.projectAttributes(form.attributes, shadow.attributes))
+    val attributes = IlluminateAlgorithm.projectAttributes(form.attributes, shadow.attributes)
+    IlluminatedObject(id = form.id, attributes = attributes)
   }
 }

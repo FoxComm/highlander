@@ -2,9 +2,8 @@ package responses
 
 import java.time.Instant
 
-import models.Aliases
 import models.activity.{Activity, ActivityContext}
-import Aliases.{ActivityType, Json}
+import utils.aliases._
 
 object ActivityResponse {
   case class Root(id: Int,

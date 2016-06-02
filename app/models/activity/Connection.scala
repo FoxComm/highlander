@@ -2,12 +2,11 @@ package models.activity
 
 import java.time.Instant
 
-import models.Aliases
-import models.Aliases.Json
 import shapeless._
 import slick.lifted.Tag
-import utils.db._
+import utils.aliases._
 import utils.db.ExPostgresDriver.api._
+import utils.db._
 
 /**
   * An activity connection is a node in an activity trail. It connects an activity to a trail

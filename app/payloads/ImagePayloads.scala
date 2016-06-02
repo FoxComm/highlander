@@ -2,13 +2,13 @@ package payloads
 
 import models.image._
 import models.objects._
-import org.json4s.JsonAST.JValue
 import org.json4s.JsonDSL._
+import utils.aliases._
 
 object ImagePayloads {
 
   case class ImagePayload(src: String, title: Option[String] = None, alt: Option[String] = None) {
-    def toJson: JValue = ("src" -> src) ~ ("title" -> title) ~ ("alt" -> alt)
+    def toJson: Json = ("src" -> src) ~ ("title" -> title) ~ ("alt" -> alt)
   }
 
   case class AlbumPayload(name: String, images: Option[Seq[ImagePayload]] = None) {
