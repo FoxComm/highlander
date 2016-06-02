@@ -225,12 +225,7 @@ export default class DatePicker extends React.Component {
       });
 
       return (
-        <div
-          className={klass}
-          onClick={() => this.selectDate(dt)}
-          onMouseDown={suppressClick}
-          onMouseUp={suppressClick}
-          key={day}>
+        <div className={klass} onMouseDown={() => this.selectDate(dt)} key={day}>
           {dt.getDate()}
         </div>
       );
