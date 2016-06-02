@@ -66,7 +66,7 @@ begin
         o.name,
         skus.id as sku_id
       from object_contexts as o
-      inner join skus on (skus.form_id = o.id)
+      inner join skus on (skus.context_id = o.id)
       where skus.id = NEW.id) as subquery
       where subquery.sku_id = sku_search_view.id;
 
