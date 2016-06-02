@@ -65,10 +65,6 @@ refresh materialized view concurrently notes_search_view;
 -- inventory
 refresh materialized view concurrently inventory_search_view;
 refresh materialized view concurrently inventory_transactions_search_view;
-refresh materialized view concurrently product_sku_links_view;
-refresh materialized view concurrently products_catalog_view;
-refresh materialized view concurrently products_search_view;
-refresh materialized view concurrently sku_search_view;
 
 -- locations
 refresh materialized view concurrently regions_search_view;
