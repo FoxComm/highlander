@@ -64,7 +64,7 @@ Vagrant.configure("2") do |config|
   tune_vm(config, cpus: $vb_cpu, memory: $vb_memory)
 
   config.vm.provider :vmware_fusion do |v, override|
-    override.vm.box= "boxcutter/ubuntu1504"
+    override.vm.box= "boxcutter/ubuntu1510"
   end
 
   config.vm.provider :google do |g, override|
@@ -77,7 +77,7 @@ Vagrant.configure("2") do |config|
     g.google_json_key_location = ENV['GOOGLE_JSON_KEY_LOCATION']
 
     g.machine_type = "n1-standard-2"
-    g.image = "ubuntu-1504-vivid-v20151120"
+    g.image = "base-1462485956"
     g.disk_size = 20
     g.zone = "us-central1-a"
     g.tags = ['vagrant', 'no-ports']
