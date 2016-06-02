@@ -19,8 +19,8 @@ final case class ProductsCatalogView()(implicit ec: EC) extends AvroTransformer 
           field("name", StringType) index "not_analyzed",
           field("images").nested(
               field("alt", StringType) index "not_analyzed",
-              field("title", StringType) index "not_analyzed",
-              field("url", StringType) index "not_analyzed"
+              field("src", StringType) index "not_analyzed",
+              field("title", StringType) index "not_analyzed"
           )
       )
   )
