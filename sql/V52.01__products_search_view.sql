@@ -45,31 +45,3 @@ create trigger insert_products_search_view_from_products
     for each row
     execute procedure insert_products_search_view_from_products_fn();
 
-
----
-
-create materialized view products_search_view_old as
-select
-    p.id as id,
-    f.id as product_id,
-    context.name as context,
-    f.attributes->>(s.attributes->'title'->>'ref') as title,
-    f.attributes->(s.attributes->'images'->>'ref') as images,
-    f.attributes->>(s.attributes->'description'->>'ref') as description,
-    f.attributes->>(s.attributes->'activeFrom'->>'ref') as active_from,
-    f.attributes->>(s.attributes->'activeTo'->>'ref') as active_to,
-    f.attributes->>(s.attributes->'tags'->>'ref') as tags,
-    link.skus as skus
-from
-	products as p,
-	object_forms as f,
-	object_shadows as s,
-	object_contexts as context,
-	product_sku_links_view as link
-where
-	p.context_id = context.id and
-	f.id = p.form_id and
-	s.id = p.shadow_id and
-	link.product_id = p.id;
-
-create unique index products_search_view_old_idx on products_search_view_old (id, context);
