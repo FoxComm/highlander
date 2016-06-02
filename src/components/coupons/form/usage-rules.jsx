@@ -64,6 +64,10 @@ export default class UsageRules extends Component {
     this.props.onChange('usesPerCustomer', checkedValue);
   }
 
+  shouldComponentUpdate(nextProps: UsageRuleProps): boolean {
+    return !_.eq(this.props, nextProps);
+  }
+
   render(): Element {
     return (
       <ContentBox title="Usage Rules">

@@ -260,7 +260,7 @@ export default class ObjectFormInner extends Component {
   @autobind
   renderText(label: string, value: string = '', args?: any): Element {
     const onChange = ({target}) => {
-      return this.handleChange(label, 'richText', target.value);
+      return this.handleChange(label, 'text', target.value);
     };
     const textInput = (
       <textarea
@@ -273,11 +273,16 @@ export default class ObjectFormInner extends Component {
     return renderFormField(label, textInput, args);
   }
 
+  shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
+    const attributesChanged = !_.eq(this.props.attributes, nextProps.attributes);
+    const stateChanged = !_.eq(this.state, nextState);
+
+    return attributesChanged || stateChanged;
+  }
+
   render(): Element {
     const { attributes, options } = this.props;
-    const fieldsToRender = _.isEmpty(this.props.fieldsToRender)
-      ? Object.keys(attributes)
-      : this.props.fieldsToRender;
+    const fieldsToRender = _.isEmpty(this.props.fieldsToRender) ? Object.keys(attributes) : this.props.fieldsToRender;
 
     const renderedAttributes: Array<Element> = _.map(fieldsToRender, name => {
       const attribute = attributes[name];

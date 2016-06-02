@@ -226,7 +226,18 @@ export default class ObjectScheduler extends Component {
     }
   }
 
+  shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
+    const prevActiveFrom = this.activeFrom;
+    const prevActiveTo = this.activeTo;
+
+    const nextActiveFrom = this.getAttribute(nextProps.attributes, 'activeFrom');
+    const nextActiveTo = this.getAttribute(nextProps.attributes, 'activeTo');
+
+    return prevActiveFrom !== nextActiveFrom || prevActiveTo !== nextActiveTo || !_.eq(this.state, nextState);
+  }
+
   render(): Element {
+    console.log('render scheduler');
     return (
       <div className="fc-product-state">
         <div className="fc-product-state__header">

@@ -8,20 +8,19 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 // utils
-import * as CardUtils from '../../lib/credit-card-utils';
 import { detectCardType, cardMask, cvvLength, isCardNumberValid, isCvvValid } from 'wings/lib/payment-cards';
 
 // components
 import { Checkbox } from '../checkbox/checkbox';
 import FormField from '../forms/formfield';
 import Form from '../forms/form';
-import Dropdown from '../dropdown/dropdown';
 import AddressDetails from '../addresses/address-details';
 import AddressSelect from '../addresses/address-select';
 import SaveCancel from '../common/save-cancel';
 import InputMask from 'react-input-mask';
 import TextInput from '../forms/text-input';
 import AutoScroll from '../common/auto-scroll';
+import ExpirationBlock from './card-expiration-block';
 
 import * as AddressActions from '../../modules/customers/addresses';
 
@@ -117,11 +116,11 @@ export default class CreditCardForm extends React.Component {
                    validator="ascii"
                    labelClassName="fc-credit-card-form__label">
         <TextInput id="nameCardFormField"
-               className="fc-credit-card-form__input"
-               name="holderName"
-               maxLength="255"
-               required
-               value={holderName} />
+                   className="fc-credit-card-form__input"
+                   name="holderName"
+                   maxLength="255"
+                   required
+                   value={holderName} />
         </FormField>
       </li>
     );
@@ -205,31 +204,17 @@ export default class CreditCardForm extends React.Component {
   }
 
   get expirationBlock() {
-    const expMonth = _.get(this.state, 'card.expMonth');
-    const expYear = _.get(this.state, 'card.expYear');
+    const month = _.get(this.state, 'card.expMonth');
+    const year = _.get(this.state, 'card.expYear');
 
     return (
-      <li className="fc-credit-card-form__line">
-        <label className="fc-credit-card-form__label">Expiration Date</label>
-        <div className="fc-grid">
-          <div className="fc-col-md-1-2">
-            <Dropdown name="expMonth"
-                      items={CardUtils.monthList()}
-                      placeholder="Month"
-                      value={expMonth}
-                      onChange={this.onExpMonthChange} />
-          </div>
-          <div className="fc-col-md-1-2">
-            <Dropdown name="expYear"
-                      items={CardUtils.expirationYears()}
-                      placeholder="Year"
-                      value={expYear}
-                      onChange={this.onExpYearChange} />
-          </div>
-        </div>
-      </li>
+      <ExpirationBlock month={month}
+                       year={year}
+                       onMonthChange={this.onExpMonthChange}
+                       onYearChange={this.onExpYearChange}
+      />
     );
-  }
+  };
 
   get billingAddress() {
     const { customerId } = this.props;

@@ -172,8 +172,13 @@ export default class RichTextEditor extends Component<void, Props, State> {
     return <div className="fc-rich-text-editor__command-set">{buttons}</div>;
   }
 
+  shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
+    return this.state.editorState != nextState.editorState;
+  }
+
   render(): Element {
     const { editorState } = this.state;
+
     return (
       <div className={classNames('fc-rich-text-editor', this.props.className)}>
         {this.props.label && <div className="fc-rich-text-editor__label">{this.props.label}</div>}
