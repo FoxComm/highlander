@@ -1,8 +1,9 @@
 package utils.db
 
+import utils.aliases._
 import com.github.tminglei.slickpg._
 import com.github.tminglei.slickpg.array.PgArrayJdbcTypes
-import org.json4s.JValue
+import com.github.tminglei.slickpg.utils.SimpleArrayUtils
 import slick.driver.PostgresDriver
 
 trait ExPostgresDriver
@@ -19,7 +20,7 @@ trait ExPostgresDriver
     with PgLTreeSupport {
 
   override val pgjson = "jsonb"
-  type DOCType = JValue
+  type DOCType = Json
   override val jsonMethods = org.json4s.jackson.JsonMethods
 
   override val api = MyAPI
@@ -40,11 +41,11 @@ trait ExPostgresDriver
     implicit val strListTypeMapper: DriverJdbcType[List[String]] =
       new SimpleArrayJdbcType[String]("text").to(_.toList)
 
-    implicit val json4sJsonArrayTypeMapper: DriverJdbcType[List[JValue]] =
-      new AdvancedArrayJdbcType[JValue](
+    implicit val json4sJsonArrayTypeMapper: DriverJdbcType[List[Json]] =
+      new AdvancedArrayJdbcType[Json](
           pgjson,
-          (s) ⇒ utils.SimpleArrayUtils.fromString[JValue](jsonMethods.parse(_))(s).orNull,
-          (v) ⇒ utils.SimpleArrayUtils.mkString[JValue](_.toString())(v)).to(_.toList)
+          (s) ⇒ SimpleArrayUtils.fromString[Json](jsonMethods.parse(_))(s).orNull,
+          (v) ⇒ SimpleArrayUtils.mkString[Json](_.toString())(v)).to(_.toList)
   }
 }
 

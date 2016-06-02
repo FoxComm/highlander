@@ -6,8 +6,9 @@ import failures._
 import models.discount.offers._
 import org.json4s._
 import utils.JsonFormatters
+import utils.aliases._
 
-case class OfferCompiler(offerType: OfferType, attributes: JValue) {
+case class OfferCompiler(offerType: OfferType, attributes: Json) {
 
   implicit val formats: Formats = JsonFormatters.phoenixFormats
 
@@ -24,7 +25,7 @@ case class OfferCompiler(offerType: OfferType, attributes: JValue) {
     case _                  ⇒ Xor.Left(OfferNotImplementedFailure(offerType).single)
   }
 
-  private def extract[T <: Offer](json: JValue)(implicit m: Manifest[T]): Xor[Failures, Offer] =
+  private def extract[T <: Offer](json: Json)(implicit m: Manifest[T]): Xor[Failures, Offer] =
     json.extractOpt[T] match {
       case Some(q) ⇒ Xor.Right(q)
       case None    ⇒ Xor.Left(OfferAttributesExtractionFailure(offerType).single)

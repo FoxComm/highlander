@@ -2,16 +2,16 @@ package models.inventory
 
 import java.time.Instant
 
-import cats.implicits._
 import cats.data.ValidatedNel
+import cats.implicits._
 import com.pellucid.sealerate
 import failures.Failure
 import models.inventory.InventoryAdjustment._
 import shapeless._
-import org.json4s.JsonAST.JValue
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import slick.lifted.Tag
+import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 import utils.{ADT, Validation}
@@ -23,7 +23,7 @@ case class InventoryAdjustment(id: Int = 0,
                                newAfs: Int,
                                state: State,
                                skuType: SkuType,
-                               metadata: JValue,
+                               metadata: Json,
                                createdAt: Instant = Instant.now)
     extends FoxModel[InventoryAdjustment] {
 
@@ -93,7 +93,7 @@ class InventoryAdjustments(tag: Tag)
   def newAfs      = column[Int]("new_afs")
   def state       = column[State]("state")
   def skuType     = column[SkuType]("sku_type")
-  def metadata    = column[JValue]("metadata")
+  def metadata    = column[Json]("metadata")
   def createdAt   = column[Instant]("created_at")
 
   def * =

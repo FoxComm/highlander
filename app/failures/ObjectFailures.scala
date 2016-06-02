@@ -26,7 +26,7 @@ object ObjectFailures {
     override def description = s"Cannot find attribute $attr with key $key in form"
   }
 
-  case object AttributesAreEmpty extends Failure {
+  case object FormAttributesAreEmpty extends Failure {
     override def description = "Form attributes are empty"
   }
 

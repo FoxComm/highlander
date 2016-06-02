@@ -1,8 +1,8 @@
 package models.product
 
-import models.Aliases.Json
 import models.objects._
 import utils.IlluminateAlgorithm
+import utils.aliases._
 
 /**
   * An IlluminatedProduct is what you get when you combine the product shadow and

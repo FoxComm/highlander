@@ -6,7 +6,7 @@ import cats.data.NonEmptyList
 import cats.implicits._
 import failures.Failure
 import failures.ObjectFailures._
-import org.json4s.JsonAST.{JField, JNothing, JObject, JString, JValue}
+import org.json4s.JsonAST.{JField, JNothing, JObject, JString}
 import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods._
 import slick.driver.PostgresDriver.api._
@@ -17,11 +17,11 @@ import utils.db._
 
 object ObjectUtils {
 
-  def get(attr: String, form: ObjectForm, shadow: ObjectShadow): JValue = {
+  def get(attr: String, form: ObjectForm, shadow: ObjectShadow): Json = {
     IlluminateAlgorithm.get(attr, form.attributes, shadow.attributes)
   }
 
-  def key(content: JValue): String = {
+  def key(content: Json): String = {
     val KEY_LENGTH = 5
     val md         = java.security.MessageDigest.getInstance("SHA-1")
     md.digest(compact(render(content)).getBytes)
@@ -32,15 +32,15 @@ object ObjectUtils {
 
   def key(content: String): String = key(JString(content))
 
-  def attribute(content: JValue): JField = {
+  def attribute(content: Json): JField = {
     (key(content), content)
   }
 
-  def attributes(values: Seq[JValue]): JValue =
+  def attributes(values: Seq[Json]): Json =
     JObject(values.map(attribute).toList)
 
   type KeyMap = Map[String, String]
-  def createForm(form: JValue): (KeyMap, JValue) = {
+  def createForm(form: Json): (KeyMap, Json) = {
     form match {
       case JObject(o) ⇒
         val m = o.obj.map {
@@ -56,12 +56,12 @@ object ObjectUtils {
     }
   }
 
-  def updateForm(oldForm: JValue, updatedForm: JValue): (KeyMap, JValue) = {
+  def updateForm(oldForm: Json, updatedForm: Json): (KeyMap, Json) = {
     val (keyMap, newForm) = createForm(updatedForm)
     (keyMap, oldForm merge newForm)
   }
 
-  def newShadow(oldShadow: JValue, keyMap: KeyMap): JValue =
+  def newShadow(oldShadow: Json, keyMap: KeyMap): Json =
     oldShadow match {
       case JObject(o) ⇒
         o.obj.map {
@@ -76,21 +76,20 @@ object ObjectUtils {
       case _ ⇒ JNothing
     }
 
-  case class FormShadowAttributes(form: JValue, shadow: JValue)
-  def updateFormAndShadow(
-      oldForm: JValue, newForm: JValue, oldShadow: JValue): FormShadowAttributes = {
+  case class FormShadowAttributes(form: Json, shadow: Json)
+  def updateFormAndShadow(oldForm: Json, newForm: Json, oldShadow: Json): FormShadowAttributes = {
     val (keyMap, updatedForm) = updateForm(oldForm, newForm)
     val updatedShadow         = newShadow(oldShadow, keyMap)
     FormShadowAttributes(updatedForm, updatedShadow)
   }
 
-  def newFormAndShadow(oldForm: JValue, oldShadow: JValue): FormShadowAttributes = {
+  def newFormAndShadow(oldForm: Json, oldShadow: Json): FormShadowAttributes = {
     val (keyMap, form) = createForm(oldForm)
     val shadow         = newShadow(oldShadow, keyMap)
     FormShadowAttributes(form, shadow)
   }
 
-  def bakedAttrToFormShadow(attr: String, value: JValue): ((String, JValue), (String, JValue)) = {
+  def bakedAttrToFormShadow(attr: String, value: Json): ((String, Json), (String, Json)) = {
     val t = value \ "t"
     val v = value \ "v"
     t match {
@@ -101,7 +100,7 @@ object ObjectUtils {
     }
   }
 
-  def bakedToFormShadow(baked: JValue): (JValue, JValue) =
+  def bakedToFormShadow(baked: Json): (Json, Json) =
     baked match {
       case JObject(b) ⇒
         val formShadowPairs = b.obj.map {
@@ -132,8 +131,8 @@ object ObjectUtils {
 
   def update(formId: Int,
              shadowId: Int,
-             formAttributes: JValue,
-             shadowAttributes: JValue,
+             formAttributes: Json,
+             shadowAttributes: Json,
              force: Boolean = false)(implicit db: DB, ec: EC): DbResultT[UpdateResult] = {
     for {
       oldForm   ← * <~ ObjectForms.mustFindById404(formId)
@@ -195,8 +194,8 @@ object ObjectUtils {
 
   private def updateIfDifferent(oldForm: ObjectForm,
                                 oldShadow: ObjectShadow,
-                                newFormAttributes: JValue,
-                                newShadowAttributes: JValue,
+                                newFormAttributes: Json,
+                                newShadowAttributes: Json,
                                 force: Boolean =
                                   false)(implicit ec: EC): DbResultT[UpdateResult] = {
     if (oldShadow.attributes != newShadowAttributes || force)

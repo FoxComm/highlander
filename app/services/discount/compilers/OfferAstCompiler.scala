@@ -7,8 +7,9 @@ import failures._
 import models.discount.offers._
 import org.json4s._
 import utils.JsonFormatters
+import utils.aliases._
 
-case class OfferAstCompiler(data: JValue) {
+case class OfferAstCompiler(data: Json) {
 
   implicit val formats: Formats = JsonFormatters.phoenixFormats
 
@@ -36,7 +37,7 @@ case class OfferAstCompiler(data: JValue) {
     }
   }
 
-  private def compile(offerTypeString: String, attributes: JValue): Xor[Failures, Offer] =
+  private def compile(offerTypeString: String, attributes: Json): Xor[Failures, Offer] =
     OfferType.read(offerTypeString) match {
       case Some(offerType) ⇒ OfferCompiler(offerType, attributes).compile()
       case _               ⇒ Xor.Left(OfferNotValid(offerTypeString).single)

@@ -3,13 +3,13 @@ package models.sharedsearch
 import java.time.Instant
 
 import com.pellucid.sealerate
-import models.sharedsearch.SharedSearch._
 import models.StoreAdmin
-import shapeless._
-import org.json4s.JsonAST.JValue
+import models.sharedsearch.SharedSearch._
 import payloads.SharedSearchPayloads.SharedSearchPayload
+import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
+import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 import utils.{ADT, JsonFormatters}
@@ -17,8 +17,8 @@ import utils.{ADT, JsonFormatters}
 case class SharedSearch(id: Int = 0,
                         code: String = "",
                         title: String,
-                        query: JValue,
-                        rawQuery: JValue,
+                        query: Json,
+                        rawQuery: Json,
                         scope: Scope = CustomersScope,
                         storeAdminId: Int,
                         createdAt: Instant = Instant.now,
@@ -60,8 +60,8 @@ class SharedSearches(tag: Tag) extends FoxTable[SharedSearch](tag, "shared_searc
   def id           = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def code         = column[String]("code")
   def title        = column[String]("title")
-  def query        = column[JValue]("query")
-  def rawQuery     = column[JValue]("raw_query")
+  def query        = column[Json]("query")
+  def rawQuery     = column[Json]("raw_query")
   def scope        = column[Scope]("scope")
   def storeAdminId = column[Int]("store_admin_id")
   def createdAt    = column[Instant]("created_at")

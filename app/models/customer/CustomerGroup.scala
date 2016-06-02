@@ -2,13 +2,13 @@ package models.customer
 
 import java.time.Instant
 
-import shapeless._
-import org.json4s.JsonAST.{JValue ⇒ Json}
 import payloads.CustomerGroupPayloads.CustomerDynamicGroupPayload
+import shapeless._
 import slick.lifted.Tag
-import utils.http.CustomDirectives.SortAndPage
+import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
+import utils.http.CustomDirectives.SortAndPage
 
 case class CustomerDynamicGroup(id: Int = 0,
                                 createdBy: Int,

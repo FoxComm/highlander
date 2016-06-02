@@ -2,29 +2,20 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
-import failures.ImageFailures._
 import failures.ObjectFailures._
-import failures.ProductFailures._
-import models.Aliases.Json
+import models.StoreAdmins
 import models.image._
 import models.inventory._
 import models.objects._
 import models.product._
-import models.StoreAdmins
-import org.json4s.JsonAST.JValue
 import org.json4s.JsonDSL._
 import payloads.ImagePayloads._
 import responses.ImageResponses.AlbumResponse
 import util.IntegrationTestBase
-import util.SlickSupport.implicits._
-import utils.IlluminateAlgorithm
 import utils.Money.Currency
 import utils._
-import utils.aliases._
-import utils.db._
 import utils.db.DbResultT._
-import utils.db.ExPostgresDriver.api._
-import utils.db.ExPostgresDriver.jsonMethods._
+import utils.db._
 
 class ImageIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
   "Album Tests" - {
@@ -184,12 +175,12 @@ class ImageIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
 
   trait Fixture {
     def createShadowAttr(key: String, attrType: String) =
-      (key -> ("type" -> attrType) ~ ("ref" -> key))
+      (key → ("type" → attrType) ~ ("ref" → key))
 
     val imageJson =
-      ("src" -> "http://lorem.png") ~ ("title" -> "lorem.png") ~ ("alt" -> "Lorem Ipsum")
+      ("src" → "http://lorem.png") ~ ("title" → "lorem.png") ~ ("alt" → "Lorem Ipsum")
 
-    val albumFormAttrs = ("name" -> "Sample Album") ~ ("images" -> Seq(imageJson))
+    val albumFormAttrs = ("name" → "Sample Album") ~ ("images" → Seq(imageJson))
     val albumShadowAttrs =
       createShadowAttr("name", "string") ~ createShadowAttr("images", "images")
 

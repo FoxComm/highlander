@@ -3,7 +3,7 @@ package responses
 import java.time.Instant
 
 import models.customer.CustomerDynamicGroup
-import org.json4s.JsonAST.{JValue ⇒ Json}
+import utils.aliases._
 
 object DynamicGroupResponse {
   case class Root(

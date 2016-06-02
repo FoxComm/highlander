@@ -4,11 +4,11 @@ import java.time.Instant
 
 import cats.data.Xor
 import cats.data.Xor._
-import failures._
 import failures.PromotionFailures._
-import models.Aliases.Json
-import models.promotion.Promotion._
+import failures._
 import models.objects._
+import models.promotion.Promotion._
+import utils.aliases._
 import utils.{IlluminateAlgorithm, JsonFormatters}
 
 /**

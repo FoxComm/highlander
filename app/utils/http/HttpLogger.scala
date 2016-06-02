@@ -11,7 +11,7 @@ import akka.stream.scaladsl.Sink
 import cats.implicits._
 import org.json4s.JsonAST.{JField, JString}
 import org.json4s._
-import org.json4s.jackson._
+import org.json4s.jackson.{Serialization, parseJson}
 import utils.JsonFormatters
 import utils.aliases._
 
@@ -58,7 +58,7 @@ object HttpLogger {
     }
   }
 
-  private def maskSensitiveData(json: JValue): JValue = json.transformField {
+  private def maskSensitiveData(json: Json): Json = json.transformField {
 
     // Replace all symbols with "*"
     case JField(name, JString(value)) if fieldsToMaskCompletely.contains(name) ⇒

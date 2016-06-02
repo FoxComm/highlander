@@ -1,8 +1,8 @@
 package models.product
 
-import models.Aliases.Json
 import models.objects._
 import utils.IlluminateAlgorithm
+import utils.aliases._
 
 case class IlluminatedVariant(id: Int, context: IlluminatedContext, attributes: Json)
 

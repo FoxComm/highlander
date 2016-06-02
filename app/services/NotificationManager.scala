@@ -2,8 +2,8 @@ package services
 
 import scala.concurrent.Future
 import scala.concurrent.duration.DurationInt
+import akka.stream.OverflowStrategy
 import akka.stream.scaladsl._
-import akka.stream.{Materializer, OverflowStrategy}
 
 import de.heikoseeberger.akkasse.{EventStreamElement, ServerSentEvent ⇒ SSE}
 import failures._
@@ -19,15 +19,15 @@ import responses.{ActivityConnectionResponse, ActivityResponse, LastSeenActivity
 import services.activity.TrailManager
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
-import utils.db._
 import utils.db.DbResultT._
+import utils.db._
 import utils.{JsonFormatters, NotificationListener}
 
 object NotificationManager {
   implicit val formats = JsonFormatters.phoenixFormats
 
   def streamByAdminId(adminId: StoreAdmin#Id)(
-      implicit ec: EC, db: DB, mat: Materializer): Future[Source[EventStreamElement, Any]] = {
+      implicit ec: EC, db: DB, mat: Mat): Future[Source[EventStreamElement, Any]] = {
     StoreAdmins.findOneById(adminId).run().map {
       case Some(admin) ⇒
         oldNotifications(adminId)
@@ -38,8 +38,7 @@ object NotificationManager {
     }
   }
 
-  private def newNotifications(adminId: Int)(
-      implicit ec: EC, mat: Materializer): Source[SSE, Any] = {
+  private def newNotifications(adminId: Int)(implicit ec: EC, mat: Mat): Source[SSE, Any] = {
     val (actorRef, publisher) = Source
       .actorRef[SSE](8, OverflowStrategy.fail)
       .toMat(Sink.asPublisher(false))(Keep.both)
@@ -73,7 +72,7 @@ object NotificationManager {
   }
 
   def createNotification(payload: CreateNotification)(
-      implicit ac: ActivityContext, ec: EC, db: DB): Result[Seq[ActivityConnectionResponse.Root]] =
+      implicit ac: AC, ec: EC, db: DB): Result[Seq[ActivityConnectionResponse.Root]] =
     (for {
       sourceDimensionId ← * <~ dimensionIdByName(payload.sourceDimension)
       activity          ← * <~ Activities.mustFindById400(payload.activityId)

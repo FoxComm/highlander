@@ -1,8 +1,8 @@
 package payloads
 
-import models.Aliases.Json
 import models.promotion.Promotion.ApplyType
 import payloads.DiscountPayloads.{CreateDiscountForm, CreateDiscountShadow}
+import utils.aliases._
 
 object PromotionPayloads {
 

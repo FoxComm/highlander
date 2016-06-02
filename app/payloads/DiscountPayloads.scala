@@ -1,6 +1,6 @@
 package payloads
 
-import models.Aliases.Json
+import utils.aliases._
 
 object DiscountPayloads {
 

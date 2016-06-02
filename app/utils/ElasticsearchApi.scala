@@ -1,15 +1,13 @@
 package utils
 
+import scala.collection.JavaConverters._
 import scala.concurrent.Future
 
-import com.typesafe.config.Config
-import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri, RichSearchResponse}
 import com.sksamuel.elastic4s.ElasticDsl._
+import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri, RichSearchResponse}
+import com.typesafe.config.Config
 import org.elasticsearch.common.settings.Settings
 import org.elasticsearch.search.aggregations.bucket.filter.InternalFilter
-import scala.collection.JavaConverters._
-
-import org.json4s.JsonAST.JValue
 import org.json4s.jackson.JsonMethods.{compact, parse, render}
 import utils.aliases._
 
@@ -24,7 +22,7 @@ case class ElasticsearchApi(host: String, cluster: String, index: String)(implic
     * Injects aggregation by specified field name into prepared query
     */
   def checkAggregation(typeName: String,
-                       query: JValue,
+                       query: Json,
                        fieldName: String,
                        references: Seq[String]): Future[Long] = {
     // Extract matched document count from aggregation

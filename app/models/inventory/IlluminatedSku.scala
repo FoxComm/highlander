@@ -1,8 +1,8 @@
 package models.inventory
 
-import models.Aliases.Json
 import models.objects._
 import utils.IlluminateAlgorithm
+import utils.aliases._
 
 /**
   * An IlluminatedSku is what you get when you combine the sku shadow and

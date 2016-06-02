@@ -3,11 +3,9 @@ package models.activity
 import java.time.Instant
 
 import com.typesafe.scalalogging.LazyLogging
-import models.Aliases._
-import shapeless._
 import org.json4s.Extraction
-import org.json4s.JsonAST.JValue
 import org.json4s.jackson.Serialization.writePretty
+import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import slick.lifted.Tag
@@ -23,7 +21,7 @@ object ActivityContext {
   // Convert context to json and back again
   implicit val ActivityContextColumn: JdbcType[ActivityContext] with BaseTypedType[ActivityContext] = {
     implicit val formats = JsonFormatters.phoenixFormats
-    MappedColumnType.base[ActivityContext, JValue](
+    MappedColumnType.base[ActivityContext, Json](
         c ⇒ Extraction.decompose(c),
         j ⇒ j.extract[ActivityContext]
     )

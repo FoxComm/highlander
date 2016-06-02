@@ -1,15 +1,15 @@
 package models.promotion
 
 import models.objects._
-import org.json4s.JsonAST.JValue
+import utils.aliases._
 
 object PromotionHelpers {
 
-  def name(f: ObjectForm, s: ObjectShadow): JValue = {
-    ObjectUtils.get("name", f, s)
+  def name(form: ObjectForm, shadow: ObjectShadow): Json = {
+    ObjectUtils.get("name", form, shadow)
   }
 
-  def description(f: ObjectForm, s: ObjectShadow): JValue = {
-    ObjectUtils.get("description", f, s)
+  def description(form: ObjectForm, shadow: ObjectShadow): Json = {
+    ObjectUtils.get("description", form, shadow)
   }
 }

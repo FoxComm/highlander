@@ -1,24 +1,23 @@
 package utils
 
+import models.auth.Identity.IdentityKind
 import models.discount.offers.OfferType
 import models.discount.qualifiers.QualifierType
 import models.inventory.SkuType
-import models.Note
 import models.order.Order
 import models.order.lineitems._
 import models.payment.PaymentMethod
 import models.payment.creditcard.CreditCardCharge
 import models.payment.giftcard.{GiftCard, GiftCardAdjustment}
 import models.payment.storecredit.{StoreCredit, StoreCreditAdjustment}
+import models.promotion.Promotion
 import models.rma.{Rma, RmaLineItem, RmaReason}
 import models.rules.{Condition, QueryStatement}
 import models.sharedsearch.SharedSearch
 import models.shipping.Shipment
-import models.auth.Identity.IdentityKind
-import models.{Assignment, Reason}
-import models.promotion.Promotion
+import models.{Assignment, Note, Reason}
 import org.json4s.jackson
-import responses.CountryWithRegions
+import responses.PublicResponses.CountryWithRegions
 
 object JsonFormatters {
   val serialization = jackson.Serialization

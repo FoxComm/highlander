@@ -2,12 +2,12 @@ package responses
 
 import java.time.Instant
 
-import models.Aliases.Json
 import models.discount._
 import models.objects._
 import models.promotion._
 import responses.DiscountResponses._
 import responses.ObjectResponses.ObjectContextResponse
+import utils.aliases._
 
 object PromotionResponses {
 

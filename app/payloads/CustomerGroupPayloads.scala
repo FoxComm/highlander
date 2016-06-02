@@ -1,6 +1,6 @@
 package payloads
 
-import org.json4s.JsonAST.{JValue ⇒ Json}
+import utils.aliases._
 
 object CustomerGroupPayloads {
 

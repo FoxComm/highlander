@@ -2,7 +2,6 @@ package models.inventory
 
 import failures.Failure
 import models.objects._
-import org.json4s.jackson.Serialization.{write ⇒ render}
 import utils.IlluminateAlgorithm
 
 /**

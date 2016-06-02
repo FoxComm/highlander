@@ -3,16 +3,15 @@ package responses
 import java.time.Instant
 
 import cats.implicits._
-import models.Aliases.Json
 import models.inventory._
 import models.objects._
 import models.product._
-import org.json4s.JsonAST.JValue
 import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods._
 import responses.ObjectResponses.ObjectContextResponse
 import responses.SkuResponses._
 import responses.VariantResponses._
+import utils.aliases._
 
 object ProductResponses {
 
@@ -115,7 +114,7 @@ object ProductResponses {
            },
            variantMap = buildVariantMap(variantMap))
 
-    private def buildVariantMap(vm: Map[String, Seq[FullObject[VariantValue]]]): JValue = {
+    private def buildVariantMap(vm: Map[String, Seq[FullObject[VariantValue]]]): Json = {
       val idMap = vm.mapValues(_.map(_.form.id))
       render(idMap)
     }

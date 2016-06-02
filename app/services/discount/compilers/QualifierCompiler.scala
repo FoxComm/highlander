@@ -6,8 +6,9 @@ import failures._
 import models.discount.qualifiers._
 import org.json4s._
 import utils.JsonFormatters
+import utils.aliases._
 
-case class QualifierCompiler(qualifierType: QualifierType, attributes: JValue) {
+case class QualifierCompiler(qualifierType: QualifierType, attributes: Json) {
 
   implicit val formats: Formats = JsonFormatters.phoenixFormats
 
@@ -23,7 +24,7 @@ case class QualifierCompiler(qualifierType: QualifierType, attributes: JValue) {
     case _                    ⇒ Xor.Left(QualifierNotImplementedFailure(qualifierType).single)
   }
 
-  private def extract[T <: Qualifier](json: JValue)(
+  private def extract[T <: Qualifier](json: Json)(
       implicit m: Manifest[T]): Xor[Failures, Qualifier] = {
     json.extractOpt[T] match {
       case Some(q) ⇒ Xor.Right(q)

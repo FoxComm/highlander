@@ -6,25 +6,25 @@ import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 
-import com.typesafe.config.Config
 import cats.data.Xor
+import com.typesafe.config.Config
+import failures.{Failures, FailuresOps}
 import models.Reason._
+import models.activity.ActivityContext
 import models.inventory._
-import models.product.SimpleContext
 import models.objects.ObjectContexts
 import models.order.{OrderPayment, OrderShippingAddress}
 import models.payment.creditcard.CreditCardCharge
+import models.product.SimpleContext
 import models.{Reason, Reasons}
 import org.postgresql.ds.PGSimpleDataSource
-import failures.{Failures, FailuresOps}
-import slick.driver.PostgresDriver.backend.DatabaseDef
 import slick.driver.PostgresDriver.api._
-import utils.db._
-import utils.db.DbResultT._
-import utils.{FoxConfig, JsonFormatters}
-import flyway.newFlyway
-import models.activity.ActivityContext
+import slick.driver.PostgresDriver.backend.DatabaseDef
 import utils.aliases.AC
+import utils.db.DbResultT._
+import utils.db._
+import utils.db.flyway.newFlyway
+import utils.{FoxConfig, JsonFormatters}
 
 object Seeds {
 
@@ -32,8 +32,7 @@ object Seeds {
     Console.err.println("Cleaning DB and running migrations")
     val config: Config           = FoxConfig.loadWithEnv()
     implicit val db: DatabaseDef = Database.forConfig("db", config)
-    implicit val ac: ActivityContext = ActivityContext(
-        userId = 1, userType = "admin", transactionId = "seeds")
+    implicit val ac: AC          = ActivityContext(userId = 1, userType = "admin", transactionId = "seeds")
     flyWayMigrate(config)
 
     createBaseSeeds()

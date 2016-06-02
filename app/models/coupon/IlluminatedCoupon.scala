@@ -5,7 +5,6 @@ import java.time.Instant
 import cats.data.Xor
 import failures.CouponFailures._
 import failures._
-import models.Aliases.Json
 import models.objects._
 import services.coupon.CouponUsageService
 import utils.aliases._
