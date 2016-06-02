@@ -1,7 +1,9 @@
 .fc-slide-checkbox {
   @width: 80px;
   @height: 34px;
-  @offsetX: 2px;
+  @label-size: 24px;
+  @label-padding: (@height - @label-size) / 2;
+  @offsetX: 0px;
   @offsetY: -2px;
 
   width: @width;
@@ -12,13 +14,13 @@
     background: @color-decor46;
     position: absolute;
     left: 0;
-    top: -2px;
-    width: 80px;
-    height: 34px;
-    padding: 6px 10px;
-    border-radius: 17px;
+    top: @offsetY;
+    width: @width;
+    height: @height;
+    padding: 0 10px;
+    border-radius: @height / 2;
     font-weight: bold;
-    .font-spec(16px, 500, 22px);
+    .font-spec(16px, 500, @height);
     color: @color-white;
     content: 'YES';
   }
@@ -27,13 +29,13 @@
     background: @color-decor47;
     position: absolute;
     right: 0;
-    top: -2px;
-    width: 80px;
-    height: 34px;
-    padding: 6px 10px;
-    border-radius: 17px;
+    top: @offsetY;
+    width: @width;
+    height: @height;
+    padding: 0 10px;
+    border-radius: @height / 2;
     font-weight: bold;
-    .font-spec(16px, 500, 22px);
+    .font-spec(16px, 500, @height);
     color: @color-white;
     content: 'NO';
     text-align: right;
@@ -41,22 +43,22 @@
 
   & > label {
     display: block;
-    width: 80px;
-    height: 34px;
+    width: @width;
+    height: @height;
     cursor: pointer;
     position: absolute;
-    top: 0;
     left: 0;
+    top: 0;
   }
 
   & > label:before {
     background: @color-white;
-    width: 24px;
-    height: 24px;
+    width: @label-size;
+    height: @label-size;
     position: absolute;
-    top: 3px;
-    left: 3px;
-    border-radius: 12px;
+    left: @label-padding + @offsetX;
+    top: @label-padding + @offsetY;
+    border-radius: @label-size / 2;
     transition: all .4s ease;
     cursor: pointer;
     content: "";
@@ -67,12 +69,12 @@
   }
 
   & > input[type=checkbox] ~ label:before {
-    box-shadow: 2px 3px 4px 0px rgba(0,0,0,0.30);
+    box-shadow: 2px 3px 4px 0 rgba(0,0,0,0.30);
   }
 
   & > input[type=checkbox]:checked ~ label:before {
-    left: 52px;
-    box-shadow: -2px 3px 4px 0px rgba(0,0,0,0.30);
+    left: @width - @label-size - @label-padding + @offsetX;
+    box-shadow: -2px 3px 4px 0 rgba(0,0,0,0.30);
   }
 
   & > input[type=checkbox] + .fc-slide-checkbox__background:before {
