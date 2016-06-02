@@ -11,9 +11,9 @@ begin
     NEW.id as product_id,
     case when count(sku) = 0
       then
-          '[]'
+          '[]'::jsonb
       else
-      json_agg(sku.code)
+      json_agg(sku.code)::jsonb
     end as skus
     from object_links as link
     left join skus as sku on sku.shadow_id = link.right_id
