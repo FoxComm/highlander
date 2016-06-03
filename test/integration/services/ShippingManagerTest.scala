@@ -276,9 +276,10 @@ class ShippingManagerTest extends IntegrationTestBase {
                           Factories.shippingMethods.head.copy(conditions = Some(conditions)))
       cheapOrder ← * <~ Orders.create(Factories.order.copy(customerId = customer.id,
                                                            referenceNumber = "CS1234-AA"))
-      cheapProduct ← * <~ Mvp.insertProduct(
-                        productContext.id,
-                        Factories.products.head.copy(title = "Cheap Donkey", price = 10))
+      cheapProduct ← * <~ Mvp.insertProduct(productContext.id,
+                                            Factories.products.head.copy(title = "Cheap Donkey",
+                                                                         price = 10,
+                                                                         code = "SKU-CHP"))
       cheapLineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(cheapProduct.skuId).toXor
       cheapLineItem ← * <~ OrderLineItems.create(OrderLineItem(orderId = cheapOrder.id,
                                                                originId = cheapLineItemSku.id,
@@ -292,7 +293,8 @@ class ShippingManagerTest extends IntegrationTestBase {
       expensiveProduct ← * <~ Mvp.insertProduct(productContext.id,
                                                 Factories.products.head.copy(title =
                                                                                "Expensive Donkey",
-                                                                             price = 100))
+                                                                             price = 100,
+                                                                             code = "SKU-EXP"))
       expensiveLineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(expensiveProduct.skuId).toXor
       expensiveLineItem ← * <~ OrderLineItems.create(
                              OrderLineItem(orderId = expensiveOrder.id,

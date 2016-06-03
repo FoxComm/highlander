@@ -9,8 +9,7 @@ create table skus(
     created_at generic_timestamp
 );
 
-create index skus_codex on skus (lower(code));
-create index skus_context_idx on skus (context_id);
+create unique index skus_code_context_id on skus (lower(code), context_id);
 
 create function create_order_line_item_skus_mapping() returns trigger as $$
 begin
