@@ -109,7 +109,7 @@ export default class CreditCardForm extends React.Component {
   }
 
   get nameBlock() {
-    const holderName = _.get(this.state, 'card.holderName', '') || '';
+    const holderName = _.get(this.state, 'card.holderName', '');
     return (
       <li className="fc-credit-card-form__line">
         <FormField label="Name on Card"
@@ -130,6 +130,10 @@ export default class CreditCardForm extends React.Component {
     return _.get(this.state, 'card.cardNumber', '');
   }
 
+  get cardCVV() {
+    return  _.get(this.state, 'card.cvv', '');
+  }
+
   get cardType() {
     return detectCardType(this.cardNumber);
   }
@@ -145,9 +149,7 @@ export default class CreditCardForm extends React.Component {
 
   @autobind
   validateCvvNumber() {
-    const cvv = _.get(this.state, 'card.cvv', '');
-
-    return isCvvValid(cvv, this.cardType) ? null : `Please enter a valid cvv number`;
+    return isCvvValid(this.cardCVV, this.cardType) ? null : `Please enter a valid cvv number`;
   }
 
   @autobind
@@ -161,12 +163,7 @@ export default class CreditCardForm extends React.Component {
 
   get cardNumberBlock() {
     const { isNew } = this.props;
-    const cardNumber = _.get(this.state, 'card.cardNumber', '') || '';
-    const cvv = _.get(this.state, 'card.cvv', '') || '';
-
-    if (!isNew) {
-      return null;
-    }
+    if (!isNew) return null;
 
     return (
       <li className="fc-credit-card-form__line">
@@ -184,7 +181,7 @@ export default class CreditCardForm extends React.Component {
                 mask={this.cardMask}
                 type="text"
                 required
-                value={cardNumber}
+                value={this.cardNumber}
                 onChange={this.changeCardNumber}
               />
             </FormField>
@@ -198,7 +195,7 @@ export default class CreditCardForm extends React.Component {
                      name="cvv"
                      maxLength={cvvLength(this.cardType)}
                      required
-                     value={cvv}/>
+                     value={this.cardCVV}/>
             </FormField>
           </div>
         </div>

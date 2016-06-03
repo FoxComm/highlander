@@ -34,7 +34,7 @@ export default class TextInput extends Component<void, Props, State> {
   };
 
   state: State = {
-    value: this.props.value
+    value: this.props.value || ''
   };
 
   render(): Element {
@@ -47,8 +47,8 @@ export default class TextInput extends Component<void, Props, State> {
         className={inputClass}
         onChange={({ target }) => this.handleChange(target.value)}
         placeholder={placeholder}
-        value={this.state.value}
-        {...rest} />
+        {...rest}
+        value={this.state.value} />
     );
   }
 }

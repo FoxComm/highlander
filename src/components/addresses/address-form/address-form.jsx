@@ -81,7 +81,7 @@ export default class AddressForm extends React.Component {
 
     this.state = {
       countryId: countryId,
-      phone: _.get(this.props, 'address', {}).phoneNumber
+      phone: _.get(this.props, ['address', 'phoneNumber'], ''),
     };
   }
 
