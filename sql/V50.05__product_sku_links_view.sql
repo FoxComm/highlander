@@ -16,7 +16,7 @@ begin
       json_agg(sku.code)::jsonb
     end as skus
     from object_links as link
-    left join skus as sku on sku.shadow_id = link.right_id
+    left join skus as sku on (sku.shadow_id = link.right_id and link.link_type = 'productSku')
     where link.left_id = NEW.shadow_id;
 
     return null;
@@ -38,7 +38,7 @@ begin
       select array_agg(p.id) into product_ids
       from products as p
       inner join object_links as link on link.left_id = p.shadow_id
-      inner join skus as sku on (sku.shadow_id = link.right_id)
+      inner join skus as sku on (sku.shadow_id = link.right_id and link.link_type = 'productSku')
       where sku.id = NEW.id;
   end case;
 
@@ -54,7 +54,7 @@ begin
             end as skus
           from products as p
             left join object_links as link on link.left_id = p.shadow_id
-            left join skus as sku on sku.shadow_id = link.right_id
+            left join skus as sku on (sku.shadow_id = link.right_id and link.link_type = 'productSku')
          where p.id = ANY(product_ids)
          group by p.id) as subquery
     where subquery.id = product_sku_links_view.product_id;
