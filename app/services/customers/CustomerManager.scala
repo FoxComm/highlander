@@ -3,7 +3,6 @@ package services.customers
 import java.time.Instant
 import java.time.temporal.ChronoUnit.DAYS
 
-import cats.data.Validated.{Invalid, Valid}
 import cats.implicits._
 import failures.NotFoundFailure404
 import models.StoreAdmin
@@ -14,13 +13,11 @@ import models.order.{OrderShippingAddresses, Orders}
 import models.shipping.Shipments
 import payloads.CustomerPayloads._
 import responses.CustomerResponse.{Root, build}
-import responses.TheResponse
 import services._
 import slick.driver.PostgresDriver.api._
-import utils.http.CustomDirectives.SortAndPage
+import utils.aliases._
 import utils.db.DbResultT._
 import utils.db._
-import utils.aliases._
 
 object CustomerManager {
 
@@ -43,77 +40,6 @@ object CustomerManager {
                    customer.copy(isBlacklisted = blacklisted, blacklistedBy = Some(admin.id)))
       _ ← * <~ LogActivity.customerBlacklisted(blacklisted, customer, admin)
     } yield build(updated)).runTxn()
-
-  def findAll(implicit ec: EC, db: DB, sortAndPage: SortAndPage): Result[TheResponse[Seq[Root]]] = {
-    val query = Customers.withRegionsAndRank
-    val queryWithMetadata = query.withMetadata.sortAndPageIfNeeded {
-      case (s, (customer, _, _, _)) ⇒
-        s.sortColumn match {
-          case "id"         ⇒ if (s.asc) customer.id.asc else customer.id.desc
-          case "isDisabled" ⇒ if (s.asc) customer.isDisabled.asc else customer.isDisabled.desc
-          case "disabledBy" ⇒ if (s.asc) customer.disabledBy.asc else customer.disabledBy.desc
-          case "isBlacklisted" ⇒
-            if (s.asc) customer.isBlacklisted.asc else customer.isBlacklisted.desc
-          case "blacklistedBy" ⇒
-            if (s.asc) customer.blacklistedBy.asc else customer.blacklistedBy.desc
-          case "blacklistedReason" ⇒
-            if (s.asc) customer.blacklistedReason.asc else customer.blacklistedReason.desc
-          case "email"       ⇒ if (s.asc) customer.email.asc else customer.email.desc
-          case "name"        ⇒ if (s.asc) customer.name.asc else customer.name.desc
-          case "phoneNumber" ⇒ if (s.asc) customer.phoneNumber.asc else customer.phoneNumber.desc
-          case "location"    ⇒ if (s.asc) customer.location.asc else customer.location.desc
-          case "modality"    ⇒ if (s.asc) customer.modality.asc else customer.modality.desc
-          case "isGuest"     ⇒ if (s.asc) customer.isGuest.asc else customer.isGuest.desc
-          case "createdAt"   ⇒ if (s.asc) customer.createdAt.asc else customer.createdAt.desc
-          case other         ⇒ invalidSortColumn(other)
-        }
-    }
-
-    queryWithMetadata.result.map {
-      _.map {
-        case (customer, shipRegion, billRegion, rank) ⇒
-          build(customer = customer,
-                shippingRegion = shipRegion,
-                billingRegion = billRegion,
-                rank = rank)
-      }
-    }.toTheResponse.run()
-  }
-
-  // FIXME: ugly `_ <: Seq` should be just `Seq`
-  def searchForNewOrder(payload: CustomerSearchForNewOrder)(
-      implicit ec: EC, db: DB, sortAndPage: SortAndPage): Result[TheResponse[_ <: Seq[Root]]] = {
-
-    def customersAndNumOrders = {
-      val likeQuery = s"%${payload.term}%".toLowerCase
-      val query =
-        if (payload.term.contains("@"))
-          Customers.filter(_.email.toLowerCase like likeQuery)
-        else
-          Customers.filter { c ⇒
-            c.email.toLowerCase.like(likeQuery) || c.name.toLowerCase.like(likeQuery)
-          }
-
-      val withNumOrders = query.joinLeft(Orders).on(_.id === _.customerId).groupBy(_._1.id).map {
-        case (id, q) ⇒ (id, q.length)
-      }
-
-      for {
-        c           ← query
-        (id, count) ← withNumOrders if id === c.id
-      } yield (c, count)
-    }
-
-    val rwm = payload.validate match {
-      case Valid(_) ⇒
-        customersAndNumOrders.withMetadata.result.map(_.map {
-          case (customer, numOrders) ⇒
-            build(customer = customer, numOrders = Some(numOrders))
-        })
-      case Invalid(errors) ⇒ ResultWithMetadata.fromFailures(errors)
-    }
-    rwm.toTheResponse.runTxn()
-  }
 
   private def resolvePhoneNumber(customerId: Int)(implicit ec: EC): DbResultT[Option[String]] = {
     def resolveFromShipments(customerId: Int) =

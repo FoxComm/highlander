@@ -6,15 +6,15 @@ import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.StoreAdmin
 import models.traits.Originator
 import payloads.AddressPayloads.CreateAddressPayload
-import payloads.PaymentPayloads._
 import payloads.CustomerPayloads._
+import payloads.PaymentPayloads._
 import services.customers._
-import services.{AddressManager, CreditCardManager, CustomerCreditConverter, StoreCreditAdjustmentsService, StoreCreditService}
 import services.orders.OrderQueries
+import services.{AddressManager, CreditCardManager, CustomerCreditConverter, StoreCreditService}
 import utils.Apis
+import utils.aliases._
 import utils.http.CustomDirectives._
 import utils.http.Http._
-import utils.aliases._
 
 object CustomerRoutes {
 
@@ -22,19 +22,6 @@ object CustomerRoutes {
 
     activityContext(admin) { implicit ac ⇒
       pathPrefix("customers") {
-        (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-          goodOrFailures {
-            CustomerManager.findAll
-          }
-        } ~
-        (get & pathPrefix("searchForNewOrder") & pathEnd & parameters('term).as(
-                CustomerSearchForNewOrder)) { p ⇒
-          sortAndPage { implicit sortAndPage ⇒
-            goodOrFailures {
-              CustomerManager.searchForNewOrder(p)
-            }
-          }
-        } ~
         (post & pathEnd & entity(as[CreateCustomerPayload])) { payload ⇒
           goodOrFailures {
             CustomerManager.create(payload, Some(admin))
@@ -75,6 +62,7 @@ object CustomerRoutes {
           }
         } ~
         pathPrefix("addresses") {
+          // TODO move to ES
           (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
             goodOrFailures {
               AddressManager.findAllByCustomer(Originator(admin), customerId)
@@ -143,21 +131,9 @@ object CustomerRoutes {
           }
         } ~
         pathPrefix("payment-methods" / "store-credit") {
-          pathPrefix("transactions") {
-            (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-              goodOrFailures {
-                StoreCreditAdjustmentsService.forCustomer(customerId)
-              }
-            }
-          } ~
           (get & path("totals")) {
             goodOrFailures {
               StoreCreditService.totalsForCustomer(customerId)
-            }
-          } ~
-          (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            goodOrFailures {
-              StoreCreditService.findAllByCustomer(customerId)
             }
           } ~
           (post & pathEnd & entity(as[CreateManualStoreCredit])) { payload ⇒

@@ -1,30 +1,18 @@
-import Extensions._
+import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
-import models.rma.{RmaReason, RmaReasons}
+import Extensions._
+import failures.InvalidReasonTypeFailure
+import models.rma.RmaReasons
 import models.{Reason, Reasons, StoreAdmins}
 import util.IntegrationTestBase
-import utils.db._
-import utils.db.DbResultT._
 import utils.Strings._
+import utils.db.DbResultT._
 import utils.seeds.Seeds.Factories
-import scala.concurrent.ExecutionContext.Implicits.global
-
-import failures.InvalidReasonTypeFailure
 
 class ReasonsIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
 
   "Reasons" - {
-    "GET /v1/public/reasons" - {
-      "should return list of reasons" in new Fixture {
-        val response = GET(s"v1/public/reasons")
-        response.status must ===(StatusCodes.OK)
-
-        val root = response.ignoreFailuresAndGiveMe[Seq[Reason]]
-        root.size must ===(1)
-        root.headOption.value.id must ===(reason.id)
-      }
-    }
 
     "GET /v1/public/reasons/:type" - {
       "should return list of reasons by type" in new Fixture {
@@ -42,19 +30,6 @@ class ReasonsIntegrationTest extends IntegrationTestBase with HttpSupport with A
         val response   = GET(s"v1/public/reasons/$reasonType")
         response.status must ===(StatusCodes.BadRequest)
         response.error must ===(InvalidReasonTypeFailure(reasonType).description)
-      }
-    }
-  }
-
-  "RmaReasons" - {
-    "GET /v1/public/rma-reasons" - {
-      "should return list of RMA reasons" in new Fixture {
-        val response = GET(s"v1/public/rma-reasons")
-        response.status must ===(StatusCodes.OK)
-
-        val root = response.ignoreFailuresAndGiveMe[Seq[RmaReason]]
-        root.size must ===(1)
-        root.headOption.value.id must ===(rmaReason.id)
       }
     }
   }

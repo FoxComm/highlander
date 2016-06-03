@@ -9,12 +9,11 @@ import failures.{Failure, Failures, NotFoundFailure404}
 import models.customer.Customers
 import models.location._
 import models.payment.PaymentMethod
-import models.traits.Addressable
 import models.stripe._
-import shapeless._
+import models.traits.Addressable
 import payloads.PaymentPayloads.CreateCreditCard
+import shapeless._
 import slick.driver.PostgresDriver.api._
-import utils.http.CustomDirectives.SortAndPage
 import utils._
 import utils.aliases._
 import utils.db._
@@ -160,48 +159,6 @@ object CreditCards
     with ReturningId[CreditCard, CreditCards] {
 
   val returningLens: Lens[CreditCard, Int] = lens[CreditCard].id
-
-  def sortedAndPaged(query: QuerySeq)(implicit sortAndPage: SortAndPage): QuerySeqWithMetadata = {
-
-    val sortedQuery = sortAndPage.sort match {
-      case Some(s) if s.sortColumn == "expDate" ⇒
-        query.withMetadata.sortBy { creditCard ⇒
-          if (s.asc) (creditCard.expYear.asc, creditCard.expMonth.asc)
-          else (creditCard.expYear.desc, creditCard.expMonth.desc)
-        }
-      case Some(s) ⇒
-        query.withMetadata.sortBy { creditCard ⇒
-          s.sortColumn match {
-            case "id"       ⇒ if (s.asc) creditCard.id.asc else creditCard.id.desc
-            case "parentId" ⇒ if (s.asc) creditCard.parentId.asc else creditCard.parentId.desc
-            case "gatewayCustomerId" ⇒
-              if (s.asc) creditCard.gatewayCustomerId.asc else creditCard.gatewayCustomerId.desc
-            case "gatewayCardId" ⇒
-              if (s.asc) creditCard.gatewayCardId.asc else creditCard.gatewayCardId.desc
-            case "holderName" ⇒
-              if (s.asc) creditCard.holderName.asc else creditCard.holderName.desc
-            case "lastFour"  ⇒ if (s.asc) creditCard.lastFour.asc else creditCard.lastFour.desc
-            case "isDefault" ⇒ if (s.asc) creditCard.isDefault.asc else creditCard.isDefault.desc
-            case "address1Check" ⇒
-              if (s.asc) creditCard.address1Check.asc else creditCard.address1Check.desc
-            case "zipCheck"  ⇒ if (s.asc) creditCard.zipCheck.asc else creditCard.zipCheck.desc
-            case "inWallet"  ⇒ if (s.asc) creditCard.inWallet.asc else creditCard.inWallet.desc
-            case "deletedAt" ⇒ if (s.asc) creditCard.deletedAt.asc else creditCard.deletedAt.desc
-            case "regionId"  ⇒ if (s.asc) creditCard.regionId.asc else creditCard.regionId.desc
-            case "addressName" ⇒
-              if (s.asc) creditCard.addressName.asc else creditCard.addressName.desc
-            case "address1" ⇒ if (s.asc) creditCard.address1.asc else creditCard.address1.desc
-            case "address2" ⇒ if (s.asc) creditCard.address2.asc else creditCard.address2.desc
-            case "city"     ⇒ if (s.asc) creditCard.city.asc else creditCard.city.desc
-            case "zip"      ⇒ if (s.asc) creditCard.zip.asc else creditCard.zip.desc
-            case other      ⇒ invalidSortColumn(other)
-          }
-        }
-      case None ⇒ query.withMetadata
-    }
-
-    sortedQuery.paged
-  }
 
   def findInWalletByCustomerId(customerId: Int): QuerySeq =
     filter(_.customerId === customerId).filter(_.inWallet === true)

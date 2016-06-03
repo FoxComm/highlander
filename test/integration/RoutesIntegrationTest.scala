@@ -1,13 +1,10 @@
-import scala.concurrent.Future
 import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.server.directives.AuthenticationResult
 import akka.http.scaladsl.server.directives.SecurityDirectives.challengeFor
 
 import models.StoreAdmin
 import models.customer.Customer
-import util.IntegrationTestBase
-
 import services.Authenticator.AsyncAuthenticator
+import util.IntegrationTestBase
 
 class RoutesAdminOnlyIntegrationTest extends IntegrationTestBase with HttpSupport {
 
@@ -35,20 +32,18 @@ class RoutesCustomerOnlyIntegrationTest extends IntegrationTestBase with HttpSup
                                       password = Some("donkeyPass"),
                                       name = Some("Mister Donkey"))
 
-  val uriPrefix = "v1/my"
-
   override def overrideCustomerAuth: AsyncAuthenticator[Customer] =
     AuthAs(authedCustomer)
   override def overrideStoreAdminAuth: AsyncAuthenticator[StoreAdmin] =
     AuthFailWith[StoreAdmin](challengeFor("test"))
 
   "Requests with Customer only session (w/o StoreAdmin)" - {
-    s"GET ${uriPrefix}/404hello" in {
-      GET(s"${uriPrefix}/404hello").status must ===(StatusCodes.NotFound)
+    "GET v1/my/404hello" in {
+      GET(s"v1/my/404hello").status must ===(StatusCodes.NotFound)
     }
 
-    s"GET ${uriPrefix}/addresses" in {
-      GET(s"${uriPrefix}/addresses").status must ===(StatusCodes.OK)
+    "GET v1/my/cart" in {
+      GET(s"v1/my/cart").status must ===(StatusCodes.OK)
     }
   }
 }

@@ -14,14 +14,12 @@ import models.payment.PaymentMethod
 import models.payment.giftcard.GiftCard._
 import models.payment.giftcard.{GiftCardAdjustment ⇒ Adj, GiftCardAdjustments ⇒ Adjs}
 import payloads.GiftCardPayloads.GiftCardCreateByCsr
-import shapeless._
 import payloads.LineItemPayloads.AddGiftCardLineItem
+import shapeless._
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
-import utils.http.CustomDirectives.SortAndPage
 import utils.Money._
-import utils.db._
 import utils.Validation._
 import utils._
 import utils.aliases._
@@ -243,40 +241,6 @@ object GiftCards
     with SearchByCode[GiftCard, GiftCards] {
 
   import GiftCard._
-
-  def sortedAndPaged(query: QuerySeq)(implicit sortAndPage: SortAndPage): QuerySeqWithMetadata = {
-    query.withMetadata.sortAndPageIfNeeded { (s, giftCard) ⇒
-      s.sortColumn match {
-        case "id"         ⇒ if (s.asc) giftCard.id.asc else giftCard.id.desc
-        case "originId"   ⇒ if (s.asc) giftCard.originId.asc else giftCard.originId.desc
-        case "originType" ⇒ if (s.asc) giftCard.originType.asc else giftCard.originType.desc
-        case "subTypeId"  ⇒ if (s.asc) giftCard.subTypeId.asc else giftCard.subTypeId.desc
-        case "code"       ⇒ if (s.asc) giftCard.code.asc else giftCard.code.desc
-        case "state"      ⇒ if (s.asc) giftCard.state.asc else giftCard.state.desc
-        case "currency"   ⇒ if (s.asc) giftCard.currency.asc else giftCard.currency.desc
-        case "originalBalance" ⇒
-          if (s.asc) giftCard.originalBalance.asc else giftCard.originalBalance.desc
-        case "currentBalance" ⇒
-          if (s.asc) giftCard.currentBalance.asc else giftCard.currentBalance.desc
-        case "availableBalance" ⇒
-          if (s.asc) giftCard.availableBalance.asc else giftCard.availableBalance.desc
-        case "canceledAmount" ⇒
-          if (s.asc) giftCard.canceledAmount.asc else giftCard.canceledAmount.desc
-        case "canceledReason" ⇒
-          if (s.asc) giftCard.canceledReason.asc else giftCard.canceledReason.desc
-        case "reloadable" ⇒ if (s.asc) giftCard.reloadable.asc else giftCard.reloadable.desc
-        case "customerId" ⇒ if (s.asc) giftCard.customerId.asc else giftCard.customerId.desc
-        case "createdAt"  ⇒ if (s.asc) giftCard.createdAt.asc else giftCard.createdAt.desc
-        case other        ⇒ invalidSortColumn(other)
-      }
-    }
-  }
-
-  def queryAll(implicit sortAndPage: SortAndPage): QuerySeqWithMetadata =
-    sortedAndPaged(this)
-
-  def queryByCode(code: String)(implicit sortAndPage: SortAndPage): QuerySeqWithMetadata =
-    sortedAndPaged(findByCode(code))
 
   def auth(giftCard: GiftCard, orderPaymentId: Option[Int], debit: Int = 0, credit: Int = 0)(
       implicit ec: EC): DbResult[GiftCardAdjustment] =

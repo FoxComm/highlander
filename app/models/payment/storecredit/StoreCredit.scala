@@ -6,19 +6,18 @@ import cats.data.Validated._
 import cats.data.{ValidatedNel, Xor}
 import cats.implicits._
 import com.pellucid.sealerate
+import failures.{Failure, Failures, GeneralFailure}
 import models.StoreAdmin
 import models.order.OrderPayment
 import models.payment.PaymentMethod
 import models.payment.giftcard.GiftCard
 import models.payment.storecredit.StoreCredit._
 import models.payment.storecredit.{StoreCreditAdjustment ⇒ Adj, StoreCreditAdjustments ⇒ Adjs}
-import shapeless._
-import failures.{Failure, Failures, GeneralFailure}
 import payloads.PaymentPayloads._
+import shapeless._
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
-import utils.http.CustomDirectives.SortAndPage
 import utils.Money._
 import utils.Validation._
 import utils._
@@ -200,36 +199,6 @@ class StoreCredits(tag: Tag) extends FoxTable[StoreCredit](tag, "store_credits")
 }
 
 object StoreCredits extends FoxTableQuery[StoreCredit, StoreCredits](new StoreCredits(_)) {
-
-  def sortedAndPaged(query: QuerySeq)(implicit sortAndPage: SortAndPage): QuerySeqWithMetadata =
-    query.withMetadata.sortAndPageIfNeeded {
-      case (s, storeCredit) ⇒
-        s.sortColumn match {
-          case "id"       ⇒ if (s.asc) storeCredit.id.asc else storeCredit.id.desc
-          case "originId" ⇒ if (s.asc) storeCredit.originId.asc else storeCredit.originId.desc
-          case "originType" ⇒
-            if (s.asc) storeCredit.originType.asc else storeCredit.originType.desc
-          case "state" ⇒ if (s.asc) storeCredit.state.asc else storeCredit.state.desc
-          case "customerId" ⇒
-            if (s.asc) storeCredit.customerId.asc else storeCredit.customerId.desc
-          case "currency" ⇒ if (s.asc) storeCredit.currency.asc else storeCredit.currency.desc
-          case "originalBalance" ⇒
-            if (s.asc) storeCredit.originalBalance.asc else storeCredit.originalBalance.desc
-          case "currentBalance" ⇒
-            if (s.asc) storeCredit.currentBalance.asc else storeCredit.currentBalance.desc
-          case "availableBalance" ⇒
-            if (s.asc) storeCredit.availableBalance.asc else storeCredit.availableBalance.desc
-          case "canceledAmount" ⇒
-            if (s.asc) storeCredit.canceledAmount.asc else storeCredit.canceledAmount.desc
-          case "canceledReason" ⇒
-            if (s.asc) storeCredit.canceledReason.asc else storeCredit.canceledReason.desc
-          case "createdAt" ⇒ if (s.asc) storeCredit.createdAt.asc else storeCredit.createdAt.desc
-          case other       ⇒ invalidSortColumn(other)
-        }
-    }
-
-  def queryByCustomer(customerId: Int)(implicit sortAndPage: SortAndPage): QuerySeqWithMetadata =
-    sortedAndPaged(findAllByCustomerId(customerId))
 
   def auth(storeCredit: StoreCredit, orderPaymentId: Option[Int], amount: Int = 0)(
       implicit ec: EC): DbResult[StoreCreditAdjustment] =

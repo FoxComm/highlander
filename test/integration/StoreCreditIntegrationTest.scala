@@ -1,82 +1,26 @@
-import Extensions._
+import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
-import models.order.{OrderPayments, Orders}
-import models.payment.storecredit._
-import StoreCredit._
-import models.customer.{Customer, Customers}
-import models.payment.{PaymentMethod, giftcard}
-import models.payment.giftcard.GiftCard
-import models.{Reason, Reasons, StoreAdmins}
-import org.scalatest.BeforeAndAfterEach
-import responses.{GiftCardResponse, StoreCreditAdjustmentsResponse, StoreCreditResponse, StoreCreditSubTypesResponse}
-import slick.driver.PostgresDriver.api._
-import util.IntegrationTestBase
-import utils.db._
-import utils.db.DbResultT._
-import utils.seeds.Seeds.Factories
-import scala.concurrent.ExecutionContext.Implicits.global
-
+import Extensions._
 import failures.StoreCreditFailures.StoreCreditConvertFailure
 import failures._
+import models.customer.{Customer, Customers}
+import models.order.{OrderPayments, Orders}
+import models.payment.giftcard.GiftCard
+import models.payment.storecredit.StoreCredit._
+import models.payment.storecredit._
+import models.payment.{PaymentMethod, giftcard}
+import models.{Reason, Reasons, StoreAdmins}
 import payloads.PaymentPayloads.CreateManualStoreCredit
 import payloads.StoreCreditPayloads._
+import responses.{GiftCardResponse, StoreCreditResponse}
+import slick.driver.PostgresDriver.api._
+import util.IntegrationTestBase
+import utils.db.DbResultT._
+import utils.db._
+import utils.seeds.Seeds.Factories
 
-class StoreCreditIntegrationTest
-    extends IntegrationTestBase
-    with HttpSupport
-    // with SortingAndPaging[responses.StoreCreditResponse.Root]
-    with AutomaticAuth
-    with BeforeAndAfterEach {
-
-  /*
-  // paging and sorting API
-  private var currentCustomer: Customer = _
-  private var currentOrigin: StoreCreditManual = _
-
-  override def beforeSortingAndPaging() = {
-    (for {
-      admin    ← * <~ StoreAdmins.create(authedStoreAdmin)
-      customer ← * <~ Customers.create(Factories.customer)
-      scReason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
-      scOrigin ← * <~ StoreCreditManuals.create(StoreCreditManual(adminId = admin.id, reasonId = scReason.id))
-    } yield (customer, scOrigin)).runT().futureValue.rightVal match {
-      case (cc, co) ⇒
-        currentCustomer = cc
-        currentOrigin = co
-    }
-  }
-
-  def uriPrefix = s"v1/customers/${currentCustomer.id}/payment-methods/store-credit"
-
-  val regCurrencies = CurrencyUnit.registeredCurrencies.asScala.toIndexedSeq
-
-  def responseItems = {
-    val insertScs = regCurrencies.take(numOfResults).map { currency ⇒
-      val balance = Random.nextInt(9999999)
-
-      Factories.storeCredit.copy(
-        currency = currency,
-        originId = currentOrigin.id,
-        customerId = currentCustomer.id,
-        originalBalance = balance,
-        currentBalance = balance,
-        availableBalance = balance)
-    }
-
-
-    ((StoreCredits ++= insertScs) >> StoreCredits.result).map { storeCredits ⇒
-      storeCredits.map(responses.StoreCreditResponse.build)
-    }.transactionally.run().futureValue.toIndexedSeq
-  }
-
-  val sortColumnName = "currency"
-
-  def responseItemsSort(items: IndexedSeq[StoreCreditResponse.Root]) = items.sortBy(_.currency)
-
-  def mf = implicitly[scala.reflect.Manifest[StoreCreditResponse.Root]]
-  // paging and sorting API end
-   */
+class StoreCreditIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
 
   "StoreCredits" - {
     "POST /v1/customers/:id/payment-methods/store-credit" - {
@@ -134,46 +78,6 @@ class StoreCreditIntegrationTest
       }
     }
 
-    "GET /v1/customers/:id/payment-methods/store-credit" - {
-      "returns list of store credits" in new Fixture {
-        val response     = GET(s"v1/customers/${customer.id}/payment-methods/store-credit")
-        val storeCredits = Seq(storeCredit, scSecond)
-        response.status must ===(StatusCodes.OK)
-
-        val result = response.ignoreFailuresAndGiveMe[StoreCreditResponse.WithTotals]
-        result.storeCredits.map(_.id).sorted must ===(storeCredits.map(_.id).sorted)
-        result.totals must not be 'empty
-      }
-
-      "returns not found when customer doesn't exist" in new Fixture {
-        val response = GET(s"v1/customers/99/payment-methods/store-credit")
-
-        response.status must ===(StatusCodes.NotFound)
-        response.error must ===(NotFoundFailure404(Customer, 99).description)
-      }
-    }
-
-    "GET /v1/customers/:id/payment-methods/store-credit/transactions" - {
-      "returns list of store credit transactions" in new Fixture {
-        val response =
-          GET(s"v1/customers/${customer.id}/payment-methods/store-credit/transactions")
-        response.status must ===(StatusCodes.OK)
-
-        val adjustments =
-          response.ignoreFailuresAndGiveMe[Seq[StoreCreditAdjustmentsResponse.Root]]
-
-        adjustments.size must ===(1)
-        adjustments.headOption.value.id must ===(adjustment.id)
-      }
-
-      "returns not found when customer doesn't exist" in new Fixture {
-        val response = GET(s"v1/customers/99/payment-methods/store-credit/transactions")
-
-        response.status must ===(StatusCodes.NotFound)
-        response.error must ===(NotFoundFailure404(Customer, 99).description)
-      }
-    }
-
     "GET /v1/customers/:id/payment-methods/store-credit/total" - {
       "returns total available and current store credit for customer" in new Fixture {
         val response = GET(s"v1/customers/${customer.id}/payment-methods/store-credit/totals")
@@ -193,39 +97,6 @@ class StoreCreditIntegrationTest
 
         response.status must ===(StatusCodes.NotFound)
         response.error must ===(NotFoundFailure404(Customer, 99).description)
-      }
-    }
-
-    "GET /v1/store-credits/:id/transactions" - {
-      "returns the list of adjustments" in new Fixture {
-        val response = GET(s"v1/store-credits/${storeCredit.id}/transactions")
-        val adjustments =
-          response.ignoreFailuresAndGiveMe[Seq[StoreCreditAdjustmentsResponse.Root]]
-
-        response.status must ===(StatusCodes.OK)
-        adjustments.size must ===(1)
-
-        val firstAdjustment = adjustments.head
-        firstAdjustment.debit must ===(10)
-        firstAdjustment.orderRef.value must ===(order.referenceNumber)
-      }
-
-      "returns the list of adjustments with sorting and paging" in new Fixture {
-
-        val adjustment2 = StoreCredits.auth(storeCredit, Some(payment.id), 1).run().futureValue
-        val adjustment3 = StoreCredits.auth(storeCredit, Some(payment.id), 2).run().futureValue
-
-        val response =
-          GET(s"v1/store-credits/${storeCredit.id}/transactions?sortBy=-id&from=2&size=2")
-        val adjustments =
-          response.ignoreFailuresAndGiveMe[Seq[StoreCreditAdjustmentsResponse.Root]]
-
-        response.status must ===(StatusCodes.OK)
-        //adjustments.checkSortingAndPagingMetadata("-id", from = 2, size = 2, resultSize = 1)
-
-        val firstAdjustment = adjustments.head
-        firstAdjustment.debit must ===(10)
-        firstAdjustment.orderRef.value must ===(order.referenceNumber)
       }
     }
 

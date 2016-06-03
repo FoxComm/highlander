@@ -1,15 +1,15 @@
 package routes.admin
 
 import akka.http.scaladsl.server.Directives._
+
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
-import models.order.Order
-import models.rma.{Rmas, Rma}
 import models.StoreAdmin
+import models.rma.Rma
 import payloads.RmaPayloads._
 import services.rmas._
+import utils.aliases._
 import utils.http.CustomDirectives._
 import utils.http.Http._
-import utils.aliases._
 
 object RmaRoutes {
 
@@ -18,25 +18,6 @@ object RmaRoutes {
     activityContext(admin) { implicit ac ⇒
       determineObjectContext(db, ec) { productContext ⇒
         pathPrefix("rmas") {
-          (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            goodOrFailures {
-              RmaQueries.findAll(Rmas)
-            }
-          } ~
-          (get & path("customer" / IntNumber)) { customerId ⇒
-            (pathEnd & sortAndPage) { implicit sortAndPage ⇒
-              goodOrFailures {
-                RmaService.findByCustomerId(customerId)
-              }
-            }
-          } ~
-          (get & path("order" / Order.orderRefNumRegex)) { refNum ⇒
-            (pathEnd & sortAndPage) { implicit sortAndPage ⇒
-              goodOrFailures {
-                RmaService.findByOrderRef(refNum)
-              }
-            }
-          } ~
           (post & pathEnd & entity(as[RmaCreatePayload])) { payload ⇒
             goodOrFailures {
               RmaService.createByAdmin(admin, payload)

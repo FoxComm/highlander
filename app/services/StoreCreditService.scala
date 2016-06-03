@@ -3,22 +3,21 @@ package services
 import scala.concurrent.Future
 
 import cats.implicits._
-import models.payment.storecredit._
-import StoreCredit.Canceled
-import StoreCreditSubtypes.scope._
 import failures.{NotFoundFailure400, NotFoundFailure404, OpenTransactionsFailure}
 import models.customer.{Customer, Customers}
+import models.payment.storecredit.StoreCredit.Canceled
+import models.payment.storecredit.StoreCreditSubtypes.scope._
+import models.payment.storecredit._
 import models.{Reason, Reasons, StoreAdmin}
 import payloads.PaymentPayloads._
 import payloads.StoreCreditPayloads._
 import responses.StoreCreditBulkResponse._
 import responses.StoreCreditResponse._
-import responses.{StoreCreditResponse, StoreCreditSubTypesResponse, TheResponse}
+import responses.{StoreCreditResponse, StoreCreditSubTypesResponse}
 import slick.driver.PostgresDriver.api._
-import utils.http.CustomDirectives.SortAndPage
 import utils.aliases._
-import utils.db._
 import utils.db.DbResultT._
+import utils.db._
 
 object StoreCreditService {
   type QuerySeq = StoreCredits.QuerySeq
@@ -44,21 +43,6 @@ object StoreCreditService {
         })
     }
   }
-
-  def findAllByCustomer(
-      customerId: Int)(implicit ec: EC, db: DB, sp: SortAndPage): Result[TheResponse[WithTotals]] =
-    (for {
-
-      _ ← * <~ Customers.mustFindById404(customerId)
-      query     = StoreCredits.findAllByCustomerId(customerId)
-      paginated = StoreCredits.sortedAndPaged(query)
-
-      sc     ← * <~ query.result.map(StoreCreditResponse.build).toXor
-      totals ← * <~ fetchTotalsForCustomer(customerId).toXor
-      withTotals = WithTotals(storeCredits = sc, totals = totals)
-      response ← * <~ ResultWithMetadata(result = DbResult.good(withTotals),
-                                         metadata = paginated.metadata).toTheResponse
-    } yield response).run()
 
   def totalsForCustomer(
       customerId: Int)(implicit ec: EC, db: DB): Result[StoreCreditResponse.Totals] =

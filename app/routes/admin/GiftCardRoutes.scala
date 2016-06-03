@@ -18,11 +18,6 @@ object GiftCardRoutes {
 
     activityContext(admin) { implicit ac ⇒
       pathPrefix("gift-cards") {
-        (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-          goodOrFailures {
-            GiftCardService.findAll
-          }
-        } ~
         (patch & pathEnd & entity(as[GiftCardBulkUpdateStateByCsr])) { payload ⇒
           goodOrFailures {
             GiftCardService.bulkUpdateStateByCsr(payload, admin)

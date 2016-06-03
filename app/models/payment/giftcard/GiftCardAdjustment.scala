@@ -4,18 +4,17 @@ import java.time.Instant
 
 import cats.data.Xor
 import com.pellucid.sealerate
+import failures.Failures
 import models.order.{OrderPayment, OrderPayments}
 import models.payment.giftcard.GiftCardAdjustment._
 import shapeless._
-import failures.Failures
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import slick.lifted.ColumnOrdered
+import utils.db._
 import utils.http.CustomDirectives._
 import utils.{ADT, FSM}
-import utils.aliases._
-import utils.db._
 
 case class GiftCardAdjustment(id: Int = 0,
                               giftCardId: Int,
@@ -112,11 +111,6 @@ object GiftCardAdjustments
       case other              ⇒ invalidSortColumn(other)
     }
   }
-
-  def sortedAndPaged(query: QuerySeq)(implicit sortAndPage: SortAndPage): QuerySeqWithMetadata =
-    query.withMetadata.sortAndPageIfNeeded { (s, adj) ⇒
-      matchSortColumn(s, adj)
-    }
 
   def filterByGiftCardId(id: Int): QuerySeq = filter(_.giftCardId === id)
 

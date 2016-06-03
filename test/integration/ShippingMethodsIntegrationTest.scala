@@ -1,23 +1,22 @@
-import Extensions._
+import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
+
+import Extensions._
 import models.customer.Customers
-import models.inventory.{Skus, Sku}
 import models.location.Addresses
-import models.order.{OrderShippingAddresses, Orders}
-import models.order.lineitems._
-import models.rules.QueryStatement
-import models.product.{Mvp, SimpleContext, SimpleProductData}
 import models.objects._
+import models.order.lineitems._
+import models.order.{OrderShippingAddresses, Orders}
+import models.product.{Mvp, SimpleContext}
+import models.rules.QueryStatement
 import models.shipping.ShippingMethods
-import models.{shipping, StoreAdmins}
+import models.{StoreAdmins, shipping}
 import org.json4s.jackson.JsonMethods._
 import services.orders.OrderTotaler
 import util.IntegrationTestBase
-import utils.db._
 import utils.db.DbResultT._
+import utils.db._
 import utils.seeds.Seeds.Factories
-
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class ShippingMethodsIntegrationTest
     extends IntegrationTestBase

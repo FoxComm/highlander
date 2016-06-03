@@ -12,13 +12,12 @@ import models.{Reasons, StoreAdmin, StoreAdmins}
 import payloads.GiftCardPayloads._
 import responses.GiftCardBulkResponse._
 import responses.GiftCardResponse._
-import responses.{CustomerResponse, GiftCardResponse, GiftCardSubTypesResponse, StoreAdminResponse, TheResponse}
+import responses.{CustomerResponse, GiftCardResponse, GiftCardSubTypesResponse, StoreAdminResponse}
 import services._
 import slick.driver.PostgresDriver.api._
-import utils.http.CustomDirectives.SortAndPage
 import utils.aliases._
-import utils.db._
 import utils.db.DbResultT._
+import utils.db._
 
 object GiftCardService {
   type QuerySeq = GiftCards.QuerySeq
@@ -28,13 +27,6 @@ object GiftCardService {
       subTypes ← * <~ GiftCardSubtypes.result.toXor
       response ← * <~ GiftCardSubTypesResponse.build(GiftCard.OriginType.types.toSeq, subTypes)
     } yield response).runTxn()
-
-  def findAll(implicit ec: EC, db: DB, sortAndPage: SortAndPage): Result[TheResponse[Seq[Root]]] =
-    GiftCards.queryAll.result.map(_.map(GiftCardResponse.build(_))).toTheResponse.run()
-
-  def findByCode(code: String)(
-      implicit ec: EC, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] =
-    GiftCards.queryByCode(code).result.map(_.map(GiftCardResponse.build(_)))
 
   def getByCode(code: String)(implicit ec: EC, db: DB): Result[Root] =
     (for {

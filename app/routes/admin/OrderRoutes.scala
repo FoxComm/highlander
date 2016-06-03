@@ -1,13 +1,13 @@
 package routes.admin
 
-import cats.implicits._
 import akka.http.scaladsl.server.Directives._
+
+import cats.implicits._
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
-import models.order.Order
-import models.payment.giftcard.GiftCard
-import GiftCard.giftCardCodeRegex
-import Order.orderRefNumRegex
 import models.StoreAdmin
+import models.order.Order.orderRefNumRegex
+import models.payment.giftcard.GiftCard
+import models.payment.giftcard.GiftCard.giftCardCodeRegex
 import models.traits.Originator
 import payloads.AddressPayloads._
 import payloads.LineItemPayloads._
@@ -16,10 +16,10 @@ import payloads.PaymentPayloads._
 import payloads.UpdateShippingMethod
 import services.orders._
 import services.{Checkout, LineItemUpdater}
-import utils.http.CustomDirectives._
-import utils.http.Http._
 import utils.Apis
 import utils.aliases._
+import utils.http.CustomDirectives._
+import utils.http.Http._
 
 object OrderRoutes {
 
@@ -28,21 +28,14 @@ object OrderRoutes {
     activityContext(admin) { implicit ac ⇒
       determineObjectContext(db, ec) { productContext ⇒
         pathPrefix("orders") {
-          (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            goodOrFailures {
-              OrderQueries.list
-            }
-          } ~
           (post & pathEnd & entity(as[CreateOrder])) { payload ⇒
             goodOrFailures {
               OrderCreator.createCart(admin, payload, productContext)
             }
           } ~
-          (patch & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            entity(as[BulkUpdateOrdersPayload]) { payload ⇒
-              goodOrFailures {
-                OrderStateUpdater.updateStates(admin, payload.referenceNumbers, payload.state)
-              }
+          (patch & pathEnd & entity(as[BulkUpdateOrdersPayload])) { payload ⇒
+            goodOrFailures {
+              OrderStateUpdater.updateStates(admin, payload.referenceNumbers, payload.state)
             }
           }
         } ~

@@ -1,20 +1,19 @@
 package services.rmas
 
+import failures.InvalidCancellationReasonFailure
 import models.customer.Customers
 import models.order.Orders
+import models.rma.Rma.Canceled
 import models.rma.{Rma, Rmas}
-import Rma.Canceled
-import failures.InvalidCancellationReasonFailure
 import models.{Reason, Reasons, StoreAdmin}
 import payloads.RmaPayloads._
 import responses.RmaResponse._
-import responses.{AllRmas, BatchResponse, CustomerResponse, RmaResponse, StoreAdminResponse}
-import services.rmas.Helpers._
+import responses.{CustomerResponse, RmaResponse, StoreAdminResponse}
 import services.Result
-import utils.http.CustomDirectives.SortAndPage
+import services.rmas.Helpers._
 import utils.aliases._
-import utils.db._
 import utils.db.DbResultT._
+import utils.db._
 
 object RmaService {
   def updateMessageToCustomer(refNum: String, payload: RmaMessageToCustomerPayload)(
@@ -72,18 +71,4 @@ object RmaService {
       rma      ← * <~ Rmas.mustFindByRefNum(refNum)
       response ← * <~ fromRmaExpanded(rma).toXor
     } yield response).run()
-
-  def findByOrderRef(refNum: String)(
-      implicit ec: EC, db: DB, sortAndPage: SortAndPage): Result[BatchResponse[AllRmas.Root]] =
-    (for {
-      order ← * <~ Orders.mustFindByRefNum(refNum)
-      rmas  ← * <~ RmaQueries.findAllDbio(Rmas.findByOrderRefNum(refNum))
-    } yield rmas).run()
-
-  def findByCustomerId(customerId: Int)(
-      implicit ec: EC, db: DB, sortAndPage: SortAndPage): Result[BatchResponse[AllRmas.Root]] =
-    (for {
-      _    ← * <~ Customers.mustFindById404(customerId)
-      rmas ← * <~ RmaQueries.findAllDbio(Rmas.findByCustomerId(customerId))
-    } yield rmas).run()
 }

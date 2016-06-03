@@ -3,16 +3,15 @@ package models
 import cats.data.ValidatedNel
 import cats.implicits._
 import com.pellucid.sealerate
-import models.Reason.{General, ReasonType}
 import failures.Failure
+import models.Reason.{General, ReasonType}
+import shapeless._
 import slick.ast.BaseTypedType
+import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
+import utils.db._
 import utils.http.CustomDirectives.SortAndPage
 import utils.{ADT, Validation}
-import utils.aliases._
-import shapeless._
-import slick.driver.PostgresDriver.api._
-import utils.db._
 
 case class Reason(id: Int = 0,
                   reasonType: ReasonType = General,
@@ -84,7 +83,4 @@ object Reasons
 
     sortedQuery.paged
   }
-
-  def queryAll(implicit sortAndPage: SortAndPage): QuerySeqWithMetadata =
-    this.sortedAndPaged(this)
 }

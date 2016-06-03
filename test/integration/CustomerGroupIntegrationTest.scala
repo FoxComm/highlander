@@ -10,48 +10,22 @@ import org.scalatest.mock.MockitoSugar
 import payloads.CustomerGroupPayloads.CustomerDynamicGroupPayload
 import responses.CreditCardsResponse.{Root ⇒ CardResponse}
 import responses.DynamicGroupResponse
-import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
-import utils.db._
 import utils.db.DbResultT._
-import utils.seeds.RankingSeedsGenerator.generateGroup
+import utils.db._
 import utils.seeds.Seeds.Factories
 
 class CustomerGroupIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
     with AutomaticAuth
-    with SortingAndPaging[DynamicGroupResponse.Root]
     with MockitoSugar {
 
   import concurrent.ExecutionContext.Implicits.global
 
-  def responseItems = {
-    val admin = StoreAdmins.create(authedStoreAdmin).run().futureValue.rightVal
-
-    val insertGroups = (1 to numOfResults).map { _ ⇒
-      generateGroup(admin.id)
-    }
-    val dbio = for {
-      groups ← CustomerDynamicGroups.createAll(insertGroups) >> CustomerDynamicGroups.result
-    } yield groups.map(DynamicGroupResponse.build)
-
-    dbio.transactionally.run().futureValue.toIndexedSeq
-  }
-
-  val sortColumnName = "name"
-
-  def responseItemsSort(items: IndexedSeq[DynamicGroupResponse.Root]) =
-    items.sortBy(_.name)
-
-  def mf = implicitly[scala.reflect.Manifest[DynamicGroupResponse.Root]]
-  // paging and sorting API end
-
-  val uriPrefix = "v1/groups"
-
   "GET /v1/groups" - {
     "lists customers groups" in new Fixture {
-      val response  = GET(s"$uriPrefix")
+      val response  = GET("v1/groups")
       val groupRoot = DynamicGroupResponse.build(group)
 
       response.status must ===(StatusCodes.OK)
@@ -61,11 +35,11 @@ class CustomerGroupIntegrationTest
 
   "POST /v1/groups" - {
     "successfully creates customer group from payload" in new Fixture {
-      val response = POST(s"v1/groups",
-                          CustomerDynamicGroupPayload(name = "Group number one",
-                                                      clientState = JObject(),
-                                                      elasticRequest = JObject(),
-                                                      customersCount = Some(1)))
+      val payload = CustomerDynamicGroupPayload(name = "Group number one",
+                                                clientState = JObject(),
+                                                elasticRequest = JObject(),
+                                                customersCount = Some(1))
+      val response = POST(s"v1/groups", payload)
 
       response.status must ===(StatusCodes.OK)
 
@@ -77,7 +51,7 @@ class CustomerGroupIntegrationTest
 
   "GET /v1/groups/:groupId" - {
     "fetches group info" in new Fixture {
-      val response = GET(s"$uriPrefix/${group.id}")
+      val response = GET(s"v1/groups/${group.id}")
       val root     = DynamicGroupResponse.build(group)
 
       response.status must ===(StatusCodes.OK)
@@ -85,7 +59,7 @@ class CustomerGroupIntegrationTest
     }
 
     "404 if group not found" in new Fixture {
-      val response = GET(s"$uriPrefix/999")
+      val response = GET("v1/groups/999")
 
       response.status must ===(StatusCodes.NotFound)
       response.error must ===(NotFoundFailure404(CustomerDynamicGroup, 999).description)
@@ -100,7 +74,7 @@ class CustomerGroupIntegrationTest
                                                 elasticRequest = JObject())
       (payload.name, payload.customersCount) must !==((group.name, group.customersCount))
 
-      val response = PATCH(s"$uriPrefix/${group.id}", payload)
+      val response = PATCH(s"v1/groups/${group.id}", payload)
       response.status must ===(StatusCodes.OK)
 
       val updated = response.as[DynamicGroupResponse.Root]
@@ -112,7 +86,7 @@ class CustomerGroupIntegrationTest
                                                 customersCount = Some(777),
                                                 clientState = JObject(),
                                                 elasticRequest = JObject())
-      val response = PATCH(s"$uriPrefix/999", payload)
+      val response = PATCH("v1/groups/999", payload)
 
       response.status must ===(StatusCodes.NotFound)
       response.error must ===(NotFoundFailure404(CustomerDynamicGroup, 999).description)

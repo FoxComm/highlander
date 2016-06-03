@@ -1,10 +1,9 @@
 import Extensions._
 import akka.http.scaladsl.model.StatusCodes
-import models.payment.giftcard.{GiftCard, GiftCards, GiftCardManual, GiftCardManuals, GiftCardSubtypes}
-import models.payment.storecredit.{StoreCredit, StoreCredits, StoreCreditManual, StoreCreditManuals, StoreCreditSubtypes}
+import models.payment.giftcard._
+import models.payment.storecredit._
 import models.customer.Customers
 import models.{Reasons, StoreAdmins}
-import org.scalatest.BeforeAndAfterEach
 import responses.{GiftCardSubTypesResponse, StoreCreditSubTypesResponse}
 import util.IntegrationTestBase
 import utils.db._
@@ -13,10 +12,7 @@ import utils.seeds.Seeds.Factories
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class PaymentTypesIntegrationTest
-    extends IntegrationTestBase
-    with HttpSupport
-    with BeforeAndAfterEach {
+class PaymentTypesIntegrationTest extends IntegrationTestBase with HttpSupport {
 
   "GiftCard Types" - {
     "GET /v1/public/gift-cards/types" - {

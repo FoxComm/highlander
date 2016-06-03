@@ -111,7 +111,10 @@ object Addresses
 
   import scope._
 
-  def sortedAndPagedWithRegions(query: Query[(Addresses, Regions), (Address, Region), Seq])(
+  type AddressesWithRegionsQuery =
+    _root_.slick.driver.PostgresDriver.api.Query[(Addresses, Regions), (Address, Region), Seq]
+
+  def sortedAndPagedWithRegions(query: AddressesWithRegionsQuery)(
       implicit sortAndPage: SortAndPage)
     : QueryWithMetadata[(Addresses, Regions), (Address, Region), Seq] =
     query.withMetadata.sortAndPageIfNeeded {
@@ -142,17 +145,11 @@ object Addresses
   def findAllActiveByCustomerId(customerId: Int): QuerySeq =
     findAllByCustomerId(customerId).filter(_.deletedAt.isEmpty)
 
-  def findAllByCustomerIdWithRegions(
-      customerId: Int): Query[(Addresses, Regions), (Address, Region), Seq] =
-    for {
-      (addresses, regions) ← findAllByCustomerId(customerId).withRegions
-    } yield (addresses, regions)
+  def findAllByCustomerIdWithRegions(customerId: Int): AddressesWithRegionsQuery =
+    findAllByCustomerId(customerId).withRegions
 
-  def findAllActiveByCustomerIdWithRegions(
-      customerId: Int): Query[(Addresses, Regions), (Address, Region), Seq] =
-    for {
-      (addresses, regions) ← findAllActiveByCustomerId(customerId).withRegions
-    } yield (addresses, regions)
+  def findAllActiveByCustomerIdWithRegions(customerId: Int): AddressesWithRegionsQuery =
+    findAllActiveByCustomerId(customerId).withRegions
 
   def findShippingDefaultByCustomerId(customerId: Int): QuerySeq =
     filter(_.customerId === customerId).filter(_.isDefaultShipping === true)
@@ -165,7 +162,7 @@ object Addresses
 
   object scope {
     implicit class AddressesQuerySeqConversions(q: QuerySeq) {
-      def withRegions: Query[(Addresses, Regions), (Address, Region), Seq] =
+      def withRegions: AddressesWithRegionsQuery =
         for {
           addresses ← q
           regions   ← Regions if regions.id === addresses.regionId

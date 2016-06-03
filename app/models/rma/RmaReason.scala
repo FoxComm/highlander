@@ -10,8 +10,6 @@ import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.ADT
-import utils.http.CustomDirectives.SortAndPage
-import utils.aliases._
 import utils.db._
 
 case class RmaReason(id: Int = 0,
@@ -52,24 +50,4 @@ object RmaReasons
     with ReturningId[RmaReason, RmaReasons] {
 
   val returningLens: Lens[RmaReason, Int] = lens[RmaReason].id
-
-  def sortedAndPaged(query: QuerySeq)(implicit sortAndPage: SortAndPage): QuerySeqWithMetadata = {
-    val sortedQuery = query.withMetadata.sortAndPageIfNeeded {
-      case (s, reason) ⇒
-        s.sortColumn match {
-          case "id"         ⇒ if (s.asc) reason.id.asc else reason.id.desc
-          case "name"       ⇒ if (s.asc) reason.name.asc else reason.name.desc
-          case "reasonType" ⇒ if (s.asc) reason.reasonType.asc else reason.reasonType.desc
-          case "rmaType"    ⇒ if (s.asc) reason.rmaType.asc else reason.rmaType.desc
-          case "createdAt"  ⇒ if (s.asc) reason.createdAt.asc else reason.createdAt.desc
-          case "deletedAt"  ⇒ if (s.asc) reason.deletedAt.asc else reason.deletedAt.desc
-          case other        ⇒ invalidSortColumn(other)
-        }
-    }
-
-    sortedQuery.paged
-  }
-
-  def queryAll(implicit sortAndPage: SortAndPage): QuerySeqWithMetadata =
-    this.sortedAndPaged(this)
 }

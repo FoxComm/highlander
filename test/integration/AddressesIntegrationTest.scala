@@ -4,55 +4,21 @@ import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 
 import failures.NotFoundFailure404
 import models.customer.{Customer, Customers}
-import models.location.{Address, Addresses, Regions}
+import models.location.{Address, Addresses}
 import models.order.{OrderShippingAddresses, Orders}
 import payloads.AddressPayloads.CreateAddressPayload
 import util.IntegrationTestBase
 import util.SlickSupport.implicits._
 import utils.db.DbResultT._
 import utils.db._
-import utils.seeds.RankingSeedsGenerator
 import utils.seeds.Seeds.Factories
 
-class AddressesIntegrationTest
-    extends IntegrationTestBase
-    with HttpSupport
-    with SortingAndPaging[responses.Addresses.Root]
-    with AutomaticAuth {
+class AddressesIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
 
   import concurrent.ExecutionContext.Implicits.global
 
   import Extensions._
   import api._
-
-  // paging and sorting API
-  private var currentCustomer: Customer = _
-
-  override def beforeSortingAndPaging() = {
-    currentCustomer = Customers.create(Factories.customer).futureValue.rightVal
-  }
-
-  def uriPrefix = s"v1/customers/${currentCustomer.id}/addresses"
-
-  def responseItems = {
-    val items = (1 to numOfResults).map { i ⇒
-      for {
-        address ← * <~ Addresses.create(
-                     RankingSeedsGenerator.generateAddress.copy(customerId = currentCustomer.id))
-        region ← * <~ Regions.mustFindById404(address.regionId)
-      } yield responses.Addresses.build(address, region)
-    }
-
-    DbResultT.sequence(items).runTxn().futureValue.rightVal
-  }
-
-  val sortColumnName = "name"
-
-  def responseItemsSort(items: IndexedSeq[responses.Addresses.Root]) =
-    items.sortBy(_.name)
-
-  def mf = implicitly[scala.reflect.Manifest[responses.Addresses.Root]]
-  // paging and sorting API end
 
   def validateDeleteResponse(response: HttpResponse) {
     response.status must ===(StatusCodes.NoContent)

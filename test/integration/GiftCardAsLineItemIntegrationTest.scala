@@ -7,7 +7,6 @@ import models.customer.Customers
 import models.order.lineitems._
 import models.order.{Order, Orders}
 import models.payment.giftcard._
-import org.scalatest.BeforeAndAfterEach
 import payloads.LineItemPayloads.AddGiftCardLineItem
 import responses.order.FullOrder
 import slick.driver.PostgresDriver.api._
@@ -15,14 +14,12 @@ import util.IntegrationTestBase
 import utils.Money._
 import utils.db._
 import utils.db.DbResultT._
-import utils.seeds.Seeds
 import utils.seeds.Seeds.Factories
 
 class GiftCardAsLineItemIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
-    with AutomaticAuth
-    with BeforeAndAfterEach {
+    with AutomaticAuth {
 
   import Extensions._
 

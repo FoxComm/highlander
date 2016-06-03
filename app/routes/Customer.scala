@@ -4,25 +4,24 @@ import akka.http.scaladsl.server.Directives._
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.auth.CustomerToken
-import models.payment.giftcard.GiftCard
-import models.order.Order.orderRefNumRegex
 import models.inventory.Sku.skuCodeRegex
+import models.order.Order.orderRefNumRegex
+import models.payment.giftcard.GiftCard
 import models.traits.Originator
 import payloads.AddressPayloads._
 import payloads.CustomerPayloads.UpdateCustomerPayload
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.PaymentPayloads._
 import payloads.UpdateShippingMethod
+import services.Authenticator.{AsyncAuthenticator, requireAuth}
 import services.customers.CustomerManager
 import services.orders._
-import services.{AddressManager, Checkout, CreditCardManager, LineItemUpdater, SaveForLaterManager, ShippingManager, StoreCreditAdjustmentsService, StoreCreditService}
-import services.Authenticator.{AsyncAuthenticator, requireAuth}
 import services.product.ProductManager
+import services.{AddressManager, Checkout, CreditCardManager, LineItemUpdater, SaveForLaterManager, ShippingManager, StoreCreditService}
 import utils.Apis
+import utils.aliases._
 import utils.http.CustomDirectives._
 import utils.http.Http._
-import utils.db._
-import utils.aliases._
 
 object Customer {
   def routes(implicit ec: EC,
@@ -173,13 +172,6 @@ object Customer {
               }
             }
           } ~
-          pathPrefix("orders") {
-            (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-              goodOrFailures {
-                OrderQueries.listByCustomer(customer)
-              }
-            }
-          } ~
           pathPrefix("orders" / orderRefNumRegex) { refNum ⇒
             (get & pathEnd) {
               goodOrFailures {
@@ -188,11 +180,6 @@ object Customer {
             }
           } ~
           pathPrefix("addresses") {
-            (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-              goodOrFailures {
-                AddressManager.findAllByCustomer(Originator(customer), customer.id)
-              }
-            } ~
             (post & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
               goodOrFailures {
                 AddressManager.create(Originator(customer), payload, customer.id)
@@ -260,19 +247,9 @@ object Customer {
             }
           } ~
           pathPrefix("payment-methods" / "store-credits") {
-            (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-              goodOrFailures {
-                StoreCreditService.findAllByCustomer(customer.id)
-              }
-            } ~
             (get & path(IntNumber) & pathEnd) { storeCreditId ⇒
               goodOrFailures {
                 StoreCreditService.getByIdAndCustomer(storeCreditId, customer)
-              }
-            } ~
-            (get & path("transactions") & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-              goodOrFailures {
-                StoreCreditAdjustmentsService.forCustomer(customer.id)
               }
             } ~
             (get & path("totals") & pathEnd) {

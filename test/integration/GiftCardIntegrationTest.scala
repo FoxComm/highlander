@@ -1,88 +1,28 @@
-import Extensions._
+import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
-import models.order.{OrderPayments, Orders}
-import models.payment.giftcard._
-import GiftCard._
+import Extensions._
+import failures.GiftCardFailures.GiftCardConvertFailure
+import failures._
 import models.customer.{Customer, Customers}
-import models.payment.{PaymentMethod, storecredit}
+import models.order.{OrderPayments, Orders}
+import models.payment.giftcard.GiftCard._
+import models.payment.giftcard._
 import models.payment.storecredit.StoreCredit
+import models.payment.{PaymentMethod, storecredit}
 import models.{Reason, Reasons, StoreAdmins}
-import org.joda.money.CurrencyUnit
-import org.scalatest.BeforeAndAfterEach
+import payloads.GiftCardPayloads._
 import responses.{GiftCardAdjustmentsResponse, GiftCardBulkResponse, GiftCardResponse, StoreCreditResponse}
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.Money._
-import utils.db._
 import utils.db.DbResultT._
+import utils.db._
 import utils.seeds.Seeds.Factories
-import scala.collection.JavaConverters._
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.Random
 
-import failures.GiftCardFailures.GiftCardConvertFailure
-import failures._
-import payloads.GiftCardPayloads._
-
-class GiftCardIntegrationTest
-    extends IntegrationTestBase
-    with HttpSupport
-    with SortingAndPaging[GiftCardResponse.Root]
-    with AutomaticAuth
-    with BeforeAndAfterEach {
-
-  // paging and sorting API
-  private var currentOrigin: GiftCardManual = _
-
-  override def beforeSortingAndPaging(): Unit = {
-    currentOrigin = (for {
-      admin  ← * <~ StoreAdmins.create(authedStoreAdmin)
-      reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
-      origin ← * <~ GiftCardManuals.create(
-                  GiftCardManual(adminId = admin.id, reasonId = reason.id))
-    } yield origin).runTxn().futureValue.rightVal
-  }
-
-  def uriPrefix = "v1/gift-cards"
-
-  val regCurrencies = CurrencyUnit.registeredCurrencies.asScala.toIndexedSeq
-
-  def responseItems = {
-    val insertGcs = regCurrencies.take(numOfResults).map { currency ⇒
-      val balance = Random.nextInt(9999999)
-
-      Factories.giftCard.copy(currency = currency,
-                              originId = currentOrigin.id,
-                              originalBalance = balance,
-                              currentBalance = balance,
-                              availableBalance = balance)
-    }
-
-    (for {
-      giftCards ← * <~ GiftCards.createAllReturningModels(insertGcs)
-    } yield giftCards.map(GiftCardResponse.build(_))).run().futureValue.rightVal.toIndexedSeq
-  }
-
-  val sortColumnName = "availableBalance"
-
-  def responseItemsSort(items: IndexedSeq[GiftCardResponse.Root]) =
-    items.sortBy(_.availableBalance)
-
-  def mf = implicitly[scala.reflect.Manifest[GiftCardResponse.Root]]
-  // paging and sorting API end
+class GiftCardIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
 
   "GiftCards" - {
-    "GET /v1/gift-cards" - {
-      "returns list of gift cards" in new Fixture {
-        val response  = GET(s"v1/gift-cards")
-        val giftCards = Seq(giftCard, gcSecond)
-
-        response.status must ===(StatusCodes.OK)
-        val resp = response.ignoreFailuresAndGiveMe[Seq[GiftCard]]
-        resp.map(_.id).sorted must ===(giftCards.map(_.id).sorted)
-      }
-    }
 
     "POST /v1/gift-cards" - {
       "successfully creates gift card from payload" in new Fixture {

@@ -33,13 +33,11 @@ object OrderStateUpdater {
                 else orderStateChanged(admin, response, order.state))
     } yield response).runTxn()
 
-  // TODO: transfer sorting-paging metadata
   def updateStates(admin: StoreAdmin,
                    refNumbers: Seq[String],
                    newState: Order.State,
                    skipActivity: Boolean = false)(implicit ec: EC,
                                                   db: DB,
-                                                  sortAndPage: SortAndPage,
                                                   ac: AC): Result[BatchResponse[AllOrders.Root]] =
     (for {
       // Turn failures into errors

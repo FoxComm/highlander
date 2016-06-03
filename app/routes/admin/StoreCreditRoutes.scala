@@ -5,7 +5,7 @@ import akka.http.scaladsl.server.Directives._
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.StoreAdmin
 import payloads.StoreCreditPayloads._
-import services.{StoreCreditAdjustmentsService, StoreCreditService}
+import services.StoreCreditService
 import utils.aliases._
 import utils.http.CustomDirectives._
 import utils.http.Http._
@@ -28,11 +28,6 @@ object StoreCreditRoutes {
       (patch & pathEnd & entity(as[StoreCreditUpdateStateByCsr])) { payload ⇒
         goodOrFailures {
           StoreCreditService.updateStateByCsr(storeCreditId, payload, admin)
-        }
-      } ~
-      (get & path("transactions") & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-        goodOrFailures {
-          StoreCreditAdjustmentsService.forStoreCredit(storeCreditId)
         }
       }
     }

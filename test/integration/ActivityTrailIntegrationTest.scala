@@ -1,30 +1,25 @@
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.language.implicitConversions
 import akka.http.scaladsl.model.StatusCodes
 
+import Extensions._
 import cats.implicits._
 import models.StoreAdmins
 import models.activity._
 import models.customer.Customers
+import org.json4s.{DefaultFormats, Extraction}
+import org.scalacheck.Prop.forAll
+import org.scalacheck.{Gen, Test ⇒ QTest}
 import org.scalatest.mock.MockitoSugar
 import payloads.ActivityTrailPayloads.AppendActivity
+import payloads.CustomerPayloads.UpdateCustomerPayload
 import responses.ActivityConnectionResponse
 import services.activity.CustomerTailored.CustomerUpdated
-import util.IntegrationTestBase
-import utils.seeds.Seeds.Factories
 import slick.driver.PostgresDriver.api._
-import org.json4s.DefaultFormats
-import org.json4s.Extraction
-import concurrent.ExecutionContext.Implicits.global
-
-import org.scalacheck.Prop.forAll
-import org.scalacheck.{Test ⇒ QTest}
-import org.scalacheck.Gen
-import scala.language.implicitConversions
-
-import Extensions._
-import failures.NotFoundFailure404
-import payloads.CustomerPayloads.UpdateCustomerPayload
-import utils.db._
+import util.IntegrationTestBase
 import utils.db.DbResultT._
+import utils.db._
+import utils.seeds.Seeds.Factories
 
 case class DumbActivity(randomWord: String, randomNumber: Int)
 
@@ -45,10 +40,6 @@ class ActivityTrailIntegrationTest
     with AutomaticAuth
     with MockitoSugar {
 
-  // paging and sorting API
-  def connectionNotFound(id: Int): NotFoundFailure404 =
-    NotFoundFailure404(Connection, id)
-  val uriPrefix        = "v1/trails"
   val customerActivity = "customer_activity"
   val typeName         = "customer_updated"
 
