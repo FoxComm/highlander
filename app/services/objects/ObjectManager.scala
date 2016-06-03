@@ -1,5 +1,6 @@
 package services.objects
 
+import failures.NotFoundFailure404
 import failures.ObjectFailures._
 import models.objects._
 import payloads.ContextPayloads._
@@ -53,8 +54,8 @@ object ObjectManager {
     DbResultT(ObjectContexts.filterByName(name).mustFindOneOr(ObjectContextNotFound(name)))
 
   def mustFindFormById404(id: Int)(implicit ec: EC): DbResultT[ObjectForm] =
-    DbResultT(ObjectForms.findOneById(id).mustFindOr(ObjectFormNotFound(id)))
+    DbResultT(ObjectForms.findOneById(id).mustFindOr(NotFoundFailure404(ObjectForm, id)))
 
   def mustFindShadowById404(id: Int)(implicit ec: EC): DbResultT[ObjectShadow] =
-    DbResultT(ObjectShadows.findOneById(id).mustFindOr(ObjectShadowNotFound(id)))
+    DbResultT(ObjectShadows.findOneById(id).mustFindOr(NotFoundFailure404(ObjectShadow, id)))
 }

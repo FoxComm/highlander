@@ -6,7 +6,7 @@ import akka.http.scaladsl.server.Directives._
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.StoreAdmin
 import payloads.ContextPayloads._
-import payloads.ImagePayloads.AlbumPayload
+import payloads.ImagePayloads.CreateAlbumPayload
 import payloads.ProductPayloads._
 import services.image.ImageManager
 import services.objects.ObjectManager
@@ -84,7 +84,7 @@ object ProductRoutes {
               ImageManager.getAlbumsForProduct(productId, context)
             }
           } ~
-          (post & pathEnd & entity(as[AlbumPayload])) { payload ⇒
+          (post & pathEnd & entity(as[CreateAlbumPayload])) { payload ⇒
             goodOrFailures {
               ImageManager.createAlbumForProduct(admin, productId, payload, context)
             }

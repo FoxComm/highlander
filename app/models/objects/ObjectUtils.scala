@@ -58,7 +58,7 @@ object ObjectUtils {
 
   def updateForm(oldForm: Json, updatedForm: Json): (KeyMap, Json) = {
     val (keyMap, newForm) = createForm(updatedForm)
-    (keyMap, oldForm merge newForm)
+    (keyMap, oldForm.merge(newForm))
   }
 
   def newShadow(oldShadow: Json, keyMap: KeyMap): Json =
@@ -225,7 +225,6 @@ object ObjectUtils {
       newRightId: Int,
       linkType: ObjectLink.LinkType)(implicit ec: EC, db: DB): DbResultT[Seq[ObjectLink]] =
     for {
-
       links ← * <~ ObjectLinks.findByRightAndType(oldRightId, linkType).result
       _ ← * <~ DbResultT.sequence(links.map { link ⇒
            for {
