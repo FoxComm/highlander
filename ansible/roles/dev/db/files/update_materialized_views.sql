@@ -1,3 +1,6 @@
+-- activities
+refresh materialized view concurrently activity_connections_view;
+
 -- customers
 refresh materialized view concurrently customers_ranking;
 refresh materialized view concurrently customer_orders_view;
