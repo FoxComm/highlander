@@ -10,7 +10,7 @@ select
     f.attributes->>(s.attributes->'activeTo'->>'ref') as active_to,
     0 as total_used, --this needs to be computed
     0 as current_carts, --this needs to be computed
-    f.created_at as created_at,
+    to_char(f.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as created_at,
     link.discounts as discounts
 from 
 	promotions as p, 

@@ -1,4 +1,4 @@
-create table activity_connections(
+create table activity_connections (
     id serial primary key,
     dimension_id integer,
     trail_id integer,
