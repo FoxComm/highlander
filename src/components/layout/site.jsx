@@ -1,5 +1,6 @@
 import React, { PropTypes, Component } from 'react';
 import { connect } from 'react-redux';
+import { dissoc } from 'sprout-data';
 
 import * as actions from 'modules/auth';
 
@@ -18,10 +19,12 @@ const mapState = state => ({
 class Site extends Component {
   renderAuthBlock() {
     const auth = this.props.location.query.auth;
-    const path = this.props.location.pathname;
+    const pathname = this.props.location.pathname;
+    const query = dissoc(this.props.location.query, 'auth');
+    const path = {pathname, query};
     return (
       <Overlay path={path}>
-        <Auth authBlockType={auth} path={path}/>
+        <Auth authBlockType={auth} path={pathname} query={query}/>
       </Overlay>
     );
   }
