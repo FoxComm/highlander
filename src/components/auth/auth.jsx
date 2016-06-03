@@ -16,11 +16,13 @@ class Auth extends Component {
   static propTypes = {
     authBlockType: PropTypes.string,
     path: PropTypes.string,
+    query: PropTypes.object,
   };
 
   renderContent() {
     const authProps = {
       path: this.props.path,
+      query: this.props.query,
     };
 
     switch (this.props.authBlockType) {
