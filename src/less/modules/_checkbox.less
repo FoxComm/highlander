@@ -1,89 +1,83 @@
 .fc-slide-checkbox {
-  width: 80px;
-  height: 34px;
+  @width: 80px;
+  @height: 34px;
+  @label-size: 24px;
+  @label-indent: 42px;
+  @label-padding: (@height - @label-size) / 2;
+  @transition: all .4s ease;
+  @background-padding: 0 10px;
+
+  width: @width;
+  height: @height;
   position: relative;
 
-
-  & input[type=checkbox]:after {
-    content: 'NO';
-    display: block;
-    background: @color-decor47;
-    color: @color-white;
-    position: absolute;
-    right: 0;
-    top: 0;
-    width: 80px;
-    height: 34px;
-    z-index: 0;
-    font-weight: bold;
-    line-height: 30px;
-    border-radius: 50px;
-    text-align: right;
-    top: -2px;
-    padding: 6px 10px;
-    .font-spec(16px, 500, 22px);
-  }
-
-  & input[type=checkbox]:before {
-    content: 'YES';
-    background: @color-decor46;
-    color: @color-white;
+  & label:before {
     position: absolute;
     left: 0;
     top: 0;
-    width: 80px;
-    height: 34px;
-    z-index: 0;
-    font-weight: bold;
-    border-radius: 50px;
-    top: -2px;
-    padding: 6px 10px;
-    .font-spec(16px, 500, 22px);
+    width: @width;
+    height: @height;
+    background: @color-decor46;
+    opacity: 0;
+    border-radius: @height / 2;
+    transition: @transition;
+    padding: @background-padding;
+    text-indent: - @label-indent;
+    text-align: left;
+    color: @color-white;
+    .font-spec(16px, 500, @height);
+    content: "YES";
   }
 
-  & > label {
-    display: block;
-    width: 24px;
-    height: 24px;
-    border-radius: 50px;
-    transition: all .4s ease;
-    cursor: pointer;
+  & label:after {
     position: absolute;
-    top: 3px;
-    left: 3px;
-    z-index: 1;
+    left: @label-padding;
+    top: @label-padding;
+    width: @label-size;
+    height: @label-size;
     background: @color-white;
+    border-radius: @height / 2;
+    transition: @transition;
+    text-indent: @label-indent;
+    line-height: @label-size;
+    box-shadow: 2px 3px 4px 0 rgba(0, 0, 0, .3);
+    content: "NO";
   }
 
-  & > input[type=checkbox] {
+  & label {
+    position: absolute;
+    right: 0;
+    top: -2px;
+    width: @width;
+    height: @height;
+    background: @color-decor47;
+    border-radius: @height / 2;
+    transition: @transition;
+    padding: @background-padding;
+    text-align: right;
+    color: @color-white;
+    .font-spec(16px, 500, @height);
+    user-select: none;
+    box-shadow: 2px 3px 4px 0 rgba(0, 0, 0, .3);
+  }
+
+  & input[type=checkbox] {
     visibility: hidden;
   }
 
-  & > input[type=checkbox] + label {
-    box-shadow: 2px 3px 4px 0px rgba(0,0,0,0.30);
-  }
+  & input[type=checkbox]:checked + label {
+    background: rgba(244, 87, 88, 0);
 
-  & > input[type=checkbox]:checked + label {
-    left: 52px;
-    box-shadow: -2px 3px 4px 0px rgba(0,0,0,0.30);
-  }
+    &:before {
+      text-indent: 0;
+      opacity: 1;
+    }
 
-  & > input[type=checkbox]:before {
-    visibility: hidden;
+    &:after {
+      color: transparent;
+      left: @width - @label-size - @label-padding;
+    }
   }
-
-  & > input[type=checkbox]:after {
-    visibility: visible;
-  }
-
-  & > input[type=checkbox]:checked:before {
-    visibility: visible;
-  }
-
-  & > input[type=checkbox]:checked:after {
-    visibility: hidden;
-  }
-
 }
 
 .fc-checkbox {
