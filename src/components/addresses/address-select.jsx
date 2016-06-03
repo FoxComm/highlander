@@ -15,12 +15,13 @@ export default class AddressSelect extends React.Component {
     className: PropTypes.string
   };
 
-  constructor(...args) {
-    super(...args);
-    this.state = {
-      value: this.props.initialValue
-    };
-  }
+  static defaultProps = {
+    initialValue: 0,
+  };
+
+  state = {
+    value: this.props.initialValue,
+  };
 
   @autobind
   onItemSelect(value) {
@@ -68,7 +69,7 @@ export default class AddressSelect extends React.Component {
           </div>
         </div>
         <div className="fc-address-select-body">
-          <input type="hidden" name={ this.props.name } value={ this.state.value } />
+          <input type="hidden" name={ this.props.name } value={ this.state.value } readOnly/>
           <div className="fc-address-select-list">
             {(this.props.items && this.props.items.map( this.renderSelectItem ))}
           </div>

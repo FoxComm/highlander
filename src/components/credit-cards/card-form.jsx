@@ -20,6 +20,7 @@ import AddressDetails from '../addresses/address-details';
 import AddressSelect from '../addresses/address-select';
 import SaveCancel from '../common/save-cancel';
 import InputMask from 'react-input-mask';
+import TextInput from '../forms/text-input';
 
 import * as AddressActions from '../../modules/customers/addresses';
 
@@ -114,11 +115,10 @@ export default class CreditCardForm extends React.Component {
         <FormField label="Name on Card"
                    validator="ascii"
                    labelClassName="fc-credit-card-form__label">
-        <input id="nameCardFormField"
+        <TextInput id="nameCardFormField"
                className="fc-credit-card-form__input"
                name="holderName"
                maxLength="255"
-               type="text"
                required
                value={holderName} />
         </FormField>
@@ -128,6 +128,10 @@ export default class CreditCardForm extends React.Component {
 
   get cardNumber() {
     return _.get(this.state, 'card.cardNumber', '');
+  }
+
+  get cardCVV() {
+    return  _.get(this.state, 'card.cvv', '');
   }
 
   get cardType() {
@@ -145,9 +149,7 @@ export default class CreditCardForm extends React.Component {
 
   @autobind
   validateCvvNumber() {
-    const cvv = _.get(this.state, 'card.cvv', '');
-
-    return isCvvValid(cvv, this.cardType) ? null : `Please enter a valid cvv number`;
+    return isCvvValid(this.cardCVV, this.cardType) ? null : `Please enter a valid cvv number`;
   }
 
   @autobind
@@ -161,12 +163,7 @@ export default class CreditCardForm extends React.Component {
 
   get cardNumberBlock() {
     const { isNew } = this.props;
-    const cardNumber = _.get(this.state, 'card.cardNumber', '');
-    const cvv = _.get(this.state, 'card.cvv', '');
-
-    if (!isNew) {
-      return null;
-    }
+    if (!isNew) return null;
 
     return (
       <li className="fc-credit-card-form__line">
@@ -184,7 +181,7 @@ export default class CreditCardForm extends React.Component {
                 mask={this.cardMask}
                 type="text"
                 required
-                value={cardNumber}
+                value={this.cardNumber}
                 onChange={this.changeCardNumber}
               />
             </FormField>
@@ -193,13 +190,12 @@ export default class CreditCardForm extends React.Component {
             <FormField label="CVV"
                        labelClassName="fc-credit-card-form__label"
                        validator={this.validateCvvNumber}>
-              <input id="cvvCardFormField"
+              <TextInput id="cvvCardFormField"
                      className="fc-credit-card-form__input"
                      name="cvv"
                      maxLength={cvvLength(this.cardType)}
-                     type="text"
                      required
-                     value={cvv}/>
+                     value={this.cardCVV}/>
             </FormField>
           </div>
         </div>

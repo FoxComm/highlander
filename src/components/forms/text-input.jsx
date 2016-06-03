@@ -4,6 +4,7 @@
 
 import React, { Component, Element, PropTypes } from 'react';
 import classNames from 'classnames';
+import { autobind } from 'core-decorators';
 
 type Props = {
   className?: string,
@@ -12,26 +13,48 @@ type Props = {
   value: ?string,
 };
 
-export default class TextInput extends Component<void, Props, void> {
+type State = {
+  value: ?string,
+};
+
+export default class TextInput extends Component {
+  props: Props;
+
   static propTypes = {
     className: PropTypes.string,
-    onChange: PropTypes.func.isRequired,
+    onChange: PropTypes.func,
     placeholder: PropTypes.string,
     value: PropTypes.string,
   };
 
+  static defaultProps = {
+    value: ''
+  };
+
+  handleChange(value: string) {
+    if (this.props.onChange) {
+      this.props.onChange(value);
+    } else {
+      this.setState({value});
+    }
+  };
+
+  state: State = {
+    value: this.props.value
+  };
+
   render(): Element {
-    const { className, onChange, placeholder, value, ...rest } = this.props;
+    const { className, placeholder, ...rest } = this.props;
     const inputClass = classNames('fc-text-input', className);
 
     return (
       <input
         type="text"
         className={inputClass}
-        onChange={({ target }) => onChange(target.value)}
+        onChange={({ target }) => this.handleChange(target.value)}
         placeholder={placeholder}
-        value={value}
-        {...rest} />
+        {...rest}
+        value={this.state.value} />
     );
   }
 }
