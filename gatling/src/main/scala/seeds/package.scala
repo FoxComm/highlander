@@ -11,13 +11,14 @@ package object seeds {
 
   implicit class StopOnFailure[B <: StructureBuilder[B]](val builder: B) extends AnyVal {
     def stopOnFailure =
-      builder.exec(
-          doIf(session ⇒ session.isFailed)(exec { session ⇒
-        Console.err.println("[ERROR] Seeds failed, exiting.")
-        session.terminate
-        System.exit(1)
-        session
-      }))
+      builder.exec {
+        doIf(session ⇒ session.isFailed)(exec { session ⇒
+          Console.err.println("[ERROR] Seeds failed, exiting.")
+          session.onExit(session)
+          System.exit(1)
+          session
+        })
+      }
   }
 
   implicit class DefaultPause[B <: StructureBuilder[B]](val builder: B) extends AnyVal {

@@ -1,9 +1,10 @@
 import sbtassembly.AssemblyKeys
 
 lazy val commonSettings = Seq(
-  version       := "1.0",
-  scalaVersion  := "2.11.8",
-  updateOptions := updateOptions.value.withCachedResolution(true),
+  version          := "1.0",
+  scalaVersion     := "2.11.8",
+  scapegoatVersion := "1.2.1",
+  updateOptions    := updateOptions.value.withCachedResolution(true),
   scalacOptions ++= List(
     "-encoding", "UTF-8",
     "-target:jvm-1.8",
@@ -19,8 +20,6 @@ lazy val commonSettings = Seq(
     "-Ywarn-infer-any"
   )
 )
-
-scapegoatVersion := "1.2.1"
 
 lazy val slickV = "3.1.1"
 
@@ -164,7 +163,7 @@ lazy val gatling = (project in file("gatling")).
   settings(
     commonSettings,
     libraryDependencies ++= {
-      val gatlingV = "2.1.7"
+      val gatlingV = "2.2.1"
       Seq(
         "io.gatling"            % "gatling-app"               % gatlingV,
         "io.gatling.highcharts" % "gatling-charts-highcharts" % gatlingV
@@ -177,12 +176,17 @@ lazy val gatling = (project in file("gatling")).
     assemblyJarName := (AssemblyKeys.assemblyJarName in assembly in phoenixScala).value,
     scalafmtConfig := Some(file(".scalafmt")),
     reformatOnCompileSettings, // scalafmt
-    // Resolve elastic4s assembly conflicts
     assemblyMergeStrategy in assembly := {
-      case PathList("org", "joda", "time", "base", "BaseDateTime.class") ⇒ MergeStrategy.first
+      case PathList("org", "joda", "time", xs@_*) ⇒
+        MergeStrategy.first
+      case PathList("io", "netty", xs@_*) ⇒
+        MergeStrategy.first
+      case PathList("META-INF", "io.netty.versions.properties") ⇒
+        MergeStrategy.first
+      case PathList("META-INF", "native", "libnetty-transport-native-epoll.so") ⇒
+        MergeStrategy.first
       case x ⇒
-        val oldStrategy = (assemblyMergeStrategy in assembly).value
-        oldStrategy(x)
+        (assemblyMergeStrategy in assembly).value.apply(x)
     }
   )
 

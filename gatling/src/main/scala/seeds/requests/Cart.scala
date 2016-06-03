@@ -6,7 +6,6 @@ import scala.util.Random
 
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
-import io.gatling.http.request.StringBody
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.OrderPayloads.{CreateOrder, OrderTimeMachine}
