@@ -34,18 +34,17 @@ begin
         where sku.id = NEW.id;
   end case;
 
-  select array_agg(elements) into strict insert_ids
-    from (
-      select unnest(product_ids)
-        except
-      select id from products_catalog_view
-    ) t (elements);
+ select array_agg(p.id) into update_ids
+    from products as p
+      inner join object_contexts as context on (p.context_id = context.id)
+      inner join products_catalog_view as pv on (pv.id = p.id and context.name = pv.context)
+    where p.id = ANY(product_ids);
 
-  select array_agg(elements) into strict update_ids
+  select array_agg(elements) into insert_ids
     from (
       select unnest(product_ids)
         except
-      select unnest(insert_ids)
+      select unnest(update_ids)
     ) t (elements);
 
   if array_length(insert_ids, 1) > 0 then
@@ -171,7 +170,7 @@ begin
           inner join product_sku_links_view as sv on (sv.product_id = p.id)--get list of sku codes for the product
           inner join sku_search_view as sku on (sku.context_id = context.id and sku.code = sv.skus->>0)
         where sku.id = NEW.id;
-  end case; -- 21
+  end case;
 
   select array_agg(p.id) into current_ids
     from products as p
