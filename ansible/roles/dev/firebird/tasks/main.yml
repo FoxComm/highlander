@@ -6,13 +6,10 @@
 - name: Add Firebird Dir
   file: path={{firebird_install_dir}} state=directory
 
-- name: Sleep
-  shell: sleep 1
-
 - name: Untar Firebird code
   unarchive:
     src: '{{firebird_source_package}}'
-    dest: '{{firebird_install_dir}}'
+    dest: '{{firebird_install_dir}}/'
 
 - name: Build Firebird
   shell: NODE_ENV={{firebird_env}} DEMO_USER={{demo_user}} DEMO_PASS={{demo_pass}} FIREBIRD_LANGUAGE={{firebird_default_language}} gulp build

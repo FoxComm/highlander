@@ -10,13 +10,10 @@
 - name: Add Ashes Dir
   file: path={{ashes_install_dir}} state=directory
 
-- name: Sleep
-  shell: sleep 1
-
 - name: Untar Ashes code
   unarchive:
     src: '{{ashes_source_package}}'
-    dest: '{{ashes_install_dir}}'
+    dest: '{{ashes_install_dir}}/'
 
 - name: Build Ashes
   shell: NODE_ENV={{ashes_env}} DEMO_USER={{demo_user}} DEMO_PASS={{demo_pass}} gulp build
