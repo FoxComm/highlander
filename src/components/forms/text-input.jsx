@@ -24,6 +24,10 @@ export default class TextInput extends Component<void, Props, State> {
     placeholder: PropTypes.string,
     value: PropTypes.string,
   };
+  
+  static defaultProps = {
+    value: ''
+  };
 
   handleChange(value: string) {
     if (this.props.onChange) {
@@ -34,7 +38,7 @@ export default class TextInput extends Component<void, Props, State> {
   };
 
   state: State = {
-    value: this.props.value || ''
+    value: this.props.value
   };
 
   render(): Element {

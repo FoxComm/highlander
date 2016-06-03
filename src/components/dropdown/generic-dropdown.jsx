@@ -51,6 +51,7 @@ export default class GenericDropdown extends Component {
     primary: false,
     editable: false,
     dropdownProps: {},
+    value: '',
   };
 
   state: State = {
@@ -151,7 +152,7 @@ export default class GenericDropdown extends Component {
 
   get dropdownInput(): Element {
     const { name, placeholder, value, renderDropdownInput } = this.props;
-    const actualValue = this.state.selectedValue || '';
+    const actualValue = this.state.selectedValue;
     const title = this.findTitleByValue(actualValue, this.props) || this.renderNullTitle(value, placeholder);
 
     return renderDropdownInput

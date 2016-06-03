@@ -217,12 +217,12 @@ const reducer = createReducer({
     return update(state, id, merge, {
       newCreditCard: {
         isDefault: false,
-        holderName: null,
-        cardNumber: null,
-        cvv: null,
-        expMonth: null,
-        expYear: null,
-        addressId: null
+        holderName: '',
+        cardNumber: '',
+        cvv: '',
+        expMonth: 0,
+        expYear: 0,
+        addressId: ''
       }
     });
   },
