@@ -12,7 +12,7 @@ case object FreeShippingOffer extends Offer {
 
   def adjust(input: DiscountInput)(implicit db: DB, ec: EC, es: ES): OfferResult =
     input.shippingMethod match {
-      case Some(sm) ⇒ accept(input, sm.price)
-      case _        ⇒ reject()
+      case Some(sm) ⇒ buildResult(input, sm.price)
+      case _        ⇒ pure()
     }
 }

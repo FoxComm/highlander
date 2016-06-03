@@ -52,7 +52,7 @@ object FullOrder {
   case class LineItemAdjustment(
       adjustmentType: OrderLineItemAdjustment.AdjustmentType,
       substract: Int,
-      lineItemId: Option[Int]
+      lineItemRefNum: Option[String]
   )
       extends ResponseItem
 
@@ -60,7 +60,7 @@ object FullOrder {
     def build(model: OrderLineItemAdjustment) =
       LineItemAdjustment(adjustmentType = model.adjustmentType,
                          substract = model.substract,
-                         lineItemId = model.lineItemId)
+                         lineItemRefNum = model.lineItemRefNum)
   }
 
   case class CouponPair(coupon: IlluminatedCouponResponse.Root, code: String) extends ResponseItem

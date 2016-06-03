@@ -4,10 +4,8 @@ create table order_line_item_adjustments (
     promotion_shadow_id integer not null references object_shadows(id) on update restrict on delete restrict,
     adjustment_type generic_string not null,
     substract integer not null,
-    line_item_id integer references order_line_items(id) on update restrict on delete restrict,
+    line_item_ref_num generic_string null,
     created_at generic_timestamp
 );
 
 create index order_line_item_adjustments_order_idx on order_line_item_adjustments (order_id);
-create index order_line_item_adjustments_line_item_idx on order_line_item_adjustments (line_item_id);
-

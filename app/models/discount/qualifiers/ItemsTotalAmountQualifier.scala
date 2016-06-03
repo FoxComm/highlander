@@ -11,18 +11,13 @@ case class ItemsTotalAmountQualifier(totalAmount: Int, search: ProductSearch) ex
 
   val qualifierType: QualifierType = ItemsTotalAmount
 
-  def check(input: DiscountInput)(implicit db: DB, ec: EC, es: ES): Result[Unit] = {
-    val future = for { result ← search.query(input) } yield result
-
-    Result.fromFuture(
-        future.map {
-      case Xor.Right(count) if count > 0 ⇒ checkInner(input, search)
-      case _                             ⇒ Xor.Left(SearchFailure)
-    })
-  }
-
-  // FIXME
-  private def checkInner(input: DiscountInput, search: ProductSearch): Xor[Failures, Unit] =
-    if (totalAmount >= totalByProduct(input.lineItems, search.productSearchId)) Xor.Right(Unit)
-    else rejectXor(input, "Number of units is less than required")
+  def check(input: DiscountInput)(implicit db: DB, ec: EC, es: ES): Result[Unit] =
+    search.query(input).map {
+      case Xor.Right(buckets) ⇒
+        val matchedProductFormIds = buckets.filter(_.docCount > 0).map(_.key)
+        if (totalAmount >= totalByProducts(input.lineItems, matchedProductFormIds)) Xor.Right(Unit)
+        rejectXor(input, "Total amount is less than required")
+      case _ ⇒
+        Xor.Left(SearchFailure.single)
+    }
 }

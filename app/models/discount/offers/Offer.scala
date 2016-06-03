@@ -1,5 +1,7 @@
 package models.discount.offers
 
+import cats.data.Xor
+import failures._
 import models.discount.{DiscountBase, DiscountInput}
 import models.discount.offers.Offer.OfferResult
 import models.order.lineitems._
@@ -16,18 +18,27 @@ trait Offer extends DiscountBase {
   def adjust(input: DiscountInput)(implicit db: DB, ec: EC, es: ES): OfferResult
 
   // Returns single line item adjustment for now
-  def accept(input: DiscountInput, substract: Int, lineItemId: Option[Int] = None): OfferResult = {
+  def build(input: DiscountInput,
+            substract: Int,
+            lineItemRefNum: Option[String] = None): OrderLineItemAdjustment =
+    OrderLineItemAdjustment(orderId = input.order.id,
+                            promotionShadowId = input.promotion.id,
+                            adjustmentType = adjustmentType,
+                            substract = substract,
+                            lineItemRefNum = lineItemRefNum)
 
-    val adj = OrderLineItemAdjustment(orderId = input.order.id,
-                                      promotionShadowId = input.promotion.id,
-                                      adjustmentType = adjustmentType,
-                                      substract = substract,
-                                      lineItemId = lineItemId)
+  def buildXor(input: DiscountInput,
+               substract: Int,
+               lineItemRefNum: Option[String] =
+                 None): Xor[Failures, Seq[OrderLineItemAdjustment]] =
+    Xor.Right(Seq(build(input, substract, lineItemRefNum)))
 
-    Result.good(Seq(adj))
-  }
+  def buildResult(
+      input: DiscountInput, substract: Int, lineItemRefNum: Option[String] = None): OfferResult =
+    Result.good(Seq(build(input, substract, lineItemRefNum)))
 
-  def reject(): OfferResult = Result.good(Seq.empty)
+  def pure(): Result[Seq[OrderLineItemAdjustment]]           = Result.good(Seq.empty)
+  def pureXor(): Xor[Failures, Seq[OrderLineItemAdjustment]] = Xor.Right(Seq.empty)
 }
 
 object Offer {

@@ -11,5 +11,8 @@ case class OrderAmountOffer(discount: Int) extends Offer with AmountOffer {
   val adjustmentType: AdjustmentType = OrderAdjustment
 
   def adjust(input: DiscountInput)(implicit db: DB, ec: EC, es: ES): OfferResult =
-    if (discount > 0) accept(input, substract(input.order.subTotal, discount)) else reject()
+    if (discount > 0)
+      buildResult(input, substract(input.order.subTotal, discount))
+    else
+      pure()
 }

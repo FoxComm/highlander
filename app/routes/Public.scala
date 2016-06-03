@@ -8,6 +8,7 @@ import payloads.CustomerPayloads.CreateCustomerPayload
 import services.PublicService._
 import services.customers.CustomerManager
 import services.giftcards.GiftCardService
+import services.orders.OrderPromotionUpdater
 import services.product.ProductManager
 import services.{ReasonService, StoreCreditService}
 import utils.aliases._

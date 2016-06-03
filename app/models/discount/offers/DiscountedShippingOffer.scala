@@ -12,7 +12,7 @@ case class DiscountedShippingOffer(discount: Int) extends Offer with AmountOffer
 
   def adjust(input: DiscountInput)(implicit db: DB, ec: EC, es: ES): OfferResult =
     input.shippingMethod match {
-      case Some(sm) if discount > 0 ⇒ accept(input, substract(sm.price, discount))
-      case _                        ⇒ reject()
+      case Some(sm) if discount > 0 ⇒ buildResult(input, substract(sm.price, discount))
+      case _                        ⇒ pure()
     }
 }

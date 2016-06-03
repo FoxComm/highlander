@@ -10,13 +10,9 @@ case class CustomerDynamicGroupQualifier(search: CustomerSearch) extends Qualifi
 
   val qualifierType: QualifierType = CustomerDynamicGroup
 
-  def check(input: DiscountInput)(implicit db: DB, ec: EC, es: ES): Result[Unit] = {
-    val future = for { result ← search.query(input) } yield result
-
-    Result.fromFuture(
-        future.map {
+  def check(input: DiscountInput)(implicit db: DB, ec: EC, es: ES): Result[Unit] =
+    search.query(input).map {
       case Xor.Right(count) if count > 0 ⇒ Xor.Right(Unit)
-      case _                             ⇒ Xor.Left(SearchFailure)
-    })
-  }
+      case _                             ⇒ Xor.Left(SearchFailure.single)
+    }
 }

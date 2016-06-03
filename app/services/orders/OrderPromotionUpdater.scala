@@ -1,7 +1,6 @@
 package services.orders
 
 import cats.data.Xor
-import failures.ObjectFailures._
 import failures.OrderFailures._
 import failures.CouponFailures._
 import failures.PromotionFailures._
@@ -21,7 +20,7 @@ import models.promotion._
 import models.promotion.Promotions.scope._
 import models.shipping
 import models.traits.Originator
-import responses.TheResponse
+import responses.{ResponseItem, TheResponse}
 import responses.order.FullOrder
 import responses.order.FullOrder._
 import services.{CartValidator, LogActivity, Result}
@@ -29,6 +28,7 @@ import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
 import utils.db.DbResultT._
+import org.json4s.jackson.JsonMethods._
 
 object OrderPromotionUpdater {
 
