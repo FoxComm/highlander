@@ -29,7 +29,8 @@ const quickSearch = makeQuickSearch(
 );
 
 export function suggestCustomers(phrase) {
-  const filters = [{
+  const filters = [
+    {
       term: 'name',
       operator: 'eq',
       value: {
@@ -75,9 +76,10 @@ export function fetchTypes() {
 const giftCardReducer = createReducer({
   [changeFormData]: (state, {name, value}) => {
     const newState = assoc(state, name, value);
-    switch(name) {
+    switch (name) {
       case 'sendToCustomer':
-        return assoc(newState, 'quantity', newState.customers.length);
+        const quantity = value ? newState.customers.length : Math.max(newState.customers.length, 1);
+        return assoc(newState, 'quantity', quantity);
       default:
         return newState;
     }
@@ -99,9 +101,7 @@ const giftCardReducer = createReducer({
     };
   },
   [changeQuantity]: (state, amount) => {
-    amount = Number(amount);
-    if (isNaN(amount)) amount = 1;
-    amount = Math.max(amount, 1);
+    amount = Math.max(Number(amount) || 1, 1);
 
     return {
       ...state,
