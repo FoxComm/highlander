@@ -26,18 +26,9 @@ DefaultCheckbox.propTypes = {
 
 
 const SliderCheckbox = props => {
-  const { className, children, id, ...rest } = props;
-
-  const label = children != null ? <span className="fc-checkbox__label">{children}</span> : null;
-
   return (
-    <div className={ classNames('fc-slide-checkbox', className) }>
-      <input type="checkbox" id={id} {...rest} />
-      <span className="fc-slide-checkbox__background"></span>
-      <label htmlFor={id}>
-        {label}
-      </label>
-    </div>
+    <DefaultCheckbox {...props}
+      className={ classNames('fc-slide-checkbox', props.className) } />
   );
 };
 
