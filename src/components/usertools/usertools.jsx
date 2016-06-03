@@ -8,6 +8,7 @@ import { autobind } from 'core-decorators';
 import { toggleCart } from 'modules/cart';
 import { toggleUserMenu } from 'modules/usermenu';
 import { authBlockTypes } from 'paragons/auth';
+import { merge } from 'sprout-data';
 
 import localized from 'lib/i18n';
 
@@ -33,8 +34,9 @@ class UserTools extends Component {
   renderUserInfo() {
     const { t } = this.props;
     const user = _.get(this.props, ['auth', 'user'], null);
+    const query = merge(this.props.query, {auth: authBlockTypes.LOGIN});
     return _.isEmpty(user) ? (
-      <Link styleName="login-link" to={{pathname: this.props.path, query: {auth: authBlockTypes.LOGIN}}}>
+      <Link styleName="login-link" to={{pathname: this.props.path, query}}>
         {t('LOG IN')}
       </Link>
     ) : (
