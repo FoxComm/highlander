@@ -58,14 +58,11 @@
     color: @color-white;
     .font-spec(16px, 500, @height);
     user-select: none;
+    box-shadow: 2px 3px 4px 0 rgba(0, 0, 0, .3);
   }
 
   & input[type=checkbox] {
     visibility: hidden;
-  }
-
-  & input[type=checkbox] ~ label:before {
-    box-shadow: 2px 3px 4px 0 rgba(0, 0, 0, .3);
   }
 
   & input[type=checkbox]:checked + label {
@@ -79,7 +76,6 @@
     &:after {
       color: transparent;
       left: @width - @label-size - @label-padding;
-      box-shadow: -2px 3px 4px 0 rgba(0, 0, 0, 0.30);
     }
   }
 }
