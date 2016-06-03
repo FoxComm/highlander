@@ -11,7 +11,7 @@ create table products_search_view
     tags text,
     skus jsonb
 );
-create unique index products_search_view_idx on products_search_view (id, context);
+create unique index products_search_view_idx on products_search_view (id, lower(context));
 
 create or replace function insert_products_search_view_from_products_fn() returns trigger as $$
 begin
