@@ -20,6 +20,7 @@ type Props = {
   isSearchActive: boolean;
   resetTerm: Function;
   path: string;
+  query: ?Object;
 }
 
 type State = {
@@ -74,7 +75,7 @@ class Header extends React.Component {
             <Search onSearch={this.props.toggleSearch}/>
           </div>
           <div styleName="tools">
-            <UserTools path={this.props.path}/>
+            <UserTools path={this.props.path} query={this.props.query}/>
           </div>
         </div>
       </div>
