@@ -1,106 +1,87 @@
 .fc-slide-checkbox {
-  width: 80px;
-  height: 34px;
+  @width: 80px;
+  @height: 34px;
+  @label-size: 24px;
+  @label-indent: 42px;
+  @label-padding: (@height - @label-size) / 2;
+  @transition: all .4s ease;
+  @background-padding: 0 10px;
+
+  width: @width;
+  height: @height;
   position: relative;
 
-  .fc-checkbox__label {
-    line-height: 22px;
+  & label:before {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: @width;
+    height: @height;
+    background: @color-decor46;
+    opacity: 0;
+    border-radius: @height / 2;
+    transition: @transition;
+    padding: @background-padding;
+    text-indent: - @label-indent;
+    text-align: left;
+    color: @color-white;
+    .font-spec(16px, 500, @height);
+    content: "YES";
   }
 
   & label:after {
-    content: "NO";
-    text-indent: 42px;
-    line-height: 26px;
-    width: 24px;
-    height: 24px;
-    border-radius: 50px;
-    transition: all .4s ease;
     position: absolute;
-    top: 4px;
-    left: 3px;
-    z-index: 1;
-    box-shadow: 2px 3px 4px 0 rgba(0,0,0,.3);
+    left: @label-padding;
+    top: @label-padding;
+    width: @label-size;
+    height: @label-size;
     background: @color-white;
+    border-radius: @height / 2;
+    transition: @transition;
+    text-indent: @label-indent;
+    line-height: @label-size;
+    box-shadow: 2px 3px 4px 0 rgba(0, 0, 0, .3);
+    content: "NO";
   }
 
-  & label:before {
-    content: 'YES';
-    text-indent: -42px;
-    text-align: left;
-    background: rgba(79, 194, 201, 1);
-    opacity: 0;
-    color: @color-white;
-    position: absolute;
-    left: 0;
-    width: 80px;
-    height: 34px;
-    z-index: 0;
-    font-weight: bold;
-    border-radius: 50px;
-    top: 0;
-    padding: 6px 10px;
-    .font-spec(16px, 500, 22px);
-    transition: all .4s ease;
-  }
-
-  & > label {
-    background: rgba(244, 87, 88, 1);
-    color: @color-white;
+  & label {
     position: absolute;
     right: 0;
-    width: 80px;
-    height: 34px;
-    font-weight: bold;
-    line-height: 30px;
-    border-radius: 50px;
-    text-align: right;
     top: -2px;
-    padding: 6px 10px;
-    .font-spec(16px, 500, 22px);
-    transition: all .4s ease;
+    width: @width;
+    height: @height;
+    background: @color-decor47;
+    border-radius: @height / 2;
+    transition: @transition;
+    padding: @background-padding;
+    text-align: right;
+    color: @color-white;
+    .font-spec(16px, 500, @height);
     user-select: none;
   }
 
-  & > input[type=checkbox] {
+  & input[type=checkbox] {
     visibility: hidden;
   }
 
-  & > input[type=checkbox] ~ label:before {
-    box-shadow: 2px 3px 4px 0 rgba(0,0,0,0.30);
+  & input[type=checkbox] ~ label:before {
+    box-shadow: 2px 3px 4px 0 rgba(0, 0, 0, .3);
   }
 
-  & > input[type=checkbox]:checked + label {
+  & input[type=checkbox]:checked + label {
     background: rgba(244, 87, 88, 0);
-
-
-    &:after {
-      color: transparent;
-      left: 52px;
-      box-shadow: -2px 3px 4px 0 rgba(0, 0, 0, 0.30);
-    }
 
     &:before {
       text-indent: 0;
       opacity: 1;
     }
-  }
 
-  & > input[type=checkbox] + .fc-slide-checkbox__background:before {
-    visibility: hidden;
+    &:after {
+      color: transparent;
+      left: @width - @label-size - @label-padding;
+      box-shadow: -2px 3px 4px 0 rgba(0, 0, 0, 0.30);
+    }
   }
-
-  & > input[type=checkbox] + .fc-slide-checkbox__background:after {
-    visibility: visible;
-  }
-
-  & > input[type=checkbox]:checked + .fc-slide-checkbox__background:before {
-    visibility: visible;
-  }
-
-  & > input[type=checkbox]:checked + .fc-slide-checkbox__background:after {
-    visibility: hidden;
-  }
-
 }
 
 .fc-checkbox {
