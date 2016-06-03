@@ -10,4 +10,4 @@ create table products_catalog_view
     currency text,
     tags text
 );
-create unique index products_catalog_view_idx on products_catalog_view (id, context);
+create unique index products_catalog_view_idx on products_catalog_view (id, lower(context));
