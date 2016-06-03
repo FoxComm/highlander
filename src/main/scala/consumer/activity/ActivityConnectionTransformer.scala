@@ -30,7 +30,7 @@ final case class ActivityConnectionTransformer(
 
   val phoenix = Phoenix(conn)
 
-  def mapping() = esMapping("activity_connections").fields(
+  def mapping() = esMapping("activity_connections_view").fields(
       field("id", IntegerType),
       field("dimensionId", IntegerType),
       field("objectId", StringType).index("not_analyzed"),
