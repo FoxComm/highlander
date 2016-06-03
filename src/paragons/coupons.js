@@ -2,6 +2,11 @@
 import _ from 'lodash';
 import { denormalize, setAttribute, addAttribute } from './form-shadow-object';
 
+export const options = {
+  name: { required: true },
+  storefrontName: { required: true },
+};
+
 export function createEmptyCoupon() {
   const usageRules = {
     isExclusive: false,

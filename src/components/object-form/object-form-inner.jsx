@@ -23,6 +23,7 @@ type Props = {
   form: FormAttributes,
   shadow: ShadowAttributes,
   onChange: (form: FormAttributes, shadow: ShadowAttributes) => void,
+  options: Object,
 };
 
 type State = {
@@ -37,22 +38,32 @@ function formatLabel(label: string): string {
   });
 }
 
-function renderFormField(label: string, input: Element): Element {
+function renderFormField(label: string, input: Element, args?: any): Element {
   const formattedLabel = formatLabel(label);
+  const isRequired = _.get(args, 'required', false) === true ? { required: true } : null;
+  const maybeValidator = _.get(args, 'validator');
+  const validator = maybeValidator != null ? { validator: maybeValidator } : null;
+  console.log(label, isRequired, validator);
   return (
     <FormField
       className="fc-object-form__field"
       labelClassName="fc-object-form__field-label"
       label={formattedLabel}
-      key={`object-form-attribute-${label}`}>
+      key={`object-form-attribute-${label}`}
+      {...validator}
+      {...isRequired} >
       {input}
     </FormField>
   );
 }
 
-export default class ObjectFormInner extends Component<void, Props, State> {
+export default class ObjectFormInner extends Component {
   props: Props;
   state: State = { isAddingProperty: false };
+
+  static defaultProps = {
+    options: {},
+  };
 
   get addCustomProperty(): ?Element {
     if (this.props.canAddProperty) {
@@ -74,7 +85,8 @@ export default class ObjectFormInner extends Component<void, Props, State> {
         <CustomProperty
           isVisible={true}
           onSave={this.handleCreateProperty}
-          onCancel={() => this.setState({ isAddingProperty: false })} />
+          onCancel={() => this.setState({ isAddingProperty: false })}
+        />
       );
     }
   }
@@ -113,7 +125,7 @@ export default class ObjectFormInner extends Component<void, Props, State> {
   }
 
   @autobind
-  renderBool(label: string, value: bool): Element {
+  renderBool(label: string, value: bool, args?: any): Element {
     const formattedLabel = formatLabel(label);
     const onChange = v => this.handleChange(label, 'bool', v);
     return (
@@ -122,21 +134,22 @@ export default class ObjectFormInner extends Component<void, Props, State> {
         <SliderCheckbox
           id={label}
           checked={value}
-          onChange={onChange} />
+          onChange={onChange}
+        />
       </div>
     );
   }
 
   @autobind
-  renderDate(label: string, value: string): Element {
+  renderDate(label: string, value: string, args?: any): Element {
     const dateValue = new Date(value);
     const onChange = (v: Date) => this.handleChange(label, 'date', v.toISOString());
     const dateInput = <DatePicker date={dateValue} onChange={onChange} />;
-    return renderFormField(label, dateInput);
+    return renderFormField(label, dateInput, args);
   }
 
   @autobind
-  renderPrice(label: string, value: any): Element {
+  renderPrice(label: string, value: any, args?: any): Element {
     const priceValue: string = _.get(value, 'value', '');
     const onChange = v => this.handleChange(label, 'price', v);
     const currencyInput = (
@@ -144,14 +157,15 @@ export default class ObjectFormInner extends Component<void, Props, State> {
         inputClass={inputClass}
         inputName={label}
         value={priceValue}
-        onChange={onChange} />
+        onChange={onChange}
+      />
     );
 
-    return renderFormField(label, currencyInput);
+    return renderFormField(label, currencyInput, args);
   }
 
   @autobind
-  renderRichText(label: string, value: any): Element {
+  renderRichText(label: string, value: any, args?: any): Element {
     const formattedLabel = formatLabel(label);
     const onChange = v => this.handleChange(label, 'richText', v);
     return (
@@ -159,12 +173,13 @@ export default class ObjectFormInner extends Component<void, Props, State> {
         className="fc-object-form__field"
         label={formattedLabel}
         value={value}
-        onChange={onChange} />
+        onChange={onChange}
+      />
     );
   }
 
   @autobind
-  renderString(label: string, value: string = ''): Element {
+  renderString(label: string, value: string = '', args?: any): Element {
     const onChange = ({target}) => {
       return this.handleChange(label, 'richText', target.value);
     };
@@ -174,14 +189,15 @@ export default class ObjectFormInner extends Component<void, Props, State> {
         type="text"
         name={label}
         value={value}
-        onChange={onChange} />
+        onChange={onChange}
+      />
     );
 
-    return renderFormField(label, stringInput);
+    return renderFormField(label, stringInput, args);
   }
 
   @autobind
-  renderOptions(label: string, value: any): Element {
+  renderOptions(label: string, value: any, args?: any): Element {
     const options = this.props.fieldsOptions && this.props.fieldsOptions[label];
     if (!options) throw new Error('You must define fieldOptions for options fields');
 
@@ -194,13 +210,14 @@ export default class ObjectFormInner extends Component<void, Props, State> {
         <Dropdown
           value={value}
           items={options}
-          onChange={onChange} />
+          onChange={onChange}
+        />
       </div>
     );
   }
 
   @autobind
-  renderText(label: string, value: string = ''): Element {
+  renderText(label: string, value: string = '', args?: any): Element {
     const onChange = ({target}) => {
       return this.handleChange(label, 'richText', target.value);
     };
@@ -208,23 +225,26 @@ export default class ObjectFormInner extends Component<void, Props, State> {
       <textarea
         className={inputClass}
         name={label}
-        onChange={onChange} value={value} />
+        onChange={onChange} value={value}
+      />
     );
 
-    return renderFormField(label, textInput);
+    return renderFormField(label, textInput, args);
   }
 
   render(): Element {
-    const { form, shadow } = this.props;
+    const { form, shadow, options } = this.props;
     const attributes = illuminateAttributes(form, shadow);
     const fieldsToRender = _.isEmpty(this.props.fieldsToRender) ? Object.keys(attributes) : this.props.fieldsToRender;
 
     const renderedAttributes: Array<Element> = _.map(fieldsToRender, name => {
       const attribute = attributes[name];
+      const optionalArgs = options[name];
+      console.log(name, optionalArgs);
       if (attribute) {
         const { label, type, value } = attribute;
         const renderFn = _.get(this.renderFunctions, type, this.renderString);
-        return React.cloneElement(renderFn(label, value), {key: name});
+        return React.cloneElement(renderFn(label, value, optionalArgs), {key: name});
       } else {
         console.warn(`You tried to render ${name} attribute, but there is no such attribute in a model`);
       }
