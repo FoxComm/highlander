@@ -11,7 +11,7 @@ import widgets from '../../components/customers-groups/dynamic/widgets';
 
 const criterions = [
   {
-    type: types.string,
+    type: types.stringNotAnalyzed,
     widget: {
       default: widgets.plain('text'),
       [ops.oneOf]: widgets.oneOf(widgets.plain('text')),

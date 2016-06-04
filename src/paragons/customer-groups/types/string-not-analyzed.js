@@ -8,7 +8,7 @@ const type = {
     [ops.notEqual]: 'is not',
     [ops.oneOf]: 'is one of',
     [ops.notOneOf]: 'is not one of',
-    [ops.contains]: 'contains',
+    [ops.containsNotAnalyzed]: 'contains',
     [ops.notContains]: 'does not contain',
   },
 };

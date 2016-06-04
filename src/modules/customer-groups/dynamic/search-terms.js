@@ -5,7 +5,7 @@ const searchTerms = [
     options: [
       {
         title: 'Name',
-        type: 'string',
+        type: 'string-not-analyzed',
         term: 'name'
       }, {
         title: 'Email',
