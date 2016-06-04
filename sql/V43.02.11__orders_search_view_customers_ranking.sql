@@ -16,14 +16,14 @@ begin
          WHERE ccp.id = NEW.id;
      when 'gift_card_adjustments' then
        select array_agg(op.order_id) into strict order_ids
-         from gift_card_adjustments as gcc
-         inner join order_payments as op on (op.id = gcc.order_payment_id)
-         WHERE gcc.id = NEW.id;
+         from gift_card_adjustments as gca
+         inner join order_payments as op on (op.id = gca.order_payment_id)
+         WHERE gca.id = NEW.id;
      when 'store_credit_adjustments' then
        select array_agg(op.order_id) into strict order_ids
          from store_credit_adjustments as sca
          inner join order_payments as op on (op.id = sca.order_payment_id)
-         WHERE sca.id = NEW.id;
+         where sca.id = NEW.id;
      when 'rmas' then
        order_ids := array_agg(NEW.order_id);
      when 'rma_payments' then
@@ -68,7 +68,7 @@ begin
               group by (c.id)
               order by revenue desc)
             AS subquery
-    WHERE orders_search_view.customer ->> 'id' = subquery.id::varchar;
+    where orders_search_view.customer ->> 'id' = subquery.id::varchar;
 
     return null;
 end;
@@ -86,19 +86,19 @@ create trigger update_orders_view_from_customers_ranking_on_order_payments
     for each row
     execute procedure update_orders_view_from_customers_ranking_fn();
 
-create trigger update_orders_view_from_customers_ranking_on_credit_card_charges
+create trigger update_orders_view_from_customers_ranking_on_ccc
     after update or insert on credit_card_charges
     for each row
     when (new.state in ('auth', 'fullCapture'))
     execute procedure update_orders_view_from_customers_ranking_fn();
 
-create trigger update_orders_view_from_customers_ranking_on_gift_card_adjustments
+create trigger update_orders_view_from_customers_ranking_on_gca
     after update or insert on gift_card_adjustments
     for each row
     when (new.state in ('auth', 'capture'))
     execute procedure update_orders_view_from_customers_ranking_fn();
 
-create trigger update_orders_view_from_customers_ranking_on_store_credit_adjustments
+create trigger update_orders_view_from_customers_ranking_on_sca
     after update or insert on store_credit_adjustments
     for each row
     when (new.state in ('auth', 'capture'))

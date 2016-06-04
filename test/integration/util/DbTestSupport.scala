@@ -76,7 +76,12 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll {
         .createStatement()
         .execute(s"truncate ${tables.mkString(", ")} restart identity cascade;")
     }
-    setupObjectContext()
+
+    val context = setupObjectContext()
+    if (context.isLeft) {
+      throw new RuntimeException(s"Can't setup object context: $context")
+    }
+
     conn.close()
 
     super.withFixture(test)

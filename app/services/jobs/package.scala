@@ -4,7 +4,7 @@ import scala.concurrent.duration.FiniteDuration
 import scala.collection.mutable.{ListBuffer, Queue}
 import akka.actor.{ActorSystem, Cancellable}
 import utils.aliases._
-import services.jobs.CustomersRankingJob
+import services.jobs._
 
 package object jobs {
 
@@ -23,6 +23,7 @@ package object jobs {
 
   def registerJobs()(implicit db: DB): Unit = {
     registerJob(new CustomersRankingJob)
+    registerJob(new ProductsCatalogJob)
   }
 
   def startJobs(system: ActorSystem)(implicit ec: EC): Unit = {
