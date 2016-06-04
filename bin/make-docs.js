@@ -1,8 +1,24 @@
 
 const LeafDoc = require('leafdoc');
 const fs = require('fs');
+const escapeHtml = require('escape-html');
 
 const OUT_PATH = process.env.DOCS_PATH || 'dist/reference.html';
+
+function setupHandlebars(handlebars) {
+  const makeLink = handlebars.helpers.type;
+  const typeRe = /[\w\._\s]+/g;
+
+  handlebars.registerHelper('type', function(str) {
+    return str
+      .replace(/[\<\>]/g, function(str) {
+        return escapeHtml(str);
+      })
+      .replace(typeRe, function(typeStr) {
+        return makeLink(typeStr);
+      });
+  });
+}
 
 function buildDocs() {
   console.log('Building Api documentation');
@@ -13,6 +29,11 @@ function buildDocs() {
     leadingCharacter: '@'
   });
 
+  setupHandlebars(doc.getTemplateEngine());
+  doc.registerDocumentable('field', 'Fields', true);
+
+  doc.addDir('docs/objects');
+  doc.addFile('src/query-options.leafdoc', false);
   doc.addFile('src/index.js', true);
   doc.addDir('src/api');
   doc.addDir('src/utils');

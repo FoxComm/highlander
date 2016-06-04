@@ -1,0 +1,12 @@
+
+@miniclass ResultMetadata (FoxApi)
+@aka resultmetadata
+
+@field pagination?: PagingMetadata
+Pagination metadata.
+
+@field sorting?: SortingMetadata
+Sorting metadata.
+
+@field errors?: Array<String> = `List of possible errors and warnings`
+List of possible errors.

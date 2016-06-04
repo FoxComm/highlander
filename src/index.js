@@ -13,8 +13,6 @@
 import request from './utils/request';
 import setup from './api/index'
 
-const MAX_RESULTS = 1000;
-
 class Api {
   constructor(args) {
     // @option api_url: String
@@ -24,14 +22,6 @@ class Api {
     // @option version: String = v1
     // Protocol version.
     this.version = args.version || 'v1';
-    this.path = {
-      login: '/public/login',
-      signup: '/public/registrations/new',
-      search: `/search/products_catalog_view/_search?size=${MAX_RESULTS}`,
-      addToCart: '/my/cart/add',
-      updateQty: '/my/cart/line-items',
-      removeFromCart: '/my/cart/line-items/:id/edit',
-    }
   }
 
   // @section Base methods

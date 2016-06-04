@@ -1,0 +1,94 @@
+
+@miniclass Address (FoxApi)
+@aka address
+
+@field id: Number = 1
+Unique identifier.
+
+@field region: Region
+Region/state if the country.
+
+@field name: String = `John Smith`
+Recipient name.
+
+@field address1: String = `555 E Lake Union St.`
+Address line 1.
+
+@field address2?: String = `Suite 200`
+Address line 2.
+
+@field city: String = `Seattle`
+City.
+
+@field zip: String = 98124
+zip/postal code.
+
+@field phoneNumber?: String = `732-757-2923`
+Contact phone number.
+
+@miniclass Region (FoxApi)
+@aka region
+
+@field id: Number = 1
+Unique identifier.
+
+@field countryId: Number = 2794
+Country unique identifier.
+
+@field name: String = `Washington`
+Region name.
+
+@miniclass CreateAddressPayload (FoxApi)
+@aka createaddresspayload
+
+@field name: String = `John Smith`
+Recipient name.
+
+@field regionId: Number
+Region unique ID.
+
+@field address1: String = `555 E Lake Union St.`
+Address line 1.
+
+@field address2?: String = `Suite 200`
+Address line 2.
+
+@field city: String = `Seattle`
+City.
+
+@field zip: String = 98124
+zip/postal code.
+
+@field phoneNumber?: String = `555-555-555`
+Contact phone number.
+
+@miniclass UpdateAddressPayload (FoxApi)
+@aka updateaddresspayload
+
+@field name?: String = `John Smith`
+Recipient name.
+
+@field regionId?: Number
+Region unique ID.
+
+@field address1?: String = `555 E Lake Union St.`
+Address line 1.
+
+@field address2?: String = `Suite 200`
+Address line 2.
+
+@field city?: String = `Seattle`
+City.
+
+@field zip?: String = 98124
+zip/postal code.
+
+@field phoneNumber?: String = `555-555-555`
+Contact phone number.
+
+@miniclass Addresses (FoxApi)
+@aka addresses
+@inherits ResultMetadata
+
+@field result: Array<Address>
+The resulting list of Addresses.
