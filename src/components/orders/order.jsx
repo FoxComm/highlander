@@ -198,9 +198,6 @@ export default class Order extends React.Component {
             <PanelListItem title="Payment State">
               <State value={order.paymentState} model={"payment"} />
             </PanelListItem>
-            <PanelListItem title="Fraud Score">
-              {order.fraudScore}
-            </PanelListItem>
             <PanelListItem title="Date/Time Placed">
               <DateTime value={order.placedAt} />
             </PanelListItem>

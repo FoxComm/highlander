@@ -53,9 +53,6 @@ export default class Customer extends React.Component {
     return (
       <div styleName="block" className="fc-content-box">
         <div styleName="header">
-          <div styleName="head">
-            {this.customerRank}
-          </div>
         </div>
         <article styleName="body">
           <div className="fc-grid">
