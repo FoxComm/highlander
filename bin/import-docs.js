@@ -163,10 +163,12 @@ function rename(filename, newExt) {
 const structuresToImport = [
   'CreateAddressPayload',
   'UpdateAddressPayload',
-  'Address'
+  'Address',
+  'Addresses'
 ];
 
 function convertDocs() {
+  console.log('Import apiary objects descriptions');
   mkdirp.sync(outPath);
   const allDeps = indexArray(structuresToImport);
   collectDocs()
@@ -186,7 +188,6 @@ function convertDocs() {
         fs.writeFileSync(path.join(outPath, leafdoc.filename), value);
       }
     });
-  console.log(allDeps);
 }
 
 if (docsPath && outPath) {

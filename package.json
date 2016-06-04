@@ -6,7 +6,7 @@
   "scripts": {
     "test": "mocha test",
     "build": "babel src -d lib",
-    "docs": "node ./bin/make-docs.js",
+    "docs": "node ./bin/import-docs.js && node ./bin/make-docs.js",
     "prepublish": "npm run build"
   },
   "repository": {

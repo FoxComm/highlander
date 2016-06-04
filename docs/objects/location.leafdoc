@@ -85,3 +85,10 @@ zip/postal code.
 
 @field phoneNumber?: String = `555-555-555`
 Contact phone number.
+
+@miniclass Addresses (FoxApi)
+@aka addresses
+@inherits ResultMetadata
+
+@field result: Array<Address>
+The resulting list of Addresses.
