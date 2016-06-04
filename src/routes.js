@@ -21,7 +21,6 @@ import EditDynamicGroup from './components/customers-groups/dynamic/edit-group';
 import Customer from './components/customers/customer';
 import CustomerDetails from './components/customers/details';
 import Notes from './components/notes/notes';
-import Notifications from './components/notifications/notifications';
 import ActivityTrailPage from './components/activity-trail/activity-trail-page';
 import GiftCards from './components/gift-cards/gift-cards';
 import GiftCardsListPage from './components/gift-cards/list-page';
@@ -80,7 +79,6 @@ const routes = (
       <Route name='rma' path=':rma' component={Rma}>
         <IndexRoute name='rma-details' component={RmaDetails}/>
         <Route name='rma-notes' path='notes' component={Notes}/>
-        <Route name='rma-notifications' path='notifications' component={Notifications}/>
         <Route name='rma-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
       </Route>
     </Route>
@@ -96,7 +94,6 @@ const routes = (
         <IndexRoute name='order-details' component={OrderDetails}/>
         <Route name='order-notes' path='notes' component={Notes}/>
         <Route name='order-returns' path='returns' component={RmaChildList}/>
-        <Route name='order-notifications' path='notifications' component={Notifications}/>
         <Route name='order-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
       </Route>
     </Route>

@@ -2,7 +2,6 @@ import React, { PropTypes } from 'react';
 import { CustomerInfo } from './helpers';
 import TotalsSummary from '../common/totals';
 import Payment from '../payment/payment';
-import RmaStore from '../../stores/rmas';
 
 export default class RmaDetails extends React.Component {
   constructor(props, context) {

@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 
 import { IndexLink, Link } from '../link';
 import Notes from '../notes/notes';
-import Viewers from '../viewers/viewers';
 import { PageTitle } from '../section-title';
 import { PrimaryButton } from '../common/buttons';
 import LocalNav from '../local-nav/local-nav';
@@ -36,10 +35,6 @@ export default class Rma extends React.Component {
     let { rma }  = this.props.params;
 
     this.props.fetchRma(rma);
-  }
-
-  get viewers() {
-    return <Viewers model='returns' modelId={this.rma.id} />;
   }
 
   get notes() {
@@ -91,7 +86,6 @@ export default class Rma extends React.Component {
 
     return (
       <div>
-        {this.viewers}
         <PageTitle title={`Return ${rma.referenceNumber}`} subtitle={this.orderSubtitle}>
           <PrimaryButton onClick={this.cancelReturn}>Cancel Return</PrimaryButton>
         </PageTitle>
