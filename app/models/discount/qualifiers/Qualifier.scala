@@ -1,10 +1,14 @@
 package models.discount.qualifiers
 
+import scala.concurrent.Future
+
 import cats.data.Xor
 import failures._
 import failures.DiscountCompilerFailures.QualifierRejectionFailure
-import models.discount.{DiscountBase, DiscountInput}
+import failures.DiscountFailures.SearchFailure
+import models.discount.{DiscountBase, DiscountInput, ProductSearch}
 import services.Result
+import utils.ElasticsearchApi.Buckets
 import utils.aliases._
 
 trait Qualifier extends DiscountBase {
@@ -20,4 +24,22 @@ trait Qualifier extends DiscountBase {
 
   def rejectXor(input: DiscountInput, message: String): Xor[Failures, Unit] =
     Xor.Left(QualifierRejectionFailure(this, input, message).single)
+}
+
+trait ItemsQualifier extends Qualifier {
+
+  def matchXor(input: DiscountInput)(xor: Failures Xor Buckets): Failures Xor Unit
+
+  def checkInner(input: DiscountInput)(search: Seq[ProductSearch])(
+      implicit db: DB, ec: EC, es: ES): Result[Unit] = {
+    val inAnyOf = search.map(_.query(input).map(matchXor(input)))
+
+    Future
+      .sequence(inAnyOf)
+      .flatMap(xorSequence ⇒
+            xorSequence.find(_.isRight) match {
+          case Some(x) ⇒ Result.unit
+          case None    ⇒ Result.failure(SearchFailure)
+      })
+  }
 }

@@ -14,7 +14,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 trait DiscountSeeds {
 
-  val dummySearch = ProductSearch(productSearchId = 1)
+  val dummySearch = Seq(ProductSearch(productSearchId = 1))
 
   def createDiscounts(implicit db: Database): DbResultT[Seq[BaseDiscount]] =
     for {

@@ -13,6 +13,6 @@ case object FreeShippingOffer extends Offer {
   def adjust(input: DiscountInput)(implicit db: DB, ec: EC, es: ES): OfferResult =
     input.shippingMethod match {
       case Some(sm) ⇒ buildResult(input, sm.price)
-      case _        ⇒ pure()
+      case _        ⇒ pureResult()
     }
 }

@@ -14,5 +14,5 @@ case class OrderAmountOffer(discount: Int) extends Offer with AmountOffer {
     if (discount > 0)
       buildResult(input, substract(input.order.subTotal, discount))
     else
-      pure()
+      pureResult()
 }

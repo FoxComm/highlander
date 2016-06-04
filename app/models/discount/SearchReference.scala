@@ -77,7 +77,7 @@ object SearchReference {
   def skuSearchView: String       = "sku_search_view"
 
   def customersSearchField: String = "id"
-  def productsSearchField: String  = "product_id"
+  def productsSearchField: String  = "productId"
   def skuSearchField: String       = "code"
 
   def pureMetrics: Result[Long]    = Future.successful(Xor.Right(0))

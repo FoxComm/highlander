@@ -1,12 +1,16 @@
 package models.discount.offers
 
+import scala.concurrent.Future
+
 import cats.data.Xor
+import failures.DiscountFailures.SearchFailure
 import failures._
-import models.discount.{DiscountBase, DiscountInput}
+import models.discount.{DiscountBase, DiscountInput, ProductSearch}
 import models.discount.offers.Offer.OfferResult
 import models.order.lineitems._
 import models.order.lineitems.OrderLineItemAdjustment._
 import services.Result
+import utils.ElasticsearchApi.{apply ⇒ _, _}
 import utils.aliases._
 
 trait Offer extends DiscountBase {
@@ -37,8 +41,8 @@ trait Offer extends DiscountBase {
       input: DiscountInput, substract: Int, lineItemRefNum: Option[String] = None): OfferResult =
     Result.good(Seq(build(input, substract, lineItemRefNum)))
 
-  def pure(): Result[Seq[OrderLineItemAdjustment]]           = Result.good(Seq.empty)
-  def pureXor(): Xor[Failures, Seq[OrderLineItemAdjustment]] = Xor.Right(Seq.empty)
+  def pureResult(): Result[Seq[OrderLineItemAdjustment]]     = Result.good(Seq.empty)
+  def pureXor(): Xor[Failures, Seq[OrderLineItemAdjustment]] = Xor.Left(SearchFailure.single)
 }
 
 object Offer {
@@ -76,5 +80,24 @@ trait SetOffer {
   def substract(price: Int, setPrice: Int): Int = {
     val delta = price - setPrice
     if (delta > 0) delta else price
+  }
+}
+
+trait ItemsOffer {
+
+  def matchXor(input: DiscountInput)(
+      xor: Failures Xor Buckets): Failures Xor Seq[OrderLineItemAdjustment]
+
+  def adjustInner(input: DiscountInput)(
+      search: Seq[ProductSearch])(implicit db: DB, ec: EC, es: ES): OfferResult = {
+    val inAnyOf = search.map(_.query(input).map(matchXor(input)))
+
+    Future
+      .sequence(inAnyOf)
+      .flatMap(xorSequence ⇒
+            xorSequence.find(_.isRight) match {
+          case Some(Xor.Right(adj)) ⇒ Result.good(adj)
+          case _                    ⇒ Result.good(Seq.empty)
+      })
   }
 }

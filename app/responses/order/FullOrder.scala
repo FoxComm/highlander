@@ -92,6 +92,7 @@ object FullOrder {
                              price: Int,
                              quantity: Int = 1,
                              totalPrice: Int,
+                             productFormId: Int,
                              state: OrderLineItem.State)
       extends ResponseItem
 
@@ -230,6 +231,7 @@ object FullOrder {
                         state = data.lineItem.state,
                         name = name,
                         price = price,
+                        productFormId = data.product.formId,
                         totalPrice = price)
     }
 
