@@ -1,5 +1,3 @@
-create extension if not exists ltree schema exts;
-
 create table generic_tree (
   id         serial primary key,
   name       generic_string not null,
@@ -13,7 +11,7 @@ create table generic_tree_nodes (
   id         serial primary key,
   tree_id int not null references generic_tree (id) on update restrict on delete restrict,
   index      int not null,
-  path       ltree not null,
+  path       exts.ltree not null,
   kind       generic_string not null,
   object_id  int not null references object_forms(id) on update restrict on delete restrict,
   unique (tree_id, "index")
