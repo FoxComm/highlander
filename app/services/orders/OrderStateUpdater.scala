@@ -1,22 +1,23 @@
 package services.orders
 
-import models.order.lineitems.{OrderLineItem, OrderLineItems}
-import models.order.{Order, Orders}
-import Order.{Canceled, _}
 import failures.LockFailures.LockedFailure
 import failures.{NotFoundFailure400, StateTransitionNotAllowed}
 import models.StoreAdmin
-import responses.BatchResponse
+import models.order.Order.{Canceled, _}
+import models.order.lineitems.{OrderLineItem, OrderLineItems}
+import models.order.{Order, OrderPayment, OrderPayments, Orders}
+import models.payment.giftcard.GiftCardAdjustments
+import models.payment.giftcard.GiftCardAdjustments.scope._
+import models.payment.storecredit.StoreCreditAdjustments
+import models.payment.storecredit.StoreCreditAdjustments.scope._
 import responses.order.{AllOrders, FullOrder}
-import responses.{BatchMetadata, BatchMetadataSource}
-import services.Result
+import responses.{BatchMetadata, BatchMetadataSource, BatchResponse}
 import services.LogActivity.{orderBulkStateChanged, orderStateChanged}
+import services.Result
 import slick.driver.PostgresDriver.api._
-import utils.http.CustomDirectives
-import utils.http.CustomDirectives.SortAndPage
 import utils.aliases._
-import utils.db._
 import utils.db.DbResultT._
+import utils.db._
 
 object OrderStateUpdater {
 
@@ -94,7 +95,8 @@ object OrderStateUpdater {
   }
 
   private def updateQueries(
-      admin: StoreAdmin, orderIds: Seq[Int], orderRefNums: Seq[String], newState: State) =
+      admin: StoreAdmin, orderIds: Seq[Int], orderRefNums: Seq[String], newState: State)(
+      implicit ec: EC) =
     newState match {
       case Canceled ⇒
         cancelOrders(orderIds)
@@ -102,21 +104,32 @@ object OrderStateUpdater {
         Orders.filter(_.id.inSet(orderIds)).map(_.state).update(newState)
     }
 
-  private def cancelOrders(orderIds: Seq[Int]) = {
+  private def cancelOrders(orderIds: Seq[Int])(implicit ec: EC) = {
     val updateLineItems = OrderLineItems
       .filter(_.orderId.inSetBind(orderIds))
       .map(_.state)
       .update(OrderLineItem.Canceled)
 
-    // TODO: canceling an order must cascade to state on each payment type not order_payments
-    //      val updateOrderPayments = OrderPayments
-    //        .filter(_.orderId.inSetBind(orderIds))
-    //        .map(_.state)
-    //        .update("cancelAuth")
+    val cancelPayments = for {
+      orderPayments ← OrderPayments.filter(_.orderId.inSetBind(orderIds)).result
+      _             ← cancelGiftCards(orderPayments)
+      _             ← cancelStoreCredits(orderPayments)
+      // TODO: add credit card charge return
+    } yield ()
 
     val updateOrder = Orders.filter(_.id.inSetBind(orderIds)).map(_.state).update(Canceled)
 
     // (updateLineItems >> updateOrderPayments >> updateOrder).transactionally
-    (updateLineItems >> updateOrder).transactionally
+    (updateLineItems >> updateOrder >> cancelPayments).transactionally
+  }
+
+  private def cancelGiftCards(orderPayments: Seq[OrderPayment]) = {
+    val paymentIds = orderPayments.map(_.id)
+    GiftCardAdjustments.filter(_.orderPaymentId.inSetBind(paymentIds)).cancel()
+  }
+
+  private def cancelStoreCredits(orderPayments: Seq[OrderPayment]) = {
+    val paymentIds = orderPayments.map(_.id)
+    StoreCreditAdjustments.filter(_.orderPaymentId.inSetBind(paymentIds)).cancel()
   }
 }

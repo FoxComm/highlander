@@ -104,4 +104,11 @@ object StoreCreditAdjustments
 
   def authorizedOrderPayments(orderPaymentIds: Seq[Int]): QuerySeq =
     filter(adj ⇒ adj.orderPaymentId.inSet(orderPaymentIds) && adj.state === (Auth: State))
+
+  object scope {
+
+    implicit class SCAQuerySeqAdditions(query: QuerySeq) {
+      def cancel(): DBIO[Int] = query.map(_.state).update(Canceled)
+    }
+  }
 }
