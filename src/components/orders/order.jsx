@@ -74,6 +74,13 @@ export default class Order extends React.Component {
     }
   }
 
+  componentWillUnmount() {
+    if (this.state.updateInterval != null) {
+      clearInterval(this.updateInterval);
+      this.updateInterval = null;
+    }
+  }
+
   get changeOptions() {
     return {
       header: 'Confirm',
