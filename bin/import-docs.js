@@ -67,13 +67,11 @@ class Leafdoc {
     }
   }
 
-  getDepsFor(name, deps = {}) {
+  indexDeps(acc = {}) {
     return this.sections.reduce((acc, s) => {
-      if (s.name === name) {
-        indexArray(s.deps, acc);
-      }
+      acc[s.name] = s.deps;
       return acc;
-    }, deps);
+    }, acc);
   }
 }
 
@@ -170,19 +168,26 @@ const structuresToImport = [
 function convertDocs() {
   console.log('Import apiary objects descriptions');
   mkdirp.sync(outPath);
-  const allDeps = indexArray(structuresToImport);
-  collectDocs()
+  const deps = {};
+  const docs = collectDocs()
     .map(([filename, contents]) => {
       const leafdoc = apiaryToLeafdoc(contents);
-      structuresToImport.forEach(name => {
-        leafdoc.getDepsFor(name, allDeps);
-      });
+      leafdoc.indexDeps(deps);
       leafdoc.filename = rename(filename, '.leafdoc');
 
       return leafdoc;
-    })
-    .map(leafdoc => {
+    });
 
+  function collectDeps(required) {
+    const requiredDeps = _.flatMap(required, function(name) {
+      return collectDeps(deps[name] || []);
+    });
+
+    return [...required, ...requiredDeps];
+  }
+  const allDeps = indexArray(collectDeps(structuresToImport));
+
+  docs.map(leafdoc => {
       const value = leafdoc.filterAndDump(allDeps);
       if (value) {
         fs.writeFileSync(path.join(outPath, leafdoc.filename), value);
