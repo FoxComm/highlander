@@ -21,7 +21,7 @@ import utils.db.DbResultT._
 class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
 
   "POST v1/products/:context" - {
-    "Creates a product successfully" in new Fixture {
+    "Creates a product with a new SKU successfully" in new Fixture {
       val nameJson = ("t" → "string") ~ ("v" → "Product name")
       val attrMap  = Map("name" → nameJson)
       val payload  = CreateProductPayload(attributes = attrMap, skus = Seq(skuPayload))
@@ -31,6 +31,40 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
 
       val productResponse = response.as[IlluminatedFullProductResponse.Root]
       productResponse.skus.length must ===(1)
+      productResponse.skus.head.code must ===("SKU-NEW-TEST")
+    }
+
+    "Creates a product with an existing SKU successfully" in new Fixture {
+      val redSkuPayload = CreateSkuPayload("SKU-RED-SMALL", skuAttrMap)
+
+      val nameJson = ("t" → "string") ~ ("v" → "Product name")
+      val attrMap  = Map("name" → nameJson)
+      val payload  = CreateProductPayload(attributes = attrMap, skus = Seq(redSkuPayload))
+
+      val response = POST(s"v1/products/${context.name}", payload)
+      response.status must ===(StatusCodes.OK)
+
+      val productResponse = response.as[IlluminatedFullProductResponse.Root]
+      productResponse.skus.length must ===(1)
+      productResponse.skus.head.code must ===("SKU-RED-SMALL")
+    }
+
+    "Creates a product with an existing, but modified SKU successfully" in new Fixture {
+      val redPriceJson  = ("t" -> "price") ~ ("v" -> (("currency" → "USD") ~ ("value" → 7999)))
+      val redSkuAttrMap = Map("salePrice" -> redPriceJson)
+      val redSkuPayload = CreateSkuPayload("SKU-RED-LARGE", redSkuAttrMap)
+
+      val nameJson = ("t" → "string") ~ ("v" → "Product name")
+      val attrMap  = Map("name" → nameJson)
+      val payload  = CreateProductPayload(attributes = attrMap, skus = Seq(redSkuPayload))
+
+      val response = POST(s"v1/products/${context.name}", payload)
+      println(response)
+      response.status must ===(StatusCodes.OK)
+
+      val productResponse = response.as[IlluminatedFullProductResponse.Root]
+      productResponse.skus.length must ===(1)
+      productResponse.skus.head.code must ===("SKU-RED-LARGE")
     }
 
     "Throws an error if no SKU is added" in new Fixture {
