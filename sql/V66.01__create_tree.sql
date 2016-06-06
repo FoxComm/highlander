@@ -1,5 +1,3 @@
-create extension if not exists ltree schema exts;
-
 create table generic_tree (
   id         serial primary key,
   name       generic_string not null,
