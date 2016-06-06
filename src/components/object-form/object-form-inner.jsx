@@ -124,9 +124,7 @@ export default class ObjectFormInner extends Component {
     const [newForm, newShadow] = setAttribute(label, type, value, form, shadow);
     if (['options', 'richText'].indexOf(type) >= 0) {
       const validator = _.get(options, [label, 'validator'], _.noop);
-      console.log(validator);
       const error = validator(value);
-      console.log(error);
       const { errors } = this.state;
       errors[label] = error;
       this.setState({ errors });
