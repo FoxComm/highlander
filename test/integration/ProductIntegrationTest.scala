@@ -7,6 +7,10 @@ import models.StoreAdmins
 import models.inventory.{Sku, Skus}
 import models.objects._
 import models.product._
+import org.json4s._
+import org.json4s.jackson.JsonMethods._
+import org.json4s.JsonDSL._
+import payloads.ProductPayloads._
 import responses.ProductResponses._
 import util.IntegrationTestBase
 import utils.Money.Currency
@@ -14,6 +18,17 @@ import utils.db._
 import utils.db.DbResultT._
 
 class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
+
+  "POST v1/products/:context" - {
+    "Creates a product successfully" in new Fixture {
+      val descriptionJson = ("t" -> "string") ~ ("v" -> "Product description")
+      val attrMap         = Map("description" -> descriptionJson)
+      val payload         = CreateProductPayload("Product name", attrMap)
+
+      val response = POST(s"v1/products/${context.name}", payload)
+      response.status must ===(StatusCodes.OK)
+    }
+  }
 
   "GET v1/products/full/:context/:id/baked" - {
     "Return a product with multiple SKUs and variants" in new Fixture {

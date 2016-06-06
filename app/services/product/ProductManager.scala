@@ -25,6 +25,33 @@ import utils.db._
 
 object ProductManager {
 
+  /////////////////////////////////////////////////////////////////////////////////////////////////////
+  // NEW SIMPLE ENDPOINTS
+
+  def createProduct(contextName: String, payload: CreateProductPayload)(
+      implicit ec: EC, db: DB): Result[IlluminatedFullProductResponse.Root] = {
+
+    val form   = ObjectForm.fromPayload(Product.kind, payload.attributes)
+    val shadow = ObjectShadow.fromPayload(payload.attributes)
+
+    (for {
+      context ← * <~ ObjectManager.mustFindByName404(contextName)
+      ins     ← * <~ ObjectUtils.insert(form, shadow)
+      product ← * <~ Products.create(Product(contextId = context.id,
+                                             formId = ins.form.id,
+                                             shadowId = ins.shadow.id,
+                                             commitId = ins.commit.id))
+    } yield
+      IlluminatedFullProductResponse.build(
+          p = IlluminatedProduct.illuminate(context, product, ins.form, ins.shadow),
+          skus = Seq.empty,
+          variants = Seq.empty,
+          variantMap = Map.empty)).runTxn()
+  }
+
+  //
+  /////////////////////////////////////////////////////////////////////////////////////////////////////
+
   def getForm(id: Int)(implicit ec: EC, db: DB): Result[ProductFormResponse.Root] =
     (for {
       // guard to make sure the form is a product.

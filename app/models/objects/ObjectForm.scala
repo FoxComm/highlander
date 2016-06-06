@@ -2,6 +2,8 @@ package models.objects
 
 import java.time.Instant
 
+import org.json4s.JsonAST._
+import org.json4s.JsonDSL._
 import shapeless._
 import utils.aliases._
 import utils.db.ExPostgresDriver.api._
@@ -19,6 +21,16 @@ object ObjectForm {
   val sku       = "sku"
   val promotion = "promotion"
   val coupon    = "coupon"
+
+  def fromPayload(kind: String, attributes: Map[String, Json]): ObjectForm = {
+    val attributesJson = attributes.foldLeft(JNothing: JValue) {
+      case (acc, (key, value)) ⇒
+        val attributeJson: JValue = key → (value \ "v")
+        acc.merge(attributeJson)
+    }
+
+    ObjectForm(kind = kind, attributes = attributesJson)
+  }
 }
 
 // This table mostly acts a placeholder in our system.  We may or may not import objects from 'origin' into this.

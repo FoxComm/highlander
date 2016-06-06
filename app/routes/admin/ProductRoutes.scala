@@ -115,6 +115,13 @@ object ProductRoutes {
               ProductManager.getContextsForProduct(formId)
             }
           }
+        } ~
+        pathPrefix(Segment) { context ⇒
+          (post & pathEnd & entity(as[CreateProductPayload])) { payload ⇒
+            goodOrFailures {
+              ProductManager.createProduct(context, payload)
+            }
+          }
         }
       }
     }
