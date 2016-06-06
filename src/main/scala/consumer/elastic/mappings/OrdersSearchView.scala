@@ -78,11 +78,11 @@ final case class OrdersSearchView()(implicit ec: EC) extends AvroTransformer {
           field("assignedAt", DateType) format dateFormat
       ),
       // RMAs
-      field("rmaCount", IntegerType),
-      field("rmas").nested(
+      field("returnCount", IntegerType),
+      field("returns").nested(
           field("referenceNumber", StringType) index "not_analyzed",
           field("state", StringType) index "not_analyzed",
-          field("rmaType", StringType) index "not_analyzed",
+          field("returnType", StringType) index "not_analyzed",
           field("placedAt", DateType) format dateFormat
       )
   )
@@ -96,6 +96,6 @@ final case class OrdersSearchView()(implicit ec: EC) extends AvroTransformer {
       "shipping_addresses",
       "billing_addresses",
       "assignees",
-      "rmas"
+      "returns"
   )
 }
