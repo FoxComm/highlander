@@ -1,8 +1,7 @@
-
 /* @flow */
 
 import _ from 'lodash';
-import React, { PropTypes, Element, Component } from 'react';
+import React, { PropTypes, Element, Component, Children } from 'react';
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
 
@@ -23,7 +22,6 @@ export type Props = {
   emptyMessage?: string|Element,
   open?: bool,
   children?: Element,
-  items?: Array<DropdownItemType>,
   primary?: bool,
   editable?: bool,
   changeable?: bool,
@@ -55,9 +53,9 @@ export default class GenericDropdown extends Component {
   };
 
   state: State = {
-   open: !!this.props.open,
-   dropup: false,
-   selectedValue: this.props.value,
+    open: !!this.props.open,
+    dropup: false,
+    selectedValue: this.props.value,
   };
 
   componentWillReceiveProps(newProps: Props) {
@@ -212,9 +210,7 @@ export default class GenericDropdown extends Component {
 
     if (_.isEmpty(children) && emptyMessage) {
       return (
-        <li
-          className="fc-dropdown__blank-item"
-          onClick={this.closeMenu} >
+        <li className="fc-dropdown__blank-item" onClick={this.closeMenu}>
           {emptyMessage}
         </li>
       );
@@ -229,6 +225,14 @@ export default class GenericDropdown extends Component {
         onSelect: this.handleItemClick,
       });
     });
+  }
+
+  shouldComponentUpdate(nextProps:Props, nextState:State) {
+    const stateChanged = !_.eq(this.state, nextState);
+    // suggest here that children change only when it amount changes
+    const childrenChanged = Children.count(this.props.children) != Children.count(nextProps.children);
+
+    return stateChanged || childrenChanged;
   }
 
   render() {
