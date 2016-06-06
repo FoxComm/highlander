@@ -1,12 +1,12 @@
 package services.variant
 
-import failures.GeneralFailure
 import failures.ObjectFailures._
 import failures.ProductFailures._
 import models.objects._
 import models.product._
-import payloads.VariantPayloads.CreateVariantPayload
+import payloads.VariantPayloads.{CreateVariantPayload, CreateVariantValuePayload}
 import responses.VariantResponses.IlluminatedVariantResponse
+import responses.VariantValueResponses.IlluminatedVariantValueResponse
 import services.Result
 import services.objects.ObjectManager
 import slick.driver.PostgresDriver.api._
@@ -15,23 +15,27 @@ import utils.db.DbResultT._
 import utils.db._
 
 object VariantManager {
+  type FullVariant = (FullObject[Variant], Seq[FullObject[VariantValue]])
+
   def createVariant(contextName: String, payload: CreateVariantPayload)(
       implicit ec: EC, db: DB): Result[IlluminatedVariantResponse.Root] =
     (for {
 
-      context ← * <~ ObjectManager.mustFindByName404(contextName)
-      variant ← * <~ createVariantInner(context, payload)
+      context     ← * <~ ObjectManager.mustFindByName404(contextName)
+      fullVariant ← * <~ createVariantInner(context, payload)
+      (variant, values) = fullVariant
     } yield
       IlluminatedVariantResponse.build(
           v = IlluminatedVariant.illuminate(context, variant),
-          vs = Seq.empty
+          vs = values
       )).runTxn()
 
   def createVariantInner(context: ObjectContext, payload: CreateVariantPayload)(
-      implicit ec: EC, db: DB): DbResultT[FullObject[Variant]] = {
+      implicit ec: EC, db: DB): DbResultT[FullVariant] = {
 
-    val form   = ObjectForm.fromPayload(Variant.kind, payload.attributes)
-    val shadow = ObjectShadow.fromPayload(payload.attributes)
+    val form          = ObjectForm.fromPayload(Variant.kind, payload.attributes)
+    val shadow        = ObjectShadow.fromPayload(payload.attributes)
+    val variantValues = payload.values.getOrElse(Seq.empty)
 
     for {
       ins ← * <~ ObjectUtils.insert(form, shadow)
@@ -40,7 +44,38 @@ object VariantManager {
                            formId = ins.form.id,
                            shadowId = ins.shadow.id,
                            commitId = ins.commit.id))
-    } yield FullObject(variant, ins.form, ins.shadow)
+      values ← * <~ variantValues.map(createVariantValueInner(context, variant, _))
+    } yield (FullObject(variant, ins.form, ins.shadow), values)
+  }
+
+  def createVariantValue(contextName: String, variantId: Int, payload: CreateVariantValuePayload)(
+      implicit ec: EC, db: DB): Result[IlluminatedVariantValueResponse.Root] =
+    (for {
+      context ← * <~ ObjectManager.mustFindByName404(contextName)
+      variant ← * <~ Variants
+                 .filterByContextAndFormId(context.id, variantId)
+                 .mustFindOneOr(VariantNotFoundForContext(variantId, context.id))
+      value ← * <~ createVariantValueInner(context, variant, payload)
+    } yield IlluminatedVariantValueResponse.build(value)).runTxn()
+
+  def createVariantValueInner(
+      context: ObjectContext, variant: Variant, payload: CreateVariantValuePayload)(
+      implicit ec: EC, db: DB): DbResultT[FullObject[VariantValue]] = {
+
+    val form   = payload.objectForm
+    val shadow = payload.objectShadow
+
+    for {
+      ins ← * <~ ObjectUtils.insert(form, shadow)
+      variantValue ← * <~ VariantValues.create(
+                        VariantValue(contextId = context.id,
+                                     formId = ins.form.id,
+                                     shadowId = ins.shadow.id,
+                                     commitId = ins.commit.id))
+      _ ← * <~ ObjectLinks.create(ObjectLink(leftId = variant.shadowId,
+                                             rightId = variantValue.shadowId,
+                                             linkType = ObjectLink.VariantValue))
+    } yield FullObject(variantValue, ins.form, ins.shadow)
   }
 
   def findVariantsByProduct(
