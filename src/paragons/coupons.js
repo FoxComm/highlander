@@ -2,8 +2,12 @@
 import _ from 'lodash';
 import { denormalize, setAttribute, addAttribute } from './form-shadow-object';
 
+function stripTags(input: string): string {
+  return input.replace(/<(?:.|\n)*?>/gm, '');
+}
+
 const storefrontNameValidotor = (value: string): ?string => {
-  if (value == null || value === '' || value === '<p><br/></p>') {
+  if (_.isEmpty(stripTags(value))) {
     return 'Storefront Name is required field';
   }
 
