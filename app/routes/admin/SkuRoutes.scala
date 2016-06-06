@@ -72,6 +72,13 @@ object SkuRoutes {
               ImageManager.createAlbumForSku(admin, code, payload, context)
             }
           }
+        } ~
+        pathPrefix(Segment) { context ⇒
+          (post & pathEnd & entity(as[CreateSkuPayload])) { payload ⇒
+            goodOrFailures {
+              SkuManager.createSku(context, payload)
+            }
+          }
         }
       }
     }

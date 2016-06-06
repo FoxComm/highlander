@@ -23,7 +23,7 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
     "Creates a product successfully" in new Fixture {
       val descriptionJson = ("t" -> "string") ~ ("v" -> "Product description")
       val attrMap         = Map("description" -> descriptionJson)
-      val payload         = CreateProductPayload("Product name", attrMap)
+      val payload         = CreateProductPayload(attrMap)
 
       val response = POST(s"v1/products/${context.name}", payload)
       response.status must ===(StatusCodes.OK)

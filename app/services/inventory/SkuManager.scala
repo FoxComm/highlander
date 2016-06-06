@@ -22,6 +22,32 @@ import utils.db._
 
 object SkuManager {
 
+  /////////////////////////////////////////////////////////////////////////////////////////////////////
+  // NEW SIMPLE ENDPOINTS
+
+  def createSku(contextName: String, payload: CreateSkuPayload)(
+      implicit ec: EC, db: DB): Result[IlluminatedSkuResponse.Root] = {
+
+    val form   = ObjectForm.fromPayload(Sku.kind, payload.attributes)
+    val shadow = ObjectShadow.fromPayload(payload.attributes)
+
+    (for {
+      context ← * <~ ObjectManager.mustFindByName404(contextName)
+      ins     ← * <~ ObjectUtils.insert(form, shadow)
+      sku ← * <~ Skus.create(
+               Sku(contextId = context.id,
+                   code = payload.code,
+                   formId = ins.form.id,
+                   shadowId = ins.shadow.id,
+                   commitId = ins.commit.id))
+    } yield
+      IlluminatedSkuResponse.build(
+          IlluminatedSku.illuminate(context, FullObject(sku, ins.form, ins.shadow)))).runTxn()
+  }
+
+  //
+  /////////////////////////////////////////////////////////////////////////////////////////////////////
+
   def getFullSkuByContextName(code: String, contextName: String)(
       implicit ec: EC, db: DB): Result[FullSkuResponse.Root] =
     (for {
