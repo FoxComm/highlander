@@ -13,15 +13,16 @@
     firebird_server: 127.0.0.1:4040
     api_server: 127.0.0.1
     ashes_server_name: admin.smallprod.foxcommerce.com
-    firebird_server_name: smallprod.foxcommerce.com
+    firebird_server_name: firebird.smallprod.foxcommerce.com
+    firebrand_server_name: smallprod.foxcommerce.com
 
   roles:
     - { role: base/ssh_keys}
     - { role: base/consul_agent}
     - { role: base/rsyslog, sudo: yes }
     - { role: base/node}
+    - { role: base/balancer, sudo: yes }
     - { role: base/ashes}
     - { role: base/firebird}
     - { role: base/firebrand}
-    - { role: base/balancer, sudo: yes }
     - { role: dev/balancer, sudo: yes }
