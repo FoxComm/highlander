@@ -9,7 +9,6 @@ import { allowedStateTransitions } from '../../paragons/order';
 
 // components
 import { Dropdown, DropdownItem } from '../dropdown';
-import Viewers from '../viewers/viewers';
 import ConfirmModal from '../modal/confirm';
 import RemorseTimer from './remorseTimer';
 import { DateTime } from '../common/datetime';
