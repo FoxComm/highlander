@@ -41,12 +41,12 @@ create domain store_credit_origin_type text check (value in ('giftCardTransfer',
 
 -- Assignments
 create domain assignment_type text check (value in ('assignee', 'watcher'));
-create domain assignment_ref_type text check (value in ('order', 'giftCard', 'customer', 'rma', 'product', 'sku',
+create domain assignment_ref_type text check (value in ('order', 'giftCard', 'customer', 'return', 'product', 'sku',
                                                         'promotion', 'coupon'));
 
 -- Notes
 create domain note_body text check (length(value) > 0 and length(value) <= 1000);
-create domain note_reference_type text check (value in ('order', 'giftCard', 'customer', 'rma', 'product', 'sku',
+create domain note_reference_type text check (value in ('order', 'giftCard', 'customer', 'return', 'product', 'sku',
                                                         'promotion', 'coupon'));
 
 -- Shared Searches
@@ -57,8 +57,8 @@ create domain shared_search_scope text check (value in ('customersScope', 'order
 
 -- Returns
 create domain reason_type text check (value in('general', 'giftCardCreation', 'storeCreditCreation', 'cancellation'));
-create domain rma_reason_type text check (value in ('baseReason', 'productReturnCode'));
-create domain rma_type text check (value in ('standard', 'creditOnly', 'restockOnly'));
-create domain rma_state text check (value in ('pending', 'processing', 'review', 'complete', 'canceled'));
-create domain rma_inventory_disposition text check (value in ('putaway', 'damage', 'recovery', 'discontinued'));
-create domain rma_line_item_origin_type text check (value in ('skuItem', 'giftCardItem', 'shippingCost'));
+create domain return_reason_type text check (value in ('baseReason', 'productReturnCode'));
+create domain return_type text check (value in ('standard', 'creditOnly', 'restockOnly'));
+create domain return_state text check (value in ('pending', 'processing', 'review', 'complete', 'canceled'));
+create domain return_inventory_disposition text check (value in ('putaway', 'damage', 'recovery', 'discontinued'));
+create domain return_line_item_origin_type text check (value in ('skuItem', 'giftCardItem', 'shippingCost'));

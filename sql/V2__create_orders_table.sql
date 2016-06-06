@@ -10,7 +10,7 @@ create table orders (
     deleted_at timestamp without time zone null,
     placed_at timestamp without time zone null,
     remorse_period_end timestamp without time zone null,
-    rma_count integer default 0,
+    return_count integer default 0,
     currency currency,
     sub_total integer not null default 0,
     shipping_total integer not null default 0,
@@ -30,8 +30,8 @@ create unique index orders_has_only_one_cart on orders (customer_id, state)
     where state = 'cart';
 
 -- atomic increment procedure, used for sequential RMA suffix generation
-create function next_rma_id(order_id integer) returns integer as $$
-    update orders set rma_count = rma_count + 1 where id=$1 returning rma_count;
+create function next_return_id(order_id integer) returns integer as $$
+    update orders set return_count = return_count + 1 where id=$1 returning return_count;
 $$ language 'sql';
 
 create function set_order_reference_number() returns trigger as $$

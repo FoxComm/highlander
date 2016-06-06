@@ -19,7 +19,7 @@ import models.order.OrderPayments.scope._
 import models.order._
 import models.payment.PaymentMethod
 import models.payment.creditcard.{CreditCard, CreditCards}
-import models.rma.{Rma, Rmas}
+import models.returns._
 import models.shipping.Shipment.Shipped
 import models.shipping.{Shipment, Shipments}
 import models.stripe._
@@ -746,15 +746,17 @@ class CustomerIntegrationTest
                          Factories.orderPayment.copy(orderId = order2.id,
                                                      paymentMethodId = creditCard.id,
                                                      amount = None))
-      rma ← * <~ Rmas.create(
+      rma ← * <~ Returns.create(
                Factories.rma.copy(referenceNumber = "ABC-123.1",
                                   orderId = order.id,
-                                  state = Rma.Complete,
+                                  state = Return.Complete,
                                   orderRefNum = order.referenceNumber,
                                   customerId = customer.id))
-      rmaPayment ← * <~ sqlu"""insert into rma_payments(rma_id, payment_method_id, payment_method_type, amount, currency)
+      returnPayment ← * <~ sqlu"""insert into return_payments(return_id, payment_method_id, payment_method_type,
+                            amount,
+                            currency)
               values(${rma.id}, ${creditCard.id}, ${PaymentMethod.Type.show(
-                      PaymentMethod.CreditCard)}, 37,
+                         PaymentMethod.CreditCard)}, 37,
                ${Currency.USD.toString})
             """
     } yield (order, orderPayment, customer2)).runTxn().futureValue.rightVal

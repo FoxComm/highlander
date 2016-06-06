@@ -89,7 +89,7 @@ class Service(systemOverride: Option[ActorSystem] = None,
         routes.admin.CustomerRoutes.routes ~
         routes.admin.CustomerGroupsRoutes.routes ~
         routes.admin.GiftCardRoutes.routes ~
-        routes.admin.RmaRoutes.routes ~
+        routes.admin.ReturnRoutes.routes ~
         routes.admin.Activity.routes ~
         routes.admin.InventoryRoutes.routes ~
         routes.admin.ProductRoutes.routes ~

@@ -15,7 +15,7 @@ All endpoints related to store administration (requires store admin authenticati
 <!-- include(objects/notes.apib) -->
 <!-- include(objects/order.apib) -->
 <!-- include(objects/reasons.apib) -->
-<!-- include(objects/rma.apib) -->
+<!-- include(objects/returns.apib) -->
 <!-- include(objects/save_for_later.apib) -->
 <!-- include(objects/shared_search.apib) -->
 <!-- include(objects/store_credit.apib) -->
@@ -38,11 +38,11 @@ Order mainly consists of list of line items, payment methods, shipments and calc
 
 <!-- include(admin_orders.apib) -->
 
-## Group RMAs
+## Group Returns
 
-RMA is abbreviation for "Return Merchandise Authorization". RMA is always related to particular Order, but one order can have multiple RMAs.
+Return is always related to particular Order, but one order can have multiple Returns.
 
-<!-- include(admin_rmas.apib) -->
+<!-- include(admin_returns.apib) -->
 
 ## Group Gift Cards
 
@@ -76,7 +76,8 @@ SKUs and warehouses.
 
 ## Group Notes
 
-Notes represent additional text data added by store admins to orders, RMAs and gift cards, viewable by other store admins.
+Notes represent additional text data added by store admins to orders, returns and gift cards, viewable by other store
+admins.
 
 <!-- include(admin_notes.apib) -->
 

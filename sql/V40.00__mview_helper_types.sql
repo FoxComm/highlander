@@ -61,10 +61,10 @@ create table export_order_payments (
     order_payment_created_at    text
 );
 
-create table export_rmas (
+create table export_returns (
     reference_number text,
     state            text,
-    rma_type         text,
+    return_type         text,
     placed_at        text
 );
 

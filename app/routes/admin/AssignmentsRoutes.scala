@@ -7,7 +7,7 @@ import models.StoreAdmin
 import models.inventory.Sku.skuCodeRegex
 import models.order.Order.orderRefNumRegex
 import models.payment.giftcard.GiftCard.giftCardCodeRegex
-import models.rma.Rma.rmaRefNumRegex
+import models.returns.Return.returnRefNumRegex
 import payloads.AssignmentPayloads._
 import services.assignments._
 import utils.aliases._
@@ -229,19 +229,19 @@ object AssignmentsRoutes {
           }
         }
       } ~
-      pathPrefix("rmas") {
+      pathPrefix("returns") {
         pathPrefix("assignees") {
           (post & pathEnd) {
             entity(as[BulkAssignmentPayload[String]]) { payload ⇒
               goodOrFailures {
-                RmaAssignmentsManager.assignBulk(admin, payload)
+                ReturnAssignmentsManager.assignBulk(admin, payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd) {
             entity(as[BulkAssignmentPayload[String]]) { payload ⇒
               goodOrFailures {
-                RmaAssignmentsManager.unassignBulk(admin, payload)
+                ReturnAssignmentsManager.unassignBulk(admin, payload)
               }
             }
           }
@@ -250,51 +250,51 @@ object AssignmentsRoutes {
           (post & pathEnd) {
             entity(as[BulkAssignmentPayload[String]]) { payload ⇒
               goodOrFailures {
-                RmaWatchersManager.assignBulk(admin, payload)
+                ReturnWatchersManager.assignBulk(admin, payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd) {
             entity(as[BulkAssignmentPayload[String]]) { payload ⇒
               goodOrFailures {
-                RmaWatchersManager.unassignBulk(admin, payload)
+                ReturnWatchersManager.unassignBulk(admin, payload)
               }
             }
           }
         }
       } ~
-      pathPrefix("rmas" / rmaRefNumRegex) { refNum ⇒
+      pathPrefix("returns" / returnRefNumRegex) { refNum ⇒
         pathPrefix("assignees") {
           (get & pathEnd) {
             goodOrFailures {
-              RmaAssignmentsManager.list(refNum)
+              ReturnAssignmentsManager.list(refNum)
             }
           } ~
           (post & entity(as[AssignmentPayload])) { payload ⇒
             goodOrFailures {
-              RmaAssignmentsManager.assign(refNum, payload, admin)
+              ReturnAssignmentsManager.assign(refNum, payload, admin)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
             goodOrFailures {
-              RmaAssignmentsManager.unassign(refNum, assigneeId, admin)
+              ReturnAssignmentsManager.unassign(refNum, assigneeId, admin)
             }
           }
         } ~
         pathPrefix("watchers") {
           (get & pathEnd) {
             goodOrFailures {
-              RmaWatchersManager.list(refNum)
+              ReturnWatchersManager.list(refNum)
             }
           } ~
           (post & entity(as[AssignmentPayload])) { payload ⇒
             goodOrFailures {
-              RmaWatchersManager.assign(refNum, payload, admin)
+              ReturnWatchersManager.assign(refNum, payload, admin)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
             goodOrFailures {
-              RmaWatchersManager.unassign(refNum, assigneeId, admin)
+              ReturnWatchersManager.unassign(refNum, assigneeId, admin)
             }
           }
         }

@@ -11,7 +11,7 @@ import models.payment.creditcard.CreditCardCharge
 import models.payment.giftcard.{GiftCard, GiftCardAdjustment}
 import models.payment.storecredit.{StoreCredit, StoreCreditAdjustment}
 import models.promotion.Promotion
-import models.rma.{Rma, RmaLineItem, RmaReason}
+import models.returns._
 import models.rules.{Condition, QueryStatement}
 import models.sharedsearch.SharedSearch
 import models.shipping.Shipment
@@ -33,8 +33,8 @@ object JsonFormatters {
     Shipment.State.jsonFormat + GiftCard.OriginType.jsonFormat + GiftCard.State.jsonFormat +
     GiftCardAdjustment.State.jsonFormat + StoreCredit.State.jsonFormat +
     StoreCredit.OriginType.jsonFormat + StoreCreditAdjustment.State.jsonFormat +
-    Reason.ReasonType.jsonFormat + Rma.State.jsonFormat + Rma.RmaType.jsonFormat +
-    RmaLineItem.InventoryDisposition.jsonFormat + RmaReason.ReasonType.jsonFormat +
+    Reason.ReasonType.jsonFormat + Return.State.jsonFormat + Return.ReturnType.jsonFormat +
+    ReturnLineItem.InventoryDisposition.jsonFormat + ReturnReason.ReasonType.jsonFormat +
     CreditCardCharge.State.jsonFormat + CountryWithRegions.jsonFormat +
     QueryStatement.Comparison.jsonFormat + Condition.Operator.jsonFormat +
     PaymentMethod.Type.jsonFormat + SkuType.jsonFormat + SharedSearch.Scope.jsonFormat +

@@ -5,7 +5,7 @@ import models.activity.Dimension
 import models.inventory.Sku
 import models.order.Order
 import models.payment.giftcard.GiftCard
-import models.rma.Rma
+import models.returns.Return
 
 package object failures {
 
@@ -29,7 +29,8 @@ package object failures {
   object Util {
 
     def searchTerm[A](a: A): String = a match {
-      case Order | _: Order | Rma | _: Rma | Assignment.Order | Assignment.Rma          ⇒ "referenceNumber"
+      case Order | _: Order | Return | _: Return | Assignment.Order | Assignment.Return ⇒
+        "referenceNumber"
       case GiftCard | _: GiftCard | Sku | _: Sku | Assignment.GiftCard | Assignment.Sku ⇒ "code"
       case Dimension | _: Dimension                                                     ⇒ "name"
       case _                                                                            ⇒ "id"

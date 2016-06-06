@@ -36,7 +36,7 @@ object Dimension {
   val order        = "order"
   val product      = "product"
   val promotion    = "promotion"
-  val rma          = "rma"
+  val rma          = "return"
   val sku          = "sku"
 }
 

@@ -24,12 +24,12 @@ begin
          from store_credit_adjustments as sca
          inner join order_payments as op on (op.id = sca.order_payment_id)
          where sca.id = NEW.id;
-     when 'rmas' then
+     when 'returns' then
        order_ids := array_agg(NEW.order_id);
-     when 'rma_payments' then
-       select array_agg(rmas.order_id) into strict order_ids
-       from rma_payments as rp
-       inner join rmas on (rp.rma_id = rmas.id)
+     when 'return_payments' then
+       select array_agg(returns.order_id) into strict order_ids
+       from return_payments as rp
+       inner join returns on (rp.return_id = returns.id)
        where rp.id = NEW.id;
    end case;
 
@@ -62,8 +62,8 @@ begin
               left join credit_card_charges as CCc on(CCc.order_payment_id = op.id and CCc.state in ('auth', 'fullCapture'))
               left join store_credit_adjustments as SCa on(SCA.order_payment_id = op.id and SCa.state in ('auth', 'capture'))
               left join gift_card_adjustments as GCa on (GCa.order_payment_id = op.id and GCa.state in ('auth', 'capture'))
-              left join rmas on(rmas.order_id = orders.id and rmas.state = 'complete')
-              left join rma_payments as rp on (rp.rma_id = rmas.id and rp.amount is not null)
+              left join returns as r on (r.order_id = orders.id and r.state = 'complete')
+              left join return_payments as rp on (rp.return_id = r.id and rp.amount is not null)
             where is_guest = false and c.id = ANY(customer_ids)
               group by (c.id)
               order by revenue desc)
@@ -104,14 +104,14 @@ create trigger update_orders_view_from_customers_ranking_on_sca
     when (new.state in ('auth', 'capture'))
     execute procedure update_orders_view_from_customers_ranking_fn();
 
-create trigger update_orders_view_from_customers_ranking_on_rmas
-    after update or insert on rmas
+create trigger update_orders_view_from_customers_ranking_on_returns
+    after update or insert on returns
     for each row
     when (new.state = 'complete')
     execute procedure update_orders_view_from_customers_ranking_fn();
 
-create trigger update_orders_view_from_customers_ranking_on_rma_payments
-    after update or insert on rma_payments
+create trigger update_orders_view_from_customers_ranking_on_returns_payments
+    after update or insert on return_payments
     for each row
     when (new.amount is not null)
     execute procedure update_orders_view_from_customers_ranking_fn();

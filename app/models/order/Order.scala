@@ -29,7 +29,7 @@ case class Order(id: Int = 0,
                  placedAt: Option[Instant] = None,
                  fraudScore: Int = 0,
                  remorsePeriodEnd: Option[Instant] = None,
-                 rmaCount: Int = 0,
+                 returnCount: Int = 0,
                  currency: Currency = Currency.USD,
                  subTotal: Int = 0,
                  shippingTotal: Int = 0,
@@ -120,7 +120,7 @@ class Orders(tag: Tag) extends FoxTable[Order](tag, "orders") {
   def isLocked         = column[Boolean]("is_locked")
   def placedAt         = column[Option[Instant]]("placed_at")
   def remorsePeriodEnd = column[Option[Instant]]("remorse_period_end")
-  def rmaCount         = column[Int]("rma_count")
+  def returnCount      = column[Int]("return_count")
   def currency         = column[Currency]("currency")
   def fraudScore       = column[Int]("fraud_score")
 
@@ -140,7 +140,7 @@ class Orders(tag: Tag) extends FoxTable[Order](tag, "orders") {
      placedAt,
      fraudScore,
      remorsePeriodEnd,
-     rmaCount,
+     returnCount,
      currency,
      subTotal,
      shippingTotal,

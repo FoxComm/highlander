@@ -9,14 +9,14 @@
 + createdAt: `2015-09-10T14:55:50Z` (required, string) - Creation date.
 + deletedAt: `2015-09-10T14:55:50Z` (optional, string) - Deletion date.
 
-### RmaReason
+### ReturnReason
 + id: 1 (required, number) - Unique identifier.
 + name: `Some reason` (required, string) - ID of StoreAdmin.
 + reasonType (required, enum[string]) - Reason type.
     + Members
         + `baseReason`
         + `productReturnCode`
-+ rmaType (required, enum[string]) - RMA type.
++ returnType (required, enum[string]) - Return type.
     + Members
         + `standard`
         + `creditOnly`
@@ -26,4 +26,4 @@
 
 ### Reasons (array[Reason])
 
-### RmaReasons (array[RmaReason])
+### ReturnReasons (array[ReturnReason])

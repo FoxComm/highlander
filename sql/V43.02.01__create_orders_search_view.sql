@@ -29,8 +29,8 @@ create table orders_search_view
     billing_addresses jsonb not null default '[]',
     assignment_count bigint not null default 0,
     assignees jsonb not null default '[]',
-    rma_count bigint not null default 0,
-    rmas jsonb not null default '[]'
+    return_count bigint not null default 0,
+    returns jsonb not null default '[]'
 );
 
 create index orders_search_view_customer_idx on orders_search_view((customer->>'id'));

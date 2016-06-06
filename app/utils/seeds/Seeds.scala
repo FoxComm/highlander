@@ -140,7 +140,7 @@ object Seeds {
       _           ← * <~ Factories.createGiftCards
       _           ← * <~ Factories.createStoreCredits(admin, customers._1, customers._3)
       orders      ← * <~ Factories.createOrders(customers, products, shipMethods, context)
-      _           ← * <~ Factories.createRmas
+      _           ← * <~ Factories.createReturns
       // Promotions
       discounts  ← * <~ Factories.createDiscounts
       promotions ← * <~ Factories.createCouponPromotions(discounts)
@@ -151,7 +151,7 @@ object Seeds {
       extends CustomerSeeds
       with GiftCardSeeds
       with StoreCreditSeeds
-      with RmaSeeds
+      with ReturnSeeds
       with ProductSeeds
       with InventorySeeds
       with ShipmentSeeds

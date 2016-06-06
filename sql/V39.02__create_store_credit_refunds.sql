@@ -1,12 +1,12 @@
 create table store_credit_refunds (
     id integer primary key,
-    rma_id integer not null,
+    return_id integer not null,
     created_at generic_timestamp,
     foreign key (id) references store_credit_origins(id) on update restrict on delete restrict,
-    foreign key (rma_id) references rmas(id) on update restrict on delete restrict
+    foreign key (return_id) references returns(id) on update restrict on delete restrict
 );
 
-create index store_credit_refunds_rma_idx on store_credit_refunds (rma_id);
+create index store_credit_refunds_return_idx on store_credit_refunds (return_id);
 
 create trigger set_store_credits_refunds_id
     before insert

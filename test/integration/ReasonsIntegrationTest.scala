@@ -3,7 +3,7 @@ import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
 import failures.InvalidReasonTypeFailure
-import models.rma.RmaReasons
+import models.returns.ReturnReasons
 import models.{Reason, Reasons, StoreAdmins}
 import util.IntegrationTestBase
 import utils.Strings._
@@ -35,12 +35,12 @@ class ReasonsIntegrationTest extends IntegrationTestBase with HttpSupport with A
   }
 
   trait Fixture {
-    val (reason, rmaReason) = (for {
+    val (reason, returnReason) = (for {
       storeAdmin ← * <~ StoreAdmins.create(Factories.storeAdmin)
       reason ← * <~ Reasons.create(
                   Factories.reasons.head.copy(reasonType = Reason.GiftCardCreation,
                                               storeAdminId = storeAdmin.id))
-      rmaReason ← * <~ RmaReasons.create(Factories.rmaReasons.head)
-    } yield (reason, rmaReason)).runTxn().futureValue.rightVal
+      returnReason ← * <~ ReturnReasons.create(Factories.returnReasons.head)
+    } yield (reason, returnReason)).runTxn().futureValue.rightVal
   }
 }

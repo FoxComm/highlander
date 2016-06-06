@@ -8,7 +8,7 @@ import Order.orderRefNumRegex
 import failures.SharedSearchFailures.SharedSearchInvalidQueryFailure
 import models.inventory.Sku
 import models.payment.giftcard.GiftCard
-import models.rma.Rma
+import models.returns.Return
 import models.StoreAdmin
 import models.auth.AdminToken
 import models.sharedsearch.SharedSearch
@@ -106,26 +106,26 @@ object AdminRoutes {
             }
           }
         } ~
-        pathPrefix("rma" / Rma.rmaRefNumRegex) { refNum ⇒
+        pathPrefix("return" / Return.returnRefNumRegex) { refNum ⇒
           (get & pathEnd) {
             goodOrFailures {
-              RmaNoteManager.list(refNum)
+              ReturnNoteManager.list(refNum)
             }
           } ~
           (post & pathEnd & entity(as[CreateNote])) { payload ⇒
             goodOrFailures {
-              RmaNoteManager.create(refNum, admin, payload)
+              ReturnNoteManager.create(refNum, admin, payload)
             }
           } ~
           path(IntNumber) { noteId ⇒
             (patch & pathEnd & entity(as[UpdateNote])) { payload ⇒
               goodOrFailures {
-                RmaNoteManager.update(refNum, noteId, admin, payload)
+                ReturnNoteManager.update(refNum, noteId, admin, payload)
               }
             } ~
             (delete & pathEnd) {
               nothingOrFailures {
-                RmaNoteManager.delete(refNum, noteId, admin)
+                ReturnNoteManager.delete(refNum, noteId, admin)
               }
             }
           }

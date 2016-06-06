@@ -91,20 +91,20 @@
 
 + Response 204 (application/json)
 
-## RMA Note [/v1/notes/rma/{code}/{noteId}]
+## Return Note [/v1/notes/return/{code}/{noteId}]
 
 + Parameters
-    + code: `ABC-123` (required, string) - RMA code
+    + code: `ABC-123` (required, string) - Return code
     + noteId: 1 (required, number) - Note ID
 
-### List [GET /v1/notes/rma/{code}]
+### List [GET /v1/notes/return/{code}]
 
 + Parameters
-    + code: `ABC-123` (required, string) - RMA code
+    + code: `ABC-123` (required, string) - Return code
 + Response 200 (application/json)
     + Attributes (AdminNotes)
 
-### Create [POST /v1/notes/rma/{code}]
+### Create [POST /v1/notes/return/{code}]
 
 + Request (application/json)
     + Attributes (AdminNote)

@@ -41,7 +41,7 @@ Reasons are widely-used descriptions of various management actions, e.g. cancell
 + Response 200 (application/json)
     + Attributes (Reasons)
 
-### List RMA Reasons [GET /v1/public/rma-reasons]
+### List Return Reasons [GET /v1/public/return-reasons]
 
 + Parameters
     + size:   1           (optional, number)       - Page size.
@@ -51,8 +51,8 @@ Reasons are widely-used descriptions of various management actions, e.g. cancell
             + `id`
             + `name`
             + `reasonType`
-            + `rmaType`
+            + `returnType`
             + `createdAt`
             + `deletedAt`
 + Response 200 (application/json)
-    + Attributes (RmaReasons)    
+    + Attributes (ReturnReasons)
