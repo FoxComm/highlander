@@ -6,6 +6,7 @@
   "scripts": {
     "test": "mocha test",
     "build": "babel src -d lib",
+    "postinstall": "postinstall-build lib 'npm run build'",
     "docs": "node ./bin/import-docs.js && node ./bin/make-docs.js",
     "prepublish": "npm run build"
   },
@@ -24,7 +25,8 @@
   },
   "homepage": "https://github.com/FoxComm/api-js#readme",
   "dependencies": {
-    "isomorphic-fetch": "^2.2.1"
+    "isomorphic-fetch": "^2.2.1",
+    "postinstall-build": "^0.2.1"
   },
   "devDependencies": {
     "babel-cli": "^6.9.0",
