@@ -35,7 +35,7 @@ object Seeds {
     implicit val ac: AC          = ActivityContext(userId = 1, userType = "admin", transactionId = "seeds")
     flyWayMigrate(config)
 
-    createBaseSeeds()
+    val adminId = createBaseSeeds()
 
     val scale = if (args.length == 2) args(1).toInt else 1
 
@@ -43,11 +43,11 @@ object Seeds {
       case "random" ⇒
         createRandomSeeds(scale)
       case "stage" ⇒
-        createStageSeeds()
+        createStageSeeds(adminId)
       case "ranking" ⇒
         createRankingSeeds()
       case "demo" ⇒
-        createStageSeeds()
+        createStageSeeds(adminId)
         createDemoSeeds()
         createRandomSeeds(scale)
       case _ ⇒ None
@@ -56,15 +56,15 @@ object Seeds {
     db.close()
   }
 
-  def createBaseSeeds()(implicit db: Database) {
+  def createBaseSeeds()(implicit db: Database): Int = {
     Console.err.println("Inserting Base Seeds")
-    val result: Failures Xor Unit = Await.result(createBase().runTxn(), 4.minutes)
+    val result: Failures Xor Int = Await.result(createBase().runTxn(), 4.minutes)
     validateResults("base", result)
   }
 
-  def createStageSeeds()(implicit db: Database, ac: AC) {
+  def createStageSeeds(adminId: Int)(implicit db: Database, ac: AC) {
     Console.err.println("Inserting Stage seeds")
-    val result: Failures Xor Unit = Await.result(createStage().runTxn(), 4.minutes)
+    val result: Failures Xor Unit = Await.result(createStage(adminId).runTxn(), 4.minutes)
     validateResults("stage", result)
   }
 
@@ -101,19 +101,18 @@ object Seeds {
 
   val today = Instant.now().atZone(ZoneId.of("UTC"))
 
-  def createBase()(implicit db: Database): DbResultT[Unit] =
+  def createBase()(implicit db: Database): DbResultT[Int] =
     for {
       _       ← * <~ Warehouses.create(Factories.warehouse)
       context ← * <~ ObjectContexts.create(SimpleContext.create())
       admin   ← * <~ Factories.createStoreAdmins
-    } yield {}
+    } yield admin
 
-  def createStage()(implicit db: Database, ac: AC): DbResultT[Unit] =
+  def createStage(admin: Int)(implicit db: Database, ac: AC): DbResultT[Unit] =
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       ruContext ← * <~ ObjectContexts.create(
                      SimpleContext.create(name = SimpleContext.ru, lang = "ru"))
-      admin      ← * <~ Factories.createStoreAdmins
       customers  ← * <~ Factories.createCustomers
       _          ← * <~ Factories.createAddresses(customers)
       _          ← * <~ Factories.createCreditCards(customers)
@@ -242,11 +241,11 @@ object Seeds {
     source
   }
 
-  private def validateResults(seed: String, result: Failures Xor Unit) {
+  private def validateResults[R](seed: String, result: Failures Xor R): R = {
     result.fold(failures ⇒ {
       Console.err.println(s"Failed generating $seed seeds!")
       failures.flatten.foreach(Console.err.println)
-      System.exit(1)
-    }, _ ⇒ Console.err.println(s"Successfully created $seed seeds!"))
+      sys.exit(1)
+    }, v ⇒ { Console.err.println(s"Successfully created $seed seeds!"); v })
   }
 }
