@@ -53,9 +53,6 @@ export default class Customer extends React.Component {
     return (
       <div styleName="block" className="fc-content-box">
         <div styleName="header">
-          <div styleName="head">
-            {this.customerRank}
-          </div>
         </div>
         <article styleName="body">
           <div className="fc-grid">
@@ -98,7 +95,7 @@ export default class Customer extends React.Component {
                     <span styleName="comment">&nbsp;Total Sales</span>
                   </li>
                   <li styleName="days">
-                    <i>{ customer.id}</i>
+                    <i>0</i>
                     <span>Days since last order</span>
                   </li>
                 </ul>

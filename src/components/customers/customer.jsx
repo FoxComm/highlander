@@ -77,7 +77,6 @@ export default class Customer extends Component {
           <Link to="customer-transactions" params={params}>Orders</Link>
           <Link to="customer-items" params={params}>Items</Link>
           <Link to="customer-storecredits" params={params}>Store Credit</Link>
-          <a href="">Notifications</a>
           <Link to="customer-notes" params={params}>Notes</Link>
           <Link to="customer-activity-trail" params={params}>Activity Trail</Link>
         </LocalNav>
