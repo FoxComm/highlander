@@ -46,8 +46,6 @@ final case class ActivityConnectionTransformer(
           ),
           field("data", ObjectType)
       ),
-      field("previousId", IntegerType),
-      field("nextId", IntegerType),
       field("data", ObjectType),
       field("connectedBy", ObjectType),
       field("createdAt", DateType).format(dateFormat)
