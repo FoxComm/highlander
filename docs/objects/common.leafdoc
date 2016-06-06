@@ -1,4 +1,25 @@
 
+@miniclass PagingMetadata (FoxApi)
+@aka pagingmetadata
+
+@field from?: Number = 0
+Start element (counting from 0) or # of elements to skip.
+
+@field size?: Number = 10
+Page size.
+
+@field pageNo?: Number = 1
+Page number (counting from 1).
+
+@field total?: Number = 35
+Total number of elements found.
+
+@miniclass SortingMetadata (FoxApi)
+@aka sortingmetadata
+
+@field sortBy?: String = `lastName`
+Field to sort by (`-fieldName` for descending order).
+
 @miniclass ResultMetadata (FoxApi)
 @aka resultmetadata
 

@@ -284,6 +284,93 @@ api.products.search({state: &#39;cart&#39;});
 </section>
 
 </section>
+<span id='pagingmetadata'></span>
+
+<section>
+<h3 id='pagingmetadata-field'>PagingMetadata</h3>
+
+<section >
+
+
+
+<div class='section-comments'></div>
+
+<table><thead>
+<tr>
+    <th>Field</th>
+    <th>Type</th>
+    <th>Required</th>
+    <th>Example</th>
+    <th>Description</th>
+</tr>
+</thead><tbody>
+    <tr id='pagingmetadata-from'>
+        <td><code><b>from</b></code></td>
+        <td><code>Number</code>
+        <td></td>
+        <td>0</td>
+        <td>Start element (counting from 0) or # of elements to skip.</td>
+    </tr>
+    <tr id='pagingmetadata-size'>
+        <td><code><b>size</b></code></td>
+        <td><code>Number</code>
+        <td></td>
+        <td>10</td>
+        <td>Page size.</td>
+    </tr>
+    <tr id='pagingmetadata-pageno'>
+        <td><code><b>pageNo</b></code></td>
+        <td><code>Number</code>
+        <td></td>
+        <td>1</td>
+        <td>Page number (counting from 1).</td>
+    </tr>
+    <tr id='pagingmetadata-total'>
+        <td><code><b>total</b></code></td>
+        <td><code>Number</code>
+        <td></td>
+        <td>35</td>
+        <td>Total number of elements found.</td>
+    </tr>
+</tbody></table>
+
+
+</section>
+
+</section>
+<span id='sortingmetadata'></span>
+
+<section>
+<h3 id='sortingmetadata-field'>SortingMetadata</h3>
+
+<section >
+
+
+
+<div class='section-comments'></div>
+
+<table><thead>
+<tr>
+    <th>Field</th>
+    <th>Type</th>
+    <th>Required</th>
+    <th>Example</th>
+    <th>Description</th>
+</tr>
+</thead><tbody>
+    <tr id='sortingmetadata-sortby'>
+        <td><code><b>sortBy</b></code></td>
+        <td><code>String</code>
+        <td></td>
+        <td><code>lastName</code></td>
+        <td>Field to sort by (<code>-fieldName</code> for descending order).</td>
+    </tr>
+</tbody></table>
+
+
+</section>
+
+</section>
 <span id='resultmetadata'></span>
 
 <section>
@@ -306,14 +393,14 @@ api.products.search({state: &#39;cart&#39;});
 </thead><tbody>
     <tr id='resultmetadata-pagination'>
         <td><code><b>pagination</b></code></td>
-        <td><code>PagingMetadata</code>
+        <td><code><a href='#pagingmetadata'>PagingMetadata</a></code>
         <td></td>
         <td></td>
         <td>Pagination metadata.</td>
     </tr>
     <tr id='resultmetadata-sorting'>
         <td><code><b>sorting</b></code></td>
-        <td><code>SortingMetadata</code>
+        <td><code><a href='#sortingmetadata'>SortingMetadata</a></code>
         <td></td>
         <td></td>
         <td>Sorting metadata.</td>
@@ -661,14 +748,14 @@ api.products.search({state: &#39;cart&#39;});
 </thead><tbody>
     <tr id='addresses-pagination'>
         <td><code><b>pagination</b></code></td>
-        <td><code>PagingMetadata</code>
+        <td><code><a href='#pagingmetadata'>PagingMetadata</a></code>
         <td><div data-icon="ei-check"></div></td>
         <td></td>
         <td>Pagination metadata.</td>
     </tr>
     <tr id='addresses-sorting'>
         <td><code><b>sorting</b></code></td>
-        <td><code>SortingMetadata</code>
+        <td><code><a href='#sortingmetadata'>SortingMetadata</a></code>
         <td><div data-icon="ei-check"></div></td>
         <td></td>
         <td>Sorting metadata.</td>
