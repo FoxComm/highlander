@@ -28,6 +28,7 @@ type Props = {
 
 type State = {
   isAddingProperty: bool,
+  errors: {[id:string]: number},
 };
 
 const inputClass = 'fc-object-form__field-value';
@@ -43,7 +44,6 @@ function renderFormField(label: string, input: Element, args?: any): Element {
   const isRequired = _.get(args, 'required', false) === true ? { required: true } : null;
   const maybeValidator = _.get(args, 'validator');
   const validator = maybeValidator != null ? { validator: maybeValidator } : null;
-  console.log(label, isRequired, validator);
   return (
     <FormField
       className="fc-object-form__field"
@@ -59,7 +59,7 @@ function renderFormField(label: string, input: Element, args?: any): Element {
 
 export default class ObjectFormInner extends Component {
   props: Props;
-  state: State = { isAddingProperty: false };
+  state: State = { isAddingProperty: false, errors: {} };
 
   static defaultProps = {
     options: {},
@@ -119,8 +119,17 @@ export default class ObjectFormInner extends Component {
 
   @autobind
   handleChange(label: string, type: string, value: string) {
-    const { form, shadow } = this.props;
+    const { form, shadow, options } = this.props;
     const [newForm, newShadow] = setAttribute(label, type, value, form, shadow);
+    if (['options', 'richText'].indexOf(type) >= 0) {
+      const validator = _.get(options, [label, 'validator'], _.noop);
+      console.log(validator);
+      const error = validator(value);
+      console.log(error);
+      const { errors } = this.state;
+      errors[label] = error;
+      this.setState({ errors });
+    }
     this.props.onChange(newForm, newShadow);
   }
 
@@ -168,13 +177,21 @@ export default class ObjectFormInner extends Component {
   renderRichText(label: string, value: any, args?: any): Element {
     const formattedLabel = formatLabel(label);
     const onChange = v => this.handleChange(label, 'richText', v);
+    const error = _.get(this.state, ['errors', label]);
+    const errorMessage = error && (
+      <div className="fc-form-field-error">
+        {error}
+      </div>
+    );
     return (
-      <RichTextEditor
-        className="fc-object-form__field"
-        label={formattedLabel}
-        value={value}
-        onChange={onChange}
-      />
+      <div className="fc-object-form__field">
+        <RichTextEditor
+          label={formattedLabel}
+          value={value}
+          onChange={onChange}
+        />
+        {errorMessage}
+      </div>
     );
   }
 
@@ -240,7 +257,6 @@ export default class ObjectFormInner extends Component {
     const renderedAttributes: Array<Element> = _.map(fieldsToRender, name => {
       const attribute = attributes[name];
       const optionalArgs = options[name];
-      console.log(name, optionalArgs);
       if (attribute) {
         const { label, type, value } = attribute;
         const renderFn = _.get(this.renderFunctions, type, this.renderString);
