@@ -27,22 +27,27 @@ object SkuManager {
 
   def createSku(contextName: String, payload: CreateSkuPayload)(
       implicit ec: EC, db: DB): Result[IlluminatedSkuResponse.Root] = {
+    (for {
+      context ← * <~ ObjectManager.mustFindByName404(contextName)
+      sku     ← * <~ createSkuInner(context, payload)
+    } yield IlluminatedSkuResponse.build(IlluminatedSku.illuminate(context, sku))).runTxn()
+  }
+
+  def createSkuInner(context: ObjectContext, payload: CreateSkuPayload)(
+      implicit ec: EC, db: DB): DbResultT[FullObject[Sku]] = {
 
     val form   = ObjectForm.fromPayload(Sku.kind, payload.attributes)
     val shadow = ObjectShadow.fromPayload(payload.attributes)
 
-    (for {
-      context ← * <~ ObjectManager.mustFindByName404(contextName)
-      ins     ← * <~ ObjectUtils.insert(form, shadow)
+    for {
+      ins ← * <~ ObjectUtils.insert(form, shadow)
       sku ← * <~ Skus.create(
                Sku(contextId = context.id,
                    code = payload.code,
                    formId = ins.form.id,
                    shadowId = ins.shadow.id,
                    commitId = ins.commit.id))
-    } yield
-      IlluminatedSkuResponse.build(
-          IlluminatedSku.illuminate(context, FullObject(sku, ins.form, ins.shadow)))).runTxn()
+    } yield FullObject(sku, ins.form, ins.shadow)
   }
 
   //

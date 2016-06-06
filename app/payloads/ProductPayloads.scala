@@ -1,6 +1,10 @@
 package payloads
 
+import cats.data._
 import payloads.SkuPayloads._
+import failures.Failure
+import utils.Validation
+import utils.Validation._
 import utils.aliases._
 
 object ProductPayloads {
@@ -26,5 +30,10 @@ object ProductPayloads {
   case class UpdateFullProduct(form: UpdateFullProductForm, shadow: UpdateFullProductShadow)
 
   // New payloads
-  case class CreateProductPayload(attributes: Map[String, Json])
+  case class CreateProductPayload(attributes: Map[String, Json], skus: Seq[CreateSkuPayload])
+      extends Validation[CreateProductPayload] {
+
+    def validate: ValidatedNel[Failure, CreateProductPayload] =
+      notEmpty(skus, "SKUs").map { case _ ⇒ this }
+  }
 }

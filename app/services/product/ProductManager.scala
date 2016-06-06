@@ -35,16 +35,19 @@ object ProductManager {
     val shadow = ObjectShadow.fromPayload(payload.attributes)
 
     (for {
+      _       ← * <~ payload.validate
       context ← * <~ ObjectManager.mustFindByName404(contextName)
       ins     ← * <~ ObjectUtils.insert(form, shadow)
       product ← * <~ Products.create(Product(contextId = context.id,
                                              formId = ins.form.id,
                                              shadowId = ins.shadow.id,
                                              commitId = ins.commit.id))
+
+      newSkus ← * <~ payload.skus.map(sku ⇒ SkuManager.createSkuInner(context, sku))
     } yield
       IlluminatedFullProductResponse.build(
           p = IlluminatedProduct.illuminate(context, product, ins.form, ins.shadow),
-          skus = Seq.empty,
+          skus = newSkus.map(newSku ⇒ IlluminatedSku.illuminate(context, newSku)),
           variants = Seq.empty,
           variantMap = Map.empty)).runTxn()
   }

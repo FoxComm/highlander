@@ -11,6 +11,7 @@ import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import org.json4s.JsonDSL._
 import payloads.ProductPayloads._
+import payloads.SkuPayloads.CreateSkuPayload
 import responses.ProductResponses._
 import util.IntegrationTestBase
 import utils.Money.Currency
@@ -21,12 +22,24 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
 
   "POST v1/products/:context" - {
     "Creates a product successfully" in new Fixture {
-      val descriptionJson = ("t" -> "string") ~ ("v" -> "Product description")
-      val attrMap         = Map("description" -> descriptionJson)
-      val payload         = CreateProductPayload(attrMap)
+      val nameJson = ("t" → "string") ~ ("v" → "Product name")
+      val attrMap  = Map("name" → nameJson)
+      val payload  = CreateProductPayload(attributes = attrMap, skus = Seq(skuPayload))
 
       val response = POST(s"v1/products/${context.name}", payload)
       response.status must ===(StatusCodes.OK)
+
+      val productResponse = response.as[IlluminatedFullProductResponse.Root]
+      productResponse.skus.length must ===(1)
+    }
+
+    "Throws an error if no SKU is added" in new Fixture {
+      val descriptionJson = ("t" → "string") ~ ("v" → "Product description")
+      val attrMap         = Map("description" → descriptionJson)
+      val payload         = CreateProductPayload(attributes = attrMap, skus = Seq.empty)
+
+      val response = POST(s"v1/products/${context.name}", payload)
+      response.status must ===(StatusCodes.BadRequest)
     }
   }
 
@@ -49,6 +62,11 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
   }
 
   trait Fixture {
+    val priceValue = ("currency" → "USD") ~ ("value" → 9999)
+    val priceJson  = ("t" -> "price") ~ ("v" -> priceValue)
+    val skuAttrMap = Map("price" -> priceJson)
+    val skuPayload = CreateSkuPayload("SKU-NEW-TEST", skuAttrMap)
+
     val simpleProd = SimpleProductData(title = "Test Product",
                                        code = "TEST",
                                        description = "Test product description",
