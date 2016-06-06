@@ -5,6 +5,9 @@ import failures.ObjectFailures._
 import failures.ProductFailures._
 import models.objects._
 import models.product._
+import payloads.VariantPayloads.CreateVariantPayload
+import responses.VariantResponses.IlluminatedVariantResponse
+import services.Result
 import services.objects.ObjectManager
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
@@ -12,6 +15,34 @@ import utils.db.DbResultT._
 import utils.db._
 
 object VariantManager {
+  def createVariant(contextName: String, payload: CreateVariantPayload)(
+      implicit ec: EC, db: DB): Result[IlluminatedVariantResponse.Root] =
+    (for {
+
+      context ← * <~ ObjectManager.mustFindByName404(contextName)
+      variant ← * <~ createVariantInner(context, payload)
+    } yield
+      IlluminatedVariantResponse.build(
+          v = IlluminatedVariant.illuminate(context, variant),
+          vs = Seq.empty
+      )).runTxn()
+
+  def createVariantInner(context: ObjectContext, payload: CreateVariantPayload)(
+      implicit ec: EC, db: DB): DbResultT[FullObject[Variant]] = {
+
+    val form   = ObjectForm.fromPayload(Variant.kind, payload.attributes)
+    val shadow = ObjectShadow.fromPayload(payload.attributes)
+
+    for {
+      ins ← * <~ ObjectUtils.insert(form, shadow)
+      variant ← * <~ Variants.create(
+                   Variant(contextId = context.id,
+                           formId = ins.form.id,
+                           shadowId = ins.shadow.id,
+                           commitId = ins.commit.id))
+    } yield FullObject(variant, ins.form, ins.shadow)
+  }
+
   def findVariantsByProduct(
       product: Product)(implicit ec: EC): DbResultT[Seq[FullObject[Variant]]] =
     for {

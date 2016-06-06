@@ -295,7 +295,6 @@ object Mvp {
       commit  ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
       variant ← * <~ Variants.create(
                    Variant(contextId = contextId,
-                           variantType = v.name,
                            formId = form.id,
                            shadowId = shadow.id,
                            commitId = commit.id))

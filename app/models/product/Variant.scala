@@ -19,7 +19,6 @@ object Variant {
   * individual attributes that can be used to select a SKU.
   */
 case class Variant(id: Int = 0,
-                   variantType: String,
                    contextId: Int,
                    shadowId: Int,
                    formId: Int,
@@ -30,10 +29,8 @@ case class Variant(id: Int = 0,
     with Validation[Variant]
 
 class Variants(tag: Tag) extends ObjectHeads[Variant](tag, "variants") {
-  def variantType = column[String]("variant_type")
-
   def * =
-    (id, variantType, contextId, shadowId, formId, commitId, updatedAt, createdAt) <> ((Variant.apply _).tupled, Variant.unapply)
+    (id, contextId, shadowId, formId, commitId, updatedAt, createdAt) <> ((Variant.apply _).tupled, Variant.unapply)
 }
 
 object Variants
