@@ -22,7 +22,9 @@ export function createEmptyCoupon() {
     shadow: {
       id: null,
       createdAt: null,
-      attributes: {},
+      attributes: {
+        usageRules: { type: 'usageRules', ref: 'usageRules' },
+      },
     },
     promotion: null
   };

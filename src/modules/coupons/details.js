@@ -48,6 +48,13 @@ export function fetchCoupon(id: string, context: string = defaultContext) {
   };
 }
 
+export function clearSubmitErrors() {
+  return dispatch => {
+    dispatch(_createCoupon.clearErrors());
+    dispatch(_updateCoupon.clearErrors());
+  };
+}
+
 export const createCoupon = _createCoupon.perform;
 export const updateCoupon = _updateCoupon.perform;
 
