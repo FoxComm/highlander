@@ -30,7 +30,7 @@ object OrderQueries {
 
     for {
       ordersCustomers ← * <~ query.join(Customers).on(_.customerId === _.id).result.toXor
-      response        ← * <~ DbResultT.sequence(ordersCustomers.map((build _).tupled))
+      response        ← * <~ ordersCustomers.map((build _).tupled)
     } yield TheResponse.build(response)
   }
 

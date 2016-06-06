@@ -176,8 +176,7 @@ object SkuManager {
       // SKUs VariantValues if the Variant is in the Product.
       links ← * <~ ObjectLinks.findByLeftAndType(sku.shadowId, ObjectLink.SkuVariantValue).result
       varIds = variants.map(_.shadow.id)
-      toOpt ← * <~ DbResultT.sequence(
-                 links.map(l ⇒ varValueIfInProduct(l.rightId, sku.contextId, varIds)))
+      toOpt ← * <~ links.map(l ⇒ varValueIfInProduct(l.rightId, sku.contextId, varIds))
       avail ← * <~ toOpt.foldLeft(Seq.empty[VariantValueMapping]) { (acc, potentialValue) ⇒
                potentialValue.foldLeft(acc)(_ :+ _)
              }

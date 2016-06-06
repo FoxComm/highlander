@@ -76,17 +76,19 @@ trait PromotionGenerator {
   def generatePromotions(data: Seq[SimplePromotion])(implicit db: Database) =
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-      promotions ← * <~ DbResultT.sequence(data.map(d ⇒ {
+      promotions ← * <~ data.map(d ⇒ {
                     val promotionForm   = SimplePromotionForm(d.percentOff, d.totalAmount)
                     val promotionShadow = SimplePromotionShadow(promotionForm)
                     val discountForm    = SimpleDiscountForm(d.percentOff, d.totalAmount)
                     val discountShadow  = SimpleDiscountShadow(discountForm)
                     val payload = CreatePromotion(
-                        applyType = d.applyType,
-                        form = CreatePromotionForm(attributes = promotionForm.form,
-                                                   discounts =
-                                                     Seq(CreateDiscountForm(
-                                                             attributes = discountForm.form))),
+                        applyType =
+                          d.applyType,
+                        form =
+                          CreatePromotionForm(attributes = promotionForm.form,
+                                              discounts = Seq(
+                                                  CreateDiscountForm(attributes =
+                                                        discountForm.form))),
                         shadow = CreatePromotionShadow(
                             attributes = promotionShadow.shadow,
                             discounts =
@@ -97,6 +99,6 @@ trait PromotionGenerator {
                         case Xor.Right(r) ⇒ Result.right(d.copy(promotionId = r.form.id))
                         case Xor.Left(l)  ⇒ Result.failures(l)
                       }))
-                  }))
+                  })
     } yield promotions
 }

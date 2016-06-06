@@ -18,9 +18,9 @@ object VariantManager {
       links ← * <~ ObjectLinks
                .findByLeftAndType(product.shadowId, ObjectLink.ProductVariant)
                .result
-      variants ← * <~ DbResultT.sequence(links.map { link ⇒
+      variants ← * <~ links.map { link ⇒
                   mustFindVariantByContextAndShadow(product.contextId, link.rightId)
-                })
+                }
     } yield variants
 
   def findVariantForValue(

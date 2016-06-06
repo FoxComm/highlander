@@ -194,7 +194,7 @@ object ImageManager {
       implicit ec: EC, db: DB): DbResultT[Seq[AlbumRoot]] =
     for {
       links ← * <~ ObjectLinks.findByLeftAndType(shadowId, linkType).result
-      albums ← * <~ DbResultT.sequence(links.map { link ⇒
+      albums ← * <~ links.map { link ⇒
                 for {
                   shadow ← * <~ ObjectShadows.mustFindById404(link.rightId)
                   form   ← * <~ ObjectForms.mustFindById404(shadow.formId)
@@ -202,7 +202,7 @@ object ImageManager {
                   full = FullObject(model = album, form = form, shadow = shadow)
                   images ← * <~ Image.buildFromAlbum(full)
                 } yield AlbumResponse.build(full, images)
-              })
+              }
     } yield albums
 
   private def mustFindFullAlbumByIdAndContext404(id: Int, context: ObjectContext)(

@@ -260,12 +260,11 @@ object Mvp {
                            shadowId = productShadow.id,
                            commitId = productCommit.id))
 
-      _ ← * <~ DbResultT.sequence(
-             skus.map { sku ⇒
+      _ ← * <~ skus.map { sku ⇒
            DbResultT(ObjectLinks.create(ObjectLink(leftId = product.shadowId,
                                                    rightId = sku.shadowId,
                                                    linkType = ObjectLink.ProductSku)))
-         })
+         }
     } yield product
 
   def insertSku(contextId: Int, s: SimpleSku): DbResultT[Sku] =
@@ -284,7 +283,7 @@ object Mvp {
 
   def insertSkus(contextId: Int, ss: Seq[SimpleSku]): DbResultT[Seq[Sku]] =
     for {
-      skus ← * <~ DbResultT.sequence(ss.map(s ⇒ insertSku(contextId, s)))
+      skus ← * <~ ss.map(s ⇒ insertSku(contextId, s))
     } yield skus
 
   def insertVariant(
@@ -338,8 +337,8 @@ object Mvp {
       simpleCompleteVariant: SimpleCompleteVariant): DbResultT[SimpleCompleteVariantData] =
     for {
       variant ← * <~ insertVariant(contextId, simpleCompleteVariant.variant, productShadowId)
-      values ← * <~ DbResultT.sequence(simpleCompleteVariant.variantValues.map(variantValue ⇒
-                        insertVariantValue(contextId, variantValue, variant.shadowId)))
+      values ← * <~ simpleCompleteVariant.variantValues.map(variantValue ⇒
+                    insertVariantValue(contextId, variantValue, variant.shadowId))
     } yield SimpleCompleteVariantData(variant, values)
 
   def insertProductIntoContext(contextId: Int,
@@ -401,17 +400,13 @@ object Mvp {
   def insertProducts(
       ps: Seq[SimpleProductData], contextId: Int): DbResultT[Seq[SimpleProductData]] =
     for {
-      results ← * <~ DbResultT.sequence(ps.map { p ⇒
-                 insertProduct(contextId, p)
-               })
+      results ← * <~ ps.map(p ⇒ insertProduct(contextId, p))
     } yield results
 
   def insertProductsNewContext(oldContextId: Int, contextId: Int, ps: Seq[SimpleProductData])(
       implicit db: Database): DbResultT[Seq[SimpleProductData]] =
     for {
-      results ← * <~ DbResultT.sequence(ps.map { p ⇒
-                 insertProductNewContext(oldContextId, contextId, p)
-               })
+      results ← * <~ ps.map(p ⇒ insertProductNewContext(oldContextId, contextId, p))
     } yield results
 
   def priceFromJson(p: Json): Option[(Int, Currency)] = {

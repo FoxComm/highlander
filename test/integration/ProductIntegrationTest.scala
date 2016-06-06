@@ -121,9 +121,9 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
       product ← * <~ Mvp.insertProductWithExistingSkus(context.id, simpleProd, skus)
 
       // Create the Variants and their Values.
-      variantsAndValues ← * <~ DbResultT.sequence(variantsWithValues.map { scv ⇒
+      variantsAndValues ← * <~ variantsWithValues.map { scv ⇒
                            Mvp.insertVariantWithValues(context.id, product.shadowId, scv)
-                         })
+                         }
 
       variants ← * <~ variantsAndValues.map(_.variant)
       variantValues ← * <~ variantsAndValues.foldLeft(Seq.empty[SimpleVariantValueData]) {
@@ -132,7 +132,7 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
                      }
 
       // Map the SKUs to the Variant Values
-      skuMap ← * <~ DbResultT.sequence(skuValueMapping.map {
+      skuMap ← * <~ skuValueMapping.map {
                 case (code, colorName, sizeName) ⇒
                   val selectedSku = skus.filter(_.code == code).head
                   val colorValue  = variantValues.filter(_.name == colorName).head
@@ -148,7 +148,7 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
                                              rightId = sizeValue.shadowId,
                                              linkType = ObjectLink.SkuVariantValue))
                   } yield (colorLink, sizeLink)
-              })
+              }
     } yield (context, product, skus, variantsAndValues)).runTxn().futureValue.rightVal
   }
 }

@@ -65,11 +65,11 @@ trait OrderGenerator extends ShipmentSeeds {
     val cartFun        = cartFunctions(cartIdx)
     for {
       _ ← * <~ cartFun(customerId, context, randomSubset(skuIds), giftCard)
-      _ ← * <~ DbResultT.sequence((1 to 1 + Random.nextInt(4)).map { i ⇒
+      _ ← * <~ (1 to 1 + Random.nextInt(4)).map { i ⇒
            val orderIdx = Random.nextInt(orderFunctions.length)
            val orderFun = orderFunctions(orderIdx)
            orderFun(customerId, context, randomSubset(skuIds), giftCard)
-         })
+         }
     } yield {}
   }
 
@@ -298,7 +298,7 @@ trait OrderGenerator extends ShipmentSeeds {
 
   private def total(skuIds: Seq[Int])(implicit db: DB) =
     for {
-      prices ← * <~ DbResultT.sequence(skuIds.map(Mvp.getPrice))
+      prices ← * <~ skuIds.map(Mvp.getPrice)
       t      ← * <~ prices.sum
     } yield t
 

@@ -225,9 +225,8 @@ trait DemoScenario3 extends DemoSeedHelpers {
       productData  ← * <~ Mvp.insertProducts(products3, context.id)
       inventory    ← * <~ generateInventories(productData, warehouseIds)
       skuIds       ← * <~ productData.map(_.skuId)
-      orders ← * <~ DbResultT.sequence(customerIds.map { id ⇒
-                createShippedOrder(id, context.id, skuIds, shippingMethod)
-              })
+      orders ← * <~ customerIds.map(id ⇒
+                    createShippedOrder(id, context.id, skuIds, shippingMethod))
     } yield {}
 }
 

@@ -185,12 +185,11 @@ object SeedsGenerator
       customers ← * <~ Customers.filter(_.id.inSet(customerIds)).result
       _         ← * <~ Addresses.createAll(generateAddresses(customers))
       _         ← * <~ CreditCards.createAll(generateCreditCards(customers))
-      orderedGcs ← * <~ DbResultT.sequence(randomSubset(customerIds).map { id ⇒
+      orderedGcs ← * <~ randomSubset(customerIds).map { id ⇒
                     generateGiftCardPurchase(id, context)
-                  })
-      appeasements ← * <~ DbResultT.sequence((1 to appeasementCount).map { i ⇒
-                      generateGiftCardAppeasement
-                    })
+                  }
+      appeasements ← * <~ (1 to appeasementCount).map(i ⇒ generateGiftCardAppeasement)
+
       giftCards ← * <~ orderedGcs ++ appeasements
       unsavedPromotions = makePromotions(1)
       promotions     ← * <~ generatePromotions(unsavedPromotions)
@@ -198,9 +197,9 @@ object SeedsGenerator
       coupons        ← * <~ generateCoupons(unsavedCoupons)
       unsavedCodes   ← * <~ makeCouponCodes(coupons)
       _              ← * <~ CouponCodes.createAll(unsavedCodes)
-      _ ← * <~ DbResultT.sequence(randomSubset(customerIds, customerIds.length).map { id ⇒
+      _ ← * <~ randomSubset(customerIds, customerIds.length).map { id ⇒
            generateOrders(id, context, skuIds, pickOne(giftCards))
-         })
+         }
     } yield {}
   }
 }

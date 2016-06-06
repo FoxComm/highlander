@@ -226,7 +226,7 @@ object ObjectUtils {
       linkType: ObjectLink.LinkType)(implicit ec: EC, db: DB): DbResultT[Seq[ObjectLink]] =
     for {
       links ← * <~ ObjectLinks.findByRightAndType(oldRightId, linkType).result
-      _ ← * <~ DbResultT.sequence(links.map { link ⇒
+      _ ← * <~ links.map { link ⇒
            for {
              shadow    ← * <~ ObjectShadows.mustFindById404(link.leftId)
              newShadow ← * <~ ObjectShadows.create(shadow.copy(id = 0))
@@ -237,7 +237,7 @@ object ObjectUtils {
                          .toXor
              link ← * <~ updateLinkIfObject(optModel, Left, newShadow.id, newRightId, linkType)
            } yield link
-         })
+         }
     } yield links
 
   private def updateLinkIfObject[M <: ObjectHead[M], T <: ObjectHeads[M]](

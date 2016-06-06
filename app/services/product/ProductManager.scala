@@ -378,8 +378,7 @@ object ProductManager {
     for {
       skuGroup ← * <~ groupSkuFormsAndShadows(formPayloads, shadowPayloads)
       _        ← * <~ validateSkuPayload(skuGroup)
-      skuData ← * <~ DbResultT.sequence(
-                   skuGroup map { case (f, sh) ⇒ createSku(context, productShadowId, f, sh) })
+      skuData  ← * <~ skuGroup.map { case (f, sh) ⇒ createSku(context, productShadowId, f, sh) }
     } yield skuData
 
   private def updateSkuData(context: ObjectContext,
@@ -391,10 +390,10 @@ object ProductManager {
     for {
       skuGroup ← * <~ groupSkuFormsAndShadows2(formPayloads, shadowPayloads)
       _        ← * <~ validateSkuPayload2(skuGroup)
-      skuData ← * <~ DbResultT.sequence(skuGroup.map {
+      skuData ← * <~ skuGroup.map {
                  case (f, sh) ⇒
                    updateSku(context, oldProductShadowId, productShadowId, f, sh)
-               })
+               }
     } yield skuData
 
   private def updateSku(context: ObjectContext,
