@@ -214,6 +214,16 @@
 			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183"
 		},
 		{
+			"id": "65877c9a-eeae-7d65-31a5-63efadfc26aa",
+			"name": "Order Promotions",
+			"description": "",
+			"order": [
+				"9b241757-0a98-f306-8a35-b062f1cb8cf7",
+				"77c246ee-41fe-c0e4-5e94-614d1639fe65"
+			],
+			"owner": "131444"
+		},
+		{
 			"id": "8cda2704-39aa-bf63-d002-ca51a203cc89",
 			"name": "Products",
 			"description": "",
@@ -1871,6 +1881,27 @@
 			"rawModeData": "{\n  \"disabled\": false\n}"
 		},
 		{
+			"id": "77c246ee-41fe-c0e4-5e94-614d1639fe65",
+			"headers": "",
+			"url": "http://localhost:9090/v1/orders/BR10004/coupon",
+			"pathVariables": {},
+			"preRequestScript": null,
+			"method": "DELETE",
+			"collectionId": "42908c1e-9e6b-774f-e987-1a074d3c4228",
+			"data": null,
+			"dataMode": "params",
+			"name": "Remove a coupon",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1465219700038,
+			"version": 2,
+			"responses": [],
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"folder": "65877c9a-eeae-7d65-31a5-63efadfc26aa"
+		},
+		{
 			"id": "82f55723-a3da-5ba5-1ff5-f27c1c7c4a5d",
 			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/customers/1/payment-methods/store-credit/totals",
@@ -2062,6 +2093,27 @@
 			"currentHelper": "normal",
 			"helperAttributes": {},
 			"folder": "170ad84d-c8a3-7abe-ae6d-3436a8c76116"
+		},
+		{
+			"id": "9b241757-0a98-f306-8a35-b062f1cb8cf7",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
+			"url": "http://localhost:9090/v1/orders/BR10004/coupon/BASE00768729745",
+			"pathVariables": {},
+			"preRequestScript": "",
+			"method": "POST",
+			"collectionId": "42908c1e-9e6b-774f-e987-1a074d3c4228",
+			"data": [],
+			"dataMode": "params",
+			"name": "Attach a coupon",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1465219660024,
+			"version": 2,
+			"responses": [],
+			"tests": "",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"folder": "65877c9a-eeae-7d65-31a5-63efadfc26aa"
 		},
 		{
 			"id": "9cb9134b-0e8a-0968-aab4-08c194ad8791",
