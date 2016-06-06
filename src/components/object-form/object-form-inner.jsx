@@ -5,6 +5,7 @@
 import React, { Component, Element, PropTypes } from 'react';
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
+import classNames from 'classnames';
 
 import { illuminateAttributes, setAttribute } from '../../paragons/form-shadow-object';
 
@@ -178,13 +179,16 @@ export default class ObjectFormInner extends Component {
     const formattedLabel = formatLabel(label);
     const onChange = v => this.handleChange(label, 'richText', v);
     const error = _.get(this.state, ['errors', label]);
+    const classForContainer = classNames('fc-object-form__field', {
+      '_with-error': error != null,
+    });
     const errorMessage = error && (
       <div className="fc-form-field-error">
         {error}
       </div>
     );
     return (
-      <div className="fc-object-form__field">
+      <div className={classForContainer}>
         <RichTextEditor
           label={formattedLabel}
           value={value}

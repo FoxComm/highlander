@@ -3,7 +3,6 @@ import _ from 'lodash';
 import { denormalize, setAttribute, addAttribute } from './form-shadow-object';
 
 const storefrontNameValidotor = (value: string): ?string => {
-  console.log(value);
   if (value == null || value === '' || value === '<p><br/></p>') {
     return 'Storefront Name is required field';
   }
