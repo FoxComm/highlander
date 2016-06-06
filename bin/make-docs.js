@@ -3,7 +3,7 @@ const LeafDoc = require('leafdoc');
 const fs = require('fs');
 const escapeHtml = require('escape-html');
 
-const OUT_PATH = process.env.DOCS_PATH || 'dist/reference.html';
+const OUT_PATH = process.env.DOCS_PATH || 'index.html';
 
 function setupHandlebars(handlebars) {
   const makeLink = handlebars.helpers.type;
