@@ -50,6 +50,37 @@ object SkuManager {
     } yield FullObject(sku, ins.form, ins.shadow)
   }
 
+  def updateSkuInner(sku: Sku, attributes: Map[String, Json])(
+      implicit ec: EC, db: DB): DbResultT[FullObject[Sku]] = {
+
+    val newFormAttrs   = ObjectForm.fromPayload(Sku.kind, attributes).attributes
+    val newShadowAttrs = ObjectShadow.fromPayload(attributes).attributes
+
+    for {
+      oldForm   ← * <~ ObjectForms.mustFindById404(sku.formId)
+      oldShadow ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
+
+      mergedAttrs = oldShadow.attributes.merge(newShadowAttrs)
+      updated ← * <~ ObjectUtils.update(
+                   oldForm.id, oldShadow.id, newFormAttrs, mergedAttrs, force = true)
+      commit      ← * <~ ObjectUtils.commit(updated)
+      updatedHead ← * <~ updateHead(sku, updated.shadow, commit)
+
+      _ ← * <~ ObjectUtils.updateAssociatedLefts(
+             Products, sku.contextId, oldShadow.id, updatedHead.shadowId, ObjectLink.ProductSku)
+      _ ← * <~ ObjectUtils.updateAssociatedRights(
+             Skus, sku.contextId, oldShadow.id, updatedHead.shadowId, ObjectLink.SkuAlbum)
+    } yield FullObject(updatedHead, updated.form, updated.shadow)
+  }
+
+  private def updateHead(sku: Sku, shadow: ObjectShadow, maybeCommit: Option[ObjectCommit])(
+      implicit ec: EC): DbResult[Sku] = maybeCommit match {
+    case Some(commit) ⇒
+      Skus.update(sku, sku.copy(shadowId = shadow.id, commitId = commit.id))
+    case None ⇒
+      DbResult.good(sku)
+  }
+
   //
   /////////////////////////////////////////////////////////////////////////////////////////////////////
 

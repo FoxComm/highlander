@@ -43,13 +43,30 @@ object ProductManager {
                                              shadowId = ins.shadow.id,
                                              commitId = ins.commit.id))
 
-      newSkus ← * <~ payload.skus.map(sku ⇒ SkuManager.createSkuInner(context, sku))
+      newSkus ← * <~ payload.skus.map(sku ⇒ findOrCreateSkuForProduct(product, context, sku))
     } yield
       IlluminatedFullProductResponse.build(
           p = IlluminatedProduct.illuminate(context, product, ins.form, ins.shadow),
           skus = newSkus.map(newSku ⇒ IlluminatedSku.illuminate(context, newSku)),
           variants = Seq.empty,
           variantMap = Map.empty)).runTxn()
+  }
+
+  private def findOrCreateSkuForProduct(
+      product: Product, context: ObjectContext, payload: CreateSkuPayload)(
+      implicit ec: EC, db: DB) = {
+
+    for {
+      sku ← * <~ Skus.filterByContextAndCode(context.id, payload.code).one.flatMap {
+             case Some(sku) ⇒
+               SkuManager.updateSkuInner(sku, payload.attributes).value
+             case None ⇒
+               SkuManager.createSkuInner(context, payload).value
+           }
+      _ ← * <~ ObjectLinks.create(ObjectLink(leftId = product.shadowId,
+                                             rightId = sku.shadow.id,
+                                             linkType = ObjectLink.ProductSku))
+    } yield sku
   }
 
   //

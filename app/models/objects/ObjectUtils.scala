@@ -240,6 +240,28 @@ object ObjectUtils {
          }
     } yield links
 
+  def updateAssociatedRights[M <: ObjectHead[M], T <: ObjectHeads[M]](
+      Right: FoxTableQuery[M, T],
+      contextId: Int,
+      oldLeftId: Int,
+      newLeftId: Int,
+      linkType: ObjectLink.LinkType)(implicit ec: EC, db: DB): DbResultT[Seq[ObjectLink]] =
+    for {
+      links ← * <~ ObjectLinks.findByLeftAndType(oldLeftId, linkType).result
+      _ ← * <~ links.map { link ⇒
+           for {
+             shadow    ← * <~ ObjectShadows.mustFindById404(link.rightId)
+             newShadow ← * <~ ObjectShadows.create(shadow.copy(id = 0))
+             optModel ← * <~ Right
+                         .filter(_.formId === shadow.formId)
+                         .filter(_.contextId === contextId)
+                         .one
+                         .toXor
+             link ← * <~ updateLinkIfObject(optModel, Right, newLeftId, newShadow.id, linkType)
+           } yield link
+         }
+    } yield links
+
   private def updateLinkIfObject[M <: ObjectHead[M], T <: ObjectHeads[M]](
       maybe: Option[M],
       table: FoxTableQuery[M, T],
