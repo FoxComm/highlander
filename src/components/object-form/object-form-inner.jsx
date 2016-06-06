@@ -220,6 +220,12 @@ export default class ObjectFormInner extends Component {
 
     const formattedLabel = formatLabel(label);
     const onChange = v => this.handleChange(label, 'options', v);
+    const error = _.get(this.state, ['errors', label]);
+    const errorMessage = error && (
+      <div className="fc-form-field-error">
+        {error}
+      </div>
+    );
 
     return (
       <div className="fc-object-form_field">
@@ -229,6 +235,7 @@ export default class ObjectFormInner extends Component {
           items={options}
           onChange={onChange}
         />
+        {errorMessage}
       </div>
     );
   }
