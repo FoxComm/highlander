@@ -1,28 +1,34 @@
-import React, { PropTypes } from 'react';
+
+/* @flow */
+
+import React, { Component, Element } from 'react';
 import moment from 'moment';
 import { AddButton } from '../common/buttons';
 import Countdown from '../countdown/countdown';
 
-export default class RemorseTimer extends React.Component {
-  constructor(props, context) {
-    super(props, context);
-    this.state = {
-      frozen: false
-    };
-  }
+type Props = {
+  initialEndDate: string,
+  onIncreaseClick: Function,
+  onCountdownFinished?: Function,
+};
 
-  static propTypes = {
-    initialEndDate: PropTypes.string,
-    onIncreaseClick: PropTypes.func
+type State = {
+  frozen: boolean,
+};
+
+export default class RemorseTimer extends Component {
+  props: Props;
+  state: State = {
+    frozen: false
   };
 
-  onToggleOrderEdit() {
+  onToggleOrderEdit(): void {
     this.setState({
       frozen: !this.state.frozen
     });
   }
 
-  extendButton() {
+  extendButton(): Element {
     return (
       <AddButton className="fc-remorse-timer-extend" onClick={ this.props.onIncreaseClick }>
         15 min
@@ -30,7 +36,7 @@ export default class RemorseTimer extends React.Component {
     );
   }
 
-  controls() {
+  controls(): Element|string {
     if (this.state.frozen) {
       return 'Frozen while editing.';
     } else {
@@ -38,10 +44,14 @@ export default class RemorseTimer extends React.Component {
     }
   }
 
-  render() {
+  render(): Element {
     return (
       <div className="fc-remorse-timer">
-        <Countdown endDate={this.props.initialEndDate} frozen={this.state.frozen}/>
+        <Countdown
+          endDate={this.props.initialEndDate}
+          frozen={this.state.frozen}
+          onCountdownFinished={this.props.onCountdownFinished}
+        />
         <div className="fc-remorse-timer-controls">{this.controls()}</div>
       </div>
     );

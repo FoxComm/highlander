@@ -57,6 +57,8 @@ export default class Order extends React.Component {
     };
   }
 
+  updateInterval = null;
+
   componentDidMount() {
     this.props.fetchOrder(this.orderRefNum);
   }
@@ -64,6 +66,17 @@ export default class Order extends React.Component {
   componentWillReceiveProps(nextProps) {
     if (this.orderRefNum != orderRefNum(nextProps)) {
       this.props.fetchOrder(orderRefNum(nextProps));
+    }
+    if (_.get(nextProps, ['order', 'currentOrder', 'state']) !== 'remorseHold') {
+      clearInterval(this.updateInterval);
+      this.updateInterval = null;
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.state.updateInterval != null) {
+      clearInterval(this.updateInterval);
+      this.updateInterval = null;
     }
   }
 
@@ -97,8 +110,11 @@ export default class Order extends React.Component {
     if (this.order.isRemorseHold) {
       const refNum = this.order.referenceNumber;
       return (
-        <RemorseTimer initialEndDate={this.order.remorsePeriodEnd}
-                      onIncreaseClick={ () => this.props.increaseRemorsePeriod(refNum) } />
+        <RemorseTimer
+          initialEndDate={this.order.remorsePeriodEnd}
+          onIncreaseClick={() => this.props.increaseRemorsePeriod(refNum)}
+          onCountdownFinished={() => this.onRemorseCountdownFinish()}
+        />
       );
     }
   }
@@ -116,6 +132,13 @@ export default class Order extends React.Component {
 
   get subNav() {
     return <SubNav order={this.order} />;
+  }
+
+  @autobind
+  onRemorseCountdownFinish() {
+    if (this.updateInterval == null) {
+      this.updateInterval = setInterval(() => this.props.fetchOrder(this.orderRefNum), 5000);
+    }
   }
 
   @autobind
