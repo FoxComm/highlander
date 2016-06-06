@@ -24,7 +24,7 @@ class Site extends Component {
     const path = {pathname, query};
     return (
       <Overlay path={path}>
-        <Auth authBlockType={auth} path={pathname} query={query}/>
+        <Auth authBlockType={auth} path={path}/>
       </Overlay>
     );
   }
