@@ -4,6 +4,8 @@ const MAX_RESULTS = 1000;
 // auth endpoints
 export const login = '/public/login';
 export const signup ='/public/registrations/new';
+export const googleSignin = '/public/signin/google/customer';
+export const logout = '/public/logout';
 
 // product endpoints
 export const search = `/search/products_catalog_view/_search?size=${MAX_RESULTS}`;

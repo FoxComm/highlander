@@ -240,9 +240,20 @@ api.products.search({state: &#39;cart&#39;});
 		<td>Register new user</td>
 	</tr>
 	<tr id='foxapi-login'>
-		<td><code><b>login</b>(<nobr>&lt;String&gt;</nobr> <i>user</i>, <nobr>&lt;String&gt;</nobr> <i>password</i>)</nobr></code></td>
-		<td><code>Promise</code></td>
-		<td>Authenticate user by username and password, returns promise with jwt token</td>
+		<td><code><b>login</b>(<nobr>&lt;String&gt;</nobr> <i>user</i>, <nobr>&lt;String&gt;</nobr> <i>password</i>, <nobr>&lt;String&gt;</nobr> <i>kind</i>)</nobr></code></td>
+		<td><code>Promise&lt;<a href='#loginresponse'>LoginResponse</a>&gt;</code></td>
+		<td>Authenticate user by username and password, returns promise with jwt token
+<code>kind</code> can be &#39;customer&#39; or &#39;admin&#39;</td>
+	</tr>
+	<tr id='foxapi-googlesignin'>
+		<td><code><b>googleSignin</b>()</nobr></code></td>
+		<td><code>Promise&lt;<a href='#googlesigninresponse'>GoogleSigninResponse</a>&gt;</code></td>
+		<td></td>
+	</tr>
+	<tr id='foxapi-logout'>
+		<td><code><b>logout</b>()</nobr></code></td>
+		<td><code>Promse</code></td>
+		<td>Removes JWT cookie.</td>
 	</tr>
 </tbody></table>
 
@@ -812,6 +823,86 @@ api.products.search({state: &#39;cart&#39;});
 		<td>Field to sort by (-fieldName for descending order).</td>
 	</tr>
 </tbody></table>
+
+</section>
+
+</section>
+<span id='loginresponse'></span>
+
+<section>
+<h3 id='loginresponse-field'>LoginResponse</h3>
+
+<section >
+
+
+
+<div class='section-comments'></div>
+
+<table><thead>
+<tr>
+    <th>Field</th>
+    <th>Type</th>
+    <th>Required</th>
+    <th>Example</th>
+    <th>Description</th>
+</tr>
+</thead><tbody>
+    <tr id='loginresponse-jwt'>
+        <td><code><b>jwt</b></code></td>
+        <td><code>String</code>
+        <td><div data-icon="ei-check"></div></td>
+        <td></td>
+        <td><a href="https://jwt.io/">JWT</a> token.</td>
+    </tr>
+    <tr id='loginresponse-user-name'>
+        <td><code><b>user.name</b></code></td>
+        <td><code>String</code>
+        <td><div data-icon="ei-check"></div></td>
+        <td></td>
+        <td>User name.</td>
+    </tr>
+    <tr id='loginresponse-user-email'>
+        <td><code><b>user.email</b></code></td>
+        <td><code>String</code>
+        <td><div data-icon="ei-check"></div></td>
+        <td></td>
+        <td>User email</td>
+    </tr>
+</tbody></table>
+
+
+</section>
+
+</section>
+<span id='googlesigninresponse'></span>
+
+<section>
+<h3 id='googlesigninresponse-field'>GoogleSigninResponse</h3>
+
+<section >
+
+
+
+<div class='section-comments'></div>
+
+<table><thead>
+<tr>
+    <th>Field</th>
+    <th>Type</th>
+    <th>Required</th>
+    <th>Example</th>
+    <th>Description</th>
+</tr>
+</thead><tbody>
+    <tr id='googlesigninresponse-url'>
+        <td><code><b>url</b></code></td>
+        <td><code>String</code>
+        <td><div data-icon="ei-check"></div></td>
+        <td></td>
+        <td>Url for redirection.</td>
+    </tr>
+</tbody></table>
+
 
 </section>
 
