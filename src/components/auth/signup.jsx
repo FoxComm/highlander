@@ -29,6 +29,10 @@ type AuthState = {
   emailError: bool|string,
 };
 
+type Props = {
+  changePath: Function,
+};
+
 const mapState = state => ({
   isLoading: _.get(state.asyncActions, ['auth-signup', 'inProgress'], false),
 });
@@ -38,9 +42,7 @@ const mapState = state => ({
 @localized
 /* ::`*/
 export default class Auth extends Component {
-  static propTypes = {
-    path: PropTypes.string,
-  };
+  props: Props;
 
   state: AuthState = {
     email: '',
@@ -78,10 +80,7 @@ export default class Auth extends Component {
     const {email, password, username: name} = this.state;
     const paylaod: SignUpPayload = {email, password, name};
     this.props.signUp(paylaod).then(() => {
-      browserHistory.push({
-        pathname: this.props.path,
-        query: {auth: authBlockTypes.LOGIN},
-      });
+      browserHistory.push(this.props.changePath(authBlockTypes.LOGIN));
     }).catch(err => {
       const errors = get(err, ['responseJson', 'errors'], []);
       let emailError = false;
@@ -100,10 +99,10 @@ export default class Auth extends Component {
 
   render(): HTMLElement {
     const { email, password, username, emailError, usernameError } = this.state;
-    const { t, isLoading } = this.props;
+    const { t, isLoading, changePath } = this.props;
 
     const loginLink = (
-      <Link to={{pathname: this.props.path, query: {auth: authBlockTypes.LOGIN}}} styleName="link">
+      <Link to={changePath(authBlockTypes.LOGIN)} styleName="link">
         {t('Log in')}
       </Link>
     );

@@ -2,6 +2,8 @@
 import React, { Component, PropTypes } from 'react';
 import { Link } from 'react-router';
 import { authBlockTypes } from 'paragons/auth';
+import { assoc } from 'sprout-data';
+import { autobind } from 'core-decorators';
 
 import styles from './auth.css';
 import type { HTMLElement } from 'types';
@@ -12,17 +14,17 @@ import Signup from './signup';
 import ResetPassword from './reset-password.jsx';
 import RestorePassword from './restore-password.jsx';
 
+type Props = {
+  authBlockType: string,
+  path: Object,
+};
+
 class Auth extends Component {
-  static propTypes = {
-    authBlockType: PropTypes.string,
-    path: PropTypes.string,
-    query: PropTypes.object,
-  };
+  props: Props;
 
   renderContent() {
     const authProps = {
-      path: this.props.path,
-      query: this.props.query,
+      changePath: this.changePath,
     };
 
     switch (this.props.authBlockType) {
@@ -37,6 +39,11 @@ class Auth extends Component {
       default:
         return <Login {...authProps} />;
     }
+  }
+
+  @autobind
+  changePath(newType) {
+    return assoc(this.props.path, ['query', 'auth'], newType);
   }
 
   render(): HTMLElement {

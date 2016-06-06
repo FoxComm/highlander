@@ -28,6 +28,10 @@ type AuthState = {
   error: ?string,
 };
 
+type Props = {
+  changePath: Function,
+};
+
 const mapState = state => ({
   isLoading: _.get(state.asyncActions, ['auth-login', 'inProgress'], false),
 });
@@ -37,9 +41,7 @@ const mapState = state => ({
 @localized
 /* ::`*/
 export default class Login extends Component {
-  static propTypes = {
-    path: PropTypes.string,
-  };
+  props: Props;
 
   state: AuthState = {
     email: '',
@@ -71,7 +73,7 @@ export default class Login extends Component {
     const kind = 'customer';
     this.props.authenticate({email, password, kind}).then(() => {
       this.props.fetchCart();
-      browserHistory.push(this.props.path);
+      browserHistory.push(this.props.changePath());
     }).catch(() => {
       this.setState({error: 'Email or password is invalid'});
     });
@@ -92,13 +94,13 @@ export default class Login extends Component {
     const { t } = props;
 
     const restoreLink = (
-      <Link to={{pathname: this.props.path, query: {auth: authBlockTypes.RESTORE_PASSWORD}}} styleName="restore-link">
+      <Link to={props.changePath(authBlockTypes.RESTORE_PASSWORD)} styleName="restore-link">
         {t('forgot?')}
       </Link>
     );
 
     const signupLink = (
-      <Link to={{pathname: this.props.path, query: {auth: authBlockTypes.SIGNUP}}} styleName="link">
+      <Link to={props.changePath(authBlockTypes.SIGNUP)} styleName="link">
         {t('Sign Up')}
       </Link>
     );
