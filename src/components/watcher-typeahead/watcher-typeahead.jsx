@@ -7,7 +7,6 @@ import { autobind } from 'core-decorators';
 
 // helpers
 import { getStore } from '../../lib/store-creator';
-import { getStorePath } from '../../lib/store-utils';
 
 // components
 import Typeahead from '../typeahead/typeahead';
@@ -15,8 +14,8 @@ import PilledInput from '../pilled-search/pilled-input';
 import WatcherTypeaheadItem from './watcher-typeahead-item';
 
 
-const mapStateToProps = (state, { storePath, entity, fieldName = 'watchers' }) => {
-  const path = getStorePath(storePath, entity, fieldName, 'selectModal');
+const mapStateToProps = (state, { storePath, entity: { entityType, entityId }, fieldName = 'watchers' }) => {
+  let path = _.filter([storePath, entityType, fieldName, entityId, 'selectModal']).join('.');
 
   const {
     term = null,
