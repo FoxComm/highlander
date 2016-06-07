@@ -26,7 +26,7 @@ type Props = {
 const mapDispatchToProps = (dispatch: Function, props) => {
   const module = `${props.entity}s`;
 
-  const {actions} = getStore('bulk', module);
+  const {actions} = getStore([module, 'bulk']);
   return {
     bulkActions: bindActionCreators(actions, dispatch),
   };

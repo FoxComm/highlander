@@ -29,7 +29,7 @@ const mapStateToProps = (state, { storePath, entity, fieldName = 'watchers' }) =
 };
 
 const mapDispatchToProps = (dispatch, { entity: { entityType, entityId }, fieldName = 'watchers' }) => {
-  const { actions } = getStore(fieldName, entityType);
+  const { actions } = getStore([entityType, fieldName]);
 
   return {
     setTerm: term => dispatch(actions.setTerm(entityId, term)),

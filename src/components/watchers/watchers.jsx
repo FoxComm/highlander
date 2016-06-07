@@ -45,7 +45,7 @@ const mapStateToProps = (state, { entity: { entityType, entityId } }) => {
 };
 
 const mapDispatchToProps = (dispatch, { entity: { entityType, entityId } }) => {
-  const { actions } = getStore('watchers', entityType);
+  const { actions } = getStore([entityType, 'watchers']);
 
   return {
     fetch: (group) => dispatch(actions.fetchWatchers(entityId, group)),

@@ -171,7 +171,7 @@ const reducers = {
 };
 
 const { actions, reducer } = createStore({
-  entity: 'customer-groups',
+  path: 'customerGroups.dynamic.group',
   actions: {
     fetchGroup,
     fetchGroupStats,

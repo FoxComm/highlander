@@ -3,6 +3,8 @@ import _ from 'lodash';
 import Api from '../lib/api';
 import { pluralize } from 'fleck';
 
+import createStore from '../lib/store-creator';
+
 export const initialState = {
   isFetching: false,
   messages: {},
@@ -101,4 +103,37 @@ export const bulkActions = {
   watch: toggleWatch(true),
   unwatch: toggleWatch(false),
 };
+
+const changeState = (actions, ids, isActive) => {
+  return dispatch => {
+    const successes = {
+      'id1': [],
+    };
+    const failures = {};
+    dispatch(actions.bulkDone(successes, failures));
+  };
+};
+
+const updateAttributes = (actions, ids, form, shadow) => {
+  return dispatch => {
+    const successes = {
+      'id1': [],
+    };
+    const failures = {};
+    dispatch(actions.bulkDone(successes, failures));
+  };
+};
+
+export default function makeBulkActions(path) {
+  return createStore({
+    path,
+    actions: {
+      changeState,
+      updateAttributes,
+      ...bulkActions,
+    },
+    reducers,
+    initialState,
+  });
+}
 

@@ -6,23 +6,23 @@ import { createAction, createReducer } from 'redux-act';
 //created stores storage
 const STORES = {};
 
-function saveStore(entity, scope, store) {
-  if (getStore(entity, scope)) {
+function saveStore(path, store) {
+  if (getStore(path)) {
     throw new TypeError(`Store ${entity}:${scope} already exists`);
   }
 
-  _.set(STORES, [entity, scope], store);
+  _.set(STORES, path, store);
 
   return store;
 }
 
-export function getStore(entity, scope) {
-  return _.get(STORES, [entity, scope], null);
+export function getStore(path) {
+  return _.get(STORES, path, null);
 }
 
 
-function getActionDescription(entity, scope, name) {
-  return _.snakeCase(`${entity}_${scope}_${name}`).toUpperCase();
+function getActionDescription(path, name) {
+  return _.snakeCase(`${path.join(' ')} ${name}`).toUpperCase();
 }
 
 function payloadReducer(...args) {
@@ -41,9 +41,8 @@ function payloadReducer(...args) {
  * 1. plain actions. Are created by createAction. Are used in reducer. Payload reducer is automatic.
  * 2. complex actions. Cannot be used in reducer
  *
- * @param {String}  entity          name of entity, actions are created for
- * @param {String}  [scope]         scope of created store (allows to use several stores of one entity)
- * @param {Object}  actions         map of complex actions
+ * @param {String|String[]}   path            path of created store in global store
+ * @param {Object}            actions         map of complex actions
  * Map format:
  * {
  *   complexAction: (...args, actions) => { dispatch => dispatch(actions.basicAction(...args)) },
@@ -58,13 +57,19 @@ function payloadReducer(...args) {
  * Reducer, respectively, is created with all plain actions
  * @param {Object}  [initialState]  initial state for reducer, passed as is
  */
-export default function createStore({entity, scope = '', actions, reducers, initialState = {}}) {
+export default function createStore({path, actions, reducers, initialState = {}}) {
+  if (_.isArray(path)) {
+    path = path.reduce((memo, value) => [...memo, ...value.split('.')], []);
+  } else {
+    path = path.split('.');
+  }
+
   const allActions = {};
   const reducersMap = {};
 
   _.each(reducers, (handler, name) => {
     //create action with entity prefix and default creator
-    const action = allActions[name] = createAction(getActionDescription(entity, scope, name), payloadReducer);
+    const action = allActions[name] = createAction(getActionDescription(path, name), payloadReducer);
 
     //add it to reducersMap
     reducersMap[action] = handler;
@@ -74,7 +79,7 @@ export default function createStore({entity, scope = '', actions, reducers, init
     allActions[name] = (...args) => handler(allActions, ...args);
   });
 
-  return saveStore(entity, scope, {
+  return saveStore(path, {
     actions: allActions,
     reducer: createReducer(reducersMap, initialState),
   });

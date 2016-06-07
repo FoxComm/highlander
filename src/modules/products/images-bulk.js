@@ -26,8 +26,7 @@ const deleteImages = () => dispatch => {
 };
 
 const { actions, reducer } = createStore({
-  entity: 'bulk',
-  scope: 'images',
+  path: 'products.imagesBulk',
   actions: {
     openNewWindow,
     moveToAlbum,

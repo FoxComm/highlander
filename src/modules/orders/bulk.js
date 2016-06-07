@@ -51,8 +51,7 @@ const changeOrdersState = (actions, referenceNumbers, state) =>
 
 
 const { actions, reducer } = createStore({
-  entity: 'bulk',
-  scope: 'orders',
+  path: 'orders.bulk',
   actions: {
     cancelOrders,
     changeOrdersState,
