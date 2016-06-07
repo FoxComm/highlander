@@ -57,33 +57,40 @@ export default function request(method, uri, data, options) {
 
   let error = null;
 
-  return fetch(uri, options)
-    .then(response => {
-      if (response.status < 200 || response.status >= 300) {
-        error = new Error(response.statusText);
-        error.response = response;
-      }
+  const promise = fetch(uri, options);
 
-      return response;
-    })
-    .then(response => response.text())
-    .then(responseText => {
-      let json = null;
-      if (responseText) {
-        try {
-          json = JSON.parse(responseText);
-        } catch (ex) {
-          // invalid json
+  if (options.handleResponse !== false) {
+    return promise
+      .then(response => {
+        if (response.status < 200 || response.status >= 300) {
+          const message = `${method.toUpperCase()} ${uri} responded with ${response.statusText}`;
+          error = new Error(message);
+          error.response = response;
         }
-      }
 
-      if (error) {
-        error.responseJson = json;
-        throw error;
-      }
+        return response;
+      })
+      .then(response => response.text())
+      .then(responseText => {
+        let json = null;
+        if (responseText) {
+          try {
+            json = JSON.parse(responseText);
+          } catch (ex) {
+            // invalid json
+          }
+        }
 
-      return json;
-    });
+        if (error) {
+          error.responseJson = json;
+          throw error;
+        }
+
+        return json;
+      });
+  }
+
+  return promise;
 }
 
 

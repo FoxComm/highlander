@@ -38,7 +38,8 @@ export function login(email, password, kind) {
     endpoints.login,
     {email, password, kind},
     {
-      credentials: 'same-origin'
+      credentials: 'same-origin',
+      handleResponse: false
     }
   )
     .then(response => {

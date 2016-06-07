@@ -19,19 +19,18 @@ class Api {
     // Required option. Should point to phoenix backend.
     if (!args.api_url) throw new Error('you must specify an API URL');
     this.api_url = args.api_url.replace(/\/?$/, '/'); // ensure trailing slash
-    // @option version: String = v1
-    // Protocol version.
-    this.version = args.version || 'v1';
   }
 
   // @section Base methods
   // @method addAuth(jwt: String): FoxApi
   // Set jwt authorization header for next requests
   addAuth(jwt) {
-    this.headers = {
-      ...this.headers,
-      JWT: jwt,
-    };
+    if (jwt) {
+      this.headers = {
+        ...this.headers,
+        JWT: jwt,
+      };
+    }
     return this;
   }
 
@@ -45,7 +44,7 @@ class Api {
   // @method uri(uri: String): String
   // Prepares and returns final url which will be used in request.
   uri(uri) {
-    return `${this.api_url}${this.version}${uri}`
+    return `${this.api_url}${uri}`
   }
 
   idOrSlugToArgs(id) {
