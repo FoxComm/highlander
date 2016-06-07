@@ -22,6 +22,7 @@ export type Props = {
   emptyMessage?: string|Element,
   open?: bool,
   children?: Element,
+  items?: Array<DropdownItemType>,
   primary?: bool,
   editable?: bool,
   changeable?: bool,
