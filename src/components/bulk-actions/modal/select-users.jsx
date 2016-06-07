@@ -14,7 +14,7 @@ import SaveCancel from '../../common/save-cancel';
 
 
 const mapStateToProps = (state, {storePath, module}) => {
-  const path = _.filter([storePath, module, 'watchers.list.selectModal.selected']).join('.');
+  const path = _.compact([storePath, module, 'watchers.list.selectModal.selected']).join('.');
 
   return {
     selected: _.get(state, path, []).map(({id}) => id),
