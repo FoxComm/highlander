@@ -6,7 +6,7 @@ import failures.ObjectFailures.ObjectContextNotFound
 import models.objects.ObjectContexts
 import models.product.SimpleContext
 import org.json4s.JsonDSL._
-import payloads.VariantPayloads.{CreateVariantPayload, CreateVariantValuePayload}
+import payloads.VariantPayloads._
 import responses.VariantResponses.IlluminatedVariantResponse
 import responses.VariantValueResponses.IlluminatedVariantValueResponse
 import util.IntegrationTestBase
@@ -57,11 +57,11 @@ class VariantIntegrationTest extends IntegrationTestBase with HttpSupport with A
   }
 
   trait Fixture {
-    val createVariantPayload = CreateVariantPayload(
+    val createVariantPayload = VariantPayload(
         attributes = Map("name" → (("t" → "string") ~ ("v" → "Color"))), values = None)
 
-    val createVariantValuePayload = CreateVariantValuePayload(
-        name = "Red", swatch = Some("ff0000"))
+    val createVariantValuePayload = VariantValuePayload(
+        name = Some("Red"), swatch = Some("ff0000"))
 
     val context = (for {
       context ← * <~ ObjectContexts

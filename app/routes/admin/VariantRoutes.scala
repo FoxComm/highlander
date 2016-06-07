@@ -5,7 +5,7 @@ import akka.http.scaladsl.server.Directives._
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.StoreAdmin
-import payloads.VariantPayloads.{CreateVariantPayload, CreateVariantValuePayload}
+import payloads.VariantPayloads._
 import services.variant.VariantManager
 import slick.driver.PostgresDriver.api._
 import utils.db._
@@ -19,14 +19,14 @@ object VariantRoutes {
     activityContext(admin) { implicit ac ⇒
       pathPrefix("variants") {
         pathPrefix(Segment) { context ⇒
-          (post & pathEnd & entity(as[CreateVariantPayload])) { payload ⇒
+          (post & pathEnd & entity(as[VariantPayload])) { payload ⇒
             goodOrFailures {
               VariantManager.createVariant(context, payload)
             }
           } ~
           pathPrefix(IntNumber) { variantId ⇒
             pathPrefix("values") {
-              (post & pathEnd & entity(as[CreateVariantValuePayload])) { payload ⇒
+              (post & pathEnd & entity(as[VariantValuePayload])) { payload ⇒
                 goodOrFailures {
                   VariantManager.createVariantValue(context, variantId, payload)
                 }

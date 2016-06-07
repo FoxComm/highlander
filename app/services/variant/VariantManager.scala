@@ -4,7 +4,7 @@ import failures.ObjectFailures._
 import failures.ProductFailures._
 import models.objects._
 import models.product._
-import payloads.VariantPayloads.{CreateVariantPayload, CreateVariantValuePayload}
+import payloads.VariantPayloads._
 import responses.VariantResponses.IlluminatedVariantResponse
 import responses.VariantValueResponses.IlluminatedVariantValueResponse
 import services.Result
@@ -17,7 +17,7 @@ import utils.db._
 object VariantManager {
   type FullVariant = (FullObject[Variant], Seq[FullObject[VariantValue]])
 
-  def createVariant(contextName: String, payload: CreateVariantPayload)(
+  def createVariant(contextName: String, payload: VariantPayload)(
       implicit ec: EC, db: DB): Result[IlluminatedVariantResponse.Root] =
     (for {
 
@@ -30,7 +30,7 @@ object VariantManager {
           vs = values
       )).runTxn()
 
-  def createVariantInner(context: ObjectContext, payload: CreateVariantPayload)(
+  def createVariantInner(context: ObjectContext, payload: VariantPayload)(
       implicit ec: EC, db: DB): DbResultT[FullVariant] = {
 
     val form          = ObjectForm.fromPayload(Variant.kind, payload.attributes)
@@ -48,7 +48,47 @@ object VariantManager {
     } yield (FullObject(variant, ins.form, ins.shadow), values)
   }
 
-  def createVariantValue(contextName: String, variantId: Int, payload: CreateVariantValuePayload)(
+  def updateVariantInner(context: ObjectContext, variantId: Int, payload: VariantPayload)(
+      implicit ec: EC, db: DB): DbResultT[FullVariant] = {
+
+    val newFormAttrs   = ObjectForm.fromPayload(Variant.kind, payload.attributes).attributes
+    val newShadowAttrs = ObjectShadow.fromPayload(payload.attributes).attributes
+    val valuePayloads  = payload.values.getOrElse(Seq.empty)
+
+    for {
+      variant   ← * <~ mustFindVariantByContextAndForm(context.id, variantId)
+      oldForm   ← * <~ ObjectForms.mustFindById404(variant.formId)
+      oldShadow ← * <~ ObjectShadows.mustFindById404(variant.shadowId)
+
+      mergedAttrs = oldShadow.attributes.merge(newShadowAttrs)
+      updated ← * <~ ObjectUtils.update(
+                   oldForm.id, oldShadow.id, newFormAttrs, mergedAttrs, force = true)
+      commit      ← * <~ ObjectUtils.commit(updated)
+      updatedHead ← * <~ updateHead(variant, updated.shadow, commit)
+
+      values ← * <~ valuePayloads.map(pay ⇒ updateOrCreateVariantValue(updatedHead, context, pay))
+    } yield (FullObject(updatedHead, updated.form, updated.shadow), values)
+  }
+
+  def updateOrCreateVariant(context: ObjectContext, payload: VariantPayload)(
+      implicit ec: EC, db: DB): DbResultT[FullVariant] = {
+
+    payload.id match {
+      case Some(id) ⇒ updateVariantInner(context, id, payload)
+      case None     ⇒ createVariantInner(context, payload)
+    }
+  }
+
+  private def updateHead(
+      variant: Variant, shadow: ObjectShadow, maybeCommit: Option[ObjectCommit])(
+      implicit ec: EC): DbResult[Variant] = maybeCommit match {
+    case Some(commit) ⇒
+      Variants.update(variant, variant.copy(shadowId = shadow.id, commitId = commit.id))
+    case None ⇒
+      DbResult.good(variant)
+  }
+
+  def createVariantValue(contextName: String, variantId: Int, payload: VariantValuePayload)(
       implicit ec: EC, db: DB): Result[IlluminatedVariantValueResponse.Root] =
     (for {
       context ← * <~ ObjectManager.mustFindByName404(contextName)
@@ -58,8 +98,8 @@ object VariantManager {
       value ← * <~ createVariantValueInner(context, variant, payload)
     } yield IlluminatedVariantValueResponse.build(value)).runTxn()
 
-  def createVariantValueInner(
-      context: ObjectContext, variant: Variant, payload: CreateVariantValuePayload)(
+  private def createVariantValueInner(
+      context: ObjectContext, variant: Variant, payload: VariantValuePayload)(
       implicit ec: EC, db: DB): DbResultT[FullObject[VariantValue]] = {
 
     val form   = payload.objectForm
@@ -76,6 +116,49 @@ object VariantManager {
                                              rightId = variantValue.shadowId,
                                              linkType = ObjectLink.VariantValue))
     } yield FullObject(variantValue, ins.form, ins.shadow)
+  }
+
+  private def updateVariantValueInner(valueId: Int, contextId: Int, payload: VariantValuePayload)(
+      implicit ec: EC, db: DB): DbResultT[FullObject[VariantValue]] = {
+
+    val newFormAttrs   = payload.objectForm.attributes
+    val newShadowAttrs = payload.objectShadow.attributes
+
+    for {
+      value     ← * <~ mustFindVariantValueByContextAndForm(contextId, valueId)
+      oldForm   ← * <~ ObjectForms.mustFindById404(value.formId)
+      oldShadow ← * <~ ObjectShadows.mustFindById404(value.shadowId)
+
+      mergedAttrs = oldShadow.attributes.merge(newShadowAttrs)
+      updated ← * <~ ObjectUtils.update(
+                   oldForm.id, oldShadow.id, newFormAttrs, mergedAttrs, force = true)
+      commit      ← * <~ ObjectUtils.commit(updated)
+      updatedHead ← * <~ updateValueHead(value, updated.shadow, commit)
+      _ ← * <~ ObjectUtils.updateAssociatedLefts(Variants,
+                                                 value.contextId,
+                                                 oldShadow.id,
+                                                 updatedHead.shadowId,
+                                                 ObjectLink.VariantValue)
+    } yield FullObject(updatedHead, updated.form, updated.shadow)
+  }
+
+  private def updateOrCreateVariantValue(
+      variant: Variant, context: ObjectContext, payload: VariantValuePayload)(
+      implicit ec: EC, db: DB) = {
+
+    payload.id match {
+      case Some(id) ⇒ updateVariantValueInner(id, context.id, payload)
+      case None     ⇒ createVariantValueInner(context, variant, payload)
+    }
+  }
+
+  private def updateValueHead(
+      value: VariantValue, shadow: ObjectShadow, maybeCommit: Option[ObjectCommit])(
+      implicit ec: EC): DbResult[VariantValue] = maybeCommit match {
+    case Some(commit) ⇒
+      VariantValues.update(value, value.copy(shadowId = shadow.id, commitId = commit.id))
+    case None ⇒
+      DbResult.good(value)
   }
 
   def findVariantsByProduct(
@@ -99,6 +182,15 @@ object VariantManager {
                    variantValue.contextId, variantValue.shadowId)
     } yield variant
 
+  private def mustFindVariantValueByContextAndForm(contextId: Int, formId: Int)(
+      implicit ec: EC): DbResultT[VariantValue] =
+    for {
+
+      value ← * <~ VariantValues
+               .filterByContextAndFormId(contextId, formId)
+               .mustFindOneOr(VariantValueNotFoundForContext(formId, contextId))
+    } yield value
+
   def mustFindVariantValueByContextAndShadow(contextId: Int, shadowId: Int)(
       implicit ec: EC): DbResultT[FullObject[VariantValue]] =
     for {
@@ -109,6 +201,14 @@ object VariantManager {
                .filterByContextAndFormId(contextId, form.id)
                .mustFindOneOr(VariantValueNotFoundForContext(form.id, contextId))
     } yield FullObject(value, form, shadow)
+
+  private def mustFindVariantByContextAndForm(contextId: Int, formId: Int)(
+      implicit ec: EC): DbResultT[Variant] =
+    for {
+      variant ← * <~ Variants
+                 .filterByContextAndFormId(contextId, formId)
+                 .mustFindOneOr(VariantNotFoundForContext(formId, contextId))
+    } yield variant
 
   private def mustFindVariantByContextAndShadow(contextId: Int, shadowId: Int)(
       implicit ec: EC): DbResultT[FullObject[Variant]] =

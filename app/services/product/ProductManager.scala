@@ -10,6 +10,7 @@ import models.product._
 import payloads.ImagePayloads.CreateAlbumPayload
 import payloads.ProductPayloads._
 import payloads.SkuPayloads._
+import payloads.VariantPayloads._
 import responses.ImageResponses.AlbumResponse
 import responses.ObjectResponses.ObjectContextResponse
 import responses.ProductResponses._
@@ -31,8 +32,9 @@ object ProductManager {
   def createProduct(contextName: String, payload: CreateProductPayload)(
       implicit ec: EC, db: DB): Result[IlluminatedFullProductResponse.Root] = {
 
-    val form   = ObjectForm.fromPayload(Product.kind, payload.attributes)
-    val shadow = ObjectShadow.fromPayload(payload.attributes)
+    val form            = ObjectForm.fromPayload(Product.kind, payload.attributes)
+    val shadow          = ObjectShadow.fromPayload(payload.attributes)
+    val variantPayloads = payload.variants.getOrElse(Seq.empty)
 
     (for {
       _       ← * <~ payload.validate
@@ -43,12 +45,17 @@ object ProductManager {
                                              shadowId = ins.shadow.id,
                                              commitId = ins.commit.id))
 
-      newSkus ← * <~ payload.skus.map(sku ⇒ findOrCreateSkuForProduct(product, context, sku))
+      skus ← * <~ payload.skus.map(sku ⇒ findOrCreateSkuForProduct(product, context, sku))
+      variants ← * <~ variantPayloads.map(variant ⇒
+                      findOrCreateVariantForProduct(product, context, variant))
     } yield
       IlluminatedFullProductResponse.build(
           p = IlluminatedProduct.illuminate(context, product, ins.form, ins.shadow),
-          skus = newSkus.map(newSku ⇒ IlluminatedSku.illuminate(context, newSku)),
-          variants = Seq.empty,
+          skus = skus.map(sku ⇒ IlluminatedSku.illuminate(context, sku)),
+          variants = variants.map {
+            case (fullVariant, values) ⇒
+              (IlluminatedVariant.illuminate(context, fullVariant), values)
+          },
           variantMap = Map.empty)).runTxn()
   }
 
@@ -67,6 +74,19 @@ object ProductManager {
                                              rightId = sku.shadow.id,
                                              linkType = ObjectLink.ProductSku))
     } yield sku
+  }
+
+  private def findOrCreateVariantForProduct(product: Product,
+                                            context: ObjectContext,
+                                            payload: VariantPayload)(implicit ec: EC, db: DB) = {
+
+    for {
+      variant ← * <~ VariantManager.updateOrCreateVariant(context, payload)
+      (fullVariant, _) = variant
+      _ ← * <~ ObjectLinks.create(ObjectLink(leftId = product.shadowId,
+                                             rightId = fullVariant.shadow.id,
+                                             linkType = ObjectLink.ProductVariant))
+    } yield variant
   }
 
   //
