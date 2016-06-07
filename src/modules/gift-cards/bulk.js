@@ -87,8 +87,7 @@ const changeGiftCardsState = (actions, codes, state) =>
 
 
 const { actions, reducer } = createStore({
-  entity: 'bulk',
-  scope: 'giftCards',
+  path: 'giftCards.bulk',
   actions: {
     cancelGiftCards,
     changeGiftCardsState,

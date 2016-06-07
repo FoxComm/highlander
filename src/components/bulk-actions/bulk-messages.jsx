@@ -23,7 +23,7 @@ const mapStateToProps = (state, {storePath}) => {
 };
 
 const mapDispatchToProps = (dispatch, {module}) => {
-  const {actions} = getStore('bulk', module);
+  const {actions} = getStore(`${module}.bulk`);
 
   return {
     bulkActions: bindActionCreators(actions, dispatch),

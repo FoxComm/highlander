@@ -4,7 +4,6 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 
 // helpers
-import { getStorePath } from '../../lib/store-utils';
 import { numberize } from '../../lib/text-utils';
 
 // components
@@ -14,8 +13,8 @@ import SaveCancel from '../common/save-cancel';
 import WatcherTypeahead from '../watcher-typeahead/watcher-typeahead';
 
 
-function mapStateToProps(state, { storePath, entity }) {
-  const path = getStorePath(storePath, entity, 'watchers', 'selectModal');
+function mapStateToProps(state, { storePath, entity: { entityType, entityId } }) {
+  const path = _.compact([storePath, entityType, 'watchers', entityId, 'selectModal']).join('.');
 
   const {
     displayed = false,

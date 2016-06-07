@@ -87,8 +87,7 @@ const changeStoreCreditsState = (actions, ids, state) =>
 
 
 const { actions, reducer } = createStore({
-  entity: 'bulk',
-  scope: 'customers.store-credits',
+  path: 'customers.storeCreditBulk',
   actions: {
     cancelStoreCredits,
     changeStoreCreditsState,

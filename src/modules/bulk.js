@@ -1,7 +1,12 @@
+/* @flow */
+
 // libs
 import _ from 'lodash';
 import Api from '../lib/api';
 import { pluralize } from 'fleck';
+
+import type { Store} from '../lib/store-creator';
+import createStore from '../lib/store-creator';
 
 export const initialState = {
   isFetching: false,
@@ -9,13 +14,13 @@ export const initialState = {
 };
 
 export const reducers = {
-  bulkRequest: (state) => {
+  bulkRequest: function (state: Object): Object {
     return {
       ...state,
       isFetching: true,
     };
   },
-  bulkDone: (state, [successes, errors]) => {
+  bulkDone: function (state: Object, [successes, errors]: Array<Object>): Object {
     return {
       ...state,
       isFetching: false,
@@ -23,38 +28,40 @@ export const reducers = {
       errors: _.isEmpty(errors) ? null : errors,
     };
   },
-  bulkError: (state, error) => {
+  bulkError: function (state: Object, error: Object): Object {
     return {
       ...state,
       error: error
     };
   },
-  clearError: state => {
+  clearError: function (state: Object): Object {
     return {
       ...state,
       error: null
     };
   },
-  setMessages: (state, messages) => {
+  setMessages: function (state: Object, messages: Object): Object {
     return {
       ...state,
       messages,
     };
   },
-  reset: () => {
+  reset: function(): Object {
     return {
       ...initialState,
     };
   },
-  clearSuccesses: (state) => {
+  clearSuccesses: function(state: Object): Object {
     return _.omit(state, 'successes');
   },
-  clearErrors: (state) => {
+  clearErrors: function (state: Object): Object {
     return _.omit(state, 'errors');
   },
 };
 
-export function getSuccesses(entityType, entityIds, bulkStatus) {
+type Ids = Array<string|number>;
+
+export function getSuccesses(entityType: string, entityIds: Ids, bulkStatus: string): Object {
   const bulkFailures = _.get(bulkStatus, `failures.${entityType}`, {});
 
   return entityIds
@@ -67,8 +74,8 @@ export function getSuccesses(entityType, entityIds, bulkStatus) {
     }, {});
 }
 
-export function toggleWatch(isDirectAction) {
-  return (actions, entityType, group, entityIds, watchers) => {
+export function toggleWatch(isDirectAction: bool): Function {
+  return function (actions: Object, entityType: string, group: string, entityIds: Ids, watchers: Ids): Function {
     const prefix = pluralize(entityType);
 
     return dispatch => {
@@ -101,4 +108,37 @@ export const bulkActions = {
   watch: toggleWatch(true),
   unwatch: toggleWatch(false),
 };
+
+function changeState(actions, ids, isActive) {
+  return dispatch => {
+    const successes = {
+      'id1': [],
+    };
+    const failures = {};
+    dispatch(actions.bulkDone(successes, failures));
+  };
+};
+
+function updateAttributes(actions, ids, form, shadow) {
+  return dispatch => {
+    const successes = {
+      'id1': [],
+    };
+    const failures = {};
+    dispatch(actions.bulkDone(successes, failures));
+  };
+};
+
+export default function makeBulkActions(path: string): Store {
+  return createStore({
+    path,
+    actions: {
+      changeState,
+      updateAttributes,
+      ...bulkActions,
+    },
+    reducers,
+    initialState,
+  });
+}
 

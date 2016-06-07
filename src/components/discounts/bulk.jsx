@@ -23,10 +23,10 @@ type Props = {
   children: Element;
 };
 
-const mapDispatchToProps = (dispatch: Function, props) => {
-  const module = `${props.entity}s`;
+const mapDispatchToProps = (dispatch: Function, { entity }) => {
+  const module = `${entity}s`;
 
-  const {actions} = getStore('bulk', module);
+  const {actions} = getStore(`${module}.bulk`);
   return {
     bulkActions: bindActionCreators(actions, dispatch),
   };

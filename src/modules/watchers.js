@@ -164,8 +164,7 @@ const reducers = {
 };
 
 export default entityType => createStore({
-  entity: 'watchers',
-  scope: entityType,
+  path: `${entityType}.watchers`,
   actions: {
     watch: watch(entityType),
     suggestWatchers: suggestWatchers(entityType),

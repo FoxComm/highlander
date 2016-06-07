@@ -5,7 +5,6 @@ import { connect } from 'react-redux';
 
 // helpers
 import { numberize } from '../../../lib/text-utils';
-import { getStorePath } from '../../../lib/store-utils';
 
 // components
 import modal from '../../modal/wrapper';
@@ -15,7 +14,7 @@ import SaveCancel from '../../common/save-cancel';
 
 
 const mapStateToProps = (state, {storePath, module}) => {
-  const path = getStorePath(storePath, module, 'watchers', 'list', 'selectModal', 'selected');
+  const path = _.compact([storePath, module, 'watchers.list.selectModal.selected']).join('.');
 
   return {
     selected: _.get(state, path, []).map(({id}) => id),

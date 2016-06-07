@@ -1,7 +1,7 @@
 
-import makeBulkActions from '../discounts';
+import makeBulkActions from '../bulk';
 
-const { actions, reducer } = makeBulkActions('coupon');
+const { actions, reducer } = makeBulkActions('coupons.bulk');
 
 export {
   actions,
