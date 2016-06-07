@@ -25,7 +25,6 @@ import styles from './form.css';
 import * as CouponActions from '../../modules/coupons/details';
 
 type CouponPageState = {
-  coupon: Object,
   promotionError: boolean,
 };
 
@@ -64,11 +63,10 @@ class CouponPage extends Component {
 
   componentWillReceiveProps(nextProps: CouponPageProps): void {
     const { isFetching } = nextProps;
-    console.log('componentWillReceiveProps');
 
     if (!isFetching) {
       const nextCoupon = nextProps.details.coupon;
-      if (!nextCoupon) return;
+      if (!nextCoupon || _.isEqual(nextCoupon, this.coupon)) return;
 
       if (this.isNew && nextCoupon.form.id) {
         this.props.dispatch(push(`/coupons/${nextCoupon.form.id}`));
@@ -76,7 +74,6 @@ class CouponPage extends Component {
       if (!this.isNew && !nextCoupon.form.id) {
         this.props.dispatch(push(`/coupons/new`));
       }
-      this.setState({ coupon: nextCoupon });
     }
   }
 
@@ -174,7 +171,6 @@ class CouponPage extends Component {
     if (!mayBeSaved) return;
 
     mayBeSaved.then(() => {
-      console.log('handleSelectSaving');
       switch (value) {
         case 'save_and_new':
           actions.couponsNew();
