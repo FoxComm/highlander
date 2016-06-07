@@ -13,7 +13,7 @@ import { getStore } from '../../lib/store-creator';
 import { SelectUsersModal } from './modal';
 
 const mapDispatchToProps = (dispatch, {module}) => {
-  const {actions} = getStore([module, 'bulk']);
+  const {actions} = getStore(`${module}.bulk`);
 
   return {
     bulkActions: bindActionCreators(actions, dispatch),

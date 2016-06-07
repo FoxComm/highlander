@@ -15,7 +15,7 @@ import WatcherTypeaheadItem from './watcher-typeahead-item';
 
 
 const mapStateToProps = (state, { storePath, entity: { entityType, entityId }, fieldName = 'watchers' }) => {
-  let path = _.filter([storePath, entityType, fieldName, entityId, 'selectModal']).join('.');
+  const path = _.filter([storePath, entityType, fieldName, entityId, 'selectModal']).join('.');
 
   const {
     term = null,
