@@ -22,21 +22,21 @@
 
 import * as endpoints from '../endpoints';
 
-// @method signup(user: String, password: String): Promise
+// @method signup(email: String, name: String, password: String): Promise
 // Register new user
-export function signup(user, password) {
-  return this.post(endpoints.signup, {user, password});
+export function signup(email, name, password) {
+  return this.post(endpoints.signup, {email, name, password});
 }
 
-// @method login(user: String, password: String, kind: String): Promise<LoginResponse>
+// @method login(email: String, password: String, kind: String): Promise<LoginResponse>
 // Authenticate user by username and password.
 // `kind` can be 'customer' or 'admin'
-export function login(user, password, kind) {
+export function login(email, password, kind) {
   let jwt = null;
 
   return this.post(
     endpoints.login,
-    {user, password, kind},
+    {email, password, kind},
     {
       credentials: 'same-origin'
     }

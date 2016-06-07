@@ -235,14 +235,14 @@ api.products.search({state: &#39;cart&#39;});
 	</tr>
 	</thead><tbody>
 	<tr id='foxapi-signup'>
-		<td><code><b>signup</b>(<nobr>&lt;String&gt;</nobr> <i>user</i>, <nobr>&lt;String&gt;</nobr> <i>password</i>)</nobr></code></td>
+		<td><code><b>signup</b>(<nobr>&lt;String&gt;</nobr> <i>email</i>, <nobr>&lt;String&gt;</nobr> <i>name</i>, <nobr>&lt;String&gt;</nobr> <i>password</i>)</nobr></code></td>
 		<td><code>Promise</code></td>
 		<td>Register new user</td>
 	</tr>
 	<tr id='foxapi-login'>
-		<td><code><b>login</b>(<nobr>&lt;String&gt;</nobr> <i>user</i>, <nobr>&lt;String&gt;</nobr> <i>password</i>, <nobr>&lt;String&gt;</nobr> <i>kind</i>)</nobr></code></td>
+		<td><code><b>login</b>(<nobr>&lt;String&gt;</nobr> <i>email</i>, <nobr>&lt;String&gt;</nobr> <i>password</i>, <nobr>&lt;String&gt;</nobr> <i>kind</i>)</nobr></code></td>
 		<td><code>Promise&lt;<a href='#loginresponse'>LoginResponse</a>&gt;</code></td>
-		<td>Authenticate user by username and password, returns promise with jwt token
+		<td>Authenticate user by username and password.
 <code>kind</code> can be &#39;customer&#39; or &#39;admin&#39;</td>
 	</tr>
 	<tr id='foxapi-googlesignin'>
