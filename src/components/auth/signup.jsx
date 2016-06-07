@@ -2,7 +2,7 @@
 
 import _ from 'lodash';
 import { each, get } from 'lodash';
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
 import styles from './auth.css';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';

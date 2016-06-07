@@ -1,7 +1,7 @@
 /* @flow */
 
 import _ from 'lodash';
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 import { browserHistory, Link } from 'react-router';
 import { connect } from 'react-redux';
