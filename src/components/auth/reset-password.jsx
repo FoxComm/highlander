@@ -126,7 +126,7 @@ export default class ResetPassword extends Component {
     ];
   }
 
-  goToLogin = () => {
+  goToLogin: Object = () => {
     browserHistory.push(this.props.changePath(authBlockTypes.LOGIN));
   };
 
