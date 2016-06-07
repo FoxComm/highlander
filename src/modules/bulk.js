@@ -1,8 +1,11 @@
+/* @flow */
+
 // libs
 import _ from 'lodash';
 import Api from '../lib/api';
 import { pluralize } from 'fleck';
 
+import type { Store} from '../lib/store-creator';
 import createStore from '../lib/store-creator';
 
 export const initialState = {
@@ -11,13 +14,13 @@ export const initialState = {
 };
 
 export const reducers = {
-  bulkRequest: (state) => {
+  bulkRequest: (state: Object): Object => {
     return {
       ...state,
       isFetching: true,
     };
   },
-  bulkDone: (state, [successes, errors]) => {
+  bulkDone: (state: Object, [successes, errors]: Array<Object>): Object => {
     return {
       ...state,
       isFetching: false,
@@ -25,38 +28,38 @@ export const reducers = {
       errors: _.isEmpty(errors) ? null : errors,
     };
   },
-  bulkError: (state, error) => {
+  bulkError: (state: Object, error: Object): Object => {
     return {
       ...state,
       error: error
     };
   },
-  clearError: state => {
+  clearError: (state: Object): Object => {
     return {
       ...state,
       error: null
     };
   },
-  setMessages: (state, messages) => {
+  setMessages: (state: Object, messages: Object): Object => {
     return {
       ...state,
       messages,
     };
   },
-  reset: () => {
+  reset: (): Object => {
     return {
       ...initialState,
     };
   },
-  clearSuccesses: (state) => {
+  clearSuccesses: (state: Object): Object => {
     return _.omit(state, 'successes');
   },
-  clearErrors: (state) => {
+  clearErrors: (state: Object): Object => {
     return _.omit(state, 'errors');
   },
 };
 
-export function getSuccesses(entityType, entityIds, bulkStatus) {
+export function getSuccesses(entityType: string, entityIds: Array<string|number>, bulkStatus: string): Object {
   const bulkFailures = _.get(bulkStatus, `failures.${entityType}`, {});
 
   return entityIds
@@ -69,8 +72,8 @@ export function getSuccesses(entityType, entityIds, bulkStatus) {
     }, {});
 }
 
-export function toggleWatch(isDirectAction) {
-  return (actions, entityType, group, entityIds, watchers) => {
+export function toggleWatch(isDirectAction: bool): Function {
+  return (actions: Object, entityType: string, group: string, entityIds: Array<string|number>, watchers: Array<string|number>): Function => {
     const prefix = pluralize(entityType);
 
     return dispatch => {
@@ -124,7 +127,7 @@ const updateAttributes = (actions, ids, form, shadow) => {
   };
 };
 
-export default function makeBulkActions(path) {
+export default function makeBulkActions(path: string): Store {
   return createStore({
     path,
     actions: {

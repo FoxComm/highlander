@@ -6,7 +6,7 @@ import { createAction, createReducer } from 'redux-act';
 
 
 // type declarations
-type Store = {
+export type Store = {
   actions: { [key: string]: Function};
   reducer: Function;
 };
