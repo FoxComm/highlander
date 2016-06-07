@@ -121,6 +121,18 @@ object ProductRoutes {
             goodOrFailures {
               ProductManager.createProduct(context, payload)
             }
+          } ~
+          pathPrefix(IntNumber) { productId ⇒
+            (get & pathEnd) {
+              goodOrFailures {
+                ProductManager.getProduct(context, productId)
+              }
+            } ~
+            (patch & pathEnd & entity(as[UpdateProductPayload])) { payload ⇒
+              goodOrFailures {
+                ProductManager.updateProduct(context, productId, payload)
+              }
+            }
           }
         }
       }
