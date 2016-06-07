@@ -9,6 +9,7 @@ import { connect } from 'react-redux';
 import { browserHistory, Link } from 'react-router';
 
 import localized from 'lib/i18n';
+import type { Localized } from 'lib/i18n';
 
 import { TextInput, TextInputWithLabel } from 'ui/inputs';
 import { FormField, Form } from 'ui/forms';
@@ -29,19 +30,16 @@ type AuthState = {
   emailError: bool|string,
 };
 
-type Props = {
+type Props = Localized & {
   changePath: Function,
+  isLoading: boolean,
 };
 
 const mapState = state => ({
   isLoading: _.get(state.asyncActions, ['auth-signup', 'inProgress'], false),
 });
 
-/* ::`*/
-@connect(mapState, actions)
-@localized
-/* ::`*/
-export default class Auth extends Component {
+class Signup extends Component {
   props: Props;
 
   state: AuthState = {
@@ -157,3 +155,5 @@ export default class Auth extends Component {
     );
   }
 }
+
+export default connect(mapState, actions)(localized(Signup));

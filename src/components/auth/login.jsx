@@ -20,7 +20,7 @@ import { fetch as fetchCart } from 'modules/cart';
 import type { HTMLElement } from 'types';
 
 import localized from 'lib/i18n';
-
+import type { Localized } from 'lib/i18n';
 
 type AuthState = {
   email: string,
@@ -28,19 +28,18 @@ type AuthState = {
   error: ?string,
 };
 
-type Props = {
+type Props = Localized & {
   changePath: Function,
+  isLoading: boolean,
+  authenticate: Function,
+  fetchCart: Function,
 };
 
 const mapState = state => ({
   isLoading: _.get(state.asyncActions, ['auth-login', 'inProgress'], false),
 });
 
-/* ::`*/
-@connect(mapState, { ...actions, fetchCart })
-@localized
-/* ::`*/
-export default class Login extends Component {
+class Login extends Component {
   props: Props;
 
   state: AuthState = {
@@ -140,3 +139,8 @@ export default class Login extends Component {
     );
   }
 }
+
+export default connect(mapState, {
+  ...actions,
+  fetchCart,
+})(localized(Login));

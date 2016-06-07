@@ -113,7 +113,7 @@ export default class RestorePassword extends Component {
     );
   }
 
-  goToLogin = () => {
+  goToLogin: Object = () => {
     browserHistory.push(this.props.changePath(authBlockTypes.LOGIN));
   };
 

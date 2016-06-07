@@ -1,4 +1,5 @@
-/* @flow */
+/* @flow  */
+
 import React, { Component } from 'react';
 import { Link } from 'react-router';
 import { authBlockTypes } from 'paragons/auth';
@@ -42,7 +43,7 @@ class Auth extends Component {
   }
 
   @autobind
-  changePath(newType) {
+  changePath(newType: string): Object {
     return assoc(this.props.path, ['query', 'auth'], newType);
   }
 
