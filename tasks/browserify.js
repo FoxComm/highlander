@@ -1,5 +1,6 @@
 'use strict';
 
+const _ = require('lodash');
 const fs = require('fs');
 const path = require('path');
 const browserify = require('browserify');
@@ -15,6 +16,8 @@ const plugins = require('../src/postcss').plugins;
 function setApiURL() {
   process.env.API_URL = process.env.API_URL || '/api';
 }
+
+process.env.NODE_PATH = `${process.env.NODE_PATH}:${path.resolve('./src/app')}`;
 
 function setDemoAuthToken() {
   /*  The demo site is protected by basic auth. All requests from javascript
@@ -45,19 +48,13 @@ module.exports = function(gulp, $, opts) {
   // configure default env variables before browserify
   require('../server/env_defaults');
 
-  // please use this options for every transform since we have nested node_modules in project
-  const pleaseDontIgnoreNestedNodeModules = {
-    global: true,
-    ignore: new RegExp(path.join(process.cwd(), 'node_modules')),
-  };
-
   function getBundler() {
     if (bundler) return bundler;
 
     bundler = browserify(Object.assign({
       entries: ['src/client.jsx'],
       transform: [
-        ['babelify', pleaseDontIgnoreNestedNodeModules],
+        'babelify',
       ],
       standalone: 'App',
       extensions: ['.jsx'],
@@ -69,13 +66,13 @@ module.exports = function(gulp, $, opts) {
       FIREBIRD_LANGUAGE: process.env.FIREBIRD_LANGUAGE,
       FIREBIRD_CONTEXT: process.env.FIREBIRD_CONTEXT,
       API_URL: process.env.API_URL,
-    }), pleaseDontIgnoreNestedNodeModules);
+    }));
 
     bundler.plugin(require('css-modulesify'), Object.assign({
       output: path.resolve('build/bundle.css'),
       use: plugins,
       jsonOutput: 'build/css-modules.json',
-    }, pleaseDontIgnoreNestedNodeModules));
+    }));
 
     if (opts.devMode) {
       let watchifyOpts = {

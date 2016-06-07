@@ -1,9 +1,9 @@
 
 const path = require('path');
 
-require('babel-register')({
-  ignore: path.join(process.cwd(), 'node_modules'),
-});
+process.env.NODE_PATH = `${process.env.NODE_PATH}:${path.resolve('./src/app')}`;
+
+require('babel-register')();
 require('../src/postcss').installHook();
 require('./env_defaults');
 
