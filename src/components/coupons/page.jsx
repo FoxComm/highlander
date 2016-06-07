@@ -51,7 +51,6 @@ class CouponPage extends Component {
   props: CouponPageProps;
 
   state: CouponPageState = {
-    coupon: this.props.details.coupon,
     promotionError: false,
   };
 
@@ -65,6 +64,7 @@ class CouponPage extends Component {
 
   componentWillReceiveProps(nextProps: CouponPageProps): void {
     const { isFetching } = nextProps;
+    console.log('componentWillReceiveProps');
 
     if (!isFetching) {
       const nextCoupon = nextProps.details.coupon;
@@ -105,17 +105,21 @@ class CouponPage extends Component {
     return _.get(this.props, 'details.selectedPromotions', []);
   }
 
+  get coupon(): Object {
+    return this.props.details.coupon;
+  }
+
   save(): ?Promise {
     let willBeCoupon = Promise.resolve();
 
-    if (!_.isNumber(this.state.coupon.promotion)) {
+    const coupon = this.coupon;
+
+    if (!_.isNumber(coupon.promotion)) {
       this.setState({promotionError: true});
       return null;
     }
 
-    if (this.state.coupon) {
-      const { coupon } = this.state;
-
+    if (coupon) {
       if (this.isNew) {
         willBeCoupon = this.props.actions.createCoupon(coupon);
       } else {
@@ -126,8 +130,7 @@ class CouponPage extends Component {
 
       if (bulk === false && singleCode != undefined) {
         willBeCoupon.then(() => {
-          const couponId = this.state.coupon.id;
-          this.props.actions.generateCode(couponId, singleCode);
+          return this.props.actions.generateCode(coupon.id, singleCode);
         }).then(() => {
           this.props.actions.couponsGenerationReset();
         });
@@ -135,7 +138,7 @@ class CouponPage extends Component {
 
       if (bulk === true && this.props.actions.codeIsOfValidLength()) {
         willBeCoupon.then(() => {
-          this.props.actions.couponsGenerationShowDialog();
+          return this.props.actions.couponsGenerationShowDialog();
         });
       }
     }
@@ -171,6 +174,7 @@ class CouponPage extends Component {
     if (!mayBeSaved) return;
 
     mayBeSaved.then(() => {
+      console.log('handleSelectSaving');
       switch (value) {
         case 'save_and_new':
           actions.couponsNew();
@@ -187,17 +191,19 @@ class CouponPage extends Component {
 
   @autobind
   handleSave(): ?Promise {
-    if (!_.isNumber(this.state.coupon.promotion)) {
+    const coupon = this.coupon;
+    if (!_.isNumber(coupon.promotion)) {
       this.setState({promotionError: true});
       return null;
     }
 
-    return this.props.actions.createCoupon(this.state.coupon);
+    return this.props.actions.createCoupon(coupon);
   }
 
   render(): Element {
     const props = this.props;
-    const { coupon, promotionError } = this.state;
+    const coupon = this.coupon;
+    const { promotionError } = this.state;
     const { codeGeneration, actions } = props;
 
     if (props.isFetching !== false && !coupon) {
