@@ -64,6 +64,14 @@
   copy: src=materialized_views.service dest="{{dest_services}}/materialized_views.service"
   sudo: true
 
+- name: Setup cron files for refresh customers ranking view
+  template: src=refresh_customer_ranks.sh dest="{{usr_local}}/bin/refresh_customer_ranks.sh" mode="u+x,g+x,o+x"
+  sudo: true
+
+- name: Setup cron files for refresh products catalog view
+  template: src=refresh_products_catalog.sh dest="{{usr_local}}/bin/refresh_products_catalog.sh" mode="u+x,g+x,o+x"
+  sudo: true
+
 - name: Clean Db
   shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} clean
   args:
@@ -79,6 +87,14 @@
   sudo: true
   args:
     chdir: "{{phoenix_dir}}"
+
+- name: Setup cron for refresh customers ranking view
+  cron: name="refresh customer ranking" minute="*/5" job="{{usr_local}}/bin/refresh_customer_ranks.sh > /dev/null"
+  sudo: true
+
+- name: Setup cron for refresh products catalog view
+  cron: name="refresh customer ranking" minute="*" job="{{usr_local}}/bin/refresh_products_catalog.sh > /dev/null"
+  sudo: true
 
 - name: Reload Systemd for Materilized Views
   sudo: yes
