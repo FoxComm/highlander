@@ -100,12 +100,10 @@ _Note:_ OpenJDK has been known to cause issues in Ubuntu with Scala. Make sure t
 
 ### Useful Commands  
 
-- `make resetdb`: resets the database (drops and reruns migrations)
 - `sbt '~re-start'`: reloads the application automatically on code changes
 - `sbt seed`: execute the seeds
 - `sbt test`: run all of the unit and integration tests
 - `sbt '~test:compile`: re-compiles the application automatically on code changes
-
 
 ### Auth
 
