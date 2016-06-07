@@ -26,4 +26,6 @@ object SkuPayloads {
 
   // New payloads
   case class CreateSkuPayload(code: String, attributes: Map[String, Json])
+
+  case class UpdateSkuPayload(attributes: Map[String, Json])
 }

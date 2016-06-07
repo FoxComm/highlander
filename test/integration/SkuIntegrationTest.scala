@@ -8,8 +8,8 @@ import models.inventory.{Sku, Skus}
 import models.objects.{ObjectCommit, ObjectCommits, ObjectContexts, ObjectForms, ObjectShadows}
 import models.product.{SimpleContext, SimpleSku, SimpleSkuShadow}
 import org.json4s.JsonDSL._
-import payloads.SkuPayloads.CreateSkuPayload
-import responses.SkuResponses.FullSkuResponse
+import payloads.SkuPayloads.{CreateSkuPayload, UpdateSkuPayload}
+import responses.SkuResponses.{FullSkuResponse, IlluminatedSkuResponse}
 import util.IntegrationTestBase
 import utils.Money.Currency
 import utils.db._
@@ -25,8 +25,43 @@ class SkuIntegrationTest extends IntegrationTestBase with HttpSupport with Autom
       val payload    = CreateSkuPayload("SKU-NEW-TEST", attrMap)
 
       val response = POST(s"v1/skus/${context.name}", payload)
-      println(response)
       response.status must ===(StatusCodes.OK)
+    }
+  }
+
+  "GET v1/skus/:context/:code" - {
+    "Get a created SKU successfully" in new Fixture {
+      val response = GET(s"v1/skus/${context.name}/${sku.code}")
+      response.status must ===(StatusCodes.OK)
+
+      val skuResponse = response.as[IlluminatedSkuResponse.Root]
+      skuResponse.code must ===(sku.code)
+
+      val salePrice = skuResponse.attributes \ "salePrice" \ "v" \ "value"
+      salePrice.extract[Int] must ===(9999)
+    }
+
+    "Throws a 404 if given an invalid code" in new Fixture {
+      val response = GET(s"v1/skus/${context.name}/INVALID-CODE")
+      response.status must ===(StatusCodes.NotFound)
+    }
+  }
+
+  "PATCH v1/skus/:context/:code" - {
+    "Adds a new attribute to the SKU" in new Fixture {
+      val updatePayload =
+        UpdateSkuPayload(attributes = Map("name" → (("t" → "string") ~ ("v" → "Test"))))
+
+      val response = PATCH(s"v1/skus/${context.name}/${sku.code}", updatePayload)
+      response.status must ===(StatusCodes.OK)
+
+      val skuResponse = response.as[IlluminatedSkuResponse.Root]
+      skuResponse.code must ===(sku.code)
+
+      val name = skuResponse.attributes \ "name" \ "v"
+      name.extract[String] must ===("Test")
+      val salePrice = skuResponse.attributes \ "salePrice" \ "v" \ "value"
+      salePrice.extract[Int] must ===(9999)
     }
   }
 

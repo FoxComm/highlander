@@ -33,6 +33,25 @@ object SkuManager {
     } yield IlluminatedSkuResponse.build(IlluminatedSku.illuminate(context, sku))).runTxn()
   }
 
+  def getSku(contextName: String, code: String)(
+      implicit ec: EC, db: DB): Result[IlluminatedSkuResponse.Root] =
+    (for {
+      context ← * <~ ObjectManager.mustFindByName404(contextName)
+      sku     ← * <~ SkuManager.mustFindSkuByContextAndCode(context.id, code)
+      form    ← * <~ ObjectForms.mustFindById404(sku.formId)
+      shadow  ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
+    } yield
+      IlluminatedSkuResponse.build(
+          IlluminatedSku.illuminate(context, FullObject(sku, form, shadow)))).run()
+
+  def updateSku(contextName: String, code: String, payload: UpdateSkuPayload)(
+      implicit ec: EC, db: DB): Result[IlluminatedSkuResponse.Root] =
+    (for {
+      context    ← * <~ ObjectManager.mustFindByName404(contextName)
+      sku        ← * <~ SkuManager.mustFindSkuByContextAndCode(context.id, code)
+      updatedSku ← * <~ updateSkuInner(sku, payload.attributes)
+    } yield IlluminatedSkuResponse.build(IlluminatedSku.illuminate(context, updatedSku))).runTxn()
+
   def createSkuInner(context: ObjectContext, payload: CreateSkuPayload)(
       implicit ec: EC, db: DB): DbResultT[FullObject[Sku]] = {
 
