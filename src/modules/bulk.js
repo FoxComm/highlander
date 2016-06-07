@@ -14,13 +14,13 @@ export const initialState = {
 };
 
 export const reducers = {
-  bulkRequest: (state: Object): Object => {
+  bulkRequest: function (state: Object): Object {
     return {
       ...state,
       isFetching: true,
     };
   },
-  bulkDone: (state: Object, [successes, errors]: Array<Object>): Object => {
+  bulkDone: function (state: Object, [successes, errors]: Array<Object>): Object {
     return {
       ...state,
       isFetching: false,
@@ -28,38 +28,40 @@ export const reducers = {
       errors: _.isEmpty(errors) ? null : errors,
     };
   },
-  bulkError: (state: Object, error: Object): Object => {
+  bulkError: function (state: Object, error: Object): Object {
     return {
       ...state,
       error: error
     };
   },
-  clearError: (state: Object): Object => {
+  clearError: function (state: Object): Object {
     return {
       ...state,
       error: null
     };
   },
-  setMessages: (state: Object, messages: Object): Object => {
+  setMessages: function (state: Object, messages: Object): Object {
     return {
       ...state,
       messages,
     };
   },
-  reset: (): Object => {
+  reset: function(): Object {
     return {
       ...initialState,
     };
   },
-  clearSuccesses: (state: Object): Object => {
+  clearSuccesses: function(state: Object): Object {
     return _.omit(state, 'successes');
   },
-  clearErrors: (state: Object): Object => {
+  clearErrors: function (state: Object): Object {
     return _.omit(state, 'errors');
   },
 };
 
-export function getSuccesses(entityType: string, entityIds: Array<string|number>, bulkStatus: string): Object {
+type Ids = Array<string|number>;
+
+export function getSuccesses(entityType: string, entityIds: Ids, bulkStatus: string): Object {
   const bulkFailures = _.get(bulkStatus, `failures.${entityType}`, {});
 
   return entityIds
@@ -73,7 +75,7 @@ export function getSuccesses(entityType: string, entityIds: Array<string|number>
 }
 
 export function toggleWatch(isDirectAction: bool): Function {
-  return (actions: Object, entityType: string, group: string, entityIds: Array<string|number>, watchers: Array<string|number>): Function => {
+  return function (actions: Object, entityType: string, group: string, entityIds: Ids, watchers: Ids): Function {
     const prefix = pluralize(entityType);
 
     return dispatch => {
@@ -107,7 +109,7 @@ export const bulkActions = {
   unwatch: toggleWatch(false),
 };
 
-const changeState = (actions, ids, isActive) => {
+function changeState(actions, ids, isActive) {
   return dispatch => {
     const successes = {
       'id1': [],
@@ -117,7 +119,7 @@ const changeState = (actions, ids, isActive) => {
   };
 };
 
-const updateAttributes = (actions, ids, form, shadow) => {
+function updateAttributes(actions, ids, form, shadow) {
   return dispatch => {
     const successes = {
       'id1': [],
