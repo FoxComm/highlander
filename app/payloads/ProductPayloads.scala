@@ -52,4 +52,8 @@ object ProductPayloads {
       }
     }
   }
+
+  case class UpdateProductPayload(attributes: Map[String, Json],
+                                  skus: Option[Seq[CreateSkuPayload]],
+                                  variants: Option[Seq[VariantPayload]])
 }

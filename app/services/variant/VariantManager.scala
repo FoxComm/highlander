@@ -253,8 +253,8 @@ object VariantManager {
                  .mustFindOneOr(VariantNotFoundForContext(formId, contextId))
     } yield variant
 
-  private def mustFindVariantByContextAndShadow(contextId: Int, shadowId: Int)(
-      implicit ec: EC): DbResultT[FullObject[Variant]] =
+  def mustFindVariantByContextAndShadow(
+      contextId: Int, shadowId: Int)(implicit ec: EC): DbResultT[FullObject[Variant]] =
     for {
       shadow ← * <~ ObjectManager.mustFindShadowById404(shadowId)
       form   ← * <~ ObjectManager.mustFindFormById404(shadow.formId)
