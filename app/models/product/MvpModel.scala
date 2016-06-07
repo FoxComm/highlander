@@ -302,7 +302,7 @@ object Mvp {
                                              rightId = shadow.id,
                                              linkType = ObjectLink.ProductVariant))
     } yield
-      SimpleVariantData(variantId = variant.id,
+      SimpleVariantData(variantId = variant.formId,
                         productShadowId = productShadowId,
                         shadowId = shadow.id,
                         name = v.name)

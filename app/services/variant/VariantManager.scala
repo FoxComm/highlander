@@ -20,9 +20,38 @@ object VariantManager {
   def createVariant(contextName: String, payload: VariantPayload)(
       implicit ec: EC, db: DB): Result[IlluminatedVariantResponse.Root] =
     (for {
-
       context     ← * <~ ObjectManager.mustFindByName404(contextName)
       fullVariant ← * <~ createVariantInner(context, payload)
+      (variant, values) = fullVariant
+    } yield
+      IlluminatedVariantResponse.build(
+          v = IlluminatedVariant.illuminate(context, variant),
+          vs = values
+      )).runTxn()
+
+  def getVariant(contextName: String, variantId: Int)(
+      implicit ec: EC, db: DB): Result[IlluminatedVariantResponse.Root] =
+    (for {
+      context ← * <~ ObjectManager.mustFindByName404(contextName)
+      variant ← * <~ mustFindVariantByContextAndForm(context.id, variantId)
+      form    ← * <~ ObjectForms.mustFindById404(variant.formId)
+      shadow  ← * <~ ObjectShadows.mustFindById404(variant.shadowId)
+      fullVariant = FullObject(variant, form, shadow)
+
+      links ← * <~ ObjectLinks.findByLeftAndType(shadow.id, ObjectLink.VariantValue).result
+      values ← * <~ links.map(link ⇒
+                    mustFindVariantValueByContextAndShadow(context.id, link.rightId))
+    } yield
+      IlluminatedVariantResponse.build(
+          v = IlluminatedVariant.illuminate(context, fullVariant),
+          vs = values
+      )).run()
+
+  def updateVariant(contextName: String, variantId: Int, payload: VariantPayload)(
+      implicit ec: EC, db: DB): Result[IlluminatedVariantResponse.Root] =
+    (for {
+      context     ← * <~ ObjectManager.mustFindByName404(contextName)
+      fullVariant ← * <~ updateVariantInner(context, variantId, payload)
       (variant, values) = fullVariant
     } yield
       IlluminatedVariantResponse.build(
@@ -66,7 +95,21 @@ object VariantManager {
       commit      ← * <~ ObjectUtils.commit(updated)
       updatedHead ← * <~ updateHead(variant, updated.shadow, commit)
 
-      values ← * <~ valuePayloads.map(pay ⇒ updateOrCreateVariantValue(updatedHead, context, pay))
+      _ ← * <~ valuePayloads.map(pay ⇒ updateOrCreateVariantValue(updatedHead, context, pay))
+
+      _ ← * <~ ObjectUtils.updateAssociatedLefts(
+             Products, context.id, oldShadow.id, updatedHead.shadowId, ObjectLink.ProductVariant)
+      _ ← * <~ ObjectUtils.updateAssociatedRights(VariantValues,
+                                                  context.id,
+                                                  oldShadow.id,
+                                                  updatedHead.shadowId,
+                                                  ObjectLink.VariantValue)
+
+      links ← * <~ ObjectLinks
+               .findByLeftAndType(updatedHead.shadowId, ObjectLink.VariantValue)
+               .result
+      values ← * <~ links.map(link ⇒
+                    mustFindVariantValueByContextAndShadow(context.id, link.rightId))
     } yield (FullObject(updatedHead, updated.form, updated.shadow), values)
   }
 

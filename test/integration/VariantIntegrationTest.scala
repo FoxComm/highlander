@@ -4,11 +4,12 @@ import akka.http.scaladsl.model.StatusCodes
 import Extensions._
 import failures.ObjectFailures.ObjectContextNotFound
 import models.objects.ObjectContexts
-import models.product.SimpleContext
+import models.product._
 import org.json4s.JsonDSL._
 import payloads.VariantPayloads._
 import responses.VariantResponses.IlluminatedVariantResponse
 import responses.VariantValueResponses.IlluminatedVariantValueResponse
+import services.product.ProductManager
 import util.IntegrationTestBase
 import utils.db._
 import utils.db.DbResultT._
@@ -42,6 +43,46 @@ class VariantIntegrationTest extends IntegrationTestBase with HttpSupport with A
     }
   }
 
+  "GET v1/variants/:context/:id" - {
+    "Gets a created variant successfully" in new VariantFixture {
+      val response = GET(s"v1/variants/${context.name}/${variant.variant.variantId}")
+      response.status must ===(StatusCodes.OK)
+
+      val variantResponse = response.as[IlluminatedVariantResponse.Root]
+      variantResponse.values.length must ===(2)
+
+      val name = variantResponse.attributes \ "name" \ "v"
+      name.extract[String] must ===("Size")
+
+      val names = variantResponse.values.map(_.name).toSet
+      names must ===(Set("Small", "Large"))
+    }
+
+    "Throws a 404 if given an invalid id" in new Fixture {
+      val response = GET(s"v1/variants/${context.name}/123")
+      response.status must ===(StatusCodes.NotFound)
+    }
+  }
+
+  "PATCH v1/variants/:context/:id" - {
+    "Updates the name of the variant successfully" in new VariantFixture {
+      val payload = VariantPayload(
+          attributes = Map("name" → (("t" → "wtring") ~ ("v" → "New Size"))), values = None)
+      val response = PATCH(s"v1/variants/${context.name}/${variant.variant.variantId}", payload)
+
+      response.status must ===(StatusCodes.OK)
+
+      val variantResponse = response.as[IlluminatedVariantResponse.Root]
+      variantResponse.values.length must ===(2)
+
+      val name = variantResponse.attributes \ "name" \ "v"
+      name.extract[String] must ===("New Size")
+
+      val names = variantResponse.values.map(_.name).toSet
+      names must ===(Set("Small", "Large"))
+    }
+  }
+
   "POST v1/variants/:context/:id/values" - {
     "Creates a variant value successfully" in new Fixture {
       val response = POST(s"v1/variants/${context.name}", createVariantPayload)
@@ -68,5 +109,24 @@ class VariantIntegrationTest extends IntegrationTestBase with HttpSupport with A
                  .filterByName(SimpleContext.default)
                  .mustFindOneOr(ObjectContextNotFound(SimpleContext.default))
     } yield context).runTxn().futureValue.rightVal
+  }
+
+  trait VariantFixture extends Fixture {
+    val simpleProd = SimpleProductData(title = "Test Product",
+                                       code = "TEST",
+                                       description = "Test product description",
+                                       image = "image.png",
+                                       price = 5999)
+
+    val simpleSizeVariant = SimpleCompleteVariant(
+        variant = SimpleVariant("Size"),
+        variantValues = Seq(SimpleVariantValue("Small", ""), SimpleVariantValue("Large", "")))
+
+    val (product, variant) = (for {
+      productData ← * <~ Mvp.insertProduct(context.id, simpleProd)
+      product ← * <~ ProductManager.mustFindProductByContextAndId404(context.id,
+                                                                     productData.productId)
+      variant ← * <~ Mvp.insertVariantWithValues(context.id, product.shadowId, simpleSizeVariant)
+    } yield (product, variant)).run().futureValue.rightVal
   }
 }

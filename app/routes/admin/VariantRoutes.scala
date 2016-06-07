@@ -25,6 +25,16 @@ object VariantRoutes {
             }
           } ~
           pathPrefix(IntNumber) { variantId ⇒
+            (get & pathEnd) {
+              goodOrFailures {
+                VariantManager.getVariant(context, variantId)
+              }
+            } ~
+            (patch & pathEnd & entity(as[VariantPayload])) { payload ⇒
+              goodOrFailures {
+                VariantManager.updateVariant(context, variantId, payload)
+              }
+            } ~
             pathPrefix("values") {
               (post & pathEnd & entity(as[VariantValuePayload])) { payload ⇒
                 goodOrFailures {
