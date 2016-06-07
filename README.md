@@ -72,32 +72,6 @@ Phoenix can be run in development by running either running the application nati
     brew install postgresql
     ```
 
-### Dependencies on Ubuntu
-
-We use Ubuntu 14.04 (Trusty) as the base of our Vagrant image. For details about how to set this up on local Ubuntu, check out the provisioning script: [provision.sh](https://github.com/FoxComm/phoenix-scala/blob/master/vagrant/provision.sh).
-
-_Note:_ OpenJDK has been known to cause issues in Ubuntu with Scala. Make sure to use the Oracle JDK.
-
-### Setup
-
-1. Setup the database
-
-    ```bash
-    make configure
-    ```
-2. Run SBT and verify that the application compiles
-
-    ```bash
-    sbt compile
-    ```
-
-3. If you plan on running the local development server, execute the seeds and start the server
-
-    ```bash
-    sbt seed
-    sbt '~re-start'
-    ```
-
 ### Useful Commands  
 
 - `sbt '~re-start'`: reloads the application automatically on code changes
