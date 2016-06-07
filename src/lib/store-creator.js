@@ -1,14 +1,38 @@
+/* @flow */
+
 // libs
 import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
 
 
-//created stores storage
-const STORES = {};
+// type declarations
+type Store = {
+  actions: { [key: string]: Function};
+  reducer: Function;
+};
 
-function saveStore(path, store) {
+type StoresHash = {
+  [key: string]: Store;
+};
+
+type FunctionsHash = {
+  [key: string]: Function;
+};
+
+type CreatorConfiguration = {
+  path: any;
+  actions: FunctionsHash;
+  reducers: FunctionsHash;
+  initialState: Object;
+};
+
+
+//created stores storage
+const STORES : StoresHash = {};
+
+function saveStore(path: string, store: Object): Object {
   if (getStore(path)) {
-    throw new TypeError(`Store ${entity}:${scope} already exists`);
+    throw new TypeError(`Store ${path} already exists`);
   }
 
   _.set(STORES, path, store);
@@ -16,16 +40,16 @@ function saveStore(path, store) {
   return store;
 }
 
-export function getStore(path) {
+export function getStore(path: string): Object {
   return _.get(STORES, path, null);
 }
 
 
-function getActionDescription(path, name) {
+function getActionDescription(path: Array<string>, name: string): string {
   return _.snakeCase(`${path.join(' ')} ${name}`).toUpperCase();
 }
 
-function payloadReducer(...args) {
+function payloadReducer(...args: Array<any>): Array<any> {
   if (args.length > 1) {
     return [...args];
   }
@@ -57,7 +81,7 @@ function payloadReducer(...args) {
  * Reducer, respectively, is created with all plain actions
  * @param {Object}  [initialState]  initial state for reducer, passed as is
  */
-export default function createStore({path, actions, reducers, initialState = {}}) {
+export default function createStore({path, actions, reducers, initialState = {}}: CreatorConfiguration): Store {
   if (_.isArray(path)) {
     path = path.reduce((memo, value) => [...memo, ...value.split('.')], []);
   } else {
