@@ -207,9 +207,13 @@ object StoreCredits extends FoxTableQuery[StoreCredit, StoreCredits](new StoreCr
           amount = amount,
           state = Adj.Auth)
 
-  def authOrderPayment(storeCredit: StoreCredit, pmt: OrderPayment)(
-      implicit ec: EC): DbResult[StoreCreditAdjustment] =
-    auth(storeCredit = storeCredit, orderPaymentId = pmt.id.some, amount = pmt.amount.getOrElse(0))
+  def authOrderPayment(
+      storeCredit: StoreCredit, pmt: OrderPayment, maxPaymentAmount: Option[Int] = None)(
+      implicit ec: EC): DbResult[StoreCreditAdjustment] = {
+    val paymentAmount = pmt.amount.getOrElse(0)
+    val debit         = maxPaymentAmount.map(_.min(paymentAmount)).getOrElse(paymentAmount)
+    auth(storeCredit = storeCredit, orderPaymentId = pmt.id.some, amount = debit)
+  }
 
   def capture(storeCredit: StoreCredit, orderPaymentId: Option[Int], amount: Int = 0)(
       implicit ec: EC): DbResult[StoreCreditAdjustment] =

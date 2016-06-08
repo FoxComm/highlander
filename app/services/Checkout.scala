@@ -144,38 +144,56 @@ case class Checkout(cart: Order, cartValidator: CartValidation)(
          }
     } yield {}
 
-  private def authPayments(customer: Customer): DbResult[Unit] =
-    (for {
+  private def authPayments(customer: Customer): DbResultT[Unit] =
+    for {
       // Authorize GC payments
-      gcPayments ← OrderPayments.findAllGiftCardsByOrderId(cart.id).result
-      giftCards  ← authInternalPaymentMethod(gcPayments)(GiftCards.authOrderPayment)
+      gcPayments ← * <~ OrderPayments.findAllGiftCardsByOrderId(cart.id).result
+      giftCards ← * <~ authInternalPaymentMethod(
+                     gcPayments, cart.grandTotal, GiftCards.authOrderPayment)
+      gcAdjs = giftCards.map(_.getAmount.abs).sum
+
       // Authorize SC payments
-      scPayments   ← OrderPayments.findAllStoreCreditsByOrderId(cart.id).result
-      storeCredits ← authInternalPaymentMethod(scPayments)(StoreCredits.authOrderPayment)
+      scPayments ← * <~ OrderPayments.findAllStoreCreditsByOrderId(cart.id).result
+      storeCredits ← * <~ authInternalPaymentMethod(
+                        scPayments, cart.grandTotal - gcAdjs, StoreCredits.authOrderPayment)
+      scAdjs = storeCredits.map(_.getAmount.abs).sum
+
       // Log activities
       gcCodes = gcPayments.map { case (_, gc) ⇒ gc.code }.distinct
       scIds   = scPayments.map { case (_, sc) ⇒ sc.id }.distinct
-      gcAdjs  = giftCards.getOrElse(List.empty).foldLeft(0)(_ + _.getAmount.abs)
-      scAdjs  = storeCredits.getOrElse(List.empty).foldLeft(0)(_ + _.getAmount.abs)
-      _ ← if (gcAdjs > 0) LogActivity.gcFundsAuthorized(customer, cart, gcCodes, gcAdjs)
-         else DbResult.unit
-      _ ← if (scAdjs > 0) LogActivity.scFundsAuthorized(customer, cart, scIds, scAdjs)
-         else DbResult.unit
-      // Authorize funds on credit card
-      ccs ← authCreditCard(orderTotal = cart.grandTotal, internalPaymentTotal = gcAdjs + scAdjs)
-    } yield (giftCards, storeCredits)).map {
-      case (gc, sc) ⇒
-        // not-so-easy-way to combine error messages from both Xors
-        gc.map(_ ⇒ {}).combine(sc.map(_ ⇒ {}))
-    }
 
-  private def authInternalPaymentMethod[M, Adj](results: Seq[(OrderPayment, M)])(
-      auth: (M, OrderPayment) ⇒ DbResult[Adj]): DbResult[Seq[Adj]] = {
-    if (results.isEmpty)
-      DbResult.good(List.empty[Adj])
+      _ ← * <~ (if (gcAdjs > 0) LogActivity.gcFundsAuthorized(customer, cart, gcCodes, gcAdjs)
+                else DbResult.unit)
+      _ ← * <~ (if (scAdjs > 0) LogActivity.scFundsAuthorized(customer, cart, scIds, scAdjs)
+                else DbResult.unit)
+
+      // Authorize funds on credit card
+      ccs ← * <~ authCreditCard(cart.grandTotal, gcAdjs + scAdjs)
+    } yield {}
+
+  private def authInternalPaymentMethod[M, Adj](
+      payments: Seq[(OrderPayment, M)],
+      maxPaymentAmount: Int,
+      auth: (M, OrderPayment, Option[Int]) ⇒ DbResult[Adj]): DbResultT[Seq[Adj]] = {
+    if (payments.isEmpty)
+      DbResultT.pure(List.empty[Adj])
     else {
-      val auths = results.map { case (pmt, m) ⇒ DbResultT(auth(m, pmt)) }
-      DbResultT.sequence(auths).value
+      val limitedAmounts = payments.map { case (payment, _) ⇒ payment.amount.getOrElse(0) }
+        .foldLeft((maxPaymentAmount, List.empty[Int])) {
+          case ((maxAmount, resultAmounts), amount) ⇒
+            val thisAmount = maxAmount.min(amount)
+            (maxAmount - thisAmount, thisAmount :: resultAmounts)
+        }
+        ._2
+        .reverse
+
+      DbResultT.sequence(
+          payments
+            .zip(limitedAmounts)
+            .filter { case (_, amount) ⇒ amount > 0 }
+            .map {
+          case ((pmt, m), amount) ⇒ DbResultT(auth(m, pmt, amount.some))
+        })
     }
   }
 

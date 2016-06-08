@@ -114,11 +114,12 @@ class CheckoutTest
           origin ← * <~ GiftCardManuals.create(
                       GiftCardManual(adminId = admin.id, reasonId = reason.id))
           ids ← * <~ GiftCards.createAllReturningIds((1 to 3).map { _ ⇒
-                 Factories.giftCard.copy(originalBalance = 25, originId = origin.id)
+                 Factories.giftCard.copy(originalBalance = cart.grandTotal - 1,
+                                         originId = origin.id)
                })
           _ ← * <~ OrderPayments.createAllReturningIds(ids.map { id ⇒
                Factories.giftCardPayment.copy(
-                   orderId = cart.id, paymentMethodId = id, amount = 25.some)
+                   orderId = cart.id, paymentMethodId = id, amount = (cart.grandTotal - 1).some)
              })
         } yield ids).runTxn().futureValue.rightVal
 
@@ -130,7 +131,7 @@ class CheckoutTest
         import GiftCardAdjustment._
 
         adjustments.map(_.state).toSet must ===(Set[State](Auth))
-        adjustments.map(_.debit) must ===(List(25, 25, 25))
+        adjustments.map(_.debit) must ===(List(cart.grandTotal - 1, 1))
       }
 
       "for all store credits" in new PaymentFixture {
@@ -138,11 +139,12 @@ class CheckoutTest
           origin ← * <~ StoreCreditManuals.create(
                       StoreCreditManual(adminId = admin.id, reasonId = reason.id))
           ids ← * <~ StoreCredits.createAllReturningIds((1 to 3).map { _ ⇒
-                 Factories.storeCredit.copy(originalBalance = 25, originId = origin.id)
+                 Factories.storeCredit.copy(originalBalance = cart.grandTotal - 1,
+                                            originId = origin.id)
                })
           _ ← * <~ OrderPayments.createAllReturningIds(ids.map { id ⇒
                Factories.storeCreditPayment.copy(
-                   orderId = cart.id, paymentMethodId = id, amount = 25.some)
+                   orderId = cart.id, paymentMethodId = id, amount = Some(cart.grandTotal - 1))
              })
         } yield ids).runTxn().futureValue.rightVal
 
@@ -154,7 +156,7 @@ class CheckoutTest
         import StoreCreditAdjustment._
 
         adjustments.map(_.state).toSet must ===(Set[State](Auth))
-        adjustments.map(_.debit) must ===(List(25, 25, 25))
+        adjustments.map(_.debit) must ===(List(cart.grandTotal - 1, 1))
       }
     }
   }
@@ -188,7 +190,7 @@ class CheckoutTest
     val (admin, customer, cart, reason) = (for {
       admin    ← * <~ StoreAdmins.create(Factories.storeAdmin)
       customer ← * <~ Customers.create(Factories.customer)
-      cart     ← * <~ Orders.create(Factories.cart.copy(customerId = customer.id))
+      cart     ← * <~ Orders.create(Factories.cart.copy(customerId = customer.id, grandTotal = 1000))
       reason   ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
     } yield (admin, customer, cart, reason)).runTxn().futureValue.rightVal
   }
