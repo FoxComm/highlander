@@ -1,33 +1,21 @@
 ---
 
-- name: Clone Zipkin
-  git: repo=https://github.com/openzipkin/zipkin dest=/usr/local/lib/zipkin
+- name: Download Zipkin
+  get_url: url='https://search.maven.org/remote_content?g=io.zipkin.java&a=zipkin-server&v=LATEST&c=exec' dest=/usr/local/lib/zipkin.jar
   sudo: true
 
-- name: Copy Zipkin Service Files
-  template: src={{item}} dest={{dest_services}}/
+- name: Copy Zipkin Service File
+  template: src=zipkin.service dest={{dest_services}}/
   sudo: true
-  with_items:
-      - zipkin_query.service
-      - zipkin_collector.service
-      - zipkin_web.service
 
 - name: Reload Systemd for Kafka Related Services
   sudo: yes
   command: systemctl daemon-reload
 
 - name: Start Zipkin Services
-  service: name={{item}} state=started enabled=yes
+  service: name=zipkin state=started enabled=yes
   sudo: true
-  with_items:
-      - zipkin_query
-      - zipkin_collector
-      - zipkin_web
 
 - name: Copy Consul Service Files
-  template: src={{item}} dest=/etc/consul.d/
+  template: src=zipkin.json dest=/etc/consul.d/
   sudo: true
-  with_items:
-      - zipkin_query.json
-      - zipkin_collector.json
-      - zipkin_web.json

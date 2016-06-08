@@ -6,8 +6,10 @@
       - packer-prod-small-db
   vars:
     user: ubuntu
+    packing: true
     schema_server: schema-registry.service.consul:8081
     kafka_server: kafka.service.consul:9092
+    log_host: es-log.service.consul
 
 
   roles:

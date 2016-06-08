@@ -1,17 +1,17 @@
 ---
 
-- name: Provision Packer Prod Small ES
+- name: Provision Packer Prod Small Log
   hosts: all
   tags:
-      - packer-prod-small-es
+      - packer-prod-small-log
   vars:
     user: ubuntu
     packing: true
     es_heap_size: 4000m
-    log_host: es-log.service.consul
+    search_service_name: es-log
 
   roles:
-    - { role: base/rsyslog, sudo: yes }
     - { role: base/consul_agent}
     - { role: base/elasticsearch}
+    - { role: base/zipkin}
     - { role: base/kibana, sudo: yes}

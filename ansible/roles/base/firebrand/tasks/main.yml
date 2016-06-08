@@ -36,7 +36,7 @@
   command: systemctl daemon-reload
 
 - name: Restart Firebrand
-  service: name=firebrand state=restarted
+  service: name=firebrand state=restarted enabled=true
   sudo: true
 
 - name: Copy Consul Service File

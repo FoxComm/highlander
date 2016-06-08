@@ -1,7 +1,12 @@
 {
     "service" : {
-        "name": "elasticsearch",
-        "tags": ["elasticsearch"], 
+        "name": "{{search_service_name}}",
+        "tags": ["{{search_service_name}}"], 
         "port": 9200
+    },
+    "check" : {
+        "name": "{{search_service_name}}_ping",
+        "script": "curl localhost:9200",
+        "interval": "30s"
     }
 }

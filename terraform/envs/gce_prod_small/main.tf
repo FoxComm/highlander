@@ -118,27 +118,31 @@ module "prodsmall_consul_cluster" {
 ##############################################
 
 variable "kakfa_image" { 
-    default = "prod-small-kafka-1462989188"
+    default = "prod-small-kafka-1465325698"
 }
 
 variable "db_image" { 
-    default = "prod-small-db-1462770003"
+    default = "prod-small-db-1465326095"
 }
 
 variable "es_image" { 
-    default = "prod-small-es-1463165866"
+    default = "prod-small-es-1465329730"
+}
+
+variable "log_image" { 
+    default = "prod-small-es-log-1465338947"
 }
 
 variable "phoenix_image" { 
-    default = "prod-small-phoenix-1463409411"
+    default = "prod-small-phoenix-1465342076"
 }
 
 variable "greenriver_image" { 
-    default = "prod-small-green-1464304916"
+    default = "prod-small-green-1465331800"
 }
 
 variable "front_image" { 
-    default = "prod-small-front-1463162013"
+    default = "prod-small-front-1465405179"
 }
 
 module "prodsmall_stack" {
@@ -149,6 +153,7 @@ module "prodsmall_stack" {
     kafka_image = "${var.kakfa_image}"
     db_image = "${var.db_image}"
     es_image = "${var.es_image}"
+    log_image = "${var.log_image}"
     phoenix_image = "${var.phoenix_image}"
     greenriver_image = "${var.greenriver_image}"
     front_image = "${var.front_image}"
