@@ -25,7 +25,6 @@ import styles from './form.css';
 import * as CouponActions from '../../modules/coupons/details';
 
 type CouponPageState = {
-  coupon: Object,
   promotionError: boolean,
 };
 
@@ -51,7 +50,6 @@ class CouponPage extends Component {
   props: CouponPageProps;
 
   state: CouponPageState = {
-    coupon: this.props.details.coupon,
     promotionError: false,
   };
 
@@ -68,7 +66,7 @@ class CouponPage extends Component {
 
     if (!isFetching) {
       const nextCoupon = nextProps.details.coupon;
-      if (!nextCoupon) return;
+      if (!nextCoupon || _.isEqual(nextCoupon, this.coupon)) return;
 
       if (this.isNew && nextCoupon.form.id) {
         this.props.dispatch(push(`/coupons/${nextCoupon.form.id}`));
@@ -76,7 +74,6 @@ class CouponPage extends Component {
       if (!this.isNew && !nextCoupon.form.id) {
         this.props.dispatch(push(`/coupons/new`));
       }
-      this.setState({ coupon: nextCoupon });
     }
   }
 
@@ -105,17 +102,21 @@ class CouponPage extends Component {
     return _.get(this.props, 'details.selectedPromotions', []);
   }
 
+  get coupon(): Object {
+    return this.props.details.coupon;
+  }
+
   save(): ?Promise {
     let willBeCoupon = Promise.resolve();
 
-    if (!_.isNumber(this.state.coupon.promotion)) {
+    const coupon = this.coupon;
+
+    if (!_.isNumber(coupon.promotion)) {
       this.setState({promotionError: true});
       return null;
     }
 
-    if (this.state.coupon) {
-      const { coupon } = this.state;
-
+    if (coupon) {
       if (this.isNew) {
         willBeCoupon = this.props.actions.createCoupon(coupon);
       } else {
@@ -126,8 +127,7 @@ class CouponPage extends Component {
 
       if (bulk === false && singleCode != undefined) {
         willBeCoupon.then(() => {
-          const couponId = this.state.coupon.id;
-          this.props.actions.generateCode(couponId, singleCode);
+          return this.props.actions.generateCode(coupon.id, singleCode);
         }).then(() => {
           this.props.actions.couponsGenerationReset();
         });
@@ -135,7 +135,7 @@ class CouponPage extends Component {
 
       if (bulk === true && this.props.actions.codeIsOfValidLength()) {
         willBeCoupon.then(() => {
-          this.props.actions.couponsGenerationShowDialog();
+          return this.props.actions.couponsGenerationShowDialog();
         });
       }
     }
@@ -187,17 +187,19 @@ class CouponPage extends Component {
 
   @autobind
   handleSave(): ?Promise {
-    if (!_.isNumber(this.state.coupon.promotion)) {
+    const coupon = this.coupon;
+    if (!_.isNumber(coupon.promotion)) {
       this.setState({promotionError: true});
       return null;
     }
 
-    return this.props.actions.createCoupon(this.state.coupon);
+    return this.props.actions.createCoupon(coupon);
   }
 
   render(): Element {
     const props = this.props;
-    const { coupon, promotionError } = this.state;
+    const coupon = this.coupon;
+    const { promotionError } = this.state;
     const { codeGeneration, actions } = props;
 
     if (props.isFetching !== false && !coupon) {

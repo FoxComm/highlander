@@ -60,7 +60,7 @@ class CouponCodes extends Component {
             styleName="full-width-field"
             name="singleCode"
             value={this.props.codeGeneration.singleCode}
-            onChange={this.handleChangeSingleCode}
+            onChange={this.handleFormChange}
           />
           <div styleName="field-comment">
             Coupon codes must be unique and are <i>not</i> case sensative.
@@ -71,17 +71,7 @@ class CouponCodes extends Component {
   }
 
   @autobind
-  handleChangeSingleCode({target}: {target: Target}): void {
-    this.props.couponsGenerationChange(target.name, target.value);
-  }
-
-  @autobind
   handleFormChange({target}: {target: Target}): void {
-    this.props.couponsGenerationChange(target.name, target.value);
-  }
-
-  @autobind
-  handleCounterChange({target}: {target: Target}): void {
     this.props.couponsGenerationChange(target.name, target.value);
   }
 
@@ -158,7 +148,7 @@ class CouponCodes extends Component {
                 value={codesQuantity}
                 decreaseAction={() => this.setCounterValue('codesQuantity', codesQuantity - 1)}
                 increaseAction={() => this.setCounterValue('codesQuantity', codesQuantity + 1)}
-                onChange={this.handleCounterChange}
+                onChange={this.handleFormChange}
                 min={1}
               />
             </div>
@@ -186,7 +176,7 @@ class CouponCodes extends Component {
                 value={this.props.codeGeneration.codesLength}
                 decreaseAction={() => this.setCounterValue('codesLength', this.props.codeGeneration.codesLength - 1)}
                 increaseAction={() => this.setCounterValue('codesLength', this.props.codeGeneration.codesLength + 1)}
-                onChange={this.handleCounterChange}
+                onChange={this.handleFormChange}
                 min={1}
               />
             </div>
