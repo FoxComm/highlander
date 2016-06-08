@@ -78,15 +78,19 @@ const DiscountAttrs = (props: Props): Element => {
     setParams,
   };
 
-  const renderContentRow = (row: DiscountRow) => {
+  const renderContentRow = (row: DiscountRow, i) => {
     return (
-      <div styleName="form-row">
-        {_.map(row, (item: ItemDesc) => {
+      <div styleName="form-row" key={`form-row-${i}`}>
+        {_.map(row, (item: ItemDesc, i) => {
           const type: string = item.type || 'widget';
           const renderer = renderers[type];
           if (!renderer) return null;
 
-          return renderer(item, context);
+          return (
+            <div key={i}>
+              {renderer(item, context)}
+            </div>
+          );
         })}
       </div>
     );
@@ -94,7 +98,7 @@ const DiscountAttrs = (props: Props): Element => {
 
   return (
     <div>
-      {_.map(currentDescription.container, renderContentRow)}
+      {_.map(currentDescription.content, renderContentRow)}
     </div>
   );
 };

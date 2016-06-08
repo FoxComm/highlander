@@ -19,6 +19,9 @@ import ButtonWithMenu from '../common/button-with-menu';
 import { Button } from '../common/buttons';
 import Error from '../errors/error';
 
+import * as PromotionActions from '../../modules/promotions/details';
+
+
 type Actions = {
   fetchPromotion: Function,
   promotionsNew: Function,
@@ -47,8 +50,6 @@ type Props = {
   isFetching: bool,
   dispatch: Function,
 };
-
-import * as PromotionActions from '../../modules/promotions/details';
 
 class PromotionPage extends Component {
   props: Props;

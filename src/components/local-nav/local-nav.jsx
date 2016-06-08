@@ -1,6 +1,6 @@
 //libs
 import _ from 'lodash';
-import React, { PropTypes } from 'react';
+import React, { PropTypes, Component } from 'react';
 import ReactDOM from 'react-dom';
 import flatMap from '../../lib/flatMap';
 import { autobind } from 'core-decorators';
@@ -9,37 +9,13 @@ import classNames from 'classnames';
 
 //helpers
 import { addResizeListener, removeResizeListener } from '../../lib/resize';
+
 //components
 import { Link, IndexLink } from '../link';
 import InkBar from '../ink-bar/ink-bar';
+import NavDropdown from './nav-dropdown';
 
-class NavDropdown extends React.Component {
-  render() {
-    const { title, className, children } = this.props;
-    const cls = classNames(
-      'fc-tabbed-nav-parent',
-      'fc-tabbed-nav-item',
-      className
-    );
-
-    return (
-      <li className={cls}>
-        <a>{title}<i className="icon-chevron-down"/></a>
-        <ul className="fc-tabbed-nav-dropdown">
-          {React.Children.map(children, item => <li>{item}</li>)}
-        </ul>
-      </li>
-    );
-  }
-}
-
-NavDropdown.propTypes = {
-  title: PropTypes.string.isRequired,
-  children: PropTypes.node.isRequired,
-  className: PropTypes.string
-};
-
-class LocalNav extends React.Component {
+class LocalNav extends Component {
 
   static contextTypes = {
     router: PropTypes.object.isRequired,
@@ -252,7 +228,4 @@ class LocalNav extends React.Component {
   }
 }
 
-export {
-  LocalNav as default,
-  NavDropdown
-};
+export default LocalNav;
