@@ -4,6 +4,7 @@ const operators = {
   oneOf: 'oneOf',
   notOneOf: 'notOneOf',
   contains: 'contains',
+  containsNotAnalyzed: 'containsNotAnalyzed',
   notContains: 'notContains',
   greater: 'greater',
   less: 'less',
@@ -41,6 +42,11 @@ export const operatorsMap = {
   contains: (fieldName, data) => ({
     match: {
       [fieldName]: data,
+    },
+  }),
+  containsNotAnalyzed: (fieldName, data) => ({
+    match: {
+      [fieldName]: {query: data, analyzer: "standard"},
     },
   }),
   greater: (fieldName, data) => ({
