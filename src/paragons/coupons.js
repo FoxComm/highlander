@@ -2,6 +2,23 @@
 import _ from 'lodash';
 import { denormalize, setAttribute, addAttribute } from './form-shadow-object';
 
+function stripTags(input: string): string {
+  return input.replace(/<(?:.|\n)*?>/gm, '');
+}
+
+const storefrontNameValidotor = (value: string): ?string => {
+  if (_.isEmpty(stripTags(value))) {
+    return 'Storefront Name is required field';
+  }
+
+  return null;
+};
+
+export const options = {
+  name: { required: true },
+  storefrontName: { validator: storefrontNameValidotor },
+};
+
 export function createEmptyCoupon() {
   const usageRules = {
     isExclusive: false,

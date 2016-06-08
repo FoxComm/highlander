@@ -15,6 +15,7 @@ type Props = {
   shadow: ShadowAttributes,
   onChange: (form: FormAttributes, shadow: ShadowAttributes) => void,
   title: string,
+  options?: Object,
 };
 
 export default class ObjectForm extends Component<void, Props, void> {

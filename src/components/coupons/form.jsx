@@ -21,6 +21,9 @@ import Tags from '../tags/tags';
 import ObjectScheduler from '../object-scheduler/object-scheduler';
 import Watchers from '../watchers/watchers';
 
+// paragon
+import { options } from '../../paragons/coupons';
+
 // styles
 import styles from './form.css';
 
@@ -148,6 +151,7 @@ export default class CouponForm extends Component {
               fieldsToRender={this.generalAttrs}
               form={formAttributes}
               shadow={shadowAttributes}
+              options={options}
             />
             {this.promotionSelector}
           </ContentBox>
