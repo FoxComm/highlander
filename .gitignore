@@ -19,3 +19,9 @@ logs
 # Vim
 *.swp
 *.iml
+
+# package
+firebrand.tar.bz2
+
+# certificates
+public_key.pem
