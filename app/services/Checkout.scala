@@ -3,15 +3,18 @@ package services
 import java.time.Instant
 
 import cats.implicits._
-import models.order.lineitems.OrderLineItemGiftCards
-import models.order._
-import Order.RemorseHold
-import failures.CouponFailures.{CouponNotFoundForContext, CouponWithCodeCannotBeFound}
-import failures.GeneralFailure
+import failures.CouponFailures.CouponWithCodeCannotBeFound
+import failures.InventoryFailures.NotEnoughItems
 import failures.PromotionFailures.PromotionNotFoundForContext
+import failures.{Failures, GeneralFailure}
 import models.coupon.{CouponCodes, Coupons, IlluminatedCoupon}
 import models.customer.{Customer, Customers}
+import models.inventory.summary.InventorySummaries
+import models.inventory.{Sku, Skus}
 import models.objects.{ObjectContext, ObjectContexts, ObjectForms, ObjectShadows}
+import models.order.Order.RemorseHold
+import models.order._
+import models.order.lineitems.{OrderLineItemGiftCards, OrderLineItems}
 import models.payment.creditcard.{CreditCardCharge, CreditCardCharges}
 import models.payment.giftcard.{GiftCard, GiftCards}
 import models.payment.storecredit.StoreCredits
@@ -22,8 +25,8 @@ import services.inventory.InventoryAdjustmentManager
 import slick.driver.PostgresDriver.api._
 import utils.Apis
 import utils.aliases._
-import utils.db._
 import utils.db.DbResultT._
+import utils.db._
 
 object Checkout {
 
@@ -77,7 +80,26 @@ case class Checkout(cart: Order, cartValidator: CartValidation)(
       fullOrder ← * <~ FullOrder.fromOrder(updated).toXor
     } yield fullOrder
 
-  private def checkInventory: DbResult[Unit] = DbResult.unit
+  private def checkInventory: DbResultT[Unit] =
+    for {
+      afs      ← * <~ InventorySummaries.getAvailableForSaleByOrderId(cart.id).result
+      quantity ← * <~ OrderLineItems.countBySkuIdForOrder(cart).result
+      _        ← * <~ checkAvailableEnough(afs.toMap, quantity.toMap)
+    } yield {}
+
+  def checkAvailableEnough(
+      available: Map[Sku#Id, Int], required: Map[Sku#Id, Int]): DbResultT[Unit] = {
+    def skuAsFailure(sku: Sku) =
+      NotEnoughItems(sku.code, available.getOrElse(sku.id, 0), required.getOrElse(sku.id, 0))
+
+    val newAfsValues  = available.remove(required)
+    val invalidSkuIds = newAfsValues.collect { case (skuId, afsValue) if afsValue < 0 ⇒ skuId }
+
+    for {
+      invalidSkus ← * <~ Skus.filter(_.id inSet invalidSkuIds).result
+      _           ← * <~ Failures(invalidSkus.map(skuAsFailure): _*).fold(DbResult.none)(DbResult.failures)
+    } yield {}
+  }
 
   private def activePromos: DbResultT[Unit] =
     for {

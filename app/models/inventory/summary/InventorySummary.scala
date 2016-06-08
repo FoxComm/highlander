@@ -3,6 +3,7 @@ package models.inventory.summary
 import java.time.Instant
 
 import models.inventory.{Skus, Warehouses}
+import models.order.lineitems.OrderLineItemSkus
 import shapeless._
 import slick.driver.PostgresDriver.api._
 import slick.lifted.Tag
@@ -59,6 +60,18 @@ object InventorySummaries
     with ReturningId[InventorySummary, InventorySummaries] {
 
   val returningLens: Lens[InventorySummary, Int] = lens[InventorySummary].id
+
+  def getAvailableForSaleByOrderId(orderId: Int): Query[(Rep[Int], Rep[Int]), (Int, Int), Seq] = {
+    val orderSkuIds = OrderLineItemSkus.findByOrderId(orderId).map(_.skuId)
+    filter(_.skuId in orderSkuIds)
+      .join(SellableInventorySummaries)
+      .on { case (inventory, sellable)  ⇒ inventory.sellableId === sellable.id }
+      .map { case (inventory, sellable) ⇒ (inventory.skuId, sellable.availableForSale) }
+      .groupBy { case (skuId, _)        ⇒ skuId }
+      .map {
+        case (skuId, afsQuery) ⇒ (skuId, afsQuery.map { case (_, afs) ⇒ afs }.sum.getOrElse(0))
+      }
+  }
 
   def findSellableBySkuId(skuId: Int) =
     for {

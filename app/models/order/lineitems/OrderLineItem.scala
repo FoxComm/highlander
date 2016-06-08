@@ -112,10 +112,10 @@ object OrderLineItems
 
   def countByOrder(order: Order): DBIO[Int] = findByOrderId(order.id).length.result
 
-  def countBySkuIdForOrder(order: Order): DBIO[Seq[(Int, Int)]] =
-    (for {
+  def countBySkuIdForOrder(order: Order): Query[(Rep[Int], Rep[Int]), (Int, Int), Seq] =
+    for {
       (skuId, group) ← findByOrderId(order.id).skuItems.groupBy(_.originId)
-    } yield (skuId, group.length)).result
+    } yield (skuId, group.length)
 
   object scope {
     implicit class OriginTypeQuerySeqConversions(q: QuerySeq) {
