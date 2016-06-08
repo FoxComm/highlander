@@ -144,7 +144,7 @@
     "react-router-redux": "^4.0.2",
     "reduce-reducers": "^0.1.1",
     "redux": "^3.0.2",
-    "redux-act": "^0.2.0",
+    "redux-act": "^0.4.2",
     "redux-logger": "^2.0.3",
     "redux-thunk": "^1.0.0",
     "request": "^2.58.0",
