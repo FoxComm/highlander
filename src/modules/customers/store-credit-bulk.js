@@ -87,7 +87,7 @@ const changeStoreCreditsState = (actions, ids, state) =>
 
 
 const { actions, reducer } = createStore({
-  path: 'customers.storeCreditBulk',
+  path: 'customers.store-credits.bulk',
   actions: {
     cancelStoreCredits,
     changeStoreCreditsState,
