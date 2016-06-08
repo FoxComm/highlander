@@ -43,37 +43,17 @@ object TrailManager {
                    Trail(dimensionId = dimension.id, objectId = objectId, data = newTrailData))
              }
 
-      //save old tail connection id
-      maybeOldTailId ← * <~ trail.tailConnectionId
-
       //insert new tail, point previous to old tail
       newTail ← * <~ Connections.create(
                    Connection(dimensionId = dimension.id,
                               trailId = trail.id,
                               activityId = payload.activityId,
-                              previousId = maybeOldTailId,
-                              nextId = None,
                               data = payload.data,
                               connectedBy = context))
 
       //update trail to point to new tail
       updatedTrail ← * <~ Trails.update(trail, trail.copy(tailConnectionId = Some(newTail.id)))
-
-      //update old tail if there was one
-      _ ← * <~ updateTail(maybeOldTailId, newTail.id)
     } yield ActivityConnectionResponse.build(objectId, dimension, newTail)
-
-  private def updateTail(maybeOldTailId: Option[Int], newTailId: Int)(
-      implicit ec: EC, db: DB): DbResultT[Unit] = {
-    maybeOldTailId match {
-      case Some(oldTailId) ⇒
-        for {
-          oldTail ← * <~ Connections.mustFindById404(oldTailId)
-          _       ← * <~ Connections.update(oldTail, oldTail.copy(nextId = Some(newTailId)))
-        } yield Unit
-      case None ⇒ pure(Unit)
-    }
-  }
 
   def findConnection(connectionId: Int)(
       implicit ec: EC, db: DB): Result[FullActivityConnectionResponse.Root] = {

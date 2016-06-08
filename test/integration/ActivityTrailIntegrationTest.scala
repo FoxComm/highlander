@@ -91,8 +91,6 @@ class ActivityTrailIntegrationTest
       val appendedConnection = appendActivity(customerActivity, customer.id, activity.id)
 
       appendedConnection.activityId must ===(activity.id)
-      appendedConnection.previousId must ===(None)
-      appendedConnection.nextId must ===(None)
 
       // Make sure the dimension was created
       val dimension = Dimensions.findByName(customerActivity).result.one.futureValue.value
@@ -167,9 +165,7 @@ class ActivityTrailIntegrationTest
 
             //make sure connection is linked correctly
             appendedConnection.activityId must ===(activity.id)
-
-            val newConnection = getConnection(appendedConnection.id)
-            checkValidTrail(newConnection)
+            true
           }
       }
 
@@ -188,41 +184,6 @@ class ActivityTrailIntegrationTest
 
     appendResponse.status must ===(StatusCodes.OK)
     appendResponse.as[ActivityConnectionResponse.Root]
-  }
-
-  def connectionLinkedCorrectly(a: Connection): Boolean = {
-    val previousLinked = a.previousId match {
-      case Some(previousId) ⇒ connectionsLinked(getConnection(previousId), a)
-      case None             ⇒ true
-    }
-    val nextLinked = a.nextId match {
-      case Some(nextId) ⇒ connectionsLinked(a, getConnection(nextId))
-      case None         ⇒ true
-    }
-
-    previousLinked && nextLinked
-  }
-
-  def connectionsLinked(a: Connection, b: Connection): Boolean = {
-    a.nextId.contains(b.id) && b.previousId == Some(a.id)
-  }
-
-  /**
-    * Walk the activity trail and validate that it is linked correctly.
-    * Of course as the trail grows, validation becomes O(n^2) since we check
-    * whole trail for each add.
-    */
-  def checkValidTrail(a: Connection, count: Int = 0): Boolean = {
-    if (count > 1000) false
-    else {
-      connectionLinkedCorrectly(a) && (a.previousId match {
-            case Some(previousId) ⇒ {
-                val previous = getConnection(previousId)
-                checkValidTrail(previous, count + 1)
-              }
-            case None ⇒ true
-          })
-    }
   }
 
   trait Fixture {

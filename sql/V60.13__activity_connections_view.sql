@@ -4,8 +4,6 @@ select
     a.dimension_id,
     a.trail_id,
     a.activity_id,
-    a.previous_id,
-    a.next_id,
     a.data,
     a.connected_by,
     to_char(a.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as created_at

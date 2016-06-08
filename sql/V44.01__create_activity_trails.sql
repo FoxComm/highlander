@@ -8,5 +8,4 @@ create table activity_trails(
     foreign key (dimension_id) references activity_dimensions(id) on update restrict on delete restrict
 );
 
-create index activity_dimension_idx on activity_trails(dimension_id);
-create index activity_object_id_idx on activity_trails(object_id);
+create index activity_dimension_idx on activity_trails(dimension_id, object_id);

@@ -21,8 +21,6 @@ case class Connection(id: Int = 0,
                       dimensionId: Int,
                       trailId: Int,
                       activityId: Int,
-                      previousId: Option[Int],
-                      nextId: Option[Int],
                       data: Option[Json],
                       connectedBy: ActivityContext,
                       createdAt: Instant = Instant.now)
@@ -33,14 +31,12 @@ class Connections(tag: Tag) extends FoxTable[Connection](tag, "activity_connecti
   def dimensionId = column[Int]("dimension_id")
   def trailId     = column[Int]("trail_id")
   def activityId  = column[Int]("activity_id")
-  def previousId  = column[Option[Int]]("previous_id")
-  def nextId      = column[Option[Int]]("next_id")
   def data        = column[Option[Json]]("data")
   def connectedBy = column[ActivityContext]("connected_by")
   def createdAt   = column[Instant]("created_at")
 
   def * =
-    (id, dimensionId, trailId, activityId, previousId, nextId, data, connectedBy, createdAt) <>
+    (id, dimensionId, trailId, activityId, data, connectedBy, createdAt) <>
     ((Connection.apply _).tupled, Connection.unapply)
 
   def activity  = foreignKey(Activities.tableName, activityId, Activities)(_.id)

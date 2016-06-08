@@ -12,8 +12,6 @@ object ActivityConnectionResponse {
                   objectId: String,
                   trailId: Int,
                   activityId: Int,
-                  previousId: Option[Int],
-                  nextId: Option[Int],
                   data: Option[Json],
                   connectedBy: ActivityContext,
                   createdAt: Instant)
@@ -25,8 +23,6 @@ object ActivityConnectionResponse {
          objectId = objectId,
          trailId = c.trailId,
          activityId = c.activityId,
-         previousId = c.previousId,
-         nextId = c.nextId,
          data = c.data,
          connectedBy = c.connectedBy,
          createdAt = c.createdAt)
@@ -46,8 +42,6 @@ object FullActivityConnectionResponse {
                   objectId: String,
                   trailId: Int,
                   activity: ActivityResp,
-                  previousId: Option[Int],
-                  nextId: Option[Int],
                   data: Option[Json],
                   connectedBy: ActivityContext,
                   createdAt: Instant)
@@ -65,8 +59,6 @@ object FullActivityConnectionResponse {
              context = a.context,
              createdAt = a.createdAt
          ),
-         previousId = c.previousId,
-         nextId = c.nextId,
          data = c.data,
          connectedBy = c.connectedBy,
          createdAt = c.createdAt)
