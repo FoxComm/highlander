@@ -105,25 +105,16 @@ object ProductManager {
       commit      ← * <~ ObjectUtils.commit(updated)
       updatedHead ← * <~ updateHead(product, updated.shadow, commit)
 
-      skus ← * <~ skuPayloads.map(sku ⇒ findOrCreateSkuForProduct(updatedHead, context, sku))
-      variants ← * <~ variantPayloads.map(variant ⇒
-                      findOrCreateVariantForProduct(updatedHead, context, variant))
+      skus ← * <~ updateAssociatedSkus(context, updatedHead, oldShadow.id, payload.skus)
+
+      variants ← * <~ updateAssociatedVariants(
+                    context, updatedHead, oldShadow.id, payload.variants)
 
       _ ← * <~ ObjectUtils.updateAssociatedRights(Albums,
                                                   context.id,
                                                   oldShadow.id,
                                                   updatedHead.shadowId,
                                                   ObjectLink.ProductAlbum)
-      _ ← * <~ ObjectUtils.updateAssociatedRights(Skus,
-                                                  context.id,
-                                                  oldShadow.id,
-                                                  updatedHead.shadowId,
-                                                  ObjectLink.ProductSku)
-      _ ← * <~ ObjectUtils.updateAssociatedRights(Variants,
-                                                  context.id,
-                                                  oldShadow.id,
-                                                  updatedHead.shadowId,
-                                                  ObjectLink.ProductVariant)
     } yield
       IlluminatedFullProductResponse.build(
           p = IlluminatedProduct.illuminate(context, updatedHead, updated.form, updated.shadow),
@@ -133,6 +124,49 @@ object ProductManager {
               (IlluminatedVariant.illuminate(context, fullVariant), values)
           },
           variantMap = Map.empty)).runTxn()
+  }
+
+  private def updateAssociatedSkus(context: ObjectContext,
+                                   product: Product,
+                                   oldProductShadowId: Int,
+                                   skusPayload: Option[Seq[CreateSkuPayload]])(
+      implicit ec: EC, db: DB) = {
+
+    skusPayload match {
+      case Some(payloads) ⇒
+        DbResultT.sequence(
+            payloads.map(payload ⇒ findOrCreateSkuForProduct(product, context, payload)))
+
+      case None ⇒
+        for {
+          links ← * <~ ObjectUtils.updateAssociatedRights(
+                     Skus, context.id, oldProductShadowId, product.shadowId, ObjectLink.ProductSku)
+          skus ← * <~ links.map(link ⇒ mustFindFullSkuByShadowId(link.rightId))
+        } yield skus
+    }
+  }
+
+  private def updateAssociatedVariants(context: ObjectContext,
+                                       product: Product,
+                                       oldProductShadowId: Int,
+                                       variantsPayload: Option[Seq[VariantPayload]])(
+      implicit ec: EC, db: DB) = {
+
+    variantsPayload match {
+      case Some(payloads) ⇒
+        DbResultT.sequence(
+            payloads.map(payload ⇒ findOrCreateVariantForProduct(product, context, payload)))
+
+      case None ⇒
+        for {
+          links ← * <~ ObjectUtils.updateAssociatedRights(Variants,
+                                                          context.id,
+                                                          oldProductShadowId,
+                                                          product.shadowId,
+                                                          ObjectLink.ProductVariant)
+          variants ← * <~ links.map(link ⇒ mustFindFullVariantByShadowId(context.id, link.rightId))
+        } yield variants
+    }
   }
 
   private def updateHead(

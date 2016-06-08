@@ -108,7 +108,7 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
   }
 
   "PATCH v1/products/:context/:id" - {
-    "Updates the SKU on a product successfully" in new Fixture {
+    "Updates the SKUs on a product successfully" in new Fixture {
       val payload =
         UpdateProductPayload(attributes = Map.empty, skus = Some(Seq(skuPayload)), variants = None)
 
@@ -116,7 +116,10 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
       response.status must ===(StatusCodes.OK)
 
       val productResponse = response.as[IlluminatedFullProductResponse.Root]
-      val description     = productResponse.product.attributes \ "description" \ "v"
+      productResponse.skus.length must ===(1)
+      productResponse.variants.length must ===(2)
+
+      val description = productResponse.product.attributes \ "description" \ "v"
       description.extract[String] must ===("Test product description")
     }
   }
