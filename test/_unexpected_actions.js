@@ -2,7 +2,6 @@
 import _ from 'lodash';
 import { applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
-import { ID as actionIdProp } from 'redux-act/lib/constants';
 
 const middlewares = [thunk];
 
@@ -71,7 +70,7 @@ export function installInto(expect) {
                 if (_.isString(expectedAction)) {
                   expect(action.type, 'to equal', expectedAction);
                 } else if (_.isFunction(expectedAction)) {
-                  expect(action[actionIdProp], 'to equal', expectedAction.toString());
+                  expect(action.type, 'to equal', expectedAction.toString());
                 } else if (_.isPlainObject(expectedAction)) {
                   expect(action, 'to satisfy', {
                     ...expectedAction,
