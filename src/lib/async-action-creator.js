@@ -29,7 +29,7 @@ export const initialState = {
 
 //state reducers for async action
 const reducers = {
-  reset: () => ({...initialState}),
+  reset: () => initialState,
   canceled: state => ({...state, isCanceled: true}),
   started: state => ({
     ...state,
