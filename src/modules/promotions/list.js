@@ -10,7 +10,7 @@ const searchTerms = [
   {
     title: 'Promotion : Name',
     type: 'string',
-    term: 'name'
+    term: 'promotionName'
   },
   {
     title: 'Promotion : Storefront Name',
