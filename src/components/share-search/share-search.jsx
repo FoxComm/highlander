@@ -158,7 +158,7 @@ export default class ShareSearch extends Component {
               <PrimaryButton className="fc-align-right"
                              isLoading={isUpdatingAssociations}
                              onClick={this.props.associateSearch.bind(null, search, search.selected)}
-                             disabled={!search.selected}>
+                             disabled={!search.selected || search.selected.length === 0}>
                 Share
               </PrimaryButton>
             </div>
