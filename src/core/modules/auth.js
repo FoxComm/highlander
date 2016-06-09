@@ -27,12 +27,12 @@ export const setJwt = createAction('AUTH_SET_JWT');
 
 export const signUp = createAsyncActions('auth-signup', function signUp(payload: SignUpPayload): Promise {
   const {email, name, password} = payload;
-  return api.signup(email, name, password);
+  return api.auth.signup(email, name, password);
 }).perform;
 
 export const authenticate = createAsyncActions('auth-login', function authenticate(payload: LoginPayload): Promise {
   const {email, password, kind} = payload;
-  return api.login(email, password, kind)
+  return api.auth.login(email, password, kind)
     .then(({jwt, user}) => {
       this.dispatch(setJwt(jwt));
       this.dispatch(setUser(user));
@@ -41,14 +41,14 @@ export const authenticate = createAsyncActions('auth-login', function authentica
 
 export function googleSignin(): asyncAction<void> {
   return () => {
-    api.googleSignin().then(urlInfo => {
+    api.auth.googleSignin().then(urlInfo => {
       window.location.href = urlInfo.url;
     });
   };
 }
 
 export const logout = createAsyncActions('auth-logout', function logout(): Promise {
-  return api.logout()
+  return api.auth.logout()
     .then(() => {
       this.dispatch(removeUser());
     });
