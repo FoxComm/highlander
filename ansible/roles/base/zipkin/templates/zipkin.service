@@ -1,10 +1,10 @@
 [Service]
-WorkingDirectory=/usr/local/lib/zipkin
-ExecStart=/usr/local/lib/zipkin/bin/query
+WorkingDirectory=/usr/local/lib/
+ExecStart=/usr/bin/java -jar zipkin.jar
 Restart=always
 StandardOutput=syslog
 StandardError=syslog
-SyslogIdentifier=zipkin_query
+SyslogIdentifier=zipkin
 TimeoutStartSec=5m
 RestartSec=10
 

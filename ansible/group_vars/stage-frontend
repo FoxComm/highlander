@@ -1,5 +1,6 @@
 phoenix_server: "phoenix.service.consul:9090"
 search_host:  elasticsearch.service.consul
+log_host:  elasticsearch.service.consul
 ashes_server: 127.0.0.1:4000
 firebird_server: 127.0.0.1:4040
 api_server: 127.0.0.1

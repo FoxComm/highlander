@@ -6,6 +6,7 @@
       - packer-tinystack-frontend
   vars:
     user: ubuntu
+    packing: true
 
   roles:
     - { role: base/common}

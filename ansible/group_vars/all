@@ -61,6 +61,8 @@ kafka_server: 127.0.0.1:9092
 zookeeper_server: 127.0.0.1:2181
 schema_server: 127.0.0.1:8081
 api_server: 127.0.0.1
+log_host: 127.0.0.1
+
 
 # JMX ports
 es_jmx_port: 29010
@@ -100,3 +102,6 @@ namespace: setme
 
 #zipkin
 zipkin_collector: localhost
+
+#are we running packer?
+packing: false

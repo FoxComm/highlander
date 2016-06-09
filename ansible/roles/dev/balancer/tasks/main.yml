@@ -26,3 +26,4 @@
 
 - name: Restart Nginx
   service: name=nginx state=restarted
+  when: not packing

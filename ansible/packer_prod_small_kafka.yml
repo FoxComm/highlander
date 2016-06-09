@@ -6,7 +6,9 @@
       - packer-prod-small-kafka
   vars:
     user: ubuntu
+    packing: true
     search_host: elasticsearch.service.consul
+    log_host: es-log.service.consul
 
   roles:
     - { role: base/rsyslog, sudo: yes }

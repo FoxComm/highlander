@@ -34,6 +34,10 @@
   service: name=nginx state=restarted enabled=true
   sudo: yes
 
+- name: Make Sure Nginx Restarts After Failure
+  lineinfile: dest=/etc/systemd/system/multi-user.target.wants/nginx.service line="Restart=always" insertafter="^KillMode" state=present
+  sudo: true
+
 - name: Copy Consul Service File
   template: src=balancer.json dest="/etc/consul.d/balancer.json"
   sudo: true
