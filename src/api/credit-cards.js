@@ -3,7 +3,7 @@
 
 import * as endpoints from '../endpoints';
 
-// @method getCreditCards(): Promise<CreditCards>
+// @method getCreditCards(): Promise<CreditCardsResponse>
 export function getCreditCards() {
   return this.get(endpoints.creditCards);
 }

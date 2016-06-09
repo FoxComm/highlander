@@ -8,7 +8,7 @@ export default class Addresses {
     this.api = api;
   }
 
-  // @method list(options: Query options): Promise<Addresses>
+  // @method list(options: Query options): Promise<AddressesResponse>
   // Choices for `options.sortBy` parameter:
   // `id` `regionId` `name` `address1` `address2` `city` `zip` `isDefaultShipping` `phoneNumber` `deletedAt` `region_id` `region_countryId` `region_name` `region_abbreviation`
   list(options) {
