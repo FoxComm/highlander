@@ -20,7 +20,7 @@ lazy val commonSettings = Seq(
 )
 
 
-lazy val phoenixScala = (project in file(".")).
+lazy val greenRiver = (project in file(".")).
   settings(commonSettings).
   settings(
     name      := "green-river",
