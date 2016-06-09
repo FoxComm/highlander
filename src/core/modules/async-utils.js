@@ -89,7 +89,6 @@ export default function createAsyncActions(namespace, asyncCall, payloadReducer)
           console.error(err && err.stack);
         }
         dispatch(failed(err));
-        throw err;
       };
 
       dispatch(started(...args));
