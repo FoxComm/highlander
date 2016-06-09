@@ -58,6 +58,10 @@ export default class NewStoreCredit extends React.Component {
     error: PropTypes.array,
   };
 
+  state = {
+    scTypeError: null,
+  };
+
   componentDidMount() {
     this.props.fetchCustomer(this.customerId);
     this.props.fetchScTypes();
@@ -151,10 +155,40 @@ export default class NewStoreCredit extends React.Component {
                     items={this.scTypes}
                     placeholder="- Select -"
                     value={this.props.form.type}
-                    onChange={(value) => this.props.changeScType(value)} />
+                    onChange={this.changeScType} />
         </div>
+        {this.storeCreditTypeError}
       </li>
     );
+  }
+
+  get storeCreditTypeError() {
+    if (this.state.scTypeError == null) {
+      return null;
+    }
+
+    return (
+      <div className="fc-form-field-error">
+        {this.state.scTypeError}
+      </div>
+    );
+  }
+
+  @autobind
+  changeScType(value) {
+    this.setState({scTypeError: null}, () => {
+      this.props.changeScType(value);
+    });
+  }
+
+  @autobind
+  submitCreateStoreCredit() {
+    if (this.props.form.type == null) {
+      this.setState({scTypeError: 'Type is required field.'});
+      return null;
+    }
+
+    return this.props.createStoreCredit(this.customerId);
   }
 
   get storeCreditForm() {
@@ -167,7 +201,7 @@ export default class NewStoreCredit extends React.Component {
     return (
       <Form className="fc-store-credit-form fc-form-vertical"
             onChange={this.onChangeValue}
-            onSubmit={() => createStoreCredit(this.customerId)}>
+            onSubmit={this.submitCreateStoreCredit}>
         <div className="fc-grid">
           <div className="fc-col-md-1-3">
             <ul>
