@@ -9,13 +9,13 @@ import failures.{Failure, Failures, NotFoundFailure404}
 import models.customer.Customers
 import models.location._
 import models.payment.PaymentMethod
-import models.stripe._
 import models.traits.Addressable
 import payloads.PaymentPayloads.CreateCreditCard
 import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils._
 import utils.aliases._
+import utils.aliases.stripe._
 import utils.db._
 
 case class CreditCard(id: Int = 0,

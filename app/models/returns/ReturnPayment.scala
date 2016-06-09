@@ -4,10 +4,10 @@ import models.payment.PaymentMethod
 import models.payment.creditcard.{CreditCard, CreditCards}
 import models.payment.giftcard.GiftCard
 import models.payment.storecredit.StoreCredit
-import models.stripe._
 import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.Money._
+import utils.aliases.stripe._
 import utils.db._
 
 case class ReturnPayment(id: Int = 0,

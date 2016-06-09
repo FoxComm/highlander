@@ -27,15 +27,14 @@ import models.customer.Customer
 import org.json4s.Formats
 import org.json4s.jackson.Serialization.{write ⇒ writeJson}
 import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
-import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterAll, MustMatchers, Suite, SuiteMixin}
 import responses.TheResponse
 import server.Service
 import services.Authenticator
 import services.Authenticator.AsyncAuthenticator
-import util.DbTestSupport
+import util.{DbTestSupport, MockedApis}
 import utils.aliases._
-import utils.{Apis, FoxConfig, JsonFormatters, StripeApi}
+import utils.{FoxConfig, JsonFormatters}
 
 // TODO: Move away from root package when `Service' moverd
 object HttpSupport {
@@ -52,7 +51,7 @@ trait HttpSupport
     with ScalaFutures
     with MustMatchers
     with BeforeAndAfterAll
-    with MockitoSugar {
+    with MockedApis {
   this: Suite with PatienceConfiguration with DbTestSupport ⇒
 
   import HttpSupport._
@@ -104,8 +103,6 @@ trait HttpSupport
       |}
     """.stripMargin).withFallback(ConfigFactory.load())
 
-  def makeApis: Option[Apis] = Some(Apis(mock[StripeApi]))
-
   def overrideStoreAdminAuth: AsyncAuthenticator[StoreAdmin] =
     Authenticator.BasicStoreAdmin()
 
@@ -117,7 +114,7 @@ trait HttpSupport
   private def makeService: Service =
     new Service(dbOverride = Some(db),
                 systemOverride = Some(system),
-                apisOverride = makeApis,
+                apisOverride = Some(apisOverride),
                 addRoutes = additionalRoutes) {
 
       override val storeAdminAuth: AsyncAuthenticator[StoreAdmin] = overrideStoreAdminAuth
@@ -205,7 +202,7 @@ trait HttpSupport
   def parseErrors(response: HttpResponse)(implicit ec: EC): List[String] =
     response.errors
 
-  private def dispatchRequest(req: HttpRequest): HttpResponse = {
+  protected def dispatchRequest(req: HttpRequest): HttpResponse = {
     val response = Http().singleRequest(req, settings = connectionPoolSettings).futureValue
     ValidResponseContentTypes must contain(response.entity.contentType)
     response

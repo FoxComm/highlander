@@ -1,4 +1,4 @@
-package utils
+package utils.apis
 
 import java.util.concurrent.Executors
 
@@ -7,15 +7,13 @@ import scala.concurrent.{ExecutionContext, Future, blocking}
 
 import cats.data.Xor
 import cats.implicits._
-import com.stripe.model.{ExternalAccount, DeletedExternalAccount, Charge ⇒ StripeCharge, Customer ⇒ StripeCustomer}
 import com.stripe.exception.{CardException, StripeException}
+import com.stripe.model.{DeletedExternalAccount, ExternalAccount, Charge ⇒ StripeCharge, Customer ⇒ StripeCustomer}
 import com.stripe.net.RequestOptions
 import failures.CreditCardFailures._
 import failures.{Failure, Failures, GeneralFailure}
-import models.stripe._
 import services.{Result, ResultT}
-
-case class Apis(stripe: StripeApi)
+import utils.aliases.stripe._
 
 trait StripeApi {
   def createCustomer(options: Map[String, AnyRef], secretKey: String): Result[StripeCustomer]

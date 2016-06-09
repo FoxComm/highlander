@@ -1,19 +1,18 @@
 package routes.admin
 
 import akka.http.scaladsl.server.Directives._
-import akka.stream.ActorMaterializer
-import scala.concurrent.ExecutionContext
+
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
-import payloads.ImagePayloads._
 import models.StoreAdmin
+import payloads.ImagePayloads._
 import services.image.ImageManager
-import slick.driver.PostgresDriver.api._
-import utils.http.Http._
+import utils.aliases._
+import utils.apis.Apis
 import utils.http.CustomDirectives._
+import utils.http.Http._
 
 object ImageRoutes {
-  def routes(
-      implicit ec: ExecutionContext, db: Database, am: ActorMaterializer, admin: StoreAdmin) = {
+  def routes(implicit ec: EC, db: DB, am: Mat, admin: StoreAdmin, apis: Apis) = {
     activityContext(admin) { implicit ac ⇒
       pathPrefix("albums") {
         pathPrefix(Segment) { context ⇒

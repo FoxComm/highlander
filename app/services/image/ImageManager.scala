@@ -22,10 +22,11 @@ import responses.ImageResponses._
 import services.inventory.SkuManager
 import services.objects.ObjectManager
 import services.product.ProductManager
-import services.{AmazonS3, Result}
+import services.Result
 import slick.driver.PostgresDriver.api._
 import utils.IlluminateAlgorithm
 import utils.aliases._
+import utils.apis.Apis
 import utils.db.DbResultT._
 import utils.db._
 
@@ -138,7 +139,7 @@ object ImageManager {
     } yield AlbumResponse.build(album, images)
 
   def uploadImage(albumId: Int, contextName: String, request: HttpRequest)(
-      implicit ec: EC, db: DB, am: Mat): Result[AlbumRoot] = {
+      implicit ec: EC, db: DB, am: Mat, apis: Apis): Result[AlbumRoot] = {
     Unmarshal(request.entity).to[Multipart.FormData].flatMap { formData ⇒
       val error: Result[AlbumRoot] = Result.failure(ImageNotFoundInPayload)
       formData.parts
@@ -150,7 +151,7 @@ object ImageManager {
             album    ← * <~ mustFindFullAlbumByIdAndContext404(albumId, context)
             filename ← * <~ getFileNameFromBodyPart(part)
             fullPath ← * <~ s"albums/${context.id}/$albumId/$filename"
-            s3       ← * <~ AmazonS3.uploadFile(fullPath, file)
+            s3       ← * <~ apis.amazon.uploadFile(fullPath, file)
             payload = payloadForNewImage(album, s3, filename)
             album ← * <~ updateAlbumInner(albumId, payload, contextName)
           } yield album).runTxn()
@@ -169,8 +170,8 @@ object ImageManager {
 
   private def getFileNameFromBodyPart(part: Multipart.FormData.BodyPart)(implicit ec: EC) = {
     part.filename match {
-      case Some(name) ⇒ Result.good(name)
-      case None       ⇒ Result.failure(ImageFilenameNotFoundInPayload)
+      case Some(fileName) ⇒ Result.good(fileName)
+      case None           ⇒ Result.failure(ImageFilenameNotFoundInPayload)
     }
   }
 

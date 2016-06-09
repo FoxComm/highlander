@@ -1,5 +1,9 @@
+import java.io.File
+
 import scala.concurrent.ExecutionContext.Implicits.global
-import akka.http.scaladsl.model.StatusCodes
+import akka.http.scaladsl.marshalling.Marshal
+import akka.http.scaladsl.model._
+import akka.stream.scaladsl.Source
 
 import Extensions._
 import cats.implicits._
@@ -11,15 +15,26 @@ import models.inventory._
 import models.objects._
 import models.product._
 import org.json4s.JsonDSL._
+import org.mockito.Matchers._
+import org.mockito.Mockito._
+import org.scalatest.mock.MockitoSugar
 import payloads.ImagePayloads._
 import responses.ImageResponses.AlbumResponse.{Root ⇒ AlbumRoot}
+import services.Result
+import services.image.ImageManager
 import util.IntegrationTestBase
 import utils.Money.Currency
 import utils._
+import utils.aliases._
 import utils.db.DbResultT._
 import utils.db._
 
-class ImageIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
+class ImageIntegrationTest
+    extends IntegrationTestBase
+    with HttpSupport
+    with AutomaticAuth
+    with MockitoSugar {
+
   "Album Tests" - {
     "GET v1/albums/:context/:id" - {
       "Searching for a valid album returns the album" in new Fixture {
@@ -198,6 +213,32 @@ class ImageIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
         val response2 = GET(s"v1/skus/${context.name}/${sku.code}/albums")
         response2.status must ===(StatusCodes.OK)
         response2.as[AlbumRoot].name must ===("Name 2.0")
+      }
+    }
+
+    "POST /v1/albums/:context/images" - {
+
+      "uploads image" in new Fixture {
+        val image = new File("test/resources/foxy.jpg")
+        image.exists mustBe true
+
+        when(amazonApiMock.uploadFile(any[String], any[File])(any[EC]))
+          .thenReturn(Result.good("amazon-image-url"))
+
+        val bodyPart =
+          Multipart.FormData.BodyPart.fromFile(name = "upload-file",
+                                               contentType = MediaTypes.`application/octet-stream`,
+                                               file = image)
+        val formData = Multipart.FormData(Source.single(bodyPart))
+        val entity   = Marshal(formData).to[RequestEntity].futureValue
+        val uri      = pathToAbsoluteUrl(s"v1/albums/${context.name}/${album.id}/images")
+        val request  = HttpRequest(method = HttpMethods.POST, uri = uri, entity = entity)
+
+        val response = dispatchRequest(request)
+        response.status must ===(StatusCodes.OK)
+        val responseAlbum = response.as[AlbumRoot]
+        responseAlbum.images must contain(
+            Image("amazon-image-url", "foxy.jpg".some, "foxy.jpg".some))
       }
     }
   }

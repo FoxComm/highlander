@@ -9,11 +9,11 @@ import com.stripe.model.{DeletedExternalAccount, ExternalAccount}
 import failures.{CreditCardFailures, Failures}
 import models.location.Address
 import models.payment.creditcard.CreditCard
-import models.stripe._
 import payloads.PaymentPayloads.CreateCreditCard
 import utils.Money._
-import utils.{Apis, StripeApi}
+import utils.apis._
 import utils.aliases._
+import utils.aliases.stripe._
 
 // TODO(yax): do not default apiKey, it should come from store
 case class Stripe(apiKey: String = "sk_test_uvaf3GCFsjCsvvKO7FsQhNRm")(implicit apis: Apis, ec: EC) {

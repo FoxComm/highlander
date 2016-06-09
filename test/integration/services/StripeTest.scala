@@ -2,25 +2,20 @@ package services
 
 import java.time.{Instant, ZoneId}
 
-import failures.CreditCardFailures.{CardDeclined, IncorrectCvc}
-import util.{IntegrationTestBase, StripeSupport}
-import utils.seeds.Seeds
-import utils.{Apis, WiredStripeApi}
-import utils.Money.Currency
-import Seeds.Factories
-import utils.db._
 import cats.implicits._
+import failures.CreditCardFailures.{CardDeclined, IncorrectCvc}
 import payloads.PaymentPayloads.CreateCreditCard
-import slick.driver.PostgresDriver.api._
+import util.{IntegrationTestBase, MockedApis, StripeSupport}
+import utils.Money.Currency
+import utils.seeds.Seeds.Factories
+import concurrent.ExecutionContext.Implicits.global
 
-class StripeTest extends IntegrationTestBase {
+class StripeTest extends IntegrationTestBase with MockedApis {
 
-  import concurrent.ExecutionContext.Implicits.global
   import Tags._
 
-  implicit val apis: Apis = Apis(new WiredStripeApi)
-  val service             = Stripe()
-  val today               = Instant.now().atZone(ZoneId.of("UTC"))
+  val service = Stripe()
+  val today   = Instant.now().atZone(ZoneId.of("UTC"))
 
   // Re-use this existing customer so we don't have to create new customers for every test
   val existingCustId: String = "cus_7Ktq659oRPXB1U"

@@ -2,33 +2,32 @@ package services
 
 import java.time.Instant
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import cats.implicits._
-import models.order.lineitems._
-import models.order._
-import Orders.scope._
+import failures.CartFailures._
+import failures.GeneralFailure
 import models.activity.ActivityContext
 import models.customer.Customers
+import models.order.Orders.scope._
+import models.order._
+import models.order.lineitems._
 import models.payment.giftcard._
 import models.payment.storecredit._
 import models.{Reasons, StoreAdmins}
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import slick.driver.PostgresDriver.api._
-import util.IntegrationTestBase
-import utils.db._
-import utils.db.DbResultT._
-import utils.seeds.Seeds
-import utils.{Apis, StripeApi}
+import util.{IntegrationTestBase, MockedApis}
 import utils.Money.Currency
-import Seeds.Factories
-import failures.CartFailures._
-import failures.GeneralFailure
+import utils.db.DbResultT._
+import utils.db._
+import utils.seeds.Seeds
+import utils.seeds.Seeds.Factories
 
-class CheckoutTest extends IntegrationTestBase with MockitoSugar {
-  import concurrent.ExecutionContext.Implicits.global
+class CheckoutTest extends IntegrationTestBase with MockitoSugar with MockedApis {
 
-  implicit val apis: Apis = Apis(mock[StripeApi])
-  implicit val ac         = ActivityContext(userId = 1, userType = "b", transactionId = "c")
+  implicit val ac = ActivityContext(userId = 1, userType = "b", transactionId = "c")
 
   def cartValidator(resp: CartValidatorResponse = CartValidatorResponse()): CartValidation = {
     val m = mock[CartValidation]

@@ -1,42 +1,38 @@
 import java.time.ZonedDateTime
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import cats.implicits._
-import models.order._
-import Order._
-import models.activity.ActivityContext
-import models.customer.Customers
-import models.location.Addresses
-import models.payment.PaymentMethod
-import models.payment.creditcard.{CreditCard, CreditCards}
-import models.payment.giftcard._
-import models.payment.storecredit._
-import models.{Reasons, StoreAdmins}
-import models.stripe._
-import org.mockito.Mockito.{reset, when}
-import org.mockito.{Matchers ⇒ m}
-import org.scalatest.mock.MockitoSugar
-import OrderPayments.scope._
-import slick.driver.PostgresDriver.api._
-import util.IntegrationTestBase
-import utils.db._
-import utils.db.DbResultT._
-import utils.seeds.Seeds
-import Seeds.Factories
-import com.stripe.model.{Card, Customer, DeletedExternalAccount}
+import com.stripe.model.DeletedExternalAccount
 import failures.CartFailures.OrderMustBeCart
 import failures.CreditCardFailures.CannotUseInactiveCreditCard
 import failures.GiftCardFailures._
 import failures.NotFoundFailure404
 import failures.OrderFailures.OrderPaymentNotFoundFailure
 import failures.StoreCreditFailures.CustomerHasInsufficientStoreCredit
-import org.mockito.Matchers
+import models.activity.ActivityContext
+import models.customer.Customers
+import models.location.Addresses
+import models.order.Order._
+import models.order.OrderPayments.scope._
+import models.order._
+import models.payment.PaymentMethod
+import models.payment.creditcard.{CreditCard, CreditCards}
+import models.payment.giftcard._
+import models.payment.storecredit._
+import models.{Reasons, StoreAdmins}
 import org.mockito.Mockito._
+import org.mockito.{Matchers ⇒ m}
+import org.scalatest.mock.MockitoSugar
 import payloads.PaymentPayloads._
 import services.{CreditCardManager, Result}
-import utils.{Apis, StripeApi}
-import utils.db.javaTimeSlickMapper
+import slick.driver.PostgresDriver.api._
+import util.IntegrationTestBase
+import utils.aliases.stripe._
+import utils.db.DbResultT._
+import utils.db._
+import utils.seeds.Seeds.Factories
 
 class OrderPaymentsIntegrationTest
     extends IntegrationTestBase
@@ -44,12 +40,9 @@ class OrderPaymentsIntegrationTest
     with AutomaticAuth
     with MockitoSugar {
 
-  import concurrent.ExecutionContext.Implicits.global
   import Extensions._
 
-  private val stripeApi: StripeApi = mock[StripeApi]
-  implicit val apis: Apis          = Apis(stripeApi)
-  implicit val ac                  = ActivityContext(userId = 1, userType = "b", transactionId = "c")
+  implicit val ac = ActivityContext(userId = 1, userType = "b", transactionId = "c")
 
   "gift cards" - {
     "POST /v1/orders/:ref/payment-methods/gift-cards" - {
@@ -414,13 +407,15 @@ class OrderPaymentsIntegrationTest
       }
 
       "fails if the creditCard is inActive" in new CreditCardFixture {
-        reset(stripeApi)
+        reset(stripeApiMock)
 
-        when(stripeApi.findCustomer(m.any(), m.any())).thenReturn(Result.good(new StripeCustomer))
+        when(stripeApiMock.findCustomer(m.any(), m.any()))
+          .thenReturn(Result.good(new StripeCustomer))
 
-        when(stripeApi.findDefaultCard(m.any(), m.any())).thenReturn(Result.good(new StripeCard))
+        when(stripeApiMock.findDefaultCard(m.any(), m.any()))
+          .thenReturn(Result.good(new StripeCard))
 
-        when(stripeApi.deleteExternalAccount(m.any(), m.any()))
+        when(stripeApiMock.deleteExternalAccount(m.any(), m.any()))
           .thenReturn(Result.good(new DeletedExternalAccount))
 
         val payload = CreditCardPayment(creditCard.id)

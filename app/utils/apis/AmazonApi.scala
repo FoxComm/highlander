@@ -1,19 +1,25 @@
-package services
+package utils.apis
 
 import java.io.File
 
-import scala.concurrent.{Future, blocking}
+import scala.concurrent.Future
 
 import cats.data.Xor.{left, right}
 import com.amazonaws.auth.BasicAWSCredentials
 import com.amazonaws.services.s3.AmazonS3Client
-import com.amazonaws.services.s3.model.{CannedAccessControlList, PutObjectRequest, AmazonS3Exception}
+import com.amazonaws.services.s3.model.{AmazonS3Exception, CannedAccessControlList, PutObjectRequest}
 import failures.AmazonFailures._
 import failures._
-import utils.aliases.EC
+import services.Result
 import utils.FoxConfig.{RichConfig, config}
+import utils.aliases.EC
 
-object AmazonS3 {
+trait AmazonApi {
+
+  def uploadFile(fileName: String, file: File)(implicit ec: EC): Result[String]
+}
+
+class AmazonS3 extends AmazonApi {
   def uploadFile(fileName: String, file: File)(implicit ec: EC): Result[String] =
     Future {
       val accessKey = config.getOptString("aws.accessKey")
@@ -28,7 +34,7 @@ object AmazonS3 {
           val putRequest = new PutObjectRequest(bucket, fileName, file)
             .withCannedAcl(CannedAccessControlList.PublicRead)
           client.putObject(putRequest)
-          right(s"https://s3-${region}.amazonaws.com/${bucket}/${fileName}")
+          right(s"https://s3-$region.amazonaws.com/$bucket/$fileName")
         case (None, _, _, _) ⇒
           left(UnableToReadAwsAccessKey.single)
         case (_, None, _, _) ⇒

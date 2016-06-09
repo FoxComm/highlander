@@ -22,7 +22,6 @@ import models.payment.creditcard.{CreditCard, CreditCards}
 import models.returns._
 import models.shipping.Shipment.Shipped
 import models.shipping.{Shipment, Shipments}
-import models.stripe._
 import models.traits.Originator
 import org.mockito.Mockito.{reset, when}
 import org.mockito.{Matchers ⇒ m}
@@ -39,11 +38,11 @@ import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import util.SlickSupport.implicits._
 import utils.Money.Currency
+import utils.aliases.stripe._
 import utils.db.DbResultT._
 import utils.db._
 import utils.jdbc._
 import utils.seeds.Seeds.Factories
-import utils.{Apis, StripeApi}
 
 class CustomerIntegrationTest
     extends IntegrationTestBase
@@ -52,11 +51,6 @@ class CustomerIntegrationTest
     with MockitoSugar {
 
   implicit val ac = ActivityContext(userId = 1, userType = "b", transactionId = "c")
-
-  override def makeApis: Option[Apis] = Some(Apis(stripeApi))
-
-  private val stripeApi: StripeApi = mock[StripeApi]
-  implicit val apis: Apis          = Apis(stripeApi)
 
   "Customer" - {
     "accounts are unique based on email, non-guest, and active" in {
@@ -491,13 +485,14 @@ class CustomerIntegrationTest
 
   "DELETE /v1/customers/:customerId/payment-methods/credit-cards/:creditCardId" - {
     "deletes successfully if the card exists" in new CreditCardFixture {
-      reset(stripeApi)
+      reset(stripeApiMock)
 
-      when(stripeApi.findCustomer(m.any(), m.any())).thenReturn(Result.good(new StripeCustomer))
+      when(stripeApiMock.findCustomer(m.any(), m.any()))
+        .thenReturn(Result.good(new StripeCustomer))
 
-      when(stripeApi.findDefaultCard(m.any(), m.any())).thenReturn(Result.good(new StripeCard))
+      when(stripeApiMock.findDefaultCard(m.any(), m.any())).thenReturn(Result.good(new StripeCard))
 
-      when(stripeApi.deleteExternalAccount(m.any(), m.any()))
+      when(stripeApiMock.deleteExternalAccount(m.any(), m.any()))
         .thenReturn(Result.good(new DeletedExternalAccount))
 
       val response =
@@ -513,13 +508,15 @@ class CustomerIntegrationTest
   "PATCH /v1/customers/:customerId/payment-methods/credit-cards/:creditCardId" - {
     "when successful" - {
       "removes the original card from wallet" in new CreditCardFixture {
-        reset(stripeApi)
+        reset(stripeApiMock)
 
-        when(stripeApi.findCustomer(m.any(), m.any())).thenReturn(Result.good(new StripeCustomer))
+        when(stripeApiMock.findCustomer(m.any(), m.any()))
+          .thenReturn(Result.good(new StripeCustomer))
 
-        when(stripeApi.findDefaultCard(m.any(), m.any())).thenReturn(Result.good(new StripeCard))
+        when(stripeApiMock.findDefaultCard(m.any(), m.any()))
+          .thenReturn(Result.good(new StripeCard))
 
-        when(stripeApi.updateExternalAccount(m.any(), m.any(), m.any()))
+        when(stripeApiMock.updateExternalAccount(m.any(), m.any(), m.any()))
           .thenReturn(Result.good(new StripeCard))
 
         val payload = EditCreditCard(holderName = Some("Bob"))
@@ -536,13 +533,15 @@ class CustomerIntegrationTest
       }
 
       "creates a new version of the edited card in the wallet" in new CreditCardFixture {
-        reset(stripeApi)
+        reset(stripeApiMock)
 
-        when(stripeApi.findCustomer(m.any(), m.any())).thenReturn(Result.good(new StripeCustomer))
+        when(stripeApiMock.findCustomer(m.any(), m.any()))
+          .thenReturn(Result.good(new StripeCustomer))
 
-        when(stripeApi.findDefaultCard(m.any(), m.any())).thenReturn(Result.good(new StripeCard))
+        when(stripeApiMock.findDefaultCard(m.any(), m.any()))
+          .thenReturn(Result.good(new StripeCard))
 
-        when(stripeApi.updateExternalAccount(m.any(), m.any(), m.any()))
+        when(stripeApiMock.updateExternalAccount(m.any(), m.any(), m.any()))
           .thenReturn(Result.good(new StripeCard))
 
         val payload = EditCreditCard(holderName = Some("Bob"))
@@ -558,13 +557,15 @@ class CustomerIntegrationTest
       }
 
       "updates the customer's cart to use the new version" in new CreditCardFixture {
-        reset(stripeApi)
+        reset(stripeApiMock)
 
-        when(stripeApi.findCustomer(m.any(), m.any())).thenReturn(Result.good(new StripeCustomer))
+        when(stripeApiMock.findCustomer(m.any(), m.any()))
+          .thenReturn(Result.good(new StripeCustomer))
 
-        when(stripeApi.findDefaultCard(m.any(), m.any())).thenReturn(Result.good(new StripeCard))
+        when(stripeApiMock.findDefaultCard(m.any(), m.any()))
+          .thenReturn(Result.good(new StripeCard))
 
-        when(stripeApi.updateExternalAccount(m.any(), m.any(), m.any()))
+        when(stripeApiMock.updateExternalAccount(m.any(), m.any(), m.any()))
           .thenReturn(Result.good(mock[StripeCard]))
 
         val order =
@@ -603,13 +604,15 @@ class CustomerIntegrationTest
       }
 
       "creates a new address book entry if a full address was given" in new CreditCardFixture {
-        reset(stripeApi)
+        reset(stripeApiMock)
 
-        when(stripeApi.findCustomer(m.any(), m.any())).thenReturn(Result.good(new StripeCustomer))
+        when(stripeApiMock.findCustomer(m.any(), m.any()))
+          .thenReturn(Result.good(new StripeCustomer))
 
-        when(stripeApi.findDefaultCard(m.any(), m.any())).thenReturn(Result.good(new StripeCard))
+        when(stripeApiMock.findDefaultCard(m.any(), m.any()))
+          .thenReturn(Result.good(new StripeCard))
 
-        when(stripeApi.updateExternalAccount(m.any(), m.any(), m.any()))
+        when(stripeApiMock.updateExternalAccount(m.any(), m.any(), m.any()))
           .thenReturn(Result.good(mock[StripeCard]))
 
         val payload =
@@ -643,16 +646,17 @@ class CustomerIntegrationTest
     }
 
     "fails if the card is not inWallet" in new CreditCardFixture {
-      reset(stripeApi)
+      reset(stripeApiMock)
 
-      when(stripeApi.findCustomer(m.any(), m.any())).thenReturn(Result.good(new StripeCustomer))
+      when(stripeApiMock.findCustomer(m.any(), m.any()))
+        .thenReturn(Result.good(new StripeCustomer))
 
-      when(stripeApi.findDefaultCard(m.any(), m.any())).thenReturn(Result.good(new StripeCard))
+      when(stripeApiMock.findDefaultCard(m.any(), m.any())).thenReturn(Result.good(new StripeCard))
 
-      when(stripeApi.updateExternalAccount(m.any(), m.any(), m.any()))
+      when(stripeApiMock.updateExternalAccount(m.any(), m.any(), m.any()))
         .thenReturn(Result.good(new ExternalAccount))
 
-      when(stripeApi.deleteExternalAccount(m.any(), m.any()))
+      when(stripeApiMock.deleteExternalAccount(m.any(), m.any()))
         .thenReturn(Result.good(new DeletedExternalAccount))
 
       CreditCardManager.deleteCreditCard(customer.id, creditCard.id, Some(admin)).futureValue
@@ -675,11 +679,12 @@ class CustomerIntegrationTest
     }
 
     "fails if stripe returns an error" in new CreditCardFixture {
-      reset(stripeApi)
+      reset(stripeApiMock)
 
-      when(stripeApi.findCustomer(m.any(), m.any())).thenReturn(Result.good(new StripeCustomer))
+      when(stripeApiMock.findCustomer(m.any(), m.any()))
+        .thenReturn(Result.good(new StripeCustomer))
 
-      when(stripeApi.findDefaultCard(m.any(), m.any())).thenReturn(Result.good(new StripeCard))
+      when(stripeApiMock.findDefaultCard(m.any(), m.any())).thenReturn(Result.good(new StripeCard))
 
       val exception = new CardException("Your card's expiration year is invalid",
                                         "X_REQUEST_ID: 1",
@@ -689,7 +694,7 @@ class CustomerIntegrationTest
                                         null,
                                         null,
                                         null)
-      when(stripeApi.updateExternalAccount(m.any(), m.any(), m.any()))
+      when(stripeApiMock.updateExternalAccount(m.any(), m.any(), m.any()))
         .thenReturn(Result.failure(StripeFailure(exception)))
 
       val payload = EditCreditCard(expYear = Some(2000))

@@ -23,7 +23,7 @@ import responses.order.FullOrder
 import services.coupon.CouponUsageService
 import services.inventory.InventoryAdjustmentManager
 import slick.driver.PostgresDriver.api._
-import utils.Apis
+import utils.apis.Apis
 import utils.aliases._
 import utils.db.DbResultT._
 import utils.db._

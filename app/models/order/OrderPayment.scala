@@ -5,11 +5,11 @@ import models.payment.PaymentMethod
 import models.payment.creditcard.{CreditCard, CreditCards}
 import models.payment.giftcard.{GiftCard, GiftCards}
 import models.payment.storecredit.{StoreCredit, StoreCredits}
-import models.stripe._
 import shapeless._
 import failures.Failure
 import utils.Money._
 import utils.Validation._
+import utils.aliases.stripe._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 
@@ -28,7 +28,7 @@ case class OrderPayment(id: Int = 0,
   override def validate: ValidatedNel[Failure, OrderPayment] = {
     val amountOk = paymentMethodType match {
       case PaymentMethod.StoreCredit | PaymentMethod.GiftCard ⇒
-        validExpr(amount.getOrElse(0) > 0, s"amount must be > 0 for ${paymentMethodType}")
+        validExpr(amount.getOrElse(0) > 0, s"amount must be > 0 for $paymentMethodType")
       case PaymentMethod.CreditCard ⇒
         validExpr(amount.isEmpty, "amount must be empty for creditCard")
     }

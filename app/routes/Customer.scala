@@ -18,7 +18,7 @@ import services.customers.CustomerManager
 import services.orders._
 import services.product.ProductManager
 import services.{AddressManager, Checkout, CreditCardManager, LineItemUpdater, SaveForLaterManager, ShippingManager, StoreCreditService}
-import utils.Apis
+import utils.apis.Apis
 import utils.aliases._
 import utils.http.CustomDirectives._
 import utils.http.Http._

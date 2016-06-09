@@ -6,7 +6,6 @@ import scala.concurrent.Future
 
 import cats.data.Xor
 import cats.implicits._
-import models.traits.Addressable
 import models.order._
 import OrderPayments.scope._
 import Orders.scope._
@@ -16,13 +15,13 @@ import failures.{Failures, NotFoundFailure404}
 import models.customer._
 import models.location._
 import models.payment.creditcard.{CreditCard, CreditCards}
-import models.stripe._
 import models.StoreAdmin
 import payloads.AddressPayloads.CreateAddressPayload
 import payloads.PaymentPayloads._
 import slick.driver.PostgresDriver.api._
-import utils.Apis
 import utils.aliases._
+import utils.aliases.stripe._
+import utils.apis.Apis
 import utils.db._
 import utils.db.DbResultT._
 

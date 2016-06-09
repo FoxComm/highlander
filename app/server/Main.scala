@@ -29,7 +29,8 @@ import slick.driver.PostgresDriver.api._
 import utils.FoxConfig.{Development, Staging}
 import utils.http.CustomHandlers
 import utils.http.HttpLogger.logFailedRequests
-import utils.{Apis, ElasticsearchApi, FoxConfig, WiredStripeApi}
+import utils.{ElasticsearchApi, FoxConfig}
+import utils.apis._
 
 object Main extends App with LazyLogging {
   logger.info("Starting phoenix server")
@@ -67,7 +68,7 @@ class Service(systemOverride: Option[ActorSystem] = None,
   val logger = Logging(system, getClass)
 
   implicit val db: Database         = dbOverride.getOrElse(Database.forConfig("db", config))
-  implicit val apis: Apis           = apisOverride.getOrElse(Apis(new WiredStripeApi))
+  implicit val apis: Apis           = apisOverride.getOrElse(Apis(new WiredStripeApi, new AmazonS3))
   implicit val es: ElasticsearchApi = esOverride.getOrElse(ElasticsearchApi.fromConfig(config))
 
   val storeAdminAuth: AsyncAuthenticator[StoreAdmin]      = Authenticator.forAdminFromConfig

@@ -16,7 +16,7 @@ import payloads.PaymentPayloads._
 import payloads.UpdateShippingMethod
 import services.orders._
 import services.{Checkout, LineItemUpdater}
-import utils.Apis
+import utils.apis.Apis
 import utils.aliases._
 import utils.http.CustomDirectives._
 import utils.http.Http._

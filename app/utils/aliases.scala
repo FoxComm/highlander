@@ -8,4 +8,11 @@ object aliases {
   type Mat          = akka.stream.Materializer
   type Json         = org.json4s.JsonAST.JValue
   type ActivityType = String
+
+  object stripe {
+    import com.stripe.model._
+    type StripeCustomer = Customer
+    type StripeCard     = Card
+    type StripeCharge   = Charge
+  }
 }

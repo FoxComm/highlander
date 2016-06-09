@@ -11,7 +11,7 @@ import payloads.PaymentPayloads._
 import services.customers._
 import services.orders.OrderQueries
 import services.{AddressManager, CreditCardManager, CustomerCreditConverter, StoreCreditService}
-import utils.Apis
+import utils.apis.Apis
 import utils.aliases._
 import utils.http.CustomDirectives._
 import utils.http.Http._

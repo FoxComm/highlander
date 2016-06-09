@@ -13,6 +13,7 @@ import org.json4s.jackson.JsonMethods.{compact, parse, render}
 import utils.ElasticsearchApi._
 import utils.aliases._
 
+// TODO: move to Apis?
 case class ElasticsearchApi(host: String, cluster: String, index: String)(implicit ec: EC) {
 
   val aggregationName = "my-unique-aggregation"

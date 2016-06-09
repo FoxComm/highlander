@@ -7,6 +7,7 @@ import scala.util.control.NoStackTrace
 import com.stripe.exception.StripeException
 import failures.CreditCardFailures.StripeFailure
 import util.TestBase
+import utils.apis.WiredStripeApi
 
 class WiredStripeApiTest extends TestBase {
   private val api = new WiredStripeApi
