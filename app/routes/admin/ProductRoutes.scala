@@ -116,21 +116,23 @@ object ProductRoutes {
             }
           }
         } ~
-        pathPrefix(Segment) { context ⇒
-          (post & pathEnd & entity(as[CreateProductPayload])) { payload ⇒
-            goodOrFailures {
-              ProductManager.createProduct(context, payload)
-            }
-          } ~
-          pathPrefix(IntNumber) { productId ⇒
-            (get & pathEnd) {
-              goodOrFailures {
-                ProductManager.getProduct(context, productId)
+        pathPrefix(Segment) { contextName ⇒
+          adminObjectContext(contextName)(db, ec) { implicit context ⇒
+            (post & pathEnd & entity(as[CreateProductPayload])) { payload ⇒
+              mutateGoodOrFailures {
+                ProductManager.createProduct(payload)
               }
             } ~
-            (patch & pathEnd & entity(as[UpdateProductPayload])) { payload ⇒
-              goodOrFailures {
-                ProductManager.updateProduct(context, productId, payload)
+            pathPrefix(IntNumber) { productId ⇒
+              (get & pathEnd) {
+                getGoodOrFailures {
+                  ProductManager.getProduct(productId)
+                }
+              } ~
+              (patch & pathEnd & entity(as[UpdateProductPayload])) { payload ⇒
+                mutateGoodOrFailures {
+                  ProductManager.updateProduct(productId, payload)
+                }
               }
             }
           }
