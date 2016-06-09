@@ -67,24 +67,23 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
     "Throws an error if there is more than one SKU and no variants" in new Fixture {
       val sku1    = skuPayload.copy(code = "SKU-TEST-NUM1")
       val sku2    = skuPayload.copy(code = "SKU-TEST-NUM2")
-      val payload = productPayload.copy(skus = Seq(sku1, sku2))
+      val payload = productPayload.copy(skus = Seq(sku1, sku2), variants = Some(Seq.empty))
 
       val response = POST(s"v1/products/${context.name}", payload)
       response.status must ===(StatusCodes.BadRequest)
     }
 
     "Variant with no values doesn't allow for multiple SKUs" in new VariantFixture {
-      val sku1 = skuPayload.copy(code = "SKU-TEST-NUM1")
-      val sku2 = skuPayload.copy(code = "SKU-TEST-NUM2")
-      val payload =
-        productPayload.copy(skus = Seq(sku1, sku2), variants = Some(Seq(createVariantPayload)))
+      val sku1    = skuPayload.copy(code = "SKU-TEST-NUM1")
+      val sku2    = skuPayload.copy(code = "SKU-TEST-NUM2")
+      val payload = productPayload.copy(skus = Seq(sku1, sku2), variants = Some(Seq.empty))
 
       val response = POST(s"v1/products/${context.name}", payload)
       response.status must ===(StatusCodes.BadRequest)
     }
 
     "Creates product with single empty variant successfully" in new VariantFixture {
-      val payload  = productPayload.copy(variants = Some(Seq(createVariantPayload)))
+      val payload  = productPayload.copy(variants = Some(Seq(colorVariantPayload)))
       val response = POST(s"v1/products/${context.name}", payload)
       response.status must ===(StatusCodes.OK)
 
@@ -94,8 +93,6 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
     }
 
     "Creates product with a variant with multiple values successfully" in new VariantFixture {
-      val colorVariantPayload = createVariantPayload.copy(
-          values = Some(Seq(redVariantValuePayload, greenVariantValuePayload)))
       val payload = productPayload.copy(variants = Some(Seq(colorVariantPayload)))
 
       val response = POST(s"v1/products/${context.name}", payload)
@@ -122,98 +119,57 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
       val description = productResponse.product.attributes \ "description" \ "v"
       description.extract[String] must ===("Test product description")
     }
+
+    "Updates the properties on a product successfully" in new Fixture {
+      val newAttrMap = Map("name" → (("t" → "string") ~ ("v" → "Some new product name")))
+      val payload    = UpdateProductPayload(attributes = newAttrMap, skus = None, variants = None)
+
+      val response = PATCH(s"v1/products/${context.name}/${product.formId}", payload)
+      response.status must ===(StatusCodes.OK)
+
+      val productResponse = response.as[IlluminatedFullProductResponse.Root]
+      productResponse.skus.length must ===(4)
+      productResponse.variants.length must ===(2)
+    }
+
+    "Updates the variants on a product successfully" in new VariantFixture {
+      val goldValuePayload   = VariantValuePayload(name = Some("Gold"), swatch = None)
+      val silverValuePayload = VariantValuePayload(name = Some("Silver"), swatch = None)
+      val metalVariantPayload =
+        makeVariantPayload("Metal", Seq(goldValuePayload, silverValuePayload))
+
+      val payload = UpdateProductPayload(
+          attributes = Map.empty,
+          skus = None,
+          variants = Some(Seq(colorVariantPayload, sizeVariantPayload, metalVariantPayload)))
+
+      val response = PATCH(s"v1/products/${context.name}/${product.formId}", payload)
+      response.status must ===(StatusCodes.OK)
+
+      val productResponse = response.as[IlluminatedFullProductResponse.Root]
+      productResponse.skus.length must ===(4)
+      productResponse.variants.length must ===(3)
+
+      val description = productResponse.product.attributes \ "description" \ "v"
+      description.extract[String] must ===("Test product description")
+    }
+
+    "Throws an error if updating adds too many SKUs" in new VariantFixture {
+      val upPayload = UpdateProductPayload(
+          attributes = Map.empty,
+          skus = Some(
+              Seq(skuPayload,
+                  smallRedSkuPayload,
+                  smallGreenSkuPayload,
+                  largeRedSkuPayload,
+                  largeGreenSkuPayload)),
+          variants = None
+      )
+
+      val response = PATCH(s"v1/products/${context.name}/${product.formId}", upPayload)
+      response.status must ===(StatusCodes.BadRequest)
+    }
   }
-
-  //"Creates a product with a new SKU successfully" in new Fixture {
-
-  //val priceValue = ("currency" → "USD") ~ ("value" → 9999)
-  //val priceJson  = ("t" -> "price") ~ ("v" -> priceValue)
-  //val skuAttrMap = Map("price" -> priceJson)
-  //val skuPayload = CreateSkuPayload("SKU-NEW-TEST", skuAttrMap)
-  //val response = GET(s"v1/products/full/${context.name}/${product.formId}/baked")
-  //val response = POST(s"v1/products/${context.name}", productPayload)
-  //response.status must ===(StatusCodes.OK)
-
-  //val productResponse = response.as[IlluminatedFullProductResponse.Root]
-  //productResponse.skus.length must ===(1)
-  //productResponse.skus.head.code must ===("SKU-NEW-TEST")
-  //}
-
-  //"Creates a product with an existing SKU successfully" in new Fixture {
-  //val redSkuPayload = CreateSkuPayload("SKU-RED-SMALL", skuAttrMap)
-  //val payload       = productPayload.copy(skus = Seq(redSkuPayload))
-
-  //val response = POST(s"v1/products/${context.name}", payload)
-  //response.status must ===(StatusCodes.OK)
-
-  //val productResponse = response.as[IlluminatedFullProductResponse.Root]
-  //productResponse.skus.length must ===(1)
-  //productResponse.skus.head.code must ===("SKU-RED-SMALL")
-  //}
-
-  //"Creates a product with an existing, but modified SKU successfully" in new Fixture {
-  //val redPriceJson  = ("t" -> "price") ~ ("v" -> (("currency" → "USD") ~ ("value" → 7999)))
-  //val redSkuAttrMap = Map("salePrice" -> redPriceJson)
-  //val redSkuPayload = CreateSkuPayload("SKU-RED-LARGE", redSkuAttrMap)
-  //val payload       = productPayload.copy(skus = Seq(redSkuPayload))
-
-  //val response = POST(s"v1/products/${context.name}", payload)
-  //response.status must ===(StatusCodes.OK)
-
-  //val productResponse = response.as[IlluminatedFullProductResponse.Root]
-  //productResponse.skus.length must ===(1)
-  //productResponse.skus.head.code must ===("SKU-RED-LARGE")
-  //}
-
-  //"Throws an error if no SKU is added" in new Fixture {
-  //val payload = productPayload.copy(skus = Seq.empty)
-
-  //val response = POST(s"v1/products/${context.name}", payload)
-  //response.status must ===(StatusCodes.BadRequest)
-  //}
-
-  //"Throws an error if there is more than one SKU and no variants" in new Fixture {
-  //val sku1    = skuPayload.copy(code = "SKU-TEST-NUM1")
-  //val sku2    = skuPayload.copy(code = "SKU-TEST-NUM2")
-  //val payload = productPayload.copy(skus = Seq(sku1, sku2))
-
-  //val response = POST(s"v1/products/${context.name}", payload)
-  //response.status must ===(StatusCodes.BadRequest)
-  //}
-
-  //"Variant with no values doesn't allow for multiple SKUs" in new VariantFixture {
-  //val sku1 = skuPayload.copy(code = "SKU-TEST-NUM1")
-  //val sku2 = skuPayload.copy(code = "SKU-TEST-NUM2")
-  //val payload =
-  //productPayload.copy(skus = Seq(sku1, sku2), variants = Some(Seq(createVariantPayload)))
-
-  //val response = POST(s"v1/products/${context.name}", payload)
-  //response.status must ===(StatusCodes.BadRequest)
-  //}
-
-  //"Creates product with single empty variant successfully" in new VariantFixture {
-  //val payload  = productPayload.copy(variants = Some(Seq(createVariantPayload)))
-  //val response = POST(s"v1/products/${context.name}", payload)
-  //response.status must ===(StatusCodes.OK)
-
-  //val productResponse = response.as[IlluminatedFullProductResponse.Root]
-  //productResponse.skus.length must ===(1)
-  //productResponse.skus.head.code must ===("SKU-NEW-TEST")
-  //}
-
-  //"Creates product with a variant with multiple values successfully" in new VariantFixture {
-  //val colorVariantPayload = createVariantPayload.copy(
-  //values = Some(Seq(redVariantValuePayload, greenVariantValuePayload)))
-  //val payload = productPayload.copy(variants = Some(Seq(colorVariantPayload)))
-
-  //val response = POST(s"v1/products/${context.name}", payload)
-  //response.status must ===(StatusCodes.OK)
-
-  //val productResponse = response.as[IlluminatedFullProductResponse.Root]
-  //productResponse.variants.length must ===(1)
-  //productResponse.variants.head.values.length must ===(2)
-  //}
-  //}
 
   "GET v1/products/full/:context/:id/baked" - {
     "Return a product with multiple SKUs and variants" in new Fixture {
@@ -330,12 +286,26 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
   }
 
   trait VariantFixture extends Fixture {
-    val createVariantPayload = VariantPayload(
-        attributes = Map("name" → (("t" → "string") ~ ("v" → "Color"))), values = None)
+    def makeVariantPayload(name: String, values: Seq[VariantValuePayload]) =
+      VariantPayload(
+          attributes = Map("name" → (("t" → "string") ~ ("v" → name))), values = Some(values))
 
-    val redVariantValuePayload = VariantValuePayload(name = Some("Red"), swatch = Some("ff0000"))
+    def makeSkuPayload(code: String, name: String) = {
+      val attrMap = Map("name" → (("t" → "string") ~ ("v" → name)))
+      CreateSkuPayload(code = code, attributes = attrMap)
+    }
 
-    val greenVariantValuePayload = VariantValuePayload(
-        name = Some("Green"), swatch = Some("00ff00"))
+    val redValuePayload     = VariantValuePayload(name = Some("Red"), swatch = Some("ff0000"))
+    val greenValuePayload   = VariantValuePayload(name = Some("Green"), swatch = Some("00ff00"))
+    val colorVariantPayload = makeVariantPayload("Color", Seq(redValuePayload, greenValuePayload))
+
+    val smallValuePayload  = VariantValuePayload(name = Some("Small"), swatch = None)
+    val largeValuePayload  = VariantValuePayload(name = Some("Large"), swatch = None)
+    val sizeVariantPayload = makeVariantPayload("Size", Seq(smallValuePayload, largeValuePayload))
+
+    val smallRedSkuPayload   = makeSkuPayload("SKU-RED-SMALL", "A small, red item")
+    val smallGreenSkuPayload = makeSkuPayload("SKU-GREEN-SMALL", "A small, green item")
+    val largeRedSkuPayload   = makeSkuPayload("SKU-RED-LARGE", "A small, green item")
+    val largeGreenSkuPayload = makeSkuPayload("SKU-GREEN-LARGE", "A large, green item")
   }
 }

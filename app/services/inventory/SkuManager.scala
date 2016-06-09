@@ -87,8 +87,9 @@ object SkuManager {
 
       _ ← * <~ ObjectUtils.updateAssociatedLefts(
              Products, sku.contextId, oldShadow.id, updatedHead.shadowId, ObjectLink.ProductSku)
-      _ ← * <~ ObjectUtils.updateAssociatedRights(
-             Skus, sku.contextId, oldShadow.id, updatedHead.shadowId, ObjectLink.SkuAlbum)
+
+      albumLinks ← * <~ ObjectLinks.findByLeftAndType(oldShadow.id, ObjectLink.SkuAlbum).result
+      _          ← * <~ ObjectUtils.updateAssociatedRights(Skus, albumLinks, updatedHead.shadowId)
     } yield FullObject(updatedHead, updated.form, updated.shadow)
   }
 

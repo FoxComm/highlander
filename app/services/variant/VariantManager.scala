@@ -99,11 +99,11 @@ object VariantManager {
 
       _ ← * <~ ObjectUtils.updateAssociatedLefts(
              Products, context.id, oldShadow.id, updatedHead.shadowId, ObjectLink.ProductVariant)
+
+      valueLinks ← * <~ ObjectLinks.findByLeftAndType(oldShadow.id, ObjectLink.VariantValue).result
       _ ← * <~ ObjectUtils.updateAssociatedRights(VariantValues,
-                                                  context.id,
-                                                  oldShadow.id,
-                                                  updatedHead.shadowId,
-                                                  ObjectLink.VariantValue)
+                                                  valueLinks,
+                                                  updatedHead.shadowId)
 
       links ← * <~ ObjectLinks
                .findByLeftAndType(updatedHead.shadowId, ObjectLink.VariantValue)
@@ -121,6 +121,11 @@ object VariantManager {
       case None     ⇒ createVariantInner(context, payload)
     }
   }
+
+  // Update the variant's links to the right (such as variant values).
+  // This helps Variant stay in sync when a Product/SKU is updated.
+  // Once we rip out ObjectLinks with shadows, this will be unnecessary.
+  def updateVariantTree(newLeftId: Int, existingLinks: Seq[ObjectLink])(implicit ec: EC, db: DB) = {}
 
   private def updateHead(
       variant: Variant, shadow: ObjectShadow, maybeCommit: Option[ObjectCommit])(

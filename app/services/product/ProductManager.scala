@@ -1,5 +1,7 @@
 package services.product
 
+import cats.data._
+import failures.Failure
 import failures.ObjectFailures._
 import failures.ProductFailures._
 import models.StoreAdmin
@@ -23,6 +25,8 @@ import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db.DbResultT._
 import utils.db._
+import utils.Validation
+import utils.Validation._
 
 object ProductManager {
 
@@ -88,10 +92,8 @@ object ProductManager {
   def updateProduct(contextName: String, productId: Int, payload: UpdateProductPayload)(
       implicit ec: EC, db: DB): Result[IlluminatedFullProductResponse.Root] = {
 
-    val newFormAttrs    = ObjectForm.fromPayload(Product.kind, payload.attributes).attributes
-    val newShadowAttrs  = ObjectShadow.fromPayload(payload.attributes).attributes
-    val skuPayloads     = payload.skus.getOrElse(Seq.empty)
-    val variantPayloads = payload.variants.getOrElse(Seq.empty)
+    val newFormAttrs   = ObjectForm.fromPayload(Product.kind, payload.attributes).attributes
+    val newShadowAttrs = ObjectShadow.fromPayload(payload.attributes).attributes
 
     (for {
       context   ← * <~ ObjectManager.mustFindByName404(contextName)
@@ -110,11 +112,10 @@ object ProductManager {
       variants ← * <~ updateAssociatedVariants(
                     context, updatedHead, oldShadow.id, payload.variants)
 
-      _ ← * <~ ObjectUtils.updateAssociatedRights(Albums,
-                                                  context.id,
-                                                  oldShadow.id,
-                                                  updatedHead.shadowId,
-                                                  ObjectLink.ProductAlbum)
+      _ ← * <~ updateAssociatedAlbums(context, updatedHead, oldShadow.id)
+
+      fullProduct = FullObject(updatedHead, updated.form, updated.shadow)
+      _ ← * <~ validateUpdate(fullProduct, skus, variants)
     } yield
       IlluminatedFullProductResponse.build(
           p = IlluminatedProduct.illuminate(context, updatedHead, updated.form, updated.shadow),
@@ -124,6 +125,22 @@ object ProductManager {
               (IlluminatedVariant.illuminate(context, fullVariant), values)
           },
           variantMap = Map.empty)).runTxn()
+  }
+
+  private def validateUpdate(product: FullObject[Product],
+                             skus: Seq[FullObject[Sku]],
+                             variants: Seq[(FullObject[Variant], Seq[FullObject[VariantValue]])])
+    : ValidatedNel[Failure, Unit] = {
+
+    val maxSkus = variants.foldLeft(1) {
+      case (acc, (_, values)) ⇒
+        if (values.nonEmpty) acc * values.length
+        else acc
+    }
+
+    lesserThanOrEqual(skus.length, maxSkus, "number of SKUs").map {
+      case _ ⇒ Unit
+    }
   }
 
   private def updateAssociatedSkus(context: ObjectContext,
@@ -139,9 +156,11 @@ object ProductManager {
 
       case None ⇒
         for {
-          links ← * <~ ObjectUtils.updateAssociatedRights(
-                     Skus, context.id, oldProductShadowId, product.shadowId, ObjectLink.ProductSku)
-          skus ← * <~ links.map(link ⇒ mustFindFullSkuByShadowId(link.rightId))
+          existingLinks ← * <~ ObjectLinks
+                           .findByLeftAndType(oldProductShadowId, ObjectLink.ProductSku)
+                           .result
+          links ← * <~ ObjectUtils.updateAssociatedRights(Skus, existingLinks, product.shadowId)
+          skus  ← * <~ links.map(link ⇒ mustFindFullSkuByShadowId(link.rightId))
         } yield skus
     }
   }
@@ -159,14 +178,37 @@ object ProductManager {
 
       case None ⇒
         for {
-          links ← * <~ ObjectUtils.updateAssociatedRights(Variants,
-                                                          context.id,
-                                                          oldProductShadowId,
-                                                          product.shadowId,
-                                                          ObjectLink.ProductVariant)
-          variants ← * <~ links.map(link ⇒ mustFindFullVariantByShadowId(context.id, link.rightId))
+          links ← * <~ ObjectLinks
+                   .findByLeftAndType(oldProductShadowId, ObjectLink.ProductVariant)
+                   .result
+
+          variants ← * <~ links.map(link ⇒
+                          updateAssociatedVariant(context, product.shadowId, link))
         } yield variants
     }
+  }
+
+  private def updateAssociatedVariant(
+      context: ObjectContext, newShadowId: Int, variantLink: ObjectLink)(implicit ec: EC, db: DB) =
+    for {
+      link ← * <~ ObjectUtils.updateAssociatedRight(Variants, variantLink, newShadowId)
+      valLinks ← * <~ ObjectLinks
+                  .findByLeftAndType(variantLink.rightId, ObjectLink.VariantValue)
+                  .result
+      _       ← * <~ ObjectUtils.updateAssociatedRights(VariantValues, valLinks, link.rightId)
+      variant ← * <~ mustFindFullVariantByShadowId(context.id, link.rightId)
+    } yield variant
+
+  private def updateAssociatedAlbums(context: ObjectContext,
+                                     product: Product,
+                                     oldProductShadowId: Int)(implicit ec: EC, db: DB) = {
+
+    for {
+      existingLinks ← * <~ ObjectLinks
+                       .findByLeftAndType(oldProductShadowId, ObjectLink.ProductAlbum)
+                       .result
+      _ ← * <~ ObjectUtils.updateAssociatedRights(Albums, existingLinks, product.shadowId)
+    } yield {}
   }
 
   private def updateHead(
