@@ -54,7 +54,8 @@ export default class NewStoreCredit extends React.Component {
   static propTypes = {
     params: PropTypes.shape({
       customerId: PropTypes.number.required
-    })
+    }),
+    error: PropTypes.array,
   };
 
   componentDidMount() {
@@ -222,6 +223,33 @@ export default class NewStoreCredit extends React.Component {
     );
   }
 
+  get giftCardConvertErrors() {
+    const { error } = this.props;
+    if (_.isEmpty(error)) {
+      return null;
+    }
+
+    const firstError = error[0];
+    let message;
+
+    switch (firstError) {
+      case 'Open transactions should be canceled/completed':
+        message = 'Gift card is already used in order and cannot be transfered to store credits.';
+        break;
+      case 'cannot convert a gift card with state \'FullyRedeemed\'':
+        message = 'Gift card is fully redeemed.';
+        break;
+      default:
+        message = 'Gift card cannot be transfered to store credits.';
+    }
+
+    return (
+      <div className="fc-form-field-error">
+        {message}
+      </div>
+    );
+  }
+
   get giftCardConvertForm() {
     const {form, convertGiftCard} = this.props;
 
@@ -245,6 +273,7 @@ export default class NewStoreCredit extends React.Component {
                          value={form.code}
                          formFieldTarget />
                 </FormField>
+                {this.giftCardConvertErrors}
               </li>
               <li className="fc-store-credit-form__input-group">
                 <div>

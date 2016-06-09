@@ -31,7 +31,7 @@ export function createStoreCredit(customerId) {
     const form = _.get(getState(), ['customers', 'newStoreCredit', 'form']);
     const payload = dissoc(form, 'code', 'id', 'availableAmount');
 
-    Api.post(saveStoreCreditUrl(customerId), payload)
+    return Api.post(saveStoreCreditUrl(customerId), payload)
       .then(
         data => dispatch(openStoreCreditList(data)),
         err => dispatch(failNewStoreCredit(err))
@@ -46,7 +46,7 @@ export function convertGiftCard(customerId) {
     const payload = dissoc(form, 'amount', 'currency', 'id', 'type', 'subTypeId', 'availableAmount');
 
     if (payload.code) {
-      Api.post(changeGiftCardUrl(customerId, payload.code), payload)
+      return Api.post(changeGiftCardUrl(customerId, payload.code), payload)
         .then(
           data => dispatch(openStoreCreditList(data)),
           err => dispatch(failNewStoreCredit(err))
@@ -60,7 +60,7 @@ export function changeGCCode(value) {
     dispatch(changeScFormData('code', value));
 
     if (!_.isEmpty(value)) {
-      Api.get(`/gift-cards/${value}`)
+      return Api.get(`/gift-cards/${value}`)
         .then(
           json => dispatch(changeScFormData('availableAmount', json.availableBalance)),
           err => dispatch(changeScFormData('availableAmount', 0.0))
@@ -85,7 +85,8 @@ const initialState = {
     availableAmount: 0
   },
   balances: [1000, 2500, 5000, 10000, 20000],
-  isFetching: false
+  isFetching: false,
+  error: null,
 };
 
 const reducer = createReducer({
@@ -102,7 +103,10 @@ const reducer = createReducer({
         ['form', 'amount'], value
       );
     }
-    return assoc(state, ['form', name], value);
+    return assoc(state,
+      ['form', name], value,
+      'error', null
+    );
   },
   [changeScReason]: (state, newReason) => {
     return assoc(state,
@@ -116,7 +120,10 @@ const reducer = createReducer({
     );
   },
   [submitStoreCredit]: state => {
-    return assoc(state, 'isFetching', true);
+    return assoc(state,
+      'isFetching', true,
+      'error', null
+    );
   },
   [openStoreCreditList]: (state, payload) => {
     return assoc(state,
@@ -132,7 +139,8 @@ const reducer = createReducer({
 
     return {
       ...state,
-      isFetching: false
+      error: _.get(err, ['responseJson', 'errors'], []),
+      isFetching: false,
     };
   }
 }, initialState);
