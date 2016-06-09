@@ -54,7 +54,8 @@ export default class NewStoreCredit extends React.Component {
   static propTypes = {
     params: PropTypes.shape({
       customerId: PropTypes.number.required
-    })
+    }),
+    error: PropTypes.array,
   };
 
   componentDidMount() {
