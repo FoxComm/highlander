@@ -70,13 +70,11 @@ object ProductManager {
       form    ← * <~ ObjectForms.mustFindById404(product.formId)
       shadow  ← * <~ ObjectShadows.mustFindById404(product.shadowId)
 
-      skuLinks ← * <~ ObjectLinks.findByLeftAndType(product.shadowId, ObjectLink.ProductSku).result
-      skus     ← * <~ skuLinks.map(link ⇒ mustFindFullSkuByShadowId(link.rightId))
+      skuLinks ← * <~ ProductSkuLinks.filter(_.leftId === product.id).result
+      skus     ← * <~ skuLinks.map(link ⇒ mustFindFullSkuById(link.rightId))
 
-      variantLinks ← * <~ ObjectLinks
-                      .findByLeftAndType(product.shadowId, ObjectLink.ProductVariant)
-                      .result
-      variants ← * <~ variantLinks.map(link ⇒ mustFindFullVariantByShadowId(link.rightId))
+      variantLinks ← * <~ ProductVariantLinks.filter(_.leftId === product.id).result
+      variants     ← * <~ variantLinks.map(link ⇒ mustFindFullVariantById(link.rightId))
     } yield
       IlluminatedFullProductResponse.build(
           p = IlluminatedProduct.illuminate(oc, product, form, shadow),
@@ -150,11 +148,8 @@ object ProductManager {
 
       case None ⇒
         for {
-          existingLinks ← * <~ ObjectLinks
-                           .findByLeftAndType(oldProductShadowId, ObjectLink.ProductSku)
-                           .result
-          links ← * <~ ObjectUtils.updateAssociatedRights(Skus, existingLinks, product.shadowId)
-          skus  ← * <~ links.map(link ⇒ mustFindFullSkuByShadowId(link.rightId))
+          links ← * <~ ProductSkuLinks.filter(_.leftId === product.id).result
+          skus  ← * <~ links.map(link ⇒ mustFindFullSkuById(link.rightId))
         } yield skus
     }
   }
@@ -218,11 +213,12 @@ object ProductManager {
              case Some(sku) ⇒
                SkuManager.updateSkuInner(sku, payload.attributes).value
              case None ⇒
-               SkuManager.createSkuInner(oc, payload).value
+               (for {
+                 newSku ← * <~ SkuManager.createSkuInner(oc, payload)
+                 _ ← * <~ ProductSkuLinks.create(
+                        ProductSkuLink(leftId = product.id, rightId = newSku.model.id))
+               } yield newSku).value
            }
-      _ ← * <~ ObjectLinks.create(ObjectLink(leftId = product.shadowId,
-                                             rightId = sku.shadow.id,
-                                             linkType = ObjectLink.ProductSku))
     } yield sku
   }
 
@@ -238,15 +234,23 @@ object ProductManager {
     } yield variant
   }
 
-  private def mustFindFullSkuByShadowId(
-      shadowId: Int)(implicit ec: EC, db: DB): DbResultT[FullObject[Sku]] =
+  private def mustFindFullSkuById(id: Int)(implicit ec: EC, db: DB): DbResultT[FullObject[Sku]] =
     for {
-      shadow ← * <~ ObjectShadows.mustFindById404(shadowId)
-      form   ← * <~ ObjectForms.mustFindById404(shadow.formId)
-      sku ← * <~ Skus
-             .filter(_.shadowId === shadowId)
-             .mustFindOneOr(SkuWithShadowNotFound(shadow.id))
+      sku    ← * <~ Skus.filter(_.id === id).mustFindOneOr(SkuNotFound(id))
+      shadow ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
+      form   ← * <~ ObjectForms.mustFindById404(sku.formId)
     } yield FullObject(sku, form, shadow)
+
+  private def mustFindFullVariantById(id: Int)(implicit ec: EC, db: DB, oc: OC) =
+    for {
+      variant ← * <~ Variants.filter(_.id === id).mustFindOneOr(VariantNotFound(id))
+      shadow  ← * <~ ObjectShadows.mustFindById404(variant.shadowId)
+      form    ← * <~ ObjectForms.mustFindById404(variant.formId)
+      fullVariant = FullObject(variant, form, shadow)
+      links ← * <~ ObjectLinks.findByLeftAndType(shadow.id, ObjectLink.VariantValue).result
+      values ← * <~ links.map(link ⇒
+                    VariantManager.mustFindVariantValueByContextAndShadow(oc.id, link.rightId))
+    } yield (fullVariant, values)
 
   private def mustFindFullVariantByShadowId(shadowId: Int)(
       implicit ec: EC,

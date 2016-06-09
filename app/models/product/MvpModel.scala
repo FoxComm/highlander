@@ -260,12 +260,17 @@ object Mvp {
                            shadowId = productShadow.id,
                            commitId = productCommit.id))
 
-      _ ← * <~ skus.map { sku ⇒
-           DbResultT(ObjectLinks.create(ObjectLink(leftId = product.shadowId,
-                                                   rightId = sku.shadowId,
-                                                   linkType = ObjectLink.ProductSku)))
-         }
+      _ ← * <~ skus.map(sku ⇒ linkProductAndSku(product, sku))
     } yield product
+
+  // Temporary convenience method to use until ObjectLink is replaced.
+  private def linkProductAndSku(product: Product, sku: Sku)(implicit ec: EC) =
+    for {
+      _ ← * <~ ObjectLinks.create(ObjectLink(leftId = product.shadowId,
+                                             rightId = sku.shadowId,
+                                             linkType = ObjectLink.ProductSku))
+      _ ← * <~ ProductSkuLinks.create(ProductSkuLink(leftId = product.id, rightId = sku.id))
+    } yield {}
 
   def insertSku(contextId: Int, s: SimpleSku): DbResultT[Sku] =
     for {
