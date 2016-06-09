@@ -162,15 +162,15 @@ export default class NewStoreCredit extends React.Component {
   }
 
   get storeCreditTypeError() {
-    if (this.state.scTypeError != null) {
-      return (
-        <div className="fc-form-field-error">
-          {this.state.scTypeError}
-        </div>
-      );
+    if (this.state.scTypeError == null) {
+      return null;
     }
 
-    return null;
+    return (
+      <div className="fc-form-field-error">
+        {this.state.scTypeError}
+      </div>
+    );
   }
 
   @autobind
