@@ -21,7 +21,11 @@ export default class Api {
     if (!args.api_url) throw new Error('you must specify an API URL');
     this.api_url = args.api_url.replace(/\/?$/, ''); // ensure no trailing slash
 
+    // @property addresses: Addresses
+    // Addresses instance
     this.addresses = new Addresses(this);
+    // @property auth: Auth
+    // Auth instance
     this.auth = new Auth(this);
   }
 
