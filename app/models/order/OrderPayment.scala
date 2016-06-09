@@ -35,6 +35,11 @@ case class OrderPayment(id: Int = 0,
 
     amountOk.map(_ ⇒ this)
   }
+
+  def getAmount(amountLimit: Option[Int] = None) = {
+    val paymentAmount = amount.getOrElse(0)
+    amountLimit.fold(paymentAmount)(_.min(paymentAmount))
+  }
 }
 
 object OrderPayment {

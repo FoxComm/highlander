@@ -110,53 +110,40 @@ class CheckoutTest
 
     "authorizes payments" - {
       "for all gift cards" in new PaymentFixture {
-        val ids = (for {
-          origin ← * <~ GiftCardManuals.create(
-                      GiftCardManual(adminId = admin.id, reasonId = reason.id))
-          ids ← * <~ GiftCards.createAllReturningIds((1 to 3).map { _ ⇒
-                 Factories.giftCard.copy(originalBalance = cart.grandTotal - 1,
-                                         originId = origin.id)
-               })
-          _ ← * <~ OrderPayments.createAllReturningIds(ids.map { id ⇒
-               Factories.giftCardPayment.copy(
-                   orderId = cart.id, paymentMethodId = id, amount = (cart.grandTotal - 1).some)
-             })
-        } yield ids).runTxn().futureValue.rightVal
+        val gcAmount  = cart.grandTotal - 1
+        val gcPayment = Factories.giftCardPayment.copy(orderId = cart.id, amount = gcAmount.some)
 
-        val result  = Checkout(cart, cartValidator()).checkout.run().futureValue.rightVal
-        val current = Orders.findById(cart.id).extract.one.run().futureValue.value
-        val adjustments =
-          GiftCardAdjustments.filter(_.giftCardId.inSet(ids)).result.run().futureValue
+        val adjustments = (for {
+          ids ← * <~ generateGiftCards(List.fill(3)(gcAmount))
+          _ ← * <~ OrderPayments.createAllReturningIds(
+                 ids.map(id ⇒ gcPayment.copy(paymentMethodId = id)))
+          _           ← * <~ Checkout(cart, cartValidator()).checkout
+          adjustments ← * <~ GiftCardAdjustments.filter(_.giftCardId.inSet(ids)).result
+        } yield adjustments).runTxn().futureValue.rightVal
 
         import GiftCardAdjustment._
 
         adjustments.map(_.state).toSet must ===(Set[State](Auth))
-        adjustments.map(_.debit) must ===(List(cart.grandTotal - 1, 1))
+        adjustments.map(_.debit) must ===(List(gcAmount, cart.grandTotal - gcAmount))
       }
 
       "for all store credits" in new PaymentFixture {
-        val ids = (for {
-          origin ← * <~ StoreCreditManuals.create(
-                      StoreCreditManual(adminId = admin.id, reasonId = reason.id))
-          ids ← * <~ StoreCredits.createAllReturningIds((1 to 3).map { _ ⇒
-                 Factories.storeCredit.copy(originalBalance = cart.grandTotal - 1,
-                                            originId = origin.id)
-               })
-          _ ← * <~ OrderPayments.createAllReturningIds(ids.map { id ⇒
-               Factories.storeCreditPayment.copy(
-                   orderId = cart.id, paymentMethodId = id, amount = Some(cart.grandTotal - 1))
-             })
-        } yield ids).runTxn().futureValue.rightVal
+        val scAmount = cart.grandTotal - 1
+        val scPayment =
+          Factories.storeCreditPayment.copy(orderId = cart.id, amount = scAmount.some)
 
-        val result  = Checkout(cart, cartValidator()).checkout.run().futureValue.rightVal
-        val current = Orders.findById(cart.id).extract.one.run().futureValue.value
-        val adjustments =
-          StoreCreditAdjustments.filter(_.storeCreditId.inSet(ids)).result.run().futureValue
+        val adjustments = (for {
+          ids ← * <~ generateStoreCredits(List.fill(3)(scAmount))
+          _ ← * <~ OrderPayments.createAllReturningIds(
+                 ids.map(id ⇒ scPayment.copy(paymentMethodId = id)))
+          _           ← * <~ Checkout(cart, cartValidator()).checkout
+          adjustments ← * <~ StoreCreditAdjustments.filter(_.storeCreditId.inSet(ids)).result
+        } yield adjustments).runTxn().futureValue.rightVal
 
         import StoreCreditAdjustment._
 
         adjustments.map(_.state).toSet must ===(Set[State](Auth))
-        adjustments.map(_.debit) must ===(List(cart.grandTotal - 1, 1))
+        adjustments.map(_.debit) must ===(List(scAmount, cart.grandTotal - scAmount))
       }
     }
   }
@@ -193,5 +180,21 @@ class CheckoutTest
       cart     ← * <~ Orders.create(Factories.cart.copy(customerId = customer.id, grandTotal = 1000))
       reason   ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
     } yield (admin, customer, cart, reason)).runTxn().futureValue.rightVal
+
+    def generateGiftCards(amount: Seq[Int]) =
+      for {
+        origin ← * <~ GiftCardManuals.create(
+                    GiftCardManual(adminId = admin.id, reasonId = reason.id))
+        ids ← * <~ GiftCards.createAllReturningIds(amount.map(gcAmount ⇒
+                       Factories.giftCard.copy(originalBalance = gcAmount, originId = origin.id)))
+      } yield ids
+
+    def generateStoreCredits(amount: Seq[Int]) =
+      for {
+        origin ← * <~ StoreCreditManuals.create(
+                    StoreCreditManual(adminId = admin.id, reasonId = reason.id))
+        ids ← * <~ StoreCredits.createAllReturningIds(amount.map(scAmount ⇒
+                       Factories.storeCredit.copy(originalBalance = scAmount, originId = origin.id)))
+      } yield ids
   }
 }

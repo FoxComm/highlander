@@ -248,11 +248,9 @@ object GiftCards
 
   def authOrderPayment(
       giftCard: GiftCard, pmt: OrderPayment, maxPaymentAmount: Option[Int] = None)(
-      implicit ec: EC): DbResult[GiftCardAdjustment] = {
-    val paymentAmount = pmt.amount.getOrElse(0)
-    val debit         = maxPaymentAmount.map(_.min(paymentAmount)).getOrElse(paymentAmount)
-    auth(giftCard = giftCard, orderPaymentId = pmt.id.some, debit = debit)
-  }
+      implicit ec: EC): DbResult[GiftCardAdjustment] =
+    auth(
+        giftCard = giftCard, orderPaymentId = pmt.id.some, debit = pmt.getAmount(maxPaymentAmount))
 
   def capture(giftCard: GiftCard, orderPaymentId: Option[Int], debit: Int = 0, credit: Int = 0)(
       implicit ec: EC): DbResult[GiftCardAdjustment] =
