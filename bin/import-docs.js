@@ -162,7 +162,10 @@ const structuresToImport = [
   'CreateAddressPayload',
   'UpdateAddressPayload',
   'Address',
-  'Addresses'
+  'Addresses',
+  'CreditCards',
+  'CreditCardCreatePayload',
+  'CreditCardUpdatePayload'
 ];
 
 function convertDocs() {

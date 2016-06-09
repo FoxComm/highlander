@@ -17,8 +17,8 @@ describe('auth', function() {
       .post('/v1/public/login')
       .reply(200, {result: 'ok'});
 
-    api.login({user: 'admin@admin.com', password: 'password'});
 
+    api.auth.login('admin@admin.com', 'password', 'customer');
     scope.done();
   });
 });
