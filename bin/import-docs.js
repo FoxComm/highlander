@@ -94,16 +94,18 @@ function convertType(type) {
   return _.upperFirst(type);
 }
 
-function apiaryToLeafdoc(str) {
+function apiaryToLeafdoc(str, namesMap) {
   const attrRe = /\+\s+(\w+):?\s*(\d+|`[^\`]+`)?\s+\(([^)]+)\)\s*\-\s*(.*)/;
   const directiveRe = /[\-+]\s*(\w+)\s+(.*)/;
   const doc = new Leafdoc();
 
   let structureName = null;
 
+  const rename = name => namesMap[name] || name;
+
   str.toString().split(/\n\r?/).forEach(line => {
     if (line.startsWith('###')) {
-      structureName = line.replace(/[\#\s]/g, '');
+      structureName = rename(line.replace(/[\#\s]/g, ''));
       doc.addStructure(structureName);
     }
     if (/^[+\-]/.test(line) && structureName) {
@@ -117,7 +119,7 @@ function apiaryToLeafdoc(str) {
           description = description + '.'; // Add a point to let style to be similar
         }
 
-        const type = convertType(attrs[attrs.length-1]);
+        const type = rename(convertType(attrs[attrs.length-1]));
         const defaultPart = example ? ` = ${example}` : '';
         let required = true;
         if (attrs.indexOf('optional') != -1) {
@@ -138,7 +140,7 @@ function apiaryToLeafdoc(str) {
       if (split) {
         const name = split[1];
         if (name.toLowerCase() === 'include') {
-          const type = split[2];
+          const type = rename(split[2]);
           doc.writeHead(`@inherits ${type}`);
           doc.lastSection.deps.push(type);
         }
@@ -162,16 +164,30 @@ const structuresToImport = [
   'CreateAddressPayload',
   'UpdateAddressPayload',
   'Address',
-  'Addresses'
+  'Addresses:AddressesResponse',
+  'CreditCards:CreditCardsResponse',
+  'CreditCardCreatePayload',
+  'CreditCardUpdatePayload'
 ];
 
 function convertDocs() {
   console.log('Import apiary objects descriptions');
   mkdirp.sync(outPath);
+
+  const requiredStructures = structuresToImport.map(name => name.split(':').slice(-1)[0])
+  const newNames = structuresToImport.reduce((acc, name) => {
+    const [realName, newName] = name.split(':');
+
+    if (newName) {
+      acc[realName] = newName;
+    }
+    return acc;
+  }, {})
+
   const deps = {};
   const docs = collectDocs()
     .map(([filename, contents]) => {
-      const leafdoc = apiaryToLeafdoc(contents);
+      const leafdoc = apiaryToLeafdoc(contents, newNames);
       leafdoc.indexDeps(deps);
       leafdoc.filename = rename(filename, '.leafdoc');
 
@@ -185,7 +201,7 @@ function convertDocs() {
 
     return [...required, ...requiredDeps];
   }
-  const allDeps = indexArray(collectDeps(structuresToImport));
+  const allDeps = indexArray(collectDeps(requiredStructures));
 
   docs.map(leafdoc => {
       const value = leafdoc.filterAndDump(allDeps);

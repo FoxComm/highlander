@@ -1,5 +1,5 @@
 /**
- * @miniclass LoginResponse (FoxApi)
+ * @miniclass LoginResponse (Auth)
  * @field jwt: String
  * [JWT](https://jwt.io/) token.
  *
@@ -11,62 +11,67 @@
  */
 
 /**
- * @miniclass GoogleSigninResponse (FoxApi)
+ * @miniclass GoogleSigninResponse (Auth)
  * @field url: String
  * Url for redirection.
  */
 
 
-// @namespace FoxApi
-// @section Auth methods
+// @class Auth
 
 import * as endpoints from '../endpoints';
 
-// @method signup(email: String, name: String, password: String): Promise
-// Register new user
-export function signup(email, name, password) {
-  return this.post(endpoints.signup, {email, name, password});
-}
+export default class Auth {
+  constructor(api) {
+    this.api = api;
+  }
 
-// @method login(email: String, password: String, kind: String): Promise<LoginResponse>
-// Authenticate user by username and password.
-// `kind` can be 'customer' or 'admin'
-export function login(email, password, kind) {
-  let jwt = null;
+  // @method signup(email: String, name: String, password: String): Promise
+  // Register new user
+  signup(email, name, password) {
+    return this.api.post(endpoints.signup, {email, name, password});
+  }
 
-  return this.post(
-    endpoints.login,
-    {email, password, kind},
-    {
-      credentials: 'same-origin',
-      handleResponse: false
-    }
-  )
-    .then(response => {
-      jwt = response.headers.get('jwt');
-      if (response.status == 200 && jwt) {
-        return response.json();
+  // @method login(email: String, password: String, kind: String): Promise<LoginResponse>
+  // Authenticate user by username and password.
+  // `kind` can be 'customer' or 'admin'
+  login(email, password, kind) {
+    let jwt = null;
+
+    return this.api.post(
+      endpoints.login,
+      {email, password, kind},
+      {
+        credentials: 'same-origin',
+        handleResponse: false
       }
-      throw new Error('Server error, try again later. Sorry for inconvenience :(');
-    })
-    .then(user => {
-      if (user.email && user.name) {
-        return {
-          user,
-          jwt,
-        };
-      }
-      throw new Error('Server error, try again later. Sorry for inconvenience :(');
-    });
-}
+    )
+      .then(response => {
+        jwt = response.headers.get('jwt');
+        if (response.status == 200 && jwt) {
+          return response.json();
+        }
+        throw new Error('Server error, try again later. Sorry for inconvenience :(');
+      })
+      .then(user => {
+        if (user.email && user.name) {
+          return {
+            user,
+            jwt,
+          };
+        }
+        throw new Error('Server error, try again later. Sorry for inconvenience :(');
+      });
+  }
 
-// @method googleSignin(): Promise<GoogleSigninResponse>
-export function googleSignin(){
-  return this.get(endpoints.googleSignin);
-}
+  // @method googleSignin(): Promise<GoogleSigninResponse>
+  googleSignin(){
+    return this.api.get(endpoints.googleSignin);
+  }
 
-// @method logout(): Promse
-// Removes JWT cookie.
-export function logout() {
-  return this.post(endpoints.logout);
+  // @method logout(): Promse
+  // Removes JWT cookie.
+  logout() {
+    return this.api.post(endpoints.logout);
+  }
 }

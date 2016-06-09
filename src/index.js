@@ -11,14 +11,22 @@
  */
 
 import request from './utils/request';
-import setup from './api/index'
+import Addresses from './api/adresses';
+import Auth from './api/auth';
 
-class Api {
+export default class Api {
   constructor(args) {
     // @option api_url: String
     // Required option. Should point to phoenix backend.
     if (!args.api_url) throw new Error('you must specify an API URL');
-    this.api_url = args.api_url.replace(/\/?$/, '/'); // ensure trailing slash
+    this.api_url = args.api_url.replace(/\/?$/, ''); // ensure no trailing slash
+
+    // @property addresses: Addresses
+    // Addresses instance
+    this.addresses = new Addresses(this);
+    // @property auth: Auth
+    // Auth instance
+    this.auth = new Auth(this);
   }
 
   // @section Base methods
@@ -98,5 +106,3 @@ class Api {
     return this.request('delete', ...args);
   }
 }
-
-export default setup(Api);

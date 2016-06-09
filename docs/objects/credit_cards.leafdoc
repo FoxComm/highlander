@@ -1,0 +1,42 @@
+
+@miniclass CreditCardCreatePayload (FoxApi)
+@aka creditcardcreatepayload
+
+@field holderName: String = `John Smith`
+Cardholder name.
+
+@field number: String = `5555 5555 5555 5555`
+Credit card number.
+
+@field cvv: String = `555`
+CVV.
+
+@field expMonth: Number = 4
+Expiration month.
+
+@field expYear: Number = 2020
+Expiration year.
+
+@field address?: CreateAddressPayload
+Billing address.
+
+@field addressId?: Number
+Billing address ID.
+
+@miniclass CreditCardUpdatePayload (FoxApi)
+@aka creditcardupdatepayload
+
+@field holderName?: String = `John Smith`
+Cardholder name.
+
+@field expMonth?: Number = 4
+Expiration month.
+
+@field expYear?: Number = 2020
+Expiration year.
+
+@field address?: CreateAddressPayload
+Billing address.
+
+@field addressId?: Number
+Billing address ID.

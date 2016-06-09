@@ -1,47 +1,52 @@
 
-// @namespace FoxApi
-// @section Addresses methods
+// @class Addresses
 
 import * as endpoints from '../endpoints';
 
-// @method getAddresses(options: Query options): Promise<Addresses>
-// Choices for `options.sortBy` parameter:
-// `id` `regionId` `name` `address1` `address2` `city` `zip` `isDefaultShipping` `phoneNumber` `deletedAt` `region_id` `region_countryId` `region_name` `region_abbreviation`
-export function getAddresses(options) {
-  return this.get(endpoints.addresses, options);
-}
+export default class Addresses {
+  constructor(api) {
+    this.api = api;
+  }
 
-// @method getAddress(addressId: Number): Promise<Address>
-export function getAddress(addressId) {
-  return this.get(endpoints.address(addressId))
-}
+  // @method list(options: Query options): Promise<AddressesResponse>
+  // Choices for `options.sortBy` parameter:
+  // `id` `regionId` `name` `address1` `address2` `city` `zip` `isDefaultShipping` `phoneNumber` `deletedAt` `region_id` `region_countryId` `region_name` `region_abbreviation`
+  list(options) {
+    return this.api.get(endpoints.addresses, options);
+  }
 
-// @method addAddress(address: CreateAddressPayload): Promise<Address>
-// Adds new address
-export function addAddress(address) {
-  return this.post(endpoints.addresses, address)
-}
+  // @method one(addressId: Number): Promise<Address>
+  one(addressId) {
+    return this.api.get(endpoints.address(addressId));
+  }
 
-// @method editAddress(addressId: Number, address: UpdateAddressPayload): Promise<Address>
-// Updates selected address
-export function editAddress(addressId, address) {
-  return this.patch(endpoints.address(addressId), address);
-}
+  // @method add(address: CreateAddressPayload): Promise<Address>
+  // Adds new address
+  add(address) {
+    return this.api.post(endpoints.addresses, address)
+  }
 
-// @method setAddressAsDefaut(addressId: Number): Promise<Address>
-// Sets selected address as default.
-export function setAddressAsDefaut(addressId) {
-  return this.post(endpoints.addressDefault(addressId));
-}
+  // @method edit(addressId: Number, address: UpdateAddressPayload): Promise<Address>
+  // Updates selected address
+  edit(addressId, address) {
+    return this.api.patch(endpoints.address(addressId), address);
+  }
 
-// @method removeDefaultAddress(): Promise
-// Removes default address.
-export function removeDefaultAddress() {
-  return this.delete(endpoints.addressesDefault);
-}
+  // @method setAsDefault(addressId: Number): Promise<Address>
+  // Sets selected address as default.
+  setAsDefault(addressId) {
+    return this.api.post(endpoints.addressDefault(addressId));
+  }
 
-// @method deleteAddress(addressId: Number): Promise
-// Deletes address.
-export function deleteAddress(addressId) {
-  return this.delete(endpoints.address(addressId));
+  // @method removeDefault(): Promise
+  // Removes default address.
+  removeDefault() {
+    return this.api.delete(endpoints.addressesDefault);
+  }
+
+  // @method delete(addressId: Number): Promise
+  // Deletes address.
+  delete(addressId) {
+    return this.api.delete(endpoints.address(addressId));
+  }
 }
