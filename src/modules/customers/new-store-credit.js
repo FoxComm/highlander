@@ -77,7 +77,7 @@ const initialState = {
     id: null,
     amount: null,
     amountText: amountToText(0),
-    currency: null,
+    currency: 'USD',
     type: null,
     subTypeId: null,
     reasonId: null,

@@ -171,21 +171,6 @@ export default class NewStoreCredit extends React.Component {
           <div className="fc-col-md-1-3">
             <ul>
               {this.typeChangeField}
-              <li className="fc-store-credit-form__input-group">
-                <div>
-                  <label htmlFor="scCurrencyField" className="fc-store-credit-form__label">
-                    Currency
-                  </label>
-                </div>
-                <div>
-                  <Dropdown id="scCurrencyField"
-                            name="currency"
-                            items={currencyList}
-                            placeholder="- Select -"
-                            value={form.currency}
-                            onChange={(value) => changeScFormData('currency', value)} />
-                </div>
-              </li>
               <li className="fc-store-credit-form__input-group-amount">
                 <FormField label="Value"
                            labelClassName="fc-store-credit-form__label">
