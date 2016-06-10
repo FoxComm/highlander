@@ -156,7 +156,7 @@ export default class BulkActions extends Component {
           groups.watchers, 'watch', true, 'successfully started watching', 'failed to start watching'
         ),
         this.getWatchAction(
-          groups.watchers, 'watch', false, 'failed to stop watching', 'failed to stop watching'
+          groups.watchers, 'watch', false, 'successfully stopped watching', 'failed to stop watching'
         ),
       ];
     }
