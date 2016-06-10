@@ -1,7 +1,28 @@
 
 import makeLiveSearch from '../live-search';
 
-const searchTerms = [];
+const searchTerms = [
+  {
+    title: 'Coupon Code : Code',
+    type: 'string',
+    term: 'code',
+  },
+  {
+    title: 'Coupon Code : Total Uses',
+    type: 'number',
+    term: 'totalUses',
+  },
+  {
+    title: 'Coupon Code : Current Carts',
+    type: 'number',
+    term: 'currentCarts',
+  },
+  {
+    title: 'Coupon : Date/Time Created',
+    type: 'date',
+    term: 'createdAt',
+  }
+];
 
 const { reducer, actions } = makeLiveSearch(
   'coupons.couponCodes',
