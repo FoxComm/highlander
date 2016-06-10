@@ -29,7 +29,7 @@ type AuthState = {
 };
 
 type Props = Localized & {
-  changePath: Function,
+  getPath: Function,
   isLoading: boolean,
   authenticate: Function,
   fetchCart: Function,
@@ -72,7 +72,7 @@ class Login extends Component {
     const kind = 'customer';
     this.props.authenticate({email, password, kind}).then(() => {
       this.props.fetchCart();
-      browserHistory.push(this.props.changePath());
+      browserHistory.push(this.props.getPath());
     }).catch(() => {
       this.setState({error: 'Email or password is invalid'});
     });
@@ -93,13 +93,13 @@ class Login extends Component {
     const { t } = props;
 
     const restoreLink = (
-      <Link to={props.changePath(authBlockTypes.RESTORE_PASSWORD)} styleName="restore-link">
+      <Link to={props.getPath(authBlockTypes.RESTORE_PASSWORD)} styleName="restore-link">
         {t('forgot?')}
       </Link>
     );
 
     const signupLink = (
-      <Link to={props.changePath(authBlockTypes.SIGNUP)} styleName="link">
+      <Link to={props.getPath(authBlockTypes.SIGNUP)} styleName="link">
         {t('Sign Up')}
       </Link>
     );

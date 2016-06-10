@@ -31,7 +31,7 @@ type AuthState = {
 };
 
 type Props = Localized & {
-  changePath: Function,
+  getPath: Function,
   isLoading: boolean,
 };
 
@@ -78,7 +78,7 @@ class Signup extends Component {
     const {email, password, username: name} = this.state;
     const paylaod: SignUpPayload = {email, password, name};
     this.props.signUp(paylaod).then(() => {
-      browserHistory.push(this.props.changePath(authBlockTypes.LOGIN));
+      browserHistory.push(this.props.getPath(authBlockTypes.LOGIN));
     }).catch(err => {
       const errors = get(err, ['responseJson', 'errors'], []);
       let emailError = false;
@@ -97,10 +97,10 @@ class Signup extends Component {
 
   render(): HTMLElement {
     const { email, password, username, emailError, usernameError } = this.state;
-    const { t, isLoading, changePath } = this.props;
+    const { t, isLoading, getPath } = this.props;
 
     const loginLink = (
-      <Link to={changePath(authBlockTypes.LOGIN)} styleName="link">
+      <Link to={getPath(authBlockTypes.LOGIN)} styleName="link">
         {t('Log in')}
       </Link>
     );

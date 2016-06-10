@@ -34,7 +34,7 @@ export default class ResetPassword extends Component {
     resetForm: PropTypes.func.isRequired,
     submitting: PropTypes.bool.isRequired,
     dispatch: PropTypes.func.isRequired,
-    changePath: PropTypes.func,
+    getPath: PropTypes.func,
   };
 
   state: ResetState = {
@@ -127,7 +127,7 @@ export default class ResetPassword extends Component {
   }
 
   goToLogin: Object = () => {
-    browserHistory.push(this.props.changePath(authBlockTypes.LOGIN));
+    browserHistory.push(this.props.getPath(authBlockTypes.LOGIN));
   };
 
   get primaryButton(): HTMLElement {
