@@ -40,46 +40,53 @@ object Workers {
   def searchViewWorkers(conf: MainConfig, connectionInfo: PhoenixConnectionInfo)(
       implicit ec: EC, ac: AS, mat: AM, cp: CP, sc: SC): Future[Unit] = Future {
 
-    val transformers = topicTransformers(conf, connectionInfo)
-    val topics       = conf.topicsPlusActivity()
-    val futures = topics.map { topic ⇒
-      Future {
+    val transformers = topicTransformers(connectionInfo)
+    val indexTopics  = conf.indexTopics
 
-        val maybeTransformer = transformers.get(topic)
+    val futures = indexTopics.flatMap {
+      case (index, topics) ⇒ {
+          topics.map { topic ⇒
+            Future {
 
-        maybeTransformer match {
-          case Some(transformer) ⇒
-            // Init
-            val esProcessor = new ElasticSearchProcessor(uri = conf.elasticSearchUrl,
-                                                         cluster = conf.elasticSearchCluster,
-                                                         indexName = conf.elasticSearchIndex,
-                                                         topics = Seq(topic),
-                                                         jsonTransformers =
-                                                           Map(topic → transformer))
+              val maybeTransformer = transformers.get(topic)
 
-            val avroProcessor = new AvroProcessor(schemaRegistryUrl = conf.avroSchemaRegistryUrl,
-                                                  processor = esProcessor)
+              maybeTransformer match {
+                case Some(transformer) ⇒
+                  // Init
+                  val esProcessor = new ElasticSearchProcessor(uri = conf.elasticSearchUrl,
+                                                               cluster = conf.elasticSearchCluster,
+                                                               indexName = index,
+                                                               topics = Seq(topic),
+                                                               jsonTransformers =
+                                                                 Map(topic → transformer))
 
-            val consumer = new MultiTopicConsumer(topics = Seq(topic),
-                                                  broker = conf.kafkaBroker,
-                                                  groupId = s"${conf.kafkaGroupId}_$topic",
-                                                  processor = avroProcessor,
-                                                  startFromBeginning = conf.startFromBeginning)
+                  val avroProcessor =
+                    new AvroProcessor(schemaRegistryUrl = conf.avroSchemaRegistryUrl,
+                                      processor = esProcessor)
 
-            // Start consuming & processing
-            Console.out.println(s"Reading from broker ${conf.kafkaBroker}")
-            consumer.readForever()
-          case None ⇒
-            throw new IllegalArgumentException(
-                s"The Topic '$topic' does not have a json transformer")
+                  val consumer = new MultiTopicConsumer(topics = Seq(topic),
+                                                        broker = conf.kafkaBroker,
+                                                        groupId = s"${conf.kafkaGroupId}_$topic",
+                                                        processor = avroProcessor,
+                                                        startFromBeginning =
+                                                          conf.startFromBeginning)
+
+                  // Start consuming & processing
+                  Console.out.println(s"Reading from broker ${conf.kafkaBroker}")
+                  consumer.readForever()
+                case None ⇒
+                  throw new IllegalArgumentException(
+                      s"The Topic '$topic' does not have a json transformer")
+              }
+            }
+          }
         }
-      }
     }
 
     Future.sequence(futures)
   }
 
-  def topicTransformers(conf: MainConfig, connectionInfo: PhoenixConnectionInfo)(
+  def topicTransformers(connectionInfo: PhoenixConnectionInfo)(
       implicit ec: EC, ac: AS, mat: AM, cp: CP, sc: SC) = Map(
       "countries_search_view"              → CountriesSearchView(),
       "customer_items_view"                → CustomerItemsView(),
@@ -101,6 +108,6 @@ object Workers {
       "store_admins_search_view"           → StoreAdminsSearchView(),
       "store_credit_transactions_view"     → StoreCreditTransactionsSearchView(),
       "store_credits_search_view"          → StoreCreditsSearchView(),
-      conf.connectionTopic                 → ActivityConnectionTransformer(connectionInfo)
+      "activity_connections_view"          → ActivityConnectionTransformer(connectionInfo)
   )
 }
