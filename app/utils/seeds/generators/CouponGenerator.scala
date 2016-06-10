@@ -67,13 +67,13 @@ trait CouponGenerator {
   def generateCoupons(data: Seq[SimpleCoupon])(implicit db: Database, ac: AC) =
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-      coupons ← * <~ DbResultT.sequence(data.map(d ⇒ {
+      coupons ← * <~ data.map(d ⇒ {
                  val couponForm   = SimpleCouponForm(d.percentOff, d.totalAmount)
                  val couponShadow = SimpleCouponShadow(couponForm)
-                 val payload =
-                   CreateCoupon(form = CreateCouponForm(attributes = couponForm.form),
-                                shadow = CreateCouponShadow(attributes = couponShadow.shadow),
-                                d.promotionId)
+                 val payload = CreateCoupon(form = CreateCouponForm(attributes = couponForm.form),
+                                            shadow =
+                                              CreateCouponShadow(attributes = couponShadow.shadow),
+                                            d.promotionId)
                  DbResultT(DBIO.from(CouponManager
                            .create(payload, context.name, None)
                            .flatMap {
@@ -81,6 +81,6 @@ trait CouponGenerator {
                        Result.right(d.copy(formId = r.form.id, shadowId = r.shadow.id))
                      case Xor.Left(l) ⇒ Result.failures(l)
                    }))
-               }))
+               })
     } yield coupons
 }

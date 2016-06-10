@@ -92,6 +92,7 @@ class Service(systemOverride: Option[ActorSystem] = None,
         routes.admin.InventoryRoutes.routes ~
         routes.admin.ProductRoutes.routes ~
         routes.admin.SkuRoutes.routes ~
+        routes.admin.VariantRoutes.routes ~
         routes.admin.DiscountRoutes.routes ~
         routes.admin.PromotionRoutes.routes ~
         routes.admin.ImageRoutes.routes ~

@@ -22,6 +22,11 @@ case class VariantValue(id: Int = 0,
                         createdAt: Instant = Instant.now)
     extends FoxModel[VariantValue]
     with Validation[VariantValue]
+    with ObjectHead[VariantValue] {
+
+  def withNewShadowAndCommit(shadowId: Int, commitId: Int): VariantValue =
+    this.copy(shadowId = shadowId, commitId = commitId)
+}
 
 class VariantValues(tag: Tag) extends ObjectHeads[VariantValue](tag, "variant_values") {
   def * =

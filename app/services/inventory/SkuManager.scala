@@ -22,6 +22,85 @@ import utils.db._
 
 object SkuManager {
 
+  /////////////////////////////////////////////////////////////////////////////////////////////////////
+  // NEW SIMPLE ENDPOINTS
+
+  def createSku(contextName: String, payload: CreateSkuPayload)(
+      implicit ec: EC, db: DB): Result[IlluminatedSkuResponse.Root] = {
+    (for {
+      context ← * <~ ObjectManager.mustFindByName404(contextName)
+      sku     ← * <~ createSkuInner(context, payload)
+    } yield IlluminatedSkuResponse.build(IlluminatedSku.illuminate(context, sku))).runTxn()
+  }
+
+  def getSku(contextName: String, code: String)(
+      implicit ec: EC, db: DB): Result[IlluminatedSkuResponse.Root] =
+    (for {
+      context ← * <~ ObjectManager.mustFindByName404(contextName)
+      sku     ← * <~ SkuManager.mustFindSkuByContextAndCode(context.id, code)
+      form    ← * <~ ObjectForms.mustFindById404(sku.formId)
+      shadow  ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
+    } yield
+      IlluminatedSkuResponse.build(
+          IlluminatedSku.illuminate(context, FullObject(sku, form, shadow)))).run()
+
+  def updateSku(contextName: String, code: String, payload: UpdateSkuPayload)(
+      implicit ec: EC, db: DB): Result[IlluminatedSkuResponse.Root] =
+    (for {
+      context    ← * <~ ObjectManager.mustFindByName404(contextName)
+      sku        ← * <~ SkuManager.mustFindSkuByContextAndCode(context.id, code)
+      updatedSku ← * <~ updateSkuInner(sku, payload.attributes)
+    } yield IlluminatedSkuResponse.build(IlluminatedSku.illuminate(context, updatedSku))).runTxn()
+
+  def createSkuInner(context: ObjectContext, payload: CreateSkuPayload)(
+      implicit ec: EC, db: DB): DbResultT[FullObject[Sku]] = {
+
+    val form   = ObjectForm.fromPayload(Sku.kind, payload.attributes)
+    val shadow = ObjectShadow.fromPayload(payload.attributes)
+
+    for {
+      ins ← * <~ ObjectUtils.insert(form, shadow)
+      sku ← * <~ Skus.create(
+               Sku(contextId = context.id,
+                   code = payload.code,
+                   formId = ins.form.id,
+                   shadowId = ins.shadow.id,
+                   commitId = ins.commit.id))
+    } yield FullObject(sku, ins.form, ins.shadow)
+  }
+
+  def updateSkuInner(sku: Sku, attributes: Map[String, Json])(
+      implicit ec: EC, db: DB): DbResultT[FullObject[Sku]] = {
+
+    val newFormAttrs   = ObjectForm.fromPayload(Sku.kind, attributes).attributes
+    val newShadowAttrs = ObjectShadow.fromPayload(attributes).attributes
+
+    for {
+      oldForm   ← * <~ ObjectForms.mustFindById404(sku.formId)
+      oldShadow ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
+
+      mergedAttrs = oldShadow.attributes.merge(newShadowAttrs)
+      updated ← * <~ ObjectUtils.update(
+                   oldForm.id, oldShadow.id, newFormAttrs, mergedAttrs, force = true)
+      commit      ← * <~ ObjectUtils.commit(updated)
+      updatedHead ← * <~ updateHead(sku, updated.shadow, commit)
+
+      albumLinks ← * <~ ObjectLinks.findByLeftAndType(oldShadow.id, ObjectLink.SkuAlbum).result
+      _          ← * <~ ObjectUtils.updateAssociatedRights(Skus, albumLinks, updatedHead.shadowId)
+    } yield FullObject(updatedHead, updated.form, updated.shadow)
+  }
+
+  private def updateHead(sku: Sku, shadow: ObjectShadow, maybeCommit: Option[ObjectCommit])(
+      implicit ec: EC): DbResult[Sku] = maybeCommit match {
+    case Some(commit) ⇒
+      Skus.update(sku, sku.copy(shadowId = shadow.id, commitId = commit.id))
+    case None ⇒
+      DbResult.good(sku)
+  }
+
+  //
+  /////////////////////////////////////////////////////////////////////////////////////////////////////
+
   def getFullSkuByContextName(code: String, contextName: String)(
       implicit ec: EC, db: DB): Result[FullSkuResponse.Root] =
     (for {
@@ -145,8 +224,7 @@ object SkuManager {
       // SKUs VariantValues if the Variant is in the Product.
       links ← * <~ ObjectLinks.findByLeftAndType(sku.shadowId, ObjectLink.SkuVariantValue).result
       varIds = variants.map(_.shadow.id)
-      toOpt ← * <~ DbResultT.sequence(
-                 links.map(l ⇒ varValueIfInProduct(l.rightId, sku.contextId, varIds)))
+      toOpt ← * <~ links.map(l ⇒ varValueIfInProduct(l.rightId, sku.contextId, varIds))
       avail ← * <~ toOpt.foldLeft(Seq.empty[VariantValueMapping]) { (acc, potentialValue) ⇒
                potentialValue.foldLeft(acc)(_ :+ _)
              }

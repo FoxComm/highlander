@@ -17,10 +17,10 @@ trait PromotionSeeds {
       discounts: Seq[BaseDiscount])(implicit db: Database, ac: AC): DbResultT[Seq[BasePromotion]] =
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-      results ← * <~ DbResultT.sequence(discounts.map { discount ⇒
+      results ← * <~ discounts.map { discount ⇒
                  val payload = createPromotion(discount.title, Promotion.Coupon)
                  insertPromotion(payload, discount, context)
-               })
+               }
     } yield results
 
   def insertPromotion(payload: CreatePromotion, discount: BaseDiscount, context: ObjectContext)(

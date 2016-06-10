@@ -81,12 +81,12 @@ object NotificationManager {
                   .map(_.adminId)
                   .result
                   .toXor
-      response ← * <~ DbResultT.sequence(adminIds.map { adminId ⇒
+      response ← * <~ adminIds.map { adminId ⇒
                   val appendActivity = AppendActivity(payload.activityId, payload.data)
                   val newTrailData   = Some(decompose(NotificationTrailMetadata(0)))
                   TrailManager.appendActivityByObjectIdInner(
                       Dimension.notification, adminId.toString, appendActivity, newTrailData)
-                })
+                }
       _ ← * <~ DBIO
            .sequence(adminIds.map { adminId ⇒
              val payload        = write(ActivityResponse.build(activity))

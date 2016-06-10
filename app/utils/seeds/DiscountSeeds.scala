@@ -19,10 +19,10 @@ trait DiscountSeeds {
   def createDiscounts(implicit db: Database): DbResultT[Seq[BaseDiscount]] =
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-      results ← * <~ DbResultT.sequence(discounts.map {
+      results ← * <~ discounts.map {
                  case (title, payload) ⇒
                    insertDiscount(title, payload, context)
-               })
+               }
     } yield results
 
   def insertDiscount(title: String, payload: CreateDiscount, context: ObjectContext)(

@@ -83,10 +83,10 @@ object PromotionManager {
       implicit ec: EC): DbResultT[DiscountsCreateResult] =
     for {
       discounts ← * <~ payload.form.discounts.zip(payload.shadow.discounts)
-      newDiscounts ← * <~ DbResultT.sequence(discounts.map {
+      newDiscounts ← * <~ discounts.map {
                       case (form, shadow) ⇒
                         createDiscount(context, form, shadow, promotionShadow)
-                    })
+                    }
       forms   = newDiscounts.map(_.form)
       shadows = newDiscounts.map(_.shadow)
     } yield DiscountsCreateResult(forms, shadows)
@@ -137,10 +137,10 @@ object PromotionManager {
     val pairs = payload.form.discounts.sortBy(_.id).zip(payload.shadow.discounts.sortBy(_.id))
 
     for {
-      updated ← * <~ DbResultT.sequence(pairs.map {
+      updated ← * <~ pairs.map {
                  case (form, shadow) ⇒
                    updateDiscount(context, form, shadow, oldPromotionShadowId, promotionShadowId)
-               })
+               }
       forms   = updated.map(_.form)
       shadows = updated.map(_.shadow)
     } yield UpdateDiscountsResult(forms, shadows)

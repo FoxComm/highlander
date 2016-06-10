@@ -4,6 +4,7 @@ object ProductFailures {
 
   object SkuNotFound {
     def apply(code: String) = NotFoundFailure404(s"Sku $code not found")
+    def apply(id: Int)      = NotFoundFailure404(s"Sku with id $id not found")
   }
 
   object SkuWithShadowNotFound {
@@ -22,6 +23,10 @@ object ProductFailures {
   object SkuNotFoundForContext {
     def apply(code: String, productContextId: Int) =
       NotFoundFailure404(s"Sku $code with product context $productContextId cannot be found")
+  }
+
+  object VariantNotFound {
+    def apply(id: Int) = NotFoundFailure404(s"Variant with id $id not found")
   }
 
   object VariantNotFoundForContext {

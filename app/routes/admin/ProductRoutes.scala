@@ -115,6 +115,27 @@ object ProductRoutes {
               ProductManager.getContextsForProduct(formId)
             }
           }
+        } ~
+        pathPrefix(Segment) { contextName ⇒
+          adminObjectContext(contextName)(db, ec) { implicit context ⇒
+            (post & pathEnd & entity(as[CreateProductPayload])) { payload ⇒
+              mutateGoodOrFailures {
+                ProductManager.createProduct(payload)
+              }
+            } ~
+            pathPrefix(IntNumber) { productId ⇒
+              (get & pathEnd) {
+                getGoodOrFailures {
+                  ProductManager.getProduct(productId)
+                }
+              } ~
+              (patch & pathEnd & entity(as[UpdateProductPayload])) { payload ⇒
+                mutateGoodOrFailures {
+                  ProductManager.updateProduct(productId, payload)
+                }
+              }
+            }
+          }
         }
       }
     }

@@ -22,6 +22,11 @@ case class Album(id: Int = 0,
                  createdAt: Instant = Instant.now)
     extends FoxModel[Album]
     with Validation[Album]
+    with ObjectHead[Album] {
+
+  def withNewShadowAndCommit(shadowId: Int, commitId: Int): Album =
+    this.copy(shadowId = shadowId, commitId = commitId)
+}
 
 class Albums(tag: Tag) extends ObjectHeads[Album](tag, "albums") {
   def * =

@@ -226,21 +226,38 @@ object ObjectUtils {
       linkType: ObjectLink.LinkType)(implicit ec: EC, db: DB): DbResultT[Seq[ObjectLink]] =
     for {
       links ← * <~ ObjectLinks.findByRightAndType(oldRightId, linkType).result
-      _ ← * <~ DbResultT.sequence(links.map { link ⇒
-           for {
-             shadow    ← * <~ ObjectShadows.mustFindById404(link.leftId)
-             newShadow ← * <~ ObjectShadows.create(shadow.copy(id = 0))
-             optModel ← * <~ Left
-                         .filter(_.formId === shadow.formId)
-                         .filter(_.contextId === contextId)
-                         .one
-                         .toXor
-             link ← * <~ updateLinkIfObject(optModel, Left, newShadow.id, newRightId, linkType)
-           } yield link
-         })
-    } yield links
+      upLinks ← * <~ links.map { link ⇒
+                 for {
+                   shadow    ← * <~ ObjectShadows.mustFindById404(link.leftId)
+                   newShadow ← * <~ ObjectShadows.create(shadow.copy(id = 0))
+                   optModel ← * <~ Left
+                               .filter(_.formId === shadow.formId)
+                               .filter(_.contextId === contextId)
+                               .one
+                               .toXor
+                   newLink ← * <~ updateLeftLinkIfObject(
+                                optModel, Left, newShadow.id, newRightId, linkType)
+                 } yield newLink.getOrElse(link)
+               }
+    } yield upLinks
 
-  private def updateLinkIfObject[M <: ObjectHead[M], T <: ObjectHeads[M]](
+  def updateAssociatedRights[M <: ObjectHead[M], T <: ObjectHeads[M]](
+      Right: FoxTableQuery[M, T], oldLinks: Seq[ObjectLink], newLeftId: Int)(
+      implicit ec: EC, db: DB): DbResultT[Seq[ObjectLink]] =
+    DbResultT.sequence(oldLinks.map(link ⇒ updateAssociatedRight(Right, link, newLeftId)))
+
+  def updateAssociatedRight[M <: ObjectHead[M], T <: ObjectHeads[M]](
+      Right: FoxTableQuery[M, T], oldLink: ObjectLink, newLeftId: Int)(
+      implicit ec: EC, db: DB): DbResultT[ObjectLink] =
+    for {
+      shadow    ← * <~ ObjectShadows.mustFindById404(oldLink.rightId)
+      newShadow ← * <~ ObjectShadows.create(shadow.copy(id = 0))
+      optModel  ← * <~ Right.filter(_.shadowId === oldLink.rightId).one.toXor
+      newLink ← * <~ updateRightLinkIfObject(
+                   optModel, Right, newLeftId, newShadow.id, oldLink.linkType)
+    } yield newLink.getOrElse(oldLink)
+
+  def updateLeftLinkIfObject[M <: ObjectHead[M], T <: ObjectHeads[M]](
       maybe: Option[M],
       table: FoxTableQuery[M, T],
       newShadowId: Int,
@@ -255,6 +272,27 @@ object ObjectUtils {
           update ← * <~ table.update(model, model.withNewShadowAndCommit(newShadowId, commit.id))
           link ← * <~ ObjectLinks.create(ObjectLink(
                         leftId = update.shadowId, rightId = newRightId, linkType = linkType))
+        } yield link.some
+      case None ⇒
+        DbResultT.pure(None)
+    }
+  }
+
+  private def updateRightLinkIfObject[M <: ObjectHead[M], T <: ObjectHeads[M]](
+      maybe: Option[M],
+      table: FoxTableQuery[M, T],
+      newLeftId: Int,
+      newShadowId: Int,
+      linkType: ObjectLink.LinkType)(implicit ec: EC, db: DB): DbResultT[Option[ObjectLink]] = {
+
+    maybe match {
+      case Some(model) ⇒
+        for {
+          commit ← * <~ ObjectCommits.create(
+                      ObjectCommit(formId = model.formId, shadowId = newShadowId))
+          update ← * <~ table.update(model, model.withNewShadowAndCommit(newShadowId, commit.id))
+          link ← * <~ ObjectLinks.create(
+                    ObjectLink(leftId = newLeftId, rightId = update.shadowId, linkType = linkType))
         } yield link.some
       case None ⇒
         DbResultT.pure(None)

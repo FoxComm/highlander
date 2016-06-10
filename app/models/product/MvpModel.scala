@@ -260,13 +260,17 @@ object Mvp {
                            shadowId = productShadow.id,
                            commitId = productCommit.id))
 
-      _ ← * <~ DbResultT.sequence(
-             skus.map { sku ⇒
-           DbResultT(ObjectLinks.create(ObjectLink(leftId = product.shadowId,
-                                                   rightId = sku.shadowId,
-                                                   linkType = ObjectLink.ProductSku)))
-         })
+      _ ← * <~ skus.map(sku ⇒ linkProductAndSku(product, sku))
     } yield product
+
+  // Temporary convenience method to use until ObjectLink is replaced.
+  private def linkProductAndSku(product: Product, sku: Sku)(implicit ec: EC) =
+    for {
+      _ ← * <~ ObjectLinks.create(ObjectLink(leftId = product.shadowId,
+                                             rightId = sku.shadowId,
+                                             linkType = ObjectLink.ProductSku))
+      _ ← * <~ ProductSkuLinks.create(ProductSkuLink(leftId = product.id, rightId = sku.id))
+    } yield {}
 
   def insertSku(contextId: Int, s: SimpleSku): DbResultT[Sku] =
     for {
@@ -284,7 +288,7 @@ object Mvp {
 
   def insertSkus(contextId: Int, ss: Seq[SimpleSku]): DbResultT[Seq[Sku]] =
     for {
-      skus ← * <~ DbResultT.sequence(ss.map(s ⇒ insertSku(contextId, s)))
+      skus ← * <~ ss.map(s ⇒ insertSku(contextId, s))
     } yield skus
 
   def insertVariant(
@@ -296,7 +300,6 @@ object Mvp {
       commit  ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
       variant ← * <~ Variants.create(
                    Variant(contextId = contextId,
-                           variantType = v.name,
                            formId = form.id,
                            shadowId = shadow.id,
                            commitId = commit.id))
@@ -304,7 +307,7 @@ object Mvp {
                                              rightId = shadow.id,
                                              linkType = ObjectLink.ProductVariant))
     } yield
-      SimpleVariantData(variantId = variant.id,
+      SimpleVariantData(variantId = variant.formId,
                         productShadowId = productShadowId,
                         shadowId = shadow.id,
                         name = v.name)
@@ -338,8 +341,8 @@ object Mvp {
       simpleCompleteVariant: SimpleCompleteVariant): DbResultT[SimpleCompleteVariantData] =
     for {
       variant ← * <~ insertVariant(contextId, simpleCompleteVariant.variant, productShadowId)
-      values ← * <~ DbResultT.sequence(simpleCompleteVariant.variantValues.map(variantValue ⇒
-                        insertVariantValue(contextId, variantValue, variant.shadowId)))
+      values ← * <~ simpleCompleteVariant.variantValues.map(variantValue ⇒
+                    insertVariantValue(contextId, variantValue, variant.shadowId))
     } yield SimpleCompleteVariantData(variant, values)
 
   def insertProductIntoContext(contextId: Int,
@@ -401,17 +404,13 @@ object Mvp {
   def insertProducts(
       ps: Seq[SimpleProductData], contextId: Int): DbResultT[Seq[SimpleProductData]] =
     for {
-      results ← * <~ DbResultT.sequence(ps.map { p ⇒
-                 insertProduct(contextId, p)
-               })
+      results ← * <~ ps.map(p ⇒ insertProduct(contextId, p))
     } yield results
 
   def insertProductsNewContext(oldContextId: Int, contextId: Int, ps: Seq[SimpleProductData])(
       implicit db: Database): DbResultT[Seq[SimpleProductData]] =
     for {
-      results ← * <~ DbResultT.sequence(ps.map { p ⇒
-                 insertProductNewContext(oldContextId, contextId, p)
-               })
+      results ← * <~ ps.map(p ⇒ insertProductNewContext(oldContextId, contextId, p))
     } yield results
 
   def priceFromJson(p: Json): Option[(Int, Currency)] = {

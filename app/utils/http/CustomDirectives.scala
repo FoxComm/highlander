@@ -15,6 +15,8 @@ import services.Result
 import slick.driver.PostgresDriver.api._
 import utils.http.Http._
 import utils.aliases._
+import utils.db._
+import utils.db.DbResultT._
 import utils._
 
 object CustomDirectives {
@@ -77,6 +79,9 @@ object CustomDirectives {
     }
   }
 
+  def adminObjectContext(name: String)(implicit db: DB, ec: EC): Directive1[ObjectContext] =
+    onSuccess(getContextByName(name))
+
   private def getContextByName(name: String)(implicit db: DB, ec: EC) =
     db.run(ObjectContexts.filterByName(name).result.headOption).map {
       case Some(c) ⇒ c
@@ -102,6 +107,12 @@ object CustomDirectives {
 
   def goodOrFailures[A <: AnyRef](a: Result[A])(implicit ec: EC): StandardRoute =
     complete(a.map(renderGoodOrFailures))
+
+  def getGoodOrFailures[A <: AnyRef](a: DbResultT[A])(implicit ec: EC, db: DB): StandardRoute =
+    complete(a.run().map(renderGoodOrFailures))
+
+  def mutateGoodOrFailures[A <: AnyRef](a: DbResultT[A])(implicit ec: EC, db: DB): StandardRoute =
+    complete(a.runTxn().map(renderGoodOrFailures))
 
   def nothingOrFailures(a: Result[_])(implicit ec: EC): StandardRoute =
     complete(a.map(renderNothingOrFailures))
