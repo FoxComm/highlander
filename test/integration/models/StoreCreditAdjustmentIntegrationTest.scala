@@ -6,14 +6,14 @@ import models.payment.storecredit._
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import org.scalatest.prop.Tables.Table
 import util.IntegrationTestBase
-import utils.db._
 import utils.db.DbResultT._
-import utils.seeds.Seeds
-import Seeds.Factories
+import utils.db._
+import utils.seeds.Seeds.Factories
 
 class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
-  import api._
   import concurrent.ExecutionContext.Implicits.global
+
+  import api._
 
   "StoreCreditAdjustment" - {
     "debit must be greater than zero" in new Fixture {

@@ -3,12 +3,11 @@ package models
 import models.customer.Customers
 import models.order.{OrderPayments, Orders}
 import models.payment.PaymentMethod
-import models.payment.giftcard.{GiftCardManuals, GiftCardManual, GiftCardAdjustments, GiftCards}
+import models.payment.giftcard.{GiftCardAdjustments, GiftCardManual, GiftCardManuals, GiftCards}
 import util.IntegrationTestBase
-import utils.db._
 import utils.db.DbResultT._
-import utils.seeds.Seeds
-import Seeds.Factories
+import utils.db._
+import utils.seeds.Seeds.Factories
 
 class GiftCardIntegrationTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global

@@ -16,7 +16,7 @@ import payloads.CustomerPayloads.UpdateCustomerPayload
 import responses.ActivityConnectionResponse
 import services.activity.CustomerTailored.CustomerUpdated
 import slick.driver.PostgresDriver.api._
-import util.IntegrationTestBase
+import util._
 import utils.db.DbResultT._
 import utils.db._
 import utils.seeds.Seeds.Factories
@@ -38,7 +38,8 @@ class ActivityTrailIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
     with AutomaticAuth
-    with MockitoSugar {
+    with MockitoSugar
+    with TestActivityContext.AdminAC {
 
   val customerActivity = "customer_activity"
   val typeName         = "customer_updated"
@@ -108,8 +109,6 @@ class ActivityTrailIntegrationTest
   }
 
   "append a bunch of activities to a bunch of trails a bunch of times" in {
-
-    implicit val ac = ActivityContext(userId = 1, userType = "b", transactionId = "c")
 
     val dimensionList = Gen.oneOf("d1", "d2", "d3")
     val objectList    = Gen.oneOf(1, 2, 3, 4, 5, 6)

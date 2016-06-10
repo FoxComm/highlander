@@ -2,14 +2,13 @@ package models
 
 import java.time.Instant
 
-import models.order.{Orders, Order}
-import Order._
 import models.customer.Customers
+import models.order.Order._
+import models.order.{Order, Orders}
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
-import utils.seeds.Seeds
-import Seeds.Factories
 import utils.db._
+import utils.seeds.Seeds.Factories
 import utils.time._
 
 class OrdersIntegrationTest extends IntegrationTestBase {

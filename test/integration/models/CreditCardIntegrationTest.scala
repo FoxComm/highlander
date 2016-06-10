@@ -4,10 +4,9 @@ import models.customer.Customers
 import models.location.Addresses
 import models.payment.creditcard.CreditCards
 import util.IntegrationTestBase
-import utils.db._
 import utils.db.DbResultT._
-import utils.seeds.Seeds
-import Seeds.Factories
+import utils.db._
+import utils.seeds.Seeds.Factories
 
 class CreditCardIntegrationTest extends IntegrationTestBase {
 

@@ -1,29 +1,26 @@
 import java.time.Instant
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
-import models.activity.ActivityContext
+import failures.NotFoundFailure404
+import models._
 import models.payment.giftcard._
-import models.{Notes, _}
+import payloads.NotePayloads._
 import responses.AdminNotes
 import services.notes.GiftCardNoteManager
-import util.IntegrationTestBase
-import utils.seeds.Seeds
-import Seeds.Factories
+import util._
+import utils.db.DbResultT._
 import utils.db._
+import utils.seeds.Seeds.Factories
 import utils.time.RichInstant
-import scala.concurrent.ExecutionContext.Implicits.global
-
-import failures.NotFoundFailure404
-import payloads.NotePayloads._
 
 class GiftCardNotesIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
-    with AutomaticAuth {
-
-  implicit val ac = ActivityContext(userId = 1, userType = "b", transactionId = "c")
+    with AutomaticAuth
+    with TestActivityContext.AdminAC {
 
   "POST /v1/notes/gift-card/:code" - {
     "can be created by an admin for a gift card" in new Fixture {
@@ -115,14 +112,12 @@ class GiftCardNotesIntegrationTest
 
   trait Fixture {
     val (admin, giftCard) = (for {
-      admin  ← StoreAdmins.create(authedStoreAdmin).map(rightValue)
-      reason ← Reasons.create(Factories.reason.copy(storeAdminId = admin.id)).map(rightValue)
-      origin ← GiftCardManuals
-                .create(GiftCardManual(adminId = admin.id, reasonId = reason.id))
-                .map(rightValue)
-      giftCard ← GiftCards
-                  .create(Factories.giftCard.copy(originId = origin.id, state = GiftCard.Active))
-                  .map(rightValue)
-    } yield (admin, giftCard)).run().futureValue
+      admin  ← * <~ StoreAdmins.create(authedStoreAdmin)
+      reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
+      origin ← * <~ GiftCardManuals.create(
+                  GiftCardManual(adminId = admin.id, reasonId = reason.id))
+      giftCard ← * <~ GiftCards.create(
+                    Factories.giftCard.copy(originId = origin.id, state = GiftCard.Active))
+    } yield (admin, giftCard)).run().futureValue.rightVal
   }
 }

@@ -1,30 +1,26 @@
 import java.time.Instant
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
-import models.activity.ActivityContext
+import failures.NotFoundFailure404
 import models.customer.{Customer, Customers}
 import models.{Notes, _}
+import payloads.NotePayloads._
 import responses.AdminNotes
 import services.notes.CustomerNoteManager
-import util.IntegrationTestBase
-import utils.seeds.Seeds
-import Seeds.Factories
-import utils.db._
+import util._
 import utils.db.DbResultT._
+import utils.db._
+import utils.seeds.Seeds.Factories
 import utils.time.RichInstant
-import scala.concurrent.ExecutionContext.Implicits.global
-
-import failures.NotFoundFailure404
-import payloads.NotePayloads._
 
 class CustomerNotesIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
-    with AutomaticAuth {
-
-  implicit val ac = ActivityContext(userId = 1, userType = "b", transactionId = "c")
+    with AutomaticAuth
+    with TestActivityContext.AdminAC {
 
   "POST /v1/notes/customer/:customerId" - {
     "can be created by an admin for a customer" in new Fixture {

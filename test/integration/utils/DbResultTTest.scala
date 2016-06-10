@@ -1,22 +1,21 @@
 package utils
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import cats.data.Xor
+import failures.GeneralFailure
 import models.customer.Customers
 import models.location.Addresses
 import models.order.Orders
-import util.{CatsHelpers, DbTestSupport, TestBase}
-import utils.seeds.Seeds
-import Seeds.Factories
-import failures.GeneralFailure
 import slick.driver.PostgresDriver.api._
-import utils.db._
-import utils.db.DbResultT._
+import util.CustomMatchers._
 import util.SlickSupport.implicits._
+import util._
+import utils.db.DbResultT._
+import utils.db._
+import utils.seeds.Seeds.Factories
 
 class DbResultTTest extends TestBase with DbTestSupport with CatsHelpers {
-
-  import scala.concurrent.ExecutionContext.Implicits.global
-  import util.CustomMatchers._
 
   "DbResultT" - {
     "when we lift (do you even?)" - {

@@ -2,17 +2,19 @@ package models
 
 import java.time.Instant
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import failures.DatabaseFailure
 import models.customer.Customers
 import models.order.{Order, Orders}
 import models.returns._
 import util.IntegrationTestBase
+import utils.db.DbResultT._
 import utils.db._
 import utils.seeds.Seeds.Factories
 import utils.time._
 
 class ReturnIntegrationTest extends IntegrationTestBase {
-  import concurrent.ExecutionContext.Implicits.global
 
   "Returns" - {
     "generates a referenceNumber in Postgres after insert when blank" in new Fixture {
@@ -41,14 +43,13 @@ class ReturnIntegrationTest extends IntegrationTestBase {
 
   trait Fixture {
     val (admin, order) = (for {
-      admin    ← StoreAdmins.create(Factories.storeAdmin).map(rightValue)
-      customer ← Customers.create(Factories.customer).map(rightValue)
-      order ← Orders
-               .create(Factories.order.copy(referenceNumber = "ABC-123",
-                                            state = Order.RemorseHold,
-                                            customerId = customer.id,
-                                            remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
-               .map(rightValue)
-    } yield (admin, order)).run().futureValue
+      admin    ← * <~ StoreAdmins.create(Factories.storeAdmin)
+      customer ← * <~ Customers.create(Factories.customer)
+      order ← * <~ Orders.create(
+                 Factories.order.copy(referenceNumber = "ABC-123",
+                                      state = Order.RemorseHold,
+                                      customerId = customer.id,
+                                      remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
+    } yield (admin, order)).run().futureValue.rightVal
   }
 }
