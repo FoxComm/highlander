@@ -4,14 +4,14 @@ import models.customer.Customers
 import models.order.{OrderPayments, Orders}
 import models.payment.giftcard._
 import util.IntegrationTestBase
-import utils.db._
 import utils.db.DbResultT._
-import utils.seeds.Seeds
-import Seeds.Factories
+import utils.db._
+import utils.seeds.Seeds.Factories
 
 class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
-  import api._
   import concurrent.ExecutionContext.Implicits.global
+
+  import api._
 
   "GiftCardAdjustment" - {
     "neither credit nor debit can be negative" in new Fixture {

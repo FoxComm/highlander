@@ -1,21 +1,21 @@
 package services
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import models.StoreAdmins
-import models.activity.ActivityContext
 import models.customer.Customers
 import models.location.Addresses
 import models.order._
 import models.traits.Originator
 import payloads.AddressPayloads._
 import services.orders.OrderShippingAddressUpdater._
-import util.IntegrationTestBase
+import util._
 import utils.db.DbResultT._
 import utils.seeds.Seeds.Factories
 
-class OrderShippingAddressUpdaterTest extends IntegrationTestBase {
-  import concurrent.ExecutionContext.Implicits.global
-
-  implicit val ac = ActivityContext(userId = 1, userType = "b", transactionId = "c")
+class OrderShippingAddressUpdaterTest
+    extends IntegrationTestBase
+    with TestActivityContext.AdminAC {
 
   "OrderUpdater" - {
 

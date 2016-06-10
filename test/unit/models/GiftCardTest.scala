@@ -1,10 +1,9 @@
 package models
 
 import models.payment.giftcard.GiftCard
-import util.TestBase
-import utils.seeds.Seeds
-import Seeds.Factories
 import util.CustomMatchers._
+import util.TestBase
+import utils.seeds.Seeds.Factories
 
 class GiftCardTest extends TestBase {
   "GiftCard" - {

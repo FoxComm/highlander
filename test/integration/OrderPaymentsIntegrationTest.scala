@@ -3,6 +3,7 @@ import java.time.ZonedDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
+import Extensions._
 import cats.implicits._
 import com.stripe.model.DeletedExternalAccount
 import failures.CartFailures.OrderMustBeCart
@@ -11,7 +12,6 @@ import failures.GiftCardFailures._
 import failures.NotFoundFailure404
 import failures.OrderFailures.OrderPaymentNotFoundFailure
 import failures.StoreCreditFailures.CustomerHasInsufficientStoreCredit
-import models.activity.ActivityContext
 import models.customer.Customers
 import models.location.Addresses
 import models.order.Order._
@@ -28,7 +28,7 @@ import org.scalatest.mock.MockitoSugar
 import payloads.PaymentPayloads._
 import services.{CreditCardManager, Result}
 import slick.driver.PostgresDriver.api._
-import util.IntegrationTestBase
+import util._
 import utils.aliases.stripe._
 import utils.db.DbResultT._
 import utils.db._
@@ -38,11 +38,8 @@ class OrderPaymentsIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
     with AutomaticAuth
-    with MockitoSugar {
-
-  import Extensions._
-
-  implicit val ac = ActivityContext(userId = 1, userType = "b", transactionId = "c")
+    with MockitoSugar
+    with TestActivityContext.AdminAC {
 
   "gift cards" - {
     "POST /v1/orders/:ref/payment-methods/gift-cards" - {

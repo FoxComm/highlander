@@ -12,7 +12,6 @@ import failures.CreditCardFailures.{CannotUseInactiveCreditCard, StripeFailure}
 import failures.CustomerFailures._
 import failures.{GeneralFailure, NotFoundFailure404}
 import models.StoreAdmins
-import models.activity.ActivityContext
 import models.customer._
 import models.location.{Addresses, Regions}
 import models.order.OrderPayments.scope._
@@ -35,8 +34,8 @@ import responses.order.FullOrder
 import services.orders.OrderPaymentUpdater
 import services.{CreditCardManager, Result}
 import slick.driver.PostgresDriver.api._
-import util.IntegrationTestBase
 import util.SlickSupport.implicits._
+import util._
 import utils.Money.Currency
 import utils.aliases.stripe._
 import utils.db.DbResultT._
@@ -48,9 +47,8 @@ class CustomerIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
     with AutomaticAuth
-    with MockitoSugar {
-
-  implicit val ac = ActivityContext(userId = 1, userType = "b", transactionId = "c")
+    with MockitoSugar
+    with TestActivityContext.AdminAC {
 
   "Customer" - {
     "accounts are unique based on email, non-guest, and active" in {

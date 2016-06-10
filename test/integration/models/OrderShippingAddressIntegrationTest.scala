@@ -1,16 +1,17 @@
 package models
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
+import failures.GeneralFailure
 import models.customer.Customers
 import models.order.{OrderShippingAddresses, Orders}
 import util.IntegrationTestBase
-import utils.seeds.Seeds
-import Seeds.Factories
-import failures.GeneralFailure
-import utils.jdbc._
+import utils.db.DbResultT._
 import utils.db._
+import utils.jdbc._
+import utils.seeds.Seeds.Factories
 
 class OrderShippingAddressIntegrationTest extends IntegrationTestBase {
-  import concurrent.ExecutionContext.Implicits.global
 
   "OrderShippingAddress" - {
     "has only one shipping address per order" in new Fixture {
@@ -24,11 +25,10 @@ class OrderShippingAddressIntegrationTest extends IntegrationTestBase {
 
   trait Fixture {
     val (order, shippingAddress) = (for {
-      customer ← Customers.create(Factories.customer).map(rightValue)
-      order    ← Orders.create(Factories.order.copy(customerId = customer.id)).map(rightValue)
-      shippingAddress ← OrderShippingAddresses
-                         .create(Factories.shippingAddress.copy(orderId = order.id))
-                         .map(rightValue)
-    } yield (order, shippingAddress)).run().futureValue
+      customer ← * <~ Customers.create(Factories.customer)
+      order    ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
+      shippingAddress ← * <~ OrderShippingAddresses.create(
+                           Factories.shippingAddress.copy(orderId = order.id))
+    } yield (order, shippingAddress)).run().futureValue.rightVal
   }
 }

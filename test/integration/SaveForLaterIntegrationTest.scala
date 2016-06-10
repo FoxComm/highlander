@@ -2,20 +2,19 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
+import failures.ProductFailures.SkuNotFoundForContext
+import failures.{AlreadySavedForLater, NotFoundFailure404}
 import models.customer.{Customer, Customers}
-import models.{SaveForLater, SaveForLaters, _}
-import models.product.{Mvp, SimpleContext}
 import models.objects._
+import models.product.{Mvp, SimpleContext}
+import models.{SaveForLater, SaveForLaters}
 import responses.SaveForLaterResponse
 import services.SaveForLaterManager.SavedForLater
-import util.IntegrationTestBase
-import utils.seeds.Seeds
-import Seeds.Factories
-import failures.{AlreadySavedForLater, NotFoundFailure404}
-import failures.ProductFailures.SkuNotFoundForContext
-import utils.db._
-import utils.db.DbResultT._
 import slick.driver.PostgresDriver.api._
+import util.IntegrationTestBase
+import utils.db.DbResultT._
+import utils.db._
+import utils.seeds.Seeds.Factories
 
 class SaveForLaterIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
 

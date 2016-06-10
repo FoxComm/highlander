@@ -1,27 +1,28 @@
 import java.time.Instant
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
 import failures.NotFoundFailure404
-import models.activity.ActivityContext
+import models._
 import models.customer.Customers
 import models.order.{Order, Orders}
 import models.returns._
-import models.{Notes, _}
 import payloads.NotePayloads._
 import responses.AdminNotes
 import services.notes.ReturnNoteManager
-import util.IntegrationTestBase
-import utils.seeds.Seeds
-import Seeds.Factories
+import util._
+import utils.db.DbResultT._
 import utils.db._
+import utils.seeds.Seeds.Factories
 import utils.time.RichInstant
-import scala.concurrent.ExecutionContext.Implicits.global
 
-class ReturnNotesIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
-
-  implicit val ac = ActivityContext(userId = 1, userType = "b", transactionId = "c")
+class ReturnNotesIntegrationTest
+    extends IntegrationTestBase
+    with HttpSupport
+    with AutomaticAuth
+    with TestActivityContext.AdminAC {
 
   "Return Notes" - {
     pending
@@ -117,17 +118,14 @@ class ReturnNotesIntegrationTest extends IntegrationTestBase with HttpSupport wi
 
   trait Fixture {
     val (admin, rma) = (for {
-      admin    ← StoreAdmins.create(authedStoreAdmin).map(rightValue)
-      customer ← Customers.create(Factories.customer).map(rightValue)
-      order ← Orders
-               .create(Factories.order.copy(state = Order.RemorseHold,
-                                            remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
-               .map(rightValue)
-      rma ← Returns
-             .create(Factories.rma.copy(orderId = order.id,
-                                        orderRefNum = order.referenceNumber,
-                                        customerId = customer.id))
-             .map(rightValue)
-    } yield (admin, rma)).run().futureValue
+      admin    ← * <~ StoreAdmins.create(authedStoreAdmin)
+      customer ← * <~ Customers.create(Factories.customer)
+      order ← * <~ Orders.create(
+                 Factories.order.copy(state = Order.RemorseHold,
+                                      remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
+      rma ← * <~ Returns.create(Factories.rma.copy(orderId = order.id,
+                                                   orderRefNum = order.referenceNumber,
+                                                   customerId = customer.id))
+    } yield (admin, rma)).run().futureValue.rightVal
   }
 }

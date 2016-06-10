@@ -7,7 +7,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import cats.implicits._
 import failures.CartFailures._
 import failures.GeneralFailure
-import models.activity.ActivityContext
 import models.customer.Customers
 import models.order.Orders.scope._
 import models.order._
@@ -18,16 +17,17 @@ import models.{Reasons, StoreAdmins}
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import slick.driver.PostgresDriver.api._
-import util.{IntegrationTestBase, MockedApis}
+import util._
 import utils.Money.Currency
 import utils.db.DbResultT._
 import utils.db._
-import utils.seeds.Seeds
 import utils.seeds.Seeds.Factories
 
-class CheckoutTest extends IntegrationTestBase with MockitoSugar with MockedApis {
-
-  implicit val ac = ActivityContext(userId = 1, userType = "b", transactionId = "c")
+class CheckoutTest
+    extends IntegrationTestBase
+    with MockitoSugar
+    with MockedApis
+    with TestActivityContext.AdminAC {
 
   def cartValidator(resp: CartValidatorResponse = CartValidatorResponse()): CartValidation = {
     val m = mock[CartValidation]
