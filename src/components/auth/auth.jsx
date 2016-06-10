@@ -25,7 +25,7 @@ class Auth extends Component {
 
   renderContent() {
     const authProps = {
-      changePath: this.changePath,
+      getPath: this.getPath,
     };
 
     switch (this.props.authBlockType) {
@@ -43,7 +43,7 @@ class Auth extends Component {
   }
 
   @autobind
-  changePath(newType: string): Object {
+  getPath(newType: string): Object {
     return assoc(this.props.path, ['query', 'auth'], newType);
   }
 

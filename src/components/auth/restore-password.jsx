@@ -36,7 +36,7 @@ export default class RestorePassword extends Component {
     error: PropTypes.string,
     dispatch: PropTypes.func,
     changeAuthBlockType: PropTypes.func,
-    changePath: PropTypes.func,
+    getPath: PropTypes.func,
   };
 
   state: RestoreState = {
@@ -114,7 +114,7 @@ export default class RestorePassword extends Component {
   }
 
   goToLogin: Object = () => {
-    browserHistory.push(this.props.changePath(authBlockTypes.LOGIN));
+    browserHistory.push(this.props.getPath(authBlockTypes.LOGIN));
   };
 
   get primaryButton(): HTMLElement {
@@ -134,12 +134,12 @@ export default class RestorePassword extends Component {
 
   get switchStage(): ?HTMLElement {
     const { emailSent } = this.state;
-    const { t, changePath } = this.props;
+    const { t, getPath } = this.props;
 
     if (!emailSent) {
       return (
         <div styleName="switch-stage">
-          <Link to={changePath(authBlockTypes.LOGIN)} styleName="link">
+          <Link to={getPath(authBlockTypes.LOGIN)} styleName="link">
             {t('BACK TO LOG IN')}
           </Link>
         </div>
