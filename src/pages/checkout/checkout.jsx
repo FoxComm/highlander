@@ -114,9 +114,10 @@ class Checkout extends Component {
         })
         .then(() => {
           return this.props.checkout();
+        })
+        .then(() => {
+          browserHistory.push('/checkout/done');
         });
-    }).then(() => {
-      browserHistory.push('/checkout/done');
     });
   }
 
