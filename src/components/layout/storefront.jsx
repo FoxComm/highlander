@@ -18,7 +18,7 @@ type Props = {
 const StoreFront = (props: Props) => {
   return (
     <div styleName="container">
-      <Header path={props.location.pathname}/>
+      <Header path={props.location.pathname} query={props.location.query}/>
       <div styleName="content-container">
         {props.children}
       </div>

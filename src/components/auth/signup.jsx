@@ -2,13 +2,14 @@
 
 import _ from 'lodash';
 import { each, get } from 'lodash';
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
 import styles from './auth.css';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import { browserHistory, Link } from 'react-router';
 
 import localized from 'lib/i18n';
+import type { Localized } from 'lib/i18n';
 
 import { TextInput, TextInputWithLabel } from 'ui/inputs';
 import { FormField, Form } from 'ui/forms';
@@ -29,18 +30,17 @@ type AuthState = {
   emailError: bool|string,
 };
 
+type Props = Localized & {
+  getPath: Function,
+  isLoading: boolean,
+};
+
 const mapState = state => ({
   isLoading: _.get(state.asyncActions, ['auth-signup', 'inProgress'], false),
 });
 
-/* ::`*/
-@connect(mapState, actions)
-@localized
-/* ::`*/
-export default class Auth extends Component {
-  static propTypes = {
-    path: PropTypes.string,
-  };
+class Signup extends Component {
+  props: Props;
 
   state: AuthState = {
     email: '',
@@ -78,10 +78,7 @@ export default class Auth extends Component {
     const {email, password, username: name} = this.state;
     const paylaod: SignUpPayload = {email, password, name};
     this.props.signUp(paylaod).then(() => {
-      browserHistory.push({
-        pathname: this.props.path,
-        query: {auth: authBlockTypes.LOGIN},
-      });
+      browserHistory.push(this.props.getPath(authBlockTypes.LOGIN));
     }).catch(err => {
       const errors = get(err, ['responseJson', 'errors'], []);
       let emailError = false;
@@ -100,10 +97,10 @@ export default class Auth extends Component {
 
   render(): HTMLElement {
     const { email, password, username, emailError, usernameError } = this.state;
-    const { t, isLoading } = this.props;
+    const { t, isLoading, getPath } = this.props;
 
     const loginLink = (
-      <Link to={{pathname: this.props.path, query: {auth: authBlockTypes.LOGIN}}} styleName="link">
+      <Link to={getPath(authBlockTypes.LOGIN)} styleName="link">
         {t('Log in')}
       </Link>
     );
@@ -158,3 +155,5 @@ export default class Auth extends Component {
     );
   }
 }
+
+export default connect(mapState, actions)(localized(Signup));

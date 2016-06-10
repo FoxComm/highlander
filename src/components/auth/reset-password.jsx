@@ -4,7 +4,7 @@ import React, { Component, PropTypes } from 'react';
 import styles from './auth.css';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
-import { routeActions } from 'react-router-redux';
+import { browserHistory } from 'react-router';
 import { authBlockTypes } from 'paragons/auth';
 
 import localized from 'lib/i18n';
@@ -34,6 +34,7 @@ export default class ResetPassword extends Component {
     resetForm: PropTypes.func.isRequired,
     submitting: PropTypes.bool.isRequired,
     dispatch: PropTypes.func.isRequired,
+    getPath: PropTypes.func,
   };
 
   state: ResetState = {
@@ -125,13 +126,9 @@ export default class ResetPassword extends Component {
     ];
   }
 
-  @autobind
-  gotoLogin() {
-    this.props.dispatch(routeActions.push({
-      pathname: this.props.path,
-      query: {auth: authBlockTypes.LOGIN},
-    }));
-  }
+  goToLogin: Object = () => {
+    browserHistory.push(this.props.getPath(authBlockTypes.LOGIN));
+  };
 
   get primaryButton(): HTMLElement {
     const { isReseted } = this.state;
@@ -139,7 +136,7 @@ export default class ResetPassword extends Component {
 
     if (isReseted) {
       return (
-        <Button styleName="primary-button" type="button" onClick={this.gotoLogin}>{t('BACK TO LOG IN')}</Button>
+        <Button styleName="primary-button" type="button" onClick={this.goToLogin}>{t('BACK TO LOG IN')}</Button>
       );
     }
 
