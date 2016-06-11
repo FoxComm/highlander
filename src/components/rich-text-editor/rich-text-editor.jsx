@@ -57,7 +57,7 @@ export default class RichTextEditor extends Component<void, Props, State> {
     editorState: this.valueToEditorState(this.props.value),
   };
 
-  valueToEditorState(value: ?string) {
+  valueToEditorState(value: ?string): any {
     return value ? EditorState.createWithContent(stateFromHTML(value)) : EditorState.createEmpty();
   }
 
