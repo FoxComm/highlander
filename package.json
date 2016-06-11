@@ -33,7 +33,7 @@
     "babelify": "^7.2.0",
     "browserify": "^13.0.0",
     "chalk": "^1.1.1",
-    "css-modulesify": "github:anru/css-modulesify#update-me-to-0-23-version-later",
+    "css-modulesify": "github:anru/css-modulesify#fix/node-path",
     "dot": "^1.0.3",
     "envify": "^3.4.0",
     "eslint": "^1.10.3",
