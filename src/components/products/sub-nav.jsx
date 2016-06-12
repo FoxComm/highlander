@@ -10,11 +10,11 @@ import { Link, IndexLink } from '../link';
 import LocalNav from '../local-nav/local-nav';
 
 // types
-import type { FullProduct } from '../../modules/products/details';
+import type { Product } from '../../modules/products/details';
 
 type Props = {
   productId: string,
-  product: ?FullProduct,
+  product: ?Product,
   context: string
 };
 

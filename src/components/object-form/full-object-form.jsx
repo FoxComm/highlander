@@ -19,7 +19,6 @@ type Props = {
   form: FormAttributes,
   shadow: ShadowAttributes,
   onChange: (form: FormAttributes, shadow: ShadowAttributes) => void,
-  title: string,
   options?: Object,
 };
 
@@ -61,10 +60,15 @@ export default class FullObjectForm extends Component {
   }
 
   render(): Element {
-    const { form, shadow, ...rest } = this.props;
+    const { form, shadow, onChange, ...rest } = this.props;
     const attributes = this.illuminateAttributes(form, shadow);
     const innerProps = { ...rest, attributes: attributes, onChange: this.handleChange };
 
-    return <ObjectFormInner {...innerProps} />;
+    return (
+      <ObjectFormInner
+        attributes={attributes}
+        onChange={this.handleChange}
+        {...rest} />
+    );
   }
 }

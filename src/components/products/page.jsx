@@ -128,16 +128,6 @@ export class ProductPage extends Component {
   }
 
   @autobind
-  handleSetAttribute(field: string, type: string, value: string) {
-    const { product } = this.state;
-    if (product) {
-      this.setState({
-        product: setProductAttribute(product, field, type, value),
-      });
-    }
-  }
-
-  @autobind
   handleSetSkuProperty(code: string, field: string, type: string, value: string) {
     const { product } = this.state;
     if (product) {
