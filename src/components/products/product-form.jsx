@@ -64,10 +64,10 @@ export default class ProductForm extends Component {
       ...defaultKeys.seo,
       ..._.flatten(_.valuesIn(omitKeys)),
     ];
-    const shadow = _.get(this.props, 'product.shadow.product.attributes', {});
+    const attributes = _.get(this.props, 'product.attributes', {});
     return [
       ...defaultKeys.general,
-      ...(_(shadow).omit(toOmit).keys().value())
+      ...(_(attributes).omit(toOmit).keys().value())
     ];
   }
 
