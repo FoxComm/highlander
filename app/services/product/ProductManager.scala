@@ -34,7 +34,7 @@ object ProductManager {
   // NEW SIMPLE ENDPOINTS
 
   def createProduct(payload: CreateProductPayload)(
-      implicit ec: EC, db: DB, oc: OC): DbResultT[IlluminatedFullProductResponse.Root] = {
+      implicit ec: EC, db: DB, oc: OC): DbResultT[ProductResponse.Root] = {
 
     val form            = ObjectForm.fromPayload(Product.kind, payload.attributes)
     val shadow          = ObjectShadow.fromPayload(payload.attributes)
@@ -53,8 +53,8 @@ object ProductManager {
       variants ← * <~ variantPayloads.map(variant ⇒
                       findOrCreateVariantForProduct(product, variant))
     } yield
-      IlluminatedFullProductResponse.build(
-          p = IlluminatedProduct.illuminate(oc, product, ins.form, ins.shadow),
+      ProductResponse.build(
+          product = IlluminatedProduct.illuminate(oc, product, ins.form, ins.shadow),
           skus = skus.map(sku ⇒ IlluminatedSku.illuminate(oc, sku)),
           variants = variants.map {
             case (fullVariant, values) ⇒
@@ -63,8 +63,8 @@ object ProductManager {
           variantMap = Map.empty)
   }
 
-  def getProduct(productId: Int)(
-      implicit ec: EC, db: DB, oc: OC): DbResultT[IlluminatedFullProductResponse.Root] =
+  def getProduct(
+      productId: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[ProductResponse.Root] =
     for {
       product ← * <~ mustFindProductByContextAndId404(oc.id, productId)
       form    ← * <~ ObjectForms.mustFindById404(product.formId)
@@ -76,17 +76,16 @@ object ProductManager {
       variantLinks ← * <~ ProductVariantLinks.filter(_.leftId === product.id).result
       variants     ← * <~ variantLinks.map(link ⇒ mustFindFullVariantById(link.rightId))
     } yield
-      IlluminatedFullProductResponse.build(
-          p = IlluminatedProduct.illuminate(oc, product, form, shadow),
-          skus = skus.map(sku ⇒ IlluminatedSku.illuminate(oc, sku)),
-          variants = variants.map {
-            case (fullVariant, values) ⇒
-              (IlluminatedVariant.illuminate(oc, fullVariant), values)
-          },
-          variantMap = Map.empty)
+      ProductResponse.build(product = IlluminatedProduct.illuminate(oc, product, form, shadow),
+                            skus = skus.map(sku ⇒ IlluminatedSku.illuminate(oc, sku)),
+                            variants = variants.map {
+                              case (fullVariant, values) ⇒
+                                (IlluminatedVariant.illuminate(oc, fullVariant), values)
+                            },
+                            variantMap = Map.empty)
 
   def updateProduct(productId: Int, payload: UpdateProductPayload)(
-      implicit ec: EC, db: DB, oc: OC): DbResultT[IlluminatedFullProductResponse.Root] = {
+      implicit ec: EC, db: DB, oc: OC): DbResultT[ProductResponse.Root] = {
 
     val newFormAttrs   = ObjectForm.fromPayload(Product.kind, payload.attributes).attributes
     val newShadowAttrs = ObjectShadow.fromPayload(payload.attributes).attributes
@@ -111,8 +110,8 @@ object ProductManager {
       fullProduct = FullObject(updatedHead, updated.form, updated.shadow)
       _ ← * <~ validateUpdate(fullProduct, skus, variants)
     } yield
-      IlluminatedFullProductResponse.build(
-          p = IlluminatedProduct.illuminate(oc, updatedHead, updated.form, updated.shadow),
+      ProductResponse.build(
+          product = IlluminatedProduct.illuminate(oc, updatedHead, updated.form, updated.shadow),
           skus = skus.map(sku ⇒ IlluminatedSku.illuminate(oc, sku)),
           variants = variants.map {
             case (fullVariant, values) ⇒

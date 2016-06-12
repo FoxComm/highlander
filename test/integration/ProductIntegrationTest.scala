@@ -26,7 +26,7 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
       val response = POST(s"v1/products/${context.name}", productPayload)
       response.status must ===(StatusCodes.OK)
 
-      val productResponse = response.as[IlluminatedFullProductResponse.Root]
+      val productResponse = response.as[ProductResponse.Root]
       productResponse.skus.length must ===(1)
       productResponse.skus.head.code must ===("SKU-NEW-TEST")
     }
@@ -38,7 +38,7 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
       val response = POST(s"v1/products/${context.name}", payload)
       response.status must ===(StatusCodes.OK)
 
-      val productResponse = response.as[IlluminatedFullProductResponse.Root]
+      val productResponse = response.as[ProductResponse.Root]
       productResponse.skus.length must ===(1)
       productResponse.skus.head.code must ===("SKU-RED-SMALL")
     }
@@ -52,7 +52,7 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
       val response = POST(s"v1/products/${context.name}", payload)
       response.status must ===(StatusCodes.OK)
 
-      val productResponse = response.as[IlluminatedFullProductResponse.Root]
+      val productResponse = response.as[ProductResponse.Root]
       productResponse.skus.length must ===(1)
       productResponse.skus.head.code must ===("SKU-RED-LARGE")
     }
@@ -87,7 +87,7 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
       val response = POST(s"v1/products/${context.name}", payload)
       response.status must ===(StatusCodes.OK)
 
-      val productResponse = response.as[IlluminatedFullProductResponse.Root]
+      val productResponse = response.as[ProductResponse.Root]
       productResponse.skus.length must ===(1)
       productResponse.skus.head.code must ===("SKU-NEW-TEST")
     }
@@ -98,7 +98,7 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
       val response = POST(s"v1/products/${context.name}", payload)
       response.status must ===(StatusCodes.OK)
 
-      val productResponse = response.as[IlluminatedFullProductResponse.Root]
+      val productResponse = response.as[ProductResponse.Root]
       productResponse.variants.length must ===(1)
       productResponse.variants.head.values.length must ===(2)
     }
@@ -112,11 +112,11 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
       val response = PATCH(s"v1/products/${context.name}/${product.formId}", payload)
       response.status must ===(StatusCodes.OK)
 
-      val productResponse = response.as[IlluminatedFullProductResponse.Root]
+      val productResponse = response.as[ProductResponse.Root]
       productResponse.skus.length must ===(1)
       productResponse.variants.length must ===(2)
 
-      val description = productResponse.product.attributes \ "description" \ "v"
+      val description = productResponse.attributes \ "description" \ "v"
       description.extract[String] must ===("Test product description")
     }
 
@@ -127,7 +127,7 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
       val response = PATCH(s"v1/products/${context.name}/${product.formId}", payload)
       response.status must ===(StatusCodes.OK)
 
-      val productResponse = response.as[IlluminatedFullProductResponse.Root]
+      val productResponse = response.as[ProductResponse.Root]
       productResponse.skus.length must ===(4)
       productResponse.variants.length must ===(2)
     }
@@ -146,11 +146,11 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
       val response = PATCH(s"v1/products/${context.name}/${product.formId}", payload)
       response.status must ===(StatusCodes.OK)
 
-      val productResponse = response.as[IlluminatedFullProductResponse.Root]
+      val productResponse = response.as[ProductResponse.Root]
       productResponse.skus.length must ===(4)
       productResponse.variants.length must ===(3)
 
-      val description = productResponse.product.attributes \ "description" \ "v"
+      val description = productResponse.attributes \ "description" \ "v"
       description.extract[String] must ===("Test product description")
     }
 
@@ -176,7 +176,7 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
       val response = GET(s"v1/products/full/${context.name}/${product.formId}/baked")
       response.status must ===(StatusCodes.OK)
 
-      val productResponse = response.as[IlluminatedFullProductResponse.Root]
+      val productResponse = response.as[ProductResponse.Root]
       productResponse.skus.length must ===(4)
       productResponse.variants.length must ===(2)
 
