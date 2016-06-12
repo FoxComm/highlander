@@ -32,6 +32,25 @@ export function addAttribute(label: string,
   ];
 }
 
+export function addIlluminatedAttribute(label: string,
+                                         type: string,
+                                         value: any,
+                                         attributes: Attributes): Attributes {
+  if (attributes[label]) {
+    return attributes;
+  }
+
+  const attrValue = type == 'price'
+    ? { currency: 'USD', values: value }
+    : value;
+   const attribute = { t: type, v: attrValue };
+
+   return {
+     ...attributes,
+     [label]: attribute,
+   };
+}
+
 export function setAttribute(label: string,
                              type: string,
                              value: any,

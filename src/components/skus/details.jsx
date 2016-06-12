@@ -12,17 +12,17 @@ import _ from 'lodash';
 import { FormField } from '../forms';
 import ContentBox from '../content-box/content-box';
 import ObjectForm from '../object-form/object-form';
-import FullObjectForm from '../object-form/full-object-form';
+import ObjectFormInner from '../object-form/object-form-inner';
 import ObjectScheduler from '../object-scheduler/object-scheduler';
 import WaitAnimation from '../common/wait-animation';
 
 // types
-import type { FullSku } from '../../paragons/sku';
+import type { Sku } from '../../modules/skus/details';
 
 type Props = {
   code: string,
-  onChange: (sku: FullSku) => void,
-  sku: ?FullSku,
+  onChange: (sku: Sku) => void,
+  sku: ?Sku,
 };
 
 const defaultKeys = {
@@ -41,7 +41,7 @@ export default class SkuDetails extends Component {
       ..._.reduce(defaultKeys, (res, arr) => ([...res, ...arr]), []),
       ...keysToOmit,
     ];
-    const shadow = _.get(this.props, 'sku.shadow.attributes', {});
+    const shadow = _.get(this.props, 'sku.attributes', {});
     return [
       ...defaultKeys.base,
       ...defaultKeys.general,
@@ -51,8 +51,7 @@ export default class SkuDetails extends Component {
 
   get generalContent(): Element {
     const sku = _.get(this.props, 'sku');
-    const formAttributes = _.get(this.props, 'sku.form.attributes', []);
-    const shadowAttributes = _.get(this.props, 'sku.shadow.attributes', []);
+    const attributes = _.get(this.props, 'sku.attributes', {});
 
     return (
       <ContentBox title="General">
@@ -65,15 +64,14 @@ export default class SkuDetails extends Component {
             className="fc-object-form__field-value"
             type="text"
             name="sku"
-            value={sku.form.code}
+            value={sku.code}
             onChange={_.noop} />
         </FormField>
-        <FullObjectForm
+        <ObjectFormInner
           canAddProperty={true}
           onChange={this.handleChange}
           fieldsToRender={this.generalAttrs}
-          form={formAttributes}
-          shadow={shadowAttributes} />
+          attributes={attributes} />
       </ContentBox>
     );
   }
@@ -92,12 +90,10 @@ export default class SkuDetails extends Component {
   }
 
   @autobind
-  handleChange(form: FormAttributes, shadow: ShadowAttributes) {
+  handleChange(attributes: Attributes) {
     const { sku } = this.props;
     if (sku) {
-      const updatedSku = assoc(sku,
-        ['form', 'attributes'], form,
-        ['shadow', 'attributes'], shadow);
+      const updatedSku = assoc(sku, 'attributes', attributes);
       this.props.onChange(updatedSku);
     }
   }
@@ -108,6 +104,7 @@ export default class SkuDetails extends Component {
       return <WaitAnimation />;
     }
 
+    const attributes = _.get(sku, 'attributes', {});
     const formAttributes = _.get(sku, 'form.attributes', []);
     const shadowAttributes = _.get(sku, 'shadow.attributes', []);
 
@@ -119,8 +116,7 @@ export default class SkuDetails extends Component {
             canAddProperty={false}
             onChange={this.handleChange}
             fieldsToRender={defaultKeys.pricing}
-            form={formAttributes}
-            shadow={shadowAttributes}
+            attributes={attributes}
             title="Pricing" />
         </div>
         <div className="fc-col-md-2-5">
