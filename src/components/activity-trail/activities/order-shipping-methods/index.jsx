@@ -10,7 +10,7 @@ const representatives = {
     title: (data, activity) => {
       return (
         <Title activity={activity}>
-          <stong>changed the shipping method</stong> on <OrderTarget order={data.order} />
+          <strong>changed the shipping method</strong> on <OrderTarget order={data.order} />
           &nbsp;to {data.order.shippingMethod.name}
         </Title>
       );
@@ -20,7 +20,7 @@ const representatives = {
     title: (data, activity) => {
       return (
         <Title activity={activity}>
-          <stong>removed the shipping method</stong> from <OrderTarget order={data.order} />
+          <strong>removed the shipping method</strong> from <OrderTarget order={data.order} />
         </Title>
       );
     },
