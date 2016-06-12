@@ -10,7 +10,7 @@ import _ from 'lodash';
 
 // components
 import ContentBox from '../content-box/content-box';
-import IlluminatedObjectForm from '../object-form/illuminated-object-form';
+import ObjectForm from '../object-form/object-form';
 import ObjectScheduler from '../object-scheduler/object-scheduler';
 import SkuList from './sku-list';
 import Tags from '../tags/tags';
@@ -117,7 +117,7 @@ export default class ProductForm extends Component {
     return (
       <div className="fc-grid fc-grid-no-gutter">
         <div className="fc-col-md-3-5">
-          <IlluminatedObjectForm
+          <ObjectForm
             canAddProperty={true}
             onChange={this.handleProductChange}
             fieldsToRender={this.generalAttrs}
@@ -125,7 +125,7 @@ export default class ProductForm extends Component {
             title="General" />
           {this.variantContentBox}
           {this.skusContentBox}
-          <IlluminatedObjectForm
+          <ObjectForm
             onChange={this.handleProductChange}
             fieldsToRender={defaultKeys.seo}
             attributes={attributes}

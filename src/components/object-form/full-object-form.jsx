@@ -7,7 +7,7 @@ import _ from 'lodash';
 import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 
-import IlluminatedObjectForm from './illuminated-object-form';
+import ObjectFormInner from './object-form-inner';
 
 type Attribute = { t: string, v: any };
 type Attributes = { [key:string]: Attribute };
@@ -65,6 +65,6 @@ export default class FullObjectForm extends Component {
     const attributes = this.illuminateAttributes(form, shadow);
     const innerProps = { ...rest, attributes: attributes, onChange: this.handleChange };
 
-    return <IlluminatedObjectForm {...innerProps} />;
+    return <ObjectFormInner {...innerProps} />;
   }
 }
