@@ -9,7 +9,7 @@ import { assoc } from 'sprout-data';
 import { searchCouponPromotions } from '../../elastic/promotions';
 
 // components
-import ObjectFormInner from '../object-form/object-form-inner';
+import FullObjectForm from '../object-form/full-object-form';
 import ContentBox from '../content-box/content-box';
 import DropdownSearch from '../dropdown/dropdown-search';
 import DropdownItem from '../dropdown/dropdownItem';
@@ -146,7 +146,7 @@ export default class CouponForm extends Component {
       <Form styleName="coupon-form">
         <div styleName="main">
           <ContentBox title="General">
-            <ObjectFormInner
+            <FullObjectForm
               onChange={this.handleChange}
               fieldsToRender={this.generalAttrs}
               form={formAttributes}

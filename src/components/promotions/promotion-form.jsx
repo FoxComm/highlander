@@ -9,7 +9,7 @@ import { assoc } from 'sprout-data';
 import styles from './promotion-form.css';
 
 import ContentBox from '../content-box/content-box';
-import ObjectFormInner from '../object-form/object-form-inner';
+import FullObjectForm from '../object-form/full-object-form';
 import { Dropdown, DropdownItem } from '../dropdown';
 import ObjectScheduler from '../object-scheduler/object-scheduler';
 import { FormField, Form } from '../forms';
@@ -146,7 +146,7 @@ export default class PromotionForm extends Component {
                 </Dropdown>
               </div>
             </FormField>
-            <ObjectFormInner
+            <FullObjectForm
               onChange={this.handleChange}
               fieldsToRender={this.generalAttrs}
               form={formAttributes}

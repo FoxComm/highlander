@@ -12,7 +12,7 @@ import _ from 'lodash';
 import { FormField } from '../forms';
 import ContentBox from '../content-box/content-box';
 import ObjectForm from '../object-form/object-form';
-import ObjectFormInner from '../object-form/object-form-inner';
+import FullObjectForm from '../object-form/full-object-form';
 import ObjectScheduler from '../object-scheduler/object-scheduler';
 import WaitAnimation from '../common/wait-animation';
 
@@ -68,7 +68,7 @@ export default class SkuDetails extends Component {
             value={sku.form.code}
             onChange={_.noop} />
         </FormField>
-        <ObjectFormInner
+        <FullObjectForm
           canAddProperty={true}
           onChange={this.handleChange}
           fieldsToRender={this.generalAttrs}
