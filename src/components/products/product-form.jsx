@@ -10,7 +10,7 @@ import _ from 'lodash';
 
 // components
 import ContentBox from '../content-box/content-box';
-import ObjectForm from '../object-form/object-form';
+import IlluminatedObjectForm from '../object-form/illuminated-object-form';
 import ObjectScheduler from '../object-scheduler/object-scheduler';
 import SkuList from './sku-list';
 import Tags from '../tags/tags';
@@ -86,12 +86,8 @@ export default class ProductForm extends Component {
   }
 
   @autobind
-  handleProductChange(form: Attributes, shadow: ShadowAttributes) {
-    const newProduct = assoc(this.props.product,
-      ['form', 'product', 'attributes'], form,
-      ['shadow', 'product', 'attributes'], shadow
-    );
-
+  handleProductChange(attributes: Attributes) {
+    const newProduct = assoc(this.props.product, ['product', 'attributes'], attributes);
     this.props.onUpdateProduct(newProduct);
   }
 
@@ -114,26 +110,25 @@ export default class ProductForm extends Component {
   }
 
   render(): Element {
+    const attributes = _.get(this.props, 'product.product.attributes', {});
     const formAttributes = _.get(this.props, 'product.form.product.attributes', []);
     const shadowAttributes = _.get(this.props, 'product.shadow.product.attributes', []);
 
     return (
       <div className="fc-grid fc-grid-no-gutter">
         <div className="fc-col-md-3-5">
-          <ObjectForm
+          <IlluminatedObjectForm
             canAddProperty={true}
             onChange={this.handleProductChange}
             fieldsToRender={this.generalAttrs}
-            form={formAttributes}
-            shadow={shadowAttributes}
+            attributes={attributes}
             title="General" />
           {this.variantContentBox}
           {this.skusContentBox}
-          <ObjectForm
+          <IlluminatedObjectForm
             onChange={this.handleProductChange}
             fieldsToRender={defaultKeys.seo}
-            form={formAttributes}
-            shadow={shadowAttributes}
+            attributes={attributes}
             title="SEO" />
         </div>
         <div className="fc-col-md-2-5">

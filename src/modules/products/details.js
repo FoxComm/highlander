@@ -21,6 +21,14 @@ export type Error = {
   messages: Array<string>,
 };
 
+export type Product = {
+  id: ?number,
+  product: {
+    attributes: { [key:string]: { t: string, v: any } },
+  },
+  skus: Array<Object>,
+};
+
 export type FullProduct = {
   id: ?number,
   form: {
@@ -97,9 +105,9 @@ export function fetchProduct(id: string, context: string = defaultContext): Acti
       dispatch(productNew());
     } else {
       dispatch(productRequestStart());
-      return Api.get(`/products/full/${context}/${id}`)
+      return Api.get(`/products/${context}/${id}`)
         .then(
-          (product: FullProduct) => dispatch(productRequestSuccess(product)),
+          (product: Product) => dispatch(productRequestSuccess(product)),
           (err: Object) => {
             dispatch(productRequestFailure());
             dispatch(setError(err));
@@ -168,7 +176,7 @@ const reducer = createReducer({
       ...state,
       err: null,
       isFetching: false,
-      product: configureProduct(response),
+      product: response,
     };
   },
   [productRequestFailure]: (state: ProductDetailsState) => {

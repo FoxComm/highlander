@@ -93,8 +93,7 @@ export class ProductPage extends Component {
     }
 
     const { product } = this.props.products;
-    const attributes = product ? getProductAttributes(product) : {};
-    return _.get(attributes, 'title.value', '');
+    return _.get(product, 'product.attributes.title.v', '');
   }
 
   get titleActions(): Element {

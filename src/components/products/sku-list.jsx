@@ -74,8 +74,10 @@ export default class SkuList extends Component<void, Props, void> {
   }
 
   render(): Element {
-    return _.isEmpty(this.illuminatedSkus)
-      ? this.emptyContent
-      : this.skuContent(this.illuminatedSkus);
+    // TODO: Fix me up!
+    //return _.isEmpty(this.illuminatedSkus)
+      //? this.emptyContent
+      //: this.skuContent(this.illuminatedSkus);
+    return this.emptyContent;
   }
 }
