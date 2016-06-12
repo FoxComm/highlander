@@ -19,11 +19,11 @@ import WaitAnimation from '../common/wait-animation';
 
 // types
 import type { Attributes, ShadowAttributes } from '../../modules/products/details';
-import type { FullProduct } from '../../modules/products/details';
+import type { Product } from '../../modules/products/details';
 
 type Props = {
-  product: FullProduct,
-  onUpdateProduct: (product: FullProduct) => void,
+  product: Product,
+  onUpdateProduct: (product: Product) => void,
   onSetSkuProperty: (code: string, field: string, type: string, value: any) => void,
 };
 
@@ -87,7 +87,7 @@ export default class ProductForm extends Component {
 
   @autobind
   handleProductChange(attributes: Attributes) {
-    const newProduct = assoc(this.props.product, ['product', 'attributes'], attributes);
+    const newProduct = assoc(this.props.product, ['attributes'], attributes);
     this.props.onUpdateProduct(newProduct);
   }
 
@@ -110,7 +110,7 @@ export default class ProductForm extends Component {
   }
 
   render(): Element {
-    const attributes = _.get(this.props, 'product.product.attributes', {});
+    const attributes = _.get(this.props, 'product.attributes', {});
     const formAttributes = _.get(this.props, 'product.form.product.attributes', []);
     const shadowAttributes = _.get(this.props, 'product.shadow.product.attributes', []);
 

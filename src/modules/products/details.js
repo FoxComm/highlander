@@ -6,7 +6,6 @@ import { assoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
 import { push } from 'react-router-redux';
 import {
-  configureProduct,
   createEmptyProduct,
   setProductAttribute,
 } from '../../paragons/product';
@@ -27,24 +26,6 @@ export type Product = {
     attributes: { [key:string]: { t: string, v: any } },
   },
   skus: Array<Object>,
-};
-
-export type FullProduct = {
-  id: ?number,
-  form: {
-    product: ProductForm,
-    skus: Array<SkuForm>,
-  },
-  shadow: {
-    product: ProductShadow,
-    skus: Array<SkuShadow>,
-  },
-};
-
-export type ProductForm = {
-  id: ?number,
-  createdAt: ?string,
-  attributes: Attributes,
 };
 
 export type Attribute = {
@@ -81,7 +62,7 @@ export type ProductDetailsState = {
   err: ?Error,
   isFetching: boolean,
   isUpdating: boolean,
-  product: ?FullProduct,
+  product: ?Product,
 };
 
 const defaultContext = 'default';
@@ -117,14 +98,14 @@ export function fetchProduct(id: string, context: string = defaultContext): Acti
   };
 }
 
-export function createProduct(product: FullProduct, context: string = defaultContext): ActionDispatch {
+export function createProduct(product: Product, context: string = defaultContext): ActionDispatch {
   return dispatch => {
     dispatch(productUpdateStart());
-    return Api.post(`/products/full/${context}`, product)
+    return Api.post(`/products/${context}`, product)
       .then(
-        (product: FullProduct) => {
+        (product: Product) => {
           dispatch(productUpdateSuccess(product));
-          dispatch(push(`/products/${context}/${product.form.product.id}`));
+          dispatch(push(`/products/${context}/${product.id}`));
         },
         (err: Object) => {
           dispatch(productUpdateFailure());
@@ -134,13 +115,12 @@ export function createProduct(product: FullProduct, context: string = defaultCon
   };
 }
 
-export function updateProduct(product: FullProduct, context: string = defaultContext): ActionDispatch {
+export function updateProduct(product: Product, context: string = defaultContext): ActionDispatch {
   return dispatch => {
     dispatch(productUpdateStart());
-    const productId = product.form.product.id;
-    return Api.patch(`/products/full/${context}/${productId}`, product)
+    return Api.patch(`/products/${context}/${product.id}`, product)
       .then(
-        (product: FullProduct) => dispatch(productUpdateSuccess(product)),
+        (product: Product) => dispatch(productUpdateSuccess(product)),
         (err: Object) => {
           dispatch(productUpdateFailure());
           dispatch(setError(err));
@@ -171,7 +151,7 @@ const reducer = createReducer({
       isFetching: true,
     };
   },
-  [productRequestSuccess]: (state: ProductDetailsState, response: FullProduct) => {
+  [productRequestSuccess]: (state: ProductDetailsState, response: Product) => {
     return {
       ...state,
       err: null,
@@ -191,12 +171,12 @@ const reducer = createReducer({
       isUpdating: true,
     };
   },
-  [productUpdateSuccess]: (state: ProductDetailsState, response: FullProduct) => {
+  [productUpdateSuccess]: (state: ProductDetailsState, response: Product) => {
     return {
       ...state,
       err: null,
       isUpdating: false,
-      product: configureProduct(response),
+      product: response,
     };
   },
   [productUpdateFailure]: (state: ProductDetailsState) => {

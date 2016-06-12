@@ -28,27 +28,27 @@ import {
 } from '../../paragons/product';
 
 // types
-import type { FullProduct } from '../../modules/products/details';
+import type { Product } from '../../modules/products/details';
 
 type Props = {
   actions: {
-    createProduct: (product: FullProduct) => void,
+    createProduct: (product: Product) => void,
     fetchProduct: (productId: string, context: string) => void,
     productNew: () => void,
-    updateProduct: (product: FullProduct, context: string) => void,
+    updateProduct: (product: Product, context: string) => void,
   },
   children: any,
   params: { productId: string, context: string },
   products: {
     isFetching: boolean,
     isUpdating: boolean,
-    product: ?FullProduct,
+    product: ?Product,
     err: ?Object,
   }
 };
 
 type State = {
-  product: ?FullProduct,
+  product: ?Product,
   context: string,
 };
 
@@ -93,7 +93,7 @@ export class ProductPage extends Component {
     }
 
     const { product } = this.props.products;
-    return _.get(product, 'product.attributes.title.v', '');
+    return _.get(product, 'attributes.title.v', '');
   }
 
   get titleActions(): Element {
@@ -148,7 +148,7 @@ export class ProductPage extends Component {
   }
 
   @autobind
-  handleUpdateProduct(product: FullProduct) {
+  handleUpdateProduct(product: Product) {
     this.setState({ product });
   }
 
