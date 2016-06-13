@@ -77,13 +77,11 @@ export default class SkuDetails extends Component {
   }
 
   get skuState(): Element {
-    const formAttributes = _.get(this.props, 'sku.form.attributes', []);
-    const shadowAttributes = _.get(this.props, 'sku.shadow.attributes', []);
+    const { attributes } = this.props.sku;
 
     return (
       <ObjectScheduler
-        form={formAttributes}
-        shadow={shadowAttributes}
+        attributes={attributes}
         onChange={this.handleChange}
         title="SKU" />
     );

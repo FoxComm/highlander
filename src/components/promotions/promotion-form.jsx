@@ -11,7 +11,7 @@ import styles from './promotion-form.css';
 import ContentBox from '../content-box/content-box';
 import FullObjectForm from '../object-form/full-object-form';
 import { Dropdown, DropdownItem } from '../dropdown';
-import ObjectScheduler from '../object-scheduler/object-scheduler';
+import FullObjectScheduler from '../object-scheduler/full-object-scheduler';
 import { FormField, Form } from '../forms';
 import SelectCustomerGroups from '../customers-groups/select-groups';
 import Tags from '../tags/tags';
@@ -94,7 +94,7 @@ export default class PromotionForm extends Component {
     }
 
     return (
-      <ObjectScheduler
+      <FullObjectScheduler
         form={formAttributes}
         shadow={shadowAttributes}
         onChange={this.handleChange}

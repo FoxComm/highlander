@@ -13,8 +13,12 @@ import { illuminateAttributes, setAttribute, setAttributes } from '../../paragon
 import { Dropdown, DropdownItem } from '../dropdown';
 import DateTimePicker from '../date-time-picker/date-time-picker';
 
-type Props = FormShadowAttrs & {
-  onChange: (form: FormAttributes, shadow: ShadowAttributes) => void,
+type Attribute = { t: string, v: any };
+type Attributes = { [key:string]: Attribute };
+
+type Props = {
+  attributes: Attributes,
+  onChange: (attributes: Attributes) => void,
   title: string,
 };
 
@@ -23,19 +27,13 @@ type State = {
   showActiveToPicker: boolean,
 };
 
-export default class ProductState extends Component<void, Props, State> {
-  static propTypes = {
-    form: PropTypes.object.isRequired,
-    shadow: PropTypes.object.isRequired,
-    onChange: PropTypes.func.isRequired,
-    title: PropTypes.string,
-  };
-
+export default class ObjectScheduler extends Component {
+  props: Props;
   state: State = this.fieldsStateFromProps(this.props);
 
-  fieldsStateFromProps(props: FormShadowAttrs): State {
-    const activeFrom = this.getFormAttribute(props, 'activeFrom');
-    const activeTo = this.getFormAttribute(props, 'activeTo');
+  fieldsStateFromProps(props: Props): State {
+    const activeFrom = this.getAttribute(props.attributes, 'activeFrom');
+    const activeTo = this.getAttribute(props.attributes, 'activeTo');
 
     return {
       showActiveFromPicker: !!activeFrom,
@@ -47,20 +45,16 @@ export default class ProductState extends Component<void, Props, State> {
     this.setState(this.fieldsStateFromProps(nextProps));
   }
 
-  illuminatedAttributes(props: FormShadowAttrs): IlluminatedAttributes {
-    return illuminateAttributes(props.form, props.shadow);
-  }
-
-  getFormAttribute(props: FormShadowAttrs, name: string): any {
-    return _.get(this.illuminatedAttributes(props), [name, 'value']);
+  getAttribute(attrs: Attributes, name: string): any {
+    return _.get(attrs, [name, 'v']);
   }
 
   get activeFrom(): ?string {
-    return this.getFormAttribute(this.props, 'activeFrom');
+    return this.getAttribute(this.props.attributes, 'activeFrom');
   }
 
   get activeTo(): ?string {
-    return this.getFormAttribute(this.props, 'activeTo');
+    return this.getAttribute(this.props.attributes, 'activeTo');
   }
 
   get activeFromPicker(): ?Element {
@@ -131,24 +125,31 @@ export default class ProductState extends Component<void, Props, State> {
   }
 
   updateAttribute(label: string, value: ?string) {
-    const { form, shadow } = this.props;
-    const [newForm, newShadow] = setAttribute(label, 'datetime', value, form, shadow);
-    this.props.onChange(newForm, newShadow);
+    const attribute = {
+      [label]: {
+        t: 'datetime',
+        v: value,
+      },
+    };
+
+    const newAttrs = { ...this.props.attributes, ...attribute };
+    this.props.onChange(newAttrs);
   }
 
-  setFromTo(activeFrom: ?string, activeTo: ?string): FormShadowAttrsPair {
-    const { form, shadow } = this.props;
+  setFromTo(activeFrom: ?string, activeTo: ?string): Attributes {
+    const { attributes } = this.props;
 
-    return setAttributes({
+    return {
+      ...attributes,
       activeFrom: {
-        value: activeFrom,
-        type: 'datetime'
+        v: activeFrom,
+        t: 'datetime'
       },
       activeTo: {
-        value: activeTo,
-        type: 'datetime'
-      }
-    }, form, shadow);
+        v: activeTo,
+        t: 'datetime'
+      },
+    };
   }
 
   @autobind
@@ -156,18 +157,18 @@ export default class ProductState extends Component<void, Props, State> {
     const now = moment().utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ');
     const activeFrom = value == 'active' ? now : null;
 
-    const [newForm, newShadow] = this.setFromTo(activeFrom, null);
-    this.props.onChange(newForm, newShadow);
+    const attributes = this.setFromTo(activeFrom, null);
+    this.props.onChange(attributes);
   }
 
   @autobind
   handleCancelFrom() {
-    const [newForm, newShadow] = this.setFromTo(null, null);
+    const attributes = this.setFromTo(null, null);
 
     this.setState({
       showActiveFromPicker: false,
       showActiveToPicker: false,
-    }, () => this.props.onChange(newForm, newShadow));
+    }, () => this.props.onChange(attributes));
   }
 
   @autobind

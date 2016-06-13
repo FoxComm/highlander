@@ -97,13 +97,11 @@ export default class ProductForm extends Component {
   }
 
   get productState(): Element {
-    const formAttributes = _.get(this.props, 'product.form.product.attributes', []);
-    const shadowAttributes = _.get(this.props, 'product.shadow.product.attributes', []);
+    const { attributes } = this.props.product;
 
     return (
       <ObjectScheduler
-        form={formAttributes}
-        shadow={shadowAttributes}
+        attributes={attributes}
         onChange={this.handleProductChange}
         title="Product" />
     );

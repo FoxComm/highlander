@@ -18,7 +18,7 @@ import CouponCodes from './form/coupon-codes';
 import UsageRules from './form/usage-rules';
 import { FormField, Form } from '../forms';
 import Tags from '../tags/tags';
-import ObjectScheduler from '../object-scheduler/object-scheduler';
+import FullObjectScheduler from '../object-scheduler/full-object-scheduler';
 import Watchers from '../watchers/watchers';
 
 // paragon
@@ -168,7 +168,7 @@ export default class CouponForm extends Component {
             shadow={shadowAttributes}
             onChange={this.handleChange}
           />
-          <ObjectScheduler
+          <FullObjectScheduler
             form={formAttributes}
             shadow={shadowAttributes}
             onChange={this.handleChange}
