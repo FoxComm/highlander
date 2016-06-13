@@ -5,8 +5,7 @@ import consumer.utils.JsonTransformers.{extractBigIntSeq, extractStringSeq}
 class JsonTransformersTest extends FlatSpec with Matchers {
 
   "extractStringSeq method" should "properly extract string lists" in {
-    val inputJsonString =
-      """
+    val inputJsonString = """
         | {
         |   "giftCardCodes": ["ABC", "DEF", "GHI"],
         |   "storeCreditIds": [1, 2, 3, 4, 5]
