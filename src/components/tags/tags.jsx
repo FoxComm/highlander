@@ -12,9 +12,11 @@ import TextInput from '../forms/text-input';
 
 import styles from './tags.css';
 
+type Attribute = { t: string, v: any };
+type Attributes = { [key:string]: Attribute };
+
 type Props = {
-  form: FormAttributes,
-  shadow: ShadowAttributes,
+  attributes: Attributes,
   onChange: (form: FormAttributes, shadow: ShadowAttributes) => void,
 };
 
@@ -42,8 +44,8 @@ export default class Tags extends Component<void, Props, State> {
   }
 
   get tags(): Array<string> {
-    const { form, shadow } = this.props;
-    return _.get(illuminateAttributes(form, shadow), 'tags.value', []);
+    const { attributes } = this.props;
+    return _.get(attributes, 'tags.v', []);
   }
 
   @autobind
@@ -86,9 +88,9 @@ export default class Tags extends Component<void, Props, State> {
   }
 
   updateTags(tags: Array<string>) {
-    const { form, shadow } = this.props;
-    const [ newForm, newShadow ] = setAttribute('tags', 'tags', tags, form, shadow);
-    this.props.onChange(newForm, newShadow);
+    const { attributes } = this.props;
+    const newAttr = { t: 'tags', v: tags };
+    this.props.onChange({ ...attributes, tags: newAttr });
   }
 
   render(): Element {

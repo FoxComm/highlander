@@ -131,8 +131,7 @@ export default class ProductForm extends Component {
         </div>
         <div className="fc-col-md-2-5">
           <Tags
-            form={formAttributes}
-            shadow={shadowAttributes}
+            attributes={attributes}
             onChange={this.handleProductChange} />
           {this.productState}
         </div>

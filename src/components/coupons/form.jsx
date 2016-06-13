@@ -17,7 +17,7 @@ import RadioButton from '../forms/radio-button';
 import CouponCodes from './form/coupon-codes';
 import UsageRules from './form/usage-rules';
 import { FormField, Form } from '../forms';
-import Tags from '../tags/tags';
+import FullObjectTags from '../tags/full-object-tags';
 import FullObjectScheduler from '../object-scheduler/full-object-scheduler';
 import Watchers from '../watchers/watchers';
 
@@ -163,7 +163,7 @@ export default class CouponForm extends Component {
           <UsageRules {...(this.usageRules)} onChange={this.handleUsageRulesChange}/>
         </div>
         <div styleName="aside">
-          <Tags
+          <FullObjectTags
             form={formAttributes}
             shadow={shadowAttributes}
             onChange={this.handleChange}

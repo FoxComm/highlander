@@ -14,7 +14,7 @@ import { Dropdown, DropdownItem } from '../dropdown';
 import FullObjectScheduler from '../object-scheduler/full-object-scheduler';
 import { FormField, Form } from '../forms';
 import SelectCustomerGroups from '../customers-groups/select-groups';
-import Tags from '../tags/tags';
+import FullObjectTags from '../tags/tags';
 import DiscountAttrs from './discount-attrs';
 import offers from './offers';
 import qualifiers from './qualifiers';
@@ -183,7 +183,7 @@ export default class PromotionForm extends Component {
           </ContentBox>
         </div>
         <div styleName="aside">
-          <Tags
+          <FullObjectTags
             form={formAttributes}
             shadow={shadowAttributes}
             onChange={this.handleChange}
