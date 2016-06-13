@@ -1,5 +1,32 @@
 
-@miniclass CreditCardCreatePayload (FoxApi)
+@miniclass CreditCard (CreditCards)
+@aka creditcard
+
+@field id: Number = 1
+Unique identifier.
+
+@field customerId: Number = 1
+Customer ID.
+
+@field holderName: String = `John Smith`
+Cardholder name.
+
+@field lastFour: String = `8752`
+Last four digits.
+
+@field expMonth: Number = 4
+Expiration month.
+
+@field expYear: Number = 2020
+Expiration year.
+
+@field brand: String = `Visa`
+Brand name.
+
+@field address: Address
+Billing address.
+
+@miniclass CreditCardCreatePayload (CreditCards)
 @aka creditcardcreatepayload
 
 @field holderName: String = `John Smith`
@@ -23,7 +50,7 @@ Billing address.
 @field addressId?: Number
 Billing address ID.
 
-@miniclass CreditCardUpdatePayload (FoxApi)
+@miniclass CreditCardUpdatePayload (CreditCards)
 @aka creditcardupdatepayload
 
 @field holderName?: String = `John Smith`
@@ -40,3 +67,7 @@ Billing address.
 
 @field addressId?: Number
 Billing address ID.
+
+@miniclass CreditCardsResponse (CreditCards)
+@aka creditcardsresponse
+@inherits ResultMetadata

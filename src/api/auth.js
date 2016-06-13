@@ -18,6 +18,7 @@
 
 
 // @class Auth
+// Accessible via [auth](#foxapi-auth) property of [FoxApi](#foxapi) instance.
 
 import * as endpoints from '../endpoints';
 

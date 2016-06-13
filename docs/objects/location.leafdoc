@@ -1,5 +1,5 @@
 
-@miniclass Address (FoxApi)
+@miniclass Address (Addresses)
 @aka address
 
 @field id: Number = 1
@@ -26,7 +26,7 @@ zip/postal code.
 @field phoneNumber?: String = `732-757-2923`
 Contact phone number.
 
-@miniclass Region (FoxApi)
+@miniclass Region (Addresses)
 @aka region
 
 @field id: Number = 1
@@ -38,7 +38,7 @@ Country unique identifier.
 @field name: String = `Washington`
 Region name.
 
-@miniclass CreateAddressPayload (FoxApi)
+@miniclass CreateAddressPayload (Addresses)
 @aka createaddresspayload
 
 @field name: String = `John Smith`
@@ -62,7 +62,7 @@ zip/postal code.
 @field phoneNumber?: String = `555-555-555`
 Contact phone number.
 
-@miniclass UpdateAddressPayload (FoxApi)
+@miniclass UpdateAddressPayload (Addresses)
 @aka updateaddresspayload
 
 @field name?: String = `John Smith`
@@ -86,7 +86,7 @@ zip/postal code.
 @field phoneNumber?: String = `555-555-555`
 Contact phone number.
 
-@miniclass AddressesResponse (FoxApi)
+@miniclass AddressesResponse (Addresses)
 @aka addressesresponse
 @inherits ResultMetadata
 

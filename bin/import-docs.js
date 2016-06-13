@@ -17,6 +17,7 @@ function collectDocs() {
 class Leafdoc {
   constructor() {
     this.sections = [];
+    this.parentNamespace = 'FoxApi';
   }
 
   addSection(name) {
@@ -28,12 +29,26 @@ class Leafdoc {
     });
   }
 
+  addDependency(type, parentsMap) {
+    this.lastSection.deps.push(type);
+    const name = this.lastSection.name;
+
+    // by default dependants inherits parent
+    if ((name in parentsMap) && !parentsMap[type]) {
+      parentsMap[type] = parentsMap[name];
+    }
+  }
+
+  setParentNamespace(parentNamespace) {
+    this.parentNamespace = parentNamespace;
+  }
+
   addStructure(structureName) {
     this.addSection(structureName);
-    this.writeHead(
-      `\n@miniclass ${structureName} (FoxApi)`,
-      `@aka ${structureName.toLowerCase()}`
-    );
+  }
+
+  makeHeadDefinition(name) {
+    return `\n@miniclass ${name} (${this.parentNamespace})\n@aka ${name.toLowerCase()}`
   }
 
   get lastSection() {
@@ -53,11 +68,17 @@ class Leafdoc {
   }
 
   stringify(sections) {
-    return sections.map(s => [s.head.join('\n'), s.body.join('\n')].join('\n')).join('\n');
+    return sections.map(s => {
+      const head = [
+        this.makeHeadDefinition(s.name),
+        ...s.head,
+      ];
+      return [head.join('\n'), s.body.join('\n')].join('\n');
+    }).join('\n');
   }
 
   toString() {
-    return this.stringify(sections);
+    return this.stringify(this.sections);
   }
 
   filterAndDump(names) {
@@ -94,7 +115,7 @@ function convertType(type) {
   return _.upperFirst(type);
 }
 
-function apiaryToLeafdoc(str, namesMap) {
+function apiaryToLeafdoc(str, namesMap, parentsMap) {
   const attrRe = /\+\s+(\w+):?\s*(\d+|`[^\`]+`)?\s+\(([^)]+)\)\s*\-\s*(.*)/;
   const directiveRe = /[\-+]\s*(\w+)\s+(.*)/;
   const doc = new Leafdoc();
@@ -102,10 +123,14 @@ function apiaryToLeafdoc(str, namesMap) {
   let structureName = null;
 
   const rename = name => namesMap[name] || name;
+  let parentNamespace = 'FoxApi';
 
   str.toString().split(/\n\r?/).forEach(line => {
-    if (line.startsWith('###')) {
+    if (line.startsWith('##')) {
       structureName = rename(line.replace(/[\#\s]/g, ''));
+      if (structureName in parentsMap) {
+        parentNamespace = parentsMap[structureName];
+      }
       doc.addStructure(structureName);
     }
     if (/^[+\-]/.test(line) && structureName) {
@@ -132,7 +157,7 @@ function apiaryToLeafdoc(str, namesMap) {
           `\n@field ${name}${nameSuffix}: ${type}${defaultPart}`,
           `${description}`
         );
-        doc.lastSection.deps.push(type);
+        doc.addDependency(type, parentsMap);
         return;
       }
 
@@ -142,12 +167,13 @@ function apiaryToLeafdoc(str, namesMap) {
         if (name.toLowerCase() === 'include') {
           const type = rename(split[2]);
           doc.writeHead(`@inherits ${type}`);
-          doc.lastSection.deps.push(type);
+          doc.addDependency(type, parentsMap);
         }
       }
     }
   });
 
+  doc.setParentNamespace(parentNamespace);
   return doc;
 }
 
@@ -160,19 +186,37 @@ function rename(filename, newExt) {
   return `${path.basename(filename, path.extname(filename))}${newExt}`;
 }
 
-const structuresToImport = [
-  'CreateAddressPayload',
-  'UpdateAddressPayload',
-  'Address',
-  'Addresses:AddressesResponse',
-  'CreditCards:CreditCardsResponse',
-  'CreditCardCreatePayload',
-  'CreditCardUpdatePayload'
-];
+// format - [ParentNamespace]: '[namespace]:name'
+const importData = {
+  'Addresses': [
+    'CreateAddressPayload',
+    'UpdateAddressPayload',
+    'Address',
+    'Addresses:AddressesResponse'
+  ],
+  'CreditCards': [
+    'CreditCard',
+    'CreditCards:CreditCardsResponse',
+    'CreditCardCreatePayload',
+    'CreditCardUpdatePayload'
+  ],
+  'StoreCredits': [
+    'StoreCredit',
+    'StoreCreditAdjustments',
+    'StoreCreditTotals'
+  ]
+};
 
 function convertDocs() {
   console.log('Import apiary objects descriptions');
   mkdirp.sync(outPath);
+
+  const parentsMap = Object.create(null);
+  let structuresToImport = [];
+  _.each(importData, (names, parentName) => {
+    _.each(names, name => parentsMap[name] = parentName);
+    structuresToImport = [...structuresToImport, ...names];
+  });
 
   const requiredStructures = structuresToImport.map(name => name.split(':').slice(-1)[0])
   const newNames = structuresToImport.reduce((acc, name) => {
@@ -182,12 +226,12 @@ function convertDocs() {
       acc[realName] = newName;
     }
     return acc;
-  }, {})
+  }, {});
 
   const deps = {};
   const docs = collectDocs()
     .map(([filename, contents]) => {
-      const leafdoc = apiaryToLeafdoc(contents, newNames);
+      const leafdoc = apiaryToLeafdoc(contents, newNames, parentsMap);
       leafdoc.indexDeps(deps);
       leafdoc.filename = rename(filename, '.leafdoc');
 

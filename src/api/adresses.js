@@ -1,5 +1,6 @@
 
 // @class Addresses
+// Accessible via [addresses](#foxapi-addresses) property of [FoxApi](#foxapi) instance.
 
 import * as endpoints from '../endpoints';
 
@@ -10,7 +11,21 @@ export default class Addresses {
 
   // @method list(options: Query options): Promise<AddressesResponse>
   // Choices for `options.sortBy` parameter:
-  // `id` `regionId` `name` `address1` `address2` `city` `zip` `isDefaultShipping` `phoneNumber` `deletedAt` `region_id` `region_countryId` `region_name` `region_abbreviation`
+  // 
+  // - `id`
+  // - `regionId`
+  // - `name`
+  // - `address1`
+  // - `address2`
+  // - `city`
+  // - `zip`
+  // - `isDefaultShipping`
+  // - `phoneNumber`
+  // - `deletedAt`
+  // - `region_id`
+  // - `region_countryId`
+  // - `region_name`
+  // - `region_abbreviation`
   list(options) {
     return this.api.get(endpoints.addresses, options);
   }
@@ -21,14 +36,14 @@ export default class Addresses {
   }
 
   // @method add(address: CreateAddressPayload): Promise<Address>
-  // Adds new address
+  // Adds new address.
   add(address) {
     return this.api.post(endpoints.addresses, address)
   }
 
-  // @method edit(addressId: Number, address: UpdateAddressPayload): Promise<Address>
-  // Updates selected address
-  edit(addressId, address) {
+  // @method update(addressId: Number, address: UpdateAddressPayload): Promise<Address>
+  // Updates selected address.
+  update(addressId, address) {
     return this.api.patch(endpoints.address(addressId), address);
   }
 

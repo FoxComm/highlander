@@ -108,6 +108,12 @@ api.products.search({state: &#39;cart&#39;});
 		<td><code><a href='#foxapi'>FoxApi</a></code></td>
 		<td>Set jwt authorization header for next requests</td>
 	</tr>
+	<tr id='foxapi-getcustomerid'>
+		<td><code><b>getCustomerId</b>()</nobr></code></td>
+		<td><code>Number|null</code></td>
+		<td>Returns customer id from parsed jwt string
+You can define jwt string via <code>addAuth</code> method, if there is no jwt strings method returns null.</td>
+	</tr>
 	<tr id='foxapi-addheaders'>
 		<td><code><b>addHeaders</b>(<nobr>&lt;Object&gt;</nobr> <i>header</i>)</nobr></code></td>
 		<td><code><a href='#foxapi'>FoxApi</a></code></td>
@@ -211,6 +217,16 @@ api.products.search({state: &#39;cart&#39;});
 		<td><code><b>auth</b>
 		<td><code><a href='#auth'>Auth</a></code></td>
 		<td>Auth instance</td>
+	</tr>
+	<tr id='foxapi-creditcards'>
+		<td><code><b>creditCards</b>
+		<td><code><a href='#creditcards'>CreditCards</a></code></td>
+		<td>CreditCards instance</td>
+	</tr>
+	<tr id='foxapi-storecredits'>
+		<td><code><b>storeCredits</b>
+		<td><code><a href='#storecredits'>StoreCredits</a></code></td>
+		<td>StoreCredits instance</td>
 	</tr>
 </tbody></table>
 
@@ -351,10 +367,10 @@ api.products.search({state: &#39;cart&#39;});
 </section>
 
 </section>
-<span id='creditcardcreatepayload'></span>
+<span id='query-options'></span>
 
 <section>
-<h3 id='creditcardcreatepayload-field'>CreditCardCreatePayload</h3>
+<h3 id='query-options-option'>Query options</h3>
 
 <section >
 
@@ -363,73 +379,40 @@ api.products.search({state: &#39;cart&#39;});
 <div class='section-comments'></div>
 
 <table><thead>
-<tr>
-    <th>Field</th>
-    <th>Type</th>
-    <th>Required</th>
-    <th>Example</th>
-    <th>Description</th>
-</tr>
-</thead><tbody>
-    <tr id='creditcardcreatepayload-holdername'>
-        <td><code><b>holderName</b></code></td>
-        <td><code>String</code>
-        <td><div data-icon="ei-check"></div></td>
-        <td><code>John Smith</code></td>
-        <td>Cardholder name.</td>
-    </tr>
-    <tr id='creditcardcreatepayload-number'>
-        <td><code><b>number</b></code></td>
-        <td><code>String</code>
-        <td><div data-icon="ei-check"></div></td>
-        <td><code>5555 5555 5555 5555</code></td>
-        <td>Credit card number.</td>
-    </tr>
-    <tr id='creditcardcreatepayload-cvv'>
-        <td><code><b>cvv</b></code></td>
-        <td><code>String</code>
-        <td><div data-icon="ei-check"></div></td>
-        <td><code>555</code></td>
-        <td>CVV.</td>
-    </tr>
-    <tr id='creditcardcreatepayload-expmonth'>
-        <td><code><b>expMonth</b></code></td>
-        <td><code>Number</code>
-        <td><div data-icon="ei-check"></div></td>
-        <td>4</td>
-        <td>Expiration month.</td>
-    </tr>
-    <tr id='creditcardcreatepayload-expyear'>
-        <td><code><b>expYear</b></code></td>
-        <td><code>Number</code>
-        <td><div data-icon="ei-check"></div></td>
-        <td>2020</td>
-        <td>Expiration year.</td>
-    </tr>
-    <tr id='creditcardcreatepayload-address'>
-        <td><code><b>address</b></code></td>
-        <td><code><a href='#createaddresspayload'>CreateAddressPayload</a></code>
-        <td></td>
-        <td></td>
-        <td>Billing address.</td>
-    </tr>
-    <tr id='creditcardcreatepayload-addressid'>
-        <td><code><b>addressId</b></code></td>
-        <td><code>Number</code>
-        <td></td>
-        <td></td>
-        <td>Billing address ID.</td>
-    </tr>
+	<tr>
+		<th>Option</th>
+		<th>Type</th>
+		<th>Default</th>
+		<th>Description</th>
+	</tr>
+	</thead><tbody>
+	<tr id='query-options-size'>
+		<td><code><b>size</b></code></td>
+		<td><code>Number</code>
+		<td><code></code></td>
+		<td>Page size.</td>
+	</tr>
+	<tr id='query-options-from'>
+		<td><code><b>from</b></code></td>
+		<td><code>Number</code>
+		<td><code></code></td>
+		<td>Start element (counting from 0) or # of elements to skip.</td>
+	</tr>
+	<tr id='query-options-sortby'>
+		<td><code><b>sortBy</b></code></td>
+		<td><code>String</code>
+		<td><code></code></td>
+		<td>Field to sort by (-fieldName for descending order).</td>
+	</tr>
 </tbody></table>
 
-
 </section>
 
 </section>
-<span id='creditcardupdatepayload'></span>
+<h2 id='addresses'>Addresses</h2><p>Accessible via <a href="#foxapi-addresses">addresses</a> property of <a href="#foxapi">FoxApi</a> instance.</p>
 
 <section>
-<h3 id='creditcardupdatepayload-field'>CreditCardUpdatePayload</h3>
+<h3 id='addresses-method'>Methods</h3>
 
 <section >
 
@@ -438,51 +421,64 @@ api.products.search({state: &#39;cart&#39;});
 <div class='section-comments'></div>
 
 <table><thead>
-<tr>
-    <th>Field</th>
-    <th>Type</th>
-    <th>Required</th>
-    <th>Example</th>
-    <th>Description</th>
-</tr>
-</thead><tbody>
-    <tr id='creditcardupdatepayload-holdername'>
-        <td><code><b>holderName</b></code></td>
-        <td><code>String</code>
-        <td></td>
-        <td><code>John Smith</code></td>
-        <td>Cardholder name.</td>
-    </tr>
-    <tr id='creditcardupdatepayload-expmonth'>
-        <td><code><b>expMonth</b></code></td>
-        <td><code>Number</code>
-        <td></td>
-        <td>4</td>
-        <td>Expiration month.</td>
-    </tr>
-    <tr id='creditcardupdatepayload-expyear'>
-        <td><code><b>expYear</b></code></td>
-        <td><code>Number</code>
-        <td></td>
-        <td>2020</td>
-        <td>Expiration year.</td>
-    </tr>
-    <tr id='creditcardupdatepayload-address'>
-        <td><code><b>address</b></code></td>
-        <td><code><a href='#createaddresspayload'>CreateAddressPayload</a></code>
-        <td></td>
-        <td></td>
-        <td>Billing address.</td>
-    </tr>
-    <tr id='creditcardupdatepayload-addressid'>
-        <td><code><b>addressId</b></code></td>
-        <td><code>Number</code>
-        <td></td>
-        <td></td>
-        <td>Billing address ID.</td>
-    </tr>
+	<tr>
+		<th>Method</th>
+		<th>Returns</th>
+		<th>Description</th>
+	</tr>
+	</thead><tbody>
+	<tr id='addresses-list'>
+		<td><code><b>list</b>(<nobr>&lt;<a href='#query-options'>Query options</a>&gt;</nobr> <i>options</i>)</nobr></code></td>
+		<td><code>Promise&lt;<a href='#addressesresponse'>AddressesResponse</a>&gt;</code></td>
+		<td>Choices for <code>options.sortBy</code> parameter:
+<ul>
+<li><code>id</code></li>
+<li><code>regionId</code></li>
+<li><code>name</code></li>
+<li><code>address1</code></li>
+<li><code>address2</code></li>
+<li><code>city</code></li>
+<li><code>zip</code></li>
+<li><code>isDefaultShipping</code></li>
+<li><code>phoneNumber</code></li>
+<li><code>deletedAt</code></li>
+<li><code>region_id</code></li>
+<li><code>region_countryId</code></li>
+<li><code>region_name</code></li>
+<li><code>region_abbreviation</code></li>
+</ul></td>
+	</tr>
+	<tr id='addresses-one'>
+		<td><code><b>one</b>(<nobr>&lt;Number&gt;</nobr> <i>addressId</i>)</nobr></code></td>
+		<td><code>Promise&lt;<a href='#address'>Address</a>&gt;</code></td>
+		<td></td>
+	</tr>
+	<tr id='addresses-add'>
+		<td><code><b>add</b>(<nobr>&lt;<a href='#createaddresspayload'>CreateAddressPayload</a>&gt;</nobr> <i>address</i>)</nobr></code></td>
+		<td><code>Promise&lt;<a href='#address'>Address</a>&gt;</code></td>
+		<td>Adds new address.</td>
+	</tr>
+	<tr id='addresses-update'>
+		<td><code><b>update</b>(<nobr>&lt;Number&gt;</nobr> <i>addressId</i>, <nobr>&lt;<a href='#updateaddresspayload'>UpdateAddressPayload</a>&gt;</nobr> <i>address</i>)</nobr></code></td>
+		<td><code>Promise&lt;<a href='#address'>Address</a>&gt;</code></td>
+		<td>Updates selected address.</td>
+	</tr>
+	<tr id='addresses-setasdefault'>
+		<td><code><b>setAsDefault</b>(<nobr>&lt;Number&gt;</nobr> <i>addressId</i>)</nobr></code></td>
+		<td><code>Promise&lt;<a href='#address'>Address</a>&gt;</code></td>
+		<td>Sets selected address as default.</td>
+	</tr>
+	<tr id='addresses-removedefault'>
+		<td><code><b>removeDefault</b>()</nobr></code></td>
+		<td><code>Promise</code></td>
+		<td>Removes default address.</td>
+	</tr>
+	<tr id='addresses-delete'>
+		<td><code><b>delete</b>(<nobr>&lt;Number&gt;</nobr> <i>addressId</i>)</nobr></code></td>
+		<td><code>Promise</code></td>
+		<td>Deletes address.</td>
+	</tr>
 </tbody></table>
-
 
 </section>
 
@@ -843,107 +839,8 @@ api.products.search({state: &#39;cart&#39;});
 </div>
 
 </section>
-<span id='query-options'></span>
+<h2 id='auth'>Auth</h2><p>Accessible via <a href="#foxapi-auth">auth</a> property of <a href="#foxapi">FoxApi</a> instance.</p>
 
-<section>
-<h3 id='query-options-option'>Query options</h3>
-
-<section >
-
-
-
-<div class='section-comments'></div>
-
-<table><thead>
-	<tr>
-		<th>Option</th>
-		<th>Type</th>
-		<th>Default</th>
-		<th>Description</th>
-	</tr>
-	</thead><tbody>
-	<tr id='query-options-size'>
-		<td><code><b>size</b></code></td>
-		<td><code>Number</code>
-		<td><code></code></td>
-		<td>Page size.</td>
-	</tr>
-	<tr id='query-options-from'>
-		<td><code><b>from</b></code></td>
-		<td><code>Number</code>
-		<td><code></code></td>
-		<td>Start element (counting from 0) or # of elements to skip.</td>
-	</tr>
-	<tr id='query-options-sortby'>
-		<td><code><b>sortBy</b></code></td>
-		<td><code>String</code>
-		<td><code></code></td>
-		<td>Field to sort by (-fieldName for descending order).</td>
-	</tr>
-</tbody></table>
-
-</section>
-
-</section>
-<h2 id='addresses'>Addresses</h2>
-<section>
-<h3 id='addresses-method'>Methods</h3>
-
-<section >
-
-
-
-<div class='section-comments'></div>
-
-<table><thead>
-	<tr>
-		<th>Method</th>
-		<th>Returns</th>
-		<th>Description</th>
-	</tr>
-	</thead><tbody>
-	<tr id='addresses-list'>
-		<td><code><b>list</b>(<nobr>&lt;<a href='#query-options'>Query options</a>&gt;</nobr> <i>options</i>)</nobr></code></td>
-		<td><code>Promise&lt;<a href='#addressesresponse'>AddressesResponse</a>&gt;</code></td>
-		<td>Choices for <code>options.sortBy</code> parameter:
-<code>id</code> <code>regionId</code> <code>name</code> <code>address1</code> <code>address2</code> <code>city</code> <code>zip</code> <code>isDefaultShipping</code> <code>phoneNumber</code> <code>deletedAt</code> <code>region_id</code> <code>region_countryId</code> <code>region_name</code> <code>region_abbreviation</code></td>
-	</tr>
-	<tr id='addresses-one'>
-		<td><code><b>one</b>(<nobr>&lt;Number&gt;</nobr> <i>addressId</i>)</nobr></code></td>
-		<td><code>Promise&lt;<a href='#address'>Address</a>&gt;</code></td>
-		<td></td>
-	</tr>
-	<tr id='addresses-add'>
-		<td><code><b>add</b>(<nobr>&lt;<a href='#createaddresspayload'>CreateAddressPayload</a>&gt;</nobr> <i>address</i>)</nobr></code></td>
-		<td><code>Promise&lt;<a href='#address'>Address</a>&gt;</code></td>
-		<td>Adds new address</td>
-	</tr>
-	<tr id='addresses-edit'>
-		<td><code><b>edit</b>(<nobr>&lt;Number&gt;</nobr> <i>addressId</i>, <nobr>&lt;<a href='#updateaddresspayload'>UpdateAddressPayload</a>&gt;</nobr> <i>address</i>)</nobr></code></td>
-		<td><code>Promise&lt;<a href='#address'>Address</a>&gt;</code></td>
-		<td>Updates selected address</td>
-	</tr>
-	<tr id='addresses-setasdefault'>
-		<td><code><b>setAsDefault</b>(<nobr>&lt;Number&gt;</nobr> <i>addressId</i>)</nobr></code></td>
-		<td><code>Promise&lt;<a href='#address'>Address</a>&gt;</code></td>
-		<td>Sets selected address as default.</td>
-	</tr>
-	<tr id='addresses-removedefault'>
-		<td><code><b>removeDefault</b>()</nobr></code></td>
-		<td><code>Promise</code></td>
-		<td>Removes default address.</td>
-	</tr>
-	<tr id='addresses-delete'>
-		<td><code><b>delete</b>(<nobr>&lt;Number&gt;</nobr> <i>addressId</i>)</nobr></code></td>
-		<td><code>Promise</code></td>
-		<td>Deletes address.</td>
-	</tr>
-</tbody></table>
-
-</section>
-
-</section>
-<h2 id='auth'>Auth</h2>
 <section>
 <h3 id='auth-method'>Methods</h3>
 
@@ -1066,6 +963,633 @@ api.products.search({state: &#39;cart&#39;});
 </section>
 
 </section>
+<h2 id='creditcards'>CreditCards</h2><p>Accessible via <a href="#foxapi-creditcards">creditCards</a> property of <a href="#foxapi">FoxApi</a> instance.</p>
+
+<section>
+<h3 id='creditcards-method'>Methods</h3>
+
+<section >
+
+
+
+<div class='section-comments'></div>
+
+<table><thead>
+	<tr>
+		<th>Method</th>
+		<th>Returns</th>
+		<th>Description</th>
+	</tr>
+	</thead><tbody>
+	<tr id='creditcards-list'>
+		<td><code><b>list</b>()</nobr></code></td>
+		<td><code>Promise&lt;<a href='#creditcardsresponse'>CreditCardsResponse</a>&gt;</code></td>
+		<td>Returns list of all credit cards.</td>
+	</tr>
+	<tr id='creditcards-one'>
+		<td><code><b>one</b>(<nobr>&lt;Number&gt;</nobr> <i>creditCardId</i>)</nobr></code></td>
+		<td><code>Promise&lt;<a href='#creditcard'>CreditCard</a>&gt;</code></td>
+		<td>Returns credit card by id.</td>
+	</tr>
+	<tr id='creditcards-add'>
+		<td><code><b>add</b>(<nobr>&lt;<a href='#creditcardcreatepayload'>CreditCardCreatePayload</a>&gt;</nobr> <i>creditCard</i>)</nobr></code></td>
+		<td><code>Promise&lt;<a href='#creditcard'>CreditCard</a>&gt;</code></td>
+		<td>Adds new credit card.</td>
+	</tr>
+	<tr id='creditcards-update'>
+		<td><code><b>update</b>(<nobr>&lt;Number&gt;</nobr> <i>creditCardId</i>, <nobr>&lt;<a href='#creditcardupdatepayload'>CreditCardUpdatePayload</a>&gt;</nobr> <i>creditCard</i>)</nobr></code></td>
+		<td><code>Promise&lt;<a href='#creditcard'>CreditCard</a>&gt;</code></td>
+		<td>Updates selected credit card.</td>
+	</tr>
+	<tr id='creditcards-setasdefault'>
+		<td><code><b>setAsDefault</b>(<nobr>&lt;Number&gt;</nobr> <i>creditCardId</i>)</nobr></code></td>
+		<td><code>Promise&lt;<a href='#creditcard'>CreditCard</a>&gt;</code></td>
+		<td>Sets selected credit card as default.</td>
+	</tr>
+	<tr id='creditcards-delete'>
+		<td><code><b>delete</b>(<nobr>&lt;Number&gt;</nobr> <i>creditCardId</i>)</nobr></code></td>
+		<td><code>Promise</code></td>
+		<td>Deletes selected credit card.</td>
+	</tr>
+</tbody></table>
+
+</section>
+
+</section>
+<span id='creditcard'></span>
+
+<section>
+<h3 id='creditcard-field'>CreditCard</h3>
+
+<section >
+
+
+
+<div class='section-comments'></div>
+
+<table><thead>
+<tr>
+    <th>Field</th>
+    <th>Type</th>
+    <th>Required</th>
+    <th>Example</th>
+    <th>Description</th>
+</tr>
+</thead><tbody>
+    <tr id='creditcard-id'>
+        <td><code><b>id</b></code></td>
+        <td><code>Number</code>
+        <td><div data-icon="ei-check"></div></td>
+        <td>1</td>
+        <td>Unique identifier.</td>
+    </tr>
+    <tr id='creditcard-customerid'>
+        <td><code><b>customerId</b></code></td>
+        <td><code>Number</code>
+        <td><div data-icon="ei-check"></div></td>
+        <td>1</td>
+        <td>Customer ID.</td>
+    </tr>
+    <tr id='creditcard-holdername'>
+        <td><code><b>holderName</b></code></td>
+        <td><code>String</code>
+        <td><div data-icon="ei-check"></div></td>
+        <td><code>John Smith</code></td>
+        <td>Cardholder name.</td>
+    </tr>
+    <tr id='creditcard-lastfour'>
+        <td><code><b>lastFour</b></code></td>
+        <td><code>String</code>
+        <td><div data-icon="ei-check"></div></td>
+        <td><code>8752</code></td>
+        <td>Last four digits.</td>
+    </tr>
+    <tr id='creditcard-expmonth'>
+        <td><code><b>expMonth</b></code></td>
+        <td><code>Number</code>
+        <td><div data-icon="ei-check"></div></td>
+        <td>4</td>
+        <td>Expiration month.</td>
+    </tr>
+    <tr id='creditcard-expyear'>
+        <td><code><b>expYear</b></code></td>
+        <td><code>Number</code>
+        <td><div data-icon="ei-check"></div></td>
+        <td>2020</td>
+        <td>Expiration year.</td>
+    </tr>
+    <tr id='creditcard-brand'>
+        <td><code><b>brand</b></code></td>
+        <td><code>String</code>
+        <td><div data-icon="ei-check"></div></td>
+        <td><code>Visa</code></td>
+        <td>Brand name.</td>
+    </tr>
+    <tr id='creditcard-address'>
+        <td><code><b>address</b></code></td>
+        <td><code><a href='#address'>Address</a></code>
+        <td><div data-icon="ei-check"></div></td>
+        <td></td>
+        <td>Billing address.</td>
+    </tr>
+</tbody></table>
+
+
+</section>
+
+</section>
+<span id='creditcardcreatepayload'></span>
+
+<section>
+<h3 id='creditcardcreatepayload-field'>CreditCardCreatePayload</h3>
+
+<section >
+
+
+
+<div class='section-comments'></div>
+
+<table><thead>
+<tr>
+    <th>Field</th>
+    <th>Type</th>
+    <th>Required</th>
+    <th>Example</th>
+    <th>Description</th>
+</tr>
+</thead><tbody>
+    <tr id='creditcardcreatepayload-holdername'>
+        <td><code><b>holderName</b></code></td>
+        <td><code>String</code>
+        <td><div data-icon="ei-check"></div></td>
+        <td><code>John Smith</code></td>
+        <td>Cardholder name.</td>
+    </tr>
+    <tr id='creditcardcreatepayload-number'>
+        <td><code><b>number</b></code></td>
+        <td><code>String</code>
+        <td><div data-icon="ei-check"></div></td>
+        <td><code>5555 5555 5555 5555</code></td>
+        <td>Credit card number.</td>
+    </tr>
+    <tr id='creditcardcreatepayload-cvv'>
+        <td><code><b>cvv</b></code></td>
+        <td><code>String</code>
+        <td><div data-icon="ei-check"></div></td>
+        <td><code>555</code></td>
+        <td>CVV.</td>
+    </tr>
+    <tr id='creditcardcreatepayload-expmonth'>
+        <td><code><b>expMonth</b></code></td>
+        <td><code>Number</code>
+        <td><div data-icon="ei-check"></div></td>
+        <td>4</td>
+        <td>Expiration month.</td>
+    </tr>
+    <tr id='creditcardcreatepayload-expyear'>
+        <td><code><b>expYear</b></code></td>
+        <td><code>Number</code>
+        <td><div data-icon="ei-check"></div></td>
+        <td>2020</td>
+        <td>Expiration year.</td>
+    </tr>
+    <tr id='creditcardcreatepayload-address'>
+        <td><code><b>address</b></code></td>
+        <td><code><a href='#createaddresspayload'>CreateAddressPayload</a></code>
+        <td></td>
+        <td></td>
+        <td>Billing address.</td>
+    </tr>
+    <tr id='creditcardcreatepayload-addressid'>
+        <td><code><b>addressId</b></code></td>
+        <td><code>Number</code>
+        <td></td>
+        <td></td>
+        <td>Billing address ID.</td>
+    </tr>
+</tbody></table>
+
+
+</section>
+
+</section>
+<span id='creditcardupdatepayload'></span>
+
+<section>
+<h3 id='creditcardupdatepayload-field'>CreditCardUpdatePayload</h3>
+
+<section >
+
+
+
+<div class='section-comments'></div>
+
+<table><thead>
+<tr>
+    <th>Field</th>
+    <th>Type</th>
+    <th>Required</th>
+    <th>Example</th>
+    <th>Description</th>
+</tr>
+</thead><tbody>
+    <tr id='creditcardupdatepayload-holdername'>
+        <td><code><b>holderName</b></code></td>
+        <td><code>String</code>
+        <td></td>
+        <td><code>John Smith</code></td>
+        <td>Cardholder name.</td>
+    </tr>
+    <tr id='creditcardupdatepayload-expmonth'>
+        <td><code><b>expMonth</b></code></td>
+        <td><code>Number</code>
+        <td></td>
+        <td>4</td>
+        <td>Expiration month.</td>
+    </tr>
+    <tr id='creditcardupdatepayload-expyear'>
+        <td><code><b>expYear</b></code></td>
+        <td><code>Number</code>
+        <td></td>
+        <td>2020</td>
+        <td>Expiration year.</td>
+    </tr>
+    <tr id='creditcardupdatepayload-address'>
+        <td><code><b>address</b></code></td>
+        <td><code><a href='#createaddresspayload'>CreateAddressPayload</a></code>
+        <td></td>
+        <td></td>
+        <td>Billing address.</td>
+    </tr>
+    <tr id='creditcardupdatepayload-addressid'>
+        <td><code><b>addressId</b></code></td>
+        <td><code>Number</code>
+        <td></td>
+        <td></td>
+        <td>Billing address ID.</td>
+    </tr>
+</tbody></table>
+
+
+</section>
+
+</section>
+<span id='creditcardsresponse'></span>
+
+<section>
+<h3 id=''>CreditCardsResponse</h3>
+
+
+
+<div class='accordion'>
+	<label><span class='expander'>▶</span> Fields inherited from <a href='#resultmetadata'>ResultMetadata</a></label>
+	<div class='accordion-content'><section >
+
+
+
+<div class='section-comments'></div>
+
+<table><thead>
+<tr>
+    <th>Field</th>
+    <th>Type</th>
+    <th>Required</th>
+    <th>Example</th>
+    <th>Description</th>
+</tr>
+</thead><tbody>
+    <tr id='creditcardsresponse-pagination'>
+        <td><code><b>pagination</b></code></td>
+        <td><code><a href='#pagingmetadata'>PagingMetadata</a></code>
+        <td><div data-icon="ei-check"></div></td>
+        <td></td>
+        <td>Pagination metadata.</td>
+    </tr>
+    <tr id='creditcardsresponse-sorting'>
+        <td><code><b>sorting</b></code></td>
+        <td><code><a href='#sortingmetadata'>SortingMetadata</a></code>
+        <td><div data-icon="ei-check"></div></td>
+        <td></td>
+        <td>Sorting metadata.</td>
+    </tr>
+    <tr id='creditcardsresponse-errors'>
+        <td><code><b>errors</b></code></td>
+        <td><code>Array&lt;String&gt;</code>
+        <td><div data-icon="ei-check"></div></td>
+        <td><code>List of possible errors and warnings</code></td>
+        <td>List of possible errors.</td>
+    </tr>
+</tbody></table>
+
+
+</section></div>
+</div>
+
+</section>
+<h2 id='storecredits'>StoreCredits</h2><p>Accessible via <a href="#foxapi-storecredits">storeCredits</a> property of <a href="#foxapi">FoxApi</a> instance.</p>
+
+<section>
+<h3 id='storecredits-method'>Methods</h3>
+
+<section >
+
+
+
+<div class='section-comments'></div>
+
+<table><thead>
+	<tr>
+		<th>Method</th>
+		<th>Returns</th>
+		<th>Description</th>
+	</tr>
+	</thead><tbody>
+	<tr id='storecredits-list'>
+		<td><code><b>list</b>()</nobr></code></td>
+		<td><code>Promise&lt;<a href='#storecreditsresponse'>StoreCreditsResponse</a>&gt;</code></td>
+		<td>Returns list of all store credits.</td>
+	</tr>
+	<tr id='storecredits-one'>
+		<td><code><b>one</b>(<nobr>&lt;Number&gt;</nobr> <i>storeCreditId</i>)</nobr></code></td>
+		<td><code>Promise&lt;<a href='#storecredit'>StoreCredit</a>&gt;</code></td>
+		<td>Returns store credit by id.</td>
+	</tr>
+	<tr id='storecredits-totals'>
+		<td><code><b>totals</b>()</nobr></code></td>
+		<td><code>Promise&lt;<a href='#storecredittotals'>StoreCreditTotals</a>&gt;</code></td>
+		<td></td>
+	</tr>
+</tbody></table>
+
+</section>
+
+</section>
+<span id='storecreditorigintype'></span>
+
+<span id='storecreditstate'></span>
+
+<span id='storecredit'></span>
+
+<section>
+<h3 id='storecredit-field'>StoreCredit</h3>
+
+<section >
+
+
+
+<div class='section-comments'></div>
+
+<table><thead>
+<tr>
+    <th>Field</th>
+    <th>Type</th>
+    <th>Required</th>
+    <th>Example</th>
+    <th>Description</th>
+</tr>
+</thead><tbody>
+    <tr id='storecredit-id'>
+        <td><code><b>id</b></code></td>
+        <td><code>Number</code>
+        <td><div data-icon="ei-check"></div></td>
+        <td>1</td>
+        <td>Unique identifier.</td>
+    </tr>
+    <tr id='storecredit-createdat'>
+        <td><code><b>createdAt</b></code></td>
+        <td><code>String</code>
+        <td><div data-icon="ei-check"></div></td>
+        <td><code>2015-09-10T14:55:50Z</code></td>
+        <td>Creation date.</td>
+    </tr>
+    <tr id='storecredit-subtypeid'>
+        <td><code><b>subTypeId</b></code></td>
+        <td><code>Number</code>
+        <td></td>
+        <td>1</td>
+        <td>Optional subtype.</td>
+    </tr>
+    <tr id='storecredit-originalbalance'>
+        <td><code><b>originalBalance</b></code></td>
+        <td><code>Number</code>
+        <td><div data-icon="ei-check"></div></td>
+        <td>50</td>
+        <td>Opening balance for SC (amount it was issued for).</td>
+    </tr>
+    <tr id='storecredit-currentbalance'>
+        <td><code><b>currentBalance</b></code></td>
+        <td><code>Number</code>
+        <td><div data-icon="ei-check"></div></td>
+        <td>50</td>
+        <td>Opening balance minus &quot;captured&quot; debits.</td>
+    </tr>
+    <tr id='storecredit-availablebalance'>
+        <td><code><b>availableBalance</b></code></td>
+        <td><code>Number</code>
+        <td><div data-icon="ei-check"></div></td>
+        <td>50</td>
+        <td>Opening balance minus &quot;auth&quot; debits.</td>
+    </tr>
+</tbody></table>
+
+
+</section>
+
+</section>
+<span id='storecreditadjustments'></span>
+
+<section>
+<h3 id='storecreditadjustments-field'>StoreCreditAdjustments</h3>
+
+<section >
+
+
+
+<div class='section-comments'></div>
+
+<table><thead>
+<tr>
+    <th>Field</th>
+    <th>Type</th>
+    <th>Required</th>
+    <th>Example</th>
+    <th>Description</th>
+</tr>
+</thead><tbody>
+    <tr id='storecreditadjustments-result'>
+        <td><code><b>result</b></code></td>
+        <td><code>Array&lt;StoreCreditAdjustment&gt;</code>
+        <td><div data-icon="ei-check"></div></td>
+        <td></td>
+        <td>The resulting list of StoreCreditAdjustment-s.</td>
+    </tr>
+</tbody></table>
+
+
+</section>
+
+<div class='accordion'>
+	<label><span class='expander'>▶</span> Fields inherited from <a href='#resultmetadata'>ResultMetadata</a></label>
+	<div class='accordion-content'><section >
+
+
+
+<div class='section-comments'></div>
+
+<table><thead>
+<tr>
+    <th>Field</th>
+    <th>Type</th>
+    <th>Required</th>
+    <th>Example</th>
+    <th>Description</th>
+</tr>
+</thead><tbody>
+    <tr id='storecreditadjustments-pagination'>
+        <td><code><b>pagination</b></code></td>
+        <td><code><a href='#pagingmetadata'>PagingMetadata</a></code>
+        <td><div data-icon="ei-check"></div></td>
+        <td></td>
+        <td>Pagination metadata.</td>
+    </tr>
+    <tr id='storecreditadjustments-sorting'>
+        <td><code><b>sorting</b></code></td>
+        <td><code><a href='#sortingmetadata'>SortingMetadata</a></code>
+        <td><div data-icon="ei-check"></div></td>
+        <td></td>
+        <td>Sorting metadata.</td>
+    </tr>
+    <tr id='storecreditadjustments-errors'>
+        <td><code><b>errors</b></code></td>
+        <td><code>Array&lt;String&gt;</code>
+        <td><div data-icon="ei-check"></div></td>
+        <td><code>List of possible errors and warnings</code></td>
+        <td>List of possible errors.</td>
+    </tr>
+</tbody></table>
+
+
+</section></div>
+</div>
+
+</section>
+<span id='storecredittotals'></span>
+
+<section>
+<h3 id='storecredittotals-field'>StoreCreditTotals</h3>
+
+<section >
+
+
+
+<div class='section-comments'></div>
+
+<table><thead>
+<tr>
+    <th>Field</th>
+    <th>Type</th>
+    <th>Required</th>
+    <th>Example</th>
+    <th>Description</th>
+</tr>
+</thead><tbody>
+    <tr id='storecredittotals-currentbalance'>
+        <td><code><b>currentBalance</b></code></td>
+        <td><code>Number</code>
+        <td><div data-icon="ei-check"></div></td>
+        <td>50</td>
+        <td>Total current balance for customer.</td>
+    </tr>
+    <tr id='storecredittotals-availablebalance'>
+        <td><code><b>availableBalance</b></code></td>
+        <td><code>Number</code>
+        <td><div data-icon="ei-check"></div></td>
+        <td>50</td>
+        <td>Total available balance for customer.</td>
+    </tr>
+</tbody></table>
+
+
+</section>
+
+</section>
+<span id='storecreditsresponse'></span>
+
+<section>
+<h3 id='storecreditsresponse-field'>StoreCreditsResponse</h3>
+
+<section >
+
+
+
+<div class='section-comments'></div>
+
+<table><thead>
+<tr>
+    <th>Field</th>
+    <th>Type</th>
+    <th>Required</th>
+    <th>Example</th>
+    <th>Description</th>
+</tr>
+</thead><tbody>
+    <tr id='storecreditsresponse-result'>
+        <td><code><b>result</b></code></td>
+        <td><code>Array&lt;<a href='#storecredit'>StoreCredit</a>&gt;</code>
+        <td><div data-icon="ei-check"></div></td>
+        <td></td>
+        <td></td>
+    </tr>
+</tbody></table>
+
+
+</section>
+
+<div class='accordion'>
+	<label><span class='expander'>▶</span> Fields inherited from <a href='#resultmetadata'>ResultMetadata</a></label>
+	<div class='accordion-content'><section >
+
+
+
+<div class='section-comments'></div>
+
+<table><thead>
+<tr>
+    <th>Field</th>
+    <th>Type</th>
+    <th>Required</th>
+    <th>Example</th>
+    <th>Description</th>
+</tr>
+</thead><tbody>
+    <tr id='storecreditsresponse-pagination'>
+        <td><code><b>pagination</b></code></td>
+        <td><code><a href='#pagingmetadata'>PagingMetadata</a></code>
+        <td><div data-icon="ei-check"></div></td>
+        <td></td>
+        <td>Pagination metadata.</td>
+    </tr>
+    <tr id='storecreditsresponse-sorting'>
+        <td><code><b>sorting</b></code></td>
+        <td><code><a href='#sortingmetadata'>SortingMetadata</a></code>
+        <td><div data-icon="ei-check"></div></td>
+        <td></td>
+        <td>Sorting metadata.</td>
+    </tr>
+    <tr id='storecreditsresponse-errors'>
+        <td><code><b>errors</b></code></td>
+        <td><code>Array&lt;String&gt;</code>
+        <td><div data-icon="ei-check"></div></td>
+        <td><code>List of possible errors and warnings</code></td>
+        <td>List of possible errors.</td>
+    </tr>
+</tbody></table>
+
+
+</section></div>
+</div>
+
+</section>
 
 
 	</div>
@@ -1074,25 +1598,8 @@ api.products.search({state: &#39;cart&#39;});
 	hljs.configure({tabReplace: '    '});
 	hljs.initHighlightingOnLoad();
 
-	var elems = document.querySelectorAll('h2, h3, h4, tr');
 
-	for (var i = 0, len = elems.length; i < len; i++) {
-		var el = elems[i];
-
-		if (el.id) {
-			var anchor = document.createElement('a');
-			anchor.setAttribute('anchor', el.id);
-			if (!el.children.length) {
-				// For headers, insert the anchor before.
-				el.parentNode.insertBefore(anchor, el);
-			} else {
-				// For table rows, insert the anchor inside the first <td>
-				el.querySelector('td').appendChild(anchor);
-			}
-		}
-	}
-
-	elems = document.querySelectorAll('div.accordion');
+	var elems = document.querySelectorAll('div.accordion');
 	for (var i = 0, len = elems.length; i < len; i++) {
 		var el = elems[i];
 
@@ -1111,38 +1618,21 @@ api.products.search({state: &#39;cart&#39;});
 // 		el.querySelector('.accordion-content').style.display = 'none';
 	}
 
-    var tables = document.getElementsByTagName('table');
-
-    for (var i = 0, len = tables.length; i < len; i++) {
-        var id = tables[i].getAttribute('data-id'),
-                tds = tables[i].getElementsByTagName('td');
-
-        for (var j = 0, tdLen = tds.length; j < tdLen; j++) {
-            if (tds[j].cellIndex === 0) {
-                tds[j].parentNode.id = id + '-' + (tds[j].textContent || tds[j].innerText).split('(')[0].toLowerCase();
-
-                tds[j].parentNode.onclick = function(e) {
-                    if (e.offsetX < 0) {
-                        window.location.hash = '#' + this.id;
-                    }
-                };
-            }
+    function navigateToTarget(e) {
+        if (e.offsetX < 0) {
+            window.location.hash = '#' + this.id;
         }
     }
 
-    (function () {
-        var headers = document.getElementsByTagName('h2');
+    var rows = document.querySelectorAll('table tr');
+    for (var i = 0, len = rows.length; i < len; i++) {
+        rows[i].onclick = navigateToTarget;
+    }
 
-        for (var i = 0, len = headers.length; i < len; i++) {
-            if (headers[i].id) {
-                headers[i].onclick = function(e) {
-                    if (e.offsetX < 0) {
-                        window.location.hash = '#' + this.id;
-                    }
-                };
-            }
-        }
-    })();
+    var headers = document.querySelectorAll('h2[id]');
+    for (var i = 0, len = headers.length; i < len; i++) {
+        headers[i].onclick = navigateToTarget;
+    }
 
     </script>
 <style>

@@ -8,7 +8,7 @@ export const googleSignin = '/v1/public/signin/google/customer';
 export const logout = '/v1/public/logout';
 
 // product endpoints
-export const search = `/v1/search/products_catalog_view/_search?size=${MAX_RESULTS}`;
+export const search = `/search/products_catalog_view/_search?size=${MAX_RESULTS}`;
 
 // cart endpoints
 export const addToCart = '/v1/my/cart/add';
@@ -21,6 +21,12 @@ export const address = addressId => `/v1/my/addresses/${addressId}`;
 export const addressDefault = addressId => `${address(addressId)}/default`;
 export const addressesDefault = '/v1/my/address/default';
 
-// payment methods
+// payment methods, credit cards
 export const creditCards = '/v1/my/payment-methods/credit-cards';
-export const creditCardsDefault = `${creditCards}/default`;
+export const creditCard = creditCardId => `${creditCards}/${creditCardId}`;
+export const creditCardDefault = creditCardId => `${creditCard(creditCardId)}/default`;
+
+// payment methods, store credits
+export const storeCredit = storeCreditId => `/v1/my/payment-methods/store-credits/${storeCreditId}`;
+export const storeCreditTotals = `/v1/my/payment-methods/store-credits/totals`;
+export const storeCredits = `/search/store_credits_search_view/_search`;

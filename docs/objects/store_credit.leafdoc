@@ -1,0 +1,47 @@
+
+@miniclass StoreCreditOriginType (StoreCredits)
+@aka storecreditorigintype
+
+
+@miniclass StoreCreditState (StoreCredits)
+@aka storecreditstate
+
+
+@miniclass StoreCredit (StoreCredits)
+@aka storecredit
+@inherits StoreCreditOriginType
+@inherits StoreCreditState
+
+@field id: Number = 1
+Unique identifier.
+
+@field createdAt: String = `2015-09-10T14:55:50Z`
+Creation date.
+
+@field subTypeId?: Number = 1
+Optional subtype.
+
+@field originalBalance: Number = 50
+Opening balance for SC (amount it was issued for).
+
+@field currentBalance: Number = 50
+Opening balance minus "captured" debits.
+
+@field availableBalance: Number = 50
+Opening balance minus "auth" debits.
+
+@miniclass StoreCreditAdjustments (StoreCredits)
+@aka storecreditadjustments
+@inherits ResultMetadata
+
+@field result: Array<StoreCreditAdjustment>
+The resulting list of StoreCreditAdjustment-s.
+
+@miniclass StoreCreditTotals (StoreCredits)
+@aka storecredittotals
+
+@field currentBalance: Number = 50
+Total current balance for customer.
+
+@field availableBalance: Number = 50
+Total available balance for customer.

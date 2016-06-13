@@ -46,25 +46,8 @@
 	hljs.configure({tabReplace: '    '});
 	hljs.initHighlightingOnLoad();
 
-	var elems = document.querySelectorAll('h2, h3, h4, tr');
 
-	for (var i = 0, len = elems.length; i < len; i++) {
-		var el = elems[i];
-
-		if (el.id) {
-			var anchor = document.createElement('a');
-			anchor.setAttribute('anchor', el.id);
-			if (!el.children.length) {
-				// For headers, insert the anchor before.
-				el.parentNode.insertBefore(anchor, el);
-			} else {
-				// For table rows, insert the anchor inside the first <td>
-				el.querySelector('td').appendChild(anchor);
-			}
-		}
-	}
-
-	elems = document.querySelectorAll('div.accordion');
+	var elems = document.querySelectorAll('div.accordion');
 	for (var i = 0, len = elems.length; i < len; i++) {
 		var el = elems[i];
 
@@ -83,38 +66,21 @@
 // 		el.querySelector('.accordion-content').style.display = 'none';
 	}
 
-    var tables = document.getElementsByTagName('table');
-
-    for (var i = 0, len = tables.length; i < len; i++) {
-        var id = tables[i].getAttribute('data-id'),
-                tds = tables[i].getElementsByTagName('td');
-
-        for (var j = 0, tdLen = tds.length; j < tdLen; j++) {
-            if (tds[j].cellIndex === 0) {
-                tds[j].parentNode.id = id + '-' + (tds[j].textContent || tds[j].innerText).split('(')[0].toLowerCase();
-
-                tds[j].parentNode.onclick = function(e) {
-                    if (e.offsetX < 0) {
-                        window.location.hash = '#' + this.id;
-                    }
-                };
-            }
+    function navigateToTarget(e) {
+        if (e.offsetX < 0) {
+            window.location.hash = '#' + this.id;
         }
     }
 
-    (function () {
-        var headers = document.getElementsByTagName('h2');
+    var rows = document.querySelectorAll('table tr');
+    for (var i = 0, len = rows.length; i < len; i++) {
+        rows[i].onclick = navigateToTarget;
+    }
 
-        for (var i = 0, len = headers.length; i < len; i++) {
-            if (headers[i].id) {
-                headers[i].onclick = function(e) {
-                    if (e.offsetX < 0) {
-                        window.location.hash = '#' + this.id;
-                    }
-                };
-            }
-        }
-    })();
+    var headers = document.querySelectorAll('h2[id]');
+    for (var i = 0, len = headers.length; i < len; i++) {
+        headers[i].onclick = navigateToTarget;
+    }
 
     </script>
 <style>

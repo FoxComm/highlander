@@ -13,6 +13,9 @@
 import request from './utils/request';
 import Addresses from './api/adresses';
 import Auth from './api/auth';
+import CreditCards from './api/credit-cards';
+import StoreCredits from './api/store-credits';
+import jwtDecode from 'jwt-decode';
 
 export default class Api {
   constructor(args) {
@@ -27,6 +30,14 @@ export default class Api {
     // @property auth: Auth
     // Auth instance
     this.auth = new Auth(this);
+
+    // @property creditCards: CreditCards
+    // CreditCards instance
+    this.creditCards = new CreditCards(this);
+
+    // @property storeCredits: StoreCredits
+    // StoreCredits instance
+    this.storeCredits = new StoreCredits(this);
   }
 
   // @section Base methods
@@ -34,12 +45,25 @@ export default class Api {
   // Set jwt authorization header for next requests
   addAuth(jwt) {
     if (jwt) {
+      this._jwt = jwt;
       this.headers = {
         ...this.headers,
         JWT: jwt,
       };
     }
     return this;
+  }
+
+  // @method getCustomerId(): Number|null
+  // Returns customer id from parsed jwt string
+  // You can define jwt string via `addAuth` method, if there is no jwt strings method returns null.
+  getCustomerId() {
+    if (this._jwt) {
+      try {
+        return jwtDecode(this._jwt).id;
+      } catch (ex) {}
+    }
+    return null;
   }
 
   // @method addHeaders(header: Object): FoxApi
