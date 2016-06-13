@@ -121,4 +121,11 @@ object GiftCardAdjustments
 
   def authorizedOrderPayments(orderPaymentIds: Seq[Int]): QuerySeq =
     filter(adj ⇒ adj.orderPaymentId.inSet(orderPaymentIds) && adj.state === (Auth: State))
+
+  object scope {
+
+    implicit class GCAQuerySeqAdditions(query: QuerySeq) {
+      def cancel(): DBIO[Int] = query.map(_.state).update(Canceled)
+    }
+  }
 }
