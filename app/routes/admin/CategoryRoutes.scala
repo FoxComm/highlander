@@ -1,19 +1,18 @@
 package routes.admin
 
-import scala.concurrent.ExecutionContext
 import akka.http.scaladsl.server.Directives._
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.StoreAdmin
 import payloads.CategoryPayloads._
 import services.category.CategoryManager
-import slick.driver.PostgresDriver.api._
+import utils.aliases._
 import utils.http.CustomDirectives._
 import utils.http.Http._
 
 object CategoryRoutes {
 
-  def routes(implicit ec: ExecutionContext, db: Database, admin: StoreAdmin) = {
+  def routes(implicit ec: EC, db: DB, admin: StoreAdmin) = {
 
     activityContext(admin) { implicit ac ⇒
       pathPrefix("categories") {
