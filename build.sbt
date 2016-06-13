@@ -49,10 +49,10 @@ lazy val phoenixScala = (project in file(".")).
     libraryDependencies ++= {
       val test = "test,it"
 
-      val akkaV      = "2.4.4"
+      val akkaV      = "2.4.7"
       val scalaTestV = "2.2.6"
       val json4sV    = "3.3.0"
-      val slickPgV   = "0.14.0"
+      val slickPgV   = "0.14.1"
 
       Seq(
         // Akka
@@ -61,7 +61,7 @@ lazy val phoenixScala = (project in file(".")).
         "com.typesafe.akka"          %% "akka-agent"             % akkaV,
         "com.typesafe.akka"          %% "akka-stream"            % akkaV,
         "com.typesafe.akka"          %% "akka-http-core"         % akkaV,
-        "de.heikoseeberger"          %% "akka-sse"               % "1.8.0",
+        "de.heikoseeberger"          %% "akka-sse"               % "1.8.1",
         // http
         "net.databinder.dispatch"    %% "dispatch-core"          % "0.11.3",
         "net.databinder.dispatch"    %% "dispatch-json4s-native" % "0.11.3",
@@ -69,7 +69,7 @@ lazy val phoenixScala = (project in file(".")).
         "org.json4s"                 %% "json4s-core"            % json4sV,
         "org.json4s"                 %% "json4s-jackson"         % json4sV,
         "org.json4s"                 %% "json4s-ext"             % json4sV,
-        "de.heikoseeberger"          %% "akka-http-json4s"       % "1.6.0",
+        "de.heikoseeberger"          %% "akka-http-json4s"       % "1.7.0",
         // Database
         "com.typesafe.slick"         %% "slick"                  % slickV,
         "com.typesafe.slick"         %% "slick-hikaricp"         % slickV,
@@ -77,8 +77,8 @@ lazy val phoenixScala = (project in file(".")).
         "com.github.tminglei"        %% "slick-pg_json4s"        % slickPgV,
         "com.zaxxer"                 %  "HikariCP"               % "2.4.6"    % "provided",
         "org.postgresql"             %  "postgresql"             % "9.4.1208",
-        "org.flywaydb"               %  "flyway-core"            % "4.0.1",
-        "com.github.mauricio"        %% "postgresql-async"       % "0.2.19",
+        "org.flywaydb"               %  "flyway-core"            % "4.0.2",
+        "com.github.mauricio"        %% "postgresql-async"       % "0.2.20",
         // Elasticsearch
         "com.sksamuel.elastic4s"     %% "elastic4s-core"         % "2.3.0",
         // Validations
@@ -100,7 +100,7 @@ lazy val phoenixScala = (project in file(".")).
         "it.justwrote"               %% "scala-faker"            % "0.3",
         "io.backchat.inflector"      %% "scala-inflector"        % "1.3.5",
         "com.github.tototoshi"       %% "scala-csv"              % "1.3.1",
-        "com.amazonaws"              % "aws-java-sdk"            % "1.11.0",
+        "com.amazonaws"              %  "aws-java-sdk"           % "1.11.7",
         // Testing
         "org.conbere"                %  "markov_2.10"            % "0.2.0",
         "com.typesafe.akka"          %% "akka-testkit"           % akkaV      % test,

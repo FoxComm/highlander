@@ -1,4 +1,5 @@
 import java.io.File
+import java.nio.file.{Files, Paths}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.marshalling.Marshal
@@ -219,14 +220,14 @@ class ImageIntegrationTest
     "POST /v1/albums/:context/images" - {
 
       "uploads image" in new Fixture {
-        val image = new File("test/resources/foxy.jpg")
-        image.exists mustBe true
+        val image = Paths.get("test/resources/foxy.jpg")
+        image.toFile.exists mustBe true
 
         when(amazonApiMock.uploadFile(any[String], any[File])(any[EC]))
           .thenReturn(Result.good("amazon-image-url"))
 
         val bodyPart =
-          Multipart.FormData.BodyPart.fromFile(name = "upload-file",
+          Multipart.FormData.BodyPart.fromPath(name = "upload-file",
                                                contentType = MediaTypes.`application/octet-stream`,
                                                file = image)
         val formData = Multipart.FormData(Source.single(bodyPart))

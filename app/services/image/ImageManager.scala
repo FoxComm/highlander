@@ -1,13 +1,13 @@
 package services.image
 
-import java.io.File
+import java.nio.file.Files
 
 import akka.http.scaladsl.model.{HttpRequest, Multipart}
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.scaladsl.{FileIO, Source}
 import akka.util.ByteString
 
-import cats.data.Xor.{left, right}
+import cats.data.Xor
 import cats.implicits._
 import failures.ImageFailures._
 import failures.ObjectFailures.ObjectContextNotFound
@@ -147,11 +147,11 @@ object ImageManager {
         .runFold(error) { (_, part) ⇒
           (for {
             context  ← * <~ ObjectManager.mustFindByName404(contextName)
-            file     ← * <~ getFileFromRequest(part.entity.dataBytes)
+            filePath ← * <~ getFileFromRequest(part.entity.dataBytes)
             album    ← * <~ mustFindFullAlbumByIdAndContext404(albumId, context)
             filename ← * <~ getFileNameFromBodyPart(part)
             fullPath ← * <~ s"albums/${context.id}/$albumId/$filename"
-            s3       ← * <~ apis.amazon.uploadFile(fullPath, file)
+            s3       ← * <~ apis.amazon.uploadFile(fullPath, filePath.toFile)
             payload = payloadForNewImage(album, s3, filename)
             album ← * <~ updateAlbumInner(albumId, payload, contextName)
           } yield album).runTxn()
@@ -161,10 +161,10 @@ object ImageManager {
   }
 
   private def getFileFromRequest(bytes: Source[ByteString, Any])(implicit ec: EC, am: Mat) = {
-    val file = File.createTempFile("tmp", ".jpg")
-    bytes.runWith(FileIO.toFile(file)).map { up ⇒
-      if (up.wasSuccessful) right(file)
-      else left(ErrorReceivingImage.single)
+    val file = Files.createTempFile("tmp", ".jpg")
+    bytes.runWith(FileIO.toPath(file)).map { ioResult ⇒
+      if (ioResult.wasSuccessful) Xor.right(file)
+      else Xor.left(ErrorReceivingImage.single)
     }
   }
 

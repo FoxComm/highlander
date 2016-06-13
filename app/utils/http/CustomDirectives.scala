@@ -131,12 +131,7 @@ object CustomDirectives {
           ctx.log.error("Error unmarshalling request {} body: {}",
                         ctx.request,
                         failure.description)
-          reject(ValidationRejection(s"${failure.description}", None))
-        case Failure(x) ⇒
-          ctx.log.error("Error unmarshalling request {} body: {}",
-                        ctx.request,
-                        failure.description)
-          reject(MalformedRequestContentRejection(s"${failure.description}", None))
+          reject(MalformedRequestContentRejection(s"${failure.description}", x))
       }
     } & cancelRejections(
         RequestEntityExpectedRejection.getClass, classOf[UnsupportedRequestContentTypeRejection])
