@@ -6,7 +6,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import cats.implicits._
 import failures.CartFailures._
-import failures.GeneralFailure
+import failures.{GeneralFailure, NotFoundFailure404}
 import models.customer.Customers
 import models.order.Orders.scope._
 import models.order._
@@ -15,6 +15,7 @@ import models.payment.giftcard._
 import models.payment.storecredit._
 import models.{Reasons, StoreAdmins}
 import org.mockito.Mockito._
+import org.scalacheck.{Gen, Prop, Test ⇒ QTest}
 import org.scalatest.mock.MockitoSugar
 import slick.driver.PostgresDriver.api._
 import util._
@@ -146,6 +147,75 @@ class CheckoutTest
         adjustments.map(_.debit) must ===(List(scAmount, cart.grandTotal - scAmount))
       }
     }
+
+    "GC/SC payments limited by grand total" in new PaymentFixture {
+      val paymentAmountGen = Gen.choose(0, 2000)
+      val orderTotalGen    = Gen.choose(0, 1000)
+
+      case class CardPayment(cardAmount: Int, payAmount: Int)
+
+      val cardWithPaymentGen = for {
+        payment <- paymentAmountGen
+        amount  <- Gen.choose(payment, payment * 2)
+      } yield CardPayment(amount, payment)
+
+      val inputGen = for {
+        cardsCount ← Gen.choose(1, 10)
+
+        gcCount ← Gen.choose(0, cardsCount)
+        gc      ← Gen.listOfN(gcCount, cardWithPaymentGen)
+
+        scCount = cardsCount - gcCount
+        sc ← Gen.listOfN(scCount, cardWithPaymentGen)
+
+        grandTotal ← orderTotalGen
+        if (gc.map(_.payAmount).sum + sc.map(_.payAmount).sum) >= grandTotal
+      } yield (gc, sc, grandTotal)
+
+      def genGCPayment(cartId: Int, id: Int, amount: Int) =
+        Factories.giftCardPayment.copy(
+            orderId = cartId, paymentMethodId = id, amount = amount.some)
+
+      def genSCPayment(cartId: Int, id: Int, amount: Int) =
+        Factories.storeCreditPayment.copy(
+            orderId = cartId, paymentMethodId = id, amount = amount.some)
+
+      val checkoutTests = Prop.forAll(inputGen) {
+        case (gcData, scData, orderTotal) ⇒
+          val checkoutAmount = (for {
+            currentCart ← * <~ Orders
+                           .findByCustomerId(customer.id)
+                           .cartOnly
+                           .mustFindOneOr(NotFoundFailure404("No cart for customer"))
+            testCart ← * <~ Orders.update(currentCart, currentCart.copy(grandTotal = orderTotal))
+
+            gcIds ← * <~ generateGiftCards(gcData.map(_.cardAmount))
+            scIds ← * <~ generateStoreCredits(scData.map(_.cardAmount))
+
+            _ ← * <~ OrderPayments.createAllReturningIds(gcIds
+                     .zip(gcData.map(_.payAmount))
+                     .map { case (id, amount) ⇒ genGCPayment(testCart.id, id, amount) })
+            _ ← * <~ OrderPayments.createAllReturningIds(scIds
+                     .zip(scData.map(_.payAmount))
+                     .map { case (id, amount) ⇒ genSCPayment(testCart.id, id, amount) })
+
+            _ ← * <~ Checkout(testCart, cartValidator()).checkout
+
+            gcAdjustments ← * <~ GiftCardAdjustments.filter(_.giftCardId.inSet(gcIds)).result
+            scAdjustments ← * <~ StoreCreditAdjustments.filter(_.storeCreditId.inSet(scIds)).result
+
+            totalAdjustments = gcAdjustments.map(_.getAmount.abs).sum +
+            scAdjustments.map(_.getAmount.abs).sum
+          } yield totalAdjustments).runTxn().futureValue.rightVal
+
+          checkoutAmount must ===(orderTotal)
+          true
+      }
+      val qr = QTest.check(checkoutTests) {
+        _.withMaxSize(1000).withWorkers(1)
+      }
+      qr.passed must ===(true)
+    }
   }
 
   trait Fixture {
@@ -194,7 +264,8 @@ class CheckoutTest
         origin ← * <~ StoreCreditManuals.create(
                     StoreCreditManual(adminId = admin.id, reasonId = reason.id))
         ids ← * <~ StoreCredits.createAllReturningIds(amount.map(scAmount ⇒
-                       Factories.storeCredit.copy(originalBalance = scAmount, originId = origin.id)))
+                       Factories.storeCredit.copy(originalBalance = scAmount,
+                                                  originId = origin.id)))
       } yield ids
   }
 }

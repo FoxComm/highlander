@@ -23,8 +23,8 @@ import responses.order.FullOrder
 import services.coupon.CouponUsageService
 import services.inventory.InventoryAdjustmentManager
 import slick.driver.PostgresDriver.api._
-import utils.apis.Apis
 import utils.aliases._
+import utils.apis.Apis
 import utils.db.DbResultT._
 import utils.db._
 
@@ -189,16 +189,14 @@ case class Checkout(cart: Order, cartValidator: CartValidation)(
         }
         .zip(amounts)
         .map { case (max, amount) ⇒ Math.min(max, amount) }
+        .ensuring(_.sum <= maxPaymentAmount)
 
       for {
-        adjustments ← * <~ DbResultT.sequence(
-                         orderPayments
-                           .zip(limitedAmounts)
-                           .collect {
-                         case ((payment, card), amount) if amount > 0 ⇒
-                           DbResultT(authOrderPayment(card, payment, amount.some))
-                       })
-        total = adjustments.map(getAdjustmentAmount).sum
+        adjustments ← * <~ orderPayments.zip(limitedAmounts).collect {
+                       case ((payment, card), amount) if amount > 0 ⇒
+                         DbResultT(authOrderPayment(card, payment, amount.some))
+                     }
+        total = adjustments.map(getAdjustmentAmount).sum.ensuring(_ <= maxPaymentAmount)
       } yield total
     }
   }
