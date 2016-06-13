@@ -17,7 +17,7 @@ type Attributes = { [key:string]: Attribute };
 
 type Props = {
   attributes: Attributes,
-  onChange: (form: FormAttributes, shadow: ShadowAttributes) => void,
+  onChange: (attributes: Attributes) => void,
 };
 
 type State = {

@@ -15,7 +15,7 @@ import type { FullSku } from '../../paragons/sku';
 type Attribute = { t: string, v: any };
 type Attributes = { [key:string]: Attribute };
 
-type Sku = {
+export type Sku = {
   attributes: Attributes,
 };
 

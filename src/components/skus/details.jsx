@@ -19,6 +19,9 @@ import WaitAnimation from '../common/wait-animation';
 // types
 import type { Sku } from '../../modules/skus/details';
 
+type Attribute = { t: string, v: any };
+type Attributes = { [key:string]: Attribute };
+
 type Props = {
   code: string,
   onChange: (sku: Sku) => void,
@@ -77,7 +80,7 @@ export default class SkuDetails extends Component {
   }
 
   get skuState(): Element {
-    const { attributes } = this.props.sku;
+    const attributes = _.get(this.props, 'sku.attributes', {});
 
     return (
       <ObjectScheduler

@@ -22,8 +22,6 @@ import WaitAnimation from '../common/wait-animation';
 // helpers
 import { transitionTo } from 'browserHistory';
 import {
-  getProductAttributes,
-  setProductAttribute,
   setSkuAttribute,
 } from '../../paragons/product';
 

@@ -7,7 +7,6 @@ import { createAction, createReducer } from 'redux-act';
 import { push } from 'react-router-redux';
 import {
   createEmptyProduct,
-  setProductAttribute,
 } from '../../paragons/product';
 
 import type { SkuForm, SkuShadow } from '../../paragons/sku';
@@ -22,9 +21,7 @@ export type Error = {
 
 export type Product = {
   id: ?number,
-  product: {
-    attributes: { [key:string]: { t: string, v: any } },
-  },
+  attributes: { [key:string]: { t: string, v: any } },
   skus: Array<Object>,
 };
 
@@ -75,7 +72,6 @@ const productUpdateStart = createAction('PRODUCTS_UPDATE_START');
 const productUpdateSuccess = createAction('PRODUCTS_UPDATE_SUCCESS');
 const productUpdateFailure = createAction('PRODUCTS_UPDATE_FAILURE');
 
-export const productAddAttribute = createAction('PRODUCTS_ADD_ATTRIBUTE', (label, type) => [label, type]);
 export const productNew = createAction('PRODUCTS_NEW');
 
 const setError = createAction('PRODUCTS_SET_ERROR');
@@ -184,16 +180,6 @@ const reducer = createReducer({
       ...state,
       isUpdating: false,
     };
-  },
-  [productAddAttribute]: (state: ProductDetailsState, [label, type]) => {
-    if (state.product) {
-      return {
-        ...state,
-        product: setProductAttribute(state.product, label, type, ''),
-      };
-    } else {
-      return state;
-    }
   },
   [setError]: (state: ProductDetailsState, err: Object) => {
     const error: Error = {

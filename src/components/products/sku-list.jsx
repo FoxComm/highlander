@@ -5,20 +5,19 @@
 // libs
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
-import { getIlluminatedSkus } from '../../paragons/product';
 import _ from 'lodash';
 
 // components
 import EditableSkuRow from './editable-sku-row';
 import MultiSelectTable from '../table/multi-select-table';
 
-import type { FullProduct } from '../../modules/products/details';
+import type { Product } from '../../modules/products/details';
 import type { IlluminatedSku } from '../../paragons/product';
 
 type UpdateFn = (code: string, field: string, value: any) => void;
 
 type Props = {
-  fullProduct: ?FullProduct,
+  fullProduct: ?Product,
   updateField: UpdateFn,
 };
 
@@ -32,9 +31,10 @@ export default class SkuList extends Component<void, Props, void> {
   props: Props;
 
   get illuminatedSkus(): Array<IlluminatedSku> {
-    return this.props.fullProduct
-      ? getIlluminatedSkus(this.props.fullProduct)
-      : [];
+    //return this.props.fullProduct
+      //? getIlluminatedSkus(this.props.fullProduct)
+      //: [];
+    return [];
   }
 
   get emptyContent(): Element {

@@ -4,6 +4,11 @@
 import _ from 'lodash';
 import { assoc } from 'sprout-data';
 
+type Attributes = { [key:string]: {
+  t: string,
+  v: any,
+}};
+
 export function copyShadowAttributes(form: FormAttributes, shadow: ShadowAttributes) {
   _.forEach(shadow, (s, label) => {
     // update form

@@ -14,7 +14,7 @@ import { Dropdown, DropdownItem } from '../dropdown';
 import FullObjectScheduler from '../object-scheduler/full-object-scheduler';
 import { FormField, Form } from '../forms';
 import SelectCustomerGroups from '../customers-groups/select-groups';
-import FullObjectTags from '../tags/tags';
+import FullObjectTags from '../tags/full-object-tags';
 import DiscountAttrs from './discount-attrs';
 import offers from './offers';
 import qualifiers from './qualifiers';
