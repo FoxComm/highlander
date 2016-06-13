@@ -36,9 +36,11 @@ const ChooseCustomerRow = (props) => {
         <div className="fc-choose-customer-row__account-type">
           <div className="fc-choose-customer-row__active">{activeText}</div>
           <div className="fc-choose-customer-row__guest">{guestText}</div>
-          <div className="fc-choose-customer-row_view-customer" onClick={viewAction}>
-            <Button>View</Button>
-          </div>
+        </div>
+      </TableCell>
+      <TableCell>
+        <div className="fc-choose-customer-row_view-customer" onClick={viewAction}>
+          <Button>View</Button>
         </div>
       </TableCell>
     </TableRow>

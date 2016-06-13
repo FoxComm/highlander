@@ -23,6 +23,7 @@ const ChooseCustomer = (props) => {
     { field: 'orderSummary', text: 'Customer' },
     { field: 'orderCount', text: 'Total Orders' },
     { field: 'accountType', text: 'Account Type' },
+    { field: 'view', text: '' },
   ];
 
   const guestCheckoutAction = () => {

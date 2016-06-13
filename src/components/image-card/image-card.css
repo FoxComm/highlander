@@ -62,13 +62,16 @@
 .title {
   width: 250px;
   margin-bottom: 10px;
-  font-weight: bold;
+  font-size: 14px; 
+  font-weight: 600;
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
 }
 
 .secondaryTitle {
+  font-size: 14px; 
+  font-weight: 400;
   color: #ABB2B6;
 }
 
