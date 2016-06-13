@@ -102,7 +102,7 @@ class OrderPaymentsIntegrationTest
         giftCardPayments(order) mustBe 'empty
       }
 
-      "FIXME fails if the order is not in cart status" in new GiftCardFixture {
+      "fails if the order is not in cart status" in new GiftCardFixture {
         Orders
           .findByRefNum(order.referenceNumber)
           .map(_.state)
@@ -225,7 +225,7 @@ class OrderPaymentsIntegrationTest
   }
 
   "store credit" - {
-    "aaaa POST /v1/orders/:ref/payment-methods/store-credit" - {
+    "POST /v1/orders/:ref/payment-methods/store-credit" - {
       "when successful" - {
         "uses store credit records in FIFO order according to createdAt" in new StoreCreditFixture {
           // ensure 3 & 4 are oldest so 5th should not be used
