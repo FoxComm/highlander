@@ -16,15 +16,15 @@ import models.order.Order.RemorseHold
 import models.order._
 import models.order.lineitems.{OrderLineItemGiftCards, OrderLineItems}
 import models.payment.creditcard.{CreditCardCharge, CreditCardCharges}
-import models.payment.giftcard.{GiftCard, GiftCards}
-import models.payment.storecredit.StoreCredits
+import models.payment.giftcard.{GiftCard, GiftCardAdjustment, GiftCards}
+import models.payment.storecredit.{StoreCreditAdjustment, StoreCredits}
 import models.promotion.{IlluminatedPromotion, Promotions}
 import responses.order.FullOrder
 import services.coupon.CouponUsageService
 import services.inventory.InventoryAdjustmentManager
 import slick.driver.PostgresDriver.api._
-import utils.apis.Apis
 import utils.aliases._
+import utils.apis.Apis
 import utils.db.DbResultT._
 import utils.db._
 
@@ -144,38 +144,60 @@ case class Checkout(cart: Order, cartValidator: CartValidation)(
          }
     } yield {}
 
-  private def authPayments(customer: Customer): DbResult[Unit] =
-    (for {
-      // Authorize GC payments
-      gcPayments ← OrderPayments.findAllGiftCardsByOrderId(cart.id).result
-      giftCards  ← authInternalPaymentMethod(gcPayments)(GiftCards.authOrderPayment)
-      // Authorize SC payments
-      scPayments   ← OrderPayments.findAllStoreCreditsByOrderId(cart.id).result
-      storeCredits ← authInternalPaymentMethod(scPayments)(StoreCredits.authOrderPayment)
-      // Log activities
+  private def authPayments(customer: Customer): DbResultT[Unit] =
+    for {
+      gcPayments ← * <~ OrderPayments.findAllGiftCardsByOrderId(cart.id).result
+      gcTotal ← * <~ authInternalPaymentMethod(gcPayments,
+                                               cart.grandTotal,
+                                               GiftCards.authOrderPayment,
+                                               (a: GiftCardAdjustment) ⇒ a.getAmount.abs)
+
+      scPayments ← * <~ OrderPayments.findAllStoreCreditsByOrderId(cart.id).result
+      scTotal ← * <~ authInternalPaymentMethod(
+                   scPayments,
+                   cart.grandTotal - gcTotal,
+                   StoreCredits.authOrderPayment,
+                   (a: StoreCreditAdjustment) ⇒ a.getAmount.abs
+               )
+
       gcCodes = gcPayments.map { case (_, gc) ⇒ gc.code }.distinct
       scIds   = scPayments.map { case (_, sc) ⇒ sc.id }.distinct
-      gcAdjs  = giftCards.getOrElse(List.empty).foldLeft(0)(_ + _.getAmount.abs)
-      scAdjs  = storeCredits.getOrElse(List.empty).foldLeft(0)(_ + _.getAmount.abs)
-      _ ← if (gcAdjs > 0) LogActivity.gcFundsAuthorized(customer, cart, gcCodes, gcAdjs)
-         else DbResult.unit
-      _ ← if (scAdjs > 0) LogActivity.scFundsAuthorized(customer, cart, scIds, scAdjs)
-         else DbResult.unit
-      // Authorize funds on credit card
-      ccs ← authCreditCard(orderTotal = cart.grandTotal, internalPaymentTotal = gcAdjs + scAdjs)
-    } yield (giftCards, storeCredits)).map {
-      case (gc, sc) ⇒
-        // not-so-easy-way to combine error messages from both Xors
-        gc.map(_ ⇒ {}).combine(sc.map(_ ⇒ {}))
-    }
 
-  private def authInternalPaymentMethod[M, Adj](results: Seq[(OrderPayment, M)])(
-      auth: (M, OrderPayment) ⇒ DbResult[Adj]): DbResult[Seq[Adj]] = {
-    if (results.isEmpty)
-      DbResult.good(List.empty[Adj])
-    else {
-      val auths = results.map { case (pmt, m) ⇒ DbResultT(auth(m, pmt)) }
-      DbResultT.sequence(auths).value
+      _ ← * <~ (if (gcTotal > 0) LogActivity.gcFundsAuthorized(customer, cart, gcCodes, gcTotal)
+                else DbResult.unit)
+      _ ← * <~ (if (scTotal > 0) LogActivity.scFundsAuthorized(customer, cart, scIds, scTotal)
+                else DbResult.unit)
+
+      // Authorize funds on credit card
+      ccs ← * <~ authCreditCard(cart.grandTotal, gcTotal + scTotal)
+    } yield {}
+
+  private def authInternalPaymentMethod[Adjustment, Card](
+      orderPayments: Seq[(OrderPayment, Card)],
+      maxPaymentAmount: Int,
+      authOrderPayment: (Card, OrderPayment, Option[Int]) ⇒ DbResult[Adjustment],
+      getAdjustmentAmount: (Adjustment) ⇒ Int): DbResultT[Int] = {
+
+    if (orderPayments.isEmpty) {
+      DbResultT.pure(0)
+    } else {
+
+      val amounts: Seq[Int] = orderPayments.map { case (payment, _) ⇒ payment.getAmount() }
+      val limitedAmounts = amounts
+        .scan(maxPaymentAmount) {
+          case (maxAmount, paymentAmount) ⇒ (maxAmount - paymentAmount).max(0)
+        }
+        .zip(amounts)
+        .map { case (max, amount) ⇒ Math.min(max, amount) }
+        .ensuring(_.sum <= maxPaymentAmount)
+
+      for {
+        adjustments ← * <~ orderPayments.zip(limitedAmounts).collect {
+                       case ((payment, card), amount) if amount > 0 ⇒
+                         DbResultT(authOrderPayment(card, payment, amount.some))
+                     }
+        total = adjustments.map(getAdjustmentAmount).sum.ensuring(_ <= maxPaymentAmount)
+      } yield total
     }
   }
 
