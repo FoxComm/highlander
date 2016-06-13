@@ -1,22 +1,30 @@
 package utils.db
 
 import scala.collection.generic.CanBuildFrom
+import scala.concurrent.Future
 
 import cats.data.{Validated, Xor, XorT}
 import cats.{Applicative, Functor, Monad}
-import failures.Failures
+import failures.{Failure, Failures}
 import services.Result
-import scala.concurrent.Future
-
 import slick.driver.PostgresDriver.api._
 import slick.profile.SqlAction
 import utils.aliases._
-import utils.db._
 
 object DbResultT {
 
+  object Runners {
+    implicit class EnrichedDbResultT[A](dbResultT: DbResultT[A]) {
+      def runTxn()(implicit db: DB): Result[A] =
+        dbResultT.value.transactionally.run()
+
+      def run()(implicit db: DB): Result[A] =
+        dbResultT.value.run()
+    }
+  }
+
   implicit def dbioApplicative(implicit ec: EC): Applicative[DBIO] = new Applicative[DBIO] {
-    def ap[A, B](fa: DBIO[A])(f: DBIO[A => B]): DBIO[B] =
+    def ap[A, B](fa: DBIO[A])(f: DBIO[A ⇒ B]): DBIO[B] =
       fa.flatMap(a ⇒ f.map(ff ⇒ ff(a)))
 
     def pure[A](a: A): DBIO[A] = DBIO.successful(a)
@@ -27,15 +35,19 @@ object DbResultT {
 
     override def pure[A](a: A): DBIO[A] = DBIO.successful(a)
 
-    override def flatMap[A, B](fa: DBIO[A])(f: A => DBIO[B]): DBIO[B] = fa.flatMap(f)
+    override def flatMap[A, B](fa: DBIO[A])(f: A ⇒ DBIO[B]): DBIO[B] = fa.flatMap(f)
   }
 
   implicit class EnrichedDbResultT[A](dbResultT: DbResultT[A]) {
+    // TODO @anna: remove
     def runTxn()(implicit db: DB): Result[A] =
       dbResultT.value.transactionally.run()
 
+    // TODO @anna: remove
     def run()(implicit db: DB): Result[A] =
       dbResultT.value.run()
+
+    def ignoreResult(implicit ec: EC): DbResultT[Unit] = for (_ ← * <~ dbResultT) yield {}
   }
 
   final implicit class EnrichedOption[A](val option: Option[A]) extends AnyVal {
@@ -63,6 +75,9 @@ object DbResultT {
 
   def leftLift[A](v: Failures)(implicit ec: EC): DbResultT[A] =
     left(DBIO.successful(v))
+
+  def failure[A](f: Failure)(implicit ec: EC): DbResultT[A] =
+    leftLift[A](f.single)
 
   def sequence[A, M[X] <: TraversableOnce[X]](values: M[DbResultT[A]])(
       implicit buildFrom: CanBuildFrom[M[DbResultT[A]], A, M[A]], ec: EC): DbResultT[M[A]] =

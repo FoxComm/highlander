@@ -3,16 +3,15 @@ package utils
 import scala.concurrent.Future
 
 import cats.data.{Xor, XorT}
-
 import failures._
 import responses.{PaginationMetadata, SortingMetadata, TheResponse}
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.SQLActionBuilder
 import slick.lifted.{ColumnOrdered, Ordered, Query}
 import slick.profile.{SqlAction, SqlStreamingAction}
-import utils.http.CustomDirectives._
 import utils.aliases._
 import utils.db.DbResultT._
+import utils.http.CustomDirectives._
 import utils.time.JavaTimeSlickMapper
 
 package object db {

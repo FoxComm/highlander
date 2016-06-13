@@ -144,13 +144,13 @@ object NotificationManager {
       implicit ec: EC): DbResultT[Unit] =
     for {
       d ← * <~ Dimensions.findByName(dimension).one.toXor
-      _ ← * <~ d.fold(DbResult.unit) { dimension ⇒
+      _ ← * <~ d.fold(DbResultT.unit) { dimension ⇒
            Subs
              .filter(_.dimensionId === dimension.id)
              .filter(_.adminId.inSet(adminIds))
              .filter(_.objectId.inSet(objectIds))
              .filter(_.reason === reason)
-             .deleteAll(onSuccess = DbResult.unit, onFailure = DbResult.unit)
+             .deleteAll(onSuccess = DbResultT.unit, onFailure = DbResultT.unit)
          }
     } yield {}
 

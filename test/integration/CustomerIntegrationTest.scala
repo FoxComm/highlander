@@ -570,6 +570,7 @@ class CustomerIntegrationTest
           Orders.create(Factories.cart.copy(customerId = customer.id)).run().futureValue.rightVal
         OrderPaymentUpdater
           .addCreditCard(Originator(admin), creditCard.id, Some(order.refNum))
+          .runTxn()
           .futureValue
 
         val payload = EditCreditCard(holderName = Some("Bob"))

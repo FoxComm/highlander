@@ -1,33 +1,35 @@
 package services.orders
 
 import cats.implicits._
-import failures._
 import failures.GiftCardFailures._
 import failures.OrderFailures._
 import failures.StoreCreditFailures._
-import models.order._
-import models.traits.Originator
-import OrderPayments.scope._
+import failures._
 import models.location.Regions
+import models.order.OrderPayments.scope._
+import models.order._
 import models.payment.PaymentMethod
 import models.payment.creditcard._
 import models.payment.giftcard._
 import models.payment.storecredit._
+import models.traits.Originator
 import payloads.PaymentPayloads._
-import responses.order.FullOrder
-import FullOrder.refreshAndFullOrder
 import responses.TheResponse
-import services.{CartValidator, LogActivity, Result}
+import responses.order.FullOrder
+import responses.order.FullOrder.refreshAndFullOrder
+import services.{CartValidator, LogActivity}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
-import utils.db._
 import utils.db.DbResultT._
+import utils.db._
 
 object OrderPaymentUpdater {
 
+  type TheFullOrder = DbResultT[TheResponse[FullOrder.Root]]
+
   def addGiftCard(originator: Originator, payload: GiftCardPayment, refNum: Option[String] = None)(
-      implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] =
-    (for {
+      implicit ec: EC, db: DB, ac: AC): TheFullOrder =
+    for {
       order  ← * <~ getCartByOriginator(originator, refNum)
       _      ← * <~ order.mustBeCart
       result ← * <~ validGiftCardWithAmount(payload)
@@ -41,12 +43,12 @@ object OrderPaymentUpdater {
       resp  ← * <~ refreshAndFullOrder(order).toXor
       valid ← * <~ CartValidator(order).validate()
       _     ← * <~ LogActivity.orderPaymentMethodAddedGc(originator, resp, gc, amount)
-    } yield TheResponse.build(resp, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
+    } yield TheResponse.build(resp, alerts = valid.alerts, warnings = valid.warnings)
 
   def editGiftCard(
       originator: Originator, payload: GiftCardPayment, refNum: Option[String] = None)(
-      implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] =
-    (for {
+      implicit ec: EC, db: DB, ac: AC): TheFullOrder =
+    for {
       order  ← * <~ getCartByOriginator(originator, refNum)
       _      ← * <~ order.mustBeCart
       result ← * <~ validGiftCardWithAmount(payload)
@@ -59,7 +61,7 @@ object OrderPaymentUpdater {
       valid ← * <~ CartValidator(order).validate()
       _ ← * <~ LogActivity.orderPaymentMethodUpdatedGc(
              originator, resp, gc, orderPayment.amount, amount)
-    } yield TheResponse.build(resp, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
+    } yield TheResponse.build(resp, alerts = valid.alerts, warnings = valid.warnings)
 
   private def validGiftCardWithAmount(payload: GiftCardPayment)(implicit ec: EC, db: DB, ac: AC) =
     for {
@@ -82,39 +84,42 @@ object OrderPaymentUpdater {
 
   def addStoreCredit(
       originator: Originator, payload: StoreCreditPayment, refNum: Option[String] = None)(
-      implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] = {
-    (for {
+      implicit ec: EC, db: DB, ac: AC): TheFullOrder = {
+    def updateSC(has: Int, want: Int, order: Order, storeCredits: List[StoreCredit]) =
+      if (has < want) {
+        DbResultT.failure(
+            CustomerHasInsufficientStoreCredit(id = order.customerId, has = has, want = want))
+      } else {
+        def payments = StoreCredit.processFifo(storeCredits, want).map {
+          case (sc, amount) ⇒
+            OrderPayment.build(sc).copy(orderId = order.id, amount = amount.some)
+        }
+
+        for {
+          _ ← * <~ OrderPayments
+               .filter(_.orderId === order.id)
+               .storeCredits
+               .deleteAll(onSuccess = DbResultT.unit, onFailure = DbResultT.unit)
+          _ ← * <~ OrderPayments.createAll(payments)
+        } yield {}
+      }
+
+    for {
       order        ← * <~ getCartByOriginator(originator, refNum)
       _            ← * <~ order.mustBeCart
       storeCredits ← * <~ StoreCredits.findAllActiveByCustomerId(order.customerId).result.toXor
       reqAmount = payload.amount
       available = storeCredits.map(_.availableBalance).sum
-      actions ← * <~ (if (available < reqAmount) {
-                        DbResult.failure(CustomerHasInsufficientStoreCredit(
-                                id = order.customerId, has = available, want = reqAmount))
-                      } else {
-                        val delete =
-                          OrderPayments.filter(_.orderId === order.id).storeCredits.delete
-                        val payments =
-                          StoreCredit.processFifo(storeCredits.toList, reqAmount).map {
-                            case (sc, amount) ⇒
-                              OrderPayment
-                                .build(sc)
-                                .copy(orderId = order.id, amount = Some(amount))
-                          }
-                        delete.flatMap(_ ⇒ OrderPayments.createAll(payments))
-                      })
+      -          ← * <~ updateSC(available, reqAmount, order, storeCredits.toList)
       validation ← * <~ CartValidator(order).validate()
       response   ← * <~ refreshAndFullOrder(order).toXor
       _          ← * <~ LogActivity.orderPaymentMethodAddedSc(originator, response, payload.amount)
-    } yield
-      TheResponse.build(response, alerts = validation.alerts, warnings = validation.warnings))
-      .runTxn()
+    } yield TheResponse.build(response, alerts = validation.alerts, warnings = validation.warnings)
   }
 
   def addCreditCard(originator: Originator, id: Int, refNum: Option[String] = None)(
-      implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] =
-    (for {
+      implicit ec: EC, db: DB, ac: AC): TheFullOrder =
+    for {
       order  ← * <~ getCartByOriginator(originator, refNum)
       _      ← * <~ order.mustBeCart
       cc     ← * <~ CreditCards.mustFindById400(id)
@@ -125,35 +130,34 @@ object OrderPaymentUpdater {
       valid  ← * <~ CartValidator(order).validate()
       resp   ← * <~ refreshAndFullOrder(order).toXor
       _      ← * <~ LogActivity.orderPaymentMethodAddedCc(originator, resp, cc, region)
-    } yield TheResponse.build(resp, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
+    } yield TheResponse.build(resp, alerts = valid.alerts, warnings = valid.warnings)
 
   def deleteCreditCard(originator: Originator, refNum: Option[String] = None)(
-      implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] =
+      implicit ec: EC, db: DB, ac: AC): TheFullOrder =
     deleteCreditCardOrStoreCredit(originator, refNum, PaymentMethod.CreditCard)
 
   def deleteStoreCredit(originator: Originator, refNum: Option[String] = None)(
-      implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] =
+      implicit ec: EC, db: DB, ac: AC): TheFullOrder =
     deleteCreditCardOrStoreCredit(originator, refNum, PaymentMethod.StoreCredit)
 
   private def deleteCreditCardOrStoreCredit(
       originator: Originator, refNum: Option[String], pmt: PaymentMethod.Type)(
-      implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] =
-    (for {
-
+      implicit ec: EC, db: DB, ac: AC): TheFullOrder =
+    for {
       order ← * <~ getCartByOriginator(originator, refNum)
       _     ← * <~ order.mustBeCart
       valid ← * <~ CartValidator(order).validate()
       resp ← * <~ OrderPayments
               .filter(_.orderId === order.id)
               .byType(pmt)
-              .deleteAll(onSuccess = refreshAndFullOrder(order).toXor,
-                         onFailure = DbResult.failure(OrderPaymentNotFoundFailure(pmt)))
+              .deleteAll(onSuccess = DbResultT(refreshAndFullOrder(order).toXor),
+                         onFailure = DbResultT.failure(OrderPaymentNotFoundFailure(pmt)))
       _ ← * <~ LogActivity.orderPaymentMethodDeleted(originator, resp, pmt)
-    } yield TheResponse.build(resp, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
+    } yield TheResponse.build(resp, alerts = valid.alerts, warnings = valid.warnings)
 
   def deleteGiftCard(originator: Originator, code: String, refNum: Option[String] = None)(
-      implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] =
-    (for {
+      implicit ec: EC, db: DB, ac: AC): TheFullOrder =
+    for {
       order     ← * <~ getCartByOriginator(originator, refNum)
       _         ← * <~ order.mustBeCart
       giftCard  ← * <~ GiftCards.mustFindByCode(code)
@@ -162,10 +166,9 @@ object OrderPaymentUpdater {
                    .filter(_.paymentMethodId === giftCard.id)
                    .filter(_.orderId === order.id)
                    .giftCards
-                   .deleteAll(onSuccess = refreshAndFullOrder(order).toXor,
-                              onFailure = DbResult.failure(
+                   .deleteAll(onSuccess = DbResultT(refreshAndFullOrder(order).toXor),
+                              onFailure = DbResultT.failure(
                                   OrderPaymentNotFoundFailure(PaymentMethod.GiftCard)))
       _ ← * <~ LogActivity.orderPaymentMethodDeletedGc(originator, deleteRes, giftCard)
-    } yield TheResponse.build(deleteRes, alerts = validated.alerts, warnings = validated.warnings))
-      .runTxn()
+    } yield TheResponse.build(deleteRes, alerts = validated.alerts, warnings = validated.warnings)
 }

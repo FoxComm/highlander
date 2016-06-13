@@ -30,11 +30,11 @@ abstract class FoxTableQuery[M <: FoxModel[M], T <: FoxTable[M]](construct: Tag 
 
   private def returningTable: Returning[M, Ret] = this.returning(returningQuery)
 
-  def createAll(unsaved: Iterable[M])(implicit ec: EC): DbResult[Option[Int]] =
-    (for {
+  def createAll(unsaved: Iterable[M])(implicit ec: EC): DbResultT[Option[Int]] =
+    for {
       prepared ← * <~ beforeSaveBatch(unsaved)
       returned ← * <~ wrapDbio(this ++= prepared)
-    } yield returned).value
+    } yield returned
 
   def createAllReturningIds(unsaved: Iterable[M])(implicit ec: EC): DbResult[Seq[M#Id]] =
     (for {
@@ -95,12 +95,14 @@ abstract class FoxTableQuery[M <: FoxModel[M], T <: FoxTable[M]](construct: Tag 
 
   implicit class EnrichedTableQuery(q: QuerySeq) {
 
-    def deleteAll[A](onSuccess: ⇒ DbResult[A], onFailure: ⇒ DbResult[A])(
-        implicit ec: EC): DbResult[A] = {
-      q.delete.flatMap {
-        case 0 ⇒ onFailure
-        case _ ⇒ onSuccess
-      }
-    }
+    def deleteAll[A](onSuccess: ⇒ DbResultT[A], onFailure: ⇒ DbResultT[A])(
+        implicit ec: EC): DbResultT[A] =
+      for {
+        deletedQty ← * <~ q.delete.toXor
+        result ← * <~ (deletedQty match {
+                      case 0 ⇒ onFailure
+                      case _ ⇒ onSuccess
+                    })
+      } yield result
   }
 }

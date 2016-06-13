@@ -225,7 +225,7 @@ class OrderPaymentsIntegrationTest
   }
 
   "store credit" - {
-    "POST /v1/orders/:ref/payment-methods/store-credit" - {
+    "aaaa POST /v1/orders/:ref/payment-methods/store-credit" - {
       "when successful" - {
         "uses store credit records in FIFO order according to createdAt" in new StoreCreditFixture {
           // ensure 3 & 4 are oldest so 5th should not be used
@@ -244,9 +244,9 @@ class OrderPaymentsIntegrationTest
 
           val payload  = StoreCreditPayment(amount = 7500)
           val response = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
-          val payments = storeCreditPayments(order)
 
           response.status must ===(StatusCodes.OK)
+          val payments = storeCreditPayments(order)
           payments must have size 2
 
           val expected =
@@ -522,8 +522,8 @@ class OrderPaymentsIntegrationTest
 
   trait CreditCardFixture extends Fixture {
     val creditCard = (for {
-      address ← Addresses.create(Factories.address.copy(customerId = customer.id))
-      cc      ← CreditCards.create(Factories.creditCard.copy(customerId = customer.id))
+      address ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
+      cc      ← * <~ CreditCards.create(Factories.creditCard.copy(customerId = customer.id))
     } yield cc).run().futureValue.rightVal
   }
 }

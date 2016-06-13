@@ -3,24 +3,24 @@ package utils.seeds
 import scala.util.Random
 
 import cats.implicits._
+import faker.Faker
+import models.coupon._
 import models.customer.{Customer, CustomerDynamicGroup, Customers}
 import models.inventory._
 import models.location.{Address, Addresses}
+import models.objects.{ObjectContext, ObjectContexts}
 import models.order._
-import models.coupon._
-import models.promotion._
 import models.payment.PaymentMethod
 import models.payment.creditcard.{CreditCard, CreditCards}
 import models.product.SimpleContext
-import models.objects.{ObjectContext, ObjectContexts}
-import utils.seeds.generators._
-import utils.aliases._
-import utils.db._
-import utils.db.DbResultT._
-import Seeds.Factories
-import slick.driver.PostgresDriver.api._
-import faker.Faker
+import models.promotion._
 import org.json4s.JObject
+import slick.driver.PostgresDriver.api._
+import utils.aliases._
+import utils.db.DbResultT._
+import utils.db._
+import utils.seeds.Seeds.Factories
+import utils.seeds.generators._
 
 object RankingSeedsGenerator {
   def fakeJson = JObject()
@@ -104,9 +104,11 @@ object RankingSeedsGenerator {
         (o, cc) ← Orders.join(CreditCards).on(_.customerId === _.customerId)
       } yield (o, cc)).result
 
-      action.flatMap { ordersWithCc ⇒
-        OrderPayments.createAll(ordersWithCc.map { case (order, cc) ⇒ makePayment(order, cc) })
-      }
+      for {
+        ordersWithCc ← * <~ action.toXor
+        _ ← * <~ OrderPayments.createAll(
+               ordersWithCc.map { case (order, cc) ⇒ makePayment(order, cc) })
+      } yield {}
     }
 
     for {

@@ -18,8 +18,9 @@ import services.customers.CustomerManager
 import services.orders._
 import services.product.ProductManager
 import services.{AddressManager, Checkout, CreditCardManager, LineItemUpdater, SaveForLaterManager, ShippingManager, StoreCreditService}
-import utils.apis.Apis
 import utils.aliases._
+import utils.apis.Apis
+import utils.db.DbResultT.Runners._
 import utils.http.CustomDirectives._
 import utils.http.Http._
 
@@ -76,41 +77,43 @@ object Customer {
               pathPrefix("payment-methods" / "credit-cards") {
                 (post & pathEnd & entity(as[CreditCardPayment])) { payload ⇒
                   goodOrFailures {
-                    OrderPaymentUpdater.addCreditCard(Originator(customer), payload.creditCardId)
+                    OrderPaymentUpdater
+                      .addCreditCard(Originator(customer), payload.creditCardId)
+                      .runTxn()
                   }
                 } ~
                 (delete & pathEnd) {
                   goodOrFailures {
-                    OrderPaymentUpdater.deleteCreditCard(Originator(customer))
+                    OrderPaymentUpdater.deleteCreditCard(Originator(customer)).runTxn()
                   }
                 }
               } ~
               pathPrefix("payment-methods" / "gift-cards") {
                 (post & pathEnd & entity(as[GiftCardPayment])) { payload ⇒
                   goodOrFailures {
-                    OrderPaymentUpdater.addGiftCard(Originator(customer), payload)
+                    OrderPaymentUpdater.addGiftCard(Originator(customer), payload).runTxn()
                   }
                 } ~
                 (patch & pathEnd & entity(as[GiftCardPayment])) { payload ⇒
                   goodOrFailures {
-                    OrderPaymentUpdater.editGiftCard(Originator(customer), payload)
+                    OrderPaymentUpdater.editGiftCard(Originator(customer), payload).runTxn()
                   }
                 } ~
                 (delete & path(GiftCard.giftCardCodeRegex) & pathEnd) { code ⇒
                   goodOrFailures {
-                    OrderPaymentUpdater.deleteGiftCard(Originator(customer), code)
+                    OrderPaymentUpdater.deleteGiftCard(Originator(customer), code).runTxn()
                   }
                 }
               } ~
               pathPrefix("payment-methods" / "store-credit") {
                 (post & pathEnd & entity(as[StoreCreditPayment])) { payload ⇒
                   goodOrFailures {
-                    OrderPaymentUpdater.addStoreCredit(Originator(customer), payload)
+                    OrderPaymentUpdater.addStoreCredit(Originator(customer), payload).runTxn()
                   }
                 } ~
                 (delete & pathEnd) {
                   goodOrFailures {
-                    OrderPaymentUpdater.deleteStoreCredit(Originator(customer))
+                    OrderPaymentUpdater.deleteStoreCredit(Originator(customer)).runTxn()
                   }
                 }
               } ~
