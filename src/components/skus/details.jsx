@@ -44,11 +44,11 @@ export default class SkuDetails extends Component {
       ..._.reduce(defaultKeys, (res, arr) => ([...res, ...arr]), []),
       ...keysToOmit,
     ];
-    const shadow = _.get(this.props, 'sku.attributes', {});
+    const attributes = _.get(this.props, 'sku.attributes', {});
     return [
       ...defaultKeys.base,
       ...defaultKeys.general,
-      ...(_(shadow).omit(toOmitArray).keys().value())
+      ...(_(attributes).omit(toOmitArray).keys().value())
     ];
   }
 
@@ -117,8 +117,6 @@ export default class SkuDetails extends Component {
     }
 
     const attributes = _.get(sku, 'attributes', {});
-    const formAttributes = _.get(sku, 'form.attributes', []);
-    const shadowAttributes = _.get(sku, 'shadow.attributes', []);
 
     return (
       <div className="fc-product-details fc-grid fc-grid-no-gutter">

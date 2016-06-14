@@ -16,23 +16,6 @@ import type {
   Variant,
 } from '../modules/products/details';
 
-// export function getAttribute(formAttrs: Attributes, shadowAttrs: ShadowAttributes,
-//   label: string): IlluminatedAttribute {
-//
-//   const shadow = shadowAttrs[label];
-//   if(!shadow) return shadow;
-//
-//   const attribute = formAttrs[shadow.ref];
-//
-//   const res = {
-//     label: label,
-//     type: shadow.type,
-//     value: attribute,
-//   };
-//
-//   return res;
-// }
-//
 export function createEmptyProduct(): Product {
   const product = {
     id: null,
