@@ -1,4 +1,16 @@
 
+@miniclass StoreAdminResponse (FoxApi)
+@aka storeadminresponse
+
+@field id: Number = 1
+Unique identifier.
+
+@field name: String = `John Smith`
+Admin name.
+
+@field email: String = `john@smith.com`
+E-mail.
+
 @miniclass PagingMetadata (FoxApi)
 @aka pagingmetadata
 

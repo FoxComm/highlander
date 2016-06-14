@@ -11,21 +11,23 @@ export default class Addresses {
 
   // @method list(options: Query options): Promise<AddressesResponse>
   // Choices for `options.sortBy` parameter:
-  // 
-  // - `id`
-  // - `regionId`
-  // - `name`
-  // - `address1`
-  // - `address2`
-  // - `city`
-  // - `zip`
-  // - `isDefaultShipping`
-  // - `phoneNumber`
-  // - `deletedAt`
-  // - `region_id`
-  // - `region_countryId`
-  // - `region_name`
-  // - `region_abbreviation`
+  //
+  // <ul class="collapsible collapsed">
+  //   <li>`id`</li>
+  //   <li>`regionId`</li>
+  //   <li>`name`</li>
+  //   <li>`address1`</li>
+  //   <li>`address2`</li>
+  //   <li>`city`</li>
+  //   <li>`zip`</li>
+  //   <li>`isDefaultShipping`</li>
+  //   <li>`phoneNumber`</li>
+  //   <li>`deletedAt`</li>
+  //   <li>`region_id`</li>
+  //   <li>`region_countryId`</li>
+  //   <li>`region_name`</li>
+  //   <li>`region_abbreviation`</li>
+  // </ul>
   list(options) {
     return this.api.get(endpoints.addresses, options);
   }

@@ -23,17 +23,15 @@
                 <li><a href="#foxapi-option">Options</a></li>
                 <li><a href="#foxapi-property">Properties</a></li>
             </ul>
-            <h4>Classes</h4>
-            <ul>
-                <li><a href="#addresses-method">Addresses Methods</a></li>
-            </ul>
         </div>
         <div class="toc-col">
-            <h4>Cart Classes</h4>
+            <h4>FoxApi namespaces</h4>
             <ul>
-                <li><a href="#todo">Shipping Methods</a></li>
-                <li><a href="#todo">Payment Methods</a></li>
-                <li><a href="#todo">Billing Methods</a></li>
+                <li><a href="#auth">Auth</a></li>
+                <li><a href="#addresses">Addresses</a></li>
+                <li><a href="#cart">Cart</a></li>
+                <li><a href="#creditcards">Credit Cards</a></li>
+                <li><a href="#storecredits">Store Credits</a></li>
             </ul>
         </div>
     </div>
@@ -81,6 +79,13 @@
     for (var i = 0, len = headers.length; i < len; i++) {
         headers[i].onclick = navigateToTarget;
     }
+
+    [].map.call(document.querySelectorAll('ul.collapsible'), function(ul) {
+        ul.addEventListener('click', function(event) {
+            ul.classList.toggle('collapsed');
+            event.stopPropagation();
+        });
+    });
 
     </script>
 <style>
@@ -173,7 +178,55 @@
 		margin-bottom: 0;
 	}
 
+    ul.collapsible {
+        position: relative;
+        padding: 0;
+        margin: 0;
+        padding-left: 32px;
+        pointer-events: none;
+    }
 
+    ul.collapsible.collapsed li code {
+        white-space: nowrap;
+    }
+
+    ul.collapsed {
+        list-style-type: none;
+        padding-left: 0;
+        overflow: hidden;
+        max-width: 260px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    ul.collapsible::before {
+        cursor: pointer;
+        pointer-events: auto;
+        padding-right: 5px;
+    }
+
+    ul.collapsible:not(.collapsed)::before {
+        content: "-";
+        position: absolute;
+        left: 0;
+        top: 0;
+    }
+
+    ul.collapsed.collapsed::before {
+        content: "+";
+    }
+
+    ul.collapsed li {
+        display: inline;
+    }
+
+    ul.collapsed li::after {
+        content: ",";
+    }
+
+    ul.collapsed li:last-child::after {
+        content: "";
+    }
 
 </style>
 </body></html>

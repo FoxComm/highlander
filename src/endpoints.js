@@ -11,8 +11,19 @@ export const logout = '/v1/public/logout';
 export const search = `/search/products_catalog_view/_search?size=${MAX_RESULTS}`;
 
 // cart endpoints
+export const cart = '/v1/my/cart';
+export const cartCheckout = '/v1/my/cart/checkout';
+export const shippingMethods = '/v1/my/cart/shipping-methods';
+export const shippingMethod = '/v1/my/cart/shipping-method';
+export const shippingAddress = '/v1/my/cart/shipping-address';
+export const shippingAddressId = id => `${shippingAddress}/id`;
+export const cartLineItems = '/v1/my/cart/line-items';
+export const cartPaymentCreditCarts = '/v1/my/cart/payment-methods/credit-cards';
+export const cartPaymentGiftCards = '/v1/my/cart/payment-methods/gift-cards';
+export const cartPaymentStoreCredits = '/v1/my/cart/payment-methods/store-credits';
+
 export const addToCart = '/v1/my/cart/add';
-export const updateQty = '/v1/my/cart/line-items';
+
 export const removeFromCart = '/v1/my/cart/line-items/:id/edit';
 
 // address endpoints

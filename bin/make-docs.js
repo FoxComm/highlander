@@ -9,7 +9,10 @@ function setupHandlebars(handlebars) {
   const makeLink = handlebars.helpers.type;
   const typeRe = /[\w\._\s]+/g;
 
-  handlebars.registerHelper('type', function(str) {
+  handlebars.registerHelper('type', function(str, options) {
+    if (!str) {
+      throw new Error(`Calling type helper on null type, key: ${options.data.key}`)
+    }
     return str
       .replace(/[\<\>]/g, function(str) {
         return escapeHtml(str);
@@ -31,6 +34,7 @@ function buildDocs() {
 
   setupHandlebars(doc.getTemplateEngine());
   doc.registerDocumentable('field', 'Fields', true);
+  doc.registerDocumentable('key', 'Keys', true);
 
   doc.addDir('docs/objects');
   doc.addFile('src/query-options.leafdoc', false);

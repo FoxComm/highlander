@@ -30,13 +30,18 @@ class Leafdoc {
   }
 
   addDependency(type, parentsMap) {
-    this.lastSection.deps.push(type);
-    const name = this.lastSection.name;
+    const types = type.split(/[<>]/);
+    types.map(type => {
+      if (type.length) {
+        this.lastSection.deps.push(type);
+        const name = this.lastSection.name;
 
-    // by default dependants inherits parent
-    if ((name in parentsMap) && !parentsMap[type]) {
-      parentsMap[type] = parentsMap[name];
-    }
+        // by default dependants inherits parent
+        if ((name in parentsMap) && !parentsMap[type]) {
+          parentsMap[type] = parentsMap[name];
+        }
+      }
+    });
   }
 
   setParentNamespace(parentNamespace) {
@@ -116,12 +121,18 @@ function convertType(type) {
 }
 
 function apiaryToLeafdoc(str, namesMap, parentsMap) {
-  const attrRe = /\+\s+(\w+):?\s*(\d+|`[^\`]+`)?\s+\(([^)]+)\)\s*\-\s*(.*)/;
+  const attrRe = /\+\s+(\w+):?\s*(\d+|`[^\`]+`|[^\s]+)?\s+\(([^)]+)\)\s*\-\s*(.*)/;
   const directiveRe = /[\-+]\s*(\w+)\s+(.*)/;
   const doc = new Leafdoc();
 
   let structureName = null;
+  let linePadding = 0;
+  let prevLinePadding = 0;
+  let structureContext = null;
 
+  let structMembers = [];
+
+  // @todo: add support for renaming complex type, i.e. Array<Type1> -> Array<Type2>
   const rename = name => namesMap[name] || name;
   let parentNamespace = 'FoxApi';
 
@@ -133,7 +144,12 @@ function apiaryToLeafdoc(str, namesMap, parentsMap) {
       }
       doc.addStructure(structureName);
     }
-    if (/^[+\-]/.test(line) && structureName) {
+    linePadding = 0;
+    if (/^\s+/.test(line)) {
+      linePadding = /^\s+/.exec(line)[0].length;
+      line = line.replace(/^\s+/, '');
+    }
+    if (linePadding === 0 && /^[+\-]/.test(line) && structureName) {
       let split = attrRe.exec(line);
       if (split) {
         const name = split[1];
@@ -171,6 +187,26 @@ function apiaryToLeafdoc(str, namesMap, parentsMap) {
         }
       }
     }
+    if (linePadding < prevLinePadding) {
+      if (structureContext === 'members' && structMembers.length > 0) {
+        doc.writeBody(
+          'Available values:',
+          '<ul class="collapsible collapsed">',
+          structMembers.map(name => `<li>${name}</li>`).join('\n'),
+          '</ul>'
+        );
+      }
+      structureContext = null;
+      structMembers = [];
+    }
+    if (linePadding && structureContext == 'members') {
+      const memberName = /\+\s+(\w+|`[^\`]+`)/.exec(line)[1];
+      structMembers.push(memberName);
+    }
+    if (prevLinePadding === 0 && linePadding > 0) {
+      structureContext = /\+\s+(\w+)/.exec(line)[1].toLowerCase();
+    }
+    prevLinePadding = linePadding;
   });
 
   doc.setParentNamespace(parentNamespace);
@@ -204,6 +240,14 @@ const importData = {
     'StoreCredit',
     'StoreCreditAdjustments',
     'StoreCreditTotals'
+  ],
+  'Cart': [
+    'FullOrder',
+    'UpdateLineItemsPayload',
+    'GiftCardPaymentPayload'
+  ],
+  'FoxApi': [
+    'ShippingMethod'
   ]
 };
 

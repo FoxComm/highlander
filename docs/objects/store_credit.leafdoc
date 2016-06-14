@@ -2,10 +2,26 @@
 @miniclass StoreCreditOriginType (StoreCredits)
 @aka storecreditorigintype
 
+@field originType: String = CsrAppeasement
+SC origin type.
+Available values:
+<ul class="collapsible collapsed">
+<li>`csrAppeasement`</li>
+<li>`giftCardTransfer`</li>
+<li>`returnProcess`</li>
+</ul>
 
 @miniclass StoreCreditState (StoreCredits)
 @aka storecreditstate
 
+@field state: String = OnHold
+SC state.
+Available values:
+<ul class="collapsible collapsed">
+<li>`onHold`</li>
+<li>`active`</li>
+<li>`canceled`</li>
+</ul>
 
 @miniclass StoreCredit (StoreCredits)
 @aka storecredit
@@ -18,6 +34,9 @@ Unique identifier.
 @field createdAt: String = `2015-09-10T14:55:50Z`
 Creation date.
 
+@field currency: String = USD
+SC currency.
+
 @field subTypeId?: Number = 1
 Optional subtype.
 
@@ -29,6 +48,33 @@ Opening balance minus "captured" debits.
 
 @field availableBalance: Number = 50
 Opening balance minus "auth" debits.
+
+@miniclass StoreCreditAdjustment (StoreCredits)
+@aka storecreditadjustment
+
+@field id: Number = 1
+Unique identifier.
+
+@field debit: Number = 50
+Debit of adjustment.
+
+@field availableBalance: Number = 10
+Current availableBalance for this SC.
+
+@field state: String = Auth
+Gift Card state.
+
+@field orderRef: String = `ABC-123`
+Order reference number.
+
+@field createdAt: String = `2015-09-10T14:55:50Z`
+Creation date.
+Available values:
+<ul class="collapsible collapsed">
+<li>`auth`</li>
+<li>`capture`</li>
+<li>`canceled`</li>
+</ul>
 
 @miniclass StoreCreditAdjustments (StoreCredits)
 @aka storecreditadjustments

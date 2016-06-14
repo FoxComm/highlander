@@ -26,6 +26,9 @@ zip/postal code.
 @field phoneNumber?: String = `732-757-2923`
 Contact phone number.
 
+@field isDefault?: Boolean = false
+Default or not in address book.
+
 @miniclass Region (Addresses)
 @aka region
 
@@ -59,6 +62,9 @@ City.
 @field zip: String = 98124
 zip/postal code.
 
+@field isDefault?: Boolean = false
+Default or not in address book.
+
 @field phoneNumber?: String = `555-555-555`
 Contact phone number.
 
@@ -82,6 +88,9 @@ City.
 
 @field zip?: String = 98124
 zip/postal code.
+
+@field isDefault?: Boolean = false
+Default or not in address book.
 
 @field phoneNumber?: String = `555-555-555`
 Contact phone number.

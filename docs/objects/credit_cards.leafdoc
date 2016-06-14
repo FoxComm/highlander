@@ -20,6 +20,12 @@ Expiration month.
 @field expYear: Number = 2020
 Expiration year.
 
+@field isDefault: Boolean = false
+Defines whether credit card is default.
+
+@field inWallet: Boolean = false
+Defines whether credit card is in wallet.
+
 @field brand: String = `Visa`
 Brand name.
 
@@ -49,6 +55,9 @@ Billing address.
 
 @field addressId?: Number
 Billing address ID.
+
+@field isDefault?: Boolean = false
+Defines whether credit card is default.
 
 @miniclass CreditCardUpdatePayload (CreditCards)
 @aka creditcardupdatepayload
