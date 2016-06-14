@@ -5,12 +5,9 @@ import Api from '../../lib/api';
 import { assoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
 import { push } from 'react-router-redux';
-import {
-  configureProduct,
-  createEmptyProduct,
-  setProductAttribute,
-} from '../../paragons/product';
+import { createEmptyProduct, configureProduct } from '../../paragons/product';
 
+import type { Sku } from '../skus/details';
 import type { SkuForm, SkuShadow } from '../../paragons/sku';
 
 import _ from 'lodash';
@@ -21,40 +18,13 @@ export type Error = {
   messages: Array<string>,
 };
 
-export type FullProduct = {
-  id: ?number,
-  form: {
-    product: ProductForm,
-    skus: Array<SkuForm>,
-  },
-  shadow: {
-    product: ProductShadow,
-    skus: Array<SkuShadow>,
-  },
-};
+export type Attribute = { t: string, v: any };
+export type Attributes = { [key:string]: Attribute };
 
-export type ProductForm = {
+export type Product = {
   id: ?number,
-  createdAt: ?string,
   attributes: Attributes,
-};
-
-export type Attribute = {
-  type: string,
-  [key:string]: any;
-};
-
-export type Attributes = { [key:string]: any };
-
-export type ShadowAttributes = {
-  [key:string]: { type: string, ref: string};
-};
-
-export type ProductShadow = {
-  id: ?number,
-  productId: ?number,
-  attributes: ShadowAttributes,
-  createdAt: ?string,
+  skus: Array<Sku>,
 };
 
 export type Variant = {
@@ -73,7 +43,7 @@ export type ProductDetailsState = {
   err: ?Error,
   isFetching: boolean,
   isUpdating: boolean,
-  product: ?FullProduct,
+  product: ?Product,
 };
 
 const defaultContext = 'default';
@@ -86,7 +56,6 @@ const productUpdateStart = createAction('PRODUCTS_UPDATE_START');
 const productUpdateSuccess = createAction('PRODUCTS_UPDATE_SUCCESS');
 const productUpdateFailure = createAction('PRODUCTS_UPDATE_FAILURE');
 
-export const productAddAttribute = createAction('PRODUCTS_ADD_ATTRIBUTE', (label, type) => [label, type]);
 export const productNew = createAction('PRODUCTS_NEW');
 
 const setError = createAction('PRODUCTS_SET_ERROR');
@@ -97,9 +66,9 @@ export function fetchProduct(id: string, context: string = defaultContext): Acti
       dispatch(productNew());
     } else {
       dispatch(productRequestStart());
-      return Api.get(`/products/full/${context}/${id}`)
+      return Api.get(`/products/${context}/${id}`)
         .then(
-          (product: FullProduct) => dispatch(productRequestSuccess(product)),
+          (product: Product) => dispatch(productRequestSuccess(product)),
           (err: Object) => {
             dispatch(productRequestFailure());
             dispatch(setError(err));
@@ -109,14 +78,14 @@ export function fetchProduct(id: string, context: string = defaultContext): Acti
   };
 }
 
-export function createProduct(product: FullProduct, context: string = defaultContext): ActionDispatch {
+export function createProduct(product: Product, context: string = defaultContext): ActionDispatch {
   return dispatch => {
     dispatch(productUpdateStart());
-    return Api.post(`/products/full/${context}`, product)
+    return Api.post(`/products/${context}`, product)
       .then(
-        (product: FullProduct) => {
+        (product: Product) => {
           dispatch(productUpdateSuccess(product));
-          dispatch(push(`/products/${context}/${product.form.product.id}`));
+          dispatch(push(`/products/${context}/${product.id}`));
         },
         (err: Object) => {
           dispatch(productUpdateFailure());
@@ -126,13 +95,12 @@ export function createProduct(product: FullProduct, context: string = defaultCon
   };
 }
 
-export function updateProduct(product: FullProduct, context: string = defaultContext): ActionDispatch {
+export function updateProduct(product: Product, context: string = defaultContext): ActionDispatch {
   return dispatch => {
     dispatch(productUpdateStart());
-    const productId = product.form.product.id;
-    return Api.patch(`/products/full/${context}/${productId}`, product)
+    return Api.patch(`/products/${context}/${product.id}`, product)
       .then(
-        (product: FullProduct) => dispatch(productUpdateSuccess(product)),
+        (product: Product) => dispatch(productUpdateSuccess(product)),
         (err: Object) => {
           dispatch(productUpdateFailure());
           dispatch(setError(err));
@@ -163,7 +131,7 @@ const reducer = createReducer({
       isFetching: true,
     };
   },
-  [productRequestSuccess]: (state: ProductDetailsState, response: FullProduct) => {
+  [productRequestSuccess]: (state: ProductDetailsState, response: Product) => {
     return {
       ...state,
       err: null,
@@ -183,7 +151,7 @@ const reducer = createReducer({
       isUpdating: true,
     };
   },
-  [productUpdateSuccess]: (state: ProductDetailsState, response: FullProduct) => {
+  [productUpdateSuccess]: (state: ProductDetailsState, response: Product) => {
     return {
       ...state,
       err: null,
@@ -196,16 +164,6 @@ const reducer = createReducer({
       ...state,
       isUpdating: false,
     };
-  },
-  [productAddAttribute]: (state: ProductDetailsState, [label, type]) => {
-    if (state.product) {
-      return {
-        ...state,
-        product: setProductAttribute(state.product, label, type, ''),
-      };
-    } else {
-      return state;
-    }
   },
   [setError]: (state: ProductDetailsState, err: Object) => {
     const error: Error = {

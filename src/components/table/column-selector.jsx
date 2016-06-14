@@ -32,7 +32,7 @@ type State = {
   hasDraggingItem: boolean,
 }
 
-@DragDropContext(HTML5Backend)
+/*::`*/ @DragDropContext(HTML5Backend) /*::`;*/
 export default class ColumnSelector extends React.Component {
   props: Props;
 

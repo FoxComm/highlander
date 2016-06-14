@@ -6,7 +6,7 @@ import { numberize } from '../../lib/text-utils';
 
 import styles from './scheduler-modal.css';
 
-import ObjectScheduler from '../object-scheduler/object-scheduler';
+import FullObjectScheduler from '../object-scheduler/full-object-scheduler';
 import modalWrapper from '../modal/wrapper';
 import ContentBox from '../content-box/content-box';
 import SaveCancel from '../common/save-cancel';
@@ -59,7 +59,7 @@ const SchedulerModal = (props: Props) => {
       styleName="modal"
       actionBlock={actionBlock}>
 
-      <ObjectScheduler
+      <FullObjectScheduler
         form={form}
         shadow={shadow}
         title={entityCap}

@@ -18,12 +18,12 @@ import VariantList from './variant-list';
 import WaitAnimation from '../common/wait-animation';
 
 // types
-import type { Attributes, ShadowAttributes } from '../../modules/products/details';
-import type { FullProduct } from '../../modules/products/details';
+import type { Attributes } from '../../modules/products/details';
+import type { Product } from '../../modules/products/details';
 
 type Props = {
-  product: FullProduct,
-  onUpdateProduct: (product: FullProduct) => void,
+  product: Product,
+  onUpdateProduct: (product: Product) => void,
   onSetSkuProperty: (code: string, field: string, type: string, value: any) => void,
 };
 
@@ -64,10 +64,10 @@ export default class ProductForm extends Component {
       ...defaultKeys.seo,
       ..._.flatten(_.valuesIn(omitKeys)),
     ];
-    const shadow = _.get(this.props, 'product.shadow.product.attributes', {});
+    const attributes = _.get(this.props, 'product.attributes', {});
     return [
       ...defaultKeys.general,
-      ...(_(shadow).omit(toOmit).keys().value())
+      ...(_(attributes).omit(toOmit).keys().value())
     ];
   }
 
@@ -86,12 +86,8 @@ export default class ProductForm extends Component {
   }
 
   @autobind
-  handleProductChange(form: Attributes, shadow: ShadowAttributes) {
-    const newProduct = assoc(this.props.product,
-      ['form', 'product', 'attributes'], form,
-      ['shadow', 'product', 'attributes'], shadow
-    );
-
+  handleProductChange(attributes: Attributes) {
+    const newProduct = assoc(this.props.product, ['attributes'], attributes);
     this.props.onUpdateProduct(newProduct);
   }
 
@@ -101,19 +97,18 @@ export default class ProductForm extends Component {
   }
 
   get productState(): Element {
-    const formAttributes = _.get(this.props, 'product.form.product.attributes', []);
-    const shadowAttributes = _.get(this.props, 'product.shadow.product.attributes', []);
+    const { attributes } = this.props.product;
 
     return (
       <ObjectScheduler
-        form={formAttributes}
-        shadow={shadowAttributes}
+        attributes={attributes}
         onChange={this.handleProductChange}
         title="Product" />
     );
   }
 
   render(): Element {
+    const attributes = _.get(this.props, 'product.attributes', {});
     const formAttributes = _.get(this.props, 'product.form.product.attributes', []);
     const shadowAttributes = _.get(this.props, 'product.shadow.product.attributes', []);
 
@@ -124,22 +119,18 @@ export default class ProductForm extends Component {
             canAddProperty={true}
             onChange={this.handleProductChange}
             fieldsToRender={this.generalAttrs}
-            form={formAttributes}
-            shadow={shadowAttributes}
+            attributes={attributes}
             title="General" />
-          {this.variantContentBox}
           {this.skusContentBox}
           <ObjectForm
             onChange={this.handleProductChange}
             fieldsToRender={defaultKeys.seo}
-            form={formAttributes}
-            shadow={shadowAttributes}
+            attributes={attributes}
             title="SEO" />
         </div>
         <div className="fc-col-md-2-5">
           <Tags
-            form={formAttributes}
-            shadow={shadowAttributes}
+            attributes={attributes}
             onChange={this.handleProductChange} />
           {this.productState}
         </div>

@@ -9,7 +9,7 @@ import { assoc } from 'sprout-data';
 import { searchCouponPromotions } from '../../elastic/promotions';
 
 // components
-import ObjectFormInner from '../object-form/object-form-inner';
+import FullObjectForm from '../object-form/full-object-form';
 import ContentBox from '../content-box/content-box';
 import DropdownSearch from '../dropdown/dropdown-search';
 import DropdownItem from '../dropdown/dropdownItem';
@@ -17,8 +17,8 @@ import RadioButton from '../forms/radio-button';
 import CouponCodes from './form/coupon-codes';
 import UsageRules from './form/usage-rules';
 import { FormField, Form } from '../forms';
-import Tags from '../tags/tags';
-import ObjectScheduler from '../object-scheduler/object-scheduler';
+import FullObjectTags from '../tags/full-object-tags';
+import FullObjectScheduler from '../object-scheduler/full-object-scheduler';
 import Watchers from '../watchers/watchers';
 
 // paragon
@@ -146,7 +146,7 @@ export default class CouponForm extends Component {
       <Form styleName="coupon-form">
         <div styleName="main">
           <ContentBox title="General">
-            <ObjectFormInner
+            <FullObjectForm
               onChange={this.handleChange}
               fieldsToRender={this.generalAttrs}
               form={formAttributes}
@@ -163,12 +163,12 @@ export default class CouponForm extends Component {
           <UsageRules {...(this.usageRules)} onChange={this.handleUsageRulesChange}/>
         </div>
         <div styleName="aside">
-          <Tags
+          <FullObjectTags
             form={formAttributes}
             shadow={shadowAttributes}
             onChange={this.handleChange}
           />
-          <ObjectScheduler
+          <FullObjectScheduler
             form={formAttributes}
             shadow={shadowAttributes}
             onChange={this.handleChange}

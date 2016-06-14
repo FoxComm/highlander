@@ -4,6 +4,11 @@
 import _ from 'lodash';
 import { assoc } from 'sprout-data';
 
+type Attributes = { [key:string]: {
+  t: string,
+  v: any,
+}};
+
 export function copyShadowAttributes(form: FormAttributes, shadow: ShadowAttributes) {
   _.forEach(shadow, (s, label) => {
     // update form
@@ -30,6 +35,25 @@ export function addAttribute(label: string,
     { ...form, ...newFormAttr },
     { ...shadow, ...newShadowAttr },
   ];
+}
+
+export function addIlluminatedAttribute(label: string,
+                                         type: string,
+                                         value: any,
+                                         attributes: Attributes): Attributes {
+  if (attributes[label]) {
+    return attributes;
+  }
+
+  const attrValue = type == 'price'
+    ? { currency: 'USD', values: value }
+    : value;
+   const attribute = { t: type, v: attrValue };
+
+   return {
+     ...attributes,
+     [label]: attribute,
+   };
 }
 
 export function setAttribute(label: string,

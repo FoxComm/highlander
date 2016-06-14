@@ -4,13 +4,13 @@ import { assoc } from 'sprout-data';
 import moment from 'moment';
 
 describe('ObjectScheduler', function() {
-  const ObjectScheduler = requireComponent('object-scheduler/object-scheduler.jsx');
+  const FullObjectScheduler = requireComponent('object-scheduler/full-object-scheduler.jsx');
 
   const activeObject = require('./activeObject.json');
 
   it('should expand activeFrom field if passed object is active', function *() {
     const { container } = yield renderIntoDocument(
-      <ObjectScheduler {...activeObject} />
+      <FullObjectScheduler {...activeObject} />
     );
 
     expect(container.querySelector('.fc-product-state__picker-label')).not.to.be.null;
@@ -23,7 +23,7 @@ describe('ObjectScheduler', function() {
       ['form', 'activeFrom'], moment().add(6, 'days').toISOString()
     );
     const { container } = yield renderIntoDocument(
-      <ObjectScheduler {...willBeActive} />
+      <FullObjectScheduler {...willBeActive} />
     );
 
     expect(container.querySelector('.fc-product-state__picker-label')).not.to.be.null;

@@ -52,7 +52,7 @@ export default class SelectableList extends Component {
     cachedItemIds: this.props.selectedItemIds,
   };
 
-  indexItemIds(ids: Array<number>) {
+  indexItemIds(ids: Array<number>): { [id: string|number]: boolean } {
     return _.reduce(ids, (result, id) => {
       result[id] = true;
       return result;

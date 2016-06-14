@@ -22,33 +22,31 @@ import WaitAnimation from '../common/wait-animation';
 // helpers
 import { transitionTo } from 'browserHistory';
 import {
-  getProductAttributes,
-  setProductAttribute,
   setSkuAttribute,
 } from '../../paragons/product';
 
 // types
-import type { FullProduct } from '../../modules/products/details';
+import type { Product } from '../../modules/products/details';
 
 type Props = {
   actions: {
-    createProduct: (product: FullProduct) => void,
+    createProduct: (product: Product) => void,
     fetchProduct: (productId: string, context: string) => void,
     productNew: () => void,
-    updateProduct: (product: FullProduct, context: string) => void,
+    updateProduct: (product: Product, context: string) => void,
   },
   children: any,
   params: { productId: string, context: string },
   products: {
     isFetching: boolean,
     isUpdating: boolean,
-    product: ?FullProduct,
+    product: ?Product,
     err: ?Object,
   }
 };
 
 type State = {
-  product: ?FullProduct,
+  product: ?Product,
   context: string,
 };
 
@@ -93,8 +91,7 @@ export class ProductPage extends Component {
     }
 
     const { product } = this.props.products;
-    const attributes = product ? getProductAttributes(product) : {};
-    return _.get(attributes, 'title.value', '');
+    return _.get(product, 'attributes.title.v', '');
   }
 
   get titleActions(): Element {
@@ -129,27 +126,17 @@ export class ProductPage extends Component {
   }
 
   @autobind
-  handleSetAttribute(field: string, type: string, value: string) {
-    const { product } = this.state;
-    if (product) {
-      this.setState({
-        product: setProductAttribute(product, field, type, value),
-      });
-    }
-  }
-
-  @autobind
   handleSetSkuProperty(code: string, field: string, type: string, value: string) {
     const { product } = this.state;
     if (product) {
       this.setState({
-        product: setSkuAttribute(product, code, field, value),
+        product: setSkuAttribute(product, code, field, type, value),
       });
     }
   }
 
   @autobind
-  handleUpdateProduct(product: FullProduct) {
+  handleUpdateProduct(product: Product) {
     this.setState({ product });
   }
 

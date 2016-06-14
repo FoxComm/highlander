@@ -5,20 +5,19 @@
 // libs
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
-import { getIlluminatedSkus } from '../../paragons/product';
 import _ from 'lodash';
 
 // components
 import EditableSkuRow from './editable-sku-row';
 import MultiSelectTable from '../table/multi-select-table';
 
-import type { FullProduct } from '../../modules/products/details';
-import type { IlluminatedSku } from '../../paragons/product';
+import type { Product } from '../../modules/products/details';
+import type { Sku } from '../../modules/skus/details';
 
 type UpdateFn = (code: string, field: string, value: any) => void;
 
 type Props = {
-  fullProduct: ?FullProduct,
+  fullProduct: ?Product,
   updateField: UpdateFn,
 };
 
@@ -31,10 +30,12 @@ const tableColumns = [
 export default class SkuList extends Component<void, Props, void> {
   props: Props;
 
-  get illuminatedSkus(): Array<IlluminatedSku> {
-    return this.props.fullProduct
-      ? getIlluminatedSkus(this.props.fullProduct)
-      : [];
+  get skus(): Array<Sku> {
+    if (this.props.fullProduct) {
+      return this.props.fullProduct.skus;
+    }
+
+    return [];
   }
 
   get emptyContent(): Element {
@@ -45,10 +46,9 @@ export default class SkuList extends Component<void, Props, void> {
     );
   }
 
-  skuContent(skus: Array<IlluminatedSku>): Element {
+  skuContent(skus: Array<Sku>): Element {
     const renderRow = (row, index, columns, params) => {
-      const code = row.code || `new-${index}`;
-      const key = `sku-${code}`;
+      const key = row.feCode || row.code;
 
       return (
         <EditableSkuRow
@@ -74,8 +74,8 @@ export default class SkuList extends Component<void, Props, void> {
   }
 
   render(): Element {
-    return _.isEmpty(this.illuminatedSkus)
+    return _.isEmpty(this.skus)
       ? this.emptyContent
-      : this.skuContent(this.illuminatedSkus);
+      : this.skuContent(this.skus);
   }
 }

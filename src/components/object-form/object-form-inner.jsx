@@ -2,12 +2,10 @@
  * @flow
  */
 
-import React, { Component, Element, PropTypes } from 'react';
+import React, { Component, Element } from 'react';
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
-
-import { illuminateAttributes, setAttribute } from '../../paragons/form-shadow-object';
 
 import { FormField } from '../forms';
 import { SliderCheckbox } from '../checkbox/checkbox';
@@ -17,13 +15,15 @@ import DatePicker from '../datepicker/datepicker';
 import RichTextEditor from '../rich-text-editor/rich-text-editor';
 import { Dropdown } from '../dropdown';
 
+type Attribute = { t: string, v: any };
+type Attributes = { [key:string]: Attribute };
+
 type Props = {
   canAddProperty?: boolean,
   fieldsToRender?: Array<string>,
   fieldsOptions?: Object,
-  form: FormAttributes,
-  shadow: ShadowAttributes,
-  onChange: (form: FormAttributes, shadow: ShadowAttributes) => void,
+  attributes: Attributes,
+  onChange: (attributes: Attributes) => void,
   options: Object,
 };
 
@@ -57,6 +57,7 @@ function renderFormField(label: string, input: Element, args?: any): Element {
     </FormField>
   );
 }
+
 
 export default class ObjectFormInner extends Component {
   props: Props;
@@ -117,11 +118,18 @@ export default class ObjectFormInner extends Component {
       isAddingProperty: false
     }, () => this.handleChange(fieldLabel, propertyType, val));
   }
-
+  
   @autobind
   handleChange(label: string, type: string, value: string) {
-    const { form, shadow, options } = this.props;
-    const [newForm, newShadow] = setAttribute(label, type, value, form, shadow);
+    const { attributes, options } = this.props;
+    const newAttribute = type == 'price'
+      ? { t: 'price', v: { currency: 'USD', value: value } }
+      : { t: type, v: value };
+    const newAttributes = {
+      ...attributes,
+      [label]: newAttribute
+    };
+
     if (['options', 'richText'].indexOf(type) >= 0) {
       const validator = _.get(options, [label, 'validator'], _.noop);
       const error = validator(value);
@@ -129,7 +137,8 @@ export default class ObjectFormInner extends Component {
       errors[label] = error;
       this.setState({ errors });
     }
-    this.props.onChange(newForm, newShadow);
+
+    this.props.onChange(newAttributes);
   }
 
   @autobind
@@ -196,11 +205,11 @@ export default class ObjectFormInner extends Component {
       </div>
     );
   }
-
+  
   @autobind
   renderString(label: string, value: string = '', args?: any): Element {
     const onChange = ({target}) => {
-      return this.handleChange(label, 'richText', target.value);
+      return this.handleChange(label, 'string', target.value);
     };
     const stringInput = (
       <input
@@ -259,17 +268,18 @@ export default class ObjectFormInner extends Component {
   }
 
   render(): Element {
-    const { form, shadow, options } = this.props;
-    const attributes = illuminateAttributes(form, shadow);
-    const fieldsToRender = _.isEmpty(this.props.fieldsToRender) ? Object.keys(attributes) : this.props.fieldsToRender;
+    const { attributes, options } = this.props;
+    const fieldsToRender = _.isEmpty(this.props.fieldsToRender)
+      ? Object.keys(attributes)
+      : this.props.fieldsToRender;
 
     const renderedAttributes: Array<Element> = _.map(fieldsToRender, name => {
       const attribute = attributes[name];
       const optionalArgs = options[name];
       if (attribute) {
-        const { label, type, value } = attribute;
-        const renderFn = _.get(this.renderFunctions, type, this.renderString);
-        return React.cloneElement(renderFn(label, value, optionalArgs), {key: name});
+        const { t, v } = attribute;
+        const renderFn = _.get(this.renderFunctions, t, this.renderString);
+        return React.cloneElement(renderFn(name, v, optionalArgs), { key: name });
       } else {
         console.warn(`You tried to render ${name} attribute, but there is no such attribute in a model`);
       }

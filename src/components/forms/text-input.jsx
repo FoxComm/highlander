@@ -31,6 +31,13 @@ export default class TextInput extends Component {
     value: ''
   };
 
+  componentWillUpdate(nextProps: Props) {
+    if (this.state.value != nextProps.value) {
+      this.setState({ value: nextProps.value });
+    }
+  }
+
+  @autobind
   handleChange(value: string) {
     if (this.props.onChange) {
       this.props.onChange(value);
@@ -44,7 +51,7 @@ export default class TextInput extends Component {
   };
 
   render(): Element {
-    const { className, placeholder, ...rest } = this.props;
+    const { className, placeholder, onChange, ...rest } = this.props;
     const inputClass = classNames('fc-text-input', className);
 
     return (

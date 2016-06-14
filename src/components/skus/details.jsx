@@ -17,12 +17,15 @@ import ObjectScheduler from '../object-scheduler/object-scheduler';
 import WaitAnimation from '../common/wait-animation';
 
 // types
-import type { FullSku } from '../../paragons/sku';
+import type { Sku } from '../../modules/skus/details';
+
+type Attribute = { t: string, v: any };
+type Attributes = { [key:string]: Attribute };
 
 type Props = {
   code: string,
-  onChange: (sku: FullSku) => void,
-  sku: ?FullSku,
+  onChange: (sku: Sku) => void,
+  sku: ?Sku,
 };
 
 const defaultKeys = {
@@ -41,18 +44,17 @@ export default class SkuDetails extends Component {
       ..._.reduce(defaultKeys, (res, arr) => ([...res, ...arr]), []),
       ...keysToOmit,
     ];
-    const shadow = _.get(this.props, 'sku.shadow.attributes', {});
+    const attributes = _.get(this.props, 'sku.attributes', {});
     return [
       ...defaultKeys.base,
       ...defaultKeys.general,
-      ...(_(shadow).omit(toOmitArray).keys().value())
+      ...(_(attributes).omit(toOmitArray).keys().value())
     ];
   }
 
   get generalContent(): Element {
     const sku = _.get(this.props, 'sku');
-    const formAttributes = _.get(this.props, 'sku.form.attributes', []);
-    const shadowAttributes = _.get(this.props, 'sku.shadow.attributes', []);
+    const attributes = _.get(this.props, 'sku.attributes', {});
 
     return (
       <ContentBox title="General">
@@ -65,40 +67,46 @@ export default class SkuDetails extends Component {
             className="fc-object-form__field-value"
             type="text"
             name="sku"
-            value={sku.form.code}
-            onChange={_.noop} />
+            value={sku.code}
+            onChange={this.handleCodeChange} />
         </FormField>
         <ObjectFormInner
           canAddProperty={true}
           onChange={this.handleChange}
           fieldsToRender={this.generalAttrs}
-          form={formAttributes}
-          shadow={shadowAttributes} />
+          attributes={attributes} />
       </ContentBox>
     );
   }
 
   get skuState(): Element {
-    const formAttributes = _.get(this.props, 'sku.form.attributes', []);
-    const shadowAttributes = _.get(this.props, 'sku.shadow.attributes', []);
+    const attributes = _.get(this.props, 'sku.attributes', {});
 
     return (
       <ObjectScheduler
-        form={formAttributes}
-        shadow={shadowAttributes}
+        attributes={attributes}
         onChange={this.handleChange}
         title="SKU" />
     );
   }
 
   @autobind
-  handleChange(form: FormAttributes, shadow: ShadowAttributes) {
+  handleChange(attributes: Attributes) {
     const { sku } = this.props;
     if (sku) {
-      const updatedSku = assoc(sku,
-        ['form', 'attributes'], form,
-        ['shadow', 'attributes'], shadow);
+      const updatedSku = assoc(sku, 'attributes', attributes);
       this.props.onChange(updatedSku);
+    }
+  }
+
+  @autobind
+  handleCodeChange({target}: SyntheticInputEvent) {
+    if (target instanceof HTMLInputElement) {
+      const { sku } = this.props;
+      if (sku) {
+        const updatedSku = { ...sku, code: target.value };
+        this.props.onChange(updatedSku);
+      }
     }
   }
 
@@ -108,8 +116,7 @@ export default class SkuDetails extends Component {
       return <WaitAnimation />;
     }
 
-    const formAttributes = _.get(sku, 'form.attributes', []);
-    const shadowAttributes = _.get(sku, 'shadow.attributes', []);
+    const attributes = _.get(sku, 'attributes', {});
 
     return (
       <div className="fc-product-details fc-grid fc-grid-no-gutter">
@@ -119,8 +126,7 @@ export default class SkuDetails extends Component {
             canAddProperty={false}
             onChange={this.handleChange}
             fieldsToRender={defaultKeys.pricing}
-            form={formAttributes}
-            shadow={shadowAttributes}
+            attributes={attributes}
             title="Pricing" />
         </div>
         <div className="fc-col-md-2-5">

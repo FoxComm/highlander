@@ -9,12 +9,12 @@ import { assoc } from 'sprout-data';
 import styles from './promotion-form.css';
 
 import ContentBox from '../content-box/content-box';
-import ObjectFormInner from '../object-form/object-form-inner';
+import FullObjectForm from '../object-form/full-object-form';
 import { Dropdown, DropdownItem } from '../dropdown';
-import ObjectScheduler from '../object-scheduler/object-scheduler';
+import FullObjectScheduler from '../object-scheduler/full-object-scheduler';
 import { FormField, Form } from '../forms';
 import SelectCustomerGroups from '../customers-groups/select-groups';
-import Tags from '../tags/tags';
+import FullObjectTags from '../tags/full-object-tags';
 import DiscountAttrs from './discount-attrs';
 import offers from './offers';
 import qualifiers from './qualifiers';
@@ -94,7 +94,7 @@ export default class PromotionForm extends Component {
     }
 
     return (
-      <ObjectScheduler
+      <FullObjectScheduler
         form={formAttributes}
         shadow={shadowAttributes}
         onChange={this.handleChange}
@@ -146,7 +146,7 @@ export default class PromotionForm extends Component {
                 </Dropdown>
               </div>
             </FormField>
-            <ObjectFormInner
+            <FullObjectForm
               onChange={this.handleChange}
               fieldsToRender={this.generalAttrs}
               form={formAttributes}
@@ -183,7 +183,7 @@ export default class PromotionForm extends Component {
           </ContentBox>
         </div>
         <div styleName="aside">
-          <Tags
+          <FullObjectTags
             form={formAttributes}
             shadow={shadowAttributes}
             onChange={this.handleChange}
