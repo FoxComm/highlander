@@ -60,20 +60,20 @@ export default class EditableSkuRow extends Component<void, Props, State> {
   }
 
   get code(): string {
-    return this.props.sku.code || this.props.sku.feCode;
+    if (this.props.sku.code) {
+      return this.props.sku.code;
+    }
+
+    return this.props.sku.feCode || 'new';
   }
 
   skuCell(sku: Sku): Element {
-    if (this.props.sku.code && this.props.sku.createdAt) {
-      return <div>{this.props.sku.code}</div>;
-    } else {
-      const value = this.state.sku.code || this.props.sku.code;
-      return (
-        <FormField>
-          <input type="text" value={value} onChange={this.handleUpdateCode} required />
-        </FormField>
-      );
-    }
+    const value = this.state.sku.code || this.props.sku.code;
+    return (
+      <FormField>
+        <input type="text" value={value} onChange={this.handleUpdateCode} required />
+      </FormField>
+    );
   }
 
   @autobind

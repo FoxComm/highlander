@@ -17,6 +17,7 @@ type Attributes = { [key:string]: Attribute };
 
 export type Sku = {
   code?: string,
+  feCode?: string,
   attributes: Attributes,
 };
 
