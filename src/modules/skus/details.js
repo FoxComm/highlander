@@ -56,16 +56,19 @@ export function fetchSku(code: string, context: string = defaultContext): Action
 }
 
 export function updateSku(sku: FullSku, context: string = defaultContext): ActionDispatch {
-  return dispatch => {
-    dispatch(skuUpdateStart());
-    return Api.patch(`/skus/${context}/${sku.code}`, sku)
-      .then(
-        (res: Sku) => dispatch(skuUpdateSuccess(res)),
-        (err: HttpError) => {
-          dispatch(skuUpdateFailure());
-          dispatch(setError(err));
-        }
-      );
+  return (dispatch, getState) => {
+    const oldSku = _.get(getState(), ['skus', 'details', 'sku']);
+    if (oldSku) {
+      dispatch(skuUpdateStart());
+      return Api.patch(`/skus/${context}/${oldSku.code}`, sku)
+        .then(
+          (res: Sku) => dispatch(skuUpdateSuccess(res)),
+          (err: HttpError) => {
+            dispatch(skuUpdateFailure());
+            dispatch(setError(err));
+          }
+        );
+    }
   };
 }
 

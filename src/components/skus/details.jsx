@@ -68,7 +68,7 @@ export default class SkuDetails extends Component {
             type="text"
             name="sku"
             value={sku.code}
-            onChange={_.noop} />
+            onChange={this.handleCodeChange} />
         </FormField>
         <ObjectFormInner
           canAddProperty={true}
@@ -96,6 +96,17 @@ export default class SkuDetails extends Component {
     if (sku) {
       const updatedSku = assoc(sku, 'attributes', attributes);
       this.props.onChange(updatedSku);
+    }
+  }
+
+  @autobind
+  handleCodeChange({target}: SyntheticInputEvent) {
+    if (target instanceof HTMLInputElement) {
+      const { sku } = this.props;
+      if (sku) {
+        const updatedSku = { ...sku, code: target.value };
+        this.props.onChange(updatedSku);
+      }
     }
   }
 
