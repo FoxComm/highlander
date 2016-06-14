@@ -200,8 +200,8 @@ export default class Accordion extends Component {
       <div className={styles.controls}>
         <div className={styles.left}>
           <span className={styles.controlItem} onClick={this.toggle}>
-            <i className="icon-up" />
             <i className="icon-down" />
+            <i className="icon-up" />
           </span>
         </div>
         <div className={styles.right}>

@@ -1,7 +1,7 @@
 .accordion {
 
-  & :global(.icon-up),
-  & :global(.icon-down) {
+  & :global(.icon-down),
+  & :global(.icon-up) {
     transform: translateY(0);
     transition: transform .5s;
   }
@@ -12,11 +12,11 @@
       opacity: 1;
     }
 
-    & :global(.icon-up) {
+    & :global(.icon-down) {
       transform: translateY(100%);
     }
 
-    & :global(.icon-down) {
+    & :global(.icon-up) {
       transform: translateY(-100%);
     }
   }
