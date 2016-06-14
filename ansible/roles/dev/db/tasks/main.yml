@@ -57,6 +57,33 @@
   copy: src="{{phoenix_jar_src}}" dest="{{phoenix_jar}}" owner="{{user}}"
   sudo: true
 
+- name: Setup restore db cmd
+  copy: src={{item}} dest={{usr_local}}/bin/restore_db.sh mode="0777"
+  with_items:
+    - restore_db.sh
+    - backup_db.sh
+  sudo: true
+
+- name: Download gcsfuse
+  shell: curl -L -O https://github.com/GoogleCloudPlatform/gcsfuse/releases/download/v0.18.2/gcsfuse_0.18.2_amd64.deb
+  args:
+    chdir: /tmp
+    creates: gcsfuse_0.18.2_amd64.deb
+
+- name: Install gcsfuse
+  shell: dpkg -i gcsfuse_0.18.2_amd64.deb
+  args:
+    chdir: /tmp
+  sudo: true
+
+- name: Create backup dir
+  file: path=/mnt/backups owner={{user}} state=directory
+  sudo: true
+
+- name: Mount backup dir
+  shell: gcsfuse {{backup-bucket}} /mtt/backups
+  sudo: true
+
 - name: Setup Update Materialzied Views Sql
   copy: src=update_materialized_views.sql dest={{update_materialized_views_sql}}
   sudo: true
