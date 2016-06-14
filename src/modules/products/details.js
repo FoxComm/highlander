@@ -5,10 +5,9 @@ import Api from '../../lib/api';
 import { assoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
 import { push } from 'react-router-redux';
-import {
-  createEmptyProduct,
-} from '../../paragons/product';
+import { createEmptyProduct, configureProduct } from '../../paragons/product';
 
+import type { Sku } from '../skus/details';
 import type { SkuForm, SkuShadow } from '../../paragons/sku';
 
 import _ from 'lodash';
@@ -22,7 +21,7 @@ export type Error = {
 export type Product = {
   id: ?number,
   attributes: { [key:string]: { t: string, v: any } },
-  skus: Array<Object>,
+  skus: Array<Sku>,
 };
 
 export type Attribute = {
@@ -152,7 +151,7 @@ const reducer = createReducer({
       ...state,
       err: null,
       isFetching: false,
-      product: response,
+      product: configureProduct(response),
     };
   },
   [productRequestFailure]: (state: ProductDetailsState) => {
@@ -172,7 +171,7 @@ const reducer = createReducer({
       ...state,
       err: null,
       isUpdating: false,
-      product: response,
+      product: configureProduct(response),
     };
   },
   [productUpdateFailure]: (state: ProductDetailsState) => {

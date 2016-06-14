@@ -11,7 +11,7 @@ import { FormField } from '../forms';
 import CurrencyInput from '../forms/currency-input';
 import MultiSelectRow from '../table/multi-select-row';
 
-import type { IlluminatedSku } from '../../paragons/product';
+import type { Sku } from '../../modules/skus/details';
 
 type Column = {
   field: string,
@@ -20,7 +20,7 @@ type Column = {
 
 type Props = {
   columns: Array<Column>,
-  sku: IlluminatedSku,
+  sku: Sku,
   params: Object,
   updateField: (code: string, field: string, value: string) => void,
 };
@@ -39,8 +39,8 @@ export default class EditableSkuRow extends Component<void, Props, State> {
   }
 
   @autobind
-  priceCell(sku: IlluminatedSku, field: string): Element {
-    const value = _.get(this.state.sku, field) || _.get(sku, ['attributes', field, 'value', 'value']);
+  priceCell(sku: Sku, field: string): Element {
+    const value = _.get(this.state.sku, field) || _.get(sku, ['attributes', field, 'v', 'value']);
     const onChange = (value) => this.handleUpdatePrice(field, value);
     return (
       <div className="fc-editable-sku-row__price">
@@ -50,8 +50,8 @@ export default class EditableSkuRow extends Component<void, Props, State> {
   }
 
   @autobind
-  upcCell(sku: IlluminatedSku): Element {
-    const value = this.state.sku.upc || _.get(sku, 'attributes.upc.value');
+  upcCell(sku: Sku): Element {
+    const value = this.state.sku.upc || _.get(sku, 'attributes.upc.v');
     return (
       <FormField>
         <input type="text" value={value} onChange={this.handleUpdateUpc} />
@@ -63,11 +63,11 @@ export default class EditableSkuRow extends Component<void, Props, State> {
     return this.props.sku.code || 'new';
   }
 
-  skuCell(sku: IlluminatedSku): Element {
+  skuCell(sku: Sku): Element {
     if (this.props.sku.code && this.props.sku.createdAt) {
       return <div>{this.props.sku.code}</div>;
     } else {
-      const value = this.state.sku.code;
+      const value = this.state.sku.code || this.props.sku.code;
       return (
         <FormField>
           <input type="text" value={value} onChange={this.handleUpdateCode} required />
@@ -77,7 +77,7 @@ export default class EditableSkuRow extends Component<void, Props, State> {
   }
 
   @autobind
-  setCellContents(sku: IlluminatedSku, field: string): any {
+  setCellContents(sku: Sku, field: string): any {
     switch(field) {
       case 'sku':
         return this.skuCell(sku);

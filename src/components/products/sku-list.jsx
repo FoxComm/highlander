@@ -12,6 +12,7 @@ import EditableSkuRow from './editable-sku-row';
 import MultiSelectTable from '../table/multi-select-table';
 
 import type { Product } from '../../modules/products/details';
+import type { Sku } from '../../modules/skus/details';
 import type { IlluminatedSku } from '../../paragons/product';
 
 type UpdateFn = (code: string, field: string, value: any) => void;
@@ -30,10 +31,11 @@ const tableColumns = [
 export default class SkuList extends Component<void, Props, void> {
   props: Props;
 
-  get illuminatedSkus(): Array<IlluminatedSku> {
-    //return this.props.fullProduct
-      //? getIlluminatedSkus(this.props.fullProduct)
-      //: [];
+  get skus(): Array<Sku> {
+    if (this.props.fullProduct) {
+      return this.props.fullProduct.skus;
+    }
+
     return [];
   }
 
@@ -45,7 +47,7 @@ export default class SkuList extends Component<void, Props, void> {
     );
   }
 
-  skuContent(skus: Array<IlluminatedSku>): Element {
+  skuContent(skus: Array<Sku>): Element {
     const renderRow = (row, index, columns, params) => {
       const code = row.code || `new-${index}`;
       const key = `sku-${code}`;
@@ -74,10 +76,8 @@ export default class SkuList extends Component<void, Props, void> {
   }
 
   render(): Element {
-    // TODO: Fix me up!
-    //return _.isEmpty(this.illuminatedSkus)
-      //? this.emptyContent
-      //: this.skuContent(this.illuminatedSkus);
-    return this.emptyContent;
+    return _.isEmpty(this.skus)
+      ? this.emptyContent
+      : this.skuContent(this.skus);
   }
 }
