@@ -130,7 +130,7 @@ export class ProductPage extends Component {
     const { product } = this.state;
     if (product) {
       this.setState({
-        product: setSkuAttribute(product, code, field, value),
+        product: setSkuAttribute(product, code, field, type, value),
       });
     }
   }

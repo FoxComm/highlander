@@ -121,7 +121,6 @@ export default class ProductForm extends Component {
             fieldsToRender={this.generalAttrs}
             attributes={attributes}
             title="General" />
-          {this.variantContentBox}
           {this.skusContentBox}
           <ObjectForm
             onChange={this.handleProductChange}

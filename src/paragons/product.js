@@ -48,36 +48,6 @@ export function getAttribute(formAttrs: Attributes, shadowAttrs: ShadowAttribute
   return res;
 }
 
-//export function getAttributes(formAttrs: Attributes, shadowAttrs: ShadowAttributes): IlluminatedAttributes {
-  //const illuminated: IlluminatedAttributes = _.reduce(shadowAttrs, (res, shadow, label) => {
-    //const attribute = formAttrs[shadow.ref];
-
-    //res[label] = {
-      //label: label,
-      //type: shadow.type,
-      //value: attribute,
-    //};
-
-    //return res;
-  //}, {});
-
-  //return illuminated;
-//}
-
-//export function getIlluminatedSkus(product: FullProduct): Array<IlluminatedSku> {
-  //return _.map(product.form.skus, (form: SkuForm) => {
-    //if (form.code) {
-      //const shadow = getSkuShadow(form.code, product);
-
-      //return {
-        //code: form.code,
-        //attributes: getAttributes(form.attributes, shadow.attributes),
-        //createdAt: form.createdAt,
-      //};
-    //}
-  //});
-//}
-
 export function createEmptyProduct(): Product {
   const product = {
     id: null,
@@ -154,50 +124,29 @@ export function configureProduct(product: Product): Product {
 export function setSkuAttribute(product: Product,
                                 code: string,
                                 label: string,
+                                type: string,
                                 value: string): Product {
-  // TODO: Re-enable this after refactoring
-  //const updateCode = sku => {
-    //if (sku.code == code) {
-      //return { ...sku, code: value };
-    //}
+  const updateCode = sku => {
+    if (sku.code == code) {
+      return { ...sku, code: value };
+    }
 
-    //return sku;
-  //};
+    return sku;
+  };
 
-  //if (label == 'code') {
-    //const newForms = product.form.skus.map(sku => updateCode(sku));
-    //const newShadows = product.shadow.skus.map(sku => updateCode(sku));
+  const attrPath = type == 'price'
+    ? ['attributes', label, 'v', 'value']
+    : ['attributes', label, 'v'];
 
-    //return assoc(product,
-      //['form', 'skus'], newForms,
-      //['shadow', 'skus'], newShadows,
-    //);
-  //}
+  const updateAttribute = sku => {
+    if (sku.code == code) {
+      return assoc(sku, attrPath, value);
+    }
 
-  //const shadow = getSkuShadow(code, product);
-  //const formIndex = getSkuFormIndex(code, product);
-  //const form = product.form.skus[formIndex];
-  //const shadowPath = ['attributes', label];
+    return sku;
+  };
 
-  //const shadowAttr = _.get(shadow, shadowPath);
-  //if (!shadowAttr) {
-    //throw new Error(`Attribute ${label} for SKU ${code} not found.`);
-  //}
-
-  //const path = ['attributes', shadowAttr.ref];
-
-
-  //let updatedSku = null;
-
-  //switch (shadowAttr.type) {
-    //case 'price':
-      //updatedSku = assoc(form, [...path, 'value'], value);
-      //break;
-    //default:
-      //updatedSku = assoc(form, [...path], value);
-      //break;
-  //}
-
-  //product.form.skus[formIndex] = updatedSku;
-  return product;
+  const updateFn = label == code ? updateCode : updateAttribute;
+  const newSkus = product.skus.map(sku => updateFn(sku));
+  return assoc(product, 'skus', newSkus);
 }
