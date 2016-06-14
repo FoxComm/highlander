@@ -64,6 +64,23 @@ class SkuIntegrationTest extends IntegrationTestBase with HttpSupport with Autom
       val salePrice = skuResponse.attributes \ "salePrice" \ "v" \ "value"
       salePrice.extract[Int] must ===(9999)
     }
+
+    "Updates the SKU's code" in new Fixture {
+      val updatePayload =
+        SkuPayload(attributes = Map("code" → (("t" → "string") ~ ("v" → "UPCODE"))))
+
+      val response = PATCH(s"v1/skus/${context.name}/${sku.code}", updatePayload)
+      response.status must ===(StatusCodes.OK)
+
+      val response2 = GET(s"v1/skus/${context.name}/upcode")
+      response2.status must ===(StatusCodes.OK)
+
+      val skuResponse = response2.as[IlluminatedSkuResponse.Root]
+      skuResponse.code must ===("UPCODE")
+
+      val salePrice = skuResponse.attributes \ "salePrice" \ "v" \ "value"
+      salePrice.extract[Int] must ===(9999)
+    }
   }
 
   "GET v1/skus/full/:context/:code" - {

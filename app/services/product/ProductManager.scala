@@ -211,7 +211,7 @@ object ProductManager {
       code ← * <~ SkuManager.mustGetSkuCode(payload)
       sku ← * <~ Skus.filterByContextAndCode(oc.id, code).one.flatMap {
              case Some(sku) ⇒
-               SkuManager.updateSkuInner(sku, payload.attributes).value
+               SkuManager.updateSkuInner(sku, payload).value
              case None ⇒
                (for {
                  newSku ← * <~ SkuManager.createSkuInner(oc, payload)

@@ -52,7 +52,7 @@ object SkuManager {
     (for {
       context    ← * <~ ObjectManager.mustFindByName404(contextName)
       sku        ← * <~ SkuManager.mustFindSkuByContextAndCode(context.id, code)
-      updatedSku ← * <~ updateSkuInner(sku, payload.attributes)
+      updatedSku ← * <~ updateSkuInner(sku, payload)
     } yield IlluminatedSkuResponse.build(IlluminatedSku.illuminate(context, updatedSku))).runTxn()
 
   def createSkuInner(context: ObjectContext, payload: SkuPayload)(
@@ -73,11 +73,12 @@ object SkuManager {
     } yield FullObject(sku, ins.form, ins.shadow)
   }
 
-  def updateSkuInner(sku: Sku, attributes: Map[String, Json])(
+  def updateSkuInner(sku: Sku, payload: SkuPayload)(
       implicit ec: EC, db: DB): DbResultT[FullObject[Sku]] = {
 
-    val newFormAttrs   = ObjectForm.fromPayload(Sku.kind, attributes).attributes
-    val newShadowAttrs = ObjectShadow.fromPayload(attributes).attributes
+    val newFormAttrs   = ObjectForm.fromPayload(Sku.kind, payload.attributes).attributes
+    val newShadowAttrs = ObjectShadow.fromPayload(payload.attributes).attributes
+    val code           = getSkuCode(payload).getOrElse(sku.code)
 
     for {
       oldForm   ← * <~ ObjectForms.mustFindById404(sku.formId)
@@ -87,17 +88,18 @@ object SkuManager {
       updated ← * <~ ObjectUtils.update(
                    oldForm.id, oldShadow.id, newFormAttrs, mergedAttrs, force = true)
       commit      ← * <~ ObjectUtils.commit(updated)
-      updatedHead ← * <~ updateHead(sku, updated.shadow, commit)
+      updatedHead ← * <~ updateHead(sku, code, updated.shadow, commit)
 
       albumLinks ← * <~ ObjectLinks.findByLeftAndType(oldShadow.id, ObjectLink.SkuAlbum).result
       _          ← * <~ ObjectUtils.updateAssociatedRights(Skus, albumLinks, updatedHead.shadowId)
     } yield FullObject(updatedHead, updated.form, updated.shadow)
   }
 
-  private def updateHead(sku: Sku, shadow: ObjectShadow, maybeCommit: Option[ObjectCommit])(
+  private def updateHead(
+      sku: Sku, code: String, shadow: ObjectShadow, maybeCommit: Option[ObjectCommit])(
       implicit ec: EC): DbResult[Sku] = maybeCommit match {
     case Some(commit) ⇒
-      Skus.update(sku, sku.copy(shadowId = shadow.id, commitId = commit.id))
+      Skus.update(sku, sku.copy(code = code, shadowId = shadow.id, commitId = commit.id))
     case None ⇒
       DbResult.good(sku)
   }
