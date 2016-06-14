@@ -1,10 +1,11 @@
 package services.inventory
 
-import cats.data.NonEmptyList
+import cats.data._
 import cats.implicits._
-import cats.data.Xor.right
+import failures.{Failures, GeneralFailure}
 import failures.ObjectFailures._
 import failures.ProductFailures._
+import models.Reason.General
 import models.StoreAdmin
 import models.inventory._
 import models.objects._
@@ -16,16 +17,18 @@ import services.{LogActivity, Result}
 import services.objects.ObjectManager
 import services.variant.VariantManager
 import slick.driver.PostgresDriver.api._
+import utils.JsonFormatters
 import utils.aliases._
 import utils.db.DbResultT._
 import utils.db._
 
 object SkuManager {
+  implicit val formats = JsonFormatters.DefaultFormats
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////
   // NEW SIMPLE ENDPOINTS
 
-  def createSku(contextName: String, payload: CreateSkuPayload)(
+  def createSku(contextName: String, payload: SkuPayload)(
       implicit ec: EC, db: DB): Result[IlluminatedSkuResponse.Root] = {
     (for {
       context ← * <~ ObjectManager.mustFindByName404(contextName)
@@ -44,7 +47,7 @@ object SkuManager {
       IlluminatedSkuResponse.build(
           IlluminatedSku.illuminate(context, FullObject(sku, form, shadow)))).run()
 
-  def updateSku(contextName: String, code: String, payload: UpdateSkuPayload)(
+  def updateSku(contextName: String, code: String, payload: SkuPayload)(
       implicit ec: EC, db: DB): Result[IlluminatedSkuResponse.Root] =
     (for {
       context    ← * <~ ObjectManager.mustFindByName404(contextName)
@@ -52,17 +55,18 @@ object SkuManager {
       updatedSku ← * <~ updateSkuInner(sku, payload.attributes)
     } yield IlluminatedSkuResponse.build(IlluminatedSku.illuminate(context, updatedSku))).runTxn()
 
-  def createSkuInner(context: ObjectContext, payload: CreateSkuPayload)(
+  def createSkuInner(context: ObjectContext, payload: SkuPayload)(
       implicit ec: EC, db: DB): DbResultT[FullObject[Sku]] = {
 
     val form   = ObjectForm.fromPayload(Sku.kind, payload.attributes)
     val shadow = ObjectShadow.fromPayload(payload.attributes)
 
     for {
-      ins ← * <~ ObjectUtils.insert(form, shadow)
+      code ← * <~ mustGetSkuCode(payload)
+      ins  ← * <~ ObjectUtils.insert(form, shadow)
       sku ← * <~ Skus.create(
                Sku(contextId = context.id,
-                   code = payload.code,
+                   code = code,
                    formId = ins.form.id,
                    shadowId = ins.shadow.id,
                    commitId = ins.commit.id))
@@ -97,6 +101,15 @@ object SkuManager {
     case None ⇒
       DbResult.good(sku)
   }
+
+  def mustGetSkuCode(payload: SkuPayload): Failures Xor String =
+    getSkuCode(payload) match {
+      case Some(code) ⇒ Xor.right(code)
+      case None       ⇒ Xor.left(GeneralFailure("Code not found in payload").single)
+    }
+
+  private def getSkuCode(payload: SkuPayload): Option[String] =
+    payload.attributes.get("code").flatMap(json ⇒ (json \ "v").extractOpt[String])
 
   //
   /////////////////////////////////////////////////////////////////////////////////////////////////////

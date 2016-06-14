@@ -11,11 +11,12 @@ import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import org.json4s.JsonDSL._
 import payloads.ProductPayloads._
-import payloads.SkuPayloads.CreateSkuPayload
+import payloads.SkuPayloads.SkuPayload
 import payloads.VariantPayloads.{VariantPayload, VariantValuePayload}
 import responses.ProductResponses._
 import util.IntegrationTestBase
 import utils.Money.Currency
+import utils.aliases._
 import utils.db._
 import utils.db.DbResultT._
 
@@ -32,7 +33,7 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
     }
 
     "Creates a product with an existing SKU successfully" in new Fixture {
-      val redSkuPayload = CreateSkuPayload("SKU-RED-SMALL", skuAttrMap)
+      val redSkuPayload = makeSkuPayload("SKU-RED-SMALL", skuAttrMap)
       val payload       = productPayload.copy(skus = Seq(redSkuPayload))
 
       val response = POST(s"v1/products/${context.name}", payload)
@@ -46,7 +47,7 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
     "Creates a product with an existing, but modified SKU successfully" in new Fixture {
       val redPriceJson  = ("t" -> "price") ~ ("v" -> (("currency" → "USD") ~ ("value" → 7999)))
       val redSkuAttrMap = Map("salePrice" -> redPriceJson)
-      val redSkuPayload = CreateSkuPayload("SKU-RED-LARGE", redSkuAttrMap)
+      val redSkuPayload = makeSkuPayload("SKU-RED-LARGE", redSkuAttrMap)
       val payload       = productPayload.copy(skus = Seq(redSkuPayload))
 
       val response = POST(s"v1/products/${context.name}", payload)
@@ -65,8 +66,8 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
     }
 
     "Throws an error if there is more than one SKU and no variants" in new Fixture {
-      val sku1    = skuPayload.copy(code = "SKU-TEST-NUM1")
-      val sku2    = skuPayload.copy(code = "SKU-TEST-NUM2")
+      val sku1    = makeSkuPayload("SKU-TEST-NUM1", attrMap)
+      val sku2    = makeSkuPayload("SKU-TEST-NUM2", attrMap)
       val payload = productPayload.copy(skus = Seq(sku1, sku2), variants = Some(Seq.empty))
 
       val response = POST(s"v1/products/${context.name}", payload)
@@ -74,8 +75,8 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
     }
 
     "Variant with no values doesn't allow for multiple SKUs" in new VariantFixture {
-      val sku1    = skuPayload.copy(code = "SKU-TEST-NUM1")
-      val sku2    = skuPayload.copy(code = "SKU-TEST-NUM2")
+      val sku1    = makeSkuPayload("SKU-TEST-NUM1", attrMap)
+      val sku2    = makeSkuPayload("SKU-TEST-NUM2", attrMap)
       val payload = productPayload.copy(skus = Seq(sku1, sku2), variants = Some(Seq.empty))
 
       val response = POST(s"v1/products/${context.name}", payload)
@@ -190,10 +191,21 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
   }
 
   trait Fixture {
+    def makeSkuPayload(code: String, name: String) = {
+      val attrMap = Map(
+          "name" → (("t" → "string") ~ ("v" → name)), "code" → (("t" → "string") ~ ("v" → code)))
+      SkuPayload(attrMap)
+    }
+
+    def makeSkuPayload(code: String, attrMap: Map[String, Json]) = {
+      val codeJson = ("t" → "string") ~ ("v" → code)
+      SkuPayload(attrMap + ("code" → codeJson))
+    }
+
     val priceValue = ("currency" → "USD") ~ ("value" → 9999)
     val priceJson  = ("t" -> "price") ~ ("v" -> priceValue)
     val skuAttrMap = Map("price" -> priceJson)
-    val skuPayload = CreateSkuPayload("SKU-NEW-TEST", skuAttrMap)
+    val skuPayload = makeSkuPayload("SKU-NEW-TEST", skuAttrMap)
 
     val nameJson = ("t"       → "string") ~ ("v" → "Product name")
     val attrMap  = Map("name" → nameJson)
@@ -289,11 +301,6 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
     def makeVariantPayload(name: String, values: Seq[VariantValuePayload]) =
       VariantPayload(
           attributes = Map("name" → (("t" → "string") ~ ("v" → name))), values = Some(values))
-
-    def makeSkuPayload(code: String, name: String) = {
-      val attrMap = Map("name" → (("t" → "string") ~ ("v" → name)))
-      CreateSkuPayload(code = code, attributes = attrMap)
-    }
 
     val redValuePayload     = VariantValuePayload(name = Some("Red"), swatch = Some("ff0000"))
     val greenValuePayload   = VariantValuePayload(name = Some("Green"), swatch = Some("00ff00"))

@@ -25,7 +25,5 @@ object SkuPayloads {
   case class UpdateFullSku(form: UpdateFullSkuForm, shadow: UpdateFullSkuShadow)
 
   // New payloads
-  case class CreateSkuPayload(code: String, attributes: Map[String, Json])
-
-  case class UpdateSkuPayload(code: Option[String] = None, attributes: Map[String, Json])
+  case class SkuPayload(attributes: Map[String, Json])
 }

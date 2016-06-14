@@ -8,10 +8,11 @@ import models.inventory.{Sku, Skus}
 import models.objects.{ObjectCommit, ObjectCommits, ObjectContexts, ObjectForms, ObjectShadows}
 import models.product.{SimpleContext, SimpleSku, SimpleSkuShadow}
 import org.json4s.JsonDSL._
-import payloads.SkuPayloads.{CreateSkuPayload, UpdateSkuPayload}
+import payloads.SkuPayloads.SkuPayload
 import responses.SkuResponses.{FullSkuResponse, IlluminatedSkuResponse}
 import util.IntegrationTestBase
 import utils.Money.Currency
+import utils.aliases._
 import utils.db._
 import utils.db.DbResultT._
 
@@ -22,7 +23,7 @@ class SkuIntegrationTest extends IntegrationTestBase with HttpSupport with Autom
       val priceValue = ("currency" → "USD") ~ ("value" → 9999)
       val priceJson  = ("t" -> "price") ~ ("v" -> priceValue)
       val attrMap    = Map("price" -> priceJson)
-      val payload    = CreateSkuPayload("SKU-NEW-TEST", attrMap)
+      val payload    = makeSkuPayload("SKU-NEW-TEST", attrMap)
 
       val response = POST(s"v1/skus/${context.name}", payload)
       response.status must ===(StatusCodes.OK)
@@ -50,7 +51,7 @@ class SkuIntegrationTest extends IntegrationTestBase with HttpSupport with Autom
   "PATCH v1/skus/:context/:code" - {
     "Adds a new attribute to the SKU" in new Fixture {
       val updatePayload =
-        UpdateSkuPayload(attributes = Map("name" → (("t" → "string") ~ ("v" → "Test"))))
+        SkuPayload(attributes = Map("name" → (("t" → "string") ~ ("v" → "Test"))))
 
       val response = PATCH(s"v1/skus/${context.name}/${sku.code}", updatePayload)
       response.status must ===(StatusCodes.OK)
@@ -77,6 +78,11 @@ class SkuIntegrationTest extends IntegrationTestBase with HttpSupport with Autom
   }
 
   trait Fixture {
+    def makeSkuPayload(code: String, attrMap: Map[String, Json]) = {
+      val codeJson = ("t" → "string") ~ ("v" → code)
+      SkuPayload(attrMap + ("code" → codeJson))
+    }
+
     val (context, sku, skuForm, skuShadow) = (for {
       storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin).run().futureValue.rightVal
       context ← * <~ ObjectContexts

@@ -138,7 +138,7 @@ object ProductManager {
 
   private def updateAssociatedSkus(product: Product,
                                    oldProductShadowId: Int,
-                                   skusPayload: Option[Seq[CreateSkuPayload]])(
+                                   skusPayload: Option[Seq[SkuPayload]])(
       implicit ec: EC, db: DB, oc: OC) = {
 
     skusPayload match {
@@ -204,11 +204,12 @@ object ProductManager {
       DbResult.good(product)
   }
 
-  private def findOrCreateSkuForProduct(product: Product, payload: CreateSkuPayload)(
+  private def findOrCreateSkuForProduct(product: Product, payload: SkuPayload)(
       implicit ec: EC, db: DB, oc: OC) = {
 
     for {
-      sku ← * <~ Skus.filterByContextAndCode(oc.id, payload.code).one.flatMap {
+      code ← * <~ SkuManager.mustGetSkuCode(payload)
+      sku ← * <~ Skus.filterByContextAndCode(oc.id, code).one.flatMap {
              case Some(sku) ⇒
                SkuManager.updateSkuInner(sku, payload.attributes).value
              case None ⇒

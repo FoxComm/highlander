@@ -33,7 +33,7 @@ object ProductPayloads {
 
   // New payloads
   case class CreateProductPayload(attributes: Map[String, Json],
-                                  skus: Seq[CreateSkuPayload],
+                                  skus: Seq[SkuPayload],
                                   variants: Option[Seq[VariantPayload]])
       extends Validation[CreateProductPayload] {
 
@@ -54,6 +54,6 @@ object ProductPayloads {
   }
 
   case class UpdateProductPayload(attributes: Map[String, Json],
-                                  skus: Option[Seq[CreateSkuPayload]],
+                                  skus: Option[Seq[SkuPayload]],
                                   variants: Option[Seq[VariantPayload]])
 }
