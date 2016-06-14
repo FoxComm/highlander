@@ -53,7 +53,7 @@ case class SimplePromotionShadow(f: SimplePromotionForm) {
       {
         "name" : {"type": "string", "ref": "name"},
         "storefrontName" : {"type": "richText", "ref": "storefrontName"},
-        "description" : {"type": "richText", "ref": "description"},
+        "description" : {"type": "text", "ref": "description"},
         "details" : {"type": "richText", "ref": "details"},
         "activeFrom" : {"type": "date", "ref": "activeFrom"},
         "activeTo" : {"type": "date", "ref": "activeTo"},
