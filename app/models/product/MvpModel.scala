@@ -368,10 +368,6 @@ object Mvp {
       simpleSkuShadow ← * <~ SimpleSkuShadow(simpleSku)
       skuShadow       ← * <~ ObjectShadows.create(simpleSkuShadow.create.copy(formId = skuForm.id))
 
-      link ← * <~ ObjectLinks.create(ObjectLink(leftId = productShadow.id,
-                                                rightId = skuShadow.id,
-                                                linkType = ObjectLink.ProductSku))
-
       skuCommit ← * <~ ObjectCommits.create(
                      ObjectCommit(formId = skuForm.id, shadowId = skuShadow.id))
 
@@ -381,6 +377,8 @@ object Mvp {
                    formId = skuForm.id,
                    shadowId = skuShadow.id,
                    commitId = skuCommit.id))
+
+      _ ← * <~ linkProductAndSku(product, sku)
     } yield p.copy(productId = product.id, skuId = sku.id)
 
   def getPrice(skuId: Int)(implicit db: Database): DbResultT[Int] =
