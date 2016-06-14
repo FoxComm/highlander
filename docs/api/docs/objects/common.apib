@@ -1,18 +1,47 @@
 # Data Structures
 
-### Assignee
-+ assignee (required, StoreAdminResponse) - Assigned store admin.
-+ createdAt: `2015-09-10T14:55:50Z` (optional, string) - Assignment date.
+### LoginPayload
++ email: `example@example.com` (required, string) - E-mail.
++ password: `password` (required, string) - Password.
++ kind: admin (required, enum[string]) - Authorize either is admin or customer.
+    + Members
+        + `admin`
+        + `customer`
 
-### Watcher
-+ watcher (required, StoreAdminResponse) - Watching store admin.
-+ createdAt: `2015-09-10T14:55:50Z` (optional, string) - Watch date.
+### LoginResponse
++ id: 1 (required, number) - User ID.
++ email: `example@example.com` (required, string) - E-mail.
++ scopes: `admin` (required, array[string]) - User scopes.
++ exp: 1466079553 (required, number) - Session expiration timestamp.
++ admin: true (required, boolean) - Whether user is an admin or not.
+
+### Region
++ id: 1 (required, number) - Unique identifier.
++ countryId: 2794 (required, number) - Country unique identifier.
++ name: `Washington` (required, string) - Region name.
+
+### Sku
++ id: 1 (required, number) - Unique identifier.
++ name: `Flonkey` (required, string) - Product name.
++ availableForSale: false (required, boolean) - Defines where SKU is available for sale.
 
 ### Shipment
 + id: 1 (required, number) - ID.
 + orderId: 1 (required, number) - Order ID.
 + Include ShippingState
 + shippingPrice (optional, number) - Shipping price.
+
+### ShippingState
++ shippingState: Cart (required, enum[string]) - Shipping state.
+    + Members
+        + `Cart`
+        + `Ordered`
+        + `FraudHold`
+        + `RemorseHold`
+        + `ManualHold`
+        + `Canceled`
+        + `FulfillmentStarted`
+        + `Shipped`
 
 ### StoreAdminResponse
 + id: 1 (required, number) - Unique identifier.

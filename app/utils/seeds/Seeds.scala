@@ -108,7 +108,7 @@ object Seeds {
       admin   ← * <~ Factories.createStoreAdmins
     } yield admin
 
-  def createStage(admin: Int)(implicit db: Database, ac: AC): DbResultT[Unit] =
+  def createStage(adminId: Int)(implicit db: Database, ac: AC): DbResultT[Unit] =
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       ruContext ← * <~ ObjectContexts.create(
@@ -135,13 +135,14 @@ object Seeds {
                       ruProducts._6,
                       ruProducts._7))
       shipMethods ← * <~ Factories.createShipmentRules
-      _           ← * <~ Reasons.createAll(Factories.reasons.map(_.copy(storeAdminId = admin)))
+      _           ← * <~ Reasons.createAll(Factories.reasons.map(_.copy(storeAdminId = adminId)))
       _           ← * <~ Factories.createGiftCards
-      _           ← * <~ Factories.createStoreCredits(admin, customers._1, customers._3)
+      _           ← * <~ Factories.createStoreCredits(adminId, customers._1, customers._3)
       orders      ← * <~ Factories.createOrders(customers, products, shipMethods, context)
       _           ← * <~ Factories.createReturns
       // Promotions
-      discounts  ← * <~ Factories.createDiscounts
+      search     ← * <~ Factories.createSharedSearches(adminId)
+      discounts  ← * <~ Factories.createDiscounts(search)
       promotions ← * <~ Factories.createCouponPromotions(discounts)
       coupons    ← * <~ Factories.createCoupons(promotions)
     } yield {}
@@ -161,7 +162,8 @@ object Seeds {
       with CustomersGroupSeeds
       with DiscountSeeds
       with PromotionSeeds
-      with CouponSeeds {
+      with CouponSeeds
+      with SharedSearchSeeds {
 
     implicit val formats = JsonFormatters.phoenixFormats
 

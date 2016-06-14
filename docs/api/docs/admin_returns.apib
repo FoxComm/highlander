@@ -3,65 +3,6 @@
 + Parameters
     + refNum: `ABC-123.1` (required, string) - Return reference number
 
-### List [GET /v1/returns{?size,from,sortBy}]
-
-+ Parameters
-    + size:   1           (optional, number)       - Page size.
-    + from:   1           (optional, number)       - Start element (counting from 0) or # of elements to skip.
-    + sortBy: `id`        (optional, enum[string]) - Field to sort by (`-fieldName` for descending order).
-        + Members
-            + `id`
-            + `referenceNumber`
-            + `orderId`
-            + `orderRefNum`
-            + `returnType`
-            + `state`
-            + `locked`
-            + `customerId`
-            + `storeAdminId`
-+ Response 200 (application/json)
-    + Attributes (Returns)
-
-### List by Customer [GET /v1/returns/customer/{customerId}{?size,from,sortBy}]
-
-+ Parameters
-    + customerId: 1 (required, number) - Customer ID.
-    + size:   1           (optional, number)       - Page size.
-    + from:   1           (optional, number)       - Start element (counting from 0) or # of elements to skip.
-    + sortBy: `id`        (optional, enum[string]) - Field to sort by (`-fieldName` for descending order).
-        + Members
-            + `id`
-            + `referenceNumber`
-            + `orderId`
-            + `orderRefNum`
-            + `returnType`
-            + `state`
-            + `locked`
-            + `customerId`
-            + `storeAdminId`
-+ Response 200 (application/json)
-    + Attributes (Returns)
-
-### List by Order [GET /v1/returns/order/{orderRef}{?size,from,sortBy}]
-
-+ Parameters
-    + orderRef: `ABC-123` (required, string) - Order reference number.
-    + size:   1           (optional, number)       - Page size.
-    + from:   1           (optional, number)       - Start element (counting from 0) or # of elements to skip.
-    + sortBy: `id`        (optional, enum[string]) - Field to sort by (`-fieldName` for descending order).
-        + Members
-            + `id`
-            + `referenceNumber`
-            + `orderId`
-            + `orderRefNum`
-            + `returnType`
-            + `state`
-            + `locked`
-            + `customerId`
-            + `storeAdminId`
-+ Response 200 (application/json)
-    + Attributes (Returns)
-
 ### View [GET]
 
 + Response 200 (application/json)

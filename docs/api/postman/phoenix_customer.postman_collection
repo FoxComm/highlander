@@ -1,969 +1,1043 @@
 {
-	"id": "abf22869-426c-1d86-65da-67cb373f13a0",
-	"name": "Phoenix Customer",
-	"description": "",
-	"order": [],
-	"folders": [
+	"variables": [],
+	"info": {
+		"name": "Phoenix Customer",
+		"_postman_id": "abf22869-426c-1d86-65da-67cb373f13a0",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
 		{
-			"id": "1964810b-8484-11cf-73cb-4b57c06fb8d5",
 			"name": "Account",
 			"description": "",
-			"order": [
-				"8b569746-5000-1802-2d47-5121baa7774b",
-				"bc914bcd-6592-6e64-b485-5be9f42cf4ff"
-			],
-			"owner": "131444"
+			"item": [
+				{
+					"name": "View",
+					"request": {
+						"url": "http://localhost:9090/v1/my/account",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Update",
+					"request": {
+						"url": "http://localhost:9090/v1/my/account",
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Smith John\"\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
 		},
 		{
-			"id": "b79ff8fa-46b9-a394-0c3f-9877421c96c3",
 			"name": "Addresses",
 			"description": "",
-			"order": [
-				"6df7d73c-0208-4aa7-be51-015791be9402",
-				"fb1f566b-25d9-f9d2-b773-c6ed031c08bd",
-				"31ec8783-4ed8-9ee6-4ee9-49d5846efdf8",
-				"83061a88-d1ae-65ac-8593-98b97a3d3e3a",
-				"e206b4d9-8f03-770b-15a9-b3c2db5679ff",
-				"3bd2bc5a-158a-484f-6f7f-7f4457804a67",
-				"4711c2a5-77aa-d961-d1d0-ebfb0a61fefa"
-			],
-			"owner": "131444",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0"
+			"item": [
+				{
+					"name": "View",
+					"request": {
+						"url": "http://localhost:9090/v1/my/addresses/1",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Create",
+					"request": {
+						"url": "http://localhost:9090/v1/my/addresses",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"John Smith\",\n    \"regionId\": 1,\n    \"address1\": \"Donkey Street\",\n    \"city\": \"Seattle\",\n    \"zip\": \"55555\"\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Update",
+					"request": {
+						"url": "http://localhost:9090/v1/my/addresses/8",
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Test\",\n    \"regionId\": 2,\n    \"address1\": \"Test\",\n    \"city\": \"Seattle\",\n    \"zip\": \"63555\"\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Delete",
+					"request": {
+						"url": "http://localhost:9090/v1/my/addresses/2",
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Set as Default",
+					"request": {
+						"url": "http://localhost:9090/v1/my/addresses/2/default",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Remove Default",
+					"request": {
+						"url": "http://localhost:9090/v1/my/addresses/default",
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
 		},
 		{
-			"id": "5be9f9b7-4feb-31a8-d695-d4817944d67c",
 			"name": "Cart",
 			"description": "",
-			"order": [
-				"ffa4e5f0-b374-131a-828b-1efb15c4fabe",
-				"3df315d0-506b-d5fa-638b-0298c8b32fa0",
-				"5ec75697-98f5-cf18-b664-eff131bbc25d",
-				"75755fbe-c658-102b-13d9-134c52870e1e",
-				"14b5bebb-9675-018c-35f6-dceee5eee5da",
-				"41b7caf8-98a4-a318-eb17-31f242a979f7",
-				"d3929e1c-e96f-78c8-9bbf-674c1e4fc1f4",
-				"597c0bd7-2505-9235-afc7-6b57adb99905",
-				"fdeb69a4-30b8-a1b7-d409-43f2f51a7a46",
-				"c8cdfd05-2d64-3b5d-6540-f50c74991328",
-				"9149aa17-c7da-21a9-2399-8e37643f45cd",
-				"5934407f-2c53-29d1-9ed2-e758751d3416",
-				"1919f1d3-ad96-0292-2db0-02554b174358",
-				"99a296f2-5240-9839-3dec-b616de82cdef",
-				"ffd0cda7-9082-f3a2-f1c2-e45eaae28beb"
-			],
-			"owner": "131444"
+			"item": [
+				{
+					"name": "View",
+					"request": {
+						"url": "http://localhost:9090/v1/my/cart",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Checkout",
+					"request": {
+						"url": "http://localhost:9090/v1/my/cart/checkout",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Update SKU Line Items",
+					"request": {
+						"url": "http://localhost:9090/v1/my/cart/line-items",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n    {\n        \"sku\": \"SKU-YAX\",\n        \"quantity\": 1\n    }    \n]"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Add Credit Card Payment",
+					"request": {
+						"url": "http://localhost:9090/v1/my/cart/payment-methods/credit-cards",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"creditCardId\": 3\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Credit Card Payment",
+					"request": {
+						"url": "http://localhost:9090/v1/my/cart/payment-methods/credit-cards",
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Add Store Credit Payment",
+					"request": {
+						"url": "http://localhost:9090/v1/my/cart/payment-methods/store-credit",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"amount\": 10\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Store Credit Payment",
+					"request": {
+						"url": "http://localhost:9090/v1/my/cart/payment-methods/store-credit",
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Add Gift Card Payment",
+					"request": {
+						"url": "http://localhost:9090/v1/my/cart/payment-methods/gift-cards",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"code\": \"B1C666FAC512C70E\",\n    \"amount\": 10\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Gift Card Payment",
+					"request": {
+						"url": "http://localhost:9090/v1/my/cart/payment-methods/gift-cards/B1C666FAC512C70E",
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"code\": \"B1C666FAC512C70E\",\n    \"amount\": 10\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Add Shipping Address",
+					"request": {
+						"url": "http://localhost:9090/v1/my/cart/shipping-address",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"John Smith\",\n    \"regionId\": 1,\n    \"address1\": \"Donkey Street\",\n    \"city\": \"Seattle\",\n    \"zip\": \"55655\"\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Add Shipping Address By ID",
+					"request": {
+						"url": "http://localhost:9090/v1/my/cart/shipping-address/5",
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Update Shipping Address",
+					"request": {
+						"url": "http://localhost:9090/v1/my/cart/shipping-address",
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"John Smith\",\n    \"regionId\": 1,\n    \"address1\": \"Donkey Street\",\n    \"city\": \"Seattle\",\n    \"zip\": \"56655\"\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Shipping Address",
+					"request": {
+						"url": "http://localhost:9090/v1/my/cart/shipping-address",
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"John Smith\",\n    \"regionId\": 1,\n    \"address1\": \"Donkey Street\",\n    \"city\": \"Seattle\",\n    \"zip\": \"56655\"\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Update Shipping Method",
+					"request": {
+						"url": "http://localhost:9090/v1/my/cart/shipping-method",
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"shippingMethodId\": 4\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Shipping Method",
+					"request": {
+						"url": "http://localhost:9090/v1/my/cart/shipping-method",
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
 		},
 		{
-			"id": "74c23220-db7a-843b-03b7-ac99759676b9",
 			"name": "Credit Cards",
 			"description": "",
-			"order": [
-				"cdfe82a4-2188-fc61-e0e7-c115587cc266",
-				"5c4ab48e-0e6c-f4e2-037d-bc427d566123",
-				"9cd77ed6-f4b1-7289-c761-eb9a2301bfa3",
-				"c6100979-4412-bff2-3bed-ff6dab57c3a3",
-				"37225c9d-68a0-ba3f-c6a8-ff6d8b144c0b",
-				"b16ee7f4-3071-3bf5-2e99-584179293de5"
-			],
-			"owner": "131444",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0"
+			"item": [
+				{
+					"name": "List",
+					"request": {
+						"url": "http://localhost:9090/v1/my/payment-methods/credit-cards",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "View",
+					"request": {
+						"url": "http://localhost:9090/v1/my/payment-methods/credit-cards/1",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Create",
+					"request": {
+						"url": "http://localhost:9090/v1/my/payment-methods/credit-cards",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"holderName\": \"John Smith\",\n    \"number\": \"4242424242424242\",\n    \"cvv\": \"555\",\n    \"expMonth\": 4,\n    \"expYear\": 2022,\n    \"addressId\": 1\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Set as Default",
+					"request": {
+						"url": "http://localhost:9090/v1/my/payment-methods/credit-cards/2/default",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"isDefault\": true\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Update",
+					"request": {
+						"url": "http://localhost:9090/v1/my/payment-methods/credit-cards/1",
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"holderName\": \"Yax Fuentes\"\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Delete",
+					"request": {
+						"url": "http://localhost:9090/v1/my/payment-methods/credit-cards/2",
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
 		},
 		{
-			"id": "703a3272-7245-fff0-8fc2-ebc0ce7686bd",
 			"name": "Orders",
 			"description": "",
-			"order": [
-				"1d0c1330-bb70-a9d0-53bf-d8c5b9b0593e",
-				"a7d2f9b8-90d2-e7b8-d1b5-5f1c5fb98c11",
-				"c0044429-2ba4-d99d-1b77-a16436263d88"
-			],
-			"owner": "131444",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0"
+			"item": [
+				{
+					"name": "View",
+					"request": {
+						"url": "http://localhost:9090/v1/my/orders/BR10003",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "List Shipping Methods",
+					"request": {
+						"url": "http://localhost:9090/v1/my/shipping-methods/BR10003",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
 		},
 		{
-			"id": "70282de9-bd5d-649c-b3ea-abd024df26ad",
 			"name": "Products",
 			"description": "",
-			"order": [
-				"cf84ed00-c649-d8f6-42a5-7c969933f695"
-			],
-			"owner": "131444"
+			"item": [
+				{
+					"name": "View Illuminated Product",
+					"request": {
+						"url": "http://localhost:9090/v1/my/products/1/baked",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
 		},
 		{
-			"id": "65e55741-a287-5174-949f-ea66f5a8d16c",
 			"name": "Promotions",
 			"description": "",
-			"order": [
-				"79231a8c-d15b-c85f-3bd7-bcd7d898d87c",
-				"aea9d5ae-4349-2d40-875f-b330961318ac"
-			],
-			"owner": "131444"
+			"item": [
+				{
+					"name": "Add Coupon to Cart",
+					"request": {
+						"url": "http://localhost:9090/v1/my/cart/coupon/BASE703030",
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Coupons From Cart",
+					"request": {
+						"url": "http://localhost:9090/v1/my/cart/coupon",
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
 		},
 		{
-			"id": "7786e2f5-6428-ba00-678d-115d2941c4b5",
 			"name": "Save For Later",
 			"description": "",
-			"order": [
-				"da2e37aa-0be0-725e-d611-726065bbc09f",
-				"0e39ecb9-2bd1-461b-427a-9151c9187d13",
-				"06f3b2ff-0e49-3901-3129-fa1fe9a6a21f"
-			],
-			"owner": "131444"
+			"item": [
+				{
+					"name": "List",
+					"request": {
+						"url": "http://localhost:9090/v1/my/save-for-later",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Add",
+					"request": {
+						"url": "http://localhost:9090/v1/my/save-for-later/SKU-YAX",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Delete",
+					"request": {
+						"url": "http://localhost:9090/v1/my/save-for-later/1",
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
 		},
 		{
-			"id": "2ca6f2ee-6b5a-9c4a-aa22-d19b389a07d6",
 			"name": "Store Credits",
 			"description": "",
-			"order": [
-				"9dd27c6b-e365-75a0-894f-ba4e874a910d",
-				"06ce686c-6847-553c-2478-93030752b9ae",
-				"de5997f6-c0db-4f7f-7d37-df1c487a469b",
-				"2b040d91-a08d-ce51-78f9-1825bf2e2936"
-			],
-			"owner": "131444"
-		}
-	],
-	"timestamp": 1449678798599,
-	"owner": "131444",
-	"remoteLink": "",
-	"public": false,
-	"requests": [
-		{
-			"id": "06ce686c-6847-553c-2478-93030752b9ae",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/my/payment-methods/store-credits/9",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "params",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1458153941073,
-			"name": "View",
-			"description": "",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
-			"responses": []
-		},
-		{
-			"id": "06f3b2ff-0e49-3901-3129-fa1fe9a6a21f",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/my/save-for-later/1",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "DELETE",
-			"data": [],
-			"dataMode": "params",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1458153964961,
-			"name": "Delete",
-			"description": "",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
-			"responses": []
-		},
-		{
-			"id": "0e39ecb9-2bd1-461b-427a-9151c9187d13",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/my/save-for-later/SKU-YAX",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "POST",
-			"data": [],
-			"dataMode": "params",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1458153960216,
-			"name": "Add",
-			"description": "",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
-			"responses": []
-		},
-		{
-			"id": "14b5bebb-9675-018c-35f6-dceee5eee5da",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/my/cart/payment-methods/credit-cards",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "DELETE",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1458154039053,
-			"name": "Delete Credit Card Payment",
-			"description": "",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
-			"responses": [],
-			"rawModeData": ""
-		},
-		{
-			"id": "1919f1d3-ad96-0292-2db0-02554b174358",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/my/cart/shipping-address",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "DELETE",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1458154070907,
-			"name": "Delete Shipping Address",
-			"description": "",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
-			"responses": [],
-			"rawModeData": "{\n    \"name\": \"John Smith\",\n    \"regionId\": 1,\n    \"address1\": \"Donkey Street\",\n    \"city\": \"Seattle\",\n    \"zip\": \"56655\"\n}"
-		},
-		{
-			"id": "1d0c1330-bb70-a9d0-53bf-d8c5b9b0593e",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/my/orders",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "params",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1458153973648,
-			"name": "List",
-			"description": "",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
-			"responses": []
-		},
-		{
-			"id": "2b040d91-a08d-ce51-78f9-1825bf2e2936",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/my/payment-methods/store-credits/totals",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "params",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1458153950593,
-			"name": "View Totals",
-			"description": "",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
-			"responses": []
-		},
-		{
-			"id": "31ec8783-4ed8-9ee6-4ee9-49d5846efdf8",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/my/addresses",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "POST",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1458153910291,
-			"name": "Create",
-			"description": "",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
-			"responses": [],
-			"rawModeData": "{\n    \"name\": \"John Smith\",\n    \"regionId\": 1,\n    \"address1\": \"Donkey Street\",\n    \"city\": \"Seattle\",\n    \"zip\": \"55555\"\n}"
-		},
-		{
-			"id": "37225c9d-68a0-ba3f-c6a8-ff6d8b144c0b",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/my/payment-methods/credit-cards/1",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PATCH",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1458154005734,
-			"name": "Update",
-			"description": "",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
-			"responses": [],
-			"rawModeData": "{\n    \"holderName\": \"Yax Fuentes\"\n}"
-		},
-		{
-			"id": "3bd2bc5a-158a-484f-6f7f-7f4457804a67",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/my/addresses/2/default",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "POST",
-			"data": [],
-			"dataMode": "params",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1458153923682,
-			"name": "Set as Default",
-			"description": "",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
-			"responses": []
-		},
-		{
-			"id": "3df315d0-506b-d5fa-638b-0298c8b32fa0",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/my/cart/checkout",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "POST",
-			"data": [],
-			"dataMode": "params",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1458154025158,
-			"name": "Checkout",
-			"description": "",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
-			"responses": []
-		},
-		{
-			"id": "41b7caf8-98a4-a318-eb17-31f242a979f7",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/my/cart/payment-methods/store-credit",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "POST",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1458154043149,
-			"name": "Add Store Credit Payment",
-			"description": "",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
-			"responses": [],
-			"rawModeData": "{\n    \"amount\": 10\n}"
-		},
-		{
-			"id": "4711c2a5-77aa-d961-d1d0-ebfb0a61fefa",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/my/addresses/default",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "DELETE",
-			"data": [],
-			"dataMode": "params",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1458153927138,
-			"name": "Remove Default",
-			"description": "",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
-			"responses": []
-		},
-		{
-			"id": "5934407f-2c53-29d1-9ed2-e758751d3416",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/my/cart/shipping-address",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PATCH",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1458154067275,
-			"name": "Update Shipping Address",
-			"description": "",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
-			"responses": [],
-			"rawModeData": "{\n    \"name\": \"John Smith\",\n    \"regionId\": 1,\n    \"address1\": \"Donkey Street\",\n    \"city\": \"Seattle\",\n    \"zip\": \"56655\"\n}"
-		},
-		{
-			"id": "597c0bd7-2505-9235-afc7-6b57adb99905",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/my/cart/payment-methods/gift-cards",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "POST",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1458154050604,
-			"name": "Add Gift Card Payment",
-			"description": "",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
-			"responses": [],
-			"rawModeData": "{\n    \"code\": \"B1C666FAC512C70E\",\n    \"amount\": 10\n}"
-		},
-		{
-			"id": "5c4ab48e-0e6c-f4e2-037d-bc427d566123",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/my/payment-methods/credit-cards/1",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "params",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1458153991471,
-			"name": "View",
-			"description": "",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
-			"responses": []
-		},
-		{
-			"id": "5ec75697-98f5-cf18-b664-eff131bbc25d",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/my/cart/line-items",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "POST",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1458154028773,
-			"name": "Update SKU Line Items",
-			"description": "",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
-			"responses": [],
-			"rawModeData": "[\n    {\n        \"sku\": \"SKU-YAX\",\n        \"quantity\": 1\n    }    \n]"
-		},
-		{
-			"id": "6df7d73c-0208-4aa7-be51-015791be9402",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/my/addresses",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "params",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1458153900507,
-			"name": "List",
-			"description": "",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
-			"responses": []
-		},
-		{
-			"id": "75755fbe-c658-102b-13d9-134c52870e1e",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/my/cart/payment-methods/credit-cards",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "POST",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1458154032589,
-			"name": "Add Credit Card Payment",
-			"description": "",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
-			"responses": [],
-			"rawModeData": "{\n    \"creditCardId\": 3\n}"
-		},
-		{
-			"id": "79231a8c-d15b-c85f-3bd7-bcd7d898d87c",
-			"headers": "",
-			"url": "http://localhost:9090/v1/my/cart/coupon/CP1300273047",
-			"pathVariables": {},
-			"preRequestScript": null,
-			"method": "POST",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
-			"data": null,
-			"dataMode": "params",
-			"name": "Add Coupon to Cart",
-			"description": "",
-			"descriptionFormat": "html",
-			"time": 1461719857210,
-			"version": 2,
-			"responses": [],
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"folder": "65e55741-a287-5174-949f-ea66f5a8d16c"
-		},
-		{
-			"id": "83061a88-d1ae-65ac-8593-98b97a3d3e3a",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/my/addresses/8",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PATCH",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1458153915779,
-			"name": "Update",
-			"description": "",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
-			"responses": [],
-			"rawModeData": "{\n    \"name\": \"Test\",\n    \"regionId\": 2,\n    \"address1\": \"Test\",\n    \"city\": \"Seattle\",\n    \"zip\": \"63555\"\n}"
-		},
-		{
-			"id": "8b569746-5000-1802-2d47-5121baa7774b",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/my/account",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "params",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1458153888260,
-			"name": "View",
-			"description": "",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
-			"responses": []
-		},
-		{
-			"id": "9149aa17-c7da-21a9-2399-8e37643f45cd",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/my/cart/shipping-address/5",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PATCH",
-			"data": [],
-			"dataMode": "params",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1458154063251,
-			"name": "Add Shipping Address By ID",
-			"description": "",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
-			"responses": []
-		},
-		{
-			"id": "99a296f2-5240-9839-3dec-b616de82cdef",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/my/cart/shipping-method",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PATCH",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1458154075859,
-			"name": "Update Shipping Method",
-			"description": "",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
-			"responses": [],
-			"rawModeData": "{\n    \"shippingMethodId\": 4\n}"
-		},
-		{
-			"id": "9cd77ed6-f4b1-7289-c761-eb9a2301bfa3",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/my/payment-methods/credit-cards",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "POST",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1458153996455,
-			"name": "Create",
-			"description": "",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
-			"responses": [],
-			"rawModeData": "{\n    \"holderName\": \"John Smith\",\n    \"number\": \"4242424242424242\",\n    \"cvv\": \"555\",\n    \"expMonth\": 4,\n    \"expYear\": 2022,\n    \"addressId\": 1\n}"
-		},
-		{
-			"id": "9dd27c6b-e365-75a0-894f-ba4e874a910d",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/my/payment-methods/store-credits",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "params",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1458153935074,
-			"name": "List",
-			"description": "",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
-			"responses": []
-		},
-		{
-			"id": "a7d2f9b8-90d2-e7b8-d1b5-5f1c5fb98c11",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/my/orders/BR10003",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "params",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1458153977360,
-			"name": "View",
-			"description": "",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
-			"responses": []
-		},
-		{
-			"id": "aea9d5ae-4349-2d40-875f-b330961318ac",
-			"headers": "",
-			"url": "http://localhost:9090/v1/my/cart/coupon",
-			"pathVariables": {},
-			"preRequestScript": null,
-			"method": "DELETE",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
-			"data": null,
-			"dataMode": "params",
-			"name": "Delete Coupons From Cart",
-			"description": "",
-			"descriptionFormat": "html",
-			"time": 1461719846658,
-			"version": 2,
-			"responses": [],
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"folder": "65e55741-a287-5174-949f-ea66f5a8d16c"
-		},
-		{
-			"id": "b16ee7f4-3071-3bf5-2e99-584179293de5",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/my/payment-methods/credit-cards/2",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "DELETE",
-			"data": [],
-			"dataMode": "params",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1458154010863,
-			"name": "Delete",
-			"description": "",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
-			"responses": []
-		},
-		{
-			"id": "bc914bcd-6592-6e64-b485-5be9f42cf4ff",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/my/account",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PATCH",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1458153893236,
-			"name": "Update",
-			"description": "",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
-			"responses": [],
-			"rawModeData": "{\n  \"name\": \"Smith John\"\n}"
-		},
-		{
-			"id": "c0044429-2ba4-d99d-1b77-a16436263d88",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/my/shipping-methods/BR10003",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "params",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1458153983104,
-			"name": "List Shipping Methods",
-			"description": "",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
-			"responses": []
-		},
-		{
-			"id": "c6100979-4412-bff2-3bed-ff6dab57c3a3",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/my/payment-methods/credit-cards/2/default",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "POST",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1458154000143,
-			"name": "Set as Default",
-			"description": "",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
-			"responses": [],
-			"rawModeData": "{\n    \"isDefault\": true\n}"
-		},
-		{
-			"id": "c8cdfd05-2d64-3b5d-6540-f50c74991328",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/my/cart/shipping-address",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "POST",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1458154059164,
-			"name": "Add Shipping Address",
-			"description": "",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
-			"responses": [],
-			"rawModeData": "{\n    \"name\": \"John Smith\",\n    \"regionId\": 1,\n    \"address1\": \"Donkey Street\",\n    \"city\": \"Seattle\",\n    \"zip\": \"55655\"\n}"
-		},
-		{
-			"id": "cdfe82a4-2188-fc61-e0e7-c115587cc266",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/my/payment-methods/credit-cards",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "params",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1458153987415,
-			"name": "List",
-			"description": "",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
-			"responses": []
-		},
-		{
-			"id": "cf84ed00-c649-d8f6-42a5-7c969933f695",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/my/products/1/baked",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "params",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1458153969408,
-			"name": "View Illuminated Product",
-			"description": "",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
-			"responses": []
-		},
-		{
-			"id": "d3929e1c-e96f-78c8-9bbf-674c1e4fc1f4",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/my/cart/payment-methods/store-credit",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "DELETE",
-			"data": [],
-			"dataMode": "params",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1458154046813,
-			"name": "Delete Store Credit Payment",
-			"description": "",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
-			"responses": []
-		},
-		{
-			"id": "da2e37aa-0be0-725e-d611-726065bbc09f",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/my/save-for-later",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "params",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1458153955809,
-			"name": "List",
-			"description": "",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
-			"responses": []
-		},
-		{
-			"id": "de5997f6-c0db-4f7f-7d37-df1c487a469b",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/my/payment-methods/store-credits/transactions",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "params",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1458153946121,
-			"name": "List Transactions",
-			"description": "",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
-			"responses": []
-		},
-		{
-			"id": "e206b4d9-8f03-770b-15a9-b3c2db5679ff",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/my/addresses/2",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "DELETE",
-			"data": [],
-			"dataMode": "params",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1458153919859,
-			"name": "Delete",
-			"description": "",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
-			"responses": []
-		},
-		{
-			"id": "fb1f566b-25d9-f9d2-b773-c6ed031c08bd",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/my/addresses/1",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "params",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1458153905747,
-			"name": "View",
-			"description": "",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
-			"responses": []
-		},
-		{
-			"id": "fdeb69a4-30b8-a1b7-d409-43f2f51a7a46",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/my/cart/payment-methods/gift-cards/B1C666FAC512C70E",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "DELETE",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1458154054876,
-			"name": "Delete Gift Card Payment",
-			"description": "",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
-			"responses": [],
-			"rawModeData": "{\n    \"code\": \"B1C666FAC512C70E\",\n    \"amount\": 10\n}"
-		},
-		{
-			"id": "ffa4e5f0-b374-131a-828b-1efb15c4fabe",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/my/cart",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "params",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1458154020006,
-			"name": "View",
-			"description": "",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
-			"responses": []
-		},
-		{
-			"id": "ffd0cda7-9082-f3a2-f1c2-e45eaae28beb",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/my/cart/shipping-method",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "DELETE",
-			"data": [],
-			"dataMode": "params",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1458154079443,
-			"name": "Delete Shipping Method",
-			"description": "",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
-			"responses": []
+			"item": [
+				{
+					"name": "View",
+					"request": {
+						"url": "http://localhost:9090/v1/my/payment-methods/store-credits/9",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "List Transactions",
+					"request": {
+						"url": "http://localhost:9090/v1/my/payment-methods/store-credits/transactions",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "View Totals",
+					"request": {
+						"url": "http://localhost:9090/v1/my/payment-methods/store-credits/totals",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
 		}
 	]
 }

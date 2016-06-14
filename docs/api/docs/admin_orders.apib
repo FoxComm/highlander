@@ -3,38 +3,6 @@
 + Parameters
     + refNum: `ABC-123` (required, string) - Order referenceNumber.
 
-### List [GET /v1/orders{?size,from,sortBy}]
-
-Lists basic information of Orders for a quick table view to drill-down into
-orders further.
-
-+ Parameters
-    + size:   1           (optional, number)       - Page size.
-    + from:   1           (optional, number)       - Start element (counting from 0) or # of elements to skip.
-    + sortBy: `id`        (optional, enum[string]) - Field to sort by (`-fieldName` for descending order).
-        + Members
-            + `id`
-            + `referenceNumber`
-            + `customerId`
-            + `state`
-            + `isLocked`
-            + `placedAt`
-            + `remorsePeriodEnd`
-            + `customer_isDisabled`
-            + `customer_disabledBy`
-            + `customer_isBlacklisted`
-            + `customer_blacklistedBy`
-            + `customer_blacklistedReason`
-            + `customer_email`
-            + `customer_name`
-            + `customer_phoneNumber`
-            + `customer_location`
-            + `customer_modality`
-            + `customer_isGuest`
-            + `customer_createdAt`
-+ Response 200 (application/json)
-  + Attributes (OrderList)
-
 ### View [GET]
 
 + Response 200 (application/json)
@@ -200,6 +168,11 @@ Order must be in `remorseHold` state.
 Shipping methods are used to describe the ways that the contents of a cart can
 transported to the customer. All actions that occur against this set of
 endpoints modify which shipping method is used by the cart.
+
+### List [GET]
+
++ Response 200 (application/json)
+    + Attributes (array[ShippingMethod])
 
 ### Update [PATCH]
 

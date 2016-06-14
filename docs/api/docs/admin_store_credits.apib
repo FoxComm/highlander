@@ -3,28 +3,6 @@
 + Parameters
     + id: 1 (required, number) - Customer ID
 
-### List [GET /v1/customer/{id}/payment-methods/store-credits{?size,from,sortBy}]
-
-+ Parameters
-    + size:   1           (optional, number)       - Page size.
-    + from:   1           (optional, number)       - Start element (counting from 0) or # of elements to skip.
-    + sortBy: `createdAt` (optional, enum[string]) - Field to sort by (`-fieldName` for descending order).
-        + Members
-            + `id`
-            + `originId`
-            + `originType`
-            + `customerId`
-            + `currency`
-            + `originalBalance`
-            + `currentBalance`
-            + `availableBalance`
-            + `canceledAmount`
-            + `canceledReason`
-            + `state`
-            + `createdAt`
-+ Response 200 (application/json)
-  + Attributes (StoreCreditsWithTotals)
-
 ### View [GET /v1/store-credits/{id}]
 
 + Parameters
@@ -45,21 +23,3 @@
     + Attributes (StoreCreditBulkStateUpdatePayload)
 + Response 200 (application/json)
     + Attributes (array[StoreCreditBulkResponse])
-
-### List Transactions [GET /v1/store-credits/{id}/transactions/{?size,from,sortBy}]
-
-+ Parameters
-    + id: 1 (required, number)                     - Store Credit ID.
-    + size:   1           (optional, number)       - Page size.
-    + from:   1           (optional, number)       - Start element (counting from 0) or # of elements to skip.
-    + sortBy: `createdAt` (optional, enum[string]) - Field to sort by (`-fieldName` for descending order).
-        + Members
-            + `id`
-            + `storeCreditId`
-            + `orderPaymentId`
-            + `debit`
-            + `availableBalance`
-            + `state`
-            + `createdAt`
-+ Response 200 (application/json)
-    + Attributes (StoreCreditAdjustments)

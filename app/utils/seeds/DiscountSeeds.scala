@@ -5,21 +5,19 @@ import models.discount.qualifiers._
 import models.objects._
 import models.discount._
 import models.product.SimpleContext
+import models.sharedsearch.SharedSearch
 import payloads.DiscountPayloads._
 import utils.db._
 import utils.db.DbResultT._
-
 import slick.driver.PostgresDriver.api._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 trait DiscountSeeds {
 
-  val dummySearch = Seq(ProductSearch(productSearchId = 1))
-
-  def createDiscounts(implicit db: Database): DbResultT[Seq[BaseDiscount]] =
+  def createDiscounts(search: SharedSearch)(implicit db: Database): DbResultT[Seq[BaseDiscount]] =
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-      results ← * <~ discounts.map {
+      results ← * <~ discounts(search).map {
                  case (title, payload) ⇒
                    insertDiscount(title, payload, context)
                }
@@ -40,29 +38,32 @@ trait DiscountSeeds {
       BaseDiscount(
           title = title, discountId = discount.id, formId = ins.form.id, shadowId = ins.shadow.id)
 
-  def qualifiers: Seq[Qualifier] = Seq(
+  def productSearch(search: SharedSearch): Seq[ProductSearch] =
+    Seq(ProductSearch(productSearchId = search.id))
+
+  def qualifiers(search: SharedSearch): Seq[Qualifier] = Seq(
       OrderAnyQualifier,
       OrderTotalAmountQualifier(1000),
       OrderNumUnitsQualifier(2),
-      ItemsAnyQualifier(dummySearch),
-      ItemsTotalAmountQualifier(1500, dummySearch),
-      ItemsNumUnitsQualifier(2, dummySearch)
+      ItemsAnyQualifier(productSearch(search)),
+      ItemsTotalAmountQualifier(1500, productSearch(search)),
+      ItemsNumUnitsQualifier(2, productSearch(search))
   )
 
-  def offers: Seq[Offer] = Seq(
+  def offers(search: SharedSearch): Seq[Offer] = Seq(
       OrderAmountOffer(3000),
       OrderPercentOffer(30),
-      ItemAmountOffer(1000, dummySearch),
-      ItemPercentOffer(50, dummySearch),
-      ItemsAmountOffer(3000, dummySearch),
-      ItemsPercentOffer(30, dummySearch),
+      ItemAmountOffer(1000, productSearch(search)),
+      ItemPercentOffer(50, productSearch(search)),
+      ItemsAmountOffer(3000, productSearch(search)),
+      ItemsPercentOffer(30, productSearch(search)),
       FreeShippingOffer,
       DiscountedShippingOffer(500),
-      SetPriceOffer(2500, 2, dummySearch)
+      SetPriceOffer(2500, 2, productSearch(search))
   )
 
-  def discounts: Seq[(String, CreateDiscount)] =
-    for (q ← qualifiers; o ← offers) yield createDiscount(q, o)
+  def discounts(search: SharedSearch): Seq[(String, CreateDiscount)] =
+    for (q ← qualifiers(search); o ← offers(search)) yield createDiscount(q, o)
 
   def createDiscount(qualifier: Qualifier, offer: Offer): (String, CreateDiscount) = {
     val discountTitle  = DiscountTitles.getDiscountTitle(qualifier, offer)

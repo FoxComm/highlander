@@ -75,20 +75,6 @@
 + state: onHold (required, string) - New store credit state.
 + reasonId: 1 (optional, number) - ID of cancellation reason.
 
-### StoreCredits
-+ result     (required, array[StoreCredit])
-+ Include ResultMetadata
-
-### StoreCreditsWithTotals
-+ result
-  + storeCredits (required, array[StoreCredit])
-  + totals (required, StoreCreditTotals)
-+ Include ResultMetadata
-
-### StoreCreditAdjustments
-+ result     (required, array[StoreCreditAdjustment]) - The resulting list of StoreCreditAdjustment-s.
-+ Include ResultMetadata
-
 ### StoreCreditTotals
 + currentBalance: 50 (required, number) - Total current balance for customer.
 + availableBalance: 50 (required, number) - Total available balance for customer.

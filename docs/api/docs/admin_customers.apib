@@ -3,29 +3,6 @@
 + Parameters
     + id: 1 (required, number) - Customer ID.
 
-### List [GET /v1/customers{?size,from,sortBy}]
-
-+ Parameters
-    + size:   1           (optional, number)       - Page size.
-    + from:   1           (optional, number)       - Start element (counting from 0) or # of elements to skip.
-    + sortBy: `createdAt` (optional, enum[string]) - Field to sort by (`-fieldName` for descending order).
-        + Members
-            + `id`
-			+ `isDisabled`
-			+ `disabledBy`
-			+ `isBlacklisted`
-			+ `blacklistedBy`
-			+ `blacklistedReason`
-			+ `email`
-			+ `name`
-			+ `phoneNumber`
-			+ `location`
-			+ `modality`
-			+ `isGuest`
-            + `createdAt`
-+ Response 200 (application/json)
-    + Attributes (CustomersList)
-
 ### View [GET]
 
 + Response 200 (application/json)
@@ -82,31 +59,6 @@
 + Parameters
     + customerId: 1 (required, number) - Customer ID.
     + addressId: 1 (required, number) - Address ID.
-
-### List [GET /v1/customers/{customerId}/addresses{?size,from,sortBy}]
-
-+ Parameters
-    + customerId: 1       (required, number)       - Customer unique ID.
-    + size:   1           (optional, number)       - Page size.
-    + from:   1           (optional, number)       - Start element (counting from 0) or # of elements to skip.
-    + sortBy: `id` (optional, enum[string]) - Field to sort by (`-fieldName` for descending order).
-        + Members
-            + `id`
-            + `regionId`
-            + `name`
-            + `address1`
-            + `address2`
-            + `city`
-            + `zip`
-            + `isDefaultShipping`
-            + `phoneNumber`
-            + `deletedAt`
-            + `region_id`
-            + `region_countryId`
-            + `region_name`
-            + `region_abbreviation`
-+ Response 200 (application/json)
-    + Attributes (Addresses)
 
 ### View [GET]
 
@@ -204,28 +156,6 @@ This endpoint removes `isDefault` flag from any existing customer address.
     + customerId: 1 (required, number) - Customer ID.
     + storeCreditId: 1 (required, number) - Store Credit ID.
 
-### List [GET /v1/customer/{customerId}/payment-methods/store-credits/{?size,from,sortBy}]
-
-+ Parameters
-    + customerId: 1       (required, number)       - Customer ID.
-    + size:   1           (optional, number)       - Page size.
-    + from:   1           (optional, number)       - Start element (counting from 0) or # of elements to skip.
-    + sortBy: `createdAt` (optional, enum[string]) - Field to sort by (`-fieldName` for descending order).
-        + Members
-            + `id`
-            + `originId`
-            + `originType`
-            + `customerId`
-            + `currency`
-            + `originalBalance`
-            + `currentBalance`
-            + `availableBalance`
-            + `canceledAmount`
-            + `canceledReason`
-            + `createdAt`
-+ Response 200 (application/json)
-  + Attributes (StoreCreditsWithTotals)
-
 ### Create [POST /v1/customer/{customerId}/payment-methods/store-credits]
 
 + Request (application/json)
@@ -247,23 +177,3 @@ This endpoint removes `isDefault` flag from any existing customer address.
     + storeCreditId: 1 (required, number) - Store Credit ID.
 + Response 200 (application/json)
     + Attributes (GiftCard)
-
-### List Transactions [GET /v1/customer/{customerId}/payment-methods/store-credits/transactions{?size,from,sortBy}]
-
-This endpoint returns transactions for all customer store credits.
-
-+ Parameters
-    + customerId: 1       (required, number)       - Customer ID.
-    + size:   1           (optional, number)       - Page size.
-    + from:   1           (optional, number)       - Start element (counting from 0) or # of elements to skip.
-    + sortBy: `createdAt` (optional, enum[string]) - Field to sort by (`-fieldName` for descending order).
-        + Members
-            + `id`
-            + `storeCreditId`
-            + `orderPaymentId`
-            + `debit`
-            + `availableBalance`
-            + `state`
-            + `createdAt`
-+ Response 200 (application/json)
-    + Attributes (StoreCredits)

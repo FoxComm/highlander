@@ -155,8 +155,8 @@ class CheckoutTest
       case class CardPayment(cardAmount: Int, payAmount: Int)
 
       val cardWithPaymentGen = for {
-        payment <- paymentAmountGen
-        amount  <- Gen.choose(payment, payment * 2)
+        payment ← paymentAmountGen
+        amount  ← Gen.choose(payment, payment * 2)
       } yield CardPayment(amount, payment)
 
       val inputGen = for {

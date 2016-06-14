@@ -3,30 +3,6 @@
 + Parameters
     + addressId: 1 (required, number) - Address ID.
 
-### List [GET /v1/my/addresses{?size,from,sortBy}]
-
-+ Parameters
-    + size:   1           (optional, number)       - Page size.
-    + from:   1           (optional, number)       - Start element (counting from 0) or # of elements to skip.
-    + sortBy: `id` (optional, enum[string]) - Field to sort by (`-fieldName` for descending order).
-        + Members
-            + `id`
-            + `regionId`
-            + `name`
-            + `address1`
-            + `address2`
-            + `city`
-            + `zip`
-            + `isDefaultShipping`
-            + `phoneNumber`
-            + `deletedAt`
-            + `region_id`
-            + `region_countryId`
-            + `region_name`
-            + `region_abbreviation`
-+ Response 200 (application/json)
-    + Attributes (Addresses)
-
 ### View [GET]
 
 + Response 200 (application/json)

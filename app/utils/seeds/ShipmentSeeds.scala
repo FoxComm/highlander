@@ -2,7 +2,6 @@ package utils.seeds
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import models.location.Country
 import models.location.Country.unitedStatesId
 import models.rules._
 import models.shipping.ShippingPriceRule._

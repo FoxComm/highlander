@@ -65,18 +65,6 @@
 + rma (required, ReturnExpanded) - Expanded Return.
 + warnings (required, array[string]) - List of possible errors / warnings.
 
-### ReturnForList
-+ Include ReturnHeader
-+ orderId: 1 (required, number) - Related order ID.
-+ Include ReturnType
-+ Include ReturnState
-+ customer (optional, CustomerResponse) - Customer who created Return.
-+ storeAdmin (optional, StoreAdminResponse) - StoreAdmin who created Return.
-+ assignees (required, array[Assignee]) - List of Return assignees.
-+ createdAt: `2015-09-10T14:55:50Z` (required, string) - Creation date.
-+ updatedAt: `2015-09-10T14:55:50Z` (required, string) - Last update date.
-+ totals (required, number) - Total price of return.
-
 ### ReturnLineItemSkuInner
 + imagePath: `http://lorempixel.com/75/75/fashion` (required, string) - Image URL.
 + name: `donkey product` (required, string) - Product name.
@@ -143,7 +131,3 @@
 
 ### ReturnMessageToCustomerUpdatePayload
 + message: `Lorem ipsum` (required, string) - Desired message to customer after processing completes. Pass an empty string if you want to disable sending anything.
-
-### Returns
-+ result (required, array[ReturnForList]) - The resulting list of Returns.
-+ Include ResultMetadata

@@ -1,239 +1,86 @@
 {
-	"id": "b7a0ebbb-9ede-383e-4a59-57b7cf161795",
-	"name": "Phoenix Public",
-	"description": "",
-	"order": [
-		"cb5252e9-1c72-9bcb-b576-d05ef3e7e490",
-		"2e79ed57-a8d9-205d-2ffd-a89872f669d8",
-		"18ff7e0f-4b52-ebea-6f44-a81fd5ee2e84",
-		"75982126-c2ae-43e2-2cab-06275b0c68d9",
-		"4f936ff6-7598-361d-4ed0-cc432c7823c2",
-		"7c4ac0a4-c0a9-339d-5077-2b55f2a98689",
-		"f30a0a92-b999-0174-794c-cfdc084b3100",
-		"671a6302-0da2-6610-103b-7aa5c6f80ab7",
-		"97d5cacc-83d2-1c02-c784-7da39c2006b5",
-		"d580964a-fe84-63a7-675e-f100ada7953d",
-		"4b95c440-56af-ef2f-9b42-f825a5652add"
-	],
-	"folders": [],
-	"timestamp": 1449674831759,
-	"owner": "131444",
-	"remoteLink": "",
-	"public": false,
-	"requests": [
+	"variables": [],
+	"info": {
+		"name": "Phoenix Public",
+		"_postman_id": "b7a0ebbb-9ede-383e-4a59-57b7cf161795",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
 		{
-			"id": "18ff7e0f-4b52-ebea-6f44-a81fd5ee2e84",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/public/registrations/new",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "POST",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1456258446041,
-			"name": "Registration",
-			"description": "",
-			"collectionId": "b7a0ebbb-9ede-383e-4a59-57b7cf161795",
-			"responses": [],
-			"rawModeData": "{\n    \"email\": \"foobar@example.com\",\n    \"name\": \"Foo Bar\",\n    \"password\": \"mypassword\",\n    \"isGuest\": false\n}"
-		},
-		{
-			"id": "2e79ed57-a8d9-205d-2ffd-a89872f669d8",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/public/login",
-			"pathVariables": {},
-			"preRequestScript": "",
-			"method": "POST",
-			"collectionId": "b7a0ebbb-9ede-383e-4a59-57b7cf161795",
-			"data": [],
-			"dataMode": "raw",
-			"name": "Login as Customer",
-			"description": "",
-			"descriptionFormat": "html",
-			"time": 1461713348946,
-			"version": 2,
-			"responses": [],
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"rawModeData": "{\n    \"email\": \"yax@yax.com\",\n    \"password\": \"password\",\n    \"kind\": \"customer\"\n}"
-		},
-		{
-			"id": "4b95c440-56af-ef2f-9b42-f825a5652add",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/public/rma-reasons",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "params",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1456258483243,
-			"name": "List RMA Reasons",
-			"description": "",
-			"collectionId": "b7a0ebbb-9ede-383e-4a59-57b7cf161795",
-			"responses": []
-		},
-		{
-			"id": "4f936ff6-7598-361d-4ed0-cc432c7823c2",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/public/countries",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "params",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1456258454827,
-			"name": "List Countries",
-			"description": "",
-			"collectionId": "b7a0ebbb-9ede-383e-4a59-57b7cf161795",
-			"responses": []
-		},
-		{
-			"id": "671a6302-0da2-6610-103b-7aa5c6f80ab7",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/public/store-credits/types",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "params",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1456258469968,
-			"name": "List Store Credit Types",
-			"description": "",
-			"collectionId": "b7a0ebbb-9ede-383e-4a59-57b7cf161795",
-			"responses": []
-		},
-		{
-			"id": "75982126-c2ae-43e2-2cab-06275b0c68d9",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/public/regions",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "params",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1456258451631,
-			"name": "List Regions",
-			"description": "",
-			"collectionId": "b7a0ebbb-9ede-383e-4a59-57b7cf161795",
-			"responses": []
-		},
-		{
-			"id": "7c4ac0a4-c0a9-339d-5077-2b55f2a98689",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/public/countries/234",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "params",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1456258461576,
-			"name": "View Country",
-			"description": "",
-			"collectionId": "b7a0ebbb-9ede-383e-4a59-57b7cf161795",
-			"responses": []
-		},
-		{
-			"id": "97d5cacc-83d2-1c02-c784-7da39c2006b5",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/public/reasons",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "params",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1456258475043,
-			"name": "List Reasons",
-			"description": "",
-			"collectionId": "b7a0ebbb-9ede-383e-4a59-57b7cf161795",
-			"responses": []
-		},
-		{
-			"id": "cb5252e9-1c72-9bcb-b576-d05ef3e7e490",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/public/login",
-			"pathVariables": {},
-			"preRequestScript": "",
-			"method": "POST",
-			"collectionId": "b7a0ebbb-9ede-383e-4a59-57b7cf161795",
-			"data": [],
-			"dataMode": "raw",
 			"name": "Login as Admin",
-			"description": "",
-			"descriptionFormat": "html",
-			"time": 1458153862638,
-			"version": 2,
-			"responses": [],
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"rawModeData": "{\n    \"email\": \"admin@admin.com\",\n    \"password\": \"password\",\n    \"kind\": \"admin\"\n}"
+			"request": {
+				"url": "http://localhost:9090/v1/public/login",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"admin@admin.com\",\n    \"password\": \"password\",\n    \"kind\": \"admin\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
 		},
 		{
-			"id": "d580964a-fe84-63a7-675e-f100ada7953d",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/public/reasons/cancellation",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "params",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1456258479238,
-			"name": "List Reasons By Type",
-			"description": "",
-			"collectionId": "b7a0ebbb-9ede-383e-4a59-57b7cf161795",
-			"responses": []
+			"name": "Login as Customer",
+			"request": {
+				"url": "http://localhost:9090/v1/public/login",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"yax@yax.com\",\n    \"password\": \"password\",\n    \"kind\": \"customer\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
 		},
 		{
-			"id": "f30a0a92-b999-0174-794c-cfdc084b3100",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/public/gift-cards/types",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "params",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1456258465930,
-			"name": "List Gift Card Types",
-			"description": "",
-			"collectionId": "b7a0ebbb-9ede-383e-4a59-57b7cf161795",
-			"responses": []
+			"name": "Registration",
+			"request": {
+				"url": "http://localhost:9090/v1/public/registrations/new",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"foobar@example.com\",\n    \"name\": \"Foo Bar\",\n    \"password\": \"mypassword\",\n    \"isGuest\": false\n}"
+				},
+				"description": ""
+			},
+			"response": []
 		}
 	]
 }
