@@ -13,7 +13,6 @@ import MultiSelectTable from '../table/multi-select-table';
 
 import type { Product } from '../../modules/products/details';
 import type { Sku } from '../../modules/skus/details';
-import type { IlluminatedSku } from '../../paragons/product';
 
 type UpdateFn = (code: string, field: string, value: any) => void;
 
@@ -49,8 +48,7 @@ export default class SkuList extends Component<void, Props, void> {
 
   skuContent(skus: Array<Sku>): Element {
     const renderRow = (row, index, columns, params) => {
-      const code = row.code || `new-${index}`;
-      const key = `sku-${code}`;
+      const key = row.feCode || row.code;
 
       return (
         <EditableSkuRow

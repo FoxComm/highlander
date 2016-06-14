@@ -18,28 +18,13 @@ export type Error = {
   messages: Array<string>,
 };
 
+export type Attribute = { t: string, v: any };
+export type Attributes = { [key:string]: Attribute };
+
 export type Product = {
   id: ?number,
-  attributes: { [key:string]: { t: string, v: any } },
+  attributes: Attributes,
   skus: Array<Sku>,
-};
-
-export type Attribute = {
-  type: string,
-  [key:string]: any;
-};
-
-export type Attributes = { [key:string]: any };
-
-export type ShadowAttributes = {
-  [key:string]: { type: string, ref: string};
-};
-
-export type ProductShadow = {
-  id: ?number,
-  productId: ?number,
-  attributes: ShadowAttributes,
-  createdAt: ?string,
 };
 
 export type Variant = {

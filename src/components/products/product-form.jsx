@@ -18,7 +18,7 @@ import VariantList from './variant-list';
 import WaitAnimation from '../common/wait-animation';
 
 // types
-import type { Attributes, ShadowAttributes } from '../../modules/products/details';
+import type { Attributes } from '../../modules/products/details';
 import type { Product } from '../../modules/products/details';
 
 type Props = {

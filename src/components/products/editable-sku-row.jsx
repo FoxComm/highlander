@@ -60,7 +60,7 @@ export default class EditableSkuRow extends Component<void, Props, State> {
   }
 
   get code(): string {
-    return this.props.sku.code || 'new';
+    return this.props.sku.code || this.props.sku.feCode;
   }
 
   skuCell(sku: Sku): Element {

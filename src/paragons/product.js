@@ -13,41 +13,26 @@ import type {
   Product,
   Attribute,
   Attributes,
-  ShadowAttributes,
   Variant,
 } from '../modules/products/details';
 
-export type IlluminatedAttribute = {
-  label: string,
-  type: string,
-  value: string,
-};
-
-export type IlluminatedAttributes = { [key:string]: Attribute };
-
-export type IlluminatedSku = {
-  code: string,
-  attributes: IlluminatedAttributes,
-  createdAt: ?string,
-};
-
-export function getAttribute(formAttrs: Attributes, shadowAttrs: ShadowAttributes,
-  label: string): IlluminatedAttribute {
-
-  const shadow = shadowAttrs[label];
-  if(!shadow) return shadow;
-
-  const attribute = formAttrs[shadow.ref];
-
-  const res = {
-    label: label,
-    type: shadow.type,
-    value: attribute,
-  };
-
-  return res;
-}
-
+// export function getAttribute(formAttrs: Attributes, shadowAttrs: ShadowAttributes,
+//   label: string): IlluminatedAttribute {
+//
+//   const shadow = shadowAttrs[label];
+//   if(!shadow) return shadow;
+//
+//   const attribute = formAttrs[shadow.ref];
+//
+//   const res = {
+//     label: label,
+//     type: shadow.type,
+//     value: attribute,
+//   };
+//
+//   return res;
+// }
+//
 export function createEmptyProduct(): Product {
   const product = {
     id: null,
@@ -67,7 +52,7 @@ export function addEmptySku(product: Product): Product {
   };
 
   const emptySku = {
-    code: pseudoRandomCode,
+    feCode: pseudoRandomCode,
     attributes: {
       title: {
         t: 'string',
@@ -127,11 +112,9 @@ export function setSkuAttribute(product: Product,
                                 type: string,
                                 value: string): Product {
   const updateCode = sku => {
-    if (sku.code == code) {
-      return { ...sku, code: value };
-    }
-
-    return sku;
+    return (sku.code == code || sku.feCode == code)
+      ? { ...sku, code: value }
+      : sku;
   };
 
   const attrPath = type == 'price'
@@ -139,14 +122,12 @@ export function setSkuAttribute(product: Product,
     : ['attributes', label, 'v'];
 
   const updateAttribute = sku => {
-    if (sku.code == code) {
-      return assoc(sku, attrPath, value);
-    }
-
-    return sku;
+    return (sku.code == code || sku.feCode == code)
+      ? assoc(sku, attrPath, value)
+      : sku;
   };
 
-  const updateFn = label == code ? updateCode : updateAttribute;
+  const updateFn = label == 'code' ? updateCode : updateAttribute;
   const newSkus = product.skus.map(sku => updateFn(sku));
   return assoc(product, 'skus', newSkus);
 }
