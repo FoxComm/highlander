@@ -119,4 +119,34 @@ object ProductResponses {
       render(idMap)
     }
   }
+
+  // New Product Response
+  object ProductResponse {
+
+    case class Root(id: Int,
+                    context: ObjectContextResponse.Root,
+                    attributes: Json,
+                    skus: Seq[IlluminatedSkuResponse.Root],
+                    variants: Seq[IlluminatedVariantResponse.Root],
+                    variantMap: Json)
+        extends ResponseItem
+
+    def build(product: IlluminatedProduct,
+              skus: Seq[IlluminatedSku],
+              variants: Seq[(IlluminatedVariant, Seq[FullObject[VariantValue]])],
+              variantMap: Map[String, Seq[FullObject[VariantValue]]]): Root =
+      Root(id = product.id,
+           attributes = product.attributes,
+           context = ObjectContextResponse.build(product.context),
+           skus = skus.map(IlluminatedSkuResponse.buildLite _),
+           variants = variants.map {
+             case (variant, values) ⇒ IlluminatedVariantResponse.buildLite(variant, values)
+           },
+           variantMap = buildVariantMap(variantMap))
+
+    private def buildVariantMap(vm: Map[String, Seq[FullObject[VariantValue]]]): Json = {
+      val idMap = vm.mapValues(_.map(_.form.id))
+      render(idMap)
+    }
+  }
 }
