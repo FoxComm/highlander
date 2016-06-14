@@ -98,3 +98,5 @@ threadpool:
 # Require explicit names when deleting indices:
 #
 # action.destructive_requires_name: true
+
+script.engine.groovy.inline.aggs: on
