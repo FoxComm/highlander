@@ -29,6 +29,12 @@ const sortCountries = createSelector(
   (countries = {}) => _.values(countries).sort((a, b) => a.name < b.name ? -1 : 1)
 );
 
+const countryIdFromProps = (props) => {
+  const defaultCountryId = _.get(_.find(props.countries, { alpha2: 'US' }), 'id');
+  const countryId = _.get(props, 'address.countryId', defaultCountryId);
+  return countryId;
+};
+
 function mapStateToProps(state, props) {
   return {
     countries: sortCountries(state),
@@ -74,19 +80,24 @@ export default class AddressForm extends React.Component {
   constructor(...args) {
     super(...args);
 
-    const countryId = _.get(this.props,
-      'address.countryId',
-      _.find(this.props.countries, { alpha2: 'US' }).id
-    );
+    const countryId = countryIdFromProps(this.props);
 
     this.state = {
       countryId: countryId,
+      stateId: null,
       phone: _.get(this.props, ['address', 'phoneNumber'], ''),
     };
   }
 
   componentDidMount() {
     this.props.fetchCountry(this.state.countryId);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (_.isEmpty(this.props.countries) && !_.isEmpty(nextProps.countries)) {
+      const countryId = countryIdFromProps(nextProps);
+      this.setState({ countryId }, () => this.props.fetchCountry(countryId));
+    }
   }
 
   get country() {
@@ -167,6 +178,14 @@ export default class AddressForm extends React.Component {
     }, () => this.props.fetchCountry(countryId));
   }
 
+  @autobind
+  handleStateChange(stateId) {
+    this.setState({
+      stateId,
+    });
+  }
+
+  @autobind
   handlePhoneChange(phone) {
     this.setState({phone});
   }
@@ -218,7 +237,7 @@ export default class AddressForm extends React.Component {
                 <FormField label="Country">
                   <Dropdown name="countryId"
                             value={this.state.countryId}
-                            onChange={value => this.handleCountryChange(Number(value))}>
+                            onChange={value => this.handleCountryChange(Number(value))} >
                     {this.countryItems}
                   </Dropdown>
                 </FormField>
@@ -240,7 +259,10 @@ export default class AddressForm extends React.Component {
               </li>
               <li>
                 <FormField label={regionName(countryCode)} required>
-                  <Dropdown name="regionId" value={regionId}>
+                  <Dropdown
+                    name="regionId"
+                    value={this.state.stateId}
+                    onChange={value => this.handleStateChange(Number(value))} >
                     {this.regionItems}
                   </Dropdown>
                 </FormField>
