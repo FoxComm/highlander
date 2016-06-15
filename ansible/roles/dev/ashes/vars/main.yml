@@ -1,2 +1,3 @@
 ashes_source_package: "{{role_path}}/../../../../../ashes/ashes.tar.bz2"
 ashes_install_dir: "{{home}}/ashes"
+ashes_ga_tracking_id: "UA-79356556-1"
