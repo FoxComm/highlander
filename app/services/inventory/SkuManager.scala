@@ -29,31 +29,30 @@ object SkuManager {
   // NEW SIMPLE ENDPOINTS
 
   def createSku(contextName: String, payload: SkuPayload)(
-      implicit ec: EC, db: DB): Result[IlluminatedSkuResponse.Root] = {
+      implicit ec: EC, db: DB): Result[SkuResponse.Root] = {
     (for {
       context ← * <~ ObjectManager.mustFindByName404(contextName)
       sku     ← * <~ createSkuInner(context, payload)
-    } yield IlluminatedSkuResponse.build(IlluminatedSku.illuminate(context, sku))).runTxn()
+    } yield SkuResponse.build(IlluminatedSku.illuminate(context, sku))).runTxn()
   }
 
   def getSku(contextName: String, code: String)(
-      implicit ec: EC, db: DB): Result[IlluminatedSkuResponse.Root] =
+      implicit ec: EC, db: DB): Result[SkuResponse.Root] =
     (for {
       context ← * <~ ObjectManager.mustFindByName404(contextName)
       sku     ← * <~ SkuManager.mustFindSkuByContextAndCode(context.id, code)
       form    ← * <~ ObjectForms.mustFindById404(sku.formId)
       shadow  ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
     } yield
-      IlluminatedSkuResponse.build(
-          IlluminatedSku.illuminate(context, FullObject(sku, form, shadow)))).run()
+      SkuResponse.build(IlluminatedSku.illuminate(context, FullObject(sku, form, shadow)))).run()
 
   def updateSku(contextName: String, code: String, payload: SkuPayload)(
-      implicit ec: EC, db: DB): Result[IlluminatedSkuResponse.Root] =
+      implicit ec: EC, db: DB): Result[SkuResponse.Root] =
     (for {
       context    ← * <~ ObjectManager.mustFindByName404(contextName)
       sku        ← * <~ SkuManager.mustFindSkuByContextAndCode(context.id, code)
       updatedSku ← * <~ updateSkuInner(sku, payload)
-    } yield IlluminatedSkuResponse.build(IlluminatedSku.illuminate(context, updatedSku))).runTxn()
+    } yield SkuResponse.build(IlluminatedSku.illuminate(context, updatedSku))).runTxn()
 
   def createSkuInner(context: ObjectContext, payload: SkuPayload)(
       implicit ec: EC, db: DB): DbResultT[FullObject[Sku]] = {

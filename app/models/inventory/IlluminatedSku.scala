@@ -8,7 +8,7 @@ import utils.aliases._
   * An IlluminatedSku is what you get when you combine the sku shadow and
   * the sku. 
   */
-case class IlluminatedSku(code: String, context: IlluminatedContext, attributes: Json)
+case class IlluminatedSku(id: Int, code: String, context: IlluminatedContext, attributes: Json)
 
 object IlluminatedSku {
 
@@ -17,7 +17,8 @@ object IlluminatedSku {
     val formAttrs   = sku.form.attributes
     val shadowAttrs = sku.shadow.attributes
 
-    IlluminatedSku(code = model.code,
+    IlluminatedSku(id = sku.form.id,
+                   code = model.code,
                    context = IlluminatedContext(context.name, context.attributes),
                    attributes = IlluminateAlgorithm.projectAttributes(formAttrs, shadowAttrs))
   }

@@ -9,7 +9,7 @@ import models.objects.{ObjectCommit, ObjectCommits, ObjectContexts, ObjectForms,
 import models.product.{SimpleContext, SimpleSku, SimpleSkuShadow}
 import org.json4s.JsonDSL._
 import payloads.SkuPayloads.SkuPayload
-import responses.SkuResponses.{FullSkuResponse, IlluminatedSkuResponse}
+import responses.SkuResponses.{FullSkuResponse, SkuResponse}
 import util.IntegrationTestBase
 import utils.Money.Currency
 import utils.aliases._
@@ -35,8 +35,9 @@ class SkuIntegrationTest extends IntegrationTestBase with HttpSupport with Autom
       val response = GET(s"v1/skus/${context.name}/${sku.code}")
       response.status must ===(StatusCodes.OK)
 
-      val skuResponse = response.as[IlluminatedSkuResponse.Root]
-      skuResponse.code must ===(sku.code)
+      val skuResponse = response.as[SkuResponse.Root]
+      val code        = skuResponse.attributes \ "code" \ "v"
+      code.extract[String] must ===(sku.code)
 
       val salePrice = skuResponse.attributes \ "salePrice" \ "v" \ "value"
       salePrice.extract[Int] must ===(9999)
@@ -56,8 +57,9 @@ class SkuIntegrationTest extends IntegrationTestBase with HttpSupport with Autom
       val response = PATCH(s"v1/skus/${context.name}/${sku.code}", updatePayload)
       response.status must ===(StatusCodes.OK)
 
-      val skuResponse = response.as[IlluminatedSkuResponse.Root]
-      skuResponse.code must ===(sku.code)
+      val skuResponse = response.as[SkuResponse.Root]
+      val code        = skuResponse.attributes \ "code" \ "v"
+      code.extract[String] must ===(sku.code)
 
       val name = skuResponse.attributes \ "name" \ "v"
       name.extract[String] must ===("Test")
@@ -75,8 +77,9 @@ class SkuIntegrationTest extends IntegrationTestBase with HttpSupport with Autom
       val response2 = GET(s"v1/skus/${context.name}/upcode")
       response2.status must ===(StatusCodes.OK)
 
-      val skuResponse = response2.as[IlluminatedSkuResponse.Root]
-      skuResponse.code must ===("UPCODE")
+      val skuResponse = response2.as[SkuResponse.Root]
+      val code        = skuResponse.attributes \ "code" \ "v"
+      code.extract[String] must ===("UPCODE")
 
       val salePrice = skuResponse.attributes \ "salePrice" \ "v" \ "value"
       salePrice.extract[Int] must ===(9999)

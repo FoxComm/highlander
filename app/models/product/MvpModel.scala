@@ -95,6 +95,7 @@ case class SimpleSku(code: String,
 
   val (keyMap, form) = ObjectUtils.createForm(parse(s"""
       {
+        "code": "$code",
         "title" : "$title",
         "images" : ["$image"],
         "retailPrice" : {
@@ -119,6 +120,7 @@ case class SimpleSkuShadow(s: SimpleSku) {
 
   val shadow = ObjectUtils.newShadow(parse("""
         {
+          "code" : {"type": "string", "ref": "code"},
           "title" : {"type": "string", "ref": "title"},
           "images" : {"type": "images", "ref": "images"},
           "retailPrice" : {"type": "price", "ref": "retailPrice"},

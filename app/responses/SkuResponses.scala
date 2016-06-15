@@ -62,4 +62,18 @@ object SkuResponses {
            shadow = shadow,
            context = ObjectContextResponse.build(context))
   }
+
+  object SkuResponse {
+
+    case class Root(id: Int, context: Option[ObjectContextResponse.Root], attributes: Json)
+        extends ResponseItem
+
+    def build(s: IlluminatedSku): Root =
+      Root(id = s.id,
+           attributes = s.attributes,
+           context = ObjectContextResponse.build(s.context).some)
+
+    def buildLite(s: IlluminatedSku): Root =
+      Root(id = s.id, attributes = s.attributes, context = None)
+  }
 }
