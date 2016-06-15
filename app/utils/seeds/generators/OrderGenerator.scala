@@ -1,36 +1,35 @@
 package utils.seeds.generators
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
-import models.customer.Customer
-import models.location.Addresses
-import models.order.lineitems._
-import models.order._
-import models.payment.creditcard.{CreditCard, CreditCards}
-import models.payment.giftcard._
-import models.payment.storecredit._
-import models.shipping.{Shipment, Shipments, ShippingMethods}
-import models.Note
-import models.product.{SimpleProductData, Mvp}
-import models.objects.ObjectContext
-import Order.{Cart, FraudHold, ManualHold, RemorseHold, Shipped}
-import services.orders.OrderTotaler
-import utils.db._
-import utils.db.DbResultT._
-import utils.seeds.ShipmentSeeds
-import utils.time
-import utils.aliases._
 import java.time.Instant
 
-import faker._
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
 
-import slick.driver.PostgresDriver.api._
 import cats.implicits._
 import failures.CreditCardFailures.CustomerHasNoCreditCard
 import failures.CustomerFailures.CustomerHasNoDefaultAddress
 import failures.ShippingMethodFailures.ShippingMethodIsNotFound
+import faker._
+import models.Note
+import models.customer.Customer
+import models.location.Addresses
+import models.objects.ObjectContext
+import models.order.Order.{Cart, FraudHold, ManualHold, RemorseHold, Shipped}
+import models.order._
+import models.order.lineitems._
+import models.payment.creditcard.{CreditCard, CreditCards}
+import models.payment.giftcard._
+import models.payment.storecredit._
+import models.product.Mvp
+import models.shipping.{Shipment, Shipments, ShippingMethods}
 import services.inventory.InventoryAdjustmentManager
+import services.orders.OrderTotaler
+import slick.driver.PostgresDriver.api._
+import utils.aliases._
+import utils.db.DbResultT._
+import utils.db._
+import utils.seeds.ShipmentSeeds
+import utils.time
 
 trait OrderGenerator extends ShipmentSeeds {
 
@@ -335,8 +334,7 @@ trait OrderGenerator extends ShipmentSeeds {
 
   private def authGiftCard(
       results: Seq[(OrderPayment, GiftCard)]): DbResultT[Seq[GiftCardAdjustment]] =
-    DbResultT.sequence(
-        results.map { case (pmt, m) ⇒ DbResultT(GiftCards.authOrderPayment(m, pmt)) })
+    DbResultT.sequence(results.map { case (pmt, m) ⇒ GiftCards.authOrderPayment(m, pmt) })
 
   private def deductAmount(availableBalance: Int, totalCost: Int): Int =
     Math.max(1,

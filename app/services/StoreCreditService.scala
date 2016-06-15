@@ -149,6 +149,6 @@ object StoreCreditService {
         _ ← * <~ StoreCredits.cancelByCsr(storeCredit, admin)
       } yield upd
 
-    case _ ⇒ DbResultT(StoreCredits.update(storeCredit, storeCredit.copy(state = newState)))
+    case _ ⇒ StoreCredits.update(storeCredit, storeCredit.copy(state = newState))
   }
 }

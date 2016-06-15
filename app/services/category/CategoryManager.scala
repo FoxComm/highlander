@@ -94,9 +94,8 @@ object CategoryManager {
       implicit ec: EC): DbResultT[Category] =
     maybeCommit match {
       case Some(commit) ⇒
-        DbResultT(
-            Categories.update(
-                category, category.copy(shadowId = categoryShadow.id, commitId = commit.id)))
+        Categories.update(
+            category, category.copy(shadowId = categoryShadow.id, commitId = commit.id))
       case None ⇒
         DbResultT.pure(category)
     }

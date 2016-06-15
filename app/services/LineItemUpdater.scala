@@ -1,23 +1,23 @@
 package services
 
-import models.inventory.{Sku, Skus}
-import models.activity.Activity
-import models.order.lineitems._
-import OrderLineItems.scope._
-import models.customer.Customer
-import models.order._
-import models.payment.giftcard._
 import models.StoreAdmin
-import responses.order.FullOrder
-import FullOrder.refreshAndFullOrder
-import responses.TheResponse
-import services.orders.{OrderPromotionUpdater, OrderTotaler}
-import utils.aliases._
-import utils.db._
-import utils.db.DbResultT._
+import models.activity.Activity
+import models.customer.Customer
+import models.inventory.{Sku, Skus}
 import models.objects.ObjectContext
+import models.order._
+import models.order.lineitems.OrderLineItems.scope._
+import models.order.lineitems._
+import models.payment.giftcard._
 import payloads.LineItemPayloads.{AddGiftCardLineItem, UpdateLineItemsPayload}
+import responses.TheResponse
+import responses.order.FullOrder
+import responses.order.FullOrder.refreshAndFullOrder
+import services.orders.{OrderPromotionUpdater, OrderTotaler}
 import slick.driver.PostgresDriver.api._
+import utils.aliases._
+import utils.db.DbResultT._
+import utils.db._
 
 object LineItemUpdater {
   def addGiftCard(admin: StoreAdmin, refNum: String, payload: AddGiftCardLineItem)(
@@ -91,7 +91,8 @@ object LineItemUpdater {
     val findOrCreate = Orders
       .findActiveOrderByCustomer(customer)
       .one
-      .findOrCreateExtended(Orders.create(Order.buildCart(customer.id, context.id)))
+      // TODO @anna: #longlivedbresultt
+      .findOrCreateExtended(Orders.create(Order.buildCart(customer.id, context.id)).value)
 
     val logActivity = (order: FullOrder.Root, oldQtys: Map[String, Int]) ⇒
       LogActivity.orderLineItemsUpdated(order, oldQtys, payload)

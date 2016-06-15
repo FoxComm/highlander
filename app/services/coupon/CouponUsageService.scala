@@ -4,7 +4,6 @@ import failures.CouponFailures._
 import models.coupon._
 import models.customer.Customer
 import models.objects.{ObjectContexts, ObjectForms}
-import services.Result
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db.DbResultT._
@@ -67,25 +66,30 @@ object CouponUsageService {
                     .one
                     .mustFindOr(CouponNotFoundForContext(code.couponFormId, context.name))
           form ← * <~ ObjectForms.mustFindById400(coupon.formId)
+          // TODO @anna: #longlivedbresultt
           couponUsage ← * <~ CouponUsages
                          .filterByCoupon(coupon.formId)
                          .one
-                         .findOrCreate(CouponUsages.create(
-                                 new CouponUsage(couponFormId = coupon.formId, count = 1)))
+                         .findOrCreate(CouponUsages
+                               .create(new CouponUsage(couponFormId = coupon.formId, count = 1))
+                               .value)
           couponCodeUsage ← * <~ CouponCodeUsages
                              .filterByCouponAndCode(coupon.formId, couponCode.id)
                              .one
-                             .findOrCreate(CouponCodeUsages.create(
-                                     new CouponCodeUsage(couponFormId = coupon.formId,
-                                                         couponCodeId = couponCode.id,
-                                                         count = 0)))
+                             .findOrCreate(CouponCodeUsages
+                                   .create(new CouponCodeUsage(couponFormId = coupon.formId,
+                                                               couponCodeId = couponCode.id,
+                                                               count = 0))
+                                   .value)
           couponUsageByCustomer ← * <~ CouponCustomerUsages
                                    .filterByCouponAndCustomer(coupon.formId, customer.id)
                                    .one
-                                   .findOrCreate(CouponCustomerUsages.create(
-                                           new CouponCustomerUsage(couponFormId = coupon.formId,
-                                                                   customerId = customer.id,
-                                                                   count = 0)))
+                                   .findOrCreate(CouponCustomerUsages
+                                         .create(
+                                             new CouponCustomerUsage(couponFormId = coupon.formId,
+                                                                     customerId = customer.id,
+                                                                     count = 0))
+                                         .value)
           _ ← * <~ CouponUsages.update(
                  couponUsage, couponUsage.copy(count = couponUsage.count + 1))
           _ ← * <~ CouponCodeUsages.update(

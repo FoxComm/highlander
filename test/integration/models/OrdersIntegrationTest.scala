@@ -2,17 +2,19 @@ package models
 
 import java.time.Instant
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import models.customer.Customers
 import models.order.Order._
 import models.order.Orders
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
+import utils.db.DbResultT._
 import utils.db._
 import utils.seeds.Seeds.Factories
 import utils.time._
 
 class OrdersIntegrationTest extends IntegrationTestBase {
-  import concurrent.ExecutionContext.Implicits.global
 
   "Orders" - {
     "generates a referenceNumber in Postgres after insert when blank" in new Fixture {
@@ -55,7 +57,7 @@ class OrdersIntegrationTest extends IntegrationTestBase {
 
       order.remorsePeriodEnd must ===(None)
 
-      db.run(Orders.update(order, order.copy(state = RemorseHold))).futureValue mustBe 'right
+      Orders.update(order, order.copy(state = RemorseHold)).run().futureValue mustBe 'right
 
       val updatedOrder = Orders.findByRefNum(order.referenceNumber).gimme.headOption.value
       updatedOrder.remorsePeriodEnd.value.minuteOfHour must ===(

@@ -72,7 +72,8 @@ object Activities
     logger.info(s"Activity ${a.activityType} by ${context.userType} ${context.userId}")
     logger.debug(writePretty(activity))
 
-    create(activity)
+    // TODO @anna: #longlivedbresultt
+    create(activity).value
   }
 
   def filterByType(activityType: ActivityType): QuerySeq = filter(_.activityType === activityType)

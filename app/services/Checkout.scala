@@ -44,7 +44,9 @@ object Checkout {
       result ← * <~ Orders
                 .findActiveOrderByCustomer(customer)
                 .one
-                .findOrCreateExtended(Orders.create(Order.buildCart(customer.id, context.id)))
+                // TODO @anna: #longlivedbresultt
+                .findOrCreateExtended(
+                    Orders.create(Order.buildCart(customer.id, context.id)).value)
       (cart, _) = result
       order ← * <~ Checkout(cart, CartValidator(cart)).checkout
       _     ← * <~ LogActivity.orderCheckoutCompleted(order)
@@ -175,7 +177,7 @@ case class Checkout(cart: Order, cartValidator: CartValidation)(
   private def authInternalPaymentMethod[Adjustment, Card](
       orderPayments: Seq[(OrderPayment, Card)],
       maxPaymentAmount: Int,
-      authOrderPayment: (Card, OrderPayment, Option[Int]) ⇒ DbResult[Adjustment],
+      authOrderPayment: (Card, OrderPayment, Option[Int]) ⇒ DbResultT[Adjustment],
       getAdjustmentAmount: (Adjustment) ⇒ Int): DbResultT[Int] = {
 
     if (orderPayments.isEmpty) {
@@ -194,7 +196,7 @@ case class Checkout(cart: Order, cartValidator: CartValidation)(
       for {
         adjustments ← * <~ orderPayments.zip(limitedAmounts).collect {
                        case ((payment, card), amount) if amount > 0 ⇒
-                         DbResultT(authOrderPayment(card, payment, amount.some))
+                         authOrderPayment(card, payment, amount.some)
                      }
         total = adjustments.map(getAdjustmentAmount).sum.ensuring(_ <= maxPaymentAmount)
       } yield total
@@ -251,6 +253,6 @@ case class Checkout(cart: Order, cartValidator: CartValidation)(
       order      ← * <~ Orders.update(cart, cart.copy(fraudScore = fraudScore))
     } yield order).value
 
-  private def createNewCart: DbResult[Order] =
+  private def createNewCart: DbResultT[Order] =
     Orders.create(Order.buildCart(cart.customerId, cart.contextId))
 }

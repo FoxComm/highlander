@@ -124,9 +124,10 @@ object DiscountManager {
 
   private def updateHead(
       discount: Discount, shadow: ObjectShadow, maybeCommit: Option[ObjectCommit])(
-      implicit ec: EC): DbResult[Discount] = maybeCommit match {
+      implicit ec: EC): DbResultT[Discount] = maybeCommit match {
     case Some(commit) ⇒
       Discounts.update(discount, discount.copy(shadowId = shadow.id, commitId = commit.id))
-    case None ⇒ DbResult.good(discount)
+    case None ⇒
+      DbResultT.rightLift(discount)
   }
 }

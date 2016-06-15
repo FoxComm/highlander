@@ -189,10 +189,11 @@ object PromotionManager {
             discounts.map(d ⇒ IlluminatedDiscount.illuminate(form = d.form, shadow = d.shadow))))
       .run()
 
-  private def updateHead(promotion: Promotion,
-                         payload: UpdatePromotion,
-                         shadow: ObjectShadow,
-                         maybeCommit: Option[ObjectCommit])(implicit ec: EC): DbResult[Promotion] =
+  private def updateHead(
+      promotion: Promotion,
+      payload: UpdatePromotion,
+      shadow: ObjectShadow,
+      maybeCommit: Option[ObjectCommit])(implicit ec: EC): DbResultT[Promotion] =
     maybeCommit match {
       case Some(commit) ⇒
         val updated =
@@ -201,6 +202,7 @@ object PromotionManager {
       case None ⇒
         if (promotion.applyType != payload.applyType)
           Promotions.update(promotion, promotion.copy(applyType = payload.applyType))
-        else DbResult.good(promotion)
+        else
+          DbResultT.rightLift(promotion)
     }
 }

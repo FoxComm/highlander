@@ -243,21 +243,21 @@ object GiftCards
   import GiftCard._
 
   def auth(giftCard: GiftCard, orderPaymentId: Option[Int], debit: Int = 0, credit: Int = 0)(
-      implicit ec: EC): DbResult[GiftCardAdjustment] =
+      implicit ec: EC): DbResultT[GiftCardAdjustment] =
     adjust(giftCard, orderPaymentId, debit = debit, credit = credit, state = Adj.Auth)
 
   def authOrderPayment(
       giftCard: GiftCard, pmt: OrderPayment, maxPaymentAmount: Option[Int] = None)(
-      implicit ec: EC): DbResult[GiftCardAdjustment] =
+      implicit ec: EC): DbResultT[GiftCardAdjustment] =
     auth(
         giftCard = giftCard, orderPaymentId = pmt.id.some, debit = pmt.getAmount(maxPaymentAmount))
 
   def capture(giftCard: GiftCard, orderPaymentId: Option[Int], debit: Int = 0, credit: Int = 0)(
-      implicit ec: EC): DbResult[GiftCardAdjustment] =
+      implicit ec: EC): DbResultT[GiftCardAdjustment] =
     adjust(giftCard, orderPaymentId, debit = debit, credit = credit, state = Adj.Capture)
 
   def cancelByCsr(giftCard: GiftCard, storeAdmin: StoreAdmin)(
-      implicit ec: EC): DbResult[GiftCardAdjustment] = {
+      implicit ec: EC): DbResultT[GiftCardAdjustment] = {
     val adjustment = Adj(giftCardId = giftCard.id,
                          orderPaymentId = None,
                          storeAdminId = storeAdmin.id.some,
@@ -269,7 +269,7 @@ object GiftCards
   }
 
   def redeemToStoreCredit(giftCard: GiftCard, storeAdmin: StoreAdmin)(
-      implicit ec: EC): DbResult[GiftCardAdjustment] = {
+      implicit ec: EC): DbResultT[GiftCardAdjustment] = {
     val adjustment = Adj(giftCardId = giftCard.id,
                          orderPaymentId = None,
                          storeAdminId = storeAdmin.id.some,
@@ -294,7 +294,7 @@ object GiftCards
                      debit: Int = 0,
                      credit: Int = 0,
                      state: GiftCardAdjustment.State = Adj.Auth)(
-      implicit ec: EC): DbResult[GiftCardAdjustment] = {
+      implicit ec: EC): DbResultT[GiftCardAdjustment] = {
     val balance = giftCard.availableBalance - debit + credit
     val adjustment = Adj(giftCardId = giftCard.id,
                          orderPaymentId = orderPaymentId,

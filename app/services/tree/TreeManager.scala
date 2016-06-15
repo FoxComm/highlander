@@ -14,7 +14,7 @@ import services.objects.ObjectManager
 import utils.aliases._
 import utils.db.DbResultT._
 import utils.db.ExPostgresDriver.api._
-import utils.db.{DbResultT, _}
+import utils.db._
 
 object TreeManager {
 
@@ -98,11 +98,12 @@ object TreeManager {
 
   private def getOrCreateDbTree(
       treeName: String, context: ObjectContext, createIfNotFound: Boolean = false)(
-      implicit ec: EC, db: DB) =
+      implicit ec: EC, db: DB): DbResultT[GenericTree] =
     for {
       maybeTree ← * <~ GenericTrees.filterByNameAndContext(treeName, context.id).result
+      // TODO @anna: #longlivedbresultt
       ifEmptyAction = if (createIfNotFound)
-        GenericTrees.create(GenericTree(0, treeName, context.id))
+        GenericTrees.create(GenericTree(0, treeName, context.id)).value
       else DbResult.failure(TreeNotFound(treeName, context.name))
       tree ← * <~ (if (maybeTree.isEmpty) ifEmptyAction else DbResult.good(maybeTree.head))
     } yield tree

@@ -13,15 +13,13 @@ class GoogleOauthStoreAdmin(options: GoogleOauthOptions)
     with OauthService[StoreAdmin]
     with GoogleProvider {
 
-  def createByUserInfo(userInfo: UserInfo)(implicit ec: EC): DbResult[StoreAdmin] = {
-    StoreAdmins.create(StoreAdmin(email = userInfo.email, name = userInfo.name))
-  }
+  // TODO @anna: #longlivedbresultt
+  def createByUserInfo(userInfo: UserInfo)(implicit ec: EC): DbResult[StoreAdmin] =
+    StoreAdmins.create(StoreAdmin(email = userInfo.email, name = userInfo.name)).value
 
   def findByEmail(email: String)(implicit ec: EC, db: DB) = StoreAdmins.findByEmail(email)
 
-  def createToken(admin: StoreAdmin): Token = {
-    AdminToken.fromAdmin(admin)
-  }
+  def createToken(admin: StoreAdmin): Token = AdminToken.fromAdmin(admin)
 }
 
 class GoogleOauthCustomer(options: GoogleOauthOptions)
@@ -29,15 +27,13 @@ class GoogleOauthCustomer(options: GoogleOauthOptions)
     with OauthService[Customer]
     with GoogleProvider {
 
-  def createByUserInfo(userInfo: UserInfo)(implicit ec: EC): DbResult[Customer] = {
-    Customers.create(Customer(email = userInfo.email, name = Some(userInfo.name)))
-  }
+  // TODO @anna: #longlivedbresultt
+  def createByUserInfo(userInfo: UserInfo)(implicit ec: EC): DbResult[Customer] =
+    Customers.create(Customer(email = userInfo.email, name = Some(userInfo.name))).value
 
   def findByEmail(email: String)(implicit ec: EC, db: DB) = Customers.findByEmail(email)
 
-  def createToken(customer: Customer): Token = {
-    CustomerToken.fromCustomer(customer)
-  }
+  def createToken(customer: Customer): Token = CustomerToken.fromCustomer(customer)
 }
 
 object GoogleOauth {
@@ -52,8 +48,10 @@ object GoogleOauth {
         hostedDomain = config.getOptString(s"oauth.$configPrefix.google.hosted_domain"))
 
     identity match {
-      case Identity.Customer ⇒ new GoogleOauthCustomer(opts)
-      case Identity.Admin    ⇒ new GoogleOauthStoreAdmin(opts)
+      case Identity.Customer ⇒
+        new GoogleOauthCustomer(opts)
+      case Identity.Admin ⇒
+        new GoogleOauthStoreAdmin(opts)
       case _ ⇒
         throw new RuntimeException(s"Identity $configPrefix not supported for google oauth.")
     }

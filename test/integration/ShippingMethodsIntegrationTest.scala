@@ -38,9 +38,9 @@ class ShippingMethodsIntegrationTest
             | }
           """.stripMargin).extract[QueryStatement]
 
-        val action = shipping.ShippingMethods.create(
-            Factories.shippingMethods.head.copy(conditions = Some(conditions)))
-        val shippingMethod = db.run(action).gimme
+        val shippingMethod = shipping.ShippingMethods
+          .create(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
+          .gimme
 
         val response = GET(s"v1/shipping-methods/${order.referenceNumber}")
         response.status must ===(StatusCodes.OK)
@@ -65,9 +65,9 @@ class ShippingMethodsIntegrationTest
             | }
           """.stripMargin).extract[QueryStatement]
 
-        val action = shipping.ShippingMethods.create(
-            Factories.shippingMethods.head.copy(conditions = Some(conditions)))
-        val shippingMethod = db.run(action).gimme
+        val shippingMethod = shipping.ShippingMethods
+          .create(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
+          .gimme
 
         val response = GET(s"v1/shipping-methods/${order.referenceNumber}")
         response.status must ===(StatusCodes.OK)
@@ -172,9 +172,9 @@ class ShippingMethodsIntegrationTest
           |}
         """.stripMargin).extract[QueryStatement]
 
-    val action =
-      ShippingMethods.create(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
-    val shippingMethod = db.run(action).gimme
+    val shippingMethod = ShippingMethods
+      .create(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
+      .gimme
   }
 
   trait ShippingMethodsStateAndPriceCondition extends ShippingMethodsFixture {
@@ -222,9 +222,9 @@ class ShippingMethodsIntegrationTest
           |}
       """.stripMargin).extract[QueryStatement]
 
-    val action = shipping.ShippingMethods.create(
-        Factories.shippingMethods.head.copy(conditions = Some(conditions)))
-    val shippingMethod = db.run(action).gimme
+    val shippingMethod = shipping.ShippingMethods
+      .create(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
+      .gimme
   }
 
   trait ShipToCaliforniaButNotHazardous extends ShippingMethodsFixture {

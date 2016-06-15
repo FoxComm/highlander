@@ -73,7 +73,9 @@ object OrderQueries {
       result ← * <~ Orders
                 .findActiveOrderByCustomer(customer)
                 .one
-                .findOrCreateExtended(Orders.create(Order.buildCart(customer.id, context.id)))
+                // TODO @anna: #longlivedbresultt
+                .findOrCreateExtended(
+                    Orders.create(Order.buildCart(customer.id, context.id)).value)
       (order, foundOrCreated) = result
       fullOrder ← * <~ FullOrder.fromOrder(order).toXor
       _         ← * <~ logCartCreation(foundOrCreated, fullOrder, admin)

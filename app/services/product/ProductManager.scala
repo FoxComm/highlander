@@ -197,11 +197,11 @@ object ProductManager {
 
   private def updateHead(
       product: Product, shadow: ObjectShadow, maybeCommit: Option[ObjectCommit])(
-      implicit ec: EC): DbResult[Product] = maybeCommit match {
+      implicit ec: EC): DbResultT[Product] = maybeCommit match {
     case Some(commit) ⇒
       Products.update(product, product.copy(shadowId = shadow.id, commitId = commit.id))
     case None ⇒
-      DbResult.good(product)
+      DbResultT.rightLift(product)
   }
 
   private def findOrCreateSkuForProduct(product: Product, payload: SkuPayload)(
@@ -516,10 +516,11 @@ object ProductManager {
 
   private def updateProductHead(
       product: Product, productShadow: ObjectShadow, maybeCommit: Option[ObjectCommit])(
-      implicit ec: EC): DbResult[Product] = maybeCommit match {
+      implicit ec: EC): DbResultT[Product] = maybeCommit match {
     case Some(commit) ⇒
       Products.update(product, product.copy(shadowId = productShadow.id, commitId = commit.id))
-    case None ⇒ DbResult.good(product)
+    case None ⇒
+      DbResultT.rightLift(product)
   }
 
   private def validateSkuPayload(

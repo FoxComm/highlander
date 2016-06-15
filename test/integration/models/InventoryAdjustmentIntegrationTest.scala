@@ -6,7 +6,7 @@ import models.inventory.InventoryAdjustment._
 import models.inventory._
 import org.json4s.JsonAST.JString
 import util.IntegrationTestBase
-import utils.db._
+import utils.db.DbResultT._
 
 class InventoryAdjustmentIntegrationTest extends IntegrationTestBase {
 

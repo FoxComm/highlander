@@ -1,6 +1,5 @@
 package models.activity
 
-import cats.implicits._
 import cats.data.ValidatedNel
 import failures.Failure
 import shapeless._
@@ -59,6 +58,7 @@ object Dimensions
   def findOrCreateByName(name: String)(implicit ec: EC): DbResult[Dimension] =
     findByName(name).one.flatMap {
       case Some(dimension) ⇒ DbResult.good(dimension)
-      case None            ⇒ create(Dimension(name = name, description = name.capitalize))
+      // TODO @anna: #longlivedbresultt
+      case None ⇒ create(Dimension(name = name, description = name.capitalize)).value
     }
 }

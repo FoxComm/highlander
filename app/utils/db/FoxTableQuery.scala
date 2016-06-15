@@ -36,39 +36,39 @@ abstract class FoxTableQuery[M <: FoxModel[M], T <: FoxTable[M]](construct: Tag 
       returned ← * <~ wrapDbio(this ++= prepared)
     } yield returned
 
-  def createAllReturningIds(unsaved: Iterable[M])(implicit ec: EC): DbResult[Seq[M#Id]] =
-    (for {
+  def createAllReturningIds(unsaved: Iterable[M])(implicit ec: EC): DbResultT[Seq[M#Id]] =
+    for {
       prepared ← * <~ beforeSaveBatch(unsaved)
       returned ← * <~ wrapDbio(this.returning(map(_.id)) ++= prepared)
-    } yield returned).value
+    } yield returned
 
-  def createAllReturningModels(unsaved: Iterable[M])(implicit ec: EC): DbResult[Seq[M]] =
-    (for {
+  def createAllReturningModels(unsaved: Iterable[M])(implicit ec: EC): DbResultT[Seq[M]] =
+    for {
       prepared          ← * <~ beforeSaveBatch(unsaved)
       returned          ← * <~ wrapDbio(returningTable ++= prepared)
-    } yield for ((m, r) ← prepared.zip(returned)) yield returningLens.set(m)(r)).value
+    } yield for ((m, r) ← prepared.zip(returned)) yield returningLens.set(m)(r)
 
-  def create(unsaved: M)(implicit ec: EC): DbResult[M] =
-    (for {
+  def create(unsaved: M)(implicit ec: EC): DbResultT[M] =
+    for {
       prepared ← * <~ beforeSave(unsaved)
       returned ← * <~ wrapDbio(returningTable += prepared)
-    } yield returningLens.set(prepared)(returned)).value
+    } yield returningLens.set(prepared)(returned)
 
-  def update(oldModel: M, newModel: M)(implicit ec: EC): DbResult[M] =
-    (for {
+  def update(oldModel: M, newModel: M)(implicit ec: EC): DbResultT[M] =
+    for {
       _        ← * <~ oldModel.mustBeCreated
       prepared ← * <~ beforeSave(newModel)
       _        ← * <~ oldModel.updateTo(prepared)
       _        ← * <~ findById(oldModel.id).update(prepared)
-    } yield prepared).value
+    } yield prepared
 
-  def updateReturning(oldModel: M, newModel: M)(implicit ec: EC): DbResult[M] =
-    (for {
+  def updateReturning(oldModel: M, newModel: M)(implicit ec: EC): DbResultT[M] =
+    for {
       _        ← * <~ oldModel.mustBeCreated
       prepared ← * <~ beforeSave(newModel)
       _        ← * <~ oldModel.updateTo(prepared)
       returned ← * <~ findById(oldModel.id).extract.updateReturningHead(returningQuery, prepared)
-    } yield returningLens.set(prepared)(returned)).value
+    } yield returningLens.set(prepared)(returned)
 
   private def beforeSave(model: M): Failures Xor M =
     model.sanitize.validate.toXor

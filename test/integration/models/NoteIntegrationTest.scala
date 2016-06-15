@@ -1,12 +1,13 @@
 package models
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import util.CustomMatchers._
 import util.IntegrationTestBase
-import utils.db._
+import utils.db.DbResultT._
 import utils.seeds.Seeds.Factories
 
 class NoteIntegrationTest extends IntegrationTestBase {
-  import concurrent.ExecutionContext.Implicits.global
 
   "Note" - {
     "Postgres constraints" - {

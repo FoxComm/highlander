@@ -112,8 +112,7 @@ object GiftCardService {
       for {
         _ ← * <~ GiftCardAdjustments
              .lastAuthByGiftCardId(giftCard.id)
-             .one
-             .mustNotFindOr(OpenTransactionsFailure)
+             .mustNotFindOneOr(OpenTransactionsFailure)
         upd ← * <~ GiftCards.update(giftCard,
                                     giftCard.copy(state = newState,
                                                   canceledReason = reasonId,
@@ -121,6 +120,6 @@ object GiftCardService {
         _ ← * <~ GiftCards.cancelByCsr(giftCard, admin)
       } yield upd
 
-    case other ⇒ DbResultT(GiftCards.update(giftCard, giftCard.copy(state = other)))
+    case other ⇒ GiftCards.update(giftCard, giftCard.copy(state = other))
   }
 }

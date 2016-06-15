@@ -221,10 +221,10 @@ object ImageManager {
       .mustFindOneOr(AlbumNotFoundForContext(id, context.id))
 
   private def updateHead(album: Album, shadow: ObjectShadow, maybeCommit: Option[ObjectCommit])(
-      implicit ec: EC): DbResult[Album] = maybeCommit match {
+      implicit ec: EC): DbResultT[Album] = maybeCommit match {
     case Some(commit) ⇒
       Albums.update(album, album.copy(shadowId = shadow.id, commitId = commit.id))
     case None ⇒
-      DbResult.good(album)
+      DbResultT.rightLift(album)
   }
 }

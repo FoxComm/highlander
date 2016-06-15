@@ -175,23 +175,20 @@ class CustomerIntegrationTest
           customer ← * <~ Customers.create(Factories.customer.copy(phoneNumber = None))
           address  ← * <~ Addresses.create(defaultAddress.copy(customerId = customer.id))
           region   ← * <~ Regions.findOneById(address.regionId).toXor
-          ordersSeq ← * <~ sequence(orders.map(o ⇒
-                               DbResultT(Orders.create(o.copy(customerId = customer.id)))))
+          ordersSeq ← * <~ sequence(
+                         orders.map(o ⇒ Orders.create(o.copy(customerId = customer.id))))
           addresses ← * <~ sequence(shippingAddresses(ordersSeq.zip(phoneNumbers)).map(a ⇒
-                               DbResultT(OrderShippingAddresses.create(a))))
+                               OrderShippingAddresses.create(a)))
           shipments ← * <~ sequence(addresses.map(address ⇒
-                               DbResultT(Shipments.create(
-                                       Factories.shipment.copy(orderId = address.orderId,
-                                                               shippingAddressId = address.id.some,
-                                                               orderShippingMethodId = None,
-                                                               state = Shipped)))))
+                               Shipments.create(
+                                   Factories.shipment.copy(orderId = address.orderId,
+                                                           shippingAddressId = address.id.some,
+                                                           orderShippingMethodId = None,
+                                                           state = Shipped))))
         } yield (customer, region, shipments)).gimme
 
         def updateShipmentTime(s: Shipment, newTime: Instant ⇒ Instant): Unit =
-          Shipments
-            .update(s, s.copy(updatedAt = s.updatedAt.map(time ⇒ newTime(time))))
-            .run
-            .futureValue
+          Shipments.update(s, s.copy(updatedAt = s.updatedAt.map(time ⇒ newTime(time)))).gimme
 
         def runTest(expectedPhone: String) = {
           val response = GET(s"v1/customers/${customer.id}")

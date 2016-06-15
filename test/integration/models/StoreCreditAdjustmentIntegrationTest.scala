@@ -1,5 +1,7 @@
 package models
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import models.customer.Customers
 import models.order.{OrderPayments, Orders}
 import models.payment.storecredit._
@@ -11,7 +13,6 @@ import utils.db._
 import utils.seeds.Seeds.Factories
 
 class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
-  import concurrent.ExecutionContext.Implicits.global
 
   import api._
 
@@ -115,18 +116,19 @@ class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
       } yield (sc, payment)).gimme
 
       val debits = List(50, 25, 15, 10)
-      val adjustments = db
-        .run(DBIO.sequence(debits.map { amount ⇒
+      val adjustments = DbResultT
+        .sequence(debits.map { amount ⇒
           StoreCredits.capture(storeCredit = sc,
                                orderPaymentId = Some(payment.id),
                                amount = amount)
-        }))
-        .futureValue
+        })
+        .gimme
 
-      db.run(DBIO.sequence(adjustments.map { adj ⇒
-          StoreCreditAdjustments.cancel(adj.rightVal.id)
-        }))
-        .futureValue
+      DBIO
+        .sequence(adjustments.map { adj ⇒
+          StoreCreditAdjustments.cancel(adj.id)
+        })
+        .gimme
 
       val finalSc = StoreCredits.findOneById(sc.id).run().futureValue.value
       (finalSc.originalBalance, finalSc.availableBalance, finalSc.currentBalance) must ===(

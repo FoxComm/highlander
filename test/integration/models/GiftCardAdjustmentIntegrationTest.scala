@@ -1,5 +1,7 @@
 package models
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import models.customer.Customers
 import models.order.{OrderPayments, Orders}
 import models.payment.giftcard._
@@ -9,7 +11,6 @@ import utils.db._
 import utils.seeds.Seeds.Factories
 
 class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
-  import concurrent.ExecutionContext.Implicits.global
 
   import api._
 
@@ -154,19 +155,20 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
       } yield (gc, payment)).gimme
 
       val debits = List(50, 25, 15, 10)
-      val adjustments = db
-        .run(DBIO.sequence(debits.map { amount ⇒
+      val adjustments = DbResultT
+        .sequence(debits.map { amount ⇒
           GiftCards.capture(giftCard = gc,
                             orderPaymentId = Some(payment.id),
                             debit = amount,
                             credit = 0)
-        }))
-        .futureValue
+        })
+        .gimme
 
-      db.run(DBIO.sequence(adjustments.map { adj ⇒
-          GiftCardAdjustments.cancel(adj.rightVal.id)
-        }))
-        .futureValue
+      DBIO
+        .sequence(adjustments.map { adj ⇒
+          GiftCardAdjustments.cancel(adj.id)
+        })
+        .gimme
 
       val finalGc = GiftCards.findOneById(gc.id).run().futureValue.value
       (finalGc.originalBalance, finalGc.availableBalance, finalGc.currentBalance) must ===(

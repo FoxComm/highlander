@@ -129,11 +129,11 @@ object VariantManager {
 
   private def updateHead(
       variant: Variant, shadow: ObjectShadow, maybeCommit: Option[ObjectCommit])(
-      implicit ec: EC): DbResult[Variant] = maybeCommit match {
+      implicit ec: EC): DbResultT[Variant] = maybeCommit match {
     case Some(commit) ⇒
       Variants.update(variant, variant.copy(shadowId = shadow.id, commitId = commit.id))
     case None ⇒
-      DbResult.good(variant)
+      DbResultT.rightLift(variant)
   }
 
   def createVariantValue(contextName: String, variantId: Int, payload: VariantValuePayload)(
@@ -202,11 +202,11 @@ object VariantManager {
 
   private def updateValueHead(
       value: VariantValue, shadow: ObjectShadow, maybeCommit: Option[ObjectCommit])(
-      implicit ec: EC): DbResult[VariantValue] = maybeCommit match {
+      implicit ec: EC): DbResultT[VariantValue] = maybeCommit match {
     case Some(commit) ⇒
       VariantValues.update(value, value.copy(shadowId = shadow.id, commitId = commit.id))
     case None ⇒
-      DbResult.good(value)
+      DbResultT.rightLift(value)
   }
 
   def findVariantsByProduct(

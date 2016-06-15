@@ -12,7 +12,7 @@ class DbResultSequenceIntegrationTest extends IntegrationTestBase {
   "DbResultT#sequence" - {
     "must convert Seq[DbResultT[A]] into DbResultT[Seq[A]]" in {
       val sux: Seq[DbResultT[Customer]] = Seq(1, 2, 3).map { i ⇒
-        DbResultT(Customers.create(Factories.customer.copy(email = s"$i")))
+        Customers.create(Factories.customer.copy(email = s"$i"))
       }
       val cool: DbResultT[Seq[Customer]] = DbResultT.sequence(sux)
       cool.gimme
@@ -24,7 +24,7 @@ class DbResultSequenceIntegrationTest extends IntegrationTestBase {
 
     "must rollback transaction on errors" in {
       val sux: Seq[DbResultT[Customer]] = Seq(1, 2, 3).map { i ⇒
-        DbResultT(Customers.create(Factories.customer.copy(email = "nope")))
+        Customers.create(Factories.customer.copy(email = "nope"))
       }
       val cool: DbResultT[Seq[Customer]] = DbResultT.sequence(sux)
 
@@ -36,7 +36,7 @@ class DbResultSequenceIntegrationTest extends IntegrationTestBase {
 
     "must collect all errors" in {
       val sux: Seq[DbResultT[Customer]] = Seq(1, 2, 3).map { i ⇒
-        DbResultT(Customers.create(Factories.customer.copy(email = "boom")))
+        Customers.create(Factories.customer.copy(email = "boom"))
       }
       val cool: DbResultT[Seq[Customer]] = DbResultT.sequence(sux)
 

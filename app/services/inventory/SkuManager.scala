@@ -96,11 +96,11 @@ object SkuManager {
 
   private def updateHead(
       sku: Sku, code: String, shadow: ObjectShadow, maybeCommit: Option[ObjectCommit])(
-      implicit ec: EC): DbResult[Sku] = maybeCommit match {
+      implicit ec: EC): DbResultT[Sku] = maybeCommit match {
     case Some(commit) ⇒
       Skus.update(sku, sku.copy(code = code, shadowId = shadow.id, commitId = commit.id))
     case None ⇒
-      DbResult.good(sku)
+      DbResultT.rightLift(sku)
   }
 
   def mustGetSkuCode(payload: SkuPayload): Failures Xor String =

@@ -5,22 +5,21 @@ import java.util.Locale
 import javax.sql.DataSource
 
 import scala.annotation.tailrec
-import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration._
 
-import cats.data.Xor
-import failures.Failures
 import models.objects.{ObjectContext, ObjectContexts}
 import models.product.SimpleContext
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{BeforeAndAfterAll, Outcome, Suite, SuiteMixin}
 import slick.driver.PostgresDriver.api.Database
 import slick.jdbc.hikaricp.HikariCPJdbcDataSource
 import utils.db.flyway.newFlyway
 
-trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll {
+trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with ScalaFutures with GimmeSupport {
   this: Suite ⇒
+
   import DbTestSupport._
+
   val api = slick.driver.PostgresDriver.api
 
   implicit lazy val db = database
@@ -42,9 +41,8 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll {
     }
   }
 
-  private def setupObjectContext(): Failures Xor ObjectContext = {
-    Await.result(db.run(ObjectContexts.create(SimpleContext.create())), 60.seconds)
-  }
+  private def setupObjectContext(): ObjectContext =
+    ObjectContexts.create(SimpleContext.create()).gimme
 
   def isTableEmpty(table: String)(implicit conn: Connection): Boolean = {
     val stmt = conn.createStatement()
@@ -78,9 +76,6 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll {
     }
 
     val context = setupObjectContext()
-    if (context.isLeft) {
-      throw new RuntimeException(s"Can't setup object context: $context")
-    }
 
     conn.close()
 
