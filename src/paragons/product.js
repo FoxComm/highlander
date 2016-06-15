@@ -7,8 +7,6 @@ import { assoc, merge } from 'sprout-data';
 import { copyShadowAttributes } from './form-shadow-object';
 import { generateSkuCode } from './sku';
 
-import type { SkuForm, SkuShadow } from './sku';
-
 import type {
   Product,
   Attribute,

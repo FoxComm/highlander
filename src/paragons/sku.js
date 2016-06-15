@@ -1,68 +1,33 @@
 /* @flow */
 
-export type Attributes = { [key:string]: any };
-
-export type SkuForm = {
-  code: ?string,
-  attributes: Attributes,
-  createdAt: ?string,
-};
-
-export type SkuShadow = {
-  code: ?string,
-  attributes: Attributes,
-  createdAt: ?string,
-};
-
-export type FullSku = {
-  id: ?number,
-  code: string,
-  form: SkuForm,
-  shadow: SkuShadow,
-};
+import type { Sku } from '../modules/skus/details';
 
 export function generateSkuCode(): string {
   return Math.random().toString(36).substring(7).toUpperCase();
 }
 
-export function createEmptySku(): FullSku {
-  const pseudoRandomCode = generateSkuCode();
-
-  const form:SkuForm = {
-    code: pseudoRandomCode,
+export function createEmptySku(): Sku {
+  const emptySku = {
+    id: null,
     attributes: {
-      title: '',
-      upc: '',
-      description: '',
+      code: { t: 'string', v: '' },
+      title: { t: 'string', v: '' },
+      upc: { t: 'string', v: '' },
+      description: { t: 'richText', v: '' },
       retailPrice: {
-        value: 0,
-        currency: 'USD'
+        t: 'price',
+        v: { currency: 'USD', value: 0 },
       },
       salePrice: {
-        value: 0,
-        currency: 'USD'
-      }
+        t: 'price',
+        v: { currency: 'USD', value: 0 },
+      },
+      unitCost: {
+        t: 'price',
+        v: { currency: 'USD', value: 0 },
+      },
     },
-    createdAt: null,
   };
 
-  const shadow: SkuShadow = {
-    code: pseudoRandomCode,
-    attributes: {
-      title: { type: 'string', ref: 'title' },
-      upc: { type: 'string', ref: 'title' },
-      description: { type: 'richText', ref: 'title' },
-      retailPrice: { type: 'price', ref: 'retailPrice' },
-      salePrice: { type: 'price', ref: 'salePrice' },
-      unitCost: { type: 'price', ref: 'unitCost' },
-    },
-    createdAt: null,
-  };
-
-  return {
-    id: null,
-    code: pseudoRandomCode,
-    form,
-    shadow,
-  };
+  return emptySku;
 }
