@@ -89,9 +89,9 @@ export class SkuPage extends Component {
       return <div className="fc-sku"><WaitAnimation /></div>;
     }
 
-    const title = sku.code.toUpperCase();
+    const code = _.get(sku, 'attributes.code.v', '');
+    const title = code.toUpperCase();
     const children = React.cloneElement(this.props.children, {
-      code: sku.code,
       entity: { entityId: this.entityId, entityType: 'sku' },
       onChange: this.handleChange,
       sku: this.state.sku,

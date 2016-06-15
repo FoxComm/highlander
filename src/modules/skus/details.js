@@ -57,10 +57,10 @@ export function fetchSku(code: string, context: string = defaultContext): Action
 
 export function updateSku(sku: FullSku, context: string = defaultContext): ActionDispatch {
   return (dispatch, getState) => {
-    const oldSku = _.get(getState(), ['skus', 'details', 'sku']);
+    const oldSku = _.get(getState(), ['skus', 'details', 'sku', 'attributes', 'code', 'v']);
     if (oldSku) {
       dispatch(skuUpdateStart());
-      return Api.patch(`/skus/${context}/${oldSku.code}`, sku)
+      return Api.patch(`/skus/${context}/${oldSku}`, sku)
         .then(
           (res: Sku) => dispatch(skuUpdateSuccess(res)),
           (err: HttpError) => {

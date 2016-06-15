@@ -37,6 +37,10 @@ export function addEmptySku(product: Product): Product {
   const emptySku = {
     feCode: pseudoRandomCode,
     attributes: {
+      code: {
+        t: 'string',
+        v: '',
+      },
       title: {
         t: 'string',
         v: '',
@@ -94,23 +98,17 @@ export function setSkuAttribute(product: Product,
                                 label: string,
                                 type: string,
                                 value: string): Product {
-  const updateCode = sku => {
-    return (sku.code == code || sku.feCode == code)
-      ? { ...sku, code: value }
-      : sku;
-  };
-
   const attrPath = type == 'price'
     ? ['attributes', label, 'v', 'value']
     : ['attributes', label, 'v'];
 
   const updateAttribute = sku => {
-    return (sku.code == code || sku.feCode == code)
+    const code = _.get(sku, 'attributes.code.v');
+    return (code == code || sku.feCode == code)
       ? assoc(sku, attrPath, value)
       : sku;
   };
 
-  const updateFn = label == 'code' ? updateCode : updateAttribute;
-  const newSkus = product.skus.map(sku => updateFn(sku));
+  const newSkus = product.skus.map(sku => updateAttribute(sku));
   return assoc(product, 'skus', newSkus);
 }
