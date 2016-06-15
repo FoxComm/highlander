@@ -85,7 +85,7 @@ object CustomDirectives {
   private def getContextByName(name: String)(implicit db: DB, ec: EC) =
     db.run(ObjectContexts.filterByName(name).result.headOption).map {
       case Some(c) ⇒ c
-      case None    ⇒ throw new Exception("Unable to find default context. Is the DB seeded?")
+      case None    ⇒ throw new Exception(s"Unable to find context $name.")
     }
 
   //This is a really trivial version. We are not handling language weights, 

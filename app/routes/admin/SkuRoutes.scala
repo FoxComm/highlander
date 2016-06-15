@@ -73,7 +73,7 @@ object SkuRoutes {
           }
         } ~
         pathPrefix(Segment) { context ⇒
-          (post & pathEnd & entity(as[CreateSkuPayload])) { payload ⇒
+          (post & pathEnd & entity(as[SkuPayload])) { payload ⇒
             goodOrFailures {
               SkuManager.createSku(context, payload)
             }
@@ -84,7 +84,7 @@ object SkuRoutes {
                 SkuManager.getSku(context, code)
               }
             } ~
-            (patch & pathEnd & entity(as[UpdateSkuPayload])) { payload ⇒
+            (patch & pathEnd & entity(as[SkuPayload])) { payload ⇒
               goodOrFailures {
                 SkuManager.updateSku(context, code, payload)
               }
