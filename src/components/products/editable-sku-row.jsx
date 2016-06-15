@@ -68,12 +68,17 @@ export default class EditableSkuRow extends Component<void, Props, State> {
   }
 
   skuCell(sku: Sku): Element {
-    const value = this.state.sku.code || this.props.sku.code;
-    return (
-      <FormField>
-        <input type="text" value={value} onChange={this.handleUpdateCode} required />
-      </FormField>
-    );
+    const code = _.get(this.props, 'sku.attributes.code.v');
+    if (this.props.sku.feCode) {
+      const value = this.state.sku.code || code;
+      return (
+        <FormField>
+          <input type="text" value={value} onChange={this.handleUpdateCode} required />
+        </FormField>
+      );
+    }
+
+    return <div>{code}</div>;
   }
 
   @autobind
