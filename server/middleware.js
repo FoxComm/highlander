@@ -83,7 +83,9 @@ module.exports = function(app) {
       stylesheet: `/admin.css`,
       javascript: `/admin.js`,
       rootHTML: this.state.html,
-      appStart: `App.start(${htmlescape(bootstrap)});`
+      appStart: `App.start(${htmlescape(bootstrap)});`,
+      // use GA_LOCAL=1 gulp dev command for enable tracking events in google analytics from localhost
+      gaEnableLocal: 'GA_LOCAL' in process.env,
     }, config.layout.pageConstants);
 
     this.body = layout(layoutData);
