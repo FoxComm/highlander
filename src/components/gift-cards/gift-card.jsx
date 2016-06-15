@@ -24,7 +24,7 @@ import State, { formattedStatus } from '../common/state';
 // data
 import * as GiftCardActions from '../../modules/gift-cards/details';
 import * as ReasonsActions from '../../modules/reasons';
-import { states, stateTitles, stateActionTitles, getStateTransitions } from '../../paragons/gift-card';
+import { states, stateTitles, stateActionTitles, getStateTransitions, typeTitles } from '../../paragons/gift-card';
 
 
 @connect((state, props) => ({
@@ -227,7 +227,7 @@ export default class GiftCard extends React.Component {
             <DateTime value={card.createdAt}/>
           </PanelListItem>
           <PanelListItem title="Gift Card Type">
-            { card.originType }
+            { typeTitles[card.originType] }
           </PanelListItem>
           <PanelListItem title="Current State">
             { this.cardState }

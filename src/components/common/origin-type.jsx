@@ -1,30 +1,34 @@
 
 // libs
+import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import { get } from 'sprout-data';
-import { capitalize } from 'lodash/string';
+
+// data
+import { types, typeTitles } from '../../paragons/gift-card';
+
 
 const OriginType = (props) => {
   const type = get(props, ['value', 'originType']);
   let formattedType = null;
   let content = null;
   switch (type) {
-    case 'csrAppeasement':
-      formattedType = 'CSR Appeasement';
+    case types.csrAppeasement:
+      formattedType = typeTitles[type];
       content = get(props, ['value', 'orderReferenceNumber']);
       break;
     case 'giftCardTransfer':
-      formattedType = 'Gift Card Transfer';
+      formattedType = typeTitles[type];
       content = get(props, ['value', 'giftCard', 'code']);
       break;
     case 'customerPurchase':
-      formattedType = 'Customer Purchase';
+      formattedType = typeTitles[type];
       break;
     case 'custom':
-      formattedType = get(props, ['value', 'metadata', 'title'], capitalize(type));
+      formattedType = get(props, ['value', 'metadata', 'title'], _.capitalize(type));
       break;
     default:
-      formattedType = capitalize(type);
+      formattedType = _.capitalize(type);
   }
 
   return (

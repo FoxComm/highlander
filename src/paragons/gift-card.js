@@ -16,6 +16,20 @@ export const stateTitles = {
   [states.onHold]: 'On Hold',
 };
 
+export const types = {
+  csrAppeasement: 'csrAppeasement',
+  giftCardTransfer: 'giftCardTransfer',
+  customerPurchase: 'customerPurchase',
+  custom: 'custom',
+};
+
+export const typeTitles = {
+  [types.csrAppeasement]: 'CSR Appeasement',
+  [types.giftCardTransfer]: 'Gift Card Transfer',
+  [types.customerPurchase]: 'Customer Purchase',
+  [types.custom]: 'Custom',
+};
+
 export const stateActionTitles = {
   [states.active]: 'Activate',
   [states.canceled]: 'Cancel Gift Card',
@@ -25,11 +39,11 @@ export const stateActionTitles = {
 };
 
 const stateTransitions = {
-  active: [states.onHold, states.canceled],
-  onHold: [states.active, states.canceled],
-  canceled: [],
-  fullyRedeemed: [],
-  cart: [],
+  [states.active]: [states.onHold, states.canceled],
+  [states.onHold]: [states.active, states.canceled],
+  [states.canceled]: [],
+  [states.fullyRedeemed]: [],
+  [states.cart]: [],
 };
 
 const stateTransitionsFilters = [
