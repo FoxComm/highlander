@@ -41,18 +41,18 @@ server {
   ';
 
   # Proxy to ElasticSearch phoenix index for internal use by /api/search
-  location /internal-search/ {
+  location /internal-search-public/ {
       internal;
-      proxy_pass http://search/phoenix/;
+      proxy_pass http://search/public/;
   }
 
   # Proxy the internal search location and sanitizes output from ES for external use
-  location ~ /api/search/.*/_search {
+  location ~ /api/search/public/.*/_search {
         default_type 'application/json';
         content_by_lua '
 
             --forward to internal es
-            local json = request_internal_search()
+            local json = request_internal_search("public")
 
             -- we need only _source filed from the hits
             json.hits.result = map(json.hits.hits, function(hit)
@@ -69,12 +69,12 @@ server {
   }
 
   # Proxy the internal search location and sanitizes output from ES for external use
-  location ~ /api/search/.*/_count {
+  location ~ /api/search/public/.*/_count {
         default_type 'application/json';
         content_by_lua '
 
             --forward to internal es
-            local json = request_internal_search()
+            local json = request_internal_search("public")
 
             --remove shards
             json._shards = nil
@@ -86,12 +86,12 @@ server {
   }
 
   # Proxy the internal search location and sanitizes output from ES for external use
-  location ~ /api/search/.*/\d+$ {
+  location ~ /api/search/public/.*/\d+$ {
         default_type 'application/json';
         content_by_lua '
 
             --forward to internal es
-            local json = request_internal_search()
+            local json = request_internal_search("public")
 
             if json.found == true then
                 --only show _source

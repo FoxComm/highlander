@@ -82,8 +82,8 @@ http {
         return new_array
       end
 
-      function request_internal_search()
-        local req = ngx.re.sub(ngx.var.request_uri, "api/search", "internal-search")
+      function request_internal_search(idx)
+        local req = ngx.re.sub(ngx.var.request_uri, "api/search/" .. idx, "internal-search-" .. idx)
 
         -- map is needed because ngx.var.request_method returns a string
         local methodsMap = {
