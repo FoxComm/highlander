@@ -23,7 +23,7 @@ type Props = {
 function getIconType(type, paymentMethod) {
   switch (type) {
     case 'creditCard':
-      return paymentMethod.brand.toLowerCase();
+      return paymentMethod.brand.toLowerCase().replace(/ /g, '');
     default:
       return _.snakeCase(type);
   }
