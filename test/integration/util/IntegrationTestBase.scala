@@ -7,7 +7,11 @@ import akka.util.Timeout
 import org.scalatest.concurrent.AbstractPatienceConfiguration
 import org.scalatest.time.{Millisecond, Seconds, Span}
 
-trait IntegrationTestBase extends TestBase with AbstractPatienceConfiguration with DbTestSupport {
+trait IntegrationTestBase
+    extends TestBase
+    with AbstractPatienceConfiguration
+    with DbTestSupport
+    with GimmeSupport {
 
   override implicit def patienceConfig: PatienceConfig = PatienceConfig(
       timeout = Span(6, Seconds),

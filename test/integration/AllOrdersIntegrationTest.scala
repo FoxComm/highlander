@@ -12,7 +12,6 @@ import responses.BatchResponse
 import responses.order._
 import util.IntegrationTestBase
 import utils.db.DbResultT._
-import utils.db._
 import utils.seeds.Seeds.Factories
 
 class AllOrdersIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
@@ -37,9 +36,8 @@ class AllOrdersIntegrationTest extends IntegrationTestBase with HttpSupport with
     }
 
     "refuses invalid status transition" in {
-      val customer = Customers.create(Factories.customer).run().futureValue.rightVal
-      val order =
-        Orders.create(Factories.order.copy(customerId = customer.id)).run().futureValue.rightVal
+      val customer = Customers.create(Factories.customer).gimme
+      val order    = Orders.create(Factories.order.copy(customerId = customer.id)).gimme
       val response = PATCH("v1/orders", BulkUpdateOrdersPayload(Seq(order.refNum), Cart))
 
       response.status must ===(StatusCodes.OK)
@@ -59,13 +57,14 @@ class AllOrdersIntegrationTest extends IntegrationTestBase with HttpSupport with
       foo ← * <~ Orders.create(Factories.order.copy(customerId = cust.id,
                                                     referenceNumber = "foo",
                                                     state = FraudHold))
-      bar ← * <~ Orders.create(Factories.order.copy(customerId = cust.id,
-                                                    referenceNumber = "bar",
-                                                    state = RemorseHold,
-                                                    isLocked = true))
+      bar ← * <~ Orders.create(
+               Factories.order.copy(customerId = cust.id,
+                                    referenceNumber = "bar",
+                                    state = RemorseHold,
+                                    isLocked = true))
       baz ← * <~ Orders.create(Factories.order.copy(customerId = cust.id,
                                                     referenceNumber = "baz",
                                                     state = ManualHold))
-    } yield (cust, foo, bar)).runTxn().futureValue.rightVal
+    } yield (cust, foo, bar)).gimme
   }
 }

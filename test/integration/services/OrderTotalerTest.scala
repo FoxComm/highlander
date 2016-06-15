@@ -1,19 +1,18 @@
 package services
 
 import models.customer.Customers
-import models.inventory.Skus
-import models.product.{Mvp, SimpleContext, SimpleProductData}
-import models.objects._
 import models.location.Addresses
-import models.order.{OrderShippingMethod, OrderShippingMethods, Orders}
+import models.objects._
 import models.order.lineitems._
-import models.payment.giftcard.{GiftCardOrders, GiftCardOrder, GiftCards, GiftCard}
-import models.shipping.{ShippingMethod, ShippingMethods}
+import models.order.{OrderShippingMethod, OrderShippingMethods, Orders}
+import models.payment.giftcard.{GiftCard, GiftCardOrder, GiftCardOrders, GiftCards}
+import models.product.{Mvp, SimpleContext}
+import models.shipping.ShippingMethods
 import services.orders.OrderTotaler
 import util.IntegrationTestBase
-import utils.db._
-import utils.db.DbResultT._
 import utils.Money.Currency
+import utils.db.DbResultT._
+import utils.db._
 import utils.seeds.Seeds.Factories
 
 class OrderTotalerTest extends IntegrationTestBase {
@@ -42,14 +41,14 @@ class OrderTotalerTest extends IntegrationTestBase {
 
     "shipping" - {
       "sums the shipping total from both shipping methods" in new ShippingMethodFixture {
-        val subTotal = OrderTotaler.shippingTotal(order).run().futureValue.rightVal
+        val subTotal = OrderTotaler.shippingTotal(order).gimme
         subTotal must ===(295)
       }
     }
 
     "taxes" - {
       "are hardcoded to 5%" in new SkuLineItemsFixture {
-        val totals = OrderTotaler.totals(order).run().futureValue.rightVal
+        val totals = OrderTotaler.totals(order).gimme
         val taxes  = (skuPrice * 0.05).toInt
 
         totals.subTotal === skuPrice
@@ -62,7 +61,7 @@ class OrderTotalerTest extends IntegrationTestBase {
 
     "totals" - {
       "all are zero when there are no line items and no adjustments" in new Fixture {
-        val totals = OrderTotaler.totals(order).run().futureValue.rightVal
+        val totals = OrderTotaler.totals(order).gimme
 
         totals.subTotal mustBe 0
         totals.shipping mustBe 0
@@ -78,7 +77,7 @@ class OrderTotalerTest extends IntegrationTestBase {
       customer ← * <~ Customers.create(Factories.customer)
       address  ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
       order    ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
-    } yield (customer, address, order)).runTxn().futureValue.rightVal
+    } yield (customer, address, order)).gimme
   }
 
   trait SkuLineItemsFixture extends Fixture {
@@ -94,7 +93,7 @@ class OrderTotalerTest extends IntegrationTestBase {
        tup.productShadow,
        tup.sku,
        tup.skuShadow,
-       skuPrice)).runTxn().futureValue.rightVal
+       skuPrice)).gimme
   }
 
   trait AllLineItemsFixture extends SkuLineItemsFixture {
@@ -106,13 +105,13 @@ class OrderTotalerTest extends IntegrationTestBase {
       gcLi ← * <~ OrderLineItemGiftCards.create(
                 OrderLineItemGiftCard(giftCardId = giftCard.id, orderId = order.id))
       lineItems ← * <~ OrderLineItems.create(OrderLineItem.buildGiftCard(order, gcLi))
-    } yield (giftCard, lineItems)).runTxn().futureValue.rightVal
+    } yield (giftCard, lineItems)).gimme
   }
 
   trait ShippingMethodFixture extends Fixture {
     val orderShippingMethods = (for {
       shipM ← * <~ ShippingMethods.create(Factories.shippingMethods.head.copy(price = 295))
       osm   ← * <~ OrderShippingMethods.create(OrderShippingMethod.build(order, shipM))
-    } yield osm).runTxn().futureValue.rightVal
+    } yield osm).gimme
   }
 }

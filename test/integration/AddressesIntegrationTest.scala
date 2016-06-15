@@ -1,24 +1,19 @@
 import java.time.Instant
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 
+import Extensions._
 import failures.NotFoundFailure404
 import models.customer.{Customer, Customers}
 import models.location.{Address, Addresses}
 import models.order.{OrderShippingAddresses, Orders}
 import payloads.AddressPayloads.CreateAddressPayload
 import util.IntegrationTestBase
-import util.SlickSupport.implicits._
 import utils.db.DbResultT._
-import utils.db._
 import utils.seeds.Seeds.Factories
 
 class AddressesIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
-
-  import concurrent.ExecutionContext.Implicits.global
-
-  import Extensions._
-  import api._
 
   def validateDeleteResponse(response: HttpResponse) {
     response.status must ===(StatusCodes.NoContent)
@@ -60,18 +55,17 @@ class AddressesIntegrationTest extends IntegrationTestBase with HttpSupport with
     "sets the isDefaultShippingAddress flag on an address" in new NoDefaultAddressFixture {
       val response = POST(s"v1/customers/${customer.id}/addresses/${address.id}/default")
       response.status must ===(StatusCodes.OK)
-      Addresses.findOneById(address.id).futureValue.value.isDefaultShipping mustBe true
+      Addresses.findOneById(address.id).gimme.value.isDefaultShipping mustBe true
     }
 
     "sets a new shipping address if there's already a default shipping address" in new AddressFixture {
-      val another =
-        Addresses.create(address.copy(id = 0, isDefaultShipping = false)).futureValue.rightVal
+      val another  = Addresses.create(address.copy(id = 0, isDefaultShipping = false)).gimme
       val response = POST(s"v1/customers/${customer.id}/addresses/${another.id}/default")
 
       response.status must ===(StatusCodes.OK)
 
-      Addresses.findOneById(another.id).futureValue.value.isDefaultShipping mustBe true
-      Addresses.findOneById(address.id).futureValue.value.isDefaultShipping mustBe false
+      Addresses.findOneById(another.id).gimme.value.isDefaultShipping mustBe true
+      Addresses.findOneById(address.id).gimme.value.isDefaultShipping mustBe false
     }
   }
 
@@ -81,7 +75,7 @@ class AddressesIntegrationTest extends IntegrationTestBase with HttpSupport with
 
       validateDeleteResponse(response)
 
-      Addresses.findOneById(address.id).futureValue.value.isDefaultShipping mustBe false
+      Addresses.findOneById(address.id).gimme.value.isDefaultShipping mustBe false
     }
 
     "attempts to removes default shipping address when none is set" in new CustomerFixture {
@@ -89,7 +83,7 @@ class AddressesIntegrationTest extends IntegrationTestBase with HttpSupport with
 
       validateDeleteResponse(response)
 
-      Addresses.findAllByCustomerId(customer.id).length.result.run().futureValue must ===(0)
+      Addresses.findAllByCustomerId(customer.id).length.gimme must ===(0)
     }
   }
 
@@ -130,7 +124,7 @@ class AddressesIntegrationTest extends IntegrationTestBase with HttpSupport with
       val deleteResponse = DELETE(s"v1/customers/${customer.id}/addresses/${newAddress.id}")
       validateDeleteResponse(deleteResponse)
 
-      val deletedAddress = Addresses.findOneById(newAddress.id).run().futureValue.value
+      val deletedAddress = Addresses.findOneById(newAddress.id).gimme.value
       deletedAddress.isDefaultShipping mustBe false
       deletedAddress.deletedAt mustBe defined
     }
@@ -160,14 +154,13 @@ class AddressesIntegrationTest extends IntegrationTestBase with HttpSupport with
   }
 
   trait CustomerFixture {
-    val customer = Customers.create(Factories.customer).futureValue.rightVal
+    val customer = Customers.create(Factories.customer).gimme
   }
 
   trait AddressFixture extends CustomerFixture {
     val address = Addresses
       .create(Factories.address.copy(customerId = customer.id, isDefaultShipping = true))
-      .futureValue
-      .rightVal
+      .gimme
   }
 
   trait DeletedAddressFixture {
@@ -176,14 +169,14 @@ class AddressesIntegrationTest extends IntegrationTestBase with HttpSupport with
       address ← * <~ Addresses.create(Factories.address.copy(customerId = authedCustomer.id,
                                                              isDefaultShipping = false,
                                                              deletedAt = Some(Instant.now)))
-    } yield (customer, address)).runTxn().futureValue.rightVal
+    } yield (customer, address)).gimme
   }
 
   trait ShippingAddressFixture extends AddressFixture {
     (for {
       order           ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
       shippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address, order.id)
-    } yield (order, shippingAddress)).runTxn().futureValue.rightVal
+    } yield (order, shippingAddress)).gimme
   }
 
   trait NoDefaultAddressFixture extends CustomerFixture {
@@ -192,6 +185,6 @@ class AddressesIntegrationTest extends IntegrationTestBase with HttpSupport with
                    Factories.address.copy(customerId = customer.id, isDefaultShipping = false))
       order   ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
       shipAdd ← * <~ OrderShippingAddresses.copyFromAddress(address, order.id)
-    } yield (address, order, shipAdd)).runTxn().futureValue.rightVal
+    } yield (address, order, shipAdd)).gimme
   }
 }

@@ -132,9 +132,7 @@ class GenericTreeIntegrationTest extends IntegrationTestBase with HttpSupport wi
     val testObjects = ObjectForms
       .createAllReturningModels(
           0 to 2 map (index ⇒ ObjectForm(0, "testKind", s"key$index" → s"val$index")))
-      .run()
-      .futureValue
-      .rightVal
+      .gimme
   }
 
   trait TestTree extends TestObjects {
@@ -153,7 +151,7 @@ class GenericTreeIntegrationTest extends IntegrationTestBase with HttpSupport wi
             GenericTreeNode(0, tree.id, 6, LTree(List("1.3.6")), testKind, testObjectId)
         )
         treeNodes ← * <~ GenericTreeNodes.createAllReturningModels(testData)
-      } yield (tree, treeNodes)).run().futureValue.rightVal
+      } yield (tree, treeNodes)).gimme
   }
 
   def nodeByPath(tree: TreeResponse.Node, path: Seq[Int]): Option[TreeResponse.Node] = {

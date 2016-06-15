@@ -24,7 +24,7 @@ class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
         payment ← * <~ OrderPayments.create(Factories.giftCardPayment.copy(orderId = order.id,
                                                                            paymentMethodId = sc.id,
                                                                            amount = Some(25)))
-      } yield (sc, payment)).runTxn().futureValue.rightVal
+      } yield (sc, payment)).gimme
 
       val adjustments = Table(
           "adjustments",
@@ -76,7 +76,7 @@ class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
                                       orderPaymentId = Some(pay.id),
                                       amount = 200)
         sc ← * <~ StoreCredits.findOneById(sc.id).toXor
-      } yield sc.value).runTxn().futureValue.rightVal
+      } yield sc.value).gimme
 
       sc.availableBalance must ===(0)
       sc.currentBalance must ===(200)
@@ -96,7 +96,7 @@ class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
                                         amount = 50)
         adj ← * <~ StoreCreditAdjustments.refresh(adj).toXor
         sc  ← * <~ StoreCredits.refresh(sc).toXor
-      } yield (adj, sc)).value.run().futureValue.rightVal
+      } yield (adj, sc)).value.gimme
 
       sc.availableBalance must ===(450)
       sc.currentBalance must ===(450)
@@ -112,7 +112,7 @@ class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
         payment ← * <~ OrderPayments.create(Factories.giftCardPayment.copy(orderId = order.id,
                                                                            paymentMethodId = sc.id,
                                                                            amount = Some(500)))
-      } yield (sc, payment)).runTxn().futureValue.rightVal
+      } yield (sc, payment)).gimme
 
       val debits = List(50, 25, 15, 10)
       val adjustments = db
@@ -140,6 +140,6 @@ class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
       customer ← * <~ Customers.create(Factories.customer)
       order    ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
       reason   ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
-    } yield (admin, customer, reason, order)).runTxn().futureValue.rightVal
+    } yield (admin, customer, reason, order)).gimme
   }
 }

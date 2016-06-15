@@ -144,8 +144,7 @@ class ActivityTrailIntegrationTest
           {
 
             //log activity
-            val activity =
-              Activities.log(DumbActivity(randomWord, randomNumber)).run().futureValue.rightVal
+            val activity = Activities.log(DumbActivity(randomWord, randomNumber)).gimme
 
             //append the activity to the trail
             val appendedConnection = appendActivity(dimensionName, objectId, activity.id)
@@ -189,6 +188,6 @@ class ActivityTrailIntegrationTest
     val (customer, admin) = (for {
       customer ← * <~ Customers.create(Factories.customer)
       admin    ← * <~ StoreAdmins.create(authedStoreAdmin)
-    } yield (customer, admin)).runTxn().futureValue.rightVal
+    } yield (customer, admin)).gimme
   }
 }

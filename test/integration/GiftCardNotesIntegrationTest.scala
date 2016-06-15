@@ -68,9 +68,9 @@ class GiftCardNotesIntegrationTest
   "PATCH /v1/notes/gift-card/:code/:noteId" - {
 
     "can update the body text" in new Fixture {
-      val rootNote = rightValue(GiftCardNoteManager
-            .create(giftCard.code, admin, CreateNote(body = "Hello, FoxCommerce!"))
-            .futureValue)
+      val rootNote = GiftCardNoteManager
+        .create(giftCard.code, admin, CreateNote(body = "Hello, FoxCommerce!"))
+        .gimme
 
       val response =
         PATCH(s"v1/notes/gift-card/${giftCard.code}/${rootNote.id}", UpdateNote(body = "donkey"))
@@ -118,6 +118,6 @@ class GiftCardNotesIntegrationTest
                   GiftCardManual(adminId = admin.id, reasonId = reason.id))
       giftCard ← * <~ GiftCards.create(
                     Factories.giftCard.copy(originId = origin.id, state = GiftCard.Active))
-    } yield (admin, giftCard)).run().futureValue.rightVal
+    } yield (admin, giftCard)).gimme
   }
 }

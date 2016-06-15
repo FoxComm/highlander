@@ -1,5 +1,5 @@
 import java.io.File
-import java.nio.file.{Files, Paths}
+import java.nio.file.Paths
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.marshalling.Marshal
@@ -22,7 +22,6 @@ import org.scalatest.mock.MockitoSugar
 import payloads.ImagePayloads._
 import responses.ImageResponses.AlbumResponse.{Root ⇒ AlbumRoot}
 import services.Result
-import services.image.ImageManager
 import util.IntegrationTestBase
 import utils.Money.Currency
 import utils._
@@ -265,11 +264,12 @@ class ImageIntegrationTest
                  .filterByName(SimpleContext.default)
                  .mustFindOneOr(ObjectContextNotFound(SimpleContext.default))
       ins ← * <~ ObjectUtils.insert(form, shadow)
-      album ← * <~ Albums.create(Album(contextId = context.id,
-                                       shadowId = ins.shadow.id,
-                                       formId = ins.form.id,
-                                       commitId = ins.commit.id))
-    } yield (context, album)).run().futureValue.rightVal
+      album ← * <~ Albums.create(
+                 Album(contextId = context.id,
+                       shadowId = ins.shadow.id,
+                       formId = ins.form.id,
+                       commitId = ins.commit.id))
+    } yield (context, album)).gimme
   }
 
   trait ProductFixture extends Fixture {
@@ -303,14 +303,15 @@ class ImageIntegrationTest
       prodShadow  ← * <~ ObjectShadows.create(sProdShadow.create.copy(formId = prodForm.id))
       prodCommit ← * <~ ObjectCommits.create(
                       ObjectCommit(formId = prodForm.id, shadowId = prodShadow.id))
-      product ← * <~ Products.create(Product(contextId = context.id,
-                                             formId = prodForm.id,
-                                             shadowId = prodShadow.id,
-                                             commitId = prodCommit.id))
+      product ← * <~ Products.create(
+                   Product(contextId = context.id,
+                           formId = prodForm.id,
+                           shadowId = prodShadow.id,
+                           commitId = prodCommit.id))
 
       _ ← * <~ ObjectLinks.create(ObjectLink(leftId = product.shadowId,
                                              rightId = album.shadowId,
                                              linkType = ObjectLink.ProductAlbum))
-    } yield (product, prodForm, prodShadow, sku, skuForm, skuShadow)).runTxn().futureValue.rightVal
+    } yield (product, prodForm, prodShadow, sku, skuForm, skuShadow)).gimme
   }
 }

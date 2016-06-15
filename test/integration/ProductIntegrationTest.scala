@@ -4,12 +4,10 @@ import akka.http.scaladsl.model.StatusCodes
 import Extensions._
 import failures.ObjectFailures._
 import models.StoreAdmins
-import models.inventory.{Sku, Skus}
 import models.objects._
 import models.product._
-import org.json4s._
-import org.json4s.jackson.JsonMethods._
 import org.json4s.JsonDSL._
+import org.json4s._
 import payloads.ProductPayloads._
 import payloads.SkuPayloads.SkuPayload
 import payloads.VariantPayloads.{VariantPayload, VariantValuePayload}
@@ -17,8 +15,8 @@ import responses.ProductResponses._
 import util.IntegrationTestBase
 import utils.Money.Currency
 import utils.aliases._
-import utils.db._
 import utils.db.DbResultT._
+import utils.db._
 
 class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
 
@@ -294,7 +292,7 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
                                              linkType = ObjectLink.SkuVariantValue))
                   } yield (colorLink, sizeLink)
               }
-    } yield (context, product, skus, variantsAndValues)).runTxn().futureValue.rightVal
+    } yield (context, product, skus, variantsAndValues)).gimme
   }
 
   trait VariantFixture extends Fixture {

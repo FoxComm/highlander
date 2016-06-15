@@ -19,8 +19,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase {
     }
 
     "updates availableBalance if auth adjustment is created + cancel handling" in new Fixture {
-      val adjustment =
-        StoreCredits.auth(storeCredit, Some(payment.id), 1000).run().futureValue.rightVal
+      val adjustment = StoreCredits.auth(storeCredit, Some(payment.id), 1000).gimme
 
       val updatedStoreCredit = StoreCredits.findOneById(storeCredit.id).run().futureValue.value
       updatedStoreCredit.availableBalance must ===(storeCredit.availableBalance - 1000)
@@ -31,8 +30,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase {
     }
 
     "updates availableBalance and currentBalance if capture adjustment is created + cancel handling" in new Fixture {
-      val adjustment =
-        StoreCredits.capture(storeCredit, Some(payment.id), 1000).run().futureValue.rightVal
+      val adjustment = StoreCredits.capture(storeCredit, Some(payment.id), 1000).gimme
 
       val updatedStoreCredit = StoreCredits.findOneById(storeCredit.id).run().futureValue.value
       updatedStoreCredit.availableBalance must ===(storeCredit.availableBalance - 1000)
@@ -60,6 +58,6 @@ class StoreCreditIntegrationTest extends IntegrationTestBase {
                    Factories.storeCreditPayment.copy(orderId = order.id,
                                                      paymentMethodId = sc.id,
                                                      amount = Some(25)))
-    } yield (customer, origin, sCredit.value, payment)).runTxn().futureValue.rightVal
+    } yield (customer, origin, sCredit.value, payment)).gimme
   }
 }

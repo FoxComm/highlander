@@ -41,6 +41,6 @@ class ReasonsIntegrationTest extends IntegrationTestBase with HttpSupport with A
                   Factories.reasons.head.copy(reasonType = Reason.GiftCardCreation,
                                               storeAdminId = storeAdmin.id))
       returnReason ← * <~ ReturnReasons.create(Factories.returnReasons.head)
-    } yield (reason, returnReason)).runTxn().futureValue.rightVal
+    } yield (reason, returnReason)).gimme
   }
 }

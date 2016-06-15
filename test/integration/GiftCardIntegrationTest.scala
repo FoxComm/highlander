@@ -193,8 +193,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase with HttpSupport with 
         root.canceledAmount must ===(Some(giftCard.originalBalance))
 
         // Ensure that cancel adjustment is automatically created
-        val adjustments =
-          GiftCardAdjustments.filterByGiftCardId(giftCard.id).result.run().futureValue
+        val adjustments = GiftCardAdjustments.filterByGiftCardId(giftCard.id).gimme
         adjustments.size mustBe 2
         adjustments.head.state must ===(GiftCardAdjustment.CancellationCapture)
       }
@@ -213,8 +212,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase with HttpSupport with 
         root.canceledAmount must ===(Some(0))
 
         // Ensure that cancel adjustment is automatically created
-        val adjustments =
-          GiftCardAdjustments.filterByGiftCardId(giftCard.id).result.run().futureValue
+        val adjustments = GiftCardAdjustments.filterByGiftCardId(giftCard.id).gimme
         adjustments.size mustBe 2
         adjustments.head.state must ===(GiftCardAdjustment.CancellationCapture)
       }
@@ -246,8 +244,8 @@ class GiftCardIntegrationTest extends IntegrationTestBase with HttpSupport with 
 
       "returns the list of adjustments with sorting and paging" in new Fixture {
 
-        val adjustment2 = GiftCards.auth(giftCard, Some(payment.id), 1).run().futureValue.rightVal
-        val adjustment3 = GiftCards.auth(giftCard, Some(payment.id), 2).run().futureValue.rightVal
+        val adjustment2 = GiftCards.auth(giftCard, Some(payment.id), 1).gimme
+        val adjustment3 = GiftCards.auth(giftCard, Some(payment.id), 2).gimme
 
         val response    = GET(s"v1/gift-cards/${giftCard.code}/transactions?sortBy=-id&from=2&size=2")
         val adjustments = response.ignoreFailuresAndGiveMe[Seq[GiftCardAdjustmentsResponse.Root]]
@@ -373,6 +371,6 @@ class GiftCardIntegrationTest extends IntegrationTestBase with HttpSupport with 
        payment,
        adj1,
        gcSecond,
-       gcSubType)).runTxn().futureValue.rightVal
+       gcSubType)).gimme
   }
 }

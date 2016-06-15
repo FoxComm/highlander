@@ -16,12 +16,12 @@ import payloads.CreateNotification
 import payloads.CustomerPayloads.UpdateCustomerPayload
 import responses.ActivityConnectionResponse.Root
 import responses.{ActivityResponse, LastSeenActivityResponse}
-import services.NotificationManager.unsubscribe
 import services.NotificationManager
+import services.NotificationManager.unsubscribe
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
-import utils.db._
 import utils.db.DbResultT._
+import utils.db._
 import utils.seeds.Seeds.Factories
 
 class NotificationIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
@@ -102,7 +102,7 @@ class NotificationIntegrationTest extends IntegrationTestBase with HttpSupport w
     }
 
     "404 if activity not found" in {
-      val adminId  = StoreAdmins.create(Factories.storeAdmin).run().futureValue.rightVal.id
+      val adminId  = StoreAdmins.create(Factories.storeAdmin).gimme.id
       val response = POST(s"v1/notifications/last-seen/666")
       response.status must ===(StatusCodes.NotFound)
       response.error must ===(NotFoundFailure404(Activity, 666).description)
@@ -139,7 +139,7 @@ class NotificationIntegrationTest extends IntegrationTestBase with HttpSupport w
     }
 
     "400 if source activity not found" in {
-      createDimension.run().futureValue.rightVal
+      createDimension.gimme
       val response = POST("v1/notifications", newNotification)
       response.status must ===(StatusCodes.BadRequest)
       response.error must ===(NotFoundFailure400(Activity, 1).description)
@@ -150,7 +150,7 @@ class NotificationIntegrationTest extends IntegrationTestBase with HttpSupport w
     "Subscribe" - {
       "successfully subscribes" in new Fixture {
         POST("v1/notifications", newNotification).status must ===(StatusCodes.OK)
-        Connections.result.run().futureValue mustBe empty
+        Connections.gimme mustBe empty
         subscribeToNotifications().result.value must ===(1)
         val sub = NotificationSubscriptions.result.headOption.run().futureValue.value
         sub.adminId must ===(1)
@@ -158,7 +158,7 @@ class NotificationIntegrationTest extends IntegrationTestBase with HttpSupport w
         sub.objectId must ===("1")
         sub.reason must ===(Watching)
         POST("v1/notifications", newNotification).status must ===(StatusCodes.OK)
-        val connections = Connections.result.run().futureValue
+        val connections = Connections.gimme
         connections must have size 1
         val connection = connections.headOption.value
         connection.activityId must ===(1)
@@ -174,19 +174,19 @@ class NotificationIntegrationTest extends IntegrationTestBase with HttpSupport w
       "subscribes twice for different reasons" in new Fixture {
         subscribeToNotifications(reason = Watching)
         subscribeToNotifications(reason = Assigned)
-        NotificationSubscriptions.result.run().futureValue must have size 2
+        NotificationSubscriptions.gimme must have size 2
       }
 
       "ignores duplicate requests" in new Fixture {
         subscribeToNotifications()
         subscribeToNotifications()
-        NotificationSubscriptions.result.run().futureValue must have size 1
+        NotificationSubscriptions.gimme must have size 1
       }
 
       "creates dimension if there is none" in {
-        Dimensions.result.run().futureValue mustBe empty
+        Dimensions.gimme mustBe empty
         subscribeToNotifications()
-        Dimensions.result.run().futureValue must have size 1
+        Dimensions.gimme must have size 1
       }
     }
 
@@ -194,17 +194,17 @@ class NotificationIntegrationTest extends IntegrationTestBase with HttpSupport w
       "successfully unsubscribes" in new Fixture {
         subscribeToNotifications()
         POST("v1/notifications", newNotification).status must ===(StatusCodes.OK)
-        Connections.result.run().futureValue must have size 1
+        Connections.gimme must have size 1
         unsubscribeFromNotifications()
         POST("v1/notifications", newNotification).status must ===(StatusCodes.OK)
-        Connections.result.run().futureValue must have size 1
+        Connections.gimme must have size 1
       }
 
       "distinguishes by reason" in new Fixture {
         subscribeToNotifications(reason = Watching)
         subscribeToNotifications(reason = Assigned)
         unsubscribeFromNotifications()
-        val subs = NotificationSubscriptions.result.run().futureValue
+        val subs = NotificationSubscriptions.gimme
         subs must have size 1
         subs.head.reason must ===(Assigned)
       }
@@ -229,7 +229,7 @@ class NotificationIntegrationTest extends IntegrationTestBase with HttpSupport w
 
       // Let's go
       createActivityAndConnections("X")
-      Activities.result.run().futureValue must have size 1
+      Activities.gimme must have size 1
 
       // No notification connection/trail should be created yet, only customer ones
       connections must ===(Seq((customerDimension, 1)))
@@ -249,7 +249,7 @@ class NotificationIntegrationTest extends IntegrationTestBase with HttpSupport w
                   reason = Watching,
                   dimension = customerDimension)
       createActivityAndConnections("Z")
-      Activities.result.run().futureValue must have size 3
+      Activities.gimme must have size 3
       // No new notification connections must appear
       connections must contain allOf ((customerDimension, 1), (customerDimension, 2), (customerDimension,
                                                                                        3),
@@ -260,14 +260,14 @@ class NotificationIntegrationTest extends IntegrationTestBase with HttpSupport w
       (for {
         dim ← Dimensions
         con ← Connections.filter(_.dimensionId === dim.id)
-      } yield (dim.name, con.activityId)).result.run().futureValue
+      } yield (dim.name, con.activityId)).gimme
 
     def createActivityAndConnections(newName: String) = {
       // Trigger activity creation
       PATCH("v1/customers/1", UpdateCustomerPayload(name = newName.some)).status must ===(
           StatusCodes.OK)
       // Emulate Green river calls
-      val aId = Activities.sortBy(_.id.desc).result.run().futureValue.headOption.value.id
+      val aId = Activities.sortBy(_.id.desc).gimme.headOption.value.id
       POST("v1/trails/" + customerDimension + "/1", AppendActivity(activityId = aId, data = None)).status must ===(
           StatusCodes.OK)
       val payload = CreateNotification(sourceDimension = customerDimension,
@@ -304,23 +304,17 @@ class NotificationIntegrationTest extends IntegrationTestBase with HttpSupport w
                  dimension = dimension,
                  objectIds = objectIds,
                  reason = reason)
-      .run()
-      .futureValue
-      .rightVal
+      .gimme
 
   def unsubscribeFromNotifications() =
-    NotificationManager
-      .unsubscribe(Seq(1), Seq("1"), Watching, Dimension.order)
-      .runTxn()
-      .futureValue
-      .rightVal
+    NotificationManager.unsubscribe(Seq(1), Seq("1"), Watching, Dimension.order).gimme
 
   trait Fixture {
     val (adminId, activityId) = (for {
       _        ← * <~ createDimension
       admin    ← * <~ StoreAdmins.create(Factories.storeAdmin)
       activity ← * <~ createActivity
-    } yield (admin.id, activity.id)).runTxn().futureValue.rightVal
+    } yield (admin.id, activity.id)).gimme
   }
 
   trait Fixture2 {
@@ -328,6 +322,6 @@ class NotificationIntegrationTest extends IntegrationTestBase with HttpSupport w
       _     ← * <~ createDimension
       admin ← * <~ StoreAdmins.create(Factories.storeAdmin)
       _     ← * <~ Activities.createAll(List.fill(2)(newActivity))
-    } yield admin.id).runTxn().futureValue.rightVal
+    } yield admin.id).gimme
   }
 }

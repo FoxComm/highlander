@@ -1,18 +1,17 @@
+import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
 import failures.{AlreadyAssignedFailure, AssigneeNotFoundFailure, NotAssignedFailure, NotFoundFailure404}
-import models.{Assignment, Assignments, StoreAdmin, StoreAdmins}
 import models.customer.Customers
 import models.order.{Order, Orders}
+import models.{Assignment, Assignments, StoreAdmin, StoreAdmins}
 import payloads.AssignmentPayloads._
-import responses.{AssignmentResponse, BatchMetadata, BatchMetadataSource, BatchResponse, TheResponse}
-import util.IntegrationTestBase
-import utils.seeds.Seeds.Factories
-import scala.concurrent.ExecutionContext.Implicits.global
-import utils.db._
-import utils.db.DbResultT._
 import responses.order.AllOrders
+import responses.{AssignmentResponse, BatchMetadata, BatchMetadataSource, TheResponse}
+import util.IntegrationTestBase
+import utils.db.DbResultT._
+import utils.seeds.Seeds.Factories
 
 class AssignmentsIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
 
@@ -142,17 +141,18 @@ class AssignmentsIntegrationTest extends IntegrationTestBase with HttpSupport wi
       order ← * <~ Orders.create(
                  Factories.order.copy(customerId = customer.id, state = Order.Cart))
       storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
-    } yield (order, storeAdmin, customer)).runTxn().futureValue.rightVal
+    } yield (order, storeAdmin, customer)).gimme
   }
 
   trait AssignmentFixture extends Fixture {
     val (assignee, secondAdmin) = (for {
-      assignee ← * <~ Assignments.create(Assignment(referenceType = Assignment.Order,
-                                                    referenceId = order.id,
-                                                    storeAdminId = storeAdmin.id,
-                                                    assignmentType = Assignment.Assignee))
+      assignee ← * <~ Assignments.create(
+                    Assignment(referenceType = Assignment.Order,
+                               referenceId = order.id,
+                               storeAdminId = storeAdmin.id,
+                               assignmentType = Assignment.Assignee))
       secondAdmin ← * <~ StoreAdmins.create(Factories.storeAdmin)
-    } yield (assignee, secondAdmin)).runTxn().futureValue.rightVal
+    } yield (assignee, secondAdmin)).gimme
   }
 
   trait BulkAssignmentFixture {
@@ -165,11 +165,12 @@ class AssignmentsIntegrationTest extends IntegrationTestBase with HttpSupport wi
                                                        referenceNumber = "bar",
                                                        customerId = customer.id))
       admin ← * <~ StoreAdmins.create(Factories.storeAdmin)
-      assignee ← * <~ Assignments.create(Assignment(referenceType = Assignment.Order,
-                                                    referenceId = order1.id,
-                                                    storeAdminId = admin.id,
-                                                    assignmentType = Assignment.Assignee))
-    } yield (order1, order2, admin)).runTxn().futureValue.rightVal
+      assignee ← * <~ Assignments.create(
+                    Assignment(referenceType = Assignment.Order,
+                               referenceId = order1.id,
+                               storeAdminId = admin.id,
+                               assignmentType = Assignment.Assignee))
+    } yield (order1, order2, admin)).gimme
 
     val orderRef1 = order1.referenceNumber
     val orderRef2 = order2.referenceNumber

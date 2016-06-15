@@ -7,15 +7,15 @@ import models.activity.ActivityContext
 import models.inventory.InventoryAdjustment._
 import models.inventory._
 import models.inventory.summary._
+import models.objects._
 import models.order._
 import models.product.SimpleContext
-import models.objects._
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import services.inventory.InventoryAdjustmentManager
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
-import utils.db._
 import utils.db.DbResultT._
+import utils.db._
 import utils.seeds.ProductSeeds
 import utils.seeds.Seeds.Factories
 import utils.seeds.generators._
@@ -28,7 +28,7 @@ class InventoryManagerIntegrationTest extends IntegrationTestBase {
 
   "Inventory adjustment manager" - {
     "adjusts inventory on order placement" in new Fixture {
-      InventoryAdjustmentManager.orderPlaced(order).run().futureValue.rightVal
+      InventoryAdjustmentManager.orderPlaced(order).gimme
 
       val summary = SellableInventorySummaries.findOneById(sellable.id).run().futureValue.value
       summary.onHand must ===(sellable.onHand)
@@ -36,8 +36,7 @@ class InventoryManagerIntegrationTest extends IntegrationTestBase {
       summary.reserved must ===(sellable.reserved)
       summary.safetyStock must ===(sellable.safetyStock)
 
-      val adjustments =
-        InventoryAdjustments.findSellableBySummaryId(sellable.id).result.run().futureValue
+      val adjustments = InventoryAdjustments.findSellableBySummaryId(sellable.id).gimme
       adjustments must have size 1
       adjustments.filterNot(_.state == OnHold) mustBe empty
       val onHoldAdj = adjustments.headOption.value
@@ -48,7 +47,7 @@ class InventoryManagerIntegrationTest extends IntegrationTestBase {
     }
 
     "adjusts inventory on order propagation to WMS" in new Fixture {
-      InventoryAdjustmentManager.orderPropagated(order).run().futureValue.rightVal
+      InventoryAdjustmentManager.orderPropagated(order).gimme
 
       val summary = SellableInventorySummaries.findOneById(sellable.id).run().futureValue.value
       summary.onHand must ===(sellable.onHand)
@@ -56,8 +55,7 @@ class InventoryManagerIntegrationTest extends IntegrationTestBase {
       summary.reserved must ===(sellable.reserved + 2)
       summary.safetyStock must ===(sellable.safetyStock)
 
-      val adjustments =
-        InventoryAdjustments.findSellableBySummaryId(sellable.id).result.run().futureValue.value
+      val adjustments = InventoryAdjustments.findSellableBySummaryId(sellable.id).gimme.value
       adjustments must have size 2
       val afs1 = sellable.availableForSale + 2
       val afs2 = afs1 - 2
@@ -79,7 +77,7 @@ class InventoryManagerIntegrationTest extends IntegrationTestBase {
                               onHand = newOnHand,
                               onHold = newOnHold,
                               reserved = newReserved)
-      InventoryAdjustmentManager.applyWmsAdjustment(event).run().futureValue.rightVal
+      InventoryAdjustmentManager.applyWmsAdjustment(event).gimme
 
       val summary = SellableInventorySummaries.findOneById(sellable.id).run().futureValue.value
       summary.onHand must ===(newOnHand)
@@ -87,8 +85,7 @@ class InventoryManagerIntegrationTest extends IntegrationTestBase {
       summary.reserved must ===(newReserved)
       summary.safetyStock must ===(sellable.safetyStock)
 
-      val adjustments =
-        InventoryAdjustments.findSellableBySummaryId(sellable.id).result.run().futureValue.value
+      val adjustments = InventoryAdjustments.findSellableBySummaryId(sellable.id).gimme.value
       adjustments must have size 3
       val afs1 = sellable.availableForSale + 11
       val afs2 = afs1 - 22
@@ -108,7 +105,7 @@ class InventoryManagerIntegrationTest extends IntegrationTestBase {
                               onHand = sellable.onHand,
                               onHold = sellable.onHold,
                               reserved = sellable.reserved)
-      InventoryAdjustmentManager.applyWmsAdjustment(event).run().futureValue.rightVal
+      InventoryAdjustmentManager.applyWmsAdjustment(event).gimme
 
       val summary = SellableInventorySummaries.findOneById(sellable.id).run().futureValue.value
       summary.onHand must ===(sellable.onHand)
@@ -116,8 +113,7 @@ class InventoryManagerIntegrationTest extends IntegrationTestBase {
       summary.reserved must ===(sellable.reserved)
       summary.safetyStock must ===(sellable.safetyStock)
 
-      val adjustments =
-        InventoryAdjustments.findSellableBySummaryId(sellable.id).result.run().futureValue.value
+      val adjustments = InventoryAdjustments.findSellableBySummaryId(sellable.id).gimme.value
       adjustments mustBe empty
     }
   }
@@ -131,9 +127,9 @@ class InventoryManagerIntegrationTest extends IntegrationTestBase {
       summaries ← * <~ generateInventory(skuId = product.skuId, warehouseId = warehouse.id)
       order     ← * <~ Orders.create(Factories.cart)
       admin     ← * <~ StoreAdmins.create(Factories.storeAdmin)
-    } yield (product, summaries._1, warehouse, admin, order)).run().futureValue.rightVal
+    } yield (product, summaries._1, warehouse, admin, order)).gimme
 
     val lineItems = Seq(UpdateLineItemsPayload(sku = product.code, quantity = 2))
-    LineItemUpdater.updateQuantitiesOnOrder(admin, order.refNum, lineItems).futureValue.rightVal
+    LineItemUpdater.updateQuantitiesOnOrder(admin, order.refNum, lineItems).gimme
   }
 }

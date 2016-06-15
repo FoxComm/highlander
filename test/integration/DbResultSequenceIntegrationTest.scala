@@ -1,12 +1,11 @@
-import models.customer.{Customer, Customers}
-import util.IntegrationTestBase
-import utils.db._
-import utils.db.DbResultT._
-import utils.seeds.Seeds.Factories
-import slick.driver.PostgresDriver.api._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import failures.DatabaseFailure
+import models.customer.{Customer, Customers}
+import util.IntegrationTestBase
+import utils.db.DbResultT._
+import utils.db._
+import utils.seeds.Seeds.Factories
 
 class DbResultSequenceIntegrationTest extends IntegrationTestBase {
 
@@ -16,9 +15,9 @@ class DbResultSequenceIntegrationTest extends IntegrationTestBase {
         DbResultT(Customers.create(Factories.customer.copy(email = s"$i")))
       }
       val cool: DbResultT[Seq[Customer]] = DbResultT.sequence(sux)
-      cool.runTxn().futureValue.rightVal
+      cool.gimme
 
-      val allCustomers = Customers.result.run().futureValue
+      val allCustomers = Customers.gimme
       allCustomers must have size 3
       allCustomers.map(_.email) must contain allOf ("1", "2", "3")
     }
@@ -31,7 +30,7 @@ class DbResultSequenceIntegrationTest extends IntegrationTestBase {
 
       val result = cool.runTxn().futureValue.leftVal
 
-      val allCustomers = Customers.result.run().futureValue
+      val allCustomers = Customers.gimme
       allCustomers mustBe empty
     }
 
@@ -47,7 +46,7 @@ class DbResultSequenceIntegrationTest extends IntegrationTestBase {
           "  Detail: Key (email, is_disabled, is_guest)=(boom, f, f) already exists.")
       failures must ===(expectedFailure.single)
 
-      val allCustomers = Customers.result.run().futureValue
+      val allCustomers = Customers.gimme
       allCustomers must have size 1
       allCustomers.head.email must ===("boom")
     }

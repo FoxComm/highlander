@@ -68,9 +68,9 @@ class CustomerNotesIntegrationTest
   "PATCH /v1/notes/customer/:customerId/:noteId" - {
 
     "can update the body text" in new Fixture {
-      val rootNote = rightValue(CustomerNoteManager
-            .create(customer.id, admin, CreateNote(body = "Hello, FoxCommerce!"))
-            .futureValue)
+      val rootNote = CustomerNoteManager
+        .create(customer.id, admin, CreateNote(body = "Hello, FoxCommerce!"))
+        .gimme
 
       val response =
         PATCH(s"v1/notes/customer/${customer.id}/${rootNote.id}", UpdateNote(body = "donkey"))
@@ -114,6 +114,6 @@ class CustomerNotesIntegrationTest
     val (admin, customer) = (for {
       admin    ← * <~ StoreAdmins.create(authedStoreAdmin)
       customer ← * <~ Customers.create(Factories.customer)
-    } yield (admin, customer)).runTxn().futureValue.rightVal
+    } yield (admin, customer)).gimme
   }
 }

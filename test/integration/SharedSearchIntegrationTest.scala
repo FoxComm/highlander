@@ -2,20 +2,19 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
-import models.sharedsearch._
-import models.{StoreAdmin, StoreAdmins}
-import SharedSearchAssociation.{build ⇒ buildAssociation}
-import models.sharedsearch.SharedSearch._
 import failures.NotFoundFailure404
 import failures.SharedSearchFailures._
+import models.sharedsearch.SharedSearch._
+import models.sharedsearch.SharedSearchAssociation.{build ⇒ buildAssociation}
+import models.sharedsearch._
+import models.{StoreAdmin, StoreAdmins}
+import org.json4s.jackson.JsonMethods._
 import payloads.SharedSearchPayloads._
 import responses.StoreAdminResponse.{Root ⇒ AdminRoot, build ⇒ buildAdmin}
 import util.IntegrationTestBase
-import utils.db._
 import utils.db.DbResultT._
+import utils.db._
 import utils.seeds.Seeds.Factories
-import slick.driver.PostgresDriver.api._
-import org.json4s.jackson.JsonMethods._
 
 class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
 
@@ -147,7 +146,7 @@ class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport w
       root.scope must ===(CustomersScope)
       root.code.isEmpty must ===(false)
 
-      SharedSearches.byAdmin(storeAdmin.id).result.run().futureValue.size must ===(1)
+      SharedSearches.byAdmin(storeAdmin.id).gimme.size must ===(1)
     }
 
     "400 if query has invalid JSON payload" in new Fixture {
@@ -237,7 +236,7 @@ class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport w
       val searchWithWarnings = response.withResultTypeOf[SharedSearch]
       searchWithWarnings.warnings mustBe empty
 
-      SharedSearchAssociations.bySharedSearch(search).result.run().futureValue.size mustBe 1
+      SharedSearchAssociations.bySharedSearch(search).gimme.size mustBe 1
     }
 
     "404 if shared search is not found" in new AssociateBaseFixture {
@@ -263,7 +262,7 @@ class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport w
       POST(s"v1/shared-search/${search.code}/associate",
            SharedSearchAssociationPayload(Seq(storeAdmin.id)))
 
-      SharedSearchAssociations.bySharedSearch(search).result.run().futureValue.size mustBe 1
+      SharedSearchAssociations.bySharedSearch(search).gimme.size mustBe 1
     }
   }
 
@@ -299,7 +298,7 @@ class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport w
       val response = DELETE(s"v1/shared-search/${search.code}/associate/${storeAdmin.id}")
       response.status must ===(StatusCodes.OK)
 
-      SharedSearchAssociations.bySharedSearch(search).result.run().futureValue mustBe empty
+      SharedSearchAssociations.bySharedSearch(search).gimme mustBe empty
     }
 
     "400 if association is not found" in new AssociateSecondaryFixture {
@@ -323,7 +322,7 @@ class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport w
   }
 
   trait Fixture {
-    val storeAdmin = StoreAdmins.create(authedStoreAdmin).run().futureValue.rightVal
+    val storeAdmin = StoreAdmins.create(authedStoreAdmin).gimme
   }
 
   trait SharedSearchFixture extends Fixture {
@@ -400,7 +399,7 @@ class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport w
        productsSearch,
        inventorySearch,
        promotionsSearch,
-       couponsSearch)).runTxn().futureValue.rightVal
+       couponsSearch)).gimme
   }
 
   trait SharedSearchAssociationFixture extends Fixture {
@@ -413,7 +412,7 @@ class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport w
                                scope = CustomersScope,
                                storeAdminId = secondAdmin.id))
       _ ← * <~ SharedSearchAssociations.create(buildAssociation(search, secondAdmin))
-    } yield (secondAdmin, search)).runTxn().futureValue.rightVal
+    } yield (secondAdmin, search)).gimme
   }
 
   trait AssociateBaseFixture extends Fixture {
@@ -423,13 +422,13 @@ class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport w
                                      scope = CustomersScope,
                                      storeAdminId = storeAdmin.id)
 
-    val search = SharedSearches.create(customerScope).run().futureValue.rightVal
+    val search = SharedSearches.create(customerScope).gimme
   }
 
   trait AssociateSecondaryFixture extends AssociateBaseFixture {
     val (associate, secondAdmin) = (for {
       associate   ← * <~ SharedSearchAssociations.create(buildAssociation(search, storeAdmin))
       secondAdmin ← * <~ StoreAdmins.create(Factories.storeAdmin)
-    } yield (associate, secondAdmin)).runTxn().futureValue.rightVal
+    } yield (associate, secondAdmin)).gimme
   }
 }

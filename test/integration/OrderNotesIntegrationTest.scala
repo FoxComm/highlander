@@ -83,12 +83,11 @@ class OrderNotesIntegrationTest
 
   "DELETE /v1/notes/order/:refNum/:noteId" - {
     "can soft delete note" in new Fixture {
-      val note = rightValue(
-          OrderNoteManager
-            .create(order.refNum,
-                    storeAdmin,
-                    CreateNote(body = "Hello, FoxCommerce!"))
-            .futureValue)
+      val note = OrderNoteManager
+        .create(order.refNum,
+                storeAdmin,
+                CreateNote(body = "Hello, FoxCommerce!"))
+        .gimme
 
       val response = DELETE(s"v1/notes/order/${order.referenceNumber}/${note.id}")
       response.status must ===(StatusCodes.NoContent)
@@ -115,6 +114,6 @@ class OrderNotesIntegrationTest
       order ← * <~ Orders.create(
                  Factories.order.copy(customerId = customer.id, state = Order.Cart))
       storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
-    } yield (order, storeAdmin, customer)).runTxn().futureValue.rightVal
+    } yield (order, storeAdmin, customer)).gimme
   }
 }

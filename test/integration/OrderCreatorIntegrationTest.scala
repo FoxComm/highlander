@@ -82,6 +82,6 @@ class OrderCreatorIntegrationTest
       productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       customer       ← * <~ Customers.create(Factories.customer)
       storeAdmin     ← * <~ StoreAdmins.create(authedStoreAdmin)
-    } yield (productContext, storeAdmin, customer)).runTxn().futureValue.rightVal
+    } yield (productContext, storeAdmin, customer)).gimme
   }
 }

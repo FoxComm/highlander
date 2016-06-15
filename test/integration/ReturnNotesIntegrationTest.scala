@@ -73,9 +73,9 @@ class ReturnNotesIntegrationTest
     "PATCH /v1/notes/return/:code/:noteId" - {
 
       "can update the body text" in new Fixture {
-        val rootNote = rightValue(ReturnNoteManager
-              .create(rma.refNum, admin, CreateNote(body = "Hello, FoxCommerce!"))
-              .futureValue)
+        val rootNote = ReturnNoteManager
+          .create(rma.refNum, admin, CreateNote(body = "Hello, FoxCommerce!"))
+          .gimme
 
         val response =
           PATCH(s"v1/notes/rma/${rma.refNum}/${rootNote.id}", UpdateNote(body = "donkey"))
@@ -126,6 +126,6 @@ class ReturnNotesIntegrationTest
       rma ← * <~ Returns.create(Factories.rma.copy(orderId = order.id,
                                                    orderRefNum = order.referenceNumber,
                                                    customerId = customer.id))
-    } yield (admin, rma)).run().futureValue.rightVal
+    } yield (admin, rma)).gimme
   }
 }

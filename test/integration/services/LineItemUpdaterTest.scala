@@ -1,22 +1,23 @@
 package services
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
+import models.StoreAdmins
 import models.activity.ActivityContext
 import models.inventory._
-import models.order.lineitems._
-import models.order.{Orders, Order}
-import models.StoreAdmins
-import models.product.{Mvp, SimpleContext, SimpleProductData}
 import models.objects._
+import models.order.lineitems._
+import models.order.{Order, Orders}
+import models.product.{Mvp, SimpleContext, SimpleProductData}
 import payloads.LineItemPayloads.{UpdateLineItemsPayload ⇒ Payload}
 import util.IntegrationTestBase
-import utils.db._
 import utils.db.DbResultT._
+import utils.db._
 import utils.seeds.Seeds.Factories
 
 class LineItemUpdaterTest extends IntegrationTestBase {
-  import api._
 
-  import concurrent.ExecutionContext.Implicits.global
+  import api._
 
   implicit val activityContext = ActivityContext(userId = 1, userType = "b", transactionId = "c")
   implicit val elaticsearchApi = utils.ElasticsearchApi.default()
@@ -33,18 +34,17 @@ class LineItemUpdaterTest extends IntegrationTestBase {
     } yield (context, products)
 
   def createLineItems(items: Seq[OrderLineItem]): Unit = {
-    OrderLineItems.createAll(items).run().futureValue.rightVal
+    OrderLineItems.createAll(items).gimme
   }
 
   def createDefaultWarehouse(): Warehouse =
-    Warehouses.create(Factories.warehouse).run().futureValue.rightVal
+    Warehouses.create(Factories.warehouse).gimme
 
   "LineItemUpdater" - {
 
     "Adds line items when the sku doesn't exist in order" in new Fixture {
-      val (context, products) = createProducts(2).run().futureValue.rightVal
-      val order =
-        Orders.create(Order(customerId = 1, contextId = context.id)).run().futureValue.rightVal
+      val (context, products) = createProducts(2).gimme
+      val order               = Orders.create(Order(customerId = 1, contextId = context.id)).gimme
       //      val warehouse = createDefaultWarehouse()
       //      createDefaultWarehouse()
 
@@ -72,9 +72,8 @@ class LineItemUpdaterTest extends IntegrationTestBase {
     }
 
     "Updates line items when the Sku already is in order" in new Fixture {
-      val (context, products) = createProducts(3).run().futureValue.rightVal
-      val order =
-        Orders.create(Order(customerId = 1, contextId = context.id)).run().futureValue.rightVal
+      val (context, products) = createProducts(3).gimme
+      val order               = Orders.create(Order(customerId = 1, contextId = context.id)).gimme
       //      val warehouse = createDefaultWarehouse()
       //      createInventory(warehouse.id, 1, 100)
       //      createInventory(warehouse.id, 2, 100)
@@ -113,6 +112,6 @@ class LineItemUpdaterTest extends IntegrationTestBase {
   trait Fixture {
     val (admin) = (for {
       admin ← * <~ StoreAdmins.create(Factories.storeAdmin)
-    } yield admin).runTxn().futureValue.rightVal
+    } yield admin).gimme
   }
 }

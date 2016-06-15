@@ -1,43 +1,40 @@
 import java.time.Instant
 
-import cats.implicits._
-import Extensions._
+import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 import akka.pattern.ask
 import akka.testkit.TestActorRef
 
-import models.order._
-import Order._
-import models.{Assignment, Assignments}
+import Extensions._
+import cats.implicits._
+import failures.CartFailures._
+import failures.LockFailures._
+import failures.{NotFoundFailure404, StateTransitionNotAllowed}
+import models.StoreAdmins
 import models.customer.Customers
 import models.location.{Address, Addresses, Regions}
+import models.objects._
+import models.order.Order._
+import models.order._
 import models.order.lineitems._
 import models.payment.creditcard._
+import models.product.{Mvp, SimpleContext}
 import models.rules.QueryStatement
 import models.shipping._
-import models.{StoreAdmin, StoreAdmins}
-import models.product.{Mvp, SimpleContext}
-import models.objects._
 import org.json4s.jackson.JsonMethods._
-import responses.StoreAdminResponse
+import payloads.AddressPayloads.UpdateAddressPayload
+import payloads.LineItemPayloads.UpdateLineItemsPayload
+import payloads.OrderPayloads.UpdateOrderPayload
+import payloads.UpdateShippingMethod
 import responses.order.FullOrder
 import services.actors.{RemorseTimer, Tick}
 import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
-import utils.db._
 import utils.db.DbResultT._
+import utils.db._
 import utils.seeds.Seeds.Factories
 import utils.time._
-import scala.concurrent.ExecutionContext.Implicits.global
-
-import failures.CartFailures._
-import failures.LockFailures._
-import failures.{NotFoundFailure404, StateTransitionNotAllowed}
-import payloads.AddressPayloads.UpdateAddressPayload
-import payloads.LineItemPayloads.UpdateLineItemsPayload
-import payloads.OrderPayloads.UpdateOrderPayload
-import payloads.UpdateShippingMethod
 
 class OrderIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
 
@@ -114,7 +111,7 @@ class OrderIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
   "PATCH /v1/orders/:refNum" - {
 
     "successfully" in {
-      val order = Orders.create(Factories.order).run().futureValue.rightVal
+      val order = Orders.create(Factories.order).gimme
 
       val response = PATCH(s"v1/orders/${order.referenceNumber}", UpdateOrderPayload(FraudHold))
 
@@ -125,7 +122,7 @@ class OrderIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
     }
 
     "fails if transition to destination status is not allowed" in {
-      val order = Orders.create(Factories.order).run().futureValue.rightVal
+      val order = Orders.create(Factories.order).gimme
 
       val response = PATCH(s"v1/orders/${order.referenceNumber}", UpdateOrderPayload(Cart))
 
@@ -135,7 +132,7 @@ class OrderIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
     }
 
     "fails if transition from current status is not allowed" in {
-      val order = Orders.create(Factories.order.copy(state = Canceled)).run().futureValue.rightVal
+      val order = Orders.create(Factories.order.copy(state = Canceled)).gimme
 
       val response = PATCH(s"v1/orders/${order.referenceNumber}", UpdateOrderPayload(ManualHold))
 
@@ -145,7 +142,7 @@ class OrderIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
     }
 
     "fails if the order is not found" in {
-      Orders.create(Factories.order).run().futureValue.rightVal
+      Orders.create(Factories.order).gimme
 
       val response = PATCH(s"v1/orders/NOPE", UpdateOrderPayload(ManualHold))
 
@@ -179,8 +176,7 @@ class OrderIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
   "POST /v1/orders/:refNum/increase-remorse-period" - {
 
     "successfully" in {
-      val order =
-        Orders.create(Factories.order.copy(state = Order.RemorseHold)).run().futureValue.rightVal
+      val order    = Orders.create(Factories.order.copy(state = Order.RemorseHold)).gimme
       val response = POST(s"v1/orders/${order.referenceNumber}/increase-remorse-period")
 
       val result = response.as[FullOrder.Root]
@@ -188,7 +184,7 @@ class OrderIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
     }
 
     "only when in RemorseHold status" in {
-      val order    = Orders.create(Factories.order).run().futureValue.rightVal
+      val order    = Orders.create(Factories.order).gimme
       val response = POST(s"v1/orders/${order.referenceNumber}/increase-remorse-period")
       response.status must ===(StatusCodes.BadRequest)
 
@@ -199,23 +195,23 @@ class OrderIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
 
   "POST /v1/orders/:refNum/lock" - {
     "successfully locks an order" in {
-      val order = Orders.create(Factories.order).run().futureValue.rightVal
-      StoreAdmins.create(Factories.storeAdmin).run().futureValue.rightVal
+      val order = Orders.create(Factories.order).gimme
+      StoreAdmins.create(Factories.storeAdmin).gimme
 
       val response = POST(s"v1/orders/${order.referenceNumber}/lock")
       response.status must ===(StatusCodes.OK)
 
-      val lockedOrder = Orders.findByRefNum(order.referenceNumber).result.run().futureValue.head
+      val lockedOrder = Orders.findByRefNum(order.referenceNumber).gimme.head
       lockedOrder.isLocked must ===(true)
 
-      val locks = OrderLockEvents.findByOrder(order.id).result.run().futureValue
+      val locks = OrderLockEvents.findByOrder(order.id).gimme
       locks.length must ===(1)
       val lock = locks.head
       lock.lockedBy must ===(1)
     }
 
     "refuses to lock an already locked order" in {
-      val order = Orders.create(Factories.order.copy(isLocked = true)).run().futureValue.rightVal
+      val order = Orders.create(Factories.order.copy(isLocked = true)).gimme
 
       val response = POST(s"v1/orders/${order.referenceNumber}/lock")
       response.status must ===(StatusCodes.BadRequest)
@@ -224,21 +220,21 @@ class OrderIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
 
     "avoids race condition" in {
       pending // FIXME when DbResultT gets `select for update` https://github.com/FoxComm/phoenix-scala/issues/587
-      StoreAdmins.create(Factories.storeAdmin).run().futureValue.rightVal
-      val order = Orders.create(Factories.order).run().futureValue.rightVal
+      StoreAdmins.create(Factories.storeAdmin).gimme
+      val order = Orders.create(Factories.order).gimme
 
       def request = POST(s"v1/orders/${order.referenceNumber}/lock")
 
       val responses = Seq(0, 1).par.map(_ ⇒ request)
       responses.map(_.status) must contain allOf (StatusCodes.OK, StatusCodes.BadRequest)
-      OrderLockEvents.result.run().futureValue.length mustBe 1
+      OrderLockEvents.gimme.length mustBe 1
     }
   }
 
   "POST /v1/orders/:refNum/unlock" - {
     "unlocks an order" in {
-      StoreAdmins.create(Factories.storeAdmin).run().futureValue.rightVal
-      val order = Orders.create(Factories.order).run().futureValue.rightVal
+      StoreAdmins.create(Factories.storeAdmin).gimme
+      val order = Orders.create(Factories.order).gimme
 
       val lock = POST(s"v1/orders/${order.referenceNumber}/lock")
       lock.status must ===(StatusCodes.OK)
@@ -246,12 +242,12 @@ class OrderIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
       val unlock = POST(s"v1/orders/${order.referenceNumber}/unlock")
       unlock.status must ===(StatusCodes.OK)
 
-      val unlockedOrder = Orders.findByRefNum(order.referenceNumber).result.run().futureValue.head
+      val unlockedOrder = Orders.findByRefNum(order.referenceNumber).gimme.head
       unlockedOrder.isLocked must ===(false)
     }
 
     "refuses to unlock an already unlocked order" in {
-      val order    = Orders.create(Factories.order).run().futureValue.rightVal
+      val order    = Orders.create(Factories.order).gimme
       val response = POST(s"v1/orders/${order.referenceNumber}/unlock")
 
       response.status must ===(StatusCodes.BadRequest)
@@ -289,9 +285,7 @@ class OrderIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
                            orderId = order.id,
                            lockedAt = Instant.now.plusMinutes(30))
         )
-        .run()
-        .futureValue
-        .rightVal
+        .gimme
 
       POST(s"v1/orders/$refNum/lock")
       POST(s"v1/orders/$refNum/unlock")
@@ -473,8 +467,7 @@ class OrderIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
 
       response.status must ===(StatusCodes.OK)
 
-      val (shippingAddress :: Nil) =
-        OrderShippingAddresses.findByOrderId(order.id).result.run().futureValue.toList
+      val (shippingAddress :: Nil) = OrderShippingAddresses.findByOrderId(order.id).gimme.toList
 
       shippingAddress.name must ===("New name")
       shippingAddress.city must ===("Queen Anne")
@@ -576,8 +569,7 @@ class OrderIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
       val fullOrder = response.ignoreFailuresAndGiveMe[FullOrder.Root]
       fullOrder.shippingMethod.value.name must ===(lowShippingMethod.adminDisplayName)
 
-      val orderShippingMethod =
-        OrderShippingMethods.findByOrderId(order.id).result.run().futureValue.head
+      val orderShippingMethod = OrderShippingMethods.findByOrderId(order.id).gimme.head
       orderShippingMethod.orderId must ===(order.id)
       orderShippingMethod.shippingMethodId must ===(lowShippingMethod.id)
     }
@@ -610,12 +602,11 @@ class OrderIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
       order ← * <~ Orders.create(
                  Factories.order.copy(customerId = customer.id, state = Order.Cart))
       storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
-    } yield (order, storeAdmin, customer)).runTxn().futureValue.rightVal
+    } yield (order, storeAdmin, customer)).gimme
   }
 
   trait AddressFixture extends Fixture {
-    val address =
-      Addresses.create(Factories.address.copy(customerId = customer.id)).run().futureValue.rightVal
+    val address = Addresses.create(Factories.address.copy(customerId = customer.id)).gimme
   }
 
   trait ShippingAddressFixture extends AddressFixture {
@@ -629,7 +620,7 @@ class OrderIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
                                              address1 = "29918 Kenloch Dr",
                                              city = "Farmington Hills",
                                              regionId = 4177))
-    } yield (orderShippingAddress, newAddress)).runTxn().futureValue.rightVal
+    } yield (orderShippingAddress, newAddress)).gimme
   }
 
   trait ShippingMethodFixture extends AddressFixture {
@@ -660,8 +651,8 @@ class OrderIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
 
     val (lowShippingMethod, inactiveShippingMethod, highShippingMethod) = (for {
       productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-      product ← * <~ Mvp.insertProduct(productContext.id,
-                                       Factories.products.head.copy(price = 100))
+      product ← * <~ Mvp.insertProduct(
+                   productContext.id, Factories.products.head.copy(price = 100))
       lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(product.skuId).toXor
       lineItem ← * <~ OrderLineItems.create(OrderLineItem(orderId = order.id,
                                                           originId = lineItemSku.id,
@@ -673,10 +664,7 @@ class OrderIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
       highShippingMethod ← * <~ ShippingMethods.create(highSm)
 
       _ ← * <~ OrderTotaler.saveTotals(order)
-    } yield (lowShippingMethod, inactiveShippingMethod, highShippingMethod))
-      .runTxn()
-      .futureValue
-      .rightVal
+    } yield (lowShippingMethod, inactiveShippingMethod, highShippingMethod)).gimme
   }
 
   trait OrderShippingMethodFixture extends ShippingMethodFixture {
@@ -694,7 +682,7 @@ class OrderIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
       order ← * <~ Orders.create(
                  Factories.order.copy(state = Order.RemorseHold,
                                       remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
-    } yield (admin, order)).runTxn().futureValue.rightVal
+    } yield (admin, order)).gimme
 
     val refNum             = order.referenceNumber
     val originalRemorseEnd = order.remorsePeriodEnd.value
@@ -707,6 +695,6 @@ class OrderIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
               Factories.orderPayment.copy(orderId = order.id, paymentMethodId = cc.id))
       ccc ← * <~ CreditCardCharges.create(
                Factories.creditCardCharge.copy(creditCardId = cc.id, orderPaymentId = op.id))
-    } yield (cc, op, ccc)).runTxn().futureValue.rightVal
+    } yield (cc, op, ccc)).gimme
   }
 }

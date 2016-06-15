@@ -13,8 +13,8 @@ import responses.SkuResponses.{FullSkuResponse, SkuResponse}
 import util.IntegrationTestBase
 import utils.Money.Currency
 import utils.aliases._
-import utils.db._
 import utils.db.DbResultT._
+import utils.db._
 
 class SkuIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
 
@@ -104,7 +104,7 @@ class SkuIntegrationTest extends IntegrationTestBase with HttpSupport with Autom
     }
 
     val (context, sku, skuForm, skuShadow) = (for {
-      storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin).run().futureValue.rightVal
+      storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin).gimme
       context ← * <~ ObjectContexts
                  .filterByName(SimpleContext.default)
                  .mustFindOneOr(ObjectContextNotFound(SimpleContext.default))
@@ -124,6 +124,6 @@ class SkuIntegrationTest extends IntegrationTestBase with HttpSupport with Autom
                    formId = skuForm.id,
                    shadowId = skuShadow.id,
                    commitId = skuCommit.id))
-    } yield (context, sku, skuForm, skuShadow)).runTxn().futureValue.rightVal
+    } yield (context, sku, skuForm, skuShadow)).gimme
   }
 }

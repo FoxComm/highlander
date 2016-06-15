@@ -50,7 +50,7 @@ class OrderPaymentsIntegrationTest
           POST(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
 
         response.status must ===(StatusCodes.OK)
-        val (p :: Nil) = OrderPayments.findAllByOrderId(order.id).result.run().futureValue.toList
+        val (p :: Nil) = OrderPayments.findAllByOrderId(order.id).gimme.toList
 
         val payments = giftCardPayments(order)
         payments must have size 1
@@ -373,8 +373,7 @@ class OrderPaymentsIntegrationTest
                          CreditCardPayment(creditCard.id))
         first.status must ===(StatusCodes.OK)
 
-        val newCreditCard =
-          CreditCards.create(creditCard.copy(id = 0, isDefault = false)).run().futureValue.rightVal
+        val newCreditCard = CreditCards.create(creditCard.copy(id = 0, isDefault = false)).gimme
         val second = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards",
                           CreditCardPayment(newCreditCard.id))
         second.status must ===(StatusCodes.OK)
@@ -476,7 +475,7 @@ class OrderPaymentsIntegrationTest
 
   def paymentsFor(order: Order, pmt: PaymentMethod.Type): Seq[OrderPayment] = {
     val q = OrderPayments.filter(_.orderId === order.id).byType(pmt)
-    q.result.run().futureValue
+    q.gimme
   }
 
   def creditCardPayments(order: Order) =
@@ -492,7 +491,7 @@ class OrderPaymentsIntegrationTest
       order ← * <~ Orders.create(
                  Factories.order.copy(customerId = customer.id, state = Order.Cart))
       admin ← * <~ StoreAdmins.create(authedStoreAdmin)
-    } yield (order, admin, customer)).runTxn().futureValue.rightVal
+    } yield (order, admin, customer)).gimme
   }
 
   trait GiftCardFixture extends Fixture {
@@ -502,7 +501,7 @@ class OrderPaymentsIntegrationTest
                   GiftCardManual(adminId = admin.id, reasonId = reason.id))
       giftCard ← * <~ GiftCards.create(
                     Factories.giftCard.copy(originId = origin.id, state = GiftCard.Active))
-    } yield giftCard).runTxn().futureValue.rightVal
+    } yield giftCard).gimme
   }
 
   trait StoreCreditFixture extends Fixture {
@@ -517,13 +516,13 @@ class OrderPaymentsIntegrationTest
                                       originId = i)
          })
       storeCredits ← * <~ StoreCredits.findAllByCustomerId(customer.id).result
-    } yield storeCredits).runTxn().futureValue.rightVal
+    } yield storeCredits).gimme
   }
 
   trait CreditCardFixture extends Fixture {
     val creditCard = (for {
       address ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
       cc      ← * <~ CreditCards.create(Factories.creditCard.copy(customerId = customer.id))
-    } yield cc).run().futureValue.rightVal
+    } yield cc).gimme
   }
 }

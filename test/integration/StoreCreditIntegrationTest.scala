@@ -137,8 +137,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase with HttpSupport wi
         root.canceledAmount must ===(Some(storeCredit.originalBalance))
 
         // Ensure that cancel adjustment is automatically created
-        val adjustments =
-          StoreCreditAdjustments.filterByStoreCreditId(storeCredit.id).result.run().futureValue
+        val adjustments = StoreCreditAdjustments.filterByStoreCreditId(storeCredit.id).gimme
         adjustments.size mustBe 2
         adjustments.head.state must ===(StoreCreditAdjustment.CancellationCapture)
       }
@@ -157,8 +156,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase with HttpSupport wi
         root.canceledAmount must ===(Some(0))
 
         // Ensure that cancel adjustment is automatically created
-        val adjustments =
-          StoreCreditAdjustments.filterByStoreCreditId(storeCredit.id).result.run().futureValue
+        val adjustments = StoreCreditAdjustments.filterByStoreCreditId(storeCredit.id).gimme
         adjustments.size mustBe 2
         adjustments.head.state must ===(StoreCreditAdjustment.CancellationCapture)
       }
@@ -294,6 +292,6 @@ class StoreCreditIntegrationTest extends IntegrationTestBase with HttpSupport wi
        adjustment,
        scSecond,
        payment,
-       scSubType)).runTxn().futureValue.rightVal
+       scSubType)).gimme
   }
 }

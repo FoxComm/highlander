@@ -9,13 +9,12 @@ import models.location.Addresses
 import models.order.Orders
 import slick.driver.PostgresDriver.api._
 import util.CustomMatchers._
-import util.SlickSupport.implicits._
 import util._
 import utils.db.DbResultT._
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class DbResultTTest extends TestBase with DbTestSupport with CatsHelpers {
+class DbResultTTest extends TestBase with DbTestSupport with CatsHelpers with GimmeSupport {
 
   "DbResultT" - {
     "when we lift (do you even?)" - {
@@ -66,15 +65,15 @@ class DbResultTTest extends TestBase with DbTestSupport with CatsHelpers {
                      .toXorT
         } yield (customer, address)
 
-        val result = db.run(transformer.value.transactionally).futureValue
+        val result = transformer.run().futureValue
         result mustBe 'left
         result.leftVal must includeFailure("name must not be empty")
 
         // creates the customer
-        Customers.length.result.futureValue must ===(1)
+        Customers.length.gimme must ===(1)
 
         // won't create address
-        Addresses.length.result.futureValue must ===(0)
+        Addresses.length.gimme must ===(0)
       }
     }
   }

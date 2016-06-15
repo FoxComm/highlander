@@ -1,16 +1,15 @@
 package utils
 
-import models.customer.{Customers, Customer}
-import models.location.Addresses
-import models.order.{Orders, Order}
-import failures.{DatabaseFailure, GeneralFailure, StateTransitionNotAllowed}
-import slick.driver.PostgresDriver.api._
-import util.IntegrationTestBase
-import utils.db._
-import utils.db.DbResultT._
-import utils.seeds.Seeds.Factories
-
 import scala.concurrent.ExecutionContext.Implicits.global
+
+import failures.{DatabaseFailure, GeneralFailure, StateTransitionNotAllowed}
+import models.customer.{Customer, Customers}
+import models.location.Addresses
+import models.order.{Order, Orders}
+import util.IntegrationTestBase
+import utils.db.DbResultT._
+import utils.db._
+import utils.seeds.Seeds.Factories
 
 class ModelIntegrationTest extends IntegrationTestBase {
 
@@ -27,7 +26,7 @@ class ModelIntegrationTest extends IntegrationTestBase {
         customer ← * <~ Customers.create(Factories.customer)
         address ← * <~ Addresses.create(
                      Factories.address.copy(zip = "123-45", customerId = customer.id))
-      } yield address).runTxn().futureValue.rightVal
+      } yield address).gimme
       result.zip must ===("12345")
     }
 
@@ -43,22 +42,18 @@ class ModelIntegrationTest extends IntegrationTestBase {
     }
 
     "fails if model already exists" in {
-      val orig = Customers.create(Factories.customer).run().futureValue.rightVal
+      val orig = Customers.create(Factories.customer).gimme
       Customers.create(orig.copy(name = Some("Derp"))).run().futureValue mustBe 'left
-      Customers.result.run().futureValue must ===(Seq(orig))
+      Customers.gimme must ===(Seq(orig))
     }
   }
 
   "Model delete" - {
     "returns value for successful delete" in {
-      val customer = Customers.create(Factories.customer).run().futureValue.rightVal
+      val customer = Customers.create(Factories.customer).gimme
       val success  = "Success"
       val failure  = (id: Customer#Id) ⇒ GeneralFailure("Should not happen")
-      val delete = Customers
-        .deleteById(customer.id, DbResult.good(success), failure)
-        .run()
-        .futureValue
-        .rightVal
+      val delete   = Customers.deleteById(customer.id, DbResult.good(success), failure).gimme
       delete must ===(success)
     }
 
@@ -86,21 +81,20 @@ class ModelIntegrationTest extends IntegrationTestBase {
     }
 
     "must update model successfully" in {
-      val customer = Customers.create(Factories.customer).run().futureValue.rightVal
+      val customer = Customers.create(Factories.customer).gimme
       customer.isNew must ===(false)
-      val updated =
-        Customers.update(customer, customer.copy(name = Some("Derp"))).run().futureValue.rightVal
+      val updated = Customers.update(customer, customer.copy(name = Some("Derp"))).gimme
       Customers.findOneById(customer.id).run().futureValue.value must ===(updated)
     }
 
     "must run FSM check if applicable" in {
-      val order = Orders.create(Factories.order).run.futureValue.rightVal
+      val order = Orders.create(Factories.order).run.gimme
       order.isNew must ===(false)
       val updateFailure =
         leftValue(Orders.update(order, order.copy(state = Order.Cart)).run().futureValue)
       updateFailure must ===(
           StateTransitionNotAllowed(order.state, Order.Cart, order.refNum).single)
-      Orders.result.run().futureValue.headOption.value must ===(order)
+      Orders.gimme.headOption.value must ===(order)
     }
 
     "won't update unsaved model" in {
@@ -110,16 +104,16 @@ class ModelIntegrationTest extends IntegrationTestBase {
 
   "Model save" - {
     "saves new model" in {
-      Customers.result.run().futureValue mustBe empty
-      val customer = Customers.create(Factories.customer).run().futureValue.rightVal
-      Customers.result.run().futureValue must ===(Seq(customer))
+      Customers.gimme mustBe empty
+      val customer = Customers.create(Factories.customer).gimme
+      Customers.gimme must ===(Seq(customer))
     }
 
     "updates old model" in {
-      val orig = Customers.create(Factories.customer).run().futureValue.rightVal
+      val orig = Customers.create(Factories.customer).gimme
       val copy = orig.copy(name = Some("Derp"))
       Customers.update(orig, copy).run().futureValue mustBe 'right
-      Customers.result.run().futureValue must ===(Seq(copy))
+      Customers.gimme must ===(Seq(copy))
     }
   }
 }

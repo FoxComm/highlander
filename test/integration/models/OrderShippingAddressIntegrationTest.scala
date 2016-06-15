@@ -29,6 +29,6 @@ class OrderShippingAddressIntegrationTest extends IntegrationTestBase {
       order    ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
       shippingAddress ← * <~ OrderShippingAddresses.create(
                            Factories.shippingAddress.copy(orderId = order.id))
-    } yield (order, shippingAddress)).run().futureValue.rightVal
+    } yield (order, shippingAddress)).gimme
   }
 }

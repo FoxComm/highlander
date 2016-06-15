@@ -47,7 +47,7 @@ class NoteIntegrationTest extends IntegrationTestBase {
   }
 
   trait Fixture {
-    val admin = StoreAdmins.create(Factories.storeAdmin).run().futureValue.rightVal
+    val admin = StoreAdmins.create(Factories.storeAdmin).gimme
     val note  = Factories.orderNotes.head.copy(storeAdminId = admin.id)
   }
 }

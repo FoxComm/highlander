@@ -4,7 +4,7 @@ import java.time.Instant
 
 import models.customer.Customers
 import models.order.Order._
-import models.order.{Order, Orders}
+import models.order.Orders
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.db._
@@ -16,11 +16,8 @@ class OrdersIntegrationTest extends IntegrationTestBase {
 
   "Orders" - {
     "generates a referenceNumber in Postgres after insert when blank" in new Fixture {
-      val order = Orders
-        .create(Factories.cart.copy(customerId = customer.id, referenceNumber = ""))
-        .run()
-        .futureValue
-        .rightVal
+      val order =
+        Orders.create(Factories.cart.copy(customerId = customer.id, referenceNumber = "")).gimme
 
       order.referenceNumber must ===("BR10001")
     }
@@ -28,15 +25,12 @@ class OrdersIntegrationTest extends IntegrationTestBase {
     "doesn't overwrite a non-empty referenceNumber after insert" in new Fixture {
       val order = Orders
         .create(Factories.cart.copy(customerId = customer.id, referenceNumber = "R123456"))
-        .run()
-        .futureValue
-        .rightVal
+        .gimme
       order.referenceNumber must ===("R123456")
     }
 
     "can only have one record in 'cart' status" in new Fixture {
-      val order =
-        Orders.create(Factories.cart.copy(customerId = customer.id)).run().futureValue.rightVal
+      val order = Orders.create(Factories.cart.copy(customerId = customer.id)).gimme
 
       val failure = Orders
         .create(order.copy(id = 0, referenceNumber = order.refNum + "ZZZ"))
@@ -48,8 +42,7 @@ class OrdersIntegrationTest extends IntegrationTestBase {
     }
 
     "has a unique index on referenceNumber" in new Fixture {
-      val order =
-        Orders.create(Factories.cart.copy(customerId = customer.id)).run().futureValue.rightVal
+      val order = Orders.create(Factories.cart.copy(customerId = customer.id)).gimme
 
       val failure =
         Orders.create(order.copy(id = 0).copy(state = RemorseHold)).run().futureValue.leftVal
@@ -58,14 +51,13 @@ class OrdersIntegrationTest extends IntegrationTestBase {
     }
 
     "trigger sets remorse period end when order moves to RemorseHold" in {
-      val order = Orders.create(Factories.order).run().futureValue.rightVal
+      val order = Orders.create(Factories.order).gimme
 
       order.remorsePeriodEnd must ===(None)
 
       db.run(Orders.update(order, order.copy(state = RemorseHold))).futureValue mustBe 'right
 
-      val updatedOrder =
-        Orders.findByRefNum(order.referenceNumber).result.run().futureValue.headOption.value
+      val updatedOrder = Orders.findByRefNum(order.referenceNumber).gimme.headOption.value
       updatedOrder.remorsePeriodEnd.value.minuteOfHour must ===(
           Instant.now.plusMinutes(30).minuteOfHour)
     }
@@ -73,9 +65,7 @@ class OrdersIntegrationTest extends IntegrationTestBase {
     "trigger resets remorse period after status changes from RemorseHold" in {
       val order = Orders
         .create(Factories.order.copy(remorsePeriodEnd = Some(Instant.now), state = RemorseHold))
-        .run()
-        .futureValue
-        .rightVal
+        .gimme
 
       db.run(Orders.findByRefNum(order.referenceNumber).map(_.state).update(ManualHold))
         .futureValue
@@ -87,6 +77,6 @@ class OrdersIntegrationTest extends IntegrationTestBase {
   }
 
   trait Fixture {
-    val customer = Customers.create(Factories.customer).run().futureValue.rightVal
+    val customer = Customers.create(Factories.customer).gimme
   }
 }

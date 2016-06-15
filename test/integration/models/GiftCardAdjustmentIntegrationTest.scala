@@ -64,7 +64,7 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
                                             orderPaymentId = Some(payment.id),
                                             debit = 50,
                                             credit = 0)
-      } yield (gc, adjustment)).runTxn().futureValue.rightVal
+      } yield (gc, adjustment)).gimme
 
       adjustment.id must ===(1)
     }
@@ -112,7 +112,7 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
                                    debit = 200,
                                    credit = 0)
         gc ← * <~ GiftCards.findOneById(gc.id).toXor
-      } yield gc.value).runTxn().futureValue.rightVal
+      } yield gc.value).gimme
 
       gc.availableBalance must ===(0)
       gc.currentBalance must ===(200)
@@ -134,7 +134,7 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
                                      credit = 0)
         adj ← * <~ GiftCardAdjustments.refresh(adj).toXor
         gc  ← * <~ GiftCards.refresh(gc).toXor
-      } yield (adj, gc)).value.run().futureValue.rightVal
+      } yield (adj, gc)).value.gimme
 
       gc.availableBalance must ===(450)
       gc.currentBalance must ===(450)
@@ -151,7 +151,7 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
                      Factories.giftCardPayment.copy(orderId = order.id,
                                                     paymentMethodId = gc.id,
                                                     amount = Some(gc.availableBalance)))
-      } yield (gc, payment)).runTxn().futureValue.rightVal
+      } yield (gc, payment)).gimme
 
       val debits = List(50, 25, 15, 10)
       val adjustments = db
@@ -182,6 +182,6 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
       reason   ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
       order    ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
       reason   ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
-    } yield (admin, reason, order)).runTxn().futureValue.rightVal
+    } yield (admin, reason, order)).gimme
   }
 }

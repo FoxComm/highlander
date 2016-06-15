@@ -24,7 +24,6 @@ import responses.GiftCardResponse
 import responses.order.FullOrder
 import responses.order.FullOrder.Root
 import services.inventory.InventoryAdjustmentManager
-import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.db.DbResultT._
 import utils.db._
@@ -72,8 +71,7 @@ class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with 
       summary.reserved must ===(sellableSummary.reserved)
       summary.safetyStock must ===(sellableSummary.safetyStock)
 
-      val adjustments =
-        InventoryAdjustments.findSellableBySummaryId(sellableSummary.id).result.run().futureValue
+      val adjustments = InventoryAdjustments.findSellableBySummaryId(sellableSummary.id).gimme
       adjustments must have size 1
       adjustments.filterNot(_.state == OnHold) mustBe empty
       val onHoldAdj = adjustments.headOption.value
@@ -98,7 +96,7 @@ class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with 
                     sellableSummary.onHand,
                     sellableSummary.onHold + sellableSummary.availableForSale,
                     sellableSummary.reserved)
-      InventoryAdjustmentManager.applyWmsAdjustment(wmsAdjustment).runTxn().futureValue.rightVal
+      InventoryAdjustmentManager.applyWmsAdjustment(wmsAdjustment).gimme
 
       // Set address
       PATCH(s"v1/orders/$refNum/shipping-address/${address.id}").status must ===(StatusCodes.OK)
@@ -143,9 +141,6 @@ class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with 
       reason     ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
       warehouse  ← * <~ Warehouses.create(Factories.warehouse)
       inventory  ← * <~ generateInventory(sku.id, warehouse.id)
-    } yield (customer, address, shipMethod, product, sku, reason, inventory._1, warehouse))
-      .run()
-      .futureValue
-      .rightVal
+    } yield (customer, address, shipMethod, product, sku, reason, inventory._1, warehouse)).gimme
   }
 }

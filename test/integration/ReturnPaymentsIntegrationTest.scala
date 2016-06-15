@@ -1,19 +1,18 @@
+import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import failures.NotFoundFailure404
+import models.StoreAdmins
 import models.customer.Customers
 import models.location.Addresses
 import models.order.{OrderPayments, Orders}
 import models.payment.creditcard.CreditCards
 import models.returns._
-import models.StoreAdmins
 import payloads.ReturnPayloads._
 import responses.ReturnResponse.Root
 import util.IntegrationTestBase
-import utils.db._
 import utils.db.DbResultT._
 import utils.seeds.Seeds.Factories
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class ReturnPaymentsIntegrationTest
     extends IntegrationTestBase
@@ -193,6 +192,6 @@ class ReturnPaymentsIntegrationTest
                                                                            paymentMethodId = cc.id,
                                                                            amount = None))
       rma ← * <~ Returns.create(Factories.rma.copy(referenceNumber = "ABCD1234-11.1"))
-    } yield (rma, order, admin, customer)).runTxn().futureValue.rightVal
+    } yield (rma, order, admin, customer)).gimme
   }
 }

@@ -40,7 +40,7 @@ class ShippingMethodsIntegrationTest
 
         val action = shipping.ShippingMethods.create(
             Factories.shippingMethods.head.copy(conditions = Some(conditions)))
-        val shippingMethod = db.run(action).futureValue.rightVal
+        val shippingMethod = db.run(action).gimme
 
         val response = GET(s"v1/shipping-methods/${order.referenceNumber}")
         response.status must ===(StatusCodes.OK)
@@ -67,7 +67,7 @@ class ShippingMethodsIntegrationTest
 
         val action = shipping.ShippingMethods.create(
             Factories.shippingMethods.head.copy(conditions = Some(conditions)))
-        val shippingMethod = db.run(action).futureValue.rightVal
+        val shippingMethod = db.run(action).gimme
 
         val response = GET(s"v1/shipping-methods/${order.referenceNumber}")
         response.status must ===(StatusCodes.OK)
@@ -123,7 +123,7 @@ class ShippingMethodsIntegrationTest
       customer   ← * <~ Customers.create(Factories.customer)
       order      ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
       storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
-    } yield (order, storeAdmin, customer)).runTxn().futureValue.rightVal
+    } yield (order, storeAdmin, customer)).gimme
   }
 
   trait ShippingMethodsFixture extends Fixture {
@@ -136,15 +136,15 @@ class ShippingMethodsIntegrationTest
       productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       address ← * <~ Addresses.create(
                    Factories.address.copy(customerId = customer.id, regionId = californiaId))
-      shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address,
-                                                                orderId = order.id)
+      shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(
+                       address = address, orderId = order.id)
       product ← * <~ Mvp.insertProduct(productContext.id,
                                        Factories.products.head.copy(title = "Donkey", price = 27))
       lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(product.skuId).toXor
       lineItems ← * <~ OrderLineItems.create(
                      OrderLineItem(orderId = order.id, originId = lineItemSku.id))
       _ ← * <~ OrderTotaler.saveTotals(order)
-    } yield (address, shipAddress)).runTxn().futureValue.rightVal
+    } yield (address, shipAddress)).gimme
   }
 
   trait WestCoastShippingMethodsFixture extends ShippingMethodsFixture {
@@ -174,7 +174,7 @@ class ShippingMethodsIntegrationTest
 
     val action =
       ShippingMethods.create(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
-    val shippingMethod = db.run(action).futureValue.rightVal
+    val shippingMethod = db.run(action).gimme
   }
 
   trait ShippingMethodsStateAndPriceCondition extends ShippingMethodsFixture {
@@ -224,7 +224,7 @@ class ShippingMethodsIntegrationTest
 
     val action = shipping.ShippingMethods.create(
         Factories.shippingMethods.head.copy(conditions = Some(conditions)))
-    val shippingMethod = db.run(action).futureValue.rightVal
+    val shippingMethod = db.run(action).gimme
   }
 
   trait ShipToCaliforniaButNotHazardous extends ShippingMethodsFixture {
@@ -260,6 +260,6 @@ class ShippingMethodsIntegrationTest
       shippingMethod ← shipping.ShippingMethods.create(
                           Factories.shippingMethods.head.copy(conditions = Some(conditions),
                                                               restrictions = Some(restrictions)))
-    } yield shippingMethod).run().futureValue.rightVal
+    } yield shippingMethod).gimme
   }
 }

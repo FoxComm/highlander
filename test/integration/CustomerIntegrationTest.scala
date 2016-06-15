@@ -34,7 +34,6 @@ import responses.order.FullOrder
 import services.orders.OrderPaymentUpdater
 import services.{CreditCardManager, Result}
 import slick.driver.PostgresDriver.api._
-import util.SlickSupport.implicits._
 import util._
 import utils.Money.Currency
 import utils.aliases.stripe._
@@ -53,7 +52,7 @@ class CustomerIntegrationTest
   "Customer" - {
     "accounts are unique based on email, non-guest, and active" in {
       val stub = Factories.customer.copy(isGuest = false, isDisabled = false)
-      Customers.create(stub).futureValue
+      Customers.create(stub).gimme
       val failure = GeneralFailure("record was not unique")
       val xor     = swapDatabaseFailure(Customers.create(stub).run())((NotUnique, failure)).futureValue
 
@@ -62,7 +61,7 @@ class CustomerIntegrationTest
 
     "accounts are NOT unique for guest account and email" in {
       val stub      = Factories.customer.copy(isGuest = true)
-      val customers = (1 to 3).map(_ ⇒ Customers.create(stub).futureValue.rightVal)
+      val customers = (1 to 3).map(_ ⇒ Customers.create(stub).gimme)
       customers.map(_.id) must contain allOf (1, 2, 3)
     }
   }
@@ -142,7 +141,7 @@ class CustomerIntegrationTest
                                               isDefaultShipping = true,
                                               phoneNumber = defaultPhoneNumber.some))
           region ← * <~ Regions.findOneById(address.regionId).toXor
-        } yield (customer, region)).runTxn().futureValue.rightVal
+        } yield (customer, region)).gimme
 
         val response = GET(s"v1/customers/${customer.id}")
         val customerRoot =
@@ -186,7 +185,7 @@ class CustomerIntegrationTest
                                                                shippingAddressId = address.id.some,
                                                                orderShippingMethodId = None,
                                                                state = Shipped)))))
-        } yield (customer, region, shipments)).runTxn().futureValue.rightVal
+        } yield (customer, region, shipments)).gimme
 
         def updateShipmentTime(s: Shipment, newTime: Instant ⇒ Instant): Unit =
           Shipments
@@ -263,7 +262,7 @@ class CustomerIntegrationTest
       root.referenceNumber must ===(order.referenceNumber)
       root.orderState must ===(Order.Cart)
 
-      Orders.findActiveOrderByCustomer(customer).result.run().futureValue must have size 1
+      Orders.findActiveOrderByCustomer(customer).gimme must have size 1
     }
 
     "creates cart if no present" in new Fixture {
@@ -273,7 +272,7 @@ class CustomerIntegrationTest
       val root = response.as[FullOrder.Root]
       root.orderState must ===(Order.Cart)
 
-      Orders.findActiveOrderByCustomer(customer).result.run().futureValue must have size 1
+      Orders.findActiveOrderByCustomer(customer).gimme must have size 1
     }
 
     "returns 404 if customer not found" in new CartFixture {
@@ -369,8 +368,7 @@ class CustomerIntegrationTest
     }
 
     "disable already disabled account is ok (overwrite behaviour)" in new Fixture {
-      val updated =
-        rightValue(Customers.update(customer, customer.copy(isDisabled = true)).futureValue)
+      val updated = Customers.update(customer, customer.copy(isDisabled = true)).gimme
       updated.isDisabled must ===(true)
 
       val response = POST(s"v1/customers/${customer.id}/disable", ToggleCustomerDisabled(true))
@@ -402,8 +400,7 @@ class CustomerIntegrationTest
     }
 
     "blacklist already blacklisted account is ok (overwrite behaviour)" in new Fixture {
-      val updated =
-        rightValue(Customers.update(customer, customer.copy(isBlacklisted = true)).futureValue)
+      val updated = Customers.update(customer, customer.copy(isBlacklisted = true)).gimme
       updated.isBlacklisted must ===(true)
 
       val response =
@@ -415,8 +412,7 @@ class CustomerIntegrationTest
 
   "GET /v1/customers/:customerId/payment-methods/credit-cards" - {
     "shows customer's credit cards only in their wallet" in new CreditCardFixture {
-      val deleted =
-        CreditCards.create(creditCard.copy(id = 0, inWallet = false)).run().futureValue.rightVal
+      val deleted = CreditCards.create(creditCard.copy(id = 0, inWallet = false)).gimme
 
       val response = GET(s"v1/customers/${customer.id}/payment-methods/credit-cards")
       val cc       = response.as[Seq[CardResponse]]
@@ -447,14 +443,10 @@ class CustomerIntegrationTest
     "successfully replaces an existing default credit card" in new Fixture {
       val default = CreditCards
         .create(Factories.creditCard.copy(isDefault = true, customerId = customer.id))
-        .run()
-        .futureValue
-        .rightVal
+        .gimme
       val nonDefault = CreditCards
         .create(Factories.creditCard.copy(isDefault = false, customerId = customer.id))
-        .run()
-        .futureValue
-        .rightVal
+        .gimme
 
       val payload = ToggleDefaultCreditCard(isDefault = true)
       val response =
@@ -546,8 +538,7 @@ class CustomerIntegrationTest
         val response =
           PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}",
                 payload)
-        val (newVersion :: Nil) =
-          CreditCards.filter(_.parentId === creditCard.id).result.run().futureValue.toList
+        val (newVersion :: Nil) = CreditCards.filter(_.parentId === creditCard.id).gimme.toList
 
         response.status must ===(StatusCodes.OK)
         newVersion.inWallet mustBe true
@@ -566,21 +557,17 @@ class CustomerIntegrationTest
         when(stripeApiMock.updateExternalAccount(m.any(), m.any(), m.any()))
           .thenReturn(Result.good(mock[StripeCard]))
 
-        val order =
-          Orders.create(Factories.cart.copy(customerId = customer.id)).run().futureValue.rightVal
+        val order = Orders.create(Factories.cart.copy(customerId = customer.id)).gimme
         OrderPaymentUpdater
           .addCreditCard(Originator(admin), creditCard.id, Some(order.refNum))
-          .runTxn()
-          .futureValue
+          .gimme
 
         val payload = EditCreditCard(holderName = Some("Bob"))
         val response =
           PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}",
                 payload)
-        val (pmt :: Nil) =
-          OrderPayments.filter(_.orderId === order.id).creditCards.result.run().futureValue.toList
-        val (newVersion :: Nil) =
-          CreditCards.filter(_.parentId === creditCard.id).result.run().futureValue.toList
+        val (pmt :: Nil)        = OrderPayments.filter(_.orderId === order.id).creditCards.gimme.toList
+        val (newVersion :: Nil) = CreditCards.filter(_.parentId === creditCard.id).gimme.toList
 
         response.status must ===(StatusCodes.OK)
         pmt.amount mustBe 'empty
@@ -594,8 +581,8 @@ class CustomerIntegrationTest
           PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}",
                 payload)
         val (newVersion :: Nil) =
-          CreditCards.filter(_.parentId === creditCard.id).result.futureValue.toList
-        val numAddresses = Addresses.length.result.futureValue
+          CreditCards.filter(_.parentId === creditCard.id).result.gimme.toList
+        val numAddresses = Addresses.length.result.gimme
 
         response.status must ===(StatusCodes.OK)
         numAddresses must ===(1)
@@ -625,8 +612,8 @@ class CustomerIntegrationTest
           PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}",
                 payload)
         val (newVersion :: Nil) =
-          CreditCards.filter(_.parentId === creditCard.id).result.futureValue.toList
-        val addresses  = Addresses.result.run().futureValue
+          CreditCards.filter(_.parentId === creditCard.id).result.gimme.toList
+        val addresses  = Addresses.gimme
         val newAddress = addresses.last
 
         response.status must ===(StatusCodes.OK)
@@ -711,15 +698,11 @@ class CustomerIntegrationTest
       address  ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
       region   ← * <~ Regions.findOneById(address.regionId).toXor
       admin    ← * <~ StoreAdmins.create(authedStoreAdmin)
-    } yield (customer, address, region, admin)).runTxn().futureValue.rightVal
+    } yield (customer, address, region, admin)).gimme
   }
 
   trait CreditCardFixture extends Fixture {
-    val creditCard = CreditCards
-      .create(Factories.creditCard.copy(customerId = customer.id))
-      .run()
-      .futureValue
-      .rightVal
+    val creditCard = CreditCards.create(Factories.creditCard.copy(customerId = customer.id)).gimme
   }
 
   trait CartFixture extends Fixture {
@@ -727,9 +710,7 @@ class CustomerIntegrationTest
       .create(Factories.order.copy(customerId = customer.id,
                                    state = Order.Cart,
                                    referenceNumber = "ABC-123"))
-      .run()
-      .futureValue
-      .rightVal
+      .gimme
   }
 
   trait FixtureForRanking extends CreditCardFixture {
@@ -763,6 +744,6 @@ class CustomerIntegrationTest
                          PaymentMethod.CreditCard)}, 37,
                ${Currency.USD.toString})
             """
-    } yield (order, orderPayment, customer2)).runTxn().futureValue.rightVal
+    } yield (order, orderPayment, customer2)).gimme
   }
 }

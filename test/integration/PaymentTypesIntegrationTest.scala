@@ -1,16 +1,15 @@
-import Extensions._
+import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
+
+import Extensions._
+import models.customer.Customers
 import models.payment.giftcard._
 import models.payment.storecredit._
-import models.customer.Customers
 import models.{Reasons, StoreAdmins}
 import responses.{GiftCardSubTypesResponse, StoreCreditSubTypesResponse}
 import util.IntegrationTestBase
-import utils.db._
 import utils.db.DbResultT._
 import utils.seeds.Seeds.Factories
-
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class PaymentTypesIntegrationTest extends IntegrationTestBase with HttpSupport {
 
@@ -51,7 +50,7 @@ class PaymentTypesIntegrationTest extends IntegrationTestBase with HttpSupport {
                   GiftCardManual(adminId = admin.id, reasonId = reason.id))
       giftCard ← * <~ GiftCards.create(
                     Factories.giftCard.copy(originId = origin.id, state = GiftCard.Active))
-    } yield (giftCard, gcSubType)).runTxn().futureValue.rightVal
+    } yield (giftCard, gcSubType)).gimme
   }
 
   trait StoreCreditFixture {
@@ -64,6 +63,6 @@ class PaymentTypesIntegrationTest extends IntegrationTestBase with HttpSupport {
                     StoreCreditManual(adminId = admin.id, reasonId = scReason.id))
       storeCredit ← * <~ StoreCredits.create(Factories.storeCredit.copy(originId = scOrigin.id,
                                                                         customerId = customer.id))
-    } yield (storeCredit, scSubType)).runTxn().futureValue.rightVal
+    } yield (storeCredit, scSubType)).gimme
   }
 }

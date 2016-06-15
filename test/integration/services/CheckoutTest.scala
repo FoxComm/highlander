@@ -55,7 +55,7 @@ class CheckoutTest
       when(mockValidator.validate(isCheckout = false, fatalWarnings = true))
         .thenReturn(DbResult.failures(failure))
 
-      val cart = Orders.create(Factories.cart).run().futureValue.rightVal
+      val cart = Orders.create(Factories.cart).gimme
       val result = Checkout(cart.copy(customerId = customer.id), mockValidator).checkout
         .run()
         .futureValue
@@ -72,7 +72,7 @@ class CheckoutTest
       when(mockValidator.validate(isCheckout = true, fatalWarnings = true))
         .thenReturn(liftedFailure)
 
-      val cart = Orders.create(Factories.cart).run().futureValue.rightVal
+      val cart = Orders.create(Factories.cart).gimme
       val result = Checkout(cart.copy(customerId = customer.id), mockValidator).checkout
         .run()
         .futureValue
@@ -82,7 +82,7 @@ class CheckoutTest
 
     "updates state to RemorseHold and touches placedAt" in new Fixture {
       val before  = Instant.now
-      val result  = Checkout(cart, cartValidator()).checkout.run().futureValue.rightVal
+      val result  = Checkout(cart, cartValidator()).checkout.gimme
       val current = Orders.findById(cart.id).extract.one.run().futureValue.value
 
       current.state must ===(Order.RemorseHold)
@@ -90,7 +90,7 @@ class CheckoutTest
     }
 
     "creates new cart for user at the end" in new Fixture {
-      val result  = Checkout(cart, cartValidator()).checkout.run().futureValue.rightVal
+      val result  = Checkout(cart, cartValidator()).checkout.gimme
       val current = Orders.findById(cart.id).extract.one.run().futureValue.value
       val newCart = Orders.findByCustomerId(cart.customerId).cartOnly.one.run().futureValue.value
 
@@ -102,7 +102,7 @@ class CheckoutTest
     }
 
     "sets all gift card line item purchases as GiftCard.OnHold" in new GCLineItemFixture {
-      val result  = Checkout(cart, cartValidator()).checkout.run().futureValue.rightVal
+      val result  = Checkout(cart, cartValidator()).checkout.gimme
       val current = Orders.findById(cart.id).extract.one.run().futureValue.value
       val gc      = GiftCards.findById(giftCard.id).extract.one.run().futureValue.value
 
@@ -120,7 +120,7 @@ class CheckoutTest
                  ids.map(id ⇒ gcPayment.copy(paymentMethodId = id)))
           _           ← * <~ Checkout(cart, cartValidator()).checkout
           adjustments ← * <~ GiftCardAdjustments.filter(_.giftCardId.inSet(ids)).result
-        } yield adjustments).runTxn().futureValue.rightVal
+        } yield adjustments).gimme
 
         import GiftCardAdjustment._
 
@@ -139,7 +139,7 @@ class CheckoutTest
                  ids.map(id ⇒ scPayment.copy(paymentMethodId = id)))
           _           ← * <~ Checkout(cart, cartValidator()).checkout
           adjustments ← * <~ StoreCreditAdjustments.filter(_.storeCreditId.inSet(ids)).result
-        } yield adjustments).runTxn().futureValue.rightVal
+        } yield adjustments).gimme
 
         import StoreCreditAdjustment._
 
@@ -206,7 +206,7 @@ class CheckoutTest
 
             totalAdjustments = gcAdjustments.map(_.getAmount.abs).sum +
             scAdjustments.map(_.getAmount.abs).sum
-          } yield totalAdjustments).runTxn().futureValue.rightVal
+          } yield totalAdjustments).gimme
 
           checkoutAmount must ===(orderTotal)
           true
@@ -222,11 +222,11 @@ class CheckoutTest
     val (customer, cart) = (for {
       customer ← * <~ Customers.create(Factories.customer)
       cart     ← * <~ Orders.create(Factories.cart.copy(customerId = customer.id))
-    } yield (customer, cart)).runTxn().futureValue.rightVal
+    } yield (customer, cart)).gimme
   }
 
   trait CustomerFixture {
-    val customer = Customers.create(Factories.customer).run().futureValue.rightVal
+    val customer = Customers.create(Factories.customer).gimme
   }
 
   trait GCLineItemFixture {
@@ -240,7 +240,7 @@ class CheckoutTest
       lineItemGc ← * <~ OrderLineItemGiftCards.create(
                       OrderLineItemGiftCard(giftCardId = giftCard.id, orderId = cart.id))
       lineItem ← * <~ OrderLineItems.create(OrderLineItem.buildGiftCard(cart, lineItemGc))
-    } yield (customer, cart, giftCard)).runTxn().futureValue.rightVal
+    } yield (customer, cart, giftCard)).gimme
   }
 
   trait PaymentFixture {
@@ -249,7 +249,7 @@ class CheckoutTest
       customer ← * <~ Customers.create(Factories.customer)
       cart     ← * <~ Orders.create(Factories.cart.copy(customerId = customer.id, grandTotal = 1000))
       reason   ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
-    } yield (admin, customer, cart, reason)).runTxn().futureValue.rightVal
+    } yield (admin, customer, cart, reason)).gimme
 
     def generateGiftCards(amount: Seq[Int]) =
       for {

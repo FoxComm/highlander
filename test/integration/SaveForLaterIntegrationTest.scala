@@ -10,10 +10,8 @@ import models.product.{Mvp, SimpleContext}
 import models.{SaveForLater, SaveForLaters}
 import responses.SaveForLaterResponse
 import services.SaveForLaterManager.SavedForLater
-import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.db.DbResultT._
-import utils.db._
 import utils.seeds.Seeds.Factories
 
 class SaveForLaterIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
@@ -24,11 +22,7 @@ class SaveForLaterIntegrationTest extends IntegrationTestBase with HttpSupport w
       emptyResponse.status must ===(StatusCodes.OK)
       emptyResponse.as[SavedForLater].result mustBe empty
 
-      SaveForLaters
-        .create(SaveForLater(customerId = customer.id, skuId = product.skuId))
-        .run()
-        .futureValue
-        .rightVal
+      SaveForLaters.create(SaveForLater(customerId = customer.id, skuId = product.skuId)).gimme
       val notEmptyResponse = GET(s"v1/save-for-later/${customer.id}")
       notEmptyResponse.status must ===(StatusCodes.OK)
       notEmptyResponse.as[SavedForLater].result must ===(roots)
@@ -62,7 +56,7 @@ class SaveForLaterIntegrationTest extends IntegrationTestBase with HttpSupport w
       duplicate.status must ===(StatusCodes.BadRequest)
       duplicate.error must ===(AlreadySavedForLater(customer.id, product.skuId).description)
 
-      SaveForLaters.result.run().futureValue must have size 1
+      SaveForLaters.gimme must have size 1
     }
 
     "404 if customer is not found" in new Fixture {
@@ -99,11 +93,8 @@ class SaveForLaterIntegrationTest extends IntegrationTestBase with HttpSupport w
       productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       customer       ← * <~ Customers.create(Factories.customer)
       product        ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head)
-    } yield (customer, product, productContext)).runTxn().futureValue.rightVal
+    } yield (customer, product, productContext)).gimme
 
-    def roots =
-      Seq(
-          rightValue(
-              SaveForLaterResponse.forSkuId(product.skuId, productContext.id).run().futureValue))
+    def roots = Seq(SaveForLaterResponse.forSkuId(product.skuId, productContext.id).gimme)
   }
 }

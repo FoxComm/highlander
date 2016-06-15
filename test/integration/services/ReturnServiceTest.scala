@@ -2,20 +2,19 @@ package services
 
 import java.time.Instant
 
-import models.customer.Customers
-import models.order.{Orders, Order}
-import models.returns._
+import scala.concurrent.Future
+
 import models.StoreAdmins
+import models.customer.Customers
+import models.order.{Order, Orders}
+import models.returns._
 import payloads.ReturnPayloads.ReturnCreatePayload
 import services.returns.ReturnService
-import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
-import utils.db._
 import utils.db.DbResultT._
+import utils.db._
 import utils.seeds.Seeds.Factories
 import utils.time._
-
-import scala.concurrent.Future
 
 class ReturnServiceTest extends IntegrationTestBase {
 
@@ -31,7 +30,7 @@ class ReturnServiceTest extends IntegrationTestBase {
       }
       Future.sequence(futures).futureValue
 
-      val returns = Returns.result.run().futureValue
+      val returns = Returns.gimme
       val refs    = returns.map(_.refNum)
       refs.length must ===(numberOfInserts)
       refs.distinct must ===(refs)
@@ -39,7 +38,7 @@ class ReturnServiceTest extends IntegrationTestBase {
       val orderUpdated = Orders.findOneById(order.id).run().futureValue.value
       orderUpdated.returnCount must ===(numberOfInserts)
 
-      val rmaCount = Returns.findByOrderRefNum(order.refNum).length.result.run().futureValue
+      val rmaCount = Returns.findByOrderRefNum(order.refNum).length.gimme
       rmaCount must ===(numberOfInserts)
     }
   }
@@ -53,6 +52,6 @@ class ReturnServiceTest extends IntegrationTestBase {
                                       state = Order.RemorseHold,
                                       customerId = customer.id,
                                       remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
-    } yield (admin, order)).runTxn().futureValue.rightVal
+    } yield (admin, order)).gimme
   }
 }

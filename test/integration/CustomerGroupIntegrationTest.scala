@@ -97,6 +97,6 @@ class CustomerGroupIntegrationTest
     val (group, admin) = (for {
       admin ← * <~ StoreAdmins.create(authedStoreAdmin)
       group ← * <~ CustomerDynamicGroups.create(Factories.group.copy(createdBy = admin.id))
-    } yield (group, admin)).runTxn().futureValue.rightVal
+    } yield (group, admin)).gimme
   }
 }

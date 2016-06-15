@@ -3,10 +3,10 @@ package util
 import scala.reflect.runtime.universe._
 
 import cats.data.{Validated, Xor}
-import org.scalatest.Suite
+import org.scalatest.Assertions
 
-trait CatsHelpers {
-  this: Suite ⇒ /** For fail */
+trait CatsHelpers extends Assertions {
+
   def rightValue[A, B](xor: A Xor B)(implicit ttA: TypeTag[A], ttB: TypeTag[B]): B =
     xor.fold(
         l ⇒ fail(s"Expected Right[${ttB.tpe.dealias}], got Left[${ttA.tpe.dealias}]: $l"),

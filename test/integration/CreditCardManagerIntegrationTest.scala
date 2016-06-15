@@ -2,16 +2,15 @@ import java.time.ZonedDateTime
 
 import akka.http.scaladsl.model.StatusCodes
 
+import cats.implicits._
 import failures.CreditCardFailures.InvalidCvc
 import failures.NotFoundFailure404
 import models.customer.{Customer, Customers}
 import models.location.{Address, Addresses}
 import models.payment.creditcard.CreditCards
-import util.{IntegrationTestBase, StripeSupport}
-import cats.implicits._
 import payloads.AddressPayloads.CreateAddressPayload
 import payloads.PaymentPayloads.CreateCreditCard
-import utils.db._
+import util.{IntegrationTestBase, StripeSupport}
 import utils.seeds.Seeds.Factories
 
 class CreditCardManagerIntegrationTest
@@ -23,7 +22,6 @@ class CreditCardManagerIntegrationTest
 
   import Extensions._
   import slick.driver.PostgresDriver.api._
-  import util.SlickSupport.implicits._
 
   "CreditCardManagerTest" - {
     "POST /v1/customers/:id/payment-methods/credit-cards" - {
@@ -49,7 +47,7 @@ class CreditCardManagerIntegrationTest
         "copies an existing address to the new creditCard" ignore new AddressFixture {
           val payload     = payloadStub.copy(addressId = Some(address.id), isDefault = true)
           val response    = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
-          val (cc :: Nil) = CreditCards.filter(_.customerId === customer.id).futureValue.toList
+          val (cc :: Nil) = CreditCards.filter(_.customerId === customer.id).gimme.toList
 
           val a = address
           val ccAddressVals = (cc.address1,
@@ -83,8 +81,8 @@ class CreditCardManagerIntegrationTest
           val payload = payloadWithFullAddress(payloadStub.copy(isDefault = true), a)
 
           val response              = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
-          val (cc :: Nil)           = CreditCards.filter(_.customerId === customer.id).futureValue.toList
-          val (savedAddress :: Nil) = Addresses.futureValue.toList
+          val (cc :: Nil)           = CreditCards.filter(_.customerId === customer.id).gimme.toList
+          val (savedAddress :: Nil) = Addresses.gimme.toList
           val s                     = savedAddress
 
           val ccAddressVals = (cc.address1,
@@ -128,7 +126,7 @@ class CreditCardManagerIntegrationTest
           seed.status must ===(StatusCodes.OK)
 
           val response = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
-          val cards    = CreditCards.filter(_.customerId === customer.id).futureValue
+          val cards    = CreditCards.filter(_.customerId === customer.id).gimme
 
           response.status must ===(StatusCodes.OK)
           cards must have size (2)
@@ -141,7 +139,7 @@ class CreditCardManagerIntegrationTest
         "if neither addressId nor full address was provided" ignore new Fixture {
           val payload  = payloadStub.copy(address = None, addressId = None)
           val response = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
-          val cards    = CreditCards.futureValue
+          val cards    = CreditCards.gimme
 
           response.status must ===(StatusCodes.BadRequest)
           response.error must contain("address or addressId must be defined")
@@ -151,7 +149,7 @@ class CreditCardManagerIntegrationTest
         "if the addressId cannot be found in address book" ignore new Fixture {
           val payload  = payloadStub.copy(addressId = Some(1))
           val response = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
-          val cards    = CreditCards.futureValue
+          val cards    = CreditCards.gimme
 
           response.status must ===(StatusCodes.BadRequest)
           response.error must contain(NotFoundFailure404(Address, 1).description)
@@ -163,7 +161,7 @@ class CreditCardManagerIntegrationTest
               payloadStub.copy(cardNumber = StripeSupport.incorrectNumberCard),
               Factories.address)
           val response = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
-          val cards    = CreditCards.futureValue
+          val cards    = CreditCards.gimme
 
           response.status must ===(StatusCodes.BadRequest)
           response.error must contain("incorrect_number")
@@ -174,7 +172,7 @@ class CreditCardManagerIntegrationTest
           val payload =
             payloadStub.copy(cardNumber = StripeSupport.incorrectCvc, addressId = Some(1))
           val response = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
-          val cards    = CreditCards.futureValue
+          val cards    = CreditCards.gimme
 
           response.status must ===(StatusCodes.BadRequest)
           response.error must ===(InvalidCvc.description)
@@ -184,7 +182,7 @@ class CreditCardManagerIntegrationTest
         "if customer cannot be found" ignore {
           val payload  = payloadWithFullAddress(payloadStub, Factories.address)
           val response = POST(s"v1/customers/99/payment-methods/credit-cards", payload)
-          val cards    = CreditCards.futureValue
+          val cards    = CreditCards.gimme
 
           response.status must ===(StatusCodes.NotFound)
           response.error must ===(NotFoundFailure404(Customer, 99).description)
@@ -195,11 +193,10 @@ class CreditCardManagerIntegrationTest
   }
 
   trait Fixture {
-    val customer = Customers.create(Factories.customer).run().futureValue.rightVal
+    val customer = Customers.create(Factories.customer).gimme
   }
 
   trait AddressFixture extends Fixture {
-    val address =
-      Addresses.create(Factories.address.copy(customerId = customer.id)).run().futureValue.rightVal
+    val address = Addresses.create(Factories.address.copy(customerId = customer.id)).gimme
   }
 }

@@ -26,6 +26,6 @@ class CreditCardIntegrationTest extends IntegrationTestBase {
       customer ← * <~ Customers.create(Factories.customer)
       address  ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
       cc       ← * <~ CreditCards.create(Factories.creditCard.copy(customerId = customer.id))
-    } yield (customer, cc)).runTxn().futureValue.rightVal
+    } yield (customer, cc)).gimme
   }
 }

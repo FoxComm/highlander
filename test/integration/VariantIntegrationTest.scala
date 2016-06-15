@@ -11,8 +11,8 @@ import responses.VariantResponses.IlluminatedVariantResponse
 import responses.VariantValueResponses.IlluminatedVariantValueResponse
 import services.product.ProductManager
 import util.IntegrationTestBase
-import utils.db._
 import utils.db.DbResultT._
+import utils.db._
 
 class VariantIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
 
@@ -108,7 +108,7 @@ class VariantIntegrationTest extends IntegrationTestBase with HttpSupport with A
       context ← * <~ ObjectContexts
                  .filterByName(SimpleContext.default)
                  .mustFindOneOr(ObjectContextNotFound(SimpleContext.default))
-    } yield context).runTxn().futureValue.rightVal
+    } yield context).gimme
   }
 
   trait VariantFixture extends Fixture {
@@ -124,9 +124,9 @@ class VariantIntegrationTest extends IntegrationTestBase with HttpSupport with A
 
     val (product, variant) = (for {
       productData ← * <~ Mvp.insertProduct(context.id, simpleProd)
-      product ← * <~ ProductManager.mustFindProductByContextAndId404(context.id,
-                                                                     productData.productId)
+      product ← * <~ ProductManager.mustFindProductByContextAndId404(
+                   context.id, productData.productId)
       variant ← * <~ Mvp.insertVariantWithValues(context.id, product.shadowId, simpleSizeVariant)
-    } yield (product, variant)).run().futureValue.rightVal
+    } yield (product, variant)).gimme
   }
 }

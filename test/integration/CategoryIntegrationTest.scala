@@ -134,7 +134,7 @@ class CategoryIntegrationTest extends IntegrationTestBase with HttpSupport with 
                    .filterByName(SimpleContext.default)
                    .one
                    .mustFindOr(ObjectContextNotFound(SimpleContext.default))
-      } yield (storeAdmin, context)).runTxn().futureValue.rightVal
+      } yield (storeAdmin, context)).gimme
 
       val category = CategoryManager
         .createCategory(storeAdmin,

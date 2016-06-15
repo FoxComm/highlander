@@ -6,11 +6,10 @@ import cats.implicits._
 import failures.NotFoundFailure404
 import failures.ProductFailures.SkuNotFoundForContext
 import models.inventory._
-import models.product.{Mvp, SimpleContext}
 import models.objects._
+import models.product.{Mvp, SimpleContext}
 import responses.InventoryResponses._
 import util.IntegrationTestBase
-import utils.db._
 import utils.db.DbResultT._
 import utils.seeds.Seeds.Factories
 import utils.seeds.generators._
@@ -71,11 +70,9 @@ class InventoryIntegrationTest extends IntegrationTestBase with HttpSupport with
     }
 
     "errors on wrong warehouse id" in {
-      val productContext =
-        ObjectContexts.mustFindById404(SimpleContext.id).run().futureValue.rightVal
-      val product =
-        Mvp.insertProduct(productContext.id, Factories.products.head).run().futureValue.rightVal
-      val response = GET(s"v1/inventory/skus/${product.code}/666")
+      val productContext = ObjectContexts.mustFindById404(SimpleContext.id).gimme
+      val product        = Mvp.insertProduct(productContext.id, Factories.products.head).gimme
+      val response       = GET(s"v1/inventory/skus/${product.code}/666")
       response.status must ===(StatusCodes.NotFound)
       response.error must ===(NotFoundFailure404(Warehouse, 666).description)
     }
@@ -143,7 +140,7 @@ class InventoryIntegrationTest extends IntegrationTestBase with HttpSupport with
        sellable,
        backorder,
        preorder,
-       nonsellable)).run().futureValue.rightVal
+       nonsellable)).gimme
   }
 
   trait SummaryFixture extends Fixture {
@@ -151,6 +148,6 @@ class InventoryIntegrationTest extends IntegrationTestBase with HttpSupport with
       warehouse2 ← * <~ Warehouses.create(Warehouse(name = "second"))
       summaries  ← * <~ generateInventory(sku.id, warehouse2.id)
       _          ← * <~ Warehouses.create(Warehouse(name = "empty"))
-    } yield (warehouse2, summaries._1)).run().futureValue.rightVal
+    } yield (warehouse2, summaries._1)).gimme
   }
 }

@@ -82,7 +82,7 @@ class OrderShippingAddressUpdaterTest
       address  ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
       order ← * <~ Orders.create(
                  Factories.order.copy(customerId = customer.id, state = Order.Cart))
-    } yield (admin, customer, address, order)).runTxn().futureValue.rightVal
+    } yield (admin, customer, address, order)).gimme
   }
 
   trait UpdateAddressFixture extends Fixture {
@@ -92,6 +92,6 @@ class OrderShippingAddressUpdaterTest
       newAddress ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id,
                                                                 name = "New Address",
                                                                 isDefaultShipping = false))
-    } yield (orderShippingAddress, newAddress)).runTxn().futureValue.rightVal
+    } yield (orderShippingAddress, newAddress)).gimme
   }
 }

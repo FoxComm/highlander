@@ -1,5 +1,7 @@
+import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
+import Extensions._
 import failures.CartFailures.OrderMustBeCart
 import failures.GiftCardFailures.GiftCardMustBeCart
 import failures.{GeneralFailure, NotFoundFailure404}
@@ -12,18 +14,14 @@ import responses.order.FullOrder
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.Money._
-import utils.db._
 import utils.db.DbResultT._
+import utils.db._
 import utils.seeds.Seeds.Factories
 
 class GiftCardAsLineItemIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
     with AutomaticAuth {
-
-  import Extensions._
-
-  import concurrent.ExecutionContext.Implicits.global
 
   "POST /v1/orders/:refNum/gift-cards" - {
     "successfully creates new GC as line item" in new LineItemFixture {
@@ -63,12 +61,7 @@ class GiftCardAsLineItemIntegrationTest
     }
 
     "fails to create new GC with invalid balance" in new LineItemFixture {
-      Orders
-        .findActiveOrderByCustomer(customer)
-        .map(_.state)
-        .update(Order.ManualHold)
-        .run()
-        .futureValue
+      Orders.findActiveOrderByCustomer(customer).map(_.state).update(Order.ManualHold).gimme
       val response =
         POST(s"v1/orders/${order.refNum}/gift-cards", AddGiftCardLineItem(balance = -100))
 
@@ -200,6 +193,6 @@ class GiftCardAsLineItemIntegrationTest
       lineItemGc ← * <~ OrderLineItemGiftCards.create(
                       OrderLineItemGiftCard(giftCardId = giftCard.id, orderId = order.id))
       lineItem ← * <~ OrderLineItems.create(OrderLineItem.buildGiftCard(order, lineItemGc))
-    } yield (customer, order, giftCard)).runTxn().futureValue.rightVal
+    } yield (customer, order, giftCard)).gimme
   }
 }

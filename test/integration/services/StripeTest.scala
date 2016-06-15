@@ -2,13 +2,14 @@ package services
 
 import java.time.{Instant, ZoneId}
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import cats.implicits._
 import failures.CreditCardFailures.{CardDeclined, IncorrectCvc}
 import payloads.PaymentPayloads.CreateCreditCard
 import util.{IntegrationTestBase, MockedApis, StripeSupport}
 import utils.Money.Currency
 import utils.seeds.Seeds.Factories
-import concurrent.ExecutionContext.Implicits.global
 
 class StripeTest extends IntegrationTestBase with MockedApis {
 
@@ -132,7 +133,7 @@ class StripeTest extends IntegrationTestBase with MockedApis {
       "successfully captures a charge" taggedAs External in {
         val auth =
           service.authorizeAmount(existingCustId, 100, currency = Currency.USD).futureValue
-        val capture = service.captureCharge(auth.rightVal.getId, 75).futureValue.rightVal
+        val capture = service.captureCharge(auth.rightVal.getId, 75).gimme
 
         capture.getCaptured mustBe true
         capture.getPaid mustBe true

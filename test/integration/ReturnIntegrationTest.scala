@@ -1,32 +1,30 @@
 import java.time.Instant
 
-import Extensions._
+import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
-import failures._
+import Extensions._
 import failures.LockFailures._
+import failures._
 import models.customer.{Customer, Customers}
 import models.inventory.Skus
-import models.order.lineitems._
+import models.objects._
 import models.order._
+import models.order.lineitems._
 import models.payment.giftcard.{GiftCard, GiftCardManual, GiftCardManuals, GiftCards}
-import models.returns._
+import models.product.{Mvp, SimpleContext}
 import models.returns.Return.{Canceled, Processing}
+import models.returns._
 import models.shipping.{Shipments, ShippingMethods}
 import models.{Reasons, StoreAdmins}
-import models.product.{Mvp, SimpleContext}
-import models.objects._
 import payloads.ReturnPayloads._
 import responses.{AllReturns, ReturnLockResponse, ReturnResponse}
 import services.returns.{ReturnLineItemUpdater, ReturnLockUpdater}
-import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
-import utils.db._
 import utils.db.DbResultT._
+import utils.db._
 import utils.seeds.Seeds.Factories
 import utils.time._
-
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class ReturnIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
 
@@ -188,14 +186,14 @@ class ReturnIntegrationTest extends IntegrationTestBase with HttpSupport with Au
 
     "GET /v1/returns/:refNum/lock" - {
       "returns lock info on locked Return" in {
-        Customers.create(Factories.customer).run().futureValue.rightVal
-        Orders.create(Factories.order.copy(referenceNumber = "ABC-123")).run().futureValue.rightVal
+        Customers.create(Factories.customer).gimme
+        Orders.create(Factories.order.copy(referenceNumber = "ABC-123")).gimme
         val rma = Returns
           .create(Factories.rma.copy(referenceNumber = "ABC-123.1"))
           .run()
           .futureValue
           .rightVal
-        val admin = StoreAdmins.create(Factories.storeAdmin).run().futureValue.rightVal
+        val admin = StoreAdmins.create(Factories.storeAdmin).gimme
 
         ReturnLockUpdater.lock("ABC-123.1", admin).futureValue
 
@@ -208,8 +206,8 @@ class ReturnIntegrationTest extends IntegrationTestBase with HttpSupport with Au
       }
 
       "returns negative lock status on unlocked Return" in {
-        Customers.create(Factories.customer).run().futureValue.rightVal
-        Orders.create(Factories.order.copy(referenceNumber = "ABC-123")).run().futureValue.rightVal
+        Customers.create(Factories.customer).gimme
+        Orders.create(Factories.order.copy(referenceNumber = "ABC-123")).gimme
         val rma = Returns
           .create(Factories.rma.copy(referenceNumber = "ABC-123.1"))
           .run()
@@ -230,18 +228,18 @@ class ReturnIntegrationTest extends IntegrationTestBase with HttpSupport with Au
         val response = POST(s"v1/returns/${rma.referenceNumber}/lock")
         response.status must ===(StatusCodes.OK)
 
-        val lockedRma = Returns.findByRefNum(rma.referenceNumber).result.run().futureValue.head
+        val lockedRma = Returns.findByRefNum(rma.referenceNumber).gimme.head
         lockedRma.isLocked must ===(true)
 
-        val locks = ReturnLockEvents.findByRma(rma.id).result.run().futureValue
+        val locks = ReturnLockEvents.findByRma(rma.id).gimme
         locks.length must ===(1)
         val lock = locks.head
         lock.lockedBy must ===(1)
       }
 
       "refuses to lock an already locked Return" in {
-        Customers.create(Factories.customer).run().futureValue.rightVal
-        Orders.create(Factories.order.copy(referenceNumber = "ABC-123")).run().futureValue.rightVal
+        Customers.create(Factories.customer).gimme
+        Orders.create(Factories.order.copy(referenceNumber = "ABC-123")).gimme
         val rma = Returns
           .create(Factories.rma.copy(referenceNumber = "ABC-123.1", isLocked = true))
           .run()
@@ -259,7 +257,7 @@ class ReturnIntegrationTest extends IntegrationTestBase with HttpSupport with Au
 
         val responses = Seq(0, 1).par.map(_ ⇒ request)
         responses.map(_.status) must contain allOf (StatusCodes.OK, StatusCodes.BadRequest)
-        ReturnLockEvents.result.run().futureValue.length mustBe 1
+        ReturnLockEvents.gimme.length mustBe 1
       }
     }
 
@@ -270,7 +268,7 @@ class ReturnIntegrationTest extends IntegrationTestBase with HttpSupport with Au
         val response = POST(s"v1/returns/${rma.referenceNumber}/unlock")
         response.status must ===(StatusCodes.OK)
 
-        val unlockedRma = Returns.findByRefNum(rma.referenceNumber).result.run().futureValue.head
+        val unlockedRma = Returns.findByRefNum(rma.referenceNumber).gimme.head
         unlockedRma.isLocked must ===(false)
       }
 
@@ -524,7 +522,7 @@ class ReturnIntegrationTest extends IntegrationTestBase with HttpSupport with Au
                                                    orderRefNum = order.referenceNumber,
                                                    customerId = customer.id))
       reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
-    } yield (storeAdmin, customer, order, rma, reason)).runTxn().futureValue.rightVal
+    } yield (storeAdmin, customer, order, rma, reason)).gimme
   }
 
   trait LineItemFixture extends Fixture {
@@ -553,6 +551,6 @@ class ReturnIntegrationTest extends IntegrationTestBase with HttpSupport with Au
       orderShippingMethod ← * <~ OrderShippingMethods.create(
                                OrderShippingMethod.build(order = order, method = shippingMethod))
       shipment ← * <~ Shipments.create(Factories.shipment)
-    } yield (productContext, returnReason, sku, giftCard, shipment)).runTxn().futureValue.rightVal
+    } yield (productContext, returnReason, sku, giftCard, shipment)).gimme
   }
 }
