@@ -28,8 +28,9 @@
       });
     }
 
-    window.onerror = function(err) {
-      logError(err.toString(), true);
+    window.onerror = function(errorMsg, url, lineNumber) {
+      var msg = "Error: " + errorMsg + "\nurl: " + url + "\nlineNumber: " + lineNumber;
+      logError(msg, true);
     }
     window.onunhandledrejection = function(event) {
       logError('Unhandled rejection - ' + event.reason);
