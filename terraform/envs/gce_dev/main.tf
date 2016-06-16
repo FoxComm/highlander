@@ -49,7 +49,7 @@ variable "tiny_backend_image" {
 } 
 
 variable "tiny_frontend_image" {
-    default = "tinystack-frontend-1464804487"
+    default = "tinystack-frontend-1466095444"
 } 
 
 variable "consul_server_image" { 

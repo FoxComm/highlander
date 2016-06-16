@@ -1,10 +1,13 @@
 ---
 
-- name: Install phoenix Upstreams
-  template: src=phoenix.j2 dest=/etc/nginx/sites-available/phoenix
+- name: Install Service Locations Upstreams
+  template: src=service_locations.j2 dest=/etc/nginx/service_locations.conf
 
-- name: Enable phoenix Upstreams
-  file: src=/etc/nginx/sites-available/phoenix dest=/etc/nginx/sites-enabled/phoenix owner=root group=root state=link
+- name: Install Service Upstreams
+  template: src=services.j2 dest=/etc/nginx/sites-available/services
+
+- name: Enable Service Upstreams
+  file: src=/etc/nginx/sites-available/services dest=/etc/nginx/sites-enabled/services owner=root group=root state=link
 
 - name: Install Ashes hosts
   template: src=ashes.j2 dest=/etc/nginx/sites-available/ashes

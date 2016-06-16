@@ -142,7 +142,7 @@ variable "greenriver_image" {
 }
 
 variable "front_image" { 
-    default = "prod-small-front-1465405179"
+    default = "prod-small-front-1465508862"
 }
 
 module "prodsmall_stack" {
