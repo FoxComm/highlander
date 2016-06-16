@@ -4,7 +4,7 @@ import fetch from 'isomorphic-fetch';
 import { request as baseRequest } from './api';
 
 function searchURI(uri) {
-  return `/api/search/${uri}`;
+  return `/api/search/admin/${uri}`;
 }
 
 function request(method, uri, data) {
