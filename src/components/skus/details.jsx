@@ -12,7 +12,6 @@ import _ from 'lodash';
 import { FormField } from '../forms';
 import ContentBox from '../content-box/content-box';
 import ObjectForm from '../object-form/object-form';
-import ObjectFormInner from '../object-form/object-form-inner';
 import ObjectScheduler from '../object-scheduler/object-scheduler';
 import WaitAnimation from '../common/wait-animation';
 
@@ -23,13 +22,12 @@ type Attribute = { t: string, v: any };
 type Attributes = { [key:string]: Attribute };
 
 type Props = {
-  code: string,
   onChange: (sku: Sku) => void,
   sku: ?Sku,
 };
 
 const defaultKeys = {
-  base: ['title'],
+  base: ['code', 'title'],
   general: ['upc', 'description'],
   pricing: ['retailPrice', 'salePrice', 'unitCost'],
 };
@@ -57,25 +55,12 @@ export default class SkuDetails extends Component {
     const attributes = _.get(this.props, 'sku.attributes', {});
 
     return (
-      <ContentBox title="General">
-        <FormField
-          className="fc-object-form__field"
-          labelClassName="fc-object-form__field-label"
-          label="SKU"
-          key="object-form-attribute-sku">
-          <input
-            className="fc-object-form__field-value"
-            type="text"
-            name="sku"
-            value={sku.code}
-            onChange={this.handleCodeChange} />
-        </FormField>
-        <ObjectFormInner
-          canAddProperty={true}
-          onChange={this.handleChange}
-          fieldsToRender={this.generalAttrs}
-          attributes={attributes} />
-      </ContentBox>
+      <ObjectForm
+        canAddProperty={true}
+        title="General"
+        onChange={this.handleChange}
+        fieldsToRender={this.generalAttrs}
+        attributes={attributes} />
     );
   }
 
@@ -96,17 +81,6 @@ export default class SkuDetails extends Component {
     if (sku) {
       const updatedSku = assoc(sku, 'attributes', attributes);
       this.props.onChange(updatedSku);
-    }
-  }
-
-  @autobind
-  handleCodeChange({target}: SyntheticInputEvent) {
-    if (target instanceof HTMLInputElement) {
-      const { sku } = this.props;
-      if (sku) {
-        const updatedSku = { ...sku, code: target.value };
-        this.props.onChange(updatedSku);
-      }
     }
   }
 

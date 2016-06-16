@@ -5,12 +5,11 @@
 import Api from '../../lib/api';
 import { assoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
+import { push } from 'react-router-redux';
 import _ from 'lodash';
 
 import { addIlluminatedAttribute } from '../../paragons/form-shadow-object';
 import { createEmptySku } from '../../paragons/sku';
-
-import type { FullSku } from '../../paragons/sku';
 
 type Attribute = { t: string, v: any };
 type Attributes = { [key:string]: Attribute };
@@ -55,14 +54,36 @@ export function fetchSku(code: string, context: string = defaultContext): Action
   };
 }
 
-export function updateSku(sku: FullSku, context: string = defaultContext): ActionDispatch {
+export function createSku(sku: Sku, context: string = defaultContext): ActionDispatch {
+  return dispatch => {
+    dispatch(skuUpdateStart());
+    return Api.post(`/skus/${context}`, sku)
+      .then(
+        (res: Sku) => {
+          const newCode = _.get(res, ['attributes', 'code', 'v']);
+          dispatch(skuUpdateSuccess(res));
+          dispatch(push(`/skus/${newCode}`));
+        },
+        (err: HttpError) => {
+          dispatch(skuUpdateFailure());
+          dispatch(setError(err));
+        }
+      );
+  };
+}
+
+export function updateSku(sku: Sku, context: string = defaultContext): ActionDispatch {
   return (dispatch, getState) => {
-    const oldSku = _.get(getState(), ['skus', 'details', 'sku']);
+    const oldSku = _.get(getState(), ['skus', 'details', 'sku', 'attributes', 'code', 'v']);
     if (oldSku) {
       dispatch(skuUpdateStart());
-      return Api.patch(`/skus/${context}/${oldSku.code}`, sku)
+      return Api.patch(`/skus/${context}/${oldSku}`, sku)
         .then(
-          (res: Sku) => dispatch(skuUpdateSuccess(res)),
+          (res: Sku) => {
+            const newCode = _.get(res, ['attributes', 'code', 'v']);
+            dispatch(skuUpdateSuccess(res));
+            dispatch(push(`/skus/${newCode}`));
+          },
           (err: HttpError) => {
             dispatch(skuUpdateFailure());
             dispatch(setError(err));
@@ -96,7 +117,7 @@ const reducer = createReducer({
       'isFetching', true
     );
   },
-  [skuRequestSuccess]: (state: SkuState, sku: FullSku) => {
+  [skuRequestSuccess]: (state: SkuState, sku: Sku) => {
     const configuredSku = _.reduce(requiredFields, (res, value, key) => {
       const attrs = addIlluminatedAttribute(key, value, null, res.attributes);
       return assoc(sku, 'attributes', attrs);
@@ -114,7 +135,7 @@ const reducer = createReducer({
   [skuUpdateStart]: (state: SkuState) => {
     return assoc(state, 'err', null, 'isUpdating', true);
   },
-  [skuUpdateSuccess]: (state: SkuState, sku: FullSku) => {
+  [skuUpdateSuccess]: (state: SkuState, sku: Sku) => {
     const configuredSku = _.reduce(requiredFields, (res, value, key) => {
       const attrs = addIlluminatedAttribute(key, value, null, res.attributes);
       return assoc(sku, 'attributes', attrs);

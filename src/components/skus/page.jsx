@@ -20,15 +20,16 @@ import WaitAnimation from '../common/wait-animation';
 import * as SkuActions from '../../modules/skus/details';
 
 // types
-import type { FullSku } from '../../paragons/sku';
+import type { Sku } from '../../modules/skus/details';
 
 type Props = {
   actions: {
     newSku: () => void,
     fetchSku: (code: string, context?: string) => void,
-    updateSku: (sku: FullSku, context?: string) => void,
+    createSku: (sku: Sku, context?: string) => void,
+    updateSku: (sku: Sku, context?: string) => void,
   },
-  sku: ?FullSku,
+  sku: ?Sku,
   isFetching: boolean,
   isUpdating: boolean,
   params: { skuCode: string },
@@ -36,7 +37,7 @@ type Props = {
 };
 
 type State = {
-  sku: ?FullSku,
+  sku: ?Sku,
 };
 
 export class SkuPage extends Component {
@@ -71,14 +72,18 @@ export class SkuPage extends Component {
   }
 
   @autobind
-  handleChange(sku: FullSku): void {
+  handleChange(sku: Sku): void {
     this.setState({ sku });
   }
 
   @autobind
   handleSubmit(): void {
     if (this.state.sku) {
-      this.props.actions.updateSku(this.state.sku);
+      if (this.isNew) {
+        this.props.actions.createSku(this.state.sku);
+      } else {
+        this.props.actions.updateSku(this.state.sku);
+      }
     }
   }
 
@@ -89,9 +94,9 @@ export class SkuPage extends Component {
       return <div className="fc-sku"><WaitAnimation /></div>;
     }
 
-    const title = sku.code.toUpperCase();
+    const code = _.get(sku, 'attributes.code.v', '');
+    const title = this.isNew ? 'New SKU' : code.toUpperCase();
     const children = React.cloneElement(this.props.children, {
-      code: sku.code,
       entity: { entityId: this.entityId, entityType: 'sku' },
       onChange: this.handleChange,
       sku: this.state.sku,

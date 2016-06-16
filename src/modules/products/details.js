@@ -8,7 +8,6 @@ import { push } from 'react-router-redux';
 import { createEmptyProduct, configureProduct } from '../../paragons/product';
 
 import type { Sku } from '../skus/details';
-import type { SkuForm, SkuShadow } from '../../paragons/sku';
 
 import _ from 'lodash';
 
