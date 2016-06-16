@@ -150,9 +150,7 @@ export default class ObjectFormInner extends Component {
   @autobind
   renderBool(label: string, value: bool, args?: any): Element {
     const onChange = v => {
-      console.log(v)
-      console.log(v.target)
-      this.handleChange(label, 'bool', !value)
+      this.handleChange(label, 'bool', !value);
     };
     const slderCheckbox = (
       <SliderCheckbox
