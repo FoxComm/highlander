@@ -1,0 +1,16 @@
+[Service]
+WorkingDirectory=/usr/local
+ExecStart=/usr/bin/gcsfuse --key-file={{backup_service_key}} {{db_backup_bucket}} {{db_backup_dir}}
+Restart=always
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=backup_mount
+TimeoutStartSec=30
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+
+[Unit]
+Requires=network.target
+After=network.target
