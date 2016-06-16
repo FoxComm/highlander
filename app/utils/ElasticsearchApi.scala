@@ -94,7 +94,7 @@ object ElasticsearchApi {
 
   val defaultHost    = "elasticsearch://localhost:9300"
   val defaultCluster = "elasticsearch"
-  val defaultIndex   = "phoenix"
+  val defaultIndex   = "admin"
 
   def fromConfig(config: Config)(implicit ec: EC): ElasticsearchApi =
     ElasticsearchApi(host = config.getString(hostKey),
