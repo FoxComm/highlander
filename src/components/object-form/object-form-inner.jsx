@@ -126,7 +126,7 @@ export default class ObjectFormInner extends Component {
   }
 
   @autobind
-  handleChange(label: string, type: string, value: string) {
+  handleChange(label: string, type: string, value: any) {
     const { attributes, options } = this.props;
     const newAttribute = type == 'price'
       ? { t: 'price', v: { currency: 'USD', value: value } }
