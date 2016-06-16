@@ -69,7 +69,7 @@ server {
   }
 
   # Proxy the internal search location and sanitizes output from ES for external use
-  location ~ /api/search/.*/_count {
+  location ~ /api/search/public/.*/_count {
         default_type 'application/json';
         content_by_lua '
 
@@ -86,7 +86,7 @@ server {
   }
 
   # Proxy the internal search location and sanitizes output from ES for external use
-  location ~ /api/search/.*/\d+$ {
+  location ~ /api/search/public/.*/\d+$ {
         default_type 'application/json';
         content_by_lua '
 
