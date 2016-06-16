@@ -149,7 +149,7 @@ class CheckoutTest
     }
 
     "GC/SC payments limited by grand total" in new PaymentFixture {
-      val paymentAmountGen = Gen.choose(0, 2000)
+      val paymentAmountGen = Gen.choose(1, 2000)
       val orderTotalGen    = Gen.choose(0, 1000)
 
       case class CardPayment(cardAmount: Int, payAmount: Int)
@@ -212,9 +212,12 @@ class CheckoutTest
           true
       }
       val qr = QTest.check(checkoutTests) {
-        _.withMaxSize(1000).withWorkers(1)
+        _.withWorkers(1)
       }
-      qr.passed must ===(true)
+
+      if (!qr.passed) {
+        fail(qr.status.toString)
+      }
     }
   }
 
