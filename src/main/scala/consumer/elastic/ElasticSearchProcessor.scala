@@ -74,7 +74,10 @@ class ElasticSearchProcessor(
     Console.out.println("Creating index and type mappings...")
     try {
       // Define analyzer in mapping
-      val jsonMappings = jsonTransformers.mapValues(_.mapping()).values.toSeq
+      val jsonMappings = jsonTransformers.filter {
+        case (key, _) ⇒ topics.contains(key)
+      }.mapValues(_.mapping()).values.toSeq
+
       val customAnalyzer = CustomAnalyzerDefinition(
           "autocomplete",
           EdgeNGramTokenizer(

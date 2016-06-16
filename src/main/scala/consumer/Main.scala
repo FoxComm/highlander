@@ -78,16 +78,22 @@ object Main {
       .withMaxOpenRequests(conf.maxConnections)
       .withMaxRetries(1)
 
-    val esProcessor = new ElasticSearchProcessor(
-        uri = conf.elasticSearchUrl,
-        cluster = conf.elasticSearchCluster,
-        indexName = conf.elasticSearchIndex,
-        topics = conf.topicsPlusActivity(),
-        jsonTransformers = Workers.topicTransformers(conf, conf.connectionInfo()))
+    conf.indexTopics.map {
+      case (index, topics) ⇒
+        val esProcessor =
+          new ElasticSearchProcessor(uri = conf.elasticSearchUrl,
+                                     cluster = conf.elasticSearchCluster,
+                                     indexName = index,
+                                     topics = topics,
+                                     jsonTransformers =
+                                       Workers.topicTransformers(conf.connectionInfo()))
 
-    // Create ES mappings
-    esProcessor.createMappings()
-    Console.out.println(s"Done")
+        Console.err.println(s"index: ${index}")
+        Console.err.println(s"topics: ${topics}")
+        // Create ES mappings
+        esProcessor.createMappings()
+        Console.out.println(s"Done")
+    }
   }
 
   private def process(conf: MainConfig): Unit = {
