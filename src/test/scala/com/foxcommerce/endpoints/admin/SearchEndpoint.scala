@@ -10,7 +10,7 @@ object SearchEndpoint {
 
   def checkCustomer(conf: Config, customer: CustomerFixture): HttpRequestBuilder = {
     http("Check Customer Presence in Elasticsearch")
-      .get("/search/customers_search_view/${customerId}")
+      .get("/search/admin/customers_search_view/${customerId}")
       .check(status.is(200))
       .check(jsonPath("$.name").ofType[String].is(customer.name))
       .check(jsonPath("$.email").ofType[String].is("${customerEmail}"))
@@ -26,7 +26,7 @@ object SearchEndpoint {
 
   def checkStoreCredit(conf: Config, storeCredit: StoreCreditFixture, state: String): HttpRequestBuilder = {
     http("Check Store Credit Presence in Elasticsearch")
-      .get("/search/store_credits_search_view/${storeCreditId}")
+      .get("/search/admin/store_credits_search_view/${storeCreditId}")
       .check(status.is(200))
       .check(jsonPath("$.state").ofType[String].is(state))
       .check(jsonPath("$.originalBalance").ofType[Long].is(storeCredit.amount))
@@ -34,7 +34,7 @@ object SearchEndpoint {
 
   def checkGiftCard(conf: Config, giftCard: GiftCardFixture, state: String): HttpRequestBuilder = {
     http("Check Gift Card Presence in Elasticsearch")
-      .get("/search/gift_cards_search_view/${giftCardId}")
+      .get("/search/admin/gift_cards_search_view/${giftCardId}")
       .check(status.is(200))
       .check(jsonPath("$.state").ofType[String].is(state))
       .check(jsonPath("$.originalBalance").ofType[Long].is(giftCard.balance))
@@ -42,7 +42,7 @@ object SearchEndpoint {
 
   def checkOrder(conf: Config, order: OrderFixture, state: String): HttpRequestBuilder = {
     http("Check Order Presence in Elasticsearch")
-      .get("/search/orders_search_view/${orderId}")
+      .get("/search/admin/orders_search_view/${orderId}")
       .check(status.is(200))
       .check(jsonPath("$.state").ofType[String].is(state))
       .check(jsonPath("$.shippingAddresses[0].address1").ofType[String].is(order.shippingAddress.address1))
