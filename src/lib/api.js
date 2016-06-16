@@ -100,7 +100,7 @@ export default class Api {
     uri = uri.replace(/^\/api\/v\d\/|^\//, '');
     uri = `/api/v1/${uri}`;
     if (isServer) {
-      uri = `//api.foxcommerce${uri}`;
+      uri = `https://api.foxcommerce${uri}`;
     }
     return uri;
   }

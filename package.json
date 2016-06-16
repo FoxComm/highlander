@@ -200,7 +200,7 @@
     "lost": "^6.7.2",
     "merge-stream": "^1.0.0",
     "mocha": "^2.3.0",
-    "nock": "^2.17.0",
+    "nock": "^8.0.0",
     "node-notifier": "^4.2.3",
     "postcss-css-variables": "^0.5.1",
     "postcss-cssnext": "^2.5.1",
