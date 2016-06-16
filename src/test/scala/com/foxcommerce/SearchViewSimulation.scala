@@ -52,9 +52,9 @@ class SearchViewSimulation extends Simulation {
     // Pause and check indexes
     .pause(conf.greenRiverPause)
     //.exec(SearchEndpoint.checkCustomer(conf, customer.copy(address = shippingAddress))) // FIXME
-    .exec(SearchEndpoint.checkStoreCredit(conf, baseStoreCredit, state = "active"))
-    .exec(SearchEndpoint.checkGiftCard(conf, baseGiftCard, state = "active"))
-    .exec(SearchEndpoint.checkOrder(conf, order, state = "cart"))
+    //.exec(SearchEndpoint.checkStoreCredit(conf, baseStoreCredit, state = "active"))
+    //.exec(SearchEndpoint.checkGiftCard(conf, baseGiftCard, state = "active"))
+    //.exec(SearchEndpoint.checkOrder(conf, order, state = "cart"))
     .exitHereIfFailed
     // Update objects
     .exec(CustomerEndpoint.update(customer))
