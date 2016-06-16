@@ -11,6 +11,7 @@
   file: path={{ashes_install_dir}} state=directory
 
 - name: Untar Ashes code
+  become: no
   unarchive:
     src: '{{ashes_source_package}}'
     dest: '{{ashes_install_dir}}/'

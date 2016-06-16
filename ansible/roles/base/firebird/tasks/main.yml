@@ -11,6 +11,7 @@
   file: path={{firebird_install_dir}} state=directory
 
 - name: Untar Firebird code
+  become: no
   unarchive:
     src: '{{firebird_source_package}}'
     dest: '{{firebird_install_dir}}/'
