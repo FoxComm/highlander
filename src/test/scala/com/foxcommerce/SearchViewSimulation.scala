@@ -50,15 +50,13 @@ class SearchViewSimulation extends Simulation {
     .exec(OrderEndpoint.addShippingAddress(order))
     .exitHereIfFailed
     // Pause and check indexes
-    /*
     .tryMax(10) {
       pause(conf.greenRiverPause)
-      .exec(SearchEndpoint.checkCustomer(conf, customerUpdated.copy(address = shippingAddress))) // FIXME
+      //.exec(SearchEndpoint.checkCustomer(conf, customer.copy(address = shippingAddress))) // FIXME
       .exec(SearchEndpoint.checkStoreCredit(conf, baseStoreCredit, state = "active"))
       .exec(SearchEndpoint.checkGiftCard(conf, baseGiftCard, state = "active"))
       .exec(SearchEndpoint.checkOrder(conf, order, state = "cart"))
     }.exitHereIfFailed
-    */
     // Update objects
     .exec(CustomerEndpoint.update(customer))
     .exec(CustomerEndpoint.blacklist(customer))
@@ -70,15 +68,13 @@ class SearchViewSimulation extends Simulation {
     .exec(OrderEndpoint.cancel())
     .exitHereIfFailed
     // Pause and check indexes
-    /*
     .tryMax(10) {
       pause(conf.greenRiverPause)
-      .exec(SearchEndpoint.checkCustomer(conf, customerUpdated.copy(address = shippingAddress))) // FIXME
+      //.exec(SearchEndpoint.checkCustomer(conf, customerUpdated.copy(address = shippingAddress))) // FIXME
       .exec(SearchEndpoint.checkStoreCredit(conf, baseStoreCredit, state = "canceled"))
       .exec(SearchEndpoint.checkGiftCard(conf, baseGiftCard, state = "canceled"))
       .exec(SearchEndpoint.checkOrder(conf, order, state = "canceled"))
     }.exitHereIfFailed
-    */
 
   setUp(
     syncScenario.inject(conf.defaultInjectionProfile).protocols(conf.httpConf)
