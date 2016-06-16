@@ -4,7 +4,6 @@
 
 .container {
   width: 100%;
-  min-width: 240px;
   display: flex;
   font-size: 17px;
   color: var(--blackish);
@@ -46,7 +45,6 @@
   background: var(--white-smokish);
   border: 2px solid var(--white-smokish);
   text-align: center;
-  min-width: 160px;
   flex-grow: 1;
 }
 
@@ -56,4 +54,5 @@ input.counter-field {
   box-shadow: none;
   padding: 0;
   margin: 0;
+  width: calc(100% - 80px);
 }
