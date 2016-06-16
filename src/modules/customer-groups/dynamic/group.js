@@ -23,10 +23,10 @@ const initialState = {
   createdAt: null,
   updatedAt: null,
   stats: {
-    ordersCount: null,
-    totalSales: null,
-    averageOrderSize: null,
-    averageOrderSum: null,
+    ordersCount: 0,
+    totalSales: 0,
+    averageOrderSize: 0,
+    averageOrderSum: 0,
   }
 };
 

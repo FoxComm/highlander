@@ -58,7 +58,7 @@ export default class DynamicGroup extends Component {
         operators.or,
       ]),
       conditions: PropTypes.arrayOf(PropTypes.array),
-      stats: PropTypes.objectOf({
+      stats: PropTypes.shape({
         ordersCount: PropTypes.number,
         totalSales: PropTypes.number,
         averageOrderSize: PropTypes.number,
@@ -216,6 +216,7 @@ export default class DynamicGroup extends Component {
     return (row, index, columns, params) => (
       <MultiSelectRow
         cellKeyPrefix={index}
+        key={index}
         columns={columns}
         onClick={this.goToCustomer(row.id)}
         row={row}
