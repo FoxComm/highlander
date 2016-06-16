@@ -44,7 +44,7 @@ export default class GiftCard extends React.Component {
     children: PropTypes.node,
     editGiftCard: PropTypes.func,
     confirmationShown: PropTypes.bool,
-    reasons: PropTypes.array,
+    reasons: PropTypes.object,
     reasonId: PropTypes.number,
     fetchGiftCardIfNeeded: PropTypes.func.isRequired,
     changeGiftCardStatus: PropTypes.func.isRequired,
