@@ -17,7 +17,7 @@
 .*/node_modules/ua-parser-js/*
 .*/node_modules/watchify/*
 .*/node_modules/y18n/*
-.*/node_modules/react-motion/*
+.*/node_modules/react-motion/src/*
 .*/test/fixtures/*
 .*/node_modules/react/.*
 
