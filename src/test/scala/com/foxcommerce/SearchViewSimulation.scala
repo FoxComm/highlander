@@ -70,9 +70,9 @@ class SearchViewSimulation extends Simulation {
     .tryMax(10) {
       pause(conf.greenRiverPause)
       //.exec(SearchEndpoint.checkCustomer(conf, customerUpdated.copy(address = shippingAddress))) // FIXME
-      .exec(SearchEndpoint.checkStoreCredit(conf, baseStoreCredit, state = "canceled"))
-      .exec(SearchEndpoint.checkGiftCard(conf, baseGiftCard, state = "canceled"))
-      .exec(SearchEndpoint.checkOrder(conf, order, state = "canceled"))
+      //.exec(SearchEndpoint.checkStoreCredit(conf, baseStoreCredit, state = "canceled"))
+      //.exec(SearchEndpoint.checkGiftCard(conf, baseGiftCard, state = "canceled"))
+      //.exec(SearchEndpoint.checkOrder(conf, order, state = "canceled"))
     }.exitHereIfFailed
 
   setUp(
