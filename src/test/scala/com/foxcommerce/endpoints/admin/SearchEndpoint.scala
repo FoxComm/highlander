@@ -42,7 +42,7 @@ object SearchEndpoint {
 
   def checkOrder(conf: Config, order: OrderFixture, state: String): HttpRequestBuilder = {
     http("Check Order Presence in Elasticsearch")
-      .get("/search/public/orders_search_view/${orderId}")
+      .get("/search/admin/orders_search_view/${orderId}")
       .check(status.is(200))
       .check(jsonPath("$.state").ofType[String].is(state))
       .check(jsonPath("$.shippingAddresses[0].address1").ofType[String].is(order.shippingAddress.address1))
