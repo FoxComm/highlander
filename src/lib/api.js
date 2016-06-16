@@ -1,4 +1,4 @@
-import fetch from './fetch';
+import superagent from 'superagent';
 import _ from 'lodash';
 
 const isServer = typeof self === 'undefined';
@@ -44,26 +44,29 @@ function serialize(data) {
 export function request(method, uri, data, options = {}) {
   const isFormData = !isServer && data instanceof FormData;
 
-  const headers = {};
+  let headers = {};
 
   addAuthHeaders(headers);
 
   if (!isFormData) {
     headers['Content-Type'] = 'application/json;charset=UTF-8';
   }
+  if (options.headers) {
+    headers = Object.assign(headers, options.headers);
+  }
 
-  options.credentials = 'same-origin';
-  options.headers = options.headers ? Object.assign(headers, options.headers) : headers;
-  options.method = method;
+  // api: http://visionmedia.github.io/superagent/
+  const result = superagent[method.toLowerCase()](uri)
+    .set(headers);
 
   if (data) {
     if (method.toUpperCase() === 'GET') {
       const queryString = serialize(data);
       if (queryString) {
-        uri = appendQueryString(uri, queryString);
+        result.query(queryString);
       }
     } else {
-      options.body = isFormData ? data : JSON.stringify(data);
+      result.send(data);
     }
   }
 
@@ -73,35 +76,22 @@ export function request(method, uri, data, options = {}) {
     window.location.href = '/login';
   };
 
-  return fetch(uri, options)
+  return result
     .then(response => {
       if (response.status == 401) {
         unauthorizedHandler(response);
       }
       if (response.status < 200 || response.status >= 300) {
-        error = new Error(response.statusText);
+        error = new Error(response.text);
         error.response = response;
       }
 
-      return response;
-    })
-    .then(response => response.text())
-    .then(responseText => {
-      let json = null;
-      if (responseText) {
-        try {
-          json = JSON.parse(responseText);
-        } catch (ex) {
-          // invalid json
-        }
-      }
-
       if (error) {
-        error.responseJson = json;
+        error.responseJson = response.body;
         throw error;
       }
 
-      return json;
+      return response.body;
     });
 }
 

@@ -56,7 +56,7 @@ export default function makeDataInSearches(namespace, esUrl, options = {}) {
     const promise = post(addPaginationParams(esUrl, searchState), processQuery(jsonQuery, { searchState, getState }))
       .then(response => {
         if (skipProcessingFetch(getState, fetchingSearchIdx)) {
-          promise.cancel();
+          promise.abort();
         }
 
         return response;
