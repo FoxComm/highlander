@@ -4,7 +4,6 @@ import React, { PropTypes } from 'react';
 import { findDOMNode } from 'react-dom';
 import * as validators from '../../lib/validators';
 import classNames from 'classnames';
-import { mergeEventHandlers } from '../../lib/react-utils';
 
 export default class FormField extends React.Component {
 
