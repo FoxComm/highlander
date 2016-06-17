@@ -113,14 +113,20 @@ export default class ObjectFormInner extends Component {
   @autobind
   handleCreateProperty(property: { fieldLabel: string, propertyType: string }) {
     const { fieldLabel, propertyType } = property;
-    const val = propertyType == 'date' ? new Date().toString() : '';
+    const value = (() => {
+      switch(propertyType) {
+        case('date'): return new Date().toString();
+        case('bool'): return false;
+        default: return '';
+      }
+    })();
     this.setState({
       isAddingProperty: false
-    }, () => this.handleChange(fieldLabel, propertyType, val));
+    }, () => this.handleChange(fieldLabel, propertyType, value));
   }
-  
+
   @autobind
-  handleChange(label: string, type: string, value: string) {
+  handleChange(label: string, type: string, value: any) {
     const { attributes, options } = this.props;
     const newAttribute = type == 'price'
       ? { t: 'price', v: { currency: 'USD', value: value } }
@@ -143,18 +149,18 @@ export default class ObjectFormInner extends Component {
 
   @autobind
   renderBool(label: string, value: bool, args?: any): Element {
-    const formattedLabel = formatLabel(label);
-    const onChange = v => this.handleChange(label, 'bool', v);
-    return (
-      <div className="fc-object-form__field">
-        <div className="fc-object-form__field-label">{formattedLabel}</div>
-        <SliderCheckbox
-          id={label}
-          checked={value}
-          onChange={onChange}
-        />
-      </div>
+    const onChange = v => {
+      this.handleChange(label, 'bool', !value);
+    };
+    const slderCheckbox = (
+      <SliderCheckbox
+        id={label}
+        checked={value}
+        onChange={onChange}
+      />
     );
+
+    return renderFormField(label, slderCheckbox, args);
   }
 
   @autobind
@@ -205,7 +211,7 @@ export default class ObjectFormInner extends Component {
       </div>
     );
   }
-  
+
   @autobind
   renderString(label: string, value: string = '', args?: any): Element {
     const onChange = ({target}) => {
@@ -216,7 +222,7 @@ export default class ObjectFormInner extends Component {
         className={inputClass}
         type="text"
         name={label}
-        value={value}
+        value={value || ''}
         onChange={onChange}
       />
     );
