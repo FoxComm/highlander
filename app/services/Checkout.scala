@@ -84,24 +84,22 @@ case class Checkout(cart: Order, cartValidator: CartValidation)(
 
   private def checkInventory: DbResultT[Unit] =
     for {
-      afs      ← * <~ InventorySummaries.getAvailableForSaleByOrderId(cart.id).result
-      quantity ← * <~ OrderLineItems.countBySkuIdForOrder(cart).result
-      _        ← * <~ checkAvailableEnough(afs.toMap, quantity.toMap)
+      skusInCart ← * <~ OrderLineItems.countBySkuIdForOrder(cart).result
+      _ ← * <~ skusInCart.map {
+           case (skuId, qtyInCart) ⇒
+             for {
+               sku ← * <~ Skus.mustFindById400(skuId)
+               afs ← * <~ InventorySummaries
+                      .findAfsBySkuId(skuId)
+                      .mustFindOneOr(
+                          GeneralFailure(s"Could not find AFS for sku with code=${sku.code}"))
+               _ ← * <~ (if (afs < qtyInCart)
+                           DbResultT.leftLift(NotEnoughItems(sku.code, afs, qtyInCart).single)
+                         else
+                           DbResultT.unit)
+             } yield {}
+         }
     } yield {}
-
-  def checkAvailableEnough(
-      available: Map[Sku#Id, Int], required: Map[Sku#Id, Int]): DbResultT[Unit] = {
-    def skuAsFailure(sku: Sku) =
-      NotEnoughItems(sku.code, available.getOrElse(sku.id, 0), required.getOrElse(sku.id, 0))
-
-    val newAfsValues  = available.remove(required)
-    val invalidSkuIds = newAfsValues.collect { case (skuId, afsValue) if afsValue < 0 ⇒ skuId }
-
-    for {
-      invalidSkus ← * <~ Skus.filter(_.id inSet invalidSkuIds).result
-      _           ← * <~ Failures(invalidSkus.map(skuAsFailure): _*).fold(DbResult.none)(DbResult.failures)
-    } yield {}
-  }
 
   private def activePromos: DbResultT[Unit] =
     for {

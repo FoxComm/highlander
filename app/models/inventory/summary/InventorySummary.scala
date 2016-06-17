@@ -2,7 +2,7 @@ package models.inventory.summary
 
 import java.time.Instant
 
-import models.inventory.{Skus, Warehouses}
+import models.inventory._
 import models.order.lineitems.OrderLineItemSkus
 import shapeless._
 import slick.driver.PostgresDriver.api._
@@ -61,40 +61,34 @@ object InventorySummaries
 
   val returningLens: Lens[InventorySummary, Int] = lens[InventorySummary].id
 
-  def getAvailableForSaleByOrderId(orderId: Int): Query[(Rep[Int], Rep[Int]), (Int, Int), Seq] = {
-    val orderSkuIds = OrderLineItemSkus.findByOrderId(orderId).map(_.skuId)
-    filter(_.skuId in orderSkuIds)
-      .join(SellableInventorySummaries)
-      .on { case (inventory, sellable)  ⇒ inventory.sellableId === sellable.id }
-      .map { case (inventory, sellable) ⇒ (inventory.skuId, sellable.availableForSale) }
-      .groupBy { case (skuId, _)        ⇒ skuId }
-      .map {
-        case (skuId, afsQuery) ⇒ (skuId, afsQuery.map { case (_, afs) ⇒ afs }.sum.getOrElse(0))
-      }
-  }
-
-  def findSellableBySkuId(skuId: Int) =
+  def findSellableBySkuId(skuId: Int)
+    : Query[(SellableInventorySummaries, Warehouses), (SellableInventorySummary, Warehouse), Seq] =
     for {
       warehouse ← Warehouses
       summary   ← filter(s ⇒ s.skuId === skuId && s.warehouseId === warehouse.id)
       sellable  ← SellableInventorySummaries.filter(_.id === summary.sellableId)
     } yield (sellable, warehouse)
 
+  def findAfsBySkuId(skuId: Sku#Id): Query[Rep[Int], Int, Seq] =
+    for {
+      summary  ← filter(_.skuId === skuId)
+      sellable ← SellableInventorySummaries.filter(_.id === summary.sellableId)
+    } yield sellable.availableForSale
+
   // https://github.com/slick/slick/issues/1316
   def findBySkuIdInWarehouse(skuId: Int, warehouseId: Int) =
     for {
-      ((((summary, sellable), preorder), backorder), nonsellable) ← InventorySummaries
-                                                                     .join(
-                                                                         SellableInventorySummaries)
-                                                                     .on(_.sellableId === _.id)
-                                                                     .join(
-                                                                         PreorderInventorySummaries)
-                                                                     .on(_._1.preorderId === _.id)
-                                                                     .join(BackorderInventorySummaries)
-                                                                     .on(_._1._1.backorderId === _.id)
-                                                                     .join(NonSellableInventorySummaries)
-                                                                     .on(_._1._1._1.nonSellableId === _.id)
-      if (summary.skuId === skuId && summary.warehouseId === warehouseId)
+      allSummaries ← InventorySummaries
+                      .join(SellableInventorySummaries)
+                      .on(_.sellableId === _.id)
+                      .join(PreorderInventorySummaries)
+                      .on(_._1.preorderId === _.id)
+                      .join(BackorderInventorySummaries)
+                      .on(_._1._1.backorderId === _.id)
+                      .join(NonSellableInventorySummaries)
+                      .on(_._1._1._1.nonSellableId === _.id)
+      ((((summary, sellable), preorder), backorder), nonsellable) = allSummaries
+      if summary.skuId === skuId && summary.warehouseId === warehouseId
     } yield (sellable, preorder, backorder, nonsellable)
 
   def findSellableBySkuIdInWarehouse(

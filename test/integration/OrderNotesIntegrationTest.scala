@@ -84,9 +84,7 @@ class OrderNotesIntegrationTest
   "DELETE /v1/notes/order/:refNum/:noteId" - {
     "can soft delete note" in new Fixture {
       val note = OrderNoteManager
-        .create(order.refNum,
-                storeAdmin,
-                CreateNote(body = "Hello, FoxCommerce!"))
+        .create(order.refNum, storeAdmin, CreateNote(body = "Hello, FoxCommerce!"))
         .gimme
 
       val response = DELETE(s"v1/notes/order/${order.referenceNumber}/${note.id}")
