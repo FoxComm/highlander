@@ -2,6 +2,13 @@
     "service" : {
         "name": "ashes",
         "tags": ["ashes"], 
-        "port": 4000
+        "port": 4000,
+        "checks": [
+            {
+                "http": "http://localhost:4000",
+                "interval": "30s",
+                "status": "passing"
+            }
+        ]
     }
 }

@@ -2,6 +2,13 @@
     "service" : {
         "name": "firebrand",
         "tags": ["firebrand"],
-        "port": 4041
+        "port": 4041,
+        "checks": [
+            {
+                "http": "http://localhost:4041",
+                "interval": "30s",
+                "status": "passing"
+            }
+        ]         
     }
 }

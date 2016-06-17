@@ -2,6 +2,13 @@
     "service" : {
         "name": "schema-registry",
         "tags": ["schema-registry"], 
-        "port": 8081
+        "port": 8081,
+        "checks": [
+            {
+                "http": "http://localhost:8081/config",
+                "interval": "30s",
+                "status": "passing"
+            }
+        ]
     }
 }

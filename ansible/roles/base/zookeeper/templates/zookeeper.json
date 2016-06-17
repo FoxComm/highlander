@@ -2,6 +2,14 @@
     "service" : {
         "name": "zookeeper",
         "tags": ["zookeeper"], 
-        "port": 9092
+        "port": 9092,
+        "checks": [
+            {
+                "tcp": "localhost:2181",
+                "interval": "30s",
+                "timeout": "2s",
+                "status": "passing"                
+            }
+        ]
     }
 }
