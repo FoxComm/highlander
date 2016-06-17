@@ -4,17 +4,17 @@
   apt: name={{ item }} state=latest force=yes
   sudo: true
   with_items:
-    - python-pip
+    - python-setuptools
 
 - name: Install Consulate
-  shell: pip install consulate
+  shell: sudo easy_install consulate
 
 - name: Copy Consul Alerts Bin
   copy: src=consul-alerts dest=/usr/local/bin/consul-alerts mode="u+x,g+x,o+x"
   sudo: true    
 
 - name: Copy Configuration File
-  copy: src=consul-alerts.json dest="{{home}}/" mode="u+x,g+x,o+x"
+  copy: src=config.json dest="{{home}}/" mode="u+x,g+x,o+x"
   sudo: true
 
 - name: Copy Execution File
@@ -26,7 +26,7 @@
   sudo: true
 
 - name: Copy Configuration to Consul KV
-  shell: consulate kv restore -f {{home}}/consul-alerts.json
+  shell: consulate kv restore -f {{home}}/config.json
 
 - name: Reload Systemd for Consul Alerts
   sudo: yes
