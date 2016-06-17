@@ -23,5 +23,12 @@
       insertafter: "index index.html;"
       line: "auth_basic \"Restricted\"; auth_basic_user_file /etc/nginx/passwdfile;"
 
+- name: Add Auth to Nginx for Firebrand
+  lineinfile:
+      dest: /etc/nginx/sites-available/firebrand
+      regexp:  "auth_basic"
+      insertafter: "index index.html;"
+      line: "auth_basic \"Restricted\"; auth_basic_user_file /etc/nginx/passwdfile;"
+
 - name: Restart Nginx
   service: name=nginx state=restarted
