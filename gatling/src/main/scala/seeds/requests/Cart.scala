@@ -28,17 +28,26 @@ object Cart {
     .requireAdminAuth
     .body(StringBody(session ⇒ session.get("skuPayload").as[String]))
 
+  private def sellableSkuQuery(skuQty: Int) =
+    s"""
+       | select skus.code as sku
+       | from skus
+       | join inventory_summaries sums on sums.sku_id = skus.id
+       | join sellable_inventory_summaries sel on sums.sellable_id = sel.id
+       | where sel.available_for_sale >= $skuQty
+   """.stripMargin
+
   val pickRandomSkus = {
-    val skuQty = Random.nextInt(5) + 1
-    feed(dbFeeder("select code as sku from skus").random, _ ⇒ skuQty).exec { session ⇒
-      def newPayloadItem(skuCode: String) =
-        UpdateLineItemsPayload(skuCode, Random.nextInt(3) + 1)
+    val skusInOrder   = Random.nextInt(5) + 1
+    val numberOfItems = Random.nextInt(3) + 1
+    feed(dbFeeder(sellableSkuQuery(numberOfItems)).random, _ ⇒ skusInOrder).exec { session ⇒
+      def newPayloadItem(skuCode: String) = UpdateLineItemsPayload(skuCode, numberOfItems)
 
       val payload =
-        if (skuQty == 1)
+        if (skusInOrder == 1)
           Seq(newPayloadItem(session.get("sku").as[String]))
         else
-          (1 until skuQty).map { i ⇒
+          (1 until skusInOrder).map { i ⇒
             val skuCode = session.get(s"sku$i").as[String]
             newPayloadItem(skuCode)
           }

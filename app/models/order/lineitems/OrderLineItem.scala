@@ -2,7 +2,6 @@ package models.order.lineitems
 
 import cats.data.Xor
 import com.pellucid.sealerate
-import models._
 import models.inventory.Sku
 import models.order.Order
 import models.order.lineitems.OrderLineItem._
