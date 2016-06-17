@@ -5,6 +5,7 @@
         "port": 4000,
         "checks": [
             {
+                "name": "HTTP API on port 4000",
                 "http": "http://localhost:4000",
                 "interval": "30s",
                 "status": "passing"

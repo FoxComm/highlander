@@ -5,6 +5,7 @@
         "port": 80,
         "checks": [
             {
+                "name": "HTTP API on port 80",
                 "http": "http://localhost",
                 "interval": "30s",
                 "status": "passing"

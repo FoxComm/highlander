@@ -5,7 +5,8 @@
         "port": 8081,
         "checks": [
             {
-                "http": "http://localhost:8081/config",
+                "name": "HTTP API on port 8081",
+                "http": "http://localhost:8081",
                 "interval": "30s",
                 "status": "passing"
             }
