@@ -1,0 +1,6 @@
+alerts_name: "consul-alerts"
+alerts_repo: "https://github.com/AcalephStorage/{{alerts_name}}"
+alerts_version: "0.3.2"
+alerts_platform: "linux-amd64"
+alerts_url: "{{alerts_repo}}/releases/download/v{{alerts_version}}/{{alerts_name}}-{{alerts_version}}-{{alerts_platform}}.tar"
+alerts_dir: "{{home}}/{{alerts_name}}"

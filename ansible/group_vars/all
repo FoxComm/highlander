@@ -26,10 +26,10 @@ phoenix_db_name: phoenix_development
 phoenix_test_db_name: phoenix_test
 phoenix_tracing: "false"
 
-#ashes variables
+# Ashes variables
 ashes_env: production
 
-#firebird variables
+# Firebird variables
 firebird_env: production
 firebird_default_language: en
 firebird_fixed_language: false
@@ -77,7 +77,6 @@ gatling_continuous_seeds_cmd: seeds.ContinuousSeeds
 
 
 # Google oauth
-
 google_oauth_admin_client_id: ""
 google_oauth_admin_secret: ""
 google_oauth_admin_hosted_domain: ""
