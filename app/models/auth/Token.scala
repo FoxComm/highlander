@@ -13,6 +13,7 @@ import models.StoreAdmin
 import models.customer.Customer
 import org.jose4j.jws.JsonWebSignature
 import org.jose4j.jwt.JwtClaims
+import org.jose4j.jwa.AlgorithmConstraints
 import org.jose4j.jwt.consumer.{InvalidJwtException, JwtConsumerBuilder}
 import org.json4s.jackson.JsonMethods._
 import org.json4s.{Extraction, _}
@@ -66,6 +67,9 @@ sealed trait Token extends Product {
 
 object Token {
   implicit val formats = DefaultFormats
+  val algorithmConstraints = new AlgorithmConstraints(
+      AlgorithmConstraints.ConstraintType.WHITELIST, config.getString("auth.keyAlgorithm"))
+
   import collection.JavaConversions.seqAsJavaList
 
   val tokenTTL = config.getOptInt("auth.tokenTTL").getOrElse(5)
@@ -117,6 +121,7 @@ object Token {
       val builder = new JwtConsumerBuilder()
         .setRequireExpirationTime()
         .setAllowedClockSkewInSeconds(30)
+        .setJwsAlgorithmConstraints(algorithmConstraints)
         .setExpectedIssuer("FC")
         .setVerificationKey(publicKey)
 
