@@ -2,7 +2,6 @@
 
 const fs = require('fs');
 const path = require('path');
-const merge = require('merge-stream');
 const browserify = require('browserify');
 const watchify = require('watchify');
 const source = require('vinyl-source-stream');
@@ -45,7 +44,8 @@ module.exports = function(gulp, opts, $) {
       cache: {},
       packageCache: {}
     }).transform(envify({
-      DEMO_AUTH_TOKEN: process.env.DEMO_AUTH_TOKEN
+      DEMO_AUTH_TOKEN: process.env.DEMO_AUTH_TOKEN,
+      API_URL: process.env.API_URL
     }));
 
     bundler.plugin(require('css-modulesify'), {

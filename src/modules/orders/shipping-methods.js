@@ -38,7 +38,7 @@ let updateShippingMethodRequest;
 export function updateShippingMethod(order, shippingMethod) {
   return dispatch => {
     if (updateShippingMethodRequest) {
-      updateShippingMethodRequest.cancel();
+      updateShippingMethodRequest.abort();
     }
 
     dispatch(orderShippingMethodUpdate());

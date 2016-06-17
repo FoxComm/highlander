@@ -1,6 +1,4 @@
 
-import _ from 'lodash';
-import fetch from 'isomorphic-fetch';
 import { request as baseRequest } from './api';
 
 function searchURI(uri) {

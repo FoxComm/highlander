@@ -3,6 +3,8 @@ import path from 'path';
 import rewire from 'rewire';
 import register from 'ignore-styles';
 
+process.env.API_URL = 'http://api.foxcommerce'; // mock
+
 register(['.css']);
 
 const unexpected = require('unexpected');
@@ -63,4 +65,4 @@ global.importDefault = function(sourcePath) {
   return requireSource(sourcePath).default;
 };
 
-global.phoenixUrl = 'https://api.foxcommerce/';
+global.phoenixUrl = process.env.API_URL;

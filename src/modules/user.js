@@ -1,6 +1,6 @@
 /** @flow */
 import { createAction, createReducer } from 'redux-act';
-import fetch from 'isomorphic-fetch';
+import superagent from 'superagent';
 import Api from '../lib/api';
 import _ from 'lodash';
 import { dissoc } from 'sprout-data';
@@ -58,38 +58,31 @@ export function fetchUserInfo(): ActionDispatch {
 }
 
 export function authenticate(payload: LoginPayload): ActionDispatch {
-
-  const headers = {'Content-Type': 'application/json;charset=UTF-8'};
-
   return dispatch => {
     let hasError = false;
 
     dispatch(authStart());
-    return fetch(Api.apiURI('/public/login'), {
-      method: 'POST',
-      body: JSON.stringify(payload),
-      credentials: 'same-origin',
-      headers,
-    }).then(response => {
-      if (response.status == 200 && response.headers.get('jwt')) {
-        localStorage.setItem('jwt', response.headers.get('jwt'));
-      } else {
-        hasError = true;
-      }
-      return response.json();
-    }).then((token: TUser) => {
-      if (token.email && token.name && !hasError) {
-        localStorage.setItem('user', JSON.stringify(token));
-        return dispatch(setUser(token));
-      }
+    return superagent.post(Api.apiURI('/public/login'), payload)
+      .type('json')
+      .then(response => {
+        if (response.status == 200 && response.header['jwt']) {
+          localStorage.setItem('jwt', response.header['jwt']);
+        } else {
+          hasError = true;
+        }
+        const token: TUser = response.body;
+        if (token.email && token.name && !hasError) {
+          localStorage.setItem('user', JSON.stringify(token));
+          return dispatch(setUser(token));
+        }
 
-      const errors = _.get(token, 'errors', ['Unexpected error, try again later']);
-      const message = _.reduce(errors, (res, err) => `${res} ${err}`, '').trim();
-      throw new Error(message);
-    }).catch(reason => {
-      dispatch(authError(reason.message));
-      throw new Error(reason);
-    });
+        const errors = _.get(token, 'errors', ['Unexpected error, try again later']);
+        const message = _.reduce(errors, (res, err) => `${res} ${err}`, '').trim();
+        throw new Error(message);
+      }).catch(reason => {
+        dispatch(authError(reason.message));
+        throw new Error(reason);
+      });
   };
 }
 
