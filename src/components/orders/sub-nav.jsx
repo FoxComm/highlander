@@ -17,8 +17,8 @@ const SubNav = props => {
   } else {
     return (
       <LocalNav>
-        <IndexLink to="order-details" params={params}>Details</IndexLink>
-        <a href="">Shipments</a>
+        <IndexLink to="order-details" params={params}>Detailssss</IndexLink>
+        <Link to="order-shipments" params={params}>Shipments</Link>
         <Link to="order-returns" params={params}>Returns</Link>
         <Link to="order-notes" params={params}>Notes</Link>
         <Link to="order-activity-trail" params={params}>Activity Trail</Link>

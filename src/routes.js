@@ -43,6 +43,7 @@ import Products from './components/products/products';
 import ProductPage from './components/products/page';
 import ProductForm from './components/products/product-form';
 import ProductImages from './components/products/images';
+import Shipments from './components/orders/shipments';
 import Skus from './components/skus/skus';
 import SkusListPage from './components/skus/list-page';
 import SkuPage from './components/skus/page';
@@ -92,6 +93,7 @@ const routes = (
 
       <Route name='order' path=':order' component={Order}>
         <IndexRoute name='order-details' component={OrderDetails}/>
+        <Route name='order-shipments' path='shipments' component={Shipments}/>
         <Route name='order-notes' path='notes' component={Notes}/>
         <Route name='order-returns' path='returns' component={RmaChildList}/>
         <Route name='order-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
