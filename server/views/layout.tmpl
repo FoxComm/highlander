@@ -35,12 +35,32 @@
     window.onunhandledrejection = function(event) {
       logError('Unhandled rejection - ' + event.reason);
     }
+
+    var getHMTime = window.performance && performance.now ? function() {
+      return performance.now()
+    } : function() { return new Date().getTime(); };
+    var headEndTime = getHMTime();
+
+    if (window.performance) {
+      window.onload = function() {
+        // see https://www.w3.org/TR/navigation-timing/#sec-window.performance-attribute
+        setTimeout(function() {
+          var timing = performance.timing;
+          ga('send', 'timing', 'Full page load', 'load_time', timing.loadEventEnd - timing.navigationStart);
+          ga('send', 'timing', 'Dom processing', 'load_time', timing.loadEventStart - timing.domLoading);
+        }, 0);
+      }
+    }
+
   </script>
 </head>
 <body>
   <div id="foxcom"><%= rootHTML %></div>
   <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=Intl.~locale.en"></script>
   <script src="<%= javascript %>"></script>
-  <script><%= appStart %></script>
+  <script>
+    ga('send', 'timing', 'JS Dependencies', 'load_time', getHMTime() - headEndTime);
+    <%= appStart %>
+  </script>
 </body>
 </html>

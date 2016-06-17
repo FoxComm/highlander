@@ -11,7 +11,7 @@ import useNamedRoutes from 'use-named-routes';
 import configureStore from './store';
 import routes from './routes';
 import { setHistory } from 'browserHistory';
-import { trackPageView } from './lib/analytics';
+import { trackPageView, initTracker } from './lib/analytics';
 
 const createBrowserHistory = useNamedRoutes(useRouterHistory(createHistory));
 
@@ -23,6 +23,7 @@ export function start() {
   history = syncHistoryWithStore(history, store);
   setHistory(history);
 
+  initTracker();
   history.listen(location => {
     trackPageView(location.pathname);
   });
