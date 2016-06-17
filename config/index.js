@@ -8,7 +8,6 @@ class Config {
   constructor(environment) {
     const env = {
       environment: environment,
-      phoenix_url: (process.env.PHOENIX_URL || 'http://localhost:9090'),
       public_key: process.env.PHOENIX_PUBLIC_KEY,
     };
 
