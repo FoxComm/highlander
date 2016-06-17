@@ -5,7 +5,7 @@
 
 - name: Copy Consul Alerts Bin
   copy: src=consul-alerts dest=/usr/local/bin/consul-alerts mode="u+x,g+x,o+x"
-  sudo: true    
+  sudo: true
 
 - name: Copy Configuration File
   copy: src=config.json dest="{{home}}/" mode="u+x,g+x,o+x"
