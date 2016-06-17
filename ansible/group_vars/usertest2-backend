@@ -3,8 +3,6 @@ ashes_server: "{{hostvars[groups['usertest2-ashes'][0]]['ansible_eth0']['ipv4'][
 seeds_cmd: utils.seeds.Seeds demo 5
 es_heap_size: 5g
 
-
-
 demo_domain: usertest2.foxcommerce.com
 
 google_oauth_admin_client_id: 953682058057-trm1gl4qpa6c9c8av6b42e4p766bloa7.apps.googleusercontent.com
