@@ -1,6 +1,9 @@
 ---
 
-- include_vars: aws.yml
+- include_vars: "{{ item }}"
+  with_first_found:
+    - aws.yml
+    - stripe.yml
 
 - name: Create Phoenix Directory
   file: path={{phoenix_dir}} state=directory owner="{{user}}"
