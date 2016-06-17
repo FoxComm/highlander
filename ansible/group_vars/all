@@ -105,3 +105,6 @@ zipkin_collector: localhost
 
 #are we running packer?
 packing: false
+
+#test stripe api key
+stripe_api_key: sk_test_uvaf3GCFsjCsvvKO7FsQhNRm

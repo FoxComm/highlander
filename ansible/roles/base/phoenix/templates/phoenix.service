@@ -29,6 +29,7 @@ Environment=AWS_ACCESS_KEY={{ secret_key }}
 Environment=AWS_SECRET_KEY={{ secret_access_key }}
 Environment=S3_BUCKET={{ s3_bucket }}
 Environment=S3_REGION={{ s3_region }}
+Environment=STRIPE_API_KEY={{ stripe_api_key }}
 
 [Install]
 WantedBy=multi-user.target
