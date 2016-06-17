@@ -2,17 +2,44 @@
 
 // libs
 import _ from 'lodash';
-import React, { PropTypes } from 'react';
+import React, { Component, Element } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+
+// helpers
+import { getStore } from '../../lib/store-creator';
 
 // components
 
 
-const Shipments = props => {
-  return (
-    <div>
-      Shipments here
-    </div>
-  );
+type Props = {
+  load: Function;
+  entity: {
+    referenceNumber: string;
+  };
+};
+
+const mapStateToProps = state => state.orders.shipments;
+const mapDispatchToProps = dispatch => {
+  const { actions } = getStore('orders.shipments');
+
+  return bindActionCreators(actions, dispatch);
+};
+
+class Shipments extends Component<void, Props, void> {
+  props: Props;
+
+  componentDidMount(): void {
+    this.props.load(this.props.entity.referenceNumber);
+  }
+
+  render(): Element {
+    return (
+      <div>
+        Shipments here
+      </div>
+    );
+  }
 };
 
 Shipments.propTypes = {
@@ -21,4 +48,4 @@ Shipments.propTypes = {
 Shipments.defaultProps = {
 };
 
-export default Shipments;
+export default connect(mapStateToProps, mapDispatchToProps)(Shipments);

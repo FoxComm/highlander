@@ -11,6 +11,7 @@ import shippingAddresses from './shipping-addresses';
 import paymentMethods from './payment-methods';
 import coupons from './coupons';
 import discounts from './discounts';
+import shipments from './shipments';
 
 const orderReducer = combineReducers({
   lineItems,
@@ -25,6 +26,7 @@ const orderReducer = combineReducers({
   newOrder,
   coupons,
   discounts,
+  shipments,
 });
 
 export default orderReducer;

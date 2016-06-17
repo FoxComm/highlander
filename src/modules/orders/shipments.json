@@ -1,0 +1,92 @@
+{
+  "shipments": [
+    {
+      "id": 5,
+      "method": "standardGround57",
+      "state": "delivered",
+      "shipmentDate": "2016-06-15T17:27:13.670054Z",
+      "deliveredDate": "2016-06-15T17:27:13.670054Z",
+      "trackingNumber": "123487VASM12009",
+      "address": {
+        "address1": "556 Red Leaf Grove",
+        "city": "Marne",
+        "id": 3249,
+        "name": "Gladyce Hand",
+        "phoneNumber": "1146281399",
+        "region": {
+          "id": 1127,
+          "countryId": 76,
+          "name": "Marne"
+        },
+        "zip": "27728"
+      },
+      "lineItems": [
+        {
+          "imagePath": "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Gold_Blue_Three_Quarter.jpg",
+          "name": "Sharkling",
+          "price": 4500,
+          "productFormId": 6,
+          "quantity": 1,
+          "referenceNumber": "51f3702b-4ce9-4296-ca5f-5c6cdd60b82c",
+          "sku": "SKU-ABC",
+          "totalPrice": 4500,
+          "state": "delivered"
+        },
+        {
+          "imagePath": "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Gold_Blue_Three_Quarter.jpg",
+          "name": "Sharkling",
+          "price": 4500,
+          "productFormId": 6,
+          "quantity": 1,
+          "referenceNumber": "51f3702b-4ce9-4296-ca5f-5c6cdd60b82c",
+          "sku": "SKU-ABC",
+          "totalPrice": 4500,
+          "state": "delivered"
+        }
+      ],
+      "transactions": [
+        {
+          "card": {
+            "address": {
+              "address1": "556 Red Leaf Grove",
+              "city": "Marne",
+              "id": 3249,
+              "name": "Gladyce Hand",
+              "phoneNumber": "1146281399",
+              "region": {
+                "id": 1127,
+                "countryId": 76,
+                "name": "Marne"
+              },
+              "zip": "27728"
+            },
+            "brand": "MasterCard",
+            "customerId": 2843,
+            "expMonth": 7,
+            "expYear": 2021,
+            "holderName": "Gladyce Hand",
+            "id": 3852,
+            "lastFour": "8210",
+            "type": "creditCard"
+          },
+          "date": "2016-06-15T17:27:13.670054Z",
+          "amount": 30900
+        }
+      ]
+    }
+  ],
+  "unshippedItems": [
+    {
+      "imagePath": "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Gold_Blue_Three_Quarter.jpg",
+      "name": "Sharkling",
+      "price": 4500,
+      "productFormId": 6,
+      "quantity": 1,
+      "referenceNumber": "51f3702b-4ce9-4296-ca5f-5c6cdd60b82c",
+      "sku": "SKU-ABC",
+      "totalPrice": 4500,
+      "state": "cancelled",
+      "reason": "outOfStock"
+    }
+  ]
+}
