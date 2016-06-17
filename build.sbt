@@ -170,7 +170,6 @@ lazy val gatling = (project in file("gatling")).
       )
     },
     classDirectory in Compile := baseDirectory.value / "../gatling-classes",
-    mainClass in Compile := Some("seeds.GatlingApp"),
     cleanFiles <+= baseDirectory(_ / "../gatling-classes"),
     cleanFiles <+= baseDirectory(_ / "../gatling-results"),
     assemblyJarName := (AssemblyKeys.assemblyJarName in assembly in phoenixScala).value,
@@ -190,5 +189,8 @@ lazy val gatling = (project in file("gatling")).
     }
   )
 
-lazy val seedGatling = inputKey[Unit]("Seed DB with Gatling")
-seedGatling := { (runMain in Compile in gatling).partialInput(" seeds.OneshotSeeds").evaluated }
+lazy val seedOneshot = inputKey[Unit]("Run oneshot gatling seeds")
+seedOneshot := { (runMain in Compile in gatling).partialInput(" seeds.OneshotSeeds").evaluated }
+
+lazy val seedContinuous = inputKey[Unit]("Run continuous gatling seeds")
+seedContinuous := { (runMain in Compile in gatling).partialInput(" seeds.ContinuousSeeds").evaluated }
