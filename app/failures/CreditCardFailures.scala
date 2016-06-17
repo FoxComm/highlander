@@ -1,13 +1,8 @@
 package failures
 
-import com.stripe.exception.StripeException
 import models.payment.creditcard.CreditCard
 
 object CreditCardFailures {
-
-  case class StripeFailure(exception: StripeException) extends Failure {
-    override def description = exception.getMessage
-  }
 
   case object InvalidCvc extends Failure {
     override def description = "failed CVC check"

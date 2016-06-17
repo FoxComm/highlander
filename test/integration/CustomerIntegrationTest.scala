@@ -8,8 +8,9 @@ import Extensions._
 import cats.implicits._
 import com.stripe.exception.CardException
 import com.stripe.model.{DeletedExternalAccount, ExternalAccount}
-import failures.CreditCardFailures.{CannotUseInactiveCreditCard, StripeFailure}
+import failures.CreditCardFailures.CannotUseInactiveCreditCard
 import failures.CustomerFailures._
+import failures.StripeFailures.StripeFailure
 import failures.{GeneralFailure, NotFoundFailure404}
 import models.StoreAdmins
 import models.customer._

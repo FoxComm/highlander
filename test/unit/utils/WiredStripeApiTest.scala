@@ -6,7 +6,7 @@ import scala.concurrent.duration._
 import scala.util.control.NoStackTrace
 
 import com.stripe.exception.StripeException
-import failures.CreditCardFailures.StripeFailure
+import failures.StripeFailures.StripeFailure
 import util.TestBase
 import utils.apis.WiredStripeApi
 

@@ -1,12 +1,13 @@
 package services
 
 import scala.collection.JavaConversions.mapAsJavaMap
+import scala.concurrent.Future
 
 import cats.data.Xor
 import cats.data.Xor.{left, right}
 import cats.implicits._
 import com.stripe.model.{DeletedExternalAccount, ExternalAccount}
-import failures.{CreditCardFailures, Failures}
+import failures.{CreditCardFailures, Failures, StripeFailures}
 import models.location.Address
 import models.payment.creditcard.CreditCard
 import payloads.PaymentPayloads.CreateCreditCard
@@ -14,9 +15,9 @@ import utils.Money._
 import utils.apis._
 import utils.aliases._
 import utils.aliases.stripe._
+import utils.FoxConfig.{RichConfig, config}
 
-// TODO(yax): do not default apiKey, it should come from store
-case class Stripe(apiKey: String = "sk_test_uvaf3GCFsjCsvvKO7FsQhNRm")(implicit apis: Apis, ec: EC) {
+case class Stripe(apiKey: Option[String])(implicit apis: Apis, ec: EC) {
 
   val api: StripeApi = apis.stripe
 
@@ -42,10 +43,12 @@ case class Stripe(apiKey: String = "sk_test_uvaf3GCFsjCsvvKO7FsQhNRm")(implicit 
     def existingCustomer(id: String): ResultT[(StripeCustomer, StripeCard)] = {
       val params = Map[String, Object]("source" → mapAsJavaMap(source))
 
-      for {
-        cust ← ResultT(getCustomer(id))
-        card ← ResultT(api.createCard(cust, params, apiKey))
-      } yield (cust, card)
+      withApiKey { key ⇒
+        for {
+          cust ← ResultT(getCustomer(id))
+          card ← ResultT(api.createCard(cust, params, key))
+        } yield (cust, card)
+      }
     }
 
     def newCustomer: ResultT[(StripeCustomer, StripeCard)] = {
@@ -55,11 +58,13 @@ case class Stripe(apiKey: String = "sk_test_uvaf3GCFsjCsvvKO7FsQhNRm")(implicit 
           "source"      → mapAsJavaMap(source)
       )
 
-      for {
-        cust ← ResultT(api.createCustomer(params, apiKey))
-        card ← ResultT(getCard(cust))
-        _    ← ResultT.fromXor(cvcCheck(card))
-      } yield (cust, card)
+      withApiKey { key ⇒
+        for {
+          cust ← ResultT(api.createCustomer(params, key))
+          card ← ResultT(getCard(cust))
+          _    ← ResultT.fromXor(cvcCheck(card))
+        } yield (cust, card)
+      }
     }
 
     stripeCustomerId.fold(newCustomer)(existingCustomer).value
@@ -73,11 +78,15 @@ case class Stripe(apiKey: String = "sk_test_uvaf3GCFsjCsvvKO7FsQhNRm")(implicit 
         "capture"  → (false: java.lang.Boolean)
     )
 
-    api.createCharge(chargeMap, apiKey)
+    withApiKey { key ⇒
+      api.createCharge(chargeMap, key)
+    }
   }
 
   def captureCharge(chargeId: String, amount: Int): Result[StripeCharge] =
-    api.captureCharge(chargeId, Map[String, Object]("amount" → amount.toString), apiKey)
+    withApiKey { key ⇒
+      api.captureCharge(chargeId, Map[String, Object]("amount" → amount.toString), key)
+    }
 
   def editCard(cc: CreditCard): Result[ExternalAccount] = {
 
@@ -94,7 +103,9 @@ case class Stripe(apiKey: String = "sk_test_uvaf3GCFsjCsvvKO7FsQhNRm")(implicit 
           "exp_month"    → cc.expMonth.toString
       )
 
-      api.updateExternalAccount(stripeCard, params, this.apiKey)
+      withApiKey { key ⇒
+        api.updateExternalAccount(stripeCard, params, key)
+      }
     }
 
     (for {
@@ -105,23 +116,48 @@ case class Stripe(apiKey: String = "sk_test_uvaf3GCFsjCsvvKO7FsQhNRm")(implicit 
   }
 
   def deleteCard(cc: CreditCard): Result[DeletedExternalAccount] = {
-    (for {
-      customer   ← ResultT(getCustomer(cc.gatewayCustomerId))
-      stripeCard ← ResultT(getCard(customer))
-      updated    ← ResultT(api.deleteExternalAccount(stripeCard, this.apiKey))
-    } yield updated).value
+    withApiKey { key ⇒
+      (for {
+        customer   ← ResultT(getCustomer(cc.gatewayCustomerId))
+        stripeCard ← ResultT(getCard(customer))
+        updated    ← ResultT(api.deleteExternalAccount(stripeCard, key))
+      } yield updated).value
+    }
   }
 
   private def getCustomer(id: String): Result[StripeCustomer] =
-    api.findCustomer(id, this.apiKey)
+    withApiKey { key ⇒
+      api.findCustomer(id, key)
+    }
 
   private def getCard(customer: StripeCustomer): Result[StripeCard] =
-    api.findDefaultCard(customer, this.apiKey)
+    withApiKey { key ⇒
+      api.findDefaultCard(customer, key)
+    }
 
   private def cvcCheck(card: StripeCard): Failures Xor StripeCard = {
     card.getCvcCheck.some.getOrElse("").toLowerCase match {
       case "pass" ⇒ right(card)
       case _      ⇒ left(CreditCardFailures.InvalidCvc.single)
     }
+  }
+
+  private def withApiKey[T](func: String ⇒ Result[T]): Result[T] =
+    apiKey match {
+      case Some(key) ⇒ func(key)
+      case _         ⇒ Result.left(StripeFailures.UnableToReadStripeApiKey.single)
+    }
+
+  private def withApiKey[T](func: String ⇒ ResultT[T]): ResultT[T] =
+    apiKey match {
+      case Some(key) ⇒ func(key)
+      case _         ⇒ ResultT.leftAsync(StripeFailures.UnableToReadStripeApiKey.single)
+    }
+}
+
+object Stripe {
+  def apply()(implicit apis: Apis, ec: EC): Stripe = {
+    val token = config.getOptString("stripe.key")
+    new Stripe(token)
   }
 }

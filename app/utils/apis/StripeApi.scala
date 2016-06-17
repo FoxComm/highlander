@@ -11,6 +11,7 @@ import com.stripe.exception.{CardException, StripeException}
 import com.stripe.model.{DeletedExternalAccount, ExternalAccount, Charge ⇒ StripeCharge, Customer ⇒ StripeCustomer}
 import com.stripe.net.RequestOptions
 import failures.CreditCardFailures._
+import failures.StripeFailures.StripeFailure
 import failures.{Failure, Failures, GeneralFailure}
 import services.{Result, ResultT}
 import utils.aliases.stripe._
