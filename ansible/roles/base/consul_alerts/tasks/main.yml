@@ -1,11 +1,5 @@
 ---
 
-- name: Install Pip
-  apt: name={{ item }} state=latest force=yes
-  sudo: true
-  with_items:
-    - python-setuptools
-
 - name: Install Consulate
   shell: sudo easy_install consulate
 
