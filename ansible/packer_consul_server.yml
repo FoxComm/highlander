@@ -12,3 +12,4 @@
     - {role: base/common}
     - {role: base/consul}
     - {role: base/consul_server}
+    - {role: base/consul_alerts}
