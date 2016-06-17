@@ -2,6 +2,14 @@
     "service" : {
         "name": "db",
         "tags": ["db"], 
-        "port": 5432
+        "port": 5432,
+        "checks": [
+            {
+                "name": "SSH TCP on port 5432",
+                "tcp": "localhost:5432",
+                "interval": "30s",
+                "status": "passing"
+            }
+        ]        
     }
 }

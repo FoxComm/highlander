@@ -1,0 +1,1 @@
+[["consul-alerts/config/checks/change-threshold", 0, "300"],["consul-alerts/config/notifiers/slack/channel", 0, "service-alerts"],["consul-alerts/config/notifiers/slack/enabled", 0, "true"],["consul-alerts/config/notifiers/slack/url", 0, "https://hooks.slack.com/services/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"]]

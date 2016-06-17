@@ -14,5 +14,3 @@ google_oauth_admin_redirect_uri: http://admin.{{demo_domain}}/api/v1/public/oaut
 google_oauth_frontend_client_id: 953682058057-o21m80u2d7raoq71fetp8u21k8306a7p.apps.googleusercontent.com
 google_oauth_frontend_secret: iOyw2XYv_UBfr3npQCobfuq_
 google_oauth_frontend_redirect_uri: http://{{demo_domain}}/api/v1/public/oauth2callback/google/customer
-
-

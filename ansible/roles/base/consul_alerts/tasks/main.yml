@@ -1,0 +1,31 @@
+---
+
+- name: Install Consulate
+  shell: sudo easy_install consulate
+
+- name: Copy Consul Alerts Bin
+  copy: src=consul-alerts dest=/usr/local/bin/consul-alerts mode="u+x,g+x,o+x"
+  sudo: true
+
+- name: Copy Configuration File
+  copy: src=config.json dest="{{home}}/" mode="u+x,g+x,o+x"
+  sudo: true
+
+- name: Copy Execution File
+  template: src=run_consul_alerts.sh dest=/usr/local/bin/run_consul_alerts.sh mode="u+x,g+x,o+x"
+  sudo: true
+
+- name: Copy Service
+  template: src=consul_alerts.service dest="{{dest_services}}/consul_alerts.service"
+  sudo: true
+
+- name: Copy Configuration to Consul KV
+  shell: consulate kv restore -f {{home}}/config.json
+
+- name: Reload Systemd for Consul Alerts
+  sudo: yes
+  command: systemctl daemon-reload
+
+- name: Restart Consul Alerts
+  service: name=consul_alerts state=restarted enabled=yes
+  sudo: true

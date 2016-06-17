@@ -2,6 +2,14 @@
     "service" : {
         "name": "firebird",
         "tags": ["firebird"], 
-        "port": 4040
+        "port": 4040,
+        "checks": [
+            {
+                "name": "HTTP API on port 4040",
+                "http": "http://localhost:4040",
+                "interval": "30s",
+                "status": "passing"
+            }
+        ]        
     }
 }

@@ -1,3 +1,4 @@
+# Common variables
 home: /home/{{ user }}
 dest_services: /etc/systemd/system
 usr_local: /usr/local/
@@ -9,12 +10,14 @@ db_name: phoenix_development
 db_connection_string: "postgresql://{{db_host}}/phoenix_development?user={{db_user}}"
 scala_version: scala-2.11
 
+# Green River
 greenriver_version: 1.0
 greenriver_env: localhost
 greenriver_jar_src: ../../green-river/target/{{scala_version}}/green-river-assembly-{{greenriver_version}}.jar
 greenriver_jar: /usr/local/bin/green-river.jar
 greenriver_restart: "false"
 
+# Phoenix
 phoenix_version: 1.0
 phoenix_env: staging
 phoenix_src: ../../phoenix-scala/
@@ -26,15 +29,15 @@ phoenix_db_name: phoenix_development
 phoenix_test_db_name: phoenix_test
 phoenix_tracing: "false"
 
-#ashes variables
+# Ashes
 ashes_env: production
 
-#firebird variables
+# Firebird
 firebird_env: production
 firebird_default_language: en
 firebird_fixed_language: false
 
-#firebrand variables
+# Firebrand variables
 firebrand_env: production
 firebrand_default_language: en
 firebrand_fixed_language: false
@@ -63,7 +66,6 @@ schema_server: 127.0.0.1:8081
 api_server: 127.0.0.1
 log_host: 127.0.0.1
 
-
 # JMX ports
 es_jmx_port: 29010
 phoenix_jmx_port: 39010
@@ -71,13 +73,12 @@ greenriver_jmx_port: 39011
 messaging_jmx_port: 39012
 loyalty_jmx_port: 39013
 
+# Seeds
 seeds_cmd: utils.seeds.Seeds demo 1
 gatling_oneshot_seeds_cmd: seeds.OneshotSeeds
 gatling_continuous_seeds_cmd: seeds.ContinuousSeeds
 
-
-# Google oauth
-
+# Google OAuth
 google_oauth_admin_client_id: ""
 google_oauth_admin_secret: ""
 google_oauth_admin_hosted_domain: ""
@@ -87,23 +88,23 @@ google_oauth_frontend_client_id: ""
 google_oauth_frontend_secret: ""
 google_oauth_frontend_redirect_uri: ""
 
-#VM swap size
+# VM swap size
 swap_file: /swap
 swap_size_mb: 2000
 
-#fix ansible 2 rsync
+# Fix ansible 2 rsync
 rsync_opts: ssh -l {{user}}
 
-#consul variables
+# Consul variables
 consul_data_dir: /var/consul
 
-#used to prefix service names in consul
+# Used to prefix service names in consul
 namespace: setme
 
-#zipkin
+# Zipkin
 zipkin_collector: localhost
 
-#are we running packer?
+# Are we running packer?
 packing: false
 
 #test stripe api key
