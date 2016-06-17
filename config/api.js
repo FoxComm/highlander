@@ -3,20 +3,6 @@
 module.exports = function(env) {
   const version = 'v1';
 
-  function uri() {
-    switch(env.environment) {
-      default:
-        return `${env.phoenix_url}/${version}`;
-    }
-  }
-
-  function host() {
-    switch(env.environment) {
-      default:
-        return env.phoenix_url;
-    }
-  }
-
   function auth() {
     return {
       header: 'JWT',
@@ -28,8 +14,8 @@ module.exports = function(env) {
   }
 
   return {
-    host: host(),
-    uri: uri(),
+    host: process.env.API_URL,
+    uri: `${process.env.API_URL}/${version}`,
     auth: auth(),
     version: version
   };
