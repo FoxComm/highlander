@@ -4,6 +4,7 @@ import { autobind } from 'core-decorators';
 
 import _ from 'lodash';
 import classNames from 'classnames';
+import { trackEvent } from 'lib/analytics';
 
 // components
 import MaskedInput from '../masked-input/masked-input';
@@ -156,6 +157,7 @@ export default class LiveSearch extends React.Component {
             year: 'numeric'
           });
 
+          trackEvent('LiveSearch', `click_datePicker`, 'Click option');
           this.submitFilter(`${this.state.searchValue}${dateVal}`, true);
         };
 
@@ -174,13 +176,19 @@ export default class LiveSearch extends React.Component {
             return result;
           }
 
+          const handleClick = filter => {
+            trackEvent('LiveSearch', `click_option [${option.displayTerm}]`, 'Click option');
+            this.submitFilter(filter, true);
+          };
+
           return [
             ...result,
             <SearchOption
               className={classNames({ '_active': selectedIdx == idx, '_first': idx == 0 })}
               key={`search-option-${option.displayTerm}`}
               option={option}
-              clickAction={(filter) => this.submitFilter(filter, true)} />
+              clickAction={handleClick}
+            />
           ];
         }, []);
       }
@@ -399,6 +407,7 @@ export default class LiveSearch extends React.Component {
         // Down arrow
         event.preventDefault();
         if (!_.isEmpty(this.state.searchOptions) || !_.isEmpty(this.state.searchValue)) {
+          trackEvent('LiveSearch', `hit_down_arrow`);
           // Allow the selection of go back when there is a search term.
           const maxLength = _.isEmpty(this.state.searchValue)
             ? this.state.searchOptions.length - 1
@@ -424,6 +433,7 @@ export default class LiveSearch extends React.Component {
         // Up arrow
         event.preventDefault();
         if (!_.isEmpty(this.state.searchOptions)) {
+          trackEvent('LiveSearch', `hit_up_arrow`);
           if (this.state.selectionIndex < 0) {
             this.setState({ optionsVisible: false });
           } else {
@@ -441,6 +451,7 @@ export default class LiveSearch extends React.Component {
         break;
       case 13:
         // Enter
+        trackEvent('LiveSearch', `hit_enter`);
         event.preventDefault();
         if (this.state.searchOptions.length != 1 && this.state.selectionIndex == -1) {
           this.props.submitPhrase(this.state.searchDisplay);
@@ -453,6 +464,7 @@ export default class LiveSearch extends React.Component {
       case 8:
         // Backspace
         if (_.isEmpty(this.state.searchValue) && !_.isEmpty(this.state.pills)) {
+          trackEvent('LiveSearch', `delete_pill_by_backspace`);
           this.deleteFilter(this.state.pills.length - 1);
         }
         break;
@@ -557,6 +569,14 @@ export default class LiveSearch extends React.Component {
     );
   }
 
+  @autobind
+  handlePillClose(pill, idx) {
+    if (!this.isDisabled) {
+      trackEvent('LiveSearch', 'click_pill_close', 'Delete pill');
+      this.deleteFilter(idx);
+    }
+  }
+
   render() {
     const gridClass = classNames('fc-grid', 'fc-list-page-content', {
       'fc-grid-no-gutter': this.props.noGutter
@@ -575,7 +595,7 @@ export default class LiveSearch extends React.Component {
               <PilledInput
                 controls={this.controls}
                 className={classNames({'_active': this.state.isFocused, '_disabled': this.isDisabled})}
-                onPillClose={(pill, idx) => !this.isDisabled && this.deleteFilter(idx)}
+                onPillClose={this.handlePillClose}
                 formatPill={this.formatPill}
                 icon={null}
                 pills={this.state.pills}>
