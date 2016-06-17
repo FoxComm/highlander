@@ -131,7 +131,7 @@ export default class CreditCardForm extends React.Component {
   }
 
   get cardCVV() {
-    return  _.get(this.state, 'card.cvv', '');
+    return _.get(this.state, 'card.cvv', '');
   }
 
   get cardType() {

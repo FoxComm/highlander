@@ -126,8 +126,7 @@ export default class ColumnSelector extends React.Component {
             moveItem={this.moveItem}
             dropItem={this.dropItem}
             checked={checked}
-            onChange={e => this.toggleColumnSelection(id)}>
-        </SelectorItem>
+            onChange={e => this.toggleColumnSelection(id)} />
       );
     });
   }

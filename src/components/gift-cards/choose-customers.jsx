@@ -1,7 +1,11 @@
 /* @flow weak */
+
+// libs
+import _ from 'lodash';
+import React, { PropTypes, Component } from 'react';
 import { autobind } from 'core-decorators';
-import React, { PropTypes } from 'react';
-import { PrimaryButton } from '../common/buttons';
+
+// components
 import SelectableList from '../selectable-list/selectable-list';
 import CustomerRow from './customer-row';
 
@@ -10,47 +14,39 @@ import styles from '../selectable-list/selectable-list.css';
 import type { ItemType } from '../selectable-list/selectable-list';
 
 type Props = {
-  items: Array<ItemType>;
-  onAddCustomers: (selectedItemsMap: {[key: string|number]: any}) => any;
-  toggleVisibility: (visibility: boolean) => void;
+  items: Array<ItemType>,
+  onAddCustomers: (selectedItemsMap: {[key: string|number]: any}) => any,
+  toggleVisibility: (visibility: boolean) => void,
+  clearInputState: Function,
 };
 
-
-export default class ChooseCustomers extends React.Component {
+class ChooseCustomers extends Component {
   props: Props;
 
   @autobind
-  handleClickAddCustomers(event: SyntheticEvent) {
-    event.preventDefault();
+  handleClickAddCustomers() {
     this.props.toggleVisibility(false);
     this.props.onAddCustomers(this.refs.customers.selectedItemsMap());
-  }
+    this.props.clearInputState();
+  };
 
-  @autobind
   renderCustomer(customer: ItemType) {
-    return <CustomerRow customer={customer} />;
+    return <CustomerRow customer={customer} key={customer.id}/>;
   }
 
   render() {
-    const { items } = this.props;
-
-    const buttonDisabled = this.refs.customers && this.refs.customers.selectedIds.length === 0;
-
     return (
       <SelectableList
         popup={false}
-        items={items}
+        items={this.props.items}
         ref="customers"
         emptyMessage="No customers found."
         renderItem={this.renderCustomer}
-      >
-        <PrimaryButton
-          styleName="choose-button"
-          disabled={buttonDisabled}
-          onClick={this.handleClickAddCustomers}>
-          Add Customers
-        </PrimaryButton>
-      </SelectableList>
+        onSelect={this.handleClickAddCustomers}
+        actionTitle="Add Customers" />
     );
   }
 }
+
+export default ChooseCustomers;
+

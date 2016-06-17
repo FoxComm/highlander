@@ -7,12 +7,12 @@ import { Checkbox } from '../checkbox/checkbox';
 import styles from './selectable-list.css';
 
 type Props = {
-  id: number;
-  onToggle: (id: number) => void;
-  checked: boolean;
-  title?: string|Element;
-  children?: string|Element;
-}
+  id: number,
+  onToggle: (id: number) => void,
+  checked: boolean,
+  title?: string|Element,
+  children?: string|Element,
+};
 
 const SelectableItem = (props: Props) => {
   const handleItemClick = (event: SyntheticEvent) => {

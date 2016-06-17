@@ -62,22 +62,25 @@ export default class Typeahead extends React.Component {
   onItemSelected(item) {
     let doHide = true;
 
-    const event = {
-      preventHiding() {
-        doHide = false;
-      }
-    };
-
     if (this.props.onItemSelected) {
+      const event = {
+        preventHiding() {
+          doHide = false;
+        }
+      };
+
       this.props.onItemSelected(item, event);
     }
 
-    if (doHide) {
-      this.setState({
-        showMenu: false,
-        query: '',
-      });
-    }
+    if (doHide) this.clearState();
+  }
+
+  @autobind
+  clearState() {
+    this.setState({
+      showMenu: false,
+      query: '',
+    });
   }
 
   @autobind
@@ -140,33 +143,40 @@ export default class Typeahead extends React.Component {
     });
   }
 
+  renderAlert() {
+    return (
+      <div className="fc-typeahead__need-more-characters">
+        <Alert type={Alert.WARNING}>
+          Please enter at least {this.props.minQueryLength} characters.
+        </Alert>
+      </div>
+    );
+  }
+
   get menuContent() {
-    if (this.state.showAlert) {
-      return (
-        <div className="fc-typeahead__need-more-characters">
-          <Alert type={Alert.WARNING}>
-            Please enter at least {this.props.minQueryLength} characters.
-          </Alert>
-        </div>
-      );
+    if (this.state.showAlert) return this.renderAlert();
+
+    const itemsElement = this.props.itemsElement;
+
+    const ourProps = {
+      updating: this.props.isFetching,
+      toggleVisibility: show => this.toggleVisibility(show),
+    };
+
+    const clearState = {
+      clearInputState: this.clearState,
+    };
+
+
+    if (itemsElement) {
+      return React.cloneElement(itemsElement, { ...ourProps, ...clearState });
     } else {
-      const itemsElement = this.props.itemsElement;
-
-      const ourProps = {
-        updating: this.props.isFetching,
-        toggleVisibility: show => this.toggleVisibility(show),
-      };
-
-      if (itemsElement) {
-        return React.cloneElement(itemsElement, ourProps);
-      } else {
-        return (
-          <TypeaheadItems {...ourProps}
-            onItemSelected={this.onItemSelected}
-            component={this.props.component}
-            items={this.props.items}/>
-        );
-      }
+      return (
+        <TypeaheadItems {...ourProps}
+          component={this.props.component}
+          items={this.props.items}
+          onItemSelected={this.onItemSelected}/>
+      );
     }
   }
 

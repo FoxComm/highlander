@@ -46,7 +46,7 @@ export const operatorsMap = {
   }),
   containsNotAnalyzed: (fieldName, data) => ({
     match: {
-      [fieldName]: {query: data, analyzer: "standard"},
+      [fieldName]: {query: data, analyzer: 'standard'},
     },
   }),
   greater: (fieldName, data) => ({

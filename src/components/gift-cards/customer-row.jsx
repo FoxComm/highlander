@@ -6,14 +6,14 @@ import { Checkbox } from '../checkbox/checkbox';
 
 type Props = {
   customer: {
-    id: number;
-    email: string;
-    phoneNumber?: string;
-    name: string;
-  };
-  checked: boolean;
-  onToggle: (id: number) => void;
-}
+    id: number,
+    email: string,
+    phoneNumber?: string,
+    name: string,
+  },
+  checked: boolean,
+  onToggle: (id: number) => void,
+};
 
 const CustomerRow = (props: Props) => {
   const { customer } = props;
@@ -35,6 +35,10 @@ const CustomerRow = (props: Props) => {
       </div>
     </li>
   );
+};
+
+CustomerRow.defaultProps = {
+  checked: false,
 };
 
 export default CustomerRow;

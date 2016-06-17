@@ -17,22 +17,22 @@ export type ItemType = {
 }
 
 type Props = {
-  className?: string;
-  visible?: boolean;
-  items: Array<ItemType>;
-  onSelect?: (itemIds: Array<number>, event: SyntheticEvent) => any;
-  onBlur?: Function;
-  selectedItemIds: Array<number>;
-  renderItem: (item: ItemType) => Element;
-  actionTitle: string;
-  popup: boolean;
-  emptyMessage?: Element|string;
-}
+  className?: string,
+  visible?: boolean,
+  items: Array<ItemType>,
+  onSelect?: (itemIds: Array<number>, event: SyntheticEvent) => any,
+  onBlur?: Function,
+  selectedItemIds: Array<number>,
+  renderItem: (item: ItemType) => Element,
+  actionTitle: string,
+  popup: boolean,
+  emptyMessage?: Element|string,
+};
 
 type State = {
-  selectedItems: { [id: string|number]: boolean };
-  cachedItemIds: Array<number>;
-}
+  selectedItems: { [id: string|number]: boolean },
+  cachedItemIds: Array<number>,
+};
 
 export default class SelectableList extends Component {
   props: Props;
@@ -87,6 +87,7 @@ export default class SelectableList extends Component {
       return React.cloneElement(itemElement, {
         onToggle: this.handleItemToggle,
         checked: this.state.selectedItems[item.id],
+        key: item.id,
       });
     });
   }
@@ -98,6 +99,16 @@ export default class SelectableList extends Component {
     }, []);
   }
 
+  @autobind
+  handleChooseClick(event: SyntheticEvent): void {
+    event.stopPropagation();
+    event.preventDefault();
+    if (this.props.onSelect) {
+      this.props.onSelect(this.selectedIds, event);
+    }
+    this.clearState();
+  };
+
   selectedItemsMap(): Object {
     return _.reduce(this.props.items, (itemsMap: Object, item: ItemType) => {
       if (this.state.selectedItems[item.id]) {
@@ -108,11 +119,10 @@ export default class SelectableList extends Component {
   }
 
   @autobind
-  handleChooseClick(event: SyntheticEvent): void {
-    event.stopPropagation();
-    if (this.props.onSelect) {
-      this.props.onSelect(this.selectedIds, event);
-    }
+  clearState() {
+    this.setState({
+      selectedItems: {},
+    });
   }
 
   @autobind
@@ -124,7 +134,10 @@ export default class SelectableList extends Component {
 
   get defaultFooter(): Element {
     return (
-      <PrimaryButton styleName="choose-button" onClick={this.handleChooseClick}>
+      <PrimaryButton
+        styleName="choose-button"
+        onClick={this.handleChooseClick}
+        disabled={this.selectedIds.length === 0}>
         {this.props.actionTitle}
       </PrimaryButton>
     );
@@ -138,10 +151,10 @@ export default class SelectableList extends Component {
       );
     }
     return [
-      <ul styleName="items-list">
+      <ul styleName="items-list" key="items-list">
         {this.items}
       </ul>,
-      <div styleName="footer">
+      <div styleName="footer" key="footer">
         {props.children || this.defaultFooter}
       </div>
     ];

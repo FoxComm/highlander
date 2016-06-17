@@ -140,11 +140,15 @@ export default class Upload extends Component {
       [styles.dragActive]: this.state.dragActive,
     });
 
-    return <div className={cls}
-                onClick={this.onClick}
-                onDragOver={this.onDragOver}
-                onDragLeave={this.onDragLeave}
-                onDrop={this.onDrop}>{content}</div>;
+    return (
+      <div className={cls}
+           onClick={this.onClick}
+           onDragOver={this.onDragOver}
+           onDragLeave={this.onDragLeave}
+           onDrop={this.onDrop}>
+        {content}
+      </div>
+    );
   }
 
   render(): Element {
