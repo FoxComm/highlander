@@ -1,0 +1,9 @@
+package: github.com/FoxComm/middlewarehouse
+import:
+  - package: github.com/gin-gonic/gin
+  - package: github.com/jinzhu/gorm
+  - package: github.com/jpfuentes2/go-env
+  - package: github.com/lib/pq
+  - package: github.com/onsi/ginkgo
+  - package: github.com/onsi/gomega
+  - package: github.com/Sirupsen/logrus
