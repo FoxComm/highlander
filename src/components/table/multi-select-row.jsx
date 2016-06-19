@@ -1,19 +1,35 @@
 // libs
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
+import { transitionTo } from 'browserHistory';
 
 // components
 import { Checkbox } from '../checkbox/checkbox';
 import TableCell from '../table/cell';
 import TableRow from '../table/row';
 
-const MultiSelectRow = props => {
-  const { columns, onClick, row, setCellContents, params: {checked, setChecked}, ...rest } = props;
+const MultiSelectRow = (props, context) => {
+  const { columns, row, setCellContents, params: {checked, setChecked}, linkTo, linkParams, ...rest } = props;
+  let { onClick, href } = rest;
+
+  // linkTo is shortcut for creating onClick and href properties which leads to defined behaviour:
+  // single click leads to transition
+  // over click leads to page load
+  if (linkTo) {
+    onClick = (event) => {
+      if (event.button == 0) {
+        event.preventDefault();
+        transitionTo(linkTo, linkParams);
+      }
+    };
+
+    href = context.router.createHref({name: linkTo, params: linkParams});
+  }
 
   const cells = _.reduce(columns, (visibleCells, col) => {
     const cellKey = `row-${col.field}`;
     let cellContents = null;
-    let cellClickAction = onClick;
+    let cellClickAction = null;
 
     const onChange = ({target: { checked }}) => {
       setChecked(checked);
@@ -24,7 +40,7 @@ const MultiSelectRow = props => {
         cellContents = '';
         break;
       case 'selectColumn':
-        cellClickAction = _.noop;
+        cellClickAction = event => event.stopPropagation();
         cellContents = <Checkbox id={`multi-select-${row.id}`} inline={true} checked={checked} onChange={onChange} />;
         break;
       default:
@@ -42,7 +58,7 @@ const MultiSelectRow = props => {
   }, []);
 
   return (
-    <TableRow {...rest}>
+    <TableRow {...rest} href={href} onClick={onClick}>
       {cells}
     </TableRow>
   );
@@ -51,12 +67,19 @@ const MultiSelectRow = props => {
 MultiSelectRow.propTypes = {
   columns: PropTypes.array.isRequired,
   onClick: PropTypes.func,
+  href: PropTypes.string,
+  linkTo: PropTypes.string,
+  linkParams: PropTypes.object,
   row: PropTypes.object.isRequired,
   setCellContents: PropTypes.func.isRequired,
   params: PropTypes.shape({
     checked: PropTypes.bool.isRequired,
     setChecked: PropTypes.func.isRequired,
   }),
+};
+
+MultiSelectRow.contextTypes = {
+  router: PropTypes.object.isRequired,
 };
 
 MultiSelectRow.defaultProps = {

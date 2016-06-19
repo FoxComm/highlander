@@ -131,7 +131,6 @@ export default class EditableSkuRow extends Component<void, Props, State> {
       <MultiSelectRow
         cellKeyPrefix={key}
         columns={columns}
-        onClick={_.noop}
         row={sku}
         params={params}
         setCellContents={this.setCellContents} />

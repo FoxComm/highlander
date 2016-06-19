@@ -4,11 +4,12 @@ import React, { PropTypes } from 'react';
 
 const TableRow = props => {
   const { children, isNew, className, ...rest } = props;
+  const RowTag = rest.href ? 'a' : 'tr';
 
   return (
-    <tr className={classNames('fc-table-tr', {'is-new': isNew }, className)} {...rest}>
+    <RowTag className={classNames('fc-table-tr', {'is-new': isNew }, className)} {...rest}>
       {children}
-    </tr>
+    </RowTag>
   );
 };
 

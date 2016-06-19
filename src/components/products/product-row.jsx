@@ -1,6 +1,5 @@
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
-import { transitionTo } from 'browserHistory';
 import { activeStatus } from '../../paragons/common';
 
 import RoundedPill from '../rounded-pill/rounded-pill';
@@ -20,15 +19,13 @@ function setCellContents(product, field) {
 const ProductRow = (props) => {
   const { product, columns, params } = props;
   const key = `product-${product.id}`;
-  const clickAction = () => {
-    transitionTo('product-details', { productId: product.productId, context: product.context });
-  };
 
   return (
     <MultiSelectRow
       cellKeyPrefix={key}
       columns={columns}
-      onClick={clickAction}
+      linkTo="product-details"
+      linkParams={{productId: product.productId, context: product.context}}
       row={product}
       setCellContents={setCellContents}
       params={params} />

@@ -218,7 +218,8 @@ export default class DynamicGroup extends Component {
         cellKeyPrefix={index}
         key={index}
         columns={columns}
-        onClick={this.goToCustomer(row.id)}
+        linkTo="customer"
+        linkParams={{customerId: row.id}}
         row={row}
         setCellContents={(customer, field) => _.get(customer, field)}
         params={params} />
