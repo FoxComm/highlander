@@ -40,7 +40,7 @@ func IsDevelopment() bool {
 
 func AppDir() string {
 	d, _ := os.Getwd()
-	re := regexp.MustCompile("/middlewarehouse")
+	re := regexp.MustCompile("middlewarehouse")
 	match := re.FindStringIndex(d)
 
 	if match == nil {

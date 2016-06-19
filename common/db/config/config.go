@@ -20,6 +20,7 @@ var (
 // PGConfig is the set of configuration options needed to connect to Postgres.
 type PGConfig struct {
 	User         string
+	Password     string
 	DatabaseName string
 	Host         string
 	SSLMode      string
@@ -27,12 +28,14 @@ type PGConfig struct {
 
 func NewPGConfig() *PGConfig {
 	dbUser := os.Getenv("DB_USER")
+	dbPassword := os.Getenv("DB_PASSWORD")
 	dbName := os.Getenv("DB_NAME")
 	dbHost := os.Getenv("DB_HOST")
 	dbSSLMode := os.Getenv("DB_SSLMODE")
 
 	return &PGConfig{
 		User:         dbUser,
+		Password:     dbPassword,
 		DatabaseName: dbName,
 		Host:         dbHost,
 		SSLMode:      dbSSLMode,
@@ -45,6 +48,9 @@ func Connect(config *PGConfig) (*gorm.DB, error) {
 
 	if config.User != "" {
 		conn = fmt.Sprintf("user=%s %s", config.User, conn)
+	}
+	if config.Password != "" {
+		conn = fmt.Sprintf("password=%s %s", config.Password, conn)
 	}
 	if config.Host != "" {
 		conn = fmt.Sprintf("host=%s %s", config.Host, conn)
