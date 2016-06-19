@@ -28,3 +28,9 @@ maintain an accurate representation of current inventory levels at all times.
 
 The creation of shipments, including the logic for split shipments, lives
 inside this service.
+
+## API Operations
+
+- Modify counts
+- Try to reserve some set of SKUs
+- Try to unreserve some set of SKUs
