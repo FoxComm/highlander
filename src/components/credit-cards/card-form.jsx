@@ -1,6 +1,7 @@
 // libs
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
+import { findDOMNode } from 'react-dom';
 import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
@@ -71,6 +72,9 @@ export default class CreditCardForm extends React.Component {
 
   componentDidMount() {
     this.props.actions.fetchAddresses(this.props.customerId);
+
+    const element = findDOMNode(this);
+    element.scrollIntoView();
   }
 
   get header() {
