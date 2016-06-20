@@ -5,7 +5,7 @@
 import React, { Component, Element, PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
-import { illuminateAttributes, setAttribute } from '../../paragons/form-shadow-object';
+import { trackEvent } from 'lib/analytics';
 
 import RoundedPill from '../rounded-pill/rounded-pill';
 import TextInput from '../forms/text-input';
@@ -63,8 +63,10 @@ export default class Tags extends Component<void, Props, State> {
   handleKeyDown(event: Object) {
     const {key} = event;
     if (key === 'Enter') {
+      trackEvent('Tags', 'hit_enter');
       this.submitTags();
     } else if (key === 'Escape') {
+      trackEvent('Tags', 'hit_escape');
       this.setState({
         isAdding: false,
       });
@@ -78,6 +80,7 @@ export default class Tags extends Component<void, Props, State> {
 
   @autobind
   handleTagToggle() {
+    trackEvent('Tags', 'click_toggle_adding');
     this.setState({ isAdding: !this.state.isAdding });
   }
 

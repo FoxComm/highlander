@@ -3,8 +3,12 @@ export function trackPageView(page, fieldsObject) {
   ga('send', 'pageview', page, fieldsObject);
 }
 
-export function trackEvent(eventCategory, eventAction, eventLabel, fieldsObject) {
-  ga('send', 'event', eventCategory, eventAction, eventLabel, fieldsObject);
+/**
+ * See: https://developers.google.com/analytics/devguides/collection/analyticsjs/events
+ * @method trackEvent(eventCategory, eventAction, eventLabel, ...)
+ */
+export function trackEvent(...args) {
+  ga('send', 'event', ...args);
 }
 
 export function initTracker() {
