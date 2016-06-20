@@ -20,11 +20,19 @@
 #include <botan/pubkey.h>
 #include <botan/x509_key.h>
 
+#include <boost/algorithm/string/find_iterator.hpp>
+
 namespace isaac
 {
     namespace net
     {
-        using split_vect = std::vector<std::string>;
+        using parts_iterator = boost::algorithm::split_iterator<const uint8_t*>;
+        struct part_ranges
+        {
+            parts_iterator header;
+            parts_iterator payload;
+            parts_iterator signature;
+        };
 
         struct context
         {
@@ -46,7 +54,7 @@ namespace isaac
 
             private:
 
-                bool check_signature(const split_vect& parts);
+                bool check_signature(const part_ranges& parts);
                 bool verify_header(const folly::dynamic&);
                 bool verify_user(const folly::dynamic&);
 

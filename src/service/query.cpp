@@ -7,6 +7,7 @@
 #include <memory>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/split.hpp>
 
 //for base64
 #include <boost/archive/iterators/binary_from_base64.hpp>
@@ -19,9 +20,30 @@ namespace isaac
     {
         namespace 
         {
-            std::string base64url_decode(std::string s)
+            bool get_parts(part_ranges& parts, folly::IOBuf& body)
+            {
+                parts_iterator it(body.data(), body.data() + body.length(), 
+                    boost::algorithm::first_finder(".", boost::algorithm::is_equal()));
+
+                parts.header = it;
+                it++;
+                if(it == parts_iterator{}) return false;
+
+                parts.payload = it;
+                it++;
+                if(it == parts_iterator{}) return false;
+
+                parts.signature = it;
+                it++;
+                if(it != parts_iterator{}) return false;
+
+                return true;
+            }
+
+            std::string base64url_decode(parts_iterator p)
             {
                 //convert from base64url to base64
+                std::string s{p->begin(), p->end()};
                 std::transform(std::begin(s), std::end(s), std::begin(s), 
                         [](auto c)
                         {
@@ -39,13 +61,6 @@ namespace isaac
                         );
             }
 
-            bool get_parts(split_vect& parts, folly::IOBuf& body)
-            {
-                std::string b{reinterpret_cast<const char*>(body.data()), body.length()};
-
-                boost::algorithm::split(parts, b, [](auto c){return c == '.';});
-                return parts.size() == 3;
-            }
         }
 
         void query_request_handler::onRequest(std::unique_ptr<proxygen::HTTPMessage> headers) noexcept
@@ -100,19 +115,15 @@ namespace isaac
             delete this;
         }
 
-        bool query_request_handler::check_signature(const split_vect& parts)
+        bool query_request_handler::check_signature(const part_ranges& parts)
         {
-            REQUIRE_EQUAL(parts.size(), 3);
             REQUIRE(_c.verifier);
 
-            std::string msg = parts[0];
-            msg.append(".");
-            msg.append(parts[1]);
-
-            auto sig = base64url_decode(parts[2]);
+            auto msg_size = parts.payload->end() - parts.header->begin();
+            auto sig = base64url_decode(parts.signature);
 
             return _c.verifier->verify_message(
-                    reinterpret_cast<const Botan::byte*>(msg.data()), msg.size(),
+                    reinterpret_cast<const Botan::byte*>(parts.header->begin()), msg_size,
                     reinterpret_cast<const Botan::byte*>(sig.data()), sig.size());
         }
 
@@ -139,7 +150,7 @@ namespace isaac
 
         void query_request_handler::validate(proxygen::HTTPMessage& headers, folly::IOBuf& body) 
         {
-            split_vect parts;
+            part_ranges parts;
             if(!get_parts(parts, body)) 
             {
                 invalid_jwt();
@@ -152,17 +163,18 @@ namespace isaac
                 return;
             }
 
-            auto decoded_header = base64url_decode(parts[0]);
-            auto decoded_payload = base64url_decode(parts[1]);
-
+            auto decoded_header = base64url_decode(parts.header);
             auto header = folly::parseJson(decoded_header);
+
             if(!verify_header(header))
             {
                 invalid_header();
                 return;
             }
 
+            auto decoded_payload = base64url_decode(parts.payload);
             auto payload = folly::parseJson(decoded_payload);
+
             if(!verify_user(payload))
             {
                 invalid_user();
