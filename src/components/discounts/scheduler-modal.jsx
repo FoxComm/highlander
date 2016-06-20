@@ -60,6 +60,7 @@ const SchedulerModal = (props: Props) => {
       actionBlock={actionBlock}>
 
       <FullObjectScheduler
+        parent="Discounts"
         form={form}
         shadow={shadow}
         title={entityCap}

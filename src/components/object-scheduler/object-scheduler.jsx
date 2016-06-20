@@ -7,7 +7,7 @@ import { autobind } from 'core-decorators';
 import moment from 'moment';
 import _ from 'lodash';
 import { isActive } from 'paragons/common';
-import { trackEvent } from 'lib/tracker';
+import { trackEvent } from 'lib/analytics';
 
 import { Dropdown, DropdownItem } from '../dropdown';
 import DateTimePicker from '../date-time-picker/date-time-picker';
@@ -19,6 +19,7 @@ type Props = {
   attributes: Attributes,
   onChange: (attributes: Attributes) => void,
   title: string,
+  parent?: string,
 };
 
 type State = {
@@ -160,9 +161,13 @@ export default class ObjectScheduler extends Component {
     this.props.onChange(attributes);
   }
 
+  trackEvent(...args) {
+    trackEvent(`Scheduler(${this.props.parent || ''})`, ...args);
+  }
+
   @autobind
   handleCancelFrom() {
-    trackEvent('Scheduler', 'click_cancel_from_picker');
+    this.trackEvent('click_cancel_from_picker');
     const attributes = this.setFromTo(null, null);
 
     this.setState({
@@ -173,7 +178,7 @@ export default class ObjectScheduler extends Component {
 
   @autobind
   handleCancelTo() {
-    trackEvent('Scheduler', 'click_cancel_to_picker');
+    this.trackEvent('click_cancel_to_picker');
     this.setState({
       showActiveToPicker: false,
     }, () => this.updateActiveTo(null));
@@ -181,7 +186,7 @@ export default class ObjectScheduler extends Component {
 
   @autobind
   handleShowActiveTo() {
-    trackEvent('Scheduler', 'show_active_to_picker');
+    this.trackEvent('show_active_to_picker');
     this.setState({
       showActiveFromPicker: true,
       showActiveToPicker: true,
@@ -207,13 +212,13 @@ export default class ObjectScheduler extends Component {
   @autobind
   handleClickCalendar() {
     if (this.state.showActiveFromPicker) {
-      trackEvent('Scheduler', 'hide_date_picker');
+      this.trackEvent('hide_date_picker');
       this.setState({
         showActiveFromPicker: false,
         showActiveToPicker: false,
       });
     } else {
-      trackEvent('Scheduler', 'show_date_picker');
+      this.trackEvent('show_date_picker');
       this.setState({
         showActiveFromPicker: true,
         showActiveToPicker: !_.isNull(this.activeTo) && !_.isUndefined(this.activeTo),

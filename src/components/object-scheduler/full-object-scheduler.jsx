@@ -56,7 +56,7 @@ return res;
   }
 
   render(): Element {
-    const { form, shadow, onChange, ...rest } = this.props;
+    const { form, shadow, ...rest } = this.props;
     const attributes = this.illuminateAttributes(form, shadow);
     const innerProps = { ...rest, attributes: attributes, onChange: this.handleChange };
 

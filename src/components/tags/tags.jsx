@@ -18,6 +18,7 @@ type Attributes = { [key:string]: Attribute };
 type Props = {
   attributes: Attributes,
   onChange: (attributes: Attributes) => void,
+  parent?: string,
 };
 
 type State = {
@@ -59,14 +60,18 @@ export default class Tags extends Component<void, Props, State> {
     }, () => this.updateTags(nTags));
   }
 
+  trackEvent(...args) {
+    trackEvent(`Tags(${this.props.parent || ''})`, ...args);
+  }
+
   @autobind
   handleKeyDown(event: Object) {
     const {key} = event;
     if (key === 'Enter') {
-      trackEvent('Tags', 'hit_enter');
+      this.trackEvent('hit_enter');
       this.submitTags();
     } else if (key === 'Escape') {
-      trackEvent('Tags', 'hit_escape');
+      this.trackEvent('hit_escape');
       this.setState({
         isAdding: false,
       });
@@ -80,7 +85,7 @@ export default class Tags extends Component<void, Props, State> {
 
   @autobind
   handleTagToggle() {
-    trackEvent('Tags', 'click_toggle_adding');
+    this.trackEvent('click_toggle_adding');
     this.setState({ isAdding: !this.state.isAdding });
   }
 
