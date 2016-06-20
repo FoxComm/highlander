@@ -1,7 +1,6 @@
 import React, { Component, Element, PropTypes } from 'react';
 
 import _ from 'lodash';
-import { transitionTo } from 'browserHistory';
 
 import MultiSelectRow from '../table/multi-select-row';
 
@@ -12,15 +11,13 @@ function setCellContents(sku, field) {
 const SkuRow = (props) => {
   const { sku, columns, params } = props;
   const key = `sku-${sku.id}`;
-  const clickAction = () => {
-    transitionTo('sku-details', { skuCode: sku.code});
-  };
 
   return (
     <MultiSelectRow
       cellKeyPrefix={key}
       columns={columns}
-      onClick={clickAction}
+      linkTo="sku-details"
+      linkParams={{skuCode: sku.code}}
       row={sku}
       setCellContents={setCellContents}
       params={params} />

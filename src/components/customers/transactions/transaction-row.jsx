@@ -1,7 +1,5 @@
 import React, { PropTypes } from 'react';
-
 import _ from 'lodash';
-import { transitionTo } from 'browserHistory';
 
 import MultiSelectRow from '../../table/multi-select-row';
 
@@ -51,15 +49,13 @@ const setCellContents = (order, field) => {
 const OrderTransactionRow = (props) => {
   const { order, columns, params } = props;
   const key = `order-${order.referenceNumber}`;
-  const clickAction = () => {
-    transitionTo('order', { order: order.referenceNumber });
-  };
 
   return (
     <MultiSelectRow
       cellKeyPrefix={key}
       columns={columns}
-      onClick={clickAction}
+      linkTo="order"
+      linkParams={{order: order.referenceNumber}}
       row={order}
       setCellContents={setCellContents}
       params={params} />

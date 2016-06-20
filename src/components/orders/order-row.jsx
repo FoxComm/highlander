@@ -1,7 +1,6 @@
 import React, { PropTypes } from 'react';
 
 import _ from 'lodash';
-import { transitionTo } from 'browserHistory';
 
 import { DateTime } from '../common/datetime';
 import { Checkbox } from '../checkbox/checkbox';
@@ -84,18 +83,16 @@ const setCellContents = (order, field) => {
 };
 
 
-const OrderRow = (props) => {
+const OrderRow = (props, context) => {
   const { order, columns, params } = props;
   const key = `order-${order.referenceNumber}`;
-  const clickAction = () => {
-    transitionTo('order', { order: order.referenceNumber });
-  };
 
   return (
     <MultiSelectRow
       cellKeyPrefix={key}
       columns={columns}
-      onClick={clickAction}
+      linkTo="order"
+      linkParams={{order: order.referenceNumber}}
       row={order}
       setCellContents={setCellContents}
       params={params} />

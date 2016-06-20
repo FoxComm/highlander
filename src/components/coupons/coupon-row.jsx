@@ -6,7 +6,6 @@ import React, { PropTypes, Element } from 'react';
 
 import _ from 'lodash';
 import { activeStatus } from '../../paragons/common';
-import { transitionTo } from 'browserHistory';
 
 import RoundedPill from '../rounded-pill/rounded-pill';
 import MultiSelectRow from '../table/multi-select-row';
@@ -33,15 +32,13 @@ const setCellContents = (coupon: Object, field: string) => {
 const CouponRow = (props: CouponRowProps) => {
   const { coupon, columns, params } = props;
   const key = `coupon-${coupon.id}`;
-  const clickAction = () => {
-    transitionTo('coupon-details', { couponId: coupon.id });
-  };
 
   return (
     <MultiSelectRow
       cellKeyPrefix={key}
       columns={columns}
-      onClick={clickAction}
+      linkTo="coupon-details"
+      linkParams={{couponId: coupon.id}}
       row={coupon}
       setCellContents={setCellContents}
       params={params} />

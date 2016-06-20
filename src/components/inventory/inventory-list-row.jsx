@@ -2,7 +2,6 @@
 // libs
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
-import { transitionTo } from 'browserHistory';
 
 // components
 import MultiSelectRow from '../table/multi-select-row';
@@ -17,15 +16,13 @@ const setCellContents = (sku, field) => {
 const InventoryListRow = (props) => {
   const { sku, columns, params } = props;
   const key = `inventory-list-${sku.id}`;
-  const clickAction = () => {
-    transitionTo('sku-inventory-details', { skuCode: sku.code });
-  };
 
   return (
     <MultiSelectRow
       cellKeyPrefix={key}
       columns={columns}
-      onClick={clickAction}
+      linkTo="sku-inventory-details"
+      linkParams={{skuCode: sku.code}}
       row={sku}
       setCellContents={setCellContents}
       params={params} />

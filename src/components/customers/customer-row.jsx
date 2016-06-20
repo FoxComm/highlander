@@ -1,12 +1,6 @@
 import React, { PropTypes } from 'react';
-
 import _ from 'lodash';
-import { transitionTo } from 'browserHistory';
 
-import { DateTime } from '../common/datetime';
-import { Checkbox } from '../checkbox/checkbox';
-import Currency from '../common/currency';
-import Link from '../link/link';
 import MultiSelectRow from '../table/multi-select-row';
 
 const setCellContents = (customer, field) => {
@@ -31,15 +25,13 @@ const setCellContents = (customer, field) => {
 const CustomerRow = props => {
   const { customer, columns, params } = props;
   const key = `customer-${customer.id}`;
-  const clickAction = () => {
-    transitionTo('customer', { customerId: customer.id });
-  };
 
   return (
     <MultiSelectRow
       cellKeyPrefix={key}
       columns={columns}
-      onClick={clickAction}
+      linkTo="customer"
+      linkParams={{customerId: customer.id}}
       row={customer}
       setCellContents={setCellContents}
       params={params} />
