@@ -43,6 +43,7 @@ namespace isaac
             std::string base64url_decode(parts_iterator p)
             {
                 //convert from base64url to base64
+                //TODO get rid of this copy
                 std::string s{p->begin(), p->end()};
                 std::transform(std::begin(s), std::end(s), std::begin(s), 
                         [](auto c)
