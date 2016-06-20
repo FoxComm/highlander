@@ -1,6 +1,7 @@
 // libs
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
+import { findDOMNode } from 'react-dom';
 import InputMask from 'react-input-mask';
 import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
@@ -91,6 +92,9 @@ export default class AddressForm extends React.Component {
 
   componentDidMount() {
     this.props.fetchCountry(this.state.countryId);
+
+    const element = findDOMNode(this);
+    element.scrollIntoView();
   }
 
   componentWillReceiveProps(nextProps) {
