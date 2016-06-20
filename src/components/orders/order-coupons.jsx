@@ -3,10 +3,9 @@
 
 import React, { Component, Element } from 'react';
 import _ from 'lodash';
-import classNames from 'classnames';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
-import { configureCoupon } from '../../paragons/coupons';
+import { trackEvent } from 'lib/analytics';
 
 import EditableContentBox from '../content-box/editable-content-box';
 import ContentBox from '../content-box/content-box';
@@ -165,6 +164,18 @@ class OrderCoupons extends Component {
     return renderFn;
   }
 
+  @autobind
+  handleEditAction() {
+    trackEvent('Orders', 'edit_order_coupons');
+    this.props.orderCouponsStartEdit();
+  }
+
+  @autobind
+  handleDoneAction() {
+    trackEvent('Orders', 'edit_order_coupons_done');
+    this.props.orderCouponsStopEdit();
+  }
+
   render(): Element {
     const CouponsContentBox = this.isEditable
         ? ContentBox
@@ -178,11 +189,11 @@ class OrderCoupons extends Component {
         editContent={this.viewContent}
         editFooter={this.editFooter}
         isEditing={this.isEditing}
-        editAction={this.props.orderCouponsStartEdit}
-        doneAction={this.props.orderCouponsStopEdit}
+        editAction={this.handleEditAction}
+        doneAction={this.handleDoneAction}
       />
     );
   }
-};
+}
 
 export default connect(bindStateToProps, CouponActions)(OrderCoupons);

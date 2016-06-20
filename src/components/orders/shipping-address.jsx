@@ -1,6 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
+import { trackEvent } from 'lib/analytics';
 
 import AddressDetails from '../addresses/address-details';
 import ChooseShippingAddress from './choose-shipping-address';
@@ -31,6 +32,8 @@ export default class OrderShippingAddress extends Component {
 
   @autobind
   handleToggleEdit() {
+    const eventName = this.state.isEditing ? 'edit_shipping_address_done' : 'edit_shipping_address';
+    trackEvent('Orders', eventName);
     this.setState({ isEditing: !this.state.isEditing });
   }
 
@@ -61,7 +64,7 @@ export default class OrderShippingAddress extends Component {
       ? null
       : this.handleToggleEdit;
 
-    const ShippingAddressContentBox = !readOnly && isCart ? EditableContentBox : ContentBox; 
+    const ShippingAddressContentBox = !readOnly && isCart ? EditableContentBox : ContentBox;
 
     return (
       <ShippingAddressContentBox

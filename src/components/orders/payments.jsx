@@ -2,6 +2,7 @@ import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
+import { trackEvent } from 'lib/analytics';
 
 import * as paymentActions from '../../modules/orders/payment-methods';
 
@@ -98,12 +99,17 @@ export default class Payments extends React.Component {
 
   get editingActions() {
     if (!this.props.payments.isAdding) {
-      return <AddButton onClick={this.props.orderPaymentMethodStartAdd} />;
+      const handleClick = () => {
+        trackEvent('Orders', 'add_new_payment_method');
+        this.props.orderPaymentMethodStartAdd();
+      };
+      return <AddButton onClick={handleClick} />;
     }
   }
 
   @autobind
   doneAction() {
+    trackEvent('Orders', 'edit_payment_method_done');
     this.props.orderPaymentMethodStopEdit();
   }
 
@@ -176,7 +182,10 @@ export default class Payments extends React.Component {
       : EditableContentBox;
 
     const isCheckingOut = _.get(props, 'order.isCheckingOut', false);
-    const editAction = isCheckingOut ? null : props.orderPaymentMethodStartEdit;
+    const editAction = isCheckingOut ? null : () => {
+      trackEvent('Orders', 'edit_payment_method');
+      props.orderPaymentMethodStartEdit();
+    };
 
     return (
       <PaymentsContentBox
