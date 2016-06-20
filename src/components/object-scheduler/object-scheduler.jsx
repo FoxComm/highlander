@@ -6,9 +6,8 @@ import React, { Component, Element, PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import moment from 'moment';
 import _ from 'lodash';
-import { isActive } from '../../paragons/common';
-
-import { illuminateAttributes, setAttribute, setAttributes } from '../../paragons/form-shadow-object';
+import { isActive } from 'paragons/common';
+import { trackEvent } from 'lib/tracker';
 
 import { Dropdown, DropdownItem } from '../dropdown';
 import DateTimePicker from '../date-time-picker/date-time-picker';
@@ -163,6 +162,7 @@ export default class ObjectScheduler extends Component {
 
   @autobind
   handleCancelFrom() {
+    trackEvent('Scheduler', 'click_cancel_from_picker');
     const attributes = this.setFromTo(null, null);
 
     this.setState({
@@ -173,6 +173,7 @@ export default class ObjectScheduler extends Component {
 
   @autobind
   handleCancelTo() {
+    trackEvent('Scheduler', 'click_cancel_to_picker');
     this.setState({
       showActiveToPicker: false,
     }, () => this.updateActiveTo(null));
@@ -180,6 +181,7 @@ export default class ObjectScheduler extends Component {
 
   @autobind
   handleShowActiveTo() {
+    trackEvent('Scheduler', 'show_active_to_picker');
     this.setState({
       showActiveFromPicker: true,
       showActiveToPicker: true,
@@ -205,24 +207,18 @@ export default class ObjectScheduler extends Component {
   @autobind
   handleClickCalendar() {
     if (this.state.showActiveFromPicker) {
+      trackEvent('Scheduler', 'hide_date_picker');
       this.setState({
         showActiveFromPicker: false,
         showActiveToPicker: false,
       });
     } else {
+      trackEvent('Scheduler', 'show_date_picker');
       this.setState({
         showActiveFromPicker: true,
         showActiveToPicker: !_.isNull(this.activeTo) && !_.isUndefined(this.activeTo),
       });
     }
-  }
-
-  @autobind
-  handleClickCloseFrom() {
-    this.setState({
-      showActiveFromPicker: false,
-      showActiveToPicker: false,
-    });
   }
 
   render(): Element {
