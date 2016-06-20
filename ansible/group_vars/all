@@ -80,6 +80,9 @@ gatling_continuous_seeds_cmd: seeds.ContinuousSeeds
 
 # backups
 backup_bucket: test-backups
+backup_service_key: /etc/keys/gce_backup_service_key.json
+db_backup_bucket: test-backups
+db_backup_dir: /mnt/backups
 
 
 # Google OAuth
