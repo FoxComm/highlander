@@ -162,6 +162,7 @@ class CouponPage extends Component {
   @autobind
   handleCancel(): void {
     this.props.dispatch(push('/coupons'));
+    this.props.actions.couponsGenerationReset();
   }
 
   @autobind

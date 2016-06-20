@@ -43,7 +43,7 @@ export function createEmptyCoupon() {
         usageRules: { type: 'usageRules', ref: 'usageRules' },
       },
     },
-    promotion: null
+    promotion: ''
   };
 
   return configureCoupon(coupon);
