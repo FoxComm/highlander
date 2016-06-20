@@ -13,6 +13,7 @@ import { getStore } from '../../../lib/store-creator';
 import WaitAnimation from '../../common/wait-animation';
 import { PrimaryButton } from '../../../components/common/buttons';
 import SectionTitle from '../../section-title/section-title';
+import Shipment from './shipment';
 
 // types
 import type AsyncState from '../../../lib/async-action-creator';
@@ -65,10 +66,20 @@ class Shipments extends Component<void, Props, void> {
 
   get shipments() {
     const { shipments } = this.props;
-    if (!shipments.length)
+    if (!shipments.length) {
       return null;
+    }
 
-    return <span>shipments: <span>{shipments.length}</span></span>;
+    return (
+      <div>
+        {shipments.map((shipment, index) => (
+          <Shipment
+            index={index + 1}
+            total={shipments.length}
+            details={shipment} />
+        ))}
+      </div>
+    );
   }
 
   get unshippedItems() {
@@ -82,7 +93,9 @@ class Shipments extends Component<void, Props, void> {
   render(): Element {
     return (
       <div>
-        <SectionTitle className="fc-grid-gutter fc-notes-section-title" title="Shipments">{this.controls}</SectionTitle>
+        <SectionTitle title="Shipments">
+          {this.controls}
+        </SectionTitle>
         {this.data}
       </div>
     );
