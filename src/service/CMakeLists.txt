@@ -5,4 +5,4 @@ include_directories(..)
 
 file(GLOB src *.cpp)
 
-#add_library(isaac_service STATIC ${src})
+add_library(isaac_service STATIC ${src})

@@ -12,7 +12,8 @@ find_package(Boost COMPONENTS system program_options filesystem regex iostreams 
 link_directories(${Boost_LIBRARY_DIRS})
 include_directories(
     ${Boost_INCLUDE_DIRS})
+include_directories(/usr/include/botan-1.10/)
 
-set(MISC_LIBRARIES libpthread.so librt.so proxygenlib proxygenhttpserver wangle folly ssl crypto glog gflags)
+set(MISC_LIBRARIES libpthread.so librt.so proxygenlib proxygenhttpserver wangle folly ssl crypto glog gflags botan-1.10 double-conversion)
 
 add_subdirectory(src)
