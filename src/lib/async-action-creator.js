@@ -6,8 +6,17 @@ import _ from 'lodash';
 // helpers
 import createStore, { getStore } from './store-creator';
 
+export type AsyncState = {
+  isRunning: boolean;
+  isCompleted: boolean;
+  isCanceled: boolean;
+  isSucceeded: boolean;
+  data: any;
+  error: any;
+  state: any;
+};
 
-export const initialState = {
+export const initialState: AsyncState = {
   //flag, that is set when operation is running
   isRunning: false,
   //flag, that is set when operation is completed (canceled/succeeded/failed - doesn't matter)

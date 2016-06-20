@@ -23,13 +23,12 @@ const reducers = {
 };
 
 function load(actions: Object, state: Object, referenceNumber: string): Function {
-  return dispatch => Promise.resolve(shipments)
-    .then(
-      data => {
-        dispatch(actions.setData(data));
-        return data;
-      }
-    );
+  return dispatch => new Promise(resolve => {
+    setTimeout(()=>{
+      dispatch(actions.setData(shipments));
+      resolve(shipments);
+    }, 500);
+  });
 }
 
 const { actions, reducer } = createStore({
