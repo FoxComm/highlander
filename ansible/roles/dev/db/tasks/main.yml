@@ -138,7 +138,7 @@
   sudo: true
 
 - name: Setup cron for db backup
-  cron: name="db backup" minute="30" hour="4" job="{{usr_local}}/backup_db.sh {{db_backup_dir}}/{{db_name}}_$(date +%F_%H_%M) {{db_name}}" 
+  cron: name="db backup" minute="30" hour="4" job="{{usr_local}}/backup_db.sh {{db_backup_dir}}/{{db_name}}_$(date +%F_%H_%M) {{db_name}}"
   sudo: true
 
 - name: Reload Systemd for Materilized Views
@@ -152,7 +152,7 @@
 - name: Start Bottledwater
   service: name=bottledwater state=started enabled=yes sleep=10
   sudo: true
-  
+
 - name: Start backup_mount service
   service: name=backup_mount state=started enabled=yes sleep=5
   sudo: true

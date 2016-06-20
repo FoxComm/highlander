@@ -1,6 +1,7 @@
 [Service]
 WorkingDirectory=/usr/local
-ExecStart=/usr/bin/gcsfuse --key-file={{backup_service_key}} {{db_backup_bucket}} {{db_backup_dir}}
+ExecStart=/usr/bin/gcsfuse --foreground --key-file={{backup_service_key}} {{db_backup_bucket}} {{db_backup_dir}}
+User={{user}}
 Restart=always
 StandardOutput=syslog
 StandardError=syslog
