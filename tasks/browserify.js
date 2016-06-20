@@ -10,8 +10,6 @@ const runSequence = require('run-sequence');
 const affectsServer = require('./server').affectsServer;
 const envify = require('envify/custom');
 
-process.env.NODE_PATH = `${process.env.NODE_PATH}:${path.resolve('./src')}`;
-
 function setDemoAuthToken() {
   /*  The demo site is protected by basic auth. All requests from javascript
    *  require basic auth headers. This will create the basic auth base64 encoded
