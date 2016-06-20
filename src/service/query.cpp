@@ -25,11 +25,12 @@ namespace isaac
                 std::transform(std::begin(s), std::end(s), std::begin(s), 
                         [](auto c)
                         {
-                        if(c == '-') return '+';
-                        else if(c == '_') return '/';
-                        return c;
+                            if(c == '-') return '+';
+                            else if(c == '_') return '/';
+                            return c;
                         });
 
+                //decode base64
                 using namespace boost::archive::iterators;
                 using it = transform_width<binary_from_base64<std::string::const_iterator>, 8, 6>;
                 return boost::algorithm::trim_right_copy_if(
@@ -138,7 +139,6 @@ namespace isaac
 
         void query_request_handler::validate(proxygen::HTTPMessage& headers, folly::IOBuf& body) 
         {
-            //Split JWT token into parts
             split_vect parts;
             if(!get_parts(parts, body)) 
             {
