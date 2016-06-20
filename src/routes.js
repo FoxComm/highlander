@@ -43,7 +43,7 @@ import Products from './components/products/products';
 import ProductPage from './components/products/page';
 import ProductForm from './components/products/product-form';
 import ProductImages from './components/products/images';
-import Shipments from './components/orders/shipments';
+import Shipments from './components/orders/shipments/shipments';
 import Skus from './components/skus/skus';
 import SkusListPage from './components/skus/list-page';
 import SkuPage from './components/skus/page';
