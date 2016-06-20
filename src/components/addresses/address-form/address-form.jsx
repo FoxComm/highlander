@@ -31,7 +31,7 @@ const sortCountries = createSelector(
 
 const countryIdFromProps = (props) => {
   const defaultCountryId = _.get(_.find(props.countries, { alpha2: 'US' }), 'id');
-  const countryId = _.get(props, 'address.countryId', defaultCountryId);
+  const countryId = _.get(props, 'address.region.countryId', defaultCountryId);
   return countryId;
 };
 
@@ -84,7 +84,7 @@ export default class AddressForm extends React.Component {
 
     this.state = {
       countryId: countryId,
-      stateId: null,
+      stateId: _.get(this.props, ['address', 'region', 'id'], ''),
       phone: _.get(this.props, ['address', 'phoneNumber'], ''),
     };
   }
