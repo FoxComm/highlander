@@ -1,6 +1,6 @@
 {
     "variables" : {
-        "base_image": "ubuntu-1510-wily-v20160123"
+        "base_image": "base-1466535643"
     },
     "builders" : [
         {

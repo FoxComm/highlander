@@ -17,9 +17,11 @@
     - jq
     - make
     - python-httplib2
+    - python-pip
     - python-software-properties
     - software-properties-common
     - tmux
+    - vim
     - nmap
     - htop
     - unzip

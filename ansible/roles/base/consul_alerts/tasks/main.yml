@@ -21,6 +21,7 @@
 
 - name: Copy Configuration to Consul KV
   shell: consulate kv restore -f {{home}}/config.json
+  when: not packing
 
 - name: Reload Systemd for Consul Alerts
   sudo: yes

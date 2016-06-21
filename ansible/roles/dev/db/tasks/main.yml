@@ -13,7 +13,7 @@
   sudo: true
 
 - name: Create Db
-  postgresql_db: name={{phoenix_db_name}}
+  postgresql_db: name={{phoenix_db_name}} encoding='UTF-8' lc_ctype='en_US.UTF-8' lc_collate='en_US.UTF-8' template='template0'
   sudo: true
 
 - name: Configure Db Users

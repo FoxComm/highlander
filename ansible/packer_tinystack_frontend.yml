@@ -9,13 +9,12 @@
     packing: true
 
   roles:
-    - { role: base/common}
     - { role: base/ssh_keys}
-    - { role: base/consul}
-    - { role: base/consul_agent}
     - { role: base/rsyslog, sudo: yes }
-    - { role: base/node}
     - { role: base/balancer, sudo: yes }
     - { role: base/ashes }
     - { role: base/firebird }
     - { role: base/firebrand }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml

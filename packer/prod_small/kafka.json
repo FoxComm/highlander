@@ -1,7 +1,7 @@
 {
     
     "variables" : {
-        "base_image": "base-1464993453"
+        "base_image": "base-1466532704"
     },
     "builders" : [
         {
