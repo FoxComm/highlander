@@ -15,6 +15,10 @@
   template: src=consul_alerts.service dest="{{dest_services}}/consul_alerts.service"
   sudo: true
 
+- name: Copy Configuration to Consul KV
+  shell: consulate kv restore -f {{home}}/config.json
+  when: not packing
+
 - name: Reload Systemd for Consul Alerts
   sudo: yes
   command: systemctl daemon-reload

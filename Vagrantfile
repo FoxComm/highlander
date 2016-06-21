@@ -59,12 +59,12 @@ def expose_ashes(config)
 end
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "ubuntu/wily64"
+  config.vm.box = "boxcutter/ubuntu1604"
 
   tune_vm(config, cpus: $vb_cpu, memory: $vb_memory)
 
   config.vm.provider :vmware_fusion do |v, override|
-    override.vm.box= "boxcutter/ubuntu1510"
+    override.vm.box= "boxcutter/ubuntu1604"
   end
 
   config.vm.provider :google do |g, override|
@@ -77,7 +77,7 @@ Vagrant.configure("2") do |config|
     g.google_json_key_location = ENV['GOOGLE_JSON_KEY_LOCATION']
 
     g.machine_type = "n1-standard-2"
-    g.image = "base-1462485956"
+    g.image = "base-1466535643"
     g.disk_size = 20
     g.zone = "us-central1-a"
     g.tags = ['vagrant', 'no-ports']
@@ -95,7 +95,7 @@ Vagrant.configure("2") do |config|
 
     app.vm.provision "shell", inline: "apt-get install -y python-minimal"
     app.vm.provision "ansible" do |ansible|
-        ansible.verbose = "vv"
+        ansible.verbose = "vvv"
         ansible.playbook = "ansible/vagrant_appliance.yml"
           ansible.extra_vars = {
               user: $user
@@ -108,7 +108,7 @@ Vagrant.configure("2") do |config|
     expose_backend_ports(app)
     app.vm.provision "shell", inline: "apt-get install -y python-minimal"
     app.vm.provision "ansible" do |ansible|
-          ansible.verbose = "vv"
+          ansible.verbose = "vvv"
           ansible.playbook = "ansible/vagrant_backend.yml"
           ansible.extra_vars = {
               user: $user
@@ -125,7 +125,7 @@ Vagrant.configure("2") do |config|
 
       app.vm.provision "shell", inline: "apt-get install -y python-minimal"
       app.vm.provision "ansible" do |ansible|
-          ansible.verbose = "vv"
+          ansible.verbose = "vvv"
           ansible.playbook = "ansible/vagrant_greenriver.yml"
           ansible.extra_vars = {
               user: $user,

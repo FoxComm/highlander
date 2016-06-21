@@ -21,6 +21,4 @@
   roles:
     - { role: base/ssh_keys}
     - { role: base/rsyslog, sudo: yes }
-    - { role: base/consul_agent}
-    - { role: base/scala}
     - { role: base/greenriver}

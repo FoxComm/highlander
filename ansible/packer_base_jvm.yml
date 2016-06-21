@@ -10,4 +10,5 @@
 
   roles:
     - {role: base/consul_agent}
+    - {role: base/consul_alerts}
     - {role: base/scala}

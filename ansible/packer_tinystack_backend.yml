@@ -9,12 +9,7 @@
     packing: true
 
   roles:
-    - { role: base/common}
     - { role: base/ssh_keys}
-    - { role: base/consul}
-    - { role: base/consul_agent}
-    - { role: base/consul_alerts}
-    - { role: base/scala}
     - { role: base/confluence}
     - { role: base/zookeeper}
     - { role: base/kafka}
@@ -25,3 +20,6 @@
     - { role: base/kibana, sudo: yes }
     - { role: base/phoenix}
     - { role: base/greenriver}
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml

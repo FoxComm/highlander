@@ -1,6 +1,6 @@
 {
     "variables" : {
-        "base_image": "ubuntu-1510-wily-v20160123"
+        "base_image": "base-1466535643"
     },
     "builders" : [
         {
@@ -9,11 +9,11 @@
             "project_id" : "foxcomm-staging",
             "source_image": "{{user `base_image`}}",
             "zone": "us-central1-a",
-            "image_name": "base-{{timestamp}}",
+            "image_name": "base-node-{{timestamp}}",
             "image_description": "base image used for provisioning",
-            "instance_name": "packer-base-{{uuid}}",
+            "instance_name": "packer-base-node-{{uuid}}",
             "machine_type": "n1-standard-2",
-            "tags": ["no-ip", "packer-base"],
+            "tags": ["no-ip", "packer-base-node"],
             "use_internal_ip": true,
             "ssh_username" : "ubuntu"
         }
