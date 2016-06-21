@@ -32,7 +32,7 @@ export default class Shipment extends Component<void, Props, void> {
   props: Props;
 
   @autobind
-  renderRow(row, index) {
+  renderRow(row: Object, index: number): Element {
     return (
       <ShipmentRow
         key={index}

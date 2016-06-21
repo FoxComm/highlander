@@ -85,8 +85,9 @@ class Shipments extends Component<void, Props, void> {
 
   get unshippedItems() {
     const { unshippedItems } = this.props;
-    if (!unshippedItems.length)
+    if (!unshippedItems.length) {
       return null;
+    }
 
     return <span>unshipped items: <span>{unshippedItems.length}</span></span>;
   }
