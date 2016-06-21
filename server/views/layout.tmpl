@@ -26,6 +26,7 @@
         exDescription: message,
         exFatal: fatal || false
       });
+      ga('send', 'event', 'js_error', message);
     }
 
     window.onerror = function(errorMsg, url, lineNumber) {
