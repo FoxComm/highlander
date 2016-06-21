@@ -13,6 +13,7 @@
     - { role: base/ssh_keys}
     - { role: base/consul}
     - { role: base/consul_agent}
+    - { role: base/consul_alerts}
     - { role: base/rsyslog, sudo: yes }
     - { role: base/node}
     - { role: base/balancer, sudo: yes }

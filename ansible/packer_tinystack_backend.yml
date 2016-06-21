@@ -13,6 +13,7 @@
     - { role: base/ssh_keys}
     - { role: base/consul}
     - { role: base/consul_agent}
+    - { role: base/consul_alerts}
     - { role: base/scala}
     - { role: base/confluence}
     - { role: base/zookeeper}
