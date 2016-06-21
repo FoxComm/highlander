@@ -8,15 +8,18 @@ import (
 	"testing"
 
 	"github.com/Sirupsen/logrus"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 
 	"github.com/FoxComm/middlewarehouse/common"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
 )
 
+type LoggingTestSuite struct {
+	suite.Suite
+}
+
 func TestLogging(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "Logging Tests")
+	suite.Run(t, new(LoggingTestSuite))
 }
 
 var (
@@ -29,111 +32,110 @@ var (
 	stdout *os.File
 )
 
-var _ = BeforeSuite(func() {
+func (suite *LoggingTestSuite) SetupSuite() {
 	originalEnv = os.Getenv("GOENV")
 	os.Setenv("GOENV", "test2")
-})
+}
 
-var _ = AfterSuite(func() {
+func (suite *LoggingTestSuite) TearDownSuite() {
 	os.Setenv("GOENV", originalEnv)
 
 	// close the Pipe and reset os.Stdout
 	stdout.Close()
 	os.Stdout = originalStdout
-})
+}
 
-var _ = Describe("The Logger", func() {
-	AfterEach(func() {
-		destroyTestLogfile(common.AppDir() + "/logs/testservice.test2.log")
-	})
+func (suite *LoggingTestSuite) TearDownTest() {
+	destroyTestLogfile(common.AppDir() + "/logs/testservice.test2.log")
+}
 
-	It("creates a log file", func() {
-		_ = NewLogger("TestService", "debug")
-		_, err := os.Open(common.AppDir() + "/logs/testservice.test2.log")
-		Expect(err).NotTo(HaveOccurred())
-	})
+func (suite *LoggingTestSuite) TestCreateLogFile() {
+	_ = NewLogger("TestService", "debug")
+	_, err := os.Open(common.AppDir() + "/logs/testservice.test2.log")
+	assert.Nil(suite.T(), err)
+}
 
-	It("Makes a basic log statement", func() {
-		l := NewLogger("TestService", "info")
-		l.Infof("testing ...")
-		result, err := parsePatternFromLog(common.AppDir()+"/logs/testservice.test2.log", "testing")
-		Expect(err).NotTo(HaveOccurred())
-		Expect(result).To(BeTrue(), "Log file contains log message.")
-	})
+func (suite *LoggingTestSuite) TestBasicLogStatement() {
+	l := NewLogger("TestService", "info")
+	l.Infof("testing ...")
+	result, err := parsePatternFromLog(common.AppDir()+"/logs/testservice.test2.log", "testing")
+	if assert.Nil(suite.T(), err) {
+		assert.True(suite.T(), result, "Log file contains log message.")
+	}
+}
 
-	It("Ignores lower logging levels", func() {
-		l := NewLogger("TestService", "warn")
-		l.Debugf("testing debug")
-		result, err := parsePatternFromLog(common.AppDir()+"/logs/testservice.test2.log", "testing debug")
-		Expect(err).NotTo(HaveOccurred())
-		Expect(result).To(BeFalse(), "Log file set to warn recorded a debug log level")
-	})
+func (suite *LoggingTestSuite) TestLowerLoggingLevel() {
+	l := NewLogger("TestService", "warn")
+	l.Debugf("testing debug")
+	result, err := parsePatternFromLog(common.AppDir()+"/logs/testservice.test2.log", "testing debug")
+	if assert.Nil(suite.T(), err) {
+		assert.False(suite.T(), result, "Log file set to warn recorded a debug log level")
+	}
+}
 
-	It("logs the same log level", func() {
-		l := NewLogger("TestService", "warn")
-		l.Warnf("testing warn")
-		result, _ := parsePatternFromLog(common.AppDir()+"/logs/testservice.test2.log", "testing warn")
-		Expect(result).To(BeTrue(), "Log file set to warn didnt record a warning log msg.")
-	})
+func (suite *LoggingTestSuite) TestSameLoggingLevel() {
+	l := NewLogger("TestService", "warn")
+	l.Warnf("testing warn")
+	result, _ := parsePatternFromLog(common.AppDir()+"/logs/testservice.test2.log", "testing warn")
+	assert.True(suite.T(), result, "Log file set to warn didnt record a warning log msg.")
+}
 
-	It("logs a higher log level", func() {
-		l := NewLogger("TestService", "warn")
-		l.Errorf("testing error")
-		result, _ := parsePatternFromLog(common.AppDir()+"/logs/testservice.test2.log", "testing error")
-		Expect(result).To(BeTrue(), "Log file set to warn didnt record an error log msg.")
-	})
+func (suite *LoggingTestSuite) TestHigherLoggingLevel() {
+	l := NewLogger("TestService", "warn")
+	l.Errorf("testing error")
+	result, _ := parsePatternFromLog(common.AppDir()+"/logs/testservice.test2.log", "testing error")
+	assert.True(suite.T(), result, "Log file set to warn didnt record an error log msg.")
+}
 
-	It("logs extra fields", func() {
-		l := NewLogger("TestService", "warn")
-		l.Errorf("testing error", M{"hello": "there"})
-		result, _ := parsePatternFromLog(common.AppDir()+"/logs/testservice.test2.log", "hello")
-		Expect(result).To(BeTrue(), "Log file set to error didnt record extra fields in map.")
-		result2, _ := parsePatternFromLog(common.AppDir()+"/logs/testservice.test2.log", "there")
-		Expect(result2).To(BeTrue(), "Log file set to error didnt record extra fields in map.")
-	})
+func (suite *LoggingTestSuite) TestExtraFields() {
+	l := NewLogger("TestService", "warn")
+	l.Errorf("testing error", M{"hello": "there"})
+	result, _ := parsePatternFromLog(common.AppDir()+"/logs/testservice.test2.log", "hello")
+	assert.True(suite.T(), result, "Log file set to error didnt record extra fields in map.")
+	result2, _ := parsePatternFromLog(common.AppDir()+"/logs/testservice.test2.log", "there")
+	assert.True(suite.T(), result2, "Log file set to error didnt record extra fields in map.")
+}
 
-	It("Supports convenience function E to make logging errors easier", func() {
-		l := NewLogger("TestService", "warn")
-		err := errors.New("Hello, I'll be your error today")
-		l.Errorf("Testing errors now", E(err))
-		result, _ := parsePatternFromLog(common.AppDir()+"/logs/testservice.test2.log", "errorMsg")
-		Expect(result).To(BeTrue(), "Log file set to warn didnt record an error log msg.")
-		result2, _ := parsePatternFromLog(common.AppDir()+"/logs/testservice.test2.log", "Hello, I'll be your error today")
-		Expect(result2).To(BeTrue(), "Log file set to warn didnt record an error log msg.")
-	})
+func (suite *LoggingTestSuite) TestConvenienceFnE() {
+	l := NewLogger("TestService", "warn")
+	err := errors.New("Hello, I'll be your error today")
+	l.Errorf("Testing errors now", E(err))
+	result, _ := parsePatternFromLog(common.AppDir()+"/logs/testservice.test2.log", "errorMsg")
+	assert.True(suite.T(), result, "Log file set to warn didnt record an error log msg.")
+	result2, _ := parsePatternFromLog(common.AppDir()+"/logs/testservice.test2.log", "Hello, I'll be your error today")
+	assert.True(suite.T(), result2, "Log file set to warn didnt record an error log msg.")
+}
 
-	It("transparently logs to an array of loggers", func() {
-		l := NewLogger("TestService", "warn")
-		log2, _ := newLogrus("debug")
-		f, _ := logfile("second_logger", "test2")
-		log2.Out = f
+func (suite *LoggingTestSuite) TestArrayOfLoggers() {
+	l := NewLogger("TestService", "warn")
+	log2, _ := newLogrus("debug")
+	f, _ := logfile("second_logger", "test2")
+	log2.Out = f
 
-		wrapper := l.(*logrusWrapper)
-		wrapper.loggers = []*logrus.Logger{wrapper.loggers[0], log2}
+	wrapper := l.(*logrusWrapper)
+	wrapper.loggers = []*logrus.Logger{wrapper.loggers[0], log2}
 
-		l.Errorf("testing error")
-		result, _ := parsePatternFromLog(common.AppDir()+"/logs/second_logger.test2.log", "testing")
-		Expect(result).To(BeTrue(), "Second logger (representing the os.Stdout logger) is not working.")
-		destroyTestLogfile(common.AppDir() + "/logs/second_logger.test2.log")
-	})
+	l.Errorf("testing error")
+	result, _ := parsePatternFromLog(common.AppDir()+"/logs/second_logger.test2.log", "testing")
+	assert.True(suite.T(), result, "Second logger (representing the os.Stdout logger) is not working.")
+	destroyTestLogfile(common.AppDir() + "/logs/second_logger.test2.log")
+}
 
-	It("creates a log file with Panicf", func() {
-		l := NewLogger("TestService", "panic")
+func (suite *LoggingTestSuite) TestLogPanicf() {
+	l := NewLogger("TestService", "panic")
 
-		defer func() {
-			err := recover()
-			Expect(err).NotTo(BeNil())
-			_, ok := err.(*logrus.Entry)
-			Expect(ok).To(BeTrue())
-		}()
+	defer func() {
+		err := recover()
+		assert.NotNil(suite.T(), err)
+		_, ok := err.(*logrus.Entry)
+		assert.True(suite.T(), ok)
+	}()
 
-		l.Panicf("panicking! ...")
-		result, err := parsePatternFromLog(common.AppDir()+"/logs/testservice.test2.log", "panicking")
-		Expect(err).NotTo(HaveOccurred())
-		Expect(result).To(BeTrue(), "Log file contains log message.")
-	})
-
-})
+	l.Panicf("panicking! ...")
+	result, err := parsePatternFromLog(common.AppDir()+"/logs/testservice.test2.log", "panicking")
+	assert.Nil(suite.T(), err)
+	assert.True(suite.T(), result, "Log file contains log message.")
+}
 
 func destroyTestLogfile(filename string) {
 	err := os.Remove(filename)

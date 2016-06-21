@@ -1,6 +1,3 @@
-dependencies:
-	go get github.com/onsi/ginkgo/ginkgo
-
 build:
 	go build main.go
 
