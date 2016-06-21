@@ -157,7 +157,7 @@ export default class LiveSearch extends React.Component {
             year: 'numeric'
           });
 
-          trackEvent('LiveSearch', `click_datePicker`, 'Click option');
+          trackEvent('LiveSearch', 'click_datePicker', 'Click date picker');
           this.submitFilter(`${this.state.searchValue}${dateVal}`, true);
         };
 
@@ -177,7 +177,7 @@ export default class LiveSearch extends React.Component {
           }
 
           const handleClick = filter => {
-            trackEvent('LiveSearch', `click_option [${option.displayTerm}]`, 'Click option');
+            trackEvent('LiveSearch', `click_option [${option.displayTerm}]`);
             this.submitFilter(filter, true);
           };
 
@@ -407,7 +407,7 @@ export default class LiveSearch extends React.Component {
         // Down arrow
         event.preventDefault();
         if (!_.isEmpty(this.state.searchOptions) || !_.isEmpty(this.state.searchValue)) {
-          trackEvent('LiveSearch', `hit_down_arrow`);
+          trackEvent('LiveSearch', 'hit_down_arrow');
           // Allow the selection of go back when there is a search term.
           const maxLength = _.isEmpty(this.state.searchValue)
             ? this.state.searchOptions.length - 1
@@ -433,7 +433,7 @@ export default class LiveSearch extends React.Component {
         // Up arrow
         event.preventDefault();
         if (!_.isEmpty(this.state.searchOptions)) {
-          trackEvent('LiveSearch', `hit_up_arrow`);
+          trackEvent('LiveSearch', 'hit_up_arrow');
           if (this.state.selectionIndex < 0) {
             this.setState({ optionsVisible: false });
           } else {
@@ -451,7 +451,7 @@ export default class LiveSearch extends React.Component {
         break;
       case 13:
         // Enter
-        trackEvent('LiveSearch', `hit_enter`);
+        trackEvent('LiveSearch', 'hit_enter');
         event.preventDefault();
         if (this.state.searchOptions.length != 1 && this.state.selectionIndex == -1) {
           this.props.submitPhrase(this.state.searchDisplay);
@@ -464,7 +464,7 @@ export default class LiveSearch extends React.Component {
       case 8:
         // Backspace
         if (_.isEmpty(this.state.searchValue) && !_.isEmpty(this.state.pills)) {
-          trackEvent('LiveSearch', `delete_pill_by_backspace`);
+          trackEvent('LiveSearch', 'delete_pill_by_backspace');
           this.deleteFilter(this.state.pills.length - 1);
         }
         break;
