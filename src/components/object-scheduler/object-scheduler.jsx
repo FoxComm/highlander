@@ -12,8 +12,8 @@ import { trackEvent } from 'lib/analytics';
 import { Dropdown, DropdownItem } from '../dropdown';
 import DateTimePicker from '../date-time-picker/date-time-picker';
 
-type Attribute = { t: string, v: any };
-type Attributes = { [key:string]: Attribute };
+export type Attribute = { t: string, v: any };
+export type Attributes = { [key:string]: Attribute };
 
 type Props = {
   attributes: Attributes,
@@ -161,7 +161,7 @@ export default class ObjectScheduler extends Component {
     this.props.onChange(attributes);
   }
 
-  trackEvent(...args) {
+  trackEvent(...args: any[]) {
     trackEvent(`Scheduler(${this.props.parent || ''})`, ...args);
   }
 

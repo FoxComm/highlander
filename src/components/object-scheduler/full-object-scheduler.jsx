@@ -8,9 +8,7 @@ import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 
 import ObjectScheduler from './object-scheduler';
-
-type Attribute = { t: string, v: any };
-type Attributes = { [key:string]: Attribute };
+import type {Attributes} from './object-scheduler';
 
 type Props = {
   form: FormAttributes,
@@ -36,7 +34,7 @@ export default class FullObjectScheduler extends Component {
   }
 
   @autobind
-  handleChange(attributes: Attributes) {
+  handleChange(attributes: Attributes): void {
     const { form, shadow } = this.props;
 
     const updatedAttributes = _.reduce(attributes, (res, attr, key) => {
@@ -49,14 +47,14 @@ export default class FullObjectScheduler extends Component {
           ['form', key], attr.v,
           ['shadow', key], { type: attr.v, ref: key });
       }
-return res;
+      return res;
     }, { form, shadow });
 
     this.props.onChange(updatedAttributes.form, updatedAttributes.shadow);
   }
 
   render(): Element {
-    const { form, shadow, ...rest } = this.props;
+    const { form, shadow, onChange, ...rest } = this.props;
     const attributes = this.illuminateAttributes(form, shadow);
     const innerProps = { ...rest, attributes: attributes, onChange: this.handleChange };
 

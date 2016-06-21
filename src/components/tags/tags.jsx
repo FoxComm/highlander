@@ -60,7 +60,7 @@ export default class Tags extends Component<void, Props, State> {
     }, () => this.updateTags(nTags));
   }
 
-  trackEvent(...args) {
+  trackEvent(...args: any[]) {
     trackEvent(`Tags(${this.props.parent || ''})`, ...args);
   }
 
