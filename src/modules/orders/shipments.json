@@ -5,6 +5,8 @@
       "method": "standardGround57",
       "state": "delivered",
       "shipmentDate": "2016-06-15T17:27:13.670054Z",
+      "carrier": "UPS",
+      "estimatedArrival": "2016-06-15T17:27:13.670054Z",
       "deliveredDate": "2016-06-15T17:27:13.670054Z",
       "trackingNumber": "123487VASM12009",
       "address": {
