@@ -31,5 +31,5 @@ final case class ProductsSearchView()(implicit ec: EC) extends AvroTransformer {
       )
   )
 
-  override def nestedFields() = List("images", "skus", "tags")
+  override def nestedFields() = List("albums", "skus", "tags")
 }
