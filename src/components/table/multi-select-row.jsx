@@ -17,7 +17,7 @@ const MultiSelectRow = (props, context) => {
   // over click leads to page load
   if (linkTo) {
     onClick = (event) => {
-      if (event.button == 0) {
+      if (event.button == 0 && !event.ctrlKey) {
         event.preventDefault();
         transitionTo(linkTo, linkParams);
       }
