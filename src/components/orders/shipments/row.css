@@ -1,0 +1,14 @@
+.summary-row {
+  line-height: 26px;
+  vertical-align: middle;
+
+  &:first-child {
+    white-space: nowrap;
+  }
+}
+
+.row-toggle {
+  margin-right: 10px;
+  font-size: 22px;
+  cursor: pointer;
+}
