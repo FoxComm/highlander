@@ -7,10 +7,6 @@
   copy: src=consul-alerts dest=/usr/local/bin/consul-alerts mode="u+x,g+x,o+x"
   sudo: true
 
-- name: Copy Configuration File
-  copy: src=config.json dest="{{home}}/" mode="u+x,g+x,o+x"
-  sudo: true
-
 - name: Copy Execution File
   template: src=run_consul_alerts.sh dest=/usr/local/bin/run_consul_alerts.sh mode="u+x,g+x,o+x"
   sudo: true

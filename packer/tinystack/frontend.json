@@ -1,7 +1,7 @@
 {
     
     "variables" : {
-        "base_image": "base-node-1466537103"
+        "base_image": "base-node-1466550181"
     },
     "builders" : [
         {
