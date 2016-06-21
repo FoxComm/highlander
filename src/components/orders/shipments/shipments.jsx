@@ -74,6 +74,7 @@ class Shipments extends Component<void, Props, void> {
       <div>
         {shipments.map((shipment, index) => (
           <Shipment
+            key={index}
             index={index + 1}
             total={shipments.length}
             details={shipment} />
