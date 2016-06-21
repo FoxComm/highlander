@@ -4,6 +4,5 @@ dependencies:
 build:
 	go build main.go
 
-test: export GOENV=test
 test:
-	ginkgo -succinct=false -keepGoing=true -r
+	GOENV=test go test $(shell go list ./... | grep -v /vendor/)

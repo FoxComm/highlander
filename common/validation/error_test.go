@@ -1,31 +1,29 @@
 package validation
 
 import (
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 
 	"testing"
 )
 
-func TestInvalidError(t *testing.T) {
-	RegisterFailHander(Fail)
-	RunSpecs(t, "Invalid Error Test")
+type ErrorTestSuite struct {
+	suite.Suite
+	invalids []Invalid
 }
 
-var _ = Context("Invalid Error Type", func() {
-	var (
-		invalids []Invalid
-	)
+func TestErrorSuite(t *testing.T) {
+	suite.Run(t, new(ErrorTestSuite))
+}
 
-	BeforeEach(func() {
-		invalids = []Invalid{
-			Invalid{Field: "Foo", Err: "one two three"},
-		}
-	})
+func (suite *ErrorTestSuite) SetupTest() {
+	suite.invalids = []Invalid{
+		Invalid{Field: "Foo", Err: "one two three"},
+	}
+}
 
-	It("are collated", func() {
-		in := Invalids(invalids)
-		err := in.Error()
-		Expect(err).To(HaveOccurred())
-	})
-})
+func (suite *ErrorTestSuite) TestAreCollated() {
+	in := Invalids(suite.invalids)
+	err := in.Error()
+	assert.NotNil(suite.T(), err)
+}
