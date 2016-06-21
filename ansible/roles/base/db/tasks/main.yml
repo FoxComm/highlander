@@ -154,7 +154,7 @@
   sudo: true
 
 - name: Setup cron for db backup
-  cron: name="db backup" minute="30" hour="4" job="{{usr_local}}backup_db.sh {{db_backup_dir}}/{{db_name}}_$(date +%F_%H_%M) {{db_name}}"
+  cron: name="db backup" user={{user}} minute="30" hour="4" job="{{usr_local}}bin/backup_db.sh {{db_backup_dir}}/{{db_name}}_$(date +%F_%H_%M) {{db_name}}"
   sudo: true
 
 - name: Start backup_mount service
