@@ -105,6 +105,34 @@
     - libpq-dev
     - python-psycopg2
 
+- name: Setup db backup and restore scripts
+  copy: src={{item}} dest="{{usr_local}}bin/{{item}}" mode="0777"
+  with_items:
+    - restore_db.sh
+    - backup_db.sh
+  sudo: true
+
+- name: Download gcsfuse
+  get_url: url=https://github.com/GoogleCloudPlatform/gcsfuse/releases/download/v0.18.2/gcsfuse_0.18.2_amd64.deb dest=/tmp/gcsfuse_0.18.2_amd64.deb
+
+- name: Install gcsfuse
+  shell: dpkg -i /tmp/gcsfuse_0.18.2_amd64.deb
+  sudo: true
+
+- stat: path={{db_backup_dir}}
+  register: db_backup_dir_res
+  sudo: true
+  ignore_errors: True
+
+- name: Create backup dir
+  file: path={{db_backup_dir}} owner={{user}} state=directory mode="0700"
+  when: db_backup_dir_res.stat.exists == False
+  sudo: true
+
+- name: Add service which mount backup dir
+  template: src=backup_mount.service dest={{dest_services}}/backup_mount.service
+  sudo: true
+
 - name: Copy Bottledwater Run File
   template: src=run_bottledwater.sh dest="/usr/local/bin/run_bottledwater.sh" mode="u+x,g+x,o+x"
   sudo: true
@@ -123,4 +151,12 @@
 
 - name: Copy Consul Service File
   template: src=db.json dest="/etc/consul.d/db.json"
+  sudo: true
+
+- name: Setup cron for db backup
+  cron: name="db backup" minute="30" hour="4" job="{{usr_local}}backup_db.sh {{db_backup_dir}}/{{db_name}}_$(date +%F_%H_%M) {{db_name}}"
+  sudo: true
+
+- name: Start backup_mount service
+  service: name=backup_mount state=started enabled=yes sleep=5
   sudo: true
