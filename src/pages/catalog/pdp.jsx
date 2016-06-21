@@ -133,13 +133,15 @@ class Pdp extends Component {
   }
 
   get product(): Product {
-    const product = _.get(this.props.product, 'product.attributes', {});
+    const attributes = _.get(this.props.product, 'attributes', {});
     const price = _.get(this.firstSku, 'attributes.salePrice.v', {});
+    const images = _.get(this.props.product, ['albums', 0, 'images'], []);
+    const imageUrls = images.map(image => image.src);
 
     return {
-      title: _.get(product, 'title.v', ''),
-      description: _.get(product, 'description.v', ''),
-      images: _.get(product, 'images.v', []),
+      title: _.get(attributes, 'title.v', ''),
+      description: _.get(attributes, 'description.v', ''),
+      images: imageUrls,
       currency: _.get(price, 'currency', 'USD'),
       price: _.get(price, 'value', 0),
     };

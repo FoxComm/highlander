@@ -13,18 +13,21 @@ type Attribute = {
 
 type Attributes = { [key:string]: Attribute };
 
-type BakedProduct = {
-  id: number,
-  attributes: Attributes,
-  activeFrom?: string,
-  activeTo?: string,
+type Image = {
+  alt?: string,
+  src: string,
+  title?: string,
 };
 
-type BakedSku = {
-  code: string,
+type Album = {
+  name: string,
+  images: Array<Image>,
+};
+
+type Sku = {
+  id?: number,
   attributes: Attributes,
-  activeFrom?: string,
-  activeTo?: string,
+  albums: Array<Album>,
 };
 
 type Context = {
@@ -35,8 +38,9 @@ type Context = {
 export type ProductResponse = {
   id: number,
   context: Context,
-  product: BakedProduct,
-  skus: Array<BakedSku>,
+  attributes: Attributes,
+  skus: Array<Sku>,
+  albums: Array<Album>,
 };
 
 export function getNextId(current: number): Function {
