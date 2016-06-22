@@ -1,10 +1,16 @@
+/* @flow */
+
 // libs
-import React, { PropTypes } from 'react';
+import React, { Element } from 'react';
 
 // components
 import { ListPageContainer } from '../list-page';
 
-const UserListPage = props => {
+type Props = {
+  children: Element,
+};
+
+const UserListPage = (props: Props) => {
   const navLinks = [
     { title: 'Users', to: 'users' },
     { title: 'Activity Trail', to: 'home' },
@@ -18,10 +24,6 @@ const UserListPage = props => {
       {props.children}
     </ListPageContainer>
   );
-};
-
-UserListPage.propTypes = {
-  children: PropTypes.node,
 };
 
 export default UserListPage;
