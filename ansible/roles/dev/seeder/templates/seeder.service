@@ -7,7 +7,7 @@ StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=seeder
 TimeoutStartSec=5m
-RestartSec=5
+RestartSec=3600
 
 [Install]
 WantedBy=multi-user.target
