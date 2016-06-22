@@ -15,6 +15,11 @@
 
 - name: Delete Phoenix Gatling Resources
   file: path="{{phoenix_dir}}/gatling-classes" state=absent
+  sudo: true
+
+- name: Delete Phoenix Gatling Results
+  file: path="{{phoenix_dir}}/gatling-results" state=absent
+  sudo: true
 
 - name: Syncrhonize Phoenix Gatling Resources
   synchronize: src="{{phoenix_src}}/gatling-classes" dest="{{phoenix_dir}}" delete=yes recursive=yes

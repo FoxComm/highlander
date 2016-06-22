@@ -45,15 +45,15 @@ module "buildagents" {
 ##############################################
 
 variable "tiny_backend_image" {
-    default = "tinystack-backend-1466538590"
+    default = "tinystack-backend-1466553829"
 } 
 
 variable "tiny_frontend_image" {
-    default = "tinystack-frontend-1466537802"
+    default = "tinystack-frontend-1466553814"
 } 
 
 variable "consul_server_image" { 
-    default = "tinystack-consul-server-1466536404"
+    default = "tinystack-consul-server-1466553799"
 }
 
 module "gatling" {
@@ -68,7 +68,7 @@ module "gatling" {
 }
 
 variable "gatling_image" { 
-    default = "base-jvm-1461863900"
+    default = "base-jvm-1466549834"
 }
 
 resource "google_compute_instance" "gatling-gun"{ 

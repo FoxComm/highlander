@@ -1,7 +1,7 @@
 {
     
     "variables" : {
-        "base_image": "base-jvm-1466549834"
+        "base_image": "base-jvm-1466553141"
     },
     "builders" : [
         {
