@@ -19,3 +19,7 @@
 .wide-dropdown {
   max-width: initial;
 }
+
+.mode-dropdown {
+  height: 100%;
+}

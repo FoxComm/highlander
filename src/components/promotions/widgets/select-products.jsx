@@ -150,7 +150,7 @@ class ProductsQualifier extends Component {
     return (
       <div styleName="products">
         <strong styleName="label">{this.props.label}</strong>
-        <Dropdown value={this.state.selectMode} onChange={this.handleChangeSelectMode}>
+        <Dropdown styleName="mode-dropdown" value={this.state.selectMode} onChange={this.handleChangeSelectMode}>
           <DropdownItem value="some">in</DropdownItem>
           <DropdownItem value="any">in any of</DropdownItem>
         </Dropdown>
