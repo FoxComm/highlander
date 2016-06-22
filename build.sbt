@@ -21,8 +21,6 @@ lazy val commonSettings = Seq(
   )
 )
 
-lazy val slickV = "3.1.1"
-
 lazy val scalafmtAll     = taskKey[Unit]("scalafmt all the things")
 lazy val scalafmtTestAll = taskKey[Unit]("scalafmtTest all the things")
 
@@ -35,44 +33,29 @@ lazy val phoenixScala = (project in file(".")).
     name      := "phoenix-scala",
     version   := "1.0",
     /** Work around SBT warning for multiple dependencies */
-    dependencyOverrides ++= Set(
-      "org.scala-lang"         % "scala-library"              % scalaVersion.value,
-      "com.typesafe.slick"     %% "slick"                     % slickV,
-      "com.typesafe.slick"     %% "slick-hikaricp"            % slickV
-    ),
+    dependencyOverrides += "org.scala-lang" % "scala-library" % scalaVersion.value,
+    dependencyOverrides ++= Dependencies.slick.toSet,
+    dependencyOverrides ++= Dependencies.json4s.toSet,
     ivyScala            := ivyScala.value.map(_.copy(overrideScalaVersion = true)),
     resolvers ++= Seq(
       "hseeberger bintray" at "http://dl.bintray.com/hseeberger/maven",
       "pellucid bintray"   at "http://dl.bintray.com/pellucid/maven",
       "justwrote"          at "http://repo.justwrote.it/releases/"
     ),
+    libraryDependencies ++= Dependencies.akka,
+    libraryDependencies ++= Dependencies.slick,
+    libraryDependencies ++= Dependencies.json4s,
     libraryDependencies ++= {
       val test = "test,it"
 
-      val akkaV      = "2.4.7"
       val scalaTestV = "2.2.6"
-      val json4sV    = "3.3.0"
       val slickPgV   = "0.14.1"
 
       Seq(
-        // Akka
-        "com.typesafe.akka"          %% "akka-slf4j"             % akkaV,
-        "com.typesafe.akka"          %% "akka-actor"             % akkaV,
-        "com.typesafe.akka"          %% "akka-agent"             % akkaV,
-        "com.typesafe.akka"          %% "akka-stream"            % akkaV,
-        "com.typesafe.akka"          %% "akka-http-core"         % akkaV,
-        "de.heikoseeberger"          %% "akka-sse"               % "1.8.1",
         // http
         "net.databinder.dispatch"    %% "dispatch-core"          % "0.11.3",
         "net.databinder.dispatch"    %% "dispatch-json4s-native" % "0.11.3",
-        // JSON
-        "org.json4s"                 %% "json4s-core"            % json4sV,
-        "org.json4s"                 %% "json4s-jackson"         % json4sV,
-        "org.json4s"                 %% "json4s-ext"             % json4sV,
-        "de.heikoseeberger"          %% "akka-http-json4s"       % "1.7.0",
         // Database
-        "com.typesafe.slick"         %% "slick"                  % slickV,
-        "com.typesafe.slick"         %% "slick-hikaricp"         % slickV,
         "com.github.tminglei"        %% "slick-pg"               % slickPgV,
         "com.github.tminglei"        %% "slick-pg_json4s"        % slickPgV,
         "com.zaxxer"                 %  "HikariCP"               % "2.4.6"    % "provided",
@@ -103,8 +86,6 @@ lazy val phoenixScala = (project in file(".")).
         "com.amazonaws"              %  "aws-java-sdk"           % "1.11.7",
         // Testing
         "org.conbere"                %  "markov_2.10"            % "0.2.0",
-        "com.typesafe.akka"          %% "akka-testkit"           % akkaV      % test,
-        "com.typesafe.akka"          %% "akka-stream-testkit"    % akkaV      % test,
         "org.scalatest"              %% "scalatest"              % scalaTestV % test,
         "org.scalacheck"             %% "scalacheck"             % "1.13.1"   % test,
         "org.mockito"                %  "mockito-core"           % "1.10.19"  % test)
