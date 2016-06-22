@@ -5,7 +5,7 @@ import { initialState, reducers } from '../bulk';
 
 const { actions, reducer } = createStore({
   //TODO is this store needed?
-  path: 'bulk.couponCodes',
+  path: 'couponCodes.bulk',
   actions: [],
   reducers,
 });
