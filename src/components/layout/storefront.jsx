@@ -53,7 +53,7 @@ const StoreFront = (props : StoreFrontProps) : HTMLElement => {
               </Link>
             </div>
             <div styleName="tools">
-              <UserTools path={props.location.pathname}/>
+              <UserTools path={props.location.pathname} query={props.location.query}/>
             </div>
           </div>
           <div styleName="categories">
