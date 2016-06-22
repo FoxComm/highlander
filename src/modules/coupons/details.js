@@ -78,11 +78,12 @@ export const couponsResetId = createAction('COUPONS_RESET_ID');
 const _generateCodes = createAsyncActions(
   'generateCouponCodes',
   (id: number, prefix: string, length: number, quantity: number) => {
-    return Api.post(`/coupons/codes/generate/${id}`, {
+    const payload = {
       prefix,
-      length: prefix.length + length,
-      quantity,
-    });
+      length: Number(prefix.length + length),
+      quantity: Number(quantity),
+    };
+    return Api.post(`/coupons/codes/generate/${id}`, payload);
   }
 );
 

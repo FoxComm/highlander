@@ -47,10 +47,10 @@
   margin-right: 20px;
 }
 
-.subtitle {
-  margin-left: 1.85%;
-}
-
 .text-gray {
   color: #909090;
+}
+
+:global(.fc-coupon-codes .fc-live-search) {
+  padding: 0;
 }
