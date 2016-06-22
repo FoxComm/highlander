@@ -7,32 +7,32 @@
     firebird_server_name: firebird.foxcommerce.local
     firebrand_server_name: foxcommerce.local
   roles:
-    - { role: base/common}
-    - { role: base/consul}
-    - { role: base/ssh_keys}
-    - { role: base/scala}
-    - { role: base/confluence}
-    - { role: base/zookeeper}
-    - { role: base/kafka}
-    - { role: base/schema-registry}
-    - { role: base/elasticsearch}
-    - { role: base/db}
+    - { role: base/common }
+    - { role: base/consul }
+    - { role: base/ssh_keys }
+    - { role: base/scala }
+    - { role: base/confluence }
+    - { role: base/zookeeper }
+    - { role: base/kafka }
+    - { role: base/schema-registry }
+    - { role: base/elasticsearch }
+    - { role: base/db }
     - { role: base/rsyslog, sudo: yes }
     - { role: base/kibana, sudo: yes }
-    - { role: base/node}
+    - { role: base/node }
     - { role: base/balancer, sudo: yes }
-    - { role: base/phoenix}
-    - { role: base/greenriver}
-    - { role: base/ashes}
-    - { role: base/firebird}
-    - { role: base/firebrand}
+    - { role: base/phoenix }
+    - { role: base/greenriver }
+    - { role: base/ashes }
+    - { role: base/firebird }
+    - { role: base/firebrand }
     - { role: dev/kafka }
     - { role: dev/elasticsearch }
     - { role: dev/balancer, sudo: yes }
-    - { role: dev/db}
-    - { role: dev/phoenix}
-    - { role: dev/seeder}
-    - { role: dev/greenriver}
+    - { role: dev/db }
+    - { role: dev/phoenix }
+    - { role: dev/seeder }
+    - { role: dev/greenriver }
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml

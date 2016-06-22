@@ -3,7 +3,7 @@ vpn_networkname: vpn.foxcommerce.com
 vpn_server_ip: 10.240.0.2
 vpn_network: 10.8.0.0
 vpn_server: 10.240.0.0 255.255.255.0
-vpn_network_interface: eth1
+vpn_network_interface: ens4
 vpn_port: 1194
 openvpn_user: openvpn
 

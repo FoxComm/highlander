@@ -1,6 +1,5 @@
 ---
 
-
 - name: Bootstrap Kafka
   hosts: prodsmall-kafka
   vars:

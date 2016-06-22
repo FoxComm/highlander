@@ -19,10 +19,13 @@
     firebrand_server_name: smallprod.foxcommerce.com
 
   roles:
-    - { role: base/ssh_keys}
+    - { role: base/ssh_keys }
     - { role: base/rsyslog, sudo: yes }
     - { role: base/balancer, sudo: yes }
-    - { role: base/ashes}
-    - { role: base/firebird}
-    - { role: base/firebrand}
+    - { role: base/ashes }
+    - { role: base/firebird }
+    - { role: base/firebrand }
     - { role: dev/balancer, sudo: yes }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml

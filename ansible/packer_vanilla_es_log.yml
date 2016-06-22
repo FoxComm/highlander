@@ -1,0 +1,17 @@
+---
+
+- name: Provision Packer Vanilla Log
+  hosts: all
+  tags:
+      - packer-vanilla-log
+  vars:
+    user: ubuntu
+    packing: true
+    es_heap_size: 4000m
+    search_service_name: es-log
+
+  roles:
+    - { role: base/consul_agent }
+    - { role: base/elasticsearch }
+    - { role: base/zipkin }
+    - { role: base/kibana, sudo: yes }

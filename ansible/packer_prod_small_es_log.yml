@@ -11,7 +11,7 @@
     search_service_name: es-log
 
   roles:
-    - { role: base/consul_agent}
-    - { role: base/elasticsearch}
-    - { role: base/zipkin}
-    - { role: base/kibana, sudo: yes}
+    - { role: base/consul_agent }
+    - { role: base/elasticsearch }
+    - { role: base/zipkin }
+    - { role: base/kibana, sudo: yes }

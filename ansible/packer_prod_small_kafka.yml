@@ -12,7 +12,7 @@
 
   roles:
     - { role: base/rsyslog, sudo: yes }
-    - { role: base/consul_agent}
-    - { role: base/zookeeper}
-    - { role: base/kafka}
-    - { role: base/schema-registry}
+    - { role: base/consul_agent }
+    - { role: base/zookeeper }
+    - { role: base/kafka }
+    - { role: base/schema-registry }

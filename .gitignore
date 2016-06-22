@@ -1,5 +1,5 @@
 .vagrant
-bin/
+bin/inventory
 vagrant.local.rb
 .vault_pass
 ansible/*.retry
@@ -12,4 +12,3 @@ account.json
 .terraform
 terraform.tfvars
 *.orig
-

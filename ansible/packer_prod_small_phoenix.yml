@@ -13,11 +13,14 @@
     db_name: phoenix_development
     phoenix_tracing: "true"
     zipkin_collector: zipkin.service.consul
-    log_host:  es-log.service.consul
+    log_host: es-log.service.consul
     phoenix_service_requires: ""
     phoenix_service_after: ""
 
   roles:
-    - { role: base/ssh_keys}
+    - { role: base/ssh_keys }
     - { role: base/rsyslog, sudo: yes }
-    - { role: base/phoenix}
+    - { role: base/phoenix }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml

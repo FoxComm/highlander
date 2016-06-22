@@ -9,6 +9,5 @@
     packing: true
 
   roles:
-    - {role: base/consul_agent}
-    - {role: base/consul_alerts}
-    - {role: base/node}
+    - { role: base/consul_agent }
+    - { role: base/node }

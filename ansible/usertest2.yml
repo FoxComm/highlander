@@ -8,27 +8,27 @@
     user: '{{ansible_ssh_user}}'
 
   roles:
-    - { role: base/common}
-    - { role: base/ssh_keys}
-    - { role: base/consul}
-    - { role: base/scala}
-    - { role: base/confluence}
-    - { role: base/zookeeper}
-    - { role: base/kafka}
-    - { role: base/schema-registry}
-    - { role: base/elasticsearch}
-    - { role: base/db}
+    - { role: base/common }
+    - { role: base/ssh_keys }
+    - { role: base/consul }
+    - { role: base/scala }
+    - { role: base/confluence }
+    - { role: base/zookeeper }
+    - { role: base/kafka }
+    - { role: base/schema-registry }
+    - { role: base/elasticsearch }
+    - { role: base/db }
     - { role: base/rsyslog, sudo: yes }
     - { role: base/kibana, sudo: yes }
-    - { role: base/phoenix}
-    - { role: base/greenriver}
-    - { role: dev/kafka}
-    - { role: dev/elasticsearch}
-    - { role: dev/db}
-    - { role: dev/seeder}
-    - { role: dev/greenriver}
-    - { role: dev/loyalty}
-    - { role: dev/messaging}
+    - { role: base/phoenix }
+    - { role: base/greenriver }
+    - { role: dev/kafka }
+    - { role: dev/elasticsearch }
+    - { role: dev/db }
+    - { role: dev/seeder }
+    - { role: dev/greenriver }
+    - { role: dev/loyalty }
+    - { role: dev/messaging }
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml
@@ -41,15 +41,15 @@
     user: '{{ansible_ssh_user}}'
 
   roles:
-    - { role: base/common}
-    - { role: base/consul}
-    - { role: base/ssh_keys}
+    - { role: base/common }
+    - { role: base/consul }
+    - { role: base/ssh_keys }
     - { role: base/rsyslog, sudo: yes }
-    - { role: base/node}
+    - { role: base/node }
     - { role: base/balancer, sudo: yes }
-    - { role: base/ashes}
-    - { role: base/firebird}
-    - { role: base/firebrand}
+    - { role: base/ashes }
+    - { role: base/firebird }
+    - { role: base/firebrand }
     - { role: dev/balancer, sudo: yes }
     - { role: demo/ashes, sudo: yes }
 

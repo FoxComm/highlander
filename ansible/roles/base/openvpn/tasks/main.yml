@@ -12,14 +12,17 @@
     - bridge-utils
     - udev
 
-- name: Set up ipv4 forwarding
+- name: Setup IPv4 forwarding
   command: echo 1 > /proc/sys/net/ipv4/ip_forward
 
 - name: Add Default Foward Policy to UFW
   lineinfile: dest=/etc/default/ufw regexp='^#DEFAULT_FORWARD_POLICY' line='DEFAULT_FORWARD_POLICY="ACCEPT"' state=present
 
-- name: Enable ipv4 Forwarding
-  lineinfile: dest=/etc/ufw/sysctl.conf regexp='^#net.ipv4.ip_forward' line='net.ipv4.ip_forward=1' state=present
+- name: Enable IPv4 Forwarding
+  lineinfile: dest=/etc/sysctl.conf regexp='^#net.ipv4.ip_forward' line='net.ipv4.ip_forward=1' state=present
+
+- name: Reload Sysctl config
+  command: sysctl -p
 
 - name: Install before.rules
   template: src=before.rules dest=/etc/ufw/before.rules
@@ -30,7 +33,7 @@
 - name: Setup UFW connections on port for openvpn
   shell: ufw allow {{vpn_port}}/tcp
 
-- name: enable UFW
+- name: Enable UFW
   shell: echo -e "y" | ufw enable
 
 - name: Setting server config
@@ -56,6 +59,21 @@
 
 - name: Make Sure Key Permissions Restricted
   shell: chmod -R 0660 /etc/openvpn/easy-rsa/keys/*.key
+
+- name: Configure Iptables
+  shell: sudo /sbin/iptables -t nat -A POSTROUTING -o {{vpn_network_interface}} -j MASQUERADE
+
+- name: Copy OpenVPN Execution File
+  template: src=run_openvpn.sh dest=/usr/local/bin/run_openvpn.sh mode="u+x,g+x,o+x"
+  sudo: true
+
+- name: Copy OpenVPN Service
+  template: src=openvpn.service dest="{{dest_services}}/openvpn.service"
+  sudo: true
+
+- name: Reload Systemd for OpenVPN
+  sudo: yes
+  command: systemctl daemon-reload
 
 - name: Restart Openvpn
   service: name=openvpn state=restarted enabled=yes

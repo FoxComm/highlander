@@ -1,0 +1,34 @@
+---
+
+- name: Bootstrap Kafka
+  hosts: vanilla-kafka
+  vars:
+    user: '{{ansible_ssh_user}}'
+
+  roles:
+      - { role: dev/kafka }
+
+- name: Bootstrap ES
+  hosts: vanilla-es
+  vars:
+    user: '{{ansible_ssh_user}}'
+
+  roles:
+      - { role: dev/elasticsearch }
+
+- name: Bootstrap Db
+  hosts: vanilla-db
+  vars:
+    user: '{{ansible_ssh_user}}'
+    seeds_cmd: utils.seeds.Seeds
+
+  roles:
+      - { role: dev/db }
+
+- name: Bootstrap Greenriver
+  hosts: vanilla-greenriver
+  vars:
+    user: '{{ansible_ssh_user}}'
+
+  roles:
+      - { role: prod/bootstrap_greenriver }

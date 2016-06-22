@@ -14,5 +14,3 @@ sudo chown -R $US:$US /home/$US
 sudo rm -rf /home/$US/.ssh
 sudo su $US -c "mkdir /home/$US/.ssh"
 sudo su $US -c "echo '$PUB_KEY' >> /home/$US/.ssh/authorized_keys"
-
- 

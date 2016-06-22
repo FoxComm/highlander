@@ -1,6 +1,7 @@
 package main
 
 import (
+	"./gcloud"
 	"bytes"
 	"testing"
 
@@ -8,35 +9,33 @@ import (
 )
 
 var goodInstancesJSON = `
-[
-  {
-    "name": "prod-bk-app-09",
-    "id": "9867307197979489186",
-    "kind": "compute#instance",
-    "machineType": "f1-micro",
-    "networkInterfaces": [{
-      "name": "nic0",
-      "network": "default",
-      "networkIP": "10.240.149.74",
-      "accessConfigs": [{
-        "natIP": "8.8.8.8"
-      }]
-    }],
-    "status": "RUNNING",
-    "tags": {
-      "fingerprint": "JFlJxLpjotc=",
-      "items": [
-        "mongodb"
-      ]
-    },
-    "zone": "us-central1-a"
-  }
-]
+[{
+	"name": "prod-bk-app-09",
+	"id": "9867307197979489186",
+	"kind": "compute#instance",
+	"machineType": "f1-micro",
+	"networkInterfaces": [{
+		"name": "nic0",
+		"network": "default",
+		"networkIP": "10.240.149.74",
+		"accessConfigs": [{
+			"natIP": "8.8.8.8"
+		}]
+	}],
+	"status": "RUNNING",
+	"tags": {
+		"fingerprint": "JFlJxLpjotc=",
+		"items": [
+			"mongodb"
+		]
+	},
+	"zone": "us-central1-a"
+}]
 `
 
 var badInstanceJSON = ""
 
-func decodeString(str string) (Instances, error) {
+func decodeString(str string) (gcloud.Instances, error) {
 	reader := bytes.NewBufferString("")
 	_, err := reader.WriteString(str)
 	if err != nil {
@@ -58,14 +57,16 @@ func TestDecode(t *testing.T) {
 }
 
 func TestIPs(t *testing.T) {
-	instance := Instance{
-		NetworkInterfaces: []NetworkInterface{NetworkInterface{
-			IP: "10.240.149.74",
-			AccessConfigs: []AccessConfig{AccessConfig{
-				NatIP: "8.8.8.8",
+	instance := gcloud.Instance{
+		NetworkInterfaces: []gcloud.NetworkInterface{
+			gcloud.NetworkInterface{
+				IP: "10.240.149.74",
+				AccessConfigs: []gcloud.AccessConfig{
+					gcloud.AccessConfig{
+						NatIP: "8.8.8.8",
+					},
+				},
 			},
-			},
-		},
 		},
 	}
 
@@ -87,19 +88,19 @@ func TestToJSON(t *testing.T) {
 }
 
 func TestIsActive(t *testing.T) {
-	assert.True(t, Instance{Status: "RUNNING"}.IsActive())
-	assert.False(t, Instance{Status: "TERMINATED"}.IsActive())
+	assert.True(t, gcloud.Instance{Status: gcloud.STATUS_RUNNING}.IsActive())
+	assert.False(t, gcloud.Instance{Status: gcloud.STATUS_TERMINATED}.IsActive())
 }
 
-func TestdecodeOnlyIncludesActive(t *testing.T) {
+func TestDecodeOnlyIncludesActive(t *testing.T) {
 	jsonStr := `[
 		{
 			"name": "prod-bk-app-09",
-			"status": "RUNNING",
+			"status": "RUNNING"
 		},
 		{
 			"name": "prod-core-01",
-			"status": "TERMINATED",
+			"status": "TERMINATED"
 		}
 	]`
 

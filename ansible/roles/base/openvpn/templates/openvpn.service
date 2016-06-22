@@ -1,0 +1,13 @@
+[Service]
+WorkingDirectory=/usr/share
+ExecStart=/usr/local/bin/run_openvpn.sh
+Restart=always
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=openvpn
+TimeoutStartSec=5m
+RestartSec=10
+Type=forking
+
+[Install]
+WantedBy=multi-user.target

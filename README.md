@@ -1,5 +1,10 @@
 # prov-shit
 
+### Docs
+
+- [Build and Deploy for Infrastructure](docs/build_and_deploy.md)
+- [Production Environment From Scractch](docs/production.md)
+
 ### Dependencies
 
 - [Ansible](http://docs.ansible.com/ansible/intro_installation.html#installation) (1.9.x)
@@ -10,8 +15,7 @@
 ### Setup
 
 - Run `gcloud init`
-- Checkout [phoenix-scala](https://github.com/FoxComm/phoenix-scala)
-- Checkout [green-river](https://github.com/FoxComm/green-river)
+- Checkout [phoenix-scala](https://github.com/FoxComm/phoenix-scala), [green-river](https://github.com/FoxComm/green-river), [ashes](https://github.com/FoxComm/ashes), [firebird](https://github.com/FoxComm/firebird), [firebrand](https://github.com/FoxComm/firebrand).
 - Build all projects:
 
     ```
@@ -23,6 +27,8 @@
     $ make package
     $ cd ../firebird
     $ make package
+    $ cd ../firebrand
+    $ make package    
     $ cd ../prov-shit
     $ make build
     ```

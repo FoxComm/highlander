@@ -1,0 +1,30 @@
+{
+    "variables" : {
+        "base_image": "base-1466532704",
+        "project_id": "foxcomm-staging",
+        "network": "default"        
+    },
+    "builders" : [
+        {
+            "type": "googlecompute",
+            "account_file": "account.json",
+            "project_id" : "{{user `project_id`}}",
+            "source_image": "{{user `base_image`}}",
+            "network": "{{user `network`}}",
+            "zone": "us-central1-f",
+            "image_name": "vanilla-kafka-{{timestamp}}",
+            "image_description": "vanilla kafka image",
+            "instance_name": "packer-vanilla-kafka-{{uuid}}",
+            "machine_type": "n1-standard-1",
+            "tags": ["ssh", "no-ip", "vanilla", "kafka"],
+            "use_internal_ip": true,
+            "ssh_username" : "{{user `ssh_username`}}"
+        }
+    ],
+    "provisioners" : [
+        {
+            "type": "ansible",
+            "playbook_file" : "ansible/packer_vanilla_kafka.yml"
+        }
+    ]
+}

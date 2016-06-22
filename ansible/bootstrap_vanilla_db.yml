@@ -1,0 +1,10 @@
+---
+
+- name: Bootstrap Db
+  hosts: vanilla-db
+  vars:
+    user: '{{ansible_ssh_user}}'
+    seeds_cmd: utils.seeds.Seeds
+
+  roles:
+      - { role: dev/db }

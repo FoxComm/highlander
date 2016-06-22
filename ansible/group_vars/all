@@ -78,14 +78,12 @@ seeds_cmd: utils.seeds.Seeds demo 1
 gatling_oneshot_seeds_cmd: seeds.OneshotSeeds
 gatling_continuous_seeds_cmd: seeds.ContinuousSeeds
 
-# backups
+# DB Backups
 backup_service_key: /etc/keys/gce_backup_service_key.json
 db_backup_bucket: test-backups
 db_backup_dir: /mnt/backups
 
-
 # Google OAuth
-
 google_oauth_admin_client_id: ""
 google_oauth_admin_secret: ""
 google_oauth_admin_hosted_domain: ""

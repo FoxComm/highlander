@@ -9,7 +9,7 @@
     packing: true
 
   roles:
-    - { role: base/ssh_keys}
+    - { role: base/ssh_keys }
     - { role: base/rsyslog, sudo: yes }
     - { role: base/balancer, sudo: yes }
     - { role: base/ashes }

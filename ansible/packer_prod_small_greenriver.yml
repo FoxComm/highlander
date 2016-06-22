@@ -19,6 +19,6 @@
     greenriver_service_after: ""
 
   roles:
-    - { role: base/ssh_keys}
+    - { role: base/ssh_keys }
     - { role: base/rsyslog, sudo: yes }
-    - { role: base/greenriver}
+    - { role: base/greenriver }

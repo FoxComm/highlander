@@ -7,8 +7,10 @@
   vars:
     user: ubuntu
     packing: true
+    join_type: join
 
   roles:
-    - {role: base/common}
-    - {role: base/consul}
-    - {role: base/consul_server}
+    - { role: base/common }
+    - { role: base/consul }
+    - { role: base/consul_server }
+    - { role: base/consul_alerts }

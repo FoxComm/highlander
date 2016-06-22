@@ -11,8 +11,7 @@
     kafka_server: kafka.service.consul:9092
     log_host: es-log.service.consul
 
-
   roles:
     - { role: base/rsyslog, sudo: yes }
-    - { role: base/consul_agent}
-    - { role: base/db}
+    - { role: base/consul_agent }
+    - { role: base/db }

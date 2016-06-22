@@ -22,10 +22,6 @@ resource "google_compute_instance" "vpn" {
         access_config {
         }
     }
-
-    provisioner "local-exec" {
-        command = "echo ${google_compute_instance.vpn.network_interface.access_config.nat_ip} >> prodsmall_vpn"
-    }
 }
 
 resource "google_compute_firewall" "vpn" {

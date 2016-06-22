@@ -8,13 +8,13 @@
     user: '{{ansible_ssh_user}}'
 
   roles:
-    - { role: dev/kafka}
-    - { role: dev/elasticsearch}
-    - { role: dev/db}
-    - { role: dev/phoenix}
-    - { role: dev/greenriver}
-    - { role: dev/loyalty}
-    - { role: dev/messaging}
+    - { role: dev/kafka }
+    - { role: dev/elasticsearch }
+    - { role: dev/db }
+    - { role: dev/phoenix }
+    - { role: dev/greenriver }
+    - { role: dev/loyalty }
+    - { role: dev/messaging }
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml
@@ -27,10 +27,10 @@
     user: '{{ansible_ssh_user}}'
 
   roles:
-    - { role: base/ssh_keys}
-    - { role: dev/ashes}
-    - { role: dev/firebird}
-    - { role: dev/firebrand}
+    - { role: base/ssh_keys }
+    - { role: dev/ashes }
+    - { role: dev/firebird }
+    - { role: dev/firebrand }
     - { role: dev/balancer, sudo: yes }
 
   handlers:
@@ -44,4 +44,4 @@
     user: '{{ansible_ssh_user}}'
 
   roles:
-    - { role: test/gatling}
+    - { role: test/gatling }

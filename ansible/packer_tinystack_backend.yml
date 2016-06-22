@@ -9,17 +9,17 @@
     packing: true
 
   roles:
-    - { role: base/ssh_keys}
-    - { role: base/confluence}
-    - { role: base/zookeeper}
-    - { role: base/kafka}
-    - { role: base/schema-registry}
-    - { role: base/elasticsearch}
-    - { role: base/db}
+    - { role: base/ssh_keys }
+    - { role: base/confluence }
+    - { role: base/zookeeper }
+    - { role: base/kafka }
+    - { role: base/schema-registry }
+    - { role: base/elasticsearch }
+    - { role: base/db }
     - { role: base/rsyslog, sudo: yes }
     - { role: base/kibana, sudo: yes }
-    - { role: base/phoenix}
-    - { role: base/greenriver}
+    - { role: base/phoenix }
+    - { role: base/greenriver }
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml

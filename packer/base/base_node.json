@@ -1,21 +1,25 @@
 {
     "variables" : {
-        "base_image": "base-1466535643"
+        "base_image": "base-1466535643",
+        "project_id": "foxcomm-staging",
+        "network": "default",
+        "ssh_username": "ubuntu"
     },
     "builders" : [
         {
             "type": "googlecompute",
             "account_file": "account.json",
-            "project_id" : "foxcomm-staging",
+            "project_id" : "{{user `project_id`}}",
             "source_image": "{{user `base_image`}}",
+            "network": "{{user `network`}}",
             "zone": "us-central1-a",
             "image_name": "base-node-{{timestamp}}",
-            "image_description": "base image used for provisioning",
+            "image_description": "Base Node.js image used for provisioning",
             "instance_name": "packer-base-node-{{uuid}}",
             "machine_type": "n1-standard-2",
             "tags": ["no-ip", "packer-base-node"],
             "use_internal_ip": true,
-            "ssh_username" : "ubuntu"
+            "ssh_username" : "{{user `ssh_username`}}"
         }
     ],
     "provisioners" : [

@@ -1,14 +1,17 @@
 {
-    
     "variables" : {
-        "base_image": "ubuntu-1604-xenial-v20160610"
+        "base_ubuntu_image": "ubuntu-1604-xenial-v20160610",
+        "project_id": "foxcomm-staging",
+        "network": "default",
+        "ssh_username": "ubuntu"
     },
     "builders" : [
         {
             "type": "googlecompute",
             "account_file": "account.json",
-            "project_id" : "foxcomm-staging",
-            "source_image": "{{user `base_image`}}",
+            "project_id" : "{{user `project_id`}}",
+            "source_image": "{{user `base_ubuntu_image`}}",
+            "network": "{{user `network`}}",
             "zone": "us-central1-a",
             "image_name": "base-{{timestamp}}",
             "image_description": "base image used for provisioning",
@@ -16,7 +19,7 @@
             "machine_type": "n1-standard-2",
             "tags": ["no-ip", "packer-base"],
             "use_internal_ip": true,
-            "ssh_username" : "ubuntu"
+            "ssh_username" : "{{user `ssh_username`}}"
         }
     ],
     "provisioners" : [
