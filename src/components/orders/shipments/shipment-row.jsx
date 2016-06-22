@@ -59,27 +59,13 @@ export default class ShipmentRow extends Component {
           />
           {props.method}
         </TableCell>
-        <TableCell>
-          {props.state}
-        </TableCell>
-        <TableCell>
-          {props.lineItems.length}
-        </TableCell>
-        <TableCell>
-          <DateTime value={props.shipmentDate} />
-        </TableCell>
-        <TableCell>
-          {props.carrier}
-        </TableCell>
-        <TableCell>
-          <DateTime value={props.estimatedArrival} />
-        </TableCell>
-        <TableCell>
-          <DateTime value={props.deliveredDate} />
-        </TableCell>
-        <TableCell>
-          {props.trackingNumber}
-        </TableCell>
+        <TableCell>{props.state}</TableCell>
+        <TableCell>{props.lineItems.length}</TableCell>
+        <TableCell><DateTime value={props.shipmentDate} /></TableCell>
+        <TableCell>{props.carrier}</TableCell>
+        <TableCell><DateTime value={props.estimatedArrival} /></TableCell>
+        <TableCell><DateTime value={props.deliveredDate} /></TableCell>
+        <TableCell>{props.trackingNumber}</TableCell>
       </TableRow>
     );
   }
