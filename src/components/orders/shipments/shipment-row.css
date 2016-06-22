@@ -1,14 +1,57 @@
-.summary-row {
-  line-height: 26px;
-  vertical-align: middle;
-
-  &:first-child {
-    white-space: nowrap;
-  }
-}
-
 .row-toggle {
   margin-right: 10px;
   font-size: 22px;
   cursor: pointer;
+}
+
+:global(.fc-table) tbody {
+  & tr.summary-row {
+    height: 84px;
+    line-height: 26px;
+    vertical-align: middle;
+    border-bottom: none;
+
+    &:first-child {
+      white-space: nowrap;
+    }
+  }
+
+  & tr.details-row {
+    border-top: none;
+    background: white;
+
+    & td {
+      padding: 0 20px 30px;
+    }
+  }
+}
+
+.details-title {
+  font-size: 15px;
+  font-weight: 600;
+  padding: 30px 0 15px;
+
+  &:first-of-type {
+    padding-top: 15px;
+  }
+}
+
+.address {
+  border: 1px solid #d9d9d9;
+  height: 148px;
+  padding: 10px;
+  border-radius: 3px;
+}
+
+.shipped-items > *{
+  border: 1px solid #d9d9d9;
+
+  &:first-child {
+    border-radius: 3px 3px 0 0;
+    border-bottom: none;
+  }
+
+  &:last-child {
+    border-radius: 0 0 3px 3px;
+  }
 }

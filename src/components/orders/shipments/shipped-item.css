@@ -1,0 +1,22 @@
+.row {
+  display: flex;
+  height: 84px;
+  padding: 10px 20px 10px 10px;
+  justify-content: space-between;
+}
+
+.cell {
+  display: flex;
+  align-items: center;
+}
+
+.name {
+  composes: cell;
+  font-weight: 600;
+
+  & img {
+    max-height: 64px;
+    width: auto;
+    padding-right: 10px;
+  }
+}

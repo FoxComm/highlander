@@ -8,7 +8,7 @@ import { autobind } from 'core-decorators';
 // components
 import ContentBox from '../../content-box/content-box';
 import TableView from '../../table/tableview';
-import ShipmentRow from './row';
+import ShipmentRow from './shipment-row';
 
 
 type Props = {
