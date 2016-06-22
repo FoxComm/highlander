@@ -43,6 +43,7 @@ import responses.ObjectResponses.ObjectContextResponse
 import responses.SkuResponses.FullSkuResponse
 import services.activity.ProductTailored.{FullProductCreated, FullProductUpdated}
 import services.activity.SkuTailored.{FullSkuCreated, FullSkuUpdated}
+import services.activity.StoreAdminsTailored._
 
 object LogActivity {
 
@@ -419,6 +420,19 @@ object LogActivity {
   def multipleCouponCodeCreated(coupon: Coupon, admin: Option[StoreAdmin])(
       implicit ec: EC, ac: AC): DbResult[Activity] =
     Activities.log(MultipleCouponCodesGenerated(coupon, admin.map(buildAdmin(_))))
+
+  /* Store Admin */
+  def storeAdminCreated(entity: StoreAdmin, admin: Originator)(
+      implicit ec: EC, ac: AC): DbResult[Activity] =
+    Activities.log(StoreAdminCreated(entity, admin))
+
+  def storeAdminUpdated(entity: StoreAdmin, admin: Originator)(
+      implicit ec: EC, ac: AC): DbResult[Activity] =
+    Activities.log(StoreAdminUpdated(entity, admin))
+
+  def storeAdminDeleted(entity: StoreAdmin, admin: Originator)(
+      implicit ec: EC, ac: AC): DbResult[Activity] =
+    Activities.log(StoreAdminDeleted(entity, admin))
 
   /* Helpers */
   private def buildOriginator(originator: Originator): Option[AdminResponse] = originator match {

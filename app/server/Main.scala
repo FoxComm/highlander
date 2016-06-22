@@ -98,7 +98,8 @@ class Service(systemOverride: Option[ActorSystem] = None,
         routes.admin.ImageRoutes.routes ~
         routes.admin.CouponRoutes.routes ~
         routes.admin.CategoryRoutes.routes ~
-        routes.admin.GenericTreeRoutes.routes
+        routes.admin.GenericTreeRoutes.routes ~
+        routes.admin.StoreAdminRoutes.routes
       }
     }
   }

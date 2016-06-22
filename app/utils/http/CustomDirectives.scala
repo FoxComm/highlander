@@ -11,7 +11,7 @@ import models.activity.ActivityContext
 import models.customer.Customer
 import models.objects.{ObjectContext, ObjectContexts}
 import models.product.SimpleContext
-import services.Result
+import services.{Result, ResultT}
 import slick.driver.PostgresDriver.api._
 import utils.http.Http._
 import utils.aliases._
@@ -116,6 +116,12 @@ object CustomDirectives {
 
   def nothingOrFailures(a: Result[_])(implicit ec: EC): StandardRoute =
     complete(a.map(renderNothingOrFailures))
+
+  def getNothingOrFailures(a: DbResultT[_])(implicit ec: EC, db: DB): StandardRoute =
+    complete(a.run().map(renderNothingOrFailures))
+
+  def mutateNothingOrFailures(a: DbResultT[_])(implicit ec: EC, db: DB): StandardRoute =
+    complete(a.runTxn().map(renderNothingOrFailures))
 
   def entityOr[T](um: FromRequestUnmarshaller[T], failure: failures.Failure): Directive1[T] =
     extractRequestContext.flatMap[Tuple1[T]] { ctx ⇒

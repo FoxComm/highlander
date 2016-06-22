@@ -25,9 +25,7 @@ object AdminRoutes {
   def routes(implicit ec: EC, db: DB, admin: StoreAdmin) = {
 
     activityContext(admin) { implicit ac ⇒
-      (path("admin" / "info") & get) {
-        complete(AdminToken.fromAdmin(admin))
-      } ~ StoreCreditRoutes.storeCreditRoutes ~
+      StoreCreditRoutes.storeCreditRoutes ~
       pathPrefix("shipping-methods" / orderRefNumRegex) { refNum ⇒
         (get & pathEnd) {
           goodOrFailures {
