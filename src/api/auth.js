@@ -55,7 +55,7 @@ export default class Auth {
         throw new Error('Server error, try again later. Sorry for inconvenience :(');
       })
       .then(user => {
-        if (user.email && user.name) {
+        if (user.email) {
           return {
             user,
             jwt,
