@@ -1,7 +1,7 @@
 /* @flow */
 
 import _ from 'lodash';
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 import { browserHistory, Link } from 'react-router';
 import { connect } from 'react-redux';
@@ -20,7 +20,7 @@ import { fetch as fetchCart } from 'modules/cart';
 import type { HTMLElement } from 'types';
 
 import localized from 'lib/i18n';
-
+import type { Localized } from 'lib/i18n';
 
 type AuthState = {
   email: string,
@@ -28,18 +28,19 @@ type AuthState = {
   error: ?string,
 };
 
+type Props = Localized & {
+  getPath: Function,
+  isLoading: boolean,
+  authenticate: Function,
+  fetchCart: Function,
+};
+
 const mapState = state => ({
   isLoading: _.get(state.asyncActions, ['auth-login', 'inProgress'], false),
 });
 
-/* ::`*/
-@connect(mapState, { ...actions, fetchCart })
-@localized
-/* ::`*/
-export default class Login extends Component {
-  static propTypes = {
-    path: PropTypes.string,
-  };
+class Login extends Component {
+  props: Props;
 
   state: AuthState = {
     email: '',
@@ -71,8 +72,8 @@ export default class Login extends Component {
     const kind = 'customer';
     this.props.authenticate({email, password, kind}).then(() => {
       this.props.fetchCart();
-      browserHistory.push(this.props.path);
-    }).catch(() => {
+      browserHistory.push(this.props.getPath());
+    }, () => {
       this.setState({error: 'Email or password is invalid'});
     });
   }
@@ -92,13 +93,13 @@ export default class Login extends Component {
     const { t } = props;
 
     const restoreLink = (
-      <Link to={{pathname: this.props.path, query: {auth: authBlockTypes.RESTORE_PASSWORD}}} styleName="restore-link">
+      <Link to={props.getPath(authBlockTypes.RESTORE_PASSWORD)} styleName="restore-link">
         {t('forgot?')}
       </Link>
     );
 
     const signupLink = (
-      <Link to={{pathname: this.props.path, query: {auth: authBlockTypes.SIGNUP}}} styleName="link">
+      <Link to={props.getPath(authBlockTypes.SIGNUP)} styleName="link">
         {t('Sign Up')}
       </Link>
     );
@@ -138,3 +139,8 @@ export default class Login extends Component {
     );
   }
 }
+
+export default connect(mapState, {
+  ...actions,
+  fetchCart,
+})(localized(Login));

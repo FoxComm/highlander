@@ -1,7 +1,10 @@
-/* @flow */
-import React, { Component, PropTypes } from 'react';
+/* @flow  */
+
+import React, { Component } from 'react';
 import { Link } from 'react-router';
 import { authBlockTypes } from 'paragons/auth';
+import { assoc, dissoc } from 'sprout-data';
+import { autobind } from 'core-decorators';
 
 import styles from './auth.css';
 import type { HTMLElement } from 'types';
@@ -12,15 +15,17 @@ import Signup from './signup';
 import ResetPassword from './reset-password.jsx';
 import RestorePassword from './restore-password.jsx';
 
+type Props = {
+  authBlockType: string,
+  path: Object,
+};
+
 class Auth extends Component {
-  static propTypes = {
-    authBlockType: PropTypes.string,
-    path: PropTypes.string,
-  };
+  props: Props;
 
   renderContent() {
     const authProps = {
-      path: this.props.path,
+      getPath: this.getPath,
     };
 
     switch (this.props.authBlockType) {
@@ -35,6 +40,11 @@ class Auth extends Component {
       default:
         return <Login {...authProps} />;
     }
+  }
+
+  @autobind
+  getPath(newType: ?string): Object {
+    return newType ? assoc(this.props.path, ['query', 'auth'], newType) : dissoc(this.props.path, ['query', 'auth']);
   }
 
   render(): HTMLElement {

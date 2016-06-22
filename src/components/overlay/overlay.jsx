@@ -10,7 +10,7 @@ import Icon from 'ui/icon';
 
 type OverlayProps = {
   children: HTMLElement;
-  path: string;
+  path: string|Object;
 }
 
 const Overlay = (props:OverlayProps) => {

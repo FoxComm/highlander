@@ -4,8 +4,7 @@ import React, { Component, PropTypes } from 'react';
 import styles from './auth.css';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
-import { routeActions } from 'react-router-redux';
-import { Link } from 'react-router';
+import { browserHistory, Link } from 'react-router';
 
 import { authBlockTypes } from 'paragons/auth';
 
@@ -30,7 +29,6 @@ type RestoreState = {
 export default class RestorePassword extends Component {
 
   static propTypes = {
-    path: PropTypes.string,
     fields: PropTypes.object.isRequired,
     handleSubmit: PropTypes.func.isRequired,
     resetForm: PropTypes.func.isRequired,
@@ -38,6 +36,7 @@ export default class RestorePassword extends Component {
     error: PropTypes.string,
     dispatch: PropTypes.func,
     changeAuthBlockType: PropTypes.func,
+    getPath: PropTypes.func,
   };
 
   state: RestoreState = {
@@ -114,13 +113,9 @@ export default class RestorePassword extends Component {
     );
   }
 
-  @autobind
-  gotoLogin() {
-    this.props.dispatch(routeActions.push({
-      pathname: this.props.path,
-      query: {auth: authBlockTypes.LOGIN},
-    }));
-  }
+  goToLogin: Object = () => {
+    browserHistory.push(this.props.getPath(authBlockTypes.LOGIN));
+  };
 
   get primaryButton(): HTMLElement {
     const { emailSent } = this.state;
@@ -128,7 +123,7 @@ export default class RestorePassword extends Component {
 
     if (emailSent) {
       return (
-        <Button styleName="primary-button" onClick={this.gotoLogin} type="button">
+        <Button styleName="primary-button" onClick={this.goToLogin} type="button">
           {t('BACK TO LOG IN')}
         </Button>
       );
@@ -139,12 +134,12 @@ export default class RestorePassword extends Component {
 
   get switchStage(): ?HTMLElement {
     const { emailSent } = this.state;
-    const { t } = this.props;
+    const { t, getPath } = this.props;
 
     if (!emailSent) {
       return (
         <div styleName="switch-stage">
-          <Link to={{pathname: this.props.path, query: {auth: authBlockTypes.LOGIN}}} styleName="link">
+          <Link to={getPath(authBlockTypes.LOGIN)} styleName="link">
             {t('BACK TO LOG IN')}
           </Link>
         </div>
