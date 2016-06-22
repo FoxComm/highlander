@@ -159,7 +159,7 @@ class Pdp extends Component {
     const descriptionMarkup = { __html: description };
     const salePrice = _.get(product, ['skus', 0, 'attributes', 'salePrice', 'v', 'value'], 0);
     const currency = _.get(product, ['skus', 0, 'attributes', 'salePrice', 'v', 'currency'], 'USD');
-    const imageUrls = _.get(product, ['albums', 0, 'images'], []).map(image => image.src);
+    const imageUrls = _.get(product, ['product', 'attributes', 'images', 'v'], []);
 
     return (
       <div styleName="container">
