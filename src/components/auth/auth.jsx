@@ -3,7 +3,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router';
 import { authBlockTypes } from 'paragons/auth';
-import { assoc } from 'sprout-data';
+import { assoc, dissoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 
 import styles from './auth.css';
@@ -43,8 +43,8 @@ class Auth extends Component {
   }
 
   @autobind
-  getPath(newType: string): Object {
-    return assoc(this.props.path, ['query', 'auth'], newType);
+  getPath(newType: ?string): Object {
+    return newType ? assoc(this.props.path, ['query', 'auth'], newType) : dissoc(this.props.path, ['query', 'auth']);
   }
 
   render(): HTMLElement {

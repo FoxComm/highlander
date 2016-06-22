@@ -73,7 +73,7 @@ class Login extends Component {
     this.props.authenticate({email, password, kind}).then(() => {
       this.props.fetchCart();
       browserHistory.push(this.props.getPath());
-    }).catch(() => {
+    }, () => {
       this.setState({error: 'Email or password is invalid'});
     });
   }
