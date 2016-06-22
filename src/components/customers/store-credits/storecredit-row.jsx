@@ -5,7 +5,7 @@ import React, { PropTypes } from 'react';
 
 // components
 import MultiSelectRow from '../../table/multi-select-row';
-import DetailedInitials from '../../users/detailed-initials';
+import DetailedInitials from '../../user-initials/detailed-initials';
 import OriginType from '../../common/origin-type';
 import State from '../../common/state';
 import Dropdown from '../../dropdown/dropdown';

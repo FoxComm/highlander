@@ -2,7 +2,7 @@
 import React, { PropTypes } from 'react';
 
 /** Components */
-import Initials from '../users/initials';
+import Initials from '../user-initials/initials';
 
 /**
  * Watchers typeahead suggested list item component

@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
-import Initials from '../users/initials';
-import DetailedInitials from '../users/detailed-initials';
+import Initials from '../user-initials/initials';
+import DetailedInitials from '../user-initials/detailed-initials';
 import { EditButton, DeleteButton } from '../common/buttons';
 
 const NoteControls = props => {
