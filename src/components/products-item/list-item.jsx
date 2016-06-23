@@ -4,8 +4,20 @@ import React from 'react';
 import type { HTMLElement } from 'types';
 import styles from './list-item.css';
 import { browserHistory } from 'react-router';
+import _ from 'lodash';
 
 import Currency from 'ui/currency';
+
+type Image = {
+  alt?: string,
+  src: string,
+  title?: string,
+};
+
+type Album = {
+  name: string,
+  images: Array<Image>,
+};
 
 type Product = {
   id: number,
@@ -13,19 +25,20 @@ type Product = {
   context: string,
   title: string,
   description: string,
-  images: ?Array<string>,
   salePrice: string,
   currency: string,
+  albums: ?Array<Album>,
 };
 
 class ListItem extends React.Component {
   props: Product;
 
   render(): HTMLElement {
-    const {productId, title, images, salePrice, currency} = this.props;
+    const {productId, title, albums, salePrice, currency} = this.props;
+    const previewImage = _.get(albums, [0, 'images', 0, 'src']);
 
-    const image = images && images.length > 0
-      ? <img src={images[0]} styleName="preview-image" />
+    const image = previewImage
+      ? <img src={previewImage} styleName="preview-image" />
       : null;
 
     const click = () => browserHistory.push(`/products/${productId}`);
