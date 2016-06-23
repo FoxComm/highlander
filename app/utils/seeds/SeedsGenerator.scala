@@ -132,8 +132,6 @@ object SeedsGenerator
     with AddressGenerator
     with CreditCardGenerator
     with OrderGenerator
-    with InventoryGenerator
-    with InventorySummaryGenerator
     with GiftCardGenerator
     with ProductGenerator
     with PromotionGenerator
@@ -177,10 +175,9 @@ object SeedsGenerator
     val location = "Random"
 
     for {
-      context      ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-      shipMethods  ← * <~ getShipmentRules
-      warehouseIds ← * <~ Warehouses.map(_.id).result.toXor
-      skus         ← * <~ Skus.filter(_.contextId === context.id).result
+      context     ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
+      shipMethods ← * <~ getShipmentRules
+      skus        ← * <~ Skus.filter(_.contextId === context.id).result
       skuIds = skus.map(_.id)
       customerIds ← * <~ Customers.createAllReturningIds(
                        generateCustomers(customersCount, location))

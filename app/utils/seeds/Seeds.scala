@@ -11,7 +11,6 @@ import com.typesafe.config.Config
 import failures.{Failures, FailuresOps}
 import models.Reason._
 import models.activity.ActivityContext
-import models.inventory._
 import models.objects.ObjectContexts
 import models.order.{OrderPayment, OrderShippingAddress}
 import models.payment.creditcard.CreditCardCharge
@@ -103,7 +102,6 @@ object Seeds {
 
   def createBase()(implicit db: Database): DbResultT[Int] =
     for {
-      _       ← * <~ Warehouses.create(Factories.warehouse)
       context ← * <~ ObjectContexts.create(SimpleContext.create())
       admin   ← * <~ Factories.createStoreAdmins
     } yield admin
@@ -113,27 +111,11 @@ object Seeds {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       ruContext ← * <~ ObjectContexts.create(
                      SimpleContext.create(name = SimpleContext.ru, lang = "ru"))
-      customers  ← * <~ Factories.createCustomers
-      _          ← * <~ Factories.createAddresses(customers)
-      _          ← * <~ Factories.createCreditCards(customers)
-      products   ← * <~ Factories.createProducts
-      ruProducts ← * <~ Factories.createRuProducts(products)
-      skus ← * <~ Factories.createInventory(
-                Seq(products._1,
-                    products._2,
-                    products._3,
-                    products._4,
-                    products._5,
-                    products._6,
-                    products._7))
-      ruSkus ← * <~ Factories.createInventory(
-                  Seq(ruProducts._1,
-                      ruProducts._2,
-                      ruProducts._3,
-                      ruProducts._4,
-                      ruProducts._5,
-                      ruProducts._6,
-                      ruProducts._7))
+      customers   ← * <~ Factories.createCustomers
+      _           ← * <~ Factories.createAddresses(customers)
+      _           ← * <~ Factories.createCreditCards(customers)
+      products    ← * <~ Factories.createProducts
+      ruProducts  ← * <~ Factories.createRuProducts(products)
       shipMethods ← * <~ Factories.createShipmentRules
       _           ← * <~ Reasons.createAll(Factories.reasons.map(_.copy(storeAdminId = adminId)))
       _           ← * <~ Factories.createGiftCards
@@ -153,7 +135,6 @@ object Seeds {
       with StoreCreditSeeds
       with ReturnSeeds
       with ProductSeeds
-      with InventorySeeds
       with ShipmentSeeds
       with OrderSeeds
       with StoreAdminSeeds

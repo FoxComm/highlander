@@ -1,5 +1,6 @@
 package services
 
+import failures.ProductFailures.SkuNotFoundForContext
 import models.StoreAdmin
 import models.activity.Activity
 import models.customer.Customer
@@ -73,8 +74,9 @@ object LineItemUpdater {
       _     ← * <~ LogActivity.orderLineItemsDeletedGc(admin, res, gc)
     } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 
-  def updateQuantitiesOnOrder(
-      admin: StoreAdmin, refNum: String, payload: Seq[UpdateLineItemsPayload])(
+  def updateQuantitiesOnOrder(admin: StoreAdmin,
+                              refNum: String,
+                              payload: Seq[UpdateLineItemsPayload])(
       implicit ec: EC, es: ES, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] = {
 
     val finder = Orders.mustFindByRefNum(refNum)
@@ -84,8 +86,9 @@ object LineItemUpdater {
     runUpdates(finder, logActivity, payload)
   }
 
-  def updateQuantitiesOnCustomersOrder(
-      customer: Customer, payload: Seq[UpdateLineItemsPayload], context: ObjectContext)(
+  def updateQuantitiesOnCustomersOrder(customer: Customer,
+                                       payload: Seq[UpdateLineItemsPayload],
+                                       context: ObjectContext)(
       implicit ec: EC, es: ES, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] = {
 
     val findOrCreate = Orders
@@ -107,7 +110,6 @@ object LineItemUpdater {
                          payload: Seq[UpdateLineItemsPayload])(
       implicit ec: EC, es: ES, db: DB): Result[TheResponse[FullOrder.Root]] =
     (for {
-
       order ← * <~ finder
       _     ← * <~ order.mustBeCart
       // load old line items for activity trail
@@ -127,97 +129,83 @@ object LineItemUpdater {
       _     ← * <~ logAct(res, lineItems)
     } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 
-  private def qtyAvailableForSkus(order: Order, skus: Seq[String])(
-      implicit ec: EC): DBIO[Map[Sku, Int]] = {
-    // TODO: inventory... 'nuff said. (aka FIXME)
-    // Skus.qtyAvailableForSkus(updateQuantities.keys.toSeq).flatMap { availableQuantities ⇒
-    (for {
-      sku ← Skus.filterByContext(order.contextId).filter(_.code.inSet(skus))
-    } yield (sku, 1000000)).result.map(_.toMap)
-  }
-
-  def foldQuantityPayload(payload: Seq[UpdateLineItemsPayload]): Map[String, Int] = {
+  def foldQuantityPayload(payload: Seq[UpdateLineItemsPayload]): Map[String, Int] =
     payload.foldLeft(Map[String, Int]()) { (acc, item) ⇒
       val quantity = acc.getOrElse(item.sku, 0)
       acc.updated(item.sku, quantity + item.quantity)
     }
-  }
 
   private def updateQuantities(order: Order, payload: Seq[UpdateLineItemsPayload])(
+      implicit ec: EC): DbResultT[Seq[OrderLineItem]] = {
+
+    val lineItemUpdActions = foldQuantityPayload(payload).map {
+      case (skuCode, qty) ⇒
+        for {
+          sku ← * <~ Skus
+                 .filterByContext(order.contextId)
+                 .filter(_.code === skuCode)
+                 .mustFindOneOr(SkuNotFoundForContext(skuCode, order.contextId))
+          lis ← * <~ fuckingHell(sku.id, qty, order.id)
+        } yield lis
+    }
+    DbResultT.sequence(lineItemUpdActions).map(_.flatten.toSeq)
+  }
+
+  private def fuckingHell(skuId: Int, newQuantity: Int, orderId: Int)(
       implicit ec: EC): DbResult[Seq[OrderLineItem]] = {
+    // select oli_skus.sku_id as sku_id, count(1) from order_line_items
+    // left join order_line_item_skus as oli_skus on origin_id = oli_skus.id
+    // where order_id = $ and origin_type = 'skuItem' group by sku_id
+    val counts = for {
+      (skuId, q) ← OrderLineItems
+                    .filter(_.orderId === orderId)
+                    .skuItems
+                    .join(OrderLineItemSkus)
+                    .on(_.originId === _.id)
+                    .groupBy(_._2.skuId)
+    } yield (skuId, q.length)
 
-    val updateQuantities = foldQuantityPayload(payload)
+    counts.result.flatMap { (items: Seq[(Int, Int)]) ⇒
+      val existingSkuCounts = items.toMap
 
-    qtyAvailableForSkus(order, updateQuantities.keys.toSeq).flatMap { availableQuantities ⇒
-      val enoughOnHand = availableQuantities.foldLeft(Map.empty[Sku, Int]) {
-        case (acc, (sku, numAvailable)) ⇒
-          val numRequested = updateQuantities.getOrElse(sku.code, 0)
-          if (numRequested >= 0) acc.updated(sku, numRequested) else acc
-        // TODO: reinstate when we have real inventory
-//        if (numAvailable >= numRequested && numRequested >= 0)
-//          acc.updated(sku, numRequested)
-//        else
-//          acc
+      val current = existingSkuCounts.getOrElse(skuId, 0)
+
+      // we're using absolute values from payload, so if newQuantity is greater then create N items
+      if (newQuantity > current) {
+        val delta = newQuantity - current
+
+        val queries = for {
+          origin ← OrderLineItemSkus.safeFindBySkuId(skuId)
+          // FIXME: should use `createAll` instead of `++=` but this method is a nightmare to refactor
+          bulkInsert ← OrderLineItems ++= (1 to delta).map { _ ⇒
+                        OrderLineItem(orderId = orderId, originId = origin.id)
+                      }.toSeq
+        } yield ()
+
+        DbResult.fromDbio(queries)
+      } else if (current - newQuantity > 0) {
+        // otherwise delete N items
+        val queries = for {
+          deleteLi ← OrderLineItems
+                      .filter(
+                          _.id in OrderLineItems
+                            .filter(_.orderId === orderId)
+                            .skuItems
+                            .join(OrderLineItemSkus)
+                            .on(_.originId === _.id)
+                            .filter(_._2.skuId === skuId)
+                            .sortBy(_._1.id.asc)
+                            .take(current - newQuantity)
+                            .map(_._1.id))
+                      .delete
+        } yield ()
+
+        DbResult.fromDbio(queries)
+      } else {
+        DbResult.unit
       }
-
-      // select oli_skus.sku_id as sku_id, count(1) from order_line_items
-      // left join order_line_item_skus as oli_skus on origin_id = oli_skus.id
-      // where order_id = $ and origin_type = 'skuItem' group by sku_id
-      val counts = for {
-        (skuId, q) ← OrderLineItems
-                      .filter(_.orderId === order.id)
-                      .skuItems
-                      .join(OrderLineItemSkus)
-                      .on(_.originId === _.id)
-                      .groupBy(_._2.skuId)
-      } yield (skuId, q.length)
-
-      counts.result.flatMap { (items: Seq[(Int, Int)]) ⇒
-        val existingSkuCounts = items.toMap
-
-        val changes = enoughOnHand.map {
-          case (sku, newQuantity) ⇒
-            val current = existingSkuCounts.getOrElse(sku.id, 0)
-
-            // we're using absolute values from payload, so if newQuantity is greater then create N items
-            if (newQuantity > current) {
-              val delta = newQuantity - current
-
-              val queries = for {
-                origin ← OrderLineItemSkus.safeFindBySkuId(sku.id)
-                // FIXME: should use `createAll` instead of `++=` but this method is a nightmare to refactor
-                bulkInsert ← OrderLineItems ++= (1 to delta).map { _ ⇒
-                              OrderLineItem(orderId = order.id, originId = origin.id)
-                            }.toSeq
-              } yield ()
-
-              DbResult.fromDbio(queries)
-            } else if (current - newQuantity > 0) {
-              // otherwise delete N items
-              val queries = for {
-                deleteLi ← OrderLineItems
-                            .filter(_.id in OrderLineItems
-                                  .filter(_.orderId === order.id)
-                                  .skuItems
-                                  .join(OrderLineItemSkus)
-                                  .on(_.originId === _.id)
-                                  .filter(_._2.skuId === sku.id)
-                                  .sortBy(_._1.id.asc)
-                                  .take(current - newQuantity)
-                                  .map(_._1.id))
-                            .delete
-              } yield ()
-
-              DbResult.fromDbio(queries)
-            } else {
-              DbResult.unit
-            }
-        }.to[Seq]
-
-        DBIO.seq(changes: _*)
-      }.flatMap { _ ⇒
-        DbResult.fromDbio(OrderLineItems.filter(_.orderId === order.id).result)
-      }
+    }.flatMap { _ ⇒
+      DbResult.fromDbio(OrderLineItems.filter(_.orderId === orderId).result)
     }
   }
 }

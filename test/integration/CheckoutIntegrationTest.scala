@@ -5,9 +5,7 @@ import Extensions._
 import cats.implicits._
 import failures.NotFoundFailure404
 import models.customer.Customers
-import models.inventory.InventoryAdjustment._
 import models.inventory._
-import models.inventory.summary.SellableInventorySummaries
 import models.location.Addresses
 import models.objects._
 import models.order.Order.Cart
@@ -23,12 +21,10 @@ import payloads.UpdateShippingMethod
 import responses.GiftCardResponse
 import responses.order.FullOrder
 import responses.order.FullOrder.Root
-import services.inventory.InventoryAdjustmentManager
 import util.IntegrationTestBase
 import utils.db.DbResultT._
 import utils.db._
 import utils.seeds.Seeds.Factories
-import utils.seeds.generators.InventorySummaryGenerator
 
 class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
 
@@ -62,41 +58,17 @@ class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with 
       checkout.status must ===(StatusCodes.OK)
       checkout.as[Root].orderState must ===(Order.RemorseHold)
       Orders.findOneByRefNum(refNum).run().futureValue.value.placedAt.value
-
-      // Must adjust inventory on order placement
-      val summary =
-        SellableInventorySummaries.findOneById(sellableSummary.id).run().futureValue.value
-      summary.onHand must ===(sellableSummary.onHand)
-      summary.onHold must ===(sellableSummary.onHold + 2)
-      summary.reserved must ===(sellableSummary.reserved)
-      summary.safetyStock must ===(sellableSummary.safetyStock)
-
-      val adjustments = InventoryAdjustments.findSellableBySummaryId(sellableSummary.id).gimme
-      adjustments must have size 1
-      adjustments.filterNot(_.state == OnHold) mustBe empty
-      val onHoldAdj = adjustments.headOption.value
-      onHoldAdj.state must ===(OnHold)
-      onHoldAdj.change must ===(2)
-      onHoldAdj.newAfs must ===(sellableSummary.availableForSale - 2)
-      onHoldAdj.newQuantity must ===(sellableSummary.onHold + 2)
     }
 
     "fails if AFS is zero" in new Fixture {
+      // FIXME #middlewarehouse
+      pending
 
       //Create cart
       val refNum = POST("v1/orders", CreateOrder(Some(customer.id))).as[Root].referenceNumber
 
       POST(s"v1/orders/$refNum/line-items", Seq(UpdateLineItemsPayload(sku.code, 2))).status must ===(
           StatusCodes.OK)
-
-      // Adjust inventory. Make AFS == 0
-      private val wmsAdjustment: WmsOverride =
-        WmsOverride(sku.id,
-                    warehouse.id,
-                    sellableSummary.onHand,
-                    sellableSummary.onHold + sellableSummary.availableForSale,
-                    sellableSummary.reserved)
-      InventoryAdjustmentManager.applyWmsAdjustment(wmsAdjustment).gimme
 
       // Set address
       PATCH(s"v1/orders/$refNum/shipping-address/${address.id}").status must ===(StatusCodes.OK)
@@ -129,8 +101,8 @@ class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with 
     }
   }
 
-  trait Fixture extends InventorySummaryGenerator {
-    val (customer, address, shipMethod, product, sku, reason, sellableSummary, warehouse) = (for {
+  trait Fixture {
+    val (customer, address, shipMethod, product, sku, reason) = (for {
       productCtx ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       customer   ← * <~ Customers.create(Factories.customer)
       address    ← * <~ Addresses.create(Factories.usAddress1.copy(customerId = customer.id))
@@ -139,8 +111,6 @@ class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with 
       sku        ← * <~ Skus.mustFindById404(product.skuId)
       admin      ← * <~ StoreAdmins.create(Factories.storeAdmin)
       reason     ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
-      warehouse  ← * <~ Warehouses.create(Factories.warehouse)
-      inventory  ← * <~ generateInventory(sku.id, warehouse.id)
-    } yield (customer, address, shipMethod, product, sku, reason, inventory._1, warehouse)).gimme
+    } yield (customer, address, shipMethod, product, sku, reason)).gimme
   }
 }

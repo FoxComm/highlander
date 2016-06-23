@@ -1,36 +1,33 @@
 package server
 
-import cats.implicits._
 import scala.collection.immutable
-import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
-import akka.actor.{ActorSystem, Props}
-import akka.event.{Logging, LoggingAdapter}
 import scala.concurrent.duration._
+import scala.concurrent.{ExecutionContextExecutor, Future}
+import akka.actor.{ActorSystem, Props}
 import akka.agent.Agent
+import akka.event.Logging
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.RouteResult._
 import akka.http.scaladsl.server._
 import akka.stream.ActorMaterializer
-import akka.stream.scaladsl.Sink
 
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.LazyLogging
 import models.StoreAdmin
 import models.customer.Customer
-import org.json4s.JsonAST.JString
-import org.json4s.jackson._
 import org.json4s._
+import org.json4s.jackson._
 import services.Authenticator
 import services.Authenticator.{AsyncAuthenticator, requireAuth}
 import services.actors._
 import slick.driver.PostgresDriver.api._
 import utils.FoxConfig.{Development, Staging}
+import utils.apis._
 import utils.http.CustomHandlers
 import utils.http.HttpLogger.logFailedRequests
 import utils.{ElasticsearchApi, FoxConfig}
-import utils.apis._
 
 object Main extends App with LazyLogging {
   logger.info("Starting phoenix server")
@@ -89,7 +86,6 @@ class Service(systemOverride: Option[ActorSystem] = None,
         routes.admin.GiftCardRoutes.routes ~
         routes.admin.ReturnRoutes.routes ~
         routes.admin.Activity.routes ~
-        routes.admin.InventoryRoutes.routes ~
         routes.admin.ProductRoutes.routes ~
         routes.admin.SkuRoutes.routes ~
         routes.admin.VariantRoutes.routes ~

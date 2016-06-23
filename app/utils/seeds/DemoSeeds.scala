@@ -1,41 +1,37 @@
 package utils.seeds
 
-import models.customer.{Customer, Customers}
-import models.location.{Address, Addresses}
-import models.order.lineitems._
-import models.order._
-import models.payment.creditcard.CreditCards
-import models.payment.giftcard._
-import models.shipping._
-import models.inventory._
-import models.product.{SimpleProductData, Mvp, SimpleContext}
-import models.objects.ObjectContexts
-import Order.Shipped
-import services.orders.OrderTotaler
-import utils.seeds.generators.{InventoryGenerator, InventorySummaryGenerator, ProductGenerator}
-import utils.Money.Currency
-import utils.db._
-import utils.db.DbResultT._
-import utils.Passwords.hashPassword
-import utils.seeds.generators.GeneratorUtils.randomString
-import cats.implicits._
-import faker._
 import scala.concurrent.ExecutionContext.Implicits.global
 
+import cats.implicits._
 import failures.CreditCardFailures.CustomerHasNoCreditCard
 import failures.CustomerFailures.CustomerHasNoDefaultAddress
 import failures.NotFoundFailure404
+import models.customer.{Customer, Customers}
+import models.inventory._
+import models.location.{Address, Addresses}
+import models.objects.ObjectContexts
+import models.order.Order.Shipped
+import models.order._
+import models.order.lineitems._
+import models.payment.creditcard.CreditCards
+import models.payment.giftcard._
+import models.product.{Mvp, SimpleContext, SimpleProductData}
+import models.shipping._
+import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._
+import utils.Money.Currency
+import utils.Passwords.hashPassword
+import utils.db.DbResultT._
+import utils.db._
+import utils.seeds.generators.GeneratorUtils.randomString
+import utils.seeds.generators.ProductGenerator
 import utils.time
 
 /**
   * The scenarios below are outlined here.
   * https://docs.google.com/document/d/1NW9v81xtMFXkvGVg8_4uzhmRVZzG2CiL8w4zefGCeV4/edit#
   */
-trait DemoSeedHelpers
-    extends CreditCardSeeds
-    with InventoryGenerator
-    with InventorySummaryGenerator {
+trait DemoSeedHelpers extends CreditCardSeeds {
 
   val hashedPassword = hashPassword(randomString(10))
 
@@ -162,12 +158,10 @@ trait DemoScenario2 extends DemoSeedHelpers {
 
   def createScenario2(implicit db: Database) =
     for {
-      context      ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-      warehouseIds ← * <~ Warehouses.map(_.id).result.toXor
-      customerIds  ← * <~ Customers.createAllReturningIds(customers2)
-      addressIds   ← * <~ createAddresses(customerIds, address2)
-      productData  ← * <~ Mvp.insertProducts(products2, context.id)
-      inventory    ← * <~ generateInventories(productData, warehouseIds)
+      context     ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
+      customerIds ← * <~ Customers.createAllReturningIds(customers2)
+      addressIds  ← * <~ createAddresses(customerIds, address2)
+      productData ← * <~ Mvp.insertProducts(products2, context.id)
     } yield {}
 }
 
@@ -219,12 +213,10 @@ trait DemoScenario3 extends DemoSeedHelpers {
       shippingMethod ← * <~ ShippingMethods
                         .filter(_.adminDisplayName === "UPS 2-day")
                         .mustFindOneOr(NotFoundFailure404("Unable to find 2-day shipping method"))
-      warehouseIds ← * <~ Warehouses.map(_.id).result.toXor
-      customerIds  ← * <~ Customers.createAllReturningIds(customers3)
-      addressIds   ← * <~ createAddresses(customerIds, address3)
-      productData  ← * <~ Mvp.insertProducts(products3, context.id)
-      inventory    ← * <~ generateInventories(productData, warehouseIds)
-      skuIds       ← * <~ productData.map(_.skuId)
+      customerIds ← * <~ Customers.createAllReturningIds(customers3)
+      addressIds  ← * <~ createAddresses(customerIds, address3)
+      productData ← * <~ Mvp.insertProducts(products3, context.id)
+      skuIds      ← * <~ productData.map(_.skuId)
       orders ← * <~ customerIds.map(id ⇒
                     createShippedOrder(id, context.id, skuIds, shippingMethod))
     } yield {}

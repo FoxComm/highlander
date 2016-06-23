@@ -12,7 +12,6 @@ import utils.db._
 
 object ObjectManager {
 
-  // Detailed info for SKU of each type in given warehouse
   def getForm(id: Int)(implicit ec: EC, db: DB): Result[ObjectFormResponse.Root] =
     (for {
       form ← * <~ ObjectForms.mustFindById404(id)

@@ -4,24 +4,20 @@ import java.time.Instant
 
 import cats.implicits._
 import failures.CouponFailures.CouponWithCodeCannotBeFound
-import failures.InventoryFailures.NotEnoughItems
+import failures.GeneralFailure
 import failures.PromotionFailures.PromotionNotFoundForContext
-import failures.{Failures, GeneralFailure}
 import models.coupon.{CouponCodes, Coupons, IlluminatedCoupon}
 import models.customer.{Customer, Customers}
-import models.inventory.summary.InventorySummaries
-import models.inventory.{Sku, Skus}
 import models.objects.{ObjectContext, ObjectContexts, ObjectForms, ObjectShadows}
 import models.order.Order.RemorseHold
 import models.order._
-import models.order.lineitems.{OrderLineItemGiftCards, OrderLineItems}
+import models.order.lineitems.OrderLineItemGiftCards
 import models.payment.creditcard.{CreditCardCharge, CreditCardCharges}
 import models.payment.giftcard.{GiftCard, GiftCardAdjustment, GiftCards}
 import models.payment.storecredit.{StoreCreditAdjustment, StoreCredits}
 import models.promotion.{IlluminatedPromotion, Promotions}
 import responses.order.FullOrder
 import services.coupon.CouponUsageService
-import services.inventory.InventoryAdjustmentManager
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.apis.Apis
@@ -53,22 +49,14 @@ object Checkout {
     } yield order).runTxn()
 }
 
-/*
-  1) Run cart through validator
-  2) Check inventory availability for every item (currently, that we have some items since our inventory is bunk)
-  3) Re-validate that applied promos are active
-  4) Authorize each payment method (stripe for cc, and gc and sc internally)
-  5) Transition order to Remorse Hold**
-  6) Create new cart for customer
- */
 case class Checkout(cart: Order, cartValidator: CartValidation)(
     implicit ec: EC, db: DB, apis: Apis, ac: AC) {
 
   def checkout: DbResultT[FullOrder.Root] =
     for {
-      _         ← * <~ cart.mustBeCart
-      customer  ← * <~ Customers.mustFindById404(cart.customerId)
-      _         ← * <~ checkInventory
+      _        ← * <~ cart.mustBeCart
+      customer ← * <~ Customers.mustFindById404(cart.customerId)
+      // TODO make request to #middlewarehouse
       _         ← * <~ activePromos
       valid     ← * <~ cartValidator.validate(isCheckout = false, fatalWarnings = true)
       _         ← * <~ authPayments(customer)
@@ -78,28 +66,8 @@ case class Checkout(cart: Order, cartValidator: CartValidation)(
       _         ← * <~ createNewCart
       _         ← * <~ updateCouponCountersForPromotion(customer)
       updated   ← * <~ Orders.refresh(cart).toXor
-      _         ← * <~ InventoryAdjustmentManager.orderPlaced(cart)
       fullOrder ← * <~ FullOrder.fromOrder(updated).toXor
     } yield fullOrder
-
-  private def checkInventory: DbResultT[Unit] =
-    for {
-      skusInCart ← * <~ OrderLineItems.countBySkuIdForOrder(cart).result
-      _ ← * <~ skusInCart.map {
-           case (skuId, qtyInCart) ⇒
-             for {
-               sku ← * <~ Skus.mustFindById400(skuId)
-               afs ← * <~ InventorySummaries
-                      .findAfsBySkuId(skuId)
-                      .mustFindOneOr(
-                          GeneralFailure(s"Could not find AFS for sku with code=${sku.code}"))
-               _ ← * <~ (if (afs < qtyInCart)
-                           DbResultT.leftLift(NotEnoughItems(sku.code, afs, qtyInCart).single)
-                         else
-                           DbResultT.unit)
-             } yield {}
-         }
-    } yield {}
 
   private def activePromos: DbResultT[Unit] =
     for {
