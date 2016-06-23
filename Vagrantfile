@@ -88,11 +88,6 @@ Vagrant.configure("2") do |config|
     expose_backend_ports(app)
     expose_ashes(app)
 
-    app.vm.synced_folder "../firebird", "/fox/firebird"
-    app.vm.synced_folder "../ashes", "/fox/ashes"
-    app.vm.synced_folder "../green-river", "/fox/green-river"
-    app.vm.synced_folder "../phoenix-scala", "/fox/phoenix-scala"
-
     app.vm.provision "shell", inline: "apt-get install -y python-minimal"
     app.vm.provision "ansible" do |ansible|
         ansible.verbose = "vvv"
