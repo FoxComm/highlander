@@ -103,7 +103,7 @@ class VariantIntegrationTest extends IntegrationTestBase with HttpSupport with A
                                               values = None)
 
     val createVariantValuePayload =
-      VariantValuePayload(name = Some("Red"), swatch = Some("ff0000"))
+      VariantValuePayload(name = Some("Red"), swatch = Some("ff0000"), skuCode = None)
 
     val context = (for {
       context ← * <~ ObjectContexts

@@ -99,29 +99,23 @@ object ProductResponses {
                     product: IlluminatedProductResponse.Root,
                     skus: Seq[IlluminatedSkuResponse.Root],
                     variants: Seq[IlluminatedVariantResponse.Root],
-                    variantMap: Json,
                     albums: Seq[AlbumResponse.Root])
         extends ResponseItem
 
     def build(p: IlluminatedProduct,
               skus: Seq[IlluminatedSkuResponse.Root],
               variants: Seq[(IlluminatedVariant, Seq[FullObject[VariantValue]])],
-              variantMap: Map[String, Seq[FullObject[VariantValue]]],
+              variantValueSkuCodeLinks: Map[Int, String],
               albums: Seq[AlbumResponse.Root]): Root =
       Root(id = p.id,
            product = IlluminatedProductResponse.buildLite(p),
            context = ObjectContextResponse.build(p.context),
            skus = skus,
            variants = variants.map {
-             case (variant, values) ⇒ IlluminatedVariantResponse.buildLite(variant, values)
+             case (variant, values) ⇒
+               IlluminatedVariantResponse.buildLite(variant, values, variantValueSkuCodeLinks)
            },
-           variantMap = buildVariantMap(variantMap),
            albums = albums)
-
-    private def buildVariantMap(vm: Map[String, Seq[FullObject[VariantValue]]]): Json = {
-      val idMap = vm.mapValues(_.map(_.form.id))
-      render(idMap)
-    }
   }
 
   // New Product Response
@@ -132,28 +126,22 @@ object ProductResponses {
                     attributes: Json,
                     albums: Seq[AlbumResponse.Root],
                     skus: Seq[SkuResponse.Root],
-                    variants: Seq[IlluminatedVariantResponse.Root],
-                    variantMap: Json)
+                    variants: Seq[IlluminatedVariantResponse.Root])
         extends ResponseItem
 
     def build(product: IlluminatedProduct,
               albums: Seq[AlbumResponse.Root],
               skus: Seq[SkuResponse.Root],
               variants: Seq[(IlluminatedVariant, Seq[FullObject[VariantValue]])],
-              variantMap: Map[String, Seq[FullObject[VariantValue]]]): Root =
+              variantValueSkuCodeLinks: Map[Int, String]): Root =
       Root(id = product.id,
            attributes = product.attributes,
            context = ObjectContextResponse.build(product.context),
            albums = albums,
            skus = skus,
            variants = variants.map {
-             case (variant, values) ⇒ IlluminatedVariantResponse.buildLite(variant, values)
-           },
-           variantMap = buildVariantMap(variantMap))
-
-    private def buildVariantMap(vm: Map[String, Seq[FullObject[VariantValue]]]): Json = {
-      val idMap = vm.mapValues(_.map(_.form.id))
-      render(idMap)
-    }
+             case (variant, values) ⇒
+               IlluminatedVariantResponse.buildLite(variant, values, variantValueSkuCodeLinks)
+           })
   }
 }

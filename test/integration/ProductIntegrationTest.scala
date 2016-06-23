@@ -186,8 +186,10 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
     }
 
     "Updates the variants on a product successfully" in new VariantFixture {
-      val goldValuePayload   = VariantValuePayload(name = Some("Gold"), swatch = None)
-      val silverValuePayload = VariantValuePayload(name = Some("Silver"), swatch = None)
+      val goldValuePayload =
+        VariantValuePayload(name = Some("Gold"), swatch = None, skuCode = None)
+      val silverValuePayload =
+        VariantValuePayload(name = Some("Silver"), swatch = None, skuCode = None)
       val metalVariantPayload =
         makeVariantPayload("Metal", Seq(goldValuePayload, silverValuePayload))
 
@@ -302,15 +304,13 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
                   val sizeValue   = variantValues.filter(_.name == sizeName).head
 
                   for {
-                    colorLink ← * <~ ObjectLinks.create(
-                                   ObjectLink(leftId = selectedSku.shadowId,
-                                              rightId = colorValue.shadowId,
-                                              linkType = ObjectLink.SkuVariantValue))
-                    sizeLink ← * <~ ObjectLinks.create(
-                                  ObjectLink(leftId = selectedSku.shadowId,
-                                             rightId = sizeValue.shadowId,
-                                             linkType = ObjectLink.SkuVariantValue))
-                  } yield (colorLink, sizeLink)
+                    colorLink ← * <~ VariantValueSkuLinks.create(
+                                   VariantValueSkuLink(leftId = colorValue.valueId,
+                                                       rightId = selectedSku.id))
+                    sizeLink ← * <~ VariantValueSkuLinks.create(
+                                  VariantValueSkuLink(leftId = sizeValue.valueId,
+                                                      rightId = selectedSku.id))
+                  } yield {}
               }
     } yield (context, product, skus, variantsAndValues)).gimme
   }
@@ -320,12 +320,16 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
       VariantPayload(attributes = Map("name" → (("t" → "string") ~ ("v" → name))),
                      values = Some(values))
 
-    val redValuePayload     = VariantValuePayload(name = Some("Red"), swatch = Some("ff0000"))
-    val greenValuePayload   = VariantValuePayload(name = Some("Green"), swatch = Some("00ff00"))
+    val redValuePayload =
+      VariantValuePayload(name = Some("Red"), swatch = Some("ff0000"), skuCode = None)
+    val greenValuePayload =
+      VariantValuePayload(name = Some("Green"), swatch = Some("00ff00"), skuCode = None)
     val colorVariantPayload = makeVariantPayload("Color", Seq(redValuePayload, greenValuePayload))
 
-    val smallValuePayload  = VariantValuePayload(name = Some("Small"), swatch = None)
-    val largeValuePayload  = VariantValuePayload(name = Some("Large"), swatch = None)
+    val smallValuePayload =
+      VariantValuePayload(name = Some("Small"), swatch = None, skuCode = None)
+    val largeValuePayload =
+      VariantValuePayload(name = Some("Large"), swatch = None, skuCode = None)
     val sizeVariantPayload = makeVariantPayload("Size", Seq(smallValuePayload, largeValuePayload))
 
     val smallRedSkuPayload   = makeSkuPayload("SKU-RED-SMALL", "A small, red item")

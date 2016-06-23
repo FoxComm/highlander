@@ -15,16 +15,26 @@ object VariantResponses {
                     values: Seq[IlluminatedVariantValueResponse.Root])
         extends ResponseItem
 
-    def build(v: IlluminatedVariant, vs: Seq[FullObject[VariantValue]]): Root =
-      Root(id = v.id,
-           attributes = v.attributes,
-           context = ObjectContextResponse.build(v.context).some,
-           values = vs.map(IlluminatedVariantValueResponse.build _))
+    def build(variant: IlluminatedVariant,
+              variantValues: Seq[FullObject[VariantValue]],
+              variantValueSkuCodeLinks: Map[Int, String]): Root =
+      Root(id = variant.id,
+           attributes = variant.attributes,
+           context = ObjectContextResponse.build(variant.context).some,
+           values = variantValues.map(
+               vv ⇒
+                 IlluminatedVariantValueResponse.build(vv,
+                                                       variantValueSkuCodeLinks.get(vv.model.id))))
 
-    def buildLite(v: IlluminatedVariant, vs: Seq[FullObject[VariantValue]]): Root =
-      Root(id = v.id,
-           attributes = v.attributes,
+    def buildLite(variant: IlluminatedVariant,
+                  variantValues: Seq[FullObject[VariantValue]],
+                  variantValueSkuCodeLinks: Map[Int, String]): Root =
+      Root(id = variant.id,
+           attributes = variant.attributes,
            context = None,
-           values = vs.map(IlluminatedVariantValueResponse.build _))
+           values = variantValues.map(
+               vv ⇒
+                 IlluminatedVariantValueResponse.build(vv,
+                                                       variantValueSkuCodeLinks.get(vv.model.id))))
   }
 }

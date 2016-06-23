@@ -43,6 +43,9 @@ object ProductManager {
       skus ← * <~ payload.skus.map(sku ⇒ findOrCreateSkuForProduct(product, sku))
       variants ← * <~ variantPayloads.map(variant ⇒
                       findOrCreateVariantForProduct(product, variant))
+      variantValueIds = variants.map { case (_, variantValue) ⇒ variantValue }.flatten
+        .map(_.model.id)
+      variantValueSkuCodes ← * <~ VariantManager.getVariantValueSkuCodes(variantValueIds)
     } yield
       ProductResponse.build(product =
                               IlluminatedProduct.illuminate(oc, product, ins.form, ins.shadow),
@@ -52,7 +55,7 @@ object ProductManager {
                               case (fullVariant, values) ⇒
                                 (IlluminatedVariant.illuminate(oc, fullVariant), values)
                             },
-                            variantMap = Map.empty)
+                            variantValueSkuCodeLinks = variantValueSkuCodes)
   }
 
   def getProduct(
@@ -68,6 +71,8 @@ object ProductManager {
 
       variantLinks ← * <~ ProductVariantLinks.filter(_.leftId === product.id).result
       variants     ← * <~ variantLinks.map(link ⇒ mustFindFullVariantById(link.rightId))
+      variantValueIds = variants.flatMap { case (_, variantValue) ⇒ variantValue }.map(_.model.id)
+      variantValueSkuCodes ← * <~ VariantManager.getVariantValueSkuCodes(variantValueIds)
     } yield
       ProductResponse.build(product = IlluminatedProduct.illuminate(oc, product, form, shadow),
                             albums = albums,
@@ -76,7 +81,7 @@ object ProductManager {
                               case (fullVariant, values) ⇒
                                 (IlluminatedVariant.illuminate(oc, fullVariant), values)
                             },
-                            variantMap = Map.empty)
+                            variantValueSkuCodeLinks = variantValueSkuCodes)
 
   def updateProduct(productId: Int, payload: UpdateProductPayload)(
       implicit ec: EC,
@@ -107,6 +112,9 @@ object ProductManager {
 
       fullProduct = FullObject(updatedHead, updated.form, updated.shadow)
       _ ← * <~ validateUpdate(fullProduct, skus, variants)
+
+      variantValueIds = variants.flatMap { case (_, variantValue) ⇒ variantValue }.map(_.model.id)
+      variantValueSkuCodes ← * <~ VariantManager.getVariantValueSkuCodes(variantValueIds)
     } yield
       ProductResponse.build(
           product = IlluminatedProduct.illuminate(oc, updatedHead, updated.form, updated.shadow),
@@ -116,7 +124,7 @@ object ProductManager {
             case (fullVariant, values) ⇒
               (IlluminatedVariant.illuminate(oc, fullVariant), values)
           },
-          variantMap = Map.empty)
+          variantValueSkuCodeLinks = variantValueSkuCodes)
   }
 
   private def validateUpdate(product: FullObject[Product],
