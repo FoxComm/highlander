@@ -26,9 +26,9 @@ const Users = props => {
   const tableColumns = [
     { field: 'name', text: 'Name' },
     { field: 'email', text: 'Email' },
-    { field: 'id', text: 'User ID' },
-    { field: 'department', text: 'Department' },
-    { field: 'createdAt', text: 'Date/Time Joined', type: 'datetime' }
+    { field: 'roles', text: 'Roles' },
+    { field: 'lastSignedIn', text: 'Last Signed In' },
+    { field: 'state', text: 'State' },
   ];
 
   return (

@@ -3,19 +3,17 @@
 import React from 'react';
 import _ from 'lodash';
 
+import { activeStatus } from '../../paragons/common';
+
+import RoundedPill from '../rounded-pill/rounded-pill';
 import MultiSelectRow from '../table/multi-select-row';
 
-const setCellContents = (user, field) => {
+const setCellContents = (user: Object, field: string) => {
   switch (field) {
-    case 'id':
-    case 'name':
-    case 'email':
-    case 'department':
-      return _.get(user, field);
-    case 'createdAt':
-      return _.get(user, 'joinedAt', '');
+    case 'state':
+      return <RoundedPill text={activeStatus(user)} />;
     default:
-      return null;
+      return _.get(user, field);
   }
 };
 
