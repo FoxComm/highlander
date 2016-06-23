@@ -63,8 +63,8 @@ import StyleGuideGrid from './components/style-guide/style-guide-grid';
 import StyleGuideButtons from './components/style-guide/style-guide-buttons';
 import StyleGuideContainers from './components/style-guide/style-guide-containers';
 
-import UsersListPage from './components/settings/user-list';
-import Users from './components/settings/users';
+import UsersListPage from './components/users/user-list';
+import Users from './components/users/users';
 
 import AllActivities from './components/activity-trail/all';
 import AllNotificationItems from './components/activity-notifications/all';

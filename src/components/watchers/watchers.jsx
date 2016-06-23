@@ -13,7 +13,7 @@ import { getStore } from '../../lib/store-creator';
 // components
 import Panel from '../panel/panel';
 import { AddButton } from '../common/buttons';
-import DetailedInitials from '../users/detailed-initials';
+import DetailedInitials from '../user-initials/detailed-initials';
 import WaitAnimation from '../common/wait-animation';
 import { Button } from '../common/buttons';
 import SelectWatcherModal from './select-modal';

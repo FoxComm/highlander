@@ -8,7 +8,7 @@ import _ from 'lodash';
 
 // components
 import NotificationBlock from '../activity-notifications/notification-block';
-import DetailedInitials from '../users/detailed-initials';
+import DetailedInitials from '../user-initials/detailed-initials';
 import Breadcrumb from './breadcrumb';
 import UserMenu from './usermenu';
 import * as userActions from '../../modules/user';

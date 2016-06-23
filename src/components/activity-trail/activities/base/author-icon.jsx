@@ -4,7 +4,7 @@ import _ from 'lodash';
 import React, { PropTypes } from 'react';
 
 // components
-import DetailedInitials from '../../../users/detailed-initials';
+import DetailedInitials from '../../../user-initials/detailed-initials';
 
 
 const AuthorIcon = props => {
