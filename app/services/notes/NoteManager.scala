@@ -3,16 +3,16 @@ package services.notes
 import java.time.Instant
 
 import failures.NotFoundFailure404
-import models.{Note, Notes, StoreAdmin}
 import models.Notes.scope._
+import models.{Note, Notes, StoreAdmin}
 import payloads.NotePayloads._
 import responses.AdminNotes
 import responses.AdminNotes.Root
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
-import utils.db._
 import utils.db.DbResultT._
+import utils.db._
 
 trait NoteManager[K, T <: FoxModel[T]] {
   // Define this methods in inherit object
@@ -20,32 +20,32 @@ trait NoteManager[K, T <: FoxModel[T]] {
   def fetchEntity(key: K)(implicit ec: EC, db: DB, ac: AC): DbResult[T]
 
   // Use this methods wherever you want
-  def list(key: K)(implicit ec: EC, db: DB, ac: AC): Result[Seq[Root]] =
-    (for {
+  def list(key: K)(implicit ec: EC, db: DB, ac: AC): DbResultT[Seq[Root]] =
+    for {
       entity   ← * <~ fetchEntity(key)
       response ← * <~ forModel(entityQuerySeq(entity.id))
-    } yield response).run()
+    } yield response
 
   def create(key: K, author: StoreAdmin, payload: CreateNote)(
-      implicit ec: EC, db: DB, ac: AC): Result[Root] =
-    (for {
+      implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
+    for {
       entity ← * <~ fetchEntity(key)
       note   ← * <~ createInner(entity, entity.id, noteType(), author, payload)
-    } yield AdminNotes.build(note, author)).runTxn()
+    } yield AdminNotes.build(note, author)
 
   def update(key: K, noteId: Int, author: StoreAdmin, payload: UpdateNote)(
-      implicit ec: EC, db: DB, ac: AC): Result[Root] =
-    (for {
+      implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
+    for {
       entity ← * <~ fetchEntity(key)
       note   ← * <~ updateInner(entity, noteId, author, payload)
-    } yield note).runTxn()
+    } yield note
 
   def delete(key: K, noteId: Int, author: StoreAdmin)(
-      implicit ec: EC, db: DB, ac: AC): Result[Unit] =
-    (for {
+      implicit ec: EC, db: DB, ac: AC): DbResultT[Unit] =
+    for {
       entity ← * <~ fetchEntity(key)
       _      ← * <~ deleteInner(entity, noteId, author)
-    } yield ()).runTxn()
+    } yield ()
 
   // Inner methods
   private def entityQuerySeq(entityId: Int)(implicit ec: EC, db: DB, ac: AC): Notes.QuerySeq =

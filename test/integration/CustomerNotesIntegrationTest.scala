@@ -52,9 +52,10 @@ class CustomerNotesIntegrationTest
   "GET /v1/notes/customer/:customerId" - {
 
     "can be listed" in new Fixture {
-      List("abc", "123", "xyz").map { body ⇒
-        CustomerNoteManager.create(customer.id, admin, CreateNote(body = body)).futureValue
+      val createNotes = List("abc", "123", "xyz").map { body ⇒
+        CustomerNoteManager.create(customer.id, admin, CreateNote(body = body))
       }
+      DbResultT.sequence(createNotes).gimme
 
       val response = GET(s"v1/notes/customer/${customer.id}")
       response.status must ===(StatusCodes.OK)

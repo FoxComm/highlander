@@ -1,45 +1,42 @@
 package services
 
-import models.customer.{Customers, Customer}
-import models.inventory.Skus
+import cats.data.Xor
+import failures.{AlreadySavedForLater, Failures, NotFoundFailure404}
+import models.customer.{Customer, Customers}
 import models.objects.ObjectContext
 import models.{SaveForLater, SaveForLaters}
 import responses.{SaveForLaterResponse, TheResponse}
 import services.inventory.SkuManager
-import utils.db._
-import utils.db.DbResultT._
-import utils.aliases._
-import cats.data.Xor
-
-import failures.{AlreadySavedForLater, Failures, NotFoundFailure404}
-import failures.ProductFailures.SkuNotFoundForContext
 import slick.driver.PostgresDriver.api._
+import utils.aliases._
+import utils.db.DbResultT._
+import utils.db._
 
 object SaveForLaterManager {
 
   type SavedForLater = TheResponse[Seq[SaveForLaterResponse.Root]]
 
-  def findAll(customerId: Int, contextId: Int)(implicit db: DB, ec: EC): Result[SavedForLater] =
-    (for {
+  def findAll(customerId: Int, contextId: Int)(implicit db: DB, ec: EC): DbResultT[SavedForLater] =
+    for {
       customer ← * <~ Customers.mustFindById404(customerId)
       response ← * <~ findAllDbio(customer, contextId).toXor
-    } yield response).run()
+    } yield response
 
   def saveForLater(customerId: Int, skuCode: String, context: ObjectContext)(
-      implicit db: DB, ec: EC): Result[SavedForLater] =
-    (for {
+      implicit db: DB, ec: EC): DbResultT[SavedForLater] =
+    for {
       customer ← * <~ Customers.mustFindById404(customerId)
       sku      ← * <~ SkuManager.mustFindSkuByContextAndCode(context.id, skuCode)
       _ ← * <~ SaveForLaters
            .find(customerId = customer.id, skuId = sku.id)
-           .one
-           .mustNotFindOr(AlreadySavedForLater(customerId = customer.id, skuId = sku.id))
+           .mustNotFindOneOr(AlreadySavedForLater(customerId = customer.id, skuId = sku.id))
       _        ← * <~ SaveForLaters.create(SaveForLater(customerId = customer.id, skuId = sku.id))
       response ← * <~ findAllDbio(customer, context.id).toXor
-    } yield response).runTxn()
+    } yield response
 
-  def deleteSaveForLater(id: Int)(implicit ec: EC, db: DB): Result[Unit] =
-    SaveForLaters.deleteById(id, DbResult.unit, i ⇒ NotFoundFailure404(SaveForLater, i)).run()
+  // TODO @anna: #longlivedbresultt
+  def deleteSaveForLater(id: Int)(implicit ec: EC, db: DB): DbResultT[Unit] =
+    DbResultT(SaveForLaters.deleteById(id, DbResult.unit, i ⇒ NotFoundFailure404(SaveForLater, i)))
 
   private def findAllDbio(customer: Customer, contextId: Int)(
       implicit ec: EC, db: DB): DBIO[SavedForLater] =
