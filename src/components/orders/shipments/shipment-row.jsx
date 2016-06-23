@@ -15,6 +15,7 @@ import TableCell from '../../table/cell';
 import { DateTime } from '../../common/datetime';
 import AddressDetails from '../../addresses/address-details';
 import ShippedItem from './shipped-item';
+import Transaction from './transaction';
 
 //types
 type Props = {
@@ -86,15 +87,21 @@ export default class ShipmentRow extends Component {
 
     return (
       <TableRow styleName="details-row">
-        <TableCell colspan="8">
+        <TableCell colspan={8}>
           <div styleName="details-title">Shipping Address</div>
           <div styleName="address">
             <AddressDetails styleName="address" address={props.address} />
           </div>
           <div styleName="details-title">Items</div>
-          <div styleName="shipped-items">
+          <div styleName="items">
             {this.props.lineItems.map((item, index) => (
               <ShippedItem index={index} {...item} />
+            ))}
+          </div>
+          <div styleName="details-title">Transactions</div>
+          <div styleName="items">
+            {this.props.transactions.map((item, index) => (
+              <Transaction index={index} {...item} />
             ))}
           </div>
         </TableCell>

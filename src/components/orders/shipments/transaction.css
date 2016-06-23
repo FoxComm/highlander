@@ -1,0 +1,27 @@
+.row {
+  display: flex;
+  height: 84px;
+  padding: 10px;
+}
+
+.cell {
+  display: flex;
+  align-items: center;
+}
+
+.source {
+  composes: cell;
+  width: 40%;
+}
+
+.date {
+  composes: cell;
+  width: 60%;
+}
+
+.amount {
+  composes: cell;
+  min-width: 80px;
+  padding-right: 10px;
+  justify-content: flex-end;
+}

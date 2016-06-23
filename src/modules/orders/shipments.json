@@ -48,31 +48,40 @@
       ],
       "transactions": [
         {
-          "card": {
-            "address": {
-              "address1": "556 Red Leaf Grove",
-              "city": "Marne",
-              "id": 3249,
-              "name": "Gladyce Hand",
-              "phoneNumber": "1146281399",
-              "region": {
-                "id": 1127,
-                "countryId": 76,
-                "name": "Marne"
-              },
-              "zip": "27728"
-            },
+          "source": {
+            "type": "creditCard",
             "brand": "MasterCard",
             "customerId": 2843,
             "expMonth": 7,
             "expYear": 2021,
             "holderName": "Gladyce Hand",
             "id": 3852,
-            "lastFour": "8210",
-            "type": "creditCard"
+            "lastFour": "8210"
           },
           "date": "2016-06-15T17:27:13.670054Z",
           "amount": 30900
+        },
+        {
+          "source": {
+            "type": "giftCard",
+            "code": "AA5EADF48B202756",
+            "createdAt": "2016-06-23T12:27:53.722Z",
+            "currentBalance": 1000,
+            "availableBalance": 312
+          },
+          "date": "2016-06-15T17:27:13.670054Z",
+          "amount": 436
+        },
+        {
+          "source": {
+            "type": "storeCredit",
+            "id": 1334,
+            "createdAt": "2016-06-23T12:27:57.857Z",
+            "currentBalance": 0,
+            "availableBalance": 0
+          },
+          "date": "2016-06-15T17:27:13.670054Z",
+          "amount": 23200
         }
       ]
     }

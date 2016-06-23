@@ -28,13 +28,13 @@ const ShippedItem = (props: Props): Element => (
       <img src={props.imagePath} />
       {props.name}
     </div>
-    <div styleName="cell">{props.sku}</div>
-    <div styleName="cell">
+    <div styleName="sku">{props.sku}</div>
+    <div styleName="price">
       <Currency value={props.price} />
     </div>
-    <div styleName="cell">{props.quantity}</div>
-    <div styleName="cell">{props.state}</div>
-    <div styleName="cell">
+    <div styleName="quantity">{props.quantity}</div>
+    <div styleName="state">{props.state}</div>
+    <div styleName="total">
       <Currency value={props.price} />
     </div>
   </div>
