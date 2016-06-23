@@ -1,4 +1,6 @@
-import React, { PropTypes } from 'react';
+/* @flow */
+
+import React from 'react';
 import _ from 'lodash';
 
 import MultiSelectRow from '../table/multi-select-row';
@@ -18,9 +20,9 @@ const setCellContents = (user, field) => {
 };
 
 type Props = {
-  user: object,
-  columns: array,
-  params: object,
+  user: Object,
+  columns: Array<string>,
+  params: Object,
 };
 
 const UserRow = (props: Props) => {

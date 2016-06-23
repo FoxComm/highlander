@@ -17,9 +17,9 @@ const Users = props => {
     const key = `user-${row.id}`;
     return (
       <UserRow key={key}
-                   user={row}
-                   columns={columns}
-                   params={params} />
+               user={row}
+               columns={columns}
+               params={params} />
     );
   };
 
