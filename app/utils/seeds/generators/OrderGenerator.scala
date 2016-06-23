@@ -22,7 +22,6 @@ import models.payment.giftcard._
 import models.payment.storecredit._
 import models.product.Mvp
 import models.shipping.{Shipment, Shipments, ShippingMethods}
-import services.inventory.InventoryAdjustmentManager
 import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
@@ -94,7 +93,6 @@ trait OrderGenerator extends ShipmentSeeds {
       _ ← * <~ OrderShippingAddresses.create(
              OrderShippingAddress.buildFromAddress(addr).copy(orderId = order.id))
       _ ← * <~ OrderTotaler.saveTotals(order)
-      _ ← * <~ InventoryAdjustmentManager.orderPlaced(order)
     } yield order
 
   def manualHoldStoreCreditOrder(
@@ -122,7 +120,6 @@ trait OrderGenerator extends ShipmentSeeds {
       _ ← * <~ OrderShippingAddresses.create(
              OrderShippingAddress.buildFromAddress(addr).copy(orderId = order.id))
       _ ← * <~ OrderTotaler.saveTotals(order)
-      _ ← * <~ InventoryAdjustmentManager.orderPlaced(order)
     } yield order
 
   def fraudHoldOrder(
@@ -146,7 +143,6 @@ trait OrderGenerator extends ShipmentSeeds {
       _ ← * <~ OrderShippingAddresses.create(
              OrderShippingAddress.buildFromAddress(addr).copy(orderId = order.id))
       _ ← * <~ OrderTotaler.saveTotals(order)
-      _ ← * <~ InventoryAdjustmentManager.orderPlaced(order)
     } yield order
 
   def remorseHold(
@@ -173,7 +169,6 @@ trait OrderGenerator extends ShipmentSeeds {
       _ ← * <~ OrderShippingAddresses.create(
              OrderShippingAddress.buildFromAddress(addr).copy(orderId = order.id))
       _ ← * <~ OrderTotaler.saveTotals(order)
-      _ ← * <~ InventoryAdjustmentManager.orderPlaced(order)
     } yield order
 
   def cartOrderUsingGiftCard(
@@ -237,7 +232,6 @@ trait OrderGenerator extends ShipmentSeeds {
       _ ← * <~ Shipments.create(Shipment(orderId = order.id,
                                          orderShippingMethodId = shipM.id.some,
                                          shippingAddressId = shipA.id.some))
-      _ ← * <~ InventoryAdjustmentManager.orderPlaced(order)
     } yield order
   }
 
@@ -269,7 +263,6 @@ trait OrderGenerator extends ShipmentSeeds {
       _ ← * <~ Shipments.create(Shipment(orderId = order.id,
                                          orderShippingMethodId = shipM.id.some,
                                          shippingAddressId = shipA.id.some))
-      _ ← * <~ InventoryAdjustmentManager.orderPlaced(order)
     } yield order
   }
 

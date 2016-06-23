@@ -1,30 +1,29 @@
 package utils.seeds
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import cats.implicits._
-import models.product.{SimpleProductData, Mvp}
-import models.objects.ObjectContext
-import models.order.lineitems._
-import models.order._
-import Order._
+import failures.CreditCardFailures.CustomerHasNoCreditCard
+import failures.CustomerFailures.CustomerHasNoDefaultAddress
+import failures.ShippingMethodFailures.ShippingMethodIsNotFound
 import models.customer.Customer
 import models.location.Addresses
+import models.objects.ObjectContext
+import models.order.Order._
+import models.order._
+import models.order.lineitems._
 import models.payment.creditcard.CreditCards
 import models.payment.giftcard._
 import models.payment.storecredit._
+import models.product.{Mvp, SimpleProductData}
 import models.shipping.{Shipment, Shipments, ShippingMethods}
 import models.{Note, Notes}
 import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._
 import utils.Money.Currency
-import utils.db._
 import utils.db.DbResultT._
+import utils.db._
 import utils.time
-import scala.concurrent.ExecutionContext.Implicits.global
-
-import failures.CreditCardFailures.CustomerHasNoCreditCard
-import failures.CustomerFailures.CustomerHasNoDefaultAddress
-import failures.ShippingMethodFailures.ShippingMethodIsNotFound
-import services.inventory.InventoryAdjustmentManager
 
 trait OrderSeeds {
 
@@ -65,7 +64,6 @@ trait OrderSeeds {
              OrderShippingAddress.buildFromAddress(addr).copy(orderId = order.id))
       _ ← * <~ Notes.createAll(orderNotes.map(_.copy(referenceId = order.id)))
       _ ← * <~ OrderTotaler.saveTotals(order)
-      _ ← * <~ InventoryAdjustmentManager.orderPlaced(order)
     } yield order
 
   def createOrder2(
@@ -86,7 +84,6 @@ trait OrderSeeds {
       _ ← * <~ OrderShippingAddresses.create(
              OrderShippingAddress.buildFromAddress(addr).copy(orderId = order.id))
       _ ← * <~ OrderTotaler.saveTotals(order)
-      _ ← * <~ InventoryAdjustmentManager.orderPlaced(order)
     } yield order
 
   def createOrder3(
@@ -158,7 +155,6 @@ trait OrderSeeds {
       _ ← * <~ Shipments.create(Shipment(orderId = order.id,
                                          orderShippingMethodId = shipM.id.some,
                                          shippingAddressId = shipA.id.some))
-      _ ← * <~ InventoryAdjustmentManager.orderPlaced(order)
     } yield order
 
   def addSkusToOrder(

@@ -28,19 +28,11 @@ object Cart {
     .requireAdminAuth
     .body(StringBody(session ⇒ session.get("skuPayload").as[String]))
 
-  private def sellableSkuQuery(skuQty: Int) =
-    s"""
-       | select skus.code as sku
-       | from skus
-       | join inventory_summaries sums on sums.sku_id = skus.id
-       | join sellable_inventory_summaries sel on sums.sellable_id = sel.id
-       | where sel.available_for_sale >= $skuQty
-   """.stripMargin
-
+  // TODO ask #middlewarehouse if SKUs are available
   val pickRandomSkus = {
     val skusInOrder   = Random.nextInt(5) + 1
     val numberOfItems = Random.nextInt(3) + 1
-    feed(dbFeeder(sellableSkuQuery(numberOfItems)).random, _ ⇒ skusInOrder).exec { session ⇒
+    feed(dbFeeder("select code as sku from skus").random, _ ⇒ skusInOrder).exec { session ⇒
       def newPayloadItem(skuCode: String) = UpdateLineItemsPayload(skuCode, numberOfItems)
 
       val payload =
