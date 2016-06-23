@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
+import { trackEvent } from 'lib/analytics';
 
 import * as shippingMethodActions from '../../modules/orders/shipping-methods';
 
@@ -45,9 +46,15 @@ export class OrderShippingMethod extends React.Component {
     const title = <PanelHeader isCart={props.isCart} status={props.status} text="Shipping Method" />;
 
     const isCheckingOut = _.get(props, 'order.isCheckingOut', false);
-    const editAction = isCheckingOut
-      ? null
-      : () => props.fetchShippingMethods(props.order.currentOrder);
+    const editAction = isCheckingOut ? null : () => {
+      trackEvent('Orders', 'edit_shipping_method');
+      props.fetchShippingMethods(props.order.currentOrder);
+    };
+
+    const doneAction = () => {
+      trackEvent('Orders', 'edit_shipping_method_done');
+      props.orderShippingMethodCancelEdit();
+    };
 
     return (
       <ShippingMethod
@@ -58,7 +65,7 @@ export class OrderShippingMethod extends React.Component {
         shippingMethods={[shippingMethod]}
         isEditing={props.shippingMethods.isEditing}
         editAction={editAction}
-        doneAction={props.orderShippingMethodCancelEdit}
+        doneAction={doneAction}
         updateAction={props.updateShippingMethod}
         isEditingPrice={props.shippingMethods.isEditingPrice}
         editPriceAction={props.orderShippingMethodStartEditPrice}

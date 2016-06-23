@@ -4,6 +4,7 @@ import _ from 'lodash';
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
+import { trackEvent } from 'lib/analytics';
 
 import styles from './select-groups.css';
 
@@ -24,6 +25,7 @@ type Props = {
   groups: Array<GroupType>;
   selectedGroupIds: Array<number>;
   dispatch: (action: any) => any;
+  parent?: String;
 };
 
 type State = {
@@ -60,6 +62,8 @@ class SelectCustomerGroups extends Component {
 
   @autobind
   togglePopup() {
+    const eventName = this.state.popupOpened ? 'click_popup_close' : 'click_popup_open';
+    trackEvent(`Customer groups(${this.props.parent || ''})`, eventName);
     this.setState({
       popupOpened: !this.state.popupOpened,
     });

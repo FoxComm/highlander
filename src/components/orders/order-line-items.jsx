@@ -2,6 +2,7 @@ import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import React, { PropTypes } from 'react';
+import { trackEvent } from 'lib/analytics';
 
 import * as lineItemActions from '../../modules/orders/line-items';
 import * as skuSearchActions from '../../modules/orders/sku-search';
@@ -96,7 +97,15 @@ export class OrderLineItems extends React.Component {
       : EditableContentBox;
 
     const isCheckingOut = _.get(props, 'order.isCheckingOut', false);
-    const editAction = isCheckingOut ? null : props.orderLineItemsStartEdit;
+    const editAction = isCheckingOut ? null : () => {
+      trackEvent('Orders', 'edit_line_items');
+      props.orderLineItemsStartEdit();
+    };
+
+    const doneAction = () => {
+      trackEvent('Orders', 'edit_line_items_done');
+      props.orderLineItemsCancelEdit();
+    };
 
     return (
       <LineItemsContentBox
@@ -104,7 +113,7 @@ export class OrderLineItems extends React.Component {
         title={title}
         isEditing={props.lineItems.isEditing}
         editAction={editAction}
-        doneAction={props.orderLineItemsCancelEdit}
+        doneAction={doneAction}
         editContent={<RenderEditContent {...props} />}
         editFooter={<RenderEditFooter {...props} />}
         indentContent={false}
@@ -146,7 +155,7 @@ class RenderEditContent extends React.Component {
       </div>
     );
   }
-};
+}
 
 class RenderEditFooter extends React.Component {
 
@@ -194,6 +203,6 @@ class RenderEditFooter extends React.Component {
       </div>
     );
   }
-};
+}
 
 export default connect(mapStateToProps, mapDispatchToProps)(OrderLineItems);

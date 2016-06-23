@@ -7,9 +7,11 @@ const title = require('./package').name;
 const clc = require('cli-color');
 const moment = require('moment');
 const exec = require('child_process').exec;
+const path = require('path');
 
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 process.env.API_URL = process.env.API_URL || 'http://localhost';
+process.env.NODE_PATH = `${process.env.NODE_PATH}:${path.resolve('./src')}`;
 
 let forks = process.env.NODE_ENV === 'production' ? cpus : 1;
 

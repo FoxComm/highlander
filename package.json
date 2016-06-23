@@ -190,6 +190,7 @@
     "gulp-postcss": "^6.1.0",
     "gulp-rename": "^1.2.2",
     "gulp-sourcemaps": "^1.5.2",
+    "gulp-spawn-mocha": "^2.2.2",
     "gulp-uglify": "^1.2.0",
     "gulp-util": "^3.0.6",
     "ignore-styles": "^1.2.0",

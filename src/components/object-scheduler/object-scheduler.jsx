@@ -6,20 +6,20 @@ import React, { Component, Element, PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import moment from 'moment';
 import _ from 'lodash';
-import { isActive } from '../../paragons/common';
-
-import { illuminateAttributes, setAttribute, setAttributes } from '../../paragons/form-shadow-object';
+import { isActive } from 'paragons/common';
+import { trackEvent } from 'lib/analytics';
 
 import { Dropdown, DropdownItem } from '../dropdown';
 import DateTimePicker from '../date-time-picker/date-time-picker';
 
-type Attribute = { t: string, v: any };
-type Attributes = { [key:string]: Attribute };
+export type Attribute = { t: string, v: any };
+export type Attributes = { [key:string]: Attribute };
 
 type Props = {
   attributes: Attributes,
   onChange: (attributes: Attributes) => void,
   title: string,
+  parent?: string,
 };
 
 type State = {
@@ -161,8 +161,13 @@ export default class ObjectScheduler extends Component {
     this.props.onChange(attributes);
   }
 
+  trackEvent(...args: any[]) {
+    trackEvent(`Scheduler(${this.props.parent || ''})`, ...args);
+  }
+
   @autobind
   handleCancelFrom() {
+    this.trackEvent('click_cancel_from_picker');
     const attributes = this.setFromTo(null, null);
 
     this.setState({
@@ -173,6 +178,7 @@ export default class ObjectScheduler extends Component {
 
   @autobind
   handleCancelTo() {
+    this.trackEvent('click_cancel_to_picker');
     this.setState({
       showActiveToPicker: false,
     }, () => this.updateActiveTo(null));
@@ -180,6 +186,7 @@ export default class ObjectScheduler extends Component {
 
   @autobind
   handleShowActiveTo() {
+    this.trackEvent('show_active_to_picker');
     this.setState({
       showActiveFromPicker: true,
       showActiveToPicker: true,
@@ -205,24 +212,18 @@ export default class ObjectScheduler extends Component {
   @autobind
   handleClickCalendar() {
     if (this.state.showActiveFromPicker) {
+      this.trackEvent('hide_date_picker');
       this.setState({
         showActiveFromPicker: false,
         showActiveToPicker: false,
       });
     } else {
+      this.trackEvent('show_date_picker');
       this.setState({
         showActiveFromPicker: true,
         showActiveToPicker: !_.isNull(this.activeTo) && !_.isUndefined(this.activeTo),
       });
     }
-  }
-
-  @autobind
-  handleClickCloseFrom() {
-    this.setState({
-      showActiveFromPicker: false,
-      showActiveToPicker: false,
-    });
   }
 
   render(): Element {
