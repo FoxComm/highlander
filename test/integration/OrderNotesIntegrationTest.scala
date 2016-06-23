@@ -51,9 +51,10 @@ class OrderNotesIntegrationTest
 
   "GET /v1/notes/order/:refNum" - {
     "can be listed" in new Fixture {
-      List("abc", "123", "xyz").map { body ⇒
-        OrderNoteManager.create(order.refNum, storeAdmin, CreateNote(body = body)).futureValue
+      val createNotes = List("abc", "123", "xyz").map { body ⇒
+        OrderNoteManager.create(order.refNum, storeAdmin, CreateNote(body = body))
       }
+      DbResultT.sequence(createNotes).gimme
 
       val response = GET(s"v1/notes/order/${order.referenceNumber}")
       response.status must ===(StatusCodes.OK)
@@ -69,8 +70,7 @@ class OrderNotesIntegrationTest
     "can update the body text" in new Fixture {
       val rootNote = OrderNoteManager
         .create(order.refNum, storeAdmin, CreateNote(body = "Hello, FoxCommerce!"))
-        .futureValue
-        .rightVal
+        .gimme
 
       val response = PATCH(s"v1/notes/order/${order.referenceNumber}/${rootNote.id}",
                            UpdateNote(body = "donkey"))

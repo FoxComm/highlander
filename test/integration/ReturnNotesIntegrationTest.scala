@@ -57,9 +57,10 @@ class ReturnNotesIntegrationTest
     "GET /v1/notes/return/:code" - {
 
       "can be listed" in new Fixture {
-        List("abc", "123", "xyz").map { body ⇒
-          ReturnNoteManager.create(rma.refNum, admin, CreateNote(body = body)).futureValue
+        val createNotes = List("abc", "123", "xyz").map { body ⇒
+          ReturnNoteManager.create(rma.refNum, admin, CreateNote(body = body))
         }
+        DbResultT.sequence(createNotes).gimme
 
         val response = GET(s"v1/notes/rma/${rma.refNum}")
         response.status must ===(StatusCodes.OK)

@@ -1,22 +1,21 @@
 package services
 
+import failures.NotFoundFailure404
+import failures.ShippingMethodFailures.ShippingMethodNotApplicableToOrder
 import models.customer.Customer
 import models.inventory.{Sku, Skus}
 import models.location.Region
-import models.order.lineitems.OrderLineItemSkus
 import models.order._
-import models.shipping.{ShippingMethod, ShippingMethods}
+import models.order.lineitems.OrderLineItemSkus
 import models.rules.{Condition, QueryStatement}
+import models.shipping.{ShippingMethod, ShippingMethods}
 import models.traits.Originator
-import orders.getCartByOriginator
+import services.orders.getCartByOriginator
+import slick.driver.PostgresDriver.api._
 import utils.JsonFormatters
 import utils.aliases._
-import utils.db._
 import utils.db.DbResultT._
-
-import failures.NotFoundFailure404
-import failures.ShippingMethodFailures.ShippingMethodNotApplicableToOrder
-import slick.driver.PostgresDriver.api._
+import utils.db._
 
 object ShippingManager {
   implicit val formats = JsonFormatters.phoenixFormats
@@ -29,8 +28,8 @@ object ShippingManager {
                           skus: Seq[Sku])
 
   def getShippingMethodsForCart(originator: Originator)(
-      implicit ec: EC, db: DB): Result[Seq[responses.ShippingMethods.Root]] =
-    (for {
+      implicit ec: EC, db: DB): DbResultT[Seq[responses.ShippingMethods.Root]] =
+    for {
       order       ← * <~ getCartByOriginator(originator, None)
       _           ← * <~ order.mustBeCart
       shipMethods ← * <~ ShippingMethods.findActive.result.toXor
@@ -40,11 +39,11 @@ object ShippingManager {
           val restricted = QueryStatement.evaluate(sm.restrictions, shipData, evaluateCondition)
           responses.ShippingMethods.build(sm, !restricted)
       }
-    } yield response).run()
+    } yield response
 
   def getShippingMethodsForOrder(refNum: String, customer: Option[Customer] = None)(
-      implicit ec: EC, db: DB): Result[Seq[responses.ShippingMethods.Root]] =
-    (for {
+      implicit ec: EC, db: DB): DbResultT[Seq[responses.ShippingMethods.Root]] =
+    for {
       order       ← * <~ findByRefNumAndOptionalCustomer(refNum, customer)
       shipMethods ← * <~ ShippingMethods.findActive.result.toXor
       shipData    ← * <~ getShippingData(order).toXor
@@ -53,7 +52,7 @@ object ShippingManager {
           val restricted = QueryStatement.evaluate(sm.restrictions, shipData, evaluateCondition)
           responses.ShippingMethods.build(sm, !restricted)
       }
-    } yield response).run()
+    } yield response
 
   private def findByRefNumAndOptionalCustomer(refNum: String, customer: Option[Customer] = None)(
       implicit ec: EC, db: DB): DbResult[Order] = customer match {

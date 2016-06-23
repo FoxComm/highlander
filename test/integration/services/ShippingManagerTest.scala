@@ -28,13 +28,13 @@ class ShippingManagerTest extends IntegrationTestBase {
     "Evaluates rule: shipped to CA, OR, or WA" - {
 
       "Is true when the order is shipped to WA" in new WashingtonOrderFixture {
-        val matchingMethods = getShippingMethodsForOrder(order.refNum).futureValue
-        rightValue(matchingMethods).head.name must ===(shippingMethod.adminDisplayName)
+        val matchingMethods = getShippingMethodsForOrder(order.refNum).gimme
+        matchingMethods.head.name must ===(shippingMethod.adminDisplayName)
       }
 
       "Is false when the order is shipped to MI" in new MichiganOrderFixture {
-        val matchingMethods = getShippingMethodsForOrder(order.refNum).futureValue
-        rightValue(matchingMethods) mustBe 'empty
+        val matchingMethods = getShippingMethodsForOrder(order.refNum).gimme
+        matchingMethods mustBe 'empty
       }
     }
 
@@ -45,36 +45,30 @@ class ShippingManagerTest extends IntegrationTestBase {
                                          name = "Canada, Eh",
                                          regionId = ontarioId,
                                          isDefaultShipping = false))
-          .run()
-          .futureValue
-          .rightVal
+          .gimme
         OrderShippingAddresses.filter(_.id === orderShippingAddress.id).delete.run().futureValue
-        OrderShippingAddresses
-          .copyFromAddress(address = canada, orderId = order.id)
-          .run()
-          .futureValue
-          .rightVal
+        OrderShippingAddresses.copyFromAddress(address = canada, orderId = order.id).gimme
 
         val matchingMethods = getShippingMethodsForOrder(order.refNum).gimme
         matchingMethods.headOption.value.name must ===(shippingMethod.adminDisplayName)
       }
 
       "Is false when the order is shipped to US" in new CountryFixture {
-        val matchingMethods = getShippingMethodsForOrder(order.refNum).futureValue
-        rightValue(matchingMethods) mustBe 'empty
+        val matchingMethods = getShippingMethodsForOrder(order.refNum).gimme
+        matchingMethods mustBe 'empty
       }
     }
 
     "Evaluates rule: order total is greater than $25" - {
 
       "Is true when the order total is greater than $25" in new PriceConditionFixture {
-        val matchingMethods = getShippingMethodsForOrder(expensiveOrder.refNum).futureValue
-        rightValue(matchingMethods).head.name must ===(shippingMethod.adminDisplayName)
+        val matchingMethods = getShippingMethodsForOrder(expensiveOrder.refNum).gimme
+        matchingMethods.head.name must ===(shippingMethod.adminDisplayName)
       }
 
       "Is false when the order total is less than $25" in new PriceConditionFixture {
-        val matchingMethods = getShippingMethodsForOrder(cheapOrder.refNum).futureValue
-        rightValue(matchingMethods) mustBe 'empty
+        val matchingMethods = getShippingMethodsForOrder(cheapOrder.refNum).gimme
+        matchingMethods mustBe 'empty
       }
     }
 
@@ -88,8 +82,8 @@ class ShippingManagerTest extends IntegrationTestBase {
                                                                              orderId = order.id)
         } yield (address, orderShippingAddress)).gimme
 
-        val matchingMethods = getShippingMethodsForOrder(order.refNum).futureValue
-        rightValue(matchingMethods).head.name must ===(shippingMethod.adminDisplayName)
+        val matchingMethods = getShippingMethodsForOrder(order.refNum).gimme
+        matchingMethods.head.name must ===(shippingMethod.adminDisplayName)
       }
 
       "Is false when the order total is $27 and shipped to MI" in new StateAndPriceCondition {
@@ -100,8 +94,8 @@ class ShippingManagerTest extends IntegrationTestBase {
                                                                              orderId = order.id)
         } yield (address, orderShippingAddress)).gimme
 
-        val matchingMethods = getShippingMethodsForOrder(order.refNum).futureValue
-        rightValue(matchingMethods) mustBe 'empty
+        val matchingMethods = getShippingMethodsForOrder(order.refNum).gimme
+        matchingMethods mustBe 'empty
       }
     }
 
@@ -128,8 +122,8 @@ class ShippingManagerTest extends IntegrationTestBase {
                                                                              orderId = order.id)
         } yield (address, orderShippingAddress)).gimme
 
-        val matchingMethods = getShippingMethodsForOrder(order.refNum).futureValue
-        rightValue(matchingMethods) mustBe 'empty
+        val matchingMethods = getShippingMethodsForOrder(order.refNum).gimme
+        matchingMethods mustBe 'empty
       }
 
       "Is false when the order total is greater than $10 and address2 contains a P.O. Box" in new POCondition {
@@ -141,8 +135,8 @@ class ShippingManagerTest extends IntegrationTestBase {
                                                                              orderId = order.id)
         } yield (address, orderShippingAddress)).gimme
 
-        val matchingMethods = getShippingMethodsForOrder(order.refNum).futureValue
-        rightValue(matchingMethods) mustBe 'empty
+        val matchingMethods = getShippingMethodsForOrder(order.refNum).gimme
+        matchingMethods mustBe 'empty
       }
     }
   }

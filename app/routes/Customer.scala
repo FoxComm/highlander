@@ -144,7 +144,7 @@ object Customer {
               } ~
               pathPrefix("shipping-methods") {
                 (get & pathEnd) {
-                  goodOrFailures {
+                  getGoodOrFailures {
                     ShippingManager.getShippingMethodsForCart(Originator(customer))
                   }
                 }
@@ -264,17 +264,17 @@ object Customer {
           pathPrefix("save-for-later") {
             determineObjectContext(db, ec) { context ⇒
               (get & pathEnd) {
-                goodOrFailures {
+                getGoodOrFailures {
                   SaveForLaterManager.findAll(customer.id, context.id)
                 }
               } ~
               (post & path(skuCodeRegex) & pathEnd) { code ⇒
-                goodOrFailures {
+                mutateGoodOrFailures {
                   SaveForLaterManager.saveForLater(customer.id, code, context)
                 }
               } ~
               (delete & path(IntNumber) & pathEnd) { id ⇒
-                nothingOrFailures {
+                mutateNothingOrFailures {
                   SaveForLaterManager.deleteSaveForLater(id)
                 }
               }

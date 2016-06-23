@@ -52,9 +52,10 @@ class GiftCardNotesIntegrationTest
   "GET /v1/notes/gift-card/:code" - {
 
     "can be listed" in new Fixture {
-      List("abc", "123", "xyz").map { body ⇒
-        GiftCardNoteManager.create(giftCard.code, admin, CreateNote(body = body)).futureValue
+      val createNotes = List("abc", "123", "xyz").map { body ⇒
+        GiftCardNoteManager.create(giftCard.code, admin, CreateNote(body = body))
       }
+      DbResultT.sequence(createNotes).gimme
 
       val response = GET(s"v1/notes/gift-card/${giftCard.code}")
       response.status must ===(StatusCodes.OK)
