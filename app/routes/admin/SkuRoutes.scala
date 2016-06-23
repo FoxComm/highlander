@@ -18,75 +18,33 @@ object SkuRoutes {
 
     activityContext(admin) { implicit ac ⇒
       pathPrefix("skus") {
-        pathPrefix("full") {
-          pathPrefix(Segment / Segment) { (context, code) ⇒
-            (get & pathEnd) {
-              goodOrFailures {
-                SkuManager.getFullSkuByContextName(code, context)
-              }
-            } ~
-            (patch & pathEnd & entity(as[UpdateFullSku])) { payload ⇒
-              goodOrFailures {
-                SkuManager.updateFullSku(admin, code, payload, context)
-              }
-            }
-          } ~
-          pathPrefix(Segment) { (context) ⇒
-            (post & pathEnd & entity(as[CreateFullSku])) { payload ⇒
-              goodOrFailures {
-                SkuManager.createFullSku(admin, payload, context)
-              }
-            }
-          }
-        } ~
-        pathPrefix("forms" / Segment) { code ⇒
-          (get & pathEnd) {
-            goodOrFailures {
-              SkuManager.getForm(code)
-            }
-          }
-        } ~
-        pathPrefix("shadows" / Segment / Segment) { (context, code) ⇒
-          (get & pathEnd) {
-            goodOrFailures {
-              SkuManager.getShadow(code, context)
-            }
-          }
-        } ~
-        pathPrefix("illuminated" / Segment / Segment) { (context, code) ⇒
-          (get & pathEnd) {
-            goodOrFailures {
-              SkuManager.getIlluminatedSku(code, context)
-            }
-          }
-        } ~
-        pathPrefix(Segment / Segment / "albums") { (context, code) ⇒
-          (get & pathEnd) {
-            goodOrFailures {
-              ImageManager.getAlbumsForSku(code, context)
-            }
-          } ~
-          (post & pathEnd & entity(as[CreateAlbumPayload])) { payload ⇒
-            goodOrFailures {
-              ImageManager.createAlbumForSku(admin, code, payload, context)
-            }
-          }
-        } ~
         pathPrefix(Segment) { context ⇒
           (post & pathEnd & entity(as[SkuPayload])) { payload ⇒
-            goodOrFailures {
+            mutateGoodOrFailures {
               SkuManager.createSku(context, payload)
             }
           } ~
           pathPrefix(Segment) { code ⇒
             (get & pathEnd) {
-              goodOrFailures {
+              getGoodOrFailures {
                 SkuManager.getSku(context, code)
               }
             } ~
             (patch & pathEnd & entity(as[SkuPayload])) { payload ⇒
-              goodOrFailures {
+              mutateGoodOrFailures {
                 SkuManager.updateSku(context, code, payload)
+              }
+            } ~
+            pathPrefix("albums") {
+              (get & pathEnd) {
+                getGoodOrFailures {
+                  ImageManager.getAlbumsForSku(code, context)
+                }
+              } ~
+              (post & pathEnd & entity(as[CreateAlbumPayload])) { payload ⇒
+                mutateGoodOrFailures {
+                  ImageManager.createAlbumForSku(admin, code, payload, context)
+                }
               }
             }
           }

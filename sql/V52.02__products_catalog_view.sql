@@ -4,10 +4,10 @@ create table products_catalog_view
     product_id integer,
     context generic_string,
     title text,
-    images jsonb,
     description text,
     sale_price text,
     currency text,
-    tags text
+    tags text,
+    albums jsonb
 );
 create unique index products_catalog_view_idx on products_catalog_view (id, lower(context));

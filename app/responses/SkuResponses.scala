@@ -5,6 +5,7 @@ import java.time.Instant
 import cats.implicits._
 import models.inventory._
 import models.objects._
+import responses.ImageResponses.AlbumResponse
 import responses.ObjectResponses.ObjectContextResponse
 import utils.aliases._
 
@@ -37,15 +38,37 @@ object SkuResponses {
 
   object IlluminatedSkuResponse {
 
-    case class Root(code: String, context: Option[ObjectContextResponse.Root], attributes: Json)
+    case class Root(code: String,
+                    context: Option[ObjectContextResponse.Root],
+                    attributes: Json,
+                    albums: Seq[AlbumResponse.Root])
         extends ResponseItem
 
     def build(s: IlluminatedSku): Root =
       Root(code = s.code,
            attributes = s.attributes,
-           context = ObjectContextResponse.build(s.context).some)
+           context = ObjectContextResponse.build(s.context).some,
+           albums = Seq.empty)
+
+    def build(ctx: ObjectContext, sku: FullObject[Sku], albums: Seq[AlbumResponse.Root]): Root = {
+      val illuminatedSku = IlluminatedSku.illuminate(ctx, sku)
+      Root(code = illuminatedSku.code,
+           attributes = illuminatedSku.attributes,
+           context = ObjectContextResponse.build(ctx).some,
+           albums = albums)
+    }
+
     def buildLite(s: IlluminatedSku): Root =
-      Root(code = s.code, attributes = s.attributes, context = None)
+      Root(code = s.code, attributes = s.attributes, context = None, albums = Seq.empty)
+
+    def buildLite(
+        ctx: ObjectContext, sku: FullObject[Sku], albums: Seq[AlbumResponse.Root]): Root = {
+      val illuminatedSku = IlluminatedSku.illuminate(ctx, sku)
+      Root(code = illuminatedSku.code,
+           attributes = illuminatedSku.attributes,
+           context = None,
+           albums = albums)
+    }
   }
 
   object FullSkuResponse {
@@ -65,15 +88,19 @@ object SkuResponses {
 
   object SkuResponse {
 
-    case class Root(id: Int, context: Option[ObjectContextResponse.Root], attributes: Json)
+    case class Root(id: Int,
+                    context: Option[ObjectContextResponse.Root],
+                    attributes: Json,
+                    albums: Seq[AlbumResponse.Root])
         extends ResponseItem
 
-    def build(s: IlluminatedSku): Root =
-      Root(id = s.id,
-           attributes = s.attributes,
-           context = ObjectContextResponse.build(s.context).some)
+    def build(sku: IlluminatedSku, albums: Seq[AlbumResponse.Root]): Root =
+      Root(id = sku.id,
+           attributes = sku.attributes,
+           context = ObjectContextResponse.build(sku.context).some,
+           albums = albums)
 
-    def buildLite(s: IlluminatedSku): Root =
-      Root(id = s.id, attributes = s.attributes, context = None)
+    def buildLite(sku: IlluminatedSku, albums: Seq[AlbumResponse.Root]): Root =
+      Root(id = sku.id, attributes = sku.attributes, context = None, albums = albums)
   }
 }

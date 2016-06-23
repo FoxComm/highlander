@@ -86,17 +86,6 @@ class SkuIntegrationTest extends IntegrationTestBase with HttpSupport with Autom
     }
   }
 
-  "GET v1/skus/full/:context/:code" - {
-    "returns a full SKU successfully" in new Fixture {
-      val response = GET(s"v1/skus/full/${context.name}/${sku.code}")
-      response.status must ===(StatusCodes.OK)
-
-      val skuResponse = response.as[FullSkuResponse.Root]
-      skuResponse.form.attributes must ===(skuForm.attributes)
-      skuResponse.shadow.attributes must ===(skuShadow.attributes)
-    }
-  }
-
   trait Fixture {
     def makeSkuPayload(code: String, attrMap: Map[String, Json]) = {
       val codeJson = ("t" → "string") ~ ("v" → code)
@@ -110,7 +99,6 @@ class SkuIntegrationTest extends IntegrationTestBase with HttpSupport with Autom
                  .mustFindOneOr(ObjectContextNotFound(SimpleContext.default))
       simpleSku ← * <~ SimpleSku("SKU-TEST",
                                  "Test SKU",
-                                 "http://poop/",
                                  9999,
                                  Currency.USD)
       skuForm         ← * <~ ObjectForms.create(simpleSku.create)

@@ -38,10 +38,10 @@ object Customer {
             complete(CustomerToken.fromCustomer(customer))
           } ~
           pathPrefix("products" / IntNumber / "baked") { productId ⇒
-            determineObjectContext(db, ec) { context ⇒
+            determineObjectContext(db, ec) { implicit context ⇒
               (get & pathEnd) {
-                goodOrFailures {
-                  ProductManager.getIlluminatedFullProductByContext(productId, context)
+                getGoodOrFailures {
+                  ProductManager.getProduct(productId)
                 }
               }
             }

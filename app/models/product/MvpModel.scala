@@ -5,14 +5,17 @@ import java.time.Instant
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import cats.implicits._
+import failures.ImageFailures._
 import failures.ObjectFailures._
 import failures.ProductFailures._
+import models.image._
 import models.inventory._
 import models.objects._
 import org.json4s.JsonAST.{JNothing, JString}
 import org.json4s.JsonDSL._
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
+import payloads.ImagePayloads._
 import slick.driver.PostgresDriver.api._
 import utils.Money.Currency
 import utils.aliases._
@@ -40,8 +43,6 @@ object SimpleProductDefaults {
 
 case class SimpleProduct(title: String,
                          description: String,
-                         image: String,
-                         code: String,
                          active: Boolean = false,
                          tags: Seq[String] = Seq.empty) {
   val activeFrom = if (active) s""""${Instant.now}"""" else "null";
@@ -51,9 +52,6 @@ case class SimpleProduct(title: String,
     {
       "title" : "$title",
       "description" : "$description",
-      "images" : ["$image"],
-      "variants" : {},
-      "skus" : {"$code" : {}},
       "activeFrom" : $activeFrom,
       "tags" : $ts
     }"""))
@@ -70,9 +68,6 @@ case class SimpleProductShadow(p: SimpleProduct) {
         {
           "title" : {"type": "string", "ref": "title"},
           "description" : {"type": "richText", "ref": "description"},
-          "images" : {"type": "images", "ref": "images"},
-          "variants" : {"type": "variants", "ref": "variants"},
-          "skus" : {"type": "skus", "ref": "skus"},
           "activeFrom" : {"type": "date", "ref": "activeFrom"},
           "tags" : {"type": "tags", "ref": "tags"}
         }"""),
@@ -82,9 +77,26 @@ case class SimpleProductShadow(p: SimpleProduct) {
     ObjectShadow(attributes = shadow)
 }
 
+case class SimpleAlbum(name: String, image: String) {
+
+  val payload = CreateAlbumPayload(name = name,
+                                   images = Seq(
+                                       ImagePayload(src = image,
+                                                    title = image.some,
+                                                    alt = image.some)).some)
+
+  def create: ObjectForm = payload.objectForm
+
+  def update(oldForm: ObjectForm): ObjectForm =
+    oldForm.copy(attributes = oldForm.attributes.merge(create.attributes))
+}
+
+case class SimpleAlbumShadow(album: SimpleAlbum) {
+  def create: ObjectShadow = album.payload.objectShadow
+}
+
 case class SimpleSku(code: String,
                      title: String,
-                     image: String,
                      price: Int,
                      currency: Currency,
                      active: Boolean = false,
@@ -97,7 +109,6 @@ case class SimpleSku(code: String,
       {
         "code": "$code",
         "title" : "$title",
-        "images" : ["$image"],
         "retailPrice" : {
           "value" : ${price + 500},
           "currency" : "${currency.getCode}"
@@ -122,7 +133,6 @@ case class SimpleSkuShadow(s: SimpleSku) {
         {
           "code" : {"type": "string", "ref": "code"},
           "title" : {"type": "string", "ref": "title"},
-          "images" : {"type": "images", "ref": "images"},
           "retailPrice" : {"type": "price", "ref": "retailPrice"},
           "salePrice" : {"type": "price", "ref": "salePrice"},
           "activeFrom" : {"type": "date", "ref": "activeFrom"},
@@ -176,6 +186,7 @@ case class SimpleCompleteVariant(variant: SimpleVariant, variantValues: Seq[Simp
 
 case class SimpleProductData(productId: Int = 0,
                              skuId: Int = 0,
+                             albumId: Int = 0,
                              title: String,
                              description: String,
                              image: String = SimpleProductDefaults.imageUrl,
@@ -204,7 +215,7 @@ object Mvp {
   def insertProductNewContext(oldContextId: Int, contextId: Int, p: SimpleProductData)(
       implicit db: Database): DbResultT[SimpleProductData] =
     for {
-      simpleProduct ← * <~ SimpleProduct(p.title, p.description, p.image, p.code, p.active, p.tags)
+      simpleProduct ← * <~ SimpleProduct(p.title, p.description, p.active, p.tags)
       //find product form other context, get old form and merge with new
       product ← * <~ Products
                  .filter(_.contextId === oldContextId)
@@ -222,22 +233,37 @@ object Mvp {
              .filter(_.shadowId === link.rightId)
              .mustFindOneOr(SkuWithShadowNotFound(link.rightId))
 
-      simpleSku  ← * <~ SimpleSku(p.code, p.title, p.image, p.price, p.currency, p.active, p.tags)
+      simpleSku  ← * <~ SimpleSku(p.code, p.title, p.price, p.currency, p.active, p.tags)
       oldSkuForm ← * <~ ObjectForms.mustFindById404(sku.formId)
       skuForm    ← * <~ ObjectForms.update(oldSkuForm, simpleSku.update(oldSkuForm))
 
+      //find album sku form for the product and update it
+      albumLink ← * <~ ObjectLinks
+                   .findByLeftAndType(product.shadowId, ObjectLink.ProductAlbum)
+                   .mustFindOneOr(ObjectLeftLinkCannotBeFound(product.shadowId))
+      album ← * <~ Albums
+               .filter(_.contextId === oldContextId)
+               .filter(_.shadowId === albumLink.rightId)
+               .mustFindOneOr(AlbumWithShadowNotFound(albumLink.rightId))
+
+      simpleAlbum  ← * <~ SimpleAlbum(p.title, p.image)
+      oldAlbumForm ← * <~ ObjectForms.mustFindById404(album.formId)
+      albumForm    ← * <~ ObjectForms.update(oldAlbumForm, simpleAlbum.update(oldAlbumForm))
+
       r ← * <~ insertProductIntoContext(
-             contextId, productForm, skuForm, simpleProduct, simpleSku, p)
+             contextId, productForm, skuForm, albumForm, simpleProduct, simpleSku, simpleAlbum, p)
     } yield r
 
   def insertProduct(contextId: Int, p: SimpleProductData): DbResultT[SimpleProductData] =
     for {
-      simpleProduct ← * <~ SimpleProduct(p.title, p.description, p.image, p.code, p.active, p.tags)
+      simpleProduct ← * <~ SimpleProduct(p.title, p.description, p.active, p.tags)
       productForm   ← * <~ ObjectForms.create(simpleProduct.create)
-      simpleSku     ← * <~ SimpleSku(p.code, p.title, p.image, p.price, p.currency, p.active, p.tags)
+      simpleSku     ← * <~ SimpleSku(p.code, p.title, p.price, p.currency, p.active, p.tags)
       skuForm       ← * <~ ObjectForms.create(simpleSku.create)
+      simpleAlbum   ← * <~ SimpleAlbum(p.title, p.image)
+      albumForm     ← * <~ ObjectForms.create(simpleAlbum.create)
       r ← * <~ insertProductIntoContext(
-             contextId, productForm, skuForm, simpleProduct, simpleSku, p)
+             contextId, productForm, skuForm, albumForm, simpleProduct, simpleSku, simpleAlbum, p)
     } yield r
 
   def insertProductWithExistingSkus(
@@ -245,8 +271,6 @@ object Mvp {
     for {
       simpleProduct ← * <~ SimpleProduct(productData.title,
                                          productData.description,
-                                         productData.image,
-                                         productData.code,
                                          productData.active,
                                          productData.tags)
       productForm   ← * <~ ObjectForms.create(simpleProduct.create)
@@ -350,8 +374,10 @@ object Mvp {
   def insertProductIntoContext(contextId: Int,
                                productForm: ObjectForm,
                                skuForm: ObjectForm,
+                               albumForm: ObjectForm,
                                simpleProduct: SimpleProduct,
                                simpleSku: SimpleSku,
+                               simpleAlbum: SimpleAlbum,
                                p: SimpleProductData): DbResultT[SimpleProductData] =
     for {
 
@@ -381,7 +407,23 @@ object Mvp {
                    commitId = skuCommit.id))
 
       _ ← * <~ linkProductAndSku(product, sku)
-    } yield p.copy(productId = product.id, skuId = sku.id)
+
+      simpleAlbumShadow ← * <~ SimpleAlbumShadow(simpleAlbum)
+      albumShadow       ← * <~ ObjectShadows.create(simpleAlbumShadow.create.copy(formId = albumForm.id))
+
+      albumCommit ← * <~ ObjectCommits.create(
+                       ObjectCommit(formId = albumForm.id, shadowId = albumShadow.id))
+
+      albumLink ← * <~ ObjectLinks.create(ObjectLink(leftId = productShadow.id,
+                                                     rightId = albumShadow.id,
+                                                     linkType = ObjectLink.ProductAlbum))
+
+      album ← * <~ Albums.create(
+                 Album(contextId = contextId,
+                       formId = albumForm.id,
+                       shadowId = albumShadow.id,
+                       commitId = albumCommit.id))
+    } yield p.copy(productId = product.id, skuId = sku.id, albumId = album.id)
 
   def getPrice(skuId: Int)(implicit db: Database): DbResultT[Int] =
     for {

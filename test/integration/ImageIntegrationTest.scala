@@ -22,6 +22,8 @@ import org.scalatest.mock.MockitoSugar
 import payloads.ImagePayloads._
 import responses.ImageResponses.AlbumResponse.{Root ⇒ AlbumRoot}
 import services.Result
+import responses.ProductResponses._
+import responses.SkuResponses._
 import util.IntegrationTestBase
 import utils.Money.Currency
 import utils._
@@ -177,6 +179,47 @@ class ImageIntegrationTest
       }
     }
 
+    "GET v1/products/:context/:id" - {
+      "Retrieves all the albums associated with a product" in new ProductFixture {
+        val response = GET(s"v1/products/${context.name}/${prodForm.id}")
+        response.status must ===(StatusCodes.OK)
+
+        val productResponse = response.as[ProductResponse.Root]
+        productResponse.albums.length must ===(1)
+
+        val headAlbum = productResponse.albums.head
+        headAlbum.images.length must ===(1)
+
+        headAlbum.name must ===("Sample Album")
+        headAlbum.images.head.src must ===("http://lorem.png")
+      }
+
+      "Retrieves the albums associated with product's SKUs" in new ProductFixture {
+        val response = GET(s"v1/products/${context.name}/${prodForm.id}")
+        response.status must ===(StatusCodes.OK)
+
+        val productResponse = response.as[ProductResponse.Root]
+        val headSku         = productResponse.skus.head
+        headSku.albums.length must ===(1)
+      }
+    }
+
+    "GET v1/skus/:context/:code" - {
+      "Retrieves all the albums associated with a SKU" in new ProductFixture {
+        val response = GET(s"v1/skus/${context.name}/${sku.code}")
+        response.status must ===(StatusCodes.OK)
+
+        val skuResponse = response.as[SkuResponse.Root]
+        skuResponse.albums.length must ===(1)
+
+        val headAlbum = skuResponse.albums.head
+        headAlbum.images.length must ===(1)
+
+        headAlbum.name must ===("Sample Album")
+        headAlbum.images.head.src must ===("http://lorem.png")
+      }
+    }
+
     "POST v1/skus/:context/:id/albums" - {
       "Creates a new album on an existing SKU" in new ProductFixture {
         val payload =
@@ -276,7 +319,6 @@ class ImageIntegrationTest
     val (product, prodForm, prodShadow, sku, skuForm, skuShadow) = (for {
       simpleSku ← * <~ SimpleSku("SKU-TEST",
                                  "Test SKU",
-                                 "http://poop/",
                                  9999,
                                  Currency.USD)
       skuForm    ← * <~ ObjectForms.create(simpleSku.create)
@@ -294,10 +336,8 @@ class ImageIntegrationTest
                                              rightId = album.shadowId,
                                              linkType = ObjectLink.SkuAlbum))
 
-      simpleProd ← * <~ SimpleProduct(title = "Test Product",
-                                      description = "Test product description",
-                                      image = "image.png",
-                                      code = simpleSku.code)
+      simpleProd ← * <~ SimpleProduct(
+                      title = "Test Product", description = "Test product description")
       prodForm    ← * <~ ObjectForms.create(simpleProd.create)
       sProdShadow ← * <~ SimpleProductShadow(simpleProd)
       prodShadow  ← * <~ ObjectShadows.create(sProdShadow.create.copy(formId = prodForm.id))
@@ -312,6 +352,7 @@ class ImageIntegrationTest
       _ ← * <~ ObjectLinks.create(ObjectLink(leftId = product.shadowId,
                                              rightId = album.shadowId,
                                              linkType = ObjectLink.ProductAlbum))
+      _ ← * <~ ProductSkuLinks.create(ProductSkuLink(leftId = product.id, rightId = sku.id))
     } yield (product, prodForm, prodShadow, sku, skuForm, skuShadow)).gimme
   }
 }

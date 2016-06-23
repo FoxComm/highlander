@@ -20,71 +20,36 @@ object ProductRoutes {
 
     activityContext(admin) { implicit ac ⇒
       pathPrefix("products") {
-        pathPrefix("full") {
-          pathPrefix(Segment / IntNumber / "baked") { (context, productId) ⇒
-            (get & pathEnd) {
-              goodOrFailures {
-                ProductManager.getIlluminatedFullProductByContextName(productId, context)
-              }
-            }
-          } ~
-          pathPrefix(Segment / IntNumber / "baked" / IntNumber) { (context, productId, commitId) ⇒
-            (get & pathEnd) {
-              goodOrFailures {
-                ProductManager.getIlluminatedFullProductAtCommit(productId, context, commitId)
-              }
-            }
-          } ~
-          pathPrefix(Segment / IntNumber) { (context, productId) ⇒
-            (get & pathEnd) {
-              goodOrFailures {
-                ProductManager.getFullProduct(productId, context)
+        pathPrefix(Segment) { contextName ⇒
+          adminObjectContext(contextName)(db, ec) { implicit context ⇒
+            (post & pathEnd & entity(as[CreateProductPayload])) { payload ⇒
+              mutateGoodOrFailures {
+                ProductManager.createProduct(payload)
               }
             } ~
-            (patch & pathEnd & entity(as[UpdateFullProduct])) { payload ⇒
-              goodOrFailures {
-                ProductManager.updateFullProduct(admin, productId, payload, context)
+            pathPrefix(IntNumber) { productId ⇒
+              (get & pathEnd) {
+                getGoodOrFailures {
+                  ProductManager.getProduct(productId)
+                }
+              } ~
+              (patch & pathEnd & entity(as[UpdateProductPayload])) { payload ⇒
+                mutateGoodOrFailures {
+                  ProductManager.updateProduct(productId, payload)
+                }
               }
-            }
-          } ~
-          pathPrefix(Segment) { (context) ⇒
-            (post & pathEnd & entity(as[CreateFullProduct])) { payload ⇒
-              goodOrFailures {
-                ProductManager.createFullProduct(admin, payload, context)
+            } ~
+            pathPrefix(IntNumber / "albums") { productId ⇒
+              (get & pathEnd) {
+                getGoodOrFailures {
+                  ImageManager.getAlbumsForProduct(productId)
+                }
+              } ~
+              (post & pathEnd & entity(as[CreateAlbumPayload])) { payload ⇒
+                mutateGoodOrFailures {
+                  ImageManager.createAlbumForProduct(admin, productId, payload, contextName)
+                }
               }
-            }
-          }
-        } ~
-        pathPrefix(IntNumber / "form") { productId ⇒
-          (get & pathEnd) {
-            goodOrFailures {
-              ProductManager.getForm(productId)
-            }
-          }
-        } ~
-        pathPrefix(Segment / IntNumber / "baked") { (context, productId) ⇒
-          (get & pathEnd) {
-            goodOrFailures {
-              ProductManager.getIlluminatedProduct(productId, context)
-            }
-          }
-        } ~
-        pathPrefix(Segment / IntNumber / "shadow") { (context, productId) ⇒
-          (get & pathEnd) {
-            goodOrFailures {
-              ProductManager.getShadow(productId, context)
-            }
-          }
-        } ~
-        pathPrefix(Segment / IntNumber / "albums") { (context, productId) ⇒
-          (get & pathEnd) {
-            goodOrFailures {
-              ImageManager.getAlbumsForProduct(productId, context)
-            }
-          } ~
-          (post & pathEnd & entity(as[CreateAlbumPayload])) { payload ⇒
-            goodOrFailures {
-              ImageManager.createAlbumForProduct(admin, productId, payload, context)
             }
           }
         } ~
@@ -111,27 +76,6 @@ object ProductRoutes {
           (get & pathEnd) {
             goodOrFailures {
               ProductManager.getContextsForProduct(formId)
-            }
-          }
-        } ~
-        pathPrefix(Segment) { contextName ⇒
-          adminObjectContext(contextName)(db, ec) { implicit context ⇒
-            (post & pathEnd & entity(as[CreateProductPayload])) { payload ⇒
-              mutateGoodOrFailures {
-                ProductManager.createProduct(payload)
-              }
-            } ~
-            pathPrefix(IntNumber) { productId ⇒
-              (get & pathEnd) {
-                getGoodOrFailures {
-                  ProductManager.getProduct(productId)
-                }
-              } ~
-              (patch & pathEnd & entity(as[UpdateProductPayload])) { payload ⇒
-                mutateGoodOrFailures {
-                  ProductManager.updateProduct(productId, payload)
-                }
-              }
             }
           }
         }

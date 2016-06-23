@@ -15,9 +15,9 @@ begin
       else
       json_agg(sku.code)::jsonb
     end as skus
-    from object_links as link
-    left join skus as sku on (sku.shadow_id = link.right_id and link.link_type = 'productSku')
-    where link.left_id = NEW.shadow_id;
+    from product_sku_links as link
+    left join skus as sku on (sku.id = link.right_id)
+    where link.left_id = NEW.id;
 
     return null;
 end;
@@ -29,16 +29,16 @@ begin
   case TG_TABLE_NAME
     when 'products' then
       product_ids := array_agg(NEW.id);
-    when 'object_links' then
+    when 'product_sku_links' then
       select array_agg(p.id) into product_ids
       from products as p
-      inner join object_links as link on (link.left_id = p.shadow_id)
+      inner join product_sku_links as link on (link.left_id = p.id)
       where link.id = NEW.id;
     when 'skus' then
       select array_agg(p.id) into product_ids
       from products as p
-      inner join object_links as link on link.left_id = p.shadow_id
-      inner join skus as sku on (sku.shadow_id = link.right_id and link.link_type = 'productSku')
+      inner join product_sku_links as link on link.left_id = p.id
+      inner join skus as sku on (sku.id = link.right_id)
       where sku.id = NEW.id;
   end case;
 
@@ -53,8 +53,8 @@ begin
                  json_agg(sku.code)::jsonb
             end as skus
           from products as p
-            left join object_links as link on link.left_id = p.shadow_id
-            left join skus as sku on (sku.shadow_id = link.right_id and link.link_type = 'productSku')
+            left join product_sku_links as link on link.left_id = p.id
+            left join skus as sku on (sku.id = link.right_id)
          where p.id = ANY(product_ids)
          group by p.id) as subquery
     where subquery.id = product_sku_links_view.product_id;
@@ -74,8 +74,8 @@ create trigger update_product_sku_links_view_from_products
   WHEN (OLD.shadow_id is distinct from NEW.shadow_id)
   execute procedure update_product_sku_links_view_from_products_and_deps_fn();
 
-create trigger update_product_sku_links_view_from_object_links
-  after update or insert on object_links
+create trigger update_product_sku_links_view_from_product_sku_links
+  after update or insert on product_sku_links
   for each row
   execute procedure update_product_sku_links_view_from_products_and_deps_fn();
 

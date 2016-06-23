@@ -7,6 +7,10 @@ object ProductFailures {
     def apply(id: Int)      = NotFoundFailure404(s"Sku with id $id not found")
   }
 
+  object SkuWithFormNotFound {
+    def apply(formId: Int) = NotFoundFailure404(s"Sku with form id $formId not found")
+  }
+
   object SkuWithShadowNotFound {
     def apply(shadowId: Int) = NotFoundFailure404(s"Sku with shadow id $shadowId not found")
   }

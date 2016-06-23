@@ -86,6 +86,11 @@ create table export_sku_price (
     currency  text
 );
 
+create table export_albums (
+    name    text,
+    images  jsonb
+);
+
 create table export_assignments (
     reference_number    text,
     assigned_at         text

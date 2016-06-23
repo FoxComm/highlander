@@ -29,11 +29,11 @@ object Public {
           }
         } ~
         pathPrefix("products") {
-          determineObjectContext(db, ec) { productContext ⇒
+          determineObjectContext(db, ec) { implicit productContext ⇒
             pathPrefix(IntNumber) { productId ⇒
               (get & pathEnd) {
-                goodOrFailures {
-                  ProductManager.getIlluminatedFullProductByContext(productId, productContext)
+                getGoodOrFailures {
+                  ProductManager.getProduct(productId)
                 }
               }
             }

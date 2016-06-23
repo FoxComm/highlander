@@ -10,8 +10,8 @@ object ImagePayloads {
 
   type Images = Option[Seq[ImagePayload]]
 
-  val image = ("type" → "images") ~ ("ref" → "images")
-  val name  = ("type" → "string") ~ ("ref" → "name")
+  val imageShadow = ("type" → "images") ~ ("ref" → "images")
+  val nameShadow  = ("type" → "string") ~ ("ref" → "name")
 
   case class ImagePayload(src: String, title: Option[String] = None, alt: Option[String] = None) {
     def toJson: Json = ("src" -> src) ~ ("title" -> title) ~ ("alt" -> alt)
@@ -25,8 +25,8 @@ object ImagePayloads {
     }
 
     def objectShadow: ObjectShadow = {
-      val imageJson = "images" → images.map(_ ⇒ image)
-      val nameJson  = "name"   → name
+      val imageJson = "images" → images.map(_ ⇒ imageShadow)
+      val nameJson  = "name"   → nameShadow
       ObjectShadow(attributes = nameJson ~ imageJson)
     }
   }

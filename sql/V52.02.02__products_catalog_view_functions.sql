@@ -37,17 +37,18 @@ delete from products_catalog_view where id IN (select p.id
         f.id as product_id,
         context.name as context,
         f.attributes->>(s.attributes->'title'->>'ref') as title,
-        f.attributes->(s.attributes->'images'->>'ref') as images,
         f.attributes->>(s.attributes->'description'->>'ref') as description,
         sku.price as sale_price,
         sku.currency as currency,
-        f.attributes->>(s.attributes->'tags'->>'ref') as tags
+        f.attributes->>(s.attributes->'tags'->>'ref') as tags,
+        albumLink.albums as albums
         from products as p
           inner join object_contexts as context on (p.context_id = context.id)
           inner join object_forms as f on (f.id = p.form_id)
           inner join object_shadows as s on (s.id = p.shadow_id)
           inner join product_sku_links_view as sv on (sv.product_id = p.id)
           inner join sku_search_view as sku on (sku.context_id = context.id and sku.code = sv.skus->>0)
+          left join product_album_links_view as albumLink on (albumLink.product_id = p.id)
         where p.id = ANY(insert_ids);
       end if;
 

@@ -38,9 +38,9 @@ import payloads.GiftCardPayloads.GiftCardUpdateStateByCsr
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.StoreCreditPayloads.StoreCreditUpdateStateByCsr
 import responses.CouponResponses.CouponResponse
-import responses.ProductResponses.FullProductResponse
+import responses.ProductResponses.ProductResponse
 import responses.ObjectResponses.ObjectContextResponse
-import responses.SkuResponses.FullSkuResponse
+import responses.SkuResponses.SkuResponse
 import services.activity.ProductTailored.{FullProductCreated, FullProductUpdated}
 import services.activity.SkuTailored.{FullSkuCreated, FullSkuUpdated}
 import services.activity.StoreAdminsTailored._
@@ -380,26 +380,26 @@ object LogActivity {
 
   /* Products */
   def fullProductCreated(admin: Option[StoreAdmin],
-                         product: FullProductResponse.Root,
+                         product: ProductResponse.Root,
                          context: ObjectContextResponse.Root)(
       implicit ec: EC, ac: AC): DbResult[Activity] =
     Activities.log(FullProductCreated(admin.map(buildAdmin), product, context))
 
   def fullProductUpdated(admin: Option[StoreAdmin],
-                         product: FullProductResponse.Root,
+                         product: ProductResponse.Root,
                          context: ObjectContextResponse.Root)(
       implicit ec: EC, ac: AC): DbResult[Activity] =
     Activities.log(FullProductUpdated(admin.map(buildAdmin), product, context))
 
   /* SKUs */
   def fullSkuCreated(admin: Option[StoreAdmin],
-                     product: FullSkuResponse.Root,
+                     product: SkuResponse.Root,
                      context: ObjectContextResponse.Root)(
       implicit ec: EC, ac: AC): DbResult[Activity] =
     Activities.log(FullSkuCreated(admin.map(buildAdmin), product, context))
 
   def fullSkuUpdated(admin: Option[StoreAdmin],
-                     product: FullSkuResponse.Root,
+                     product: SkuResponse.Root,
                      context: ObjectContextResponse.Root)(
       implicit ec: EC, ac: AC): DbResult[Activity] =
     Activities.log(FullSkuUpdated(admin.map(buildAdmin), product, context))

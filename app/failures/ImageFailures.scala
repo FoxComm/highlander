@@ -12,6 +12,11 @@ object ImageFailures {
       NotFoundFailure404(s"Album with id=$albumId with context=$contextId cannot be found")
   }
 
+  object AlbumWithShadowNotFound {
+    def apply(shadowId: Int) =
+      NotFoundFailure404(s"Album with shadow id=$shadowId cannot be found")
+  }
+
   case object ImageNotFoundInPayload extends Failure {
     override def description = "Image not found in payload"
   }

@@ -27,7 +27,8 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
 
       val productResponse = response.as[ProductResponse.Root]
       productResponse.skus.length must ===(1)
-      productResponse.skus.head.code must ===("SKU-NEW-TEST")
+      val code = productResponse.skus.head.attributes \ "code" \ "v"
+      code.extract[String] must ===("SKU-NEW-TEST")
     }
 
     "Creates a product with an existing SKU successfully" in new Fixture {
@@ -39,7 +40,8 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
 
       val productResponse = response.as[ProductResponse.Root]
       productResponse.skus.length must ===(1)
-      productResponse.skus.head.code must ===("SKU-RED-SMALL")
+      val code = productResponse.skus.head.attributes \ "code" \ "v"
+      code.extract[String] must ===("SKU-RED-SMALL")
     }
 
     "Creates a product with an existing, but modified SKU successfully" in new Fixture {
@@ -53,7 +55,8 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
 
       val productResponse = response.as[ProductResponse.Root]
       productResponse.skus.length must ===(1)
-      productResponse.skus.head.code must ===("SKU-RED-LARGE")
+      val code = productResponse.skus.head.attributes \ "code" \ "v"
+      code.extract[String] must ===("SKU-RED-LARGE")
     }
 
     "Throws an error if no SKU is added" in new Fixture {
@@ -88,7 +91,8 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
 
       val productResponse = response.as[ProductResponse.Root]
       productResponse.skus.length must ===(1)
-      productResponse.skus.head.code must ===("SKU-NEW-TEST")
+      val code = productResponse.skus.head.attributes \ "code" \ "v"
+      code.extract[String] must ===("SKU-NEW-TEST")
     }
 
     "Creates product with a variant with multiple values successfully" in new VariantFixture {
@@ -100,6 +104,22 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
       val productResponse = response.as[ProductResponse.Root]
       productResponse.variants.length must ===(1)
       productResponse.variants.head.values.length must ===(2)
+    }
+
+    "Creates a product then requests is successfully" in new Fixture {
+      val response = POST(s"v1/products/${context.name}", productPayload)
+      response.status must ===(StatusCodes.OK)
+
+      val productResponse = response.as[ProductResponse.Root]
+      val productId       = productResponse.id
+
+      val getResponse = GET(s"v1/products/${context.name}/$productId")
+      getResponse.status must ===(StatusCodes.OK)
+
+      val getProductResponse = getResponse.as[ProductResponse.Root]
+      getProductResponse.skus.length must ===(1)
+      val code = getProductResponse.skus.head.attributes \ "code" \ "v"
+      code.extract[String] must ===("SKU-NEW-TEST")
     }
   }
 
@@ -170,24 +190,6 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
     }
   }
 
-  "GET v1/products/full/:context/:id/baked" - {
-    "Return a product with multiple SKUs and variants" in new Fixture {
-      val response = GET(s"v1/products/full/${context.name}/${product.formId}/baked")
-      response.status must ===(StatusCodes.OK)
-
-      val productResponse = response.as[ProductResponse.Root]
-      productResponse.skus.length must ===(4)
-      productResponse.variants.length must ===(2)
-
-      val variantMap = productResponse.variantMap.extract[Map[String, Seq[Int]]]
-      variantMap.size must ===(4)
-
-      val varOne :: varTwo :: Nil = productResponse.variants
-      varOne.values.length must ===(2)
-      varTwo.values.length must ===(2)
-    }
-  }
-
   trait Fixture {
     def makeSkuPayload(code: String, name: String) = {
       val attrMap = Map(
@@ -218,22 +220,18 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
 
     val simpleSkus = Seq(SimpleSku("SKU-RED-SMALL",
                                    "A small, red item",
-                                   "http://small-red.com",
                                    9999,
                                    Currency.USD),
                          SimpleSku("SKU-RED-LARGE",
                                    "A large, red item",
-                                   "http://large-red.com",
                                    9999,
                                    Currency.USD),
                          SimpleSku("SKU-GREEN-SMALL",
                                    "A small, green item",
-                                   "http://small-green.com",
                                    9999,
                                    Currency.USD),
                          SimpleSku("SKU-GREEN-LARGE",
                                    "A large, green item",
-                                   "http://large-green.com",
                                    9999,
                                    Currency.USD))
 
