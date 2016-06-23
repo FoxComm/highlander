@@ -34,7 +34,7 @@ bool load_key(isaac::net::context& c, const std::string& key_file)
 int main(int argc, char** argv)
 try
 {
-    const std::size_t WORKERS = sysconf(_SC_NPROCESSORS_ONLN);
+    const std::size_t WORKERS = 4 * sysconf(_SC_NPROCESSORS_ONLN);
     const std::string ip = "0.0.0.0";
     const std::uint16_t http_port = 7070;
     const std::uint16_t http2_port = 7071;
@@ -55,6 +55,7 @@ try
 
     proxygen::HTTPServerOptions options;
     options.threads = WORKERS;
+    options.listenBacklog = 2048;
     options.idleTimeout = std::chrono::milliseconds(60000);
     options.shutdownOn = {SIGINT, SIGTERM};
     options.enableContentCompression = true;

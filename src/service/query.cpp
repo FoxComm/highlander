@@ -139,10 +139,6 @@ namespace isaac
             auto is_admin = user["admin"].asBool();
             auto ratchet = user.count("ratchet") ? user["ratchet"].asInt() : 0;
 
-            std::cerr << "id: " << id << std::endl;
-            std::cerr << "is_admin: " << is_admin << std::endl;
-            std::cerr << "ratchet: " << ratchet << std::endl;
-
             //TODO
             //Hit cache, otherwise hit DB
             return true;
