@@ -16,6 +16,7 @@ import ErrorAlerts from '../../alerts/error-alerts';
 import SaveCancel from '../../common/save-cancel';
 import { Dropdown, DropdownItem } from '../../dropdown';
 import TextInput from '../../forms/text-input';
+import AutoScroll from '../../common/auto-scroll';
 
 // data
 import * as validators from '../../../lib/validators';
@@ -92,9 +93,6 @@ export default class AddressForm extends React.Component {
 
   componentDidMount() {
     this.props.fetchCountry(this.state.countryId);
-
-    const element = findDOMNode(this);
-    element.scrollIntoView();
   }
 
   componentWillReceiveProps(nextProps) {
@@ -227,6 +225,7 @@ export default class AddressForm extends React.Component {
 
     return (
       <div className="fc-address-form">
+        <AutoScroll />
         {this.errorMessages}
         <article>
           <FoxyForm onSubmit={this.handleFormSubmit}>

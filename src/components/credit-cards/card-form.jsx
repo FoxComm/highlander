@@ -22,6 +22,7 @@ import AddressSelect from '../addresses/address-select';
 import SaveCancel from '../common/save-cancel';
 import InputMask from 'react-input-mask';
 import TextInput from '../forms/text-input';
+import AutoScroll from '../common/auto-scroll';
 
 import * as AddressActions from '../../modules/customers/addresses';
 
@@ -72,9 +73,6 @@ export default class CreditCardForm extends React.Component {
 
   componentDidMount() {
     this.props.actions.fetchAddresses(this.props.customerId);
-
-    const element = findDOMNode(this);
-    element.scrollIntoView();
   }
 
   get header() {
@@ -341,6 +339,7 @@ export default class CreditCardForm extends React.Component {
       <Form className={formClassName}
             onChange={this.onChange}
             onSubmit={(event) => onSubmit(event, this.state.card)}>
+        <AutoScroll />
         {this.header}
         <div>
           <ul className="fc-credit-card-form__fields">
