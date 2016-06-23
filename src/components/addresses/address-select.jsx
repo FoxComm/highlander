@@ -1,9 +1,15 @@
 import React, { PropTypes } from 'react';
-import AddressDetails from './address-details';
-import { Button, AddButton } from '../common/buttons';
+import { connect } from 'react-redux';
 import classnames from 'classnames';
 import { autobind } from 'core-decorators';
 
+import { startAddingAddress } from '../../modules/customers/addresses-details';
+
+// components
+import AddressDetails from './address-details';
+import { Button, AddButton } from '../common/buttons';
+
+@connect(null, { startAddingAddress })
 export default class AddressSelect extends React.Component {
 
   static propTypes = {
@@ -56,6 +62,11 @@ export default class AddressSelect extends React.Component {
     );
   }
 
+  handleAddButtonClick = (e) => {
+    e.preventDefault();
+    this.props.startAddingAddress(this.props.customerId);
+  };
+
   render() {
     const rootClassName = classnames('fc-address-select', this.props.className);
     return (
@@ -65,7 +76,7 @@ export default class AddressSelect extends React.Component {
             Address Book
           </div>
           <div className="fc-right">
-            <AddButton />
+            <AddButton onClick={this.handleAddButtonClick}/>
           </div>
         </div>
         <div className="fc-address-select-body">
