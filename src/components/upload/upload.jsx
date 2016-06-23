@@ -16,6 +16,7 @@ type Props = {
   children?: Element;
   onDrop?: Function;
   className: ?string;
+  empty: boolean;
 }
 
 type State = {
@@ -30,27 +31,45 @@ export default class Upload extends Component {
     className: '',
   };
 
-  state:State = {
+  state: State = {
     dragActive: false,
   };
 
   files: Array<FileInfo> = [];
 
-  @autobind
-  onDragOver(e: SyntheticDragEvent): void {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'copy';
+  componentDidMount() {
+    this.dragCounter = 0;
+    document.addEventListener('dragenter', this.handleDragEnter);
+    document.addEventListener('dragleave', this.handleDragLeave);
+  }
 
+  componentWillUnmount() {
+    document.removeEventListener('dragenter', this.handleDragEnter);
+    document.removeEventListener('dragleave', this.handleDragLeave);
+  }
+
+  @autobind
+  handleDragEnter(): void {
+    this.dragCounter += 1;
+    this.updateDragActive();
+  }
+
+  @autobind
+  handleDragLeave(): void {
+    this.dragCounter -= 1;
+    this.updateDragActive();
+  }
+
+  updateDragActive() {
     this.setState({
-      dragActive: true,
+      dragActive: this.dragCounter > 0
     });
   }
 
   @autobind
-  onDragLeave(): void {
-    this.setState({
-      dragActive: false,
-    });
+  onDragOver(e: SyntheticDragEvent): void {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
   }
 
   @autobind
@@ -101,48 +120,25 @@ export default class Upload extends Component {
     this.files = [];
   }
 
-  @autobind
-  onClick(): void {
-    if (!this.props.onDrop) {
-      return;
-    }
-
+  openUploadDialog() {
     this.refs.fileInput.click();
-
   }
 
-  // TODO: fix item click handling
-  @autobind
-  onItemClick(e: MouseEvent) {
-    e.stopPropagation();
-    e.preventDefault();
+  get emptyContent() {
+    return (
+      <div className={styles.empty}>
+        <i className="icon-upload" /> Drag & Drop to upload
+      </div>
+    );
   }
 
   get container() {
-    const { children } = this.props;
+    const { children, empty } = this.props;
 
-    let content;
-
-    if (!React.Children.count(children)) {
-      content = (
-        <div className={styles.empty}>
-          <i className="icon-upload" /> Drag & Drop to upload or click here
-        </div>
-      );
-    } else {
-      content = React.Children.map(
-        this.props.children,
-        child => React.cloneElement(child, { className: styles.uploadItem, onClick: this.onItemClick })
-      );
-    }
-
-    const cls = classNames(styles.container, {
-      [styles.dragActive]: this.state.dragActive,
-    });
+    const content = empty ? this.emptyContent : children;
 
     return (
-      <div className={cls}
-           onClick={this.onClick}
+      <div styleName="container"
            onDragOver={this.onDragOver}
            onDragLeave={this.onDragLeave}
            onDrop={this.onDrop}>
@@ -152,10 +148,15 @@ export default class Upload extends Component {
   }
 
   render(): Element {
-    const { onDrop, className } = this.props;
+    const { onDrop, empty } = this.props;
+    const className = classNames(this.props.className, {
+      '_disabled': !onDrop,
+      '_dragActive': this.state.dragActive,
+      '_empty': empty,
+    });
 
     return (
-      <div className={classNames(styles.upload, { [styles.disabled]: !onDrop }, className)}>
+      <div styleName="upload" className={className}>
         <input className={styles.input} type="file" onChange={this.onDrop} ref="fileInput" />
         {this.container}
       </div>

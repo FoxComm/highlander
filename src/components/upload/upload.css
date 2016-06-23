@@ -1,31 +1,32 @@
 .upload {
-  padding: 10px 3px;
+  transition: border-color .3s;
+  padding: 15px 5px;
+  margin: -15px -5px;
 
-  transition: border .3s;
-
-  &.dragActive {
-    border: 3px dashed #49cac2;
+  &:global(._empty) {
+    border: 3px dashed #CED2D5;
+    margin: -18px -8px;
   }
 
-  & .uploadItem {
-    margin: 20px 10px;
-    cursor: default;
+  &:global(._dragActive) {
+    border: 3px dashed #49C2CA;
+    margin: -18px -8px;
   }
 
-  &.disabled {
+  &:global(._disabled) {
     & .container {
       cursor: no-drop;
     }
   }
+
+  &:global(._empty) .container {
+    display: flex;
+    align-items: center;
+  }
 }
 
 .container {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
   min-height: 420px;
-  border: 3px dashed #ced2d5;
-  cursor: copy;
 }
 
 .empty {

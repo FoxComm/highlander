@@ -140,7 +140,7 @@ class Images extends Component {
         {albums.map((album: TAlbum) => {
           return (
             <Album album={album}
-                   addMode={newAlbum === album.id}
+                   isNew={newAlbum === album.id}
                    loading={editAlbumInProgress}
                    upload={(files: Array<ImageFile>) => this.props.uploadImages(context, album.id, files)}
                    editImage={(idx: number, form: ImageInfo) => this.props.editImage(context, album.id, idx, form)}
