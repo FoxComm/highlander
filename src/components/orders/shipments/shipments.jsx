@@ -14,6 +14,7 @@ import WaitAnimation from '../../common/wait-animation';
 import { PrimaryButton } from '../../../components/common/buttons';
 import SectionTitle from '../../section-title/section-title';
 import Shipment from './shipment';
+import UnshippedItems from './unshipped-items';
 
 // types
 import type AsyncState from '../../../lib/async-action-creator';
@@ -59,7 +60,7 @@ class Shipments extends Component<void, Props, void> {
     return (
       <div>
         {this.shipments}
-        {this.unshippedItems}
+        <UnshippedItems items={this.props.unshippedItems} />
       </div>
     );
   }
@@ -81,15 +82,6 @@ class Shipments extends Component<void, Props, void> {
         ))}
       </div>
     );
-  }
-
-  get unshippedItems() {
-    const { unshippedItems } = this.props;
-    if (!unshippedItems.length) {
-      return null;
-    }
-
-    return <span>unshipped items: <span>{unshippedItems.length}</span></span>;
   }
 
   render(): Element {

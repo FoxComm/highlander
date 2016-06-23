@@ -10,12 +10,17 @@ import ContentBox from '../../content-box/content-box';
 import TableView from '../../table/tableview';
 import ShipmentRow from './shipment-row';
 
+// styles
+import styles from './shipment.css';
 
+
+// types
 type Props = {
   index: number;
   total: number;
   details: Object;
 };
+
 
 const viewColumns = [
   {field: 'method', text: 'Shipping Method'},
@@ -27,6 +32,7 @@ const viewColumns = [
   {field: 'deliveredDate', text: 'Delivered On'},
   {field: 'trackingNumber', text: 'Tracking Number'},
 ];
+
 
 export default class Shipment extends Component<void, Props, void> {
   props: Props;
@@ -58,6 +64,7 @@ export default class Shipment extends Component<void, Props, void> {
 
     return (
       <ContentBox
+        styleName="box"
         title={title}
         indentContent={false}
         viewContent={this.content}
