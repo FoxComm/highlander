@@ -1,7 +1,6 @@
 // libs
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
-import { findDOMNode } from 'react-dom';
 import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';

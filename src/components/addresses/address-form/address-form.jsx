@@ -1,7 +1,6 @@
 // libs
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
-import { findDOMNode } from 'react-dom';
 import InputMask from 'react-input-mask';
 import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
