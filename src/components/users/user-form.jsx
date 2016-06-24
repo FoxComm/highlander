@@ -5,11 +5,17 @@ import React, { Component, Element } from 'react';
 
 // components
 import ObjectForm from '../object-form/object-form';
+import UserInitials from '../user-initials/initials';
 
 class UserForm extends Component {
 
   render(): Element {
+    const image = <UserInitials name={this.props.entity.name} />
     const attributes = {
+      'profile image': {
+        v: image,
+        t: 'element'
+      },
       'First & last name': {
         v: this.props.entity.name,
         t: 'string'
