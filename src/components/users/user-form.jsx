@@ -10,6 +10,7 @@ import ContentBox from '../content-box/content-box';
 import RoundedPill from '../rounded-pill/rounded-pill';
 import { Dropdown, DropdownItem } from '../dropdown';
 import { Form } from '../forms';
+import { Button } from '../common/buttons';
 
 // styles
 import styles from './user-form.css';
@@ -17,7 +18,9 @@ import styles from './user-form.css';
 class UserForm extends Component {
 
   render(): Element {
-    const image = <UserInitials name={this.props.entity.name} />
+    const image = <UserInitials name={this.props.entity.name} />;
+    const button = <div><Button type="button">Change Password</Button></div>;
+
     const attributes = {
       'profile image': {
         v: image,
@@ -34,6 +37,10 @@ class UserForm extends Component {
       'Phone Number': {
         v: '',
         t: 'string'
+      },
+      'Password': {
+        v: button,
+        t: 'element'
       }
     };
 

@@ -13,6 +13,7 @@ import LocalNav, { NavDropdown } from '../local-nav/local-nav';
 import WaitAnimation from '../common/wait-animation';
 import { PageTitle } from '../section-title';
 import SubNav from './sub-nav';
+import { PrimaryButton } from '../common/buttons';
 
 @connect((state, props) => ({
   ...state.users.details[props.params.userId]
@@ -54,7 +55,11 @@ export default class User extends Component {
 
     return (
       <div>
-        <PageTitle title={this.pageTitle} />
+        <PageTitle title={this.pageTitle}>
+          <PrimaryButton type="button">
+            Save
+          </PrimaryButton>
+        </PageTitle>
         <SubNav userId={this.props.params.userId} user={details}/>
         <div className="fc-grid">
           <div className="fc-col-md-1-1">

@@ -4,6 +4,10 @@
   & :global(.initials) {
     font-size: 36px;
   }
+
+  & :global(.fc-button) {
+    width: auto;
+  }
 }
 
 .main {
