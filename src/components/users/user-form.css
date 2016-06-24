@@ -1,0 +1,15 @@
+.user-form {
+  lost-flex-container: row;
+}
+
+.main {
+  lost-column: 8/12;
+}
+
+.aside {
+  lost-column: 4/12;
+
+  & > :global(.fc-content-box) {
+    margin-bottom: 20px;
+  }
+}

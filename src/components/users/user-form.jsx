@@ -9,6 +9,10 @@ import UserInitials from '../user-initials/initials';
 import ContentBox from '../content-box/content-box';
 import RoundedPill from '../rounded-pill/rounded-pill';
 import { Dropdown, DropdownItem } from '../dropdown';
+import { Form } from '../forms';
+
+// styles
+import styles from './user-form.css';
 
 class UserForm extends Component {
 
@@ -34,15 +38,15 @@ class UserForm extends Component {
     };
 
     return (
-      <div className="fc-grid fc-grid-no-gutter">
-        <div className="fc-col-md-3-5">
+      <Form styleName="user-form">
+        <section styleName="main">
           <ObjectForm
             onChange={this.handleProductChange}
             attributes={attributes}
             title="General" />
-        </div>
+        </section>
 
-        <div className="fc-col-md-2-5">
+        <aside styleName="aside">
           <ContentBox title="Account State">
             <Dropdown value="active">
               <DropdownItem value="active">Active</DropdownItem>
@@ -52,8 +56,8 @@ class UserForm extends Component {
           <ContentBox title="Roles">
             <RoundedPill text="Super Admin"/>
           </ContentBox>
-        </div>
-      </div>
+        </aside>
+      </Form>
     );
   }
 }

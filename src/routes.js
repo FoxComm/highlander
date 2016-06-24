@@ -66,7 +66,6 @@ import StyleGuideContainers from './components/style-guide/style-guide-container
 import UsersListPage from './components/users/user-list';
 import Users from './components/users/users';
 import User from './components/users/user';
-import UserDetails from './components/users/details';
 import UserForm from './components/users/user-form';
 
 import AllActivities from './components/activity-trail/all';
@@ -238,7 +237,7 @@ const routes = (
       <Route name='user' path=':userId' component={User}>
         <IndexRoute name='user-form' component={UserForm}/>
       </Route>
-      <Route name='user-activity-trail' path='activity-trail' component={UserDetails}/>
+      <Route name='user-activity-trail' path='activity-trail' component={UserForm}/>
 
     </Route>
   </Route>
