@@ -230,13 +230,15 @@ const routes = (
       <Route name='test-activities' path='activities' component={AllActivities} />
       <Route name='test-notifications' path='notifications' component={AllNotificationItems} />
     </Route>
-    <Route name='settings-base' path='users' >
-        <Route name='users-list-page' component={UsersListPage}>
-          <IndexRoute name='users' component={Users} />
-        </Route>
-        <Route name='user' path=':userId' component={User}>
-          <IndexRoute name='user-details' component={UserDetails}/>
-        </Route>
+    <Route name='settings-base' path='users'>
+      <Route name='users-list-page' component={UsersListPage}>
+        <IndexRoute name='users' component={Users}/>
+      </Route>
+      <Route name='user' path=':userId' component={User}>
+        <IndexRoute name='user-details' component={UserDetails}/>
+      </Route>
+      <Route name='user-activity-trail' path='activity-trail' component={UserDetails}/>
+
     </Route>
   </Route>
   </Route>
