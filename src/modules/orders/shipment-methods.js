@@ -14,7 +14,12 @@ const initialState = {
 };
 
 const reducers = {
-  setData: (state: Object, list: Array<Object>): Object => ({...state, list}),
+  setData: function (state: Object, list: Array<Object>): Object {
+    return {
+      ...state,
+      list,
+    };
+  },
 };
 
 function load(actions: Object): Function {

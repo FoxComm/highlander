@@ -25,6 +25,12 @@ import WaitAnimation from '../../common/wait-animation';
 
 //types
 type Props = {
+  actions: {
+    carriers: { [key: string]: Function};
+    shipmentMethods: { [key: string]: Function};
+  };
+  carriers: Array<Object>;
+  shipmentMethods: Array<Object>;
   method: string;
   state: string;
   shipmentDate: string;
@@ -55,7 +61,7 @@ const mapDispatchToProps = dispatch => ({
 });
 
 
-export default class ShipmentRow extends Component {
+class ShipmentRow extends Component {
   props: Props;
 
   state: State = {
