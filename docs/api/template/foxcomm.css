@@ -1,0 +1,48 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.jeff {
+  top: 90px;
+}
+
+.banner {
+  display: flex;
+  height: 70px;
+  border-bottom: 1px solid #d9d9d9;
+}
+
+.logo {
+  color: #484848;
+  background-color: #fcfcfc;
+  zoom: 1;
+  padding: 11px 11px 0px 11px;
+  border-right: 1px solid #d9d9d9;
+}
+  
+.menu {
+  align-content: space-between;
+  height: 70px;
+  padding-left: 0px;
+  padding-right: 10px;
+  color: #9ba3a7;
+  font-weight: 400;
+  line-height: 70px;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+}
+
+.fc-nav {
+  list-style-type: none;
+}
+
+.fc-nav-item {
+  display: inline;
+  margin: 0px 10px;
+}
+
+.fc-nav-item a {
+  color: #9ba3a7;
+}

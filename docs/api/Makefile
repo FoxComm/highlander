@@ -8,19 +8,19 @@ install:
 
 build:
 	mkdir -p $(BUILD_DIR)
-	./node_modules/.bin/aglio -i ./docs/admin.apib -o $(BUILD_DIR)/admin.html -t flatly --theme-full-width -w
-	./node_modules/.bin/aglio -i ./docs/customer.apib -o $(BUILD_DIR)/customer.html -t flatly --theme-full-width -w
-	./node_modules/.bin/aglio -i ./docs/public.apib -o $(BUILD_DIR)/public.html -t flatly --theme-full-width -w
-	./node_modules/.bin/aglio -i ./docs/admin_merchandising.apib -o $(BUILD_DIR)/admin-merchandising.html -t flatly --theme-full-width -w
+	./node_modules/.bin/aglio --theme-template ./template/index.jade -i ./docs/admin_transactions.apib -o $(BUILD_DIR)/transactions.html
+	./node_modules/.bin/aglio --theme-template ./template/index.jade -i ./docs/customer.apib -o $(BUILD_DIR)/storefront.html
+	./node_modules/.bin/aglio --theme-template ./template/index.jade -i ./docs/public.apib -o $(BUILD_DIR)/public.html
+	./node_modules/.bin/aglio --theme-template ./template/index.jade -i ./docs/admin_merchandising.apib -o $(BUILD_DIR)/merchandising.html
 
 watch_public:
-	./node_modules/.bin/aglio -i ./docs/public.apib -o $(BUILD_DIR)/ -t flatly --theme-full-width --server -p $(PORT)
+	./node_modules/.bin/aglio --theme-template ./template/index.jade -i ./docs/public.apib -o $(BUILD_DIR)/ -t flatly --theme-full-width --server -p $(PORT)
 
 watch_customer:
-	./node_modules/.bin/aglio -i ./docs/customer.apib -o $(BUILD_DIR)/ -t flatly --theme-full-width --server -p $(PORT)
+	./node_modules/.bin/aglio --theme-template ./template/index.jade -i ./docs/customer.apib -o $(BUILD_DIR)/ -t flatly --theme-full-width --server -p $(PORT)
 
 watch:
-	./node_modules/.bin/aglio -i ./docs/admin.apib -o $(BUILD_DIR)/ -t flatly --theme-full-width --server -p $(PORT)
+	./node_modules/.bin/aglio --theme-template ./template/index.jade -i ./docs/admin.apib -o $(BUILD_DIR)/ -t flatly --theme-full-width --server -p $(PORT)
 
 clean:
 	rm -rf $(BUILD_DIR)
