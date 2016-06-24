@@ -1,5 +1,9 @@
 .user-form {
   lost-flex-container: row;
+
+  & :global(.initials) {
+    font-size: 36px;
+  }
 }
 
 .main {
@@ -9,7 +13,7 @@
 .aside {
   lost-column: 4/12;
 
-  & > :global(.fc-content-box) {
+  & :global(.fc-content-box) {
     margin-bottom: 20px;
   }
 }
