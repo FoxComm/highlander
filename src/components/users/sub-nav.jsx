@@ -35,7 +35,7 @@ export default class SubNav extends Component<void, Props, void> {
 
     return (
       <LocalNav>
-        <IndexLink to="user-details" params={params}>Settings</IndexLink>
+        <IndexLink to="user-form" params={params}>Settings</IndexLink>
         <Link to="user-activity-trail" params={params}>Activity Trail</Link>
       </LocalNav>
     );

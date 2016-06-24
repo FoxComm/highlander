@@ -67,6 +67,7 @@ import UsersListPage from './components/users/user-list';
 import Users from './components/users/users';
 import User from './components/users/user';
 import UserDetails from './components/users/details';
+import UserForm from './components/users/user-form';
 
 import AllActivities from './components/activity-trail/all';
 import AllNotificationItems from './components/activity-notifications/all';
@@ -235,7 +236,7 @@ const routes = (
         <IndexRoute name='users' component={Users}/>
       </Route>
       <Route name='user' path=':userId' component={User}>
-        <IndexRoute name='user-details' component={UserDetails}/>
+        <IndexRoute name='user-form' component={UserForm}/>
       </Route>
       <Route name='user-activity-trail' path='activity-trail' component={UserDetails}/>
 

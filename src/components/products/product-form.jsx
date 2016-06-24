@@ -112,6 +112,8 @@ export default class ProductForm extends Component {
     const formAttributes = _.get(this.props, 'product.form.product.attributes', []);
     const shadowAttributes = _.get(this.props, 'product.shadow.product.attributes', []);
 
+    console.log(this.generalAttrs);
+
     return (
       <div className="fc-grid fc-grid-no-gutter">
         <div className="fc-col-md-3-5">
