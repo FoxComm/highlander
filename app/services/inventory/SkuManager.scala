@@ -106,8 +106,8 @@ object SkuManager {
   private def getSkuCode(payload: SkuPayload): Option[String] =
     payload.attributes.get("code").flatMap(json ⇒ (json \ "v").extractOpt[String])
 
-  def mustFindSkuByContextAndCode(contextId: Int, code: String)(implicit ec: EC,
-                                                                db: DB): DbResultT[Sku] =
+  def mustFindSkuByContextAndCode(
+      contextId: Int, code: String)(implicit ec: EC): DbResultT[Sku] =
     for {
       sku ← * <~ Skus
              .filterByContextAndCode(contextId, code)

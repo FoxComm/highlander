@@ -61,7 +61,7 @@ object ProductManager {
   def getProduct(
       productId: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[ProductResponse.Root] =
     for {
-      product ← * <~ mustFindProductByContextAndId404(oc.id, productId)
+      product ← * <~ mustFindProductByContextAndFormId404(oc.id, productId)
       form    ← * <~ ObjectForms.mustFindById404(product.formId)
       shadow  ← * <~ ObjectShadows.mustFindById404(product.shadowId)
       albums  ← * <~ ImageManager.getAlbumsForProduct(form.id)
@@ -92,7 +92,7 @@ object ProductManager {
     val newShadowAttrs = ObjectShadow.fromPayload(payload.attributes).attributes
 
     for {
-      product   ← * <~ mustFindProductByContextAndId404(oc.id, productId)
+      product   ← * <~ mustFindProductByContextAndFormId404(oc.id, productId)
       oldForm   ← * <~ ObjectForms.mustFindById404(product.formId)
       oldShadow ← * <~ ObjectShadows.mustFindById404(product.shadowId)
 
@@ -282,12 +282,18 @@ object ProductManager {
                     VariantManager.mustFindVariantValueByContextAndShadow(oc.id, link.rightId))
     } yield (variant, values)
 
-  def mustFindProductByContextAndId404(contextId: Int, productId: Int)(
-      implicit ec: EC,
-      db: DB): DbResultT[Product] =
+  def mustFindProductByContextAndFormId404(contextId: Int, formId: Int)(
+      implicit ec: EC, db: DB): DbResultT[Product] =
     Products
       .filter(_.contextId === contextId)
-      .filter(_.formId === productId)
+      .filter(_.formId === formId)
+      .mustFindOneOr(ProductFormNotFoundForContext(formId, contextId))
+
+  def mustFindProductByContextAndId404(contextId: Int, productId: Int)(
+    implicit ec: EC, db: DB): DbResultT[Product] =
+    Products
+      .filter(_.contextId === contextId)
+      .filter(_.id === productId)
       .mustFindOneOr(ProductNotFoundForContext(productId, contextId))
 
   def getContextsForProduct(formId: Int)(implicit ec: EC,

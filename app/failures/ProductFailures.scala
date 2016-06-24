@@ -49,6 +49,12 @@ object ProductFailures {
           s"Product with id=$productId with product context $productContextId cannot be found")
   }
 
+  object ProductFormNotFoundForContext {
+    def apply(formId: Int, productContextId: Int) =
+      NotFoundFailure404(
+          s"Product form with id=$formId with product context $productContextId cannot be found")
+  }
+
   case class ProductShadowHasInvalidAttribute(key: String, value: String) extends Failure {
     override def description = s"Product shadow has an invalid attribute $key with value $value"
   }
