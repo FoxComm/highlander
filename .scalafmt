@@ -1,2 +1,4 @@
 --style defaultWithAlign
 --maxColumn 100
+--spaceAfterTripleEquals true
+--rewriteTokens =>;⇒,<-;←,->;→

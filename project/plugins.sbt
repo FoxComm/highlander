@@ -8,4 +8,4 @@ addSbtPlugin("com.softwaremill.clippy" % "plugin-sbt" % "0.2.5")
 
 addSbtPlugin("com.sksamuel.scapegoat" %% "sbt-scapegoat" % "1.0.4")
 
-addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "0.2.5")
+addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "0.2.8")
