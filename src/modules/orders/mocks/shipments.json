@@ -2,10 +2,10 @@
   "shipments": [
     {
       "id": 5,
-      "method": "standardGround57",
+      "method": 2,
       "state": "delivered",
       "shipmentDate": "2016-06-15T17:27:13.670054Z",
-      "carrier": "UPS",
+      "carrier": 1,
       "estimatedArrival": "2016-06-15T17:27:13.670054Z",
       "deliveredDate": "2016-06-15T17:27:13.670054Z",
       "trackingNumber": "123487VASM12009",

@@ -2,10 +2,10 @@
 // libs
 import _ from 'lodash';
 import Api, { request } from '../../lib/api';
-import shipments from './shipments.json';
+import shipments from './mocks/shipments.json';
 
 // helpers
-import type { Store} from '../../lib/store-creator';
+import type { Store } from '../../lib/store-creator';
 import createStore from '../../lib/store-creator';
 
 const initialState = {
