@@ -6,6 +6,9 @@ import React, { Component, Element } from 'react';
 // components
 import ObjectForm from '../object-form/object-form';
 import UserInitials from '../user-initials/initials';
+import ContentBox from '../content-box/content-box';
+import RoundedPill from '../rounded-pill/rounded-pill';
+import { Dropdown, DropdownItem } from '../dropdown';
 
 class UserForm extends Component {
 
@@ -38,8 +41,17 @@ class UserForm extends Component {
             attributes={attributes}
             title="General" />
         </div>
+
         <div className="fc-col-md-2-5">
-          Account State <br /> Roles
+          <ContentBox title="Account State">
+            <Dropdown value="active">
+              <DropdownItem value="active">Active</DropdownItem>
+              <DropdownItem value="inactive">Inactive</DropdownItem>
+            </Dropdown>
+          </ContentBox>
+          <ContentBox title="Roles">
+            <RoundedPill text="Super Admin"/>
+          </ContentBox>
         </div>
       </div>
     );
