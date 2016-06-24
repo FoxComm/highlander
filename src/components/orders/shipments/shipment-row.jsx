@@ -3,7 +3,12 @@
 // libs
 import _ from 'lodash';
 import React, { Component, PropTypes, Element } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { autobind } from 'core-decorators';
+
+// helpers
+import { getStore } from '../../../lib/store-creator';
 
 // styles
 import styles from './shipment-row.css';
@@ -16,6 +21,7 @@ import { DateTime } from '../../common/datetime';
 import AddressDetails from '../../addresses/address-details';
 import ShippedItem from './shipped-item';
 import Transaction from './transaction';
+import WaitAnimation from '../../common/wait-animation';
 
 //types
 type Props = {
@@ -32,16 +38,39 @@ type Props = {
 }
 
 type State = {
+  isLoading: boolean;
   isExpanded: boolean;
 }
+
+
+const mapStateToProps = state => ({
+  carriers: state.orders.carriers.list,
+  shipmentMethods: state.orders.shipmentMethods.list,
+});
+const mapDispatchToProps = dispatch => ({
+  actions: {
+    carriers: bindActionCreators(getStore('orders.carriers').actions, dispatch),
+    shipmentMethods: bindActionCreators(getStore('orders.shipmentMethods').actions, dispatch),
+  },
+});
 
 
 export default class ShipmentRow extends Component {
   props: Props;
 
   state: State = {
+    isLoading: true,
     isExpanded: true,
   };
+
+  componentDidMount(): void {
+    const { carriers, shipmentMethods } = this.props.actions;
+
+    this.setState({isLoading: true});
+
+    Promise.all([carriers.load(), shipmentMethods.load()])
+      .then(() => this.setState({isLoading: false}));
+  }
 
   @autobind
   toggleExpanded() {
@@ -52,6 +81,9 @@ export default class ShipmentRow extends Component {
     const { props, state } = this;
     const toggleAction = state.isExpanded ? 'up' : 'down';
 
+    const method = props.shipmentMethods.filter(method => method.id === props.method).pop();
+    const carrier = props.carriers.filter(carrier => carrier.id === props.carrier).pop();
+
     return (
       <TableRow styleName="summary-row">
         <TableCell>
@@ -59,14 +91,14 @@ export default class ShipmentRow extends Component {
              className={`icon-chevron-${toggleAction}`}
              onClick={this.toggleExpanded}
           />
-          {props.method}
+          {method.name}
         </TableCell>
         <TableCell>{props.state}</TableCell>
         <TableCell>{props.lineItems.length}</TableCell>
         <TableCell>
           <DateTime value={props.shipmentDate} />
         </TableCell>
-        <TableCell>{props.carrier}</TableCell>
+        <TableCell>{carrier.name}</TableCell>
         <TableCell>
           <DateTime value={props.estimatedArrival} />
         </TableCell>
@@ -95,13 +127,13 @@ export default class ShipmentRow extends Component {
           <div styleName="details-title">Items</div>
           <div styleName="items">
             {this.props.lineItems.map((item, index) => (
-              <ShippedItem index={index} {...item} />
+              <ShippedItem key={index} {...item} />
             ))}
           </div>
           <div styleName="details-title">Transactions</div>
           <div styleName="items">
             {this.props.transactions.map((item, index) => (
-              <Transaction index={index} {...item} />
+              <Transaction key={index} {...item} />
             ))}
           </div>
         </TableCell>
@@ -110,6 +142,18 @@ export default class ShipmentRow extends Component {
   }
 
   render() {
+    if (this.state.isLoading) {
+      return (
+        <tbody>
+          <tr>
+            <td colspan={8}>
+              <WaitAnimation />
+            </td>
+          </tr>
+        </tbody>
+      );
+    }
+
     return (
       <tbody>
         {this.summaryRow}
@@ -118,3 +162,5 @@ export default class ShipmentRow extends Component {
     );
   }
 };
+
+export default connect(mapStateToProps, mapDispatchToProps)(ShipmentRow);
