@@ -80,7 +80,7 @@ class ElasticSearchProcessor(
 
       val customAnalyzer = CustomAnalyzerDefinition(
           "autocomplete",
-          EdgeNGramTokenizer(
+          NGramTokenizer(
               "autocomplete_tokenizer", 1, 20, Seq("letter", "digit", "punctuation", "symbol")),
           LowercaseTokenFilter
       )

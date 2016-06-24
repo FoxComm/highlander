@@ -9,11 +9,17 @@ object MappingHelpers {
   def address(name: String) = field(name).nested(
       field("address1", StringType).analyzer("autocomplete"),
       field("address2", StringType).analyzer("autocomplete"),
-      field("city", StringType).analyzer("autocomplete"),
+      field("city", StringType)
+        .analyzer("autocomplete")
+        .fields(field("raw", StringType).index("not_analyzed")),
       field("zip", StringType).index("not_analyzed"),
       field("region", StringType).index("not_analyzed"),
-      field("country", StringType).analyzer("autocomplete"),
-      field("continent", StringType).analyzer("autocomplete"),
-      field("currency", StringType).analyzer("autocomplete")
+      field("country", StringType)
+        .analyzer("autocomplete")
+        .fields(field("raw", StringType).index("not_analyzed")),
+      field("continent", StringType)
+        .analyzer("autocomplete")
+        .fields(field("raw", StringType).index("not_analyzed")),
+      field("currency", StringType).analyzer("not_analyzed")
   )
 }
