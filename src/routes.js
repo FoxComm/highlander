@@ -65,6 +65,8 @@ import StyleGuideContainers from './components/style-guide/style-guide-container
 
 import UsersListPage from './components/users/user-list';
 import Users from './components/users/users';
+import User from './components/users/user';
+import UserDetails from './components/users/details';
 
 import AllActivities from './components/activity-trail/all';
 import AllNotificationItems from './components/activity-notifications/all';
@@ -228,10 +230,13 @@ const routes = (
       <Route name='test-activities' path='activities' component={AllActivities} />
       <Route name='test-notifications' path='notifications' component={AllNotificationItems} />
     </Route>
-    <Route name='settings' path='settings'>
-      <Route name='settings-list-page' component={UsersListPage} path='users'>
-        <IndexRoute name='users' component={Users} />
-      </Route>
+    <Route name='settings-base' path='users' >
+        <Route name='users-list-page' component={UsersListPage}>
+          <IndexRoute name='users' component={Users} />
+        </Route>
+        <Route name='user' path=':userId' component={User}>
+          <IndexRoute name='user-details' component={UserDetails}/>
+        </Route>
     </Route>
   </Route>
   </Route>

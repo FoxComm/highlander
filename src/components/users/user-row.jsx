@@ -31,7 +31,7 @@ const UserRow = (props: Props) => {
     <MultiSelectRow
       cellKeyPrefix={key}
       columns={columns}
-      //linkTo="user"
+      linkTo="user"
       linkParams={{userId: user.id}}
       row={user}
       setCellContents={setCellContents}
