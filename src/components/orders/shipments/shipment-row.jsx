@@ -89,6 +89,11 @@ class ShipmentRow extends Component {
 
     const method = props.shipmentMethods.filter(method => method.id === props.method).pop();
     const carrier = props.carriers.filter(carrier => carrier.id === props.carrier).pop();
+    const trackingLink = (
+      <a href={carrier.trackingTemplate.replace('$number', props.trackingNumber)} target="_blank">
+        {props.trackingNumber}
+      </a>
+    );
 
     return (
       <TableRow styleName="summary-row">
@@ -111,7 +116,7 @@ class ShipmentRow extends Component {
         <TableCell>
           <DateTime value={props.deliveredDate} />
         </TableCell>
-        <TableCell>{props.trackingNumber}</TableCell>
+        <TableCell>{trackingLink}</TableCell>
       </TableRow>
     );
   }
