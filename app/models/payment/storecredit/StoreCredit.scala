@@ -57,7 +57,8 @@ case class StoreCredit(id: Int = 0,
             "originalBalance cannot be less than currentBalance") |@| invalidExpr(
             originalBalance < availableBalance,
             "originalBalance cannot be less than availableBalance") |@| invalidExpr(
-            originalBalance < 0, "originalBalance must be greater than zero")).map {
+            originalBalance < 0,
+            "originalBalance must be greater than zero")).map {
       case _ ⇒ this
     }
   }
@@ -113,8 +114,9 @@ object StoreCredit {
                 currentBalance = gc.currentBalance)
   }
 
-  def buildAppeasement(
-      customerId: Int, originId: Int, payload: CreateManualStoreCredit): StoreCredit = {
+  def buildAppeasement(customerId: Int,
+                       originId: Int,
+                       payload: CreateManualStoreCredit): StoreCredit = {
     StoreCredit(customerId = customerId,
                 originId = originId,
                 originType = StoreCredit.CsrAppeasement,
@@ -208,8 +210,9 @@ object StoreCredits extends FoxTableQuery[StoreCredit, StoreCredits](new StoreCr
           state = Adj.Auth)
 
   def authOrderPayment(
-      storeCredit: StoreCredit, pmt: OrderPayment, maxPaymentAmount: Option[Int] = None)(
-      implicit ec: EC): DbResultT[StoreCreditAdjustment] =
+      storeCredit: StoreCredit,
+      pmt: OrderPayment,
+      maxPaymentAmount: Option[Int] = None)(implicit ec: EC): DbResultT[StoreCreditAdjustment] =
     auth(storeCredit = storeCredit,
          orderPaymentId = pmt.id.some,
          amount = pmt.getAmount(maxPaymentAmount))

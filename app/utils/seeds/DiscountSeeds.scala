@@ -35,8 +35,10 @@ trait DiscountSeeds {
                              shadowId = ins.shadow.id,
                              commitId = ins.commit.id))
     } yield
-      BaseDiscount(
-          title = title, discountId = discount.id, formId = ins.form.id, shadowId = ins.shadow.id)
+      BaseDiscount(title = title,
+                   discountId = discount.id,
+                   formId = ins.form.id,
+                   shadowId = ins.shadow.id)
 
   def productSearch(search: SharedSearch): Seq[ProductSearch] =
     Seq(ProductSearch(productSearchId = search.id))

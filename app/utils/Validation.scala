@@ -31,13 +31,14 @@ object Validation {
   def notEmpty[A <: AnyRef <% HasEmpty](a: A, constraint: String): ValidatedNel[Failure, Unit] =
     toValidatedNel(constraint, new NotEmpty[A].apply(a))
 
-  def notEmptyIf[A <: AnyRef <% HasEmpty](
-      a: A, expression: Boolean, constraint: String): ValidatedNel[Failure, Unit] =
+  def notEmptyIf[A <: AnyRef <% HasEmpty](a: A,
+                                          expression: Boolean,
+                                          constraint: String): ValidatedNel[Failure, Unit] =
     if (expression) notEmpty(a, constraint)
     else valid({})
 
-  def nullOrNotEmpty[A <: AnyRef <% HasEmpty](
-      a: Option[A], constraint: String): ValidatedNel[Failure, Unit] = {
+  def nullOrNotEmpty[A <: AnyRef <% HasEmpty](a: Option[A],
+                                              constraint: String): ValidatedNel[Failure, Unit] = {
     a.fold(ok) { s ⇒
       notEmpty(s, constraint)
     }
@@ -62,8 +63,10 @@ object Validation {
     }
   }
 
-  def withinNumberOfYears(
-      expYear: Int, expMonth: Int, numYears: Int, message: String): ValidatedNel[Failure, Unit] = {
+  def withinNumberOfYears(expYear: Int,
+                          expMonth: Int,
+                          numYears: Int,
+                          message: String): ValidatedNel[Failure, Unit] = {
     val today = LocalDateTime.now()
 
     val validDate = Validated.catchOnly[java.time.DateTimeException] {
@@ -96,19 +99,19 @@ object Validation {
   }
 
   def matches(value: String, regex: Regex, constraint: String): ValidatedNel[Failure, Unit] =
-    toValidatedNel(
-        constraint, new MatchesRegex(regex.pattern, partialMatchAllowed = false).apply(value))
+    toValidatedNel(constraint,
+                   new MatchesRegex(regex.pattern, partialMatchAllowed = false).apply(value))
 
   def matches(value: String, regex: String, constraint: String): ValidatedNel[Failure, Unit] =
-    toValidatedNel(
-        constraint, new MatchesRegex(regex.r.pattern, partialMatchAllowed = false).apply(value))
+    toValidatedNel(constraint,
+                   new MatchesRegex(regex.r.pattern, partialMatchAllowed = false).apply(value))
 
   def between(value: Int,
               lowerBound: Int,
               upperBound: Int,
               constraint: String): ValidatedNel[Failure, Unit] =
-    toValidatedNel(
-        constraint, new InRangeInclusive[Int](lowerBound, upperBound, prefix).apply(value))
+    toValidatedNel(constraint,
+                   new InRangeInclusive[Int](lowerBound, upperBound, prefix).apply(value))
 
   def isMonth(month: Int, constraint: String): ValidatedNel[Failure, Unit] =
     toValidatedNel(s"$constraint month", new InRangeInclusive[Int](1, 12, prefix).apply(month))
@@ -133,8 +136,9 @@ object Validation {
           case _                        ⇒ GeneralFailure("unknown error")
         }
 
-        Validated.Invalid(NonEmptyList(
-                errors.headOption.getOrElse(GeneralFailure("unknown error")), errors.tail))
+        Validated.Invalid(
+            NonEmptyList(errors.headOption.getOrElse(GeneralFailure("unknown error")),
+                         errors.tail))
 
       case accord.Success ⇒
         valid({})

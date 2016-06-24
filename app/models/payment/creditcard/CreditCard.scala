@@ -55,7 +55,9 @@ case class CreditCard(id: Int = 0,
 
   override def validate: ValidatedNel[Failure, CreditCard] = {
     (matches(lastFour, "[0-9]{4}", "lastFour") |@| notExpired(
-            expYear, expMonth, "credit card is expired") |@| withinNumberOfYears(
+            expYear,
+            expMonth,
+            "credit card is expired") |@| withinNumberOfYears(
             expYear,
             expMonth,
             20,

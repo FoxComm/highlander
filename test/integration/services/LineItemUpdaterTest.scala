@@ -52,20 +52,17 @@ class LineItemUpdaterTest extends IntegrationTestBase {
       root.lineItems.skus.count(_.sku == "2") must be(0)
 
       val allRecords = lineItems.gimme
-      root.lineItems.skus.size must ===(allRecords.size)
+      root.lineItems.skus.size must === (allRecords.size)
 
       val allRelations = lineItemSkus.gimme
-      allRelations.size must ===(2)
+      allRelations.size must === (2)
     }
 
     "Updates line items when the Sku already is in order" in new Fixture {
       val (context, products) = createProducts(3).gimme
       val order               = Orders.create(Order(customerId = 1, contextId = context.id)).gimme
       val seedItems = Seq(1, 1, 1, 1, 1, 1, 2, 3, 3).map { linkId ⇒
-        OrderLineItem(id = 0,
-                      orderId = 1,
-                      originId = linkId,
-                      originType = OrderLineItem.SkuItem)
+        OrderLineItem(id = 0, orderId = 1, originId = linkId, originType = OrderLineItem.SkuItem)
       }
       createLineItems(seedItems)
 
@@ -81,7 +78,7 @@ class LineItemUpdaterTest extends IntegrationTestBase {
       root.lineItems.skus.count(_.sku == "3") must be(1)
 
       val allRecords = db.run(lineItems.result).futureValue
-      root.lineItems.skus.size must ===(allRecords.size)
+      root.lineItems.skus.size must === (allRecords.size)
     }
   }
 

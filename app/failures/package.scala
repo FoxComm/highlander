@@ -37,13 +37,15 @@ package object failures {
     }
 
     /* Diff lists of model identifiers to produce a list of failures for absent models */
-    def diffToFailures[A, B](
-        requested: Seq[A], available: Seq[A], modelType: B): Option[Failures] =
+    def diffToFailures[A, B](requested: Seq[A],
+                             available: Seq[A],
+                             modelType: B): Option[Failures] =
       Failures(requested.diff(available).map(NotFoundFailure404(modelType, _)): _*)
 
     /* Diff lists of model identifiers to produce a list of warnings for absent models */
-    def diffToFlatFailures[A, B](
-        requested: Seq[A], available: Seq[A], modelType: B): Option[List[String]] =
+    def diffToFlatFailures[A, B](requested: Seq[A],
+                                 available: Seq[A],
+                                 modelType: B): Option[List[String]] =
       diffToFailures(requested, available, modelType).map(_.flatten)
   }
 }

@@ -31,14 +31,15 @@ trait Offer extends DiscountBase {
                             substract = substract,
                             lineItemRefNum = lineItemRefNum)
 
-  def buildXor(input: DiscountInput,
-               substract: Int,
-               lineItemRefNum: Option[String] =
-                 None): Xor[Failures, Seq[OrderLineItemAdjustment]] =
+  def buildXor(
+      input: DiscountInput,
+      substract: Int,
+      lineItemRefNum: Option[String] = None): Xor[Failures, Seq[OrderLineItemAdjustment]] =
     Xor.Right(Seq(build(input, substract, lineItemRefNum)))
 
-  def buildResult(
-      input: DiscountInput, substract: Int, lineItemRefNum: Option[String] = None): OfferResult =
+  def buildResult(input: DiscountInput,
+                  substract: Int,
+                  lineItemRefNum: Option[String] = None): OfferResult =
     Result.good(Seq(build(input, substract, lineItemRefNum)))
 
   def pureResult(): Result[Seq[OrderLineItemAdjustment]]     = Result.good(Seq.empty)

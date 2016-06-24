@@ -61,7 +61,7 @@ object OrderLineItemSkus
       skuForm      ← ObjectForms if skuForm.id === sku.formId
       skuShadow    ← skuLineItems.shadow
       link         ← ObjectLinks if link.rightId === skuShadow.id &&
-      link.linkType === (ProductSku: LinkType)
+        link.linkType === (ProductSku: LinkType)
       productShadow ← ObjectShadows if productShadow.id === link.rightId
     } yield (sku, skuForm, skuShadow, productShadow, lineItems)
 

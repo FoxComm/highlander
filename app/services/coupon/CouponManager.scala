@@ -24,8 +24,8 @@ object CouponManager {
       form    ← * <~ ObjectForms.mustFindById404(id)
     } yield CouponFormResponse.build(form)).run()
 
-  def getShadow(
-      id: Int, contextName: String)(implicit ec: EC, db: DB): Result[CouponShadowResponse.Root] =
+  def getShadow(id: Int, contextName: String)(implicit ec: EC,
+                                              db: DB): Result[CouponShadowResponse.Root] =
     (for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
@@ -49,7 +49,9 @@ object CouponManager {
     } yield CouponResponse.build(coupon, form, shadow)).run()
 
   def create(payload: CreateCoupon, contextName: String, admin: Option[StoreAdmin])(
-      implicit ec: EC, db: DB, ac: AC): Result[CouponResponse.Root] =
+      implicit ec: EC,
+      db: DB,
+      ac: AC): Result[CouponResponse.Root] =
     (for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
@@ -71,7 +73,9 @@ object CouponManager {
     } yield response).runTxn()
 
   def update(id: Int, payload: UpdateCoupon, contextName: String, admin: StoreAdmin)(
-      implicit ec: EC, db: DB, ac: AC): Result[CouponResponse.Root] =
+      implicit ec: EC,
+      db: DB,
+      ac: AC): Result[CouponResponse.Root] =
     (for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
@@ -92,8 +96,8 @@ object CouponManager {
       _ ← * <~ LogActivity.couponUpdated(response, Some(admin))
     } yield response).runTxn()
 
-  def getIlluminated(
-      id: Int, contextName: String)(implicit ec: EC, db: DB): Result[Illuminated.Root] =
+  def getIlluminated(id: Int, contextName: String)(implicit ec: EC,
+                                                   db: DB): Result[Illuminated.Root] =
     (for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
@@ -101,8 +105,8 @@ object CouponManager {
       result ← * <~ getIlluminatedIntern(id, context)
     } yield result).run()
 
-  def getIlluminatedByCode(
-      code: String, contextName: String)(implicit ec: EC, db: DB): Result[Illuminated.Root] =
+  def getIlluminatedByCode(code: String, contextName: String)(implicit ec: EC,
+                                                              db: DB): Result[Illuminated.Root] =
     (for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
@@ -113,8 +117,8 @@ object CouponManager {
       result ← * <~ getIlluminatedIntern(couponCode.couponFormId, context)
     } yield result).run()
 
-  def getIlluminatedIntern(id: Int, context: ObjectContext)(
-      implicit ec: EC, db: DB): DbResultT[Illuminated.Root] =
+  def getIlluminatedIntern(id: Int, context: ObjectContext)(implicit ec: EC,
+                                                            db: DB): DbResultT[Illuminated.Root] =
     for {
       coupon ← * <~ Coupons
                 .filter(_.contextId === context.id)
@@ -124,16 +128,18 @@ object CouponManager {
       shadow ← * <~ ObjectShadows.mustFindById404(coupon.shadowId)
     } yield Illuminated.build(IlluminatedCoupon.illuminate(context, coupon, form, shadow))
 
-  def generateCode(id: Int, code: String, admin: StoreAdmin)(
-      implicit ec: EC, db: DB, ac: AC): Result[String] =
+  def generateCode(id: Int, code: String, admin: StoreAdmin)(implicit ec: EC,
+                                                             db: DB,
+                                                             ac: AC): Result[String] =
     (for {
       coupon     ← * <~ Coupons.filter(_.formId === id).mustFindOneOr(CouponNotFound(id))
       couponCode ← * <~ CouponCodes.create(CouponCode(couponFormId = id, code = code))
       _          ← * <~ LogActivity.singleCouponCodeCreated(coupon, Some(admin))
     } yield couponCode.code).runTxn()
 
-  def generateCodes(id: Int, payload: GenerateCouponCodes, admin: StoreAdmin)(
-      implicit ec: EC, db: DB, ac: AC): Result[Seq[String]] =
+  def generateCodes(id: Int,
+                    payload: GenerateCouponCodes,
+                    admin: StoreAdmin)(implicit ec: EC, db: DB, ac: AC): Result[Seq[String]] =
     (for {
       _         ← * <~ validateCouponCodePayload(payload)
       coupon    ← * <~ Coupons.filter(_.formId === id).mustFindOneOr(CouponNotFound(id))
@@ -154,26 +160,31 @@ object CouponManager {
   private def validateCouponCodePayload(p: GenerateCouponCodes)(implicit ec: EC) = {
     ObjectUtils.failIfErrors(
         Seq(
-            if (p.quantity <= 0) Seq(CouponCodeQuanityMustBeGreaterThanZero) else Seq.empty,
+            if (p.quantity <= 0) Seq(CouponCodeQuanityMustBeGreaterThanZero)
+            else Seq.empty,
             if (p.prefix.isEmpty) Seq(CouponCodePrefixNotSet) else Seq.empty,
-            if (CouponCodes.isCharacterLimitValid(p.prefix.length, p.quantity, p.length)) Seq.empty
+            if (CouponCodes.isCharacterLimitValid(p.prefix.length, p.quantity, p.length))
+              Seq.empty
             else Seq(CouponCodeLengthIsTooSmall(p.prefix, p.quantity))
         ).flatten)
   }
 
-  private def updateHead(
-      coupon: Coupon, promotionId: Int, shadow: ObjectShadow, maybeCommit: Option[ObjectCommit])(
-      implicit ec: EC): DbResult[Coupon] = maybeCommit match {
-    case Some(commit) ⇒
-      // TODO @anna: #longlivedbresultt
-      Coupons
-        .update(coupon,
-                coupon.copy(shadowId = shadow.id, commitId = commit.id, promotionId = promotionId))
-        .value
-    case None ⇒
-      // TODO @anna: #longlivedbresultt
-      if (promotionId != coupon.promotionId)
-        Coupons.update(coupon, coupon.copy(promotionId = promotionId)).value
-      else DbResult.good(coupon)
-  }
+  private def updateHead(coupon: Coupon,
+                         promotionId: Int,
+                         shadow: ObjectShadow,
+                         maybeCommit: Option[ObjectCommit])(implicit ec: EC): DbResult[Coupon] =
+    maybeCommit match {
+      case Some(commit) ⇒
+        // TODO @anna: #longlivedbresultt
+        Coupons
+          .update(
+              coupon,
+              coupon.copy(shadowId = shadow.id, commitId = commit.id, promotionId = promotionId))
+          .value
+      case None ⇒
+        // TODO @anna: #longlivedbresultt
+        if (promotionId != coupon.promotionId)
+          Coupons.update(coupon, coupon.copy(promotionId = promotionId)).value
+        else DbResult.good(coupon)
+    }
 }

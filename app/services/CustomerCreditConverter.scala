@@ -16,7 +16,9 @@ import utils.db.DbResultT._
 object CustomerCreditConverter {
 
   def toStoreCredit(giftCardCode: String, customerId: Int, admin: StoreAdmin)(
-      implicit ec: EC, db: DB, ac: AC): Result[StoreCreditResponse.Root] =
+      implicit ec: EC,
+      db: DB,
+      ac: AC): Result[StoreCreditResponse.Root] =
     (for {
 
       giftCard ← * <~ GiftCards.mustFindByCode(giftCardCode)
@@ -45,7 +47,9 @@ object CustomerCreditConverter {
     } yield StoreCreditResponse.build(storeCredit)).runTxn()
 
   def toGiftCard(storeCreditId: Int, customerId: Int, admin: StoreAdmin)(
-      implicit ec: EC, db: DB, ac: AC): Result[GiftCardResponse.Root] =
+      implicit ec: EC,
+      db: DB,
+      ac: AC): Result[GiftCardResponse.Root] =
     (for {
 
       credit ← * <~ StoreCredits.mustFindById404(storeCreditId)

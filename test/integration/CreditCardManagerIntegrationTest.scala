@@ -57,21 +57,16 @@ class CreditCardManagerIntegrationTest
                                cc.zip,
                                cc.addressName,
                                cc.phoneNumber)
-          val addressVals = (a.address1,
-                             a.address2,
-                             a.city,
-                             a.regionId,
-                             a.zip,
-                             a.name,
-                             a.phoneNumber)
+          val addressVals =
+            (a.address1, a.address2, a.city, a.regionId, a.zip, a.name, a.phoneNumber)
 
-          response.status must ===(StatusCodes.OK)
-          ccAddressVals must ===(addressVals)
+          response.status must === (StatusCodes.OK)
+          ccAddressVals must === (addressVals)
           cc.isDefault mustBe true
           cc.inWallet mustBe true
           cc.deletedAt mustBe 'empty
-          cc.lastFour must ===(payload.lastFour)
-          (cc.expYear, cc.expMonth) must ===((payload.expYear, payload.expMonth))
+          cc.lastFour must === (payload.lastFour)
+          (cc.expYear, cc.expMonth) must === ((payload.expYear, payload.expMonth))
           cc.zipCheck mustBe 'defined
           cc.address1Check mustBe 'defined
         }
@@ -92,29 +87,19 @@ class CreditCardManagerIntegrationTest
                                cc.zip,
                                cc.addressName,
                                cc.phoneNumber)
-          val addressVals = (a.address1,
-                             a.address2,
-                             a.city,
-                             a.regionId,
-                             a.zip,
-                             a.name,
-                             a.phoneNumber)
-          val savedVals = (s.address1,
-                           s.address2,
-                           s.city,
-                           s.regionId,
-                           s.zip,
-                           s.name,
-                           s.phoneNumber)
+          val addressVals =
+            (a.address1, a.address2, a.city, a.regionId, a.zip, a.name, a.phoneNumber)
+          val savedVals =
+            (s.address1, s.address2, s.city, s.regionId, s.zip, s.name, s.phoneNumber)
 
-          response.status must ===(StatusCodes.OK)
-          ccAddressVals must ===(addressVals)
-          ccAddressVals must ===(savedVals)
+          response.status must === (StatusCodes.OK)
+          ccAddressVals must === (addressVals)
+          ccAddressVals must === (savedVals)
           cc.isDefault mustBe true
           cc.inWallet mustBe true
           cc.deletedAt mustBe 'empty
-          cc.lastFour must ===(payload.lastFour)
-          (cc.expYear, cc.expMonth) must ===((payload.expYear, payload.expMonth))
+          cc.lastFour must === (payload.lastFour)
+          (cc.expYear, cc.expMonth) must === ((payload.expYear, payload.expMonth))
           cc.zipCheck mustBe 'defined
           cc.address1Check mustBe 'defined
         }
@@ -123,12 +108,12 @@ class CreditCardManagerIntegrationTest
           val payload = payloadStub.copy(addressId = address.id.some)
           val seed    = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
 
-          seed.status must ===(StatusCodes.OK)
+          seed.status must === (StatusCodes.OK)
 
           val response = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
           val cards    = CreditCards.filter(_.customerId === customer.id).gimme
 
-          response.status must ===(StatusCodes.OK)
+          response.status must === (StatusCodes.OK)
           cards must have size (2)
           cards.map(_.gatewayCustomerId).toSet must have size (1)
           cards.map(_.gatewayCardId).toSet must have size (2)
@@ -141,7 +126,7 @@ class CreditCardManagerIntegrationTest
           val response = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
           val cards    = CreditCards.gimme
 
-          response.status must ===(StatusCodes.BadRequest)
+          response.status must === (StatusCodes.BadRequest)
           response.error must contain("address or addressId must be defined")
           cards mustBe 'empty
         }
@@ -151,7 +136,7 @@ class CreditCardManagerIntegrationTest
           val response = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
           val cards    = CreditCards.gimme
 
-          response.status must ===(StatusCodes.BadRequest)
+          response.status must === (StatusCodes.BadRequest)
           response.error must contain(NotFoundFailure404(Address, 1).description)
           cards mustBe 'empty
         }
@@ -163,7 +148,7 @@ class CreditCardManagerIntegrationTest
           val response = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
           val cards    = CreditCards.gimme
 
-          response.status must ===(StatusCodes.BadRequest)
+          response.status must === (StatusCodes.BadRequest)
           response.error must contain("incorrect_number")
           cards mustBe 'empty
         }
@@ -174,8 +159,8 @@ class CreditCardManagerIntegrationTest
           val response = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
           val cards    = CreditCards.gimme
 
-          response.status must ===(StatusCodes.BadRequest)
-          response.error must ===(InvalidCvc.description)
+          response.status must === (StatusCodes.BadRequest)
+          response.error must === (InvalidCvc.description)
           cards mustBe 'empty
         }
 
@@ -184,8 +169,8 @@ class CreditCardManagerIntegrationTest
           val response = POST(s"v1/customers/99/payment-methods/credit-cards", payload)
           val cards    = CreditCards.gimme
 
-          response.status must ===(StatusCodes.NotFound)
-          response.error must ===(NotFoundFailure404(Customer, 99).description)
+          response.status must === (StatusCodes.NotFound)
+          response.error must === (NotFoundFailure404(Customer, 99).description)
           cards mustBe 'empty
         }
       }

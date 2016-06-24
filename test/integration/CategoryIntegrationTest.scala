@@ -23,12 +23,12 @@ class CategoryIntegrationTest extends IntegrationTestBase with HttpSupport with 
     "GET v1/categories/:context/:formId" - {
       "returns a full category" in new Fixture {
         val response = GET(s"v1/categories/${context.name}/${category.form.id}")
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val content = response.as[FullCategoryResponse.Root]
 
-        content.form.id must ===(category.form.id)
-        content.shadow.id must ===(category.shadow.id)
+        content.form.id must === (category.form.id)
+        content.shadow.id must === (category.shadow.id)
       }
     }
 
@@ -42,7 +42,7 @@ class CategoryIntegrationTest extends IntegrationTestBase with HttpSupport with 
                              UpdateFullCategory(UpdateCategoryForm(updatedAttributes),
                                                 UpdateCategoryShadow(updatedAttributes)))
 
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val content = response.as[FullCategoryResponse.Root]
 
@@ -67,7 +67,7 @@ class CategoryIntegrationTest extends IntegrationTestBase with HttpSupport with 
                             CreateFullCategory(CreateCategoryForm(updatedAttributes),
                                                CreateCategoryShadow(updatedAttributes)))
 
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val content = response.as[FullCategoryResponse.Root]
 
@@ -83,7 +83,7 @@ class CategoryIntegrationTest extends IntegrationTestBase with HttpSupport with 
     "GET v1/categories/:formId/form" - {
       "return form" in new Fixture {
         val response = GET(s"v1/categories/${category.form.id}/form")
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val content = response.as[CategoryFormResponse.Root]
 
@@ -93,28 +93,28 @@ class CategoryIntegrationTest extends IntegrationTestBase with HttpSupport with 
         val formValues: List[Json] = content.attributes.asInstanceOf[JObject].children
 
         formValues must contain only (expectedFormValues: _*)
-        content.id must ===(category.form.id)
+        content.id must === (category.form.id)
       }
     }
 
     "GET v1/categories/:context/:formId/baked" - {
       "returns illuminated object" in new Fixture {
         val response = GET(s"v1/categories/${context.name}/${category.form.id}/baked")
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val content = response.as[IlluminatedCategoryResponse.Root]
 
         val expected: JObject = testAttributes.map {
           case (key, value) ⇒ key → JObject(List("v" → value))
         }
-        content.attributes must ===(expected)
+        content.attributes must === (expected)
       }
     }
 
     "GET v1/categories/:context/:formId/shadow" - {
       "returns shadow" in new Fixture {
         val response = GET(s"v1/categories/${context.name}/${category.form.id}/shadow")
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val keys =
           response.as[CategoryShadowResponse.Root].attributes.asInstanceOf[JObject].values.keys

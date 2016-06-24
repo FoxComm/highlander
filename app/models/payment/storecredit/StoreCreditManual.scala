@@ -4,8 +4,10 @@ import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.db._
 
-case class StoreCreditManual(
-    id: Int = 0, adminId: Int, reasonId: Int, subReasonId: Option[Int] = None)
+case class StoreCreditManual(id: Int = 0,
+                             adminId: Int,
+                             reasonId: Int,
+                             subReasonId: Option[Int] = None)
     extends FoxModel[StoreCreditManual]
 
 object StoreCreditManual {}

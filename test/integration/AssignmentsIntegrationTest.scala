@@ -20,7 +20,7 @@ class AssignmentsIntegrationTest extends IntegrationTestBase with HttpSupport wi
     "can be assigned to order" in new Fixture {
       val payload  = AssignmentPayload(assignees = Seq(storeAdmin.id))
       val response = POST(s"v1/orders/${order.refNum}/assignees", payload)
-      response.status must ===(StatusCodes.OK)
+      response.status must === (StatusCodes.OK)
 
       val theResponse = response.as[TheResponse[Seq[AssignmentResponse.Root]]]
       theResponse.result.size mustBe 1
@@ -34,7 +34,7 @@ class AssignmentsIntegrationTest extends IntegrationTestBase with HttpSupport wi
       val nonExistentAdminId = 2
       val payload            = AssignmentPayload(assignees = Seq(storeAdmin.id, nonExistentAdminId))
       val response           = POST(s"v1/orders/${order.refNum}/assignees", payload)
-      response.status must ===(StatusCodes.OK)
+      response.status must === (StatusCodes.OK)
 
       // TODO - AlreadyAssignedFailure here?
       val theResponse = response.as[TheResponse[Seq[AssignmentResponse.Root]]]
@@ -44,13 +44,14 @@ class AssignmentsIntegrationTest extends IntegrationTestBase with HttpSupport wi
 
       theResponse.errors.value.size mustBe 1
       theResponse.errors.value.headOption.value mustBe NotFoundFailure404(
-          StoreAdmin, nonExistentAdminId).description
+          StoreAdmin,
+          nonExistentAdminId).description
     }
 
     "returns error if order not found" in new Fixture {
       val payload  = AssignmentPayload(assignees = Seq(storeAdmin.id))
       val response = POST(s"v1/orders/NOPE/assignees", payload)
-      response.status must ===(StatusCodes.NotFound)
+      response.status must === (StatusCodes.NotFound)
       response.error mustBe NotFoundFailure404(Order, "NOPE").description
     }
   }
@@ -59,7 +60,7 @@ class AssignmentsIntegrationTest extends IntegrationTestBase with HttpSupport wi
 
     "can be unassigned from order" in new AssignmentFixture {
       val response = DELETE(s"v1/orders/${order.refNum}/assignees/${storeAdmin.id}")
-      response.status must ===(StatusCodes.OK)
+      response.status must === (StatusCodes.OK)
 
       val theResponse = response.as[Seq[AssignmentResponse.Root]]
       theResponse mustBe 'empty
@@ -67,22 +68,20 @@ class AssignmentsIntegrationTest extends IntegrationTestBase with HttpSupport wi
 
     "returns error if order not found" in new AssignmentFixture {
       val response = DELETE(s"v1/orders/NOPE/assignees/${storeAdmin.id}")
-      response.status must ===(StatusCodes.NotFound)
+      response.status must === (StatusCodes.NotFound)
       response.error mustBe NotFoundFailure404(Order, "NOPE").description
     }
 
     "returns error if store admin not found" in new AssignmentFixture {
       val response = DELETE(s"v1/orders/${order.refNum}/assignees/666")
-      response.status must ===(StatusCodes.NotFound)
+      response.status must === (StatusCodes.NotFound)
       response.error mustBe NotFoundFailure404(StoreAdmin, 666).description
     }
 
     "returns error if assignment not found" in new AssignmentFixture {
       val response = DELETE(s"v1/orders/${order.refNum}/assignees/${secondAdmin.id}")
-      response.status must ===(StatusCodes.BadRequest)
-      response.error mustBe AssigneeNotFoundFailure(Order,
-                                                    order.refNum,
-                                                    secondAdmin.id).description
+      response.status must === (StatusCodes.BadRequest)
+      response.error mustBe AssigneeNotFoundFailure(Order, order.refNum, secondAdmin.id).description
     }
   }
 
@@ -92,7 +91,7 @@ class AssignmentsIntegrationTest extends IntegrationTestBase with HttpSupport wi
       val payload = BulkAssignmentPayload(entityIds = Seq(order1.refNum, order2.refNum, "NOPE"),
                                           storeAdminId = admin.id)
       val response = POST(s"v1/orders/assignees", payload)
-      response.status must ===(StatusCodes.OK)
+      response.status must === (StatusCodes.OK)
 
       val theResponse = response.as[TheResponse[Seq[AllOrders.Root]]]
       theResponse.result.size mustBe 2
@@ -117,7 +116,7 @@ class AssignmentsIntegrationTest extends IntegrationTestBase with HttpSupport wi
       val payload = BulkAssignmentPayload(entityIds = Seq(order1.refNum, order2.refNum, "NOPE"),
                                           storeAdminId = admin.id)
       val response = POST(s"v1/orders/assignees/delete", payload)
-      response.status must ===(StatusCodes.OK)
+      response.status must === (StatusCodes.OK)
 
       val theResponse = response.as[TheResponse[Seq[AllOrders.Root]]]
       theResponse.result.size mustBe 2
@@ -158,12 +157,10 @@ class AssignmentsIntegrationTest extends IntegrationTestBase with HttpSupport wi
   trait BulkAssignmentFixture {
     val (order1, order2, admin) = (for {
       customer ← * <~ Customers.create(Factories.customer)
-      order1 ← * <~ Orders.create(Factories.order.copy(id = 1,
-                                                       referenceNumber = "foo",
-                                                       customerId = customer.id))
-      order2 ← * <~ Orders.create(Factories.order.copy(id = 2,
-                                                       referenceNumber = "bar",
-                                                       customerId = customer.id))
+      order1 ← * <~ Orders.create(
+                  Factories.order.copy(id = 1, referenceNumber = "foo", customerId = customer.id))
+      order2 ← * <~ Orders.create(
+                  Factories.order.copy(id = 2, referenceNumber = "bar", customerId = customer.id))
       admin ← * <~ StoreAdmins.create(Factories.storeAdmin)
       assignee ← * <~ Assignments.create(
                     Assignment(referenceType = Assignment.Order,

@@ -45,8 +45,8 @@ class CheckoutTest
       val result  = Checkout(nonCart, CartValidator(nonCart)).checkout.run().futureValue.leftVal
       val current = Orders.findById(cart.id).extract.one.run().futureValue.value
 
-      result must ===(OrderMustBeCart(nonCart.refNum).single)
-      current.state must ===(cart.state)
+      result must === (OrderMustBeCart(nonCart.refNum).single)
+      current.state must === (cart.state)
     }
 
     "fails if the cart validator fails" in new CustomerFixture {
@@ -60,7 +60,7 @@ class CheckoutTest
         .run()
         .futureValue
         .leftVal
-      result must ===(failure)
+      result must === (failure)
     }
 
     "fails if the cart validator has warnings" in new CustomerFixture {
@@ -77,7 +77,7 @@ class CheckoutTest
         .run()
         .futureValue
         .leftVal
-      result must ===(failure.single)
+      result must === (failure.single)
     }
 
     "updates state to RemorseHold and touches placedAt" in new Fixture {
@@ -85,7 +85,7 @@ class CheckoutTest
       val result  = Checkout(cart, cartValidator()).checkout.gimme
       val current = Orders.findById(cart.id).extract.one.run().futureValue.value
 
-      current.state must ===(Order.RemorseHold)
+      current.state must === (Order.RemorseHold)
       current.placedAt.value mustBe >=(before)
     }
 
@@ -95,7 +95,7 @@ class CheckoutTest
       val newCart = Orders.findByCustomerId(cart.customerId).cartOnly.one.run().futureValue.value
 
       newCart.id must !==(cart.id)
-      newCart.state must ===(Order.Cart)
+      newCart.state must === (Order.Cart)
       newCart.isLocked mustBe false
       newCart.placedAt mustBe 'empty
       newCart.remorsePeriodEnd mustBe 'empty
@@ -106,7 +106,7 @@ class CheckoutTest
       val current = Orders.findById(cart.id).extract.one.run().futureValue.value
       val gc      = GiftCards.findById(giftCard.id).extract.one.run().futureValue.value
 
-      gc.state must ===(GiftCard.OnHold)
+      gc.state must === (GiftCard.OnHold)
     }
 
     "authorizes payments" - {
@@ -124,8 +124,8 @@ class CheckoutTest
 
         import GiftCardAdjustment._
 
-        adjustments.map(_.state).toSet must ===(Set[State](Auth))
-        adjustments.map(_.debit) must ===(List(gcAmount, cart.grandTotal - gcAmount))
+        adjustments.map(_.state).toSet must === (Set[State](Auth))
+        adjustments.map(_.debit) must === (List(gcAmount, cart.grandTotal - gcAmount))
       }
 
       "for all store credits" in new PaymentFixture {
@@ -143,8 +143,8 @@ class CheckoutTest
 
         import StoreCreditAdjustment._
 
-        adjustments.map(_.state).toSet must ===(Set[State](Auth))
-        adjustments.map(_.debit) must ===(List(scAmount, cart.grandTotal - scAmount))
+        adjustments.map(_.state).toSet must === (Set[State](Auth))
+        adjustments.map(_.debit) must === (List(scAmount, cart.grandTotal - scAmount))
       }
     }
 
@@ -173,12 +173,12 @@ class CheckoutTest
       } yield (gc, sc, grandTotal)
 
       def genGCPayment(cartId: Int, id: Int, amount: Int) =
-        Factories.giftCardPayment.copy(
-            orderId = cartId, paymentMethodId = id, amount = amount.some)
+        Factories.giftCardPayment
+          .copy(orderId = cartId, paymentMethodId = id, amount = amount.some)
 
       def genSCPayment(cartId: Int, id: Int, amount: Int) =
-        Factories.storeCreditPayment.copy(
-            orderId = cartId, paymentMethodId = id, amount = amount.some)
+        Factories.storeCreditPayment
+          .copy(orderId = cartId, paymentMethodId = id, amount = amount.some)
 
       val checkoutTests = Prop.forAll(inputGen) {
         case (gcData, scData, orderTotal) ⇒
@@ -192,12 +192,12 @@ class CheckoutTest
             gcIds ← * <~ generateGiftCards(gcData.map(_.cardAmount))
             scIds ← * <~ generateStoreCredits(scData.map(_.cardAmount))
 
-            _ ← * <~ OrderPayments.createAllReturningIds(gcIds
-                     .zip(gcData.map(_.payAmount))
-                     .map { case (id, amount) ⇒ genGCPayment(testCart.id, id, amount) })
-            _ ← * <~ OrderPayments.createAllReturningIds(scIds
-                     .zip(scData.map(_.payAmount))
-                     .map { case (id, amount) ⇒ genSCPayment(testCart.id, id, amount) })
+            _ ← * <~ OrderPayments.createAllReturningIds(gcIds.zip(gcData.map(_.payAmount)).map {
+                 case (id, amount) ⇒ genGCPayment(testCart.id, id, amount)
+               })
+            _ ← * <~ OrderPayments.createAllReturningIds(scIds.zip(scData.map(_.payAmount)).map {
+                 case (id, amount) ⇒ genSCPayment(testCart.id, id, amount)
+               })
 
             _ ← * <~ Checkout(testCart, cartValidator()).checkout
 
@@ -205,10 +205,10 @@ class CheckoutTest
             scAdjustments ← * <~ StoreCreditAdjustments.filter(_.storeCreditId.inSet(scIds)).result
 
             totalAdjustments = gcAdjustments.map(_.getAmount.abs).sum +
-            scAdjustments.map(_.getAmount.abs).sum
+              scAdjustments.map(_.getAmount.abs).sum
           } yield totalAdjustments).gimme
 
-          checkoutAmount must ===(orderTotal)
+          checkoutAmount must === (orderTotal)
           true
       }
       val qr = QTest.check(checkoutTests) {
@@ -237,9 +237,9 @@ class CheckoutTest
       customer ← * <~ Customers.create(Factories.customer)
       cart     ← * <~ Orders.create(Factories.cart.copy(customerId = customer.id))
       origin   ← * <~ GiftCardOrders.create(GiftCardOrder(orderId = cart.id))
-      giftCard ← * <~ GiftCards.create(GiftCard.buildLineItem(balance = 150,
-                                                              originId = origin.id,
-                                                              currency = Currency.USD))
+      giftCard ← * <~ GiftCards.create(
+                    GiftCard
+                      .buildLineItem(balance = 150, originId = origin.id, currency = Currency.USD))
       lineItemGc ← * <~ OrderLineItemGiftCards.create(
                       OrderLineItemGiftCard(giftCardId = giftCard.id, orderId = cart.id))
       lineItem ← * <~ OrderLineItems.create(OrderLineItem.buildGiftCard(cart, lineItemGc))
@@ -266,7 +266,8 @@ class CheckoutTest
       for {
         origin ← * <~ StoreCreditManuals.create(
                     StoreCreditManual(adminId = admin.id, reasonId = reason.id))
-        ids ← * <~ StoreCredits.createAllReturningIds(amount.map(scAmount ⇒
+        ids ← * <~ StoreCredits.createAllReturningIds(
+                 amount.map(scAmount ⇒
                        Factories.storeCredit.copy(originalBalance = scAmount,
                                                   originId = origin.id)))
       } yield ids

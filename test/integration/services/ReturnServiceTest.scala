@@ -32,14 +32,14 @@ class ReturnServiceTest extends IntegrationTestBase {
 
       val returns = Returns.gimme
       val refs    = returns.map(_.refNum)
-      refs.length must ===(numberOfInserts)
-      refs.distinct must ===(refs)
+      refs.length must === (numberOfInserts)
+      refs.distinct must === (refs)
 
       val orderUpdated = Orders.findOneById(order.id).run().futureValue.value
-      orderUpdated.returnCount must ===(numberOfInserts)
+      orderUpdated.returnCount must === (numberOfInserts)
 
       val rmaCount = Returns.findByOrderRefNum(order.refNum).length.gimme
-      rmaCount must ===(numberOfInserts)
+      rmaCount must === (numberOfInserts)
     }
   }
 

@@ -39,7 +39,9 @@ case class Customer(id: Int = 0,
       notEmpty(email, "email").map { case _ ⇒ this }
     } else {
       (notEmpty(name, "name") |@| notEmpty(name.getOrElse(""), "name") |@| matches(
-              name.getOrElse(""), Customer.namePattern, "name") |@| notEmpty(email, "email")).map {
+              name.getOrElse(""),
+              Customer.namePattern,
+              "name") |@| notEmpty(email, "email")).map {
         case _ ⇒ this
       }
     }

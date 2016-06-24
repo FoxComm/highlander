@@ -8,8 +8,11 @@ import shapeless._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 
-case class ReturnLineItemSku(
-    id: Int = 0, returnId: Int, skuId: Int, skuShadowId: Int, createdAt: Instant = Instant.now)
+case class ReturnLineItemSku(id: Int = 0,
+                             returnId: Int,
+                             skuId: Int,
+                             skuShadowId: Int,
+                             createdAt: Instant = Instant.now)
     extends FoxModel[ReturnLineItemSku]
 
 object ReturnLineItemSku {}

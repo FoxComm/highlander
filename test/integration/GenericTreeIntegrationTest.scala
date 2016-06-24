@@ -21,7 +21,7 @@ class GenericTreeIntegrationTest extends IntegrationTestBase with HttpSupport wi
     "GET /v1/tree/default/test" - {
       "should return full tree" in new TestTree {
         val response = GET(s"v1/tree/${context.name}/${tree.name}")
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val responseContent: FullTreeResponse.Root = response.as[FullTreeResponse.Root]
         val responseTree                           = responseContent.tree.nodes
@@ -41,7 +41,7 @@ class GenericTreeIntegrationTest extends IntegrationTestBase with HttpSupport wi
 
         val response = POST(s"v1/tree/default/test", testTree)
 
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
         val treeResponse = response.as[FullTreeResponse.Root].tree
 
         treeResponse.nodes.children must have size 2
@@ -55,7 +55,7 @@ class GenericTreeIntegrationTest extends IntegrationTestBase with HttpSupport wi
 
         val response = POST(s"v1/tree/${context.name}/${tree.name}", testTree)
 
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
         val treeResponse = response.as[FullTreeResponse.Root].tree
 
         treeResponse.nodes.children must have size 2
@@ -69,7 +69,7 @@ class GenericTreeIntegrationTest extends IntegrationTestBase with HttpSupport wi
 
         val response = POST(s"v1/tree/${context.name}/${tree.name}/1.3.4", testTree)
 
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
         val treeResponse: TreeResponse.Root = response.as[FullTreeResponse.Root].tree
 
         treeResponse.nodes.objectId mustEqual testObjects.head.id
@@ -87,7 +87,7 @@ class GenericTreeIntegrationTest extends IntegrationTestBase with HttpSupport wi
                                                 List(NodePayload("test", testObjects(1).id, Nil),
                                                      NodePayload("test", testObjects(2).id, Nil)))
 
-        POST(s"v1/categories/default/tree/1.5.10", testTree).status must ===(StatusCodes.NotFound)
+        POST(s"v1/categories/default/tree/1.5.10", testTree).status must === (StatusCodes.NotFound)
       }
     }
 
@@ -95,7 +95,7 @@ class GenericTreeIntegrationTest extends IntegrationTestBase with HttpSupport wi
       "should move nodes" in new TestTree {
         val response = PATCH(s"v1/tree/${context.name}/${tree.name}", MoveNodePayload(Some(2), 4))
 
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
         val treeResponse: TreeResponse.Root = response.as[FullTreeResponse.Root].tree
 
         treeResponse must not be null
@@ -103,11 +103,12 @@ class GenericTreeIntegrationTest extends IntegrationTestBase with HttpSupport wi
         treeResponse.nodes.children.map(_.index) should contain allOf (2, 3)
 
         nodeByPath(treeResponse.nodes, Seq(1, 2)).get.children.map(_.index) mustEqual Seq(4)
-        nodeByPath(treeResponse.nodes, Seq(1, 3)).get.children.map(_.index) should contain allOf (5, 6)
+        nodeByPath(treeResponse.nodes, Seq(1, 3)).get.children
+          .map(_.index) should contain allOf (5, 6)
       }
 
       "fails to make node to be child of its child" in new TestTree {
-        PATCH(s"v1/tree/${context.name}/${tree.name}", MoveNodePayload(Some(4), 3)).status must ===(
+        PATCH(s"v1/tree/${context.name}/${tree.name}", MoveNodePayload(Some(4), 3)).status must === (
             StatusCodes.BadRequest)
       }
     }
@@ -117,11 +118,11 @@ class GenericTreeIntegrationTest extends IntegrationTestBase with HttpSupport wi
         val response = PATCH(s"v1/tree/${context.name}/${tree.name}/1.2",
                              NodeValuesPayload("test", testObjects.head.id))
 
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
         val treeResponse: TreeResponse.Root = response.as[FullTreeResponse.Root].tree
 
-        treeResponse.nodes.kind must ===("test")
-        nodeByPath(treeResponse.nodes, Seq(1, 2)).get.objectId must ===(testObjects.head.id)
+        treeResponse.nodes.kind must === ("test")
+        nodeByPath(treeResponse.nodes, Seq(1, 2)).get.objectId must === (testObjects.head.id)
       }
     }
   }

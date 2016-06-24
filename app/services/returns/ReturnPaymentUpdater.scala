@@ -16,8 +16,8 @@ import utils.db._
 import utils.db.DbResultT._
 
 object ReturnPaymentUpdater {
-  def addCreditCard(refNum: String, payload: ReturnPaymentPayload)(
-      implicit ec: EC, db: DB): Result[Root] =
+  def addCreditCard(refNum: String, payload: ReturnPaymentPayload)(implicit ec: EC,
+                                                                   db: DB): Result[Root] =
     (for {
       _         ← * <~ payload.validate
       rma       ← * <~ mustFindPendingReturnByRefNum(refNum)
@@ -30,8 +30,8 @@ object ReturnPaymentUpdater {
       response ← * <~ ReturnResponse.fromRma(rma).toXor
     } yield response).runTxn()
 
-  def addGiftCard(refNum: String, payload: ReturnPaymentPayload)(
-      implicit ec: EC, db: DB): Result[Root] =
+  def addGiftCard(refNum: String, payload: ReturnPaymentPayload)(implicit ec: EC,
+                                                                 db: DB): Result[Root] =
     (for {
       _         ← * <~ payload.validate
       rma       ← * <~ mustFindPendingReturnByRefNum(refNum)
@@ -45,8 +45,8 @@ object ReturnPaymentUpdater {
       response ← * <~ ReturnResponse.fromRma(rma).toXor
     } yield response).runTxn()
 
-  def addStoreCredit(refNum: String, payload: ReturnPaymentPayload)(
-      implicit ec: EC, db: DB): Result[Root] =
+  def addStoreCredit(refNum: String, payload: ReturnPaymentPayload)(implicit ec: EC,
+                                                                    db: DB): Result[Root] =
     (for {
       _         ← * <~ payload.validate
       rma       ← * <~ mustFindPendingReturnByRefNum(refNum)

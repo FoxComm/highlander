@@ -34,61 +34,61 @@ class ReturnIntegrationTest extends IntegrationTestBase with HttpSupport with Au
     "GET /v1/returns" - {
       "should return list of Returns" in new Fixture {
         val response = GET(s"v1/returns")
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val root = response.ignoreFailuresAndGiveMe[Seq[AllReturns.Root]]
-        root.size must ===(1)
-        root.head.referenceNumber must ===(rma.refNum)
+        root.size must === (1)
+        root.head.referenceNumber must === (rma.refNum)
       }
     }
 
     "GET /v1/returns/customer/:id" - {
       "should return list of Returns of existing customer" in new Fixture {
         val response = GET(s"v1/returns/customer/${customer.id}")
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val root = response.ignoreFailuresAndGiveMe[Seq[AllReturns.Root]]
-        root.size must ===(1)
-        root.head.referenceNumber must ===(rma.refNum)
+        root.size must === (1)
+        root.head.referenceNumber must === (rma.refNum)
       }
 
       "should return failure for non-existing customer" in new Fixture {
         val response = GET(s"v1/returns/customer/255")
-        response.status must ===(StatusCodes.NotFound)
-        response.error must ===(NotFoundFailure404(Customer, 255).description)
+        response.status must === (StatusCodes.NotFound)
+        response.error must === (NotFoundFailure404(Customer, 255).description)
       }
     }
 
     "GET /v1/returns/order/:refNum" - {
       "should return list of Returns of existing order" in new Fixture {
         val response = GET(s"v1/returns/order/${order.refNum}")
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val root = response.ignoreFailuresAndGiveMe[Seq[AllReturns.Root]]
-        root.size must ===(1)
-        root.head.referenceNumber must ===(rma.refNum)
+        root.size must === (1)
+        root.head.referenceNumber must === (rma.refNum)
       }
 
       "should return failure for non-existing order" in new Fixture {
         val response = GET(s"v1/returns/order/ABC-666")
-        response.status must ===(StatusCodes.NotFound)
-        response.error must ===(NotFoundFailure404(Order, "ABC-666").description)
+        response.status must === (StatusCodes.NotFound)
+        response.error must === (NotFoundFailure404(Order, "ABC-666").description)
       }
     }
 
     "GET /v1/returns/:refNum" - {
       "should return valid Return by referenceNumber" in new Fixture {
         val response = GET(s"v1/returns/${rma.refNum}")
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val root = response.as[ReturnResponse.Root]
-        root.referenceNumber must ===(rma.refNum)
+        root.referenceNumber must === (rma.refNum)
       }
 
       "should return 404 if invalid rma is returned" in new Fixture {
         val response = GET(s"v1/returns/ABC-666")
-        response.status must ===(StatusCodes.NotFound)
-        response.error must ===(NotFoundFailure404(Return, "ABC-666").description)
+        response.status must === (StatusCodes.NotFound)
+        response.error must === (NotFoundFailure404(Return, "ABC-666").description)
       }
     }
 
@@ -96,32 +96,32 @@ class ReturnIntegrationTest extends IntegrationTestBase with HttpSupport with Au
       "successfully changes status of Return" in new Fixture {
         val response =
           PATCH(s"v1/returns/${rma.referenceNumber}", ReturnUpdateStatePayload(state = Processing))
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val root = response.as[ReturnResponse.Root]
-        root.state must ===(Processing)
+        root.state must === (Processing)
       }
 
       "successfully cancels Return with valid reason" in new Fixture {
         val payload  = ReturnUpdateStatePayload(state = Canceled, reasonId = Some(reason.id))
         val response = PATCH(s"v1/returns/${rma.referenceNumber}", payload)
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val root = response.as[ReturnResponse.Root]
-        root.state must ===(Canceled)
+        root.state must === (Canceled)
       }
 
       "fails to cancel Return if invalid reason provided" in new Fixture {
         val response = PATCH(s"v1/returns/${rma.referenceNumber}",
                              ReturnUpdateStatePayload(state = Canceled, reasonId = Some(999)))
-        response.status must ===(StatusCodes.BadRequest)
-        response.error must ===(InvalidCancellationReasonFailure.description)
+        response.status must === (StatusCodes.BadRequest)
+        response.error must === (InvalidCancellationReasonFailure.description)
       }
 
       "fails if refNum is not found" in new LineItemFixture {
         val response = PATCH(s"v1/returns/ABC-666", ReturnUpdateStatePayload(state = Processing))
-        response.status must ===(StatusCodes.NotFound)
-        response.error must ===(NotFoundFailure404(Return, "ABC-666").description)
+        response.status must === (StatusCodes.NotFound)
+        response.error must === (NotFoundFailure404(Return, "ABC-666").description)
       }
     }
 
@@ -130,20 +130,20 @@ class ReturnIntegrationTest extends IntegrationTestBase with HttpSupport with Au
         val response =
           POST(s"v1/returns",
                ReturnCreatePayload(orderRefNum = order.refNum, returnType = Return.Standard))
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val root = response.as[ReturnResponse.Root]
-        root.referenceNumber must ===(s"${order.refNum}.2")
-        root.customer.head.id must ===(order.customerId)
-        root.storeAdmin.head.id must ===(storeAdmin.id)
+        root.referenceNumber must === (s"${order.refNum}.2")
+        root.customer.head.id must === (order.customerId)
+        root.storeAdmin.head.id must === (storeAdmin.id)
       }
 
       "fails to create Return with invalid order refNum provided" in new Fixture {
         val response =
           POST(s"v1/returns",
                ReturnCreatePayload(orderRefNum = "ABC-666", returnType = Return.Standard))
-        response.status must ===(StatusCodes.NotFound)
-        response.error must ===(NotFoundFailure404(Order, "ABC-666").description)
+        response.status must === (StatusCodes.NotFound)
+        response.error must === (NotFoundFailure404(Order, "ABC-666").description)
       }
     }
 
@@ -152,26 +152,26 @@ class ReturnIntegrationTest extends IntegrationTestBase with HttpSupport with Au
         // Creates message
         val payload  = ReturnMessageToCustomerPayload(message = "Hello!")
         val response = POST(s"v1/returns/${rma.referenceNumber}/message", payload)
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val root = response.as[ReturnResponse.Root]
-        root.messageToCustomer.head must ===(payload.message)
+        root.messageToCustomer.head must === (payload.message)
 
         // Edits (cleans) message
         val responseClean = POST(s"v1/returns/${rma.referenceNumber}/message",
                                  ReturnMessageToCustomerPayload(message = ""))
-        responseClean.status must ===(StatusCodes.OK)
+        responseClean.status must === (StatusCodes.OK)
 
         val rootClean = responseClean.as[ReturnResponse.Root]
-        rootClean.messageToCustomer must ===(None)
+        rootClean.messageToCustomer must === (None)
       }
 
       "fails if Return not found" in new Fixture {
         val payload  = ReturnMessageToCustomerPayload(message = "Hello!")
         val response = POST(s"v1/returns/99/message", payload)
 
-        response.status must ===(StatusCodes.NotFound)
-        response.error must ===(NotFoundFailure404(Return, "99").description)
+        response.status must === (StatusCodes.NotFound)
+        response.error must === (NotFoundFailure404(Return, "99").description)
       }
 
       "fails if message is too long" in new Fixture {
@@ -179,8 +179,8 @@ class ReturnIntegrationTest extends IntegrationTestBase with HttpSupport with Au
             message = List.fill(Return.messageToCustomerMaxLength)("Yax").mkString)
         val response = POST(s"v1/returns/99/message", payload)
 
-        response.status must ===(StatusCodes.BadRequest)
-        response.error must ===("Message length got 3000, expected 1000 or less")
+        response.status must === (StatusCodes.BadRequest)
+        response.error must === ("Message length got 3000, expected 1000 or less")
       }
     }
 
@@ -198,11 +198,11 @@ class ReturnIntegrationTest extends IntegrationTestBase with HttpSupport with Au
         ReturnLockUpdater.lock("ABC-123.1", admin).futureValue
 
         val response = GET(s"v1/returns/${rma.referenceNumber}/lock")
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val root = response.as[ReturnLockResponse.Root]
-        root.isLocked must ===(true)
-        root.lock.head.lockedBy.id must ===(admin.id)
+        root.isLocked must === (true)
+        root.lock.head.lockedBy.id must === (admin.id)
       }
 
       "returns negative lock status on unlocked Return" in {
@@ -215,26 +215,26 @@ class ReturnIntegrationTest extends IntegrationTestBase with HttpSupport with Au
           .rightVal
 
         val response = GET(s"v1/returns/${rma.referenceNumber}/lock")
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val root = response.as[ReturnLockResponse.Root]
-        root.isLocked must ===(false)
-        root.lock.isEmpty must ===(true)
+        root.isLocked must === (false)
+        root.lock.isEmpty must === (true)
       }
     }
 
     "POST /v1/returns/:refNum/lock" - {
       "successfully locks an Return" in new Fixture {
         val response = POST(s"v1/returns/${rma.referenceNumber}/lock")
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val lockedRma = Returns.findByRefNum(rma.referenceNumber).gimme.head
-        lockedRma.isLocked must ===(true)
+        lockedRma.isLocked must === (true)
 
         val locks = ReturnLockEvents.findByRma(rma.id).gimme
-        locks.length must ===(1)
+        locks.length must === (1)
         val lock = locks.head
-        lock.lockedBy must ===(1)
+        lock.lockedBy must === (1)
       }
 
       "refuses to lock an already locked Return" in {
@@ -247,8 +247,8 @@ class ReturnIntegrationTest extends IntegrationTestBase with HttpSupport with Au
           .rightVal
 
         val response = POST(s"v1/returns/${rma.referenceNumber}/lock")
-        response.status must ===(StatusCodes.BadRequest)
-        response.error must ===(LockedFailure(Return, rma.referenceNumber).description)
+        response.status must === (StatusCodes.BadRequest)
+        response.error must === (LockedFailure(Return, rma.referenceNumber).description)
       }
 
       "avoids race condition" in new Fixture {
@@ -266,34 +266,34 @@ class ReturnIntegrationTest extends IntegrationTestBase with HttpSupport with Au
         POST(s"v1/returns/${rma.referenceNumber}/lock")
 
         val response = POST(s"v1/returns/${rma.referenceNumber}/unlock")
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val unlockedRma = Returns.findByRefNum(rma.referenceNumber).gimme.head
-        unlockedRma.isLocked must ===(false)
+        unlockedRma.isLocked must === (false)
       }
 
       "refuses to unlock an already unlocked Return" in new Fixture {
         val response = POST(s"v1/returns/${rma.referenceNumber}/unlock")
 
-        response.status must ===(StatusCodes.BadRequest)
-        response.error must ===(NotLockedFailure(Return, rma.refNum).description)
+        response.status must === (StatusCodes.BadRequest)
+        response.error must === (NotLockedFailure(Return, rma.refNum).description)
       }
     }
 
     "GET /v1/returns/:refNum/expanded" - {
       "should return expanded Return by referenceNumber" in new Fixture {
         val response = GET(s"v1/returns/${rma.refNum}/expanded")
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val root = response.as[ReturnResponse.RootExpanded]
-        root.referenceNumber must ===(rma.refNum)
-        root.order.head.referenceNumber must ===(order.refNum)
+        root.referenceNumber must === (rma.refNum)
+        root.order.head.referenceNumber must === (order.refNum)
       }
 
       "should return 404 if invalid rma is returned" in new Fixture {
         val response = GET(s"v1/returns/ABC-666/expanded")
-        response.status must ===(StatusCodes.NotFound)
-        response.error must ===(NotFoundFailure404(Return, "ABC-666").description)
+        response.status must === (StatusCodes.NotFound)
+        response.error must === (NotFoundFailure404(Return, "ABC-666").description)
       }
     }
   }
@@ -310,10 +310,10 @@ class ReturnIntegrationTest extends IntegrationTestBase with HttpSupport with Au
                                                 isReturnItem = true,
                                                 inventoryDisposition = ReturnLineItem.Putaway)
         val response = POST(s"v1/returns/${rma.referenceNumber}/line-items/skus", payload)
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val root = response.as[ReturnResponse.Root]
-        root.lineItems.skus.headOption.value.sku.sku must ===(sku.code)
+        root.lineItems.skus.headOption.value.sku.sku must === (sku.code)
       }
 
       "fails if refNum is not found" in new LineItemFixture {
@@ -324,8 +324,8 @@ class ReturnIntegrationTest extends IntegrationTestBase with HttpSupport with Au
                                                 inventoryDisposition = ReturnLineItem.Putaway)
         val response = POST(s"v1/returns/ABC-666/line-items/skus", payload)
 
-        response.status must ===(StatusCodes.NotFound)
-        response.error must ===(NotFoundFailure404(Return, "ABC-666").description)
+        response.status must === (StatusCodes.NotFound)
+        response.error must === (NotFoundFailure404(Return, "ABC-666").description)
       }
 
       "fails if reason is not found" in new LineItemFixture {
@@ -336,8 +336,8 @@ class ReturnIntegrationTest extends IntegrationTestBase with HttpSupport with Au
                                                 inventoryDisposition = ReturnLineItem.Putaway)
         val response = POST(s"v1/returns/${rma.referenceNumber}/line-items/skus", payload)
 
-        response.status must ===(StatusCodes.BadRequest)
-        response.error must ===(NotFoundFailure400(ReturnReason, 100).description)
+        response.status must === (StatusCodes.BadRequest)
+        response.error must === (NotFoundFailure400(ReturnReason, 100).description)
       }
 
       "fails if quantity is invalid" in new LineItemFixture {
@@ -348,8 +348,8 @@ class ReturnIntegrationTest extends IntegrationTestBase with HttpSupport with Au
                                                 inventoryDisposition = ReturnLineItem.Putaway)
         val response = POST(s"v1/returns/${rma.referenceNumber}/line-items/skus", payload)
 
-        response.status must ===(StatusCodes.BadRequest)
-        response.error must ===("Quantity got 0, expected more than 0")
+        response.status must === (StatusCodes.BadRequest)
+        response.error must === ("Quantity got 0, expected more than 0")
       }
     }
 
@@ -369,21 +369,21 @@ class ReturnIntegrationTest extends IntegrationTestBase with HttpSupport with Au
 
         // Delete
         val response = DELETE(s"v1/returns/${rma.referenceNumber}/line-items/skus/$lineItemId")
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
         val root = response.as[ReturnResponse.Root]
         root.lineItems.skus mustBe 'empty
       }
 
       "fails if refNum is not found" in new LineItemFixture {
         val response = DELETE(s"v1/returns/ABC-666/line-items/skus/1")
-        response.status must ===(StatusCodes.NotFound)
-        response.error must ===(NotFoundFailure404(Return, "ABC-666").description)
+        response.status must === (StatusCodes.NotFound)
+        response.error must === (NotFoundFailure404(Return, "ABC-666").description)
       }
 
       "fails if line item ID is not found" in new LineItemFixture {
         val response = DELETE(s"v1/returns/${rma.referenceNumber}/line-items/skus/666")
-        response.status must ===(StatusCodes.BadRequest)
-        response.error must ===(NotFoundFailure400(ReturnLineItem, 666).description)
+        response.status must === (StatusCodes.BadRequest)
+        response.error must === (NotFoundFailure400(ReturnLineItem, 666).description)
       }
     }
 
@@ -393,26 +393,26 @@ class ReturnIntegrationTest extends IntegrationTestBase with HttpSupport with Au
         val payload =
           ReturnGiftCardLineItemsPayload(code = giftCard.code, reasonId = returnReason.id)
         val response = POST(s"v1/returns/${rma.referenceNumber}/line-items/gift-cards", payload)
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val root = response.as[ReturnResponse.Root]
-        root.lineItems.giftCards.headOption.value.giftCard.code must ===(giftCard.code)
+        root.lineItems.giftCards.headOption.value.giftCard.code must === (giftCard.code)
       }
 
       "fails if refNum is not found" in new LineItemFixture {
         val payload  = ReturnGiftCardLineItemsPayload(code = "ABC-666", reasonId = returnReason.id)
         val response = POST(s"v1/returns/ABC-666/line-items/gift-cards", payload)
 
-        response.status must ===(StatusCodes.NotFound)
-        response.error must ===(NotFoundFailure404(Return, "ABC-666").description)
+        response.status must === (StatusCodes.NotFound)
+        response.error must === (NotFoundFailure404(Return, "ABC-666").description)
       }
 
       "fails if reason is not found" in new LineItemFixture {
         val payload  = ReturnGiftCardLineItemsPayload(code = "ABC-666", reasonId = 100)
         val response = POST(s"v1/returns/${rma.referenceNumber}/line-items/gift-cards", payload)
 
-        response.status must ===(StatusCodes.BadRequest)
-        response.error must ===(NotFoundFailure400(ReturnReason, 100).description)
+        response.status must === (StatusCodes.BadRequest)
+        response.error must === (NotFoundFailure400(ReturnReason, 100).description)
       }
     }
 
@@ -430,21 +430,21 @@ class ReturnIntegrationTest extends IntegrationTestBase with HttpSupport with Au
         // Delete
         val response =
           DELETE(s"v1/returns/${rma.referenceNumber}/line-items/gift-cards/$lineItemId")
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
         val root = response.as[ReturnResponse.Root]
         root.lineItems.giftCards mustBe 'empty
       }
 
       "fails if refNum is not found" in new LineItemFixture {
         val response = DELETE(s"v1/returns/ABC-666/line-items/gift-cards/1")
-        response.status must ===(StatusCodes.NotFound)
-        response.error must ===(NotFoundFailure404(Return, "ABC-666").description)
+        response.status must === (StatusCodes.NotFound)
+        response.error must === (NotFoundFailure404(Return, "ABC-666").description)
       }
 
       "fails if line item ID is not found" in new LineItemFixture {
         val response = DELETE(s"v1/returns/${rma.referenceNumber}/line-items/gift-cards/666")
-        response.status must ===(StatusCodes.BadRequest)
-        response.error must ===(NotFoundFailure400(ReturnLineItem, 666).description)
+        response.status must === (StatusCodes.BadRequest)
+        response.error must === (NotFoundFailure400(ReturnLineItem, 666).description)
       }
     }
 
@@ -454,18 +454,18 @@ class ReturnIntegrationTest extends IntegrationTestBase with HttpSupport with Au
         val payload = ReturnShippingCostLineItemsPayload(reasonId = reason.id)
         val response =
           POST(s"v1/returns/${rma.referenceNumber}/line-items/shipping-costs", payload)
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val root = response.as[ReturnResponse.Root]
-        root.lineItems.shippingCosts.headOption.value.shippingCost.id must ===(shipment.id)
+        root.lineItems.shippingCosts.headOption.value.shippingCost.id must === (shipment.id)
       }
 
       "fails if refNum is not found" in new LineItemFixture {
         val payload  = ReturnShippingCostLineItemsPayload(reasonId = returnReason.id)
         val response = POST(s"v1/returns/ABC-666/line-items/shipping-costs", payload)
 
-        response.status must ===(StatusCodes.NotFound)
-        response.error must ===(NotFoundFailure404(Return, "ABC-666").description)
+        response.status must === (StatusCodes.NotFound)
+        response.error must === (NotFoundFailure404(Return, "ABC-666").description)
       }
 
       "fails if reason is not found" in new LineItemFixture {
@@ -473,8 +473,8 @@ class ReturnIntegrationTest extends IntegrationTestBase with HttpSupport with Au
         val response =
           POST(s"v1/returns/${rma.referenceNumber}/line-items/shipping-costs", payload)
 
-        response.status must ===(StatusCodes.BadRequest)
-        response.error must ===(NotFoundFailure400(ReturnReason, 100).description)
+        response.status must === (StatusCodes.BadRequest)
+        response.error must === (NotFoundFailure400(ReturnReason, 100).description)
       }
     }
 
@@ -491,21 +491,21 @@ class ReturnIntegrationTest extends IntegrationTestBase with HttpSupport with Au
         // Delete
         val response =
           DELETE(s"v1/returns/${rma.referenceNumber}/line-items/shipping-costs/$lineItemId")
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
         val root = response.as[ReturnResponse.Root]
         root.lineItems.shippingCosts mustBe 'empty
       }
 
       "fails if refNum is not found" in new LineItemFixture {
         val response = DELETE(s"v1/returns/ABC-666/line-items/shipping-costs/1")
-        response.status must ===(StatusCodes.NotFound)
-        response.error must ===(NotFoundFailure404(Return, "ABC-666").description)
+        response.status must === (StatusCodes.NotFound)
+        response.error must === (NotFoundFailure404(Return, "ABC-666").description)
       }
 
       "fails if line item ID is not found" in new LineItemFixture {
         val response = DELETE(s"v1/returns/${rma.referenceNumber}/line-items/shipping-costs/666")
-        response.status must ===(StatusCodes.BadRequest)
-        response.error must ===(NotFoundFailure400(ReturnLineItem, 666).description)
+        response.status must === (StatusCodes.BadRequest)
+        response.error must === (NotFoundFailure400(ReturnLineItem, 666).description)
       }
     }
   }
@@ -518,9 +518,10 @@ class ReturnIntegrationTest extends IntegrationTestBase with HttpSupport with Au
                  Factories.order.copy(state = Order.RemorseHold,
                                       customerId = customer.id,
                                       remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
-      rma ← * <~ Returns.create(Factories.rma.copy(orderId = order.id,
-                                                   orderRefNum = order.referenceNumber,
-                                                   customerId = customer.id))
+      rma ← * <~ Returns.create(
+               Factories.rma.copy(orderId = order.id,
+                                  orderRefNum = order.referenceNumber,
+                                  customerId = customer.id))
       reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
     } yield (storeAdmin, customer, order, rma, reason)).gimme
   }
@@ -536,14 +537,16 @@ class ReturnIntegrationTest extends IntegrationTestBase with HttpSupport with Au
       gcReason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
       gcOrigin ← * <~ GiftCardManuals.create(
                     GiftCardManual(adminId = storeAdmin.id, reasonId = gcReason.id))
-      giftCard ← * <~ GiftCards.create(Factories.giftCard.copy(originId = gcOrigin.id,
-                                                               originType = GiftCard.RmaProcess))
+      giftCard ← * <~ GiftCards.create(
+                    Factories.giftCard.copy(originId = gcOrigin.id,
+                                            originType = GiftCard.RmaProcess))
 
       gcLineItem ← * <~ OrderLineItemGiftCards.create(
                       OrderLineItemGiftCard(orderId = order.id, giftCardId = giftCard.id))
-      lineItem2 ← * <~ OrderLineItems.create(OrderLineItem(originId = gcLineItem.id,
-                                                           originType = OrderLineItem.GiftCardItem,
-                                                           orderId = order.id))
+      lineItem2 ← * <~ OrderLineItems.create(
+                     OrderLineItem(originId = gcLineItem.id,
+                                   originType = OrderLineItem.GiftCardItem,
+                                   orderId = order.id))
 
       shippingAddress ← * <~ OrderShippingAddresses.create(
                            Factories.shippingAddress.copy(orderId = order.id, regionId = 1))

@@ -32,25 +32,25 @@ class ReturnNotesIntegrationTest
         val response =
           POST(s"v1/notes/rma/${rma.refNum}", CreateNote(body = "Hello, FoxCommerce!"))
 
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val note = response.as[AdminNotes.Root]
-        note.body must ===("Hello, FoxCommerce!")
-        note.author must ===(AdminNotes.buildAuthor(admin))
+        note.body must === ("Hello, FoxCommerce!")
+        note.author must === (AdminNotes.buildAuthor(admin))
       }
 
       "returns a validation error if failed to create" in new Fixture {
         val response = POST(s"v1/notes/rma/${rma.refNum}", CreateNote(body = ""))
 
-        response.status must ===(StatusCodes.BadRequest)
-        response.error must ===("body must not be empty")
+        response.status must === (StatusCodes.BadRequest)
+        response.error must === ("body must not be empty")
       }
 
       "returns a 404 if the gift card is not found" in new Fixture {
         val response = POST(s"v1/notes/rma/RMA-666", CreateNote(body = ""))
 
-        response.status must ===(StatusCodes.NotFound)
-        response.error must ===(NotFoundFailure404(Return, "RMA-666").description)
+        response.status must === (StatusCodes.NotFound)
+        response.error must === (NotFoundFailure404(Return, "RMA-666").description)
       }
     }
 
@@ -63,11 +63,11 @@ class ReturnNotesIntegrationTest
         DbResultT.sequence(createNotes).gimme
 
         val response = GET(s"v1/notes/rma/${rma.refNum}")
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val notes = response.as[Seq[AdminNotes.Root]]
         notes must have size 3
-        notes.map(_.body).toSet must ===(Set("abc", "123", "xyz"))
+        notes.map(_.body).toSet must === (Set("abc", "123", "xyz"))
       }
     }
 
@@ -80,10 +80,10 @@ class ReturnNotesIntegrationTest
 
         val response =
           PATCH(s"v1/notes/rma/${rma.refNum}/${rootNote.id}", UpdateNote(body = "donkey"))
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val note = response.as[AdminNotes.Root]
-        note.body must ===("donkey")
+        note.body must === ("donkey")
       }
     }
 
@@ -95,7 +95,7 @@ class ReturnNotesIntegrationTest
         val note = createResp.as[AdminNotes.Root]
 
         val response = DELETE(s"v1/notes/rma/${rma.refNum}/${note.id}")
-        response.status must ===(StatusCodes.NoContent)
+        response.status must === (StatusCodes.NoContent)
         response.bodyText mustBe empty
 
         val updatedNote = Notes.findOneById(note.id).run().futureValue.value
@@ -107,12 +107,12 @@ class ReturnNotesIntegrationTest
 
         // Deleted note should not be returned
         val allNotesResponse = GET(s"v1/notes/rma/${rma.refNum}")
-        allNotesResponse.status must ===(StatusCodes.OK)
+        allNotesResponse.status must === (StatusCodes.OK)
         val allNotes = allNotesResponse.as[Seq[AdminNotes.Root]]
         allNotes.map(_.id) must not contain note.id
 
         val getDeletedNoteResponse = GET(s"v1/notes/rma/${rma.refNum}/${note.id}")
-        getDeletedNoteResponse.status must ===(StatusCodes.NotFound)
+        getDeletedNoteResponse.status must === (StatusCodes.NotFound)
       }
     }
   }
@@ -124,9 +124,10 @@ class ReturnNotesIntegrationTest
       order ← * <~ Orders.create(
                  Factories.order.copy(state = Order.RemorseHold,
                                       remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
-      rma ← * <~ Returns.create(Factories.rma.copy(orderId = order.id,
-                                                   orderRefNum = order.referenceNumber,
-                                                   customerId = customer.id))
+      rma ← * <~ Returns.create(
+               Factories.rma.copy(orderId = order.id,
+                                  orderRefNum = order.referenceNumber,
+                                  customerId = customer.id))
     } yield (admin, rma)).gimme
   }
 }

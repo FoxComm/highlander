@@ -69,8 +69,9 @@ object DiscountCompilerFailures {
   }
 
   /* Rejections */
-  case class QualifierRejectionFailure[T <: Qualifier](
-      qualifier: T, input: DiscountInput, reason: String)
+  case class QualifierRejectionFailure[T <: Qualifier](qualifier: T,
+                                                       input: DiscountInput,
+                                                       reason: String)
       extends Failure {
     val qName = friendlyClassName(qualifier)
     override def description =

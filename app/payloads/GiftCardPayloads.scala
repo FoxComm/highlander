@@ -32,7 +32,9 @@ object GiftCardPayloads {
 
     def validate: ValidatedNel[Failure, GiftCardBulkCreateByCsr] = {
       (greaterThan(balance, 0, "Balance") |@| greaterThan(quantity, 0, "Quantity") |@| lesserThanOrEqual(
-              quantity, bulkCreateLimit, "Quantity")).map { case _ ⇒ this }
+              quantity,
+              bulkCreateLimit,
+              "Quantity")).map { case _ ⇒ this }
     }
   }
 
@@ -44,16 +46,20 @@ object GiftCardPayloads {
     }
   }
 
-  case class GiftCardBulkUpdateStateByCsr(
-      codes: Seq[String], state: GiftCard.State, reasonId: Option[Int] = None)
+  case class GiftCardBulkUpdateStateByCsr(codes: Seq[String],
+                                          state: GiftCard.State,
+                                          reasonId: Option[Int] = None)
       extends Validation[GiftCardBulkUpdateStateByCsr] {
 
     val bulkUpdateLimit = 20
 
     def validate: ValidatedNel[Failure, GiftCardBulkUpdateStateByCsr] = {
       (GiftCard.validateStateReason(state, reasonId) |@| validExpr(
-              codes.nonEmpty, "Please provide at least one code to update") |@| lesserThanOrEqual(
-              codes.length, bulkUpdateLimit, "Quantity")).map { case _ ⇒ this }
+              codes.nonEmpty,
+              "Please provide at least one code to update") |@| lesserThanOrEqual(
+              codes.length,
+              bulkUpdateLimit,
+              "Quantity")).map { case _ ⇒ this }
     }
   }
 }

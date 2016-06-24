@@ -28,8 +28,8 @@ object Http {
     or.fold(renderFailure(_), _ ⇒ noContentResponse)
 
   def renderOrNotFound[A <: AnyRef](
-      resource: Future[Option[A]], onFound: (A ⇒ HttpResponse) = (r: A) ⇒ render(r))(
-      implicit ec: EC) = {
+      resource: Future[Option[A]],
+      onFound: (A ⇒ HttpResponse) = (r: A) ⇒ render(r))(implicit ec: EC) = {
     resource.map {
       case Some(r) ⇒ onFound(r)
       case None    ⇒ notFoundResponse
@@ -51,9 +51,10 @@ object Http {
   def renderFailure(failures: Failures, statusCode: ClientError = BadRequest): HttpResponse = {
     val failuresList = failures.unwrap
     val notFound     = failuresList.collectFirst { case f: NotFoundFailure404 ⇒ f }
-    notFound.fold(HttpResponse(
-            statusCode, entity = jsonEntity("errors" → failuresList.map(_.description)))) { nf ⇒
-      renderNotFoundFailure(nf)
+    notFound.fold(HttpResponse(statusCode,
+                               entity = jsonEntity("errors" → failuresList.map(_.description)))) {
+      nf ⇒
+        renderNotFoundFailure(nf)
     }
   }
 

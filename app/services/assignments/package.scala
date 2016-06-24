@@ -8,8 +8,9 @@ import utils.db._
 package object assignments {
   // Notification (un)subscription helpers
   def subscribe[K, M <: FoxModel[M]](
-      manager: AssignmentsManager[K, M], adminIds: Seq[Int], objectIds: Seq[String])(
-      implicit ec: EC): DbResult[TheResponse[Option[Int]]] = {
+      manager: AssignmentsManager[K, M],
+      adminIds: Seq[Int],
+      objectIds: Seq[String])(implicit ec: EC): DbResult[TheResponse[Option[Int]]] = {
 
     if (objectIds.nonEmpty)
       NotificationManager
@@ -22,9 +23,9 @@ package object assignments {
       DbResult.good(TheResponse(None))
   }
 
-  def unsubscribe[K, M <: FoxModel[M]](
-      manager: AssignmentsManager[K, M], adminIds: Seq[Int], objectIds: Seq[String])(
-      implicit ec: EC): DbResult[Unit] = {
+  def unsubscribe[K, M <: FoxModel[M]](manager: AssignmentsManager[K, M],
+                                       adminIds: Seq[Int],
+                                       objectIds: Seq[String])(implicit ec: EC): DbResult[Unit] = {
 
     if (objectIds.nonEmpty)
       NotificationManager
@@ -44,8 +45,8 @@ package object assignments {
                                          keys: Seq[String])(implicit ec: EC, ac: AC) = {
 
     if (keys.nonEmpty)
-      LogActivity.bulkAssigned(
-          originator, admin, keys, manager.assignmentType, manager.referenceType)
+      LogActivity
+        .bulkAssigned(originator, admin, keys, manager.assignmentType, manager.referenceType)
     else
       DbResult.unit
   }
@@ -56,8 +57,8 @@ package object assignments {
                                            keys: Seq[String])(implicit ec: EC, ac: AC) = {
 
     if (keys.nonEmpty)
-      LogActivity.bulkUnassigned(
-          originator, admin, keys, manager.assignmentType, manager.referenceType)
+      LogActivity
+        .bulkUnassigned(originator, admin, keys, manager.assignmentType, manager.referenceType)
     else
       DbResult.unit
   }

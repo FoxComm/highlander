@@ -17,8 +17,8 @@ trait CouponSeeds {
   val codeLength = 15
   val codesQty   = 10
 
-  def createCoupons(
-      promotions: Seq[BasePromotion])(implicit db: Database, ac: AC): DbResultT[Seq[BaseCoupon]] =
+  def createCoupons(promotions: Seq[BasePromotion])(implicit db: Database,
+                                                    ac: AC): DbResultT[Seq[BaseCoupon]] =
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       results ← * <~ promotions.map { promotion ⇒
@@ -28,7 +28,8 @@ trait CouponSeeds {
     } yield results
 
   def insertCoupon(promo: BasePromotion, payload: CreateCoupon, context: ObjectContext)(
-      implicit db: Database, ac: AC): DbResultT[BaseCoupon] =
+      implicit db: Database,
+      ac: AC): DbResultT[BaseCoupon] =
     for {
       // Create coupon
       form   ← * <~ ObjectForm(kind = Coupon.kind, attributes = payload.form.attributes)

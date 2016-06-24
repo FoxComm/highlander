@@ -15,7 +15,7 @@ class HttpTest extends TestBase {
       val failures = Failures(GeneralFailure("general"),
                               CustomerHasDefaultCreditCard,
                               NotFoundFailure404(Order, "ABC-123")).value
-      renderFailure(failures).status must ===(StatusCodes.NotFound)
+      renderFailure(failures).status must === (StatusCodes.NotFound)
     }
   }
 }

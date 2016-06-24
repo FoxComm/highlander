@@ -12,8 +12,11 @@ object ImageResponses {
   implicit val formats = JsonFormatters.phoenixFormats
 
   object AlbumResponse {
-    case class Root(
-        id: Int, name: String, images: Seq[Image], createdAt: Instant, updatedAt: Instant)
+    case class Root(id: Int,
+                    name: String,
+                    images: Seq[Image],
+                    createdAt: Instant,
+                    updatedAt: Instant)
         extends ResponseItem
 
     def build(album: FullObject[Album], images: Seq[Image]): Root = {

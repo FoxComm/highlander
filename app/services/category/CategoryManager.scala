@@ -22,8 +22,8 @@ object CategoryManager {
       form     ← * <~ ObjectForms.mustFindById404(id)
     } yield CategoryFormResponse.build(category, form)).run()
 
-  def getShadow(formId: Int, contextName: String)(
-      implicit ec: EC, db: DB): Result[CategoryShadowResponse.Root] =
+  def getShadow(formId: Int, contextName: String)(implicit ec: EC,
+                                                  db: DB): Result[CategoryShadowResponse.Root] =
     (for {
       context ← * <~ contextByName(contextName)
       category ← * <~ Categories
@@ -33,13 +33,16 @@ object CategoryManager {
     } yield CategoryShadowResponse.build(shadow)).run()
 
   def getCategory(categoryId: Int, contextName: String)(
-      implicit ec: EC, db: DB): Result[FullCategoryResponse.Root] =
+      implicit ec: EC,
+      db: DB): Result[FullCategoryResponse.Root] =
     getCategoryFull(categoryId, contextName)
       .map(c ⇒ FullCategoryResponse.build(c.category, c.form, c.shadow))
       .run()
 
   def createCategory(admin: StoreAdmin, payload: CreateFullCategory, contextName: String)(
-      implicit ec: EC, db: DB, ac: AC): Result[FullCategoryResponse.Root] =
+      implicit ec: EC,
+      db: DB,
+      ac: AC): Result[FullCategoryResponse.Root] =
     (for {
       context  ← * <~ contextByName(contextName)
       form     ← * <~ ObjectForm(kind = Category.kind, attributes = payload.form.attributes)
@@ -47,13 +50,16 @@ object CategoryManager {
       insert   ← * <~ ObjectUtils.insert(form, shadow)
       category ← * <~ Categories.create(Category.build(context.id, insert))
       response = FullCategoryResponse.build(category, insert.form, insert.shadow)
-      _ ← * <~ LogActivity.fullCategoryCreated(
-             Some(admin), response, ObjectContextResponse.build(context))
+      _ ← * <~ LogActivity.fullCategoryCreated(Some(admin),
+                                               response,
+                                               ObjectContextResponse.build(context))
     } yield response).runTxn()
 
   def updateCategory(
-      admin: StoreAdmin, categoryId: Int, payload: UpdateFullCategory, contextName: String)(
-      implicit ec: EC, db: DB, ac: AC): Result[FullCategoryResponse.Root] =
+      admin: StoreAdmin,
+      categoryId: Int,
+      payload: UpdateFullCategory,
+      contextName: String)(implicit ec: EC, db: DB, ac: AC): Result[FullCategoryResponse.Root] =
     (for {
       context  ← * <~ contextByName(contextName)
       category ← * <~ categoryById(categoryId, context)
@@ -69,14 +75,16 @@ object CategoryManager {
     } yield categoryResponse).runTxn()
 
   def getIlluminatedCategory(categoryId: Int, contextName: String)(
-      implicit ec: EC, db: DB): Result[IlluminatedCategoryResponse.Root] =
+      implicit ec: EC,
+      db: DB): Result[IlluminatedCategoryResponse.Root] =
     getCategoryFull(categoryId, contextName).map { full ⇒
       val cat = IlluminatedCategory.illuminate(full.context, full.category, full.form, full.shadow)
       IlluminatedCategoryResponse.build(cat)
     }.run()
 
   def getIlluminatedCategoryAtCommit(categoryId: Int, contextName: String, commitId: Int)(
-      implicit ec: EC, db: DB): Result[IlluminatedCategoryResponse.Root] =
+      implicit ec: EC,
+      db: DB): Result[IlluminatedCategoryResponse.Root] =
     (for {
       context  ← * <~ contextByName(contextName)
       category ← * <~ categoryById(categoryId, context)
@@ -90,12 +98,13 @@ object CategoryManager {
           IlluminatedCategory.illuminate(context, category, categoryForm, categoryShadow))).run()
 
   private def updateCategoryHead(
-      category: Category, categoryShadow: ObjectShadow, maybeCommit: Option[ObjectCommit])(
-      implicit ec: EC): DbResultT[Category] =
+      category: Category,
+      categoryShadow: ObjectShadow,
+      maybeCommit: Option[ObjectCommit])(implicit ec: EC): DbResultT[Category] =
     maybeCommit match {
       case Some(commit) ⇒
-        Categories.update(
-            category, category.copy(shadowId = categoryShadow.id, commitId = commit.id))
+        Categories
+          .update(category, category.copy(shadowId = categoryShadow.id, commitId = commit.id))
       case None ⇒
         DbResultT.pure(category)
     }
@@ -110,14 +119,16 @@ object CategoryManager {
       .mustFindOneOr(CategoryNotFoundForContext(categoryId, context.id))
 
   private def getCategoryFull(categoryId: Int, contextName: String)(
-      implicit ec: EC, db: DB): DbResultT[CategoryFull] =
+      implicit ec: EC,
+      db: DB): DbResultT[CategoryFull] =
     for {
       context ← * <~ contextByName(contextName)
       result  ← * <~ getCategoryFull(categoryId, context)
     } yield result
 
   private def getCategoryFull(categoryId: Int, context: ObjectContext)(
-      implicit ec: EC, db: DB): DbResultT[CategoryFull] =
+      implicit ec: EC,
+      db: DB): DbResultT[CategoryFull] =
     for {
       category ← * <~ categoryById(categoryId, context)
       form     ← * <~ ObjectForms.mustFindById404(category.formId)

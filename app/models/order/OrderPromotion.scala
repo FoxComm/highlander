@@ -22,8 +22,9 @@ final case class OrderPromotion(id: Int = 0,
 object OrderPromotion {
 
   def buildAuto(order: Order, promo: Promotion): OrderPromotion =
-    OrderPromotion(
-        orderId = order.id, promotionShadowId = promo.shadowId, applyType = Promotion.Auto)
+    OrderPromotion(orderId = order.id,
+                   promotionShadowId = promo.shadowId,
+                   applyType = Promotion.Auto)
 
   def buildCoupon(order: Order, promo: Promotion, code: CouponCode): OrderPromotion =
     OrderPromotion(orderId = order.id,

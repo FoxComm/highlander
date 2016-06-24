@@ -24,8 +24,8 @@ object PromotionManager {
       form ← * <~ ObjectForms.mustFindById404(id)
     } yield PromotionFormResponse.build(form)).run()
 
-  def getShadow(id: Int, contextName: String)(
-      implicit ec: EC, db: DB): Result[PromotionShadowResponse.Root] =
+  def getShadow(id: Int, contextName: String)(implicit ec: EC,
+                                              db: DB): Result[PromotionShadowResponse.Root] =
     (for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
@@ -56,8 +56,8 @@ object PromotionManager {
       discountShadows = discounts.map(_.shadow)
     } yield PromotionResponse.build(promotion, form, shadow, discountForms, discountShadows)).run()
 
-  def create(payload: CreatePromotion, contextName: String)(
-      implicit ec: EC, db: DB): Result[PromotionResponse.Root] =
+  def create(payload: CreatePromotion,
+             contextName: String)(implicit ec: EC, db: DB): Result[PromotionResponse.Root] =
     (for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
@@ -79,8 +79,9 @@ object PromotionManager {
   private case class DiscountsCreateResult(forms: Seq[ObjectForm], shadows: Seq[ObjectShadow])
 
   private def createDiscounts(
-      context: ObjectContext, payload: CreatePromotion, promotionShadow: ObjectShadow)(
-      implicit ec: EC): DbResultT[DiscountsCreateResult] =
+      context: ObjectContext,
+      payload: CreatePromotion,
+      promotionShadow: ObjectShadow)(implicit ec: EC): DbResultT[DiscountsCreateResult] =
     for {
       discounts ← * <~ payload.form.discounts.zip(payload.shadow.discounts)
       newDiscounts ← * <~ discounts.map {
@@ -100,14 +101,17 @@ object PromotionManager {
       promotionShadow: ObjectShadow)(implicit ec: EC): DbResultT[DiscountCreateResult] =
     for {
       discount ← * <~ DiscountManager.createInternal(
-                    CreateDiscount(form = formPayload, shadow = shadowPayload), context)
-      link ← * <~ ObjectLinks.create(ObjectLink(leftId = promotionShadow.id,
-                                                rightId = discount.shadow.id,
-                                                linkType = ObjectLink.PromotionDiscount))
+                    CreateDiscount(form = formPayload, shadow = shadowPayload),
+                    context)
+      link ← * <~ ObjectLinks.create(
+                ObjectLink(leftId = promotionShadow.id,
+                           rightId = discount.shadow.id,
+                           linkType = ObjectLink.PromotionDiscount))
     } yield DiscountCreateResult(discount.form, discount.shadow)
 
   def update(id: Int, payload: UpdatePromotion, contextName: String)(
-      implicit ec: EC, db: DB): Result[PromotionResponse.Root] =
+      implicit ec: EC,
+      db: DB): Result[PromotionResponse.Root] =
     (for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
@@ -123,16 +127,16 @@ object PromotionManager {
       commit    ← * <~ ObjectUtils.commit(updated)
       promotion ← * <~ updateHead(promotion, payload, updated.shadow, commit)
     } yield
-      PromotionResponse.build(
-          promotion, updated.form, updated.shadow, discount.forms, discount.shadows)).runTxn()
+      PromotionResponse
+        .build(promotion, updated.form, updated.shadow, discount.forms, discount.shadows)).runTxn()
 
   private case class UpdateDiscountsResult(forms: Seq[ObjectForm], shadows: Seq[ObjectShadow])
 
-  private def updateDiscounts(context: ObjectContext,
-                              oldPromotionShadowId: Int,
-                              promotionShadowId: Int,
-                              payload: UpdatePromotion)(
-      implicit ec: EC, db: DB): DbResultT[UpdateDiscountsResult] = {
+  private def updateDiscounts(
+      context: ObjectContext,
+      oldPromotionShadowId: Int,
+      promotionShadowId: Int,
+      payload: UpdatePromotion)(implicit ec: EC, db: DB): DbResultT[UpdateDiscountsResult] = {
 
     val pairs = payload.form.discounts.sortBy(_.id).zip(payload.shadow.discounts.sortBy(_.id))
 
@@ -148,19 +152,19 @@ object PromotionManager {
 
   private case class UpdateDiscountResult(form: ObjectForm, shadow: ObjectShadow)
 
-  private def updateDiscount(context: ObjectContext,
-                             formPayload: UpdatePromoDiscountForm,
-                             shadowPayload: UpdatePromoDiscountShadow,
-                             oldPromotionShadowId: Int,
-                             promotionShadowId: Int)(
-      implicit ec: EC, db: DB): DbResultT[UpdateDiscountResult] = {
+  private def updateDiscount(
+      context: ObjectContext,
+      formPayload: UpdatePromoDiscountForm,
+      shadowPayload: UpdatePromoDiscountShadow,
+      oldPromotionShadowId: Int,
+      promotionShadowId: Int)(implicit ec: EC, db: DB): DbResultT[UpdateDiscountResult] = {
     val updateDiscountPayload = UpdateDiscount(
         form = UpdateDiscountForm(attributes = formPayload.attributes),
         shadow = UpdateDiscountShadow(attributes = shadowPayload.attributes))
 
     for {
-      discount ← * <~ DiscountManager.updateInternal(
-                    formPayload.id, updateDiscountPayload, context)
+      discount ← * <~ DiscountManager
+                  .updateInternal(formPayload.id, updateDiscountPayload, context)
       _ ← * <~ ObjectUtils.updateLink(oldPromotionShadowId,
                                       promotionShadowId,
                                       discount.oldDiscount.shadowId,
@@ -170,7 +174,8 @@ object PromotionManager {
   }
 
   def getIlluminated(id: Int, contextName: String)(
-      implicit ec: EC, db: DB): Result[IlluminatedPromotionResponse.Root] =
+      implicit ec: EC,
+      db: DB): Result[IlluminatedPromotionResponse.Root] =
     (for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)

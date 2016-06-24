@@ -37,6 +37,6 @@ object AssigneeNotFoundFailure {
   def apply[A](a: A, searchKey: Any, assigneeId: Int): AssigneeNotFoundFailure = {
     AssigneeNotFoundFailure(
         s"storeAdmin with id=$assigneeId is not assigned to ${friendlyClassName(a)} " +
-        s"with ${searchTerm(a)}=$searchKey")
+          s"with ${searchTerm(a)}=$searchKey")
   }
 }

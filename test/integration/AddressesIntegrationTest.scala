@@ -16,7 +16,7 @@ import utils.seeds.Seeds.Factories
 class AddressesIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
 
   def validateDeleteResponse(response: HttpResponse) {
-    response.status must ===(StatusCodes.NoContent)
+    response.status must === (StatusCodes.NoContent)
     response.bodyText mustBe 'empty
   }
 
@@ -24,12 +24,12 @@ class AddressesIntegrationTest extends IntegrationTestBase with HttpSupport with
     "lists addresses" in new AddressFixture {
       val response = GET(s"v1/customers/${customer.id}/addresses")
 
-      response.status must ===(StatusCodes.OK)
+      response.status must === (StatusCodes.OK)
 
       val addresses = response.ignoreFailuresAndGiveMe[Seq[responses.Addresses.Root]]
 
       addresses must have size 1
-      addresses.head.name must ===(address.name)
+      addresses.head.name must === (address.name)
     }
   }
 
@@ -42,19 +42,19 @@ class AddressesIntegrationTest extends IntegrationTestBase with HttpSupport with
                                          zip = "55555")
       val response = POST(s"v1/customers/${customer.id}/addresses", payload)
 
-      response.status must ===(StatusCodes.OK)
+      response.status must === (StatusCodes.OK)
 
       val newAddress = response.as[responses.Addresses.Root]
 
-      newAddress.name must ===(payload.name)
-      newAddress.isDefault must ===(Some(false))
+      newAddress.name must === (payload.name)
+      newAddress.isDefault must === (Some(false))
     }
   }
 
   "POST /v1/customers/:customerId/addresses/:addressId/default" - {
     "sets the isDefaultShippingAddress flag on an address" in new NoDefaultAddressFixture {
       val response = POST(s"v1/customers/${customer.id}/addresses/${address.id}/default")
-      response.status must ===(StatusCodes.OK)
+      response.status must === (StatusCodes.OK)
       Addresses.findOneById(address.id).gimme.value.isDefaultShipping mustBe true
     }
 
@@ -62,7 +62,7 @@ class AddressesIntegrationTest extends IntegrationTestBase with HttpSupport with
       val another  = Addresses.create(address.copy(id = 0, isDefaultShipping = false)).gimme
       val response = POST(s"v1/customers/${customer.id}/addresses/${another.id}/default")
 
-      response.status must ===(StatusCodes.OK)
+      response.status must === (StatusCodes.OK)
 
       Addresses.findOneById(another.id).gimme.value.isDefaultShipping mustBe true
       Addresses.findOneById(address.id).gimme.value.isDefaultShipping mustBe false
@@ -83,7 +83,7 @@ class AddressesIntegrationTest extends IntegrationTestBase with HttpSupport with
 
       validateDeleteResponse(response)
 
-      Addresses.findAllByCustomerId(customer.id).length.gimme must ===(0)
+      Addresses.findAllByCustomerId(customer.id).length.gimme must === (0)
     }
   }
 
@@ -99,9 +99,9 @@ class AddressesIntegrationTest extends IntegrationTestBase with HttpSupport with
       val response = PATCH(s"v1/customers/${customer.id}/addresses/${address.id}", payload)
 
       val updated = response.as[responses.Addresses.Root]
-      response.status must ===(StatusCodes.OK)
+      response.status must === (StatusCodes.OK)
 
-      (updated.name, updated.address1) must ===((payload.name, payload.address1))
+      (updated.name, updated.address1) must === ((payload.name, payload.address1))
     }
   }
 
@@ -117,7 +117,7 @@ class AddressesIntegrationTest extends IntegrationTestBase with HttpSupport with
                                          isDefault = true)
 
       val response = POST(s"v1/customers/${customer.id}/addresses", payload)
-      response.status must ===(StatusCodes.OK)
+      response.status must === (StatusCodes.OK)
       val newAddress = response.as[responses.Addresses.Root]
 
       //now delete
@@ -131,25 +131,25 @@ class AddressesIntegrationTest extends IntegrationTestBase with HttpSupport with
 
     "deleted address should be visible to StoreAdmin" in new DeletedAddressFixture {
       val response = GET(s"v1/customers/${customer.id}/addresses/${address.id}")
-      response.status must ===(StatusCodes.OK)
+      response.status must === (StatusCodes.OK)
     }
 
     "deleted address should be invisible to Customer" in new DeletedAddressFixture {
       val response = GET(s"v1/my/addresses/${address.id}")
-      response.status must ===(StatusCodes.NotFound)
-      response.error must ===(NotFoundFailure404(Address, address.id).description)
+      response.status must === (StatusCodes.NotFound)
+      response.error must === (NotFoundFailure404(Address, address.id).description)
     }
 
     "fails deleting using wrong address id" in new AddressFixture {
       val response = DELETE(s"v1/customers/${customer.id}/addresses/65536")
-      response.status must ===(StatusCodes.NotFound)
-      response.error must ===(NotFoundFailure404(Address, 65536).description)
+      response.status must === (StatusCodes.NotFound)
+      response.error must === (NotFoundFailure404(Address, 65536).description)
     }
 
     "fails deleting using wrong customer id" in new AddressFixture {
       val response = DELETE(s"v1/customers/65536/addresses/${address.id}")
-      response.status must ===(StatusCodes.NotFound)
-      response.error must ===(NotFoundFailure404(Customer, 65536).description)
+      response.status must === (StatusCodes.NotFound)
+      response.error must === (NotFoundFailure404(Customer, 65536).description)
     }
   }
 
@@ -166,9 +166,10 @@ class AddressesIntegrationTest extends IntegrationTestBase with HttpSupport with
   trait DeletedAddressFixture {
     val (customer, address) = (for {
       customer ← * <~ Customers.create(authedCustomer)
-      address ← * <~ Addresses.create(Factories.address.copy(customerId = authedCustomer.id,
-                                                             isDefaultShipping = false,
-                                                             deletedAt = Some(Instant.now)))
+      address ← * <~ Addresses.create(
+                   Factories.address.copy(customerId = authedCustomer.id,
+                                          isDefaultShipping = false,
+                                          deletedAt = Some(Instant.now)))
     } yield (customer, address)).gimme
   }
 

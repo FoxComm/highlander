@@ -43,7 +43,8 @@ object OrderQueries {
       TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).run()
 
   def findOneByCustomer(refNum: String, customer: Customer)(
-      implicit ec: EC, db: DB): Result[TheResponse[FullOrder.Root]] =
+      implicit ec: EC,
+      db: DB): Result[TheResponse[FullOrder.Root]] =
     (for {
       order ← * <~ Orders
                .findOneByRefNumAndCustomer(refNum, customer)
@@ -54,21 +55,24 @@ object OrderQueries {
       TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).run()
 
   def findOrCreateCartByCustomer(
-      customer: Customer, context: ObjectContext, admin: Option[StoreAdmin] = None)(
-      implicit ec: EC, db: DB, ac: AC): Result[FullOrder.Root] =
+      customer: Customer,
+      context: ObjectContext,
+      admin: Option[StoreAdmin] = None)(implicit ec: EC, db: DB, ac: AC): Result[FullOrder.Root] =
     findOrCreateCartByCustomerInner(customer, context, admin).runTxn()
 
   def findOrCreateCartByCustomerId(
-      customerId: Int, context: ObjectContext, admin: Option[StoreAdmin] = None)(
-      implicit ec: EC, db: DB, ac: AC): Result[FullOrder.Root] =
+      customerId: Int,
+      context: ObjectContext,
+      admin: Option[StoreAdmin] = None)(implicit ec: EC, db: DB, ac: AC): Result[FullOrder.Root] =
     (for {
       customer  ← * <~ Customers.mustFindById404(customerId)
       fullOrder ← * <~ findOrCreateCartByCustomerInner(customer, context, admin)
     } yield fullOrder).runTxn()
 
   def findOrCreateCartByCustomerInner(
-      customer: Customer, context: ObjectContext, admin: Option[StoreAdmin])(
-      implicit db: DB, ec: EC, ac: AC): DbResultT[FullOrder.Root] =
+      customer: Customer,
+      context: ObjectContext,
+      admin: Option[StoreAdmin])(implicit db: DB, ec: EC, ac: AC): DbResultT[FullOrder.Root] =
     for {
       result ← * <~ Orders
                 .findActiveOrderByCustomer(customer)
@@ -81,12 +85,13 @@ object OrderQueries {
       _         ← * <~ logCartCreation(foundOrCreated, fullOrder, admin)
     } yield fullOrder
 
-  private def logCartCreation(
-      foundOrCreated: FoundOrCreated, order: FullOrder.Root, admin: Option[StoreAdmin])(
-      implicit ec: EC, ac: AC) = foundOrCreated match {
-    case Created ⇒ LogActivity.cartCreated(admin, order)
-    case Found   ⇒ DbResult.unit
-  }
+  private def logCartCreation(foundOrCreated: FoundOrCreated,
+                              order: FullOrder.Root,
+                              admin: Option[StoreAdmin])(implicit ec: EC, ac: AC) =
+    foundOrCreated match {
+      case Created ⇒ LogActivity.cartCreated(admin, order)
+      case Found   ⇒ DbResult.unit
+    }
 
   def getPaymentState(orderId: Int)(implicit ec: EC): DBIO[CreditCardCharge.State] =
     for {

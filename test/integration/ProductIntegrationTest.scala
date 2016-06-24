@@ -23,12 +23,12 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
   "POST v1/products/:context" - {
     "Creates a product with a new SKU successfully" in new Fixture {
       val response = POST(s"v1/products/${context.name}", productPayload)
-      response.status must ===(StatusCodes.OK)
+      response.status must === (StatusCodes.OK)
 
       val productResponse = response.as[ProductResponse.Root]
-      productResponse.skus.length must ===(1)
+      productResponse.skus.length must === (1)
       val code = productResponse.skus.head.attributes \ "code" \ "v"
-      code.extract[String] must ===("SKU-NEW-TEST")
+      code.extract[String] must === ("SKU-NEW-TEST")
     }
 
     "Creates a product with an existing SKU successfully" in new Fixture {
@@ -36,34 +36,34 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
       val payload       = productPayload.copy(skus = Seq(redSkuPayload))
 
       val response = POST(s"v1/products/${context.name}", payload)
-      response.status must ===(StatusCodes.OK)
+      response.status must === (StatusCodes.OK)
 
       val productResponse = response.as[ProductResponse.Root]
-      productResponse.skus.length must ===(1)
+      productResponse.skus.length must === (1)
       val code = productResponse.skus.head.attributes \ "code" \ "v"
-      code.extract[String] must ===("SKU-RED-SMALL")
+      code.extract[String] must === ("SKU-RED-SMALL")
     }
 
     "Creates a product with an existing, but modified SKU successfully" in new Fixture {
-      val redPriceJson  = ("t" -> "price") ~ ("v" -> (("currency" → "USD") ~ ("value" → 7999)))
-      val redSkuAttrMap = Map("salePrice" -> redPriceJson)
+      val redPriceJson  = ("t" → "price") ~ ("v" → (("currency" → "USD") ~ ("value" → 7999)))
+      val redSkuAttrMap = Map("salePrice" → redPriceJson)
       val redSkuPayload = makeSkuPayload("SKU-RED-LARGE", redSkuAttrMap)
       val payload       = productPayload.copy(skus = Seq(redSkuPayload))
 
       val response = POST(s"v1/products/${context.name}", payload)
-      response.status must ===(StatusCodes.OK)
+      response.status must === (StatusCodes.OK)
 
       val productResponse = response.as[ProductResponse.Root]
-      productResponse.skus.length must ===(1)
+      productResponse.skus.length must === (1)
       val code = productResponse.skus.head.attributes \ "code" \ "v"
-      code.extract[String] must ===("SKU-RED-LARGE")
+      code.extract[String] must === ("SKU-RED-LARGE")
     }
 
     "Throws an error if no SKU is added" in new Fixture {
       val payload = productPayload.copy(skus = Seq.empty)
 
       val response = POST(s"v1/products/${context.name}", payload)
-      response.status must ===(StatusCodes.BadRequest)
+      response.status must === (StatusCodes.BadRequest)
     }
 
     "Throws an error if there is more than one SKU and no variants" in new Fixture {
@@ -72,7 +72,7 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
       val payload = productPayload.copy(skus = Seq(sku1, sku2), variants = Some(Seq.empty))
 
       val response = POST(s"v1/products/${context.name}", payload)
-      response.status must ===(StatusCodes.BadRequest)
+      response.status must === (StatusCodes.BadRequest)
     }
 
     "Variant with no values doesn't allow for multiple SKUs" in new VariantFixture {
@@ -81,45 +81,45 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
       val payload = productPayload.copy(skus = Seq(sku1, sku2), variants = Some(Seq.empty))
 
       val response = POST(s"v1/products/${context.name}", payload)
-      response.status must ===(StatusCodes.BadRequest)
+      response.status must === (StatusCodes.BadRequest)
     }
 
     "Creates product with single empty variant successfully" in new VariantFixture {
       val payload  = productPayload.copy(variants = Some(Seq(colorVariantPayload)))
       val response = POST(s"v1/products/${context.name}", payload)
-      response.status must ===(StatusCodes.OK)
+      response.status must === (StatusCodes.OK)
 
       val productResponse = response.as[ProductResponse.Root]
-      productResponse.skus.length must ===(1)
+      productResponse.skus.length must === (1)
       val code = productResponse.skus.head.attributes \ "code" \ "v"
-      code.extract[String] must ===("SKU-NEW-TEST")
+      code.extract[String] must === ("SKU-NEW-TEST")
     }
 
     "Creates product with a variant with multiple values successfully" in new VariantFixture {
       val payload = productPayload.copy(variants = Some(Seq(colorVariantPayload)))
 
       val response = POST(s"v1/products/${context.name}", payload)
-      response.status must ===(StatusCodes.OK)
+      response.status must === (StatusCodes.OK)
 
       val productResponse = response.as[ProductResponse.Root]
-      productResponse.variants.length must ===(1)
-      productResponse.variants.head.values.length must ===(2)
+      productResponse.variants.length must === (1)
+      productResponse.variants.head.values.length must === (2)
     }
 
     "Creates a product then requests is successfully" in new Fixture {
       val response = POST(s"v1/products/${context.name}", productPayload)
-      response.status must ===(StatusCodes.OK)
+      response.status must === (StatusCodes.OK)
 
       val productResponse = response.as[ProductResponse.Root]
       val productId       = productResponse.id
 
       val getResponse = GET(s"v1/products/${context.name}/$productId")
-      getResponse.status must ===(StatusCodes.OK)
+      getResponse.status must === (StatusCodes.OK)
 
       val getProductResponse = getResponse.as[ProductResponse.Root]
-      getProductResponse.skus.length must ===(1)
+      getProductResponse.skus.length must === (1)
       val code = getProductResponse.skus.head.attributes \ "code" \ "v"
-      code.extract[String] must ===("SKU-NEW-TEST")
+      code.extract[String] must === ("SKU-NEW-TEST")
     }
   }
 
@@ -129,14 +129,14 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
         UpdateProductPayload(attributes = Map.empty, skus = Some(Seq(skuPayload)), variants = None)
 
       val response = PATCH(s"v1/products/${context.name}/${product.formId}", payload)
-      response.status must ===(StatusCodes.OK)
+      response.status must === (StatusCodes.OK)
 
       val productResponse = response.as[ProductResponse.Root]
-      productResponse.skus.length must ===(1)
-      productResponse.variants.length must ===(2)
+      productResponse.skus.length must === (1)
+      productResponse.variants.length must === (2)
 
       val description = productResponse.attributes \ "description" \ "v"
-      description.extract[String] must ===("Test product description")
+      description.extract[String] must === ("Test product description")
     }
 
     "Updates the properties on a product successfully" in new Fixture {
@@ -144,11 +144,11 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
       val payload    = UpdateProductPayload(attributes = newAttrMap, skus = None, variants = None)
 
       val response = PATCH(s"v1/products/${context.name}/${product.formId}", payload)
-      response.status must ===(StatusCodes.OK)
+      response.status must === (StatusCodes.OK)
 
       val productResponse = response.as[ProductResponse.Root]
-      productResponse.skus.length must ===(4)
-      productResponse.variants.length must ===(2)
+      productResponse.skus.length must === (4)
+      productResponse.variants.length must === (2)
     }
 
     "Updates the variants on a product successfully" in new VariantFixture {
@@ -163,14 +163,14 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
           variants = Some(Seq(colorVariantPayload, sizeVariantPayload, metalVariantPayload)))
 
       val response = PATCH(s"v1/products/${context.name}/${product.formId}", payload)
-      response.status must ===(StatusCodes.OK)
+      response.status must === (StatusCodes.OK)
 
       val productResponse = response.as[ProductResponse.Root]
-      productResponse.skus.length must ===(4)
-      productResponse.variants.length must ===(3)
+      productResponse.skus.length must === (4)
+      productResponse.variants.length must === (3)
 
       val description = productResponse.attributes \ "description" \ "v"
-      description.extract[String] must ===("Test product description")
+      description.extract[String] must === ("Test product description")
     }
 
     "Throws an error if updating adds too many SKUs" in new VariantFixture {
@@ -186,14 +186,14 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
       )
 
       val response = PATCH(s"v1/products/${context.name}/${product.formId}", upPayload)
-      response.status must ===(StatusCodes.BadRequest)
+      response.status must === (StatusCodes.BadRequest)
     }
   }
 
   trait Fixture {
     def makeSkuPayload(code: String, name: String) = {
-      val attrMap = Map(
-          "name" → (("t" → "string") ~ ("v" → name)), "code" → (("t" → "string") ~ ("v" → code)))
+      val attrMap =
+        Map("name" → (("t" → "string") ~ ("v" → name)), "code" → (("t" → "string") ~ ("v" → code)))
       SkuPayload(attrMap)
     }
 
@@ -203,14 +203,14 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
     }
 
     val priceValue = ("currency" → "USD") ~ ("value" → 9999)
-    val priceJson  = ("t" -> "price") ~ ("v" -> priceValue)
-    val skuAttrMap = Map("price" -> priceJson)
+    val priceJson  = ("t" → "price") ~ ("v" → priceValue)
+    val skuAttrMap = Map("price" → priceJson)
     val skuPayload = makeSkuPayload("SKU-NEW-TEST", skuAttrMap)
 
     val nameJson = ("t"       → "string") ~ ("v" → "Product name")
     val attrMap  = Map("name" → nameJson)
-    val productPayload = CreateProductPayload(
-        attributes = attrMap, skus = Seq(skuPayload), variants = None)
+    val productPayload =
+      CreateProductPayload(attributes = attrMap, skus = Seq(skuPayload), variants = None)
 
     val simpleProd = SimpleProductData(title = "Test Product",
                                        code = "TEST",
@@ -218,30 +218,18 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
                                        image = "image.png",
                                        price = 5999)
 
-    val simpleSkus = Seq(SimpleSku("SKU-RED-SMALL",
-                                   "A small, red item",
-                                   9999,
-                                   Currency.USD),
-                         SimpleSku("SKU-RED-LARGE",
-                                   "A large, red item",
-                                   9999,
-                                   Currency.USD),
-                         SimpleSku("SKU-GREEN-SMALL",
-                                   "A small, green item",
-                                   9999,
-                                   Currency.USD),
-                         SimpleSku("SKU-GREEN-LARGE",
-                                   "A large, green item",
-                                   9999,
-                                   Currency.USD))
+    val simpleSkus = Seq(SimpleSku("SKU-RED-SMALL", "A small, red item", 9999, Currency.USD),
+                         SimpleSku("SKU-RED-LARGE", "A large, red item", 9999, Currency.USD),
+                         SimpleSku("SKU-GREEN-SMALL", "A small, green item", 9999, Currency.USD),
+                         SimpleSku("SKU-GREEN-LARGE", "A large, green item", 9999, Currency.USD))
 
     val variantsWithValues = Seq(
         SimpleCompleteVariant(
             SimpleVariant("Size"),
             Seq(SimpleVariantValue("small", ""), SimpleVariantValue("large", ""))),
-        SimpleCompleteVariant(SimpleVariant("Color"),
-                              Seq(SimpleVariantValue("red", "ff0000"),
-                                  SimpleVariantValue("green", "00ff00"))))
+        SimpleCompleteVariant(
+            SimpleVariant("Color"),
+            Seq(SimpleVariantValue("red", "ff0000"), SimpleVariantValue("green", "00ff00"))))
 
     val skuValueMapping: Seq[(String, String, String)] = Seq(("SKU-RED-SMALL", "red", "small"),
                                                              ("SKU-RED-LARGE", "red", "large"),
@@ -295,8 +283,8 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
 
   trait VariantFixture extends Fixture {
     def makeVariantPayload(name: String, values: Seq[VariantValuePayload]) =
-      VariantPayload(
-          attributes = Map("name" → (("t" → "string") ~ ("v" → name))), values = Some(values))
+      VariantPayload(attributes = Map("name" → (("t" → "string") ~ ("v" → name))),
+                     values = Some(values))
 
     val redValuePayload     = VariantValuePayload(name = Some("Red"), swatch = Some("ff0000"))
     val greenValuePayload   = VariantValuePayload(name = Some("Green"), swatch = Some("00ff00"))

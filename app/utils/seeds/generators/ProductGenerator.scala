@@ -78,7 +78,7 @@ trait ProductGenerator {
     .fromURL(getClass.getResource("/product_titles.txt"), "UTF-8")
     .getLines
     .map(_.grouped(2)) //group characters in line into sets of 2
-    .foldLeft(new MarkovChain[String](start, stop))((acc, wordChunks) =>
+    .foldLeft(new MarkovChain[String](start, stop))((acc, wordChunks) ⇒
           acc.insert(wordChunks.map(_.toLowerCase).toList))
 
   def generateProduct: SimpleProductData = {

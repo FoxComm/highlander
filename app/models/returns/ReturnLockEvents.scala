@@ -6,8 +6,10 @@ import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.db._
 
-case class ReturnLockEvent(
-    id: Int = 0, returnId: Int = 0, lockedAt: Instant = Instant.now, lockedBy: Int = 0)
+case class ReturnLockEvent(id: Int = 0,
+                           returnId: Int = 0,
+                           lockedAt: Instant = Instant.now,
+                           lockedBy: Int = 0)
     extends FoxModel[ReturnLockEvent]
 
 class ReturnLockEvents(tag: Tag) extends FoxTable[ReturnLockEvent](tag, "return_lock_events") {

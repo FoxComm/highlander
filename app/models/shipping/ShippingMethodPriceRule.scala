@@ -4,8 +4,10 @@ import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.db._
 
-case class ShippingMethodPriceRule(
-    id: Int = 0, shippingMethodId: Int, shippingPriceRuleId: Int, ruleRank: Int)
+case class ShippingMethodPriceRule(id: Int = 0,
+                                   shippingMethodId: Int,
+                                   shippingPriceRuleId: Int,
+                                   ruleRank: Int)
     extends FoxModel[ShippingMethodPriceRule]
 
 object ShippingMethodPriceRule

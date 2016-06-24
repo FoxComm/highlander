@@ -12,7 +12,7 @@ package object utils {
     camelToUnderscores(a.getClass.getSimpleName.replaceAll("""\$""", "")).replaceFirst("_", "")
 
   def camelToUnderscores(name: String) =
-    "[A-Z\\d]".r.replaceAllIn(name, { m =>
+    "[A-Z\\d]".r.replaceAllIn(name, { m ⇒
       "_" + m.group(0).toLowerCase
     })
 

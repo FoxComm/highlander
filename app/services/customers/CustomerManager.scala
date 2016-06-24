@@ -21,18 +21,21 @@ import utils.db._
 
 object CustomerManager {
 
-  def toggleDisabled(customerId: Int, disabled: Boolean, admin: StoreAdmin)(
-      implicit ec: EC, db: DB, ac: AC): Result[Root] =
+  def toggleDisabled(customerId: Int, disabled: Boolean, admin: StoreAdmin)(implicit ec: EC,
+                                                                            db: DB,
+                                                                            ac: AC): Result[Root] =
     (for {
       customer ← * <~ Customers.mustFindById404(customerId)
       updated ← * <~ Customers.update(
-                   customer, customer.copy(isDisabled = disabled, disabledBy = Some(admin.id)))
+                   customer,
+                   customer.copy(isDisabled = disabled, disabledBy = Some(admin.id)))
       _ ← * <~ LogActivity.customerDisabled(disabled, customer, admin)
     } yield build(updated)).runTxn()
 
   // TODO: add blacklistedReason later
-  def toggleBlacklisted(customerId: Int, blacklisted: Boolean, admin: StoreAdmin)(
-      implicit ec: EC, db: DB, ac: AC): Result[Root] =
+  def toggleBlacklisted(customerId: Int,
+                        blacklisted: Boolean,
+                        admin: StoreAdmin)(implicit ec: EC, db: DB, ac: AC): Result[Root] =
     (for {
       customer ← * <~ Customers.mustFindById404(customerId)
       updated ← * <~ Customers.update(
@@ -46,9 +49,9 @@ object CustomerManager {
       (for {
         order    ← Orders if order.customerId === customerId
         shipment ← Shipments if shipment.orderId === order.id &&
-        shipment.shippingAddressId.isDefined
+          shipment.shippingAddressId.isDefined
         address ← OrderShippingAddresses if address.id === shipment.shippingAddressId &&
-        address.phoneNumber.isDefined
+          address.phoneNumber.isDefined
       } yield (address.phoneNumber, shipment.updatedAt)).sortBy {
         case (_, updatedAt)   ⇒ updatedAt.desc.nullsLast
       }.map { case (phone, _) ⇒ phone }.one.map(_.flatten).toXor
@@ -83,8 +86,8 @@ object CustomerManager {
             lastOrderDays = maxOrdersDate.map(DAYS.between(_, Instant.now)))).run()
   }
 
-  def create(payload: CreateCustomerPayload, admin: Option[StoreAdmin] = None)(
-      implicit ec: EC, db: DB, ac: AC): Result[Root] =
+  def create(payload: CreateCustomerPayload,
+             admin: Option[StoreAdmin] = None)(implicit ec: EC, db: DB, ac: AC): Result[Root] =
     (for {
       customer ← * <~ Customer.buildFromPayload(payload).validate
       _ ← * <~ (if (!payload.isGuest.getOrElse(false))
@@ -96,7 +99,9 @@ object CustomerManager {
     } yield response).runTxn()
 
   def update(customerId: Int, payload: UpdateCustomerPayload, admin: Option[StoreAdmin] = None)(
-      implicit ec: EC, db: DB, ac: AC): Result[Root] =
+      implicit ec: EC,
+      db: DB,
+      ac: AC): Result[Root] =
     (for {
       _        ← * <~ payload.validate.toXor
       customer ← * <~ Customers.mustFindById404(customerId)
@@ -113,7 +118,9 @@ object CustomerManager {
     } yield build(updated)).runTxn()
 
   def activate(customerId: Int, payload: ActivateCustomerPayload, admin: StoreAdmin)(
-      implicit ec: EC, db: DB, ac: AC): Result[Root] =
+      implicit ec: EC,
+      db: DB,
+      ac: AC): Result[Root] =
     (for {
       _        ← * <~ payload.validate
       customer ← * <~ Customers.mustFindById404(customerId)

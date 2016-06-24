@@ -11,8 +11,9 @@ import utils.Money.Currency
 
 trait StoreCreditSeeds {
 
-  def createStoreCredits(
-      adminId: StoreAdmin#Id, cust1: Customer#Id, cust3: Customer#Id): DbResultT[Unit] =
+  def createStoreCredits(adminId: StoreAdmin#Id,
+                         cust1: Customer#Id,
+                         cust3: Customer#Id): DbResultT[Unit] =
     for {
       _      ← * <~ StoreCreditSubtypes.createAll(storeCreditSubTypes)
       origin ← * <~ StoreCreditManuals.create(StoreCreditManual(adminId = adminId, reasonId = 1))

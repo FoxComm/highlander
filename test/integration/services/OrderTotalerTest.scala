@@ -29,20 +29,20 @@ class OrderTotalerTest extends IntegrationTestBase {
       "includes both SKU line items and purchased gift cards" in new AllLineItemsFixture {
         val subTotal = OrderTotaler.subTotal(order).run().futureValue
 
-        subTotal must ===(skuPrice + giftCard.originalBalance)
+        subTotal must === (skuPrice + giftCard.originalBalance)
       }
 
       "uses SKU line items only if order purchases no gift cards" in new SkuLineItemsFixture {
         val subTotal = OrderTotaler.subTotal(order).run().futureValue
 
-        subTotal must ===(skuPrice)
+        subTotal must === (skuPrice)
       }
     }
 
     "shipping" - {
       "sums the shipping total from both shipping methods" in new ShippingMethodFixture {
         val subTotal = OrderTotaler.shippingTotal(order).gimme
-        subTotal must ===(295)
+        subTotal must === (295)
       }
     }
 
@@ -88,20 +88,15 @@ class OrderTotalerTest extends IntegrationTestBase {
       _              ← * <~ OrderLineItems.create(OrderLineItem.buildSku(order, tup.sku))
       skuPrice       ← * <~ Mvp.priceAsInt(tup.skuForm, tup.skuShadow)
     } yield
-      (productContext,
-       tup.product,
-       tup.productShadow,
-       tup.sku,
-       tup.skuShadow,
-       skuPrice)).gimme
+      (productContext, tup.product, tup.productShadow, tup.sku, tup.skuShadow, skuPrice)).gimme
   }
 
   trait AllLineItemsFixture extends SkuLineItemsFixture {
     val (giftCard, lineItems) = (for {
       origin ← * <~ GiftCardOrders.create(GiftCardOrder(orderId = order.id))
-      giftCard ← * <~ GiftCards.create(GiftCard.buildLineItem(balance = 150,
-                                                              originId = origin.id,
-                                                              currency = Currency.USD))
+      giftCard ← * <~ GiftCards.create(
+                    GiftCard
+                      .buildLineItem(balance = 150, originId = origin.id, currency = Currency.USD))
       gcLi ← * <~ OrderLineItemGiftCards.create(
                 OrderLineItemGiftCard(giftCardId = giftCard.id, orderId = order.id))
       lineItems ← * <~ OrderLineItems.create(OrderLineItem.buildGiftCard(order, gcLi))

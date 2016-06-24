@@ -11,21 +11,22 @@ import utils.db._
 
 object CouponUsageService {
 
-  private def couponUsageCount(couponFormId: Int, customerId: Int)(
-      implicit ec: EC, db: DB): DBIO[Int] =
+  private def couponUsageCount(couponFormId: Int, customerId: Int)(implicit ec: EC,
+                                                                   db: DB): DBIO[Int] =
     for {
       coupon ← CouponCustomerUsages.filterByCouponAndCustomer(couponFormId, customerId).one
     } yield coupon.fold(0)(_.count)
 
-  private def couponCodeUsageCount(couponFormId: Int, couponCodeId: Int)(
-      implicit ec: EC, db: DB): DBIO[Int] =
+  private def couponCodeUsageCount(couponFormId: Int, couponCodeId: Int)(implicit ec: EC,
+                                                                         db: DB): DBIO[Int] =
     for {
       counter ← CouponCodeUsages.filterByCouponAndCode(couponFormId, couponCodeId).one
     } yield counter.fold(0)(_.count)
 
-  def couponCodeMustBeUsable(
-      couponFormId: Int, couponCodeId: Int, usesAvailable: Int, code: String)(
-      implicit ec: EC, db: DB): DbResultT[Unit] =
+  def couponCodeMustBeUsable(couponFormId: Int,
+                             couponCodeId: Int,
+                             usesAvailable: Int,
+                             code: String)(implicit ec: EC, db: DB): DbResultT[Unit] =
     for {
       count ← * <~ couponCodeUsageCount(couponFormId, couponCodeId).toXor
       _ ← * <~ (if (count < usesAvailable) DbResult.failure(CouponCodeCannotBeUsedAnymore(code))
@@ -33,7 +34,8 @@ object CouponUsageService {
     } yield {}
 
   def couponMustBeUsable(couponFormId: Int, customerId: Int, usesAvailable: Int, code: String)(
-      implicit ec: EC, db: DB): DbResultT[Unit] =
+      implicit ec: EC,
+      db: DB): DbResultT[Unit] =
     for {
       count ← * <~ couponUsageCount(couponFormId, customerId).toXor
       _ ← * <~ (if (count < usesAvailable)
@@ -48,13 +50,16 @@ object CouponUsageService {
                              usesAvailableForCustomer: Int,
                              couponCode: String)(implicit ec: EC, db: DB): DbResultT[Unit] =
     for {
-      _ ← * <~ couponCodeMustBeUsable(
-             couponFormId, couponCodeId, usesAvailableForCustomer, couponCode)
+      _ ← * <~ couponCodeMustBeUsable(couponFormId,
+                                      couponCodeId,
+                                      usesAvailableForCustomer,
+                                      couponCode)
       _ ← * <~ couponMustBeUsable(couponFormId, customerId, usesAvailableForCustomer, couponCode)
     } yield {}
 
   def updateUsageCounts(couponCodeId: Option[Int], contextId: Int, customer: Customer)(
-      implicit ec: EC, db: DB): DbResultT[Unit] = {
+      implicit ec: EC,
+      db: DB): DbResultT[Unit] = {
     couponCodeId match {
       case Some(codeId) ⇒
         for {
@@ -76,7 +81,8 @@ object CouponUsageService {
           couponCodeUsage ← * <~ CouponCodeUsages
                              .filterByCouponAndCode(coupon.formId, couponCode.id)
                              .one
-                             .findOrCreate(CouponCodeUsages
+                             .findOrCreate(
+                                 CouponCodeUsages
                                    .create(new CouponCodeUsage(couponFormId = coupon.formId,
                                                                couponCodeId = couponCode.id,
                                                                count = 0))
@@ -84,16 +90,17 @@ object CouponUsageService {
           couponUsageByCustomer ← * <~ CouponCustomerUsages
                                    .filterByCouponAndCustomer(coupon.formId, customer.id)
                                    .one
-                                   .findOrCreate(CouponCustomerUsages
+                                   .findOrCreate(
+                                       CouponCustomerUsages
                                          .create(
                                              new CouponCustomerUsage(couponFormId = coupon.formId,
                                                                      customerId = customer.id,
                                                                      count = 0))
                                          .value)
-          _ ← * <~ CouponUsages.update(
-                 couponUsage, couponUsage.copy(count = couponUsage.count + 1))
-          _ ← * <~ CouponCodeUsages.update(
-                 couponCodeUsage, couponCodeUsage.copy(count = couponCodeUsage.count + 1))
+          _ ← * <~ CouponUsages.update(couponUsage,
+                                       couponUsage.copy(count = couponUsage.count + 1))
+          _ ← * <~ CouponCodeUsages.update(couponCodeUsage,
+                                           couponCodeUsage.copy(count = couponCodeUsage.count + 1))
           _ ← * <~ CouponCustomerUsages.update(
                  couponUsageByCustomer,
                  couponUsageByCustomer.copy(count = couponUsageByCustomer.count + 1))

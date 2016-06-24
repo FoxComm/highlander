@@ -21,14 +21,14 @@ class OrdersIntegrationTest extends IntegrationTestBase {
       val order =
         Orders.create(Factories.cart.copy(customerId = customer.id, referenceNumber = "")).gimme
 
-      order.referenceNumber must ===("BR10001")
+      order.referenceNumber must === ("BR10001")
     }
 
     "doesn't overwrite a non-empty referenceNumber after insert" in new Fixture {
       val order = Orders
         .create(Factories.cart.copy(customerId = customer.id, referenceNumber = "R123456"))
         .gimme
-      order.referenceNumber must ===("R123456")
+      order.referenceNumber must === ("R123456")
     }
 
     "can only have one record in 'cart' status" in new Fixture {
@@ -55,12 +55,12 @@ class OrdersIntegrationTest extends IntegrationTestBase {
     "trigger sets remorse period end when order moves to RemorseHold" in {
       val order = Orders.create(Factories.order).gimme
 
-      order.remorsePeriodEnd must ===(None)
+      order.remorsePeriodEnd must === (None)
 
       Orders.update(order, order.copy(state = RemorseHold)).run().futureValue mustBe 'right
 
       val updatedOrder = Orders.findByRefNum(order.referenceNumber).gimme.headOption.value
-      updatedOrder.remorsePeriodEnd.value.minuteOfHour must ===(
+      updatedOrder.remorsePeriodEnd.value.minuteOfHour must === (
           Instant.now.plusMinutes(30).minuteOfHour)
     }
 
@@ -74,7 +74,7 @@ class OrdersIntegrationTest extends IntegrationTestBase {
 
       val updated =
         db.run(Orders.findByRefNum(order.referenceNumber).result).futureValue.headOption.value
-      updated.remorsePeriodEnd must ===(None)
+      updated.remorsePeriodEnd must === (None)
     }
   }
 

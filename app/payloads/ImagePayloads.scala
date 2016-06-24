@@ -14,7 +14,7 @@ object ImagePayloads {
   val nameShadow  = ("type" → "string") ~ ("ref" → "name")
 
   case class ImagePayload(src: String, title: Option[String] = None, alt: Option[String] = None) {
-    def toJson: Json = ("src" -> src) ~ ("title" -> title) ~ ("alt" -> alt)
+    def toJson: Json = ("src" → src) ~ ("title" → title) ~ ("alt" → alt)
   }
 
   case class CreateAlbumPayload(name: String, images: Images = None) {

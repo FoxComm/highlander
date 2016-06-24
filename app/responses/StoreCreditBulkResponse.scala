@@ -12,7 +12,7 @@ object StoreCreditBulkResponse {
       extends ResponseItem
 
   def buildItemResult(id: Int, result: Failures Xor StoreCreditResponse.Root): ItemResult = {
-    result.fold(errors ⇒ ItemResult(id = id, errors = Some(errors.flatten)),
-                sc ⇒ ItemResult(id = id, success = true, storeCredit = Some(sc)))
+    result.fold(errors ⇒ ItemResult(id = id, errors = Some(errors.flatten)), sc ⇒
+          ItemResult(id = id, success = true, storeCredit = Some(sc)))
   }
 }

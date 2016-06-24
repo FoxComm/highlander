@@ -37,8 +37,8 @@ class RemorseTimerTest(_system: ActorSystem)
       val overdue = Option(Instant.now.minusSeconds(60))
       byRefNum.map(_.remorsePeriodEnd).update(overdue).run().futureValue
       tick()
-      updated.remorsePeriodEnd must ===(None)
-      updated.state must ===(FulfillmentStarted)
+      updated.remorsePeriodEnd must === (None)
+      updated.state must === (FulfillmentStarted)
     }
   }
 

@@ -25,11 +25,13 @@ trait StripeApi {
 
   def createCharge(options: Map[String, AnyRef], secretKey: String): Result[StripeCharge]
 
-  def captureCharge(
-      chargeId: String, options: Map[String, AnyRef], secretKey: String): Result[StripeCharge]
+  def captureCharge(chargeId: String,
+                    options: Map[String, AnyRef],
+                    secretKey: String): Result[StripeCharge]
 
-  def getExtAccount(
-      customer: StripeCustomer, id: String, secretKey: String): Result[ExternalAccount]
+  def getExtAccount(customer: StripeCustomer,
+                    id: String,
+                    secretKey: String): Result[ExternalAccount]
 
   def findCustomer(id: String, secretKey: String): Result[StripeCustomer]
 
@@ -39,8 +41,8 @@ trait StripeApi {
                             options: Map[String, AnyRef],
                             secretKey: String): Result[ExternalAccount]
 
-  def deleteExternalAccount(
-      card: ExternalAccount, secretKey: String): Result[DeletedExternalAccount]
+  def deleteExternalAccount(card: ExternalAccount,
+                            secretKey: String): Result[DeletedExternalAccount]
 }
 
 object StripeApi {
@@ -67,8 +69,8 @@ class WiredStripeApi extends StripeApi {
     inBlockingPool(secretKey)(requestOptions ⇒ StripeCustomer.retrieve(id, requestOptions))
 
   def findDefaultCard(customer: StripeCustomer, secretKey: String): Result[StripeCard] =
-    inBlockingPool(secretKey)(
-        requestOptions ⇒ customer.getSources.retrieve(customer.getDefaultSource, requestOptions))
+    inBlockingPool(secretKey)(requestOptions ⇒
+          customer.getSources.retrieve(customer.getDefaultSource, requestOptions))
       .flatMap(accountToCard)(blockingIOPool)
 
   final def accountToCard(account: Failures Xor ExternalAccount): Result[StripeCard] =
@@ -92,8 +94,9 @@ class WiredStripeApi extends StripeApi {
   def getCharge(chargeId: String, secretKey: String): Result[StripeCharge] =
     inBlockingPool(secretKey)(requestOptions ⇒ StripeCharge.retrieve(chargeId, requestOptions))
 
-  def captureCharge(
-      chargeId: String, options: Map[String, AnyRef], secretKey: String): Result[StripeCharge] = {
+  def captureCharge(chargeId: String,
+                    options: Map[String, AnyRef],
+                    secretKey: String): Result[StripeCharge] = {
     // for ResultT
     implicit val ec: ExecutionContext = blockingIOPool
 
@@ -110,8 +113,9 @@ class WiredStripeApi extends StripeApi {
     inBlockingPool(secretKey)(requestOptions ⇒
           customer.createCard(mapAsJavaMap(options), requestOptions))
 
-  def getExtAccount(
-      customer: StripeCustomer, id: String, secretKey: String): Result[ExternalAccount] =
+  def getExtAccount(customer: StripeCustomer,
+                    id: String,
+                    secretKey: String): Result[ExternalAccount] =
     inBlockingPool(secretKey)(requestOptions ⇒ customer.getSources.retrieve(id, requestOptions))
 
   def updateExternalAccount(card: ExternalAccount,
@@ -119,8 +123,8 @@ class WiredStripeApi extends StripeApi {
                             secretKey: String): Result[ExternalAccount] =
     inBlockingPool(secretKey)(requestOptions ⇒ card.update(options, requestOptions))
 
-  def deleteExternalAccount(
-      card: ExternalAccount, secretKey: String): Result[DeletedExternalAccount] =
+  def deleteExternalAccount(card: ExternalAccount,
+                            secretKey: String): Result[DeletedExternalAccount] =
     inBlockingPool(secretKey)(requestOptions ⇒ card.delete(requestOptions))
 
   // TODO: This needs a life-cycle hook so we can shut it down.

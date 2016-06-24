@@ -19,7 +19,7 @@ class SlickTest extends IntegrationTestBase {
       .updateReturningHead(Customers.map(_.name), "Sally".some)
 
     val firstName = update.gimme
-    firstName must ===("Sally".some)
+    firstName must === ("Sally".some)
   }
 
   "supports update with returning query for a multiple columns" in {
@@ -34,7 +34,7 @@ class SlickTest extends IntegrationTestBase {
       }, ("Sally".some, "123qwe".some))
 
     val names = update.gimme
-    names must ===(("Sally".some, "123qwe".some))
+    names must === (("Sally".some, "123qwe".some))
   }
 
   "supports update with returning query for mapping to a new model" in {
@@ -47,7 +47,7 @@ class SlickTest extends IntegrationTestBase {
     } yield (customer, updatedCustomer.value)).gimme
 
     customer must !==(updatedCustomer)
-    updatedCustomer.name must ===("Sally".some)
+    updatedCustomer.name must === ("Sally".some)
   }
 
   "supports update with returning query for mapping to a new model for multiple columns" in {
@@ -63,7 +63,7 @@ class SlickTest extends IntegrationTestBase {
     } yield (customer, updatedCustomer.value)).gimme
 
     customer must !==(updatedCustomer)
-    updatedCustomer.name must ===("Sally".some)
-    updatedCustomer.hashedPassword must ===("123qwe".some)
+    updatedCustomer.name must === ("Sally".some)
+    updatedCustomer.hashedPassword must === ("123qwe".some)
   }
 }

@@ -120,20 +120,20 @@ object Customer {
               pathPrefix("shipping-address") {
                 (post & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
                   goodOrFailures {
-                    OrderShippingAddressUpdater.createShippingAddressFromPayload(
-                        Originator(customer), payload)
+                    OrderShippingAddressUpdater
+                      .createShippingAddressFromPayload(Originator(customer), payload)
                   }
                 } ~
                 (patch & path(IntNumber) & pathEnd) { addressId ⇒
                   goodOrFailures {
-                    OrderShippingAddressUpdater.createShippingAddressFromAddressId(
-                        Originator(customer), addressId)
+                    OrderShippingAddressUpdater
+                      .createShippingAddressFromAddressId(Originator(customer), addressId)
                   }
                 } ~
                 (patch & pathEnd & entity(as[UpdateAddressPayload])) { payload ⇒
                   goodOrFailures {
-                    OrderShippingAddressUpdater.updateShippingAddressFromPayload(
-                        Originator(customer), payload)
+                    OrderShippingAddressUpdater
+                      .updateShippingAddressFromPayload(Originator(customer), payload)
                   }
                 } ~
                 (delete & pathEnd) {

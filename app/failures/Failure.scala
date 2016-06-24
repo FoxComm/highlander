@@ -49,11 +49,13 @@ case class StateTransitionNotAllowed(message: String) extends Failure {
 }
 
 object StateTransitionNotAllowed {
-  def apply[A](
-      a: A, fromState: String, toState: String, searchKey: Any): StateTransitionNotAllowed = {
+  def apply[A](a: A,
+               fromState: String,
+               toState: String,
+               searchKey: Any): StateTransitionNotAllowed = {
     StateTransitionNotAllowed(
         s"Transition from $fromState to $toState is not allowed for ${friendlyClassName(a)} " +
-        s"with ${searchTerm(a)}=$searchKey")
+          s"with ${searchTerm(a)}=$searchKey")
   }
 
   def apply(from: Order.State, to: Order.State, refNum: String): StateTransitionNotAllowed = {

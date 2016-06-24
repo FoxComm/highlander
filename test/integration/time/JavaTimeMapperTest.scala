@@ -33,7 +33,7 @@ class JavaTimeMapperTest extends IntegrationTestBase with DbTestSupport {
         } yield read).transactionally)
         .futureValue
 
-      timestampAfterRoundtrip must ===(originalInstant)
+      timestampAfterRoundtrip must === (originalInstant)
     }
 
     "reads instants correctly" in {
@@ -46,7 +46,7 @@ class JavaTimeMapperTest extends IntegrationTestBase with DbTestSupport {
         } yield read).withPinnedSession)
         .futureValue
 
-      timestampAfterRoundtrip must ===(
+      timestampAfterRoundtrip must === (
           ZonedDateTime.of(2015, 7, 1, 15, 17, 38, 0, ZoneId.of("UTC")).toInstant)
     }
   }

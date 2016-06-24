@@ -123,9 +123,7 @@ object OrderRoutes {
             (post & pathEnd & entity(as[CreditCardPayment])) { payload ⇒
               goodOrFailures {
                 OrderPaymentUpdater
-                  .addCreditCard(Originator(admin),
-                                 payload.creditCardId,
-                                 refNum.some)
+                  .addCreditCard(Originator(admin), payload.creditCardId, refNum.some)
                   .runTxn()
               }
             } ~
@@ -155,7 +153,9 @@ object OrderRoutes {
           pathPrefix("payment-methods" / "store-credit") {
             (post & pathEnd & entity(as[StoreCreditPayment])) { payload ⇒
               goodOrFailures {
-                OrderPaymentUpdater.addStoreCredit(Originator(admin), payload, refNum.some).runTxn()
+                OrderPaymentUpdater
+                  .addStoreCredit(Originator(admin), payload, refNum.some)
+                  .runTxn()
               }
             } ~
             (delete & pathEnd) {

@@ -52,7 +52,9 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
     } yield response).run()
 
   def assign(key: K, payload: AssignmentPayload, originator: StoreAdmin)(
-      implicit ec: EC, db: DB, ac: AC): Result[TheResponse[Seq[Root]]] =
+      implicit ec: EC,
+      db: DB,
+      ac: AC): Result[TheResponse[Seq[Root]]] =
     (for {
       // Validation + assign
       entity ← * <~ fetchEntity(key)
@@ -69,12 +71,13 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
       // Activity log + notifications subscription
       _ ← * <~ subscribe(this, assignedAdmins.map(_.id), Seq(key.toString))
       responseItem = buildResponse(entity)
-      _ ← * <~ LogActivity.assigned(
-             originator, responseItem, assignedAdmins, assignmentType, referenceType)
+      _ ← * <~ LogActivity
+           .assigned(originator, responseItem, assignedAdmins, assignmentType, referenceType)
     } yield TheResponse.build(response, errors = notFoundAdmins)).runTxn()
 
-  def unassign(key: K, assigneeId: Int, originator: StoreAdmin)(
-      implicit ec: EC, db: DB, ac: AC): Result[Seq[Root]] =
+  def unassign(key: K, assigneeId: Int, originator: StoreAdmin)(implicit ec: EC,
+                                                                db: DB,
+                                                                ac: AC): Result[Seq[Root]] =
     (for {
       // Validation + unassign
       entity ← * <~ fetchEntity(key)
@@ -87,13 +90,15 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
       response = assignments.map((buildAssignment _).tupled)
       // Activity log + notifications subscription
       responseItem = buildResponse(entity)
-      _ ← * <~ LogActivity.unassigned(
-             originator, responseItem, admin, assignmentType, referenceType)
+      _ ← * <~ LogActivity
+           .unassigned(originator, responseItem, admin, assignmentType, referenceType)
       _ ← * <~ unsubscribe(this, adminIds = Seq(assigneeId), objectIds = Seq(key.toString))
     } yield response).runTxn()
 
   def assignBulk(originator: StoreAdmin, payload: BulkAssignmentPayload[K])(
-      implicit ec: EC, db: DB, ac: AC): Result[TheResponse[Seq[ResponseItem]]] =
+      implicit ec: EC,
+      db: DB,
+      ac: AC): Result[TheResponse[Seq[ResponseItem]]] =
     (for {
       // Validation + assign
       admin       ← * <~ StoreAdmins.mustFindById404(payload.storeAdminId)
@@ -110,7 +115,9 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
     } yield theResponse).runTxn()
 
   def unassignBulk(originator: StoreAdmin, payload: BulkAssignmentPayload[K])(
-      implicit ec: EC, db: DB, ac: AC): Result[TheResponse[Seq[ResponseItem]]] =
+      implicit ec: EC,
+      db: DB,
+      ac: AC): Result[TheResponse[Seq[ResponseItem]]] =
     (for {
       // Validation + unassign
       admin    ← * <~ StoreAdmins.mustFindById404(payload.storeAdminId)
@@ -149,17 +156,19 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
                      referenceId = entity.id))
 
   private def buildSeq(entities: Seq[M], storeAdminId: Int): Seq[Assignment] =
-    for (e ← entities) yield
-      Assignment(assignmentType = assignmentType,
-                 storeAdminId = storeAdminId,
-                 referenceType = referenceType,
-                 referenceId = e.id)
+    for (e ← entities)
+      yield
+        Assignment(assignmentType = assignmentType,
+                   storeAdminId = storeAdminId,
+                   referenceType = referenceType,
+                   referenceId = e.id)
 
   // Batch metadata builders
   private def getSuccessData(trio: EntityTrio): SuccessData = searchKeys(trio.succeed)
 
-  private def getFailureData(
-      trio: EntityTrio, storeAdminId: Int, actionType: ActionType): FailureData = {
+  private def getFailureData(trio: EntityTrio,
+                             storeAdminId: Int,
+                             actionType: ActionType): FailureData = {
 
     val notFoundFailures = trio.notFound.map { key ⇒
       (key, NotFoundFailure404(referenceType, key).description)

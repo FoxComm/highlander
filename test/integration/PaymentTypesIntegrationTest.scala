@@ -17,12 +17,12 @@ class PaymentTypesIntegrationTest extends IntegrationTestBase with HttpSupport {
     "GET /v1/public/gift-cards/types" - {
       "should return all GC types and related sub-types" in new GiftCardFixture {
         val response = GET(s"v1/public/gift-cards/types")
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val root = response.as[Seq[GiftCardSubTypesResponse.Root]]
-        root.size must ===(GiftCard.OriginType.types.size)
-        root.map(_.originType) must ===(GiftCard.OriginType.types.toSeq)
-        root.filter(_.originType == gcSubType.originType).head.subTypes must ===(Seq(gcSubType))
+        root.size must === (GiftCard.OriginType.types.size)
+        root.map(_.originType) must === (GiftCard.OriginType.types.toSeq)
+        root.filter(_.originType == gcSubType.originType).head.subTypes must === (Seq(gcSubType))
       }
     }
   }
@@ -31,12 +31,12 @@ class PaymentTypesIntegrationTest extends IntegrationTestBase with HttpSupport {
     "GET /v1/public/store-credits/types" - {
       "should return all SC types and related subtypes" in new StoreCreditFixture {
         val response = GET(s"v1/public/store-credits/types")
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val root = response.as[Seq[StoreCreditSubTypesResponse.Root]]
-        root.size must ===(StoreCredit.OriginType.publicTypes.size)
-        root.map(_.originType) must ===(StoreCredit.OriginType.publicTypes.toSeq)
-        root.filter(_.originType == scSubType.originType).head.subTypes must ===(Seq(scSubType))
+        root.size must === (StoreCredit.OriginType.publicTypes.size)
+        root.map(_.originType) must === (StoreCredit.OriginType.publicTypes.toSeq)
+        root.filter(_.originType == scSubType.originType).head.subTypes must === (Seq(scSubType))
       }
     }
   }
@@ -61,8 +61,9 @@ class PaymentTypesIntegrationTest extends IntegrationTestBase with HttpSupport {
       scSubType ← * <~ StoreCreditSubtypes.create(Factories.storeCreditSubTypes.head)
       scOrigin ← * <~ StoreCreditManuals.create(
                     StoreCreditManual(adminId = admin.id, reasonId = scReason.id))
-      storeCredit ← * <~ StoreCredits.create(Factories.storeCredit.copy(originId = scOrigin.id,
-                                                                        customerId = customer.id))
+      storeCredit ← * <~ StoreCredits.create(
+                       Factories.storeCredit.copy(originId = scOrigin.id,
+                                                  customerId = customer.id))
     } yield (storeCredit, scSubType)).gimme
   }
 }

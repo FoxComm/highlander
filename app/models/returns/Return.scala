@@ -43,11 +43,11 @@ case class Return(id: Int = 0,
 
   val fsm: Map[State, Set[State]] = Map(
       Pending →
-      Set(Processing, Canceled),
+        Set(Processing, Canceled),
       Processing →
-      Set(Review, Complete, Canceled),
+        Set(Review, Complete, Canceled),
       Review →
-      Set(Complete, Canceled)
+        Set(Complete, Canceled)
   )
 }
 

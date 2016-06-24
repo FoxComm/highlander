@@ -26,16 +26,16 @@ import utils.db._
 object SkuManager {
   implicit val formats = JsonFormatters.DefaultFormats
 
-  def createSku(contextName: String, payload: SkuPayload)(
-      implicit ec: EC, db: DB): DbResultT[SkuResponse.Root] =
+  def createSku(contextName: String, payload: SkuPayload)(implicit ec: EC,
+                                                          db: DB): DbResultT[SkuResponse.Root] =
     for {
       context ← * <~ ObjectManager.mustFindByName404(contextName)
       sku     ← * <~ createSkuInner(context, payload)
       albums  ← * <~ ImageManager.getAlbumsForSkuInner(sku.model.code, context)
     } yield SkuResponse.build(IlluminatedSku.illuminate(context, sku), albums)
 
-  def getSku(contextName: String, code: String)(
-      implicit ec: EC, db: DB): DbResultT[SkuResponse.Root] =
+  def getSku(contextName: String, code: String)(implicit ec: EC,
+                                                db: DB): DbResultT[SkuResponse.Root] =
     for {
       context ← * <~ ObjectManager.mustFindByName404(contextName)
       sku     ← * <~ SkuManager.mustFindSkuByContextAndCode(context.id, code)
@@ -46,7 +46,8 @@ object SkuManager {
       SkuResponse.build(IlluminatedSku.illuminate(context, FullObject(sku, form, shadow)), albums)
 
   def updateSku(contextName: String, code: String, payload: SkuPayload)(
-      implicit ec: EC, db: DB): DbResultT[SkuResponse.Root] =
+      implicit ec: EC,
+      db: DB): DbResultT[SkuResponse.Root] =
     for {
       context    ← * <~ ObjectManager.mustFindByName404(contextName)
       sku        ← * <~ SkuManager.mustFindSkuByContextAndCode(context.id, code)
@@ -54,8 +55,8 @@ object SkuManager {
       albums     ← * <~ ImageManager.getAlbumsForSkuInner(updatedSku.model.code, context)
     } yield SkuResponse.build(IlluminatedSku.illuminate(context, updatedSku), albums)
 
-  def createSkuInner(context: ObjectContext, payload: SkuPayload)(
-      implicit ec: EC, db: DB): DbResultT[FullObject[Sku]] = {
+  def createSkuInner(context: ObjectContext,
+                     payload: SkuPayload)(implicit ec: EC, db: DB): DbResultT[FullObject[Sku]] = {
 
     val form   = ObjectForm.fromPayload(Sku.kind, payload.attributes)
     val shadow = ObjectShadow.fromPayload(payload.attributes)
@@ -72,8 +73,8 @@ object SkuManager {
     } yield FullObject(sku, ins.form, ins.shadow)
   }
 
-  def updateSkuInner(sku: Sku, payload: SkuPayload)(
-      implicit ec: EC, db: DB): DbResultT[FullObject[Sku]] = {
+  def updateSkuInner(sku: Sku, payload: SkuPayload)(implicit ec: EC,
+                                                    db: DB): DbResultT[FullObject[Sku]] = {
 
     val newFormAttrs   = ObjectForm.fromPayload(Sku.kind, payload.attributes).attributes
     val newShadowAttrs = ObjectShadow.fromPayload(payload.attributes).attributes
@@ -84,8 +85,8 @@ object SkuManager {
       oldShadow ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
 
       mergedAttrs = oldShadow.attributes.merge(newShadowAttrs)
-      updated ← * <~ ObjectUtils.update(
-                   oldForm.id, oldShadow.id, newFormAttrs, mergedAttrs, force = true)
+      updated ← * <~ ObjectUtils
+                 .update(oldForm.id, oldShadow.id, newFormAttrs, mergedAttrs, force = true)
       commit      ← * <~ ObjectUtils.commit(updated)
       updatedHead ← * <~ updateHead(sku, code, updated.shadow, commit)
 
@@ -94,14 +95,16 @@ object SkuManager {
     } yield FullObject(updatedHead, updated.form, updated.shadow)
   }
 
-  private def updateHead(
-      sku: Sku, code: String, shadow: ObjectShadow, maybeCommit: Option[ObjectCommit])(
-      implicit ec: EC): DbResultT[Sku] = maybeCommit match {
-    case Some(commit) ⇒
-      Skus.update(sku, sku.copy(code = code, shadowId = shadow.id, commitId = commit.id))
-    case None ⇒
-      DbResultT.rightLift(sku)
-  }
+  private def updateHead(sku: Sku,
+                         code: String,
+                         shadow: ObjectShadow,
+                         maybeCommit: Option[ObjectCommit])(implicit ec: EC): DbResultT[Sku] =
+    maybeCommit match {
+      case Some(commit) ⇒
+        Skus.update(sku, sku.copy(code = code, shadowId = shadow.id, commitId = commit.id))
+      case None ⇒
+        DbResultT.rightLift(sku)
+    }
 
   def mustGetSkuCode(payload: SkuPayload): Failures Xor String =
     getSkuCode(payload) match {
@@ -112,8 +115,8 @@ object SkuManager {
   private def getSkuCode(payload: SkuPayload): Option[String] =
     payload.attributes.get("code").flatMap(json ⇒ (json \ "v").extractOpt[String])
 
-  def mustFindSkuByContextAndCode(
-      contextId: Int, code: String)(implicit ec: EC, db: DB): DbResultT[Sku] =
+  def mustFindSkuByContextAndCode(contextId: Int, code: String)(implicit ec: EC,
+                                                                db: DB): DbResultT[Sku] =
     for {
       sku ← * <~ Skus
              .filterByContextAndCode(contextId, code)

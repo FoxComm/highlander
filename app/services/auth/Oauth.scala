@@ -73,8 +73,8 @@ trait OauthService[M] {
     3. FindOrCreate<UserModel>
     4. respondWithToken
    */
-  def oauthCallback(
-      oauthResponse: OauthCallbackResponse)(implicit ec: EC, db: DB): DbResultT[Token] =
+  def oauthCallback(oauthResponse: OauthCallbackResponse)(implicit ec: EC,
+                                                          db: DB): DbResultT[Token] =
     for {
       info ← fetchUserInfoFromCode(oauthResponse)
       user ← findOrCreateUserFromInfo(info)

@@ -13,8 +13,7 @@ case class GoogleOauthOptions(
     redirectUri: String,
     accessType: String = "offline",
     hostedDomain: Option[String] = None
-)
-    extends OauthClientOptions {
+) extends OauthClientOptions {
 
   override def buildExtraAuthParams: Map[String, String] = {
     Map.empty[String, String].+?("hd", hostedDomain).+("access_type" → accessType)

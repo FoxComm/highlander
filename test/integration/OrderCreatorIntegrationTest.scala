@@ -28,18 +28,18 @@ class OrderCreatorIntegrationTest
         val payload  = CreateOrder(customerId = customer.id.some)
         val response = POST(s"v1/orders", payload)
 
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
         val root = response.as[Root]
-        root.customer.value.id must ===(customer.id)
-        root.orderState must ===(Order.Cart)
+        root.customer.value.id must === (customer.id)
+        root.orderState must === (Order.Cart)
       }
 
       "fails when the customer is not found" in new Fixture {
         val payload  = CreateOrder(customerId = 99.some)
         val response = POST(s"v1/orders", payload)
 
-        response.status must ===(StatusCodes.BadRequest)
-        response.error must ===(NotFoundFailure400(Customer, 99).description)
+        response.status must === (StatusCodes.BadRequest)
+        response.error must === (NotFoundFailure400(Customer, 99).description)
       }
 
       "returns current cart if customer already has one" in new Fixture {
@@ -47,10 +47,10 @@ class OrderCreatorIntegrationTest
         OrderCreator.createCart(storeAdmin, payload, productContext).futureValue
         val response = POST(s"v1/orders", payload)
 
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
         val root = response.as[Root]
-        root.customer.value.id must ===(customer.id)
-        root.orderState must ===(Order.Cart)
+        root.customer.value.id must === (customer.id)
+        root.orderState must === (Order.Cart)
       }
     }
 
@@ -61,9 +61,9 @@ class OrderCreatorIntegrationTest
         val root     = response.as[Root]
         val guest    = root.customer.value
 
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
         guest.isGuest mustBe true
-        root.orderState must ===(Order.Cart)
+        root.orderState must === (Order.Cart)
         guest.id must !==(customer.id)
       }
     }
@@ -72,8 +72,8 @@ class OrderCreatorIntegrationTest
       val payload  = CreateOrder()
       val response = POST(s"v1/orders", payload)
 
-      response.status must ===(StatusCodes.BadRequest)
-      response.error must ===("customerId or email must be given")
+      response.status must === (StatusCodes.BadRequest)
+      response.error must === ("customerId or email must be given")
     }
   }
 

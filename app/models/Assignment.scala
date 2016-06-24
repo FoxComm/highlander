@@ -72,16 +72,20 @@ object Assignments
   def byType(assignType: AssignmentType, refType: ReferenceType): QuerySeq =
     filter(_.assignmentType === assignType).filter(_.referenceType === refType)
 
-  def byAdmin[T <: FoxModel[T]](
-      assignType: AssignmentType, refType: ReferenceType, admin: StoreAdmin): QuerySeq =
+  def byAdmin[T <: FoxModel[T]](assignType: AssignmentType,
+                                refType: ReferenceType,
+                                admin: StoreAdmin): QuerySeq =
     byType(assignType, refType).filter(_.storeAdminId === admin.id)
 
-  def byEntity[T <: FoxModel[T]](
-      assignType: AssignmentType, model: T, refType: ReferenceType): QuerySeq =
+  def byEntity[T <: FoxModel[T]](assignType: AssignmentType,
+                                 model: T,
+                                 refType: ReferenceType): QuerySeq =
     byType(assignType, refType).filter(_.referenceId === model.id)
 
-  def byEntityAndAdmin[T <: FoxModel[T]](
-      assignType: AssignmentType, model: T, refType: ReferenceType, admin: StoreAdmin): QuerySeq =
+  def byEntityAndAdmin[T <: FoxModel[T]](assignType: AssignmentType,
+                                         model: T,
+                                         refType: ReferenceType,
+                                         admin: StoreAdmin): QuerySeq =
     byEntity(assignType, model, refType).filter(_.storeAdminId === admin.id)
 
   def byEntitySeqAndAdmin[T <: FoxModel[T]](assignType: AssignmentType,
@@ -92,8 +96,9 @@ object Assignments
       .filter(_.referenceId.inSetBind(models.map(_.id)))
       .filter(_.storeAdminId === admin.id)
 
-  def assigneesFor[T <: FoxModel[T]](
-      assignType: AssignmentType, entity: T, refType: ReferenceType): StoreAdmins.QuerySeq =
+  def assigneesFor[T <: FoxModel[T]](assignType: AssignmentType,
+                                     entity: T,
+                                     refType: ReferenceType): StoreAdmins.QuerySeq =
     for {
       assignees ← byEntity(assignType, entity, refType).map(_.storeAdminId)
       admins    ← StoreAdmins.filter(_.id === assignees)

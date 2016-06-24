@@ -15,8 +15,8 @@ object CustomerTailored {
   case class CustomerBlacklisted(admin: StoreAdminResponse.Root, customer: CustomerResponse.Root)
       extends ActivityBase[CustomerBlacklisted]
 
-  case class CustomerRemovedFromBlacklist(
-      admin: StoreAdminResponse.Root, customer: CustomerResponse.Root)
+  case class CustomerRemovedFromBlacklist(admin: StoreAdminResponse.Root,
+                                          customer: CustomerResponse.Root)
       extends ActivityBase[CustomerRemovedFromBlacklist]
 
   case class CustomerEnabled(admin: StoreAdminResponse.Root, customer: CustomerResponse.Root)

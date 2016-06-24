@@ -18,18 +18,18 @@ class ReasonsIntegrationTest extends IntegrationTestBase with HttpSupport with A
       "should return list of reasons by type" in new Fixture {
         val reasonType = Reason.GiftCardCreation.toString.lowerCaseFirstLetter
         val response   = GET(s"v1/public/reasons/$reasonType")
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val root = response.ignoreFailuresAndGiveMe[Seq[Reason]]
-        root.size must ===(1)
-        root.headOption.value.id must ===(reason.id)
+        root.size must === (1)
+        root.headOption.value.id must === (reason.id)
       }
 
       "should return error if invalid type provided" in new Fixture {
         val reasonType = "lolwut"
         val response   = GET(s"v1/public/reasons/$reasonType")
-        response.status must ===(StatusCodes.BadRequest)
-        response.error must ===(InvalidReasonTypeFailure(reasonType).description)
+        response.status must === (StatusCodes.BadRequest)
+        response.error must === (InvalidReasonTypeFailure(reasonType).description)
       }
     }
   }

@@ -32,14 +32,18 @@ object PaymentPayloads {
               "[0-9]{3,4}",
               "cvv") |@| withinTwentyYears(expYear, "expiration") |@| isMonth(expMonth,
                                                                               "expiration") |@| notExpired(
-              expYear, expMonth, "credit card is expired") |@| someAddress).map { case _ ⇒ this }
+              expYear,
+              expMonth,
+              "credit card is expired") |@| someAddress).map { case _ ⇒ this }
     }
 
     def lastFour: String = this.cardNumber.takeRight(4)
   }
 
-  case class PaymentMethodPayload(
-      cardholderName: String, cardNumber: String, cvv: Int, expiration: String)
+  case class PaymentMethodPayload(cardholderName: String,
+                                  cardNumber: String,
+                                  cvv: Int,
+                                  expiration: String)
 
   case class ToggleDefaultCreditCard(isDefault: Boolean)
 

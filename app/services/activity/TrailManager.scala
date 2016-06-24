@@ -14,9 +14,10 @@ object TrailManager {
 
   def createTrail(payload: CreateTrail)(implicit ec: EC, db: DB): Result[Int] =
     (for {
-      trail ← * <~ Trails.create(Trail(dimensionId = payload.dimensionId,
-                                       objectId = payload.objectId,
-                                       data = payload.data))
+      trail ← * <~ Trails.create(
+                 Trail(dimensionId = payload.dimensionId,
+                       objectId = payload.objectId,
+                       data = payload.data))
     } yield trail.id).runTxn()
 
   /**
@@ -24,14 +25,18 @@ object TrailManager {
     * The idea here is to lazily create resources to save space and query time.
     */
   def appendActivityByObjectId(dimensionName: String, objectId: String, payload: AppendActivity)(
-      implicit context: AC, ec: EC, db: DB): Result[ActivityConnectionResponse.Root] =
+      implicit context: AC,
+      ec: EC,
+      db: DB): Result[ActivityConnectionResponse.Root] =
     appendActivityByObjectIdInner(dimensionName, objectId, payload).runTxn()
 
   private[services] def appendActivityByObjectIdInner(dimensionName: String,
                                                       objectId: String,
                                                       payload: AppendActivity,
                                                       newTrailData: Option[Json] = None)(
-      implicit context: AC, ec: EC, db: DB): DbResultT[ActivityConnectionResponse.Root] =
+      implicit context: AC,
+      ec: EC,
+      db: DB): DbResultT[ActivityConnectionResponse.Root] =
     for {
 
       //find or create the dimension
@@ -58,14 +63,15 @@ object TrailManager {
       updatedTrail ← * <~ Trails.update(trail, trail.copy(tailConnectionId = Some(newTail.id)))
     } yield ActivityConnectionResponse.build(objectId, dimension, newTail)
 
-  def findConnection(connectionId: Int)(
-      implicit ec: EC, db: DB): Result[FullActivityConnectionResponse.Root] = {
+  def findConnection(connectionId: Int)(implicit ec: EC,
+                                        db: DB): Result[FullActivityConnectionResponse.Root] = {
     (for {
       connection ← * <~ Connections.mustFindById404(connectionId)
       trail      ← * <~ Trails.mustFindById404(connection.trailId)
       dimension  ← * <~ Dimensions.mustFindById404(trail.dimensionId)
       activity   ← * <~ Activities.mustFindById404(connection.activityId)
     } yield
-      (FullActivityConnectionResponse.build(trail.objectId, dimension, connection, activity))).run()
+      (FullActivityConnectionResponse.build(trail.objectId, dimension, connection, activity)))
+      .run()
   }
 }

@@ -26,15 +26,15 @@ object GroupManager {
       group ← * <~ CustomerDynamicGroups.mustFindById404(groupId)
     } yield build(group)).run()
 
-  def create(payload: CustomerDynamicGroupPayload, admin: StoreAdmin)(
-      implicit ec: EC, db: DB): Result[Root] =
+  def create(payload: CustomerDynamicGroupPayload, admin: StoreAdmin)(implicit ec: EC,
+                                                                      db: DB): Result[Root] =
     (for {
       group ← * <~ CustomerDynamicGroups.create(
                  CustomerDynamicGroup.fromPayloadAndAdmin(payload, admin.id))
     } yield build(group)).runTxn()
 
-  def update(groupId: Int, payload: CustomerDynamicGroupPayload)(
-      implicit ec: EC, db: DB): Result[Root] =
+  def update(groupId: Int, payload: CustomerDynamicGroupPayload)(implicit ec: EC,
+                                                                 db: DB): Result[Root] =
     (for {
       group ← * <~ CustomerDynamicGroups.mustFindById404(groupId)
       groupEdited ← * <~ CustomerDynamicGroups.update(

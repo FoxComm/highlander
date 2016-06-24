@@ -25,8 +25,8 @@ trait CatsHelpers extends Assertions {
         a ⇒ a
     )
 
-  def invalidValue[E, A](validated: Validated[E, A])(
-      implicit ttA: TypeTag[A], ttE: TypeTag[E]): E =
+  def invalidValue[E, A](validated: Validated[E, A])(implicit ttA: TypeTag[A],
+                                                     ttE: TypeTag[E]): E =
     validated.fold(
         e ⇒ e,
         a ⇒ fail(s"Expected Invalid[${ttA.tpe.dealias}], got Valid[${ttE.tpe.dealias}]: $a")

@@ -44,8 +44,9 @@ case class OrderPayment(id: Int = 0,
 
 object OrderPayment {
   def fromStripeCustomer(stripeCustomer: StripeCustomer, order: Order): OrderPayment =
-    OrderPayment(
-        orderId = order.id, paymentMethodId = 1, paymentMethodType = PaymentMethod.CreditCard)
+    OrderPayment(orderId = order.id,
+                 paymentMethodId = 1,
+                 paymentMethodType = PaymentMethod.CreditCard)
 
   def build(method: PaymentMethod): OrderPayment = method match {
     case gc: GiftCard ⇒

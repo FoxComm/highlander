@@ -72,8 +72,10 @@ object OrderPromotionUpdater {
     } yield {}
 
   def attachCoupon(
-      originator: Originator, refNum: Option[String] = None, context: ObjectContext, code: String)(
-      implicit ec: EC, es: ES, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] =
+      originator: Originator,
+      refNum: Option[String] = None,
+      context: ObjectContext,
+      code: String)(implicit ec: EC, es: ES, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] =
     (for {
       // Fetch base data
       order ← * <~ getCartByOriginator(originator, refNum)
@@ -110,7 +112,10 @@ object OrderPromotionUpdater {
       .runTxn()
 
   def detachCoupon(originator: Originator, refNum: Option[String] = None)(
-      implicit ec: EC, es: ES, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] =
+      implicit ec: EC,
+      es: ES,
+      db: DB,
+      ac: AC): Result[TheResponse[FullOrder.Root]] =
     (for {
       // Read
       order           ← * <~ getCartByOriginator(originator, refNum)
@@ -137,9 +142,10 @@ object OrderPromotionUpdater {
     case _              ⇒ Xor.Left(EmptyDiscountFailure.single)
   }
 
-  private def getAdjustments(
-      promo: ObjectShadow, order: Order, qualifier: Qualifier, offer: Offer)(
-      implicit ec: EC, es: ES, db: DB) =
+  private def getAdjustments(promo: ObjectShadow,
+                             order: Order,
+                             qualifier: Qualifier,
+                             offer: Offer)(implicit ec: EC, es: ES, db: DB) =
     for {
       orderDetails ← * <~ fetchOrderDetails(order).toXor
       (lineItems, shippingMethod) = orderDetails

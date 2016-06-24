@@ -58,8 +58,9 @@ object Addresses {
     }
   }
 
-  def buildOneShipping(
-      address: OrderShippingAddress, region: Region, isDefault: Boolean = false): Root = {
+  def buildOneShipping(address: OrderShippingAddress,
+                       region: Region,
+                       isDefault: Boolean = false): Root = {
     Root(id = address.id,
          region = region,
          name = address.name,

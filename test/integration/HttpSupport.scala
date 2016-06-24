@@ -61,8 +61,8 @@ trait HttpSupport
   private val ActorSystemNameChars =
     ('a' to 'z').toSet | ('A' to 'Z').toSet | ('0' to '9').toSet | Set('-', '_')
 
-  private val ValidResponseContentTypes = Set(
-      ContentTypes.`application/json`, ContentTypes.NoContentType)
+  private val ValidResponseContentTypes =
+    Set(ContentTypes.`application/json`, ContentTypes.NoContentType)
 
   import Extensions._
 
@@ -217,7 +217,8 @@ trait HttpSupport
   object SSE {
 
     def sseProbe(path: String, skipHeartbeat: Boolean = true): Probe[String] =
-      probe(if (skipHeartbeat) skipHeartbeats(sseSource(path))
+      probe(
+          if (skipHeartbeat) skipHeartbeats(sseSource(path))
           else sseSource(path))
 
     def sseSource(path: String): Source[String, Any] = {
@@ -250,9 +251,7 @@ object Extensions {
     def as[A <: AnyRef](implicit fm: Formats, mf: Manifest[A], mat: Mat): A =
       parse(bodyText).extract[A]
 
-    def ignoreFailuresAndGiveMe[A <: AnyRef](implicit fm: Formats,
-                                             mf: Manifest[A],
-                                             mat: Mat): A =
+    def ignoreFailuresAndGiveMe[A <: AnyRef](implicit fm: Formats, mf: Manifest[A], mat: Mat): A =
       parse(bodyText).extract[TheResponse[A]].result
 
     def withResultTypeOf[A <: AnyRef](implicit fm: Formats,

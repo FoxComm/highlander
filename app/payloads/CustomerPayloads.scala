@@ -20,7 +20,8 @@ object CustomerPayloads {
 
     def validate: ValidatedNel[Failure, UpdateCustomerPayload] = {
       (nullOrNotEmpty(name, "name") |@| nullOrNotEmpty(email, "email") |@| nullOrNotEmpty(
-              phoneNumber, "phoneNumber")).map { case _ ⇒ this }
+              phoneNumber,
+              "phoneNumber")).map { case _ ⇒ this }
     }
   }
 

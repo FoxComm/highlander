@@ -28,8 +28,10 @@ object CouponResponses {
 
   object CouponResponse {
 
-    case class Root(
-        id: Int, form: CouponFormResponse.Root, shadow: CouponShadowResponse.Root, promotion: Int)
+    case class Root(id: Int,
+                    form: CouponFormResponse.Root,
+                    shadow: CouponShadowResponse.Root,
+                    promotion: Int)
         extends ResponseItem
 
     def build(coupon: Coupon, f: ObjectForm, s: ObjectShadow): Root =

@@ -21,15 +21,15 @@ object PromotionResponses {
 
   object PromotionAndDiscountFormResponse {
 
-    case class Root(
-        id: Int, attributes: Json, discounts: Seq[DiscountFormResponse.Root], createdAt: Instant)
+    case class Root(id: Int,
+                    attributes: Json,
+                    discounts: Seq[DiscountFormResponse.Root],
+                    createdAt: Instant)
         extends ResponseItem
 
     def build(f: ObjectForm, discounts: Seq[ObjectForm]): Root =
-      Root(id = f.id,
-           attributes = f.attributes,
-           discounts = discounts.map(d ⇒ DiscountFormResponse.build(d)),
-           createdAt = f.createdAt)
+      Root(id = f.id, attributes = f.attributes, discounts = discounts.map(d ⇒
+                DiscountFormResponse.build(d)), createdAt = f.createdAt)
   }
 
   object PromotionShadowResponse {
@@ -42,11 +42,8 @@ object PromotionResponses {
         extends ResponseItem
 
     def build(s: ObjectShadow, discounts: Seq[ObjectShadow]): Root =
-      Root(id = s.id,
-           formId = s.formId,
-           attributes = s.attributes,
-           discounts = discounts.map(d ⇒ DiscountShadowResponse.build(d)),
-           createdAt = s.createdAt)
+      Root(id = s.id, formId = s.formId, attributes = s.attributes, discounts = discounts.map(d ⇒
+                DiscountShadowResponse.build(d)), createdAt = s.createdAt)
   }
 
   object PromotionResponse {

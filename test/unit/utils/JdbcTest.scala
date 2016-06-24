@@ -17,7 +17,7 @@ class JdbcTest extends TestBase {
       val result = swapDatabaseFailure(fail) {
         (NotUnique, GeneralFailure("IM AN OCTOPUS"))
       }.futureValue
-      result.leftVal must ===(GeneralFailure("IM AN OCTOPUS").single)
+      result.leftVal must === (GeneralFailure("IM AN OCTOPUS").single)
     }
 
     "ignores non-db errors" in {
@@ -25,7 +25,7 @@ class JdbcTest extends TestBase {
       val result = swapDatabaseFailure(fail) {
         (NotUnique, GeneralFailure("IM AN OCTOPUS"))
       }.futureValue
-      result.leftVal must ===(GeneralFailure(imSorry).single)
+      result.leftVal must === (GeneralFailure(imSorry).single)
     }
   }
 }

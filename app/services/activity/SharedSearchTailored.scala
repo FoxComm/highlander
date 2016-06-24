@@ -9,7 +9,8 @@ object SharedSearchTailored {
                                   associates: Seq[StoreAdminResponse.Root])
       extends ActivityBase[AssociatedWithSearch]
 
-  case class UnassociatedFromSearch(
-      admin: StoreAdminResponse.Root, search: SharedSearch, associate: StoreAdminResponse.Root)
+  case class UnassociatedFromSearch(admin: StoreAdminResponse.Root,
+                                    search: SharedSearch,
+                                    associate: StoreAdminResponse.Root)
       extends ActivityBase[UnassociatedFromSearch]
 }

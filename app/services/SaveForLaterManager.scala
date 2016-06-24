@@ -23,7 +23,8 @@ object SaveForLaterManager {
     } yield response
 
   def saveForLater(customerId: Int, skuCode: String, context: ObjectContext)(
-      implicit db: DB, ec: EC): DbResultT[SavedForLater] =
+      implicit db: DB,
+      ec: EC): DbResultT[SavedForLater] =
     for {
       customer ← * <~ Customers.mustFindById404(customerId)
       sku      ← * <~ SkuManager.mustFindSkuByContextAndCode(context.id, skuCode)
@@ -38,8 +39,8 @@ object SaveForLaterManager {
   def deleteSaveForLater(id: Int)(implicit ec: EC, db: DB): DbResultT[Unit] =
     DbResultT(SaveForLaters.deleteById(id, DbResult.unit, i ⇒ NotFoundFailure404(SaveForLater, i)))
 
-  private def findAllDbio(customer: Customer, contextId: Int)(
-      implicit ec: EC, db: DB): DBIO[SavedForLater] =
+  private def findAllDbio(customer: Customer, contextId: Int)(implicit ec: EC,
+                                                              db: DB): DBIO[SavedForLater] =
     for {
       sfls ← SaveForLaters.filter(_.customerId === customer.id).result
       xors ← DBIO.sequence(

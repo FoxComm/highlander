@@ -30,13 +30,13 @@ case class OrderLineItem(id: Int = 0,
 
   val fsm: Map[State, Set[State]] = Map(
       Cart →
-      Set(Pending, PreOrdered, BackOrdered, Canceled),
+        Set(Pending, PreOrdered, BackOrdered, Canceled),
       Pending →
-      Set(Shipped, Canceled),
+        Set(Shipped, Canceled),
       PreOrdered →
-      Set(Shipped, Canceled),
+        Set(Shipped, Canceled),
       BackOrdered →
-      Set(Shipped, Canceled)
+        Set(Shipped, Canceled)
   )
 }
 
@@ -93,7 +93,7 @@ class OrderLineItems(tag: Tag) extends FoxTable[OrderLineItem](tag, "order_line_
   def state           = column[OrderLineItem.State]("state")
   def * =
     (id, referenceNumber, orderId, originId, originType, state) <>
-    ((OrderLineItem.apply _).tupled, OrderLineItem.unapply)
+      ((OrderLineItem.apply _).tupled, OrderLineItem.unapply)
 
   def skuLineItems = foreignKey(OrderLineItemSkus.tableName, originId, OrderLineItemSkus)(_.id)
 }

@@ -22,7 +22,7 @@ class DbResultTTest extends TestBase with DbTestSupport with CatsHelpers with Gi
 
         val result = db.run(transformer.value).futureValue
         result mustBe 'right
-        result.rightVal.zip must ===(Factories.address.zip)
+        result.rightVal.zip must === (Factories.address.zip)
       }
 
       "fails when anything is Xor.Left" in {
@@ -36,7 +36,7 @@ class DbResultTTest extends TestBase with DbTestSupport with CatsHelpers with Gi
 
         val result = db.run(transformer.value).futureValue
         result mustBe 'left
-        result.leftVal.head must ===(failure)
+        result.leftVal.head must === (failure)
       }
     }
   }

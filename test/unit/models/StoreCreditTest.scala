@@ -1,6 +1,6 @@
 package models
 
-import cats.data.{NonEmptyList => NEL}
+import cats.data.{NonEmptyList ⇒ NEL}
 import models.payment.storecredit.StoreCredit
 import failures.GeneralFailure
 import util.TestBase

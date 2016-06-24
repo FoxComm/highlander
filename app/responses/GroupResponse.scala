@@ -15,8 +15,7 @@ object DynamicGroupResponse {
       customersCount: Option[Int] = None,
       updatedAt: Instant,
       createdAt: Instant
-  )
-      extends ResponseItem
+  ) extends ResponseItem
 
   def build(group: CustomerDynamicGroup): Root =
     Root(id = group.id,

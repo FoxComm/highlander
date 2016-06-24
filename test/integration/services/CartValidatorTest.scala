@@ -210,9 +210,11 @@ class CartValidatorTest extends IntegrationTestBase {
       reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
       origin ← * <~ StoreCreditManuals.create(
                   StoreCreditManual(adminId = admin.id, reasonId = reason.id))
-      storeCredit ← * <~ StoreCredits.create(Factories.storeCredit.copy(
-                           originId = origin.id, state = StoreCredit.Active))
-      payment ← * <~ OrderPayments.create(OrderPayment
+      storeCredit ← * <~ StoreCredits.create(
+                       Factories.storeCredit.copy(originId = origin.id,
+                                                  state = StoreCredit.Active))
+      payment ← * <~ OrderPayments.create(
+                   OrderPayment
                      .build(storeCredit)
                      .copy(orderId = cart.id, amount = grandTotal.some))
     } yield (admin, storeCredit, payment)).gimme

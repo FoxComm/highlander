@@ -56,15 +56,15 @@ case class Order(id: Int = 0,
 
   val fsm: Map[State, Set[State]] = Map(
       Cart →
-      Set(FraudHold, RemorseHold, Canceled, FulfillmentStarted),
+        Set(FraudHold, RemorseHold, Canceled, FulfillmentStarted),
       FraudHold →
-      Set(ManualHold, RemorseHold, FulfillmentStarted, Canceled),
+        Set(ManualHold, RemorseHold, FulfillmentStarted, Canceled),
       RemorseHold →
-      Set(FraudHold, ManualHold, FulfillmentStarted, Canceled),
+        Set(FraudHold, ManualHold, FulfillmentStarted, Canceled),
       ManualHold →
-      Set(FraudHold, RemorseHold, FulfillmentStarted, Canceled),
+        Set(FraudHold, RemorseHold, FulfillmentStarted, Canceled),
       FulfillmentStarted →
-      Set(Shipped, Canceled)
+        Set(Shipped, Canceled)
   )
 
   // If order is not in RemorseHold, remorsePeriodEnd should be None, but extra check wouldn't hurt

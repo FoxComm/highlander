@@ -15,8 +15,10 @@ import utils.{IlluminateAlgorithm, JsonFormatters}
   * An IlluminatedPromotion is what you get when you combine the promotion shadow and
   * the form. 
   */
-case class IlluminatedPromotion(
-    id: Int, context: IlluminatedContext, applyType: ApplyType, attributes: Json) {
+case class IlluminatedPromotion(id: Int,
+                                context: IlluminatedContext,
+                                applyType: ApplyType,
+                                attributes: Json) {
 
   implicit val formats = JsonFormatters.phoenixFormats
 

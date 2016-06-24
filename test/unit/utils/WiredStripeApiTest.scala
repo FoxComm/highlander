@@ -16,7 +16,8 @@ class WiredStripeApiTest extends TestBase {
   "Wired Stripe API" - {
     "catches StripeException and returns a Result.failure" in {
       val result = api.inBlockingPool("abc")(_ ⇒ throw someStripeException)
-      leftValue(Await.result(result, 10.seconds)).head must ===(StripeFailure(someStripeException))
+      leftValue(Await.result(result, 10.seconds)).head must === (
+          StripeFailure(someStripeException))
     }
 
     "does not catch other exceptions" in {

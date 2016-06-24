@@ -21,8 +21,9 @@ import utils.db._
 
 object OrderStateUpdater {
 
-  def updateState(admin: StoreAdmin, refNum: String, newState: Order.State)(
-      implicit ec: EC, db: DB, ac: AC): Result[FullOrder.Root] =
+  def updateState(admin: StoreAdmin,
+                  refNum: String,
+                  newState: Order.State)(implicit ec: EC, db: DB, ac: AC): Result[FullOrder.Root] =
     (for {
 
       order    ← * <~ Orders.mustFindByRefNum(refNum)
@@ -47,11 +48,11 @@ object OrderStateUpdater {
                     Orders.filter(_.referenceNumber.inSetBind(refNumbers)))
     } yield response.copy(errors = batchMetadata.flatten, batch = Some(batchMetadata))).runTxn()
 
-  private def updateStatesDbio(admin: StoreAdmin,
-                               refNumbers: Seq[String],
-                               newState: Order.State,
-                               skipActivity: Boolean = false)(
-      implicit ec: EC, ac: AC): DbResult[BatchMetadata] = {
+  private def updateStatesDbio(
+      admin: StoreAdmin,
+      refNumbers: Seq[String],
+      newState: Order.State,
+      skipActivity: Boolean = false)(implicit ec: EC, ac: AC): DbResult[BatchMetadata] = {
 
     val query = Orders.filter(_.referenceNumber.inSet(refNumbers)).result
     appendForUpdate(query).flatMap { orders ⇒
@@ -94,9 +95,10 @@ object OrderStateUpdater {
       updateQueries(admin, orderIds, orderRefNums, newState)
   }
 
-  private def updateQueries(
-      admin: StoreAdmin, orderIds: Seq[Int], orderRefNums: Seq[String], newState: State)(
-      implicit ec: EC) =
+  private def updateQueries(admin: StoreAdmin,
+                            orderIds: Seq[Int],
+                            orderRefNums: Seq[String],
+                            newState: State)(implicit ec: EC) =
     newState match {
       case Canceled ⇒
         cancelOrders(orderIds)

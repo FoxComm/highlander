@@ -22,8 +22,11 @@ trait FSM[S, M <: FSM[S, M]] { self: M ⇒
         case Some(states) if states.contains(newState) ⇒
           Xor.right(stateLens.set(this)(newState))
         case _ ⇒
-          Xor.left(StateTransitionNotAllowed(
-                  self, currentState.toString, newState.toString, primarySearchKey).single)
+          Xor.left(
+              StateTransitionNotAllowed(self,
+                                        currentState.toString,
+                                        newState.toString,
+                                        primarySearchKey).single)
       }
 
   def transitionAllowed(newState: S): Boolean = transitionState(newState).isRight

@@ -39,9 +39,8 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
         origin ← * <~ GiftCardManuals.create(
                     GiftCardManual(adminId = admin.id, reasonId = reason.id))
         gc ← * <~ GiftCards.create(Factories.giftCard.copy(originId = origin.id))
-        payment ← * <~ OrderPayments.create(Factories.giftCardPayment.copy(orderId = order.id,
-                                                                           paymentMethodId = gc.id,
-                                                                           amount = Some(50)))
+        payment ← * <~ OrderPayments.create(Factories.giftCardPayment
+                       .copy(orderId = order.id, paymentMethodId = gc.id, amount = Some(50)))
         adjustment ← * <~ GiftCards.auth(giftCard = gc,
                                          orderPaymentId = Some(payment.id),
                                          debit = 50,
@@ -58,16 +57,15 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
                     GiftCardManual(adminId = admin.id, reasonId = reason.id))
         gc ← * <~ GiftCards.create(
                 Factories.giftCard.copy(originId = origin.id, originalBalance = 50))
-        payment ← * <~ OrderPayments.create(Factories.giftCardPayment.copy(orderId = order.id,
-                                                                           paymentMethodId = gc.id,
-                                                                           amount = Some(50)))
+        payment ← * <~ OrderPayments.create(Factories.giftCardPayment
+                       .copy(orderId = order.id, paymentMethodId = gc.id, amount = Some(50)))
         adjustment ← * <~ GiftCards.capture(giftCard = gc,
                                             orderPaymentId = Some(payment.id),
                                             debit = 50,
                                             credit = 0)
       } yield (gc, adjustment)).gimme
 
-      adjustment.id must ===(1)
+      adjustment.id must === (1)
     }
 
     "updates the GiftCard's currentBalance and availableBalance before insert" in new Fixture {
@@ -115,8 +113,8 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
         gc ← * <~ GiftCards.findOneById(gc.id).toXor
       } yield gc.value).gimme
 
-      gc.availableBalance must ===(0)
-      gc.currentBalance must ===(200)
+      gc.availableBalance must === (0)
+      gc.currentBalance must === (200)
     }
 
     "a Postgres trigger updates the adjustment's availableBalance before insert" in new Fixture {
@@ -137,9 +135,9 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
         gc  ← * <~ GiftCards.refresh(gc).toXor
       } yield (adj, gc)).value.gimme
 
-      gc.availableBalance must ===(450)
-      gc.currentBalance must ===(450)
-      adj.availableBalance must ===(gc.availableBalance)
+      gc.availableBalance must === (450)
+      gc.currentBalance must === (450)
+      adj.availableBalance must === (gc.availableBalance)
     }
 
     "cancels an adjustment and removes its effect on current/available balances" in new Fixture {
@@ -157,10 +155,8 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
       val debits = List(50, 25, 15, 10)
       val adjustments = DbResultT
         .sequence(debits.map { amount ⇒
-          GiftCards.capture(giftCard = gc,
-                            orderPaymentId = Some(payment.id),
-                            debit = amount,
-                            credit = 0)
+          GiftCards
+            .capture(giftCard = gc, orderPaymentId = Some(payment.id), debit = amount, credit = 0)
         })
         .gimme
 
@@ -171,7 +167,7 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
         .gimme
 
       val finalGc = GiftCards.findOneById(gc.id).run().futureValue.value
-      (finalGc.originalBalance, finalGc.availableBalance, finalGc.currentBalance) must ===(
+      (finalGc.originalBalance, finalGc.availableBalance, finalGc.currentBalance) must === (
           (500, 500, 500))
     }
   }

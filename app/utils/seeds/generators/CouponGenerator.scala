@@ -22,8 +22,11 @@ object SimpleCoupon {
 }
 import utils.seeds.generators.SimpleCoupon._
 
-case class SimpleCoupon(
-    formId: Int = 0, shadowId: Int = 0, percentOff: Percent, totalAmount: Int, promotionId: Int)
+case class SimpleCoupon(formId: Int = 0,
+                        shadowId: Int = 0,
+                        percentOff: Percent,
+                        totalAmount: Int,
+                        promotionId: Int)
 
 case class SimpleCouponForm(percentOff: Percent, totalAmount: Int) {
 
@@ -42,8 +45,8 @@ case class SimpleCouponForm(percentOff: Percent, totalAmount: Int) {
 
 case class SimpleCouponShadow(f: SimpleCouponForm) {
 
-  val shadow = ObjectUtils.newShadow(
-      parse("""
+  val shadow =
+    ObjectUtils.newShadow(parse("""
         {
           "name" : {"type": "string", "ref": "name"},
           "storefrontName" : {"type": "richText", "ref": "storefrontName"},
@@ -52,8 +55,7 @@ case class SimpleCouponShadow(f: SimpleCouponForm) {
           "activeFrom" : {"type": "date", "ref": "activeFrom"},
           "activeTo" : {"type": "date", "ref": "activeTo"},
           "tags" : {"type": "tags", "ref": "tags"}
-        }"""),
-      f.keyMap)
+        }"""), f.keyMap)
 }
 
 trait CouponGenerator {
@@ -74,13 +76,11 @@ trait CouponGenerator {
                                             shadow =
                                               CreateCouponShadow(attributes = couponShadow.shadow),
                                             d.promotionId)
-                 DbResultT(DBIO.from(CouponManager
-                           .create(payload, context.name, None)
-                           .flatMap {
-                     case Xor.Right(r) ⇒
-                       Result.right(d.copy(formId = r.form.id, shadowId = r.shadow.id))
-                     case Xor.Left(l) ⇒ Result.failures(l)
-                   }))
+                 DbResultT(DBIO.from(CouponManager.create(payload, context.name, None).flatMap {
+                   case Xor.Right(r) ⇒
+                     Result.right(d.copy(formId = r.form.id, shadowId = r.shadow.id))
+                   case Xor.Left(l) ⇒ Result.failures(l)
+                 }))
                })
     } yield coupons
 }

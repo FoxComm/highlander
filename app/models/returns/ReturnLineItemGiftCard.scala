@@ -7,8 +7,10 @@ import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.db._
 
-case class ReturnLineItemGiftCard(
-    id: Int = 0, returnId: Int, giftCardId: Int, createdAt: Instant = Instant.now)
+case class ReturnLineItemGiftCard(id: Int = 0,
+                                  returnId: Int,
+                                  giftCardId: Int,
+                                  createdAt: Instant = Instant.now)
     extends FoxModel[ReturnLineItemGiftCard]
 
 object ReturnLineItemGiftCard {}

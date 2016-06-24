@@ -63,15 +63,14 @@ case class SimpleProduct(title: String,
 
 case class SimpleProductShadow(p: SimpleProduct) {
 
-  val shadow = ObjectUtils.newShadow(
-      parse("""
+  val shadow =
+    ObjectUtils.newShadow(parse("""
         {
           "title" : {"type": "string", "ref": "title"},
           "description" : {"type": "richText", "ref": "description"},
           "activeFrom" : {"type": "date", "ref": "activeFrom"},
           "tags" : {"type": "tags", "ref": "tags"}
-        }"""),
-      p.keyMap)
+        }"""), p.keyMap)
 
   def create: ObjectShadow =
     ObjectShadow(attributes = shadow)
@@ -79,11 +78,9 @@ case class SimpleProductShadow(p: SimpleProduct) {
 
 case class SimpleAlbum(name: String, image: String) {
 
-  val payload = CreateAlbumPayload(name = name,
-                                   images = Seq(
-                                       ImagePayload(src = image,
-                                                    title = image.some,
-                                                    alt = image.some)).some)
+  val payload = CreateAlbumPayload(
+      name = name,
+      images = Seq(ImagePayload(src = image, title = image.some, alt = image.some)).some)
 
   def create: ObjectForm = payload.objectForm
 
@@ -137,8 +134,7 @@ case class SimpleSkuShadow(s: SimpleSku) {
           "salePrice" : {"type": "price", "ref": "salePrice"},
           "activeFrom" : {"type": "date", "ref": "activeFrom"},
           "tags" : {"type": "tags", "ref": "tags"}
-        }"""),
-                                     s.keyMap)
+        }"""), s.keyMap)
 
   def create: ObjectShadow =
     ObjectShadow(attributes = shadow)
@@ -176,8 +172,7 @@ case class SimpleVariantValueShadow(v: SimpleVariantValue) {
         "name": { "type": "string", "ref": "name" },
         "swatch": { "type": "string", "ref": "swatch" }
       }
-    """),
-                                     v.keyMap)
+    """), v.keyMap)
 
   def create: ObjectShadow = ObjectShadow(attributes = shadow)
 }
@@ -205,11 +200,14 @@ case class SimpleProductTuple(product: Product,
 
 case class SimpleVariantData(variantId: Int, productShadowId: Int, shadowId: Int, name: String)
 
-case class SimpleVariantValueData(
-    valueId: Int, variantShadowId: Int, shadowId: Int, name: String, swatch: String)
+case class SimpleVariantValueData(valueId: Int,
+                                  variantShadowId: Int,
+                                  shadowId: Int,
+                                  name: String,
+                                  swatch: String)
 
-case class SimpleCompleteVariantData(
-    variant: SimpleVariantData, variantValues: Seq[SimpleVariantValueData])
+case class SimpleCompleteVariantData(variant: SimpleVariantData,
+                                     variantValues: Seq[SimpleVariantValueData])
 
 object Mvp {
   def insertProductNewContext(oldContextId: Int, contextId: Int, p: SimpleProductData)(
@@ -250,8 +248,14 @@ object Mvp {
       oldAlbumForm ← * <~ ObjectForms.mustFindById404(album.formId)
       albumForm    ← * <~ ObjectForms.update(oldAlbumForm, simpleAlbum.update(oldAlbumForm))
 
-      r ← * <~ insertProductIntoContext(
-             contextId, productForm, skuForm, albumForm, simpleProduct, simpleSku, simpleAlbum, p)
+      r ← * <~ insertProductIntoContext(contextId,
+                                        productForm,
+                                        skuForm,
+                                        albumForm,
+                                        simpleProduct,
+                                        simpleSku,
+                                        simpleAlbum,
+                                        p)
     } yield r
 
   def insertProduct(contextId: Int, p: SimpleProductData): DbResultT[SimpleProductData] =
@@ -262,12 +266,19 @@ object Mvp {
       skuForm       ← * <~ ObjectForms.create(simpleSku.create)
       simpleAlbum   ← * <~ SimpleAlbum(p.title, p.image)
       albumForm     ← * <~ ObjectForms.create(simpleAlbum.create)
-      r ← * <~ insertProductIntoContext(
-             contextId, productForm, skuForm, albumForm, simpleProduct, simpleSku, simpleAlbum, p)
+      r ← * <~ insertProductIntoContext(contextId,
+                                        productForm,
+                                        skuForm,
+                                        albumForm,
+                                        simpleProduct,
+                                        simpleSku,
+                                        simpleAlbum,
+                                        p)
     } yield r
 
-  def insertProductWithExistingSkus(
-      contextId: Int, productData: SimpleProductData, skus: Seq[Sku]): DbResultT[Product] =
+  def insertProductWithExistingSkus(contextId: Int,
+                                    productData: SimpleProductData,
+                                    skus: Seq[Sku]): DbResultT[Product] =
     for {
       simpleProduct ← * <~ SimpleProduct(productData.title,
                                          productData.description,
@@ -292,9 +303,10 @@ object Mvp {
   // Temporary convenience method to use until ObjectLink is replaced.
   private def linkProductAndSku(product: Product, sku: Sku)(implicit ec: EC) =
     for {
-      _ ← * <~ ObjectLinks.create(ObjectLink(leftId = product.shadowId,
-                                             rightId = sku.shadowId,
-                                             linkType = ObjectLink.ProductSku))
+      _ ← * <~ ObjectLinks.create(
+             ObjectLink(leftId = product.shadowId,
+                        rightId = sku.shadowId,
+                        linkType = ObjectLink.ProductSku))
       _ ← * <~ ProductSkuLinks.create(ProductSkuLink(leftId = product.id, rightId = sku.id))
     } yield {}
 
@@ -317,8 +329,9 @@ object Mvp {
       skus ← * <~ ss.map(s ⇒ insertSku(contextId, s))
     } yield skus
 
-  def insertVariant(
-      contextId: Int, v: SimpleVariant, productShadowId: Int): DbResultT[SimpleVariantData] =
+  def insertVariant(contextId: Int,
+                    v: SimpleVariant,
+                    productShadowId: Int): DbResultT[SimpleVariantData] =
     for {
       form    ← * <~ ObjectForms.create(v.create)
       sShadow ← * <~ SimpleVariantShadow(v)
@@ -329,9 +342,10 @@ object Mvp {
                            formId = form.id,
                            shadowId = shadow.id,
                            commitId = commit.id))
-      _ ← * <~ ObjectLinks.create(ObjectLink(leftId = productShadowId,
-                                             rightId = shadow.id,
-                                             linkType = ObjectLink.ProductVariant))
+      _ ← * <~ ObjectLinks.create(
+             ObjectLink(leftId = productShadowId,
+                        rightId = shadow.id,
+                        linkType = ObjectLink.ProductVariant))
     } yield
       SimpleVariantData(variantId = variant.formId,
                         productShadowId = productShadowId,
@@ -351,9 +365,10 @@ object Mvp {
                               formId = form.id,
                               shadowId = shadow.id,
                               commitId = commit.id))
-      _ ← * <~ ObjectLinks.create(ObjectLink(leftId = variantShadowId,
-                                             rightId = shadow.id,
-                                             linkType = ObjectLink.VariantValue))
+      _ ← * <~ ObjectLinks.create(
+             ObjectLink(leftId = variantShadowId,
+                        rightId = shadow.id,
+                        linkType = ObjectLink.VariantValue))
     } yield
       SimpleVariantValueData(valueId = value.id,
                              variantShadowId = variantShadowId,
@@ -414,9 +429,10 @@ object Mvp {
       albumCommit ← * <~ ObjectCommits.create(
                        ObjectCommit(formId = albumForm.id, shadowId = albumShadow.id))
 
-      albumLink ← * <~ ObjectLinks.create(ObjectLink(leftId = productShadow.id,
-                                                     rightId = albumShadow.id,
-                                                     linkType = ObjectLink.ProductAlbum))
+      albumLink ← * <~ ObjectLinks.create(
+                     ObjectLink(leftId = productShadow.id,
+                                rightId = albumShadow.id,
+                                linkType = ObjectLink.ProductAlbum))
 
       album ← * <~ Albums.create(
                  Album(contextId = contextId,
@@ -443,8 +459,8 @@ object Mvp {
       skuShadow     ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
     } yield SimpleProductTuple(product, sku, productForm, skuForm, productShadow, skuShadow)
 
-  def insertProducts(
-      ps: Seq[SimpleProductData], contextId: Int): DbResultT[Seq[SimpleProductData]] =
+  def insertProducts(ps: Seq[SimpleProductData],
+                     contextId: Int): DbResultT[Seq[SimpleProductData]] =
     for {
       results ← * <~ ps.map(p ⇒ insertProduct(contextId, p))
     } yield results

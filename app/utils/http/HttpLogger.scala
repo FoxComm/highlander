@@ -43,7 +43,8 @@ object HttpLogger {
   }
 
   private def logError(request: HttpRequest, response: HttpResponse)(
-      implicit mat: Mat, ec: EC): Future[Option[LogEntry]] = {
+      implicit mat: Mat,
+      ec: EC): Future[Option[LogEntry]] = {
     for {
       requestEntity  ← entityToString(request.entity)
       responseEntity ← entityToString(response.entity)

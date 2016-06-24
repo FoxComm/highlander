@@ -80,7 +80,8 @@ object DbResultT {
     leftLift[A](f.single)
 
   def sequence[A, M[X] <: TraversableOnce[X]](values: M[DbResultT[A]])(
-      implicit buildFrom: CanBuildFrom[M[DbResultT[A]], A, M[A]], ec: EC): DbResultT[M[A]] =
+      implicit buildFrom: CanBuildFrom[M[DbResultT[A]], A, M[A]],
+      ec: EC): DbResultT[M[A]] =
     values
       .foldLeft(rightLift(buildFrom(values))) { (liftedBuilder, liftedValue) ⇒
         for (builder ← liftedBuilder; value ← liftedValue) yield builder += value
@@ -109,7 +110,8 @@ object DbResultT {
       DbResultT.fromXor(v.toXor)
 
     def <~[A, M[X] <: TraversableOnce[X]](v: M[DbResultT[A]])(
-        implicit buildFrom: CanBuildFrom[M[DbResultT[A]], A, M[A]], ec: EC): DbResultT[M[A]] =
+        implicit buildFrom: CanBuildFrom[M[DbResultT[A]], A, M[A]],
+        ec: EC): DbResultT[M[A]] =
       DbResultT.sequence(v)
 
     def <~[A](v: DbResultT[A]): DbResultT[A] =

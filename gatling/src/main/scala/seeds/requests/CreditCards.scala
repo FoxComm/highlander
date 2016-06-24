@@ -15,14 +15,15 @@ object CreditCards {
   val createCreditCard = http("Create credit card")
     .post("/v1/customers/${customerId}/payment-methods/credit-cards")
     .body(StringBody { session ⇒
-      json(CreateCreditCard(holderName = session.get("customerName").as[String],
-                            cardNumber = session.get("ccNumber").as[String],
-                            cvv = Lorem.numerify("###"),
-                            expYear =
-                              LocalDateTime.ofInstant(Instant.now, ZoneId.systemDefault).getYear +
-                              2 + Random.nextInt(5),
-                            expMonth = Random.nextInt(12) + 1,
-                            addressId = Some(session.get("addressId").as[Int])))
+      json(
+          CreateCreditCard(holderName = session.get("customerName").as[String],
+                           cardNumber = session.get("ccNumber").as[String],
+                           cvv = Lorem.numerify("###"),
+                           expYear =
+                             LocalDateTime.ofInstant(Instant.now, ZoneId.systemDefault).getYear +
+                               2 + Random.nextInt(5),
+                           expMonth = Random.nextInt(12) + 1,
+                           addressId = Some(session.get("addressId").as[Int])))
     })
     .check(status.is(200), jsonPath("$.id").ofType[Int].saveAs("creditCardId"))
 

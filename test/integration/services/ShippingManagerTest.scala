@@ -29,7 +29,7 @@ class ShippingManagerTest extends IntegrationTestBase {
 
       "Is true when the order is shipped to WA" in new WashingtonOrderFixture {
         val matchingMethods = getShippingMethodsForOrder(order.refNum).gimme
-        matchingMethods.head.name must ===(shippingMethod.adminDisplayName)
+        matchingMethods.head.name must === (shippingMethod.adminDisplayName)
       }
 
       "Is false when the order is shipped to MI" in new MichiganOrderFixture {
@@ -41,16 +41,17 @@ class ShippingManagerTest extends IntegrationTestBase {
     "Evaluates rule: shipped to Canada" - {
       "Is true when the order is shipped to Canada" in new CountryFixture {
         val canada = Addresses
-          .create(Factories.address.copy(customerId = customer.id,
-                                         name = "Canada, Eh",
-                                         regionId = ontarioId,
-                                         isDefaultShipping = false))
+          .create(
+              Factories.address.copy(customerId = customer.id,
+                                     name = "Canada, Eh",
+                                     regionId = ontarioId,
+                                     isDefaultShipping = false))
           .gimme
         OrderShippingAddresses.filter(_.id === orderShippingAddress.id).delete.run().futureValue
         OrderShippingAddresses.copyFromAddress(address = canada, orderId = order.id).gimme
 
         val matchingMethods = getShippingMethodsForOrder(order.refNum).gimme
-        matchingMethods.headOption.value.name must ===(shippingMethod.adminDisplayName)
+        matchingMethods.headOption.value.name must === (shippingMethod.adminDisplayName)
       }
 
       "Is false when the order is shipped to US" in new CountryFixture {
@@ -63,7 +64,7 @@ class ShippingManagerTest extends IntegrationTestBase {
 
       "Is true when the order total is greater than $25" in new PriceConditionFixture {
         val matchingMethods = getShippingMethodsForOrder(expensiveOrder.refNum).gimme
-        matchingMethods.head.name must ===(shippingMethod.adminDisplayName)
+        matchingMethods.head.name must === (shippingMethod.adminDisplayName)
       }
 
       "Is false when the order total is less than $25" in new PriceConditionFixture {
@@ -83,7 +84,7 @@ class ShippingManagerTest extends IntegrationTestBase {
         } yield (address, orderShippingAddress)).gimme
 
         val matchingMethods = getShippingMethodsForOrder(order.refNum).gimme
-        matchingMethods.head.name must ===(shippingMethod.adminDisplayName)
+        matchingMethods.head.name must === (shippingMethod.adminDisplayName)
       }
 
       "Is false when the order total is $27 and shipped to MI" in new StateAndPriceCondition {
@@ -110,14 +111,15 @@ class ShippingManagerTest extends IntegrationTestBase {
         } yield (address, orderShippingAddress)).gimme
 
         val matchingMethods = getShippingMethodsForOrder(order.refNum).gimme
-        matchingMethods.headOption.value.name must ===(shippingMethod.adminDisplayName)
+        matchingMethods.headOption.value.name must === (shippingMethod.adminDisplayName)
       }
 
       "Is false when the order total is greater than $10 and address1 contains a P.O. Box" in new POCondition {
         val (address, orderShippingAddress) = (for {
-          address ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id,
-                                                                 regionId = washingtonId,
-                                                                 address1 = "P.O. Box 1234"))
+          address ← * <~ Addresses.create(
+                       Factories.address.copy(customerId = customer.id,
+                                              regionId = washingtonId,
+                                              address1 = "P.O. Box 1234"))
           orderShippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address,
                                                                              orderId = order.id)
         } yield (address, orderShippingAddress)).gimme
@@ -128,9 +130,10 @@ class ShippingManagerTest extends IntegrationTestBase {
 
       "Is false when the order total is greater than $10 and address2 contains a P.O. Box" in new POCondition {
         val (address, orderShippingAddress) = (for {
-          address ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id,
-                                                                 regionId = washingtonId,
-                                                                 address2 = Some("P.O. Box 1234")))
+          address ← * <~ Addresses.create(
+                       Factories.address.copy(customerId = customer.id,
+                                              regionId = washingtonId,
+                                              address2 = Some("P.O. Box 1234")))
           orderShippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address,
                                                                              orderId = order.id)
         } yield (address, orderShippingAddress)).gimme
@@ -149,9 +152,10 @@ class ShippingManagerTest extends IntegrationTestBase {
       product ← * <~ Mvp.insertProduct(productContext.id,
                                        Factories.products.head.copy(title = "Donkey", price = 27))
       lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(product.skuId).toXor
-      lineItem ← * <~ OrderLineItems.create(OrderLineItem(orderId = order.id,
-                                                          originId = lineItemSku.id,
-                                                          originType = OrderLineItem.SkuItem))
+      lineItem ← * <~ OrderLineItems.create(
+                    OrderLineItem(orderId = order.id,
+                                  originId = lineItemSku.id,
+                                  originType = OrderLineItem.SkuItem))
 
       order ← * <~ OrderTotaler.saveTotals(order)
     } yield (productContext, customer, order)).gimme
@@ -230,8 +234,8 @@ class ShippingManagerTest extends IntegrationTestBase {
   }
 
   trait POCondition extends Fixture {
-    val conditions =
-      parse("""
+    val conditions = parse(
+        """
     | {
     |   "comparison": "and",
     |   "conditions": [
@@ -254,8 +258,8 @@ class ShippingManagerTest extends IntegrationTestBase {
   }
 
   trait PriceConditionFixture extends Fixture {
-    val conditions =
-      parse("""
+    val conditions = parse(
+        """
         | {
         |   "comparison": "and",
         |   "conditions": [{
@@ -268,22 +272,26 @@ class ShippingManagerTest extends IntegrationTestBase {
       productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       shippingMethod ← * <~ ShippingMethods.create(
                           Factories.shippingMethods.head.copy(conditions = Some(conditions)))
-      cheapOrder ← * <~ Orders.create(Factories.order.copy(customerId = customer.id,
-                                                           referenceNumber = "CS1234-AA"))
+      cheapOrder ← * <~ Orders.create(
+                      Factories.order.copy(customerId = customer.id,
+                                           referenceNumber = "CS1234-AA"))
       cheapProduct ← * <~ Mvp.insertProduct(productContext.id,
                                             Factories.products.head.copy(title = "Cheap Donkey",
                                                                          price = 10,
                                                                          code = "SKU-CHP"))
       cheapLineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(cheapProduct.skuId).toXor
-      cheapLineItem ← * <~ OrderLineItems.create(OrderLineItem(orderId = cheapOrder.id,
-                                                               originId = cheapLineItemSku.id,
-                                                               originType = OrderLineItem.SkuItem))
-      cheapAddress ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id,
-                                                                  isDefaultShipping = false))
-      _ ← * <~ OrderShippingAddresses.copyFromAddress(
-             address = cheapAddress, orderId = cheapOrder.id)
-      expensiveOrder ← * <~ Orders.create(Factories.order.copy(customerId = customer.id,
-                                                               referenceNumber = "CS1234-AB"))
+      cheapLineItem ← * <~ OrderLineItems.create(
+                         OrderLineItem(orderId = cheapOrder.id,
+                                       originId = cheapLineItemSku.id,
+                                       originType = OrderLineItem.SkuItem))
+      cheapAddress ← * <~ Addresses.create(
+                        Factories.address.copy(customerId = customer.id,
+                                               isDefaultShipping = false))
+      _ ← * <~ OrderShippingAddresses.copyFromAddress(address = cheapAddress,
+                                                      orderId = cheapOrder.id)
+      expensiveOrder ← * <~ Orders.create(
+                          Factories.order.copy(customerId = customer.id,
+                                               referenceNumber = "CS1234-AB"))
       expensiveProduct ← * <~ Mvp.insertProduct(productContext.id,
                                                 Factories.products.head.copy(title =
                                                                                "Expensive Donkey",
@@ -294,8 +302,9 @@ class ShippingManagerTest extends IntegrationTestBase {
                              OrderLineItem(orderId = expensiveOrder.id,
                                            originId = expensiveLineItemSku.id,
                                            originType = OrderLineItem.SkuItem))
-      expensiveAddress ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id,
-                                                                      isDefaultShipping = false))
+      expensiveAddress ← * <~ Addresses.create(
+                            Factories.address.copy(customerId = customer.id,
+                                                   isDefaultShipping = false))
       _ ← * <~ OrderShippingAddresses.copyFromAddress(address = expensiveAddress,
                                                       orderId = expensiveOrder.id)
 
@@ -355,8 +364,8 @@ class ShippingManagerTest extends IntegrationTestBase {
   }
 
   trait CountryFixture extends OrderFixture with ShipmentSeeds {
-    val conditions =
-      parse("""
+    val conditions = parse(
+        """
         | {
         |   "comparison": "and",
         |   "conditions": [
