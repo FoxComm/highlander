@@ -59,8 +59,9 @@ object ReturnLineItem {
     )
   }
 
-  def buildGiftCard(
-      rma: Return, reason: ReturnReason, origin: ReturnLineItemGiftCard): ReturnLineItem = {
+  def buildGiftCard(rma: Return,
+                    reason: ReturnReason,
+                    origin: ReturnLineItemGiftCard): ReturnLineItem = {
     ReturnLineItem(
         returnId = rma.id,
         reasonId = reason.id,
@@ -69,8 +70,9 @@ object ReturnLineItem {
     )
   }
 
-  def buildShippinCost(
-      rma: Return, reason: ReturnReason, origin: ReturnLineItemShippingCost): ReturnLineItem = {
+  def buildShippinCost(rma: Return,
+                       reason: ReturnReason,
+                       origin: ReturnLineItemShippingCost): ReturnLineItem = {
     ReturnLineItem(
         returnId = rma.id,
         reasonId = reason.id,

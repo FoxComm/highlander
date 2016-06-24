@@ -13,33 +13,33 @@ class StoreCreditIntegrationTest extends IntegrationTestBase {
 
   "StoreCreditTest" - {
     "sets availableBalance and currentBalance equal to originalBalance upon insert" in new Fixture {
-      storeCredit.originalBalance must ===(5000)
-      storeCredit.currentBalance must ===(5000)
-      storeCredit.availableBalance must ===(5000)
+      storeCredit.originalBalance must === (5000)
+      storeCredit.currentBalance must === (5000)
+      storeCredit.availableBalance must === (5000)
     }
 
     "updates availableBalance if auth adjustment is created + cancel handling" in new Fixture {
       val adjustment = StoreCredits.auth(storeCredit, Some(payment.id), 1000).gimme
 
       val updatedStoreCredit = StoreCredits.findOneById(storeCredit.id).run().futureValue.value
-      updatedStoreCredit.availableBalance must ===(storeCredit.availableBalance - 1000)
+      updatedStoreCredit.availableBalance must === (storeCredit.availableBalance - 1000)
 
       StoreCreditAdjustments.cancel(adjustment.id).run().futureValue
       val canceledStoreCredit = StoreCredits.findOneById(storeCredit.id).run().futureValue.value
-      canceledStoreCredit.availableBalance must ===(storeCredit.availableBalance)
+      canceledStoreCredit.availableBalance must === (storeCredit.availableBalance)
     }
 
     "updates availableBalance and currentBalance if capture adjustment is created + cancel handling" in new Fixture {
       val adjustment = StoreCredits.capture(storeCredit, Some(payment.id), 1000).gimme
 
       val updatedStoreCredit = StoreCredits.findOneById(storeCredit.id).run().futureValue.value
-      updatedStoreCredit.availableBalance must ===(storeCredit.availableBalance - 1000)
-      updatedStoreCredit.currentBalance must ===(storeCredit.currentBalance - 1000)
+      updatedStoreCredit.availableBalance must === (storeCredit.availableBalance - 1000)
+      updatedStoreCredit.currentBalance must === (storeCredit.currentBalance - 1000)
 
       StoreCreditAdjustments.cancel(adjustment.id).run().futureValue
       val canceledStoreCredit = StoreCredits.findOneById(storeCredit.id).run().futureValue.value
-      canceledStoreCredit.availableBalance must ===(storeCredit.availableBalance)
-      canceledStoreCredit.currentBalance must ===(storeCredit.currentBalance)
+      canceledStoreCredit.availableBalance must === (storeCredit.availableBalance)
+      canceledStoreCredit.currentBalance must === (storeCredit.currentBalance)
     }
   }
 
@@ -55,9 +55,8 @@ class StoreCreditIntegrationTest extends IntegrationTestBase {
               Factories.storeCredit.copy(customerId = customer.id, originId = origin.id))
       sCredit ← * <~ StoreCredits.findOneById(sc.id).toXor
       payment ← * <~ OrderPayments.create(
-                   Factories.storeCreditPayment.copy(orderId = order.id,
-                                                     paymentMethodId = sc.id,
-                                                     amount = Some(25)))
+                   Factories.storeCreditPayment
+                     .copy(orderId = order.id, paymentMethodId = sc.id, amount = Some(25)))
     } yield (customer, origin, sCredit.value, payment)).gimme
   }
 }

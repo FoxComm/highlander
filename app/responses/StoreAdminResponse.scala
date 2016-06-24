@@ -8,10 +8,7 @@ object StoreAdminResponse {
       extends ResponseItem
 
   def build(admin: StoreAdmin): Root =
-    Root(id = admin.id,
-         email = admin.email,
-         name = admin.name,
-         department = admin.department)
+    Root(id = admin.id, email = admin.email, name = admin.name, department = admin.department)
 
   def build(admin: AdminToken): Root =
     Root(id = admin.id,

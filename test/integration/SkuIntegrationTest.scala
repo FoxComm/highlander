@@ -21,31 +21,31 @@ class SkuIntegrationTest extends IntegrationTestBase with HttpSupport with Autom
   "POST v1/skus/:context" - {
     "Creates a SKU successfully" in new Fixture {
       val priceValue = ("currency" → "USD") ~ ("value" → 9999)
-      val priceJson  = ("t" -> "price") ~ ("v" -> priceValue)
-      val attrMap    = Map("price" -> priceJson)
+      val priceJson  = ("t" → "price") ~ ("v" → priceValue)
+      val attrMap    = Map("price" → priceJson)
       val payload    = makeSkuPayload("SKU-NEW-TEST", attrMap)
 
       val response = POST(s"v1/skus/${context.name}", payload)
-      response.status must ===(StatusCodes.OK)
+      response.status must === (StatusCodes.OK)
     }
   }
 
   "GET v1/skus/:context/:code" - {
     "Get a created SKU successfully" in new Fixture {
       val response = GET(s"v1/skus/${context.name}/${sku.code}")
-      response.status must ===(StatusCodes.OK)
+      response.status must === (StatusCodes.OK)
 
       val skuResponse = response.as[SkuResponse.Root]
       val code        = skuResponse.attributes \ "code" \ "v"
-      code.extract[String] must ===(sku.code)
+      code.extract[String] must === (sku.code)
 
       val salePrice = skuResponse.attributes \ "salePrice" \ "v" \ "value"
-      salePrice.extract[Int] must ===(9999)
+      salePrice.extract[Int] must === (9999)
     }
 
     "Throws a 404 if given an invalid code" in new Fixture {
       val response = GET(s"v1/skus/${context.name}/INVALID-CODE")
-      response.status must ===(StatusCodes.NotFound)
+      response.status must === (StatusCodes.NotFound)
     }
   }
 
@@ -55,16 +55,16 @@ class SkuIntegrationTest extends IntegrationTestBase with HttpSupport with Autom
         SkuPayload(attributes = Map("name" → (("t" → "string") ~ ("v" → "Test"))))
 
       val response = PATCH(s"v1/skus/${context.name}/${sku.code}", updatePayload)
-      response.status must ===(StatusCodes.OK)
+      response.status must === (StatusCodes.OK)
 
       val skuResponse = response.as[SkuResponse.Root]
       val code        = skuResponse.attributes \ "code" \ "v"
-      code.extract[String] must ===(sku.code)
+      code.extract[String] must === (sku.code)
 
       val name = skuResponse.attributes \ "name" \ "v"
-      name.extract[String] must ===("Test")
+      name.extract[String] must === ("Test")
       val salePrice = skuResponse.attributes \ "salePrice" \ "v" \ "value"
-      salePrice.extract[Int] must ===(9999)
+      salePrice.extract[Int] must === (9999)
     }
 
     "Updates the SKU's code" in new Fixture {
@@ -72,17 +72,17 @@ class SkuIntegrationTest extends IntegrationTestBase with HttpSupport with Autom
         SkuPayload(attributes = Map("code" → (("t" → "string") ~ ("v" → "UPCODE"))))
 
       val response = PATCH(s"v1/skus/${context.name}/${sku.code}", updatePayload)
-      response.status must ===(StatusCodes.OK)
+      response.status must === (StatusCodes.OK)
 
       val response2 = GET(s"v1/skus/${context.name}/upcode")
-      response2.status must ===(StatusCodes.OK)
+      response2.status must === (StatusCodes.OK)
 
       val skuResponse = response2.as[SkuResponse.Root]
       val code        = skuResponse.attributes \ "code" \ "v"
-      code.extract[String] must ===("UPCODE")
+      code.extract[String] must === ("UPCODE")
 
       val salePrice = skuResponse.attributes \ "salePrice" \ "v" \ "value"
-      salePrice.extract[Int] must ===(9999)
+      salePrice.extract[Int] must === (9999)
     }
   }
 
@@ -97,10 +97,7 @@ class SkuIntegrationTest extends IntegrationTestBase with HttpSupport with Autom
       context ← * <~ ObjectContexts
                  .filterByName(SimpleContext.default)
                  .mustFindOneOr(ObjectContextNotFound(SimpleContext.default))
-      simpleSku ← * <~ SimpleSku("SKU-TEST",
-                                 "Test SKU",
-                                 9999,
-                                 Currency.USD)
+      simpleSku       ← * <~ SimpleSku("SKU-TEST", "Test SKU", 9999, Currency.USD)
       skuForm         ← * <~ ObjectForms.create(simpleSku.create)
       simpleSkuShadow ← * <~ SimpleSkuShadow(simpleSku)
       skuShadow       ← * <~ ObjectShadows.create(simpleSkuShadow.create.copy(formId = skuForm.id))

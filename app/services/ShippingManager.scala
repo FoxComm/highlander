@@ -28,7 +28,8 @@ object ShippingManager {
                           skus: Seq[Sku])
 
   def getShippingMethodsForCart(originator: Originator)(
-      implicit ec: EC, db: DB): DbResultT[Seq[responses.ShippingMethods.Root]] =
+      implicit ec: EC,
+      db: DB): DbResultT[Seq[responses.ShippingMethods.Root]] =
     for {
       order       ← * <~ getCartByOriginator(originator, None)
       _           ← * <~ order.mustBeCart
@@ -42,7 +43,8 @@ object ShippingManager {
     } yield response
 
   def getShippingMethodsForOrder(refNum: String, customer: Option[Customer] = None)(
-      implicit ec: EC, db: DB): DbResultT[Seq[responses.ShippingMethods.Root]] =
+      implicit ec: EC,
+      db: DB): DbResultT[Seq[responses.ShippingMethods.Root]] =
     for {
       order       ← * <~ findByRefNumAndOptionalCustomer(refNum, customer)
       shipMethods ← * <~ ShippingMethods.findActive.result.toXor
@@ -55,7 +57,8 @@ object ShippingManager {
     } yield response
 
   private def findByRefNumAndOptionalCustomer(refNum: String, customer: Option[Customer] = None)(
-      implicit ec: EC, db: DB): DbResult[Order] = customer match {
+      implicit ec: EC,
+      db: DB): DbResult[Order] = customer match {
     case Some(c) ⇒
       Orders
         .findOneByRefNumAndCustomer(refNum, c)
@@ -111,8 +114,8 @@ object ShippingManager {
     }
   }
 
-  private def evaluateShippingAddressCondition(
-      shippingData: ShippingData, condition: Condition): Boolean = {
+  private def evaluateShippingAddressCondition(shippingData: ShippingData,
+                                               condition: Condition): Boolean = {
     shippingData.shippingAddress.fold(false) { shippingAddress ⇒
       condition.field match {
         case "address1" ⇒

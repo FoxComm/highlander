@@ -67,12 +67,18 @@ trait ShipmentSeeds {
     )
 
   def shippingPriceRules = Seq(
-      ShippingPriceRule(
-          name = "Flat Shipping Over 20", ruleType = Flat, flatPrice = 10000, flatMarkup = 0),
-      ShippingPriceRule(
-          name = "Flat Shipping Over 50", ruleType = Flat, flatPrice = 5000, flatMarkup = 0),
-      ShippingPriceRule(
-          name = "Flat Shipping Over 100", ruleType = Flat, flatPrice = 1000, flatMarkup = 0)
+      ShippingPriceRule(name = "Flat Shipping Over 20",
+                        ruleType = Flat,
+                        flatPrice = 10000,
+                        flatMarkup = 0),
+      ShippingPriceRule(name = "Flat Shipping Over 50",
+                        ruleType = Flat,
+                        flatPrice = 5000,
+                        flatMarkup = 0),
+      ShippingPriceRule(name = "Flat Shipping Over 100",
+                        ruleType = Flat,
+                        flatPrice = 1000,
+                        flatMarkup = 0)
   )
 
   def shippingMethodRuleMappings = Seq(
@@ -146,6 +152,8 @@ trait ShipmentSeeds {
   def shipment = Shipment(1, 1, Some(1), Some(1))
 
   def condition =
-    Condition(
-        rootObject = "Order", field = "subtotal", operator = Condition.Equals, valInt = Some(50))
+    Condition(rootObject = "Order",
+              field = "subtotal",
+              operator = Condition.Equals,
+              valInt = Some(50))
 }

@@ -8,8 +8,12 @@ import utils.{JsonFormatters, Validation}
 import com.github.tminglei.slickpg._
 import shapeless._
 
-case class GenericTreeNode(
-    id: Int, treeId: Int, index: Int, path: LTree, kind: String, objectId: Int)
+case class GenericTreeNode(id: Int,
+                           treeId: Int,
+                           index: Int,
+                           path: LTree,
+                           kind: String,
+                           objectId: Int)
     extends FoxModel[GenericTreeNode]
     with Validation[GenericTreeNode]
 
@@ -23,7 +27,7 @@ class GenericTreeNodes(tag: Tag) extends FoxTable[GenericTreeNode](tag, "generic
 
   def * =
     (id, treeId, index, path, kind, objectId) <>
-    ((GenericTreeNode.apply _).tupled, GenericTreeNode.unapply)
+      ((GenericTreeNode.apply _).tupled, GenericTreeNode.unapply)
 }
 
 object GenericTreeNodes

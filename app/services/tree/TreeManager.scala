@@ -24,9 +24,10 @@ object TreeManager {
       response ← * <~ getFullTree(treeName, context)
     } yield response).run()
 
-  def updateTree(
-      treeName: String, contextName: String, newTree: NodePayload, path: Option[String] = None)(
-      implicit ec: EC, db: DB): Result[Root] =
+  def updateTree(treeName: String,
+                 contextName: String,
+                 newTree: NodePayload,
+                 path: Option[String] = None)(implicit ec: EC, db: DB): Result[Root] =
     (for {
       context ← * <~ ObjectManager.mustFindByName404(contextName)
       tree    ← * <~ getOrCreateDbTree(treeName, context, path.isEmpty)
@@ -46,7 +47,8 @@ object TreeManager {
     } yield resultTree).runTxn()
 
   def moveNode(treeName: String, contextName: String, moveSpec: MoveNodePayload)(
-      implicit ec: EC, db: DB): Result[Root] =
+      implicit ec: EC,
+      db: DB): Result[Root] =
     (for {
       context ← * <~ ObjectManager.mustFindByName404(contextName)
       tree    ← * <~ getOrCreateDbTree(treeName, context)
@@ -55,7 +57,8 @@ object TreeManager {
                       .mustFindOneOr(TreeNodeNotFound(treeName, contextName, moveSpec.child))
       shouldBeDeleted = moveSpec.index.isEmpty
       _ ← * <~ (if (shouldBeDeleted)
-                  DbResultT.right(GenericTreeNodes.deleteById(
+                  DbResultT.right(
+                      GenericTreeNodes.deleteById(
                           newChildNode.id,
                           DbResult.unit,
                           _ ⇒
@@ -66,15 +69,16 @@ object TreeManager {
     } yield resultTree).runTxn()
 
   def editNode(treeName: String, contextName: String, path: String, newValues: NodeValuesPayload)(
-      implicit ec: EC, db: DB) =
+      implicit ec: EC,
+      db: DB) =
     (for {
       context ← * <~ ObjectManager.mustFindByName404(contextName)
       tree    ← * <~ getByNameAndContext(treeName, context)
       node ← * <~ GenericTreeNodes
               .findNodesByPath(tree.id, LTree(path))
               .mustFindOneOr(TreeNodeNotFound(treeName, contextName, path))
-      _ ← * <~ GenericTreeNodes.update(
-             node, node.copy(kind = newValues.kind, objectId = newValues.objectId))
+      _ ← * <~ GenericTreeNodes
+           .update(node, node.copy(kind = newValues.kind, objectId = newValues.objectId))
       result ← * <~ getFullTree(treeName, context)
     } yield result).runTxn()
 
@@ -83,8 +87,8 @@ object TreeManager {
       .filterByNameAndContext(name, context.id)
       .mustFindOneOr(TreeNotFound(name, context.name))
 
-  private def getFullTree(treeName: String, context: ObjectContext)(
-      implicit ec: EC, db: DB): DbResultT[Root] =
+  private def getFullTree(treeName: String, context: ObjectContext)(implicit ec: EC,
+                                                                    db: DB): DbResultT[Root] =
     for {
       tree          ← * <~ getByNameAndContext(treeName, context)
       nodes         ← * <~ GenericTreeNodes.findNodes(tree.id).result
@@ -97,8 +101,9 @@ object TreeManager {
     } yield fullTreeResponse
 
   private def getOrCreateDbTree(
-      treeName: String, context: ObjectContext, createIfNotFound: Boolean = false)(
-      implicit ec: EC, db: DB): DbResultT[GenericTree] =
+      treeName: String,
+      context: ObjectContext,
+      createIfNotFound: Boolean = false)(implicit ec: EC, db: DB): DbResultT[GenericTree] =
     for {
       maybeTree ← * <~ GenericTrees.filterByNameAndContext(treeName, context.id).result
       // TODO @anna: #longlivedbresultt
@@ -109,7 +114,8 @@ object TreeManager {
     } yield tree
 
   private def moveNode(treeId: Int, parentIndex: Int, childNode: GenericTreeNode)(
-      implicit ec: EC, db: DB): DbResultT[Int] =
+      implicit ec: EC,
+      db: DB): DbResultT[Int] =
     for {
       parentNode ← * <~ GenericTreeNodes
                     .findNodesByIndex(treeId, parentIndex)
@@ -138,8 +144,8 @@ object TreeManager {
     var childrenIndex                   = indexes.tail
 
     for (child ← tree.children) {
-      val (newChild: List[GenericTreeNode], indexes: Stream[Int]) = payloadToDbTree(
-          treeId, child, childrenIndex, nodePath)
+      val (newChild: List[GenericTreeNode], indexes: Stream[Int]) =
+        payloadToDbTree(treeId, child, childrenIndex, nodePath)
       children = newChild ++ children
       childrenIndex = indexes
     }

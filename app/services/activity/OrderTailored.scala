@@ -15,29 +15,35 @@ object OrderTailored {
   case class CartCreated(admin: Option[StoreAdminResponse.Root], order: FullOrder.Root)
       extends ActivityBase[CartCreated]
 
-  case class OrderStateChanged(
-      admin: StoreAdminResponse.Root, order: FullOrder.Root, oldState: Order.State)
+  case class OrderStateChanged(admin: StoreAdminResponse.Root,
+                               order: FullOrder.Root,
+                               oldState: Order.State)
       extends ActivityBase[OrderStateChanged]
 
-  case class OrderRemorsePeriodIncreased(
-      admin: StoreAdminResponse.Root, order: FullOrder.Root, oldPeriodEnd: Option[Instant])
+  case class OrderRemorsePeriodIncreased(admin: StoreAdminResponse.Root,
+                                         order: FullOrder.Root,
+                                         oldPeriodEnd: Option[Instant])
       extends ActivityBase[OrderRemorsePeriodIncreased]
 
-  case class OrderBulkStateChanged(
-      admin: StoreAdminResponse.Root, orderRefNums: Seq[String], newState: Order.State)
+  case class OrderBulkStateChanged(admin: StoreAdminResponse.Root,
+                                   orderRefNums: Seq[String],
+                                   newState: Order.State)
       extends ActivityBase[OrderBulkStateChanged]
 
   /* Order Line Items */
-  case class OrderLineItemsAddedGiftCard(
-      admin: StoreAdminResponse.Root, order: FullOrder.Root, giftCard: GiftCardResponse.Root)
+  case class OrderLineItemsAddedGiftCard(admin: StoreAdminResponse.Root,
+                                         order: FullOrder.Root,
+                                         giftCard: GiftCardResponse.Root)
       extends ActivityBase[OrderLineItemsAddedGiftCard]
 
-  case class OrderLineItemsUpdatedGiftCard(
-      admin: StoreAdminResponse.Root, order: FullOrder.Root, giftCard: GiftCardResponse.Root)
+  case class OrderLineItemsUpdatedGiftCard(admin: StoreAdminResponse.Root,
+                                           order: FullOrder.Root,
+                                           giftCard: GiftCardResponse.Root)
       extends ActivityBase[OrderLineItemsUpdatedGiftCard]
 
-  case class OrderLineItemsDeletedGiftCard(
-      admin: StoreAdminResponse.Root, order: FullOrder.Root, giftCard: GiftCardResponse.Root)
+  case class OrderLineItemsDeletedGiftCard(admin: StoreAdminResponse.Root,
+                                           order: FullOrder.Root,
+                                           giftCard: GiftCardResponse.Root)
       extends ActivityBase[OrderLineItemsDeletedGiftCard]
 
   case class OrderLineItemsUpdatedQuantities(order: FullOrder.Root,
@@ -104,12 +110,14 @@ object OrderTailored {
                                                admin: Option[StoreAdminResponse.Root])
       extends ActivityBase[OrderPaymentMethodUpdatedGiftCard]
 
-  case class OrderPaymentMethodAddedStoreCredit(
-      order: FullOrder.Root, amount: Int, admin: Option[StoreAdminResponse.Root])
+  case class OrderPaymentMethodAddedStoreCredit(order: FullOrder.Root,
+                                                amount: Int,
+                                                admin: Option[StoreAdminResponse.Root])
       extends ActivityBase[OrderPaymentMethodAddedStoreCredit]
 
-  case class OrderPaymentMethodDeleted(
-      order: FullOrder.Root, pmt: PaymentMethod.Type, admin: Option[StoreAdminResponse.Root])
+  case class OrderPaymentMethodDeleted(order: FullOrder.Root,
+                                       pmt: PaymentMethod.Type,
+                                       admin: Option[StoreAdminResponse.Root])
       extends ActivityBase[OrderPaymentMethodDeleted]
 
   case class OrderPaymentMethodDeletedGiftCard(order: FullOrder.Root,
@@ -121,8 +129,10 @@ object OrderTailored {
   case class OrderNoteCreated(admin: StoreAdminResponse.Root, order: Order, note: Note)
       extends ActivityBase[OrderNoteCreated]
 
-  case class OrderNoteUpdated(
-      admin: StoreAdminResponse.Root, order: Order, oldNote: Note, note: Note)
+  case class OrderNoteUpdated(admin: StoreAdminResponse.Root,
+                              order: Order,
+                              oldNote: Note,
+                              note: Note)
       extends ActivityBase[OrderNoteUpdated]
 
   case class OrderNoteDeleted(admin: StoreAdminResponse.Root, order: Order, note: Note)

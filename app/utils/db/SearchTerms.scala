@@ -27,7 +27,8 @@ trait SearchById[M <: FoxModel[M], T <: FoxTable[M]] {
     mustFindById(id, notFound400K)
 
   private def mustFindById(id: M#Id, notFoundFailure: M#Id ⇒ Failure = notFound404K)(
-      implicit ec: EC, db: DB): DbResult[M] = {
+      implicit ec: EC,
+      db: DB): DbResult[M] = {
 
     this.findOneById(id).flatMap {
       case Some(model) ⇒ DbResult.good(model)
@@ -43,7 +44,8 @@ trait SearchByRefNum[M <: FoxModel[M], T <: FoxTable[M]] extends SearchById[M, T
   def findOneByRefNum(refNum: String): DBIO[Option[M]]
 
   def mustFindByRefNum(refNum: String, notFoundFailure: String ⇒ Failure = notFound404K)(
-      implicit ec: EC, db: DB): DbResult[M] = {
+      implicit ec: EC,
+      db: DB): DbResult[M] = {
     findOneByRefNum(refNum).flatMap {
       case Some(model) ⇒ DbResult.good(model)
       case None        ⇒ DbResult.failure(notFoundFailure(refNum))
@@ -58,7 +60,8 @@ trait SearchByCode[M <: FoxModel[M], T <: FoxTable[M]] extends SearchById[M, T] 
   def findOneByCode(code: String): DBIO[Option[M]]
 
   def mustFindByCode(code: String, notFoundFailure: String ⇒ Failure = notFound404K)(
-      implicit ec: EC, db: DB): DbResult[M] = {
+      implicit ec: EC,
+      db: DB): DbResult[M] = {
     findOneByCode(code).flatMap {
       case Some(model) ⇒ DbResult.good(model)
       case None        ⇒ DbResult.failure(notFoundFailure(code))

@@ -137,10 +137,13 @@ object ObjectUtils {
     for {
       oldForm   ← * <~ ObjectForms.mustFindById404(formId)
       oldShadow ← * <~ ObjectShadows.mustFindById404(shadowId)
-      newAttributes ← * <~ ObjectUtils.updateFormAndShadow(
-                         oldForm.attributes, formAttributes, shadowAttributes)
-      result ← * <~ updateIfDifferent(
-                  oldForm, oldShadow, newAttributes.form, newAttributes.shadow, force)
+      newAttributes ← * <~ ObjectUtils
+                       .updateFormAndShadow(oldForm.attributes, formAttributes, shadowAttributes)
+      result ← * <~ updateIfDifferent(oldForm,
+                                      oldShadow,
+                                      newAttributes.form,
+                                      newAttributes.shadow,
+                                      force)
     } yield result
   }
 
@@ -156,9 +159,11 @@ object ObjectUtils {
     else DbResultT.pure(None)
   }
 
-  def updateLink(
-      oldLeftId: Int, leftId: Int, oldRightId: Int, rightId: Int, linkType: ObjectLink.LinkType)(
-      implicit ec: EC): DbResultT[Unit] =
+  def updateLink(oldLeftId: Int,
+                 leftId: Int,
+                 oldRightId: Int,
+                 rightId: Int,
+                 linkType: ObjectLink.LinkType)(implicit ec: EC): DbResultT[Unit] =
     //Create a new link a product changes.
     if (oldLeftId != leftId)
       for {
@@ -180,8 +185,8 @@ object ObjectUtils {
 
   case class Child(form: ObjectForm, shadow: ObjectShadow)
 
-  def getChildren(
-      leftId: Int, linkType: ObjectLink.LinkType)(implicit ec: EC): DbResultT[Seq[Child]] =
+  def getChildren(leftId: Int, linkType: ObjectLink.LinkType)(
+      implicit ec: EC): DbResultT[Seq[Child]] =
     for {
       links ← * <~ ObjectLinks.findByLeftAndType(leftId, linkType).result
       shadowIds = links.map(_.rightId)
@@ -192,16 +197,17 @@ object ObjectUtils {
       result ← * <~ pairs.map { case (form, shadow) ⇒ Child(form, shadow) }
     } yield result
 
-  private def updateIfDifferent(oldForm: ObjectForm,
-                                oldShadow: ObjectShadow,
-                                newFormAttributes: Json,
-                                newShadowAttributes: Json,
-                                force: Boolean =
-                                  false)(implicit ec: EC): DbResultT[UpdateResult] = {
+  private def updateIfDifferent(
+      oldForm: ObjectForm,
+      oldShadow: ObjectShadow,
+      newFormAttributes: Json,
+      newShadowAttributes: Json,
+      force: Boolean = false)(implicit ec: EC): DbResultT[UpdateResult] = {
     if (oldShadow.attributes != newShadowAttributes || force)
       for {
         form ← * <~ ObjectForms.update(
-                  oldForm, oldForm.copy(attributes = newFormAttributes, updatedAt = Instant.now))
+                  oldForm,
+                  oldForm.copy(attributes = newFormAttributes, updatedAt = Instant.now))
         shadow ← * <~ ObjectShadows.create(
                     ObjectShadow(formId = form.id, attributes = newShadowAttributes))
         _ ← * <~ validateShadow(form, shadow)
@@ -235,26 +241,34 @@ object ObjectUtils {
                                .filter(_.contextId === contextId)
                                .one
                                .toXor
-                   newLink ← * <~ updateLeftLinkIfObject(
-                                optModel, Left, newShadow.id, newRightId, linkType)
+                   newLink ← * <~ updateLeftLinkIfObject(optModel,
+                                                         Left,
+                                                         newShadow.id,
+                                                         newRightId,
+                                                         linkType)
                  } yield newLink.getOrElse(link)
                }
     } yield upLinks
 
   def updateAssociatedRights[M <: ObjectHead[M], T <: ObjectHeads[M]](
-      Right: FoxTableQuery[M, T], oldLinks: Seq[ObjectLink], newLeftId: Int)(
-      implicit ec: EC, db: DB): DbResultT[Seq[ObjectLink]] =
+      Right: FoxTableQuery[M, T],
+      oldLinks: Seq[ObjectLink],
+      newLeftId: Int)(implicit ec: EC, db: DB): DbResultT[Seq[ObjectLink]] =
     DbResultT.sequence(oldLinks.map(link ⇒ updateAssociatedRight(Right, link, newLeftId)))
 
   def updateAssociatedRight[M <: ObjectHead[M], T <: ObjectHeads[M]](
-      Right: FoxTableQuery[M, T], oldLink: ObjectLink, newLeftId: Int)(
-      implicit ec: EC, db: DB): DbResultT[ObjectLink] =
+      Right: FoxTableQuery[M, T],
+      oldLink: ObjectLink,
+      newLeftId: Int)(implicit ec: EC, db: DB): DbResultT[ObjectLink] =
     for {
       shadow    ← * <~ ObjectShadows.mustFindById404(oldLink.rightId)
       newShadow ← * <~ ObjectShadows.create(shadow.copy(id = 0))
       optModel  ← * <~ Right.filter(_.shadowId === oldLink.rightId).one.toXor
-      newLink ← * <~ updateRightLinkIfObject(
-                   optModel, Right, newLeftId, newShadow.id, oldLink.linkType)
+      newLink ← * <~ updateRightLinkIfObject(optModel,
+                                             Right,
+                                             newLeftId,
+                                             newShadow.id,
+                                             oldLink.linkType)
     } yield newLink.getOrElse(oldLink)
 
   def updateLeftLinkIfObject[M <: ObjectHead[M], T <: ObjectHeads[M]](
@@ -270,8 +284,10 @@ object ObjectUtils {
           commit ← * <~ ObjectCommits.create(
                       ObjectCommit(formId = model.formId, shadowId = newShadowId))
           update ← * <~ table.update(model, model.withNewShadowAndCommit(newShadowId, commit.id))
-          link ← * <~ ObjectLinks.create(ObjectLink(
-                        leftId = update.shadowId, rightId = newRightId, linkType = linkType))
+          link ← * <~ ObjectLinks.create(
+                    ObjectLink(leftId = update.shadowId,
+                               rightId = newRightId,
+                               linkType = linkType))
         } yield link.some
       case None ⇒
         DbResultT.pure(None)

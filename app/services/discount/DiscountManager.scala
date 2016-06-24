@@ -23,8 +23,8 @@ object DiscountManager {
       form ← * <~ ObjectForms.mustFindById404(id)
     } yield DiscountFormResponse.build(form)).run()
 
-  def getShadow(
-      id: Int, contextName: String)(implicit ec: EC, db: DB): Result[DiscountShadowResponse.Root] =
+  def getShadow(id: Int, contextName: String)(implicit ec: EC,
+                                              db: DB): Result[DiscountShadowResponse.Root] =
     (for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
@@ -36,8 +36,8 @@ object DiscountManager {
       shadow ← * <~ ObjectShadows.mustFindById404(discount.shadowId)
     } yield DiscountShadowResponse.build(shadow)).run()
 
-  def get(discountId: Int, contextName: String)(
-      implicit ec: EC, db: DB): Result[DiscountResponse.Root] =
+  def get(discountId: Int, contextName: String)(implicit ec: EC,
+                                                db: DB): Result[DiscountResponse.Root] =
     (for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
@@ -50,8 +50,8 @@ object DiscountManager {
       shadow ← * <~ ObjectShadows.mustFindById404(discount.shadowId)
     } yield DiscountResponse.build(form, shadow)).run()
 
-  def create(payload: CreateDiscount, contextName: String)(
-      implicit ec: EC, db: DB): Result[DiscountResponse.Root] =
+  def create(payload: CreateDiscount, contextName: String)(implicit ec: EC,
+                                                           db: DB): Result[DiscountResponse.Root] =
     (for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
@@ -59,8 +59,10 @@ object DiscountManager {
       discount ← * <~ createInternal(payload, context)
     } yield DiscountResponse.build(discount.form, discount.shadow)).runTxn()
 
-  case class CreateInternalResult(
-      discount: Discount, commit: ObjectCommit, form: ObjectForm, shadow: ObjectShadow)
+  case class CreateInternalResult(discount: Discount,
+                                  commit: ObjectCommit,
+                                  form: ObjectForm,
+                                  shadow: ObjectShadow)
 
   def createInternal(payload: CreateDiscount, context: ObjectContext)(
       implicit ec: EC): DbResultT[CreateInternalResult] =
@@ -76,7 +78,8 @@ object DiscountManager {
     } yield CreateInternalResult(discount, ins.commit, ins.form, ins.shadow)
 
   def update(discountId: Int, payload: UpdateDiscount, contextName: String)(
-      implicit ec: EC, db: DB): Result[DiscountResponse.Root] =
+      implicit ec: EC,
+      db: DB): Result[DiscountResponse.Root] =
     (for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
@@ -84,14 +87,16 @@ object DiscountManager {
       discount ← * <~ updateInternal(discountId, payload, context)
     } yield DiscountResponse.build(discount.form, discount.shadow)).runTxn()
 
-  case class UpdateInternalResult(
-      oldDiscount: Discount, discount: Discount, form: ObjectForm, shadow: ObjectShadow)
+  case class UpdateInternalResult(oldDiscount: Discount,
+                                  discount: Discount,
+                                  form: ObjectForm,
+                                  shadow: ObjectShadow)
 
-  def updateInternal(discountId: Int,
-                     payload: UpdateDiscount,
-                     context: ObjectContext,
-                     forceUpdate: Boolean =
-                       false)(implicit ec: EC, db: DB): DbResultT[UpdateInternalResult] =
+  def updateInternal(
+      discountId: Int,
+      payload: UpdateDiscount,
+      context: ObjectContext,
+      forceUpdate: Boolean = false)(implicit ec: EC, db: DB): DbResultT[UpdateInternalResult] =
     for {
       discount ← * <~ Discounts
                   .filter(_.contextId === context.id)
@@ -107,7 +112,8 @@ object DiscountManager {
     } yield UpdateInternalResult(discount, updated, update.form, update.shadow)
 
   def getIlluminated(id: Int, contextName: String)(
-      implicit ec: EC, db: DB): Result[IlluminatedDiscountResponse.Root] =
+      implicit ec: EC,
+      db: DB): Result[IlluminatedDiscountResponse.Root] =
     (for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
@@ -122,12 +128,13 @@ object DiscountManager {
       IlluminatedDiscountResponse.build(
           IlluminatedDiscount.illuminate(context = context.some, form, shadow))).run()
 
-  private def updateHead(
-      discount: Discount, shadow: ObjectShadow, maybeCommit: Option[ObjectCommit])(
-      implicit ec: EC): DbResultT[Discount] = maybeCommit match {
-    case Some(commit) ⇒
-      Discounts.update(discount, discount.copy(shadowId = shadow.id, commitId = commit.id))
-    case None ⇒
-      DbResultT.rightLift(discount)
-  }
+  private def updateHead(discount: Discount,
+                         shadow: ObjectShadow,
+                         maybeCommit: Option[ObjectCommit])(implicit ec: EC): DbResultT[Discount] =
+    maybeCommit match {
+      case Some(commit) ⇒
+        Discounts.update(discount, discount.copy(shadowId = shadow.id, commitId = commit.id))
+      case None ⇒
+        DbResultT.rightLift(discount)
+    }
 }

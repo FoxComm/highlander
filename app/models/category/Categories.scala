@@ -33,7 +33,7 @@ case class Category(id: Int = 0,
 class Categories(tag: Tag) extends ObjectHeads[Category](tag, "categories") {
   def * =
     (id, contextId, shadowId, formId, commitId, updatedAt, createdAt) <>
-    ((Category.apply _).tupled, Category.unapply)
+      ((Category.apply _).tupled, Category.unapply)
 }
 
 object Categories

@@ -28,8 +28,8 @@ class CustomerGroupIntegrationTest
       val response  = GET("v1/groups")
       val groupRoot = DynamicGroupResponse.build(group)
 
-      response.status must ===(StatusCodes.OK)
-      response.ignoreFailuresAndGiveMe[Seq[DynamicGroupResponse.Root]] must ===(Seq(groupRoot))
+      response.status must === (StatusCodes.OK)
+      response.ignoreFailuresAndGiveMe[Seq[DynamicGroupResponse.Root]] must === (Seq(groupRoot))
     }
   }
 
@@ -41,11 +41,11 @@ class CustomerGroupIntegrationTest
                                                 customersCount = Some(1))
       val response = POST(s"v1/groups", payload)
 
-      response.status must ===(StatusCodes.OK)
+      response.status must === (StatusCodes.OK)
 
       val root    = response.as[DynamicGroupResponse.Root]
       val created = CustomerDynamicGroups.findOneById(root.id).run().futureValue.value
-      created.id must ===(root.id)
+      created.id must === (root.id)
     }
   }
 
@@ -54,15 +54,15 @@ class CustomerGroupIntegrationTest
       val response = GET(s"v1/groups/${group.id}")
       val root     = DynamicGroupResponse.build(group)
 
-      response.status must ===(StatusCodes.OK)
-      response.as[DynamicGroupResponse.Root] must ===(root)
+      response.status must === (StatusCodes.OK)
+      response.as[DynamicGroupResponse.Root] must === (root)
     }
 
     "404 if group not found" in new Fixture {
       val response = GET("v1/groups/999")
 
-      response.status must ===(StatusCodes.NotFound)
-      response.error must ===(NotFoundFailure404(CustomerDynamicGroup, 999).description)
+      response.status must === (StatusCodes.NotFound)
+      response.error must === (NotFoundFailure404(CustomerDynamicGroup, 999).description)
     }
   }
 
@@ -75,10 +75,10 @@ class CustomerGroupIntegrationTest
       (payload.name, payload.customersCount) must !==((group.name, group.customersCount))
 
       val response = PATCH(s"v1/groups/${group.id}", payload)
-      response.status must ===(StatusCodes.OK)
+      response.status must === (StatusCodes.OK)
 
       val updated = response.as[DynamicGroupResponse.Root]
-      (updated.name, updated.customersCount) must ===((payload.name, payload.customersCount))
+      (updated.name, updated.customersCount) must === ((payload.name, payload.customersCount))
     }
 
     "404 if group not found" in new Fixture {
@@ -88,8 +88,8 @@ class CustomerGroupIntegrationTest
                                                 elasticRequest = JObject())
       val response = PATCH("v1/groups/999", payload)
 
-      response.status must ===(StatusCodes.NotFound)
-      response.error must ===(NotFoundFailure404(CustomerDynamicGroup, 999).description)
+      response.status must === (StatusCodes.NotFound)
+      response.error must === (NotFoundFailure404(CustomerDynamicGroup, 999).description)
     }
   }
 

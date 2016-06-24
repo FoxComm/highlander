@@ -25,8 +25,9 @@ case class ReturnPayment(id: Int = 0,
 
 object ReturnPayment {
   def fromStripeCustomer(stripeCustomer: StripeCustomer, rma: Return): ReturnPayment =
-    ReturnPayment(
-        returnId = rma.id, paymentMethodId = 1, paymentMethodType = PaymentMethod.CreditCard)
+    ReturnPayment(returnId = rma.id,
+                  paymentMethodId = 1,
+                  paymentMethodType = PaymentMethod.CreditCard)
 
   def build(method: PaymentMethod, returnId: Int, amount: Int, currency: Currency): ReturnPayment =
     method match {

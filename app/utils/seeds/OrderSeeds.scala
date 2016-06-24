@@ -35,21 +35,23 @@ trait OrderSeeds {
                    context: ObjectContext)(implicit db: Database): DbResultT[OrderIds] =
     for {
       o1 ← * <~ createOrder1(customerId = customerIds._1, context = context)
-      o2 ← * <~ createOrder2(
-              customerId = customerIds._1, context = context, Seq(products._1, products._3))
+      o2 ← * <~ createOrder2(customerId = customerIds._1,
+                             context = context,
+                             Seq(products._1, products._3))
       o3 ← * <~ createOrder3(customerId = customerIds._1,
                              context = context,
                              Seq(products._2, products._4, products._5))
-      o4 ← * <~ createOrder4(
-              customerId = customerIds._3, context = context, Seq(products._4, products._6))
+      o4 ← * <~ createOrder4(customerId = customerIds._3,
+                             context = context,
+                             Seq(products._4, products._6))
       o5 ← * <~ createOrder5(customerId = customerIds._2,
                              context = context,
                              Seq(products._1, products._4),
                              shipMethods._1)
     } yield (o1.id, o2.id, o3.id, o4.id, o5.id)
 
-  def createOrder1(
-      customerId: Customer#Id, context: ObjectContext)(implicit db: Database): DbResultT[Order] =
+  def createOrder1(customerId: Customer#Id, context: ObjectContext)(
+      implicit db: Database): DbResultT[Order] =
     for {
       order ← * <~ Orders.create(
                  Order(state = ManualHold, customerId = customerId, contextId = context.id))
@@ -66,9 +68,9 @@ trait OrderSeeds {
       _ ← * <~ OrderTotaler.saveTotals(order)
     } yield order
 
-  def createOrder2(
-      customerId: Customer#Id, context: ObjectContext, products: Seq[SimpleProductData])(
-      implicit db: Database): DbResultT[Order] =
+  def createOrder2(customerId: Customer#Id,
+                   context: ObjectContext,
+                   products: Seq[SimpleProductData])(implicit db: Database): DbResultT[Order] =
     for {
       order ← * <~ Orders.create(
                  Order(state = ManualHold, customerId = customerId, contextId = context.id))
@@ -86,9 +88,9 @@ trait OrderSeeds {
       _ ← * <~ OrderTotaler.saveTotals(order)
     } yield order
 
-  def createOrder3(
-      customerId: Customer#Id, context: ObjectContext, products: Seq[SimpleProductData])(
-      implicit db: Database): DbResultT[Order] = {
+  def createOrder3(customerId: Customer#Id,
+                   context: ObjectContext,
+                   products: Seq[SimpleProductData])(implicit db: Database): DbResultT[Order] = {
     import GiftCard.{buildAppeasement ⇒ build}
     import payloads.GiftCardPayloads.{GiftCardCreateByCsr ⇒ payload}
 
@@ -116,9 +118,9 @@ trait OrderSeeds {
     } yield order
   }
 
-  def createOrder4(
-      customerId: Customer#Id, context: ObjectContext, products: Seq[SimpleProductData])(
-      implicit db: Database): DbResultT[Order] =
+  def createOrder4(customerId: Customer#Id,
+                   context: ObjectContext,
+                   products: Seq[SimpleProductData])(implicit db: Database): DbResultT[Order] =
     for {
       order ← * <~ Orders.create(
                  Order(state = Cart, customerId = customerId, contextId = context.id))
@@ -152,17 +154,18 @@ trait OrderSeeds {
       shipM ← * <~ OrderShippingMethods.create(
                  OrderShippingMethod.build(order = order, method = meth))
       _ ← * <~ OrderTotaler.saveTotals(order)
-      _ ← * <~ Shipments.create(Shipment(orderId = order.id,
-                                         orderShippingMethodId = shipM.id.some,
-                                         shippingAddressId = shipA.id.some))
+      _ ← * <~ Shipments.create(
+             Shipment(orderId = order.id,
+                      orderShippingMethodId = shipM.id.some,
+                      shippingAddressId = shipA.id.some))
     } yield order
 
-  def addSkusToOrder(
-      skuIds: Seq[Int], orderId: Order#Id, state: OrderLineItem.State): DbResultT[Unit] =
+  def addSkusToOrder(skuIds: Seq[Int],
+                     orderId: Order#Id,
+                     state: OrderLineItem.State): DbResultT[Unit] =
     for {
       liSkus ← * <~ OrderLineItemSkus.filter(_.skuId.inSet(skuIds)).result
-      _ ← * <~ OrderLineItems.createAll(
-             liSkus.seq.map { liSku ⇒
+      _ ← * <~ OrderLineItems.createAll(liSkus.seq.map { liSku ⇒
            OrderLineItem(orderId = orderId,
                          originId = liSku.id,
                          originType = OrderLineItem.SkuItem,

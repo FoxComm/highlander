@@ -40,8 +40,8 @@ class FSMTest extends TestBase {
       val fineRobot = Robot(state = Pop)
       val newRobot  = rightValue(fineRobot.transitionState(Lock))
 
-      newRobot.state must ===(Lock)
-      newRobot must ===(fineRobot.copy(state = Lock))
+      newRobot.state must === (Lock)
+      newRobot must === (fineRobot.copy(state = Lock))
     }
 
     "can always transition to identity state" in {
@@ -57,7 +57,7 @@ class FSMTest extends TestBase {
       forAll(states) {
         case (state) ⇒
           val robot = Robot(state = state)
-          rightValue(robot.transitionState(state)) must ===(robot)
+          rightValue(robot.transitionState(state)) must === (robot)
       }
     }
 

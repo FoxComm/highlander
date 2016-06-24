@@ -21,7 +21,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase with HttpSupport with
       val payload  = BulkUpdateOrdersPayload(Seq("foo", "bar", "nonExistent"), FulfillmentStarted)
       val response = PATCH("v1/orders", payload)
 
-      response.status must ===(StatusCodes.OK)
+      response.status must === (StatusCodes.OK)
 
       val all       = response.as[BatchResponse[AllOrders.Root]]
       val allOrders = all.result.map(o ⇒ (o.referenceNumber, o.orderState))
@@ -40,13 +40,13 @@ class AllOrdersIntegrationTest extends IntegrationTestBase with HttpSupport with
       val order    = Orders.create(Factories.order.copy(customerId = customer.id)).gimme
       val response = PATCH("v1/orders", BulkUpdateOrdersPayload(Seq(order.refNum), Cart))
 
-      response.status must ===(StatusCodes.OK)
+      response.status must === (StatusCodes.OK)
       val all       = response.as[BatchResponse[AllOrders.Root]]
       val allOrders = all.result.map(o ⇒ (o.referenceNumber, o.orderState))
 
-      allOrders must ===(Seq((order.refNum, order.state)))
+      allOrders must === (Seq((order.refNum, order.state)))
 
-      all.errors.value.head must ===(
+      all.errors.value.head must === (
           StateTransitionNotAllowed(order.state, Cart, order.refNum).description)
     }
   }
@@ -54,17 +54,17 @@ class AllOrdersIntegrationTest extends IntegrationTestBase with HttpSupport with
   trait StateUpdateFixture {
     (for {
       cust ← * <~ Customers.create(Factories.customer)
-      foo ← * <~ Orders.create(Factories.order.copy(customerId = cust.id,
-                                                    referenceNumber = "foo",
-                                                    state = FraudHold))
+      foo ← * <~ Orders.create(
+               Factories.order
+                 .copy(customerId = cust.id, referenceNumber = "foo", state = FraudHold))
       bar ← * <~ Orders.create(
                Factories.order.copy(customerId = cust.id,
                                     referenceNumber = "bar",
                                     state = RemorseHold,
                                     isLocked = true))
-      baz ← * <~ Orders.create(Factories.order.copy(customerId = cust.id,
-                                                    referenceNumber = "baz",
-                                                    state = ManualHold))
+      baz ← * <~ Orders.create(
+               Factories.order
+                 .copy(customerId = cust.id, referenceNumber = "baz", state = ManualHold))
     } yield (cust, foo, bar)).gimme
   }
 }

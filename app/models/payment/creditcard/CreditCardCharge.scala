@@ -34,11 +34,11 @@ case class CreditCardCharge(id: Int = 0,
 
   val fsm: Map[State, Set[State]] = Map(
       Cart →
-      Set(Auth),
+        Set(Auth),
       Auth →
-      Set(FullCapture, FailedCapture, CanceledAuth, ExpiredAuth),
+        Set(FullCapture, FailedCapture, CanceledAuth, ExpiredAuth),
       ExpiredAuth →
-      Set(Auth)
+        Set(Auth)
   )
 }
 
@@ -82,7 +82,7 @@ class CreditCardCharges(tag: Tag) extends FoxTable[CreditCardCharge](tag, "credi
 
   def * =
     (id, creditCardId, orderPaymentId, chargeId, state, currency, amount, createdAt) <>
-    ((CreditCardCharge.apply _).tupled, CreditCardCharge.unapply)
+      ((CreditCardCharge.apply _).tupled, CreditCardCharge.unapply)
 
   def card         = foreignKey(CreditCards.tableName, creditCardId, CreditCards)(_.id)
   def orderPayment = foreignKey(OrderPayments.tableName, orderPaymentId, OrderPayments)(_.id)

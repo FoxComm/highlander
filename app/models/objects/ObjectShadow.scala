@@ -16,8 +16,10 @@ import utils.{JsonFormatters, Validation}
   * The ObjectShadow, when applied to a Object is what is displayed on the 
   * storefront.
   */
-case class ObjectShadow(
-    id: Int = 0, formId: Int = 0, attributes: Json, createdAt: Instant = Instant.now)
+case class ObjectShadow(id: Int = 0,
+                        formId: Int = 0,
+                        attributes: Json,
+                        createdAt: Instant = Instant.now)
     extends FoxModel[ObjectShadow]
     with Validation[ObjectShadow]
 

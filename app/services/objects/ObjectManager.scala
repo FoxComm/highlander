@@ -23,7 +23,8 @@ object ObjectManager {
     } yield ObjectShadowResponse.build(shadow)).run()
 
   def getIlluminatedObject(formId: Int, shadowId: Int)(
-      implicit ec: EC, db: DB): Result[IlluminatedObjectResponse.Root] =
+      implicit ec: EC,
+      db: DB): Result[IlluminatedObjectResponse.Root] =
     (for {
       form   ← * <~ ObjectForms.mustFindById404(formId)
       shadow ← * <~ ObjectShadows.mustFindById404(shadowId)
@@ -34,19 +35,21 @@ object ObjectManager {
       context ← * <~ mustFindByName404(name)
     } yield ObjectContextResponse.build(context)).run()
 
-  def createContext(payload: CreateObjectContext)(
-      implicit ec: EC, db: DB): Result[ObjectContextResponse.Root] =
+  def createContext(payload: CreateObjectContext)(implicit ec: EC,
+                                                  db: DB): Result[ObjectContextResponse.Root] =
     (for {
       context ← * <~ ObjectContexts.create(
                    ObjectContext(name = payload.name, attributes = payload.attributes))
     } yield ObjectContextResponse.build(context)).runTxn()
 
   def updateContextByName(name: String, payload: UpdateObjectContext)(
-      implicit ec: EC, db: DB): Result[ObjectContextResponse.Root] =
+      implicit ec: EC,
+      db: DB): Result[ObjectContextResponse.Root] =
     (for {
       context ← * <~ mustFindByName404(name)
       update ← * <~ ObjectContexts.update(
-                  context, context.copy(name = payload.name, attributes = payload.attributes))
+                  context,
+                  context.copy(name = payload.name, attributes = payload.attributes))
     } yield ObjectContextResponse.build(update)).runTxn()
 
   def mustFindByName404(name: String)(implicit ec: EC): DbResultT[ObjectContext] =

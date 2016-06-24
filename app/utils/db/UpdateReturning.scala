@@ -31,16 +31,17 @@ object UpdateReturning {
         implicit ec: EC): DbResult[F] =
       ExceptionWrapper.wrapDbio(updateReturning(returningQuery, v).head)
 
-    def updateReturningHeadOption[A, F](
-        returningQuery: Query[A, F, C], v: U, notFoundFailure: Failure)(
-        implicit ec: EC): DbResult[F] =
+    def updateReturningHeadOption[A, F](returningQuery: Query[A, F, C],
+                                        v: U,
+                                        notFoundFailure: Failure)(implicit ec: EC): DbResult[F] =
       ExceptionWrapper.wrapDbResult(updateReturning(returningQuery, v).headOption.map(res ⇒
                 Xor.fromOption(res, notFoundFailure.single)))
 
-    private def updateReturning[A, F](
-        returningQuery: Query[A, F, C], v: U): SqlStreamingAction[Vector[F], F, Effect.All] = {
-      val ResultSetMapping(
-      _, CompiledStatement(_, sres: SQLBuilder.Result, _), CompiledMapping(_updateConverter, _)) =
+    private def updateReturning[A, F](returningQuery: Query[A, F, C],
+                                      v: U): SqlStreamingAction[Vector[F], F, Effect.All] = {
+      val ResultSetMapping(_,
+                           CompiledStatement(_, sres: SQLBuilder.Result, _),
+                           CompiledMapping(_updateConverter, _)) =
         updateCompiler.run(updateQuery.toNode).tree
 
       val pconv: SetParameter[U] = {

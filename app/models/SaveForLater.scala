@@ -7,8 +7,10 @@ import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.db._
 
-case class SaveForLater(
-    id: Int = 0, customerId: Int = 0, skuId: Int, createdAt: Instant = Instant.now)
+case class SaveForLater(id: Int = 0,
+                        customerId: Int = 0,
+                        skuId: Int,
+                        createdAt: Instant = Instant.now)
     extends FoxModel[SaveForLater] {}
 
 object SaveForLater {}

@@ -41,10 +41,10 @@ class ImageIntegrationTest
     "GET v1/albums/:context/:id" - {
       "Searching for a valid album returns the album" in new Fixture {
         val response = GET(s"v1/albums/${context.name}/${album.formId}")
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val albumResponse = response.as[AlbumRoot]
-        albumResponse.images.length must ===(1)
+        albumResponse.images.length must === (1)
 
         val image :: Nil = albumResponse.images
         val src          = image.get("src")
@@ -52,25 +52,25 @@ class ImageIntegrationTest
 
       "404 if wrong context name" in new Fixture {
         val response = GET(s"v1/albums/NOPE/${album.formId}")
-        response.status must ===(StatusCodes.NotFound)
-        response.error must ===(ObjectContextNotFound("NOPE").description)
+        response.status must === (StatusCodes.NotFound)
+        response.error must === (ObjectContextNotFound("NOPE").description)
       }
 
       "404 if wrong album form id" in new Fixture {
         val response = GET(s"v1/albums/${context.name}/666")
-        response.status must ===(StatusCodes.NotFound)
-        response.error must ===(AlbumNotFoundForContext(666, context.id).description)
+        response.status must === (StatusCodes.NotFound)
+        response.error must === (AlbumNotFoundForContext(666, context.id).description)
       }
 
       "Retrieves a correct version of an album after an update" in new Fixture {
         val payload  = UpdateAlbumPayload(name = "Name 2.0".some)
         val response = PATCH(s"v1/albums/${context.name}/${album.formId}", payload)
-        response.status must ===(StatusCodes.OK)
-        response.as[AlbumRoot].name must ===("Name 2.0")
+        response.status must === (StatusCodes.OK)
+        response.as[AlbumRoot].name must === ("Name 2.0")
 
         val response2 = GET(s"v1/albums/${context.name}/${album.formId}")
-        response2.status must ===(StatusCodes.OK)
-        response2.as[AlbumRoot].name must ===("Name 2.0")
+        response2.status must === (StatusCodes.OK)
+        response2.as[AlbumRoot].name must === ("Name 2.0")
       }
     }
 
@@ -78,20 +78,20 @@ class ImageIntegrationTest
       "Create an album with no images" in new Fixture {
         val payload  = CreateAlbumPayload(name = "Empty album")
         val response = POST(s"v1/albums/${context.name}", payload)
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val albumResponse = response.as[AlbumRoot]
-        albumResponse.images.length must ===(0)
+        albumResponse.images.length must === (0)
       }
 
       "Create an album with one image" in new Fixture {
         val payload = CreateAlbumPayload(name = "Non-empty album",
                                          images = Seq(ImagePayload(src = "url")).some)
         val response = POST(s"v1/albums/${context.name}", payload)
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val albumResponse = response.as[AlbumRoot]
-        albumResponse.images.length must ===(1)
+        albumResponse.images.length must === (1)
       }
     }
 
@@ -101,40 +101,40 @@ class ImageIntegrationTest
         val payload    = UpdateAlbumPayload(images = moreImages.some)
 
         val response = PATCH(s"v1/albums/${context.name}/${album.formId}", payload)
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val albumResponse = response.as[AlbumRoot]
-        albumResponse.images.length must ===(2)
+        albumResponse.images.length must === (2)
       }
 
       "Ignore empty payload params" in new Fixture {
         val payload  = UpdateAlbumPayload(name = "now-empty album".some)
         val response = PATCH(s"v1/albums/${context.name}/${album.formId}", payload)
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val albumResponse = response.as[AlbumRoot]
-        albumResponse.name must ===("now-empty album")
-        albumResponse.images.length must ===(1)
+        albumResponse.name must === ("now-empty album")
+        albumResponse.images.length must === (1)
       }
 
       "Request the album after updating" in new Fixture {
         def checkAlbum(album: AlbumRoot) = {
-          album.name must ===("Name 2.0")
+          album.name must === ("Name 2.0")
           album.images must have size 1
           val image = album.images.head
-          image.src must ===("http://lorem.png")
-          image.alt.value must ===("Lorem Ipsum")
-          image.title.value must ===("lorem.png")
+          image.src must === ("http://lorem.png")
+          image.alt.value must === ("Lorem Ipsum")
+          image.title.value must === ("lorem.png")
         }
 
         val payload = UpdateAlbumPayload(name = "Name 2.0".some)
 
         val response1 = PATCH(s"v1/albums/${context.name}/${album.formId}", payload)
-        response1.status must ===(StatusCodes.OK)
+        response1.status must === (StatusCodes.OK)
         checkAlbum(response1.as[AlbumRoot])
 
         val response2 = GET(s"v1/albums/${context.name}/${album.formId}")
-        response2.status must ===(StatusCodes.OK)
+        response2.status must === (StatusCodes.OK)
         checkAlbum(response2.as[AlbumRoot])
       }
     }
@@ -144,79 +144,79 @@ class ImageIntegrationTest
         val payload =
           CreateAlbumPayload(name = "Simple Album", images = Seq(ImagePayload(src = "url")).some)
         val response = POST(s"v1/products/${context.name}/${prodForm.id}/albums", payload)
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val albumResponse = response.as[AlbumRoot]
-        albumResponse.images.length must ===(1)
+        albumResponse.images.length must === (1)
 
-        albumResponse.name must ===("Simple Album")
-        albumResponse.images.head.src must ===("url")
+        albumResponse.name must === ("Simple Album")
+        albumResponse.images.head.src must === ("url")
       }
     }
 
     "GET v1/products/:context/:id/albums" - {
       "Retrieves all the albums associated with a product" in new ProductFixture {
         val response = GET(s"v1/products/${context.name}/${prodForm.id}/albums")
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val albumResponse = response.as[AlbumRoot]
-        albumResponse.images.length must ===(1)
+        albumResponse.images.length must === (1)
 
-        albumResponse.name must ===("Sample Album")
-        albumResponse.images.head.src must ===("http://lorem.png")
+        albumResponse.name must === ("Sample Album")
+        albumResponse.images.head.src must === ("http://lorem.png")
       }
 
       "Retrieves a correct version of an album after an update" in new ProductFixture {
         val payload  = UpdateAlbumPayload(name = "Name 2.0".some)
         val response = PATCH(s"v1/albums/${context.name}/${album.formId}", payload)
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val response2 = GET(s"v1/products/${context.name}/${prodForm.id}/albums")
-        response2.status must ===(StatusCodes.OK)
+        response2.status must === (StatusCodes.OK)
 
         val albumResponse = response2.as[AlbumRoot]
-        albumResponse.name must ===("Name 2.0")
+        albumResponse.name must === ("Name 2.0")
       }
     }
 
     "GET v1/products/:context/:id" - {
       "Retrieves all the albums associated with a product" in new ProductFixture {
         val response = GET(s"v1/products/${context.name}/${prodForm.id}")
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val productResponse = response.as[ProductResponse.Root]
-        productResponse.albums.length must ===(1)
+        productResponse.albums.length must === (1)
 
         val headAlbum = productResponse.albums.head
-        headAlbum.images.length must ===(1)
+        headAlbum.images.length must === (1)
 
-        headAlbum.name must ===("Sample Album")
-        headAlbum.images.head.src must ===("http://lorem.png")
+        headAlbum.name must === ("Sample Album")
+        headAlbum.images.head.src must === ("http://lorem.png")
       }
 
       "Retrieves the albums associated with product's SKUs" in new ProductFixture {
         val response = GET(s"v1/products/${context.name}/${prodForm.id}")
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val productResponse = response.as[ProductResponse.Root]
         val headSku         = productResponse.skus.head
-        headSku.albums.length must ===(1)
+        headSku.albums.length must === (1)
       }
     }
 
     "GET v1/skus/:context/:code" - {
       "Retrieves all the albums associated with a SKU" in new ProductFixture {
         val response = GET(s"v1/skus/${context.name}/${sku.code}")
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val skuResponse = response.as[SkuResponse.Root]
-        skuResponse.albums.length must ===(1)
+        skuResponse.albums.length must === (1)
 
         val headAlbum = skuResponse.albums.head
-        headAlbum.images.length must ===(1)
+        headAlbum.images.length must === (1)
 
-        headAlbum.name must ===("Sample Album")
-        headAlbum.images.head.src must ===("http://lorem.png")
+        headAlbum.name must === ("Sample Album")
+        headAlbum.images.head.src must === ("http://lorem.png")
       }
     }
 
@@ -225,37 +225,37 @@ class ImageIntegrationTest
         val payload =
           UpdateAlbumPayload(name = "Sku Album".some, images = Seq(ImagePayload(src = "url")).some)
         val response = POST(s"v1/skus/${context.name}/${sku.code}/albums", payload)
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val albumResponse = response.as[AlbumRoot]
-        albumResponse.images.length must ===(1)
+        albumResponse.images.length must === (1)
 
-        albumResponse.name must ===("Sku Album")
-        albumResponse.images.head.src must ===("url")
+        albumResponse.name must === ("Sku Album")
+        albumResponse.images.head.src must === ("url")
       }
     }
 
     "GET v1/skus/:context/:id/albums" - {
       "Retrieves all the albums associated with a SKU" in new ProductFixture {
         val response = GET(s"v1/skus/${context.name}/${sku.code}/albums")
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val albumResponse = response.as[AlbumRoot]
-        albumResponse.images.length must ===(1)
+        albumResponse.images.length must === (1)
 
-        albumResponse.name must ===("Sample Album")
-        albumResponse.images.head.src must ===("http://lorem.png")
+        albumResponse.name must === ("Sample Album")
+        albumResponse.images.head.src must === ("http://lorem.png")
       }
 
       "Retrieves a correct version of an album after an update" in new ProductFixture {
         val payload  = UpdateAlbumPayload(name = "Name 2.0".some)
         val response = PATCH(s"v1/albums/${context.name}/${album.formId}", payload)
-        response.status must ===(StatusCodes.OK)
-        response.as[AlbumRoot].name must ===("Name 2.0")
+        response.status must === (StatusCodes.OK)
+        response.as[AlbumRoot].name must === ("Name 2.0")
 
         val response2 = GET(s"v1/skus/${context.name}/${sku.code}/albums")
-        response2.status must ===(StatusCodes.OK)
-        response2.as[AlbumRoot].name must ===("Name 2.0")
+        response2.status must === (StatusCodes.OK)
+        response2.as[AlbumRoot].name must === ("Name 2.0")
       }
     }
 
@@ -278,7 +278,7 @@ class ImageIntegrationTest
         val request  = HttpRequest(method = HttpMethods.POST, uri = uri, entity = entity)
 
         val response = dispatchRequest(request)
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
         val responseAlbum = response.as[AlbumRoot]
         responseAlbum.images must contain(
             Image("amazon-image-url", "foxy.jpg".some, "foxy.jpg".some))
@@ -317,10 +317,7 @@ class ImageIntegrationTest
 
   trait ProductFixture extends Fixture {
     val (product, prodForm, prodShadow, sku, skuForm, skuShadow) = (for {
-      simpleSku ← * <~ SimpleSku("SKU-TEST",
-                                 "Test SKU",
-                                 9999,
-                                 Currency.USD)
+      simpleSku  ← * <~ SimpleSku("SKU-TEST", "Test SKU", 9999, Currency.USD)
       skuForm    ← * <~ ObjectForms.create(simpleSku.create)
       sSkuShadow ← * <~ SimpleSkuShadow(simpleSku)
       skuShadow  ← * <~ ObjectShadows.create(sSkuShadow.create.copy(formId = skuForm.id))
@@ -332,12 +329,13 @@ class ImageIntegrationTest
                    shadowId = skuShadow.id,
                    commitId = skuCommit.id,
                    code = "SKU-TEST"))
-      _ ← * <~ ObjectLinks.create(ObjectLink(leftId = sku.shadowId,
-                                             rightId = album.shadowId,
-                                             linkType = ObjectLink.SkuAlbum))
+      _ ← * <~ ObjectLinks.create(
+             ObjectLink(leftId = sku.shadowId,
+                        rightId = album.shadowId,
+                        linkType = ObjectLink.SkuAlbum))
 
-      simpleProd ← * <~ SimpleProduct(
-                      title = "Test Product", description = "Test product description")
+      simpleProd ← * <~ SimpleProduct(title = "Test Product",
+                                      description = "Test product description")
       prodForm    ← * <~ ObjectForms.create(simpleProd.create)
       sProdShadow ← * <~ SimpleProductShadow(simpleProd)
       prodShadow  ← * <~ ObjectShadows.create(sProdShadow.create.copy(formId = prodForm.id))
@@ -349,9 +347,10 @@ class ImageIntegrationTest
                            shadowId = prodShadow.id,
                            commitId = prodCommit.id))
 
-      _ ← * <~ ObjectLinks.create(ObjectLink(leftId = product.shadowId,
-                                             rightId = album.shadowId,
-                                             linkType = ObjectLink.ProductAlbum))
+      _ ← * <~ ObjectLinks.create(
+             ObjectLink(leftId = product.shadowId,
+                        rightId = album.shadowId,
+                        linkType = ObjectLink.ProductAlbum))
       _ ← * <~ ProductSkuLinks.create(ProductSkuLink(leftId = product.id, rightId = sku.id))
     } yield (product, prodForm, prodShadow, sku, skuForm, skuShadow)).gimme
   }

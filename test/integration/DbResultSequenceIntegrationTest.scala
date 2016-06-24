@@ -43,12 +43,12 @@ class DbResultSequenceIntegrationTest extends IntegrationTestBase {
       val failures = cool.run().futureValue.leftVal
       val expectedFailure = DatabaseFailure(
           "ERROR: duplicate key value violates unique constraint \"customers_active_non_guest_email\"\n" +
-          "  Detail: Key (email, is_disabled, is_guest)=(boom, f, f) already exists.")
-      failures must ===(expectedFailure.single)
+            "  Detail: Key (email, is_disabled, is_guest)=(boom, f, f) already exists.")
+      failures must === (expectedFailure.single)
 
       val allCustomers = Customers.gimme
       allCustomers must have size 1
-      allCustomers.head.email must ===("boom")
+      allCustomers.head.email must === ("boom")
     }
   }
 }

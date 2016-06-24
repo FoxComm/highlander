@@ -22,14 +22,16 @@ import utils.db._
 
 object LineItemUpdater {
   def addGiftCard(admin: StoreAdmin, refNum: String, payload: AddGiftCardLineItem)(
-      implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] =
+      implicit ec: EC,
+      db: DB,
+      ac: AC): Result[TheResponse[FullOrder.Root]] =
     (for {
       p      ← * <~ payload.validate
       order  ← * <~ Orders.mustFindByRefNum(refNum)
       _      ← * <~ order.mustBeCart
       origin ← * <~ GiftCardOrders.create(GiftCardOrder(orderId = order.id))
-      gc ← * <~ GiftCards.create(GiftCard.buildLineItem(
-                  balance = p.balance, originId = origin.id, currency = p.currency))
+      gc ← * <~ GiftCards.create(GiftCard
+                .buildLineItem(balance = p.balance, originId = origin.id, currency = p.currency))
       liGc ← * <~ OrderLineItemGiftCards.create(
                 OrderLineItemGiftCard(giftCardId = gc.id, orderId = order.id))
       _ ← * <~ OrderLineItems.create(OrderLineItem.buildGiftCard(order, liGc))
@@ -41,7 +43,9 @@ object LineItemUpdater {
     } yield TheResponse.build(result, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 
   def editGiftCard(admin: StoreAdmin, refNum: String, code: String, payload: AddGiftCardLineItem)(
-      implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] =
+      implicit ec: EC,
+      db: DB,
+      ac: AC): Result[TheResponse[FullOrder.Root]] =
     (for {
       _        ← * <~ payload.validate
       giftCard ← * <~ GiftCards.mustFindByCode(code)
@@ -57,7 +61,9 @@ object LineItemUpdater {
     } yield TheResponse.build(result, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 
   def deleteGiftCard(admin: StoreAdmin, refNum: String, code: String)(
-      implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] =
+      implicit ec: EC,
+      db: DB,
+      ac: AC): Result[TheResponse[FullOrder.Root]] =
     (for {
       gc    ← * <~ GiftCards.mustFindByCode(code)
       _     ← * <~ gc.mustBeCart
@@ -77,7 +83,10 @@ object LineItemUpdater {
   def updateQuantitiesOnOrder(admin: StoreAdmin,
                               refNum: String,
                               payload: Seq[UpdateLineItemsPayload])(
-      implicit ec: EC, es: ES, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] = {
+      implicit ec: EC,
+      es: ES,
+      db: DB,
+      ac: AC): Result[TheResponse[FullOrder.Root]] = {
 
     val finder = Orders.mustFindByRefNum(refNum)
     val logActivity = (order: FullOrder.Root, oldQtys: Map[String, Int]) ⇒
@@ -89,7 +98,10 @@ object LineItemUpdater {
   def updateQuantitiesOnCustomersOrder(customer: Customer,
                                        payload: Seq[UpdateLineItemsPayload],
                                        context: ObjectContext)(
-      implicit ec: EC, es: ES, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] = {
+      implicit ec: EC,
+      es: ES,
+      db: DB,
+      ac: AC): Result[TheResponse[FullOrder.Root]] = {
 
     val findOrCreate = Orders
       .findActiveOrderByCustomer(customer)
@@ -108,7 +120,9 @@ object LineItemUpdater {
   private def runUpdates(finder: DbResult[Order],
                          logAct: (FullOrder.Root, Map[String, Int]) ⇒ DbResult[Activity],
                          payload: Seq[UpdateLineItemsPayload])(
-      implicit ec: EC, es: ES, db: DB): Result[TheResponse[FullOrder.Root]] =
+      implicit ec: EC,
+      es: ES,
+      db: DB): Result[TheResponse[FullOrder.Root]] =
     (for {
       order ← * <~ finder
       _     ← * <~ order.mustBeCart

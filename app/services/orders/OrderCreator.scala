@@ -15,8 +15,9 @@ import utils.db.DbResultT._
 
 object OrderCreator {
 
-  def createCart(admin: StoreAdmin, payload: CreateOrder, context: ObjectContext)(
-      implicit db: DB, ec: EC, ac: AC): Result[Root] = {
+  def createCart(admin: StoreAdmin,
+                 payload: CreateOrder,
+                 context: ObjectContext)(implicit db: DB, ec: EC, ac: AC): Result[Root] = {
 
     def existingCustomerOrNewGuest: Result[Root] = (payload.customerId, payload.email) match {
       case (Some(customerId), _) ⇒ createCartForCustomer(customerId)
@@ -27,8 +28,9 @@ object OrderCreator {
     def createCartForCustomer(customerId: Int): Result[Root] =
       (for {
         customer ← * <~ Customers.mustFindById400(customerId)
-        fullOrder ← * <~ OrderQueries.findOrCreateCartByCustomerInner(
-                       customer, context, Some(admin))
+        fullOrder ← * <~ OrderQueries.findOrCreateCartByCustomerInner(customer,
+                                                                      context,
+                                                                      Some(admin))
       } yield fullOrder).runTxn()
 
     def createCartAndGuest(email: String): Result[Root] =

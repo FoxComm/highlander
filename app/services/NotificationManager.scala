@@ -27,7 +27,9 @@ object NotificationManager {
   implicit val formats = JsonFormatters.phoenixFormats
 
   def streamByAdminId(adminId: StoreAdmin#Id)(
-      implicit ec: EC, db: DB, mat: Mat): Future[Source[EventStreamElement, Any]] = {
+      implicit ec: EC,
+      db: DB,
+      mat: Mat): Future[Source[EventStreamElement, Any]] = {
     StoreAdmins.findOneById(adminId).run().map {
       case Some(admin) ⇒
         oldNotifications(adminId)
@@ -72,7 +74,9 @@ object NotificationManager {
   }
 
   def createNotification(payload: CreateNotification)(
-      implicit ac: AC, ec: EC, db: DB): Result[Seq[ActivityConnectionResponse.Root]] =
+      implicit ac: AC,
+      ec: EC,
+      db: DB): Result[Seq[ActivityConnectionResponse.Root]] =
     (for {
       sourceDimensionId ← * <~ dimensionIdByName(payload.sourceDimension)
       activity          ← * <~ Activities.mustFindById400(payload.activityId)
@@ -84,8 +88,10 @@ object NotificationManager {
       response ← * <~ adminIds.map { adminId ⇒
                   val appendActivity = AppendActivity(payload.activityId, payload.data)
                   val newTrailData   = Some(decompose(NotificationTrailMetadata(0)))
-                  TrailManager.appendActivityByObjectIdInner(
-                      Dimension.notification, adminId.toString, appendActivity, newTrailData)
+                  TrailManager.appendActivityByObjectIdInner(Dimension.notification,
+                                                             adminId.toString,
+                                                             appendActivity,
+                                                             newTrailData)
                 }
       _ ← * <~ DBIO
            .sequence(adminIds.map { adminId ⇒
@@ -96,8 +102,8 @@ object NotificationManager {
            .toXor
     } yield response).runTxn()
 
-  def updateLastSeen(adminId: Int, activityId: Int)(
-      implicit ec: EC, db: DB): Result[LastSeenActivityResponse] =
+  def updateLastSeen(adminId: Int, activityId: Int)(implicit ec: EC,
+                                                    db: DB): Result[LastSeenActivityResponse] =
     (for {
       _ ← * <~ StoreAdmins.mustFindById404(adminId)
       _ ← * <~ Activities.mustFindById404(activityId)
@@ -105,7 +111,8 @@ object NotificationManager {
                .findNotificationByAdminId(adminId)
                .mustFindOneOr(NotificationTrailNotFound400(adminId))
       _ ← * <~ Trails.update(
-             trail, trail.copy(data = Some(decompose(NotificationTrailMetadata(activityId)))))
+             trail,
+             trail.copy(data = Some(decompose(NotificationTrailMetadata(activityId)))))
     } yield LastSeenActivityResponse(trailId = trail.id, lastSeenActivityId = activityId)).runTxn()
 
   def subscribe(adminIds: Seq[Int], objectIds: Seq[String], reason: Sub.Reason, dimension: String)(
@@ -126,22 +133,20 @@ object NotificationManager {
                       })
                       .map(_.flatten)
                       .toXor
-      newSubsQty ← * <~ Subs.createAll(
-                      requestedSubs
-                        .diff(existingSubs)
-                        .map {
-                      case (adminId, objectId) ⇒
-                        Sub(adminId = adminId,
-                            objectId = objectId,
-                            dimensionId = dimension.id,
-                            reason = reason)
-                    })
+      newSubsQty ← * <~ Subs.createAll(requestedSubs.diff(existingSubs).map {
+                    case (adminId, objectId) ⇒
+                      Sub(adminId = adminId,
+                          objectId = objectId,
+                          dimensionId = dimension.id,
+                          reason = reason)
+                  })
       warnings = Failures(adminIds.diff(realAdmins).map(NotFoundFailure404(StoreAdmin, _)): _*)
     } yield TheResponse.build(value = newSubsQty, warnings = warnings)
 
-  def unsubscribe(
-      adminIds: Seq[Int], objectIds: Seq[String], reason: Sub.Reason, dimension: String)(
-      implicit ec: EC): DbResultT[Unit] =
+  def unsubscribe(adminIds: Seq[Int],
+                  objectIds: Seq[String],
+                  reason: Sub.Reason,
+                  dimension: String)(implicit ec: EC): DbResultT[Unit] =
     for {
       d ← * <~ Dimensions.findByName(dimension).one.toXor
       _ ← * <~ d.fold(DbResultT.unit) { dimension ⇒

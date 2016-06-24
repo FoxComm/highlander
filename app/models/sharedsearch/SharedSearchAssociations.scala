@@ -10,8 +10,10 @@ import slick.lifted.Tag
 import models.sharedsearch.SharedSearches.scope._
 import utils.db._
 
-case class SharedSearchAssociation(
-    id: Int = 0, sharedSearchId: Int, storeAdminId: Int, createdAt: Instant = Instant.now)
+case class SharedSearchAssociation(id: Int = 0,
+                                   sharedSearchId: Int,
+                                   storeAdminId: Int,
+                                   createdAt: Instant = Instant.now)
     extends FoxModel[SharedSearchAssociation]
 
 object SharedSearchAssociation {

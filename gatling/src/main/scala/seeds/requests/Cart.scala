@@ -79,7 +79,9 @@ object Cart {
   val ageOrder = http("Age order")
     .post("/v1/order-time-machine")
     .requireAdminAuth
-    .body(StringBody(session ⇒
+    .body(
+        StringBody(
+            session ⇒
               json(OrderTimeMachine(
                       referenceNumber = session.get("referenceNumber").as[String],
                       placedAt = Instant.now.minusSeconds(

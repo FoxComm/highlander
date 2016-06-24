@@ -13,8 +13,9 @@ import utils.db.DbResultT._
 
 object GiftCardAdjustmentsService {
 
-  def forGiftCard(code: String)(
-      implicit ec: EC, db: DB, sortAndPage: SortAndPage): Result[TheResponse[Seq[Root]]] =
+  def forGiftCard(code: String)(implicit ec: EC,
+                                db: DB,
+                                sortAndPage: SortAndPage): Result[TheResponse[Seq[Root]]] =
     (for {
       giftCard ← * <~ GiftCards.mustFindByCode(code)
       query = GiftCardAdjustments

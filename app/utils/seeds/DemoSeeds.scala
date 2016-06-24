@@ -41,9 +41,10 @@ trait DemoSeedHelpers extends CreditCardSeeds {
              name = name.some,
              location = "Seattle,WA".some)
 
-  def createShippedOrder(
-      customerId: Customer#Id, contextId: Int, skuIds: Seq[Sku#Id], shipMethod: ShippingMethod)(
-      implicit db: Database): DbResultT[Order] =
+  def createShippedOrder(customerId: Customer#Id,
+                         contextId: Int,
+                         skuIds: Seq[Sku#Id],
+                         shipMethod: ShippingMethod)(implicit db: Database): DbResultT[Order] =
     for {
       order ← * <~ Orders.create(
                  Order(state = Shipped,
@@ -60,17 +61,18 @@ trait DemoSeedHelpers extends CreditCardSeeds {
       shipM ← * <~ OrderShippingMethods.create(
                  OrderShippingMethod.build(order = order, method = shipMethod))
       _ ← * <~ OrderTotaler.saveTotals(order)
-      _ ← * <~ Shipments.create(Shipment(orderId = order.id,
-                                         orderShippingMethodId = shipM.id.some,
-                                         shippingAddressId = shipA.id.some))
+      _ ← * <~ Shipments.create(
+             Shipment(orderId = order.id,
+                      orderShippingMethodId = shipM.id.some,
+                      shippingAddressId = shipA.id.some))
     } yield order
 
-  private def addSkusToOrder(
-      skuIds: Seq[Sku#Id], orderId: Order#Id, state: OrderLineItem.State): DbResultT[Unit] =
+  private def addSkusToOrder(skuIds: Seq[Sku#Id],
+                             orderId: Order#Id,
+                             state: OrderLineItem.State): DbResultT[Unit] =
     for {
       liSkus ← * <~ OrderLineItemSkus.filter(_.skuId.inSet(skuIds)).result
-      _ ← * <~ OrderLineItems.createAll(
-             liSkus.seq.map { liSku ⇒
+      _ ← * <~ OrderLineItems.createAll(liSkus.seq.map { liSku ⇒
            OrderLineItem(orderId = orderId,
                          originId = liSku.id,
                          originType = OrderLineItem.SkuItem,

@@ -19,13 +19,13 @@ class ReturnIntegrationTest extends IntegrationTestBase {
   "Returns" - {
     "generates a referenceNumber in Postgres after insert when blank" in new Fixture {
       val rma = Returns.create(Return.build(order, admin)).gimme
-      rma.referenceNumber must ===("ABC-123.1")
+      rma.referenceNumber must === ("ABC-123.1")
     }
 
     "doesn't overwrite a non-empty referenceNumber after insert" in new Fixture {
       val rma =
         Returns.create(Return.build(order, admin).copy(referenceNumber = "ABC-123.256")).gimme
-      rma.referenceNumber must ===("ABC-123.256")
+      rma.referenceNumber must === ("ABC-123.256")
     }
 
     "has a unique index on referenceNumber" in new Fixture {
@@ -33,8 +33,8 @@ class ReturnIntegrationTest extends IntegrationTestBase {
       val failure = Returns.create(rma.copy(id = 0)).run().futureValue.leftVal
       val errorMessage =
         "ERROR: duplicate key value violates unique constraint \"returns_reference_number_key\"\n" +
-        "  Detail: Key (reference_number)=(ABC-123.1) already exists."
-      failure must ===(DatabaseFailure(errorMessage).single)
+          "  Detail: Key (reference_number)=(ABC-123.1) already exists."
+      failure must === (DatabaseFailure(errorMessage).single)
     }
   }
 

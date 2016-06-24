@@ -15,8 +15,8 @@ import utils.db.DbResultT._
 import utils.db._
 
 object SharedSearchService {
-  def getAll(admin: StoreAdmin, rawScope: Option[String])(
-      implicit ec: EC, db: DB): DbResultT[Seq[SharedSearch]] =
+  def getAll(admin: StoreAdmin, rawScope: Option[String])(implicit ec: EC,
+                                                          db: DB): DbResultT[Seq[SharedSearch]] =
     for {
       scope ← * <~ rawScope.toXor(SharedSearchScopeNotFound.single)
       searchScope ← * <~ SharedSearch.Scope
@@ -28,15 +28,15 @@ object SharedSearchService {
   def get(code: String)(implicit ec: EC, db: DB): DbResultT[SharedSearch] =
     mustFindActiveByCode(code)
 
-  def getAssociates(
-      code: String)(implicit ec: EC, db: DB): DbResultT[Seq[StoreAdminResponse.Root]] =
+  def getAssociates(code: String)(implicit ec: EC,
+                                  db: DB): DbResultT[Seq[StoreAdminResponse.Root]] =
     for {
       search     ← * <~ mustFindActiveByCode(code)
       associates ← * <~ SharedSearchAssociations.associatedAdmins(search).result.toXor
     } yield associates.map(StoreAdminResponse.build)
 
-  def create(admin: StoreAdmin, payload: SharedSearchPayload)(
-      implicit ec: EC, db: DB): DbResultT[SharedSearch] =
+  def create(admin: StoreAdmin, payload: SharedSearchPayload)(implicit ec: EC,
+                                                              db: DB): DbResultT[SharedSearch] =
     for {
       search ← * <~ SharedSearches.create(SharedSearch.byAdmin(admin, payload))
       _ ← * <~ SharedSearchAssociations.create(
@@ -44,11 +44,12 @@ object SharedSearchService {
     } yield search
 
   def update(admin: StoreAdmin, code: String, payload: SharedSearchPayload)(
-      implicit ec: EC, db: DB): DbResultT[SharedSearch] =
+      implicit ec: EC,
+      db: DB): DbResultT[SharedSearch] =
     for {
       search ← * <~ mustFindActiveByCode(code)
-      updated ← * <~ SharedSearches.update(
-                   search, search.copy(title = payload.title, query = payload.query))
+      updated ← * <~ SharedSearches
+                 .update(search, search.copy(title = payload.title, query = payload.query))
     } yield updated
 
   def delete(admin: StoreAdmin, code: String)(implicit ec: EC, db: DB): DbResultT[Unit] =
@@ -58,7 +59,9 @@ object SharedSearchService {
     } yield ()
 
   def associate(admin: StoreAdmin, code: String, requestedAssigneeIds: Seq[Int])(
-      implicit ec: EC, db: DB, ac: AC): DbResultT[TheResponse[SharedSearch]] =
+      implicit ec: EC,
+      db: DB,
+      ac: AC): DbResultT[TheResponse[SharedSearch]] =
     for {
       search     ← * <~ mustFindActiveByCode(code)
       adminIds   ← * <~ StoreAdmins.filter(_.id.inSetBind(requestedAssigneeIds)).map(_.id).result
@@ -72,8 +75,9 @@ object SharedSearchService {
       _ ← * <~ LogActivity.associatedWithSearch(admin, search, assignedAdmins)
     } yield TheResponse.build(search, errors = notFoundAdmins)
 
-  def unassociate(admin: StoreAdmin, code: String, assigneeId: Int)(
-      implicit ec: EC, db: DB, ac: AC): DbResultT[SharedSearch] =
+  def unassociate(admin: StoreAdmin,
+                  code: String,
+                  assigneeId: Int)(implicit ec: EC, db: DB, ac: AC): DbResultT[SharedSearch] =
     for {
       search    ← * <~ mustFindActiveByCode(code)
       associate ← * <~ StoreAdmins.mustFindById404(assigneeId)

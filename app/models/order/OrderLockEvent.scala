@@ -7,8 +7,10 @@ import shapeless._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 
-case class OrderLockEvent(
-    id: Int = 0, orderId: Int = 0, lockedAt: Instant = Instant.now, lockedBy: Int = 0)
+case class OrderLockEvent(id: Int = 0,
+                          orderId: Int = 0,
+                          lockedAt: Instant = Instant.now,
+                          lockedBy: Int = 0)
     extends FoxModel[OrderLockEvent]
 
 class OrderLockEvents(tag: Tag) extends FoxTable[OrderLockEvent](tag, "order_lock_events") {

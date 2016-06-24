@@ -12,8 +12,10 @@ case class IlluminatedCategory(id: Int, context: IlluminatedContext, attributes:
 
 object IlluminatedCategory {
 
-  def illuminate(
-      context: ObjectContext, product: Category, form: ObjectForm, shadow: ObjectShadow) = {
+  def illuminate(context: ObjectContext,
+                 product: Category,
+                 form: ObjectForm,
+                 shadow: ObjectShadow) = {
     val illuminatedContext = IlluminatedContext(context.name, context.attributes)
     val attributes         = IlluminateAlgorithm.projectAttributes(form.attributes, shadow.attributes)
     IlluminatedCategory(form.id, illuminatedContext, attributes)

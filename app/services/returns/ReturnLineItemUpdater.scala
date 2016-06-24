@@ -21,7 +21,8 @@ object ReturnLineItemUpdater {
 
   // FIXME: Fetch reasons with `mustFindOneById`, cc @anna
   def addSkuLineItem(refNum: String, payload: ReturnSkuLineItemsPayload, context: ObjectContext)(
-      implicit ec: EC, db: DB): Result[Root] =
+      implicit ec: EC,
+      db: DB): Result[Root] =
     (for {
       // Checks
       payload ← * <~ payload.validate
@@ -58,7 +59,8 @@ object ReturnLineItemUpdater {
     } yield response).runTxn()
 
   def addGiftCardLineItem(refNum: String, payload: ReturnGiftCardLineItemsPayload)(
-      implicit ec: EC, db: DB): Result[Root] =
+      implicit ec: EC,
+      db: DB): Result[Root] =
     (for {
       // Checks
       rma ← * <~ mustFindPendingReturnByRefNum(refNum)
@@ -79,8 +81,8 @@ object ReturnLineItemUpdater {
       response ← * <~ ReturnResponse.fromRma(updated).toXor
     } yield response).runTxn()
 
-  def deleteGiftCardLineItem(refNum: String, lineItemId: Int)(
-      implicit ec: EC, db: DB): Result[Root] =
+  def deleteGiftCardLineItem(refNum: String, lineItemId: Int)(implicit ec: EC,
+                                                              db: DB): Result[Root] =
     (for {
       // Checks
       rma ← * <~ mustFindPendingReturnByRefNum(refNum)
@@ -98,7 +100,8 @@ object ReturnLineItemUpdater {
     } yield response).runTxn()
 
   def addShippingCostItem(refNum: String, payload: ReturnShippingCostLineItemsPayload)(
-      implicit ec: EC, db: DB): Result[Root] =
+      implicit ec: EC,
+      db: DB): Result[Root] =
     (for {
       // Checks
       rma ← * <~ mustFindPendingReturnByRefNum(refNum)
@@ -117,8 +120,8 @@ object ReturnLineItemUpdater {
       response ← * <~ ReturnResponse.fromRma(updated).toXor
     } yield response).runTxn()
 
-  def deleteShippingCostLineItem(refNum: String, lineItemId: Int)(
-      implicit ec: EC, db: DB): Result[Root] =
+  def deleteShippingCostLineItem(refNum: String, lineItemId: Int)(implicit ec: EC,
+                                                                  db: DB): Result[Root] =
     (for {
       // Checks
       rma ← * <~ mustFindPendingReturnByRefNum(refNum)

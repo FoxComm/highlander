@@ -7,8 +7,10 @@ import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 
-case class StoreCreditCustom(
-    id: Int = 0, adminId: Int, metadata: Json, createdAt: Instant = Instant.now)
+case class StoreCreditCustom(id: Int = 0,
+                             adminId: Int,
+                             metadata: Json,
+                             createdAt: Instant = Instant.now)
     extends FoxModel[StoreCreditCustom]
 
 class StoreCreditCustoms(tag: Tag)

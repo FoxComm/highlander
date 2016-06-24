@@ -11,16 +11,16 @@ class QualifierAstCompilerTest extends TestBase {
   "QualifierAstCompiler" - {
 
     "succeeds for case object with valid, but empty attributes" in new OrderAnyValidFixture {
-      rightValue(compiler.compile()) must ===(AndQualifier(Seq(OrderAnyQualifier)))
+      rightValue(compiler.compile()) must === (AndQualifier(Seq(OrderAnyQualifier)))
     }
 
     "succeeds for case class with valid attributes" in new OrderTotalAmountValidFixture {
-      rightValue(compiler.compile()) must ===(
+      rightValue(compiler.compile()) must === (
           AndQualifier(Seq(OrderTotalAmountQualifier(totalAmount = 1))))
     }
 
     "fails when typo in configuration found" in new OrderTotalAmountTypoFixture {
-      leftValue(compiler.compile()) must ===(
+      leftValue(compiler.compile()) must === (
           QualifierAttributesExtractionFailure(OrderTotalAmount).single)
     }
   }

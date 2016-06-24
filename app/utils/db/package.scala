@@ -71,8 +71,8 @@ package object db {
       this.copy(result = result.flatMap(f))
 
     def toTheResponse(implicit ec: EC): DbResultT[TheResponse[A]] = {
-      val pagingMetadata = PaginationMetadata(
-          from = metadata.from, size = metadata.size, pageNo = metadata.pageNo)
+      val pagingMetadata =
+        PaginationMetadata(from = metadata.from, size = metadata.size, pageNo = metadata.pageNo)
 
       for {
         result ← * <~ this.result
@@ -110,8 +110,8 @@ package object db {
     def sortBy(f: E ⇒ Ordered): QueryWithMetadata[E, U, C] =
       this.copy(query = query.sortBy(f))
 
-    def sortIfNeeded(
-        f: (Sort, E) ⇒ Ordered)(implicit sortAndPage: SortAndPage): QueryWithMetadata[E, U, C] =
+    def sortIfNeeded(f: (Sort, E) ⇒ Ordered)(
+        implicit sortAndPage: SortAndPage): QueryWithMetadata[E, U, C] =
       sortAndPage.sort match {
         case Some(s) ⇒ this.copy(query = query.sortBy(f.curried(s)))
         case None    ⇒ this
@@ -219,8 +219,8 @@ package object db {
     def toXorT: DbResultT[A] = DbResultT(r)
   }
 
-  def xorMapDbio[LeftX, RightX, RightY](xor: Xor[LeftX, RightX])(
-      f: RightX ⇒ DBIO[RightY])(implicit ec: EC): DBIO[Xor[LeftX, RightY]] = {
+  def xorMapDbio[LeftX, RightX, RightY](xor: Xor[LeftX, RightX])(f: RightX ⇒ DBIO[RightY])(
+      implicit ec: EC): DBIO[Xor[LeftX, RightY]] = {
     xor.fold(
         fs ⇒ lift(Xor.left(fs)),
         v ⇒ f(v).map(Xor.right)

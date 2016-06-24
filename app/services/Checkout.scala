@@ -35,7 +35,10 @@ object Checkout {
     } yield order).runTxn()
 
   def fromCustomerCart(customer: Customer, context: ObjectContext)(
-      implicit ec: EC, db: DB, apis: Apis, ac: AC): Result[FullOrder.Root] =
+      implicit ec: EC,
+      db: DB,
+      apis: Apis,
+      ac: AC): Result[FullOrder.Root] =
     (for {
       result ← * <~ Orders
                 .findActiveOrderByCustomer(customer)
@@ -49,8 +52,8 @@ object Checkout {
     } yield order).runTxn()
 }
 
-case class Checkout(cart: Order, cartValidator: CartValidation)(
-    implicit ec: EC, db: DB, apis: Apis, ac: AC) {
+case class Checkout(cart: Order,
+                    cartValidator: CartValidation)(implicit ec: EC, db: DB, apis: Apis, ac: AC) {
 
   def checkout: DbResultT[FullOrder.Root] =
     for {
@@ -78,8 +81,8 @@ case class Checkout(cart: Order, cartValidator: CartValidation)(
       _ ← * <~ maybeCodeId.fold(DbResultT.unit)(couponMustBeApplicable(_, context))
     } yield {}
 
-  private def promotionMustBeActive(
-      orderPromotion: OrderPromotion, context: ObjectContext): DbResultT[Unit] =
+  private def promotionMustBeActive(orderPromotion: OrderPromotion,
+                                    context: ObjectContext): DbResultT[Unit] =
     for {
       promotion ← * <~ Promotions
                    .filterByContextAndShadowId(context.id, orderPromotion.promotionShadowId)
@@ -169,8 +172,8 @@ case class Checkout(cart: Order, cartValidator: CartValidation)(
     }
   }
 
-  private def authCreditCard(
-      orderTotal: Int, internalPaymentTotal: Int): DbResult[Option[CreditCardCharge]] = {
+  private def authCreditCard(orderTotal: Int,
+                             internalPaymentTotal: Int): DbResult[Option[CreditCardCharge]] = {
     import scala.concurrent.duration._
 
     val authAmount = orderTotal - internalPaymentTotal
@@ -201,8 +204,8 @@ case class Checkout(cart: Order, cartValidator: CartValidation)(
 
   private def remorseHold: DbResult[Order] =
     (for {
-      remorseHold ← * <~ Orders.update(
-                       cart, cart.copy(state = RemorseHold, placedAt = Instant.now.some))
+      remorseHold ← * <~ Orders.update(cart,
+                                       cart.copy(state = RemorseHold, placedAt = Instant.now.some))
 
       onHoldGcs ← * <~ (for {
                    items ← OrderLineItemGiftCards.findByOrderId(cart.id).result

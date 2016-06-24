@@ -16,9 +16,13 @@ import utils.db.DbResultT._
 
 object OrderShippingMethodUpdater {
 
-  def updateShippingMethod(
-      originator: Originator, payload: UpdateShippingMethod, refNum: Option[String] = None)(
-      implicit ec: EC, es: ES, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] =
+  def updateShippingMethod(originator: Originator,
+                           payload: UpdateShippingMethod,
+                           refNum: Option[String] = None)(
+      implicit ec: EC,
+      es: ES,
+      db: DB,
+      ac: AC): Result[TheResponse[FullOrder.Root]] =
     (for {
       order          ← * <~ getCartByOriginator(originator, refNum)
       _              ← * <~ order.mustBeCart
@@ -46,7 +50,10 @@ object OrderShippingMethodUpdater {
       .runTxn()
 
   def deleteShippingMethod(originator: Originator, refNum: Option[String] = None)(
-      implicit ec: EC, es: ES, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] =
+      implicit ec: EC,
+      es: ES,
+      db: DB,
+      ac: AC): Result[TheResponse[FullOrder.Root]] =
     (for {
       order      ← * <~ getCartByOriginator(originator, refNum)
       _          ← * <~ order.mustBeCart

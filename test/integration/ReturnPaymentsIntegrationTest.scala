@@ -29,26 +29,26 @@ class ReturnPaymentsIntegrationTest
         val payload = ReturnPaymentPayload(amount = 10)
         val response =
           POST(s"v1/returns/${rma.referenceNumber}/payment-methods/gift-cards", payload)
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val root = response.as[Root]
         root.payments must have size 1
-        root.payments.head.amount must ===(payload.amount)
+        root.payments.head.amount must === (payload.amount)
       }
 
       "fails if the amount is less than zero" in new Fixture {
         val payload = ReturnPaymentPayload(amount = -10)
         val response =
           POST(s"v1/returns/${rma.referenceNumber}/payment-methods/gift-cards", payload)
-        response.status must ===(StatusCodes.BadRequest)
-        response.error must ===("Amount got -10, expected more than 0")
+        response.status must === (StatusCodes.BadRequest)
+        response.error must === ("Amount got -10, expected more than 0")
       }
 
       "fails if the RMA is not found" in new Fixture {
         val payload  = ReturnPaymentPayload(amount = 10)
         val response = POST(s"v1/returns/99/payment-methods/gift-cards", payload)
-        response.status must ===(StatusCodes.NotFound)
-        response.error must ===(NotFoundFailure404(Return, 99).description)
+        response.status must === (StatusCodes.NotFound)
+        response.error must === (NotFoundFailure404(Return, 99).description)
       }
     }
 
@@ -56,10 +56,10 @@ class ReturnPaymentsIntegrationTest
       "successfully deletes a giftCard" in new Fixture {
         val payload = ReturnPaymentPayload(amount = 10)
         val create  = POST(s"v1/returns/${rma.referenceNumber}/payment-methods/gift-cards", payload)
-        create.status must ===(StatusCodes.OK)
+        create.status must === (StatusCodes.OK)
 
         val response = DELETE(s"v1/returns/${rma.referenceNumber}/payment-methods/gift-cards")
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val root = response.as[Root]
         root.payments mustBe 'empty
@@ -68,8 +68,8 @@ class ReturnPaymentsIntegrationTest
       "fails if the RMA is not found" in new Fixture {
         val response = DELETE(s"v1/returns/99/payment-methods/gift-cards")
 
-        response.status must ===(StatusCodes.NotFound)
-        response.error must ===(NotFoundFailure404(Return, 99).description)
+        response.status must === (StatusCodes.NotFound)
+        response.error must === (NotFoundFailure404(Return, 99).description)
       }
     }
   }
@@ -81,19 +81,19 @@ class ReturnPaymentsIntegrationTest
       "successfully creates store credit as payment method" in new Fixture {
         val payload  = ReturnPaymentPayload(amount = 75)
         val response = POST(s"v1/returns/${rma.refNum}/payment-methods/store-credit", payload)
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val root = response.as[Root]
         root.payments must have size 1
-        root.payments.head.amount must ===(payload.amount)
+        root.payments.head.amount must === (payload.amount)
       }
 
       "fails if the amount is less than zero" in new Fixture {
         val payload = ReturnPaymentPayload(amount = -10)
         val response =
           POST(s"v1/returns/${rma.referenceNumber}/payment-methods/store-credit", payload)
-        response.status must ===(StatusCodes.BadRequest)
-        response.error must ===("Amount got -10, expected more than 0")
+        response.status must === (StatusCodes.BadRequest)
+        response.error must === ("Amount got -10, expected more than 0")
       }
 
       "fails if the RMA is not found" in new Fixture {
@@ -101,8 +101,8 @@ class ReturnPaymentsIntegrationTest
         val payload  = ReturnPaymentPayload(amount = 50)
 
         val response = POST(s"v1/returns/${notFound.refNum}/payment-methods/store-credit", payload)
-        response.status must ===(StatusCodes.NotFound)
-        response.error must ===(NotFoundFailure404(Return, notFound.refNum).description)
+        response.status must === (StatusCodes.NotFound)
+        response.error must === (NotFoundFailure404(Return, notFound.refNum).description)
       }
     }
 
@@ -110,10 +110,10 @@ class ReturnPaymentsIntegrationTest
       "successfully deletes store credit payment" in new Fixture {
         val payload = ReturnPaymentPayload(amount = 75)
         val create  = POST(s"v1/returns/${rma.refNum}/payment-methods/store-credit", payload)
-        create.status must ===(StatusCodes.OK)
+        create.status must === (StatusCodes.OK)
 
         val response = DELETE(s"v1/returns/${rma.referenceNumber}/payment-methods/store-credit")
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val root = response.as[Root]
         root.payments mustBe 'empty
@@ -121,8 +121,8 @@ class ReturnPaymentsIntegrationTest
 
       "fails if the RMA is not found" in new Fixture {
         val response = DELETE(s"v1/returns/99/payment-methods/store-credit")
-        response.status must ===(StatusCodes.NotFound)
-        response.error must ===(NotFoundFailure404(Return, 99).description)
+        response.status must === (StatusCodes.NotFound)
+        response.error must === (NotFoundFailure404(Return, 99).description)
       }
     }
   }
@@ -135,26 +135,26 @@ class ReturnPaymentsIntegrationTest
         val payload = ReturnPaymentPayload(amount = 50)
         val response =
           POST(s"v1/returns/${rma.referenceNumber}/payment-methods/credit-cards", payload)
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val root = response.as[Root]
         root.payments must have size 1
-        root.payments.head.amount must ===(payload.amount)
+        root.payments.head.amount must === (payload.amount)
       }
 
       "fails if the amount is less than zero" in new Fixture {
         val payload = ReturnCcPaymentPayload(amount = -10)
         val response =
           POST(s"v1/returns/${rma.referenceNumber}/payment-methods/credit-cards", payload)
-        response.status must ===(StatusCodes.BadRequest)
-        response.error must ===("Amount got -10, expected more than 0")
+        response.status must === (StatusCodes.BadRequest)
+        response.error must === ("Amount got -10, expected more than 0")
       }
 
       "fails if the RMA is not found" in new Fixture {
         val payload  = ReturnCcPaymentPayload(amount = 50)
         val response = POST(s"v1/returns/99/payment-methods/credit-cards", payload)
-        response.status must ===(StatusCodes.NotFound)
-        response.error must ===(NotFoundFailure404(Return, 99).description)
+        response.status must === (StatusCodes.NotFound)
+        response.error must === (NotFoundFailure404(Return, 99).description)
       }
     }
 
@@ -163,10 +163,10 @@ class ReturnPaymentsIntegrationTest
         val payload = ReturnPaymentPayload(amount = 50)
         val create =
           POST(s"v1/returns/${rma.referenceNumber}/payment-methods/credit-cards", payload)
-        create.status must ===(StatusCodes.OK)
+        create.status must === (StatusCodes.OK)
 
         val response = DELETE(s"v1/returns/${rma.referenceNumber}/payment-methods/credit-cards")
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
 
         val root = response.as[Root]
         root.payments mustBe 'empty
@@ -175,8 +175,8 @@ class ReturnPaymentsIntegrationTest
       "fails if the RMA is not found" in new Fixture {
         val response = DELETE(s"v1/returns/99/payment-methods/credit-cards")
 
-        response.status must ===(StatusCodes.NotFound)
-        response.error must ===(NotFoundFailure404(Return, 99).description)
+        response.status must === (StatusCodes.NotFound)
+        response.error must === (NotFoundFailure404(Return, 99).description)
       }
     }
   }
@@ -188,9 +188,9 @@ class ReturnPaymentsIntegrationTest
       order    ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
       address  ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
       cc       ← * <~ CreditCards.create(Factories.creditCard.copy(customerId = customer.id))
-      orderPayment ← * <~ OrderPayments.create(Factories.orderPayment.copy(orderId = order.id,
-                                                                           paymentMethodId = cc.id,
-                                                                           amount = None))
+      orderPayment ← * <~ OrderPayments.create(
+                        Factories.orderPayment
+                          .copy(orderId = order.id, paymentMethodId = cc.id, amount = None))
       rma ← * <~ Returns.create(Factories.rma.copy(referenceNumber = "ABCD1234-11.1"))
     } yield (rma, order, admin, customer)).gimme
   }

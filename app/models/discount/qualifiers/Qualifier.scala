@@ -30,8 +30,8 @@ trait ItemsQualifier extends Qualifier {
 
   def matchXor(input: DiscountInput)(xor: Failures Xor Buckets): Failures Xor Unit
 
-  def checkInner(input: DiscountInput)(search: Seq[ProductSearch])(
-      implicit db: DB, ec: EC, es: ES): Result[Unit] = {
+  def checkInner(input: DiscountInput)(
+      search: Seq[ProductSearch])(implicit db: DB, ec: EC, es: ES): Result[Unit] = {
     val inAnyOf = search.map(_.query(input).map(matchXor(input)))
 
     Future

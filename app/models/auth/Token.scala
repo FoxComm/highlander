@@ -85,13 +85,13 @@ object Token {
     claims.setIssuer("FC")
     token match {
       case _: AdminToken ⇒ {
-          claims.setAudience("admin")
-          claims.setClaim("admin", true)
-        }
+        claims.setAudience("admin")
+        claims.setClaim("admin", true)
+      }
       case _: CustomerToken ⇒ {
-          claims.setAudience("customer")
-          claims.setClaim("admin", false)
-        }
+        claims.setAudience("customer")
+        claims.setClaim("admin", false)
+      }
     }
 
     claims
@@ -166,12 +166,17 @@ object AdminToken {
   }
 }
 
-case class CustomerToken(
-    id: Int, admin: Boolean = false, name: Option[String], email: String, scopes: Seq[String])
+case class CustomerToken(id: Int,
+                         admin: Boolean = false,
+                         name: Option[String],
+                         email: String,
+                         scopes: Seq[String])
     extends Token
 
 object CustomerToken {
   def fromCustomer(customer: Customer): CustomerToken =
-    CustomerToken(
-        id = customer.id, name = customer.name, email = customer.email, scopes = Array[String]())
+    CustomerToken(id = customer.id,
+                  name = customer.name,
+                  email = customer.email,
+                  scopes = Array[String]())
 }

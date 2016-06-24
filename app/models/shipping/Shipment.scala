@@ -50,7 +50,7 @@ class Shipments(tag: Tag) extends FoxTable[Shipment](tag, "shipments") {
 
   def * =
     (id, orderId, orderShippingMethodId, shippingAddressId, state, shippingPrice, updatedAt) <>
-    ((Shipment.apply _).tupled, Shipment.unapply)
+      ((Shipment.apply _).tupled, Shipment.unapply)
 }
 
 object Shipments

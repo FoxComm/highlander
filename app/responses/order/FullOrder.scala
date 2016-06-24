@@ -46,15 +46,13 @@ object FullOrder {
   case class LineItems(
       skus: Seq[DisplayLineItem] = Seq.empty,
       giftCards: Seq[GiftCardResponse.Root] = Seq.empty
-  )
-      extends ResponseItem
+  ) extends ResponseItem
 
   case class LineItemAdjustment(
       adjustmentType: OrderLineItemAdjustment.AdjustmentType,
       substract: Int,
       lineItemRefNum: Option[String]
-  )
-      extends ResponseItem
+  ) extends ResponseItem
 
   object LineItemAdjustment {
     def build(model: OrderLineItemAdjustment) =
@@ -277,22 +275,24 @@ object FullOrder {
   type PromoDetails = Option[(IlluminatedPromotionResponse.Root, CouponPair)]
 
   private def fetchPromoDetails(context: ObjectContext, orderPromo: Option[OrderPromotion])(
-      implicit db: DB, ec: EC): DBIO[PromoDetails] = orderPromo match {
+      implicit db: DB,
+      ec: EC): DBIO[PromoDetails] = orderPromo match {
     case Some(op) ⇒
       fetchCouponDetails(context, op.couponCodeId) // TBD: Handle auto-apply promos here later
     case _ ⇒ DBIO.successful(None)
   }
 
   private def fetchCouponDetails(context: ObjectContext, couponCodeId: Option[Int])(
-      implicit db: DB, ec: EC): DBIO[PromoDetails] = couponCodeId match {
+      implicit db: DB,
+      ec: EC): DBIO[PromoDetails] = couponCodeId match {
     case Some(codeId) ⇒
       fetchCouponInner(context, codeId).fold(_ ⇒ None, option ⇒ option)
     case _ ⇒ DBIO.successful(None)
   }
 
   // TBD: Get discounts from cached field in `OrderPromotion` model
-  private def fetchCouponInner(context: ObjectContext, couponCodeId: Int)(
-      implicit db: DB, ec: EC) =
+  private def fetchCouponInner(context: ObjectContext, couponCodeId: Int)(implicit db: DB,
+                                                                          ec: EC) =
     for {
       // Coupon
       couponCode ← * <~ CouponCodes

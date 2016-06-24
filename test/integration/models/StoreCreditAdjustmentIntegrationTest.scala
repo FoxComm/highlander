@@ -22,19 +22,14 @@ class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
         origin ← * <~ StoreCreditManuals.create(
                     StoreCreditManual(adminId = admin.id, reasonId = reason.id))
         sc ← * <~ StoreCredits.create(Factories.storeCredit.copy(originId = origin.id))
-        payment ← * <~ OrderPayments.create(Factories.giftCardPayment.copy(orderId = order.id,
-                                                                           paymentMethodId = sc.id,
-                                                                           amount = Some(25)))
+        payment ← * <~ OrderPayments.create(Factories.giftCardPayment
+                       .copy(orderId = order.id, paymentMethodId = sc.id, amount = Some(25)))
       } yield (sc, payment)).gimme
 
       val adjustments = Table(
           "adjustments",
-          StoreCredits.auth(storeCredit = sc,
-                            orderPaymentId = Some(payment.id),
-                            amount = -1),
-          StoreCredits.auth(storeCredit = sc,
-                            orderPaymentId = Some(payment.id),
-                            amount = 0)
+          StoreCredits.auth(storeCredit = sc, orderPaymentId = Some(payment.id), amount = -1),
+          StoreCredits.auth(storeCredit = sc, orderPaymentId = Some(payment.id), amount = 0)
       )
 
       forAll(adjustments) { adjustment ⇒
@@ -49,38 +44,23 @@ class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
                     StoreCreditManual(adminId = admin.id, reasonId = reason.id))
         sc ← * <~ StoreCredits.create(
                 Factories.storeCredit.copy(originalBalance = 500, originId = origin.id))
-        pay ← * <~ OrderPayments.create(Factories.giftCardPayment.copy(orderId = order.id,
-                                                                       paymentMethodId = sc.id,
-                                                                       amount = Some(500)))
-        _ ← * <~ StoreCredits.capture(storeCredit = sc,
-                                      orderPaymentId = Some(pay.id),
-                                      amount = 50)
-        _ ← * <~ StoreCredits.capture(storeCredit = sc,
-                                      orderPaymentId = Some(pay.id),
-                                      amount = 25)
-        _ ← * <~ StoreCredits.capture(storeCredit = sc,
-                                      orderPaymentId = Some(pay.id),
-                                      amount = 15)
-        _ ← * <~ StoreCredits.capture(storeCredit = sc,
-                                      orderPaymentId = Some(pay.id),
-                                      amount = 10)
-        _ ← * <~ StoreCredits.auth(storeCredit = sc,
-                                   orderPaymentId = Some(pay.id),
-                                   amount = 100)
-        _ ← * <~ StoreCredits.auth(storeCredit = sc,
-                                   orderPaymentId = Some(pay.id),
-                                   amount = 50)
-        _ ← * <~ StoreCredits.auth(storeCredit = sc,
-                                   orderPaymentId = Some(pay.id),
-                                   amount = 50)
+        pay ← * <~ OrderPayments.create(Factories.giftCardPayment
+                   .copy(orderId = order.id, paymentMethodId = sc.id, amount = Some(500)))
+        _ ← * <~ StoreCredits.capture(storeCredit = sc, orderPaymentId = Some(pay.id), amount = 50)
+        _ ← * <~ StoreCredits.capture(storeCredit = sc, orderPaymentId = Some(pay.id), amount = 25)
+        _ ← * <~ StoreCredits.capture(storeCredit = sc, orderPaymentId = Some(pay.id), amount = 15)
+        _ ← * <~ StoreCredits.capture(storeCredit = sc, orderPaymentId = Some(pay.id), amount = 10)
+        _ ← * <~ StoreCredits.auth(storeCredit = sc, orderPaymentId = Some(pay.id), amount = 100)
+        _ ← * <~ StoreCredits.auth(storeCredit = sc, orderPaymentId = Some(pay.id), amount = 50)
+        _ ← * <~ StoreCredits.auth(storeCredit = sc, orderPaymentId = Some(pay.id), amount = 50)
         _ ← * <~ StoreCredits.capture(storeCredit = sc,
                                       orderPaymentId = Some(pay.id),
                                       amount = 200)
         sc ← * <~ StoreCredits.findOneById(sc.id).toXor
       } yield sc.value).gimme
 
-      sc.availableBalance must ===(0)
-      sc.currentBalance must ===(200)
+      sc.availableBalance must === (0)
+      sc.currentBalance must === (200)
     }
 
     "a Postgres trigger updates the adjustment's availableBalance before insert" in new Fixture {
@@ -89,9 +69,8 @@ class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
                     StoreCreditManual(adminId = admin.id, reasonId = reason.id))
         sc ← * <~ StoreCredits.create(
                 Factories.storeCredit.copy(originalBalance = 500, originId = origin.id))
-        pay ← * <~ OrderPayments.create(Factories.giftCardPayment.copy(orderId = order.id,
-                                                                       paymentMethodId = sc.id,
-                                                                       amount = Some(500)))
+        pay ← * <~ OrderPayments.create(Factories.giftCardPayment
+                   .copy(orderId = order.id, paymentMethodId = sc.id, amount = Some(500)))
         adj ← * <~ StoreCredits.capture(storeCredit = sc,
                                         orderPaymentId = Some(pay.id),
                                         amount = 50)
@@ -99,9 +78,9 @@ class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
         sc  ← * <~ StoreCredits.refresh(sc).toXor
       } yield (adj, sc)).value.gimme
 
-      sc.availableBalance must ===(450)
-      sc.currentBalance must ===(450)
-      adj.availableBalance must ===(sc.availableBalance)
+      sc.availableBalance must === (450)
+      sc.currentBalance must === (450)
+      adj.availableBalance must === (sc.availableBalance)
     }
 
     "cancels an adjustment and removes its effect on current/available balances" in new Fixture {
@@ -110,9 +89,8 @@ class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
                     StoreCreditManual(adminId = admin.id, reasonId = reason.id))
         sc ← * <~ StoreCredits.create(
                 Factories.storeCredit.copy(originalBalance = 500, originId = origin.id))
-        payment ← * <~ OrderPayments.create(Factories.giftCardPayment.copy(orderId = order.id,
-                                                                           paymentMethodId = sc.id,
-                                                                           amount = Some(500)))
+        payment ← * <~ OrderPayments.create(Factories.giftCardPayment
+                       .copy(orderId = order.id, paymentMethodId = sc.id, amount = Some(500)))
       } yield (sc, payment)).gimme
 
       val debits = List(50, 25, 15, 10)
@@ -131,7 +109,7 @@ class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
         .gimme
 
       val finalSc = StoreCredits.findOneById(sc.id).run().futureValue.value
-      (finalSc.originalBalance, finalSc.availableBalance, finalSc.currentBalance) must ===(
+      (finalSc.originalBalance, finalSc.availableBalance, finalSc.currentBalance) must === (
           (500, 500, 500))
     }
   }

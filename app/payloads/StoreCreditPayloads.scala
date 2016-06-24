@@ -17,16 +17,20 @@ object StoreCreditPayloads {
     }
   }
 
-  case class StoreCreditBulkUpdateStateByCsr(
-      ids: Seq[Int], state: StoreCredit.State, reasonId: Option[Int] = None)
+  case class StoreCreditBulkUpdateStateByCsr(ids: Seq[Int],
+                                             state: StoreCredit.State,
+                                             reasonId: Option[Int] = None)
       extends Validation[StoreCreditBulkUpdateStateByCsr] {
 
     val bulkUpdateLimit = 20
 
     def validate: ValidatedNel[Failure, StoreCreditBulkUpdateStateByCsr] = {
       (StoreCredit.validateStateReason(state, reasonId) |@| validExpr(
-              ids.nonEmpty, "Please provide at least one code to update") |@| lesserThanOrEqual(
-              ids.length, bulkUpdateLimit, "Quantity")).map { case _ ⇒ this }
+              ids.nonEmpty,
+              "Please provide at least one code to update") |@| lesserThanOrEqual(
+              ids.length,
+              bulkUpdateLimit,
+              "Quantity")).map { case _ ⇒ this }
     }
   }
 }

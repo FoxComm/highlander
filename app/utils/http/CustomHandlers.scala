@@ -35,12 +35,13 @@ object CustomHandlers {
                 ByteString(errorsJson(chunk.utf8String))
               }
             }
-          }(defaultRejectionHandler(immutable.Seq(rejection))
-                .getOrError("defaultRejectionHandler(immutable.Seq(rejection)) should be defined"))
+          }(defaultRejectionHandler(immutable.Seq(rejection)).getOrError(
+                  "defaultRejectionHandler(immutable.Seq(rejection)) should be defined"))
       }
       .handleNotFound {
-        complete(HttpResponse(
-                NotFound, entity = errorsJsonEntity("The requested resource could not be found.")))
+        complete(
+            HttpResponse(NotFound,
+                         entity = errorsJsonEntity("The requested resource could not be found.")))
       }
       .result()
 

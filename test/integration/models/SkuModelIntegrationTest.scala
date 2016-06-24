@@ -19,7 +19,7 @@ class SkuModelIntegrationTest extends IntegrationTestBase {
         liSku   ← * <~ OrderLineItemSkus.safeFindBySkuId(product.skuId).toXor
       } yield (product, liSku)).gimme
 
-      product.skuId must ===(liSku.skuId)
+      product.skuId must === (liSku.skuId)
     }
   }
 }

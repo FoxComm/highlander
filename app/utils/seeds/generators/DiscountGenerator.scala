@@ -19,8 +19,11 @@ object SimpleDiscount {
 }
 import SimpleDiscount._
 
-case class SimpleDiscount(
-    discountId: Int = 0, formId: Int = 0, shadowId: Int = 0, percentOff: Percent, totalAmount: Int)
+case class SimpleDiscount(discountId: Int = 0,
+                          formId: Int = 0,
+                          shadowId: Int = 0,
+                          percentOff: Percent,
+                          totalAmount: Int)
 
 case class SimpleDiscountForm(percentOff: Percent, totalAmount: Int) {
 
@@ -44,16 +47,15 @@ case class SimpleDiscountForm(percentOff: Percent, totalAmount: Int) {
 
 case class SimpleDiscountShadow(f: SimpleDiscountForm) {
 
-  val shadow = ObjectUtils.newShadow(
-      parse("""
+  val shadow =
+    ObjectUtils.newShadow(parse("""
         {
           "title" : {"type": "string", "ref": "title"},
           "description" : {"type": "richText", "ref": "description"},
           "tags" : {"type": "tags", "ref": "tags"},
           "qualifier" : {"type": "qualifier", "ref": "qualifier"},
           "offer" : {"type": "offer", "ref": "offer"}
-        }"""),
-      f.keyMap)
+        }"""), f.keyMap)
 }
 
 trait DiscountGenerator {
@@ -70,9 +72,10 @@ trait DiscountGenerator {
       discounts ← * <~ data.map(d ⇒ {
                    val discountForm   = SimpleDiscountForm(d.percentOff, d.totalAmount)
                    val discountShadow = SimpleDiscountShadow(discountForm)
-                   val payload = CreateDiscount(
-                       form = CreateDiscountForm(attributes = discountForm.form),
-                       shadow = CreateDiscountShadow(attributes = discountShadow.shadow))
+                   val payload =
+                     CreateDiscount(form = CreateDiscountForm(attributes = discountForm.form),
+                                    shadow =
+                                      CreateDiscountShadow(attributes = discountShadow.shadow))
                    DbResultT(DBIO.from(DiscountManager.create(payload, context.name)))
                  })
     } yield discounts

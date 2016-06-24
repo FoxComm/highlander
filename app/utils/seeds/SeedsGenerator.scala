@@ -38,9 +38,11 @@ object RankingSeedsGenerator {
   }
 
   def generateOrderPayment[A <: PaymentMethod with FoxModel[A]](
-      orderId: Int, paymentMethod: A, amount: Int = 100): OrderPayment = {
-    Factories.orderPayment.copy(
-        orderId = orderId, amount = Some(amount), paymentMethodId = paymentMethod.id)
+      orderId: Int,
+      paymentMethod: A,
+      amount: Int = 100): OrderPayment = {
+    Factories.orderPayment
+      .copy(orderId = orderId, amount = Some(amount), paymentMethodId = paymentMethod.id)
   }
 
   def generateAddress: Address =
@@ -77,11 +79,12 @@ object RankingSeedsGenerator {
     }
 
     def insertCustomers() =
-      Customers.createAll(
-          (1 to customersCount).map { i ⇒
+      Customers.createAll((1 to customersCount).map { i ⇒
         val s = randomString(15)
-        Customer.build(
-            name = s.some, email = s"$s-$i@email.com", password = s.some, location = location.some)
+        Customer.build(name = s.some,
+                       email = s"$s-$i@email.com",
+                       password = s.some,
+                       location = location.some)
       })
 
     def insertOrders() =
@@ -106,8 +109,9 @@ object RankingSeedsGenerator {
 
       for {
         ordersWithCc ← * <~ action.toXor
-        _ ← * <~ OrderPayments.createAll(
-               ordersWithCc.map { case (order, cc) ⇒ makePayment(order, cc) })
+        _ ← * <~ OrderPayments.createAll(ordersWithCc.map {
+             case (order, cc) ⇒ makePayment(order, cc)
+           })
       } yield {}
     }
 
@@ -148,8 +152,7 @@ object SeedsGenerator
 
   def makePromotions(promotionCount: Int) =
     (1 to promotionCount).par.map { i ⇒
-      generatePromotion(
-          Random.nextInt(2) match {
+      generatePromotion(Random.nextInt(2) match {
         case 0 ⇒ Promotion.Auto
         case _ ⇒ Promotion.Coupon
       })
@@ -169,8 +172,8 @@ object SeedsGenerator
 
   def pickOne[T](vals: Seq[T]): T = vals(Random.nextInt(vals.length))
 
-  def insertRandomizedSeeds(customersCount: Int, appeasementCount: Int)(
-      implicit ec: EC, db: DB, ac: AC) = {
+  def insertRandomizedSeeds(customersCount: Int,
+                            appeasementCount: Int)(implicit ec: EC, db: DB, ac: AC) = {
     Faker.locale("en")
     val location = "Random"
 

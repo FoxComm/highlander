@@ -100,8 +100,9 @@ object OrderShippingAddresses
 
   object scope {
     implicit class OrderShippingAddressesQueryConversions(q: QuerySeq) {
-      def withRegions: Query[
-          (OrderShippingAddresses, Regions), (OrderShippingAddress, Region), Seq] =
+      def withRegions: Query[(OrderShippingAddresses, Regions),
+                             (OrderShippingAddress, Region),
+                             Seq] =
         for {
           shippingAddresses ← q
           regions           ← Regions if regions.id === shippingAddresses.regionId

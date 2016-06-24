@@ -4,8 +4,10 @@ import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.db._
 
-case class ShippingCarrier(
-    id: Int = 0, name: String, accountNumber: Option[String], regionsServed: String = "US")
+case class ShippingCarrier(id: Int = 0,
+                           name: String,
+                           accountNumber: Option[String],
+                           regionsServed: String = "US")
     extends FoxModel[ShippingCarrier]
 
 class ShippingCarriers(tag: Tag) extends FoxTable[ShippingCarrier](tag, "shipping_methods") {

@@ -48,8 +48,8 @@ case class SimplePromotionForm(percentOff: Percent, totalAmount: Int) {
 
 case class SimplePromotionShadow(f: SimplePromotionForm) {
 
-  val shadow = ObjectUtils.newShadow(
-      parse("""
+  val shadow =
+    ObjectUtils.newShadow(parse("""
       {
         "name" : {"type": "string", "ref": "name"},
         "storefrontName" : {"type": "richText", "ref": "storefrontName"},
@@ -58,8 +58,7 @@ case class SimplePromotionShadow(f: SimplePromotionForm) {
         "activeFrom" : {"type": "date", "ref": "activeFrom"},
         "activeTo" : {"type": "date", "ref": "activeTo"},
         "tags" : {"type": "tags", "ref": "tags"}
-      }"""),
-      f.keyMap)
+      }"""), f.keyMap)
 }
 
 trait PromotionGenerator {
@@ -82,23 +81,18 @@ trait PromotionGenerator {
                     val discountForm    = SimpleDiscountForm(d.percentOff, d.totalAmount)
                     val discountShadow  = SimpleDiscountShadow(discountForm)
                     val payload = CreatePromotion(
-                        applyType =
-                          d.applyType,
-                        form =
-                          CreatePromotionForm(attributes = promotionForm.form,
-                                              discounts = Seq(
-                                                  CreateDiscountForm(attributes =
-                                                        discountForm.form))),
+                        applyType = d.applyType,
+                        form = CreatePromotionForm(
+                            attributes = promotionForm.form,
+                            discounts = Seq(CreateDiscountForm(attributes = discountForm.form))),
                         shadow = CreatePromotionShadow(
                             attributes = promotionShadow.shadow,
                             discounts =
                               Seq(CreateDiscountShadow(attributes = discountShadow.shadow))))
-                    DbResultT(DBIO.from(PromotionManager
-                              .create(payload, context.name)
-                              .flatMap {
-                        case Xor.Right(r) ⇒ Result.right(d.copy(promotionId = r.form.id))
-                        case Xor.Left(l)  ⇒ Result.failures(l)
-                      }))
+                    DbResultT(DBIO.from(PromotionManager.create(payload, context.name).flatMap {
+                      case Xor.Right(r) ⇒ Result.right(d.copy(promotionId = r.form.id))
+                      case Xor.Left(l)  ⇒ Result.failures(l)
+                    }))
                   })
     } yield promotions
 }

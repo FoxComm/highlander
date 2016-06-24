@@ -20,11 +20,15 @@ object StoreCreditTailored {
                                             storeCredit: StoreCreditResponse.Root)
       extends ActivityBase[StoreCreditConvertedToGiftCard]
 
-  case class StoreCreditAuthorizedFunds(
-      customer: CustomerResponse.Root, order: Order, storeCreditIds: Seq[Int], amount: Int)
+  case class StoreCreditAuthorizedFunds(customer: CustomerResponse.Root,
+                                        order: Order,
+                                        storeCreditIds: Seq[Int],
+                                        amount: Int)
       extends ActivityBase[StoreCreditAuthorizedFunds]
 
-  case class StoreCreditCapturedFunds(
-      customer: CustomerResponse.Root, order: Order, storeCreditIds: Seq[Int], amount: Int)
+  case class StoreCreditCapturedFunds(customer: CustomerResponse.Root,
+                                      order: Order,
+                                      storeCreditIds: Seq[Int],
+                                      amount: Int)
       extends ActivityBase[StoreCreditCapturedFunds]
 }

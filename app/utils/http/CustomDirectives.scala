@@ -139,6 +139,6 @@ object CustomDirectives {
                         failure.description)
           reject(MalformedRequestContentRejection(s"${failure.description}", x))
       }
-    } & cancelRejections(
-        RequestEntityExpectedRejection.getClass, classOf[UnsupportedRequestContentTypeRejection])
+    } & cancelRejections(RequestEntityExpectedRejection.getClass,
+                         classOf[UnsupportedRequestContentTypeRejection])
 }

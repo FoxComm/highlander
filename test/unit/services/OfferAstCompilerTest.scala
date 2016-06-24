@@ -11,15 +11,15 @@ class OfferAstCompilerTest extends TestBase {
   "OfferAstCompiler" - {
 
     "succeeds for case object with valid, but empty attributes" in new FreeShippingValidFixture {
-      rightValue(compiler.compile()) must ===(OfferList(List(FreeShippingOffer)))
+      rightValue(compiler.compile()) must === (OfferList(List(FreeShippingOffer)))
     }
 
     "succeeds for case class with valid attributes" in new OrderPercentOfferValidFixture {
-      rightValue(compiler.compile()) must ===(OfferList(List(OrderPercentOffer(discount = 30))))
+      rightValue(compiler.compile()) must === (OfferList(List(OrderPercentOffer(discount = 30))))
     }
 
     "fails when typo in configuration found" in new OrderPercentOfferTypoFixture {
-      leftValue(compiler.compile()) must ===(
+      leftValue(compiler.compile()) must === (
           OfferAttributesExtractionFailure(OrderPercentOff).single)
     }
   }

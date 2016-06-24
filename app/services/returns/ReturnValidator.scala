@@ -11,8 +11,8 @@ trait ReturnValidation {
   def validate: DbResult[ReturnValidatorResponse]
 }
 
-case class ReturnValidatorResponse(
-    alerts: Option[Failures] = None, warnings: Option[Failures] = None)
+case class ReturnValidatorResponse(alerts: Option[Failures] = None,
+                                   warnings: Option[Failures] = None)
 
 case class ReturnValidator(rma: Return)(implicit ec: EC) extends ReturnValidation {
 
@@ -49,8 +49,8 @@ case class ReturnValidator(rma: Return)(implicit ec: EC) extends ReturnValidatio
     lift(response)
   }
 
-  private def warning(
-      response: ReturnValidatorResponse, failure: Failure): ReturnValidatorResponse =
+  private def warning(response: ReturnValidatorResponse,
+                      failure: Failure): ReturnValidatorResponse =
     response.copy(warnings = response.warnings.fold(Failures(failure))(current ⇒
               Failures(current.toList :+ failure: _*)))
 }

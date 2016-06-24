@@ -20,7 +20,9 @@ object GiftCards {
 
   val createGiftCard = http("Create gift card")
     .post("/v1/gift-cards")
-    .body(StringBody(session ⇒
+    .body(
+        StringBody(
+            session ⇒
               json(GiftCardCreateByCsr(
                       reasonId = session.get("reasonId").as[Int],
                       currency = Currency.USD,

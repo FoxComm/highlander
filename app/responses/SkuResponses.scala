@@ -61,8 +61,9 @@ object SkuResponses {
     def buildLite(s: IlluminatedSku): Root =
       Root(code = s.code, attributes = s.attributes, context = None, albums = Seq.empty)
 
-    def buildLite(
-        ctx: ObjectContext, sku: FullObject[Sku], albums: Seq[AlbumResponse.Root]): Root = {
+    def buildLite(ctx: ObjectContext,
+                  sku: FullObject[Sku],
+                  albums: Seq[AlbumResponse.Root]): Root = {
       val illuminatedSku = IlluminatedSku.illuminate(ctx, sku)
       Root(code = illuminatedSku.code,
            attributes = illuminatedSku.attributes,
@@ -78,8 +79,9 @@ object SkuResponses {
                     form: SkuFormResponse.Root,
                     shadow: SkuShadowResponse.Root)
 
-    def build(
-        form: SkuFormResponse.Root, shadow: SkuShadowResponse.Root, context: ObjectContext): Root =
+    def build(form: SkuFormResponse.Root,
+              shadow: SkuShadowResponse.Root,
+              context: ObjectContext): Root =
       Root(code = shadow.code,
            form = form,
            shadow = shadow,

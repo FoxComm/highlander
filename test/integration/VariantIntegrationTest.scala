@@ -19,90 +19,92 @@ class VariantIntegrationTest extends IntegrationTestBase with HttpSupport with A
   "POST v1/variants/:context" - {
     "Creates a variant successfully" in new Fixture {
       val response = POST(s"v1/variants/${context.name}", createVariantPayload)
-      response.status must ===(StatusCodes.OK)
+      response.status must === (StatusCodes.OK)
 
       val variantResponse = response.as[IlluminatedVariantResponse.Root]
-      variantResponse.values.length must ===(0)
+      variantResponse.values.length must === (0)
 
       val name = variantResponse.attributes \ "name" \ "v"
-      name.extract[String] must ===("Color")
+      name.extract[String] must === ("Color")
     }
 
     "Creates a variant with a value successfully" in new Fixture {
       val payload  = createVariantPayload.copy(values = Some(Seq(createVariantValuePayload)))
       val response = POST(s"v1/variants/${context.name}", payload)
-      response.status must ===(StatusCodes.OK)
+      response.status must === (StatusCodes.OK)
 
       val variantResponse = response.as[IlluminatedVariantResponse.Root]
-      variantResponse.values.length must ===(1)
-      variantResponse.values.head.name must ===("Red")
-      variantResponse.values.head.swatch must ===(Some("ff0000"))
+      variantResponse.values.length must === (1)
+      variantResponse.values.head.name must === ("Red")
+      variantResponse.values.head.swatch must === (Some("ff0000"))
 
       val name = variantResponse.attributes \ "name" \ "v"
-      name.extract[String] must ===("Color")
+      name.extract[String] must === ("Color")
     }
   }
 
   "GET v1/variants/:context/:id" - {
     "Gets a created variant successfully" in new VariantFixture {
       val response = GET(s"v1/variants/${context.name}/${variant.variant.variantId}")
-      response.status must ===(StatusCodes.OK)
+      response.status must === (StatusCodes.OK)
 
       val variantResponse = response.as[IlluminatedVariantResponse.Root]
-      variantResponse.values.length must ===(2)
+      variantResponse.values.length must === (2)
 
       val name = variantResponse.attributes \ "name" \ "v"
-      name.extract[String] must ===("Size")
+      name.extract[String] must === ("Size")
 
       val names = variantResponse.values.map(_.name).toSet
-      names must ===(Set("Small", "Large"))
+      names must === (Set("Small", "Large"))
     }
 
     "Throws a 404 if given an invalid id" in new Fixture {
       val response = GET(s"v1/variants/${context.name}/123")
-      response.status must ===(StatusCodes.NotFound)
+      response.status must === (StatusCodes.NotFound)
     }
   }
 
   "PATCH v1/variants/:context/:id" - {
     "Updates the name of the variant successfully" in new VariantFixture {
-      val payload = VariantPayload(
-          attributes = Map("name" → (("t" → "wtring") ~ ("v" → "New Size"))), values = None)
+      val payload = VariantPayload(attributes =
+                                     Map("name" → (("t" → "wtring") ~ ("v" → "New Size"))),
+                                   values = None)
       val response = PATCH(s"v1/variants/${context.name}/${variant.variant.variantId}", payload)
 
-      response.status must ===(StatusCodes.OK)
+      response.status must === (StatusCodes.OK)
 
       val variantResponse = response.as[IlluminatedVariantResponse.Root]
-      variantResponse.values.length must ===(2)
+      variantResponse.values.length must === (2)
 
       val name = variantResponse.attributes \ "name" \ "v"
-      name.extract[String] must ===("New Size")
+      name.extract[String] must === ("New Size")
 
       val names = variantResponse.values.map(_.name).toSet
-      names must ===(Set("Small", "Large"))
+      names must === (Set("Small", "Large"))
     }
   }
 
   "POST v1/variants/:context/:id/values" - {
     "Creates a variant value successfully" in new Fixture {
       val response = POST(s"v1/variants/${context.name}", createVariantPayload)
-      response.status must ===(StatusCodes.OK)
+      response.status must === (StatusCodes.OK)
       val variantResponse = response.as[IlluminatedVariantResponse.Root]
 
       val response2 = POST(s"v1/variants/${context.name}/${variantResponse.id}/values",
                            createVariantValuePayload)
-      response2.status must ===(StatusCodes.OK)
+      response2.status must === (StatusCodes.OK)
       val valueResponse = response2.as[IlluminatedVariantValueResponse.Root]
-      valueResponse.swatch must ===(Some("ff0000"))
+      valueResponse.swatch must === (Some("ff0000"))
     }
   }
 
   trait Fixture {
-    val createVariantPayload = VariantPayload(
-        attributes = Map("name" → (("t" → "string") ~ ("v" → "Color"))), values = None)
+    val createVariantPayload = VariantPayload(attributes =
+                                                Map("name" → (("t" → "string") ~ ("v" → "Color"))),
+                                              values = None)
 
-    val createVariantValuePayload = VariantValuePayload(
-        name = Some("Red"), swatch = Some("ff0000"))
+    val createVariantValuePayload =
+      VariantValuePayload(name = Some("Red"), swatch = Some("ff0000"))
 
     val context = (for {
       context ← * <~ ObjectContexts
@@ -124,8 +126,8 @@ class VariantIntegrationTest extends IntegrationTestBase with HttpSupport with A
 
     val (product, variant) = (for {
       productData ← * <~ Mvp.insertProduct(context.id, simpleProd)
-      product ← * <~ ProductManager.mustFindProductByContextAndId404(
-                   context.id, productData.productId)
+      product ← * <~ ProductManager.mustFindProductByContextAndId404(context.id,
+                                                                     productData.productId)
       variant ← * <~ Mvp.insertVariantWithValues(context.id, product.shadowId, simpleSizeVariant)
     } yield (product, variant)).gimme
   }

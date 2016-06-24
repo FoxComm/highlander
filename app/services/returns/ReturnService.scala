@@ -17,7 +17,8 @@ import utils.db._
 
 object ReturnService {
   def updateMessageToCustomer(refNum: String, payload: ReturnMessageToCustomerPayload)(
-      implicit ec: EC, db: DB): Result[Root] =
+      implicit ec: EC,
+      db: DB): Result[Root] =
     (for {
       _   ← * <~ payload.validate.toXor
       rma ← * <~ mustFindPendingReturnByRefNum(refNum)
@@ -27,8 +28,8 @@ object ReturnService {
       response ← * <~ ReturnResponse.fromRma(updated).toXor
     } yield response).runTxn()
 
-  def updateStateByCsr(refNum: String, payload: ReturnUpdateStatePayload)(
-      implicit ec: EC, db: DB): Result[Root] =
+  def updateStateByCsr(refNum: String, payload: ReturnUpdateStatePayload)(implicit ec: EC,
+                                                                          db: DB): Result[Root] =
     (for {
       _        ← * <~ payload.validate.toXor
       rma      ← * <~ Returns.mustFindByRefNum(refNum)
@@ -38,8 +39,9 @@ object ReturnService {
       response ← * <~ ReturnResponse.fromRma(updated).toXor
     } yield response).runTxn()
 
-  private def cancelOrUpdate(
-      rma: Return, reason: Option[Reason], payload: ReturnUpdateStatePayload)(implicit ec: EC) = {
+  private def cancelOrUpdate(rma: Return,
+                             reason: Option[Reason],
+                             payload: ReturnUpdateStatePayload)(implicit ec: EC) = {
     (payload.state, reason) match {
       case (Canceled, Some(r)) ⇒
         Returns.update(rma, rma.copy(state = payload.state, canceledReason = Some(r.id)))
@@ -50,8 +52,8 @@ object ReturnService {
     }
   }
 
-  def createByAdmin(admin: StoreAdmin, payload: ReturnCreatePayload)(
-      implicit ec: EC, db: DB): Result[Root] =
+  def createByAdmin(admin: StoreAdmin, payload: ReturnCreatePayload)(implicit ec: EC,
+                                                                     db: DB): Result[Root] =
     (for {
       order    ← * <~ Orders.mustFindByRefNum(payload.orderRefNum)
       rma      ← * <~ Returns.create(Return.build(order, admin, payload.returnType))

@@ -24,11 +24,11 @@ object AllReturns {
       createdAt: Instant,
       updatedAt: Instant,
       total: Option[Int] = None
-  )
-      extends ResponseItem
+  ) extends ResponseItem
 
-  def build(
-      rma: Return, customer: Option[Customer] = None, admin: Option[StoreAdmin] = None): Root =
+  def build(rma: Return,
+            customer: Option[Customer] = None,
+            admin: Option[StoreAdmin] = None): Root =
     Root(
         id = rma.id,
         referenceNumber = rma.referenceNumber,

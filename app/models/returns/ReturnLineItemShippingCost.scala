@@ -7,8 +7,10 @@ import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.db._
 
-case class ReturnLineItemShippingCost(
-    id: Int = 0, returnId: Int, shipmentId: Int, createdAt: Instant = Instant.now)
+case class ReturnLineItemShippingCost(id: Int = 0,
+                                      returnId: Int,
+                                      shipmentId: Int,
+                                      createdAt: Instant = Instant.now)
     extends FoxModel[ReturnLineItemShippingCost]
 
 object ReturnLineItemShippingCost {}

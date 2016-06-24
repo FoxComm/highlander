@@ -5,7 +5,7 @@ object TreeFailures {
   case class ParentChildSwapFailure(newParent: Int, newChild: Int) extends Failure {
     override def description =
       s"Cannot make $newParent parent of $newChild: " +
-      s"node $newParent is currently part of subtree of $newChild"
+        s"node $newParent is currently part of subtree of $newChild"
   }
 
   object TreeNodeNotFound {

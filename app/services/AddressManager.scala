@@ -21,7 +21,9 @@ import utils.db.DbResultT._
 object AddressManager {
 
   def findAllByCustomer(originator: Originator, customerId: Int)(
-      implicit ec: EC, db: DB, sortAndPage: SortAndPage): Result[TheResponse[Seq[Root]]] = {
+      implicit ec: EC,
+      db: DB,
+      sortAndPage: SortAndPage): Result[TheResponse[Seq[Root]]] = {
 
     val query = originator match {
       case AdminOriginator(_)    ⇒ Addresses.findAllActiveByCustomerIdWithRegions(customerId)
@@ -31,15 +33,17 @@ object AddressManager {
     Addresses.sortedAndPagedWithRegions(query).result.map(Response.buildMulti).toTheResponse.run()
   }
 
-  def get(originator: Originator, addressId: Int, customerId: Int)(
-      implicit ec: EC, db: DB): Result[Root] =
+  def get(originator: Originator, addressId: Int, customerId: Int)(implicit ec: EC,
+                                                                   db: DB): Result[Root] =
     (for {
       address ← * <~ findByOriginator(originator, addressId, customerId)
       region  ← * <~ Regions.findOneById(address.regionId).safeGet.toXor
     } yield Response.build(address, region)).run()
 
   def create(originator: Originator, payload: CreateAddressPayload, customerId: Int)(
-      implicit ec: EC, db: DB, ac: AC): Result[Root] =
+      implicit ec: EC,
+      db: DB,
+      ac: AC): Result[Root] =
     (for {
 
       customer ← * <~ Customers.mustFindById404(customerId)
@@ -49,7 +53,9 @@ object AddressManager {
     } yield Response.build(address, region)).runTxn()
 
   def edit(originator: Originator, addressId: Int, customerId: Int, payload: CreateAddressPayload)(
-      implicit ec: EC, db: DB, ac: AC): Result[Root] =
+      implicit ec: EC,
+      db: DB,
+      ac: AC): Result[Root] =
     (for {
 
       customer ← * <~ Customers.mustFindById404(customerId)
@@ -63,12 +69,13 @@ object AddressManager {
                  .validate
       _      ← * <~ Addresses.insertOrUpdate(address).toXor
       region ← * <~ Regions.findOneById(address.regionId).safeGet.toXor
-      _ ← * <~ LogActivity.addressUpdated(
-             originator, customer, address, region, oldAddress, oldRegion)
+      _ ← * <~ LogActivity
+           .addressUpdated(originator, customer, address, region, oldAddress, oldRegion)
     } yield Response.build(address, region)).runTxn()
 
-  def remove(originator: Originator, addressId: Int, customerId: Int)(
-      implicit ec: EC, db: DB, ac: AC): Result[Unit] =
+  def remove(originator: Originator, addressId: Int, customerId: Int)(implicit ec: EC,
+                                                                      db: DB,
+                                                                      ac: AC): Result[Unit] =
     (for {
 
       customer ← * <~ Customers.mustFindById404(customerId)
@@ -82,8 +89,8 @@ object AddressManager {
       _       ← * <~ LogActivity.addressDeleted(originator, customer, address, region)
     } yield {}).runTxn()
 
-  def setDefaultShippingAddress(addressId: Int, customerId: Int)(
-      implicit ec: EC, db: DB): Result[Root] =
+  def setDefaultShippingAddress(addressId: Int, customerId: Int)(implicit ec: EC,
+                                                                 db: DB): Result[Root] =
     (for {
       customer ← * <~ Customers.mustFindById404(customerId)
       _ ← * <~ Addresses

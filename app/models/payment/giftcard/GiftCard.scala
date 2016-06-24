@@ -60,8 +60,10 @@ case class GiftCard(id: Int = 0,
 
     (canceledWithReason
         // |@| notEmpty(code, "code") // FIXME: this check does not allow to create models
-        |@| validExpr(originalBalance >= 0, "originalBalance should be greater or equal than zero") |@| validExpr(
-            currentBalance >= 0, "currentBalance should be greater or equal than zero")).map {
+          |@| validExpr(originalBalance >= 0,
+                        "originalBalance should be greater or equal than zero") |@| validExpr(
+            currentBalance >= 0,
+            "currentBalance should be greater or equal than zero")).map {
       case _ ⇒ this
     }
   }
@@ -247,10 +249,12 @@ object GiftCards
     adjust(giftCard, orderPaymentId, debit = debit, credit = credit, state = Adj.Auth)
 
   def authOrderPayment(
-      giftCard: GiftCard, pmt: OrderPayment, maxPaymentAmount: Option[Int] = None)(
-      implicit ec: EC): DbResultT[GiftCardAdjustment] =
-    auth(
-        giftCard = giftCard, orderPaymentId = pmt.id.some, debit = pmt.getAmount(maxPaymentAmount))
+      giftCard: GiftCard,
+      pmt: OrderPayment,
+      maxPaymentAmount: Option[Int] = None)(implicit ec: EC): DbResultT[GiftCardAdjustment] =
+    auth(giftCard = giftCard,
+         orderPaymentId = pmt.id.some,
+         debit = pmt.getAmount(maxPaymentAmount))
 
   def capture(giftCard: GiftCard, orderPaymentId: Option[Int], debit: Int = 0, credit: Int = 0)(
       implicit ec: EC): DbResultT[GiftCardAdjustment] =

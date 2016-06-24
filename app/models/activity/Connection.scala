@@ -37,7 +37,7 @@ class Connections(tag: Tag) extends FoxTable[Connection](tag, "activity_connecti
 
   def * =
     (id, dimensionId, trailId, activityId, data, connectedBy, createdAt) <>
-    ((Connection.apply _).tupled, Connection.unapply)
+      ((Connection.apply _).tupled, Connection.unapply)
 
   def activity  = foreignKey(Activities.tableName, activityId, Activities)(_.id)
   def dimension = foreignKey(Dimensions.tableName, dimensionId, Dimensions)(_.id)

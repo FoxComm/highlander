@@ -11,8 +11,7 @@ object JavaTimeJson4sSerializer {
   val formatter = DateTimeFormatter.ISO_INSTANT
 
   object jsonFormat
-      extends CustomSerializer[Instant](
-          format ⇒
+      extends CustomSerializer[Instant](format ⇒
             ({
           case JString(s) ⇒ Instant.from(formatter.parse(s))
           case JNull      ⇒ null

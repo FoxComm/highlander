@@ -16,8 +16,10 @@ import utils.{IlluminateAlgorithm, JsonFormatters}
   * An IlluminatedCoupon is what you get when you combine the coupon shadow and
   * the form. 
   */
-case class IlluminatedCoupon(
-    id: Int, context: IlluminatedContext, attributes: Json, promotion: Int) {
+case class IlluminatedCoupon(id: Int,
+                             context: IlluminatedContext,
+                             attributes: Json,
+                             promotion: Int) {
 
   implicit val formats = JsonFormatters.phoenixFormats
 
@@ -37,8 +39,8 @@ case class IlluminatedCoupon(
     }
   }
 
-  def mustBeApplicable(code: CouponCode, customerId: Int)(
-      implicit ec: EC, db: DB): DbResultT[IlluminatedCoupon] = {
+  def mustBeApplicable(code: CouponCode, customerId: Int)(implicit ec: EC,
+                                                          db: DB): DbResultT[IlluminatedCoupon] = {
     val usageRules = (attributes \ "usageRules" \ "v").extractOpt[CouponUsageRules]
 
     val validation = usageRules match {

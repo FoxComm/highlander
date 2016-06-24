@@ -27,16 +27,16 @@ object JsonFormatters {
 
   val phoenixFormats =
     DefaultFormats + Note.ReferenceType.jsonFormat + QualifierType.jsonFormat +
-    OfferType.jsonFormat + Assignment.AssignmentType.jsonFormat +
-    Assignment.ReferenceType.jsonFormat + Order.State.jsonFormat + Promotion.ApplyType.jsonFormat +
-    OrderLineItem.State.jsonFormat + OrderLineItemAdjustment.AdjustmentType.jsonFormat +
-    Shipment.State.jsonFormat + GiftCard.OriginType.jsonFormat + GiftCard.State.jsonFormat +
-    GiftCardAdjustment.State.jsonFormat + StoreCredit.State.jsonFormat +
-    StoreCredit.OriginType.jsonFormat + StoreCreditAdjustment.State.jsonFormat +
-    Reason.ReasonType.jsonFormat + Return.State.jsonFormat + Return.ReturnType.jsonFormat +
-    ReturnLineItem.InventoryDisposition.jsonFormat + ReturnReason.ReasonType.jsonFormat +
-    CreditCardCharge.State.jsonFormat + CountryWithRegions.jsonFormat +
-    QueryStatement.Comparison.jsonFormat + Condition.Operator.jsonFormat +
-    PaymentMethod.Type.jsonFormat + SkuType.jsonFormat + SharedSearch.Scope.jsonFormat +
-    IdentityKind.jsonFormat
+      OfferType.jsonFormat + Assignment.AssignmentType.jsonFormat +
+      Assignment.ReferenceType.jsonFormat + Order.State.jsonFormat + Promotion.ApplyType.jsonFormat +
+      OrderLineItem.State.jsonFormat + OrderLineItemAdjustment.AdjustmentType.jsonFormat +
+      Shipment.State.jsonFormat + GiftCard.OriginType.jsonFormat + GiftCard.State.jsonFormat +
+      GiftCardAdjustment.State.jsonFormat + StoreCredit.State.jsonFormat +
+      StoreCredit.OriginType.jsonFormat + StoreCreditAdjustment.State.jsonFormat +
+      Reason.ReasonType.jsonFormat + Return.State.jsonFormat + Return.ReturnType.jsonFormat +
+      ReturnLineItem.InventoryDisposition.jsonFormat + ReturnReason.ReasonType.jsonFormat +
+      CreditCardCharge.State.jsonFormat + CountryWithRegions.jsonFormat +
+      QueryStatement.Comparison.jsonFormat + Condition.Operator.jsonFormat +
+      PaymentMethod.Type.jsonFormat + SkuType.jsonFormat + SharedSearch.Scope.jsonFormat +
+      IdentityKind.jsonFormat
 }

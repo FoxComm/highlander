@@ -43,8 +43,9 @@ object OrderLineItemGiftCards
 
   object scope {
     implicit class OrderLineItemGiftCardsQuerySeqConversions(q: QuerySeq) {
-      def withGiftCards: Query[
-          (OrderLineItemGiftCards, GiftCards), (OrderLineItemGiftCard, GiftCard), Seq] =
+      def withGiftCards: Query[(OrderLineItemGiftCards, GiftCards),
+                               (OrderLineItemGiftCard, GiftCard),
+                               Seq] =
         for {
           items     ← q
           giftCards ← items.giftCard

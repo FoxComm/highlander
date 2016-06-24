@@ -56,7 +56,7 @@ class AddressTest extends TestBase {
 
       "returns errors when name or address1 is empty" in {
         val result = valid.copy(name = "", address1 = "").validate
-        invalidValue(result) must ===(
+        invalidValue(result) must === (
             NonEmptyList[Failure](GeneralFailure("name must not be empty"),
                                   GeneralFailure("address1 must not be empty")))
       }

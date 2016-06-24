@@ -14,7 +14,9 @@ object ReasonService {
 
   // FIXME: ugly `_ <: Seq` should be just `Seq`
   def listReasonsByType(reasonType: String)(
-      implicit ec: EC, db: DB, sortAndPage: SortAndPage): Result[TheResponse[_ <: Seq[Reason]]] = {
+      implicit ec: EC,
+      db: DB,
+      sortAndPage: SortAndPage): Result[TheResponse[_ <: Seq[Reason]]] = {
 
     val toAdt = ReasonType.read(reasonType)
 

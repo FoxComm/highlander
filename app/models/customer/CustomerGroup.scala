@@ -44,7 +44,7 @@ class CustomerDynamicGroups(tag: Tag)
 
   def * =
     (id, createdBy, name, customersCount, clientState, elasticRequest, updatedAt, createdAt) <>
-    ((CustomerDynamicGroup.apply _).tupled, CustomerDynamicGroup.unapply)
+      ((CustomerDynamicGroup.apply _).tupled, CustomerDynamicGroup.unapply)
 }
 
 object CustomerDynamicGroups

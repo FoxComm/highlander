@@ -36,12 +36,17 @@ object CreditCardManager {
   def buildResponses(records: Seq[(CreditCard, Region)]): Seq[Root] =
     records.map((buildResponse _).tupled)
 
-  def createCardThroughGateway(
-      customerId: Int, payload: CreateCreditCard, admin: Option[StoreAdmin] = None)(
-      implicit ec: EC, db: DB, apis: Apis, ac: AC): Result[Root] = {
+  def createCardThroughGateway(customerId: Int,
+                               payload: CreateCreditCard,
+                               admin: Option[StoreAdmin] = None)(implicit ec: EC,
+                                                                 db: DB,
+                                                                 apis: Apis,
+                                                                 ac: AC): Result[Root] = {
 
-    def createCard(
-        customer: Customer, sCustomer: StripeCustomer, sCard: StripeCard, address: Address) =
+    def createCard(customer: Customer,
+                   sCustomer: StripeCustomer,
+                   sCard: StripeCard,
+                   address: Address) =
       for {
         _ ← * <~ (if (address.isNew) Addresses.create(address.copy(customerId = customerId))
                   else DbResult.unit)
@@ -76,7 +81,8 @@ object CreditCardManager {
   }
 
   def toggleCreditCardDefault(customerId: Int, cardId: Int, isDefault: Boolean)(
-      implicit ec: EC, db: DB): Result[Root] =
+      implicit ec: EC,
+      db: DB): Result[Root] =
     (for {
 
       _  ← * <~ CreditCards.findDefaultByCustomerId(customerId).map(_.isDefault).update(false)
@@ -88,7 +94,10 @@ object CreditCardManager {
     } yield buildResponse(default, region)).runTxn()
 
   def deleteCreditCard(customerId: Int, id: Int, admin: Option[StoreAdmin] = None)(
-      implicit ec: EC, db: DB, apis: Apis, ac: AC): Result[Unit] = {
+      implicit ec: EC,
+      db: DB,
+      apis: Apis,
+      ac: AC): Result[Unit] = {
 
     (for {
       customer ← * <~ Customers.mustFindById404(customerId)
@@ -101,9 +110,13 @@ object CreditCardManager {
     } yield ()).runTxn()
   }
 
-  def editCreditCard(
-      customerId: Int, id: Int, payload: EditCreditCard, admin: Option[StoreAdmin] = None)(
-      implicit ec: EC, db: DB, apis: Apis, ac: AC): Result[Root] = {
+  def editCreditCard(customerId: Int,
+                     id: Int,
+                     payload: EditCreditCard,
+                     admin: Option[StoreAdmin] = None)(implicit ec: EC,
+                                                       db: DB,
+                                                       apis: Apis,
+                                                       ac: AC): Result[Root] = {
 
     def update(customer: Customer, cc: CreditCard) = {
       val updated = cc.copy(
@@ -172,8 +185,8 @@ object CreditCardManager {
       region ← cc.region
     } yield (cc, region)).result.map(buildResponses).run()
 
-  def getByIdAndCustomer(creditCardId: Int, customer: Customer)(
-      implicit ec: EC, db: DB): Result[Root] =
+  def getByIdAndCustomer(creditCardId: Int, customer: Customer)(implicit ec: EC,
+                                                                db: DB): Result[Root] =
     (for {
       cc ← * <~ CreditCards
             .findByIdAndCustomerId(creditCardId, customer.id)
@@ -181,8 +194,8 @@ object CreditCardManager {
       region ← * <~ Regions.mustFindById404(cc.regionId)
     } yield buildResponse(cc, region)).run()
 
-  private def validateOptionalAddressOwnership(
-      address: Option[Address], customerId: Int): Failures Xor Unit = {
+  private def validateOptionalAddressOwnership(address: Option[Address],
+                                               customerId: Int): Failures Xor Unit = {
     address match {
       case Some(a) ⇒ a.mustBelongToCustomer(customerId).map(_ ⇒ Unit)
       case _       ⇒ Xor.Right(Unit)
@@ -209,13 +222,14 @@ object CreditCardManager {
     }
   }
 
-  private def getOptionalShippingAddress(
-      id: Option[Int], isShipping: Boolean): DBIO[Option[OrderShippingAddress]] = id match {
+  private def getOptionalShippingAddress(id: Option[Int],
+                                         isShipping: Boolean): DBIO[Option[OrderShippingAddress]] =
+    id match {
 
-    case Some(addressId) if isShipping ⇒
-      OrderShippingAddresses.findById(addressId).extract.one
+      case Some(addressId) if isShipping ⇒
+        OrderShippingAddresses.findById(addressId).extract.one
 
-    case _ ⇒
-      DBIO.successful(None)
-  }
+      case _ ⇒
+        DBIO.successful(None)
+    }
 }

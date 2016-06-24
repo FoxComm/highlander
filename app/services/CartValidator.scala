@@ -11,14 +11,14 @@ import utils.aliases._
 import utils.db._
 
 trait CartValidation {
-  def validate(
-      isCheckout: Boolean = false, fatalWarnings: Boolean = false): DbResult[CartValidatorResponse]
+  def validate(isCheckout: Boolean = false,
+               fatalWarnings: Boolean = false): DbResult[CartValidatorResponse]
 }
 
 // warnings would be turned into `errors` during checkout but if we're still in cart mode
 // then we'll display to end-user as warnings/alerts since they are not "done" with their cart
-case class CartValidatorResponse(
-    alerts: Option[Failures] = None, warnings: Option[Failures] = None) {}
+case class CartValidatorResponse(alerts: Option[Failures] = None,
+                                 warnings: Option[Failures] = None) {}
 
 case class CartValidator(cart: Order)(implicit ec: EC) extends CartValidation {
 
@@ -69,8 +69,8 @@ case class CartValidator(cart: Order)(implicit ec: EC) extends CartValidation {
         lift(warning(response, NoShipMethod(cart.refNum)))
     }
 
-  private def sufficientPayments(
-      response: CartValidatorResponse, isCheckout: Boolean): DBIO[CartValidatorResponse] = {
+  private def sufficientPayments(response: CartValidatorResponse,
+                                 isCheckout: Boolean): DBIO[CartValidatorResponse] = {
 
     def cartFunds(payments: Seq[OrderPayment]) = {
       if (isCheckout) {

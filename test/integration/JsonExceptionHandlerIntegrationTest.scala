@@ -20,7 +20,8 @@ class JsonExceptionHandlerIntegrationTest
         complete(throw new Exception(exceptionText))
       },
       path("testThrowAnIllegalRequestException") {
-        complete(throw new IllegalRequestException(
+        complete(
+            throw new IllegalRequestException(
                 new ErrorInfo(illegalRequestExceptionText),
                 StatusCodes.custom(400, "test").asInstanceOf[ClientError]))
       }
@@ -29,16 +30,16 @@ class JsonExceptionHandlerIntegrationTest
   "return a valid JSON exception on an IllegalRequestException" in {
     val response = GET("testThrowAnIllegalRequestException")
 
-    response.status must ===(StatusCodes.BadRequest)
-    response.entity.contentType must ===(ContentTypes.`application/json`)
+    response.status must === (StatusCodes.BadRequest)
+    response.entity.contentType must === (ContentTypes.`application/json`)
     response.error must startWith(illegalRequestExceptionText)
   }
 
   "return a valid JSON exception on an other exception" in {
     val response = GET("testThrowAnExcepton")
 
-    response.status must ===(StatusCodes.InternalServerError)
-    response.entity.contentType must ===(ContentTypes.`application/json`)
+    response.status must === (StatusCodes.InternalServerError)
+    response.entity.contentType must === (ContentTypes.`application/json`)
     response.error must startWith(exceptionText)
   }
 }

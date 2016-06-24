@@ -20,8 +20,8 @@ object ReturnLockUpdater {
                .toXor
     } yield ReturnLockResponse.build(rma, event, admin)).runTxn()
 
-  def lock(refNum: String, admin: StoreAdmin)(
-      implicit ec: EC, db: DB): Result[ReturnResponse.Root] =
+  def lock(refNum: String, admin: StoreAdmin)(implicit ec: EC,
+                                              db: DB): Result[ReturnResponse.Root] =
     (for {
       rma  ← * <~ Returns.mustFindByRefNum(refNum)
       _    ← * <~ rma.mustNotBeLocked

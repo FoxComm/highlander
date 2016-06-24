@@ -53,19 +53,19 @@ class ActivityTrailIntegrationTest
                                           phoneNumber = "666 666 6666".some)
 
       val response = PATCH(s"v1/customers/${customer.id}", payload)
-      response.status must ===(StatusCodes.OK)
+      response.status must === (StatusCodes.OK)
 
       // Check the activity log to see if it was created
       val activity = Activities.filterByType(typeName).result.one.futureValue.value
 
       // Make sure the activity has all the correct information
-      activity.activityType must ===(typeName)
+      activity.activityType must === (typeName)
 
       val customerInfoChanged = activity.data.extract[CustomerUpdated]
-      customerInfoChanged.newInfo.id must ===(customer.id)
-      customerInfoChanged.newInfo.name.value must ===(payload.name.head)
-      customerInfoChanged.newInfo.email.value must ===(payload.email.head)
-      customerInfoChanged.newInfo.phoneNumber.value must ===(payload.phoneNumber.head)
+      customerInfoChanged.newInfo.id must === (customer.id)
+      customerInfoChanged.newInfo.name.value must === (payload.name.head)
+      customerInfoChanged.newInfo.email.value must === (payload.email.head)
+      customerInfoChanged.newInfo.phoneNumber.value must === (payload.phoneNumber.head)
     }
   }
 
@@ -79,32 +79,32 @@ class ActivityTrailIntegrationTest
                                           phoneNumber = "666 666 6666".some)
 
       val response = PATCH(s"v1/customers/${customer.id}", payload)
-      response.status must ===(StatusCodes.OK)
+      response.status must === (StatusCodes.OK)
 
       // Check the activity log to see if it was created
       val activity = Activities.filterByType(typeName).result.one.futureValue.value
 
       // Make sure the activity has all the correct information
-      activity.activityType must ===(typeName)
+      activity.activityType must === (typeName)
       val customerInfoChanged = activity.data.extract[CustomerUpdated]
 
       // Append the activity to the trail
       val appendedConnection = appendActivity(customerActivity, customer.id, activity.id)
 
-      appendedConnection.activityId must ===(activity.id)
+      appendedConnection.activityId must === (activity.id)
 
       // Make sure the dimension was created
       val dimension = Dimensions.findByName(customerActivity).result.one.futureValue.value
 
-      dimension.name must ===(customerActivity)
+      dimension.name must === (customerActivity)
 
       // Make sure the trail was created
       val trail = Trails.findById(appendedConnection.trailId).result.one.futureValue.value
 
       // Make sure things are linked up correctly
-      trail.id must ===(appendedConnection.trailId)
-      trail.dimensionId must ===(dimension.id)
-      trail.tailConnectionId must ===(Some(appendedConnection.id))
+      trail.id must === (appendedConnection.trailId)
+      trail.dimensionId must === (dimension.id)
+      trail.tailConnectionId must === (Some(appendedConnection.id))
     }
   }
 
@@ -152,17 +152,17 @@ class ActivityTrailIntegrationTest
             //make sure the dimension was created
             val dimension = Dimensions.findByName(dimensionName).result.one.futureValue.value
 
-            dimension.name must ===(dimensionName)
+            dimension.name must === (dimensionName)
 
             //make sure the trail was created
             val trail = Trails.findById(appendedConnection.trailId).result.one.futureValue.value
 
             //make sure the trail is created correctly if it didn't exist
-            trail.id must ===(appendedConnection.trailId)
-            trail.dimensionId must ===(dimension.id)
+            trail.id must === (appendedConnection.trailId)
+            trail.dimensionId must === (dimension.id)
 
             //make sure connection is linked correctly
-            appendedConnection.activityId must ===(activity.id)
+            appendedConnection.activityId must === (activity.id)
             true
           }
       }
@@ -170,7 +170,7 @@ class ActivityTrailIntegrationTest
     val qr = QTest.check(bunchOfActivitiesAndTrails) {
       _.withMaxSize(1000).withWorkers(1)
     }
-    qr.passed must ===(true)
+    qr.passed must === (true)
   }
 
   def getConnection(id: Int) =
@@ -180,7 +180,7 @@ class ActivityTrailIntegrationTest
     val appendPayload  = AppendActivity(activityId)
     val appendResponse = POST(s"v1/trails/$dimension/$objectId", appendPayload)
 
-    appendResponse.status must ===(StatusCodes.OK)
+    appendResponse.status must === (StatusCodes.OK)
     appendResponse.as[ActivityConnectionResponse.Root]
   }
 

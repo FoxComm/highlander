@@ -20,7 +20,7 @@ class GenericTrees(tag: Tag) extends FoxTable[GenericTree](tag, "generic_tree") 
 
   def * =
     (id, name, contextId) <>
-    ((GenericTree.apply _).tupled, GenericTree.unapply)
+      ((GenericTree.apply _).tupled, GenericTree.unapply)
 }
 
 object GenericTrees

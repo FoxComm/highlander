@@ -145,8 +145,8 @@ class Service(systemOverride: Option[ActorSystem] = None,
     logger.info("Scheduling remorse timer")
     val remorseTimer      = system.actorOf(Props(new RemorseTimer()), "remorse-timer")
     val remorseTimerBuddy = system.actorOf(Props(new RemorseTimerMate()), "remorse-timer-mate")
-    system.scheduler.schedule(Duration.Zero, 1.minute, remorseTimer, Tick)(
-        executionContext, remorseTimerBuddy)
+    system.scheduler
+      .schedule(Duration.Zero, 1.minute, remorseTimer, Tick)(executionContext, remorseTimerBuddy)
   }
 
   def performSelfCheck(): Unit = {
