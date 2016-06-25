@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/FoxComm/middlewarehouse/api"
+	"github.com/FoxComm/middlewarehouse/api/payloads"
 	"github.com/FoxComm/middlewarehouse/common/gormfox"
 )
 
@@ -10,14 +10,12 @@ type StockItem struct {
 	StockLocationID uint
 }
 
-func NewStockItemFromAPI(si *api.StockItem) *StockItem {
-	item := &StockItem{}
-	item.StockLocationID = si.StockLocationID
+func NewStockItemFromPayload(payload *payloads.StockItem) *StockItem {
+	item := &StockItem{StockLocationID: payload.StockLocationID}
 	return item
 }
 
-func MakeStockItemFromAPI(si api.StockItem) StockItem {
-	item := StockItem{}
-	item.StockLocationID = si.StockLocationID
+func MakeStockItemFromPayload(payload payloads.StockItem) StockItem {
+	item := StockItem{StockLocationID: payload.StockLocationID}
 	return item
 }

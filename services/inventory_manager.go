@@ -1,12 +1,12 @@
 package services
 
 import (
-	"github.com/FoxComm/middlewarehouse/api"
+	"github.com/FoxComm/middlewarehouse/api/payloads"
+	"github.com/FoxComm/middlewarehouse/api/responses"
 	"github.com/FoxComm/middlewarehouse/common/logging"
 	"github.com/FoxComm/middlewarehouse/common/store"
 	"github.com/FoxComm/middlewarehouse/models"
 	"github.com/FoxComm/middlewarehouse/repositories"
-	"github.com/FoxComm/middlewarehouse/responses"
 )
 
 type InventoryManager struct {
@@ -41,9 +41,9 @@ func (i *InventoryManager) FindStockItem(ctx *store.StoreContext, id uint) (*res
 	}
 }
 
-func (i *InventoryManager) CreateStockItem(ctx *store.StoreContext, item *api.StockItem) (*responses.StockItem, error) {
+func (i *InventoryManager) CreateStockItem(ctx *store.StoreContext, item *payloads.StockItem) (*responses.StockItem, error) {
 	i.setup(ctx)
-	model := models.NewStockItemFromAPI(item)
+	model := models.NewStockItemFromPayload(item)
 	if err := i.stockItemRepository.Create(model); err != nil {
 		return nil, err
 	} else {
@@ -51,9 +51,9 @@ func (i *InventoryManager) CreateStockItem(ctx *store.StoreContext, item *api.St
 	}
 }
 
-func (i *InventoryManager) UpdateStockItem(ctx *store.StoreContext, item *api.StockItem) (*responses.StockItem, error) {
+func (i *InventoryManager) UpdateStockItem(ctx *store.StoreContext, item *payloads.StockItem) (*responses.StockItem, error) {
 	i.setup(ctx)
-	model := models.NewStockItemFromAPI(item)
+	model := models.NewStockItemFromPayload(item)
 	if err := i.stockItemRepository.Update(model); err != nil {
 		return nil, err
 	} else {
