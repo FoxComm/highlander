@@ -1,12 +1,7 @@
 package main
 
-import (
-	"fmt"
-
-	"github.com/FoxComm/middlewarehouse/services"
-)
+import "fmt"
 
 func main() {
-	im := services.NewInventoryManager()
-	fmt.Printf("%v\n", im)
+	fmt.Println("STTS")
 }

@@ -1,62 +1,40 @@
 package services
 
 import (
-	"github.com/FoxComm/middlewarehouse/api/payloads"
 	"github.com/FoxComm/middlewarehouse/api/responses"
+	"github.com/FoxComm/middlewarehouse/common/gormfox"
 	"github.com/FoxComm/middlewarehouse/common/logging"
 	"github.com/FoxComm/middlewarehouse/common/store"
 	"github.com/FoxComm/middlewarehouse/models"
-	"github.com/FoxComm/middlewarehouse/repositories"
 )
 
-type InventoryManager struct {
-	ctx                 *store.StoreContext
-	stockItemRepository repositories.StockItemRepository
-	logger              logging.Logger
+type InventoryMgr struct {
+	ctx    *store.StoreContext
+	repo   gormfox.Repository
+	logger logging.Logger
 }
 
-// NewInventory creates an Inventory
-func NewInventoryManager() *InventoryManager {
-	return &InventoryManager{}
-}
-
-// Setup takes the StoreContext and configures the API
-func (i *InventoryManager) setup(ctx *store.StoreContext) {
-	i.logger = logging.Log
-	itemRepo, err := repositories.NewStockItemRepository(ctx)
+// NewInventoryMgr creates a new InventoryMgr.
+func NewInventoryMgr(c *store.StoreContext) (*InventoryMgr, error) {
+	repo, err := gormfox.NewRepository()
 	if err != nil {
-		i.logger.Errorf("Failure connecting to store database!", logging.E(err))
+		return nil, err
 	}
 
-	i.stockItemRepository = itemRepo
-	i.ctx = ctx
-}
-
-func (i *InventoryManager) FindStockItem(ctx *store.StoreContext, id uint) (*responses.StockItem, error) {
-	i.setup(ctx)
-	if model, err := i.stockItemRepository.Find(id); err != nil {
-		return nil, err
-	} else {
-		return responses.NewStockItemFromModel(model), nil
+	im := &InventoryMgr{
+		ctx:    c,
+		logger: logging.Log,
+		repo:   repo,
 	}
+
+	return im, nil
 }
 
-func (i *InventoryManager) CreateStockItem(ctx *store.StoreContext, item *payloads.StockItem) (*responses.StockItem, error) {
-	i.setup(ctx)
-	model := models.NewStockItemFromPayload(item)
-	if err := i.stockItemRepository.Create(model); err != nil {
+func (im *InventoryMgr) FindStockItemID(id uint) (*responses.StockItem, error) {
+	si := &models.StockItem{}
+	if item, err := im.repo.FindByID(si, id); err != nil {
 		return nil, err
 	} else {
-		return responses.NewStockItemFromModel(model), nil
-	}
-}
-
-func (i *InventoryManager) UpdateStockItem(ctx *store.StoreContext, item *payloads.StockItem) (*responses.StockItem, error) {
-	i.setup(ctx)
-	model := models.NewStockItemFromPayload(item)
-	if err := i.stockItemRepository.Update(model); err != nil {
-		return nil, err
-	} else {
-		return responses.NewStockItemFromModel(model), nil
+		return responses.NewStockItemFromModel(item.(*models.StockItem)), nil
 	}
 }
