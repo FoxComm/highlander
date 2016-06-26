@@ -20,6 +20,6 @@ object MappingHelpers {
       field("continent", StringType)
         .analyzer("autocomplete")
         .fields(field("raw", StringType).index("not_analyzed")),
-      field("currency", StringType).analyzer("not_analyzed")
+      field("currency", StringType).index("not_analyzed")
   )
 }
