@@ -30,17 +30,20 @@ func (suite *InventoryManagerTestSuite) SetupTest() {
 }
 
 func (suite *InventoryManagerTestSuite) TestCreation() {
-	payload := &payloads.StockItem{StockLocationID: 1}
+	payload := &payloads.StockItem{StockLocationID: 1, SKU: "TEST-SKU"}
 	resp, err := suite.mgr.CreateStockItem(payload)
-	assert.Nil(suite.T(), err)
-	assert.Equal(suite.T(), uint(1), resp.ID)
+	if assert.Nil(suite.T(), err) {
+		assert.Equal(suite.T(), uint(1), resp.ID)
+	}
 }
 
 func (suite *InventoryManagerTestSuite) TestFindByID() {
-	payload := &payloads.StockItem{StockLocationID: 1}
+	payload := &payloads.StockItem{StockLocationID: 1, SKU: "TEST-SKU"}
 	resp, err := suite.mgr.CreateStockItem(payload)
-	assert.Nil(suite.T(), err)
-
-	_, err = suite.mgr.FindStockItemByID(resp.ID)
-	assert.Nil(suite.T(), err)
+	if assert.Nil(suite.T(), err) {
+		item, err := suite.mgr.FindStockItemByID(resp.ID)
+		if assert.Nil(suite.T(), err) {
+			assert.Equal(suite.T(), "TEST-SKU", item.SKU)
+		}
+	}
 }

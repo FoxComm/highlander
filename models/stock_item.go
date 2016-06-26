@@ -8,6 +8,7 @@ import (
 
 type StockItem struct {
 	gormfox.Base
+	SKU             string
 	StockLocationID uint
 }
 
@@ -20,6 +21,6 @@ func (si StockItem) Validate(repository gormfox.Repository) ([]validation.Invali
 }
 
 func NewStockItemFromPayload(payload *payloads.StockItem) *StockItem {
-	item := &StockItem{StockLocationID: payload.StockLocationID}
+	item := &StockItem{StockLocationID: payload.StockLocationID, SKU: payload.SKU}
 	return item
 }
