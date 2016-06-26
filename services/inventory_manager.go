@@ -1,6 +1,7 @@
 package services
 
 import (
+	"github.com/FoxComm/middlewarehouse/api/payloads"
 	"github.com/FoxComm/middlewarehouse/api/responses"
 	"github.com/FoxComm/middlewarehouse/common/gormfox"
 	"github.com/FoxComm/middlewarehouse/common/logging"
@@ -30,11 +31,21 @@ func NewInventoryMgr(c *store.StoreContext) (*InventoryMgr, error) {
 	return im, nil
 }
 
-func (im *InventoryMgr) FindStockItemID(id uint) (*responses.StockItem, error) {
+func (im *InventoryMgr) FindStockItemByID(id uint) (*responses.StockItem, error) {
 	si := &models.StockItem{}
 	if item, err := im.repo.FindByID(si, id); err != nil {
 		return nil, err
 	} else {
 		return responses.NewStockItemFromModel(item.(*models.StockItem)), nil
 	}
+}
+
+func (im *InventoryMgr) CreateStockItem(payload *payloads.StockItem) (*responses.StockItem, error) {
+	si := models.NewStockItemFromPayload(payload)
+
+	if err := im.repo.Create(si); err != nil {
+		return nil, err
+	}
+
+	return responses.NewStockItemFromModel(si), nil
 }
