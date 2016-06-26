@@ -47,3 +47,18 @@ func (suite *InventoryManagerTestSuite) TestFindByID() {
 		}
 	}
 }
+
+func (suite *InventoryManagerTestSuite) TestEmptySKU() {
+	payload := &payloads.StockItem{StockLocationID: 1}
+	_, err := suite.mgr.CreateStockItem(payload)
+	assert.NotNil(suite.T(), err)
+}
+
+func (suite *InventoryManagerTestSuite) TestCreateDuplicateSKU() {
+	payload := &payloads.StockItem{StockLocationID: 1, SKU: "TEST-SKU"}
+	_, err := suite.mgr.CreateStockItem(payload)
+	assert.Nil(suite.T(), err)
+
+	_, err = suite.mgr.CreateStockItem(payload)
+	assert.NotNil(suite.T(), err)
+}
