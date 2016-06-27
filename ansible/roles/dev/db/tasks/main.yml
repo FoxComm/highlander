@@ -57,6 +57,14 @@
   copy: src="{{phoenix_jar_src}}" dest="{{phoenix_jar}}" owner="{{user}}"
   sudo: true
 
+- name: Make sure keys dir exist
+  file: path=/etc/keys state=directory owner={{user}} mode="0700"
+  sudo: true
+
+- name: Copy GCE service account key
+  copyv: src=gce_backup_service_key.json dest={{backup_service_key}} mode="0600" owner={{user}}
+  sudo: true
+
 - name: Setup Update Materialzied Views Sql
   copy: src=update_materialized_views.sql dest={{update_materialized_views_sql}}
   sudo: true
