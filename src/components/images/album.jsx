@@ -51,6 +51,8 @@ export default class Album extends Component {
     deleteMode: false,
   };
 
+  _uploadRef: Upload;
+
   componentWillReceiveProps(nextProps: Props): void {
     if (this.props.uploadImagesInProgress && !nextProps.uploadImagesInProgress) {
       this.setState({

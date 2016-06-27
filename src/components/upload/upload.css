@@ -8,6 +8,11 @@
     margin: -18px -8px;
   }
 
+  &:global(._dragPossible) {
+    border: 3px dashed #9bc1ca;
+    margin: -18px -8px;
+  }
+
   &:global(._dragActive) {
     border: 3px dashed #49C2CA;
     margin: -18px -8px;

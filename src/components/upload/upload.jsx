@@ -21,53 +21,71 @@ type Props = {
 
 type State = {
   dragActive: boolean;
+  dragPossible: boolean;
 }
 
 export default class Upload extends Component {
 
   static props: Props;
 
-  static defaultProps: Props = {
+  static defaultProps = {
     className: '',
   };
 
   state: State = {
     dragActive: false,
+    dragPossible: false,
   };
+
+  dragCounter: number;
 
   files: Array<FileInfo> = [];
 
   componentDidMount() {
     this.dragCounter = 0;
-    document.addEventListener('dragenter', this.handleDragEnter);
-    document.addEventListener('dragleave', this.handleDragLeave);
+    document.addEventListener('dragenter', this.handleGlobalDragEnter);
+    document.addEventListener('dragleave', this.handleGlobalDragLeave);
   }
 
   componentWillUnmount() {
-    document.removeEventListener('dragenter', this.handleDragEnter);
-    document.removeEventListener('dragleave', this.handleDragLeave);
+    document.removeEventListener('dragenter', this.handleGlobalDragEnter);
+    document.removeEventListener('dragleave', this.handleGlobalDragLeave);
   }
 
   @autobind
-  handleDragEnter(): void {
+  handleGlobalDragEnter(): void {
     this.dragCounter += 1;
-    this.updateDragActive();
+    this.updateDragPossibility();
   }
 
   @autobind
-  handleDragLeave(): void {
+  handleGlobalDragLeave(): void {
     this.dragCounter -= 1;
-    this.updateDragActive();
+    this.updateDragPossibility();
   }
 
-  updateDragActive() {
+  updateDragPossibility() {
     this.setState({
-      dragActive: this.dragCounter > 0
+      dragPossible: this.dragCounter > 0
     });
   }
 
   @autobind
-  onDragOver(e: SyntheticDragEvent): void {
+  handleDragEnter() {
+    this.setState({
+      dragActive: true,
+    });
+  }
+
+  @autobind
+  handleDragLeave() {
+    this.setState({
+      dragActive: false,
+    });
+  }
+
+  @autobind
+  handleDragOver(e: SyntheticDragEvent): void {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'copy';
   }
@@ -139,8 +157,9 @@ export default class Upload extends Component {
 
     return (
       <div styleName="container"
-           onDragOver={this.onDragOver}
-           onDragLeave={this.onDragLeave}
+           onDragOver={this.handleDragOver}
+           onDragEnter={this.handleDragEnter}
+           onDragLeave={this.handleDragLeave}
            onDrop={this.onDrop}>
         {content}
       </div>
@@ -152,6 +171,7 @@ export default class Upload extends Component {
     const className = classNames(this.props.className, {
       '_disabled': !onDrop,
       '_dragActive': this.state.dragActive,
+      '_dragPossible': this.state.dragPossible,
       '_empty': empty,
     });
 
