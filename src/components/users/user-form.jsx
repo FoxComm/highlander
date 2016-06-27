@@ -4,7 +4,7 @@
 import React, { Component, Element } from 'react';
 
 // components
-import ObjectForm from '../object-form/object-form';
+import ObjectFormInner from '../object-form/object-form-inner';
 import UserInitials from '../user-initials/initials';
 import ContentBox from '../content-box/content-box';
 import RoundedPill from '../rounded-pill/rounded-pill';
@@ -19,38 +19,34 @@ class UserForm extends Component {
 
   render(): Element {
     const image = <UserInitials name={this.props.entity.name} />;
-    const button = <div><Button type="button">Change Password</Button></div>;
 
     const attributes = {
-      'profile image': {
+      'profileImage': {
         v: image,
         t: 'element'
       },
-      'First & last name': {
+      'firstAndLastName': {
         v: this.props.entity.name,
         t: 'string'
       },
-      'Email Address': {
+      'emailAddress': {
         v: this.props.entity.email,
         t: 'string'
       },
-      'Phone Number': {
+      'phoneNumber': {
         v: '',
         t: 'string'
-      },
-      'Password': {
-        v: button,
-        t: 'element'
       }
     };
 
     return (
       <Form styleName="user-form">
         <section styleName="main">
-          <ObjectForm
-            onChange={this.handleProductChange}
-            attributes={attributes}
-            title="General" />
+          <ContentBox title="General">
+            <ObjectFormInner onChange={this.handleProductChange}
+                             attributes={attributes} />
+            <Button type="button">Change Password</Button>
+          </ContentBox>
         </section>
 
         <aside styleName="aside">
