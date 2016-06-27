@@ -1,7 +1,7 @@
 package main
 
-import "fmt"
+import "github.com/FoxComm/middlewarehouse/routes"
 
 func main() {
-	fmt.Println("STTS")
+	routes.Run()
 }
