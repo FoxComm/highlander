@@ -1,0 +1,15 @@
+.box {
+  margin-top: 20px;
+  margin-bottom: 60px;
+
+  & :global(.fc-table-td) {
+    padding: 10px 20px;
+
+    & img {
+      display: block;
+      margin: 0 auto;
+      max-height: 64px;
+      max-width: 64px;
+    }
+  }
+}
