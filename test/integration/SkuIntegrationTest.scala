@@ -28,6 +28,16 @@ class SkuIntegrationTest extends IntegrationTestBase with HttpSupport with Autom
       val response = POST(s"v1/skus/${context.name}", payload)
       response.status must === (StatusCodes.OK)
     }
+
+    "Tries to create a SKU with no code" in new Fixture {
+      val priceValue = ("currency" → "USD") ~ ("value" → 9999)
+      val priceJson  = ("t" → "price") ~ ("v" → priceValue)
+      val attrMap    = Map("price" → priceJson)
+      val payload    = SkuPayload(attrMap)
+
+      val response = POST(s"v1/skus/${context.name}", payload)
+      response.status must === (StatusCodes.BadRequest)
+    }
   }
 
   "GET v1/skus/:context/:code" - {

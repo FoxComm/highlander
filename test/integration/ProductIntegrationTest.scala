@@ -75,6 +75,22 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
       response.status must === (StatusCodes.BadRequest)
     }
 
+    "Throws an error if trying to create a product and SKU with no code" in new Fixture {
+      val newSkuPayload     = SkuPayload(skuAttrMap)
+      val newProductPayload = productPayload.copy(skus = Seq(newSkuPayload))
+
+      val response = POST(s"v1/products/${context.name}", newProductPayload)
+      response.status must === (StatusCodes.BadRequest)
+    }
+
+    "Throws an error if trying to create a product and SKU with empty code" in new Fixture {
+      val newSkuPayload     = makeSkuPayload("", skuAttrMap)
+      val newProductPayload = productPayload.copy(skus = Seq(newSkuPayload))
+
+      val response = POST(s"v1/products/${context.name}", newProductPayload)
+      response.status must === (StatusCodes.BadRequest)
+    }
+
     "Variant with no values doesn't allow for multiple SKUs" in new VariantFixture {
       val sku1    = makeSkuPayload("SKU-TEST-NUM1", attrMap)
       val sku2    = makeSkuPayload("SKU-TEST-NUM2", attrMap)

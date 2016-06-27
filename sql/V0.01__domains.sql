@@ -24,6 +24,9 @@ create domain zip_code text check (
     value ~ '(?i)^[a-z0-9][a-z0-9\- ]{0,10}[a-z0-9]$'
 );
 
+-- SKU Code
+create domain sku_code text check (length(value) > 0);
+
 -- Object Links
 create domain object_link_type text check (value in ('productAlbum', 'productSku', 'productVariant',
                                                      'promotionDiscount', 'skuAlbum', 'skuVariantValue',

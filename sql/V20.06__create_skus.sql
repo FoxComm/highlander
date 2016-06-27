@@ -1,6 +1,6 @@
 create table skus(
     id serial primary key,
-    code generic_string not null,
+    code sku_code not null,
     context_id integer not null references object_contexts(id) on update restrict on delete restrict,
     shadow_id integer not null references object_shadows(id) on update restrict on delete restrict,
     form_id integer not null references object_forms(id) on update restrict on delete restrict,
