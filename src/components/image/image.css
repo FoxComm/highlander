@@ -4,6 +4,14 @@
   display: flex;
   align-items: center;
 
+  & > div {
+    margin: 0 auto;
+  }
+
+  & img {
+    margin: 0 auto;
+  }
+
   &.error {
     content: "An error occured";
   }
