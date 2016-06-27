@@ -1,7 +1,6 @@
 /* @flow */
 
 import { createReducer, createAction } from 'redux-act';
-import { api } from 'lib/api';
 import _ from 'lodash';
 
 import createAsyncActions from './async-utils';
@@ -70,7 +69,7 @@ export function getPreviousId(current: number): Function {
 }
 
 function fetchProduct(id: number): global.Promise {
-  return api.get(`/v1/public/products/${id}`);
+  return this.api.get(`/v1/public/products/${id}`);
 }
 
 const {fetch, ...actions} = createAsyncActions('pdp', fetchProduct);

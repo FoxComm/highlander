@@ -1,7 +1,6 @@
 import _ from 'lodash';
 import { assoc } from 'sprout-data';
 import { createAction } from 'redux-act';
-import { api } from 'lib/api';
 
 const isServer = typeof self == 'undefined';
 
@@ -77,10 +76,9 @@ export default function createAsyncActions(namespace, asyncCall, payloadReducer)
   // not last navigated product, but product for which response will be last
 
   const perform = (...args) => {
-    return (dispatch, getState, jwt) => {
+    return (dispatch, getState, api) => {
       const apiContext = {
-        jwt,
-        phoenix: api.addAuth(jwt),
+        api,
         dispatch,
       };
       const handleError = err => {
