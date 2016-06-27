@@ -136,6 +136,8 @@ module "dem1" {
     source = "../../gce/demostack"
     prefix = "dem1"
     ssh_user = "${var.ssh_user}"
+    backend_image = "ubuntu-1604-xenial-v20160610"
+    frontend_image = "ubuntu-1604-xenial-v20160610"
     ssh_private_key = "${var.ssh_private_key}"
 }
 

@@ -1,6 +1,6 @@
-phoenix_server: "{{hostvars[groups['dem1-backend'][0]]['ansible_eth0']['ipv4']['address'] }}:9090"
-search_host:  "{{hostvars[groups['dem1-backend'][0]]['ansible_eth0']['ipv4']['address'] }}"
-log_host:  "{{hostvars[groups['dem1-backend'][0]]['ansible_eth0']['ipv4']['address'] }}"
+phoenix_server: "{{hostvars[groups['dem1-backend'][0]]['ansible_ens4']['ipv4']['address'] }}:9090"
+search_host:  "{{hostvars[groups['dem1-backend'][0]]['ansible_ens4']['ipv4']['address'] }}"
+log_host:  "{{hostvars[groups['dem1-backend'][0]]['ansible_ens4']['ipv4']['address'] }}"
 ashes_server: 127.0.0.1:4000
 api_server: 127.0.0.1
 
