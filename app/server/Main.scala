@@ -65,7 +65,8 @@ class Service(systemOverride: Option[ActorSystem] = None,
   val logger = Logging(system, getClass)
 
   implicit val db: Database         = dbOverride.getOrElse(Database.forConfig("db", config))
-  implicit val apis: Apis           = apisOverride.getOrElse(Apis(new WiredStripeApi, new AmazonS3))
+  lazy val defaultApis: Apis        = Apis(new WiredStripeApi, new AmazonS3, new Middlewarehouse)
+  implicit val apis: Apis           = apisOverride.getOrElse(defaultApis: Apis)
   implicit val es: ElasticsearchApi = esOverride.getOrElse(ElasticsearchApi.fromConfig(config))
 
   val storeAdminAuth: AsyncAuthenticator[StoreAdmin]      = Authenticator.forAdminFromConfig

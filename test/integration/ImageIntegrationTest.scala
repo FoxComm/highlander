@@ -1,4 +1,3 @@
-import java.io.File
 import java.nio.file.Paths
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -16,26 +15,17 @@ import models.inventory._
 import models.objects._
 import models.product._
 import org.json4s.JsonDSL._
-import org.mockito.Matchers._
-import org.mockito.Mockito._
-import org.scalatest.mock.MockitoSugar
 import payloads.ImagePayloads._
 import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
 import responses.ProductResponses._
 import responses.SkuResponses._
-import services.Result
 import services.image.ImageManager
 import util.IntegrationTestBase
 import utils.Money.Currency
 import utils._
-import utils.aliases._
 import utils.db._
 
-class ImageIntegrationTest
-    extends IntegrationTestBase
-    with HttpSupport
-    with AutomaticAuth
-    with MockitoSugar {
+class ImageIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
 
   "Album Tests" - {
     "GET v1/albums/:context/:id" - {
@@ -334,9 +324,6 @@ class ImageIntegrationTest
       "uploads image" in new Fixture {
         val image = Paths.get("test/resources/foxy.jpg")
         image.toFile.exists mustBe true
-
-        when(amazonApiMock.uploadFile(any[String], any[File])(any[EC]))
-          .thenReturn(Result.good("amazon-image-url"))
 
         val bodyPart =
           Multipart.FormData.BodyPart.fromPath(name = "upload-file",

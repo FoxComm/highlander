@@ -5,7 +5,7 @@ import Extensions._
 import cats.implicits._
 import failures.NotFoundFailure404
 import models.cord.Order.RemorseHold
-import models.cord.{Cart, Carts, Order, Orders}
+import models.cord._
 import models.customer.Customers
 import models.inventory._
 import models.location.Addresses

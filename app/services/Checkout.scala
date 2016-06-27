@@ -5,7 +5,7 @@ import failures.CouponFailures.CouponWithCodeCannotBeFound
 import failures.GeneralFailure
 import failures.PromotionFailures.PromotionNotFoundForContext
 import models.cord._
-import models.cord.lineitems.OrderLineItemGiftCards
+import models.cord.lineitems.{OrderLineItemGiftCards, OrderLineItemSkus}
 import models.coupon._
 import models.customer.{Customer, Customers}
 import models.objects._
@@ -17,7 +17,7 @@ import responses.order.FullOrder
 import services.coupon.CouponUsageService
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
-import utils.apis.Apis
+import utils.apis.{Apis, OrderReservation, SkuReservation}
 import utils.db._
 
 object Checkout {
@@ -55,18 +55,25 @@ case class Checkout(
 
   def checkout: DbResultT[FullOrder.Root] =
     for {
-      customer ← * <~ Customers.mustFindById404(cart.customerId)
-      // TODO make request to #middlewarehouse
+      customer  ← * <~ Customers.mustFindById404(cart.customerId)
       _         ← * <~ activePromos
-      valid     ← * <~ cartValidator.validate(isCheckout = false, fatalWarnings = true)
+      _         ← * <~ cartValidator.validate(isCheckout = false, fatalWarnings = true)
+      _         ← * <~ reserveInMiddleWarehouse
       _         ← * <~ authPayments(customer)
-      valid     ← * <~ cartValidator.validate(isCheckout = true, fatalWarnings = true)
+      _         ← * <~ cartValidator.validate(isCheckout = true, fatalWarnings = true)
       order     ← * <~ Orders.create(cart.toOrder())
       _         ← * <~ fraudScore(order)
       _         ← * <~ remorseHold(order)
       _         ← * <~ updateCouponCountersForPromotion(customer)
       fullOrder ← * <~ FullOrder.fromOrder(order)
     } yield fullOrder
+
+  private def reserveInMiddleWarehouse: DbResultT[Unit] =
+    for {
+      liSkus ← * <~ OrderLineItemSkus.countSkusByCordRef(cart.refNum)
+      skuReservations = liSkus.map { case (skuCode, qty) ⇒ SkuReservation(skuCode, qty) }.toSeq
+      _ ← * <~ apis.middlwarehouse.reserve(OrderReservation(cart.referenceNumber, skuReservations))
+    } yield {}
 
   private def activePromos: DbResultT[Unit] =
     for {

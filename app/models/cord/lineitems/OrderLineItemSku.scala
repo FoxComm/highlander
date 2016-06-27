@@ -65,6 +65,16 @@ object OrderLineItemSkus
       productShadow ← ObjectShadows if productShadow.id === link.rightId
     } yield (sku, skuForm, skuShadow, productShadow, lineItems)
 
+  // Map [SKU code → quantity in cart/order]
+  def countSkusByCordRef(refNum: String)(implicit ec: EC): DBIO[Map[String, Int]] =
+    OrderLineItemSkus.findLineItemsByCordRef(refNum).result.map { li ⇒
+      li.foldLeft(Map[String, Int]()) {
+        case (acc, (sku, _, _, _, _)) ⇒
+          val quantity = acc.getOrElse(sku.code, 0)
+          acc.updated(sku.code, quantity + 1)
+      }
+    }
+
   object scope {
     implicit class OrderLineItemSkusQuerySeqConversions(q: QuerySeq) {
       def withSkus: Query[(OrderLineItemSkus, Skus), (OrderLineItemSku, Sku), Seq] =
