@@ -50,7 +50,7 @@ export default class FullObjectForm extends Component {
       if (!shadowAttr || formAttr !== attr.v) {
         return assoc(res,
           ['form', key], attr.v,
-          ['shadow', key], { type: attr.v, ref: key });
+          ['shadow', key], { type: attr.t, ref: key });
       }
 
       return res;
