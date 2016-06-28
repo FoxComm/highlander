@@ -1,6 +1,8 @@
+// @flow
+
 // libs
 import _ from 'lodash';
-import React, { PropTypes } from 'react';
+import React, { Element } from 'react';
 import { transitionTo } from 'browserHistory';
 
 // components
@@ -11,7 +13,14 @@ import Currency from '../../common/currency';
 import { PanelList, PanelListItem } from '../../panel/panel-list';
 import { Link, IndexLink } from '../../link';
 
-const Summary = props => {
+type Props = {
+  totals: Object,
+  params: Object,
+  transactionsSelected: ?boolean,
+  children: ?Element
+}
+
+const Summary = (props: Props) => {
   const params = {
     ...props,
     customerId: props.params.customerId
@@ -38,6 +47,7 @@ const Summary = props => {
           </PanelList>
         </div>
       </div>
+      {props.children}
       <div className="fc-grid">
         <div className="fc-col-md-1-1">
           <TabListView>
@@ -60,12 +70,6 @@ const Summary = props => {
       </div>
     </div>
   );
-};
-
-Summary.propTypes = {
-  totals: PropTypes.object.isRequired,
-  params: PropTypes.object.isRequired,
-  transactionsSelected: PropTypes.bool
 };
 
 Summary.defaultProps = {

@@ -1,12 +1,8 @@
 // libs
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
-import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-
-// data
-import * as bulkActions from '../../modules/bulk';
 
 //helpers
 import { getStore } from '../../lib/store-creator';
@@ -64,7 +60,11 @@ const BulkMessages = ({bulk, bulkActions, entity, renderDetail}) => {
     );
   }
 
-  return (<div>{notifications}</div>);
+  return (
+    <div className="fc-bulk-messages">
+      {notifications}
+    </div>
+  );
 };
 
 BulkMessages.propTypes = {

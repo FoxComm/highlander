@@ -9,8 +9,6 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
 // components
-import BulkActions from '../bulk-actions/bulk-actions';
-import BulkMessages from '../bulk-actions/bulk-messages';
 import { SelectableSearchList } from '../list-page';
 import PromotionRow from './promotion-row';
 import BulkWrapper from '../discounts/bulk';
