@@ -28,7 +28,7 @@ class UserForm extends Component {
       name: '',
       email: '',
       phone: '',
-      state: '',
+      accountState: '',
     }
   };
 
@@ -46,11 +46,37 @@ class UserForm extends Component {
   }
 
   @autobind
+  handleAccountStateChange(accountState: string) {
+    this.setState({
+      accountState
+    });
+  }
+
+  @autobind
   getFormData() {
     return this.state;
   }
 
-  render(): Element {
+  renderAccountState() {
+    const { accountState } = this.state;
+    const savedAccountState = this.props.user.accountState;
+    const accountStateDisabled = (accountState === 'invited') || (savedAccountState === 'archived');
+
+    return (
+      <ContentBox title="Account State">
+        <Dropdown value={this.state.accountState}
+                  onChange={(value) => this.handleAccountStateChange(value)}
+                  disabled={accountStateDisabled}>
+          <DropdownItem value="active">Active</DropdownItem>
+          <DropdownItem value="inactive">Inactive</DropdownItem>
+          <DropdownItem value="archived">Archived</DropdownItem>
+          <DropdownItem value="invited" isHidden={true} >Invited</DropdownItem>
+        </Dropdown>
+      </ContentBox>
+    );
+  }
+
+  renderGeneralForm() {
     const { name, email, phone } = this.state;
     const image = <UserInitials name={name} />;
 
@@ -74,22 +100,24 @@ class UserForm extends Component {
     };
 
     return (
+      <ContentBox title="General">
+        <ObjectFormInner onChange={this.handleFormChange}
+                         attributes={attributes} />
+        <Button type="button">Change Password</Button>
+      </ContentBox>
+    );
+  }
+
+  render(): Element {
+    return (
       <Form styleName="user-form">
         <section styleName="main">
-          <ContentBox title="General">
-            <ObjectFormInner onChange={this.handleFormChange}
-                             attributes={attributes} />
-            <Button type="button">Change Password</Button>
-          </ContentBox>
+          {this.renderGeneralForm()}
         </section>
 
         <aside styleName="aside">
-          <ContentBox title="Account State">
-            <Dropdown value="active">
-              <DropdownItem value="active">Active</DropdownItem>
-              <DropdownItem value="inactive">Inactive</DropdownItem>
-            </Dropdown>
-          </ContentBox>
+          {this.renderAccountState()}
+
           <ContentBox title="Roles">
             <RoundedPill text="Super Admin"/>
           </ContentBox>
