@@ -6,7 +6,6 @@ import com.sksamuel.elastic4s.mappings.FieldType._
 
 import consumer.aliases._
 import consumer.elastic.AvroTransformer
-import consumer.elastic.MappingHelpers._
 
 final case class CouponCodesSearchView()(implicit ec: EC) extends AvroTransformer {
   def mapping() = esMapping("coupon_codes_search_view").fields(

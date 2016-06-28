@@ -6,9 +6,9 @@ import scala.util.control.NonFatal
 
 import consumer.JsonProcessor
 import consumer.PassthroughSource
+import consumer.elastic.mappings.autocompleteAnalyzer
 
 import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri}
-import com.sksamuel.elastic4s.analyzers._
 import com.sksamuel.elastic4s.ElasticDsl._
 import org.elasticsearch.common.settings.Settings
 import org.elasticsearch.client.transport.NoNodeAvailableException
@@ -78,16 +78,9 @@ class ElasticSearchProcessor(
         case (key, _) ⇒ topics.contains(key)
       }.mapValues(_.mapping()).values.toSeq
 
-      val customAnalyzer = CustomAnalyzerDefinition(
-          "autocomplete",
-          NGramTokenizer(
-              "autocomplete_tokenizer", 1, 20, Seq("letter", "digit", "punctuation", "symbol")),
-          LowercaseTokenFilter
-      )
-
       // Execute Elasticsearch query
       client.execute {
-        create index indexName mappings (jsonMappings: _*) analysis customAnalyzer
+        create index indexName mappings (jsonMappings: _*) analysis autocompleteAnalyzer
       }.await
     } catch {
       case e: RemoteTransportException ⇒
