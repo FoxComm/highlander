@@ -66,7 +66,7 @@ export function configurePromotion(promotion) {
   const defaultAttrs = {
     name: 'string',
     storefrontName: 'richText',
-    description: 'text',
+    description: 'richText',
     details: 'richText',
   };
 
