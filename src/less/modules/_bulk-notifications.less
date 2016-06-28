@@ -1,6 +1,11 @@
+.fc-bulk-messages {
+  margin: 0 @gutter;
+}
+
 .fc-bulk-notification {
   background: @color-decor0;
-  padding: 0 10px 10px 10px;
+  padding-bottom: 10px;
+  font-size: 13px;
 
   > * {
     .border-radius(3px);
@@ -27,11 +32,11 @@
 
   &__icon {
     padding: 0 10px;
-    .font-spec(18px);
+    font-size: 18px;
   }
 
   &__message {
-    .padding-right(5px);
+    padding-right: 5px;
   }
 
   a&__details-link {
@@ -45,13 +50,13 @@
 
   &__close {
     padding: 0 10px;
-    .font-spec(18px);
+    font-size: 18px;
   }
 
   &__details {
     display: none;
     box-sizing: border-box;
-    .padding-left(40px);
+    padding-left: 40px;
 
     &._open {
       display: block;
@@ -59,7 +64,7 @@
 
     > * {
       display: block;
-      .padding-bottom(10px);
+      padding-bottom: 10px;
     }
   }
 }

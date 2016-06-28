@@ -274,7 +274,7 @@ export default class StoreCredits extends React.Component {
   }
 
   renderDetail(messages, id) {
-    return (<span key={id}>Store credit #{id}</span>);
+    return <span key={id}>Store credit #{id}</span>;
   }
 
   render() {
@@ -283,14 +283,18 @@ export default class StoreCredits extends React.Component {
 
     return (
       <div className="fc-store-credits">
-        <BulkMessages
-          storePath="customers.storeCreditBulk"
-          module="customers.store-credits"
-          entity="store credit"
-          renderDetail={this.renderDetail} />
-        <Summary totals={totals}
-                 params={props.params}
-                 transactionsSelected={false} />
+        <Summary
+          totals={totals}
+          params={props.params}
+          transactionsSelected={false}
+        >
+          <BulkMessages
+            storePath="customers.storeCreditBulk"
+            module="customers.store-credits"
+            entity="store credit"
+            renderDetail={this.renderDetail}
+          />
+        </Summary>
         <div className="fc-store-credits__list">
           <BulkActions
             module="customers.store-credits"
@@ -303,7 +307,8 @@ export default class StoreCredits extends React.Component {
               renderRow={this.renderRow}
               tableColumns={this.props.tableColumns}
               searchActions={this.props.actions}
-              searchOptions={{singleSearch: true}} />
+              searchOptions={{singleSearch: true}}
+            />
           </BulkActions>
         </div>
         { this.confirmStateChange }
