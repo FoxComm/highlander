@@ -47,8 +47,8 @@
 + payments (optional, array[ReturnPayment]) - Return payment methods.
 + messageToCustomer: `Lorem ipsum` (optional, string) - Message to customer to be sent at the end of processing.
 + canceledReason: 1 (optional, number) - Possible cancellation reason ID.
-+ createdAt: `2015-09-10T14:55:50Z` (required, string) - Creation date.
-+ updatedAt: `2015-09-10T14:55:50Z` (required, string) - Last update date.
++ createdAt: `2020-01-01T12:00:00Z` (required, string) - Creation date.
++ updatedAt: `2020-01-01T12:00:00Z` (required, string) - Last update date.
 + totals (required, ReturnTotals) - Total price of return.
 
 ### Return
@@ -105,7 +105,7 @@
 ### ReturnLock
 + id: 1 (required, number) - Lock ID.
 + lockedBy (required, StoreAdminResponse) - Locker information.
-+ lockedAt: `2015-09-10T14:55:50Z` (optional, string) - Timestamp of when Return was lock.
++ lockedAt: `2020-01-01T12:00:00Z` (optional, string) - Timestamp of when Return was lock.
 
 ### ReturnSkuLineItemPayload
 + sku: `ABC-123` (required, string) - SKU.

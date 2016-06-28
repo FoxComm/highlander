@@ -6,6 +6,7 @@ endpoints in this section require the user to be authenticated as an administrat
 
 <!-- include(objects/activity_trail.apib) -->
 <!-- include(objects/common.apib) -->
+<!-- include(objects/coupons.apib) -->
 <!-- include(objects/credit_cards.apib) -->
 <!-- include(objects/customers.apib) -->
 <!-- include(objects/customers_groups.apib) -->
@@ -14,6 +15,7 @@ endpoints in this section require the user to be authenticated as an administrat
 <!-- include(objects/notifications.apib) -->
 <!-- include(objects/notes.apib) -->
 <!-- include(objects/order.apib) -->
+<!-- include(objects/promotions.apib) -->
 <!-- include(objects/reasons.apib) -->
 <!-- include(objects/returns.apib) -->
 <!-- include(objects/save_for_later.apib) -->
@@ -56,6 +58,18 @@ Gift Card is a payment method with unique code, not related to any customer acco
 Store Credit is a payment method always tied to specific customer account. One customer can have multiple store credits.
 
 <!-- include(admin_store_credits.apib) -->
+
+## Group Promotions
+
+Promotions are the basis of discounts, they contain offer and qualifier objects. A promotion can be auto-applied or can be tied to a coupon the customer must enter in order for the promotion to be applied.
+
+<!-- include(admin_promotions.apib) -->
+
+## Group Coupons
+
+A retailer may choose to have a promotion where the customer has to enter a coupon code.
+
+<!-- include(admin_coupons.apib) -->
 
 ## Group Save For Later
 
