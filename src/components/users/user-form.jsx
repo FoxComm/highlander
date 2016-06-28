@@ -2,6 +2,7 @@
 
 // libs
 import React, { Component, Element } from 'react';
+import { autobind } from 'core-decorators';
 
 // components
 import ObjectFormInner from '../object-form/object-form-inner';
@@ -17,8 +18,22 @@ import styles from './user-form.css';
 
 class UserForm extends Component {
 
+  state = {
+    ...this.props.user
+  };
+
+  @autobind
+  handleFormChange(attributes) {
+    this.setState({
+      name: attributes.firstAndLastName.v,
+      email: attributes.emailAddress.v,
+      phone: attributes.phoneNumber.v
+    })
+  }
+
   render(): Element {
-    const image = <UserInitials name={this.props.entity.name} />;
+    const { name, email, phone } = this.state;
+    const image = <UserInitials name={name} />;
 
     const attributes = {
       'profileImage': {
@@ -26,15 +41,15 @@ class UserForm extends Component {
         t: 'element'
       },
       'firstAndLastName': {
-        v: this.props.entity.name,
+        v: name,
         t: 'string'
       },
       'emailAddress': {
-        v: this.props.entity.email,
+        v: email,
         t: 'string'
       },
       'phoneNumber': {
-        v: '',
+        v: phone || '',
         t: 'string'
       }
     };
@@ -43,7 +58,7 @@ class UserForm extends Component {
       <Form styleName="user-form">
         <section styleName="main">
           <ContentBox title="General">
-            <ObjectFormInner onChange={this.handleProductChange}
+            <ObjectFormInner onChange={this.handleFormChange}
                              attributes={attributes} />
             <Button type="button">Change Password</Button>
           </ContentBox>

@@ -29,7 +29,7 @@ export default class User extends Component {
   renderChildren() {
     return React.Children.map(this.props.children, child => {
       return React.cloneElement(child, {
-        entity: this.props.details
+        user: this.props.details
       });
     });
   }
