@@ -159,7 +159,7 @@ class ImageIntegrationTest
         val response = GET(s"v1/products/${context.name}/${prodForm.id}/albums")
         response.status must === (StatusCodes.OK)
 
-        val albumResponse = response.as[AlbumRoot]
+        val albumResponse = response.as[Seq[AlbumRoot]].headOption.value
         albumResponse.images.length must === (1)
 
         albumResponse.name must === ("Sample Album")
@@ -174,7 +174,7 @@ class ImageIntegrationTest
         val response2 = GET(s"v1/products/${context.name}/${prodForm.id}/albums")
         response2.status must === (StatusCodes.OK)
 
-        val albumResponse = response2.as[AlbumRoot]
+        val albumResponse = response2.as[Seq[AlbumRoot]].headOption.value
         albumResponse.name must === ("Name 2.0")
       }
     }
@@ -240,7 +240,7 @@ class ImageIntegrationTest
         val response = GET(s"v1/skus/${context.name}/${sku.code}/albums")
         response.status must === (StatusCodes.OK)
 
-        val albumResponse = response.as[AlbumRoot]
+        val albumResponse = response.as[Seq[AlbumRoot]].headOption.value
         albumResponse.images.length must === (1)
 
         albumResponse.name must === ("Sample Album")
@@ -255,7 +255,7 @@ class ImageIntegrationTest
 
         val response2 = GET(s"v1/skus/${context.name}/${sku.code}/albums")
         response2.status must === (StatusCodes.OK)
-        response2.as[AlbumRoot].name must === ("Name 2.0")
+        response2.as[Seq[AlbumRoot]].headOption.value.name must === ("Name 2.0")
       }
     }
 

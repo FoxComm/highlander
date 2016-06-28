@@ -20,7 +20,7 @@ object Dependencies {
       "com.typesafe.slick" %% "slick-hikaricp" % slickV
   )
 
-  val json4sV = "3.3.0"
+  val json4sV = "3.4.0"
   val json4s = Seq(
       "org.json4s"        %% "json4s-core"      % json4sV,
       "org.json4s"        %% "json4s-jackson"   % json4sV,

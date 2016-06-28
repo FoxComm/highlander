@@ -60,7 +60,7 @@ lazy val phoenixScala = (project in file(".")).
         "com.github.tminglei"        %% "slick-pg_json4s"        % slickPgV,
         "com.zaxxer"                 %  "HikariCP"               % "2.4.6"    % "provided",
         "org.postgresql"             %  "postgresql"             % "9.4.1208",
-        "org.flywaydb"               %  "flyway-core"            % "4.0.2",
+        "org.flywaydb"               %  "flyway-core"            % "4.0.3",
         "com.github.mauricio"        %% "postgresql-async"       % "0.2.20",
         // Elasticsearch
         "com.sksamuel.elastic4s"     %% "elastic4s-core"         % "2.3.0",
@@ -82,8 +82,8 @@ lazy val phoenixScala = (project in file(".")).
         "com.chuusai"                %% "shapeless"              % "2.3.1",
         "it.justwrote"               %% "scala-faker"            % "0.3",
         "io.backchat.inflector"      %% "scala-inflector"        % "1.3.5",
-        "com.github.tototoshi"       %% "scala-csv"              % "1.3.1",
-        "com.amazonaws"              %  "aws-java-sdk"           % "1.11.7",
+        "com.github.tototoshi"       %% "scala-csv"              % "1.3.3",
+        "com.amazonaws"              %  "aws-java-sdk"           % "1.11.11",
         // Testing
         "org.conbere"                %  "markov_2.10"            % "0.2.0",
         "org.scalatest"              %% "scalatest"              % scalaTestV % test,
