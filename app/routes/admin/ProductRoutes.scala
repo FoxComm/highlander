@@ -23,30 +23,30 @@ object ProductRoutes {
         pathPrefix(Segment) { contextName ⇒
           adminObjectContext(contextName)(db, ec) { implicit context ⇒
             (post & pathEnd & entity(as[CreateProductPayload])) { payload ⇒
-              mutateGoodOrFailures {
+              mutateOrFailures {
                 ProductManager.createProduct(payload)
               }
             } ~
             pathPrefix(IntNumber) { productId ⇒
               (get & pathEnd) {
-                getGoodOrFailures {
+                getOrFailures {
                   ProductManager.getProduct(productId)
                 }
               } ~
               (patch & pathEnd & entity(as[UpdateProductPayload])) { payload ⇒
-                mutateGoodOrFailures {
+                mutateOrFailures {
                   ProductManager.updateProduct(productId, payload)
                 }
               }
             } ~
             pathPrefix(IntNumber / "albums") { productId ⇒
               (get & pathEnd) {
-                getGoodOrFailures {
+                getOrFailures {
                   ImageManager.getAlbumsForProduct(productId)
                 }
               } ~
               (post & pathEnd & entity(as[CreateAlbumPayload])) { payload ⇒
-                mutateGoodOrFailures {
+                mutateOrFailures {
                   ImageManager.createAlbumForProduct(admin, productId, payload, contextName)
                 }
               }

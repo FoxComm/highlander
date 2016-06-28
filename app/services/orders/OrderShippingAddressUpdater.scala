@@ -1,20 +1,20 @@
 package services.orders
 
-import models.location._
-import Addresses.scope._
 import failures.CartFailures.NoShipAddress
 import failures.NotFoundFailure404
+import models.location.Addresses.scope._
+import models.location._
 import models.order._
 import models.traits.Originator
 import payloads.AddressPayloads._
-import responses.TheResponse
 import responses.Addresses.buildOneShipping
+import responses.TheResponse
 import responses.order.FullOrder
-import services.{CartValidator, LogActivity, Result}
+import services.{CartValidator, LogActivity}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
-import utils.db._
 import utils.db.DbResultT._
+import utils.db._
 
 object OrderShippingAddressUpdater {
 
@@ -30,9 +30,8 @@ object OrderShippingAddressUpdater {
                                          refNum: Option[String] = None)(
       implicit ec: EC,
       db: DB,
-      ac: AC): Result[TheResponse[FullOrder.Root]] =
-    (for {
-
+      ac: AC): DbResultT[TheResponse[FullOrder.Root]] =
+    for {
       order     ← * <~ getCartByOriginator(originator, refNum)
       _         ← * <~ order.mustBeCart
       addAndReg ← * <~ mustFindAddressWithRegion(addressId)
@@ -43,20 +42,17 @@ object OrderShippingAddressUpdater {
       region      ← * <~ Regions.mustFindById404(shipAddress.regionId)
       validated   ← * <~ CartValidator(order).validate()
       response    ← * <~ FullOrder.refreshAndFullOrder(order).toXor
-      _ ← * <~ LogActivity.orderShippingAddressAdded(originator,
-                                                     response,
-                                                     buildOneShipping(shipAddress, region))
-    } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings))
-      .runTxn()
+      _ ← * <~ LogActivity
+           .orderShippingAddressAdded(originator, response, buildOneShipping(shipAddress, region))
+    } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)
 
   def createShippingAddressFromPayload(originator: Originator,
                                        payload: CreateAddressPayload,
                                        refNum: Option[String] = None)(
       implicit ec: EC,
       db: DB,
-      ac: AC): Result[TheResponse[FullOrder.Root]] =
-    (for {
-
+      ac: AC): DbResultT[TheResponse[FullOrder.Root]] =
+    for {
       order ← * <~ getCartByOriginator(originator, refNum)
       _     ← * <~ order.mustBeCart
       newAddress ← * <~ Addresses.create(
@@ -66,20 +62,17 @@ object OrderShippingAddressUpdater {
       region      ← * <~ Regions.mustFindById404(shipAddress.regionId)
       validated   ← * <~ CartValidator(order).validate()
       response    ← * <~ FullOrder.refreshAndFullOrder(order).toXor
-      _ ← * <~ LogActivity.orderShippingAddressAdded(originator,
-                                                     response,
-                                                     buildOneShipping(shipAddress, region))
-    } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings))
-      .runTxn()
+      _ ← * <~ LogActivity
+           .orderShippingAddressAdded(originator, response, buildOneShipping(shipAddress, region))
+    } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)
 
   def updateShippingAddressFromPayload(originator: Originator,
                                        payload: UpdateAddressPayload,
                                        refNum: Option[String] = None)(
       implicit ec: EC,
       db: DB,
-      ac: AC): Result[TheResponse[FullOrder.Root]] =
-    (for {
-
+      ac: AC): DbResultT[TheResponse[FullOrder.Root]] =
+    for {
       order       ← * <~ getCartByOriginator(originator, refNum)
       _           ← * <~ order.mustBeCart
       shipAddress ← * <~ mustFindShipAddressForOrder(order)
@@ -91,15 +84,13 @@ object OrderShippingAddressUpdater {
       _ ← * <~ LogActivity.orderShippingAddressUpdated(originator,
                                                        response,
                                                        buildOneShipping(shipAddress, region))
-    } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings))
-      .runTxn()
+    } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)
 
   def removeShippingAddress(originator: Originator, refNum: Option[String] = None)(
       implicit ec: EC,
       db: DB,
-      ac: AC): Result[TheResponse[FullOrder.Root]] =
-    (for {
-
+      ac: AC): DbResultT[TheResponse[FullOrder.Root]] =
+    for {
       order       ← * <~ getCartByOriginator(originator, refNum)
       _           ← * <~ order.mustBeCart
       shipAddress ← * <~ mustFindShipAddressForOrder(order)
@@ -110,6 +101,5 @@ object OrderShippingAddressUpdater {
       _ ← * <~ LogActivity.orderShippingAddressDeleted(originator,
                                                        fullOrder,
                                                        buildOneShipping(shipAddress, region))
-    } yield TheResponse.build(fullOrder, alerts = validated.alerts, warnings = validated.warnings))
-      .runTxn()
+    } yield TheResponse.build(fullOrder, alerts = validated.alerts, warnings = validated.warnings)
 }

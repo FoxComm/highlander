@@ -21,28 +21,28 @@ import utils.db._
 
 object CustomerManager {
 
-  def toggleDisabled(customerId: Int, disabled: Boolean, admin: StoreAdmin)(implicit ec: EC,
-                                                                            db: DB,
-                                                                            ac: AC): Result[Root] =
-    (for {
+  def toggleDisabled(customerId: Int,
+                     disabled: Boolean,
+                     admin: StoreAdmin)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
+    for {
       customer ← * <~ Customers.mustFindById404(customerId)
       updated ← * <~ Customers.update(
                    customer,
                    customer.copy(isDisabled = disabled, disabledBy = Some(admin.id)))
       _ ← * <~ LogActivity.customerDisabled(disabled, customer, admin)
-    } yield build(updated)).runTxn()
+    } yield build(updated)
 
   // TODO: add blacklistedReason later
   def toggleBlacklisted(customerId: Int,
                         blacklisted: Boolean,
-                        admin: StoreAdmin)(implicit ec: EC, db: DB, ac: AC): Result[Root] =
-    (for {
+                        admin: StoreAdmin)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
+    for {
       customer ← * <~ Customers.mustFindById404(customerId)
       updated ← * <~ Customers.update(
                    customer,
                    customer.copy(isBlacklisted = blacklisted, blacklistedBy = Some(admin.id)))
       _ ← * <~ LogActivity.customerBlacklisted(blacklisted, customer, admin)
-    } yield build(updated)).runTxn()
+    } yield build(updated)
 
   private def resolvePhoneNumber(customerId: Int)(implicit ec: EC): DbResultT[Option[String]] = {
     def resolveFromShipments(customerId: Int) =
@@ -68,8 +68,8 @@ object CustomerManager {
     } yield shipment
   }
 
-  def getById(id: Int)(implicit ec: EC, db: DB): Result[Root] = {
-    (for {
+  def getById(id: Int)(implicit ec: EC, db: DB): DbResultT[Root] = {
+    for {
       customers ← * <~ Customers
                    .filter(_.id === id)
                    .withRegionsAndRank
@@ -83,12 +83,12 @@ object CustomerManager {
             shipRegion,
             billRegion,
             rank = rank,
-            lastOrderDays = maxOrdersDate.map(DAYS.between(_, Instant.now)))).run()
+            lastOrderDays = maxOrdersDate.map(DAYS.between(_, Instant.now)))
   }
 
   def create(payload: CreateCustomerPayload,
-             admin: Option[StoreAdmin] = None)(implicit ec: EC, db: DB, ac: AC): Result[Root] =
-    (for {
+             admin: Option[StoreAdmin] = None)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
+    for {
       customer ← * <~ Customer.buildFromPayload(payload).validate
       _ ← * <~ (if (!payload.isGuest.getOrElse(false))
                   Customers.createEmailMustBeUnique(customer.email)
@@ -96,13 +96,13 @@ object CustomerManager {
       updated ← * <~ Customers.create(customer)
       response = build(updated)
       _ ← * <~ LogActivity.customerCreated(response, admin)
-    } yield response).runTxn()
+    } yield response
 
   def update(customerId: Int, payload: UpdateCustomerPayload, admin: Option[StoreAdmin] = None)(
       implicit ec: EC,
       db: DB,
-      ac: AC): Result[Root] =
-    (for {
+      ac: AC): DbResultT[Root] =
+    for {
       _        ← * <~ payload.validate.toXor
       customer ← * <~ Customers.mustFindById404(customerId)
       _ ← * <~ payload.email
@@ -115,13 +115,13 @@ object CustomerManager {
                                  phoneNumber =
                                    payload.phoneNumber.fold(customer.phoneNumber)(Some(_))))
       _ ← * <~ LogActivity.customerUpdated(customer, updated, admin)
-    } yield build(updated)).runTxn()
+    } yield build(updated)
 
   def activate(customerId: Int, payload: ActivateCustomerPayload, admin: StoreAdmin)(
       implicit ec: EC,
       db: DB,
-      ac: AC): Result[Root] =
-    (for {
+      ac: AC): DbResultT[Root] =
+    for {
       _        ← * <~ payload.validate
       customer ← * <~ Customers.mustFindById404(customerId)
       _        ← * <~ Customers.updateEmailMustBeUnique(customer.email, customer.id)
@@ -129,5 +129,5 @@ object CustomerManager {
                                       customer.copy(name = payload.name.some, isGuest = false))
       response = build(updated)
       _ ← * <~ LogActivity.customerActivated(response, admin)
-    } yield response).runTxn()
+    } yield response
 }

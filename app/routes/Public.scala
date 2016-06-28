@@ -23,7 +23,7 @@ object Public {
       pathPrefix("public") {
         pathPrefix("registrations") {
           (post & path("new") & pathEnd & entity(as[CreateCustomerPayload])) { regRequest ⇒
-            goodOrFailures {
+            mutateOrFailures {
               CustomerManager.create(regRequest)
             }
           }
@@ -32,7 +32,7 @@ object Public {
           determineObjectContext(db, ec) { implicit productContext ⇒
             pathPrefix(IntNumber) { productId ⇒
               (get & pathEnd) {
-                getGoodOrFailures {
+                getOrFailures {
                   ProductManager.getProduct(productId)
                 }
               }

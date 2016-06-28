@@ -34,30 +34,28 @@ object AddressManager {
   }
 
   def get(originator: Originator, addressId: Int, customerId: Int)(implicit ec: EC,
-                                                                   db: DB): Result[Root] =
-    (for {
+                                                                   db: DB): DbResultT[Root] =
+    for {
       address ← * <~ findByOriginator(originator, addressId, customerId)
       region  ← * <~ Regions.findOneById(address.regionId).safeGet.toXor
-    } yield Response.build(address, region)).run()
+    } yield Response.build(address, region)
 
   def create(originator: Originator, payload: CreateAddressPayload, customerId: Int)(
       implicit ec: EC,
       db: DB,
-      ac: AC): Result[Root] =
-    (for {
-
+      ac: AC): DbResultT[Root] =
+    for {
       customer ← * <~ Customers.mustFindById404(customerId)
       address  ← * <~ Addresses.create(Address.fromPayload(payload).copy(customerId = customerId))
       region   ← * <~ Regions.findOneById(address.regionId).safeGet.toXor
       _        ← * <~ LogActivity.addressCreated(originator, customer, address, region)
-    } yield Response.build(address, region)).runTxn()
+    } yield Response.build(address, region)
 
   def edit(originator: Originator, addressId: Int, customerId: Int, payload: CreateAddressPayload)(
       implicit ec: EC,
       db: DB,
-      ac: AC): Result[Root] =
-    (for {
-
+      ac: AC): DbResultT[Root] =
+    for {
       customer ← * <~ Customers.mustFindById404(customerId)
       oldAddress ← * <~ Addresses
                     .findActiveByIdAndCustomer(addressId, customerId)
@@ -71,13 +69,12 @@ object AddressManager {
       region ← * <~ Regions.findOneById(address.regionId).safeGet.toXor
       _ ← * <~ LogActivity
            .addressUpdated(originator, customer, address, region, oldAddress, oldRegion)
-    } yield Response.build(address, region)).runTxn()
+    } yield Response.build(address, region)
 
   def remove(originator: Originator, addressId: Int, customerId: Int)(implicit ec: EC,
                                                                       db: DB,
-                                                                      ac: AC): Result[Unit] =
-    (for {
-
+                                                                      ac: AC): DbResultT[Unit] =
+    for {
       customer ← * <~ Customers.mustFindById404(customerId)
       address ← * <~ Addresses
                  .findActiveByIdAndCustomer(addressId, customerId)
@@ -87,11 +84,11 @@ object AddressManager {
                       address.copy(deletedAt = Instant.now.some, isDefaultShipping = false))
       updated ← * <~ Addresses.update(address, softDelete)
       _       ← * <~ LogActivity.addressDeleted(originator, customer, address, region)
-    } yield {}).runTxn()
+    } yield {}
 
   def setDefaultShippingAddress(addressId: Int, customerId: Int)(implicit ec: EC,
-                                                                 db: DB): Result[Root] =
-    (for {
+                                                                 db: DB): DbResultT[Root] =
+    for {
       customer ← * <~ Customers.mustFindById404(customerId)
       _ ← * <~ Addresses
            .findShippingDefaultByCustomerId(customerId)
@@ -103,15 +100,16 @@ object AddressManager {
       newAddress = address.copy(isDefaultShipping = true)
       address ← * <~ Addresses.update(address, newAddress)
       region  ← * <~ Regions.findOneById(address.regionId).safeGet.toXor
-    } yield Response.build(newAddress, region)).run()
+    } yield Response.build(newAddress, region)
 
-  def removeDefaultShippingAddress(customerId: Int)(implicit ec: EC, db: DB): Result[Int] =
-    Addresses
-      .findShippingDefaultByCustomerId(customerId)
-      .map(_.isDefaultShipping)
-      .update(false)
-      .run()
-      .flatMap(Result.good)
+  // #longlivedbresultt
+  def removeDefaultShippingAddress(customerId: Int)(implicit ec: EC, db: DB): DbResultT[Int] =
+    DbResultT(
+        ExceptionWrapper.wrapDbio(
+            Addresses
+              .findShippingDefaultByCustomerId(customerId)
+              .map(_.isDefaultShipping)
+              .update(false)))
 
   private def findByOriginator(originator: Originator, addressId: Int, customerId: Int)(
       implicit ec: EC) = originator match {

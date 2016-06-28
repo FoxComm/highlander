@@ -40,7 +40,7 @@ object Customer {
           pathPrefix("products" / IntNumber / "baked") { productId ⇒
             determineObjectContext(db, ec) { implicit context ⇒
               (get & pathEnd) {
-                getGoodOrFailures {
+                getOrFailures {
                   ProductManager.getProduct(productId)
                 }
               }
@@ -119,32 +119,32 @@ object Customer {
               } ~
               pathPrefix("shipping-address") {
                 (post & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
-                  goodOrFailures {
+                  mutateOrFailures {
                     OrderShippingAddressUpdater
                       .createShippingAddressFromPayload(Originator(customer), payload)
                   }
                 } ~
                 (patch & path(IntNumber) & pathEnd) { addressId ⇒
-                  goodOrFailures {
+                  mutateOrFailures {
                     OrderShippingAddressUpdater
                       .createShippingAddressFromAddressId(Originator(customer), addressId)
                   }
                 } ~
                 (patch & pathEnd & entity(as[UpdateAddressPayload])) { payload ⇒
-                  goodOrFailures {
+                  mutateOrFailures {
                     OrderShippingAddressUpdater
                       .updateShippingAddressFromPayload(Originator(customer), payload)
                   }
                 } ~
                 (delete & pathEnd) {
-                  goodOrFailures {
+                  deleteOrFailures {
                     OrderShippingAddressUpdater.removeShippingAddress(Originator(customer))
                   }
                 }
               } ~
               pathPrefix("shipping-methods") {
                 (get & pathEnd) {
-                  getGoodOrFailures {
+                  getOrFailures {
                     ShippingManager.getShippingMethodsForCart(Originator(customer))
                   }
                 }
@@ -165,12 +165,12 @@ object Customer {
           } ~
           pathPrefix("account") {
             (get & pathEnd) {
-              goodOrFailures {
+              getOrFailures {
                 CustomerManager.getById(customer.id)
               }
             } ~
             (patch & pathEnd & entity(as[UpdateCustomerPayload])) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 CustomerManager.update(customer.id, payload)
               }
             }
@@ -184,34 +184,34 @@ object Customer {
           } ~
           pathPrefix("addresses") {
             (post & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 AddressManager.create(Originator(customer), payload, customer.id)
               }
             } ~
             (delete & path("default") & pathEnd) {
-              nothingOrFailures {
+              deleteOrFailures {
                 AddressManager.removeDefaultShippingAddress(customer.id)
               }
             }
           } ~
           pathPrefix("addresses" / IntNumber) { addressId ⇒
             (get & pathEnd) {
-              goodOrFailures {
+              getOrFailures {
                 AddressManager.get(Originator(customer), addressId, customer.id)
               }
             } ~
             (post & path("default") & pathEnd) {
-              goodOrFailures {
+              mutateOrFailures {
                 AddressManager.setDefaultShippingAddress(addressId, customer.id)
               }
             } ~
             (patch & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 AddressManager.edit(Originator(customer), addressId, customer.id, payload)
               }
             } ~
             (delete & pathEnd) {
-              nothingOrFailures {
+              deleteOrFailures {
                 AddressManager.remove(Originator(customer), addressId, customer.id)
               }
             }
@@ -264,17 +264,17 @@ object Customer {
           pathPrefix("save-for-later") {
             determineObjectContext(db, ec) { context ⇒
               (get & pathEnd) {
-                getGoodOrFailures {
+                getOrFailures {
                   SaveForLaterManager.findAll(customer.id, context.id)
                 }
               } ~
               (post & path(skuCodeRegex) & pathEnd) { code ⇒
-                mutateGoodOrFailures {
+                mutateOrFailures {
                   SaveForLaterManager.saveForLater(customer.id, code, context)
                 }
               } ~
               (delete & path(IntNumber) & pathEnd) { id ⇒
-                mutateNothingOrFailures {
+                deleteOrFailures {
                   SaveForLaterManager.deleteSaveForLater(id)
                 }
               }

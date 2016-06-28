@@ -17,18 +17,18 @@ object ImageRoutes {
       pathPrefix("albums") {
         pathPrefix(Segment) { context ⇒
           (post & pathEnd & entity(as[CreateAlbumPayload])) { payload ⇒
-            mutateGoodOrFailures {
+            mutateOrFailures {
               ImageManager.createAlbum(payload, context)
             }
           } ~
           pathPrefix(IntNumber) { albumId ⇒
             (get & pathEnd) {
-              getGoodOrFailures {
+              getOrFailures {
                 ImageManager.getAlbum(albumId, context)
               }
             } ~
             (patch & pathEnd & entity(as[UpdateAlbumPayload])) { payload ⇒
-              mutateGoodOrFailures {
+              mutateOrFailures {
                 ImageManager.updateAlbum(albumId, payload, context)
               }
             } ~
