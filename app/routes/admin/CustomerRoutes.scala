@@ -23,14 +23,14 @@ object CustomerRoutes {
     activityContext(admin) { implicit ac ⇒
       pathPrefix("customers") {
         (post & pathEnd & entity(as[CreateCustomerPayload])) { payload ⇒
-          goodOrFailures {
+          mutateOrFailures {
             CustomerManager.create(payload, Some(admin))
           }
         }
       } ~
       pathPrefix("customers" / IntNumber) { customerId ⇒
         (get & pathEnd) {
-          goodOrFailures {
+          getOrFailures {
             CustomerManager.getById(customerId)
           }
         } ~
@@ -42,22 +42,22 @@ object CustomerRoutes {
           }
         } ~
         (patch & pathEnd & entity(as[UpdateCustomerPayload])) { payload ⇒
-          goodOrFailures {
+          mutateOrFailures {
             CustomerManager.update(customerId, payload, Some(admin))
           }
         } ~
         (post & path("activate") & pathEnd & entity(as[ActivateCustomerPayload])) { payload ⇒
-          goodOrFailures {
+          mutateOrFailures {
             CustomerManager.activate(customerId, payload, admin)
           }
         } ~
         (post & path("disable") & pathEnd & entity(as[ToggleCustomerDisabled])) { payload ⇒
-          goodOrFailures {
+          mutateOrFailures {
             CustomerManager.toggleDisabled(customerId, payload.disabled, admin)
           }
         } ~
         (post & path("blacklist") & pathEnd & entity(as[ToggleCustomerBlacklisted])) { payload ⇒
-          goodOrFailures {
+          mutateOrFailures {
             CustomerManager.toggleBlacklisted(customerId, payload.blacklisted, admin)
           }
         } ~
@@ -69,34 +69,34 @@ object CustomerRoutes {
             }
           } ~
           (post & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
-            goodOrFailures {
+            mutateOrFailures {
               AddressManager.create(Originator(admin), payload, customerId)
             }
           } ~
           (post & path(IntNumber / "default") & pathEnd) { addressId ⇒
-            goodOrFailures {
+            mutateOrFailures {
               AddressManager.setDefaultShippingAddress(addressId, customerId)
             }
           } ~
           (get & path(IntNumber) & pathEnd) { addressId ⇒
-            goodOrFailures {
+            getOrFailures {
               AddressManager.get(Originator(admin), addressId, customerId)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { addressId ⇒
-            nothingOrFailures {
+            deleteOrFailures {
               AddressManager.remove(Originator(admin), addressId, customerId)
             }
           } ~
           (delete & path("default") & pathEnd) {
-            nothingOrFailures {
+            deleteOrFailures {
               AddressManager.removeDefaultShippingAddress(customerId)
             }
           } ~
           (patch & path(IntNumber) & pathEnd & entity(as[CreateAddressPayload])) {
             (addressId, payload) ⇒
               activityContext(admin) { implicit ac ⇒
-                goodOrFailures {
+                mutateOrFailures {
                   AddressManager.edit(Originator(admin), addressId, customerId, payload)
                 }
               }

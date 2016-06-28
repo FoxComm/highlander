@@ -20,9 +20,8 @@ class OrderShippingAddressUpdaterTest
   "OrderUpdater" - {
 
     "Adds a shipping address by referencing an order that already exists" in new Fixture {
-      val fullOrder = createShippingAddressFromAddressId(Originator(admin),
-                                                         address.id,
-                                                         Some(order.refNum)).futureValue.get
+      val fullOrder =
+        createShippingAddressFromAddressId(Originator(admin), address.id, Some(order.refNum)).gimme
       fullOrder.result.shippingAddress must not be 'empty
       val orderAddress = fullOrder.result.shippingAddress.value
 
@@ -40,9 +39,8 @@ class OrderShippingAddressUpdaterTest
                                             city = "Seattle",
                                             zip = "55555")
 
-      val fullOrder = createShippingAddressFromPayload(Originator(admin),
-                                                       newAddress,
-                                                       Some(order.refNum)).futureValue.get
+      val fullOrder =
+        createShippingAddressFromPayload(Originator(admin), newAddress, Some(order.refNum)).gimme
       fullOrder.result.shippingAddress must not be 'empty
       val orderAddress = fullOrder.result.shippingAddress.value
 
@@ -56,7 +54,7 @@ class OrderShippingAddressUpdaterTest
     "Updates a shipping address by referencing an order that already exists" in new UpdateAddressFixture {
       val fullOrder = createShippingAddressFromAddressId(Originator(admin),
                                                          newAddress.id,
-                                                         Some(order.refNum)).futureValue.get
+                                                         Some(order.refNum)).gimme
       fullOrder.result.shippingAddress must not be 'empty
       val orderAddress = fullOrder.result.shippingAddress.value
 
@@ -69,9 +67,8 @@ class OrderShippingAddressUpdaterTest
 
     "Updates a shipping address by sending fields in the payload" in new UpdateAddressFixture {
       val payload = UpdateAddressPayload(name = Some("Don Keyhote"))
-      val fullOrder = updateShippingAddressFromPayload(Originator(admin),
-                                                       payload,
-                                                       Some(order.refNum)).futureValue.get
+      val fullOrder =
+        updateShippingAddressFromPayload(Originator(admin), payload, Some(order.refNum)).gimme
       fullOrder.result.shippingAddress must not be 'empty
       val orderAddress = fullOrder.result.shippingAddress.value
 

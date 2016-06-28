@@ -27,7 +27,7 @@ object AdminRoutes {
       StoreCreditRoutes.storeCreditRoutes ~
       pathPrefix("shipping-methods" / orderRefNumRegex) { refNum ⇒
         (get & pathEnd) {
-          getGoodOrFailures {
+          getOrFailures {
             ShippingManager.getShippingMethodsForOrder(refNum)
           }
         }
@@ -35,45 +35,45 @@ object AdminRoutes {
       pathPrefix("notes") {
         pathPrefix("order" / orderRefNumRegex) { refNum ⇒
           (get & pathEnd) {
-            getGoodOrFailures {
+            getOrFailures {
               OrderNoteManager.list(refNum)
             }
           } ~
           (post & pathEnd & entity(as[CreateNote])) { payload ⇒
-            mutateGoodOrFailures {
+            mutateOrFailures {
               OrderNoteManager.create(refNum, admin, payload)
             }
           } ~
           (patch & path(IntNumber) & pathEnd & entity(as[UpdateNote])) { (noteId, payload) ⇒
-            mutateGoodOrFailures {
+            mutateOrFailures {
               OrderNoteManager.update(refNum, noteId, admin, payload)
             }
           } ~
           (delete & path(IntNumber)) { noteId ⇒
-            mutateNothingOrFailures {
+            deleteOrFailures {
               OrderNoteManager.delete(refNum, noteId, admin)
             }
           }
         } ~
         pathPrefix("gift-card" / GiftCard.giftCardCodeRegex) { code ⇒
           (get & pathEnd) {
-            getGoodOrFailures {
+            getOrFailures {
               GiftCardNoteManager.list(code)
             }
           } ~
           (post & pathEnd & entity(as[CreateNote])) { payload ⇒
-            mutateGoodOrFailures {
+            mutateOrFailures {
               GiftCardNoteManager.create(code, admin, payload)
             }
           } ~
           path(IntNumber) { noteId ⇒
             (patch & pathEnd & entity(as[UpdateNote])) { payload ⇒
-              mutateGoodOrFailures {
+              mutateOrFailures {
                 GiftCardNoteManager.update(code, noteId, admin, payload)
               }
             } ~
             (delete & pathEnd) {
-              mutateNothingOrFailures {
+              deleteOrFailures {
                 GiftCardNoteManager.delete(code, noteId, admin)
               }
             }
@@ -81,23 +81,23 @@ object AdminRoutes {
         } ~
         pathPrefix("customer" / IntNumber) { customerId ⇒
           (get & pathEnd) {
-            getGoodOrFailures {
+            getOrFailures {
               CustomerNoteManager.list(customerId)
             }
           } ~
           (post & pathEnd & entity(as[CreateNote])) { payload ⇒
-            mutateGoodOrFailures {
+            mutateOrFailures {
               CustomerNoteManager.create(customerId, admin, payload)
             }
           } ~
           path(IntNumber) { noteId ⇒
             (patch & pathEnd & entity(as[UpdateNote])) { payload ⇒
-              mutateGoodOrFailures {
+              mutateOrFailures {
                 CustomerNoteManager.update(customerId, noteId, admin, payload)
               }
             } ~
             (delete & pathEnd) {
-              mutateNothingOrFailures {
+              deleteOrFailures {
                 CustomerNoteManager.delete(customerId, noteId, admin)
               }
             }
@@ -105,23 +105,23 @@ object AdminRoutes {
         } ~
         pathPrefix("return" / Return.returnRefNumRegex) { refNum ⇒
           (get & pathEnd) {
-            getGoodOrFailures {
+            getOrFailures {
               ReturnNoteManager.list(refNum)
             }
           } ~
           (post & pathEnd & entity(as[CreateNote])) { payload ⇒
-            mutateGoodOrFailures {
+            mutateOrFailures {
               ReturnNoteManager.create(refNum, admin, payload)
             }
           } ~
           path(IntNumber) { noteId ⇒
             (patch & pathEnd & entity(as[UpdateNote])) { payload ⇒
-              mutateGoodOrFailures {
+              mutateOrFailures {
                 ReturnNoteManager.update(refNum, noteId, admin, payload)
               }
             } ~
             (delete & pathEnd) {
-              mutateNothingOrFailures {
+              deleteOrFailures {
                 ReturnNoteManager.delete(refNum, noteId, admin)
               }
             }
@@ -129,23 +129,23 @@ object AdminRoutes {
         } ~
         pathPrefix("sku" / Sku.skuCodeRegex) { code ⇒
           (get & pathEnd) {
-            getGoodOrFailures {
+            getOrFailures {
               SkuNoteManager.list(code)
             }
           } ~
           (post & pathEnd & entity(as[CreateNote])) { payload ⇒
-            mutateGoodOrFailures {
+            mutateOrFailures {
               SkuNoteManager.create(code, admin, payload)
             }
           } ~
           path(IntNumber) { noteId ⇒
             (patch & pathEnd & entity(as[UpdateNote])) { payload ⇒
-              mutateGoodOrFailures {
+              mutateOrFailures {
                 SkuNoteManager.update(code, noteId, admin, payload)
               }
             } ~
             (delete & pathEnd) {
-              mutateNothingOrFailures {
+              deleteOrFailures {
                 SkuNoteManager.delete(code, noteId, admin)
               }
             }
@@ -153,23 +153,23 @@ object AdminRoutes {
         } ~
         pathPrefix("product" / IntNumber) { productId ⇒
           (get & pathEnd) {
-            getGoodOrFailures {
+            getOrFailures {
               ProductNoteManager.list(productId)
             }
           } ~
           (post & pathEnd & entity(as[CreateNote])) { payload ⇒
-            mutateGoodOrFailures {
+            mutateOrFailures {
               ProductNoteManager.create(productId, admin, payload)
             }
           } ~
           path(IntNumber) { noteId ⇒
             (patch & pathEnd & entity(as[UpdateNote])) { payload ⇒
-              mutateGoodOrFailures {
+              mutateOrFailures {
                 ProductNoteManager.update(productId, noteId, admin, payload)
               }
             } ~
             (delete & pathEnd) {
-              mutateNothingOrFailures {
+              deleteOrFailures {
                 ProductNoteManager.delete(productId, noteId, admin)
               }
             }
@@ -177,23 +177,23 @@ object AdminRoutes {
         } ~
         pathPrefix("promotion" / IntNumber) { promoId ⇒
           (get & pathEnd) {
-            getGoodOrFailures {
+            getOrFailures {
               PromotionNoteManager.list(promoId)
             }
           } ~
           (post & pathEnd & entity(as[CreateNote])) { payload ⇒
-            mutateGoodOrFailures {
+            mutateOrFailures {
               PromotionNoteManager.create(promoId, admin, payload)
             }
           } ~
           path(IntNumber) { noteId ⇒
             (patch & pathEnd & entity(as[UpdateNote])) { payload ⇒
-              mutateGoodOrFailures {
+              mutateOrFailures {
                 PromotionNoteManager.update(promoId, noteId, admin, payload)
               }
             } ~
             (delete & pathEnd) {
-              mutateNothingOrFailures {
+              deleteOrFailures {
                 PromotionNoteManager.delete(promoId, noteId, admin)
               }
             }
@@ -201,23 +201,23 @@ object AdminRoutes {
         } ~
         pathPrefix("coupon" / IntNumber) { couponId ⇒
           (get & pathEnd) {
-            getGoodOrFailures {
+            getOrFailures {
               CouponNoteManager.list(couponId)
             }
           } ~
           (post & pathEnd & entity(as[CreateNote])) { payload ⇒
-            mutateGoodOrFailures {
+            mutateOrFailures {
               CouponNoteManager.create(couponId, admin, payload)
             }
           } ~
           path(IntNumber) { noteId ⇒
             (patch & pathEnd & entity(as[UpdateNote])) { payload ⇒
-              mutateGoodOrFailures {
+              mutateOrFailures {
                 CouponNoteManager.update(couponId, noteId, admin, payload)
               }
             } ~
             (delete & pathEnd) {
-              mutateNothingOrFailures {
+              deleteOrFailures {
                 CouponNoteManager.delete(couponId, noteId, admin)
               }
             }
@@ -227,17 +227,17 @@ object AdminRoutes {
       pathPrefix("save-for-later") {
         determineObjectContext(db, ec) { productContext ⇒
           (get & path(IntNumber) & pathEnd) { customerId ⇒
-            getGoodOrFailures {
+            getOrFailures {
               SaveForLaterManager.findAll(customerId, productContext.id)
             }
           } ~
           (post & path(IntNumber / Segment) & pathEnd) { (customerId, skuCode) ⇒
-            mutateGoodOrFailures {
+            mutateOrFailures {
               SaveForLaterManager.saveForLater(customerId, skuCode, productContext)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { id ⇒
-            mutateNothingOrFailures {
+            deleteOrFailures {
               SaveForLaterManager.deleteSaveForLater(id)
             }
           }
@@ -245,49 +245,49 @@ object AdminRoutes {
       } ~
       pathPrefix("shared-search") {
         (get & pathEnd & parameters('scope.as[String].?)) { scope ⇒
-          getGoodOrFailures {
+          getOrFailures {
             SharedSearchService.getAll(admin, scope)
           }
         } ~
         (post & pathEnd & entityOr(as[SharedSearchPayload], SharedSearchInvalidQueryFailure)) {
           payload ⇒
-            mutateGoodOrFailures {
+            mutateOrFailures {
               SharedSearchService.create(admin, payload)
             }
         }
       } ~
       pathPrefix("shared-search" / SharedSearch.sharedSearchRegex) { code ⇒
         (get & pathEnd) {
-          getGoodOrFailures {
+          getOrFailures {
             SharedSearchService.get(code)
           }
         } ~
         (patch & pathEnd & entityOr(as[SharedSearchPayload], SharedSearchInvalidQueryFailure)) {
           payload ⇒
-            mutateGoodOrFailures {
+            mutateOrFailures {
               SharedSearchService.update(admin, code, payload)
             }
         } ~
         (delete & pathEnd) {
-          mutateNothingOrFailures {
+          deleteOrFailures {
             SharedSearchService.delete(admin, code)
           }
         } ~
         pathPrefix("associates") {
           (get & pathEnd) {
-            getGoodOrFailures {
+            getOrFailures {
               SharedSearchService.getAssociates(code)
             }
           }
         } ~
         pathPrefix("associate") {
           (post & pathEnd & entity(as[SharedSearchAssociationPayload])) { payload ⇒
-            mutateGoodOrFailures {
+            mutateOrFailures {
               SharedSearchService.associate(admin, code, payload.associates)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { associateId ⇒
-            mutateGoodOrFailures {
+            mutateOrFailures {
               SharedSearchService.unassociate(admin, code, associateId)
             }
           }

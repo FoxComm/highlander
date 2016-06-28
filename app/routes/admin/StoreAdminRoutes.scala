@@ -19,7 +19,7 @@ object StoreAdminRoutes {
     activityContext(admin) { implicit ac ⇒
       pathPrefix("store-admins") {
         (post & pathEnd & entity(as[CreateStoreAdminPayload])) { payload ⇒
-          mutateGoodOrFailures(
+          mutateOrFailures(
               StoreAdminManager.create(payload, Originator(admin))
           )
         } ~
@@ -30,12 +30,12 @@ object StoreAdminRoutes {
             )
           } ~
           (patch & pathEnd & entity(as[UpdateStoreAdminPayload])) { payload ⇒
-            mutateGoodOrFailures(
+            mutateOrFailures(
                 StoreAdminManager.update(saId, payload, Originator(admin))
             )
           } ~
           (delete & pathEnd) {
-            mutateNothingOrFailures(
+            deleteOrFailures(
                 StoreAdminManager.delete(saId, Originator(admin))
             )
           }

@@ -166,28 +166,28 @@ object OrderRoutes {
           } ~
           pathPrefix("shipping-address") {
             (post & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 OrderShippingAddressUpdater.createShippingAddressFromPayload(Originator(admin),
                                                                              payload,
                                                                              Some(refNum))
               }
             } ~
             (patch & path(IntNumber) & pathEnd) { addressId ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 OrderShippingAddressUpdater.createShippingAddressFromAddressId(Originator(admin),
                                                                                addressId,
                                                                                Some(refNum))
               }
             } ~
             (patch & pathEnd & entity(as[UpdateAddressPayload])) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 OrderShippingAddressUpdater.updateShippingAddressFromPayload(Originator(admin),
                                                                              payload,
                                                                              Some(refNum))
               }
             } ~
             (delete & pathEnd) {
-              goodOrFailures {
+              mutateOrFailures {
                 OrderShippingAddressUpdater.removeShippingAddress(Originator(admin), Some(refNum))
               }
             }

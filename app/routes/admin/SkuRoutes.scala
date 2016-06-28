@@ -20,29 +20,29 @@ object SkuRoutes {
       pathPrefix("skus") {
         pathPrefix(Segment) { context ⇒
           (post & pathEnd & entity(as[SkuPayload])) { payload ⇒
-            mutateGoodOrFailures {
+            mutateOrFailures {
               SkuManager.createSku(context, payload)
             }
           } ~
           pathPrefix(Segment) { code ⇒
             (get & pathEnd) {
-              getGoodOrFailures {
+              getOrFailures {
                 SkuManager.getSku(context, code)
               }
             } ~
             (patch & pathEnd & entity(as[SkuPayload])) { payload ⇒
-              mutateGoodOrFailures {
+              mutateOrFailures {
                 SkuManager.updateSku(context, code, payload)
               }
             } ~
             pathPrefix("albums") {
               (get & pathEnd) {
-                getGoodOrFailures {
+                getOrFailures {
                   ImageManager.getAlbumsForSku(code, context)
                 }
               } ~
               (post & pathEnd & entity(as[CreateAlbumPayload])) { payload ⇒
-                mutateGoodOrFailures {
+                mutateOrFailures {
                   ImageManager.createAlbumForSku(admin, code, payload, context)
                 }
               }

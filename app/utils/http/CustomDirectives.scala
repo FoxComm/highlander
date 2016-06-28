@@ -108,19 +108,16 @@ object CustomDirectives {
   def goodOrFailures[A <: AnyRef](a: Result[A])(implicit ec: EC): StandardRoute =
     complete(a.map(renderGoodOrFailures))
 
-  def getGoodOrFailures[A <: AnyRef](a: DbResultT[A])(implicit ec: EC, db: DB): StandardRoute =
+  def getOrFailures[A <: AnyRef](a: DbResultT[A])(implicit ec: EC, db: DB): StandardRoute =
     complete(a.run().map(renderGoodOrFailures))
 
-  def mutateGoodOrFailures[A <: AnyRef](a: DbResultT[A])(implicit ec: EC, db: DB): StandardRoute =
+  def mutateOrFailures[A <: AnyRef](a: DbResultT[A])(implicit ec: EC, db: DB): StandardRoute =
     complete(a.runTxn().map(renderGoodOrFailures))
 
   def nothingOrFailures(a: Result[_])(implicit ec: EC): StandardRoute =
     complete(a.map(renderNothingOrFailures))
 
-  def getNothingOrFailures(a: DbResultT[_])(implicit ec: EC, db: DB): StandardRoute =
-    complete(a.run().map(renderNothingOrFailures))
-
-  def mutateNothingOrFailures(a: DbResultT[_])(implicit ec: EC, db: DB): StandardRoute =
+  def deleteOrFailures(a: DbResultT[_])(implicit ec: EC, db: DB): StandardRoute =
     complete(a.runTxn().map(renderNothingOrFailures))
 
   def entityOr[T](um: FromRequestUnmarshaller[T], failure: failures.Failure): Directive1[T] =
