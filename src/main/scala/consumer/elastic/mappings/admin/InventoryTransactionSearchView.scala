@@ -1,9 +1,10 @@
-package consumer.elastic.mappings
+package consumer.elastic.mappings.admin
 
 import com.sksamuel.elastic4s.ElasticDsl.{mapping ⇒ esMapping, _}
 import com.sksamuel.elastic4s.mappings.FieldType._
 import consumer.aliases._
 import consumer.elastic.AvroTransformer
+import consumer.elastic.mappings.dateFormat
 
 final case class InventoryTransactionSearchView()(implicit ec: EC) extends AvroTransformer {
   def mapping() = esMapping("inventory_transactions_search_view").fields(
