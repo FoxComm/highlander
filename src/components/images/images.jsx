@@ -128,12 +128,6 @@ class Images extends Component {
     return (
       <div>
         <div className={styles.header}>
-          <ActionsDropdown actions={this.bulkActions}
-                           disabled={false}
-                           allChecked={false}
-                           toggledIds={[]}
-                           total={0}
-          />
           <AddButton onClick={this.handleAddAlbum}>Album</AddButton>
         </div>
         {this.dropzone}
