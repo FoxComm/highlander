@@ -164,11 +164,13 @@ export default class CouponForm extends Component {
         </div>
         <div styleName="aside">
           <FullObjectTags
+            parent="Coupons"
             form={formAttributes}
             shadow={shadowAttributes}
             onChange={this.handleChange}
           />
           <FullObjectScheduler
+            parent="Coupons"
             form={formAttributes}
             shadow={shadowAttributes}
             onChange={this.handleChange}

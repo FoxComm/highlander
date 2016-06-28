@@ -8,7 +8,7 @@ import MultiSelectRow from '../table/multi-select-row';
 function setCellContents(product, field) {
   switch (field) {
     case 'image':
-      return _.get(product, ['albums', 0, 'images', 0]);
+      return _.get(product, ['albums', 0, 'images', 0, 'src']);
     case 'state':
       return <RoundedPill text={activeStatus(product)} />;
     default:

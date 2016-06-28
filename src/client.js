@@ -11,6 +11,7 @@ import useNamedRoutes from 'use-named-routes';
 import configureStore from './store';
 import routes from './routes';
 import { setHistory } from 'browserHistory';
+import { trackPageView, initTracker } from './lib/analytics';
 
 const createBrowserHistory = useNamedRoutes(useRouterHistory(createHistory));
 
@@ -21,6 +22,11 @@ export function start() {
   const store = configureStore(history, initialState);
   history = syncHistoryWithStore(history, store);
   setHistory(history);
+
+  initTracker();
+  history.listen(location => {
+    trackPageView(location.pathname);
+  });
 
   render(
     <Provider store={store} routes={routes} key="provider">

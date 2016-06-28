@@ -126,8 +126,9 @@ class CouponPage extends Component {
       const { bulk, singleCode, codesPrefix, codesLength, codesQuantity } = this.props.codeGeneration;
 
       if (bulk === false && singleCode != undefined) {
-        willBeCoupon.then(() => {
-          return this.props.actions.generateCode(coupon.id, singleCode);
+        willBeCoupon.then((data) => {
+          const newId = _.get(data, ['payload', 'id']);
+          return this.props.actions.generateCode(newId, singleCode);
         }).then(() => {
           this.props.actions.couponsGenerationReset();
         });

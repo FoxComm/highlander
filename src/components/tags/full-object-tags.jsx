@@ -58,12 +58,10 @@ export default class FullObjectTags extends Component {
   render(): Element {
     const { form, shadow, onChange, ...rest } = this.props;
     const attributes = this.illuminateAttributes(form, shadow);
-    const innerProps = { ...rest, attributes: attributes, onChange: this.handleChange };
+    const innerProps = { ...rest, attributes, onChange: this.handleChange };
 
     return (
-      <Tags
-        attributes={attributes}
-        onChange={this.handleChange} />
+      <Tags {...innerProps} />
     );
   }
 }

@@ -31,27 +31,14 @@ export function toQuery(filters, options = {}) {
     return {};
   }
 
-  let es = _.reduce(filters, (res, searchTerm) => {
-    if (searchTerm.value.type == 'string' && !isNestedFilter(searchTerm)) {
-      const matchQuery = dsl.matchQuery(searchTerm.term, {
-        query: searchTerm.value.value,
-        type: 'phrase_prefix',
-        max_expansions: 3,
-      });
-
-      res.queries.push(matchQuery);
-    } else {
-      res.filters.push(searchTerm);
-    }
-
-    return res;
-  }, { queries: [], filters: [] });
+  const es = {
+    filters: filters,
+    queries: [],
+  };
 
   if (!_.isEmpty(phrase)) {
     es.queries.push(dsl.matchQuery('_all', {
-      query: phrase,
-      type: 'phrase_prefix',
-      max_expansions: 10,
+      query: phrase
     }));
   }
 
@@ -101,11 +88,10 @@ function createFilter(filter) {
     case 'number':
     case 'term':
       return rangeToFilter(term, operator, value);
-    case 'string':
-      return dsl.matchQuery(term, value);
     case 'string-not-analyzed':
       const extValue = {query: value, analyzer: 'standard'};
       return dsl.matchQuery(term, extValue);
+    case 'string':
     case 'string-term':
       return rangeToFilter(term, operator, value.toLowerCase());
     case 'date':

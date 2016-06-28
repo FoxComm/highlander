@@ -4,6 +4,7 @@ import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
+import { trackEvent } from 'lib/analytics';
 
 import { allowedStateTransitions } from '../../paragons/order';
 
@@ -109,10 +110,14 @@ export default class Order extends React.Component {
   get remorseTimer() {
     if (this.order.isRemorseHold) {
       const refNum = this.order.referenceNumber;
+      const handleIncreaseClick = () => {
+        trackEvent('Orders', 'click_remorse_timer_extend', 'Remorse Timer extend click');
+        this.props.increaseRemorsePeriod(refNum);
+      };
       return (
         <RemorseTimer
           initialEndDate={this.order.remorsePeriodEnd}
-          onIncreaseClick={() => this.props.increaseRemorsePeriod(refNum)}
+          onIncreaseClick={handleIncreaseClick}
           onCountdownFinished={() => this.onRemorseCountdownFinish()}
         />
       );
@@ -143,6 +148,7 @@ export default class Order extends React.Component {
 
   @autobind
   onStateChange(value) {
+    trackEvent('Orders', 'change_orders_state_by_dropdown');
     this.setState({
       newOrderState: value,
     });

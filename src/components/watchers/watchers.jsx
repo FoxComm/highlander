@@ -3,6 +3,7 @@ import _ from 'lodash';
 import React, { Component, PropTypes } from 'react';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
+import { trackEvent } from 'lib/analytics';
 
 // data
 import { groups, emptyTitle } from '../../paragons/watcher';
@@ -89,6 +90,7 @@ class Watchers extends Component {
   watch(e, group) {
     e.preventDefault();
 
+    trackEvent(getGroupTitle(group), 'click_assign_self');
     this.props.watch(group, this.props.currentUser.id);
   }
 
@@ -126,17 +128,34 @@ class Watchers extends Component {
   }
 }
 
+function getGroupTitle(group) {
+  switch (group) {
+    case groups.assignees:
+      return 'Assignees';
+    case groups.watchers:
+      return 'Watchers';
+    default:
+      throw new Error(`Unknown group ${group}`);
+  }
+}
+
 const renderGroup = (props, group) => {
   if (props.isFetching[group]) {
     return <WaitAnimation size="s" />;
   }
 
   const users = _.get(props.data, [group, 'entries'], []);
+  const handleAddClick = () => {
+    trackEvent(getGroupTitle(group), 'click_add');
+    props.showSelectModal(group);
+  };
 
   return (
     <div className={classNames('fc-watchers__users-row', `fc-watchers__${group}-row`)}>
-      <AddButton className="fc-watchers__add-button"
-                 onClick={() => props.showSelectModal(group)} />
+      <AddButton
+        className="fc-watchers__add-button"
+        onClick={handleAddClick}
+      />
       {renderRow(props, group, users)}
     </div>
   );

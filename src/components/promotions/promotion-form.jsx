@@ -95,6 +95,7 @@ export default class PromotionForm extends Component {
 
     return (
       <FullObjectScheduler
+        parent="Promotions"
         form={formAttributes}
         shadow={shadowAttributes}
         onChange={this.handleChange}
@@ -173,6 +174,7 @@ export default class PromotionForm extends Component {
           </ContentBox>
           <ContentBox title="Customers">
             <SelectCustomerGroups
+              parent="Promotions"
               selectedGroupIds={this.state.qualifiedCustomerGroupIds}
               onSelect={(ids) => {
                 this.setState({
@@ -184,6 +186,7 @@ export default class PromotionForm extends Component {
         </div>
         <div styleName="aside">
           <FullObjectTags
+            parent="Promotions"
             form={formAttributes}
             shadow={shadowAttributes}
             onChange={this.handleChange}
