@@ -17,24 +17,24 @@ object VariantResponses {
 
     def build(variant: IlluminatedVariant,
               variantValues: Seq[FullObject[VariantValue]],
-              variantValueSkuCodeLinks: Map[Int, String]): Root =
+              variantValueSkuCodeLinks: Map[Int, Seq[String]]): Root =
       Root(id = variant.id,
            attributes = variant.attributes,
            context = ObjectContextResponse.build(variant.context).some,
            values = variantValues.map(
                vv ⇒
-                 IlluminatedVariantValueResponse.build(vv,
-                                                       variantValueSkuCodeLinks.get(vv.model.id))))
+                 IlluminatedVariantValueResponse
+                   .build(vv, variantValueSkuCodeLinks.getOrElse(vv.model.id, Seq.empty))))
 
     def buildLite(variant: IlluminatedVariant,
                   variantValues: Seq[FullObject[VariantValue]],
-                  variantValueSkuCodeLinks: Map[Int, String]): Root =
+                  variantValueSkuCodeLinks: Map[Int, Seq[String]]): Root =
       Root(id = variant.id,
            attributes = variant.attributes,
            context = None,
            values = variantValues.map(
                vv ⇒
-                 IlluminatedVariantValueResponse.build(vv,
-                                                       variantValueSkuCodeLinks.get(vv.model.id))))
+                 IlluminatedVariantValueResponse
+                   .build(vv, variantValueSkuCodeLinks.getOrElse(vv.model.id, Seq.empty))))
   }
 }

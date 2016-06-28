@@ -160,7 +160,7 @@ case class SimpleVariantShadow(v: SimpleVariant) {
   def create: ObjectShadow = ObjectShadow(attributes = shadow)
 }
 
-case class SimpleVariantValue(name: String, swatch: String, skuCode: Option[String] = None) {
+case class SimpleVariantValue(name: String, swatch: String, skuCodes: Seq[String] = Seq.empty) {
   val (keyMap, form) =
     ObjectUtils.createForm(parse(s"""{ "name": "$name", "swatch": "$swatch" }"""))
 
@@ -370,11 +370,13 @@ object Mvp {
                               formId = form.id,
                               shadowId = shadow.id,
                               commitId = commit.id))
-      _ ← * <~ ObjectLinks.create(ObjectLink(leftId = variantShadowId,
-                                             rightId = shadow.id,
-                                             linkType = ObjectLink.VariantValue))
-      skuOption ← * <~ v.skuCode.map(SkuManager.mustFindSkuByContextAndCode(contextId, _))
-      _ ← * <~ skuOption.map(s ⇒ VariantValueSkuLinks.create( VariantValueSkuLink(leftId = value.id, rightId = s.id)))
+      _ ← * <~ ObjectLinks.create(
+             ObjectLink(leftId = variantShadowId,
+                        rightId = shadow.id,
+                        linkType = ObjectLink.VariantValue))
+      skuCodes ← * <~ v.skuCodes.map(SkuManager.mustFindSkuByContextAndCode(contextId, _))
+      _ ← * <~ skuCodes.map(s ⇒
+               VariantValueSkuLinks.create(VariantValueSkuLink(leftId = value.id, rightId = s.id)))
     } yield
       SimpleVariantValueData(valueId = value.id,
                              variantShadowId = variantShadowId,

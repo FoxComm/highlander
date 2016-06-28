@@ -105,7 +105,7 @@ object ProductResponses {
     def build(p: IlluminatedProduct,
               skus: Seq[IlluminatedSkuResponse.Root],
               variants: Seq[(IlluminatedVariant, Seq[FullObject[VariantValue]])],
-              variantValueSkuCodeLinks: Map[Int, String],
+              variantValueSkuCodeLinks: Map[Int, Seq[String]],
               albums: Seq[AlbumResponse.Root]): Root =
       Root(id = p.id,
            product = IlluminatedProductResponse.buildLite(p),
@@ -133,7 +133,7 @@ object ProductResponses {
               albums: Seq[AlbumResponse.Root],
               skus: Seq[SkuResponse.Root],
               variants: Seq[(IlluminatedVariant, Seq[FullObject[VariantValue]])],
-              variantValueSkuCodeLinks: Map[Int, String]): Root =
+              variantValueSkuCodeLinks: Map[Int, Seq[String]]): Root =
       Root(id = product.id,
            attributes = product.attributes,
            context = ObjectContextResponse.build(product.context),

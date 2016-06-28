@@ -14,7 +14,7 @@ object VariantPayloads {
   case class VariantValuePayload(id: Option[Int] = None,
                                  name: Option[String],
                                  swatch: Option[String],
-                                 skuCode: Option[String]) {
+                                 skuCodes: Seq[String]) {
     val nameAttribute   = name.map(n ⇒ StringAttributePayload("name", n))
     val swatchAttribute = swatch.map(s ⇒ StringAttributePayload("swatch", s))
 

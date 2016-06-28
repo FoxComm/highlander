@@ -35,11 +35,11 @@ class VariantIntegrationTest extends IntegrationTestBase with HttpSupport with A
       response.status must === (StatusCodes.OK)
 
       val variantResponse = response.as[IlluminatedVariantResponse.Root]
-      variantResponse.values.length must ===(1)
+      variantResponse.values.length must === (1)
       private val value: Root = variantResponse.values.head
-      value.name must ===("Red")
-      value.swatch must ===(Some("ff0000"))
-      value.skuCode must ===(Some(skus.head.code))
+      value.name must === ("Red")
+      value.swatch must === (Some("ff0000"))
+      value.skuCodes must === (Seq(skus.head.code))
 
       val name = variantResponse.attributes \ "name" \ "v"
       name.extract[String] must === ("Color")
@@ -58,10 +58,10 @@ class VariantIntegrationTest extends IntegrationTestBase with HttpSupport with A
       name.extract[String] must === ("Size")
 
       val names = variantResponse.values.map(_.name).toSet
-      names must ===(Set("Small", "Large"))
+      names must === (Set("Small", "Large"))
 
-      val valueSkus = variantResponse.values.map(_.skuCode).toSet
-      valueSkus must contain theSameElementsAs skus.map(s ⇒ Some(s.code))
+      val valueSkus = variantResponse.values.map(_.skuCodes).toSet
+      valueSkus must contain theSameElementsAs skus.map(s ⇒ Seq(s.code))
     }
 
     "Throws a 404 if given an invalid id" in new Fixture {
@@ -101,8 +101,8 @@ class VariantIntegrationTest extends IntegrationTestBase with HttpSupport with A
       response2.status must === (StatusCodes.OK)
       val valueResponse = response2.as[IlluminatedVariantValueResponse.Root]
 
-      valueResponse.swatch must ===(Some("ff0000"))
-      valueResponse.skuCode must ===(Some(skus.head.code))
+      valueResponse.swatch must === (Some("ff0000"))
+      valueResponse.skuCodes must === (Seq(skus.head.code))
     }
   }
 
@@ -112,18 +112,19 @@ class VariantIntegrationTest extends IntegrationTestBase with HttpSupport with A
                                               values = None)
 
     val testSkus = Seq(new SimpleSku("SKU-TST", "SKU test", 1000, Currency.USD, true),
-      new SimpleSku("SKU-TS2", "SKU test 2", 1000, Currency.USD, true))
+                       new SimpleSku("SKU-TS2", "SKU test 2", 1000, Currency.USD, true))
 
     val (context, skus) = (for {
       context ← * <~ ObjectContexts
-        .filterByName(SimpleContext.default)
-        .mustFindOneOr(ObjectContextNotFound(SimpleContext.default))
+                 .filterByName(SimpleContext.default)
+                 .mustFindOneOr(ObjectContextNotFound(SimpleContext.default))
 
       skus ← * <~ Mvp.insertSkus(context.id, testSkus)
     } yield (context, skus)).gimme
 
-    val createVariantValuePayload = VariantValuePayload(
-        name = Some("Red"), swatch = Some("ff0000"), skuCode = Some(skus.head.code))
+    val createVariantValuePayload = VariantValuePayload(name = Some("Red"),
+                                                        swatch = Some("ff0000"),
+                                                        skuCodes = Seq(skus.head.code))
   }
 
   trait VariantFixture extends Fixture {
@@ -135,8 +136,8 @@ class VariantIntegrationTest extends IntegrationTestBase with HttpSupport with A
 
     val simpleSizeVariant = SimpleCompleteVariant(
         variant = SimpleVariant("Size"),
-        variantValues = Seq(SimpleVariantValue("Small", "", Some(skus.head.code)),
-          SimpleVariantValue("Large", "", Some(skus(1).code))))
+        variantValues = Seq(SimpleVariantValue("Small", "", Seq(skus.head.code)),
+                            SimpleVariantValue("Large", "", Seq(skus(1).code))))
 
     val (product, variant) = (for {
       productData ← * <~ Mvp.insertProduct(context.id, simpleProd)
