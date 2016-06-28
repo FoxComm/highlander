@@ -17,9 +17,7 @@ function addQuery(searchTerm, search = baseSearch) {
   const query = {
     match: {
       [searchTerm.term]: {
-        max_expansions: 3,
-        query: searchTerm.value.value,
-        type: 'phrase_prefix',
+        query: searchTerm.value.value
       },
     },
   };
