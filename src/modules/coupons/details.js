@@ -12,6 +12,7 @@ import Api from '../../lib/api';
 
 export const couponsNew = createAction('COUPONS_NEW');
 export const couponsChange = createAction('COUPONS_CHANGE');
+const clearCoupon = createAction();
 
 const defaultContext = 'default';
 
@@ -45,6 +46,16 @@ export function fetchCoupon(id: string, context: string = defaultContext) {
       dispatch(getCoupon.perform(id, context));
       dispatch(_getCodes.perform(id));
     }
+  };
+}
+
+export const clearFetchErrors = getCoupon.clearErrors;
+
+export function reset() {
+  return dispatch => {
+    dispatch(clearCoupon());
+    dispatch(clearSubmitErrors());
+    dispatch(clearFetchErrors());
   };
 }
 
@@ -144,6 +155,12 @@ const reducer = createReducer({
     return {
       ...state,
       coupon: createEmptyCoupon(),
+    };
+  },
+  [clearCoupon]: state => {
+    return {
+      ...state,
+      coupon: null,
     };
   },
   [couponsChange]: (state, coupon) => {

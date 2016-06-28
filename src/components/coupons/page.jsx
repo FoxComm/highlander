@@ -54,6 +54,7 @@ class CouponPage extends Component {
   };
 
   componentDidMount(): void {
+    this.props.actions.clearFetchErrors();
     if (this.isNew) {
       this.props.actions.couponsNew();
     } else {
@@ -78,7 +79,7 @@ class CouponPage extends Component {
   }
 
   componentWillUnmount() {
-    this.props.actions.couponsNew();
+    this.props.actions.reset();
   }
 
   get entityId(): string|number {
@@ -259,7 +260,7 @@ export default connect(
   state => ({
     details: state.coupons.details,
     codeGeneration: state.coupons.details.codeGeneration,
-    isFetching: _.get(state.asyncActions, 'getCoupon.inProgress', false),
+    isFetching: _.get(state.asyncActions, 'getCoupon.inProgress', null),
     fetchError: _.get(state.asyncActions, 'getCoupon.err', null),
     submitErrors: (
       _.get(state.asyncActions, 'createCoupon.err.messages') ||
