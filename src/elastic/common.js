@@ -34,9 +34,7 @@ export function toQuery(filters, options = {}) {
   let es = _.reduce(filters, (res, searchTerm) => {
     if (searchTerm.value.type == 'string' && !isNestedFilter(searchTerm)) {
       const matchQuery = dsl.matchQuery(searchTerm.term, {
-        query: searchTerm.value.value,
-        type: 'phrase_prefix',
-        max_expansions: 3,
+        query: searchTerm.value.value
       });
 
       res.queries.push(matchQuery);
@@ -49,9 +47,7 @@ export function toQuery(filters, options = {}) {
 
   if (!_.isEmpty(phrase)) {
     es.queries.push(dsl.matchQuery('_all', {
-      query: phrase,
-      type: 'phrase_prefix',
-      max_expansions: 10,
+      query: phrase
     }));
   }
 
