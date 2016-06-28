@@ -51,29 +51,29 @@ trait DemoSeedHelpers extends CreditCardSeeds {
                        customerId = customerId,
                        contextId = contextId,
                        placedAt = time.yesterday.toInstant.some))
-      _  ← * <~ addSkusToOrder(skuIds, order.id, OrderLineItem.Shipped)
+      _  ← * <~ addSkusToOrder(skuIds, order.refNum, OrderLineItem.Shipped)
       cc ← * <~ CreditCards.create(creditCard1.copy(customerId = customerId))
       op ← * <~ OrderPayments.create(
-              OrderPayment.build(cc).copy(orderId = order.id, amount = none))
+              OrderPayment.build(cc).copy(orderRef = order.refNum, amount = none))
       addr ← * <~ getDefaultAddress(customerId)
       shipA ← * <~ OrderShippingAddresses.create(
-                 OrderShippingAddress.buildFromAddress(addr).copy(orderId = order.id))
+                 OrderShippingAddress.buildFromAddress(addr).copy(orderRef = order.refNum))
       shipM ← * <~ OrderShippingMethods.create(
                  OrderShippingMethod.build(order = order, method = shipMethod))
       _ ← * <~ OrderTotaler.saveTotals(order)
       _ ← * <~ Shipments.create(
-             Shipment(orderId = order.id,
+             Shipment(orderRef = order.refNum,
                       orderShippingMethodId = shipM.id.some,
                       shippingAddressId = shipA.id.some))
     } yield order
 
   private def addSkusToOrder(skuIds: Seq[Sku#Id],
-                             orderId: Order#Id,
+                             orderRef: String,
                              state: OrderLineItem.State): DbResultT[Unit] =
     for {
       liSkus ← * <~ OrderLineItemSkus.filter(_.skuId.inSet(skuIds)).result
       _ ← * <~ OrderLineItems.createAll(liSkus.seq.map { liSku ⇒
-           OrderLineItem(orderId = orderId,
+           OrderLineItem(orderRef = orderRef,
                          originId = liSku.id,
                          originType = OrderLineItem.SkuItem,
                          state = state)
@@ -246,7 +246,7 @@ trait DemoScenario6 extends DemoSeedHelpers {
                        customerId = customer.id,
                        contextId = context.id,
                        placedAt = time.yesterday.toInstant.some))
-      orig ← * <~ GiftCardOrders.create(GiftCardOrder(orderId = order.id))
+      orig ← * <~ GiftCardOrders.create(GiftCardOrder(orderRef = order.refNum))
       _ ← * <~ GiftCards.createAll((1 to 23).map { _ ⇒
            GiftCard.buildLineItem(balance = 50000, originId = orig.id, currency = Currency.USD)
          })

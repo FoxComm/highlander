@@ -23,7 +23,7 @@ object OrderShippingAddressUpdater {
   }
 
   def mustFindShipAddressForOrder(order: Order)(implicit ec: EC): DbResult[OrderShippingAddress] =
-    OrderShippingAddresses.findByOrderId(order.id).mustFindOneOr(NoShipAddress(order.refNum))
+    OrderShippingAddresses.findByOrderRef(order.refNum).mustFindOneOr(NoShipAddress(order.refNum))
 
   def createShippingAddressFromAddressId(originator: Originator,
                                          addressId: Int,
@@ -35,10 +35,10 @@ object OrderShippingAddressUpdater {
       order     ← * <~ getCartByOriginator(originator, refNum)
       _         ← * <~ order.mustBeCart
       addAndReg ← * <~ mustFindAddressWithRegion(addressId)
-      _         ← * <~ OrderShippingAddresses.findByOrderId(order.id).delete
+      _         ← * <~ OrderShippingAddresses.findByOrderRef(order.refNum).delete
       (address, _) = addAndReg
       _           ← * <~ address.mustBelongToCustomer(order.customerId)
-      shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(address, order.id)
+      shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(address, order.refNum)
       region      ← * <~ Regions.mustFindById404(shipAddress.regionId)
       validated   ← * <~ CartValidator(order).validate()
       response    ← * <~ FullOrder.refreshAndFullOrder(order).toXor
@@ -57,8 +57,8 @@ object OrderShippingAddressUpdater {
       _     ← * <~ order.mustBeCart
       newAddress ← * <~ Addresses.create(
                       Address.fromPayload(payload).copy(customerId = order.customerId))
-      _           ← * <~ OrderShippingAddresses.findByOrderId(order.id).delete
-      shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(newAddress, order.id)
+      _           ← * <~ OrderShippingAddresses.findByOrderRef(order.refNum).delete
+      shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(newAddress, order.refNum)
       region      ← * <~ Regions.mustFindById404(shipAddress.regionId)
       validated   ← * <~ CartValidator(order).validate()
       response    ← * <~ FullOrder.refreshAndFullOrder(order).toXor

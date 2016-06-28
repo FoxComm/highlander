@@ -1,11 +1,11 @@
 create or replace function update_orders_view_from_shipments_fn() returns trigger as $$
-declare order_ids int[];
+declare order_refs text[];
 begin
   case TG_TABLE_NAME
     when 'shipments' then
-      order_ids := array_agg(NEW.order_id);
+      order_refs := array_agg(NEW.order_ref);
     when 'shipping_methods' then
-      select array_agg(shipments.order_id) into strict order_ids
+      select array_agg(shipments.order_ref) into strict order_refs
       from shipments
       inner join shipping_methods as sm on (shipments.order_shipping_method_id = sm.id)
       where sm.id = NEW.id;
@@ -25,9 +25,9 @@ begin
               ::export_shipments)::jsonb
             end as shipments
           from orders as o
-          left join shipments on (o.id = shipments.order_id)
+          left join shipments on (o.reference_number = shipments.order_ref)
           left join shipping_methods as sm on (shipments.order_shipping_method_id = sm.id)
-          where o.id = ANY(order_ids)
+          where o.reference_number = ANY(order_refs)
           group by o.id) AS subquery
   WHERE orders_search_view.id = subquery.id;
 

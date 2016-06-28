@@ -1,14 +1,14 @@
 create or replace function update_orders_view_from_assignments_fn() returns trigger as $$
-declare order_ids int[];
+declare order_refs text[];
 begin
   case TG_TABLE_NAME
     when 'assignments' then
-      select array_agg(o.id) into strict order_ids
+      select array_agg(o.id) into strict order_refs
       from assignments as a
       inner join orders as o on (o.id = a.reference_id)
       where a.id = NEW.id and a.reference_type = 'order';
     when 'store_admins' then
-      select array_agg(o.id) into strict order_ids
+      select array_agg(o.id) into strict order_refs
       from orders as o
       inner join assignments as a on (o.id = a.reference_id and a.reference_type = 'order')
       inner join store_admins as sa on (sa.id = a.store_admin_id)
@@ -30,7 +30,7 @@ begin
         from orders as o
         left join assignments as a on (o.id = a.reference_id and a.reference_type = 'order')
         left join store_admins as sa on (sa.id = a.store_admin_id)
-        where o.id = ANY(order_ids)
+        where o.reference_number = ANY(order_refs)
         group by o.id) AS subquery
   WHERE orders_search_view.id = subquery.id;
 

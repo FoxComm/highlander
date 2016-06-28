@@ -48,7 +48,7 @@ object CustomerManager {
     def resolveFromShipments(customerId: Int) =
       (for {
         order    ← Orders if order.customerId === customerId
-        shipment ← Shipments if shipment.orderId === order.id &&
+        shipment ← Shipments if shipment.orderRef === order.referenceNumber &&
           shipment.shippingAddressId.isDefined
         address ← OrderShippingAddresses if address.id === shipment.shippingAddressId &&
           address.phoneNumber.isDefined

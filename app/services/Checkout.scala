@@ -74,7 +74,7 @@ case class Checkout(cart: Order,
 
   private def activePromos: DbResultT[Unit] =
     for {
-      maybePromo ← * <~ OrderPromotions.filterByOrderId(cart.id).one.toXor
+      maybePromo ← * <~ OrderPromotions.filterByOrderRef(cart.refNum).one.toXor
       context    ← * <~ ObjectContexts.mustFindById400(cart.contextId)
       maybeCodeId = maybePromo.flatMap(_.couponCodeId)
       _ ← * <~ maybePromo.fold(DbResultT.unit)(promotionMustBeActive(_, context))
@@ -109,7 +109,7 @@ case class Checkout(cart: Order,
 
   private def updateCouponCountersForPromotion(customer: Customer): DbResultT[Unit] =
     for {
-      maybePromo ← * <~ OrderPromotions.filterByOrderId(cart.id).one.toXor
+      maybePromo ← * <~ OrderPromotions.filterByOrderRef(cart.refNum).one.toXor
       _ ← * <~ maybePromo.map { promo ⇒
            CouponUsageService.updateUsageCounts(promo.couponCodeId, cart.contextId, customer)
          }
@@ -117,13 +117,13 @@ case class Checkout(cart: Order,
 
   private def authPayments(customer: Customer): DbResultT[Unit] =
     for {
-      gcPayments ← * <~ OrderPayments.findAllGiftCardsByOrderId(cart.id).result
+      gcPayments ← * <~ OrderPayments.findAllGiftCardsByOrderRef(cart.refNum).result
       gcTotal ← * <~ authInternalPaymentMethod(gcPayments,
                                                cart.grandTotal,
                                                GiftCards.authOrderPayment,
                                                (a: GiftCardAdjustment) ⇒ a.getAmount.abs)
 
-      scPayments ← * <~ OrderPayments.findAllStoreCreditsByOrderId(cart.id).result
+      scPayments ← * <~ OrderPayments.findAllStoreCreditsByOrderRef(cart.refNum).result
       scTotal ← * <~ authInternalPaymentMethod(
                    scPayments,
                    cart.grandTotal - gcTotal,
@@ -180,7 +180,7 @@ case class Checkout(cart: Order,
 
     if (authAmount > 0) {
       (for {
-        pmt  ← OrderPayments.findAllCreditCardsForOrder(cart.id)
+        pmt  ← OrderPayments.findAllCreditCardsForOrder(cart.refNum)
         card ← pmt.creditCard
       } yield (pmt, card)).one.flatMap {
         case Some((pmt, card)) ⇒
@@ -206,9 +206,8 @@ case class Checkout(cart: Order,
     (for {
       remorseHold ← * <~ Orders.update(cart,
                                        cart.copy(state = RemorseHold, placedAt = Instant.now.some))
-
       onHoldGcs ← * <~ (for {
-                   items ← OrderLineItemGiftCards.findByOrderId(cart.id).result
+                   items ← OrderLineItemGiftCards.findByOrderRef(cart.refNum).result
                    holds ← GiftCards
                             .filter(_.id.inSet(items.map(_.giftCardId)))
                             .map(_.state)

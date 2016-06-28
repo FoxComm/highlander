@@ -19,7 +19,7 @@ object ReturnRoutes {
       determineObjectContext(db, ec) { productContext ⇒
         pathPrefix("returns") {
           (post & pathEnd & entity(as[ReturnCreatePayload])) { payload ⇒
-            goodOrFailures {
+            mutateOrFailures {
               ReturnService.createByAdmin(admin, payload)
             }
           }

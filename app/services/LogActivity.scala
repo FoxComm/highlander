@@ -322,7 +322,7 @@ object LogActivity {
     Activities.log(
         CreditCardChargeCompleted(
             customerId = order.customerId,
-            orderId = order.id,
+            orderRef = order.refNum,
             orderNum = order.refNum,
             cardId = charge.creditCardId,
             amount = charge.amount,

@@ -32,7 +32,7 @@ trait GiftCardGenerator {
     for {
       order ← * <~ Orders.create(
                  Order(state = Order.ManualHold, customerId = customerId, contextId = context.id))
-      orig ← * <~ GiftCardOrders.create(GiftCardOrder(orderId = order.id))
+      orig ← * <~ GiftCardOrders.create(GiftCardOrder(orderRef = order.refNum))
       gc ← * <~ GiftCards.create(
               GiftCard.build(balance = nextGcBalance, originId = orig.id, currency = Currency.USD))
     } yield gc

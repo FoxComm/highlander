@@ -1,21 +1,21 @@
 create or replace function update_orders_view_from_payments_fn() returns trigger as $$
-declare order_ids int[];
+declare order_refs text[];
 begin
   case TG_TABLE_NAME
     when 'order_payments' then
-      order_ids := array_agg(NEW.order_id);
+      order_refs := array_agg(NEW.order_ref);
     when 'credit_card_charges' then
-      select array_agg(op.order_id) into strict order_ids
+      select array_agg(op.order_ref) into strict order_refs
         from credit_card_charges as ccp
         inner join order_payments as op on (op.id = ccp.order_payment_id)
         WHERE ccp.id = NEW.id;
     when 'gift_card_adjustments' then
-      select array_agg(op.order_id) into strict order_ids
+      select array_agg(op.order_ref) into strict order_refs
         from gift_card_adjustments as gcc
         inner join order_payments as op on (op.id = gcc.order_payment_id)
         WHERE gcc.id = NEW.id;
     when 'store_credit_adjustments' then
-      select array_agg(op.order_id) into strict order_ids
+      select array_agg(op.order_ref) into strict order_refs
         from store_credit_adjustments as sca
         inner join order_payments as op on (op.id = sca.order_payment_id)
         WHERE sca.id = NEW.id;
@@ -33,11 +33,11 @@ begin
           ::export_payments)::jsonb
       end as payments
       from orders as o
-      left join order_payments as op on (o.id = op.order_id)
+      left join order_payments as op on (o.reference_number = op.order_ref)
       left join credit_card_charges as ccp on (op.id = ccp.order_payment_id)
       left join gift_card_adjustments as gcc on (op.id = gcc.order_payment_id)
       left join store_credit_adjustments as sca on (op.id = sca.order_payment_id)
-      where o.id = ANY(order_ids)
+      where o.reference_number = ANY(order_refs)
       group by o.id) AS subquery
     WHERE orders_search_view.id = subquery.id;
 
@@ -53,14 +53,14 @@ begin
     credit_card_total = subquery.credit_card_total
     FROM (
       SELECT
-        op.order_id,
+        op.order_ref,
         count(op.id) as credit_card_count,
         coalesce(sum(op.amount), 0) as credit_card_total
         from order_payments as op
         WHERE op.id = NEW.id AND op.payment_method_type = 'creditCard'
-        group by op.order_id
+        group by op.order_ref
       ) AS subquery
-  WHERE orders_search_view.id = subquery.order_id;
+  WHERE orders_search_view.reference_number = subquery.order_ref;
   return NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -72,14 +72,14 @@ begin
     gift_card_total = subquery.gift_card_total
     FROM (
       SELECT
-        op.order_id,
+        op.order_ref,
         count(op.id) as gift_card_count,
         coalesce(sum(op.amount), 0) as gift_card_total
         from order_payments as op
         WHERE op.id = NEW.id AND op.payment_method_type = 'giftCard'
-        group by op.order_id
+        group by op.order_ref
       ) AS subquery
-  WHERE orders_search_view.id = subquery.order_id;
+  WHERE orders_search_view.reference_number = subquery.order_ref;
   return NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -91,14 +91,14 @@ begin
     store_credit_total = subquery.store_credit_total
     FROM (
       SELECT
-        op.order_id,
+        op.order_ref,
         count(op.id) as store_credit_count,
         coalesce(sum(op.amount), 0) as store_credit_total
         from order_payments as op
         WHERE op.id = NEW.id AND op.payment_method_type = 'storeCredit'
-        group by op.order_id
+        group by op.order_ref
       ) AS subquery
-  WHERE orders_search_view.id = subquery.order_id;
+  WHERE orders_search_view.reference_number = subquery.order_ref;
   return NULL;
 END;
 $$ LANGUAGE plpgsql;

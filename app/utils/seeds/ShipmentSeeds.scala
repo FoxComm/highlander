@@ -149,7 +149,7 @@ trait ShipmentSeeds {
      | }
   """.stripMargin).extract[QueryStatement]
 
-  def shipment = Shipment(1, 1, Some(1), Some(1))
+  def shipment = Shipment(1, "boo", Some(1), Some(1))
 
   def condition =
     Condition(rootObject = "Order",

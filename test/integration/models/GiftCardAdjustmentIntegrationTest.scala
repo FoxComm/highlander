@@ -21,7 +21,7 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
                     GiftCardManual(adminId = admin.id, reasonId = reason.id))
         gc ← * <~ GiftCards.create(Factories.giftCard.copy(originId = origin.id))
         payment ← * <~ OrderPayments.create(
-                     Factories.giftCardPayment.copy(orderId = order.id,
+                     Factories.giftCardPayment.copy(orderRef = order.refNum,
                                                     paymentMethodId = gc.id,
                                                     amount = Some(gc.availableBalance)))
         adjustment ← * <~ GiftCards.auth(giftCard = gc,
@@ -40,7 +40,7 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
                     GiftCardManual(adminId = admin.id, reasonId = reason.id))
         gc ← * <~ GiftCards.create(Factories.giftCard.copy(originId = origin.id))
         payment ← * <~ OrderPayments.create(Factories.giftCardPayment
-                       .copy(orderId = order.id, paymentMethodId = gc.id, amount = Some(50)))
+                       .copy(orderRef = order.refNum, paymentMethodId = gc.id, amount = Some(50)))
         adjustment ← * <~ GiftCards.auth(giftCard = gc,
                                          orderPaymentId = Some(payment.id),
                                          debit = 50,
@@ -58,7 +58,7 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
         gc ← * <~ GiftCards.create(
                 Factories.giftCard.copy(originId = origin.id, originalBalance = 50))
         payment ← * <~ OrderPayments.create(Factories.giftCardPayment
-                       .copy(orderId = order.id, paymentMethodId = gc.id, amount = Some(50)))
+                       .copy(orderRef = order.refNum, paymentMethodId = gc.id, amount = Some(50)))
         adjustment ← * <~ GiftCards.capture(giftCard = gc,
                                             orderPaymentId = Some(payment.id),
                                             debit = 50,
@@ -75,7 +75,7 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
         gc ← * <~ GiftCards.create(
                 Factories.giftCard.copy(originId = origin.id, originalBalance = 500))
         payment ← * <~ OrderPayments.create(
-                     Factories.giftCardPayment.copy(orderId = order.id,
+                     Factories.giftCardPayment.copy(orderRef = order.refNum,
                                                     paymentMethodId = gc.id,
                                                     amount = Some(gc.availableBalance)))
         _ ← * <~ GiftCards.capture(giftCard = gc,
@@ -124,7 +124,7 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
         gc ← * <~ GiftCards.create(
                 Factories.giftCard.copy(originId = origin.id, originalBalance = 500))
         payment ← * <~ OrderPayments.create(
-                     Factories.giftCardPayment.copy(orderId = order.id,
+                     Factories.giftCardPayment.copy(orderRef = order.refNum,
                                                     paymentMethodId = gc.id,
                                                     amount = Some(gc.availableBalance)))
         adj ← * <~ GiftCards.capture(giftCard = gc,
@@ -147,7 +147,7 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
         gc ← * <~ GiftCards.create(
                 Factories.giftCard.copy(originId = origin.id, originalBalance = 500))
         payment ← * <~ OrderPayments.create(
-                     Factories.giftCardPayment.copy(orderId = order.id,
+                     Factories.giftCardPayment.copy(orderRef = order.refNum,
                                                     paymentMethodId = gc.id,
                                                     amount = Some(gc.availableBalance)))
       } yield (gc, payment)).gimme

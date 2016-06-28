@@ -25,10 +25,9 @@ object OrderStateUpdater {
                   refNum: String,
                   newState: Order.State)(implicit ec: EC, db: DB, ac: AC): Result[FullOrder.Root] =
     (for {
-
       order    ← * <~ Orders.mustFindByRefNum(refNum)
       _        ← * <~ order.transitionState(newState)
-      _        ← * <~ updateQueries(admin, Seq(order.id), Seq(refNum), newState).toXor
+      _        ← * <~ updateQueries(admin, Seq(refNum), newState).toXor
       updated  ← * <~ Orders.mustFindByRefNum(refNum)
       response ← * <~ FullOrder.fromOrder(updated).toXor
       _ ← * <~ (if (order.state == newState) DbResult.unit
@@ -64,62 +63,59 @@ object OrderStateUpdater {
       val possibleRefNums                           = absolutelyPossibleUpdates.map(_.referenceNumber)
       val skipActivityMod                           = skipActivity || possibleRefNums.isEmpty
 
-      updateQueriesWrapper(admin, possibleIds, possibleRefNums, newState, skipActivityMod).flatMap {
-        _ ⇒
-          // Failure handling
-          val invalid = invalidTransitions.map(o ⇒
-                (o.refNum, StateTransitionNotAllowed(o.state, newState, o.refNum).description))
-          val notFound = refNumbers
-            .filterNot(refNum ⇒ orders.map(_.referenceNumber).contains(refNum))
-            .map(refNum ⇒ (refNum, NotFoundFailure400(Order, refNum).description))
-          val locked = lockedOrders.map { o ⇒
-            (o.refNum, LockedFailure(Order, o.refNum).description)
-          }
+      updateQueriesWrapper(admin, possibleRefNums, newState, skipActivityMod).flatMap { _ ⇒
+        // Failure handling
+        val invalid = invalidTransitions.map(o ⇒
+              (o.refNum, StateTransitionNotAllowed(o.state, newState, o.refNum).description))
+        val notFound = refNumbers
+          .filterNot(refNum ⇒ orders.map(_.referenceNumber).contains(refNum))
+          .map(refNum ⇒ (refNum, NotFoundFailure400(Order, refNum).description))
+        val locked = lockedOrders.map { o ⇒
+          (o.refNum, LockedFailure(Order, o.refNum).description)
+        }
 
-          val batchFailures = (invalid ++ notFound ++ locked).toMap
-          DbResult.good(BatchMetadata(BatchMetadataSource(Order, possibleRefNums, batchFailures)))
+        val batchFailures = (invalid ++ notFound ++ locked).toMap
+        DbResult.good(BatchMetadata(BatchMetadataSource(Order, possibleRefNums, batchFailures)))
       }
     }
   }
 
   private def updateQueriesWrapper(admin: StoreAdmin,
-                                   orderIds: Seq[Int],
-                                   orderRefNums: Seq[String],
+                                   orderRefs: Seq[String],
                                    newState: State,
                                    skipActivity: Boolean = false)(implicit ec: EC, ac: AC) = {
 
     if (skipActivity)
-      updateQueries(admin, orderIds, orderRefNums, newState)
+      updateQueries(admin, orderRefs, newState)
     else
-      orderBulkStateChanged(admin, newState, orderRefNums) >>
-      updateQueries(admin, orderIds, orderRefNums, newState)
+      orderBulkStateChanged(admin, newState, orderRefs) >>
+      updateQueries(admin, orderRefs, newState)
   }
 
-  private def updateQueries(admin: StoreAdmin,
-                            orderIds: Seq[Int],
-                            orderRefNums: Seq[String],
-                            newState: State)(implicit ec: EC) =
+  private def updateQueries(admin: StoreAdmin, orderRefs: Seq[String], newState: State)(
+      implicit ec: EC) =
     newState match {
       case Canceled ⇒
-        cancelOrders(orderIds)
+        cancelOrders(orderRefs)
       case _ ⇒
-        Orders.filter(_.id.inSet(orderIds)).map(_.state).update(newState)
+        Orders.filter(_.referenceNumber.inSet(orderRefs)).map(_.state).update(newState)
     }
 
-  private def cancelOrders(orderIds: Seq[Int])(implicit ec: EC) = {
+  private def cancelOrders(orderRefs: Seq[String])(implicit ec: EC) = {
     val updateLineItems = OrderLineItems
-      .filter(_.orderId.inSetBind(orderIds))
+      .filter(_.orderRef.inSetBind(orderRefs))
       .map(_.state)
       .update(OrderLineItem.Canceled)
 
     val cancelPayments = for {
-      orderPayments ← OrderPayments.filter(_.orderId.inSetBind(orderIds)).result
+      orderPayments ← OrderPayments.filter(_.orderRef.inSetBind(orderRefs)).result
       _             ← cancelGiftCards(orderPayments)
       _             ← cancelStoreCredits(orderPayments)
       // TODO: add credit card charge return
     } yield ()
 
-    val updateOrder = Orders.filter(_.id.inSetBind(orderIds)).map(_.state).update(Canceled)
+    val updateOrder =
+      Orders.filter(_.referenceNumber.inSetBind(orderRefs)).map(_.state).update(Canceled)
 
     // (updateLineItems >> updateOrderPayments >> updateOrder).transactionally
     (updateLineItems >> updateOrder >> cancelPayments).transactionally

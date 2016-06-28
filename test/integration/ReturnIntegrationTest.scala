@@ -519,9 +519,7 @@ class ReturnIntegrationTest extends IntegrationTestBase with HttpSupport with Au
                                       customerId = customer.id,
                                       remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
       rma ← * <~ Returns.create(
-               Factories.rma.copy(orderId = order.id,
-                                  orderRefNum = order.referenceNumber,
-                                  customerId = customer.id))
+               Factories.rma.copy(orderRef = order.refNum, customerId = customer.id))
       reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
     } yield (storeAdmin, customer, order, rma, reason)).gimme
   }
@@ -532,7 +530,7 @@ class ReturnIntegrationTest extends IntegrationTestBase with HttpSupport with Au
       productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       product        ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head)
       sku            ← * <~ Skus.mustFindById404(product.skuId)
-      _              ← * <~ Factories.addSkusToOrder(Seq(sku.id), order.id, OrderLineItem.Cart)
+      _              ← * <~ Factories.addSkusToOrder(Seq(sku.id), order.refNum, OrderLineItem.Cart)
 
       gcReason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
       gcOrigin ← * <~ GiftCardManuals.create(
@@ -542,14 +540,14 @@ class ReturnIntegrationTest extends IntegrationTestBase with HttpSupport with Au
                                             originType = GiftCard.RmaProcess))
 
       gcLineItem ← * <~ OrderLineItemGiftCards.create(
-                      OrderLineItemGiftCard(orderId = order.id, giftCardId = giftCard.id))
+                      OrderLineItemGiftCard(orderRef = order.refNum, giftCardId = giftCard.id))
       lineItem2 ← * <~ OrderLineItems.create(
                      OrderLineItem(originId = gcLineItem.id,
                                    originType = OrderLineItem.GiftCardItem,
-                                   orderId = order.id))
+                                   orderRef = order.refNum))
 
       shippingAddress ← * <~ OrderShippingAddresses.create(
-                           Factories.shippingAddress.copy(orderId = order.id, regionId = 1))
+                           Factories.shippingAddress.copy(orderRef = order.refNum, regionId = 1))
       shippingMethod ← * <~ ShippingMethods.create(Factories.shippingMethods.head)
       orderShippingMethod ← * <~ OrderShippingMethods.create(
                                OrderShippingMethod.build(order = order, method = shippingMethod))

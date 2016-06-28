@@ -82,18 +82,18 @@ trait OrderGenerator extends ShipmentSeeds {
                        customerId = customerId,
                        contextId = context.id,
                        placedAt = time.yesterday.toInstant.some))
-      _      ← * <~ addProductsToOrder(skuIds, order.id, OrderLineItem.Pending)
+      _      ← * <~ addProductsToOrder(skuIds, order.refNum, OrderLineItem.Pending)
       origin ← * <~ StoreCreditManuals.create(StoreCreditManual(adminId = 1, reasonId = 1))
       cc     ← * <~ getCc(customerId)
       op ← * <~ OrderPayments.create(
-              OrderPayment.build(cc).copy(orderId = order.id, amount = none))
+              OrderPayment.build(cc).copy(orderRef = order.refNum, amount = none))
       addr          ← * <~ getDefaultAddress(customerId)
       shipMethodIds ← * <~ ShippingMethods.map(_.id).result
       shipMethod    ← * <~ getShipMethod(1 + Random.nextInt(shipMethodIds.length))
       shipM ← * <~ OrderShippingMethods.create(
                  OrderShippingMethod.build(order = order, method = shipMethod))
       _ ← * <~ OrderShippingAddresses.create(
-             OrderShippingAddress.buildFromAddress(addr).copy(orderId = order.id))
+             OrderShippingAddress.buildFromAddress(addr).copy(orderRef = order.refNum))
       _ ← * <~ OrderTotaler.saveTotals(order)
     } yield order
 
@@ -107,13 +107,13 @@ trait OrderGenerator extends ShipmentSeeds {
                        customerId = customerId,
                        contextId = context.id,
                        placedAt = time.yesterday.toInstant.some))
-      _      ← * <~ addProductsToOrder(skuIds, order.id, OrderLineItem.Pending)
+      _      ← * <~ addProductsToOrder(skuIds, order.refNum, OrderLineItem.Pending)
       origin ← * <~ StoreCreditManuals.create(StoreCreditManual(adminId = 1, reasonId = 1))
       totals ← * <~ total(skuIds)
       sc ← * <~ StoreCredits.create(
               StoreCredit(originId = origin.id, customerId = customerId, originalBalance = totals))
       op ← * <~ OrderPayments.create(
-              OrderPayment.build(sc).copy(orderId = order.id, amount = totals.some))
+              OrderPayment.build(sc).copy(orderRef = order.refNum, amount = totals.some))
       _             ← * <~ StoreCredits.capture(sc, op.id.some, totals)
       addr          ← * <~ getDefaultAddress(customerId)
       shipMethodIds ← * <~ ShippingMethods.map(_.id).result
@@ -121,7 +121,7 @@ trait OrderGenerator extends ShipmentSeeds {
       shipM ← * <~ OrderShippingMethods.create(
                  OrderShippingMethod.build(order = order, method = shipMethod))
       _ ← * <~ OrderShippingAddresses.create(
-             OrderShippingAddress.buildFromAddress(addr).copy(orderId = order.id))
+             OrderShippingAddress.buildFromAddress(addr).copy(orderRef = order.refNum))
       _ ← * <~ OrderTotaler.saveTotals(order)
     } yield order
 
@@ -135,17 +135,17 @@ trait OrderGenerator extends ShipmentSeeds {
                        customerId = customerId,
                        contextId = context.id,
                        placedAt = time.yesterday.toInstant.some))
-      _  ← * <~ addProductsToOrder(skuIds, order.id, OrderLineItem.Pending)
+      _  ← * <~ addProductsToOrder(skuIds, order.refNum, OrderLineItem.Pending)
       cc ← * <~ getCc(customerId)
       op ← * <~ OrderPayments.create(
-              OrderPayment.build(cc).copy(orderId = order.id, amount = none))
+              OrderPayment.build(cc).copy(orderRef = order.refNum, amount = none))
       addr          ← * <~ getDefaultAddress(customerId)
       shipMethodIds ← * <~ ShippingMethods.map(_.id).result
       shipMethod    ← * <~ getShipMethod(1 + Random.nextInt(shipMethodIds.length))
       shipM ← * <~ OrderShippingMethods.create(
                  OrderShippingMethod.build(order = order, method = shipMethod))
       _ ← * <~ OrderShippingAddresses.create(
-             OrderShippingAddress.buildFromAddress(addr).copy(orderId = order.id))
+             OrderShippingAddress.buildFromAddress(addr).copy(orderRef = order.refNum))
       _ ← * <~ OrderTotaler.saveTotals(order)
     } yield order
 
@@ -162,17 +162,17 @@ trait OrderGenerator extends ShipmentSeeds {
                        contextId = context.id,
                        remorsePeriodEnd = Instant.now.plusSeconds(randomSeconds.toLong).some,
                        placedAt = time.yesterday.toInstant.some))
-      _  ← * <~ addProductsToOrder(skuIds, order.id, OrderLineItem.Pending)
+      _  ← * <~ addProductsToOrder(skuIds, order.refNum, OrderLineItem.Pending)
       cc ← * <~ getCc(customerId)
       op ← * <~ OrderPayments.create(
-              OrderPayment.build(cc).copy(orderId = order.id, amount = none))
+              OrderPayment.build(cc).copy(orderRef = order.refNum, amount = none))
       addr          ← * <~ getDefaultAddress(customerId)
       shipMethodIds ← * <~ ShippingMethods.map(_.id).result
       shipMethod    ← * <~ getShipMethod(1 + Random.nextInt(shipMethodIds.length))
       shipM ← * <~ OrderShippingMethods.create(
                  OrderShippingMethod.build(order = order, method = shipMethod))
       _ ← * <~ OrderShippingAddresses.create(
-             OrderShippingAddress.buildFromAddress(addr).copy(orderId = order.id))
+             OrderShippingAddress.buildFromAddress(addr).copy(orderRef = order.refNum))
       _ ← * <~ OrderTotaler.saveTotals(order)
     } yield order
 
@@ -185,7 +185,7 @@ trait OrderGenerator extends ShipmentSeeds {
     for {
       order ← * <~ Orders.create(
                  Order(state = Cart, customerId = customerId, contextId = context.id))
-      _      ← * <~ addProductsToOrder(skuIds, orderId = order.id, OrderLineItem.Cart)
+      _      ← * <~ addProductsToOrder(skuIds, orderRef = order.refNum, OrderLineItem.Cart)
       cc     ← * <~ getCc(customerId)
       gc     ← * <~ GiftCards.mustFindById404(giftCard.id)
       totals ← * <~ total(skuIds)
@@ -194,7 +194,7 @@ trait OrderGenerator extends ShipmentSeeds {
       // Authorize SC payments
       addr ← * <~ getDefaultAddress(customerId)
       _ ← * <~ OrderShippingAddresses.create(
-             OrderShippingAddress.buildFromAddress(addr).copy(orderId = order.id))
+             OrderShippingAddress.buildFromAddress(addr).copy(orderRef = order.refNum))
       _ ← * <~ OrderTotaler.saveTotals(order)
     } yield order
   }
@@ -206,12 +206,13 @@ trait OrderGenerator extends ShipmentSeeds {
     for {
       order ← * <~ Orders.create(
                  Order(state = Cart, customerId = customerId, contextId = context.id))
-      _    ← * <~ addProductsToOrder(skuIds, order.id, OrderLineItem.Cart)
-      cc   ← * <~ getCc(customerId)
-      _    ← * <~ OrderPayments.create(OrderPayment.build(cc).copy(orderId = order.id, amount = none))
+      _  ← * <~ addProductsToOrder(skuIds, order.refNum, OrderLineItem.Cart)
+      cc ← * <~ getCc(customerId)
+      _ ← * <~ OrderPayments.create(
+             OrderPayment.build(cc).copy(orderRef = order.refNum, amount = none))
       addr ← * <~ getDefaultAddress(customerId)
       _ ← * <~ OrderShippingAddresses.create(
-             OrderShippingAddress.buildFromAddress(addr).copy(orderId = order.id))
+             OrderShippingAddress.buildFromAddress(addr).copy(orderRef = order.refNum))
       _ ← * <~ OrderTotaler.saveTotals(order)
     } yield order
 
@@ -227,18 +228,18 @@ trait OrderGenerator extends ShipmentSeeds {
                        customerId = customerId,
                        contextId = context.id,
                        placedAt = time.yesterday.toInstant.some))
-      _  ← * <~ addProductsToOrder(skuIds, order.id, OrderLineItem.Shipped)
+      _  ← * <~ addProductsToOrder(skuIds, order.refNum, OrderLineItem.Shipped)
       cc ← * <~ getCc(customerId) // TODO: auth
       op ← * <~ OrderPayments.create(
-              OrderPayment.build(cc).copy(orderId = order.id, amount = none))
+              OrderPayment.build(cc).copy(orderRef = order.refNum, amount = none))
       addr ← * <~ getDefaultAddress(customerId)
       shipA ← * <~ OrderShippingAddresses.create(
-                 OrderShippingAddress.buildFromAddress(addr).copy(orderId = order.id))
+                 OrderShippingAddress.buildFromAddress(addr).copy(orderRef = order.refNum))
       shipM ← * <~ OrderShippingMethods.create(
                  OrderShippingMethod.build(order = order, method = shipMethod))
       _ ← * <~ OrderTotaler.saveTotals(order)
       _ ← * <~ Shipments.create(
-             Shipment(orderId = order.id,
+             Shipment(orderRef = order.refNum,
                       orderShippingMethodId = shipM.id.some,
                       shippingAddressId = shipA.id.some))
     } yield order
@@ -256,34 +257,34 @@ trait OrderGenerator extends ShipmentSeeds {
                        customerId = customerId,
                        contextId = context.id,
                        placedAt = time.yesterday.toInstant.some))
-      _      ← * <~ addProductsToOrder(skuIds, order.id, OrderLineItem.Shipped)
+      _      ← * <~ addProductsToOrder(skuIds, order.refNum, OrderLineItem.Shipped)
       gc     ← * <~ GiftCards.mustFindById404(giftCard.id)
       totals ← * <~ total(skuIds)
       deductFromGc = deductAmount(gc.availableBalance, totals)
       cc         ← * <~ getCc(customerId) // TODO: auth
       _          ← * <~ generateOrderPayments(order, cc, gc, deductFromGc)
-      gcPayments ← * <~ OrderPayments.findAllGiftCardsByOrderId(order.id).result
+      gcPayments ← * <~ OrderPayments.findAllGiftCardsByOrderRef(order.refNum).result
       _          ← * <~ authGiftCard(gcPayments)
       addr       ← * <~ getDefaultAddress(customerId)
       shipA ← * <~ OrderShippingAddresses.create(
-                 OrderShippingAddress.buildFromAddress(addr).copy(orderId = order.id))
+                 OrderShippingAddress.buildFromAddress(addr).copy(orderRef = order.refNum))
       shipM ← * <~ OrderShippingMethods.create(
                  OrderShippingMethod.build(order = order, method = shipMethod))
       _ ← * <~ OrderTotaler.saveTotals(order)
       _ ← * <~ Shipments.create(
-             Shipment(orderId = order.id,
+             Shipment(orderRef = order.refNum,
                       orderShippingMethodId = shipM.id.some,
                       shippingAddressId = shipA.id.some))
     } yield order
   }
 
   //TODO: Fix line item skus. bug if two or more contexts.
-  def addProductsToOrder(skuIds: Seq[Int], orderId: Order#Id, state: OrderLineItem.State)(
+  def addProductsToOrder(skuIds: Seq[Int], orderRef: String, state: OrderLineItem.State)(
       implicit db: DB): DbResultT[Unit] =
     for {
       liSkus ← * <~ OrderLineItemSkus.filter(_.id.inSet(skuIds)).result
       _ ← * <~ OrderLineItems.createAll(liSkus.seq.map { liSku ⇒
-           OrderLineItem(orderId = orderId,
+           OrderLineItem(orderRef = orderRef,
                          originId = liSku.id,
                          originType = OrderLineItem.SkuItem,
                          state = state)
@@ -311,13 +312,13 @@ trait OrderGenerator extends ShipmentSeeds {
     if (gc.availableBalance > 0)
       for {
         op1 ← * <~ OrderPayments.create(
-                 OrderPayment.build(gc).copy(orderId = order.id, amount = deductFromGc.some))
+                 OrderPayment.build(gc).copy(orderRef = order.refNum, amount = deductFromGc.some))
         op2 ← * <~ OrderPayments.create(
-                 OrderPayment.build(cc).copy(orderId = order.id, amount = none))
+                 OrderPayment.build(cc).copy(orderRef = order.refNum, amount = none))
       } yield {} else
       for {
         op ← * <~ OrderPayments.create(
-                OrderPayment.build(cc).copy(orderId = order.id, amount = none))
+                OrderPayment.build(cc).copy(orderRef = order.refNum, amount = none))
       } yield {}
   }
 

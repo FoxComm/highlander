@@ -5,25 +5,27 @@ import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.db._
 
-case class OrderShippingMethod(id: Int = 0, orderId: Int, shippingMethodId: Int, price: Int)
+case class OrderShippingMethod(id: Int = 0, orderRef: String, shippingMethodId: Int, price: Int)
     extends FoxModel[OrderShippingMethod]
 
 object OrderShippingMethod {
   def build(order: Order, method: ShippingMethod): OrderShippingMethod =
-    OrderShippingMethod(orderId = order.id, shippingMethodId = method.id, price = method.price)
+    OrderShippingMethod(orderRef = order.refNum,
+                        shippingMethodId = method.id,
+                        price = method.price)
 }
 
 class OrderShippingMethods(tag: Tag)
     extends FoxTable[OrderShippingMethod](tag, "order_shipping_methods") {
   def id               = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def orderId          = column[Int]("order_id")
+  def orderRef         = column[String]("order_ref")
   def shippingMethodId = column[Int]("shipping_method_id")
   def price            = column[Int]("price")
 
   def * =
-    (id, orderId, shippingMethodId, price) <> ((OrderShippingMethod.apply _).tupled, OrderShippingMethod.unapply)
+    (id, orderRef, shippingMethodId, price) <> ((OrderShippingMethod.apply _).tupled, OrderShippingMethod.unapply)
 
-  def order = foreignKey(Orders.tableName, orderId, Orders)(_.id)
+  def order = foreignKey(Orders.tableName, orderRef, Orders)(_.referenceNumber)
   def shippingMethod =
     foreignKey(ShippingMethods.tableName, shippingMethodId, ShippingMethods)(_.id)
 }
@@ -34,5 +36,5 @@ object OrderShippingMethods
 
   val returningLens: Lens[OrderShippingMethod, Int] = lens[OrderShippingMethod].id
 
-  def findByOrderId(orderId: Int): QuerySeq = filter(_.orderId === orderId)
+  def findByOrderRef(orderRef: String): QuerySeq = filter(_.orderRef === orderRef)
 }

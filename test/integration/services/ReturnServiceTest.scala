@@ -2,7 +2,7 @@ package services
 
 import java.time.Instant
 
-import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 import models.StoreAdmins
 import models.customer.Customers
@@ -11,14 +11,12 @@ import models.returns._
 import payloads.ReturnPayloads.ReturnCreatePayload
 import services.returns.ReturnService
 import util.IntegrationTestBase
+import utils.db.DbResultT
 import utils.db.DbResultT._
-import utils.db._
 import utils.seeds.Seeds.Factories
 import utils.time._
 
 class ReturnServiceTest extends IntegrationTestBase {
-
-  import concurrent.ExecutionContext.Implicits.global
 
   val numberOfInserts = 20
 
@@ -28,14 +26,13 @@ class ReturnServiceTest extends IntegrationTestBase {
       val futures = (1 to numberOfInserts).map { _ ⇒
         ReturnService.createByAdmin(admin, payload)
       }
-      Future.sequence(futures).futureValue
+      DbResultT.sequence(futures).gimme
 
-      val returns = Returns.gimme
-      val refs    = returns.map(_.refNum)
+      val refs = Returns.gimme.map(_.refNum)
       refs.length must === (numberOfInserts)
       refs.distinct must === (refs)
 
-      val orderUpdated = Orders.findOneById(order.id).run().futureValue.value
+      val orderUpdated = Orders.findOneByRefNum(order.refNum).gimme.value
       orderUpdated.returnCount must === (numberOfInserts)
 
       val rmaCount = Returns.findByOrderRefNum(order.refNum).length.gimme

@@ -17,7 +17,7 @@ object OrderLockUpdater {
       order ← * <~ Orders.mustFindByRefNum(refNum)
       _     ← * <~ order.mustNotBeLocked
       _     ← * <~ Orders.update(order, order.copy(isLocked = true))
-      _     ← * <~ OrderLockEvents.create(OrderLockEvent(orderId = order.id, lockedBy = admin.id))
+      _     ← * <~ OrderLockEvents.create(OrderLockEvent(orderRef = order.refNum, lockedBy = admin.id))
       resp  ← * <~ FullOrder.refreshAndFullOrder(order).toXor
     } yield resp).runTxn()
 
@@ -27,7 +27,7 @@ object OrderLockUpdater {
     (for {
       order    ← * <~ Orders.mustFindByRefNum(refNum)
       _        ← * <~ order.mustBeLocked
-      lastLock ← * <~ OrderLockEvents.latestLockByOrder(order.id).one.toXor
+      lastLock ← * <~ OrderLockEvents.latestLockByOrder(order.refNum).one.toXor
       remorsePlus = increaseRemorse(order) _
       newEnd ← * <~ lastLock.fold(remorsePlus(Duration.ofMinutes(15)))(lock ⇒
                     remorsePlus(Duration.between(lock.lockedAt, Instant.now)))

@@ -41,7 +41,7 @@ object OrderPaymentUpdater {
            .one
            .mustNotFindOr(GiftCardPaymentAlreadyAdded(order.refNum, payload.code))
       _ ← * <~ OrderPayments.create(
-             OrderPayment.build(gc).copy(orderId = order.id, amount = amount.some))
+             OrderPayment.build(gc).copy(orderRef = order.refNum, amount = amount.some))
       resp  ← * <~ refreshAndFullOrder(order).toXor
       valid ← * <~ CartValidator(order).validate()
       _     ← * <~ LogActivity.orderPaymentMethodAddedGc(originator, resp, gc, amount)
@@ -95,12 +95,12 @@ object OrderPaymentUpdater {
       } else {
         def payments = StoreCredit.processFifo(storeCredits, want).map {
           case (sc, amount) ⇒
-            OrderPayment.build(sc).copy(orderId = order.id, amount = amount.some)
+            OrderPayment.build(sc).copy(orderRef = order.refNum, amount = amount.some)
         }
 
         for {
           _ ← * <~ OrderPayments
-               .filter(_.orderId === order.id)
+               .filter(_.orderRef === order.refNum)
                .storeCredits
                .deleteAll(onSuccess = DbResultT.unit, onFailure = DbResultT.unit)
           _ ← * <~ OrderPayments.createAll(payments)
@@ -130,11 +130,12 @@ object OrderPaymentUpdater {
       cc     ← * <~ CreditCards.mustFindById400(id)
       _      ← * <~ cc.mustBeInWallet
       region ← * <~ Regions.findOneById(cc.regionId).safeGet.toXor
-      _      ← * <~ OrderPayments.filter(_.orderId === order.id).creditCards.delete
-      _      ← * <~ OrderPayments.create(OrderPayment.build(cc).copy(orderId = order.id, amount = None))
-      valid  ← * <~ CartValidator(order).validate()
-      resp   ← * <~ refreshAndFullOrder(order).toXor
-      _      ← * <~ LogActivity.orderPaymentMethodAddedCc(originator, resp, cc, region)
+      _      ← * <~ OrderPayments.filter(_.orderRef === order.refNum).creditCards.delete
+      _ ← * <~ OrderPayments.create(
+             OrderPayment.build(cc).copy(orderRef = order.refNum, amount = None))
+      valid ← * <~ CartValidator(order).validate()
+      resp  ← * <~ refreshAndFullOrder(order).toXor
+      _     ← * <~ LogActivity.orderPaymentMethodAddedCc(originator, resp, cc, region)
     } yield TheResponse.build(resp, alerts = valid.alerts, warnings = valid.warnings)
 
   def deleteCreditCard(
@@ -156,7 +157,7 @@ object OrderPaymentUpdater {
       _     ← * <~ order.mustBeCart
       valid ← * <~ CartValidator(order).validate()
       resp ← * <~ OrderPayments
-              .filter(_.orderId === order.id)
+              .filter(_.orderRef === order.refNum)
               .byType(pmt)
               .deleteAll(onSuccess = DbResultT(refreshAndFullOrder(order).toXor),
                          onFailure = DbResultT.failure(OrderPaymentNotFoundFailure(pmt)))
@@ -174,7 +175,7 @@ object OrderPaymentUpdater {
       validated ← * <~ CartValidator(order).validate()
       deleteRes ← * <~ OrderPayments
                    .filter(_.paymentMethodId === giftCard.id)
-                   .filter(_.orderId === order.id)
+                   .filter(_.orderRef === order.refNum)
                    .giftCards
                    .deleteAll(onSuccess = DbResultT(refreshAndFullOrder(order).toXor),
                               onFailure = DbResultT.failure(

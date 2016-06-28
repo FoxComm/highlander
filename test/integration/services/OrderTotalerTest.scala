@@ -93,12 +93,12 @@ class OrderTotalerTest extends IntegrationTestBase {
 
   trait AllLineItemsFixture extends SkuLineItemsFixture {
     val (giftCard, lineItems) = (for {
-      origin ← * <~ GiftCardOrders.create(GiftCardOrder(orderId = order.id))
+      origin ← * <~ GiftCardOrders.create(GiftCardOrder(orderRef = order.refNum))
       giftCard ← * <~ GiftCards.create(
                     GiftCard
                       .buildLineItem(balance = 150, originId = origin.id, currency = Currency.USD))
       gcLi ← * <~ OrderLineItemGiftCards.create(
-                OrderLineItemGiftCard(giftCardId = giftCard.id, orderId = order.id))
+                OrderLineItemGiftCard(giftCardId = giftCard.id, orderRef = order.refNum))
       lineItems ← * <~ OrderLineItems.create(OrderLineItem.buildGiftCard(order, gcLi))
     } yield (giftCard, lineItems)).gimme
   }

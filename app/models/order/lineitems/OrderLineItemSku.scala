@@ -44,9 +44,9 @@ object OrderLineItemSkus
   def safeFindBySkuId(id: Int)(implicit ec: EC): DBIO[OrderLineItemSku] =
     filter(_.skuId === id).one.safeGet
 
-  def findByOrderId(orderId: Rep[Int]): QuerySeq =
+  def findByOrderRef(orderRef: Rep[String]): QuerySeq =
     for {
-      lis    ← OrderLineItems.filter(_.orderId === orderId)
+      lis    ← OrderLineItems.filter(_.orderRef === orderRef)
       skuLis ← lis.skuLineItems
     } yield skuLis
 
@@ -55,7 +55,7 @@ object OrderLineItemSkus
 
   def findLineItemsByOrder(order: Order): Query[FindLineItemResultMulti, FindLineItemResult, Seq] =
     for {
-      lineItems    ← OrderLineItems.filter(_.orderId === order.id)
+      lineItems    ← OrderLineItems.filter(_.orderRef === order.refNum)
       skuLineItems ← lineItems.skuLineItems
       sku          ← skuLineItems.sku
       skuForm      ← ObjectForms if skuForm.id === sku.formId

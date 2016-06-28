@@ -125,9 +125,7 @@ class ReturnNotesIntegrationTest
                  Factories.order.copy(state = Order.RemorseHold,
                                       remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
       rma ← * <~ Returns.create(
-               Factories.rma.copy(orderId = order.id,
-                                  orderRefNum = order.referenceNumber,
-                                  customerId = customer.id))
+               Factories.rma.copy(orderRef = order.refNum, customerId = customer.id))
     } yield (admin, rma)).gimme
   }
 }

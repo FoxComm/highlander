@@ -57,7 +57,7 @@ object OrderTailored {
       extends ActivityBase[OrderCheckoutCompleted]
 
   case class CreditCardChargeCompleted(customerId: Int,
-                                       orderId: Int,
+                                       orderRef: String,
                                        orderNum: String,
                                        amount: Int,
                                        currency: Currency,

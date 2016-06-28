@@ -271,7 +271,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase with HttpSupport wi
                       Factories.storeCredit.copy(originId = scOrigin.id, customerId = customer.id))
         payment ← * <~ OrderPayments.create(
                      Factories.storeCreditPayment.copy(
-                         orderId = order.id,
+                         orderRef = order.refNum,
                          paymentMethodId = storeCredit.id,
                          paymentMethodType = PaymentMethod.StoreCredit,
                          amount = Some(storeCredit.availableBalance)))

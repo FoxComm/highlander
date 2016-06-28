@@ -15,9 +15,9 @@ package object returns {
     def mustFindPendingReturnByRefNum(refNum: String)(implicit ec: EC): DbResult[Return] =
       Returns.findOnePendingByRefNum(refNum).mustFindOr(returnNotFound(refNum))
 
-    def mustFindCcPaymentsByOrderId(orderId: Int)(implicit ec: EC): DbResult[OrderPayment] =
+    def mustFindCcPaymentsByOrderRef(orderRef: String)(implicit ec: EC): DbResult[OrderPayment] =
       OrderPayments
-        .findAllByOrderId(orderId)
+        .findAllByOrderRef(orderRef)
         .creditCards
         .mustFindOneOr(OrderPaymentNotFoundFailure(Order))
   }

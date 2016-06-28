@@ -68,7 +68,7 @@ class CartValidatorTest extends IntegrationTestBase {
                                                 state = GiftCard.Active,
                                                 originalBalance = notEnoughFunds))
           payment ← * <~ OrderPayments.create(
-                       Factories.giftCardPayment.copy(orderId = cart.id,
+                       Factories.giftCardPayment.copy(orderRef = cart.refNum,
                                                       amount = skuPrice.some,
                                                       paymentMethodId = giftCard.id))
         } yield payment).gimme
@@ -187,7 +187,7 @@ class CartValidatorTest extends IntegrationTestBase {
       customer ← * <~ Customers.create(Factories.customer)
       cc       ← * <~ CreditCards.create(Factories.creditCard.copy(customerId = customer.id))
       _ ← * <~ OrderPayments.create(
-             Factories.orderPayment.copy(orderId = cart.id, paymentMethodId = cc.id))
+             Factories.orderPayment.copy(orderRef = cart.refNum, paymentMethodId = cc.id))
     } yield (customer, cc)).gimme
   }
 
@@ -200,7 +200,9 @@ class CartValidatorTest extends IntegrationTestBase {
       giftCard ← * <~ GiftCards.create(
                     Factories.giftCard.copy(originId = origin.id, state = GiftCard.Active))
       payment ← * <~ OrderPayments.create(
-                   OrderPayment.build(giftCard).copy(orderId = cart.id, amount = grandTotal.some))
+                   OrderPayment
+                     .build(giftCard)
+                     .copy(orderRef = cart.refNum, amount = grandTotal.some))
     } yield (admin, giftCard, payment)).gimme
   }
 
@@ -216,7 +218,7 @@ class CartValidatorTest extends IntegrationTestBase {
       payment ← * <~ OrderPayments.create(
                    OrderPayment
                      .build(storeCredit)
-                     .copy(orderId = cart.id, amount = grandTotal.some))
+                     .copy(orderRef = cart.refNum, amount = grandTotal.some))
     } yield (admin, storeCredit, payment)).gimme
   }
 

@@ -39,13 +39,13 @@ case class CartValidator(cart: Order)(implicit ec: EC) extends CartValidation {
   }
 
   private def hasItems(response: CartValidatorResponse): DBIO[CartValidatorResponse] = {
-    OrderLineItems.filter(_.orderId === cart.id).length.result.map { numItems ⇒
+    OrderLineItems.filter(_.orderRef === cart.refNum).length.result.map { numItems ⇒
       if (numItems == 0) warning(response, EmptyCart(cart.refNum)) else response
     }
   }
 
   private def hasShipAddress(response: CartValidatorResponse): DBIO[CartValidatorResponse] = {
-    OrderShippingAddresses.findByOrderId(cart.id).one.map { shipAddress ⇒
+    OrderShippingAddresses.findByOrderRef(cart.refNum).one.map { shipAddress ⇒
       shipAddress.fold(warning(response, NoShipAddress(cart.refNum))) { _ ⇒
         response
       }
@@ -54,7 +54,7 @@ case class CartValidator(cart: Order)(implicit ec: EC) extends CartValidation {
 
   private def validShipMethod(response: CartValidatorResponse): DBIO[CartValidatorResponse] =
     (for {
-      osm ← OrderShippingMethods.findByOrderId(cart.id)
+      osm ← OrderShippingMethods.findByOrderRef(cart.refNum)
       sm  ← osm.shippingMethod
     } yield (osm, sm)).one.flatMap {
       case Some((osm, sm)) ⇒
@@ -114,7 +114,10 @@ case class CartValidator(cart: Order)(implicit ec: EC) extends CartValidation {
     }
 
     if (cart.grandTotal > 0) {
-      OrderPayments.findAllByOrderId(cart.id).result.flatMap(availableFunds(cart.grandTotal, _))
+      OrderPayments
+        .findAllByOrderRef(cart.refNum)
+        .result
+        .flatMap(availableFunds(cart.grandTotal, _))
     } else {
       lift(response)
     }

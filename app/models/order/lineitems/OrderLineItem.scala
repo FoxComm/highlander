@@ -15,7 +15,7 @@ import utils.db._
 
 case class OrderLineItem(id: Int = 0,
                          referenceNumber: String = "",
-                         orderId: Int,
+                         orderRef: String,
                          originId: Int,
                          originType: OriginType = OrderLineItem.SkuItem,
                          state: State = Cart)
@@ -67,7 +67,7 @@ object OrderLineItem {
 
   def buildGiftCard(order: Order, origin: OrderLineItemGiftCard): OrderLineItem = {
     OrderLineItem(
-        orderId = order.id,
+        orderRef = order.refNum,
         originId = origin.id,
         originType = GiftCardItem,
         state = Cart
@@ -76,7 +76,7 @@ object OrderLineItem {
 
   def buildSku(order: Order, sku: Sku): OrderLineItem = {
     OrderLineItem(
-        orderId = order.id,
+        orderRef = order.refNum,
         originId = sku.id,
         originType = SkuItem,
         state = Cart
@@ -87,12 +87,12 @@ object OrderLineItem {
 class OrderLineItems(tag: Tag) extends FoxTable[OrderLineItem](tag, "order_line_items") {
   def id              = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def referenceNumber = column[String]("reference_number")
-  def orderId         = column[Int]("order_id")
+  def orderRef        = column[String]("order_ref")
   def originId        = column[Int]("origin_id")
   def originType      = column[OrderLineItem.OriginType]("origin_type")
   def state           = column[OrderLineItem.State]("state")
   def * =
-    (id, referenceNumber, orderId, originId, originType, state) <>
+    (id, referenceNumber, orderRef, originId, originType, state) <>
       ((OrderLineItem.apply _).tupled, OrderLineItem.unapply)
 
   def skuLineItems = foreignKey(OrderLineItemSkus.tableName, originId, OrderLineItemSkus)(_.id)
@@ -106,14 +106,14 @@ object OrderLineItems
 
   import scope._
 
-  def findByOrderId(orderId: Rep[Int]): Query[OrderLineItems, OrderLineItem, Seq] =
-    filter(_.orderId === orderId)
+  def findByOrderRef(orderRef: Rep[String]): Query[OrderLineItems, OrderLineItem, Seq] =
+    filter(_.orderRef === orderRef)
 
-  def countByOrder(order: Order): DBIO[Int] = findByOrderId(order.id).length.result
+  def countByOrder(order: Order): DBIO[Int] = findByOrderRef(order.refNum).length.result
 
   def countBySkuIdForOrder(order: Order): Query[(Rep[Int], Rep[Int]), (Int, Int), Seq] =
     for {
-      (skuId, group) ← findByOrderId(order.id).skuItems.groupBy(_.originId)
+      (skuId, group) ← findByOrderRef(order.refNum).skuItems.groupBy(_.originId)
     } yield (skuId, group.length)
 
   object scope {

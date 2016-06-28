@@ -11,7 +11,7 @@ import java.time.Instant
 import slick.ast.BaseTypedType
 
 final case class OrderLineItemAdjustment(id: Int = 0,
-                                         orderId: Int,
+                                         orderRef: String,
                                          promotionShadowId: Int,
                                          adjustmentType: OrderLineItemAdjustment.AdjustmentType,
                                          substract: Int,
@@ -23,7 +23,7 @@ class OrderLineItemAdjustments(tag: Tag)
     extends FoxTable[OrderLineItemAdjustment](tag, "order_line_item_adjustments") {
 
   def id                = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def orderId           = column[Int]("order_id")
+  def orderRef          = column[String]("order_ref")
   def promotionShadowId = column[Int]("promotion_shadow_id")
   def adjustmentType    = column[OrderLineItemAdjustment.AdjustmentType]("adjustment_type")
   def substract         = column[Int]("substract")
@@ -31,7 +31,7 @@ class OrderLineItemAdjustments(tag: Tag)
   def createdAt         = column[Instant]("created_at")
 
   def * =
-    (id, orderId, promotionShadowId, adjustmentType, substract, lineItemRefNum, createdAt) <> ((OrderLineItemAdjustment.apply _).tupled, OrderLineItemAdjustment.unapply)
+    (id, orderRef, promotionShadowId, adjustmentType, substract, lineItemRefNum, createdAt) <> ((OrderLineItemAdjustment.apply _).tupled, OrderLineItemAdjustment.unapply)
 }
 
 object OrderLineItemAdjustment {
@@ -56,12 +56,12 @@ object OrderLineItemAdjustments
 
   val returningLens: Lens[OrderLineItemAdjustment, Int] = lens[OrderLineItemAdjustment].id
 
-  def findByOrderId(orderId: Int): QuerySeq =
-    filter(_.orderId === orderId)
+  def findByOrderRef(orderRef: String): QuerySeq =
+    filter(_.orderRef === orderRef)
 
-  def filterByOrderIdAndShadow(orderId: Int, shadowId: Int): QuerySeq =
-    filter(_.orderId === orderId).filter(_.promotionShadowId === shadowId)
+  def filterByOrderRefAndShadow(orderRef: String, shadowId: Int): QuerySeq =
+    filter(_.orderRef === orderRef).filter(_.promotionShadowId === shadowId)
 
-  def filterByOrderIdAndShadows(orderId: Int, shadows: Seq[Int]): QuerySeq =
-    filter(_.orderId === orderId).filter(_.promotionShadowId.inSet(shadows))
+  def filterByOrderRefAndShadows(orderRef: String, shadows: Seq[Int]): QuerySeq =
+    filter(_.orderRef === orderRef).filter(_.promotionShadowId.inSet(shadows))
 }

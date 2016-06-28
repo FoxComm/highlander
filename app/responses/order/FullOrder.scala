@@ -63,8 +63,7 @@ object FullOrder {
 
   case class CouponPair(coupon: IlluminatedCouponResponse.Root, code: String) extends ResponseItem
 
-  case class Root(id: Int,
-                  referenceNumber: String,
+  case class Root(referenceNumber: String,
                   orderState: Order.State,
                   shippingState: Option[Order.State] = None,
                   paymentState: Option[CreditCardCharge.State] = None,
@@ -235,8 +234,7 @@ object FullOrder {
 
     val gcList = giftCards.map { case (gc, li) ⇒ GiftCardResponse.build(gc) }
 
-    Root(id = order.id,
-         referenceNumber = order.referenceNumber,
+    Root(referenceNumber = order.referenceNumber,
          orderState = order.state,
          shippingState = order.getShippingState,
          paymentState = paymentState,
@@ -257,7 +255,7 @@ object FullOrder {
   private def currentLock(order: Order): DBIO[Option[StoreAdmin]] = {
     if (order.isLocked) {
       (for {
-        lock  ← OrderLockEvents.latestLockByOrder(order.id)
+        lock  ← OrderLockEvents.latestLockByOrder(order.refNum)
         admin ← lock.storeAdmin
       } yield admin).one
     } else {
@@ -331,7 +329,7 @@ object FullOrder {
 
   private def fetchOrderDetails(order: Order)(implicit db: DB, ec: EC) = {
     val ccPaymentQ = for {
-      payment    ← OrderPayments.findAllByOrderId(order.id)
+      payment    ← OrderPayments.findAllByOrderRef(order.refNum)
       creditCard ← CreditCards.filter(_.id === payment.paymentMethodId)
       region     ← creditCard.region
     } yield (payment, creditCard, region)
@@ -346,16 +344,16 @@ object FullOrder {
       }
       giftCards   ← OrderLineItemGiftCards.findLineItemsByOrder(order).result
       shipMethod  ← shipping.ShippingMethods.forOrder(order).one
-      shipAddress ← Addresses.forOrderId(order.id)
+      shipAddress ← Addresses.forOrderRef(order.refNum)
       payments    ← ccPaymentQ.one
-      gcPayments  ← OrderPayments.findAllGiftCardsByOrderId(order.id).result
-      scPayments  ← OrderPayments.findAllStoreCreditsByOrderId(order.id).result
+      gcPayments  ← OrderPayments.findAllGiftCardsByOrderRef(order.refNum).result
+      scPayments  ← OrderPayments.findAllStoreCreditsByOrderRef(order.refNum).result
       lockedBy    ← currentLock(order)
-      payState    ← OrderQueries.getPaymentState(order.id)
+      payState    ← OrderQueries.getPaymentState(order.refNum)
       // Promotion stuff
-      orderPromo   ← OrderPromotions.filterByOrderId(order.id).one
+      orderPromo   ← OrderPromotions.filterByOrderRef(order.refNum).one
       promoDetails ← fetchPromoDetails(context, orderPromo)
-      lineItemAdj  ← OrderLineItemAdjustments.findByOrderId(order.id).result
+      lineItemAdj  ← OrderLineItemAdjustments.findByOrderRef(order.refNum).result
     } yield
       (customer,
        lineItems,

@@ -190,7 +190,7 @@ class ReturnPaymentsIntegrationTest
       cc       ← * <~ CreditCards.create(Factories.creditCard.copy(customerId = customer.id))
       orderPayment ← * <~ OrderPayments.create(
                         Factories.orderPayment
-                          .copy(orderId = order.id, paymentMethodId = cc.id, amount = None))
+                          .copy(orderRef = order.refNum, paymentMethodId = cc.id, amount = None))
       rma ← * <~ Returns.create(Factories.rma.copy(referenceNumber = "ABCD1234-11.1"))
     } yield (rma, order, admin, customer)).gimme
   }

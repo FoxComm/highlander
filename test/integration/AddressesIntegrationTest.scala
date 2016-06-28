@@ -176,7 +176,7 @@ class AddressesIntegrationTest extends IntegrationTestBase with HttpSupport with
   trait ShippingAddressFixture extends AddressFixture {
     (for {
       order           ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
-      shippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address, order.id)
+      shippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address, order.refNum)
     } yield (order, shippingAddress)).gimme
   }
 
@@ -185,7 +185,7 @@ class AddressesIntegrationTest extends IntegrationTestBase with HttpSupport with
       address ← * <~ Addresses.create(
                    Factories.address.copy(customerId = customer.id, isDefaultShipping = false))
       order   ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
-      shipAdd ← * <~ OrderShippingAddresses.copyFromAddress(address, order.id)
+      shipAdd ← * <~ OrderShippingAddresses.copyFromAddress(address, order.refNum)
     } yield (address, order, shipAdd)).gimme
   }
 }

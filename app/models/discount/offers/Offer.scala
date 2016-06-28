@@ -25,7 +25,7 @@ trait Offer extends DiscountBase {
   def build(input: DiscountInput,
             substract: Int,
             lineItemRefNum: Option[String] = None): OrderLineItemAdjustment =
-    OrderLineItemAdjustment(orderId = input.order.id,
+    OrderLineItemAdjustment(orderRef = input.order.refNum,
                             promotionShadowId = input.promotion.id,
                             adjustmentType = adjustmentType,
                             substract = substract,

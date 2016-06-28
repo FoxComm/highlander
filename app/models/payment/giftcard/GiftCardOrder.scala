@@ -4,15 +4,15 @@ import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.db._
 
-case class GiftCardOrder(id: Int = 0, orderId: Int) extends FoxModel[GiftCardOrder]
+case class GiftCardOrder(id: Int = 0, orderRef: String) extends FoxModel[GiftCardOrder]
 
 object GiftCardOrder {}
 
 class GiftCardOrders(tag: Tag) extends FoxTable[GiftCardOrder](tag, "gift_card_orders") {
-  def id      = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def orderId = column[Int]("order_id")
+  def id       = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def orderRef = column[String]("order_ref")
 
-  def * = (id, orderId) <> ((GiftCardOrder.apply _).tupled, GiftCardOrder.unapply)
+  def * = (id, orderRef) <> ((GiftCardOrder.apply _).tupled, GiftCardOrder.unapply)
 }
 
 object GiftCardOrders

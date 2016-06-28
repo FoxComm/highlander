@@ -169,7 +169,7 @@ class CustomerIntegrationTest
             case (order, phone) ⇒
               OrderShippingAddress
                 .buildFromAddress(defaultAddress)
-                .copy(orderId = order.id, phoneNumber = phone.some)
+                .copy(orderRef = order.refNum, phoneNumber = phone.some)
           }
 
         val (customer, region, shipments) = (for {
@@ -184,7 +184,7 @@ class CustomerIntegrationTest
                          addresses.map(
                              address ⇒
                                Shipments.create(
-                                   Factories.shipment.copy(orderId = address.orderId,
+                                   Factories.shipment.copy(orderRef = address.orderRef,
                                                            shippingAddressId = address.id.some,
                                                            orderShippingMethodId = None,
                                                            state = Shipped))))
@@ -238,7 +238,7 @@ class CustomerIntegrationTest
         CustomersRanks.refresh.futureValue
 
         // check that states used in sql still actual
-        sqlu"UPDATE orders SET state = 'shipped' WHERE id = ${order.id}".run().futureValue
+        sqlu"UPDATE orders SET state = 'shipped' WHERE reference_number = ${order.refNum}".run().futureValue
         sqlu"UPDATE rmas SET state = 'complete' WHERE id = ${orderPayment.id}".run().futureValue
 
         val response = GET(s"v1/customers/${customer.id}")
@@ -567,7 +567,8 @@ class CustomerIntegrationTest
         val response =
           PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}",
                 payload)
-        val (pmt :: Nil)        = OrderPayments.filter(_.orderId === order.id).creditCards.gimme.toList
+        val (pmt :: Nil) =
+          OrderPayments.filter(_.orderRef === order.refNum).creditCards.gimme.toList
         val (newVersion :: Nil) = CreditCards.filter(_.parentId === creditCard.id).gimme.toList
 
         response.status must === (StatusCodes.OK)
@@ -728,18 +729,17 @@ class CustomerIntegrationTest
                                        state = Order.Shipped,
                                        referenceNumber = "ABC-456"))
       orderPayment ← * <~ OrderPayments.create(
-                        Factories.orderPayment.copy(orderId = order.id,
+                        Factories.orderPayment.copy(orderRef = order.refNum,
                                                     paymentMethodId = creditCard.id,
                                                     amount = None))
       orderPayment2 ← * <~ OrderPayments.create(
-                         Factories.orderPayment.copy(orderId = order2.id,
+                         Factories.orderPayment.copy(orderRef = order2.refNum,
                                                      paymentMethodId = creditCard.id,
                                                      amount = None))
       rma ← * <~ Returns.create(
                Factories.rma.copy(referenceNumber = "ABC-123.1",
-                                  orderId = order.id,
+                                  orderRef = order.refNum,
                                   state = Return.Complete,
-                                  orderRefNum = order.referenceNumber,
                                   customerId = customer.id))
       returnPayment ← * <~ sqlu"""insert into return_payments(return_id, payment_method_id, payment_method_type,
                             amount,

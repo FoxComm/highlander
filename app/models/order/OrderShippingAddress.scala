@@ -11,14 +11,15 @@ import utils.aliases._
 import utils.db._
 
 case class OrderShippingAddress(id: Int = 0,
-                                orderId: Int = 0,
+                                // FIXME @anna This default is just wrong
+                                orderRef: String = "",
                                 regionId: Int,
                                 name: String,
                                 address1: String,
                                 address2: Option[String],
                                 city: String,
                                 zip: String,
-                                phoneNumber: Option[String],
+                                phoneNumber: Option[String] = None,
                                 createdAt: Instant = Instant.now,
                                 updatedAt: Instant = Instant.now)
     extends FoxModel[OrderShippingAddress]
@@ -43,7 +44,7 @@ object OrderShippingAddress {
   def fromPatchPayload(a: OrderShippingAddress, p: UpdateAddressPayload) = {
     OrderShippingAddress(
         id = a.id,
-        orderId = a.orderId,
+        orderRef = a.orderRef,
         regionId = p.regionId.getOrElse(a.regionId),
         name = p.name.getOrElse(a.name),
         address1 = p.address1.getOrElse(a.address1),
@@ -58,7 +59,7 @@ object OrderShippingAddress {
 class OrderShippingAddresses(tag: Tag)
     extends FoxTable[OrderShippingAddress](tag, "order_shipping_addresses") {
   def id          = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def orderId     = column[Int]("order_id")
+  def orderRef    = column[String]("order_ref")
   def regionId    = column[Int]("region_id")
   def name        = column[String]("name")
   def address1    = column[String]("address1")
@@ -70,10 +71,20 @@ class OrderShippingAddresses(tag: Tag)
   def updatedAt   = column[Instant]("updated_at")
 
   def * =
-    (id, orderId, regionId, name, address1, address2, city, zip, phoneNumber, createdAt, updatedAt) <> ((OrderShippingAddress.apply _).tupled, OrderShippingAddress.unapply)
+    (id,
+     orderRef,
+     regionId,
+     name,
+     address1,
+     address2,
+     city,
+     zip,
+     phoneNumber,
+     createdAt,
+     updatedAt) <> ((OrderShippingAddress.apply _).tupled, OrderShippingAddress.unapply)
 
   def address = foreignKey(Addresses.tableName, id, Addresses)(_.id)
-  def order   = foreignKey(Orders.tableName, orderId, Orders)(_.id)
+  def order   = foreignKey(Orders.tableName, orderRef, Orders)(_.referenceNumber)
   def region  = foreignKey(Regions.tableName, regionId, Regions)(_.id)
 }
 
@@ -87,22 +98,22 @@ object OrderShippingAddresses
   import scope._
 
   // TODO @anna: #longlivedbresultt
-  def copyFromAddress(address: Address, orderId: Int)(
+  def copyFromAddress(address: Address, orderRef: String)(
       implicit ec: EC): DbResult[OrderShippingAddress] =
-    create(OrderShippingAddress.buildFromAddress(address).copy(orderId = orderId)).value
+    create(OrderShippingAddress.buildFromAddress(address).copy(orderRef = orderRef)).value
 
-  def findByOrderId(orderId: Int): QuerySeq =
-    filter(_.orderId === orderId)
+  def findByOrderRef(orderRef: String): QuerySeq =
+    filter(_.orderRef === orderRef)
 
-  def findByOrderIdWithRegions(orderId: Int)
-    : Query[(OrderShippingAddresses, Regions), (OrderShippingAddress, Region), Seq] =
-    findByOrderId(orderId).withRegions
+  type QueryWithRegions =
+    Query[(OrderShippingAddresses, Regions), (OrderShippingAddress, Region), Seq]
+
+  def findByOrderRefWithRegions(orderRef: String): QueryWithRegions =
+    findByOrderRef(orderRef).withRegions
 
   object scope {
     implicit class OrderShippingAddressesQueryConversions(q: QuerySeq) {
-      def withRegions: Query[(OrderShippingAddresses, Regions),
-                             (OrderShippingAddress, Region),
-                             Seq] =
+      def withRegions: QueryWithRegions =
         for {
           shippingAddresses ← q
           regions           ← Regions if regions.id === shippingAddresses.regionId

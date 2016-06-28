@@ -19,7 +19,7 @@ import models.{Reason, Reasons}
 import org.postgresql.ds.PGSimpleDataSource
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.DatabaseDef
-import utils.aliases.AC
+import utils.aliases._
 import utils.db.DbResultT._
 import utils.db._
 import utils.db.flyway.newFlyway
@@ -55,29 +55,29 @@ object Seeds {
     db.close()
   }
 
-  def createBaseSeeds()(implicit db: Database): Int = {
+  def createBaseSeeds()(implicit db: DB): Int = {
     Console.err.println("Inserting Base Seeds")
     val result: Failures Xor Int = Await.result(createBase().runTxn(), 4.minutes)
     validateResults("base", result)
   }
 
-  def createStageSeeds(adminId: Int)(implicit db: Database, ac: AC) {
+  def createStageSeeds(adminId: Int)(implicit db: DB, ac: AC) {
     Console.err.println("Inserting Stage seeds")
     val result: Failures Xor Unit = Await.result(createStage(adminId).runTxn(), 4.minutes)
     validateResults("stage", result)
   }
 
-  def createDemoSeeds()(implicit db: Database) {
+  def createDemoSeeds()(implicit db: DB) {
     val result = Await.result(DemoSeeds.insertDemoSeeds.runTxn(), 4.minutes)
     validateResults("demo", result)
   }
 
-  def createRankingSeeds()(implicit db: Database) {
+  def createRankingSeeds()(implicit db: DB) {
     Console.err.println("Inserting ranking seeds")
     Await.result(RankingSeedsGenerator.insertRankingSeeds(1700).runTxn(), 4.minutes)
   }
 
-  def createRandomSeeds(scale: Int)(implicit db: Database, ac: AC) {
+  def createRandomSeeds(scale: Int)(implicit db: DB, ac: AC) {
     Console.err.println("Inserting random seeds")
 
     val customers            = 1000 * scale
@@ -100,13 +100,13 @@ object Seeds {
 
   val today = Instant.now().atZone(ZoneId.of("UTC"))
 
-  def createBase()(implicit db: Database): DbResultT[Int] =
+  def createBase()(implicit db: DB): DbResultT[Int] =
     for {
       context ← * <~ ObjectContexts.create(SimpleContext.create())
       admin   ← * <~ Factories.createStoreAdmins
     } yield admin
 
-  def createStage(adminId: Int)(implicit db: Database, ac: AC): DbResultT[Unit] =
+  def createStage(adminId: Int)(implicit db: DB, ac: AC): DbResultT[Unit] =
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       ruContext ← * <~ ObjectContexts.create(
@@ -224,10 +224,11 @@ object Seeds {
     source
   }
 
-  private def validateResults[R](seed: String, result: Failures Xor R): R = {
+  private def validateResults[R](seed: String, result: Failures Xor R)(implicit db: DB): R = {
     result.fold(failures ⇒ {
       Console.err.println(s"Failed generating $seed seeds!")
       failures.flatten.foreach(Console.err.println)
+      db.close()
       sys.exit(1)
     }, v ⇒ { Console.err.println(s"Successfully created $seed seeds!"); v })
   }
