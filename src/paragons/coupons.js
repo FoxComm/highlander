@@ -55,7 +55,7 @@ export function configureCoupon(coupon) {
   const defaultAttrs = {
     name: 'string',
     storefrontName: 'richText',
-    description: 'text',
+    description: 'richText',
     details: 'richText',
     usageRules: 'usageRules',
   };
