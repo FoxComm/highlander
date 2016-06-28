@@ -4,8 +4,8 @@ import { haveType } from '../state-helpers';
 import { assoc } from 'sprout-data';
 
 const receiveUser = createAction('USER_RECEIVE', (id, user) => [id, user]);
-const failUser = createAction('USER_FAIL', (id, err, source) => [id, err, source]);
 const requestUser = createAction('USER_REQUEST');
+const failUser = createAction('USER_FAIL', (id, err, source) => [id, err, source]);
 const updateUser = createAction('USER_UPDATED', (id, user) => [id, user]);
 
 export function fetchUser(id) {
@@ -15,6 +15,16 @@ export function fetchUser(id) {
       .then(
         user => dispatch(receiveUser(id, user)),
         err => dispatch(failUser(id, err, fetchUser))
+      );
+  };
+}
+
+export function editUser(id, data) {
+  return dispatch => {
+    Api.patch(`/store-admins/${id}`, data)
+      .then(
+        user => dispatch(updateUser(id, user)),
+        err => dispatch(failUser(id, err, editUser))
       );
   };
 }

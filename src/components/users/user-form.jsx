@@ -31,6 +31,11 @@ class UserForm extends Component {
     })
   }
 
+  @autobind
+  getFormData() {
+    return this.state;
+  }
+
   render(): Element {
     const { name, email, phone } = this.state;
     const image = <UserInitials name={name} />;

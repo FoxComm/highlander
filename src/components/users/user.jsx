@@ -4,6 +4,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
+import { autobind } from 'core-decorators';
 
 // actions
 import * as UserActions from '../../modules/users/details';
@@ -26,13 +27,9 @@ export default class User extends Component {
     this.props.fetchUser(userId);
   }
 
-  renderChildren() {
-    return React.Children.map(this.props.children, child => {
-      return React.cloneElement(child, {
-        user: this.props.details
-      });
-    });
-  }
+  state = {
+    user: this.props.details
+  };
 
   get waitAnimation() {
     return <WaitAnimation/>;
@@ -50,17 +47,32 @@ export default class User extends Component {
     return _.get(this.props, 'details.name', '');
   }
 
+  @autobind
+  handleSubmit() {
+    const id = this.props.params.userId;
+    const data = this.refs.form.getFormData();
+    this.props.editUser(id, data)
+  }
+
+  renderChildren() {
+    return React.cloneElement(this.props.children, {
+      ...this.props.children.props,
+      ref: 'form',
+      user: this.props.details
+    });
+  }
+
   renderContent() {
     const { details, params } = this.props;
 
     return (
       <div>
         <PageTitle title={this.pageTitle}>
-          <PrimaryButton type="button">
+          <PrimaryButton type="button" onClick={this.handleSubmit}>
             Save
           </PrimaryButton>
         </PageTitle>
-        <SubNav userId={this.props.params.userId} user={details}/>
+        <SubNav userId={params.userId} user={details}/>
         <div className="fc-grid">
           <div className="fc-col-md-1-1">
             { this.renderChildren() }
