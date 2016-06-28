@@ -27,9 +27,13 @@ function addQuery(searchTerm, search = baseSearch) {
 }
 
 function addFilter(searchTerm, search = baseSearch) {
+  let value = searchTerm.value.value;
+  if (searchTerm.value.type == 'string') {
+    value = value.toLowerCase();
+  }
   const filter = {
     term: {
-      [searchTerm.term]: searchTerm.value.value,
+      [searchTerm.term]: value,
     },
   };
 
@@ -56,7 +60,7 @@ describe('elastic.common', () => {
       }];
 
       const query = toQuery(terms);
-      const expectedQuery = addQuery(terms[0]);
+      const expectedQuery = addFilter(terms[0]);
       expect(omitUndefinedFields(query)).to.eql(omitUndefinedFields(expectedQuery));
     });
 
@@ -88,7 +92,7 @@ describe('elastic.common', () => {
       const terms = [stringTerm, nonStringTerm];
       const query = toQuery(terms);
 
-      const expectedQuery = addQuery(stringTerm);
+      const expectedQuery = addFilter(stringTerm);
       const finalQuery = addFilter(nonStringTerm, expectedQuery);
 
       expect(omitUndefinedFields(query)).to.eql(omitUndefinedFields(finalQuery));
@@ -110,7 +114,7 @@ describe('elastic.common', () => {
       const terms = [stringTerm, nonStringTerm];
       const query = toQuery(terms, { sortBy: 'name' });
 
-      const expectedQuery = addQuery(stringTerm);
+      const expectedQuery = addFilter(stringTerm);
       const expectedFilter = addFilter(nonStringTerm, expectedQuery);
 
       const finalQuery = assoc(expectedFilter, 'sort', [{ name: { order: 'asc' } }]);
@@ -168,7 +172,7 @@ describe('elastic.common', () => {
                 query: {
                   bool: {
                     filter: {
-                      match: { 'customer.name': 'adil wali' },
+                      term: { 'customer.name': 'adil wali' },
                     },
                   },
                 },
