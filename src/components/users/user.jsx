@@ -1,7 +1,7 @@
 /* @flow */
 
 // libs
-import React, { Component } from 'react';
+import React, { Component, Element } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
@@ -16,20 +16,37 @@ import { PageTitle } from '../section-title';
 import SubNav from './sub-nav';
 import { PrimaryButton } from '../common/buttons';
 
-@connect((state, props) => ({
-  ...state.users.details[props.params.userId]
-}), UserActions)
-export default class User extends Component {
+type Actions = {
+  fetchUser: Function,
+  editUser: Function,
+};
+
+type Params = {
+  userId: number,
+};
+
+type Details = {
+  user: Object,
+};
+
+type Props = {
+  actions: Actions,
+  params: Params,
+  details: Details,
+  children: Element,
+  fetchError: any,
+  isFetching: bool,
+  dispatch: Function,
+};
+
+class User extends Component {
+  props: Props;
 
   componentDidMount() {
     const { userId } = this.props.params;
 
     this.props.fetchUser(userId);
   }
-
-  state = {
-    user: this.props.details
-  };
 
   get waitAnimation() {
     return <WaitAnimation/>;
@@ -51,12 +68,11 @@ export default class User extends Component {
   handleSubmit() {
     const id = this.props.params.userId;
     const data = this.refs.form.getFormData();
-    this.props.editUser(id, data)
+    this.props.editUser(id, data);
   }
 
-  renderChildren() {
+  renderChildren(): Element {
     return React.cloneElement(this.props.children, {
-      ...this.props.children.props,
       ref: 'form',
       user: this.props.details
     });
@@ -82,7 +98,7 @@ export default class User extends Component {
     );
   }
 
-  render(): Element {
+  render() {
     let content;
 
     if (this.props.failed) {
@@ -100,3 +116,7 @@ export default class User extends Component {
     );
   }
 }
+
+export default connect((state, props) => ({
+  ...state.users.details[props.params.userId]
+}), UserActions)(User);

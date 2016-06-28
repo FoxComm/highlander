@@ -16,19 +16,33 @@ import { Button } from '../common/buttons';
 // styles
 import styles from './user-form.css';
 
-class UserForm extends Component {
+type Props = {
+  user: Object,
+};
 
-  state = {
+class UserForm extends Component {
+  props: Props;
+
+  static defaultProps = {
+    user: {
+      name: '',
+      email: '',
+      phone: '',
+      state: '',
+    }
+  };
+
+  state: Object = {
     ...this.props.user
   };
 
   @autobind
-  handleFormChange(attributes) {
+  handleFormChange(attributes: Object) {
     this.setState({
       name: attributes.firstAndLastName.v,
       email: attributes.emailAddress.v,
       phone: attributes.phoneNumber.v
-    })
+    });
   }
 
   @autobind
@@ -54,7 +68,7 @@ class UserForm extends Component {
         t: 'string'
       },
       'phoneNumber': {
-        v: phone || '',
+        v: phone,
         t: 'string'
       }
     };
@@ -85,4 +99,4 @@ class UserForm extends Component {
   }
 }
 
-export default UserForm
+export default UserForm;

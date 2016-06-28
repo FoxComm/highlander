@@ -9,28 +9,18 @@ import React, { Component, PropTypes } from 'react';
 import { Link, IndexLink } from '../link';
 import LocalNav from '../local-nav/local-nav';
 
-// types
-//import type { User } from '../../modules/users/details';
-
 type Props = {
-  userId: string,
-  //user: ?User,
+  userId: string|number,
   user: Object,
-  context: string
 };
 
 export default class SubNav extends Component<void, Props, void> {
-  static propTypes = {
-    userId: PropTypes.string.isRequired,
-    user: PropTypes.object,
-    //context: PropTypes.string
-  };
+  props: Props;
 
   render() {
     const params = {
       userId: this.props.userId,
       user: this.props.user,
-      //context: this.props.context
     };
 
     return (
