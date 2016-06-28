@@ -119,7 +119,10 @@ const routes = (
         <Route name='customers-new' path='new' component={NewCustomer} />
         <Route name='customer' path=':customerId' component={Customer}>
           <IndexRoute name='customer-details' component={CustomerDetails}/>
-          <Route title='Transactions' name='customer-transactions' path='transactions' component={CustomerTransactions}/>
+          <Route title='Transactions' 
+                 name='customer-transactions' 
+                 path='transactions' 
+                 component={CustomerTransactions}/>
           <Route title='Returns' name='customer-returns' path='returns' component={RmaChildList}/>
           <Route title='Cart' name='customer-cart' path='cart' component={CustomerCart}/>
           <Route title='Items' name='customer-items' path='items' component={CustomerItems}/>

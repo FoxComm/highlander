@@ -1,62 +1,42 @@
+/* @flow weak */
+
 import Api from '../../lib/api';
-import { createAction, createReducer } from 'redux-act';
-import { haveType } from '../state-helpers';
-import { assoc } from 'sprout-data';
+import { createReducer } from 'redux-act';
+import createAsyncActions from '../async-utils';
 
-const receiveUser = createAction('USER_RECEIVE', (id, user) => [id, user]);
-const requestUser = createAction('USER_REQUEST');
-const failUser = createAction('USER_FAIL', (id, err, source) => [id, err, source]);
-const updateUser = createAction('USER_UPDATED', (id, user) => [id, user]);
+const getUser = createAsyncActions(
+  'getUser',
+  (id: string) => {
+    return Api.get(`/store-admins/${id}`);
+  }
+);
 
-export function fetchUser(id) {
+const _updateUser = createAsyncActions(
+  'updateUser',
+  (user) => {
+    const id = user.id;
+    return Api.patch(`/store-admins/${id}`, user);
+  }
+);
+
+export function fetchUser(id: string) {
   return dispatch => {
-    dispatch(requestUser(id));
-    Api.get(`/store-admins/${id}`)
-      .then(
-        user => dispatch(receiveUser(id, user)),
-        err => dispatch(failUser(id, err, fetchUser))
-      );
+    dispatch(getUser.perform(id));
   };
 }
 
-export function editUser(id, data) {
-  return dispatch => {
-    Api.patch(`/store-admins/${id}`, data)
-      .then(
-        user => dispatch(updateUser(id, user)),
-        err => dispatch(failUser(id, err, editUser))
-      );
+export const updateUser = _updateUser.perform;
+
+function updateUserInState(state, response) {
+  return {
+    ...state,
+    ...response,
   };
 }
 
 const reducer = createReducer({
-  [requestUser]: (entries, id) => {
-    return assoc(entries,
-      [id, 'isFetching'], true,
-      [id, 'failed'], null
-    );
-  },
-  [receiveUser]: (state, [id, details]) => {
-    return assoc(state,
-      [id, 'failed'], null,
-      [id, 'isFetching'], false,
-      [id, 'details'], haveType(details, 'user')
-    );
-  },
-  [failUser]: (state, [id, err, source]) => {
-    console.error(err);
-
-    return assoc(state,
-      [id, 'failed'], true,
-      [id, 'isFetching'], false
-    );
-  },
-  [updateUser]: (state, [id, details]) => {
-    return assoc(state,
-      [id, 'details'], details,
-      [id, 'failed'], null
-    );
-  },
+  [getUser.succeeded]: updateUserInState,
+  [_updateUser.succeeded]: updateUserInState,
 }, {});
 
 export default reducer;

@@ -1,25 +1,19 @@
 /* @flow */
 
 // libs
-import React, { Component, Element } from 'react';
-import { connect } from 'react-redux';
 import _ from 'lodash';
+import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
+import { connect } from 'react-redux';
 
 // actions
 import * as UserActions from '../../modules/users/details';
 
 // components
-import LocalNav, { NavDropdown } from '../local-nav/local-nav';
 import WaitAnimation from '../common/wait-animation';
 import { PageTitle } from '../section-title';
 import SubNav from './sub-nav';
 import { PrimaryButton } from '../common/buttons';
-
-type Actions = {
-  fetchUser: Function,
-  editUser: Function,
-};
 
 type Params = {
   userId: number,
@@ -30,13 +24,13 @@ type Details = {
 };
 
 type Props = {
-  actions: Actions,
   params: Params,
   details: Details,
   children: Element,
   fetchError: any,
   isFetching: bool,
-  dispatch: Function,
+  fetchUser: Function,
+  updateUser: Function,
 };
 
 class User extends Component {
@@ -66,9 +60,8 @@ class User extends Component {
 
   @autobind
   handleSubmit() {
-    const id = this.props.params.userId;
-    const data = this.refs.form.getFormData();
-    this.props.editUser(id, data);
+    const user = this.refs.form.getFormData();
+    this.props.updateUser(user);
   }
 
   renderChildren(): Element {
@@ -101,7 +94,7 @@ class User extends Component {
   render() {
     let content;
 
-    if (this.props.failed) {
+    if (this.props.fetchError) {
       content = this.errorMessage;
     } else if (this.props.isFetching || !this.props.details) {
       content = this.waitAnimation;
@@ -117,6 +110,11 @@ class User extends Component {
   }
 }
 
-export default connect((state, props) => ({
-  ...state.users.details[props.params.userId]
-}), UserActions)(User);
+export default connect(
+  (state, props) => ({
+    details: state.users.details,
+    isFetching: _.get(state.asyncActions, 'getUser.inProgress', true),
+    fetchError: _.get(state.asyncActions, 'getUser.err', null),
+  }),
+  UserActions
+)(User);
