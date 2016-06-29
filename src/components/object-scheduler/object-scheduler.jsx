@@ -27,6 +27,11 @@ type State = {
   showActiveToPicker: boolean,
 };
 
+const SELECT_STATE = [
+  ['active', 'Active'],
+  ['inactive', 'Inactive'],
+];
+
 export default class ObjectScheduler extends Component {
   props: Props;
   state: State = this.fieldsStateFromProps(this.props);
@@ -197,15 +202,15 @@ export default class ObjectScheduler extends Component {
   get activeDropdown(): Element {
     const activeState = this.isActive ? 'active' : 'inactive';
     const isDisabled = this.state.showActiveFromPicker;
+
     return (
       <Dropdown
         className="fc-product-state__active-state"
         disabled={isDisabled}
         value={activeState}
-        onChange={this.handleActiveChange}>
-        <DropdownItem value="active">Active</DropdownItem>
-        <DropdownItem value="inactive">Inactive</DropdownItem>
-      </Dropdown>
+        onChange={this.handleActiveChange}
+        items={SELECT_STATE}
+      />
     );
   }
 

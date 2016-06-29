@@ -41,6 +41,11 @@ type State = {
   selectedValue: ValueType,
 };
 
+/**
+ * Generic Dropdown component
+ *
+ * WARNING: It's important to implement shouldComponentUpdate hook in host components
+ */
 export default class GenericDropdown extends Component {
   props: Props;
 

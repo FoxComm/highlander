@@ -50,9 +50,7 @@ class CustomProperty extends Component<void, Props, State> {
   }
 
   get propertyTypes(): Array<Element> {
-    return _.map(propertyTypes, (type, key) => {
-      return <DropdownItem key={`type-${key}`} value={key}>{type}</DropdownItem>;
-    });
+    return _.map(propertyTypes, (type, key) => [key, type]);
   }
 
   @autobind
@@ -95,9 +93,9 @@ class CustomProperty extends Component<void, Props, State> {
               <Dropdown
                 name="type"
                 value={this.state.propertyType}
-                onChange={this.handleUpdateType}>
-                {this.propertyTypes}
-              </Dropdown>
+                onChange={this.handleUpdateType}
+                items={this.propertyTypes}
+              />
             </FormField>
             <SaveCancel
               onCancel={this.props.onCancel}

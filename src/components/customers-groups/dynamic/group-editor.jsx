@@ -13,6 +13,7 @@ import { prefix } from '../../../lib/text-utils';
 
 //components
 import Form from '../../forms/form';
+
 import FormField from '../../forms/formfield';
 import { Dropdown, DropdownItem } from '../../dropdown';
 import { PrimaryButton, Button } from '../../common/buttons';
@@ -21,11 +22,15 @@ import { Link } from '../../link';
 
 import { actions } from '../../../modules/customer-groups/dynamic/group';
 
+const SELECT_CRITERIA = [
+  [operators.and, 'all'],
+  [operators.or, 'any']
+];
 
 const prefixed = prefix('fc-customer-group-dynamic-edit');
 
-const mapStateToProps = state => ({group: state.customerGroups.dynamic.group});
-const mapDispatchToProps = dispatch => ({actions: bindActionCreators(actions, dispatch)});
+const mapStateToProps = state => ({ group: state.customerGroups.dynamic.group });
+const mapDispatchToProps = dispatch => ({ actions: bindActionCreators(actions, dispatch) });
 
 @connect(mapStateToProps, mapDispatchToProps)
 export default class DynamicGroupEditor extends React.Component {
@@ -49,7 +54,7 @@ export default class DynamicGroupEditor extends React.Component {
   };
 
   componentDidMount() {
-    const {group, actions} = this.props;
+    const { group, actions } = this.props;
 
     if (!group.mainCondition) {
       actions.setMainCondition(operators.and);
@@ -57,7 +62,7 @@ export default class DynamicGroupEditor extends React.Component {
   }
 
   get nameField() {
-    const {group: {name}, actions: {setName}} = this.props;
+    const { group: { name }, actions: { setName } } = this.props;
 
     return (
       <FormField label="Group Name"
@@ -75,7 +80,7 @@ export default class DynamicGroupEditor extends React.Component {
   }
 
   get mainCondition() {
-    const {group: {mainCondition}, actions: {setMainCondition}} = this.props;
+    const { group: { mainCondition }, actions: { setMainCondition } } = this.props;
 
     return (
       <div className={prefixed('match-div')}>
@@ -83,10 +88,9 @@ export default class DynamicGroupEditor extends React.Component {
         <span className={prefixed('match-dropdown')}>
           <Dropdown name="matchCriteria"
                     value={mainCondition}
-                    onChange={value => setMainCondition(value)}>
-            <DropdownItem value={operators.and} key={operators.and}>all</DropdownItem>
-            <DropdownItem value={operators.or} key={operators.or}>any</DropdownItem>
-          </Dropdown>
+                    onChange={value => setMainCondition(value)}
+                    items={SELECT_CRITERIA}
+          />
         </span>
         <span className={prefixed('form-name')}>of the following criteria:</span>
       </div>
@@ -94,7 +98,7 @@ export default class DynamicGroupEditor extends React.Component {
   }
 
   render() {
-    const {group, actions} = this.props;
+    const { group, actions } = this.props;
 
     return (
       <div>

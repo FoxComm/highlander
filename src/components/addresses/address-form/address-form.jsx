@@ -115,7 +115,13 @@ export default class AddressForm extends React.Component {
       name: 'phoneNumber',
       placeholder: phoneExample(this.countryCode),
       value: this.state.phone,
-      onChange: ({target}) => this.handlePhoneChange(target.value),
+      onChange: (e) => {
+        if (this.countryCode === 'US') {
+          this.handlePhoneChange(e.target.value);
+        } else {
+          this.handlePhoneChange(e);
+        }
+      },
     };
 
     return (this.countryCode === 'US')
@@ -125,18 +131,14 @@ export default class AddressForm extends React.Component {
 
   get regionItems() {
     const regions = _.get(this.country, 'regions', []);
-    return _.map(regions, region => {
-      const key = `dd-item-region-${region.name}`;
-      return <DropdownItem value={region.id} key={key}>{region.name}</DropdownItem>;
-    });
+
+    return _.map(regions, region => [region.id, region.name]);
   }
 
   get countryItems() {
     const countries = _.get(this.props, 'countries', []);
-    return _.map(countries, country => {
-      const key = `dd-item-country-${country.id}`;
-      return <DropdownItem value={country.id} key={key}>{country.name}</DropdownItem>;
-    });
+
+    return _.map(countries, country => [country.id, country.name]);
   }
 
   get errorMessages() {
@@ -239,9 +241,9 @@ export default class AddressForm extends React.Component {
                 <FormField label="Country">
                   <Dropdown name="countryId"
                             value={this.state.countryId}
-                            onChange={value => this.handleCountryChange(Number(value))} >
-                    {this.countryItems}
-                  </Dropdown>
+                            onChange={value => this.handleCountryChange(Number(value))}
+                            items={this.countryItems}
+                  />
                 </FormField>
               </li>
               <li>
@@ -261,12 +263,11 @@ export default class AddressForm extends React.Component {
               </li>
               <li>
                 <FormField label={regionName(countryCode)} required>
-                  <Dropdown
-                    name="regionId"
-                    value={this.state.stateId}
-                    onChange={value => this.handleStateChange(Number(value))} >
-                    {this.regionItems}
-                  </Dropdown>
+                  <Dropdown name="regionId"
+                            value={this.state.stateId}
+                            onChange={value => this.handleStateChange(Number(value))}
+                            items={this.regionItems}
+                  />
                 </FormField>
               </li>
               <li>

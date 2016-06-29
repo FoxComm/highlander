@@ -126,11 +126,10 @@ export default class NewGiftCard extends React.Component {
       return (
         <div className="fc-new-gift-card__subtypes fc-col-md-1-2">
           <label className="fc-new-gift-card__label" htmlFor="subTypeId">Subtype</label>
-          <Dropdown value={`${props.subTypeId}`} onChange={ value => props.changeFormData('subTypeId', Number(value)) }>
-            {props.subTypes.map(subType => {
-              return <DropdownItem key={`subType-${subType.id}`} value={`${subType.id}`}>{subType.title}</DropdownItem>;
-            })}
-          </Dropdown>
+          <Dropdown value={`${props.subTypeId}`}
+                    onChange={ value => props.changeFormData('subTypeId', Number(value)) }
+                    items={props.subTypes.map(subType =>[subType.id, subType.title])}
+          />
         </div>
       );
     }
@@ -238,14 +237,10 @@ export default class NewGiftCard extends React.Component {
           <div className="fc-grid fc-grid-no-gutter fc-new-gift-card__fieldset">
             <div className="fc-new-gift-card__types fc-col-md-1-2">
               <label className="fc-new-gift-card__label" htmlFor="originType">Gift Card Type</label>
-              <Dropdown value={originType} onChange={value => changeFormData('originType', value) }>
-                {types.map((entry, idx) => {
-                  const type = entry.originType;
-                  const title = typeTitles[entry.originType];
-
-                  return <DropdownItem value={type} key={`${idx}-${type}`}>{title}</DropdownItem>;
-                })}
-              </Dropdown>
+              <Dropdown value={originType}
+                        onChange={value => changeFormData('originType', value) }
+                        items={types.map((entry, idx) => [entry.originType, typeTitles[entry.originType]])}
+              />
             </div>
             {this.subTypes}
           </div>

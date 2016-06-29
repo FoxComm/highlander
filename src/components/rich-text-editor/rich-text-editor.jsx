@@ -77,17 +77,15 @@ export default class RichTextEditor extends Component<void, Props, State> {
       .getBlockForKey(selection.getStartKey())
       .getType();
 
-    const items = headerStyles.map(t => <DropdownItem value={t.style} key={t.label}>{t.label}</DropdownItem>);
-
     return (
       <div className="fc-rich-text-editor__command-set">
         <Dropdown
           className="fc-rich-text-editor__command-headers"
           placeholder={<i className="icon-size" />}
           onChange={this.handleBlockTypeChange}
-          value={blockType}>
-          {items}
-        </Dropdown>
+          value={blockType}
+          items={headerStyles.map(t => [t.style, t.label])}
+        />
       </div>
     );
   }

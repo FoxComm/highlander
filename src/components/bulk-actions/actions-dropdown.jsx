@@ -22,11 +22,9 @@ const ActionsDropdown = ({actions, disabled, allChecked, toggledIds, total}) => 
                 placeholder="Actions"
                 changeable={false}
                 disabled={disabled}
-                onChange={getActionsHandler(actions, allChecked, toggledIds)}>
-        {actions.map(([title, handler]) => (
-          <DropdownItem key={title} value={title}>{title}</DropdownItem>
-        ))}
-      </Dropdown>
+                onChange={getActionsHandler(actions, allChecked, toggledIds)}
+                items={actions.map(([title]) => [title, title])}
+      />
       { totalSelected > 0 ? (
         <span className="fc-table-actions__selected">
           {totalSelected} Selected

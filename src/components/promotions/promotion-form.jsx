@@ -31,6 +31,11 @@ type State = {
   qualifiedCustomerGroupIds: Array<any>,
 };
 
+const SELECT_COUPON_TYPE = [
+  ['auto', 'Auto'],
+  ['coupon', 'Coupon'],
+];
+
 export default class PromotionForm extends Component {
   props: Props;
 
@@ -141,10 +146,8 @@ export default class PromotionForm extends Component {
                   placeholder="- Select -"
                   value={promotion.applyType}
                   onChange={this.handleApplyTypeChange}
-                >
-                  <DropdownItem value="auto">Auto</DropdownItem>
-                  <DropdownItem value="coupon">Coupon</DropdownItem>
-                </Dropdown>
+                  items={SELECT_COUPON_TYPE}
+                />
               </div>
             </FormField>
             <FullObjectForm
