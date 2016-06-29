@@ -97,14 +97,14 @@
   service: name=postgresql state=restarted sleep=5
   sudo: true
 
-- name: Install Prerequisites for posgresql ansible module
+- name: Install Prerequisites for Postgresql Ansible Module
   sudo: true
   apt: name={{item}} state=latest
   with_items:
     - libpq-dev
     - python-psycopg2
 
-- name: Setup db backup and restore scripts
+- name: Setup Database Backup and Restore Scripts
   copy: src={{item}} dest="{{usr_local}}bin/{{item}}" mode="0777"
   with_items:
     - restore_db.sh
@@ -121,19 +121,20 @@
   sudo: true
   tags: backup
 
-- stat: path={{db_backup_dir}}
+- name: Stat Backup Directory
+  stat: path={{db_backup_dir}}
   register: db_backup_dir_res
   sudo: true
   ignore_errors: True
   tags: backup
 
-- name: Create backup dir
+- name: Create Backup Directory
   file: path={{db_backup_dir}} state=directory mode="0700"
   when: db_backup_dir_res.stat.exists == False
   sudo: true
   tags: backup
 
-- name: Add service which mount backup dir
+- name: Add Backup Directory Mount Service
   template: src=backup_mount.service dest={{dest_services}}/backup_mount.service
   sudo: true
   tags: backup
@@ -158,7 +159,7 @@
   template: src=db.json dest="/etc/consul.d/db.json"
   sudo: true
 
-- name: Setup cron for db backup
+- name: Setup Database Backup Cron
   cron: name="db backup" minute="30" hour="4" job="{{usr_local}}bin/backup_db.sh {{db_backup_dir}}/{{ansible_hostname}}_{{db_name}}_$(date +%F_%H_%M) {{db_name}}"
   sudo: true
   tags: backup
