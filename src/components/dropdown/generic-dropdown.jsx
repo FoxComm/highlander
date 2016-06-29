@@ -228,14 +228,6 @@ export default class GenericDropdown extends Component {
     });
   }
 
-  shouldComponentUpdate(nextProps:Props, nextState:State) {
-    const stateChanged = !_.eq(this.state, nextState);
-    // suggest here that children change only when it amount changes
-    const childrenChanged = Children.count(this.props.children) != Children.count(nextProps.children);
-
-    return stateChanged || childrenChanged;
-  }
-
   render() {
     const { editable } = this.props;
     return (
