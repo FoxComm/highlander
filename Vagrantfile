@@ -64,7 +64,7 @@ Vagrant.configure("2") do |config|
   tune_vm(config, cpus: $vb_cpu, memory: $vb_memory)
 
   config.vm.provider :vmware_fusion do |v, override|
-    override.vm.box= "boxcutter/ubuntu1604"
+    override.vm.box = "boxcutter/ubuntu1604"
   end
 
   config.vm.provider :google do |g, override|
@@ -91,6 +91,7 @@ Vagrant.configure("2") do |config|
     app.vm.provision "shell", inline: "apt-get install -y python-minimal"
     app.vm.provision "ansible" do |ansible|
         ansible.verbose = "vvv"
+        ansible.skip_tags = "backup"
         ansible.playbook = "ansible/vagrant_appliance.yml"
           ansible.extra_vars = {
               user: $user
@@ -104,6 +105,7 @@ Vagrant.configure("2") do |config|
     app.vm.provision "shell", inline: "apt-get install -y python-minimal"
     app.vm.provision "ansible" do |ansible|
           ansible.verbose = "vvv"
+          ansible.skip_tags = "backup"
           ansible.playbook = "ansible/vagrant_backend.yml"
           ansible.extra_vars = {
               user: $user
@@ -121,6 +123,7 @@ Vagrant.configure("2") do |config|
       app.vm.provision "shell", inline: "apt-get install -y python-minimal"
       app.vm.provision "ansible" do |ansible|
           ansible.verbose = "vvv"
+          ansible.skip_tags = "backup"
           ansible.playbook = "ansible/vagrant_greenriver.yml"
           ansible.extra_vars = {
               user: $user,
@@ -144,6 +147,7 @@ Vagrant.configure("2") do |config|
       app.vm.provision "shell", inline: "apt-get install -y python-minimal"
       app.vm.provision "ansible" do |ansible|
           ansible.verbose = "vv"
+          ansible.skip_tags = "backup"
           ansible.playbook = "ansible/vagrant_ashes.yml"
           ansible.extra_vars = {
               user: $user,
