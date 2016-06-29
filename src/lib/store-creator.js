@@ -7,32 +7,27 @@ import { createAction, createReducer } from 'redux-act';
 // helpers
 import createAsyncAction, { initialState as asyncInitialState } from './async-action-creator';
 
+// types
+import type { Dictionary } from '../paragons/types';
+
 
 // type declarations
 export type Store = {
-  actions: { [key: string]: Function};
+  actions: Dictionary<Function>;
   reducer: Function;
-};
-
-type StoresHash = {
-  [key: string]: Store;
-};
-
-type FunctionsHash = {
-  [key: string]: Function;
 };
 
 type CreatorConfiguration = {
   path: any;
-  asyncActions?: FunctionsHash;
-  actions?: FunctionsHash;
-  reducers: FunctionsHash;
+  asyncActions?: Dictionary<Function>;
+  actions?: Dictionary<Function>;
+  reducers: Dictionary<Function>;
   initialState?: Object;
 };
 
 
 //created stores storage
-const STORES : StoresHash = {};
+const STORES : Dictionary<Store> = {};
 
 function saveStore(path: Array<string>, store: Store): Object {
   const stringPath = preparePath(path).join('.');
@@ -87,7 +82,7 @@ function preparePath(path: string|Array<string>): Array<string> {
   return _.compact(path);
 }
 
-function registerReducer(path: Array<string>, actions: FunctionsHash, reducers: FunctionsHash): Function {
+function registerReducer(path: Array<string>, actions: Dictionary<Function>, reducers: Dictionary<Function>): Function {
   return function (handler: Function, name: string): void {
     //create action with entity prefix and default creator
     const action = actions[name] = createAction(getActionDescription(path, name), payloadReducer);
@@ -97,13 +92,13 @@ function registerReducer(path: Array<string>, actions: FunctionsHash, reducers: 
   };
 }
 
-function registerAction(actions: FunctionsHash): Function {
+function registerAction(actions: Dictionary<Function>): Function {
   return function (handler: Function, name: string): void {
     actions[name] = (...args) => handler(actions, ...args);
   };
 }
 
-function registerAsyncAction(path: Array<string>, actions: FunctionsHash, reducers: FunctionsHash, initialState: Object): Function {
+function registerAsyncAction(path: Array<string>, actions: Dictionary<Function>, reducers: Dictionary<Function>, initialState: Object): Function {
   return function (handler: Function, name: string): void {
     //state of async action is stored under it's name in given path
     const asyncStateStorePath = _.compact([...path, name]).join('.');
