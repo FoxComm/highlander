@@ -1,5 +1,5 @@
 variable "usertest_image" { 
-    default = "ubuntu-1510-wily-v20160123"
+    default = "ubuntu-1604-xenial-v20160610"
     prefix = "usertest1"
 }
 
