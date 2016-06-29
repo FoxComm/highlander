@@ -1,10 +1,10 @@
 /* @flow */
 
-import { booleanOperators } from '../../../../paragons/customer-groups/operators';
+import { booleanOperators } from '../../../paragons/customer-groups/operators';
 import Condition from './condition';
 
 
-export default class ConditionAnd extends Condition {
+export default class ConditionOr extends Condition {
 
   constructor() {
     super();
@@ -21,7 +21,7 @@ export default class ConditionAnd extends Condition {
     }
 
     return {
-      [booleanOperators.and]: result,
+      [booleanOperators.or]: result,
     };
   }
 

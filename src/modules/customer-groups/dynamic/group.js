@@ -8,7 +8,7 @@ import * as search from '../../../lib/search';
 import createStore from '../../../lib/store-creator';
 import criterions, { getCriterion, getWidget } from './../../../paragons/customer-groups/criterions';
 import requestAdapter from './../request-adapter';
-import { aggregations } from '../../customer-groups/request';
+import { aggregations } from '../../../elastic/request';
 
 
 const initialState = {

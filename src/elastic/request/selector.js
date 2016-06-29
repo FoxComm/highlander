@@ -1,6 +1,5 @@
 /* @flow */
 
-
 export default class Selector {
 
   _criterions: Array<any>;

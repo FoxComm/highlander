@@ -2,7 +2,7 @@
 import _ from 'lodash';
 
 //data
-import { Request, query, aggregations } from './request';
+import { Request, query, aggregations } from '../../elastic/request';
 import operators from '../../paragons/customer-groups/operators';
 
 
