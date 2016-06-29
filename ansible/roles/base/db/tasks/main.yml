@@ -32,7 +32,6 @@
   args:
     creates: "{{avro_dir}}"
 
-
 - name: Make Avro Build Dir
   file: path="{{avro_dir}}/build" state=directory
 
@@ -111,27 +110,33 @@
     - restore_db.sh
     - backup_db.sh
   sudo: true
+  tags: backup
 
 - name: Download gcsfuse
   get_url: url=https://github.com/GoogleCloudPlatform/gcsfuse/releases/download/v0.18.2/gcsfuse_0.18.2_amd64.deb dest=/tmp/gcsfuse_0.18.2_amd64.deb
+  tags: backup
 
 - name: Install gcsfuse
   shell: dpkg -i /tmp/gcsfuse_0.18.2_amd64.deb
   sudo: true
+  tags: backup
 
 - stat: path={{db_backup_dir}}
   register: db_backup_dir_res
   sudo: true
   ignore_errors: True
+  tags: backup
 
 - name: Create backup dir
   file: path={{db_backup_dir}} state=directory mode="0700"
   when: db_backup_dir_res.stat.exists == False
   sudo: true
+  tags: backup
 
 - name: Add service which mount backup dir
   template: src=backup_mount.service dest={{dest_services}}/backup_mount.service
   sudo: true
+  tags: backup
 
 - name: Copy Bottledwater Run File
   template: src=run_bottledwater.sh dest="/usr/local/bin/run_bottledwater.sh" mode="u+x,g+x,o+x"
@@ -156,7 +161,9 @@
 - name: Setup cron for db backup
   cron: name="db backup" minute="30" hour="4" job="{{usr_local}}bin/backup_db.sh {{db_backup_dir}}/{{ansible_hostname}}_{{db_name}}_$(date +%F_%H_%M) {{db_name}}"
   sudo: true
+  tags: backup
 
 - name: Start backup_mount service
   service: name=backup_mount state=started enabled=yes sleep=5
   sudo: true
+  tags: backup
