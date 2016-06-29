@@ -7,7 +7,7 @@ import { autobind } from 'core-decorators';
 import GenericDropdown from './generic-dropdown';
 import DropdownItem from './dropdownItem';
 
-import type { Props as GenericProps } from './generic-dropdown';
+import type { Props as GenericProps, ValueType, DropdownItemType } from './generic-dropdown';
 
 type Props = GenericProps;
 
@@ -20,7 +20,7 @@ const omitProps = [
   'onChange'
 ];
 
-const mapValues = items => items.map(([value]) => value);
+const mapValues = (items: Array<DropdownItemType>): Array<ValueType> => items.map(([value]) => value);
 
 export default class Dropdown extends Component {
   props: Props;
@@ -60,9 +60,9 @@ export default class Dropdown extends Component {
       ));
   }
 
-  shouldComponentUpdate(nextProps: Props) {
-    const oldItems = this.props.items;
-    const newItems = nextProps.items;
+  shouldComponentUpdate(nextProps: Props): boolean {
+    const oldItems = _.get(this.props, 'items', []);
+    const newItems = _.get(nextProps, 'items', []);
 
     // Not items (still)
     if (!oldItems && !newItems) {
@@ -84,11 +84,12 @@ export default class Dropdown extends Component {
   }
 
   render(): Element {
+    const restProps = _.omit(this.props, 'children');
+
     return (
       <GenericDropdown
-        {...this.props}
-        renderDropdownInput={this.buildInput}
-      >
+        {...restProps}
+        renderDropdownInput={this.buildInput}>
         { this.renderItems() }
       </GenericDropdown>
     );
