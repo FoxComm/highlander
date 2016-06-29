@@ -7,7 +7,7 @@ import {
   booleanOperators,
   negateOperators,
   operatorsMap,
-} from '../../../../paragons/customer-groups/operators';
+} from '../../../paragons/customer-groups/operators';
 
 
 export default class Field extends Element {

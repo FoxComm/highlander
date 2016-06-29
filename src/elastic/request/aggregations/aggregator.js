@@ -1,7 +1,7 @@
 /* @flow */
 
 import Element from '../element';
-import Aggregation from '../aggregations/aggregation';
+import Aggregation from './aggregation';
 
 
 export default class Aggregator extends Element {
