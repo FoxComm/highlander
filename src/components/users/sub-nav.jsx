@@ -3,7 +3,7 @@
  */
 
 // libs
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
 
 // components
 import { Link, IndexLink } from '../link';
@@ -14,7 +14,7 @@ type Props = {
   user: Object,
 };
 
-export default class SubNav extends Component<void, Props, void> {
+export default class SubNav extends Component {
   props: Props;
 
   render() {
