@@ -6,7 +6,10 @@ import failures.{Failures, GeneralFailure}
 import models.objects._
 import utils.{IlluminateAlgorithm, JsonFormatters}
 
-case class Image(src: String, title: Option[String] = None, alt: Option[String] = None)
+case class Image(id: Option[Int],
+                 src: String,
+                 title: Option[String] = None,
+                 alt: Option[String] = None)
 
 object Image {
   implicit val formats = JsonFormatters.phoenixFormats

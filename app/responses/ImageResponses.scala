@@ -2,10 +2,8 @@ package responses
 
 import java.time.Instant
 
-import cats.implicits._
 import models.image._
 import models.objects._
-import org.json4s.JsonAST._
 import utils.{IlluminateAlgorithm, JsonFormatters}
 
 object ImageResponses {
@@ -15,6 +13,7 @@ object ImageResponses {
     case class Root(id: Int,
                     name: String,
                     images: Seq[Image],
+                    position: Option[Int],
                     createdAt: Instant,
                     updatedAt: Instant)
         extends ResponseItem
@@ -24,11 +23,13 @@ object ImageResponses {
       val formAttrs   = album.form.attributes
       val shadowAttrs = album.shadow.attributes
 
-      val name = IlluminateAlgorithm.get("name", formAttrs, shadowAttrs).extract[String]
+      val name     = IlluminateAlgorithm.get("name", formAttrs, shadowAttrs).extract[String]
+      val position = IlluminateAlgorithm.get("position", formAttrs, shadowAttrs).extractOpt[Int]
 
       Root(id = album.form.id,
            name = name,
            images = images,
+           position = position,
            createdAt = model.createdAt,
            updatedAt = model.updatedAt)
     }

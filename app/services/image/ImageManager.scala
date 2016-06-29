@@ -63,9 +63,12 @@ object ImageManager {
       images    ← * <~ Image.buildFromAlbum(fullAlbum)
     } yield AlbumResponse.build(fullAlbum, images)
 
-  def createAlbumInner(album: CreateAlbumPayload,
-                       context: ObjectContext)(implicit ec: EC, db: DB): DbResultT[FullAlbum] =
+  def createAlbumInner(payload: CreateAlbumPayload,
+                       context: ObjectContext)(implicit ec: EC, db: DB): DbResultT[FullAlbum] = {
+
+    val album = payload.fillImageIds()
     for {
+      _   ← * <~ album.validate
       ins ← * <~ ObjectUtils.insert(album.objectForm, album.objectShadow)
       album ← * <~ Albums.create(
                  Album(contextId = context.id,
@@ -73,6 +76,7 @@ object ImageManager {
                        formId = ins.form.id,
                        commitId = ins.commit.id))
     } yield FullObject(model = album, form = ins.form, shadow = ins.shadow)
+  }
 
   def createAlbumForProduct(
       admin: StoreAdmin,
@@ -116,17 +120,19 @@ object ImageManager {
 
   def updateAlbumInner(id: Int, payload: UpdateAlbumPayload, contextName: String)(
       implicit ec: EC,
-      db: DB): DbResultT[AlbumRoot] =
+      db: DB): DbResultT[AlbumRoot] = {
+    val fixedPayload = payload.fillImageIds()
     for {
+      _ ← * <~ payload.validate
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
                  .mustFindOneOr(ObjectContextNotFound(contextName))
       album ← * <~ mustFindFullAlbumByIdAndContext404(id, context)
       oldShadow  = album.shadow
-      mergedAtts = oldShadow.attributes.merge(payload.objectShadow.attributes)
+      mergedAtts = oldShadow.attributes.merge(fixedPayload.objectShadow.attributes)
       updated ← * <~ ObjectUtils.update(album.model.formId,
                                         album.model.shadowId,
-                                        payload.objectForm.attributes,
+                                        fixedPayload.objectForm.attributes,
                                         mergedAtts,
                                         force = true)
       commit ← * <~ ObjectUtils.commit(updated)
@@ -144,6 +150,7 @@ object ImageManager {
       album  ← * <~ mustFindFullAlbumByIdAndContext404(id, context)
       images ← * <~ Image.buildFromAlbum(album)
     } yield AlbumResponse.build(album, images)
+  }
 
   private def getAlbumsForObject(
       shadowId: Int,

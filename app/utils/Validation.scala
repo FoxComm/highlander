@@ -20,11 +20,11 @@ object Validation {
 
   val ok: ValidatedNel[Failure, Unit] = valid(Unit)
 
-  def validExpr(expression: Boolean, message: String): ValidatedNel[Failure, Unit] =
+  def validExpr(expression: Boolean, message: ⇒ String): ValidatedNel[Failure, Unit] =
     if (expression) valid({})
     else invalidNel(GeneralFailure(message))
 
-  def invalidExpr(expression: Boolean, message: String): ValidatedNel[Failure, Unit] =
+  def invalidExpr(expression: Boolean, message: ⇒ String): ValidatedNel[Failure, Unit] =
     if (expression) invalidNel(GeneralFailure(message))
     else valid({})
 

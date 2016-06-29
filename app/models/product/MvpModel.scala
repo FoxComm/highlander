@@ -80,7 +80,9 @@ case class SimpleAlbum(name: String, image: String) {
 
   val payload = CreateAlbumPayload(
       name = name,
-      images = Seq(ImagePayload(src = image, title = image.some, alt = image.some)).some)
+      position = Some(1),
+      images =
+        Seq(ImagePayload(id = Some(1), src = image, title = image.some, alt = image.some)).some)
 
   def create: ObjectForm = payload.objectForm
 

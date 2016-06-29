@@ -75,12 +75,13 @@ class ImageIntegrationTest
 
     "POST v1/albums/:context" - {
       "Create an album with no images" in new Fixture {
-        val payload  = CreateAlbumPayload(name = "Empty album")
+        val payload  = CreateAlbumPayload(name = "Empty album", position = Some(1))
         val response = POST(s"v1/albums/${context.name}", payload)
         response.status must === (StatusCodes.OK)
 
         val albumResponse = response.as[AlbumRoot]
         albumResponse.images.length must === (0)
+        albumResponse.position must === (Some(1))
       }
 
       "Create an album with one image" in new Fixture {
@@ -91,6 +92,28 @@ class ImageIntegrationTest
 
         val albumResponse = response.as[AlbumRoot]
         albumResponse.images.length must === (1)
+      }
+
+      "Create an album with multiple images" in new Fixture {
+        val payload =
+          CreateAlbumPayload(name = "Non-empty album",
+                             images =
+                               Seq(ImagePayload(src = "url"), ImagePayload(src = "url2")).some)
+        val response = POST(s"v1/albums/${context.name}", payload)
+        response.status must === (StatusCodes.OK)
+
+        val albumResponse = response.as[AlbumRoot]
+        albumResponse.images.length must === (2)
+        albumResponse.images.map(_.id).toSet.size must === (2)
+      }
+
+      "Create an album with multiple images fails if id duplicates" in new Fixture {
+        val payload = CreateAlbumPayload(name = "Non-empty album",
+                                         images =
+                                           Seq(ImagePayload(id = Some(1), src = "url"),
+                                               ImagePayload(id = Some(1), src = "url2")).some)
+        val response = POST(s"v1/albums/${context.name}", payload)
+        response.status must === (StatusCodes.BadRequest)
       }
     }
 
@@ -104,6 +127,26 @@ class ImageIntegrationTest
 
         val albumResponse = response.as[AlbumRoot]
         albumResponse.images.length must === (2)
+        albumResponse.images.map(_.id).toSet.size must === (2)
+      }
+
+      "Updates the `position` parameter" in new Fixture {
+        val payload = UpdateAlbumPayload(position = Some(1))
+
+        val response = PATCH(s"v1/albums/${context.name}/${album.formId}", payload)
+        response.status must === (StatusCodes.OK)
+
+        val albumResponse = response.as[AlbumRoot]
+        albumResponse.position must === (Some(1))
+      }
+
+      "Update the album fails on image id duplications" in new Fixture {
+        val moreImages =
+          Seq(images, ImagePayload(src = "http://test.it/test.png")).map(_.copy(id = Some(1)))
+        val payload = UpdateAlbumPayload(images = moreImages.some)
+
+        val response = PATCH(s"v1/albums/${context.name}/${album.formId}", payload)
+        response.status must === (StatusCodes.BadRequest)
       }
 
       "Ignore empty payload params" in new Fixture {
@@ -279,8 +322,12 @@ class ImageIntegrationTest
         val response = dispatchRequest(request)
         response.status must === (StatusCodes.OK)
         val responseAlbum = response.as[AlbumRoot]
-        responseAlbum.images must contain(
-            Image("amazon-image-url", "foxy.jpg".some, "foxy.jpg".some))
+
+        responseAlbum.images.filter { image ⇒
+          image.src == "amazon-image-url" &&
+          image.title == "foxy.jpg".some &&
+          image.alt == "foxy.jpg".some
+        } must have size 1
       }
     }
   }
