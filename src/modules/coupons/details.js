@@ -12,7 +12,7 @@ import Api from '../../lib/api';
 
 export const couponsNew = createAction('COUPONS_NEW');
 export const couponsChange = createAction('COUPONS_CHANGE');
-const clearCoupon = createAction();
+const clearCoupon = createAction('COUPONS_CLEAR');
 
 const defaultContext = 'default';
 
