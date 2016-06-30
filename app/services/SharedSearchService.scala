@@ -11,7 +11,6 @@ import payloads.SharedSearchPayloads._
 import responses.{StoreAdminResponse, TheResponse}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
-import utils.db.DbResultT._
 import utils.db._
 
 object SharedSearchService {

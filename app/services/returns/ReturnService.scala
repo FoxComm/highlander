@@ -12,7 +12,6 @@ import responses.{CustomerResponse, ReturnResponse, StoreAdminResponse}
 import services.Result
 import services.returns.Helpers._
 import utils.aliases._
-import utils.db.DbResultT._
 import utils.db._
 
 object ReturnService {

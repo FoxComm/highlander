@@ -12,7 +12,6 @@ import responses.Addresses._
 import responses.{Addresses ⇒ Response}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
-import utils.db.DbResultT._
 import utils.db._
 
 object AddressManager {

@@ -1,18 +1,17 @@
 package services.discount
 
-import services.Result
-import models.objects._
-import models.discount._
-import responses.DiscountResponses._
-import utils.db._
-import utils.db.DbResultT._
-import slick.driver.PostgresDriver.api._
-import payloads.DiscountPayloads._
-import utils.aliases._
 import cats.implicits._
 import failures.DiscountFailures._
 import failures.NotFoundFailure404
 import failures.ObjectFailures._
+import models.discount._
+import models.objects._
+import payloads.DiscountPayloads._
+import responses.DiscountResponses._
+import services.Result
+import slick.driver.PostgresDriver.api._
+import utils.aliases._
+import utils.db._
 
 object DiscountManager {
 

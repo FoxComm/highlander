@@ -5,7 +5,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import cats.data.Xor
 import failures.GeneralFailure
 import util._
-import utils.db.DbResultT._
 import utils.db._
 import utils.seeds.Seeds.Factories
 

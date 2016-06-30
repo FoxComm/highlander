@@ -13,7 +13,6 @@ import responses.order.FullOrder
 import services.{CartValidator, LogActivity}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
-import utils.db.DbResultT._
 import utils.db._
 
 object OrderShippingAddressUpdater {

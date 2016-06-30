@@ -1,15 +1,16 @@
 package utils
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import cats.implicits._
 import models.customer.Customers
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
-import utils.db.DbResultT._
 import utils.db.UpdateReturning._
+import utils.db._
 import utils.seeds.Seeds.Factories
 
 class SlickTest extends IntegrationTestBase {
-  import concurrent.ExecutionContext.Implicits.global
 
   "supports update with returning query for a single column" in {
     val customer = Customers.create(Factories.customer.copy(name = "Jane".some)).gimme

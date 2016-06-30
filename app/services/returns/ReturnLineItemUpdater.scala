@@ -1,9 +1,9 @@
 package services.returns
 
+import failures._
 import models.objects._
 import models.order.lineitems._
 import models.payment.giftcard._
-import failures._
 import models.returns._
 import models.shipping.Shipments
 import payloads.ReturnPayloads._
@@ -12,10 +12,9 @@ import responses.ReturnResponse.Root
 import services.Result
 import services.inventory.SkuManager
 import services.returns.Helpers._
+import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
-import utils.db.DbResultT._
-import slick.driver.PostgresDriver.api._
 
 object ReturnLineItemUpdater {
 

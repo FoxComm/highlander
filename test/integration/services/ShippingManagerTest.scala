@@ -12,7 +12,6 @@ import services.ShippingManager.getShippingMethodsForOrder
 import services.orders.OrderTotaler
 import util.IntegrationTestBase
 import utils._
-import utils.db.DbResultT._
 import utils.db.ExPostgresDriver.api._
 import utils.db.ExPostgresDriver.jsonMethods._
 import utils.db._

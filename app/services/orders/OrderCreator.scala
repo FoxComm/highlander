@@ -1,17 +1,16 @@
 package services.orders
 
 import cats.implicits._
-import models.objects.ObjectContext
-import models.customer.{Customers, Customer}
-import models.order.{Orders, Order}
 import models.StoreAdmin
+import models.customer.{Customer, Customers}
+import models.objects.ObjectContext
+import models.order.{Order, Orders}
 import payloads.OrderPayloads.CreateOrder
 import responses.order.FullOrder
 import responses.order.FullOrder.Root
 import services.{LogActivity, Result, ResultT}
 import utils.aliases._
 import utils.db._
-import utils.db.DbResultT._
 
 object OrderCreator {
 

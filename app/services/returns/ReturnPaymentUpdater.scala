@@ -3,8 +3,8 @@ package services.returns
 import models.payment.creditcard.CreditCards
 import models.payment.giftcard._
 import models.payment.storecredit._
+import models.returns.ReturnPayments.scope._
 import models.returns._
-import ReturnPayments.scope._
 import payloads.ReturnPayloads.ReturnPaymentPayload
 import responses.ReturnResponse
 import responses.ReturnResponse.Root
@@ -13,7 +13,6 @@ import services.returns.Helpers._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
-import utils.db.DbResultT._
 
 object ReturnPaymentUpdater {
   def addCreditCard(refNum: String, payload: ReturnPaymentPayload)(implicit ec: EC,

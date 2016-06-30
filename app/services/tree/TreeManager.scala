@@ -12,7 +12,6 @@ import responses.GenericTreeResponses._
 import services.Result
 import services.objects.ObjectManager
 import utils.aliases._
-import utils.db.DbResultT._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 

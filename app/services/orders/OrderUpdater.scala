@@ -6,7 +6,6 @@ import responses.order.FullOrder
 import services.{LogActivity, Result}
 import utils.aliases._
 import utils.db._
-import utils.db.DbResultT._
 import utils.time._
 
 object OrderUpdater {

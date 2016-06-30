@@ -10,7 +10,6 @@ import responses.AdminNotes.Root
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
-import utils.db.DbResultT._
 
 package object notes {
   def forModel[M <: FoxModel[M]](finder: Notes.QuerySeq)(implicit ec: EC): DbResult[Seq[Root]] = {

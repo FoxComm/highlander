@@ -20,7 +20,6 @@ import services.NotificationManager
 import services.NotificationManager.unsubscribe
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
-import utils.db.DbResultT._
 import utils.db._
 import utils.seeds.Seeds.Factories
 

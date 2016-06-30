@@ -8,7 +8,6 @@ import models.payment.storecredit._
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import org.scalatest.prop.Tables.Table
 import util.IntegrationTestBase
-import utils.db.DbResultT._
 import utils.db._
 import utils.seeds.Seeds.Factories
 

@@ -3,15 +3,14 @@ package services
 import failures.GiftCardFailures.GiftCardConvertFailure
 import failures.OpenTransactionsFailure
 import failures.StoreCreditFailures.StoreCreditConvertFailure
+import models.StoreAdmin
 import models.customer.Customers
 import models.payment.giftcard._
 import models.payment.storecredit._
-import models.StoreAdmin
 import responses.{GiftCardResponse, StoreAdminResponse, StoreCreditResponse}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
-import utils.db.DbResultT._
 
 object CustomerCreditConverter {
 

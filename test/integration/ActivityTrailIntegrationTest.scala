@@ -17,7 +17,6 @@ import responses.ActivityConnectionResponse
 import services.activity.CustomerTailored.CustomerUpdated
 import slick.driver.PostgresDriver.api._
 import util._
-import utils.db.DbResultT._
 import utils.db._
 import utils.seeds.Seeds.Factories
 

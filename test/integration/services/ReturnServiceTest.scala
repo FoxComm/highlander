@@ -11,8 +11,7 @@ import models.returns._
 import payloads.ReturnPayloads.ReturnCreatePayload
 import services.returns.ReturnService
 import util.IntegrationTestBase
-import utils.db.DbResultT
-import utils.db.DbResultT._
+import utils.db._
 import utils.seeds.Seeds.Factories
 import utils.time._
 

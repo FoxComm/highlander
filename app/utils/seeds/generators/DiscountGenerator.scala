@@ -1,23 +1,21 @@
 package utils.seeds.generators
 
-import models.product.SimpleContext
-import models.objects._
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
-import utils.db._
-import utils.db.DbResultT._
 
-import payloads.DiscountPayloads._
-import services.discount.DiscountManager
-
+import models.objects._
+import models.product.SimpleContext
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
-import scala.concurrent.ExecutionContext.Implicits.global
+import payloads.DiscountPayloads._
+import services.discount.DiscountManager
 import slick.driver.PostgresDriver.api._
+import utils.db._
 
 object SimpleDiscount {
   type Percent = Int
 }
-import SimpleDiscount._
+import utils.seeds.generators.SimpleDiscount._
 
 case class SimpleDiscount(discountId: Int = 0,
                           formId: Int = 0,

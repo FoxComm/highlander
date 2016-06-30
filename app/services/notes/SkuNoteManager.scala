@@ -1,11 +1,10 @@
 package services.notes
 
-import models.inventory.{Sku, Skus}
 import models.Note
+import models.inventory.Skus
 import models.objects.{ObjectForm, ObjectForms}
 import utils.aliases._
 import utils.db._
-import utils.db.DbResultT._
 
 object SkuNoteManager extends NoteManager[String, ObjectForm] {
 

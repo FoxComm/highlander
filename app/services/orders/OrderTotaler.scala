@@ -4,7 +4,6 @@ import models.order.lineitems._
 import models.order.{Order, OrderShippingMethods, Orders}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
-import utils.db.DbResultT._
 import utils.db._
 
 // TODO: Use utils.Money

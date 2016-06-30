@@ -6,16 +6,16 @@ import scala.concurrent.Future
 
 import cats.data.Xor
 import cats.implicits._
-import models.order._
-import OrderPayments.scope._
-import Orders.scope._
 import failures.CreditCardFailures.CannotUseInactiveCreditCard
 import failures.GiftCardFailures.CreditCardMustHaveAddress
 import failures.{Failures, NotFoundFailure404}
+import models.StoreAdmin
 import models.customer._
 import models.location._
+import models.order.OrderPayments.scope._
+import models.order.Orders.scope._
+import models.order._
 import models.payment.creditcard.{CreditCard, CreditCards}
-import models.StoreAdmin
 import payloads.AddressPayloads.CreateAddressPayload
 import payloads.PaymentPayloads._
 import slick.driver.PostgresDriver.api._
@@ -23,7 +23,6 @@ import utils.aliases._
 import utils.aliases.stripe._
 import utils.apis.Apis
 import utils.db._
-import utils.db.DbResultT._
 
 object CreditCardManager {
   private def gateway(implicit ec: EC, apis: Apis): Stripe = Stripe()

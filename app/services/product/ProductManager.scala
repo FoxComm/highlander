@@ -2,32 +2,25 @@ package services.product
 
 import cats.data._
 import failures.Failure
-import failures.ObjectFailures._
 import failures.ProductFailures._
-import models.StoreAdmin
 import models.image._
 import models.inventory._
 import models.objects._
 import models.product._
-import payloads.ImagePayloads.CreateAlbumPayload
 import payloads.ProductPayloads._
 import payloads.SkuPayloads._
 import payloads.VariantPayloads._
-import responses.ImageResponses.AlbumResponse
 import responses.ObjectResponses.ObjectContextResponse
 import responses.ProductResponses._
 import responses.SkuResponses._
-import services.{LogActivity, Result}
+import services.Result
 import services.image.ImageManager
 import services.inventory.SkuManager
-import services.objects.ObjectManager
 import services.variant.VariantManager
 import slick.driver.PostgresDriver.api._
-import utils.aliases._
-import utils.db.DbResultT._
-import utils.db._
-import utils.Validation
 import utils.Validation._
+import utils.aliases._
+import utils.db._
 
 object ProductManager {
 

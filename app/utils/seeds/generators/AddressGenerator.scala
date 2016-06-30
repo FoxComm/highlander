@@ -1,14 +1,10 @@
 package utils.seeds.generators
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
-import models.location.Address
-import models.customer.Customer
-import utils.db._
-import utils.db.DbResultT._
-import GeneratorUtils.randomString
 
-import faker._;
+import faker._
+import models.customer.Customer
+import models.location.Address;
 
 trait AddressGenerator {
 

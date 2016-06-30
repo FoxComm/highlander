@@ -3,14 +3,13 @@ package responses
 import java.time.Instant
 
 import failures.NotFoundFailure404
-import models.inventory.{Skus, Sku}
-import models.product.Mvp
+import models.inventory.{Sku, Skus}
 import models.objects._
+import models.product.Mvp
 import models.{SaveForLater, SaveForLaters}
+import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
-import utils.db.DbResultT._
-import slick.driver.PostgresDriver.api._
 
 object SaveForLaterResponse {
 

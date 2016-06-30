@@ -4,7 +4,6 @@ import models.objects._
 import models.order.lineitems.OrderLineItemSkus
 import models.product.{Mvp, SimpleContext}
 import util.IntegrationTestBase
-import utils.db.DbResultT._
 import utils.db._
 import utils.seeds.Seeds.Factories
 

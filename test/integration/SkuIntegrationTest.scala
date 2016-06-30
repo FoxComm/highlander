@@ -9,11 +9,10 @@ import models.objects.{ObjectCommit, ObjectCommits, ObjectContexts, ObjectForms,
 import models.product.{SimpleContext, SimpleSku, SimpleSkuShadow}
 import org.json4s.JsonDSL._
 import payloads.SkuPayloads.SkuPayload
-import responses.SkuResponses.{FullSkuResponse, SkuResponse}
+import responses.SkuResponses.SkuResponse
 import util.IntegrationTestBase
 import utils.Money.Currency
 import utils.aliases._
-import utils.db.DbResultT._
 import utils.db._
 
 class SkuIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {

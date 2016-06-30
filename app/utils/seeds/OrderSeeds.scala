@@ -21,7 +21,6 @@ import models.{Note, Notes}
 import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._
 import utils.Money.Currency
-import utils.db.DbResultT._
 import utils.db._
 import utils.time
 

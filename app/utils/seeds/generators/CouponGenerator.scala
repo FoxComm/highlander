@@ -14,7 +14,6 @@ import services.Result
 import services.coupon.CouponManager
 import slick.driver.PostgresDriver.api._
 import utils.aliases.AC
-import utils.db.DbResultT._
 import utils.db._
 
 object SimpleCoupon {

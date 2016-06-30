@@ -2,12 +2,11 @@ package utils.seeds
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
+import models.StoreAdmin
 import models.customer.Customer
 import models.payment.storecredit._
-import models.StoreAdmin
-import utils.db._
-import utils.db.DbResultT._
 import utils.Money.Currency
+import utils.db._
 
 trait StoreCreditSeeds {
 

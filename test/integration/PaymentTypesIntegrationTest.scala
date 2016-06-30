@@ -8,7 +8,7 @@ import models.payment.storecredit._
 import models.{Reasons, StoreAdmins}
 import responses.{GiftCardSubTypesResponse, StoreCreditSubTypesResponse}
 import util.IntegrationTestBase
-import utils.db.DbResultT._
+import utils.db._
 import utils.seeds.Seeds.Factories
 
 class PaymentTypesIntegrationTest extends IntegrationTestBase with HttpSupport {

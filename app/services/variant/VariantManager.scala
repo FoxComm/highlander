@@ -11,7 +11,6 @@ import services.Result
 import services.objects.ObjectManager
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
-import utils.db.DbResultT._
 import utils.db._
 
 object VariantManager {

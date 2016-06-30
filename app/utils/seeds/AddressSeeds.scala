@@ -3,8 +3,7 @@ package utils.seeds
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import cats.implicits._
-import models.location.{Addresses, Address}
-import utils.db.DbResultT._
+import models.location.{Address, Addresses}
 import utils.db._
 
 trait AddressSeeds {

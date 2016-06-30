@@ -10,10 +10,9 @@ import libs.oauth.{Oauth, UserInfo}
 import models.auth.Token
 import services.Authenticator
 import slick.driver.PostgresDriver.api.DBIO
-import utils.http.Http._
 import utils.aliases._
 import utils.db._
-import utils.db.DbResultT._
+import utils.http.Http._
 
 case class OauthCallbackResponse(code: Option[String] = None, error: Option[String] = None) {
 

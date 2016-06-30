@@ -21,7 +21,6 @@ import payloads.ReturnPayloads._
 import responses.{AllReturns, ReturnLockResponse, ReturnResponse}
 import services.returns.{ReturnLineItemUpdater, ReturnLockUpdater}
 import util.IntegrationTestBase
-import utils.db.DbResultT._
 import utils.db._
 import utils.seeds.Seeds.Factories
 import utils.time._

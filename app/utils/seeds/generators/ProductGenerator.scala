@@ -1,16 +1,15 @@
 package utils.seeds.generators
 
-import models.product.{SimpleProductData, Mvp, SimpleContext}
-import models.objects.ObjectContexts
-import scala.util.Random
-import utils.db._
-import utils.db.DbResultT._
-
-import faker._
-import org.conbere.markov.MarkovChain
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.io.Source
+import scala.util.Random
+
+import faker._
+import models.objects.ObjectContexts
+import models.product.{Mvp, SimpleContext, SimpleProductData}
+import org.conbere.markov.MarkovChain
 import slick.driver.PostgresDriver.api._
+import utils.db._
 
 object ProductGenerator {
 

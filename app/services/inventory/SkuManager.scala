@@ -1,26 +1,17 @@
 package services.inventory
 
 import cats.data._
-import cats.implicits._
-import failures.{Failures, GeneralFailure}
-import failures.ObjectFailures._
 import failures.ProductFailures._
-import models.Reason.General
-import models.StoreAdmin
+import failures.{Failures, GeneralFailure}
 import models.inventory._
 import models.objects._
-import models.product._
 import payloads.SkuPayloads._
-import responses.ObjectResponses.ObjectContextResponse
 import responses.SkuResponses._
-import services.{LogActivity, Result}
 import services.image.ImageManager
 import services.objects.ObjectManager
-import services.variant.VariantManager
 import slick.driver.PostgresDriver.api._
 import utils.JsonFormatters
 import utils.aliases._
-import utils.db.DbResultT._
 import utils.db._
 
 object SkuManager {

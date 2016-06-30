@@ -9,7 +9,6 @@ import models.order.Order._
 import models.order.Orders
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
-import utils.db.DbResultT._
 import utils.db._
 import utils.seeds.Seeds.Factories
 import utils.time._

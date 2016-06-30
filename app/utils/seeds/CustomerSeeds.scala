@@ -2,10 +2,9 @@ package utils.seeds
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import models.customer.{Customers, Customer}
-import models.{Notes, Note}
 import cats.implicits._
-import utils.db.DbResultT._
+import models.customer.{Customer, Customers}
+import models.{Note, Notes}
 import utils.db._
 
 trait CustomerSeeds {

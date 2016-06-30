@@ -25,7 +25,6 @@ import models.shipping.{Shipment, Shipments, ShippingMethods}
 import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
-import utils.db.DbResultT._
 import utils.db._
 import utils.seeds.ShipmentSeeds
 import utils.time

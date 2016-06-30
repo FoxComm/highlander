@@ -21,7 +21,6 @@ import services.coupon.CouponUsageService
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.apis.Apis
-import utils.db.DbResultT._
 import utils.db._
 
 object Checkout {

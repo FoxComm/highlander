@@ -5,7 +5,6 @@ import payloads.ActivityTrailPayloads._
 import responses.{ActivityConnectionResponse, FullActivityConnectionResponse}
 import services.Result
 import utils.aliases._
-import utils.db.DbResultT._
 import utils.db._
 
 object TrailManager {

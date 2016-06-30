@@ -12,7 +12,6 @@ import responses.GenericTreeResponses.{FullTreeResponse, TreeResponse}
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.aliases._
-import utils.db.DbResultT._
 import utils.db._
 
 class GenericTreeIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {

@@ -6,7 +6,6 @@ import failures.GeneralFailure
 import models.customer.Customers
 import models.order.{OrderShippingAddresses, Orders}
 import util.IntegrationTestBase
-import utils.db.DbResultT._
 import utils.db._
 import utils.jdbc._
 import utils.seeds.Seeds.Factories

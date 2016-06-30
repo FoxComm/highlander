@@ -9,7 +9,6 @@ import models.payment.giftcard._
 import payloads.GiftCardPayloads.GiftCardCreateByCsr
 import slick.driver.PostgresDriver.api._
 import utils.Money.Currency
-import utils.db.DbResultT._
 import utils.db._
 
 trait GiftCardGenerator {

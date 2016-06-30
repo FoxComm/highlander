@@ -2,13 +2,12 @@ package services.orders
 
 import java.time.{Duration, Instant}
 
-import models.order._
 import models.StoreAdmin
+import models.order._
 import responses.order.FullOrder
 import services.Result
 import utils.aliases._
 import utils.db._
-import utils.db.DbResultT._
 
 object OrderLockUpdater {
 

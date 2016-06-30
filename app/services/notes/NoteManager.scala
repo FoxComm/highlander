@@ -11,7 +11,6 @@ import responses.AdminNotes.Root
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
-import utils.db.DbResultT._
 import utils.db._
 
 trait NoteManager[K, T <: FoxModel[T]] {

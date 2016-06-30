@@ -11,7 +11,7 @@ import payloads.OrderPayloads.BulkUpdateOrdersPayload
 import responses.BatchResponse
 import responses.order._
 import util.IntegrationTestBase
-import utils.db.DbResultT._
+import utils.db._
 import utils.seeds.Seeds.Factories
 
 class AllOrdersIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {

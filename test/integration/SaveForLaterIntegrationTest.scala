@@ -11,7 +11,7 @@ import models.{SaveForLater, SaveForLaters}
 import responses.SaveForLaterResponse
 import services.SaveForLaterManager.SavedForLater
 import util.IntegrationTestBase
-import utils.db.DbResultT._
+import utils.db._
 import utils.seeds.Seeds.Factories
 
 class SaveForLaterIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {

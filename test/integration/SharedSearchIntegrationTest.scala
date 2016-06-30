@@ -12,7 +12,6 @@ import org.json4s.jackson.JsonMethods._
 import payloads.SharedSearchPayloads._
 import responses.StoreAdminResponse.{Root ⇒ AdminRoot, build ⇒ buildAdmin}
 import util.IntegrationTestBase
-import utils.db.DbResultT._
 import utils.db._
 import utils.seeds.Seeds.Factories
 

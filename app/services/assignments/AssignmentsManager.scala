@@ -1,23 +1,19 @@
 package services.assignments
 
-import akka.http.scaladsl.server.Directives._
-
 import cats.implicits._
-import failures.{AlreadyAssignedFailure, AssigneeNotFoundFailure, NotAssignedFailure, NotFoundFailure404}
 import failures.Util._
+import failures.{AlreadyAssignedFailure, AssigneeNotFoundFailure, NotAssignedFailure, NotFoundFailure404}
 import models.Assignment._
 import models.{Assignment, Assignments, NotificationSubscription, StoreAdmin, StoreAdmins}
 import payloads.AssignmentPayloads._
-import responses.{BatchMetadata, BatchMetadataSource, ResponseItem, TheResponse}
 import responses.AssignmentResponse.{Root, build ⇒ buildAssignment}
-import responses.StoreAdminResponse.{build ⇒ buildAdmin}
 import responses.BatchMetadata._
+import responses.StoreAdminResponse.{build ⇒ buildAdmin}
+import responses.{BatchMetadata, BatchMetadataSource, ResponseItem, TheResponse}
 import services._
 import slick.driver.PostgresDriver.api._
-import utils.http.CustomDirectives._
 import utils.aliases._
 import utils.db._
-import utils.db.DbResultT._
 
 trait AssignmentsManager[K, M <: FoxModel[M]] {
   // Assign / unassign
