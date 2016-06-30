@@ -20,7 +20,7 @@
         {
             "type": "ansible",
             "playbook_file" : "ansible/packer_service_es_log.yml",
-            "extra_arguments": ["--extra-vars", "@packer/envs/vanilla_ansible.json"]
+            "extra_arguments": ["--extra-vars", "@packer/envs/{{user `variables_file`}}"]
         }
     ]
 }
