@@ -18,7 +18,7 @@ export type TAlbum = {
 }
 
 export type FileInfo = {
-  id?: number;
+  id?: number|string;
   src: string;
   file: File;
   loading: boolean;
@@ -37,8 +37,28 @@ type State = {
 }
 
 const initialState: State = {
-  albums: []
+  albums: [],
 };
+
+// @TODO: get rid of this hack - backend should provide `id` property itself
+function resolveImageId(knownHash, image) {
+  if (!image.id) {
+    knownHash[image.src] = image.src in knownHash ? knownHash[image.src] + 1 : 1;
+    return `${image.src}_${knownHash[image.src]}`;
+  }
+  return image.id;
+}
+
+function insertIds(images) {
+  const hash = {};
+  images.map(image => {
+    if (!image.id) {
+      image.id = resolveImageId(hash, image);
+    }
+  });
+
+  return images;
+}
 
 function actionPath(entity: string, action: string) {
   return `${entity}${_.capitalize(action)}`;
@@ -198,16 +218,22 @@ export default function createImagesModule(entity: string): Module {
   /** Reducers */
   const asyncReducer = createReducer({
     [_fetchAlbums.succeeded]: (state: State, response: Array<TAlbum>) => {
+      _.each(response, (album: TAlbum) => {
+        album.images = insertIds(album.images);
+      });
       return assoc(state,
         ['albums'],
         response.sort((a: TAlbum, b: TAlbum) => Number(b.id) - Number(a.id)),
       );
     },
     [_addAlbum.succeeded]: (state: State, response: TAlbum) => {
+      response.images = insertIds(response.images);
+
       return assoc(state, ['albums'], [response, ...state.albums]);
     },
     [_editAlbum.succeeded]: (state: State, response: TAlbum) => {
       const idx = _.findIndex(state.albums, (album: TAlbum) => album.id === response.id);
+      response.images = insertIds(response.images);
 
       return assoc(state, ['albums', idx], response);
     },
@@ -220,10 +246,11 @@ export default function createImagesModule(entity: string): Module {
 
       images = images.map((image: ImageFile) => assoc(image, 'loading', true));
 
-      return assoc(state, ['albums', idx, 'images'], [...album.images, ...images]);
+      return assoc(state, ['albums', idx, 'images'], insertIds([...album.images, ...images]));
     },
     [_uploadImages.succeeded]: (state: State, [response]) => {
       const idx = _.findIndex(state.albums, (album: TAlbum) => album.id === response.id);
+      response.images = insertIds(response.images);
 
       return assoc(state, ['albums', idx], response);
     },

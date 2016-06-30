@@ -198,11 +198,12 @@ export default class Album extends Component {
         >
             {album.images.map((image: ImageFile, idx: number) => {
               return (
-                <Image image={image}
-                       idx={idx}
-                       editImage={(form: ImageInfo) => this.props.editImage(idx, form)}
-                       deleteImage={() => this.props.deleteImage(idx)}
-                       key={`${image.src}` /** replace with id*/}
+                <Image
+                  image={image}
+                  idx={idx}
+                  editImage={(form: ImageInfo) => this.props.editImage(idx, form)}
+                  deleteImage={() => this.props.deleteImage(idx)}
+                  key={image.id}
                 />
               );
             })}
