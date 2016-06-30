@@ -123,6 +123,7 @@
 
 - name: Create Backup Directory
   file: path={{db_backup_dir}} state=directory mode="0700"
+  run_once: true
   sudo: true
   tags: backup
 
