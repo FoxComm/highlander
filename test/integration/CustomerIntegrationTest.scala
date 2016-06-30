@@ -238,7 +238,9 @@ class CustomerIntegrationTest
         CustomersRanks.refresh.futureValue
 
         // check that states used in sql still actual
-        sqlu"UPDATE orders SET state = 'shipped' WHERE reference_number = ${order.refNum}".run().futureValue
+        sqlu"UPDATE orders SET state = 'shipped' WHERE reference_number = ${order.refNum}"
+          .run()
+          .futureValue
         sqlu"UPDATE rmas SET state = 'complete' WHERE id = ${orderPayment.id}".run().futureValue
 
         val response = GET(s"v1/customers/${customer.id}")
