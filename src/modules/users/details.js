@@ -4,6 +4,8 @@ import Api from '../../lib/api';
 import { createReducer } from 'redux-act';
 import createAsyncActions from '../async-utils';
 
+import { configureUserState, configureUserData} from '../../paragons/user';
+
 const getUser = createAsyncActions(
   'getUser',
   (id: string) => {
@@ -15,7 +17,8 @@ const _updateUser = createAsyncActions(
   'updateUser',
   (user) => {
     const id = user.id;
-    return Api.patch(`/store-admins/${id}`, user);
+    const data = configureUserData(user);
+    return Api.patch(`/store-admins/${id}`, data);
   }
 );
 
@@ -30,7 +33,7 @@ export const updateUser = _updateUser.perform;
 function updateUserInState(state, response) {
   return {
     ...state,
-    ...response,
+    user: configureUserState(response)
   };
 }
 

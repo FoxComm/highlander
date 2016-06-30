@@ -3,6 +3,7 @@
 // libs
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
+import { assoc } from 'sprout-data';
 
 // components
 import ObjectFormInner from '../object-form/object-form-inner';
@@ -10,7 +11,7 @@ import UserInitials from '../user-initials/initials';
 import ContentBox from '../content-box/content-box';
 import RoundedPill from '../rounded-pill/rounded-pill';
 import { Dropdown, DropdownItem } from '../dropdown';
-import { Form } from '../forms';
+import { Form, FormField } from '../forms';
 import { Button } from '../common/buttons';
 
 // styles
@@ -18,55 +19,32 @@ import styles from './user-form.css';
 
 type Props = {
   user: Object,
+  onChange: Function,
 };
 
 class UserForm extends Component {
   props: Props;
 
-  static defaultProps = {
-    user: {
-      name: '',
-      email: '',
-      phone: '',
-      accountState: '',
-    }
-  };
-
-  state: Object = {
-    ...this.props.user
-  };
-
   @autobind
   handleFormChange(attributes: Object) {
-    this.setState({
-      name: attributes.firstAndLastName.v,
-      email: attributes.emailAddress.v,
-      phone: attributes.phoneNumber.v
-    });
+    const data = assoc(this.props.user, ['form', 'attributes'], attributes);
+    this.props.onChange(data);
   }
 
   @autobind
   handleAccountStateChange(accountState: string) {
-    this.setState({
-      accountState
-    });
-  }
-
-  @autobind
-  getFormData() {
-    return this.state;
+    const data = assoc(this.props.user, ['state', 'accountState'], accountState);
+    this.props.onChange(data);
   }
 
   renderAccountState() {
-    const { accountState } = this.state;
-    const savedAccountState = this.props.user.accountState;
-    const accountStateDisabled = (accountState === 'invited') || (savedAccountState === 'archived');
+    const { accountState, disabled } = this.props.user.state;
 
     return (
       <ContentBox title="Account State">
-        <Dropdown value={this.state.accountState}
+        <Dropdown value={accountState}
                   onChange={(value) => this.handleAccountStateChange(value)}
-                  disabled={accountStateDisabled}>
+                  disabled={disabled}>
           <DropdownItem value="active">Active</DropdownItem>
           <DropdownItem value="inactive">Inactive</DropdownItem>
           <DropdownItem value="archived">Archived</DropdownItem>
@@ -76,31 +54,25 @@ class UserForm extends Component {
     );
   }
 
-  renderGeneralForm() {
-    const { name, email, phone } = this.state;
-    const image = <UserInitials name={name} />;
+  renderUserImage() {
+    const name = this.props.user.form.attributes.firstAndLastName.v;
 
-    const attributes = {
-      'profileImage': {
-        v: image,
-        t: 'element'
-      },
-      'firstAndLastName': {
-        v: name,
-        t: 'string'
-      },
-      'emailAddress': {
-        v: email,
-        t: 'string'
-      },
-      'phoneNumber': {
-        v: phone,
-        t: 'string'
-      }
-    };
+    return (
+      <FormField
+        className="fc-object-form__field"
+        label='Image'
+        key={`object-form-attribute-firstAndLastName`} >
+        <UserInitials name={name} />
+      </FormField>
+    );
+  }
+
+  renderGeneralForm() {
+    const attributes = this.props.user.form.attributes;
 
     return (
       <ContentBox title="General">
+        {this.renderUserImage()}
         <ObjectFormInner onChange={this.handleFormChange}
                          attributes={attributes} />
         <Button type="button">Change Password</Button>

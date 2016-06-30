@@ -33,8 +33,16 @@ type Props = {
   updateUser: Function,
 };
 
+type State = {
+  user: Object,
+};
+
 class User extends Component {
   props: Props;
+
+  state: State = {
+    ...this.props.details,
+  };
 
   componentDidMount() {
     const { userId } = this.props.params;
@@ -42,8 +50,13 @@ class User extends Component {
     this.props.fetchUser(userId);
   }
 
-  get waitAnimation() {
-    return <WaitAnimation/>;
+  componentWillReceiveProps(nextProps) {
+    if (!nextProps.isFetching && !nextProps.fetchError) {
+      const { details } = nextProps;
+      if (!details) return;
+
+      this.setState({ ...details });
+    }
   }
 
   get errorMessage() {
@@ -55,19 +68,23 @@ class User extends Component {
       return 'New User';
     }
 
-    return _.get(this.props, 'details.name', '');
+    return _.get(this.props, 'details.user.name', '');
+  }
+
+  @autobind
+  handleFormChange(user) {
+    this.setState({ user });
   }
 
   @autobind
   handleSubmit() {
-    const user = this.refs.form.getFormData();
-    this.props.updateUser(user);
+    this.props.updateUser(this.state.user);
   }
 
   renderChildren(): Element {
     return React.cloneElement(this.props.children, {
-      ref: 'form',
-      user: this.props.details
+      user: this.state.user,
+      onChange: this.handleFormChange
     });
   }
 
@@ -97,7 +114,7 @@ class User extends Component {
     if (this.props.fetchError) {
       content = this.errorMessage;
     } else if (this.props.isFetching || !this.props.details) {
-      content = this.waitAnimation;
+      content = <WaitAnimation/>;
     } else {
       content = this.renderContent();
     }
@@ -111,7 +128,7 @@ class User extends Component {
 }
 
 export default connect(
-  (state, props) => ({
+  state => ({
     details: state.users.details,
     isFetching: _.get(state.asyncActions, 'getUser.inProgress', true),
     fetchError: _.get(state.asyncActions, 'getUser.err', null),
