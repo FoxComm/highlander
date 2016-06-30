@@ -48,7 +48,7 @@ object ObjectUtils {
             (Map(attr → k), (k, value))
         }
         val keyMap  = m.map(_._1).reduce(_ ++ _)
-        val newForm = JObject(m.map(_._2).toList)
+        val newForm = JObject(m.map(_._2).toList.distinct)
         (keyMap, newForm)
       case _ ⇒
         (Map(), JNothing)
