@@ -38,7 +38,7 @@ object OrderPromotionUpdater {
                  .filter(_.id === order.contextId)
                  .mustFindOneOr(NotFoundFailure404(ObjectContext, order.contextId))
       orderPromo ← * <~ OrderPromotions
-                    .filterByOrderId(order.id)
+                    .filterByOrderRef(order.refNum)
                     .requiresCoupon
                     .mustFindOneOr(OrderHasNoPromotions)
       // Fetch promotion
@@ -66,7 +66,7 @@ object OrderPromotionUpdater {
       adjustments ← * <~ getAdjustments(promoShadow, order, qualifier, offer)
       // Delete previous adjustments and create new
       _ ← * <~ OrderLineItemAdjustments
-           .filterByOrderIdAndShadow(order.id, orderPromo.promotionShadowId)
+           .filterByOrderRefAndShadow(order.refNum, orderPromo.promotionShadowId)
            .delete
       _ ← * <~ OrderLineItemAdjustments.createAll(adjustments)
     } yield {}
@@ -81,7 +81,7 @@ object OrderPromotionUpdater {
       order ← * <~ getCartByOriginator(originator, refNum)
       _     ← * <~ order.mustBeCart
       orderPromotions ← * <~ OrderPromotions
-                         .filterByOrderId(order.id)
+                         .filterByOrderRef(order.refNum)
                          .requiresCoupon
                          .mustNotFindOneOr(OrderAlreadyHasCoupon)
       // Fetch coupon + validate
@@ -120,13 +120,15 @@ object OrderPromotionUpdater {
       // Read
       order           ← * <~ getCartByOriginator(originator, refNum)
       _               ← * <~ order.mustBeCart
-      orderPromotions ← * <~ OrderPromotions.filterByOrderId(order.id).requiresCoupon.result
+      orderPromotions ← * <~ OrderPromotions.filterByOrderRef(order.refNum).requiresCoupon.result
       shadowIds = orderPromotions.map(_.promotionShadowId)
       promotions ← * <~ Promotions.filter(_.shadowId.inSet(shadowIds)).requiresCoupon.result
       deleteShadowIds = promotions.map(_.shadowId)
       // Write
-      _         ← * <~ OrderPromotions.filterByOrderIdAndShadows(order.id, deleteShadowIds).delete
-      _         ← * <~ OrderLineItemAdjustments.filterByOrderIdAndShadows(order.id, deleteShadowIds).delete
+      _ ← * <~ OrderPromotions.filterByOrderRefAndShadows(order.refNum, deleteShadowIds).delete
+      _ ← * <~ OrderLineItemAdjustments
+           .filterByOrderRefAndShadows(order.refNum, deleteShadowIds)
+           .delete
       _         ← * <~ OrderTotaler.saveTotals(order)
       _         ← * <~ LogActivity.orderCouponDetached(order)
       validated ← * <~ CartValidator(order).validate()

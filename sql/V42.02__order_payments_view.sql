@@ -8,7 +8,7 @@ select
         json_agg((op.payment_method_type, op.amount, op.currency, ccp.state, gcc.state, sca.state)::export_payments)
     end as payments
 from orders as o
-left join order_payments as op on (o.id = op.order_id)
+left join order_payments as op on (o.reference_number = op.order_ref)
 left join credit_card_charges as ccp on (op.id = ccp.order_payment_id)
 left join gift_card_adjustments as gcc on (op.id = gcc.order_payment_id)
 left join store_credit_adjustments as sca on (op.id = sca.order_payment_id)

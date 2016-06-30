@@ -83,11 +83,11 @@ object ShippingManager {
   private def getShippingData(order: Order)(implicit ec: EC): DBIO[ShippingData] =
     for {
       orderShippingAddress ← OrderShippingAddresses
-                              .findByOrderIdWithRegions(order.id)
+                              .findByOrderRefWithRegions(order.refNum)
                               .result
                               .headOption
       skus ← (for {
-              liSku ← OrderLineItemSkus.findByOrderId(order.id)
+              liSku ← OrderLineItemSkus.findByOrderRef(order.refNum)
               skus  ← Skus if skus.id === liSku.skuId
             } yield skus).result
     } yield

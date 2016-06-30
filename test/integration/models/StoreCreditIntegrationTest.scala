@@ -56,7 +56,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase {
       sCredit ← * <~ StoreCredits.findOneById(sc.id).toXor
       payment ← * <~ OrderPayments.create(
                    Factories.storeCreditPayment
-                     .copy(orderId = order.id, paymentMethodId = sc.id, amount = Some(25)))
+                     .copy(orderRef = order.refNum, paymentMethodId = sc.id, amount = Some(25)))
     } yield (customer, origin, sCredit.value, payment)).gimme
   }
 }

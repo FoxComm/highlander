@@ -1,7 +1,7 @@
 create table order_line_items (
     id serial primary key,
     reference_number generic_string not null unique,
-    order_id integer not null references orders(id) on update restrict on delete restrict,
+    order_ref text not null references orders(reference_number) on update restrict on delete restrict,
     origin_id integer not null references order_line_item_origins(id) on update restrict on delete restrict,
     origin_type character varying(255) not null,
     state character varying(255) not null,
@@ -10,7 +10,7 @@ create table order_line_items (
     constraint valid_state check (state in ('cart', 'pending', 'preOrdered', 'backOrdered', 'canceled', 'shipped'))
 );
 
-create index order_line_items_order_and_origin_idx on order_line_items (order_id, origin_id);
+create index order_line_items_order_and_origin_idx on order_line_items (order_ref, origin_id);
 
 create function set_oli_refnum() returns trigger as $$
 begin

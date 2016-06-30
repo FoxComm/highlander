@@ -15,7 +15,7 @@ select
 from gift_card_adjustments as gca
 inner join gift_cards as gc on (gca.gift_card_id = gc.id)
 left join order_payments as op on (op.id = gca.order_payment_id)
-left join orders as o on (op.order_id = o.id)
+left join orders as o on (op.order_ref = o.reference_number)
 group by gca.id, op.id, o.id;
 
 create unique index gift_card_transactions_payments_view_idx on gift_card_transactions_payments_view (id);

@@ -30,14 +30,17 @@ object OrderShippingMethodUpdater {
       shippingMethod ← * <~ ShippingMethods.mustFindById400(payload.shippingMethodId)
       _              ← * <~ shippingMethod.mustBeActive
       _              ← * <~ ShippingManager.evaluateShippingMethodForOrder(shippingMethod, order)
-      _              ← * <~ Shipments.filter(_.orderId === order.id).map(_.orderShippingMethodId).update(None)
-      _              ← * <~ OrderShippingMethods.findByOrderId(order.id).delete
+      _ ← * <~ Shipments
+           .filter(_.orderRef === order.refNum)
+           .map(_.orderShippingMethodId)
+           .update(None)
+      _ ← * <~ OrderShippingMethods.findByOrderRef(order.refNum).delete
       orderShipMethod ← * <~ OrderShippingMethods.create(
-                           OrderShippingMethod(orderId = order.id,
+                           OrderShippingMethod(orderRef = order.refNum,
                                                shippingMethodId = shippingMethod.id,
                                                price = shippingMethod.price))
       _ ← * <~ Shipments
-           .filter(_.orderId === order.id)
+           .filter(_.orderRef === order.refNum)
            .map(_.orderShippingMethodId)
            .update(orderShipMethod.id.some)
       // update changed totals
@@ -58,7 +61,7 @@ object OrderShippingMethodUpdater {
       order      ← * <~ getCartByOriginator(originator, refNum)
       _          ← * <~ order.mustBeCart
       shipMethod ← * <~ ShippingMethods.forOrder(order).mustFindOneOr(NoShipMethod(order.refNum))
-      _          ← * <~ OrderShippingMethods.findByOrderId(order.id).delete
+      _          ← * <~ OrderShippingMethods.findByOrderRef(order.refNum).delete
       // update changed totals
       _     ← * <~ OrderPromotionUpdater.readjust(order).recover { case _ ⇒ Unit }
       order ← * <~ OrderTotaler.saveTotals(order)

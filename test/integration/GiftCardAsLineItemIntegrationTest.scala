@@ -188,13 +188,13 @@ class GiftCardAsLineItemIntegrationTest
       customer ← * <~ Customers.create(Factories.customer)
       order ← * <~ Orders.create(
                  Factories.order.copy(customerId = customer.id, state = Order.Cart))
-      gcOrigin ← * <~ GiftCardOrders.create(GiftCardOrder(orderId = order.id))
+      gcOrigin ← * <~ GiftCardOrders.create(GiftCardOrder(orderRef = order.refNum))
       giftCard ← * <~ GiftCards.create(
                     GiftCard.buildLineItem(balance = 150,
                                            originId = gcOrigin.id,
                                            currency = Currency.USD))
       lineItemGc ← * <~ OrderLineItemGiftCards.create(
-                      OrderLineItemGiftCard(giftCardId = giftCard.id, orderId = order.id))
+                      OrderLineItemGiftCard(giftCardId = giftCard.id, orderRef = order.refNum))
       lineItem ← * <~ OrderLineItems.create(OrderLineItem.buildGiftCard(order, lineItemGc))
     } yield (customer, order, giftCard)).gimme
   }

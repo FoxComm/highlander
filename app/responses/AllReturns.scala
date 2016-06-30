@@ -32,7 +32,7 @@ object AllReturns {
     Root(
         id = rma.id,
         referenceNumber = rma.referenceNumber,
-        orderRefNum = rma.orderRefNum,
+        orderRefNum = rma.orderRef,
         rmaType = rma.returnType,
         state = rma.state,
         customer = customer.map(CustomerResponse.build(_)),

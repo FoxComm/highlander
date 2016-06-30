@@ -1,16 +1,16 @@
 create or replace function update_orders_view_from_addresses_fn() returns trigger as $$
-declare order_ids int[];
+declare order_refs text[];
 begin
   case TG_TABLE_NAME
     when 'order_shipping_addresses' then
-      order_ids := array_agg(NEW.order_id);
+      order_refs := array_agg(NEW.order_ref);
     when 'regions' then
-      select array_agg(osa.order_id) into strict order_ids
+      select array_agg(osa.order_ref) into strict order_refs
       from order_shipping_addresses as osa
       inner join regions as r on (r.id = osa.region_id)
       where r.id = NEW.id;
     when 'countries' THEN
-      select array_agg(osa.order_id) into strict order_ids
+      select array_agg(osa.order_ref) into strict order_refs
       from order_shipping_addresses as osa
       inner join regions as r1 on (r1.id = osa.region_id)
       inner join countries as c1 on (r1.country_id = c1.id)
@@ -31,10 +31,10 @@ begin
                 ::export_addresses)::jsonb
             end as addresses
         from orders as o
-        left join order_shipping_addresses as osa on (o.id = osa.order_id)
+        left join order_shipping_addresses as osa on (o.reference_number = osa.order_ref)
         left join regions as r1 on (osa.region_id = r1.id)
         left join countries as c1 on (r1.country_id = c1.id)
-        where o.id = ANY(order_ids)
+        where o.reference_number = ANY(order_refs)
         group by o.id) AS subquery
   WHERE orders_search_view.id = subquery.id;
 

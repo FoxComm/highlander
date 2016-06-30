@@ -145,7 +145,7 @@ object CreditCardManager {
       val paymentIds = for {
         orders ← Orders.findByCustomerId(customerId).cartOnly
         pmts   ← OrderPayments.filter(_.paymentMethodId === updated.parentId).creditCards
-        if pmts.orderId === orders.id
+        if pmts.orderRef === orders.referenceNumber
       } yield pmts.id
 
       for {

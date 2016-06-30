@@ -61,7 +61,7 @@ object ShippingMethods
 
   def forOrder(order: Order): QuerySeq =
     for {
-      orderShippingMethod ← OrderShippingMethods.filter(_.orderId === order.id)
+      orderShippingMethod ← OrderShippingMethods.filter(_.orderRef === order.refNum)
       shipMethod          ← ShippingMethods.filter(_.id === orderShippingMethod.shippingMethodId)
     } yield shipMethod
 }

@@ -62,7 +62,10 @@ class LineItemUpdaterTest extends IntegrationTestBase {
       val (context, products) = createProducts(3).gimme
       val order               = Orders.create(Order(customerId = 1, contextId = context.id)).gimme
       val seedItems = Seq(1, 1, 1, 1, 1, 1, 2, 3, 3).map { linkId ⇒
-        OrderLineItem(id = 0, orderId = 1, originId = linkId, originType = OrderLineItem.SkuItem)
+        OrderLineItem(id = 0,
+                      orderRef = order.refNum,
+                      originId = linkId,
+                      originType = OrderLineItem.SkuItem)
       }
       createLineItems(seedItems)
 

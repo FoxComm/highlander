@@ -137,12 +137,12 @@ class ShippingMethodsIntegrationTest
       address ← * <~ Addresses.create(
                    Factories.address.copy(customerId = customer.id, regionId = californiaId))
       shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address,
-                                                                orderId = order.id)
+                                                                orderRef = order.refNum)
       product ← * <~ Mvp.insertProduct(productContext.id,
                                        Factories.products.head.copy(title = "Donkey", price = 27))
       lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(product.skuId).toXor
       lineItems ← * <~ OrderLineItems.create(
-                     OrderLineItem(orderId = order.id, originId = lineItemSku.id))
+                     OrderLineItem(orderRef = order.refNum, originId = lineItemSku.id))
       _ ← * <~ OrderTotaler.saveTotals(order)
     } yield (address, shipAddress)).gimme
   }

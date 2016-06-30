@@ -1,22 +1,22 @@
 create or replace function update_orders_view_from_billing_addresses_fn() returns trigger as $$
-declare order_ids int[];
+declare order_refs text[];
 begin
   case TG_TABLE_NAME
     when 'order_payments' then
-      order_ids := array_agg(NEW.order_id);
+      order_refs := array_agg(NEW.order_ref);
     when 'credit_cards' then
-      select array_agg(op.order_id) into strict order_ids
+      select array_agg(op.order_ref) into strict order_refs
       from credit_cards as cc
       inner join order_payments as op on (cc.id = op.payment_method_id)
       where cc.id = NEW.id;
     when 'regions' then
-      select array_agg(op.order_id) into strict order_ids
+      select array_agg(op.order_ref) into strict order_refs
       from credit_cards as cc
       inner join order_payments as op on (cc.id = op.payment_method_id)
       inner join regions as r on (cc.region_id = r)
       where r.id = NEW.id;
     when 'countries' THEN
-      select array_agg(op.order_id) into strict order_ids
+      select array_agg(op.order_ref) into strict order_refs
       from credit_cards as cc
       inner join order_payments as op on (cc.id = op.payment_method_id)
       inner join regions as r on (cc.region_id = r)
@@ -38,11 +38,11 @@ begin
                 ::export_addresses)::jsonb
             end as addresses
         from orders as o
-        left join order_payments as op_cc on (o.id = op_cc.order_id and op_cc.payment_method_type = 'creditCard')
+        left join order_payments as op_cc on (o.reference_number = op_cc.order_ref and op_cc.payment_method_type = 'creditCard')
         left join credit_cards as cc on (cc.id = op_cc.payment_method_id)
         left join regions as r2 on (cc.region_id = r2.id)
         left join countries as c2 on (r2.country_id = c2.id)
-        where o.id = ANY(order_ids)
+        where o.reference_number = ANY(order_refs)
         group by o.id) AS subquery
   WHERE orders_search_view.id = subquery.id;
 

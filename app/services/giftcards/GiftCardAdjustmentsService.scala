@@ -23,7 +23,7 @@ object GiftCardAdjustmentsService {
         .joinLeft(OrderPayments)
         .on(_.orderPaymentId === _.id)
         .joinLeft(Orders)
-        .on(_._2.map(_.orderId) === _.id)
+        .on(_._2.map(_.orderRef) === _.referenceNumber)
 
       queryWithMetadata = query.withMetadata.sortAndPageIfNeeded {
         case (s, ((giftCardAdj, _), _)) ⇒

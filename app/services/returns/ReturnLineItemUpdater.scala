@@ -70,7 +70,7 @@ object ReturnLineItemUpdater {
       oli ← * <~ OrderLineItemGiftCards
              .join(GiftCards)
              .on(_.giftCardId === _.id)
-             .filter { case (oli, gc) ⇒ oli.orderId === rma.orderId && gc.code === payload.code }
+             .filter { case (oli, gc) ⇒ oli.orderRef === rma.orderRef && gc.code === payload.code }
              .mustFindOneOr(NotFoundFailure404(GiftCard, payload.code))
       // Inserts
       origin ← * <~ ReturnLineItemGiftCards.create(
@@ -109,8 +109,8 @@ object ReturnLineItemUpdater {
                 .filter(_.id === payload.reasonId)
                 .mustFindOneOr(NotFoundFailure400(ReturnReason, payload.reasonId))
       shipment ← * <~ Shipments
-                  .filter(_.orderId === rma.orderId)
-                  .mustFindOneOr(ShipmentNotFoundFailure(rma.orderRefNum))
+                  .filter(_.orderRef === rma.orderRef)
+                  .mustFindOneOr(ShipmentNotFoundFailure(rma.orderRef))
       // Inserts
       origin ← * <~ ReturnLineItemShippingCosts.create(
                   ReturnLineItemShippingCost(returnId = rma.id, shipmentId = shipment.id))

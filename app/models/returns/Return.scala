@@ -21,7 +21,7 @@ import utils.db._
 case class Return(id: Int = 0,
                   referenceNumber: String = "",
                   orderId: Int,
-                  orderRefNum: String,
+                  orderRef: String,
                   returnType: ReturnType = Standard,
                   state: State = Pending,
                   isLocked: Boolean = false,
@@ -82,7 +82,7 @@ object Return {
   def build(order: Order, admin: StoreAdmin, rmaType: ReturnType = Return.Standard): Return = {
     Return(
         orderId = order.id,
-        orderRefNum = order.refNum,
+        orderRef = order.refNum,
         returnType = rmaType,
         customerId = order.customerId,
         storeAdminId = Some(admin.id)
@@ -102,7 +102,7 @@ class Returns(tag: Tag) extends FoxTable[Return](tag, "returns") {
   def id                = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def referenceNumber   = column[String]("reference_number")
   def orderId           = column[Int]("order_id")
-  def orderRefNum       = column[String]("order_refnum")
+  def orderRef          = column[String]("order_ref")
   def returnType        = column[ReturnType]("return_type")
   def state             = column[State]("state")
   def isLocked          = column[Boolean]("is_locked")
@@ -118,7 +118,7 @@ class Returns(tag: Tag) extends FoxTable[Return](tag, "returns") {
     (id,
      referenceNumber,
      orderId,
-     orderRefNum,
+     orderRef,
      returnType,
      state,
      isLocked,
@@ -140,7 +140,7 @@ object Returns
 
   def findByCustomerId(customerId: Int): QuerySeq = filter(_.customerId === customerId)
 
-  def findByOrderRefNum(refNum: String): QuerySeq = filter(_.orderRefNum === refNum)
+  def findByOrderRefNum(refNum: String): QuerySeq = filter(_.orderRef === refNum)
 
   def findOneByRefNum(refNum: String): DBIO[Option[Return]] =
     filter(_.referenceNumber === refNum).one

@@ -53,14 +53,14 @@ object ReturnService {
   }
 
   def createByAdmin(admin: StoreAdmin, payload: ReturnCreatePayload)(implicit ec: EC,
-                                                                     db: DB): Result[Root] =
-    (for {
+                                                                     db: DB): DbResultT[Root] =
+    for {
       order    ← * <~ Orders.mustFindByRefNum(payload.orderRefNum)
       rma      ← * <~ Returns.create(Return.build(order, admin, payload.returnType))
       customer ← * <~ Customers.findOneById(order.customerId).toXor
       adminResponse    = Some(StoreAdminResponse.build(admin))
       customerResponse = customer.map(CustomerResponse.build(_))
-    } yield build(rma, customerResponse, adminResponse)).runTxn()
+    } yield build(rma, customerResponse, adminResponse)
 
   def getByRefNum(refNum: String)(implicit ec: EC, db: DB): Result[Root] =
     (for {

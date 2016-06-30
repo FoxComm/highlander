@@ -2,7 +2,7 @@ create table returns (
     id serial primary key,
     reference_number reference_number not null unique,
     order_id integer not null references orders(id) on update restrict on delete restrict,
-    order_refnum reference_number not null,
+    order_ref text not null references orders(reference_number) on update restrict on delete restrict,
     return_type return_type not null,
     state return_state not null,
     is_locked boolean default false,
@@ -15,12 +15,12 @@ create table returns (
     deleted_at timestamp without time zone null
 );
 
-create index returns_order_id_and_state on returns (order_id, state);
+create index returns_order_ref_and_state on returns (order_ref, state);
 
 create function set_returns_reference_number() returns trigger as $$
 begin
     if length(new.reference_number) = 0 then
-        new.reference_number = concat(new.order_refnum, '.', next_return_id(new.order_id));
+        new.reference_number = concat(new.order_ref, '.', next_return_id(new.order_id));
     end if;
     return new;
 end;

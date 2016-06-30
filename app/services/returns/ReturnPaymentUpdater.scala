@@ -21,7 +21,7 @@ object ReturnPaymentUpdater {
     (for {
       _         ← * <~ payload.validate
       rma       ← * <~ mustFindPendingReturnByRefNum(refNum)
-      payment   ← * <~ mustFindCcPaymentsByOrderId(rma.orderId)
+      payment   ← * <~ mustFindCcPaymentsByOrderRef(rma.orderRef)
       cc        ← * <~ CreditCards.mustFindById404(payment.paymentMethodId)
       deleteAll ← * <~ deleteCc(rma.id).toXor
       ccRefund ← * <~ ReturnPayments.create(
@@ -36,7 +36,7 @@ object ReturnPaymentUpdater {
       _         ← * <~ payload.validate
       rma       ← * <~ mustFindPendingReturnByRefNum(refNum)
       deleteAll ← * <~ deleteGc(rma.id).toXor
-      payment   ← * <~ mustFindCcPaymentsByOrderId(rma.orderId)
+      payment   ← * <~ mustFindCcPaymentsByOrderRef(rma.orderRef)
       origin    ← * <~ GiftCardRefunds.create(GiftCardRefund(returnId = rma.id))
       gc        ← * <~ GiftCards.create(GiftCard.buildRmaProcess(origin.id, payment.currency))
       pmt ← * <~ ReturnPayments.create(
@@ -51,7 +51,7 @@ object ReturnPaymentUpdater {
       _         ← * <~ payload.validate
       rma       ← * <~ mustFindPendingReturnByRefNum(refNum)
       deleteAll ← * <~ deleteGc(rma.id).toXor
-      payment   ← * <~ mustFindCcPaymentsByOrderId(rma.orderId)
+      payment   ← * <~ mustFindCcPaymentsByOrderRef(rma.orderRef)
       origin    ← * <~ StoreCreditRefunds.create(StoreCreditRefund(returnId = rma.id))
 
       storeCredit = StoreCredit.buildRmaProcess(rma.customerId, origin.id, payment.currency)

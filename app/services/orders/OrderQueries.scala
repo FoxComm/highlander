@@ -25,7 +25,7 @@ object OrderQueries {
 
     def build(order: Order, customer: Customer) =
       for {
-        paymentState ← * <~ getPaymentState(order.id).toXor
+        paymentState ← * <~ getPaymentState(order.refNum).toXor
       } yield AllOrders.build(order, customer.some, paymentState.some)
 
     for {
@@ -93,9 +93,9 @@ object OrderQueries {
       case Found   ⇒ DbResult.unit
     }
 
-  def getPaymentState(orderId: Int)(implicit ec: EC): DBIO[CreditCardCharge.State] =
+  def getPaymentState(orderRef: String)(implicit ec: EC): DBIO[CreditCardCharge.State] =
     for {
-      payments ← OrderPayments.findAllByOrderId(orderId).result
+      payments ← OrderPayments.findAllByOrderRef(orderRef).result
       authorized ← DBIO.sequence(payments.map(payment ⇒
                             payment.paymentMethodType match {
                       case PaymentMethod.CreditCard ⇒

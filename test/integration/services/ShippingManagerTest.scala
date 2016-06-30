@@ -48,7 +48,7 @@ class ShippingManagerTest extends IntegrationTestBase {
                                      isDefaultShipping = false))
           .gimme
         OrderShippingAddresses.filter(_.id === orderShippingAddress.id).delete.run().futureValue
-        OrderShippingAddresses.copyFromAddress(address = canada, orderId = order.id).gimme
+        OrderShippingAddresses.copyFromAddress(address = canada, orderRef = order.refNum).gimme
 
         val matchingMethods = getShippingMethodsForOrder(order.refNum).gimme
         matchingMethods.headOption.value.name must === (shippingMethod.adminDisplayName)
@@ -80,7 +80,8 @@ class ShippingManagerTest extends IntegrationTestBase {
           address ← * <~ Addresses.create(
                        Factories.address.copy(customerId = customer.id, regionId = washingtonId))
           orderShippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address,
-                                                                             orderId = order.id)
+                                                                             orderRef =
+                                                                               order.refNum)
         } yield (address, orderShippingAddress)).gimme
 
         val matchingMethods = getShippingMethodsForOrder(order.refNum).gimme
@@ -92,7 +93,8 @@ class ShippingManagerTest extends IntegrationTestBase {
           address ← * <~ Addresses.create(
                        Factories.address.copy(customerId = customer.id, regionId = michiganId))
           orderShippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address,
-                                                                             orderId = order.id)
+                                                                             orderRef =
+                                                                               order.refNum)
         } yield (address, orderShippingAddress)).gimme
 
         val matchingMethods = getShippingMethodsForOrder(order.refNum).gimme
@@ -107,7 +109,8 @@ class ShippingManagerTest extends IntegrationTestBase {
           address ← * <~ Addresses.create(
                        Factories.address.copy(customerId = customer.id, regionId = washingtonId))
           orderShippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address,
-                                                                             orderId = order.id)
+                                                                             orderRef =
+                                                                               order.refNum)
         } yield (address, orderShippingAddress)).gimme
 
         val matchingMethods = getShippingMethodsForOrder(order.refNum).gimme
@@ -121,7 +124,8 @@ class ShippingManagerTest extends IntegrationTestBase {
                                               regionId = washingtonId,
                                               address1 = "P.O. Box 1234"))
           orderShippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address,
-                                                                             orderId = order.id)
+                                                                             orderRef =
+                                                                               order.refNum)
         } yield (address, orderShippingAddress)).gimme
 
         val matchingMethods = getShippingMethodsForOrder(order.refNum).gimme
@@ -135,7 +139,8 @@ class ShippingManagerTest extends IntegrationTestBase {
                                               regionId = washingtonId,
                                               address2 = Some("P.O. Box 1234")))
           orderShippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address,
-                                                                             orderId = order.id)
+                                                                             orderRef =
+                                                                               order.refNum)
         } yield (address, orderShippingAddress)).gimme
 
         val matchingMethods = getShippingMethodsForOrder(order.refNum).gimme
@@ -153,7 +158,7 @@ class ShippingManagerTest extends IntegrationTestBase {
                                        Factories.products.head.copy(title = "Donkey", price = 27))
       lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(product.skuId).toXor
       lineItem ← * <~ OrderLineItems.create(
-                    OrderLineItem(orderId = order.id,
+                    OrderLineItem(orderRef = order.refNum,
                                   originId = lineItemSku.id,
                                   originType = OrderLineItem.SkuItem))
 
@@ -172,7 +177,7 @@ class ShippingManagerTest extends IntegrationTestBase {
       address ← * <~ Addresses.create(
                    Factories.address.copy(customerId = customer.id, regionId = californiaId))
       orderShippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address,
-                                                                         orderId = order.id)
+                                                                         orderRef = order.refNum)
     } yield (address, orderShippingAddress)).gimme
   }
 
@@ -211,7 +216,7 @@ class ShippingManagerTest extends IntegrationTestBase {
       address ← * <~ Addresses.create(
                    Factories.address.copy(customerId = customer.id, regionId = californiaId))
       orderShippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address,
-                                                                         orderId = order.id)
+                                                                         orderRef = order.refNum)
     } yield (address, orderShippingAddress)).gimme
   }
 
@@ -220,7 +225,7 @@ class ShippingManagerTest extends IntegrationTestBase {
       address ← * <~ Addresses.create(
                    Factories.address.copy(customerId = customer.id, regionId = washingtonId))
       orderShippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address,
-                                                                         orderId = order.id)
+                                                                         orderRef = order.refNum)
     } yield (address, orderShippingAddress)).gimme
   }
 
@@ -229,7 +234,7 @@ class ShippingManagerTest extends IntegrationTestBase {
       address ← * <~ Addresses.create(
                    Factories.address.copy(customerId = customer.id, regionId = michiganId))
       orderShippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address,
-                                                                         orderId = order.id)
+                                                                         orderRef = order.refNum)
     } yield (address, orderShippingAddress)).gimme
   }
 
@@ -281,14 +286,14 @@ class ShippingManagerTest extends IntegrationTestBase {
                                                                          code = "SKU-CHP"))
       cheapLineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(cheapProduct.skuId).toXor
       cheapLineItem ← * <~ OrderLineItems.create(
-                         OrderLineItem(orderId = cheapOrder.id,
+                         OrderLineItem(orderRef = cheapOrder.refNum,
                                        originId = cheapLineItemSku.id,
                                        originType = OrderLineItem.SkuItem))
       cheapAddress ← * <~ Addresses.create(
                         Factories.address.copy(customerId = customer.id,
                                                isDefaultShipping = false))
       _ ← * <~ OrderShippingAddresses.copyFromAddress(address = cheapAddress,
-                                                      orderId = cheapOrder.id)
+                                                      orderRef = cheapOrder.refNum)
       expensiveOrder ← * <~ Orders.create(
                           Factories.order.copy(customerId = customer.id,
                                                referenceNumber = "CS1234-AB"))
@@ -299,14 +304,14 @@ class ShippingManagerTest extends IntegrationTestBase {
                                                                              code = "SKU-EXP"))
       expensiveLineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(expensiveProduct.skuId).toXor
       expensiveLineItem ← * <~ OrderLineItems.create(
-                             OrderLineItem(orderId = expensiveOrder.id,
+                             OrderLineItem(orderRef = expensiveOrder.refNum,
                                            originId = expensiveLineItemSku.id,
                                            originType = OrderLineItem.SkuItem))
       expensiveAddress ← * <~ Addresses.create(
                             Factories.address.copy(customerId = customer.id,
                                                    isDefaultShipping = false))
       _ ← * <~ OrderShippingAddresses.copyFromAddress(address = expensiveAddress,
-                                                      orderId = expensiveOrder.id)
+                                                      orderRef = expensiveOrder.refNum)
 
       cheapOrder     ← * <~ OrderTotaler.saveTotals(cheapOrder)
       expensiveOrder ← * <~ OrderTotaler.saveTotals(expensiveOrder)

@@ -38,11 +38,11 @@ object RankingSeedsGenerator {
   }
 
   def generateOrderPayment[A <: PaymentMethod with FoxModel[A]](
-      orderId: Int,
+      orderRef: String,
       paymentMethod: A,
       amount: Int = 100): OrderPayment = {
     Factories.orderPayment
-      .copy(orderId = orderId, amount = Some(amount), paymentMethodId = paymentMethod.id)
+      .copy(orderRef = orderRef, amount = Some(amount), paymentMethodId = paymentMethod.id)
   }
 
   def generateAddress: Address =
@@ -75,7 +75,7 @@ object RankingSeedsGenerator {
     }
 
     def makePayment(o: Order, pm: CreditCard) = {
-      generateOrderPayment(o.id, pm, Random.nextInt(20000) + 100)
+      generateOrderPayment(o.refNum, pm, Random.nextInt(20000) + 100)
     }
 
     def insertCustomers() =

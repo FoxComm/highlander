@@ -50,7 +50,7 @@ class OrderPaymentsIntegrationTest
           POST(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
 
         response.status must === (StatusCodes.OK)
-        val (p :: Nil) = OrderPayments.findAllByOrderId(order.id).gimme.toList
+        val (p :: Nil) = OrderPayments.findAllByOrderRef(order.refNum).gimme.toList
 
         val payments = giftCardPayments(order)
         payments must have size 1
@@ -474,7 +474,7 @@ class OrderPaymentsIntegrationTest
   }
 
   def paymentsFor(order: Order, pmt: PaymentMethod.Type): Seq[OrderPayment] = {
-    val q = OrderPayments.filter(_.orderId === order.id).byType(pmt)
+    val q = OrderPayments.filter(_.orderRef === order.refNum).byType(pmt)
     q.gimme
   }
 

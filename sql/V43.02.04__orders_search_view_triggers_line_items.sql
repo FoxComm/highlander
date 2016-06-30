@@ -1,29 +1,29 @@
 create or replace function update_orders_view_from_line_items_fn() returns trigger as $$
-declare order_ids int[];
+declare order_refs text[];
 begin
   case TG_TABLE_NAME
     when 'order_line_items' then
-      order_ids := array_agg(NEW.order_id);
+      order_refs := array_agg(NEW.order_ref);
     when 'order_line_item_skus' then
-      select array_agg(order_id) into strict order_ids
+      select array_agg(order_ref) into strict order_refs
         from order_line_items as oli
         inner join order_line_item_origins as oli_origins on (oli.origin_id = oli_origins.id)
         where oli_origins.id = NEW.id;
     when 'skus' then
-      select array_agg(order_id) into strict order_ids
+      select array_agg(order_ref) into strict order_refs
         from order_line_items as oli
         inner join order_line_item_origins as oli_origins on (oli.origin_id = oli_origins.id)
         inner join order_line_item_skus as oli_skus on (oli_origins.id = oli_skus.id)
         WHERE oli_skus.id = NEW.id;
     when 'object_forms' then
-      select array_agg(order_id) into strict order_ids
+      select array_agg(order_ref) into strict order_refs
         from order_line_items as oli
         inner join order_line_item_origins as oli_origins on (oli.origin_id = oli_origins.id)
         inner join order_line_item_skus as oli_skus on (oli_origins.id = oli_skus.id)
         inner join skus as sku on (oli_skus.sku_id = sku.id)
         WHERE sku.form_id = NEW.id;
     when 'object_shadows' then
-      select array_agg(order_id) into strict order_ids
+      select array_agg(order_ref) into strict order_refs
         from order_line_items as oli
         inner join order_line_item_origins as oli_origins on (oli.origin_id = oli_origins.id)
         inner join order_line_item_skus as oli_skus on (oli_origins.id = oli_skus.id)
@@ -48,13 +48,13 @@ begin
                     ::jsonb
           end as items
           from orders as o
-          left join order_line_items as oli on (o.id = oli.order_id)
+          left join order_line_items as oli on (o.reference_number = oli.order_ref)
           left join order_line_item_origins as oli_origins on (oli.origin_id = oli_origins.id)
           left join order_line_item_skus as oli_skus on (oli_origins.id = oli_skus.id)
           left join skus as sku on (oli_skus.sku_id = sku.id)
           left join object_forms as sku_form on (sku.form_id = sku_form.id)
           left join object_shadows as sku_shadow on (oli_skus.sku_shadow_id = sku_shadow.id)
-          where o.id = ANY(order_ids)
+          where o.reference_number = ANY(order_refs)
           group by o.id) AS subquery
       WHERE orders_search_view.id = subquery.id;
 

@@ -89,7 +89,7 @@ class OrderShippingAddressUpdaterTest
   trait UpdateAddressFixture extends Fixture {
     val (orderShippingAddress, newAddress) = (for {
       orderShippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address,
-                                                                         orderId = order.id)
+                                                                         orderRef = order.refNum)
       newAddress ← * <~ Addresses.create(
                       Factories.address.copy(customerId = customer.id,
                                              name = "New Address",

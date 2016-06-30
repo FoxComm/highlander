@@ -14,7 +14,9 @@ import utils.db.ExPostgresDriver.api._
 import utils.db._
 
 case class OrderPayment(id: Int = 0,
-                        orderId: Int = 0,
+                        // FIXME @anna WTF is wrong with these defaults?
+                        // CURRY ALL THE THINGS
+                        orderRef: String = "",
                         amount: Option[Int] = None,
                         currency: Currency = Currency.USD,
                         paymentMethodId: Int,
@@ -44,7 +46,7 @@ case class OrderPayment(id: Int = 0,
 
 object OrderPayment {
   def fromStripeCustomer(stripeCustomer: StripeCustomer, order: Order): OrderPayment =
-    OrderPayment(orderId = order.id,
+    OrderPayment(orderRef = order.refNum,
                  paymentMethodId = 1,
                  paymentMethodType = PaymentMethod.CreditCard)
 
@@ -61,17 +63,17 @@ object OrderPayment {
 class OrderPayments(tag: Tag) extends FoxTable[OrderPayment](tag, "order_payments") {
 
   def id                = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def orderId           = column[Int]("order_id")
+  def orderRef          = column[String]("order_ref")
   def paymentMethodId   = column[Int]("payment_method_id")
   def paymentMethodType = column[PaymentMethod.Type]("payment_method_type")
   def amount            = column[Option[Int]]("amount")
   def currency          = column[Currency]("currency")
 
   def * =
-    (id, orderId, amount, currency, paymentMethodId, paymentMethodType) <> ((OrderPayment.apply _).tupled,
+    (id, orderRef, amount, currency, paymentMethodId, paymentMethodType) <> ((OrderPayment.apply _).tupled,
         OrderPayment.unapply)
 
-  def order      = foreignKey(Orders.tableName, orderId, Orders)(_.id)
+  def order      = foreignKey(Orders.tableName, orderRef, Orders)(_.referenceNumber)
   def creditCard = foreignKey(CreditCards.tableName, paymentMethodId, CreditCards)(_.id)
 }
 
@@ -81,28 +83,28 @@ object OrderPayments
 
   val returningLens: Lens[OrderPayment, Int] = lens[OrderPayment].id
 
-  def findAllByOrderId(id: Int): QuerySeq =
-    filter(_.orderId === id)
+  def findAllByOrderRef(orderRef: String): QuerySeq =
+    filter(_.orderRef === orderRef)
 
   def findAllStoreCredit: QuerySeq =
     filter(_.paymentMethodType === (PaymentMethod.StoreCredit: PaymentMethod.Type))
 
-  def findAllGiftCardsByOrderId(
-      id: Int): Query[(OrderPayments, GiftCards), (OrderPayment, GiftCard), Seq] =
+  def findAllGiftCardsByOrderRef(
+      orderRef: String): Query[(OrderPayments, GiftCards), (OrderPayment, GiftCard), Seq] =
     for {
-      pmts ← OrderPayments.filter(_.orderId === id)
+      pmts ← OrderPayments.filter(_.orderRef === orderRef)
       gc   ← GiftCards if gc.id === pmts.paymentMethodId
     } yield (pmts, gc)
 
-  def findAllStoreCreditsByOrderId(
-      id: Int): Query[(OrderPayments, StoreCredits), (OrderPayment, StoreCredit), Seq] =
+  def findAllStoreCreditsByOrderRef(
+      orderRef: String): Query[(OrderPayments, StoreCredits), (OrderPayment, StoreCredit), Seq] =
     for {
-      pmts ← OrderPayments.filter(_.orderId === id)
+      pmts ← OrderPayments.filter(_.orderRef === orderRef)
       sc   ← StoreCredits if sc.id === pmts.paymentMethodId
     } yield (pmts, sc)
 
-  def findAllCreditCardsForOrder(orderId: Rep[Int]): QuerySeq =
-    filter(_.orderId === orderId)
+  def findAllCreditCardsForOrder(orderRef: Rep[String]): QuerySeq =
+    filter(_.orderRef === orderRef)
       .filter(_.paymentMethodType === (PaymentMethod.CreditCard: PaymentMethod.Type))
 
   object scope {
@@ -115,7 +117,7 @@ object OrderPayments
         q.filter(_.paymentMethodType === (pmt: PaymentMethod.Type))
 
       def byOrderAndGiftCard(order: Order, giftCard: GiftCard): QuerySeq =
-        q.giftCards.filter(_.paymentMethodId === giftCard.id).filter(_.orderId === order.id)
+        q.giftCards.filter(_.paymentMethodId === giftCard.id).filter(_.orderRef === order.refNum)
     }
   }
 }

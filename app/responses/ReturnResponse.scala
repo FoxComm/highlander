@@ -162,7 +162,7 @@ object ReturnResponse {
             totals: Option[ReturnTotals] = None): Root =
     Root(id = rma.id,
          referenceNumber = rma.refNum,
-         orderRefNum = rma.orderRefNum,
+         orderRefNum = rma.orderRef,
          rmaType = rma.returnType,
          state = rma.state,
          customer = customer,
@@ -201,7 +201,7 @@ object ReturnResponse {
 
   private def fetchRmaDetails(rma: Return, withOrder: Boolean = false)(implicit db: DB, ec: EC) = {
     val orderQ = for {
-      order     ← Orders.findById(rma.orderId).extract.one
+      order     ← Orders.findByRefNum(rma.orderRef).one
       fullOrder ← order.map(o ⇒ FullOrder.fromOrder(o).map(Some(_))).getOrElse(lift(None))
     } yield fullOrder
 

@@ -29,11 +29,11 @@ object LineItemUpdater {
       p      ← * <~ payload.validate
       order  ← * <~ Orders.mustFindByRefNum(refNum)
       _      ← * <~ order.mustBeCart
-      origin ← * <~ GiftCardOrders.create(GiftCardOrder(orderId = order.id))
+      origin ← * <~ GiftCardOrders.create(GiftCardOrder(orderRef = order.refNum))
       gc ← * <~ GiftCards.create(GiftCard
                 .buildLineItem(balance = p.balance, originId = origin.id, currency = p.currency))
       liGc ← * <~ OrderLineItemGiftCards.create(
-                OrderLineItemGiftCard(giftCardId = gc.id, orderId = order.id))
+                OrderLineItemGiftCard(giftCardId = gc.id, orderRef = order.refNum))
       _ ← * <~ OrderLineItems.create(OrderLineItem.buildGiftCard(order, liGc))
       // update changed totals
       order  ← * <~ OrderTotaler.saveTotals(order)
@@ -70,9 +70,10 @@ object LineItemUpdater {
       order ← * <~ Orders.mustFindByRefNum(refNum)
       _     ← * <~ order.mustBeCart
       _     ← * <~ OrderLineItemGiftCards.findByGcId(gc.id).delete
-      _     ← * <~ OrderLineItems.filter(_.originId === order.id).giftCards.delete
-      _     ← * <~ GiftCards.filter(_.id === gc.id).delete
-      _     ← * <~ GiftCardOrders.filter(_.id === gc.originId).delete
+      // FIXME @anna WTF? Order id or GC id?
+      _ ← * <~ OrderLineItems.filter(_.orderRef === order.refNum).giftCards.delete
+      _ ← * <~ GiftCards.filter(_.id === gc.id).delete
+      _ ← * <~ GiftCardOrders.filter(_.id === gc.originId).delete
       // update changed totals
       order ← * <~ OrderTotaler.saveTotals(order)
       valid ← * <~ CartValidator(order).validate()
@@ -159,20 +160,17 @@ object LineItemUpdater {
                  .filterByContext(order.contextId)
                  .filter(_.code === skuCode)
                  .mustFindOneOr(SkuNotFoundForContext(skuCode, order.contextId))
-          lis ← * <~ fuckingHell(sku.id, qty, order.id)
+          lis ← * <~ fuckingHell(sku.id, qty, order.refNum)
         } yield lis
     }
     DbResultT.sequence(lineItemUpdActions).map(_.flatten.toSeq)
   }
 
-  private def fuckingHell(skuId: Int, newQuantity: Int, orderId: Int)(
+  private def fuckingHell(skuId: Int, newQuantity: Int, orderRef: String)(
       implicit ec: EC): DbResult[Seq[OrderLineItem]] = {
-    // select oli_skus.sku_id as sku_id, count(1) from order_line_items
-    // left join order_line_item_skus as oli_skus on origin_id = oli_skus.id
-    // where order_id = $ and origin_type = 'skuItem' group by sku_id
     val counts = for {
       (skuId, q) ← OrderLineItems
-                    .filter(_.orderId === orderId)
+                    .filter(_.orderRef === orderRef)
                     .skuItems
                     .join(OrderLineItemSkus)
                     .on(_.originId === _.id)
@@ -192,7 +190,7 @@ object LineItemUpdater {
           origin ← OrderLineItemSkus.safeFindBySkuId(skuId)
           // FIXME: should use `createAll` instead of `++=` but this method is a nightmare to refactor
           bulkInsert ← OrderLineItems ++= (1 to delta).map { _ ⇒
-                        OrderLineItem(orderId = orderId, originId = origin.id)
+                        OrderLineItem(orderRef = orderRef, originId = origin.id)
                       }.toSeq
         } yield ()
 
@@ -203,7 +201,7 @@ object LineItemUpdater {
           deleteLi ← OrderLineItems
                       .filter(
                           _.id in OrderLineItems
-                            .filter(_.orderId === orderId)
+                            .filter(_.orderRef === orderRef)
                             .skuItems
                             .join(OrderLineItemSkus)
                             .on(_.originId === _.id)
@@ -219,7 +217,7 @@ object LineItemUpdater {
         DbResult.unit
       }
     }.flatMap { _ ⇒
-      DbResult.fromDbio(OrderLineItems.filter(_.orderId === orderId).result)
+      DbResult.fromDbio(OrderLineItems.filter(_.orderRef === orderRef).result)
     }
   }
 }

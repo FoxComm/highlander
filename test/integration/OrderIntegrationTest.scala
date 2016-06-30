@@ -171,7 +171,7 @@ class OrderIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
       responseOrder.lineItems.head.state must === (OrderLineItem.Canceled)
 
       // Testing via DB as currently FullOrder returns 'order.state' as 'payment.state'
-      // OrderPayments.findAllByOrderId(order.id).futureValue.head.state must === ("cancelAuth")
+      // OrderPayments.findAllByOrderId(order.refNum).futureValue.head.state must === ("cancelAuth")
     }
    */
   }
@@ -191,7 +191,7 @@ class OrderIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
       val response = POST(s"v1/orders/${order.referenceNumber}/increase-remorse-period")
       response.status must === (StatusCodes.BadRequest)
 
-      val newOrder = Orders.findById(order.id).extract.one.run().futureValue.value
+      val newOrder = Orders.findByRefNum(order.refNum).one.run().futureValue.value
       newOrder.remorsePeriodEnd must === (order.remorsePeriodEnd)
     }
   }
@@ -207,7 +207,7 @@ class OrderIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
       val lockedOrder = Orders.findByRefNum(order.referenceNumber).gimme.head
       lockedOrder.isLocked must === (true)
 
-      val locks = OrderLockEvents.findByOrder(order.id).gimme
+      val locks = OrderLockEvents.findByOrder(order.refNum).gimme
       locks.length must === (1)
       val lock = locks.head
       lock.lockedBy must === (1)
@@ -285,7 +285,7 @@ class OrderIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
       OrderLockEvents
         .create(
             OrderLockEvent(lockedBy = admin.id,
-                           orderId = order.id,
+                           orderRef = order.refNum,
                            lockedAt = Instant.now.plusMinutes(30))
         )
         .gimme
@@ -301,8 +301,12 @@ class OrderIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
       POST(s"v1/orders/$refNum/lock")
       db.run(OrderLockEvents.findById(1).delete).futureValue
       // Sanity check
-      OrderLockEvents.latestLockByOrder(order.id).result.headOption.run().futureValue must === (
-          None)
+      OrderLockEvents
+        .latestLockByOrder(order.refNum)
+        .result
+        .headOption
+        .run()
+        .futureValue must === (None)
       POST(s"v1/orders/$refNum/unlock")
       getUpdated(refNum).remorsePeriodEnd.value must === (originalRemorseEnd.plusMinutes(15))
     }
@@ -366,7 +370,7 @@ class OrderIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
       val body = response.bodyText
 
       val cc = CreditCards.findById(1).futureValue.get
-      val payment = OrderPayments.findAllByOrderId(order.id).futureValue.head
+      val payment = OrderPayments.findAllByOrderId(order.refNum).futureValue.head
       val (address, billingAddress) = BillingAddresses.findByPaymentId(payment.id).futureValue.get
 
       val respOrder = parse(body).extract[FullOrder.Root]
@@ -378,7 +382,7 @@ class OrderIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
       cc.isDefault must === (true)
 
       payment.appliedAmount must === (0)
-      payment.orderId must === (order.id)
+      payment.orderRef must === (order.refNum)
       payment.status must === ("auth")
 
       response.status must === (StatusCodes.OK)
@@ -398,9 +402,9 @@ class OrderIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
         val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-address/${address.id}")
         response.status must === (StatusCodes.OK)
         val shippingAddress =
-          OrderShippingAddresses.findByOrderId(order.id).one.run().futureValue.value
+          OrderShippingAddresses.findByOrderRef(order.refNum).one.run().futureValue.value
 
-        shippingAddress.orderId must === (order.id)
+        shippingAddress.orderRef must === (order.refNum)
       }
 
       "removes an existing shipping address before copying new address" in new AddressFixture {
@@ -418,7 +422,7 @@ class OrderIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
         snd.status must === (StatusCodes.OK)
 
         val shippingAddress =
-          OrderShippingAddresses.findByOrderId(order.id).one.run().futureValue.value
+          OrderShippingAddresses.findByOrderRef(order.refNum).one.run().futureValue.value
         shippingAddress.name must === ("New")
       }
 
@@ -438,8 +442,8 @@ class OrderIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
 
         response.status must === (StatusCodes.OK)
         val shippingAddress =
-          OrderShippingAddresses.findByOrderId(order.id).one.run().futureValue.value
-        shippingAddress.orderId must === (order.id)
+          OrderShippingAddresses.findByOrderRef(order.refNum).one.run().futureValue.value
+        shippingAddress.orderRef must === (order.refNum)
       }
 
       "errors if the address does not exist" in new ShippingAddressFixture {
@@ -454,8 +458,8 @@ class OrderIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
 
         response.status must === (StatusCodes.NotFound)
         val shippingAddress =
-          OrderShippingAddresses.findByOrderId(order.id).one.run().futureValue.value
-        shippingAddress.orderId must === (order.id)
+          OrderShippingAddresses.findByOrderRef(order.refNum).one.run().futureValue.value
+        shippingAddress.orderRef must === (order.refNum)
       }
     }
   }
@@ -470,7 +474,8 @@ class OrderIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
 
       response.status must === (StatusCodes.OK)
 
-      val (shippingAddress :: Nil) = OrderShippingAddresses.findByOrderId(order.id).gimme.toList
+      val (shippingAddress :: Nil) =
+        OrderShippingAddresses.findByOrderRef(order.refNum).gimme.toList
 
       shippingAddress.name must === ("New name")
       shippingAddress.city must === ("Queen Anne")
@@ -572,8 +577,8 @@ class OrderIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
       val fullOrder = response.ignoreFailuresAndGiveMe[FullOrder.Root]
       fullOrder.shippingMethod.value.name must === (lowShippingMethod.adminDisplayName)
 
-      val orderShippingMethod = OrderShippingMethods.findByOrderId(order.id).gimme.head
-      orderShippingMethod.orderId must === (order.id)
+      val orderShippingMethod = OrderShippingMethods.findByOrderRef(order.refNum).gimme.head
+      orderShippingMethod.orderRef must === (order.refNum)
       orderShippingMethod.shippingMethodId must === (lowShippingMethod.id)
     }
 
@@ -615,7 +620,7 @@ class OrderIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
   trait ShippingAddressFixture extends AddressFixture {
     val (orderShippingAddress, newAddress) = (for {
       orderShippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address,
-                                                                         orderId = order.id)
+                                                                         orderRef = order.refNum)
       newAddress ← * <~ Addresses.create(
                       Factories.address.copy(customerId = customer.id,
                                              isDefaultShipping = false,
@@ -658,7 +663,7 @@ class OrderIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
                                        Factories.products.head.copy(price = 100))
       lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(product.skuId).toXor
       lineItem ← * <~ OrderLineItems.create(
-                    OrderLineItem(orderId = order.id,
+                    OrderLineItem(orderRef = order.refNum,
                                   originId = lineItemSku.id,
                                   originType = OrderLineItem.SkuItem))
 
@@ -675,8 +680,8 @@ class OrderIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
     val shipment = (for {
       orderShipMethod ← * <~ OrderShippingMethods.create(
                            OrderShippingMethod.build(order = order, method = highShippingMethod))
-      shipment ← * <~ Shipments.create(
-                    Shipment(orderId = order.id, orderShippingMethodId = Some(orderShipMethod.id)))
+      shipment ← * <~ Shipments.create(Shipment(orderRef = order.refNum,
+                                                orderShippingMethodId = Some(orderShipMethod.id)))
     } yield shipment).runTxn().futureValue
   }
 
@@ -696,7 +701,7 @@ class OrderIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
     val (cc, op, ccc) = (for {
       cc ← * <~ CreditCards.create(Factories.creditCard.copy(customerId = customer.id))
       op ← * <~ OrderPayments.create(
-              Factories.orderPayment.copy(orderId = order.id, paymentMethodId = cc.id))
+              Factories.orderPayment.copy(orderRef = order.refNum, paymentMethodId = cc.id))
       ccc ← * <~ CreditCardCharges.create(
                Factories.creditCardCharge.copy(creditCardId = cc.id, orderPaymentId = op.id))
     } yield (cc, op, ccc)).gimme

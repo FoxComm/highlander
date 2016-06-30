@@ -15,8 +15,8 @@ begin
                 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'))::export_returns)::jsonb
             end as returns
         from orders as o
-        left join returns as r on (o.id = r.order_id)
-        where o.id = NEW.order_id
+        left join returns as r on (o.reference_number = r.order_ref)
+        where o.reference_number = NEW.order_ref
         GROUP BY o.id) AS subquery
   WHERE orders_search_view.id = subquery.order_id;
 

@@ -30,7 +30,7 @@ inner join credit_cards as cc on (ccc.credit_card_id = cc.id)
 inner join regions as r on (cc.region_id = r.id)
 inner join countries as c on (r.country_id = c.id)
 inner join order_payments as op on (op.id = ccc.order_payment_id)
-inner join orders as o on (op.order_id = o.id)
+inner join orders as o on (op.order_ref = o.reference_number)
 where ccc.state = 'failedAuth'
 order by ccc.id;
 

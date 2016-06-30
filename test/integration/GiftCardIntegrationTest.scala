@@ -339,7 +339,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase with HttpSupport with 
                     Factories.giftCard
                       .copy(originId = origin.id, state = GiftCard.Active, code = "ABC-234"))
       payment ← * <~ OrderPayments.create(
-                   Factories.giftCardPayment.copy(orderId = order.id,
+                   Factories.giftCardPayment.copy(orderRef = order.refNum,
                                                   paymentMethodId = giftCard.id,
                                                   paymentMethodType = PaymentMethod.GiftCard,
                                                   amount = Some(25)))

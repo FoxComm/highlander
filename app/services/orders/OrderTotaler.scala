@@ -1,13 +1,11 @@
 package services.orders
 
+import models.order.lineitems._
 import models.order.{Order, OrderShippingMethods, Orders}
 import slick.driver.PostgresDriver.api._
-import cats.implicits._
-import models.order.lineitems._
-import services.Result
 import utils.aliases._
-import utils.db._
 import utils.db.DbResultT._
+import utils.db._
 
 // TODO: Use utils.Money
 object OrderTotaler {
@@ -38,7 +36,7 @@ object OrderTotaler {
          |
          |	left outer join order_line_item_gift_cards gcli on (gcli.id = oli.origin_id)
          |	left outer join gift_cards gc on (gc.id = gcli.gift_card_id)
-         |	where oli.order_id = ${order.id}
+         |	where oli.order_ref = ${order.refNum}
          | """.stripMargin.as[(Int, Int)].headOption.map {
       case Some((count, total)) if count > 0 ⇒ total
       case _                                 ⇒ 0
@@ -46,14 +44,14 @@ object OrderTotaler {
 
   def shippingTotal(order: Order)(implicit ec: EC): DbResult[Int] =
     (for {
-      orderShippingMethods ← * <~ OrderShippingMethods.findByOrderId(order.id).result.toXor
+      orderShippingMethods ← * <~ OrderShippingMethods.findByOrderRef(order.refNum).result.toXor
       sum = orderShippingMethods.foldLeft(0)(_ + _.price)
     } yield sum).value
 
   def adjustmentsTotal(order: Order)(implicit ec: EC): DbResult[Int] =
     (for {
       lineItemAdjustments ← * <~ OrderLineItemAdjustments
-                             .filter(_.orderId === order.id)
+                             .filter(_.orderRef === order.refNum)
                              .result
                              .toXor
       sum = lineItemAdjustments.foldLeft(0)(_ + _.substract)

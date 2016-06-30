@@ -12,7 +12,7 @@ import utils.db._
 import slick.driver.PostgresDriver.api._
 
 final case class OrderPromotion(id: Int = 0,
-                                orderId: Int = 0,
+                                orderRef: String,
                                 promotionShadowId: Int,
                                 applyType: Promotion.ApplyType,
                                 couponCodeId: Option[Int] = None,
@@ -22,12 +22,12 @@ final case class OrderPromotion(id: Int = 0,
 object OrderPromotion {
 
   def buildAuto(order: Order, promo: Promotion): OrderPromotion =
-    OrderPromotion(orderId = order.id,
+    OrderPromotion(orderRef = order.refNum,
                    promotionShadowId = promo.shadowId,
                    applyType = Promotion.Auto)
 
   def buildCoupon(order: Order, promo: Promotion, code: CouponCode): OrderPromotion =
-    OrderPromotion(orderId = order.id,
+    OrderPromotion(orderRef = order.refNum,
                    promotionShadowId = promo.shadowId,
                    applyType = Promotion.Coupon,
                    couponCodeId = code.id.some)
@@ -35,17 +35,17 @@ object OrderPromotion {
 
 class OrderPromotions(tag: Tag) extends FoxTable[OrderPromotion](tag, "order_promotions") {
   def id                = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def orderId           = column[Int]("order_id")
+  def orderRef          = column[String]("order_ref")
   def promotionShadowId = column[Int]("promotion_shadow_id")
   def applyType         = column[Promotion.ApplyType]("apply_type")
   def couponCodeId      = column[Option[Int]]("coupon_code_id")
   def createdAt         = column[Instant]("created_at")
 
   def * =
-    (id, orderId, promotionShadowId, applyType, couponCodeId, createdAt) <> ((OrderPromotion.apply _).tupled,
+    (id, orderRef, promotionShadowId, applyType, couponCodeId, createdAt) <> ((OrderPromotion.apply _).tupled,
         OrderPromotion.unapply)
 
-  def order           = foreignKey(Orders.tableName, orderId, Orders)(_.id)
+  def order           = foreignKey(Orders.tableName, orderRef, Orders)(_.referenceNumber)
   def promotionShadow = foreignKey(ObjectShadows.tableName, promotionShadowId, ObjectShadows)(_.id)
 }
 
@@ -55,11 +55,11 @@ object OrderPromotions
 
   val returningLens: Lens[OrderPromotion, Int] = lens[OrderPromotion].id
 
-  def filterByOrderId(orderId: Int): QuerySeq =
-    filter(_.orderId === orderId)
+  def filterByOrderRef(orderRef: String): QuerySeq =
+    filter(_.orderRef === orderRef)
 
-  def filterByOrderIdAndShadows(orderId: Int, shadows: Seq[Int]): QuerySeq =
-    filter(_.orderId === orderId).filter(_.promotionShadowId.inSet(shadows))
+  def filterByOrderRefAndShadows(orderRef: String, shadows: Seq[Int]): QuerySeq =
+    filter(_.orderRef === orderRef).filter(_.promotionShadowId.inSet(shadows))
 
   object scope {
     implicit class OrderPromotionQuerySeqConversions(q: QuerySeq) {

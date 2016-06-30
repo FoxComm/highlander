@@ -14,7 +14,7 @@ trait ReturnSeeds {
     for {
       order ← * <~ Orders.findOneById(1).safeGet.toXor
       _     ← * <~ ReturnReasons.createAll(returnReasons)
-      _     ← * <~ Returns.create(rma.copy(orderRefNum = order.referenceNumber))
+      _     ← * <~ Returns.create(rma.copy(orderRef = order.referenceNumber))
       _     ← * <~ ReturnLineItemSkus.createAll(returnLineItemSkus)
       _     ← * <~ ReturnLineItems.createAll(returnLineItems)
       _     ← * <~ Notes.createAll(returnNotes)
@@ -22,7 +22,7 @@ trait ReturnSeeds {
 
   def rma =
     Return(orderId = 1,
-           orderRefNum = "",
+           orderRef = "",
            returnType = Return.Standard,
            state = Return.Pending,
            customerId = 1)
