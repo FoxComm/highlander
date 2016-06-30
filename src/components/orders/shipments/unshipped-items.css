@@ -3,6 +3,7 @@
   margin-bottom: 60px;
 
   & :global(.fc-table-td) {
+    font-size: 13px;
     padding: 10px 20px;
 
     & img {
