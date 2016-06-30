@@ -1,7 +1,17 @@
+@import "colors.css";
+
 .row-toggle {
   margin-right: 10px;
   font-size: 22px;
   cursor: pointer;
+}
+
+.tracking-link {
+  color: var(--decor1);
+
+  &:hover {
+    color: var(--decor15);
+  }
 }
 
 :global(.fc-table) tbody {

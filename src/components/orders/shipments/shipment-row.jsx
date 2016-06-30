@@ -90,7 +90,11 @@ class ShipmentRow extends Component {
     const method = props.shipmentMethods.filter(method => method.id === props.method).pop();
     const carrier = props.carriers.filter(carrier => carrier.id === props.carrier).pop();
     const trackingLink = (
-      <a href={carrier.trackingTemplate.replace('$number', props.trackingNumber)} target="_blank">
+      <a
+        href={carrier.trackingTemplate.replace('$number', props.trackingNumber)}
+        styleName="tracking-link"
+        target="_blank"
+      >
         {props.trackingNumber}
       </a>
     );
