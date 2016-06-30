@@ -5,7 +5,7 @@ select
     cp.form_id as coupon_id,
     cp.promotion_id,
     0 as total_used, --this needs to be computed
-    c.created_at as created_at
+    to_char(c.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as created_at
 from 
     coupon_codes as c,
 	coupons as cp
