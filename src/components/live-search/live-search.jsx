@@ -18,6 +18,7 @@ import DatePicker from '../datepicker/datepicker';
 import ShareSearch from '../share-search/share-search';
 import { Button } from '../common/buttons';
 import ButtonWithMenu from '../common/button-with-menu';
+import Alert from '../alerts/alert';
 
 import SearchTerm, { getInputMask } from '../../paragons/search-term';
 
@@ -211,6 +212,18 @@ export default class LiveSearch extends React.Component {
         {!_.isEmpty(this.state.searchValue) && goBack}
       </Menu>
     );
+  }
+
+  get dropdownContent() {
+    if (this.state.errorMessage) {
+      return (
+        <Alert type={Alert.WARNING}>
+          {this.state.errorMessage}
+        </Alert>
+      );
+    }
+
+    return this.searchOptions;
   }
 
   get header() {
@@ -491,6 +504,8 @@ export default class LiveSearch extends React.Component {
   @autobind
   submitFilter(searchTerm, tryFinal = false) {
     // First, update the available terms.
+    this.setState({errorMessage: null});
+
     let newSearchTerm = searchTerm;
     let options = SearchTerm.potentialTerms(this.state.availableOptions, searchTerm);
     let inputMask = this.state.inputMask;
@@ -504,10 +519,18 @@ export default class LiveSearch extends React.Component {
       if (tryFinal && option.selectTerm(searchTerm)) {
         newSearchTerm = '';
         options = SearchTerm.potentialTerms(this.state.availableOptions, '');
+        const filter = option.toFilter(searchTerm);
+
+        if (filter.value.type === 'string' && filter.value.value.length < 3) {
+          this.setState({
+            errorMessage: 'Please enter at least 3 characters.'
+          });
+          return;
+        }
 
         this.props.submitFilters([
           ...this.state.pills,
-          option.toFilter(searchTerm)
+          filter
         ]);
       } else if (option.children.length > 1) {
         options = option.children;
@@ -615,7 +638,7 @@ export default class LiveSearch extends React.Component {
             </form>
 
             <div>
-              {this.searchOptions}
+              {this.dropdownContent}
             </div>
           </div>
         </div>
