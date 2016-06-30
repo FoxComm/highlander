@@ -5,7 +5,7 @@ import java.time.Instant
 import models.order._
 import services.Result
 import utils.aliases._
-import utils.db.DbResultT._
+import utils.db._
 
 object TimeMachine {
 

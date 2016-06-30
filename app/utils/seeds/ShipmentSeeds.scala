@@ -8,7 +8,6 @@ import models.shipping.ShippingPriceRule._
 import models.shipping._
 import org.json4s.jackson.JsonMethods._
 import slick.driver.PostgresDriver.api._
-import utils.db.DbResultT._
 import utils.db._
 import utils.seeds.Seeds.Factories._
 

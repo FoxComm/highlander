@@ -1,15 +1,14 @@
 package utils.seeds
 
-import models.objects._
-import models.product.SimpleContext
-import models.coupon._
-import payloads.CouponPayloads._
-import utils.db._
-import utils.db.DbResultT._
-import slick.driver.PostgresDriver.api._
 import scala.concurrent.ExecutionContext.Implicits.global
 
+import models.coupon._
+import models.objects._
+import models.product.SimpleContext
+import payloads.CouponPayloads._
+import slick.driver.PostgresDriver.api._
 import utils.aliases.AC
+import utils.db._
 
 trait CouponSeeds {
 

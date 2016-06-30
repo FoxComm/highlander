@@ -20,7 +20,6 @@ import org.postgresql.ds.PGSimpleDataSource
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.DatabaseDef
 import utils.aliases._
-import utils.db.DbResultT._
 import utils.db._
 import utils.db.flyway.newFlyway
 import utils.{FoxConfig, JsonFormatters}

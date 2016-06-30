@@ -8,8 +8,6 @@ import payloads.StoreAdminPayloads._
 import responses.StoreAdminResponse
 import utils.aliases._
 import utils.db._
-import utils.db.DbResultT._
-import slick.driver.PostgresDriver.api._
 
 object StoreAdminManager {
 

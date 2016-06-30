@@ -15,7 +15,6 @@ import services.Result
 import slick.driver.PostgresDriver.api._
 import utils._
 import utils.aliases._
-import utils.db.DbResultT._
 import utils.db._
 import utils.http.Http._
 
@@ -71,7 +70,7 @@ object CustomDirectives {
       case None    ⇒ throw new Exception(s"Unable to find context $name.")
     }
 
-  //This is a really trivial version. We are not handling language weights, 
+  //This is a really trivial version. We are not handling language weights,
   //and multiple options.
   private def getContextByLanguage(lang: String)(implicit db: DB, ec: EC) =
     db.run(ObjectContexts.filterByLanguage(lang).result.headOption).flatMap {

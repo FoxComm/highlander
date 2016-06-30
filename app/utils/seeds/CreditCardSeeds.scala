@@ -1,13 +1,10 @@
 package utils.seeds
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import utils.seeds.generators.CreditCardGenerator
 
 import models.payment.creditcard._
-import Seeds.today
 import utils.db._
-import utils.db.DbResultT._
-import scala.util.Random
+import utils.seeds.generators.CreditCardGenerator
 
 trait CreditCardSeeds extends CreditCardGenerator {
 

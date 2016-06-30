@@ -7,7 +7,6 @@ import models.customer.{Customer, Customers}
 import models.location.Addresses
 import models.order.{Order, Orders}
 import util.IntegrationTestBase
-import utils.db.DbResultT._
 import utils.db._
 import utils.seeds.Seeds.Factories
 

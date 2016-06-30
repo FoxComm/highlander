@@ -38,7 +38,6 @@ import slick.driver.PostgresDriver.api._
 import util._
 import utils.Money.Currency
 import utils.aliases.stripe._
-import utils.db.DbResultT._
 import utils.db._
 import utils.jdbc._
 import utils.seeds.Seeds.Factories
@@ -173,21 +172,19 @@ class CustomerIntegrationTest
           }
 
         val (customer, region, shipments) = (for {
-          customer ← * <~ Customers.create(Factories.customer.copy(phoneNumber = None))
-          address  ← * <~ Addresses.create(defaultAddress.copy(customerId = customer.id))
-          region   ← * <~ Regions.findOneById(address.regionId).toXor
-          ordersSeq ← * <~ sequence(
-                         orders.map(o ⇒ Orders.create(o.copy(customerId = customer.id))))
-          addresses ← * <~ sequence(shippingAddresses(ordersSeq.zip(phoneNumbers)).map(a ⇒
-                               OrderShippingAddresses.create(a)))
-          shipments ← * <~ sequence(
-                         addresses.map(
-                             address ⇒
-                               Shipments.create(
-                                   Factories.shipment.copy(orderRef = address.orderRef,
-                                                           shippingAddressId = address.id.some,
-                                                           orderShippingMethodId = None,
-                                                           state = Shipped))))
+          customer  ← * <~ Customers.create(Factories.customer.copy(phoneNumber = None))
+          address   ← * <~ Addresses.create(defaultAddress.copy(customerId = customer.id))
+          region    ← * <~ Regions.findOneById(address.regionId).toXor
+          ordersSeq ← * <~ orders.map(o ⇒ Orders.create(o.copy(customerId = customer.id)))
+          addresses ← * <~ shippingAddresses(ordersSeq.zip(phoneNumbers)).map(a ⇒
+                           OrderShippingAddresses.create(a))
+          shipments ← * <~ addresses.map(
+                         address ⇒
+                           Shipments.create(
+                               Factories.shipment.copy(orderRef = address.orderRef,
+                                                       shippingAddressId = address.id.some,
+                                                       orderShippingMethodId = None,
+                                                       state = Shipped)))
         } yield (customer, region, shipments)).gimme
 
         def updateShipmentTime(s: Shipment, newTime: Instant ⇒ Instant): Unit =
@@ -219,11 +216,7 @@ class CustomerIntegrationTest
       response.status must === (StatusCodes.OK)
       response.as[CustomerResponse.Root] must === (expectedCustomer)
 
-      Orders
-        .update(order, order.copy(placedAt = Instant.now.minus(1, ChronoUnit.DAYS).some))
-        .run
-        .futureValue
-        .rightVal
+      Orders.update(order, order.copy(placedAt = Instant.now.minus(1, ChronoUnit.DAYS).some)).gimme
 
       val secondResponse = GET(s"v1/customers/${customer.id}")
 

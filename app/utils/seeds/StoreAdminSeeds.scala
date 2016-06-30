@@ -8,7 +8,6 @@ import cats.implicits._
 import com.github.tototoshi.csv._
 import models.{StoreAdmin, StoreAdmins}
 import utils.db._
-import utils.db.DbResultT._
 
 trait StoreAdminSeeds {
 

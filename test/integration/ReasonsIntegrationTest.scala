@@ -7,7 +7,7 @@ import models.returns.ReturnReasons
 import models.{Reason, Reasons, StoreAdmins}
 import util.IntegrationTestBase
 import utils.Strings._
-import utils.db.DbResultT._
+import utils.db._
 import utils.seeds.Seeds.Factories
 
 class ReasonsIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {

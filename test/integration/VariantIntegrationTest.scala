@@ -11,7 +11,6 @@ import responses.VariantResponses.IlluminatedVariantResponse
 import responses.VariantValueResponses.IlluminatedVariantValueResponse
 import services.product.ProductManager
 import util.IntegrationTestBase
-import utils.db.DbResultT._
 import utils.db._
 
 class VariantIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {

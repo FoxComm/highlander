@@ -11,7 +11,6 @@ import models.shipping.ShippingMethods
 import services.orders.OrderTotaler
 import util.IntegrationTestBase
 import utils.Money.Currency
-import utils.db.DbResultT._
 import utils.db._
 import utils.seeds.Seeds.Factories
 

@@ -8,7 +8,6 @@ import failures._
 import models.objects._
 import services.coupon.CouponUsageService
 import utils.aliases._
-import utils.db.DbResultT._
 import utils.db._
 import utils.{IlluminateAlgorithm, JsonFormatters}
 

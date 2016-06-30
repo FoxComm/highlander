@@ -6,7 +6,6 @@ import models.order.Orders
 import models.returns._
 import models.{Note, Notes}
 import utils.db._
-import utils.db.DbResultT._
 
 trait ReturnSeeds {
 

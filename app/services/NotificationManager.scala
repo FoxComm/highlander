@@ -19,7 +19,6 @@ import responses.{ActivityConnectionResponse, ActivityResponse, LastSeenActivity
 import services.activity.TrailManager
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
-import utils.db.DbResultT._
 import utils.db._
 import utils.{JsonFormatters, NotificationListener}
 

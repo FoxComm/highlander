@@ -21,7 +21,6 @@ import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._
 import utils.Money.Currency
 import utils.Passwords.hashPassword
-import utils.db.DbResultT._
 import utils.db._
 import utils.seeds.generators.GeneratorUtils.randomString
 import utils.seeds.generators.ProductGenerator

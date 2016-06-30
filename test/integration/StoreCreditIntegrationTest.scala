@@ -16,7 +16,6 @@ import payloads.StoreCreditPayloads._
 import responses.{GiftCardResponse, StoreCreditResponse}
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
-import utils.db.DbResultT._
 import utils.db._
 import utils.seeds.Seeds.Factories
 

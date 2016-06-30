@@ -1,15 +1,14 @@
 package utils.seeds
 
-import models.objects.{ObjectContext, ObjectContexts, ObjectForm, ObjectLink, ObjectLinks, ObjectShadow, ObjectUtils}
-import models.promotion.{Promotion, Promotions}
-import payloads.PromotionPayloads._
-import utils.db._
-import utils.db.DbResultT._
-import slick.driver.PostgresDriver.api._
 import scala.concurrent.ExecutionContext.Implicits.global
 
+import models.objects.{ObjectContext, ObjectContexts, ObjectForm, ObjectLink, ObjectLinks, ObjectShadow, ObjectUtils}
 import models.product.SimpleContext
+import models.promotion.{Promotion, Promotions}
+import payloads.PromotionPayloads._
+import slick.driver.PostgresDriver.api._
 import utils.aliases.AC
+import utils.db._
 
 trait PromotionSeeds {
 

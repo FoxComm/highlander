@@ -11,7 +11,6 @@ import responses.ObjectResponses.ObjectContextResponse
 import services.{LogActivity, Result}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
-import utils.db.DbResultT._
 import utils.db._
 
 object CategoryManager {

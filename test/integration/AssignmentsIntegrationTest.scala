@@ -10,7 +10,7 @@ import payloads.AssignmentPayloads._
 import responses.order.AllOrders
 import responses.{AssignmentResponse, BatchMetadata, BatchMetadataSource, TheResponse}
 import util.IntegrationTestBase
-import utils.db.DbResultT._
+import utils.db._
 import utils.seeds.Seeds.Factories
 
 class AssignmentsIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {

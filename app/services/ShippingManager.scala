@@ -14,7 +14,6 @@ import services.orders.getCartByOriginator
 import slick.driver.PostgresDriver.api._
 import utils.JsonFormatters
 import utils.aliases._
-import utils.db.DbResultT._
 import utils.db._
 
 object ShippingManager {

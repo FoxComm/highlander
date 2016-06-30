@@ -13,8 +13,7 @@ import payloads.CategoryPayloads._
 import responses.CategoryResponses._
 import services.category.CategoryManager
 import util.IntegrationTestBase
-import utils.aliases.{AC, _}
-import utils.db.DbResultT._
+import utils.aliases._
 import utils.db._
 
 class CategoryIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {

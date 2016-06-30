@@ -12,8 +12,8 @@ import akka.http.scaladsl.server.directives.SecurityDirectives.AuthenticationRes
 import akka.http.scaladsl.server.directives.{AuthenticationDirective, AuthenticationResult}
 
 import cats.data.Xor
-import failures.Failures
 import failures.AuthFailures._
+import failures.Failures
 import models.auth.{Identity, _}
 import models.customer.{Customer, Customers}
 import models.{StoreAdmin, StoreAdmins}
@@ -24,7 +24,6 @@ import utils.FoxConfig.{RichConfig, config}
 import utils.Passwords.checkPassword
 import utils.aliases._
 import utils.db._
-import utils.db.DbResultT._
 
 // TODO: Implement real session-based authentication with JWT
 // TODO: Probably abstract this out so that we use one for both AdminUsers and Customers

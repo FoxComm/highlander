@@ -7,7 +7,6 @@ import payloads.ContextPayloads._
 import responses.ObjectResponses._
 import services._
 import utils.aliases._
-import utils.db.DbResultT._
 import utils.db._
 
 object ObjectManager {

@@ -14,7 +14,6 @@ import models.{StoreAdmins, shipping}
 import org.json4s.jackson.JsonMethods._
 import services.orders.OrderTotaler
 import util.IntegrationTestBase
-import utils.db.DbResultT._
 import utils.db._
 import utils.seeds.Seeds.Factories
 

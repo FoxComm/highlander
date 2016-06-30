@@ -16,7 +16,6 @@ import responses.CustomerResponse.{Root, build}
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
-import utils.db.DbResultT._
 import utils.db._
 
 object CustomerManager {

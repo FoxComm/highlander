@@ -18,7 +18,6 @@ import services.orders._
 import services.{Checkout, LineItemUpdater}
 import utils.aliases._
 import utils.apis.Apis
-import utils.db.DbResultT.Runners._
 import utils.http.CustomDirectives._
 import utils.http.Http._
 
@@ -121,46 +120,44 @@ object OrderRoutes {
           } ~
           pathPrefix("payment-methods" / "credit-cards") {
             (post & pathEnd & entity(as[CreditCardPayment])) { payload ⇒
-              goodOrFailures {
-                OrderPaymentUpdater
-                  .addCreditCard(Originator(admin), payload.creditCardId, refNum.some)
-                  .runTxn()
+              mutateOrFailures {
+                OrderPaymentUpdater.addCreditCard(Originator(admin),
+                                                  payload.creditCardId,
+                                                  refNum.some)
               }
             } ~
             (delete & pathEnd) {
-              goodOrFailures {
-                OrderPaymentUpdater.deleteCreditCard(Originator(admin), refNum.some).runTxn()
+              mutateOrFailures {
+                OrderPaymentUpdater.deleteCreditCard(Originator(admin), refNum.some)
               }
             }
           } ~
           pathPrefix("payment-methods" / "gift-cards") {
             (post & pathEnd & entity(as[GiftCardPayment])) { payload ⇒
-              goodOrFailures {
-                OrderPaymentUpdater.addGiftCard(Originator(admin), payload, refNum.some).runTxn()
+              mutateOrFailures {
+                OrderPaymentUpdater.addGiftCard(Originator(admin), payload, refNum.some)
               }
             } ~
             (patch & pathEnd & entity(as[GiftCardPayment])) { payload ⇒
-              goodOrFailures {
-                OrderPaymentUpdater.editGiftCard(Originator(admin), payload, refNum.some).runTxn()
+              mutateOrFailures {
+                OrderPaymentUpdater.editGiftCard(Originator(admin), payload, refNum.some)
               }
             } ~
             (delete & path(GiftCard.giftCardCodeRegex) & pathEnd) { code ⇒
-              goodOrFailures {
-                OrderPaymentUpdater.deleteGiftCard(Originator(admin), code, refNum.some).runTxn()
+              mutateOrFailures {
+                OrderPaymentUpdater.deleteGiftCard(Originator(admin), code, refNum.some)
               }
             }
           } ~
           pathPrefix("payment-methods" / "store-credit") {
             (post & pathEnd & entity(as[StoreCreditPayment])) { payload ⇒
-              goodOrFailures {
-                OrderPaymentUpdater
-                  .addStoreCredit(Originator(admin), payload, refNum.some)
-                  .runTxn()
+              mutateOrFailures {
+                OrderPaymentUpdater.addStoreCredit(Originator(admin), payload, refNum.some)
               }
             } ~
             (delete & pathEnd) {
-              goodOrFailures {
-                OrderPaymentUpdater.deleteStoreCredit(Originator(admin), refNum.some).runTxn()
+              mutateOrFailures {
+                OrderPaymentUpdater.deleteStoreCredit(Originator(admin), refNum.some)
               }
             }
           } ~

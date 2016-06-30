@@ -13,7 +13,7 @@ import payloads.OrderPayloads.CreateOrder
 import responses.order.FullOrder.Root
 import services.orders.OrderCreator
 import util._
-import utils.db.DbResultT._
+import utils.db._
 import utils.seeds.Seeds.Factories
 
 class OrderCreatorIntegrationTest

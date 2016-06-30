@@ -3,7 +3,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import failures.DatabaseFailure
 import models.customer.{Customer, Customers}
 import util.IntegrationTestBase
-import utils.db.DbResultT._
 import utils.db._
 import utils.seeds.Seeds.Factories
 

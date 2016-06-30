@@ -19,15 +19,14 @@ import models.product.Products
 import payloads.ImagePayloads._
 import responses.ImageResponses.AlbumResponse.{Root ⇒ AlbumRoot}
 import responses.ImageResponses._
+import services.Result
 import services.inventory.SkuManager
 import services.objects.ObjectManager
 import services.product.ProductManager
-import services.Result
 import slick.driver.PostgresDriver.api._
 import utils.IlluminateAlgorithm
 import utils.aliases._
 import utils.apis.Apis
-import utils.db.DbResultT._
 import utils.db._
 
 object ImageManager {

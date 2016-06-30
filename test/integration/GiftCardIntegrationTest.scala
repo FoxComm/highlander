@@ -16,7 +16,6 @@ import responses.{GiftCardAdjustmentsResponse, GiftCardBulkResponse, GiftCardRes
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.Money._
-import utils.db.DbResultT._
 import utils.db._
 import utils.seeds.Seeds.Factories
 

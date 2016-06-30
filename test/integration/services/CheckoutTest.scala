@@ -20,7 +20,6 @@ import org.scalatest.mock.MockitoSugar
 import slick.driver.PostgresDriver.api._
 import util._
 import utils.Money.Currency
-import utils.db.DbResultT._
 import utils.db._
 import utils.seeds.Seeds.Factories
 

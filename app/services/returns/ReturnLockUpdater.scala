@@ -6,7 +6,6 @@ import responses.{ReturnLockResponse, ReturnResponse}
 import services.Result
 import utils.aliases._
 import utils.db._
-import utils.db.DbResultT._
 
 object ReturnLockUpdater {
 

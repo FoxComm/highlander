@@ -16,7 +16,6 @@ import responses.StoreCreditResponse._
 import responses.{StoreCreditResponse, StoreCreditSubTypesResponse}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
-import utils.db.DbResultT._
 import utils.db._
 
 object StoreCreditService {

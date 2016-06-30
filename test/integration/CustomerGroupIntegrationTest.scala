@@ -11,7 +11,6 @@ import payloads.CustomerGroupPayloads.CustomerDynamicGroupPayload
 import responses.CreditCardsResponse.{Root ⇒ CardResponse}
 import responses.DynamicGroupResponse
 import util.IntegrationTestBase
-import utils.db.DbResultT._
 import utils.db._
 import utils.seeds.Seeds.Factories
 import concurrent.ExecutionContext.Implicits.global

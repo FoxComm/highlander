@@ -4,7 +4,7 @@ import failures.ProductFailures.SkuNotFoundForContext
 import models.StoreAdmin
 import models.activity.Activity
 import models.customer.Customer
-import models.inventory.{Sku, Skus}
+import models.inventory.Skus
 import models.objects.ObjectContext
 import models.order._
 import models.order.lineitems.OrderLineItems.scope._
@@ -17,7 +17,6 @@ import responses.order.FullOrder.refreshAndFullOrder
 import services.orders.{OrderPromotionUpdater, OrderTotaler}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
-import utils.db.DbResultT._
 import utils.db._
 
 object LineItemUpdater {

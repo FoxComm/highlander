@@ -22,7 +22,6 @@ import responses.GiftCardResponse
 import responses.order.FullOrder
 import responses.order.FullOrder.Root
 import util.IntegrationTestBase
-import utils.db.DbResultT._
 import utils.db._
 import utils.seeds.Seeds.Factories
 

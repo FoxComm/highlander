@@ -9,7 +9,6 @@ import responses.{SaveForLaterResponse, TheResponse}
 import services.inventory.SkuManager
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
-import utils.db.DbResultT._
 import utils.db._
 
 object SaveForLaterManager {

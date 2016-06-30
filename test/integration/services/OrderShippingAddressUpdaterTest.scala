@@ -10,7 +10,7 @@ import models.traits.Originator
 import payloads.AddressPayloads._
 import services.orders.OrderShippingAddressUpdater._
 import util._
-import utils.db.DbResultT._
+import utils.db._
 import utils.seeds.Seeds.Factories
 
 class OrderShippingAddressUpdaterTest

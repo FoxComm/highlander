@@ -15,7 +15,6 @@ import responses.ProductResponses._
 import util.IntegrationTestBase
 import utils.Money.Currency
 import utils.aliases._
-import utils.db.DbResultT._
 import utils.db._
 
 class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {

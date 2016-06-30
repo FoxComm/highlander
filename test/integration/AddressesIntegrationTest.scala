@@ -10,7 +10,7 @@ import models.location.{Address, Addresses}
 import models.order.{OrderShippingAddresses, Orders}
 import payloads.AddressPayloads.CreateAddressPayload
 import util.IntegrationTestBase
-import utils.db.DbResultT._
+import utils.db._
 import utils.seeds.Seeds.Factories
 
 class AddressesIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {

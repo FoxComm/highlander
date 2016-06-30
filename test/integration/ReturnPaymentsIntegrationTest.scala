@@ -11,7 +11,7 @@ import models.returns._
 import payloads.ReturnPayloads._
 import responses.ReturnResponse.Root
 import util.IntegrationTestBase
-import utils.db.DbResultT._
+import utils.db._
 import utils.seeds.Seeds.Factories
 
 class ReturnPaymentsIntegrationTest

@@ -30,7 +30,6 @@ import services.{CreditCardManager, Result}
 import slick.driver.PostgresDriver.api._
 import util._
 import utils.aliases.stripe._
-import utils.db.DbResultT._
 import utils.db._
 import utils.seeds.Seeds.Factories
 

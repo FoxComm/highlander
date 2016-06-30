@@ -1,16 +1,16 @@
 package utils.seeds
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
+import models.discount._
 import models.discount.offers._
 import models.discount.qualifiers._
 import models.objects._
-import models.discount._
 import models.product.SimpleContext
 import models.sharedsearch.SharedSearch
 import payloads.DiscountPayloads._
-import utils.db._
-import utils.db.DbResultT._
 import slick.driver.PostgresDriver.api._
-import scala.concurrent.ExecutionContext.Implicits.global
+import utils.db._
 
 trait DiscountSeeds {
 

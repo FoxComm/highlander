@@ -7,20 +7,20 @@ import scala.concurrent.Future
 import cats.implicits._
 import failures.CouponFailures._
 import failures.PromotionFailures._
+import models.coupon._
 import models.customer.{Customer, Customers}
+import models.discount._
 import models.location.Region
 import models.objects._
 import models.order._
-import models.product.Mvp
-import models.promotion._
-import models.promotion.Promotions.scope._
-import models.coupon._
-import models.discount._
 import models.order.lineitems._
 import models.payment.PaymentMethod
 import models.payment.creditcard._
 import models.payment.giftcard.GiftCard
 import models.payment.storecredit.StoreCredit
+import models.product.Mvp
+import models.promotion.Promotions.scope._
+import models.promotion._
 import models.shipping.ShippingMethod
 import models.{StoreAdmin, shipping}
 import responses.CouponResponses.IlluminatedCouponResponse
@@ -30,7 +30,6 @@ import services.orders.OrderQueries
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
-import utils.db.DbResultT._
 
 object FullOrder {
   type Response  = Future[Root]

@@ -1,19 +1,18 @@
 package services.coupon
 
-import services.{LogActivity, Result}
-import models.objects._
-import models.coupon._
-import models.promotion._
-import responses.CouponResponses.{IlluminatedCouponResponse ⇒ Illuminated, _}
-import utils.db._
-import utils.db.DbResultT._
-import slick.driver.PostgresDriver.api._
-import payloads.CouponPayloads._
-import utils.aliases._
 import failures.CouponFailures._
-import failures.PromotionFailures._
 import failures.ObjectFailures._
+import failures.PromotionFailures._
 import models.StoreAdmin
+import models.coupon._
+import models.objects._
+import models.promotion._
+import payloads.CouponPayloads._
+import responses.CouponResponses.{IlluminatedCouponResponse ⇒ Illuminated, _}
+import services.{LogActivity, Result}
+import slick.driver.PostgresDriver.api._
+import utils.aliases._
+import utils.db._
 
 object CouponManager {
 

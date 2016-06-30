@@ -14,9 +14,7 @@ import models.product.{Mvp, Products, SimpleContext}
 import models.{Reasons, StoreAdmins}
 import services.orders.OrderTotaler
 import util.IntegrationTestBase
-import utils.db.DbResultT._
 import utils.db._
-import utils.seeds.Seeds
 import utils.seeds.Seeds.Factories
 
 class CartValidatorTest extends IntegrationTestBase {

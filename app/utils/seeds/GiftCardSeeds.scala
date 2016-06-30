@@ -2,12 +2,11 @@ package utils.seeds
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
+import models.payment.giftcard.GiftCard.{buildAppeasement ⇒ build}
 import models.payment.giftcard._
-import GiftCard.{buildAppeasement ⇒ build}
-import models.{Notes, Note}
+import models.{Note, Notes}
 import payloads.GiftCardPayloads.{GiftCardCreateByCsr ⇒ payload}
 import utils.db._
-import utils.db.DbResultT._
 
 trait GiftCardSeeds {
 

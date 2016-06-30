@@ -21,14 +21,13 @@ import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import payloads.ImagePayloads._
 import responses.ImageResponses.AlbumResponse.{Root ⇒ AlbumRoot}
-import services.Result
 import responses.ProductResponses._
 import responses.SkuResponses._
+import services.Result
 import util.IntegrationTestBase
 import utils.Money.Currency
 import utils._
 import utils.aliases._
-import utils.db.DbResultT._
 import utils.db._
 
 class ImageIntegrationTest

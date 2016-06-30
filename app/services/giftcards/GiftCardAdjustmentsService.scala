@@ -5,8 +5,7 @@ import models.payment.giftcard.{GiftCardAdjustments, GiftCards}
 import responses.GiftCardAdjustmentsResponse._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
-import utils.db.DbResultT
-import utils.db.DbResultT._
+import utils.db._
 
 object GiftCardAdjustmentsService {
 
