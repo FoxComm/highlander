@@ -66,7 +66,7 @@ class ShipmentRow extends Component {
 
   state: State = {
     isLoading: true,
-    isExpanded: true,
+    isExpanded: false,
   };
 
   componentDidMount(): void {
