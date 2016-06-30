@@ -104,6 +104,12 @@
     - libpq-dev
     - python-psycopg2
 
+- name: Create Backup Directory
+  file: path={{db_backup_dir}} state=directory mode="0700"
+  run_once: true
+  sudo: true
+  tags: backup
+
 - name: Setup Database Backup and Restore Scripts
   copy: src={{item}} dest="{{usr_local}}bin/{{item}}" mode="0777"
   with_items:
@@ -118,12 +124,6 @@
 
 - name: Install gcsfuse
   shell: dpkg -i /tmp/gcsfuse_0.18.2_amd64.deb
-  sudo: true
-  tags: backup
-
-- name: Create Backup Directory
-  file: path={{db_backup_dir}} state=directory mode="0700"
-  run_once: true
   sudo: true
   tags: backup
 
