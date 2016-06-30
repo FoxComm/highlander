@@ -13,13 +13,13 @@ begin
       select array_agg(op.order_ref) into strict order_refs
       from credit_cards as cc
       inner join order_payments as op on (cc.id = op.payment_method_id)
-      inner join regions as r on (cc.region_id = r)
+      inner join regions as r on (cc.region_id = r.id)
       where r.id = NEW.id;
     when 'countries' THEN
       select array_agg(op.order_ref) into strict order_refs
       from credit_cards as cc
       inner join order_payments as op on (cc.id = op.payment_method_id)
-      inner join regions as r on (cc.region_id = r)
+      inner join regions as r on (cc.region_id = r.id)
       inner join countries as c on (c.id = r.country_id)
       where c.id = NEW.id;
   end case;
