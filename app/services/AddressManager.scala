@@ -3,34 +3,28 @@ package services
 import java.time.Instant
 
 import cats.implicits._
-import models.order._
-import Order._
 import failures.NotFoundFailure404
 import models.customer._
 import models.location._
 import models.traits.{AdminOriginator, CustomerOriginator, Originator}
 import payloads.AddressPayloads._
 import responses.Addresses._
-import responses.{TheResponse, Addresses ⇒ Response}
+import responses.{Addresses ⇒ Response}
 import slick.driver.PostgresDriver.api._
-import utils.http.CustomDirectives.SortAndPage
 import utils.aliases._
-import utils.db._
 import utils.db.DbResultT._
+import utils.db._
 
 object AddressManager {
 
-  def findAllByCustomer(originator: Originator, customerId: Int)(
-      implicit ec: EC,
-      db: DB,
-      sortAndPage: SortAndPage): Result[TheResponse[Seq[Root]]] = {
-
+  def findAllByCustomer(originator: Originator, customerId: Int)(implicit ec: EC,
+                                                                 db: DB): DbResultT[Seq[Root]] = {
     val query = originator match {
       case AdminOriginator(_)    ⇒ Addresses.findAllActiveByCustomerIdWithRegions(customerId)
       case CustomerOriginator(_) ⇒ Addresses.findAllByCustomerIdWithRegions(customerId)
     }
 
-    Addresses.sortedAndPagedWithRegions(query).result.map(Response.buildMulti).toTheResponse.run()
+    for (records ← * <~ query.result.toXor) yield Response.buildMulti(records)
   }
 
   def get(originator: Originator, addressId: Int, customerId: Int)(implicit ec: EC,

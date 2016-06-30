@@ -11,9 +11,7 @@ import shapeless._
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
-import slick.lifted.ColumnOrdered
 import utils.db._
-import utils.http.CustomDirectives._
 import utils.{ADT, FSM}
 
 case class StoreCreditAdjustment(id: Int = 0,
@@ -81,19 +79,6 @@ object StoreCreditAdjustments
   val returningLens: Lens[StoreCreditAdjustment, Int] = lens[StoreCreditAdjustment].id
 
   import StoreCreditAdjustment._
-
-  def matchSortColumn(s: Sort, adj: StoreCreditAdjustments): ColumnOrdered[_] = {
-    s.sortColumn match {
-      case "id"               ⇒ if (s.asc) adj.id.asc else adj.id.desc
-      case "storeCreditId"    ⇒ if (s.asc) adj.storeCreditId.asc else adj.storeCreditId.desc
-      case "orderPaymentId"   ⇒ if (s.asc) adj.orderPaymentId.asc else adj.orderPaymentId.desc
-      case "debit"            ⇒ if (s.asc) adj.debit.asc else adj.debit.desc
-      case "availableBalance" ⇒ if (s.asc) adj.availableBalance.asc else adj.availableBalance.desc
-      case "state"            ⇒ if (s.asc) adj.state.asc else adj.state.desc
-      case "createdAt"        ⇒ if (s.asc) adj.createdAt.asc else adj.createdAt.desc
-      case other              ⇒ invalidSortColumn(other)
-    }
-  }
 
   def filterByStoreCreditId(id: Int): QuerySeq = filter(_.storeCreditId === id)
 

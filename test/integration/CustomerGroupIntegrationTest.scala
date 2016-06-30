@@ -14,6 +14,7 @@ import util.IntegrationTestBase
 import utils.db.DbResultT._
 import utils.db._
 import utils.seeds.Seeds.Factories
+import concurrent.ExecutionContext.Implicits.global
 
 class CustomerGroupIntegrationTest
     extends IntegrationTestBase
@@ -21,15 +22,13 @@ class CustomerGroupIntegrationTest
     with AutomaticAuth
     with MockitoSugar {
 
-  import concurrent.ExecutionContext.Implicits.global
-
   "GET /v1/groups" - {
     "lists customers groups" in new Fixture {
       val response  = GET("v1/groups")
       val groupRoot = DynamicGroupResponse.build(group)
 
       response.status must === (StatusCodes.OK)
-      response.ignoreFailuresAndGiveMe[Seq[DynamicGroupResponse.Root]] must === (Seq(groupRoot))
+      response.as[Seq[DynamicGroupResponse.Root]] must === (Seq(groupRoot))
     }
   }
 

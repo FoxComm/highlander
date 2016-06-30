@@ -220,24 +220,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase with HttpSupport with 
     "GET /v1/gift-cards/:code/transactions" - {
       "returns the list of adjustments" in new Fixture {
         val response    = GET(s"v1/gift-cards/${giftCard.code}/transactions")
-        val adjustments = response.ignoreFailuresAndGiveMe[Seq[GiftCardAdjustmentsResponse.Root]]
-
-        response.status must === (StatusCodes.OK)
-        adjustments.size mustBe 1
-
-        val firstAdjustment = adjustments.head
-        firstAdjustment.amount must === (-adjustment1.debit)
-        firstAdjustment.availableBalance must === (giftCard.originalBalance - adjustment1.debit)
-        firstAdjustment.orderRef.value mustBe order.referenceNumber
-      }
-
-      "returns the list of adjustments with sorting and paging" in new Fixture {
-
-        val adjustment2 = GiftCards.auth(giftCard, Some(payment.id), 1).gimme
-        val adjustment3 = GiftCards.auth(giftCard, Some(payment.id), 2).gimme
-
-        val response    = GET(s"v1/gift-cards/${giftCard.code}/transactions?sortBy=-id&from=2&size=2")
-        val adjustments = response.ignoreFailuresAndGiveMe[Seq[GiftCardAdjustmentsResponse.Root]]
+        val adjustments = response.as[Seq[GiftCardAdjustmentsResponse.Root]]
 
         response.status must === (StatusCodes.OK)
         adjustments.size mustBe 1

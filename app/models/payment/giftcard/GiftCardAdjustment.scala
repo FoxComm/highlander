@@ -11,9 +11,7 @@ import shapeless._
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
-import slick.lifted.ColumnOrdered
 import utils.db._
-import utils.http.CustomDirectives._
 import utils.{ADT, FSM}
 
 case class GiftCardAdjustment(id: Int = 0,
@@ -96,21 +94,6 @@ object GiftCardAdjustments
   val returningLens: Lens[GiftCardAdjustment, Int] = lens[GiftCardAdjustment].id
 
   import GiftCardAdjustment._
-
-  def matchSortColumn(s: Sort, adj: GiftCardAdjustments): ColumnOrdered[_] = {
-    s.sortColumn match {
-      case "id"               ⇒ if (s.asc) adj.id.asc else adj.id.desc
-      case "giftCardId"       ⇒ if (s.asc) adj.giftCardId.asc else adj.giftCardId.desc
-      case "orderPaymentId"   ⇒ if (s.asc) adj.orderPaymentId.asc else adj.orderPaymentId.desc
-      case "storeAdminId"     ⇒ if (s.asc) adj.storeAdminId.asc else adj.storeAdminId.desc
-      case "credit"           ⇒ if (s.asc) adj.credit.asc else adj.credit.desc
-      case "debit"            ⇒ if (s.asc) adj.debit.asc else adj.debit.desc
-      case "availableBalance" ⇒ if (s.asc) adj.availableBalance.asc else adj.availableBalance.desc
-      case "state"            ⇒ if (s.asc) adj.state.asc else adj.state.desc
-      case "createdAt"        ⇒ if (s.asc) adj.createdAt.asc else adj.createdAt.desc
-      case other              ⇒ invalidSortColumn(other)
-    }
-  }
 
   def filterByGiftCardId(id: Int): QuerySeq = filter(_.giftCardId === id)
 

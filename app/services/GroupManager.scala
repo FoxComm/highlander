@@ -1,25 +1,19 @@
 package services
 
-import models.customer.{CustomerDynamicGroup, CustomerDynamicGroups}
 import models.StoreAdmin
+import models.customer.{CustomerDynamicGroup, CustomerDynamicGroups}
 import payloads.CustomerGroupPayloads.CustomerDynamicGroupPayload
 import responses.DynamicGroupResponse.{Root, build}
-import responses.TheResponse
-import utils.http.CustomDirectives.SortAndPage
+import slick.driver.PostgresDriver.api._
 import utils.aliases._
-import utils.db._
 import utils.db.DbResultT._
+import utils.db._
 
 object GroupManager {
 
-  def findAll(implicit ec: EC, db: DB, sortAndPage: SortAndPage): Result[TheResponse[Seq[Root]]] = {
-    CustomerDynamicGroups
-      .sortedAndPaged(CustomerDynamicGroups.query)
-      .result
-      .map(groups ⇒ groups.map(build))
-      .toTheResponse
-      .run()
-  }
+  // TODO move to ES
+  def findAll(implicit ec: EC, db: DB): DbResultT[Seq[Root]] =
+    DbResultT(CustomerDynamicGroups.result.map(_.map(build)).toXor)
 
   def getById(groupId: Int)(implicit ec: EC, db: DB): Result[Root] =
     (for {

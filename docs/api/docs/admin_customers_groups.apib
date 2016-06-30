@@ -3,18 +3,9 @@
 + Parameters
     + id: 1 (required, number) - Group ID.
 
-### List [GET /v1/groups{?size,from,sortBy}]
+### List [GET /v1/groups]
 
 + Parameters
-    + size:   1           (optional, number)       - Page size.
-    + from:   1           (optional, number)       - Start element (counting from 0) or # of elements to skip.
-    + sortBy: `createdAt` (optional, enum[string]) - Field to sort by (`-fieldName` for descending order).
-        + Members
-            + `id`
-			+ `name`
-			+ `createdAt`
-			+ `updatedAt`
-			+ `createdBy`
 + Response 200 (application/json)
     + Attributes (CustomersList)
 
@@ -36,4 +27,3 @@
 	+ Attributes(GroupPayload)
 + Response 200 (application/json)
     + Attributes (GroupResponse)
-

@@ -22,11 +22,10 @@ import utils.db._
 object StoreCreditService {
   type QuerySeq = StoreCredits.QuerySeq
 
-  def getOriginTypes(implicit ec: EC, db: DB): Result[Seq[StoreCreditSubTypesResponse.Root]] = {
-    Result.fromFuture(StoreCreditSubtypes.result.map { subTypes ⇒
+  def getOriginTypes(implicit ec: EC, db: DB): DbResultT[Seq[StoreCreditSubTypesResponse.Root]] =
+    DbResultT(StoreCreditSubtypes.result.map { subTypes ⇒
       StoreCreditSubTypesResponse.build(StoreCredit.OriginType.publicTypes.toSeq, subTypes)
-    }.run())
-  }
+    }.toXor)
 
   // Check subtype only if id is present in payload; discard actual model
   private def checkSubTypeExists(subTypeId: Option[Int], originType: StoreCredit.OriginType)(

@@ -22,17 +22,17 @@ import utils.db._
 object GiftCardService {
   type QuerySeq = GiftCards.QuerySeq
 
-  def getOriginTypes(implicit ec: EC, db: DB): Result[Seq[GiftCardSubTypesResponse.Root]] =
-    (for {
+  def getOriginTypes(implicit ec: EC, db: DB): DbResultT[Seq[GiftCardSubTypesResponse.Root]] =
+    for {
       subTypes ← * <~ GiftCardSubtypes.result.toXor
       response ← * <~ GiftCardSubTypesResponse.build(GiftCard.OriginType.types.toSeq, subTypes)
-    } yield response).runTxn()
+    } yield response
 
-  def getByCode(code: String)(implicit ec: EC, db: DB): Result[Root] =
-    (for {
+  def getByCode(code: String)(implicit ec: EC, db: DB): DbResultT[Root] =
+    for {
       giftCard ← * <~ GiftCards.mustFindByCode(code)
       response ← * <~ buildResponse(giftCard).toXor
-    } yield response).run()
+    } yield response
 
   private def buildResponse(giftCard: GiftCard)(implicit ec: EC) =
     (giftCard.originType, giftCard.customerId) match {

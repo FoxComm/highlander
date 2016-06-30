@@ -36,7 +36,7 @@ object GiftCardRoutes {
       } ~
       pathPrefix("gift-cards" / giftCardCodeRegex) { code ⇒
         (get & pathEnd) {
-          goodOrFailures {
+          getOrFailures {
             GiftCardService.getByCode(code)
           }
         } ~
@@ -46,8 +46,8 @@ object GiftCardRoutes {
           }
         } ~
         path("transactions") {
-          (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            goodOrFailures {
+          (get & pathEnd) {
+            getOrFailures {
               GiftCardAdjustmentsService.forGiftCard(code)
             }
           }

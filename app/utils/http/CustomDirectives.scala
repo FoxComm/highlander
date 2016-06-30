@@ -11,34 +11,17 @@ import models.activity.ActivityContext
 import models.customer.Customer
 import models.objects.{ObjectContext, ObjectContexts}
 import models.product.SimpleContext
-import services.{Result, ResultT}
+import services.Result
 import slick.driver.PostgresDriver.api._
-import utils.http.Http._
-import utils.aliases._
-import utils.db._
-import utils.db.DbResultT._
 import utils._
+import utils.aliases._
+import utils.db.DbResultT._
+import utils.db._
+import utils.http.Http._
 
 object CustomDirectives {
 
-  val DefaultPageSize    = 50
   val DefaultContextName = SimpleContext.default
-
-  case class Sort(sortColumn: String, asc: Boolean = true)
-  case class SortAndPage(from: Option[Int] = Some(0),
-                         size: Option[Int] = Some(DefaultPageSize),
-                         sortBy: Option[String]) {
-
-    require(from.getOrElse(1) >= 0, "from parameter must be non-negative")
-    require(size.getOrElse(1) > 0, "size parameter must be positive")
-
-    def sort: Option[Sort] = sortBy.map { f ⇒
-      if (f.startsWith("-")) Sort(f.drop(1), asc = false)
-      else Sort(f)
-    }
-  }
-
-  val EmptySortAndPage: SortAndPage = SortAndPage(None, None, None)
 
   def activityContext(admin: StoreAdmin): Directive1[ActivityContext] = {
     optionalHeaderValueByName("x-request-id").map {
@@ -95,9 +78,6 @@ object CustomDirectives {
       case Some(c) ⇒ Future { c }
       case None    ⇒ getContextByName(DefaultContextName)
     }
-
-  def sortAndPage: Directive1[SortAndPage] =
-    parameters(('from.as[Int].?, 'size.as[Int].?, 'sortBy.as[String].?)).as(SortAndPage)
 
   def good[A <: AnyRef](a: Future[A])(implicit ec: EC): StandardRoute =
     complete(a.map(render(_)))

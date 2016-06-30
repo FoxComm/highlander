@@ -20,7 +20,7 @@ class ReasonsIntegrationTest extends IntegrationTestBase with HttpSupport with A
         val response   = GET(s"v1/public/reasons/$reasonType")
         response.status must === (StatusCodes.OK)
 
-        val root = response.ignoreFailuresAndGiveMe[Seq[Reason]]
+        val root = response.as[Seq[Reason]]
         root.size must === (1)
         root.headOption.value.id must === (reason.id)
       }

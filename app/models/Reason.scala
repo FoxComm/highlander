@@ -10,7 +10,6 @@ import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.db._
-import utils.http.CustomDirectives.SortAndPage
 import utils.{ADT, Validation}
 
 case class Reason(id: Int = 0,
@@ -68,19 +67,4 @@ object Reasons
 
   val returningLens: Lens[Reason, Int] = lens[Reason].id
 
-  def sortedAndPaged(query: QuerySeq)(implicit sortAndPage: SortAndPage): QuerySeqWithMetadata = {
-    val sortedQuery = query.withMetadata.sortAndPageIfNeeded {
-      case (s, reason) ⇒
-        s.sortColumn match {
-          case "id"           ⇒ if (s.asc) reason.id.asc else reason.id.desc
-          case "reasonType"   ⇒ if (s.asc) reason.reasonType.asc else reason.reasonType.desc
-          case "storeAdminId" ⇒ if (s.asc) reason.storeAdminId.asc else reason.storeAdminId.desc
-          case "parentId"     ⇒ if (s.asc) reason.parentId.asc else reason.parentId.desc
-          case "body"         ⇒ if (s.asc) reason.body.asc else reason.body.desc
-          case other          ⇒ invalidSortColumn(other)
-        }
-    }
-
-    sortedQuery.paged
-  }
 }

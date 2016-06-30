@@ -1,12 +1,10 @@
 package responses
 
-import responses.BatchMetadata.{BatchFailures, BatchSuccess, SuccessData, FailureData}
 import failures.Failures
+import responses.BatchMetadata._
 import utils.friendlyClassName
 
 case class TheResponse[A](result: A,
-                          pagination: Option[PaginationMetadata] = None,
-                          sorting: Option[SortingMetadata] = None,
                           alerts: Option[List[String]] = None,
                           errors: Option[List[String]] = None,
                           warnings: Option[List[String]] = None,
@@ -15,27 +13,16 @@ case class TheResponse[A](result: A,
 object TheResponse {
 
   def build[A](value: A,
-               pagination: Option[PaginationMetadata] = None,
-               sorting: Option[SortingMetadata] = None,
                alerts: Option[Failures] = None,
                errors: Option[Failures] = None,
                warnings: Option[Failures] = None,
                batch: Option[BatchMetadata] = None): TheResponse[A] =
     TheResponse(result = value,
-                pagination = pagination,
-                sorting = sorting,
                 alerts = alerts.map(_.flatten),
                 errors = errors.map(_.flatten),
                 warnings = warnings.map(_.flatten),
                 batch = batch)
 }
-
-case class PaginationMetadata(from: Option[Int] = None,
-                              size: Option[Int] = None,
-                              pageNo: Option[Int] = None,
-                              total: Option[Int] = None)
-
-case class SortingMetadata(sortBy: Option[String] = None)
 
 case class BatchMetadata(success: BatchSuccess, failures: BatchFailures) {
 

@@ -15,8 +15,8 @@ object CustomerGroupsRoutes {
 
     activityContext(admin) { implicit ac ⇒
       pathPrefix("groups") {
-        (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-          goodOrFailures {
+        (get & pathEnd) {
+          getOrFailures {
             GroupManager.findAll
           }
         } ~

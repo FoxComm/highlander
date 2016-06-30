@@ -8,7 +8,6 @@ import slick.lifted.Tag
 import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
-import utils.http.CustomDirectives.SortAndPage
 
 case class CustomerDynamicGroup(id: Int = 0,
                                 createdBy: Int,
@@ -54,17 +53,4 @@ object CustomerDynamicGroups
 
   val returningLens: Lens[CustomerDynamicGroup, Int] = lens[CustomerDynamicGroup].id
 
-  def sortedAndPaged(query: CustomerDynamicGroups.QuerySeq)(
-      implicit sortAndPage: SortAndPage): CustomerDynamicGroups.QuerySeqWithMetadata =
-    query.withMetadata.sortAndPageIfNeeded {
-      case (s, group) ⇒
-        s.sortColumn match {
-          case "id"        ⇒ if (s.asc) group.id.asc else group.id.desc
-          case "name"      ⇒ if (s.asc) group.name.asc else group.name.desc
-          case "createdAt" ⇒ if (s.asc) group.createdAt.asc else group.createdAt.desc
-          case "updatedAt" ⇒ if (s.asc) group.updatedAt.asc else group.updatedAt.desc
-          case "createdBy" ⇒ if (s.asc) group.createdBy.asc else group.createdBy.desc
-          case other       ⇒ invalidSortColumn(other)
-        }
-    }
 }

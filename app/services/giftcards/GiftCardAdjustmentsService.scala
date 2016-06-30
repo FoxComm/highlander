@@ -3,39 +3,37 @@ package services.giftcards
 import models.order.{OrderPayments, Orders}
 import models.payment.giftcard.{GiftCardAdjustments, GiftCards}
 import responses.GiftCardAdjustmentsResponse._
-import responses.TheResponse
-import services._
 import slick.driver.PostgresDriver.api._
-import utils.http.CustomDirectives.SortAndPage
 import utils.aliases._
-import utils.db._
+import utils.db.DbResultT
 import utils.db.DbResultT._
 
 object GiftCardAdjustmentsService {
 
-  def forGiftCard(code: String)(implicit ec: EC,
-                                db: DB,
-                                sortAndPage: SortAndPage): Result[TheResponse[Seq[Root]]] =
-    (for {
-      giftCard ← * <~ GiftCards.mustFindByCode(code)
-      query = GiftCardAdjustments
-        .filterByGiftCardId(giftCard.id)
-        .joinLeft(OrderPayments)
-        .on(_.orderPaymentId === _.id)
-        .joinLeft(Orders)
-        .on(_._2.map(_.orderRef) === _.referenceNumber)
+  def forGiftCard(code: String)(implicit ec: EC, db: DB): DbResultT[Seq[Root]] = {
 
-      queryWithMetadata = query.withMetadata.sortAndPageIfNeeded {
-        case (s, ((giftCardAdj, _), _)) ⇒
-          GiftCardAdjustments.matchSortColumn(s, giftCardAdj)
+    def maybePaymentQ =
+      for {
+        pay   ← OrderPayments
+        order ← Orders.filter(_.referenceNumber === pay.orderRef)
+      } yield (pay, order.referenceNumber)
+
+    def adjustmentQ(giftCardId: Int) = GiftCardAdjustments.filter(_.id === giftCardId)
+
+    def joinedQ(giftCardId: Int) =
+      adjustmentQ(giftCardId).joinLeft(maybePaymentQ).on {
+        case (adj, (pay, _)) ⇒ adj.orderPaymentId === pay.id
       }
 
-      response ← * <~ queryWithMetadata.result
-                  .map(_.map {
-                    case ((adj, Some(payment)), Some(order)) ⇒
-                      build(adj, Some(order.referenceNumber))
-                    case ((adj, _), _) ⇒ build(adj)
-                  })
-                  .toTheResponse
-    } yield response).run()
+    for {
+      giftCard ← * <~ GiftCards.mustFindByCode(code)
+      records  ← * <~ joinedQ(giftCard.id).result.toXor
+    } yield
+      records.map {
+        case (adj, Some((_, orderRef))) ⇒
+          build(adj, Some(orderRef))
+        case (adj, _) ⇒
+          build(adj)
+      }
+  }
 }

@@ -8,7 +8,6 @@ import payloads.CustomerPayloads.CreateCustomerPayload
 import services.PublicService._
 import services.customers.CustomerManager
 import services.giftcards.GiftCardService
-import services.orders.OrderPromotionUpdater
 import services.product.ProductManager
 import services.{ReasonService, StoreCreditService}
 import utils.aliases._
@@ -55,31 +54,28 @@ object Public {
             }
           } ~
           (get & path(IntNumber) & pathEnd) { countryId ⇒
-            goodOrFailures {
+            getOrFailures {
               findCountry(countryId)
             }
           }
         } ~
-        // TODO move to ES
         pathPrefix("gift-cards" / "types") {
           (get & pathEnd) {
-            goodOrFailures {
+            getOrFailures {
               GiftCardService.getOriginTypes
             }
           }
         } ~
-        // TODO move to ES
         pathPrefix("store-credits" / "types") {
           (get & pathEnd) {
-            goodOrFailures {
+            getOrFailures {
               StoreCreditService.getOriginTypes
             }
           }
         } ~
-        // TODO move to ES
         pathPrefix("reasons" / reasonTypeRegex) { reasonType ⇒
-          (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            goodOrFailures {
+          (get & pathEnd) {
+            getOrFailures {
               ReasonService.listReasonsByType(reasonType)
             }
           }

@@ -11,8 +11,8 @@ import payloads.PaymentPayloads._
 import services.customers._
 import services.orders.OrderQueries
 import services.{AddressManager, CreditCardManager, CustomerCreditConverter, StoreCreditService}
-import utils.apis.Apis
 import utils.aliases._
+import utils.apis.Apis
 import utils.http.CustomDirectives._
 import utils.http.Http._
 
@@ -62,9 +62,8 @@ object CustomerRoutes {
           }
         } ~
         pathPrefix("addresses") {
-          // TODO move to ES
-          (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            goodOrFailures {
+          (get & pathEnd) {
+            getOrFailures {
               AddressManager.findAllByCustomer(Originator(admin), customerId)
             }
           } ~

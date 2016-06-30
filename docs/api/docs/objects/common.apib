@@ -51,17 +51,3 @@
 + id: 1 (required, number) - Unique identifier.
 + name: `John Smith` (required, string) - Admin name.
 + email: `john@smith.com` (required, string) - E-mail.
-
-### PagingMetadata
-+ from:   0      (optional, number) - Start element (counting from 0) or # of elements to skip.
-+ size:   10     (optional, number) - Page size.
-+ pageNo: 1      (optional, number) - Page number (counting from 1).
-+ total:  35	 (optional, number) - Total number of elements found.
-
-### SortingMetadata
-+ sortBy: `lastName` (optional, string) - Field to sort by (`-fieldName` for descending order).
-
-### ResultMetadata
-+ pagination 										(optional, PagingMetadata)    - Pagination metadata.
-+ sorting    										(optional, SortingMetadata)   - Sorting metadata.
-+ errors: `List of possible errors and warnings` 	(optional, array[string]) 	  - List of possible errors.

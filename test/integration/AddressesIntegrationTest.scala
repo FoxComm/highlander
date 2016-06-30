@@ -26,7 +26,7 @@ class AddressesIntegrationTest extends IntegrationTestBase with HttpSupport with
 
       response.status must === (StatusCodes.OK)
 
-      val addresses = response.ignoreFailuresAndGiveMe[Seq[responses.Addresses.Root]]
+      val addresses = response.as[Seq[responses.Addresses.Root]]
 
       addresses must have size 1
       addresses.head.name must === (address.name)

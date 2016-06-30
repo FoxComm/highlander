@@ -90,8 +90,7 @@ abstract class FoxTableQuery[M <: FoxModel[M], T <: FoxTable[M]](construct: Tag 
   def refresh(model: M)(implicit ec: EC): DBIO[M] =
     findOneById(model.id).safeGet
 
-  type QuerySeq             = Query[T, M, Seq]
-  type QuerySeqWithMetadata = QueryWithMetadata[T, M, Seq]
+  type QuerySeq = Query[T, M, Seq]
 
   implicit class EnrichedTableQuery(q: QuerySeq) {
 

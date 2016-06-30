@@ -4,14 +4,13 @@ import java.time.Instant
 
 import cats.data.Xor
 import cats.data.Xor.{left, right}
+import failures.{Failures, NotFoundFailure404}
 import models.order.OrderShippingAddress
 import models.payment.creditcard.CreditCard
 import models.traits.Addressable
-import shapeless._
-import failures.{Failures, NotFoundFailure404}
 import payloads.AddressPayloads.CreateAddressPayload
+import shapeless._
 import slick.driver.PostgresDriver.api._
-import utils.http.CustomDirectives.SortAndPage
 import utils.Validation
 import utils.db._
 
@@ -111,34 +110,7 @@ object Addresses
 
   import scope._
 
-  type AddressesWithRegionsQuery =
-    _root_.slick.driver.PostgresDriver.api.Query[(Addresses, Regions), (Address, Region), Seq]
-
-  def sortedAndPagedWithRegions(query: AddressesWithRegionsQuery)(
-      implicit sortAndPage: SortAndPage)
-    : QueryWithMetadata[(Addresses, Regions), (Address, Region), Seq] =
-    query.withMetadata.sortAndPageIfNeeded {
-      case (s, (address, region)) ⇒
-        s.sortColumn match {
-          case "id"       ⇒ if (s.asc) address.id.asc else address.id.desc
-          case "regionId" ⇒ if (s.asc) address.regionId.asc else address.regionId.desc
-          case "name"     ⇒ if (s.asc) address.name.asc else address.name.desc
-          case "address1" ⇒ if (s.asc) address.address1.asc else address.address1.desc
-          case "address2" ⇒ if (s.asc) address.address2.asc else address.address2.desc
-          case "city"     ⇒ if (s.asc) address.city.asc else address.city.desc
-          case "zip"      ⇒ if (s.asc) address.zip.asc else address.zip.desc
-          case "isDefaultShipping" ⇒
-            if (s.asc) address.isDefaultShipping.asc else address.isDefaultShipping.desc
-          case "phoneNumber"      ⇒ if (s.asc) address.phoneNumber.asc else address.phoneNumber.desc
-          case "deletedAt"        ⇒ if (s.asc) address.deletedAt.asc else address.deletedAt.desc
-          case "region_id"        ⇒ if (s.asc) region.id.asc else region.id.desc
-          case "region_countryId" ⇒ if (s.asc) region.countryId.asc else region.countryId.desc
-          case "region_name"      ⇒ if (s.asc) region.name.asc else region.name.desc
-          case "region_abbreviation" ⇒
-            if (s.asc) region.abbreviation.asc else region.abbreviation.desc
-          case other ⇒ invalidSortColumn(other)
-        }
-    }
+  type AddressesWithRegionsQuery = Query[(Addresses, Regions), (Address, Region), Seq]
 
   def findAllByCustomerId(customerId: Int): QuerySeq = filter(_.customerId === customerId)
 
