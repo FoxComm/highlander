@@ -87,9 +87,7 @@ class Shipments extends Component<void, Props, void> {
   render(): Element {
     return (
       <div>
-        <SectionTitle title="Shipments">
-          {this.controls}
-        </SectionTitle>
+        <SectionTitle title="Shipments" />
         {this.data}
       </div>
     );
