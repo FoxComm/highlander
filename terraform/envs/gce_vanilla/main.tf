@@ -138,7 +138,7 @@ variable "log_image" {
 }
 
 variable "phoenix_image" {
-    default = "vanilla-phoenix-1466725566"
+    default = "vanilla-phoenix-1467315553"
 }
 
 variable "greenriver_image" {
