@@ -33,6 +33,7 @@ namespace isaac
 
             ENSURE(parts.payload->begin() > parts.header->end());
             ENSURE(parts.signature->begin() > parts.payload->end());
+            ENSURE(parts.signature->end() - parts.header->begin() >= 2) // Should be at least ".."
             return true;
         }
 
