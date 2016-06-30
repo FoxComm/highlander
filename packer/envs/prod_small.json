@@ -2,6 +2,7 @@
 	"image_prefix": "prod-small",
 	"image_title": "Prod Small",	
 	"account_file": "foxcomm-staging.json",
+	"variables_file": "prod_small_ansible.json",	
 	"project_id": "foxcomm-staging",
 	"network": "prodsmall",
 	"zone": "us-central1-f",

@@ -1,6 +1,5 @@
 {
 	"packing": true,
-	"variables_file": "vanilla_ansible.json",
 	"user": "ubuntu",
 	"db_host": "db.service.consul",
 	"db_user": "phoenix",
