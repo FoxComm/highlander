@@ -1,8 +1,7 @@
-
 /* @flow */
 
 import _ from 'lodash';
-import React, { PropTypes, Element, Component } from 'react';
+import React, { PropTypes, Element, Component, Children } from 'react';
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
 
@@ -55,9 +54,9 @@ export default class GenericDropdown extends Component {
   };
 
   state: State = {
-   open: !!this.props.open,
-   dropup: false,
-   selectedValue: this.props.value,
+    open: !!this.props.open,
+    dropup: false,
+    selectedValue: this.props.value,
   };
 
   componentWillReceiveProps(newProps: Props) {
@@ -212,9 +211,7 @@ export default class GenericDropdown extends Component {
 
     if (_.isEmpty(children) && emptyMessage) {
       return (
-        <li
-          className="fc-dropdown__blank-item"
-          onClick={this.closeMenu} >
+        <li className="fc-dropdown__blank-item" onClick={this.closeMenu}>
           {emptyMessage}
         </li>
       );
