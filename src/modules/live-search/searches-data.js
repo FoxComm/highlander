@@ -41,12 +41,10 @@ export default function makeDataInSearches(namespace, esUrl, options = {}) {
     const fetchingSearchIdx = _.get(getState(), [...ns, 'selectedSearch']);
     const selectedSearchState = getSelectedSearch(getState());
     const searchTerms = _.get(selectedSearchState, 'query', []);
-    const phrase = _.get(selectedSearchState, 'phrase');
     const extraFilters = _.get(getState(), [...ns, 'extraFilters'], extraFilters);
     const jsonQuery = toQuery(searchTerms, {
       sortBy: searchState.sortBy,
-      sortRaw: rawSorts.indexOf(_.trim(searchState.sortBy, '-')) != -1,
-      phrase: phrase,
+      sortRaw: rawSorts.indexOf(_.trim(searchState.sortBy, '-')) != -1
     });
 
     if (extraFilters) {

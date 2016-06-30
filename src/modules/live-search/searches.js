@@ -22,9 +22,15 @@ const emptyState = {
   associations: []
 };
 
+function isExistsQueryContext(filters) {
+  return _.some(filters, filter => {
+    return filter.value.type === 'string';
+  });
+}
+
 // module is responsible for search tabs
 
-export default function makeSearches(namespace, fetchActions, searchTerms, scope, options = {}) {
+export default function makeSearches(namespace, dataActions, searchTerms, scope, options = {}) {
   const { skipInitialFetch = false } = options;
 
   // Methods internal to the live search module
@@ -50,16 +56,21 @@ export default function makeSearches(namespace, fetchActions, searchTerms, scope
   const addSearchFilters = (filters, initial = false) => {
     return dispatch => {
       dispatch(submitFilters(filters, initial));
+      if (isExistsQueryContext(filters)) {
+        dispatch(dataActions.updateState({sortBy: null}));
+      }
       if (!initial || !skipInitialFetch) {
-        dispatch(fetchActions.fetch());
+        dispatch(dataActions.fetch());
       }
     };
   };
 
   const addSearchPhrase = phrase => {
     return dispatch => {
+      // in case of phrase search drop sorting in order to pass sorting to server
+      dispatch(dataActions.updateState({sortBy: null}));
       dispatch(submitPhrase(phrase));
-      dispatch(fetchActions.fetch());
+      dispatch(dataActions.fetch());
     };
   };
 
@@ -88,7 +99,7 @@ export default function makeSearches(namespace, fetchActions, searchTerms, scope
         .then(
           search => {
             dispatch(saveSearchSuccess(search));
-            dispatch(fetchActions.fetch());
+            dispatch(dataActions.fetch());
           },
           err => dispatch(saveSearchFailure(err))
         );
@@ -98,7 +109,7 @@ export default function makeSearches(namespace, fetchActions, searchTerms, scope
   const selectSearch = idx => {
     return dispatch => {
       dispatch(selectSavedSearch(idx));
-      dispatch(fetchActions.fetch());
+      dispatch(dataActions.fetch());
     };
   };
 
@@ -116,7 +127,7 @@ export default function makeSearches(namespace, fetchActions, searchTerms, scope
         .then(
           search => {
             dispatch(updateSearchSuccess(idx, search));
-            dispatch(fetchActions.fetch());
+            dispatch(dataActions.fetch());
           },
           err => dispatch(updateSearchFailure(idx, err))
         );
@@ -152,7 +163,7 @@ export default function makeSearches(namespace, fetchActions, searchTerms, scope
   }, searchTerms);
 
   const searchesReducer = createReducer({
-    [fetchActions.searchStart]: (state) => _fetchSearchStart(state),
+    [dataActions.searchStart]: (state) => _fetchSearchStart(state),
     [saveSearchStart]: (state) => _saveSearchStart(state),
     [saveSearchSuccess]: (state, payload) => _saveSearchSuccess(state, payload),
     [saveSearchFailure]: (state, err) => _saveSearchFailure(state, err),
@@ -181,7 +192,7 @@ export default function makeSearches(namespace, fetchActions, searchTerms, scope
     actions: {
       addSearchFilters,
       addSearchPhrase,
-      fetch: fetchActions.fetch,
+      fetch: dataActions.fetch,
       fetchSearches,
       saveSearch,
       selectSearch,
