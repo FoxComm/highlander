@@ -35,10 +35,9 @@ const reducer = createReducer({
     };
   },
   [reasonsReceived]: (state, [json, reasonType]) => {
-    const data = _.get(json, 'result', json);
     return assoc(state,
       'isFetching', false,
-      ['reasons', reasonType], data
+      ['reasons', reasonType], json
     );
   },
   [reasonsFailed]: (state, err) => {

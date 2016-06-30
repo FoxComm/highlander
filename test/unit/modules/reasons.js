@@ -33,7 +33,7 @@ describe('reasons module', function() {
 
       const newState = reducer(initialState, actions.reasonsReceived(payload, reasonType));
       expect(newState.isFetching).to.be.equal(false);
-      expect(newState.reasons[reasonType]).to.deep.equal(payload.result);
+      expect(newState.reasons[reasonType]).to.deep.equal(payload);
     });
 
     it('reasonsFailed should return proper state', function() {

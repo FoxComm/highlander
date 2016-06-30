@@ -9,7 +9,7 @@ import { createReducer } from 'redux-act';
 const _fetchCustomerGroups = createAsyncActions(
   'customerGroups',
   () => {
-    return Api.get('/groups?size=100');
+    return Api.get('/groups');
   }
 );
 
@@ -23,7 +23,7 @@ const reducer = createReducer({
   [_fetchCustomerGroups.succeeded]: (state, response) => {
     return {
       ...state,
-      groups: response.result,
+      groups: response,
     };
   }
 }, initialState);

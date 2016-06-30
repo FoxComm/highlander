@@ -81,11 +81,9 @@ const reducer = createReducer({
     });
   },
   [receivedAddresses]: (state, [customerId, payload]) => {
-    const addresses = _.get(payload, 'result', []);
-
     return assoc(state,
       [customerId, 'isFetching'], false,
-      [customerId, 'addresses'], addresses
+      [customerId, 'addresses'], payload
     );
   },
   [updateAddress]: (state, [customerId, addressId, data]) => {
