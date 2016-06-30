@@ -16,9 +16,9 @@
     }
   }
 
-  & tr.details-row {
+  & tr.details-row:nth-child(even) {
     border-top: none;
-    background: white;
+    background-color: white;
 
     & td {
       padding: 0 20px 30px;
