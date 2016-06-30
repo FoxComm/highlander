@@ -65,7 +65,7 @@ export default class UnshippedItems extends Component<void, Props, void> {
     return (
       <ContentBox
         styleName="box"
-        title="Unshipped items"
+        title="Unshipped Items"
         indentContent={false}
         viewContent={this.content}
       />
