@@ -4,6 +4,7 @@ vagrant.local.rb
 .vault_pass
 ansible/*.retry
 *.pyc
+foxcomm-vanilla.json
 foxcomm-staging.json
 .env.local
 
