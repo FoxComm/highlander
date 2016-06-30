@@ -1,22 +1,19 @@
 {
-    "variables" : {
-        "base_jvm_image": "base-jvm-1466553141"
-    },
     "builders" : [
         {
             "type": "googlecompute",
-            "account_file": "account.json",
+            "account_file": "{{user `account_file`}}",
             "project_id" : "{{user `project_id`}}",
             "source_image": "{{user `base_jvm_image`}}",
             "network": "{{user `network`}}",
-            "zone": "us-central1-a",
-            "image_name": "tinystack-backend-{{timestamp}}",
-            "image_description": "Base JVM image used for provisioning",
-            "instance_name": "packer-base-{{uuid}}",
+            "zone": "{{user `zone`}}",
+            "image_name": "{{user `image_prefix`}}-backend-{{timestamp}}",
+            "image_description": "{{user `image_title`}} Backend Image",
+            "instance_name": "packer-{{user `image_prefix`}}-backend-{{uuid}}",
             "machine_type": "n1-standard-2",
-            "tags": ["no-ip", "packer-base"],
+            "tags": ["ssh", "no-ip", "{{user `image_prefix`}}", "backend"],
             "use_internal_ip": true,
-            "ssh_username" : "ubuntu"
+            "ssh_username" : "{{user `ssh_username`}}"
         }
     ],
     "provisioners" : [

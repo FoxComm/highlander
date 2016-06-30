@@ -1,22 +1,17 @@
 {
-    "variables" : {
-        "base_jvm_image": "base-jvm-1466533418",
-        "project_id": "foxcomm-staging",
-        "network": "default"        
-    },
     "builders" : [
         {
             "type": "googlecompute",
-            "account_file": "account.json",
+            "account_file": "{{user `account_file`}}",
             "project_id" : "{{user `project_id`}}",
             "source_image": "{{user `base_jvm_image`}}",
             "network": "{{user `network`}}",
-            "zone": "us-central1-f",
-            "image_name": "vanilla-phoenix-{{timestamp}}",
-            "image_description": "vanilla phoenix image",
-            "instance_name": "packer-vanilla-phoenix-{{uuid}}",
+            "zone": "{{user `zone`}}",
+            "image_name": "{{user `image_prefix`}}-phoenix-{{timestamp}}",
+            "image_description": "{{user `image_title`}} Phoenix Image",
+            "instance_name": "packer-{{user `image_prefix`}}-phoenix-{{uuid}}",
             "machine_type": "n1-standard-1",
-            "tags": ["ssh", "no-ip", "vanilla", "phoenix"],
+            "tags": ["ssh", "no-ip", "{{user `image_prefix`}}", "phoenix"],
             "use_internal_ip": true,
             "ssh_username" : "{{user `ssh_username`}}"
         }
@@ -24,8 +19,8 @@
     "provisioners" : [
         {
             "type": "ansible",
-            "playbook_file" : "ansible/packer_vanilla_phoenix.yml",
-            "extra_arguments": ["--extra-vars", "@packer/envs/vanilla_google_oauth.json"]
+            "playbook_file" : "ansible/packer_service_phoenix.yml",
+            "extra_arguments": ["--extra-vars", "@packer/envs/vanilla_ansible.json"]
         }
     ]
 }

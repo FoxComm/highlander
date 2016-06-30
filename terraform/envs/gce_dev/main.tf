@@ -1,10 +1,9 @@
-
 variable "ssh_user" {} 
 variable "ssh_private_key" {} 
 
 provider "google" 
 {
-    credentials = "${file("account.json")}"
+    credentials = "${file("foxcomm-staging.json")}"
     project = "foxcomm-staging"
     region = "us-central1"
 }
@@ -45,7 +44,7 @@ module "buildagents" {
 ##############################################
 
 variable "tiny_backend_image" {
-    default = "tinystack-backend-1466553829"
+    default = "tinystack-backend-1467327805"
 } 
 
 variable "tiny_frontend_image" {

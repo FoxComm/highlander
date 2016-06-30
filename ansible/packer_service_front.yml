@@ -1,9 +1,9 @@
 ---
 
-- name: Provision Packer Prod Small Front
+- name: Provision Packer Vanilla Front
   hosts: all
   tags:
-      - packer-prod-small-front
+      - packer-vanilla-front
   vars:
     user: ubuntu
     packing: true
@@ -14,9 +14,9 @@
     ashes_server: 127.0.0.1:4000
     firebird_server: 127.0.0.1:4040
     api_server: 127.0.0.1
-    ashes_server_name: admin.smallprod.foxcommerce.com
-    firebird_server_name: firebird.smallprod.foxcommerce.com
-    firebrand_server_name: smallprod.foxcommerce.com
+    ashes_server_name: admin.vanilla.foxcommerce.com
+    firebird_server_name: firebird.vanilla.foxcommerce.com
+    firebrand_server_name: vanilla.foxcommerce.com
 
   roles:
     - { role: base/ssh_keys }

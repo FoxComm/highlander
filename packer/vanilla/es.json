@@ -1,22 +1,17 @@
 {
-    "variables" : {
-        "base_image": "base-1466532704",
-        "project_id": "foxcomm-staging",
-        "network": "default"        
-    },
     "builders" : [
         {
             "type": "googlecompute",
-            "account_file": "account.json",
+            "account_file": "{{user `account_file`}}",
             "project_id" : "{{user `project_id`}}",
             "source_image": "{{user `base_image`}}",
             "network": "{{user `network`}}",
-            "zone": "us-central1-f",
-            "image_name": "vanilla-es-{{timestamp}}",
-            "image_description": "vanilla es image",
-            "instance_name": "packer-vanilla-es-{{uuid}}",
+            "zone": "{{user `zone`}}",
+            "image_name": "{{user `image_prefix`}}-es-{{timestamp}}",
+            "image_description": "{{user `image_title`}} ES Image",
+            "instance_name": "packer-{{user `image_prefix`}}-es-{{uuid}}",
             "machine_type": "n1-standard-1",
-            "tags": ["ssh", "no-ip", "vanilla", "elasticsearch"],
+            "tags": ["ssh", "no-ip", "{{user `image_prefix`}}", "elasticsearch"],
             "use_internal_ip": true,
             "ssh_username" : "{{user `ssh_username`}}"
         }
@@ -24,7 +19,8 @@
     "provisioners" : [
         {
             "type": "ansible",
-            "playbook_file" : "ansible/packer_vanilla_es.yml"
+            "playbook_file" : "ansible/packer_service_es.yml",
+            "extra_arguments": ["--extra-vars", "@packer/envs/vanilla_ansible.json"]
         }
     ]
 }
