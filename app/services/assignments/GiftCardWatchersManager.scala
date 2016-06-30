@@ -16,9 +16,10 @@ object GiftCardWatchersManager extends AssignmentsManager[String, GiftCard] {
 
   def buildResponse(model: GiftCard): Root = build(model)
 
-  def fetchEntity(code: String)(implicit ec: EC, db: DB, ac: AC): DbResult[GiftCard] =
+  def fetchEntity(code: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[GiftCard] =
     GiftCards.mustFindByCode(code)
 
-  def fetchSequence(codes: Seq[String])(implicit ec: EC, db: DB, ac: AC): DbResult[Seq[GiftCard]] =
+  def fetchSequence(
+      codes: Seq[String])(implicit ec: EC, db: DB, ac: AC): DbResultT[Seq[GiftCard]] =
     GiftCards.filter(_.code.inSetBind(codes)).result.toXor
 }

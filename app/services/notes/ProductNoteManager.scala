@@ -12,7 +12,7 @@ object ProductNoteManager extends NoteManager[Int, ObjectForm] {
 
   def noteType(): Note.ReferenceType = Note.Product
 
-  def fetchEntity(id: Int)(implicit ec: EC, db: DB, ac: AC): DbResult[ObjectForm] =
+  def fetchEntity(id: Int)(implicit ec: EC, db: DB, ac: AC): DbResultT[ObjectForm] =
     ObjectForms
       .filter(_.id === id)
       .filter(_.kind === ObjectForm.product)

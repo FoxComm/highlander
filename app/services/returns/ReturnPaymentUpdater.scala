@@ -26,7 +26,7 @@ object ReturnPaymentUpdater {
       ccRefund ← * <~ ReturnPayments.create(
                     ReturnPayment.build(cc, rma.id, payload.amount, payment.currency))
       updated  ← * <~ Returns.refresh(rma).toXor
-      response ← * <~ ReturnResponse.fromRma(rma).toXor
+      response ← * <~ ReturnResponse.fromRma(rma)
     } yield response).runTxn()
 
   def addGiftCard(refNum: String, payload: ReturnPaymentPayload)(implicit ec: EC,
@@ -41,7 +41,7 @@ object ReturnPaymentUpdater {
       pmt ← * <~ ReturnPayments.create(
                ReturnPayment.build(gc, rma.id, payload.amount, payment.currency))
       updated  ← * <~ Returns.refresh(rma).toXor
-      response ← * <~ ReturnResponse.fromRma(rma).toXor
+      response ← * <~ ReturnResponse.fromRma(rma)
     } yield response).runTxn()
 
   def addStoreCredit(refNum: String, payload: ReturnPaymentPayload)(implicit ec: EC,
@@ -58,7 +58,7 @@ object ReturnPaymentUpdater {
       pmt ← * <~ ReturnPayments.create(
                ReturnPayment.build(sc, rma.id, payload.amount, payment.currency))
       updated  ← * <~ Returns.refresh(rma).toXor
-      response ← * <~ ReturnResponse.fromRma(rma).toXor
+      response ← * <~ ReturnResponse.fromRma(rma)
     } yield response).runTxn()
 
   def deleteCreditCard(refNum: String)(implicit ec: EC, db: DB): Result[Root] =
@@ -66,7 +66,7 @@ object ReturnPaymentUpdater {
       rma       ← * <~ mustFindPendingReturnByRefNum(refNum)
       deleteAll ← * <~ deleteCc(rma.id).toXor
       updated   ← * <~ Returns.refresh(rma).toXor
-      response  ← * <~ ReturnResponse.fromRma(rma).toXor
+      response  ← * <~ ReturnResponse.fromRma(rma)
     } yield response).runTxn()
 
   def deleteGiftCard(refNum: String)(implicit ec: EC, db: DB): Result[Root] =
@@ -74,7 +74,7 @@ object ReturnPaymentUpdater {
       rma       ← * <~ mustFindPendingReturnByRefNum(refNum)
       deleteAll ← * <~ deleteGc(rma.id).toXor
       updated   ← * <~ Returns.refresh(rma).toXor
-      response  ← * <~ ReturnResponse.fromRma(rma).toXor
+      response  ← * <~ ReturnResponse.fromRma(rma)
     } yield response).runTxn()
 
   def deleteStoreCredit(refNum: String)(implicit ec: EC, db: DB): Result[Root] =
@@ -82,7 +82,7 @@ object ReturnPaymentUpdater {
       rma       ← * <~ mustFindPendingReturnByRefNum(refNum)
       deleteAll ← * <~ deleteSc(rma.id).toXor
       updated   ← * <~ Returns.refresh(rma).toXor
-      response  ← * <~ ReturnResponse.fromRma(rma).toXor
+      response  ← * <~ ReturnResponse.fromRma(rma)
     } yield response).runTxn()
 
   private def deleteCc(returnId: Int)(implicit ec: EC) = {

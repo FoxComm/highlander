@@ -47,7 +47,7 @@ object StoreAdminManager {
   def delete(id: Int, author: Originator)(implicit ec: EC, db: DB, ac: AC): DbResultT[Unit] =
     for {
       admin ← * <~ StoreAdmins.mustFindById404(id)
-      result ← * <~ StoreAdmins.deleteById(id, DbResult.unit, i ⇒
+      result ← * <~ StoreAdmins.deleteById(id, DbResultT.unit, i ⇒
                     NotFoundFailure404(StoreAdmin, i))
       _ ← * <~ LogActivity.storeAdminDeleted(admin, author)
     } yield result

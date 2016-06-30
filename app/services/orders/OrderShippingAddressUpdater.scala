@@ -17,11 +17,11 @@ import utils.db._
 
 object OrderShippingAddressUpdater {
 
-  def mustFindAddressWithRegion(id: Int)(implicit ec: EC): DbResult[(Address, Region)] = {
+  def mustFindAddressWithRegion(id: Int)(implicit ec: EC): DbResultT[(Address, Region)] = {
     Addresses.findById(id).extract.withRegions.mustFindOneOr(NotFoundFailure404(Address, id))
   }
 
-  def mustFindShipAddressForOrder(order: Order)(implicit ec: EC): DbResult[OrderShippingAddress] =
+  def mustFindShipAddressForOrder(order: Order)(implicit ec: EC): DbResultT[OrderShippingAddress] =
     OrderShippingAddresses.findByOrderRef(order.refNum).mustFindOneOr(NoShipAddress(order.refNum))
 
   def createShippingAddressFromAddressId(originator: Originator,
@@ -40,7 +40,7 @@ object OrderShippingAddressUpdater {
       shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(address, order.refNum)
       region      ← * <~ Regions.mustFindById404(shipAddress.regionId)
       validated   ← * <~ CartValidator(order).validate()
-      response    ← * <~ FullOrder.refreshAndFullOrder(order).toXor
+      response    ← * <~ FullOrder.refreshAndFullOrder(order)
       _ ← * <~ LogActivity
            .orderShippingAddressAdded(originator, response, buildOneShipping(shipAddress, region))
     } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)
@@ -60,7 +60,7 @@ object OrderShippingAddressUpdater {
       shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(newAddress, order.refNum)
       region      ← * <~ Regions.mustFindById404(shipAddress.regionId)
       validated   ← * <~ CartValidator(order).validate()
-      response    ← * <~ FullOrder.refreshAndFullOrder(order).toXor
+      response    ← * <~ FullOrder.refreshAndFullOrder(order)
       _ ← * <~ LogActivity
            .orderShippingAddressAdded(originator, response, buildOneShipping(shipAddress, region))
     } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)
@@ -79,7 +79,7 @@ object OrderShippingAddressUpdater {
       patch = OrderShippingAddress.fromPatchPayload(shipAddress, payload)
       _         ← * <~ OrderShippingAddresses.update(shipAddress, patch)
       validated ← * <~ CartValidator(order).validate()
-      response  ← * <~ FullOrder.refreshAndFullOrder(order).toXor
+      response  ← * <~ FullOrder.refreshAndFullOrder(order)
       _ ← * <~ LogActivity.orderShippingAddressUpdated(originator,
                                                        response,
                                                        buildOneShipping(shipAddress, region))
@@ -96,7 +96,7 @@ object OrderShippingAddressUpdater {
       region      ← * <~ Regions.mustFindById404(shipAddress.regionId)
       _           ← * <~ OrderShippingAddresses.findById(shipAddress.id).delete
       validated   ← * <~ CartValidator(order).validate()
-      fullOrder   ← * <~ FullOrder.refreshAndFullOrder(order).toXor
+      fullOrder   ← * <~ FullOrder.refreshAndFullOrder(order)
       _ ← * <~ LogActivity.orderShippingAddressDeleted(originator,
                                                        fullOrder,
                                                        buildOneShipping(shipAddress, region))

@@ -29,8 +29,8 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
   case class EntityTrio(succeed: Seq[M], skipped: Seq[M], notFound: Seq[String])
 
   // Database helpers
-  def fetchEntity(key: K)(implicit ec: EC, db: DB, ac: AC): DbResult[M]
-  def fetchSequence(keys: Seq[K])(implicit ec: EC, db: DB, ac: AC): DbResult[Seq[M]]
+  def fetchEntity(key: K)(implicit ec: EC, db: DB, ac: AC): DbResultT[M]
+  def fetchSequence(keys: Seq[K])(implicit ec: EC, db: DB, ac: AC): DbResultT[Seq[M]]
   def buildResponse(model: M): ResponseItem
 
   // Metadata helpers

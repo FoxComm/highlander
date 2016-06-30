@@ -26,7 +26,8 @@ object ReturnLockUpdater {
       _    ← * <~ rma.mustNotBeLocked
       _    ← * <~ Returns.update(rma, rma.copy(isLocked = true))
       _    ← * <~ ReturnLockEvents.create(ReturnLockEvent(returnId = rma.id, lockedBy = admin.id))
-      resp ← * <~ Returns.refresh(rma).flatMap(ReturnResponse.fromRma).toXor
+      rma  ← * <~ Returns.refresh(rma).toXor
+      resp ← * <~ ReturnResponse.fromRma(rma)
     } yield resp).runTxn()
 
   def unlock(refNum: String)(implicit ec: EC, db: DB): Result[ReturnResponse.Root] =
@@ -34,6 +35,7 @@ object ReturnLockUpdater {
       rma  ← * <~ Returns.mustFindByRefNum(refNum)
       _    ← * <~ rma.mustBeLocked
       _    ← * <~ Returns.update(rma, rma.copy(isLocked = false))
-      resp ← * <~ Returns.refresh(rma).flatMap(ReturnResponse.fromRma).toXor
+      rma  ← * <~ Returns.refresh(rma).toXor
+      resp ← * <~ ReturnResponse.fromRma(rma)
     } yield resp).runTxn()
 }

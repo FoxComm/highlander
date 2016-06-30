@@ -16,9 +16,10 @@ object ReturnWatchersManager extends AssignmentsManager[String, Return] {
 
   def buildResponse(model: Return): Root = build(model)
 
-  def fetchEntity(refNum: String)(implicit ec: EC, db: DB, ac: AC): DbResult[Return] =
+  def fetchEntity(refNum: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[Return] =
     Returns.mustFindByRefNum(refNum)
 
-  def fetchSequence(refNums: Seq[String])(implicit ec: EC, db: DB, ac: AC): DbResult[Seq[Return]] =
+  def fetchSequence(
+      refNums: Seq[String])(implicit ec: EC, db: DB, ac: AC): DbResultT[Seq[Return]] =
     Returns.filter(_.referenceNumber.inSetBind(refNums)).result.toXor
 }

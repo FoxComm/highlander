@@ -21,18 +21,18 @@ trait SearchById[M <: FoxModel[M], T <: FoxTable[M]] {
     NotFoundFailure400(
         s"${tableName.tableNameToCamel} with $primarySearchTerm=$searchKey not found")
 
-  def mustFindById404(id: M#Id)(implicit ec: EC, db: DB): DbResult[M] = mustFindById(id)
+  def mustFindById404(id: M#Id)(implicit ec: EC, db: DB): DbResultT[M] = mustFindById(id)
 
-  def mustFindById400(id: M#Id)(implicit ec: EC, db: DB): DbResult[M] =
+  def mustFindById400(id: M#Id)(implicit ec: EC, db: DB): DbResultT[M] =
     mustFindById(id, notFound400K)
 
   private def mustFindById(id: M#Id, notFoundFailure: M#Id ⇒ Failure = notFound404K)(
       implicit ec: EC,
-      db: DB): DbResult[M] = {
+      db: DB): DbResultT[M] = {
 
-    this.findOneById(id).flatMap {
-      case Some(model) ⇒ DbResult.good(model)
-      case None        ⇒ DbResult.failure(notFoundFailure(id))
+    this.findOneById(id).toXor.flatMap {
+      case Some(model) ⇒ DbResultT.rightLift(model)
+      case None        ⇒ DbResultT.failure(notFoundFailure(id))
     }
   }
 }
@@ -45,10 +45,10 @@ trait SearchByRefNum[M <: FoxModel[M], T <: FoxTable[M]] extends SearchById[M, T
 
   def mustFindByRefNum(refNum: String, notFoundFailure: String ⇒ Failure = notFound404K)(
       implicit ec: EC,
-      db: DB): DbResult[M] = {
-    findOneByRefNum(refNum).flatMap {
-      case Some(model) ⇒ DbResult.good(model)
-      case None        ⇒ DbResult.failure(notFoundFailure(refNum))
+      db: DB): DbResultT[M] = {
+    findOneByRefNum(refNum).toXor.flatMap {
+      case Some(model) ⇒ DbResultT.rightLift(model)
+      case None        ⇒ DbResultT.failure(notFoundFailure(refNum))
     }
   }
 }
@@ -61,10 +61,10 @@ trait SearchByCode[M <: FoxModel[M], T <: FoxTable[M]] extends SearchById[M, T] 
 
   def mustFindByCode(code: String, notFoundFailure: String ⇒ Failure = notFound404K)(
       implicit ec: EC,
-      db: DB): DbResult[M] = {
-    findOneByCode(code).flatMap {
-      case Some(model) ⇒ DbResult.good(model)
-      case None        ⇒ DbResult.failure(notFoundFailure(code))
+      db: DB): DbResultT[M] = {
+    findOneByCode(code).toXor.flatMap {
+      case Some(model) ⇒ DbResultT.rightLift(model)
+      case None        ⇒ DbResultT.failure(notFoundFailure(code))
     }
   }
 }

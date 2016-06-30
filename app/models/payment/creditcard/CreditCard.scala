@@ -171,10 +171,10 @@ object CreditCards
   def findByIdAndCustomerId(id: Int, customerId: Int): QuerySeq =
     filter(_.customerId === customerId).filter(_.id === id)
 
-  def mustFindByIdAndCustomer(id: Int, customerId: Int)(implicit ec: EC): DbResult[CreditCard] = {
-    filter(cc ⇒ cc.id === id && cc.customerId === customerId).one.flatMap {
-      case Some(cc) ⇒ DbResult.good(cc)
-      case None     ⇒ DbResult.failure(NotFoundFailure404(CreditCard, id))
+  def mustFindByIdAndCustomer(id: Int, customerId: Int)(implicit ec: EC): DbResultT[CreditCard] = {
+    filter(cc ⇒ cc.id === id && cc.customerId === customerId).one.toXor.flatMap {
+      case Some(cc) ⇒ DbResultT.rightLift(cc)
+      case None     ⇒ DbResultT.failure(NotFoundFailure404(CreditCard, id))
     }
   }
 }

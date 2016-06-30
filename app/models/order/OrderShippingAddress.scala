@@ -97,10 +97,9 @@ object OrderShippingAddresses
 
   import scope._
 
-  // TODO @anna: #longlivedbresultt
   def copyFromAddress(address: Address, orderRef: String)(
-      implicit ec: EC): DbResult[OrderShippingAddress] =
-    create(OrderShippingAddress.buildFromAddress(address).copy(orderRef = orderRef)).value
+      implicit ec: EC): DbResultT[OrderShippingAddress] =
+    create(OrderShippingAddress.buildFromAddress(address).copy(orderRef = orderRef))
 
   def findByOrderRef(orderRef: String): QuerySeq =
     filter(_.orderRef === orderRef)

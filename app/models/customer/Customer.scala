@@ -178,10 +178,10 @@ object Customers
   def activeCustomerByEmail(email: String): QuerySeq =
     filter(c ⇒ c.email === email && !c.isBlacklisted && !c.isDisabled && !c.isGuest)
 
-  def createEmailMustBeUnique(email: String)(implicit ec: EC): DbResult[Unit] =
+  def createEmailMustBeUnique(email: String)(implicit ec: EC): DbResultT[Unit] =
     activeCustomerByEmail(email).one.mustNotFindOr(CustomerEmailNotUnique)
 
-  def updateEmailMustBeUnique(email: String, customerId: Int)(implicit ec: EC): DbResult[Unit] =
+  def updateEmailMustBeUnique(email: String, customerId: Int)(implicit ec: EC): DbResultT[Unit] =
     activeCustomerByEmail(email)
       .filterNot(_.id === customerId)
       .one

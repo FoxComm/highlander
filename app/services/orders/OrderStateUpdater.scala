@@ -28,8 +28,8 @@ object OrderStateUpdater {
       _        ← * <~ order.transitionState(newState)
       _        ← * <~ updateQueries(admin, Seq(refNum), newState).toXor
       updated  ← * <~ Orders.mustFindByRefNum(refNum)
-      response ← * <~ FullOrder.fromOrder(updated).toXor
-      _ ← * <~ (if (order.state == newState) DbResult.unit
+      response ← * <~ FullOrder.fromOrder(updated)
+      _ ← * <~ (if (order.state == newState) DbResultT.unit
                 else orderStateChanged(admin, response, order.state))
     } yield response).runTxn()
 
@@ -50,10 +50,10 @@ object OrderStateUpdater {
       admin: StoreAdmin,
       refNumbers: Seq[String],
       newState: Order.State,
-      skipActivity: Boolean = false)(implicit ec: EC, ac: AC): DbResult[BatchMetadata] = {
+      skipActivity: Boolean = false)(implicit ec: EC, ac: AC): DbResultT[BatchMetadata] = {
 
     val query = Orders.filter(_.referenceNumber.inSet(refNumbers)).result
-    appendForUpdate(query).flatMap { orders ⇒
+    appendForUpdate(query).toXor.flatMap { orders ⇒
       val (validTransitions, invalidTransitions) =
         orders.filterNot(_.state == newState).partition(_.transitionAllowed(newState))
 
@@ -62,7 +62,7 @@ object OrderStateUpdater {
       val possibleRefNums                           = absolutelyPossibleUpdates.map(_.referenceNumber)
       val skipActivityMod                           = skipActivity || possibleRefNums.isEmpty
 
-      updateQueriesWrapper(admin, possibleRefNums, newState, skipActivityMod).flatMap { _ ⇒
+      updateQueriesWrapper(admin, possibleRefNums, newState, skipActivityMod).toXor.flatMap { _ ⇒
         // Failure handling
         val invalid = invalidTransitions.map(o ⇒
               (o.refNum, StateTransitionNotAllowed(o.state, newState, o.refNum).description))
@@ -74,7 +74,8 @@ object OrderStateUpdater {
         }
 
         val batchFailures = (invalid ++ notFound ++ locked).toMap
-        DbResult.good(BatchMetadata(BatchMetadataSource(Order, possibleRefNums, batchFailures)))
+        DbResultT.rightLift(
+            BatchMetadata(BatchMetadataSource(Order, possibleRefNums, batchFailures)))
       }
     }
   }
@@ -87,7 +88,7 @@ object OrderStateUpdater {
     if (skipActivity)
       updateQueries(admin, orderRefs, newState)
     else
-      orderBulkStateChanged(admin, newState, orderRefs) >>
+      orderBulkStateChanged(admin, newState, orderRefs).value >>
       updateQueries(admin, orderRefs, newState)
   }
 

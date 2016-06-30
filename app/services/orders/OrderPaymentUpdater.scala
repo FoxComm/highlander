@@ -41,7 +41,7 @@ object OrderPaymentUpdater {
            .mustNotFindOr(GiftCardPaymentAlreadyAdded(order.refNum, payload.code))
       _ ← * <~ OrderPayments.create(
              OrderPayment.build(gc).copy(orderRef = order.refNum, amount = amount.some))
-      resp  ← * <~ refreshAndFullOrder(order).toXor
+      resp  ← * <~ refreshAndFullOrder(order)
       valid ← * <~ CartValidator(order).validate()
       _     ← * <~ LogActivity.orderPaymentMethodAddedGc(originator, resp, gc, amount)
     } yield TheResponse.build(resp, alerts = valid.alerts, warnings = valid.warnings)
@@ -58,7 +58,7 @@ object OrderPaymentUpdater {
                       .byOrderAndGiftCard(order, gc)
                       .mustFindOneOr(GiftCardPaymentNotFound(order.refNum, payload.code))
       _     ← * <~ OrderPayments.update(orderPayment, orderPayment.copy(amount = amount.some))
-      resp  ← * <~ refreshAndFullOrder(order).toXor
+      resp  ← * <~ refreshAndFullOrder(order)
       valid ← * <~ CartValidator(order).validate()
       _ ← * <~ LogActivity
            .orderPaymentMethodUpdatedGc(originator, resp, gc, orderPayment.amount, amount)
@@ -114,7 +114,7 @@ object OrderPaymentUpdater {
       available = storeCredits.map(_.availableBalance).sum
       -          ← * <~ updateSC(available, reqAmount, order, storeCredits.toList)
       validation ← * <~ CartValidator(order).validate()
-      response   ← * <~ refreshAndFullOrder(order).toXor
+      response   ← * <~ refreshAndFullOrder(order)
       _          ← * <~ LogActivity.orderPaymentMethodAddedSc(originator, response, payload.amount)
     } yield TheResponse.build(response, alerts = validation.alerts, warnings = validation.warnings)
   }
@@ -133,7 +133,7 @@ object OrderPaymentUpdater {
       _ ← * <~ OrderPayments.create(
              OrderPayment.build(cc).copy(orderRef = order.refNum, amount = None))
       valid ← * <~ CartValidator(order).validate()
-      resp  ← * <~ refreshAndFullOrder(order).toXor
+      resp  ← * <~ refreshAndFullOrder(order)
       _     ← * <~ LogActivity.orderPaymentMethodAddedCc(originator, resp, cc, region)
     } yield TheResponse.build(resp, alerts = valid.alerts, warnings = valid.warnings)
 
@@ -158,7 +158,7 @@ object OrderPaymentUpdater {
       resp ← * <~ OrderPayments
               .filter(_.orderRef === order.refNum)
               .byType(pmt)
-              .deleteAll(onSuccess = DbResultT(refreshAndFullOrder(order).toXor),
+              .deleteAll(onSuccess = refreshAndFullOrder(order),
                          onFailure = DbResultT.failure(OrderPaymentNotFoundFailure(pmt)))
       _ ← * <~ LogActivity.orderPaymentMethodDeleted(originator, resp, pmt)
     } yield TheResponse.build(resp, alerts = valid.alerts, warnings = valid.warnings)
@@ -176,7 +176,7 @@ object OrderPaymentUpdater {
                    .filter(_.paymentMethodId === giftCard.id)
                    .filter(_.orderRef === order.refNum)
                    .giftCards
-                   .deleteAll(onSuccess = DbResultT(refreshAndFullOrder(order).toXor),
+                   .deleteAll(onSuccess = refreshAndFullOrder(order),
                               onFailure = DbResultT.failure(
                                   OrderPaymentNotFoundFailure(PaymentMethod.GiftCard)))
       _ ← * <~ LogActivity.orderPaymentMethodDeletedGc(originator, deleteRes, giftCard)

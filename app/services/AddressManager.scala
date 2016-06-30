@@ -95,14 +95,12 @@ object AddressManager {
       region  ← * <~ Regions.findOneById(address.regionId).safeGet.toXor
     } yield Response.build(newAddress, region)
 
-  // #longlivedbresultt
   def removeDefaultShippingAddress(customerId: Int)(implicit ec: EC, db: DB): DbResultT[Int] =
-    DbResultT(
-        ExceptionWrapper.wrapDbio(
-            Addresses
-              .findShippingDefaultByCustomerId(customerId)
-              .map(_.isDefaultShipping)
-              .update(false)))
+    ExceptionWrapper.wrapDbio(
+        Addresses
+          .findShippingDefaultByCustomerId(customerId)
+          .map(_.isDefaultShipping)
+          .update(false))
 
   private def findByOriginator(originator: Originator, addressId: Int, customerId: Int)(
       implicit ec: EC) = originator match {

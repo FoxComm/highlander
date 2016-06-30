@@ -66,14 +66,13 @@ object Activities
 
   implicit val formats = JsonFormatters.phoenixFormats
 
-  def log(a: OpaqueActivity)(implicit context: AC, ec: EC): DbResult[Activity] = {
+  def log(a: OpaqueActivity)(implicit context: AC, ec: EC): DbResultT[Activity] = {
     val activity = Activity(activityType = a.activityType, data = a.data, context = context)
 
     logger.info(s"Activity ${a.activityType} by ${context.userType} ${context.userId}")
     logger.debug(writePretty(activity))
 
-    // TODO @anna: #longlivedbresultt
-    create(activity).value
+    create(activity)
   }
 
   def filterByType(activityType: ActivityType): QuerySeq = filter(_.activityType === activityType)

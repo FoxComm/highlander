@@ -55,10 +55,9 @@ object Dimensions
 
   def findByName(name: String): QuerySeq = filter(_.name === name)
 
-  def findOrCreateByName(name: String)(implicit ec: EC): DbResult[Dimension] =
-    findByName(name).one.flatMap {
-      case Some(dimension) ⇒ DbResult.good(dimension)
-      // TODO @anna: #longlivedbresultt
-      case None ⇒ create(Dimension(name = name, description = name.capitalize)).value
+  def findOrCreateByName(name: String)(implicit ec: EC): DbResultT[Dimension] =
+    findByName(name).one.toXor.flatMap {
+      case Some(dimension) ⇒ DbResultT.rightLift(dimension)
+      case None            ⇒ create(Dimension(name = name, description = name.capitalize))
     }
 }

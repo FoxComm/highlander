@@ -12,7 +12,7 @@ import utils.db._
 
 trait CartValidation {
   def validate(isCheckout: Boolean = false,
-               fatalWarnings: Boolean = false): DbResult[CartValidatorResponse]
+               fatalWarnings: Boolean = false): DbResultT[CartValidatorResponse]
 }
 
 // warnings would be turned into `errors` during checkout but if we're still in cart mode
@@ -23,7 +23,7 @@ case class CartValidatorResponse(alerts: Option[Failures] = None,
 case class CartValidator(cart: Order)(implicit ec: EC) extends CartValidation {
 
   def validate(isCheckout: Boolean = false,
-               fatalWarnings: Boolean = false): DbResult[CartValidatorResponse] = {
+               fatalWarnings: Boolean = false): DbResultT[CartValidatorResponse] = {
     val response = CartValidatorResponse()
     val validationResult = for {
       state ← hasItems(response)
@@ -32,10 +32,14 @@ case class CartValidator(cart: Order)(implicit ec: EC) extends CartValidation {
       state ← sufficientPayments(state, isCheckout)
     } yield state
     if (fatalWarnings)
-      validationResult.flatMap { validatorResponse ⇒
-        validatorResponse.warnings.fold(DbResult.good(validatorResponse))(warnings ⇒
-              DbResult.failures(warnings))
-      } else DbResult.fromDbio(validationResult)
+      validationResult.toXor.flatMap { validatorResponse ⇒
+        validatorResponse.warnings match {
+          case Some(warnings) ⇒
+            DbResultT.leftLift(warnings)
+          case _ ⇒
+            DbResultT.rightLift(validatorResponse)
+        }
+      } else DbResultT.right(validationResult)
   }
 
   private def hasItems(response: CartValidatorResponse): DBIO[CartValidatorResponse] = {
@@ -58,12 +62,12 @@ case class CartValidator(cart: Order)(implicit ec: EC) extends CartValidation {
       sm  ← osm.shippingMethod
     } yield (osm, sm)).one.flatMap {
       case Some((osm, sm)) ⇒
-        ShippingManager.evaluateShippingMethodForOrder(sm, cart).map {
-          _.fold(
+        ShippingManager
+          .evaluateShippingMethodForOrder(sm, cart)
+          .fold(
               _ ⇒ warning(response, InvalidShippingMethod(cart.refNum)), // FIXME validator warning and actual failure differ
               _ ⇒ response
           )
-        }
 
       case None ⇒
         lift(warning(response, NoShipMethod(cart.refNum)))

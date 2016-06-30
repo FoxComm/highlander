@@ -48,7 +48,7 @@ object CreditCardManager {
                    address: Address) =
       for {
         _ ← * <~ (if (address.isNew) Addresses.create(address.copy(customerId = customerId))
-                  else DbResult.unit)
+                  else DbResultT.unit)
         cc = CreditCard.build(customerId, sCustomer, sCard, payload, address)
         newCard ← * <~ CreditCards.create(cc)
         region  ← * <~ Regions.findOneById(newCard.regionId).safeGet.toXor
@@ -126,8 +126,8 @@ object CreditCardManager {
       )
       for {
         _ ← * <~ DBIO.from(gateway.editCard(updated))
-        _ ← * <~ (if (!cc.inWallet) DbResult.failure(CannotUseInactiveCreditCard(cc))
-                  else DbResult.unit)
+        _ ← * <~ (if (!cc.inWallet) DbResultT.failure(CannotUseInactiveCreditCard(cc))
+                  else DbResultT.unit)
         _  ← * <~ CreditCards.update(cc, cc.copy(inWallet = false))
         cc ← * <~ CreditCards.create(updated)
         _  ← * <~ LogActivity.ccUpdated(customer, updated, cc, admin)

@@ -87,8 +87,6 @@ object SharedSearchService {
       _ ← * <~ LogActivity.unassociatedFromSearch(admin, search, associate)
     } yield search
 
-  // TODO @anna: #longlivedbresultt
   private def mustFindActiveByCode(code: String)(implicit ec: EC): DbResultT[SharedSearch] =
-    DbResultT(
-        SharedSearches.findActiveByCode(code).mustFindOr(NotFoundFailure404(SharedSearch, code)))
+    SharedSearches.findActiveByCode(code).mustFindOr(NotFoundFailure404(SharedSearch, code))
 }

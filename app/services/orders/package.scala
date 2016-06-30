@@ -9,7 +9,7 @@ import utils.aliases._
 
 package object orders {
   def getCartByOriginator(originator: Originator,
-                          refNum: Option[String])(implicit ec: EC, db: DB): DbResult[Order] =
+                          refNum: Option[String])(implicit ec: EC, db: DB): DbResultT[Order] =
     (originator, refNum) match {
       case (CustomerOriginator(customer), _) ⇒
         Orders
@@ -18,6 +18,6 @@ package object orders {
       case (AdminOriginator(_), Some(ref)) ⇒
         Orders.mustFindByRefNum(ref)
       case _ ⇒
-        DbResult.failure(EmptyRefNumFailure)
+        DbResultT.failure(EmptyRefNumFailure)
     }
 }

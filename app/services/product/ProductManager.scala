@@ -210,15 +210,15 @@ object ProductManager {
 
     for {
       code ← * <~ SkuManager.mustGetSkuCode(payload)
-      sku ← * <~ Skus.filterByContextAndCode(oc.id, code).one.flatMap {
+      sku ← * <~ Skus.filterByContextAndCode(oc.id, code).one.toXor.flatMap {
              case Some(sku) ⇒
-               SkuManager.updateSkuInner(sku, payload).value
+               SkuManager.updateSkuInner(sku, payload)
              case None ⇒
-               (for {
+               for {
                  newSku ← * <~ SkuManager.createSkuInner(oc, payload)
                  _ ← * <~ ProductSkuLinks.create(
                         ProductSkuLink(leftId = product.id, rightId = newSku.model.id))
-               } yield newSku).value
+               } yield newSku
            }
       albums ← * <~ ImageManager.getAlbumsForSkuInner(code, oc)
     } yield SkuResponse.buildLite(IlluminatedSku.illuminate(oc, sku), albums)
@@ -271,8 +271,9 @@ object ProductManager {
                     VariantManager.mustFindVariantValueByContextAndShadow(oc.id, link.rightId))
     } yield (variant, values)
 
-  def mustFindProductByContextAndId404(contextId: Int, productId: Int)(implicit ec: EC,
-                                                                       db: DB): DbResult[Product] =
+  def mustFindProductByContextAndId404(contextId: Int, productId: Int)(
+      implicit ec: EC,
+      db: DB): DbResultT[Product] =
     Products
       .filter(_.contextId === contextId)
       .filter(_.formId === productId)

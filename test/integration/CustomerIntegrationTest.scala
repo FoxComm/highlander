@@ -251,6 +251,7 @@ class CustomerIntegrationTest
   "GET /v1/customers/:customerId/cart" - {
     "returns customer cart" in new CartFixture {
       val response = GET(s"v1/customers/${customer.id}/cart")
+      println(response.error)
       response.status must === (StatusCodes.OK)
 
       val root = response.as[FullOrder.Root]

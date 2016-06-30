@@ -44,30 +44,26 @@ case class IlluminatedCoupon(id: Int,
 
     val validation = usageRules match {
       case Some(rules) if !rules.isUnlimitedPerCode && !rules.isUnlimitedPerCustomer ⇒
-        CouponUsageService
-          .mustBeUsableByCustomer(id,
-                                  code.id,
-                                  rules.usesPerCode.getOrElse(0),
-                                  customerId,
-                                  rules.usesPerCustomer.getOrElse(0),
-                                  code.code)
-          .value
+        CouponUsageService.mustBeUsableByCustomer(id,
+                                                  code.id,
+                                                  rules.usesPerCode.getOrElse(0),
+                                                  customerId,
+                                                  rules.usesPerCustomer.getOrElse(0),
+                                                  code.code)
 
       case Some(rules) if !rules.isUnlimitedPerCode && rules.isUnlimitedPerCustomer ⇒
         CouponUsageService
           .couponCodeMustBeUsable(id, code.id, rules.usesPerCode.getOrElse(0), code.code)
-          .value
 
       case Some(rules) if rules.isUnlimitedPerCode && !rules.isUnlimitedPerCustomer ⇒
         CouponUsageService
           .couponMustBeUsable(id, customerId, rules.usesPerCustomer.getOrElse(0), code.code)
-          .value
 
       case Some(rules) if rules.isUnlimitedPerCode && rules.isUnlimitedPerCustomer ⇒
-        DbResult.unit
+        DbResultT.unit
 
       case _ ⇒
-        DbResult.failure(CouponUsageRulesAreEmpty(code.code))
+        DbResultT.failure(CouponUsageRulesAreEmpty(code.code))
     }
 
     for (_ ← * <~ validation) yield this

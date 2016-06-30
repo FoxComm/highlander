@@ -34,9 +34,8 @@ object SaveForLaterManager {
       response ← * <~ findAllDbio(customer, context.id).toXor
     } yield response
 
-  // TODO @anna: #longlivedbresultt
   def deleteSaveForLater(id: Int)(implicit ec: EC, db: DB): DbResultT[Unit] =
-    DbResultT(SaveForLaters.deleteById(id, DbResult.unit, i ⇒ NotFoundFailure404(SaveForLater, i)))
+    SaveForLaters.deleteById(id, DbResultT.unit, i ⇒ NotFoundFailure404(SaveForLater, i))
 
   private def findAllDbio(customer: Customer, contextId: Int)(implicit ec: EC,
                                                               db: DB): DBIO[SavedForLater] =

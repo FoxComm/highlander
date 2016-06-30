@@ -16,7 +16,7 @@ import utils.db._
 trait NoteManager[K, T <: FoxModel[T]] {
   // Define this methods in inherit object
   def noteType(): Note.ReferenceType
-  def fetchEntity(key: K)(implicit ec: EC, db: DB, ac: AC): DbResult[T]
+  def fetchEntity(key: K)(implicit ec: EC, db: DB, ac: AC): DbResultT[T]
 
   // Use this methods wherever you want
   def list(key: K)(implicit ec: EC, db: DB, ac: AC): DbResultT[Seq[Root]] =
@@ -91,9 +91,9 @@ trait NoteManager[K, T <: FoxModel[T]] {
     } yield ()
 
   private def forModel[M <: FoxModel[M]](
-      finder: Notes.QuerySeq)(implicit ec: EC, db: DB, ac: AC): DbResult[Seq[Root]] = {
+      finder: Notes.QuerySeq)(implicit ec: EC, db: DB, ac: AC): DbResultT[Seq[Root]] = {
     val query = for (notes ← finder; authors ← notes.author) yield (notes, authors)
-    DbResult.fromDbio(query.result.map(_.map {
+    DbResultT.right(query.result.map(_.map {
       case (note, author) ⇒ AdminNotes.build(note, author)
     }))
   }

@@ -73,21 +73,24 @@ object Addresses {
          deletedAt = None)
   }
 
-  def forOrderRef(orderRef: String)(implicit ec: EC): DbResult[Root] = {
+  def forOrderRef(orderRef: String)(implicit ec: EC): DbResultT[Root] = {
     val fullAddressDetails = for {
       shipAddress ← OrderShippingAddresses.findByOrderRef(orderRef)
       region      ← shipAddress.region
     } yield (shipAddress, region)
 
-    fullAddressDetails.result.flatMap { res ⇒
-      val (addresses, regions) = res.unzip
-      (addresses.headOption, regions.headOption) match {
-        case (Some(address), Some(region)) ⇒ DbResult.good(buildOneShipping(address, region))
-        case (None, _) ⇒
-          DbResult.failure(
-              NotFoundFailure404(s"No addresses found for order with refNum=$orderRef"))
-        case (Some(address), None) ⇒ DbResult.failure(NotFoundFailure404(Region, address.regionId))
-      }
-    }
+    for {
+      fullAddress ← * <~ fullAddressDetails.result.toXor
+      (addresses, regions) = fullAddress.unzip
+      response ← * <~ ((addresses.headOption, regions.headOption) match {
+                      case (Some(address), Some(region)) ⇒
+                        DbResultT.rightLift(buildOneShipping(address, region))
+                      case (None, _) ⇒
+                        DbResultT.failure(NotFoundFailure404(
+                                s"No addresses found for order with refNum=$orderRef"))
+                      case (Some(address), None) ⇒
+                        DbResultT.failure(NotFoundFailure404(Region, address.regionId))
+                    })
+    } yield response
   }
 }

@@ -171,19 +171,15 @@ object CouponManager {
   private def updateHead(coupon: Coupon,
                          promotionId: Int,
                          shadow: ObjectShadow,
-                         maybeCommit: Option[ObjectCommit])(implicit ec: EC): DbResult[Coupon] =
+                         maybeCommit: Option[ObjectCommit])(implicit ec: EC): DbResultT[Coupon] =
     maybeCommit match {
       case Some(commit) ⇒
-        // TODO @anna: #longlivedbresultt
-        Coupons
-          .update(
-              coupon,
-              coupon.copy(shadowId = shadow.id, commitId = commit.id, promotionId = promotionId))
-          .value
+        Coupons.update(
+            coupon,
+            coupon.copy(shadowId = shadow.id, commitId = commit.id, promotionId = promotionId))
       case None ⇒
-        // TODO @anna: #longlivedbresultt
         if (promotionId != coupon.promotionId)
-          Coupons.update(coupon, coupon.copy(promotionId = promotionId)).value
-        else DbResult.good(coupon)
+          Coupons.update(coupon, coupon.copy(promotionId = promotionId))
+        else DbResultT.rightLift(coupon)
     }
 }

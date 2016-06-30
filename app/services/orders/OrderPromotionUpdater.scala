@@ -106,7 +106,7 @@ object OrderPromotionUpdater {
       // Response
       order     ← * <~ OrderTotaler.saveTotals(order)
       validated ← * <~ CartValidator(order).validate()
-      response  ← * <~ refreshAndFullOrder(order).toXor
+      response  ← * <~ refreshAndFullOrder(order)
     } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings))
       .runTxn()
 
@@ -131,7 +131,7 @@ object OrderPromotionUpdater {
       _         ← * <~ OrderTotaler.saveTotals(order)
       _         ← * <~ LogActivity.orderCouponDetached(order)
       validated ← * <~ CartValidator(order).validate()
-      response  ← * <~ refreshAndFullOrder(order).toXor
+      response  ← * <~ refreshAndFullOrder(order)
     } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings))
       .runTxn()
 

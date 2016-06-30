@@ -10,32 +10,29 @@ package object assignments {
   def subscribe[K, M <: FoxModel[M]](
       manager: AssignmentsManager[K, M],
       adminIds: Seq[Int],
-      objectIds: Seq[String])(implicit ec: EC): DbResult[TheResponse[Option[Int]]] = {
+      objectIds: Seq[String])(implicit ec: EC): DbResultT[TheResponse[Option[Int]]] = {
 
     if (objectIds.nonEmpty)
-      NotificationManager
-        .subscribe(adminIds = adminIds,
-                   dimension = manager.notifyDimension,
-                   reason = manager.notifyReason,
-                   objectIds = objectIds)
-        .value
+      NotificationManager.subscribe(adminIds = adminIds,
+                                    dimension = manager.notifyDimension,
+                                    reason = manager.notifyReason,
+                                    objectIds = objectIds)
     else
-      DbResult.good(TheResponse(None))
+      DbResultT.rightLift(TheResponse(None))
   }
 
-  def unsubscribe[K, M <: FoxModel[M]](manager: AssignmentsManager[K, M],
-                                       adminIds: Seq[Int],
-                                       objectIds: Seq[String])(implicit ec: EC): DbResult[Unit] = {
+  def unsubscribe[K, M <: FoxModel[M]](
+      manager: AssignmentsManager[K, M],
+      adminIds: Seq[Int],
+      objectIds: Seq[String])(implicit ec: EC): DbResultT[Unit] = {
 
     if (objectIds.nonEmpty)
-      NotificationManager
-        .unsubscribe(adminIds = adminIds,
-                     dimension = manager.notifyDimension,
-                     reason = manager.notifyReason,
-                     objectIds = objectIds)
-        .value
+      NotificationManager.unsubscribe(adminIds = adminIds,
+                                      dimension = manager.notifyDimension,
+                                      reason = manager.notifyReason,
+                                      objectIds = objectIds)
     else
-      DbResult.unit
+      DbResultT.unit
   }
 
   // Activity logger helpers
@@ -48,7 +45,7 @@ package object assignments {
       LogActivity
         .bulkAssigned(originator, admin, keys, manager.assignmentType, manager.referenceType)
     else
-      DbResult.unit
+      DbResultT.unit
   }
 
   def logBulkUnassign[K, M <: FoxModel[M]](manager: AssignmentsManager[K, M],
@@ -60,6 +57,6 @@ package object assignments {
       LogActivity
         .bulkUnassigned(originator, admin, keys, manager.assignmentType, manager.referenceType)
     else
-      DbResult.unit
+      DbResultT.unit
   }
 }

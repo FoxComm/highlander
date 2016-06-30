@@ -19,7 +19,7 @@ object OrderUpdater {
       updated ← * <~ Orders.update(
                    order,
                    order.copy(remorsePeriodEnd = order.remorsePeriodEnd.map(_.plusMinutes(15))))
-      response ← * <~ FullOrder.fromOrder(updated).toXor
+      response ← * <~ FullOrder.fromOrder(updated)
       _        ← * <~ LogActivity.orderRemorsePeriodIncreased(admin, response, order.remorsePeriodEnd)
     } yield response).runTxn()
 }

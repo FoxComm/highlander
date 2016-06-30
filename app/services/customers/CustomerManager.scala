@@ -63,7 +63,7 @@ object CustomerManager {
                  .map(_.flatten)
                  .toXor
       shipment ← * <~ (if (default.isEmpty) resolveFromShipments(customerId)
-                       else DbResult.good(default))
+                       else DbResultT.rightLift(default))
     } yield shipment
   }
 
@@ -91,7 +91,7 @@ object CustomerManager {
       customer ← * <~ Customer.buildFromPayload(payload).validate
       _ ← * <~ (if (!payload.isGuest.getOrElse(false))
                   Customers.createEmailMustBeUnique(customer.email)
-                else DbResult.unit)
+                else DbResultT.unit)
       updated ← * <~ Customers.create(customer)
       response = build(updated)
       _ ← * <~ LogActivity.customerCreated(response, admin)
@@ -106,7 +106,7 @@ object CustomerManager {
       customer ← * <~ Customers.mustFindById404(customerId)
       _ ← * <~ payload.email
            .map(Customers.updateEmailMustBeUnique(_, customerId))
-           .getOrElse(DbResult.unit)
+           .getOrElse(DbResultT.unit)
       updated ← * <~ Customers.update(
                    customer,
                    customer.copy(name = payload.name.fold(customer.name)(Some(_)),

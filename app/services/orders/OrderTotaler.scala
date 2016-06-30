@@ -41,30 +41,30 @@ object OrderTotaler {
       case _                                 ⇒ 0
     }
 
-  def shippingTotal(order: Order)(implicit ec: EC): DbResult[Int] =
-    (for {
+  def shippingTotal(order: Order)(implicit ec: EC): DbResultT[Int] =
+    for {
       orderShippingMethods ← * <~ OrderShippingMethods.findByOrderRef(order.refNum).result.toXor
       sum = orderShippingMethods.foldLeft(0)(_ + _.price)
-    } yield sum).value
+    } yield sum
 
-  def adjustmentsTotal(order: Order)(implicit ec: EC): DbResult[Int] =
-    (for {
+  def adjustmentsTotal(order: Order)(implicit ec: EC): DbResultT[Int] =
+    for {
       lineItemAdjustments ← * <~ OrderLineItemAdjustments
                              .filter(_.orderRef === order.refNum)
                              .result
                              .toXor
       sum = lineItemAdjustments.foldLeft(0)(_ + _.substract)
-    } yield sum).value
+    } yield sum
 
-  def totals(order: Order)(implicit ec: EC): DbResult[Totals] =
-    (for {
+  def totals(order: Order)(implicit ec: EC): DbResultT[Totals] =
+    for {
       sub  ← * <~ subTotal(order).toXor
       ship ← * <~ shippingTotal(order)
       adj  ← * <~ adjustmentsTotal(order)
-    } yield Totals.build(subTotal = sub, shipping = ship, adjustments = adj)).value
+    } yield Totals.build(subTotal = sub, shipping = ship, adjustments = adj)
 
-  def saveTotals(order: Order)(implicit ec: EC): DbResult[Order] =
-    (for {
+  def saveTotals(order: Order)(implicit ec: EC): DbResultT[Order] =
+    for {
       t ← * <~ totals(order)
       withTotals = order.copy(subTotal = t.subTotal,
                               shippingTotal = t.shipping,
@@ -72,5 +72,5 @@ object OrderTotaler {
                               taxesTotal = t.taxes,
                               grandTotal = t.total)
       updated ← * <~ Orders.update(order, withTotals)
-    } yield updated).value
+    } yield updated
 }
