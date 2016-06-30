@@ -34,12 +34,12 @@ po::options_description create_descriptions()
     const auto workers = std::thread::hardware_concurrency();
 
     d.add_options()
-        ("help", "prints help")
-        ("ip", po::value<std::string>()->default_value("0.0.0.0"), "ip to bind")
-        ("http_port", po::value<std::uint16_t>()->default_value(7070), "http port")
-        ("http2_port", po::value<std::uint16_t>()->default_value(7071), "http 2.0 port")
-        ("public_key", po::value<std::string>()->default_value("public_key.pem"), "public key file")
-        ("workers", po::value<std::size_t>()->default_value(workers), "worker threads");
+        ("help,h", "prints help")
+        ("ip,b", po::value<std::string>()->default_value("0.0.0.0"), "ip to bind")
+        ("http_port,p", po::value<std::uint16_t>()->default_value(7070), "http port")
+        ("http2_port,P", po::value<std::uint16_t>()->default_value(7071), "http 2.0 port")
+        ("public_key,k", po::value<std::string>()->default_value("public_key.pem"), "public key file")
+        ("workers,w", po::value<std::size_t>()->default_value(workers), "worker threads");
 
     return d;
 }
