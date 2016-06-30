@@ -1,5 +1,4 @@
 #include "service/query.hpp"
-#undef CHECK
 #include "util/dbc.hpp"
 
 namespace isaac

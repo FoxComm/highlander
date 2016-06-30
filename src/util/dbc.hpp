@@ -1,6 +1,8 @@
 #ifndef ISAAC_DBC_H
 #define ISAAC_DBC_H
 
+#undef CHECK
+
 #include <iostream>
 #include <sstream>
 #include <functional>

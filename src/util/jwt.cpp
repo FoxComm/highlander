@@ -1,4 +1,5 @@
 #include "util/jwt.hpp"
+#include "util/dbc.hpp"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/split.hpp>
@@ -30,6 +31,8 @@ namespace isaac
             it++;
             if(it != parts_iterator{}) return false;
 
+            ENSURE(parts.payload->begin() > parts.header->end());
+            ENSURE(parts.signature->begin() > parts.payload->end());
             return true;
         }
 
@@ -57,7 +60,11 @@ namespace isaac
 
         bool check_jwt_signature(const jwt_parts& parts, sig_verifier& verifier)
         {
+            REQUIRE(parts.payload->end() > parts.header->begin());
+
             auto msg_size = parts.payload->end() - parts.header->begin();
+            CHECK_GREATER_EQUAL(msg_size, 1); // should be at least '.'
+
             auto sig = base64url_decode(parts.signature);
 
             return verifier.verify_message(
