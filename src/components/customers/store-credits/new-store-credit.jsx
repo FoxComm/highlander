@@ -75,6 +75,10 @@ export default class NewStoreCredit extends React.Component {
     }
   }
 
+  componentWillUnmount() {
+    this.props.resetForm();
+  }
+
   shouldComponentUpdate(nextProps, nextState) {
     if (_.isNumber(nextProps.form.id)) {
       transitionTo('customer-storecredits', {customerId: this.customerId});
