@@ -6,12 +6,12 @@ import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 
 // components
-import ContentBox from '../../content-box/content-box';
-import TableView from '../../table/tableview';
-import ShipmentRow from './shipment-row';
+import ContentBox from 'components/content-box/content-box';
+import TableView from 'components/table/tableview';
+import ShipmentRow from 'components/orders/shipments/shipment-row';
 
 // styles
-import styles from './shipment.css';
+import styles from 'components/orders/shipments/shipment.css';
 
 
 // types

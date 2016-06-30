@@ -6,10 +6,10 @@ import React, { Component, PropTypes, Element } from 'react';
 import { autobind } from 'core-decorators';
 
 // styles
-import styles from './shipped-item.css';
+import styles from 'components/orders/shipments/shipped-item.css';
 
 // components
-import Currency from '../../common/currency';
+import Currency from 'components/common/currency';
 
 //types
 type Props = {

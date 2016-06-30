@@ -8,20 +8,20 @@ import { bindActionCreators } from 'redux';
 import { autobind } from 'core-decorators';
 
 // helpers
-import { getStore } from '../../../lib/store-creator';
+import { getStore } from 'lib/store-creator';
 
 // styles
-import styles from './shipment-row.css';
+import styles from 'components/orders/shipments/shipment-row.css';
 
 // components
-import Currency from '../../common/currency';
-import TableRow from '../../table/row';
-import TableCell from '../../table/cell';
-import { DateTime } from '../../common/datetime';
-import AddressDetails from '../../addresses/address-details';
-import ShippedItem from './shipped-item';
-import Transaction from './transaction';
-import WaitAnimation from '../../common/wait-animation';
+import Currency from 'components/common/currency';
+import TableRow from 'components/table/row';
+import TableCell from 'components/table/cell';
+import { DateTime } from 'components/common/datetime';
+import AddressDetails from 'components/addresses/address-details';
+import ShippedItem from 'components/orders/shipments/shipped-item';
+import Transaction from 'components/orders/shipments/transaction';
+import WaitAnimation from 'components/common/wait-animation';
 
 //types
 type Props = {

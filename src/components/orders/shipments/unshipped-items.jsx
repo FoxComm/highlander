@@ -6,17 +6,17 @@ import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 
 // data
-import { itemStateTitles, itemReasonsTitles } from '../../../paragons/shipment';
+import { itemStateTitles, itemReasonsTitles } from 'paragons/shipment';
 
 // components
-import ContentBox from '../../content-box/content-box';
-import TableView from '../../table/tableview';
-import TableRow from '../../table/row';
-import TableCell from '../../table/cell';
-import Currency from '../../common/currency';
+import ContentBox from 'components/content-box/content-box';
+import TableView from 'components/table/tableview';
+import TableRow from 'components/table/row';
+import TableCell from 'components/table/cell';
+import Currency from 'components/common/currency';
 
 // styles
-import styles from './unshipped-items.css';
+import styles from 'components/orders/shipments/unshipped-items.css';
 
 // types
 type Item = {

@@ -7,17 +7,17 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 // helpers
-import { getStore } from '../../../lib/store-creator';
+import { getStore } from 'lib/store-creator';
 
 // components
-import WaitAnimation from '../../common/wait-animation';
-import { PrimaryButton } from '../../../components/common/buttons';
-import SectionTitle from '../../section-title/section-title';
-import Shipment from './shipment';
-import UnshippedItems from './unshipped-items';
+import WaitAnimation from 'components/common/wait-animation';
+import { PrimaryButton } from 'components/common/buttons';
+import SectionTitle from 'components/section-title/section-title';
+import Shipment from 'components/orders/shipments/shipment';
+import UnshippedItems from 'components/orders/shipments/unshipped-items';
 
 // types
-import type AsyncState from '../../../lib/async-action-creator';
+import type AsyncState from 'lib/async-action-creator';
 
 
 type Props = {

@@ -5,12 +5,12 @@ import _ from 'lodash';
 import React, { Component, PropTypes, Element } from 'react';
 
 // styles
-import styles from './transaction.css';
+import styles from 'components/orders/shipments/transaction.css';
 
 // components
-import Currency from '../../common/currency';
-import PaymentMethod from '../../payment/payment-method';
-import { DateTime } from '../../common/datetime';
+import Currency from 'components/common/currency';
+import PaymentMethod from 'components/payment/payment-method';
+import { DateTime } from 'components/common/datetime';
 
 //types
 type Props = {
