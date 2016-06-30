@@ -121,16 +121,8 @@
   sudo: true
   tags: backup
 
-- name: Stat Backup Directory
-  stat: path={{db_backup_dir}}
-  register: db_backup_dir_res
-  sudo: true
-  ignore_errors: True
-  tags: backup
-
 - name: Create Backup Directory
   file: path={{db_backup_dir}} state=directory mode="0700"
-  when: db_backup_dir_res.stat.exists == False
   sudo: true
   tags: backup
 
