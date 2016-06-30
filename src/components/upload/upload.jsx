@@ -43,23 +43,32 @@ export default class Upload extends Component {
 
   componentDidMount() {
     this.dragCounter = 0;
-    document.addEventListener('dragenter', this.handleGlobalDragEnter);
-    document.addEventListener('dragleave', this.handleGlobalDragLeave);
+    document.addEventListener('dragenter', this.increaseDragCounter, true);
+    document.addEventListener('dragleave', this.decreaseDragCounter, true);
+    document.addEventListener('drop', this.decreaseDragCounter, true);
   }
 
   componentWillUnmount() {
-    document.removeEventListener('dragenter', this.handleGlobalDragEnter);
-    document.removeEventListener('dragleave', this.handleGlobalDragLeave);
+    document.removeEventListener('dragenter', this.increaseDragCounter, true);
+    document.removeEventListener('dragleave', this.decreaseDragCounter, true);
+    document.addEventListener('drop', this.decreaseDragCounter, true);
+  }
+
+  resetDragging() {
+    this.setState({
+      dragPossible: false,
+      dragActive: false
+    });
   }
 
   @autobind
-  handleGlobalDragEnter(): void {
+  increaseDragCounter(): void {
     this.dragCounter += 1;
     this.updateDragPossibility();
   }
 
   @autobind
-  handleGlobalDragLeave(): void {
+  decreaseDragCounter(): void {
     this.dragCounter -= 1;
     this.updateDragPossibility();
   }
@@ -94,13 +103,11 @@ export default class Upload extends Component {
   onDrop(e: any): void {
     e.preventDefault();
 
+    this.resetDragging();
+
     if (!this.props.onDrop) {
       return;
     }
-
-    this.setState({
-      dragActive: false,
-    });
 
     let files;
 
