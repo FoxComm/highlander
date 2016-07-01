@@ -1,14 +1,8 @@
 {
-    "variables" : {
-        "base_ubuntu_image": "ubuntu-1604-xenial-v20160610",
-        "project_id": "foxcomm-staging",
-        "network": "default",
-        "ssh_username": "ubuntu"
-    },
     "builders" : [
         {
             "type": "googlecompute",
-            "account_file": "account.json",
+            "account_file": "{{user `account_file`}}",
             "project_id" : "{{user `project_id`}}",
             "source_image": "{{user `base_ubuntu_image`}}",
             "network": "{{user `network`}}",

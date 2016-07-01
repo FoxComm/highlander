@@ -16,22 +16,10 @@
 
 - Run `gcloud init`
 - Checkout [phoenix-scala](https://github.com/FoxComm/phoenix-scala), [green-river](https://github.com/FoxComm/green-river), [ashes](https://github.com/FoxComm/ashes), [firebird](https://github.com/FoxComm/firebird), [firebrand](https://github.com/FoxComm/firebrand).
-- Build all projects:
-
-    ```
-    $ cd phoenix-scala
-    $ sbt assembly
-    $ cd ../green-river
-    $ sbt assembly
-    $ cd ../ashes
-    $ make package
-    $ cd ../firebird
-    $ make package
-    $ cd ../firebrand
-    $ make package    
-    $ cd ../prov-shit
-    $ make build
-    ```
+- Build all projects
+    - Use `sbt assembly` for backend projects (`phoenix-scala`, `green-river`).
+    - Use `make package` for frontend projects (`ashes`, `firebird`, `firebrand`).
+    - Use `make build` for current project.
 
 ### Lint ansible scripts
 

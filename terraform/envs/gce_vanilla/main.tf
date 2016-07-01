@@ -1,10 +1,9 @@
-
 variable "ssh_user" {}
 variable "ssh_private_key" {}
 
 provider "google"
 {
-    credentials = "${file("account.json")}"
+    credentials = "${file("foxcomm-vanilla.json")}"
     project = "foxcommerce-production-shared"
     region = "us-central1"
 }
@@ -138,7 +137,7 @@ variable "log_image" {
 }
 
 variable "phoenix_image" {
-    default = "vanilla-phoenix-1466725566"
+    default = "vanilla-phoenix-1467331973"
 }
 
 variable "greenriver_image" {
@@ -146,7 +145,7 @@ variable "greenriver_image" {
 }
 
 variable "front_image" {
-    default = "vanilla-front-1466805340"
+    default = "vanilla-front-1467333063"
 }
 
 module "vanilla_stack" {

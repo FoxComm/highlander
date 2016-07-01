@@ -1,22 +1,17 @@
 {
-    "variables" : {
-        "base_jvm_image": "base-jvm-1466533418",
-        "project_id": "foxcomm-staging",
-        "network": "default"        
-    },
     "builders" : [
         {
             "type": "googlecompute",
-            "account_file": "account.json",
+            "account_file": "{{user `account_file`}}",
             "project_id" : "{{user `project_id`}}",
             "source_image": "{{user `base_jvm_image`}}",
             "network": "{{user `network`}}",
-            "zone": "us-central1-f",
-            "image_name": "vanilla-green-{{timestamp}}",
-            "image_description": "vanilla greenriver image",
-            "instance_name": "packer-vanilla-green-{{uuid}}",
+            "zone": "{{user `zone`}}",
+            "image_name": "{{user `image_prefix`}}-green-{{timestamp}}",
+            "image_description": "{{user `image_title`}} Green River Image",
+            "instance_name": "packer-{{user `image_prefix`}}-green-{{uuid}}",
             "machine_type": "n1-standard-1",
-            "tags": ["ssh", "no-ip", "vanilla", "greenriver"],
+            "tags": ["ssh", "no-ip", "{{user `image_prefix`}}", "greenriver"],
             "use_internal_ip": true,
             "ssh_username" : "{{user `ssh_username`}}"
         }
@@ -24,7 +19,8 @@
     "provisioners" : [
         {
             "type": "ansible",
-            "playbook_file" : "ansible/packer_vanilla_greenriver.yml"
+            "playbook_file" : "ansible/packer_service_greenriver.yml",
+            "extra_arguments": ["--extra-vars", "@packer/envs/{{user `variables_file`}}"]
         }
     ]
 }

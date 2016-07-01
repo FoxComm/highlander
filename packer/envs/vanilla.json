@@ -1,9 +1,14 @@
 {
+	"image_prefix": "vanilla",
+	"image_title": "Vanilla",	
+	"account_file": "foxcomm-vanilla.json",
+	"variables_file": "vanilla_ansible.json",	
+	"project_id": "foxcommerce-production-shared",
+	"network": "vanilla",
+	"zone": "us-central1-a",	
 	"base_ubuntu_image": "ubuntu-1604-xenial-v20160610",
 	"base_image": "base-1466721740",
 	"base_node_image": "base-node-1466724489",
-	"base_jvm_image": "base-jvm-1466724252",	
-	"project_id": "foxcommerce-production-shared",
-	"network": "vanilla",
+	"base_jvm_image": "base-jvm-1466724252",
 	"ssh_username": "ubuntu"
 }

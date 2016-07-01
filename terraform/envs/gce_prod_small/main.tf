@@ -1,10 +1,9 @@
-
 variable "ssh_user" {} 
 variable "ssh_private_key" {} 
 
 provider "google" 
 {
-    credentials = "${file("account.json")}"
+    credentials = "${file("foxcomm-staging.json")}"
     project = "foxcomm-staging"
     region = "us-central1"
 }

@@ -12,6 +12,12 @@ Navigation:
 1. Create a GCE project.
 2. Generate your SSH keys and add them to a project (see [Adding and Removing SSH Keys](https://cloud.google.com/compute/docs/instances/adding-removing-ssh-keys)).
 3. Download `account.json` service account key file, used by packer & terraform.
+4. Create `terraform.tfvars` file containing your keys:
+
+	```
+	ssh_user = "pavel"
+	ssh_private_key = "/Users/pavel/.ssh/id_rsa"
+	```
 
 ## VPN machine
 
