@@ -42,14 +42,10 @@ Navigation:
 4. Terraform VPN machine:
 
 	```
-	$ terraform plan \
-		-state terraform/envs/gce_vanilla/terraform.tfstate \
-		-var-file terraform/envs/gce_vanilla/terraform.tfvars \
-		terraform/base/gce_vanilla
-	$ terraform apply \
-		-state terraform/envs/gce_vanilla/terraform.tfstate \
-		-var-file terraform/envs/gce_vanilla/terraform.tfvars \
-		terraform/base/gce_vanilla
+	$ export TF_BASE=terraform/base
+	$ export TF_ENVS=terraform/envs
+	$ terraform plan -state $TF_BASE/gce_vanilla/terraform.tfstate -var-file $TF_BASE/gce_vanilla/terraform.tfvars $TF_BASE/gce_vanilla
+	$ terraform apply -state $TF_BASE/gce_vanilla/terraform.tfstate -var-file $TF_BASE/gce_vanilla/terraform.tfvars $TF_BASE/gce_vanilla
 	```
 
 5. Create `vanilla_vpn` inventory file and write a created machine VPN there under `vanilla-vpn` (host) section.
@@ -122,14 +118,10 @@ Do all the steps while connected to created VPN service.
 5. Terraform service machines:
 
 	```
-	$ terraform plan \
-		-state terraform/envs/gce_vanilla/terraform.tfstate \
-		-var-file terraform/envs/gce_vanilla/terraform.tfvars \
-		terraform/base/gce_vanilla
-	$ terraform apply \
-		-state terraform/envs/gce_vanilla/terraform.tfstate \
-		-var-file terraform/envs/gce_vanilla/terraform.tfvars \
-		terraform/base/gce_vanilla
+	$ export TF_BASE=terraform/base
+	$ export TF_ENVS=terraform/envs
+	$ terraform plan -state $TF_BASE/gce_vanilla/terraform.tfstate -var-file $TF_BASE/gce_vanilla/terraform.tfvars $TF_BASE/gce_vanilla
+	$ terraform apply -state $TF_BASE/gce_vanilla/terraform.tfstate -var-file $TF_BASE/gce_vanilla/terraform.tfvars $TF_BASE/gce_vanilla
 	```
 
 6. Add a new project ID in `projects.json` and
