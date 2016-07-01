@@ -1,6 +1,6 @@
 [Service]
 WorkingDirectory=/usr/share
-ExecStart=/usr/local/bin/isaac --public_key="{{public_keys_dest_dir}}/public_key.pem --db={{isaac_db_connection}}"
+ExecStart=/usr/local/bin/isaac --public_key="{{public_keys_dest_dir}}/public_key.pem" --db="{{isaac_db_connection}}"
 Restart=always
 StandardOutput=syslog
 StandardError=syslog
