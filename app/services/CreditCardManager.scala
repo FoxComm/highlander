@@ -51,7 +51,7 @@ object CreditCardManager {
                   else DbResultT.unit)
         cc = CreditCard.build(customerId, sCustomer, sCard, payload, address)
         newCard ← * <~ CreditCards.create(cc)
-        region  ← * <~ Regions.findOneById(newCard.regionId).safeGet.toXor
+        region  ← * <~ Regions.findOneById(newCard.regionId).safeGet
         _       ← * <~ LogActivity.ccCreated(customer, cc, admin)
       } yield buildResponse(newCard, region)
 
@@ -61,15 +61,14 @@ object CreditCardManager {
                     .filter(_.customerId === customerId)
                     .map(_.gatewayCustomerId)
                     .one
-                    .toXor
-        shippingAddress ← * <~ getOptionalShippingAddress(payload.addressId, payload.isShipping).toXor
+        shippingAddress ← * <~ getOptionalShippingAddress(payload.addressId, payload.isShipping)
         address ← * <~ getAddressFromPayload(payload.addressId, payload.address, shippingAddress)
                    .mustFindOr(CreditCardMustHaveAddress)
         _ ← * <~ validateOptionalAddressOwnership(Some(address), customerId)
       } yield (stripeId, address)
 
     (for {
-      _                  ← * <~ payload.validate.toXor
+      _                  ← * <~ payload.validate
       customer           ← * <~ Customers.mustFindById404(customerId)
       stripeIdAndAddress ← * <~ getExistingStripeIdAndAddress
       (stripeId, address) = stripeIdAndAddress
@@ -89,7 +88,7 @@ object CreditCardManager {
       // TODO: please fucking replace me with diffing update
       default = cc.copy(isDefault = true)
       _      ← * <~ CreditCards.filter(_.id === cardId).map(_.isDefault).update(true)
-      region ← * <~ Regions.findOneById(cc.regionId).safeGet.toXor
+      region ← * <~ Regions.findOneById(cc.regionId).safeGet
     } yield buildResponse(default, region)).runTxn()
 
   def deleteCreditCard(customerId: Int, id: Int, admin: Option[StoreAdmin] = None)(
@@ -101,7 +100,7 @@ object CreditCardManager {
     (for {
       customer ← * <~ Customers.mustFindById404(customerId)
       cc       ← * <~ CreditCards.mustFindByIdAndCustomer(id, customerId)
-      region   ← * <~ Regions.findOneById(cc.regionId).safeGet.toXor
+      region   ← * <~ Regions.findOneById(cc.regionId).safeGet
       update ← * <~ CreditCards.update(cc,
                                        cc.copy(inWallet = false, deletedAt = Some(Instant.now())))
       _ ← * <~ gateway.deleteCard(cc)
@@ -163,8 +162,8 @@ object CreditCardManager {
                     .extract
                     .filter(_.customerId === customerId)
                     .mustFindOneOr(NotFoundFailure404(CreditCard, id))
-      shippingAddress ← * <~ getOptionalShippingAddress(payload.addressId, payload.isShipping).toXor
-      address         ← * <~ getAddressFromPayload(payload.addressId, payload.address, shippingAddress).toXor
+      shippingAddress ← * <~ getOptionalShippingAddress(payload.addressId, payload.isShipping)
+      address         ← * <~ getAddressFromPayload(payload.addressId, payload.address, shippingAddress)
       _               ← * <~ validateOptionalAddressOwnership(address, customerId)
     } yield address.fold(creditCard)(creditCard.copyFromAddress)
 
@@ -174,7 +173,7 @@ object CreditCardManager {
       creditCard  ← * <~ getCardAndAddressChange
       updated     ← * <~ update(customer, creditCard)
       withAddress ← * <~ createNewAddressIfProvided(updated)
-      payment     ← * <~ cascadeChangesToCarts(withAddress).toXor
+      payment     ← * <~ cascadeChangesToCarts(withAddress)
     } yield payment).runTxn()
   }
 

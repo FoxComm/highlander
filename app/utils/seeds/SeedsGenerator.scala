@@ -107,7 +107,7 @@ object RankingSeedsGenerator {
       } yield (o, cc)).result
 
       for {
-        ordersWithCc ← * <~ action.toXor
+        ordersWithCc ← * <~ action
         _ ← * <~ OrderPayments.createAll(ordersWithCc.map {
              case (order, cc) ⇒ makePayment(order, cc)
            })

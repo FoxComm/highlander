@@ -26,7 +26,7 @@ object OrderStateUpdater {
     (for {
       order    ← * <~ Orders.mustFindByRefNum(refNum)
       _        ← * <~ order.transitionState(newState)
-      _        ← * <~ updateQueries(admin, Seq(refNum), newState).toXor
+      _        ← * <~ updateQueries(admin, Seq(refNum), newState)
       updated  ← * <~ Orders.mustFindByRefNum(refNum)
       response ← * <~ FullOrder.fromOrder(updated)
       _ ← * <~ (if (order.state == newState) DbResultT.unit

@@ -26,7 +26,7 @@ object OrderLockUpdater {
     (for {
       order    ← * <~ Orders.mustFindByRefNum(refNum)
       _        ← * <~ order.mustBeLocked
-      lastLock ← * <~ OrderLockEvents.latestLockByOrder(order.refNum).one.toXor
+      lastLock ← * <~ OrderLockEvents.latestLockByOrder(order.refNum).one
       remorsePlus = increaseRemorse(order) _
       newEnd ← * <~ lastLock.fold(remorsePlus(Duration.ofMinutes(15)))(lock ⇒
                     remorsePlus(Duration.between(lock.lockedAt, Instant.now)))

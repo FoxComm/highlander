@@ -32,8 +32,8 @@ object ShippingManager {
     for {
       order       ← * <~ getCartByOriginator(originator, None)
       _           ← * <~ order.mustBeCart
-      shipMethods ← * <~ ShippingMethods.findActive.result.toXor
-      shipData    ← * <~ getShippingData(order).toXor
+      shipMethods ← * <~ ShippingMethods.findActive.result
+      shipData    ← * <~ getShippingData(order)
       response = shipMethods.collect {
         case sm if QueryStatement.evaluate(sm.conditions, shipData, evaluateCondition) ⇒
           val restricted = QueryStatement.evaluate(sm.restrictions, shipData, evaluateCondition)
@@ -46,8 +46,8 @@ object ShippingManager {
       db: DB): DbResultT[Seq[responses.ShippingMethods.Root]] =
     for {
       order       ← * <~ findByRefNumAndOptionalCustomer(refNum, customer)
-      shipMethods ← * <~ ShippingMethods.findActive.result.toXor
-      shipData    ← * <~ getShippingData(order).toXor
+      shipMethods ← * <~ ShippingMethods.findActive.result
+      shipData    ← * <~ getShippingData(order)
       response = shipMethods.collect {
         case sm if QueryStatement.evaluate(sm.conditions, shipData, evaluateCondition) ⇒
           val restricted = QueryStatement.evaluate(sm.restrictions, shipData, evaluateCondition)

@@ -43,7 +43,7 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
   def list(key: K)(implicit ec: EC, db: DB, ac: AC): Result[Seq[Root]] =
     (for {
       entity      ← * <~ fetchEntity(key)
-      assignments ← * <~ fetchAssignments(entity).toXor
+      assignments ← * <~ fetchAssignments(entity)
       response = assignments.map((buildAssignment _).tupled)
     } yield response).run()
 
@@ -56,12 +56,12 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
       entity ← * <~ fetchEntity(key)
       admins ← * <~ StoreAdmins.filter(_.id.inSetBind(payload.assignees)).result
       adminIds = admins.map(_.id)
-      assignees ← * <~ Assignments.assigneesFor(assignmentType, entity, referenceType).result.toXor
+      assignees ← * <~ Assignments.assigneesFor(assignmentType, entity, referenceType).result
       newAssigneeIds = adminIds.diff(assignees.map(_.id))
       _ ← * <~ Assignments.createAll(build(entity, newAssigneeIds))
       assignedAdmins = admins.filter(a ⇒ newAssigneeIds.contains(a.id)).map(buildAdmin)
       // Response builder
-      assignments ← * <~ fetchAssignments(entity).toXor
+      assignments ← * <~ fetchAssignments(entity)
       response       = assignments.map((buildAssignment _).tupled)
       notFoundAdmins = diffToFailures(payload.assignees, adminIds, StoreAdmin)
       // Activity log + notifications subscription
@@ -82,7 +82,7 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
       assignment ← * <~ querySeq.mustFindOneOr(AssigneeNotFoundFailure(entity, key, assigneeId))
       _          ← * <~ querySeq.delete
       // Response builder
-      assignments ← * <~ fetchAssignments(entity).toXor
+      assignments ← * <~ fetchAssignments(entity)
       response = assignments.map((buildAssignment _).tupled)
       // Activity log + notifications subscription
       responseItem = buildResponse(entity)
@@ -99,7 +99,7 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
       // Validation + assign
       admin       ← * <~ StoreAdmins.mustFindById404(payload.storeAdminId)
       entities    ← * <~ fetchSequence(payload.entityIds)
-      assignments ← * <~ Assignments.byAdmin(assignmentType, referenceType, admin).result.toXor
+      assignments ← * <~ Assignments.byAdmin(assignmentType, referenceType, admin).result
       newAssignedIds  = entities.map(_.id).diff(assignments.map(_.referenceId))
       succeedEntities = entities.filter(e ⇒ newAssignedIds.contains(e.id))
       newEntries      = buildSeq(succeedEntities, payload.storeAdminId)
@@ -119,7 +119,7 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
       admin    ← * <~ StoreAdmins.mustFindById404(payload.storeAdminId)
       entities ← * <~ fetchSequence(payload.entityIds)
       querySeq = Assignments.byEntitySeqAndAdmin(assignmentType, entities, referenceType, admin)
-      assignments ← * <~ querySeq.result.toXor
+      assignments ← * <~ querySeq.result
       _           ← * <~ querySeq.delete
       // Response, log activity, notifications subscription
       (successData, theResponse) = buildTheResponse(entities, assignments, payload, Unassigning)

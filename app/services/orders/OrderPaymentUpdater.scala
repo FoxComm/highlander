@@ -109,7 +109,7 @@ object OrderPaymentUpdater {
     for {
       order        ← * <~ getCartByOriginator(originator, refNum)
       _            ← * <~ order.mustBeCart
-      storeCredits ← * <~ StoreCredits.findAllActiveByCustomerId(order.customerId).result.toXor
+      storeCredits ← * <~ StoreCredits.findAllActiveByCustomerId(order.customerId).result
       reqAmount = payload.amount
       available = storeCredits.map(_.availableBalance).sum
       -          ← * <~ updateSC(available, reqAmount, order, storeCredits.toList)
@@ -128,7 +128,7 @@ object OrderPaymentUpdater {
       _      ← * <~ order.mustBeCart
       cc     ← * <~ CreditCards.mustFindById400(id)
       _      ← * <~ cc.mustBeInWallet
-      region ← * <~ Regions.findOneById(cc.regionId).safeGet.toXor
+      region ← * <~ Regions.findOneById(cc.regionId).safeGet
       _      ← * <~ OrderPayments.filter(_.orderRef === order.refNum).creditCards.delete
       _ ← * <~ OrderPayments.create(
              OrderPayment.build(cc).copy(orderRef = order.refNum, amount = None))

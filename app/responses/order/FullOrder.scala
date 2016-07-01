@@ -137,26 +137,25 @@ object FullOrder {
 
     for {
       context     ← * <~ ObjectContexts.mustFindById400(order.contextId)
-      customer    ← * <~ Customers.findOneById(order.customerId).toXor
-      lineItemTup ← * <~ OrderLineItemSkus.findLineItemsByOrder(order).result.toXor
+      customer    ← * <~ Customers.findOneById(order.customerId)
+      lineItemTup ← * <~ OrderLineItemSkus.findLineItemsByOrder(order).result
       lineItems = lineItemTup.map {
         case (sku, skuForm, skuShadow, productShadow, lineItem) ⇒
           OrderLineItemProductData(sku, skuForm, skuShadow, productShadow, lineItem)
       }
-      giftCards  ← * <~ OrderLineItemGiftCards.findLineItemsByOrder(order).result.toXor
-      shipMethod ← * <~ shipping.ShippingMethods.forOrder(order).one.toXor
+      giftCards  ← * <~ OrderLineItemGiftCards.findLineItemsByOrder(order).result
+      shipMethod ← * <~ shipping.ShippingMethods.forOrder(order).one
       shipAddress ← * <~ Addresses
                      .forOrderRef(order.refNum)
                      .fold(_ ⇒ Option.empty[Addresses.Root], address ⇒ address.some)
-                     .toXor
-      payments     ← * <~ ccPaymentQ.one.toXor
-      gcPayments   ← * <~ OrderPayments.findAllGiftCardsByOrderRef(order.refNum).result.toXor
-      scPayments   ← * <~ OrderPayments.findAllStoreCreditsByOrderRef(order.refNum).result.toXor
-      lockedBy     ← * <~ currentLock(order).toXor
-      payState     ← * <~ OrderQueries.getPaymentState(order.refNum).toXor
-      orderPromo   ← * <~ OrderPromotions.filterByOrderRef(order.refNum).one.toXor
-      promoDetails ← * <~ fetchPromoDetails(context, orderPromo).toXor
-      lineItemAdj  ← * <~ OrderLineItemAdjustments.findByOrderRef(order.refNum).result.toXor
+      payments     ← * <~ ccPaymentQ.one
+      gcPayments   ← * <~ OrderPayments.findAllGiftCardsByOrderRef(order.refNum).result
+      scPayments   ← * <~ OrderPayments.findAllStoreCreditsByOrderRef(order.refNum).result
+      lockedBy     ← * <~ currentLock(order)
+      payState     ← * <~ OrderQueries.getPaymentState(order.refNum)
+      orderPromo   ← * <~ OrderPromotions.filterByOrderRef(order.refNum).one
+      promoDetails ← * <~ fetchPromoDetails(context, orderPromo)
+      lineItemAdj  ← * <~ OrderLineItemAdjustments.findByOrderRef(order.refNum).result
     } yield
       build(
           order = order,

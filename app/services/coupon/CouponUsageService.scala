@@ -27,7 +27,7 @@ object CouponUsageService {
                              usesAvailable: Int,
                              code: String)(implicit ec: EC, db: DB): DbResultT[Unit] =
     for {
-      count ← * <~ couponCodeUsageCount(couponFormId, couponCodeId).toXor
+      count ← * <~ couponCodeUsageCount(couponFormId, couponCodeId)
       _ ← * <~ (if (count < usesAvailable) DbResultT.failure(CouponCodeCannotBeUsedAnymore(code))
                 else DbResultT.unit)
     } yield {}
@@ -36,7 +36,7 @@ object CouponUsageService {
       implicit ec: EC,
       db: DB): DbResultT[Unit] =
     for {
-      count ← * <~ couponUsageCount(couponFormId, customerId).toXor
+      count ← * <~ couponUsageCount(couponFormId, customerId)
       _ ← * <~ (if (count < usesAvailable)
                   DbResultT.failure(CouponCodeCannotBeUsedByCustomerAnymore(code, customerId))
                 else DbResultT.unit)
@@ -62,7 +62,7 @@ object CouponUsageService {
     couponCodeId match {
       case Some(codeId) ⇒
         for {
-          couponCode ← * <~ CouponCodes.findById(codeId).extract.one.safeGet.toXor
+          couponCode ← * <~ CouponCodes.findById(codeId).extract.one.safeGet
           context    ← * <~ ObjectContexts.mustFindById400(contextId)
           code       ← * <~ CouponCodes.mustFindById400(codeId)
           coupon ← * <~ Coupons

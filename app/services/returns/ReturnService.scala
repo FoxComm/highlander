@@ -19,22 +19,22 @@ object ReturnService {
       implicit ec: EC,
       db: DB): Result[Root] =
     (for {
-      _   ← * <~ payload.validate.toXor
+      _   ← * <~ payload.validate
       rma ← * <~ mustFindPendingReturnByRefNum(refNum)
       newMessage = if (payload.message.length > 0) Some(payload.message) else None
       update   ← * <~ Returns.update(rma, rma.copy(messageToCustomer = newMessage))
-      updated  ← * <~ Returns.refresh(rma).toXor
+      updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(updated)
     } yield response).runTxn()
 
   def updateStateByCsr(refNum: String, payload: ReturnUpdateStatePayload)(implicit ec: EC,
                                                                           db: DB): Result[Root] =
     (for {
-      _        ← * <~ payload.validate.toXor
+      _        ← * <~ payload.validate
       rma      ← * <~ Returns.mustFindByRefNum(refNum)
-      reason   ← * <~ payload.reasonId.map(Reasons.findOneById).getOrElse(lift(None)).toXor
+      reason   ← * <~ payload.reasonId.map(Reasons.findOneById).getOrElse(lift(None))
       _        ← * <~ cancelOrUpdate(rma, reason, payload)
-      updated  ← * <~ Returns.refresh(rma).toXor
+      updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(updated)
     } yield response).runTxn()
 
@@ -56,7 +56,7 @@ object ReturnService {
     for {
       order    ← * <~ Orders.mustFindByRefNum(payload.orderRefNum)
       rma      ← * <~ Returns.create(Return.build(order, admin, payload.returnType))
-      customer ← * <~ Customers.findOneById(order.customerId).toXor
+      customer ← * <~ Customers.findOneById(order.customerId)
       adminResponse    = Some(StoreAdminResponse.build(admin))
       customerResponse = customer.map(CustomerResponse.build(_))
     } yield build(rma, customerResponse, adminResponse)

@@ -55,7 +55,7 @@ class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
         _ ← * <~ StoreCredits.capture(storeCredit = sc,
                                       orderPaymentId = Some(pay.id),
                                       amount = 200)
-        sc ← * <~ StoreCredits.findOneById(sc.id).toXor
+        sc ← * <~ StoreCredits.findOneById(sc.id)
       } yield sc.value).gimme
 
       sc.availableBalance must === (0)
@@ -73,8 +73,8 @@ class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
         adj ← * <~ StoreCredits.capture(storeCredit = sc,
                                         orderPaymentId = Some(pay.id),
                                         amount = 50)
-        adj ← * <~ StoreCreditAdjustments.refresh(adj).toXor
-        sc  ← * <~ StoreCredits.refresh(sc).toXor
+        adj ← * <~ StoreCreditAdjustments.refresh(adj)
+        sc  ← * <~ StoreCredits.refresh(sc)
       } yield (adj, sc)).value.gimme
 
       sc.availableBalance must === (450)

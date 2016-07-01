@@ -139,7 +139,7 @@ class ShippingMethodsIntegrationTest
                                                                 orderRef = order.refNum)
       product ← * <~ Mvp.insertProduct(productContext.id,
                                        Factories.products.head.copy(title = "Donkey", price = 27))
-      lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(product.skuId).toXor
+      lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(product.skuId)
       lineItems ← * <~ OrderLineItems.create(
                      OrderLineItem(orderRef = order.refNum, originId = lineItemSku.id))
       _ ← * <~ OrderTotaler.saveTotals(order)

@@ -20,9 +20,9 @@ case class ReturnValidator(rma: Return)(implicit ec: EC) extends ReturnValidatio
     val response = ReturnValidatorResponse()
 
     for {
-      state ← * <~ hasItems(response).toXor
-      state ← * <~ hasNoPreviouslyRefundedItems(response).toXor
-      state ← * <~ hasValidPaymentMethods(response).toXor
+      state ← * <~ hasItems(response)
+      state ← * <~ hasNoPreviouslyRefundedItems(response)
+      state ← * <~ hasValidPaymentMethods(response)
     } yield state
   }
 

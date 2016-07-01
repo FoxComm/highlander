@@ -80,7 +80,7 @@ object Addresses {
     } yield (shipAddress, region)
 
     for {
-      fullAddress ← * <~ fullAddressDetails.result.toXor
+      fullAddress ← * <~ fullAddressDetails.result
       (addresses, regions) = fullAddress.unzip
       response ← * <~ ((addresses.headOption, regions.headOption) match {
                       case (Some(address), Some(region)) ⇒

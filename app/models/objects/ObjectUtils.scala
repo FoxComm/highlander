@@ -239,7 +239,6 @@ object ObjectUtils {
                                .filter(_.formId === shadow.formId)
                                .filter(_.contextId === contextId)
                                .one
-                               .toXor
                    newLink ← * <~ updateLeftLinkIfObject(optModel,
                                                          Left,
                                                          newShadow.id,
@@ -262,7 +261,7 @@ object ObjectUtils {
     for {
       shadow    ← * <~ ObjectShadows.mustFindById404(oldLink.rightId)
       newShadow ← * <~ ObjectShadows.create(shadow.copy(id = 0))
-      optModel  ← * <~ Right.filter(_.shadowId === oldLink.rightId).one.toXor
+      optModel  ← * <~ Right.filter(_.shadowId === oldLink.rightId).one
       newLink ← * <~ updateRightLinkIfObject(optModel,
                                              Right,
                                              newLeftId,

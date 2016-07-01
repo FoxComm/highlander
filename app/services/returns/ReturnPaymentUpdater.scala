@@ -22,10 +22,10 @@ object ReturnPaymentUpdater {
       rma       ← * <~ mustFindPendingReturnByRefNum(refNum)
       payment   ← * <~ mustFindCcPaymentsByOrderRef(rma.orderRef)
       cc        ← * <~ CreditCards.mustFindById404(payment.paymentMethodId)
-      deleteAll ← * <~ deleteCc(rma.id).toXor
+      deleteAll ← * <~ deleteCc(rma.id)
       ccRefund ← * <~ ReturnPayments.create(
                     ReturnPayment.build(cc, rma.id, payload.amount, payment.currency))
-      updated  ← * <~ Returns.refresh(rma).toXor
+      updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(rma)
     } yield response).runTxn()
 
@@ -34,13 +34,13 @@ object ReturnPaymentUpdater {
     (for {
       _         ← * <~ payload.validate
       rma       ← * <~ mustFindPendingReturnByRefNum(refNum)
-      deleteAll ← * <~ deleteGc(rma.id).toXor
+      deleteAll ← * <~ deleteGc(rma.id)
       payment   ← * <~ mustFindCcPaymentsByOrderRef(rma.orderRef)
       origin    ← * <~ GiftCardRefunds.create(GiftCardRefund(returnId = rma.id))
       gc        ← * <~ GiftCards.create(GiftCard.buildRmaProcess(origin.id, payment.currency))
       pmt ← * <~ ReturnPayments.create(
                ReturnPayment.build(gc, rma.id, payload.amount, payment.currency))
-      updated  ← * <~ Returns.refresh(rma).toXor
+      updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(rma)
     } yield response).runTxn()
 
@@ -49,7 +49,7 @@ object ReturnPaymentUpdater {
     (for {
       _         ← * <~ payload.validate
       rma       ← * <~ mustFindPendingReturnByRefNum(refNum)
-      deleteAll ← * <~ deleteGc(rma.id).toXor
+      deleteAll ← * <~ deleteGc(rma.id)
       payment   ← * <~ mustFindCcPaymentsByOrderRef(rma.orderRef)
       origin    ← * <~ StoreCreditRefunds.create(StoreCreditRefund(returnId = rma.id))
 
@@ -57,31 +57,31 @@ object ReturnPaymentUpdater {
       sc ← * <~ StoreCredits.create(storeCredit)
       pmt ← * <~ ReturnPayments.create(
                ReturnPayment.build(sc, rma.id, payload.amount, payment.currency))
-      updated  ← * <~ Returns.refresh(rma).toXor
+      updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(rma)
     } yield response).runTxn()
 
   def deleteCreditCard(refNum: String)(implicit ec: EC, db: DB): Result[Root] =
     (for {
       rma       ← * <~ mustFindPendingReturnByRefNum(refNum)
-      deleteAll ← * <~ deleteCc(rma.id).toXor
-      updated   ← * <~ Returns.refresh(rma).toXor
+      deleteAll ← * <~ deleteCc(rma.id)
+      updated   ← * <~ Returns.refresh(rma)
       response  ← * <~ ReturnResponse.fromRma(rma)
     } yield response).runTxn()
 
   def deleteGiftCard(refNum: String)(implicit ec: EC, db: DB): Result[Root] =
     (for {
       rma       ← * <~ mustFindPendingReturnByRefNum(refNum)
-      deleteAll ← * <~ deleteGc(rma.id).toXor
-      updated   ← * <~ Returns.refresh(rma).toXor
+      deleteAll ← * <~ deleteGc(rma.id)
+      updated   ← * <~ Returns.refresh(rma)
       response  ← * <~ ReturnResponse.fromRma(rma)
     } yield response).runTxn()
 
   def deleteStoreCredit(refNum: String)(implicit ec: EC, db: DB): Result[Root] =
     (for {
       rma       ← * <~ mustFindPendingReturnByRefNum(refNum)
-      deleteAll ← * <~ deleteSc(rma.id).toXor
-      updated   ← * <~ Returns.refresh(rma).toXor
+      deleteAll ← * <~ deleteSc(rma.id)
+      updated   ← * <~ Returns.refresh(rma)
       response  ← * <~ ReturnResponse.fromRma(rma)
     } yield response).runTxn()
 

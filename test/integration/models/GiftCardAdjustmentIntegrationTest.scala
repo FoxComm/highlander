@@ -109,7 +109,7 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
                                    orderPaymentId = Some(payment.id),
                                    debit = 200,
                                    credit = 0)
-        gc ← * <~ GiftCards.findOneById(gc.id).toXor
+        gc ← * <~ GiftCards.findOneById(gc.id)
       } yield gc.value).gimme
 
       gc.availableBalance must === (0)
@@ -130,8 +130,8 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
                                      orderPaymentId = Some(payment.id),
                                      debit = 50,
                                      credit = 0)
-        adj ← * <~ GiftCardAdjustments.refresh(adj).toXor
-        gc  ← * <~ GiftCards.refresh(gc).toXor
+        adj ← * <~ GiftCardAdjustments.refresh(adj)
+        gc  ← * <~ GiftCards.refresh(gc)
       } yield (adj, gc)).value.gimme
 
       gc.availableBalance must === (450)

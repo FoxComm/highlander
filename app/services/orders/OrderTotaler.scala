@@ -43,7 +43,7 @@ object OrderTotaler {
 
   def shippingTotal(order: Order)(implicit ec: EC): DbResultT[Int] =
     for {
-      orderShippingMethods ← * <~ OrderShippingMethods.findByOrderRef(order.refNum).result.toXor
+      orderShippingMethods ← * <~ OrderShippingMethods.findByOrderRef(order.refNum).result
       sum = orderShippingMethods.foldLeft(0)(_ + _.price)
     } yield sum
 
@@ -52,13 +52,12 @@ object OrderTotaler {
       lineItemAdjustments ← * <~ OrderLineItemAdjustments
                              .filter(_.orderRef === order.refNum)
                              .result
-                             .toXor
       sum = lineItemAdjustments.foldLeft(0)(_ + _.substract)
     } yield sum
 
   def totals(order: Order)(implicit ec: EC): DbResultT[Totals] =
     for {
-      sub  ← * <~ subTotal(order).toXor
+      sub  ← * <~ subTotal(order)
       ship ← * <~ shippingTotal(order)
       adj  ← * <~ adjustmentsTotal(order)
     } yield Totals.build(subTotal = sub, shipping = ship, adjustments = adj)

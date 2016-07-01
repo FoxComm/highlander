@@ -47,7 +47,7 @@ object StoreCreditService {
                                          db: DB): Result[StoreCreditResponse.Totals] =
     (for {
       _      ← * <~ Customers.mustFindById404(customerId)
-      totals ← * <~ fetchTotalsForCustomer(customerId).toXor
+      totals ← * <~ fetchTotalsForCustomer(customerId)
     } yield totals).map(_.getOrElse(Totals(0, 0))).value.run()
 
   def fetchTotalsForCustomer(customerId: Int)(implicit ec: EC): DBIO[Option[Totals]] = {

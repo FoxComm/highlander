@@ -36,7 +36,7 @@ object ReturnLineItemUpdater {
                   ReturnLineItemSku(returnId = rma.id, skuId = sku.id, skuShadowId = skuShadow.id))
       li ← * <~ ReturnLineItems.create(ReturnLineItem.buildSku(rma, reason, origin, payload))
       // Response
-      updated  ← * <~ Returns.refresh(rma).toXor
+      updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(updated)
     } yield response).runTxn()
 
@@ -53,7 +53,7 @@ object ReturnLineItemUpdater {
       _ ← * <~ ReturnLineItems.filter(_.id === lineItemId).delete
       _ ← * <~ ReturnLineItemSkus.filter(_.id === lineItem._2.id).delete
       // Response
-      updated  ← * <~ Returns.refresh(rma).toXor
+      updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(updated)
     } yield response).runTxn()
 
@@ -76,7 +76,7 @@ object ReturnLineItemUpdater {
                   ReturnLineItemGiftCard(returnId = rma.id, giftCardId = oli._2.id))
       li ← * <~ ReturnLineItems.create(ReturnLineItem.buildGiftCard(rma, reason, origin))
       // Response
-      updated  ← * <~ Returns.refresh(rma).toXor
+      updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(updated)
     } yield response).runTxn()
 
@@ -94,7 +94,7 @@ object ReturnLineItemUpdater {
       _ ← * <~ ReturnLineItems.filter(_.id === lineItemId).delete
       _ ← * <~ ReturnLineItemGiftCards.filter(_.id === lineItem._2.id).delete
       // Response
-      updated  ← * <~ Returns.refresh(rma).toXor
+      updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(updated)
     } yield response).runTxn()
 
@@ -115,7 +115,7 @@ object ReturnLineItemUpdater {
                   ReturnLineItemShippingCost(returnId = rma.id, shipmentId = shipment.id))
       li ← * <~ ReturnLineItems.create(ReturnLineItem.buildShippinCost(rma, reason, origin))
       // Response
-      updated  ← * <~ Returns.refresh(rma).toXor
+      updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(updated)
     } yield response).runTxn()
 
@@ -133,7 +133,7 @@ object ReturnLineItemUpdater {
       _ ← * <~ ReturnLineItems.filter(_.id === lineItemId).delete
       _ ← * <~ ReturnLineItemShippingCosts.filter(_.id === lineItem._2.id).delete
       // Response
-      updated  ← * <~ Returns.refresh(rma).toXor
+      updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(updated)
     } yield response).runTxn()
 }

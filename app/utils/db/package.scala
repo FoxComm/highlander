@@ -183,6 +183,9 @@ package object db {
     def <~[A](v: SqlAction[A, NoStream, Effect.All])(implicit ec: EC): DbResultT[A] =
       DbResultT(v.map(Xor.right))
 
+    def <~[A](v: DBIO[A])(implicit ec: EC): DbResultT[A] =
+      DbResultT.fromDbio(v)
+
     def <~[A](v: Failures Xor A)(implicit ec: EC): DbResultT[A] =
       DbResultT.fromXor(v)
 

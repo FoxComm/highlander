@@ -102,7 +102,7 @@ object CustomerManager {
       db: DB,
       ac: AC): DbResultT[Root] =
     for {
-      _        ← * <~ payload.validate.toXor
+      _        ← * <~ payload.validate
       customer ← * <~ Customers.mustFindById404(customerId)
       _ ← * <~ payload.email
            .map(Customers.updateEmailMustBeUnique(_, customerId))

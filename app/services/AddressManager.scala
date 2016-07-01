@@ -23,14 +23,14 @@ object AddressManager {
       case CustomerOriginator(_) ⇒ Addresses.findAllByCustomerIdWithRegions(customerId)
     }
 
-    for (records ← * <~ query.result.toXor) yield Response.buildMulti(records)
+    for (records ← * <~ query.result) yield Response.buildMulti(records)
   }
 
   def get(originator: Originator, addressId: Int, customerId: Int)(implicit ec: EC,
                                                                    db: DB): DbResultT[Root] =
     for {
       address ← * <~ findByOriginator(originator, addressId, customerId)
-      region  ← * <~ Regions.findOneById(address.regionId).safeGet.toXor
+      region  ← * <~ Regions.findOneById(address.regionId).safeGet
     } yield Response.build(address, region)
 
   def create(originator: Originator, payload: CreateAddressPayload, customerId: Int)(
@@ -40,7 +40,7 @@ object AddressManager {
     for {
       customer ← * <~ Customers.mustFindById404(customerId)
       address  ← * <~ Addresses.create(Address.fromPayload(payload).copy(customerId = customerId))
-      region   ← * <~ Regions.findOneById(address.regionId).safeGet.toXor
+      region   ← * <~ Regions.findOneById(address.regionId).safeGet
       _        ← * <~ LogActivity.addressCreated(originator, customer, address, region)
     } yield Response.build(address, region)
 
@@ -53,13 +53,13 @@ object AddressManager {
       oldAddress ← * <~ Addresses
                     .findActiveByIdAndCustomer(addressId, customerId)
                     .mustFindOneOr(addressNotFound(addressId))
-      oldRegion ← * <~ Regions.findOneById(oldAddress.regionId).safeGet.toXor
+      oldRegion ← * <~ Regions.findOneById(oldAddress.regionId).safeGet
       address ← * <~ Address
                  .fromPayload(payload)
                  .copy(customerId = customerId, id = addressId)
                  .validate
-      _      ← * <~ Addresses.insertOrUpdate(address).toXor
-      region ← * <~ Regions.findOneById(address.regionId).safeGet.toXor
+      _      ← * <~ Addresses.insertOrUpdate(address)
+      region ← * <~ Regions.findOneById(address.regionId).safeGet
       _ ← * <~ LogActivity
            .addressUpdated(originator, customer, address, region, oldAddress, oldRegion)
     } yield Response.build(address, region)
@@ -72,7 +72,7 @@ object AddressManager {
       address ← * <~ Addresses
                  .findActiveByIdAndCustomer(addressId, customerId)
                  .mustFindOneOr(addressNotFound(addressId))
-      region ← * <~ Regions.findOneById(address.regionId).safeGet.toXor
+      region ← * <~ Regions.findOneById(address.regionId).safeGet
       softDelete ← * <~ address.updateTo(
                       address.copy(deletedAt = Instant.now.some, isDefaultShipping = false))
       updated ← * <~ Addresses.update(address, softDelete)
@@ -92,7 +92,7 @@ object AddressManager {
                  .mustFindOneOr(addressNotFound(addressId))
       newAddress = address.copy(isDefaultShipping = true)
       address ← * <~ Addresses.update(address, newAddress)
-      region  ← * <~ Regions.findOneById(address.regionId).safeGet.toXor
+      region  ← * <~ Regions.findOneById(address.regionId).safeGet
     } yield Response.build(newAddress, region)
 
   def removeDefaultShippingAddress(customerId: Int)(implicit ec: EC, db: DB): DbResultT[Int] =

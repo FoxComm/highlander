@@ -201,7 +201,7 @@ object ReturnResponse {
 
   private def fetchRmaDetails(rma: Return, withOrder: Boolean = false)(implicit db: DB, ec: EC) = {
     val orderQ: DbResultT[Option[FullOrder.Root]] = for {
-      maybeOrder ← * <~ Orders.findByRefNum(rma.orderRef).one.toXor
+      maybeOrder ← * <~ Orders.findByRefNum(rma.orderRef).one
       fullOrder ← * <~ ((maybeOrder, withOrder) match {
                        case (Some(order), true) ⇒ FullOrder.fromOrder(order).map(Some(_))
                        case _                   ⇒ DbResultT.none[FullOrder.Root]
@@ -212,19 +212,18 @@ object ReturnResponse {
       // Order, if necessary
       fullOrder ← * <~ orderQ
       // Either customer or storeAdmin as creator
-      customer ← * <~ Customers.findById(rma.customerId).extract.one.toXor
+      customer ← * <~ Customers.findById(rma.customerId).extract.one
       storeAdmin ← * <~ rma.storeAdminId
                     .map(id ⇒ StoreAdmins.findById(id).extract.one)
                     .getOrElse(lift(None))
-                    .toXor
       // Payment methods
-      payments ← * <~ ReturnPayments.filter(_.returnId === rma.id).result.toXor
+      payments ← * <~ ReturnPayments.filter(_.returnId === rma.id).result
       // Line items of each subtype
-      lineItems ← * <~ ReturnLineItemSkus.findLineItemsByRma(rma).result.toXor
-      giftCards ← * <~ ReturnLineItemGiftCards.findLineItemsByRma(rma).result.toXor
-      shipments ← * <~ ReturnLineItemShippingCosts.findLineItemsByRma(rma).result.toXor
+      lineItems ← * <~ ReturnLineItemSkus.findLineItemsByRma(rma).result
+      giftCards ← * <~ ReturnLineItemGiftCards.findLineItemsByRma(rma).result
+      shipments ← * <~ ReturnLineItemShippingCosts.findLineItemsByRma(rma).result
       // Subtotal
-      subtotal ← * <~ ReturnTotaler.subTotal(rma).toXor
+      subtotal ← * <~ ReturnTotaler.subTotal(rma)
     } yield (fullOrder, customer, storeAdmin, payments, lineItems, giftCards, shipments, subtotal)
   }
 }

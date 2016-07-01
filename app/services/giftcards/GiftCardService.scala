@@ -23,14 +23,14 @@ object GiftCardService {
 
   def getOriginTypes(implicit ec: EC, db: DB): DbResultT[Seq[GiftCardSubTypesResponse.Root]] =
     for {
-      subTypes ← * <~ GiftCardSubtypes.result.toXor
+      subTypes ← * <~ GiftCardSubtypes.result
       response ← * <~ GiftCardSubTypesResponse.build(GiftCard.OriginType.types.toSeq, subTypes)
     } yield response
 
   def getByCode(code: String)(implicit ec: EC, db: DB): DbResultT[Root] =
     for {
       giftCard ← * <~ GiftCards.mustFindByCode(code)
-      response ← * <~ buildResponse(giftCard).toXor
+      response ← * <~ buildResponse(giftCard)
     } yield response
 
   private def buildResponse(giftCard: GiftCard)(implicit ec: EC) =

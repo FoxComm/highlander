@@ -96,7 +96,7 @@ abstract class FoxTableQuery[M <: FoxModel[M], T <: FoxTable[M]](construct: Tag 
     def deleteAll[A](onSuccess: ⇒ DbResultT[A], onFailure: ⇒ DbResultT[A])(
         implicit ec: EC): DbResultT[A] =
       for {
-        deletedQty ← * <~ q.delete.toXor
+        deletedQty ← * <~ q.delete
         result ← * <~ (deletedQty match {
                       case 0 ⇒ onFailure
                       case _ ⇒ onSuccess

@@ -24,11 +24,11 @@ object OrderQueries {
 
     def build(order: Order, customer: Customer) =
       for {
-        paymentState ← * <~ getPaymentState(order.refNum).toXor
+        paymentState ← * <~ getPaymentState(order.refNum)
       } yield AllOrders.build(order, customer.some, paymentState.some)
 
     for {
-      ordersCustomers ← * <~ query.join(Customers).on(_.customerId === _.id).result.toXor
+      ordersCustomers ← * <~ query.join(Customers).on(_.customerId === _.id).result
       response        ← * <~ ordersCustomers.map((build _).tupled)
     } yield TheResponse.build(response)
   }

@@ -25,7 +25,7 @@ object OrderShippingMethodUpdater {
     (for {
       order          ← * <~ getCartByOriginator(originator, refNum)
       _              ← * <~ order.mustBeCart
-      oldShipMethod  ← * <~ ShippingMethods.forOrder(order).one.toXor
+      oldShipMethod  ← * <~ ShippingMethods.forOrder(order).one
       shippingMethod ← * <~ ShippingMethods.mustFindById400(payload.shippingMethodId)
       _              ← * <~ shippingMethod.mustBeActive
       _              ← * <~ ShippingManager.evaluateShippingMethodForOrder(shippingMethod, order)

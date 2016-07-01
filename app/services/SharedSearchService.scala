@@ -21,7 +21,7 @@ object SharedSearchService {
       searchScope ← * <~ SharedSearch.Scope
                      .read(scope)
                      .toXor(NotFoundFailure404(SharedSearch, scope).single)
-      result ← * <~ SharedSearchAssociations.associatedWith(admin, searchScope).result.toXor
+      result ← * <~ SharedSearchAssociations.associatedWith(admin, searchScope).result
     } yield result
 
   def get(code: String)(implicit ec: EC, db: DB): DbResultT[SharedSearch] =
@@ -31,7 +31,7 @@ object SharedSearchService {
                                   db: DB): DbResultT[Seq[StoreAdminResponse.Root]] =
     for {
       search     ← * <~ mustFindActiveByCode(code)
-      associates ← * <~ SharedSearchAssociations.associatedAdmins(search).result.toXor
+      associates ← * <~ SharedSearchAssociations.associatedAdmins(search).result
     } yield associates.map(StoreAdminResponse.build)
 
   def create(admin: StoreAdmin, payload: SharedSearchPayload)(implicit ec: EC,
@@ -64,7 +64,7 @@ object SharedSearchService {
     for {
       search     ← * <~ mustFindActiveByCode(code)
       adminIds   ← * <~ StoreAdmins.filter(_.id.inSetBind(requestedAssigneeIds)).map(_.id).result
-      associates ← * <~ SharedSearchAssociations.associatedAdmins(search).result.toXor
+      associates ← * <~ SharedSearchAssociations.associatedAdmins(search).result
       newAssociations = adminIds
         .diff(associates.map(_.id))
         .map(adminId ⇒ SharedSearchAssociation(sharedSearchId = search.id, storeAdminId = adminId))

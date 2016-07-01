@@ -65,13 +65,13 @@ case class Checkout(cart: Order,
       _         ← * <~ remorseHold
       _         ← * <~ createNewCart
       _         ← * <~ updateCouponCountersForPromotion(customer)
-      updated   ← * <~ Orders.refresh(cart).toXor
+      updated   ← * <~ Orders.refresh(cart)
       fullOrder ← * <~ FullOrder.fromOrder(updated)
     } yield fullOrder
 
   private def activePromos: DbResultT[Unit] =
     for {
-      maybePromo ← * <~ OrderPromotions.filterByOrderRef(cart.refNum).one.toXor
+      maybePromo ← * <~ OrderPromotions.filterByOrderRef(cart.refNum).one
       context    ← * <~ ObjectContexts.mustFindById400(cart.contextId)
       maybeCodeId = maybePromo.flatMap(_.couponCodeId)
       _ ← * <~ maybePromo.fold(DbResultT.unit)(promotionMustBeActive(_, context))
@@ -93,7 +93,7 @@ case class Checkout(cart: Order,
 
   private def couponMustBeApplicable(codeId: Int, context: ObjectContext): DbResultT[Unit] =
     for {
-      couponCode ← * <~ CouponCodes.findById(codeId).extract.one.safeGet.toXor
+      couponCode ← * <~ CouponCodes.findById(codeId).extract.one.safeGet
       coupon ← * <~ Coupons
                 .filterByContextAndFormId(context.id, couponCode.couponFormId)
                 .mustFindOneOr(CouponWithCodeCannotBeFound(couponCode.code))
@@ -106,7 +106,7 @@ case class Checkout(cart: Order,
 
   private def updateCouponCountersForPromotion(customer: Customer): DbResultT[Unit] =
     for {
-      maybePromo ← * <~ OrderPromotions.filterByOrderRef(cart.refNum).one.toXor
+      maybePromo ← * <~ OrderPromotions.filterByOrderRef(cart.refNum).one
       _ ← * <~ maybePromo.map { promo ⇒
            CouponUsageService.updateUsageCounts(promo.couponCodeId, cart.contextId, customer)
          }
@@ -202,12 +202,12 @@ case class Checkout(cart: Order,
       remorseHold ← * <~ Orders.update(cart,
                                        cart.copy(state = RemorseHold, placedAt = Instant.now.some))
       onHoldGcs ← * <~ (for {
-                   items ← OrderLineItemGiftCards.findByOrderRef(cart.refNum).result
-                   holds ← GiftCards
-                            .filter(_.id.inSet(items.map(_.giftCardId)))
-                            .map(_.state)
-                            .update(GiftCard.OnHold)
-                 } yield holds).toXor
+                       items ← OrderLineItemGiftCards.findByOrderRef(cart.refNum).result
+                       holds ← GiftCards
+                                .filter(_.id.inSet(items.map(_.giftCardId)))
+                                .map(_.state)
+                                .update(GiftCard.OnHold)
+                     } yield holds)
     } yield remorseHold
 
   private def fraudScore: DbResultT[Order] =

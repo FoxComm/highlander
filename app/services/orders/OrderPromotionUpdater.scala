@@ -148,7 +148,7 @@ object OrderPromotionUpdater {
                              qualifier: Qualifier,
                              offer: Offer)(implicit ec: EC, es: ES, db: DB) =
     for {
-      orderDetails ← * <~ fetchOrderDetails(order).toXor
+      orderDetails ← * <~ fetchOrderDetails(order)
       (lineItems, shippingMethod) = orderDetails
       input                       = DiscountInput(promo, order, lineItems, shippingMethod)
       _           ← * <~ qualifier.check(input)
