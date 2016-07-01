@@ -85,17 +85,21 @@
   template: src=refresh_products_catalog.sh dest="{{usr_local}}/bin/refresh_products_catalog.sh" mode="u+x,g+x,o+x"
   sudo: true
 
-- name: Clean Db
+- name: Setup locations refresh
+  template: src=refresh_locations.sh dest="{{usr_local}}/bin/refresh_locations.sh" mode="u+x,g+x,o+x"
+  sudo: true
+
+- name: Clean DB
   shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} clean
   args:
     chdir: "{{phoenix_dir}}"
 
-- name: Migrate Db
+- name: Migrate DB
   shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
   args:
     chdir: "{{phoenix_dir}}"
 
-- name: Seed Db
+- name: Seed DB
   shell: java -cp {{phoenix_jar}} {{seeds_cmd}}
   sudo: true
   args:
@@ -120,3 +124,9 @@
 - name: Start Bottledwater
   service: name=bottledwater state=started enabled=yes sleep=10
   sudo: true
+
+- name: Pause Till Bottledwater Start
+  seconds: 60
+
+- name: Refresh Locations
+  script: "{{usr_local}}/bin/refresh_locations.sh"
