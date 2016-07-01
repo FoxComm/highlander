@@ -6,7 +6,7 @@ import consumer.activity._
 import consumer.aliases._
 import consumer.elastic.ElasticSearchProcessor
 import consumer.elastic.mappings._
-import consumer.elastic.mappings.admin.{CouponCodesSearchView, CouponsSearchView, CustomerItemsView, CustomersSearchView, FailedAuthorizationsSearchView, GiftCardTransactionsSearchView, GiftCardsSearchView, InventorySearchView, InventoryTransactionSearchView, NotesSearchView, OrdersSearchView, ProductsCatalogView, PromotionsSearchView, SkuSearchView, StoreAdminsSearchView, StoreCreditTransactionsSearchView, StoreCreditsSearchView}
+import consumer.elastic.mappings.admin.{CouponCodesSearchView, CouponsSearchView, CustomerItemsView, CustomersSearchView, FailedAuthorizationsSearchView, GiftCardTransactionsSearchView, GiftCardsSearchView, InventorySearchView, InventoryTransactionSearchView, NotesSearchView, OrdersSearchView, ProductsSearchView, PromotionsSearchView, SkuSearchView, StoreAdminsSearchView, StoreCreditTransactionsSearchView, StoreCreditsSearchView}
 import consumer.utils.PhoenixConnectionInfo
 
 object Workers {

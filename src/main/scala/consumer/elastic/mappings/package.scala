@@ -9,8 +9,10 @@ package object mappings {
 
   val autocompleteAnalyzer = CustomAnalyzerDefinition(
       "autocomplete",
-      NGramTokenizer(
-          "autocomplete_tokenizer", 3, 20, Seq("letter", "digit", "punctuation", "symbol")),
+      NGramTokenizer("autocomplete_tokenizer",
+                     3,
+                     20,
+                     Seq("letter", "digit", "punctuation", "symbol", "whitespace")),
       LowercaseTokenFilter
   )
 

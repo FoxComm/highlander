@@ -1,4 +1,4 @@
-package consumer.elastic.mappings.admin
+package consumer.elastic.mappings
 
 import com.sksamuel.elastic4s.ElasticDsl.{mapping ⇒ esMapping, _}
 import com.sksamuel.elastic4s.mappings.FieldType._
