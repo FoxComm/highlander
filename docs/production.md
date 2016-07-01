@@ -21,32 +21,38 @@ Navigation:
 
 ## VPN machine
 
-1. Build core base image:
+**FIXME**: Before doing all this, temporary comment-out all modules inside `terraform/base/gce_vanilla/main.tf`, except `vanilla_vpn` module. Undo changes when you'll get to [Service machines](#service-machines) section.
+
+**FIXME**: Parts 6-11 can be automated.
+
+1. Build core base image and save it's name:
 
 	```
 	$ packer build -var-file=packer/envs/vanilla.json packer/base/base.json
 	```
 
-2. *Fork Terraform configurations from both `terraform/envs/gce_prod_small` and `terraform/gce/prodsmall_stack`. Remove state file (`.tfstate`) and do all necessary replacements (e.g. `prodsmall` -> `vanilla`). Replace `vpn_image` variable with the generated base image above.*
+2. Create new terraform environment containing variables file, similar too `terraform/envs/terraform.tfvars`. Set proper values for `gce_project`, `account_file` and `vpn_image`.
 
-3. Install VPN module for configuration:
-
-	```
-	$ terraform get terraform/envs/gce_vanilla
-	```
-
-4. Plan and apply infrastructure changes:
+3. Install dependent terraform modules:
 
 	```
-	$ terraform plan -state terraform/envs/gce_vanilla/terraform.tfstate terraform/envs/gce_vanilla
-	$ terraform apply -state terraform/envs/gce_vanilla/terraform.tfstate terraform/envs/gce_vanilla
+	$ terraform get terraform/base/gce_vanilla
+	```
+
+4. Terraform VPN machine:
+
+	```
+	$ export TF_BASE=terraform/base
+	$ export TF_ENVS=terraform/envs
+	$ terraform plan -state $TF_BASE/gce_vanilla/terraform.tfstate -var-file $TF_BASE/gce_vanilla/terraform.tfvars $TF_BASE/gce_vanilla
+	$ terraform apply -state $TF_BASE/gce_vanilla/terraform.tfstate -var-file $TF_BASE/gce_vanilla/terraform.tfvars $TF_BASE/gce_vanilla
 	```
 
 5. Create `vanilla_vpn` inventory file and write a created machine VPN there under `vanilla-vpn` (host) section.
 
-6. *Fork `bootstrap_prod_small_vpn.yml`, rename the `hosts` section to `vanilla-vpn`*
+6. Fork `bootstrap_prod_small_vpn.yml`, rename the `hosts` section to `vanilla-vpn`
 
-7. Provision an OpenVPN role:
+7. Bootstrap OpenVPN service:
 
 	```
 	$ ansible-playbook -v -i vanilla_vpn ansible/bootstrap_vanilla_vpn.yml
@@ -107,16 +113,18 @@ Do all the steps while connected to created VPN service.
 	$ packer build -var-file=packer/envs/vanilla.json packer/vanilla/phoenix.json
 	```
 
-4. Save base images names above and replace them in `terraform/envs/gce_vanilla/main.tf`.
+4. Save base images names above and replace them in `terraform/envs/gce_vanilla/terraform.tfvars`.
 
-5. Terraform the machines:
+5. Terraform service machines:
 
 	```
-	$ terraform plan -state terraform/envs/gce_vanilla/terraform.tfstate terraform/envs/gce_vanilla
-	$ terraform apply -state terraform/envs/gce_vanilla/terraform.tfstate terraform/envs/gce_vanilla
+	$ export TF_BASE=terraform/base
+	$ export TF_ENVS=terraform/envs
+	$ terraform plan -state $TF_BASE/gce_vanilla/terraform.tfstate -var-file $TF_BASE/gce_vanilla/terraform.tfvars $TF_BASE/gce_vanilla
+	$ terraform apply -state $TF_BASE/gce_vanilla/terraform.tfstate -var-file $TF_BASE/gce_vanilla/terraform.tfvars $TF_BASE/gce_vanilla
 	```
 
-6. Add a new project ID in `bin/env/projects.json` and
+6. Add a new project ID in `projects.json` and
 
 	```
 	$ make build
