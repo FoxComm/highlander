@@ -7,13 +7,29 @@ include_directories(.)
 include_directories(..)
 
 #setup boost
-set(Boost_USE_STATIC_LIBS on)
+set(Boost_USE_STATIC_LIBS ON)
+set(Boost_USE_STATIC_RUNTIME OFF)
 find_package(Boost COMPONENTS system program_options filesystem regex iostreams thread serialization REQUIRED)
 link_directories(${Boost_LIBRARY_DIRS})
 include_directories(
     ${Boost_INCLUDE_DIRS})
 include_directories(/usr/include/botan-1.10/)
 
-set(MISC_LIBRARIES libpthread.so librt.so proxygenlib proxygenhttpserver wangle folly ssl crypto glog gflags botan-1.10 double-conversion pqxx)
+set(MISC_LIBRARIES 
+    librt.so 
+    libproxygenhttpserver.a 
+    libproxygenlib.a
+    libz.a
+    libwangle.a 
+    libfolly.a 
+    libevent.a
+    libpthread.so 
+    ssl 
+    crypto 
+    glog 
+    gflags
+    botan-1.10 
+    libdouble-conversion.a
+    pqxx)
 
 add_subdirectory(src)

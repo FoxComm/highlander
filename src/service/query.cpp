@@ -23,6 +23,12 @@ namespace isaac
 
             if(_headers->getPath() == "/validate") 
                 validate(*_headers, *_body);
+            else if(_headers->getPath() == "/ping") 
+            {
+                proxygen::ResponseBuilder{downstream_}
+                .status(200, "pong")
+                    .sendWithEOM();
+            }
             else
             {
                 proxygen::ResponseBuilder{downstream_}
@@ -125,28 +131,28 @@ namespace isaac
         void query_request_handler::invalid_jwt()
         {
             proxygen::ResponseBuilder{downstream_}
-                .status(500, "Invalid JWT")
+                .status(400, "Invalid JWT")
                 .sendWithEOM();
         }
 
         void query_request_handler::invalid_header()
         {
             proxygen::ResponseBuilder{downstream_}
-                .status(500, "Only RS256 signatures are supported")
+                .status(400, "Only RS256 signatures are supported")
                 .sendWithEOM();
         }
 
         void query_request_handler::invalid_user()
         {
             proxygen::ResponseBuilder{downstream_}
-                .status(500, "Invalid User")
+                .status(401, "Invalid User")
                 .sendWithEOM();
         }
 
         void query_request_handler::signature_not_verified()
         {
             proxygen::ResponseBuilder{downstream_}
-                .status(500, "Signature is not valid")
+                .status(401, "Tampered token")
                 .sendWithEOM();
         }
     }
