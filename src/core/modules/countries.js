@@ -1,15 +1,14 @@
 
 import { createReducer } from 'redux-act';
 import createAsyncActions from './async-utils';
-import { api } from 'lib/api';
 import { assoc } from 'sprout-data';
 
 function apiFetchCountries() {
-  return api.get('/v1/public/countries');
+  return this.api.get('/v1/public/countries');
 }
 
 function apiFetchCountry(countryId) {
-  return api.get(`/v1/public/countries/${countryId}`);
+  return this.api.get(`/v1/public/countries/${countryId}`);
 }
 
 const countriesActions = createAsyncActions('countries', apiFetchCountries);

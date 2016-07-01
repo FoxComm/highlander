@@ -3,7 +3,6 @@
 import { get } from 'lodash';
 import { createReducer, createAction } from 'redux-act';
 import createAsyncActions from './async-utils';
-import { api } from 'lib/api';
 import { addMatchQuery, defaultSearch } from 'lib/elastic';
 import type { Product } from './products';
 
@@ -27,7 +26,7 @@ const context = process.env.FIREBIRD_CONTEXT || 'default';
  */
 function searchApiCall(searchString: string): global.Promise {
   const payload = addMatchQuery(defaultSearch(context), searchString);
-  return api.post(`/search/public/products_catalog_view/_search?size=${MAX_RESULTS}`, payload);
+  return this.api.post(`/search/public/products_catalog_view/_search?size=${MAX_RESULTS}`, payload);
 }
 
 const { fetch, ...searchActions } = createAsyncActions('search', searchApiCall);

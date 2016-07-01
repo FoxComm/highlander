@@ -6,6 +6,7 @@ import { syncHistory } from 'react-router-redux';
 import { default as serverApplyMiddleware } from 'redux-isomorphic-render';
 import logger from 'redux-diff-logger';
 import rootReducer from 'modules/index';
+import { api } from 'lib/api';
 
 const isServer = typeof self == 'undefined';
 
@@ -14,7 +15,12 @@ function thunkMiddleware({dispatch, getState}) {
     return function (action) {
       if (typeof action === 'function') {
         const jwt = _.get(getState(), 'auth.jwt');
-        return action(dispatch, getState, jwt);
+        const headers = {JWT: jwt};
+        const {authHeader} = getState();
+        if (authHeader) {
+          headers.Authorization = authHeader;
+        }
+        return action(dispatch, getState, api.addHeaders(headers));
       }
       return next(action);
     };

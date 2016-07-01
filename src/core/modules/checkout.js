@@ -5,7 +5,6 @@ import _ from 'lodash';
 import {createAction, createReducer} from 'redux-act';
 import { assoc } from 'sprout-data';
 import createAsyncActions from './async-utils';
-import { api } from 'lib/api';
 import { fetchCountry } from 'modules/countries';
 import { updateCart } from 'modules/cart';
 
@@ -52,7 +51,7 @@ export const resetCheckout = createAction('CHECKOUT_RESET');
 /* eslint-disable quotes, quote-props */
 
 function _fetchShippingMethods() {
-  return this.phoenix.get('/v1/my/cart/shipping-methods');
+  return this.api.get('/v1/my/cart/shipping-methods');
 }
 
 /* eslint-enable quotes, quote-props */
@@ -105,11 +104,11 @@ function addressToPayload(address) {
 }
 
 export function saveShippingAddress(): Function {
-  return (dispatch, getState, jwt) => {
+  return (dispatch, getState, api) => {
     const shippingAddress = getState().checkout.shippingAddress;
     const payload = addressToPayload(shippingAddress);
 
-    return api.addAuth(jwt).post('/v1/my/cart/shipping-address', payload)
+    return api.post('/v1/my/cart/shipping-address', payload)
       .then(res => {
         dispatch(updateCart(res.result));
       });
@@ -117,12 +116,12 @@ export function saveShippingAddress(): Function {
 }
 
 export function saveShippingMethod(): Function {
-  return (dispatch, getState, jwt) => {
+  return (dispatch, getState, api) => {
     const payload = {
       shippingMethodId: getState().cart.shippingMethod.id,
     };
 
-    return api.addAuth(jwt).patch('/v1/my/cart/shipping-method', payload)
+    return api.patch('/v1/my/cart/shipping-method', payload)
       .then(res => {
         dispatch(updateCart(res.result));
       });
@@ -130,10 +129,10 @@ export function saveShippingMethod(): Function {
 }
 
 export function saveGiftCard(code: string): Function {
-  return (dispatch, getState, jwt) => {
+  return (dispatch, getState, api) => {
     const payload = { code: code.trim() };
 
-    return api.addAuth(jwt).post('/v1/my/cart/payment-methods/gift-cards', payload)
+    return api.post('/v1/my/cart/payment-methods/gift-cards', payload)
       .then(res => {
         dispatch(updateCart(res.result));
       });
@@ -141,8 +140,8 @@ export function saveGiftCard(code: string): Function {
 }
 
 export function saveCouponCode(code: string): Function {
-  return (dispatch, getState, jwt) => {
-    return api.addAuth(jwt).post(`/v1/my/cart/coupon/${code.trim()}`, {})
+  return (dispatch, getState, api) => {
+    return api.post(`/v1/my/cart/coupon/${code.trim()}`, {})
       .then(res => {
         dispatch(updateCart(res));
       });
@@ -150,7 +149,7 @@ export function saveCouponCode(code: string): Function {
 }
 
 export function addCreditCard(): Function {
-  return (dispatch, getState, jwt) => {
+  return (dispatch, getState, api) => {
     const billingData = getState().checkout.billingData;
     let payload = _.pick(billingData, ['holderName', 'cvv']);
 
@@ -168,9 +167,7 @@ export function addCreditCard(): Function {
       payload.address = addressToPayload(getState().checkout.billingAddress);
     }
 
-    const phoenixWithAuth = () => api.addAuth(jwt);
-
-    return phoenixWithAuth().post('/v1/my/payment-methods/credit-cards', payload)
+    return api.post('/v1/my/payment-methods/credit-cards', payload)
       .then(creditCard => {
         console.info('added credit card', creditCard);
 
@@ -178,7 +175,7 @@ export function addCreditCard(): Function {
           creditCardId: creditCard.id,
         };
 
-        return phoenixWithAuth().post('/v1/my/cart/payment-methods/credit-cards', addCreditCardPayload);
+        return api.post('/v1/my/cart/payment-methods/credit-cards', addCreditCardPayload);
       })
       .then(res => {
         dispatch(updateCart(res.result));
@@ -191,8 +188,8 @@ export function addCreditCard(): Function {
 
 // Place order from cart.
 export function checkout(): Function {
-  return (dispatch, getState, jwt) => {
-    return api.addAuth(jwt).post('/v1/my/cart/checkout').then(res => {
+  return (dispatch, getState, api) => {
+    return api.post('/v1/my/cart/checkout').then(res => {
       return dispatch(updateCart(res));
     });
   };
