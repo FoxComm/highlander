@@ -50,9 +50,6 @@ const clamp = (n, min, max) => Math.max(Math.min(n, max), min);
 const springSetting1 = { stiffness: 180, damping: 10 };
 const springSetting2 = { stiffness: 150, damping: 16 };
 
-/** Map of sorted indexes of initial elements array to keep kind of an identifier to prevent children rerendering */
-let initialOrder;
-
 class SortableTiles extends Component {
 
   static props: Props;
@@ -83,10 +80,6 @@ class SortableTiles extends Component {
   initialMount = true;
 
   resizeTimeout: ?number = null;
-
-  componentWillMount() {
-    initialOrder = _.range(Children.count(this.props.children));
-  }
 
   componentDidMount(): void {
     window.addEventListener('touchmove', this.handleTouchMove);
@@ -138,10 +131,10 @@ class SortableTiles extends Component {
     this.handleMouseMove(touches[0]);
   }
 
-  recalculateLayout(prevOrder: ?Array<number> = null): void {
+  recalculateLayout(nextOrder: ?Array<number> = null): void {
     const { itemWidth, itemHeight, gutterX, gutterY, spaceBetween } = this.props;
 
-    const order = prevOrder ? prevOrder : this.state.order;
+    const order = nextOrder ? nextOrder : this.state.order;
     const containerWidth = this.container ? this.container.clientWidth : 0;
 
     /** calculate max columns count for given width of container */
@@ -177,11 +170,6 @@ class SortableTiles extends Component {
     const movedValue = order[from];
     order.splice(from, 1);
     order.splice(to, 0, movedValue);
-
-    /** move initial indexes to keep relation between initial array of elements indexes and current state */
-    const movedInitial = initialOrder[from];
-    initialOrder.splice(from, 1);
-    initialOrder.splice(to, 0, movedInitial);
 
     this.setState({ order });
   }
@@ -317,8 +305,10 @@ class SortableTiles extends Component {
           const isActive = (index === activeIndex && isPressed);
           const style = this.getItemStyle(isActive, index);
 
+          const key = this.props.children[item].key;
+
           return (
-            <Motion key={initialOrder[index]} style={style.style}>
+            <Motion key={key} style={style.style}>
               {this.renderItem.bind(this, item, index, isActive, style)}
             </Motion>
           );

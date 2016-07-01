@@ -7,7 +7,6 @@ import styles from './images.css';
 import classNames from 'classnames';
 import { autobind, debounce } from 'core-decorators';
 import React, { Component, Element } from 'react';
-import moment from 'moment';
 
 // components
 import BodyPortal from '../body-portal/body-portal';
@@ -16,7 +15,6 @@ import Alert from '../alerts/alert';
 import Accordion from './accordion/accordion';
 import Upload from '../upload/upload';
 import SortableTiles from '../sortable/sortable-tiles';
-import ImageCard from '../image-card/image-card';
 import Image from './image';
 
 // types
@@ -24,7 +22,7 @@ import type { TAlbum, ImageFile, ImageInfo } from '../../modules/images';
 
 export type Props = {
   album: TAlbum;
-  addMode: boolean;
+  isNew: boolean;
   loading: boolean;
   upload: (files: Array<ImageFile>) => Promise;
   editImage: (idx: number, info: ImageInfo) => Promise;
@@ -36,7 +34,6 @@ export type Props = {
 
 type State = {
   files: Array<ImageFile>;
-  addMode: boolean;
   editMode: boolean;
   deleteMode: boolean;
 }
@@ -45,16 +42,16 @@ export default class Album extends Component {
   static props: Props;
 
   static defaultProps = {
-    addMode: false,
     loading: false,
   };
 
   state: State = {
     files: [],
-    addMode: this.props.addMode,
     editMode: false,
     deleteMode: false,
   };
+
+  _uploadRef: Upload;
 
   componentWillReceiveProps(nextProps: Props): void {
     if (this.props.uploadImagesInProgress && !nextProps.uploadImagesInProgress) {
@@ -79,7 +76,7 @@ export default class Album extends Component {
 
   @autobind
   handleAddImages() {
-    this.setState({ addMode: !this.state.addMode });
+    this._uploadRef.openUploadDialog();
   }
 
   @autobind
@@ -175,37 +172,23 @@ export default class Album extends Component {
   @autobind
   getAlbumActions(): Array<any> {
     return [
-      { name: 'add', handler: () => this.handleAddImages() },
-      { name: 'edit', handler: () => this.handleEditAlbum() },
-      { name: 'trash', handler: () => this.handleDeleteAlbum() },
+      { name: 'add', handler: this.handleAddImages },
+      { name: 'edit', handler: this.handleEditAlbum },
+      { name: 'trash', handler: this.handleDeleteAlbum },
     ];
   }
 
   render(): Element {
-    const { album, loading } = this.props;
-    const { addMode, editMode } = this.state;
+    const { album, loading, isNew } = this.props;
+    const { editMode } = this.state;
 
-    let accordionContent;
-
-    if (addMode) {
-      const files = album ? [...album.images, ...this.state.files] : this.state.files;
-
-      accordionContent = (
-        <Upload className={styles.upload} onDrop={this.handleNewFiles}>
-          {files.map((image: ImageFile, idx: number) => {
-            return (
-              <ImageCard src={image.src}
-                         key={`${image.src}-${idx}`}
-                         title={image.title}
-                         loading={image.loading}
-                         secondaryTitle={`Uploaded ${moment().format('MM/DD/YYYY HH: mm')}`}
-              />
-            );
-          })}
-        </Upload>
-      );
-    } else {
-      accordionContent = (
+    const accordionContent = (
+      <Upload
+        ref={c => this._uploadRef = c}
+        className={styles.upload}
+        onDrop={this.handleNewFiles}
+        empty={album.images.length == 0}
+      >
         <SortableTiles itemWidth={298}
                        itemHeight={372}
                        gutter={10}
@@ -213,28 +196,28 @@ export default class Album extends Component {
                        loading={loading}
                        onSort={this.handleSort}
         >
-          {album.images.map((image: ImageFile, idx: number) => {
-            return (
-              <Image image={image}
-                     idx={idx}
-                     editImage={(form: ImageInfo) => this.props.editImage(idx, form)}
-                     deleteImage={() => this.props.deleteImage(idx)}
-                     key={`${image.src}` /** replace with id*/}
-              />
-            );
-          })}
+            {album.images.map((image: ImageFile, idx: number) => {
+              return (
+                <Image
+                  image={image}
+                  idx={idx}
+                  editImage={(form: ImageInfo) => this.props.editImage(idx, form)}
+                  deleteImage={() => this.props.deleteImage(idx)}
+                  key={image.id}
+                />
+              );
+            })}
         </SortableTiles>
+      </Upload>
       );
-    }
 
     return (
       <div>
         {this.deleteAlbumDialog}
-        <Accordion className={classNames({ [styles.addImages] : addMode })}
-                   title={album.name}
+        <Accordion title={album.name}
                    titleWrapper={(title: string) => this.renderTitle(title, album.images.length)}
                    placeholder="Album Name"
-                   open={addMode || album.images.length}
+                   open={true}
                    loading={loading}
                    editMode={editMode}
                    onEditComplete={this.handleConfirmEditAlbum}
