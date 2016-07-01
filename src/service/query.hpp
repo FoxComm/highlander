@@ -38,9 +38,9 @@ namespace isaac
 
                 bool check_signature(const util::jwt_parts& parts);
                 bool verify_header(const folly::dynamic&);
-                bool verify_user(const folly::dynamic&);
+                bool verify_user(const folly::dynamic&, bool must_be_admin);
 
-                void validate(proxygen::HTTPMessage& headers, folly::IOBuf& body);
+                void validate(proxygen::HTTPMessage& headers, folly::IOBuf& body, bool must_be_admin);
 
                 //errors
                 void invalid_jwt();

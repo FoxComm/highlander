@@ -21,8 +21,10 @@ namespace isaac
         {
             if(!(_headers && _body)) return;
 
-            if(_headers->getPath() == "/validate") 
-                validate(*_headers, *_body);
+            if(_headers->getPath() == "/customer") 
+                validate(*_headers, *_body, false);
+            else if(_headers->getPath() == "/admin") 
+                validate(*_headers, *_body, true);
             else if(_headers->getPath() == "/ping") 
             {
                 proxygen::ResponseBuilder{downstream_}
@@ -74,7 +76,7 @@ namespace isaac
             return header["alg"].asString() == "RS256";
         }
 
-        bool query_request_handler::verify_user(const folly::dynamic& user)
+        bool query_request_handler::verify_user(const folly::dynamic& user, bool must_be_admin)
         {
             REQUIRE(_c.user_cache);
 
@@ -83,6 +85,7 @@ namespace isaac
             auto ratchet = user.count("ratchet") ? user["ratchet"].asInt() : 0;
 
             if(id < 0 || ratchet < 0) return false;
+            if(is_admin != must_be_admin) return false;
 
             return is_admin ? 
                 _c.user_cache->valid_admin(id, ratchet, _db) : 
@@ -90,7 +93,7 @@ namespace isaac
         }
 
 
-        void query_request_handler::validate(proxygen::HTTPMessage& headers, folly::IOBuf& body) 
+        void query_request_handler::validate(proxygen::HTTPMessage& headers, folly::IOBuf& body, bool must_be_admin) 
         {
             util::jwt_parts parts;
             if(!util::get_jwt_parts(parts, body)) 
@@ -123,7 +126,7 @@ namespace isaac
                 return;
             }
 
-            if(!verify_user(payload))
+            if(!verify_user(payload, must_be_admin))
             {
                 invalid_user();
                 return;
