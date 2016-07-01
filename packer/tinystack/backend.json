@@ -20,7 +20,7 @@
         {
             "type": "ansible",
             "playbook_file" : "ansible/packer_tinystack_backend.yml",
-            "extra_arguments": ["--extra-vars", "@packer/envs/staging_google_oauth.json"]
+            "extra_arguments": ["--extra-vars", "@packer/envs/staging_ansible.json"]
         }
     ]
 }
