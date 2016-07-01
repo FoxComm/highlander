@@ -5,14 +5,19 @@ import com.sksamuel.elastic4s.mappings.FieldType._
 import consumer.aliases._
 import consumer.elastic.AvroTransformer
 
-final case class ProductsCatalogView()(implicit ec: EC) extends AvroTransformer {
-  def mapping() = esMapping("products_catalog_view").fields(
+final case class ProductsSearchView()(implicit ec: EC) extends AvroTransformer {
+  def mapping() = esMapping("products_search_view").fields(
       field("id", IntegerType),
+      field("productId", IntegerType),
       field("context", StringType) index "not_analyzed",
-      field("title", StringType).analyzer("autocomplete"),
+      field("title", StringType)
+        .analyzer("autocomplete")
+        .fields(field("raw", StringType).index("not_analyzed")),
       field("description", StringType).analyzer("autocomplete"),
-      field("salePrice", IntegerType).analyzer("autocomplete"),
+      field("skus", StringType) index "not_analyzed",
       field("tags", StringType) index "not_analyzed",
+      field("activeFrom", DateType) format dateFormat,
+      field("activeTo", DateType) format dateFormat,
       field("albums").nested(
           field("name", StringType) index "not_analyzed",
           field("images").nested(
@@ -23,5 +28,5 @@ final case class ProductsCatalogView()(implicit ec: EC) extends AvroTransformer 
       )
   )
 
-  override def nestedFields() = List("albums", "tags")
+  override def nestedFields() = List("albums", "skus", "tags")
 }

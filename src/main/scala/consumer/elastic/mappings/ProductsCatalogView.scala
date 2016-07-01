@@ -1,25 +1,18 @@
 package consumer.elastic.mappings
 
-import com.sksamuel.elastic4s.ElasticDsl._
-import com.sksamuel.elastic4s.ElasticDsl.{mapping ⇒ esMapping}
+import com.sksamuel.elastic4s.ElasticDsl.{mapping ⇒ esMapping, _}
 import com.sksamuel.elastic4s.mappings.FieldType._
-
 import consumer.aliases._
 import consumer.elastic.AvroTransformer
 
-final case class ProductsSearchView()(implicit ec: EC) extends AvroTransformer {
-  def mapping() = esMapping("products_search_view").fields(
+final case class ProductsCatalogView()(implicit ec: EC) extends AvroTransformer {
+  def mapping() = esMapping("products_catalog_view").fields(
       field("id", IntegerType),
-      field("productId", IntegerType),
       field("context", StringType) index "not_analyzed",
-      field("title", StringType)
-        .analyzer("autocomplete")
-        .fields(field("raw", StringType).index("not_analyzed")),
+      field("title", StringType).analyzer("autocomplete"),
       field("description", StringType).analyzer("autocomplete"),
-      field("skus", StringType) index "not_analyzed",
+      field("salePrice", IntegerType).analyzer("autocomplete"),
       field("tags", StringType) index "not_analyzed",
-      field("activeFrom", DateType) format dateFormat,
-      field("activeTo", DateType) format dateFormat,
       field("albums").nested(
           field("name", StringType) index "not_analyzed",
           field("images").nested(
@@ -30,5 +23,5 @@ final case class ProductsSearchView()(implicit ec: EC) extends AvroTransformer {
       )
   )
 
-  override def nestedFields() = List("albums", "skus", "tags")
+  override def nestedFields() = List("albums", "tags")
 }
