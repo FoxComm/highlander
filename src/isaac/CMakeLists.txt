@@ -14,6 +14,7 @@ add_executable(
 target_link_libraries(
     isaac
     isaac_service
+    isaac_db
     isaac_util
     ${Boost_LIBRARIES}
     ${MISC_LIBRARIES})
@@ -21,6 +22,7 @@ target_link_libraries(
 add_dependencies(
     isaac 
     isaac_service
+    isaac_db
     isaac_util)
 
 install(TARGETS isaac DESTINATION bin)

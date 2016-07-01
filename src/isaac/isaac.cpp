@@ -12,7 +12,6 @@
 #include <botan/x509_key.h>
 
 //for main
-#include <boost/asio/ip/host_name.hpp>
 #include <boost/program_options.hpp>
 
 using folly::EventBase;
@@ -21,7 +20,6 @@ using folly::SocketAddress;
 
 using Protocol = proxygen::HTTPServer::Protocol;
 namespace po = boost::program_options;
-namespace ip = boost::asio::ip;
 
 namespace 
 {
@@ -39,6 +37,9 @@ po::options_description create_descriptions()
         ("http_port,p", po::value<std::uint16_t>()->default_value(7070), "http port")
         ("http2_port,P", po::value<std::uint16_t>()->default_value(7071), "http 2.0 port")
         ("public_key,k", po::value<std::string>()->default_value("public_key.pem"), "public key file")
+        ("db,d", po::value<std::string>()->default_value("host=127.0.0.1 dbname=phoenix_development user=phoenix"), "db connection string")
+        ("customer_est", po::value<std::size_t>()->default_value(20000), "estimated amount of customers")
+        ("admin_est", po::value<std::size_t>()->default_value(100), "estimated amount of admins")
         ("workers,w", po::value<std::size_t>()->default_value(workers), "worker threads");
 
     return d;
@@ -65,6 +66,11 @@ bool load_key(isaac::net::context& c, const std::string& key_file)
     return true;
 }
 
+void test_db_connection(const std::string& conn)
+{
+    pqxx::connection c{conn};
+}
+
 int main(int argc, char** argv)
 try
 {
@@ -81,14 +87,25 @@ try
     const auto http_port = opt["http_port"].as<std::uint16_t>();
     const auto http2_port = opt["http2_port"].as<std::uint16_t>();
     const auto key_file = opt["public_key"].as<std::string>();
+    const auto db_conn = opt["db"].as<std::string>();
+    const auto customer_est = opt["customer_est"].as<std::size_t>();
+    const auto admin_est = opt["admin_est"].as<std::size_t>();
     const auto workers = opt["workers"].as<std::size_t>();
 
+    //test db connection
+    test_db_connection(db_conn);
+
     isaac::net::context ctx;
+    ctx.db_connection = db_conn;
+
     if(!load_key(ctx, key_file))
     {
         std::cerr << "Unable to load key file: " << key_file << std::endl;
         return 1;
     }
+
+    isaac::db::user_cache user_cache{customer_est, admin_est};
+    ctx.user_cache = &user_cache;
 
     std::vector<proxygen::HTTPServer::IPConfig> IPs = {
         {SocketAddress(ip, http_port), Protocol::HTTP},
@@ -123,4 +140,3 @@ catch(std::exception& e)
     std::cerr << "Error! " << e.what() << std::endl;
     return 1;
 }
-

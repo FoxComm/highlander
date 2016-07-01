@@ -70,13 +70,17 @@ namespace isaac
 
         bool query_request_handler::verify_user(const folly::dynamic& user)
         {
+            REQUIRE(_c.user_cache);
+
             auto id = user["id"].asInt();
             auto is_admin = user["admin"].asBool();
             auto ratchet = user.count("ratchet") ? user["ratchet"].asInt() : 0;
 
-            //TODO
-            //Hit cache, otherwise hit DB
-            return true;
+            if(id < 0 || ratchet < 0) return false;
+
+            return is_admin ? 
+                _c.user_cache->valid_admin(id, ratchet, _db) : 
+                _c.user_cache->valid_customer(id, ratchet, _db);
         }
 
 
