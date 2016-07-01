@@ -1,6 +1,8 @@
 package services
 
 import (
+	"fmt"
+
 	"github.com/FoxComm/middlewarehouse/api/payloads"
 	"github.com/FoxComm/middlewarehouse/api/responses"
 	"github.com/FoxComm/middlewarehouse/common/gormfox"
@@ -34,6 +36,7 @@ func NewInventoryMgr(c *store.StoreContext) (*InventoryMgr, error) {
 func (im *InventoryMgr) FindStockItemByID(id uint) (*responses.StockItem, error) {
 	si := &models.StockItem{}
 	if item, err := im.repo.FindByID(si, id); err != nil {
+		fmt.Printf("Err: %s\n", err)
 		return nil, err
 	} else {
 		return responses.NewStockItemFromModel(item.(*models.StockItem)), nil

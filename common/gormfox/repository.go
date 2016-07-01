@@ -1,6 +1,8 @@
 package gormfox
 
 import (
+	"fmt"
+
 	"github.com/FoxComm/middlewarehouse/common/db/config"
 	"github.com/jinzhu/gorm"
 )
@@ -45,6 +47,7 @@ func (r *repository) FindByID(model Model, id uint, associations ...Association)
 	err := r.db.First(model, id).Error
 
 	if err != nil {
+		fmt.Printf("%s\n", err)
 		return nil, err
 	}
 
