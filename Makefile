@@ -58,6 +58,9 @@ deploy-build-agents:
 tf-plan-stage:
 	terraform plan -state=$(TF_ENVS)/gce_dev/terraform.tfstate -var-file=$(TF_ENVS)/gce_dev/terraform.tfvars $(TF_BASE)/gce_dev
 
+tf-plan-prodsmall:
+	terraform plan -state=$(TF_ENVS)/gce_prodsmall/terraform.tfstate -var-file=$(TF_ENVS)/gce_prodsmall/terraform.tfvars $(TF_BASE)/gce_vanilla
+
 tf-plan-vanilla:
 	terraform plan -state=$(TF_ENVS)/gce_vanilla/terraform.tfstate -var-file=$(TF_ENVS)/gce_vanilla/terraform.tfvars $(TF_BASE)/gce_vanilla
 
