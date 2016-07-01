@@ -16,9 +16,10 @@ namespace isaac
             auto i = u.find(id);
             if(i == u.end())
             {
-                auto v = db_valid_user(id, ratchet);
-                if(!v) return false;
+                //check db, if not valid, return and don't cache
+                if(!db_valid_user(id, ratchet)) return false;
 
+                //otherwise user is valid so we cache here.
                 i =  u.insert(id, user_entry{ratchet}).first;
             }
 
