@@ -1,12 +1,14 @@
-
 /* @flow */
 
 import React, { PropTypes, Element } from 'react';
+import classNames from 'classnames';
 
 type ItemProps = {
   onSelect: Function,
   value: number|string|bool,
   children: Element,
+  className: string,
+  isHidden: bool,
 };
 
 const DropdownItem = (props: ItemProps) => {
@@ -17,8 +19,13 @@ const DropdownItem = (props: ItemProps) => {
     onSelect(value, children);
   };
 
+  const classnames = classNames(props.className, {
+    'fc-dropdown__item': true,
+    'fc-dropdown__item-hidden': props.isHidden,
+  });
+
   return (
-    <li className="fc-dropdown__item" key={value} onClick={handleClick}>
+    <li className={classnames} key={value} onClick={handleClick}>
       {children}
     </li>
   );

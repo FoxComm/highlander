@@ -66,6 +66,8 @@ import StyleGuideContainers from './components/style-guide/style-guide-container
 
 import UsersListPage from './components/users/user-list';
 import Users from './components/users/users';
+import User from './components/users/user';
+import UserForm from './components/users/user-form';
 
 import AllActivities from './components/activity-trail/all';
 import AllNotificationItems from './components/activity-notifications/all';
@@ -77,165 +79,172 @@ const routes = (
 
     <Route name="login" path="login" component={Login}/>
     <Route component={Site}>
-    <IndexRoute name="home" component={Home}/>
-    <Route name='rmas-base' path='returns'>
-      <IndexRoute name='rmas' component={Rmas}/>
-      <Route name='rma' path=':rma' component={Rma}>
-        <IndexRoute name='rma-details' component={RmaDetails}/>
-        <Route name='rma-notes' path='notes' component={Notes}/>
-        <Route name='rma-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
+      <IndexRoute name="home" component={Home}/>
+      <Route name='rmas-base' path='returns'>
+        <IndexRoute name='rmas' component={Rmas}/>
+        <Route name='rma' path=':rma' component={Rma}>
+          <IndexRoute name='rma-details' component={RmaDetails}/>
+          <Route name='rma-notes' path='notes' component={Notes}/>
+          <Route name='rma-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
+        </Route>
       </Route>
-    </Route>
-    <Route name='orders-base' path="orders">
-      <Route name='new-order' path="new" component={NewOrder}/>
-      <Route name='orders-list-pages' component={OrdersListPage}>
-        <IndexRoute name='orders' component={Orders}/>
-        <Route name='orders-activity-trail' path='activity-trail' dimension="order"
-               component={ActivityTrailPage}/>
-      </Route>
+      <Route name='orders-base' path="orders">
+        <Route name='new-order' path="new" component={NewOrder}/>
+        <Route name='orders-list-pages' component={OrdersListPage}>
+          <IndexRoute name='orders' component={Orders}/>
+          <Route name='orders-activity-trail' path='activity-trail' dimension="order"
+                 component={ActivityTrailPage}/>
+        </Route>
 
-      <Route name='order' path=':order' component={Order}>
-        <IndexRoute name='order-details' component={OrderDetails}/>
-        <Route name='order-shipments' path='shipments' component={Shipments}/>
-        <Route name='order-notes' path='notes' component={Notes}/>
-        <Route name='order-returns' path='returns' component={RmaChildList}/>
-        <Route name='order-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
-      </Route>
-    </Route>
-    <Route name='customers-base' path='customers'>
-      <Route name='customers-list-pages' component={CustomersListPage}>
-        <IndexRoute name='customers' component={Customers}/>
-        <Route name='customers-activity-trail' path='activity-trail' dimension="customer"
-               component={ActivityTrailPage}/>
-      </Route>
-      <Route name='groups-base' path='groups'>
-        <Route name='customer-groups' component={CustomersListPage}>
-          <IndexRoute name='groups' component={Groups} />
-        </Route>
-        <Route name='new-dynamic-customer-group' path='new-dynamic' component={NewDynamicGroup} />
-        <Route name='edit-dynamic-customer-group' path='edit-dynamic/:groupId' component={EditDynamicGroup} />
-        <Route title='Group' name='customer-group' path=':groupId' component={Group} />
-      </Route>
-      <Route name='customers-new' path='new' component={NewCustomer} />
-      <Route name='customer' path=':customerId' component={Customer}>
-        <IndexRoute name='customer-details' component={CustomerDetails}/>
-        <Route title='Transactions' name='customer-transactions' path='transactions' component={CustomerTransactions}/>
-        <Route title='Returns' name='customer-returns' path='returns' component={RmaChildList}/>
-        <Route title='Cart' name='customer-cart' path='cart' component={CustomerCart}/>
-        <Route title='Items' name='customer-items' path='items' component={CustomerItems}/>
-        <Route name='customer-notes' path='notes' component={Notes} />
-        <Route name='customer-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
-        <Route name='customer-storecredits-base' path='storecredit'>
-          <IndexRoute name='customer-storecredits' component={StoreCredits}/>
-          <Route name='customer-storecredit-transactions'
-                 path='transactions'
-                 component={StoreCreditsTransactions} />
+        <Route name='order' path=':order' component={Order}>
+          <IndexRoute name='order-details' component={OrderDetails}/>
+          <Route name='order-shipments' path='shipments' component={Shipments}/>
+          <Route name='order-notes' path='notes' component={Notes}/>
+          <Route name='order-returns' path='returns' component={RmaChildList}/>
+          <Route name='order-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
         </Route>
       </Route>
-      <Route name='customer-storecredits-new'
-             path=':customerId/storecredits/new'
-             component={NewStoreCredit} />
-    </Route>
-    <Route name='products-base' path='products'>
-      <Route name='products-list-pages' component={ProductsListPage}>
-        <IndexRoute name='products' component={Products} />
-      </Route>
-      <Route name='product' path=':context/:productId' titleParam=":productId" component={ProductPage}>
-        <IndexRoute name='product-details' component={ProductForm} />
-        <Route name='new-product' component={ProductForm} />
-        <Route name='product-images' title='Images' path='images' component={ProductImages} />
-        <Route name='product-notes' title='Notes' path='notes' component={Notes} />
-        <Route name='product-activity-trail' title='Activity Trail'
-               path='activity-trail' component={ActivityTrailPage} />
-      </Route>
-    </Route>
-    <Route name='skus-base' title='SKUs' path='skus'>
-      <Route name='skus-list-pages' component={SkusListPage}>
-        <IndexRoute name='skus' component={Skus} />
-      </Route>
-      <Route name='sku' path=':skuCode' component={SkuPage}>
-        <IndexRoute name='sku-details' component={SkuDetails} />
-        <Route name='sku-images' path='images' title='Images' component={SkuImages} />
-        <Route name='sku-inventory-details-base' path="inventory" component={InventoryItemDetailsBase}>
-          <IndexRoute name='sku-inventory-details' component={InventoryItemDetails} />
-          <Route
-            title='Transactions'
-            name='sku-inventory-transactions'
-            path='transactions'
-            component={InventoryItemTransactions}
-          />
+      <Route name='customers-base' path='customers'>
+        <Route name='customers-list-pages' component={CustomersListPage}>
+          <IndexRoute name='customers' component={Customers}/>
+          <Route name='customers-activity-trail' path='activity-trail' dimension="customer"
+                 component={ActivityTrailPage}/>
         </Route>
-        <Route name='sku-notes' path='notes' title='Notes' component={Notes} />
-        <Route name='sku-activity-trail' path='activity-trail' title='Activity Trail' component={ActivityTrailPage} />
+        <Route name='groups-base' path='groups'>
+          <Route name='customer-groups' component={CustomersListPage}>
+            <IndexRoute name='groups' component={Groups} />
+          </Route>
+          <Route name='new-dynamic-customer-group' path='new-dynamic' component={NewDynamicGroup} />
+          <Route name='edit-dynamic-customer-group' path='edit-dynamic/:groupId' component={EditDynamicGroup} />
+          <Route title='Group' name='customer-group' path=':groupId' component={Group} />
+        </Route>
+        <Route name='customers-new' path='new' component={NewCustomer} />
+        <Route name='customer' path=':customerId' component={Customer}>
+          <IndexRoute name='customer-details' component={CustomerDetails}/>
+          <Route title='Transactions' 
+                 name='customer-transactions' 
+                 path='transactions' 
+                 component={CustomerTransactions}/>
+          <Route title='Returns' name='customer-returns' path='returns' component={RmaChildList}/>
+          <Route title='Cart' name='customer-cart' path='cart' component={CustomerCart}/>
+          <Route title='Items' name='customer-items' path='items' component={CustomerItems}/>
+          <Route name='customer-notes' path='notes' component={Notes} />
+          <Route name='customer-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
+          <Route name='customer-storecredits-base' path='storecredit'>
+            <IndexRoute name='customer-storecredits' component={StoreCredits}/>
+            <Route name='customer-storecredit-transactions'
+                   path='transactions'
+                   component={StoreCreditsTransactions} />
+          </Route>
+        </Route>
+        <Route name='customer-storecredits-new'
+               path=':customerId/storecredits/new'
+               component={NewStoreCredit} />
+      </Route>
+      <Route name='products-base' path='products'>
+        <Route name='products-list-pages' component={ProductsListPage}>
+          <IndexRoute name='products' component={Products} />
+        </Route>
+        <Route name='product' path=':context/:productId' titleParam=":productId" component={ProductPage}>
+          <IndexRoute name='product-details' component={ProductForm} />
+          <Route name='new-product' component={ProductForm} />
+          <Route name='product-images' title='Images' path='images' component={ProductImages} />
+          <Route name='product-notes' title='Notes' path='notes' component={Notes} />
+          <Route name='product-activity-trail' title='Activity Trail'
+                 path='activity-trail' component={ActivityTrailPage} />
+        </Route>
+      </Route>
+      <Route name='skus-base' title='SKUs' path='skus'>
+        <Route name='skus-list-pages' component={SkusListPage}>
+          <IndexRoute name='skus' component={Skus} />
+        </Route>
+        <Route name='sku' path=':skuCode' component={SkuPage}>
+          <IndexRoute name='sku-details' component={SkuDetails} />
+          <Route name='sku-images' path='images' title='Images' component={SkuImages} />
+          <Route name='sku-inventory-details-base' path="inventory" component={InventoryItemDetailsBase}>
+            <IndexRoute name='sku-inventory-details' component={InventoryItemDetails} />
+            <Route
+              title='Transactions'
+              name='sku-inventory-transactions'
+              path='transactions'
+              component={InventoryItemTransactions}
+            />
+          </Route>
+          <Route name='sku-notes' path='notes' title='Notes' component={Notes} />
+          <Route name='sku-activity-trail' path='activity-trail' title='Activity Trail' component={ActivityTrailPage} />
+        </Route>
+      </Route>
+      <Route name='gift-cards-base' path='gift-cards'>
+        <Route name='gift-cards-list-page' component={GiftCardsListPage}>
+          <IndexRoute name='gift-cards' component={GiftCards}/>
+          <Route name='gift-cards-activity-trail' path='activity-trail' dimension="gift-card"
+                 component={ActivityTrailPage}/>
+        </Route>
+        <Route name='gift-cards-new' path='new' component={NewGiftCard} />
+        <Route name='giftcard' path=':giftCard' component={GiftCard}>
+          <IndexRoute name='gift-card-transactions' component={GiftCardTransactions} />
+          <Route name='gift-card-notes' path='notes' component={Notes} />
+          <Route name='gift-card-activity-trail' path='activity-trail' component={ActivityTrailPage} />
+        </Route>
+      </Route>
+      <Route name='inventory-base' path='inventory'>
+        <Route name='inventory-list-page' component={InventoryListPage}>
+          <IndexRoute name='inventory' component={InventoryList}/>
+          <Route name='inventory-activity-trail'
+                 path='activity-trail'
+                 dimension="inventory"
+                 component={ActivityTrailPage}/>
+        </Route>
+      </Route>
+      <Route name='promotions-base' path='promotions'>
+        <Route name='promotions-list-page' component={PromotionsListPage} >
+          <IndexRoute name='promotions' component={Promotions} />
+          <Route name='promotions-activity-trail' path='activity-trail' dimension="promotions"
+                 component={ActivityTrailPage}/>
+        </Route>
+        <Route name='promotion' path=':promotionId' component={PromotionPage}>
+          <IndexRoute name='promotion-details' component={PromotionForm} />
+          <Route name='promotion-notes' path='notes' component={Notes} />
+          <Route name='promotion-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
+        </Route>
+      </Route>
+      <Route name='coupons-base' path='coupons'>
+        <Route name='coupons-list-page' component={CouponsListPage} >
+          <IndexRoute name='coupons' component={Coupons} />
+          <Route name='coupons-activity-trail' path='activity-trail' dimension="coupons"
+                 component={ActivityTrailPage}/>
+        </Route>
+      </Route>
+      <Route name='coupons-base' path='coupons'>
+        <Route name='coupons-list-page' component={CouponsListPage} >
+          <IndexRoute name='coupons' component={Coupons} />
+        </Route>
+        <Route name='coupon' path=':couponId' component={CouponPage}>
+          <IndexRoute name='coupon-details' component={CouponForm} />
+          <Route name='coupon-codes' path='codes' component={CouponCodes} />
+          <Route name='coupon-notes' path='notes' component={Notes} />
+          <Route name='coupon-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
+        </Route>
+      </Route>
+      <Route name='style-guide' path='style-guide' component={StyleGuide}>
+        <IndexRoute name='style-guide-grid' component={StyleGuideGrid} />
+        <Route name='style-guide-buttons' path='buttons' component={StyleGuideButtons} />
+        <Route name='style-guide-containers' path='containers' component={StyleGuideContainers} />
+      </Route>
+      <Route name='test' path="_">
+        <Route name='test-activities' path='activities' component={AllActivities} />
+        <Route name='test-notifications' path='notifications' component={AllNotificationItems} />
+      </Route>
+      <Route name='users-base' path='users'>
+        <Route name='users-list-page' component={UsersListPage}>
+          <IndexRoute name='users' component={Users}/>
+        </Route>
+        <Route name='user' path=':userId' component={User}>
+          <IndexRoute name='user-form' component={UserForm}/>
+          <Route name='user-activity-trail' path='activity-trail' component={UserForm}/>
+        </Route>
       </Route>
     </Route>
-    <Route name='gift-cards-base' path='gift-cards'>
-      <Route name='gift-cards-list-page' component={GiftCardsListPage}>
-        <IndexRoute name='gift-cards' component={GiftCards}/>
-        <Route name='gift-cards-activity-trail' path='activity-trail' dimension="gift-card"
-               component={ActivityTrailPage}/>
-      </Route>
-      <Route name='gift-cards-new' path='new' component={NewGiftCard} />
-      <Route name='giftcard' path=':giftCard' component={GiftCard}>
-        <IndexRoute name='gift-card-transactions' component={GiftCardTransactions} />
-        <Route name='gift-card-notes' path='notes' component={Notes} />
-        <Route name='gift-card-activity-trail' path='activity-trail' component={ActivityTrailPage} />
-      </Route>
-    </Route>
-    <Route name='inventory-base' path='inventory'>
-      <Route name='inventory-list-page' component={InventoryListPage}>
-        <IndexRoute name='inventory' component={InventoryList}/>
-        <Route name='inventory-activity-trail'
-               path='activity-trail'
-               dimension="inventory"
-               component={ActivityTrailPage}/>
-      </Route>
-    </Route>
-    <Route name='promotions-base' path='promotions'>
-      <Route name='promotions-list-page' component={PromotionsListPage} >
-        <IndexRoute name='promotions' component={Promotions} />
-        <Route name='promotions-activity-trail' path='activity-trail' dimension="promotions"
-               component={ActivityTrailPage}/>
-      </Route>
-      <Route name='promotion' path=':promotionId' component={PromotionPage}>
-        <IndexRoute name='promotion-details' component={PromotionForm} />
-        <Route name='promotion-notes' path='notes' component={Notes} />
-        <Route name='promotion-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
-      </Route>
-    </Route>
-    <Route name='coupons-base' path='coupons'>
-      <Route name='coupons-list-page' component={CouponsListPage} >
-        <IndexRoute name='coupons' component={Coupons} />
-        <Route name='coupons-activity-trail' path='activity-trail' dimension="coupons"
-               component={ActivityTrailPage}/>
-      </Route>
-    </Route>
-    <Route name='coupons-base' path='coupons'>
-      <Route name='coupons-list-page' component={CouponsListPage} >
-        <IndexRoute name='coupons' component={Coupons} />
-      </Route>
-      <Route name='coupon' path=':couponId' component={CouponPage}>
-        <IndexRoute name='coupon-details' component={CouponForm} />
-        <Route name='coupon-codes' path='codes' component={CouponCodes} />
-        <Route name='coupon-notes' path='notes' component={Notes} />
-        <Route name='coupon-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
-      </Route>
-    </Route>
-    <Route name='style-guide' path='style-guide' component={StyleGuide}>
-      <IndexRoute name='style-guide-grid' component={StyleGuideGrid} />
-      <Route name='style-guide-buttons' path='buttons' component={StyleGuideButtons} />
-      <Route name='style-guide-containers' path='containers' component={StyleGuideContainers} />
-    </Route>
-    <Route name='test' path="_">
-      <Route name='test-activities' path='activities' component={AllActivities} />
-      <Route name='test-notifications' path='notifications' component={AllNotificationItems} />
-    </Route>
-    <Route name='settings' path='settings'>
-      <Route name='settings-list-page' component={UsersListPage} path='users'>
-        <IndexRoute name='users' component={Users} />
-      </Route>
-    </Route>
-  </Route>
   </Route>
 );
 

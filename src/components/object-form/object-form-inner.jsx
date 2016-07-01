@@ -102,6 +102,7 @@ export default class ObjectFormInner extends Component {
       string: this.renderString,
       options: this.renderOptions,
       text: this.renderText,
+      element: this.renderElement,
     };
   }
 
@@ -152,7 +153,7 @@ export default class ObjectFormInner extends Component {
     const onChange = v => {
       this.handleChange(label, 'bool', !value);
     };
-    const slderCheckbox = (
+    const sliderCheckbox = (
       <SliderCheckbox
         id={label}
         checked={value}
@@ -160,7 +161,12 @@ export default class ObjectFormInner extends Component {
       />
     );
 
-    return renderFormField(label, slderCheckbox, args);
+    return renderFormField(label, sliderCheckbox, args);
+  }
+
+  @autobind
+  renderElement(label: string, value: any, args?: any): Element {
+    return renderFormField(label, value, args);
   }
 
   @autobind
