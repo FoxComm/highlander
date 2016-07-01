@@ -12,10 +12,10 @@ package object returns {
   object Helpers {
     def returnNotFound(refNum: String): NotFoundFailure404 = NotFoundFailure404(Return, refNum)
 
-    def mustFindPendingReturnByRefNum(refNum: String)(implicit ec: EC): DbResult[Return] =
+    def mustFindPendingReturnByRefNum(refNum: String)(implicit ec: EC): DbResultT[Return] =
       Returns.findOnePendingByRefNum(refNum).mustFindOr(returnNotFound(refNum))
 
-    def mustFindCcPaymentsByOrderRef(orderRef: String)(implicit ec: EC): DbResult[OrderPayment] =
+    def mustFindCcPaymentsByOrderRef(orderRef: String)(implicit ec: EC): DbResultT[OrderPayment] =
       OrderPayments
         .findAllByOrderRef(orderRef)
         .creditCards

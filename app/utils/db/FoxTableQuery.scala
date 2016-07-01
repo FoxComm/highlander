@@ -77,13 +77,13 @@ abstract class FoxTableQuery[M <: FoxModel[M], T <: FoxTable[M]](construct: Tag 
       unsaved.map(m ⇒ DbResultT.fromXor(beforeSave(m)))
     }.map(_.toSeq)
 
-  def deleteById[A](id: M#Id, onSuccess: ⇒ DbResult[A], onFailure: M#Id ⇒ Failure)(
-      implicit ec: EC): DbResult[A] = {
-    val deleteResult = findById(id).delete.flatMap {
-      case 0 ⇒ DbResult.failure(onFailure(id))
+  def deleteById[A](id: M#Id, onSuccess: ⇒ DbResultT[A], onFailure: M#Id ⇒ Failure)(
+      implicit ec: EC): DbResultT[A] = {
+    val deleteResult = findById(id).delete.toXor.flatMap {
+      case 0 ⇒ DbResultT.failure[A](onFailure(id))
       case _ ⇒ onSuccess
     }
-    wrapDbResult(deleteResult)
+    wrapDbResultT(deleteResult)
   }
 
   def refresh(model: M)(implicit ec: EC): DBIO[M] =
@@ -96,7 +96,7 @@ abstract class FoxTableQuery[M <: FoxModel[M], T <: FoxTable[M]](construct: Tag 
     def deleteAll[A](onSuccess: ⇒ DbResultT[A], onFailure: ⇒ DbResultT[A])(
         implicit ec: EC): DbResultT[A] =
       for {
-        deletedQty ← * <~ q.delete.toXor
+        deletedQty ← * <~ q.delete
         result ← * <~ (deletedQty match {
                       case 0 ⇒ onFailure
                       case _ ⇒ onSuccess

@@ -42,9 +42,7 @@ object Checkout {
       result ← * <~ Orders
                 .findActiveOrderByCustomer(customer)
                 .one
-                // TODO @anna: #longlivedbresultt
-                .findOrCreateExtended(
-                    Orders.create(Order.buildCart(customer.id, context.id)).value)
+                .findOrCreateExtended(Orders.create(Order.buildCart(customer.id, context.id)))
       (cart, _) = result
       order ← * <~ Checkout(cart, CartValidator(cart)).checkout
       _     ← * <~ LogActivity.orderCheckoutCompleted(order)
@@ -67,13 +65,13 @@ case class Checkout(cart: Order,
       _         ← * <~ remorseHold
       _         ← * <~ createNewCart
       _         ← * <~ updateCouponCountersForPromotion(customer)
-      updated   ← * <~ Orders.refresh(cart).toXor
-      fullOrder ← * <~ FullOrder.fromOrder(updated).toXor
+      updated   ← * <~ Orders.refresh(cart)
+      fullOrder ← * <~ FullOrder.fromOrder(updated)
     } yield fullOrder
 
   private def activePromos: DbResultT[Unit] =
     for {
-      maybePromo ← * <~ OrderPromotions.filterByOrderRef(cart.refNum).one.toXor
+      maybePromo ← * <~ OrderPromotions.filterByOrderRef(cart.refNum).one
       context    ← * <~ ObjectContexts.mustFindById400(cart.contextId)
       maybeCodeId = maybePromo.flatMap(_.couponCodeId)
       _ ← * <~ maybePromo.fold(DbResultT.unit)(promotionMustBeActive(_, context))
@@ -95,7 +93,7 @@ case class Checkout(cart: Order,
 
   private def couponMustBeApplicable(codeId: Int, context: ObjectContext): DbResultT[Unit] =
     for {
-      couponCode ← * <~ CouponCodes.findById(codeId).extract.one.safeGet.toXor
+      couponCode ← * <~ CouponCodes.findById(codeId).extract.one.safeGet
       coupon ← * <~ Coupons
                 .filterByContextAndFormId(context.id, couponCode.couponFormId)
                 .mustFindOneOr(CouponWithCodeCannotBeFound(couponCode.code))
@@ -108,7 +106,7 @@ case class Checkout(cart: Order,
 
   private def updateCouponCountersForPromotion(customer: Customer): DbResultT[Unit] =
     for {
-      maybePromo ← * <~ OrderPromotions.filterByOrderRef(cart.refNum).one.toXor
+      maybePromo ← * <~ OrderPromotions.filterByOrderRef(cart.refNum).one
       _ ← * <~ maybePromo.map { promo ⇒
            CouponUsageService.updateUsageCounts(promo.couponCodeId, cart.contextId, customer)
          }
@@ -134,9 +132,9 @@ case class Checkout(cart: Order,
       scIds   = scPayments.map { case (_, sc) ⇒ sc.id }.distinct
 
       _ ← * <~ (if (gcTotal > 0) LogActivity.gcFundsAuthorized(customer, cart, gcCodes, gcTotal)
-                else DbResult.unit)
+                else DbResultT.unit)
       _ ← * <~ (if (scTotal > 0) LogActivity.scFundsAuthorized(customer, cart, scIds, scTotal)
-                else DbResult.unit)
+                else DbResultT.unit)
 
       // Authorize funds on credit card
       ccs ← * <~ authCreditCard(cart.grandTotal, gcTotal + scTotal)
@@ -172,7 +170,7 @@ case class Checkout(cart: Order,
   }
 
   private def authCreditCard(orderTotal: Int,
-                             internalPaymentTotal: Int): DbResult[Option[CreditCardCharge]] = {
+                             internalPaymentTotal: Int): DbResultT[Option[CreditCardCharge]] = {
     import scala.concurrent.duration._
 
     val authAmount = orderTotal - internalPaymentTotal
@@ -181,44 +179,42 @@ case class Checkout(cart: Order,
       (for {
         pmt  ← OrderPayments.findAllCreditCardsForOrder(cart.refNum)
         card ← pmt.creditCard
-      } yield (pmt, card)).one.flatMap {
+      } yield (pmt, card)).one.toXor.flatMap {
         case Some((pmt, card)) ⇒
           val f = Stripe().authorizeAmount(card.gatewayCustomerId, authAmount, cart.currency)
 
-          (for {
+          for {
             // TODO: remove the blocking Await which causes us to change types (I knew it was coming anyways!)
             stripeCharge ← * <~ scala.concurrent.Await.result(f, 5.seconds)
             ourCharge = CreditCardCharge.authFromStripe(card, pmt, stripeCharge, cart.currency)
             _       ← * <~ LogActivity.creditCardCharge(cart, ourCharge)
             created ← * <~ CreditCardCharges.create(ourCharge)
-          } yield created.some).value
+          } yield created.some
 
         case None ⇒
-          DbResult.failure(GeneralFailure("not enough payment"))
+          DbResultT.failure(GeneralFailure("not enough payment"))
       }
-    } else {
-      DbResult.none
-    }
+    } else DbResultT.none
   }
 
-  private def remorseHold: DbResult[Order] =
-    (for {
+  private def remorseHold: DbResultT[Order] =
+    for {
       remorseHold ← * <~ Orders.update(cart,
                                        cart.copy(state = RemorseHold, placedAt = Instant.now.some))
       onHoldGcs ← * <~ (for {
-                   items ← OrderLineItemGiftCards.findByOrderRef(cart.refNum).result
-                   holds ← GiftCards
-                            .filter(_.id.inSet(items.map(_.giftCardId)))
-                            .map(_.state)
-                            .update(GiftCard.OnHold)
-                 } yield holds).toXor
-    } yield remorseHold).value
+                       items ← OrderLineItemGiftCards.findByOrderRef(cart.refNum).result
+                       holds ← GiftCards
+                                .filter(_.id.inSet(items.map(_.giftCardId)))
+                                .map(_.state)
+                                .update(GiftCard.OnHold)
+                     } yield holds)
+    } yield remorseHold
 
-  private def fraudScore: DbResult[Order] =
-    (for {
+  private def fraudScore: DbResultT[Order] =
+    for {
       fraudScore ← * <~ scala.util.Random.nextInt(10)
       order      ← * <~ Orders.update(cart, cart.copy(fraudScore = fraudScore))
-    } yield order).value
+    } yield order
 
   private def createNewCart: DbResultT[Order] =
     Orders.create(Order.buildCart(cart.customerId, cart.contextId))

@@ -42,12 +42,9 @@ object TrailManager {
       dimension ← * <~ Dimensions.findOrCreateByName(dimensionName)
 
       //find or create
-      // TODO @anna: #longlivedbresultt
       trail ← * <~ Trails.findByObjectId(dimension.id, objectId).one.findOrCreate {
-               Trails
-                 .create(
-                     Trail(dimensionId = dimension.id, objectId = objectId, data = newTrailData))
-                 .value
+               Trails.create(
+                   Trail(dimensionId = dimension.id, objectId = objectId, data = newTrailData))
              }
 
       //insert new tail, point previous to old tail

@@ -12,7 +12,7 @@ object GroupManager {
 
   // TODO move to ES
   def findAll(implicit ec: EC, db: DB): DbResultT[Seq[Root]] =
-    DbResultT(CustomerDynamicGroups.result.map(_.map(build)).toXor)
+    CustomerDynamicGroups.result.map(_.map(build)).toXor
 
   def getById(groupId: Int)(implicit ec: EC, db: DB): Result[Root] =
     (for {

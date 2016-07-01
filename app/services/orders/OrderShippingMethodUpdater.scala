@@ -25,7 +25,7 @@ object OrderShippingMethodUpdater {
     (for {
       order          ← * <~ getCartByOriginator(originator, refNum)
       _              ← * <~ order.mustBeCart
-      oldShipMethod  ← * <~ ShippingMethods.forOrder(order).one.toXor
+      oldShipMethod  ← * <~ ShippingMethods.forOrder(order).one
       shippingMethod ← * <~ ShippingMethods.mustFindById400(payload.shippingMethodId)
       _              ← * <~ shippingMethod.mustBeActive
       _              ← * <~ ShippingManager.evaluateShippingMethodForOrder(shippingMethod, order)
@@ -46,7 +46,7 @@ object OrderShippingMethodUpdater {
       _         ← * <~ OrderPromotionUpdater.readjust(order).recover { case _ ⇒ Unit }
       order     ← * <~ OrderTotaler.saveTotals(order)
       validated ← * <~ CartValidator(order).validate()
-      response  ← * <~ FullOrder.refreshAndFullOrder(order).toXor
+      response  ← * <~ FullOrder.refreshAndFullOrder(order)
       _         ← * <~ LogActivity.orderShippingMethodUpdated(originator, response, oldShipMethod)
     } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings))
       .runTxn()
@@ -65,7 +65,7 @@ object OrderShippingMethodUpdater {
       _     ← * <~ OrderPromotionUpdater.readjust(order).recover { case _ ⇒ Unit }
       order ← * <~ OrderTotaler.saveTotals(order)
       valid ← * <~ CartValidator(order).validate()
-      resp  ← * <~ FullOrder.refreshAndFullOrder(order).toXor
+      resp  ← * <~ FullOrder.refreshAndFullOrder(order)
       _     ← * <~ LogActivity.orderShippingMethodDeleted(originator, resp, shipMethod)
     } yield TheResponse.build(resp, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 }

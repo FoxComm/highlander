@@ -18,7 +18,7 @@ object SaveForLaterManager {
   def findAll(customerId: Int, contextId: Int)(implicit db: DB, ec: EC): DbResultT[SavedForLater] =
     for {
       customer ← * <~ Customers.mustFindById404(customerId)
-      response ← * <~ findAllDbio(customer, contextId).toXor
+      response ← * <~ findAllDbio(customer, contextId)
     } yield response
 
   def saveForLater(customerId: Int, skuCode: String, context: ObjectContext)(
@@ -31,12 +31,11 @@ object SaveForLaterManager {
            .find(customerId = customer.id, skuId = sku.id)
            .mustNotFindOneOr(AlreadySavedForLater(customerId = customer.id, skuId = sku.id))
       _        ← * <~ SaveForLaters.create(SaveForLater(customerId = customer.id, skuId = sku.id))
-      response ← * <~ findAllDbio(customer, context.id).toXor
+      response ← * <~ findAllDbio(customer, context.id)
     } yield response
 
-  // TODO @anna: #longlivedbresultt
   def deleteSaveForLater(id: Int)(implicit ec: EC, db: DB): DbResultT[Unit] =
-    DbResultT(SaveForLaters.deleteById(id, DbResult.unit, i ⇒ NotFoundFailure404(SaveForLater, i)))
+    SaveForLaters.deleteById(id, DbResultT.unit, i ⇒ NotFoundFailure404(SaveForLater, i))
 
   private def findAllDbio(customer: Customer, contextId: Int)(implicit ec: EC,
                                                               db: DB): DBIO[SavedForLater] =

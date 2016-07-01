@@ -326,7 +326,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase with HttpSupport with 
                                                   paymentMethodType = PaymentMethod.GiftCard,
                                                   amount = Some(25)))
       adj1     ← * <~ GiftCards.auth(giftCard, Some(payment.id), 10)
-      giftCard ← * <~ GiftCards.findOneById(giftCard.id).toXor
+      giftCard ← * <~ GiftCards.findOneById(giftCard.id)
     } yield (customer, admin, giftCard.value, order, payment, adj1, gcSecond, gcSubType)).gimme
   }
 }

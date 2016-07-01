@@ -16,9 +16,9 @@ object SkuWatchersManager extends AssignmentsManager[String, Sku] {
 
   def buildResponse(model: Sku): Root = build(model)
 
-  def fetchEntity(code: String)(implicit ec: EC, db: DB, ac: AC): DbResult[Sku] =
+  def fetchEntity(code: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[Sku] =
     Skus.mustFindByCode(code)
 
-  def fetchSequence(codes: Seq[String])(implicit ec: EC, db: DB, ac: AC): DbResult[Seq[Sku]] =
+  def fetchSequence(codes: Seq[String])(implicit ec: EC, db: DB, ac: AC): DbResultT[Seq[Sku]] =
     Skus.filter(_.code.inSetBind(codes)).result.toXor
 }

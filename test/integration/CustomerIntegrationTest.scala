@@ -140,7 +140,7 @@ class CustomerIntegrationTest
                        Factories.address.copy(customerId = customer.id,
                                               isDefaultShipping = true,
                                               phoneNumber = defaultPhoneNumber.some))
-          region ← * <~ Regions.findOneById(address.regionId).toXor
+          region ← * <~ Regions.findOneById(address.regionId)
         } yield (customer, region)).gimme
 
         val response = GET(s"v1/customers/${customer.id}")
@@ -174,7 +174,7 @@ class CustomerIntegrationTest
         val (customer, region, shipments) = (for {
           customer  ← * <~ Customers.create(Factories.customer.copy(phoneNumber = None))
           address   ← * <~ Addresses.create(defaultAddress.copy(customerId = customer.id))
-          region    ← * <~ Regions.findOneById(address.regionId).toXor
+          region    ← * <~ Regions.findOneById(address.regionId)
           ordersSeq ← * <~ orders.map(o ⇒ Orders.create(o.copy(customerId = customer.id)))
           addresses ← * <~ shippingAddresses(ordersSeq.zip(phoneNumbers)).map(a ⇒
                            OrderShippingAddresses.create(a))
@@ -251,6 +251,7 @@ class CustomerIntegrationTest
   "GET /v1/customers/:customerId/cart" - {
     "returns customer cart" in new CartFixture {
       val response = GET(s"v1/customers/${customer.id}/cart")
+      println(response.error)
       response.status must === (StatusCodes.OK)
 
       val root = response.as[FullOrder.Root]
@@ -695,7 +696,7 @@ class CustomerIntegrationTest
     val (customer, address, region, admin) = (for {
       customer ← * <~ Customers.create(Factories.customer)
       address  ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
-      region   ← * <~ Regions.findOneById(address.regionId).toXor
+      region   ← * <~ Regions.findOneById(address.regionId)
       admin    ← * <~ StoreAdmins.create(authedStoreAdmin)
     } yield (customer, address, region, admin)).gimme
   }

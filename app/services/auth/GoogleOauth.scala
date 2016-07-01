@@ -13,9 +13,8 @@ class GoogleOauthStoreAdmin(options: GoogleOauthOptions)
     with OauthService[StoreAdmin]
     with GoogleProvider {
 
-  // TODO @anna: #longlivedbresultt
-  def createByUserInfo(userInfo: UserInfo)(implicit ec: EC): DbResult[StoreAdmin] =
-    StoreAdmins.create(StoreAdmin(email = userInfo.email, name = userInfo.name)).value
+  def createByUserInfo(userInfo: UserInfo)(implicit ec: EC): DbResultT[StoreAdmin] =
+    StoreAdmins.create(StoreAdmin(email = userInfo.email, name = userInfo.name))
 
   def findByEmail(email: String)(implicit ec: EC, db: DB) = StoreAdmins.findByEmail(email)
 
@@ -27,9 +26,8 @@ class GoogleOauthCustomer(options: GoogleOauthOptions)
     with OauthService[Customer]
     with GoogleProvider {
 
-  // TODO @anna: #longlivedbresultt
-  def createByUserInfo(userInfo: UserInfo)(implicit ec: EC): DbResult[Customer] =
-    Customers.create(Customer(email = userInfo.email, name = Some(userInfo.name))).value
+  def createByUserInfo(userInfo: UserInfo)(implicit ec: EC): DbResultT[Customer] =
+    Customers.create(Customer(email = userInfo.email, name = Some(userInfo.name)))
 
   def findByEmail(email: String)(implicit ec: EC, db: DB) = Customers.findByEmail(email)
 

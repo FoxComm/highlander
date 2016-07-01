@@ -6,21 +6,21 @@ import utils.aliases._
 
 object ExceptionWrapper {
 
-  def wrapDbio[A](dbio: DBIO[A])(implicit ec: EC): DbResult[A] = {
+  def wrapDbio[A](dbio: DBIO[A])(implicit ec: EC): DbResultT[A] = {
     import scala.util.{Failure, Success}
 
-    dbio.asTry.flatMap {
-      case Success(value) ⇒ DbResult.good(value)
-      case Failure(e)     ⇒ DbResult.failure(DatabaseFailure(e.getMessage))
+    dbio.asTry.toXor.flatMap {
+      case Success(value) ⇒ DbResultT.good(value)
+      case Failure(e)     ⇒ DbResultT.failure(DatabaseFailure(e.getMessage))
     }
   }
 
-  def wrapDbResult[A](dbresult: DbResult[A])(implicit ec: EC): DbResult[A] = {
+  def wrapDbResultT[A](dbresult: DbResultT[A])(implicit ec: EC): DbResultT[A] = {
     import scala.util.{Failure, Success}
 
-    dbresult.asTry.flatMap {
-      case Success(value) ⇒ lift(value)
-      case Failure(e)     ⇒ DbResult.failure(DatabaseFailure(e.getMessage))
+    dbresult.value.asTry.toXor.flatMap {
+      case Success(value) ⇒ DbResultT.fromXor(value)
+      case Failure(e)     ⇒ DbResultT.failure(DatabaseFailure(e.getMessage))
     }
   }
 }

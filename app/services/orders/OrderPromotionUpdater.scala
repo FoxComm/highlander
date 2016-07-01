@@ -106,7 +106,7 @@ object OrderPromotionUpdater {
       // Response
       order     ← * <~ OrderTotaler.saveTotals(order)
       validated ← * <~ CartValidator(order).validate()
-      response  ← * <~ refreshAndFullOrder(order).toXor
+      response  ← * <~ refreshAndFullOrder(order)
     } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings))
       .runTxn()
 
@@ -131,7 +131,7 @@ object OrderPromotionUpdater {
       _         ← * <~ OrderTotaler.saveTotals(order)
       _         ← * <~ LogActivity.orderCouponDetached(order)
       validated ← * <~ CartValidator(order).validate()
-      response  ← * <~ refreshAndFullOrder(order).toXor
+      response  ← * <~ refreshAndFullOrder(order)
     } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings))
       .runTxn()
 
@@ -148,7 +148,7 @@ object OrderPromotionUpdater {
                              qualifier: Qualifier,
                              offer: Offer)(implicit ec: EC, es: ES, db: DB) =
     for {
-      orderDetails ← * <~ fetchOrderDetails(order).toXor
+      orderDetails ← * <~ fetchOrderDetails(order)
       (lineItems, shippingMethod) = orderDetails
       input                       = DiscountInput(promo, order, lineItems, shippingMethod)
       _           ← * <~ qualifier.check(input)

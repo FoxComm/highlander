@@ -140,7 +140,7 @@ object VariantManager {
       case Some(commit) ⇒
         Variants.update(variant, variant.copy(shadowId = shadow.id, commitId = commit.id))
       case None ⇒
-        DbResultT.rightLift(variant)
+        DbResultT.good(variant)
     }
 
   def createVariantValue(contextName: String, variantId: Int, payload: VariantValuePayload)(
@@ -220,7 +220,7 @@ object VariantManager {
       case Some(commit) ⇒
         VariantValues.update(value, value.copy(shadowId = shadow.id, commitId = commit.id))
       case None ⇒
-        DbResultT.rightLift(value)
+        DbResultT.good(value)
     }
 
   def findVariantsByProduct(product: Product)(

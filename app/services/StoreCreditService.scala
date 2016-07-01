@@ -22,22 +22,23 @@ object StoreCreditService {
   type QuerySeq = StoreCredits.QuerySeq
 
   def getOriginTypes(implicit ec: EC, db: DB): DbResultT[Seq[StoreCreditSubTypesResponse.Root]] =
-    DbResultT(StoreCreditSubtypes.result.map { subTypes ⇒
+    StoreCreditSubtypes.result.map { subTypes ⇒
       StoreCreditSubTypesResponse.build(StoreCredit.OriginType.publicTypes.toSeq, subTypes)
-    }.toXor)
+    }.toXor
 
   // Check subtype only if id is present in payload; discard actual model
   private def checkSubTypeExists(subTypeId: Option[Int], originType: StoreCredit.OriginType)(
-      implicit ec: EC): DbResult[Unit] = {
-    subTypeId.fold(DbResult.unit) { subtypeId ⇒
+      implicit ec: EC): DbResultT[Unit] = {
+    subTypeId.fold(DbResultT.unit) { subtypeId ⇒
       StoreCreditSubtypes
         .byOriginType(originType)
         .filter(_.id === subtypeId)
         .one
+        .toXor
         .flatMap(_.fold {
-          DbResult.failure[Unit](NotFoundFailure400(StoreCreditSubtype, subtypeId))
+          DbResultT.failure[Unit](NotFoundFailure400(StoreCreditSubtype, subtypeId))
         } { _ ⇒
-          DbResult.unit
+          DbResultT.unit
         })
     }
   }
@@ -46,7 +47,7 @@ object StoreCreditService {
                                          db: DB): Result[StoreCreditResponse.Totals] =
     (for {
       _      ← * <~ Customers.mustFindById404(customerId)
-      totals ← * <~ fetchTotalsForCustomer(customerId).toXor
+      totals ← * <~ fetchTotalsForCustomer(customerId)
     } yield totals).map(_.getOrElse(Totals(0, 0))).value.run()
 
   def fetchTotalsForCustomer(customerId: Int)(implicit ec: EC): DBIO[Option[Totals]] = {
@@ -145,7 +146,7 @@ object StoreCreditService {
              .lastAuthByStoreCreditId(storeCredit.id)
              .one
              .mustNotFindOr(OpenTransactionsFailure)
-        _ ← * <~ reasonId.map(id ⇒ Reasons.mustFindById400(id)).getOrElse(DbResult.unit)
+        _ ← * <~ reasonId.map(id ⇒ Reasons.mustFindById400(id)).getOrElse(DbResultT.unit)
         upd ← * <~ StoreCredits.update(storeCredit,
                                        storeCredit.copy(state = newState,
                                                         canceledReason = reasonId,

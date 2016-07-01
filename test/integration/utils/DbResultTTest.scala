@@ -15,8 +15,8 @@ class DbResultTTest extends TestBase with DbTestSupport with CatsHelpers with Gi
       "succeeds when everything is Xor.Right" in {
         val transformer = for {
           a ← DbResultT.fromXor(Xor.right(Factories.order))
-          b ← DbResultT.rightLift(Factories.rma)
-          c ← DbResultT.rightLift(Factories.address)
+          b ← DbResultT.good(Factories.rma)
+          c ← DbResultT.good(Factories.address)
         } yield c
 
         val result = db.run(transformer.value).futureValue
@@ -29,8 +29,8 @@ class DbResultTTest extends TestBase with DbTestSupport with CatsHelpers with Gi
 
         val transformer = for {
           a ← DbResultT.fromXor(Xor.right(Factories.order))
-          b ← DbResultT.leftLift[Unit](failure.single)
-          c ← DbResultT.rightLift(Factories.address)
+          b ← DbResultT.failures[Unit](failure.single)
+          c ← DbResultT.good(Factories.address)
         } yield c
 
         val result = db.run(transformer.value).futureValue

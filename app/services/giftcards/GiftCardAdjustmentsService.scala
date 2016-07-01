@@ -26,7 +26,7 @@ object GiftCardAdjustmentsService {
 
     for {
       giftCard ← * <~ GiftCards.mustFindByCode(code)
-      records  ← * <~ joinedQ(giftCard.id).result.toXor
+      records  ← * <~ joinedQ(giftCard.id).result
     } yield
       records.map {
         case (adj, Some((_, orderRef))) ⇒

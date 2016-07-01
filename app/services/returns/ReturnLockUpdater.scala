@@ -12,11 +12,10 @@ object ReturnLockUpdater {
   def getLockState(refNum: String)(implicit ec: EC, db: DB): Result[ReturnLockResponse.Root] =
     (for {
       rma   ← * <~ Returns.mustFindByRefNum(refNum)
-      event ← * <~ ReturnLockEvents.latestLockByRma(rma.id).one.toXor
+      event ← * <~ ReturnLockEvents.latestLockByRma(rma.id).one
       admin ← * <~ event
                .map(e ⇒ StoreAdmins.findById(e.lockedBy).extract.one)
                .getOrElse(lift(None))
-               .toXor
     } yield ReturnLockResponse.build(rma, event, admin)).runTxn()
 
   def lock(refNum: String, admin: StoreAdmin)(implicit ec: EC,
@@ -26,7 +25,8 @@ object ReturnLockUpdater {
       _    ← * <~ rma.mustNotBeLocked
       _    ← * <~ Returns.update(rma, rma.copy(isLocked = true))
       _    ← * <~ ReturnLockEvents.create(ReturnLockEvent(returnId = rma.id, lockedBy = admin.id))
-      resp ← * <~ Returns.refresh(rma).flatMap(ReturnResponse.fromRma).toXor
+      rma  ← * <~ Returns.refresh(rma)
+      resp ← * <~ ReturnResponse.fromRma(rma)
     } yield resp).runTxn()
 
   def unlock(refNum: String)(implicit ec: EC, db: DB): Result[ReturnResponse.Root] =
@@ -34,6 +34,7 @@ object ReturnLockUpdater {
       rma  ← * <~ Returns.mustFindByRefNum(refNum)
       _    ← * <~ rma.mustBeLocked
       _    ← * <~ Returns.update(rma, rma.copy(isLocked = false))
-      resp ← * <~ Returns.refresh(rma).flatMap(ReturnResponse.fromRma).toXor
+      rma  ← * <~ Returns.refresh(rma)
+      resp ← * <~ ReturnResponse.fromRma(rma)
     } yield resp).runTxn()
 }

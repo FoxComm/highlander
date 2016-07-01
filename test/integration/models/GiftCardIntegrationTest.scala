@@ -57,7 +57,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase {
                   GiftCardManual(adminId = admin.id, reasonId = reason.id))
       gc ← * <~ GiftCards.create(
               Factories.giftCard.copy(originalBalance = 50, originId = origin.id))
-      giftCard ← * <~ GiftCards.findOneById(gc.id).toXor
+      giftCard ← * <~ GiftCards.findOneById(gc.id)
       payment ← * <~ OrderPayments.create(
                    Factories.giftCardPayment.copy(orderRef = order.refNum,
                                                   paymentMethodId = gc.id,

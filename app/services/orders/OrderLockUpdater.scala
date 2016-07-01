@@ -17,7 +17,7 @@ object OrderLockUpdater {
       _     ← * <~ order.mustNotBeLocked
       _     ← * <~ Orders.update(order, order.copy(isLocked = true))
       _     ← * <~ OrderLockEvents.create(OrderLockEvent(orderRef = order.refNum, lockedBy = admin.id))
-      resp  ← * <~ FullOrder.refreshAndFullOrder(order).toXor
+      resp  ← * <~ FullOrder.refreshAndFullOrder(order)
     } yield resp).runTxn()
 
   def unlock(refNum: String)(implicit ec: EC, db: DB): Result[FullOrder.Root] = {
@@ -26,12 +26,12 @@ object OrderLockUpdater {
     (for {
       order    ← * <~ Orders.mustFindByRefNum(refNum)
       _        ← * <~ order.mustBeLocked
-      lastLock ← * <~ OrderLockEvents.latestLockByOrder(order.refNum).one.toXor
+      lastLock ← * <~ OrderLockEvents.latestLockByOrder(order.refNum).one
       remorsePlus = increaseRemorse(order) _
       newEnd ← * <~ lastLock.fold(remorsePlus(Duration.ofMinutes(15)))(lock ⇒
                     remorsePlus(Duration.between(lock.lockedAt, Instant.now)))
       _        ← * <~ Orders.update(order, order.copy(isLocked = false, remorsePeriodEnd = newEnd))
-      response ← * <~ FullOrder.refreshAndFullOrder(order).toXor
+      response ← * <~ FullOrder.refreshAndFullOrder(order)
     } yield response).runTxn()
   }
 }

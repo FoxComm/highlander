@@ -16,9 +16,9 @@ object OrderWatchersManager extends AssignmentsManager[String, Order] {
 
   def buildResponse(model: Order): Root = build(model)
 
-  def fetchEntity(refNum: String)(implicit ec: EC, db: DB, ac: AC): DbResult[Order] =
+  def fetchEntity(refNum: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[Order] =
     Orders.mustFindByRefNum(refNum)
 
-  def fetchSequence(refNums: Seq[String])(implicit ec: EC, db: DB, ac: AC): DbResult[Seq[Order]] =
+  def fetchSequence(refNums: Seq[String])(implicit ec: EC, db: DB, ac: AC): DbResultT[Seq[Order]] =
     Orders.filter(_.referenceNumber.inSetBind(refNums)).result.toXor
 }

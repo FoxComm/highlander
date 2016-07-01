@@ -37,7 +37,7 @@ object LineItemUpdater {
       // update changed totals
       order  ← * <~ OrderTotaler.saveTotals(order)
       valid  ← * <~ CartValidator(order).validate()
-      result ← * <~ refreshAndFullOrder(order).toXor
+      result ← * <~ refreshAndFullOrder(order)
       _      ← * <~ LogActivity.orderLineItemsAddedGc(admin, result, gc)
     } yield TheResponse.build(result, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 
@@ -55,7 +55,7 @@ object LineItemUpdater {
       // update changed totals
       order  ← * <~ OrderTotaler.saveTotals(order)
       valid  ← * <~ CartValidator(order).validate()
-      result ← * <~ refreshAndFullOrder(order).toXor
+      result ← * <~ refreshAndFullOrder(order)
       _      ← * <~ LogActivity.orderLineItemsUpdatedGc(admin, result, giftCard)
     } yield TheResponse.build(result, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 
@@ -76,7 +76,7 @@ object LineItemUpdater {
       // update changed totals
       order ← * <~ OrderTotaler.saveTotals(order)
       valid ← * <~ CartValidator(order).validate()
-      res   ← * <~ refreshAndFullOrder(order).toXor
+      res   ← * <~ refreshAndFullOrder(order)
       _     ← * <~ LogActivity.orderLineItemsDeletedGc(admin, res, gc)
     } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 
@@ -106,19 +106,18 @@ object LineItemUpdater {
     val findOrCreate = Orders
       .findActiveOrderByCustomer(customer)
       .one
-      // TODO @anna: #longlivedbresultt
-      .findOrCreateExtended(Orders.create(Order.buildCart(customer.id, context.id)).value)
+      .findOrCreateExtended(Orders.create(Order.buildCart(customer.id, context.id)))
 
     val logActivity = (order: FullOrder.Root, oldQtys: Map[String, Int]) ⇒
       LogActivity.orderLineItemsUpdated(order, oldQtys, payload)
 
-    val finder = findOrCreate.map(_.map { case (order, _) ⇒ order })
+    val finder = findOrCreate.map({ case (order, _) ⇒ order })
 
     runUpdates(finder, logActivity, payload)
   }
 
-  private def runUpdates(finder: DbResult[Order],
-                         logAct: (FullOrder.Root, Map[String, Int]) ⇒ DbResult[Activity],
+  private def runUpdates(finder: DbResultT[Order],
+                         logAct: (FullOrder.Root, Map[String, Int]) ⇒ DbResultT[Activity],
                          payload: Seq[UpdateLineItemsPayload])(
       implicit ec: EC,
       es: ES,
@@ -139,7 +138,7 @@ object LineItemUpdater {
       _     ← * <~ OrderPromotionUpdater.readjust(order).recover { case _ ⇒ Unit }
       order ← * <~ OrderTotaler.saveTotals(order)
       valid ← * <~ CartValidator(order).validate()
-      res   ← * <~ refreshAndFullOrder(order).toXor
+      res   ← * <~ refreshAndFullOrder(order)
       _     ← * <~ logAct(res, lineItems)
     } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 
@@ -166,7 +165,7 @@ object LineItemUpdater {
   }
 
   private def fuckingHell(skuId: Int, newQuantity: Int, orderRef: String)(
-      implicit ec: EC): DbResult[Seq[OrderLineItem]] = {
+      implicit ec: EC): DbResultT[Seq[OrderLineItem]] = {
     val counts = for {
       (skuId, q) ← OrderLineItems
                     .filter(_.orderRef === orderRef)
@@ -176,7 +175,7 @@ object LineItemUpdater {
                     .groupBy(_._2.skuId)
     } yield (skuId, q.length)
 
-    counts.result.flatMap { (items: Seq[(Int, Int)]) ⇒
+    counts.result.toXor.flatMap { (items: Seq[(Int, Int)]) ⇒
       val existingSkuCounts = items.toMap
 
       val current = existingSkuCounts.getOrElse(skuId, 0)
@@ -193,7 +192,7 @@ object LineItemUpdater {
                       }.toSeq
         } yield ()
 
-        DbResult.fromDbio(queries)
+        DbResultT.fromDbio(queries)
       } else if (current - newQuantity > 0) {
         // otherwise delete N items
         val queries = for {
@@ -211,12 +210,12 @@ object LineItemUpdater {
                       .delete
         } yield ()
 
-        DbResult.fromDbio(queries)
+        DbResultT.fromDbio(queries)
       } else {
-        DbResult.unit
+        DbResultT.unit
       }
     }.flatMap { _ ⇒
-      DbResult.fromDbio(OrderLineItems.filter(_.orderRef === orderRef).result)
+      DbResultT.fromDbio(OrderLineItems.filter(_.orderRef === orderRef).result)
     }
   }
 }

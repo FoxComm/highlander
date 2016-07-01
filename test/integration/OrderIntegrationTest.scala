@@ -660,7 +660,7 @@ class OrderIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
       productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       product ← * <~ Mvp.insertProduct(productContext.id,
                                        Factories.products.head.copy(price = 100))
-      lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(product.skuId).toXor
+      lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(product.skuId)
       lineItem ← * <~ OrderLineItems.create(
                     OrderLineItem(orderRef = order.refNum,
                                   originId = lineItemSku.id,

@@ -247,6 +247,6 @@ object ImageManager {
     case Some(commit) ⇒
       Albums.update(album, album.copy(shadowId = shadow.id, commitId = commit.id))
     case None ⇒
-      DbResultT.rightLift(album)
+      DbResultT.good(album)
   }
 }

@@ -8,7 +8,7 @@ import utils.aliases._
 import utils.db._
 
 trait ReturnValidation {
-  def validate: DbResult[ReturnValidatorResponse]
+  def validate: DbResultT[ReturnValidatorResponse]
 }
 
 case class ReturnValidatorResponse(alerts: Option[Failures] = None,
@@ -16,14 +16,14 @@ case class ReturnValidatorResponse(alerts: Option[Failures] = None,
 
 case class ReturnValidator(rma: Return)(implicit ec: EC) extends ReturnValidation {
 
-  def validate: DbResult[ReturnValidatorResponse] = {
+  def validate: DbResultT[ReturnValidatorResponse] = {
     val response = ReturnValidatorResponse()
 
-    (for {
-      state ← hasItems(response)
-      state ← hasNoPreviouslyRefundedItems(response)
-      state ← hasValidPaymentMethods(response)
-    } yield state).flatMap(DbResult.good)
+    for {
+      state ← * <~ hasItems(response)
+      state ← * <~ hasNoPreviouslyRefundedItems(response)
+      state ← * <~ hasValidPaymentMethods(response)
+    } yield state
   }
 
   private def hasItems(response: ReturnValidatorResponse): DBIO[ReturnValidatorResponse] = {

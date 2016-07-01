@@ -155,7 +155,7 @@ class ShippingManagerTest extends IntegrationTestBase {
       order          ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
       product ← * <~ Mvp.insertProduct(productContext.id,
                                        Factories.products.head.copy(title = "Donkey", price = 27))
-      lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(product.skuId).toXor
+      lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(product.skuId)
       lineItem ← * <~ OrderLineItems.create(
                     OrderLineItem(orderRef = order.refNum,
                                   originId = lineItemSku.id,
@@ -283,7 +283,7 @@ class ShippingManagerTest extends IntegrationTestBase {
                                             Factories.products.head.copy(title = "Cheap Donkey",
                                                                          price = 10,
                                                                          code = "SKU-CHP"))
-      cheapLineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(cheapProduct.skuId).toXor
+      cheapLineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(cheapProduct.skuId)
       cheapLineItem ← * <~ OrderLineItems.create(
                          OrderLineItem(orderRef = cheapOrder.refNum,
                                        originId = cheapLineItemSku.id,
@@ -301,7 +301,7 @@ class ShippingManagerTest extends IntegrationTestBase {
                                                                                "Expensive Donkey",
                                                                              price = 100,
                                                                              code = "SKU-EXP"))
-      expensiveLineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(expensiveProduct.skuId).toXor
+      expensiveLineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(expensiveProduct.skuId)
       expensiveLineItem ← * <~ OrderLineItems.create(
                              OrderLineItem(orderRef = expensiveOrder.refNum,
                                            originId = expensiveLineItemSku.id,

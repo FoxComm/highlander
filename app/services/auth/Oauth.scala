@@ -35,7 +35,7 @@ object OauthDirectives {
 trait OauthService[M] {
   this: Oauth ⇒
 
-  def createByUserInfo(info: UserInfo)(implicit ec: EC): DbResult[M]
+  def createByUserInfo(info: UserInfo)(implicit ec: EC): DbResultT[M]
   def findByEmail(email: String)(implicit ec: EC, db: DB): DBIO[Option[M]]
   def createToken(user: M): Token
 

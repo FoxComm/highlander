@@ -125,7 +125,7 @@ object ReturnResponse {
     ReturnTotals(finalSubtotal, finalTaxes, finalShipping, grandTotal)
   }
 
-  def fromRma(rma: Return)(implicit ec: EC, db: DB): DBIO[Root] = {
+  def fromRma(rma: Return)(implicit ec: EC, db: DB): DbResultT[Root] = {
     fetchRmaDetails(rma).map {
       case (_, customer, storeAdmin, payments, lineItemData, giftCards, shipments, subtotal) ⇒
         build(
@@ -139,7 +139,7 @@ object ReturnResponse {
     }
   }
 
-  def fromRmaExpanded(rma: Return)(implicit ec: EC, db: DB): DBIO[RootExpanded] = {
+  def fromRmaExpanded(rma: Return)(implicit ec: EC, db: DB): DbResultT[RootExpanded] = {
     fetchRmaDetails(rma = rma, withOrder = true).map {
       case (order, customer, storeAdmin, payments, lineItemData, giftCards, shipments, subtotal) ⇒
         buildExpanded(
@@ -200,29 +200,30 @@ object ReturnResponse {
     )
 
   private def fetchRmaDetails(rma: Return, withOrder: Boolean = false)(implicit db: DB, ec: EC) = {
-    val orderQ = for {
-      order     ← Orders.findByRefNum(rma.orderRef).one
-      fullOrder ← order.map(o ⇒ FullOrder.fromOrder(o).map(Some(_))).getOrElse(lift(None))
+    val orderQ: DbResultT[Option[FullOrder.Root]] = for {
+      maybeOrder ← * <~ Orders.findByRefNum(rma.orderRef).one
+      fullOrder ← * <~ ((maybeOrder, withOrder) match {
+                       case (Some(order), true) ⇒ FullOrder.fromOrder(order).map(Some(_))
+                       case _                   ⇒ DbResultT.none[FullOrder.Root]
+                     })
     } yield fullOrder
-
-    val orderDbio = if (withOrder) orderQ else lift(None)
 
     for {
       // Order, if necessary
-      fullOrder ← orderDbio
+      fullOrder ← * <~ orderQ
       // Either customer or storeAdmin as creator
-      customer ← Customers.findById(rma.customerId).extract.one
-      storeAdmin ← rma.storeAdminId
+      customer ← * <~ Customers.findById(rma.customerId).extract.one
+      storeAdmin ← * <~ rma.storeAdminId
                     .map(id ⇒ StoreAdmins.findById(id).extract.one)
                     .getOrElse(lift(None))
       // Payment methods
-      payments ← ReturnPayments.filter(_.returnId === rma.id).result
+      payments ← * <~ ReturnPayments.filter(_.returnId === rma.id).result
       // Line items of each subtype
-      lineItems ← ReturnLineItemSkus.findLineItemsByRma(rma).result
-      giftCards ← ReturnLineItemGiftCards.findLineItemsByRma(rma).result
-      shipments ← ReturnLineItemShippingCosts.findLineItemsByRma(rma).result
+      lineItems ← * <~ ReturnLineItemSkus.findLineItemsByRma(rma).result
+      giftCards ← * <~ ReturnLineItemGiftCards.findLineItemsByRma(rma).result
+      shipments ← * <~ ReturnLineItemShippingCosts.findLineItemsByRma(rma).result
       // Subtotal
-      subtotal ← ReturnTotaler.subTotal(rma)
+      subtotal ← * <~ ReturnTotaler.subTotal(rma)
     } yield (fullOrder, customer, storeAdmin, payments, lineItems, giftCards, shipments, subtotal)
   }
 }

@@ -32,8 +32,8 @@ object ShippingManager {
     for {
       order       ← * <~ getCartByOriginator(originator, None)
       _           ← * <~ order.mustBeCart
-      shipMethods ← * <~ ShippingMethods.findActive.result.toXor
-      shipData    ← * <~ getShippingData(order).toXor
+      shipMethods ← * <~ ShippingMethods.findActive.result
+      shipData    ← * <~ getShippingData(order)
       response = shipMethods.collect {
         case sm if QueryStatement.evaluate(sm.conditions, shipData, evaluateCondition) ⇒
           val restricted = QueryStatement.evaluate(sm.restrictions, shipData, evaluateCondition)
@@ -46,8 +46,8 @@ object ShippingManager {
       db: DB): DbResultT[Seq[responses.ShippingMethods.Root]] =
     for {
       order       ← * <~ findByRefNumAndOptionalCustomer(refNum, customer)
-      shipMethods ← * <~ ShippingMethods.findActive.result.toXor
-      shipData    ← * <~ getShippingData(order).toXor
+      shipMethods ← * <~ ShippingMethods.findActive.result
+      shipData    ← * <~ getShippingData(order)
       response = shipMethods.collect {
         case sm if QueryStatement.evaluate(sm.conditions, shipData, evaluateCondition) ⇒
           val restricted = QueryStatement.evaluate(sm.restrictions, shipData, evaluateCondition)
@@ -57,7 +57,7 @@ object ShippingManager {
 
   private def findByRefNumAndOptionalCustomer(refNum: String, customer: Option[Customer] = None)(
       implicit ec: EC,
-      db: DB): DbResult[Order] = customer match {
+      db: DB): DbResultT[Order] = customer match {
     case Some(c) ⇒
       Orders
         .findOneByRefNumAndCustomer(refNum, c)
@@ -66,15 +66,15 @@ object ShippingManager {
   }
 
   def evaluateShippingMethodForOrder(shippingMethod: ShippingMethod, order: Order)(
-      implicit ec: EC): DbResult[Unit] = {
-    getShippingData(order).flatMap { shippingData ⇒
+      implicit ec: EC): DbResultT[Unit] = {
+    getShippingData(order).toXor.flatMap { shippingData ⇒
       val failure = ShippingMethodNotApplicableToOrder(shippingMethod.id, order.refNum)
       if (QueryStatement.evaluate(shippingMethod.conditions, shippingData, evaluateCondition)) {
         val hasRestrictions =
           QueryStatement.evaluate(shippingMethod.restrictions, shippingData, evaluateCondition)
-        if (hasRestrictions) DbResult.failure(failure) else DbResult.unit
+        if (hasRestrictions) DbResultT.failure(failure) else DbResultT.unit
       } else {
-        DbResult.failure(failure)
+        DbResultT.failure(failure)
       }
     }
   }

@@ -11,7 +11,7 @@ trait ReturnSeeds {
 
   def createReturns: DbResultT[Unit] =
     for {
-      order ← * <~ Orders.findOneById(1).safeGet.toXor
+      order ← * <~ Orders.findOneById(1).safeGet
       _     ← * <~ ReturnReasons.createAll(returnReasons)
       _     ← * <~ Returns.create(rma.copy(orderRef = order.referenceNumber))
       _     ← * <~ ReturnLineItemSkus.createAll(returnLineItemSkus)

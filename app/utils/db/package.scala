@@ -16,7 +16,6 @@ import utils.time.JavaTimeSlickMapper
 
 package object db {
 
-  type DbResult[T]  = DBIO[Failures Xor T]
   type DbResultT[A] = XorT[DBIO, Failures, A]
   // Return B whenever A is inserted
   type Returning[A, B] = slick.driver.JdbcActionComponent#ReturningInsertActionComposer[A, B]
@@ -44,10 +43,10 @@ package object db {
   implicit class EnrichedQuery[E, U, C[_]](val query: Query[E, U, C]) extends AnyVal {
     def one: DBIO[Option[U]] = query.result.headOption
 
-    def mustFindOneOr(notFoundFailure: Failure)(implicit ec: EC): DbResult[U] =
+    def mustFindOneOr(notFoundFailure: Failure)(implicit ec: EC): DbResultT[U] =
       query.one.mustFindOr(notFoundFailure)
 
-    def mustNotFindOneOr(notFoundFailure: Failure)(implicit ec: EC): DbResult[Unit] =
+    def mustNotFindOneOr(notFoundFailure: Failure)(implicit ec: EC): DbResultT[Unit] =
       query.one.mustNotFindOr(notFoundFailure)
   }
 
@@ -63,8 +62,8 @@ package object db {
     def run()(implicit db: Database): Future[R] =
       db.run(dbio)
 
-    def toXor(implicit ec: EC): DbResult[R] =
-      DbResult.fromDbio(dbio)
+    def toXor(implicit ec: EC): DbResultT[R] =
+      DbResultT.fromDbio(dbio)
   }
 
   sealed trait FoundOrCreated
@@ -73,47 +72,36 @@ package object db {
 
   implicit class EnrichedDBIOpt[R](val dbio: DBIO[Option[R]]) extends AnyVal {
 
-    def findOrCreate(r: DbResult[R])(implicit ec: EC): DbResult[R] = {
-      dbio.flatMap {
-        case Some(model) ⇒ DbResult.good(model)
+    def findOrCreate(r: DbResultT[R])(implicit ec: EC): DbResultT[R] = {
+      dbio.toXor.flatMap {
+        case Some(model) ⇒ DbResultT.good(model)
         case None        ⇒ r
       }
     }
 
     // Last item in tuple determines if cart was created or not
-    def findOrCreateExtended(r: DbResult[R])(implicit ec: EC): DbResult[(R, FoundOrCreated)] = {
-      dbio.flatMap {
-        case Some(model) ⇒ DbResult.good((model, Found))
-        case _           ⇒ r.map(_.map(result ⇒ (result, Created)))
+    def findOrCreateExtended(r: DbResultT[R])(implicit ec: EC): DbResultT[(R, FoundOrCreated)] = {
+      dbio.toXor.flatMap {
+        case Some(model) ⇒ DbResultT.good((model, Found))
+        case _           ⇒ r.map(result ⇒ (result, Created))
       }
     }
 
-    def mustFindOr(notFoundFailure: Failure)(implicit ec: EC): DbResult[R] = dbio.flatMap {
-      case Some(model) ⇒ DbResult.good(model)
-      case None        ⇒ DbResult.failure(notFoundFailure)
+    def mustFindOr(notFoundFailure: Failure)(implicit ec: EC): DbResultT[R] = dbio.toXor.flatMap {
+      case Some(model) ⇒ DbResultT.good(model)
+      case None        ⇒ DbResultT.failure(notFoundFailure)
     }
 
-    def mustNotFindOr(shouldNotBeHere: Failure)(implicit ec: EC): DbResult[Unit] = dbio.flatMap {
-      case None    ⇒ DbResult.unit
-      case Some(_) ⇒ DbResult.failure(shouldNotBeHere)
-    }
+    def mustNotFindOr(shouldNotBeHere: Failure)(implicit ec: EC): DbResultT[Unit] =
+      dbio.toXor.flatMap {
+        case None    ⇒ DbResultT.unit
+        case Some(_) ⇒ DbResultT.failure(shouldNotBeHere)
+      }
 
     // we only use this when we *know* we can call head safely on a query. (e.g., you've created a record which
     // has a FK constraint to another table and you then fetch that associated record -- we already *know* it must
     // exist.
     def safeGet(implicit ec: EC): DBIO[R] = dbio.map(_.get)
-  }
-
-  implicit class EnrichedDbResult[A](val r: DbResult[A]) extends AnyVal {
-    def toXorT: DbResultT[A] = DbResultT(r)
-  }
-
-  def xorMapDbio[LeftX, RightX, RightY](xor: Xor[LeftX, RightX])(f: RightX ⇒ DBIO[RightY])(
-      implicit ec: EC): DBIO[Xor[LeftX, RightY]] = {
-    xor.fold(
-        fs ⇒ lift(Xor.left(fs)),
-        v ⇒ f(v).map(Xor.right)
-    )
   }
 
   // DBIO monad
@@ -134,11 +122,9 @@ package object db {
 
   // implicits
   implicit class EnrichedDbResultT[A](dbResultT: DbResultT[A]) {
-    // TODO @anna: remove
     def runTxn()(implicit db: DB): Result[A] =
       dbResultT.value.transactionally.run()
 
-    // TODO @anna: remove
     def run()(implicit db: DB): Result[A] =
       dbResultT.value.run()
 
@@ -160,34 +146,34 @@ package object db {
       XorT.pure[DBIO, Failures, A](v)
 
     def fromXor[A](v: Failures Xor A)(implicit ec: EC): DbResultT[A] =
-      v.fold(leftLift, rightLift)
+      v.fold(failures, good)
 
-    def right[A](v: DBIO[A])(implicit ec: EC): DbResultT[A] =
+    def fromDbio[A](v: DBIO[A])(implicit ec: EC): DbResultT[A] =
       XorT.right[DBIO, Failures, A](v)
 
-    def rightLift[A](v: A)(implicit ec: EC): DbResultT[A] =
+    def good[A](v: A)(implicit ec: EC): DbResultT[A] =
       XorT.right[DBIO, Failures, A](DBIO.successful(v))
 
-    def left[A](v: DBIO[Failures])(implicit ec: EC): DbResultT[A] =
-      XorT.left[DBIO, Failures, A](v)
-
-    def leftLift[A](v: Failures)(implicit ec: EC): DbResultT[A] =
-      left(DBIO.successful(v))
+    def failures[A](v: Failures)(implicit ec: EC): DbResultT[A] =
+      XorT.left[DBIO, Failures, A](DBIO.successful(v))
 
     def failure[A](f: Failure)(implicit ec: EC): DbResultT[A] =
-      leftLift[A](f.single)
+      failures[A](f.single)
 
     def sequence[A, M[X] <: TraversableOnce[X]](values: M[DbResultT[A]])(
         implicit buildFrom: CanBuildFrom[M[DbResultT[A]], A, M[A]],
         ec: EC): DbResultT[M[A]] =
       values
-        .foldLeft(rightLift(buildFrom(values))) { (liftedBuilder, liftedValue) ⇒
+        .foldLeft(good(buildFrom(values))) { (liftedBuilder, liftedValue) ⇒
           for (builder ← liftedBuilder; value ← liftedValue) yield builder += value
         }
         .map(_.result)
 
-    def unit(implicit ec: EC): DbResultT[Unit] = pure({})
+    def unit(implicit ec: EC): DbResultT[Unit] =
+      pure({})
 
+    def none[A](implicit ec: EC): DbResultT[Option[A]] =
+      pure(Option.empty[A])
   }
 
   object * {
@@ -196,6 +182,9 @@ package object db {
 
     def <~[A](v: SqlAction[A, NoStream, Effect.All])(implicit ec: EC): DbResultT[A] =
       DbResultT(v.map(Xor.right))
+
+    def <~[A](v: DBIO[A])(implicit ec: EC): DbResultT[A] =
+      DbResultT.fromDbio(v)
 
     def <~[A](v: Failures Xor A)(implicit ec: EC): DbResultT[A] =
       DbResultT.fromXor(v)

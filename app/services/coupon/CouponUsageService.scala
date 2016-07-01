@@ -27,19 +27,19 @@ object CouponUsageService {
                              usesAvailable: Int,
                              code: String)(implicit ec: EC, db: DB): DbResultT[Unit] =
     for {
-      count ← * <~ couponCodeUsageCount(couponFormId, couponCodeId).toXor
-      _ ← * <~ (if (count < usesAvailable) DbResult.failure(CouponCodeCannotBeUsedAnymore(code))
-                else DbResult.unit)
+      count ← * <~ couponCodeUsageCount(couponFormId, couponCodeId)
+      _ ← * <~ (if (count < usesAvailable) DbResultT.failure(CouponCodeCannotBeUsedAnymore(code))
+                else DbResultT.unit)
     } yield {}
 
   def couponMustBeUsable(couponFormId: Int, customerId: Int, usesAvailable: Int, code: String)(
       implicit ec: EC,
       db: DB): DbResultT[Unit] =
     for {
-      count ← * <~ couponUsageCount(couponFormId, customerId).toXor
+      count ← * <~ couponUsageCount(couponFormId, customerId)
       _ ← * <~ (if (count < usesAvailable)
-                  DbResult.failure(CouponCodeCannotBeUsedByCustomerAnymore(code, customerId))
-                else DbResult.unit)
+                  DbResultT.failure(CouponCodeCannotBeUsedByCustomerAnymore(code, customerId))
+                else DbResultT.unit)
     } yield {}
 
   def mustBeUsableByCustomer(couponFormId: Int,
@@ -62,7 +62,7 @@ object CouponUsageService {
     couponCodeId match {
       case Some(codeId) ⇒
         for {
-          couponCode ← * <~ CouponCodes.findById(codeId).extract.one.safeGet.toXor
+          couponCode ← * <~ CouponCodes.findById(codeId).extract.one.safeGet
           context    ← * <~ ObjectContexts.mustFindById400(contextId)
           code       ← * <~ CouponCodes.mustFindById400(codeId)
           coupon ← * <~ Coupons
@@ -70,32 +70,27 @@ object CouponUsageService {
                     .one
                     .mustFindOr(CouponNotFoundForContext(code.couponFormId, context.name))
           form ← * <~ ObjectForms.mustFindById400(coupon.formId)
-          // TODO @anna: #longlivedbresultt
           couponUsage ← * <~ CouponUsages
                          .filterByCoupon(coupon.formId)
                          .one
-                         .findOrCreate(CouponUsages
-                               .create(new CouponUsage(couponFormId = coupon.formId, count = 1))
-                               .value)
+                         .findOrCreate(CouponUsages.create(
+                                 CouponUsage(couponFormId = coupon.formId, count = 1)))
           couponCodeUsage ← * <~ CouponCodeUsages
                              .filterByCouponAndCode(coupon.formId, couponCode.id)
                              .one
                              .findOrCreate(
-                                 CouponCodeUsages
-                                   .create(new CouponCodeUsage(couponFormId = coupon.formId,
-                                                               couponCodeId = couponCode.id,
-                                                               count = 0))
-                                   .value)
+                                 CouponCodeUsages.create(
+                                     CouponCodeUsage(couponFormId = coupon.formId,
+                                                     couponCodeId = couponCode.id,
+                                                     count = 0)))
           couponUsageByCustomer ← * <~ CouponCustomerUsages
                                    .filterByCouponAndCustomer(coupon.formId, customer.id)
                                    .one
                                    .findOrCreate(
-                                       CouponCustomerUsages
-                                         .create(
-                                             new CouponCustomerUsage(couponFormId = coupon.formId,
-                                                                     customerId = customer.id,
-                                                                     count = 0))
-                                         .value)
+                                       CouponCustomerUsages.create(
+                                           CouponCustomerUsage(couponFormId = coupon.formId,
+                                                               customerId = customer.id,
+                                                               count = 0)))
           _ ← * <~ CouponUsages.update(couponUsage,
                                        couponUsage.copy(count = couponUsage.count + 1))
           _ ← * <~ CouponCodeUsages.update(couponCodeUsage,

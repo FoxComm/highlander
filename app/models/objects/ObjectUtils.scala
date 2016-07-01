@@ -219,7 +219,7 @@ object ObjectUtils {
     failIfErrors(IlluminateAlgorithm.validateAttributes(form.attributes, shadow.attributes))
 
   def failIfErrors(errors: Seq[Failure])(implicit ec: EC): DbResultT[Unit] = errors match {
-    case head :: tail ⇒ DbResultT.leftLift(NonEmptyList(head, tail))
+    case head :: tail ⇒ DbResultT.failures(NonEmptyList(head, tail))
     case Nil          ⇒ DbResultT.pure(Unit)
   }
 
@@ -239,7 +239,6 @@ object ObjectUtils {
                                .filter(_.formId === shadow.formId)
                                .filter(_.contextId === contextId)
                                .one
-                               .toXor
                    newLink ← * <~ updateLeftLinkIfObject(optModel,
                                                          Left,
                                                          newShadow.id,
@@ -262,7 +261,7 @@ object ObjectUtils {
     for {
       shadow    ← * <~ ObjectShadows.mustFindById404(oldLink.rightId)
       newShadow ← * <~ ObjectShadows.create(shadow.copy(id = 0))
-      optModel  ← * <~ Right.filter(_.shadowId === oldLink.rightId).one.toXor
+      optModel  ← * <~ Right.filter(_.shadowId === oldLink.rightId).one
       newLink ← * <~ updateRightLinkIfObject(optModel,
                                              Right,
                                              newLeftId,

@@ -9,6 +9,6 @@ object GiftCardNoteManager extends NoteManager[String, GiftCard] {
 
   def noteType(): Note.ReferenceType = Note.GiftCard
 
-  def fetchEntity(code: String)(implicit ec: EC, db: DB, ac: AC): DbResult[GiftCard] =
+  def fetchEntity(code: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[GiftCard] =
     GiftCards.mustFindByCode(code)
 }

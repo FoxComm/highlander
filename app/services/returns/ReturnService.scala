@@ -19,23 +19,23 @@ object ReturnService {
       implicit ec: EC,
       db: DB): Result[Root] =
     (for {
-      _   ← * <~ payload.validate.toXor
+      _   ← * <~ payload.validate
       rma ← * <~ mustFindPendingReturnByRefNum(refNum)
       newMessage = if (payload.message.length > 0) Some(payload.message) else None
       update   ← * <~ Returns.update(rma, rma.copy(messageToCustomer = newMessage))
-      updated  ← * <~ Returns.refresh(rma).toXor
-      response ← * <~ ReturnResponse.fromRma(updated).toXor
+      updated  ← * <~ Returns.refresh(rma)
+      response ← * <~ ReturnResponse.fromRma(updated)
     } yield response).runTxn()
 
   def updateStateByCsr(refNum: String, payload: ReturnUpdateStatePayload)(implicit ec: EC,
                                                                           db: DB): Result[Root] =
     (for {
-      _        ← * <~ payload.validate.toXor
+      _        ← * <~ payload.validate
       rma      ← * <~ Returns.mustFindByRefNum(refNum)
-      reason   ← * <~ payload.reasonId.map(Reasons.findOneById).getOrElse(lift(None)).toXor
+      reason   ← * <~ payload.reasonId.map(Reasons.findOneById).getOrElse(lift(None))
       _        ← * <~ cancelOrUpdate(rma, reason, payload)
-      updated  ← * <~ Returns.refresh(rma).toXor
-      response ← * <~ ReturnResponse.fromRma(updated).toXor
+      updated  ← * <~ Returns.refresh(rma)
+      response ← * <~ ReturnResponse.fromRma(updated)
     } yield response).runTxn()
 
   private def cancelOrUpdate(rma: Return,
@@ -45,7 +45,7 @@ object ReturnService {
       case (Canceled, Some(r)) ⇒
         Returns.update(rma, rma.copy(state = payload.state, canceledReason = Some(r.id)))
       case (Canceled, None) ⇒
-        DbResult.failure(InvalidCancellationReasonFailure)
+        DbResultT.failure(InvalidCancellationReasonFailure)
       case (_, _) ⇒
         Returns.update(rma, rma.copy(state = payload.state))
     }
@@ -56,7 +56,7 @@ object ReturnService {
     for {
       order    ← * <~ Orders.mustFindByRefNum(payload.orderRefNum)
       rma      ← * <~ Returns.create(Return.build(order, admin, payload.returnType))
-      customer ← * <~ Customers.findOneById(order.customerId).toXor
+      customer ← * <~ Customers.findOneById(order.customerId)
       adminResponse    = Some(StoreAdminResponse.build(admin))
       customerResponse = customer.map(CustomerResponse.build(_))
     } yield build(rma, customerResponse, adminResponse)
@@ -64,12 +64,12 @@ object ReturnService {
   def getByRefNum(refNum: String)(implicit ec: EC, db: DB): Result[Root] =
     (for {
       rma      ← * <~ Returns.mustFindByRefNum(refNum)
-      response ← * <~ fromRma(rma).toXor
+      response ← * <~ fromRma(rma)
     } yield response).run()
 
   def getExpandedByRefNum(refNum: String)(implicit ec: EC, db: DB): Result[RootExpanded] =
     (for {
       rma      ← * <~ Returns.mustFindByRefNum(refNum)
-      response ← * <~ fromRmaExpanded(rma).toXor
+      response ← * <~ fromRmaExpanded(rma)
     } yield response).run()
 }

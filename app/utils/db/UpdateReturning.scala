@@ -28,14 +28,18 @@ object UpdateReturning {
       extends AnyVal {
 
     def updateReturningHead[A, F](returningQuery: Query[A, F, C], v: U)(
-        implicit ec: EC): DbResult[F] =
+        implicit ec: EC): DbResultT[F] =
       ExceptionWrapper.wrapDbio(updateReturning(returningQuery, v).head)
 
-    def updateReturningHeadOption[A, F](returningQuery: Query[A, F, C],
-                                        v: U,
-                                        notFoundFailure: Failure)(implicit ec: EC): DbResult[F] =
-      ExceptionWrapper.wrapDbResult(updateReturning(returningQuery, v).headOption.map(res ⇒
-                Xor.fromOption(res, notFoundFailure.single)))
+    def updateReturningHeadOption[A, F](
+        returningQuery: Query[A, F, C],
+        v: U,
+        notFoundFailure: Failure)(implicit ec: EC): DbResultT[F] = {
+      val returningResult = updateReturning(returningQuery, v)
+      val withFailure = returningResult.headOption.toXor.flatMap(res ⇒
+            DbResultT.fromXor(Xor.fromOption(res, notFoundFailure.single)))
+      ExceptionWrapper.wrapDbResultT(withFailure)
+    }
 
     private def updateReturning[A, F](returningQuery: Query[A, F, C],
                                       v: U): SqlStreamingAction[Vector[F], F, Effect.All] = {

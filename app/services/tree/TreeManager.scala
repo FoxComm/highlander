@@ -34,8 +34,8 @@ object TreeManager {
       deleted ← * <~ GenericTreeNodes.findNodes(tree.id, ltreePath).delete
       //subtree should exist
       _ ← * <~ (if (ltreePath.isDefined && deleted == 0)
-                  DbResult.failure(TreeNotFound(treeName, contextName, path.get))
-                else DbResult.unit)
+                  DbResultT.failure(TreeNotFound(treeName, contextName, path.get))
+                else DbResultT.unit)
       usedIndexes ← * <~ GenericTreeNodes.getUsedIndexes(tree.id).result
       (dbTree, _) = payloadToDbTree(tree.id,
                                     newTree,
@@ -56,13 +56,12 @@ object TreeManager {
                       .mustFindOneOr(TreeNodeNotFound(treeName, contextName, moveSpec.child))
       shouldBeDeleted = moveSpec.index.isEmpty
       _ ← * <~ (if (shouldBeDeleted)
-                  DbResultT.right(
-                      GenericTreeNodes.deleteById(
-                          newChildNode.id,
-                          DbResult.unit,
-                          _ ⇒
-                            DatabaseFailure(
-                                s"cannot delete node: index=${newChildNode.index}, tree=$treeName, context=$contextName")))
+                  GenericTreeNodes.deleteById(
+                      newChildNode.id,
+                      DbResultT.unit,
+                      _ ⇒
+                        DatabaseFailure(
+                            s"cannot delete node: index=${newChildNode.index}, tree=$treeName, context=$contextName"))
                 else moveNode(tree.id, moveSpec.index.get, newChildNode))
       resultTree ← * <~ getFullTree(treeName, context)
     } yield resultTree).runTxn()
@@ -105,11 +104,10 @@ object TreeManager {
       createIfNotFound: Boolean = false)(implicit ec: EC, db: DB): DbResultT[GenericTree] =
     for {
       maybeTree ← * <~ GenericTrees.filterByNameAndContext(treeName, context.id).result
-      // TODO @anna: #longlivedbresultt
       ifEmptyAction = if (createIfNotFound)
-        GenericTrees.create(GenericTree(0, treeName, context.id)).value
-      else DbResult.failure(TreeNotFound(treeName, context.name))
-      tree ← * <~ (if (maybeTree.isEmpty) ifEmptyAction else DbResult.good(maybeTree.head))
+        GenericTrees.create(GenericTree(0, treeName, context.id))
+      else DbResultT.failure(TreeNotFound(treeName, context.name))
+      tree ← * <~ (if (maybeTree.isEmpty) ifEmptyAction else DbResultT.good(maybeTree.head))
     } yield tree
 
   private def moveNode(treeId: Int, parentIndex: Int, childNode: GenericTreeNode)(
@@ -120,8 +118,8 @@ object TreeManager {
                     .findNodesByIndex(treeId, parentIndex)
                     .mustFindOneOr(TreeNodeNotFound(treeId, parentIndex))
       _ ← * <~ (if (parentNode.path.value.contains(childNode.index.toString))
-                  DbResult.failure(ParentChildSwapFailure(parentNode.index, childNode.index))
-                else DbResult.none)
+                  DbResultT.failure(ParentChildSwapFailure(parentNode.index, childNode.index))
+                else DbResultT.none)
 
       parentPath    = parentNode.path.toString()
       patternLength = childNode.path.value.size - 1

@@ -83,7 +83,6 @@ object NotificationManager {
                   .findByDimensionAndObject(sourceDimensionId, payload.sourceObjectId)
                   .map(_.adminId)
                   .result
-                  .toXor
       response ← * <~ adminIds.map { adminId ⇒
                   val appendActivity = AppendActivity(payload.activityId, payload.data)
                   val newTrailData   = Some(decompose(NotificationTrailMetadata(0)))
@@ -92,13 +91,11 @@ object NotificationManager {
                                                              appendActivity,
                                                              newTrailData)
                 }
-      _ ← * <~ DBIO
-           .sequence(adminIds.map { adminId ⇒
-             val payload        = write(ActivityResponse.build(activity))
-             val escapedPayload = PgjdbcUtils.escapeLiteral(null, payload, false).toString
-             sqlu"NOTIFY #${notificationChannel(adminId)}, '#${escapedPayload}'"
-           })
-           .toXor
+      _ ← * <~ DBIO.sequence(adminIds.map { adminId ⇒
+           val payload        = write(ActivityResponse.build(activity))
+           val escapedPayload = PgjdbcUtils.escapeLiteral(null, payload, false).toString
+           sqlu"NOTIFY #${notificationChannel(adminId)}, '#${escapedPayload}'"
+         })
     } yield response).runTxn()
 
   def updateLastSeen(adminId: Int, activityId: Int)(implicit ec: EC,
@@ -118,7 +115,7 @@ object NotificationManager {
       implicit ec: EC): DbResultT[TheResponse[Option[Int]]] =
     for {
       dimension  ← * <~ Dimensions.findOrCreateByName(dimension)
-      realAdmins ← * <~ StoreAdmins.filter(_.id.inSet(adminIds)).map(_.id).result.toXor
+      realAdmins ← * <~ StoreAdmins.filter(_.id.inSet(adminIds)).map(_.id).result
       requestedSubs = for (adminId ← realAdmins; objectId ← objectIds) yield (adminId, objectId)
       partialFilter = Subs.filter(_.dimensionId === dimension.id).filter(_.reason === reason)
       existingSubs ← * <~ DBIO
@@ -131,7 +128,6 @@ object NotificationManager {
                             .result
                       })
                       .map(_.flatten)
-                      .toXor
       newSubsQty ← * <~ Subs.createAll(requestedSubs.diff(existingSubs).map {
                     case (adminId, objectId) ⇒
                       Sub(adminId = adminId,
@@ -147,7 +143,7 @@ object NotificationManager {
                   reason: Sub.Reason,
                   dimension: String)(implicit ec: EC): DbResultT[Unit] =
     for {
-      d ← * <~ Dimensions.findByName(dimension).one.toXor
+      d ← * <~ Dimensions.findByName(dimension).one
       _ ← * <~ d.fold(DbResultT.unit) { dimension ⇒
            Subs
              .filter(_.dimensionId === dimension.id)

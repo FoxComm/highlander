@@ -24,11 +24,11 @@ object OrderQueries {
 
     def build(order: Order, customer: Customer) =
       for {
-        paymentState ← * <~ getPaymentState(order.refNum).toXor
+        paymentState ← * <~ getPaymentState(order.refNum)
       } yield AllOrders.build(order, customer.some, paymentState.some)
 
     for {
-      ordersCustomers ← * <~ query.join(Customers).on(_.customerId === _.id).result.toXor
+      ordersCustomers ← * <~ query.join(Customers).on(_.customerId === _.id).result
       response        ← * <~ ordersCustomers.map((build _).tupled)
     } yield TheResponse.build(response)
   }
@@ -37,7 +37,7 @@ object OrderQueries {
     (for {
       order     ← * <~ Orders.mustFindByRefNum(refNum)
       validated ← * <~ CartValidator(order).validate()
-      response  ← * <~ FullOrder.fromOrder(order).toXor
+      response  ← * <~ FullOrder.fromOrder(order)
     } yield
       TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).run()
 
@@ -49,7 +49,7 @@ object OrderQueries {
                .findOneByRefNumAndCustomer(refNum, customer)
                .mustFindOneOr(NotFoundFailure404(Orders, refNum))
       validated ← * <~ CartValidator(order).validate()
-      response  ← * <~ FullOrder.fromOrder(order).toXor
+      response  ← * <~ FullOrder.fromOrder(order)
     } yield
       TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).run()
 
@@ -76,11 +76,9 @@ object OrderQueries {
       result ← * <~ Orders
                 .findActiveOrderByCustomer(customer)
                 .one
-                // TODO @anna: #longlivedbresultt
-                .findOrCreateExtended(
-                    Orders.create(Order.buildCart(customer.id, context.id)).value)
+                .findOrCreateExtended(Orders.create(Order.buildCart(customer.id, context.id)))
       (order, foundOrCreated) = result
-      fullOrder ← * <~ FullOrder.fromOrder(order).toXor
+      fullOrder ← * <~ FullOrder.fromOrder(order)
       _         ← * <~ logCartCreation(foundOrCreated, fullOrder, admin)
     } yield fullOrder
 
@@ -89,7 +87,7 @@ object OrderQueries {
                               admin: Option[StoreAdmin])(implicit ec: EC, ac: AC) =
     foundOrCreated match {
       case Created ⇒ LogActivity.cartCreated(admin, order)
-      case Found   ⇒ DbResult.unit
+      case Found   ⇒ DbResultT.unit
     }
 
   def getPaymentState(orderRef: String)(implicit ec: EC): DBIO[CreditCardCharge.State] =

@@ -63,7 +63,7 @@ object CustomerManager {
                  .map(_.flatten)
                  .toXor
       shipment ← * <~ (if (default.isEmpty) resolveFromShipments(customerId)
-                       else DbResult.good(default))
+                       else DbResultT.good(default))
     } yield shipment
   }
 
@@ -76,7 +76,7 @@ object CustomerManager {
       (customer, shipRegion, billRegion, rank) = customers
       maxOrdersDate ← * <~ Orders.filter(_.customerId === id).map(_.placedAt).max.result
       phoneOverride ← * <~ (if (customer.phoneNumber.isEmpty) resolvePhoneNumber(id)
-                            else DbResultT.rightLift(None))
+                            else DbResultT.good(None))
     } yield
       build(customer.copy(phoneNumber = customer.phoneNumber.orElse(phoneOverride)),
             shipRegion,
@@ -91,7 +91,7 @@ object CustomerManager {
       customer ← * <~ Customer.buildFromPayload(payload).validate
       _ ← * <~ (if (!payload.isGuest.getOrElse(false))
                   Customers.createEmailMustBeUnique(customer.email)
-                else DbResult.unit)
+                else DbResultT.unit)
       updated ← * <~ Customers.create(customer)
       response = build(updated)
       _ ← * <~ LogActivity.customerCreated(response, admin)
@@ -102,11 +102,11 @@ object CustomerManager {
       db: DB,
       ac: AC): DbResultT[Root] =
     for {
-      _        ← * <~ payload.validate.toXor
+      _        ← * <~ payload.validate
       customer ← * <~ Customers.mustFindById404(customerId)
       _ ← * <~ payload.email
            .map(Customers.updateEmailMustBeUnique(_, customerId))
-           .getOrElse(DbResult.unit)
+           .getOrElse(DbResultT.unit)
       updated ← * <~ Customers.update(
                    customer,
                    customer.copy(name = payload.name.fold(customer.name)(Some(_)),

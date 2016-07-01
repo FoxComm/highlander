@@ -125,42 +125,55 @@ object FullOrder {
         extends Payments
   }
 
-  def refreshAndFullOrder(order: Order)(implicit db: DB, ec: EC): DBIO[FullOrder.Root] =
-    Orders.refresh(order).flatMap(fromOrder)
+  def refreshAndFullOrder(order: Order)(implicit db: DB, ec: EC): DbResultT[FullOrder.Root] =
+    Orders.refresh(order).toXor.flatMap(fromOrder)
 
-  def fromOrder(order: Order)(implicit db: DB, ec: EC): DBIO[Root] = {
-    fetchOrderDetails(order).map {
-      case (customer,
-            lineItems,
-            shipMethod,
-            shipAddress,
-            ccPmt,
-            gcPmts,
-            scPmts,
-            giftCards,
-            totals,
-            lockedBy,
-            payState,
-            promoDetails,
-            lineItemAdjustments) ⇒
-        build(
-            order = order,
-            customer = customer,
-            lineItems = lineItems,
-            giftCards = giftCards,
-            shippingAddress = shipAddress.toOption,
-            shippingMethod = shipMethod,
-            ccPmt = ccPmt,
-            gcPmts = gcPmts,
-            scPmts = scPmts,
-            lockedBy = lockedBy,
-            paymentState = payState,
-            totals = totals,
-            promotion = promoDetails.map { case (promo, _) ⇒ promo },
-            coupon = promoDetails.map { case (_, coupon)   ⇒ coupon },
-            lineItemAdjustments = lineItemAdjustments.map(LineItemAdjustment.build)
-        )
-    }
+  def fromOrder(order: Order)(implicit db: DB, ec: EC): DbResultT[Root] = {
+    val ccPaymentQ = for {
+      payment    ← OrderPayments.findAllByOrderRef(order.refNum)
+      creditCard ← CreditCards.filter(_.id === payment.paymentMethodId)
+      region     ← creditCard.region
+    } yield (payment, creditCard, region)
+
+    for {
+      context     ← * <~ ObjectContexts.mustFindById400(order.contextId)
+      customer    ← * <~ Customers.findOneById(order.customerId)
+      lineItemTup ← * <~ OrderLineItemSkus.findLineItemsByOrder(order).result
+      lineItems = lineItemTup.map {
+        case (sku, skuForm, skuShadow, productShadow, lineItem) ⇒
+          OrderLineItemProductData(sku, skuForm, skuShadow, productShadow, lineItem)
+      }
+      giftCards  ← * <~ OrderLineItemGiftCards.findLineItemsByOrder(order).result
+      shipMethod ← * <~ shipping.ShippingMethods.forOrder(order).one
+      shipAddress ← * <~ Addresses
+                     .forOrderRef(order.refNum)
+                     .fold(_ ⇒ Option.empty[Addresses.Root], address ⇒ address.some)
+      payments     ← * <~ ccPaymentQ.one
+      gcPayments   ← * <~ OrderPayments.findAllGiftCardsByOrderRef(order.refNum).result
+      scPayments   ← * <~ OrderPayments.findAllStoreCreditsByOrderRef(order.refNum).result
+      lockedBy     ← * <~ currentLock(order)
+      payState     ← * <~ OrderQueries.getPaymentState(order.refNum)
+      orderPromo   ← * <~ OrderPromotions.filterByOrderRef(order.refNum).one
+      promoDetails ← * <~ fetchPromoDetails(context, orderPromo)
+      lineItemAdj  ← * <~ OrderLineItemAdjustments.findByOrderRef(order.refNum).result
+    } yield
+      build(
+          order = order,
+          customer = customer,
+          lineItems = lineItems,
+          giftCards = giftCards,
+          shippingAddress = shipAddress,
+          shippingMethod = shipMethod,
+          ccPmt = payments,
+          gcPmts = gcPayments,
+          scPmts = scPayments,
+          lockedBy = lockedBy,
+          paymentState = payState.some,
+          totals = totals(order).some,
+          promotion = promoDetails.map { case (promo, _) ⇒ promo },
+          coupon = promoDetails.map { case (_, coupon)   ⇒ coupon },
+          lineItemAdjustments = lineItemAdj.map(LineItemAdjustment.build)
+      )
   }
 
   def build(order: Order,
@@ -213,22 +226,21 @@ object FullOrder {
 
     val paymentMethods: Seq[Payments] = creditCardPmt ++ giftCardPmts ++ storeCreditPmts
 
-    val skuList = lineItems.map {
-      case data ⇒
-        val price = Mvp.priceAsInt(data.skuForm, data.skuShadow)
-        val name  = Mvp.name(data.skuForm, data.skuShadow).getOrElse("")
-        val noImage =
-          "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/no_image.jpg"
-        val image = Mvp.firstImage(data.skuForm, data.skuShadow).getOrElse(noImage)
+    val skuList = lineItems.map { data ⇒
+      val price = Mvp.priceAsInt(data.skuForm, data.skuShadow)
+      val name  = Mvp.name(data.skuForm, data.skuShadow).getOrElse("")
+      val noImage =
+        "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/no_image.jpg"
+      val image = Mvp.firstImage(data.skuForm, data.skuShadow).getOrElse(noImage)
 
-        DisplayLineItem(imagePath = image,
-                        sku = data.sku.code,
-                        referenceNumber = data.lineItem.referenceNumber,
-                        state = data.lineItem.state,
-                        name = name,
-                        price = price,
-                        productFormId = data.product.formId,
-                        totalPrice = price)
+      DisplayLineItem(imagePath = image,
+                      sku = data.sku.code,
+                      referenceNumber = data.lineItem.referenceNumber,
+                      state = data.lineItem.state,
+                      name = name,
+                      price = price,
+                      productFormId = data.product.formId,
+                      totalPrice = price)
     }
 
     val gcList = giftCards.map { case (gc, li) ⇒ GiftCardResponse.build(gc) }
@@ -326,46 +338,4 @@ object FullOrder {
       respCouponPair = CouponPair(coupon = respCoupon, code = couponCode.code)
     } yield (respPromo, respCouponPair).some
 
-  private def fetchOrderDetails(order: Order)(implicit db: DB, ec: EC) = {
-    val ccPaymentQ = for {
-      payment    ← OrderPayments.findAllByOrderRef(order.refNum)
-      creditCard ← CreditCards.filter(_.id === payment.paymentMethodId)
-      region     ← creditCard.region
-    } yield (payment, creditCard, region)
-
-    for {
-      context     ← ObjectContexts.findById(order.contextId).extract.one.safeGet
-      customer    ← Customers.findById(order.customerId).extract.one
-      lineItemTup ← OrderLineItemSkus.findLineItemsByOrder(order).result
-      lineItems = lineItemTup.map {
-        case (sku, skuForm, skuShadow, productShadow, lineItem) ⇒
-          OrderLineItemProductData(sku, skuForm, skuShadow, productShadow, lineItem)
-      }
-      giftCards   ← OrderLineItemGiftCards.findLineItemsByOrder(order).result
-      shipMethod  ← shipping.ShippingMethods.forOrder(order).one
-      shipAddress ← Addresses.forOrderRef(order.refNum)
-      payments    ← ccPaymentQ.one
-      gcPayments  ← OrderPayments.findAllGiftCardsByOrderRef(order.refNum).result
-      scPayments  ← OrderPayments.findAllStoreCreditsByOrderRef(order.refNum).result
-      lockedBy    ← currentLock(order)
-      payState    ← OrderQueries.getPaymentState(order.refNum)
-      // Promotion stuff
-      orderPromo   ← OrderPromotions.filterByOrderRef(order.refNum).one
-      promoDetails ← fetchPromoDetails(context, orderPromo)
-      lineItemAdj  ← OrderLineItemAdjustments.findByOrderRef(order.refNum).result
-    } yield
-      (customer,
-       lineItems,
-       shipMethod,
-       shipAddress,
-       payments,
-       gcPayments,
-       scPayments,
-       giftCards,
-       totals(order).some,
-       lockedBy,
-       payState.some,
-       promoDetails,
-       lineItemAdj)
-  }
 }

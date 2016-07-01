@@ -108,11 +108,11 @@ object CategoryManager {
         DbResultT.pure(category)
     }
 
-  private def contextByName(contextName: String)(implicit ec: EC): DbResult[ObjectContext] =
+  private def contextByName(contextName: String)(implicit ec: EC): DbResultT[ObjectContext] =
     ObjectContexts.filterByName(contextName).mustFindOneOr(ObjectContextNotFound(contextName))
 
   private def categoryById(categoryId: Int, context: ObjectContext)(
-      implicit ec: EC): DbResult[Category] =
+      implicit ec: EC): DbResultT[Category] =
     Categories
       .withContextAndCategory(context.id, categoryId)
       .mustFindOneOr(CategoryNotFoundForContext(categoryId, context.id))

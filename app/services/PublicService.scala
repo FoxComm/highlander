@@ -16,7 +16,7 @@ object PublicService {
   def findCountry(countryId: Int)(implicit ec: EC, db: DB): DbResultT[CountryWithRegions] =
     for {
       country ← * <~ Countries.mustFindById404(countryId)
-      regions ← * <~ Regions.filter(_.countryId === country.id).result.toXor
+      regions ← * <~ Regions.filter(_.countryId === country.id).result
     } yield CountryWithRegions(country, sortRegions(regions.to[Seq]))
 
   def listCountries(implicit ec: EC, db: DB): Future[Seq[Country]] =

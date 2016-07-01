@@ -207,6 +207,6 @@ object PromotionManager {
         if (promotion.applyType != payload.applyType)
           Promotions.update(promotion, promotion.copy(applyType = payload.applyType))
         else
-          DbResultT.rightLift(promotion)
+          DbResultT.good(promotion)
     }
 }
