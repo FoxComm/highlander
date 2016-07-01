@@ -44,7 +44,7 @@ module "buildagents" {
 ##############################################
 
 variable "tiny_backend_image" {
-    default = "tinystack-backend-1467327805"
+    default = "tinystack-backend-1467330238"
 } 
 
 variable "tiny_frontend_image" {
