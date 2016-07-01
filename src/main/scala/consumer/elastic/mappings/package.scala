@@ -12,7 +12,7 @@ package object mappings {
       NGramTokenizer("autocomplete_tokenizer",
                      3,
                      20,
-                     Seq("letter", "digit", "punctuation", "symbol")),
+                     Seq("letter", "digit", "punctuation", "symbol", "whitespace")),
       LowercaseTokenFilter
   )
 
