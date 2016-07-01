@@ -1,0 +1,15 @@
+{
+    "service" : {
+        "name": "isaac",
+        "tags": ["isaac"], 
+        "port": 9190,
+        "checks": [
+            {
+                "name": "HTTP API on port 9190",
+                "http": "http://localhost:9190/ping",
+                "interval": "30s",
+                "status": "passing"
+            }
+        ]
+    }
+}

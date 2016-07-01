@@ -22,6 +22,7 @@
     - { role: base/node }
     - { role: base/balancer, sudo: yes }
     - { role: base/phoenix }
+    - { role: base/isaac }
     - { role: base/greenriver }
     - { role: base/ashes }
     - { role: base/firebird }

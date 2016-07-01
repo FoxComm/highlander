@@ -1,0 +1,3 @@
+isaac_db_connection: "host={{db_host}} dbname={{db_name}} user={{db_user}}"
+isaac_src: ../../isaac/build/src/isaac/isaac
+
