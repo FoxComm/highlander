@@ -26,17 +26,9 @@ namespace isaac
             else if(_headers->getPath() == "/admin") 
                 validate(*_headers, *_body, true);
             else if(_headers->getPath() == "/ping") 
-            {
-                proxygen::ResponseBuilder{downstream_}
-                .status(200, "pong")
-                    .sendWithEOM();
-            }
+                ping();
             else
-            {
-                proxygen::ResponseBuilder{downstream_}
-                .status(404, "Not Found")
-                    .sendWithEOM();
-            }
+                is404();
         }
         catch(std::exception& e)
         {
@@ -51,6 +43,7 @@ namespace isaac
                 .sendWithEOM();
         }
 
+
         void query_request_handler::onUpgrade(proxygen::UpgradeProtocol proto) noexcept 
         {
         }
@@ -63,6 +56,20 @@ namespace isaac
         void query_request_handler::onError(proxygen::ProxygenError err) noexcept
         { 
             delete this;
+        }
+
+        void query_request_handler::ping()
+        {
+            proxygen::ResponseBuilder{downstream_}
+            .status(200, "pong")
+                .sendWithEOM();
+        }
+
+        void query_request_handler::is404()
+        {
+            proxygen::ResponseBuilder{downstream_}
+            .status(404, "Not Found")
+                .sendWithEOM();
         }
 
         bool query_request_handler::check_signature(const util::jwt_parts& parts)
