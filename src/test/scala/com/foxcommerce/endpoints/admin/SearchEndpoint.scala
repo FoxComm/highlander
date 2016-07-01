@@ -44,10 +44,10 @@ object SearchEndpoint {
     http("Check Order Presence in Elasticsearch")
       .get("/search/admin/orders_search_view/_search?q=referenceNumber:${orderRefNum}")
       .check(status.is(200))
-      .check(jsonPath("$.state").ofType[String].is(state))
-      .check(jsonPath("$.shippingAddresses[0].address1").ofType[String].is(order.shippingAddress.address1))
-      .check(jsonPath("$.shippingAddresses[0].address2").ofType[String].is(order.shippingAddress.address2))
-      .check(jsonPath("$.shippingAddresses[0].city").ofType[String].is(order.shippingAddress.city))
-      .check(jsonPath("$.shippingAddresses[0].zip").ofType[String].is(order.shippingAddress.zip))
+      .check(jsonPath("$.result[0].state").ofType[String].is(state))
+      .check(jsonPath("$.result[0].shippingAddresses[0].address1").ofType[String].is(order.shippingAddress.address1))
+      .check(jsonPath("$.result[0].shippingAddresses[0].address2").ofType[String].is(order.shippingAddress.address2))
+      .check(jsonPath("$.result[0].shippingAddresses[0].city").ofType[String].is(order.shippingAddress.city))
+      .check(jsonPath("$.result[0].shippingAddresses[0].zip").ofType[String].is(order.shippingAddress.zip))
   }
 }
