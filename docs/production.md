@@ -132,7 +132,7 @@ Do all the steps while connected to created VPN service.
 		terraform/base/gce_vanilla
 	```
 
-6. Add a new project ID in `bin/env/projects.json` and
+6. Add a new project ID in `projects.json` and
 
 	```
 	$ make build
