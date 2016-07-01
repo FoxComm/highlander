@@ -66,10 +66,12 @@ export function createAndAddOrderCreditCardPayment(orderRefNum, creditCard, cust
 
     return Api.post(`/customers/${customerId}/payment-methods/credit-cards`, ccPayload)
       .then(
-        res => dispatch(setOrderCreditCardPayment(orderRefNum, res.id)),
+        res => {
+          dispatch(setOrderCreditCardPayment(orderRefNum, res.id));
+          dispatch(orderPaymentMethodAddNewPaymentSuccess());
+        },
         err => dispatch(setError(err))
-      )
-      .then(() => dispatch(orderPaymentMethodAddNewPaymentSuccess()));
+      );
   };
 }
 
