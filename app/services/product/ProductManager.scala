@@ -26,23 +26,6 @@ import utils.db._
 
 object ProductManager {
 
-  private def productSkusAsVariants(
-      skus: Seq[SkuPayloads.SkuPayload],
-      variantPayload: Seq[VariantPayload]): Failures Xor Seq[VariantPayload] = {
-    if (variantPayload.nonEmpty) Xor.right(variantPayload)
-    else {
-      val skuCodes   = skus.map(sku ⇒ SkuManager.getSkuCode(sku.attributes))
-      val hasFailure = skuCodes.contains(None)
-
-      if (hasFailure) {
-        Xor.left(GeneralFailure("SKU code not found in payload").single)
-      } else {
-        val values = skuCodes.map(sku ⇒ VariantValuePayload(None, None, None, Seq(sku.get)))
-        Xor.right(Seq(VariantPayload(None, Map(), Some(values))))
-      }
-    }
-  }
-
   def createProduct(payload: CreateProductPayload)(implicit ec: EC,
                                                    db: DB,
                                                    oc: OC): DbResultT[ProductResponse.Root] = {
@@ -63,19 +46,11 @@ object ProductManager {
 
       productSkus ← * <~ payload.skus.map(sku ⇒
                          findOrCreateSkuForProduct(product, sku, !hasVariants))
-      /*productSkuCodes ← * <~ payload.skus.map(
-                           sku ⇒
-                             SkuManager
-                               .getSkuCode(sku.attributes)
-                               .ensuring(_.isDefined, s"Cannot find sku code in payload")
-                               .get)*/
-
       variants ← * <~ variantPayloads.map(variant ⇒
                       findOrCreateVariantForProduct(product, variant))
       variantValueIds = variants.flatMap { case (_, variantValue) ⇒ variantValue }.map(_.model.id)
       variantValueSkuCodes ← * <~ VariantManager.getVariantValueSkuCodes(variantValueIds)
       variantOnlySkuCodes = variantValueSkuCodes.values.toSeq.flatten.distinct
-      //.filter(!productSkuCodes.contains(_))
       variantSkus ← * <~ variantOnlySkuCodes.map(skuCode ⇒ SkuManager.getSku(oc.name, skuCode))
     } yield
       ProductResponse.build(product =
@@ -126,9 +101,9 @@ object ProductManager {
       db: DB,
       oc: OC): DbResultT[ProductResponse.Root] = {
 
-    val newFormAttrs                 = ObjectForm.fromPayload(Product.kind, payload.attributes).attributes
-    val newShadowAttrs               = ObjectShadow.fromPayload(payload.attributes).attributes
-    val payloadSkus: Seq[SkuPayload] = payload.skus.getOrElse(Seq.empty)
+    val newFormAttrs   = ObjectForm.fromPayload(Product.kind, payload.attributes).attributes
+    val newShadowAttrs = ObjectShadow.fromPayload(payload.attributes).attributes
+    val payloadSkus    = payload.skus.getOrElse(Seq.empty)
 
     for {
       oldProduct ← * <~ mustFindFullProductById(productId)
@@ -213,8 +188,7 @@ object ProductManager {
   private def updateAssociatedSkus(product: Product, skusPayload: Option[Seq[SkuPayload]])(
       implicit ec: EC,
       db: DB,
-      oc: OC) = {
-
+      oc: OC) =
     skusPayload match {
       case Some(payloads) ⇒
         DbResultT.sequence(payloads.map(payload ⇒ findOrCreateSkuForProduct(product, payload)))
@@ -225,13 +199,11 @@ object ProductManager {
           skus  ← * <~ links.map(link ⇒ SkuManager.mustFindIlluminatedSkuById(link.rightId))
         } yield skus
     }
-  }
 
   private def updateAssociatedVariants(
       product: Product,
       shadowId: Int,
-      variantsPayload: Option[Seq[VariantPayload]])(implicit ec: EC, db: DB, oc: OC) = {
-
+      variantsPayload: Option[Seq[VariantPayload]])(implicit ec: EC, db: DB, oc: OC) =
     variantsPayload match {
       case Some(payloads) ⇒
         DbResultT.sequence(payloads.map(payload ⇒ findOrCreateVariantForProduct(product, payload)))
@@ -243,7 +215,6 @@ object ProductManager {
           variants ← * <~ links.map(link ⇒ updateAssociatedVariant(product.shadowId, link))
         } yield variants
     }
-  }
 
   private def updateAssociatedVariant(newShadowId: Int,
                                       variantLink: ObjectLink)(implicit ec: EC, db: DB, oc: OC) =
@@ -257,15 +228,13 @@ object ProductManager {
     } yield variant
 
   private def updateAssociatedAlbums(product: Product,
-                                     oldProductShadowId: Int)(implicit ec: EC, db: DB, oc: OC) = {
-
+                                     oldProductShadowId: Int)(implicit ec: EC, db: DB, oc: OC) =
     for {
       existingLinks ← * <~ ObjectLinks
                        .findByLeftAndType(oldProductShadowId, ObjectLink.ProductAlbum)
                        .result
       _ ← * <~ ObjectUtils.updateAssociatedRights(Albums, existingLinks, product.shadowId)
     } yield {}
-  }
 
   private def updateHead(product: Product,
                          shadow: ObjectShadow,
@@ -280,7 +249,7 @@ object ProductManager {
   private def findOrCreateSkuForProduct(
       product: Product,
       payload: SkuPayload,
-      createLinks: Boolean = true)(implicit ec: EC, db: DB, oc: OC) = {
+      createLinks: Boolean = true)(implicit ec: EC, db: DB, oc: OC) =
     for {
       code ← * <~ SkuManager.mustGetSkuCode(payload)
       sku ← * <~ Skus.filterByContextAndCode(oc.id, code).one.toXor.flatMap {
@@ -297,17 +266,15 @@ object ProductManager {
                              ProductSkuLinks.create(
                                  ProductSkuLink(leftId = product.id, rightId = newSku.model.id))
                            else DbResultT.unit)
-               } yield newSku)
+               } yield newSku
            }
       albums ← * <~ ImageManager.getAlbumsForSkuInner(code, oc)
     } yield SkuResponse.buildLite(IlluminatedSku.illuminate(oc, sku), albums)
-  }
 
   private def findOrCreateVariantForProduct(product: Product, payload: VariantPayload)(
       implicit ec: EC,
       db: DB,
-      oc: OC) = {
-
+      oc: OC) =
     for {
       variant ← * <~ VariantManager.updateOrCreateVariant(oc, payload)
       (fullVariant, _) = variant
@@ -316,17 +283,18 @@ object ProductManager {
                         rightId = fullVariant.shadow.id,
                         linkType = ObjectLink.ProductVariant))
     } yield variant
-  }
 
   def mustFindProductByContextAndFormId404(contextId: Int, formId: Int)(
-      implicit ec: EC, db: DB): DbResultT[Product] =
+      implicit ec: EC,
+      db: DB): DbResultT[Product] =
     Products
       .filter(_.contextId === contextId)
       .filter(_.formId === formId)
       .mustFindOneOr(ProductFormNotFoundForContext(formId, contextId))
 
   def mustFindProductByContextAndId404(contextId: Int, productId: Int)(
-    implicit ec: EC, db: DB): DbResultT[Product] =
+      implicit ec: EC,
+      db: DB): DbResultT[Product] =
     Products
       .filter(_.contextId === contextId)
       .filter(_.id === productId)

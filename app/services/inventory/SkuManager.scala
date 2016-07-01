@@ -106,8 +106,6 @@ object SkuManager {
   def getSkuCode(attributes: Map[String, Json]): Option[String] =
     attributes.get("code").flatMap(json ⇒ (json \ "v").extractOpt[String])
 
-  def getSkuCode(json: Json): Option[String] = (json \ "code" \ "v").extractOpt[String]
-
   def mustFindSkuByContextAndCode(contextId: Int, code: String)(implicit ec: EC): DbResultT[Sku] =
     for {
       sku ← * <~ Skus
@@ -116,7 +114,7 @@ object SkuManager {
     } yield sku
 
   def mustFindFullSkuById(id: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[FullObject[Sku]] =
-    ObjectManager.getFullObject(DbResultT(Skus.filter(_.id === id).mustFindOneOr(SkuNotFound(id))))
+    ObjectManager.getFullObject(Skus.filter(_.id === id).mustFindOneOr(SkuNotFound(id)))
 
   def mustFindIlluminatedSkuById(
       id: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[SkuResponse.Root] =

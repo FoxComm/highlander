@@ -36,7 +36,7 @@ object VariantManager {
       IlluminatedVariantResponse.build(
           variant = IlluminatedVariant.illuminate(context, variant),
           variantValues = values,
-          variantValueSkuCodeLinks = variantToSkuMapping
+          variantValueSkus = variantToSkuMapping
       )
 
   def getVariant(contextName: String, variantId: Int)(
@@ -57,7 +57,7 @@ object VariantManager {
       IlluminatedVariantResponse.build(
           variant = IlluminatedVariant.illuminate(context, fullVariant),
           variantValues = values,
-          variantValueSkuCodeLinks = variantValueSkuCodes
+          variantValueSkus = variantValueSkuCodes
       )
 
   def updateVariant(contextName: String, variantId: Int, payload: VariantPayload)(
@@ -72,7 +72,7 @@ object VariantManager {
       IlluminatedVariantResponse.build(
           variant = IlluminatedVariant.illuminate(context, variant),
           variantValues = values,
-          variantValueSkuCodeLinks = variantValueSkuCodes
+          variantValueSkus = variantValueSkuCodes
       )
 
   def createVariantInner(context: ObjectContext, payload: VariantPayload)(
@@ -203,7 +203,6 @@ object VariantManager {
   private def updateVariantValueInner(valueId: Int, contextId: Int, payload: VariantValuePayload)(
       implicit ec: EC,
       db: DB): DbResultT[FullObject[VariantValue]] = {
-
     val newFormAttrs   = payload.objectForm.attributes
     val newShadowAttrs = payload.objectShadow.attributes
 
@@ -234,9 +233,10 @@ object VariantManager {
 
       _ ← * <~ VariantValueSkuLinks.createAllReturningIds(
              toCreate.map(id ⇒ VariantValueSkuLink(leftId = valueId, rightId = id)))
-      _ ← * <~ toDelete.map(link ⇒
-               VariantValueSkuLinks.deleteById(link.id, DbResult.unit, id ⇒
-                     NotFoundFailure404(link, link.id)))
+      _ ← * <~ toDelete.map(
+             link ⇒
+               VariantValueSkuLinks
+                 .deleteById(link.id, DbResultT.unit, id ⇒ NotFoundFailure404(link, link.id)))
     } yield FullObject(updatedHead, updated.form, updated.shadow)
   }
 
@@ -340,8 +340,7 @@ object VariantManager {
 
   def mustFindFullVariantById(
       id: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[FullObject[Variant]] =
-    ObjectManager.getFullObject(
-        DbResultT(Variants.filter(_.id === id).mustFindOneOr(VariantNotFound(id))))
+    ObjectManager.getFullObject(Variants.filter(_.id === id).mustFindOneOr(VariantNotFound(id)))
 
   def mustFindFullVariantWithValuesById(
       id: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[FullVariant] =

@@ -162,7 +162,7 @@ object ImageManager {
       context ← * <~ ObjectManager.mustFindByName404(contextName)
       product ← * <~ ProductManager.mustFindProductByContextAndFormId404(context.id, productId)
       album   ← * <~ createAlbumInner(payload, context)
-      images  ← * <~ Image.buildFromAlbum(album)
+      (fullAlbum, images) = album
       link ← * <~ ObjectLinks.create(
                 ObjectLink(leftId = product.shadowId,
                            rightId = fullAlbum.shadow.id,

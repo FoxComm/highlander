@@ -38,11 +38,4 @@ object ProductSkuLinks
   val returningLens: Lens[ProductSkuLink, Int] = lens[ProductSkuLink].id
 
   def filterLeft(leftId: Int): QuerySeq = filter(_.leftId === leftId)
-
-  def filterRight(rightId: Int): QuerySeq = filter(_.rightId === rightId)
-
-  def filterLeft(leftIds: Seq[Int]): QuerySeq = filter(_.leftId.inSet(leftIds))
-
-  def filterRight(rightIds: Seq[Int]): QuerySeq = filter(_.rightId.inSet(rightIds))
-
 }

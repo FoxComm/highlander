@@ -16,21 +16,16 @@ case class VariantValueSkuLink(id: Int = 0,
 
 class VariantValueSkuLinks(tag: Tag)
     extends FoxTable[VariantValueSkuLink](tag, "variant_value_sku_links") {
-  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-
-  def leftId = column[Int]("left_id")
-
-  def rightId = column[Int]("right_id")
-
+  def id        = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def leftId    = column[Int]("left_id")
+  def rightId   = column[Int]("right_id")
   def createdAt = column[Instant]("created_at")
-
   def updatedAt = column[Instant]("updated_at")
 
   def * =
     (id, leftId, rightId, createdAt, updatedAt) <> ((VariantValueSkuLink.apply _).tupled, VariantValueSkuLink.unapply)
 
-  def left = foreignKey(Variants.tableName, leftId, Variants)(_.id)
-
+  def left  = foreignKey(Variants.tableName, leftId, Variants)(_.id)
   def right = foreignKey(Skus.tableName, rightId, Skus)(_.id)
 }
 
@@ -42,17 +37,13 @@ object VariantValueSkuLinks
 
   def filterLeft(leftId: Int): QuerySeq = filter(_.leftId === leftId)
 
-  def filterRight(rightId: Int): QuerySeq = filter(_.rightId === rightId)
-
   def filterLeft(leftIds: Seq[Int]): QuerySeq = filter(_.leftId.inSet(leftIds))
-
-  def filterRight(rightIds: Seq[Int]): QuerySeq = filter(_.rightId.inSet(rightIds))
 
   def findSkusForVariantValues(
       variantValueHeadIds: Seq[Int]): Query[(Rep[Int], Rep[String]), (Int, String), Seq] = {
-    val links = VariantValueSkuLinks.filterLeft(variantValueHeadIds)
-    links.join(Skus).on { case (link, sku) ⇒ link.rightId === sku.id }.map {
-      case (link, sku)                     ⇒ (link.leftId, sku.code)
-    }
+    for {
+      link ← filterLeft(variantValueHeadIds)
+      sku  ← Skus if link.rightId === sku.id
+    } yield (link.leftId, sku.code)
   }
 }

@@ -374,7 +374,8 @@ object Mvp {
              ObjectLink(leftId = variantShadowId,
                         rightId = shadow.id,
                         linkType = ObjectLink.VariantValue))
-      skuCodes ← * <~ v.skuCodes.map(SkuManager.mustFindSkuByContextAndCode(contextId, _))
+      skuCodes ← * <~ v.skuCodes.map(code ⇒
+                      SkuManager.mustFindSkuByContextAndCode(contextId, code))
       _ ← * <~ skuCodes.map(s ⇒
                VariantValueSkuLinks.create(VariantValueSkuLink(leftId = value.id, rightId = s.id)))
     } yield

@@ -2,7 +2,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
-import failures.ObjectFailures._
 import models.StoreAdmins
 import models.objects._
 import models.product._
@@ -13,6 +12,7 @@ import payloads.SkuPayloads.SkuPayload
 import payloads.VariantPayloads.{VariantPayload, VariantValuePayload}
 import responses.ProductResponses._
 import util.IntegrationTestBase
+import utils.JsonFormatters
 import utils.Money.Currency
 import utils.aliases._
 import utils.db._
@@ -20,7 +20,10 @@ import utils.db._
 object ProductTestExtensions {
 
   implicit class RichAttributes(val attributes: Json) extends AnyVal {
-    def code(implicit formats: org.json4s.Formats) = (attributes \ "code" \ "v").extract[String]
+    def code = {
+      implicit val formats = JsonFormatters.phoenixFormats
+      (attributes \ "code" \ "v").extract[String]
+    }
   }
 }
 
@@ -28,14 +31,14 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
   import ProductTestExtensions._
 
   "POST v1/products/:context" - {
-    def doQuery(productPayload: CreateProductPayload)(implicit context: ObjectContext) = {
+    def doQuery(productPayload: CreateProductPayload)(implicit context: OC) = {
       val response = POST(s"v1/products/${context.name}", productPayload)
       response.status must === (StatusCodes.OK)
       response.as[ProductResponse.Root]
     }
 
     "Creates a product with" - {
-      def skuName = "SKU-NEW-TEST"
+      val skuName = "SKU-NEW-TEST"
 
       "a new SKU successfully" in new Fixture {
         val productResponse = doQuery(productPayload)
@@ -64,11 +67,11 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
         val redSkuPayload = makeSkuPayload("SKU-RED-SMALL", skuAttrMap)
         val payload       = productPayload.copy(skus = Seq(redSkuPayload))
 
-        val response = POST(s"v1/products/${context.name}", payload)
+        val response = POST(s"v1/products/${ctx.name}", payload)
         response.status must === (StatusCodes.OK)
 
         val productResponse = response.as[ProductResponse.Root]
-        val getResponse     = GET(s"v1/products/${context.name}/${productResponse.id}")
+        val getResponse     = GET(s"v1/products/${ctx.name}/${productResponse.id}")
         getResponse.status must === (StatusCodes.OK)
 
         val getProductResponse = getResponse.as[ProductResponse.Root]
@@ -138,7 +141,7 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
       "no SKU is added" in new Fixture {
         val payload = productPayload.copy(skus = Seq.empty)
 
-        val response = POST(s"v1/products/${context.name}", payload)
+        val response = POST(s"v1/products/${ctx.name}", payload)
         response.status must === (StatusCodes.BadRequest)
       }
 
@@ -151,7 +154,7 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
           Seq(VariantPayload(attributes = Map("t" → "t"), values = Some(values)))
         val payload = productPayload.copy(skus = Seq.empty, variants = Some(variantPayload))
 
-        val response = POST(s"v1/products/${context.name}", payload)
+        val response = POST(s"v1/products/${ctx.name}", payload)
         response.status must === (StatusCodes.BadRequest)
       }
 
@@ -160,7 +163,7 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
         val sku2    = makeSkuPayload("SKU-TEST-NUM2", attrMap)
         val payload = productPayload.copy(skus = Seq(sku1, sku2), variants = Some(Seq.empty))
 
-        val response = POST(s"v1/products/${context.name}", payload)
+        val response = POST(s"v1/products/${ctx.name}", payload)
         response.status must === (StatusCodes.BadRequest)
       }
 
@@ -168,7 +171,7 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
         val newSkuPayload     = SkuPayload(skuAttrMap)
         val newProductPayload = productPayload.copy(skus = Seq(newSkuPayload))
 
-        val response = POST(s"v1/products/${context.name}", newProductPayload)
+        val response = POST(s"v1/products/${ctx.name}", newProductPayload)
         response.status must === (StatusCodes.BadRequest)
       }
 
@@ -176,7 +179,7 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
         val newSkuPayload     = makeSkuPayload("", skuAttrMap)
         val newProductPayload = productPayload.copy(skus = Seq(newSkuPayload))
 
-        val response = POST(s"v1/products/${context.name}", newProductPayload)
+        val response = POST(s"v1/products/${ctx.name}", newProductPayload)
         response.status must === (StatusCodes.BadRequest)
       }
     }
@@ -185,7 +188,7 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
       val productResponse = doQuery(productPayload)
       val productId       = productResponse.id
 
-      val getResponse = GET(s"v1/products/${context.name}/$productId")
+      val getResponse = GET(s"v1/products/${ctx.name}/$productId")
       getResponse.status must === (StatusCodes.OK)
 
       val getProductResponse = getResponse.as[ProductResponse.Root]
@@ -268,7 +271,7 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
           variants = None
       )
 
-      val response = PATCH(s"v1/products/${context.name}/${product.formId}", upPayload)
+      val response = PATCH(s"v1/products/${ctx.name}/${product.formId}", upPayload)
       response.status must === (StatusCodes.BadRequest)
     }
   }
@@ -324,22 +327,19 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
                                                              (skuGreenSmallCode, "green", "small"),
                                                              (skuGreenLargeCode, "green", "large"))
 
-    val (context, product, skus, variants) = (for {
+    val (product, skus, variants) = (for {
       // Create common objects.
       storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
-      context ← * <~ ObjectContexts
-                 .filterByName(SimpleContext.default)
-                 .mustFindOneOr(ObjectContextNotFound(SimpleContext.default))
 
       // Create the SKUs.
-      skus ← * <~ Mvp.insertSkus(context.id, simpleSkus)
+      skus ← * <~ Mvp.insertSkus(ctx.id, simpleSkus)
 
       // Create the product.
-      product ← * <~ Mvp.insertProductWithExistingSkus(context.id, simpleProd, skus)
+      product ← * <~ Mvp.insertProductWithExistingSkus(ctx.id, simpleProd, skus)
 
       // Create the Variants and their Values.
       variantsAndValues ← * <~ variantsWithValues.map { scv ⇒
-                           Mvp.insertVariantWithValues(context.id, product.shadowId, scv)
+                           Mvp.insertVariantWithValues(ctx.id, product.shadowId, scv)
                          }
 
       variants ← * <~ variantsAndValues.map(_.variant)
@@ -364,9 +364,7 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
                                                       rightId = selectedSku.id))
                   } yield (colorLink, sizeLink)
               }
-    } yield (context, product, skus, variantsAndValues)).gimme
-
-    implicit val defaultContext: ObjectContext = context
+    } yield (product, skus, variantsAndValues)).gimme
   }
 
   trait VariantFixture extends Fixture {
