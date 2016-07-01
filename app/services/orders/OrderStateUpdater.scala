@@ -74,8 +74,7 @@ object OrderStateUpdater {
         }
 
         val batchFailures = (invalid ++ notFound ++ locked).toMap
-        DbResultT.rightLift(
-            BatchMetadata(BatchMetadataSource(Order, possibleRefNums, batchFailures)))
+        DbResultT.good(BatchMetadata(BatchMetadataSource(Order, possibleRefNums, batchFailures)))
       }
     }
   }

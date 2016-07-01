@@ -192,7 +192,7 @@ object LineItemUpdater {
                       }.toSeq
         } yield ()
 
-        DbResultT.right(queries)
+        DbResultT.fromDbio(queries)
       } else if (current - newQuantity > 0) {
         // otherwise delete N items
         val queries = for {
@@ -210,12 +210,12 @@ object LineItemUpdater {
                       .delete
         } yield ()
 
-        DbResultT.right(queries)
+        DbResultT.fromDbio(queries)
       } else {
         DbResultT.unit
       }
     }.flatMap { _ ⇒
-      DbResultT.right(OrderLineItems.filter(_.orderRef === orderRef).result)
+      DbResultT.fromDbio(OrderLineItems.filter(_.orderRef === orderRef).result)
     }
   }
 }

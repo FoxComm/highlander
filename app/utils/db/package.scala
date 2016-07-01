@@ -63,7 +63,7 @@ package object db {
       db.run(dbio)
 
     def toXor(implicit ec: EC): DbResultT[R] =
-      DbResultT.right(dbio)
+      DbResultT.fromDbio(dbio)
   }
 
   sealed trait FoundOrCreated
@@ -74,7 +74,7 @@ package object db {
 
     def findOrCreate(r: DbResultT[R])(implicit ec: EC): DbResultT[R] = {
       dbio.toXor.flatMap {
-        case Some(model) ⇒ DbResultT.rightLift(model)
+        case Some(model) ⇒ DbResultT.good(model)
         case None        ⇒ r
       }
     }
@@ -82,13 +82,13 @@ package object db {
     // Last item in tuple determines if cart was created or not
     def findOrCreateExtended(r: DbResultT[R])(implicit ec: EC): DbResultT[(R, FoundOrCreated)] = {
       dbio.toXor.flatMap {
-        case Some(model) ⇒ DbResultT.rightLift((model, Found))
+        case Some(model) ⇒ DbResultT.good((model, Found))
         case _           ⇒ r.map(result ⇒ (result, Created))
       }
     }
 
     def mustFindOr(notFoundFailure: Failure)(implicit ec: EC): DbResultT[R] = dbio.toXor.flatMap {
-      case Some(model) ⇒ DbResultT.rightLift(model)
+      case Some(model) ⇒ DbResultT.good(model)
       case None        ⇒ DbResultT.failure(notFoundFailure)
     }
 
@@ -146,35 +146,34 @@ package object db {
       XorT.pure[DBIO, Failures, A](v)
 
     def fromXor[A](v: Failures Xor A)(implicit ec: EC): DbResultT[A] =
-      v.fold(leftLift, rightLift)
+      v.fold(failures, good)
 
-    def right[A](v: DBIO[A])(implicit ec: EC): DbResultT[A] =
+    def fromDbio[A](v: DBIO[A])(implicit ec: EC): DbResultT[A] =
       XorT.right[DBIO, Failures, A](v)
 
-    def rightLift[A](v: A)(implicit ec: EC): DbResultT[A] =
+    def good[A](v: A)(implicit ec: EC): DbResultT[A] =
       XorT.right[DBIO, Failures, A](DBIO.successful(v))
 
-    def left[A](v: DBIO[Failures])(implicit ec: EC): DbResultT[A] =
-      XorT.left[DBIO, Failures, A](v)
-
-    def leftLift[A](v: Failures)(implicit ec: EC): DbResultT[A] =
-      left(DBIO.successful(v))
+    def failures[A](v: Failures)(implicit ec: EC): DbResultT[A] =
+      XorT.left[DBIO, Failures, A](DBIO.successful(v))
 
     def failure[A](f: Failure)(implicit ec: EC): DbResultT[A] =
-      leftLift[A](f.single)
+      failures[A](f.single)
 
     def sequence[A, M[X] <: TraversableOnce[X]](values: M[DbResultT[A]])(
         implicit buildFrom: CanBuildFrom[M[DbResultT[A]], A, M[A]],
         ec: EC): DbResultT[M[A]] =
       values
-        .foldLeft(rightLift(buildFrom(values))) { (liftedBuilder, liftedValue) ⇒
+        .foldLeft(good(buildFrom(values))) { (liftedBuilder, liftedValue) ⇒
           for (builder ← liftedBuilder; value ← liftedValue) yield builder += value
         }
         .map(_.result)
 
-    def unit(implicit ec: EC): DbResultT[Unit] = pure({})
+    def unit(implicit ec: EC): DbResultT[Unit] =
+      pure({})
 
-    def none[A](implicit ec: EC): DbResultT[Option[A]] = pure(Option.empty[A])
+    def none[A](implicit ec: EC): DbResultT[Option[A]] =
+      pure(Option.empty[A])
   }
 
   object * {

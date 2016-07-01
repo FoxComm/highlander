@@ -84,7 +84,7 @@ object Addresses {
       (addresses, regions) = fullAddress.unzip
       response ← * <~ ((addresses.headOption, regions.headOption) match {
                       case (Some(address), Some(region)) ⇒
-                        DbResultT.rightLift(buildOneShipping(address, region))
+                        DbResultT.good(buildOneShipping(address, region))
                       case (None, _) ⇒
                         DbResultT.failure(NotFoundFailure404(
                                 s"No addresses found for order with refNum=$orderRef"))

@@ -63,7 +63,7 @@ object CustomerManager {
                  .map(_.flatten)
                  .toXor
       shipment ← * <~ (if (default.isEmpty) resolveFromShipments(customerId)
-                       else DbResultT.rightLift(default))
+                       else DbResultT.good(default))
     } yield shipment
   }
 
@@ -76,7 +76,7 @@ object CustomerManager {
       (customer, shipRegion, billRegion, rank) = customers
       maxOrdersDate ← * <~ Orders.filter(_.customerId === id).map(_.placedAt).max.result
       phoneOverride ← * <~ (if (customer.phoneNumber.isEmpty) resolvePhoneNumber(id)
-                            else DbResultT.rightLift(None))
+                            else DbResultT.good(None))
     } yield
       build(customer.copy(phoneNumber = customer.phoneNumber.orElse(phoneOverride)),
             shipRegion,

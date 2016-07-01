@@ -31,7 +31,7 @@ trait SearchById[M <: FoxModel[M], T <: FoxTable[M]] {
       db: DB): DbResultT[M] = {
 
     this.findOneById(id).toXor.flatMap {
-      case Some(model) ⇒ DbResultT.rightLift(model)
+      case Some(model) ⇒ DbResultT.good(model)
       case None        ⇒ DbResultT.failure(notFoundFailure(id))
     }
   }
@@ -47,7 +47,7 @@ trait SearchByRefNum[M <: FoxModel[M], T <: FoxTable[M]] extends SearchById[M, T
       implicit ec: EC,
       db: DB): DbResultT[M] = {
     findOneByRefNum(refNum).toXor.flatMap {
-      case Some(model) ⇒ DbResultT.rightLift(model)
+      case Some(model) ⇒ DbResultT.good(model)
       case None        ⇒ DbResultT.failure(notFoundFailure(refNum))
     }
   }
@@ -63,7 +63,7 @@ trait SearchByCode[M <: FoxModel[M], T <: FoxTable[M]] extends SearchById[M, T] 
       implicit ec: EC,
       db: DB): DbResultT[M] = {
     findOneByCode(code).toXor.flatMap {
-      case Some(model) ⇒ DbResultT.rightLift(model)
+      case Some(model) ⇒ DbResultT.good(model)
       case None        ⇒ DbResultT.failure(notFoundFailure(code))
     }
   }

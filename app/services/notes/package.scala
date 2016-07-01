@@ -14,7 +14,7 @@ import utils.db._
 package object notes {
   def forModel[M <: FoxModel[M]](finder: Notes.QuerySeq)(implicit ec: EC): DbResultT[Seq[Root]] = {
     val query = for (notes ← finder; authors ← notes.author) yield (notes, authors)
-    DbResultT.right(query.result.map(_.map {
+    DbResultT.fromDbio(query.result.map(_.map {
       case (note, author) ⇒ AdminNotes.build(note, author)
     }))
   }

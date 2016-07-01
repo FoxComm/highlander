@@ -219,7 +219,7 @@ object ObjectUtils {
     failIfErrors(IlluminateAlgorithm.validateAttributes(form.attributes, shadow.attributes))
 
   def failIfErrors(errors: Seq[Failure])(implicit ec: EC): DbResultT[Unit] = errors match {
-    case head :: tail ⇒ DbResultT.leftLift(NonEmptyList(head, tail))
+    case head :: tail ⇒ DbResultT.failures(NonEmptyList(head, tail))
     case Nil          ⇒ DbResultT.pure(Unit)
   }
 

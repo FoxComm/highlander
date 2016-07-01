@@ -10,7 +10,7 @@ object ExceptionWrapper {
     import scala.util.{Failure, Success}
 
     dbio.asTry.toXor.flatMap {
-      case Success(value) ⇒ DbResultT.rightLift(value)
+      case Success(value) ⇒ DbResultT.good(value)
       case Failure(e)     ⇒ DbResultT.failure(DatabaseFailure(e.getMessage))
     }
   }

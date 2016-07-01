@@ -13,8 +13,8 @@ object ReasonService {
     ReasonType.read(reasonType) match {
       case Some(rt) ⇒
         val query = Reasons.filter(_.reasonType === ReasonType.read(reasonType))
-        DbResultT.right(query.result)
+        DbResultT.fromDbio(query.result)
       case _ ⇒
-        DbResultT.leftLift(InvalidReasonTypeFailure(reasonType).single)
+        DbResultT.failures(InvalidReasonTypeFailure(reasonType).single)
     }
 }

@@ -18,7 +18,7 @@ package object assignments {
                                     reason = manager.notifyReason,
                                     objectIds = objectIds)
     else
-      DbResultT.rightLift(TheResponse(None))
+      DbResultT.good(TheResponse(None))
   }
 
   def unsubscribe[K, M <: FoxModel[M]](

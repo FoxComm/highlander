@@ -35,11 +35,11 @@ case class CartValidator(cart: Order)(implicit ec: EC) extends CartValidation {
       validationResult.toXor.flatMap { validatorResponse ⇒
         validatorResponse.warnings match {
           case Some(warnings) ⇒
-            DbResultT.leftLift(warnings)
+            DbResultT.failures(warnings)
           case _ ⇒
-            DbResultT.rightLift(validatorResponse)
+            DbResultT.good(validatorResponse)
         }
-      } else DbResultT.right(validationResult)
+      } else DbResultT.fromDbio(validationResult)
   }
 
   private def hasItems(response: CartValidatorResponse): DBIO[CartValidatorResponse] = {

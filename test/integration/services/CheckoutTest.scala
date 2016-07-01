@@ -31,13 +31,10 @@ class CheckoutTest
 
   def cartValidator(resp: CartValidatorResponse = CartValidatorResponse()): CartValidation = {
     val m = mock[CartValidation]
-    when(m.validate(isCheckout = false, fatalWarnings = true))
-      .thenReturn(DbResultT.rightLift(resp))
-    when(m.validate(isCheckout = false, fatalWarnings = false))
-      .thenReturn(DbResultT.rightLift(resp))
-    when(m.validate(isCheckout = true, fatalWarnings = true)).thenReturn(DbResultT.rightLift(resp))
-    when(m.validate(isCheckout = true, fatalWarnings = false))
-      .thenReturn(DbResultT.rightLift(resp))
+    when(m.validate(isCheckout = false, fatalWarnings = true)).thenReturn(DbResultT.good(resp))
+    when(m.validate(isCheckout = false, fatalWarnings = false)).thenReturn(DbResultT.good(resp))
+    when(m.validate(isCheckout = true, fatalWarnings = true)).thenReturn(DbResultT.good(resp))
+    when(m.validate(isCheckout = true, fatalWarnings = false)).thenReturn(DbResultT.good(resp))
     m
   }
 

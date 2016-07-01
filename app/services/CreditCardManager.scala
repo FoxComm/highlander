@@ -135,7 +135,7 @@ object CreditCardManager {
     }
 
     def createNewAddressIfProvided(cc: CreditCard) =
-      payload.address.fold(DbResultT.rightLift(cc))(_ ⇒
+      payload.address.fold(DbResultT.good(cc))(_ ⇒
             for {
           address ← * <~ Addresses.create(Address.fromCreditCard(cc).copy(customerId = customerId))
         } yield cc)

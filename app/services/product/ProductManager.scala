@@ -202,7 +202,7 @@ object ProductManager {
       case Some(commit) ⇒
         Products.update(product, product.copy(shadowId = shadow.id, commitId = commit.id))
       case None ⇒
-        DbResultT.rightLift(product)
+        DbResultT.good(product)
     }
 
   private def findOrCreateSkuForProduct(product: Product,

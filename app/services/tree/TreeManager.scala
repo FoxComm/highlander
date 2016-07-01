@@ -107,7 +107,7 @@ object TreeManager {
       ifEmptyAction = if (createIfNotFound)
         GenericTrees.create(GenericTree(0, treeName, context.id))
       else DbResultT.failure(TreeNotFound(treeName, context.name))
-      tree ← * <~ (if (maybeTree.isEmpty) ifEmptyAction else DbResultT.rightLift(maybeTree.head))
+      tree ← * <~ (if (maybeTree.isEmpty) ifEmptyAction else DbResultT.good(maybeTree.head))
     } yield tree
 
   private def moveNode(treeId: Int, parentIndex: Int, childNode: GenericTreeNode)(
