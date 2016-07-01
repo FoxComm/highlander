@@ -1,6 +1,10 @@
 GO ?= go
 GOPATH := $(CURDIR)/_vendor:$(GOPATH)
 
+TF_BASE = terraform/base
+TF_ENVS = terraform/envs
+
+# Main commands
 all: build
 
 build:
@@ -50,5 +54,11 @@ deploy-dem2:
 
 deploy-build-agents:
 	ansible-playbook -v -i bin/envs/staging ansible/build_agents.yml
+
+tf-plan-stage:
+	terraform plan -state=$(TF_ENVS)/gce_dev/terraform.tfstate -var-file=$(TF_ENVS)/gce_dev/terraform.tfvars $(TF_BASE)/gce_dev
+
+tf-plan-vanilla:
+	terraform plan -state=$(TF_ENVS)/gce_vanilla/terraform.tfstate -var-file=$(TF_ENVS)/gce_vanilla/terraform.tfvars $(TF_BASE)/gce_vanilla
 
 .PHONY: all build lint test

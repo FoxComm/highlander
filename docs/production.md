@@ -29,17 +29,23 @@ Navigation:
 
 2. *Fork Terraform configurations from both `terraform/envs/gce_prod_small` and `terraform/gce/prodsmall_stack`. Remove state file (`.tfstate`) and do all necessary replacements (e.g. `prodsmall` -> `vanilla`). Replace `vpn_image` variable with the generated base image above.*
 
-3. Install VPN module for configuration:
+3. Install dependent terraform modules:
 
 	```
-	$ terraform get terraform/envs/gce_vanilla
+	$ terraform get terraform/base/gce_vanilla
 	```
 
 4. Plan and apply infrastructure changes:
 
 	```
-	$ terraform plan -state terraform/envs/gce_vanilla/terraform.tfstate terraform/envs/gce_vanilla
-	$ terraform apply -state terraform/envs/gce_vanilla/terraform.tfstate terraform/envs/gce_vanilla
+	$ terraform plan \
+		-state terraform/envs/gce_vanilla/terraform.tfstate \
+		-var-file terraform/envs/gce_vanilla/terraform.tfvars \
+		terraform/base/gce_vanilla
+	$ terraform apply \
+		-state terraform/envs/gce_vanilla/terraform.tfstate \
+		-var-file terraform/envs/gce_vanilla/terraform.tfvars \
+		terraform/base/gce_vanilla
 	```
 
 5. Create `vanilla_vpn` inventory file and write a created machine VPN there under `vanilla-vpn` (host) section.
