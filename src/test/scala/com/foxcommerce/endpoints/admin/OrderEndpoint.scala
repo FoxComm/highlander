@@ -13,7 +13,6 @@ object OrderEndpoint {
     .header(Config.defaultJwtHeader, "${jwtTokenAdmin}")
     .body(StringBody("""{"customerId": ${customerId}}"""))
     .check(status.is(200))
-    .check(jsonPath("$.id").ofType[Long].saveAs("orderId"))
     .check(jsonPath("$.referenceNumber").ofType[String].saveAs("orderRefNum"))
     .check(jsonPath("$.orderState").ofType[String].is("cart"))
     .check(jsonPath("$.customer.id").ofType[String].is("${customerId}"))
