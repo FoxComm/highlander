@@ -129,4 +129,4 @@
   pause: seconds=60
 
 - name: Refresh Locations
-  script: "{{usr_local}}/bin/refresh_locations.sh"
+  command: "{{usr_local}}/bin/refresh_locations.sh > /dev/null"
