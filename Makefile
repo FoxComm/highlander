@@ -27,8 +27,11 @@ bootstrap-vanilla-db:
 deploy-stage:
 	ansible-playbook -v -i bin/envs/staging ansible/stage.yml
 
+deploy-stage-backend:
+	ansible-playbook -v -i bin/envs/staging ansible/stage_backend.yml
+
 deploy-gatling:
-	ansible-playbook -v  -i bin/envs/staging ansible/gatling.yml
+	ansible-playbook -v -i bin/envs/staging ansible/gatling.yml
 
 run-gatling: deploy-gatling
 	ansible-playbook -v -i bin/envs/staging ansible/run_gatling.yml

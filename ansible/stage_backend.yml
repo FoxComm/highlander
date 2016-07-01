@@ -1,0 +1,19 @@
+---
+
+- name: Provision Stage
+  hosts: stage-backend
+  vars:
+    user: '{{ansible_ssh_user}}'
+
+  roles:
+    - { role: dev/kafka }
+    - { role: dev/elasticsearch }
+    - { role: dev/db }
+    - { role: dev/phoenix }
+    - { role: dev/seeder }
+    - { role: dev/greenriver }
+    - { role: dev/loyalty }
+    - { role: dev/messaging }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml
