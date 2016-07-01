@@ -117,6 +117,12 @@ namespace isaac
             auto decoded_payload = util::base64url_decode(parts.payload);
             auto payload = folly::parseJson(decoded_payload);
 
+            if(util::jwt_expired(payload))
+            {
+                token_expired();
+                return;
+            }
+
             if(!verify_user(payload))
             {
                 invalid_user();
@@ -146,6 +152,13 @@ namespace isaac
         {
             proxygen::ResponseBuilder{downstream_}
                 .status(401, "Invalid User")
+                .sendWithEOM();
+        }
+
+        void query_request_handler::token_expired()
+        {
+            proxygen::ResponseBuilder{downstream_}
+                .status(401, "Token Expired")
                 .sendWithEOM();
         }
 

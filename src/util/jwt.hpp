@@ -38,6 +38,7 @@ namespace isaac
         bool get_jwt_parts(jwt_parts& parts, folly::IOBuf& body);
 
         bool check_jwt_signature(const jwt_parts& parts, sig_verifier& verifier);
+        bool jwt_expired(folly::dynamic& payload);
     }
 }
 

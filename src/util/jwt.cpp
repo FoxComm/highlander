@@ -72,5 +72,12 @@ namespace isaac
                     reinterpret_cast<const Botan::byte*>(parts.header->begin()), msg_size,
                     reinterpret_cast<const Botan::byte*>(sig.data()), sig.size());
         }
+
+        bool jwt_expired(folly::dynamic& payload)
+        {
+            const auto curr_time = std::time(nullptr);
+            const auto exp_time = payload["exp"].asInt();
+            return curr_time >= exp_time;
+        }
     }
 }

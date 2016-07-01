@@ -19,7 +19,6 @@ namespace isaac
                 auto v = db_valid_user(id, ratchet);
                 if(!v) return false;
 
-                std::cerr << "caching user " << id << ": " << ratchet << std::endl;
                 i =  u.insert(id, user_entry{ratchet}).first;
             }
 

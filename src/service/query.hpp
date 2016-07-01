@@ -46,6 +46,7 @@ namespace isaac
                 void invalid_jwt();
                 void invalid_header();
                 void invalid_user();
+                void token_expired();
                 void signature_not_verified();
 
             private:
