@@ -89,8 +89,8 @@
     "koa-static": "^2.0.0",
     "lodash": "^4.3.0",
     "lodash.flatmap": "^4.2.0",
-    "react": "^0.14.7",
-    "react-dom": "^0.14.7",
+    "react": "^15.2.0",
+    "react-dom": "^15.2.0",
     "react-gestures": "^0.1.8",
     "react-input-mask": "github:anru/react-input-mask#fix/initial-value",
     "react-redux": "^4.4.0",
@@ -104,7 +104,7 @@
     "redux-isomorphic-render": "^1.0.0",
     "reselect": "^2.1.0",
     "sprout-data": "^0.2.3",
-    "wings": "github:foxcomm/wings#v1.1.0",
+    "wings": "github:foxcomm/wings#v1.2.0",
     "zipcodes": "^2.0.0"
   }
 }
