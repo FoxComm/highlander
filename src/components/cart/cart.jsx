@@ -15,12 +15,16 @@ import Currency from 'ui/currency';
 import LineItem from './line-item';
 import Button from 'ui/buttons';
 import Icon from 'ui/icon';
+import ErrorAlerts from 'wings/lib/ui/alerts/error-alerts';
+import { parseError } from 'api-js';
 
 import * as actions from 'modules/cart';
 
-const getState = state => ({ ...state.cart, ...state.auth, checkoutStage: state.checkout.editStage });
+const mapStateToProps = state => ({ ...state.cart, ...state.auth, checkoutStage: state.checkout.editStage });
 
 class Cart extends Component {
+
+  state = {};
 
   componentWillMount() {
     /** prevent loading if no user logged in and when checkout is in progress */
@@ -29,10 +33,35 @@ class Cart extends Component {
     }
   }
 
+  @autobind
+  deleteLineItem(id) {
+    this.props.deleteLineItem(id).catch(ex => {
+      this.setState({
+        errors: parseError(ex),
+      });
+    });
+  }
+
   get lineItems() {
     return _.map(this.props.skus, sku => {
-      return <LineItem {...sku} deleteLineItem={this.props.deleteLineItem} key={sku.sku} />;
+      return <LineItem {...sku} deleteLineItem={this.deleteLineItem} key={sku.sku} />;
     });
+  }
+
+  @autobind
+  closeError(error, index) {
+    const errors = [...this.state.errors];
+    errors.splice(index, 1);
+
+    this.setState({
+      errors,
+    });
+  }
+
+  get errorsLine() {
+    if (!_.isEmpty(this.state.errors)) {
+      return <ErrorAlerts errors={this.state.errors} closeAction={this.closeError} />;
+    }
   }
 
   @autobind
@@ -73,6 +102,7 @@ class Cart extends Component {
                 <Currency value={props.totals.subTotal} />
               </div>
             </div>
+            {this.errorsLine}
           </div>
           <div styleName="cart-footer">
             <Button onClick={this.onCheckout} disabled={checkoutDisabled} styleName="checkout-button">
@@ -85,4 +115,4 @@ class Cart extends Component {
   }
 }
 
-export default connect(getState, actions)(localized(Cart));
+export default connect(mapStateToProps, actions)(localized(Cart));
