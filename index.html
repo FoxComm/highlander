@@ -23,6 +23,10 @@
                 <li><a href="#foxapi-option">Options</a></li>
                 <li><a href="#foxapi-property">Properties</a></li>
             </ul>
+            <h4>Utils</h4>
+            <ul>
+                <li><a href="#utils">Utils methods</a></li>
+            </ul>
         </div>
         <div class="toc-col">
             <h4>FoxApi namespaces</h4>
@@ -1077,6 +1081,34 @@ Available values:
 		<td><code>String</code>
 		<td><code></code></td>
 		<td>Field to sort by (-fieldName for descending order).</td>
+	</tr>
+</tbody></table>
+
+</section>
+
+</section>
+<h2 id='utils'>Utils</h2>
+<section>
+<h3 id='utils-method'>Methods</h3>
+
+<section >
+
+
+
+<div class='section-comments'></div>
+
+<table><thead>
+	<tr>
+		<th>Method</th>
+		<th>Returns</th>
+		<th>Description</th>
+	</tr>
+	</thead><tbody>
+	<tr id='utils-parseerror'>
+		<td><code><b>parseError</b>(<nobr>&lt;ResponseOrError&gt;</nobr> <i>err</i>)</nobr></code></td>
+		<td><code>Array&lt;string&gt;</code></td>
+		<td>Retrieves errors from api-js rejected promise.
+In case if err is Error itself returns array of single element - that error as a string.</td>
 	</tr>
 </tbody></table>
 

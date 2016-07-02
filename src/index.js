@@ -10,6 +10,7 @@
  * ```
  */
 
+import _ from 'lodash';
 import request from './utils/request';
 import Addresses from './api/adresses';
 import Auth from './api/auth';
@@ -133,4 +134,15 @@ export default class Api {
   delete(...args) {
     return this.request('delete', ...args);
   }
+}
+
+// @namespace Utils
+
+// @method parseError(err: ResponseOrError): Array<string>
+// Retrieves errors from api-js rejected promise.
+// In case if err is Error itself returns array of single element - that error as a string.
+export function parseError(err) {
+  if (!err) return null;
+
+  return _.get(err, ['responseJson', 'errors'], [err.toString()]);
 }
