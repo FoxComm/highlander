@@ -27,6 +27,7 @@ import Counter from 'ui/forms/counter';
 import Currency from 'ui/currency';
 import Gallery from 'ui/gallery/gallery';
 import Loader from 'ui/loader';
+import ErrorAlerts from 'wings/lib/ui/alerts/error-alerts';
 
 // styles
 import styles from './pdp.css';
@@ -58,6 +59,7 @@ type Props = Localized & {
 
 type State = {
   quantity: number;
+  error?: any;
 };
 
 type Product = {
@@ -172,6 +174,11 @@ class Pdp extends Component {
       .then(() => {
         actions.toggleCart();
         this.setState({quantity: 1});
+      })
+      .catch(ex => {
+        this.setState({
+          error: ex,
+        });
       });
   }
 
@@ -209,6 +216,7 @@ class Pdp extends Component {
           <Button styleName="add-to-cart" isLoading={isCartLoading} onClick={this.addToCart}>
             {t('ADD TO CART')}
           </Button>
+          <ErrorAlerts error={this.state.error} />
         </div>
       </div>
     );
