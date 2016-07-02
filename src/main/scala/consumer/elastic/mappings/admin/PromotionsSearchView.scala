@@ -19,7 +19,8 @@ final case class PromotionsSearchView()(implicit ec: EC) extends AvroTransformer
       field("totalUsed", IntegerType),
       field("currentCarts", IntegerType),
       field("createdAt", DateType).format(dateFormat),
-      field("discounts", IntegerType)
+      field("discounts", IntegerType),
+      field("archivedAt", DateType).format(dateFormat)
   )
 
   override def nestedFields() = List("discounts")
