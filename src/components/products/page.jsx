@@ -50,6 +50,11 @@ type State = {
   context: string,
 };
 
+const SELECT_CONTEXT = [
+  ['default', 'Default'],
+  ['ru', 'Russian'],
+];
+
 /**
  * ProductPage represents the default layout of a product details page.
  * It displays the title, sub nav, and save button.
@@ -99,10 +104,10 @@ export class ProductPage extends Component {
 
     return (
       <div className="fc-product-details__title-actions">
-        <Dropdown onChange={this.handleContextChange} value={this.props.params.context}>
-          <DropdownItem value="default">Default</DropdownItem>
-          <DropdownItem value="ru">Russian</DropdownItem>
-        </Dropdown>
+        <Dropdown onChange={this.handleContextChange}
+                  value={this.props.params.context}
+                  items={SELECT_CONTEXT}
+        />
         <PrimaryButton
           className="fc-product-details__save-button"
           type="submit"

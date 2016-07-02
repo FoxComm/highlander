@@ -17,6 +17,12 @@ import TableRow from '../../table/row';
 import * as CreditCardActions from '../../../modules/customers/credit-cards';
 import * as PaymentMethodActions from '../../../modules/orders/payment-methods';
 
+const SELECT_PAYMENT_FORM = [
+  ['creditCard', 'Credit Card'],
+  ['storeCredit', 'Store Credit'],
+  ['giftCard', 'Gift Card'],
+];
+
 function mapStateToProps(state, props) {
   return {
     paymentMethods: state.orders.paymentMethods,
@@ -84,11 +90,9 @@ class NewPayment extends Component {
             <Dropdown
               name="paymentType"
               value={this.state.paymentType}
-              onChange={this.changePaymentType}>
-              <DropdownItem value="creditCard">Credit Card</DropdownItem>
-              <DropdownItem value="storeCredit">Store Credit</DropdownItem>
-              <DropdownItem value="giftCard">Gift Card</DropdownItem>
-            </Dropdown>
+              onChange={this.changePaymentType}
+              items={SELECT_PAYMENT_FORM}
+            />
           </FormField>
         </Form>
         <AutoScroll />

@@ -33,6 +33,11 @@ type State = {
   selectMode: string;
 };
 
+const SELECT_PRODUCT_ITEMS = [
+  ['some', 'in'],
+  ['any', 'in any of'],
+];
+
 function mapStateToProps(state) {
   return {
     productSearches: _.get(state, 'products.list.savedSearches', []),
@@ -150,10 +155,11 @@ class ProductsQualifier extends Component {
     return (
       <div styleName="products">
         <strong styleName="label">{this.props.label}</strong>
-        <Dropdown styleName="mode-dropdown" value={this.state.selectMode} onChange={this.handleChangeSelectMode}>
-          <DropdownItem value="some">in</DropdownItem>
-          <DropdownItem value="any">in any of</DropdownItem>
-        </Dropdown>
+        <Dropdown styleName="mode-dropdown"
+                  value={this.state.selectMode}
+                  onChange={this.handleChangeSelectMode}
+                  items={SELECT_PRODUCT_ITEMS}
+        />
         {this.productReferences}
       </div>
     );

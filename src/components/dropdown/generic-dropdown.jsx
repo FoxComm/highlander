@@ -9,9 +9,9 @@ import DropdownItem from './dropdownItem';
 import Overlay from '../overlay/overlay';
 import { Button } from '../common/buttons';
 
-type ValueType = ?string|number;
+export type ValueType = ?string|number;
 
-type DropdownItemType = [ValueType, string|Element];
+export type DropdownItemType = [ValueType, string|Element];
 
 export type Props = {
   name?: string,
@@ -40,6 +40,11 @@ type State = {
   selectedValue: ValueType,
 };
 
+/**
+ * Generic Dropdown component
+ *
+ * WARNING: It's important to implement shouldComponentUpdate hook in host components
+ */
 export default class GenericDropdown extends Component {
   props: Props;
 

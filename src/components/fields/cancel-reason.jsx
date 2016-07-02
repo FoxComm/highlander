@@ -60,11 +60,9 @@ export default class CancelReason extends React.Component {
                   name="cancellationReason"
                   placeholder="- Select -"
                   value={value}
-                  onChange={onChange}>
-          {reasons.map(({id, body}) => (
-            <DropdownItem key={id} value={id}>{body}</DropdownItem>
-          ))}
-        </Dropdown>
+                  onChange={onChange}
+                  items={reasons.map(({id, body}) => [id, body])}
+        />
       </div>
     );
   }

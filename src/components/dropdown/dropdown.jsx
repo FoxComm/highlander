@@ -1,4 +1,3 @@
-
 /* @flow */
 
 import _ from 'lodash';
@@ -8,9 +7,20 @@ import { autobind } from 'core-decorators';
 import GenericDropdown from './generic-dropdown';
 import DropdownItem from './dropdownItem';
 
-import type { Props as GenericProps } from './generic-dropdown';
+import type { Props as GenericProps, ValueType, DropdownItemType } from './generic-dropdown';
 
 type Props = GenericProps;
+
+const omitProps = [
+  'items',
+  'emptyMessage',
+  'renderDropdownInput',
+  'renderNullTitle',
+  'renderPrepend',
+  'onChange'
+];
+
+const mapValues = (items: Array<DropdownItemType>): Array<ValueType> => items.map(([value]) => value);
 
 export default class Dropdown extends Component {
   props: Props;
@@ -41,17 +51,36 @@ export default class Dropdown extends Component {
 
 
   renderItems(): ?Element {
-    const { name, items, children } = this.props;
+    const { name, items } = this.props;
 
-    if (!_.isEmpty(items)) {
       return _.map(items, ([value, title]) => (
         <DropdownItem value={value} key={`${name}-${value}`}>
           {title}
         </DropdownItem>
       ));
+  }
+
+  shouldComponentUpdate(nextProps: Props): boolean {
+    const oldItems = _.get(this.props, 'items', []);
+    const newItems = _.get(nextProps, 'items', []);
+
+    // Not items (still)
+    if (!oldItems && !newItems) {
+      return false;
     }
 
-    return children;
+    // Items became available/unavailable
+    if (!oldItems && newItems || oldItems && !newItems) {
+      return true;
+    }
+
+    const oldItemsValues = mapValues(oldItems);
+    const newItemsValues = mapValues(newItems);
+
+    const itemsChanged = !_.eq(oldItemsValues, newItemsValues);
+    const propsChanged = !_.eq(_.omit(this.props, omitProps), _.omit(nextProps, omitProps));
+
+    return itemsChanged || propsChanged;
   }
 
   render(): Element {
