@@ -6,7 +6,8 @@ create table promotions(
     commit_id integer references object_commits(id) on update restrict on delete restrict,
     apply_type generic_string not null,
     updated_at generic_timestamp,
-    created_at generic_timestamp
+    created_at generic_timestamp,
+    archived_at generic_timestamp
 );
 
 create index promotions_apply_typx on promotions (apply_type);

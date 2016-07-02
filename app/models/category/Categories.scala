@@ -2,7 +2,7 @@ package models.category
 
 import java.time.Instant
 
-import models.objects.ObjectHeads
+import models.objects.{ObjectHead, ObjectHeads}
 import models.objects.ObjectUtils.InsertResult
 import shapeless._
 import slick.lifted.Tag
@@ -26,13 +26,19 @@ case class Category(id: Int = 0,
                     formId: Int,
                     commitId: Int,
                     updatedAt: Instant = Instant.now,
-                    createdAt: Instant = Instant.now)
+                    createdAt: Instant = Instant.now,
+                    archivedAt: Option[Instant] = None)
     extends FoxModel[Category]
     with Validation[Category]
+    with ObjectHead[Category] {
+
+  def withNewShadowAndCommit(shadowId: Int, commitId: Int): Category =
+    this.copy(shadowId = shadowId, commitId = commitId)
+}
 
 class Categories(tag: Tag) extends ObjectHeads[Category](tag, "categories") {
   def * =
-    (id, contextId, shadowId, formId, commitId, updatedAt, createdAt) <>
+    (id, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <>
       ((Category.apply _).tupled, Category.unapply)
 }
 

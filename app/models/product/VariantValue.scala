@@ -19,7 +19,8 @@ case class VariantValue(id: Int = 0,
                         formId: Int,
                         commitId: Int,
                         updatedAt: Instant = Instant.now,
-                        createdAt: Instant = Instant.now)
+                        createdAt: Instant = Instant.now,
+                        archivedAt: Option[Instant] = None)
     extends FoxModel[VariantValue]
     with Validation[VariantValue]
     with ObjectHead[VariantValue] {
@@ -30,7 +31,8 @@ case class VariantValue(id: Int = 0,
 
 class VariantValues(tag: Tag) extends ObjectHeads[VariantValue](tag, "variant_values") {
   def * =
-    (id, contextId, shadowId, formId, commitId, updatedAt, createdAt) <> ((VariantValue.apply _).tupled, VariantValue.unapply)
+    (id, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((VariantValue.apply _).tupled,
+        VariantValue.unapply)
 }
 
 object VariantValues

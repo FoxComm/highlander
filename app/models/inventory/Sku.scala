@@ -26,7 +26,8 @@ case class Sku(id: Int = 0,
                formId: Int,
                commitId: Int,
                updatedAt: Instant = Instant.now,
-               createdAt: Instant = Instant.now)
+               createdAt: Instant = Instant.now,
+               archivedAt: Option[Instant] = None)
     extends FoxModel[Sku]
     with ObjectHead[Sku] {
 
@@ -39,7 +40,7 @@ class Skus(tag: Tag) extends ObjectHeads[Sku](tag, "skus") {
   def code = column[String]("code")
 
   def * =
-    (id, code, contextId, shadowId, formId, commitId, updatedAt, createdAt) <> ((Sku.apply _).tupled, Sku.unapply)
+    (id, code, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((Sku.apply _).tupled, Sku.unapply)
 }
 
 object Skus

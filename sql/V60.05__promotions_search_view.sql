@@ -11,6 +11,7 @@ select
     0 as total_used, --this needs to be computed
     0 as current_carts, --this needs to be computed
     to_char(f.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as created_at,
+    to_char(p.archived_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as archived_at,
     link.discounts as discounts
 from 
 	promotions as p, 

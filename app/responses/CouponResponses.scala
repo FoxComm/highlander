@@ -31,14 +31,16 @@ object CouponResponses {
     case class Root(id: Int,
                     form: CouponFormResponse.Root,
                     shadow: CouponShadowResponse.Root,
-                    promotion: Int)
+                    promotion: Int,
+                    archivedAt: Option[Instant])
         extends ResponseItem
 
     def build(coupon: Coupon, f: ObjectForm, s: ObjectShadow): Root =
       Root(id = coupon.formId,
            form = CouponFormResponse.build(f),
            shadow = CouponShadowResponse.build(s),
-           promotion = coupon.promotionId)
+           promotion = coupon.promotionId,
+           archivedAt = coupon.archivedAt)
   }
 
   object CouponCodesResponse {

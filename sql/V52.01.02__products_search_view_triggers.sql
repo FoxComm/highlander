@@ -8,7 +8,8 @@ begin
     description = subquery.description,
     active_from = subquery.active_from,
     active_to = subquery.active_to,
-    tags = subquery.tags
+    tags = subquery.tags,
+    archived_at = subquery.archived_at
     from (select
             p.id,
             f.id as product_id,
@@ -16,7 +17,8 @@ begin
             f.attributes->>(s.attributes->'description'->>'ref') as description,
             f.attributes->>(s.attributes->'activeFrom'->>'ref') as active_from,
             f.attributes->>(s.attributes->'activeTo'->>'ref') as active_to,
-            f.attributes->>(s.attributes->'tags'->>'ref') as tags
+            f.attributes->>(s.attributes->'tags'->>'ref') as tags,
+            to_char(p.archived_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as archived_at
         from products as p
         inner join object_forms as f on (f.id = p.form_id)
         inner join object_shadows as s on (s.id = p.shadow_id)

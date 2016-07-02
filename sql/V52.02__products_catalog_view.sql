@@ -8,6 +8,7 @@ create table products_catalog_view
     sale_price text,
     currency text,
     tags text,
-    albums jsonb
+    albums jsonb,
+    archived_at generic_string
 );
 create unique index products_catalog_view_idx on products_catalog_view (id, lower(context));

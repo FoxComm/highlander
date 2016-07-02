@@ -23,20 +23,26 @@ case class Coupon(id: Int = 0,
                   formId: Int,
                   commitId: Int,
                   updatedAt: Instant = Instant.now,
-                  createdAt: Instant = Instant.now)
+                  createdAt: Instant = Instant.now,
+                  archivedAt: Option[Instant] = None)
     extends FoxModel[Coupon]
     with Validation[Coupon]
+    with ObjectHead[Coupon] {
+
+  def withNewShadowAndCommit(shadowId: Int, commitId: Int): Coupon =
+    this.copy(shadowId = shadowId, commitId = commitId)
+}
 
 class Coupons(tag: Tag) extends ObjectHeads[Coupon](tag, "coupons") {
 
   def promotionId = column[Int]("promotion_id")
 
   def * =
-    (id, promotionId, contextId, shadowId, formId, commitId, updatedAt, createdAt) <> ((Coupon.apply _).tupled, Coupon.unapply)
+    (id, promotionId, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((Coupon.apply _).tupled, Coupon.unapply)
 }
 
 object Coupons
-    extends FoxTableQuery[Coupon, Coupons](new Coupons(_))
+    extends ObjectHeadsQueries[Coupon, Coupons](new Coupons(_))
     with ReturningId[Coupon, Coupons] {
 
   val returningLens: Lens[Coupon, Int] = lens[Coupon].id

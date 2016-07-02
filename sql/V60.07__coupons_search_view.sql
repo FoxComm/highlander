@@ -9,7 +9,8 @@ select
     f.attributes->>(s.attributes->'activeFrom'->>'ref') as active_from,
     f.attributes->>(s.attributes->'activeTo'->>'ref') as active_to,
     0 as total_used, --this needs to be computed
-    to_char(f.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as created_at
+    to_char(f.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as created_at,
+    to_char(cp.archived_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as archived_at
 from 
 	object_contexts as context,
 	coupons as cp, 

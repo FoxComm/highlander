@@ -67,7 +67,8 @@ begin
       sku.price as sale_price,
       sku.currency as currency,
       f.attributes->>(s.attributes->'tags'->>'ref') as tags,
-      albumLink.albums as albums
+      albumLink.albums as albums,
+      to_char(p.archived_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as archived_at
       from products as p
         inner join object_contexts as context on (p.context_id = context.id)
         inner join object_forms as f on (f.id = p.form_id)
@@ -90,7 +91,8 @@ begin
       sale_price = subquery.sale_price,
       currency = subquery.currency,
       tags = subquery.tags,
-      albums = subquery.albums
+      albums = subquery.albums,
+      archived_at = subquery.archived_at
     from (select
             p.id,
             f.id as product_id,
@@ -100,7 +102,8 @@ begin
             sku.price as sale_price,
             sku.currency as currency,
             f.attributes->>(s.attributes->'tags'->>'ref') as tags,
-            albumLink.albums as albums
+            albumLink.albums as albums,
+            to_char(p.archived_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as archived_at
       from products as p
         inner join object_contexts as context on (p.context_id = context.id)
         inner join object_forms as f on (f.id = p.form_id)

@@ -26,7 +26,8 @@ case class Product(id: Int = 0,
                    formId: Int,
                    commitId: Int,
                    updatedAt: Instant = Instant.now,
-                   createdAt: Instant = Instant.now)
+                   createdAt: Instant = Instant.now,
+                   archivedAt: Option[Instant] = None)
     extends FoxModel[Product]
     with Validation[Product]
     with ObjectHead[Product] {
@@ -38,7 +39,7 @@ case class Product(id: Int = 0,
 class Products(tag: Tag) extends ObjectHeads[Product](tag, "products") {
 
   def * =
-    (id, contextId, shadowId, formId, commitId, updatedAt, createdAt) <> ((Product.apply _).tupled, Product.unapply)
+    (id, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((Product.apply _).tupled, Product.unapply)
 }
 
 object Products

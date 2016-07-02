@@ -4,7 +4,8 @@ create table album_search_view
   context generic_string not null,
   context_id integer not null,
   name generic_string not null,
-  images text null default '[]'
+  images text null default '[]',
+  archived_at generic_string
 );
 create unique index album_search_view_idx on album_search_view (id, context);
 
@@ -17,7 +18,8 @@ begin
       context.name as context,
       context.id as context_id,
       album_form.attributes->>(album_shadow.attributes->'name'->>'ref') as name,
-      album_form.attributes->>(album_shadow.attributes->'images'->>'ref') as images
+      album_form.attributes->>(album_shadow.attributes->'images'->>'ref') as images,
+      NEW.archived_at as archived_at
     from
       object_contexts as context
         left join object_shadows as album_shadow on (album_shadow.id = NEW.shadow_id)
@@ -40,9 +42,14 @@ begin
   update album_search_view
     set
       context = subquery.name,
-      context_id = subquery.id
+      context_id = subquery.id,
+      archived_at = subquery.archived_at
     from
-      (select o.id, o.name, albums.id as album_id
+      (select
+            o.id,
+            o.name,
+            albums.id as album_id,
+            to_char(albums.archived_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as archived_at
        from object_contexts as o
        inner join albums on (albums.context_id = o.id)
        where albums.context_id = NEW.id) as subquery
@@ -76,11 +83,13 @@ create or replace function update_albums_view_from_object_attrs_fn() returns tri
  
    update album_search_view set
      name = subquery.name,
-     images = subquery.images
+     images = subquery.images,
+     archived_at = subquery.archived_at
      from (select
          album.id,
          album_form.attributes->>(album_shadow.attributes->'name'->>'ref') as name,
-         album_form.attributes->(album_shadow.attributes->'images'->>'ref') as images
+         album_form.attributes->(album_shadow.attributes->'images'->>'ref') as images,
+         to_char(album.archived_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as archived_at
        from albums as album
        inner join object_forms as album_form on (album_form.id = album.form_id)
        inner join object_shadows as album_shadow on (album_shadow.id = album.shadow_id)

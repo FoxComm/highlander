@@ -7,7 +7,8 @@ create table sku_search_view
     title text,
     image text,
     price text,
-    currency text
+    currency text,
+    archived_at generic_string
 );
 create unique index sku_search_view_idx on sku_search_view (id, lower(context));
 
@@ -23,7 +24,8 @@ begin
     sku_form.attributes->>(sku_shadow.attributes->'title'->>'ref') as title,
     sku_form.attributes->(sku_shadow.attributes->'images'->>'ref')->>0 as image,
     sku_form.attributes->(sku_shadow.attributes->'salePrice'->>'ref')->>'value' as price,
-    sku_form.attributes->(sku_shadow.attributes->'salePrice'->>'ref')->>'currency' as currency
+    sku_form.attributes->(sku_shadow.attributes->'salePrice'->>'ref')->>'currency' as currency,
+    to_char(NEW.archived_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as archived_at
     from object_contexts as context
        inner join object_shadows as sku_shadow on (sku_shadow.id = NEW.shadow_id)
        inner join object_forms as sku_form on (sku_form.id = NEW.form_id)
@@ -44,11 +46,13 @@ begin
 
   update sku_search_view set
     context = subquery.name,
-    context_id = subquery.id
+    context_id = subquery.id,
+    archived_at = subquery.archived_at
     from (select
         o.id,
         o.name,
-        skus.id as sku_id
+        skus.id as sku_id,
+        to_char(skus.archived_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as archived_at
       from object_contexts as o
       inner join skus on (skus.context_id = o.id)
       where skus.id = NEW.id) as subquery
@@ -73,14 +77,16 @@ begin
     title = subquery.title,
     image = subquery.image,
     price = subquery.price,
-    currency = subquery.currency
+    currency = subquery.currency,
+    archived_at = subquery.archived_at
     from (select
         sku.id,
         sku.code,
         sku_form.attributes->>(sku_shadow.attributes->'title'->>'ref') as title,
         sku_form.attributes->(sku_shadow.attributes->'images'->>'ref')->>0 as image,
         sku_form.attributes->(sku_shadow.attributes->'salePrice'->>'ref')->>'value' as price,
-        sku_form.attributes->(sku_shadow.attributes->'salePrice'->>'ref')->>'currency' as currency
+        sku_form.attributes->(sku_shadow.attributes->'salePrice'->>'ref')->>'currency' as currency,
+        to_char(sku.archived_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as archived_at
       from skus as sku
       inner join object_forms as sku_form on (sku_form.id = sku.form_id)
       inner join object_shadows as sku_shadow on (sku_shadow.id = sku.shadow_id)

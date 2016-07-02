@@ -32,13 +32,20 @@ case class Discount(id: Int = 0,
                     formId: Int,
                     commitId: Int,
                     updatedAt: Instant = Instant.now,
-                    createdAt: Instant = Instant.now)
+                    createdAt: Instant = Instant.now,
+                    archivedAt: Option[Instant] = None)
     extends FoxModel[Discount]
+    with ObjectHead[Discount] {
+
+  def withNewShadowAndCommit(shadowId: Int, commitId: Int): Discount =
+    this.copy(shadowId = shadowId, commitId = commitId)
+}
 
 class Discounts(tag: Tag) extends ObjectHeads[Discount](tag, "discounts") {
 
   def * =
-    (id, contextId, shadowId, formId, commitId, updatedAt, createdAt) <> ((Discount.apply _).tupled, Discount.unapply)
+    (id, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((Discount.apply _).tupled,
+        Discount.unapply)
 }
 
 object Discounts

@@ -5,7 +5,8 @@ create table discounts(
     form_id integer not null references object_forms(id) on update restrict on delete restrict,
     commit_id integer references object_commits(id) on update restrict on delete restrict,
     updated_at generic_timestamp,
-    created_at generic_timestamp
+    created_at generic_timestamp,
+    archived_at generic_timestamp
 );
 
 create index discounts_object_context_idx on discounts (context_id);

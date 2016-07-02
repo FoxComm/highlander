@@ -38,16 +38,22 @@ case class Promotion(id: Int = 0,
                      commitId: Int,
                      applyType: Promotion.ApplyType = Promotion.Auto,
                      updatedAt: Instant = Instant.now,
-                     createdAt: Instant = Instant.now)
+                     createdAt: Instant = Instant.now,
+                     archivedAt: Option[Instant] = None)
     extends FoxModel[Promotion]
     with Validation[Promotion]
+    with ObjectHead[Promotion] {
+
+  def withNewShadowAndCommit(shadowId: Int, commitId: Int): Promotion =
+    this.copy(shadowId = shadowId, commitId = commitId)
+}
 
 class Promotions(tag: Tag) extends ObjectHeads[Promotion](tag, "promotions") {
 
   def requireCoupon = column[Promotion.ApplyType]("apply_type")
 
   def * =
-    (id, contextId, shadowId, formId, commitId, requireCoupon, updatedAt, createdAt) <> ((Promotion.apply _).tupled, Promotion.unapply)
+    (id, contextId, shadowId, formId, commitId, requireCoupon, updatedAt, createdAt, archivedAt) <> ((Promotion.apply _).tupled, Promotion.unapply)
 }
 
 object Promotions

@@ -9,7 +9,8 @@ create table products_search_view
     active_to text,
     tags text,
     skus jsonb,
-    albums jsonb
+    albums jsonb,
+    archived_at generic_string
 );
 create unique index products_search_view_idx on products_search_view (id, lower(context));
 
@@ -26,7 +27,8 @@ begin
     f.attributes->>(s.attributes->'activeTo'->>'ref') as active_to,
     f.attributes->>(s.attributes->'tags'->>'ref') as tags,
     link.skus as skus,
-    albumLink.albums as albums
+    albumLink.albums as albums,
+    to_char(NEW.archived_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as archived_at
     from products as p
     inner join object_contexts as context on (p.context_id = context.id)
     inner join object_forms as f on (f.id = p.form_id)

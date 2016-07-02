@@ -77,6 +77,11 @@ object CouponRoutes {
               goodOrFailures {
                 CouponManager.update(id, payload, context, admin)
               }
+            } ~
+            (post & path("archive")) {
+              goodOrFailures {
+                CouponManager.archiveByContextAndId(context, id)
+              }
             }
           } ~
           pathPrefix(Segment) { code ⇒

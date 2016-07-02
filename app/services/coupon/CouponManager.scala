@@ -1,6 +1,9 @@
 package services.coupon
 
+import java.time.Instant
+
 import failures.CouponFailures._
+import failures.NotFoundFailure404
 import failures.ObjectFailures._
 import failures.PromotionFailures._
 import models.StoreAdmin
@@ -8,7 +11,7 @@ import models.coupon._
 import models.objects._
 import models.promotion._
 import payloads.CouponPayloads._
-import responses.CouponResponses.{IlluminatedCouponResponse ⇒ Illuminated, _}
+import responses.CouponResponses.{CouponResponse, IlluminatedCouponResponse ⇒ Illuminated, _}
 import services.{LogActivity, Result}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
@@ -126,6 +129,20 @@ object CouponManager {
       form   ← * <~ ObjectForms.mustFindById404(coupon.formId)
       shadow ← * <~ ObjectShadows.mustFindById404(coupon.shadowId)
     } yield Illuminated.build(IlluminatedCoupon.illuminate(context, coupon, form, shadow))
+
+  def archiveByContextAndId(contextName: String,
+                            formId: Int)(implicit ec: EC, db: DB): Result[CouponResponse.Root] =
+    (for {
+      context ← * <~ ObjectContexts
+                 .filterByName(contextName)
+                 .mustFindOneOr(ObjectContextNotFound(contextName))
+      model ← * <~ Coupons
+               .findOneByContextAndFormId(context.id, formId)
+               .mustFindOneOr(NotFoundFailure404(Coupon, formId))
+      archiveResult ← * <~ Coupons.update(model, model.copy(archivedAt = Some(Instant.now)))
+      form          ← * <~ ObjectForms.mustFindById404(archiveResult.formId)
+      shadow        ← * <~ ObjectShadows.mustFindById404(archiveResult.shadowId)
+    } yield CouponResponse.build(archiveResult, form, shadow)).runTxn()
 
   def generateCode(id: Int, code: String, admin: StoreAdmin)(implicit ec: EC,
                                                              db: DB,
