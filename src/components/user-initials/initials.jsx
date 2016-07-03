@@ -14,7 +14,6 @@ function getColor(props) {
   const initials = getInitials(props) || '';
   const code = initials.charCodeAt(1);
 
-  console.log(code);
   const color = (() => {
     if (code <= 70) return '#B989DE';
     if (code > 70 && code <= 75) return '#7DA0F3';
