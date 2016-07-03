@@ -13,6 +13,16 @@ error_page 502 @502;
 error_page 503 @503;
 error_page 504 @504;
 
+# Use Isaac to auth by passing headers but not body to isaac. 
+# Isaac will look for the JWT header and return 200 if it is valid, otherwise
+# 4xx errors.
+location = /internal-admin-auth {
+    internal;
+    proxy_pass http://isaac/admin;
+    proxy_pass_request_body off;
+    proxy_set_header Content-Length "";
+}
+
 # Proxy to ElasticSearch phoenix index for internal use by /api/search
 location /internal-search-admin/ {
     internal;
@@ -24,8 +34,10 @@ location /internal-search-public/ {
     proxy_pass http://search/public/;
 }
 
+
 # Proxy the internal search location and sanitizes output from ES for external use
 location ~ /api/search/admin/.*/_search {
+    auth_request /internal-admin-auth;
     default_type 'application/json';
     content_by_lua '
 
@@ -52,6 +64,7 @@ location ~ /api/search/admin/.*/_search {
 
 # Proxy the internal search location and sanitizes output from ES for external use
 location ~ /api/search/admin/.*/_count {
+    auth_request /internal-admin-auth;
     default_type 'application/json';
     content_by_lua '
 
@@ -69,6 +82,7 @@ location ~ /api/search/admin/.*/_count {
 
 # Proxy the internal search location and sanitizes output from ES for external use
 location ~ /api/search/admin/.*/\d+$ {
+    auth_request /internal-admin-auth;
     default_type 'application/json';
     content_by_lua '
 

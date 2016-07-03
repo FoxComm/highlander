@@ -6,3 +6,7 @@ upstream search {
 upstream phoenix {
     server {{ phoenix_server }} fail_timeout=30s;
 }
+
+upstream isaac {
+    server {{ isaac_server }} fail_timeout=30s;
+}
