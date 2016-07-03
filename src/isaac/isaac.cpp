@@ -40,6 +40,7 @@ po::options_description create_descriptions()
         ("db,d", po::value<std::string>()->default_value("host=127.0.0.1 dbname=phoenix_development user=phoenix"), "db connection string")
         ("customer_est", po::value<std::size_t>()->default_value(20000), "estimated amount of customers")
         ("admin_est", po::value<std::size_t>()->default_value(100), "estimated amount of admins")
+        ("token_header", po::value<std::string>()->default_value("JWT"), "Header which has the JWT token")
         ("workers,w", po::value<std::size_t>()->default_value(workers), "worker threads");
 
     return d;
@@ -91,12 +92,14 @@ try
     const auto customer_est = opt["customer_est"].as<std::size_t>();
     const auto admin_est = opt["admin_est"].as<std::size_t>();
     const auto workers = opt["workers"].as<std::size_t>();
+    const auto token_header = opt["token_header"].as<std::string>();
 
     //test db connection
     test_db_connection(db_conn);
 
     isaac::net::context ctx;
     ctx.db_connection = db_conn;
+    ctx.token_header = token_header;
 
     if(!load_key(ctx, key_file))
     {

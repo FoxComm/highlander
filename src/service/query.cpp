@@ -5,9 +5,9 @@ namespace isaac
 {
     namespace net
     {
-        void query_request_handler::onRequest(std::unique_ptr<proxygen::HTTPMessage> headers) noexcept
+        void query_request_handler::onRequest(std::unique_ptr<proxygen::HTTPMessage> msg) noexcept
         {
-            _headers = std::move(headers);
+            _msg = std::move(msg);
         }
 
         void query_request_handler::onBody(std::unique_ptr<folly::IOBuf> body) noexcept
@@ -19,13 +19,13 @@ namespace isaac
         void query_request_handler::onEOM() noexcept
         try
         {
-            if(!(_headers && _body)) return;
+            if(!_msg) return;
 
-            if(_headers->getPath() == "/customer") 
-                validate(*_headers, *_body, false);
-            else if(_headers->getPath() == "/admin") 
-                validate(*_headers, *_body, true);
-            else if(_headers->getPath() == "/ping") 
+            if(_msg->getPath() == "/customer") 
+                validate(*_msg, false);
+            else if(_msg->getPath() == "/admin") 
+                validate(*_msg, true);
+            else if(_msg->getPath() == "/ping") 
                 ping();
             else
                 is404();
@@ -100,10 +100,21 @@ namespace isaac
         }
 
 
-        void query_request_handler::validate(proxygen::HTTPMessage& headers, folly::IOBuf& body, bool must_be_admin) 
+        void query_request_handler::validate(proxygen::HTTPMessage& msg, bool must_be_admin) 
         {
+            const auto& headers = msg.getHeaders();
+            auto token = headers.rawGet(_c.token_header);
+            if(token.empty()) 
+            {
+                token_missing();
+                return;
+            }
+
             util::jwt_parts parts;
-            if(!util::get_jwt_parts(parts, body)) 
+            if(!util::get_jwt_parts(
+                        parts, 
+                        reinterpret_cast<const unsigned char*>(token.data()), 
+                        token.size())) 
             {
                 invalid_jwt();
                 return;
@@ -141,6 +152,16 @@ namespace isaac
 
             proxygen::ResponseBuilder{downstream_}
                 .status(200, "OK")
+                .sendWithEOM();
+        }
+
+        void query_request_handler::token_missing()
+        {
+            std::stringstream e;
+            e << "The JWT header `" << _c.token_header << "' not found"; 
+
+            proxygen::ResponseBuilder{downstream_}
+                .status(400, e.str())
                 .sendWithEOM();
         }
 

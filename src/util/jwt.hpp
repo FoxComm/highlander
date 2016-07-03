@@ -35,7 +35,7 @@ namespace isaac
         using sig_verifier_ptr = std::unique_ptr<sig_verifier>;
 
         std::string base64url_decode(parts_iterator p);
-        bool get_jwt_parts(jwt_parts& parts, folly::IOBuf& body);
+        bool get_jwt_parts(jwt_parts& parts, const unsigned char* data, size_t length);
 
         bool check_jwt_signature(const jwt_parts& parts, sig_verifier& verifier);
         bool jwt_expired(folly::dynamic& payload);

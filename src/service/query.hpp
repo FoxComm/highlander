@@ -17,6 +17,7 @@ namespace isaac
         struct context
         {
             std::string db_connection;
+            std::string token_header;
             db::user_cache* user_cache;
             util::public_key* pub_key;
             util::sig_verifier_ptr verifier;
@@ -27,7 +28,7 @@ namespace isaac
                 explicit query_request_handler(context& c, db::user& db) : 
                     RequestHandler{}, _c{c}, _db{db} {}
 
-                void onRequest(std::unique_ptr<proxygen::HTTPMessage> headers) noexcept override;
+                void onRequest(std::unique_ptr<proxygen::HTTPMessage> msg) noexcept override;
                 void onBody(std::unique_ptr<folly::IOBuf> body) noexcept override;
                 void onEOM() noexcept override;
                 void onUpgrade(proxygen::UpgradeProtocol proto) noexcept override;
@@ -36,7 +37,7 @@ namespace isaac
 
             private:
                 //services
-                void validate(proxygen::HTTPMessage& headers, folly::IOBuf& body, bool must_be_admin);
+                void validate(proxygen::HTTPMessage& msg, bool must_be_admin);
                 void ping();
                 void is404();
 
@@ -47,6 +48,7 @@ namespace isaac
 
 
                 //errors
+                void token_missing();
                 void invalid_jwt();
                 void invalid_header();
                 void invalid_user();
@@ -57,7 +59,7 @@ namespace isaac
                 context& _c;
                 db::user& _db;
                 std::unique_ptr<folly::IOBuf> _body;
-                std::unique_ptr<proxygen::HTTPMessage> _headers;
+                std::unique_ptr<proxygen::HTTPMessage> _msg;
         };
 
         class query_handler_factory : public proxygen::RequestHandlerFactory 

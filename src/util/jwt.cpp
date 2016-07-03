@@ -14,9 +14,9 @@ namespace isaac
 {
     namespace util
     {
-        bool get_jwt_parts(jwt_parts& parts, folly::IOBuf& body)
+        bool get_jwt_parts(jwt_parts& parts, const unsigned char* data, size_t length)
         {
-            parts_iterator it(body.data(), body.data() + body.length(), 
+            parts_iterator it(data, data + length, 
                     boost::algorithm::first_finder(".", boost::algorithm::is_equal()));
 
             parts.header = it;
