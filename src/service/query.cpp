@@ -103,7 +103,7 @@ namespace isaac
         void query_request_handler::validate(proxygen::HTTPMessage& msg, bool must_be_admin) 
         {
             const auto& headers = msg.getHeaders();
-            auto token = headers.rawGet(_c.token_header);
+            const auto& token = headers.rawGet(_c.token_header);
             if(token.empty()) 
             {
                 token_missing();
