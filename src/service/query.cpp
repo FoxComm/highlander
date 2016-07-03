@@ -161,21 +161,21 @@ namespace isaac
             e << "The JWT header `" << _c.token_header << "' not found"; 
 
             proxygen::ResponseBuilder{downstream_}
-                .status(400, e.str())
+                .status(401, e.str())
                 .sendWithEOM();
         }
 
         void query_request_handler::invalid_jwt()
         {
             proxygen::ResponseBuilder{downstream_}
-                .status(400, "Invalid JWT")
+                .status(401, "Invalid JWT")
                 .sendWithEOM();
         }
 
         void query_request_handler::invalid_header()
         {
             proxygen::ResponseBuilder{downstream_}
-                .status(400, "Only RS256 signatures are supported")
+                .status(401, "Only RS256 signatures are supported")
                 .sendWithEOM();
         }
 
