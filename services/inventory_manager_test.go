@@ -67,10 +67,10 @@ func (suite *InventoryManagerTestSuite) TestEmptySKU() {
 }
 
 func (suite *InventoryManagerTestSuite) TestCreateStockItemsUnits() {
-	payload := &payloads.IncrementStockItemUnits{
+	payload := &payloads.StockItemUnits{
 		StockItemID: suite.itemResp.ID,
-		Qty:         uint(1),
-		UnitCost:    uint(500),
+		Qty:         1,
+		UnitCost:    500,
 		Status:      "available",
 	}
 
@@ -79,10 +79,10 @@ func (suite *InventoryManagerTestSuite) TestCreateStockItemsUnits() {
 }
 
 func (suite *InventoryManagerTestSuite) TestCreateMultipleStockItemUnits() {
-	payload := &payloads.IncrementStockItemUnits{
+	payload := &payloads.StockItemUnits{
 		StockItemID: suite.itemResp.ID,
-		Qty:         uint(10),
-		UnitCost:    uint(500),
+		Qty:         10,
+		UnitCost:    500,
 		Status:      "available",
 	}
 

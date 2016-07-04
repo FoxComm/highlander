@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -62,6 +63,28 @@ func runStockItems(router *gin.Engine) {
 	})
 
 	router.PATCH("/stock-items/:id/units", func(c *gin.Context) {
-		c.JSON(201, gin.H{})
+		var json payloads.StockItemUnits
+		if parse(c, &json) != nil {
+			return
+		}
+
+		invMgr, err := initInventoryManager(c)
+		if err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+
+		if json.Qty > 0 {
+			err := invMgr.IncrementStockItemUnits(&json)
+			if err != nil {
+				c.AbortWithError(http.StatusBadRequest, err)
+				return
+			}
+
+			c.JSON(http.StatusCreated, gin.H{})
+		} else {
+			err := errors.New("Not implemented")
+			c.AbortWithError(http.StatusBadRequest, err)
+		}
 	})
 }

@@ -9,7 +9,7 @@ import (
 type StockItemUnit struct {
 	gormfox.Base
 	StockItemID uint
-	UnitCost    uint
+	UnitCost    int
 	Status      string
 }
 
@@ -21,10 +21,10 @@ func (siu StockItemUnit) Validate(repository gormfox.Repository) ([]validation.I
 	return []validation.Invalid{}, nil
 }
 
-func NewStockItemUnitsFromPayload(payload *payloads.IncrementStockItemUnits) []*StockItemUnit {
+func NewStockItemUnitsFromPayload(payload *payloads.StockItemUnits) []*StockItemUnit {
 	units := []*StockItemUnit{}
 
-	for i := uint(0); i < payload.Qty; i++ {
+	for i := 0; i < payload.Qty; i++ {
 		item := &StockItemUnit{
 			StockItemID: payload.StockItemID,
 			UnitCost:    payload.UnitCost,
