@@ -1,5 +1,6 @@
 // libs
 import _ from 'lodash';
+import classNames from 'classnames';
 import React, { PropTypes } from 'react';
 
 // components
@@ -40,17 +41,18 @@ function getCell(column, children) {
 }
 
 const TableBodyCell = props => {
-  const { children, colSpan, column, ...rest } = props;
+  const { childrenn, colSpan, column, className, ...rest } = props;
 
   const cell = _.isNull(children) ? null : getCell(column, children);
 
-  return <td className="fc-table-td" colSpan={colSpan} {...rest}>{cell}</td>;
+  return <div className={classNames('fc-table-td', className)} colSpan={colSpan} {...rest}>{cell}</div>;
 };
 
 TableBodyCell.propTypes = {
   colSpan: PropTypes.number,
   column: columnPropType,
   children: PropTypes.node,
+  className: PropTypes.string,
 };
 
 export default TableBodyCell;

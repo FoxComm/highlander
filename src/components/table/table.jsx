@@ -11,17 +11,15 @@ import TableRow from './row';
 import TableCell from './cell';
 import WaitAnimation from '../common/wait-animation';
 
-export function tableMessage(message: Element|string, colSpan: number): Element {
+export function tableMessage(message: Element|string, inline: boolean = false): Element {
+  const cls = classNames('fc-table-message', { 'fc-table-message__inline': inline });
+
   return (
-    <tbody>
-      <tr>
-        <td colSpan={colSpan}>
-          <div className="fc-content-box__empty-row">
-            {message}
-          </div>
-        </td>
-      </tr>
-    </tbody>
+    <div className={cls}>
+      <div className="fc-content-box__empty-row">
+        {message}
+      </div>
+    </div>
   );
 }
 
@@ -59,6 +57,8 @@ type State = {
   newIds: Array<string|number>;
 }
 
+const ROWS_COUNT_TO_SHOW_LOADING_OVERLAY = 4;
+
 export default class Table extends Component {
   props: Props;
 
@@ -85,8 +85,18 @@ export default class Table extends Component {
     newIds: [],
   };
 
+  _body: HTMLElement;
+  _head: HTMLElement;
+
   get rows(): Rows {
     return this.props.data.rows;
+  }
+
+  @autobind
+  onScroll({ target }: { target: HTMLElement }): void {
+    const el = target == this._head ? this._body : this._head;
+
+    el.scrollLeft = target.scrollLeft;
   }
 
   @autobind
@@ -120,6 +130,10 @@ export default class Table extends Component {
     }
   }
 
+  get loadingInline(): boolean {
+    return this.rows.length >= ROWS_COUNT_TO_SHOW_LOADING_OVERLAY;
+  }
+
   get tableRows(): Element {
     const { props } = this;
 
@@ -136,41 +150,48 @@ export default class Table extends Component {
     return props.processRows(rows, props.columns);
   }
 
-  get body(): Element {
+  get message(): ?Element {
     const { props } = this;
 
     const showLoading = props.showLoadingOnMount && props.isLoading === null || props.isLoading;
     const rows = this.tableRows;
-    const colSpan = props.columns.length;
 
     if (showLoading) {
-      return tableMessage(<WaitAnimation />, colSpan);
+      return tableMessage(<WaitAnimation />, this.loadingInline);
     } else if (props.failed && props.errorMessage) {
-      return tableMessage(props.errorMessage, colSpan);
+      return tableMessage(props.errorMessage);
     } else if (_.isEmpty(rows) && props.emptyMessage) {
-      return tableMessage(props.emptyMessage, colSpan);
-    } else {
-      return rows;
+      return tableMessage(props.emptyMessage);
     }
   }
 
-  wrapToTbody(body: Element): Element {
-    const firstRow = React.Children.toArray(body)[0];
-    if (firstRow && (firstRow.type === 'tbody' || !this.props.wrapToTbody)) {
-      return body;
-    }
+  get body(): ?Element {
+    const rowsCount = this.rows.length;
+    const isLoading = this.props.isLoading;
 
-    return <tbody>{body}</tbody>;
+    if (!isLoading && rowsCount || isLoading && this.loadingInline) {
+      return <div className="fc-table-body">{this.tableRows}</div>;
+    }
   }
 
   render() {
     const {data, setState, className, ...rest} = this.props;
 
     return (
-      <table className={classNames('fc-table', className)}>
-        <TableHead {...rest} sortBy={data.sortBy} setState={setState}/>
-        {this.wrapToTbody(this.body)}
-      </table>
+      <div className="fc-table-wrap">
+        <div className="fill-width inner inner-head" ref={(r) => this._head = r} onScroll={this.onScroll}>
+          <div className={classNames('fc-table', className)}>
+            <TableHead {...rest} sortBy={data.sortBy} setState={setState} />
+          </div>
+        </div>
+
+        <div className="fill-width inner" ref={(r) => this._body = r} onScroll={this.onScroll}>
+          <div className={classNames('fc-table', className)}>
+            {this.body}
+          </div>
+        </div>
+        {this.message}
+      </div>
     );
   }
 };

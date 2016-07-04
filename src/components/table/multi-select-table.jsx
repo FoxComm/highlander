@@ -146,7 +146,7 @@ export default class MultiSelectTable extends React.Component {
     const selectColumn = {
       field: 'selectColumn',
       control: this.checkboxHead,
-      className: '__select-column',
+      className: '__select-column row-head-left',
       sortable: false,
     };
 
@@ -155,9 +155,10 @@ export default class MultiSelectTable extends React.Component {
       control: <ColumnSelector setColumns={this.setColumnSelected}
                                columns={this.props.columns}
                                identifier={this.getTableIdentifier()} />,
-      className: '__toggle-columns',
+      className: '__toggle-columns row-head-right',
       sortable: false,
     };
+
 
     return this.props.hasActionsColumn ? [
       selectColumn,

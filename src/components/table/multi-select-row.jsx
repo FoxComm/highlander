@@ -1,6 +1,7 @@
 // libs
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
+import classNames from 'classnames';
 import { transitionTo } from 'browserHistory';
 
 // components
@@ -48,8 +49,13 @@ const MultiSelectRow = (props, context) => {
         break;
     }
 
+    const cls = classNames({
+      'row-head-left': col.field == 'selectColumn',
+      'row-head-right': col.field == 'toggleColumns',
+    });
+
     visibleCells.push(
-      <TableCell onClick={cellClickAction} key={cellKey} column={col}>
+      <TableCell className={cls} onClick={cellClickAction} key={cellKey} column={col}>
         {cellContents}
       </TableCell>
     );

@@ -6,7 +6,7 @@
 // ////
 // // A set of utilities needed for interacting with a table.
 // const getTableRow = (doc, idx) => {
-//   const query = `.fc-shipping-methods tbody .fc-table-tr:nth-child(${idx + 1})`;
+// const query = `.fc-shipping-methods .fc-table-body .fc-table-tr:nth-child(${idx + 1})`;
 //   return doc.querySelector(query);
 // };
 //
