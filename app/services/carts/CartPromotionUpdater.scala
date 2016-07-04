@@ -102,7 +102,7 @@ object CartPromotionUpdater {
       cart      ← * <~ CartTotaler.saveTotals(cart)
       validated ← * <~ CartValidator(cart).validate()
       response  ← * <~ FullCart.buildRefreshed(cart)
-    } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)
+    } yield TheResponse.validated(response, validated)
 
   def detachCoupon(originator: Originator, refNum: Option[String] = None)(
       implicit ec: EC,
@@ -126,7 +126,7 @@ object CartPromotionUpdater {
       _         ← * <~ LogActivity.orderCouponDetached(cart)
       validated ← * <~ CartValidator(cart).validate()
       response  ← * <~ FullCart.buildRefreshed(cart)
-    } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)
+    } yield TheResponse.validated(response, validated)
 
   /**
     * Getting only first discount now

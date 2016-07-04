@@ -48,7 +48,7 @@ object CartShippingMethodUpdater {
       validated ← * <~ CartValidator(order).validate()
       response  ← * <~ FullCart.buildRefreshed(order)
       _         ← * <~ LogActivity.orderShippingMethodUpdated(originator, response, oldShipMethod)
-    } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)
+    } yield TheResponse.validated(response, validated)
 
   def deleteShippingMethod(originator: Originator, refNum: Option[String] = None)(
       implicit ec: EC,
@@ -68,5 +68,5 @@ object CartShippingMethodUpdater {
       valid ← * <~ CartValidator(cart).validate()
       resp  ← * <~ FullCart.buildRefreshed(cart)
       _     ← * <~ LogActivity.orderShippingMethodDeleted(originator, resp, shipMethod)
-    } yield TheResponse.build(resp, alerts = valid.alerts, warnings = valid.warnings)
+    } yield TheResponse.validated(resp, valid)
 }
