@@ -85,18 +85,63 @@ export default class Table extends Component {
     newIds: [],
   };
 
-  _body: HTMLElement;
+  _el: HTMLElement;
   _head: HTMLElement;
+  _body: HTMLElement;
+
+  componentDidUpdate(): void {
+    const tables = this._el.getElementsByClassName('fc-table');
+
+    [].forEach.call(tables, (table: HTMLElement) => {
+      table.style.tableLayout = 'auto';
+    });
+
+    const rows = this._body.getElementsByClassName('fc-table-tr');
+
+    if (rows.length === 0) {
+      return;
+    }
+
+    const headerCells = this._head.getElementsByClassName('fc-table-th');
+    const cells = this._body.getElementsByClassName('fc-table-td');
+
+    const cellsInARow = cells.length / rows.length;
+
+    for (let cellIndex = 0; cellIndex < cellsInARow; cellIndex++) {
+
+      const headerCellWidth = headerCells[cellIndex].getBoundingClientRect().width;
+      const columnMaxWidth = _.range(0, rows.length)
+        .map((rowIndex: number) => cells[rowIndex * cellsInARow + cellIndex].getBoundingClientRect().width)
+        .reduce((prevRow: number, currRow: number) => Math.max(prevRow, currRow), 0);
+
+      const max = Math.max(columnMaxWidth, headerCellWidth);
+
+      for (let i = cellIndex; i < cells.length; i += cellsInARow) {
+        cells[i].style.width = `${max}px`;
+        cells[i].style.minWidth = `${max}px`;
+      }
+
+      headerCells[cellIndex].style.width = `${max}px`;
+      headerCells[cellIndex].style.minWidth = `${max}px`;
+    }
+
+    [].forEach.call(tables, (table: HTMLElement) => {
+      table.style.tableLayout = 'fixed';
+    });
+
+  }
 
   get rows(): Rows {
     return this.props.data.rows;
   }
 
   @autobind
-  onScroll({ target }: { target: HTMLElement }): void {
-    const el = target == this._head ? this._body : this._head;
+  onScroll(e: MouseEvent): void {
+    e.preventDefault();
 
-    el.scrollLeft = target.scrollLeft;
+    const el = e.target == this._head ? this._body : this._head;
+
+    el.scrollLeft = e.target.scrollLeft;
   }
 
   @autobind
@@ -178,7 +223,7 @@ export default class Table extends Component {
     const {data, setState, className, ...rest} = this.props;
 
     return (
-      <div className="fc-table-wrap">
+      <div className="fc-table-wrap" ref={(el) => this._el = el}>
         <div className="fill-width inner inner-head" ref={(r) => this._head = r} onScroll={this.onScroll}>
           <div className={classNames('fc-table', className)}>
             <TableHead {...rest} sortBy={data.sortBy} setState={setState} />
