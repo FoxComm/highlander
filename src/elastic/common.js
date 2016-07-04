@@ -32,8 +32,8 @@ export function toQuery(filters, options = {}) {
   }
 
   const es = {
-    filters: filters,
-    queries: [],
+    filters: convertFilters(_.filter(filters, searchTerm => searchTerm.value.type !== 'string')),
+    queries: convertFilters(_.filter(filters, searchTerm => searchTerm.value.type === 'string')),
   };
 
   if (!_.isEmpty(phrase)) {
@@ -47,9 +47,9 @@ export function toQuery(filters, options = {}) {
     bool: {
       should: atLeastOne ? [
         ...es.queries,
-        ...(_.isEmpty(es.filters) ? void 0 : convertFilters(es.filters)) || []
+        ...(_.isEmpty(es.filters) ? void 0 : es.filters) || []
       ] : void 0,
-      filter: atLeastOne || _.isEmpty(es.filters) ? void 0 : convertFilters(es.filters),
+      filter: atLeastOne || _.isEmpty(es.filters) ? void 0 : es.filters,
       must: atLeastOne || _.isEmpty(es.queries) ? void 0 : es.queries,
     }
   };
