@@ -20,6 +20,7 @@ import styles from './user-form.css';
 type Props = {
   user: Object,
   onChange: Function,
+  isNew: bool,
 };
 
 class UserForm extends Component {
@@ -55,7 +56,7 @@ class UserForm extends Component {
   }
 
   renderUserImage() {
-    const name = this.props.user.form.attributes.firstAndLastName.v;
+    const name = this.props.user.form.attributes.firstAndLastName.v || 'New User';
 
     return (
       <FormField
@@ -75,7 +76,7 @@ class UserForm extends Component {
         {this.renderUserImage()}
         <ObjectFormInner onChange={this.handleFormChange}
                          attributes={attributes} />
-        <Button type="button">Change Password</Button>
+        {!this.props.isNew && <Button type="button">Change Password</Button>}
       </ContentBox>
     );
   }
@@ -88,7 +89,7 @@ class UserForm extends Component {
         </section>
 
         <aside styleName="aside">
-          {this.renderAccountState()}
+          {!this.props.isNew && this.renderAccountState()}
 
           <ContentBox title="Roles">
             <RoundedPill text="Super Admin"/>
