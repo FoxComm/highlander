@@ -26,12 +26,21 @@ export function configureUserState(user) {
     }
   };
 
+  const options = {
+    'firstAndLastName': {
+      required: true,
+    },
+    'emailAddress': {
+      required: true,
+    }
+  };
+
   const state = {
     accountState,
     disabled: accountState === 'invited' || accountState === 'archived',
 };
 
-  const form = {attributes};
+  const form = {attributes, options};
 
   return {
     name,

@@ -107,15 +107,10 @@ class User extends Component {
     )
   }
 
-  @autobind
-  handleCancelNewUser() {
-    transitionTo('users')
-  }
-
   renderNewUserTitle() {
     return (
       <PageTitle title="New User">
-        <Button type="button" onClick={this.handleCancelNewUser}>Cancel</Button>
+        <Button type="button" onClick={() => transitionTo('users')}>Cancel</Button>
         <PrimaryButton type="button" onClick={this.handleNewUserSubmit}>
           Invite User
         </PrimaryButton>
