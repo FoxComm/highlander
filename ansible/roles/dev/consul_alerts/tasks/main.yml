@@ -1,10 +1,14 @@
 ---
 
+- name: Build Consul Alerts from Fork Repository
+  command: go get github.com/kpashka/consul-alerts
+  sudo: true
+
 - name: Install Consulate
   shell: sudo easy_install consulate
 
-- name: Copy Consul Alerts Bin
-  copy: src=consul-alerts dest=/usr/local/bin/consul-alerts mode="u+x,g+x,o+x"
+- name: Copy Consul Alerts Binary
+  copy: src=$GOPATH/bin/consul-alerts dest=/usr/local/bin/consul-alerts mode="u+x,g+x,o+x"
   sudo: true
 
 - name: Copy Execution File
@@ -13,7 +17,7 @@
 
 - name: Copy Configuration File
   template: src=alerts_config.json dest={{home}}/alerts_config.json mode="u+x,g+x,o+x"
-  sudo: true  
+  sudo: true
 
 - name: Copy Service
   template: src=consul_alerts.service dest="{{dest_services}}/consul_alerts.service"

@@ -14,6 +14,7 @@
   with_items:
     - curl
     - debconf-utils
+    - golang-go
     - jq
     - make
     - python-httplib2
@@ -26,6 +27,14 @@
     - htop
     - unzip
     - tree
+
+- name: Create /etc/profile.d Directory
+  file: path=/etc/profile.d state=directory
+  sudo: true
+
+- name: Set GOPATH for all users
+  copy: src=go-path.sh dest=/etc/profile.d
+  sudo: true  
 
 - name: Install Java Packages
   apt: name={{ item }} state=latest force=yes
@@ -45,7 +54,7 @@
   args:
       creates: "{{ swap_file }}"
 
-- name: Change swap file permissions
+- name: Change Swap File Permissions
   file: path="{{ swap_file}}" owner=root group=root mode=0600
   sudo: true
 
