@@ -3,7 +3,6 @@ package models
 import (
 	"github.com/FoxComm/middlewarehouse/api/payloads"
 	"github.com/FoxComm/middlewarehouse/common/gormfox"
-	"github.com/FoxComm/middlewarehouse/common/validation"
 )
 
 type StockItemUnit struct {
@@ -15,10 +14,6 @@ type StockItemUnit struct {
 
 func (siu StockItemUnit) Identifier() uint {
 	return siu.ID
-}
-
-func (siu StockItemUnit) Validate(repository gormfox.Repository) ([]validation.Invalid, error) {
-	return []validation.Invalid{}, nil
 }
 
 func NewStockItemUnitsFromPayload(payload *payloads.StockItemUnits) []*StockItemUnit {

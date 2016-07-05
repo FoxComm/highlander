@@ -5,10 +5,11 @@ import (
 
 	"github.com/FoxComm/middlewarehouse/api/payloads"
 	"github.com/FoxComm/middlewarehouse/api/responses"
+	"github.com/FoxComm/middlewarehouse/common/db/config"
 	"github.com/FoxComm/middlewarehouse/common/db/tasks"
-	"github.com/FoxComm/middlewarehouse/common/gormfox"
 	"github.com/FoxComm/middlewarehouse/common/store"
 	"github.com/FoxComm/middlewarehouse/models"
+	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -17,7 +18,7 @@ type InventoryManagerTestSuite struct {
 	suite.Suite
 	mgr      *InventoryMgr
 	itemResp *responses.StockItem
-	repo     gormfox.Repository
+	db       *gorm.DB
 }
 
 func TestInventoryManagerSuite(t *testing.T) {
@@ -26,7 +27,8 @@ func TestInventoryManagerSuite(t *testing.T) {
 
 func (suite *InventoryManagerTestSuite) SetupTest() {
 	var err error
-	suite.repo, err = gormfox.NewRepository()
+	suite.db, err = config.DefaultConnection()
+	assert.Nil(suite.T(), err)
 
 	assert.Nil(suite.T(), err)
 	tasks.TruncateTables([]string{"stock_items", "stock_item_units"})
@@ -90,9 +92,8 @@ func (suite *InventoryManagerTestSuite) TestCreateMultipleStockItemUnits() {
 	assert.Nil(suite.T(), err)
 
 	var units []models.StockItemUnit
-	foundUnits, err := suite.repo.FindAll(&units)
+	err = suite.db.Find(&units).Error
 	if assert.Nil(suite.T(), err) {
-		u := foundUnits.(*[]models.StockItemUnit)
-		assert.Equal(suite.T(), 10, len(*u))
+		assert.Equal(suite.T(), 10, len(units))
 	}
 }
