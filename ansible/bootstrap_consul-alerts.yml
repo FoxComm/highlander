@@ -1,9 +1,0 @@
----
-
-- name: Bootstrap Consul Alerts
-  hosts: vanilla-consul-server-0
-  vars:
-    user: '{{ansible_ssh_user}}'
-
-  roles:
-      - { role: dev/consul_alerts }
