@@ -104,6 +104,10 @@ export default class DropdownSearch extends Component {
     });
   }
 
+  shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
+    return !_.eq(this.state, nextState);
+  }
+
   render() {
     const restProps = _.omit(this.props, 'children');
 
