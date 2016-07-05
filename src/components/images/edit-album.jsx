@@ -26,10 +26,14 @@ type Props = {
   onCancel: () => void;
 };
 
+type State = {
+  name: string;
+}
+
 class EditAlbum extends Component {
   static props: Props;
 
-  state = {
+  state: State = {
     name: this.props.album.name,
   };
 
@@ -44,17 +48,17 @@ class EditAlbum extends Component {
   }
 
   @autobind
-  handleUpdateField({ target }) {
+  handleUpdateField({ target }: { target: HTMLInputElement }) {
     this.setState({ [target.name]: target.value });
   }
 
   @autobind
-  handleSave(event) {
+  handleSave(event: Event) {
     event.preventDefault();
     this.props.onSave(this.state.name);
   }
 
-  get saveDisabled() {
+  get saveDisabled(): boolean {
     return _.isEmpty(this.state.name) || this.state.name === this.props.album.name;
   }
 

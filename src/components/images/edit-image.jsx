@@ -35,12 +35,12 @@ class EditImage extends Component {
   }
 
   @autobind
-  handleUpdateField({ target }) {
+  handleUpdateField({ target }: { target: HTMLInputElement }) {
     this.setState({ [target.name]: target.value });
   }
 
   @autobind
-  handleSave(event) {
+  handleSave(event: Event) {
     event.preventDefault();
     this.props.onSave(this.state);
   }
