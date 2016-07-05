@@ -13,7 +13,7 @@ import * as UserActions from '../../modules/users/details';
 import WaitAnimation from '../common/wait-animation';
 import { PageTitle } from '../section-title';
 import SubNav from './sub-nav';
-import { PrimaryButton } from '../common/buttons';
+import { Button, PrimaryButton } from '../common/buttons';
 
 type Params = {
   userId: number,
@@ -68,14 +68,6 @@ class User extends Component {
     return <div className="fc-user__empty-messages">An error occurred. Try again later.</div>;
   }
 
-  get pageTitle(): string {
-    if (this.isNew) {
-      return 'New User';
-    }
-
-    return _.get(this.props, 'details.user.name', '');
-  }
-
   @autobind
   handleFormChange(user) {
     this.setState({ user });
@@ -94,16 +86,42 @@ class User extends Component {
     });
   }
 
+  renderUserTitle() {
+    const title = _.get(this.props, 'details.user.name', '');
+    return (
+      <PageTitle title={title}>
+        <PrimaryButton type="button" onClick={this.handleSubmit}>
+          Save
+        </PrimaryButton>
+      </PageTitle>
+    )
+  }
+
+  handleNewUserSubmit() {
+
+  }
+
+  handleCancelNewUser() {
+
+  }
+
+  renderNewUserTitle() {
+    return (
+      <PageTitle title="New User">
+        <Button type="button" onClick={this.handleCancelNewUser}>Cancel</Button>
+        <PrimaryButton type="button" onClick={this.handleNewUserSubmit}>
+          Invite User
+        </PrimaryButton>
+      </PageTitle>
+    )
+  }
+
   renderContent() {
     const { details, params } = this.props;
 
     return (
       <div>
-        <PageTitle title={this.pageTitle}>
-          <PrimaryButton type="button" onClick={this.handleSubmit}>
-            Save
-          </PrimaryButton>
-        </PageTitle>
+        {this.isNew ? this.renderNewUserTitle() : this.renderUserTitle()}
         <SubNav userId={params.userId} user={details}/>
         <div className="fc-grid">
           <div className="fc-col-md-1-1">
