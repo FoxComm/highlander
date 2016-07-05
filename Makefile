@@ -1,6 +1,7 @@
 GO ?= go
 GOPATH := $(CURDIR)/_vendor:$(GOPATH)
 
+TF_CMD ?= plan
 TF_BASE = terraform/base
 TF_ENVS = terraform/envs
 
@@ -15,6 +16,9 @@ lint:
 
 test: lint
 	$(GO) test -v ./inventory/
+
+bootstrap-consul-alerts:
+	ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_consul_alerts.yml	
 
 bootstrap-prod-small:
 	ansible-playbook -v -i bin/envs/prod_small_vpn ansible/bootstrap_prod_small.yml
@@ -55,13 +59,13 @@ deploy-dem2:
 deploy-build-agents:
 	ansible-playbook -v -i bin/envs/staging ansible/build_agents.yml
 
-tf-plan-stage:
-	terraform plan -state=$(TF_ENVS)/gce_dev/terraform.tfstate -var-file=$(TF_ENVS)/gce_dev/terraform.tfvars $(TF_BASE)/gce_dev
+tf-stage:
+	terraform $(TF_CMD) -state=$(TF_ENVS)/gce_dev/terraform.tfstate -var-file=$(TF_ENVS)/gce_dev/terraform.tfvars $(TF_BASE)/gce_dev
 
-tf-plan-prodsmall:
-	terraform plan -state=$(TF_ENVS)/gce_prodsmall/terraform.tfstate -var-file=$(TF_ENVS)/gce_prodsmall/terraform.tfvars $(TF_BASE)/gce_vanilla
+tf-prodsmall:
+	terraform $(TF_CMD) -state=$(TF_ENVS)/gce_prodsmall/terraform.tfstate -var-file=$(TF_ENVS)/gce_prodsmall/terraform.tfvars $(TF_BASE)/gce_vanilla
 
-tf-plan-vanilla:
-	terraform plan -state=$(TF_ENVS)/gce_vanilla/terraform.tfstate -var-file=$(TF_ENVS)/gce_vanilla/terraform.tfvars $(TF_BASE)/gce_vanilla
+tf-vanilla:
+	terraform $(TF_CMD) -state=$(TF_ENVS)/gce_vanilla/terraform.tfstate -var-file=$(TF_ENVS)/gce_vanilla/terraform.tfvars $(TF_BASE)/gce_vanilla
 
 .PHONY: all build lint test
