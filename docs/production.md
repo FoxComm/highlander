@@ -143,3 +143,10 @@ Do all the steps while connected to created VPN service.
 	```
 	$ ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_vanilla.yml
 	```
+
+9. Bootstrap consul alerts and database backups, if necessary (continue with prompts manually):
+
+	```
+	$ ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_consul_alerts.yml
+	$ ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_db_backup.yml
+	```
