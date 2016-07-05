@@ -59,4 +59,12 @@ object ObjectManager {
 
   def mustFindShadowById404(id: Int)(implicit ec: EC): DbResultT[ObjectShadow] =
     ObjectShadows.findOneById(id).mustFindOr(NotFoundFailure404(ObjectShadow, id))
+
+  def getFullObject[T <: ObjectHead[T]](
+      readHead: ⇒ DbResultT[T])(implicit ec: EC, db: DB): DbResultT[FullObject[T]] =
+    for {
+      modelHead ← * <~ readHead
+      form      ← * <~ ObjectForms.mustFindById404(modelHead.formId)
+      shadow    ← * <~ ObjectShadows.mustFindById404(modelHead.shadowId)
+    } yield FullObject(modelHead, form, shadow)
 }

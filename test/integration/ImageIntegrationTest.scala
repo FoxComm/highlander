@@ -20,10 +20,11 @@ import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import payloads.ImagePayloads._
-import responses.ImageResponses.AlbumResponse.{Root ⇒ AlbumRoot}
+import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
 import responses.ProductResponses._
 import responses.SkuResponses._
 import services.Result
+import services.image.ImageManager
 import util.IntegrationTestBase
 import utils.Money.Currency
 import utils._
@@ -107,11 +108,10 @@ class ImageIntegrationTest
         albumResponse.images.map(_.id).toSet.size must === (2)
       }
 
-      "Create an album with multiple images fails if id duplicates" in new Fixture {
-        val payload = CreateAlbumPayload(name = "Non-empty album",
-                                         images =
-                                           Seq(ImagePayload(id = Some(1), src = "url"),
-                                               ImagePayload(id = Some(1), src = "url2")).some)
+      "Create an album fails if id is specified" in new Fixture {
+        val payload =
+          CreateAlbumPayload(name = "Non-empty album",
+                             images = Seq(ImagePayload(id = Some(1), src = "url")).some)
         val response = POST(s"v1/albums/${context.name}", payload)
         response.status must === (StatusCodes.BadRequest)
       }
@@ -119,7 +119,7 @@ class ImageIntegrationTest
 
     "PATCH v1/albums/:context/:id" - {
       "Update the album to have another image" in new Fixture {
-        val moreImages = Seq(images, ImagePayload(src = "http://test.it/test.png"))
+        val moreImages = Seq(ImagePayload(src = "http://test.it/test.png"))
         val payload    = UpdateAlbumPayload(images = moreImages.some)
 
         val response = PATCH(s"v1/albums/${context.name}/${album.formId}", payload)
@@ -336,13 +336,12 @@ class ImageIntegrationTest
     def createShadowAttr(key: String, attrType: String) =
       key → (("type" → attrType) ~ ("ref" → key))
 
-    val imageJson =
+    private val imageJson =
       ("src" → "http://lorem.png") ~ ("title" → "lorem.png") ~ ("alt" → "Lorem Ipsum")
     val images = imageJson.extract[ImagePayload]
 
-    val albumFormAttrs = ("name" → "Sample Album") ~ ("images" → Seq(imageJson))
-    val albumShadowAttrs =
-      createShadowAttr("name", "string") ~ createShadowAttr("images", "images")
+    val albumFormAttrs   = "name" → "Sample Album"
+    val albumShadowAttrs = createShadowAttr("name", "string")
 
     val form   = ObjectForm(kind = Album.kind, attributes = albumFormAttrs)
     val shadow = ObjectShadow(attributes = albumShadowAttrs)
@@ -358,6 +357,7 @@ class ImageIntegrationTest
                        shadowId = ins.shadow.id,
                        formId = ins.form.id,
                        commitId = ins.commit.id))
+      _ ← * <~ ImageManager.createImagesForAlbum(album, Seq(images), context)
     } yield (context, album)).gimme
   }
 

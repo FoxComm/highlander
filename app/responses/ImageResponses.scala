@@ -1,37 +1,31 @@
 package responses
 
-import java.time.Instant
-
-import models.image._
-import models.objects._
+import models.image.Image
+import models.objects.FullObject
 import utils.{IlluminateAlgorithm, JsonFormatters}
 
 object ImageResponses {
   implicit val formats = JsonFormatters.phoenixFormats
 
-  object AlbumResponse {
-    case class Root(id: Int,
-                    name: String,
-                    images: Seq[Image],
-                    position: Option[Int],
-                    createdAt: Instant,
-                    updatedAt: Instant)
+  object IlluminatedImageResponse {
+    case class Root(id: Int, src: String, title: Option[String], alt: Option[String])
         extends ResponseItem
 
-    def build(album: FullObject[Album], images: Seq[Image]): Root = {
-      val model       = album.model
-      val formAttrs   = album.form.attributes
-      val shadowAttrs = album.shadow.attributes
+    def build(id: Int,
+              src: String,
+              title: Option[String] = None,
+              alt: Option[String] = None): IlluminatedImageResponse.Root =
+      Root(id, src, title, alt)
 
-      val name     = IlluminateAlgorithm.get("name", formAttrs, shadowAttrs).extract[String]
-      val position = IlluminateAlgorithm.get("position", formAttrs, shadowAttrs).extractOpt[Int]
+    def build(value: FullObject[Image]): IlluminatedImageResponse.Root = {
+      val form   = value.form.attributes
+      val shadow = value.shadow.attributes
 
-      Root(id = album.form.id,
-           name = name,
-           images = images,
-           position = position,
-           createdAt = model.createdAt,
-           updatedAt = model.updatedAt)
+      val src   = IlluminateAlgorithm.get("src", form, shadow).extract[String]
+      val title = IlluminateAlgorithm.get("title", form, shadow).extractOpt[String]
+      val alt   = IlluminateAlgorithm.get("alt", form, shadow).extractOpt[String]
+
+      build(value.model.id, src, title, alt)
     }
   }
 }

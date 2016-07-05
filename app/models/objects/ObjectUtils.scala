@@ -16,6 +16,11 @@ import utils.db._
 
 object ObjectUtils {
 
+  implicit class FormShadowTuple(pair: (ObjectForm, ObjectShadow)) extends FormAndShadow {
+    override def form: ObjectForm     = pair._1
+    override def shadow: ObjectShadow = pair._2
+  }
+
   def get(attr: String, form: ObjectForm, shadow: ObjectShadow): Json = {
     IlluminateAlgorithm.get(attr, form.attributes, shadow.attributes)
   }
@@ -47,7 +52,7 @@ object ObjectUtils {
             val k = key(value)
             (Map(attr → k), (k, value))
         }
-        val keyMap  = m.map(_._1).reduce(_ ++ _)
+        val keyMap  = m.map(_._1).reduceOption(_ ++ _).getOrElse(Map.empty)
         val newForm = JObject(m.map(_._2).toList.distinct)
         (keyMap, newForm)
       case _ ⇒
@@ -113,6 +118,7 @@ object ObjectUtils {
     }
 
   case class InsertResult(form: ObjectForm, shadow: ObjectShadow, commit: ObjectCommit)
+      extends FormAndShadow
 
   def insert(formProto: ObjectForm, shadowProto: ObjectShadow)(
       implicit ec: EC): DbResultT[InsertResult] = {
@@ -126,7 +132,51 @@ object ObjectUtils {
     } yield InsertResult(form, shadow, commit)
   }
 
+  def insertFullObject[H <: ObjectHead[H]](
+      proto: FormAndShadow,
+      updateHead: (InsertResult) ⇒ DbResultT[H])(implicit ec: EC): DbResultT[FullObject[H]] =
+    for {
+      insert ← * <~ insert(proto.form, proto.shadow)
+      head   ← * <~ updateHead(insert)
+    } yield FullObject[H](head, insert.form, insert.shadow)
+
   case class UpdateResult(form: ObjectForm, shadow: ObjectShadow, updated: Boolean)
+      extends FormAndShadow
+
+  def commitUpdate[T <: ObjectHead[T]](
+      fullObject: FullObject[T],
+      formAttributes: Json,
+      shadowAttributes: Json,
+      updateHead: (FullObject[T], Int) ⇒ DbResultT[FullObject[T]],
+      force: Boolean = false)(implicit db: DB, ec: EC): DbResultT[FullObject[T]] =
+    for {
+      updateResult ← * <~ updateFormAndShadow(fullObject, formAttributes, shadowAttributes, force)
+      maybeCommit  ← * <~ ObjectUtils.commit(updateResult)
+      r ← * <~ (maybeCommit match {
+               case Some(commit) ⇒
+                 val newObject =
+                   fullObject.copy[T](form = updateResult.form, shadow = updateResult.shadow)
+                 updateHead(newObject, commit.id)
+               case _ ⇒
+                 DbResultT.good(fullObject)
+             })
+    } yield r
+
+  def updateFormAndShadow(
+      oldFormAndShadow: FormAndShadow,
+      formAttributes: Json,
+      shadowAttributes: Json,
+      force: Boolean = false)(implicit db: DB, ec: EC): DbResultT[UpdateResult] = {
+    for {
+      newAttributes ← * <~ ObjectUtils.updateFormAndShadow(oldFormAndShadow.form.attributes,
+                                                           formAttributes,
+                                                           shadowAttributes)
+      result ← * <~ updateIfDifferent(oldFormAndShadow,
+                                      newAttributes.form,
+                                      newAttributes.shadow,
+                                      force)
+    } yield result
+  }
 
   def update(formId: Int,
              shadowId: Int,
@@ -136,13 +186,10 @@ object ObjectUtils {
     for {
       oldForm   ← * <~ ObjectForms.mustFindById404(formId)
       oldShadow ← * <~ ObjectShadows.mustFindById404(shadowId)
-      newAttributes ← * <~ ObjectUtils
-                       .updateFormAndShadow(oldForm.attributes, formAttributes, shadowAttributes)
-      result ← * <~ updateIfDifferent(oldForm,
-                                      oldShadow,
-                                      newAttributes.form,
-                                      newAttributes.shadow,
-                                      force)
+      result ← * <~ updateFormAndShadow((oldForm, oldShadow),
+                                        formAttributes,
+                                        shadowAttributes,
+                                        force)
     } yield result
   }
 
@@ -197,21 +244,20 @@ object ObjectUtils {
     } yield result
 
   private def updateIfDifferent(
-      oldForm: ObjectForm,
-      oldShadow: ObjectShadow,
+      old: FormAndShadow,
       newFormAttributes: Json,
       newShadowAttributes: Json,
       force: Boolean = false)(implicit ec: EC): DbResultT[UpdateResult] = {
-    if (oldShadow.attributes != newShadowAttributes || force)
+    if (old.shadow.attributes != newShadowAttributes || force)
       for {
         form ← * <~ ObjectForms.update(
-                  oldForm,
-                  oldForm.copy(attributes = newFormAttributes, updatedAt = Instant.now))
+                  old.form,
+                  old.form.copy(attributes = newFormAttributes, updatedAt = Instant.now))
         shadow ← * <~ ObjectShadows.create(
                     ObjectShadow(formId = form.id, attributes = newShadowAttributes))
         _ ← * <~ validateShadow(form, shadow)
       } yield UpdateResult(form, shadow, updated = true)
-    else DbResultT.pure(UpdateResult(oldForm, oldShadow, updated = false))
+    else DbResultT.pure(UpdateResult(old.form, old.shadow, updated = false))
   }
 
   private def validateShadow(form: ObjectForm, shadow: ObjectShadow)(
