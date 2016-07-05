@@ -184,7 +184,7 @@ export default class Upload extends Component {
 
     return (
       <div styleName="upload" className={className}>
-        <input className={styles.input} type="file" onChange={this.onDrop} ref="fileInput" />
+        <input className={styles.input} type="file" onChange={this.onDrop} value="" ref="fileInput" />
         {this.container}
       </div>
     );
