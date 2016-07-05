@@ -1,7 +1,6 @@
 
 /* @flow */
 
-import { autobind } from 'core-decorators';
 import React, { Element } from 'react';
 
 import { ModalContainer } from './base';

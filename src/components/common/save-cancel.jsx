@@ -27,6 +27,7 @@ const SaveCancel = props => {
     onSave,
     saveText,
     saveDisabled,
+    isLoading,
   } = props;
 
   const cancelClassName = 'fc-save-cancel__cancel';
@@ -48,10 +49,12 @@ const SaveCancel = props => {
     ? <PrimaryButton onClick={onSave}
                      className={saveClassName}
                      tabIndex={cancelTabIndex}
+                     isLoading={isLoading}
                      disabled={saveDisabled}>{saveText}</PrimaryButton>
     : <PrimaryButton type="submit"
                      className={saveClassName}
                      tabIndex={saveTabIndex}
+                     isLoading={isLoading}
                      disabled={saveDisabled}>{saveText}</PrimaryButton>;
 
   return (
@@ -74,6 +77,7 @@ SaveCancel.propTypes = {
   onSave: PropTypes.func,
   saveText: PropTypes.string,
   saveDisabled: PropTypes.bool,
+  isLoading: PropTypes.bool,
 };
 
 SaveCancel.defaultProps = {

@@ -1,5 +1,8 @@
 /* @flow */
 
+// styles
+import styles from './images.css';
+
 // libs
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
@@ -12,23 +15,29 @@ import ContentBox from '../content-box/content-box';
 import SaveCancel from '../common/save-cancel';
 
 // types
-import type { ImageInfo } from '../../modules/images';
+import type { TAlbum } from '../../modules/images';
 
 type Props = {
   isVisible: boolean;
-  image: ImageInfo;
-  onSave: (info: ImageInfo) => void;
+  isNew: boolean;
+  loading: boolean;
+  album: TAlbum;
+  onSave: (name: string) => void;
   onCancel: () => void;
 };
 
-class EditImage extends Component {
+class EditAlbum extends Component {
   static props: Props;
 
-  state: ImageInfo = {
-    src: this.props.image.src,
-    title: this.props.image.title,
-    alt: this.props.image.alt,
+  state = {
+    name: this.props.album.name,
   };
+
+  _input: HTMLInputElement;
+
+  componentDidMount(){
+    this._input ? this._input.focus() : _.noop();
+  }
 
   get closeAction(): Element {
     return <a onClick={this.props.onCancel}>&times;</a>;
@@ -42,39 +51,35 @@ class EditImage extends Component {
   @autobind
   handleSave(event) {
     event.preventDefault();
-    this.props.onSave(this.state);
+    this.props.onSave(this.state.name);
+  }
+
+  get saveDisabled() {
+    return _.isEmpty(this.state.name) || this.state.name === this.props.album.name;
   }
 
   render(): Element {
-    const saveDisabled = _.isEmpty(this.state.title);
+    const title = this.props.isNew ? 'Add New Album' : 'Edit Album';
 
     return (
       <ModalContainer isVisible={this.props.isVisible}>
-        <ContentBox title="Edit Image" actionBlock={this.closeAction}>
-          <FormField label="Image Title"
+        <ContentBox title={title} actionBlock={this.closeAction}>
+          <FormField label="Album Name"
                      className="fc-product-details__field"
                      labelClassName="fc-product-details__field-label"
           >
             <input type="text"
+                   name="name"
                    className="fc-product-details__field-value"
-                   name="title"
-                   value={this.state.title}
+                   value={this.state.name}
                    onChange={this.handleUpdateField}
-            />
-          </FormField>
-          <FormField label="Image Alt Text"
-                     className="fc-product-details__field"
-                     labelClassName="fc-product-details__field-label">
-            <input type="text"
-                   className="fc-product-details__field-value"
-                   name="alt"
-                   value={this.state.alt}
-                   onChange={this.handleUpdateField}
+                   ref={(i) => this._input = i}
             />
           </FormField>
           <SaveCancel onCancel={this.props.onCancel}
                       onSave={this.handleSave}
-                      saveDisabled={saveDisabled}
+                      saveDisabled={this.saveDisabled}
+                      isLoading={this.props.loading}
                       saveText="Save and Apply"
           />
         </ContentBox>
@@ -83,4 +88,4 @@ class EditImage extends Component {
   }
 }
 
-export default EditImage;
+export default EditAlbum;

@@ -4,15 +4,14 @@
 import styles from './images.css';
 
 // libs
-import classNames from 'classnames';
 import { autobind, debounce } from 'core-decorators';
 import React, { Component, Element } from 'react';
 
 // components
-import BodyPortal from '../body-portal/body-portal';
 import ConfirmationDialog from '../modal/confirmation-dialog';
 import Alert from '../alerts/alert';
 import Accordion from './accordion/accordion';
+import EditAlbum from './edit-album';
 import Upload from '../upload/upload';
 import SortableTiles from '../sortable/sortable-tiles';
 import Image from './image';
@@ -22,7 +21,6 @@ import type { TAlbum, ImageFile, ImageInfo } from '../../modules/images';
 
 export type Props = {
   album: TAlbum;
-  isNew: boolean;
   loading: boolean;
   upload: (files: Array<ImageFile>) => Promise;
   editImage: (idx: number, info: ImageInfo) => Promise;
@@ -91,17 +89,8 @@ export default class Album extends Component {
 
   @autobind
   handleConfirmEditAlbum(name: string): void {
-    if (!name.length) {
-      return this.handleCancelEditAlbum();
-    }
-
-    if (this.state.newAlbumMode) {
-      this.props.addAlbum({ name, images: [] }).then(this.handleCancelEditAlbum);
-    } else {
-      const album = { ...this.props.album, name };
-
-      this.props.editAlbum(album).then(this.handleCancelEditAlbum);
-    }
+    this.props.editAlbum({ ...this.props.album, name })
+      .then(this.handleCancelEditAlbum);
   }
 
   @autobind
@@ -137,11 +126,21 @@ export default class Album extends Component {
     this.props.editAlbum(album);
   }
 
-  get deleteAlbumDialog(): ?Element {
-    if (!this.state.deleteMode) {
-      return;
-    }
+  get editAlbumDialog(): ?Element {
+    const { album, loading } = this.props;
 
+    return (
+      <EditAlbum className={styles.modal}
+                 isVisible={this.state.editMode}
+                 album={album}
+                 loading={loading}
+                 onCancel={this.handleCancelEditAlbum}
+                 onSave={this.handleConfirmEditAlbum}
+      />
+    );
+  }
+
+  get deleteAlbumDialog(): ?Element {
     const album = this.props.album;
 
     const body = (
@@ -156,16 +155,15 @@ export default class Album extends Component {
     );
 
     return (
-      <BodyPortal className={styles.modal}>
-        <ConfirmationDialog isVisible={true}
-                            header='Delete Album'
-                            body={body}
-                            cancel='Cancel'
-                            confirm='Yes, Delete'
-                            cancelAction={this.handleCancelDeleteAlbum}
-                            confirmAction={this.handleConfirmDeleteAlbum}
-        />
-      </BodyPortal>
+      <ConfirmationDialog className={styles.modal}
+                          isVisible={this.state.deleteMode}
+                          header='Delete Album'
+                          body={body}
+                          cancel='Cancel'
+                          confirm='Yes, Delete'
+                          cancelAction={this.handleCancelDeleteAlbum}
+                          confirmAction={this.handleConfirmDeleteAlbum}
+      />
     );
   }
 
@@ -179,8 +177,7 @@ export default class Album extends Component {
   }
 
   render(): Element {
-    const { album, loading, isNew } = this.props;
-    const { editMode } = this.state;
+    const { album, loading } = this.props;
 
     const accordionContent = (
       <Upload
@@ -213,13 +210,13 @@ export default class Album extends Component {
 
     return (
       <div>
+        {this.editAlbumDialog}
         {this.deleteAlbumDialog}
         <Accordion title={album.name}
                    titleWrapper={(title: string) => this.renderTitle(title, album.images.length)}
                    placeholder="Album Name"
                    open={true}
                    loading={loading}
-                   editMode={editMode}
                    onEditComplete={this.handleConfirmEditAlbum}
                    onEditCancel={this.handleCancelEditAlbum}
                    contentClassName={styles.accordionContent}

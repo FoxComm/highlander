@@ -6,17 +6,14 @@ import styles from './images.css';
 
 // libs
 import _ from 'lodash';
-import classNames from 'classnames';
 import { autobind } from 'core-decorators';
 import React, { Component, Element } from 'react';
 
 // components
 import WaitAnimation from '../common/wait-animation';
 import { AddButton } from '../common/buttons';
-import Accordion from './accordion/accordion';
-import Upload from '../upload/upload';
+import EditAlbum from './edit-album';
 import Album from './album';
-import ActionsDropdown from '../bulk-actions/actions-dropdown';
 
 // types
 import type { TAlbum, ImageInfo, ImageFile } from '../../modules/images';
@@ -43,7 +40,6 @@ export type Props = {
 type State = {
   files: Array<ImageFile>;
   newAlbumMode: boolean;
-  newAlbum: ?number;
 }
 
 class Images extends Component {
@@ -52,7 +48,6 @@ class Images extends Component {
   state: State = {
     files: [],
     newAlbumMode: false,
-    newAlbum: void 0,
   };
 
   componentWillReceiveProps(nextProps: Props): void {
@@ -60,12 +55,6 @@ class Images extends Component {
       this.setState({
         files: [],
       });
-    }
-
-    if (this.props.albums.length < nextProps.albums.length) {
-      this.setState({ newAlbum: _.get(nextProps.albums, [0, 'id']) });
-    } else {
-      this.setState({ newAlbum: void 0 });
     }
   }
 
@@ -85,7 +74,7 @@ class Images extends Component {
   }
 
   @autobind
-  handleCompleteEditAlbum(name: string): void {
+  handleConfirmEditAlbum(name: string): void {
     const { context, entityId } = this.props;
 
     this.props.addAlbum(context, entityId, { name, images: [] }).then(this.handleCancelEditAlbum);
@@ -96,24 +85,17 @@ class Images extends Component {
     this.setState({ newAlbumMode: false });
   }
 
-  get dropzone() {
-    const { newAlbumMode } = this.state;
-    const { addAlbumInProgress } = this.props;
-
-    if (!newAlbumMode && !addAlbumInProgress) {
-      return;
-    }
+  get editAlbumDialog(): ?Element {
+    const album = { name: '', images: [] };
 
     return (
-      <Accordion className={styles.addImages}
-                 placeholder="New album"
-                 editMode={newAlbumMode}
-                 loading={addAlbumInProgress}
-                 onEditComplete={this.handleCompleteEditAlbum}
-                 onEditCancel={this.handleCancelEditAlbum}
-      >
-        <Upload className={classNames(styles.upload, styles.disabled)} />
-      </Accordion>
+      <EditAlbum className={styles.modal}
+                 isVisible={this.state.newAlbumMode}
+                 album={album}
+                 loading={this.props.addAlbumInProgress}
+                 onCancel={this.handleCancelEditAlbum}
+                 onSave={this.handleConfirmEditAlbum}
+      />
     );
   }
 
@@ -123,18 +105,16 @@ class Images extends Component {
     }
 
     const { albums, editAlbumInProgress, context, entityId } = this.props;
-    const { newAlbum } = this.state;
 
     return (
-      <div>
+      <div className={styles.images}>
+        {this.editAlbumDialog}
         <div className={styles.header}>
           <AddButton onClick={this.handleAddAlbum}>Album</AddButton>
         </div>
-        {this.dropzone}
         {albums.map((album: TAlbum) => {
           return (
             <Album album={album}
-                   isNew={newAlbum === album.id}
                    loading={editAlbumInProgress}
                    upload={(files: Array<ImageFile>) => this.props.uploadImages(context, album.id, files)}
                    editImage={(idx: number, form: ImageInfo) => this.props.editImage(context, album.id, idx, form)}
