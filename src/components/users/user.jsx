@@ -96,15 +96,15 @@ class User extends Component {
           Save
         </PrimaryButton>
       </PageTitle>
-    )
+    );
   }
 
   @autobind
   handleNewUserSubmit() {
     this.props.createUser(this.state.user).then(({ payload }) => {
-        transitionTo('user', {userId: payload.id})
+        transitionTo('user', {userId: payload.id});
       }
-    )
+    );
   }
 
   renderNewUserTitle() {
@@ -115,7 +115,7 @@ class User extends Component {
           Invite User
         </PrimaryButton>
       </PageTitle>
-    )
+    );
   }
 
   renderContent() {

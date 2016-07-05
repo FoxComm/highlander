@@ -3,25 +3,25 @@ export function configureUserData(user) {
     id: user.id,
     name: user.form.attributes.firstAndLastName.v,
     email: user.form.attributes.emailAddress.v,
-    phone: user.form.attributes.phoneNumber.v,
-    accountState: user.accountState,
+    phoneNumber: user.form.attributes.phoneNumber.v,
+    state: user.accountState,
   };
 }
 
 export function configureUserState(user) {
-  const { name, email, phone, accountState, ...rest } = user;
+  const { name, email, phoneNumber, state, ...rest } = user;
 
   const attributes = {
     'firstAndLastName': {
       v: name,
-      t: 'string'
+      t: 'string',
     },
     'emailAddress': {
       v: email,
       t: 'string'
     },
     'phoneNumber': {
-      v: phone,
+      v: phoneNumber,
       t: 'string'
     }
   };
@@ -35,17 +35,17 @@ export function configureUserState(user) {
     }
   };
 
-  const state = {
-    accountState,
-    disabled: accountState === 'invited' || accountState === 'archived',
+  const accountState = {
+    state,
+    disabled: state === 'invited' || state === 'archived',
 };
 
-  const form = {attributes, options};
+  const form = {attributes, };
 
   return {
     name,
     form,
-    state,
+    accountState,
     ...rest
   };
 }
@@ -55,10 +55,9 @@ export function createEmptyUser() {
     id: '',
     name: '',
     email: '',
-    phone: '',
-    accountState: 'invited',
-    roles: 'Super Admin',
+    phoneNumber: '',
+    state: 'invited',
   };
-  
+
   return configureUserState(user);
 }

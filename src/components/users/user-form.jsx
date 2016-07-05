@@ -17,6 +17,13 @@ import { Button } from '../common/buttons';
 // styles
 import styles from './user-form.css';
 
+const SELECT_STATE = [
+  ['active', 'Active'],
+  ['inactive', 'Inactive'],
+  ['archived', 'Archived'],
+  ['invited', 'Invited', true],
+];
+
 type Props = {
   user: Object,
   onChange: Function,
@@ -34,23 +41,20 @@ class UserForm extends Component {
 
   @autobind
   handleAccountStateChange(accountState: string) {
-    const data = assoc(this.props.user, ['state', 'accountState'], accountState);
+    const data = assoc(this.props.user, ['accountState', 'state'], accountState);
     this.props.onChange(data);
   }
 
   renderAccountState() {
-    const { accountState, disabled } = this.props.user.state;
+    const { state, disabled } = this.props.user.accountState;
 
     return (
       <ContentBox title="Account State">
-        <Dropdown value={accountState}
+        <Dropdown value={state}
                   onChange={(value) => this.handleAccountStateChange(value)}
-                  disabled={disabled}>
-          <DropdownItem value="active">Active</DropdownItem>
-          <DropdownItem value="inactive">Inactive</DropdownItem>
-          <DropdownItem value="archived">Archived</DropdownItem>
-          <DropdownItem value="invited" isHidden={true} >Invited</DropdownItem>
-        </Dropdown>
+                  disabled={disabled}
+                  items={SELECT_STATE}
+        />
       </ContentBox>
     );
   }
