@@ -7,15 +7,15 @@
   vars_prompt:
     - name: "hostname"
       prompt: "Enter a hostname with a database to backup"
-      default: "vanilla-db"      
+      default: "vanilla-db"
       private: no
     - name: "service_key_file"
       prompt: "Enter a local path to service key file"
-      default: "~/foxcomm-vanilla.json"      
+      default: "~/foxcomm-vanilla.json"
       private: no
     - name: "db_backup_bucket"
       prompt: "Enter DB backup bucket name"
-      default: "vanilla-backups"      
+      default: "vanilla-backups"
       private: no
 
   roles:
