@@ -8,12 +8,15 @@
   vars_prompt:
     - name: "hostname"
       prompt: "Enter a hostname where to install Consul Alerts"
+      default: "vanilla-consul-server-0"
       private: no
     - name: "slack_channel"
       prompt: "Enter a Slack channel name where notifications will be posted"
+      default: "service-alerts"
       private: no
     - name: "slack_hook_url"
       prompt: "Enter Slack hook URL"
+      default: "https://hooks.slack.com/services/XXX/YYY/ZZZ"
       private: no
   environment:
     GOPATH: "/home/{{user}}/go"

@@ -32,12 +32,12 @@
   sudo: true
 
 - name: Setup Database Backup Cron
-  cron: name="db backup" minute="30" hour="4" job="{{usr_local}}bin/backup_db.sh {{db_backup_dir}}/{{ansible_hostname}}_{{db_name}}_$(date +%F_%H_%M) {{db_name}}"
+  cron: name="db backup" minute="30" hour="4" job="{{usr_local}}bin/backup_db.sh /mnt/backups/{{ansible_hostname}}_{{db_name}}_$(date +%F_%H_%M) {{db_name}}"
   sudo: true
 
 - name: Reload Systemd for Postgresql
   sudo: yes
-  command: systemctl daemon-reload  
+  command: systemctl daemon-reload
 
 - name: Start backup_mount service
   service: name=backup_mount state=started enabled=yes sleep=5
