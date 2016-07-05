@@ -1,12 +1,20 @@
 ---
 
 - name: Bootstrap Consul Alerts
-  hosts: vanilla-consul-server-0
+  hosts: '{{hostname}}'
   vars:
     user: '{{ansible_ssh_user}}'
-    slack_channel: "service-alerts"
-    slack_hook_url: "https://hooks.slack.com/services/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"
     change_threshold: "60"
+  vars_prompt:
+    - name: "hostname"
+      prompt: "Enter a hostname where to install Consul Alerts"
+      private: no
+    - name: "slack_channel"
+      prompt: "Enter a Slack channel name where notifications will be posted"
+      private: no
+    - name: "slack_hook_url"
+      prompt: "Enter Slack hook URL"
+      private: no
   environment:
     GOPATH: "/home/{{user}}/go"
 
