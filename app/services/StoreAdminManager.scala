@@ -26,6 +26,7 @@ object StoreAdminManager {
       admin = StoreAdmin.build(email = payload.email,
                                password = payload.password,
                                name = payload.name,
+                               phoneNumber = payload.phoneNumber,
                                department = payload.department)
       saved ← * <~ StoreAdmins.create(admin)
       _     ← * <~ LogActivity.storeAdminCreated(saved, author)
@@ -40,6 +41,7 @@ object StoreAdminManager {
       saved ← * <~ StoreAdmins.update(admin,
                                       admin.copy(name = payload.name,
                                                  department = payload.department,
+                                                 phoneNumber = payload.phoneNumber,
                                                  email = payload.email))
       _ ← * <~ LogActivity.storeAdminUpdated(saved, author)
     } yield StoreAdminResponse.build(saved)
