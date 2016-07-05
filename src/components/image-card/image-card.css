@@ -13,8 +13,8 @@
 
   & img {
     display: flex;
-    height: 286px;
-    max-width: none;
+    height: 100%;
+    width: 100%;
     pointer-events: none;
   }
 }
