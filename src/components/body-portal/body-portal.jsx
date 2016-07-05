@@ -1,15 +1,10 @@
-// styles
-import styles from './body-portal.css';
-
 // libs
-import classNames from 'classnames';
 import React, { Component, Element } from 'react';
 import ReactDOM from 'react-dom';
 
 type Props = {
   left: ?number;
   top: ?number;
-  fullSize: ?boolean;
   className: ?string;
 };
 
@@ -19,7 +14,6 @@ export default class BodyPortal extends Component {
   static defaultProps: Props = {
     left: 0,
     top: 0,
-    fullSize: true,
     className: '',
   };
 
@@ -41,13 +35,13 @@ export default class BodyPortal extends Component {
   }
 
   port() {
-    const { fullSize, className } = this.props;
+    const { className, children } = this.props;
 
     const container = document.createElement('div');
-    container.className = classNames(styles.portal, { [styles.fullSize]: fullSize }, className);
+    container.className = className;
 
     this._target = document.body.appendChild(container);
-    this._component = ReactDOM.render(React.Children.only(this.props.children), this._target);
+    this._component = ReactDOM.render(React.Children.only(children), this._target);
 
     this.updateStyle();
   }
