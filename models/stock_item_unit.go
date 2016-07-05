@@ -16,12 +16,12 @@ func (siu StockItemUnit) Identifier() uint {
 	return siu.ID
 }
 
-func NewStockItemUnitsFromPayload(payload *payloads.StockItemUnits) []*StockItemUnit {
+func NewStockItemUnitsFromPayload(stockItemID uint, payload *payloads.IncrementStockItemUnits) []*StockItemUnit {
 	units := []*StockItemUnit{}
 
 	for i := 0; i < payload.Qty; i++ {
 		item := &StockItemUnit{
-			StockItemID: payload.StockItemID,
+			StockItemID: stockItemID,
 			UnitCost:    payload.UnitCost,
 			Status:      payload.Status,
 		}

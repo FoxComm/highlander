@@ -61,7 +61,15 @@ func runStockItems(router *gin.Engine) {
 	})
 
 	router.PATCH("/stock-items/:id/increment", func(c *gin.Context) {
-		var json payloads.StockItemUnits
+		idStr := c.Params.ByName("id")
+
+		id, err := strconv.ParseUint(idStr, 10, 64)
+		if err != nil {
+			c.AbortWithError(http.StatusBadRequest, err)
+			return
+		}
+
+		var json payloads.IncrementStockItemUnits
 		if parse(c, &json) != nil {
 			return
 		}
@@ -77,7 +85,7 @@ func runStockItems(router *gin.Engine) {
 			return
 		}
 
-		err = invMgr.IncrementStockItemUnits(&json)
+		err = invMgr.IncrementStockItemUnits(uint(id), &json)
 		if err != nil {
 			c.AbortWithError(http.StatusBadRequest, err)
 			return
@@ -87,13 +95,21 @@ func runStockItems(router *gin.Engine) {
 	})
 
 	router.PATCH("/stock-items/:id/decrement", func(c *gin.Context) {
-		var json payloads.StockItemUnits
+		idStr := c.Params.ByName("id")
+
+		id, err := strconv.ParseUint(idStr, 10, 64)
+		if err != nil {
+			c.AbortWithError(http.StatusBadRequest, err)
+			return
+		}
+
+		var json payloads.DecrementStockItemUnits
 		if parse(c, &json) != nil {
 			return
 		}
 
-		if json.Qty >= 0 {
-			err := errors.New("Qty must be less than 0")
+		if json.Qty <= 0 {
+			err := errors.New("Qty must be greater than 0")
 			c.AbortWithError(http.StatusBadRequest, err)
 		}
 
@@ -103,12 +119,12 @@ func runStockItems(router *gin.Engine) {
 			return
 		}
 
-		err = invMgr.DecrementStockItemUnits(&json)
+		err = invMgr.DecrementStockItemUnits(uint(id), &json)
 		if err != nil {
 			c.AbortWithError(http.StatusBadRequest, err)
 			return
 		}
 
-		c.JSON(http.StatusNoContent, gin.H{})
+		c.Status(http.StatusNoContent)
 	})
 }

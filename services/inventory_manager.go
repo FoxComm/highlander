@@ -53,8 +53,8 @@ func (im *InventoryMgr) CreateStockItem(payload *payloads.StockItem) (*responses
 	return responses.NewStockItemFromModel(si), nil
 }
 
-func (im *InventoryMgr) IncrementStockItemUnits(payload *payloads.StockItemUnits) error {
-	units := models.NewStockItemUnitsFromPayload(payload)
+func (im *InventoryMgr) IncrementStockItemUnits(id uint, payload *payloads.IncrementStockItemUnits) error {
+	units := models.NewStockItemUnitsFromPayload(id, payload)
 
 	txn := im.db.Begin()
 
@@ -68,7 +68,7 @@ func (im *InventoryMgr) IncrementStockItemUnits(payload *payloads.StockItemUnits
 	return txn.Commit().Error
 }
 
-func (im *InventoryMgr) DecrementStockItemUnits(payload *payloads.StockItemUnits) error {
+func (im *InventoryMgr) DecrementStockItemUnits(id uint, payload *payloads.DecrementStockItemUnits) error {
 	txn := im.db.Begin()
 
 	// Check to make sure there are enough on-hand items.
