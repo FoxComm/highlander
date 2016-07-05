@@ -34,7 +34,7 @@
 
 - name: Set GOPATH for all users
   copy: src=go-path.sh dest=/etc/profile.d
-  sudo: true  
+  sudo: true
 
 - name: Install Java Packages
   apt: name={{ item }} state=latest force=yes
