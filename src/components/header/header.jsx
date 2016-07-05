@@ -62,7 +62,7 @@ export default class Header extends React.Component {
             <div styleName="arrow">
               {props.isMenuVisible ? <i className="icon-chevron-up"/> : <i className="icon-chevron-down"/>}
             </div>
-            {props.isMenuVisible && <UserMenu/>}
+            {props.isMenuVisible && <UserMenu userId={props.user.id}/>}
           </div>
         </div>
       </header>
