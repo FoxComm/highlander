@@ -63,12 +63,12 @@ deploy-build-agents:
 	ansible-playbook -v -i bin/envs/staging ansible/build_agents.yml
 
 tf-stage:
-	terraform $(TF_CMD) -state=$(TF_ENVS)/gce_dev/terraform.tfstate -var-file=$(TF_ENVS)/gce_dev/terraform.tfvars $(TF_BASE)/gce_dev
+	terraform $(TF_CMD) -state=$(TF_ENVS)/gce_dev/terraform.tfstate -var-file=$(TF_ENVS)/gce_dev/dev.tfvars $(TF_BASE)/gce_dev
 
 tf-prodsmall:
-	terraform $(TF_CMD) -state=$(TF_ENVS)/gce_prodsmall/terraform.tfstate -var-file=$(TF_ENVS)/gce_prodsmall/terraform.tfvars $(TF_BASE)/gce_vanilla
+	terraform $(TF_CMD) -state=$(TF_ENVS)/gce_prodsmall/terraform.tfstate -var-file=$(TF_ENVS)/gce_prodsmall/prodsmall.tfvars $(TF_BASE)/gce_vanilla
 
 tf-vanilla:
-	terraform $(TF_CMD) -state=$(TF_ENVS)/gce_vanilla/terraform.tfstate -var-file=$(TF_ENVS)/gce_vanilla/terraform.tfvars $(TF_BASE)/gce_vanilla
+	terraform $(TF_CMD) -state=$(TF_ENVS)/gce_vanilla/terraform.tfstate -var-file=$(TF_ENVS)/gce_vanilla/vanilla.tfvars $(TF_BASE)/gce_vanilla
 
 .PHONY: all build lint test
