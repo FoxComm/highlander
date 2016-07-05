@@ -14,14 +14,12 @@ function getColor(props) {
   const initials = getInitials(props) || '';
   const code = initials.charCodeAt(1);
 
-  const color = (() => {
-    if (code <= 70) return '#B989DE';
-    if (code > 70 && code <= 75) return '#7DA0F3';
-    if (code > 75 && code <= 80) return '#F45758';
-    if (code > 80 && code <= 85) return '#DD63B9';
-    if (code > 85 && code <= 90) return '#47628D';
-    return '#FFBB3C';
-  })();
+  let color = '#FFBB3C';
+  if (code <= 70) color = '#B989DE';
+  else if (code <= 75) color = '#7DA0F3';
+  else if (code <= 80) color =  '#F45758';
+  else if (code <= 85) color = '#DD63B9';
+  else if (code <= 90) color = '#47628D';
 
   return {
     background: color
