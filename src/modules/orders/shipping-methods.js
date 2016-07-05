@@ -44,8 +44,8 @@ export function updateShippingMethod(order, shippingMethod) {
     dispatch(orderShippingMethodUpdate());
     dispatch(optimisticSetShippingMethod(shippingMethod));
     const payload = { shippingMethodId: shippingMethod.id };
-    updateShippingMethodRequest = Api.patch(`/orders/${order.referenceNumber}/shipping-method`, payload)
-      .then(
+    updateShippingMethodRequest = Api.patch(`/orders/${order.referenceNumber}/shipping-method`, payload);
+    return updateShippingMethodRequest.then(
         order => {
           dispatch(orderShippingMethodUpdateSuccess());
           dispatch(orderSuccess(order));
@@ -56,7 +56,6 @@ export function updateShippingMethod(order, shippingMethod) {
         }
       );
 
-    return updateShippingMethodRequest;
   };
 }
 
