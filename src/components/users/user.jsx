@@ -5,6 +5,7 @@ import _ from 'lodash';
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
+import { transitionTo } from 'browserHistory';
 
 // actions
 import * as UserActions from '../../modules/users/details';
@@ -31,6 +32,7 @@ type Props = {
   isFetching: bool,
   fetchUser: Function,
   userNew: Function,
+  createUser: Function,
   updateUser: Function,
 };
 
@@ -97,12 +99,17 @@ class User extends Component {
     )
   }
 
+  @autobind
   handleNewUserSubmit() {
-
+    this.props.createUser(this.state.user).then(({ payload }) => {
+        transitionTo('user', {userId: payload.id})
+      }
+    )
   }
 
+  @autobind
   handleCancelNewUser() {
-
+    transitionTo('users')
   }
 
   renderNewUserTitle() {

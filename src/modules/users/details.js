@@ -13,6 +13,14 @@ const _getUser = createAsyncActions(
   }
 );
 
+const _createUser = createAsyncActions(
+  'createUser',
+  (user) => {
+    const data = configureUserData(user);
+    return Api.post(`/store-admins`, data);
+  }
+);
+
 const _updateUser = createAsyncActions(
   'updateUser',
   (user) => {
@@ -32,6 +40,7 @@ export function fetchUser(id: string) {
   };
 }
 
+export const createUser = _createUser.perform;
 export const updateUser = _updateUser.perform;
 export const userNew = createAction('USER_NEW');
 
@@ -50,6 +59,7 @@ const reducer = createReducer({
     };
   },
   [_getUser.succeeded]: updateUserInState,
+  [_createUser.succeeded]: updateUserInState,
   [_updateUser.succeeded]: updateUserInState,
 }, {});
 
