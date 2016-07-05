@@ -1,6 +1,7 @@
 package gormfox
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/FoxComm/middlewarehouse/common/db/config"
@@ -8,6 +9,8 @@ import (
 )
 
 type Repository interface {
+	BeginTxn() error
+	CommitTxn() error
 	Create(model Model) error
 	Find(model Model, associations ...Association) (Model, error)
 	FindByID(model Model, id uint, associations ...Association) (Model, error)
@@ -19,6 +22,37 @@ type Repository interface {
 //A repository object for reuse
 type repository struct {
 	db *gorm.DB
+	tx *gorm.DB
+}
+
+type dbFunction func(db *gorm.DB) error
+
+func (r *repository) runMutation(fn dbFunction) error {
+	if r.tx != nil {
+		// Run inside of a DB transaction.
+		if err := fn(r.tx); err != nil {
+			r.tx.Rollback()
+			return err
+		}
+
+		return nil
+	}
+
+	// Don't run in a transaction.
+	return fn(r.db)
+}
+
+func (r *repository) BeginTxn() error {
+	r.tx = r.db.Begin()
+	return r.tx.Error
+}
+
+func (r *repository) CommitTxn() error {
+	if r.tx == nil {
+		return errors.New("Must begin transaction before committing")
+	}
+
+	return r.tx.Commit().Error
 }
 
 func (r *repository) Create(model Model) error {
@@ -28,7 +62,11 @@ func (r *repository) Create(model Model) error {
 		return err
 	}
 
-	return r.db.Create(model).Error
+	fn := func(db *gorm.DB) error {
+		return db.Create(model).Error
+	}
+
+	return r.runMutation(fn)
 }
 
 func (r *repository) Find(model Model, associations ...Association) (Model, error) {
@@ -68,17 +106,19 @@ func (r *repository) FindAll(models interface{}) (interface{}, error) {
 }
 
 func (r *repository) Update(model Model) error {
-	_, err := model.Validate(r)
-
-	if err != nil {
-		return err
+	fn := func(db *gorm.DB) error {
+		return db.Save(model).Error
 	}
 
-	return r.db.Save(model).Error
+	return r.runMutation(fn)
 }
 
 func (r *repository) Delete(model Model) error {
-	return r.db.Delete(model).Error
+	fn := func(db *gorm.DB) error {
+		return db.Delete(model).Error
+	}
+
+	return r.runMutation(fn)
 }
 
 func NewRepository() (*repository, error) {

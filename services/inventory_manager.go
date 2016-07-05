@@ -56,12 +56,20 @@ func (im *InventoryMgr) CreateStockItem(payload *payloads.StockItem) (*responses
 func (im *InventoryMgr) IncrementStockItemUnits(payload *payloads.StockItemUnits) error {
 	units := models.NewStockItemUnitsFromPayload(payload)
 
-	// TODO: Yes, yes - this should be in a txn. Do it soon.
+	err := im.repo.BeginTxn()
+	if err != nil {
+		return err
+	}
+
 	for _, v := range units {
 		if err := im.repo.Create(v); err != nil {
 			return err
 		}
 	}
 
+	return im.repo.CommitTxn()
+}
+
+func (im *InventoryMgr) DecrementStockItemUnits(payload *payloads.StockItemUnits) error {
 	return nil
 }

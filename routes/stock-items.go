@@ -12,8 +12,6 @@ import (
 
 func runStockItems(router *gin.Engine) {
 	router.GET("/stock-items/:id", func(c *gin.Context) {
-		//id, fail := paramInt(c, "id")
-
 		idStr := c.Params.ByName("id")
 
 		id, err := strconv.ParseUint(idStr, 10, 64)
