@@ -20,6 +20,9 @@ test: lint
 bootstrap-consul-alerts:
 	ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_consul_alerts.yml	
 
+bootstrap-db-backup:
+	ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_db_backup.yml	
+
 bootstrap-prod-small:
 	ansible-playbook -v -i bin/envs/prod_small_vpn ansible/bootstrap_prod_small.yml
 
