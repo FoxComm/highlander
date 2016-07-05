@@ -40,3 +40,16 @@ export function configureUserState(user) {
     ...rest
   };
 }
+
+export function createEmptyUser() {
+  const user = {
+    id: '',
+    name: '',
+    email: '',
+    phone: '',
+    accountState: 'invited',
+    roles: 'Super Admin',
+  };
+  
+  return configureUserState(user);
+}

@@ -30,6 +30,7 @@ type Props = {
   fetchError: any,
   isFetching: bool,
   fetchUser: Function,
+  userNew: Function,
   updateUser: Function,
 };
 
@@ -57,6 +58,10 @@ class User extends Component {
 
       this.setState({ ...details });
     }
+  }
+
+  get isNew(): boolean {
+    return this.props.params.userId === 'new';
   }
 
   get errorMessage() {
@@ -113,7 +118,7 @@ class User extends Component {
 
     if (this.props.fetchError) {
       content = this.errorMessage;
-    } else if (this.props.isFetching || !this.props.details) {
+    } else if (this.props.isFetching || !this.state.user) {
       content = <WaitAnimation/>;
     } else {
       content = this.renderContent();
@@ -130,7 +135,7 @@ class User extends Component {
 export default connect(
   state => ({
     details: state.users.details,
-    isFetching: _.get(state.asyncActions, 'getUser.inProgress', true),
+    isFetching: _.get(state.asyncActions, 'getUser.inProgress', null),
     fetchError: _.get(state.asyncActions, 'getUser.err', null),
   }),
   UserActions

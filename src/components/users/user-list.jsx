@@ -2,6 +2,7 @@
 
 // libs
 import React, { Element } from 'react';
+import { transitionTo } from 'browserHistory';
 
 // components
 import { ListPageContainer } from '../list-page';
@@ -15,11 +16,14 @@ const UserListPage = (props: Props) => {
     { title: 'Users', to: 'users' },
     { title: 'Activity Trail', to: 'home' },
   ];
+  const addAction = () => transitionTo('user', {userId: 'new'});
 
   return (
     <ListPageContainer
       title="Users"
       navLinks={navLinks}
+      addTitle="User"
+      handleAddAction={addAction}
     >
       {props.children}
     </ListPageContainer>

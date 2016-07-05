@@ -1,12 +1,12 @@
 /* @flow weak */
 
 import Api from '../../lib/api';
-import { createReducer } from 'redux-act';
+import { createAction, createReducer } from 'redux-act';
 import createAsyncActions from '../async-utils';
 
-import { configureUserState, configureUserData} from '../../paragons/user';
+import { configureUserState, configureUserData, createEmptyUser } from '../../paragons/user';
 
-const getUser = createAsyncActions(
+const _getUser = createAsyncActions(
   'getUser',
   (id: string) => {
     return Api.get(`/store-admins/${id}`);
@@ -24,11 +24,16 @@ const _updateUser = createAsyncActions(
 
 export function fetchUser(id: string) {
   return dispatch => {
-    dispatch(getUser.perform(id));
+    if (id.toLowerCase() == 'new') {
+      dispatch(userNew());
+    } else {
+      dispatch(_getUser.perform(id));
+    }
   };
 }
 
 export const updateUser = _updateUser.perform;
+export const userNew = createAction('USER_NEW');
 
 function updateUserInState(state, response) {
   return {
@@ -38,7 +43,13 @@ function updateUserInState(state, response) {
 }
 
 const reducer = createReducer({
-  [getUser.succeeded]: updateUserInState,
+  [userNew]: state => {
+    return {
+      ...state,
+      user: createEmptyUser(),
+    };
+  },
+  [_getUser.succeeded]: updateUserInState,
   [_updateUser.succeeded]: updateUserInState,
 }, {});
 
