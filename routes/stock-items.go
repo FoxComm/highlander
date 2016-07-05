@@ -60,10 +60,15 @@ func runStockItems(router *gin.Engine) {
 		c.JSON(http.StatusCreated, resp)
 	})
 
-	router.PATCH("/stock-items/:id/units", func(c *gin.Context) {
+	router.PATCH("/stock-items/:id/increment", func(c *gin.Context) {
 		var json payloads.StockItemUnits
 		if parse(c, &json) != nil {
 			return
+		}
+
+		if json.Qty <= 0 {
+			err := errors.New("Qty must be greater than 0")
+			c.AbortWithError(http.StatusBadRequest, err)
 		}
 
 		invMgr, err := initInventoryManager(c)
@@ -72,17 +77,38 @@ func runStockItems(router *gin.Engine) {
 			return
 		}
 
-		if json.Qty > 0 {
-			err := invMgr.IncrementStockItemUnits(&json)
-			if err != nil {
-				c.AbortWithError(http.StatusBadRequest, err)
-				return
-			}
+		err = invMgr.IncrementStockItemUnits(&json)
+		if err != nil {
+			c.AbortWithError(http.StatusBadRequest, err)
+			return
+		}
 
-			c.JSON(http.StatusCreated, gin.H{})
-		} else {
-			err := errors.New("Not implemented")
+		c.JSON(http.StatusCreated, gin.H{})
+	})
+
+	router.PATCH("/stock-items/:id/decrement", func(c *gin.Context) {
+		var json payloads.StockItemUnits
+		if parse(c, &json) != nil {
+			return
+		}
+
+		if json.Qty >= 0 {
+			err := errors.New("Qty must be less than 0")
 			c.AbortWithError(http.StatusBadRequest, err)
 		}
+
+		invMgr, err := initInventoryManager(c)
+		if err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+
+		err = invMgr.DecrementStockItemUnits(&json)
+		if err != nil {
+			c.AbortWithError(http.StatusBadRequest, err)
+			return
+		}
+
+		c.JSON(http.StatusNoContent, gin.H{})
 	})
 }
