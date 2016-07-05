@@ -3,10 +3,7 @@
   height: 286px;
   display: flex;
   align-items: center;
-
-  & img {
-    margin: 0 auto;
-  }
+  justify-content: center;
 
   &.error {
     content: "An error occured";
