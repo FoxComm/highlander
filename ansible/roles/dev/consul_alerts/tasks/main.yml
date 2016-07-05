@@ -2,13 +2,16 @@
 
 - name: Build Consul Alerts from Fork Repository
   command: go get github.com/kpashka/consul-alerts
-  sudo: true
 
 - name: Install Consulate
   shell: sudo easy_install consulate
 
 - name: Copy Consul Alerts Binary
-  copy: src=$GOPATH/bin/consul-alerts dest=/usr/local/bin/consul-alerts mode="u+x,g+x,o+x"
+  command: mv $GOPATH/bin/consul-alerts /usr/local/bin/consul-alerts
+  sudo: true
+
+- name: Make Consul Alerts Executable
+  command: chmod +x /usr/local/bin/consul-alerts
   sudo: true
 
 - name: Copy Execution File
@@ -27,8 +30,8 @@
   shell: consulate kv restore -f {{home}}/alerts_config.json
 
 - name: Reload Systemd for Consul Alerts
-  sudo: yes
   command: systemctl daemon-reload
+  sudo: true
 
 - name: Restart Consul Alerts
   service: name=consul_alerts state=restarted enabled=yes

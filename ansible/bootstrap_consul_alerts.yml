@@ -4,10 +4,11 @@
   hosts: vanilla-consul-server-0
   vars:
     user: '{{ansible_ssh_user}}'
-    consul_dc: "vanilla"
     slack_channel: "service-alerts"
     slack_hook_url: "https://hooks.slack.com/services/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"
     change_threshold: "60"
+  environment:
+    GOPATH: "/home/{{user}}/go"    
 
   roles:
       - { role: dev/consul_alerts }
