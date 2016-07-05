@@ -235,9 +235,10 @@ const reducer = createReducer({
     };
   },
   [setError]: (state, err) => {
+    const errMessage = _.get(err, ['response', 'body', 'errors', 0], 'Bad Request');
     return {
       ...state,
-      err
+      err: errMessage,
     };
   },
 }, initialState);
