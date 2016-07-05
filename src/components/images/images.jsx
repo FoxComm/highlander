@@ -38,7 +38,6 @@ export type Props = {
 };
 
 type State = {
-  files: Array<ImageFile>;
   newAlbumMode: boolean;
 }
 
@@ -46,17 +45,8 @@ class Images extends Component {
   static props: Props;
 
   state: State = {
-    files: [],
     newAlbumMode: false,
   };
-
-  componentWillReceiveProps(nextProps: Props): void {
-    if (this.props.uploadImagesInProgress && !nextProps.uploadImagesInProgress) {
-      this.setState({
-        files: [],
-      });
-    }
-  }
 
   @autobind
   handleAddAlbum() {

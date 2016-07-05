@@ -128,12 +128,13 @@ export default class Image extends Component<void, Props, State> {
         {this.editImageDialog}
         {this.deleteImageDialog}
         <ImageCard
-          src={`${image.src}`}
+          id={image.id}
+          src={image.src}
           title={image.title}
           secondaryTitle={`Uploaded ${image.uploadedAt || moment().format('MM/DD/YYYY HH: mm')}`}
           actions={this.getImageActions()}
           loading={image.loading}
-          key={`${image.src}` /** replace with id*/}
+          key={`${image.id}`}
         />
       </div>
     );

@@ -31,7 +31,6 @@ export type Props = {
 };
 
 type State = {
-  files: Array<ImageFile>;
   editMode: boolean;
   deleteMode: boolean;
 }
@@ -44,20 +43,11 @@ export default class Album extends Component {
   };
 
   state: State = {
-    files: [],
     editMode: false,
     deleteMode: false,
   };
 
   _uploadRef: Upload;
-
-  componentWillReceiveProps(nextProps: Props): void {
-    if (this.props.uploadImagesInProgress && !nextProps.uploadImagesInProgress) {
-      this.setState({
-        files: [],
-      });
-    }
-  }
 
   @autobind
   handleNewFiles(images: Array<ImageFile>): void {
@@ -197,7 +187,6 @@ export default class Album extends Component {
               return (
                 <Image
                   image={image}
-                  idx={idx}
                   editImage={(form: ImageInfo) => this.props.editImage(idx, form)}
                   deleteImage={() => this.props.deleteImage(idx)}
                   key={image.id}
