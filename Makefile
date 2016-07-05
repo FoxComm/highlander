@@ -16,6 +16,9 @@ lint:
 test: lint
 	$(GO) test -v ./inventory/
 
+bootstrap-consul_alerts:
+	ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap-consul-alerts.yml	
+
 bootstrap-prod-small:
 	ansible-playbook -v -i bin/envs/prod_small_vpn ansible/bootstrap_prod_small.yml
 
