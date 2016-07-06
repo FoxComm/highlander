@@ -1,3 +1,7 @@
+/**
+ * @flow
+ */
+
 const searchTerms = [
   {
     title: 'Product : ID',
