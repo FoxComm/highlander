@@ -91,12 +91,25 @@ Vagrant.configure("2") do |config|
     app.vm.provision "shell", inline: "apt-get install -y python-minimal"
     app.vm.provision "ansible" do |ansible|
         ansible.verbose = "vvv"
-        ansible.skip_tags = "backup"
         ansible.playbook = "ansible/vagrant_appliance.yml"
           ansible.extra_vars = {
               user: $user
           }
     end
+  end
+
+  config.vm.define :build, autostart: false do |app|
+    app.vm.network :private_network, ip: $backend_ip
+    expose_backend_ports(app)
+    app.vm.provision "shell", inline: "apt-get install -y python-minimal"
+    app.vm.provision "ansible" do |ansible|
+          ansible.verbose = "vvv"
+          ansible.skip_tags = "buildkite"
+          ansible.playbook = "ansible/vagrant_build_agent.yml"
+          ansible.extra_vars = {
+              user: $user
+          }
+      end
   end
 
   config.vm.define :backend, autostart: false do |app|

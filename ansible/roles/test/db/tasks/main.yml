@@ -14,7 +14,7 @@
     - postgresql-contrib-9.5
 
 - name: Copy Postgres Configuration
-  copy: src={{item}} dest="/etc/postgresql/9.4/main/{{item}}" mode="644"
+  copy: src={{item}} dest="/etc/postgresql/9.5/main/{{item}}" mode="644"
   sudo: true
   with_items:
       - postgresql.conf

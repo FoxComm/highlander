@@ -1,4 +1,5 @@
 phoenix_server: "{{hostvars[groups['dem2-backend'][0]]['ansible_eth0']['ipv4']['address'] }}:9090"
+isaac_server: "{{hostvars[groups['dem2-backend'][0]]['ansible_eth0']['ipv4']['address'] }}:9190"
 search_host:  "{{hostvars[groups['dem2-backend'][0]]['ansible_eth0']['ipv4']['address'] }}"
 log_host:  "{{hostvars[groups['dem2-backend'][0]]['ansible_eth0']['ipv4']['address'] }}"
 ashes_server: 127.0.0.1:4000
