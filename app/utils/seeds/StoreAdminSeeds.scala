@@ -15,7 +15,8 @@ trait StoreAdminSeeds {
     val reader = CSVReader.open(new File("gatling-classes/data/store_admins.csv"))
     val admins = reader.all.drop(1).collect {
       case name :: email :: password :: Nil ⇒
-        StoreAdmin.build(name = name, email = email, password = Some(password))
+        StoreAdmin
+          .build(name = name, email = email, password = Some(password), state = StoreAdmin.Active)
     }
     reader.close()
     for {
@@ -24,5 +25,8 @@ trait StoreAdminSeeds {
   }
 
   def storeAdmin =
-    StoreAdmin.build(email = "admin@admin.com", password = "password".some, name = "Frankly Admin")
+    StoreAdmin.build(email = "admin@admin.com",
+                     password = "password".some,
+                     name = "Frankly Admin",
+                     state = StoreAdmin.Active)
 }

@@ -6,6 +6,7 @@ select distinct on (s.id)
     s.name as name,
     s.phone_number as phone_number,
     s.department as department,
+    s.state as state,
     to_char(s.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as created_at
 from store_admins as s
 order by s.id;

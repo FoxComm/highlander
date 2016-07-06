@@ -493,6 +493,12 @@ object LogActivity {
                                                                ac: AC): DbResultT[Activity] =
     Activities.log(StoreAdminDeleted(entity, admin))
 
+  def storeAdminStateChanged(entity: StoreAdmin,
+                             oldState: StoreAdmin.State,
+                             newState: StoreAdmin.State,
+                             admin: Originator)(implicit ec: EC, ac: AC): DbResultT[Activity] =
+    Activities.log(StoreAdminStateChanged(entity, oldState, newState, admin))
+
   /* Helpers */
   private def buildOriginator(originator: Originator): Option[AdminResponse] = originator match {
     case AdminOriginator(admin) ⇒ Some(buildAdmin(admin))

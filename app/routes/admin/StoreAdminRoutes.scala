@@ -37,6 +37,13 @@ object StoreAdminRoutes {
             deleteOrFailures {
               StoreAdminManager.delete(saId, Originator(admin))
             }
+          } ~
+          pathPrefix("state") {
+            (patch & pathEnd & entity(as[StateChangeStoreAdminPayload])) { payload ⇒
+              mutateOrFailures {
+                StoreAdminManager.changeState(saId, payload, Originator(admin))
+              }
+            }
           }
         }
       } ~

@@ -26,6 +26,7 @@ object StoreAdminManager {
       admin = StoreAdmin.build(email = payload.email,
                                password = payload.password,
                                name = payload.name,
+                               state = StoreAdmin.Invited,
                                phoneNumber = payload.phoneNumber,
                                department = payload.department)
       saved ← * <~ StoreAdmins.create(admin)
@@ -53,4 +54,15 @@ object StoreAdminManager {
                     NotFoundFailure404(StoreAdmin, i))
       _ ← * <~ LogActivity.storeAdminDeleted(admin, author)
     } yield result
+
+  def changeState(id: Int, payload: StateChangeStoreAdminPayload, author: Originator)(
+      implicit ec: EC,
+      db: DB,
+      ac: AC): DbResultT[StoreAdminResponse.Root] =
+    for {
+      admin  ← * <~ StoreAdmins.mustFindById404(id)
+      _      ← * <~ admin.transitionState(payload.state)
+      result ← * <~ StoreAdmins.update(admin, admin.copy(state = payload.state))
+      _      ← * <~ LogActivity.storeAdminStateChanged(admin, admin.state, result.state, author)
+    } yield StoreAdminResponse.build(result)
 }

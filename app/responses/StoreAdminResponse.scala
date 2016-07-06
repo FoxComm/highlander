@@ -8,7 +8,8 @@ object StoreAdminResponse {
                   email: String,
                   name: String,
                   department: Option[String] = None,
-                  phoneNumber: Option[String] = None)
+                  phoneNumber: Option[String] = None,
+                  state: StoreAdmin.State)
       extends ResponseItem
 
   def build(admin: StoreAdmin): Root =
@@ -16,11 +17,13 @@ object StoreAdminResponse {
          email = admin.email,
          name = admin.name,
          department = admin.department,
-         phoneNumber = admin.phoneNumber)
+         phoneNumber = admin.phoneNumber,
+         state = admin.state)
 
   def build(admin: AdminToken): Root =
     Root(id = admin.id,
          email = admin.email,
          name = admin.name.getOrElse(""),
-         department = admin.department)
+         department = admin.department,
+         state = StoreAdmin.Active)
 }

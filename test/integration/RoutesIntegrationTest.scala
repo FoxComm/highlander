@@ -11,7 +11,8 @@ class RoutesAdminOnlyIntegrationTest extends IntegrationTestBase with HttpSuppor
   val authedStoreAdmin = StoreAdmin.build(id = 1,
                                           email = "donkey@donkey.com",
                                           password = Some("donkeyPass"),
-                                          name = "Mister Donkey")
+                                          name = "Mister Donkey",
+                                          state = StoreAdmin.Active)
 
   override def overrideStoreAdminAuth: AsyncAuthenticator[StoreAdmin] =
     AuthAs(authedStoreAdmin)

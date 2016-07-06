@@ -25,3 +25,13 @@
 ### Delete [DELETE]
 
 + Response 204 (application/json)
+
+### Update status [PATCH /v1/store-admins/{id}/state]
+
++ Parameters
+    + id: 1 (required, number) - Store Admin ID.
+
++ Request (application/json)
+    + Attributes (StoreAdminChangeStatePayload)
++ Response 200 (application/json)
+    + Attributes (StoreAdmin)

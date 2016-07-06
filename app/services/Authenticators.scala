@@ -224,6 +224,7 @@ object Authenticator {
         validatedUser ← * <~ validatePassword(userInstance,
                                               getHashedPassword(userInstance),
                                               payload.password)
+        _            ← * <~ checkState(payload.kind, userInstance, finder)
         checkedToken ← * <~ tokenFromModel(validatedUser)
       } yield checkedToken).run()
 
@@ -251,6 +252,16 @@ object Authenticator {
       Xor.right(model)
     else
       Xor.left(LoginFailed.single)
+  }
+
+  private def checkState[M](model: M): Failures Xor M = {
+    model match {
+      case m: StoreAdmin ⇒
+        if (m.canLogin) Xor.right(model)
+        else Xor.left(AuthFailed(reason = "Store admin is Inactive or Archived").single)
+      case _ ⇒
+        Xor.right(model)
+    }
   }
 
   private def adminFromToken(token: Token): Failures Xor DBIO[Option[StoreAdmin]] = {

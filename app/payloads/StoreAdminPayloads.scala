@@ -3,6 +3,7 @@ package payloads
 import cats.data._
 import cats.implicits._
 import failures.Failure
+import models.StoreAdmin.State
 import utils.Validation
 import utils.Validation._
 
@@ -38,4 +39,6 @@ object StoreAdminPayloads {
       }
     }
   }
+
+  case class StateChangeStoreAdminPayload(state: State)
 }

@@ -35,7 +35,8 @@ trait AutomaticAuth extends SuiteMixin with ScalaFutures with HttpSupport {
   val authedStoreAdmin = StoreAdmin.build(id = 1,
                                           email = "donkey@donkey.com",
                                           password = Some("donkeyPass"),
-                                          name = "Mister Donkey")
+                                          name = "Mister Donkey",
+                                          state = StoreAdmin.Active)
 
   val authedCustomer = Customer.build(id = 1,
                                       email = "donkey@donkey.com",

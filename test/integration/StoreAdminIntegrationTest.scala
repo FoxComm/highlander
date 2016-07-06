@@ -2,7 +2,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
-import failures.NotFoundFailure404
+import failures.{NotFoundFailure404, StateTransitionNotAllowed}
 import failures.StoreAdminFailures.AlreadyExistsWithEmail
 import models.{StoreAdmin, StoreAdmins}
 import payloads.StoreAdminPayloads._
@@ -26,6 +26,7 @@ class StoreAdminIntegrationTest extends IntegrationTestBase with HttpSupport wit
       admin.name must === (payload.name)
       admin.email must === (payload.email)
       admin.department must === (payload.department)
+      admin.state must === (StoreAdmin.Invited)
     }
 
     "don't create with duplicated email" in new Fixture {
@@ -50,10 +51,12 @@ class StoreAdminIntegrationTest extends IntegrationTestBase with HttpSupport wit
       admin.email must === (storeAdmin.email)
       admin.department must === (storeAdmin.department)
       admin.phoneNumber must === (storeAdmin.phoneNumber)
+      admin.state must === (storeAdmin.state)
     }
 
     "respond with 404 when id does not point to valid admin" in new Fixture {
-      val response = GET(s"v1/store-admins/666")
+      val id       = 666
+      val response = GET(s"v1/store-admins/$id")
 
       response.status must === (StatusCodes.NotFound)
       response.error must === (NotFoundFailure404(StoreAdmin, 666).description)
@@ -78,6 +81,7 @@ class StoreAdminIntegrationTest extends IntegrationTestBase with HttpSupport wit
       val updated = response.as[StoreAdminResponse.Root]
 
       updated.id must === (storeAdmin.id)
+      updated.state must === (storeAdmin.state)
       updated.email must === (newEmail)
       updated.name must === (newName)
       updated.department must === (newDepartment)
@@ -85,7 +89,7 @@ class StoreAdminIntegrationTest extends IntegrationTestBase with HttpSupport wit
     }
 
     "respond with 404 when id does not point to valid admin" in new Fixture {
-      val id = 123456789
+      val id = 666
       val payload = UpdateStoreAdminPayload(email = "superdonkey@email.com",
                                             name = "SuperDonkey",
                                             department = Some("Overpowered Donkey Squad"))
@@ -94,6 +98,41 @@ class StoreAdminIntegrationTest extends IntegrationTestBase with HttpSupport wit
       response.status must === (StatusCodes.NotFound)
       response.error must === (NotFoundFailure404(StoreAdmin, id).description)
     }
+
+  }
+
+  "PATCH /v1/store-admins/:id/state" - {
+    "change state successfully" in new Fixture {
+      val payload  = StateChangeStoreAdminPayload(state = StoreAdmin.Inactive)
+      val response = PATCH(s"v1/store-admins/${storeAdmin.id}/state", payload)
+
+      response.status must === (StatusCodes.OK)
+
+      val updated = response.as[StoreAdminResponse.Root]
+      updated.state must === (StoreAdmin.Inactive)
+    }
+
+    "respond with 400 when cannot apply new state" in new Fixture {
+      val payload  = StateChangeStoreAdminPayload(state = StoreAdmin.Invited)
+      val response = PATCH(s"v1/store-admins/${storeAdmin.id}/state", payload)
+
+      response.status must === (StatusCodes.BadRequest)
+      response.error must === (
+          StateTransitionNotAllowed(StoreAdmin,
+                                    storeAdmin.state.toString,
+                                    StoreAdmin.Invited.toString,
+                                    storeAdmin.id).description)
+    }
+
+    "respond with 404 when id does not point to valid admin" in new Fixture {
+      val id       = 666
+      val payload  = StateChangeStoreAdminPayload(state = StoreAdmin.Inactive)
+      val response = PATCH(s"v1/store-admins/$id/state", payload)
+
+      response.status must === (StatusCodes.NotFound)
+      response.error must === (NotFoundFailure404(StoreAdmin, id).description)
+    }
+
   }
 
   "DELETE /v1/store-admins/:id" - {
@@ -103,7 +142,7 @@ class StoreAdminIntegrationTest extends IntegrationTestBase with HttpSupport wit
     }
 
     "respond with 404 when id does not point to valid admin" in new Fixture {
-      val id       = 123456789
+      val id       = 666
       val response = DELETE(s"v1/store-admins/$id")
 
       response.status must === (StatusCodes.NotFound)
