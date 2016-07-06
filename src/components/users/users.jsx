@@ -24,10 +24,11 @@ const Users = props => {
   };
 
   const tableColumns = [
+    { field: 'image', text: 'Image' },
     { field: 'name', text: 'Name' },
     { field: 'email', text: 'Email' },
     { field: 'roles', text: 'Roles' },
-    { field: 'lastSignedIn', text: 'Last Signed In' },
+    { field: 'createdAt', text: 'Created at', type: 'datetime' },
     { field: 'state', text: 'State' },
   ];
 
