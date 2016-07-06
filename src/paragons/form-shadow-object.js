@@ -46,7 +46,7 @@ export function addIlluminatedAttribute(label: string,
   }
 
   const attrValue = type == 'price'
-    ? { currency: 'USD', values: value }
+    ? { currency: 'USD', values: parseInt(value) }
     : value;
    const attribute = { t: type, v: attrValue };
 
@@ -67,7 +67,7 @@ export function setAttribute(label: string,
   }
 
   const formValue = type == 'price'
-    ? { currency: 'USD', value: value }
+    ? { currency: 'USD', value: parseInt(value) }
     : value;
 
   const newForm = assoc(form, label, formValue);
