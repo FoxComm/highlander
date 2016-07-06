@@ -33,13 +33,13 @@ namespace isaac
         catch(std::exception& e)
         {
             proxygen::ResponseBuilder{downstream_}
-            .status(500, e.what())
+            .status(401, e.what())
                 .sendWithEOM();
         }
         catch(...)
         {
             proxygen::ResponseBuilder{downstream_}
-            .status(500, "Unknown Error")
+            .status(401, "Unknown Error")
                 .sendWithEOM();
         }
 
@@ -89,7 +89,7 @@ namespace isaac
 
             auto id = user["id"].asInt();
             auto is_admin = user["admin"].asBool();
-            auto ratchet = user.count("ratchet") ? user["ratchet"].asInt() : 0;
+            auto ratchet = user["ratchet"].asInt();
 
             if(id < 0 || ratchet < 0) return false;
             if(is_admin != must_be_admin) return false;
