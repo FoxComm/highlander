@@ -7,26 +7,23 @@ import (
 	"github.com/FoxComm/middlewarehouse/api/responses"
 	"github.com/FoxComm/middlewarehouse/common/db/config"
 	"github.com/FoxComm/middlewarehouse/common/logging"
-	"github.com/FoxComm/middlewarehouse/common/store"
 	"github.com/FoxComm/middlewarehouse/models"
 	"github.com/jinzhu/gorm"
 )
 
-type InventoryMgr struct {
-	ctx    *store.StoreContext
+type InventoryManager struct {
 	db     *gorm.DB
 	logger logging.Logger
 }
 
-// NewInventoryMgr creates a new InventoryMgr.
-func NewInventoryMgr(c *store.StoreContext) (*InventoryMgr, error) {
+// NewInventoryManager creates a new InventoryManager.
+func NewInventoryManager() (*InventoryManager, error) {
 	db, err := config.DefaultConnection()
 	if err != nil {
 		return nil, err
 	}
 
-	im := &InventoryMgr{
-		ctx:    c,
+	im := &InventoryManager{
 		logger: logging.Log,
 		db:     db,
 	}
@@ -34,7 +31,7 @@ func NewInventoryMgr(c *store.StoreContext) (*InventoryMgr, error) {
 	return im, nil
 }
 
-func (im *InventoryMgr) FindStockItemByID(id uint) (*responses.StockItem, error) {
+func (im *InventoryManager) FindStockItemByID(id uint) (*responses.StockItem, error) {
 	si := &models.StockItem{}
 	if err := im.db.First(si, id).Error; err != nil {
 		return nil, err
@@ -43,7 +40,7 @@ func (im *InventoryMgr) FindStockItemByID(id uint) (*responses.StockItem, error)
 	}
 }
 
-func (im *InventoryMgr) CreateStockItem(payload *payloads.StockItem) (*responses.StockItem, error) {
+func (im *InventoryManager) CreateStockItem(payload *payloads.StockItem) (*responses.StockItem, error) {
 	si := models.NewStockItemFromPayload(payload)
 
 	if err := im.db.Create(si).Error; err != nil {
@@ -64,7 +61,7 @@ func (im *InventoryMgr) CreateStockItem(payload *payloads.StockItem) (*responses
 	return responses.NewStockItemFromModel(si), nil
 }
 
-func (im *InventoryMgr) IncrementStockItemUnits(id uint, payload *payloads.IncrementStockItemUnits) error {
+func (im *InventoryManager) IncrementStockItemUnits(id uint, payload *payloads.IncrementStockItemUnits) error {
 	units := models.NewStockItemUnitsFromPayload(id, payload)
 
 	txn := im.db.Begin()
@@ -85,7 +82,7 @@ func (im *InventoryMgr) IncrementStockItemUnits(id uint, payload *payloads.Incre
 	return nil
 }
 
-func (im *InventoryMgr) DecrementStockItemUnits(id uint, payload *payloads.DecrementStockItemUnits) error {
+func (im *InventoryManager) DecrementStockItemUnits(id uint, payload *payloads.DecrementStockItemUnits) error {
 	txn := im.db.Begin()
 
 	// Check to make sure there are enough on-hand items.
@@ -113,7 +110,7 @@ func (im *InventoryMgr) DecrementStockItemUnits(id uint, payload *payloads.Decre
 	return txn.Commit().Error
 }
 
-func (im *InventoryMgr) UpdateStockItem(stockItemID uint, qty int, status string) {
+func (im *InventoryManager) UpdateStockItem(stockItemID uint, qty int, status string) {
 	txn := im.db.Begin()
 
 	summary := &models.StockItemSummary{}

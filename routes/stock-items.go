@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/FoxComm/middlewarehouse/api/payloads"
+	"github.com/FoxComm/middlewarehouse/services"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 )
@@ -20,7 +21,7 @@ func runStockItems(router *gin.Engine) {
 			return
 		}
 
-		invMgr, err := initInventoryManager(c)
+		invMgr, err := services.NewInventoryManager()
 		if err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
@@ -45,7 +46,7 @@ func runStockItems(router *gin.Engine) {
 			return
 		}
 
-		invMgr, err := initInventoryManager(c)
+		invMgr, err := services.NewInventoryManager()
 		if err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
@@ -79,7 +80,7 @@ func runStockItems(router *gin.Engine) {
 			c.AbortWithError(http.StatusBadRequest, err)
 		}
 
-		invMgr, err := initInventoryManager(c)
+		invMgr, err := services.NewInventoryManager()
 		if err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
@@ -113,7 +114,7 @@ func runStockItems(router *gin.Engine) {
 			c.AbortWithError(http.StatusBadRequest, err)
 		}
 
-		invMgr, err := initInventoryManager(c)
+		invMgr, err := services.NewInventoryManager()
 		if err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return

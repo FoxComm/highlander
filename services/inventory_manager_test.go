@@ -7,7 +7,6 @@ import (
 	"github.com/FoxComm/middlewarehouse/api/responses"
 	"github.com/FoxComm/middlewarehouse/common/db/config"
 	"github.com/FoxComm/middlewarehouse/common/db/tasks"
-	"github.com/FoxComm/middlewarehouse/common/store"
 	"github.com/FoxComm/middlewarehouse/models"
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/assert"
@@ -16,7 +15,7 @@ import (
 
 type InventoryManagerTestSuite struct {
 	suite.Suite
-	mgr      *InventoryMgr
+	mgr      *InventoryManager
 	itemResp *responses.StockItem
 	db       *gorm.DB
 }
@@ -33,9 +32,7 @@ func (suite *InventoryManagerTestSuite) SetupTest() {
 	assert.Nil(suite.T(), err)
 	tasks.TruncateTables([]string{"stock_items", "stock_item_units"})
 
-	ctx := store.StoreContext{StoreID: 1}
-
-	suite.mgr, err = NewInventoryMgr(&ctx)
+	suite.mgr, err = NewInventoryManager()
 	assert.Nil(suite.T(), err)
 
 	payload := &payloads.StockItem{StockLocationID: 1, SKU: "TEST-DEFAULT"}

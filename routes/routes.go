@@ -4,19 +4,8 @@ import (
 	"fmt"
 
 	"github.com/FoxComm/middlewarehouse/api/responses"
-	"github.com/FoxComm/middlewarehouse/common/store"
-	"github.com/FoxComm/middlewarehouse/services"
 	"github.com/gin-gonic/gin"
 )
-
-func initInventoryManager(c *gin.Context) (*services.InventoryMgr, error) {
-	ctx, err := store.NewStoreContext(c)
-	if err != nil {
-		return nil, err
-	}
-
-	return services.NewInventoryMgr(ctx)
-}
 
 func Run() {
 	router := gin.Default()
