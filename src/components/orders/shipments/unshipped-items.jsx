@@ -16,7 +16,7 @@ import TableCell from 'components/table/cell';
 import Currency from 'components/common/currency';
 
 // styles
-import styles from 'components/orders/shipments/unshipped-items.css';
+import styles from './unshipped-items.css';
 
 // types
 type Item = {

@@ -5,7 +5,7 @@ import _ from 'lodash';
 import React, { Component, PropTypes, Element } from 'react';
 
 // styles
-import styles from 'components/orders/shipments/transaction.css';
+import styles from './transaction.css';
 
 // components
 import Currency from 'components/common/currency';

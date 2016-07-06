@@ -13,8 +13,8 @@ import { getStore } from 'lib/store-creator';
 import WaitAnimation from 'components/common/wait-animation';
 import { PrimaryButton } from 'components/common/buttons';
 import SectionTitle from 'components/section-title/section-title';
-import Shipment from 'components/orders/shipments/shipment';
-import UnshippedItems from 'components/orders/shipments/unshipped-items';
+import Shipment from './shipment';
+import UnshippedItems from './unshipped-items';
 
 // types
 import type AsyncState from 'lib/async-action-creator';
