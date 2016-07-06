@@ -266,22 +266,14 @@ object Authenticator {
 
   private def adminFromToken(token: Token): Failures Xor DBIO[Option[StoreAdmin]] = {
     token match {
-      case token: AdminToken ⇒
-        Xor.right(
-            DBIO.successful(
-                Some(
-                    StoreAdmin(id = token.id,
-                               email = token.email,
-                               hashedPassword = None,
-                               name = token.name.getOrElse(""),
-                               department = token.department))))
-      case _ ⇒ Xor.left(AuthFailed("invalid token").single)
+      case token: AdminToken ⇒ Xor.right(StoreAdmins.findByIdAndRatchet(token.id, token.ratchet))
+      case _                 ⇒ Xor.left(AuthFailed("invalid token").single)
     }
   }
 
   private def customerFromToken(token: Token): Failures Xor DBIO[Option[Customer]] = {
     token match {
-      case token: CustomerToken ⇒ Xor.right(Customers.findOneById(token.id))
+      case token: CustomerToken ⇒ Xor.right(Customers.findByIdAndRatchet(token.id, token.ratchet))
       case _                    ⇒ Xor.left(AuthFailed("invalid token").single)
     }
   }

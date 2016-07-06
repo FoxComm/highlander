@@ -102,4 +102,8 @@ object StoreAdmins
   def findByEmail(email: String): DBIO[Option[StoreAdmin]] = {
     filter(_.email === email).one
   }
+
+  def findByIdAndRatchet(id: Int, ratchet: Int): DBIO[Option[StoreAdmin]] = {
+    filter(_.id === id).filter(_.ratchet === ratchet).one
+  }
 }

@@ -132,6 +132,10 @@ object Customers
     filter(_.email === email).one
   }
 
+  def findByIdAndRatchet(id: Int, ratchet: Int): DBIO[Option[Customer]] = {
+    filter(_.id === id).filter(_.ratchet === ratchet).one
+  }
+
   object scope {
     implicit class CustomersQuerySeqConversions(query: QuerySeq) {
 
