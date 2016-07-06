@@ -45,6 +45,7 @@ const productUpdateSuccess = createAction('PRODUCTS_UPDATE_SUCCESS');
 const productUpdateFailure = createAction('PRODUCTS_UPDATE_FAILURE');
 
 export const productNew = createAction('PRODUCTS_NEW');
+const productSet = createAction('PRODUCTS_SET');
 
 const setError = createAction('PRODUCTS_SET_ERROR');
 
@@ -69,6 +70,7 @@ export function fetchProduct(id: string, context: string = defaultContext): Acti
 export function createProduct(product: Product, context: string = defaultContext): ActionDispatch {
   return dispatch => {
     dispatch(productUpdateStart());
+    dispatch(productSet(product));
     return Api.post(`/products/${context}`, product)
       .then(
         (product: Product) => {
@@ -86,6 +88,7 @@ export function createProduct(product: Product, context: string = defaultContext
 export function updateProduct(product: Product, context: string = defaultContext): ActionDispatch {
   return dispatch => {
     dispatch(productUpdateStart());
+    dispatch(productSet(product));
     return Api.patch(`/products/${context}/${product.id}`, product)
       .then(
         (product: Product) => dispatch(productUpdateSuccess(product)),
@@ -110,6 +113,12 @@ const reducer = createReducer({
     return {
       ...initialState,
       product: createEmptyProduct(),
+    };
+  },
+  [productSet]: (state: ProductDetailsState, product: Product) => {
+    return {
+      ...initialState,
+      product,
     };
   },
   [productRequestStart]: (state: ProductDetailsState) => {
