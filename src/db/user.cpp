@@ -13,7 +13,7 @@ namespace isaac
         std::string query_str(const char* table, const std::size_t id)
         {
             std::stringstream q;
-            q << "select id from " << table << " where id=" << id << " limit 1";
+            q << "select ratchet from " << table << " where id=" << id << " limit 1";
             return q.str();
         }
 
