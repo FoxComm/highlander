@@ -21,13 +21,7 @@ func runStockItems(router *gin.Engine) {
 			return
 		}
 
-		invMgr, err := services.NewInventoryManager()
-		if err != nil {
-			c.AbortWithError(http.StatusInternalServerError, err)
-			return
-		}
-
-		resp, err := invMgr.FindStockItemByID(uint(id))
+		resp, err := services.FindStockItemByID(uint(id))
 		if err != nil {
 			if err == gorm.ErrRecordNotFound {
 				c.AbortWithStatus(http.StatusNotFound)
@@ -46,13 +40,7 @@ func runStockItems(router *gin.Engine) {
 			return
 		}
 
-		invMgr, err := services.NewInventoryManager()
-		if err != nil {
-			c.AbortWithError(http.StatusInternalServerError, err)
-			return
-		}
-
-		resp, err := invMgr.CreateStockItem(&json)
+		resp, err := services.CreateStockItem(&json)
 		if err != nil {
 			c.AbortWithError(http.StatusBadRequest, err)
 			return
@@ -80,13 +68,7 @@ func runStockItems(router *gin.Engine) {
 			c.AbortWithError(http.StatusBadRequest, err)
 		}
 
-		invMgr, err := services.NewInventoryManager()
-		if err != nil {
-			c.AbortWithError(http.StatusInternalServerError, err)
-			return
-		}
-
-		err = invMgr.IncrementStockItemUnits(uint(id), &json)
+		err = services.IncrementStockItemUnits(uint(id), &json)
 		if err != nil {
 			c.AbortWithError(http.StatusBadRequest, err)
 			return
@@ -114,13 +96,7 @@ func runStockItems(router *gin.Engine) {
 			c.AbortWithError(http.StatusBadRequest, err)
 		}
 
-		invMgr, err := services.NewInventoryManager()
-		if err != nil {
-			c.AbortWithError(http.StatusInternalServerError, err)
-			return
-		}
-
-		err = invMgr.DecrementStockItemUnits(uint(id), &json)
+		err = services.DecrementStockItemUnits(uint(id), &json)
 		if err != nil {
 			c.AbortWithError(http.StatusBadRequest, err)
 			return

@@ -15,7 +15,6 @@ import (
 
 type InventoryManagerTestSuite struct {
 	suite.Suite
-	mgr      *InventoryManager
 	itemResp *responses.StockItem
 	db       *gorm.DB
 }
@@ -32,17 +31,14 @@ func (suite *InventoryManagerTestSuite) SetupTest() {
 	assert.Nil(suite.T(), err)
 	tasks.TruncateTables([]string{"stock_items", "stock_item_units"})
 
-	suite.mgr, err = NewInventoryManager()
-	assert.Nil(suite.T(), err)
-
 	payload := &payloads.StockItem{StockLocationID: 1, SKU: "TEST-DEFAULT"}
-	suite.itemResp, err = suite.mgr.CreateStockItem(payload)
+	suite.itemResp, err = CreateStockItem(payload)
 	assert.Nil(suite.T(), err)
 }
 
 func (suite *InventoryManagerTestSuite) TestCreation() {
 	payload := &payloads.StockItem{StockLocationID: 1, SKU: "TEST-CREATION"}
-	resp, err := suite.mgr.CreateStockItem(payload)
+	resp, err := CreateStockItem(payload)
 	if assert.Nil(suite.T(), err) {
 		assert.Equal(suite.T(), "TEST-CREATION", resp.SKU)
 	}
@@ -50,9 +46,9 @@ func (suite *InventoryManagerTestSuite) TestCreation() {
 
 func (suite *InventoryManagerTestSuite) TestFindByID() {
 	payload := &payloads.StockItem{StockLocationID: 1, SKU: "TEST-FIND"}
-	resp, err := suite.mgr.CreateStockItem(payload)
+	resp, err := CreateStockItem(payload)
 	if assert.Nil(suite.T(), err) {
-		item, err := suite.mgr.FindStockItemByID(resp.ID)
+		item, err := FindStockItemByID(resp.ID)
 		if assert.Nil(suite.T(), err) {
 			assert.Equal(suite.T(), "TEST-FIND", item.SKU)
 		}
@@ -61,7 +57,7 @@ func (suite *InventoryManagerTestSuite) TestFindByID() {
 
 func (suite *InventoryManagerTestSuite) TestEmptySKU() {
 	payload := &payloads.StockItem{StockLocationID: 1}
-	_, err := suite.mgr.CreateStockItem(payload)
+	_, err := CreateStockItem(payload)
 	assert.NotNil(suite.T(), err)
 }
 
@@ -72,7 +68,7 @@ func (suite *InventoryManagerTestSuite) TestCreateStockItemsUnits() {
 		Status:   "onHand",
 	}
 
-	err := suite.mgr.IncrementStockItemUnits(suite.itemResp.ID, payload)
+	err := IncrementStockItemUnits(suite.itemResp.ID, payload)
 	assert.Nil(suite.T(), err)
 }
 
@@ -83,7 +79,7 @@ func (suite *InventoryManagerTestSuite) TestCreateMultipleStockItemUnits() {
 		Status:   "onHand",
 	}
 
-	err := suite.mgr.IncrementStockItemUnits(suite.itemResp.ID, payload)
+	err := IncrementStockItemUnits(suite.itemResp.ID, payload)
 	assert.Nil(suite.T(), err)
 
 	var units []models.StockItemUnit
