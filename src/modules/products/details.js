@@ -1,15 +1,24 @@
 /**
  * @flow
  */
-import Api from '../../lib/api';
+
+// libs
+import _ from 'lodash';
 import { assoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
 import { push } from 'react-router-redux';
-import { createEmptyProduct, configureProduct } from '../../paragons/product';
 
-import type { Product, Variant, VariantValue } from 'paragons/product';
+// helpers
+import Api from 'lib/api';
+import { createEmptyProduct, configureProduct } from 'paragons/product';
+import createStore from 'lib/store-creator';
+
+// types
+import type { Store } from 'lib/store-creator';
+import type { Dictionary } from 'paragons/types';
 import type { Attribute, Attributes } from 'paragons/object';
-import _ from 'lodash';
+import type { Product, Variant, VariantValue } from 'paragons/product';
+import type { Sku } from 'modules/skus/details';
 
 export type Error = {
   status: ?number,
@@ -23,6 +32,7 @@ export type ProductDetailsState = {
   isUpdating: boolean,
   product: ?Product,
 };
+
 
 const defaultContext = 'default';
 
