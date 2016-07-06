@@ -6,7 +6,6 @@ Home for our integration (mainly between [Phoenix](https://github.com/FoxComm/ph
 
 ## Simulations
 
-* `com.foxcommerce.BatchActionsBenchSimulation` - batch actions benchmark on Gift Cards.
 * `com.foxcommerce.SearchViewSimulation` - materialized views synchronization simulation. Covered entities:
     * `Customer`
     * `CustomerAddress`
