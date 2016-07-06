@@ -1,0 +1,8 @@
+account_file 		 = "foxcomm-staging.json"
+gce_project 		 = "foxcomm-staging"
+region 				 = "us-central1"
+consul_cluster_image = "consul-server-1461715686"
+tiny_backend_image   = "tinystack-backend-1467330238"
+tiny_frontend_image  = "tinystack-frontend-1466553814"
+consul_server_image  = "tinystack-consul-server-1466553799"
+gatling_image	     = "base-jvm-1466549834"
