@@ -1,5 +1,5 @@
 account_file 		 = "foxcomm-staging.json"
-gce_project 	 	 = "foxcommerce-staging"
+gce_project 	 	 = "foxcomm-staging"
 network 			 = "prodsmall"
 bucket_location 	 = "us"
 region 				 = "us-central1"
