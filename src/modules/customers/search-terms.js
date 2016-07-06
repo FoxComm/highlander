@@ -31,7 +31,7 @@ const searchTerms = [
     options: [
       {
         title: 'Reference Number',
-        type: 'string-term',
+        type: 'identifier',
         term: 'orders.referenceNumber'
       }, {
         title: 'State',

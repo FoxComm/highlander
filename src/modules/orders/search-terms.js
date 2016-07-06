@@ -164,7 +164,7 @@ const searchTerms = [
         term: 'lineItems.name'
       }, {
         title: 'Product SKU',
-        type: 'string-term',
+        type: 'identifier',
         term: 'lineItems.sku'
       }
     ]
