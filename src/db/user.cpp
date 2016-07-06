@@ -33,20 +33,29 @@ namespace isaac
             return db_ratchet;
         }
 
+        bool user::same_ratchet(
+                const char* table,
+                const std::size_t id,
+                const int ratchet)
+        {
+            REQUIRE_GREATER_EQUAL(ratchet, 0);
+
+            const auto db_ratchet = get_db_ratchet(_c, table, id);
+            return db_ratchet && ratchet == db_ratchet.value();
+        }
+
         bool user::valid_customer(std::size_t id, int ratchet)
         {
             REQUIRE_GREATER_EQUAL(ratchet, 0);
 
-            const auto db_ratchet = get_db_ratchet(_c, "customers", id);
-            return db_ratchet && ratchet == db_ratchet.value();
+            return same_ratchet("customers", id, ratchet);
         }
 
         bool user::valid_admin(std::size_t id, int ratchet)
         {
             REQUIRE_GREATER_EQUAL(ratchet, 0);
 
-            const auto db_ratchet = get_db_ratchet(_c, "store_admins", id);
-            return db_ratchet && ratchet == db_ratchet.value();
+            return same_ratchet("store_admins", id, ratchet);
         }
     }
 }

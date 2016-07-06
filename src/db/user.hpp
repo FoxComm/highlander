@@ -21,6 +21,11 @@ namespace isaac
                 bool valid_admin(std::size_t id, int ratchet);
 
             private:
+                bool same_ratchet(
+                        const char* table, 
+                        const std::size_t id, 
+                        const int ratchet);
+            private:
                 pqxx::connection& _c;
         };
 
