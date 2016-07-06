@@ -107,37 +107,3 @@ func DecrementStockItemUnits(id uint, payload *payloads.DecrementStockItemUnits)
 
 	return txn.Commit().Error
 }
-
-func UpdateStockItem(stockItemID uint, qty int, status string) {
-	db, err := config.DefaultConnection()
-	if err != nil {
-		return
-	}
-
-	txn := db.Begin()
-
-	summary := &models.StockItemSummary{}
-	if err := txn.Where("stock_item_id = ?", stockItemID).First(summary).Error; err != nil {
-		txn.Rollback()
-		return
-	}
-
-	switch status {
-	case "onHand":
-		summary.OnHand += qty
-		break
-	case "onHold":
-		summary.OnHold += qty
-		break
-	case "reserved":
-		summary.Reserved += qty
-		break
-	}
-
-	if err := txn.Save(summary).Error; err != nil {
-		txn.Rollback()
-		return
-	}
-
-	txn.Commit()
-}
