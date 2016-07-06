@@ -91,7 +91,6 @@ Vagrant.configure("2") do |config|
     app.vm.provision "shell", inline: "apt-get install -y python-minimal"
     app.vm.provision "ansible" do |ansible|
         ansible.verbose = "vvv"
-        ansible.skip_tags = "backup"
         ansible.playbook = "ansible/vagrant_appliance.yml"
           ansible.extra_vars = {
               user: $user
