@@ -45,11 +45,11 @@ object StoreAdminRoutes {
               }
             }
           }
-        }
-      } ~
-      pathPrefix("admin" / "info") {
-        (get & pathEnd) {
-          complete(AdminToken.fromAdmin(admin))
+        } ~
+        pathPrefix("me") {
+          (get & pathEnd) {
+            complete(AdminToken.fromAdmin(admin))
+          }
         }
       }
     }
