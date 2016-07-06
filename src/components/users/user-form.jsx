@@ -17,9 +17,17 @@ import { Button } from '../common/buttons';
 // styles
 import styles from './user-form.css';
 
+const SELECT_STATE = [
+  ['active', 'Active'],
+  ['inactive', 'Inactive'],
+  ['archived', 'Archived'],
+  ['invited', 'Invited', true],
+];
+
 type Props = {
   user: Object,
   onChange: Function,
+  isNew: bool,
 };
 
 class UserForm extends Component {
@@ -33,29 +41,26 @@ class UserForm extends Component {
 
   @autobind
   handleAccountStateChange(accountState: string) {
-    const data = assoc(this.props.user, ['state', 'accountState'], accountState);
+    const data = assoc(this.props.user, ['accountState', 'state'], accountState);
     this.props.onChange(data);
   }
 
   renderAccountState() {
-    const { accountState, disabled } = this.props.user.state;
+    const { state, disabled } = this.props.user.accountState;
 
     return (
       <ContentBox title="Account State">
-        <Dropdown value={accountState}
+        <Dropdown value={state}
                   onChange={(value) => this.handleAccountStateChange(value)}
-                  disabled={disabled}>
-          <DropdownItem value="active">Active</DropdownItem>
-          <DropdownItem value="inactive">Inactive</DropdownItem>
-          <DropdownItem value="archived">Archived</DropdownItem>
-          <DropdownItem value="invited" isHidden={true} >Invited</DropdownItem>
-        </Dropdown>
+                  disabled={disabled}
+                  items={SELECT_STATE}
+        />
       </ContentBox>
     );
   }
 
   renderUserImage() {
-    const name = this.props.user.form.attributes.firstAndLastName.v;
+    const name = this.props.user.form.attributes.firstAndLastName.v || 'New User';
 
     return (
       <FormField
@@ -68,14 +73,16 @@ class UserForm extends Component {
   }
 
   renderGeneralForm() {
-    const attributes = this.props.user.form.attributes;
+    const { attributes, options } = this.props.user.form;
 
     return (
       <ContentBox title="General">
         {this.renderUserImage()}
         <ObjectFormInner onChange={this.handleFormChange}
-                         attributes={attributes} />
-        <Button type="button">Change Password</Button>
+                         attributes={attributes}
+                         options={options}
+        />
+        {!this.props.isNew && <Button type="button">Change Password</Button>}
       </ContentBox>
     );
   }
@@ -88,7 +95,7 @@ class UserForm extends Component {
         </section>
 
         <aside styleName="aside">
-          {this.renderAccountState()}
+          {!this.props.isNew && this.renderAccountState()}
 
           <ContentBox title="Roles">
             <RoundedPill text="Super Admin"/>

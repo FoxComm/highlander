@@ -11,7 +11,7 @@ import { Button } from '../common/buttons';
 
 export type ValueType = ?string|number;
 
-export type DropdownItemType = [ValueType, string|Element];
+export type DropdownItemType = [ValueType, string|Element, bool];
 
 export type Props = {
   name?: string,

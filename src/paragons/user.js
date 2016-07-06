@@ -3,40 +3,61 @@ export function configureUserData(user) {
     id: user.id,
     name: user.form.attributes.firstAndLastName.v,
     email: user.form.attributes.emailAddress.v,
-    phone: user.form.attributes.phoneNumber.v,
-    accountState: user.accountState,
+    phoneNumber: user.form.attributes.phoneNumber.v,
+    state: user.accountState,
   };
 }
 
 export function configureUserState(user) {
-  const { name, email, phone, accountState, ...rest } = user;
+  const { name, email, phoneNumber, state, ...rest } = user;
 
   const attributes = {
     'firstAndLastName': {
       v: name,
-      t: 'string'
+      t: 'string',
     },
     'emailAddress': {
       v: email,
       t: 'string'
     },
     'phoneNumber': {
-      v: phone,
+      v: phoneNumber,
       t: 'string'
     }
   };
 
-  const state = {
-    accountState,
-    disabled: accountState === 'invited' || accountState === 'archived',
+  const options = {
+    'firstAndLastName': {
+      required: true,
+    },
+    'emailAddress': {
+      required: true,
+    }
+  };
+
+  const accountState = {
+    state,
+    disabled: state === 'invited' || state === 'archived',
 };
 
-  const form = {attributes};
+  const form = {attributes, };
 
   return {
     name,
     form,
-    state,
+    accountState,
     ...rest
   };
+}
+
+export function createEmptyUser() {
+  const user = {
+    id: '',
+    name: '',
+    email: '',
+    phoneNumber: '',
+    state: 'invited',
+  };
+
+  return configureUserState(user);
 }

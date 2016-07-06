@@ -5,6 +5,7 @@ import _ from 'lodash';
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
+import { transitionTo } from 'browserHistory';
 
 // actions
 import * as UserActions from '../../modules/users/details';
@@ -13,7 +14,7 @@ import * as UserActions from '../../modules/users/details';
 import WaitAnimation from '../common/wait-animation';
 import { PageTitle } from '../section-title';
 import SubNav from './sub-nav';
-import { PrimaryButton } from '../common/buttons';
+import { Button, PrimaryButton } from '../common/buttons';
 
 type Params = {
   userId: number,
@@ -30,6 +31,8 @@ type Props = {
   fetchError: any,
   isFetching: bool,
   fetchUser: Function,
+  userNew: Function,
+  createUser: Function,
   updateUser: Function,
 };
 
@@ -59,16 +62,12 @@ class User extends Component {
     }
   }
 
-  get errorMessage() {
-    return <div className="fc-user__empty-messages">An error occurred. Try again later.</div>;
+  get isNew(): boolean {
+    return this.props.params.userId === 'new';
   }
 
-  get pageTitle(): string {
-    if (this.isNew) {
-      return 'New User';
-    }
-
-    return _.get(this.props, 'details.user.name', '');
+  get errorMessage() {
+    return <div className="fc-user__empty-messages">An error occurred. Try again later.</div>;
   }
 
   @autobind
@@ -84,8 +83,39 @@ class User extends Component {
   renderChildren(): Element {
     return React.cloneElement(this.props.children, {
       user: this.state.user,
-      onChange: this.handleFormChange
+      onChange: this.handleFormChange,
+      isNew: this.isNew,
     });
+  }
+
+  renderUserTitle() {
+    const title = _.get(this.props, 'details.user.name', '');
+    return (
+      <PageTitle title={title}>
+        <PrimaryButton type="button" onClick={this.handleSubmit}>
+          Save
+        </PrimaryButton>
+      </PageTitle>
+    );
+  }
+
+  @autobind
+  handleNewUserSubmit() {
+    this.props.createUser(this.state.user).then(({ payload }) => {
+        transitionTo('user', {userId: payload.id});
+      }
+    );
+  }
+
+  renderNewUserTitle() {
+    return (
+      <PageTitle title="New User">
+        <Button type="button" onClick={() => transitionTo('users')}>Cancel</Button>
+        <PrimaryButton type="button" onClick={this.handleNewUserSubmit}>
+          Invite User
+        </PrimaryButton>
+      </PageTitle>
+    );
   }
 
   renderContent() {
@@ -93,11 +123,7 @@ class User extends Component {
 
     return (
       <div>
-        <PageTitle title={this.pageTitle}>
-          <PrimaryButton type="button" onClick={this.handleSubmit}>
-            Save
-          </PrimaryButton>
-        </PageTitle>
+        {this.isNew ? this.renderNewUserTitle() : this.renderUserTitle()}
         <SubNav userId={params.userId} user={details}/>
         <div className="fc-grid">
           <div className="fc-col-md-1-1">
@@ -113,7 +139,7 @@ class User extends Component {
 
     if (this.props.fetchError) {
       content = this.errorMessage;
-    } else if (this.props.isFetching || !this.props.details) {
+    } else if (this.props.isFetching || !this.state.user) {
       content = <WaitAnimation/>;
     } else {
       content = this.renderContent();
@@ -130,7 +156,7 @@ class User extends Component {
 export default connect(
   state => ({
     details: state.users.details,
-    isFetching: _.get(state.asyncActions, 'getUser.inProgress', true),
+    isFetching: _.get(state.asyncActions, 'getUser.inProgress', null),
     fetchError: _.get(state.asyncActions, 'getUser.err', null),
   }),
   UserActions
