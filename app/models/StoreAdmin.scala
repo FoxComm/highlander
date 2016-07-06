@@ -13,6 +13,7 @@ import utils.db._
 case class StoreAdmin(id: Int = 0,
                       name: String,
                       email: String,
+                      phoneNumber: Option[String] = None,
                       hashedPassword: Option[String] = None,
                       department: Option[String] = None)
     extends FoxModel[StoreAdmin]
@@ -27,28 +28,31 @@ case class StoreAdmin(id: Int = 0,
 
 object StoreAdmin {
   def build(id: Int = 0,
-            email: String,
-            password: Option[String],
             name: String,
+            email: String,
+            phoneNumber: Option[String] = None,
+            password: Option[String] = None,
             department: Option[String] = None): StoreAdmin = {
     val passwordHash = password.map(hashPassword)
     StoreAdmin(id = id,
                email = email,
-               hashedPassword = passwordHash,
                name = name,
+               phoneNumber = phoneNumber,
+               hashedPassword = passwordHash,
                department = department)
   }
 }
 
 class StoreAdmins(tag: Tag) extends FoxTable[StoreAdmin](tag, "store_admins") {
   def id             = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def email          = column[String]("email")
-  def hashedPassword = column[Option[String]]("hashed_password")
   def name           = column[String]("name")
+  def email          = column[String]("email")
+  def phoneNumber    = column[Option[String]]("phone_number")
+  def hashedPassword = column[Option[String]]("hashed_password")
   def department     = column[Option[String]]("department")
 
   def * =
-    (id, name, email, hashedPassword, department) <> ((StoreAdmin.apply _).tupled, StoreAdmin.unapply)
+    (id, name, email, phoneNumber, hashedPassword, department) <> ((StoreAdmin.apply _).tupled, StoreAdmin.unapply)
 }
 
 object StoreAdmins

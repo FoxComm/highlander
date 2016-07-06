@@ -10,13 +10,15 @@ object StoreAdminPayloads {
 
   case class CreateStoreAdminPayload(email: String,
                                      name: String,
+                                     phoneNumber: Option[String] = None,
                                      password: Option[String] = None,
                                      department: Option[String] = None)
       extends Validation[CreateStoreAdminPayload] {
 
     def validate: ValidatedNel[Failure, CreateStoreAdminPayload] = {
       (notEmpty(name, "name") |@| notEmpty(email, "email") |@|
-            nullOrNotEmpty(password, "password") |@| nullOrNotEmpty(department, "department")).map {
+            nullOrNotEmpty(phoneNumber, "phoneNumber") |@| nullOrNotEmpty(password, "password") |@|
+            nullOrNotEmpty(department, "department")).map {
         case _ ⇒ this
       }
     }
@@ -24,12 +26,16 @@ object StoreAdminPayloads {
 
   case class UpdateStoreAdminPayload(email: String,
                                      name: String,
+                                     phoneNumber: Option[String] = None,
                                      department: Option[String] = None)
       extends Validation[UpdateStoreAdminPayload] {
 
     def validate: ValidatedNel[Failure, UpdateStoreAdminPayload] = {
       (notEmpty(name, "name") |@| notEmpty(email, "email") |@|
-            nullOrNotEmpty(department, "department")).map { case _ ⇒ this }
+            nullOrNotEmpty(phoneNumber, "phoneNumber") |@| nullOrNotEmpty(department,
+                                                                          "department")).map {
+        case _ ⇒ this
+      }
     }
   }
 }

@@ -16,7 +16,8 @@ class StoreAdminIntegrationTest extends IntegrationTestBase with HttpSupport wit
       val payload = CreateStoreAdminPayload(name = "Admin Donkey",
                                             email = "donkey.admin@donkeys.com",
                                             password = Some("123456"),
-                                            department = Some("donkey team"))
+                                            department = Some("donkey team"),
+                                            phoneNumber = Some("1231231234"))
       val response = POST("v1/store-admins", payload)
 
       response.status must === (StatusCodes.OK)
@@ -48,14 +49,14 @@ class StoreAdminIntegrationTest extends IntegrationTestBase with HttpSupport wit
       admin.name must === (storeAdmin.name)
       admin.email must === (storeAdmin.email)
       admin.department must === (storeAdmin.department)
+      admin.phoneNumber must === (storeAdmin.phoneNumber)
     }
 
     "respond with 404 when id does not point to valid admin" in new Fixture {
-      val id       = 123456789
-      val response = GET(s"v1/store-admins/$id")
+      val response = GET(s"v1/store-admins/666")
 
       response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(StoreAdmin, id).description)
+      response.error must === (NotFoundFailure404(StoreAdmin, 666).description)
     }
   }
 
@@ -64,8 +65,11 @@ class StoreAdminIntegrationTest extends IntegrationTestBase with HttpSupport wit
       val newName       = "SuperDonkey"
       val newEmail      = "superdonkey@donkeys.com"
       val newDepartment = Some("Overpowered Donkey Squad")
-      val payload =
-        UpdateStoreAdminPayload(email = newEmail, name = newName, department = newDepartment)
+      val newPhone      = Some("1234512345")
+      val payload = UpdateStoreAdminPayload(email = newEmail,
+                                            name = newName,
+                                            department = newDepartment,
+                                            phoneNumber = newPhone)
 
       val response = PATCH(s"v1/store-admins/${storeAdmin.id}", payload)
 
@@ -77,6 +81,7 @@ class StoreAdminIntegrationTest extends IntegrationTestBase with HttpSupport wit
       updated.email must === (newEmail)
       updated.name must === (newName)
       updated.department must === (newDepartment)
+      updated.phoneNumber must === (newPhone)
     }
 
     "respond with 404 when id does not point to valid admin" in new Fixture {
