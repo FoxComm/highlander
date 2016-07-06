@@ -10,7 +10,7 @@ import ContentBox from '../content-box/content-box';
 import TextInput from '../forms/text-input';
 import VariantValueEntry from './variant-value-entry';
 
-import type { Variant, VariantValue } from '../../modules/products/details';
+import type { Variant, VariantValue } from 'paragons/product';
 
 type Props = {
   listKey: string,

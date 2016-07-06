@@ -9,7 +9,7 @@ import _ from 'lodash';
 import ContentBox from '../content-box/content-box';
 import VariantEntry from './variant-entry';
 
-import type { Variant } from '../../modules/products/details';
+import type { Variant } from 'paragons/product';
 
 type Props = {
   variants: { [key:string]: Variant },

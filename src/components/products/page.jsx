@@ -26,7 +26,7 @@ import {
 } from '../../paragons/product';
 
 // types
-import type { Product } from '../../modules/products/details';
+import type { Product } from 'paragons/product';
 
 type Props = {
   actions: {
