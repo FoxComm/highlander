@@ -8,7 +8,7 @@ import TableCell from '../table/cell';
 import TableRow from '../table/row';
 import SwatchDisplay from '../swatch/swatch-display';
 
-import type { VariantValue } from '../../modules/products/details';
+import type { VariantValue } from 'paragons/product';
 
 type Props = {
   name: string,

@@ -11,7 +11,7 @@ import _ from 'lodash';
 import EditableSkuRow from './editable-sku-row';
 import MultiSelectTable from '../table/multi-select-table';
 
-import type { Product } from '../../modules/products/details';
+import type { Product } from 'paragons/product';
 import type { Sku } from '../../modules/skus/details';
 
 type UpdateFn = (code: string, field: string, value: any) => void;

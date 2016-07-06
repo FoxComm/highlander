@@ -7,35 +7,14 @@ import { createAction, createReducer } from 'redux-act';
 import { push } from 'react-router-redux';
 import { createEmptyProduct, configureProduct } from '../../paragons/product';
 
-import type { Sku } from '../skus/details';
-
+import type { Product, Variant, VariantValue } from 'paragons/product';
+import type { Attribute, Attributes } from 'paragons/object';
 import _ from 'lodash';
 
 export type Error = {
   status: ?number,
   statusText: ?string,
   messages: Array<string>,
-};
-
-export type Attribute = { t: string, v: any };
-export type Attributes = { [key:string]: Attribute };
-
-export type Product = {
-  id: ?number,
-  attributes: Attributes,
-  skus: Array<Sku>,
-};
-
-export type Variant = {
-  name: ?string,
-  type: ?string,
-  values: { [key:string]: VariantValue },
-};
-
-export type VariantValue = {
-  id: number,
-  swatch: ?string,
-  image: ?string,
 };
 
 export type ProductDetailsState = {

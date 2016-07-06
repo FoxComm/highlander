@@ -18,8 +18,8 @@ import VariantList from './variant-list';
 import WaitAnimation from '../common/wait-animation';
 
 // types
-import type { Attributes } from '../../modules/products/details';
-import type { Product } from '../../modules/products/details';
+import type { Attributes } from 'paragons/object';
+import type { Product } from 'paragons/product';
 
 type Props = {
   product: Product,
