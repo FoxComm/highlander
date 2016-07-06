@@ -8,20 +8,20 @@ import { bindActionCreators } from 'redux';
 import { autobind } from 'core-decorators';
 
 // helpers
-import { getStore } from '../../../lib/store-creator';
+import { getStore } from 'lib/store-creator';
 
 // styles
 import styles from './shipment-row.css';
 
 // components
-import Currency from '../../common/currency';
-import TableRow from '../../table/row';
-import TableCell from '../../table/cell';
-import { DateTime } from '../../common/datetime';
-import AddressDetails from '../../addresses/address-details';
+import Currency from 'components/common/currency';
+import TableRow from 'components/table/row';
+import TableCell from 'components/table/cell';
+import { DateTime } from 'components/common/datetime';
+import AddressDetails from 'components/addresses/address-details';
 import ShippedItem from './shipped-item';
 import Transaction from './transaction';
-import WaitAnimation from '../../common/wait-animation';
+import WaitAnimation from 'components/common/wait-animation';
 
 //types
 type Props = {
@@ -66,7 +66,7 @@ class ShipmentRow extends Component {
 
   state: State = {
     isLoading: true,
-    isExpanded: true,
+    isExpanded: false,
   };
 
   componentDidMount(): void {
@@ -90,7 +90,11 @@ class ShipmentRow extends Component {
     const method = props.shipmentMethods.filter(method => method.id === props.method).pop();
     const carrier = props.carriers.filter(carrier => carrier.id === props.carrier).pop();
     const trackingLink = (
-      <a href={carrier.trackingTemplate.replace('$number', props.trackingNumber)} target="_blank">
+      <a
+        href={carrier.trackingTemplate.replace('$number', props.trackingNumber)}
+        styleName="tracking-link"
+        target="_blank"
+      >
         {props.trackingNumber}
       </a>
     );

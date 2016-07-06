@@ -11,3 +11,11 @@ export const itemStateTitles = {
   [itemStates.delivered]: 'Delivered',
   [itemStates.cancelled]: 'Cancelled',
 };
+
+export const itemReasons = {
+  outOfStock: 'outOfStock',
+};
+
+export const itemReasonsTitles = {
+  [itemReasons.outOfStock]: 'Out Of Stock',
+};

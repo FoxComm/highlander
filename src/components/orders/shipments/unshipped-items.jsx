@@ -5,12 +5,15 @@ import _ from 'lodash';
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 
+// data
+import { itemStateTitles, itemReasonsTitles } from 'paragons/shipment';
+
 // components
-import ContentBox from '../../content-box/content-box';
-import TableView from '../../table/tableview';
-import TableRow from '../../table/row';
-import TableCell from '../../table/cell';
-import Currency from '../../common/currency';
+import ContentBox from 'components/content-box/content-box';
+import TableView from 'components/table/tableview';
+import TableRow from 'components/table/row';
+import TableCell from 'components/table/cell';
+import Currency from 'components/common/currency';
 
 // styles
 import styles from './unshipped-items.css';
@@ -45,6 +48,25 @@ const viewColumns = [
 export default class UnshippedItems extends Component<void, Props, void> {
   props: Props;
 
+  @autobind
+  renderRow(row: Object, index: number): Element {
+    return (
+      <TableRow key={index}>
+        <TableCell>
+          <img src={row.imagePath} />
+        </TableCell>
+        <TableCell>{row.name}</TableCell>
+        <TableCell>{row.sku}</TableCell>
+        <TableCell>
+          <Currency value={row.price} />
+        </TableCell>
+        <TableCell>{row.quantity}</TableCell>
+        <TableCell>{itemStateTitles[row.state]}</TableCell>
+        <TableCell>{itemReasonsTitles[row.reason]}</TableCell>
+      </TableRow>
+    );
+  }
+
   get content(): Element {
     const { items } = this.props;
 
@@ -57,6 +79,7 @@ export default class UnshippedItems extends Component<void, Props, void> {
         columns={viewColumns}
         data={{rows: items}}
         wrapToTbody={false}
+        renderRow={this.renderRow}
       />
     );
   }
@@ -65,7 +88,7 @@ export default class UnshippedItems extends Component<void, Props, void> {
     return (
       <ContentBox
         styleName="box"
-        title="Unshipped items"
+        title="Unshipped Items"
         indentContent={false}
         viewContent={this.content}
       />

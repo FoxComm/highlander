@@ -9,7 +9,7 @@ import { autobind } from 'core-decorators';
 import styles from './shipped-item.css';
 
 // components
-import Currency from '../../common/currency';
+import Currency from 'components/common/currency';
 
 //types
 type Props = {
