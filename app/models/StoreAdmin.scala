@@ -20,7 +20,8 @@ case class StoreAdmin(id: Int = 0,
                       phoneNumber: Option[String] = None,
                       hashedPassword: Option[String] = None,
                       department: Option[String] = None,
-                      state: State = Invited)
+                      state: State = Invited,
+                      ratchet: Int = 0)
     extends FoxModel[StoreAdmin]
     with Validation[StoreAdmin]
     with FSM[StoreAdmin.State, StoreAdmin] {
@@ -64,7 +65,8 @@ object StoreAdmin {
             state: State,
             phoneNumber: Option[String] = None,
             password: Option[String] = None,
-            department: Option[String] = None): StoreAdmin = {
+            department: Option[String] = None,
+            ratchet: Int = 0): StoreAdmin = {
     val passwordHash = password.map(hashPassword)
     StoreAdmin(id = id,
                email = email,
@@ -72,7 +74,8 @@ object StoreAdmin {
                phoneNumber = phoneNumber,
                hashedPassword = passwordHash,
                department = department,
-               state = state)
+               state = state,
+               ratchet = ratchet)
   }
 }
 
@@ -84,9 +87,10 @@ class StoreAdmins(tag: Tag) extends FoxTable[StoreAdmin](tag, "store_admins") {
   def hashedPassword = column[Option[String]]("hashed_password")
   def department     = column[Option[String]]("department")
   def state          = column[StoreAdmin.State]("state")
+  def ratchet        = column[Int]("ratchet")
 
   def * =
-    (id, name, email, phoneNumber, hashedPassword, department, state) <> ((StoreAdmin.apply _).tupled, StoreAdmin.unapply)
+    (id, name, email, phoneNumber, hashedPassword, department, state, ratchet) <> ((StoreAdmin.apply _).tupled, StoreAdmin.unapply)
 }
 
 object StoreAdmins
@@ -97,5 +101,9 @@ object StoreAdmins
 
   def findByEmail(email: String): DBIO[Option[StoreAdmin]] = {
     filter(_.email === email).one
+  }
+
+  def findByIdAndRatchet(id: Int, ratchet: Int): DBIO[Option[StoreAdmin]] = {
+    filter(_.id === id).filter(_.ratchet === ratchet).one
   }
 }

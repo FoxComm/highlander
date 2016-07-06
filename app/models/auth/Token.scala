@@ -60,7 +60,7 @@ sealed trait Token extends Product {
   val name: Option[String]
   val email: String
   val scopes: Seq[String]
-
+  val ratchet: Int
   def encode: Failures Xor String = Token.encode(this)
 }
 
@@ -75,6 +75,7 @@ object Token {
 
     claims.setClaim("id", token.id)
     claims.setClaim("email", token.email)
+    claims.setClaim("ratchet", token.ratchet)
     claims.setStringListClaim("scopes", token.scopes)
 
     token.name.map { name ⇒
@@ -153,7 +154,8 @@ case class AdminToken(id: Int,
                       name: Option[String],
                       email: String,
                       scopes: Seq[String],
-                      department: Option[String] = None)
+                      department: Option[String] = None,
+                      ratchet: Int)
     extends Token
 
 object AdminToken {
@@ -162,7 +164,8 @@ object AdminToken {
                name = Some(admin.name),
                email = admin.email,
                scopes = Array("admin"),
-               department = admin.department)
+               department = admin.department,
+               ratchet = admin.ratchet)
   }
 }
 
@@ -170,7 +173,8 @@ case class CustomerToken(id: Int,
                          admin: Boolean = false,
                          name: Option[String],
                          email: String,
-                         scopes: Seq[String])
+                         scopes: Seq[String],
+                         ratchet: Int)
     extends Token
 
 object CustomerToken {
@@ -178,5 +182,6 @@ object CustomerToken {
     CustomerToken(id = customer.id,
                   name = customer.name,
                   email = customer.email,
-                  scopes = Array[String]())
+                  scopes = Array[String](),
+                  ratchet = customer.ratchet)
 }
