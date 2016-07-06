@@ -2,17 +2,38 @@
  * @flow
  */
 
+// libs
 import _ from 'lodash';
 import { assoc, merge } from 'sprout-data';
+
+// helpers
 import { copyShadowAttributes } from './form-shadow-object';
 import { generateSkuCode } from './sku';
 
-import type {
-  Product,
-  Attribute,
-  Attributes,
-  Variant,
-} from '../modules/products/details';
+// types
+import type { Sku } from 'modules/skus/details';
+import type { Dictionary } from './types';
+import type { Attribute, Attributes } from './object';
+
+// exported types
+export type Product = {
+  id: ?number,
+  attributes: Attributes,
+  skus: Array<Sku>,
+};
+
+export type Variant = {
+  name: ?string,
+  type: ?string,
+  values: Dictionary<VariantValue>,
+};
+
+export type VariantValue = {
+  id: number,
+  swatch: ?string,
+  image: ?string,
+};
+
 
 export function createEmptyProduct(): Product {
   const product = {
@@ -55,8 +76,10 @@ export function addEmptySku(product: Product): Product {
 /**
  * Takes the FullProduct response from the API and ensures that default attributes
  * have been included.
- * @param {FullProduct} product The full product response from Phoenix.
- * @return {FullProduct} Copy of the input that includes all default attributes.
+ *
+ * @param {Product} product The full product response from Phoenix.
+ *
+ * @return {Product} Copy of the input that includes all default attributes.
  */
 export function configureProduct(product: Product): Product {
   const defaultAttrs = {
@@ -73,7 +96,7 @@ export function configureProduct(product: Product): Product {
     upc: 'string',
   };
 
-  const newProduct: Product = _.reduce(defaultAttrs, (res, val, key) => {
+  return _.reduce(defaultAttrs, (res, val, key) => {
     if (_.get(res, ['attributes', key])) {
       return res;
     }
@@ -87,8 +110,6 @@ export function configureProduct(product: Product): Product {
       ...res.attributes,
     });
   }, product);
-
-  return newProduct;
 }
 
 export function setSkuAttribute(product: Product,
@@ -102,11 +123,13 @@ export function setSkuAttribute(product: Product,
 
   const updateAttribute = sku => {
     const code = _.get(sku, 'attributes.code.v');
+
     return (code == code || sku.feCode == code)
       ? assoc(sku, attrPath, value)
       : sku;
   };
 
   const newSkus = product.skus.map(sku => updateAttribute(sku));
+
   return assoc(product, 'skus', newSkus);
 }
