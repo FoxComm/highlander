@@ -49,7 +49,7 @@ export function fetchUserInfo(): ActionDispatch {
     }
 
     dispatch(requestMyInfoStart());
-    Api.get(`/admin/info`)
+    Api.get(`/store-admins/me`)
       .then(
         info => dispatch(setUser(info)),
         err => dispatch(receiveMyInfoError(err))
