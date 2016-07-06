@@ -28,6 +28,7 @@ case class Customer(id: Int = 0,
                     location: Option[String] = None,
                     modality: Option[String] = None,
                     isGuest: Boolean = false,
+                    ratchet: Int = 0,
                     createdAt: Instant = Instant.now)
     extends FoxModel[Customer]
     with Validation[Customer] {
@@ -70,7 +71,8 @@ object Customer {
             phoneNumber: Option[String] = None,
             modality: Option[String] = None,
             location: Option[String] = None,
-            isDisabled: Boolean = false): Customer = {
+            isDisabled: Boolean = false,
+            ratchet: Int = 0): Customer = {
 
     val optHash = password.map(hashPassword)
     Customer(id = id,
@@ -81,7 +83,8 @@ object Customer {
              phoneNumber = phoneNumber,
              modality = modality,
              location = location,
-             isDisabled = isDisabled)
+             isDisabled = isDisabled,
+             ratchet = ratchet)
   }
 }
 
@@ -99,6 +102,7 @@ class Customers(tag: Tag) extends FoxTable[Customer](tag, "customers") {
   def location          = column[Option[String]]("location")
   def modality          = column[Option[String]]("modality")
   def isGuest           = column[Boolean]("is_guest")
+  def ratchet           = column[Int]("ratchet")
   def createdAt         = column[Instant]("created_at")
 
   def * =
@@ -114,6 +118,7 @@ class Customers(tag: Tag) extends FoxTable[Customer](tag, "customers") {
      location,
      modality,
      isGuest,
+     ratchet,
      createdAt) <> ((Customer.apply _).tupled, Customer.unapply)
 }
 

@@ -6,6 +6,7 @@ create table store_admins (
     phone_number generic_string,
     department generic_string,
     state generic_string,
+    ratchet integer not null,
     created_at generic_timestamp,
     updated_at generic_timestamp,
     deleted_at timestamp without time zone null
