@@ -3,9 +3,7 @@
 - name: Copy Isaac
   copy: src={{isaac_src}} dest=/usr/local/bin/isaac mode="u+x,g+x,o+x"
   sudo: true
-  ignore_errors: yes
 
 - name: Restart Isaac
   service: name=isaac state=restarted enabled=yes
   sudo: true
-  ignore_errors: yes
