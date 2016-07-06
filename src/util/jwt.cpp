@@ -15,9 +15,11 @@ namespace isaac
     namespace util
     {
 
-        struct to_base64 {
+        struct to_base64
+        {
             typedef char result_type;
-            result_type operator()(char c) const{
+            result_type operator()(char c) const
+            {
                 if(c == '-') return '+';
                 else if(c == '_') return '/';
                 return c;
