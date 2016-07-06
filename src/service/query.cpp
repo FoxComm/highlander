@@ -113,7 +113,7 @@ namespace isaac
             util::jwt_parts parts;
             if(!util::get_jwt_parts(
                         parts, 
-                        reinterpret_cast<const unsigned char*>(token.data()), 
+                        token.data(), 
                         token.size())) 
             {
                 invalid_jwt();

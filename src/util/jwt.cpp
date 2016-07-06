@@ -6,15 +6,25 @@
 #include <boost/algorithm/string/split.hpp>
 
 //for base64
+#include <boost/iterator/transform_iterator.hpp>
 #include <boost/archive/iterators/binary_from_base64.hpp>
-#include <boost/archive/iterators/base64_from_binary.hpp>
 #include <boost/archive/iterators/transform_width.hpp>
 
 namespace isaac
 {
     namespace util
     {
-        bool get_jwt_parts(jwt_parts& parts, const unsigned char* data, size_t length)
+
+        struct to_base64 {
+            typedef char result_type;
+            result_type operator()(char c) const{
+                if(c == '-') return '+';
+                else if(c == '_') return '/';
+                return c;
+            }
+        };
+
+        bool get_jwt_parts(jwt_parts& parts, const char* data, size_t length)
         {
             parts_iterator it(data, data + length, 
                     boost::algorithm::first_finder(".", boost::algorithm::is_equal()));
@@ -39,22 +49,16 @@ namespace isaac
 
         std::string base64url_decode(parts_iterator p)
         {
-            //convert from base64url to base64
-            //TODO get rid of this copy
-            std::string s{p->begin(), p->end()};
-            std::transform(std::begin(s), std::end(s), std::begin(s), 
-                    [](auto c)
-                    {
-                    if(c == '-') return '+';
-                    else if(c == '_') return '/';
-                    return c;
-                    });
-
             //decode base64
             using namespace boost::archive::iterators;
-            using it = transform_width<binary_from_base64<std::string::const_iterator>, 8, 6>;
+            using it = 
+                transform_width<
+                    binary_from_base64<
+                        boost::transform_iterator<to_base64, const char*>>, 
+                    8, 6>;
+
             return boost::algorithm::trim_right_copy_if(
-                    std::string(it(std::begin(s)), it(std::end(s))), 
+                    std::string(it(p->begin()), it(p->end())), 
                     [](char c) { return c == '\0'; }
                     );
         }
