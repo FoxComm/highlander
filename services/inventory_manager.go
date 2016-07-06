@@ -50,6 +50,17 @@ func (im *InventoryMgr) CreateStockItem(payload *payloads.StockItem) (*responses
 		return nil, err
 	}
 
+	summary := models.StockItemSummary{
+		StockItemID: si.ID,
+		OnHand:      0,
+		OnHold:      0,
+		Reserved:    0,
+	}
+
+	if err := im.db.Create(&summary).Error; err != nil {
+		return nil, err
+	}
+
 	return responses.NewStockItemFromModel(si), nil
 }
 
@@ -65,7 +76,13 @@ func (im *InventoryMgr) IncrementStockItemUnits(id uint, payload *payloads.Incre
 		}
 	}
 
-	return txn.Commit().Error
+	if err := txn.Commit().Error; err != nil {
+		return nil
+	}
+
+	go im.UpdateStockItem(id, payload.Qty, payload.Status)
+
+	return nil
 }
 
 func (im *InventoryMgr) DecrementStockItemUnits(id uint, payload *payloads.DecrementStockItemUnits) error {
@@ -91,5 +108,36 @@ func (im *InventoryMgr) DecrementStockItemUnits(id uint, payload *payloads.Decre
 		}
 	}
 
+	go im.UpdateStockItem(id, -1*payload.Qty, "onHand")
+
 	return txn.Commit().Error
+}
+
+func (im *InventoryMgr) UpdateStockItem(stockItemID uint, qty int, status string) {
+	txn := im.db.Begin()
+
+	summary := &models.StockItemSummary{}
+	if err := txn.Where("stock_item_id = ?", stockItemID).First(summary).Error; err != nil {
+		txn.Rollback()
+		return
+	}
+
+	switch status {
+	case "onHand":
+		summary.OnHand += qty
+		break
+	case "onHold":
+		summary.OnHold += qty
+		break
+	case "reserved":
+		summary.Reserved += qty
+		break
+	}
+
+	if err := txn.Save(summary).Error; err != nil {
+		txn.Rollback()
+		return
+	}
+
+	txn.Commit()
 }

@@ -69,26 +69,24 @@ func (suite *InventoryManagerTestSuite) TestEmptySKU() {
 }
 
 func (suite *InventoryManagerTestSuite) TestCreateStockItemsUnits() {
-	payload := &payloads.StockItemUnits{
-		StockItemID: suite.itemResp.ID,
-		Qty:         1,
-		UnitCost:    500,
-		Status:      "available",
+	payload := &payloads.IncrementStockItemUnits{
+		Qty:      1,
+		UnitCost: 500,
+		Status:   "onHand",
 	}
 
-	err := suite.mgr.IncrementStockItemUnits(payload)
+	err := suite.mgr.IncrementStockItemUnits(suite.itemResp.ID, payload)
 	assert.Nil(suite.T(), err)
 }
 
 func (suite *InventoryManagerTestSuite) TestCreateMultipleStockItemUnits() {
-	payload := &payloads.StockItemUnits{
-		StockItemID: suite.itemResp.ID,
-		Qty:         10,
-		UnitCost:    500,
-		Status:      "available",
+	payload := &payloads.IncrementStockItemUnits{
+		Qty:      10,
+		UnitCost: 500,
+		Status:   "onHand",
 	}
 
-	err := suite.mgr.IncrementStockItemUnits(payload)
+	err := suite.mgr.IncrementStockItemUnits(suite.itemResp.ID, payload)
 	assert.Nil(suite.T(), err)
 
 	var units []models.StockItemUnit
