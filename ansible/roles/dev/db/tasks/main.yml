@@ -118,7 +118,7 @@
   sudo: true
 
 - name: Pause Till Bottledwater Start
-  pause: seconds=60
+  pause: seconds=30
 
 - name: Refresh Locations
   command: "{{usr_local}}/bin/refresh_locations.sh > /dev/null"
