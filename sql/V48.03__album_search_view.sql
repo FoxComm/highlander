@@ -79,6 +79,10 @@ create or replace function update_albums_view_from_object_attrs_fn() returns tri
         from albums
         inner join object_forms as album_form on (albums.form_id = album_form.id)
         where album_form.id = NEW.id;
+      when 'albums' then
+        select array_agg(albums.id) into strict album_ids
+          from albums
+          where albums.id = NEW.id;
    end case;
  
    update album_search_view set
@@ -110,3 +114,9 @@ create trigger update_albums_view_from_object_forms
   after update or insert on object_forms
   for each row
   execute procedure update_albums_view_from_object_attrs_fn();
+
+create trigger update_albums_view_from_albums
+  after update on albums
+  for each row
+  execute procedure update_albums_view_from_object_attrs_fn();
+  
