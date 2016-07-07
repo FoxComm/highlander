@@ -34,5 +34,5 @@ object ObjectPayloads {
   }
 
   def optionalAttributes(optional: Option[FormShadowFieldBuilder]*) =
-    AttributesBuilder(optional.filter(_.isDefined).map(_.get): _*)
+    AttributesBuilder(optional.collect { case Some(field) ⇒ field }: _*)
 }

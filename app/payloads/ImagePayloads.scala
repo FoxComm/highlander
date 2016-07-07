@@ -59,14 +59,12 @@ object ImagePayloads {
           name.map(StringField("name", _)),
           position.map(IntField("position", _)))
 
-      // TODO: validate payload to prohibit both `None`s
       (ObjectForm(kind = Album.kind, attributes = jsonBuilder.objectForm),
        ObjectShadow(attributes = jsonBuilder.objectShadow))
     }
 
-    override def validate: ValidatedNel[Failure, UpdateAlbumPayload] = {
+    override def validate: ValidatedNel[Failure, UpdateAlbumPayload] =
       validateIdsUnique(images).map(_ ⇒ this)
-    }
   }
 
   def validateIdsUnique(images: Images): ValidatedNel[Failure, Images] = images match {

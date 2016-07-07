@@ -152,15 +152,15 @@ object ObjectUtils {
     for {
       updateResult ← * <~ updateFormAndShadow(fullObject, formAttributes, shadowAttributes, force)
       maybeCommit  ← * <~ ObjectUtils.commit(updateResult)
-      r ← * <~ (maybeCommit match {
-               case Some(commit) ⇒
-                 val newObject =
-                   fullObject.copy[T](form = updateResult.form, shadow = updateResult.shadow)
-                 updateHead(newObject, commit.id)
-               case _ ⇒
-                 DbResultT.good(fullObject)
-             })
-    } yield r
+      committedObject ← * <~ (maybeCommit match {
+                             case Some(commit) ⇒
+                               val newObject = fullObject
+                                 .copy[T](form = updateResult.form, shadow = updateResult.shadow)
+                               updateHead(newObject, commit.id)
+                             case _ ⇒
+                               DbResultT.good(fullObject)
+                           })
+    } yield committedObject
 
   def updateFormAndShadow(
       oldFormAndShadow: FormAndShadow,

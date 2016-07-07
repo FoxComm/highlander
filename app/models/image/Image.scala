@@ -2,17 +2,12 @@ package models.image
 
 import java.time.Instant
 
-import cats.data.Xor
-import cats.data.Xor.{left, right}
-import failures.{Failures, GeneralFailure}
 import models.objects._
-import payloads.ImagePayloads.ImagePayload
 import shapeless._
 import slick.driver.PostgresDriver.api._
 import slick.lifted.Tag
-import utils.db
 import utils.db._
-import utils.{Validation, IlluminateAlgorithm, JsonFormatters}
+import utils.{Validation, JsonFormatters}
 
 object Image {
   val kind = "image"
