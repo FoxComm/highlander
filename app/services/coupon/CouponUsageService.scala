@@ -28,7 +28,7 @@ object CouponUsageService {
                              code: String)(implicit ec: EC, db: DB): DbResultT[Unit] =
     for {
       count ← * <~ couponCodeUsageCount(couponFormId, couponCodeId)
-      _ ← * <~ (if (count < usesAvailable) DbResultT.failure(CouponCodeCannotBeUsedAnymore(code))
+      _ ← * <~ (if (usesAvailable <= count) DbResultT.failure(CouponCodeCannotBeUsedAnymore(code))
                 else DbResultT.unit)
     } yield {}
 
