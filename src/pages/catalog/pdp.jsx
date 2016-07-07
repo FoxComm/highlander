@@ -167,7 +167,7 @@ class Pdp extends Component {
     }
 
     const quantity = this.state.quantity;
-    const skuId = this.firstSku.code;
+    const skuId = _.get(this.firstSku, 'attributes.code.v', '');
     actions.addLineItem(skuId, quantity)
       .then(() => {
         actions.toggleCart();
