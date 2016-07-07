@@ -58,6 +58,102 @@ type State = {
 }
 
 const ROWS_COUNT_TO_SHOW_LOADING_OVERLAY = 4;
+const SELECTOR_CELLS_HEAD = '.fc-table-tr:first-child .fc-table-th';
+const SELECTOR_CELLS_BODY = '.fc-table-tr:first-child .fc-table-td';
+
+function getElements(el: HTMLElement, selector: string) {
+  return [].slice.call(el.querySelectorAll(selector));
+}
+
+/**
+ * Reset columns widths to initial value for further recalculation of summary width
+ *
+ * @param {Array<HTMLElement>} headerCells Header row
+ * @param {Array<HTMLElement>} bodyCells First(any) row from body
+ */
+function resetColumnsWidths(headerCells: Array<HTMLElement>, bodyCells: Array<HTMLElement>) {
+  _.range(0, headerCells.length).forEach((index: number) => {
+    headerCells[index].style.width = headerCells[index].style.minWidth = 'initial';
+
+    if (!_.isEmpty(bodyCells)) {
+      bodyCells[index].style.width = bodyCells[index].style.minWidth = 'initial';
+    }
+  });
+}
+
+/**
+ * Set columns widths
+ *
+ * @param {Array<HTMLElement>} headerCells Header row
+ * @param {Array<HTMLElement>} bodyCells First(any) row from body
+ * @param {Array<Number>} columnWidths Array of widths of columns
+ * @param {Boolean} stretchRequired If table content needs to be stretch to fit container
+ */
+function setColumnsWidths(headerCells: Array<HTMLElement>,
+                          bodyCells: Array<HTMLElement>,
+                          columnWidths: Array<number>,
+                          stretchRequired: boolean) {
+  _.range(1, headerCells.length).forEach((index: number) => {
+    const isLast = index === headerCells.length - 1;
+    const headerCellWidth = !isLast ? `${columnWidths[index]}px` : '100%';
+
+    headerCells[index].style.width = headerCells[index].style.minWidth = headerCellWidth;
+
+    if (!_.isEmpty(bodyCells)) {
+      const bodyCellWidth = !stretchRequired || !isLast ? `${columnWidths[index]}px` : '100%';
+
+      bodyCells[index].style.width = bodyCells[index].style.minWidth = bodyCellWidth;
+    }
+  });
+}
+
+/**
+ * Calculate adjusted columns width for table header and body.
+ * We need max width of header and body cells from one column
+ * (i.e. max(headerRow[colIndex].width, bodyRow[colIndex].width))
+ *
+ * @param {Array<HTMLElement>} headerCells Header row
+ * @param {Array<HTMLElement>} bodyCells First(any) row from body
+ *
+ * @return {Array<Number>} Array of adjusted columns widths
+ */
+function getAdjustedColumnsWidths(headerCells: Array<HTMLElement>, bodyCells: Array<HTMLElement>) {
+  /* add 1px for each column to prevent 1px difference in case of wrong elements dimensions recalculation */
+  const headerWidths = headerCells.map((cell: HTMLElement) => cell.clientWidth + 1);
+  const bodyWidths = bodyCells.map((cell: HTMLElement) => cell.clientWidth + 1);
+
+  return _.range(0, headerWidths.length).map((index: number) => {
+    return Math.max(headerWidths[index], _.get(bodyWidths, index, 0));
+  });
+}
+
+/**
+ * Look if we need to stretch table to fit host container width
+ *
+ * @param {Array<Number>} columnWidths
+ * @param {Number} hostWidth
+ *
+ * @return Number
+ */
+function isStretchRequired(columnWidths: Array<number>, hostWidth: number) {
+  return hostWidth > columnWidths.reduce((a, b) => a + b, 0);
+}
+
+/**
+ * If the sum of all adjusted columns widths less than host element width we need to stretch table columns
+ *
+ * @param {Array<HTMLElement>} headerCells Header row
+ * @param {Array<Number>} columnWidths
+ * @param {Number} hostWidth
+ *
+ * @return Number
+ */
+function getStretchedColumnsWidths(headerCells: Array<HTMLElement>, columnWidths: Array<number>, hostWidth: number) {
+  const widthLack = hostWidth - columnWidths.reduce((a, b) => a + b, 0);
+  const extra = Math.floor(widthLack / (headerCells.length - 2));
+
+  return columnWidths.map((width: number, index: number) => index < columnWidths.length - 1 ? width + extra : width);
+}
 
 export default class Table extends Component {
   props: Props;
@@ -89,54 +185,44 @@ export default class Table extends Component {
   _head: HTMLElement;
   _body: HTMLElement;
 
-  componentDidUpdate(): void {
-    const tables = this._el.getElementsByClassName('fc-table');
+  componentDidMount(): void {
+    window.addEventListener('resize', this.resize);
+  }
 
-    [].forEach.call(tables, (table: HTMLElement) => {
-      table.style.tableLayout = 'auto';
-    });
+  componentWillUnmount(): void {
+    window.removeEventListener('resize', this.resize);
+  }
 
-    const rows = this._body.getElementsByClassName('fc-table-tr');
-
-    if (rows.length === 0) {
-      return;
+  componentDidUpdate(prevProps: Props): void {
+    if (prevProps.data.rows !== this.props.data.rows) {
+      this.resize();
     }
+  }
 
-    const headerCells = this._head.getElementsByClassName('fc-table-th');
-    const cells = this._body.getElementsByClassName('fc-table-td');
+  @autobind
+  resize(): void {
+    const headerCells = getElements(this._head, SELECTOR_CELLS_HEAD);
+    const bodyCells = getElements(this._body, SELECTOR_CELLS_BODY);
 
-    const cellsInARow = cells.length / rows.length;
+    resetColumnsWidths(headerCells, bodyCells);
 
-    for (let cellIndex = 0; cellIndex < cellsInARow; cellIndex++) {
+    const hostWidth = this._body.clientWidth;
+    const widths = getAdjustedColumnsWidths(headerCells, bodyCells, hostWidth);
+    const stretchRequired = isStretchRequired(widths, hostWidth);
+    const adjustedWidths = !stretchRequired ? widths : getStretchedColumnsWidths(headerCells, widths, hostWidth);
 
-      const headerCellWidth = headerCells[cellIndex].getBoundingClientRect().width;
-      const columnMaxWidth = _.range(0, rows.length)
-        .map((rowIndex: number) => cells[rowIndex * cellsInARow + cellIndex].getBoundingClientRect().width)
-        .reduce((prevRow: number, currRow: number) => Math.max(prevRow, currRow), 0);
+    setColumnsWidths(headerCells, bodyCells, adjustedWidths, stretchRequired);
 
-      const max = Math.max(columnMaxWidth, headerCellWidth);
-
-      for (let i = cellIndex; i < cells.length; i += cellsInARow) {
-        cells[i].style.width = `${max}px`;
-        cells[i].style.minWidth = `${max}px`;
-      }
-
-      headerCells[cellIndex].style.width = `${max}px`;
-      headerCells[cellIndex].style.minWidth = `${max}px`;
-    }
-
-    [].forEach.call(tables, (table: HTMLElement) => {
-      table.style.tableLayout = 'fixed';
-    });
-
+    this._body.scrollLeft = this._head.scrollLeft = 0;
   }
 
   get rows(): Rows {
     return this.props.data.rows;
   }
 
+
   @autobind
-  onScroll(e: MouseEvent): void {
+  onScroll(e: any /* e.target.scrollLeft throws an type error in flow with (e: Event) declaration :( */): void {
     e.preventDefault();
 
     const el = e.target == this._head ? this._body : this._head;
@@ -220,17 +306,17 @@ export default class Table extends Component {
   }
 
   render() {
-    const {data, setState, className, ...rest} = this.props;
+    const { data, setState, className, ...rest } = this.props;
 
     return (
       <div className="fc-table-wrap" ref={(el) => this._el = el}>
-        <div className="fill-width inner inner-head" ref={(r) => this._head = r} onScroll={this.onScroll}>
+        <div className="inner inner-head" ref={(r) => this._head = r} onScroll={this.onScroll}>
           <div className={classNames('fc-table', className)}>
             <TableHead {...rest} sortBy={data.sortBy} setState={setState} />
           </div>
         </div>
 
-        <div className="fill-width inner" ref={(r) => this._body = r} onScroll={this.onScroll}>
+        <div className="inner" ref={(r) => this._body = r} onScroll={this.onScroll}>
           <div className={classNames('fc-table', className)}>
             {this.body}
           </div>

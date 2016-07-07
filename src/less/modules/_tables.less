@@ -26,39 +26,52 @@
 .inner {
   overflow-x: auto;
   overflow-y: hidden;
-  background: linear-gradient(90deg, #fff 100%, rgba(255,255,255,0)) 0 0,linear-gradient(270deg, #fff 100%, rgba(255,255,255,0)) 100% 0,linear-gradient(90deg, #e3e3e3 80%, rgba(255,255,255,0)) 0% 0,linear-gradient(270deg, #e3e3e3 0, rgba(255,255,255,0)) 100% 0;
+  background: linear-gradient(90deg, #fff 100%, rgba(255, 255, 255, 0)) 0 0, linear-gradient(270deg, #fff 100%, rgba(255, 255, 255, 0)) 100% 0, linear-gradient(90deg, #e3e3e3 80%, rgba(255, 255, 255, 0)) 0% 0, linear-gradient(270deg, #e3e3e3 0, rgba(255, 255, 255, 0)) 100% 0;
 
   background-repeat: no-repeat;
   background-color: #fff;
-  background-size: 93px 100%,13px 100%,93px 100%,13px 100%;
-  background-attachment: local,local,scroll,scroll;
+  background-size: 93px 100%, 13px 100%, 93px 100%, 13px 100%;
+  background-attachment: local, local, scroll, scroll;
 
   &.inner-head {
-    background: linear-gradient(90deg, #f7f7f7 100%, rgba(255,255,255,0)) 0 0,linear-gradient(270deg, #f7f7f7 100%, rgba(255,255,255,0)) 100% 0,linear-gradient(90deg, #e3e3e3 80%, rgba(255,255,255,0)) 0 0,linear-gradient(270deg, #e3e3e3 0, rgba(255,255,255,0)) 100% 0;
+    background: linear-gradient(90deg, #f7f7f7 100%, rgba(255, 255, 255, 0)) 0 0, linear-gradient(270deg, #f7f7f7 100%, rgba(255, 255, 255, 0)) 100% 0, linear-gradient(90deg, #e3e3e3 80%, rgba(255, 255, 255, 0)) 0 0, linear-gradient(270deg, #e3e3e3 0, rgba(255, 255, 255, 0)) 100% 0;
     background-color: #f7f7f7;;
-    background-size: 93px 100%,13px 100%,93px 100%,13px 100%;
-    background-attachment: local,local,scroll,scroll;
+    background-size: 93px 100%, 13px 100%, 93px 100%, 13px 100%;
+    background-attachment: local, local, scroll, scroll;
     background-repeat: no-repeat;
   }
 }
 
 .fc-table-wrap {
+  position: relative;
   border: 1px solid @color-border-td;
+
+  .fc-table-message {
+    padding: 10px 15px;
+    z-index: 2;
+
+    &__inline {
+      position: absolute;
+      width: 100%;
+      top: 63px;
+      bottom: 0;
+      padding-top: 40px;
+      background: rgba(255, 255, 255, .72);
+    }
+  }
 }
 
 .fc-table {
   display: table;
-  table-layout: auto;
-  width: 100%;
+  table-layout: fixed;
   border-collapse: separate;
   margin-left: 80px;
 
-  .fc-table-head .fc-table-tr .fc-table-th.row-head-left,
-  .fc-table-body .fc-table-tr .fc-table-td.row-head-left {
+  .fc-table-head .row-head-left,
+  .fc-table-body .row-head-left {
     position: absolute;
     background: #fff;
     overflow: visible;
-    z-index: 1;
 
     transform: translateZ(0);
 
@@ -68,84 +81,97 @@
     border-right: 1px solid @color-border-td;
   }
 
-  .fc-table-head .fc-table-tr .fc-table-th.row-head-left {
-    z-index: 2;
+  .fc-table-head .row-head-left {
+    z-index: 1;
     background-color: #f7f7f7;
+  }
+
+  .fc-table-body .row-head-left {
+    .fc-checkbox {
+      position: absolute;
+      top: 50%;
+      margin-top: -12px;
+    }
   }
 
   thead, .fc-table-head {
     display: table-header-group;
+  }
 
-    th, .fc-table-th {
-      display: table-cell;
-      position: relative;
-      vertical-align: middle;
-      color: @color-th-fg;
-      padding: 10px 15px;
-      font-size: 13px;
-      line-height: 18px;
-      border-right: 1px solid @color-border-td;
-      border-bottom: 1px solid @color-border-td;
-      height: 62px;
-      user-select: none;
-      background-clip: padding-box;
+  th, .fc-table-th {
+    display: table-cell;
+    position: relative;
+    vertical-align: middle;
+    color: @color-th-fg;
+    padding: 10px 15px;
+    font-size: 13px;
+    line-height: 18px;
+    border-right: 1px solid @color-border-td;
+    border-bottom: 1px solid @color-border-td;
+    height: 62px;
+    user-select: none;
+    //background-clip: padding-box;
 
-      &:last-child {
-        border-right: none;
-      }
+    &:nth-last-child(2) {
+      width: 100%;
+    }
 
-      &.sorting {
-        padding-right: 30px;
-        cursor: pointer;
+    &:last-child {
+      border-right: none;
+    }
 
-        &:hover {
-          background-color: @color-th-bg-hover;
+    &.sorting {
+      padding-right: 30px;
+      cursor: pointer;
 
-          .icon-up {
-            display: block;
-          }
-        }
-      }
+      &:hover {
+        background-color: @color-th-bg-hover;
 
-      &.sorting-asc {
         .icon-up {
           display: block;
         }
-        &:hover {
-          .icon-up {
-            display: none;
-          }
-          .icon-down {
-            display: block;
-          }
-        }
       }
+    }
 
-      &.sorting-desc {
+    &.sorting-asc {
+      .icon-up {
+        display: block;
+      }
+      &:hover {
+        .icon-up {
+          display: none;
+        }
         .icon-down {
           display: block;
         }
-        &:hover {
-          .icon-down {
-            display: none;
-          }
-          .icon-up {
-            display: block;
-          }
+      }
+    }
+
+    &.sorting-desc {
+      .icon-down {
+        display: block;
+      }
+      &:hover {
+        .icon-down {
+          display: none;
+        }
+        .icon-up {
+          display: block;
         }
       }
+    }
 
-      &.__select-column {
-        width: 80px;
-        padding: 19px 15px;
-        text-align: center;
-      }
+    &.__select-column {
+      width: 80px;
+      padding: 19px 15px;
+      text-align: center;
+    }
 
-      &.__toggle-columns {
-        padding: 0;
-        .font-spec(18px, 400, 18px);
-        width: 70px;
-      }
+    &.__toggle-columns {
+      position: static;
+      padding: 0;
+      .font-spec(18px, 400, 18px);
+      width: 70px;
     }
   }
 
@@ -155,12 +181,6 @@
 
   tr, .fc-table-tr {
     display: table-row;
-    width: 100%;
-
-    td, .fc-table-td {
-      border-bottom: 1px solid @color-border-td;
-      transition: background-color 500ms;
-    }
 
     &:last-child {
       td, .fc-table-td {
@@ -181,6 +201,13 @@
     color: @color-decor1;
     vertical-align: middle;
     background-clip: padding-box;
+    white-space: nowrap;
+
+    border-bottom: 1px solid @color-border-td;
+    transition: background-color 500ms;
+
+    overflow-x: hidden;
+    overflow-y: auto;
 
     &._no-results {
       font-weight: @semibold;
@@ -189,24 +216,6 @@
       color: @color-decor8;
       padding-top: 40px;
       padding-bottom: 40px;
-    }
-  }
-}
-
-.fc-table-wrap {
-  position: relative;
-
-  .fc-table-message {
-    padding: 10px 15px;
-    z-index: 2;
-
-    &__inline {
-      position: absolute;
-      width: 100%;
-      top: 63px;
-      bottom: 0;
-      padding-top: 40px;
-      background: rgba(255, 255, 255, .72);
     }
   }
 }
