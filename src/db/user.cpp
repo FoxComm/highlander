@@ -17,13 +17,13 @@ namespace isaac
             return q.str();
         }
 
-
         boost::optional<int> get_db_ratchet(
                 pqxx::connection& c, 
                 const char* table, 
                 const std::size_t id)
         {
             pqxx::read_transaction w{c};
+
             auto r = w.exec(query_str(table, id));
             if(r.empty()) return boost::none;
 

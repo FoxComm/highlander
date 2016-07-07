@@ -82,6 +82,7 @@ namespace isaac
         {
             const auto curr_time = std::time(nullptr);
             const auto exp_time = payload["exp"].asInt();
+            //TODO Probably want some give here for clock skew
             return curr_time >= exp_time;
         }
     }

@@ -5,6 +5,13 @@ namespace isaac
 {
     namespace net
     {
+        namespace 
+        {
+            //this is arbitrary limit
+            //to prevent abuse.
+            const std::size_t MAX_JWT_SIZE = 1024;
+        }
+
         void query_request_handler::onRequest(std::unique_ptr<proxygen::HTTPMessage> msg) noexcept
         {
             _msg = std::move(msg);
@@ -21,10 +28,11 @@ namespace isaac
         {
             if(!_msg) return;
 
+            //TODO: Add invalidation endpoints
             if(_msg->getPath() == "/customer") 
-                validate(*_msg, false);
+                validate_token(*_msg, false);
             else if(_msg->getPath() == "/admin") 
-                validate(*_msg, true);
+                validate_token(*_msg, true);
             else if(_msg->getPath() == "/ping") 
                 ping();
             else
@@ -99,22 +107,56 @@ namespace isaac
                 _c.user_cache->valid_customer(id, ratchet, _db);
         }
 
-
-        void query_request_handler::validate(proxygen::HTTPMessage& msg, bool must_be_admin) 
+        struct token_data
         {
-            const auto& headers = msg.getHeaders();
-            const auto& token = headers.rawGet(_c.token_header);
-            if(token.empty()) 
+            const char* data = nullptr;
+            std::size_t size = 0;
+        };
+
+        token_data get_token(proxygen::HTTPMessage& msg, const std::string& key)
+        {
+            REQUIRE_GREATER(key.size(), 0);
+
+            token_data r;
+
+            //try to get token from the cookie
+            auto cookie = msg.getCookie(key);
+            if(!cookie.empty())
+            {
+                r.data = cookie.data();
+                r.size = cookie.size();
+            }
+            //otherwise look at the headers
+            else 
+            {
+                const auto& headers = msg.getHeaders();
+                const auto& header = headers.getSingleOrEmpty(key);
+                r.data = header.data();
+                r.size = header.size();
+            }
+
+            ENSURE(r.size == 0 || r.data);
+            return r;
+        }
+
+        void query_request_handler::validate_token(proxygen::HTTPMessage& msg, bool must_be_admin) 
+        {
+            auto token = get_token(msg, _c.token_header);
+
+            if(token.size == 0 || token.size >= MAX_JWT_SIZE) 
             {
                 token_missing();
                 return;
             }
 
+            CHECK(token.data);
+            CHECK_RANGE(token.size, 0, MAX_JWT_SIZE);
+
             util::jwt_parts parts;
             if(!util::get_jwt_parts(
                         parts, 
-                        token.data(), 
-                        token.size())) 
+                        token.data, 
+                        token.size)) 
             {
                 invalid_jwt();
                 return;
@@ -158,7 +200,7 @@ namespace isaac
         void query_request_handler::token_missing()
         {
             std::stringstream e;
-            e << "The JWT header `" << _c.token_header << "' not found"; 
+            e << "The JWT header/cookie `" << _c.token_header << "' not found"; 
 
             proxygen::ResponseBuilder{downstream_}
                 .status(401, e.str())

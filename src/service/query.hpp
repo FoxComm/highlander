@@ -19,6 +19,7 @@ namespace isaac
             std::string db_connection;
             std::string token_header;
             db::user_cache* user_cache;
+            //TODO : remove me
             util::public_key* pub_key;
             util::sig_verifier_ptr verifier;
         };
@@ -37,7 +38,7 @@ namespace isaac
 
             private:
                 //services
-                void validate(proxygen::HTTPMessage& msg, bool must_be_admin);
+                void validate_token(proxygen::HTTPMessage& msg, bool must_be_admin);
                 void ping();
                 void is404();
 
@@ -45,7 +46,6 @@ namespace isaac
                 bool check_signature(const util::jwt_parts& parts);
                 bool verify_header(const folly::dynamic&);
                 bool verify_user(const folly::dynamic&, bool must_be_admin);
-
 
                 //errors
                 void token_missing();
@@ -87,6 +87,7 @@ namespace isaac
                 } 
 
                 void onServerStop() noexcept {} 
+
             private:
                 context& _c;
                 db::connection_ptr _db;

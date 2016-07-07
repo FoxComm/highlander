@@ -11,6 +11,7 @@ namespace isaac
     {
         using connection_ptr = std::unique_ptr<pqxx::connection>;
         
+        //TODO: rename to user_verifier
         class user
         {
             public:
