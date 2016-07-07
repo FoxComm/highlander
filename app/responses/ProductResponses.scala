@@ -24,11 +24,12 @@ object ProductResponses {
 
   object ProductFormResponse {
 
-    case class Root(id: Int, attributes: Json, createdAt: Instant) extends ResponseItem
+    case class Root(id: Int, attributes: Json, createdAt: Instant, archivedAt: Option[Instant])
+        extends ResponseItem
 
     //Product here is a placeholder for future. Using only form
     def build(p: Product, f: ObjectForm): Root =
-      Root(id = f.id, attributes = f.attributes, createdAt = p.createdAt)
+      Root(id = f.id, attributes = f.attributes, createdAt = p.createdAt, p.archivedAt)
   }
 
   object ProductShadowResponse {
@@ -89,7 +90,7 @@ object ProductResponses {
         (sku.model, sku.shadow)
       }))
   }
-
+  
   // New Product Response
   object ProductResponse {
 
@@ -98,8 +99,8 @@ object ProductResponses {
                     attributes: Json,
                     albums: Seq[AlbumResponse.Root],
                     skus: Seq[SkuResponse.Root],
-                    variants: Seq[IlluminatedVariantResponse.Root])
-        extends ResponseItem
+                    variants: Seq[IlluminatedVariantResponse.Root],
+    archivedAt: Option[Instant]) extends ResponseItem
 
     def build(product: IlluminatedProduct,
               albums: Seq[AlbumResponse.Root],
@@ -110,6 +111,7 @@ object ProductResponses {
            context = ObjectContextResponse.build(product.context),
            albums = albums,
            skus = skus,
-           variants = variants)
+           variants = variants,
+      archivedAt = product.archivedAt)
   }
 }
