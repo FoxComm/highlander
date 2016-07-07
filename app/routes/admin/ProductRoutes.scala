@@ -37,6 +37,11 @@ object ProductRoutes {
                 mutateOrFailures {
                   ProductManager.updateProduct(productId, payload)
                 }
+              } ~
+              (post & path("archive")) {
+                mutateOrFailures {
+                  ProductManager.archiveByContextAndId(productId)
+                }
               }
             } ~
             pathPrefix(IntNumber / "albums") { productId ⇒

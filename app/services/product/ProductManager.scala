@@ -2,7 +2,7 @@ package services.product
 
 import cats.data._
 import cats.implicits._
-import failures.{GeneralFailure, Failures, Failure}
+import failures.{Failure, Failures, GeneralFailure}
 import failures.ProductFailures._
 import models.inventory._
 import models.objects._
@@ -136,6 +136,28 @@ object ProductManager {
           if (hasVariants) variantSkus else updatedSkus,
           variantResponses)
   }
+
+  def archiveByContextAndId(productId: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[ProductResponse.Root] =
+    for {
+      product  ← * <~ mustFindProductByContextAndId404(oc.id, productId)
+      form     ← * <~ ObjectForms.mustFindById404(product.formId)
+      shadow   ← * <~ ObjectShadows.mustFindById404(product.shadowId)
+      albums   ← * <~ ImageManager.getAlbumsForProduct(product.formId)
+      skuLinks ← * <~ ProductSkuLinks.filter(_.leftId === product.id).result
+      skus     ← * <~ skuLinks.map(link ⇒ SkuManager.mustFindIlluminatedSkuById(link.rightId))
+      variantLinks ← * <~ ObjectLinks
+        .findByLeftAndType(product.shadowId, ObjectLink.ProductVariant)
+        .result
+      variants ← * <~ variantLinks.map(link ⇒ VariantManager.mustFindFullVariantWithValuesByShadowId(link.rightId))
+      variantAndSkus ← * <~ getVariantsWithRelatedSkus(variants)
+      (variantSkus, variantResponses) = variantAndSkus
+    } yield
+      ProductResponse.build(
+        product = IlluminatedProduct.illuminate(oc, product, form, shadow),
+        albums = albums,
+        if (variantLinks.nonEmpty) variantSkus else skus,
+        variantResponses
+      )
 
   private def getVariantsWithRelatedSkus(variants: Seq[FullVariant])(
       implicit ec: EC,
