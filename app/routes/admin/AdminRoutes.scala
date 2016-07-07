@@ -222,6 +222,30 @@ object AdminRoutes {
               }
             }
           }
+        } ~
+        pathPrefix("store-admins" / IntNumber) { adminId ⇒
+          (get & pathEnd) {
+            getOrFailures {
+              StoreAdminNoteManager.list(adminId)
+            }
+          } ~
+          (post & pathEnd & entity(as[CreateNote])) { payload ⇒
+            mutateOrFailures {
+              StoreAdminNoteManager.create(adminId, admin, payload)
+            }
+          } ~
+          path(IntNumber) { noteId ⇒
+            (patch & pathEnd & entity(as[UpdateNote])) { payload ⇒
+              mutateOrFailures {
+                StoreAdminNoteManager.update(adminId, noteId, admin, payload)
+              }
+            } ~
+            (delete & pathEnd) {
+              deleteOrFailures {
+                StoreAdminNoteManager.delete(adminId, noteId, admin)
+              }
+            }
+          }
         }
       } ~
       pathPrefix("save-for-later") {

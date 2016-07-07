@@ -121,3 +121,34 @@
 ### Delete [DELETE]
 
 + Response 204 (application/json)
+
+## Store Admin Note [/v1/notes/store-admin/{id}/{noteId}]
+
++ Parameters
+    + id: `666` (required, number) - Store Admin ID
+    + noteId: 1 (required, number) - Note ID
+
+### List [GET /v1/notes/store-admin/{id}]
+
++ Parameters
+    + id: `666` (required, number) - Store Admin ID
++ Response 200 (application/json)
+    + Attributes (AdminNotes)
+
+### Create [POST /v1/notes/store-admin/{id}]
+
++ Request (application/json)
+    + Attributes (AdminNote)
++ Response 200 (application/json)
+    + Attributes (AdminNote)
+
+### Edit [PATCH]
+
++ Request (application/json)
+    + Attributes (AdminNote)
++ Response 200 (application/json)
+    + Attributes (AdminNote)
+
+### Delete [DELETE]
+
++ Response 204 (application/json)

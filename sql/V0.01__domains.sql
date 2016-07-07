@@ -50,7 +50,7 @@ create domain assignment_ref_type text check (value in ('order', 'giftCard', 'cu
 -- Notes
 create domain note_body text check (length(value) > 0 and length(value) <= 1000);
 create domain note_reference_type text check (value in ('order', 'giftCard', 'customer', 'return', 'product', 'sku',
-                                                        'promotion', 'coupon'));
+                                                        'promotion', 'coupon', 'storeAdmin'));
 
 -- Shared Searches
 create domain shared_search_scope text check (value in ('customersScope', 'ordersScope', 'storeAdminsScope',

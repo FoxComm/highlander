@@ -36,14 +36,15 @@ case class Note(id: Int = 0,
 
 object Note {
   sealed trait ReferenceType
-  case object Order     extends ReferenceType
-  case object GiftCard  extends ReferenceType
-  case object Customer  extends ReferenceType
-  case object Return    extends ReferenceType
-  case object Sku       extends ReferenceType
-  case object Product   extends ReferenceType
-  case object Promotion extends ReferenceType
-  case object Coupon    extends ReferenceType
+  case object Order      extends ReferenceType
+  case object GiftCard   extends ReferenceType
+  case object Customer   extends ReferenceType
+  case object Return     extends ReferenceType
+  case object Sku        extends ReferenceType
+  case object Product    extends ReferenceType
+  case object Promotion  extends ReferenceType
+  case object Coupon     extends ReferenceType
+  case object StoreAdmin extends ReferenceType
 
   object ReferenceType extends ADT[ReferenceType] {
     def types = sealerate.values[ReferenceType]
