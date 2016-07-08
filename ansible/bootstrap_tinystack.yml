@@ -2,6 +2,7 @@
 
 - name: Provision Backend
   hosts: '{{hostname}}'
+  tags: backend
   vars:
     user: '{{ansible_ssh_user}}'
   vars_prompt:
@@ -24,6 +25,7 @@
 
 - name: Provision Frontend
   hosts: '{{hostname}}'
+  tags: frontend
   vars:
     user: '{{ansible_ssh_user}}'
   vars_prompt:
@@ -33,7 +35,6 @@
       private: no
 
   roles:
-    - { role: base/ssh_keys }
     - { role: dev/ashes }
     - { role: dev/firebird }
     - { role: dev/firebrand }

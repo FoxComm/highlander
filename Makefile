@@ -26,6 +26,12 @@ bootstrap-db-backup:
 bootstrap-tinystack:
 	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml
 
+bootstrap-tinystack-backend:
+	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml --skip-tags=frontend
+
+bootstrap-tinystack-frontend:
+	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml --skip-tags=backend
+
 bootstrap-prod-small:
 	ansible-playbook -v -i bin/envs/prod_small_vpn ansible/bootstrap_prod_small.yml
 
