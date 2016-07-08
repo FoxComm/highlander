@@ -44,13 +44,10 @@ Phoenix can be run in development by running either running the application nati
 
 #### Dependencies on OSX
 
-- [JDK 1.8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
-
-    http://computechtips.com/781/install-oracle-jdk-8-mac-os-x-10-10-yosemite
-
-- [SBT](http://www.scala-sbt.org/), [Scala](http://www.scala-lang.org/), [Flyway](http://flywaydb.org/getstarted/), PostgreSQL
+- [JDK 1.8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html), [SBT](http://www.scala-sbt.org/), [Scala](http://www.scala-lang.org/), [Flyway](http://flywaydb.org/getstarted/), PostgreSQL
 
     ```bash
+    brew cask install java
     brew install sbt scala flyway postgresql
     ```
 
