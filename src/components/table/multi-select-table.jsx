@@ -14,6 +14,7 @@ import ColumnSelector from './column-selector';
 export default class MultiSelectTable extends React.Component {
   static propTypes = {
     columns: PropTypes.array.isRequired,
+    dataTable: PropTypes.bool,
     data: PropTypes.shape({
       rows: PropTypes.array,
       total: PropTypes.number,
@@ -32,6 +33,7 @@ export default class MultiSelectTable extends React.Component {
   };
 
   static defaultProps = {
+    dataTable: true,
     hasActionsColumn: true,
     predicate: entity => entity.id,
     columns: [],
@@ -186,7 +188,6 @@ export default class MultiSelectTable extends React.Component {
     return (
       <TableView
         {...this.props}
-        dataTable={true}
         allChecked={this.state.allChecked}
         toggledIds={this.state.toggledIds}
         className={classNames('fc-multi-select-table', this.props.className)}
