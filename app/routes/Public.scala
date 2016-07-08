@@ -59,6 +59,27 @@ object Public {
             }
           }
         } ~
+        // TODO move to ES
+        pathPrefix("regions") {
+          (get & pathEnd) {
+            good {
+              listRegions
+            }
+          }
+        } ~
+        // TODO move to ES
+        pathPrefix("countries") {
+          (get & pathEnd) {
+            good {
+              listCountries
+            }
+          } ~
+            (get & path(IntNumber) & pathEnd) { countryId ⇒
+              getOrFailures {
+                findCountry(countryId)
+              }
+            }
+        } ~
         pathPrefix("ping") {
           (get & pathEnd) {
             good(render("pong"))
