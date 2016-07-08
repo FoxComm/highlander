@@ -168,10 +168,8 @@ object ProductManager {
       albums        ← * <~ ImageManager.getAlbumsForProduct(archiveResult.formId)
       skuLinks      ← * <~ ProductSkuLinks.filter(_.leftId === archiveResult.id).result
       skus          ← * <~ skuLinks.map(link ⇒ mustFindFullSkuById(link.rightId))
-      variantLinks ← * <~ ObjectLinks
-                      .findByLeftAndType(archiveResult.shadowId, ObjectLink.ProductVariant)
-                      .result
-      variants ← * <~ variantLinks.map(link ⇒ mustFindFullVariantById(link.rightId))
+      variantLinks  ← * <~ ProductVariantLinks.filter(_.leftId === archiveResult.id).result
+      variants      ← * <~ variantLinks.map(link ⇒ mustFindFullVariantById(link.rightId))
     } yield
       ProductResponse.build(
           product = IlluminatedProduct.illuminate(oc, archiveResult, form, shadow),

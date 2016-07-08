@@ -1,7 +1,11 @@
+import java.time.Instant
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
+import failures.NotFoundFailure404
+import failures.ObjectFailures._
 import models.StoreAdmins
 import models.objects._
 import models.product._
@@ -17,6 +21,7 @@ import utils.Money.Currency
 import utils.aliases._
 import utils.db._
 import utils.db.ExPostgresDriver.api._
+import utils.time.RichInstant
 
 object ProductTestExtensions {
 
@@ -289,6 +294,34 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
 
       val response = PATCH(s"v1/products/${ctx.name}/${product.formId}", upPayload)
       response.status must === (StatusCodes.BadRequest)
+    }
+  }
+
+  "POST v1/products/:context/:id/archive" - {
+    "Archives product successfully" in new Fixture {
+      val response = POST(s"v1/products/${context.name}/${product.formId}/archive")
+
+      response.status must === (StatusCodes.OK)
+
+      val result = response.as[ProductResponse.Root]
+      withClue(result.archivedAt.value → Instant.now) {
+        result.archivedAt.value.isBeforeNow === true
+      }
+    }
+
+    "Responds with NOT FOUND when wrong product is requested" in new VariantFixture {
+      val response = POST(s"v1/products/${context.name}/666/archive")
+
+      response.status must === (StatusCodes.NotFound)
+      response.error must === (NotFoundFailure404(Product, 666).description)
+    }
+
+    "Responds with NOT FOUND when wrong context is requested" in new VariantFixture {
+      val response = POST(s"v1/products/donkeyContext/${product.formId}/archive")
+
+      println(response)
+      response.status must === (StatusCodes.NotFound)
+      response.error must === (NotFoundFailure404(ObjectContext, "donkeyContext").description)
     }
   }
 

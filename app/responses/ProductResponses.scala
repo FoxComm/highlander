@@ -90,7 +90,7 @@ object ProductResponses {
         (sku.model, sku.shadow)
       }))
   }
-  
+
   // New Product Response
   object ProductResponse {
 
