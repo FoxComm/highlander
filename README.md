@@ -27,5 +27,6 @@ Go to isaac project directory and
 run...
 
     mkdir build
+    cd build
     cmake ..
     make -j
