@@ -1,0 +1,45 @@
+---
+
+- name: Provision Backend
+  hosts: '{{hostname}}'
+  vars:
+    user: '{{ansible_ssh_user}}'
+  vars_prompt:
+    - name: "hostname"
+      prompt: "Enter a hostname with a backend to provision"
+      default: "stage-backend"
+      private: no
+
+  roles:
+    - { role: dev/kafka }
+    - { role: dev/elasticsearch }
+    - { role: dev/db }
+    - { role: dev/phoenix }
+    - { role: dev/isaac }
+    - { role: dev/seeder }
+    - { role: dev/greenriver }
+    - { role: dev/loyalty }
+    - { role: dev/messaging }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml
+
+- name: Provision Frontend
+  hosts: '{{hostname}}'
+  vars:
+    user: '{{ansible_ssh_user}}'
+  vars_prompt:
+    - name: "hostname"
+      prompt: "Enter a hostname with a frontend to provision"
+      default: "stage-frontend"
+      private: no
+
+  roles:
+    - { role: base/ssh_keys }
+    - { role: dev/ashes }
+    - { role: dev/firebird }
+    - { role: dev/firebrand }
+    - { role: dev/balancer, sudo: yes }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml

@@ -1,16 +1,16 @@
-variable "ssh_user" {} 
+variable "ssh_user" {}
 variable "ssh_private_key" {}
 
 variable "account_file" {}
 variable "gce_project" {}
 variable "region" {}
 variable "consul_cluster_image" {}
-variable "tiny_backend_image" {} 
-variable "tiny_frontend_image" {} 
+variable "tiny_backend_image" {}
+variable "tiny_frontend_image" {}
 variable "consul_server_image" {}
 variable "gatling_image" {}
 
-provider "google" 
+provider "google"
 {
     credentials = "${file(var.account_file)}"
     project = "${var.gce_project}"
@@ -56,7 +56,7 @@ module "gatling" {
     consul_server_image = "${var.consul_server_image}"
 }
 
-resource "google_compute_instance" "gatling-gun"{ 
+resource "google_compute_instance" "gatling-gun"{
     name = "gatling-gun"
     machine_type = "n1-standard-4"
     tags = ["no-ip", "gatling-gun"]
@@ -66,13 +66,13 @@ resource "google_compute_instance" "gatling-gun"{
         image = "${var.gatling_image}"
         type = "pd-ssd"
         size = "30"
-    }   
+    }
 
     network_interface {
         network = "default"
     }
 
-    connection { 
+    connection {
         type = "ssh"
         user = "${var.ssh_user}"
         private_key = "${file(var.ssh_private_key)}"
@@ -146,4 +146,18 @@ module "usertest2" {
     prefix = "usertest2"
     ssh_user = "${var.ssh_user}"
     ssh_private_key = "${var.ssh_private_key}"
+}
+
+##############################################
+# Setup Target
+##############################################
+module "target" {
+    source = "../../modules/gce/tinystack"
+    datacenter = "target"
+    backend_image = "${var.tiny_backend_image}"
+    frontend_image = "${var.tiny_frontend_image}"
+    ssh_user = "${var.ssh_user}"
+    ssh_private_key = "${var.ssh_private_key}"
+    consul_leader = "${module.consul_cluster.leader}"
+    consul_server_image = "${var.consul_server_image}"
 }

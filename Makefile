@@ -18,10 +18,13 @@ test: lint
 	$(GO) test -v ./inventory/
 
 bootstrap-consul-alerts:
-	ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_consul_alerts.yml	
+	ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_consul_alerts.yml
 
 bootstrap-db-backup:
-	ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_db_backup.yml	
+	ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_db_backup.yml
+
+bootstrap-tinystack:
+	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml --private-key=~/.ssh/gce_rsa
 
 bootstrap-prod-small:
 	ansible-playbook -v -i bin/envs/prod_small_vpn ansible/bootstrap_prod_small.yml
