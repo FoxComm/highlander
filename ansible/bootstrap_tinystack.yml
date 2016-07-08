@@ -30,10 +30,31 @@
     - frontend
   vars:
     user: '{{ansible_ssh_user}}'
+    api_server: 127.0.0.1
+    ashes_server: 127.0.0.1:4000
+    firebird_server: 127.0.0.1:4040
+    isaac_server: 127.0.0.1:9190
+    search_server_http: 127.0.0.1:9200
+    firebird_default_language: en
+    firebird_fixed_language: false
+    firebrand_default_language: en
+    firebrand_fixed_language: false
   vars_prompt:
     - name: "hostname"
       prompt: "Enter a hostname with a frontend to provision"
       default: "vanilla-frontend"
+      private: no
+    - name: "ashes_server_name"
+      prompt: "Enter a Ashes server domain name"
+      default: "admin.vanilla.foxcommerce.com"
+      private: no
+    - name: "firebird_server_name"
+      prompt: "Enter a Firebird server domain name"
+      default: "firebird.vanilla.foxcommerce.com"
+      private: no
+    - name: "firebrand_server_name"
+      prompt: "Enter a Firebrand server domain name"
+      default: "vanilla.foxcommerce.com"
       private: no
 
   roles:
