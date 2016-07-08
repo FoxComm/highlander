@@ -74,11 +74,11 @@ object Public {
               listCountries
             }
           } ~
-            (get & path(IntNumber) & pathEnd) { countryId ⇒
-              getOrFailures {
-                findCountry(countryId)
-              }
+          (get & path(IntNumber) & pathEnd) { countryId ⇒
+            getOrFailures {
+              findCountry(countryId)
             }
+          }
         } ~
         pathPrefix("ping") {
           (get & pathEnd) {
