@@ -2,7 +2,8 @@
 
 - name: Provision Backend
   hosts: '{{hostname}}'
-  tags: backend
+  tags:
+    - backend
   vars:
     user: '{{ansible_ssh_user}}'
   vars_prompt:
@@ -25,7 +26,8 @@
 
 - name: Provision Frontend
   hosts: '{{hostname}}'
-  tags: frontend
+  tags:
+    - frontend
   vars:
     user: '{{ansible_ssh_user}}'
   vars_prompt:
