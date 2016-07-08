@@ -177,7 +177,7 @@ export default class Table extends Component {
     const { data, setState, className, ...rest } = this.props;
 
     return (
-      <div>
+      <div className="fc-table-wrap">
         <table className={classNames('fc-table', className)}>
           <TableHead {...rest} sortBy={data.sortBy} setState={setState} />
           {this.body}
