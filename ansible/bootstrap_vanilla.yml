@@ -1,34 +1,54 @@
 ---
 
 - name: Bootstrap Kafka
-  hosts: vanilla-kafka
+  hosts: '{{hostname}}'
   vars:
     user: '{{ansible_ssh_user}}'
+  vars_prompt:
+    - name: "hostname"
+      prompt: "Enter a hostname with a Kafka to bootstrap"
+      default: "vanilla-kafka"
+      private: no
 
   roles:
       - { role: dev/kafka }
 
 - name: Bootstrap ES
-  hosts: vanilla-es
+  hosts: '{{hostname}}'
   vars:
     user: '{{ansible_ssh_user}}'
+  vars_prompt:
+    - name: "hostname"
+      prompt: "Enter a hostname with a Elasticsearch to bootstrap"
+      default: "vanilla-es"
+      private: no
 
   roles:
       - { role: dev/elasticsearch }
 
 - name: Bootstrap Db
-  hosts: vanilla-db
+  hosts: '{{hostname}}'
   vars:
     user: '{{ansible_ssh_user}}'
     seeds_cmd: utils.seeds.Seeds
+  vars_prompt:
+    - name: "hostname"
+      prompt: "Enter a hostname with a database to bootstrap"
+      default: "vanilla-db"
+      private: no
 
   roles:
       - { role: dev/db }
 
-- name: Bootstrap Greenriver
-  hosts: vanilla-greenriver
+- name: Bootstrap Green River
+  hosts: '{{hostname}}'
   vars:
     user: '{{ansible_ssh_user}}'
+  vars_prompt:
+    - name: "hostname"
+      prompt: "Enter a hostname with a Green River to bootstrap"
+      default: "vanilla-greenriver"
+      private: no
 
   roles:
       - { role: prod/bootstrap_greenriver }

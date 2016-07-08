@@ -1,9 +1,14 @@
 ---
 
 - name: Seed Db
-  hosts: vanilla-phoenix
+  hosts: '{{hostname}}'
   vars:
     user: '{{ansible_ssh_user}}'
+    vars_prompt:
+      - name: "hostname"
+        prompt: "Enter a hostname with a database to seed"
+        default: "vanilla-db"
+        private: no
 
   roles:
       - { role: dev/seeder }
