@@ -48,28 +48,10 @@ Phoenix can be run in development by running either running the application nati
 
     http://computechtips.com/781/install-oracle-jdk-8-mac-os-x-10-10-yosemite
 
-- [SBT](http://www.scala-sbt.org/)
+- [SBT](http://www.scala-sbt.org/), [Scala](http://www.scala-lang.org/), [Flyway](http://flywaydb.org/getstarted/), PostgreSQL
 
     ```bash
-    brew install sbt
-    ```
-
-- [Scala](http://www.scala-lang.org/)
-
-    ```bash
-    brew install scala
-    ```
-
-- [Flyway](http://flywaydb.org/getstarted/)
-
-    ```bash
-    brew install flyway
-    ```
-
-- PostgreSQL 
-
-    ```bash
-    brew install postgresql
+    brew install sbt scala flyway postgresql
     ```
 
 ### Useful Commands  
