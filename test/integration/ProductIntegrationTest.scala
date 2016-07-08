@@ -6,6 +6,7 @@ import akka.http.scaladsl.model.StatusCodes
 import Extensions._
 import failures.NotFoundFailure404
 import failures.ObjectFailures._
+import failures.ProductFailures.ProductNotFoundForContext
 import models.StoreAdmins
 import models.objects._
 import models.product._
@@ -313,7 +314,7 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
       val response = POST(s"v1/products/${context.name}/666/archive")
 
       response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Product, 666).description)
+      response.error must === (ProductNotFoundForContext(666, context.id).description)
     }
 
     "Responds with NOT FOUND when wrong context is requested" in new VariantFixture {
