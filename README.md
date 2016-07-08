@@ -30,3 +30,18 @@ run...
     cd build
     cmake ..
     make -j
+
+Run through docker
+==========================
+
+OS X: Docker Beta for Mac
+
+(Boot2Docker is not applicable for this case.)
+
+```bash
+# copy public_key.pem to current directory
+docker build .
+docker tag $IMAGE isaac
+sudo ifconfig lo0 alias 172.16.123.1
+docker run -p 9190:9190 -p 9191:9191 --add-host=dbhost:172.16.123.1 isaac
+```
