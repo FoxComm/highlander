@@ -43,7 +43,7 @@ class TableHead extends React.Component {
     }
 
     return (
-      <div className={className}
+      <th className={className}
           key={`${field}`}
           onClick={sortable ? this.onHeaderClick.bind(this, field) : null}>
         {contents}
@@ -53,17 +53,17 @@ class TableHead extends React.Component {
             <i className="icon-up" />
           </span>
         )}
-      </div>
+      </th>
     );
   }
 
   render() {
     return (
-      <div className="fc-table-head">
+      <thead className="fc-table-head">
         <TableRow>
           {this.props.columns.map(this.renderColumn)}
         </TableRow>
-      </div>
+      </thead>
     );
   }
 }

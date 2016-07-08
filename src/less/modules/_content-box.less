@@ -36,29 +36,34 @@
 
   .fc-table {
     border: 0;
-  }
 
-  .fc-table-th {
-    border-top: 0;
-    &:first-child {
-      border-left: 0;
-    }
-    &:last-child {
-      border-right: 0;
-    }
-  }
+    tr, .fc-table-tr {
+      border: 0;
 
-  .fc-table-tr {
-    border-left: 0;
-    border-right: 0;
-    &:last-child {
-      border-bottom: 0;
+      th, .fc-table-th {
+        border-left: 0;
+        border-top: 0;
+
+        &:last-child {
+          border-right: 0;
+        }
+      }
+    }
+
+    tbody, .fc-table-body {
+      tr, .fc-table-tr {
+        border: 0;
+
+        td, .fc-table-td {
+          border: 0;
+        }
+      }
     }
   }
   /* End table specifics */
 
   thead tr:first-child th,
-  // .messages for fc-error & fc-success & fc-warning blocks
+    // .messages for fc-error & fc-success & fc-warning blocks
   .messages {
     box-shadow: inset 0 2px 3px 0 @color-white;
   }

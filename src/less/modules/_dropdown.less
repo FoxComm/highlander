@@ -11,7 +11,7 @@
 
 .fc-dropdown {
   .inline-block();
-  position: relative;
+  position: static;
   width: 100%;
   max-width: 200px;
   text-align: left;
@@ -39,8 +39,6 @@
     display: none;
     position: absolute;
     z-index: 100;
-    left: 0;
-    min-width: 100%;
     background-color: @color-white;
     border: 1px solid @color-decor9;
     border-radius: 3px;
@@ -57,11 +55,10 @@
   }
 
   &__items._dropup {
-    bottom: 100%;
+    transform: translateY(calc(~"-100% - " @dropdown-height));
   }
 
   &__items._dropdown {
-    top: 100%;
   }
 
   &__item,

@@ -159,7 +159,6 @@ export default class MultiSelectTable extends React.Component {
       sortable: false,
     };
 
-
     return this.props.hasActionsColumn ? [
       selectColumn,
       ...this.state.columns,
@@ -187,6 +186,7 @@ export default class MultiSelectTable extends React.Component {
     return (
       <TableView
         {...this.props}
+        dataTable={true}
         allChecked={this.state.allChecked}
         toggledIds={this.state.toggledIds}
         className={classNames('fc-multi-select-table', this.props.className)}

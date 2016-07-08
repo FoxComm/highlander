@@ -41,11 +41,11 @@ function getCell(column, children) {
 }
 
 const TableBodyCell = props => {
-  const { childrenn, colSpan, column, className, ...rest } = props;
+  const { children, colSpan, column, className, ...rest } = props;
 
   const cell = _.isNull(children) ? null : getCell(column, children);
 
-  return <div className={classNames('fc-table-td', className)} colSpan={colSpan} {...rest}>{cell}</div>;
+  return <td className={classNames('fc-table-td', className)} colSpan={colSpan} {...rest}>{cell}</td>;
 };
 
 TableBodyCell.propTypes = {
