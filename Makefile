@@ -4,6 +4,7 @@ GOPATH := $(CURDIR)/_vendor:$(GOPATH)
 TF_CMD ?= plan
 TF_BASE = terraform/base
 TF_ENVS = terraform/envs
+PRIVATE_KEY ?= ~/.ssh/id_rsa
 
 # Main commands
 all: build
@@ -27,16 +28,13 @@ bootstrap-tinystack:
 	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml
 
 bootstrap-tinystack-backend:
-	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml --tags=backend
+	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml --tags=backend --private-key=$(PRIVATE_KEY)
 
 bootstrap-tinystack-frontend:
-	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml --tags=frontend
+	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml --tags=frontend --private-key=$(PRIVATE_KEY)
 
 bootstrap-tinystack-balancer:
-	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml --tags=balancer
-
-bootstrap-prod-small:
-	ansible-playbook -v -i bin/envs/prod_small_vpn ansible/bootstrap_prod_small.yml
+	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml --tags=balancer --private-key=$(PRIVATE_KEY)
 
 bootstrap-vanilla-vpn:
 	ansible-playbook -v -i bin/envs/vanilla_vpn ansible/bootstrap_vanilla_vpn.yml
