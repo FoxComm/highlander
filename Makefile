@@ -27,10 +27,13 @@ bootstrap-tinystack:
 	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml
 
 bootstrap-tinystack-backend:
-	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml --skip-tags=frontend
+	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml --tags=backend
 
 bootstrap-tinystack-frontend:
-	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml --skip-tags=backend
+	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml --tags=frontend
+
+bootstrap-tinystack-balancer:
+	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml --tags=balancer
 
 bootstrap-prod-small:
 	ansible-playbook -v -i bin/envs/prod_small_vpn ansible/bootstrap_prod_small.yml

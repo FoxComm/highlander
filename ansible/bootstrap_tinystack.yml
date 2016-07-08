@@ -33,8 +33,9 @@
     api_server: 127.0.0.1
     ashes_server: 127.0.0.1:4000
     firebird_server: 127.0.0.1:4040
-    isaac_server: 127.0.0.1:9190
-    search_server_http: 127.0.0.1:9200
+    isaac_server: '{{backend_host}}:9190'
+    phoenix_server: '{{backend_host}}:9090'
+    search_server_http: '{{backend_host}}:9200'
     firebird_default_language: en
     firebird_fixed_language: false
     firebrand_default_language: en
@@ -43,6 +44,10 @@
     - name: "hostname"
       prompt: "Enter a hostname with a frontend to provision"
       default: "vanilla-frontend"
+      private: no
+    - name: "backend_host"
+      prompt: "Enter API server host or API address"
+      default: 10.240.0.41
       private: no
     - name: "ashes_server_name"
       prompt: "Enter a Ashes server domain name"
@@ -61,7 +66,7 @@
     - { role: dev/ashes }
     - { role: dev/firebird }
     - { role: dev/firebrand }
-    - { role: dev/balancer, sudo: yes }
+    - { role: dev/balancer, sudo: yes, tags: balancer }
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml
