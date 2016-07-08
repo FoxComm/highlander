@@ -156,7 +156,8 @@ object ImageManager {
     } yield response
 
   def updateAlbumInner(id: Int, updatePayload: UpdateAlbumPayload, contextName: String)(
-      implicit ec: EC, db: DB): DbResultT[AlbumRoot] =
+      implicit ec: EC,
+      db: DB): DbResultT[AlbumRoot] =
     for {
       payload ← * <~ updatePayload.validate
       context ← * <~ ObjectManager.mustFindByName404(contextName)
