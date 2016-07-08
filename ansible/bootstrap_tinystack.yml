@@ -7,7 +7,7 @@
   vars_prompt:
     - name: "hostname"
       prompt: "Enter a hostname with a backend to provision"
-      default: "stage-backend"
+      default: "vanilla-backend"
       private: no
 
   roles:
@@ -29,7 +29,7 @@
   vars_prompt:
     - name: "hostname"
       prompt: "Enter a hostname with a frontend to provision"
-      default: "stage-frontend"
+      default: "vanilla-frontend"
       private: no
 
   roles:
