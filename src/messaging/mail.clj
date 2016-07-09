@@ -31,7 +31,6 @@
 (def mailchimp-customers-list-id (delay (:mailchimp-customers-list-id env)))
 
 
-(contains?  #{"t" "true" "y" } "tdrue")
 ;; mandrill client
 (def client (delay (client/create @mandrill-key)))
 ;; mailchimp client
