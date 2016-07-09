@@ -1,5 +1,13 @@
 ---
 
+- stat: path="group_vars/{{ group_env }}-messaging-vault"
+  connection: local
+  register: messaging_vault_file
+
+- name: Include vars for madrill key
+  when: madrill_key is undefined and messaging_vault_file.stat.exists == True
+  include_vars: group_vars/{{ group_env }}-messaging-vault
+
 - name: Copy Jar for messaging
   copy: src={{messaging_jar_src}} dest={{messaging_jar}} mode="u+x,g+x,o+x"
   sudo: true

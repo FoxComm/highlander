@@ -1,6 +1,6 @@
 [Service]
 WorkingDirectory=/usr/share
-ExecStart=/usr/bin/java -Dslack-webhook-url={{messaging_slack_webhook_url}} -Dkafka-broker={{kafka_server}} -Dschema-registry-url=http://{{schema_server}} -Dfc-admin-url=http://admin.{{demo_domain}} -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port={{messaging_jmx_port}} -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -jar {{messaging_jar}}
+ExecStart=/usr/bin/java -Dmandrill-key={{mandrill_key}} -Dkafka-broker={{kafka_server}} -Dretailer-name={{retailer_name}} -Dadd-new-customers-to-mailchimp={{add-new-customers-to-mailchimp}} -Dmailchimp-customers-list-id={{mailchimp-customers-list-id}} -Dmailchimp-api-key={{mailchimp-api-key}} -Dschema-registry-url=http://{{schema_server}} -Dadmin-server-name={{ashes_server_name}} -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port={{messaging_jmx_port}} -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -jar {{messaging_jar}}
 Restart=always
 StandardOutput=syslog
 StandardError=syslog

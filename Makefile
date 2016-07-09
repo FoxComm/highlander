@@ -45,6 +45,9 @@ bootstrap-vanilla:
 bootstrap-vanilla-db:
 	ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_vanilla_db.yml
 
+bootstrap-messaging-plugin:
+	ansible-playbook -v -i bin/envs/staging ansible/boostrap_messaging_plugin.yml
+
 deploy-stage:
 	ansible-playbook -v -i bin/envs/staging ansible/stage.yml
 

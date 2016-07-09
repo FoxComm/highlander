@@ -5,6 +5,9 @@ seeds_cmd: utils.seeds.Seeds demo 5
 es_heap_size: 5g
 
 demo_domain: dem1.foxcommerce.com
+ashes_server_name: "admin.{{demo_domain}}"
+retailer_name: FoxCommerce
+
 
 google_oauth_admin_client_id: 953682058057-o21m80u2d7raoq71fetp8u21k8306a7p.apps.googleusercontent.com
 google_oauth_admin_secret: iOyw2XYv_UBfr3npQCobfuq_

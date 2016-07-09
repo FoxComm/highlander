@@ -9,6 +9,7 @@ db_user: phoenix
 db_name: phoenix_development
 db_connection_string: "postgresql://{{db_host}}/phoenix_development?user={{db_user}}"
 scala_version: scala-2.11
+group_env: fc
 
 # Green River
 greenriver_version: 1.0
@@ -49,7 +50,6 @@ loyalty_jar: /usr/local/bin/loyalty.jar
 # Messaging
 messaging_jar: /usr/local/bin/messaging.jar
 messaging_jar_src: ../../fox-notifications/target/messaging.jar
-messaging_slack_webhook_url: https://hooks.slack.com/services/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
 
 # Lies & BS
 phoenix_api_version: v1
