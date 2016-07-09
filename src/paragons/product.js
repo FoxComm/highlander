@@ -121,11 +121,13 @@ export function setSkuAttribute(product: Product,
     ? ['attributes', label, 'v', 'value']
     : ['attributes', label, 'v'];
 
+  const val = type == 'price' ? parseInt(value) : value;
+
   const updateAttribute = sku => {
     const code = _.get(sku, 'attributes.code.v');
 
     return (code == code || sku.feCode == code)
-      ? assoc(sku, attrPath, value)
+      ? assoc(sku, attrPath, val)
       : sku;
   };
 
