@@ -35,9 +35,9 @@ object CustomerRoutes {
           }
         } ~
         (get & path("cart")) {
-          determineObjectContext(db, ec) { productContext ⇒
+          determineObjectContext(db, ec) { implicit ctx ⇒
             goodOrFailures {
-              CartQueries.findOrCreateCartByCustomerId(customerId, productContext, Some(admin))
+              CartQueries.findOrCreateCartByCustomerId(customerId, ctx, Some(admin))
             }
           }
         } ~

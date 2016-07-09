@@ -3,9 +3,9 @@ package services
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import models.StoreAdmins
+import models.cord._
 import models.customer.Customers
 import models.location.Addresses
-import models.cord._
 import models.traits.Originator
 import payloads.AddressPayloads._
 import services.carts.CartShippingAddressUpdater._
@@ -13,7 +13,10 @@ import util._
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class CartShippingAddressUpdaterTest extends IntegrationTestBase with TestActivityContext.AdminAC {
+class CartShippingAddressUpdaterTest
+    extends IntegrationTestBase
+    with TestObjectContext
+    with TestActivityContext.AdminAC {
 
   "OrderUpdater" - {
 

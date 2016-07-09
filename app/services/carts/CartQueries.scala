@@ -21,7 +21,8 @@ import utils.db._
 
 object CartQueries {
 
-  def findOne(refNum: String)(implicit ec: EC, db: DB): Result[TheResponse[FullCart.Root]] =
+  def findOne(
+      refNum: String)(implicit ec: EC, db: DB, ctx: OC): Result[TheResponse[FullCart.Root]] =
     (for {
       cart      ← * <~ Carts.mustFindByRefNum(refNum)
       validated ← * <~ CartValidator(cart).validate()
@@ -29,9 +30,9 @@ object CartQueries {
     } yield
       TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).run()
 
-  def findOneByCustomer(refNum: String, customer: Customer)(
-      implicit ec: EC,
-      db: DB): Result[TheResponse[FullCart.Root]] =
+  def findOneByCustomer(
+      refNum: String,
+      customer: Customer)(implicit ec: EC, db: DB, ctx: OC): Result[TheResponse[FullCart.Root]] =
     (for {
       cart ← * <~ Carts
               .findByRefNumAndCustomer(refNum, customer)
@@ -41,31 +42,37 @@ object CartQueries {
     } yield
       TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).run()
 
-  def findOrCreateCartByCustomer(
-      customer: Customer,
-      context: ObjectContext,
-      admin: Option[StoreAdmin] = None)(implicit ec: EC, db: DB, ac: AC): Result[FullCart.Root] =
-    findOrCreateCartByCustomerInner(customer, context, admin).runTxn()
+  def findOrCreateCartByCustomer(customer: Customer,
+                                 context: ObjectContext,
+                                 admin: Option[StoreAdmin] = None)(
+      implicit ec: EC,
+      db: DB,
+      ac: AC,
+      ctx: OC): Result[FullCart.Root] =
+    findOrCreateCartByCustomerInner(customer, admin).runTxn()
 
-  def findOrCreateCartByCustomerId(
-      customerId: Int,
-      context: ObjectContext,
-      admin: Option[StoreAdmin] = None)(implicit ec: EC, db: DB, ac: AC): Result[FullCart.Root] =
+  def findOrCreateCartByCustomerId(customerId: Int,
+                                   context: ObjectContext,
+                                   admin: Option[StoreAdmin] = None)(
+      implicit ec: EC,
+      db: DB,
+      ac: AC,
+      ctx: OC): Result[FullCart.Root] =
     (for {
       customer  ← * <~ Customers.mustFindById404(customerId)
-      fullOrder ← * <~ findOrCreateCartByCustomerInner(customer, context, admin)
+      fullOrder ← * <~ findOrCreateCartByCustomerInner(customer, admin)
     } yield fullOrder).runTxn()
 
-  def findOrCreateCartByCustomerInner(
-      customer: Customer,
-      context: ObjectContext,
-      admin: Option[StoreAdmin])(implicit db: DB, ec: EC, ac: AC): DbResultT[FullCart.Root] =
+  def findOrCreateCartByCustomerInner(customer: Customer, admin: Option[StoreAdmin])(
+      implicit db: DB,
+      ec: EC,
+      ac: AC,
+      ctx: OC): DbResultT[FullCart.Root] =
     for {
       result ← * <~ Carts
                 .findByCustomer(customer)
                 .one
-                .findOrCreateExtended(
-                    Carts.create(Cart(customerId = customer.id, contextId = context.id)))
+                .findOrCreateExtended(Carts.create(Cart(customerId = customer.id)))
       (cart, foundOrCreated) = result
       fullOrder ← * <~ FullCart.fromCart(cart)
       _         ← * <~ logCartCreation(foundOrCreated, fullOrder, admin)

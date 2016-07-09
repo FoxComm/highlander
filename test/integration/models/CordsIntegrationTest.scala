@@ -4,10 +4,10 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import models.cord.{Carts, Cords, Orders}
 import slick.driver.PostgresDriver.api._
-import util.IntegrationTestBase
+import util.{IntegrationTestBase, TestObjectContext}
 import utils.seeds.Seeds.Factories
 
-class CordsIntegrationTest extends IntegrationTestBase {
+class CordsIntegrationTest extends IntegrationTestBase with TestObjectContext {
 
   "cord should be created on cart creation" in {
     val cart = Carts.create(Factories.cart).gimme

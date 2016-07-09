@@ -120,10 +120,10 @@ object FullCart {
         extends Payments
   }
 
-  def buildRefreshed(cart: Cart)(implicit db: DB, ec: EC): DbResultT[FullCart.Root] =
+  def buildRefreshed(cart: Cart)(implicit db: DB, ec: EC, ctx: OC): DbResultT[FullCart.Root] =
     Carts.refresh(cart).toXor.flatMap(fromCart)
 
-  def fromCart(cart: Cart)(implicit db: DB, ec: EC): DbResultT[Root] = {
+  def fromCart(cart: Cart)(implicit db: DB, ec: EC, ctx: OC): DbResultT[Root] = {
     val ccPaymentQ = for {
       payment    ← OrderPayments.findAllByOrderRef(cart.refNum)
       creditCard ← CreditCards.filter(_.id === payment.paymentMethodId)
@@ -131,7 +131,7 @@ object FullCart {
     } yield (payment, creditCard, region)
 
     for {
-      context     ← * <~ ObjectContexts.mustFindById400(cart.contextId)
+      context     ← * <~ ObjectContexts.mustFindById400(ctx.id)
       customer    ← * <~ Customers.findOneById(cart.customerId)
       lineItemTup ← * <~ OrderLineItemSkus.findLineItemsByCordRef(cart.refNum).result
       lineItems = lineItemTup.map {

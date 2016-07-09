@@ -4,16 +4,16 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import models.StoreAdmins
 import models.activity.ActivityContext
-import models.objects._
 import models.cord.lineitems._
 import models.cord.{Cart, Carts}
+import models.objects._
 import models.product.{Mvp, SimpleContext, SimpleProductData}
 import payloads.LineItemPayloads.{UpdateLineItemsPayload ⇒ Payload}
-import util.IntegrationTestBase
+import util.{IntegrationTestBase, TestObjectContext}
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class LineItemUpdaterTest extends IntegrationTestBase {
+class LineItemUpdaterTest extends IntegrationTestBase with TestObjectContext {
 
   import api._
 
@@ -39,7 +39,7 @@ class LineItemUpdaterTest extends IntegrationTestBase {
 
     "Adds line items when the sku doesn't exist in order" in new Fixture {
       val (context, products) = createProducts(2).gimme
-      val order               = Carts.create(Cart(customerId = 1, contextId = context.id)).gimme
+      val order               = Carts.create(Cart(customerId = 1)).gimme
 
       val payload = Seq[Payload](
           Payload(sku = "1", quantity = 3),
@@ -59,7 +59,7 @@ class LineItemUpdaterTest extends IntegrationTestBase {
 
     "Updates line items when the Sku already is in order" in new Fixture {
       val (context, products) = createProducts(3).gimme
-      val order               = Carts.create(Cart(customerId = 1, contextId = context.id)).gimme
+      val order               = Carts.create(Cart(customerId = 1)).gimme
       val seedItems = Seq(1, 1, 1, 1, 1, 1, 2, 3, 3).map { linkId ⇒
         OrderLineItem(id = 0,
                       cordRef = order.refNum,

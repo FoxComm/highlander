@@ -56,14 +56,13 @@ object CouponUsageService {
       _ ← * <~ couponMustBeUsable(couponFormId, customerId, usesAvailableForCustomer, couponCode)
     } yield {}
 
-  def updateUsageCounts(couponCodeId: Option[Int], contextId: Int, customer: Customer)(
-      implicit ec: EC,
-      db: DB): DbResultT[Unit] = {
+  def updateUsageCounts(couponCodeId: Option[Int],
+                        customer: Customer)(implicit ec: EC, db: DB, ctx: OC): DbResultT[Unit] = {
     couponCodeId match {
       case Some(codeId) ⇒
         for {
           couponCode ← * <~ CouponCodes.findById(codeId).extract.one.safeGet
-          context    ← * <~ ObjectContexts.mustFindById400(contextId)
+          context    ← * <~ ObjectContexts.mustFindById400(ctx.id)
           code       ← * <~ CouponCodes.mustFindById400(codeId)
           coupon ← * <~ Coupons
                     .filterByContextAndFormId(context.id, code.couponFormId)

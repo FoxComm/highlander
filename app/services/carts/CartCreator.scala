@@ -4,7 +4,6 @@ import cats.implicits._
 import models.StoreAdmin
 import models.cord.{Cart, Carts}
 import models.customer.{Customer, Customers}
-import models.objects.ObjectContext
 import payloads.OrderPayloads.CreateCart
 import responses.cart.FullCart
 import responses.cart.FullCart.Root
@@ -15,8 +14,7 @@ import utils.db._
 object CartCreator {
 
   def createCart(admin: StoreAdmin,
-                 payload: CreateCart,
-                 context: ObjectContext)(implicit db: DB, ec: EC, ac: AC): Result[Root] = {
+                 payload: CreateCart)(implicit db: DB, ec: EC, ac: AC, ctx: OC): Result[Root] = {
 
     def existingCustomerOrNewGuest: Result[Root] = (payload.customerId, payload.email) match {
       case (Some(customerId), _) ⇒ createCartForCustomer(customerId)
@@ -24,18 +22,16 @@ object CartCreator {
       case _                     ⇒ ???
     }
 
-    def createCartForCustomer(customerId: Int): Result[Root] =
+    def createCartForCustomer(customerId: Int)(implicit ctx: OC): Result[Root] =
       (for {
-        customer ← * <~ Customers.mustFindById400(customerId)
-        fullOrder ← * <~ CartQueries.findOrCreateCartByCustomerInner(customer,
-                                                                     context,
-                                                                     Some(admin))
+        customer  ← * <~ Customers.mustFindById400(customerId)
+        fullOrder ← * <~ CartQueries.findOrCreateCartByCustomerInner(customer, Some(admin))
       } yield fullOrder).runTxn()
 
     def createCartAndGuest(email: String): Result[Root] =
       (for {
         guest ← * <~ Customers.create(Customer.buildGuest(email = email))
-        cart  ← * <~ Carts.create(Cart(customerId = guest.id, contextId = context.id))
+        cart  ← * <~ Carts.create(Cart(customerId = guest.id))
         _     ← * <~ LogActivity.cartCreated(Some(admin), root(cart, guest))
       } yield root(cart, guest)).runTxn()
 

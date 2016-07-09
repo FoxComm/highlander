@@ -21,7 +21,8 @@ object CartShippingMethodUpdater {
       implicit ec: EC,
       es: ES,
       db: DB,
-      ac: AC): Result[TheResponse[FullCart.Root]] =
+      ac: AC,
+      ctx: OC): Result[TheResponse[FullCart.Root]] =
     (for {
       cart           ← * <~ getCartByOriginator(originator, refNum)
       _              ← * <~ cart.mustBeActive
@@ -55,7 +56,8 @@ object CartShippingMethodUpdater {
       implicit ec: EC,
       es: ES,
       db: DB,
-      ac: AC): Result[TheResponse[FullCart.Root]] =
+      ac: AC,
+      ctx: OC): Result[TheResponse[FullCart.Root]] =
     (for {
       cart ← * <~ getCartByOriginator(originator, refNum)
       _    ← * <~ cart.mustBeActive

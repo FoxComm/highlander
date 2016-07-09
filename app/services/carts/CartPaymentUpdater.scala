@@ -23,12 +23,13 @@ import utils.db._
 
 object CartPaymentUpdater {
 
-  type TheFullOrder = DbResultT[TheResponse[FullCart.Root]]
+  type TheFullCart = DbResultT[TheResponse[FullCart.Root]]
 
   def addGiftCard(originator: Originator, payload: GiftCardPayment, refNum: Option[String] = None)(
       implicit ec: EC,
       db: DB,
-      ac: AC): TheFullOrder =
+      ac: AC,
+      ctx: OC): TheFullCart =
     for {
       cart   ← * <~ getCartByOriginator(originator, refNum)
       _      ← * <~ cart.mustBeActive
@@ -44,9 +45,10 @@ object CartPaymentUpdater {
       _     ← * <~ LogActivity.orderPaymentMethodAddedGc(originator, resp, gc, amount)
     } yield TheResponse.build(resp, alerts = valid.alerts, warnings = valid.warnings)
 
-  def editGiftCard(originator: Originator,
-                   payload: GiftCardPayment,
-                   refNum: Option[String] = None)(implicit ec: EC, db: DB, ac: AC): TheFullOrder =
+  def editGiftCard(
+      originator: Originator,
+      payload: GiftCardPayment,
+      refNum: Option[String] = None)(implicit ec: EC, db: DB, ac: AC, ctx: OC): TheFullCart =
     for {
       cart   ← * <~ getCartByOriginator(originator, refNum)
       _      ← * <~ cart.mustBeActive
@@ -83,7 +85,7 @@ object CartPaymentUpdater {
   def addStoreCredit(
       originator: Originator,
       payload: StoreCreditPayment,
-      refNum: Option[String] = None)(implicit ec: EC, db: DB, ac: AC): TheFullOrder = {
+      refNum: Option[String] = None)(implicit ec: EC, db: DB, ac: AC, ctx: OC): TheFullCart = {
     def updateSC(has: Int, want: Int, cart: Cart, storeCredits: List[StoreCredit]) =
       if (has < want) {
         DbResultT.failure(
@@ -119,7 +121,8 @@ object CartPaymentUpdater {
   def addCreditCard(originator: Originator, id: Int, refNum: Option[String] = None)(
       implicit ec: EC,
       db: DB,
-      ac: AC): TheFullOrder =
+      ac: AC,
+      ctx: OC): TheFullCart =
     for {
       cart   ← * <~ getCartByOriginator(originator, refNum)
       _      ← * <~ cart.mustBeActive
@@ -136,18 +139,18 @@ object CartPaymentUpdater {
 
   def deleteCreditCard(
       originator: Originator,
-      refNum: Option[String] = None)(implicit ec: EC, db: DB, ac: AC): TheFullOrder =
+      refNum: Option[String] = None)(implicit ec: EC, db: DB, ac: AC, ctx: OC): TheFullCart =
     deleteCreditCardOrStoreCredit(originator, refNum, PaymentMethod.CreditCard)
 
   def deleteStoreCredit(
       originator: Originator,
-      refNum: Option[String] = None)(implicit ec: EC, db: DB, ac: AC): TheFullOrder =
+      refNum: Option[String] = None)(implicit ec: EC, db: DB, ac: AC, ctx: OC): TheFullCart =
     deleteCreditCardOrStoreCredit(originator, refNum, PaymentMethod.StoreCredit)
 
   private def deleteCreditCardOrStoreCredit(
       originator: Originator,
       refNum: Option[String],
-      pmt: PaymentMethod.Type)(implicit ec: EC, db: DB, ac: AC): TheFullOrder =
+      pmt: PaymentMethod.Type)(implicit ec: EC, db: DB, ac: AC, ctx: OC): TheFullCart =
     for {
       cart  ← * <~ getCartByOriginator(originator, refNum)
       valid ← * <~ CartValidator(cart).validate()
@@ -162,7 +165,8 @@ object CartPaymentUpdater {
   def deleteGiftCard(originator: Originator, code: String, refNum: Option[String] = None)(
       implicit ec: EC,
       db: DB,
-      ac: AC): TheFullOrder =
+      ac: AC,
+      ctx: OC): TheFullCart =
     for {
       cart      ← * <~ getCartByOriginator(originator, refNum)
       _         ← * <~ cart.mustBeActive

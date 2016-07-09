@@ -2,7 +2,6 @@ create table carts (
     id bigint primary key,
     reference_number reference_number not null unique,
     customer_id integer,
-    context_id integer,
     created_at generic_timestamp,
     updated_at generic_timestamp,
     currency currency,

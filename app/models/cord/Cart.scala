@@ -8,13 +8,12 @@ import models.traits.Lockable
 import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.Money.Currency
-import utils.aliases.EC
+import utils.aliases._
 import utils.db._
 
 case class Cart(id: Int = 0,
                 referenceNumber: String = "",
                 customerId: Int,
-                contextId: Int,
                 currency: Currency = Currency.USD,
                 subTotal: Int = 0,
                 shippingTotal: Int = 0,
@@ -33,23 +32,22 @@ case class Cart(id: Int = 0,
     if (isActive) Xor.right(this)
     else Xor.left(OrderAlreadyPlaced(referenceNumber).single)
 
-  def toOrder()(implicit ec: EC): Order =
+  def toOrder()(implicit ec: EC, ctx: OC): Order =
     Order(referenceNumber = referenceNumber,
           customerId = customerId,
-          contextId = contextId,
           currency = currency,
           subTotal = subTotal,
           shippingTotal = shippingTotal,
           adjustmentsTotal = adjustmentsTotal,
           taxesTotal = taxesTotal,
-          grandTotal = grandTotal)
+          grandTotal = grandTotal,
+          contextId = ctx.id)
 }
 
 class Carts(tag: Tag) extends FoxTable[Cart](tag, "carts") {
   def id               = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def referenceNumber  = column[String]("reference_number")
   def customerId       = column[Int]("customer_id")
-  def contextId        = column[Int]("context_id")
   def currency         = column[Currency]("currency")
   def subTotal         = column[Int]("sub_total")
   def shippingTotal    = column[Int]("shipping_total")
@@ -63,7 +61,6 @@ class Carts(tag: Tag) extends FoxTable[Cart](tag, "carts") {
     (id,
      referenceNumber,
      customerId,
-     contextId,
      currency,
      subTotal,
      shippingTotal,

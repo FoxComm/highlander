@@ -18,7 +18,6 @@ import utils.{ADT, FSM}
 case class Order(id: Int = 0,
                  referenceNumber: String = "",
                  customerId: Int,
-                 contextId: Int,
                  currency: Currency = Currency.USD,
                  subTotal: Int = 0,
                  shippingTotal: Int = 0,
@@ -26,6 +25,7 @@ case class Order(id: Int = 0,
                  taxesTotal: Int = 0,
                  grandTotal: Int = 0,
                  // Order-specific
+                 contextId: Int,
                  state: Order.State = Order.RemorseHold,
                  // TODO: rename to `createdAt`
                  placedAt: Instant = Instant.now,
@@ -88,13 +88,13 @@ class Orders(tag: Tag) extends FoxTable[Order](tag, "orders") {
   def id               = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def referenceNumber  = column[String]("reference_number")
   def customerId       = column[Int]("customer_id")
-  def contextId        = column[Int]("context_id")
   def currency         = column[Currency]("currency")
   def subTotal         = column[Int]("sub_total")
   def shippingTotal    = column[Int]("shipping_total")
   def adjustmentsTotal = column[Int]("adjustments_total")
   def taxesTotal       = column[Int]("taxes_total")
   def grandTotal       = column[Int]("grand_total")
+  def contextId        = column[Int]("context_id")
   def state            = column[Order.State]("state")
   def placedAt         = column[Instant]("placed_at")
   def remorsePeriodEnd = column[Option[Instant]]("remorse_period_end")
@@ -104,13 +104,13 @@ class Orders(tag: Tag) extends FoxTable[Order](tag, "orders") {
     (id,
      referenceNumber,
      customerId,
-     contextId,
      currency,
      subTotal,
      shippingTotal,
      adjustmentsTotal,
      taxesTotal,
      grandTotal,
+     contextId,
      state,
      placedAt,
      remorsePeriodEnd,

@@ -1,25 +1,25 @@
 package services
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import cats.implicits._
 import failures.CartFailures._
+import models.cord._
+import models.cord.lineitems.{OrderLineItem, OrderLineItems}
 import models.customer.Customers
 import models.inventory.Skus
 import models.objects._
-import models.cord._
-import models.cord.lineitems.{OrderLineItem, OrderLineItems}
 import models.payment.creditcard.CreditCards
 import models.payment.giftcard.{GiftCard, GiftCardManual, GiftCardManuals, GiftCards}
 import models.payment.storecredit.{StoreCredit, StoreCreditManual, StoreCreditManuals, StoreCredits}
 import models.product.{Mvp, Products, SimpleContext}
 import models.{Reasons, StoreAdmins}
 import services.carts.CartTotaler
-import util.IntegrationTestBase
+import util.{IntegrationTestBase, TestObjectContext}
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class CartValidatorTest extends IntegrationTestBase {
-
-  import concurrent.ExecutionContext.Implicits.global
+class CartValidatorTest extends IntegrationTestBase with TestObjectContext {
 
   "CartValidator" - {
 

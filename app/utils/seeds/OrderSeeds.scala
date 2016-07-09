@@ -10,7 +10,7 @@ trait OrderSeeds {
     Order(customerId = 1, referenceNumber = "ABCD1234-11", state = ManualHold, contextId = 1)
 
   def cart: Cart =
-    Cart(customerId = 1, referenceNumber = "ABCD1234-11", contextId = 1)
+    Cart(customerId = 1, referenceNumber = "ABCD1234-11")
 
   def orderNotes: Seq[Note] = {
     def newNote(body: String) =

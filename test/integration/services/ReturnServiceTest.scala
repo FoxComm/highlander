@@ -10,12 +10,12 @@ import models.cord.{Order, Orders}
 import models.returns._
 import payloads.ReturnPayloads.ReturnCreatePayload
 import services.returns.ReturnService
-import util.IntegrationTestBase
+import util.{IntegrationTestBase, TestObjectContext}
 import utils.db._
 import utils.seeds.Seeds.Factories
 import utils.time._
 
-class ReturnServiceTest extends IntegrationTestBase {
+class ReturnServiceTest extends IntegrationTestBase with TestObjectContext {
 
   val numberOfInserts = 20
 

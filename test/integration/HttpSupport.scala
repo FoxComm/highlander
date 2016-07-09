@@ -13,10 +13,10 @@ import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpMethods, HttpRequ
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.settings.ConnectionPoolSettings
 import akka.http.scaladsl.unmarshalling.Unmarshal
+import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Flow, Sink, Source}
 import akka.stream.testkit.TestSubscriber.Probe
 import akka.stream.testkit.scaladsl.TestSink
-import akka.stream.{ActorMaterializer, Materializer}
 import akka.util.ByteString
 
 import com.typesafe.config.ConfigFactory
@@ -32,7 +32,7 @@ import responses.TheResponse
 import server.Service
 import services.Authenticator
 import services.Authenticator.AsyncAuthenticator
-import util.{DbTestSupport, MockedApis}
+import util.{DbTestSupport, MockedApis, TestObjectContext}
 import utils.aliases._
 import utils.{FoxConfig, JsonFormatters}
 
@@ -51,6 +51,7 @@ trait HttpSupport
     with ScalaFutures
     with MustMatchers
     with BeforeAndAfterAll
+    with TestObjectContext
     with MockedApis {
   this: Suite with PatienceConfiguration with DbTestSupport ⇒
 

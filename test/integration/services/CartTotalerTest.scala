@@ -4,18 +4,18 @@ import models.customer.Customers
 import models.location.Addresses
 import models.objects._
 import models.cord.lineitems._
-import models.cord.{OrderShippingMethod, OrderShippingMethods, Carts}
+import models.cord.{Carts, OrderShippingMethod, OrderShippingMethods}
 import models.payment.giftcard.{GiftCard, GiftCardOrder, GiftCardOrders, GiftCards}
 import models.product.{Mvp, SimpleContext}
 import models.shipping.ShippingMethods
 import services.carts.CartTotaler
-import util.IntegrationTestBase
+import util.{IntegrationTestBase, TestObjectContext}
 import utils.Money.Currency
 import utils.db._
 import utils.seeds.Seeds.Factories
+import concurrent.ExecutionContext.Implicits.global
 
-class CartTotalerTest extends IntegrationTestBase {
-  import concurrent.ExecutionContext.Implicits.global
+class CartTotalerTest extends IntegrationTestBase with TestObjectContext {
 
   "OrderTotalerTest" - {
     "subTotal" - {

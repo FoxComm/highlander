@@ -5,7 +5,6 @@ import java.time.Instant
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import cats.implicits._
-import failures.CartFailures._
 import failures.GeneralFailure
 import models.cord._
 import models.cord.lineitems._
@@ -26,6 +25,7 @@ class CheckoutTest
     extends IntegrationTestBase
     with MockitoSugar
     with MockedApis
+    with TestObjectContext
     with TestActivityContext.AdminAC {
 
   def cartValidator(resp: CartValidatorResponse = CartValidatorResponse()): CartValidation = {

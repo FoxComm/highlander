@@ -12,11 +12,10 @@ import failures.GiftCardFailures._
 import failures.NotFoundFailure404
 import failures.OrderFailures.OrderPaymentNotFoundFailure
 import failures.StoreCreditFailures.CustomerHasInsufficientStoreCredit
-import models.customer.Customers
-import models.location.Addresses
-import models.cord.Cart._
 import models.cord.OrderPayments.scope._
 import models.cord._
+import models.customer.Customers
+import models.location.Addresses
 import models.payment.PaymentMethod
 import models.payment.creditcard.{CreditCard, CreditCards}
 import models.payment.giftcard._

@@ -27,11 +27,11 @@ object OrderRoutes {
   def routes(implicit ec: EC, es: ES, db: DB, admin: StoreAdmin, apis: Apis) = {
 
     activityContext(admin) { implicit ac ⇒
-      determineObjectContext(db, ec) { productContext ⇒
+      determineObjectContext(db, ec) { implicit ctx ⇒
         pathPrefix("orders") {
           (post & pathEnd & entity(as[CreateCart])) { payload ⇒
             goodOrFailures {
-              CartCreator.createCart(admin, payload, productContext)
+              CartCreator.createCart(admin, payload)
             }
           } ~
           (patch & pathEnd & entity(as[BulkUpdateOrdersPayload])) { payload ⇒
@@ -53,10 +53,7 @@ object OrderRoutes {
           } ~
           (post & path("coupon" / Segment) & pathEnd) { code ⇒
             goodOrFailures {
-              CartPromotionUpdater.attachCoupon(Originator(admin),
-                                                refNum.some,
-                                                productContext,
-                                                code)
+              CartPromotionUpdater.attachCoupon(Originator(admin), refNum.some, code)
             }
           } ~
           (delete & path("coupon") & pathEnd) {
@@ -86,10 +83,7 @@ object OrderRoutes {
           } ~
           (post & path("coupon" / Segment) & pathEnd) { code ⇒
             goodOrFailures {
-              CartPromotionUpdater.attachCoupon(Originator(admin),
-                                                Some(refNum),
-                                                productContext,
-                                                code)
+              CartPromotionUpdater.attachCoupon(Originator(admin), Some(refNum), code)
             }
           } ~
           (delete & path("coupon") & pathEnd) {

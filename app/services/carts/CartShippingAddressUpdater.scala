@@ -17,9 +17,8 @@ import utils.db._
 
 object CartShippingAddressUpdater {
 
-  def mustFindAddressWithRegion(id: Int)(implicit ec: EC): DbResultT[(Address, Region)] = {
+  def mustFindAddressWithRegion(id: Int)(implicit ec: EC): DbResultT[(Address, Region)] =
     Addresses.findById(id).extract.withRegions.mustFindOneOr(NotFoundFailure404(Address, id))
-  }
 
   def mustFindShipAddressForCart(cart: Cart)(implicit ec: EC): DbResultT[OrderShippingAddress] =
     OrderShippingAddresses.findByOrderRef(cart.refNum).mustFindOneOr(NoShipAddress(cart.refNum))
@@ -29,7 +28,8 @@ object CartShippingAddressUpdater {
                                          refNum: Option[String] = None)(
       implicit ec: EC,
       db: DB,
-      ac: AC): DbResultT[TheResponse[FullCart.Root]] =
+      ac: AC,
+      ctx: OC): DbResultT[TheResponse[FullCart.Root]] =
     for {
       cart      ← * <~ getCartByOriginator(originator, refNum)
       _         ← * <~ cart.mustBeActive
@@ -50,7 +50,8 @@ object CartShippingAddressUpdater {
                                        refNum: Option[String] = None)(
       implicit ec: EC,
       db: DB,
-      ac: AC): DbResultT[TheResponse[FullCart.Root]] =
+      ac: AC,
+      ctx: OC): DbResultT[TheResponse[FullCart.Root]] =
     for {
       cart ← * <~ getCartByOriginator(originator, refNum)
       _    ← * <~ cart.mustBeActive
@@ -70,7 +71,8 @@ object CartShippingAddressUpdater {
                                        refNum: Option[String] = None)(
       implicit ec: EC,
       db: DB,
-      ac: AC): DbResultT[TheResponse[FullCart.Root]] =
+      ac: AC,
+      ctx: OC): DbResultT[TheResponse[FullCart.Root]] =
     for {
       cart        ← * <~ getCartByOriginator(originator, refNum)
       _           ← * <~ cart.mustBeActive
@@ -88,7 +90,8 @@ object CartShippingAddressUpdater {
   def removeShippingAddress(originator: Originator, refNum: Option[String] = None)(
       implicit ec: EC,
       db: DB,
-      ac: AC): DbResultT[TheResponse[FullCart.Root]] =
+      ac: AC,
+      ctx: OC): DbResultT[TheResponse[FullCart.Root]] =
     for {
       cart        ← * <~ getCartByOriginator(originator, refNum)
       _           ← * <~ cart.mustBeActive

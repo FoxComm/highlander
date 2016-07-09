@@ -4,22 +4,23 @@ import models.customer.Customers
 import models.location.Addresses
 import models.objects._
 import models.cord.lineitems._
-import models.cord.{OrderShippingAddresses, Carts}
+import models.cord.{Carts, OrderShippingAddresses}
 import models.product.{Mvp, SimpleContext}
 import models.rules.QueryStatement
 import models.shipping.ShippingMethods
 import services.ShippingManager.getShippingMethodsForCart
 import services.carts.CartTotaler
-import util.IntegrationTestBase
+import util.{IntegrationTestBase, TestObjectContext}
 import utils._
 import utils.db.ExPostgresDriver.api._
 import utils.db.ExPostgresDriver.jsonMethods._
 import utils.db._
 import utils.seeds.Seeds.Factories
 import utils.seeds.ShipmentSeeds
+import concurrent.ExecutionContext.Implicits.global
 
-class ShippingManagerTest extends IntegrationTestBase {
-  import concurrent.ExecutionContext.Implicits.global
+class ShippingManagerTest extends IntegrationTestBase with TestObjectContext {
+
   implicit val formats = JsonFormatters.phoenixFormats
 
   "ShippingManager" - {

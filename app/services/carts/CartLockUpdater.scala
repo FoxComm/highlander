@@ -9,7 +9,8 @@ import utils.db._
 
 object CartLockUpdater {
 
-  def lock(refNum: String, admin: StoreAdmin)(implicit ec: EC, db: DB): Result[FullCart.Root] =
+  def lock(refNum: String,
+           admin: StoreAdmin)(implicit ec: EC, db: DB, ctx: OC): Result[FullCart.Root] =
     (for {
       cart ← * <~ Carts.mustFindByRefNum(refNum)
       _    ← * <~ cart.mustBeActive
@@ -19,7 +20,7 @@ object CartLockUpdater {
       resp ← * <~ FullCart.buildRefreshed(cart)
     } yield resp).runTxn()
 
-  def unlock(refNum: String)(implicit ec: EC, db: DB): Result[FullCart.Root] =
+  def unlock(refNum: String)(implicit ec: EC, db: DB, ctx: OC): Result[FullCart.Root] =
     (for {
       cart     ← * <~ Carts.mustFindByRefNum(refNum)
       _        ← * <~ cart.mustBeActive

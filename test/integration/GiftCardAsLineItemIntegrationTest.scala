@@ -5,9 +5,9 @@ import Extensions._
 import failures.CartFailures.OrderAlreadyPlaced
 import failures.GiftCardFailures.GiftCardMustBeCart
 import failures.{GeneralFailure, NotFoundFailure404}
-import models.customer.Customers
-import models.cord.lineitems._
 import models.cord._
+import models.cord.lineitems._
+import models.customer.Customers
 import models.payment.giftcard._
 import payloads.LineItemPayloads.AddGiftCardLineItem
 import responses.cart.FullCart

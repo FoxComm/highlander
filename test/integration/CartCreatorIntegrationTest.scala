@@ -6,9 +6,6 @@ import cats.implicits._
 import failures.NotFoundFailure400
 import models.StoreAdmins
 import models.customer.{Customer, Customers}
-import models.objects._
-import models.cord.Cart
-import models.product.SimpleContext
 import payloads.OrderPayloads.CreateCart
 import responses.cart.FullCart
 import responses.cart.FullCart.Root
@@ -44,7 +41,7 @@ class CartCreatorIntegrationTest
 
       "returns current cart if customer already has one" in new Fixture {
         val payload = CreateCart(customerId = customer.id.some)
-        CartCreator.createCart(storeAdmin, payload, productContext).futureValue
+        CartCreator.createCart(storeAdmin, payload).futureValue
         val response = POST(s"v1/orders", payload)
 
         response.status must === (StatusCodes.OK)
@@ -76,10 +73,9 @@ class CartCreatorIntegrationTest
   }
 
   trait Fixture {
-    val (productContext, storeAdmin, customer) = (for {
-      productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-      customer       ← * <~ Customers.create(Factories.customer)
-      storeAdmin     ← * <~ StoreAdmins.create(authedStoreAdmin)
-    } yield (productContext, storeAdmin, customer)).gimme
+    val (storeAdmin, customer) = (for {
+      customer   ← * <~ Customers.create(Factories.customer)
+      storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
+    } yield (storeAdmin, customer)).gimme
   }
 }

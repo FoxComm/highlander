@@ -13,10 +13,10 @@ import failures.CustomerFailures._
 import failures.StripeFailures.StripeFailure
 import failures.{GeneralFailure, NotFoundFailure404}
 import models.StoreAdmins
-import models.customer._
-import models.location.{Addresses, Regions}
 import models.cord.OrderPayments.scope._
 import models.cord._
+import models.customer._
+import models.location.{Addresses, Regions}
 import models.payment.PaymentMethod
 import models.payment.creditcard.{CreditCard, CreditCards}
 import models.returns._

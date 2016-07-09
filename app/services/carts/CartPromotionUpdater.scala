@@ -3,7 +3,6 @@ package services.carts
 import cats.data.Xor
 import failures.CouponFailures._
 import failures.DiscountCompilerFailures._
-import failures.NotFoundFailure404
 import failures.OrderFailures._
 import failures.PromotionFailures._
 import models.cord.OrderPromotions.scope._
@@ -29,25 +28,22 @@ import utils.db._
 
 object CartPromotionUpdater {
 
-  def readjust(cart: Cart)(implicit ec: EC, es: ES, db: DB): DbResultT[Unit] =
+  def readjust(cart: Cart)(implicit ec: EC, es: ES, db: DB, ctx: OC): DbResultT[Unit] =
     for {
       // Fetch base stuff
-      context ← * <~ ObjectContexts
-                 .filter(_.id === cart.contextId)
-                 .mustFindOneOr(NotFoundFailure404(ObjectContext, cart.contextId))
       orderPromo ← * <~ OrderPromotions
                     .filterByOrderRef(cart.refNum)
                     .requiresCoupon
                     .mustFindOneOr(OrderHasNoPromotions)
       // Fetch promotion
       promotion ← * <~ Promotions
-                   .filterByContextAndShadowId(cart.contextId, orderPromo.promotionShadowId)
+                   .filterByContextAndShadowId(ctx.id, orderPromo.promotionShadowId)
                    .requiresCoupon
-                   .mustFindOneOr(PromotionShadowNotFoundForContext(orderPromo.promotionShadowId,
-                                                                    cart.contextId))
+                   .mustFindOneOr(
+                       PromotionShadowNotFoundForContext(orderPromo.promotionShadowId, ctx.id))
       promoForm   ← * <~ ObjectForms.mustFindById404(promotion.formId)
       promoShadow ← * <~ ObjectShadows.mustFindById404(promotion.shadowId)
-      promoObject = IlluminatedPromotion.illuminate(context, promotion, promoForm, promoShadow)
+      promoObject = IlluminatedPromotion.illuminate(ctx, promotion, promoForm, promoShadow)
       _ ← * <~ promoObject.mustBeActive
       // Fetch discount
       discountLinks ← * <~ ObjectLinks.filter(_.leftId === promoShadow.id).result
@@ -69,11 +65,12 @@ object CartPromotionUpdater {
       _ ← * <~ OrderLineItemAdjustments.createAll(adjustments)
     } yield {}
 
-  def attachCoupon(
-      originator: Originator,
-      refNum: Option[String] = None,
-      context: ObjectContext,
-      code: String)(implicit ec: EC, es: ES, db: DB, ac: AC): Result[TheResponse[FullCart.Root]] =
+  def attachCoupon(originator: Originator, refNum: Option[String] = None, code: String)(
+      implicit ec: EC,
+      es: ES,
+      db: DB,
+      ac: AC,
+      ctx: OC): Result[TheResponse[FullCart.Root]] =
     (for {
       // Fetch base data
       cart ← * <~ getCartByOriginator(originator, refNum)
@@ -85,18 +82,18 @@ object CartPromotionUpdater {
       // Fetch coupon + validate
       couponCode ← * <~ CouponCodes.mustFindByCode(code)
       coupon ← * <~ Coupons
-                .filterByContextAndFormId(context.id, couponCode.couponFormId)
+                .filterByContextAndFormId(ctx.id, couponCode.couponFormId)
                 .mustFindOneOr(CouponWithCodeCannotBeFound(code))
       couponForm   ← * <~ ObjectForms.mustFindById404(coupon.formId)
       couponShadow ← * <~ ObjectShadows.mustFindById404(coupon.shadowId)
-      couponObject = IlluminatedCoupon.illuminate(context, coupon, couponForm, couponShadow)
+      couponObject = IlluminatedCoupon.illuminate(ctx, coupon, couponForm, couponShadow)
       _ ← * <~ couponObject.mustBeActive
       _ ← * <~ couponObject.mustBeApplicable(couponCode, cart.customerId)
       // Fetch promotion + validate
       promotion ← * <~ Promotions
-                   .filterByContextAndFormId(context.id, coupon.promotionId)
+                   .filterByContextAndFormId(ctx.id, coupon.promotionId)
                    .requiresCoupon
-                   .mustFindOneOr(PromotionNotFoundForContext(coupon.promotionId, context.name))
+                   .mustFindOneOr(PromotionNotFoundForContext(coupon.promotionId, ctx.name))
       // Create connected promotion and line item adjustments
       _ ← * <~ OrderPromotions.create(OrderPromotion.buildCoupon(cart, promotion, couponCode))
       _ ← * <~ readjust(cart)
@@ -113,7 +110,8 @@ object CartPromotionUpdater {
       implicit ec: EC,
       es: ES,
       db: DB,
-      ac: AC): Result[TheResponse[FullCart.Root]] =
+      ac: AC,
+      ctx: OC): Result[TheResponse[FullCart.Root]] =
     (for {
       // Read
       cart            ← * <~ getCartByOriginator(originator, refNum)
