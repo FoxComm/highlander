@@ -1,7 +1,8 @@
 package services
 
 import (
-	"errors"
+	"database/sql"
+	"fmt"
 
 	"github.com/FoxComm/middlewarehouse/api/payloads"
 	"github.com/FoxComm/middlewarehouse/api/responses"
@@ -74,17 +75,10 @@ func (mgr InventoryManager) IncrementStockItemUnits(id uint, payload *payloads.I
 func (mgr InventoryManager) DecrementStockItemUnits(id uint, payload *payloads.DecrementStockItemUnits) error {
 	txn := mgr.db.Begin()
 
-	// Check to make sure there are enough on-hand items.
-	units := []models.StockItemUnit{}
-	err := txn.Limit(payload.Qty).Order("created_at desc").Where("status = ?", "onHand").Find(&units).Error
+	units, err := onHandStockItemUnits(txn, id, payload.Qty)
 	if err != nil {
 		txn.Rollback()
 		return err
-	}
-
-	if len(units) < payload.Qty {
-		txn.Rollback()
-		return errors.New("Not enough onHand units to decrement")
 	}
 
 	for _, v := range units {
@@ -97,4 +91,76 @@ func (mgr InventoryManager) DecrementStockItemUnits(id uint, payload *payloads.D
 	go UpdateStockItem(id, -1*payload.Qty, "onHand")
 
 	return txn.Commit().Error
+}
+
+func (mgr InventoryManager) ReserveItems(payload payloads.Reservation) error {
+	if err := payload.Validate(); err != nil {
+		return err
+	}
+
+	txn := mgr.db.Begin()
+
+	reservation := models.MakeReservationFromPayload(payload)
+	if err := txn.Create(&reservation).Error; err != nil {
+		txn.Rollback()
+		return err
+	}
+
+	// TODO: Optimize this a bit.
+	allIds := []uint{}
+	for _, sku := range payload.SKUs {
+		item := models.StockItem{}
+		if err := txn.Where("sku = ?", sku.SKU).First(&item).Error; err != nil {
+			txn.Rollback()
+			return err
+		}
+
+		units, err := onHandStockItemUnits(txn, item.ID, int(sku.Qty))
+		if err != nil {
+			txn.Rollback()
+			return err
+		}
+
+		for _, unit := range units {
+			allIds = append(allIds, unit.ID)
+		}
+	}
+
+	toUpdate := models.StockItemUnit{
+		ReservationID: sql.NullInt64{Int64: int64(reservation.ID), Valid: true},
+		Status:        "onHold",
+	}
+
+	err := txn.Model(models.StockItemUnit{}).Where("id in (?)", allIds).Updates(toUpdate).Error
+	if err != nil {
+		txn.Rollback()
+		return err
+	}
+
+	return txn.Commit().Error
+}
+
+func onHandStockItemUnits(db *gorm.DB, stockItemID uint, count int) ([]models.StockItemUnit, error) {
+	units := []models.StockItemUnit{}
+	err := db.Limit(count).
+		Order("created_at desc").
+		Where("stock_item_id = ?", stockItemID).
+		Where("status = ?", "onHand").
+		Find(&units).
+		Error
+
+	if err != nil {
+		return units, err
+	}
+
+	if len(units) < count {
+		err := fmt.Errorf(
+			"Not enough onHand units for stock item %v. Expected %v, got %v",
+			stockItemID,
+		)
+
+		return units, err
+	}
+
+	return units, nil
 }

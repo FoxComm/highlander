@@ -1,6 +1,7 @@
 package services
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/FoxComm/middlewarehouse/api/payloads"
@@ -21,6 +22,7 @@ type InventoryManagerTestSuite struct {
 }
 
 func TestInventoryManagerSuite(t *testing.T) {
+	fmt.Println("HERE????")
 	suite.Run(t, new(InventoryManagerTestSuite))
 }
 
@@ -34,6 +36,7 @@ func (suite *InventoryManagerTestSuite) SetupTest() {
 
 	assert.Nil(suite.T(), err)
 	tasks.TruncateTables([]string{
+		"reservations",
 		"stock_items",
 		"stock_item_units",
 		"stock_item_summaries",
@@ -133,5 +136,38 @@ func (suite *InventoryManagerTestSuite) TestDecrementStockItemUnits() {
 	err = suite.db.Find(&units).Error
 	if assert.Nil(suite.T(), err) {
 		assert.Equal(suite.T(), 3, len(units))
+	}
+}
+
+func (suite *InventoryManagerTestSuite) TestSingleSKUReservation() {
+	payload := &payloads.IncrementStockItemUnits{
+		Qty:      10,
+		UnitCost: 500,
+		Status:   "onHand",
+	}
+
+	err := suite.invMgr.IncrementStockItemUnits(suite.itemResp.ID, payload)
+	assert.Nil(suite.T(), err)
+
+	resPayload := payloads.Reservation{
+		RefNum: "BR10001",
+		SKUs: []payloads.SKUReservation{
+			payloads.SKUReservation{SKU: "TEST-DEFAULT", Qty: 1},
+		},
+	}
+
+	err = suite.invMgr.ReserveItems(resPayload)
+	assert.Nil(suite.T(), err)
+
+	var reservation models.Reservation
+	err = suite.db.First(&reservation).Error
+	if assert.Nil(suite.T(), err) {
+		assert.Equal(suite.T(), "BR10001", reservation.RefNum)
+	}
+
+	var units []models.StockItemUnit
+	err = suite.db.Where("reservation_id = ?", reservation.ID).Find(&units).Error
+	if assert.Nil(suite.T(), err) {
+		assert.Equal(suite.T(), 1, len(units))
 	}
 }
