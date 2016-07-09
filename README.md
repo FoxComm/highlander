@@ -88,16 +88,4 @@ Get the private IP address
     $ vagrant ssh
     $ ifconfig eth0
     
-Edit your hosts file so that `foxcommerce.local` and `admin.foxcommerce.local` point to the new box using the private IP address you just retrieved.
-    
-### Update Green River assembly
-
-You can pass green river `*.jar` file to VM without re-provisioning.
-
-Just run:
-
-    $ tools/update_greenriver.sh
-
-or:
-
-    $ MACHINE=backend PROVIDER=vmware_fusion tools/update_greenriver.sh    
+Edit your hosts file so that `foxcommerce.local` and `admin.foxcommerce.local` point to the new box using the private IP address you just retrieved.  
