@@ -65,7 +65,7 @@ class SearchViewSimulation extends Simulation {
     .exec(StoreCreditEndpoint.cancel())
     .exec(GiftCardEndpoint.cancel())
     .exec(OrderEndpoint.updateShippingAddress(order))
-    .exec(OrderEndpoint.cancel())
+    //.exec(OrderEndpoint.cancel())
     .exitHereIfFailed
     // Pause and check indexes
     .tryMax(10) {
