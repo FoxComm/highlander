@@ -16,6 +16,7 @@ import (
 type InventoryManagerTestSuite struct {
 	suite.Suite
 	itemResp *responses.StockItem
+	invMgr   InventoryManager
 	db       *gorm.DB
 }
 
@@ -25,6 +26,9 @@ func TestInventoryManagerSuite(t *testing.T) {
 
 func (suite *InventoryManagerTestSuite) SetupTest() {
 	var err error
+	suite.invMgr, err = MakeInventoryManager()
+	assert.Nil(suite.T(), err)
+
 	suite.db, err = config.DefaultConnection()
 	assert.Nil(suite.T(), err)
 
@@ -36,13 +40,13 @@ func (suite *InventoryManagerTestSuite) SetupTest() {
 	})
 
 	payload := &payloads.StockItem{StockLocationID: 1, SKU: "TEST-DEFAULT"}
-	suite.itemResp, err = CreateStockItem(payload)
+	suite.itemResp, err = suite.invMgr.CreateStockItem(payload)
 	assert.Nil(suite.T(), err)
 }
 
 func (suite *InventoryManagerTestSuite) TestCreation() {
 	payload := &payloads.StockItem{StockLocationID: 1, SKU: "TEST-CREATION"}
-	resp, err := CreateStockItem(payload)
+	resp, err := suite.invMgr.CreateStockItem(payload)
 	if assert.Nil(suite.T(), err) {
 		assert.Equal(suite.T(), "TEST-CREATION", resp.SKU)
 	}
@@ -50,7 +54,7 @@ func (suite *InventoryManagerTestSuite) TestCreation() {
 
 func (suite *InventoryManagerTestSuite) TestSummaryCreation() {
 	payload := &payloads.StockItem{StockLocationID: 1, SKU: "TEST-CREATION"}
-	resp, err := CreateStockItem(payload)
+	resp, err := suite.invMgr.CreateStockItem(payload)
 	assert.Nil(suite.T(), err)
 
 	summary := models.StockItemSummary{}
@@ -64,9 +68,9 @@ func (suite *InventoryManagerTestSuite) TestSummaryCreation() {
 
 func (suite *InventoryManagerTestSuite) TestFindByID() {
 	payload := &payloads.StockItem{StockLocationID: 1, SKU: "TEST-FIND"}
-	resp, err := CreateStockItem(payload)
+	resp, err := suite.invMgr.CreateStockItem(payload)
 	if assert.Nil(suite.T(), err) {
-		item, err := FindStockItemByID(resp.ID)
+		item, err := suite.invMgr.FindStockItemByID(resp.ID)
 		if assert.Nil(suite.T(), err) {
 			assert.Equal(suite.T(), "TEST-FIND", item.SKU)
 		}
@@ -75,7 +79,7 @@ func (suite *InventoryManagerTestSuite) TestFindByID() {
 
 func (suite *InventoryManagerTestSuite) TestEmptySKU() {
 	payload := &payloads.StockItem{StockLocationID: 1}
-	_, err := CreateStockItem(payload)
+	_, err := suite.invMgr.CreateStockItem(payload)
 	assert.NotNil(suite.T(), err)
 }
 
@@ -86,7 +90,7 @@ func (suite *InventoryManagerTestSuite) TestCreateStockItemsUnits() {
 		Status:   "onHand",
 	}
 
-	err := IncrementStockItemUnits(suite.itemResp.ID, payload)
+	err := suite.invMgr.IncrementStockItemUnits(suite.itemResp.ID, payload)
 	assert.Nil(suite.T(), err)
 }
 
@@ -97,7 +101,7 @@ func (suite *InventoryManagerTestSuite) TestCreateMultipleStockItemUnits() {
 		Status:   "onHand",
 	}
 
-	err := IncrementStockItemUnits(suite.itemResp.ID, payload)
+	err := suite.invMgr.IncrementStockItemUnits(suite.itemResp.ID, payload)
 	assert.Nil(suite.T(), err)
 
 	var units []models.StockItemUnit
@@ -122,7 +126,7 @@ func (suite *InventoryManagerTestSuite) TestDecrementStockItemUnits() {
 	}
 
 	payload := payloads.DecrementStockItemUnits{Qty: 7}
-	err := DecrementStockItemUnits(suite.itemResp.ID, &payload)
+	err := suite.invMgr.DecrementStockItemUnits(suite.itemResp.ID, &payload)
 	assert.Nil(suite.T(), err)
 
 	var units []models.StockItemUnit

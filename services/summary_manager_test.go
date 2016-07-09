@@ -35,7 +35,8 @@ func (suite *SummaryManagerTestSuite) SetupTest() {
 	})
 
 	payload := &payloads.StockItem{StockLocationID: 1, SKU: "TEST-DEFAULT"}
-	suite.itemResp, err = CreateStockItem(payload)
+	invMgr, err := MakeInventoryManager()
+	suite.itemResp, err = invMgr.CreateStockItem(payload)
 	assert.Nil(suite.T(), err)
 }
 

@@ -7,31 +7,32 @@ import (
 	"github.com/FoxComm/middlewarehouse/api/responses"
 	"github.com/FoxComm/middlewarehouse/common/db/config"
 	"github.com/FoxComm/middlewarehouse/models"
+	"github.com/jinzhu/gorm"
 )
 
-func FindStockItemByID(id uint) (*responses.StockItem, error) {
-	db, err := config.DefaultConnection()
-	if err != nil {
-		return nil, err
-	}
+type InventoryManager struct {
+	db *gorm.DB
+}
 
+func MakeInventoryManager() (mgr InventoryManager, err error) {
+	mgr = InventoryManager{}
+	mgr.db, err = config.DefaultConnection()
+	return
+}
+
+func (mgr InventoryManager) FindStockItemByID(id uint) (*responses.StockItem, error) {
 	si := &models.StockItem{}
-	if err := db.First(si, id).Error; err != nil {
+	if err := mgr.db.First(si, id).Error; err != nil {
 		return nil, err
 	} else {
 		return responses.NewStockItemFromModel(si), nil
 	}
 }
 
-func CreateStockItem(payload *payloads.StockItem) (*responses.StockItem, error) {
-	db, err := config.DefaultConnection()
-	if err != nil {
-		return nil, err
-	}
-
+func (mgr InventoryManager) CreateStockItem(payload *payloads.StockItem) (*responses.StockItem, error) {
 	si := models.NewStockItemFromPayload(payload)
 
-	if err := db.Create(si).Error; err != nil {
+	if err := mgr.db.Create(si).Error; err != nil {
 		return nil, err
 	}
 
@@ -42,22 +43,17 @@ func CreateStockItem(payload *payloads.StockItem) (*responses.StockItem, error) 
 		Reserved:    0,
 	}
 
-	if err := db.Create(&summary).Error; err != nil {
+	if err := mgr.db.Create(&summary).Error; err != nil {
 		return nil, err
 	}
 
 	return responses.NewStockItemFromModel(si), nil
 }
 
-func IncrementStockItemUnits(id uint, payload *payloads.IncrementStockItemUnits) error {
-	db, err := config.DefaultConnection()
-	if err != nil {
-		return err
-	}
-
+func (mgr InventoryManager) IncrementStockItemUnits(id uint, payload *payloads.IncrementStockItemUnits) error {
 	units := models.NewStockItemUnitsFromPayload(id, payload)
 
-	txn := db.Begin()
+	txn := mgr.db.Begin()
 
 	for _, v := range units {
 		if err := txn.Create(v).Error; err != nil {
@@ -75,17 +71,12 @@ func IncrementStockItemUnits(id uint, payload *payloads.IncrementStockItemUnits)
 	return nil
 }
 
-func DecrementStockItemUnits(id uint, payload *payloads.DecrementStockItemUnits) error {
-	db, err := config.DefaultConnection()
-	if err != nil {
-		return err
-	}
-
-	txn := db.Begin()
+func (mgr InventoryManager) DecrementStockItemUnits(id uint, payload *payloads.DecrementStockItemUnits) error {
+	txn := mgr.db.Begin()
 
 	// Check to make sure there are enough on-hand items.
 	units := []models.StockItemUnit{}
-	err = txn.Limit(payload.Qty).Order("created_at desc").Where("status = ?", "onHand").Find(&units).Error
+	err := txn.Limit(payload.Qty).Order("created_at desc").Where("status = ?", "onHand").Find(&units).Error
 	if err != nil {
 		txn.Rollback()
 		return err

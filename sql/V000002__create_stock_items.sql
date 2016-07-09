@@ -1,6 +1,6 @@
 create table stock_items (
   id serial primary key,
-  sku sku_code, 
+  sku sku_code,
   stock_location_id integer not null,
 
   created_at generic_timestamp,
