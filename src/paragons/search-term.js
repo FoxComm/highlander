@@ -35,10 +35,10 @@ const operators = {
   string: [
     { operator: 'eq', display: ':' }
   ],
-  'string-term': [
+  identifier: [
     { operator: 'eq', display: ':' }
   ],
-  'term': [
+  term: [
     { operator: 'eq', display: ':' }
   ],
 };

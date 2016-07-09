@@ -92,7 +92,7 @@ function createFilter(filter) {
       const extValue = {query: value, analyzer: 'standard'};
       return dsl.matchQuery(term, extValue);
     case 'string':
-    case 'string-term':
+    case 'identifier':
       return rangeToFilter(term, operator, value.toLowerCase());
     case 'date':
       return dateRangeFilter(term, operator, value);

@@ -123,7 +123,7 @@ describe('elastic.common', () => {
       const terms = [{
         term: 'orders.referenceNumber',
         operator: 'eq',
-        value: { type: 'string-term', value: 'BR10007' },
+        value: { type: 'identifier', value: 'BR10007' },
       }];
 
       const query = toQuery(terms);
