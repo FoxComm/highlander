@@ -17,10 +17,14 @@ create table returns (
 
 create index returns_order_ref_and_state on returns (order_ref, state);
 
+create function next_return_id(order_id integer) returns bigint as $$
+    select count(*)+1 as return_count from "returns" where order_id=$1;
+$$ language 'sql';
+
 create function set_returns_reference_number() returns trigger as $$
 begin
     if length(new.reference_number) = 0 then
-        new.reference_number = concat(new.order_ref, '.', next_return_id(new.order_id));
+        new.reference_number = concat(new.order_ref, '.', next_return_id(new.order_id)::text);
     end if;
     return new;
 end;

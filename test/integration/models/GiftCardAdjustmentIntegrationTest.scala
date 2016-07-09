@@ -3,7 +3,7 @@ package models
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import models.customer.Customers
-import models.order.{OrderPayments, Orders}
+import models.cord.{OrderPayments, Carts}
 import models.payment.giftcard._
 import util.IntegrationTestBase
 import utils.db._
@@ -20,7 +20,7 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
                     GiftCardManual(adminId = admin.id, reasonId = reason.id))
         gc ← * <~ GiftCards.create(Factories.giftCard.copy(originId = origin.id))
         payment ← * <~ OrderPayments.create(
-                     Factories.giftCardPayment.copy(orderRef = order.refNum,
+                     Factories.giftCardPayment.copy(cordRef = cart.refNum,
                                                     paymentMethodId = gc.id,
                                                     amount = Some(gc.availableBalance)))
         adjustment ← * <~ GiftCards.auth(giftCard = gc,
@@ -39,7 +39,7 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
                     GiftCardManual(adminId = admin.id, reasonId = reason.id))
         gc ← * <~ GiftCards.create(Factories.giftCard.copy(originId = origin.id))
         payment ← * <~ OrderPayments.create(Factories.giftCardPayment
-                       .copy(orderRef = order.refNum, paymentMethodId = gc.id, amount = Some(50)))
+                       .copy(cordRef = cart.refNum, paymentMethodId = gc.id, amount = Some(50)))
         adjustment ← * <~ GiftCards.auth(giftCard = gc,
                                          orderPaymentId = Some(payment.id),
                                          debit = 50,
@@ -57,7 +57,7 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
         gc ← * <~ GiftCards.create(
                 Factories.giftCard.copy(originId = origin.id, originalBalance = 50))
         payment ← * <~ OrderPayments.create(Factories.giftCardPayment
-                       .copy(orderRef = order.refNum, paymentMethodId = gc.id, amount = Some(50)))
+                       .copy(cordRef = cart.refNum, paymentMethodId = gc.id, amount = Some(50)))
         adjustment ← * <~ GiftCards.capture(giftCard = gc,
                                             orderPaymentId = Some(payment.id),
                                             debit = 50,
@@ -74,7 +74,7 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
         gc ← * <~ GiftCards.create(
                 Factories.giftCard.copy(originId = origin.id, originalBalance = 500))
         payment ← * <~ OrderPayments.create(
-                     Factories.giftCardPayment.copy(orderRef = order.refNum,
+                     Factories.giftCardPayment.copy(cordRef = cart.refNum,
                                                     paymentMethodId = gc.id,
                                                     amount = Some(gc.availableBalance)))
         _ ← * <~ GiftCards.capture(giftCard = gc,
@@ -123,7 +123,7 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
         gc ← * <~ GiftCards.create(
                 Factories.giftCard.copy(originId = origin.id, originalBalance = 500))
         payment ← * <~ OrderPayments.create(
-                     Factories.giftCardPayment.copy(orderRef = order.refNum,
+                     Factories.giftCardPayment.copy(cordRef = cart.refNum,
                                                     paymentMethodId = gc.id,
                                                     amount = Some(gc.availableBalance)))
         adj ← * <~ GiftCards.capture(giftCard = gc,
@@ -146,7 +146,7 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
         gc ← * <~ GiftCards.create(
                 Factories.giftCard.copy(originId = origin.id, originalBalance = 500))
         payment ← * <~ OrderPayments.create(
-                     Factories.giftCardPayment.copy(orderRef = order.refNum,
+                     Factories.giftCardPayment.copy(cordRef = cart.refNum,
                                                     paymentMethodId = gc.id,
                                                     amount = Some(gc.availableBalance)))
       } yield (gc, payment)).gimme
@@ -165,20 +165,19 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
         })
         .gimme
 
-      val finalGc = GiftCards.findOneById(gc.id).run().futureValue.value
+      val finalGc = GiftCards.findOneById(gc.id).gimme.value
       (finalGc.originalBalance, finalGc.availableBalance, finalGc.currentBalance) must === (
           (500, 500, 500))
     }
   }
 
   trait Fixture {
-    val adminFactory = Factories.storeAdmin
-    val (admin, reason, order) = (for {
+    val (admin, reason, cart) = (for {
       customer ← * <~ Customers.create(Factories.customer)
       admin    ← * <~ StoreAdmins.create(Factories.storeAdmin)
       reason   ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
-      order    ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
+      cart     ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
       reason   ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
-    } yield (admin, reason, order)).gimme
+    } yield (admin, reason, cart)).gimme
   }
 }

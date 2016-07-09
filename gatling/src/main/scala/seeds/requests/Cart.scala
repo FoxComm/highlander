@@ -8,7 +8,7 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import payloads.LineItemPayloads.UpdateLineItemsPayload
-import payloads.OrderPayloads.{CreateOrder, OrderTimeMachine}
+import payloads.OrderPayloads.{CreateCart, OrderTimeMachine}
 import payloads.UpdateShippingMethod
 import seeds.dbFeeder
 import seeds.requests.Auth._
@@ -20,7 +20,7 @@ object Cart {
     .post("/v1/orders")
     .requireAdminAuth
     .body(StringBody(session ⇒
-              json(CreateOrder(customerId = Some(session.get("customerId").as[Integer])))))
+              json(CreateCart(customerId = Some(session.get("customerId").as[Integer])))))
     .check(status.is(200), jsonPath("$.referenceNumber").ofType[String].saveAs("referenceNumber"))
 
   val addSkusToCart = http("Add SKUs to cart")

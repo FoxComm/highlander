@@ -5,7 +5,7 @@ import failures.NotFoundFailure404
 import models.StoreAdmins
 import models.customer.Customers
 import models.location.Addresses
-import models.order.{OrderPayments, Orders}
+import models.cord.{OrderPayments, Orders}
 import models.payment.creditcard.CreditCards
 import models.returns._
 import payloads.ReturnPayloads._
@@ -190,7 +190,7 @@ class ReturnPaymentsIntegrationTest
       cc       ← * <~ CreditCards.create(Factories.creditCard.copy(customerId = customer.id))
       orderPayment ← * <~ OrderPayments.create(
                         Factories.orderPayment
-                          .copy(orderRef = order.refNum, paymentMethodId = cc.id, amount = None))
+                          .copy(cordRef = order.refNum, paymentMethodId = cc.id, amount = None))
       rma ← * <~ Returns.create(Factories.rma.copy(referenceNumber = "ABCD1234-11.1"))
     } yield (rma, order, admin, customer)).gimme
   }

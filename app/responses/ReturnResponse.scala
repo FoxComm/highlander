@@ -2,22 +2,22 @@ package responses
 
 import java.time.Instant
 
+import models.StoreAdmins
+import models.cord.Orders
 import models.customer.Customers
 import models.inventory.Sku
 import models.objects._
-import models.product.Mvp
-import models.order.Orders
 import models.payment.PaymentMethod
 import models.payment.giftcard.GiftCard
+import models.product.Mvp
 import models.returns._
 import models.shipping.Shipment
-import models.StoreAdmins
 import responses.CustomerResponse.{Root ⇒ Customer}
 import responses.StoreAdminResponse.{Root ⇒ StoreAdmin}
 import responses.order.FullOrder
 import services.returns.ReturnTotaler
-import utils.Money._
 import slick.driver.PostgresDriver.api._
+import utils.Money._
 import utils.aliases._
 import utils.db._
 
@@ -53,7 +53,7 @@ object ReturnResponse {
 
   case class Root(id: Int,
                   referenceNumber: String,
-                  orderRefNum: String,
+                  cordRefNum: String,
                   rmaType: Return.ReturnType,
                   state: Return.State,
                   lineItems: LineItems,
@@ -162,7 +162,7 @@ object ReturnResponse {
             totals: Option[ReturnTotals] = None): Root =
     Root(id = rma.id,
          referenceNumber = rma.refNum,
-         orderRefNum = rma.orderRef,
+         cordRefNum = rma.orderRef,
          rmaType = rma.returnType,
          state = rma.state,
          customer = customer,

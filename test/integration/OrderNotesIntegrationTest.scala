@@ -3,9 +3,9 @@ import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
 import failures.NotFoundFailure404
+import models._
+import models.cord.{Order, Orders}
 import models.customer.Customers
-import models.order.{Order, Orders}
-import models.{Notes, _}
 import payloads.NotePayloads._
 import responses.AdminNotes
 import services.notes.OrderNoteManager
@@ -107,9 +107,8 @@ class OrderNotesIntegrationTest
 
   trait Fixture {
     val (order, storeAdmin, customer) = (for {
-      customer ← * <~ Customers.create(Factories.customer)
-      order ← * <~ Orders.create(
-                 Factories.order.copy(customerId = customer.id, state = Order.Cart))
+      customer   ← * <~ Customers.create(Factories.customer)
+      order      ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
       storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
     } yield (order, storeAdmin, customer)).gimme
   }

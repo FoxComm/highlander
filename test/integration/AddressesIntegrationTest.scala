@@ -7,7 +7,7 @@ import Extensions._
 import failures.NotFoundFailure404
 import models.customer.{Customer, Customers}
 import models.location.{Address, Addresses}
-import models.order.{OrderShippingAddresses, Orders}
+import models.cord.{OrderShippingAddresses, Carts}
 import payloads.AddressPayloads.CreateAddressPayload
 import util.IntegrationTestBase
 import utils.db._
@@ -175,17 +175,17 @@ class AddressesIntegrationTest extends IntegrationTestBase with HttpSupport with
 
   trait ShippingAddressFixture extends AddressFixture {
     (for {
-      order           ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
-      shippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address, order.refNum)
-    } yield (order, shippingAddress)).gimme
+      cart            ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
+      shippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address, cart.refNum)
+    } yield (cart, shippingAddress)).gimme
   }
 
   trait NoDefaultAddressFixture extends CustomerFixture {
-    val (address, order, shippingAddress) = (for {
+    val (address, cart, shippingAddress) = (for {
       address ← * <~ Addresses.create(
                    Factories.address.copy(customerId = customer.id, isDefaultShipping = false))
-      order   ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
-      shipAdd ← * <~ OrderShippingAddresses.copyFromAddress(address, order.refNum)
-    } yield (address, order, shipAdd)).gimme
+      cart    ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
+      shipAdd ← * <~ OrderShippingAddresses.copyFromAddress(address, cart.refNum)
+    } yield (address, cart, shipAdd)).gimme
   }
 }

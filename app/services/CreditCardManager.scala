@@ -10,11 +10,10 @@ import failures.CreditCardFailures.CannotUseInactiveCreditCard
 import failures.GiftCardFailures.CreditCardMustHaveAddress
 import failures.{Failures, NotFoundFailure404}
 import models.StoreAdmin
+import models.cord.OrderPayments.scope._
+import models.cord._
 import models.customer._
 import models.location._
-import models.order.OrderPayments.scope._
-import models.order.Orders.scope._
-import models.order._
 import models.payment.creditcard.{CreditCard, CreditCards}
 import payloads.AddressPayloads.CreateAddressPayload
 import payloads.PaymentPayloads._
@@ -134,16 +133,17 @@ object CreditCardManager {
     }
 
     def createNewAddressIfProvided(cc: CreditCard) =
-      payload.address.fold(DbResultT.good(cc))(_ ⇒
-            for {
+      payload.address.fold(DbResultT.good(cc)) { _ ⇒
+        for {
           address ← * <~ Addresses.create(Address.fromCreditCard(cc).copy(customerId = customerId))
-        } yield cc)
+        } yield cc
+      }
 
     def cascadeChangesToCarts(updated: CreditCard) = {
       val paymentIds = for {
-        orders ← Orders.findByCustomerId(customerId).cartOnly
-        pmts   ← OrderPayments.filter(_.paymentMethodId === updated.parentId).creditCards
-        if pmts.orderRef === orders.referenceNumber
+        carts ← Carts.findByCustomerId(customerId)
+        pmts  ← OrderPayments.filter(_.paymentMethodId === updated.parentId).creditCards
+        if pmts.cordRef === carts.referenceNumber
       } yield pmts.id
 
       for {

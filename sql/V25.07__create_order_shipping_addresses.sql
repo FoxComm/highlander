@@ -1,6 +1,6 @@
 create table order_shipping_addresses (
     id serial primary key,
-    order_ref text not null references orders(reference_number) on update restrict on delete restrict,
+    cord_ref text not null references cords(reference_number) on update restrict on delete restrict,
     region_id integer not null references regions(id) on update restrict on delete restrict,
     name generic_string not null,
     address1 generic_string not null,
@@ -12,4 +12,4 @@ create table order_shipping_addresses (
     updated_at generic_timestamp
 );
 
-create unique index order_shipping_addresses_order_ref_idx on order_shipping_addresses (order_ref);
+create unique index order_shipping_addresses_cord_ref_idx on order_shipping_addresses (cord_ref);

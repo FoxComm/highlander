@@ -1,33 +1,33 @@
 create or replace function update_orders_view_from_customers_ranking_fn() returns trigger as $$
 declare
-  order_refs text[];
+  cord_refs text[];
   customer_ids int[];
 begin
 
    case TG_TABLE_NAME
      when 'orders' then
-       order_refs := array_agg(NEW.reference_number::text);
+       cord_refs := array_agg(NEW.reference_number::text);
      when 'order_payments' then
-       order_refs := array_agg(NEW.order_ref);
+       cord_refs := array_agg(NEW.cord_ref);
      when 'credit_card_charges' then
-       select array_agg(op.order_ref) into strict order_refs
+       select array_agg(op.cord_ref) into strict cord_refs
          from credit_card_charges as ccp
          inner join order_payments as op on (op.id = ccp.order_payment_id)
          WHERE ccp.id = NEW.id;
      when 'gift_card_adjustments' then
-       select array_agg(op.order_ref) into strict order_refs
+       select array_agg(op.cord_ref) into strict cord_refs
          from gift_card_adjustments as gca
          inner join order_payments as op on (op.id = gca.order_payment_id)
          WHERE gca.id = NEW.id;
      when 'store_credit_adjustments' then
-       select array_agg(op.order_ref) into strict order_refs
+       select array_agg(op.cord_ref) into strict cord_refs
          from store_credit_adjustments as sca
          inner join order_payments as op on (op.id = sca.order_payment_id)
          where sca.id = NEW.id;
      when 'returns' then
-       order_refs := array_agg(NEW.order_ref);
+       cord_refs := array_agg(NEW.order_ref);
      when 'return_payments' then
-       select array_agg(returns.order_ref) into strict order_refs
+       select array_agg(returns.order_ref) into strict cord_refs
        from return_payments as rp
        inner join returns on (rp.return_id = returns.id)
        where rp.id = NEW.id;
@@ -36,7 +36,7 @@ begin
   select array_agg(c.id) into strict customer_ids
     from orders
     inner join customers as c on (orders.customer_id = c.id)
-    where orders.reference_number = ANY(order_refs);
+    where orders.reference_number = ANY(cord_refs);
 
 
   update orders_search_view set
@@ -58,7 +58,7 @@ begin
                 coalesce(sum(CCc.amount),0) + coalesce(sum(SCa.debit), 0) + coalesce(sum(GCa.debit),0) - coalesce(sum(rp.amount),0) as revenue
             from customers as c
               inner join orders on(c.id = orders.customer_id and orders.state in ('remorseHold', 'fulfillmentStarted', 'shipped'))
-              inner join order_payments as op on(op.order_ref = orders.reference_number)
+              inner join order_payments as op on(op.cord_ref = orders.reference_number)
               left join credit_card_charges as CCc on(CCc.order_payment_id = op.id and CCc.state in ('auth', 'fullCapture'))
               left join store_credit_adjustments as SCa on(SCA.order_payment_id = op.id and SCa.state in ('auth', 'capture'))
               left join gift_card_adjustments as GCa on (GCa.order_payment_id = op.id and GCa.state in ('auth', 'capture'))

@@ -5,7 +5,7 @@ import java.time.Instant
 import cats.data.Xor
 import com.pellucid.sealerate
 import failures.Failures
-import models.order.{OrderPayment, OrderPayments}
+import models.cord.{OrderPayment, OrderPayments}
 import models.payment.giftcard.GiftCardAdjustment._
 import shapeless._
 import slick.ast.BaseTypedType

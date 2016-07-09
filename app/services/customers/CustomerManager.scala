@@ -6,10 +6,10 @@ import java.time.temporal.ChronoUnit.DAYS
 import cats.implicits._
 import failures.NotFoundFailure404
 import models.StoreAdmin
+import models.cord.{OrderShippingAddresses, Orders}
 import models.customer.Customers.scope._
 import models.customer.{Customer, Customers}
 import models.location.Addresses
-import models.order.{OrderShippingAddresses, Orders}
 import models.shipping.Shipments
 import payloads.CustomerPayloads._
 import responses.CustomerResponse.{Root, build}
@@ -47,7 +47,7 @@ object CustomerManager {
     def resolveFromShipments(customerId: Int) =
       (for {
         order    ← Orders if order.customerId === customerId
-        shipment ← Shipments if shipment.orderRef === order.referenceNumber &&
+        shipment ← Shipments if shipment.cordRef === order.referenceNumber &&
           shipment.shippingAddressId.isDefined
         address ← OrderShippingAddresses if address.id === shipment.shippingAddressId &&
           address.phoneNumber.isDefined

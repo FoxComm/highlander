@@ -2,7 +2,6 @@ create or replace function update_orders_view_from_returns_fn() returns trigger 
 begin
 
   update orders_search_view set
-    return_count = subquery.count,
     returns = subquery.returns
     from (select
             o.id as order_id,

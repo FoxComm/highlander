@@ -4,8 +4,8 @@ import java.time.Instant
 
 import scala.concurrent.Future
 
+import models.cord.Order
 import models.customer.Customer
-import models.order.Order
 import models.payment.creditcard.CreditCardCharge
 import responses.ResponseItem
 
@@ -18,7 +18,7 @@ object AllOrders {
                   name: Option[String] = None,
                   paymentState: Option[CreditCardCharge.State] = None,
                   shippingState: Option[Order.State] = None,
-                  placedAt: Option[Instant] = None,
+                  placedAt: Instant,
                   remorsePeriodEnd: Option[Instant] = None,
                   total: Int)
       extends ResponseItem

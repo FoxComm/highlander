@@ -3,7 +3,7 @@ package models
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import models.customer.Customers
-import models.order.{OrderPayments, Orders}
+import models.cord.{OrderPayments, Carts}
 import models.payment.storecredit._
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import org.scalatest.prop.Tables.Table
@@ -22,7 +22,7 @@ class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
                     StoreCreditManual(adminId = admin.id, reasonId = reason.id))
         sc ← * <~ StoreCredits.create(Factories.storeCredit.copy(originId = origin.id))
         payment ← * <~ OrderPayments.create(Factories.giftCardPayment
-                       .copy(orderRef = order.refNum, paymentMethodId = sc.id, amount = Some(25)))
+                       .copy(cordRef = cart.refNum, paymentMethodId = sc.id, amount = Some(25)))
       } yield (sc, payment)).gimme
 
       val adjustments = Table(
@@ -44,7 +44,7 @@ class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
         sc ← * <~ StoreCredits.create(
                 Factories.storeCredit.copy(originalBalance = 500, originId = origin.id))
         pay ← * <~ OrderPayments.create(Factories.giftCardPayment
-                   .copy(orderRef = order.refNum, paymentMethodId = sc.id, amount = Some(500)))
+                   .copy(cordRef = cart.refNum, paymentMethodId = sc.id, amount = Some(500)))
         _ ← * <~ StoreCredits.capture(storeCredit = sc, orderPaymentId = Some(pay.id), amount = 50)
         _ ← * <~ StoreCredits.capture(storeCredit = sc, orderPaymentId = Some(pay.id), amount = 25)
         _ ← * <~ StoreCredits.capture(storeCredit = sc, orderPaymentId = Some(pay.id), amount = 15)
@@ -69,7 +69,7 @@ class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
         sc ← * <~ StoreCredits.create(
                 Factories.storeCredit.copy(originalBalance = 500, originId = origin.id))
         pay ← * <~ OrderPayments.create(Factories.giftCardPayment
-                   .copy(orderRef = order.refNum, paymentMethodId = sc.id, amount = Some(500)))
+                   .copy(cordRef = cart.refNum, paymentMethodId = sc.id, amount = Some(500)))
         adj ← * <~ StoreCredits.capture(storeCredit = sc,
                                         orderPaymentId = Some(pay.id),
                                         amount = 50)
@@ -89,7 +89,7 @@ class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
         sc ← * <~ StoreCredits.create(
                 Factories.storeCredit.copy(originalBalance = 500, originId = origin.id))
         payment ← * <~ OrderPayments.create(Factories.giftCardPayment
-                       .copy(orderRef = order.refNum, paymentMethodId = sc.id, amount = Some(500)))
+                       .copy(cordRef = cart.refNum, paymentMethodId = sc.id, amount = Some(500)))
       } yield (sc, payment)).gimme
 
       val debits = List(50, 25, 15, 10)
@@ -114,11 +114,11 @@ class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
   }
 
   trait Fixture {
-    val (admin, customer, reason, order) = (for {
+    val (admin, customer, reason, cart) = (for {
       admin    ← * <~ StoreAdmins.create(Factories.storeAdmin)
       customer ← * <~ Customers.create(Factories.customer)
-      order    ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
+      cart     ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
       reason   ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
-    } yield (admin, customer, reason, order)).gimme
+    } yield (admin, customer, reason, cart)).gimme
   }
 }

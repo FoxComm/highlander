@@ -5,7 +5,7 @@ import java.time.Instant
 import cats.data.ValidatedNel
 import cats.implicits._
 import failures.Failure
-import models.order.Order.State
+import models.cord.Order.State
 import utils.Validation
 
 object OrderPayloads {
@@ -16,10 +16,10 @@ object OrderPayloads {
 
   case class CreateOrderNotePayload(body: String)
 
-  case class CreateOrder(customerId: Option[Int] = None, email: Option[String] = None)
-      extends Validation[CreateOrder] {
+  case class CreateCart(customerId: Option[Int] = None, email: Option[String] = None)
+      extends Validation[CreateCart] {
 
-    def validate: ValidatedNel[Failure, CreateOrder] = {
+    def validate: ValidatedNel[Failure, CreateCart] = {
       import Validation._
 
       (validExpr(customerId.isDefined || email.isDefined, "customerId or email must be given") |@| email

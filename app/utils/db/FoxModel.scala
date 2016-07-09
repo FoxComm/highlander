@@ -3,9 +3,8 @@ package utils.db
 import cats.data.Validated.Valid
 import cats.data.{ValidatedNel, Xor}
 import failures.{Failure, Failures, GeneralFailure}
-import shapeless._
 import utils.Strings._
-import utils.Validation
+import utils.{Validation, friendlyClassName}
 
 trait FoxModel[M <: FoxModel[M]] extends Validation[M] { self: M ⇒
 
@@ -28,6 +27,8 @@ trait FoxModel[M <: FoxModel[M]] extends Validation[M] { self: M ⇒
   def primarySearchKey: String = id.toString
 
   def mustBeCreated: Failures Xor M =
-    if (id == 0) Xor.Left(GeneralFailure("Refusing to update unsaved model").single)
+    if (id == 0)
+      Xor.Left(
+          GeneralFailure(s"Refusing to update unsaved ${friendlyClassName(this)} model").single)
     else Xor.right(this)
 }

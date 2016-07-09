@@ -5,7 +5,7 @@ import Extensions._
 import failures.StoreCreditFailures.StoreCreditConvertFailure
 import failures._
 import models.customer.{Customer, Customers}
-import models.order.{OrderPayments, Orders}
+import models.cord.{OrderPayments, Carts}
 import models.payment.giftcard.GiftCard
 import models.payment.storecredit.StoreCredit._
 import models.payment.storecredit._
@@ -258,7 +258,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase with HttpSupport wi
       (for {
         admin     ← * <~ StoreAdmins.create(authedStoreAdmin)
         customer  ← * <~ Customers.create(Factories.customer)
-        order     ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
+        cart      ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
         scReason  ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
         scSubType ← * <~ StoreCreditSubtypes.create(Factories.storeCreditSubTypes.head)
         scOrigin ← * <~ StoreCreditManuals.create(
@@ -270,12 +270,12 @@ class StoreCreditIntegrationTest extends IntegrationTestBase with HttpSupport wi
                       Factories.storeCredit.copy(originId = scOrigin.id, customerId = customer.id))
         payment ← * <~ OrderPayments.create(
                      Factories.storeCreditPayment.copy(
-                         orderRef = order.refNum,
+                         cordRef = cart.refNum,
                          paymentMethodId = storeCredit.id,
                          paymentMethodType = PaymentMethod.StoreCredit,
                          amount = Some(storeCredit.availableBalance)))
         adjustment ← * <~ StoreCredits.auth(storeCredit, Some(payment.id), 10)
       } yield
-        (admin, customer, scReason, storeCredit, order, adjustment, scSecond, payment, scSubType)).gimme
+        (admin, customer, scReason, storeCredit, cart, adjustment, scSecond, payment, scSubType)).gimme
   }
 }

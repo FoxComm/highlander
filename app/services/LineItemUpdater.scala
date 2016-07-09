@@ -3,18 +3,17 @@ package services
 import failures.ProductFailures.SkuNotFoundForContext
 import models.StoreAdmin
 import models.activity.Activity
+import models.cord._
+import models.cord.lineitems.OrderLineItems.scope._
+import models.cord.lineitems._
 import models.customer.Customer
 import models.inventory.Skus
 import models.objects.ObjectContext
-import models.order._
-import models.order.lineitems.OrderLineItems.scope._
-import models.order.lineitems._
 import models.payment.giftcard._
 import payloads.LineItemPayloads.{AddGiftCardLineItem, UpdateLineItemsPayload}
 import responses.TheResponse
-import responses.order.FullOrder
-import responses.order.FullOrder.refreshAndFullOrder
-import services.orders.{OrderPromotionUpdater, OrderTotaler}
+import responses.cart.FullCart
+import services.carts.{CartPromotionUpdater, CartTotaler}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
@@ -23,122 +22,118 @@ object LineItemUpdater {
   def addGiftCard(admin: StoreAdmin, refNum: String, payload: AddGiftCardLineItem)(
       implicit ec: EC,
       db: DB,
-      ac: AC): Result[TheResponse[FullOrder.Root]] =
+      ac: AC): Result[TheResponse[FullCart.Root]] =
     (for {
       p      ← * <~ payload.validate
-      order  ← * <~ Orders.mustFindByRefNum(refNum)
-      _      ← * <~ order.mustBeCart
-      origin ← * <~ GiftCardOrders.create(GiftCardOrder(orderRef = order.refNum))
+      cart   ← * <~ Carts.mustFindByRefNum(refNum)
+      origin ← * <~ GiftCardOrders.create(GiftCardOrder(cordRef = cart.refNum))
       gc ← * <~ GiftCards.create(GiftCard
                 .buildLineItem(balance = p.balance, originId = origin.id, currency = p.currency))
       liGc ← * <~ OrderLineItemGiftCards.create(
-                OrderLineItemGiftCard(giftCardId = gc.id, orderRef = order.refNum))
-      _ ← * <~ OrderLineItems.create(OrderLineItem.buildGiftCard(order, liGc))
+                OrderLineItemGiftCard(giftCardId = gc.id, cordRef = cart.refNum))
+      _ ← * <~ OrderLineItems.create(OrderLineItem.buildGiftCard(cart, liGc))
       // update changed totals
-      order  ← * <~ OrderTotaler.saveTotals(order)
-      valid  ← * <~ CartValidator(order).validate()
-      result ← * <~ refreshAndFullOrder(order)
+      cart   ← * <~ CartTotaler.saveTotals(cart)
+      valid  ← * <~ CartValidator(cart).validate()
+      result ← * <~ FullCart.buildRefreshed(cart)
       _      ← * <~ LogActivity.orderLineItemsAddedGc(admin, result, gc)
     } yield TheResponse.build(result, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 
   def editGiftCard(admin: StoreAdmin, refNum: String, code: String, payload: AddGiftCardLineItem)(
       implicit ec: EC,
       db: DB,
-      ac: AC): Result[TheResponse[FullOrder.Root]] =
+      ac: AC): Result[TheResponse[FullCart.Root]] =
     (for {
       _        ← * <~ payload.validate
       giftCard ← * <~ GiftCards.mustFindByCode(code)
       _        ← * <~ giftCard.mustBeCart
-      order    ← * <~ Orders.mustFindByRefNum(refNum)
-      _        ← * <~ order.mustBeCart
+      cart     ← * <~ Carts.mustFindByRefNum(refNum)
       _        ← * <~ GiftCards.filter(_.id === giftCard.id).update(GiftCard.update(giftCard, payload))
       // update changed totals
-      order  ← * <~ OrderTotaler.saveTotals(order)
-      valid  ← * <~ CartValidator(order).validate()
-      result ← * <~ refreshAndFullOrder(order)
+      cart   ← * <~ CartTotaler.saveTotals(cart)
+      valid  ← * <~ CartValidator(cart).validate()
+      result ← * <~ FullCart.buildRefreshed(cart)
       _      ← * <~ LogActivity.orderLineItemsUpdatedGc(admin, result, giftCard)
     } yield TheResponse.build(result, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 
   def deleteGiftCard(admin: StoreAdmin, refNum: String, code: String)(
       implicit ec: EC,
       db: DB,
-      ac: AC): Result[TheResponse[FullOrder.Root]] =
+      ac: AC): Result[TheResponse[FullCart.Root]] =
     (for {
-      gc    ← * <~ GiftCards.mustFindByCode(code)
-      _     ← * <~ gc.mustBeCart
-      order ← * <~ Orders.mustFindByRefNum(refNum)
-      _     ← * <~ order.mustBeCart
-      _     ← * <~ OrderLineItemGiftCards.findByGcId(gc.id).delete
+      gc   ← * <~ GiftCards.mustFindByCode(code)
+      _    ← * <~ gc.mustBeCart
+      cart ← * <~ Carts.mustFindByRefNum(refNum)
+      _    ← * <~ OrderLineItemGiftCards.findByGcId(gc.id).delete
       // FIXME @anna WTF? Order id or GC id?
-      _ ← * <~ OrderLineItems.filter(_.orderRef === order.refNum).giftCards.delete
+      _ ← * <~ OrderLineItems.filter(_.cordRef === cart.refNum).giftCards.delete
       _ ← * <~ GiftCards.filter(_.id === gc.id).delete
       _ ← * <~ GiftCardOrders.filter(_.id === gc.originId).delete
       // update changed totals
-      order ← * <~ OrderTotaler.saveTotals(order)
-      valid ← * <~ CartValidator(order).validate()
-      res   ← * <~ refreshAndFullOrder(order)
+      cart  ← * <~ CartTotaler.saveTotals(cart)
+      valid ← * <~ CartValidator(cart).validate()
+      res   ← * <~ FullCart.buildRefreshed(cart)
       _     ← * <~ LogActivity.orderLineItemsDeletedGc(admin, res, gc)
     } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 
-  def updateQuantitiesOnOrder(admin: StoreAdmin,
-                              refNum: String,
-                              payload: Seq[UpdateLineItemsPayload])(
+  def updateQuantitiesOnCart(admin: StoreAdmin,
+                             refNum: String,
+                             payload: Seq[UpdateLineItemsPayload])(
       implicit ec: EC,
       es: ES,
       db: DB,
-      ac: AC): Result[TheResponse[FullOrder.Root]] = {
+      ac: AC): Result[TheResponse[FullCart.Root]] = {
 
-    val finder = Orders.mustFindByRefNum(refNum)
-    val logActivity = (order: FullOrder.Root, oldQtys: Map[String, Int]) ⇒
-      LogActivity.orderLineItemsUpdated(order, oldQtys, payload, Some(admin))
+    val finder = Carts.mustFindByRefNum(refNum)
+    val logActivity = (cart: FullCart.Root, oldQtys: Map[String, Int]) ⇒
+      LogActivity.orderLineItemsUpdated(cart, oldQtys, payload, Some(admin))
 
     runUpdates(finder, logActivity, payload)
   }
 
-  def updateQuantitiesOnCustomersOrder(customer: Customer,
-                                       payload: Seq[UpdateLineItemsPayload],
-                                       context: ObjectContext)(
+  def updateQuantitiesOnCustomersCart(customer: Customer,
+                                      payload: Seq[UpdateLineItemsPayload],
+                                      context: ObjectContext)(
       implicit ec: EC,
       es: ES,
       db: DB,
-      ac: AC): Result[TheResponse[FullOrder.Root]] = {
+      ac: AC): Result[TheResponse[FullCart.Root]] = {
 
-    val findOrCreate = Orders
-      .findActiveOrderByCustomer(customer)
+    val findOrCreate = Carts
+      .findByCustomer(customer)
       .one
-      .findOrCreateExtended(Orders.create(Order.buildCart(customer.id, context.id)))
+      .findOrCreateExtended(Carts.create(Cart(customerId = customer.id, contextId = context.id)))
 
-    val logActivity = (order: FullOrder.Root, oldQtys: Map[String, Int]) ⇒
-      LogActivity.orderLineItemsUpdated(order, oldQtys, payload)
+    val logActivity = (cart: FullCart.Root, oldQtys: Map[String, Int]) ⇒
+      LogActivity.orderLineItemsUpdated(cart, oldQtys, payload)
 
-    val finder = findOrCreate.map({ case (order, _) ⇒ order })
+    val finder = findOrCreate.map({ case (cart, _) ⇒ cart })
 
     runUpdates(finder, logActivity, payload)
   }
 
-  private def runUpdates(finder: DbResultT[Order],
-                         logAct: (FullOrder.Root, Map[String, Int]) ⇒ DbResultT[Activity],
+  private def runUpdates(finder: DbResultT[Cart],
+                         logAct: (FullCart.Root, Map[String, Int]) ⇒ DbResultT[Activity],
                          payload: Seq[UpdateLineItemsPayload])(
       implicit ec: EC,
       es: ES,
-      db: DB): Result[TheResponse[FullOrder.Root]] =
+      db: DB): Result[TheResponse[FullCart.Root]] =
     (for {
-      order ← * <~ finder
-      _     ← * <~ order.mustBeCart
+      cart ← * <~ finder
       // load old line items for activity trail
-      li ← * <~ OrderLineItemSkus.findLineItemsByOrder(order).result
+      li ← * <~ OrderLineItemSkus.findLineItemsByCordRef(cart.refNum).result
       lineItems = li.foldLeft(Map[String, Int]()) {
         case (acc, (sku, form, shadow, _, _)) ⇒
           val quantity = acc.getOrElse(sku.code, 0)
           acc.updated(sku.code, quantity + 1)
       }
       // update quantities
-      _ ← * <~ updateQuantities(order, payload)
+      _ ← * <~ updateQuantities(cart, payload)
       // update changed totals
-      _     ← * <~ OrderPromotionUpdater.readjust(order).recover { case _ ⇒ Unit }
-      order ← * <~ OrderTotaler.saveTotals(order)
-      valid ← * <~ CartValidator(order).validate()
-      res   ← * <~ refreshAndFullOrder(order)
+      _     ← * <~ CartPromotionUpdater.readjust(cart).recover { case _ ⇒ Unit }
+      cart  ← * <~ CartTotaler.saveTotals(cart)
+      valid ← * <~ CartValidator(cart).validate()
+      res   ← * <~ FullCart.buildRefreshed(cart)
       _     ← * <~ logAct(res, lineItems)
     } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 
@@ -148,27 +143,27 @@ object LineItemUpdater {
       acc.updated(item.sku, quantity + item.quantity)
     }
 
-  private def updateQuantities(order: Order, payload: Seq[UpdateLineItemsPayload])(
+  private def updateQuantities(cart: Cart, payload: Seq[UpdateLineItemsPayload])(
       implicit ec: EC): DbResultT[Seq[OrderLineItem]] = {
 
     val lineItemUpdActions = foldQuantityPayload(payload).map {
       case (skuCode, qty) ⇒
         for {
           sku ← * <~ Skus
-                 .filterByContext(order.contextId)
+                 .filterByContext(cart.contextId)
                  .filter(_.code === skuCode)
-                 .mustFindOneOr(SkuNotFoundForContext(skuCode, order.contextId))
-          lis ← * <~ fuckingHell(sku.id, qty, order.refNum)
+                 .mustFindOneOr(SkuNotFoundForContext(skuCode, cart.contextId))
+          lis ← * <~ fuckingHell(sku.id, qty, cart.refNum)
         } yield lis
     }
     DbResultT.sequence(lineItemUpdActions).map(_.flatten.toSeq)
   }
 
-  private def fuckingHell(skuId: Int, newQuantity: Int, orderRef: String)(
+  private def fuckingHell(skuId: Int, newQuantity: Int, cordRef: String)(
       implicit ec: EC): DbResultT[Seq[OrderLineItem]] = {
     val counts = for {
       (skuId, q) ← OrderLineItems
-                    .filter(_.orderRef === orderRef)
+                    .filter(_.cordRef === cordRef)
                     .skuItems
                     .join(OrderLineItemSkus)
                     .on(_.originId === _.id)
@@ -188,7 +183,7 @@ object LineItemUpdater {
           origin ← OrderLineItemSkus.safeFindBySkuId(skuId)
           // FIXME: should use `createAll` instead of `++=` but this method is a nightmare to refactor
           bulkInsert ← OrderLineItems ++= (1 to delta).map { _ ⇒
-                        OrderLineItem(orderRef = orderRef, originId = origin.id)
+                        OrderLineItem(cordRef = cordRef, originId = origin.id)
                       }.toSeq
         } yield ()
 
@@ -199,7 +194,7 @@ object LineItemUpdater {
           deleteLi ← OrderLineItems
                       .filter(
                           _.id in OrderLineItems
-                            .filter(_.orderRef === orderRef)
+                            .filter(_.cordRef === cordRef)
                             .skuItems
                             .join(OrderLineItemSkus)
                             .on(_.originId === _.id)
@@ -215,7 +210,7 @@ object LineItemUpdater {
         DbResultT.unit
       }
     }.flatMap { _ ⇒
-      DbResultT.fromDbio(OrderLineItems.filter(_.orderRef === orderRef).result)
+      DbResultT.fromDbio(OrderLineItems.filter(_.cordRef === cordRef).result)
     }
   }
 }

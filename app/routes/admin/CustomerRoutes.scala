@@ -8,8 +8,8 @@ import models.traits.Originator
 import payloads.AddressPayloads.CreateAddressPayload
 import payloads.CustomerPayloads._
 import payloads.PaymentPayloads._
+import services.carts.CartQueries
 import services.customers._
-import services.orders.OrderQueries
 import services.{AddressManager, CreditCardManager, CustomerCreditConverter, StoreCreditService}
 import utils.aliases._
 import utils.apis.Apis
@@ -37,7 +37,7 @@ object CustomerRoutes {
         (get & path("cart")) {
           determineObjectContext(db, ec) { productContext ⇒
             goodOrFailures {
-              OrderQueries.findOrCreateCartByCustomerId(customerId, productContext, Some(admin))
+              CartQueries.findOrCreateCartByCustomerId(customerId, productContext, Some(admin))
             }
           }
         } ~

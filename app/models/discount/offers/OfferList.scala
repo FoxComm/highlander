@@ -2,14 +2,13 @@ package models.discount.offers
 
 import scala.concurrent.Future
 
-import cats.data.Xor
-import cats.data.NonEmptyList
+import cats.data.{NonEmptyList, Xor}
 import cats.std.list._
 import failures._
+import models.cord.lineitems.OrderLineItemAdjustment
+import models.cord.lineitems.OrderLineItemAdjustment._
 import models.discount.DiscountInput
 import models.discount.offers.Offer.OfferResult
-import models.order.lineitems.OrderLineItemAdjustment
-import models.order.lineitems.OrderLineItemAdjustment._
 import utils.aliases._
 
 case class OfferList(offers: Seq[Offer]) extends Offer {

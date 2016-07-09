@@ -3,47 +3,49 @@ package services
 import java.time.Instant
 
 import models.Assignment._
+import models.activity.{Activities, Activity}
+import models.cord.{Cart, Order}
+import models.coupon.{Coupon, CouponCode}
 import models.customer.Customer
 import models.location.{Address, Region}
-import models.order.Order
 import models.payment.PaymentMethod
 import models.payment.creditcard.{CreditCard, CreditCardCharge}
 import models.payment.giftcard.GiftCard
 import models.payment.storecredit.StoreCredit
 import models.sharedsearch.SharedSearch
 import models.shipping.ShippingMethod
-import models.{Note, StoreAdmin}
-import models.activity.{Activities, Activity}
 import models.traits.{AdminOriginator, CustomerOriginator, Originator}
-import responses.CategoryResponses.FullCategoryResponse
-import responses.order.FullOrder
-import responses.{Addresses, CreditCardsResponse, CustomerResponse, GiftCardResponse, StoreAdminResponse, StoreCreditResponse}
-import services.LineItemUpdater.foldQuantityPayload
-import services.activity.CategoryTailored.{FullCategoryCreated, FullCategoryUpdated}
-import utils.aliases._
-import utils.db._
-import services.activity.AssignmentsTailored._
-import services.activity.CustomerTailored._
-import services.activity.GiftCardTailored._
-import services.activity.OrderTailored._
-import services.activity.NotesTailored._
-import services.activity.SharedSearchTailored._
-import services.activity.StoreCreditTailored._
-import services.activity.CouponsTailored._
-import StoreAdminResponse.{Root ⇒ AdminResponse, build ⇒ buildAdmin, _}
-import CustomerResponse.{Root ⇒ CustomerResponse, build ⇒ buildCustomer}
-import CreditCardsResponse.{buildSimple ⇒ buildCc}
-import models.coupon.{Coupon, CouponCode}
+import models.{Note, StoreAdmin}
 import payloads.GiftCardPayloads.GiftCardUpdateStateByCsr
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.StoreCreditPayloads.StoreCreditUpdateStateByCsr
+import responses.CategoryResponses.FullCategoryResponse
 import responses.CouponResponses.CouponResponse
-import responses.ProductResponses.ProductResponse
+import responses.CreditCardsResponse.{buildSimple ⇒ buildCc}
+import responses.CustomerResponse.{Root ⇒ CustomerResponse, build ⇒ buildCustomer}
 import responses.ObjectResponses.ObjectContextResponse
+import responses.ProductResponses.ProductResponse
 import responses.SkuResponses.SkuResponse
-import services.activity.ProductTailored.{FullProductCreated, FullProductUpdated}
-import services.activity.SkuTailored.{FullSkuCreated, FullSkuUpdated}
+import responses.StoreAdminResponse.{Root ⇒ AdminResponse, build ⇒ buildAdmin}
+import responses.cart.FullCart
+import responses.order.FullOrder
+import responses.{Addresses, CreditCardsResponse, GiftCardResponse, StoreCreditResponse}
+import services.LineItemUpdater.foldQuantityPayload
+import services.activity.AssignmentsTailored._
+import services.activity.CartTailored._
+import services.activity.CategoryTailored._
+import services.activity.CouponsTailored._
+import services.activity.CustomerTailored._
+import services.activity.GiftCardTailored._
+import services.activity.NotesTailored._
+import services.activity.OrderTailored._
+import services.activity.ProductTailored._
+import services.activity.SharedSearchTailored._
+import services.activity.SkuTailored._
 import services.activity.StoreAdminsTailored._
+import services.activity.StoreCreditTailored._
+import utils.aliases._
+import utils.db._
 
 object LogActivity {
 
@@ -228,10 +230,10 @@ object LogActivity {
                                        GiftCardResponse.build(gc),
                                        StoreCreditResponse.build(sc)))
 
-  def gcFundsAuthorized(customer: Customer, order: Order, gcCodes: Seq[String], amount: Int)(
+  def gcFundsAuthorized(customer: Customer, cart: Cart, gcCodes: Seq[String], amount: Int)(
       implicit ec: EC,
       ac: AC): DbResultT[Activity] =
-    Activities.log(GiftCardAuthorizedFunds(buildCustomer(customer), order, gcCodes, amount))
+    Activities.log(GiftCardAuthorizedFunds(buildCustomer(customer), cart, gcCodes, amount))
 
   /* Store Credits */
   def scCreated(admin: StoreAdmin, customer: Customer, sc: StoreCredit)(
@@ -256,25 +258,26 @@ object LogActivity {
                                        GiftCardResponse.build(gc),
                                        StoreCreditResponse.build(sc)))
 
-  def scFundsAuthorized(customer: Customer, order: Order, scIds: Seq[Int], amount: Int)(
+  def scFundsAuthorized(customer: Customer, cart: Cart, scIds: Seq[Int], amount: Int)(
       implicit ec: EC,
       ac: AC): DbResultT[Activity] =
-    Activities.log(StoreCreditAuthorizedFunds(buildCustomer(customer), order, scIds, amount))
+    Activities.log(StoreCreditAuthorizedFunds(buildCustomer(customer), cart, scIds, amount))
+
+  /* Carts */
+  def cartCreated(admin: Option[StoreAdmin], cart: FullCart.Root)(implicit ec: EC,
+                                                                  ac: AC): DbResultT[Activity] =
+    Activities.log(CartCreated(admin.map(buildAdmin), cart))
 
   /* Orders */
-  def cartCreated(admin: Option[StoreAdmin], order: FullOrder.Root)(implicit ec: EC,
-                                                                    ac: AC): DbResultT[Activity] =
-    Activities.log(CartCreated(admin.map(buildAdmin), order))
-
   def orderStateChanged(admin: StoreAdmin, order: FullOrder.Root, oldState: Order.State)(
       implicit ec: EC,
       ac: AC): DbResultT[Activity] =
     Activities.log(OrderStateChanged(buildAdmin(admin), order, oldState))
 
-  def orderBulkStateChanged(admin: StoreAdmin, newState: Order.State, orderRefNums: Seq[String])(
+  def orderBulkStateChanged(admin: StoreAdmin, newState: Order.State, cordRefNums: Seq[String])(
       implicit ec: EC,
       ac: AC): DbResultT[Activity] =
-    Activities.log(OrderBulkStateChanged(buildAdmin(admin), orderRefNums, newState))
+    Activities.log(OrderBulkStateChanged(buildAdmin(admin), cordRefNums, newState))
 
   def orderRemorsePeriodIncreased(
       admin: StoreAdmin,
@@ -282,145 +285,144 @@ object LogActivity {
       oldPeriodEnd: Option[Instant])(implicit ec: EC, ac: AC): DbResultT[Activity] =
     Activities.log(OrderRemorsePeriodIncreased(buildAdmin(admin), order, oldPeriodEnd))
 
-  /* Order Line Items */
-  def orderLineItemsAddedGc(admin: StoreAdmin, order: FullOrder.Root, gc: GiftCard)(
+  /* Cart Line Items */
+  def orderLineItemsAddedGc(admin: StoreAdmin, cart: FullCart.Root, gc: GiftCard)(
       implicit ec: EC,
       ac: AC): DbResultT[Activity] =
-    Activities.log(
-        OrderLineItemsAddedGiftCard(buildAdmin(admin), order, GiftCardResponse.build(gc)))
+    Activities.log(CartLineItemsAddedGiftCard(buildAdmin(admin), cart, GiftCardResponse.build(gc)))
 
-  def orderLineItemsUpdatedGc(admin: StoreAdmin, order: FullOrder.Root, gc: GiftCard)(
+  def orderLineItemsUpdatedGc(admin: StoreAdmin, cart: FullCart.Root, gc: GiftCard)(
       implicit ec: EC,
       ac: AC): DbResultT[Activity] =
     Activities.log(
-        OrderLineItemsUpdatedGiftCard(buildAdmin(admin), order, GiftCardResponse.build(gc)))
+        CartLineItemsUpdatedGiftCard(buildAdmin(admin), cart, GiftCardResponse.build(gc)))
 
-  def orderLineItemsDeletedGc(admin: StoreAdmin, order: FullOrder.Root, gc: GiftCard)(
+  def orderLineItemsDeletedGc(admin: StoreAdmin, cart: FullCart.Root, gc: GiftCard)(
       implicit ec: EC,
       ac: AC): DbResultT[Activity] =
     Activities.log(
-        OrderLineItemsDeletedGiftCard(buildAdmin(admin), order, GiftCardResponse.build(gc)))
+        CartLineItemsDeletedGiftCard(buildAdmin(admin), cart, GiftCardResponse.build(gc)))
 
   def orderLineItemsUpdated(
-      order: FullOrder.Root,
+      cart: FullCart.Root,
       oldQtys: Map[String, Int],
       payload: Seq[UpdateLineItemsPayload],
       admin: Option[StoreAdmin] = None)(implicit ec: EC, ac: AC): DbResultT[Activity] =
     Activities.log(
-        OrderLineItemsUpdatedQuantities(order,
-                                        oldQtys,
-                                        foldQuantityPayload(payload),
-                                        admin.map(buildAdmin)))
+        CartLineItemsUpdatedQuantities(cart,
+                                       oldQtys,
+                                       foldQuantityPayload(payload),
+                                       admin.map(buildAdmin)))
 
   /* Order checkout & payments */
 
   def orderCheckoutCompleted(order: FullOrder.Root)(implicit ec: EC, ac: AC): DbResultT[Activity] =
     Activities.log(OrderCheckoutCompleted(order))
 
-  def creditCardCharge(order: Order, charge: CreditCardCharge)(implicit ec: EC,
-                                                               ac: AC): DbResultT[Activity] =
+  def creditCardCharge(cart: Cart, charge: CreditCardCharge)(implicit ec: EC,
+                                                             ac: AC): DbResultT[Activity] =
     Activities.log(
         CreditCardChargeCompleted(
-            customerId = order.customerId,
-            orderRef = order.refNum,
-            orderNum = order.refNum,
+            customerId = cart.customerId,
+            cordRef = cart.refNum,
+            orderNum = cart.refNum,
             cardId = charge.creditCardId,
             amount = charge.amount,
             currency = charge.currency
         ))
 
-  /* Order Payment Methods */
+  /* Cart Payment Methods */
   def orderPaymentMethodAddedCc(originator: Originator,
-                                order: FullOrder.Root,
+                                cart: FullCart.Root,
                                 cc: CreditCard,
                                 region: Region)(implicit ec: EC, ac: AC): DbResultT[Activity] =
     Activities.log(
-        OrderPaymentMethodAddedCreditCard(order,
-                                          CreditCardsResponse.build(cc, region),
-                                          buildOriginator(originator)))
+        CartPaymentMethodAddedCreditCard(cart,
+                                         CreditCardsResponse.build(cc, region),
+                                         buildOriginator(originator)))
 
   def orderPaymentMethodAddedGc(originator: Originator,
-                                order: FullOrder.Root,
+                                cart: FullCart.Root,
                                 gc: GiftCard,
                                 amount: Int)(implicit ec: EC, ac: AC): DbResultT[Activity] =
     Activities.log(
-        OrderPaymentMethodAddedGiftCard(order,
-                                        GiftCardResponse.build(gc),
-                                        amount,
-                                        buildOriginator(originator)))
+        CartPaymentMethodAddedGiftCard(cart,
+                                       GiftCardResponse.build(gc),
+                                       amount,
+                                       buildOriginator(originator)))
 
   def orderPaymentMethodUpdatedGc(originator: Originator,
-                                  order: FullOrder.Root,
+                                  cart: FullCart.Root,
                                   gc: GiftCard,
                                   oldAmount: Option[Int],
                                   amount: Int)(implicit ec: EC, ac: AC): DbResultT[Activity] = {
-    val activity = OrderPaymentMethodUpdatedGiftCard(order,
-                                                     GiftCardResponse.build(gc),
-                                                     oldAmount,
-                                                     amount,
-                                                     buildOriginator(originator))
+    val activity = CartPaymentMethodUpdatedGiftCard(cart,
+                                                    GiftCardResponse.build(gc),
+                                                    oldAmount,
+                                                    amount,
+                                                    buildOriginator(originator))
 
     Activities.log(activity)
   }
 
-  def orderPaymentMethodAddedSc(originator: Originator, order: FullOrder.Root, amount: Int)(
+  def orderPaymentMethodAddedSc(originator: Originator, cart: FullCart.Root, amount: Int)(
       implicit ec: EC,
       ac: AC): DbResultT[Activity] =
-    Activities.log(OrderPaymentMethodAddedStoreCredit(order, amount, buildOriginator(originator)))
+    Activities.log(CartPaymentMethodAddedStoreCredit(cart, amount, buildOriginator(originator)))
 
   def orderPaymentMethodDeleted(
       originator: Originator,
-      order: FullOrder.Root,
+      cart: FullCart.Root,
       pmt: PaymentMethod.Type)(implicit ec: EC, ac: AC): DbResultT[Activity] =
-    Activities.log(OrderPaymentMethodDeleted(order, pmt, buildOriginator(originator)))
+    Activities.log(CartPaymentMethodDeleted(cart, pmt, buildOriginator(originator)))
 
-  def orderPaymentMethodDeletedGc(originator: Originator, order: FullOrder.Root, gc: GiftCard)(
+  def orderPaymentMethodDeletedGc(originator: Originator, cart: FullCart.Root, gc: GiftCard)(
       implicit ec: EC,
       ac: AC): DbResultT[Activity] =
     Activities.log(
-        OrderPaymentMethodDeletedGiftCard(order,
-                                          GiftCardResponse.build(gc),
-                                          buildOriginator(originator)))
+        CartPaymentMethodDeletedGiftCard(cart,
+                                         GiftCardResponse.build(gc),
+                                         buildOriginator(originator)))
 
-  /* Order Shipping Addresses */
+  /* Cart Shipping Addresses */
   def orderShippingAddressAdded(
       originator: Originator,
-      order: FullOrder.Root,
+      cart: FullCart.Root,
       address: Addresses.Root)(implicit ec: EC, ac: AC): DbResultT[Activity] =
-    Activities.log(OrderShippingAddressAdded(order, address, buildOriginator(originator)))
+    Activities.log(CartShippingAddressAdded(cart, address, buildOriginator(originator)))
 
   def orderShippingAddressUpdated(
       originator: Originator,
-      order: FullOrder.Root,
+      cart: FullCart.Root,
       address: Addresses.Root)(implicit ec: EC, ac: AC): DbResultT[Activity] =
-    Activities.log(OrderShippingAddressUpdated(order, address, buildOriginator(originator)))
+    Activities.log(CartShippingAddressUpdated(cart, address, buildOriginator(originator)))
 
   def orderShippingAddressDeleted(
       originator: Originator,
-      order: FullOrder.Root,
+      cart: FullCart.Root,
       address: Addresses.Root)(implicit ec: EC, ac: AC): DbResultT[Activity] =
-    Activities.log(OrderShippingAddressRemoved(order, address, buildOriginator(originator)))
+    Activities.log(CartShippingAddressRemoved(cart, address, buildOriginator(originator)))
 
-  /* Order Shipping Methods */
+  /* Cart Shipping Methods */
   def orderShippingMethodUpdated(
       originator: Originator,
-      order: FullOrder.Root,
+      cart: FullCart.Root,
       shippingMethod: Option[ShippingMethod])(implicit ec: EC, ac: AC): DbResultT[Activity] =
-    Activities.log(OrderShippingMethodUpdated(order, shippingMethod, buildOriginator(originator)))
+    Activities.log(CartShippingMethodUpdated(cart, shippingMethod, buildOriginator(originator)))
 
   def orderShippingMethodDeleted(
       originator: Originator,
-      order: FullOrder.Root,
+      cart: FullCart.Root,
       shippingMethod: ShippingMethod)(implicit ec: EC, ac: AC): DbResultT[Activity] =
-    Activities.log(OrderShippingMethodRemoved(order, shippingMethod, buildOriginator(originator)))
+    Activities.log(CartShippingMethodRemoved(cart, shippingMethod, buildOriginator(originator)))
 
-  /* Order Coupons */
-  def orderCouponAttached(order: Order, couponCode: CouponCode)(implicit ec: EC,
-                                                                ac: AC): DbResultT[Activity] =
-    Activities.log(OrderCouponAttached(order, couponCode))
+  /* Cart Coupons */
+  def orderCouponAttached(cart: Cart, couponCode: CouponCode)(implicit ec: EC,
+                                                              ac: AC): DbResultT[Activity] =
+    Activities.log(CartCouponAttached(cart, couponCode))
 
-  def orderCouponDetached(order: Order)(implicit ec: EC, ac: AC): DbResultT[Activity] =
-    Activities.log(OrderCouponDetached(order))
+  def orderCouponDetached(cart: Cart)(implicit ec: EC, ac: AC): DbResultT[Activity] =
+    Activities.log(CartCouponDetached(cart))
 
   /* Categories */
   def fullCategoryCreated(

@@ -4,8 +4,8 @@ import akka.http.scaladsl.server.Directives._
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.StoreAdmin
+import models.cord.Cord.cordRefNumRegex
 import models.inventory.Sku.skuCodeRegex
-import models.order.Order.orderRefNumRegex
 import models.payment.giftcard.GiftCard.giftCardCodeRegex
 import models.returns.Return.returnRefNumRegex
 import payloads.AssignmentPayloads._
@@ -193,7 +193,7 @@ object AssignmentsRoutes {
           }
         }
       } ~
-      pathPrefix("orders" / orderRefNumRegex) { refNum ⇒
+      pathPrefix("orders" / cordRefNumRegex) { refNum ⇒
         pathPrefix("assignees") {
           (get & pathEnd) {
             goodOrFailures {

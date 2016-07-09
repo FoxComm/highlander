@@ -3,7 +3,7 @@ package utils
 import java.time.{Instant, ZonedDateTime}
 
 import models.StoreAdmin
-import models.order.Order
+import models.cord.Order
 import models.payment.creditcard.CreditCardCharge
 import models.payment.giftcard.GiftCard
 import org.json4s.Formats
@@ -27,11 +27,11 @@ class JsonFormattersTest extends TestBase {
     "can (de-)serialize JSON" in {
       val ast = parse(
           write(
-              Test(order = Order.Cart,
+              Test(order = Order.ManualHold,
                    cc = CreditCardCharge.Auth,
                    gc = GiftCard.OnHold,
                    sas = StoreAdmin.Invited)))
-      (ast \ "order").extract[Order.State] mustBe Order.Cart
+      (ast \ "order").extract[Order.State] mustBe Order.ManualHold
       (ast \ "gc").extract[GiftCard.State] mustBe GiftCard.OnHold
       (ast \ "cc").extract[CreditCardCharge.State] mustBe CreditCardCharge.Auth
       (ast \ "sas").extract[StoreAdmin.State] mustBe StoreAdmin.Invited

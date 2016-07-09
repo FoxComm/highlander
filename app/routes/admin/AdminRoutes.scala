@@ -5,9 +5,8 @@ import akka.http.scaladsl.server.Directives._
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import failures.SharedSearchFailures.SharedSearchInvalidQueryFailure
 import models.StoreAdmin
+import models.cord.Cord.cordRefNumRegex
 import models.inventory.Sku
-import models.order.Order
-import models.order.Order.orderRefNumRegex
 import models.payment.giftcard.GiftCard
 import models.returns.Return
 import models.sharedsearch.SharedSearch
@@ -25,15 +24,15 @@ object AdminRoutes {
 
     activityContext(admin) { implicit ac ⇒
       StoreCreditRoutes.storeCreditRoutes ~
-      pathPrefix("shipping-methods" / orderRefNumRegex) { refNum ⇒
+      pathPrefix("shipping-methods" / cordRefNumRegex) { refNum ⇒
         (get & pathEnd) {
           getOrFailures {
-            ShippingManager.getShippingMethodsForOrder(refNum)
+            ShippingManager.getShippingMethodsForCart(refNum)
           }
         }
       } ~
       pathPrefix("notes") {
-        pathPrefix("order" / orderRefNumRegex) { refNum ⇒
+        pathPrefix("order" / cordRefNumRegex) { refNum ⇒
           (get & pathEnd) {
             getOrFailures {
               OrderNoteManager.list(refNum)

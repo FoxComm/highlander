@@ -5,7 +5,7 @@ import java.time.Instant
 import cats.data.Xor
 import cats.data.Xor.{left, right}
 import failures.{Failures, NotFoundFailure404}
-import models.order.OrderShippingAddress
+import models.cord.OrderShippingAddress
 import models.payment.creditcard.CreditCard
 import models.traits.Addressable
 import payloads.AddressPayloads.CreateAddressPayload

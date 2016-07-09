@@ -6,12 +6,12 @@ import akka.http.scaladsl.model.StatusCodes
 import Extensions._
 import failures.LockFailures._
 import failures._
+import models.cord._
+import models.cord.lineitems._
 import models.customer.{Customer, Customers}
 import models.inventory.Skus
 import models.objects._
-import models.order._
-import models.order.lineitems._
-import models.payment.giftcard.{GiftCard, GiftCardManual, GiftCardManuals, GiftCards}
+import models.payment.giftcard._
 import models.product.{Mvp, SimpleContext}
 import models.returns.Return.{Canceled, Processing}
 import models.returns._
@@ -20,6 +20,7 @@ import models.{Reasons, StoreAdmins}
 import payloads.ReturnPayloads._
 import responses.{AllReturns, ReturnLockResponse, ReturnResponse}
 import services.returns.{ReturnLineItemUpdater, ReturnLockUpdater}
+import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.db._
 import utils.seeds.Seeds.Factories
@@ -128,7 +129,7 @@ class ReturnIntegrationTest extends IntegrationTestBase with HttpSupport with Au
       "successfully creates new Return" in new Fixture {
         val response =
           POST(s"v1/returns",
-               ReturnCreatePayload(orderRefNum = order.refNum, returnType = Return.Standard))
+               ReturnCreatePayload(cordRefNum = order.refNum, returnType = Return.Standard))
         response.status must === (StatusCodes.OK)
 
         val root = response.as[ReturnResponse.Root]
@@ -140,7 +141,7 @@ class ReturnIntegrationTest extends IntegrationTestBase with HttpSupport with Au
       "fails to create Return with invalid order refNum provided" in new Fixture {
         val response =
           POST(s"v1/returns",
-               ReturnCreatePayload(orderRefNum = "ABC-666", returnType = Return.Standard))
+               ReturnCreatePayload(cordRefNum = "ABC-666", returnType = Return.Standard))
         response.status must === (StatusCodes.NotFound)
         response.error must === (NotFoundFailure404(Order, "ABC-666").description)
       }
@@ -420,10 +421,8 @@ class ReturnIntegrationTest extends IntegrationTestBase with HttpSupport with Au
         // Create
         val payload =
           ReturnGiftCardLineItemsPayload(code = giftCard.code, reasonId = returnReason.id)
-        val updatedRma = ReturnLineItemUpdater
-          .addGiftCardLineItem(rma.referenceNumber, payload)
-          .futureValue
-          .rightVal
+        val updatedRma =
+          ReturnLineItemUpdater.addGiftCardLineItem(rma.referenceNumber, payload).gimme
         val lineItemId = updatedRma.lineItems.giftCards.headOption.value.lineItemId
 
         // Delete
@@ -481,10 +480,8 @@ class ReturnIntegrationTest extends IntegrationTestBase with HttpSupport with Au
       "successfully deletes shipping cost line item" in new LineItemFixture {
         // Create
         val payload = ReturnShippingCostLineItemsPayload(reasonId = returnReason.id)
-        val updatedRma = ReturnLineItemUpdater
-          .addShippingCostItem(rma.referenceNumber, payload)
-          .futureValue
-          .rightVal
+        val updatedRma =
+          ReturnLineItemUpdater.addShippingCostItem(rma.referenceNumber, payload).gimme
         val lineItemId = updatedRma.lineItems.shippingCosts.headOption.value.lineItemId
 
         // Delete
@@ -529,7 +526,7 @@ class ReturnIntegrationTest extends IntegrationTestBase with HttpSupport with Au
       productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       product        ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head)
       sku            ← * <~ Skus.mustFindById404(product.skuId)
-      _              ← * <~ Factories.addSkusToOrder(Seq(sku.id), order.refNum, OrderLineItem.Cart)
+      _              ← * <~ addSkusToOrder(Seq(sku.id), order.refNum, OrderLineItem.Cart)
 
       gcReason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
       gcOrigin ← * <~ GiftCardManuals.create(
@@ -539,18 +536,33 @@ class ReturnIntegrationTest extends IntegrationTestBase with HttpSupport with Au
                                             originType = GiftCard.RmaProcess))
 
       gcLineItem ← * <~ OrderLineItemGiftCards.create(
-                      OrderLineItemGiftCard(orderRef = order.refNum, giftCardId = giftCard.id))
+                      OrderLineItemGiftCard(cordRef = order.refNum, giftCardId = giftCard.id))
       lineItem2 ← * <~ OrderLineItems.create(
                      OrderLineItem(originId = gcLineItem.id,
                                    originType = OrderLineItem.GiftCardItem,
-                                   orderRef = order.refNum))
+                                   cordRef = order.refNum))
 
       shippingAddress ← * <~ OrderShippingAddresses.create(
-                           Factories.shippingAddress.copy(orderRef = order.refNum, regionId = 1))
+                           Factories.shippingAddress.copy(cordRef = order.refNum, regionId = 1))
       shippingMethod ← * <~ ShippingMethods.create(Factories.shippingMethods.head)
       orderShippingMethod ← * <~ OrderShippingMethods.create(
-                               OrderShippingMethod.build(order = order, method = shippingMethod))
+                               OrderShippingMethod.build(cordRef = order.refNum,
+                                                         method = shippingMethod))
       shipment ← * <~ Shipments.create(Factories.shipment)
     } yield (productContext, returnReason, sku, giftCard, shipment)).gimme
   }
+
+  def addSkusToOrder(skuIds: Seq[Int],
+                     orderRef: String,
+                     state: OrderLineItem.State): DbResultT[Unit] =
+    for {
+      liSkus ← * <~ OrderLineItemSkus.filter(_.skuId.inSet(skuIds)).result
+      _ ← * <~ OrderLineItems.createAll(liSkus.seq.map { liSku ⇒
+           OrderLineItem(cordRef = orderRef,
+                         originId = liSku.id,
+                         originType = OrderLineItem.SkuItem,
+                         state = state)
+         })
+    } yield {}
+
 }

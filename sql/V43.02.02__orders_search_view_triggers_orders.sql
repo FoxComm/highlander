@@ -5,7 +5,6 @@ create or replace function update_orders_view_from_orders_insert_fn() returns tr
             new.id as id,
             new.reference_number as reference_number,
             new.state as state,
-            to_char(new.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as created_at,
             to_char(new.placed_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as placed_at,
             new.currency as currency,
             -- totals
@@ -36,7 +35,6 @@ begin
     update orders_search_view set
         reference_number = new.reference_number,
         state = new.state,
-        created_at = to_char(new.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
         placed_at = to_char(new.placed_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
         currency = new.currency,
         sub_total = new.sub_total,

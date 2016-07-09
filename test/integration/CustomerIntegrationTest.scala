@@ -15,8 +15,8 @@ import failures.{GeneralFailure, NotFoundFailure404}
 import models.StoreAdmins
 import models.customer._
 import models.location.{Addresses, Regions}
-import models.order.OrderPayments.scope._
-import models.order._
+import models.cord.OrderPayments.scope._
+import models.cord._
 import models.payment.PaymentMethod
 import models.payment.creditcard.{CreditCard, CreditCards}
 import models.returns._
@@ -31,8 +31,9 @@ import payloads.CustomerPayloads._
 import payloads.PaymentPayloads._
 import responses.CreditCardsResponse.{Root ⇒ CardResponse}
 import responses.CustomerResponse
-import responses.order.FullOrder
-import services.orders.OrderPaymentUpdater
+import responses.CustomerResponse.Root
+import responses.cart.FullCart
+import services.carts.CartPaymentUpdater
 import services.{CreditCardManager, Result}
 import slick.driver.PostgresDriver.api._
 import util._
@@ -152,36 +153,35 @@ class CustomerIntegrationTest
         response.as[CustomerResponse.Root] must === (customerRoot)
       }
 
-      "last shipping address" in {
+      "aaaa last shipping address" in {
 
         val phoneNumbers = Seq("1111111111", "2222222222")
 
         val defaultAddress = Factories.address.copy(isDefaultShipping = true, phoneNumber = None)
-
-        val orders = Seq(
-            Factories.order.copy(state = Order.Shipped, referenceNumber = "ABC-1"),
-            Factories.order.copy(state = Order.Shipped, referenceNumber = "ABC-2")
-        )
 
         def shippingAddresses(orders: Seq[(Order, String)]) =
           orders.map {
             case (order, phone) ⇒
               OrderShippingAddress
                 .buildFromAddress(defaultAddress)
-                .copy(orderRef = order.refNum, phoneNumber = phone.some)
+                .copy(cordRef = order.refNum, phoneNumber = phone.some)
           }
 
         val (customer, region, shipments) = (for {
-          customer  ← * <~ Customers.create(Factories.customer.copy(phoneNumber = None))
-          address   ← * <~ Addresses.create(defaultAddress.copy(customerId = customer.id))
-          region    ← * <~ Regions.findOneById(address.regionId)
-          ordersSeq ← * <~ orders.map(o ⇒ Orders.create(o.copy(customerId = customer.id)))
-          addresses ← * <~ shippingAddresses(ordersSeq.zip(phoneNumbers)).map(a ⇒
+          customer ← * <~ Customers.create(Factories.customer.copy(phoneNumber = None))
+          address  ← * <~ Addresses.create(defaultAddress.copy(customerId = customer.id))
+          region   ← * <~ Regions.findOneById(address.regionId)
+          cart1    ← * <~ Carts.create(Factories.cart.copy(referenceNumber = "ABC-1"))
+          order1   ← * <~ Orders.create(cart1.toOrder().copy(state = Order.Shipped))
+          cart2    ← * <~ Carts.create(Factories.cart.copy(referenceNumber = "ABC-2"))
+          order2   ← * <~ Orders.create(cart2.toOrder().copy(state = Order.Shipped))
+          orders = Seq(order1, order2)
+          addresses ← * <~ shippingAddresses(orders.zip(phoneNumbers)).map(a ⇒
                            OrderShippingAddresses.create(a))
           shipments ← * <~ addresses.map(
                          address ⇒
                            Shipments.create(
-                               Factories.shipment.copy(orderRef = address.orderRef,
+                               Factories.shipment.copy(cordRef = address.cordRef,
                                                        shippingAddressId = address.id.some,
                                                        orderShippingMethodId = None,
                                                        state = Shipped)))
@@ -192,12 +192,10 @@ class CustomerIntegrationTest
 
         def runTest(expectedPhone: String) = {
           val response = GET(s"v1/customers/${customer.id}")
-          val expectedCustomer =
-            CustomerResponse.build(customer.copy(phoneNumber = expectedPhone.some),
-                                   shippingRegion = region)
-
           response.status must === (StatusCodes.OK)
-          response.as[CustomerResponse.Root] must === (expectedCustomer)
+          val customerResponse = response.as[Root]
+          customerResponse.shippingRegion must === (region)
+          customerResponse.phoneNumber must === (expectedPhone.some)
         }
 
         updateShipmentTime(shipments.head, _.minusSeconds(10))
@@ -208,15 +206,17 @@ class CustomerIntegrationTest
       }
     }
 
-    "fetches customer info with lastOrderDays value" in new CartFixture {
-      val response = GET(s"v1/customers/${customer.id}")
+    "fetches customer info with lastOrderDays value" in new Fixture {
+      val cart  = Carts.create(Factories.cart.copy(customerId = customer.id)).gimme
+      val order = Orders.create(cart.toOrder()).gimme
       val expectedCustomer =
-        CustomerResponse.build(customer, shippingRegion = region, lastOrderDays = None)
+        CustomerResponse.build(customer, shippingRegion = region, lastOrderDays = Some(0))
 
+      val response = GET(s"v1/customers/${customer.id}")
       response.status must === (StatusCodes.OK)
       response.as[CustomerResponse.Root] must === (expectedCustomer)
 
-      Orders.update(order, order.copy(placedAt = Instant.now.minus(1, ChronoUnit.DAYS).some)).gimme
+      Orders.update(order, order.copy(placedAt = Instant.now.minus(1, ChronoUnit.DAYS))).gimme
 
       val secondResponse = GET(s"v1/customers/${customer.id}")
 
@@ -251,24 +251,21 @@ class CustomerIntegrationTest
   "GET /v1/customers/:customerId/cart" - {
     "returns customer cart" in new CartFixture {
       val response = GET(s"v1/customers/${customer.id}/cart")
-      println(response.error)
       response.status must === (StatusCodes.OK)
 
-      val root = response.as[FullOrder.Root]
-      root.referenceNumber must === (order.referenceNumber)
-      root.orderState must === (Order.Cart)
+      val root = response.as[FullCart.Root]
+      root.referenceNumber must === (cart.referenceNumber)
 
-      Orders.findActiveOrderByCustomer(customer).gimme must have size 1
+      Carts.findByCustomer(customer).gimme must have size 1
     }
 
     "creates cart if no present" in new Fixture {
       val response = GET(s"v1/customers/${customer.id}/cart")
       response.status must === (StatusCodes.OK)
 
-      val root = response.as[FullOrder.Root]
-      root.orderState must === (Order.Cart)
+      val root = response.as[FullCart.Root]
 
-      Orders.findActiveOrderByCustomer(customer).gimme must have size 1
+      Carts.findByCustomer(customer).gimme must have size 1
     }
 
     "returns 404 if customer not found" in new CartFixture {
@@ -554,8 +551,8 @@ class CustomerIntegrationTest
         when(stripeApiMock.updateExternalAccount(m.any(), m.any(), m.any()))
           .thenReturn(Result.good(mock[StripeCard]))
 
-        val order = Orders.create(Factories.cart.copy(customerId = customer.id)).gimme
-        OrderPaymentUpdater
+        val order = Carts.create(Factories.cart.copy(customerId = customer.id)).gimme
+        CartPaymentUpdater
           .addCreditCard(Originator(admin), creditCard.id, Some(order.refNum))
           .gimme
 
@@ -564,7 +561,7 @@ class CustomerIntegrationTest
           PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}",
                 payload)
         val (pmt :: Nil) =
-          OrderPayments.filter(_.orderRef === order.refNum).creditCards.gimme.toList
+          OrderPayments.filter(_.cordRef === order.refNum).creditCards.gimme.toList
         val (newVersion :: Nil) = CreditCards.filter(_.parentId === creditCard.id).gimme.toList
 
         response.status must === (StatusCodes.OK)
@@ -706,9 +703,8 @@ class CustomerIntegrationTest
   }
 
   trait CartFixture extends Fixture {
-    val order = Orders
-      .create(Factories.order
-            .copy(customerId = customer.id, state = Order.Cart, referenceNumber = "ABC-123"))
+    val cart = Carts
+      .create(Factories.cart.copy(customerId = customer.id, referenceNumber = "ABC-123"))
       .gimme
   }
 
@@ -716,24 +712,23 @@ class CustomerIntegrationTest
     val (order, orderPayment, customer2) = (for {
       customer2 ← * <~ Customers.create(
                      Factories.customer.copy(email = "second@example.org", name = Some("second")))
-      order ← * <~ Orders.create(
-                 Factories.order.copy(customerId = customer.id,
-                                      state = Order.Shipped,
-                                      referenceNumber = "ABC-123"))
-      order2 ← * <~ Orders.create(
-                  Factories.order.copy(customerId = customer2.id,
-                                       state = Order.Shipped,
-                                       referenceNumber = "ABC-456"))
+      cart ← * <~ Carts.create(
+                Factories.cart.copy(customerId = customer.id, referenceNumber = "ABC-123"))
+      cart2 ← * <~ Carts.create(
+                 Factories.cart.copy(customerId = customer2.id, referenceNumber = "ABC-456"))
+      order  ← * <~ Orders.create(cart.toOrder().copy(state = Order.Shipped))
+      order2 ← * <~ Orders.create(cart2.toOrder().copy(state = Order.Shipped))
       orderPayment ← * <~ OrderPayments.create(
-                        Factories.orderPayment.copy(orderRef = order.refNum,
+                        Factories.orderPayment.copy(cordRef = order.refNum,
                                                     paymentMethodId = creditCard.id,
                                                     amount = None))
       orderPayment2 ← * <~ OrderPayments.create(
-                         Factories.orderPayment.copy(orderRef = order2.refNum,
+                         Factories.orderPayment.copy(cordRef = order2.refNum,
                                                      paymentMethodId = creditCard.id,
                                                      amount = None))
       rma ← * <~ Returns.create(
                Factories.rma.copy(referenceNumber = "ABC-123.1",
+                                  orderId = order.id,
                                   orderRef = order.refNum,
                                   state = Return.Complete,
                                   customerId = customer.id))

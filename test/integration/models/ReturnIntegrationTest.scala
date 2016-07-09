@@ -6,7 +6,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import failures.DatabaseFailure
 import models.customer.Customers
-import models.order.{Order, Orders}
+import models.cord.{Order, Orders}
 import models.returns._
 import util.IntegrationTestBase
 import utils.db._

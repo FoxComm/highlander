@@ -36,7 +36,6 @@ create table export_orders (
     customer_id         integer,
     reference_number    text,
     state               text,
-    created_at          text,
     placed_at           text,
     sub_total           integer,
     shipping_total      integer,
@@ -56,7 +55,7 @@ create table export_payments (
 );
 
 create table export_order_payments (
-    order_reference_number      text,
+    cord_reference_number      text,
     order_created_at            text,
     order_payment_created_at    text
 );

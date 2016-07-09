@@ -7,13 +7,13 @@ import scala.concurrent.Future
 import cats.implicits._
 import failures.CouponFailures._
 import failures.PromotionFailures._
+import models.cord._
+import models.cord.lineitems._
 import models.coupon._
 import models.customer.{Customer, Customers}
 import models.discount._
 import models.location.Region
 import models.objects._
-import models.order._
-import models.order.lineitems._
 import models.payment.PaymentMethod
 import models.payment.creditcard._
 import models.payment.giftcard.GiftCard
@@ -76,8 +76,7 @@ object FullOrder {
                   shippingMethod: Option[ShippingMethods.Root] = None,
                   shippingAddress: Option[Addresses.Root] = None,
                   remorsePeriodEnd: Option[Instant] = None,
-                  paymentMethods: Seq[Payments] = Seq.empty,
-                  lockedBy: Option[StoreAdmin])
+                  paymentMethods: Seq[Payments] = Seq.empty)
       extends ResponseItem
       with OrderResponseBase
 
@@ -138,20 +137,19 @@ object FullOrder {
     for {
       context     ← * <~ ObjectContexts.mustFindById400(order.contextId)
       customer    ← * <~ Customers.findOneById(order.customerId)
-      lineItemTup ← * <~ OrderLineItemSkus.findLineItemsByOrder(order).result
+      lineItemTup ← * <~ OrderLineItemSkus.findLineItemsByCordRef(order.refNum).result
       lineItems = lineItemTup.map {
         case (sku, skuForm, skuShadow, productShadow, lineItem) ⇒
           OrderLineItemProductData(sku, skuForm, skuShadow, productShadow, lineItem)
       }
-      giftCards  ← * <~ OrderLineItemGiftCards.findLineItemsByOrder(order).result
-      shipMethod ← * <~ shipping.ShippingMethods.forOrder(order).one
+      giftCards  ← * <~ OrderLineItemGiftCards.findLineItemsByCordRef(order.refNum).result
+      shipMethod ← * <~ shipping.ShippingMethods.forCordRef(order.refNum).one
       shipAddress ← * <~ Addresses
                      .forOrderRef(order.refNum)
                      .fold(_ ⇒ Option.empty[Addresses.Root], address ⇒ address.some)
       payments     ← * <~ ccPaymentQ.one
       gcPayments   ← * <~ OrderPayments.findAllGiftCardsByOrderRef(order.refNum).result
       scPayments   ← * <~ OrderPayments.findAllStoreCreditsByOrderRef(order.refNum).result
-      lockedBy     ← * <~ currentLock(order)
       payState     ← * <~ OrderQueries.getPaymentState(order.refNum)
       orderPromo   ← * <~ OrderPromotions.filterByOrderRef(order.refNum).one
       promoDetails ← * <~ fetchPromoDetails(context, orderPromo)
@@ -167,7 +165,6 @@ object FullOrder {
           ccPmt = payments,
           gcPmts = gcPayments,
           scPmts = scPayments,
-          lockedBy = lockedBy,
           paymentState = payState.some,
           totals = totals(order).some,
           promotion = promoDetails.map { case (promo, _) ⇒ promo },
@@ -259,19 +256,7 @@ object FullOrder {
          totals = totals.getOrElse(Totals.empty),
          shippingMethod = shippingMethod.map(ShippingMethods.build(_)),
          remorsePeriodEnd = order.getRemorsePeriodEnd,
-         paymentMethods = paymentMethods,
-         lockedBy = none)
-  }
-
-  private def currentLock(order: Order): DBIO[Option[StoreAdmin]] = {
-    if (order.isLocked) {
-      (for {
-        lock  ← OrderLockEvents.latestLockByOrder(order.refNum)
-        admin ← lock.storeAdmin
-      } yield admin).one
-    } else {
-      DBIO.successful(none)
-    }
+         paymentMethods = paymentMethods)
   }
 
   private def totals(order: Order): Totals =

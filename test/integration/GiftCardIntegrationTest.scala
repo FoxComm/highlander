@@ -5,7 +5,7 @@ import Extensions._
 import failures.GiftCardFailures.GiftCardConvertFailure
 import failures._
 import models.customer.{Customer, Customers}
-import models.order.{OrderPayments, Orders}
+import models.cord.{OrderPayments, Carts}
 import models.payment.giftcard.GiftCard._
 import models.payment.giftcard._
 import models.payment.storecredit.StoreCredit
@@ -227,7 +227,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase with HttpSupport with 
         val firstAdjustment = adjustments.head
         firstAdjustment.amount must === (-adjustment1.debit)
         firstAdjustment.availableBalance must === (giftCard.originalBalance - adjustment1.debit)
-        firstAdjustment.orderRef.value mustBe order.referenceNumber
+        firstAdjustment.cordRef.value mustBe order.referenceNumber
       }
     }
 
@@ -309,7 +309,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase with HttpSupport with 
   trait Fixture {
     val (customer, admin, giftCard, order, payment, adjustment1, gcSecond, gcSubType) = (for {
       customer  ← * <~ Customers.create(Factories.customer)
-      order     ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
+      cart      ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
       admin     ← * <~ StoreAdmins.create(authedStoreAdmin)
       reason    ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
       gcSubType ← * <~ GiftCardSubtypes.create(Factories.giftCardSubTypes.head)
@@ -321,12 +321,12 @@ class GiftCardIntegrationTest extends IntegrationTestBase with HttpSupport with 
                     Factories.giftCard
                       .copy(originId = origin.id, state = GiftCard.Active, code = "ABC-234"))
       payment ← * <~ OrderPayments.create(
-                   Factories.giftCardPayment.copy(orderRef = order.refNum,
+                   Factories.giftCardPayment.copy(cordRef = cart.refNum,
                                                   paymentMethodId = giftCard.id,
                                                   paymentMethodType = PaymentMethod.GiftCard,
                                                   amount = Some(25)))
       adj1     ← * <~ GiftCards.auth(giftCard, Some(payment.id), 10)
       giftCard ← * <~ GiftCards.findOneById(giftCard.id)
-    } yield (customer, admin, giftCard.value, order, payment, adj1, gcSecond, gcSubType)).gimme
+    } yield (customer, admin, giftCard.value, cart, payment, adj1, gcSecond, gcSubType)).gimme
   }
 }

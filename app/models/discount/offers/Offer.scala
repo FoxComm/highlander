@@ -5,10 +5,10 @@ import scala.concurrent.Future
 import cats.data.Xor
 import failures.DiscountFailures.SearchFailure
 import failures._
-import models.discount.{DiscountBase, DiscountInput, ProductSearch}
+import models.cord.lineitems.OrderLineItemAdjustment._
+import models.cord.lineitems._
 import models.discount.offers.Offer.OfferResult
-import models.order.lineitems._
-import models.order.lineitems.OrderLineItemAdjustment._
+import models.discount.{DiscountBase, DiscountInput, ProductSearch}
 import services.Result
 import utils.ElasticsearchApi.{apply ⇒ _, _}
 import utils.aliases._
@@ -25,7 +25,7 @@ trait Offer extends DiscountBase {
   def build(input: DiscountInput,
             substract: Int,
             lineItemRefNum: Option[String] = None): OrderLineItemAdjustment =
-    OrderLineItemAdjustment(orderRef = input.order.refNum,
+    OrderLineItemAdjustment(cordRef = input.cart.refNum,
                             promotionShadowId = input.promotion.id,
                             adjustmentType = adjustmentType,
                             substract = substract,

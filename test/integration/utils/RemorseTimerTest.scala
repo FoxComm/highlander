@@ -7,13 +7,10 @@ import akka.actor.ActorSystem
 import akka.pattern.ask
 import akka.testkit.{TestActorRef, TestKit}
 
-import models.order.Order.FulfillmentStarted
-import models.order.{Order, Orders}
+import models.cord.{Order, Orders}
 import org.scalatest.BeforeAndAfterAll
 import services.actors._
-import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
-import utils.db._
 import utils.seeds.Seeds.Factories
 
 class RemorseTimerTest(_system: ActorSystem)
@@ -27,18 +24,15 @@ class RemorseTimerTest(_system: ActorSystem)
 
   val timer = TestActorRef(new RemorseTimer())
 
-  def byRefNum = Orders.findByRefNum("ABCD1234-11")
-
-  def updated = byRefNum.one.run().futureValue.value
-
   "Remorse timer" - {
 
     "advances to fulfillment once remorse period ends" in new Fixture {
-      val overdue = Option(Instant.now.minusSeconds(60))
-      byRefNum.map(_.remorsePeriodEnd).update(overdue).run().futureValue
+      val overdue = Some(Instant.now.minusSeconds(60))
+      Orders.update(order, order.copy(remorsePeriodEnd = overdue)).gimme
       tick()
+      val updated = Orders.refresh(order).gimme
       updated.remorsePeriodEnd must === (None)
-      updated.state must === (FulfillmentStarted)
+      updated.state must === (Order.FulfillmentStarted)
     }
   }
 

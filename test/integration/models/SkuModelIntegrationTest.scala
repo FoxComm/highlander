@@ -1,7 +1,7 @@
 package models
 
 import models.objects._
-import models.order.lineitems.OrderLineItemSkus
+import models.cord.lineitems.OrderLineItemSkus
 import models.product.{Mvp, SimpleContext}
 import util.IntegrationTestBase
 import utils.db._

@@ -1,11 +1,11 @@
 package utils
 
 import models.auth.Identity.IdentityKind
+import models.cord.Order
+import models.cord.lineitems._
 import models.discount.offers.OfferType
 import models.discount.qualifiers.QualifierType
 import models.inventory.SkuType
-import models.order.Order
-import models.order.lineitems._
 import models.payment.PaymentMethod
 import models.payment.creditcard.CreditCardCharge
 import models.payment.giftcard.{GiftCard, GiftCardAdjustment}

@@ -3,9 +3,10 @@ package utils
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import failures.{DatabaseFailure, GeneralFailure, StateTransitionNotAllowed}
+import models.cord.Order.Shipped
+import models.cord.{Order, Orders}
 import models.customer.{Customer, Customers}
 import models.location.Addresses
-import models.order.{Order, Orders}
 import util.IntegrationTestBase
 import utils.db._
 import utils.seeds.Seeds.Factories
@@ -74,7 +75,7 @@ class ModelIntegrationTest extends IntegrationTestBase {
 
     "model refuses to update if FSM check fails" in {
       val origin      = Factories.order
-      val destination = origin.copy(state = Order.Cart)
+      val destination = origin.copy(state = Shipped)
       val failure     = leftValue(origin.updateTo(destination))
       failure must === (
           StateTransitionNotAllowed(origin.state, destination.state, origin.refNum).single)
@@ -90,11 +91,9 @@ class ModelIntegrationTest extends IntegrationTestBase {
     "must run FSM check if applicable" in {
       val order = Orders.create(Factories.order).run.gimme
       order.isNew must === (false)
-      val updateFailure =
-        leftValue(Orders.update(order, order.copy(state = Order.Cart)).run().futureValue)
-      updateFailure must === (
-          StateTransitionNotAllowed(order.state, Order.Cart, order.refNum).single)
-      Orders.gimme.headOption.value must === (order)
+      val failure = Orders.update(order, order.copy(state = Shipped)).run().futureValue.leftVal
+      failure must === (StateTransitionNotAllowed(order.state, Shipped, order.refNum).single)
+      Orders.findOneByRefNum(order.refNum).gimme.value must === (order)
     }
 
     "won't update unsaved model" in {

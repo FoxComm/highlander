@@ -1,8 +1,8 @@
 package failures
 
-import models.order.Order
+import failures.Util._
+import models.cord.Order
 import utils.friendlyClassName
-import Util._
 
 trait Failure {
   def description: String
@@ -92,6 +92,6 @@ case class AlreadySavedForLater(customerId: Int, skuId: Int) extends Failure {
     s"Customer with id=$customerId already has SKU with id=$skuId saved for later"
 }
 
-case class ShipmentNotFoundFailure(orderRefNum: String) extends Failure {
-  override def description = s"No shipments found for order with refNum=$orderRefNum"
+case class ShipmentNotFoundFailure(cordRefNum: String) extends Failure {
+  override def description = s"No shipments found for order with refNum=$cordRefNum"
 }

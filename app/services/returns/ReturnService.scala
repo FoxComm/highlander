@@ -1,8 +1,8 @@
 package services.returns
 
 import failures.InvalidCancellationReasonFailure
+import models.cord.Orders
 import models.customer.Customers
-import models.order.Orders
 import models.returns.Return.Canceled
 import models.returns._
 import models.{Reason, Reasons, StoreAdmin}
@@ -54,7 +54,7 @@ object ReturnService {
   def createByAdmin(admin: StoreAdmin, payload: ReturnCreatePayload)(implicit ec: EC,
                                                                      db: DB): DbResultT[Root] =
     for {
-      order    ← * <~ Orders.mustFindByRefNum(payload.orderRefNum)
+      order    ← * <~ Orders.mustFindByRefNum(payload.cordRefNum)
       rma      ← * <~ Returns.create(Return.build(order, admin, payload.returnType))
       customer ← * <~ Customers.findOneById(order.customerId)
       adminResponse    = Some(StoreAdminResponse.build(admin))

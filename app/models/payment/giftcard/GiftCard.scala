@@ -9,7 +9,7 @@ import com.pellucid.sealerate
 import failures.GiftCardFailures._
 import failures.{EmptyCancellationReasonFailure, Failure, Failures, GeneralFailure}
 import models.StoreAdmin
-import models.order.OrderPayment
+import models.cord.OrderPayment
 import models.payment.PaymentMethod
 import models.payment.giftcard.GiftCard._
 import models.payment.giftcard.{GiftCardAdjustment ⇒ Adj, GiftCardAdjustments ⇒ Adjs}

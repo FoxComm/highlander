@@ -8,7 +8,7 @@ import cats.implicits._
 import com.pellucid.sealerate
 import failures.{Failure, Failures, GeneralFailure}
 import models.StoreAdmin
-import models.order.OrderPayment
+import models.cord.OrderPayment
 import models.payment.PaymentMethod
 import models.payment.giftcard.GiftCard
 import models.payment.storecredit.StoreCredit._

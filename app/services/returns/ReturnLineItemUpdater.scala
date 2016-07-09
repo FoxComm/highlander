@@ -1,8 +1,8 @@
 package services.returns
 
 import failures._
+import models.cord.lineitems._
 import models.objects._
-import models.order.lineitems._
 import models.payment.giftcard._
 import models.returns._
 import models.shipping.Shipments
@@ -69,7 +69,7 @@ object ReturnLineItemUpdater {
       oli ← * <~ OrderLineItemGiftCards
              .join(GiftCards)
              .on(_.giftCardId === _.id)
-             .filter { case (oli, gc) ⇒ oli.orderRef === rma.orderRef && gc.code === payload.code }
+             .filter { case (oli, gc) ⇒ oli.cordRef === rma.orderRef && gc.code === payload.code }
              .mustFindOneOr(NotFoundFailure404(GiftCard, payload.code))
       // Inserts
       origin ← * <~ ReturnLineItemGiftCards.create(
@@ -108,7 +108,7 @@ object ReturnLineItemUpdater {
                 .filter(_.id === payload.reasonId)
                 .mustFindOneOr(NotFoundFailure400(ReturnReason, payload.reasonId))
       shipment ← * <~ Shipments
-                  .filter(_.orderRef === rma.orderRef)
+                  .filter(_.cordRef === rma.orderRef)
                   .mustFindOneOr(ShipmentNotFoundFailure(rma.orderRef))
       // Inserts
       origin ← * <~ ReturnLineItemShippingCosts.create(

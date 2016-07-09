@@ -3,8 +3,8 @@ package utils.seeds.generators
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
 
+import models.cord.{Order, Orders}
 import models.objects.ObjectContext
-import models.order.{Order, Orders}
 import models.payment.giftcard._
 import payloads.GiftCardPayloads.GiftCardCreateByCsr
 import slick.driver.PostgresDriver.api._
@@ -31,7 +31,7 @@ trait GiftCardGenerator {
     for {
       order ← * <~ Orders.create(
                  Order(state = Order.ManualHold, customerId = customerId, contextId = context.id))
-      orig ← * <~ GiftCardOrders.create(GiftCardOrder(orderRef = order.refNum))
+      orig ← * <~ GiftCardOrders.create(GiftCardOrder(cordRef = order.refNum))
       gc ← * <~ GiftCards.create(
               GiftCard.build(balance = nextGcBalance, originId = orig.id, currency = Currency.USD))
     } yield gc

@@ -4,9 +4,9 @@ import java.time.Instant
 
 import cats.data.Xor
 import com.pellucid.sealerate
-import models.order.{OrderPayment, OrderPayments}
-import shapeless._
 import failures.Failures
+import models.cord.{OrderPayment, OrderPayments}
+import shapeless._
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType

@@ -6,11 +6,11 @@ import scala.concurrent.Future
 import scala.util.Success
 import akka.actor.{Actor, ActorLogging}
 
-import models.order.Order._
-import models.order.{Order, Orders}
+import models.cord.Order._
+import models.cord.{Order, Orders}
 import utils.aliases._
-import utils.db.javaTimeSlickMapper
 import utils.db.ExPostgresDriver.api._
+import utils.db.javaTimeSlickMapper
 
 case object Tick
 
@@ -24,7 +24,6 @@ class RemorseTimer(implicit db: DB) extends Actor {
   private def tick(implicit db: DB): RemorseTimerResponse = {
     val advance = Orders
       .filter(_.state === (RemorseHold: State))
-      .filterNot(_.isLocked)
       .filter(_.remorsePeriodEnd.map(_ < Instant.now))
       .map(_.state)
       .update(Order.FulfillmentStarted)

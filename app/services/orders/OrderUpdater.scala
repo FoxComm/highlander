@@ -1,7 +1,7 @@
 package services.orders
 
 import models.StoreAdmin
-import models.order.Orders
+import models.cord.Orders
 import responses.order.FullOrder
 import services.{LogActivity, Result}
 import utils.aliases._

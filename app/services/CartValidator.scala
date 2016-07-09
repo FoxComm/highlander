@@ -2,8 +2,8 @@ package services
 
 import failures.CartFailures._
 import failures.{Failure, Failures}
-import models.order._
-import models.order.lineitems.OrderLineItems
+import models.cord._
+import models.cord.lineitems.OrderLineItems
 import models.payment.giftcard.{GiftCardAdjustments, GiftCards}
 import models.payment.storecredit.{StoreCreditAdjustments, StoreCredits}
 import slick.driver.PostgresDriver.api._
@@ -20,7 +20,7 @@ trait CartValidation {
 case class CartValidatorResponse(alerts: Option[Failures] = None,
                                  warnings: Option[Failures] = None) {}
 
-case class CartValidator(cart: Order)(implicit ec: EC) extends CartValidation {
+case class CartValidator(cart: Cart)(implicit ec: EC) extends CartValidation {
 
   def validate(isCheckout: Boolean = false,
                fatalWarnings: Boolean = false): DbResultT[CartValidatorResponse] = {
@@ -43,7 +43,7 @@ case class CartValidator(cart: Order)(implicit ec: EC) extends CartValidation {
   }
 
   private def hasItems(response: CartValidatorResponse): DBIO[CartValidatorResponse] = {
-    OrderLineItems.filter(_.orderRef === cart.refNum).length.result.map { numItems ⇒
+    OrderLineItems.filter(_.cordRef === cart.refNum).length.result.map { numItems ⇒
       if (numItems == 0) warning(response, EmptyCart(cart.refNum)) else response
     }
   }
@@ -63,7 +63,7 @@ case class CartValidator(cart: Order)(implicit ec: EC) extends CartValidation {
     } yield (osm, sm)).one.flatMap {
       case Some((osm, sm)) ⇒
         ShippingManager
-          .evaluateShippingMethodForOrder(sm, cart)
+          .evaluateShippingMethodForCart(sm, cart)
           .fold(
               _ ⇒ warning(response, InvalidShippingMethod(cart.refNum)), // FIXME validator warning and actual failure differ
               _ ⇒ response

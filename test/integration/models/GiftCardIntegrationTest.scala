@@ -1,7 +1,7 @@
 package models
 
 import models.customer.Customers
-import models.order.{OrderPayments, Orders}
+import models.cord.{OrderPayments, Carts}
 import models.payment.PaymentMethod
 import models.payment.giftcard.{GiftCardAdjustments, GiftCardManual, GiftCardManuals, GiftCards}
 import util.IntegrationTestBase
@@ -50,7 +50,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase {
   trait Fixture {
     val (origin, giftCard, payment) = (for {
       customer ← * <~ Customers.create(Factories.customer)
-      order    ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
+      cart     ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
       admin    ← * <~ StoreAdmins.create(Factories.storeAdmin)
       reason   ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
       origin ← * <~ GiftCardManuals.create(
@@ -59,7 +59,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase {
               Factories.giftCard.copy(originalBalance = 50, originId = origin.id))
       giftCard ← * <~ GiftCards.findOneById(gc.id)
       payment ← * <~ OrderPayments.create(
-                   Factories.giftCardPayment.copy(orderRef = order.refNum,
+                   Factories.giftCardPayment.copy(cordRef = cart.refNum,
                                                   paymentMethodId = gc.id,
                                                   paymentMethodType = PaymentMethod.GiftCard,
                                                   amount = Some(gc.availableBalance)))

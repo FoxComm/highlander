@@ -1,8 +1,8 @@
 package models.discount.offers
 
+import models.cord.lineitems.OrderLineItemAdjustment._
 import models.discount.DiscountInput
 import models.discount.offers.Offer.OfferResult
-import models.order.lineitems.OrderLineItemAdjustment._
 import utils.aliases._
 
 case object FreeShippingOffer extends Offer {

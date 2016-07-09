@@ -8,11 +8,11 @@ import shapeless._
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
-import utils.db._
 import utils.ADT
+import utils.db._
 
 case class Shipment(id: Int = 0,
-                    orderRef: String,
+                    cordRef: String,
                     orderShippingMethodId: Option[Int] = None,
                     shippingAddressId: Option[Int] = None,
                     state: Shipment.State = Cart,
@@ -41,7 +41,7 @@ object Shipment {
 
 class Shipments(tag: Tag) extends FoxTable[Shipment](tag, "shipments") {
   def id                    = column[Int]("id", O.PrimaryKey)
-  def orderRef              = column[String]("order_ref")
+  def cordRef               = column[String]("cord_ref")
   def orderShippingMethodId = column[Option[Int]]("order_shipping_method_id")
   def shippingAddressId     = column[Option[Int]]("shipping_address_id") //Addresses table
   def state                 = column[Shipment.State]("state")
@@ -49,7 +49,7 @@ class Shipments(tag: Tag) extends FoxTable[Shipment](tag, "shipments") {
   def updatedAt             = column[Option[Instant]]("updated_at")
 
   def * =
-    (id, orderRef, orderShippingMethodId, shippingAddressId, state, shippingPrice, updatedAt) <>
+    (id, cordRef, orderShippingMethodId, shippingAddressId, state, shippingPrice, updatedAt) <>
       ((Shipment.apply _).tupled, Shipment.unapply)
 }
 

@@ -1,11 +1,11 @@
 package services.assignments
 
+import models.cord._
 import models.{Assignment, NotificationSubscription}
-import models.order._
 import responses.order.AllOrders._
 import slick.driver.PostgresDriver.api._
-import utils.db._
 import utils.aliases._
+import utils.db._
 
 object OrderAssignmentsManager extends AssignmentsManager[String, Order] {
 

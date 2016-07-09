@@ -1,8 +1,8 @@
 package failures
 
 import models.discount.DiscountInput
-import models.discount.qualifiers.QualifierType.show
 import models.discount.offers.{Offer, OfferType}
+import models.discount.qualifiers.QualifierType.show
 import models.discount.qualifiers.{Qualifier, QualifierType}
 import utils.friendlyClassName
 
@@ -75,13 +75,13 @@ object DiscountCompilerFailures {
       extends Failure {
     val qName = friendlyClassName(qualifier)
     override def description =
-      s"qualifier $qName rejected order with refNum=${input.order.refNum}, reason: $reason"
+      s"qualifier $qName rejected order with refNum=${input.cart.refNum}, reason: $reason"
   }
 
   case class OfferRejectionFailure[T <: Offer](offer: T, input: DiscountInput, reason: String)
       extends Failure {
     val oName = friendlyClassName(offer)
     override def description =
-      s"offer $oName rejected order with refNum=${input.order.refNum}, reason: $reason"
+      s"offer $oName rejected order with refNum=${input.cart.refNum}, reason: $reason"
   }
 }

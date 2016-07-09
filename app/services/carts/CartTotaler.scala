@@ -1,0 +1,73 @@
+package services.carts
+
+import models.cord.lineitems._
+import models.cord.{Cart, Carts, OrderShippingMethods}
+import slick.driver.PostgresDriver.api._
+import utils.aliases._
+import utils.db._
+
+// TODO: Use utils.Money
+object CartTotaler {
+
+  case class Totals(subTotal: Int, taxes: Int, shipping: Int, adjustments: Int, total: Int)
+
+  object Totals {
+    def build(subTotal: Int, shipping: Int, adjustments: Int): Totals = {
+      val taxes = ((subTotal - adjustments + shipping) * 0.05).toInt
+
+      Totals(subTotal = subTotal,
+             taxes = taxes,
+             shipping = shipping,
+             adjustments = adjustments,
+             total = (adjustments - (subTotal + taxes + shipping)).abs)
+    }
+
+    def empty: Totals = Totals(0, 0, 0, 0, 0)
+  }
+
+  def subTotal(cart: Cart)(implicit ec: EC): DBIO[Int] =
+    sql"""select count(*), sum(coalesce(gc.original_balance, 0)) + sum(coalesce(cast(sku_form.attributes->(sku_shadow.attributes->'salePrice'->>'ref')->>'value' as integer), 0)) as sum
+         |	from order_line_items oli
+         |	left outer join order_line_item_skus sli on (sli.id = oli.origin_id)
+         |	left outer join skus sku on (sku.id = sli.sku_id)
+         |	left outer join object_forms sku_form on (sku_form.id = sku.form_id)
+         |	left outer join object_shadows sku_shadow on (sku_shadow.id = sli.sku_shadow_id)
+         |
+         |	left outer join order_line_item_gift_cards gcli on (gcli.id = oli.origin_id)
+         |	left outer join gift_cards gc on (gc.id = gcli.gift_card_id)
+         |	where oli.cord_ref = ${cart.refNum}
+         | """.stripMargin.as[(Int, Int)].headOption.map {
+      case Some((count, total)) if count > 0 ⇒ total
+      case _                                 ⇒ 0
+    }
+
+  def shippingTotal(cart: Cart)(implicit ec: EC): DbResultT[Int] =
+    for {
+      orderShippingMethods ← * <~ OrderShippingMethods.findByOrderRef(cart.refNum).result
+      sum = orderShippingMethods.foldLeft(0)(_ + _.price)
+    } yield sum
+
+  def adjustmentsTotal(cart: Cart)(implicit ec: EC): DbResultT[Int] =
+    for {
+      lineItemAdjustments ← * <~ OrderLineItemAdjustments.filter(_.cordRef === cart.refNum).result
+      sum = lineItemAdjustments.foldLeft(0)(_ + _.substract)
+    } yield sum
+
+  def totals(cart: Cart)(implicit ec: EC): DbResultT[Totals] =
+    for {
+      sub  ← * <~ subTotal(cart)
+      ship ← * <~ shippingTotal(cart)
+      adj  ← * <~ adjustmentsTotal(cart)
+    } yield Totals.build(subTotal = sub, shipping = ship, adjustments = adj)
+
+  def saveTotals(cart: Cart)(implicit ec: EC): DbResultT[Cart] =
+    for {
+      t ← * <~ totals(cart)
+      withTotals = cart.copy(subTotal = t.subTotal,
+                             shippingTotal = t.shipping,
+                             adjustmentsTotal = t.adjustments,
+                             taxesTotal = t.taxes,
+                             grandTotal = t.total)
+      updated ← * <~ Carts.update(cart, withTotals)
+    } yield updated
+}

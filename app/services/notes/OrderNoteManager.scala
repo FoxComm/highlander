@@ -1,7 +1,7 @@
 package services.notes
 
 import models.Note
-import models.order.{Order, Orders}
+import models.cord.{Order, Orders}
 import utils.aliases._
 import utils.db._
 

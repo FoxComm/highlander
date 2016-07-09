@@ -2,15 +2,15 @@ package services
 
 import failures.NotFoundFailure404
 import failures.ShippingMethodFailures.ShippingMethodNotApplicableToOrder
+import models.cord._
+import models.cord.lineitems.OrderLineItemSkus
 import models.customer.Customer
 import models.inventory.{Sku, Skus}
 import models.location.Region
-import models.order._
-import models.order.lineitems.OrderLineItemSkus
 import models.rules.{Condition, QueryStatement}
 import models.shipping.{ShippingMethod, ShippingMethods}
 import models.traits.Originator
-import services.orders.getCartByOriginator
+import services.carts.getCartByOriginator
 import slick.driver.PostgresDriver.api._
 import utils.JsonFormatters
 import utils.aliases._
@@ -19,9 +19,9 @@ import utils.db._
 object ShippingManager {
   implicit val formats = JsonFormatters.phoenixFormats
 
-  case class ShippingData(order: Order,
-                          orderTotal: Int,
-                          orderSubTotal: Int,
+  case class ShippingData(cart: Cart,
+                          cartTotal: Int,
+                          cartSubTotal: Int,
                           shippingAddress: Option[OrderShippingAddress] = None,
                           shippingRegion: Option[Region] = None,
                           skus: Seq[Sku])
@@ -30,10 +30,9 @@ object ShippingManager {
       implicit ec: EC,
       db: DB): DbResultT[Seq[responses.ShippingMethods.Root]] =
     for {
-      order       ← * <~ getCartByOriginator(originator, None)
-      _           ← * <~ order.mustBeCart
+      cart        ← * <~ getCartByOriginator(originator, None)
       shipMethods ← * <~ ShippingMethods.findActive.result
-      shipData    ← * <~ getShippingData(order)
+      shipData    ← * <~ getShippingData(cart)
       response = shipMethods.collect {
         case sm if QueryStatement.evaluate(sm.conditions, shipData, evaluateCondition) ⇒
           val restricted = QueryStatement.evaluate(sm.restrictions, shipData, evaluateCondition)
@@ -41,13 +40,13 @@ object ShippingManager {
       }
     } yield response
 
-  def getShippingMethodsForOrder(refNum: String, customer: Option[Customer] = None)(
+  def getShippingMethodsForCart(refNum: String, customer: Option[Customer] = None)(
       implicit ec: EC,
       db: DB): DbResultT[Seq[responses.ShippingMethods.Root]] =
     for {
-      order       ← * <~ findByRefNumAndOptionalCustomer(refNum, customer)
+      cart        ← * <~ findByRefNumAndOptionalCustomer(refNum, customer)
       shipMethods ← * <~ ShippingMethods.findActive.result
-      shipData    ← * <~ getShippingData(order)
+      shipData    ← * <~ getShippingData(cart)
       response = shipMethods.collect {
         case sm if QueryStatement.evaluate(sm.conditions, shipData, evaluateCondition) ⇒
           val restricted = QueryStatement.evaluate(sm.restrictions, shipData, evaluateCondition)
@@ -57,18 +56,16 @@ object ShippingManager {
 
   private def findByRefNumAndOptionalCustomer(refNum: String, customer: Option[Customer] = None)(
       implicit ec: EC,
-      db: DB): DbResultT[Order] = customer match {
+      db: DB): DbResultT[Cart] = customer match {
     case Some(c) ⇒
-      Orders
-        .findOneByRefNumAndCustomer(refNum, c)
-        .mustFindOneOr(NotFoundFailure404(Orders, refNum))
-    case _ ⇒ Orders.mustFindByRefNum(refNum)
+      Carts.findByRefNumAndCustomer(refNum, c).mustFindOneOr(NotFoundFailure404(Carts, refNum))
+    case _ ⇒ Carts.mustFindByRefNum(refNum)
   }
 
-  def evaluateShippingMethodForOrder(shippingMethod: ShippingMethod, order: Order)(
+  def evaluateShippingMethodForCart(shippingMethod: ShippingMethod, cart: Cart)(
       implicit ec: EC): DbResultT[Unit] = {
-    getShippingData(order).toXor.flatMap { shippingData ⇒
-      val failure = ShippingMethodNotApplicableToOrder(shippingMethod.id, order.refNum)
+    getShippingData(cart).toXor.flatMap { shippingData ⇒
+      val failure = ShippingMethodNotApplicableToOrder(shippingMethod.id, cart.refNum)
       if (QueryStatement.evaluate(shippingMethod.conditions, shippingData, evaluateCondition)) {
         val hasRestrictions =
           QueryStatement.evaluate(shippingMethod.restrictions, shippingData, evaluateCondition)
@@ -79,20 +76,20 @@ object ShippingManager {
     }
   }
 
-  private def getShippingData(order: Order)(implicit ec: EC): DBIO[ShippingData] =
+  private def getShippingData(cart: Cart)(implicit ec: EC): DBIO[ShippingData] =
     for {
       orderShippingAddress ← OrderShippingAddresses
-                              .findByOrderRefWithRegions(order.refNum)
+                              .findByOrderRefWithRegions(cart.refNum)
                               .result
                               .headOption
       skus ← (for {
-              liSku ← OrderLineItemSkus.findByOrderRef(order.refNum)
+              liSku ← OrderLineItemSkus.findByOrderRef(cart.refNum)
               skus  ← Skus if skus.id === liSku.skuId
             } yield skus).result
     } yield
-      ShippingData(order = order,
-                   orderTotal = order.grandTotal,
-                   orderSubTotal = order.subTotal,
+      ShippingData(cart = cart,
+                   cartTotal = cart.grandTotal,
+                   cartSubTotal = cart.subTotal,
                    shippingAddress = orderShippingAddress.map(_._1),
                    shippingRegion = orderShippingAddress.map(_._2),
                    skus = skus)
@@ -107,8 +104,8 @@ object ShippingManager {
 
   private def evaluateOrderCondition(shippingData: ShippingData, condition: Condition): Boolean = {
     condition.field match {
-      case "subtotal"   ⇒ Condition.matches(shippingData.orderSubTotal, condition)
-      case "grandtotal" ⇒ Condition.matches(shippingData.orderTotal, condition)
+      case "subtotal"   ⇒ Condition.matches(shippingData.cartSubTotal, condition)
+      case "grandtotal" ⇒ Condition.matches(shippingData.cartTotal, condition)
       case _            ⇒ false
     }
   }

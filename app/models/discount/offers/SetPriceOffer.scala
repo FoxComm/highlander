@@ -1,12 +1,12 @@
 package models.discount.offers
 
-import cats.implicits._
 import cats.data.Xor
+import cats.implicits._
 import failures._
+import models.cord.lineitems.OrderLineItemAdjustment
+import models.cord.lineitems.OrderLineItemAdjustment._
 import models.discount._
 import models.discount.offers.Offer.OfferResult
-import models.order.lineitems.OrderLineItemAdjustment
-import models.order.lineitems.OrderLineItemAdjustment._
 import utils.ElasticsearchApi._
 import utils.aliases._
 

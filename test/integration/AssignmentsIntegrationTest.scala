@@ -4,7 +4,7 @@ import akka.http.scaladsl.model.StatusCodes
 import Extensions._
 import failures.{AlreadyAssignedFailure, AssigneeNotFoundFailure, NotAssignedFailure, NotFoundFailure404}
 import models.customer.Customers
-import models.order.{Order, Orders}
+import models.cord.{Order, Orders}
 import models.{Assignment, Assignments, StoreAdmin, StoreAdmins}
 import payloads.AssignmentPayloads._
 import responses.order.AllOrders
@@ -136,9 +136,8 @@ class AssignmentsIntegrationTest extends IntegrationTestBase with HttpSupport wi
 
   trait Fixture {
     val (order, storeAdmin, customer) = (for {
-      customer ← * <~ Customers.create(Factories.customer)
-      order ← * <~ Orders.create(
-                 Factories.order.copy(customerId = customer.id, state = Order.Cart))
+      customer   ← * <~ Customers.create(Factories.customer)
+      order      ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
       storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
     } yield (order, storeAdmin, customer)).gimme
   }

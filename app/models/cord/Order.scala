@@ -1,0 +1,146 @@
+package models.cord
+
+import java.time.Instant
+
+import cats.data.Xor
+import cats.data.Xor.{left, right}
+import com.pellucid.sealerate
+import failures.{Failures, GeneralFailure}
+import models.customer.Customer
+import shapeless._
+import slick.ast.BaseTypedType
+import slick.jdbc.JdbcType
+import utils.Money.Currency
+import utils.db.ExPostgresDriver.api._
+import utils.db._
+import utils.{ADT, FSM}
+
+case class Order(id: Int = 0,
+                 referenceNumber: String = "",
+                 customerId: Int,
+                 contextId: Int,
+                 currency: Currency = Currency.USD,
+                 subTotal: Int = 0,
+                 shippingTotal: Int = 0,
+                 adjustmentsTotal: Int = 0,
+                 taxesTotal: Int = 0,
+                 grandTotal: Int = 0,
+                 // Order-specific
+                 state: Order.State = Order.RemorseHold,
+                 // TODO: rename to `createdAt`
+                 placedAt: Instant = Instant.now,
+                 remorsePeriodEnd: Option[Instant] = None,
+                 fraudScore: Int = 0)
+    extends CordBase[Order]
+    with FSM[Order.State, Order] {
+
+  def stateLens = lens[Order].state
+
+  override def updateTo(newModel: Order): Failures Xor Order = super.transitionModel(newModel)
+
+  override def primarySearchKey: String = referenceNumber
+
+  import Order._
+
+  val fsm: Map[State, Set[State]] = Map(
+      FraudHold →
+        Set(ManualHold, RemorseHold, FulfillmentStarted, Canceled),
+      RemorseHold →
+        Set(FraudHold, ManualHold, FulfillmentStarted, Canceled),
+      ManualHold →
+        Set(FraudHold, RemorseHold, FulfillmentStarted, Canceled),
+      FulfillmentStarted →
+        Set(Shipped, Canceled)
+  )
+
+  // If order is not in RemorseHold, remorsePeriodEnd should be None, but extra check wouldn't hurt
+  val getRemorsePeriodEnd: Option[Instant] = state match {
+    case RemorseHold ⇒ remorsePeriodEnd
+    case _           ⇒ None
+  }
+
+  def getShippingState: Option[State] = Some(state)
+
+  def mustBeRemorseHold: Failures Xor Order =
+    if (state == RemorseHold) right(this)
+    else left(GeneralFailure("Order is not in RemorseHold state").single)
+}
+
+object Order {
+  sealed trait State
+
+  case object FraudHold          extends State
+  case object RemorseHold        extends State
+  case object ManualHold         extends State
+  case object Canceled           extends State
+  case object FulfillmentStarted extends State
+  case object Shipped            extends State
+
+  object State extends ADT[State] {
+    def types = sealerate.values[State]
+  }
+
+  implicit val stateColumnType: JdbcType[State] with BaseTypedType[State] = State.slickColumn
+
+}
+
+class Orders(tag: Tag) extends FoxTable[Order](tag, "orders") {
+  def id               = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def referenceNumber  = column[String]("reference_number")
+  def customerId       = column[Int]("customer_id")
+  def contextId        = column[Int]("context_id")
+  def currency         = column[Currency]("currency")
+  def subTotal         = column[Int]("sub_total")
+  def shippingTotal    = column[Int]("shipping_total")
+  def adjustmentsTotal = column[Int]("adjustments_total")
+  def taxesTotal       = column[Int]("taxes_total")
+  def grandTotal       = column[Int]("grand_total")
+  def state            = column[Order.State]("state")
+  def placedAt         = column[Instant]("placed_at")
+  def remorsePeriodEnd = column[Option[Instant]]("remorse_period_end")
+  def fraudScore       = column[Int]("fraud_score")
+
+  def * =
+    (id,
+     referenceNumber,
+     customerId,
+     contextId,
+     currency,
+     subTotal,
+     shippingTotal,
+     adjustmentsTotal,
+     taxesTotal,
+     grandTotal,
+     state,
+     placedAt,
+     remorsePeriodEnd,
+     fraudScore) <> ((Order.apply _).tupled, Order.unapply)
+}
+
+object Orders
+    extends FoxTableQuery[Order, Orders](new Orders(_))
+    with ReturningIdAndString[Order, Orders]
+    with SearchByRefNum[Order, Orders] {
+
+  def findByCustomer(cust: Customer): QuerySeq =
+    findByCustomerId(cust.id)
+
+  def findByCustomerId(customerId: Int): QuerySeq =
+    filter(_.customerId === customerId)
+
+  def findByRefNum(refNum: String): QuerySeq =
+    filter(_.referenceNumber === refNum)
+
+  def findOneByRefNum(refNum: String): DBIO[Option[Order]] =
+    filter(_.referenceNumber === refNum).one
+
+  def findOneByRefNumAndCustomer(refNum: String, customer: Customer): QuerySeq =
+    filter(_.referenceNumber === refNum).filter(_.customerId === customer.id)
+
+  private val rootLens = lens[Order]
+
+  val returningLens: Lens[Order, (Int, String)] = rootLens.id ~ rootLens.referenceNumber
+  override val returningQuery = map { o ⇒
+    (o.id, o.referenceNumber)
+  }
+}

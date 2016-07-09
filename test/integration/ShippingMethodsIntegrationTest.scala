@@ -5,14 +5,14 @@ import Extensions._
 import models.customer.Customers
 import models.location.Addresses
 import models.objects._
-import models.order.lineitems._
-import models.order.{OrderShippingAddresses, Orders}
+import models.cord.lineitems._
+import models.cord.{OrderShippingAddresses, Carts}
 import models.product.{Mvp, SimpleContext}
 import models.rules.QueryStatement
 import models.shipping.ShippingMethods
 import models.{StoreAdmins, shipping}
 import org.json4s.jackson.JsonMethods._
-import services.orders.OrderTotaler
+import services.carts.CartTotaler
 import util.IntegrationTestBase
 import utils.db._
 import utils.seeds.Seeds.Factories
@@ -41,7 +41,7 @@ class ShippingMethodsIntegrationTest
           .create(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
           .gimme
 
-        val response = GET(s"v1/shipping-methods/${order.referenceNumber}")
+        val response = GET(s"v1/shipping-methods/${cart.referenceNumber}")
         response.status must === (StatusCodes.OK)
 
         val methodResponse = response.as[Seq[responses.ShippingMethods.Root]].head
@@ -68,7 +68,7 @@ class ShippingMethodsIntegrationTest
           .create(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
           .gimme
 
-        val response = GET(s"v1/shipping-methods/${order.referenceNumber}")
+        val response = GET(s"v1/shipping-methods/${cart.referenceNumber}")
         response.status must === (StatusCodes.OK)
 
         val methodResponse = response.as[Seq[responses.ShippingMethods.Root]]
@@ -79,7 +79,7 @@ class ShippingMethodsIntegrationTest
     "Evaluates shipping rule: shipping to CA, OR, or WA" - {
 
       "Shipping method is returned when the order is shipped to CA" in new WestCoastShippingMethodsFixture {
-        val response = GET(s"v1/shipping-methods/${order.referenceNumber}")
+        val response = GET(s"v1/shipping-methods/${cart.referenceNumber}")
         response.status must === (StatusCodes.OK)
 
         val methodResponse = response.as[Seq[responses.ShippingMethods.Root]].head
@@ -92,7 +92,7 @@ class ShippingMethodsIntegrationTest
     "Evaluates shipping rule: order total is between $10 and $100, and is shipped to CA, OR, or WA" - {
 
       "Is true when the order total is $27 and shipped to CA" in new ShippingMethodsStateAndPriceCondition {
-        val response = GET(s"v1/shipping-methods/${order.referenceNumber}")
+        val response = GET(s"v1/shipping-methods/${cart.referenceNumber}")
         response.status must === (StatusCodes.OK)
 
         val methodResponse = response.as[Seq[responses.ShippingMethods.Root]].head
@@ -105,7 +105,7 @@ class ShippingMethodsIntegrationTest
     "Evaluates shipping rule: ships to CA but has a restriction for hazardous items" - {
 
       "Shipping method is returned when the order has no hazardous SKUs" in new ShipToCaliforniaButNotHazardous {
-        val response = GET(s"v1/shipping-methods/${order.referenceNumber}")
+        val response = GET(s"v1/shipping-methods/${cart.referenceNumber}")
         response.status must === (StatusCodes.OK)
 
         val methodResponse = response.as[Seq[responses.ShippingMethods.Root]].head
@@ -118,11 +118,11 @@ class ShippingMethodsIntegrationTest
   }
 
   trait Fixture {
-    val (order, storeAdmin, customer) = (for {
+    val (cart, storeAdmin, customer) = (for {
       customer   ← * <~ Customers.create(Factories.customer)
-      order      ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
+      cart       ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
       storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
-    } yield (order, storeAdmin, customer)).gimme
+    } yield (cart, storeAdmin, customer)).gimme
   }
 
   trait ShippingMethodsFixture extends Fixture {
@@ -136,13 +136,13 @@ class ShippingMethodsIntegrationTest
       address ← * <~ Addresses.create(
                    Factories.address.copy(customerId = customer.id, regionId = californiaId))
       shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address,
-                                                                orderRef = order.refNum)
+                                                                cordRef = cart.refNum)
       product ← * <~ Mvp.insertProduct(productContext.id,
                                        Factories.products.head.copy(title = "Donkey", price = 27))
       lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(product.skuId)
       lineItems ← * <~ OrderLineItems.create(
-                     OrderLineItem(orderRef = order.refNum, originId = lineItemSku.id))
-      _ ← * <~ OrderTotaler.saveTotals(order)
+                     OrderLineItem(cordRef = cart.refNum, originId = lineItemSku.id))
+      _ ← * <~ CartTotaler.saveTotals(cart)
     } yield (address, shipAddress)).gimme
   }
 
@@ -155,17 +155,17 @@ class ShippingMethodsIntegrationTest
          |"rootObject": "ShippingAddress",
          |"field": "regionId",
          |"operator": "equals",
-         |"valInt": ${californiaId}
+         |"valInt": $californiaId
           |}, {
           |"rootObject": "ShippingAddress",
           |"field": "regionId",
           |"operator": "equals",
-          |"valInt": ${oregonId}
+          |"valInt": $oregonId
           |}, {
           |"rootObject": "ShippingAddress",
           |"field": "regionId",
           |"operator": "equals",
-          |"valInt": ${washingtonId}
+          |"valInt": $washingtonId
           |}
           |]
           |}
@@ -188,17 +188,17 @@ class ShippingMethodsIntegrationTest
          |"rootObject": "ShippingAddress",
          |"field": "regionId",
          |"operator": "equals",
-         |"valInt": ${californiaId}
+         |"valInt": $californiaId
           |}, {
           |"rootObject": "ShippingAddress",
           |"field": "regionId",
           |"operator": "equals",
-          |"valInt": ${oregonId}
+          |"valInt": $oregonId
           |}, {
           |"rootObject": "ShippingAddress",
           |"field": "regionId",
           |"operator": "equals",
-          |"valInt": ${washingtonId}
+          |"valInt": $washingtonId
           |}
           |]
           |}, {
@@ -235,7 +235,7 @@ class ShippingMethodsIntegrationTest
          |"rootObject": "ShippingAddress",
          |"field": "regionId",
          |"operator": "equals",
-         |"valInt": ${californiaId}
+         |"valInt": $californiaId
           |}
           |]
           |}

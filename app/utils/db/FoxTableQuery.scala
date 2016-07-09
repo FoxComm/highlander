@@ -69,7 +69,7 @@ abstract class FoxTableQuery[M <: FoxModel[M], T <: FoxTable[M]](construct: Tag 
       returned ← * <~ findById(oldModel.id).extract.updateReturningHead(returningQuery, prepared)
     } yield returningLens.set(prepared)(returned)
 
-  private def beforeSave(model: M): Failures Xor M =
+  protected def beforeSave(model: M): Failures Xor M =
     model.sanitize.validate.toXor
 
   private def beforeSaveBatch(unsaved: Iterable[M])(implicit ec: EC): DbResultT[Seq[M]] =

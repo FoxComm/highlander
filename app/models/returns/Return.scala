@@ -5,18 +5,18 @@ import java.time.Instant
 import cats.data.Validated._
 import cats.data._
 import com.pellucid.sealerate
-import models.order.Order
+import failures.Failure
+import models.StoreAdmin
+import models.cord.Order
 import models.returns.Return._
 import models.traits.Lockable
-import models.StoreAdmin
 import shapeless._
-import failures.Failure
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.Validation._
-import utils.{ADT, FSM}
 import utils.db._
+import utils.{ADT, FSM}
 
 case class Return(id: Int = 0,
                   referenceNumber: String = "",
@@ -38,7 +38,8 @@ case class Return(id: Int = 0,
 
   def refNum: String = referenceNumber
 
-  def stateLens                         = lens[Return].state
+  def stateLens = lens[Return].state
+
   override def primarySearchKey: String = referenceNumber
 
   val fsm: Map[State, Set[State]] = Map(

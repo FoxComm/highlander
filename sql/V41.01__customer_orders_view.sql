@@ -10,7 +10,6 @@ select
             osv.customer_id,
         	osv.reference_number,
         	osv.state,
-        	to_char(osv.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
         	to_char(osv.placed_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
         	osv.sub_total,
         	osv.shipping_total,

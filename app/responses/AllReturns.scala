@@ -4,9 +4,9 @@ import java.time.Instant
 
 import scala.concurrent.Future
 
+import models.StoreAdmin
 import models.customer.Customer
 import models.returns.Return
-import models.StoreAdmin
 
 object AllReturns {
   type Response = Future[Seq[Root]]
@@ -16,7 +16,7 @@ object AllReturns {
   case class Root(
       id: Int,
       referenceNumber: String,
-      orderRefNum: String,
+      cordRefNum: String,
       rmaType: Return.ReturnType,
       state: Return.State,
       customer: Option[CustomerResponse.Root] = None,
@@ -32,7 +32,7 @@ object AllReturns {
     Root(
         id = rma.id,
         referenceNumber = rma.referenceNumber,
-        orderRefNum = rma.orderRef,
+        cordRefNum = rma.orderRef,
         rmaType = rma.returnType,
         state = rma.state,
         customer = customer.map(CustomerResponse.build(_)),

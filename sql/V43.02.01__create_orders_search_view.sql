@@ -3,7 +3,6 @@ create table orders_search_view
     id bigint not null unique,
     reference_number reference_number not null unique,
     state generic_string not null,
-    created_at text,
     placed_at text,
     currency currency,
     sub_total integer not null default 0,
@@ -29,7 +28,6 @@ create table orders_search_view
     billing_addresses jsonb not null default '[]',
     assignment_count bigint not null default 0,
     assignees jsonb not null default '[]',
-    return_count bigint not null default 0,
     returns jsonb not null default '[]'
 );
 

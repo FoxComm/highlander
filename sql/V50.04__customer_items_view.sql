@@ -12,7 +12,7 @@ select
 	coalesce(t1.sku_title, t2.sku_title) as sku_title,
 	coalesce(t1.sku_price, t2.sku_price) as sku_price,
 	-- Order
-	coalesce(t1.order_reference_number, null) as order_reference_number,
+	coalesce(t1.cord_reference_number, null) as cord_reference_number,
 	coalesce(t1.order_placed_at, null) as order_placed_at,
 	-- Save for later
 	coalesce(null, t2.saved_for_later_at) as saved_for_later_at	

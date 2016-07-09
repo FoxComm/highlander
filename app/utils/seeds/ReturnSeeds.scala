@@ -2,7 +2,7 @@ package utils.seeds
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import models.order.Orders
+import models.cord.Orders
 import models.returns._
 import models.{Note, Notes}
 import utils.db._

@@ -7,7 +7,7 @@ import Extensions._
 import failures.NotFoundFailure404
 import models._
 import models.customer.Customers
-import models.order.{Order, Orders}
+import models.cord.{Order, Orders}
 import models.returns._
 import payloads.NotePayloads._
 import responses.AdminNotes

@@ -5,14 +5,14 @@ import failures.CartFailures._
 import models.customer.Customers
 import models.inventory.Skus
 import models.objects._
-import models.order._
-import models.order.lineitems.{OrderLineItem, OrderLineItems}
+import models.cord._
+import models.cord.lineitems.{OrderLineItem, OrderLineItems}
 import models.payment.creditcard.CreditCards
 import models.payment.giftcard.{GiftCard, GiftCardManual, GiftCardManuals, GiftCards}
 import models.payment.storecredit.{StoreCredit, StoreCreditManual, StoreCreditManuals, StoreCredits}
 import models.product.{Mvp, Products, SimpleContext}
 import models.{Reasons, StoreAdmins}
-import services.orders.OrderTotaler
+import services.carts.CartTotaler
 import util.IntegrationTestBase
 import utils.db._
 import utils.seeds.Seeds.Factories
@@ -66,7 +66,7 @@ class CartValidatorTest extends IntegrationTestBase {
                                                 state = GiftCard.Active,
                                                 originalBalance = notEnoughFunds))
           payment ← * <~ OrderPayments.create(
-                       Factories.giftCardPayment.copy(orderRef = cart.refNum,
+                       Factories.giftCardPayment.copy(cordRef = cart.refNum,
                                                       amount = skuPrice.some,
                                                       paymentMethodId = giftCard.id))
         } yield payment).gimme
@@ -87,7 +87,7 @@ class CartValidatorTest extends IntegrationTestBase {
       }
 
       "if the grandTotal == 0" in new LineItemsFixture0 {
-        OrderTotaler.saveTotals(cart).gimme
+        CartTotaler.saveTotals(cart).gimme
 
         val result = CartValidator(refresh(cart)).validate().gimme
 
@@ -143,7 +143,7 @@ class CartValidatorTest extends IntegrationTestBase {
   }
 
   trait Fixture {
-    val cart = Orders.create(Factories.cart).gimme
+    val cart = Carts.create(Factories.cart).gimme
   }
 
   trait LineItemsFixture extends Fixture {
@@ -157,7 +157,7 @@ class CartValidatorTest extends IntegrationTestBase {
       skuForm       ← * <~ ObjectForms.mustFindById404(sku.formId)
       skuShadow     ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
       items         ← * <~ OrderLineItems.create(OrderLineItem.buildSku(cart, sku))
-      _             ← * <~ OrderTotaler.saveTotals(cart)
+      _             ← * <~ CartTotaler.saveTotals(cart)
     } yield (product, productForm, productShadow, sku, skuForm, skuShadow, items)).gimme
 
     val grandTotal = refresh(cart).grandTotal
@@ -174,7 +174,7 @@ class CartValidatorTest extends IntegrationTestBase {
       skuForm       ← * <~ ObjectForms.mustFindById404(sku.formId)
       skuShadow     ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
       items         ← * <~ OrderLineItems.create(OrderLineItem.buildSku(cart, sku))
-      _             ← * <~ OrderTotaler.saveTotals(cart)
+      _             ← * <~ CartTotaler.saveTotals(cart)
     } yield (product, productForm, productShadow, sku, skuForm, skuShadow, items)).gimme
 
     val grandTotal = refresh(cart).grandTotal
@@ -185,7 +185,7 @@ class CartValidatorTest extends IntegrationTestBase {
       customer ← * <~ Customers.create(Factories.customer)
       cc       ← * <~ CreditCards.create(Factories.creditCard.copy(customerId = customer.id))
       _ ← * <~ OrderPayments.create(
-             Factories.orderPayment.copy(orderRef = cart.refNum, paymentMethodId = cc.id))
+             Factories.orderPayment.copy(cordRef = cart.refNum, paymentMethodId = cc.id))
     } yield (customer, cc)).gimme
   }
 
@@ -200,7 +200,7 @@ class CartValidatorTest extends IntegrationTestBase {
       payment ← * <~ OrderPayments.create(
                    OrderPayment
                      .build(giftCard)
-                     .copy(orderRef = cart.refNum, amount = grandTotal.some))
+                     .copy(cordRef = cart.refNum, amount = grandTotal.some))
     } yield (admin, giftCard, payment)).gimme
   }
 
@@ -216,9 +216,9 @@ class CartValidatorTest extends IntegrationTestBase {
       payment ← * <~ OrderPayments.create(
                    OrderPayment
                      .build(storeCredit)
-                     .copy(orderRef = cart.refNum, amount = grandTotal.some))
+                     .copy(cordRef = cart.refNum, amount = grandTotal.some))
     } yield (admin, storeCredit, payment)).gimme
   }
 
-  def refresh(cart: Order) = Orders.refresh(cart).run().futureValue
+  def refresh(cart: Cart) = Carts.refresh(cart).run().futureValue
 }

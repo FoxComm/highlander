@@ -1,6 +1,6 @@
 package services.activity
 
-import models.order.Order
+import models.cord.Cart
 import payloads.StoreCreditPayloads.StoreCreditUpdateStateByCsr
 import responses.{CustomerResponse, GiftCardResponse, StoreAdminResponse, StoreCreditResponse}
 
@@ -21,13 +21,13 @@ object StoreCreditTailored {
       extends ActivityBase[StoreCreditConvertedToGiftCard]
 
   case class StoreCreditAuthorizedFunds(customer: CustomerResponse.Root,
-                                        order: Order,
+                                        cart: Cart,
                                         storeCreditIds: Seq[Int],
                                         amount: Int)
       extends ActivityBase[StoreCreditAuthorizedFunds]
 
   case class StoreCreditCapturedFunds(customer: CustomerResponse.Root,
-                                      order: Order,
+                                      cart: Cart,
                                       storeCreditIds: Seq[Int],
                                       amount: Int)
       extends ActivityBase[StoreCreditCapturedFunds]

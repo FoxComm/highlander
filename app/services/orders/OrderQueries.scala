@@ -1,18 +1,15 @@
 package services.orders
 
 import cats.implicits._
-import failures.NotFoundFailure404
-import models.StoreAdmin
+import models.cord._
 import models.customer.{Customer, Customers}
-import models.objects.ObjectContext
-import models.order._
 import models.payment.PaymentMethod
 import models.payment.creditcard._
 import models.payment.giftcard._
 import models.payment.storecredit._
 import responses.TheResponse
-import responses.order._
-import services.{CartValidator, LogActivity, Result}
+import responses.order.AllOrders
+import slick.dbio.DBIO
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
@@ -33,66 +30,10 @@ object OrderQueries {
     } yield TheResponse.build(response)
   }
 
-  def findOne(refNum: String)(implicit ec: EC, db: DB): Result[TheResponse[FullOrder.Root]] =
-    (for {
-      order     ← * <~ Orders.mustFindByRefNum(refNum)
-      validated ← * <~ CartValidator(order).validate()
-      response  ← * <~ FullOrder.fromOrder(order)
-    } yield
-      TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).run()
-
-  def findOneByCustomer(refNum: String, customer: Customer)(
-      implicit ec: EC,
-      db: DB): Result[TheResponse[FullOrder.Root]] =
-    (for {
-      order ← * <~ Orders
-               .findOneByRefNumAndCustomer(refNum, customer)
-               .mustFindOneOr(NotFoundFailure404(Orders, refNum))
-      validated ← * <~ CartValidator(order).validate()
-      response  ← * <~ FullOrder.fromOrder(order)
-    } yield
-      TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).run()
-
-  def findOrCreateCartByCustomer(
-      customer: Customer,
-      context: ObjectContext,
-      admin: Option[StoreAdmin] = None)(implicit ec: EC, db: DB, ac: AC): Result[FullOrder.Root] =
-    findOrCreateCartByCustomerInner(customer, context, admin).runTxn()
-
-  def findOrCreateCartByCustomerId(
-      customerId: Int,
-      context: ObjectContext,
-      admin: Option[StoreAdmin] = None)(implicit ec: EC, db: DB, ac: AC): Result[FullOrder.Root] =
-    (for {
-      customer  ← * <~ Customers.mustFindById404(customerId)
-      fullOrder ← * <~ findOrCreateCartByCustomerInner(customer, context, admin)
-    } yield fullOrder).runTxn()
-
-  def findOrCreateCartByCustomerInner(
-      customer: Customer,
-      context: ObjectContext,
-      admin: Option[StoreAdmin])(implicit db: DB, ec: EC, ac: AC): DbResultT[FullOrder.Root] =
+  // TODO dedup
+  def getPaymentState(cordRef: String)(implicit ec: EC): DBIO[CreditCardCharge.State] =
     for {
-      result ← * <~ Orders
-                .findActiveOrderByCustomer(customer)
-                .one
-                .findOrCreateExtended(Orders.create(Order.buildCart(customer.id, context.id)))
-      (order, foundOrCreated) = result
-      fullOrder ← * <~ FullOrder.fromOrder(order)
-      _         ← * <~ logCartCreation(foundOrCreated, fullOrder, admin)
-    } yield fullOrder
-
-  private def logCartCreation(foundOrCreated: FoundOrCreated,
-                              order: FullOrder.Root,
-                              admin: Option[StoreAdmin])(implicit ec: EC, ac: AC) =
-    foundOrCreated match {
-      case Created ⇒ LogActivity.cartCreated(admin, order)
-      case Found   ⇒ DbResultT.unit
-    }
-
-  def getPaymentState(orderRef: String)(implicit ec: EC): DBIO[CreditCardCharge.State] =
-    for {
-      payments ← OrderPayments.findAllByOrderRef(orderRef).result
+      payments ← OrderPayments.findAllByOrderRef(cordRef).result
       authorized ← DBIO.sequence(payments.map(payment ⇒
                             payment.paymentMethodType match {
                       case PaymentMethod.CreditCard ⇒
@@ -124,4 +65,5 @@ object OrderQueries {
         case (pmt, auth) if pmt == auth ⇒ CreditCardCharge.Auth
         case _                          ⇒ CreditCardCharge.Cart
       }
+
 }

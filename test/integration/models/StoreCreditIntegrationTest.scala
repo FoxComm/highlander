@@ -1,7 +1,7 @@
 package models
 
 import models.customer.Customers
-import models.order.{OrderPayments, Orders}
+import models.cord.{OrderPayments, Carts}
 import models.payment.storecredit._
 import util.IntegrationTestBase
 import utils.db._
@@ -46,7 +46,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase {
     val (customer, origin, storeCredit, payment) = (for {
       admin    ← * <~ StoreAdmins.create(Factories.storeAdmin)
       customer ← * <~ Customers.create(Factories.customer)
-      order    ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
+      cart     ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
       reason   ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
       origin ← * <~ StoreCreditManuals.create(
                   StoreCreditManual(adminId = admin.id, reasonId = reason.id))
@@ -55,7 +55,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase {
       sCredit ← * <~ StoreCredits.findOneById(sc.id)
       payment ← * <~ OrderPayments.create(
                    Factories.storeCreditPayment
-                     .copy(orderRef = order.refNum, paymentMethodId = sc.id, amount = Some(25)))
+                     .copy(cordRef = cart.refNum, paymentMethodId = sc.id, amount = Some(25)))
     } yield (customer, origin, sCredit.value, payment)).gimme
   }
 }

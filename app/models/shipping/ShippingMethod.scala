@@ -3,7 +3,7 @@ package models.shipping
 import cats.data.Xor
 import failures.Failures
 import failures.ShippingMethodFailures.ShippingMethodIsNotActive
-import models.order.{Order, OrderShippingMethods}
+import models.cord.OrderShippingMethods
 import models.rules.QueryStatement
 import shapeless._
 import utils.db.ExPostgresDriver.api._
@@ -59,9 +59,9 @@ object ShippingMethods
 
   def findActiveById(id: Int): QuerySeq = findActive.filter(_.id === id)
 
-  def forOrder(order: Order): QuerySeq =
+  def forCordRef(refNum: String): QuerySeq =
     for {
-      orderShippingMethod ← OrderShippingMethods.filter(_.orderRef === order.refNum)
+      orderShippingMethod ← OrderShippingMethods.filter(_.cordRef === refNum)
       shipMethod          ← ShippingMethods.filter(_.id === orderShippingMethod.shippingMethodId)
     } yield shipMethod
 }

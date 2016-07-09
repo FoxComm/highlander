@@ -6,7 +6,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import models.StoreAdmins
 import models.customer.Customers
-import models.order.{Order, Orders}
+import models.cord.{Order, Orders}
 import models.returns._
 import payloads.ReturnPayloads.ReturnCreatePayload
 import services.returns.ReturnService
@@ -30,9 +30,6 @@ class ReturnServiceTest extends IntegrationTestBase {
       val refs = Returns.gimme.map(_.refNum)
       refs.length must === (numberOfInserts)
       refs.distinct must === (refs)
-
-      val orderUpdated = Orders.findOneByRefNum(order.refNum).gimme.value
-      orderUpdated.returnCount must === (numberOfInserts)
 
       val rmaCount = Returns.findByOrderRefNum(order.refNum).length.gimme
       rmaCount must === (numberOfInserts)

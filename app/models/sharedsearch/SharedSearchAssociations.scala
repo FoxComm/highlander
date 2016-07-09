@@ -2,12 +2,12 @@ package models.sharedsearch
 
 import java.time.Instant
 
-import models.order.Orders
+import models.cord.Carts
+import models.sharedsearch.SharedSearches.scope._
 import models.{StoreAdmin, StoreAdmins}
 import shapeless._
 import slick.driver.PostgresDriver.api._
 import slick.lifted.Tag
-import models.sharedsearch.SharedSearches.scope._
 import utils.db._
 
 case class SharedSearchAssociation(id: Int = 0,
@@ -32,7 +32,7 @@ class SharedSearchAssociations(tag: Tag)
   def * =
     (id, sharedSearchId, storeAdminId, createdAt) <> ((SharedSearchAssociation.apply _).tupled,
         SharedSearchAssociation.unapply)
-  def sharedSearch = foreignKey(SharedSearches.tableName, sharedSearchId, Orders)(_.id)
+  def sharedSearch = foreignKey(SharedSearches.tableName, sharedSearchId, Carts)(_.id)
   def storeAdmin   = foreignKey(StoreAdmins.tableName, storeAdminId, StoreAdmins)(_.id)
 }
 

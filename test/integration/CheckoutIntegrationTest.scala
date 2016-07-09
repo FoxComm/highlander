@@ -4,23 +4,23 @@ import akka.http.scaladsl.model.StatusCodes
 import Extensions._
 import cats.implicits._
 import failures.NotFoundFailure404
+import models.cord.Order.RemorseHold
 import models.customer.Customers
 import models.inventory._
 import models.location.Addresses
 import models.objects._
-import models.order.Order.Cart
-import models.order.{Order, Orders}
+import models.cord.{Cart, Carts, Order, Orders}
 import models.product.{Mvp, SimpleContext}
 import models.shipping.ShippingMethods
 import models.{Reasons, StoreAdmins}
 import payloads.GiftCardPayloads.GiftCardCreateByCsr
 import payloads.LineItemPayloads.UpdateLineItemsPayload
-import payloads.OrderPayloads.CreateOrder
+import payloads.OrderPayloads.CreateCart
 import payloads.PaymentPayloads.GiftCardPayment
 import payloads.UpdateShippingMethod
 import responses.GiftCardResponse
+import responses.cart.FullCart
 import responses.order.FullOrder
-import responses.order.FullOrder.Root
 import util.IntegrationTestBase
 import utils.db._
 import utils.seeds.Seeds.Factories
@@ -31,9 +31,9 @@ class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with 
 
     "places order as admin" in new Fixture {
       // Create cart
-      val createCart = POST("v1/orders", CreateOrder(Some(customer.id)))
+      val createCart = POST("v1/orders", CreateCart(Some(customer.id)))
       createCart.status must === (StatusCodes.OK)
-      val refNum = createCart.as[FullOrder.Root].referenceNumber
+      val refNum = createCart.as[FullCart.Root].referenceNumber
       // Add line items
       POST(s"v1/orders/$refNum/line-items", Seq(UpdateLineItemsPayload(sku.code, 2))).status must === (
           StatusCodes.OK)
@@ -43,7 +43,7 @@ class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with 
       val setShipMethod =
         PATCH(s"v1/orders/$refNum/shipping-method", UpdateShippingMethod(shipMethod.id))
       setShipMethod.status must === (StatusCodes.OK)
-      val grandTotal = setShipMethod.ignoreFailuresAndGiveMe[FullOrder.Root].totals.total
+      val grandTotal = setShipMethod.ignoreFailuresAndGiveMe[FullCart.Root].totals.total
       // Pay
       val createGiftCard = POST("v1/gift-cards", GiftCardCreateByCsr(grandTotal, reason.id))
       createGiftCard.status must === (StatusCodes.OK)
@@ -55,8 +55,8 @@ class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with 
       // Checkout!
       val checkout = POST(s"v1/orders/$refNum/checkout")
       checkout.status must === (StatusCodes.OK)
-      checkout.as[Root].orderState must === (Order.RemorseHold)
-      Orders.findOneByRefNum(refNum).run().futureValue.value.placedAt.value
+      checkout.as[FullOrder.Root].orderState must === (Order.RemorseHold)
+      Orders.findOneByRefNum(refNum).gimme mustBe defined
     }
 
     "fails if AFS is zero" in new Fixture {
@@ -64,7 +64,8 @@ class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with 
       pending
 
       //Create cart
-      val refNum = POST("v1/orders", CreateOrder(Some(customer.id))).as[Root].referenceNumber
+      val refNum =
+        POST("v1/orders", CreateCart(Some(customer.id))).as[FullOrder.Root].referenceNumber
 
       POST(s"v1/orders/$refNum/line-items", Seq(UpdateLineItemsPayload(sku.code, 2))).status must === (
           StatusCodes.OK)
@@ -75,7 +76,7 @@ class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with 
       val setShipMethod =
         PATCH(s"v1/orders/$refNum/shipping-method", UpdateShippingMethod(shipMethod.id))
       setShipMethod.status must === (StatusCodes.OK)
-      val grandTotal = setShipMethod.ignoreFailuresAndGiveMe[Root].totals.total
+      val grandTotal = setShipMethod.ignoreFailuresAndGiveMe[FullOrder.Root].totals.total
 
       // Pay
       val createGiftCard = POST("v1/gift-cards", GiftCardCreateByCsr(grandTotal, reason.id))
@@ -87,16 +88,16 @@ class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with 
 
       // Checkout!
       val checkout = POST(s"v1/orders/$refNum/checkout")
-      checkout.status must === (StatusCodes.BadRequest)
+      checkout.status must === (StatusCodes.OK)
 
-      val order = Orders.findOneByRefNum(refNum).run().futureValue.value
-      order.state must === (Cart)
+      val order = Orders.findOneByRefNum(refNum).gimme.value
+      order.state must === (RemorseHold)
     }
 
     "errors 404 if no cart found by reference number" in {
       val response = POST("v1/orders/NOPE/checkout")
       response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Order, "NOPE").description)
+      response.error must === (NotFoundFailure404(Cart, "NOPE").description)
     }
   }
 

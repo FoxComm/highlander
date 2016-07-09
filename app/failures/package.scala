@@ -2,8 +2,8 @@ import cats.data._
 import cats.implicits._
 import models.Assignment
 import models.activity.Dimension
+import models.cord.{Cart, Order}
 import models.inventory.Sku
-import models.order.Order
 import models.payment.giftcard.GiftCard
 import models.returns.Return
 
@@ -29,11 +29,17 @@ package object failures {
   object Util {
 
     def searchTerm[A](a: A): String = a match {
-      case Order | _: Order | Return | _: Return | Assignment.Order | Assignment.Return ⇒
-        "referenceNumber"
-      case GiftCard | _: GiftCard | Sku | _: Sku | Assignment.GiftCard | Assignment.Sku ⇒ "code"
-      case Dimension | _: Dimension                                                     ⇒ "name"
-      case _                                                                            ⇒ "id"
+      case Cart | _: Cart                       ⇒ "referenceNumber"
+      case Order | _: Order                     ⇒ "referenceNumber"
+      case Return | _: Return                   ⇒ "referenceNumber"
+      case Assignment.Order | Assignment.Return ⇒ "referenceNumber"
+
+      case GiftCard | _: GiftCard               ⇒ "code"
+      case Sku | _: Sku                         ⇒ "code"
+      case Assignment.GiftCard | Assignment.Sku ⇒ "code"
+
+      case Dimension | _: Dimension ⇒ "name"
+      case _                        ⇒ "id"
     }
 
     /* Diff lists of model identifiers to produce a list of failures for absent models */

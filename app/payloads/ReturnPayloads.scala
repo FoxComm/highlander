@@ -12,7 +12,7 @@ object ReturnPayloads {
 
   /* General */
 
-  case class ReturnCreatePayload(orderRefNum: String, returnType: Return.ReturnType)
+  case class ReturnCreatePayload(cordRefNum: String, returnType: Return.ReturnType)
 
   case class ReturnUpdateStatePayload(state: Return.State, reasonId: Option[Int] = None)
       extends Validation[ReturnUpdateStatePayload] {

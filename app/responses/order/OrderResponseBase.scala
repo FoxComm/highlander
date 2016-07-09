@@ -1,6 +1,6 @@
 package responses.order
 
-import models.order.Order
+import models.cord.Order
 import models.payment.creditcard.CreditCardCharge
 
 trait OrderResponseBase {

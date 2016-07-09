@@ -1,6 +1,6 @@
 package models.discount
 
-import models.order.lineitems.OrderLineItemProductData
+import models.cord.lineitems.OrderLineItemProductData
 import models.product.Mvp
 
 /**

@@ -4,9 +4,9 @@ import java.time.Instant
 
 import cats.implicits._
 import failures.NotFoundFailure404
+import models.cord.{OrderShippingAddress, OrderShippingAddresses}
 import models.customer.Customer
 import models.location.{Address, Region}
-import models.order.{OrderShippingAddress, OrderShippingAddresses}
 import models.payment.creditcard.CreditCard
 import slick.driver.PostgresDriver.api._
 import utils.aliases.EC
@@ -73,9 +73,9 @@ object Addresses {
          deletedAt = None)
   }
 
-  def forOrderRef(orderRef: String)(implicit ec: EC): DbResultT[Root] = {
+  def forOrderRef(cordRef: String)(implicit ec: EC): DbResultT[Root] = {
     val fullAddressDetails = for {
-      shipAddress ← OrderShippingAddresses.findByOrderRef(orderRef)
+      shipAddress ← OrderShippingAddresses.findByOrderRef(cordRef)
       region      ← shipAddress.region
     } yield (shipAddress, region)
 
@@ -87,7 +87,7 @@ object Addresses {
                         DbResultT.good(buildOneShipping(address, region))
                       case (None, _) ⇒
                         DbResultT.failure(NotFoundFailure404(
-                                s"No addresses found for order with refNum=$orderRef"))
+                                s"No addresses found for order with refNum=$cordRef"))
                       case (Some(address), None) ⇒
                         DbResultT.failure(NotFoundFailure404(Region, address.regionId))
                     })

@@ -1,21 +1,18 @@
 package services
 
-import java.time.Instant
-
 import cats.implicits._
 import failures.CouponFailures.CouponWithCodeCannotBeFound
 import failures.GeneralFailure
 import failures.PromotionFailures.PromotionNotFoundForContext
-import models.coupon.{CouponCodes, Coupons, IlluminatedCoupon}
+import models.cord._
+import models.cord.lineitems.OrderLineItemGiftCards
+import models.coupon._
 import models.customer.{Customer, Customers}
-import models.objects.{ObjectContext, ObjectContexts, ObjectForms, ObjectShadows}
-import models.order.Order.RemorseHold
-import models.order._
-import models.order.lineitems.OrderLineItemGiftCards
-import models.payment.creditcard.{CreditCardCharge, CreditCardCharges}
-import models.payment.giftcard.{GiftCard, GiftCardAdjustment, GiftCards}
-import models.payment.storecredit.{StoreCreditAdjustment, StoreCredits}
-import models.promotion.{IlluminatedPromotion, Promotions}
+import models.objects._
+import models.payment.creditcard._
+import models.payment.giftcard._
+import models.payment.storecredit._
+import models.promotion._
 import responses.order.FullOrder
 import services.coupon.CouponUsageService
 import slick.driver.PostgresDriver.api._
@@ -28,7 +25,7 @@ object Checkout {
   def fromCart(
       refNum: String)(implicit ec: EC, db: DB, apis: Apis, ac: AC): Result[FullOrder.Root] =
     (for {
-      cart  ← * <~ Orders.mustFindByRefNum(refNum)
+      cart  ← * <~ Carts.mustFindByRefNum(refNum)
       order ← * <~ Checkout(cart, CartValidator(cart)).checkout
       _     ← * <~ LogActivity.orderCheckoutCompleted(order)
     } yield order).runTxn()
@@ -39,34 +36,33 @@ object Checkout {
       apis: Apis,
       ac: AC): Result[FullOrder.Root] =
     (for {
-      result ← * <~ Orders
-                .findActiveOrderByCustomer(customer)
+      result ← * <~ Carts
+                .findByCustomer(customer)
                 .one
-                .findOrCreateExtended(Orders.create(Order.buildCart(customer.id, context.id)))
+                .findOrCreateExtended(
+                    Carts.create(Cart(customerId = customer.id, contextId = context.id)))
       (cart, _) = result
       order ← * <~ Checkout(cart, CartValidator(cart)).checkout
       _     ← * <~ LogActivity.orderCheckoutCompleted(order)
     } yield order).runTxn()
 }
 
-case class Checkout(cart: Order,
+case class Checkout(cart: Cart,
                     cartValidator: CartValidation)(implicit ec: EC, db: DB, apis: Apis, ac: AC) {
 
   def checkout: DbResultT[FullOrder.Root] =
     for {
-      _        ← * <~ cart.mustBeCart
       customer ← * <~ Customers.mustFindById404(cart.customerId)
       // TODO make request to #middlewarehouse
       _         ← * <~ activePromos
       valid     ← * <~ cartValidator.validate(isCheckout = false, fatalWarnings = true)
       _         ← * <~ authPayments(customer)
       valid     ← * <~ cartValidator.validate(isCheckout = true, fatalWarnings = true)
-      _         ← * <~ fraudScore
-      _         ← * <~ remorseHold
-      _         ← * <~ createNewCart
+      order     ← * <~ Orders.create(cart.toOrder())
+      _         ← * <~ fraudScore(order)
+      _         ← * <~ remorseHold(order)
       _         ← * <~ updateCouponCountersForPromotion(customer)
-      updated   ← * <~ Orders.refresh(cart)
-      fullOrder ← * <~ FullOrder.fromOrder(updated)
+      fullOrder ← * <~ FullOrder.fromOrder(order)
     } yield fullOrder
 
   private def activePromos: DbResultT[Unit] =
@@ -197,25 +193,19 @@ case class Checkout(cart: Order,
     } else DbResultT.none
   }
 
-  private def remorseHold: DbResultT[Order] =
-    for {
-      remorseHold ← * <~ Orders.update(cart,
-                                       cart.copy(state = RemorseHold, placedAt = Instant.now.some))
-      onHoldGcs ← * <~ (for {
-                       items ← OrderLineItemGiftCards.findByOrderRef(cart.refNum).result
-                       holds ← GiftCards
-                                .filter(_.id.inSet(items.map(_.giftCardId)))
-                                .map(_.state)
-                                .update(GiftCard.OnHold)
-                     } yield holds)
-    } yield remorseHold
+  private def remorseHold(order: Order): DbResultT[Unit] =
+    (for {
+      items ← OrderLineItemGiftCards.findByOrderRef(cart.refNum).result
+      holds ← GiftCards
+               .filter(_.id.inSet(items.map(_.giftCardId)))
+               .map(_.state)
+               .update(GiftCard.OnHold)
+    } yield {}).toXor
 
-  private def fraudScore: DbResultT[Order] =
+  private def fraudScore(order: Order): DbResultT[Order] =
     for {
       fraudScore ← * <~ scala.util.Random.nextInt(10)
-      order      ← * <~ Orders.update(cart, cart.copy(fraudScore = fraudScore))
+      order      ← * <~ Orders.update(order, order.copy(fraudScore = fraudScore))
     } yield order
 
-  private def createNewCart: DbResultT[Order] =
-    Orders.create(Order.buildCart(cart.customerId, cart.contextId))
 }

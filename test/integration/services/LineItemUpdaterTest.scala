@@ -5,8 +5,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import models.StoreAdmins
 import models.activity.ActivityContext
 import models.objects._
-import models.order.lineitems._
-import models.order.{Order, Orders}
+import models.cord.lineitems._
+import models.cord.{Cart, Carts}
 import models.product.{Mvp, SimpleContext, SimpleProductData}
 import payloads.LineItemPayloads.{UpdateLineItemsPayload ⇒ Payload}
 import util.IntegrationTestBase
@@ -39,14 +39,14 @@ class LineItemUpdaterTest extends IntegrationTestBase {
 
     "Adds line items when the sku doesn't exist in order" in new Fixture {
       val (context, products) = createProducts(2).gimme
-      val order               = Orders.create(Order(customerId = 1, contextId = context.id)).gimme
+      val order               = Carts.create(Cart(customerId = 1, contextId = context.id)).gimme
 
       val payload = Seq[Payload](
           Payload(sku = "1", quantity = 3),
           Payload(sku = "2", quantity = 0)
       )
 
-      val root = LineItemUpdater.updateQuantitiesOnOrder(admin, order.refNum, payload).gimme.result
+      val root = LineItemUpdater.updateQuantitiesOnCart(admin, order.refNum, payload).gimme.result
       root.lineItems.skus.count(_.sku == "1") must be(3)
       root.lineItems.skus.count(_.sku == "2") must be(0)
 
@@ -59,10 +59,10 @@ class LineItemUpdaterTest extends IntegrationTestBase {
 
     "Updates line items when the Sku already is in order" in new Fixture {
       val (context, products) = createProducts(3).gimme
-      val order               = Orders.create(Order(customerId = 1, contextId = context.id)).gimme
+      val order               = Carts.create(Cart(customerId = 1, contextId = context.id)).gimme
       val seedItems = Seq(1, 1, 1, 1, 1, 1, 2, 3, 3).map { linkId ⇒
         OrderLineItem(id = 0,
-                      orderRef = order.refNum,
+                      cordRef = order.refNum,
                       originId = linkId,
                       originType = OrderLineItem.SkuItem)
       }
@@ -74,7 +74,7 @@ class LineItemUpdaterTest extends IntegrationTestBase {
           Payload(sku = "3", quantity = 1)
       )
 
-      val root = LineItemUpdater.updateQuantitiesOnOrder(admin, order.refNum, payload).gimme.result
+      val root = LineItemUpdater.updateQuantitiesOnCart(admin, order.refNum, payload).gimme.result
       root.lineItems.skus.count(_.sku == "1") must be(3)
       root.lineItems.skus.count(_.sku == "2") must be(0)
       root.lineItems.skus.count(_.sku == "3") must be(1)

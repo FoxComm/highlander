@@ -1,6 +1,6 @@
 package services.giftcards
 
-import models.order.{OrderPayments, Orders}
+import models.cord.{Carts, OrderPayments}
 import models.payment.giftcard.{GiftCardAdjustments, GiftCards}
 import responses.GiftCardAdjustmentsResponse._
 import slick.driver.PostgresDriver.api._
@@ -14,7 +14,7 @@ object GiftCardAdjustmentsService {
     def maybePaymentQ =
       for {
         pay   ← OrderPayments
-        order ← Orders.filter(_.referenceNumber === pay.orderRef)
+        order ← Carts.filter(_.referenceNumber === pay.cordRef)
       } yield (pay, order.referenceNumber)
 
     def adjustmentQ(giftCardId: Int) = GiftCardAdjustments.filter(_.id === giftCardId)
@@ -29,8 +29,8 @@ object GiftCardAdjustmentsService {
       records  ← * <~ joinedQ(giftCard.id).result
     } yield
       records.map {
-        case (adj, Some((_, orderRef))) ⇒
-          build(adj, Some(orderRef))
+        case (adj, Some((_, cordRef))) ⇒
+          build(adj, Some(cordRef))
         case (adj, _) ⇒
           build(adj)
       }

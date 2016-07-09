@@ -1,12 +1,12 @@
 package services
 
-import models.order._
-import models.returns._
-import OrderPayments.scope._
 import failures.NotFoundFailure404
 import failures.OrderFailures.OrderPaymentNotFoundFailure
-import utils.db._
+import models.cord.OrderPayments.scope._
+import models.cord._
+import models.returns._
 import utils.aliases._
+import utils.db._
 
 package object returns {
   object Helpers {
@@ -15,10 +15,10 @@ package object returns {
     def mustFindPendingReturnByRefNum(refNum: String)(implicit ec: EC): DbResultT[Return] =
       Returns.findOnePendingByRefNum(refNum).mustFindOr(returnNotFound(refNum))
 
-    def mustFindCcPaymentsByOrderRef(orderRef: String)(implicit ec: EC): DbResultT[OrderPayment] =
+    def mustFindCcPaymentsByOrderRef(cordRef: String)(implicit ec: EC): DbResultT[OrderPayment] =
       OrderPayments
-        .findAllByOrderRef(orderRef)
+        .findAllByOrderRef(cordRef)
         .creditCards
-        .mustFindOneOr(OrderPaymentNotFoundFailure(Order))
+        .mustFindOneOr(OrderPaymentNotFoundFailure(Cart))
   }
 }

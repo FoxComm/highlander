@@ -1,8 +1,8 @@
 package models.discount.offers
 
+import models.cord.lineitems.OrderLineItemAdjustment._
 import models.discount.DiscountInput
 import models.discount.offers.Offer.OfferResult
-import models.order.lineitems.OrderLineItemAdjustment._
 import utils.aliases._
 
 case class OrderAmountOffer(discount: Int) extends Offer with AmountOffer {
@@ -12,7 +12,7 @@ case class OrderAmountOffer(discount: Int) extends Offer with AmountOffer {
 
   def adjust(input: DiscountInput)(implicit db: DB, ec: EC, es: ES): OfferResult =
     if (discount > 0)
-      buildResult(input, substract(input.order.subTotal, discount))
+      buildResult(input, substract(input.cart.subTotal, discount))
     else
       pureResult()
 }

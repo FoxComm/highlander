@@ -1,10 +1,11 @@
 package models.discount
 
-import cats.data.Xor
 import scala.concurrent.Future
+
+import cats.data.Xor
+import models.discount.SearchReference._
 import models.sharedsearch.SharedSearches
 import services.Result
-import SearchReference._
 import utils.ElasticsearchApi.Buckets
 import utils.aliases._
 
@@ -23,7 +24,7 @@ case class CustomerSearch(customerSearchId: Int) extends SearchReference[Int, Lo
   val typeName: String  = customersSearchView
   val fieldName: String = customersSearchField
 
-  def references(input: DiscountInput): Seq[Int] = Seq(input.order.customerId)
+  def references(input: DiscountInput): Seq[Int] = Seq(input.cart.customerId)
 
   def query(input: DiscountInput)(implicit db: DB, ec: EC, es: ES): Result[Long] = {
     SharedSearches.findOneById(customerSearchId).run().flatMap {

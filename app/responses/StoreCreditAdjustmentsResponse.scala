@@ -10,15 +10,15 @@ object StoreCreditAdjustmentsResponse {
                   debit: Int,
                   availableBalance: Int,
                   state: StoreCreditAdjustment.State,
-                  orderRef: Option[String])
+                  cordRef: Option[String])
       extends ResponseItem
 
-  def build(adj: StoreCreditAdjustment, orderRef: Option[String] = None): Root = {
+  def build(adj: StoreCreditAdjustment, cordRef: Option[String] = None): Root = {
     Root(id = adj.id,
          createdAt = adj.createdAt,
          debit = adj.debit,
          availableBalance = adj.availableBalance,
          state = adj.state,
-         orderRef = orderRef)
+         cordRef = cordRef)
   }
 }

@@ -1,11 +1,10 @@
 package services.orders
 
-import failures.LockFailures.LockedFailure
 import failures.{NotFoundFailure400, StateTransitionNotAllowed}
 import models.StoreAdmin
-import models.order.Order.{Canceled, _}
-import models.order.lineitems.{OrderLineItem, OrderLineItems}
-import models.order.{Order, OrderPayment, OrderPayments, Orders}
+import models.cord.Order._
+import models.cord._
+import models.cord.lineitems._
 import models.payment.giftcard.GiftCardAdjustments
 import models.payment.giftcard.GiftCardAdjustments.scope._
 import models.payment.storecredit.StoreCreditAdjustments
@@ -57,10 +56,8 @@ object OrderStateUpdater {
       val (validTransitions, invalidTransitions) =
         orders.filterNot(_.state == newState).partition(_.transitionAllowed(newState))
 
-      val (lockedOrders, absolutelyPossibleUpdates) = validTransitions.partition(_.isLocked)
-      val possibleIds                               = absolutelyPossibleUpdates.map(_.id)
-      val possibleRefNums                           = absolutelyPossibleUpdates.map(_.referenceNumber)
-      val skipActivityMod                           = skipActivity || possibleRefNums.isEmpty
+      val possibleRefNums = validTransitions.map(_.referenceNumber)
+      val skipActivityMod = skipActivity || possibleRefNums.isEmpty
 
       updateQueriesWrapper(admin, possibleRefNums, newState, skipActivityMod).toXor.flatMap { _ ⇒
         // Failure handling
@@ -69,52 +66,49 @@ object OrderStateUpdater {
         val notFound = refNumbers
           .filterNot(refNum ⇒ orders.map(_.referenceNumber).contains(refNum))
           .map(refNum ⇒ (refNum, NotFoundFailure400(Order, refNum).description))
-        val locked = lockedOrders.map { o ⇒
-          (o.refNum, LockedFailure(Order, o.refNum).description)
-        }
 
-        val batchFailures = (invalid ++ notFound ++ locked).toMap
+        val batchFailures = (invalid ++ notFound).toMap
         DbResultT.good(BatchMetadata(BatchMetadataSource(Order, possibleRefNums, batchFailures)))
       }
     }
   }
 
   private def updateQueriesWrapper(admin: StoreAdmin,
-                                   orderRefs: Seq[String],
+                                   cordRefs: Seq[String],
                                    newState: State,
                                    skipActivity: Boolean = false)(implicit ec: EC, ac: AC) = {
 
     if (skipActivity)
-      updateQueries(admin, orderRefs, newState)
+      updateQueries(admin, cordRefs, newState)
     else
-      orderBulkStateChanged(admin, newState, orderRefs).value >>
-      updateQueries(admin, orderRefs, newState)
+      orderBulkStateChanged(admin, newState, cordRefs).value >>
+      updateQueries(admin, cordRefs, newState)
   }
 
-  private def updateQueries(admin: StoreAdmin, orderRefs: Seq[String], newState: State)(
+  private def updateQueries(admin: StoreAdmin, cordRefs: Seq[String], newState: State)(
       implicit ec: EC) =
     newState match {
       case Canceled ⇒
-        cancelOrders(orderRefs)
+        cancelOrders(cordRefs)
       case _ ⇒
-        Orders.filter(_.referenceNumber.inSet(orderRefs)).map(_.state).update(newState)
+        Orders.filter(_.referenceNumber.inSet(cordRefs)).map(_.state).update(newState)
     }
 
-  private def cancelOrders(orderRefs: Seq[String])(implicit ec: EC) = {
+  private def cancelOrders(cordRefs: Seq[String])(implicit ec: EC) = {
     val updateLineItems = OrderLineItems
-      .filter(_.orderRef.inSetBind(orderRefs))
+      .filter(_.cordRef.inSetBind(cordRefs))
       .map(_.state)
       .update(OrderLineItem.Canceled)
 
     val cancelPayments = for {
-      orderPayments ← OrderPayments.filter(_.orderRef.inSetBind(orderRefs)).result
+      orderPayments ← OrderPayments.filter(_.cordRef.inSetBind(cordRefs)).result
       _             ← cancelGiftCards(orderPayments)
       _             ← cancelStoreCredits(orderPayments)
       // TODO: add credit card charge return
     } yield ()
 
     val updateOrder =
-      Orders.filter(_.referenceNumber.inSetBind(orderRefs)).map(_.state).update(Canceled)
+      Orders.filter(_.referenceNumber.inSetBind(cordRefs)).map(_.state).update(Canceled)
 
     // (updateLineItems >> updateOrderPayments >> updateOrder).transactionally
     (updateLineItems >> updateOrder >> cancelPayments).transactionally

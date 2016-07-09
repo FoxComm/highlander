@@ -7,14 +7,14 @@ object GiftCardAdjustmentsResponse {
                   amount: Int,
                   availableBalance: Int,
                   state: GiftCardAdjustment.State,
-                  orderRef: Option[String])
+                  cordRef: Option[String])
       extends ResponseItem
 
-  def build(adj: GiftCardAdjustment, orderRef: Option[String] = None): Root = {
+  def build(adj: GiftCardAdjustment, cordRef: Option[String] = None): Root = {
     Root(id = adj.id,
          amount = adj.getAmount,
          availableBalance = adj.availableBalance,
          state = adj.state,
-         orderRef = orderRef)
+         cordRef = cordRef)
   }
 }

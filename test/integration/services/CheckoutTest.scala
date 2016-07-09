@@ -6,11 +6,10 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import cats.implicits._
 import failures.CartFailures._
-import failures.{GeneralFailure, NotFoundFailure404}
+import failures.GeneralFailure
+import models.cord._
+import models.cord.lineitems._
 import models.customer.Customers
-import models.order.Orders.scope._
-import models.order._
-import models.order.lineitems._
 import models.payment.giftcard._
 import models.payment.storecredit._
 import models.{Reasons, StoreAdmins}
@@ -39,14 +38,6 @@ class CheckoutTest
   }
 
   "Checkout" - {
-    "fails if the order is not a cart" in new Fixture {
-      val nonCart = cart.copy(state = Order.RemorseHold)
-      val result  = Checkout(nonCart, CartValidator(nonCart)).checkout.run().futureValue.leftVal
-      val current = Orders.mustFindByRefNum(cart.refNum).gimme
-
-      result must === (OrderMustBeCart(nonCart.refNum).single)
-      current.state must === (cart.state)
-    }
 
     "fails if the cart validator fails" in new CustomerFixture {
       val failure       = GeneralFailure("scalac")
@@ -54,7 +45,7 @@ class CheckoutTest
       when(mockValidator.validate(isCheckout = false, fatalWarnings = true))
         .thenReturn(DbResultT.failure[CartValidatorResponse](failure))
 
-      val cart = Orders.create(Factories.cart).gimme
+      val cart = Carts.create(Factories.cart).gimme
       val result = Checkout(cart.copy(customerId = customer.id), mockValidator).checkout
         .run()
         .futureValue
@@ -71,7 +62,7 @@ class CheckoutTest
       when(mockValidator.validate(isCheckout = true, fatalWarnings = true))
         .thenReturn(liftedFailure)
 
-      val cart = Orders.create(Factories.cart).gimme
+      val cart = Carts.create(Factories.cart).gimme
       val result = Checkout(cart.copy(customerId = customer.id), mockValidator).checkout
         .run()
         .futureValue
@@ -82,37 +73,25 @@ class CheckoutTest
     "updates state to RemorseHold and touches placedAt" in new Fixture {
       val before  = Instant.now
       val result  = Checkout(cart, cartValidator()).checkout.gimme
-      val current = Orders.findByRefNum(cart.refNum).one.run().futureValue.value
+      val current = Orders.findOneByRefNum(cart.refNum).gimme.value
 
       current.state must === (Order.RemorseHold)
-      current.placedAt.value mustBe >=(before)
-    }
-
-    "creates new cart for user at the end" in new Fixture {
-      val result  = Checkout(cart, cartValidator()).checkout.gimme
-      val current = Orders.findByRefNum(cart.refNum).one.run().futureValue.value
-      val newCart = Orders.findByCustomerId(cart.customerId).cartOnly.one.run().futureValue.value
-
-      newCart.refNum must !==(cart.refNum)
-      newCart.state must === (Order.Cart)
-      newCart.isLocked mustBe false
-      newCart.placedAt mustBe 'empty
-      newCart.remorsePeriodEnd mustBe 'empty
+      current.placedAt mustBe >=(before)
     }
 
     "sets all gift card line item purchases as GiftCard.OnHold" in new GCLineItemFixture {
       val result  = Checkout(cart, cartValidator()).checkout.gimme
-      val current = Orders.findByRefNum(cart.refNum).one.run().futureValue.value
+      val current = Carts.findByRefNum(cart.refNum).one.run().futureValue.value
       val gc      = GiftCards.findById(giftCard.id).extract.one.run().futureValue.value
 
       gc.state must === (GiftCard.OnHold)
     }
 
     "authorizes payments" - {
-      "for all gift cards" in new PaymentFixture {
+      "for all gift cards" in new PaymentFixtureWithCart {
         val gcAmount = cart.grandTotal - 1
         val gcPayment =
-          Factories.giftCardPayment.copy(orderRef = cart.refNum, amount = gcAmount.some)
+          Factories.giftCardPayment.copy(cordRef = cart.refNum, amount = gcAmount.some)
 
         val adjustments = (for {
           ids ← * <~ generateGiftCards(List.fill(3)(gcAmount))
@@ -128,10 +107,10 @@ class CheckoutTest
         adjustments.map(_.debit) must === (List(gcAmount, cart.grandTotal - gcAmount))
       }
 
-      "for all store credits" in new PaymentFixture {
+      "for all store credits" in new PaymentFixtureWithCart {
         val scAmount = cart.grandTotal - 1
         val scPayment =
-          Factories.storeCreditPayment.copy(orderRef = cart.refNum, amount = scAmount.some)
+          Factories.storeCreditPayment.copy(cordRef = cart.refNum, amount = scAmount.some)
 
         val adjustments = (for {
           ids ← * <~ generateStoreCredits(List.fill(3)(scAmount))
@@ -150,7 +129,7 @@ class CheckoutTest
 
     "GC/SC payments limited by grand total" in new PaymentFixture {
       val paymentAmountGen = Gen.choose(1, 2000)
-      val orderTotalGen    = Gen.choose(0, 1000)
+      val cartTotalGen     = Gen.choose(0, 1000)
 
       case class CardPayment(cardAmount: Int, payAmount: Int)
 
@@ -168,38 +147,38 @@ class CheckoutTest
         scCount = cardsCount - gcCount
         sc ← Gen.listOfN(scCount, cardWithPaymentGen)
 
-        grandTotal ← orderTotalGen
+        grandTotal ← cartTotalGen
         if (gc.map(_.payAmount).sum + sc.map(_.payAmount).sum) >= grandTotal
       } yield (gc, sc, grandTotal)
 
-      def genGCPayment(cartRef: String, id: Int, amount: Int) =
+      def genGCPayment(cordRef: String, id: Int, amount: Int) =
         Factories.giftCardPayment
-          .copy(orderRef = cartRef, paymentMethodId = id, amount = amount.some)
+          .copy(cordRef = cordRef, paymentMethodId = id, amount = amount.some)
 
-      def genSCPayment(cartRef: String, id: Int, amount: Int) =
+      def genSCPayment(cordRef: String, id: Int, amount: Int) =
         Factories.storeCreditPayment
-          .copy(orderRef = cartRef, paymentMethodId = id, amount = amount.some)
+          .copy(cordRef = cordRef, paymentMethodId = id, amount = amount.some)
 
       val checkoutTests = Prop.forAll(inputGen) {
         case (gcData, scData, orderTotal) ⇒
           val checkoutAmount = (for {
-            currentCart ← * <~ Orders
-                           .findByCustomerId(customer.id)
-                           .cartOnly
-                           .mustFindOneOr(NotFoundFailure404("No cart for customer"))
-            testCart ← * <~ Orders.update(currentCart, currentCart.copy(grandTotal = orderTotal))
+            cart ← * <~ Carts.create(
+                      Factories.cart.copy(customerId = customer.id,
+                                          grandTotal = orderTotal,
+                                          // reset refnum so it's generated on insert
+                                          referenceNumber = ""))
 
             gcIds ← * <~ generateGiftCards(gcData.map(_.cardAmount))
             scIds ← * <~ generateStoreCredits(scData.map(_.cardAmount))
 
             _ ← * <~ OrderPayments.createAllReturningIds(gcIds.zip(gcData.map(_.payAmount)).map {
-                 case (id, amount) ⇒ genGCPayment(testCart.refNum, id, amount)
+                 case (id, amount) ⇒ genGCPayment(cart.refNum, id, amount)
                })
             _ ← * <~ OrderPayments.createAllReturningIds(scIds.zip(scData.map(_.payAmount)).map {
-                 case (id, amount) ⇒ genSCPayment(testCart.refNum, id, amount)
+                 case (id, amount) ⇒ genSCPayment(cart.refNum, id, amount)
                })
 
-            _ ← * <~ Checkout(testCart, cartValidator()).checkout
+            _ ← * <~ Checkout(cart, cartValidator()).checkout
 
             gcAdjustments ← * <~ GiftCardAdjustments.filter(_.giftCardId.inSet(gcIds)).result
             scAdjustments ← * <~ StoreCreditAdjustments.filter(_.storeCreditId.inSet(scIds)).result
@@ -224,7 +203,7 @@ class CheckoutTest
   trait Fixture {
     val (customer, cart) = (for {
       customer ← * <~ Customers.create(Factories.customer)
-      cart     ← * <~ Orders.create(Factories.cart.copy(customerId = customer.id))
+      cart     ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
     } yield (customer, cart)).gimme
   }
 
@@ -235,24 +214,23 @@ class CheckoutTest
   trait GCLineItemFixture {
     val (customer, cart, giftCard) = (for {
       customer ← * <~ Customers.create(Factories.customer)
-      cart     ← * <~ Orders.create(Factories.cart.copy(customerId = customer.id))
-      origin   ← * <~ GiftCardOrders.create(GiftCardOrder(orderRef = cart.refNum))
+      cart     ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
+      origin   ← * <~ GiftCardOrders.create(GiftCardOrder(cordRef = cart.refNum))
       giftCard ← * <~ GiftCards.create(
                     GiftCard
                       .buildLineItem(balance = 150, originId = origin.id, currency = Currency.USD))
       lineItemGc ← * <~ OrderLineItemGiftCards.create(
-                      OrderLineItemGiftCard(giftCardId = giftCard.id, orderRef = cart.refNum))
+                      OrderLineItemGiftCard(giftCardId = giftCard.id, cordRef = cart.refNum))
       lineItem ← * <~ OrderLineItems.create(OrderLineItem.buildGiftCard(cart, lineItemGc))
     } yield (customer, cart, giftCard)).gimme
   }
 
   trait PaymentFixture {
-    val (admin, customer, cart, reason) = (for {
+    val (admin, customer, reason) = (for {
       admin    ← * <~ StoreAdmins.create(Factories.storeAdmin)
       customer ← * <~ Customers.create(Factories.customer)
-      cart     ← * <~ Orders.create(Factories.cart.copy(customerId = customer.id, grandTotal = 1000))
       reason   ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
-    } yield (admin, customer, cart, reason)).gimme
+    } yield (admin, customer, reason)).gimme
 
     def generateGiftCards(amount: Seq[Int]) =
       for {
@@ -271,5 +249,9 @@ class CheckoutTest
                        Factories.storeCredit.copy(originalBalance = scAmount,
                                                   originId = origin.id)))
       } yield ids
+  }
+
+  trait PaymentFixtureWithCart extends PaymentFixture {
+    val cart = Carts.create(Factories.cart.copy(customerId = customer.id, grandTotal = 1000)).gimme
   }
 }
