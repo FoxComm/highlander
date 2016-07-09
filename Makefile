@@ -25,7 +25,7 @@ bootstrap-db-backup:
 	ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_db_backup.yml
 
 bootstrap-tinystack:
-	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml
+	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml --private-key=$(PRIVATE_KEY)
 
 bootstrap-tinystack-backend:
 	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml --tags=backend --private-key=$(PRIVATE_KEY)
@@ -70,7 +70,7 @@ deploy-dem2:
 	ansible-playbook -v -i bin/envs/staging ansible/dem2.yml
 
 deploy-build-agents:
-	ansible-playbook -v -i bin/envs/staging ansible/build_agents.yml
+	ansible-playbook -v -i bin/envs/staging ansible/build_agents.yml --private-key=$(PRIVATE_KEY)
 
 tf-stage:
 	terraform $(TF_CMD) -state=$(TF_ENVS)/gce_dev/terraform.tfstate -var-file=$(TF_ENVS)/gce_dev/dev.tfvars $(TF_BASE)/gce_dev
