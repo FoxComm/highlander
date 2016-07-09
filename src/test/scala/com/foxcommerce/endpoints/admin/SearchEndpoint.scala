@@ -48,7 +48,7 @@ object SearchEndpoint {
       .get("/search/admin/orders_search_view/_search?q=referenceNumber:${orderRefNum}")
       .header(Config.defaultJwtHeader, "${jwtTokenAdmin}")
       .check(status.is(200))
-      .check(jsonPath("$.result[0].state").ofType[String].is(state))
+      //.check(jsonPath("$.result[0].state").ofType[String].is(state))
       .check(jsonPath("$.result[0].shippingAddresses[0].address1").ofType[String].is(order.shippingAddress.address1))
       .check(jsonPath("$.result[0].shippingAddresses[0].address2").ofType[String].is(order.shippingAddress.address2))
       .check(jsonPath("$.result[0].shippingAddresses[0].city").ofType[String].is(order.shippingAddress.city))
