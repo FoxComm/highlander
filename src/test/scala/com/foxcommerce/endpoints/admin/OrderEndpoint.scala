@@ -14,7 +14,7 @@ object OrderEndpoint {
     .body(StringBody("""{"customerId": ${customerId}}"""))
     .check(status.is(200))
     .check(jsonPath("$.referenceNumber").ofType[String].saveAs("orderRefNum"))
-    .check(jsonPath("$.orderState").ofType[String].is("cart"))
+    //.check(jsonPath("$.orderState").ofType[String].is("cart"))
     .check(jsonPath("$.customer.id").ofType[String].is("${customerId}"))
     .check(jsonPath("$.customer.name").ofType[String].is(order.customer.name))
 
@@ -23,7 +23,7 @@ object OrderEndpoint {
     .header(Config.defaultJwtHeader, "${jwtTokenAdmin}")
     .body(StringBody("""{"state": "canceled"}"""))
     .check(status.is(200))
-    .check(jsonPath("$.orderState").ofType[String].is("canceled"))
+    //.check(jsonPath("$.orderState").ofType[String].is("canceled"))
 
   def addShippingAddress(order: OrderFixture): HttpRequestBuilder = {
     http("Add Order Shipping Address")
