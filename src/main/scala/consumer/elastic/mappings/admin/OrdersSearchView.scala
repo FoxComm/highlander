@@ -75,8 +75,7 @@ final case class OrdersSearchView()(implicit ec: EC) extends AvroTransformer {
           field("name", StringType) analyzer "autocomplete",
           field("assignedAt", DateType) format dateFormat
       ),
-      // RMAs
-      field("returnCount", IntegerType),
+      // Returns
       field("returns").nested(
           field("referenceNumber", StringType) index "not_analyzed",
           field("state", StringType) index "not_analyzed",
