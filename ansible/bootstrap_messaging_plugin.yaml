@@ -12,13 +12,13 @@
     - name: "retailer_name"
       prompt: "Enter a retailer name"
       private: no
-    - name: "add-new-customers-to-mailchimp"
+    - name: "add_new_customers_to_mailchimp"
       prompt: "Add new users to mailchimp lists? (yes/no)"
       private: no
-    - name: "mailchimp-customers-list-id"
+    - name: "mailchimp_customers_list_id"
       prompt: "Enter mailchimp list id (skip if previous answer is no"
       private: no
-    - name: "mailchimp-api-key"
+    - name: "mailchimp_api_key"
       prompt: "Enter mailchimp api key (same)"
       private: no
     - name: "ashes_server_name"
