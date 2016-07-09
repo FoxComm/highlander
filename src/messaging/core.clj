@@ -1,20 +1,26 @@
 (ns messaging.core
  (:require
+   ;; std
+   [clojure.core.async
+    :as async
+    :refer [<!! chan thread go]]
+   [clojure.java.io :as io]
+   [clojure.string :as string]
+   ;; internal
+   [messaging.mail :as mail]
+   ;; kafka & other libs
    [franzy.clients.consumer.client :as consumer]
    [franzy.clients.consumer.protocols :refer :all]
    [franzy.clients.consumer.defaults :as cd]
    [franzy.serialization.deserializers :as deserializers]
    [franzy.common.models.types :as mt]
    [pjson.core :as json]
-   [clojure.java.io :as io]
-   [clojure.string :as string]
    [environ.core :refer [env]]
    [aleph.http :as http]
    [byte-streams :as bs]
-   [franzy.clients.consumer.callbacks :as callbacks]
-   [clojure.core.async
-    :as async
-    :refer [<!! chan thread go]])
+   [franzy.clients.consumer.callbacks :as callbacks])
+
+
  (:import [javax.script ScriptEngineManager]))
 
 
@@ -23,7 +29,7 @@
 (def slack-webhook-url (delay (:slack-webhook-url env)))
 (def kafka-broker (delay (:kafka-broker env)))
 (def schema-registry-url (delay (:schema-registry-url env)))
-(def admin-base-url (delay (:fc-admin-url env)))
+(def admin-base-url (delay (str "http://" (:admin-server-name env))))
 
 
 (defn decode-embed-json
@@ -53,8 +59,8 @@
      (clojure.walk/keywordize-keys $)
      (assoc $
        :data (decode-embed-json (:data $))
-       :context (decode-embed-json (:context $))
-       :created_at (transform-date (:created_at $)))))
+       :context (decode-embed-json (:context $)))))
+
 
 
 (defn decode
@@ -117,8 +123,12 @@
         (let [msgs (into [] xf cr)]
           (when-not (empty? msgs)
             (doseq [msg msgs]
-              (when-let [string-msg (render-react-activity react-app msg)]
-                (send-to-slack string-msg))))))
+              (prn msg)
+              (mail/handle-activity msg)))))
+;; temporary disabled
+;;               (when-let [string-msg (render-react-activity react-app msg)]
+;;                 (send-to-slack string-msg))))))
+
        (when-not @stop
          (recur)))))
  (println "exit"))
@@ -132,4 +142,3 @@
     (.eval nashorn (slurp (io/resource "polyfill.js")))
     (.eval nashorn (slurp (io/resource "admin-dbg.js")))
     nashorn))
-
