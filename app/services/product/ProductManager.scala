@@ -212,7 +212,11 @@ object ProductManager {
       code ← * <~ SkuManager.mustGetSkuCode(payload)
       sku ← * <~ Skus.filterByContextAndCode(oc.id, code).one.toXor.flatMap {
              case Some(sku) ⇒
-               SkuManager.updateSkuInner(sku, payload)
+               for {
+                 existingSku ← * <~ SkuManager.updateSkuInner(sku, payload)
+                 link = ProductSkuLink(leftId = product.id, rightId = existingSku.model.id)
+                 _ ← * <~ ProductSkuLinks.insertOrUpdate(link)
+               } yield existingSku
              case None ⇒
                for {
                  newSku ← * <~ SkuManager.createSkuInner(oc, payload)

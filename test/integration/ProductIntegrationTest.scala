@@ -43,6 +43,25 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
       code.extract[String] must === ("SKU-RED-SMALL")
     }
 
+    "Gets an associated SKU after creating a product with a SKU" in new Fixture {
+      val redSkuPayload = makeSkuPayload("SKU-RED-SMALL", skuAttrMap)
+      val payload       = productPayload.copy(skus = Seq(redSkuPayload))
+
+      val response = POST(s"v1/products/${context.name}", payload)
+      response.status must === (StatusCodes.OK)
+
+      val productResponse = response.as[ProductResponse.Root]
+      val getResponse     = GET(s"v1/products/${context.name}/${productResponse.id}")
+      getResponse.status must === (StatusCodes.OK)
+
+      val getProductResponse = getResponse.as[ProductResponse.Root]
+      getProductResponse.skus.length must === (1)
+
+      val getFirstSku :: Nil = getProductResponse.skus
+      val getCode            = getFirstSku.attributes \ "code" \ "v"
+      getCode.extract[String] must === ("SKU-RED-SMALL")
+    }
+
     "Creates a product with an existing, but modified SKU successfully" in new Fixture {
       val redPriceJson  = ("t" → "price") ~ ("v" → (("currency" → "USD") ~ ("value" → 7999)))
       val redSkuAttrMap = Map("salePrice" → redPriceJson)
