@@ -103,6 +103,13 @@ lazy val phoenixScala = (project in file(".")).
         |import scala.concurrent.ExecutionContext.Implicits.global
         |import slick.driver.PostgresDriver.api._
         |import models._
+        |import scala.concurrent.{Await, Future}
+        |import scala.concurrent.duration._
+        |import models.activity.ActivityContext
+        |implicit val ac = ActivityContext(userId = 1, userType = "admin", transactionId = utils.generateUuid)
+        |final implicit class ConsoleEnrichedFuture[A](val future: Future[A]) extends AnyVal {
+        |  def get(): A = Await.result(future, 1.minute)
+        |}
         |val config: com.typesafe.config.Config = utils.FoxConfig.loadWithEnv()
         |implicit val db = Database.forConfig("db", config)
         |import utils.db._

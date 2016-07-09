@@ -42,6 +42,7 @@ import services.activity.OrderTailored._
 import services.activity.ProductTailored._
 import services.activity.SharedSearchTailored._
 import services.activity.SkuTailored._
+import services.activity.MailTailored._
 import services.activity.StoreAdminsTailored._
 import services.activity.StoreCreditTailored._
 import utils.aliases._
@@ -500,6 +501,13 @@ object LogActivity {
                              newState: StoreAdmin.State,
                              admin: Originator)(implicit ec: EC, ac: AC): DbResultT[Activity] =
     Activities.log(StoreAdminStateChanged(entity, oldState, newState, admin))
+
+  /* Mail stuff */
+
+  def sendMail(name: String, subject: String, email: String, html: String)(
+      implicit ec: EC,
+      ac: AC): DbResultT[Activity] =
+    Activities.log(SendSimpleMail(name = name, subject = subject, email = email, html = html))
 
   /* Helpers */
   private def buildOriginator(originator: Originator): Option[AdminResponse] = originator match {
