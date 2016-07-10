@@ -45,15 +45,16 @@ case class SimpleDiscountForm(percentOff: Percent, totalAmount: Int) {
 
 case class SimpleDiscountShadow(f: SimpleDiscountForm) {
 
-  val shadow =
-    ObjectUtils.newShadow(parse("""
+  val shadow = ObjectUtils.newShadow(
+      parse("""
         {
           "title" : {"type": "string", "ref": "title"},
           "description" : {"type": "richText", "ref": "description"},
           "tags" : {"type": "tags", "ref": "tags"},
           "qualifier" : {"type": "qualifier", "ref": "qualifier"},
           "offer" : {"type": "offer", "ref": "offer"}
-        }"""), f.keyMap)
+        }"""),
+      f.keyMap)
 }
 
 trait DiscountGenerator {

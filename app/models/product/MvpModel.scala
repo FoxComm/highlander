@@ -62,14 +62,15 @@ case class SimpleProduct(title: String,
 
 case class SimpleProductShadow(p: SimpleProduct) {
 
-  val shadow =
-    ObjectUtils.newShadow(parse("""
+  val shadow = ObjectUtils.newShadow(
+      parse("""
         {
           "title" : {"type": "string", "ref": "title"},
           "description" : {"type": "richText", "ref": "description"},
           "activeFrom" : {"type": "date", "ref": "activeFrom"},
           "tags" : {"type": "tags", "ref": "tags"}
-        }"""), p.keyMap)
+        }"""),
+      p.keyMap)
 
   def create: ObjectShadow =
     ObjectShadow(attributes = shadow)
@@ -133,7 +134,8 @@ case class SimpleSkuShadow(s: SimpleSku) {
           "salePrice" : {"type": "price", "ref": "salePrice"},
           "activeFrom" : {"type": "date", "ref": "activeFrom"},
           "tags" : {"type": "tags", "ref": "tags"}
-        }"""), s.keyMap)
+        }"""),
+                                     s.keyMap)
 
   def create: ObjectShadow =
     ObjectShadow(attributes = shadow)
@@ -171,7 +173,8 @@ case class SimpleVariantValueShadow(v: SimpleVariantValue) {
         "name": { "type": "string", "ref": "name" },
         "swatch": { "type": "string", "ref": "swatch" }
       }
-    """), v.keyMap)
+    """),
+                                     v.keyMap)
 
   def create: ObjectShadow = ObjectShadow(attributes = shadow)
 }

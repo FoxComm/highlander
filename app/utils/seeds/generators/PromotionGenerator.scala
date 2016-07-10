@@ -47,8 +47,8 @@ case class SimplePromotionForm(percentOff: Percent, totalAmount: Int) {
 
 case class SimplePromotionShadow(f: SimplePromotionForm) {
 
-  val shadow =
-    ObjectUtils.newShadow(parse("""
+  val shadow = ObjectUtils.newShadow(
+      parse("""
       {
         "name" : {"type": "string", "ref": "name"},
         "storefrontName" : {"type": "richText", "ref": "storefrontName"},
@@ -57,7 +57,8 @@ case class SimplePromotionShadow(f: SimplePromotionForm) {
         "activeFrom" : {"type": "date", "ref": "activeFrom"},
         "activeTo" : {"type": "date", "ref": "activeTo"},
         "tags" : {"type": "tags", "ref": "tags"}
-      }"""), f.keyMap)
+      }"""),
+      f.keyMap)
 }
 
 trait PromotionGenerator {
