@@ -49,7 +49,7 @@ lazy val phoenixScala = (project in file(".")).
       val test = "test,it"
 
       val scalaTestV = "2.2.6"
-      val slickPgV   = "0.14.1"
+      val slickPgV   = "0.14.2"
 
       Seq(
         // http
@@ -58,7 +58,7 @@ lazy val phoenixScala = (project in file(".")).
         // Database
         "com.github.tminglei"        %% "slick-pg"               % slickPgV,
         "com.github.tminglei"        %% "slick-pg_json4s"        % slickPgV,
-        "com.zaxxer"                 %  "HikariCP"               % "2.4.6"    % "provided",
+        "com.zaxxer"                 %  "HikariCP"               % "2.4.7"    % "provided",
         "org.postgresql"             %  "postgresql"             % "9.4.1208",
         "org.flywaydb"               %  "flyway-core"            % "4.0.3",
         "com.github.mauricio"        %% "postgresql-async"       % "0.2.20",
@@ -83,7 +83,7 @@ lazy val phoenixScala = (project in file(".")).
         "it.justwrote"               %% "scala-faker"            % "0.3",
         "io.backchat.inflector"      %% "scala-inflector"        % "1.3.5",
         "com.github.tototoshi"       %% "scala-csv"              % "1.3.3",
-        "com.amazonaws"              %  "aws-java-sdk"           % "1.11.11",
+        "com.amazonaws"              %  "aws-java-sdk"           % "1.11.15",
         // Testing
         "org.conbere"                %  "markov_2.10"            % "0.2.0",
         "org.scalatest"              %% "scalatest"              % scalaTestV % test,
