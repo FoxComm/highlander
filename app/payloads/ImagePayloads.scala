@@ -69,11 +69,10 @@ object ImagePayloads {
 
   def validateIdsUnique(images: Images): ValidatedNel[Failure, Images] = images match {
     case Some(imgList) ⇒
-      val withId = imgList.filter(_.id.isDefined)
-      val duplicated =
-        withId.groupBy(_.id.get).mapValues(_.size).filter { case (id, count) ⇒ count > 1 }
-      validExpr(duplicated.isEmpty, s"Image id is duplicated ${duplicated.head._1}").map(_ ⇒
-            images)
+      val duplicated = imgList.groupBy(_.id.getOrElse(0)).collect {
+        case (id, items) if id != 0 && items.size > 1 ⇒ id
+      }
+      validExpr(duplicated.isEmpty, s"Image ID is duplicated ${duplicated.head}").map(_ ⇒ images)
     case None ⇒
       Validated.valid(images)
 

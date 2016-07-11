@@ -4,7 +4,7 @@ import java.time.Instant
 
 import models.image._
 import models.objects._
-import responses.ImageResponses.IlluminatedImageResponse
+import responses.ImageResponses.ImageResponse
 import utils.{JsonFormatters, IlluminateAlgorithm}
 
 object AlbumResponses {
@@ -13,7 +13,7 @@ object AlbumResponses {
   object AlbumResponse {
     case class Root(id: Int,
                     name: String,
-                    images: Seq[IlluminatedImageResponse.Root],
+                    images: Seq[ImageResponse.Root],
                     position: Option[Int],
                     createdAt: Instant,
                     updatedAt: Instant)
@@ -29,7 +29,7 @@ object AlbumResponses {
 
       Root(id = album.form.id,
            name = name,
-           images = images.map(IlluminatedImageResponse.build),
+           images = images.map(ImageResponse.build),
            position = position,
            createdAt = model.createdAt,
            updatedAt = model.updatedAt)
