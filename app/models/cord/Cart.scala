@@ -42,6 +42,17 @@ case class Cart(id: Int = 0,
           taxesTotal = taxesTotal,
           grandTotal = grandTotal,
           contextId = ctx.id)
+
+  def toOrder(contextId: Int)(implicit ec: EC): Order =
+    Order(referenceNumber = referenceNumber,
+          customerId = customerId,
+          currency = currency,
+          subTotal = subTotal,
+          shippingTotal = shippingTotal,
+          adjustmentsTotal = adjustmentsTotal,
+          taxesTotal = taxesTotal,
+          grandTotal = grandTotal,
+          contextId = contextId)
 }
 
 class Carts(tag: Tag) extends FoxTable[Cart](tag, "carts") {

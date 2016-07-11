@@ -35,9 +35,15 @@ object Seeds {
 
     val adminId = createBaseSeeds()
 
+    val scale = if (args.length == 2) args(1).toInt else 1
+
     args.headOption.map {
       case "stage" ⇒
         createStageSeeds(adminId)
+      case "demo" ⇒
+        createStageSeeds(adminId)
+        createDemoSeeds()
+        createRandomSeeds(scale)
       case _ ⇒ None
     }
 
@@ -54,6 +60,32 @@ object Seeds {
     Console.err.println("Inserting Stage seeds")
     val result: Failures Xor Unit = Await.result(createStage(adminId).runTxn(), 4.minutes)
     validateResults("stage", result)
+  }
+
+  def createDemoSeeds()(implicit db: DB) {
+    val result = Await.result(DemoSeeds.insertDemoSeeds.runTxn(), 4.minutes)
+    validateResults("demo", result)
+  }
+
+  def createRandomSeeds(scale: Int)(implicit db: DB, ac: AC) {
+    Console.err.println("Inserting random seeds")
+
+    val customers            = 1000 * scale
+    val batchSize            = 100
+    val appeasementsPerBatch = 8
+    val batchs               = customers / batchSize
+
+    Console.err.println(s"Generating $customers customers in $batchs batches")
+
+    // Have to generate data in batches because of DBIO.seq stack overflow bug.
+    // https://github.com/slick/slick/issues/1186
+    (1 to batchs).foreach { b ⇒
+      Console.err.println(s"Generating random batch $b of $batchSize customers")
+      val result = Await.result(
+          SeedsGenerator.insertRandomizedSeeds(batchSize, appeasementsPerBatch).runTxn(),
+          (120 * scale).second)
+      validateResults(s"random batch $b", result)
+    }
   }
 
   val today = Instant.now().atZone(ZoneId.of("UTC"))
