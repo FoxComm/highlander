@@ -31,7 +31,6 @@ const PromotionRow = (props: PromotionRowProps) => {
 
   return (
     <MultiSelectRow
-      cellKeyPrefix={key}
       columns={columns}
       linkTo="promotion-details"
       linkParams={{promotionId: promotion.id}}

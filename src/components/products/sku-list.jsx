@@ -48,7 +48,7 @@ export default class SkuList extends Component<void, Props, void> {
 
   skuContent(skus: Array<Sku>): Element {
     const renderRow = (row, index, columns, params) => {
-      const key = row.feCode || row.code;
+      const key = row.feCode || row.code || row.id;
 
       return (
         <EditableSkuRow

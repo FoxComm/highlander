@@ -58,7 +58,7 @@ const PilledInput = props => {
       <input
         className={inputClass}
         type="text"
-        autoFocus={props.autofocus}
+        autoFocus={props.autoFocus}
         disabled={disabled}
         {...rest} />
     );
@@ -91,7 +91,7 @@ PilledInput.propTypes = {
   icon: PropTypes.string,
   controls: PropTypes.node,
   className: PropTypes.string,
-  autofocus: PropTypes.bool,
+  autoFocus: PropTypes.bool,
   solid: PropTypes.bool,
   disabled: PropTypes.bool,
 };
@@ -103,7 +103,7 @@ PilledInput.defaultProps = {
   formatPill,
   icon: 'search',
   inputMask: '',
-  autofocus: false,
+  autoFocus: false,
   solid: false,
   disabled: false,
 };

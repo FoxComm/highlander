@@ -95,7 +95,7 @@ export default class Notes extends React.Component {
     if (this.props.editingNoteId === row.id) {
       return (
         <TableRow key={`row-${row.id}`}>
-          <TableCell colspan={this.tableColumns.length}>
+          <TableCell colSpan={this.tableColumns.length}>
             <NoteForm
               body={this.props.editingNote && this.props.editingNote.body}
               onReset={this.props.stopAddingOrEditingNote}
@@ -123,7 +123,7 @@ export default class Notes extends React.Component {
     if (this.props.editingNoteId === -1) {
       return [
         <TableRow key="row-add">
-          <TableCell colspan={columns.length}>
+          <TableCell colSpan={columns.length}>
             <NoteForm
               onReset={this.props.stopAddingOrEditingNote}
               onSubmit={this.props.createNote}

@@ -48,7 +48,6 @@ type State = {
   isExpanded: boolean;
 }
 
-
 const mapStateToProps = state => ({
   carriers: state.orders.carriers.list,
   shipmentMethods: state.orders.shipmentMethods.list,
@@ -59,7 +58,6 @@ const mapDispatchToProps = dispatch => ({
     shipmentMethods: bindActionCreators(getStore('orders.shipmentMethods').actions, dispatch),
   },
 });
-
 
 class ShipmentRow extends Component {
   props: Props;
@@ -72,15 +70,15 @@ class ShipmentRow extends Component {
   componentDidMount(): void {
     const { carriers, shipmentMethods } = this.props.actions;
 
-    this.setState({isLoading: true});
+    this.setState({ isLoading: true });
 
     Promise.all([carriers.load(), shipmentMethods.load()])
-      .then(() => this.setState({isLoading: false}));
+      .then(() => this.setState({ isLoading: false }));
   }
 
   @autobind
   toggleExpanded() {
-    this.setState({isExpanded: !this.state.isExpanded});
+    this.setState({ isExpanded: !this.state.isExpanded });
   }
 
   get summaryRow() {
@@ -134,7 +132,7 @@ class ShipmentRow extends Component {
 
     return (
       <TableRow styleName="details-row">
-        <TableCell colspan={8}>
+        <TableCell colSpan={8}>
           <div styleName="details-title">Shipping Address</div>
           <div styleName="address">
             <AddressDetails styleName="address" address={props.address} />
@@ -161,7 +159,7 @@ class ShipmentRow extends Component {
       return (
         <tbody>
           <tr>
-            <td colspan={8}>
+            <td colSpan={8}>
               <WaitAnimation />
             </td>
           </tr>
@@ -176,6 +174,6 @@ class ShipmentRow extends Component {
       </tbody>
     );
   }
-};
+}
 
 export default connect(mapStateToProps, mapDispatchToProps)(ShipmentRow);

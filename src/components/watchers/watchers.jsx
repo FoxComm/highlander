@@ -65,7 +65,7 @@ class Watchers extends Component {
     storePath: PropTypes.string,
     entity: PropTypes.shape({
       entityType: PropTypes.string.isRequired,
-      entityId: PropTypes.string.isRequired,
+      entityId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     }).isRequired,
     data: PropTypes.object.isRequired,
     currentUser: PropTypes.shape({

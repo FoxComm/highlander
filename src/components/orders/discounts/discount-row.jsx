@@ -24,7 +24,6 @@ const DiscountRow = (props: Props): Element => {
 
   return (
     <MultiSelectRow
-      cellKeyPrefix={key}
       columns={columns}
       row={item}
       setCellContents={setCellContents}

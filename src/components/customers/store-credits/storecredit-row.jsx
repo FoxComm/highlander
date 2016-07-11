@@ -81,7 +81,6 @@ const StoreCreditRow = props => {
 
   return (
     <MultiSelectRow
-      cellKeyPrefix={key}
       columns={columns}
       params={params}
       row={rowData}

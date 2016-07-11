@@ -26,7 +26,6 @@ const StoreCreditTransactionRow = props => {
 
   return (
     <MultiSelectRow
-      cellKeyPrefix={key}
       columns={columns}
       row={storeCreditTransaction}
       setCellContents={setCellContents}

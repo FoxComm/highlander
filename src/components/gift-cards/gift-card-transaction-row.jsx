@@ -22,7 +22,6 @@ const GiftCardTransactionRow = props => {
 
   return (
     <MultiSelectRow
-      cellKeyPrefix={key}
       columns={columns}
       row={giftCard}
       setCellContents={setCellContents}

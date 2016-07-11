@@ -28,7 +28,6 @@ const CustomerRow = props => {
 
   return (
     <MultiSelectRow
-      cellKeyPrefix={key}
       columns={columns}
       linkTo="customer"
       linkParams={{customerId: customer.id}}

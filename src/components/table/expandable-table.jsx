@@ -25,7 +25,7 @@ const ExpandableTable = props => {
       ...params,
       toggleDrawerState: () => toggleDrawerState(entity, id),
       isOpen: state,
-      colspan: columns.length,
+      colSpan: columns.length,
     };
 
     return [

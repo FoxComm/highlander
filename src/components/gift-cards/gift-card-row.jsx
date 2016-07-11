@@ -19,7 +19,6 @@ const GiftCardRow = (props) => {
 
   return (
     <MultiSelectRow
-      cellKeyPrefix={key}
       columns={columns}
       linkTo="giftcard"
       linkParams={{giftCard: giftCard.code}}

@@ -89,7 +89,6 @@ const OrderRow = (props, context) => {
 
   return (
     <MultiSelectRow
-      cellKeyPrefix={key}
       columns={columns}
       linkTo="order"
       linkParams={{order: order.referenceNumber}}
