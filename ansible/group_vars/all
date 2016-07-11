@@ -75,7 +75,7 @@ messaging_jmx_port: 39012
 loyalty_jmx_port: 39013
 
 # Seeds
-seeds_cmd: utils.seeds.Seeds stage
+seeds_cmd: utils.seeds.Seeds demo 1
 gatling_oneshot_seeds_cmd: seeds.OneshotSeeds
 gatling_continuous_seeds_cmd: seeds.ContinuousSeeds
 
