@@ -157,6 +157,8 @@ func onHandStockItemUnits(db *gorm.DB, stockItemID uint, count int) ([]models.St
 		err := fmt.Errorf(
 			"Not enough onHand units for stock item %v. Expected %v, got %v",
 			stockItemID,
+			count,
+			len(units),
 		)
 
 		return units, err
