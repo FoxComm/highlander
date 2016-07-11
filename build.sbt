@@ -3,7 +3,6 @@ import sbtassembly.AssemblyKeys
 lazy val commonSettings = Seq(
   version          := "1.0",
   scalaVersion     := "2.11.8",
-  scapegoatVersion := "1.2.1",
   updateOptions    := updateOptions.value.withCachedResolution(true),
   scalacOptions ++= List(
     "-encoding", "UTF-8",
