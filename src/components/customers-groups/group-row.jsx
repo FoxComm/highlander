@@ -11,7 +11,6 @@ const GroupRow = (props) => {
 
   return (
     <MultiSelectRow
-      cellKeyPrefix={key}
       columns={columns}
       linkTo="customer-group"
       linkParams={{ groupId: group.id }}

@@ -22,7 +22,6 @@ const CouponCodeRow = (props: CouponCodeRowProps) => {
 
   return (
     <MultiSelectRow
-      cellKeyPrefix={key}
       columns={columns}
       row={couponCode}
       setCellContents={setCellContents}

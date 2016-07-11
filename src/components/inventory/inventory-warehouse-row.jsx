@@ -19,7 +19,6 @@ const InventoryWarehouseRow = props => {
   return (
     <ExpandableRow
       key={key}
-      cellKeyPrefix={key}
       columns={columns}
       row={warehouse}
       params={params}

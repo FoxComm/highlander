@@ -22,7 +22,6 @@ const ProductRow = (props) => {
 
   return (
     <MultiSelectRow
-      cellKeyPrefix={key}
       columns={columns}
       linkTo="product-details"
       linkParams={{productId: product.productId, context: product.context}}

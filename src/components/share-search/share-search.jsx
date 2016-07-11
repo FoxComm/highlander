@@ -189,7 +189,7 @@ const renderPilledInput = (props) => {
   return (
     <PilledInput
       solid={true}
-      autofocus={true}
+      autoFocus={true}
       value={term}
       disabled={selected.length >= maxUsers}
       onChange={({target}) => setTerm(target.value)}

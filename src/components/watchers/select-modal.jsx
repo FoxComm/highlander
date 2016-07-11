@@ -98,7 +98,7 @@ SelectWatcherModal.propTypes = {
   group: PropTypes.string,
   entity: PropTypes.shape({
     entityType: PropTypes.string.isRequired,
-    entityId: PropTypes.string.isRequired,
+    entityId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   }).isRequired,
   onCancel: PropTypes.func.isRequired,
   onConfirm: PropTypes.func.isRequired,

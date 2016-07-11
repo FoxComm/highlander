@@ -126,10 +126,8 @@ export default class EditableSkuRow extends Component<void, Props, State> {
   render(): Element {
     const { columns, sku, params } = this.props;
 
-    const key = `pdp-sku-${sku.code}`;
     return (
       <MultiSelectRow
-        cellKeyPrefix={key}
         columns={columns}
         row={sku}
         params={params}

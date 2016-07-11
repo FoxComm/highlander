@@ -35,7 +35,6 @@ const CouponRow = (props: CouponRowProps) => {
 
   return (
     <MultiSelectRow
-      cellKeyPrefix={key}
       columns={columns}
       linkTo="coupon-details"
       linkParams={{couponId: coupon.id}}

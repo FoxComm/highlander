@@ -52,7 +52,6 @@ const OrderTransactionRow = (props) => {
 
   return (
     <MultiSelectRow
-      cellKeyPrefix={key}
       columns={columns}
       linkTo="order"
       linkParams={{order: order.referenceNumber}}

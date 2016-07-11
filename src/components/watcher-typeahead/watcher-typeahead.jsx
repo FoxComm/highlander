@@ -78,7 +78,7 @@ const renderPilledInput = (props) => {
   return (
     <PilledInput
       solid={true}
-      autofocus={true}
+      autoFocus={true}
       value={term}
       disabled={selected.length >= maxUsers}
       onChange={({target}) => setTerm(target.value)}
@@ -116,7 +116,7 @@ WatcherTypeahead.propTypes = {
   storePath: PropTypes.string,
   entity: PropTypes.shape({
     entityType: PropTypes.string.isRequired,
-    entityId: PropTypes.string.isRequired,
+    entityId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   }).isRequired,
   className: PropTypes.string,
   label: PropTypes.string,

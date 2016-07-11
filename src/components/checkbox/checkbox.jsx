@@ -69,14 +69,14 @@ Checkbox.defaultProps = {
 
 
 const HalfCheckbox = props => {
+  const { halfChecked, ...rest } = props;
   const className = classNames(
-    {'_half-checked': props.checked && props.halfChecked},
+    {'_half-checked': props.checked && halfChecked},
     props.className,
   );
 
   return (
-    <Checkbox {...props}
-      className={ className } />
+    <Checkbox {...rest} className={ className } />
   );
 };
 

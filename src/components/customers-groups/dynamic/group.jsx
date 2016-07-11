@@ -215,7 +215,6 @@ export default class DynamicGroup extends Component {
   get renderRow() {
     return (row, index, columns, params) => (
       <MultiSelectRow
-        cellKeyPrefix={index}
         key={index}
         columns={columns}
         linkTo="customer"

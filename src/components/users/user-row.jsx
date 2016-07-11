@@ -34,7 +34,6 @@ const UserRow = (props: Props) => {
 
   return (
     <MultiSelectRow
-      cellKeyPrefix={key}
       columns={columns}
       linkTo="user"
       linkParams={{userId: user.id}}

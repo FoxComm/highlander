@@ -79,7 +79,7 @@ export default class PaymentRow extends Component {
       };
       return (
         <TableRow styleName="details-row">
-          <TableCell colspan={5}>
+          <TableCell colSpan={5}>
             {this.props.details(detailsProps)}
           </TableCell>
         </TableRow>

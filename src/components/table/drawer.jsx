@@ -15,7 +15,7 @@ const Drawer = props => {
 
   return (
     <TableRow className={drawerClass}>
-      <td className="fc-expandable-table__drawer-cell" colSpan={props.params.colspan}>
+      <td className="fc-expandable-table__drawer-cell" colSpan={props.params.colSpan}>
         {props.children}
       </td>
     </TableRow>
@@ -25,7 +25,7 @@ const Drawer = props => {
 Drawer.propTypes = {
   params: PropTypes.shape({
     isOpen: PropTypes.bool,
-    colspan: PropTypes.number,
+    colSpan: PropTypes.number,
   }),
   children: PropTypes.node,
 };
@@ -33,7 +33,7 @@ Drawer.propTypes = {
 Drawer.defaultProps = {
   params: {
     isOpen: false,
-    colspan: 1,
+    colSpan: 1,
   },
 };
 
