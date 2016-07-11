@@ -4,7 +4,6 @@
 import styles from './accordion.css';
 
 // libs
-import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
 import React, { Component, Element } from 'react';

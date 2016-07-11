@@ -13,6 +13,7 @@ import Transition from 'react-addons-css-transition-group';
 import WaitAnimation from '../common/wait-animation';
 
 type Props = {
+  id: number,
   src: string,
   loader?: string|Element;
 }
@@ -27,7 +28,7 @@ export default class ImageLoader extends Component {
   props: Props;
 
   state: State = {
-    ready: false,
+    ready: true,
     error: false,
   };
 
@@ -35,6 +36,12 @@ export default class ImageLoader extends Component {
 
   componentDidMount(): void {
     this.createImage();
+
+    setTimeout(() => {
+      if (this.img) {
+        this.setState({ ready: false });
+      }
+    }, 100);
   }
 
   componentDidUpdate(): void {
@@ -76,7 +83,7 @@ export default class ImageLoader extends Component {
   }
 
   get image(): ?Element {
-    return this.state.ready ? <img src={this.props.src} key={this.props.src} /> : null;
+    return this.state.ready ? <img src={this.props.src} key={this.props.id} /> : null;
   }
 
   render(): Element {

@@ -18,6 +18,7 @@ export type Action = {
 }
 
 type Props = {
+  id: number;
   src: string;
   actions?: Array<Action>;
   title: string;
@@ -92,7 +93,7 @@ export default class ImageCard extends Component {
   }
 
   render(): Element {
-    const { src, loading, className } = this.props;
+    const { id, src, loading, className } = this.props;
 
     const cls = classNames(styles.card, {
       [styles.loading]: loading,
@@ -101,7 +102,7 @@ export default class ImageCard extends Component {
     return (
       <div className={cls}>
         <div className={styles.image} onMouseOver={this.showActions} onMouseOut={this.hideActions}>
-          <Image src={src} />
+          <Image id={id} src={src} />
         </div>
         {this.actions}
         {this.description}
