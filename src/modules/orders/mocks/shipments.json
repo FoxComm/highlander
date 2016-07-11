@@ -49,7 +49,7 @@
       "transactions": [
         {
           "source": {
-            "type": "creditCard",
+            "paymentType": "creditCard",
             "brand": "MasterCard",
             "customerId": 2843,
             "expMonth": 7,
@@ -63,7 +63,7 @@
         },
         {
           "source": {
-            "type": "giftCard",
+            "paymentType": "giftCard",
             "code": "AA5EADF48B202756",
             "createdAt": "2016-06-23T12:27:53.722Z",
             "currentBalance": 1000,
@@ -74,7 +74,7 @@
         },
         {
           "source": {
-            "type": "storeCredit",
+            "paymentType": "storeCredit",
             "id": 1334,
             "createdAt": "2016-06-23T12:27:57.857Z",
             "currentBalance": 0,
