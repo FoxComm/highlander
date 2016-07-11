@@ -127,6 +127,8 @@ module "dem1" {
 module "dem2" {
     source = "../../modules/gce/demostack"
     prefix = "dem2"
+    backend_image = "ubuntu-1604-xenial-v20160610"
+    frontend_image = "ubuntu-1604-xenial-v20160610"
     ssh_user = "${var.ssh_user}"
     ssh_private_key = "${var.ssh_private_key}"
 }
