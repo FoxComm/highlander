@@ -91,8 +91,8 @@ class Pdp extends Component {
     return parseInt(this.props.params.productId, 10);
   }
 
-  get firstSqu(): string {
-    return _.get(this.props, ['product', 'skus', 0, 'code']);
+  get firstSku(): string {
+    return _.get(this.props, ['product', 'skus', 0, 'attributes', 'code', 'v']);
   }
 
   @autobind
@@ -108,7 +108,7 @@ class Pdp extends Component {
     const user = _.get(this.props, ['auth', 'user'], null);
     if (!_.isEmpty(user)) {
       const quantity = this.state.quantity;
-      const skuId = this.firstSqu;
+      const skuId = this.firstSku;
       this.props.addLineItem(skuId, quantity).then(() => {
         this.props.toggleCart();
         this.setState({quantity: 1});
@@ -154,8 +154,8 @@ class Pdp extends Component {
 
     const { product, isCartLoading } = this.props;
 
-    const title = _.get(product, ['product', 'attributes', 'title', 'v'], '');
-    const description = _.get(product, ['product', 'attributes', 'description', 'v'], '');
+    const title = _.get(product, ['attributes', 'title', 'v'], '');
+    const description = _.get(product, ['attributes', 'description', 'v'], '');
     const descriptionMarkup = { __html: description };
     const salePrice = _.get(product, ['skus', 0, 'attributes', 'salePrice', 'v', 'value'], 0);
     const currency = _.get(product, ['skus', 0, 'attributes', 'salePrice', 'v', 'currency'], 'USD');
