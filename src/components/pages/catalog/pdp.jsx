@@ -17,6 +17,7 @@ import Currency from 'ui/currency';
 import { Link } from 'react-router';
 import Gallery from 'ui/gallery/gallery';
 import Loader from 'ui/loader';
+import ErrorAlerts from 'wings/lib/ui/alerts/error-alerts';
 
 import * as actions from 'modules/product-details';
 import { fetch as fetchProducts } from 'modules/products';
@@ -47,6 +48,7 @@ type Props = Localized & {
 
 type State = {
   quantity: number;
+  error?: any;
 }
 
 const mapStateToProps = state => {
@@ -112,6 +114,10 @@ class Pdp extends Component {
       this.props.addLineItem(skuId, quantity).then(() => {
         this.props.toggleCart();
         this.setState({quantity: 1});
+      }).catch(ex => {
+        this.setState({
+          error: ex,
+        });
       });
     } else {
       browserHistory.push({
@@ -200,6 +206,7 @@ class Pdp extends Component {
             <Button styleName="add-to-cart" isLoading={isCartLoading} onClick={this.addToCart}>
               {t('ADD TO CART')}
             </Button>
+            <ErrorAlerts error={this.state.error} />
           </div>
         </div>
       </div>
