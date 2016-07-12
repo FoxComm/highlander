@@ -153,7 +153,8 @@ const _giftCardSearch = createAsyncActions(
       operator: 'eq',
       value: {
         type: 'term',
-        value: code,
+        // for alternate approach for case-insensitive search see https://gist.github.com/mtyaka/2006966
+        value: code.toUpperCase(),
       },
     }];
 
