@@ -19,9 +19,10 @@ object Cart {
   val newCart = http("Create cart")
     .post("/v1/orders")
     .requireAdminAuth
-    .body(StringBody(session ⇒
-              json(CreateCart(customerId = Some(session.get("customerId").as[Integer])))))
-    .check(status.is(200), jsonPath("$.referenceNumber").ofType[String].saveAs("referenceNumber"))
+    .body(StringBody { session ⇒
+      json(CreateCart(customerId = Some(session.get("customerId").as[Integer])))
+    })
+    .check(jsonPath("$.referenceNumber").ofType[String].saveAs("referenceNumber"))
 
   val addSkusToCart = http("Add SKUs to cart")
     .post("/v1/orders/${referenceNumber}/line-items")
@@ -54,7 +55,7 @@ object Cart {
   val findShippingMethods = http("Get shipping methods for order")
     .get("/v1/shipping-methods/${referenceNumber}")
     .requireAdminAuth
-    .check(status.is(200), jsonPath("$..id").ofType[Int].findAll.saveAs("possibleShippingMethods"))
+    .check(jsonPath("$..id").ofType[Int].findAll.saveAs("possibleShippingMethods"))
 
   val setShippingMethod = http("Set shipping method")
     .patch("/v1/orders/${referenceNumber}/shipping-method")
@@ -76,15 +77,16 @@ object Cart {
     .exec(pay)
     .exec(checkout)
 
-  val ageOrder = http("Age order")
-    .post("/v1/order-time-machine")
-    .requireAdminAuth
-    .body(
-        StringBody(
-            session ⇒
-              json(OrderTimeMachine(
-                      referenceNumber = session.get("referenceNumber").as[String],
-                      placedAt = Instant.now.minusSeconds(
-                          (Random.nextInt(15) * 60 * 60 * 24 * 30).toLong) // Minus ~15 months
-                  ))))
+  val ageOrder =
+    http("Age order")
+      .post("/v1/order-time-machine")
+      .requireAdminAuth
+      .body(StringBody { session ⇒
+        json(
+            OrderTimeMachine(
+                referenceNumber = session.get("referenceNumber").as[String],
+                placedAt = Instant.now.minusSeconds(
+                    (Random.nextInt(15) * 60 * 60 * 24 * 30).toLong) // Minus ~15 months
+            ))
+      })
 }

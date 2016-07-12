@@ -9,13 +9,13 @@ import seeds.requests.Auth._
 
 object Customers {
 
-  val createCustomer = http("Create customer")
+  private val createCustomer = http("Create customer")
     .post("/v1/customers")
     .requireAdminAuth
     .body(StringBody(json(CreateCustomerPayload(name = Option("${customerName}"),
                                                 email = "${customerEmail}",
                                                 password = Option("${customerPassword}")))))
-    .check(status.is(200), jsonPath("$.id").ofType[Int].saveAs("customerId"))
+    .check(jsonPath("$.id").ofType[Int].saveAs("customerId"))
 
   val createStaticCustomers = foreach(csv("data/customers.csv").records, "customerRecord") {
     exec(flattenMapIntoAttributes("${customerRecord}")).exec(createCustomer)
@@ -28,5 +28,5 @@ object Customers {
         "customerPassword" → Lorem.words(2).head)
   }
 
-  val createRandomCustomers = feed(randomCustomerFeeder).exec(createCustomer)
+  val createRandomCustomer = feed(randomCustomerFeeder).exec(createCustomer)
 }

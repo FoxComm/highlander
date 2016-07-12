@@ -25,7 +25,7 @@ object CreditCards {
                            expMonth = Random.nextInt(12) + 1,
                            addressId = Some(session.get("addressId").as[Int])))
     })
-    .check(status.is(200), jsonPath("$.id").ofType[Int].saveAs("creditCardId"))
+    .check(jsonPath("$.id").ofType[Int].saveAs("creditCardId"))
 
   val payWithCreditCard = http("Pay with credit card")
     .post("/v1/orders/${referenceNumber}/payment-methods/credit-cards")

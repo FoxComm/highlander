@@ -19,29 +19,18 @@ class CustomerActivitySimulation extends Simulation {
 
 object CustomerActivityScenarios {
 
-  private val addressFeeder = dbFeeder(
-      """select id as "customerRegionId", name as "customerCity" from regions""")
-
   val randomCustomerActivity = scenario("Random customer activity")
     .step(loginAsRandomAdmin)
-    .step(createRandomCustomers)
-    .step(randomAddressLine1("customerAddress"))
-    .feed(addressFeeder.random)
-    .randomSwitch(50.0 → randomAddressLine2("customerAddress2"))
-    .step(addCustomerAddress)
-    .step(setDefaultShipping)
+    .step(createRandomCustomer)
+    .step(addRandomAddress)
     .step(placeOrder)
     .step(ageOrder)
     .inject(atOnceUsers(1))
 
   val pacificNwVips = scenario("Pacific Northwest VIPs")
     .step(loginAsRandomAdmin)
-    .step(createRandomCustomers)
-    .step(randomAddressLine1("customerAddress"))
-    .feed(csv("data/scenarios/pacific_northwest_vips/regions_cities.csv").random)
-    .randomSwitch(50.0 → randomAddressLine2("customerAddress2"))
-    .step(addCustomerAddress)
-    .step(setDefaultShipping)
+    .step(createRandomCustomer)
+    .step(addRandomAddress)
     .step(placeOrder)
     .step(ageOrder)
     .inject(atOnceUsers(1))
