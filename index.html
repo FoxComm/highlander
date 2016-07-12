@@ -116,10 +116,15 @@ api.products.search({state: &#39;cart&#39;});
 		<td>Returns customer id from parsed jwt string
 You can define jwt string via <code>addAuth</code> method, if there is no jwt strings method returns null.</td>
 	</tr>
-	<tr id='foxapi-addheaders'>
-		<td><code><b>addHeaders</b>(<nobr>&lt;Object&gt;</nobr> <i>header</i>)</nobr></code></td>
+	<tr id='foxapi-setheaders'>
+		<td><code><b>setHeaders</b>(<nobr>&lt;Object&gt;</nobr> <i>headers</i>)</nobr></code></td>
 		<td><code><a href='#foxapi'>FoxApi</a></code></td>
 		<td>Set http headers for next requests</td>
+	</tr>
+	<tr id='foxapi-addheaders'>
+		<td><code><b>addHeaders</b>(<nobr>&lt;Object&gt;</nobr> <i>headers</i>)</nobr></code></td>
+		<td><code><a href='#foxapi'>FoxApi</a></code></td>
+		<td>Add new http headers for next requests</td>
 	</tr>
 	<tr id='foxapi-uri'>
 		<td><code><b>uri</b>(<nobr>&lt;String&gt;</nobr> <i>uri</i>)</nobr></code></td>

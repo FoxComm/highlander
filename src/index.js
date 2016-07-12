@@ -71,10 +71,17 @@ export default class Api {
     return null;
   }
 
-  // @method addHeaders(header: Object): FoxApi
+  // @method setHeaders(headers: Object): FoxApi
   // Set http headers for next requests
-  addHeaders(headers) {
+  setHeaders(headers) {
     this.headers = headers;
+    return this;
+  }
+
+  // @method addHeaders(headers: Object): FoxApi
+  // Add new http headers for next requests
+  addHeaders(headers) {
+    Object.assign(this.headers || {}, headers);
     return this;
   }
 
