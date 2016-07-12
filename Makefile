@@ -36,17 +36,23 @@ bootstrap-tinystack-frontend:
 bootstrap-tinystack-balancer:
 	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml --tags=balancer --private-key=$(PRIVATE_KEY)
 
-bootstrap-vanilla-vpn:
-	ansible-playbook -v -i bin/envs/vanilla_vpn ansible/bootstrap_vanilla_vpn.yml
-
 bootstrap-vanilla:
 	ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_vanilla.yml
 
 bootstrap-vanilla-db:
 	ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_vanilla_db.yml
 
+bootstrap-vanilla-openvpn-key:
+	ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_openvpn_key.yml
+
+bootstrap-vanilla-vpn:
+	ansible-playbook -v -i bin/envs/vanilla_vpn ansible/bootstrap_vanilla_vpn.yml
+
 bootstrap-target:
 	ansible-playbook -v -i bin/envs/target ansible/bootstrap_vanilla.yml
+
+bootstrap-target-openvpn-key:
+	ansible-playbook -v -i bin/envs/target ansible/bootstrap_openvpn_key.yml
 
 bootstrap-target-vpn:
 	ansible-playbook -v -i bin/envs/target_vpn ansible/bootstrap_vanilla_vpn.yml

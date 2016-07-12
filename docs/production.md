@@ -23,8 +23,6 @@ Navigation:
 
 **FIXME**: Before doing all this, temporary comment-out all modules inside `terraform/base/gce_vanilla/main.tf`, except `vanilla_vpn` module. Undo changes when you'll get to [Service machines](#service-machines) section.
 
-**FIXME**: Parts 6-11 can be automated.
-
 1. Build core base image and save it's name:
 
 	```
@@ -50,41 +48,16 @@ Navigation:
 
 5. Create `vanilla_vpn` inventory file and write a created machine VPN there under `vanilla-vpn` (host) section.
 
-6. Fork `bootstrap_prod_small_vpn.yml`, rename the `hosts` section to `vanilla-vpn`
-
 7. Bootstrap OpenVPN service:
 
 	```
 	$ ansible-playbook -v -i vanilla_vpn ansible/bootstrap_vanilla_vpn.yml
 	```
 
-8. SSH into machine and register VPN accounts:
+8. Generate OpenVPN credentials (any number you want):
 
 	```
-	$ sudo su
-	$ cd /etc/openvpn/easy-rsa
-	$ source ./vars
-	$ ./build-key username
-	```
-
-9. Move certificate files (`ca.crt`, `username.crt`, `username.key`) to temp directory:
-
-	```
-	$ mv username* /tmp/
-	$ cp ca.crt /tmp/
-	$ tar -czf keys.tar.gz *
-	```
-
-10. Download it to your machine via `scp` (replace `vanilla_vpn_ip` with actual IP address):
-
-	```
-	$ scp pavel@vanilla_vpn_ip:/tmp/keys.tar.gz ./
-	```
-
-11. Cleanup temp directory:
-
-	```
-	$ rm -rf /tmp/*
+	$ ansible-playbook -v -i vanilla_vpn ansible/bootstrap_openvpn_key.yml
 	```
 
 ## Service machines
