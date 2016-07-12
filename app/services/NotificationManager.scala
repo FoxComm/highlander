@@ -1,11 +1,6 @@
 package services
 
-import scala.concurrent.Future
-import scala.concurrent.duration.DurationInt
-import akka.stream.OverflowStrategy
-import akka.stream.scaladsl._
-
-import de.heikoseeberger.akkasse.{EventStreamElement, ServerSentEvent ⇒ SSE}
+import de.heikoseeberger.akkasse.{ServerSentEvent ⇒ SSE}
 import failures._
 import models.Notification._
 import models.activity._
@@ -18,65 +13,18 @@ import payloads.CreateNotification
 import responses.{ActivityConnectionResponse, ActivityResponse, LastSeenActivityResponse, TheResponse}
 import services.activity.TrailManager
 import slick.driver.PostgresDriver.api._
+import utils.JsonFormatters
 import utils.aliases._
 import utils.db._
-import utils.{JsonFormatters, NotificationListener}
 
 object NotificationManager {
   implicit val formats = JsonFormatters.phoenixFormats
 
-  def streamByAdminId(adminId: StoreAdmin#Id)(
-      implicit ec: EC,
-      db: DB,
-      mat: Mat): Future[Source[EventStreamElement, Any]] = {
-    StoreAdmins.findOneById(adminId).run().map {
-      case Some(admin) ⇒
-        oldNotifications(adminId)
-          .merge(newNotifications(adminId))
-          .keepAlive(30.seconds, () ⇒ SSE.Heartbeat)
-      case None ⇒
-        Source.single(SSE(s"Error! Store admin with id=$adminId not found"))
-    }
-  }
-
-  private def newNotifications(adminId: Int)(implicit ec: EC, mat: Mat): Source[SSE, Any] = {
-    val (actorRef, publisher) = Source
-      .actorRef[SSE](8, OverflowStrategy.fail)
-      .toMat(Sink.asPublisher(false))(Keep.both)
-      .run()
-    new NotificationListener(adminId, msg ⇒ actorRef ! SSE(msg))
-    Source.fromPublisher(publisher)
-  }
-
-  private def oldNotifications(adminId: Int)(implicit db: DB): Source[SSE, Any] = {
-    val disableAutocommit = SimpleDBIO(_.connection.setAutoCommit(false))
-
-    val activities = (for {
-      trail      ← Trails.findNotificationByAdminId(adminId)
-      connection ← Connections.filter(_.trailId === trail.id)
-      activity   ← Activities.filter(_.id === connection.activityId)
-    } yield (trail, activity)).result.withStatementParameters(fetchSize = 32)
-
-    val publisher = db.stream[(Trail, Activity)](disableAutocommit >> activities)
-
-    Source
-      .fromPublisher(publisher)
-      .filter {
-        case (trail, activity) ⇒
-          val lastSeen = for {
-            json     ← trail.data
-            metadata ← json.extractOpt[NotificationTrailMetadata]
-          } yield metadata.lastSeenActivityId
-          activity.id > lastSeen.getOrElse(0)
-      }
-      .map { case (trail, activity) ⇒ SSE(write(ActivityResponse.build(activity))) }
-  }
-
   def createNotification(payload: CreateNotification)(
       implicit ac: AC,
       ec: EC,
-      db: DB): Result[Seq[ActivityConnectionResponse.Root]] =
-    (for {
+      db: DB): DbResultT[Seq[ActivityConnectionResponse.Root]] =
+    for {
       sourceDimensionId ← * <~ dimensionIdByName(payload.sourceDimension)
       activity          ← * <~ Activities.mustFindById400(payload.activityId)
       adminIds ← * <~ Subs
@@ -94,13 +42,13 @@ object NotificationManager {
       _ ← * <~ DBIO.sequence(adminIds.map { adminId ⇒
            val payload        = write(ActivityResponse.build(activity))
            val escapedPayload = PgjdbcUtils.escapeLiteral(null, payload, false).toString
-           sqlu"NOTIFY #${notificationChannel(adminId)}, '#${escapedPayload}'"
+           sqlu"NOTIFY #${notificationChannel(adminId)}, '#$escapedPayload'"
          })
-    } yield response).runTxn()
+    } yield response
 
   def updateLastSeen(adminId: Int, activityId: Int)(implicit ec: EC,
-                                                    db: DB): Result[LastSeenActivityResponse] =
-    (for {
+                                                    db: DB): DbResultT[LastSeenActivityResponse] =
+    for {
       _ ← * <~ StoreAdmins.mustFindById404(adminId)
       _ ← * <~ Activities.mustFindById404(activityId)
       trail ← * <~ Trails
@@ -109,7 +57,7 @@ object NotificationManager {
       _ ← * <~ Trails.update(
              trail,
              trail.copy(data = Some(decompose(NotificationTrailMetadata(activityId)))))
-    } yield LastSeenActivityResponse(trailId = trail.id, lastSeenActivityId = activityId)).runTxn()
+    } yield LastSeenActivityResponse(trailId = trail.id, lastSeenActivityId = activityId)
 
   def subscribe(adminIds: Seq[Int], objectIds: Seq[String], reason: Sub.Reason, dimension: String)(
       implicit ec: EC): DbResultT[TheResponse[Option[Int]]] =

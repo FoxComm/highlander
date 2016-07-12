@@ -26,109 +26,109 @@ object ReturnRoutes {
         } ~
         pathPrefix("returns" / Return.returnRefNumRegex) { refNum ⇒
           (get & pathEnd) {
-            goodOrFailures {
+            getOrFailures {
               ReturnService.getByRefNum(refNum)
             }
           } ~
           (get & path("expanded") & pathEnd) {
-            goodOrFailures {
+            getOrFailures {
               ReturnService.getExpandedByRefNum(refNum)
             }
           } ~
           (patch & pathEnd & entity(as[ReturnUpdateStatePayload])) { payload ⇒
-            goodOrFailures {
+            mutateOrFailures {
               ReturnService.updateStateByCsr(refNum, payload)
             }
           } ~
           (post & path("message") & pathEnd & entity(as[ReturnMessageToCustomerPayload])) {
             payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 ReturnService.updateMessageToCustomer(refNum, payload)
               }
           } ~
           (get & path("lock") & pathEnd) {
-            goodOrFailures {
+            getOrFailures {
               ReturnLockUpdater.getLockState(refNum)
             }
           } ~
           (post & path("lock") & pathEnd) {
-            goodOrFailures {
+            mutateOrFailures {
               ReturnLockUpdater.lock(refNum, admin)
             }
           } ~
           (post & path("unlock") & pathEnd) {
-            goodOrFailures {
+            mutateOrFailures {
               ReturnLockUpdater.unlock(refNum)
             }
           } ~
           pathPrefix("line-items" / "skus") {
             (post & pathEnd & entity(as[ReturnSkuLineItemsPayload])) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 ReturnLineItemUpdater.addSkuLineItem(refNum, payload, productContext)
               }
             } ~
             (delete & path(IntNumber) & pathEnd) { lineItemId ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 ReturnLineItemUpdater.deleteSkuLineItem(refNum, lineItemId)
               }
             }
           } ~
           pathPrefix("line-items" / "gift-cards") {
             (post & pathEnd & entity(as[ReturnGiftCardLineItemsPayload])) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 ReturnLineItemUpdater.addGiftCardLineItem(refNum, payload)
               }
             } ~
             (delete & path(IntNumber) & pathEnd) { lineItemId ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 ReturnLineItemUpdater.deleteGiftCardLineItem(refNum, lineItemId)
               }
             }
           } ~
           pathPrefix("line-items" / "shipping-costs") {
             (post & pathEnd & entity(as[ReturnShippingCostLineItemsPayload])) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 ReturnLineItemUpdater.addShippingCostItem(refNum, payload)
               }
             } ~
             (delete & path(IntNumber) & pathEnd) { lineItemId ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 ReturnLineItemUpdater.deleteShippingCostLineItem(refNum, lineItemId)
               }
             }
           } ~
           pathPrefix("payment-methods" / "credit-cards") {
             (post & pathEnd & entity(as[ReturnPaymentPayload])) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 ReturnPaymentUpdater.addCreditCard(refNum, payload)
               }
             } ~
             (delete & pathEnd) {
-              goodOrFailures {
+              mutateOrFailures {
                 ReturnPaymentUpdater.deleteCreditCard(refNum)
               }
             }
           } ~
           pathPrefix("payment-methods" / "gift-cards") {
             (post & pathEnd & entity(as[ReturnPaymentPayload])) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 ReturnPaymentUpdater.addGiftCard(refNum, payload)
               }
             } ~
             (delete & pathEnd) {
-              goodOrFailures {
+              mutateOrFailures {
                 ReturnPaymentUpdater.deleteGiftCard(refNum)
               }
             }
           } ~
           pathPrefix("payment-methods" / "store-credit") {
             (post & pathEnd & entity(as[ReturnPaymentPayload])) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 ReturnPaymentUpdater.addStoreCredit(refNum, payload)
               }
             } ~
             (delete & pathEnd) {
-              goodOrFailures {
+              mutateOrFailures {
                 ReturnPaymentUpdater.deleteStoreCredit(refNum)
               }
             }

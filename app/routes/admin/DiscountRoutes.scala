@@ -18,37 +18,37 @@ object DiscountRoutes {
       pathPrefix("discounts") {
         pathPrefix("forms" / IntNumber) { id ⇒
           (get & pathEnd) {
-            goodOrFailures {
+            getOrFailures {
               DiscountManager.getForm(id)
             }
           }
         } ~
         pathPrefix("shadows" / Segment / IntNumber) { (context, id) ⇒
           (get & pathEnd) {
-            goodOrFailures {
+            getOrFailures {
               DiscountManager.getShadow(id, context)
             }
           }
         } ~
         pathPrefix(Segment) { (context) ⇒
           (post & pathEnd & entity(as[CreateDiscount])) { payload ⇒
-            goodOrFailures {
+            mutateOrFailures {
               DiscountManager.create(payload, context)
             }
           } ~
           pathPrefix(IntNumber) { id ⇒
             (get & path("baked")) {
-              goodOrFailures {
+              getOrFailures {
                 DiscountManager.getIlluminated(id, context)
               }
             } ~
             (get & pathEnd) {
-              goodOrFailures {
+              getOrFailures {
                 DiscountManager.get(id, context)
               }
             } ~
             (patch & pathEnd & entity(as[UpdateDiscount])) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 DiscountManager.update(id, payload, context)
               }
             }

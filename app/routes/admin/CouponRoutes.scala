@@ -21,14 +21,14 @@ object CouponRoutes {
           pathPrefix("generate") {
             pathPrefix(IntNumber / Segment) { (id, code) ⇒
               (post & pathEnd) {
-                goodOrFailures {
+                mutateOrFailures {
                   CouponManager.generateCode(id, code, admin)
                 }
               }
             } ~
             pathPrefix(IntNumber) { id ⇒
               (post & pathEnd & entity(as[GenerateCouponCodes])) { payload ⇒
-                goodOrFailures {
+                mutateOrFailures {
                   CouponManager.generateCodes(id, payload, admin)
                 }
               }
@@ -36,7 +36,7 @@ object CouponRoutes {
           } ~
           pathPrefix(IntNumber) { id ⇒
             (get & pathEnd) {
-              goodOrFailures {
+              mutateOrFailures {
                 CouponManager.getCodes(id)
               }
             }
@@ -44,49 +44,49 @@ object CouponRoutes {
         } ~
         pathPrefix("forms" / IntNumber) { id ⇒
           (get & pathEnd) {
-            goodOrFailures {
+            mutateOrFailures {
               CouponManager.getForm(id)
             }
           }
         } ~
         pathPrefix("shadows" / Segment / IntNumber) { (context, id) ⇒
           (get & pathEnd) {
-            goodOrFailures {
+            mutateOrFailures {
               CouponManager.getShadow(id, context)
             }
           }
         } ~
         pathPrefix(Segment) { (context) ⇒
           (post & pathEnd & entity(as[CreateCoupon])) { payload ⇒
-            goodOrFailures {
+            mutateOrFailures {
               CouponManager.create(payload, context, Some(admin))
             }
           } ~
           pathPrefix(IntNumber) { id ⇒
             (get & path("baked")) {
-              goodOrFailures {
+              getOrFailures {
                 CouponManager.getIlluminated(id, context)
               }
             } ~
             (get & pathEnd) {
-              goodOrFailures {
+              getOrFailures {
                 CouponManager.get(id, context)
               }
             } ~
             (patch & pathEnd & entity(as[UpdateCoupon])) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 CouponManager.update(id, payload, context, admin)
               }
             } ~
             (post & path("archive")) {
-              goodOrFailures {
+              mutateOrFailures {
                 CouponManager.archiveByContextAndId(context, id)
               }
             }
           } ~
           pathPrefix(Segment) { code ⇒
             (get & pathEnd) {
-              goodOrFailures {
+              getOrFailures {
                 CouponManager.getIlluminatedByCode(code, context)
               }
             }

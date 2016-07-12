@@ -8,7 +8,7 @@ import models.traits.Originator
 import payloads.UpdateShippingMethod
 import responses.TheResponse
 import responses.cart.FullCart
-import services.{CartValidator, LogActivity, Result, ShippingManager}
+import services.{CartValidator, LogActivity, ShippingManager}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
@@ -22,8 +22,8 @@ object CartShippingMethodUpdater {
       es: ES,
       db: DB,
       ac: AC,
-      ctx: OC): Result[TheResponse[FullCart.Root]] =
-    (for {
+      ctx: OC): DbResultT[TheResponse[FullCart.Root]] =
+    for {
       cart           ← * <~ getCartByOriginator(originator, refNum)
       _              ← * <~ cart.mustBeActive
       oldShipMethod  ← * <~ ShippingMethods.forCordRef(cart.refNum).one
@@ -49,16 +49,15 @@ object CartShippingMethodUpdater {
       validated ← * <~ CartValidator(order).validate()
       response  ← * <~ FullCart.buildRefreshed(order)
       _         ← * <~ LogActivity.orderShippingMethodUpdated(originator, response, oldShipMethod)
-    } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings))
-      .runTxn()
+    } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)
 
   def deleteShippingMethod(originator: Originator, refNum: Option[String] = None)(
       implicit ec: EC,
       es: ES,
       db: DB,
       ac: AC,
-      ctx: OC): Result[TheResponse[FullCart.Root]] =
-    (for {
+      ctx: OC): DbResultT[TheResponse[FullCart.Root]] =
+    for {
       cart ← * <~ getCartByOriginator(originator, refNum)
       _    ← * <~ cart.mustBeActive
       shipMethod ← * <~ ShippingMethods
@@ -71,5 +70,5 @@ object CartShippingMethodUpdater {
       valid ← * <~ CartValidator(cart).validate()
       resp  ← * <~ FullCart.buildRefreshed(cart)
       _     ← * <~ LogActivity.orderShippingMethodDeleted(originator, resp, shipMethod)
-    } yield TheResponse.build(resp, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
+    } yield TheResponse.build(resp, alerts = valid.alerts, warnings = valid.warnings)
 }

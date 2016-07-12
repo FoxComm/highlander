@@ -213,7 +213,7 @@ case class SimpleCompleteVariantData(variant: SimpleVariantData,
 
 object Mvp {
   def insertProductNewContext(oldContextId: Int, contextId: Int, p: SimpleProductData)(
-      implicit db: Database): DbResultT[SimpleProductData] =
+      implicit db: DB): DbResultT[SimpleProductData] =
     for {
       simpleProduct ← * <~ SimpleProduct(p.title, p.description, p.active, p.tags)
       //find product form other context, get old form and merge with new
@@ -443,7 +443,7 @@ object Mvp {
                        commitId = albumCommit.id))
     } yield p.copy(productId = product.id, skuId = sku.id, albumId = album.id)
 
-  def getPrice(skuId: Int)(implicit db: Database): DbResultT[Int] =
+  def getPrice(skuId: Int)(implicit db: DB): DbResultT[Int] =
     for {
       sku    ← * <~ Skus.mustFindById404(skuId)
       form   ← * <~ ObjectForms.mustFindById404(sku.formId)
@@ -451,7 +451,7 @@ object Mvp {
       p      ← * <~ priceAsInt(form, shadow)
     } yield p
 
-  def getProductTuple(d: SimpleProductData)(implicit db: Database): DbResultT[SimpleProductTuple] =
+  def getProductTuple(d: SimpleProductData)(implicit db: DB): DbResultT[SimpleProductTuple] =
     for {
       product       ← * <~ Products.mustFindById404(d.productId)
       productForm   ← * <~ ObjectForms.mustFindById404(product.formId)
@@ -468,7 +468,7 @@ object Mvp {
     } yield results
 
   def insertProductsNewContext(oldContextId: Int, contextId: Int, ps: Seq[SimpleProductData])(
-      implicit db: Database): DbResultT[Seq[SimpleProductData]] =
+      implicit db: DB): DbResultT[Seq[SimpleProductData]] =
     for {
       results ← * <~ ps.map(p ⇒ insertProductNewContext(oldContextId, contextId, p))
     } yield results

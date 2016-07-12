@@ -39,7 +39,7 @@ object CreditCardManager {
                                admin: Option[StoreAdmin] = None)(implicit ec: EC,
                                                                  db: DB,
                                                                  apis: Apis,
-                                                                 ac: AC): Result[Root] = {
+                                                                 ac: AC): DbResultT[Root] = {
 
     def createCard(customer: Customer,
                    sCustomer: StripeCustomer,
@@ -66,7 +66,7 @@ object CreditCardManager {
         _ ← * <~ validateOptionalAddressOwnership(Some(address), customerId)
       } yield (stripeId, address)
 
-    (for {
+    for {
       _                  ← * <~ payload.validate
       customer           ← * <~ Customers.mustFindById404(customerId)
       stripeIdAndAddress ← * <~ getExistingStripeIdAndAddress
@@ -74,29 +74,26 @@ object CreditCardManager {
       stripeStuff ← * <~ DBIO.from(gateway.createCard(customer.email, payload, stripeId, address))
       (stripeCustomer, stripeCard) = stripeStuff
       newCard ← * <~ createCard(customer, stripeCustomer, stripeCard, address)
-    } yield newCard).runTxn()
+    } yield newCard
   }
 
   def toggleCreditCardDefault(customerId: Int, cardId: Int, isDefault: Boolean)(
       implicit ec: EC,
-      db: DB): Result[Root] =
-    (for {
-
+      db: DB): DbResultT[Root] =
+    for {
       _  ← * <~ CreditCards.findDefaultByCustomerId(customerId).map(_.isDefault).update(false)
       cc ← * <~ CreditCards.mustFindByIdAndCustomer(cardId, customerId)
-      // TODO: please fucking replace me with diffing update
       default = cc.copy(isDefault = true)
       _      ← * <~ CreditCards.filter(_.id === cardId).map(_.isDefault).update(true)
       region ← * <~ Regions.findOneById(cc.regionId).safeGet
-    } yield buildResponse(default, region)).runTxn()
+    } yield buildResponse(default, region)
 
   def deleteCreditCard(customerId: Int, id: Int, admin: Option[StoreAdmin] = None)(
       implicit ec: EC,
       db: DB,
       apis: Apis,
-      ac: AC): Result[Unit] = {
-
-    (for {
+      ac: AC): DbResultT[Unit] =
+    for {
       customer ← * <~ Customers.mustFindById404(customerId)
       cc       ← * <~ CreditCards.mustFindByIdAndCustomer(id, customerId)
       region   ← * <~ Regions.findOneById(cc.regionId).safeGet
@@ -104,8 +101,7 @@ object CreditCardManager {
                                        cc.copy(inWallet = false, deletedAt = Some(Instant.now())))
       _ ← * <~ gateway.deleteCard(cc)
       _ ← * <~ LogActivity.ccDeleted(customer, cc, admin)
-    } yield ()).runTxn()
-  }
+    } yield ()
 
   def editCreditCard(customerId: Int,
                      id: Int,
@@ -113,7 +109,7 @@ object CreditCardManager {
                      admin: Option[StoreAdmin] = None)(implicit ec: EC,
                                                        db: DB,
                                                        apis: Apis,
-                                                       ac: AC): Result[Root] = {
+                                                       ac: AC): DbResultT[Root] = {
 
     def update(customer: Customer, cc: CreditCard) = {
       val updated = cc.copy(
@@ -167,14 +163,14 @@ object CreditCardManager {
       _               ← * <~ validateOptionalAddressOwnership(address, customerId)
     } yield address.fold(creditCard)(creditCard.copyFromAddress)
 
-    (for {
+    for {
       _           ← * <~ payload.validate
       customer    ← * <~ Customers.mustFindById404(customerId)
       creditCard  ← * <~ getCardAndAddressChange
       updated     ← * <~ update(customer, creditCard)
       withAddress ← * <~ createNewAddressIfProvided(updated)
       payment     ← * <~ cascadeChangesToCarts(withAddress)
-    } yield payment).runTxn()
+    } yield payment
   }
 
   def creditCardsInWalletFor(customerId: Int)(implicit ec: EC, db: DB): Future[Seq[Root]] =
@@ -184,13 +180,13 @@ object CreditCardManager {
     } yield (cc, region)).result.map(buildResponses).run()
 
   def getByIdAndCustomer(creditCardId: Int, customer: Customer)(implicit ec: EC,
-                                                                db: DB): Result[Root] =
-    (for {
+                                                                db: DB): DbResultT[Root] =
+    for {
       cc ← * <~ CreditCards
             .findByIdAndCustomerId(creditCardId, customer.id)
             .mustFindOneOr(NotFoundFailure404(CreditCard, creditCardId))
       region ← * <~ Regions.mustFindById404(cc.regionId)
-    } yield buildResponse(cc, region)).run()
+    } yield buildResponse(cc, region)
 
   private def validateOptionalAddressOwnership(address: Option[Address],
                                                customerId: Int): Failures Xor Unit = {
@@ -223,11 +219,7 @@ object CreditCardManager {
   private def getOptionalShippingAddress(id: Option[Int],
                                          isShipping: Boolean): DBIO[Option[OrderShippingAddress]] =
     id match {
-
-      case Some(addressId) if isShipping ⇒
-        OrderShippingAddresses.findById(addressId).extract.one
-
-      case _ ⇒
-        DBIO.successful(None)
+      case Some(addressId) if isShipping ⇒ OrderShippingAddresses.findById(addressId).extract.one
+      case _                             ⇒ DBIO.successful(None)
     }
 }

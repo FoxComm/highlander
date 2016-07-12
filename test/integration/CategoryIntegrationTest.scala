@@ -140,8 +140,7 @@ class CategoryIntegrationTest extends IntegrationTestBase with HttpSupport with 
                         CreateFullCategory(CreateCategoryForm(testAttributes),
                                            CreateCategoryShadow(testAttributes)),
                         context.name)
-        .futureValue
-        .rightVal
+        .gimme
     }
   }
 }

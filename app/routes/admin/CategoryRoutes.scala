@@ -18,40 +18,40 @@ object CategoryRoutes {
       pathPrefix("categories") {
         pathPrefix(Segment / IntNumber) { (context, categoryId) ⇒
           (get & pathEnd) {
-            goodOrFailures {
+            getOrFailures {
               CategoryManager.getCategory(categoryId, context)
             }
           } ~
           (patch & pathEnd & entity(as[UpdateFullCategory])) { payload ⇒
-            goodOrFailures {
+            mutateOrFailures {
               CategoryManager.updateCategory(admin, categoryId, payload, context)
             }
           }
         } ~
         pathPrefix(Segment) { (context) ⇒
           (post & pathEnd & entity(as[CreateFullCategory])) { payload ⇒
-            goodOrFailures {
+            mutateOrFailures {
               CategoryManager.createCategory(admin, payload, context)
             }
           }
         } ~
         pathPrefix(IntNumber / "form") { categoryId ⇒
           (get & pathEnd) {
-            goodOrFailures {
+            getOrFailures {
               CategoryManager.getForm(categoryId)
             }
           }
         } ~
         pathPrefix(Segment / IntNumber / "baked") { (context, categoryId) ⇒
           (get & pathEnd) {
-            goodOrFailures {
+            getOrFailures {
               CategoryManager.getIlluminatedCategory(categoryId, context)
             }
           }
         } ~
         pathPrefix(Segment / IntNumber / "shadow") { (context, categoryId) ⇒
           (get & pathEnd) {
-            goodOrFailures {
+            getOrFailures {
               CategoryManager.getShadow(categoryId, context)
             }
           }

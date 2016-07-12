@@ -5,7 +5,6 @@ import java.time.Instant
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
 
-import cats.data.Xor
 import models.objects._
 import models.product.SimpleContext
 import models.promotion._
@@ -13,15 +12,14 @@ import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import payloads.DiscountPayloads._
 import payloads.PromotionPayloads._
-import services.Result
 import services.promotion.PromotionManager
-import slick.driver.PostgresDriver.api._
+import utils.aliases._
 import utils.db._
+import utils.seeds.generators.SimplePromotion._
 
 object SimplePromotion {
   type Percent = Int
 }
-import utils.seeds.generators.SimplePromotion._
 
 case class SimplePromotion(promotionId: Int = 0,
                            formId: Int = 0,
@@ -72,16 +70,17 @@ trait PromotionGenerator {
     SimplePromotion(applyType = applyType, percentOff = percent, totalAmount = totalAmount)
   }
 
-  def generatePromotions(data: Seq[SimplePromotion])(implicit db: Database) =
+  def generatePromotions(sourceData: Seq[SimplePromotion])(
+      implicit db: DB): DbResultT[Seq[SimplePromotion]] =
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-      promotions ← * <~ data.map(d ⇒ {
-                    val promotionForm   = SimplePromotionForm(d.percentOff, d.totalAmount)
+      promotions ← * <~ sourceData.map(source ⇒ {
+                    val promotionForm   = SimplePromotionForm(source.percentOff, source.totalAmount)
                     val promotionShadow = SimplePromotionShadow(promotionForm)
-                    val discountForm    = SimpleDiscountForm(d.percentOff, d.totalAmount)
+                    val discountForm    = SimpleDiscountForm(source.percentOff, source.totalAmount)
                     val discountShadow  = SimpleDiscountShadow(discountForm)
                     val payload = CreatePromotion(
-                        applyType = d.applyType,
+                        applyType = source.applyType,
                         form = CreatePromotionForm(
                             attributes = promotionForm.form,
                             discounts = Seq(CreateDiscountForm(attributes = discountForm.form))),
@@ -89,10 +88,9 @@ trait PromotionGenerator {
                             attributes = promotionShadow.shadow,
                             discounts =
                               Seq(CreateDiscountShadow(attributes = discountShadow.shadow))))
-                    DbResultT(DBIO.from(PromotionManager.create(payload, context.name).flatMap {
-                      case Xor.Right(r) ⇒ Result.right(d.copy(promotionId = r.form.id))
-                      case Xor.Left(l)  ⇒ Result.failures(l)
-                    }))
+                    PromotionManager.create(payload, context.name).map { newPromo ⇒
+                      source.copy(promotionId = newPromo.form.id)
+                    }
                   })
     } yield promotions
 }

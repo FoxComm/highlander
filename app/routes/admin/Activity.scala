@@ -18,7 +18,7 @@ object Activity {
       pathPrefix("activities") {
         pathPrefix(IntNumber) { activityId ⇒
           (get & pathEnd) {
-            goodOrFailures {
+            getOrFailures {
               ActivityManager.findById(activityId)
             }
           }
@@ -26,7 +26,7 @@ object Activity {
       } ~
       pathPrefix("connections" / IntNumber) { connectionId ⇒
         (get & pathEnd) {
-          goodOrFailures {
+          getOrFailures {
             TrailManager.findConnection(connectionId)
           }
         }
@@ -34,7 +34,7 @@ object Activity {
       pathPrefix("trails" / Segment / Segment) { (dimension, objectId) ⇒
         (post & pathEnd) {
           entity(as[AppendActivity]) { payload ⇒
-            goodOrFailures {
+            mutateOrFailures {
               TrailManager.appendActivityByObjectId(dimension, objectId, payload)
             }
           }

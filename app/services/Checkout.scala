@@ -26,19 +26,19 @@ object Checkout {
                                db: DB,
                                apis: Apis,
                                ac: AC,
-                               ctx: OC): Result[FullOrder.Root] =
-    (for {
+                               ctx: OC): DbResultT[FullOrder.Root] =
+    for {
       cart  ← * <~ Carts.mustFindByRefNum(refNum)
       order ← * <~ Checkout(cart, CartValidator(cart)).checkout
       _     ← * <~ LogActivity.orderCheckoutCompleted(order)
-    } yield order).runTxn()
+    } yield order
 
   def fromCustomerCart(customer: Customer)(implicit ec: EC,
                                            db: DB,
                                            apis: Apis,
                                            ac: AC,
-                                           ctx: OC): Result[FullOrder.Root] =
-    (for {
+                                           ctx: OC): DbResultT[FullOrder.Root] =
+    for {
       result ← * <~ Carts
                 .findByCustomer(customer)
                 .one
@@ -46,7 +46,7 @@ object Checkout {
       (cart, _) = result
       order ← * <~ Checkout(cart, CartValidator(cart)).checkout
       _     ← * <~ LogActivity.orderCheckoutCompleted(order)
-    } yield order).runTxn()
+    } yield order
 }
 
 case class Checkout(

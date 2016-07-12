@@ -7,8 +7,8 @@ import models.cord.{Order, Orders, Cart, Carts}
 import models.objects.ObjectContext
 import models.payment.giftcard._
 import payloads.GiftCardPayloads.GiftCardCreateByCsr
-import slick.driver.PostgresDriver.api._
 import utils.Money.Currency
+import utils.aliases._
 import utils.db._
 
 trait GiftCardGenerator {
@@ -18,7 +18,7 @@ trait GiftCardGenerator {
     prices(Random.nextInt(prices.length))
   }
 
-  def generateGiftCardAppeasement(implicit db: Database): DbResultT[GiftCard] =
+  def generateGiftCardAppeasement(implicit db: DB): DbResultT[GiftCard] =
     for {
       origin ← * <~ GiftCardManuals.create(GiftCardManual(adminId = 1, reasonId = 1))
       gc ← * <~ GiftCards.create(
@@ -27,7 +27,7 @@ trait GiftCardGenerator {
     } yield gc
 
   def generateGiftCardPurchase(customerId: Int, context: ObjectContext)(
-      implicit db: Database): DbResultT[GiftCard] =
+      implicit db: DB): DbResultT[GiftCard] =
     for {
       cart ← * <~ Carts.create(Cart(customerId = customerId))
       order ← * <~ Orders.create(

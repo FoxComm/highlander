@@ -41,7 +41,7 @@ class CartCreatorIntegrationTest
 
       "returns current cart if customer already has one" in new Fixture {
         val payload = CreateCart(customerId = customer.id.some)
-        CartCreator.createCart(storeAdmin, payload).futureValue
+        CartCreator.createCart(storeAdmin, payload).gimme
         val response = POST(s"v1/orders", payload)
 
         response.status must === (StatusCodes.OK)

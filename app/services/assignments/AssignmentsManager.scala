@@ -40,18 +40,18 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
   val notifyReason: NotificationSubscription.Reason
 
   // Use methods below in your endpoints
-  def list(key: K)(implicit ec: EC, db: DB, ac: AC): Result[Seq[Root]] =
-    (for {
+  def list(key: K)(implicit ec: EC, db: DB, ac: AC): DbResultT[Seq[Root]] =
+    for {
       entity      ← * <~ fetchEntity(key)
       assignments ← * <~ fetchAssignments(entity)
       response = assignments.map((buildAssignment _).tupled)
-    } yield response).run()
+    } yield response
 
   def assign(key: K, payload: AssignmentPayload, originator: StoreAdmin)(
       implicit ec: EC,
       db: DB,
-      ac: AC): Result[TheResponse[Seq[Root]]] =
-    (for {
+      ac: AC): DbResultT[TheResponse[Seq[Root]]] =
+    for {
       // Validation + assign
       entity ← * <~ fetchEntity(key)
       admins ← * <~ StoreAdmins.filter(_.id.inSetBind(payload.assignees)).result
@@ -69,12 +69,12 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
       responseItem = buildResponse(entity)
       _ ← * <~ LogActivity
            .assigned(originator, responseItem, assignedAdmins, assignmentType, referenceType)
-    } yield TheResponse.build(response, errors = notFoundAdmins)).runTxn()
+    } yield TheResponse.build(response, errors = notFoundAdmins)
 
   def unassign(key: K, assigneeId: Int, originator: StoreAdmin)(implicit ec: EC,
                                                                 db: DB,
-                                                                ac: AC): Result[Seq[Root]] =
-    (for {
+                                                                ac: AC): DbResultT[Seq[Root]] =
+    for {
       // Validation + unassign
       entity ← * <~ fetchEntity(key)
       admin  ← * <~ StoreAdmins.mustFindById404(assigneeId)
@@ -89,13 +89,13 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
       _ ← * <~ LogActivity
            .unassigned(originator, responseItem, admin, assignmentType, referenceType)
       _ ← * <~ unsubscribe(this, adminIds = Seq(assigneeId), objectIds = Seq(key.toString))
-    } yield response).runTxn()
+    } yield response
 
   def assignBulk(originator: StoreAdmin, payload: BulkAssignmentPayload[K])(
       implicit ec: EC,
       db: DB,
-      ac: AC): Result[TheResponse[Seq[ResponseItem]]] =
-    (for {
+      ac: AC): DbResultT[TheResponse[Seq[ResponseItem]]] =
+    for {
       // Validation + assign
       admin       ← * <~ StoreAdmins.mustFindById404(payload.storeAdminId)
       entities    ← * <~ fetchSequence(payload.entityIds)
@@ -108,13 +108,13 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
       (successData, theResponse) = buildTheResponse(entities, assignments, payload, Assigning)
       _ ← * <~ subscribe(this, Seq(admin.id), successData)
       _ ← * <~ logBulkAssign(this, originator, admin, successData)
-    } yield theResponse).runTxn()
+    } yield theResponse
 
   def unassignBulk(originator: StoreAdmin, payload: BulkAssignmentPayload[K])(
       implicit ec: EC,
       db: DB,
-      ac: AC): Result[TheResponse[Seq[ResponseItem]]] =
-    (for {
+      ac: AC): DbResultT[TheResponse[Seq[ResponseItem]]] =
+    for {
       // Validation + unassign
       admin    ← * <~ StoreAdmins.mustFindById404(payload.storeAdminId)
       entities ← * <~ fetchSequence(payload.entityIds)
@@ -125,7 +125,7 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
       (successData, theResponse) = buildTheResponse(entities, assignments, payload, Unassigning)
       _ ← * <~ logBulkUnassign(this, originator, admin, successData)
       _ ← * <~ unsubscribe(this, Seq(admin.id), successData)
-    } yield theResponse).runTxn()
+    } yield theResponse
 
   private def buildTheResponse(entities: Seq[M],
                                assignments: Seq[Assignment],
@@ -142,7 +142,7 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
      TheResponse(result, errors = flattenErrors(failureData), batch = batchMetadata.some))
   }
 
-  // Result builders
+  // DbResultT builders
   private def build(entity: M, newAssigneeIds: Seq[Int]): Seq[Assignment] =
     newAssigneeIds.map(
         adminId ⇒

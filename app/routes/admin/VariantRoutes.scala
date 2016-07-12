@@ -18,24 +18,24 @@ object VariantRoutes {
       pathPrefix("variants") {
         pathPrefix(Segment) { context ⇒
           (post & pathEnd & entity(as[VariantPayload])) { payload ⇒
-            goodOrFailures {
+            mutateOrFailures {
               VariantManager.createVariant(context, payload)
             }
           } ~
           pathPrefix(IntNumber) { variantId ⇒
             (get & pathEnd) {
-              goodOrFailures {
+              getOrFailures {
                 VariantManager.getVariant(context, variantId)
               }
             } ~
             (patch & pathEnd & entity(as[VariantPayload])) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 VariantManager.updateVariant(context, variantId, payload)
               }
             } ~
             pathPrefix("values") {
               (post & pathEnd & entity(as[VariantValuePayload])) { payload ⇒
-                goodOrFailures {
+                mutateOrFailures {
                   VariantManager.createVariantValue(context, variantId, payload)
                 }
               }

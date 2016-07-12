@@ -7,7 +7,6 @@ import models.product._
 import payloads.VariantPayloads._
 import responses.VariantResponses.IlluminatedVariantResponse
 import responses.VariantValueResponses.IlluminatedVariantValueResponse
-import services.Result
 import services.objects.ObjectManager
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
@@ -18,7 +17,7 @@ object VariantManager {
 
   def createVariant(contextName: String, payload: VariantPayload)(
       implicit ec: EC,
-      db: DB): Result[IlluminatedVariantResponse.Root] =
+      db: DB): DbResultT[IlluminatedVariantResponse.Root] =
     (for {
       context     ← * <~ ObjectManager.mustFindByName404(contextName)
       fullVariant ← * <~ createVariantInner(context, payload)
@@ -27,11 +26,11 @@ object VariantManager {
       IlluminatedVariantResponse.build(
           v = IlluminatedVariant.illuminate(context, variant),
           vs = values
-      )).runTxn()
+      ))
 
   def getVariant(contextName: String, variantId: Int)(
       implicit ec: EC,
-      db: DB): Result[IlluminatedVariantResponse.Root] =
+      db: DB): DbResultT[IlluminatedVariantResponse.Root] =
     (for {
       context ← * <~ ObjectManager.mustFindByName404(contextName)
       variant ← * <~ mustFindVariantByContextAndForm(context.id, variantId)
@@ -46,11 +45,11 @@ object VariantManager {
       IlluminatedVariantResponse.build(
           v = IlluminatedVariant.illuminate(context, fullVariant),
           vs = values
-      )).run()
+      ))
 
   def updateVariant(contextName: String, variantId: Int, payload: VariantPayload)(
       implicit ec: EC,
-      db: DB): Result[IlluminatedVariantResponse.Root] =
+      db: DB): DbResultT[IlluminatedVariantResponse.Root] =
     (for {
       context     ← * <~ ObjectManager.mustFindByName404(contextName)
       fullVariant ← * <~ updateVariantInner(context, variantId, payload)
@@ -59,7 +58,7 @@ object VariantManager {
       IlluminatedVariantResponse.build(
           v = IlluminatedVariant.illuminate(context, variant),
           vs = values
-      )).runTxn()
+      ))
 
   def createVariantInner(context: ObjectContext, payload: VariantPayload)(
       implicit ec: EC,
@@ -145,14 +144,14 @@ object VariantManager {
 
   def createVariantValue(contextName: String, variantId: Int, payload: VariantValuePayload)(
       implicit ec: EC,
-      db: DB): Result[IlluminatedVariantValueResponse.Root] =
+      db: DB): DbResultT[IlluminatedVariantValueResponse.Root] =
     (for {
       context ← * <~ ObjectManager.mustFindByName404(contextName)
       variant ← * <~ Variants
                  .filterByContextAndFormId(context.id, variantId)
                  .mustFindOneOr(VariantNotFoundForContext(variantId, context.id))
       value ← * <~ createVariantValueInner(context, variant, payload)
-    } yield IlluminatedVariantValueResponse.build(value)).runTxn()
+    } yield IlluminatedVariantValueResponse.build(value))
 
   private def createVariantValueInner(context: ObjectContext,
                                       variant: Variant,

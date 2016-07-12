@@ -13,7 +13,6 @@ import payloads.VariantPayloads._
 import responses.ObjectResponses.ObjectContextResponse
 import responses.ProductResponses._
 import responses.SkuResponses._
-import services.Result
 import services.image.ImageManager
 import services.inventory.SkuManager
 import services.variant.VariantManager
@@ -284,10 +283,10 @@ object ProductManager {
       .mustFindOneOr(ProductNotFoundForContext(productId, contextId))
 
   def getContextsForProduct(formId: Int)(implicit ec: EC,
-                                         db: DB): Result[Seq[ObjectContextResponse.Root]] =
-    (for {
+                                         db: DB): DbResultT[Seq[ObjectContextResponse.Root]] =
+    for {
       products   ← * <~ Products.filterByFormId(formId).result
       contextIds ← * <~ products.map(_.contextId)
       contexts   ← * <~ ObjectContexts.filter(_.id.inSet(contextIds)).sortBy(_.id).result
-    } yield contexts.map(ObjectContextResponse.build)).run()
+    } yield contexts.map(ObjectContextResponse.build)
 }

@@ -59,7 +59,7 @@ package object db {
   }
 
   implicit class RunOnDbIO[R](val dbio: DBIO[R]) extends AnyVal {
-    def run()(implicit db: Database): Future[R] =
+    def run()(implicit db: DB): Future[R] =
       db.run(dbio)
 
     def toXor(implicit ec: EC): DbResultT[R] =

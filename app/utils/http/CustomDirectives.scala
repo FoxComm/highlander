@@ -2,10 +2,13 @@ package utils.http
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
+import akka.http.scaladsl.model.HttpResponse
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import akka.http.scaladsl.unmarshalling.{FromRequestUnmarshaller, Unmarshaller}
 
+import cats.data.Xor
+import failures._
 import models.StoreAdmin
 import models.activity.ActivityContext
 import models.customer.Customer
@@ -84,6 +87,9 @@ object CustomDirectives {
   def good[A <: AnyRef](a: A): StandardRoute =
     complete(render(a))
 
+  private def renderGoodOrFailures[G <: AnyRef](or: Failures Xor G): HttpResponse =
+    or.fold(renderFailure(_), render(_))
+
   def goodOrFailures[A <: AnyRef](a: Result[A])(implicit ec: EC): StandardRoute =
     complete(a.map(renderGoodOrFailures))
 
@@ -93,11 +99,8 @@ object CustomDirectives {
   def mutateOrFailures[A <: AnyRef](a: DbResultT[A])(implicit ec: EC, db: DB): StandardRoute =
     complete(a.runTxn().map(renderGoodOrFailures))
 
-  def nothingOrFailures(a: Result[_])(implicit ec: EC): StandardRoute =
-    complete(a.map(renderNothingOrFailures))
-
   def deleteOrFailures(a: DbResultT[_])(implicit ec: EC, db: DB): StandardRoute =
-    complete(a.runTxn().map(renderNothingOrFailures))
+    complete(a.runTxn().map(_.fold(renderFailure(_), _ ⇒ noContentResponse)))
 
   def entityOr[T](um: FromRequestUnmarshaller[T], failure: failures.Failure): Directive1[T] =
     extractRequestContext.flatMap[Tuple1[T]] { ctx ⇒

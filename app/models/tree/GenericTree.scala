@@ -1,6 +1,6 @@
 package models.tree
 
-import utils.aliases.EC
+import utils.aliases._
 import models.objects.ObjectContext
 import shapeless._
 import slick.lifted.Tag

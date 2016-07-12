@@ -8,7 +8,7 @@ import faker._
 import models.objects.ObjectContexts
 import models.product.{Mvp, SimpleContext, SimpleProductData}
 import org.conbere.markov.MarkovChain
-import slick.driver.PostgresDriver.api._
+import utils.aliases._
 import utils.db._
 
 object ProductGenerator {
@@ -92,7 +92,7 @@ trait ProductGenerator {
                       image = ProductGenerator.randomImage)
   }
 
-  def generateProducts(data: Seq[SimpleProductData])(implicit db: Database) =
+  def generateProducts(data: Seq[SimpleProductData])(implicit db: DB) =
     for {
       context  ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       products ← * <~ Mvp.insertProducts(data, context.id)

@@ -17,8 +17,8 @@ object CustomerCreditConverter {
   def toStoreCredit(giftCardCode: String, customerId: Int, admin: StoreAdmin)(
       implicit ec: EC,
       db: DB,
-      ac: AC): Result[StoreCreditResponse.Root] =
-    (for {
+      ac: AC): DbResultT[StoreCreditResponse.Root] =
+    for {
 
       giftCard ← * <~ GiftCards.mustFindByCode(giftCardCode)
       _ ← * <~ (if (!giftCard.isActive) DbResultT.failure(GiftCardConvertFailure(giftCard))
@@ -43,13 +43,13 @@ object CustomerCreditConverter {
 
       // Activity
       _ ← * <~ LogActivity.gcConvertedToSc(admin, giftCard, storeCredit)
-    } yield StoreCreditResponse.build(storeCredit)).runTxn()
+    } yield StoreCreditResponse.build(storeCredit)
 
   def toGiftCard(storeCreditId: Int, customerId: Int, admin: StoreAdmin)(
       implicit ec: EC,
       db: DB,
-      ac: AC): Result[GiftCardResponse.Root] =
-    (for {
+      ac: AC): DbResultT[GiftCardResponse.Root] =
+    for {
 
       credit ← * <~ StoreCredits.mustFindById404(storeCreditId)
       _ ← * <~ (if (!credit.isActive) DbResultT.failure(StoreCreditConvertFailure(credit))
@@ -77,5 +77,5 @@ object CustomerCreditConverter {
 
       // Activity
       _ ← * <~ LogActivity.scConvertedToGc(admin, giftCard, credit)
-    } yield GiftCardResponse.build(giftCard, None, Some(StoreAdminResponse.build(admin)))).runTxn()
+    } yield GiftCardResponse.build(giftCard, None, Some(StoreAdminResponse.build(admin)))
 }

@@ -17,34 +17,34 @@ object GenericTreeRoutes {
     activityContext(admin) { implicit ac ⇒
       pathPrefix("tree" / Segment / Segment) { (context, name) ⇒
         (get & pathEnd) {
-          goodOrFailures {
+          getOrFailures {
             TreeManager.getFullTree(name, context)
           }
         } ~
         (post & pathEnd & entity(as[NodePayload])) { payload ⇒
-          goodOrFailures {
+          mutateOrFailures {
             TreeManager.updateTree(name, context, payload)
           }
         } ~
         pathPrefix(Segment) { (path) ⇒
           (post & pathEnd & entity(as[NodePayload])) { payload ⇒
-            goodOrFailures {
+            mutateOrFailures {
               TreeManager.updateTree(name, context, payload, Some(path))
             }
           } ~
           (patch & pathEnd & entity(as[NodeValuesPayload])) { payload ⇒
-            goodOrFailures {
+            mutateOrFailures {
               TreeManager.editNode(name, context, path, payload)
             }
           }
         } ~
         (patch & pathEnd & entity(as[MoveNodePayload])) { payload ⇒
-          goodOrFailures {
+          mutateOrFailures {
             TreeManager.moveNode(name, context, payload)
           }
         } ~
         (patch & pathEnd & entity(as[MoveNodePayload])) { payload ⇒
-          goodOrFailures {
+          mutateOrFailures {
             TreeManager.moveNode(name, context, payload)
           }
         }

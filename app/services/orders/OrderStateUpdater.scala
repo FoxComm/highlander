@@ -12,17 +12,17 @@ import models.payment.storecredit.StoreCreditAdjustments.scope._
 import responses.order.{AllOrders, FullOrder}
 import responses.{BatchMetadata, BatchMetadataSource, BatchResponse}
 import services.LogActivity.{orderBulkStateChanged, orderStateChanged}
-import services.Result
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
 
 object OrderStateUpdater {
 
-  def updateState(admin: StoreAdmin,
-                  refNum: String,
-                  newState: Order.State)(implicit ec: EC, db: DB, ac: AC): Result[FullOrder.Root] =
-    (for {
+  def updateState(admin: StoreAdmin, refNum: String, newState: Order.State)(
+      implicit ec: EC,
+      db: DB,
+      ac: AC): DbResultT[FullOrder.Root] =
+    for {
       order    ← * <~ Orders.mustFindByRefNum(refNum)
       _        ← * <~ order.transitionState(newState)
       _        ← * <~ updateQueries(admin, Seq(refNum), newState)
@@ -30,20 +30,21 @@ object OrderStateUpdater {
       response ← * <~ FullOrder.fromOrder(updated)
       _ ← * <~ (if (order.state == newState) DbResultT.unit
                 else orderStateChanged(admin, response, order.state))
-    } yield response).runTxn()
+    } yield response
 
   def updateStates(admin: StoreAdmin,
                    refNumbers: Seq[String],
                    newState: Order.State,
-                   skipActivity: Boolean = false)(implicit ec: EC,
-                                                  db: DB,
-                                                  ac: AC): Result[BatchResponse[AllOrders.Root]] =
-    (for {
+                   skipActivity: Boolean = false)(
+      implicit ec: EC,
+      db: DB,
+      ac: AC): DbResultT[BatchResponse[AllOrders.Root]] =
+    for {
       // Turn failures into errors
       batchMetadata ← * <~ updateStatesDbio(admin, refNumbers, newState, skipActivity)
       response ← * <~ OrderQueries.findAllByQuery(
                     Orders.filter(_.referenceNumber.inSetBind(refNumbers)))
-    } yield response.copy(errors = batchMetadata.flatten, batch = Some(batchMetadata))).runTxn()
+    } yield response.copy(errors = batchMetadata.flatten, batch = Some(batchMetadata))
 
   private def updateStatesDbio(
       admin: StoreAdmin,

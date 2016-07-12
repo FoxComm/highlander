@@ -23,12 +23,13 @@ object LineItemUpdater {
       implicit ec: EC,
       db: DB,
       ac: AC,
-      ctx: OC): Result[TheResponse[FullCart.Root]] =
+      ctx: OC): DbResultT[TheResponse[FullCart.Root]] =
     (for {
       p      ← * <~ payload.validate
       cart   ← * <~ Carts.mustFindByRefNum(refNum)
       origin ← * <~ GiftCardOrders.create(GiftCardOrder(cordRef = cart.refNum))
-      gc ← * <~ GiftCards.create(GiftCard
+      gc ← * <~ GiftCards.create(
+              GiftCard
                 .buildLineItem(balance = p.balance, originId = origin.id, currency = p.currency))
       liGc ← * <~ OrderLineItemGiftCards.create(
                 OrderLineItemGiftCard(giftCardId = gc.id, cordRef = cart.refNum))
@@ -38,13 +39,13 @@ object LineItemUpdater {
       valid  ← * <~ CartValidator(cart).validate()
       result ← * <~ FullCart.buildRefreshed(cart)
       _      ← * <~ LogActivity.orderLineItemsAddedGc(admin, result, gc)
-    } yield TheResponse.build(result, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
+    } yield TheResponse.build(result, alerts = valid.alerts, warnings = valid.warnings))
 
   def editGiftCard(admin: StoreAdmin, refNum: String, code: String, payload: AddGiftCardLineItem)(
       implicit ec: EC,
       db: DB,
       ac: AC,
-      ctx: OC): Result[TheResponse[FullCart.Root]] =
+      ctx: OC): DbResultT[TheResponse[FullCart.Root]] =
     (for {
       _        ← * <~ payload.validate
       giftCard ← * <~ GiftCards.mustFindByCode(code)
@@ -56,12 +57,13 @@ object LineItemUpdater {
       valid  ← * <~ CartValidator(cart).validate()
       result ← * <~ FullCart.buildRefreshed(cart)
       _      ← * <~ LogActivity.orderLineItemsUpdatedGc(admin, result, giftCard)
-    } yield TheResponse.build(result, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
+    } yield TheResponse.build(result, alerts = valid.alerts, warnings = valid.warnings))
 
-  def deleteGiftCard(
-      admin: StoreAdmin,
-      refNum: String,
-      code: String)(implicit ec: EC, db: DB, ac: AC, ctx: OC): Result[TheResponse[FullCart.Root]] =
+  def deleteGiftCard(admin: StoreAdmin, refNum: String, code: String)(
+      implicit ec: EC,
+      db: DB,
+      ac: AC,
+      ctx: OC): DbResultT[TheResponse[FullCart.Root]] =
     (for {
       gc   ← * <~ GiftCards.mustFindByCode(code)
       _    ← * <~ gc.mustBeCart
@@ -76,7 +78,7 @@ object LineItemUpdater {
       valid ← * <~ CartValidator(cart).validate()
       res   ← * <~ FullCart.buildRefreshed(cart)
       _     ← * <~ LogActivity.orderLineItemsDeletedGc(admin, res, gc)
-    } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
+    } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings))
 
   def updateQuantitiesOnCart(admin: StoreAdmin,
                              refNum: String,
@@ -85,7 +87,7 @@ object LineItemUpdater {
       es: ES,
       db: DB,
       ac: AC,
-      ctx: OC): Result[TheResponse[FullCart.Root]] = {
+      ctx: OC): DbResultT[TheResponse[FullCart.Root]] = {
 
     val finder = Carts.mustFindByRefNum(refNum)
     val logActivity = (cart: FullCart.Root, oldQtys: Map[String, Int]) ⇒
@@ -99,7 +101,7 @@ object LineItemUpdater {
       es: ES,
       db: DB,
       ac: AC,
-      ctx: OC): Result[TheResponse[FullCart.Root]] = {
+      ctx: OC): DbResultT[TheResponse[FullCart.Root]] = {
 
     val findOrCreate = Carts
       .findByCustomer(customer)
@@ -120,8 +122,8 @@ object LineItemUpdater {
       implicit ec: EC,
       es: ES,
       db: DB,
-      ctx: OC): Result[TheResponse[FullCart.Root]] =
-    (for {
+      ctx: OC): DbResultT[TheResponse[FullCart.Root]] =
+    for {
       cart ← * <~ finder
       // load old line items for activity trail
       li ← * <~ OrderLineItemSkus.findLineItemsByCordRef(cart.refNum).result
@@ -138,7 +140,7 @@ object LineItemUpdater {
       valid ← * <~ CartValidator(cart).validate()
       res   ← * <~ FullCart.buildRefreshed(cart)
       _     ← * <~ logAct(res, lineItems)
-    } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
+    } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)
 
   def foldQuantityPayload(payload: Seq[UpdateLineItemsPayload]): Map[String, Int] =
     payload.foldLeft(Map[String, Int]()) { (acc, item) ⇒

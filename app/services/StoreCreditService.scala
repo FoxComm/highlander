@@ -1,7 +1,5 @@
 package services
 
-import scala.concurrent.Future
-
 import cats.implicits._
 import failures.{NotFoundFailure400, NotFoundFailure404, OpenTransactionsFailure}
 import models.customer.{Customer, Customers}
@@ -44,11 +42,11 @@ object StoreCreditService {
   }
 
   def totalsForCustomer(customerId: Int)(implicit ec: EC,
-                                         db: DB): Result[StoreCreditResponse.Totals] =
-    (for {
+                                         db: DB): DbResultT[StoreCreditResponse.Totals] =
+    for {
       _      ← * <~ Customers.mustFindById404(customerId)
       totals ← * <~ fetchTotalsForCustomer(customerId)
-    } yield totals).map(_.getOrElse(Totals(0, 0))).value.run()
+    } yield totals.getOrElse(Totals(0, 0))
 
   def fetchTotalsForCustomer(customerId: Int)(implicit ec: EC): DBIO[Option[Totals]] = {
     StoreCredits
@@ -64,9 +62,9 @@ object StoreCreditService {
   def createManual(admin: StoreAdmin, customerId: Int, payload: CreateManualStoreCredit)(
       implicit ec: EC,
       db: DB,
-      ac: AC): Result[Root] = {
+      ac: AC): DbResultT[Root] = {
     val reason400 = NotFoundFailure400(Reason, payload.reasonId)
-    (for {
+    for {
       customer ← * <~ Customers.mustFindById404(customerId)
       _        ← * <~ Reasons.findById(payload.reasonId).extract.mustFindOneOr(reason400)
       _        ← * <~ checkSubTypeExists(payload.subTypeId, StoreCredit.CsrAppeasement)
@@ -78,7 +76,7 @@ object StoreCreditService {
         .buildAppeasement(customerId = customer.id, originId = origin.id, payload = payload)
       storeCredit ← * <~ StoreCredits.create(appeasement)
       _           ← * <~ LogActivity.scCreated(admin, customer, storeCredit)
-    } yield build(storeCredit)).runTxn
+    } yield build(storeCredit)
   }
 
   // API routes
@@ -86,8 +84,8 @@ object StoreCreditService {
   def createFromExtension(admin: StoreAdmin, customerId: Int, payload: CreateExtensionStoreCredit)(
       implicit ec: EC,
       db: DB,
-      ac: AC): Result[Root] =
-    (for {
+      ac: AC): DbResultT[Root] =
+    for {
       customer ← * <~ Customers.mustFindById404(customerId)
       _        ← * <~ checkSubTypeExists(payload.subTypeId, StoreCredit.Custom)
       custom = StoreCreditCustom(adminId = admin.id, metadata = payload.metadata)
@@ -98,43 +96,43 @@ object StoreCreditService {
                                                 originId = origin.id)
       storeCredit ← * <~ StoreCredits.create(customSC)
       _           ← * <~ LogActivity.scCreated(admin, customer, storeCredit)
-    } yield build(storeCredit)).runTxn
+    } yield build(storeCredit)
 
-  def getById(id: Int)(implicit ec: EC, db: DB): Result[Root] =
-    (for {
+  def getById(id: Int)(implicit ec: EC, db: DB): DbResultT[Root] =
+    for {
       storeCredit ← * <~ StoreCredits.mustFindById404(id)
-    } yield StoreCreditResponse.build(storeCredit)).run()
+    } yield StoreCreditResponse.build(storeCredit)
 
   def getByIdAndCustomer(storeCreditId: Int, customer: Customer)(implicit ec: EC,
-                                                                 db: DB): Result[Root] =
-    (for {
+                                                                 db: DB): DbResultT[Root] =
+    for {
       storeCredit ← * <~ StoreCredits
                      .findByIdAndCustomerId(storeCreditId, customer.id)
                      .mustFindOr(NotFoundFailure404(StoreCredit, storeCreditId))
-    } yield StoreCreditResponse.build(storeCredit)).run()
+    } yield StoreCreditResponse.build(storeCredit)
 
   def bulkUpdateStateByCsr(payload: StoreCreditBulkUpdateStateByCsr, admin: StoreAdmin)(
       implicit ec: EC,
       db: DB,
-      ac: AC): Result[Seq[ItemResult]] =
-    (for {
-      _ ← ResultT.fromXor(payload.validate.toXor)
-      response ← ResultT.right(Future.sequence(payload.ids.map { id ⇒
+      ac: AC): DbResultT[Seq[ItemResult]] =
+    for {
+      _ ← * <~ payload.validate.toXor
+      response ← * <~ payload.ids.map { id ⇒
                   val itemPayload = StoreCreditUpdateStateByCsr(payload.state, payload.reasonId)
-                  updateStateByCsr(id, itemPayload, admin).map(buildItemResult(id, _))
-                }))
-    } yield response).value
+                  updateStateByCsr(id, itemPayload, admin).value.map(buildItemResult(id, _)).toXor
+                }
+    } yield response
 
   def updateStateByCsr(id: Int, payload: StoreCreditUpdateStateByCsr, admin: StoreAdmin)(
       implicit ec: EC,
       db: DB,
-      ac: AC): Result[Root] =
-    (for {
+      ac: AC): DbResultT[Root] =
+    for {
       _           ← * <~ payload.validate
       storeCredit ← * <~ StoreCredits.mustFindById404(id)
       updated     ← * <~ cancelOrUpdate(storeCredit, payload.state, payload.reasonId, admin)
       _           ← * <~ LogActivity.scUpdated(admin, storeCredit, payload)
-    } yield StoreCreditResponse.build(updated)).runTxn()
+    } yield StoreCreditResponse.build(updated)
 
   private def cancelOrUpdate(storeCredit: StoreCredit,
                              newState: StoreCredit.State,

@@ -9,7 +9,7 @@ import models.customer.Customer
 import models.location.{Address, Region}
 import models.payment.creditcard.CreditCard
 import slick.driver.PostgresDriver.api._
-import utils.aliases.EC
+import utils.aliases._
 import utils.db._
 
 object Addresses {

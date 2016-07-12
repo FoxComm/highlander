@@ -6,9 +6,9 @@ import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.StoreAdmin
 import payloads.PromotionPayloads._
 import services.promotion.PromotionManager
+import utils.aliases._
 import utils.http.CustomDirectives._
 import utils.http.Http._
-import utils.aliases._
 
 object PromotionRoutes {
   def routes(implicit ec: EC, db: DB, admin: StoreAdmin) = {
@@ -16,37 +16,37 @@ object PromotionRoutes {
       pathPrefix("promotions") {
         pathPrefix("forms" / IntNumber) { id ⇒
           (get & pathEnd) {
-            goodOrFailures {
+            getOrFailures {
               PromotionManager.getForm(id)
             }
           }
         } ~
         pathPrefix("shadows" / Segment / IntNumber) { (context, id) ⇒
           (get & pathEnd) {
-            goodOrFailures {
+            getOrFailures {
               PromotionManager.getShadow(id, context)
             }
           }
         } ~
         pathPrefix(Segment) { (context) ⇒
           (post & pathEnd & entity(as[CreatePromotion])) { payload ⇒
-            goodOrFailures {
+            mutateOrFailures {
               PromotionManager.create(payload, context)
             }
           } ~
           pathPrefix(IntNumber) { id ⇒
             (get & path("baked")) {
-              goodOrFailures {
+              getOrFailures {
                 PromotionManager.getIlluminated(id, context)
               }
             } ~
             (get & pathEnd) {
-              goodOrFailures {
+              getOrFailures {
                 PromotionManager.get(id, context)
               }
             } ~
             (patch & pathEnd & entity(as[UpdatePromotion])) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 PromotionManager.update(id, payload, context)
               }
             }

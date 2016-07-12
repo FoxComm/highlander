@@ -36,7 +36,7 @@ object CustomerRoutes {
         } ~
         (get & path("cart")) {
           determineObjectContext(db, ec) { implicit ctx ⇒
-            goodOrFailures {
+            getOrFailures {
               CartQueries.findOrCreateCartByCustomerId(customerId, ctx, Some(admin))
             }
           }
@@ -109,45 +109,45 @@ object CustomerRoutes {
           } ~
           (post & path(IntNumber / "default") & pathEnd & entity(as[ToggleDefaultCreditCard])) {
             (cardId, payload) ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 CreditCardManager.toggleCreditCardDefault(customerId, cardId, payload.isDefault)
               }
           } ~
           (post & pathEnd & entity(as[CreateCreditCard])) { payload ⇒
-            goodOrFailures {
+            mutateOrFailures {
               CreditCardManager.createCardThroughGateway(customerId, payload, Some(admin))
             }
           } ~
           (patch & path(IntNumber) & pathEnd & entity(as[EditCreditCard])) { (cardId, payload) ⇒
-            goodOrFailures {
+            mutateOrFailures {
               CreditCardManager.editCreditCard(customerId, cardId, payload, Some(admin))
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { cardId ⇒
-            nothingOrFailures {
+            deleteOrFailures {
               CreditCardManager.deleteCreditCard(customerId, cardId, Some(admin))
             }
           }
         } ~
         pathPrefix("payment-methods" / "store-credit") {
           (get & path("totals")) {
-            goodOrFailures {
+            getOrFailures {
               StoreCreditService.totalsForCustomer(customerId)
             }
           } ~
           (post & pathEnd & entity(as[CreateManualStoreCredit])) { payload ⇒
-            goodOrFailures {
+            mutateOrFailures {
               StoreCreditService.createManual(admin, customerId, payload)
             }
           } ~
           (post & path("custom") & pathEnd & entity(as[CreateExtensionStoreCredit])) { payload ⇒
-            goodOrFailures {
+            mutateOrFailures {
               // TODO: prohibit access from non-extensions? by user probably?
               StoreCreditService.createFromExtension(admin, customerId, payload)
             }
           } ~
           (post & path(IntNumber / "convert") & pathEnd) { storeCreditId ⇒
-            goodOrFailures {
+            mutateOrFailures {
               CustomerCreditConverter.toGiftCard(storeCreditId, customerId, admin)
             }
           }

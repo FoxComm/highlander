@@ -195,7 +195,7 @@ class ReturnIntegrationTest extends IntegrationTestBase with HttpSupport with Au
           .rightVal
         val admin = StoreAdmins.create(Factories.storeAdmin).gimme
 
-        ReturnLockUpdater.lock("ABC-123.1", admin).futureValue
+        ReturnLockUpdater.lock("ABC-123.1", admin).gimme
 
         val response = GET(s"v1/returns/${rma.referenceNumber}/lock")
         response.status must === (StatusCodes.OK)
@@ -361,10 +361,8 @@ class ReturnIntegrationTest extends IntegrationTestBase with HttpSupport with Au
                                                 reasonId = returnReason.id,
                                                 isReturnItem = true,
                                                 inventoryDisposition = ReturnLineItem.Putaway)
-        val updatedRma = ReturnLineItemUpdater
-          .addSkuLineItem(rma.referenceNumber, payload, productContext)
-          .futureValue
-          .rightVal
+        val updatedRma =
+          ReturnLineItemUpdater.addSkuLineItem(rma.referenceNumber, payload, productContext).gimme
         val lineItemId = updatedRma.lineItems.skus.headOption.value.lineItemId
 
         // Delete

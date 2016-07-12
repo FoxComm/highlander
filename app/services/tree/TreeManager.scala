@@ -9,7 +9,6 @@ import models.tree._
 import payloads.GenericTreePayloads._
 import responses.GenericTreeResponses.FullTreeResponse._
 import responses.GenericTreeResponses._
-import services.Result
 import services.objects.ObjectManager
 import utils.aliases._
 import utils.db.ExPostgresDriver.api._
@@ -17,17 +16,18 @@ import utils.db._
 
 object TreeManager {
 
-  def getFullTree(treeName: String, contextName: String)(implicit ec: EC, db: DB): Result[Root] =
-    (for {
+  def getFullTree(treeName: String, contextName: String)(implicit ec: EC,
+                                                         db: DB): DbResultT[Root] =
+    for {
       context  ← * <~ ObjectManager.mustFindByName404(contextName)
       response ← * <~ getFullTree(treeName, context)
-    } yield response).run()
+    } yield response
 
   def updateTree(treeName: String,
                  contextName: String,
                  newTree: NodePayload,
-                 path: Option[String] = None)(implicit ec: EC, db: DB): Result[Root] =
-    (for {
+                 path: Option[String] = None)(implicit ec: EC, db: DB): DbResultT[Root] =
+    for {
       context ← * <~ ObjectManager.mustFindByName404(contextName)
       tree    ← * <~ getOrCreateDbTree(treeName, context, path.isEmpty)
       ltreePath = path.map(LTree.apply)
@@ -43,12 +43,12 @@ object TreeManager {
                                     ltreePath.map(_.value.init).getOrElse(List()))
       _          ← * <~ GenericTreeNodes.createAllReturningIds(dbTree)
       resultTree ← * <~ getFullTree(treeName, context)
-    } yield resultTree).runTxn()
+    } yield resultTree
 
   def moveNode(treeName: String, contextName: String, moveSpec: MoveNodePayload)(
       implicit ec: EC,
-      db: DB): Result[Root] =
-    (for {
+      db: DB): DbResultT[Root] =
+    for {
       context ← * <~ ObjectManager.mustFindByName404(contextName)
       tree    ← * <~ getOrCreateDbTree(treeName, context)
       newChildNode ← * <~ GenericTreeNodes
@@ -64,12 +64,12 @@ object TreeManager {
                             s"cannot delete node: index=${newChildNode.index}, tree=$treeName, context=$contextName"))
                 else moveNode(tree.id, moveSpec.index.get, newChildNode))
       resultTree ← * <~ getFullTree(treeName, context)
-    } yield resultTree).runTxn()
+    } yield resultTree
 
   def editNode(treeName: String, contextName: String, path: String, newValues: NodeValuesPayload)(
       implicit ec: EC,
       db: DB) =
-    (for {
+    for {
       context ← * <~ ObjectManager.mustFindByName404(contextName)
       tree    ← * <~ getByNameAndContext(treeName, context)
       node ← * <~ GenericTreeNodes
@@ -78,7 +78,7 @@ object TreeManager {
       _ ← * <~ GenericTreeNodes
            .update(node, node.copy(kind = newValues.kind, objectId = newValues.objectId))
       result ← * <~ getFullTree(treeName, context)
-    } yield result).runTxn()
+    } yield result
 
   def getByNameAndContext(name: String, context: ObjectContext)(implicit ec: EC) =
     GenericTrees

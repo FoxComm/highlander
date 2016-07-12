@@ -23,14 +23,14 @@ object AssignmentsRoutes {
         pathPrefix("assignees") {
           (post & pathEnd) {
             entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 CustomerAssignmentsManager.assignBulk(admin, payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd) {
             entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 CustomerAssignmentsManager.unassignBulk(admin, payload)
               }
             }
@@ -39,14 +39,14 @@ object AssignmentsRoutes {
         pathPrefix("watchers") {
           (post & pathEnd) {
             entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 CustomerWatchersManager.assignBulk(admin, payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd) {
             entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 CustomerWatchersManager.unassignBulk(admin, payload)
               }
             }
@@ -56,34 +56,34 @@ object AssignmentsRoutes {
       pathPrefix("customers" / IntNumber) { customerId ⇒
         pathPrefix("assignees") {
           (get & pathEnd) {
-            goodOrFailures {
+            getOrFailures {
               CustomerAssignmentsManager.list(customerId)
             }
           } ~
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
-            goodOrFailures {
+            mutateOrFailures {
               CustomerAssignmentsManager.assign(customerId, payload, admin)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-            goodOrFailures {
+            mutateOrFailures {
               CustomerAssignmentsManager.unassign(customerId, assigneeId, admin)
             }
           }
         } ~
         pathPrefix("watchers") {
           (get & pathEnd) {
-            goodOrFailures {
+            getOrFailures {
               CustomerWatchersManager.list(customerId)
             }
           } ~
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
-            goodOrFailures {
+            mutateOrFailures {
               CustomerWatchersManager.assign(customerId, payload, admin)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-            goodOrFailures {
+            mutateOrFailures {
               CustomerWatchersManager.unassign(customerId, assigneeId, admin)
             }
           }
@@ -93,14 +93,14 @@ object AssignmentsRoutes {
         pathPrefix("assignees") {
           (post & pathEnd) {
             entity(as[BulkAssignmentPayload[String]]) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 GiftCardAssignmentsManager.assignBulk(admin, payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd) {
             entity(as[BulkAssignmentPayload[String]]) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 GiftCardAssignmentsManager.unassignBulk(admin, payload)
               }
             }
@@ -109,14 +109,14 @@ object AssignmentsRoutes {
         pathPrefix("watchers") {
           (post & pathEnd) {
             entity(as[BulkAssignmentPayload[String]]) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 GiftCardWatchersManager.assignBulk(admin, payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd) {
             entity(as[BulkAssignmentPayload[String]]) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 GiftCardWatchersManager.unassignBulk(admin, payload)
               }
             }
@@ -126,34 +126,34 @@ object AssignmentsRoutes {
       pathPrefix("gift-cards" / giftCardCodeRegex) { code ⇒
         pathPrefix("assignees") {
           (get & pathEnd) {
-            goodOrFailures {
+            getOrFailures {
               GiftCardAssignmentsManager.list(code)
             }
           } ~
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
-            goodOrFailures {
+            mutateOrFailures {
               GiftCardAssignmentsManager.assign(code, payload, admin)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-            goodOrFailures {
+            mutateOrFailures {
               GiftCardAssignmentsManager.unassign(code, assigneeId, admin)
             }
           }
         } ~
         pathPrefix("watchers") {
           (get & pathEnd) {
-            goodOrFailures {
+            getOrFailures {
               GiftCardWatchersManager.list(code)
             }
           } ~
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
-            goodOrFailures {
+            mutateOrFailures {
               GiftCardWatchersManager.assign(code, payload, admin)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-            goodOrFailures {
+            mutateOrFailures {
               GiftCardWatchersManager.unassign(code, assigneeId, admin)
             }
           }
@@ -163,14 +163,14 @@ object AssignmentsRoutes {
         pathPrefix("assignees") {
           (post & pathEnd) {
             entity(as[BulkAssignmentPayload[String]]) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 OrderAssignmentsManager.assignBulk(admin, payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd) {
             entity(as[BulkAssignmentPayload[String]]) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 OrderAssignmentsManager.unassignBulk(admin, payload)
               }
             }
@@ -179,14 +179,14 @@ object AssignmentsRoutes {
         pathPrefix("watchers") {
           (post & pathEnd) {
             entity(as[BulkAssignmentPayload[String]]) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 OrderWatchersManager.assignBulk(admin, payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd) {
             entity(as[BulkAssignmentPayload[String]]) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 OrderWatchersManager.unassignBulk(admin, payload)
               }
             }
@@ -196,34 +196,34 @@ object AssignmentsRoutes {
       pathPrefix("orders" / cordRefNumRegex) { refNum ⇒
         pathPrefix("assignees") {
           (get & pathEnd) {
-            goodOrFailures {
+            getOrFailures {
               OrderAssignmentsManager.list(refNum)
             }
           } ~
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
-            goodOrFailures {
+            mutateOrFailures {
               OrderAssignmentsManager.assign(refNum, payload, admin)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-            goodOrFailures {
+            mutateOrFailures {
               OrderAssignmentsManager.unassign(refNum, assigneeId, admin)
             }
           }
         } ~
         pathPrefix("watchers") {
           (get & pathEnd) {
-            goodOrFailures {
+            getOrFailures {
               OrderWatchersManager.list(refNum)
             }
           } ~
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
-            goodOrFailures {
+            mutateOrFailures {
               OrderWatchersManager.assign(refNum, payload, admin)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-            goodOrFailures {
+            mutateOrFailures {
               OrderWatchersManager.unassign(refNum, assigneeId, admin)
             }
           }
@@ -233,14 +233,14 @@ object AssignmentsRoutes {
         pathPrefix("assignees") {
           (post & pathEnd) {
             entity(as[BulkAssignmentPayload[String]]) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 ReturnAssignmentsManager.assignBulk(admin, payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd) {
             entity(as[BulkAssignmentPayload[String]]) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 ReturnAssignmentsManager.unassignBulk(admin, payload)
               }
             }
@@ -249,14 +249,14 @@ object AssignmentsRoutes {
         pathPrefix("watchers") {
           (post & pathEnd) {
             entity(as[BulkAssignmentPayload[String]]) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 ReturnWatchersManager.assignBulk(admin, payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd) {
             entity(as[BulkAssignmentPayload[String]]) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 ReturnWatchersManager.unassignBulk(admin, payload)
               }
             }
@@ -266,34 +266,34 @@ object AssignmentsRoutes {
       pathPrefix("returns" / returnRefNumRegex) { refNum ⇒
         pathPrefix("assignees") {
           (get & pathEnd) {
-            goodOrFailures {
+            getOrFailures {
               ReturnAssignmentsManager.list(refNum)
             }
           } ~
           (post & entity(as[AssignmentPayload])) { payload ⇒
-            goodOrFailures {
+            mutateOrFailures {
               ReturnAssignmentsManager.assign(refNum, payload, admin)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-            goodOrFailures {
+            mutateOrFailures {
               ReturnAssignmentsManager.unassign(refNum, assigneeId, admin)
             }
           }
         } ~
         pathPrefix("watchers") {
           (get & pathEnd) {
-            goodOrFailures {
+            getOrFailures {
               ReturnWatchersManager.list(refNum)
             }
           } ~
           (post & entity(as[AssignmentPayload])) { payload ⇒
-            goodOrFailures {
+            mutateOrFailures {
               ReturnWatchersManager.assign(refNum, payload, admin)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-            goodOrFailures {
+            mutateOrFailures {
               ReturnWatchersManager.unassign(refNum, assigneeId, admin)
             }
           }
@@ -303,14 +303,14 @@ object AssignmentsRoutes {
         pathPrefix("assignees") {
           (post & pathEnd) {
             entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 ProductAssignmentsManager.assignBulk(admin, payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd) {
             entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 ProductAssignmentsManager.unassignBulk(admin, payload)
               }
             }
@@ -319,14 +319,14 @@ object AssignmentsRoutes {
         pathPrefix("watchers") {
           (post & pathEnd) {
             entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 ProductWatchersManager.assignBulk(admin, payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd) {
             entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 ProductWatchersManager.unassignBulk(admin, payload)
               }
             }
@@ -336,34 +336,34 @@ object AssignmentsRoutes {
       pathPrefix("products" / IntNumber) { productId ⇒
         pathPrefix("assignees") {
           (get & pathEnd) {
-            goodOrFailures {
+            getOrFailures {
               ProductAssignmentsManager.list(productId)
             }
           } ~
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
-            goodOrFailures {
+            mutateOrFailures {
               ProductAssignmentsManager.assign(productId, payload, admin)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-            goodOrFailures {
+            mutateOrFailures {
               ProductAssignmentsManager.unassign(productId, assigneeId, admin)
             }
           }
         } ~
         pathPrefix("watchers") {
           (get & pathEnd) {
-            goodOrFailures {
+            getOrFailures {
               ProductWatchersManager.list(productId)
             }
           } ~
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
-            goodOrFailures {
+            mutateOrFailures {
               ProductWatchersManager.assign(productId, payload, admin)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-            goodOrFailures {
+            mutateOrFailures {
               ProductWatchersManager.unassign(productId, assigneeId, admin)
             }
           }
@@ -373,14 +373,14 @@ object AssignmentsRoutes {
         pathPrefix("assignees") {
           (post & pathEnd) {
             entity(as[BulkAssignmentPayload[String]]) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 SkuAssignmentsManager.assignBulk(admin, payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd) {
             entity(as[BulkAssignmentPayload[String]]) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 SkuAssignmentsManager.unassignBulk(admin, payload)
               }
             }
@@ -389,14 +389,14 @@ object AssignmentsRoutes {
         pathPrefix("watchers") {
           (post & pathEnd) {
             entity(as[BulkAssignmentPayload[String]]) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 SkuWatchersManager.assignBulk(admin, payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd) {
             entity(as[BulkAssignmentPayload[String]]) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 SkuWatchersManager.unassignBulk(admin, payload)
               }
             }
@@ -406,34 +406,34 @@ object AssignmentsRoutes {
       pathPrefix("skus" / skuCodeRegex) { refNum ⇒
         pathPrefix("assignees") {
           (get & pathEnd) {
-            goodOrFailures {
+            getOrFailures {
               SkuAssignmentsManager.list(refNum)
             }
           } ~
           (post & entity(as[AssignmentPayload])) { payload ⇒
-            goodOrFailures {
+            mutateOrFailures {
               SkuAssignmentsManager.assign(refNum, payload, admin)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-            goodOrFailures {
+            mutateOrFailures {
               SkuAssignmentsManager.unassign(refNum, assigneeId, admin)
             }
           }
         } ~
         pathPrefix("watchers") {
           (get & pathEnd) {
-            goodOrFailures {
+            getOrFailures {
               SkuWatchersManager.list(refNum)
             }
           } ~
           (post & entity(as[AssignmentPayload])) { payload ⇒
-            goodOrFailures {
+            mutateOrFailures {
               SkuWatchersManager.assign(refNum, payload, admin)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-            goodOrFailures {
+            mutateOrFailures {
               SkuWatchersManager.unassign(refNum, assigneeId, admin)
             }
           }
@@ -443,14 +443,14 @@ object AssignmentsRoutes {
         pathPrefix("assignees") {
           (post & pathEnd) {
             entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 PromotionAssignmentsManager.assignBulk(admin, payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd) {
             entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 PromotionAssignmentsManager.unassignBulk(admin, payload)
               }
             }
@@ -459,14 +459,14 @@ object AssignmentsRoutes {
         pathPrefix("watchers") {
           (post & pathEnd) {
             entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 PromotionWatchersManager.assignBulk(admin, payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd) {
             entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 PromotionWatchersManager.unassignBulk(admin, payload)
               }
             }
@@ -476,34 +476,34 @@ object AssignmentsRoutes {
       pathPrefix("promotions" / IntNumber) { promotionId ⇒
         pathPrefix("assignees") {
           (get & pathEnd) {
-            goodOrFailures {
+            getOrFailures {
               PromotionAssignmentsManager.list(promotionId)
             }
           } ~
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
-            goodOrFailures {
+            mutateOrFailures {
               PromotionAssignmentsManager.assign(promotionId, payload, admin)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-            goodOrFailures {
+            mutateOrFailures {
               PromotionAssignmentsManager.unassign(promotionId, assigneeId, admin)
             }
           }
         } ~
         pathPrefix("watchers") {
           (get & pathEnd) {
-            goodOrFailures {
+            getOrFailures {
               PromotionWatchersManager.list(promotionId)
             }
           } ~
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
-            goodOrFailures {
+            mutateOrFailures {
               PromotionWatchersManager.assign(promotionId, payload, admin)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-            goodOrFailures {
+            mutateOrFailures {
               PromotionWatchersManager.unassign(promotionId, assigneeId, admin)
             }
           }
@@ -513,14 +513,14 @@ object AssignmentsRoutes {
         pathPrefix("assignees") {
           (post & pathEnd) {
             entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 CouponAssignmentsManager.assignBulk(admin, payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd) {
             entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 CouponAssignmentsManager.unassignBulk(admin, payload)
               }
             }
@@ -529,14 +529,14 @@ object AssignmentsRoutes {
         pathPrefix("watchers") {
           (post & pathEnd) {
             entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 CouponWatchersManager.assignBulk(admin, payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd) {
             entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
-              goodOrFailures {
+              mutateOrFailures {
                 CouponWatchersManager.unassignBulk(admin, payload)
               }
             }
@@ -546,34 +546,34 @@ object AssignmentsRoutes {
       pathPrefix("coupons" / IntNumber) { couponId ⇒
         pathPrefix("assignees") {
           (get & pathEnd) {
-            goodOrFailures {
+            getOrFailures {
               CouponAssignmentsManager.list(couponId)
             }
           } ~
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
-            goodOrFailures {
+            mutateOrFailures {
               CouponAssignmentsManager.assign(couponId, payload, admin)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-            goodOrFailures {
+            mutateOrFailures {
               CouponAssignmentsManager.unassign(couponId, assigneeId, admin)
             }
           }
         } ~
         pathPrefix("watchers") {
           (get & pathEnd) {
-            goodOrFailures {
+            getOrFailures {
               CouponWatchersManager.list(couponId)
             }
           } ~
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
-            goodOrFailures {
+            mutateOrFailures {
               CouponWatchersManager.assign(couponId, payload, admin)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-            goodOrFailures {
+            mutateOrFailures {
               CouponWatchersManager.unassign(couponId, assigneeId, admin)
             }
           }

@@ -6,15 +6,15 @@ import models.cord._
 import models.customer.{Customer, Customers}
 import models.objects.ObjectContext
 import models.payment.PaymentMethod
-import models.payment.creditcard._
-import models.payment.giftcard._
-import models.payment.storecredit._
 import models.payment.creditcard.CreditCardCharge.{Auth ⇒ ccAuth}
+import models.payment.creditcard._
 import models.payment.giftcard.GiftCardAdjustment.{Auth ⇒ gcAuth}
+import models.payment.giftcard._
 import models.payment.storecredit.StoreCreditAdjustment.{Auth ⇒ scAuth}
+import models.payment.storecredit._
 import responses.TheResponse
 import responses.cart.FullCart
-import services.{CartValidator, LogActivity, Result}
+import services.{CartValidator, LogActivity}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
@@ -22,25 +22,24 @@ import utils.db._
 object CartQueries {
 
   def findOne(
-      refNum: String)(implicit ec: EC, db: DB, ctx: OC): Result[TheResponse[FullCart.Root]] =
-    (for {
+      refNum: String)(implicit ec: EC, db: DB, ctx: OC): DbResultT[TheResponse[FullCart.Root]] =
+    for {
       cart      ← * <~ Carts.mustFindByRefNum(refNum)
       validated ← * <~ CartValidator(cart).validate()
       response  ← * <~ FullCart.fromCart(cart)
-    } yield
-      TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).run()
+    } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)
 
-  def findOneByCustomer(
-      refNum: String,
-      customer: Customer)(implicit ec: EC, db: DB, ctx: OC): Result[TheResponse[FullCart.Root]] =
-    (for {
+  def findOneByCustomer(refNum: String, customer: Customer)(
+      implicit ec: EC,
+      db: DB,
+      ctx: OC): DbResultT[TheResponse[FullCart.Root]] =
+    for {
       cart ← * <~ Carts
               .findByRefNumAndCustomer(refNum, customer)
               .mustFindOneOr(NotFoundFailure404(Carts, refNum))
       validated ← * <~ CartValidator(cart).validate()
       response  ← * <~ FullCart.fromCart(cart)
-    } yield
-      TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).run()
+    } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)
 
   def findOrCreateCartByCustomer(customer: Customer,
                                  context: ObjectContext,
@@ -48,8 +47,8 @@ object CartQueries {
       implicit ec: EC,
       db: DB,
       ac: AC,
-      ctx: OC): Result[FullCart.Root] =
-    findOrCreateCartByCustomerInner(customer, admin).runTxn()
+      ctx: OC): DbResultT[FullCart.Root] =
+    findOrCreateCartByCustomerInner(customer, admin)
 
   def findOrCreateCartByCustomerId(customerId: Int,
                                    context: ObjectContext,
@@ -57,11 +56,11 @@ object CartQueries {
       implicit ec: EC,
       db: DB,
       ac: AC,
-      ctx: OC): Result[FullCart.Root] =
-    (for {
+      ctx: OC): DbResultT[FullCart.Root] =
+    for {
       customer  ← * <~ Customers.mustFindById404(customerId)
       fullOrder ← * <~ findOrCreateCartByCustomerInner(customer, admin)
-    } yield fullOrder).runTxn()
+    } yield fullOrder
 
   def findOrCreateCartByCustomerInner(customer: Customer, admin: Option[StoreAdmin])(
       implicit db: DB,

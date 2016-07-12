@@ -21,19 +21,19 @@ object CustomerGroupsRoutes {
           }
         } ~
         (post & pathEnd & entity(as[CustomerDynamicGroupPayload])) { payload ⇒
-          goodOrFailures {
+          mutateOrFailures {
             GroupManager.create(payload, admin)
           }
         }
       } ~
       pathPrefix("groups" / IntNumber) { groupId ⇒
         (get & pathEnd) {
-          goodOrFailures {
+          getOrFailures {
             GroupManager.getById(groupId)
           }
         } ~
         (patch & pathEnd & entity(as[CustomerDynamicGroupPayload])) { payload ⇒
-          goodOrFailures {
+          mutateOrFailures {
             GroupManager.update(groupId, payload)
           }
         }

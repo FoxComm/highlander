@@ -8,7 +8,6 @@ import models.promotion._
 import payloads.DiscountPayloads._
 import payloads.PromotionPayloads._
 import responses.PromotionResponses._
-import services.Result
 import services.discount.DiscountManager
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
@@ -16,16 +15,16 @@ import utils.db._
 
 object PromotionManager {
 
-  def getForm(id: Int)(implicit ec: EC, db: DB): Result[PromotionFormResponse.Root] =
-    (for {
+  def getForm(id: Int)(implicit ec: EC, db: DB): DbResultT[PromotionFormResponse.Root] =
+    for {
       //guard to make sure the form is a promotion
       _    ← * <~ Promotions.filter(_.formId === id).mustFindOneOr(PromotionNotFound(id))
       form ← * <~ ObjectForms.mustFindById404(id)
-    } yield PromotionFormResponse.build(form)).run()
+    } yield PromotionFormResponse.build(form)
 
   def getShadow(id: Int, contextName: String)(implicit ec: EC,
-                                              db: DB): Result[PromotionShadowResponse.Root] =
-    (for {
+                                              db: DB): DbResultT[PromotionShadowResponse.Root] =
+    for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
                  .mustFindOneOr(ObjectContextNotFound(contextName))
@@ -38,10 +37,11 @@ object PromotionManager {
                        .result
       discountShadowIds = discountLinks.map(_.rightId)
       discountShadows ← * <~ ObjectShadows.filter(_.id.inSet(discountShadowIds)).result
-    } yield PromotionShadowResponse.build(shadow, discountShadows)).run()
+    } yield PromotionShadowResponse.build(shadow, discountShadows)
 
-  def get(id: Int, contextName: String)(implicit ec: EC, db: DB): Result[PromotionResponse.Root] =
-    (for {
+  def get(id: Int, contextName: String)(implicit ec: EC,
+                                        db: DB): DbResultT[PromotionResponse.Root] =
+    for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
                  .mustFindOneOr(ObjectContextNotFound(contextName))
@@ -53,11 +53,11 @@ object PromotionManager {
       discounts ← * <~ ObjectUtils.getChildren(promotion.shadowId, ObjectLink.PromotionDiscount)
       discountForms   = discounts.map(_.form)
       discountShadows = discounts.map(_.shadow)
-    } yield PromotionResponse.build(promotion, form, shadow, discountForms, discountShadows)).run()
+    } yield PromotionResponse.build(promotion, form, shadow, discountForms, discountShadows)
 
   def create(payload: CreatePromotion,
-             contextName: String)(implicit ec: EC, db: DB): Result[PromotionResponse.Root] =
-    (for {
+             contextName: String)(implicit ec: EC, db: DB): DbResultT[PromotionResponse.Root] =
+    for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
                  .mustFindOneOr(ObjectContextNotFound(contextName))
@@ -72,8 +72,7 @@ object PromotionManager {
                                commitId = ins.commit.id))
       discount ← * <~ createDiscounts(context, payload, ins.shadow)
     } yield
-      PromotionResponse.build(promotion, ins.form, ins.shadow, discount.forms, discount.shadows))
-      .runTxn()
+      PromotionResponse.build(promotion, ins.form, ins.shadow, discount.forms, discount.shadows)
 
   private case class DiscountsCreateResult(forms: Seq[ObjectForm], shadows: Seq[ObjectShadow])
 
@@ -110,8 +109,8 @@ object PromotionManager {
 
   def update(id: Int, payload: UpdatePromotion, contextName: String)(
       implicit ec: EC,
-      db: DB): Result[PromotionResponse.Root] =
-    (for {
+      db: DB): DbResultT[PromotionResponse.Root] =
+    for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
                  .mustFindOneOr(ObjectContextNotFound(contextName))
@@ -127,7 +126,7 @@ object PromotionManager {
       promotion ← * <~ updateHead(promotion, payload, updated.shadow, commit)
     } yield
       PromotionResponse
-        .build(promotion, updated.form, updated.shadow, discount.forms, discount.shadows)).runTxn()
+        .build(promotion, updated.form, updated.shadow, discount.forms, discount.shadows)
 
   private case class UpdateDiscountsResult(forms: Seq[ObjectForm], shadows: Seq[ObjectShadow])
 
@@ -174,8 +173,8 @@ object PromotionManager {
 
   def getIlluminated(id: Int, contextName: String)(
       implicit ec: EC,
-      db: DB): Result[IlluminatedPromotionResponse.Root] =
-    (for {
+      db: DB): DbResultT[IlluminatedPromotionResponse.Root] =
+    for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
                  .mustFindOneOr(ObjectContextNotFound(contextName))
@@ -190,8 +189,7 @@ object PromotionManager {
       IlluminatedPromotionResponse.build(
           promotion = IlluminatedPromotion.illuminate(context, promotion, form, shadow),
           discounts =
-            discounts.map(d ⇒ IlluminatedDiscount.illuminate(form = d.form, shadow = d.shadow))))
-      .run()
+            discounts.map(d ⇒ IlluminatedDiscount.illuminate(form = d.form, shadow = d.shadow)))
 
   private def updateHead(
       promotion: Promotion,

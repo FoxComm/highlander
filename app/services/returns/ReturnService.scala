@@ -9,7 +9,6 @@ import models.{Reason, Reasons, StoreAdmin}
 import payloads.ReturnPayloads._
 import responses.ReturnResponse._
 import responses.{CustomerResponse, ReturnResponse, StoreAdminResponse}
-import services.Result
 import services.returns.Helpers._
 import utils.aliases._
 import utils.db._
@@ -17,26 +16,27 @@ import utils.db._
 object ReturnService {
   def updateMessageToCustomer(refNum: String, payload: ReturnMessageToCustomerPayload)(
       implicit ec: EC,
-      db: DB): Result[Root] =
-    (for {
+      db: DB): DbResultT[Root] =
+    for {
       _   ← * <~ payload.validate
       rma ← * <~ mustFindPendingReturnByRefNum(refNum)
       newMessage = if (payload.message.length > 0) Some(payload.message) else None
       update   ← * <~ Returns.update(rma, rma.copy(messageToCustomer = newMessage))
       updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(updated)
-    } yield response).runTxn()
+    } yield response
 
-  def updateStateByCsr(refNum: String, payload: ReturnUpdateStatePayload)(implicit ec: EC,
-                                                                          db: DB): Result[Root] =
-    (for {
+  def updateStateByCsr(refNum: String, payload: ReturnUpdateStatePayload)(
+      implicit ec: EC,
+      db: DB): DbResultT[Root] =
+    for {
       _        ← * <~ payload.validate
       rma      ← * <~ Returns.mustFindByRefNum(refNum)
       reason   ← * <~ payload.reasonId.map(Reasons.findOneById).getOrElse(lift(None))
       _        ← * <~ cancelOrUpdate(rma, reason, payload)
       updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(updated)
-    } yield response).runTxn()
+    } yield response
 
   private def cancelOrUpdate(rma: Return,
                              reason: Option[Reason],
@@ -61,15 +61,15 @@ object ReturnService {
       customerResponse = customer.map(CustomerResponse.build(_))
     } yield build(rma, customerResponse, adminResponse)
 
-  def getByRefNum(refNum: String)(implicit ec: EC, db: DB): Result[Root] =
-    (for {
+  def getByRefNum(refNum: String)(implicit ec: EC, db: DB): DbResultT[Root] =
+    for {
       rma      ← * <~ Returns.mustFindByRefNum(refNum)
       response ← * <~ fromRma(rma)
-    } yield response).run()
+    } yield response
 
-  def getExpandedByRefNum(refNum: String)(implicit ec: EC, db: DB): Result[RootExpanded] =
-    (for {
+  def getExpandedByRefNum(refNum: String)(implicit ec: EC, db: DB): DbResultT[RootExpanded] =
+    for {
       rma      ← * <~ Returns.mustFindByRefNum(refNum)
       response ← * <~ fromRmaExpanded(rma)
-    } yield response).run()
+    } yield response
 }

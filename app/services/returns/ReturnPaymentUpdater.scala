@@ -8,7 +8,6 @@ import models.returns._
 import payloads.ReturnPayloads.ReturnPaymentPayload
 import responses.ReturnResponse
 import responses.ReturnResponse.Root
-import services.Result
 import services.returns.Helpers._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
@@ -16,8 +15,8 @@ import utils.db._
 
 object ReturnPaymentUpdater {
   def addCreditCard(refNum: String, payload: ReturnPaymentPayload)(implicit ec: EC,
-                                                                   db: DB): Result[Root] =
-    (for {
+                                                                   db: DB): DbResultT[Root] =
+    for {
       _         ← * <~ payload.validate
       rma       ← * <~ mustFindPendingReturnByRefNum(refNum)
       payment   ← * <~ mustFindCcPaymentsByOrderRef(rma.orderRef)
@@ -27,11 +26,11 @@ object ReturnPaymentUpdater {
                     ReturnPayment.build(cc, rma.id, payload.amount, payment.currency))
       updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(rma)
-    } yield response).runTxn()
+    } yield response
 
   def addGiftCard(refNum: String, payload: ReturnPaymentPayload)(implicit ec: EC,
-                                                                 db: DB): Result[Root] =
-    (for {
+                                                                 db: DB): DbResultT[Root] =
+    for {
       _         ← * <~ payload.validate
       rma       ← * <~ mustFindPendingReturnByRefNum(refNum)
       deleteAll ← * <~ deleteGc(rma.id)
@@ -42,11 +41,11 @@ object ReturnPaymentUpdater {
                ReturnPayment.build(gc, rma.id, payload.amount, payment.currency))
       updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(rma)
-    } yield response).runTxn()
+    } yield response
 
   def addStoreCredit(refNum: String, payload: ReturnPaymentPayload)(implicit ec: EC,
-                                                                    db: DB): Result[Root] =
-    (for {
+                                                                    db: DB): DbResultT[Root] =
+    for {
       _         ← * <~ payload.validate
       rma       ← * <~ mustFindPendingReturnByRefNum(refNum)
       deleteAll ← * <~ deleteGc(rma.id)
@@ -59,31 +58,31 @@ object ReturnPaymentUpdater {
                ReturnPayment.build(sc, rma.id, payload.amount, payment.currency))
       updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(rma)
-    } yield response).runTxn()
+    } yield response
 
-  def deleteCreditCard(refNum: String)(implicit ec: EC, db: DB): Result[Root] =
-    (for {
+  def deleteCreditCard(refNum: String)(implicit ec: EC, db: DB): DbResultT[Root] =
+    for {
       rma       ← * <~ mustFindPendingReturnByRefNum(refNum)
       deleteAll ← * <~ deleteCc(rma.id)
       updated   ← * <~ Returns.refresh(rma)
       response  ← * <~ ReturnResponse.fromRma(rma)
-    } yield response).runTxn()
+    } yield response
 
-  def deleteGiftCard(refNum: String)(implicit ec: EC, db: DB): Result[Root] =
-    (for {
+  def deleteGiftCard(refNum: String)(implicit ec: EC, db: DB): DbResultT[Root] =
+    for {
       rma       ← * <~ mustFindPendingReturnByRefNum(refNum)
       deleteAll ← * <~ deleteGc(rma.id)
       updated   ← * <~ Returns.refresh(rma)
       response  ← * <~ ReturnResponse.fromRma(rma)
-    } yield response).runTxn()
+    } yield response
 
-  def deleteStoreCredit(refNum: String)(implicit ec: EC, db: DB): Result[Root] =
+  def deleteStoreCredit(refNum: String)(implicit ec: EC, db: DB): DbResultT[Root] =
     (for {
       rma       ← * <~ mustFindPendingReturnByRefNum(refNum)
       deleteAll ← * <~ deleteSc(rma.id)
       updated   ← * <~ Returns.refresh(rma)
       response  ← * <~ ReturnResponse.fromRma(rma)
-    } yield response).runTxn()
+    } yield response)
 
   private def deleteCc(returnId: Int)(implicit ec: EC) = {
     ReturnPayments.filter(_.returnId === returnId).creditCards.result.flatMap { seq ⇒

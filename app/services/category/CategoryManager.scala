@@ -8,58 +8,56 @@ import models.objects._
 import payloads.CategoryPayloads._
 import responses.CategoryResponses._
 import responses.ObjectResponses.ObjectContextResponse
-import services.{LogActivity, Result}
+import services.LogActivity
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
 
 object CategoryManager {
 
-  def getForm(id: Int)(implicit ec: EC, db: DB): Result[CategoryFormResponse.Root] =
-    (for {
+  def getForm(id: Int)(implicit ec: EC, db: DB): DbResultT[CategoryFormResponse.Root] =
+    for {
       category ← * <~ Categories.filterByFormId(id).mustFindOneOr(CategoryFormNotFound(id))
       form     ← * <~ ObjectForms.mustFindById404(id)
-    } yield CategoryFormResponse.build(category, form)).run()
+    } yield CategoryFormResponse.build(category, form)
 
   def getShadow(formId: Int, contextName: String)(implicit ec: EC,
-                                                  db: DB): Result[CategoryShadowResponse.Root] =
-    (for {
+                                                  db: DB): DbResultT[CategoryShadowResponse.Root] =
+    for {
       context ← * <~ contextByName(contextName)
       category ← * <~ Categories
                   .withContextAndForm(context.id, formId)
                   .mustFindOneOr(CategoryNotFoundForContext(formId, context.id))
       shadow ← * <~ ObjectShadows.mustFindById404(category.shadowId)
-    } yield CategoryShadowResponse.build(shadow)).run()
+    } yield CategoryShadowResponse.build(shadow)
 
   def getCategory(categoryId: Int, contextName: String)(
       implicit ec: EC,
-      db: DB): Result[FullCategoryResponse.Root] =
-    getCategoryFull(categoryId, contextName)
-      .map(c ⇒ FullCategoryResponse.build(c.category, c.form, c.shadow))
-      .run()
+      db: DB): DbResultT[FullCategoryResponse.Root] =
+    getCategoryFull(categoryId, contextName).map(c ⇒
+          FullCategoryResponse.build(c.category, c.form, c.shadow))
 
   def createCategory(admin: StoreAdmin, payload: CreateFullCategory, contextName: String)(
       implicit ec: EC,
       db: DB,
-      ac: AC): Result[FullCategoryResponse.Root] =
-    (for {
+      ac: AC): DbResultT[FullCategoryResponse.Root] =
+    for {
       context  ← * <~ contextByName(contextName)
       form     ← * <~ ObjectForm(kind = Category.kind, attributes = payload.form.attributes)
       shadow   ← * <~ ObjectShadow(attributes = payload.shadow.attributes)
       insert   ← * <~ ObjectUtils.insert(form, shadow)
       category ← * <~ Categories.create(Category.build(context.id, insert))
       response = FullCategoryResponse.build(category, insert.form, insert.shadow)
-      _ ← * <~ LogActivity.fullCategoryCreated(Some(admin),
-                                               response,
-                                               ObjectContextResponse.build(context))
-    } yield response).runTxn()
+      _ ← * <~ LogActivity
+           .fullCategoryCreated(Some(admin), response, ObjectContextResponse.build(context))
+    } yield response
 
   def updateCategory(
       admin: StoreAdmin,
       categoryId: Int,
       payload: UpdateFullCategory,
-      contextName: String)(implicit ec: EC, db: DB, ac: AC): Result[FullCategoryResponse.Root] =
-    (for {
+      contextName: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[FullCategoryResponse.Root] =
+    for {
       context  ← * <~ contextByName(contextName)
       category ← * <~ categoryById(categoryId, context)
       updated ← * <~ ObjectUtils.update(category.formId,
@@ -71,20 +69,20 @@ object CategoryManager {
       categoryResponse = FullCategoryResponse.build(category, updated.form, updated.shadow)
       contextResp      = ObjectContextResponse.build(context)
       _ ← * <~ LogActivity.fullCategoryUpdated(Some(admin), categoryResponse, contextResp)
-    } yield categoryResponse).runTxn()
+    } yield categoryResponse
 
   def getIlluminatedCategory(categoryId: Int, contextName: String)(
       implicit ec: EC,
-      db: DB): Result[IlluminatedCategoryResponse.Root] =
+      db: DB): DbResultT[IlluminatedCategoryResponse.Root] =
     getCategoryFull(categoryId, contextName).map { full ⇒
       val cat = IlluminatedCategory.illuminate(full.context, full.category, full.form, full.shadow)
       IlluminatedCategoryResponse.build(cat)
-    }.run()
+    }
 
   def getIlluminatedCategoryAtCommit(categoryId: Int, contextName: String, commitId: Int)(
       implicit ec: EC,
-      db: DB): Result[IlluminatedCategoryResponse.Root] =
-    (for {
+      db: DB): DbResultT[IlluminatedCategoryResponse.Root] =
+    for {
       context  ← * <~ contextByName(contextName)
       category ← * <~ categoryById(categoryId, context)
       commit ← * <~ ObjectCommits
@@ -94,7 +92,7 @@ object CategoryManager {
       categoryShadow ← * <~ ObjectShadows.mustFindById404(commit.shadowId)
     } yield
       IlluminatedCategoryResponse.build(
-          IlluminatedCategory.illuminate(context, category, categoryForm, categoryShadow))).run()
+          IlluminatedCategory.illuminate(context, category, categoryForm, categoryShadow))
 
   private def updateCategoryHead(
       category: Category,

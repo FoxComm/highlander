@@ -4,8 +4,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import models.objects.ObjectContexts
 import models.product.{Mvp, SimpleContext, SimpleProductData}
-import slick.driver.PostgresDriver.api._
 import utils.Money.Currency
+import utils.aliases._
 import utils.db._
 
 trait ProductSeeds extends {
@@ -18,7 +18,7 @@ trait ProductSeeds extends {
                        SimpleProductData,
                        SimpleProductData)
 
-  def createProducts(implicit db: Database): DbResultT[SeedProducts] =
+  def createProducts(implicit db: DB): DbResultT[SeedProducts] =
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       ps      ← * <~ Mvp.insertProducts(products, context.id)
@@ -97,7 +97,7 @@ trait ProductSeeds extends {
             active = true,
             tags = Seq("sunglasses")))
 
-  def createRuProducts(products: SeedProducts)(implicit db: Database): DbResultT[SeedProducts] = {
+  def createRuProducts(products: SeedProducts)(implicit db: DB): DbResultT[SeedProducts] = {
     val p1 = products._1.copy(title = "осел",
                               description = "Стилизированный, пригодный для жизни осла.",
                               price = 3300,

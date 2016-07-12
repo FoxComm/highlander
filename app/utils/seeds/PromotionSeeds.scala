@@ -2,17 +2,16 @@ package utils.seeds
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import models.objects.{ObjectContext, ObjectContexts, ObjectForm, ObjectLink, ObjectLinks, ObjectShadow, ObjectUtils}
+import models.objects._
 import models.product.SimpleContext
 import models.promotion.{Promotion, Promotions}
 import payloads.PromotionPayloads._
-import slick.driver.PostgresDriver.api._
-import utils.aliases.AC
+import utils.aliases._
 import utils.db._
 
 trait PromotionSeeds {
 
-  def createCouponPromotions(discounts: Seq[BaseDiscount])(implicit db: Database,
+  def createCouponPromotions(discounts: Seq[BaseDiscount])(implicit db: DB,
                                                            ac: AC): DbResultT[Seq[BasePromotion]] =
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
@@ -23,7 +22,7 @@ trait PromotionSeeds {
     } yield results
 
   def insertPromotion(payload: CreatePromotion, discount: BaseDiscount, context: ObjectContext)(
-      implicit db: Database,
+      implicit db: DB,
       ac: AC): DbResultT[BasePromotion] =
     for {
       form   ← * <~ ObjectForm(kind = Promotion.kind, attributes = payload.form.attributes)

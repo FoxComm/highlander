@@ -14,19 +14,19 @@ object StoreCreditRoutes {
   private[admin] def storeCreditRoutes(implicit ec: EC, db: DB, ac: AC, admin: StoreAdmin) = {
     pathPrefix("store-credits") {
       (patch & pathEnd & entity(as[StoreCreditBulkUpdateStateByCsr])) { payload ⇒
-        goodOrFailures {
+        mutateOrFailures {
           StoreCreditService.bulkUpdateStateByCsr(payload, admin)
         }
       }
     } ~
     pathPrefix("store-credits" / IntNumber) { storeCreditId ⇒
       (get & pathEnd) {
-        goodOrFailures {
+        getOrFailures {
           StoreCreditService.getById(storeCreditId)
         }
       } ~
       (patch & pathEnd & entity(as[StoreCreditUpdateStateByCsr])) { payload ⇒
-        goodOrFailures {
+        mutateOrFailures {
           StoreCreditService.updateStateByCsr(storeCreditId, payload, admin)
         }
       }

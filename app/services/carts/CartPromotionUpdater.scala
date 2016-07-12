@@ -21,7 +21,7 @@ import models.traits.Originator
 import responses.TheResponse
 import responses.cart.FullCart
 import services.discount.compilers._
-import services.{CartValidator, LogActivity, Result}
+import services.{CartValidator, LogActivity}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
@@ -70,8 +70,8 @@ object CartPromotionUpdater {
       es: ES,
       db: DB,
       ac: AC,
-      ctx: OC): Result[TheResponse[FullCart.Root]] =
-    (for {
+      ctx: OC): DbResultT[TheResponse[FullCart.Root]] =
+    for {
       // Fetch base data
       cart ← * <~ getCartByOriginator(originator, refNum)
       _    ← * <~ cart.mustBeActive
@@ -103,16 +103,15 @@ object CartPromotionUpdater {
       cart      ← * <~ CartTotaler.saveTotals(cart)
       validated ← * <~ CartValidator(cart).validate()
       response  ← * <~ FullCart.buildRefreshed(cart)
-    } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings))
-      .runTxn()
+    } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)
 
   def detachCoupon(originator: Originator, refNum: Option[String] = None)(
       implicit ec: EC,
       es: ES,
       db: DB,
       ac: AC,
-      ctx: OC): Result[TheResponse[FullCart.Root]] =
-    (for {
+      ctx: OC): DbResultT[TheResponse[FullCart.Root]] =
+    for {
       // Read
       cart            ← * <~ getCartByOriginator(originator, refNum)
       _               ← * <~ cart.mustBeActive
@@ -129,8 +128,7 @@ object CartPromotionUpdater {
       _         ← * <~ LogActivity.orderCouponDetached(cart)
       validated ← * <~ CartValidator(cart).validate()
       response  ← * <~ FullCart.buildRefreshed(cart)
-    } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings))
-      .runTxn()
+    } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)
 
   /**
     * Getting only first discount now

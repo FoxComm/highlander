@@ -9,7 +9,6 @@ import models.shipping.Shipments
 import payloads.ReturnPayloads._
 import responses.ReturnResponse
 import responses.ReturnResponse.Root
-import services.Result
 import services.inventory.SkuManager
 import services.returns.Helpers._
 import slick.driver.PostgresDriver.api._
@@ -21,8 +20,8 @@ object ReturnLineItemUpdater {
   // FIXME: Fetch reasons with `mustFindOneById`, cc @anna
   def addSkuLineItem(refNum: String, payload: ReturnSkuLineItemsPayload, context: ObjectContext)(
       implicit ec: EC,
-      db: DB): Result[Root] =
-    (for {
+      db: DB): DbResultT[Root] =
+    for {
       // Checks
       payload ← * <~ payload.validate
       rma     ← * <~ mustFindPendingReturnByRefNum(refNum)
@@ -38,9 +37,10 @@ object ReturnLineItemUpdater {
       // Response
       updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(updated)
-    } yield response).runTxn()
+    } yield response
 
-  def deleteSkuLineItem(refNum: String, lineItemId: Int)(implicit ec: EC, db: DB): Result[Root] =
+  def deleteSkuLineItem(refNum: String, lineItemId: Int)(implicit ec: EC,
+                                                         db: DB): DbResultT[Root] =
     (for {
       // Checks
       rma ← * <~ mustFindPendingReturnByRefNum(refNum)
@@ -55,11 +55,11 @@ object ReturnLineItemUpdater {
       // Response
       updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(updated)
-    } yield response).runTxn()
+    } yield response)
 
   def addGiftCardLineItem(refNum: String, payload: ReturnGiftCardLineItemsPayload)(
       implicit ec: EC,
-      db: DB): Result[Root] =
+      db: DB): DbResultT[Root] =
     (for {
       // Checks
       rma ← * <~ mustFindPendingReturnByRefNum(refNum)
@@ -78,11 +78,11 @@ object ReturnLineItemUpdater {
       // Response
       updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(updated)
-    } yield response).runTxn()
+    } yield response)
 
   def deleteGiftCardLineItem(refNum: String, lineItemId: Int)(implicit ec: EC,
-                                                              db: DB): Result[Root] =
-    (for {
+                                                              db: DB): DbResultT[Root] =
+    for {
       // Checks
       rma ← * <~ mustFindPendingReturnByRefNum(refNum)
       lineItem ← * <~ ReturnLineItems
@@ -96,12 +96,12 @@ object ReturnLineItemUpdater {
       // Response
       updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(updated)
-    } yield response).runTxn()
+    } yield response
 
   def addShippingCostItem(refNum: String, payload: ReturnShippingCostLineItemsPayload)(
       implicit ec: EC,
-      db: DB): Result[Root] =
-    (for {
+      db: DB): DbResultT[Root] =
+    for {
       // Checks
       rma ← * <~ mustFindPendingReturnByRefNum(refNum)
       reason ← * <~ ReturnReasons
@@ -117,11 +117,11 @@ object ReturnLineItemUpdater {
       // Response
       updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(updated)
-    } yield response).runTxn()
+    } yield response
 
   def deleteShippingCostLineItem(refNum: String, lineItemId: Int)(implicit ec: EC,
-                                                                  db: DB): Result[Root] =
-    (for {
+                                                                  db: DB): DbResultT[Root] =
+    for {
       // Checks
       rma ← * <~ mustFindPendingReturnByRefNum(refNum)
       lineItem ← * <~ ReturnLineItems
@@ -135,5 +135,5 @@ object ReturnLineItemUpdater {
       // Response
       updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(updated)
-    } yield response).runTxn()
+    } yield response
 }

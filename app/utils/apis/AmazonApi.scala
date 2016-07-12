@@ -12,7 +12,7 @@ import failures.AmazonFailures._
 import failures._
 import services.Result
 import utils.FoxConfig.{RichConfig, config}
-import utils.aliases.EC
+import utils.aliases._
 
 trait AmazonApi {
 

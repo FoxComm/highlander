@@ -13,7 +13,7 @@ import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.Passwords._
 import utils.Validation
-import utils.aliases.EC
+import utils.aliases._
 import utils.db._
 
 case class Customer(id: Int = 0,

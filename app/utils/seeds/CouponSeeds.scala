@@ -6,8 +6,7 @@ import models.coupon._
 import models.objects._
 import models.product.SimpleContext
 import payloads.CouponPayloads._
-import slick.driver.PostgresDriver.api._
-import utils.aliases.AC
+import utils.aliases._
 import utils.db._
 
 trait CouponSeeds {
@@ -16,7 +15,7 @@ trait CouponSeeds {
   val codeLength = 15
   val codesQty   = 10
 
-  def createCoupons(promotions: Seq[BasePromotion])(implicit db: Database,
+  def createCoupons(promotions: Seq[BasePromotion])(implicit db: DB,
                                                     ac: AC): DbResultT[Seq[BaseCoupon]] =
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
@@ -27,7 +26,7 @@ trait CouponSeeds {
     } yield results
 
   def insertCoupon(promo: BasePromotion, payload: CreateCoupon, context: ObjectContext)(
-      implicit db: Database,
+      implicit db: DB,
       ac: AC): DbResultT[BaseCoupon] =
     for {
       // Create coupon

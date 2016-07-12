@@ -3,7 +3,6 @@ package services.activity
 import models.activity._
 import payloads.ActivityTrailPayloads._
 import responses.{ActivityConnectionResponse, FullActivityConnectionResponse}
-import services.Result
 import utils.aliases._
 import utils.db._
 
@@ -11,13 +10,13 @@ object TrailManager {
 
   val autoDescription = "Automatically Generated"
 
-  def createTrail(payload: CreateTrail)(implicit ec: EC, db: DB): Result[Int] =
-    (for {
+  def createTrail(payload: CreateTrail)(implicit ec: EC, db: DB): DbResultT[Int] =
+    for {
       trail ← * <~ Trails.create(
                  Trail(dimensionId = payload.dimensionId,
                        objectId = payload.objectId,
                        data = payload.data))
-    } yield trail.id).runTxn()
+    } yield trail.id
 
   /**
     * The append function will create a dimension and trail if they don't exist.
@@ -26,8 +25,8 @@ object TrailManager {
   def appendActivityByObjectId(dimensionName: String, objectId: String, payload: AppendActivity)(
       implicit context: AC,
       ec: EC,
-      db: DB): Result[ActivityConnectionResponse.Root] =
-    appendActivityByObjectIdInner(dimensionName, objectId, payload).runTxn()
+      db: DB): DbResultT[ActivityConnectionResponse.Root] =
+    appendActivityByObjectIdInner(dimensionName, objectId, payload)
 
   private[services] def appendActivityByObjectIdInner(dimensionName: String,
                                                       objectId: String,
@@ -60,14 +59,13 @@ object TrailManager {
     } yield ActivityConnectionResponse.build(objectId, dimension, newTail)
 
   def findConnection(connectionId: Int)(implicit ec: EC,
-                                        db: DB): Result[FullActivityConnectionResponse.Root] = {
-    (for {
+                                        db: DB): DbResultT[FullActivityConnectionResponse.Root] = {
+    for {
       connection ← * <~ Connections.mustFindById404(connectionId)
       trail      ← * <~ Trails.mustFindById404(connection.trailId)
       dimension  ← * <~ Dimensions.mustFindById404(trail.dimensionId)
       activity   ← * <~ Activities.mustFindById404(connection.activityId)
-    } yield
-      (FullActivityConnectionResponse.build(trail.objectId, dimension, connection, activity)))
-      .run()
+    } yield FullActivityConnectionResponse.build(trail.objectId, dimension, connection, activity)
+
   }
 }

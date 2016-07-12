@@ -640,7 +640,7 @@ class CustomerIntegrationTest
       when(stripeApiMock.deleteExternalAccount(m.any(), m.any()))
         .thenReturn(Result.good(new DeletedExternalAccount))
 
-      CreditCardManager.deleteCreditCard(customer.id, creditCard.id, Some(admin)).futureValue
+      CreditCardManager.deleteCreditCard(customer.id, creditCard.id, Some(admin)).gimme
 
       val response =
         PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}",

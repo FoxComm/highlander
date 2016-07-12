@@ -5,51 +5,51 @@ import failures.ObjectFailures._
 import models.objects._
 import payloads.ContextPayloads._
 import responses.ObjectResponses._
-import services._
 import utils.aliases._
 import utils.db._
 
 object ObjectManager {
 
-  def getForm(id: Int)(implicit ec: EC, db: DB): Result[ObjectFormResponse.Root] =
-    (for {
+  def getForm(id: Int)(implicit ec: EC, db: DB): DbResultT[ObjectFormResponse.Root] =
+    for {
       form ← * <~ ObjectForms.mustFindById404(id)
-    } yield ObjectFormResponse.build(form)).run()
+    } yield ObjectFormResponse.build(form)
 
-  def getShadow(shadowId: Int)(implicit ec: EC, db: DB): Result[ObjectShadowResponse.Root] =
-    (for {
+  def getShadow(shadowId: Int)(implicit ec: EC, db: DB): DbResultT[ObjectShadowResponse.Root] =
+    for {
       shadow ← * <~ ObjectShadows.mustFindById404(shadowId)
-    } yield ObjectShadowResponse.build(shadow)).run()
+    } yield ObjectShadowResponse.build(shadow)
 
   def getIlluminatedObject(formId: Int, shadowId: Int)(
       implicit ec: EC,
-      db: DB): Result[IlluminatedObjectResponse.Root] =
-    (for {
+      db: DB): DbResultT[IlluminatedObjectResponse.Root] =
+    for {
       form   ← * <~ ObjectForms.mustFindById404(formId)
       shadow ← * <~ ObjectShadows.mustFindById404(shadowId)
-    } yield IlluminatedObjectResponse.build(IlluminatedObject.illuminate(form, shadow))).run()
+    } yield IlluminatedObjectResponse.build(IlluminatedObject.illuminate(form, shadow))
 
-  def getContextByName(name: String)(implicit ec: EC, db: DB): Result[ObjectContextResponse.Root] =
-    (for {
+  def getContextByName(name: String)(implicit ec: EC,
+                                     db: DB): DbResultT[ObjectContextResponse.Root] =
+    for {
       context ← * <~ mustFindByName404(name)
-    } yield ObjectContextResponse.build(context)).run()
+    } yield ObjectContextResponse.build(context)
 
   def createContext(payload: CreateObjectContext)(implicit ec: EC,
-                                                  db: DB): Result[ObjectContextResponse.Root] =
-    (for {
+                                                  db: DB): DbResultT[ObjectContextResponse.Root] =
+    for {
       context ← * <~ ObjectContexts.create(
                    ObjectContext(name = payload.name, attributes = payload.attributes))
-    } yield ObjectContextResponse.build(context)).runTxn()
+    } yield ObjectContextResponse.build(context)
 
   def updateContextByName(name: String, payload: UpdateObjectContext)(
       implicit ec: EC,
-      db: DB): Result[ObjectContextResponse.Root] =
-    (for {
+      db: DB): DbResultT[ObjectContextResponse.Root] =
+    for {
       context ← * <~ mustFindByName404(name)
       update ← * <~ ObjectContexts.update(
                   context,
                   context.copy(name = payload.name, attributes = payload.attributes))
-    } yield ObjectContextResponse.build(update)).runTxn()
+    } yield ObjectContextResponse.build(update)
 
   def mustFindByName404(name: String)(implicit ec: EC): DbResultT[ObjectContext] =
     ObjectContexts.filterByName(name).mustFindOneOr(ObjectContextNotFound(name))

@@ -4,22 +4,19 @@ import java.time.Instant
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import cats.data.Xor
 import models.objects._
 import models.product.SimpleContext
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import payloads.CouponPayloads._
-import services.Result
 import services.coupon.CouponManager
-import slick.driver.PostgresDriver.api._
-import utils.aliases.AC
+import utils.aliases._
 import utils.db._
+import utils.seeds.generators.SimpleCoupon._
 
 object SimpleCoupon {
   type Percent = Int
 }
-import utils.seeds.generators.SimpleCoupon._
 
 case class SimpleCoupon(formId: Int = 0,
                         shadowId: Int = 0,
@@ -66,21 +63,20 @@ trait CouponGenerator {
                  promotionId = promotion.promotionId)
   }
 
-  def generateCoupons(data: Seq[SimpleCoupon])(implicit db: Database, ac: AC) =
+  def generateCoupons(sourceData: Seq[SimpleCoupon])(implicit db: DB,
+                                                     ac: AC): DbResultT[Seq[SimpleCoupon]] =
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-      coupons ← * <~ data.map(d ⇒ {
-                 val couponForm   = SimpleCouponForm(d.percentOff, d.totalAmount)
+      coupons ← * <~ sourceData.map(source ⇒ {
+                 val couponForm   = SimpleCouponForm(source.percentOff, source.totalAmount)
                  val couponShadow = SimpleCouponShadow(couponForm)
                  val payload = CreateCoupon(form = CreateCouponForm(attributes = couponForm.form),
                                             shadow =
                                               CreateCouponShadow(attributes = couponShadow.shadow),
-                                            d.promotionId)
-                 DbResultT(DBIO.from(CouponManager.create(payload, context.name, None).flatMap {
-                   case Xor.Right(r) ⇒
-                     Result.right(d.copy(formId = r.form.id, shadowId = r.shadow.id))
-                   case Xor.Left(l) ⇒ Result.failures(l)
-                 }))
+                                            source.promotionId)
+                 CouponManager.create(payload, context.name, None).map { newCoupon ⇒
+                   source.copy(formId = newCoupon.form.id, shadowId = newCoupon.shadow.id)
+                 }
                })
     } yield coupons
 }

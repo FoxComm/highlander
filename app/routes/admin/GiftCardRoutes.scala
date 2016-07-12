@@ -19,17 +19,17 @@ object GiftCardRoutes {
     activityContext(admin) { implicit ac ⇒
       pathPrefix("gift-cards") {
         (patch & pathEnd & entity(as[GiftCardBulkUpdateStateByCsr])) { payload ⇒
-          goodOrFailures {
+          mutateOrFailures {
             GiftCardService.bulkUpdateStateByCsr(payload, admin)
           }
         } ~
         (post & pathEnd & entity(as[GiftCardBulkCreateByCsr])) { payload ⇒
-          goodOrFailures {
+          mutateOrFailures {
             GiftCardService.createBulkByAdmin(admin, payload)
           }
         } ~
         (post & pathEnd & entity(as[GiftCardCreateByCsr])) { payload ⇒
-          goodOrFailures {
+          mutateOrFailures {
             GiftCardService.createByAdmin(admin, payload)
           }
         }
@@ -41,7 +41,7 @@ object GiftCardRoutes {
           }
         } ~
         (patch & pathEnd & entity(as[GiftCardUpdateStateByCsr])) { payload ⇒
-          goodOrFailures {
+          mutateOrFailures {
             GiftCardService.updateStateByCsr(code, payload, admin)
           }
         } ~
@@ -54,7 +54,7 @@ object GiftCardRoutes {
         } ~
         path("convert" / IntNumber) { customerId ⇒
           (post & pathEnd) {
-            goodOrFailures {
+            mutateOrFailures {
               CustomerCreditConverter.toStoreCredit(code, customerId, admin)
             }
           }

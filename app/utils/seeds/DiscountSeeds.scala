@@ -9,12 +9,12 @@ import models.objects._
 import models.product.SimpleContext
 import models.sharedsearch.SharedSearch
 import payloads.DiscountPayloads._
-import slick.driver.PostgresDriver.api._
+import utils.aliases._
 import utils.db._
 
 trait DiscountSeeds {
 
-  def createDiscounts(search: SharedSearch)(implicit db: Database): DbResultT[Seq[BaseDiscount]] =
+  def createDiscounts(search: SharedSearch)(implicit db: DB): DbResultT[Seq[BaseDiscount]] =
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       results ← * <~ discounts(search).map {
@@ -24,7 +24,7 @@ trait DiscountSeeds {
     } yield results
 
   def insertDiscount(title: String, payload: CreateDiscount, context: ObjectContext)(
-      implicit db: Database): DbResultT[BaseDiscount] =
+      implicit db: DB): DbResultT[BaseDiscount] =
     for {
       form   ← * <~ ObjectForm(kind = Discount.kind, attributes = payload.form.attributes)
       shadow ← * <~ ObjectShadow(attributes = payload.shadow.attributes)

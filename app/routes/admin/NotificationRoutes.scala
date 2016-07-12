@@ -4,6 +4,7 @@ import akka.http.scaladsl.server.Directives._
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import de.heikoseeberger.akkasse.EventStreamMarshalling._
+import facades.NotificationFacade
 import models.StoreAdmin
 import payloads.CreateNotification
 import services.NotificationManager
@@ -18,16 +19,16 @@ object NotificationRoutes {
       pathPrefix("notifications") {
         (get & pathEnd) {
           complete {
-            NotificationManager.streamByAdminId(admin.id)
+            NotificationFacade.streamByAdminId(admin.id)
           }
         } ~
         (post & pathEnd & entity(as[CreateNotification])) { payload ⇒
-          goodOrFailures {
+          mutateOrFailures {
             NotificationManager.createNotification(payload)
           }
         } ~
         (post & path("last-seen" / IntNumber) & pathEnd) { activityId ⇒
-          goodOrFailures {
+          mutateOrFailures {
             NotificationManager.updateLastSeen(admin.id, activityId)
           }
         }

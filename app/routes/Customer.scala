@@ -46,28 +46,28 @@ object Customer {
             } ~
             pathPrefix("cart") {
               (get & pathEnd) {
-                goodOrFailures {
+                getOrFailures {
                   CartQueries.findOrCreateCartByCustomer(customer, ctx)
                 }
               } ~
               (post & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) {
                 reqItems ⇒
-                  goodOrFailures {
+                  mutateOrFailures {
                     LineItemUpdater.updateQuantitiesOnCustomersCart(customer, reqItems)
                   }
               } ~
               (post & path("coupon" / Segment) & pathEnd) { code ⇒
-                goodOrFailures {
+                mutateOrFailures {
                   CartPromotionUpdater.attachCoupon(Originator(customer), None, code)
                 }
               } ~
               (delete & path("coupon") & pathEnd) {
-                goodOrFailures {
+                mutateOrFailures {
                   CartPromotionUpdater.detachCoupon(Originator(customer))
                 }
               } ~
               (post & path("checkout") & pathEnd) {
-                goodOrFailures {
+                mutateOrFailures {
                   Checkout.fromCustomerCart(customer)
                 }
               } ~
@@ -146,12 +146,12 @@ object Customer {
               } ~
               pathPrefix("shipping-method") {
                 (patch & pathEnd & entity(as[UpdateShippingMethod])) { payload ⇒
-                  goodOrFailures {
+                  mutateOrFailures {
                     CartShippingMethodUpdater.updateShippingMethod(Originator(customer), payload)
                   }
                 } ~
                 (delete & pathEnd) {
-                  goodOrFailures {
+                  mutateOrFailures {
                     CartShippingMethodUpdater.deleteShippingMethod(Originator(customer))
                   }
                 }
@@ -171,7 +171,7 @@ object Customer {
             } ~
             pathPrefix("orders" / cordRefNumRegex) { refNum ⇒
               (get & pathEnd) {
-                goodOrFailures {
+                getOrFailures {
                   CartQueries.findOneByCustomer(refNum, customer)
                 }
               }
@@ -217,43 +217,43 @@ object Customer {
                 }
               } ~
               (get & path(IntNumber) & pathEnd) { creditCardId ⇒
-                goodOrFailures {
+                getOrFailures {
                   CreditCardManager.getByIdAndCustomer(creditCardId, customer)
                 }
               } ~
               (post & path(IntNumber / "default") & pathEnd & entity(as[ToggleDefaultCreditCard])) {
                 (cardId, payload) ⇒
-                  goodOrFailures {
+                  mutateOrFailures {
                     CreditCardManager.toggleCreditCardDefault(customer.id,
                                                               cardId,
                                                               payload.isDefault)
                   }
               } ~
               (post & pathEnd & entity(as[CreateCreditCard])) { payload ⇒
-                goodOrFailures {
+                mutateOrFailures {
                   CreditCardManager.createCardThroughGateway(customer.id, payload)
                 }
               } ~
               (patch & path(IntNumber) & pathEnd & entity(as[EditCreditCard])) {
                 (cardId, payload) ⇒
-                  goodOrFailures {
+                  mutateOrFailures {
                     CreditCardManager.editCreditCard(customer.id, cardId, payload)
                   }
               } ~
               (delete & path(IntNumber) & pathEnd) { cardId ⇒
-                nothingOrFailures {
+                deleteOrFailures {
                   CreditCardManager.deleteCreditCard(customer.id, cardId)
                 }
               }
             } ~
             pathPrefix("payment-methods" / "store-credits") {
               (get & path(IntNumber) & pathEnd) { storeCreditId ⇒
-                goodOrFailures {
+                getOrFailures {
                   StoreCreditService.getByIdAndCustomer(storeCreditId, customer)
                 }
               } ~
               (get & path("totals") & pathEnd) {
-                goodOrFailures {
+                getOrFailures {
                   StoreCreditService.totalsForCustomer(customer.id)
                 }
               }

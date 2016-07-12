@@ -4,6 +4,7 @@ import scala.concurrent.Future
 
 import shapeless._
 import slick.driver.PostgresDriver.api._
+import utils.aliases._
 import utils.db._
 
 case class CustomerRank(id: Int = 0, revenue: Int = 0, rank: Int = 0)
@@ -23,7 +24,7 @@ object CustomersRanks
 
   val returningLens: Lens[CustomerRank, Int] = lens[CustomerRank].id
 
-  def refresh(implicit db: Database): Future[Int] = {
+  def refresh(implicit db: DB): Future[Int] = {
     db.run(sqlu"REFRESH MATERIALIZED VIEW CONCURRENTLY customers_ranking")
   }
 }

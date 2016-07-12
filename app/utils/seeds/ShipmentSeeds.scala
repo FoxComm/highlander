@@ -8,6 +8,7 @@ import models.shipping.ShippingPriceRule._
 import models.shipping._
 import org.json4s.jackson.JsonMethods._
 import slick.driver.PostgresDriver.api._
+import utils.aliases._
 import utils.db._
 import utils.seeds.Seeds.Factories._
 
@@ -16,7 +17,7 @@ trait ShipmentSeeds {
   type ShippingMethods =
     (ShippingMethod#Id, ShippingMethod#Id, ShippingMethod#Id, ShippingMethod#Id, ShippingMethod#Id)
 
-  def getShipmentRules(implicit db: Database): DbResultT[ShippingMethods] =
+  def getShipmentRules(implicit db: DB): DbResultT[ShippingMethods] =
     for {
       methods ← * <~ ShippingMethods.findActive.result
     } yield

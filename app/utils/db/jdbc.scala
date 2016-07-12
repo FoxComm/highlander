@@ -5,7 +5,7 @@ import scala.util.matching.Regex
 
 import failures.{DatabaseFailure, Failure}
 import services.Result
-import utils.aliases.EC
+import utils.aliases._
 
 object jdbc {
 

@@ -55,26 +55,26 @@ object ProductRoutes {
         } ~
         pathPrefix("contexts" / Segment) { name ⇒
           (get & pathEnd) {
-            goodOrFailures {
+            getOrFailures {
               ObjectManager.getContextByName(name)
             }
           } ~
           (patch & pathEnd & entity(as[UpdateObjectContext])) { payload ⇒
-            goodOrFailures {
+            mutateOrFailures {
               ObjectManager.updateContextByName(name, payload)
             }
           }
         } ~
         pathPrefix("contexts") {
           (post & pathEnd & entity(as[CreateObjectContext])) { payload ⇒
-            goodOrFailures {
+            mutateOrFailures {
               ObjectManager.createContext(payload)
             }
           }
         } ~
         pathPrefix(IntNumber / "contexts") { formId ⇒
           (get & pathEnd) {
-            goodOrFailures {
+            getOrFailures {
               ProductManager.getContextsForProduct(formId)
             }
           }

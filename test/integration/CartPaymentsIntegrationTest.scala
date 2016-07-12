@@ -395,10 +395,9 @@ class CartPaymentsIntegrationTest
         when(stripeApiMock.deleteExternalAccount(m.any(), m.any()))
           .thenReturn(Result.good(new DeletedExternalAccount))
 
-        val payload = CreditCardPayment(creditCard.id)
-        CreditCardManager.deleteCreditCard(customer.id, creditCard.id, Some(admin)).futureValue
-        val response =
-          POST(s"v1/orders/${cart.referenceNumber}/payment-methods/credit-cards", payload)
+        CreditCardManager.deleteCreditCard(customer.id, creditCard.id, Some(admin)).gimme
+        val response = POST(s"v1/orders/${cart.referenceNumber}/payment-methods/credit-cards",
+                            CreditCardPayment(creditCard.id))
 
         response.status must === (StatusCodes.BadRequest)
         response.error must === (CannotUseInactiveCreditCard(creditCard).description)
@@ -407,9 +406,8 @@ class CartPaymentsIntegrationTest
 
       "fails if the order has already been placed" in new CreditCardFixture {
         Orders.create(cart.toOrder()).gimme
-        val payload = CreditCardPayment(creditCard.id)
-        val response =
-          POST(s"v1/orders/${cart.referenceNumber}/payment-methods/credit-cards", payload)
+        val response = POST(s"v1/orders/${cart.referenceNumber}/payment-methods/credit-cards",
+                            CreditCardPayment(creditCard.id))
 
         response.status must === (StatusCodes.BadRequest)
         response.error must === (OrderAlreadyPlaced(cart.refNum).description)

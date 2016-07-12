@@ -16,7 +16,7 @@ object DevRoutes {
     activityContext(admin) { implicit ac ⇒
       pathPrefix("order-time-machine") {
         (post & pathEnd & entity(as[OrderTimeMachine])) { payload ⇒
-          goodOrFailures {
+          mutateOrFailures {
             TimeMachine.changePlacedAt(payload.referenceNumber, payload.placedAt)
           }
         }
