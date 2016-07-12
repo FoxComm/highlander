@@ -35,6 +35,7 @@ export const allowedStateTransitions = {
 export default class Order {
   constructor(order) {
     Object.assign(this, order);
+    this.orderState = order.orderState || 'cart';
   }
 
   get entityId() {
