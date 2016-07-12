@@ -48,9 +48,6 @@ bootstrap-vanilla-db:
 bootstrap-target:
 	ansible-playbook -v -i bin/envs/target ansible/bootstrap_vanilla.yml
 
-bootstrap-target-db:
-	ansible-playbook -v -i bin/envs/target ansible/bootstrap_vanilla.yml --tags=db
-
 bootstrap-target-vpn:
 	ansible-playbook -v -i bin/envs/target_vpn ansible/bootstrap_vanilla_vpn.yml
 
