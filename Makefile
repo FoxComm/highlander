@@ -45,6 +45,15 @@ bootstrap-vanilla:
 bootstrap-vanilla-db:
 	ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_vanilla_db.yml
 
+bootstrap-target:
+	ansible-playbook -v -i bin/envs/target ansible/bootstrap_vanilla.yml
+
+bootstrap-target-db:
+	ansible-playbook -v -i bin/envs/target ansible/bootstrap_vanilla.yml --tags=db
+
+bootstrap-target-vpn:
+	ansible-playbook -v -i bin/envs/target_vpn ansible/bootstrap_vanilla_vpn.yml
+
 bootstrap-messaging-plugin:
 	ansible-playbook -v -i bin/envs/staging ansible/boostrap_messaging_plugin.yml
 
@@ -83,5 +92,8 @@ tf-prodsmall:
 
 tf-vanilla:
 	terraform $(TF_CMD) -state=$(TF_ENVS)/gce_vanilla/terraform.tfstate -var-file=$(TF_ENVS)/gce_vanilla/vanilla.tfvars $(TF_BASE)/gce_vanilla
+
+tf-target:
+	terraform $(TF_CMD) -state=$(TF_ENVS)/gce_target/terraform.tfstate -var-file=$(TF_ENVS)/gce_target/target.tfvars $(TF_BASE)/gce_target
 
 .PHONY: all build lint test

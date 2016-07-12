@@ -20,7 +20,7 @@
   service: name=consul_agent state=restarted enabled=yes
   sudo: true
 
-- name: Install Packages
+- name: Install Dnsmasq
   apt: name=dnsmasq state=latest force=yes
   sudo: true
 

@@ -1,10 +1,10 @@
 variable "image" {}
-variable "network" {} 
+variable "network" {}
 variable "zone" {
     default = "us-central1-a"
 }
 
-resource "google_compute_instance" "vpn" { 
+resource "google_compute_instance" "vpn" {
     name = "${var.network}-vpn"
     machine_type = "n1-standard-1"
     tags = ["ssh", "${var.network}-vpn"]
@@ -15,7 +15,7 @@ resource "google_compute_instance" "vpn" {
         image = "${var.image}"
         type = "pd-ssd"
         size = "10"
-    }   
+    }
 
     network_interface {
         network = "${var.network}"
@@ -25,7 +25,7 @@ resource "google_compute_instance" "vpn" {
 }
 
 resource "google_compute_firewall" "vpn" {
-  name    = "vpn"
+  name    = "${var.network}-vpn"
   network = "${var.network}"
 
   allow {

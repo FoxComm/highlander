@@ -1,5 +1,12 @@
 ---
 
+- name: Kill Auto Update Script If Present
+  command: pkill --full /usr/bin/unattended-upgrade
+  become: true
+  register: kill_result
+  failed_when: kill_result.rc > 1
+  changed_when: kill_result.rc == 0
+
 - name: Add Oracle Java Repository
   apt_repository: repo='ppa:webupd8team/java' update_cache=yes
   sudo: true

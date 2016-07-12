@@ -17,7 +17,6 @@
 	"schema_server": "schema-registry.service.consul:8081",
 	"zookeeper_server": "zookeeper.service.consul:2181",
 	"zipkin_collector": "zipkin.service.consul",
-	"search_service_name": "es-log",
 	"search_host": "elasticsearch.service.consul",
 	"search_server_http": "elasticsearch.service.consul:9200",
 	"api_server": "127.0.0.1",

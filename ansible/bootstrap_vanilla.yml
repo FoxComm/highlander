@@ -26,20 +26,6 @@
   roles:
       - { role: dev/elasticsearch }
 
-- name: Bootstrap Db
-  hosts: '{{hostname}}'
-  vars:
-    user: '{{ansible_ssh_user}}'
-    seeds_cmd: utils.seeds.Seeds
-  vars_prompt:
-    - name: "hostname"
-      prompt: "Enter a hostname with a database to bootstrap"
-      default: "vanilla-db"
-      private: no
-
-  roles:
-      - { role: dev/db }
-
 - name: Bootstrap Green River
   hosts: '{{hostname}}'
   vars:
@@ -52,3 +38,19 @@
 
   roles:
       - { role: prod/bootstrap_greenriver }
+
+- name: Bootstrap Db
+  hosts: '{{hostname}}'
+  tags:
+    - db
+  vars:
+    user: '{{ansible_ssh_user}}'
+    seeds_cmd: utils.seeds.Seeds demo 1
+  vars_prompt:
+    - name: "hostname"
+      prompt: "Enter a hostname with a database to bootstrap"
+      default: "vanilla-db"
+      private: no
+
+  roles:
+      - { role: dev/db }
