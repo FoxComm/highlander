@@ -1,7 +1,5 @@
 package seeds.simulations
 
-import scala.util.Random._
-
 import io.gatling.core.Predef._
 import io.gatling.core.scenario.Simulation
 import seeds._
@@ -32,8 +30,9 @@ object CustomerActivityScenarios {
     .randomSwitch(50.0 → randomAddressLine2("customerAddress2"))
     .step(addCustomerAddress)
     .step(setDefaultShipping)
-    .repeat(_ ⇒ nextInt(3))(placeOrder.step(ageOrder))
-    .inject(atOnceUsers(2))
+    .step(placeOrder)
+    .step(ageOrder)
+    .inject(atOnceUsers(1))
 
   val pacificNwVips = scenario("Pacific Northwest VIPs")
     .step(loginAsRandomAdmin)
@@ -43,6 +42,7 @@ object CustomerActivityScenarios {
     .randomSwitch(50.0 → randomAddressLine2("customerAddress2"))
     .step(addCustomerAddress)
     .step(setDefaultShipping)
-    .repeat(_ ⇒ nextInt(10) + 5)(placeOrder.step(ageOrder))
+    .step(placeOrder)
+    .step(ageOrder)
     .inject(atOnceUsers(1))
 }
