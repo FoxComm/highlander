@@ -100,7 +100,8 @@ object ProductResponses {
                     albums: Seq[AlbumResponse.Root],
                     skus: Seq[SkuResponse.Root],
                     variants: Seq[IlluminatedVariantResponse.Root],
-    archivedAt: Option[Instant]) extends ResponseItem
+                    archivedAt: Option[Instant])
+        extends ResponseItem
 
     def build(product: IlluminatedProduct,
               albums: Seq[AlbumResponse.Root],
@@ -112,6 +113,6 @@ object ProductResponses {
            albums = albums,
            skus = skus,
            variants = variants,
-      archivedAt = product.archivedAt)
+           archivedAt = product.archivedAt)
   }
 }

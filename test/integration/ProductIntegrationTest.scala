@@ -328,6 +328,15 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
       result.variants mustBe empty
     }
 
+    "Albums must be unlinked" in new VariantFixture {
+      val response = POST(s"v1/products/${context.name}/${product.formId}/archive")
+
+      response.status must === (StatusCodes.OK)
+
+      val result = response.as[ProductResponse.Root]
+      result.albums mustBe empty
+    }
+
     "Responds with NOT FOUND when wrong product is requested" in new VariantFixture {
       val response = POST(s"v1/products/${context.name}/666/archive")
 
