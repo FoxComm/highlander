@@ -21,7 +21,7 @@
 - name: Install Firebrand service entry
   sudo: true
   template:
-    src: "{{role_path}}/../../base/firebrand/firebrand.service.j2"
+    src: "{{role_path}}/../../base/firebrand/templates/firebrand.service.j2"
     dest: "{{dest_services}}/firebrand.service"
 
 - name: Reload Systemd for Firebird

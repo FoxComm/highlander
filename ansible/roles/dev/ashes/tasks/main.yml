@@ -25,7 +25,7 @@
 - name: Install Ashes service entry
   sudo: true
   template:
-    src: "{{role_path}}/../../base/ashes/ashes.service.j2"
+    src: "{{role_path}}/../../base/ashes/templates/ashes.service.j2"
     dest: "{{dest_services}}/ashes.service"
 
 - name: Reload Systemd for Ashes
