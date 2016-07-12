@@ -22,6 +22,20 @@
   sudo: true
   template: src=run_ashes.sh.j2 dest="{{ ashes_install_dir }}/run_ashes.sh" mode="u=rwx,g=rwx,o=r"
 
+- name: Install Ashes service entry
+  sudo: true
+  template:
+    src: "{{role_path}}/../../base/ashes/ashes.service.j2"
+    dest: "{{dest_services}}/ashes.service"
+
+- name: Reload Systemd for Ashes
+  sudo: yes
+  command: systemctl daemon-reload
+
+- name: Restart Ashes
+  service: name=ashes state=restarted enabled=true
+  sudo: true
+
 - name: Restart Ashes
   service: name=ashes state=restarted enabled=true
   sudo: true

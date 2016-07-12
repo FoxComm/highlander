@@ -18,6 +18,16 @@
     chdir: "{{firebird_install_dir}}"
   when: demo_user != ""
 
+- name: Install Firebird service entry
+  sudo: true
+  template:
+    src: "{{role_path}}/../../base/firebird/firebird.service.j2"
+    dest: "{{dest_services}}/firebird.service"
+
+- name: Reload Systemd for Firebird
+  sudo: yes
+  command: systemctl daemon-reload
+
 - name: Install firebird run script
   sudo: true
   template: src=../../../base/firebird/templates/run_firebird.sh.j2 dest="{{ firebird_install_dir }}/run_firebird.sh" mode="u=rwx,g=rwx,o=r"

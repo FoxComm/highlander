@@ -18,6 +18,16 @@
     chdir: "{{firebrand_install_dir}}"
   when: demo_user != ""
 
+- name: Install Firebrand service entry
+  sudo: true
+  template:
+    src: "{{role_path}}/../../base/firebrand/firebrand.service.j2"
+    dest: "{{dest_services}}/firebrand.service"
+
+- name: Reload Systemd for Firebird
+  sudo: yes
+  command: systemctl daemon-reload
+
 - name: Install firebrand run script
   sudo: true
   template: src=../../../base/firebrand/templates/run_firebrand.sh.j2 dest="{{ firebrand_install_dir }}/run_firebrand.sh" mode="u=rwx,g=rwx,o=r"
