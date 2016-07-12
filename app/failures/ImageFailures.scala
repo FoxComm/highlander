@@ -1,10 +1,17 @@
 package failures
 
+import models.image.{Album, Image}
+
 object ImageFailures {
 
   object ImageNotFoundForContext {
     def apply(imageId: Int, contextId: Int) =
       NotFoundFailure404(s"Image with id=$imageId with context=$contextId cannot be found")
+  }
+
+  object ImageNotFoundInAlbum {
+    def apply(imageId: Image#Id, albumid: Album#Id) =
+      NotFoundFailure404(s"Image with id=$imageId not found in album with id=$albumid")
   }
 
   object AlbumNotFoundForContext {

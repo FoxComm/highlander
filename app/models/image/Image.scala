@@ -41,4 +41,6 @@ object Images extends FoxTableQuery[Image, Images](new Images(_)) with Returning
 
   def filterByContextAndFormId(contextId: Int, formId: Int): QuerySeq =
     filter(q ⇒ q.contextId === contextId && q.formId === formId)
+
+  def filterByIds(ids: Seq[Int]): QuerySeq = filter(_.id inSet ids)
 }

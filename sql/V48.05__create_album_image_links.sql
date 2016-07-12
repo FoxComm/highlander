@@ -2,6 +2,7 @@ create table album_image_links(
   id serial primary key,
   left_id  integer not null references albums(id) on update restrict on delete restrict,
   right_id integer not null references images(id) on update restrict on delete restrict,
+  position integer not null,
   created_at generic_timestamp,
   updated_at generic_timestamp,
 

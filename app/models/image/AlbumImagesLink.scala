@@ -8,6 +8,7 @@ import utils.db.ExPostgresDriver.api._
 case class AlbumImageLink(id: Int = 0,
                           leftId: Int,
                           rightId: Int,
+                          position: Int = 0,
                           createdAt: Instant = Instant.now,
                           updatedAt: Instant = Instant.now)
     extends FoxModel[AlbumImageLink]
@@ -16,11 +17,12 @@ class AlbumImageLinks(tag: Tag) extends FoxTable[AlbumImageLink](tag, "album_ima
   def id        = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def leftId    = column[Int]("left_id")
   def rightId   = column[Int]("right_id")
+  def position  = column[Int]("position")
   def createdAt = column[Instant]("created_at")
   def updatedAt = column[Instant]("updated_at")
 
   def * =
-    (id, leftId, rightId, createdAt, updatedAt) <> ((AlbumImageLink.apply _).tupled, AlbumImageLink.unapply)
+    (id, leftId, rightId, position, createdAt, updatedAt) <> ((AlbumImageLink.apply _).tupled, AlbumImageLink.unapply)
 
   def left  = foreignKey(Albums.tableName, leftId, Albums)(_.id)
   def right = foreignKey(Images.tableName, rightId, Images)(_.id)
@@ -32,4 +34,7 @@ object AlbumImageLinks
 
   val returningLens: Lens[AlbumImageLink, Int] = lens[AlbumImageLink].id
   def filterLeft(leftId: Int): QuerySeq = filter(_.leftId === leftId)
+
+  def filterLeftAndRight(leftId: Int, rightId: Int): QuerySeq =
+    filter(link ⇒ link.leftId === leftId && link.rightId === rightId)
 }

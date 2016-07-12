@@ -1,6 +1,7 @@
 package services.image
 
 import failures.ImageFailures._
+import failures.NotFoundFailure404
 import models.StoreAdmin
 import models.image._
 import models.inventory.Skus
@@ -74,15 +75,68 @@ object ImageManager {
                                                 ins ⇒ createAlbumHeadFromInsert(context, ins))
       images ← * <~ (payload.images match {
                     case Some(imagesPayload) ⇒
-                      imagesPayload.map(
-                          img ⇒
-                            ObjectUtils.insertFullObject(
-                                img.formAndShadow,
-                                ins ⇒ createImageHeadFromInsert(context, ins)))
+                      createImagesForAlbum(album.model, imagesPayload, context)
                     case None ⇒
-                      Seq.empty
+                      DbResultT.good(Seq.empty)
                   })
     } yield (album, images)
+
+  def createOrUpdateImagesForAlbum(
+      album: Album,
+      imagesPayload: Seq[ImagePayload],
+      context: ObjectContext)(implicit ec: EC, db: DB): DbResultT[Seq[FullObject[Image]]] =
+    for {
+      updatedImages ← * <~ imagesPayload.zipWithIndex.map {
+                       case (payload, index) ⇒
+                         createOrUpdateImageForAlbum(album, payload, index, context)
+                     }
+      imageIds = updatedImages.map(_.model.id).toSet
+      links ← * <~ AlbumImageLinks.filterLeft(album.id).result
+      linksToDelete = links.filter(link ⇒ !imageIds.contains(link.rightId))
+      _ ← * <~ linksToDelete.map(
+             link ⇒
+               AlbumImageLinks
+                 .deleteById(link.id, DbResultT.unit, (id) ⇒ NotFoundFailure404(link, id)))
+      imagesToDelete ← * <~ Images.filterByIds(linksToDelete.map(_.rightId)).result
+      _ ← * <~ imagesToDelete.map(img ⇒
+               Images.deleteById(img.id, DbResultT.unit, (id) ⇒ NotFoundFailure404(img, id)))
+    } yield updatedImages
+
+  def createOrUpdateImageForAlbum(
+      album: Album,
+      payload: ImagePayload,
+      position: Int,
+      context: ObjectContext)(implicit ec: EC, db: DB): DbResultT[FullObject[Image]] =
+    payload.id match {
+      case None ⇒
+        for {
+          inserted ← * <~ ObjectUtils.insertFullObject(
+                        payload.formAndShadow,
+                        ins ⇒ createImageHeadFromInsert(context, ins))
+          _ ← * <~ AlbumImageLinks.create(
+                 AlbumImageLink(leftId = album.id,
+                                position = position,
+                                rightId = inserted.model.id))
+        } yield inserted
+      case Some(id) ⇒
+        for {
+          image ← * <~ ObjectManager.getFullObject(Images.mustFindById404(id))
+          link  ← * <~ mustFindAlbumImageLink404(album.id, id)
+          _     ← * <~ AlbumImageLinks.update(link, link.copy(position = position))
+          (newForm, newShadow) = payload.formAndShadow.tupled
+          updated ← * <~ ObjectUtils.commitUpdate(image,
+                                                  newForm.attributes,
+                                                  newShadow.attributes,
+                                                  updateImageHead)
+        } yield updated
+    }
+
+  private def mustFindAlbumImageLink404(albumId: Album#Id, imageId: Image#Id)(
+      implicit ec: EC,
+      db: DB): DbResultT[AlbumImageLink] =
+    AlbumImageLinks
+      .filterLeftAndRight(albumId, imageId)
+      .mustFindOneOr(ImageNotFoundInAlbum(imageId, albumId))
 
   def createImagesForAlbum(album: Album, imagesPayload: Seq[ImagePayload], context: ObjectContext)(
       implicit ec: EC,
@@ -92,28 +146,12 @@ object ImageManager {
                   img ⇒
                     ObjectUtils.insertFullObject(img.formAndShadow,
                                                  ins ⇒ createImageHeadFromInsert(context, ins)))
-      _ ← * <~ images.map(image ⇒
-               AlbumImageLinks.create(AlbumImageLink(leftId = album.id, rightId = image.model.id)))
+      links ← * <~ images.zipWithIndex.map {
+               case (image, index) ⇒
+                 AlbumImageLinks.create(
+                     AlbumImageLink(leftId = album.id, position = index, rightId = image.model.id))
+             }
     } yield images
-
-  def updateImagesForAlbum(album: Album, imagesPayload: Seq[ImagePayload], context: ObjectContext)(
-      implicit ec: EC,
-      db: DB): DbResultT[Seq[FullObject[Image]]] = {
-    val (createPayloads, updatePayloads) = imagesPayload.span(_.id.isEmpty)
-    for {
-      createdImages ← * <~ createImagesForAlbum(album, createPayloads, context)
-      imageObjects ← * <~ updatePayloads.map(img ⇒
-                          ObjectManager.getFullObject(Images.mustFindById404(img.id.get)))
-      updatedImages ← * <~ imageObjects.zip(updatePayloads).map {
-                       case (original, newImage) ⇒
-                         val (newForm, newShadow) = newImage.formAndShadow.tupled
-                         ObjectUtils.commitUpdate(original,
-                                                  newForm.attributes,
-                                                  newShadow.attributes,
-                                                  updateImageHead)
-                     }
-    } yield updatedImages
-  }
 
   def createAlbumForProduct(
       admin: StoreAdmin,
@@ -181,7 +219,9 @@ object ImageManager {
                                                  album.model.shadowId,
                                                  ObjectLink.SkuAlbum)
 
-      _      ← * <~ updateImagesForAlbum(album.model, payload.images.getOrElse(Seq.empty), context)
+      _ ← * <~ createOrUpdateImagesForAlbum(album.model,
+                                            payload.images.getOrElse(Seq.empty),
+                                            context)
       images ← * <~ getAlbumImages(album.model.id)
     } yield AlbumResponse.build(album, images)
 
@@ -216,17 +256,9 @@ object ImageManager {
       .filterByContextAndFormId(context.id, id)
       .mustFindOneOr(AlbumNotFoundForContext(id, context.id))
 
-  private def updateHead(album: Album, shadow: ObjectShadow, maybeCommit: Option[ObjectCommit])(
-      implicit ec: EC): DbResultT[Album] = maybeCommit match {
-    case Some(commit) ⇒
-      Albums.update(album, album.copy(shadowId = shadow.id, commitId = commit.id))
-    case None ⇒
-      DbResultT.good(album)
-  }
-
   def getAlbumImages(albumId: Int)(implicit ec: EC, db: DB): DbResultT[Seq[FullObject[Image]]] =
     for {
-      imageIds ← * <~ AlbumImageLinks.filterLeft(albumId).map(_.rightId).result
+      imageIds ← * <~ AlbumImageLinks.filterLeft(albumId).sortBy(_.position).map(_.rightId).result
       images ← * <~ imageIds.map(imgId ⇒
                     ObjectManager.getFullObject(Images.mustFindById404(imgId)))
     } yield images
