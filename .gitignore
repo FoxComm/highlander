@@ -1,4 +1,5 @@
 .vscode
+debug
 vendor/
 logs/
 main.exe
