@@ -12,7 +12,6 @@ create unique index album_search_view_idx on album_search_view (id, context);
 
 create or replace function insert_albums_view_from_albums_fn() returns trigger as $$
 begin
-
   insert into album_search_view 
     select
       NEW.id as id,
@@ -104,7 +103,6 @@ create or replace function update_albums_view_from_object_attrs_fn() returns tri
    return null;
 end;
 $$ language plpgsql;
- 
 
 create trigger update_albums_view_from_object_shadows
   after update or insert on object_shadows
@@ -120,4 +118,3 @@ create trigger update_albums_view_from_albums
   after update on albums
   for each row
   execute procedure update_albums_view_from_object_attrs_fn();
-  
