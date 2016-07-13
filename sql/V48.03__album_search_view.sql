@@ -7,6 +7,7 @@ create table album_search_view
   images text null default '[]',
   archived_at generic_string
 );
+
 create unique index album_search_view_idx on album_search_view (id, context);
 
 create or replace function insert_albums_view_from_albums_fn() returns trigger as $$
