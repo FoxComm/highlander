@@ -13,7 +13,7 @@ begin
       inner join orders as o on (o.reference_number = osa.cord_ref)
       inner join regions as r on (r.id = osa.region_id)
       where r.id = new.id;
-    when 'countries' THEN
+    when 'countries' then
       select array_agg(o.customer_id) into strict customer_ids
       from order_shipping_addresses as osa
       inner join orders as o on (o.reference_number = osa.cord_ref)
@@ -35,7 +35,8 @@ begin
                 json_agg((
                   osa.address1, 
                   osa.address2, 
-                  osa.city, osa.zip, 
+                  osa.city, 
+                  osa.zip, 
                   r1.name, 
                   c1.name, 
                   c1.continent, 
@@ -47,8 +48,8 @@ begin
         left join order_shipping_addresses as osa on (o.reference_number = osa.cord_ref)
         left join regions as r1 on (osa.region_id = r1.id)
         left join countries as c1 on (r1.country_id = c1.id)
-        where c.id = ANY(customer_ids)
-        group by c.id) AS subquery
+        where c.id = any(customer_ids)
+        group by c.id) as subquery
     where customers_search_view.id = subquery.id;
 
     return null;

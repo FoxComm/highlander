@@ -3,31 +3,31 @@ declare cord_refs text[];
 begin
   case TG_TABLE_NAME
     when 'order_line_items' then
-      cord_refs := array_agg(NEW.cord_ref);
+      cord_refs := array_agg(new.cord_ref);
     when 'order_line_item_skus' then
       select array_agg(cord_ref) into strict cord_refs
         from order_line_items as oli
         inner join order_line_item_origins as oli_origins on (oli.origin_id = oli_origins.id)
-        where oli_origins.id = NEW.id;
+        where oli_origins.id = new.id;
     when 'skus' then
       select array_agg(cord_ref) into strict cord_refs
         from order_line_items as oli
         inner join order_line_item_origins as oli_origins on (oli.origin_id = oli_origins.id)
         inner join order_line_item_skus as oli_skus on (oli_origins.id = oli_skus.id)
-        WHERE oli_skus.id = NEW.id;
+        where oli_skus.id = new.id;
     when 'object_forms' then
       select array_agg(cord_ref) into strict cord_refs
         from order_line_items as oli
         inner join order_line_item_origins as oli_origins on (oli.origin_id = oli_origins.id)
         inner join order_line_item_skus as oli_skus on (oli_origins.id = oli_skus.id)
         inner join skus as sku on (oli_skus.sku_id = sku.id)
-        WHERE sku.form_id = NEW.id;
+        where sku.form_id = new.id;
     when 'object_shadows' then
       select array_agg(cord_ref) into strict cord_refs
         from order_line_items as oli
         inner join order_line_item_origins as oli_origins on (oli.origin_id = oli_origins.id)
         inner join order_line_item_skus as oli_skus on (oli_origins.id = oli_skus.id)
-        WHERE oli_skus.sku_shadow_id = NEW.id;
+        where oli_skus.sku_shadow_id = new.id;
   end case;
 
   update orders_search_view set
@@ -55,8 +55,8 @@ begin
           left join object_forms as sku_form on (sku.form_id = sku_form.id)
           left join object_shadows as sku_shadow on (oli_skus.sku_shadow_id = sku_shadow.id)
           where o.reference_number = ANY(cord_refs)
-          group by o.id) AS subquery
-      WHERE orders_search_view.id = subquery.id;
+          group by o.id) as subquery
+      where orders_search_view.id = subquery.id;
 
     return null;
 end;

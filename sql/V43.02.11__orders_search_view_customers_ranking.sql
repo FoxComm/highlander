@@ -6,31 +6,31 @@ begin
 
    case TG_TABLE_NAME
      when 'orders' then
-       cord_refs := array_agg(NEW.reference_number::text);
+       cord_refs := array_agg(new.reference_number::text);
      when 'order_payments' then
-       cord_refs := array_agg(NEW.cord_ref);
+       cord_refs := array_agg(new.cord_ref);
      when 'credit_card_charges' then
        select array_agg(op.cord_ref) into strict cord_refs
          from credit_card_charges as ccp
          inner join order_payments as op on (op.id = ccp.order_payment_id)
-         WHERE ccp.id = NEW.id;
+         where ccp.id = new.id;
      when 'gift_card_adjustments' then
        select array_agg(op.cord_ref) into strict cord_refs
          from gift_card_adjustments as gca
          inner join order_payments as op on (op.id = gca.order_payment_id)
-         WHERE gca.id = NEW.id;
+         where gca.id = new.id;
      when 'store_credit_adjustments' then
        select array_agg(op.cord_ref) into strict cord_refs
          from store_credit_adjustments as sca
          inner join order_payments as op on (op.id = sca.order_payment_id)
-         where sca.id = NEW.id;
+         where sca.id = new.id;
      when 'returns' then
-       cord_refs := array_agg(NEW.order_ref);
+       cord_refs := array_agg(new.order_ref);
      when 'return_payments' then
        select array_agg(returns.order_ref) into strict cord_refs
        from return_payments as rp
        inner join returns on (rp.return_id = returns.id)
-       where rp.id = NEW.id;
+       where rp.id = new.id;
    end case;
 
   select array_agg(c.id) into strict customer_ids
@@ -67,7 +67,7 @@ begin
             where is_guest = false and c.id = ANY(customer_ids)
               group by (c.id)
               order by revenue desc)
-            AS subquery
+            as subquery
     where orders_search_view.customer ->> 'id' = subquery.id::varchar;
 
     return null;

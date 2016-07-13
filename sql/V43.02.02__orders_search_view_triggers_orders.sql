@@ -42,7 +42,7 @@ begin
         adjustments_total = new.adjustments_total,
         taxes_total = new.taxes_total,
         grand_total = new.grand_total
-    where id = NEW.id;
+    where id = new.id;
 
     return null;
 end;

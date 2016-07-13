@@ -26,7 +26,7 @@ begin
               from customers as c
               left join orders as o on (c.id = o.customer_id)
               where c.id = new.customer_id
-              group by c.id) AS subquery
+              group by c.id) as subquery
     where customers_search_view.id = subquery.id;
 
     return null;

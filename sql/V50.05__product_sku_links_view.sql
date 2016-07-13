@@ -8,7 +8,7 @@ create or replace function insert_product_sku_links_view_from_products_fn() retu
 begin
 
   insert into product_sku_links_view select
-    NEW.id as product_id,
+    new.id as product_id,
     case when count(sku) = 0
       then
           '[]'::jsonb
@@ -17,7 +17,7 @@ begin
     end as skus
     from product_sku_links as link
     left join skus as sku on (sku.id = link.right_id)
-    where link.left_id = NEW.id;
+    where link.left_id = new.id;
 
     return null;
 end;
@@ -28,18 +28,18 @@ declare product_ids int[];
 begin
   case TG_TABLE_NAME
     when 'products' then
-      product_ids := array_agg(NEW.id);
+      product_ids := array_agg(new.id);
     when 'product_sku_links' then
       select array_agg(p.id) into product_ids
       from products as p
       inner join product_sku_links as link on (link.left_id = p.id)
-      where link.id = NEW.id;
+      where link.id = new.id;
     when 'skus' then
       select array_agg(p.id) into product_ids
       from products as p
       inner join product_sku_links as link on link.left_id = p.id
       inner join skus as sku on (sku.id = link.right_id)
-      where sku.id = NEW.id;
+      where sku.id = new.id;
   end case;
 
   update product_sku_links_view set
@@ -71,7 +71,7 @@ create trigger insert_product_sku_links_view_from_products
 create trigger update_product_sku_links_view_from_products
   after update on products
   for each row
-  WHEN (OLD.shadow_id is distinct from NEW.shadow_id)
+  WHEN (OLD.shadow_id is distinct from new.shadow_id)
   execute procedure update_product_sku_links_view_from_products_and_deps_fn();
 
 create trigger update_product_sku_links_view_from_product_sku_links

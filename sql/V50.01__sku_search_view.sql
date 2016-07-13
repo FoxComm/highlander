@@ -17,19 +17,19 @@ create or replace function insert_skus_view_from_skus_fn() returns trigger as $$
 begin
 
   insert into sku_search_view select
-    NEW.id as id,
-    NEW.code as code,
+    new.id as id,
+    new.code as code,
     context.name as context,
     context.id as context_id,
     sku_form.attributes->>(sku_shadow.attributes->'title'->>'ref') as title,
     sku_form.attributes->(sku_shadow.attributes->'images'->>'ref')->>0 as image,
     sku_form.attributes->(sku_shadow.attributes->'salePrice'->>'ref')->>'value' as price,
     sku_form.attributes->(sku_shadow.attributes->'salePrice'->>'ref')->>'currency' as currency,
-    to_char(NEW.archived_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as archived_at
+    to_char(new.archived_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as archived_at
     from object_contexts as context
-       inner join object_shadows as sku_shadow on (sku_shadow.id = NEW.shadow_id)
-       inner join object_forms as sku_form on (sku_form.id = NEW.form_id)
-    where context.id = NEW.context_id;
+       inner join object_shadows as sku_shadow on (sku_shadow.id = new.shadow_id)
+       inner join object_forms as sku_form on (sku_form.id = new.form_id)
+    where context.id = new.context_id;
 
 
   return null;
@@ -55,7 +55,7 @@ begin
         to_char(skus.archived_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as archived_at
       from object_contexts as o
       inner join skus on (skus.context_id = o.id)
-      where skus.id = NEW.id) as subquery
+      where skus.id = new.id) as subquery
       where subquery.sku_id = sku_search_view.id;
 
     return null;
@@ -90,7 +90,7 @@ begin
       from skus as sku
       inner join object_forms as sku_form on (sku_form.id = sku.form_id)
       inner join object_shadows as sku_shadow on (sku_shadow.id = sku.shadow_id)
-      where sku.id = NEW.id) as subquery
+      where sku.id = new.id) as subquery
       where subquery.id = sku_search_view.id;
 
     return null;
@@ -101,7 +101,7 @@ $$ language plpgsql;
 create trigger update_skus_view_from_object_shadows
     after update on skus
     for each row
-    when (OLD.form_id is distinct from NEW.form_id or
-          OLD.shadow_id is distinct from NEW.shadow_id or
-          OLD.code is distinct from NEW.code)
+    when (OLD.form_id is distinct from new.form_id or
+          OLD.shadow_id is distinct from new.shadow_id or
+          OLD.code is distinct from new.code)
     execute procedure update_skus_view_from_object_attrs_fn();

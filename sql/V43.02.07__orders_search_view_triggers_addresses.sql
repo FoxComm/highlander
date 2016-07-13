@@ -9,7 +9,7 @@ begin
       from order_shipping_addresses as osa
       inner join regions as r on (r.id = osa.region_id)
       where r.id = new.id;
-    when 'countries' THEN
+    when 'countries' then
       select array_agg(osa.cord_ref) into strict cord_refs
       from order_shipping_addresses as osa
       inner join regions as r1 on (r1.id = osa.region_id)
@@ -42,7 +42,7 @@ begin
         left join regions as r1 on (osa.region_id = r1.id)
         left join countries as c1 on (r1.country_id = c1.id)
         where o.reference_number = any(cord_refs)
-        group by o.id) AS subquery
+        group by o.id) as subquery
     where orders_search_view.id = subquery.id;
 
     return null;

@@ -8,7 +8,7 @@ create or replace function insert_product_album_links_view_from_products_fn() re
 begin
 
   insert into product_album_links_view select
-    NEW.id as product_id,
+    new.id as product_id,
     case when count(asv) = 0
       then
           '[]'::jsonb
@@ -18,7 +18,7 @@ begin
     from object_links as link
     left join albums as album on album.shadow_id = link.right_id and link.link_type = 'productAlbum'
     left join album_search_view as asv on album.id = asv.id
-    where link.left_id = NEW.shadow_id;
+    where link.left_id = new.shadow_id;
 
     return null;
 end;
@@ -29,18 +29,18 @@ declare product_ids int[];
 begin
   case TG_TABLE_NAME
     when 'products' then
-      product_ids := array_agg(NEW.id);
+      product_ids := array_agg(new.id);
     when 'object_links' then
       select array_agg(p.id) into product_ids
       from products as p
       inner join object_links as link on (link.left_id = p.shadow_id) and link.link_type = 'productAlbum'
-      where link.id = NEW.id;
+      where link.id = new.id;
     when 'albums' then
       select array_agg(p.id) into product_ids
       from products as p
       inner join object_links as link on link.left_id = p.shadow_id and link.link_type = 'productAlbum'
       inner join albums as album on (album.shadow_id = link.right_id)
-      where album.id = NEW.id;
+      where album.id = new.id;
   end case;
 
   update product_album_links_view set
@@ -73,7 +73,7 @@ create trigger insert_product_album_links_view_from_products
 create trigger update_product_album_links_view_from_products
   after update on products
   for each row
-  WHEN (OLD.shadow_id is distinct from NEW.shadow_id)
+  WHEN (OLD.shadow_id is distinct from new.shadow_id)
   execute procedure update_product_album_links_view_from_products_and_deps_fn();
 
 create trigger update_product_album_links_view_from_object_links

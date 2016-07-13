@@ -22,7 +22,7 @@ begin
         from products as p
         inner join object_forms as f on (f.id = p.form_id)
         inner join object_shadows as s on (s.id = p.shadow_id)
-        where p.id = NEW.id) as subquery
+        where p.id = new.id) as subquery
     where subquery.id = products_search_view.id;
 
 
@@ -48,7 +48,7 @@ begin
             context.name
         from products as p
         inner join object_contexts as context on (p.context_id = context.id)
-        where context.id = NEW.id) as subquery
+        where context.id = new.id) as subquery
     where subquery.id = products_search_view.id;
 
 
@@ -60,7 +60,7 @@ $$ language plpgsql;
 create trigger update_products_search_view_from_context_update
     after update on object_contexts
     for each row
-    when (OLD.name is DISTINCT FROM NEW.name)
+    when (OLD.name is DISTINCT FROM new.name)
     execute procedure update_products_search_view_from_context_fn();
 
 -- product sku links
@@ -74,7 +74,7 @@ begin
             link.skus
         from products as p
         inner join product_sku_links_view as link on (link.product_id = p.id)
-        where link.product_id = NEW.product_id) as subquery
+        where link.product_id = new.product_id) as subquery
     where subquery.id = products_search_view.id;
 
 
@@ -99,7 +99,7 @@ begin
             link.albums
         from products as p
         inner join product_album_links_view as link on (link.product_id = p.id)
-        where link.product_id = NEW.product_id) as subquery
+        where link.product_id = new.product_id) as subquery
     where subquery.id = products_search_view.id;
 
     return null;

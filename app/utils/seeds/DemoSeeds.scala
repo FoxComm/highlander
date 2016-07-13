@@ -17,6 +17,7 @@ import models.payment.giftcard._
 import models.product.{Mvp, SimpleContext, SimpleProductData}
 import models.shipping._
 import services.carts.CartTotaler
+import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._
 import utils.Money.Currency
 import utils.Passwords.hashPassword
@@ -63,6 +64,7 @@ trait DemoSeedHelpers extends CreditCardSeeds {
                  cart
                    .toOrder(contextId)
                    .copy(state = Shipped, placedAt = time.yesterday.toInstant))
+      _ ← * <~ OrderTotaler.saveTotals(cart, order)
     } yield order
 
   private def addSkusToCart(skuIds: Seq[Sku#Id],
@@ -239,6 +241,7 @@ trait DemoScenario6 extends DemoSeedHelpers {
                  cart
                    .toOrder(context.id)
                    .copy(state = Shipped, placedAt = time.yesterday.toInstant))
+      _    ← * <~ OrderTotaler.saveTotals(cart, order)
       orig ← * <~ GiftCardOrders.create(GiftCardOrder(cordRef = cart.refNum))
       _ ← * <~ GiftCards.createAll((1 to 23).map { _ ⇒
            GiftCard.buildLineItem(balance = 50000, originId = orig.id, currency = Currency.USD)

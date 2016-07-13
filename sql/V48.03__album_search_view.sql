@@ -14,18 +14,18 @@ create or replace function insert_albums_view_from_albums_fn() returns trigger a
 begin
   insert into album_search_view 
     select
-      NEW.id as id,
+      new.id as id,
       context.name as context,
       context.id as context_id,
       album_form.attributes->>(album_shadow.attributes->'name'->>'ref') as name,
       album_form.attributes->>(album_shadow.attributes->'images'->>'ref') as images,
-      NEW.archived_at as archived_at
+      new.archived_at as archived_at
     from
       object_contexts as context
-        left join object_shadows as album_shadow on (album_shadow.id = NEW.shadow_id)
-        left join object_forms as album_form on (album_form.id = NEW.form_id)
+        left join object_shadows as album_shadow on (album_shadow.id = new.shadow_id)
+        left join object_forms as album_form on (album_form.id = new.form_id)
     where
-      context.id = NEW.context_id;
+      context.id = new.context_id;
 
   return null;
 end;
@@ -52,7 +52,7 @@ begin
             to_char(albums.archived_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as archived_at
        from object_contexts as o
        inner join albums on (albums.context_id = o.id)
-       where albums.context_id = NEW.id) as subquery
+       where albums.context_id = new.id) as subquery
     where
       subquery.album_id = album_search_view.id;
 
@@ -73,16 +73,16 @@ create or replace function update_albums_view_from_object_attrs_fn() returns tri
        select array_agg(albums.id) into strict album_ids
          from albums
          inner join object_shadows as album_shadow on (albums.shadow_id = album_shadow.id)
-         where album_shadow.id = NEW.id;
+         where album_shadow.id = new.id;
      when 'object_forms' then
       select array_agg(albums.id) into strict album_ids
         from albums
         inner join object_forms as album_form on (albums.form_id = album_form.id)
-        where album_form.id = NEW.id;
+        where album_form.id = new.id;
       when 'albums' then
         select array_agg(albums.id) into strict album_ids
           from albums
-          where albums.id = NEW.id;
+          where albums.id = new.id;
    end case;
  
    update album_search_view set

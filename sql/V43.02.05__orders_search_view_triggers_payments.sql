@@ -3,22 +3,22 @@ declare cord_refs text[];
 begin
   case TG_TABLE_NAME
     when 'order_payments' then
-      cord_refs := array_agg(NEW.cord_ref);
+      cord_refs := array_agg(new.cord_ref);
     when 'credit_card_charges' then
       select array_agg(op.cord_ref) into strict cord_refs
         from credit_card_charges as ccp
         inner join order_payments as op on (op.id = ccp.order_payment_id)
-        WHERE ccp.id = NEW.id;
+        where ccp.id = new.id;
     when 'gift_card_adjustments' then
       select array_agg(op.cord_ref) into strict cord_refs
         from gift_card_adjustments as gcc
         inner join order_payments as op on (op.id = gcc.order_payment_id)
-        WHERE gcc.id = NEW.id;
+        where gcc.id = new.id;
     when 'store_credit_adjustments' then
       select array_agg(op.cord_ref) into strict cord_refs
         from store_credit_adjustments as sca
         inner join order_payments as op on (op.id = sca.order_payment_id)
-        WHERE sca.id = NEW.id;
+        where sca.id = new.id;
   end case;
 
   update orders_search_view set
@@ -38,8 +38,8 @@ begin
       left join gift_card_adjustments as gcc on (op.id = gcc.order_payment_id)
       left join store_credit_adjustments as sca on (op.id = sca.order_payment_id)
       where o.reference_number = ANY(cord_refs)
-      group by o.id) AS subquery
-    WHERE orders_search_view.id = subquery.id;
+      group by o.id) as subquery
+    where orders_search_view.id = subquery.id;
 
     return null;
 end;
@@ -56,10 +56,10 @@ begin
         count(op.id) as credit_card_count,
         coalesce(sum(op.amount), 0) as credit_card_total
         from order_payments as op
-        WHERE op.id = NEW.id AND op.payment_method_type = 'creditCard'
+        where op.id = new.id AND op.payment_method_type = 'creditCard'
         group by op.cord_ref
-      ) AS subquery
-  WHERE orders_search_view.reference_number = subquery.cord_ref;
+      ) as subquery
+  where orders_search_view.reference_number = subquery.cord_ref;
   return NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -75,10 +75,10 @@ begin
         count(op.id) as gift_card_count,
         coalesce(sum(op.amount), 0) as gift_card_total
         from order_payments as op
-        WHERE op.id = NEW.id AND op.payment_method_type = 'giftCard'
+        where op.id = new.id AND op.payment_method_type = 'giftCard'
         group by op.cord_ref
-      ) AS subquery
-  WHERE orders_search_view.reference_number = subquery.cord_ref;
+      ) as subquery
+  where orders_search_view.reference_number = subquery.cord_ref;
   return NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -94,10 +94,10 @@ begin
         count(op.id) as store_credit_count,
         coalesce(sum(op.amount), 0) as store_credit_total
         from order_payments as op
-        WHERE op.id = NEW.id AND op.payment_method_type = 'storeCredit'
+        where op.id = new.id AND op.payment_method_type = 'storeCredit'
         group by op.cord_ref
-      ) AS subquery
-  WHERE orders_search_view.reference_number = subquery.cord_ref;
+      ) as subquery
+  where orders_search_view.reference_number = subquery.cord_ref;
   return NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -110,19 +110,19 @@ create trigger update_orders_view_from_payments
 create trigger update_orders_view_from_payments_creditCards
   after update or insert on order_payments
   for each row
-  when (NEW.payment_method_type = 'creditCard')
+  when (new.payment_method_type = 'creditCard')
   execute procedure update_orders_from_payments_creditCard_fn();
 
 create trigger update_orders_view_from_payments_giftCards
   after update or insert on order_payments
   for each row
-  when (NEW.payment_method_type = 'giftCard')
+  when (new.payment_method_type = 'giftCard')
   execute procedure update_orders_from_payments_giftCard_fn();
 
 create trigger update_orders_view_from_payments_storeCredits
   after update or insert on order_payments
   for each row
-  when (NEW.payment_method_type = 'storeCredit')
+  when (new.payment_method_type = 'storeCredit')
   execute procedure update_orders_from_payments_storeCredit_fn();
 
 

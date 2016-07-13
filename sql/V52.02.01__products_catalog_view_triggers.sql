@@ -8,7 +8,7 @@ begin
       context.name as context_name
       from products as p
         inner join object_contexts as context on (context.id = p.context_id)
-      where context.id = NEW.id) as subquery
+      where context.id = new.id) as subquery
     where subquery.id = products_catalog_view.id;
   return null;
 end;
@@ -17,7 +17,7 @@ $$ language plpgsql;
 create trigger refresh_products_cat_search_view_from_object_contexts
   after update on object_contexts
   for each row
-  when (OLD.name is distinct from NEW.name)
+  when (OLD.name is distinct from new.name)
   execute procedure refresh_products_cat_from_context_fn();
 --
 
@@ -30,18 +30,18 @@ begin
 
   case TG_TABLE_NAME
     when 'products' then
-      product_ids := array_agg(NEW.id);
+      product_ids := array_agg(new.id);
     when 'product_sku_links_view' then
-      product_ids := array_agg(NEW.product_id);
+      product_ids := array_agg(new.product_id);
     when 'product_album_links_view' then
-      product_ids := array_agg(NEW.product_id);
+      product_ids := array_agg(new.product_id);
     when 'sku_search_view' then
       select array_agg(p.id) into strict product_ids
         from products as p
           inner join object_contexts as context on (p.context_id = context.id)
           inner join product_sku_links_view as sv on (sv.product_id = p.id)--get list of sku codes for the product
           inner join sku_search_view as sku on (sku.context_id = context.id and sku.code = sv.skus->>0)
-        where sku.id = NEW.id;
+        where sku.id = new.id;
   end case;
 
  select array_agg(p.id) into update_ids
@@ -156,7 +156,7 @@ begin
         inner join products_catalog_view as pv on (pv.id = p.id)
         inner join object_forms as f on (f.id = p.form_id)
         inner join object_shadows as s on (s.id = p.shadow_id)
-    where p.id = NEW.id and
+    where p.id = new.id and
       (((f.attributes->>(s.attributes->'activeFrom'->>'ref')) = '') IS NOT FALSE
       or
       (f.attributes->>(s.attributes->'activeFrom'->>'ref'))::timestamp >= CURRENT_TIMESTAMP
@@ -171,6 +171,6 @@ $$ language plpgsql;
 create trigger evict_products_cat_search_view_from_object_forms
   after update on products
   for each row
-  when (OLD.shadow_id is distinct from NEW.shadow_id)
+  when (OLD.shadow_id is distinct from new.shadow_id)
   execute procedure delete_inactive_products_cat_search_view_fn();
 

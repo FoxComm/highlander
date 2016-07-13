@@ -31,11 +31,10 @@ begin
         blacklisted_by = new.blacklisted_by,
         blacklisted_reason = new.blacklisted_reason,        
         joined_at = to_char(new.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
-    where id = NEW.id;
+    where id = new.id;
     return null;
     end;
 $$ language plpgsql;
-
 
 create trigger update_customers_view_from_customers_insert
     after insert on customers
