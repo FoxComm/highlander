@@ -255,6 +255,6 @@ object DemoSeeds extends DemoScenario2 with DemoScenario3 with DemoScenario6 {
     for {
       _ ← * <~ createScenario2
       _ ← * <~ createScenario3
-      //_ ← * <~ createScenario6
+      _ ← * <~ createScenario6
     } yield {}
 }
