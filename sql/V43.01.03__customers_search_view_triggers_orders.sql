@@ -20,13 +20,14 @@ begin
                     o.adjustments_total,
                     o.taxes_total,
                     o.grand_total,
-                    0
+                    0 -- FIXME
                   )::export_orders)::jsonb
                 end as orders
               from customers as c
               left join orders as o on (c.id = o.customer_id)
+              left join order_line_items as oli on (oli.cord_ref = o.reference_number)
               where c.id = new.customer_id
-              group by c.id) as subquery
+              group by c.id, o.id) as subquery
     where customers_search_view.id = subquery.id;
 
     return null;

@@ -58,7 +58,6 @@ begin
 end;
 $$ language plpgsql;
 
-
 create trigger update_orders_view_from_billing_addresses_order_payments
     after update or insert on order_payments
     for each row
@@ -79,4 +78,3 @@ create trigger update_orders_view_from_billing_addresses_countries
     after update or insert on countries
     for each row
     execute procedure update_orders_view_from_billing_addresses_fn();
-

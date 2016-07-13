@@ -55,7 +55,6 @@ create trigger update_orders_view_from_order_shipping_addresses
     for each row
     execute procedure update_orders_view_from_shipping_addresses_fn();
 
-
 create trigger update_orders_view_from_regions
     after update or insert on regions
     for each row
