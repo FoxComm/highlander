@@ -12,10 +12,8 @@ create table sku_search_view
 );
 create unique index sku_search_view_idx on sku_search_view (id, lower(context));
 
-
 create or replace function insert_skus_view_from_skus_fn() returns trigger as $$
 begin
-
   insert into sku_search_view select
     new.id as id,
     new.code as code,
@@ -31,7 +29,6 @@ begin
        inner join object_forms as sku_form on (sku_form.id = new.form_id)
     where context.id = new.context_id;
 
-
   return null;
 end;
 $$ language plpgsql;
@@ -43,7 +40,6 @@ create trigger insert_skus_view_from_skus
 
 create or replace function update_skus_view_from_object_context_fn() returns trigger as $$
 begin
-
   update sku_search_view set
     context = subquery.name,
     context_id = subquery.id,
@@ -62,16 +58,13 @@ begin
 end;
 $$ language plpgsql;
 
-
 create trigger update_skus_view_from_object_forms
     after update or insert on object_contexts
     for each row
     execute procedure update_skus_view_from_object_context_fn();
 
-
 create or replace function update_skus_view_from_object_attrs_fn() returns trigger as $$
 begin
-
   update sku_search_view set
     code = subquery.code,
     title = subquery.title,
@@ -101,7 +94,7 @@ $$ language plpgsql;
 create trigger update_skus_view_from_object_shadows
     after update on skus
     for each row
-    when (OLD.form_id is distinct from new.form_id or
-          OLD.shadow_id is distinct from new.shadow_id or
-          OLD.code is distinct from new.code)
+    when (old.form_id is distinct from new.form_id or
+          old.shadow_id is distinct from new.shadow_id or
+          old.code is distinct from new.code)
     execute procedure update_skus_view_from_object_attrs_fn();
