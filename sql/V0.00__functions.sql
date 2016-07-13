@@ -1,8 +1,6 @@
 -- extensions
 create schema if not exists exts;
 create extension if not exists ltree schema exts;
-create extension if not exists pg_trgm schema exts;
-
 
 DO $$
 BEGIN

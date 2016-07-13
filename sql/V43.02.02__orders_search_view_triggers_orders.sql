@@ -26,8 +26,8 @@ create or replace function update_orders_view_from_orders_insert_fn() returns tr
             from customers as c
             left join customers_ranking as rank on (c.id = rank.id)
             where (new.customer_id = c.id);
-      return null;
-  end;
+        return null;
+    end;
 $$ language plpgsql;
 
 create or replace function update_orders_view_from_orders_update_fn() returns trigger as $$
@@ -42,10 +42,10 @@ begin
         adjustments_total = new.adjustments_total,
         taxes_total = new.taxes_total,
         grand_total = new.grand_total
-     where id = NEW.id;
+    where id = NEW.id;
 
     return null;
-    end;
+end;
 $$ language plpgsql;
 
 

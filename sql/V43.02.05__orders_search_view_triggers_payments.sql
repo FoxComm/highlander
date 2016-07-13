@@ -45,7 +45,6 @@ begin
 end;
 $$ language plpgsql;
 
-
 create or replace function update_orders_from_payments_creditCard_fn() returns trigger as $$
 begin
   update orders_search_view set
@@ -102,7 +101,6 @@ begin
   return NULL;
 END;
 $$ LANGUAGE plpgsql;
-
 
 create trigger update_orders_view_from_payments
     after update or insert on order_payments

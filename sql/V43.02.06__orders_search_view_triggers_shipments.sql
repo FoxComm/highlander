@@ -29,12 +29,11 @@ begin
           left join shipping_methods as sm on (shipments.order_shipping_method_id = sm.id)
           where o.reference_number = ANY(cord_refs)
           group by o.id) AS subquery
-  WHERE orders_search_view.id = subquery.id;
+  where orders_search_view.id = subquery.id;
 
-    return null;
+  return null;
 end;
 $$ language plpgsql;
-
 
 create trigger update_orders_view_from_shipments
     after update or insert on shipments

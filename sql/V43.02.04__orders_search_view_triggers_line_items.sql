@@ -62,7 +62,6 @@ begin
 end;
 $$ language plpgsql;
 
-
 create trigger update_orders_view_from_line_items
     after update or insert on order_line_items
     for each row
@@ -82,7 +81,6 @@ create trigger update_orders_view_from_line_items
     after update or insert on object_forms
     for each row
     execute procedure update_orders_view_from_line_items_fn();
-
 
 create trigger update_orders_view_from_line_items
     after update or insert on object_shadows
