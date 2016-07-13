@@ -37,7 +37,7 @@ trait DemoSeedHelpers extends CreditCardSeeds {
     Customer(email = email,
              hashedPassword = hashedPassword.some,
              name = name.some,
-             location = "Seattle,WA".some)
+             location = "Seattle, WA".some)
 
   def createShippedOrder(customerId: Customer#Id,
                          contextId: Int,

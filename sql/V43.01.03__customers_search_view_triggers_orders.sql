@@ -24,7 +24,7 @@ begin
                   )::export_orders)::jsonb
                 end as orders
               from customers as c
-              left join orders as o on (o.customer_id = c.id)
+              left join orders as o on (c.id = o.customer_id)
               where c.id = new.customer_id
               group by c.id) AS subquery
     where customers_search_view.id = subquery.id;
@@ -34,6 +34,6 @@ end;
 $$ language plpgsql;
 
 create trigger update_customers_view_from_orders
-    after update on orders
+    after insert or update on orders
     for each row
     execute procedure update_customers_view_from_orders_fn();
