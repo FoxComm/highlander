@@ -2,10 +2,10 @@
 create schema if not exists exts;
 create extension if not exists ltree schema exts;
 
-DO $$
-BEGIN
+do $$
+begin
    execute 'alter database ' || current_database() || ' set search_path = "$user",public,exts';
-END;
+end;
 $$;
 
 -- creates an inventory_event so we have an ID for the child table in our concrete table pattern
