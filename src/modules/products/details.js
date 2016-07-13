@@ -1,15 +1,24 @@
 /**
  * @flow
  */
-import Api from '../../lib/api';
+
+// libs
+import _ from 'lodash';
 import { assoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
 import { push } from 'react-router-redux';
-import { createEmptyProduct, configureProduct } from '../../paragons/product';
 
-import type { Product, Variant, VariantValue } from 'paragons/product';
+// helpers
+import Api from 'lib/api';
+import { createEmptyProduct, configureProduct } from 'paragons/product';
+import createStore from 'lib/store-creator';
+
+// types
+import type { Store } from 'lib/store-creator';
+import type { Dictionary } from 'paragons/types';
 import type { Attribute, Attributes } from 'paragons/object';
-import _ from 'lodash';
+import type { Product, Variant, VariantValue } from 'paragons/product';
+import type { Sku } from 'modules/skus/details';
 
 export type Error = {
   status: ?number,
@@ -24,6 +33,7 @@ export type ProductDetailsState = {
   product: ?Product,
 };
 
+
 const defaultContext = 'default';
 
 const productRequestStart = createAction('PRODUCTS_REQUEST_START');
@@ -35,6 +45,7 @@ const productUpdateSuccess = createAction('PRODUCTS_UPDATE_SUCCESS');
 const productUpdateFailure = createAction('PRODUCTS_UPDATE_FAILURE');
 
 export const productNew = createAction('PRODUCTS_NEW');
+const productSet = createAction('PRODUCTS_SET');
 
 const setError = createAction('PRODUCTS_SET_ERROR');
 
@@ -59,6 +70,7 @@ export function fetchProduct(id: string, context: string = defaultContext): Acti
 export function createProduct(product: Product, context: string = defaultContext): ActionDispatch {
   return dispatch => {
     dispatch(productUpdateStart());
+    dispatch(productSet(product));
     return Api.post(`/products/${context}`, product)
       .then(
         (product: Product) => {
@@ -76,6 +88,7 @@ export function createProduct(product: Product, context: string = defaultContext
 export function updateProduct(product: Product, context: string = defaultContext): ActionDispatch {
   return dispatch => {
     dispatch(productUpdateStart());
+    dispatch(productSet(product));
     return Api.patch(`/products/${context}/${product.id}`, product)
       .then(
         (product: Product) => dispatch(productUpdateSuccess(product)),
@@ -100,6 +113,12 @@ const reducer = createReducer({
     return {
       ...initialState,
       product: createEmptyProduct(),
+    };
+  },
+  [productSet]: (state: ProductDetailsState, product: Product) => {
+    return {
+      ...initialState,
+      product,
     };
   },
   [productRequestStart]: (state: ProductDetailsState) => {

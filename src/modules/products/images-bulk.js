@@ -1,3 +1,8 @@
+/**
+ * @flow
+ */
+
+
 // libs
 import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
@@ -9,6 +14,7 @@ import createStore from '../../lib/store-creator';
 
 // data
 import { initialState, reducers } from '../bulk';
+
 
 const openNewWindow = () => dispatch => {
   dispatch(actions.bulkRequest());
