@@ -11,19 +11,19 @@ import failures.CustomerFailures.CustomerHasNoDefaultAddress
 import failures.ShippingMethodFailures.ShippingMethodIsNotFound
 import faker._
 import models.Note
-import models.customer.Customer
-import models.location.Addresses
-import models.objects.ObjectContext
 import models.cord.Order.{FraudHold, ManualHold, RemorseHold, Shipped}
 import models.cord._
 import models.cord.lineitems._
+import models.customer.Customer
+import models.location.Addresses
+import models.objects.ObjectContext
 import models.payment.creditcard.{CreditCard, CreditCards}
 import models.payment.giftcard._
 import models.payment.storecredit._
 import models.product.Mvp
 import models.shipping.{Shipment, Shipments, ShippingMethods}
-import services.orders.OrderTotaler
 import services.carts.CartTotaler
+import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
@@ -95,7 +95,6 @@ trait OrderGenerator extends ShipmentSeeds {
       _ ← * <~ OrderShippingAddresses.create(
              OrderShippingAddress.buildFromAddress(addr).copy(cordRef = cart.refNum))
       _ ← * <~ OrderTotaler.saveTotals(cart, order)
-      _ ← * <~ Carts.forceUpdate(cart, cart.copy(isActive = false))
     } yield order
 
   def manualHoldStoreCreditOrder(customerId: Customer#Id,
@@ -124,7 +123,6 @@ trait OrderGenerator extends ShipmentSeeds {
       _ ← * <~ OrderShippingAddresses.create(
              OrderShippingAddress.buildFromAddress(addr).copy(cordRef = cart.refNum))
       _ ← * <~ OrderTotaler.saveTotals(cart, order)
-      _ ← * <~ Carts.forceUpdate(cart, cart.copy(isActive = false))
     } yield order
 
   def fraudHoldOrder(customerId: Customer#Id,
@@ -149,7 +147,6 @@ trait OrderGenerator extends ShipmentSeeds {
       _ ← * <~ OrderShippingAddresses.create(
              OrderShippingAddress.buildFromAddress(addr).copy(cordRef = cart.refNum))
       _ ← * <~ OrderTotaler.saveTotals(cart, order)
-      _ ← * <~ Carts.forceUpdate(cart, cart.copy(isActive = false))
     } yield order
 
   def remorseHold(customerId: Customer#Id,
@@ -178,7 +175,6 @@ trait OrderGenerator extends ShipmentSeeds {
       _ ← * <~ OrderShippingAddresses.create(
              OrderShippingAddress.buildFromAddress(addr).copy(cordRef = cart.refNum))
       _ ← * <~ OrderTotaler.saveTotals(cart, order)
-      _ ← * <~ Carts.forceUpdate(cart, cart.copy(isActive = false))
     } yield order
 
   def cartOrderUsingGiftCard(customerId: Customer#Id,
@@ -244,7 +240,6 @@ trait OrderGenerator extends ShipmentSeeds {
              Shipment(cordRef = cart.refNum,
                       orderShippingMethodId = shipM.id.some,
                       shippingAddressId = shipA.id.some))
-      _ ← * <~ Carts.forceUpdate(cart, cart.copy(isActive = false))
     } yield order
   }
 
@@ -278,7 +273,6 @@ trait OrderGenerator extends ShipmentSeeds {
              Shipment(cordRef = cart.refNum,
                       orderShippingMethodId = shipM.id.some,
                       shippingAddressId = shipA.id.some))
-      _ ← * <~ Carts.forceUpdate(cart, cart.copy(isActive = false))
     } yield order
   }
 

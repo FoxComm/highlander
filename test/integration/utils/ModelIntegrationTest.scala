@@ -4,14 +4,14 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import failures.{DatabaseFailure, GeneralFailure, StateTransitionNotAllowed}
 import models.cord.Order.Shipped
-import models.cord.{Order, Orders}
+import models.cord._
 import models.customer.{Customer, Customers}
 import models.location.Addresses
-import util.IntegrationTestBase
+import util._
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class ModelIntegrationTest extends IntegrationTestBase {
+class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext {
 
   "New model create" - {
     "validates model" in {
@@ -89,8 +89,8 @@ class ModelIntegrationTest extends IntegrationTestBase {
     }
 
     "must run FSM check if applicable" in {
-      val order = Orders.create(Factories.order).run.gimme
-      order.isNew must === (false)
+      val cart    = Carts.create(Factories.cart).gimme
+      val order   = Orders.create(cart.toOrder()).gimme
       val failure = Orders.update(order, order.copy(state = Shipped)).run().futureValue.leftVal
       failure must === (StateTransitionNotAllowed(order.state, Shipped, order.refNum).single)
       Orders.findOneByRefNum(order.refNum).gimme.value must === (order)

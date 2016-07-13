@@ -12,7 +12,6 @@ object CartLockUpdater {
            admin: StoreAdmin)(implicit ec: EC, db: DB, ctx: OC): DbResultT[FullCart.Root] =
     for {
       cart ← * <~ Carts.mustFindByRefNum(refNum)
-      _    ← * <~ cart.mustBeActive
       _    ← * <~ cart.mustNotBeLocked
       _    ← * <~ Carts.update(cart, cart.copy(isLocked = true))
       _    ← * <~ CartLockEvents.create(CartLockEvent(cartRef = cart.refNum, lockedBy = admin.id))
@@ -22,7 +21,6 @@ object CartLockUpdater {
   def unlock(refNum: String)(implicit ec: EC, db: DB, ctx: OC): DbResultT[FullCart.Root] =
     for {
       cart     ← * <~ Carts.mustFindByRefNum(refNum)
-      _        ← * <~ cart.mustBeActive
       _        ← * <~ cart.mustBeLocked
       _        ← * <~ Carts.update(cart, cart.copy(isLocked = false))
       response ← * <~ FullCart.buildRefreshed(cart)

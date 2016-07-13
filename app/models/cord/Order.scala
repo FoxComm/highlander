@@ -4,6 +4,7 @@ import java.time.Instant
 
 import cats.data.Xor
 import cats.data.Xor.{left, right}
+import cats.implicits._
 import com.pellucid.sealerate
 import failures.{Failures, GeneralFailure}
 import models.customer.Customer
@@ -13,6 +14,7 @@ import slick.jdbc.JdbcType
 import utils.Money.Currency
 import utils.db.ExPostgresDriver.api._
 import utils.db._
+import utils.time._
 import utils.{ADT, FSM}
 
 case class Order(id: Int = 0,
@@ -29,7 +31,7 @@ case class Order(id: Int = 0,
                  state: Order.State = Order.RemorseHold,
                  // TODO: rename to `createdAt`
                  placedAt: Instant = Instant.now,
-                 remorsePeriodEnd: Option[Instant] = None,
+                 remorsePeriodEnd: Option[Instant] = Instant.now.plusMinutes(30).some,
                  fraudScore: Int = 0)
     extends CordBase[Order]
     with FSM[Order.State, Order] {
@@ -119,7 +121,7 @@ class Orders(tag: Tag) extends FoxTable[Order](tag, "orders") {
 
 object Orders
     extends FoxTableQuery[Order, Orders](new Orders(_))
-    with ReturningIdAndString[Order, Orders]
+    with ReturningTableQuery[Order, Orders]
     with SearchByRefNum[Order, Orders] {
 
   def findByCustomer(cust: Customer): QuerySeq =
@@ -137,10 +139,12 @@ object Orders
   def findOneByRefNumAndCustomer(refNum: String, customer: Customer): QuerySeq =
     filter(_.referenceNumber === refNum).filter(_.customerId === customer.id)
 
+  type Ret       = (Int, String, Option[Instant])
+  type PackedRet = (Rep[Int], Rep[String], Rep[Option[Instant]])
   private val rootLens = lens[Order]
 
-  val returningLens: Lens[Order, (Int, String)] = rootLens.id ~ rootLens.referenceNumber
+  val returningLens: Lens[Order, (Int, String, Option[Instant])] = rootLens.id ~ rootLens.referenceNumber ~ rootLens.remorsePeriodEnd
   override val returningQuery = map { o ⇒
-    (o.id, o.referenceNumber)
+    (o.id, o.referenceNumber, o.remorsePeriodEnd)
   }
 }

@@ -153,7 +153,7 @@ class CustomerIntegrationTest
         response.as[CustomerResponse.Root] must === (customerRoot)
       }
 
-      "aaaa last shipping address" in {
+      "last shipping address" in {
 
         val phoneNumbers = Seq("1111111111", "2222222222")
 

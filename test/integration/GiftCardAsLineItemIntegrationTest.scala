@@ -23,7 +23,7 @@ class GiftCardAsLineItemIntegrationTest
     with AutomaticAuth {
 
   "POST /v1/orders/:refNum/gift-cards" - {
-    "successfully creates new GC as line item" in new LineItemFixture {
+    "successfully creates new GC as line item" in new Fixture {
       val response =
         POST(s"v1/orders/${cart.refNum}/gift-cards", AddGiftCardLineItem(balance = 100))
       response.status must === (StatusCodes.OK)
@@ -38,14 +38,14 @@ class GiftCardAsLineItemIntegrationTest
       newGiftCard.state must === (GiftCard.Cart)
     }
 
-    "fails to create new GC as line item for invalid order" in new LineItemFixture {
+    "fails to create new GC as line item for invalid order" in new Fixture {
       val response = POST(s"v1/orders/ABC-666/gift-cards", AddGiftCardLineItem(balance = 100))
 
       response.status must === (StatusCodes.NotFound)
       response.error must === (NotFoundFailure404(Cart, "ABC-666").description)
     }
 
-    "fails to create new GC as line item if order has already been placed" in new LineItemFixture {
+    "fails to create new GC as line item if order has already been placed" in new Fixture {
       Orders.create(cart.toOrder()).gimme
       val response =
         POST(s"v1/orders/${cart.refNum}/gift-cards", AddGiftCardLineItem(balance = 100))
@@ -54,7 +54,7 @@ class GiftCardAsLineItemIntegrationTest
       response.error must === (OrderAlreadyPlaced(cart.refNum).description)
     }
 
-    "fails to create new GC with invalid balance" in new LineItemFixture {
+    "fails to create new GC with invalid balance" in new Fixture {
       val response =
         POST(s"v1/orders/${cart.refNum}/gift-cards", AddGiftCardLineItem(balance = -100))
 
@@ -65,7 +65,7 @@ class GiftCardAsLineItemIntegrationTest
   }
 
   "PATCH /v1/orders/:refNum/gift-cards/:code" - {
-    "successfully updates GC as line item" in new LineItemFixture {
+    "successfully updates GC as line item" in new Fixture {
       val response = PATCH(s"v1/orders/${cart.refNum}/gift-cards/${giftCard.code}",
                            AddGiftCardLineItem(balance = 555))
 
@@ -80,7 +80,7 @@ class GiftCardAsLineItemIntegrationTest
       newGiftCard.state must === (GiftCard.Cart)
     }
 
-    "fails to update new GC as line item for invalid order" in new LineItemFixture {
+    "fails to update new GC as line item for invalid order" in new Fixture {
       val response =
         PATCH(s"v1/orders/ABC-666/gift-cards/${giftCard.code}", AddGiftCardLineItem(balance = 100))
 
@@ -88,7 +88,7 @@ class GiftCardAsLineItemIntegrationTest
       response.error must === (NotFoundFailure404(Cart, "ABC-666").description)
     }
 
-    "fails to update GC as line item for already placed order" in new LineItemFixture {
+    "fails to update GC as line item for already placed order" in new Fixture {
       Orders.create(cart.toOrder()).gimme
       val response = PATCH(s"v1/orders/${cart.refNum}/gift-cards/${giftCard.code}",
                            AddGiftCardLineItem(balance = 100))
@@ -97,7 +97,7 @@ class GiftCardAsLineItemIntegrationTest
       response.error must === (OrderAlreadyPlaced(cart.refNum).description)
     }
 
-    "fails to update GC as line item for GC not in Cart state" in new LineItemFixture {
+    "fails to update GC as line item for GC not in Cart state" in new Fixture {
       GiftCards.findByCode(giftCard.code).map(_.state).update(GiftCard.Canceled).run().futureValue
       val response = PATCH(s"v1/orders/${cart.refNum}/gift-cards/${giftCard.code}",
                            AddGiftCardLineItem(balance = 100))
@@ -106,7 +106,7 @@ class GiftCardAsLineItemIntegrationTest
       response.error must === (GiftCardMustBeCart(giftCard.code).description)
     }
 
-    "fails to update GC as line item for invalid GC" in new LineItemFixture {
+    "fails to update GC as line item for invalid GC" in new Fixture {
       val response =
         PATCH(s"v1/orders/${cart.refNum}/gift-cards/ABC-666", AddGiftCardLineItem(balance = 100))
 
@@ -114,7 +114,7 @@ class GiftCardAsLineItemIntegrationTest
       response.error must === (NotFoundFailure404(GiftCard, "ABC-666").description)
     }
 
-    "fails to update GC setting invalid balance" in new LineItemFixture {
+    "fails to update GC setting invalid balance" in new Fixture {
       val response = PATCH(s"v1/orders/${cart.refNum}/gift-cards/${giftCard.code}",
                            AddGiftCardLineItem(balance = -100))
 
@@ -125,7 +125,7 @@ class GiftCardAsLineItemIntegrationTest
   }
 
   "DELETE /v1/orders/:refNum/gift-cards/:code" - {
-    "successfully deletes GC as line item" in new LineItemFixture {
+    "successfully deletes GC as line item" in new Fixture {
       val response = DELETE(s"v1/orders/${cart.refNum}/gift-cards/${giftCard.code}")
 
       response.status must === (StatusCodes.OK)
@@ -135,14 +135,14 @@ class GiftCardAsLineItemIntegrationTest
       GiftCards.findByCode(giftCard.code).one.run().futureValue.isEmpty mustBe true
     }
 
-    "fails to delete new GC as line item for invalid cart" in new LineItemFixture {
+    "fails to delete new GC as line item for invalid cart" in new Fixture {
       val response = DELETE(s"v1/orders/ABC-666/gift-cards/${giftCard.code}")
 
       response.status must === (StatusCodes.NotFound)
       response.error must === (NotFoundFailure404(Cart, "ABC-666").description)
     }
 
-    "fails to delete GC as line item for already placed order" in new LineItemFixture {
+    "fails to delete GC as line item for already placed order" in new Fixture {
       Orders.create(cart.toOrder()).gimme
       val response = DELETE(s"v1/orders/${cart.refNum}/gift-cards/${giftCard.code}")
 
@@ -150,7 +150,7 @@ class GiftCardAsLineItemIntegrationTest
       response.error must === (OrderAlreadyPlaced(cart.refNum).description)
     }
 
-    "fails to delete GC as line item for GC not in Cart state" in new LineItemFixture {
+    "fails to delete GC as line item for GC not in Cart state" in new Fixture {
       GiftCards.findByCode(giftCard.code).map(_.state).update(GiftCard.Canceled).run().futureValue
       val response = DELETE(s"v1/orders/${cart.refNum}/gift-cards/${giftCard.code}")
 
@@ -158,7 +158,7 @@ class GiftCardAsLineItemIntegrationTest
       response.error must === (GiftCardMustBeCart(giftCard.code).description)
     }
 
-    "fails to delete GC as line item for invalid GC" in new LineItemFixture {
+    "fails to delete GC as line item for invalid GC" in new Fixture {
       val response = DELETE(s"v1/orders/${cart.refNum}/gift-cards/ABC-666")
 
       response.status must === (StatusCodes.NotFound)
@@ -166,7 +166,7 @@ class GiftCardAsLineItemIntegrationTest
     }
   }
 
-  trait LineItemFixture {
+  trait Fixture {
     val (customer, cart, giftCard) = (for {
       customer ← * <~ Customers.create(Factories.customer)
       cart     ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))

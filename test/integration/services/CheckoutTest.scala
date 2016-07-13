@@ -80,10 +80,8 @@ class CheckoutTest
     }
 
     "sets all gift card line item purchases as GiftCard.OnHold" in new GCLineItemFixture {
-      val result  = Checkout(cart, cartValidator()).checkout.gimme
-      val current = Carts.findByRefNum(cart.refNum).one.run().futureValue.value
-      val gc      = GiftCards.findById(giftCard.id).extract.one.run().futureValue.value
-
+      Checkout(cart, cartValidator()).checkout.gimme
+      val gc = GiftCards.mustFindById404(giftCard.id).gimme
       gc.state must === (GiftCard.OnHold)
     }
 

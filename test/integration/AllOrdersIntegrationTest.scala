@@ -2,11 +2,10 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
-import failures.LockFailures.LockedFailure
 import failures.{NotFoundFailure404, StateTransitionNotAllowed}
-import models.customer.Customers
 import models.cord.Order._
-import models.cord.{Order, Orders}
+import models.cord._
+import models.customer.Customers
 import payloads.OrderPayloads.BulkUpdateOrdersPayload
 import responses.BatchResponse
 import responses.order._
@@ -35,8 +34,12 @@ class AllOrdersIntegrationTest extends IntegrationTestBase with HttpSupport with
     }
 
     "refuses invalid status transition" in {
-      val customer = Customers.create(Factories.customer).gimme
-      val order    = Orders.create(Factories.order.copy(customerId = customer.id)).gimme
+      val order = (for {
+        customer ← * <~ Customers.create(Factories.customer).gimme
+        cart     ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
+        order    ← * <~ Orders.create(cart.toOrder()).gimme
+      } yield order).gimme
+
       val response = PATCH("v1/orders", BulkUpdateOrdersPayload(Seq(order.refNum), Shipped))
 
       response.status must === (StatusCodes.OK)
@@ -53,15 +56,13 @@ class AllOrdersIntegrationTest extends IntegrationTestBase with HttpSupport with
   trait StateUpdateFixture {
     (for {
       cust ← * <~ Customers.create(Factories.customer)
-      foo ← * <~ Orders.create(
-               Factories.order
-                 .copy(customerId = cust.id, referenceNumber = "foo", state = FraudHold))
-      bar ← * <~ Orders.create(
-               Factories.order
-                 .copy(customerId = cust.id, referenceNumber = "bar", state = RemorseHold))
-      baz ← * <~ Orders.create(
-               Factories.order
-                 .copy(customerId = cust.id, referenceNumber = "baz", state = ManualHold))
-    } yield (cust, foo, bar)).gimme
+      c = Factories.cart.copy(customerId = cust.id)
+      cart ← * <~ Carts.create(c.copy(referenceNumber = "foo"))
+      _    ← * <~ Orders.create(cart.toOrder().copy(state = FraudHold))
+      cart ← * <~ Carts.create(c.copy(referenceNumber = "bar"))
+      _    ← * <~ Orders.create(cart.toOrder())
+      cart ← * <~ Carts.create(c.copy(referenceNumber = "baz"))
+      _    ← * <~ Orders.create(cart.toOrder().copy(state = ManualHold))
+    } yield {}).gimme
   }
 }

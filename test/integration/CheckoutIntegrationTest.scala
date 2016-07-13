@@ -5,11 +5,11 @@ import Extensions._
 import cats.implicits._
 import failures.NotFoundFailure404
 import models.cord.Order.RemorseHold
+import models.cord.{Cart, Carts, Order, Orders}
 import models.customer.Customers
 import models.inventory._
 import models.location.Addresses
 import models.objects._
-import models.cord.{Cart, Carts, Order, Orders}
 import models.product.{Mvp, SimpleContext}
 import models.shipping.ShippingMethods
 import models.{Reasons, StoreAdmins}
@@ -57,6 +57,7 @@ class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with 
       checkout.status must === (StatusCodes.OK)
       checkout.as[FullOrder.Root].orderState must === (Order.RemorseHold)
       Orders.findOneByRefNum(refNum).gimme mustBe defined
+      Carts.findOneByRefNum(refNum).gimme must not be defined
     }
 
     "fails if AFS is zero" in new Fixture {

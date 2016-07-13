@@ -1,19 +1,16 @@
 package models
 
-import java.time.Instant
-
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import failures.DatabaseFailure
+import models.cord._
 import models.customer.Customers
-import models.cord.{Order, Orders}
 import models.returns._
-import util.IntegrationTestBase
+import util._
 import utils.db._
 import utils.seeds.Seeds.Factories
-import utils.time._
 
-class ReturnIntegrationTest extends IntegrationTestBase {
+class ReturnIntegrationTest extends IntegrationTestBase with TestObjectContext {
 
   "Returns" - {
     "generates a referenceNumber in Postgres after insert when blank" in new Fixture {
@@ -41,11 +38,9 @@ class ReturnIntegrationTest extends IntegrationTestBase {
     val (admin, order) = (for {
       admin    ← * <~ StoreAdmins.create(Factories.storeAdmin)
       customer ← * <~ Customers.create(Factories.customer)
-      order ← * <~ Orders.create(
-                 Factories.order.copy(referenceNumber = "ABC-123",
-                                      state = Order.RemorseHold,
-                                      customerId = customer.id,
-                                      remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
+      cart ← * <~ Carts.create(
+                Factories.cart.copy(referenceNumber = "ABC-123", customerId = customer.id))
+      order ← * <~ Orders.create(cart.toOrder())
     } yield (admin, order)).gimme
   }
 }

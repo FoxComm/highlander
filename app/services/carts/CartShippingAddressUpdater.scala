@@ -32,7 +32,6 @@ object CartShippingAddressUpdater {
       ctx: OC): DbResultT[TheResponse[FullCart.Root]] =
     for {
       cart      ← * <~ getCartByOriginator(originator, refNum)
-      _         ← * <~ cart.mustBeActive
       addAndReg ← * <~ mustFindAddressWithRegion(addressId)
       _         ← * <~ OrderShippingAddresses.findByOrderRef(cart.refNum).delete
       (address, _) = addAndReg
@@ -54,7 +53,6 @@ object CartShippingAddressUpdater {
       ctx: OC): DbResultT[TheResponse[FullCart.Root]] =
     for {
       cart ← * <~ getCartByOriginator(originator, refNum)
-      _    ← * <~ cart.mustBeActive
       newAddress ← * <~ Addresses.create(
                       Address.fromPayload(payload).copy(customerId = cart.customerId))
       _           ← * <~ OrderShippingAddresses.findByOrderRef(cart.refNum).delete
@@ -75,7 +73,6 @@ object CartShippingAddressUpdater {
       ctx: OC): DbResultT[TheResponse[FullCart.Root]] =
     for {
       cart        ← * <~ getCartByOriginator(originator, refNum)
-      _           ← * <~ cart.mustBeActive
       shipAddress ← * <~ mustFindShipAddressForCart(cart)
       region      ← * <~ Regions.mustFindById404(shipAddress.regionId)
       patch = OrderShippingAddress.fromPatchPayload(shipAddress, payload)
@@ -94,7 +91,6 @@ object CartShippingAddressUpdater {
       ctx: OC): DbResultT[TheResponse[FullCart.Root]] =
     for {
       cart        ← * <~ getCartByOriginator(originator, refNum)
-      _           ← * <~ cart.mustBeActive
       shipAddress ← * <~ mustFindShipAddressForCart(cart)
       region      ← * <~ Regions.mustFindById404(shipAddress.regionId)
       _           ← * <~ OrderShippingAddresses.findById(shipAddress.id).delete

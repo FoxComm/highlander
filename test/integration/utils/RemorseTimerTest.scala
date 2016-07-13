@@ -7,16 +7,17 @@ import akka.actor.ActorSystem
 import akka.pattern.ask
 import akka.testkit.{TestActorRef, TestKit}
 
-import models.cord.{Order, Orders}
+import models.cord._
 import org.scalatest.BeforeAndAfterAll
 import services.actors._
-import util.IntegrationTestBase
+import util._
 import utils.seeds.Seeds.Factories
 
 class RemorseTimerTest(_system: ActorSystem)
     extends TestKit(_system)
     with IntegrationTestBase
-    with BeforeAndAfterAll {
+    with BeforeAndAfterAll
+    with TestObjectContext {
 
   def this() = this(ActorSystem("RemorseTimerTest"))
 
@@ -47,9 +48,7 @@ class RemorseTimerTest(_system: ActorSystem)
   }
 
   trait Fixture {
-    val order = Orders
-      .create(Factories.order.copy(state = Order.RemorseHold,
-                                   remorsePeriodEnd = Some(Instant.now.plusSeconds(30 * 60))))
-      .gimme
+    val cart  = Carts.create(Factories.cart).gimme
+    val order = Orders.create(cart.toOrder()).gimme
   }
 }

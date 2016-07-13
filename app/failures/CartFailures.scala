@@ -3,7 +3,7 @@ package failures
 object CartFailures {
 
   case class OrderAlreadyPlaced(refNum: String) extends Failure {
-    override def description = s"order with referenceNumber=$refNum is not in cart state"
+    override def description = s"order with referenceNumber=$refNum is not a cart"
   }
 
   case class CustomerHasCart(id: Int) extends Failure {

@@ -4,7 +4,7 @@ import akka.http.scaladsl.model.StatusCodes
 import Extensions._
 import failures.NotFoundFailure404
 import models._
-import models.cord.{Order, Orders}
+import models.cord._
 import models.customer.Customers
 import payloads.NotePayloads._
 import responses.AdminNotes
@@ -23,26 +23,21 @@ class OrderNotesIntegrationTest
   "POST /v1/notes/order/:refNum" - {
     "can be created by an admin for an order" in new Fixture {
       val response =
-        POST(s"v1/notes/order/${order.referenceNumber}", CreateNote(body = "Hello, FoxCommerce!"))
-
+        POST(s"v1/notes/order/${order.refNum}", CreateNote(body = "Hello, FoxCommerce!"))
       response.status must === (StatusCodes.OK)
-
       val note = response.as[AdminNotes.Root]
-
       note.body must === ("Hello, FoxCommerce!")
       note.author must === (AdminNotes.buildAuthor(storeAdmin))
     }
 
     "returns a validation error if failed to create" in new Fixture {
-      val response = POST(s"v1/notes/order/${order.referenceNumber}", CreateNote(body = ""))
-
+      val response = POST(s"v1/notes/order/${order.refNum}", CreateNote(body = ""))
       response.status must === (StatusCodes.BadRequest)
       response.error must === ("body must not be empty")
     }
 
     "returns a 404 if the order is not found" in new Fixture {
       val response = POST(s"v1/notes/order/ABACADSF113", CreateNote(body = ""))
-
       response.status must === (StatusCodes.NotFound)
       response.error must === (NotFoundFailure404(Order, "ABACADSF113").description)
     }
@@ -55,11 +50,9 @@ class OrderNotesIntegrationTest
       }
       DbResultT.sequence(createNotes).gimme
 
-      val response = GET(s"v1/notes/order/${order.referenceNumber}")
+      val response = GET(s"v1/notes/order/${order.refNum}")
       response.status must === (StatusCodes.OK)
-
       val notes = response.as[Seq[AdminNotes.Root]]
-
       notes must have size 3
       notes.map(_.body).toSet must === (Set("abc", "123", "xyz"))
     }
@@ -71,10 +64,9 @@ class OrderNotesIntegrationTest
         .create(order.refNum, storeAdmin, CreateNote(body = "Hello, FoxCommerce!"))
         .gimme
 
-      val response = PATCH(s"v1/notes/order/${order.referenceNumber}/${rootNote.id}",
-                           UpdateNote(body = "donkey"))
+      val response =
+        PATCH(s"v1/notes/order/${order.refNum}/${rootNote.id}", UpdateNote(body = "donkey"))
       response.status must === (StatusCodes.OK)
-
       val note = response.as[AdminNotes.Root]
       note.body must === ("donkey")
     }
@@ -86,7 +78,7 @@ class OrderNotesIntegrationTest
         .create(order.refNum, storeAdmin, CreateNote(body = "Hello, FoxCommerce!"))
         .gimme
 
-      val response = DELETE(s"v1/notes/order/${order.referenceNumber}/${note.id}")
+      val response = DELETE(s"v1/notes/order/${order.refNum}/${note.id}")
       response.status must === (StatusCodes.NoContent)
       response.bodyText mustBe empty
 
@@ -95,12 +87,12 @@ class OrderNotesIntegrationTest
       updatedNote.deletedAt.value.isBeforeNow === true
 
       // Deleted note should not be returned
-      val allNotesResponse = GET(s"v1/notes/order/${order.referenceNumber}")
+      val allNotesResponse = GET(s"v1/notes/order/${order.refNum}")
       allNotesResponse.status must === (StatusCodes.OK)
       val allNotes = allNotesResponse.as[Seq[AdminNotes.Root]]
       allNotes.map(_.id) must not contain note.id
 
-      val getDeletedNoteResponse = GET(s"v1/notes/order/${order.referenceNumber}/${note.id}")
+      val getDeletedNoteResponse = GET(s"v1/notes/order/${order.refNum}/${note.id}")
       getDeletedNoteResponse.status must === (StatusCodes.NotFound)
     }
   }
@@ -108,7 +100,8 @@ class OrderNotesIntegrationTest
   trait Fixture {
     val (order, storeAdmin, customer) = (for {
       customer   ← * <~ Customers.create(Factories.customer)
-      order      ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
+      cart       ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
+      order      ← * <~ Orders.create(cart.toOrder())
       storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
     } yield (order, storeAdmin, customer)).gimme
   }

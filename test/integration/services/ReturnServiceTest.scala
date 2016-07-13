@@ -1,19 +1,16 @@
 package services
 
-import java.time.Instant
-
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import models.StoreAdmins
+import models.cord._
 import models.customer.Customers
-import models.cord.{Order, Orders}
 import models.returns._
 import payloads.ReturnPayloads.ReturnCreatePayload
 import services.returns.ReturnService
 import util.{IntegrationTestBase, TestObjectContext}
 import utils.db._
 import utils.seeds.Seeds.Factories
-import utils.time._
 
 class ReturnServiceTest extends IntegrationTestBase with TestObjectContext {
 
@@ -40,11 +37,8 @@ class ReturnServiceTest extends IntegrationTestBase with TestObjectContext {
     val (admin, order) = (for {
       admin    ← * <~ StoreAdmins.create(Factories.storeAdmin)
       customer ← * <~ Customers.create(Factories.customer)
-      order ← * <~ Orders.create(
-                 Factories.order.copy(referenceNumber = "ABC-123",
-                                      state = Order.RemorseHold,
-                                      customerId = customer.id,
-                                      remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
+      cart     ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
+      order    ← * <~ Orders.create(cart.toOrder())
     } yield (admin, order)).gimme
   }
 }

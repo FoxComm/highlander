@@ -74,7 +74,6 @@ object CartPromotionUpdater {
     for {
       // Fetch base data
       cart ← * <~ getCartByOriginator(originator, refNum)
-      _    ← * <~ cart.mustBeActive
       orderPromotions ← * <~ OrderPromotions
                          .filterByOrderRef(cart.refNum)
                          .requiresCoupon
@@ -114,7 +113,6 @@ object CartPromotionUpdater {
     for {
       // Read
       cart            ← * <~ getCartByOriginator(originator, refNum)
-      _               ← * <~ cart.mustBeActive
       orderPromotions ← * <~ OrderPromotions.filterByOrderRef(cart.refNum).requiresCoupon.result
       shadowIds = orderPromotions.map(_.promotionShadowId)
       promotions ← * <~ Promotions.filter(_.shadowId.inSet(shadowIds)).requiresCoupon.result

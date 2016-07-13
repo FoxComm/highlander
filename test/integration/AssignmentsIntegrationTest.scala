@@ -3,8 +3,8 @@ import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
 import failures.{AlreadyAssignedFailure, AssigneeNotFoundFailure, NotAssignedFailure, NotFoundFailure404}
+import models.cord._
 import models.customer.Customers
-import models.cord.{Order, Orders}
 import models.{Assignment, Assignments, StoreAdmin, StoreAdmins}
 import payloads.AssignmentPayloads._
 import responses.order.AllOrders
@@ -137,7 +137,8 @@ class AssignmentsIntegrationTest extends IntegrationTestBase with HttpSupport wi
   trait Fixture {
     val (order, storeAdmin, customer) = (for {
       customer   ← * <~ Customers.create(Factories.customer)
-      order      ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
+      cart       ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
+      order      ← * <~ Orders.create(cart.toOrder())
       storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
     } yield (order, storeAdmin, customer)).gimme
   }
@@ -156,11 +157,13 @@ class AssignmentsIntegrationTest extends IntegrationTestBase with HttpSupport wi
   trait BulkAssignmentFixture {
     val (order1, order2, admin) = (for {
       customer ← * <~ Customers.create(Factories.customer)
-      order1 ← * <~ Orders.create(
-                  Factories.order.copy(id = 1, referenceNumber = "foo", customerId = customer.id))
-      order2 ← * <~ Orders.create(
-                  Factories.order.copy(id = 2, referenceNumber = "bar", customerId = customer.id))
-      admin ← * <~ StoreAdmins.create(Factories.storeAdmin)
+      cart ← * <~ Carts.create(
+                Factories.cart.copy(customerId = customer.id, referenceNumber = "foo"))
+      order1 ← * <~ Orders.create(cart.toOrder())
+      cart ← * <~ Carts.create(
+                Factories.cart.copy(customerId = customer.id, referenceNumber = "bar"))
+      order2 ← * <~ Orders.create(cart.toOrder())
+      admin  ← * <~ StoreAdmins.create(Factories.storeAdmin)
       assignee ← * <~ Assignments.create(
                     Assignment(referenceType = Assignment.Order,
                                referenceId = order1.id,

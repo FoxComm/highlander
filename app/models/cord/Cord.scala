@@ -4,7 +4,7 @@ import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.db._
 
-case class Cord(id: Int = 0, referenceNumber: String, cartId: Int, orderId: Option[Int])
+case class Cord(id: Int = 0, referenceNumber: String = "", isCart: Boolean = true)
     extends FoxModel[Cord]
 
 object Cord {
@@ -14,13 +14,12 @@ object Cord {
 class Cords(tag: Tag) extends FoxTable[Cord](tag, "cords") {
   def id              = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def referenceNumber = column[String]("reference_number")
-  def cartId          = column[Int]("cart_id")
-  def orderId         = column[Option[Int]]("order_id")
+  def isCart          = column[Boolean]("is_cart")
 
-  def * = (id, referenceNumber, cartId, orderId) <> ((Cord.apply _).tupled, Cord.unapply)
+  def * = (id, referenceNumber, isCart) <> ((Cord.apply _).tupled, Cord.unapply)
 
-  val cart  = foreignKey(Carts.tableName, cartId, Carts)(_.id)
-  val order = foreignKey(Orders.tableName, orderId, Orders)(_.id.?)
+  val cart  = foreignKey(Carts.tableName, referenceNumber, Carts)(_.referenceNumber)
+  val order = foreignKey(Orders.tableName, referenceNumber, Orders)(_.referenceNumber)
 }
 
 object Cords

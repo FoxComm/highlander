@@ -32,7 +32,6 @@ object CartPaymentUpdater {
       ctx: OC): TheFullCart =
     for {
       cart   ← * <~ getCartByOriginator(originator, refNum)
-      _      ← * <~ cart.mustBeActive
       result ← * <~ validGiftCardWithAmount(payload)
       (gc, amount) = result
       _ ← * <~ OrderPayments
@@ -51,7 +50,6 @@ object CartPaymentUpdater {
       refNum: Option[String] = None)(implicit ec: EC, db: DB, ac: AC, ctx: OC): TheFullCart =
     for {
       cart   ← * <~ getCartByOriginator(originator, refNum)
-      _      ← * <~ cart.mustBeActive
       result ← * <~ validGiftCardWithAmount(payload)
       (gc, amount) = result
       orderPayment ← * <~ OrderPayments
@@ -107,7 +105,6 @@ object CartPaymentUpdater {
 
     for {
       cart         ← * <~ getCartByOriginator(originator, refNum)
-      _            ← * <~ cart.mustBeActive
       storeCredits ← * <~ StoreCredits.findAllActiveByCustomerId(cart.customerId).result
       reqAmount = payload.amount
       available = storeCredits.map(_.availableBalance).sum
@@ -125,7 +122,6 @@ object CartPaymentUpdater {
       ctx: OC): TheFullCart =
     for {
       cart   ← * <~ getCartByOriginator(originator, refNum)
-      _      ← * <~ cart.mustBeActive
       cc     ← * <~ CreditCards.mustFindById400(id)
       _      ← * <~ cc.mustBeInWallet
       region ← * <~ Regions.findOneById(cc.regionId).safeGet
@@ -169,7 +165,6 @@ object CartPaymentUpdater {
       ctx: OC): TheFullCart =
     for {
       cart      ← * <~ getCartByOriginator(originator, refNum)
-      _         ← * <~ cart.mustBeActive
       giftCard  ← * <~ GiftCards.mustFindByCode(code)
       validated ← * <~ CartValidator(cart).validate()
       deleteRes ← * <~ OrderPayments

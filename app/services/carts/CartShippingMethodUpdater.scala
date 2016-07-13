@@ -25,7 +25,6 @@ object CartShippingMethodUpdater {
       ctx: OC): DbResultT[TheResponse[FullCart.Root]] =
     for {
       cart           ← * <~ getCartByOriginator(originator, refNum)
-      _              ← * <~ cart.mustBeActive
       oldShipMethod  ← * <~ ShippingMethods.forCordRef(cart.refNum).one
       shippingMethod ← * <~ ShippingMethods.mustFindById400(payload.shippingMethodId)
       _              ← * <~ shippingMethod.mustBeActive
@@ -59,7 +58,6 @@ object CartShippingMethodUpdater {
       ctx: OC): DbResultT[TheResponse[FullCart.Root]] =
     for {
       cart ← * <~ getCartByOriginator(originator, refNum)
-      _    ← * <~ cart.mustBeActive
       shipMethod ← * <~ ShippingMethods
                     .forCordRef(cart.refNum)
                     .mustFindOneOr(NoShipMethod(cart.refNum))

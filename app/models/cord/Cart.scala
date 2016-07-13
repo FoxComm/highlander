@@ -1,8 +1,7 @@
 package models.cord
 
-import cats.data.Xor
 import failures.CartFailures.OrderAlreadyPlaced
-import failures.Failures
+import failures.{Failure, NotFoundFailure404}
 import models.customer.Customer
 import models.traits.Lockable
 import shapeless._
@@ -21,16 +20,11 @@ case class Cart(id: Int = 0,
                 taxesTotal: Int = 0,
                 grandTotal: Int = 0,
                 // Cart-specific
-                isLocked: Boolean = false,
-                isActive: Boolean = true)
+                isLocked: Boolean = false)
     extends CordBase[Cart]
     with Lockable[Cart] {
 
   override def primarySearchKey: String = referenceNumber
-
-  def mustBeActive: Failures Xor Cart =
-    if (isActive) Xor.right(this)
-    else Xor.left(OrderAlreadyPlaced(referenceNumber).single)
 
   def toOrder()(implicit ec: EC, ctx: OC): Order =
     Order(referenceNumber = referenceNumber,
@@ -41,8 +35,10 @@ case class Cart(id: Int = 0,
           adjustmentsTotal = adjustmentsTotal,
           taxesTotal = taxesTotal,
           grandTotal = grandTotal,
+          state = Order.RemorseHold,
           contextId = ctx.id)
 
+  // TODO: remove this in favor of implicit param
   def toOrder(contextId: Int)(implicit ec: EC): Order =
     Order(referenceNumber = referenceNumber,
           customerId = customerId,
@@ -66,7 +62,6 @@ class Carts(tag: Tag) extends FoxTable[Cart](tag, "carts") {
   def taxesTotal       = column[Int]("taxes_total")
   def grandTotal       = column[Int]("grand_total")
   def isLocked         = column[Boolean]("is_locked")
-  def isActive         = column[Boolean]("is_active")
 
   def * =
     (id,
@@ -78,20 +73,13 @@ class Carts(tag: Tag) extends FoxTable[Cart](tag, "carts") {
      adjustmentsTotal,
      taxesTotal,
      grandTotal,
-     isLocked,
-     isActive) <> ((Cart.apply _).tupled, Cart.unapply)
+     isLocked) <> ((Cart.apply _).tupled, Cart.unapply)
 }
 
 object Carts
     extends FoxTableQuery[Cart, Carts](new Carts(_))
     with ReturningIdAndString[Cart, Carts]
     with SearchByRefNum[Cart, Carts] {
-
-  override def beforeSave(cart: Cart): Failures Xor Cart =
-    for {
-      _ ← super.beforeSave(cart)
-      _ ← cart.mustBeActive
-    } yield cart
 
   def findByCustomer(cust: Customer): QuerySeq =
     findByCustomerId(cust.id)
@@ -107,6 +95,15 @@ object Carts
 
   def findByRefNumAndCustomer(refNum: String, customer: Customer): QuerySeq =
     filter(_.referenceNumber === refNum).filter(_.customerId === customer.id)
+
+  override def mustFindByRefNum(refNum: String, notFoundFailure: String ⇒ Failure = notFound404K)(
+      implicit ec: EC,
+      db: DB): DbResultT[Cart] =
+    for {
+      cord ← * <~ Cords.mustFindByRefNum(refNum, _ ⇒ NotFoundFailure404(Cart, refNum))
+      cart ← * <~ (if (cord.isCart) super.mustFindByRefNum(refNum)
+                   else DbResultT.failure(OrderAlreadyPlaced(refNum)))
+    } yield cart
 
   private val rootLens = lens[Cart]
 

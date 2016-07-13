@@ -5,13 +5,13 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import cats.implicits._
 import failures.CustomerFailures.CustomerHasNoDefaultAddress
 import failures.NotFoundFailure404
+import models.cord.Order.Shipped
+import models.cord._
+import models.cord.lineitems._
 import models.customer.{Customer, Customers}
 import models.inventory._
 import models.location.{Address, Addresses}
 import models.objects.ObjectContexts
-import models.cord.Order.Shipped
-import models.cord._
-import models.cord.lineitems._
 import models.payment.creditcard.CreditCards
 import models.payment.giftcard._
 import models.product.{Mvp, SimpleContext, SimpleProductData}
@@ -63,7 +63,6 @@ trait DemoSeedHelpers extends CreditCardSeeds {
                  cart
                    .toOrder(contextId)
                    .copy(state = Shipped, placedAt = time.yesterday.toInstant))
-      _ ← * <~ Carts.forceUpdate(cart, cart.copy(isActive = false))
     } yield order
 
   private def addSkusToCart(skuIds: Seq[Sku#Id],
@@ -244,7 +243,6 @@ trait DemoScenario6 extends DemoSeedHelpers {
       _ ← * <~ GiftCards.createAll((1 to 23).map { _ ⇒
            GiftCard.buildLineItem(balance = 50000, originId = orig.id, currency = Currency.USD)
          })
-      _ ← * <~ Carts.forceUpdate(cart, cart.copy(isActive = false))
     } yield {}
 }
 

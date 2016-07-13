@@ -14,7 +14,7 @@ import payloads.LineItemPayloads._
 import payloads.OrderPayloads._
 import payloads.PaymentPayloads._
 import payloads.UpdateShippingMethod
-import services.carts.{CartCreator, CartLockUpdater, CartPaymentUpdater, CartPromotionUpdater, CartQueries, CartShippingAddressUpdater, CartShippingMethodUpdater}
+import services.carts._
 import services.orders._
 import services.{Checkout, LineItemUpdater}
 import utils.aliases._
