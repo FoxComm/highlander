@@ -27,7 +27,7 @@ begin
           from orders as o
           left join shipments on (o.reference_number = shipments.cord_ref)
           left join shipping_methods as sm on (shipments.order_shipping_method_id = sm.id)
-          where o.reference_number = ANY(cord_refs)
+          where o.reference_number = any(cord_refs)
           group by o.id) as subquery
   where orders_search_view.id = subquery.id;
 

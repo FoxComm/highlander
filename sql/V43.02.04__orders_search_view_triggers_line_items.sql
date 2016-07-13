@@ -32,7 +32,7 @@ begin
 
   update orders_search_view set
     line_item_count = subquery.count,
-    line_items = subquery.items FROM (select
+    line_items = subquery.items from (select
           o.id,
           count(sku.id) as count,
           case when count(sku) = 0
@@ -54,7 +54,7 @@ begin
           left join skus as sku on (oli_skus.sku_id = sku.id)
           left join object_forms as sku_form on (sku.form_id = sku_form.id)
           left join object_shadows as sku_shadow on (oli_skus.sku_shadow_id = sku_shadow.id)
-          where o.reference_number = ANY(cord_refs)
+          where o.reference_number = any(cord_refs)
           group by o.id) as subquery
       where orders_search_view.id = subquery.id;
 

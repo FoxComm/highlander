@@ -37,7 +37,7 @@ begin
       left join credit_card_charges as ccp on (op.id = ccp.order_payment_id)
       left join gift_card_adjustments as gcc on (op.id = gcc.order_payment_id)
       left join store_credit_adjustments as sca on (op.id = sca.order_payment_id)
-      where o.reference_number = ANY(cord_refs)
+      where o.reference_number = any(cord_refs)
       group by o.id) as subquery
     where orders_search_view.id = subquery.id;
 
@@ -50,7 +50,7 @@ begin
   update orders_search_view set
     credit_card_count = subquery.credit_card_count,
     credit_card_total = subquery.credit_card_total
-    FROM (
+    from (
       SELECT
         op.cord_ref,
         count(op.id) as credit_card_count,
@@ -69,7 +69,7 @@ begin
   update orders_search_view set
     gift_card_count = subquery.gift_card_count,
     gift_card_total = subquery.gift_card_total
-    FROM (
+    from (
       SELECT
         op.cord_ref,
         count(op.id) as gift_card_count,
@@ -88,7 +88,7 @@ begin
   update orders_search_view set
     store_credit_count = subquery.store_credit_count,
     store_credit_total = subquery.store_credit_total
-    FROM (
+    from (
       SELECT
         op.cord_ref,
         count(op.id) as store_credit_count,

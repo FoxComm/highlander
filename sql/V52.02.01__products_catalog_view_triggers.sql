@@ -48,7 +48,7 @@ begin
     from products as p
       inner join object_contexts as context on (p.context_id = context.id)
       inner join products_catalog_view as pv on (pv.id = p.id and context.name = pv.context)
-    where p.id = ANY(product_ids);
+    where p.id = any(product_ids);
 
   select array_agg(elements) into insert_ids
     from (
@@ -76,7 +76,7 @@ begin
         inner join product_sku_links_view as sv on (sv.product_id = p.id)--get list of sku codes for the product
         inner join sku_search_view as sku on (sku.context_id = context.id and sku.code = sv.skus->>0)
         left join product_album_links_view as albumLink on (albumLink.product_id = p.id)
-      where p.id = ANY(insert_ids) and
+      where p.id = any(insert_ids) and
             (f.attributes->>(s.attributes->'activeFrom'->>'ref'))::timestamp < CURRENT_TIMESTAMP and
             (((f.attributes->>(s.attributes->'activeTo'->>'ref')) = '') IS NOT FALSE or
             ((f.attributes->>(s.attributes->'activeTo'->>'ref'))::timestamp >= CURRENT_TIMESTAMP));
@@ -111,7 +111,7 @@ begin
         inner join product_sku_links_view as sv on (sv.product_id = p.id)--get list of sku codes for the product
         inner join sku_search_view as sku on (sku.context_id = context.id and sku.code = sv.skus->>0)
         left join product_album_links_view as albumLink on (albumLink.product_id = p.id)
-      where p.id = ANY(update_ids) and
+      where p.id = any(update_ids) and
             (f.attributes->>(s.attributes->'activeFrom'->>'ref'))::timestamp < CURRENT_TIMESTAMP and
             (((f.attributes->>(s.attributes->'activeTo'->>'ref')) = '') IS NOT FALSE or
             ((f.attributes->>(s.attributes->'activeTo'->>'ref'))::timestamp >= CURRENT_TIMESTAMP)))

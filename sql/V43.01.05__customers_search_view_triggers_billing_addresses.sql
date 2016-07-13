@@ -73,12 +73,12 @@ create trigger update_customers_view_from_billing_addresses_credit_cards
     for each row
     execute procedure update_customers_view_from_billing_addresses_fn();
 
-create trigger update_customers_view_from_billing_addresses_regions
-    after update or insert on regions
+create trigger update_customers_view_from_billing_addresses_countries
+    after update or insert on countries
     for each row
     execute procedure update_customers_view_from_billing_addresses_fn();
 
-create trigger update_customers_view_from_billing_addresses_countries
-    after update or insert on countries
+create trigger update_customers_view_from_billing_addresses_regions
+    after update or insert on regions
     for each row
     execute procedure update_customers_view_from_billing_addresses_fn();

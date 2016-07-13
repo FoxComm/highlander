@@ -36,7 +36,7 @@ begin
   select array_agg(c.id) into strict customer_ids
     from orders
     inner join customers as c on (orders.customer_id = c.id)
-    where orders.reference_number = ANY(cord_refs);
+    where orders.reference_number = any(cord_refs);
 
 
   update orders_search_view set
@@ -64,7 +64,7 @@ begin
               left join gift_card_adjustments as GCa on (GCa.order_payment_id = op.id and GCa.state in ('auth', 'capture'))
               left join returns as r on (r.order_ref = orders.reference_number and r.state = 'complete')
               left join return_payments as rp on (rp.return_id = r.id and rp.amount is not null)
-            where is_guest = false and c.id = ANY(customer_ids)
+            where is_guest = false and c.id = any(customer_ids)
               group by (c.id)
               order by revenue desc)
             as subquery

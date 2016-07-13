@@ -97,7 +97,7 @@ create or replace function update_albums_view_from_object_attrs_fn() returns tri
        from albums as album
        inner join object_forms as album_form on (album_form.id = album.form_id)
        inner join object_shadows as album_shadow on (album_shadow.id = album.shadow_id)
-       where album.id = ANY(album_ids)) as subquery
+       where album.id = any(album_ids)) as subquery
      where subquery.id = album_search_view.id;
  
    return null;

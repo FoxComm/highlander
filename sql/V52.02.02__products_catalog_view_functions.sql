@@ -49,7 +49,7 @@ delete from products_catalog_view where id IN (select p.id
           inner join product_sku_links_view as sv on (sv.product_id = p.id)
           inner join sku_search_view as sku on (sku.context_id = context.id and sku.code = sv.skus->>0)
           left join product_album_links_view as albumLink on (albumLink.product_id = p.id)
-        where p.id = ANY(insert_ids);
+        where p.id = any(insert_ids);
       end if;
 
 return true;

@@ -55,7 +55,7 @@ begin
           from products as p
             left join product_sku_links as link on link.left_id = p.id
             left join skus as sku on (sku.id = link.right_id)
-         where p.id = ANY(product_ids)
+         where p.id = any(product_ids)
          group by p.id) as subquery
     where subquery.id = product_sku_links_view.product_id;
     return null;

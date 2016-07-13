@@ -57,7 +57,7 @@ begin
             left join object_links as link on link.left_id = p.shadow_id and link.link_type = 'productAlbum'
             left join albums as album on album.shadow_id = link.right_id
             left join album_search_view as asv on album.id = asv.id
-         where p.id = ANY(product_ids)
+         where p.id = any(product_ids)
          group by p.id) as subquery
     where subquery.id = product_album_links_view.product_id;
     return null;

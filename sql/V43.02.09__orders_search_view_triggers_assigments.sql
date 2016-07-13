@@ -30,7 +30,7 @@ begin
         from orders as o
         left join assignments as a on (o.id = a.reference_id and a.reference_type = 'order')
         left join store_admins as sa on (sa.id = a.store_admin_id)
-        where o.reference_number = ANY(cord_refs)
+        where o.reference_number = any(cord_refs)
         group by o.id) as subquery
   where orders_search_view.id = subquery.id;
 
