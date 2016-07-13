@@ -47,7 +47,11 @@ trait DemoSeedHelpers extends CreditCardSeeds {
     for {
       cart ← * <~ Carts.create(Cart(customerId = customerId))
       _    ← * <~ addSkusToCart(skuIds, cart.refNum, OrderLineItem.Shipped)
-      cc   ← * <~ CreditCards.create(creditCard1.copy(customerId = customerId))
+      order ← * <~ Orders.create(
+                 cart
+                   .toOrder(contextId)
+                   .copy(state = Shipped, placedAt = time.yesterday.toInstant))
+      cc ← * <~ CreditCards.create(creditCard1.copy(customerId = customerId))
       op ← * <~ OrderPayments.create(
               OrderPayment.build(cc).copy(cordRef = cart.refNum, amount = none))
       addr ← * <~ getDefaultAddress(customerId)
@@ -60,10 +64,6 @@ trait DemoSeedHelpers extends CreditCardSeeds {
              Shipment(cordRef = cart.refNum,
                       orderShippingMethodId = shipM.id.some,
                       shippingAddressId = shipA.id.some))
-      order ← * <~ Orders.create(
-                 cart
-                   .toOrder(contextId)
-                   .copy(state = Shipped, placedAt = time.yesterday.toInstant))
       _ ← * <~ OrderTotaler.saveTotals(cart, order)
     } yield order
 

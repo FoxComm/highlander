@@ -34,8 +34,16 @@ begin
             then
                 '[]'
             else
-                json_agg((cc.address1, cc.address2, cc.city, cc.zip, r2.name, c2.name, c2.continent, c2.currency)
-                ::export_addresses)::jsonb
+                json_agg((
+                  cc.address1, 
+                  cc.address2, 
+                  cc.city, 
+                  cc.zip, 
+                  r2.name, 
+                  c2.name, 
+                  c2.continent, 
+                  c2.currency
+                )::export_addresses)::jsonb
             end as addresses
         from orders as o
         left join order_payments as op_cc on (o.reference_number = op_cc.cord_ref and op_cc.payment_method_type = 'creditCard')
@@ -61,7 +69,6 @@ create trigger update_orders_view_from_billing_addresses_credit_cards
     after update or insert on credit_cards
     for each row
     execute procedure update_orders_view_from_billing_addresses_fn();
-
 
 create trigger update_orders_view_from_billing_addresses_regions
     after update or insert on regions
