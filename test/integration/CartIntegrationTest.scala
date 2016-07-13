@@ -36,7 +36,7 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
     "payment state" - {
 
       "displays 'cart' payment state" in new Fixture {
-        val response = GET(s"v1/orders/${cart.refNum}")
+        val response = GET(s"v1/carts/${cart.refNum}")
         response.status must === (StatusCodes.OK)
         val fullOrder = response.ignoreFailuresAndGiveMe[FullCart.Root]
 
@@ -46,7 +46,7 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
       "displays 'auth' payment state" in new PaymentStateFixture {
         CreditCardCharges.findById(ccc.id).extract.map(_.state).update(CreditCardCharge.Auth).gimme
 
-        val response = GET(s"v1/orders/${cart.refNum}")
+        val response = GET(s"v1/carts/${cart.refNum}")
         response.status must === (StatusCodes.OK)
         val fullOrder = response.ignoreFailuresAndGiveMe[FullCart.Root]
 
@@ -347,7 +347,7 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
       addressUpdateResponse.status must === (StatusCodes.OK)
       checkOrder(addressUpdateResponse.ignoreFailuresAndGiveMe[FullCart.Root])
 
-      val fullOrderResponse = GET(s"v1/orders/${cart.refNum}")
+      val fullOrderResponse = GET(s"v1/carts/${cart.refNum}")
       fullOrderResponse.status must === (StatusCodes.OK)
       checkOrder(fullOrderResponse.withResultTypeOf[FullCart.Root].result)
 
@@ -369,7 +369,7 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
       val noShipAddressFailure = NoShipAddress(cart.refNum).description
 
       //get cart and make sure it has a shipping address
-      val fullOrderResponse = GET(s"v1/orders/${cart.refNum}")
+      val fullOrderResponse = GET(s"v1/carts/${cart.refNum}")
       fullOrderResponse.status must === (StatusCodes.OK)
       val fullOrder = fullOrderResponse.withResultTypeOf[FullCart.Root].result
       fullOrder.shippingAddress mustBe defined

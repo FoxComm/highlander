@@ -8,7 +8,7 @@ import models.payment.creditcard._
 import models.payment.giftcard._
 import models.payment.storecredit._
 import responses.TheResponse
-import responses.order.AllOrders
+import responses.order.{AllOrders, FullOrder}
 import slick.dbio.DBIO
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
@@ -29,6 +29,13 @@ object OrderQueries {
       response        ← * <~ ordersCustomers.map((build _).tupled)
     } yield TheResponse.build(response)
   }
+
+  def findOne(
+      refNum: String)(implicit ec: EC, db: DB, ctx: OC): DbResultT[TheResponse[FullOrder.Root]] =
+    for {
+      order    ← * <~ Orders.mustFindByRefNum(refNum)
+      response ← * <~ FullOrder.fromOrder(order)
+    } yield TheResponse.build(response)
 
   // TODO dedup
   def getPaymentState(cordRef: String)(implicit ec: EC): DBIO[CreditCardCharge.State] =

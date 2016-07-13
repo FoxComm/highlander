@@ -40,10 +40,17 @@ object OrderRoutes {
             }
           }
         } ~
-        pathPrefix("orders" / cordRefNumRegex) { refNum ⇒
+        pathPrefix("carts" / cordRefNumRegex) { refNum ⇒
           (get & pathEnd) {
             getOrFailures {
               CartQueries.findOne(refNum)
+            }
+          }
+        } ~
+        pathPrefix("orders" / cordRefNumRegex) { refNum ⇒
+          (get & pathEnd) {
+            getOrFailures {
+              OrderQueries.findOne(refNum)
             }
           } ~
           (patch & pathEnd & entity(as[UpdateOrderPayload])) { payload ⇒
