@@ -73,7 +73,7 @@ create trigger insert_product_album_links_view_from_products
 create trigger update_product_album_links_view_from_products
   after update on products
   for each row
-  WHEN (OLD.shadow_id is distinct from new.shadow_id)
+  when (old.shadow_id is distinct from new.shadow_id)
   execute procedure update_product_album_links_view_from_products_and_deps_fn();
 
 create trigger update_product_album_links_view_from_object_links

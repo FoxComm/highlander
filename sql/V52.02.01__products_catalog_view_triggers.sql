@@ -17,7 +17,7 @@ $$ language plpgsql;
 create trigger refresh_products_cat_search_view_from_object_contexts
   after update on object_contexts
   for each row
-  when (OLD.name is distinct from new.name)
+  when (old.name is distinct from new.name)
   execute procedure refresh_products_cat_from_context_fn();
 --
 
@@ -171,6 +171,6 @@ $$ language plpgsql;
 create trigger evict_products_cat_search_view_from_object_forms
   after update on products
   for each row
-  when (OLD.shadow_id is distinct from new.shadow_id)
+  when (old.shadow_id is distinct from new.shadow_id)
   execute procedure delete_inactive_products_cat_search_view_fn();
 
