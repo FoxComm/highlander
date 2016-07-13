@@ -70,7 +70,7 @@ object Seeds {
   def createRandomSeeds(scale: Int)(implicit db: DB, ac: AC) {
     Console.err.println("Inserting random seeds")
 
-    val customers            = 100 * scale
+    val customers            = 1000 * scale
     val batchSize            = 100
     val appeasementsPerBatch = 8
     val batchs               = customers / batchSize
