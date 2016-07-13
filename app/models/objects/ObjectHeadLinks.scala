@@ -2,6 +2,7 @@ package models.objects
 
 import java.time.Instant
 
+import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 
@@ -30,5 +31,13 @@ object ObjectHeadLinks {
 
     def filterLeft(leftId: Int): QuerySeq       = filter(_.leftId === leftId)
     def filterLeft(leftIds: Seq[Int]): QuerySeq = filter(_.leftId.inSet(leftIds))
+
+    def rightByLeftId[J <: ObjectHead[J]](leftId: Int, readHead: (Int) ⇒ DbResultT[J])(
+        implicit ec: EC,
+        db: DB): DbResultT[Seq[FullObject[J]]] =
+      for {
+        links         ← * <~ filterLeft(leftId).result
+        linkedObjects ← * <~ links.map(link ⇒ ObjectUtils.getFullObject(readHead(link.id)))
+      } yield linkedObjects
   }
 }

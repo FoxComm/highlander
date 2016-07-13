@@ -358,4 +358,12 @@ object ObjectUtils {
         DbResultT.pure(None)
     }
   }
+
+  def getFullObject[T <: ObjectHead[T]](
+      readHead: ⇒ DbResultT[T])(implicit ec: EC, db: DB): DbResultT[FullObject[T]] =
+    for {
+      head   ← * <~ readHead
+      form   ← * <~ ObjectForms.mustFindById404(head.formId)
+      shadow ← * <~ ObjectShadows.mustFindById404(head.shadowId)
+    } yield FullObject(head, form, shadow)
 }

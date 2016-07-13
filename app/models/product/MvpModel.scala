@@ -246,14 +246,12 @@ object Mvp {
       skuForm    ← * <~ ObjectForms.update(oldSkuForm, simpleSku.update(oldSkuForm))
 
       //find album form for the product and update it
-      albumLink ← * <~ ObjectLinks
-                   .findByLeftAndType(product.shadowId, ObjectLink.ProductAlbum)
-                   .mustFindOneOr(ObjectLeftLinkCannotBeFound(product.shadowId))
-
+      albumLink ← * <~ ProductAlbumLinks
+                   .filterLeft(product.id)
+                   .mustFindOneOr(NoAlbumsFoundForProduct(product.id))
       album ← * <~ Albums
-               .filter(_.contextId === oldContextId)
-               .filter(_.shadowId === albumLink.rightId)
-               .mustFindOneOr(AlbumWithShadowNotFound(albumLink.rightId))
+               .filter(_.id === albumLink.rightId)
+               .mustFindOneOr(AlbumNotFoundForContext(albumLink.rightId, oldContextId))
 
       simpleAlbum  ← * <~ SimpleAlbum(p.title, p.image)
       oldAlbumForm ← * <~ ObjectForms.mustFindById404(album.formId)
@@ -441,31 +439,28 @@ object Mvp {
       _ ← * <~ linkProductAndSku(product, sku)
 
       context ← * <~ ObjectContexts.mustFindById404(contextId)
-      album   ← * <~ insertAlbumIntoContext(context, simpleAlbum, albumForm, productShadow)
+      album   ← * <~ insertAlbumIntoContext(context, simpleAlbum, albumForm, productShadow, product)
 
     } yield p.copy(productId = product.id, skuId = sku.id, albumId = album.id)
 
   def insertAlbumIntoContext(context: ObjectContext,
                              simpleAlbum: SimpleAlbum,
                              albumForm: ObjectForm,
-                             productShadow: ObjectShadow)(implicit db: DB): DbResultT[Album] = {
+                             productShadow: ObjectShadow, 
+                            product:Product)(implicit db: DB): DbResultT[Album] = {
     for {
       albumShadow ← * <~ ObjectShadows.create(
                        SimpleAlbumShadow(simpleAlbum).create.copy(formId = albumForm.id))
       albumCommit ← * <~ ObjectCommits.create(
                        ObjectCommit(formId = albumForm.id, shadowId = albumShadow.id))
 
-      albumLink ← * <~ ObjectLinks.create(
-                     ObjectLink(leftId = productShadow.id,
-                                rightId = albumShadow.id,
-                                linkType = ObjectLink.ProductAlbum))
-
       album ← * <~ Albums.create(
                  Album(contextId = context.id,
                        formId = albumForm.id,
                        shadowId = albumShadow.id,
                        commitId = albumCommit.id))
-
+      albumLink ← * <~ ProductAlbumLinks.create(
+                     ProductAlbumLink(leftId = product.id, rightId = album.id))
       _ ← * <~ ImageManager
            .createImagesForAlbum(album, simpleAlbum.payload.images.toSeq.flatten, context)
     } yield album

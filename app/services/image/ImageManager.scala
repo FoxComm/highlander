@@ -4,10 +4,8 @@ import failures.ImageFailures._
 import failures.NotFoundFailure404
 import models.StoreAdmin
 import models.image._
-import models.inventory.Skus
 import models.objects.ObjectUtils.InsertResult
 import models.objects._
-import models.product.Products
 import payloads.ImagePayloads._
 import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
 import responses.AlbumResponses._
@@ -38,9 +36,13 @@ object ImageManager {
   def getAlbumsForProduct(
       productId: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[Seq[AlbumRoot]] =
     for {
-      product ← * <~ ProductManager.mustFindProductByContextAndFormId404(oc.id, productId)
-      albums  ← * <~ getAlbumsForObject(product.shadowId, oc, ObjectLink.ProductAlbum)
-    } yield albums
+      product ← * <~ ProductManager.mustFindProductByContextAndId404(oc.id, productId)
+      albums  ← * <~ ProductAlbumLinks.rightByLeftId(product.id, Albums.mustFindById404)
+      images  ← * <~ albums.map(album ⇒ getAlbumImages(album.model.id))
+      result ← * <~ albums.zip(images).map {
+                case (album, image) ⇒ AlbumResponse.build(album, image)
+              }
+    } yield result
 
   def getAlbumsForSku(code: String, contextName: String)(implicit ec: EC,
                                                          db: DB): DbResultT[Seq[AlbumRoot]] =
@@ -54,8 +56,12 @@ object ImageManager {
       db: DB): DbResultT[Seq[AlbumResponse.Root]] =
     for {
       sku    ← * <~ SkuManager.mustFindSkuByContextAndCode(context.id, code)
-      albums ← * <~ getAlbumsForObject(sku.shadowId, context, ObjectLink.SkuAlbum)
-    } yield albums
+      albums ← * <~ SkuAlbumLinks.rightByLeftId(sku.id, Albums.mustFindById404)
+      images ← * <~ albums.map(album ⇒ getAlbumImages(album.model.id))
+      result ← * <~ albums.zip(images).map {
+                case (album, image) ⇒ AlbumResponse.build(album, image)
+              }
+    } yield result
 
   def createAlbum(album: CreateAlbumPayload, contextName: String)(implicit ec: EC,
                                                                   db: DB): DbResultT[AlbumRoot] =
@@ -160,13 +166,11 @@ object ImageManager {
       contextName: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[AlbumRoot] =
     for {
       context ← * <~ ObjectManager.mustFindByName404(contextName)
-      product ← * <~ ProductManager.mustFindProductByContextAndFormId404(context.id, productId)
-      album   ← * <~ createAlbumInner(payload, context)
-      (fullAlbum, images) = album
-      link ← * <~ ObjectLinks.create(
-                ObjectLink(leftId = product.shadowId,
-                           rightId = fullAlbum.shadow.id,
-                           linkType = ObjectLink.ProductAlbum))
+      product ← * <~ ProductManager.mustFindProductByContextAndId404(context.id, productId)
+      created ← * <~ createAlbumInner(payload, context)
+      (fullAlbum, images) = created
+      link ← * <~ ProductAlbumLinks.create(
+                ProductAlbumLink(leftId = product.id, rightId = fullAlbum.model.id))
     } yield AlbumResponse.build(fullAlbum, images)
 
   def createAlbumForSku(
@@ -179,10 +183,7 @@ object ImageManager {
       sku     ← * <~ SkuManager.mustFindSkuByContextAndCode(context.id, code)
       created ← * <~ createAlbumInner(payload, context)
       (fullAlbum, images) = created
-      link ← * <~ ObjectLinks.create(
-                ObjectLink(leftId = sku.shadowId,
-                           rightId = fullAlbum.shadow.id,
-                           linkType = ObjectLink.SkuAlbum))
+      link ← * <~ SkuAlbumLinks.create(SkuAlbumLink(leftId = sku.id, rightId = fullAlbum.model.id))
     } yield AlbumResponse.build(fullAlbum, images)
 
   def updateAlbum(id: Int, payload: UpdateAlbumPayload, contextName: String)(
@@ -208,42 +209,14 @@ object ImageManager {
                                                    mergedAtts,
                                                    updateAlbumHead,
                                                    force = true)
-      _ ← * <~ ObjectUtils.updateAssociatedLefts(Products,
-                                                 context.id,
-                                                 oldShadow.id,
-                                                 album.model.shadowId,
-                                                 ObjectLink.ProductAlbum)
-      _ ← * <~ ObjectUtils.updateAssociatedLefts(Skus,
-                                                 context.id,
-                                                 oldShadow.id,
-                                                 album.model.shadowId,
-                                                 ObjectLink.SkuAlbum)
-
       _ ← * <~ createOrUpdateImagesForAlbum(album.model,
                                             payload.images.getOrElse(Seq.empty),
                                             context)
       images ← * <~ getAlbumImages(album.model.id)
     } yield AlbumResponse.build(album, images)
 
-  private def getAlbumsForObject(
-      shadowId: Int,
-      context: ObjectContext,
-      linkType: ObjectLink.LinkType)(implicit ec: EC, db: DB): DbResultT[Seq[AlbumRoot]] =
-    for {
-      links ← * <~ ObjectLinks.findByLeftAndType(shadowId, linkType).result
-      albums ← * <~ links.map { link ⇒
-                for {
-                  shadow ← * <~ ObjectShadows.mustFindById404(link.rightId)
-                  form   ← * <~ ObjectForms.mustFindById404(shadow.formId)
-                  album  ← * <~ mustFindAlbumByIdAndContext404(form.id, context)
-                  full = FullObject(model = album, form = form, shadow = shadow)
-                  images ← * <~ getAlbumImages(album.id)
-                } yield AlbumResponse.build(full, images)
-              }
-    } yield albums
-
-  def mustFindFullAlbumByIdAndContext404(id: Int, context: ObjectContext)(implicit ec: EC,
-                                                                          db: DB) =
+  def mustFindFullAlbumByIdAndContext404(id: Album#Id, context: ObjectContext)(implicit ec: EC,
+                                                                               db: DB) =
     for {
       album  ← * <~ mustFindAlbumByIdAndContext404(id, context)
       form   ← * <~ ObjectForms.mustFindById404(album.formId)
