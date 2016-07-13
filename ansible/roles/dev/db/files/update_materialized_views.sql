@@ -3,25 +3,8 @@ refresh materialized view concurrently activity_connections_view;
 
 -- customers
 refresh materialized view concurrently customers_ranking;
-refresh materialized view concurrently customer_orders_view;
-refresh materialized view concurrently customer_purchased_items_view;
-refresh materialized view concurrently customer_shipping_addresses_view;
-refresh materialized view concurrently customer_billing_addresses_view;
-refresh materialized view concurrently customer_store_credit_view;
-refresh materialized view concurrently customer_save_for_later_view;
-refresh materialized view concurrently customers_search_view;
 
 -- orders
-refresh materialized view concurrently order_line_items_view;
-refresh materialized view concurrently order_payments_view;
-refresh materialized view concurrently order_credit_card_payments_view;
-refresh materialized view concurrently order_gift_card_payments_view;
-refresh materialized view concurrently order_store_credit_payments_view;
-refresh materialized view concurrently order_shipments_view;
-refresh materialized view concurrently order_shipping_addresses_view;
-refresh materialized view concurrently order_billing_addresses_view;
-refresh materialized view concurrently order_assignments_view;
-refresh materialized view concurrently order_rmas_view;
 refresh materialized view concurrently order_stats_view;
 
 -- store_admins
@@ -68,10 +51,6 @@ refresh materialized view concurrently notes_search_view;
 -- inventory
 refresh materialized view concurrently inventory_search_view;
 refresh materialized view concurrently inventory_transactions_search_view;
-
--- locations
-refresh materialized view concurrently regions_search_view;
-refresh materialized view concurrently countries_search_view;
 
 -- pim
 refresh materialized view concurrently customer_purchased_items_view;
