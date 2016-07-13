@@ -30,7 +30,8 @@ begin
                 json_agg((
                   osa.address1, 
                   osa.address2, 
-                  osa.city, osa.zip, 
+                  osa.city, 
+                  osa.zip, 
                   r1.name, 
                   c1.name, 
                   c1.continent, 
