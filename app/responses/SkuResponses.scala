@@ -5,7 +5,7 @@ import java.time.Instant
 import cats.implicits._
 import models.inventory._
 import models.objects._
-import responses.ImageResponses.AlbumResponse
+import responses.AlbumResponses.AlbumResponse
 import responses.ObjectResponses.ObjectContextResponse
 import utils.aliases._
 

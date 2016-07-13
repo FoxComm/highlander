@@ -1,55 +1,80 @@
 package payloads
 
+import cats.data.{Validated, ValidatedNel}
+import failures.Failure
 import models.image._
+import models.objects.ObjectUtils._
 import models.objects._
-import org.json4s.JsonAST.{JNothing, JObject}
-import org.json4s.JsonDSL._
-import utils.aliases._
+import payloads.ObjectPayloads.{AttributesBuilder, IntField, StringField}
+import utils.Validation
+import utils.Validation._
 
 object ImagePayloads {
 
   type Images = Option[Seq[ImagePayload]]
 
-  val imageShadow = ("type" → "images") ~ ("ref" → "images")
-  val nameShadow  = ("type" → "string") ~ ("ref" → "name")
+  case class ImagePayload(id: Option[Int] = None,
+                          src: String,
+                          title: Option[String] = None,
+                          alt: Option[String] = None) {
 
-  case class ImagePayload(src: String, title: Option[String] = None, alt: Option[String] = None) {
-    def toJson: Json = ("src" → src) ~ ("title" → title) ~ ("alt" → alt)
-  }
+    def formAndShadow: FormAndShadow = {
+      val jsonBuilder: AttributesBuilder = ObjectPayloads.optionalAttributes(
+          Some(StringField("src", src)),
+          title.map(StringField("title", _)),
+          alt.map(StringField("alt", _)))
 
-  case class CreateAlbumPayload(name: String, images: Images = None) {
-    def objectForm: ObjectForm = {
-      val imageJson = images.map(_.map(_.toJson))
-      val json      = ("name" → name) ~ ("images" → imageJson)
-      ObjectForm(kind = Album.kind, attributes = json)
-    }
-
-    def objectShadow: ObjectShadow = {
-      val imageJson = "images" → images.map(_ ⇒ imageShadow)
-      val nameJson  = "name"   → nameShadow
-      ObjectShadow(attributes = nameJson ~ imageJson)
+      (ObjectForm(kind = Image.kind, attributes = jsonBuilder.objectForm),
+       ObjectShadow(attributes = jsonBuilder.objectShadow))
     }
   }
 
-  case class UpdateAlbumPayload(name: Option[String] = None, images: Images = None) {
-    val objectForm: ObjectForm = {
-      def imageJson(img: Seq[ImagePayload]): JObject = "images" → img.map(_.toJson)
-      def nameJson(name: String): JObject            = "name"   → name
+  case class CreateAlbumPayload(name: String, images: Images = None, position: Option[Int] = None)
+      extends Validation[CreateAlbumPayload] {
 
-      val json = (name, images) match {
-        case (Some(n), Some(img)) ⇒ imageJson(img) ~ nameJson(n)
-        case (Some(n), _)         ⇒ nameJson(n)
-        case (_, Some(img))       ⇒ imageJson(img)
-        case _                    ⇒ JNothing
-        // TODO: validate payload to prohibit both `None`s
+    def formAndShadow: FormAndShadow = {
+      val jsonBuilder: AttributesBuilder = ObjectPayloads
+        .optionalAttributes(Some(StringField("name", name)), position.map(IntField("position", _)))
+
+      (ObjectForm(kind = Album.kind, attributes = jsonBuilder.objectForm),
+       ObjectShadow(attributes = jsonBuilder.objectShadow))
+    }
+
+    override def validate: ValidatedNel[Failure, CreateAlbumPayload] = images match {
+      case Some(imgList) ⇒
+        val withId = imgList.filter(_.id.isDefined)
+        validExpr(withId.isEmpty, s"Image id should be empty").map(_ ⇒ this)
+      case None ⇒
+        Validated.valid(this)
+    }
+  }
+
+  case class UpdateAlbumPayload(name: Option[String] = None,
+                                images: Images = None,
+                                position: Option[Int] = None)
+      extends Validation[UpdateAlbumPayload] {
+
+    def formAndShadow: FormAndShadow = {
+      val jsonBuilder: AttributesBuilder = ObjectPayloads.optionalAttributes(
+          name.map(StringField("name", _)),
+          position.map(IntField("position", _)))
+
+      (ObjectForm(kind = Album.kind, attributes = jsonBuilder.objectForm),
+       ObjectShadow(attributes = jsonBuilder.objectShadow))
+    }
+
+    override def validate: ValidatedNel[Failure, UpdateAlbumPayload] =
+      validateIdsUnique(images).map(_ ⇒ this)
+  }
+
+  def validateIdsUnique(images: Images): ValidatedNel[Failure, Images] = images match {
+    case Some(imgList) ⇒
+      val duplicated = imgList.groupBy(_.id.getOrElse(0)).collect {
+        case (id, items) if id != 0 && items.size > 1 ⇒ id
       }
-      ObjectForm(kind = Album.kind, attributes = json)
-    }
+      validExpr(duplicated.isEmpty, s"Image ID is duplicated ${duplicated.head}").map(_ ⇒ images)
+    case None ⇒
+      Validated.valid(images)
 
-    def objectShadow: ObjectShadow = {
-      val imageJson = images.fold(JObject())(img ⇒ "images" → img.map(_.toJson))
-      val nameJson  = name.fold(JObject())(n ⇒ "name"       → n)
-      ObjectShadow(attributes = nameJson ~ imageJson)
-    }
   }
 }

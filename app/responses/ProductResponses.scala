@@ -8,7 +8,7 @@ import models.objects._
 import models.product._
 import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods._
-import responses.ImageResponses._
+import responses.AlbumResponses._
 import responses.ObjectResponses._
 import responses.SkuResponses._
 import responses.VariantResponses._
