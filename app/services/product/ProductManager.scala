@@ -143,16 +143,21 @@ object ProductManager {
   def archiveByContextAndId(
       productId: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[ProductResponse.Root] =
     for {
-      product       ← * <~ mustFindProductByContextAndId404(oc.id, productId)
-      archiveResult ← * <~ Products.update(product, product.copy(archivedAt = Some(Instant.now)))
-      form          ← * <~ ObjectForms.mustFindById404(product.formId)
-      shadow        ← * <~ ObjectShadows.mustFindById404(product.shadowId)
-      albumLinks    ← * <~ ObjectLinks.findByLeftAndType(shadow.id, ObjectLink.ProductAlbum).result
+      productObject ← * <~ ObjectManager.getFullObject(
+                         mustFindProductByContextAndId404(oc.id, productId))
+
+      archiveResult ← * <~ Products.update(
+                         productObject.model,
+                         productObject.model.copy(archivedAt = Some(Instant.now)))
+
+      albumLinks ← * <~ ObjectLinks
+                    .findByLeftAndType(productObject.shadow.id, ObjectLink.ProductAlbum)
+                    .result
       _ ← * <~ albumLinks.map { link ⇒
            ObjectLinks.deleteById(link.id, DbResultT.unit, id ⇒ NotFoundFailure400(ObjectLink, id))
          }
-      albums   ← * <~ ImageManager.getAlbumsForProduct(product.formId)
-      skuLinks ← * <~ ProductSkuLinks.filter(_.leftId === product.id).result
+      albums   ← * <~ ImageManager.getAlbumsForProduct(productObject.form.id)
+      skuLinks ← * <~ ProductSkuLinks.filter(_.leftId === productObject.model.id).result
       _ ← * <~ skuLinks.map { link ⇒
            ProductSkuLinks.deleteById(link.id,
                                       DbResultT.unit,
@@ -173,7 +178,8 @@ object ProductManager {
       (variantSkus, variantResponses) = variantAndSkus
     } yield
       ProductResponse.build(
-          product = IlluminatedProduct.illuminate(oc, product, form, shadow),
+          product = IlluminatedProduct
+            .illuminate(oc, archiveResult, productObject.form, productObject.shadow),
           albums = albums,
           if (variantLinks.nonEmpty) variantSkus else skus,
           variantResponses
