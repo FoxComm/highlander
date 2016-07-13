@@ -3,18 +3,15 @@ package routes
 import (
 	"fmt"
 
-	"github.com/FoxComm/middlewarehouse/api/responses"
 	"github.com/gin-gonic/gin"
 )
 
 func Run() {
 	router := gin.Default()
-	router.GET("/skus/:code/summary", func(c *gin.Context) {
-		summary := responses.NewSKUSummary()
-		c.JSON(200, summary)
-	})
 
-	runStockItems(router)
+	runSkus(router.Group("/skus"))
+	runStockItems(router.Group("/stock-items"))
+	runReservations(router.Group("/reservations"))
 
 	fmt.Println("Starting middlewarehouse...")
 	router.Run(":9292")

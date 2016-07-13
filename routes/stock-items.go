@@ -11,8 +11,9 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-func runStockItems(router *gin.Engine) {
-	router.GET("/stock-items/:id", func(c *gin.Context) {
+// /stock-items router group handler
+func runStockItems(router gin.IRouter) {
+	router.GET("/:id", func(c *gin.Context) {
 		idStr := c.Params.ByName("id")
 
 		id, err := strconv.ParseUint(idStr, 10, 64)
@@ -40,7 +41,7 @@ func runStockItems(router *gin.Engine) {
 		c.JSON(http.StatusOK, resp)
 	})
 
-	router.POST("/stock-items", func(c *gin.Context) {
+	router.POST("/", func(c *gin.Context) {
 		var json payloads.StockItem
 		if parse(c, &json) != nil {
 			return
@@ -61,7 +62,7 @@ func runStockItems(router *gin.Engine) {
 		c.JSON(http.StatusCreated, resp)
 	})
 
-	router.PATCH("/stock-items/:id/increment", func(c *gin.Context) {
+	router.PATCH("/:id/increment", func(c *gin.Context) {
 		idStr := c.Params.ByName("id")
 
 		id, err := strconv.ParseUint(idStr, 10, 64)
@@ -95,7 +96,7 @@ func runStockItems(router *gin.Engine) {
 		c.JSON(http.StatusCreated, gin.H{})
 	})
 
-	router.PATCH("/stock-items/:id/decrement", func(c *gin.Context) {
+	router.PATCH("/:id/decrement", func(c *gin.Context) {
 		idStr := c.Params.ByName("id")
 
 		id, err := strconv.ParseUint(idStr, 10, 64)

@@ -107,7 +107,8 @@ func (mgr InventoryManager) ReserveItems(payload payloads.Reservation) error {
 	}
 
 	// TODO: Optimize this a bit.
-	allIds := []uint{}
+	siQtyMap := make(map[uint]int)
+	unitsIds := []uint{}
 	for _, sku := range payload.SKUs {
 		item := models.StockItem{}
 		if err := txn.Where("sku = ?", sku.SKU).First(&item).Error; err != nil {
@@ -122,19 +123,35 @@ func (mgr InventoryManager) ReserveItems(payload payloads.Reservation) error {
 		}
 
 		for _, unit := range units {
-			allIds = append(allIds, unit.ID)
+			unitsIds = append(unitsIds, unit.ID)
 		}
+
+		siQtyMap[item.ID] = int(sku.Qty)
 	}
 
-	toUpdate := models.StockItemUnit{
+
+	// update StockItemUnit.ReservationID field
+	unitsToUpdate := models.StockItemUnit{
 		ReservationID: sql.NullInt64{Int64: int64(reservation.ID), Valid: true},
 		Status:        "onHold",
 	}
 
-	err := txn.Model(models.StockItemUnit{}).Where("id in (?)", allIds).Updates(toUpdate).Error
+	err := txn.Model(models.StockItemUnit{}).Where("id in (?)", unitsIds).Updates(unitsToUpdate).Error
 	if err != nil {
 		txn.Rollback()
 		return err
+	}
+
+	// increment StockItemSummary.Reserved field
+	for id, qty := range siQtyMap {
+		err := txn.Model(models.StockItemSummary{}).
+			Where("stock_item_id = ?", id).
+			Update("reserved", gorm.Expr("reserved + ?", qty)).Error
+
+		if err != nil {
+			txn.Rollback()
+			return err
+		}
 	}
 
 	return txn.Commit().Error

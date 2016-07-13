@@ -144,7 +144,7 @@ func (suite *InventoryManagerTestSuite) TestDecrementStockItemUnits() {
 }
 
 func (suite *InventoryManagerTestSuite) TestSingleSKUReservation() {
-	_, err := suite.createStockItem("TEST-RESERVATION", 1)
+	resp, err := suite.createStockItem("TEST-RESERVATION", 1)
 	assert.Nil(suite.T(), err)
 
 	resPayload := payloads.Reservation{
@@ -168,6 +168,12 @@ func (suite *InventoryManagerTestSuite) TestSingleSKUReservation() {
 	if assert.Nil(suite.T(), err) {
 		assert.Equal(suite.T(), 1, len(units))
 	}
+
+	// check if StockItemSummary.Reserved got updated for updated StockItem
+
+	var summary models.StockItemSummary
+	suite.db.Where("stock_item_id = ?", resp.ID).First(&summary)
+	assert.Equal(suite.T(), len(resPayload.SKUs), summary.Reserved)
 }
 
 func (suite *InventoryManagerTestSuite) TestMultipleSKUReservation() {
@@ -208,7 +214,7 @@ func (suite *InventoryManagerTestSuite) TestMultipleSKUReservation() {
 		Where("stock_item_id = ?", resp2.ID).
 		Find(&units).Error
 	if assert.Nil(suite.T(), err) {
-		assert.Equal(suite.T(), 5, len(units))
+		assert.Equal(suite.T(), int(resPayload.SKUs[0].Qty), len(units))
 	}
 }
 
@@ -235,7 +241,7 @@ func (suite *InventoryManagerTestSuite) TestMultipleSKUQtyReservation() {
 	var units []models.StockItemUnit
 	err = suite.db.Where("reservation_id = ?", reservation.ID).Find(&units).Error
 	if assert.Nil(suite.T(), err) {
-		assert.Equal(suite.T(), 5, len(units))
+		assert.Equal(suite.T(), int(resPayload.SKUs[0].Qty), len(units))
 	}
 }
 
@@ -249,4 +255,60 @@ func (suite *InventoryManagerTestSuite) TestSKUReservationNoOnHand() {
 
 	err := suite.invMgr.ReserveItems(resPayload)
 	assert.NotNil(suite.T(), err)
+}
+
+func (suite *InventoryManagerTestSuite) TestMultipleSKUReservationSummary() {
+	resp1, _ := suite.createStockItem("TEST-RESERVATION-A", 5)
+	resp2, _ := suite.createStockItem("TEST-RESERVATION-B", 5)
+
+	resPayload := payloads.Reservation{
+		RefNum: "BR10001",
+		SKUs: []payloads.SKUReservation{
+			payloads.SKUReservation{SKU: "TEST-RESERVATION-A", Qty: 5},
+			payloads.SKUReservation{SKU: "TEST-RESERVATION-B", Qty: 5},
+		},
+	}
+
+	suite.invMgr.ReserveItems(resPayload)
+
+	var summary1 models.StockItemSummary
+	suite.db.Where("stock_item_id = ?", resp1.ID).First(&summary1)
+	assert.Equal(suite.T(), int(resPayload.SKUs[0].Qty), summary1.Reserved)
+
+	var summary2 models.StockItemSummary
+	suite.db.Where("stock_item_id = ?", resp2.ID).First(&summary2)
+	assert.Equal(suite.T(), int(resPayload.SKUs[1].Qty), summary2.Reserved)
+
+}
+
+func (suite *InventoryManagerTestSuite) TestSubsequentSKUReservationSummary() {
+	resp, _ := suite.createStockItem("TEST-RESERVATION-A", 10)
+
+	resPayload1 := payloads.Reservation{
+		RefNum: "BR10001",
+		SKUs: []payloads.SKUReservation{
+			payloads.SKUReservation{SKU: "TEST-RESERVATION-A", Qty: 3},
+		},
+	}
+
+	err := suite.invMgr.ReserveItems(resPayload1)
+	assert.Nil(suite.T(), err)
+
+	var summary models.StockItemSummary
+	suite.db.Where("stock_item_id = ?", resp.ID).First(&summary)
+	assert.Equal(suite.T(), int(resPayload1.SKUs[0].Qty), summary.Reserved)
+
+
+	resPayload2 := payloads.Reservation{
+		RefNum: "BR10002",
+		SKUs: []payloads.SKUReservation{
+			payloads.SKUReservation{SKU: "TEST-RESERVATION-A", Qty: 5},
+		},
+	}
+
+	err = suite.invMgr.ReserveItems(resPayload2)
+	assert.Nil(suite.T(), err)
+
+	suite.db.Where("stock_item_id = ?", resp.ID).First(&summary)
+	assert.Equal(suite.T(), 8, summary.Reserved)
 }
