@@ -10,11 +10,16 @@ import (
 )
 
 func runReservations(router gin.IRouter) {
-	router.GET("/:skuCode", func(c *gin.Context) {
-		c.JSON(http.StatusNotImplemented, gin.H{})
-	})
+	router.POST("/hold", func(c *gin.Context) {
+		var json payloads.Reservation
+		if parse(c, &json) != nil {
+			return
+		}
 
-	router.PATCH("/reserve", func(c *gin.Context) {
+		if err := json.Validate(); err != nil {
+			return err
+		}
+
 		mgr, err := services.MakeInventoryManager()
 
 		if err != nil {
@@ -22,19 +27,30 @@ func runReservations(router gin.IRouter) {
 			return
 		}
 
-		var json payloads.Reservation
-		if parse(c, &json) != nil {
-			return
-		}
-
 		if err := mgr.ReserveItems(json); err != nil {
 			c.AbortWithError(http.StatusBadRequest, err)
 		}
 
-		c.JSON(http.StatusCreated, gin.H{})
+		c.JSON(http.StatusOK, gin.H{})
 	})
 
-	router.PATCH("/unreserve", func(c *gin.Context) {
-		c.JSON(http.StatusNotImplemented, gin.H{})
+	router.POST("/unhold", func(c *gin.Context) {
+		var json payloads.Release
+		if parse(c, &json) != nil {
+			return
+		}
+
+		mgr, err := services.MakeInventoryManager()
+
+		if err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+
+		if err := mgr.ReleaseItems(json); err != nil {
+			c.AbortWithError(http.StatusBadRequest, err)
+		}
+
+		c.JSON(http.StatusOK, gin.H{})
 	})
 }

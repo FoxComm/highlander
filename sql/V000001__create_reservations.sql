@@ -1,3 +1,4 @@
+-- table not used yet
 create table reservations (
   id serial primary key,
   ref_num generic_string not null,

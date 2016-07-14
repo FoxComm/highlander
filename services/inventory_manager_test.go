@@ -2,6 +2,7 @@ package services
 
 import (
 	"testing"
+	"math/rand"
 
 	"github.com/FoxComm/middlewarehouse/api/payloads"
 	"github.com/FoxComm/middlewarehouse/api/responses"
@@ -46,6 +47,31 @@ func (suite *InventoryManagerTestSuite) createStockItem(sku string, qty int) (*r
 	}
 
 	return resp, nil
+}
+
+func (suite *InventoryManagerTestSuite) createReservation(skus []string, qty int, refNum string) error  {
+	r := rand.New(rand.NewSource(99))
+
+	for _, sku := range skus {
+		_, err := suite.createStockItem(sku, qty + r.Intn(10))
+
+		if err != nil {
+			return err
+		}
+
+		err = suite.invMgr.ReserveItems(payloads.Reservation{
+			RefNum: refNum,
+			SKUs: []payloads.SKUReservation{
+				{SKU: sku, Qty: uint(qty)},
+			},
+		})
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (suite *InventoryManagerTestSuite) SetupTest() {
@@ -147,24 +173,19 @@ func (suite *InventoryManagerTestSuite) TestSingleSKUReservation() {
 	resp, err := suite.createStockItem("TEST-RESERVATION", 1)
 	assert.Nil(suite.T(), err)
 
-	resPayload := payloads.Reservation{
-		RefNum: "BR10001",
+	refNum := "BR10001"
+	reqPayload := payloads.Reservation{
+		RefNum: refNum,
 		SKUs: []payloads.SKUReservation{
 			payloads.SKUReservation{SKU: "TEST-RESERVATION", Qty: 1},
 		},
 	}
 
-	err = suite.invMgr.ReserveItems(resPayload)
+	err = suite.invMgr.ReserveItems(reqPayload)
 	assert.Nil(suite.T(), err)
 
-	var reservation models.Reservation
-	err = suite.db.First(&reservation).Error
-	if assert.Nil(suite.T(), err) {
-		assert.Equal(suite.T(), "BR10001", reservation.RefNum)
-	}
-
 	var units []models.StockItemUnit
-	err = suite.db.Where("reservation_id = ?", reservation.ID).Find(&units).Error
+	err = suite.db.Where("ref_num = ?", refNum).Find(&units).Error
 	if assert.Nil(suite.T(), err) {
 		assert.Equal(suite.T(), 1, len(units))
 	}
@@ -173,7 +194,7 @@ func (suite *InventoryManagerTestSuite) TestSingleSKUReservation() {
 
 	var summary models.StockItemSummary
 	suite.db.Where("stock_item_id = ?", resp.ID).First(&summary)
-	assert.Equal(suite.T(), len(resPayload.SKUs), summary.Reserved)
+	assert.Equal(suite.T(), len(reqPayload.SKUs), summary.OnHold)
 }
 
 func (suite *InventoryManagerTestSuite) TestMultipleSKUReservation() {
@@ -183,26 +204,21 @@ func (suite *InventoryManagerTestSuite) TestMultipleSKUReservation() {
 	resp2, err := suite.createStockItem("TEST-RESERVATION-B", 5)
 	assert.Nil(suite.T(), err)
 
-	resPayload := payloads.Reservation{
-		RefNum: "BR10001",
+	refNum := "BR10001"
+	reqPayload := payloads.Reservation{
+		RefNum: refNum,
 		SKUs: []payloads.SKUReservation{
 			payloads.SKUReservation{SKU: "TEST-RESERVATION-A", Qty: 5},
 			payloads.SKUReservation{SKU: "TEST-RESERVATION-B", Qty: 5},
 		},
 	}
 
-	err = suite.invMgr.ReserveItems(resPayload)
+	err = suite.invMgr.ReserveItems(reqPayload)
 	assert.Nil(suite.T(), err)
-
-	var reservation models.Reservation
-	err = suite.db.First(&reservation).Error
-	if assert.Nil(suite.T(), err) {
-		assert.Equal(suite.T(), "BR10001", reservation.RefNum)
-	}
 
 	var units []models.StockItemUnit
 	err = suite.db.
-		Where("reservation_id = ?", reservation.ID).
+		Where("ref_num = ?", refNum).
 		Where("stock_item_id = ?", resp1.ID).
 		Find(&units).Error
 	if assert.Nil(suite.T(), err) {
@@ -210,11 +226,11 @@ func (suite *InventoryManagerTestSuite) TestMultipleSKUReservation() {
 	}
 
 	err = suite.db.
-		Where("reservation_id = ?", reservation.ID).
+		Where("ref_num = ?", refNum).
 		Where("stock_item_id = ?", resp2.ID).
 		Find(&units).Error
 	if assert.Nil(suite.T(), err) {
-		assert.Equal(suite.T(), int(resPayload.SKUs[0].Qty), len(units))
+		assert.Equal(suite.T(), int(reqPayload.SKUs[0].Qty), len(units))
 	}
 }
 
@@ -222,38 +238,33 @@ func (suite *InventoryManagerTestSuite) TestMultipleSKUQtyReservation() {
 	_, err := suite.createStockItem("TEST-RESERVATION", 10)
 	assert.Nil(suite.T(), err)
 
-	resPayload := payloads.Reservation{
-		RefNum: "BR10001",
+	refNum := "BR10001"
+	reqPayload := payloads.Reservation{
+		RefNum: refNum,
 		SKUs: []payloads.SKUReservation{
 			payloads.SKUReservation{SKU: "TEST-RESERVATION", Qty: 5},
 		},
 	}
 
-	err = suite.invMgr.ReserveItems(resPayload)
+	err = suite.invMgr.ReserveItems(reqPayload)
 	assert.Nil(suite.T(), err)
 
-	var reservation models.Reservation
-	err = suite.db.First(&reservation).Error
-	if assert.Nil(suite.T(), err) {
-		assert.Equal(suite.T(), "BR10001", reservation.RefNum)
-	}
-
 	var units []models.StockItemUnit
-	err = suite.db.Where("reservation_id = ?", reservation.ID).Find(&units).Error
+	err = suite.db.Where("ref_num = ?", refNum).Find(&units).Error
 	if assert.Nil(suite.T(), err) {
-		assert.Equal(suite.T(), int(resPayload.SKUs[0].Qty), len(units))
+		assert.Equal(suite.T(), int(reqPayload.SKUs[0].Qty), len(units))
 	}
 }
 
 func (suite *InventoryManagerTestSuite) TestSKUReservationNoOnHand() {
-	resPayload := payloads.Reservation{
+	reqPayload := payloads.Reservation{
 		RefNum: "BR10001",
 		SKUs: []payloads.SKUReservation{
 			payloads.SKUReservation{SKU: "TEST-DEFAULT", Qty: 1},
 		},
 	}
 
-	err := suite.invMgr.ReserveItems(resPayload)
+	err := suite.invMgr.ReserveItems(reqPayload)
 	assert.NotNil(suite.T(), err)
 }
 
@@ -261,54 +272,88 @@ func (suite *InventoryManagerTestSuite) TestMultipleSKUReservationSummary() {
 	resp1, _ := suite.createStockItem("TEST-RESERVATION-A", 5)
 	resp2, _ := suite.createStockItem("TEST-RESERVATION-B", 5)
 
-	resPayload := payloads.Reservation{
+	reqPayload := payloads.Reservation{
 		RefNum: "BR10001",
 		SKUs: []payloads.SKUReservation{
-			payloads.SKUReservation{SKU: "TEST-RESERVATION-A", Qty: 5},
+			payloads.SKUReservation{SKU: "TEST-RESERVATION-A", Qty: 3},
 			payloads.SKUReservation{SKU: "TEST-RESERVATION-B", Qty: 5},
 		},
 	}
 
-	suite.invMgr.ReserveItems(resPayload)
+	suite.invMgr.ReserveItems(reqPayload)
 
 	var summary1 models.StockItemSummary
 	suite.db.Where("stock_item_id = ?", resp1.ID).First(&summary1)
-	assert.Equal(suite.T(), int(resPayload.SKUs[0].Qty), summary1.Reserved)
+	assert.Equal(suite.T(), int(reqPayload.SKUs[0].Qty), summary1.OnHold)
 
 	var summary2 models.StockItemSummary
 	suite.db.Where("stock_item_id = ?", resp2.ID).First(&summary2)
-	assert.Equal(suite.T(), int(resPayload.SKUs[1].Qty), summary2.Reserved)
-
+	assert.Equal(suite.T(), int(reqPayload.SKUs[1].Qty), summary2.OnHold)
 }
 
 func (suite *InventoryManagerTestSuite) TestSubsequentSKUReservationSummary() {
 	resp, _ := suite.createStockItem("TEST-RESERVATION-A", 10)
 
-	resPayload1 := payloads.Reservation{
+	reqPayload1 := payloads.Reservation{
 		RefNum: "BR10001",
 		SKUs: []payloads.SKUReservation{
 			payloads.SKUReservation{SKU: "TEST-RESERVATION-A", Qty: 3},
 		},
 	}
 
-	err := suite.invMgr.ReserveItems(resPayload1)
-	assert.Nil(suite.T(), err)
+	suite.invMgr.ReserveItems(reqPayload1)
 
 	var summary models.StockItemSummary
 	suite.db.Where("stock_item_id = ?", resp.ID).First(&summary)
-	assert.Equal(suite.T(), int(resPayload1.SKUs[0].Qty), summary.Reserved)
+	assert.Equal(suite.T(), int(reqPayload1.SKUs[0].Qty), summary.OnHold)
 
 
-	resPayload2 := payloads.Reservation{
+	reqPayload2 := payloads.Reservation{
 		RefNum: "BR10002",
 		SKUs: []payloads.SKUReservation{
 			payloads.SKUReservation{SKU: "TEST-RESERVATION-A", Qty: 5},
 		},
 	}
 
-	err = suite.invMgr.ReserveItems(resPayload2)
-	assert.Nil(suite.T(), err)
+	suite.invMgr.ReserveItems(reqPayload2)
 
 	suite.db.Where("stock_item_id = ?", resp.ID).First(&summary)
-	assert.Equal(suite.T(), 8, summary.Reserved)
+	assert.Equal(suite.T(), 8, summary.OnHold)
+}
+
+func (suite *InventoryManagerTestSuite) TestNoReservedSKUsRelease() {
+	suite.createStockItem("TEST-RESERVATION-A", 1)
+
+	reqPayload := payloads.Release{RefNum: "BR10001"}
+
+	err := suite.invMgr.ReleaseItems(reqPayload)
+	assert.NotNil(suite.T(), err, "Should not be able to unreserve items while there are no reservations")
+}
+
+func (suite *InventoryManagerTestSuite) TestSingleSKURelease() {
+	skus := []string{"TEST-UNRESERVATION-A"}
+	refNum := "BR10001"
+	err := suite.createReservation(skus, 1, refNum)
+	assert.Nil(suite.T(), err)
+
+	// check we have active reservations
+	reservedUnitsCount := 0
+	suite.db.Model(&models.StockItemUnit{}).Where("ref_num = ?", refNum).Count(&reservedUnitsCount)
+	assert.Equal(suite.T(), 1, reservedUnitsCount, "There should be reserved items")
+
+	onHoldUnitsCount := 0
+	suite.db.Model(&models.StockItemUnit{}).Where("status = ?", "onHold").Count(&onHoldUnitsCount)
+	assert.Equal(suite.T(), 1, onHoldUnitsCount, "There should be one unit in onHold status")
+
+	// send release request and check if it was processed successfully
+	reqPayload := payloads.Release{RefNum: refNum}
+
+	err = suite.invMgr.ReleaseItems(reqPayload)
+	assert.Nil(suite.T(), err, "Reservation should be successfully removed")
+
+	suite.db.Model(&models.StockItemUnit{}).Where("ref_num = ?", refNum).Count(&reservedUnitsCount)
+	assert.Equal(suite.T(), 0, reservedUnitsCount, "There should not be reserved units")
+
+	suite.db.Model(&models.StockItemUnit{}).Where("status = ?", "onHold").Count(&onHoldUnitsCount)
+	assert.Equal(suite.T(), 0, onHoldUnitsCount, "There should not be units in onHold status")
 }

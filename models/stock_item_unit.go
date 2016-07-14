@@ -10,7 +10,7 @@ import (
 type StockItemUnit struct {
 	gormfox.Base
 	StockItemID   uint
-	ReservationID sql.NullInt64
+	RefNum        sql.NullString
 	UnitCost      int
 	Status        string
 }

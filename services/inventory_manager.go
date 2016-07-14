@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"database/sql"
 	"fmt"
 
@@ -88,35 +89,30 @@ func (mgr InventoryManager) DecrementStockItemUnits(id uint, payload *payloads.D
 		}
 	}
 
-	go UpdateStockItem(id, -1*payload.Qty, "onHand")
+	go UpdateStockItem(id, -1 * payload.Qty, "onHand")
 
 	return txn.Commit().Error
 }
 
 func (mgr InventoryManager) ReserveItems(payload payloads.Reservation) error {
-	if err := payload.Validate(); err != nil {
-		return err
-	}
-
 	txn := mgr.db.Begin()
 
-	reservation := models.MakeReservationFromPayload(payload)
-	if err := txn.Create(&reservation).Error; err != nil {
-		txn.Rollback()
+	skusList := []string{}
+	skusMap := map[string]int{}
+	for _, sku := range payload.SKUs {
+		skusList = append(skusList, sku.SKU)
+		skusMap[sku.SKU] = int(sku.Qty)
+	}
+
+	items := []models.StockItem{}
+	if err := txn.Where("sku in (?)", skusList).Find(&items).Error; err != nil {
 		return err
 	}
 
-	// TODO: Optimize this a bit.
-	siQtyMap := make(map[uint]int)
+	stockItemsMap := map[uint]int{}
 	unitsIds := []uint{}
-	for _, sku := range payload.SKUs {
-		item := models.StockItem{}
-		if err := txn.Where("sku = ?", sku.SKU).First(&item).Error; err != nil {
-			txn.Rollback()
-			return err
-		}
-
-		units, err := onHandStockItemUnits(txn, item.ID, int(sku.Qty))
+	for _, si := range items {
+		units, err := onHandStockItemUnits(txn, si.ID, skusMap[si.SKU])
 		if err != nil {
 			txn.Rollback()
 			return err
@@ -126,32 +122,70 @@ func (mgr InventoryManager) ReserveItems(payload payloads.Reservation) error {
 			unitsIds = append(unitsIds, unit.ID)
 		}
 
-		siQtyMap[item.ID] = int(sku.Qty)
+		stockItemsMap[si.ID] = skusMap[si.SKU]
 	}
-
 
 	// update StockItemUnit.ReservationID field
-	unitsToUpdate := models.StockItemUnit{
-		ReservationID: sql.NullInt64{Int64: int64(reservation.ID), Valid: true},
-		Status:        "onHold",
+	updateWith := models.StockItemUnit{
+		RefNum: sql.NullString{String: payload.RefNum, Valid: true},
+		Status: "onHold",
 	}
 
-	err := txn.Model(models.StockItemUnit{}).Where("id in (?)", unitsIds).Updates(unitsToUpdate).Error
+	err := txn.Model(models.StockItemUnit{}).Where("id in (?)", unitsIds).Updates(updateWith).Error
 	if err != nil {
 		txn.Rollback()
 		return err
 	}
 
-	// increment StockItemSummary.Reserved field
-	for id, qty := range siQtyMap {
-		err := txn.Model(models.StockItemSummary{}).
-			Where("stock_item_id = ?", id).
-			Update("reserved", gorm.Expr("reserved + ?", qty)).Error
+	if err := updateSummary(txn, stockItemsMap, "on_hold"); err != nil {
+		txn.Rollback();
+		return err
+	}
 
-		if err != nil {
-			txn.Rollback()
-			return err
+	return txn.Commit().Error
+}
+
+func (mgr InventoryManager) ReleaseItems(payload payloads.Release) error {
+	txn := mgr.db.Begin()
+
+	unitsCount := 0
+	txn.Model(&models.StockItemUnit{}).Where("ref_num = ?", payload.RefNum).Count(&unitsCount)
+
+	if unitsCount == 0 {
+		txn.Rollback()
+		return errors.New("No stock items unit associated with \"" + payload.RefNum + "\"")
+	}
+
+	// gorm does not update empty fields when updating with struct, so use map here
+	updateWith := map[string]interface{}{
+		"ref_num": sql.NullString{String: "", Valid: false},
+		"status": "onHand",
+	}
+
+	err := txn.Model(&models.StockItemUnit{}).Where("ref_num = ?", payload.RefNum).Updates(updateWith).Error
+	if err != nil {
+		txn.Rollback()
+		return err
+	}
+
+	// extract summary updating logic
+	units := []models.StockItemUnit{}
+	if err := txn.Where("ref_num = ?", payload.RefNum).Find(&units).Error; err != nil {
+		return err
+	}
+
+	stockItemsMap := map[uint]int{}
+	for _, unit := range units {
+		if _, ok := stockItemsMap[unit.StockItemID]; ok {
+			stockItemsMap[unit.StockItemID] += 1
+		} else {
+			stockItemsMap[unit.StockItemID] = 1
 		}
+	}
+
+	if err := updateSummary(txn, stockItemsMap, "on_hand"); err != nil {
+		txn.Rollback();
+		return err
 	}
 
 	return txn.Commit().Error
@@ -182,4 +216,19 @@ func onHandStockItemUnits(db *gorm.DB, stockItemID uint, count int) ([]models.St
 	}
 
 	return units, nil
+}
+
+func updateSummary(db *gorm.DB, stockItemsMap map[uint]int, state string) error {
+	for id, qty := range stockItemsMap {
+		err := db.Model(models.StockItemSummary{}).
+			Where("stock_item_id = ?", id).
+			Update(state, gorm.Expr(state + " + ?", qty)).
+			Error
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
