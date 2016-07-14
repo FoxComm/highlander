@@ -47,6 +47,7 @@ export const setBillingData = createAction('CHECKOUT_SET_BILLING_DATA', (key, va
 export const setAddressData = createAction('CHECKOUT_SET_ADDRESS_DATA', (kind, key, value) => [kind, key, value]);
 export const extendAddressData = createAction('CHECKOUT_EXTEND_ADDRESS_DATA', (kind, props) => [kind, props]);
 export const resetCheckout = createAction('CHECKOUT_RESET');
+const orderPlaced = createAction('CHECKOUT_ORDER_PLACED');
 
 /* eslint-disable quotes, quote-props */
 
@@ -187,6 +188,7 @@ export function addCreditCard(): Function {
 export function checkout(): Function {
   return (dispatch, getState, api) => {
     return api.post('/v1/my/cart/checkout').then(res => {
+      dispatch(orderPlaced(res));
       return dispatch(updateCart(res));
     });
   };
@@ -238,6 +240,12 @@ const reducer = createReducer({
   },
   [resetCheckout]: () => {
     return initialState;
+  },
+  [orderPlaced]: (state, cart) => {
+    return {
+      ...state,
+      orderPlaced: cart.referenceNumber,
+    };
   },
 }, initialState);
 

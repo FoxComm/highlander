@@ -20,15 +20,15 @@ import { parseError } from 'api-js';
 
 import * as actions from 'modules/cart';
 
-const mapStateToProps = state => ({ ...state.cart, ...state.auth, checkoutStage: state.checkout.editStage });
+const mapStateToProps = state => ({ ...state.cart, ...state.auth });
 
 class Cart extends Component {
 
   state = {};
 
   componentWillMount() {
-    /** prevent loading if no user logged in and when checkout is in progress */
-    if (this.props.user && !_.isNumber(this.props.checkoutStage)) {
+    /** prevent loading if no user logged in */
+    if (this.props.user) {
       this.props.fetch();
     }
   }

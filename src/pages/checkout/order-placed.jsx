@@ -11,7 +11,7 @@ import Button from 'ui/buttons';
 import { fetch as fetchCart } from 'modules/cart';
 import { resetCheckout } from 'modules/checkout';
 
-@connect(state => state.cart, {fetchCart, resetCheckout})
+@connect(state => state.checkout, {fetchCart, resetCheckout})
 @localized
 class OrderPlaced extends Component {
 
@@ -26,12 +26,12 @@ class OrderPlaced extends Component {
   }
 
   render() {
-    const { t, referenceNumber } = this.props;
+    const { t, orderPlaced } = this.props;
 
     return (
       <div styleName="order-placed">
         <div styleName="header">{t('Thanks for your order!')}</div>
-        <div styleName="order-number">{t('Order Number:')} {referenceNumber}</div>
+        <div styleName="order-number">{t('Order Number:')} {orderPlaced}</div>
         <div styleName="desc">
           {t(
             `Looks like you'll be getting some cool stuff soon. ` +
