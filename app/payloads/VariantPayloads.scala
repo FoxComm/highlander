@@ -1,9 +1,9 @@
 package payloads
 
-import models.objects.{ObjectForm, ObjectShadow}
+import models.objects.ObjectUtils._
+import models.objects.{FormAndShadow, ObjectForm, ObjectShadow}
 import models.product.VariantValue
-import org.json4s.JsonAST.{JNothing, JValue}
-import payloads.ObjectPayloads.StringAttributePayload
+import payloads.ObjectPayloads._
 import utils.aliases._
 
 object VariantPayloads {
@@ -13,20 +13,15 @@ object VariantPayloads {
 
   case class VariantValuePayload(id: Option[Int] = None,
                                  name: Option[String],
-                                 swatch: Option[String]) {
-    val nameAttribute   = name.map(n ⇒ StringAttributePayload("name", n))
-    val swatchAttribute = swatch.map(s ⇒ StringAttributePayload("swatch", s))
+                                 swatch: Option[String],
+                                 skuCodes: Seq[String]) {
 
-    val objectForm: ObjectForm = {
-      val nameJson = nameAttribute.foldLeft(JNothing: JValue)(_ merge _.formJson)
-      val json     = swatchAttribute.foldLeft(nameJson)(_ merge _.formJson)
-      ObjectForm(kind = VariantValue.kind, attributes = json)
-    }
+    def formAndShadow: FormAndShadow = {
+      val jsonBuilder: AttributesBuilder = ObjectPayloads
+        .optionalAttributes(name.map(StringField("name", _)), swatch.map(StringField("swatch", _)))
 
-    val objectShadow: ObjectShadow = {
-      val nameJson = nameAttribute.foldLeft(JNothing: JValue)(_ merge _.shadowJson)
-      val json     = swatchAttribute.foldLeft(nameJson)(_ merge _.shadowJson)
-      ObjectShadow(attributes = json)
+      (ObjectForm(kind = VariantValue.kind, attributes = jsonBuilder.objectForm),
+       ObjectShadow(attributes = jsonBuilder.objectShadow))
     }
   }
 }

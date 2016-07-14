@@ -69,7 +69,7 @@ object SkuManager {
 
     val newFormAttrs   = ObjectForm.fromPayload(Sku.kind, payload.attributes).attributes
     val newShadowAttrs = ObjectShadow.fromPayload(payload.attributes).attributes
-    val code           = getSkuCode(payload).getOrElse(sku.code)
+    val code           = getSkuCode(payload.attributes).getOrElse(sku.code)
 
     for {
       oldForm   ← * <~ ObjectForms.mustFindById404(sku.formId)
@@ -98,19 +98,28 @@ object SkuManager {
     }
 
   def mustGetSkuCode(payload: SkuPayload): Failures Xor String =
-    getSkuCode(payload) match {
+    getSkuCode(payload.attributes) match {
       case Some(code) ⇒ Xor.right(code)
-      case None       ⇒ Xor.left(GeneralFailure("Code not found in payload").single)
+      case None       ⇒ Xor.left(GeneralFailure("SKU code not found in payload").single)
     }
 
-  private def getSkuCode(payload: SkuPayload): Option[String] =
-    payload.attributes.get("code").flatMap(json ⇒ (json \ "v").extractOpt[String])
+  def getSkuCode(attributes: Map[String, Json]): Option[String] =
+    attributes.get("code").flatMap(json ⇒ (json \ "v").extractOpt[String])
 
-  def mustFindSkuByContextAndCode(contextId: Int, code: String)(implicit ec: EC,
-                                                                db: DB): DbResultT[Sku] =
+  def mustFindSkuByContextAndCode(contextId: Int, code: String)(implicit ec: EC): DbResultT[Sku] =
     for {
       sku ← * <~ Skus
              .filterByContextAndCode(contextId, code)
              .mustFindOneOr(SkuNotFoundForContext(code, contextId))
     } yield sku
+
+  def mustFindFullSkuById(id: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[FullObject[Sku]] =
+    ObjectManager.getFullObject(Skus.filter(_.id === id).mustFindOneOr(SkuNotFound(id)))
+
+  def mustFindIlluminatedSkuById(
+      id: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[SkuResponse.Root] =
+    for {
+      fullSku ← * <~ mustFindFullSkuById(id)
+      albums  ← * <~ ImageManager.getAlbumsForSkuInner(fullSku.model.code, oc)
+    } yield SkuResponse.buildLite(IlluminatedSku.illuminate(oc, fullSku), albums)
 }

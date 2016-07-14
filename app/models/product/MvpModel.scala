@@ -16,6 +16,7 @@ import org.json4s.JsonDSL._
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import payloads.ImagePayloads._
+import services.inventory.SkuManager
 import slick.driver.PostgresDriver.api._
 import utils.Money.Currency
 import utils.aliases._
@@ -159,7 +160,7 @@ case class SimpleVariantShadow(v: SimpleVariant) {
   def create: ObjectShadow = ObjectShadow(attributes = shadow)
 }
 
-case class SimpleVariantValue(name: String, swatch: String) {
+case class SimpleVariantValue(name: String, swatch: String, skuCodes: Seq[String] = Seq.empty) {
   val (keyMap, form) =
     ObjectUtils.createForm(parse(s"""{ "name": "$name", "swatch": "$swatch" }"""))
 
@@ -373,6 +374,10 @@ object Mvp {
              ObjectLink(leftId = variantShadowId,
                         rightId = shadow.id,
                         linkType = ObjectLink.VariantValue))
+      skuCodes ← * <~ v.skuCodes.map(code ⇒
+                      SkuManager.mustFindSkuByContextAndCode(contextId, code))
+      _ ← * <~ skuCodes.map(s ⇒
+               VariantValueSkuLinks.create(VariantValueSkuLink(leftId = value.id, rightId = s.id)))
     } yield
       SimpleVariantValueData(valueId = value.id,
                              variantShadowId = variantShadowId,

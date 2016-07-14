@@ -8,6 +8,9 @@ import responses.VariantValueResponses.IlluminatedVariantValueResponse
 import utils.aliases._
 
 object VariantResponses {
+
+  type VariantValueSkuLinks = Map[Int, Seq[String]]
+
   object IlluminatedVariantResponse {
     case class Root(id: Int,
                     context: Option[ObjectContextResponse.Root],
@@ -15,16 +18,28 @@ object VariantResponses {
                     values: Seq[IlluminatedVariantValueResponse.Root])
         extends ResponseItem
 
-    def build(v: IlluminatedVariant, vs: Seq[FullObject[VariantValue]]): Root =
-      Root(id = v.id,
-           attributes = v.attributes,
-           context = ObjectContextResponse.build(v.context).some,
-           values = vs.map(IlluminatedVariantValueResponse.build _))
+    def build(variant: IlluminatedVariant,
+              variantValues: Seq[FullObject[VariantValue]],
+              variantValueSkus: VariantValueSkuLinks): Root =
+      Root(id = variant.id,
+           attributes = variant.attributes,
+           context = ObjectContextResponse.build(variant.context).some,
+           values = illuminateValues(variantValues, variantValueSkus))
 
-    def buildLite(v: IlluminatedVariant, vs: Seq[FullObject[VariantValue]]): Root =
-      Root(id = v.id,
-           attributes = v.attributes,
+    def buildLite(variant: IlluminatedVariant,
+                  variantValues: Seq[FullObject[VariantValue]],
+                  variantValueSkus: VariantValueSkuLinks): Root =
+      Root(id = variant.id,
+           attributes = variant.attributes,
            context = None,
-           values = vs.map(IlluminatedVariantValueResponse.build _))
+           values = illuminateValues(variantValues, variantValueSkus))
+
+    def illuminateValues(
+        variantValues: Seq[FullObject[VariantValue]],
+        variantValueSkus: VariantValueSkuLinks): Seq[IlluminatedVariantValueResponse.Root] =
+      variantValues.map(
+          vv ⇒
+            IlluminatedVariantValueResponse
+              .build(vv, variantValueSkus.getOrElse(vv.model.id, Seq.empty)))
   }
 }

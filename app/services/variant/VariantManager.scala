@@ -1,5 +1,6 @@
 package services.variant
 
+import failures.NotFoundFailure404
 import failures.ObjectFailures._
 import failures.ProductFailures._
 import models.objects._
@@ -7,6 +8,7 @@ import models.product._
 import payloads.VariantPayloads._
 import responses.VariantResponses.IlluminatedVariantResponse
 import responses.VariantValueResponses.IlluminatedVariantValueResponse
+import services.inventory.SkuManager
 import services.objects.ObjectManager
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
@@ -18,47 +20,60 @@ object VariantManager {
   def createVariant(contextName: String, payload: VariantPayload)(
       implicit ec: EC,
       db: DB): DbResultT[IlluminatedVariantResponse.Root] =
-    (for {
+    for {
       context     ← * <~ ObjectManager.mustFindByName404(contextName)
       fullVariant ← * <~ createVariantInner(context, payload)
       (variant, values) = fullVariant
+      variantToSkuMapping = payload.values
+        .getOrElse(Seq.empty)
+        .zip(values)
+        .collect {
+          case (vvPayload, vvDb) if vvPayload.skuCodes.nonEmpty ⇒
+            (vvDb.model.id, vvPayload.skuCodes)
+        }
+        .toMap
     } yield
       IlluminatedVariantResponse.build(
-          v = IlluminatedVariant.illuminate(context, variant),
-          vs = values
-      ))
+          variant = IlluminatedVariant.illuminate(context, variant),
+          variantValues = values,
+          variantValueSkus = variantToSkuMapping
+      )
 
   def getVariant(contextName: String, variantId: Int)(
       implicit ec: EC,
       db: DB): DbResultT[IlluminatedVariantResponse.Root] =
-    (for {
+    for {
       context ← * <~ ObjectManager.mustFindByName404(contextName)
-      variant ← * <~ mustFindVariantByContextAndForm(context.id, variantId)
-      form    ← * <~ ObjectForms.mustFindById404(variant.formId)
-      shadow  ← * <~ ObjectShadows.mustFindById404(variant.shadowId)
-      fullVariant = FullObject(variant, form, shadow)
+      fullVariant ← * <~ ObjectManager.getFullObject(
+                       mustFindVariantByContextAndForm(context.id, variantId))
 
-      links ← * <~ ObjectLinks.findByLeftAndType(shadow.id, ObjectLink.VariantValue).result
+      links ← * <~ ObjectLinks
+               .findByLeftAndType(fullVariant.shadow.id, ObjectLink.VariantValue)
+               .result
       values ← * <~ links.map(link ⇒
                     mustFindVariantValueByContextAndShadow(context.id, link.rightId))
+      variantValueSkuCodes ← * <~ VariantManager.getVariantValueSkuCodes(values.map(_.model.id))
     } yield
       IlluminatedVariantResponse.build(
-          v = IlluminatedVariant.illuminate(context, fullVariant),
-          vs = values
-      ))
+          variant = IlluminatedVariant.illuminate(context, fullVariant),
+          variantValues = values,
+          variantValueSkus = variantValueSkuCodes
+      )
 
   def updateVariant(contextName: String, variantId: Int, payload: VariantPayload)(
       implicit ec: EC,
       db: DB): DbResultT[IlluminatedVariantResponse.Root] =
-    (for {
+    for {
       context     ← * <~ ObjectManager.mustFindByName404(contextName)
       fullVariant ← * <~ updateVariantInner(context, variantId, payload)
       (variant, values) = fullVariant
+      variantValueSkuCodes ← * <~ VariantManager.getVariantValueSkuCodes(values.map(_.model.id))
     } yield
       IlluminatedVariantResponse.build(
-          v = IlluminatedVariant.illuminate(context, variant),
-          vs = values
-      ))
+          variant = IlluminatedVariant.illuminate(context, variant),
+          variantValues = values,
+          variantValueSkus = variantValueSkuCodes
+      )
 
   def createVariantInner(context: ObjectContext, payload: VariantPayload)(
       implicit ec: EC,
@@ -88,26 +103,30 @@ object VariantManager {
     val valuePayloads  = payload.values.getOrElse(Seq.empty)
 
     for {
-      variant   ← * <~ mustFindVariantByContextAndForm(context.id, variantId)
-      oldForm   ← * <~ ObjectForms.mustFindById404(variant.formId)
-      oldShadow ← * <~ ObjectShadows.mustFindById404(variant.shadowId)
+      oldVariant ← * <~ ObjectManager.getFullObject(
+                      mustFindVariantByContextAndForm(context.id, variantId))
 
-      mergedAttrs = oldShadow.attributes.merge(newShadowAttrs)
-      updated ← * <~ ObjectUtils
-                 .update(oldForm.id, oldShadow.id, newFormAttrs, mergedAttrs, force = true)
+      mergedAttrs = oldVariant.shadow.attributes.merge(newShadowAttrs)
+      updated ← * <~ ObjectUtils.update(oldVariant.form.id,
+                                        oldVariant.shadow.id,
+                                        newFormAttrs,
+                                        mergedAttrs,
+                                        force = true)
       commit      ← * <~ ObjectUtils.commit(updated)
-      updatedHead ← * <~ updateHead(variant, updated.shadow, commit)
+      updatedHead ← * <~ updateHead(oldVariant.model, updated.shadow, commit)
 
       _ ← * <~ valuePayloads.map(pay ⇒ updateOrCreateVariantValue(updatedHead, context, pay))
 
       _ ← * <~ ObjectUtils.updateAssociatedLefts(Products,
                                                  context.id,
-                                                 oldShadow.id,
+                                                 oldVariant.shadow.id,
                                                  updatedHead.shadowId,
                                                  ObjectLink.ProductVariant)
 
-      valueLinks ← * <~ ObjectLinks.findByLeftAndType(oldShadow.id, ObjectLink.VariantValue).result
-      _          ← * <~ ObjectUtils.updateAssociatedRights(VariantValues, valueLinks, updatedHead.shadowId)
+      valueLinks ← * <~ ObjectLinks
+                    .findByLeftAndType(oldVariant.shadow.id, ObjectLink.VariantValue)
+                    .result
+      _ ← * <~ ObjectUtils.updateAssociatedRights(VariantValues, valueLinks, updatedHead.shadowId)
 
       links ← * <~ ObjectLinks
                .findByLeftAndType(updatedHead.shadowId, ObjectLink.VariantValue)
@@ -145,13 +164,13 @@ object VariantManager {
   def createVariantValue(contextName: String, variantId: Int, payload: VariantValuePayload)(
       implicit ec: EC,
       db: DB): DbResultT[IlluminatedVariantValueResponse.Root] =
-    (for {
+    for {
       context ← * <~ ObjectManager.mustFindByName404(contextName)
       variant ← * <~ Variants
                  .filterByContextAndFormId(context.id, variantId)
                  .mustFindOneOr(VariantNotFoundForContext(variantId, context.id))
       value ← * <~ createVariantValueInner(context, variant, payload)
-    } yield IlluminatedVariantValueResponse.build(value))
+    } yield IlluminatedVariantValueResponse.build(value, payload.skuCodes)
 
   private def createVariantValueInner(context: ObjectContext,
                                       variant: Variant,
@@ -159,11 +178,11 @@ object VariantManager {
       implicit ec: EC,
       db: DB): DbResultT[FullObject[VariantValue]] = {
 
-    val form   = payload.objectForm
-    val shadow = payload.objectShadow
+    val (form, shadow) = payload.formAndShadow.tupled
 
     for {
-      ins ← * <~ ObjectUtils.insert(form, shadow)
+      skuCodes ← * <~ payload.skuCodes.map(SkuManager.mustFindSkuByContextAndCode(context.id, _))
+      ins      ← * <~ ObjectUtils.insert(form, shadow)
       variantValue ← * <~ VariantValues.create(
                         VariantValue(contextId = context.id,
                                      formId = ins.form.id,
@@ -173,24 +192,26 @@ object VariantManager {
              ObjectLink(leftId = variant.shadowId,
                         rightId = variantValue.shadowId,
                         linkType = ObjectLink.VariantValue))
+      _ ← * <~ skuCodes.map(
+             s ⇒
+               VariantValueSkuLinks.create(
+                   VariantValueSkuLink(leftId = variantValue.id, rightId = s.id)))
     } yield FullObject(variantValue, ins.form, ins.shadow)
   }
 
   private def updateVariantValueInner(valueId: Int, contextId: Int, payload: VariantValuePayload)(
       implicit ec: EC,
       db: DB): DbResultT[FullObject[VariantValue]] = {
-
-    val newFormAttrs   = payload.objectForm.attributes
-    val newShadowAttrs = payload.objectShadow.attributes
+    val (form, shadow) = payload.formAndShadow.tupled
 
     for {
       value     ← * <~ mustFindVariantValueByContextAndForm(contextId, valueId)
       oldForm   ← * <~ ObjectForms.mustFindById404(value.formId)
       oldShadow ← * <~ ObjectShadows.mustFindById404(value.shadowId)
 
-      mergedAttrs = oldShadow.attributes.merge(newShadowAttrs)
+      mergedAttrs = oldShadow.attributes.merge(shadow.attributes)
       updated ← * <~ ObjectUtils
-                 .update(oldForm.id, oldShadow.id, newFormAttrs, mergedAttrs, force = true)
+                 .update(oldForm.id, oldShadow.id, form.attributes, mergedAttrs, force = true)
       commit      ← * <~ ObjectUtils.commit(updated)
       updatedHead ← * <~ updateValueHead(value, updated.shadow, commit)
       _ ← * <~ ObjectUtils.updateAssociatedLefts(Variants,
@@ -198,6 +219,22 @@ object VariantManager {
                                                  oldShadow.id,
                                                  updatedHead.shadowId,
                                                  ObjectLink.VariantValue)
+
+      newSkus ← * <~ payload.skuCodes.map(SkuManager.mustFindSkuByContextAndCode(contextId, _))
+      newSkuIds = newSkus.map(_.id).toSet
+
+      variantValueLinks ← * <~ VariantValueSkuLinks.filterLeft(valueId).result
+      linkedSkuIds = variantValueLinks.map(_.rightId).toSet
+
+      toDelete = variantValueLinks.filter(link ⇒ !newSkuIds.contains(link.rightId))
+      toCreate = newSkuIds.diff(linkedSkuIds)
+
+      _ ← * <~ VariantValueSkuLinks.createAllReturningIds(
+             toCreate.map(id ⇒ VariantValueSkuLink(leftId = valueId, rightId = id)))
+      _ ← * <~ toDelete.map(
+             link ⇒
+               VariantValueSkuLinks
+                 .deleteById(link.id, DbResultT.unit, id ⇒ NotFoundFailure404(link, link.id)))
     } yield FullObject(updatedHead, updated.form, updated.shadow)
   }
 
@@ -223,7 +260,7 @@ object VariantManager {
     }
 
   def findVariantsByProduct(product: Product)(
-      implicit ec: EC): DbResultT[Seq[FullObject[Variant]]] =
+      implicit ec: EC): DbResultT[Seq[(FullObject[Variant], Seq[FullObject[VariantValue]])]] =
     for {
       links ← * <~ ObjectLinks
                .findByLeftAndType(product.shadowId, ObjectLink.ProductVariant)
@@ -231,7 +268,8 @@ object VariantManager {
       variants ← * <~ links.map { link ⇒
                   mustFindVariantByContextAndShadow(product.contextId, link.rightId)
                 }
-    } yield variants
+      values ← * <~ variants.map(v ⇒ findValuesForVariant(product.contextId, v.shadow.id))
+    } yield variants.zip(values)
 
   def findVariantForValue(variantValue: VariantValue)(
       implicit ec: EC): DbResultT[FullObject[Variant]] =
@@ -242,6 +280,23 @@ object VariantManager {
       variant ← * <~ mustFindVariantByContextAndShadow(variantValue.contextId,
                                                        variantValue.shadowId)
     } yield variant
+
+  def findValuesForVariant(contextId: Int, variantShadowId: Int)(
+      implicit ec: EC): DbResultT[Seq[FullObject[VariantValue]]] =
+    for {
+      links ← * <~ ObjectLinks.findByLeftAndType(variantShadowId, ObjectLink.VariantValue).result
+      values ← * <~ links.map(link ⇒
+                    mustFindVariantValueByContextAndShadow(contextId, link.rightId))
+    } yield values
+
+  def getVariantValueSkuCodes(variantValueHeadIds: Seq[Int])(
+      implicit ec: EC): DbResultT[Map[Int, Seq[String]]] =
+    for {
+      links ← * <~ VariantValueSkuLinks.findSkusForVariantValues(variantValueHeadIds).result
+      linksMapping = links.groupBy { case (valueId, _) ⇒ valueId }.mapValues(_.map {
+        case (_, skuCode) ⇒ skuCode
+      })
+    } yield linksMapping
 
   private def mustFindVariantValueByContextAndForm(contextId: Int, formId: Int)(
       implicit ec: EC): DbResultT[VariantValue] =
@@ -280,4 +335,23 @@ object VariantManager {
                  .filterByContextAndFormId(contextId, form.id)
                  .mustFindOneOr(VariantNotFoundForContext(form.id, contextId))
     } yield FullObject(variant, form, shadow)
+
+  def mustFindFullVariantById(
+      id: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[FullObject[Variant]] =
+    ObjectManager.getFullObject(Variants.filter(_.id === id).mustFindOneOr(VariantNotFound(id)))
+
+  def mustFindFullVariantWithValuesById(
+      id: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[FullVariant] =
+    for {
+      fullVariant ← * <~ mustFindFullVariantById(id)
+      values      ← * <~ findValuesForVariant(oc.id, fullVariant.shadow.id)
+    } yield (fullVariant, values)
+
+  def mustFindFullVariantWithValuesByShadowId(
+      shadowId: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[FullVariant] =
+    for {
+      fullVariant ← * <~ mustFindVariantByContextAndShadow(oc.id, shadowId)
+      values      ← * <~ findValuesForVariant(oc.id, fullVariant.shadow.id)
+    } yield (fullVariant, values)
+
 }

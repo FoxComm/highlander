@@ -8,9 +8,9 @@ object VariantValueResponses {
   implicit val formats = JsonFormatters.phoenixFormats
 
   object IlluminatedVariantValueResponse {
-    case class Root(id: Int, name: String, swatch: Option[String] = None)
+    case class Root(id: Int, name: String, swatch: Option[String] = None, skuCodes: Seq[String])
 
-    def build(value: FullObject[VariantValue]): Root = {
+    def build(value: FullObject[VariantValue], skuCodes: Seq[String]): Root = {
       val model       = value.model
       val formAttrs   = value.form.attributes
       val shadowAttrs = value.shadow.attributes
@@ -18,7 +18,7 @@ object VariantValueResponses {
       val name   = IlluminateAlgorithm.get("name", formAttrs, shadowAttrs).extract[String]
       val swatch = IlluminateAlgorithm.get("swatch", formAttrs, shadowAttrs).extractOpt[String]
 
-      Root(id = model.id, name = name, swatch = swatch)
+      Root(id = model.id, name = name, swatch = swatch, skuCodes)
     }
   }
 }

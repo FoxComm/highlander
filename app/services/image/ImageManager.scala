@@ -38,7 +38,7 @@ object ImageManager {
   def getAlbumsForProduct(
       productId: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[Seq[AlbumRoot]] =
     for {
-      product ← * <~ ProductManager.mustFindProductByContextAndId404(oc.id, productId)
+      product ← * <~ ProductManager.mustFindProductByContextAndFormId404(oc.id, productId)
       albums  ← * <~ getAlbumsForObject(product.shadowId, oc, ObjectLink.ProductAlbum)
     } yield albums
 
@@ -160,9 +160,9 @@ object ImageManager {
       contextName: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[AlbumRoot] =
     for {
       context ← * <~ ObjectManager.mustFindByName404(contextName)
-      product ← * <~ ProductManager.mustFindProductByContextAndId404(context.id, productId)
-      created ← * <~ createAlbumInner(payload, context)
-      (fullAlbum, images) = created
+      product ← * <~ ProductManager.mustFindProductByContextAndFormId404(context.id, productId)
+      album   ← * <~ createAlbumInner(payload, context)
+      (fullAlbum, images) = album
       link ← * <~ ObjectLinks.create(
                 ObjectLink(leftId = product.shadowId,
                            rightId = fullAlbum.shadow.id,
