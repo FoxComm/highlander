@@ -178,8 +178,7 @@ object VariantManager {
       implicit ec: EC,
       db: DB): DbResultT[FullObject[VariantValue]] = {
 
-    val form   = payload.objectForm
-    val shadow = payload.objectShadow
+    val (form, shadow) = payload.formAndShadow.tupled
 
     for {
       skuCodes ← * <~ payload.skuCodes.map(SkuManager.mustFindSkuByContextAndCode(context.id, _))
@@ -203,17 +202,16 @@ object VariantManager {
   private def updateVariantValueInner(valueId: Int, contextId: Int, payload: VariantValuePayload)(
       implicit ec: EC,
       db: DB): DbResultT[FullObject[VariantValue]] = {
-    val newFormAttrs   = payload.objectForm.attributes
-    val newShadowAttrs = payload.objectShadow.attributes
+    val (form, shadow) = payload.formAndShadow.tupled
 
     for {
       value     ← * <~ mustFindVariantValueByContextAndForm(contextId, valueId)
       oldForm   ← * <~ ObjectForms.mustFindById404(value.formId)
       oldShadow ← * <~ ObjectShadows.mustFindById404(value.shadowId)
 
-      mergedAttrs = oldShadow.attributes.merge(newShadowAttrs)
+      mergedAttrs = oldShadow.attributes.merge(shadow.attributes)
       updated ← * <~ ObjectUtils
-                 .update(oldForm.id, oldShadow.id, newFormAttrs, mergedAttrs, force = true)
+                 .update(oldForm.id, oldShadow.id, form.attributes, mergedAttrs, force = true)
       commit      ← * <~ ObjectUtils.commit(updated)
       updatedHead ← * <~ updateValueHead(value, updated.shadow, commit)
       _ ← * <~ ObjectUtils.updateAssociatedLefts(Variants,

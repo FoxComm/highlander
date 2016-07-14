@@ -6,8 +6,6 @@ import cats.implicits._
 import models.inventory._
 import models.objects._
 import models.product._
-import org.json4s.JsonDSL._
-import org.json4s.jackson.JsonMethods._
 import responses.AlbumResponses._
 import responses.ObjectResponses._
 import responses.SkuResponses._
@@ -92,32 +90,6 @@ object ProductResponses {
       }))
   }
 
-  object IlluminatedFullProductResponse {
-
-    case class Root(id: Int,
-                    context: ObjectContextResponse.Root,
-                    product: IlluminatedProductResponse.Root,
-                    skus: Seq[IlluminatedSkuResponse.Root],
-                    variants: Seq[IlluminatedVariantResponse.Root],
-                    albums: Seq[AlbumResponse.Root])
-        extends ResponseItem
-
-    def build(p: IlluminatedProduct,
-              skus: Seq[IlluminatedSkuResponse.Root],
-              variants: Seq[(IlluminatedVariant, Seq[FullObject[VariantValue]])],
-              variantValueSkuCodeLinks: Map[Int, Seq[String]],
-              albums: Seq[AlbumResponse.Root]): Root =
-      Root(id = p.id,
-           product = IlluminatedProductResponse.buildLite(p),
-           context = ObjectContextResponse.build(p.context),
-           skus = skus,
-           variants = variants.map {
-             case (variant, values) ⇒
-               IlluminatedVariantResponse.buildLite(variant, values, variantValueSkuCodeLinks)
-           },
-           albums = albums)
-  }
-
   // New Product Response
   object ProductResponse {
 
@@ -132,16 +104,12 @@ object ProductResponses {
     def build(product: IlluminatedProduct,
               albums: Seq[AlbumResponse.Root],
               skus: Seq[SkuResponse.Root],
-              variants: Seq[(IlluminatedVariant, Seq[FullObject[VariantValue]])],
-              variantValueSkuCodeLinks: Map[Int, Seq[String]]): Root =
+              variants: Seq[IlluminatedVariantResponse.Root]): Root =
       Root(id = product.id,
            attributes = product.attributes,
            context = ObjectContextResponse.build(product.context),
            albums = albums,
            skus = skus,
-           variants = variants.map {
-             case (variant, values) ⇒
-               IlluminatedVariantResponse.buildLite(variant, values, variantValueSkuCodeLinks)
-           })
+           variants = variants)
   }
 }

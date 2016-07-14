@@ -9,16 +9,17 @@ import models.inventory._
 import models.objects._
 import models.product._
 import payloads.ProductPayloads._
-import payloads.SkuPayloads
 import payloads.SkuPayloads._
 import payloads.VariantPayloads._
 import responses.ObjectResponses.ObjectContextResponse
 import responses.ProductResponses._
 import responses.SkuResponses._
+import responses.VariantResponses.IlluminatedVariantResponse
 import services.image.ImageManager
 import services.inventory.SkuManager
 import services.objects.ObjectManager
 import services.variant.VariantManager
+import services.variant.VariantManager._
 import slick.driver.PostgresDriver.api._
 import utils.Validation._
 import utils.aliases._
@@ -48,20 +49,13 @@ object ProductManager {
                          findOrCreateSkuForProduct(product, sku, !hasVariants))
       variants ← * <~ variantPayloads.map(variant ⇒
                       findOrCreateVariantForProduct(product, variant))
-      variantValueIds = variants.flatMap { case (_, variantValue) ⇒ variantValue }.map(_.model.id)
-      variantValueSkuCodes ← * <~ VariantManager.getVariantValueSkuCodes(variantValueIds)
-      variantOnlySkuCodes = variantValueSkuCodes.values.toSeq.flatten.distinct
-      variantSkus ← * <~ variantOnlySkuCodes.map(skuCode ⇒ SkuManager.getSku(oc.name, skuCode))
+      variantAndSkus ← * <~ getVariantsWithRelatedSkus(variants)
+      (variantSkus, variantResponses) = variantAndSkus
     } yield
-      ProductResponse.build(product =
-                              IlluminatedProduct.illuminate(oc, product, ins.form, ins.shadow),
-                            albums = Seq.empty,
-                            skus = if (hasVariants) variantSkus else productSkus,
-                            variants = variants.map {
-                              case (fullVariant, values) ⇒
-                                (IlluminatedVariant.illuminate(oc, fullVariant), values)
-                            },
-                            variantValueSkuCodeLinks = variantValueSkuCodes)
+      ProductResponse.build(IlluminatedProduct.illuminate(oc, product, ins.form, ins.shadow),
+                            Seq.empty,
+                            if (hasVariants) variantSkus else productSkus,
+                            variantResponses)
   }
 
   def getProduct(
@@ -79,22 +73,14 @@ object ProductManager {
 
       variants ← * <~ variantLinks.map(link ⇒
                       VariantManager.mustFindFullVariantWithValuesById(link.rightId))
-
-      variantValueIds = variants.flatMap { case (_, variantValue) ⇒ variantValue }.map(_.model.id)
-      variantValueSkuCodes ← * <~ VariantManager.getVariantValueSkuCodes(variantValueIds)
-      variantSkuCodes = variantValueSkuCodes.values.toSeq.flatten.distinct
-      variantSkus ← * <~ variantSkuCodes.map(skuCode ⇒ SkuManager.getSku(oc.name, skuCode))
+      variantAndSkus ← * <~ getVariantsWithRelatedSkus(variants)
+      (variantSkus, variantResponses) = variantAndSkus
     } yield
       ProductResponse.build(
-          product = IlluminatedProduct
-            .illuminate(oc, oldProduct.model, oldProduct.form, oldProduct.shadow),
-          albums = albums,
-          skus = if (hasVariants) variantSkus else productSkus,
-          variants = variants.map {
-            case (fullVariant, values) ⇒
-              (IlluminatedVariant.illuminate(oc, fullVariant), values)
-          },
-          variantValueSkuCodeLinks = variantValueSkuCodes)
+          IlluminatedProduct.illuminate(oc, oldProduct.model, oldProduct.form, oldProduct.shadow),
+          albums,
+          if (hasVariants) variantSkus else productSkus,
+          variantResponses)
 
   def updateProduct(productId: Int, payload: UpdateProductPayload)(
       implicit ec: EC,
@@ -145,20 +131,32 @@ object ProductManager {
       fullProduct = FullObject(updatedHead, updated.form, updated.shadow)
       _ ← * <~ validateUpdate(updatedSkus, variants)
 
-      variantValueIds = variants.flatMap { case (_, variantValue) ⇒ variantValue }.map(_.model.id)
+      variantAndSkus ← * <~ getVariantsWithRelatedSkus(variants)
+      (variantSkus, variantResponses) = variantAndSkus
+    } yield
+      ProductResponse.build(
+          IlluminatedProduct.illuminate(oc, updatedHead, updated.form, updated.shadow),
+          albums,
+          if (hasVariants) variantSkus else updatedSkus,
+          variantResponses)
+  }
+
+  private def getVariantsWithRelatedSkus(variants: Seq[FullVariant])(
+      implicit ec: EC,
+      db: DB,
+      oc: OC): DbResultT[(Seq[SkuResponse.Root], Seq[IlluminatedVariantResponse.Root])] = {
+    val variantValueIds = variants.flatMap { case (_, variantValue) ⇒ variantValue }
+      .map(_.model.id)
+    for {
       variantValueSkuCodes ← * <~ VariantManager.getVariantValueSkuCodes(variantValueIds)
       variantValueSkuCodesSet = variantValueSkuCodes.values.toSeq.flatten.distinct
       variantSkus ← * <~ variantValueSkuCodesSet.map(skuCode ⇒ SkuManager.getSku(oc.name, skuCode))
-    } yield
-      ProductResponse.build(
-          product = IlluminatedProduct.illuminate(oc, updatedHead, updated.form, updated.shadow),
-          albums = albums,
-          skus = if (hasVariants) variantSkus else updatedSkus,
-          variants = variants.map {
-            case (fullVariant, values) ⇒
-              (IlluminatedVariant.illuminate(oc, fullVariant), values)
-          },
-          variantValueSkuCodeLinks = variantValueSkuCodes)
+      illuminated = variants.map {
+        case (fullVariant, values) ⇒
+          val variant = IlluminatedVariant.illuminate(oc, fullVariant)
+          IlluminatedVariantResponse.buildLite(variant, values, variantValueSkuCodes)
+      }
+    } yield (variantSkus, illuminated)
   }
 
   private def validateCreate(
