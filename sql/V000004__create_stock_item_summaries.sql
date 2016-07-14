@@ -5,9 +5,9 @@ create table stock_item_summaries (
   on_hold integer not null,
   reserved integer not null,
 
-  created_at generic_timestamp,
-  updated_at generic_timestamp,
-  deleted_at timestamp without time zone null,
+  created_at generic_timestamp_now,
+  updated_at generic_timestamp_now,
+  deleted_at generic_timestamp_null,
   foreign key (stock_item_id) references stock_items(id) on update restrict on delete restrict
 );
 
