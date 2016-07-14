@@ -2,6 +2,7 @@ package services
 
 import (
 	"testing"
+	"time"
 	"math/rand"
 
 	"github.com/FoxComm/middlewarehouse/api/payloads"
@@ -191,6 +192,8 @@ func (suite *InventoryManagerTestSuite) TestSingleSKUReservation() {
 	}
 
 	// check if StockItemSummary.Reserved got updated for updated StockItem
+	// hack to wait for summary update goroutine to finish
+	time.Sleep(time.Millisecond * 10)
 
 	var summary models.StockItemSummary
 	suite.db.Where("stock_item_id = ?", resp.ID).First(&summary)
@@ -268,6 +271,18 @@ func (suite *InventoryManagerTestSuite) TestSKUReservationNoOnHand() {
 	assert.NotNil(suite.T(), err)
 }
 
+func (suite *InventoryManagerTestSuite) TestSKUReservationNoSKU() {
+	reqPayload := payloads.Reservation{
+		RefNum: "BR10001",
+		SKUs: []payloads.SKUReservation{
+			payloads.SKUReservation{SKU: "NO-SKU", Qty: 1},
+		},
+	}
+
+	err := suite.invMgr.ReserveItems(reqPayload)
+	assert.NotNil(suite.T(), err)
+}
+
 func (suite *InventoryManagerTestSuite) TestMultipleSKUReservationSummary() {
 	resp1, _ := suite.createStockItem("TEST-RESERVATION-A", 5)
 	resp2, _ := suite.createStockItem("TEST-RESERVATION-B", 5)
@@ -281,6 +296,9 @@ func (suite *InventoryManagerTestSuite) TestMultipleSKUReservationSummary() {
 	}
 
 	suite.invMgr.ReserveItems(reqPayload)
+
+	// hack to wait for summary update goroutine to finish
+	time.Sleep(time.Millisecond * 10)
 
 	var summary1 models.StockItemSummary
 	suite.db.Where("stock_item_id = ?", resp1.ID).First(&summary1)
@@ -303,10 +321,12 @@ func (suite *InventoryManagerTestSuite) TestSubsequentSKUReservationSummary() {
 
 	suite.invMgr.ReserveItems(reqPayload1)
 
+	// hack to wait for summary update goroutine to finish
+	time.Sleep(time.Millisecond * 10)
+
 	var summary models.StockItemSummary
 	suite.db.Where("stock_item_id = ?", resp.ID).First(&summary)
 	assert.Equal(suite.T(), int(reqPayload1.SKUs[0].Qty), summary.OnHold)
-
 
 	reqPayload2 := payloads.Reservation{
 		RefNum: "BR10002",
@@ -316,6 +336,9 @@ func (suite *InventoryManagerTestSuite) TestSubsequentSKUReservationSummary() {
 	}
 
 	suite.invMgr.ReserveItems(reqPayload2)
+
+	// hack to wait for summary update goroutine to finish
+	time.Sleep(time.Millisecond * 10)
 
 	suite.db.Where("stock_item_id = ?", resp.ID).First(&summary)
 	assert.Equal(suite.T(), 8, summary.OnHold)
@@ -336,13 +359,8 @@ func (suite *InventoryManagerTestSuite) TestSingleSKURelease() {
 	err := suite.createReservation(skus, 1, refNum)
 	assert.Nil(suite.T(), err)
 
-	// check we have active reservations
-	reservedUnitsCount := 0
-	suite.db.Model(&models.StockItemUnit{}).Where("ref_num = ?", refNum).Count(&reservedUnitsCount)
-	assert.Equal(suite.T(), 1, reservedUnitsCount, "There should be reserved items")
-
 	onHoldUnitsCount := 0
-	suite.db.Model(&models.StockItemUnit{}).Where("status = ?", "onHold").Count(&onHoldUnitsCount)
+	suite.db.Model(&models.StockItemUnit{}).Where("ref_num = ? AND status = ?", refNum, "onHold").Count(&onHoldUnitsCount)
 	assert.Equal(suite.T(), 1, onHoldUnitsCount, "There should be one unit in onHold status")
 
 	// send release request and check if it was processed successfully
@@ -351,9 +369,30 @@ func (suite *InventoryManagerTestSuite) TestSingleSKURelease() {
 	err = suite.invMgr.ReleaseItems(reqPayload)
 	assert.Nil(suite.T(), err, "Reservation should be successfully removed")
 
-	suite.db.Model(&models.StockItemUnit{}).Where("ref_num = ?", refNum).Count(&reservedUnitsCount)
-	assert.Equal(suite.T(), 0, reservedUnitsCount, "There should not be reserved units")
-
-	suite.db.Model(&models.StockItemUnit{}).Where("status = ?", "onHold").Count(&onHoldUnitsCount)
+	suite.db.Model(&models.StockItemUnit{}).Where("ref_num = ? AND status = ?", refNum, "onHold").Count(&onHoldUnitsCount)
 	assert.Equal(suite.T(), 0, onHoldUnitsCount, "There should not be units in onHold status")
+}
+
+func (suite *InventoryManagerTestSuite) TestSKUReleaseSummary() {
+	skus := []string{"TEST-UNRESERVATION-A"}
+	refNum := "BR10001"
+	reservedCount := 1
+	err := suite.createReservation(skus, reservedCount, refNum)
+	assert.Nil(suite.T(), err)
+
+	// hack to wait for summary update goroutine to finish
+	time.Sleep(time.Millisecond * 10)
+
+	var summary models.StockItemSummary
+	suite.db.Last(&summary)
+
+	assert.Equal(suite.T(), reservedCount, summary.OnHold, "One stock item unit should be onHold")
+
+	suite.invMgr.ReleaseItems(payloads.Release{RefNum: refNum})
+
+	// hack to wait for summary update goroutine to finish
+	time.Sleep(time.Millisecond * 10)
+
+	suite.db.First(&summary)
+	assert.Equal(suite.T(), 0, summary.OnHold, "No stock item units should be onHold")
 }

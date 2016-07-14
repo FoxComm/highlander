@@ -17,7 +17,8 @@ func runReservations(router gin.IRouter) {
 		}
 
 		if err := json.Validate(); err != nil {
-			return err
+			c.AbortWithError(http.StatusBadRequest, err)
+			return
 		}
 
 		mgr, err := services.MakeInventoryManager()
