@@ -10,5 +10,5 @@ create domain sku_code text check (length(value) >= 2);
 create domain stock_item_unit_state text not null check (value in ('onHand', 'onHold', 'reserved'));
 
 --Shipments
-create domain shipment_state text check (value in ('pending', 'shipped', 'delivered', 'cancelled'));
+create domain shipment_state text not null check (value in ('pending', 'shipped', 'delivered', 'cancelled'));
 create domain shipment_failure_reason text check (value in ('outOfStock'));
