@@ -89,7 +89,7 @@ export default class Api {
   // @method addHeaders(headers: Object): FoxApi
   // Add new http headers for next requests
   addHeaders(headers) {
-    Object.assign(this.headers || {}, headers);
+    this.headers = Object.assign(this.headers || {}, headers);
     return this;
   }
 
