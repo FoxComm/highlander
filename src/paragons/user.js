@@ -4,7 +4,7 @@ export function configureUserData(user) {
     name: user.form.attributes.firstAndLastName.v,
     email: user.form.attributes.emailAddress.v,
     phoneNumber: user.form.attributes.phoneNumber.v,
-    state: user.accountState,
+    state: user.accountState.state,
   };
 }
 
