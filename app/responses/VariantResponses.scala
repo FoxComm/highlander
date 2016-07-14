@@ -9,7 +9,7 @@ import utils.aliases._
 
 object VariantResponses {
 
-  type VariantValueskuLinks = Map[Int, Seq[String]]
+  type VariantValueSkuLinks = Map[Int, Seq[String]]
 
   object IlluminatedVariantResponse {
     case class Root(id: Int,
@@ -20,7 +20,7 @@ object VariantResponses {
 
     def build(variant: IlluminatedVariant,
               variantValues: Seq[FullObject[VariantValue]],
-              variantValueSkus: VariantValueskuLinks): Root =
+              variantValueSkus: VariantValueSkuLinks): Root =
       Root(id = variant.id,
            attributes = variant.attributes,
            context = ObjectContextResponse.build(variant.context).some,
@@ -28,7 +28,7 @@ object VariantResponses {
 
     def buildLite(variant: IlluminatedVariant,
                   variantValues: Seq[FullObject[VariantValue]],
-                  variantValueSkus: VariantValueskuLinks): Root =
+                  variantValueSkus: VariantValueSkuLinks): Root =
       Root(id = variant.id,
            attributes = variant.attributes,
            context = None,
@@ -36,7 +36,7 @@ object VariantResponses {
 
     def illuminateValues(
         variantValues: Seq[FullObject[VariantValue]],
-        variantValueSkus: VariantValueskuLinks): Seq[IlluminatedVariantValueResponse.Root] =
+        variantValueSkus: VariantValueSkuLinks): Seq[IlluminatedVariantValueResponse.Root] =
       variantValues.map(
           vv ⇒
             IlluminatedVariantValueResponse
