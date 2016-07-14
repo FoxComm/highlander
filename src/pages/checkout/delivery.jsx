@@ -11,6 +11,7 @@ import Checkbox from 'ui/checkbox';
 import EditableBlock from 'ui/editable-block';
 import { Form } from 'ui/forms';
 import Currency from 'ui/currency';
+import ErrorAlerts from 'wings/lib/ui/alerts/error-alerts';
 
 import type { CheckoutBlockProps } from './types';
 import * as cartActions from 'modules/cart';
@@ -89,6 +90,7 @@ class EditDelivery extends Component {
     return (
       <Form onSubmit={this.handleSubmit}>
         {this.shippingMethods}
+        <ErrorAlerts error={this.props.error} />
         <Button isLoading={this.props.inProgress} styleName="checkout-submit" type="submit">{t('CONTINUE')}</Button>
       </Form>
     );

@@ -56,6 +56,7 @@ class Checkout extends Component {
     isPerformingCheckout: false,
     deliveryInProgress: false,
     shippingInProgress: false,
+    error: null,
   };
 
   componentWillMount() {
@@ -68,16 +69,23 @@ class Checkout extends Component {
 
   performStageTransition(name: string, perform: () => PromiseType): PromiseType {
     return new Promise(resolve => {
-      const finishTransition = () => {
-        this.setState({
-          [name]: false,
-        }, resolve);
-      };
-
       this.setState({
         [name]: true,
+        error: null,
       }, () => {
-        perform().then(finishTransition, finishTransition);
+        perform().then(
+          () => {
+            this.setState({
+              [name]: false,
+            }, resolve);
+          },
+          err => {
+            this.setState({
+              [name]: false,
+              error: err,
+            }, resolve);
+          }
+        );
       });
     });
   }
@@ -121,6 +129,12 @@ class Checkout extends Component {
     });
   }
 
+  errorsFor(stage) {
+    if (this.props.editStage === stage) {
+      return this.state.error;
+    }
+  }
+
   render() {
     const props = this.props;
 
@@ -139,6 +153,7 @@ class Checkout extends Component {
               editAction={this.setShippingStage}
               inProgress={this.state.shippingInProgress}
               continueAction={this.setDeliveryStage}
+              error={this.errorsFor(EditStages.SHIPPING)}
             />
             <Delivery
               isEditing={props.editStage == EditStages.DELIVERY}
@@ -147,6 +162,7 @@ class Checkout extends Component {
               editAction={this.setDeliveryStage}
               inProgress={this.state.deliveryInProgress}
               continueAction={this.setBillingState}
+              error={this.errorsFor(EditStages.DELIVERY)}
             />
             <Billing
               isEditing={props.editStage == EditStages.BILLING}
@@ -155,6 +171,7 @@ class Checkout extends Component {
               editAction={this.setBillingState}
               inProgress={this.state.isPerformingCheckout}
               continueAction={this.placeOrder}
+              error={this.errorsFor(EditStages.BILLING)}
             />
           </div>
           <div styleName="right-forms">

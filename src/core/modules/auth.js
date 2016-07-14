@@ -22,7 +22,7 @@ type LoginPayload = {
 };
 
 export const setUser = createAction('USER_SET');
-export const removeUser = createAction('REMOVE_USER');
+export const logoutAction = createAction('AUTH_LOGOUT');
 export const setJwt = createAction('AUTH_SET_JWT');
 
 export const signUp = createAsyncActions('auth-signup', function signUp(payload: SignUpPayload): Promise {
@@ -50,7 +50,8 @@ export function googleSignin(): asyncAction<void> {
 export const logout = createAsyncActions('auth-logout', function logout(): Promise {
   return api.auth.logout()
     .then(() => {
-      this.dispatch(removeUser());
+      api.removeAuth();
+      this.dispatch(logoutAction());
     });
 }).perform;
 
@@ -70,8 +71,8 @@ const reducer = createReducer({
       user,
     };
   },
-  [removeUser]: (state) => {
-    return dissoc(state, 'user');
+  [logoutAction]: (state) => {
+    return dissoc(state, 'user', 'jwt');
   },
 }, initialState);
 

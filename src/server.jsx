@@ -15,8 +15,11 @@ const createServerHistory = useQueries(createHistory);
 export default function *renderReact() {
   const history = createServerHistory(this.url);
 
+  const authHeader = this.get('Authorization');
+
   const { auth, i18n } = this.state;
   const initialState = auth ? {auth} : {};
+  if (authHeader) initialState.authHeader = authHeader;
 
   const store = makeStore(history, initialState);
 

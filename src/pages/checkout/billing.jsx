@@ -22,6 +22,7 @@ import EditAddress from './edit-address';
 import Icon from 'ui/icon';
 import ViewAddress from './view-address';
 import CvvHelp from './cvv-help';
+import ErrorAlerts from 'wings/lib/ui/alerts/error-alerts';
 
 import type { CheckoutBlockProps } from './types';
 import * as checkoutActions from 'modules/checkout';
@@ -233,6 +234,7 @@ class EditBilling extends Component {
           {t('Billing address is same as shipping')}
         </Checkbox>
         {this.billingAddress}
+        <ErrorAlerts error={this.props.error} />
         <Button isLoading={props.inProgress} styleName="checkout-submit" type="submit">{t('PLACE ORDER')}</Button>
       </Form>
     );

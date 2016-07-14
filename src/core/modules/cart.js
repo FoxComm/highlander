@@ -75,7 +75,7 @@ function addToLineItems(items, id, quantity) {
 }
 
 function changeCart(payload) {
-  return this.phoenix.post('/v1/my/cart/line-items', payload);
+  return this.api.post('/v1/my/cart/line-items', payload);
 }
 
 const { fetch: submitChange, ...changeCartActions } = createAsyncActions('cartChange', changeCart);
@@ -107,7 +107,7 @@ export function deleteLineItem(id) {
 }
 
 function fetchMyCart(): global.Promise {
-  return this.phoenix.get(`/v1/my/cart`);
+  return this.api.get(`/v1/my/cart`);
 }
 
 const {fetch, ...actions} = createAsyncActions('cart', fetchMyCart);
