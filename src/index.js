@@ -59,6 +59,14 @@ export default class Api {
     return this;
   }
 
+  // @method removeAuth(): FoxApi
+  // Removes jwt authorization header
+  removeAuth() {
+    this.headers = _.omit(this.headers, 'JWT');
+    this._jwt = null;
+    return this;
+  }
+
   // @method getCustomerId(): Number|null
   // Returns customer id from parsed jwt string
   // You can define jwt string via `addAuth` method, if there is no jwt strings method returns null.
