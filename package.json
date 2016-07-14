@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/FoxComm/api-js#readme",
   "dependencies": {
+    "debug": "^2.2.0",
     "isomorphic-fetch": "^2.2.1",
     "jwt-decode": "^2.0.1",
     "postinstall-build": "^0.2.1"

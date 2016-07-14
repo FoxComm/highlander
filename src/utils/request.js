@@ -3,6 +3,9 @@
 // ES6 not ES7 because spread operator is pretty useful here...
 
 import fetch from 'isomorphic-fetch';
+import makeDebug from 'debug';
+
+const debug = makeDebug('foxapi');
 
 export function appendQueryString(url, queryString) {
   if (!queryString) {
@@ -57,11 +60,16 @@ export default function request(method, uri, data, options) {
 
   let error = null;
 
+  debug(`${method.toUpperCase()} ${uri}`);
+  if (debug.enabled && data) {
+    debug(JSON.stringify(data));
+  }
   const promise = fetch(uri, options);
 
   if (options.handleResponse !== false) {
     return promise
       .then(response => {
+        debug(`${response.status} ${method.toUpperCase()} ${uri}`);
         if (response.status < 200 || response.status >= 300) {
           const message = `${method.toUpperCase()} ${uri} responded with ${response.statusText}`;
           error = new Error(message);
