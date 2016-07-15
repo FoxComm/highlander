@@ -143,8 +143,7 @@ object ProductManager {
   def archiveByContextAndId(
       productId: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[ProductResponse.Root] =
     for {
-      productObject ← * <~ ObjectManager.getFullObject(
-                         mustFindProductByContextAndId404(oc.id, productId))
+      productObject ← * <~ mustFindFullProductById(productId)
 
       archiveResult ← * <~ Products.update(
                          productObject.model,

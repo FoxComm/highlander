@@ -5,8 +5,7 @@ import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
 import failures.NotFoundFailure404
-import failures.ObjectFailures._
-import failures.ProductFailures.ProductNotFoundForContext
+import failures.ProductFailures._
 import models.StoreAdmins
 import models.objects._
 import models.product._
@@ -205,8 +204,7 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
   }
 
   "PATCH v1/products/:context/:id" - {
-    def doQuery(formId: Int,
-                productPayload: UpdateProductPayload)(implicit context: ObjectContext) = {
+    def doQuery(formId: Int, productPayload: UpdateProductPayload)(implicit context: OC) = {
       val response = PATCH(s"v1/products/${context.name}/$formId", productPayload)
       response.status must === (StatusCodes.OK)
       response.as[ProductResponse.Root]
@@ -300,7 +298,7 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
 
   "POST v1/products/:context/:id/archive" - {
     "Archives product successfully" in new Fixture {
-      val response = POST(s"v1/products/${context.name}/${product.formId}/archive")
+      val response = POST(s"v1/products/${ctx.name}/${product.formId}/archive")
 
       response.status must === (StatusCodes.OK)
 
@@ -311,7 +309,7 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
     }
 
     "SKUs must be unlinked" in new VariantFixture {
-      val response = POST(s"v1/products/${context.name}/${product.formId}/archive")
+      val response = POST(s"v1/products/${ctx.name}/${product.formId}/archive")
 
       response.status must === (StatusCodes.OK)
 
@@ -320,7 +318,7 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
     }
 
     "Variants must be unlinked" in new VariantFixture {
-      val response = POST(s"v1/products/${context.name}/${product.formId}/archive")
+      val response = POST(s"v1/products/${ctx.name}/${product.formId}/archive")
 
       response.status must === (StatusCodes.OK)
 
@@ -329,7 +327,7 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
     }
 
     "Albums must be unlinked" in new VariantFixture {
-      val response = POST(s"v1/products/${context.name}/${product.formId}/archive")
+      val response = POST(s"v1/products/${ctx.name}/${product.formId}/archive")
 
       response.status must === (StatusCodes.OK)
 
@@ -338,10 +336,10 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
     }
 
     "Responds with NOT FOUND when wrong product is requested" in new VariantFixture {
-      val response = POST(s"v1/products/${context.name}/666/archive")
+      val response = POST(s"v1/products/${ctx.name}/666/archive")
 
       response.status must === (StatusCodes.NotFound)
-      response.error must === (ProductNotFoundForContext(666, context.id).description)
+      response.error must === (ProductFormNotFoundForContext(666, ctx.id).description)
     }
 
     "Responds with NOT FOUND when wrong context is requested" in new VariantFixture {
