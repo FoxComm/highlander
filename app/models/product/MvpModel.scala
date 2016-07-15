@@ -85,14 +85,19 @@ case class SimpleAlbum(name: String, image: String) {
       images =
         Seq(ImagePayload(id = Some(1), src = image, title = image.some, alt = image.some)).some)
 
-  def create: ObjectForm = payload.formAndShadow.form
+  val (keyMap, form) = ObjectUtils.createForm(payload.formAndShadow.form.attributes)
+
+  def create: ObjectForm = ObjectForm(kind = Album.kind, attributes = form)
 
   def update(oldForm: ObjectForm): ObjectForm =
     oldForm.copy(attributes = oldForm.attributes.merge(create.attributes))
 }
 
 case class SimpleAlbumShadow(album: SimpleAlbum) {
-  def create: ObjectShadow = album.payload.formAndShadow.shadow
+
+  val shadow = ObjectUtils.newShadow(album.payload.formAndShadow.shadow.attributes, album.keyMap)
+
+  def create: ObjectShadow = ObjectShadow(attributes = shadow)
 }
 
 case class SimpleSku(code: String,
@@ -240,10 +245,11 @@ object Mvp {
       oldSkuForm ← * <~ ObjectForms.mustFindById404(sku.formId)
       skuForm    ← * <~ ObjectForms.update(oldSkuForm, simpleSku.update(oldSkuForm))
 
-      //find album sku form for the product and update it
+      //find album form for the product and update it
       albumLink ← * <~ ObjectLinks
                    .findByLeftAndType(product.shadowId, ObjectLink.ProductAlbum)
                    .mustFindOneOr(ObjectLeftLinkCannotBeFound(product.shadowId))
+
       album ← * <~ Albums
                .filter(_.contextId === oldContextId)
                .filter(_.shadowId === albumLink.rightId)
