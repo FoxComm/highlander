@@ -1,22 +1,15 @@
+/* @flow */
+
 import _ from 'lodash';
-import { autobind } from 'core-decorators';
-import { connect } from 'react-redux';
-import React, { PropTypes } from 'react';
-import { trackEvent } from 'lib/analytics';
+import React, { Component, Element } from 'react';
 
-import * as lineItemActions from '../../modules/orders/line-items';
-import * as skuSearchActions from '../../modules/orders/sku-search';
-
-import ConfirmationDialog from '../modal/confirmation-dialog';
-import EditableContentBox from '../content-box/editable-content-box';
-import ContentBox from '../content-box/content-box';
+import ContentBox from 'components/content-box/content-box';
 import OrderLineItem from './order-line-item';
 import PanelHeader from './panel-header';
 import SkuResult from './sku-result';
-import TableView from '../table/tableview';
-import Typeahead from '../typeahead/typeahead';
+import TableView from 'components/table/tableview';
 
-const viewModeColumns = [
+const columns = [
   {field: 'imagePath', text: 'Image', type: 'image'},
   {field: 'name', text: 'Name'},
   {field: 'sku', text: 'SKU'},
@@ -25,64 +18,40 @@ const viewModeColumns = [
   {field: 'totalPrice', text: 'Total', type: 'currency'}
 ];
 
-const editModeColumns = [
-  {field: 'imagePath', text: 'Image', type: 'image'},
-  {field: 'name', text: 'Name'},
-  {field: 'sku', text: 'SKU'},
-  {field: 'price', text: 'Price', type: 'currency'},
-  {field: 'lineItem', text: 'Qty', component: 'LineItemCounter'},
-  {field: 'totalPrice', text: 'Total', type: 'currency'},
-  {field: 'delete', text: '', component: 'DeleteLineItem'}
-];
-
-const mapStateToProps = state => {
-  return {
-    lineItems: state.orders.lineItems,
-    skuSearch: state.orders.skuSearch,
-  };
+// TODO: Generate a real typed object here.
+type Props = {
+  order: Object,
 };
 
-const mapDispatchToProps = {
-  ...lineItemActions,
-  ...skuSearchActions,
-};
+export default class OrderLineItems extends Component {
+  props: Props;
 
-export class OrderLineItems extends React.Component {
-  static propTypes = {
-    isCart: PropTypes.bool,
-    order: PropTypes.object,
-    lineItems: PropTypes.object,
-    orderLineItemsStartEdit: PropTypes.func,
-    orderLineItemsCancelEdit: PropTypes.func,
-    status: PropTypes.string,
-    readOnly: PropTypes.bool,
-  };
-
-  static defaultProps = {
-    isCart: false,
-    status: '',
-    readOnly: false,
-  };
+  collectLineItems(skus) {
+    let uniqueSkus = {};
+    const items = _.transform(skus, (result, lineItem) => {
+      const sku = lineItem.sku;
+      if (_.isNumber(uniqueSkus[sku])) {
+        const qty = result[uniqueSkus[sku]].quantity += 1;
+        result[uniqueSkus[sku]].totalPrice = lineItem.price * qty;
+      } else {
+        uniqueSkus[sku] = result.length;
+        result.push({ ...lineItem, quantity: 1 });
+      }
+    });
+    return items;
+  }
 
   render() {
-    const props = this.props;
-
-    const title = (
-      <PanelHeader
-        isCart={props.isCart}
-        status={props.status}
-        text="Items" />
-    );
-
-    const items = _.get(props, 'lineItems.items', []);
+    const items = _.get(this.props, 'order.currentOrder.lineItems.skus', []);
 
     let viewContent = null;
     if (items.length > 0) {
+      const collectedItems = this.collectLineItems(items);
       viewContent = (
         <TableView
-          columns={viewModeColumns}
+          columns={columns}
           emptyMessage="No items yet."
-          data={{rows: props.lineItems.items}} />
+          data={{rows: collectedItems}} />
       );
     } else {
       viewContent = (
@@ -92,117 +61,12 @@ export class OrderLineItems extends React.Component {
       );
     }
 
-    const LineItemsContentBox = props.readOnly || !props.isCart
-      ? ContentBox
-      : EditableContentBox;
-
-    const isCheckingOut = _.get(props, 'order.isCheckingOut', false);
-    const editAction = isCheckingOut ? null : () => {
-      trackEvent('Orders', 'edit_line_items');
-      props.orderLineItemsStartEdit();
-    };
-
-    const doneAction = () => {
-      trackEvent('Orders', 'edit_line_items_done');
-      props.orderLineItemsCancelEdit();
-    };
-
     return (
-      <LineItemsContentBox
+      <ContentBox
         className='fc-line-items'
-        title={title}
-        isEditing={props.lineItems.isEditing}
-        editAction={editAction}
-        doneAction={doneAction}
-        editContent={<RenderEditContent {...props} />}
-        editFooter={<RenderEditFooter {...props} />}
+        title="Items"
         indentContent={false}
         viewContent={viewContent} />
     );
   }
 }
-
-class RenderEditContent extends React.Component {
-
-  static propTypes = {
-    orderLineItemsCancelDelete: PropTypes.func,
-    deleteLineItem: PropTypes.func
-  };
-
-  render() {
-    const props = this.props;
-    const order = props.order.currentOrder;
-    const lineItemsStatus = props.lineItems;
-
-    const renderRow = (lineItem) => {
-      return <OrderLineItem key={`lineItem-${lineItem.sku}`} item={lineItem} {...props} />;
-    };
-
-    return (
-      <div>
-        <TableView columns={ editModeColumns }
-                   data={{rows: lineItemsStatus.items}}
-                   renderRow={ renderRow }
-                   emptyMessage="No items yet."/>
-        <ConfirmationDialog
-          isVisible={lineItemsStatus.isDeleting}
-          header="Confirm"
-          body="Are you sure you want to delete this item?"
-          cancel="Cancel"
-          confirm="Yes, Delete"
-          cancelAction={() => props.orderLineItemsCancelDelete(lineItemsStatus.skuToDelete)}
-          confirmAction={() => props.deleteLineItem(order, lineItemsStatus.skuToDelete)} />
-      </div>
-    );
-  }
-}
-
-class RenderEditFooter extends React.Component {
-
-  static propTypes = {
-    updateLineItemCount: PropTypes.func,
-    order: PropTypes.object,
-    lineItems: PropTypes.object,
-    skuSearch: PropTypes.object,
-    suggestSkus: PropTypes.func,
-  };
-
-  componentDidMount() {
-  }
-
-  @autobind
-  currentQuantityForSku(sku) {
-    let skus = _.get(this.props, 'lineItems.items', []);
-    let matched = skus.find((o) => { return o.sku === sku;});
-    return _.isEmpty(matched) ? 0 : matched.quantity;
-  }
-
-  @autobind
-  skuSelected(item) {
-    const order = this.props.order.currentOrder;
-    const newQuantity = this.currentQuantityForSku(item.code) + 1;
-    this.props.updateLineItemCount(order, item.code, newQuantity);
-  }
-
-  render() {
-    const suggestedSkus = _.get(this.props, 'skuSearch.results.rows', []);
-    const isFetching = _.get(this.props, 'skuSearch.results.isFetching', false);
-    const query = _.get(this.props, 'skuSearch.phrase', '');
-    return (
-      <div className="fc-line-items-add">
-        <div className="fc-line-items-add-label">
-          <strong>Add Item</strong>
-        </div>
-        <Typeahead onItemSelected={this.skuSelected}
-                   component={SkuResult}
-                   isFetching={isFetching}
-                   fetchItems={this.props.suggestSkus}
-                   items={suggestedSkus}
-                   query={query}
-                   placeholder="Product name or SKU..."/>
-      </div>
-    );
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(OrderLineItems);

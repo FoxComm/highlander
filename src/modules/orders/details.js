@@ -1,9 +1,8 @@
 
 import _ from 'lodash';
-import Api from '../../lib/api';
+import Api from 'lib/api';
 import { createAction, createReducer } from 'redux-act';
 import { assoc } from 'sprout-data';
-import { orderLineItemsFetchSuccess } from './line-items';
 import OrderParagon from '../../paragons/order';
 
 export const orderRequest = createAction('ORDER_REQUEST');
@@ -24,11 +23,10 @@ function baseFetchOrder(url, actionBefore) {
   return dispatch => {
     dispatch(actionBefore);
     return Api.get(url)
-      .then(order => {
-          dispatch(orderSuccess(order));
-          dispatch(orderLineItemsFetchSuccess(order));
-        },
-        err => dispatch(orderFailed(err, baseFetchOrder)));
+      .then(
+        order => dispatch(orderSuccess(order)),
+        err => dispatch(orderFailed(err, baseFetchOrder))
+      );
   };
 }
 
@@ -59,10 +57,7 @@ export function updateOrder(id, data) {
     dispatch(orderRequest(id));
     Api.patch(`/orders/${id}`, data)
       .then(
-        order => {
-          dispatch(orderSuccess(order));
-          dispatch(orderLineItemsFetchSuccess(order));
-        },
+        order => dispatch(orderSuccess(order)),
         err => dispatch(orderFailed(id, err, updateOrder))
       );
   };
@@ -73,10 +68,7 @@ export function increaseRemorsePeriod(refNum) {
     dispatch(orderRequest(refNum));
     return Api.post(`/orders/${refNum}/increase-remorse-period`)
       .then(
-        order => {
-          dispatch(orderSuccess(order));
-          dispatch(orderLineItemsFetchSuccess(order));
-        },
+        order => dispatch(orderSuccess(order)),
         err => dispatch(orderFailed(err, fetchOrder))
       );
   };
