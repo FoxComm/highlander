@@ -76,9 +76,9 @@ begin
         inner join sku_search_view as sku on (sku.context_id = context.id and sku.code = sv.skus->>0)
         left join product_album_links_view as albumLink on (albumLink.product_id = p.id)
       where p.id = any(insert_ids) and
-            (f.attributes->>(s.attributes->'activeFrom'->>'ref'))::timestamp < CURRENT_TIMESTAMP and
-            (((f.attributes->>(s.attributes->'activeTo'->>'ref')) = '') IS NOT FALSE or
-            ((f.attributes->>(s.attributes->'activeTo'->>'ref'))::timestamp >= CURRENT_TIMESTAMP));
+            (f.attributes->>(s.attributes->'activeFrom'->>'ref'))::timestamp < current_timestamp and
+            (((f.attributes->>(s.attributes->'activeTo'->>'ref')) = '') is not false or
+            ((f.attributes->>(s.attributes->'activeTo'->>'ref'))::timestamp >= current_timestamp));
     end if;
 
   if array_length(update_ids, 1) > 0 then
@@ -111,9 +111,9 @@ begin
         inner join sku_search_view as sku on (sku.context_id = context.id and sku.code = sv.skus->>0)
         left join product_album_links_view as albumLink on (albumLink.product_id = p.id)
       where p.id = any(update_ids) and
-            (f.attributes->>(s.attributes->'activeFrom'->>'ref'))::timestamp < CURRENT_TIMESTAMP and
-            (((f.attributes->>(s.attributes->'activeTo'->>'ref')) = '') IS NOT FALSE or
-            ((f.attributes->>(s.attributes->'activeTo'->>'ref'))::timestamp >= CURRENT_TIMESTAMP)))
+            (f.attributes->>(s.attributes->'activeFrom'->>'ref'))::timestamp < current_timestamp and
+            (((f.attributes->>(s.attributes->'activeTo'->>'ref')) = '') is not false or
+            ((f.attributes->>(s.attributes->'activeTo'->>'ref'))::timestamp >= current_timestamp)))
       as subquery
   where products_catalog_view.id = subquery.id;
   end if;
@@ -155,10 +155,10 @@ begin
     where p.id = new.id and
       (((f.attributes->>(s.attributes->'activeFrom'->>'ref')) = '') is not false
       or
-      (f.attributes->>(s.attributes->'activeFrom'->>'ref'))::timestamp >= CURRENT_TIMESTAMP
+      (f.attributes->>(s.attributes->'activeFrom'->>'ref'))::timestamp >= current_timestamp
       or
         (((f.attributes->>(s.attributes->'activeTo'->>'ref')) = '') IS FALSE and
-        ((f.attributes->>(s.attributes->'activeTo'->>'ref'))::timestamp < CURRENT_TIMESTAMP))));
+        ((f.attributes->>(s.attributes->'activeTo'->>'ref'))::timestamp < current_timestamp))));
 
 return null;
 end;

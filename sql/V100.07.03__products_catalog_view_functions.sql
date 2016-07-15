@@ -12,12 +12,12 @@ delete from products_catalog_view where id IN (select p.id
   inner join object_forms as f on (f.id = p.form_id)
   inner join object_shadows as s on (s.id = p.shadow_id)
   where
-    ((f.attributes->>(s.attributes->'activeFrom'->>'ref')) = '') IS NOT FALSE
+    ((f.attributes->>(s.attributes->'activeFrom'->>'ref')) = '') is not false
     or
-    (f.attributes->>(s.attributes->'activeFrom'->>'ref'))::timestamp >= CURRENT_TIMESTAMP
+    (f.attributes->>(s.attributes->'activeFrom'->>'ref'))::timestamp >= current_timestamp
     or
       (((f.attributes->>(s.attributes->'activeTo'->>'ref')) = '') IS FALSE and
-      ((f.attributes->>(s.attributes->'activeTo'->>'ref'))::timestamp < CURRENT_TIMESTAMP)));
+      ((f.attributes->>(s.attributes->'activeTo'->>'ref'))::timestamp < current_timestamp)));
 
     -- add new products (inactive -> active transition)
     select array_agg(p.id) into insert_ids
@@ -26,9 +26,9 @@ delete from products_catalog_view where id IN (select p.id
       inner join object_forms as f on (f.id = p.form_id)
       inner join object_shadows as s on (s.id = p.shadow_id)
     where pv.id is null and -- check that product not in products_catalog_view yet
-        (f.attributes->>(s.attributes->'activeFrom'->>'ref'))::timestamp < CURRENT_TIMESTAMP and
-        (((f.attributes->>(s.attributes->'activeTo'->>'ref')) = '') IS NOT FALSE or
-        ((f.attributes->>(s.attributes->'activeTo'->>'ref'))::timestamp >= CURRENT_TIMESTAMP));
+        (f.attributes->>(s.attributes->'activeFrom'->>'ref'))::timestamp < current_timestamp and
+        (((f.attributes->>(s.attributes->'activeTo'->>'ref')) = '') is not false or
+        ((f.attributes->>(s.attributes->'activeTo'->>'ref'))::timestamp >= current_timestamp));
 
     if array_length(insert_ids, 1) > 0 then
       insert into products_catalog_view select
