@@ -1,14 +1,8 @@
--- activities
-refresh materialized view concurrently activity_connections_view;
-
 -- customers
 refresh materialized view concurrently customers_ranking;
 
 -- orders
 refresh materialized view concurrently order_stats_view;
-
--- store_admins
-refresh materialized view concurrently store_admins_search_view;
 
 -- store_credits
 refresh materialized view concurrently store_credit_admins_view;
@@ -47,10 +41,6 @@ refresh materialized view concurrently notes_products_view;
 refresh materialized view concurrently notes_promotions_view;
 refresh materialized view concurrently notes_coupons_view;
 refresh materialized view concurrently notes_search_view;
-
--- inventory
-refresh materialized view concurrently inventory_search_view;
-refresh materialized view concurrently inventory_transactions_search_view;
 
 -- pim
 refresh materialized view concurrently customer_purchased_items_view;
