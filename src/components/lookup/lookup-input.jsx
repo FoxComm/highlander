@@ -15,9 +15,7 @@ const prefixed = prefix('fc-lookup');
  */
 const LookupInput = ({className, ...rest}) => {
   return (
-    <TextInput className={classNames(prefixed('input'), className)}
-               autoFocus={true}
-               {...rest} />
+    <TextInput className={classNames(prefixed('input'), className)} {...rest} />
   );
 };
 
