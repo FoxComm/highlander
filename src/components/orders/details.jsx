@@ -36,8 +36,8 @@ const OrderDetails = props => {
     <div className="fc-order-details">
       <div className="fc-order-details-body">
         <div className="fc-order-details-main">
-          <OrderLineItems isCart={false} status={itemsStatus} {...props} />
-          <OrderDiscounts isCart={false} order={currentOrder} />
+          <OrderLineItems order={currentOrder} />
+          <OrderDiscounts order={currentOrder} />
           <OrderShippingAddress isCart={false} status={shippingAddressStatus} order={currentOrder} />
           <OrderShippingMethod isCart={false} status={shippingMethodStatus} {...props} />
           <OrderCoupons isCart={false} order={currentOrder} />

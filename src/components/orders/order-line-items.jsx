@@ -42,7 +42,7 @@ export default class OrderLineItems extends Component {
   }
 
   render() {
-    const items = _.get(this.props, 'order.currentOrder.lineItems.skus', []);
+    const items = _.get(this.props, 'order.lineItems.skus', []);
 
     let viewContent = null;
     if (items.length > 0) {
