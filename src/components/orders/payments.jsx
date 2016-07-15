@@ -58,8 +58,6 @@ export default class Payments extends React.Component {
       const id = row.id || row.code;
       const Renderer = this.getRowRenderer(row.type);
 
-      console.log(Renderer);
-
       const props = {
         paymentMethod: row,
         editMode: false,
