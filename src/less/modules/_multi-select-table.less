@@ -1,15 +1,14 @@
 .fc-multi-select-table {
-  table-layout: auto;
-  width: 100%;
   white-space: nowrap;
 
-  tbody {
-    .fc-table-tr:hover {
+  tr:hover, .fc-table-tr:hover {
+    td, .fc-table-td {
       background: @color-decor35;
-
-      .fc-table-td {
-        cursor: pointer;
-      }
+      cursor: pointer;
     }
+  }
+
+  time {
+    white-space: nowrap;
   }
 }

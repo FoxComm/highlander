@@ -18,22 +18,56 @@
   }
 }
 
+.fc-table-wrap {
+  position: relative;
+  border: 1px solid @color-border-td;
+
+  &::before, &::after {
+    content: " ";
+    display: table;
+  }
+
+  &::after {
+    clear: both;
+  }
+
+  .fc-table-message {
+    padding: 10px 15px;
+    z-index: 2;
+    background: #fff;
+
+    &__inline {
+      position: absolute;
+      width: 100%;
+      top: 62px;
+      bottom: 0;
+      padding-top: 40px;
+      background: rgba(255, 255, 255, .72);
+    }
+  }
+}
+
 .fc-table {
   display: table;
   table-layout: auto;
   width: 100%;
-  border: 1px solid @color-border-td;
 
-  thead {
+  thead, .fc-table-head {
+    display: table-header-group;
 
-    th {
+    th, .fc-table-th {
+      display: table-cell;
       position: relative;
       vertical-align: middle;
-      .colors(@color-th-fg, @color-th-bg);
+      color: @color-th-fg;
+      background: @color-th-bg;
       padding: 10px 15px;
-      .font-spec(13px, 600, 18px);
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 18px;
+      border-right: 1px solid @color-th-border;
+      border-bottom: 1px solid @color-th-border;
       height: 62px;
-      border: 1px solid @color-th-border;
       user-select: none;
       background-clip: padding-box;
 
@@ -84,10 +118,12 @@
 
       &.__select-column {
         width: 80px;
+        padding: 19px 15px;
         text-align: center;
       }
 
       &.__toggle-columns {
+        position: static;
         padding: 0;
         .font-spec(18px, 400, 18px);
         width: 70px;
@@ -95,13 +131,20 @@
     }
   }
 
-  tbody {
+  tbody, .fc-table-body {
+    display: table-row-group;
+
     tr, .fc-table-tr {
       display: table-row;
       width: 100%;
 
-      border: 1px solid @color-decor9;
       transition: background-color 500ms;
+
+      &:last-child {
+        td, .fc-table-td {
+          border-bottom: none;
+        }
+      }
 
       &:nth-child(odd),
       &.odd {
@@ -118,7 +161,7 @@
       }
     }
 
-    td {
+    td, .fc-table-td {
       display: table-cell;
       height: 55px;
       padding: 10px 15px;
@@ -126,6 +169,9 @@
       color: @color-decor1;
       vertical-align: middle;
       background-clip: padding-box;
+      border-bottom: 1px solid @color-decor9;
+
+      transition: background-color 500ms;
 
       &._no-results {
         font-weight: @semibold;

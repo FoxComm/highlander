@@ -59,10 +59,10 @@ class TableHead extends React.Component {
 
   render() {
     return (
-      <thead>
-      <TableRow>
-        {this.props.columns.map(this.renderColumn)}
-      </TableRow>
+      <thead className="fc-table-head">
+        <TableRow>
+          {this.props.columns.map(this.renderColumn)}
+        </TableRow>
       </thead>
     );
   }

@@ -65,6 +65,7 @@ export default class SearchList extends React.Component {
         <TableView
           {...props}
           data={results}
+          dataTable={true}
           columns={props.tableColumns}
           isLoading={results.isFetching}
           failed={results.failed} />

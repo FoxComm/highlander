@@ -7,13 +7,6 @@
   cursor: pointer;
 }
 
-.payment-row {
-  & td {
-    padding: 15px;
-    vertical-align: top;
-  }
-}
-
 :global(.fc-editable-content-box.is-editing) {
   & .payment-row {
     & td:last-child {
@@ -27,9 +20,23 @@
   }
 }
 
-:global(.fc-table) tbody .details-row td {
-  vertical-align: top;
-  padding: 0 15px 15px 60px;
+
+:global(.fc-table) {
+  & .payment-row :global(.fc-table-td),
+  & .details-row :global(.fc-table-td) {
+    background: #fff;
+    border-bottom: none;
+  }
+
+  & .payment-row :global(.fc-table-td) {
+    padding: 15px;
+    vertical-align: top;
+  }
+
+  & .payment-row :global(.fc-table-td) {
+    padding: 15px;
+    vertical-align: top;
+  }
 }
 
 .details-row {
@@ -60,17 +67,8 @@
   text-align: right;
 }
 
-:global(.fc-table) tbody tr.payment-row,
-:global(.fc-table) tbody tr.details-row {
-  background: #fff;
-  border-bottom: 0;
-}
-:global .fc-order-payment .fc-table tbody:nth-child(odd) tr {
+:global .fc-order-payment .fc-table-body:nth-child(odd) .fc-table-tr {
   background: #f7f7f7;
-}
-
-:global(.fc-table) tbody tr.details-row {
-  border: 0;
 }
 
 :global .fc-order-payment .fc-credit-card-form {

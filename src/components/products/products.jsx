@@ -50,7 +50,7 @@ export class Products extends Component<void, Props, void> {
     const { list, actions } = this.props;
 
     return (
-      <div>
+      <div className="fc-products-list">
         <SelectableSearchList
           emptyMessage="No products found."
           list={list}

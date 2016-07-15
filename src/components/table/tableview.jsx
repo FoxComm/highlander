@@ -1,10 +1,11 @@
 // libs
 import _ from 'lodash';
-import React, { PropTypes } from 'react';
+import React, { Component, PropTypes } from 'react';
 import classNames from 'classnames';
 
 // components
 import Table from './table';
+import DataTable from './data-table';
 import ActionsDropdown from '../bulk-actions/actions-dropdown';
 import TablePaginator from './paginator';
 import TablePageSize from './pagesize';
@@ -62,11 +63,13 @@ const TableView = props => {
     bottomItems.push(<TablePageSize setState={setState} value={size} />, flexSeparator, tablePaginator);
   }
 
+  const TableComponent = props.dataTable ? DataTable : Table;
+
   return (
     <div className="fc-tableview">
       {getLine('header', topItems)}
       <div className="fc-table__table">
-        <Table {...props} setState={setState} />
+        <TableComponent {...props} setState={setState} />
       </div>
       {getLine('footer', bottomItems)}
     </div>
@@ -75,6 +78,7 @@ const TableView = props => {
 
 TableView.propTypes = {
   columns: PropTypes.array.isRequired,
+  dataTable: PropTypes.bool,
   data: PropTypes.shape({
     rows: PropTypes.array,
     total: PropTypes.number,
@@ -99,6 +103,7 @@ TableView.propTypes = {
 TableView.defaultProps = {
   paginator: true,
   bulkActions: [],
+  dataTable: false,
   data: {
     rows: [],
     total: 0,

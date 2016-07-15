@@ -26,7 +26,7 @@
     }
   }
 
-  & tr.details-row:nth-child(even) {
+  & :global(.fc-table-tr).details-row:nth-child(even) {
     border-top: none;
     background-color: white;
 

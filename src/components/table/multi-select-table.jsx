@@ -14,6 +14,7 @@ import ColumnSelector from './column-selector';
 export default class MultiSelectTable extends React.Component {
   static propTypes = {
     columns: PropTypes.array.isRequired,
+    dataTable: PropTypes.bool,
     data: PropTypes.shape({
       rows: PropTypes.array,
       total: PropTypes.number,
@@ -32,6 +33,7 @@ export default class MultiSelectTable extends React.Component {
   };
 
   static defaultProps = {
+    dataTable: true,
     hasActionsColumn: true,
     predicate: entity => entity.id,
     columns: [],
@@ -146,7 +148,7 @@ export default class MultiSelectTable extends React.Component {
     const selectColumn = {
       field: 'selectColumn',
       control: this.checkboxHead,
-      className: '__select-column',
+      className: '__select-column row-head-left',
       sortable: false,
     };
 
@@ -155,7 +157,7 @@ export default class MultiSelectTable extends React.Component {
       control: <ColumnSelector setColumns={this.setColumnSelected}
                                columns={this.props.columns}
                                identifier={this.getTableIdentifier()} />,
-      className: '__toggle-columns',
+      className: '__toggle-columns row-head-right',
       sortable: false,
     };
 
