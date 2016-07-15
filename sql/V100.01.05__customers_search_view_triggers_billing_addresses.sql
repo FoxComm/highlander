@@ -1,7 +1,7 @@
 create or replace function update_customers_view_from_billing_addresses_fn() returns trigger as $$
 declare customer_ids integer[];
 begin
-  case TG_TABLE_NAME
+  case tg_table_name
     when 'credit_cards' then
       customer_ids := array_agg(new.customer_id);
     when 'regions' then

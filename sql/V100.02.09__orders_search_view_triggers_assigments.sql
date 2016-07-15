@@ -1,7 +1,7 @@
 create or replace function update_orders_view_from_assignments_fn() returns trigger as $$
 declare cord_refs text[];
 begin
-  case TG_TABLE_NAME
+  case tg_table_name
     when 'assignments' then
       select array_agg(o.id) into strict cord_refs
       from assignments as a

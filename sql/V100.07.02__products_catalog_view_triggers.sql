@@ -27,7 +27,7 @@ declare
   update_ids int[];
 begin
 
-  case TG_TABLE_NAME
+  case tg_table_name
     when 'products' then
       product_ids := array_agg(new.id);
     when 'product_sku_links_view' then

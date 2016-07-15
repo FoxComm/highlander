@@ -54,4 +54,4 @@ delete from products_catalog_view where id IN (select p.id
 return true;
 
 end;
-$$ LANGUAGE plpgsql;
+$$ language plpgsql;

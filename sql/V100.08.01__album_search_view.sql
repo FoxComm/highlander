@@ -68,7 +68,7 @@ create trigger update_albums_view_from_object_contexts
 create or replace function update_albums_view_from_object_attrs_fn() returns trigger as $$
  declare album_ids int[];
  begin
-   case TG_TABLE_NAME
+   case tg_table_name
      when 'object_shadows' then
        select array_agg(albums.id) into strict album_ids
          from albums

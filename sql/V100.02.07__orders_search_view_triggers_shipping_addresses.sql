@@ -1,7 +1,7 @@
 create or replace function update_orders_view_from_shipping_addresses_fn() returns trigger as $$
 declare cord_refs text[];
 begin
-  case TG_TABLE_NAME
+  case tg_table_name
     when 'order_shipping_addresses' then
       cord_refs := array_agg(new.cord_ref);
     when 'regions' then

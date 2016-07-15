@@ -28,9 +28,9 @@ FOR ranking IN
            'revenue', customer ->> 'revenue'
        )::jsonb
   where customer ->> 'id' = ranking.id::varchar;
-END LOOP;
+end LOOP;
 
 return true;
 
 end;
-$$ LANGUAGE plpgsql;
+$$ language plpgsql;

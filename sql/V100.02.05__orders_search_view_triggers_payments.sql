@@ -1,7 +1,7 @@
 create or replace function update_orders_view_from_payments_fn() returns trigger as $$
 declare cord_refs text[];
 begin
-  case TG_TABLE_NAME
+  case tg_table_name
     when 'order_payments' then
       cord_refs := array_agg(new.cord_ref);
     when 'credit_card_charges' then
@@ -51,7 +51,7 @@ begin
     credit_card_count = subquery.credit_card_count,
     credit_card_total = subquery.credit_card_total
     from (
-      SELECT
+      select
         op.cord_ref,
         count(op.id) as credit_card_count,
         coalesce(sum(op.amount), 0) as credit_card_total
@@ -60,9 +60,9 @@ begin
         group by op.cord_ref
       ) as subquery
   where orders_search_view.reference_number = subquery.cord_ref;
-  return NULL;
-END;
-$$ LANGUAGE plpgsql;
+  return null;
+end;
+$$ language plpgsql;
 
 create or replace function update_orders_from_payments_giftCard_fn() returns trigger as $$
 begin
@@ -70,7 +70,7 @@ begin
     gift_card_count = subquery.gift_card_count,
     gift_card_total = subquery.gift_card_total
     from (
-      SELECT
+      select
         op.cord_ref,
         count(op.id) as gift_card_count,
         coalesce(sum(op.amount), 0) as gift_card_total
@@ -79,9 +79,9 @@ begin
         group by op.cord_ref
       ) as subquery
   where orders_search_view.reference_number = subquery.cord_ref;
-  return NULL;
-END;
-$$ LANGUAGE plpgsql;
+  return null;
+end;
+$$ language plpgsql;
 
 create or replace function update_orders_from_payments_storeCredit_fn() returns trigger as $$
 begin
@@ -89,7 +89,7 @@ begin
     store_credit_count = subquery.store_credit_count,
     store_credit_total = subquery.store_credit_total
     from (
-      SELECT
+      select
         op.cord_ref,
         count(op.id) as store_credit_count,
         coalesce(sum(op.amount), 0) as store_credit_total
@@ -98,9 +98,9 @@ begin
         group by op.cord_ref
       ) as subquery
   where orders_search_view.reference_number = subquery.cord_ref;
-  return NULL;
-END;
-$$ LANGUAGE plpgsql;
+  return null;
+end;
+$$ language plpgsql;
 
 create trigger update_orders_view_from_payments
     after update or insert on order_payments

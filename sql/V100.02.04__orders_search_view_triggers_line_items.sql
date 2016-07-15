@@ -1,7 +1,7 @@
 create or replace function update_orders_view_from_line_items_fn() returns trigger as $$
 declare cord_refs text[];
 begin
-  case TG_TABLE_NAME
+  case tg_table_name
     when 'order_line_items' then
       cord_refs := array_agg(new.cord_ref);
     when 'order_line_item_skus' then

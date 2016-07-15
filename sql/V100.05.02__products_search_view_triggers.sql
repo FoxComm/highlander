@@ -57,7 +57,7 @@ $$ language plpgsql;
 create trigger update_products_search_view_from_context_update
     after update on object_contexts
     for each row
-    when (old.name is DISTINCT from new.name)
+    when (old.name is distinct from new.name)
     execute procedure update_products_search_view_from_context_fn();
 
 -- product sku links

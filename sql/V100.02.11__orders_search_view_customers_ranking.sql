@@ -4,7 +4,7 @@ declare
   customer_ids int[];
 begin
 
-   case TG_TABLE_NAME
+   case tg_table_name
      when 'orders' then
        cord_refs := array_agg(new.reference_number::text);
      when 'order_payments' then

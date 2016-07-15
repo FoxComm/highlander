@@ -27,7 +27,7 @@ $$ language plpgsql;
 create or replace function update_product_album_links_view_from_products_and_deps_fn() returns trigger as $$
 declare product_ids int[];
 begin
-  case TG_TABLE_NAME
+  case tg_table_name
     when 'products' then
       product_ids := array_agg(new.id);
     when 'object_links' then
