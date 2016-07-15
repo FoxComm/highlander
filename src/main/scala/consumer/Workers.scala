@@ -89,7 +89,7 @@ object Workers {
 
   def topicTransformers(connectionInfo: PhoenixConnectionInfo)(
       implicit ec: EC, ac: AS, mat: AM, cp: CP, sc: SC) = Map(
-      "countries_search_view"              → CountriesSearchView(),
+      "countries"                          → CountriesSearchView(),
       "customer_items_view"                → CustomerItemsView(),
       "customers_search_view"              → CustomersSearchView(),
       "failed_authorizations_search_view"  → FailedAuthorizationsSearchView(),
@@ -102,7 +102,7 @@ object Workers {
       "promotions_search_view"             → PromotionsSearchView(),
       "coupons_search_view"                → CouponsSearchView(),
       "coupon_codes_search_view"           → CouponCodesSearchView(),
-      "regions_search_view"                → RegionsSearchView(),
+      "regions"                            → RegionsSearchView(),
       "sku_search_view"                    → SkuSearchView(),
       "gift_card_transactions_view"        → GiftCardTransactionsSearchView(),
       "gift_cards_search_view"             → GiftCardsSearchView(),
