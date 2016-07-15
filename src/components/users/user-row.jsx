@@ -3,8 +3,6 @@
 import React from 'react';
 import _ from 'lodash';
 
-import { activeStatus } from '../../paragons/common';
-
 import RoundedPill from '../rounded-pill/rounded-pill';
 import MultiSelectRow from '../table/multi-select-row';
 import UserInitials from '../user-initials/initials';
@@ -12,7 +10,9 @@ import UserInitials from '../user-initials/initials';
 const setCellContents = (user: Object, field: string) => {
   switch (field) {
     case 'state':
-      return <RoundedPill text={activeStatus(user)} />;
+      const state = _.get(user, 'state', 'invited');
+      const text = state.charAt(0).toUpperCase() + state.slice(1);
+      return <RoundedPill text={text} />;
     case 'roles':
       return _.get(user, field, 'Super Admin');
     case 'image':
