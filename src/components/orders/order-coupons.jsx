@@ -1,4 +1,3 @@
-
 /* @flow */
 
 import React, { Component, Element } from 'react';
@@ -11,17 +10,12 @@ import TableView from 'components/table/tableview';
 
 import styles from './styles/discounts.css';
 
-import type { CouponModuleProps, CouponModuleActions } from 'modules/orders/coupons';
-
 type Target = {
   name: string,
   value: string|number|boolean,
 };
 
-type Props = CouponModuleActions & {
-  readOnly: bool,
-  isCart: bool,
-  coupons: CouponModuleProps,
+type Props = {
   order: {
     referenceNumber: string,
   }
@@ -58,24 +52,10 @@ export default class OrderCoupons extends Component {
           columns={viewColumns}
           data={{rows: coupons}}
           emptyMessage="No coupons applied."
-          renderRow={this.renderRow(this.isEditing)}
+          renderRow={this.renderRow()}
         />
       );
     }
-  }
-
-  get fancyErrorMessage(): ?string {
-    const errorMessage = _.get(this.props, 'coupons.error');
-    if (errorMessage && errorMessage.indexOf('not found') >= 0) {
-      return 'This coupon code does not exist.';
-    }
-    if (errorMessage && errorMessage.indexOf('rejected') >= 0) {
-      return 'Your order does not qualify for this coupon.';
-    }
-    if (errorMessage && errorMessage.indexOf('inactive') >= 0) {
-      return 'This coupon code is inactive.';
-    }
-    return errorMessage;
   }
 
   renderRow(): Function {

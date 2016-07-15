@@ -24,7 +24,7 @@ type Props = {
 export default class OrderLineItems extends Component {
   props: Props;
 
-  collectLineItems(skus) {
+  collectLineItems(skus: Array<Object>): Array<Object> {
     let uniqueSkus = {};
     const items = _.transform(skus, (result, lineItem) => {
       const sku = lineItem.sku;
