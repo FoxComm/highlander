@@ -5,7 +5,7 @@ create table store_admins_search_view
     name generic_string,
     phone_number phone_number,
     department generic_string,
-	state generic_string,
+    state generic_string,
     created_at text
 );
 
