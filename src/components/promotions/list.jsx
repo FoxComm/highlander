@@ -19,7 +19,6 @@ const PromotionsList = (props: PromotionsListProps) => {
 
   const navLinks = [
     { title: 'Lists', to: 'promotions' },
-    { title: 'Insights', to: 'home' },
     { title: 'Activity Trail', to: 'promotions-activity-trail' }
   ];
 

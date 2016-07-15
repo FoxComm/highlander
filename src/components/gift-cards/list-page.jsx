@@ -14,7 +14,6 @@ const GiftCardsListPage = (props) => {
 
   const navLinks = [
     { title: 'Lists', to: 'gift-cards' },
-    { title: 'Insights', to: 'home' },
     { title: 'Activity Trail', to: 'gift-cards-activity-trail' },
   ];
 
