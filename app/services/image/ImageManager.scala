@@ -20,23 +20,24 @@ object ImageManager {
   type FullAlbum           = FullObject[Album]
   type FullAlbumWithImages = (FullObject[Album], Seq[FullObject[Image]])
 
-  def getAlbum(id: Int, contextName: String)(implicit ec: EC, db: DB): DbResultT[AlbumRoot] =
+  def getAlbum(formId: ObjectForm#Id, contextName: String)(implicit ec: EC,
+                                                           db: DB): DbResultT[AlbumRoot] =
     for {
       context ← * <~ ObjectManager.mustFindByName404(contextName)
-      album   ← * <~ getAlbumInner(id, context)
+      album   ← * <~ getAlbumInner(formId, context)
     } yield album
 
-  def getAlbumInner(id: Int, context: ObjectContext)(implicit ec: EC,
-                                                     db: DB): DbResultT[AlbumRoot] =
+  def getAlbumInner(id: ObjectForm#Id, context: ObjectContext)(implicit ec: EC,
+                                                               db: DB): DbResultT[AlbumRoot] =
     for {
-      album  ← * <~ mustFindFullAlbumByIdAndContext404(id, context)
+      album  ← * <~ mustFindFullAlbumByFormIdAndContext404(id, context)
       images ← * <~ getAlbumImages(album.model.id)
     } yield AlbumResponse.build(album, images)
 
   def getAlbumsForProduct(
-      productId: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[Seq[AlbumRoot]] =
+      productFormId: ObjectForm#Id)(implicit ec: EC, db: DB, oc: OC): DbResultT[Seq[AlbumRoot]] =
     for {
-      product ← * <~ ProductManager.mustFindProductByContextAndId404(oc.id, productId)
+      product ← * <~ ProductManager.mustFindProductByContextAndFormId404(oc.id, productFormId)
       albums  ← * <~ ProductAlbumLinks.rightByLeftId(product.id, Albums.mustFindById404)
       images  ← * <~ albums.map(album ⇒ getAlbumImages(album.model.id))
       result ← * <~ albums.zip(images).map {
@@ -166,7 +167,7 @@ object ImageManager {
       contextName: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[AlbumRoot] =
     for {
       context ← * <~ ObjectManager.mustFindByName404(contextName)
-      product ← * <~ ProductManager.mustFindProductByContextAndId404(context.id, productId)
+      product ← * <~ ProductManager.mustFindProductByContextAndFormId404(context.id, productId)
       created ← * <~ createAlbumInner(payload, context)
       (fullAlbum, images) = created
       link ← * <~ ProductAlbumLinks.create(
@@ -186,7 +187,7 @@ object ImageManager {
       link ← * <~ SkuAlbumLinks.create(SkuAlbumLink(leftId = sku.id, rightId = fullAlbum.model.id))
     } yield AlbumResponse.build(fullAlbum, images)
 
-  def updateAlbum(id: Int, payload: UpdateAlbumPayload, contextName: String)(
+  def updateAlbum(id: ObjectForm#Id, payload: UpdateAlbumPayload, contextName: String)(
       implicit ec: EC,
       db: DB): DbResultT[AlbumRoot] =
     for {
@@ -194,13 +195,13 @@ object ImageManager {
       response ← * <~ updateAlbumInner(id, payload, contextName)
     } yield response
 
-  def updateAlbumInner(id: Int, updatePayload: UpdateAlbumPayload, contextName: String)(
+  def updateAlbumInner(id: ObjectForm#Id, updatePayload: UpdateAlbumPayload, contextName: String)(
       implicit ec: EC,
       db: DB): DbResultT[AlbumRoot] =
     for {
       payload ← * <~ updatePayload.validate
       context ← * <~ ObjectManager.mustFindByName404(contextName)
-      album   ← * <~ mustFindFullAlbumByIdAndContext404(id, context)
+      album   ← * <~ mustFindFullAlbumByFormIdAndContext404(id, context)
       oldShadow                    = album.shadow
       (payloadForm, payloadShadow) = payload.formAndShadow.tupled
       mergedAtts                   = oldShadow.attributes.merge(payloadShadow.attributes)
@@ -215,16 +216,16 @@ object ImageManager {
       images ← * <~ getAlbumImages(album.model.id)
     } yield AlbumResponse.build(album, images)
 
-  def mustFindFullAlbumByIdAndContext404(id: Album#Id, context: ObjectContext)(implicit ec: EC,
-                                                                               db: DB) =
+  def mustFindFullAlbumByFormIdAndContext404(id: Album#Id, context: ObjectContext)(implicit ec: EC,
+                                                                                   db: DB) =
     for {
-      album  ← * <~ mustFindAlbumByIdAndContext404(id, context)
+      album  ← * <~ mustFindAlbumByFormIdAndContext404(id, context)
       form   ← * <~ ObjectForms.mustFindById404(album.formId)
       shadow ← * <~ ObjectShadows.mustFindById404(album.shadowId)
     } yield FullObject(model = album, form = form, shadow = shadow)
 
-  private def mustFindAlbumByIdAndContext404(id: Int, context: ObjectContext)(implicit ec: EC,
-                                                                              db: DB) =
+  private def mustFindAlbumByFormIdAndContext404(id: Int, context: ObjectContext)(implicit ec: EC,
+                                                                                  db: DB) =
     Albums
       .filterByContextAndFormId(context.id, id)
       .mustFindOneOr(AlbumNotFoundForContext(id, context.id))

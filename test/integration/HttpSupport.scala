@@ -9,7 +9,7 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.client.RequestBuilding.Get
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpMethods, HttpRequest, HttpResponse, Uri}
+import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpMethods, HttpRequest, HttpResponse, StatusCodes, Uri}
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.settings.ConnectionPoolSettings
 import akka.http.scaladsl.unmarshalling.Unmarshal
@@ -240,6 +240,17 @@ trait HttpSupport
     def probe(source: Source[String, Any]) =
       source.runWith(TestSink.probe[String])
   }
+
+  def extractIfOk[A <: AnyRef](res: HttpResponse)(implicit mf: Manifest[A], mat: Mat): A = {
+    if (res.status != StatusCodes.OK) {
+      val errors = res.errors
+      Console.err.println(errors.mkString("\n"))
+    }
+
+    res.status must === (StatusCodes.OK)
+    res.as[A]
+  }
+
 }
 
 object Extensions {

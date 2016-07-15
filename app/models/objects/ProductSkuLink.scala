@@ -2,6 +2,7 @@ package models.objects
 
 import java.time.Instant
 
+import models.objects.ObjectHeadLinks._
 import models.product.VariantValueSkuLinks._
 import shapeless._
 
