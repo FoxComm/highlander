@@ -220,6 +220,12 @@ export default class Order extends React.Component {
             <PanelListItem title="Order State">
               {this.orderStateDropdown}
             </PanelListItem>
+            <PanelListItem title="Shipping State">
+              <State value={order.shippingState} model="shipment" />
+            </PanelListItem>
+            <PanelListItem title="Payment State">
+              <State value={order.paymentState} model="payment" />
+            </PanelListItem>
             <PanelListItem title="Date/Time Placed">
               <DateTime value={order.placedAt} />
             </PanelListItem>

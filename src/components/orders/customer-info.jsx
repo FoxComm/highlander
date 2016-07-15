@@ -15,17 +15,6 @@ export default class CustomerInfo extends React.Component {
     return this.props.order;
   }
 
-  get modality() {
-    if (!this.order.isCart) {
-      return (
-        <li>
-          <i className="icon-tablet"></i>
-          <div>{this.ensureNotEmpty(this.order.customer.modality)}</div>
-        </li>
-      );
-    }
-  }
-
   customerLink(text) {
     return <Link to="customer-details" params={{customerId: this.order.customer.id}}>{text}</Link>;
   }
@@ -93,7 +82,6 @@ export default class CustomerInfo extends React.Component {
               <i className="icon-location"></i>
               <div>{this.ensureNotEmpty(customer.location)}</div>
             </li>
-            {this.modality}
             <li styleName="groups">
               <i className="icon-customers"></i>
               {this.ensureNotEmpty(this.customerGroups)}
