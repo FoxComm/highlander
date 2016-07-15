@@ -23,8 +23,6 @@ const OrderDetails = props => {
     return <div className="fc-order-details"></div>;
   }
 
-  const isCart = _.isEqual(currentOrder.orderState, 'cart');
-
   const {
     errors,
     warnings,
@@ -38,13 +36,12 @@ const OrderDetails = props => {
     <div className="fc-order-details">
       <div className="fc-order-details-body">
         <div className="fc-order-details-main">
-          <OrderLineItems isCart={isCart} status={itemsStatus} {...props} />
-          <OrderDiscounts isCart={isCart} order={currentOrder} />
-          <OrderShippingAddress isCart={isCart} status={shippingAddressStatus} order={currentOrder} />
-          <OrderShippingMethod isCart={isCart} status={shippingMethodStatus} {...props} />
-          <OrderCoupons isCart={isCart} order={currentOrder} />
-          <Payments isCart={isCart} status={paymentMethodStatus} {...props} />
-          {isCart && <Checkout checkout={props.checkout} order={order} />}
+          <OrderLineItems isCart={false} status={itemsStatus} {...props} />
+          <OrderDiscounts isCart={false} order={currentOrder} />
+          <OrderShippingAddress isCart={false} status={shippingAddressStatus} order={currentOrder} />
+          <OrderShippingMethod isCart={false} status={shippingMethodStatus} {...props} />
+          <OrderCoupons isCart={false} order={currentOrder} />
+          <Payments status={paymentMethodStatus} {...props} />
         </div>
         <div className="fc-order-details-aside">
           <Messages errors={errors} warnings={warnings} />

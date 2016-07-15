@@ -1,21 +1,13 @@
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
-import { connect } from 'react-redux';
-import { trackEvent } from 'lib/analytics';
 
-import * as paymentActions from '../../modules/orders/payment-methods';
-
-import EditableContentBox from '../content-box/editable-content-box';
-import ContentBox from '../content-box/content-box';
-import TableView from '../table/tableview';
+import ContentBox from 'components/content-box/content-box';
+import TableView from 'components/table/tableview';
 import GiftCard from './payments/gift-card';
 import StoreCredit from './payments/store-credit';
 import CreditCard from './payments/credit-card';
-import { AddButton } from '../common/buttons';
 import PanelHeader from './panel-header';
-
-import NewPayment from './payments/new-payment';
 
 const viewColumns = [
   {field: 'name', text: 'Method'},
@@ -24,37 +16,13 @@ const viewColumns = [
   {field: 'createdAt', text: 'Date/Time', type: 'datetime'},
 ];
 
-const editColumns = viewColumns.concat([
-  {field: 'edit'}
-]);
-
-@connect(state => ({ payments: state.orders.paymentMethods }), paymentActions)
 export default class Payments extends React.Component {
   static propTypes = {
-    isCart: PropTypes.bool,
     order: PropTypes.shape({
       currentOrder: PropTypes.shape({
         paymentMethods: PropTypes.array
       })
     }).isRequired,
-    status: PropTypes.string,
-    payments: PropTypes.shape({
-      isAdding: PropTypes.bool.isRequired,
-      isEditing: PropTypes.bool.isRequired,
-    }),
-    orderPaymentMethodStartAdd: PropTypes.func.isRequired,
-    orderPaymentMethodStartEdit: PropTypes.func.isRequired,
-    orderPaymentMethodStopEdit: PropTypes.func.isRequired,
-
-    deleteOrderGiftCardPayment: PropTypes.func.isRequired,
-    deleteOrderStoreCreditPayment: PropTypes.func.isRequired,
-    deleteOrderCreditCardPayment: PropTypes.func.isRequired,
-
-    readOnly: PropTypes.bool,
-  };
-
-  static defaultProps = {
-    readOnly: false,
   };
 
   state = {
@@ -78,60 +46,23 @@ export default class Payments extends React.Component {
           columns={viewColumns}
           data={{rows: this.paymentMethods}}
           wrapToTbody={false}
-          renderRow={this.renderRow(false)}
+          renderRow={this.renderRow()}
         />
       );
     }
   }
 
-  get editContent() {
-    return (
-      <TableView
-        columns={editColumns}
-        wrapToTbody={false}
-        renderRow={this.renderRow(true)}
-        processRows={this.processRows}
-        data={{rows: this.paymentMethods}}
-        emptyMessage="No payment method applied."
-      />
-    );
-  }
-
-  get editingActions() {
-    if (!this.props.payments.isAdding) {
-      const handleClick = () => {
-        trackEvent('Orders', 'add_new_payment_method');
-        this.props.orderPaymentMethodStartAdd();
-      };
-      return <AddButton onClick={handleClick} />;
-    }
-  }
-
   @autobind
-  doneAction() {
-    trackEvent('Orders', 'edit_payment_method_done');
-    this.props.orderPaymentMethodStopEdit();
-  }
-
-  get newPayment() {
-    const order = _.get(this.props, 'order.currentOrder');
-
-    return (
-      <tbody>
-        <NewPayment order={order} customerId={this.currentCustomerId} />
-      </tbody>
-    );
-  }
-
-  @autobind
-  renderRow(editMode) {
+  renderRow() {
     return row => {
       const id = row.id || row.code;
-      const Renderer = this.getRowRenderer(row.paymentType);
+      const Renderer = this.getRowRenderer(row.type);
+
+      console.log(Renderer);
 
       const props = {
         paymentMethod: row,
-        editMode,
+        editMode: false,
         customerId: this.currentCustomerId,
         ...this.props,
         order: _.get(this.props, 'order.currentOrder'),
@@ -150,18 +81,6 @@ export default class Payments extends React.Component {
     };
   }
 
-  @autobind
-  processRows(rows) {
-    if (this.props.payments.isAdding) {
-      return [
-        this.newPayment,
-        ...rows
-      ];
-    }
-
-    return rows;
-  }
-
   getRowRenderer(type) {
     switch(type) {
       case 'giftCard':
@@ -175,30 +94,15 @@ export default class Payments extends React.Component {
 
   render() {
     const props = this.props;
-    const title = <PanelHeader isCart={props.isCart} status={props.status} text="Payment Method" />;
-
-    const PaymentsContentBox = props.readOnly || !props.isCart
-      ? ContentBox
-      : EditableContentBox;
-
-    const isCheckingOut = _.get(props, 'order.isCheckingOut', false);
-    const editAction = isCheckingOut ? null : () => {
-      trackEvent('Orders', 'edit_payment_method');
-      props.orderPaymentMethodStartEdit();
-    };
+    const title = <PanelHeader isCart={false} status={props.status} text="Payment Method" />;
 
     return (
-      <PaymentsContentBox
+      <ContentBox
         className="fc-order-payment"
         title={title}
-        editContent={this.editContent}
-        isEditing={props.payments.isEditing}
-        doneAction={this.doneAction}
-        editingActions={this.editingActions}
-        editAction={editAction}
-        indentContent={false}
-        viewContent={this.viewContent}
-      />
+        indentContent={false}>
+        {this.viewContent}
+      </ContentBox>
     );
   }
 }
