@@ -1,64 +1,29 @@
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
-import { connect } from 'react-redux';
 
 import CreditCardForm from '../../credit-cards/card-form';
 import AddressDetails from '../../addresses/address-details';
 import PaymentRow from './row';
 
-import * as PaymentMethodActions from '../../../modules/orders/payment-methods';
-
-let CreditCardDetails = (props) => {
-  const card = props.paymentMethod;
-
-  const handleSave = (event, creditCard) => {
-    props
-      .editCreditCardPayment(props.order.referenceNumber, creditCard, props.customerId)
-      .then(props.cancelEditing);
-  };
-
-  if (!props.isEditing) {
-    return (
-      <div>
-        <dl>
-          <dt>Name on Card</dt>
-          <dd>{card.holderName}</dd>
-        </dl>
-        <dl>
-          <dt>Billing Address</dt>
-          <AddressDetails address={card.address} />
-        </dl>
-      </div>
-    );
-  } else {
-    return (
-      <CreditCardForm
-        card={card}
-        customerId={props.customerId}
-        isDefaultEnabled={false}
-        isNew={false}
-        onCancel={props.cancelEditing}
-        onSubmit={handleSave}
-      />
-    );
-  }
-};
-CreditCardDetails = connect(null, PaymentMethodActions)(CreditCardDetails);
-
-
 const CreditCard = props => {
-  const deletePayment = () => {
-    props.deleteOrderCreditCardPayment(props.order.referenceNumber);
-  };
-
-  const details = editProps => {
-    return <CreditCardDetails {...props} {...editProps} />;
-  };
+  // TODO: Push this into a separate component.
+  const card = props.paymentMethod;
+  const details = (
+    <div>
+      <dl>
+        <dt>Name on Card</dt>
+        <dd>{card.holderName}</dd>
+      </dl>
+      <dl>
+        <dt>Billing Address</dt>
+        <AddressDetails address={card.address} />
+      </dl>
+    </div>
+  );
 
   const params = {
     details,
     amount: null,
-    deleteAction: deletePayment,
     ...props,
   };
 

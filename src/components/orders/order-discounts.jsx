@@ -5,17 +5,16 @@ import React, { Component, Element } from 'react';
 import _ from 'lodash';
 import classNames from 'classnames';
 
-import EditableContentBox from '../content-box/editable-content-box';
-import ContentBox from '../content-box/content-box';
+import EditableContentBox from 'components/content-box/editable-content-box';
+import ContentBox from 'components/content-box/content-box';
 import PanelHeader from './panel-header';
 import DiscountRow from './discounts/discount-row';
-import TableView from '../table/tableview';
+import TableView from 'components/table/tableview';
 
 import styles from './styles/discounts.css';
 
 type Props = {
-  readOnly: bool,
-  isCart: bool,
+  order: Object,
 };
 
 const viewColumns = [
@@ -26,14 +25,9 @@ const viewColumns = [
 export default class OrderDiscounts extends Component {
   props: Props;
 
-  static defaultProps = {
-    readOnly: false,
-    isCart: false,
-  };
-
   get title(): Element {
     return (
-      <PanelHeader isCart={this.props.isCart} isOptional={true} text="Discounts" />
+      <PanelHeader isOptional={true} text="Discounts" />
     );
   }
 

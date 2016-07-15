@@ -1,38 +1,14 @@
 import React, { PropTypes } from 'react';
-import { connect } from 'react-redux';
 
 import PaymentRow from './row';
 import DebitCreditDetails from './debit-credit-details';
 
-import * as PaymentMethodActions from '../../../modules/orders/payment-methods';
-
-let StoreCreditDetails = props => {
-  return (
-    <DebitCreditDetails
-      {...props}
-      saveAction={props.editOrderStoreCreditPayment}
-    />
-  );
-};
-StoreCreditDetails = connect(null, PaymentMethodActions)(StoreCreditDetails);
-
 const StoreCredit = props => {
   const { amount } = props.paymentMethod;
 
-  const orderRefNum = props.order.referenceNumber;
-
-  const deletePayment = () => {
-    props.deleteOrderStoreCreditPayment(orderRefNum);
-  };
-
-  const details = editProps => {
-    return <StoreCreditDetails {...props} {...editProps} />;
-  };
-
   const params = {
-    details,
+    details: <DebitCreditDetails {...props} />,
     amount,
-    deleteAction: deletePayment,
     ...props,
   };
 
@@ -47,8 +23,6 @@ StoreCredit.propTypes = {
   order: PropTypes.shape({
     referenceNumber: PropTypes.string.isRequired
   }),
-  deleteOrderStoreCreditPayment: PropTypes.func.isRequired,
-  editOrderStoreCreditPayment: PropTypes.func.isRequired,
 };
 
 export default StoreCredit;

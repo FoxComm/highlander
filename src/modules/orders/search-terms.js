@@ -12,7 +12,6 @@ const searchTerms = [
         type: 'enum',
         term: 'state',
         suggestions: [
-          { display: 'Cart', value: 'cart' },
           { display: 'Remorse Hold', value: 'remorseHold' },
           { display: 'Manual Hold', value: 'manualHold' },
           { display: 'Fraud Hold', value: 'fraudHold' },

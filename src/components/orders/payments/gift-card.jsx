@@ -4,39 +4,12 @@ import { connect } from 'react-redux';
 import PaymentRow from './row';
 import DebitCreditDetails from './debit-credit-details';
 
-import * as PaymentMethodActions from '../../../modules/orders/payment-methods';
-
-let GiftCardDetails = props => {
-  const saveAction = (orderRefNum, amount) => {
-    return props
-      .editOrderGiftCardPayment(orderRefNum, props.paymentMethod.code, amount);
-  };
-
-  return (
-    <DebitCreditDetails
-      {...props}
-      saveAction={saveAction}
-    />
-  );
-};
-GiftCardDetails = connect(null, PaymentMethodActions)(GiftCardDetails);
-
 const GiftCard = props => {
   const { amount, code } = props.paymentMethod;
-  const orderRefNum = props.order.referenceNumber;
-
-  const deletePayment = () => {
-    props.deleteOrderGiftCardPayment(orderRefNum, code);
-  };
-
-  const details = editProps => {
-    return <GiftCardDetails {...props} {...editProps} />;
-  };
 
   const params = {
-    details,
+    details: <DebitCreditDetails {...props} />,
     amount: amount,
-    deleteAction: deletePayment,
     ...props,
   };
 
@@ -52,8 +25,6 @@ GiftCard.propTypes = {
   order: PropTypes.shape({
     referenceNumber: PropTypes.string.isRequired
   }),
-  deleteOrderGiftCardPayment: PropTypes.func.isRequired,
-  editOrderGiftCardPayment: PropTypes.func.isRequired,
 };
 
 export default GiftCard;

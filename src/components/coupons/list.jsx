@@ -19,7 +19,6 @@ const CouponsList = (props: CouponsListProps) => {
 
   const navLinks = [
     { title: 'Lists', to: 'coupons' },
-    { title: 'Insights', to: 'home' },
     { title: 'Activity Trail', to: 'coupons-activity-trail' }
   ];
 

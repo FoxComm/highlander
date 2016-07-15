@@ -14,7 +14,6 @@ const OrderListPage = (props) => {
 
   const navLinks = [
     { title: 'Lists', to: 'orders' },
-    { title: 'Insights', to: 'home' },
     { title: 'Activity Trail', to: 'orders-activity-trail' }
   ];
 
