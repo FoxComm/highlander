@@ -196,6 +196,7 @@ export default class Order extends React.Component {
         placeholder={'Order state'}
         value={order.orderState}
         onChange={this.onStateChange}
+        changeable={false}
         renderNullTitle={(value, placeholder) => {
           if (value in states.order) {
             return states.order[value];

@@ -29,7 +29,6 @@ type Props = {
 };
 
 type State = {
-  currentState: string,
   newState: any
 };
 
