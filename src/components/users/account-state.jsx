@@ -3,11 +3,15 @@
 // libs
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
+import { connect } from 'react-redux';
 
 // components
 import { Dropdown } from '../dropdown';
 import ContentBox from '../content-box/content-box';
 import ConfirmationDialog from '../modal/confirmation-dialog';
+
+// actions
+import * as UserActions from '../../modules/users/details';
 
 const SELECT_STATE = [
   ['active', 'Active'],
@@ -20,6 +24,8 @@ type Props = {
   disabled: bool,
   onChange: Function,
   currentValue: string,
+  updateAccountState: Function,
+  userId: number|string,
 };
 
 type State = {
@@ -31,12 +37,10 @@ class AccountState extends Component {
   props: Props;
 
   state: State = {
-    currentState: this.props.currentValue,
     newState: null,
   };
 
   handleDropdownChange(value: string) {
-    console.log(value);
     this.setState({
       newState: value,
     });
@@ -44,14 +48,12 @@ class AccountState extends Component {
 
   @autobind
   confirmStateChange() {
-    this.setState({
-      currentState: this.state.newState,
-      newState: null
-    });
+    this.props.updateAccountState(this.props.userId, this.state.newState);
+    this.restoreState();
   }
 
   @autobind
-  cancelStateChange() {
+  restoreState() {
     this.setState({
       newState: null
     });
@@ -74,7 +76,7 @@ class AccountState extends Component {
     return (
       <div>
         <ContentBox title="Account State">
-          <Dropdown value={this.state.currentState}
+          <Dropdown value={this.props.currentValue}
                     onChange={(value) => this.handleDropdownChange(value)}
                     disabled={this.props.disabled}
                     items={SELECT_STATE}
@@ -87,7 +89,7 @@ class AccountState extends Component {
           body={confirmation}
           cancel="Cancel"
           confirm="Yes, Change"
-          cancelAction={this.cancelStateChange}
+          cancelAction={this.restoreState}
           confirmAction={this.confirmStateChange}
         />
       </div>
@@ -95,4 +97,7 @@ class AccountState extends Component {
   }
 }
 
-export default AccountState;
+export default connect(
+  null,
+  UserActions
+)(AccountState);

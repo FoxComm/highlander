@@ -43,6 +43,7 @@ class UserForm extends Component {
 
     return (
       <AccountState
+        userId={this.props.user.id}
         currentValue={state}
         disabled={disabled}
         onChange={(value) => this.handleAccountStateChange(value)}
@@ -67,20 +68,22 @@ class UserForm extends Component {
     const { attributes, options } = this.props.user.form;
 
     return (
-      <ContentBox title="General">
-        {this.renderUserImage()}
-        <ObjectFormInner onChange={this.handleFormChange}
-                         attributes={attributes}
-                         options={options}
-        />
-        {!this.props.isNew && <Button type="button">Change Password</Button>}
-      </ContentBox>
+      <Form>
+        <ContentBox title="General">
+          {this.renderUserImage()}
+          <ObjectFormInner onChange={this.handleFormChange}
+                           attributes={attributes}
+                           options={options}
+          />
+          {!this.props.isNew && <Button type="button">Change Password</Button>}
+        </ContentBox>
+      </Form>
     );
   }
 
   render(): Element {
     return (
-      <Form styleName="user-form">
+      <div styleName="user-form">
         <section styleName="main">
           {this.renderGeneralForm()}
         </section>
@@ -92,7 +95,7 @@ class UserForm extends Component {
             <RoundedPill text="Super Admin"/>
           </ContentBox>
         </aside>
-      </Form>
+      </div>
     );
   }
 }

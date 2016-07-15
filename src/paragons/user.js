@@ -61,3 +61,10 @@ export function createEmptyUser() {
 
   return configureUserState(user);
 }
+
+export function configureStateData(state) {
+  return {
+    state
+  };
+}
+
