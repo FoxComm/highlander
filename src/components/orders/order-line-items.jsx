@@ -5,8 +5,6 @@ import React, { Component, Element } from 'react';
 
 import ContentBox from 'components/content-box/content-box';
 import OrderLineItem from './order-line-item';
-import PanelHeader from './panel-header';
-import SkuResult from './sku-result';
 import TableView from 'components/table/tableview';
 
 const columns = [

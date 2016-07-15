@@ -4,9 +4,7 @@ import React, { PropTypes } from 'react';
 
 // components
 import TotalsSummary from '../common/totals';
-import Checkout from './checkout';
 import CustomerInfo from './customer-info';
-import Messages from './messages';
 import OrderLineItems from './order-line-items';
 import OrderShippingAddress from './shipping-address';
 import OrderShippingMethod from './order-shipping-method';
@@ -23,28 +21,18 @@ const OrderDetails = props => {
     return <div className="fc-order-details"></div>;
   }
 
-  const {
-    errors,
-    warnings,
-    itemsStatus,
-    shippingAddressStatus,
-    shippingMethodStatus,
-    paymentMethodStatus
-  } = order.validations;
-
   return (
     <div className="fc-order-details">
       <div className="fc-order-details-body">
         <div className="fc-order-details-main">
           <OrderLineItems order={currentOrder} />
           <OrderDiscounts order={currentOrder} />
-          <OrderShippingAddress isCart={false} status={shippingAddressStatus} order={currentOrder} />
-          <OrderShippingMethod isCart={false} status={shippingMethodStatus} {...props} />
+          <OrderShippingAddress isCart={false} order={currentOrder} />
+          <OrderShippingMethod isCart={false} {...props} />
           <OrderCoupons isCart={false} order={currentOrder} />
-          <Payments status={paymentMethodStatus} {...props} />
+          <Payments {...props} />
         </div>
         <div className="fc-order-details-aside">
-          <Messages errors={errors} warnings={warnings} />
           <TotalsSummary entity={currentOrder} title={currentOrder.title} />
           <CustomerInfo order={currentOrder} />
           <Watchers entity={{entityId: currentOrder.referenceNumber, entityType: 'orders'}} />

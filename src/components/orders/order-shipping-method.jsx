@@ -11,7 +11,7 @@ type Props = {
 };
 
 const OrderShippingMethod = (props: Props): Element => {
-  const { currentOrder } = props.order
+  const { currentOrder } = props.order;
   const { shippingMethod } = currentOrder;
 
   return (
