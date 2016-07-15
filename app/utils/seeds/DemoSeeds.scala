@@ -17,6 +17,7 @@ import models.payment.giftcard._
 import models.product.{Mvp, SimpleContext, SimpleProductData}
 import models.shipping._
 import services.carts.CartTotaler
+import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._
 import utils.Money.Currency
 import utils.Passwords.hashPassword
@@ -37,7 +38,7 @@ trait DemoSeedHelpers extends CreditCardSeeds {
     Customer(email = email,
              hashedPassword = hashedPassword.some,
              name = name.some,
-             location = "Seattle,WA".some)
+             location = "Seattle, WA".some)
 
   def createShippedOrder(customerId: Customer#Id,
                          contextId: Int,
@@ -46,7 +47,11 @@ trait DemoSeedHelpers extends CreditCardSeeds {
     for {
       cart ← * <~ Carts.create(Cart(customerId = customerId))
       _    ← * <~ addSkusToCart(skuIds, cart.refNum, OrderLineItem.Shipped)
-      cc   ← * <~ CreditCards.create(creditCard1.copy(customerId = customerId))
+      order ← * <~ Orders.create(
+                 cart
+                   .toOrder(contextId)
+                   .copy(state = Shipped, placedAt = time.yesterday.toInstant))
+      cc ← * <~ CreditCards.create(creditCard1.copy(customerId = customerId))
       op ← * <~ OrderPayments.create(
               OrderPayment.build(cc).copy(cordRef = cart.refNum, amount = none))
       addr ← * <~ getDefaultAddress(customerId)
@@ -59,10 +64,7 @@ trait DemoSeedHelpers extends CreditCardSeeds {
              Shipment(cordRef = cart.refNum,
                       orderShippingMethodId = shipM.id.some,
                       shippingAddressId = shipA.id.some))
-      order ← * <~ Orders.create(
-                 cart
-                   .toOrder(contextId)
-                   .copy(state = Shipped, placedAt = time.yesterday.toInstant))
+      _ ← * <~ OrderTotaler.saveTotals(cart, order)
     } yield order
 
   private def addSkusToCart(skuIds: Seq[Sku#Id],
@@ -239,6 +241,7 @@ trait DemoScenario6 extends DemoSeedHelpers {
                  cart
                    .toOrder(context.id)
                    .copy(state = Shipped, placedAt = time.yesterday.toInstant))
+      _    ← * <~ OrderTotaler.saveTotals(cart, order)
       orig ← * <~ GiftCardOrders.create(GiftCardOrder(cordRef = cart.refNum))
       _ ← * <~ GiftCards.createAll((1 to 23).map { _ ⇒
            GiftCard.buildLineItem(balance = 50000, originId = orig.id, currency = Currency.USD)

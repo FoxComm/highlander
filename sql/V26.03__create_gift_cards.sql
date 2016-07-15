@@ -21,7 +21,7 @@ create table gift_cards (
 create index gift_cards_idx on gift_cards (code, state);
 
 -- unique code generation prototype
-create function generate_gift_card_code(len integer) returns text AS $$
+create function generate_gift_card_code(len integer) returns text as $$
 declare
     new_code text;
     done bool;
@@ -29,7 +29,7 @@ begin
     done := false;
     while not done loop
         new_code := upper(substr(md5(random()::text), 0, len + 1));
-        done := not exists(select 1 from gift_cards WHERE code = new_code);
+        done := not exists(select 1 from gift_cards where code = new_code);
     end loop;
     return new_code;
 end;
@@ -68,4 +68,3 @@ create trigger set_gift_cards_balances_trg
     on gift_cards
     for each row
     execute procedure set_gift_cards_balances();
-

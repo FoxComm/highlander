@@ -12,7 +12,7 @@ create table shared_searches (
 
 create index shared_searches_store_admin_id on shared_searches (store_admin_id);
 
-create function generate_shared_search_code(len integer) returns text AS $$
+create function generate_shared_search_code(len integer) returns text as $$
 declare
     new_code text;
     done bool;
@@ -20,7 +20,7 @@ begin
     done := false;
     while not done loop
         new_code := lower(substr(md5(random()::text), 0, len + 1));
-        done := not exists(select 1 from shared_searches WHERE code = new_code);
+        done := not exists(select 1 from shared_searches where code = new_code);
     end loop;
     return new_code;
 end;
