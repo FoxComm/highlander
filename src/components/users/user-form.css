@@ -17,7 +17,7 @@
 .aside {
   lost-column: 4/12;
 
-  & :global(.fc-content-box) {
+  & :global(.fc-content-box:not(:last-child)) {
     margin-bottom: 20px;
   }
 }
