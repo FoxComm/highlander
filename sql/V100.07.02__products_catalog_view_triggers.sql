@@ -19,7 +19,6 @@ create trigger refresh_products_cat_search_view_from_object_contexts
   for each row
   when (old.name is distinct from new.name)
   execute procedure refresh_products_cat_from_context_fn();
---
 
 create or replace function refresh_products_cat_search_view_fn() returns trigger as $$
 declare
@@ -119,11 +118,9 @@ begin
   where products_catalog_view.id = subquery.id;
   end if;
 
-
   return null;
 end;
 $$ language plpgsql;
-
 
 create trigger insert_products_cat_search_view_from_products
     after insert or update on products
@@ -145,7 +142,6 @@ create trigger refresh_products_cat_search_view_from_skus_view
   for each row
   execute procedure refresh_products_cat_search_view_fn();
 
-
 --- evict non actual rows
 create or replace function delete_inactive_products_cat_search_view_fn() returns trigger as $$
 begin
@@ -157,7 +153,7 @@ begin
         inner join object_forms as f on (f.id = p.form_id)
         inner join object_shadows as s on (s.id = p.shadow_id)
     where p.id = new.id and
-      (((f.attributes->>(s.attributes->'activeFrom'->>'ref')) = '') IS NOT FALSE
+      (((f.attributes->>(s.attributes->'activeFrom'->>'ref')) = '') is not false
       or
       (f.attributes->>(s.attributes->'activeFrom'->>'ref'))::timestamp >= CURRENT_TIMESTAMP
       or
@@ -173,4 +169,3 @@ create trigger evict_products_cat_search_view_from_object_forms
   for each row
   when (old.shadow_id is distinct from new.shadow_id)
   execute procedure delete_inactive_products_cat_search_view_fn();
-

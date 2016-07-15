@@ -25,11 +25,9 @@ begin
         where p.id = new.id) as subquery
     where subquery.id = products_search_view.id;
 
-
     return null;
 end;
 $$ language plpgsql;
-
 
 create trigger update_products_search_view_from_attrs
     after update on products
@@ -41,16 +39,15 @@ create trigger update_products_search_view_from_attrs
 create or replace function update_products_search_view_from_context_fn() returns trigger as $$
 begin
 
- update products_search_view set
-    context = subquery.name
-    from (select
-            p.id,
-            context.name
-        from products as p
-        inner join object_contexts as context on (p.context_id = context.id)
-        where context.id = new.id) as subquery
-    where subquery.id = products_search_view.id;
-
+    update products_search_view set
+        context = subquery.name
+        from (select
+                p.id,
+                context.name
+            from products as p
+            inner join object_contexts as context on (p.context_id = context.id)
+            where context.id = new.id) as subquery
+        where subquery.id = products_search_view.id;
 
     return null;
 
@@ -67,16 +64,15 @@ create trigger update_products_search_view_from_context_update
 create or replace function update_products_search_view_from_links_fn() returns trigger as $$
 begin
 
- update products_search_view set
-    skus = subquery.skus
-    from (select
-            p.id,
-            link.skus
-        from products as p
-        inner join product_sku_links_view as link on (link.product_id = p.id)
-        where link.product_id = new.product_id) as subquery
-    where subquery.id = products_search_view.id;
-
+    update products_search_view set
+        skus = subquery.skus
+        from (select
+                p.id,
+                link.skus
+            from products as p
+            inner join product_sku_links_view as link on (link.product_id = p.id)
+            where link.product_id = new.product_id) as subquery
+        where subquery.id = products_search_view.id;
 
     return null;
 
@@ -92,15 +88,15 @@ create trigger update_products_search_view_from_links
 create or replace function update_products_search_view_from_album_links_fn() returns trigger as $$
 begin
 
-  update products_search_view set
-    albums = subquery.albums
-    from (select
-            p.id,
-            link.albums
-        from products as p
-        inner join product_album_links_view as link on (link.product_id = p.id)
-        where link.product_id = new.product_id) as subquery
-    where subquery.id = products_search_view.id;
+    update products_search_view set
+        albums = subquery.albums
+        from (select
+                p.id,
+                link.albums
+            from products as p
+            inner join product_album_links_view as link on (link.product_id = p.id)
+            where link.product_id = new.product_id) as subquery
+        where subquery.id = products_search_view.id;
 
     return null;
 

@@ -30,7 +30,6 @@ FOR ranking IN
   where customer ->> 'id' = ranking.id::varchar;
 END LOOP;
 
-
 return true;
 
 end;

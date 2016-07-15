@@ -64,7 +64,6 @@ begin
 end;
 $$ language plpgsql;
 
-
 create trigger insert_product_album_links_view_from_products
     after insert on products
     for each row

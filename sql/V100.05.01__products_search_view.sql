@@ -37,14 +37,11 @@ begin
     left join product_album_links_view as albumLink on (albumLink.product_id = p.id)
     where p.id = new.id;
 
-
     return null;
 end;
 $$ language plpgsql;
-
 
 create trigger insert_products_search_view_from_products
     after insert on products
     for each row
     execute procedure insert_products_search_view_from_products_fn();
-

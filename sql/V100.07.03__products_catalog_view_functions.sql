@@ -1,6 +1,5 @@
 -- designed for updating products_catalog_vew by scheduled job
 -- when activity period is affected
-
 create or replace function toggle_products_catalog_from_to_active() returns boolean as $$
 declare
   insert_ids int[];
@@ -20,7 +19,7 @@ delete from products_catalog_view where id IN (select p.id
       (((f.attributes->>(s.attributes->'activeTo'->>'ref')) = '') IS FALSE and
       ((f.attributes->>(s.attributes->'activeTo'->>'ref'))::timestamp < CURRENT_TIMESTAMP)));
 
-  -- add new products (inactive -> active transition)
+    -- add new products (inactive -> active transition)
     select array_agg(p.id) into insert_ids
     from products as p
       left join products_catalog_view as pv on (pv.id = p.id)
