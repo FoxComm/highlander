@@ -114,7 +114,7 @@ export class ProductPage extends Component {
           disabled={isUpdating}
           isLoading={isUpdating}
           onClick={this.handleSubmit}>
-          Save Draft
+          Save
         </PrimaryButton>
       </div>
     );
