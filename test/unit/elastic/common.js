@@ -15,8 +15,11 @@ const baseSearch = {
 
 function addQuery(searchTerm, search = baseSearch) {
   const query = {
-    term: {
-      [searchTerm.term]: searchTerm.value.value.toLowerCase(),
+    match: {
+      [searchTerm.term]: {
+        query: searchTerm.value.value,
+        type: 'phrase'
+      },
     },
   };
 
@@ -155,7 +158,7 @@ describe('elastic.common', () => {
       const terms = [{
         term: 'customer.name',
         operator: 'eq',
-        value: { type: 'string', value: 'adil wali' },
+        value: { type: 'identifier', value: 'adil wali' },
       }];
 
       const query = toQuery(terms);
@@ -164,7 +167,7 @@ describe('elastic.common', () => {
         query: {
           bool: {
             filter: void 0,
-            must: [{
+            filter: [{
               nested: {
                 path: 'customer',
                 query: {
