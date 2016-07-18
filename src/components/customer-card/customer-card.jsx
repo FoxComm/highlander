@@ -1,26 +1,40 @@
-import React, { PropTypes } from 'react';
-import { Link } from '../link';
+/* @flow */
 
-import TextFit from '../text-fit/text-fit';
+import React, { Component, Element } from 'react';
 
-//styles
-import styles from '../customers/title-block.css';
+import { Link } from 'components/link';
+import TextFit from 'components/text-fit/text-fit';
 
-export default class CustomerInfo extends React.Component {
-  ensureNotEmpty(val) {
-    return val || <span>&nbsp;</span>;
+import styles from 'components/customers/title-block.css';
+
+type Props = {
+  customer: {
+    id: number,
+    isGuest: boolean,
+    groups: Array<string>,
+    avatarUrl?: string,
+    rank: number,
+    name: string,
+    email: string,
+    phoneNumber: string,
+    location: string,
+  },
+};
+
+export default class CustomerInfo extends Component {
+  props: Props;
+
+  ensureNotEmpty(val: number|string|Element): Element {
+    return val ? <span>{val}</span> : <span>&nbsp;</span>;
   }
 
-  get order() {
-    return this.props.order;
+  customerLink(text: string): Element {
+    const params = { customerId: this.props.customer.id };
+    return <Link to="customer-details" params={params} title={text}>{text}</Link>;
   }
 
-  customerLink(text) {
-    return <Link to="customer-details" params={{customerId: this.order.customer.id}} title={text}>{text}</Link>;
-  }
-
-  get customerGroups() {
-    const customer = this.order.customer;
+  get customerGroups(): Element {
+    const { customer } = this.props;
 
     if (customer.isGuest) {
       return <div styleName="guest">Guest</div>;
@@ -37,9 +51,8 @@ export default class CustomerInfo extends React.Component {
     }
   }
 
-  render() {
-    const order = this.order;
-    const customer = order.customer;
+  render(): Element {
+    const { customer } = this.props;
     const customerRank = customer.isGuest ? 'Guest' : customer.rank;
 
     let avatar = null;
@@ -62,10 +75,14 @@ export default class CustomerInfo extends React.Component {
             {avatar}
           </div>
           <div styleName="name">
-            <TextFit fontSize={3} maxFontSize={3}>{this.customerLink(customer.name)}</TextFit>
+            <TextFit fontSize={3} maxFontSize={3}>
+              {this.customerLink(customer.name)}
+            </TextFit>
           </div>
           <div styleName="email">
-            <TextFit fontSize={1.7}>{this.customerLink(customer.email)}</TextFit>
+            <TextFit fontSize={1.7}>
+              {this.customerLink(customer.email)}
+            </TextFit>
           </div>
         </div>
         <article styleName="body">
@@ -92,7 +109,3 @@ export default class CustomerInfo extends React.Component {
     );
   }
 }
-
-CustomerInfo.propTypes = {
-  order: PropTypes.object
-};

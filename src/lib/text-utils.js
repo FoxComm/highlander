@@ -1,3 +1,5 @@
+/* @flow weak */
+
 import { singularize, pluralize } from 'fleck';
 
 export function numberize(entity, count) {
@@ -8,4 +10,8 @@ export function prefix(prefix) {
   return function (suffix) {
     return suffix ? prefix + '__' + suffix : prefix;
   };
+}
+
+export function toNumber(str: string): number {
+  return str ? parseInt(str, 10) : 1;
 }

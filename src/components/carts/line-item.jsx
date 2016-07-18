@@ -3,9 +3,9 @@ import Counter from '../forms/counter';
 import {DeleteButton} from '../common/buttons';
 import Currency from '../common/currency';
 
-const OrderLineItem = props => {
+const CartLineItem = props => {
   const item = props.item;
-  const order = props.order.currentOrder;
+  const cart = props.cart;
 
   const toNumber = value => {
     return value ? parseInt(value, 10) : 1;
@@ -24,24 +24,23 @@ const OrderLineItem = props => {
           min={0}
           max={1000000}
           step={1}
-          onChange={({target}) => props.updateLineItemCount(order, item.sku, toNumber(target.value)) }
-          decreaseAction={() => props.updateLineItemCount(order, item.sku, item.quantity - 1)}
-          increaseAction={() => props.updateLineItemCount(order, item.sku, item.quantity + 1)} />
+          onChange={({target}) => props.onUpdateCount(cart, item.sku, toNumber(target.value)) }
+          decreaseAction={() => props.onUpdateCount(cart, item.sku, item.quantity - 1)}
+          increaseAction={() => props.onUpdateCount(cart, item.sku, item.quantity + 1)} />
       </td>
       <td><Currency value={item.totalPrice}/></td>
       <td>
-        <DeleteButton onClick={() => props.orderLineItemsStartDelete(item.sku)} />
+        <DeleteButton onClick={() => props.onStartDelete(item.sku)} />
       </td>
     </tr>
   );
 };
 
-OrderLineItem.propTypes = {
-  orderLineItemsStartDelete: PropTypes.func,
-  order: PropTypes.shape({
-    currentOrder: PropTypes.object
-  }),
+CartLineItem.propTypes = {
+  onStartDelete: PropTypes.func,
+  onUpdateCount: PropTypes.func,
+  cart: PropTypes.object,
   item: PropTypes.object
 };
 
-export default OrderLineItem;
+export default CartLineItem;

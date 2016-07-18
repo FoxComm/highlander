@@ -1,11 +1,11 @@
 import _ from 'lodash';
-import Api from '../../lib/api';
+import Api from 'lib/api';
 import { createAction, createReducer } from 'redux-act';
 import { get, assoc } from 'sprout-data';
-import { orderSuccess} from './details.js';
+import { cartSuccess } from './details.js';
 
 const _createLineItemAction = (description, ...args) => {
-  return createAction('ORDER_LINE_ITEMS_' + description, ...args);
+  return createAction('CART_LINE_ITEMS_' + description, ...args);
 };
 
 export const orderLineItemsFetchSuccess = _createLineItemAction('FETCH_SUCCESS');
@@ -29,7 +29,7 @@ export function updateLineItemCount(order, sku, quantity, confirmDelete = true) 
       return Api.post(`/orders/${order.referenceNumber}/line-items`, payload)
         .then(
           order => {
-            dispatch(orderSuccess(order));
+            dispatch(cartSuccess(order));
             dispatch(orderLineItemsRequestSuccess(sku));
             dispatch(orderLineItemsFetchSuccess(order));
           },

@@ -11,6 +11,8 @@ import OrdersListPage from './components/orders/list-page';
 import Orders from './components/orders/orders';
 import Order from './components/orders/order';
 import OrderDetails from './components/orders/details';
+import Cart from './components/carts/cart';
+import CartDetails from './components/carts/details';
 import NewOrder from './components/orders/new-order';
 import Customers from './components/customers/customers';
 import CustomersListPage from './components/customers/list-page';
@@ -110,6 +112,13 @@ const routes = (
           <Route name='order-notes' path='notes' component={Notes}/>
           <Route name='order-returns' path='returns' component={RmaChildList}/>
           <Route name='order-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
+        </Route>
+      </Route>
+      <Route name='carts-base' path='carts'>
+        <Route name='cart' path=':cart' component={Cart}>
+          <IndexRoute name='cart-details' component={CartDetails}/>
+          <Route name='cart-notes' path='notes' component={Notes}/>
+          <Route name='cart-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
         </Route>
       </Route>
       <Route name='customers-base' path='customers'>

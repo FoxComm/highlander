@@ -3,21 +3,12 @@ import _ from 'lodash';
 import Api from 'lib/api';
 import { createAction, createReducer } from 'redux-act';
 import { assoc } from 'sprout-data';
-import OrderParagon from '../../paragons/order';
+import OrderParagon from 'paragons/order';
 
 export const orderRequest = createAction('ORDER_REQUEST');
-export const cartRequest = createAction('CART_REQUEST');
+export const cartRequest = createAction('CART_REQUEST_1');
 export const orderSuccess = createAction('ORDER_SUCCESS');
 export const orderFailed = createAction('ORDER_FAILED', (err, source) => [err, source]);
-// it's for optimistic update
-// TODO: research for general approach ?
-export const optimisticSetShippingMethod = createAction('ORDER_LUCKY_SET_SHIPPING_METHOD');
-export const optimisticRevertShippingMethod = createAction('ORDER_REVERT_SHIPPING_METHOD');
-
-const checkoutRequest = createAction('ORDER_CHECKOUT_REQUEST');
-const checkoutSuccess = createAction('ORDER_CHECKOUT_SUCCESS');
-const checkoutFailed = createAction('ORDER_CHECKOUT_FAILURE');
-
 
 function baseFetchOrder(url, actionBefore) {
   return dispatch => {
@@ -38,20 +29,6 @@ export function fetchCustomerCart(customerId) {
   return baseFetchOrder(`/customers/${customerId}/cart`, cartRequest(customerId));
 }
 
-export function checkout(refNum) {
-  return dispatch => {
-    dispatch(checkoutRequest());
-    return Api.post(`/orders/${refNum}/checkout`)
-      .then(
-        order => {
-          dispatch(orderSuccess(order));
-          dispatch(checkoutSuccess());
-        },
-        err => dispatch(checkoutFailed(err))
-      );
-  };
-}
-
 export function updateOrder(id, data) {
   return dispatch => {
     dispatch(orderRequest(id));
@@ -63,51 +40,10 @@ export function updateOrder(id, data) {
   };
 }
 
-export function increaseRemorsePeriod(refNum) {
-  return dispatch => {
-    dispatch(orderRequest(refNum));
-    return Api.post(`/orders/${refNum}/increase-remorse-period`)
-      .then(
-        order => dispatch(orderSuccess(order)),
-        err => dispatch(orderFailed(err, fetchOrder))
-      );
-  };
-}
-
-function parseMessages(messages, state) {
-  return _.reduce(messages, (results, message) => {
-    if (message.indexOf('items') != -1) {
-      return { ...results, itemsStatus: state };
-    } else if (message.indexOf('empty cart') != -1) {
-      return { ...results, itemsStatus: state };
-    } else if (message.indexOf('shipping address') != -1) {
-      return { ...results, shippingAddressStatus: state };
-    } else if (message.indexOf('shipping method') != -1) {
-      return { ...results, shippingMethodStatus: state };
-    } else if (message.indexOf('payment method') != -1) {
-      return { ...results, paymentMethodStatus: state };
-    } else if (message.indexOf('insufficient funds') != -1) {
-      return { ...results, paymentMethodStatus: state };
-    }
-
-    return results;
-  }, {});
-}
-
-
 const initialState = {
-  isCheckingOut: false,
   isFetching: false,
   failed: null,
   currentOrder: {},
-  validations: {
-    errors: [],
-    warnings: [],
-    itemsStatus: 'success',
-    shippingAddressStatus: 'success',
-    shippingMethodStatus: 'success',
-    paymentMethodStatus: 'success'
-  }
 };
 
 const reducer = createReducer({
@@ -125,56 +61,12 @@ const reducer = createReducer({
   },
   [orderSuccess]: (state, payload) => {
     const order = _.get(payload, 'result', payload);
-    const skus = _.get(order, 'lineItems.skus', []);
-    const errors = _.get(payload, 'errors', []);
-    const warnings = _.get(payload, 'warnings', []);
-
-    // Initial state (assume in good standing)
-    const status = {
-      itemsStatus: 'success',
-      shippingAddressStatus: 'success',
-      shippingMethodStatus: 'success',
-      paymentMethodStatus: 'success',
-
-      // Find warnings
-      ...parseMessages(warnings, 'warning'),
-
-      // Find errors
-      ...parseMessages(errors, 'error')
-    };
 
     return {
       ...state,
       isFetching: false,
       failed: null,
       currentOrder: new OrderParagon(order),
-      validations: {
-        errors: errors,
-        warnings: warnings,
-        ...status
-      }
-    };
-  },
-  [optimisticSetShippingMethod]: (state, shippingMethod) => {
-    const newOrder = assoc(state.currentOrder,
-      '_shippingMethod', state.currentOrder._shippingMethod || state.currentOrder.shippingMethod,
-      'shippingMethod', shippingMethod
-    );
-
-    return {
-      ...state,
-      currentOrder: new OrderParagon(newOrder)
-    };
-  },
-  [optimisticRevertShippingMethod]: state => {
-    const newOrder = assoc(state.currentOrder,
-      'shippingMethod', state.currentOrder._shippingMethod,
-      '_shippingMethod', null
-    );
-
-    return {
-      ...state,
-      currentOrder: new OrderParagon(newOrder)
     };
   },
   [orderFailed]: (state, [err, source]) => {
@@ -189,16 +81,6 @@ const reducer = createReducer({
     }
 
     return state;
-  },
-  [checkoutRequest]: (state) => {
-    return { ...state, isCheckingOut: true };
-  },
-  [checkoutSuccess]: (state) => {
-    return { ...state, isCheckingOut: false };
-  },
-  [checkoutFailed]: (state, err) => {
-    console.error(err);
-    return { ...state, isCheckingOut: false };
   },
 }, initialState);
 

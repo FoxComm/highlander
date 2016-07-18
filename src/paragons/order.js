@@ -1,5 +1,14 @@
 import _ from 'lodash';
 
+export type SkuItem = {
+  imagePath: string,
+  name: string,
+  sku: string,
+  price: number,
+  quantity: number,
+  totalPrice: number,
+};
+
 export const states = {
   cart: 'cart',
   remorseHold: 'remorseHold',
@@ -32,10 +41,25 @@ export const allowedStateTransitions = {
   [states.fulfillmentStarted]: [states.shipped, states.canceled],
 };
 
+export function collectLineItems(skus: Array<SkuItem>): Array<SkuItem> {
+  let uniqueSkus = {};
+  const items = _.transform(skus, (result, lineItem) => {
+    const sku = lineItem.sku;
+    if (_.isNumber(uniqueSkus[sku])) {
+      const qty = result[uniqueSkus[sku]].quantity += 1;
+      result[uniqueSkus[sku]].totalPrice = lineItem.price * qty;
+    } else {
+      uniqueSkus[sku] = result.length;
+      result.push({ ...lineItem, quantity: 1 });
+    }
+  });
+  return items;
+}
+
 export default class Order {
   constructor(order) {
     Object.assign(this, order);
-    this.orderState = order.orderState || 'cart';
+    this.orderState = order.orderState;
   }
 
   get entityId() {

@@ -3,8 +3,8 @@ import _ from 'lodash';
 import React, { PropTypes } from 'react';
 
 // components
-import TotalsSummary from '../common/totals';
-import CustomerInfo from './customer-info';
+import TotalsSummary from 'components/common/totals';
+import CustomerCard from 'components/customer-card/customer-card';
 import OrderLineItems from './order-line-items';
 import OrderShippingAddress from './shipping-address';
 import OrderShippingMethod from './order-shipping-method';
@@ -34,7 +34,7 @@ const OrderDetails = props => {
         </div>
         <div className="fc-order-details-aside">
           <TotalsSummary entity={currentOrder} title={currentOrder.title} />
-          <CustomerInfo order={currentOrder} />
+          <CustomerCard customer={currentOrder.customer} />
           <Watchers entity={{entityId: currentOrder.referenceNumber, entityType: 'orders'}} />
         </div>
       </div>
