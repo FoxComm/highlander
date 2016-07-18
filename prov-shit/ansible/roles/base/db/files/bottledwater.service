@@ -1,0 +1,16 @@
+[Service]
+WorkingDirectory=/usr/local
+ExecStart=/bin/bash /usr/local/bin/run_bottledwater.sh
+Restart=always
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=bottledwater
+TimeoutStartSec=30
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target
+
+[Unit]
+Requires=postgresql.service
+After=postgresql.service

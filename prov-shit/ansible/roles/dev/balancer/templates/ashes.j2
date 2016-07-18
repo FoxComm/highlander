@@ -1,0 +1,29 @@
+upstream ashes {
+    server {{ ashes_server }} fail_timeout=15s;
+}
+
+server {
+  # TODO(jpfuentes2): enable me when we have nginx + lua + HTTP2
+  # listen 443 ssl http2 default_server;
+  #ssl_certificate    server.crt;
+  #ssl_certificate_key server.key;
+
+  listen 80;
+  listen [::]:80;
+
+  index index.html;
+
+  server_name {{ashes_server_name}};
+
+  # Proxy to ashes
+  location / {
+      root {{ashes_root_dir}};
+      try_files $uri @ashes;
+  }
+
+  location @ashes {
+      proxy_pass http://ashes;
+  }
+
+  include /etc/nginx/service_locations.conf;
+}

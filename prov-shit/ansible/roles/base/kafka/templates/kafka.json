@@ -1,0 +1,16 @@
+{
+    "service" : {
+        "name": "kafka",
+        "tags": ["kafka"], 
+        "port": 9092,
+        "checks": [
+            {
+                "name": "SSH TCP on port 9092",
+                "tcp": "localhost:9092",
+                "interval": "30s",
+                "timeout": "2s",
+                "status": "passing"
+            }
+        ]
+    }
+}

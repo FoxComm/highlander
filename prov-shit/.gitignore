@@ -1,0 +1,15 @@
+.vagrant
+bin/inventory
+vagrant.local.rb
+.vault_pass
+ansible/*.retry
+*.pyc
+foxcomm-vanilla.json
+foxcomm-staging.json
+.env.local
+
+account.json
+*.DS_Store
+.terraform
+terraform.tfvars
+*.orig

@@ -1,0 +1,37 @@
+---
+
+- name: Remove Firebird Dir
+  file: path={{firebird_install_dir}} state=absent
+
+- name: Add Firebird Dir
+  file: path={{firebird_install_dir}} state=directory
+
+- name: Untar Firebird code
+  become: no
+  unarchive:
+    src: '{{firebird_source_package}}'
+    dest: '{{firebird_install_dir}}/'
+
+- name: Build Firebird
+  shell: NODE_ENV={{firebird_env}} DEMO_USER={{demo_user}} DEMO_PASS={{demo_pass}} FIREBIRD_LANGUAGE={{firebird_default_language}} gulp build
+  args:
+    chdir: "{{firebird_install_dir}}"
+  when: demo_user != ""
+
+- name: Install Firebird service entry
+  sudo: true
+  template:
+    src: "{{role_path}}/../../base/firebird/templates/firebird.service.j2"
+    dest: "{{dest_services}}/firebird.service"
+
+- name: Reload Systemd for Firebird
+  sudo: yes
+  command: systemctl daemon-reload
+
+- name: Install firebird run script
+  sudo: true
+  template: src=../../../base/firebird/templates/run_firebird.sh.j2 dest="{{ firebird_install_dir }}/run_firebird.sh" mode="u=rwx,g=rwx,o=r"
+
+- name: Restart Firebird
+  service: name=firebird state=restarted
+  sudo: true

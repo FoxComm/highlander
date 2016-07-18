@@ -1,0 +1,26 @@
+{
+    "builders" : [
+        {
+            "type": "googlecompute",
+            "account_file": "{{user `account_file`}}",
+            "project_id" : "{{user `project_id`}}",
+            "source_image": "{{user `base_image`}}",
+            "network": "{{user `network`}}",
+            "zone": "{{user `zone`}}",
+            "image_name": "{{user `image_prefix`}}-consul-server-{{timestamp}}",
+            "image_description": "{{user `image_title`}} Consul Image",
+            "instance_name": "packer-{{user `image_prefix`}}-consul-server-{{uuid}}",
+            "machine_type": "n1-standard-2",
+            "tags": ["ssh", "no-ip", "{{user `image_prefix`}}", "consul-server"],
+            "use_internal_ip": true,
+            "ssh_username" : "{{user `ssh_username`}}"
+        }
+    ],
+    "provisioners" : [
+        {
+            "type": "ansible",
+            "playbook_file" : "ansible/packer_consul_server.yml",
+            "extra_arguments": ["--extra-vars", "consul_expect=1"]
+        }
+    ]
+}

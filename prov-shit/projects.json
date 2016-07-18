@@ -1,0 +1,6 @@
+{
+	"production": "",
+	"staging": "foxcomm-staging",
+	"target": "foxcommerce-production-shared",
+	"vanilla": "foxcommerce-production-shared"
+}

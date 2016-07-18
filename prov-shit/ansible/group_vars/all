@@ -1,0 +1,112 @@
+# Common variables
+home: /home/{{ user }}
+dest_services: /etc/systemd/system
+usr_local: /usr/local/
+public_keys_dest_dir: /etc/keys
+private_keys_dest_dir: /etc/keys
+db_host: localhost
+db_user: phoenix
+db_name: phoenix_development
+db_connection_string: "postgresql://{{db_host}}/phoenix_development?user={{db_user}}"
+scala_version: scala-2.11
+group_env: fc
+
+# Green River
+greenriver_version: 1.0
+greenriver_env: localhost
+greenriver_jar_src: ../../green-river/target/{{scala_version}}/green-river-assembly-{{greenriver_version}}.jar
+greenriver_jar: /usr/local/bin/green-river.jar
+greenriver_restart: "false"
+
+# Phoenix
+phoenix_version: 1.0
+phoenix_env: staging
+phoenix_src: ../../phoenix-scala/
+phoenix_jar_src: "{{phoenix_src}}/gatling/target/{{scala_version}}/phoenix-scala-assembly-{{phoenix_version}}.jar"
+
+phoenix_dir: /phoenix
+phoenix_jar: "{{phoenix_dir}}/phoenix.jar"
+phoenix_db_name: phoenix_development
+phoenix_test_db_name: phoenix_test
+phoenix_tracing: "false"
+
+# Ashes
+ashes_env: production
+
+# Firebird
+firebird_env: production
+firebird_default_language: en
+firebird_fixed_language: false
+
+# Firebrand variables
+firebrand_env: production
+firebrand_default_language: en
+firebrand_fixed_language: false
+
+# Loyalty
+loyalty_jar_src: ../../fox-loyalty/target/loyalty.jar
+loyalty_jar: /usr/local/bin/loyalty.jar
+
+# Messaging
+messaging_jar: /usr/local/bin/messaging.jar
+messaging_jar_src: ../../fox-notifications/target/messaging.jar
+
+# Lies & BS
+phoenix_api_version: v1
+phoenix_server: 127.0.0.1:9090
+isaac_server: 127.0.0.1:9190
+search_host: 127.0.0.1
+search_server_http: "{{search_host}}:9200"
+search_server: "{{search_host}}:9300"
+ashes_server: 127.0.0.1:4000
+firebird_server: 127.0.0.1:4040
+firebrand_server: 127.0.0.1:4041
+kafka_server: 127.0.0.1:9092
+zookeeper_server: 127.0.0.1:2181
+schema_server: 127.0.0.1:8081
+api_server: 127.0.0.1
+log_host: 127.0.0.1
+
+# JMX ports
+es_jmx_port: 29010
+phoenix_jmx_port: 39010
+greenriver_jmx_port: 39011
+messaging_jmx_port: 39012
+loyalty_jmx_port: 39013
+
+# Seeds
+seeds_cmd: utils.seeds.Seeds demo 1
+gatling_oneshot_seeds_cmd: seeds.OneshotSeeds
+gatling_continuous_seeds_cmd: seeds.ContinuousSeeds
+
+# Google OAuth
+google_oauth_admin_client_id: ""
+google_oauth_admin_secret: ""
+google_oauth_admin_hosted_domain: ""
+google_oauth_admin_redirect_uri: ""
+
+google_oauth_frontend_client_id: ""
+google_oauth_frontend_secret: ""
+google_oauth_frontend_redirect_uri: ""
+
+# VM swap size
+swap_file: /swap
+swap_size_mb: 2000
+
+# Fix ansible 2 rsync
+rsync_opts: ssh -l {{user}}
+
+# Consul variables
+consul_data_dir: /var/consul
+
+# Used to prefix service names in consul
+namespace: setme
+
+# Zipkin
+zipkin_collector: localhost
+
+# Are we running packer?
+packing: false
+
+#test stripe api key
+stripe_api_key: sk_test_uvaf3GCFsjCsvvKO7FsQhNRm

@@ -1,0 +1,81 @@
+---
+
+- name: Provision Demo 1 Backend
+  hosts: dem1-backend
+  tags:
+      - backend
+  vars:
+    user: '{{ansible_ssh_user}}'
+
+  roles:
+    - { role: base/common }
+    - { role: base/ssh_keys }
+    - { role: base/consul }
+    - { role: base/scala }
+    - { role: base/confluence }
+    - { role: base/zookeeper }
+    - { role: base/kafka }
+    - { role: base/schema-registry }
+    - { role: base/elasticsearch }
+    - { role: base/db }
+    - { role: base/rsyslog, sudo: yes }
+    - { role: base/kibana, sudo: yes }
+    - { role: base/phoenix }
+    - { role: base/isaac }
+    - { role: base/greenriver }
+    - { role: dev/kafka }
+    - { role: dev/elasticsearch }
+    - { role: dev/db }
+    - { role: dev/phoenix }
+    - { role: dev/seeder }
+    - { role: dev/greenriver }
+    - { role: dev/loyalty }
+    - { role: dev/messaging }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml
+
+- name: Provision Demo 1 US Frontend
+  hosts: dem1-front
+  tags:
+      - front
+  vars:
+    user: '{{ansible_ssh_user}}'
+
+  roles:
+    - { role: base/common }
+    - { role: base/consul }
+    - { role: base/ssh_keys }
+    - { role: base/rsyslog, sudo: yes }
+    - { role: base/node }
+    - { role: base/balancer, sudo: yes }
+    - { role: base/ashes }
+    - { role: base/firebird }
+    - { role: base/firebrand }
+    - { role: dev/balancer, sudo: yes }
+    - { role: demo/ashes, sudo: yes }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml
+
+- name: Provision Demo 1 RU Frontend
+  hosts: dem1-front-ru
+  tags:
+      - front_ru
+  vars:
+    user: '{{ansible_ssh_user}}'
+
+  roles:
+    - { role: base/common }
+    - { role: base/consul }
+    - { role: base/ssh_keys }
+    - { role: base/rsyslog, sudo: yes }
+    - { role: base/node }
+    - { role: base/balancer, sudo: yes }
+    - { role: base/firebird }
+    - { role: base/firebrand }
+    - { role: dev/balancer, sudo: yes }
+    - { role: demo/ashes, sudo: yes }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml

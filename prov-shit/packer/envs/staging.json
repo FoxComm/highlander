@@ -1,0 +1,13 @@
+{
+	"image_prefix": "tinystack",
+	"image_title": "Tinystack",		
+	"account_file": "foxcomm-staging.json",
+	"project_id": "foxcomm-staging",
+	"network": "default",
+	"zone": "us-central1-a",
+	"base_ubuntu_image": "ubuntu-1604-xenial-v20160610",
+	"base_image": "base-1466535643",
+	"base_node_image": "base-node-1466553505",
+	"base_jvm_image": "base-jvm-1466553141",
+	"ssh_username": "ubuntu"
+}

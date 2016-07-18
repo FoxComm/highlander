@@ -1,0 +1,13 @@
+[Service]
+WorkingDirectory={{es_home}}
+ExecStart=/bin/bash {{es_home}}/run_elasticsearch.sh {{es_path}}
+Restart=always
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=elasticsearch
+TimeoutStartSec=5m
+RestartSec=10
+User=elasticsearch
+
+[Install]
+WantedBy=multi-user.target

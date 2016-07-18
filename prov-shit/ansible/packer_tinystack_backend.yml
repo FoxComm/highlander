@@ -1,0 +1,26 @@
+---
+
+- name: Provision Packer Tinystack Backend
+  hosts: all
+  tags:
+      - packer-tinystack-backend
+  vars:
+    user: ubuntu
+    packing: true
+
+  roles:
+    - { role: base/ssh_keys }
+    - { role: base/confluence }
+    - { role: base/zookeeper }
+    - { role: base/kafka }
+    - { role: base/schema-registry }
+    - { role: base/elasticsearch }
+    - { role: base/db }
+    - { role: base/rsyslog, sudo: yes }
+    - { role: base/kibana, sudo: yes }
+    - { role: base/phoenix }
+    - { role: base/isaac }
+    - { role: base/greenriver }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml

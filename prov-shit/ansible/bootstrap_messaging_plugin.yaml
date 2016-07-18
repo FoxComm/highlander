@@ -1,0 +1,32 @@
+---
+
+- name: Bootstrap Messaging Plugin
+  hosts: '{{hostname}}'
+  vars:
+    user: '{{ansible_ssh_user}}'
+    group_env: "boostrap-messaging"
+  vars_prompt:
+    - name: "hostname"
+      prompt: "Enter a hostname where to install messaging service"
+      private: no
+    - name: "retailer_name"
+      prompt: "Enter a retailer name"
+      private: no
+    - name: "add_new_customers_to_mailchimp"
+      prompt: "Add new users to mailchimp lists? (yes/no)"
+      private: no
+    - name: "mailchimp_customers_list_id"
+      prompt: "Enter mailchimp list id (skip if previous answer is no"
+      private: no
+    - name: "mailchimp_api_key"
+      prompt: "Enter mailchimp api key (same)"
+      private: no
+    - name: "ashes_server_name"
+      prompt: "Enter ashes server name"
+      default: "admin.foxcommerce.local"
+      private: no
+    - name: "mandrill_key"
+      prompt: "Enter a Mandrill API key"
+      private: no
+  roles:
+      - { role: dev/messaging, sudo: true }
