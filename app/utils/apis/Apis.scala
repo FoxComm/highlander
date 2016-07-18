@@ -1,3 +1,3 @@
 package utils.apis
 
-case class Apis(stripe: StripeApi, amazon: AmazonApi)
+case class Apis(stripe: StripeApi, amazon: AmazonApi, middlwarehouse: MiddlewarehouseApi)

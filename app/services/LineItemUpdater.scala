@@ -124,22 +124,14 @@ object LineItemUpdater {
       db: DB,
       ctx: OC): DbResultT[TheResponse[FullCart.Root]] =
     for {
-      cart ← * <~ finder
-      // load old line items for activity trail
-      li ← * <~ OrderLineItemSkus.findLineItemsByCordRef(cart.refNum).result
-      lineItems = li.foldLeft(Map[String, Int]()) {
-        case (acc, (sku, form, shadow, _, _)) ⇒
-          val quantity = acc.getOrElse(sku.code, 0)
-          acc.updated(sku.code, quantity + 1)
-      }
-      // update quantities
-      _ ← * <~ updateQuantities(cart, payload, ctx.id)
-      // update changed totals
+      cart  ← * <~ finder
+      _     ← * <~ updateQuantities(cart, payload, ctx.id)
       _     ← * <~ CartPromotionUpdater.readjust(cart).recover { case _ ⇒ Unit }
       cart  ← * <~ CartTotaler.saveTotals(cart)
       valid ← * <~ CartValidator(cart).validate()
       res   ← * <~ FullCart.buildRefreshed(cart)
-      _     ← * <~ logAct(res, lineItems)
+      li    ← * <~ OrderLineItemSkus.countSkusByCordRef(cart.refNum)
+      _     ← * <~ logAct(res, li)
     } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)
 
   def foldQuantityPayload(payload: Seq[UpdateLineItemsPayload]): Map[String, Int] =
