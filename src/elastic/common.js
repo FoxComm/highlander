@@ -92,6 +92,14 @@ function createFilter(filter) {
       const extValue = {query: value, analyzer: 'standard'};
       return dsl.matchQuery(term, extValue);
     case 'string':
+      if (operator == 'eq') {
+        return dsl.matchQuery(term, {
+          query: value,
+          type: 'phrase'
+        });
+      } else {
+        return rangeToFilter(term, operator, value.toLowerCase());
+      }
     case 'identifier':
       return rangeToFilter(term, operator, value.toLowerCase());
     case 'date':
