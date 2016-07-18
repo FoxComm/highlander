@@ -88,13 +88,14 @@ func (suite *CarrierManagerTestSuite) TestUpdateCarrier() {
 	//arrange
 	name, newName, trackingTemplate := "DHL", "UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"
 	CreateCarrier(&payloads.Carrier{name, trackingTemplate})
+	carriers, err := GetCarriers()
+	carrier := carriers[0]
 
 	//act
-	err := UpdateCarrier(&payloads.Carrier{newName, trackingTemplate})
+	err = UpdateCarrier(carrier.ID, &payloads.Carrier{newName, trackingTemplate})
 
 	//assert
 	assert.Nil(suite.T(), err)
-	var carrier models.Carrier
 	assert.Nil(suite.T(), suite.db.Where("tracking_template=?", trackingTemplate).First(&carrier).Error)
 	assert.Equal(suite.T(), newName, carrier.Name)
 }

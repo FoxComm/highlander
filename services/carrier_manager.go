@@ -50,13 +50,14 @@ func CreateCarrier(payload *payloads.Carrier) error {
 	return db.Create(carrier).Error
 }
 
-func UpdateCarrier(payload *payloads.Carrier) error {
+func UpdateCarrier(id uint, payload *payloads.Carrier) error {
 	db, err := config.DefaultConnection()
 	if err != nil {
 		return err
 	}
 
 	carrier := models.NewCarrierFromPayload(payload)
+	carrier.ID = id
 
 	return db.Model(&carrier).Updates(carrier).Error
 }
