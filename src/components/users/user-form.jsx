@@ -10,19 +10,12 @@ import ObjectFormInner from '../object-form/object-form-inner';
 import UserInitials from '../user-initials/initials';
 import ContentBox from '../content-box/content-box';
 import RoundedPill from '../rounded-pill/rounded-pill';
-import { Dropdown, DropdownItem } from '../dropdown';
 import { Form, FormField } from '../forms';
 import { Button } from '../common/buttons';
+import AccountState from './account-state';
 
 // styles
 import styles from './user-form.css';
-
-const SELECT_STATE = [
-  ['active', 'Active'],
-  ['inactive', 'Inactive'],
-  ['archived', 'Archived'],
-  ['invited', 'Invited', true],
-];
 
 type Props = {
   user: Object,
@@ -49,13 +42,12 @@ class UserForm extends Component {
     const { state, disabled } = this.props.user.accountState;
 
     return (
-      <ContentBox title="Account State">
-        <Dropdown value={state}
-                  onChange={(value) => this.handleAccountStateChange(value)}
-                  disabled={disabled}
-                  items={SELECT_STATE}
-        />
-      </ContentBox>
+      <AccountState
+        userId={this.props.user.id}
+        currentValue={state}
+        disabled={disabled}
+        onChange={(value) => this.handleAccountStateChange(value)}
+      />
     );
   }
 
@@ -76,20 +68,22 @@ class UserForm extends Component {
     const { attributes, options } = this.props.user.form;
 
     return (
-      <ContentBox title="General">
-        {this.renderUserImage()}
-        <ObjectFormInner onChange={this.handleFormChange}
-                         attributes={attributes}
-                         options={options}
-        />
-        {!this.props.isNew && <Button type="button">Change Password</Button>}
-      </ContentBox>
+      <Form>
+        <ContentBox title="General">
+          {this.renderUserImage()}
+          <ObjectFormInner onChange={this.handleFormChange}
+                           attributes={attributes}
+                           options={options}
+          />
+          {!this.props.isNew && <Button type="button">Change Password</Button>}
+        </ContentBox>
+      </Form>
     );
   }
 
   render(): Element {
     return (
-      <Form styleName="user-form">
+      <div styleName="user-form">
         <section styleName="main">
           {this.renderGeneralForm()}
         </section>
@@ -101,7 +95,7 @@ class UserForm extends Component {
             <RoundedPill text="Super Admin"/>
           </ContentBox>
         </aside>
-      </Form>
+      </div>
     );
   }
 }
