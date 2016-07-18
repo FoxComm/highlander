@@ -16,6 +16,7 @@ import org.json4s.JsonDSL._
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import payloads.ImagePayloads._
+import services.image.ImageManager
 import services.inventory.SkuManager
 import slick.driver.PostgresDriver.api._
 import utils.Money.Currency
@@ -82,8 +83,7 @@ case class SimpleAlbum(name: String, image: String) {
   val payload = CreateAlbumPayload(
       name = name,
       position = Some(1),
-      images =
-        Seq(ImagePayload(id = Some(1), src = image, title = image.some, alt = image.some)).some)
+      images = Seq(ImagePayload(src = image, title = image.some, alt = image.some)).some)
 
   val (keyMap, form) = ObjectUtils.createForm(payload.formAndShadow.form.attributes)
 
@@ -269,7 +269,8 @@ object Mvp {
                                         p)
     } yield r
 
-  def insertProduct(contextId: Int, p: SimpleProductData): DbResultT[SimpleProductData] =
+  def insertProduct(contextId: Int, p: SimpleProductData)(
+      implicit db: DB): DbResultT[SimpleProductData] =
     for {
       simpleProduct ← * <~ SimpleProduct(p.title, p.description, p.active, p.tags)
       productForm   ← * <~ ObjectForms.create(simpleProduct.create)
@@ -401,14 +402,15 @@ object Mvp {
                     insertVariantValue(contextId, variantValue, variant.shadowId))
     } yield SimpleCompleteVariantData(variant, values)
 
-  def insertProductIntoContext(contextId: Int,
-                               productForm: ObjectForm,
-                               skuForm: ObjectForm,
-                               albumForm: ObjectForm,
-                               simpleProduct: SimpleProduct,
-                               simpleSku: SimpleSku,
-                               simpleAlbum: SimpleAlbum,
-                               p: SimpleProductData): DbResultT[SimpleProductData] =
+  def insertProductIntoContext(
+      contextId: Int,
+      productForm: ObjectForm,
+      skuForm: ObjectForm,
+      albumForm: ObjectForm,
+      simpleProduct: SimpleProduct,
+      simpleSku: SimpleSku,
+      simpleAlbum: SimpleAlbum,
+      p: SimpleProductData)(implicit db: DB): DbResultT[SimpleProductData] =
     for {
 
       simpleShadow  ← * <~ SimpleProductShadow(simpleProduct)
@@ -438,9 +440,18 @@ object Mvp {
 
       _ ← * <~ linkProductAndSku(product, sku)
 
-      simpleAlbumShadow ← * <~ SimpleAlbumShadow(simpleAlbum)
-      albumShadow       ← * <~ ObjectShadows.create(simpleAlbumShadow.create.copy(formId = albumForm.id))
+      context ← * <~ ObjectContexts.mustFindById404(contextId)
+      album   ← * <~ insertAlbumIntoContext(context, simpleAlbum, albumForm, productShadow)
 
+    } yield p.copy(productId = product.id, skuId = sku.id, albumId = album.id)
+
+  def insertAlbumIntoContext(context: ObjectContext,
+                             simpleAlbum: SimpleAlbum,
+                             albumForm: ObjectForm,
+                             productShadow: ObjectShadow)(implicit db: DB): DbResultT[Album] = {
+    for {
+      albumShadow ← * <~ ObjectShadows.create(
+                       SimpleAlbumShadow(simpleAlbum).create.copy(formId = albumForm.id))
       albumCommit ← * <~ ObjectCommits.create(
                        ObjectCommit(formId = albumForm.id, shadowId = albumShadow.id))
 
@@ -450,11 +461,15 @@ object Mvp {
                                 linkType = ObjectLink.ProductAlbum))
 
       album ← * <~ Albums.create(
-                 Album(contextId = contextId,
+                 Album(contextId = context.id,
                        formId = albumForm.id,
                        shadowId = albumShadow.id,
                        commitId = albumCommit.id))
-    } yield p.copy(productId = product.id, skuId = sku.id, albumId = album.id)
+
+      _ ← * <~ ImageManager
+           .createImagesForAlbum(album, simpleAlbum.payload.images.toSeq.flatten, context)
+    } yield album
+  }
 
   def getPrice(skuId: Int)(implicit db: DB): DbResultT[Int] =
     for {
@@ -474,8 +489,8 @@ object Mvp {
       skuShadow     ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
     } yield SimpleProductTuple(product, sku, productForm, skuForm, productShadow, skuShadow)
 
-  def insertProducts(ps: Seq[SimpleProductData],
-                     contextId: Int): DbResultT[Seq[SimpleProductData]] =
+  def insertProducts(ps: Seq[SimpleProductData], contextId: Int)(
+      implicit db: DB): DbResultT[Seq[SimpleProductData]] =
     for {
       results ← * <~ ps.map(p ⇒ insertProduct(contextId, p))
     } yield results
