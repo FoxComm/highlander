@@ -81,13 +81,15 @@ export default class Lookup extends Component {
 
   @autobind
   setQuery(data, query) {
-    const items = this.filter(data, query);
-    const index = items.indexOf(_.find(items, ({label}) => label === query));
+    const index = _.findIndex(data, {label: query});
+    const newIndex = index >= 0 ? index : this.state.activeIndex;
 
     this.setState({
       query,
-      activeIndex: index >= 0 ? index : this.state.activeIndex,
+      activeIndex: newIndex,
     });
+
+    return newIndex;
   }
 
   showMenu(show) {
@@ -106,12 +108,15 @@ export default class Lookup extends Component {
 
   setActive(index) {
     if (this.indexIsValid(index)) {
-      this.scrollTo(index, index - this.state.activeIndex > 0 ? 'bottom' : 'top');
+      this.scrollTo(index);
       this.setState({activeIndex: index});
     }
   }
 
-  scrollTo(index, direction) {
+  scrollTo(index, direction = null) {
+    if (direction == null) {
+      direction = index - this.state.activeIndex > 0 ? 'bottom' : 'top';
+    }
     const component = ReactDOM.findDOMNode(this);
 
     const menu = component.querySelector('.fc-lookup__menu');
@@ -186,6 +191,13 @@ export default class Lookup extends Component {
     return this.props.data;
   }
 
+  @autobind
+  handleInputChange(value) {
+    const newIndex = this.setQuery(this.props.data, value);
+    this.setActive(newIndex);
+    this.showMenu(true);
+  }
+
   get input() {
     const {props} = this;
 
@@ -194,10 +206,7 @@ export default class Lookup extends Component {
       className: props.inputClassName,
       onBlur: this.onBlur,
       onFocus: this.onFocus,
-      onChange: value=> {
-        this.setQuery(props.data, value);
-        this.showMenu(true);
-      },
+      onChange: this.handleInputChange,
       onKeyDown: this.onInputKeyDown,
     });
   }
