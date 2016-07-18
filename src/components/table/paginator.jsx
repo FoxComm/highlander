@@ -68,6 +68,28 @@ export default class TablePaginator extends React.Component {
     this.setPage(id);
   }
 
+  renderPagesCount() {
+    return(
+      <div className={prefixed('total-pages')}>
+        {this.state.pagesCount}
+      </div>
+    );
+  }
+
+  renderCurrentPage() {
+    const { currentPage, pagesCount } = this.state;
+
+    if (pagesCount <= 1) return this.renderPagesCount();
+
+    return (
+      <Lookup className={prefixed('current-page')}
+              data={_.range(1, pagesCount + 1).map(page => ({id: page, label: String(page)}))}
+              value={currentPage}
+              minQueryLength={0}
+              onSelect={this.onSelect}/>
+    );
+  }
+
   render() {
     const { currentPage, pagesCount } = this.state;
 
@@ -77,15 +99,9 @@ export default class TablePaginator extends React.Component {
     return (
       <div className={prefixed()}>
         <LeftButton className={leftButtonClass} onClick={this.onPrevPageClick}/>
-        <Lookup className={prefixed('current-page')}
-                data={_.range(1, pagesCount + 1).map(page => ({id: page, label: String(page)}))}
-                value={currentPage}
-                minQueryLength={0}
-                onSelect={this.onSelect}/>
+        {this.renderCurrentPage()}
         <div className={prefixed('separator')}>of</div>
-        <div className={prefixed('total-pages')}>
-          {pagesCount}
-        </div>
+        {this.renderPagesCount()}
         <RightButton className={rightButtonClass} onClick={this.onNextPageClick}/>
       </div>
     );
