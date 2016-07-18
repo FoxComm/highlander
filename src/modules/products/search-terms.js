@@ -6,7 +6,7 @@ const searchTerms = [
   {
     title: 'Product : ID',
     type: 'term',
-    term: 'id',
+    term: 'productId',
   },
   {
     title: 'Product : Name',
