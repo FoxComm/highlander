@@ -1,0 +1,21 @@
+## Save For Later [/v1/my/save-for-later]
+
+Customer's save-for-later list.
+
+### List [GET]
+
++ Response 200 (application/json)
+    + Attributes (SaveForLaterResponse)
+
+### Save [POST /v1/my/save-for-later/{skuCode}]
+
++ Parameters
+    + skuCode: `SKU-ABC` (required, string) - SKU code
++ Response 200 (application/json)
+    + Attributes (SaveForLaterResponse)
+
+### Delete [DELETE /v1/my/save-for-later/{saveForLaterId}]
+
++ Parameters
+    + saveForLaterId: 1 - Save for later ID
++ Response 204

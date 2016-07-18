@@ -1,0 +1,23 @@
+## Save For Later [/v1/save-for-later/{customerId}]
+
++ Parameters
+    + customerId: 1 (required, number) - Customer ID
+
+### List [GET]
+
++ Response 200 (application/json)
+    + Attributes (SaveForLaterResponse)
+
+### Save [POST /v1/save-for-later/{customerId}/{skuCode}]
+
++ Parameters
+	+ customerId: 1 (required, number) - Customer ID
+    + skuCode: `SKU-ABC` (required, string) - SKU code
++ Response 200 (application/json)
+    + Attributes (SaveForLaterResponse)
+
+### Delete [DELETE /v1/save-for-later/{saveForLaterId}]
+
++ Parameters
+    + saveForLaterId: 1 - Save for later ID
++ Response 204

@@ -1,0 +1,51 @@
+## Shared Search [/v1/shared-search/{code}]
+
++ Parameters
+    + code: `abc123` (required, string) - Unique code
+
+### Create [POST /v1/shared-search]
+
++ Request (application/json)
+	+ Attributes (SharedSearchPayload)
++ Response 200 (application/json)
+    + Attributes (SharedSearch)
+
+### View [GET]
+
++ Response 200 (application/json)
+    + Attributes (SharedSearch)
+
+### Update [PATCH]
+
++ Request (application/json)
+	+ Attributes (SharedSearchPayload)
++ Response 200 (application/json)
+    + Attributes (SharedSearch)
+
+### Delete [DELETE]
+
++ Response 204
+
+## Shared Search Associates [/v1/shared-search/{code}/associate]
+
+Share saved search query among multiple store admins.
+
++ Parameters
+    + code: `abc123` (required, string) - Unique code
+
+### Create [POST]
+
++ Request (application/json)
+	+ Attributes (SharedSearchAssociationPayload)
++ Response 200 (application/json)
+    + Attributes (SharedSearch)
+
+### List [GET /v1/shared-search/{code}/associates]
+
++ Request (application/json)
++ Response 200 (application/json)
+    + Attributes (array[StoreAdminResponse])
+
+### Delete [DELETE]
+
++ Response 204

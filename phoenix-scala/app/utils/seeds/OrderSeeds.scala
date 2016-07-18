@@ -1,0 +1,25 @@
+package utils.seeds
+
+import models.Note
+import models.cord.Order._
+import models.cord._
+
+trait OrderSeeds {
+
+  def order: Order =
+    Order(customerId = 1, referenceNumber = "ABCD1234-11", state = ManualHold, contextId = 1)
+
+  def cart: Cart =
+    Cart(customerId = 1, referenceNumber = "ABCD1234-11")
+
+  def orderNotes: Seq[Note] = {
+    def newNote(body: String) =
+      Note(referenceId = 1, referenceType = Note.Order, storeAdminId = 1, body = body)
+    Seq(
+        newNote("This customer is a donkey."),
+        newNote("No, seriously."),
+        newNote("Like, an actual donkey."),
+        newNote("How did a donkey even place an order on our website?")
+    )
+  }
+}

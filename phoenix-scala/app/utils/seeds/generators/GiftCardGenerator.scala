@@ -1,0 +1,39 @@
+package utils.seeds.generators
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.Random
+
+import models.cord.{Order, Orders, Cart, Carts}
+import models.objects.ObjectContext
+import models.payment.giftcard._
+import payloads.GiftCardPayloads.GiftCardCreateByCsr
+import utils.Money.Currency
+import utils.aliases._
+import utils.db._
+
+trait GiftCardGenerator {
+
+  def nextGcBalance = {
+    val prices = Seq(1000, 2500, 3000, 5000, 7500, 10000, 15000, 20000)
+    prices(Random.nextInt(prices.length))
+  }
+
+  def generateGiftCardAppeasement(implicit db: DB): DbResultT[GiftCard] =
+    for {
+      origin ← * <~ GiftCardManuals.create(GiftCardManual(adminId = 1, reasonId = 1))
+      gc ← * <~ GiftCards.create(
+              GiftCard.buildAppeasement(GiftCardCreateByCsr(balance = nextGcBalance, reasonId = 1),
+                                        originId = origin.id))
+    } yield gc
+
+  def generateGiftCardPurchase(customerId: Int, context: ObjectContext)(
+      implicit db: DB): DbResultT[GiftCard] =
+    for {
+      cart ← * <~ Carts.create(Cart(customerId = customerId))
+      order ← * <~ Orders.create(
+                 cart.toOrder(contextId = context.id).copy(state = Order.ManualHold))
+      orig ← * <~ GiftCardOrders.create(GiftCardOrder(cordRef = order.refNum))
+      gc ← * <~ GiftCards.create(
+              GiftCard.build(balance = nextGcBalance, originId = orig.id, currency = Currency.USD))
+    } yield gc
+}

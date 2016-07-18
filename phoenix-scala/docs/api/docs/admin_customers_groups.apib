@@ -1,0 +1,28 @@
+## Customers group [/v1/groups/{id}]
+
++ Parameters
+    + id: 1 (required, number) - Group ID.
+
+### List [GET /v1/groups]
+
++ Response 200 (application/json)
+    + Attributes (CustomersList)
+
+### View [GET]
+
++ Response 200 (application/json)
+    + Attributes (GroupResponse)
+
+### Create [POST /v1/groups]
+
++ Request (application/json)
+    + Attributes (GroupPayload)
++ Response 200 (application/json)
+    + Attributes (GroupResponse)
+
+### Update [PATCH]
+
++ Request (application/json)
+	+ Attributes(GroupPayload)
++ Response 200 (application/json)
+    + Attributes (GroupResponse)

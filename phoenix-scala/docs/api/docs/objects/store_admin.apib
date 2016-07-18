@@ -1,0 +1,25 @@
+# Data Structures
+
+### StoreAdmin
++ id: 1 (required, number) - ID.
++ email: admin@admin.com (required, string) - Email.
++ name: Frankly Admin (required, string) - Name.
++ department: Superadmins (string) - Department.
++ phoneNumber: 1231231233 (string) - Phone Number.
++ state: active (string) - State, can be one of next values: 'active', 'inactive', 'archived', "invited.
+
+### StoreAdminCreatePayload
++ email: admin@admin.com (required, string) - Email.
++ name: Frankly Admin (required, string) - Name.
++ password: somepassword (string) - Password.
++ department: Superadmins (string) - Department.
++ phoneNumber: 1231231233 (string) - Phone Number.
+
+### StoreAdminUpdatePayload
++ email: admin@admin.com (required, string) - Email.
++ name: Frankly Admin (required, string) - Name.
++ department: Super Admins (string) - Department.
++ phoneNumber: 1231231233 (string) - Phone Number.
+
+### StoreAdminChangeStatePayload
++ state: inactive (required, string) - State, can be one of next values: 'active', 'inactive', 'archived'.

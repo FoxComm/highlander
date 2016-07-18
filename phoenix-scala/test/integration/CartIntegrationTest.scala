@@ -1,0 +1,536 @@
+import scala.concurrent.ExecutionContext.Implicits.global
+import akka.http.scaladsl.model.StatusCodes
+
+import Extensions._
+import cats.implicits._
+import failures.CartFailures._
+import failures.LockFailures._
+import failures.NotFoundFailure404
+import models.StoreAdmins
+import models.cord._
+import models.cord.lineitems._
+import models.customer.Customers
+import models.location.{Address, Addresses, Regions}
+import models.objects._
+import models.payment.creditcard._
+import models.product.{Mvp, SimpleContext}
+import models.rules.QueryStatement
+import models.shipping._
+import org.json4s.jackson.JsonMethods._
+import payloads.AddressPayloads.UpdateAddressPayload
+import payloads.LineItemPayloads.UpdateLineItemsPayload
+import payloads.UpdateShippingMethod
+import responses.cart.FullCart
+import services.carts.CartTotaler
+import slick.driver.PostgresDriver.api._
+import util.IntegrationTestBase
+import utils.db._
+import utils.seeds.Seeds.Factories
+
+class CartIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
+
+  def getUpdated(refNum: String) =
+    db.run(Carts.findByRefNum(refNum).result.headOption).futureValue.value
+
+  "GET /v1/orders/:refNum" - {
+    "payment state" - {
+
+      "displays 'cart' payment state" in new Fixture {
+        val response = GET(s"v1/carts/${cart.refNum}")
+        response.status must === (StatusCodes.OK)
+        val fullOrder = response.ignoreFailuresAndGiveMe[FullCart.Root]
+
+        fullOrder.paymentState must === (CreditCardCharge.Cart.some)
+      }
+
+      "displays 'auth' payment state" in new PaymentStateFixture {
+        CreditCardCharges.findById(ccc.id).extract.map(_.state).update(CreditCardCharge.Auth).gimme
+
+        val response = GET(s"v1/carts/${cart.refNum}")
+        response.status must === (StatusCodes.OK)
+        val fullOrder = response.ignoreFailuresAndGiveMe[FullCart.Root]
+
+        fullOrder.paymentState must === (CreditCardCharge.Auth.some)
+      }
+    }
+  }
+
+  "POST /v1/orders/:refNum/line-items" - {
+    val payload = Seq(UpdateLineItemsPayload("SKU-YAX", 2))
+
+    "should successfully update line items" in new OrderShippingMethodFixture
+    with ShippingAddressFixture with PaymentStateFixture {
+      val response = POST(s"v1/orders/${cart.refNum}/line-items", payload)
+
+      response.status must === (StatusCodes.OK)
+      val root = response.ignoreFailuresAndGiveMe[FullCart.Root]
+      val skus = root.lineItems.skus
+      skus must have size 2
+      skus.map(_.sku).toSet must === (Set("SKU-YAX"))
+      skus.map(_.quantity).toSet must === (Set(1))
+    }
+
+    "should run cart validator" in new Fixture {
+      pending
+      // FIXME @anna: Add proper SKU with context
+
+      val response = POST(s"v1/orders/${cart.refNum}/line-items", payload)
+
+      response.status must === (StatusCodes.OK)
+      val ref = cart.refNum
+      val expectedWarnings =
+        List(EmptyCart(ref), NoShipAddress(ref), NoShipMethod(ref)).map(_.description)
+      val responseWithValidation = response.withResultTypeOf[FullCart.Root]
+      responseWithValidation.alerts must not be defined
+      responseWithValidation.warnings.value must contain theSameElementsAs expectedWarnings
+    }
+
+    "should respond with 404 if cart is not found" in {
+      val response = POST(s"v1/orders/NOPE/line-items", payload)
+      response.status must === (StatusCodes.NotFound)
+      response.error must === (NotFoundFailure404(Cart, "NOPE").description)
+    }
+  }
+
+  "POST /v1/orders/:refNum/lock" - {
+    "successfully locks a cart" in {
+      val cart = Carts.create(Factories.cart).gimme
+      StoreAdmins.create(Factories.storeAdmin).gimme
+
+      val response = POST(s"v1/orders/${cart.refNum}/lock")
+      response.status must === (StatusCodes.OK)
+
+      val lockedCart = Carts.findByRefNum(cart.refNum).gimme.head
+      lockedCart.isLocked must === (true)
+
+      val locks = CartLockEvents.findByCartRef(cart.refNum).gimme
+      locks.length must === (1)
+      val lock = locks.head
+      lock.lockedBy must === (1)
+    }
+
+    "refuses to lock an already locked cart" in {
+      val cart = Carts.create(Factories.cart.copy(isLocked = true)).gimme
+
+      val response = POST(s"v1/orders/${cart.refNum}/lock")
+      response.status must === (StatusCodes.BadRequest)
+      response.error must === (LockedFailure(Cart, cart.refNum).description)
+    }
+
+    "avoids race condition" in {
+      pending // FIXME when DbResultT gets `select for update` https://github.com/FoxComm/phoenix-scala/issues/587
+      StoreAdmins.create(Factories.storeAdmin).gimme
+      val cart = Carts.create(Factories.cart).gimme
+
+      def request = POST(s"v1/orders/${cart.refNum}/lock")
+
+      val responses = Seq(0, 1).par.map(_ ⇒ request)
+      responses.map(_.status) must contain allOf (StatusCodes.OK, StatusCodes.BadRequest)
+      CartLockEvents.gimme.length mustBe 1
+    }
+  }
+
+  "POST /v1/orders/:refNum/unlock" - {
+    "unlocks cart" in {
+      StoreAdmins.create(Factories.storeAdmin).gimme
+      val cart = Carts.create(Factories.cart).gimme
+
+      val lock = POST(s"v1/orders/${cart.refNum}/lock")
+      lock.status must === (StatusCodes.OK)
+
+      val unlock = POST(s"v1/orders/${cart.refNum}/unlock")
+      unlock.status must === (StatusCodes.OK)
+
+      val unlockedCart = Carts.findByRefNum(cart.refNum).gimme.head
+      unlockedCart.isLocked must === (false)
+    }
+
+    "refuses to unlock an already unlocked cart" in {
+      val cart     = Carts.create(Factories.cart).gimme
+      val response = POST(s"v1/orders/${cart.refNum}/unlock")
+
+      response.status must === (StatusCodes.BadRequest)
+      response.error must === (NotLockedFailure(Cart, cart.refNum).description)
+    }
+  }
+
+  /*
+  "handles credit cards" - {
+    val today = new DateTime
+    val customerStub = Customer(email = "yax@yax.com", password = "password", firstName = "Yax", lastName = "Fuentes")
+    val payload = CreateCreditCard(holderName = "Jax", number = StripeSupport.successfulCard, cvv = "123",
+      expYear = today.getYear + 1, expMonth = today.getMonthOfYear, isDefault = true)
+
+    "fails if the cart is not found" in {
+      val response = POST(
+        s"v1/orders/5/payment-methods/credit-card",
+        payload)
+
+      response.status must === (StatusCodes.NotFound)
+    }
+
+    "fails if the payload is invalid" in {
+      val cart = Orders.save(Factories.cart.copy(customerId = 1)).run().futureValue
+      val response = POST(
+        s"v1/orders/${cart.refNum}/payment-methods/credit-card",
+        payload.copy(cvv = "", holderName = ""))
+
+      val errors = parse(response.bodyText).extract[Errors]
+
+      errors must === (Map("errors" → Seq("holderName must not be empty", "cvv must match regular expression " +
+        "'[0-9]{3,4}'")))
+      response.status must === (StatusCodes.BadRequest)
+    }
+
+    "fails if the card is invalid according to Stripe" ignore {
+      val cart = Orders.save(Factories.cart.copy(customerId = 1)).run().futureValue
+      val customerId = db.run(Customers.returningId += customerStub).futureValue
+      val response = POST(
+        s"v1/orders/${cart.refNum}/payment-methods/credit-card",
+        payload.copy(number = StripeSupport.declinedCard))
+
+      val body = response.bodyText
+      val errors = parse(body).extract[Errors]
+
+      errors must === (Map("errors" → Seq("Your card was declined.")))
+      response.status must === (StatusCodes.BadRequest)
+    }
+
+    /*
+    "successfully creates records" ignore {
+      val cart = Orders.save(Factories.cart.copy(customerId = 1)).run().futureValue
+      val customerId = db.run(Customers.returningId += customerStub).futureValue
+      val customer = customerStub.copy(id = customerId)
+      val addressPayload = CreateAddressPayload(name = "Home", stateId = 46, state = Some("VA"), street1 = "500 Blah",
+        city = "Richmond", zip = "50000")
+      val payloadWithAddress = payload.copy(address = Some(addressPayload))
+
+      val response = POST(
+        s"v1/orders/${cart.refNum}/payment-methods/credit-card",
+        payloadWithAddress)
+
+      val body = response.bodyText
+
+      val cc = CreditCards.findById(1).futureValue.get
+      val payment = OrderPayments.findAllByOrderId(cart.refNum).futureValue.head
+      val (address, billingAddress) = BillingAddresses.findByPaymentId(payment.id).futureValue.get
+
+      val respOrder = parse(body).extract[FullOrder.Root]
+
+      cc.customerId must === (customerId)
+      cc.lastFour must === (payload.lastFour)
+      cc.expMonth must === (payload.expMonth)
+      cc.expYear must === (payload.expYear)
+      cc.isDefault must === (true)
+
+      payment.appliedAmount must === (0)
+      payment.cordRef must === (cart.refNum)
+      payment.status must === ("auth")
+
+      response.status must === (StatusCodes.OK)
+
+      address.stateId must === (addressPayload.stateId)
+      address.customerId must === (customerId)
+    }
+   */
+  }
+   */
+
+  "PATCH /v1/orders/:refNum/shipping-address/:id" - {
+
+    "copying a shipping address from a customer's book" - {
+
+      "succeeds if the address exists in their book" in new AddressFixture {
+        val response = PATCH(s"v1/orders/${cart.refNum}/shipping-address/${address.id}")
+        response.status must === (StatusCodes.OK)
+        val shippingAddress =
+          OrderShippingAddresses.findByOrderRef(cart.refNum).one.run().futureValue.value
+
+        shippingAddress.cordRef must === (cart.refNum)
+      }
+
+      "removes an existing shipping address before copying new address" in new AddressFixture {
+        val newAddress = Addresses
+          .create(address.copy(name = "New", isDefaultShipping = false))
+          .run()
+          .futureValue
+          .rightVal
+
+        val fst :: snd :: Nil = List(address.id, newAddress.id).map { id ⇒
+          PATCH(s"v1/orders/${cart.refNum}/shipping-address/$id")
+        }
+
+        fst.status must === (StatusCodes.OK)
+        snd.status must === (StatusCodes.OK)
+
+        val shippingAddress =
+          OrderShippingAddresses.findByOrderRef(cart.refNum).one.run().futureValue.value
+        shippingAddress.name must === ("New")
+      }
+
+      "errors if the address does not exist" in new AddressFixture {
+        val response = PATCH(s"v1/orders/${cart.refNum}/shipping-address/99")
+
+        response.status must === (StatusCodes.NotFound)
+        response.error must === (NotFoundFailure404(Address, 99).description)
+      }
+    }
+
+    "editing a shipping address by copying from a customer's address book" - {
+
+      "succeeds when the address exists" in new ShippingAddressFixture {
+        val response = PATCH(s"v1/orders/${cart.refNum}/shipping-address/${newAddress.id}")
+
+        response.status must === (StatusCodes.OK)
+        val shippingAddress =
+          OrderShippingAddresses.findByOrderRef(cart.refNum).one.run().futureValue.value
+        shippingAddress.cordRef must === (cart.refNum)
+      }
+
+      "errors if the address does not exist" in new ShippingAddressFixture {
+        val response = PATCH(s"v1/orders/${cart.refNum}/shipping-address/99")
+
+        response.status must === (StatusCodes.NotFound)
+        response.error must === (NotFoundFailure404(Address, 99).description)
+      }
+
+      "does not change the current shipping address if the edit fails" in new ShippingAddressFixture {
+        val response = PATCH(s"v1/orders/${cart.refNum}/shipping-address/101")
+
+        response.status must === (StatusCodes.NotFound)
+        val shippingAddress =
+          OrderShippingAddresses.findByOrderRef(cart.refNum).one.run().futureValue.value
+        shippingAddress.cordRef must === (cart.refNum)
+      }
+    }
+  }
+
+  "PATCH /v1/orders/:refNum/shipping-address" - {
+
+    "succeeds when a subset of the fields in the address change" in new ShippingAddressFixture {
+      val updateAddressPayload =
+        UpdateAddressPayload(name = Some("New name"), city = Some("Queen Anne"))
+      val response = PATCH(s"v1/orders/${cart.refNum}/shipping-address", updateAddressPayload)
+
+      response.status must === (StatusCodes.OK)
+
+      val (shippingAddress :: Nil) =
+        OrderShippingAddresses.findByOrderRef(cart.refNum).gimme.toList
+
+      shippingAddress.name must === ("New name")
+      shippingAddress.city must === ("Queen Anne")
+      shippingAddress.address1 must === (address.address1)
+      shippingAddress.address2 must === (address.address2)
+      shippingAddress.regionId must === (address.regionId)
+      shippingAddress.zip must === (address.zip)
+    }
+
+    "does not update the address book" in new ShippingAddressFixture {
+      val updateAddressPayload =
+        UpdateAddressPayload(name = Some("Another name"), city = Some("Fremont"))
+      val response = PATCH(s"v1/orders/${cart.refNum}/shipping-address", updateAddressPayload)
+
+      response.status must === (StatusCodes.OK)
+
+      val addressBook = Addresses.findOneById(address.id).run().futureValue.value
+
+      addressBook.name must === (address.name)
+      addressBook.city must === (address.city)
+    }
+
+    "full cart returns updated shipping address" in new ShippingAddressFixture {
+      val name                 = "Even newer name"
+      val city                 = "Queen Max"
+      val updateAddressPayload = UpdateAddressPayload(name = Some(name), city = Some(city))
+      val addressUpdateResponse =
+        PATCH(s"v1/orders/${cart.refNum}/shipping-address", updateAddressPayload)
+      addressUpdateResponse.status must === (StatusCodes.OK)
+      checkOrder(addressUpdateResponse.ignoreFailuresAndGiveMe[FullCart.Root])
+
+      val fullOrderResponse = GET(s"v1/carts/${cart.refNum}")
+      fullOrderResponse.status must === (StatusCodes.OK)
+      checkOrder(fullOrderResponse.withResultTypeOf[FullCart.Root].result)
+
+      def checkOrder(fullOrder: FullCart.Root) = {
+        val addr = fullOrder.shippingAddress.value
+        addr.name must === (name)
+        addr.city must === (city)
+        addr.address1 must === (address.address1)
+        addr.address2 must === (address.address2)
+        val region = Regions.findOneById(address.regionId).run().futureValue.value
+        addr.region must === (region)
+        addr.zip must === (address.zip)
+      }
+    }
+  }
+
+  "DELETE /v1/orders/:refNum/shipping-address" - {
+    "succeeds if an address exists" in new ShippingAddressFixture {
+      val noShipAddressFailure = NoShipAddress(cart.refNum).description
+
+      //get cart and make sure it has a shipping address
+      val fullOrderResponse = GET(s"v1/carts/${cart.refNum}")
+      fullOrderResponse.status must === (StatusCodes.OK)
+      val fullOrder = fullOrderResponse.withResultTypeOf[FullCart.Root].result
+      fullOrder.shippingAddress mustBe defined
+
+      //delete the shipping address
+      val deleteResponse = DELETE(s"v1/orders/${cart.refNum}/shipping-address")
+      deleteResponse.status must === (StatusCodes.OK)
+
+      //shipping address must not be defined
+      val lessThanFullOrder = deleteResponse.withResultTypeOf[FullCart.Root]
+      lessThanFullOrder.result.shippingAddress must not be defined
+      lessThanFullOrder.warnings.value must contain(noShipAddressFailure)
+
+      //fails if the cart does not have shipping address
+      val deleteFailedResponse = DELETE(s"v1/orders/${cart.refNum}/shipping-address")
+      deleteFailedResponse.status must === (StatusCodes.BadRequest)
+    }
+
+    "fails if the cart is not found" in new ShippingAddressFixture {
+      val response = DELETE(s"v1/orders/ABC-123/shipping-address")
+      response.status must === (StatusCodes.NotFound)
+      response.error must === (NotFoundFailure404(Cart, "ABC-123").description)
+
+      db.run(OrderShippingAddresses.length.result).futureValue must === (1)
+    }
+
+    "fails if the order has already been placed" in new ShippingAddressFixture {
+      Orders.create(cart.toOrder()).gimme
+
+      val response = DELETE(s"v1/orders/${cart.refNum}/shipping-address")
+      response.status must === (StatusCodes.BadRequest)
+      response.error must === (OrderAlreadyPlaced(cart.refNum).description)
+
+      db.run(OrderShippingAddresses.length.result).futureValue must === (1)
+    }
+  }
+
+  "PATCH /v1/orders/:refNum/shipping-method" - {
+    "succeeds if the cart meets the shipping restrictions" in new ShippingMethodFixture {
+      val response = PATCH(s"v1/orders/${cart.refNum}/shipping-method",
+                           UpdateShippingMethod(shippingMethodId = lowShippingMethod.id))
+
+      response.status must === (StatusCodes.OK)
+      val fullOrder = response.ignoreFailuresAndGiveMe[FullCart.Root]
+      fullOrder.shippingMethod.value.name must === (lowShippingMethod.adminDisplayName)
+
+      val orderShippingMethod = OrderShippingMethods.findByOrderRef(cart.refNum).gimme.head
+      orderShippingMethod.cordRef must === (cart.refNum)
+      orderShippingMethod.shippingMethodId must === (lowShippingMethod.id)
+    }
+
+    "fails if the cart does not meet the shipping restrictions" in new ShippingMethodFixture {
+      val response = PATCH(s"v1/orders/${cart.refNum}/shipping-method",
+                           UpdateShippingMethod(shippingMethodId = highShippingMethod.id))
+
+      response.status must === (StatusCodes.BadRequest)
+    }
+
+    "fails if the shipping method isn't found" in new ShippingMethodFixture {
+      val response = PATCH(s"v1/orders/${cart.refNum}/shipping-method",
+                           UpdateShippingMethod(shippingMethodId = 999))
+
+      response.status must === (StatusCodes.BadRequest)
+    }
+
+    "fails if the shipping method isn't active" in new ShippingMethodFixture {
+      val response = PATCH(s"v1/orders/${cart.refNum}/shipping-method",
+                           UpdateShippingMethod(shippingMethodId = inactiveShippingMethod.id))
+
+      response.status must === (StatusCodes.BadRequest)
+    }
+  }
+
+  trait Fixture {
+    val (cart, storeAdmin, customer) = (for {
+      customer   ← * <~ Customers.create(Factories.customer)
+      cart       ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
+      storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
+    } yield (cart, storeAdmin, customer)).gimme
+  }
+
+  trait AddressFixture extends Fixture {
+    val address = Addresses.create(Factories.address.copy(customerId = customer.id)).gimme
+  }
+
+  trait ShippingAddressFixture extends AddressFixture {
+    val (orderShippingAddress, newAddress) = (for {
+      orderShippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address,
+                                                                         cordRef = cart.refNum)
+      newAddress ← * <~ Addresses.create(
+                      Factories.address.copy(customerId = customer.id,
+                                             isDefaultShipping = false,
+                                             name = "New Shipping",
+                                             address1 = "29918 Kenloch Dr",
+                                             city = "Farmington Hills",
+                                             regionId = 4177))
+    } yield (orderShippingAddress, newAddress)).gimme
+  }
+
+  trait ShippingMethodFixture extends AddressFixture {
+    val lowConditions = parse(
+        """
+              | {
+              |   "comparison": "and",
+              |   "conditions": [{
+              |     "rootObject": "Order", "field": "grandtotal", "operator": "greaterThan", "valInt": 25
+              |   }]
+              | }
+            """.stripMargin).extract[QueryStatement]
+
+    val highConditions = parse(
+        """
+              | {
+              |   "comparison": "and",
+              |   "conditions": [{
+              |     "rootObject": "Order", "field": "grandtotal", "operator": "greaterThan", "valInt": 250
+              |   }]
+              | }
+            """.stripMargin).extract[QueryStatement]
+
+    val lowSm = Factories.shippingMethods.head
+      .copy(adminDisplayName = "Low", conditions = Some(lowConditions))
+    val highSm = Factories.shippingMethods.head
+      .copy(adminDisplayName = "High", conditions = Some(highConditions))
+
+    val (lowShippingMethod, inactiveShippingMethod, highShippingMethod) = (for {
+      productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
+      product ← * <~ Mvp.insertProduct(productContext.id,
+                                       Factories.products.head.copy(price = 100))
+      lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(product.skuId)
+      lineItem ← * <~ OrderLineItems.create(
+                    OrderLineItem(cordRef = cart.refNum,
+                                  originId = lineItemSku.id,
+                                  originType = OrderLineItem.SkuItem))
+
+      lowShippingMethod ← * <~ ShippingMethods.create(lowSm)
+      inactiveShippingMethod ← * <~ ShippingMethods.create(
+                                  lowShippingMethod.copy(isActive = false))
+      highShippingMethod ← * <~ ShippingMethods.create(highSm)
+
+      _ ← * <~ CartTotaler.saveTotals(cart)
+    } yield (lowShippingMethod, inactiveShippingMethod, highShippingMethod)).gimme
+  }
+
+  trait OrderShippingMethodFixture extends ShippingMethodFixture {
+    val shipment = (for {
+      orderShipMethod ← * <~ OrderShippingMethods.create(
+                           OrderShippingMethod.build(cordRef = cart.refNum,
+                                                     method = highShippingMethod))
+      shipment ← * <~ Shipments.create(Shipment(cordRef = cart.refNum,
+                                                orderShippingMethodId = Some(orderShipMethod.id)))
+    } yield shipment).runTxn().futureValue
+  }
+
+  trait PaymentStateFixture extends Fixture {
+    val (cc, op, ccc) = (for {
+      cc ← * <~ CreditCards.create(Factories.creditCard.copy(customerId = customer.id))
+      op ← * <~ OrderPayments.create(
+              Factories.orderPayment.copy(cordRef = cart.refNum, paymentMethodId = cc.id))
+      ccc ← * <~ CreditCardCharges.create(
+               Factories.creditCardCharge.copy(creditCardId = cc.id, orderPaymentId = op.id))
+    } yield (cc, op, ccc)).gimme
+  }
+}

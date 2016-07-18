@@ -1,0 +1,16 @@
+create table activity_connections (
+    id serial primary key,
+    dimension_id integer,
+    trail_id integer,
+    activity_id integer,
+    data jsonb null,
+    connected_by jsonb,
+    created_at generic_timestamp,
+    foreign key (dimension_id) references activity_dimensions(id) on update restrict on delete restrict,
+    foreign key (activity_id) references activities(id) on update restrict on delete restrict
+);
+
+create index activity_connection_dimension_idx on activity_connections (dimension_id);
+create index activity_connection_trail_id_idx on activity_connections (trail_id);
+
+alter table activity_trails add foreign key(tail_connection_id) references activity_connections(id);

@@ -1,0 +1,80 @@
+# Data Structures
+
+### StoreCreditOriginType
++ originType: CsrAppeasement (required, enum[string]) - SC origin type.
+    + Members
+        + `csrAppeasement`
+        + `giftCardTransfer`
+        + `returnProcess`
+
+### StoreCreditState
++ state: OnHold (required, enum[string]) - SC state.
+    + Members
+        + `onHold`
+        + `active`
+        + `canceled`
+
+### StoreCredit
++ id: 1 (required, number) - Unique identifier.
++ createdAt: `2020-01-01T12:00:00Z` (required, string) - Creation date.
++ currency: USD (required, string) - SC currency.
++ Include StoreCreditOriginType
++ subTypeId: 1 (optional, number) - Optional subtype.
++ Include StoreCreditState
++ originalBalance: 50 (required, number) - Opening balance for SC (amount it was issued for).
++ currentBalance: 50 (required, number) - Opening balance minus "captured" debits.
++ availableBalance: 50 (required, number) - Opening balance minus "auth" debits.
++ canceledReason: Lorem ipsum (string) - Cancellation reason (present if SC canceled).
+
+### StoreCreditOriginTypeResponse
++ Include StoreCreditOriginType
++ subtypes (required, array[StoreCreditSubtype]) - List of related subtypes.
+
+### StoreCreditSubtype
++ id: 1 (required, number) - Unique ID.
++ title: `Appeasement Type A` (required, string) - Subtype title.
++ Include StoreCreditOriginType
+
+### StoreCreditAdjustment
++ id: 1 (required, number) - Unique identifier.
++ debit: 50 (required, number) - Debit of adjustment.
++ availableBalance: 10 (required, number) - Current availableBalance for this SC
++ state: Auth (required, enum[string]) - Gift Card state.
+    + Members
+        + `auth`
+        + `capture`
+        + `canceled`
++ cartRef: `ABC-123` (string) - Cart reference number.
++ createdAt: `2020-01-01T12:00:00Z` (required, string) - Creation date.
+
+### StoreCreditBulkResponse
++ success: true (required, boolean) - Operation result.
++ id: 1 (required, number) - Requested StoreCredit identifier.
++ errors (optional, array[string]) - List of possible errors.
++ storeCredit (optional, StoreCredit) - Updated StoreCredit.
+
+### StoreCreditCreateSinglePayload
++ amount: 10 (required, number) - Store credit amount.
++ reasonId: 1 (required, number) - Reason of creation.
++ subReasonId: 1 (optional, number) - Subreason.
++ currency: USD (optional, string) - Store credit currency.
+
+### StoreCreditCreatePayload
++ amount: 10 (required, number) - Store credit amount.
++ quantity: 1 (required, number) - Quantity.
++ reasonId: 1 (required, number) - Reason of creation.
++ subReasonId: 1 (optional, number) - Subreason.
++ currency: USD (optional, string) - Store credit currency.
+
+### StoreCreditBulkStateUpdatePayload
++ ids (required, array[number]) - List of Store Credit ID's.
++ state: onHold (required, string) - State to be switched to.
++ reasonId: 1 (optional, number) - ID of cancellation reason.
+
+### StoreCreditUpdateStatePayload
++ state: onHold (required, string) - New store credit state.
++ reasonId: 1 (optional, number) - ID of cancellation reason.
+
+### StoreCreditTotals
++ currentBalance: 50 (required, number) - Total current balance for customer.
++ availableBalance: 50 (required, number) - Total available balance for customer.

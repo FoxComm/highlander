@@ -1,0 +1,16 @@
+create table gift_card_refunds (
+    id integer primary key,
+    return_id integer not null,
+    created_at generic_timestamp,
+    foreign key (id) references gift_card_origins(id) on update restrict on delete restrict,
+    foreign key (return_id) references returns(id) on update restrict on delete restrict
+);
+
+create index gift_card_refunds_return_idx on gift_card_refunds (return_id);
+
+create trigger set_gift_card_refunds_id
+    before insert
+    on gift_card_refunds
+    for each row
+    execute procedure set_gift_card_origin_id();
+

@@ -1,0 +1,43 @@
+## Gift Card [/v1/gift-cards/{code}]
+
++ Parameters
+    + code: `ABC-123` (required, string) - Gift card code
+
+### View [GET]
+
++ Response 200 (application/json)
+    + Attributes (GiftCard)
+
+### Create [POST /v1/gift-cards]
+
+Creates a GiftCard with `CsrAppeasement` type, which is only supported at this endpoint.
+If `quantity` parameter is provided in payload, multiple GiftCard will be generated.
+
++ Request (application/json)
+    + Attributes (GiftCardCreatePayload)
++ Response 200 (application/json)
+    + Attributes (GiftCard)
+
+### Update State [PATCH]
+
++ Request (application/json)
+    + Attributes (GiftCardUpdateStatePayload)
++ Response 200 (application/json)
+    + Attributes (GiftCard)
+
+### Bulk Update State [PATCH /v1/gift-cards]
+
++ Request (application/json)
+    + Attributes (GiftCardBulkStateUpdatePayload)
++ Response 200 (application/json)
+    + Attributes (array[GiftCardBulkResponse])
+
+### Convert to StoreCredit [POST /v1/gift-cards/{code}/convert/{customerId}]
+
+Converts GiftCard to specified customer's Store Credit if it's active and has no open adjustments.
+
++ Parameters
+    + code: `ABC-123` (required, string) - Gift card code.
+    + customerId: 1 (required, number) - Customer ID.
++ Response 200 (application/json)
+    + Attributes (StoreCredit)
