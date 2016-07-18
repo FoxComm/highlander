@@ -233,12 +233,12 @@ object Mvp {
       productForm ← * <~ ObjectForms.update(oldForm, simpleProduct.update(oldForm))
 
       //find sku form for the product and update it with new sku
-      link ← * <~ ObjectLinks
-              .findByLeftAndType(product.shadowId, ObjectLink.ProductSku)
+      link ← * <~ ProductSkuLinks
+              .filterLeft(product.id)
               .mustFindOneOr(ObjectLeftLinkCannotBeFound(product.shadowId))
+
       sku ← * <~ Skus
-             .filter(_.contextId === oldContextId)
-             .filter(_.shadowId === link.rightId)
+             .filter(_.id === link.rightId)
              .mustFindOneOr(SkuWithShadowNotFound(link.rightId))
 
       simpleSku  ← * <~ SimpleSku(p.code, p.title, p.price, p.currency, p.active, p.tags)
@@ -313,10 +313,6 @@ object Mvp {
   // Temporary convenience method to use until ObjectLink is replaced.
   private def linkProductAndSku(product: Product, sku: Sku)(implicit ec: EC) =
     for {
-      _ ← * <~ ObjectLinks.create(
-             ObjectLink(leftId = product.shadowId,
-                        rightId = sku.shadowId,
-                        linkType = ObjectLink.ProductSku))
       _ ← * <~ ProductSkuLinks.create(ProductSkuLink(leftId = product.id, rightId = sku.id))
     } yield {}
 
