@@ -1,0 +1,151 @@
+.fc-customer {
+  width: 100%;
+
+  .fc-comment {
+    color: @color-text-gray;
+    font-weight: bold;
+  }
+
+  .fc-float-list {
+    .clearfix();
+  }
+
+  .fc-address {
+    width: 370px;
+    height: 233px;
+    margin: 20px;
+
+    &.is-editing {
+      height: auto;
+    }
+
+    &-new-title {
+      .font-spec(18px, 700, 22px);
+      margin-bottom: 20px;
+    }
+  }
+
+  .fc-address-details {
+    li {
+      display: list-item;
+    }
+  }
+
+  .fc-card-container {
+    width: 370px;
+    height: 368px;
+    margin: 20px;
+    padding: 20px 10px;
+  }
+
+  .fc-card-container-content {
+    dt {
+      .font-spec(16px, 600, 22px);
+    }
+  }
+
+  .fc-customer-account-status {
+    .fc-customer-status-row {
+      margin-top: .9rem;
+      padding-top: .5rem;
+    }
+  }
+  .fc-customer-account-password {
+    margin-bottom: @gutter;
+  }
+
+  .fc-customer-notification-settings {
+    .fc-customer-settings-title-row {
+      padding: 10px 0;
+      border-bottom: 2px solid @color-text-gray;
+    }
+
+    .fc-customer-notification-title-comment {
+      color: @color-text-gray;
+      font-weight: 600;
+    }
+  }
+
+  .fc-customer-details {
+
+    &-block {
+      margin-top: 30px;
+    }
+
+    dt {
+      font-size: 16px;
+      font-weight: @semibold;
+      line-height: 24px;
+    }
+
+    dd {
+      .font-spec(13px, 19px);
+      -webkit-margin-start: 0;
+    }
+
+    > .fc-grid {
+      padding-right: 0;
+      margin-left: -1.85%;
+    }
+    h2 {
+      margin-top: 0;
+    }
+  }
+
+  &-contacts-form {
+    dt {
+      font-size: 16px;
+      font-weight: @semibold;
+      line-height: 22px;
+    }
+    .fc-form-field {
+      margin-top: 10px;
+      font-size: 14px;
+      font-weight: @normal;
+      line-height: 19px;
+      input {
+        width: 100%;
+      }
+    }
+    > .fc-save-cancel {
+      margin-top: 30px;
+    }
+  }
+
+  .fc-customer-transactions .fc-list-page,
+  .fc-customer-items .fc-list-page {
+    background-color: @color-default-bg;
+  }
+  .fc-customer-transactions,
+  .fc-customer-items {
+    margin-left: -@gutter;
+    margin-right: -@gutter;
+  }
+
+  .fc-customer-items {
+    .icon-heart {
+      .font-spec(18px);
+    }
+  }
+
+  &-cart {
+    ._header {
+      display: flex;
+      flex-wrap: nowrap;
+      margin-top: 15px;
+      margin-bottom: 25px;
+    }
+
+    &__edit-btn {
+      margin-left: auto;
+    }
+  }
+
+  .fc-customer__empty-messages {
+    line-height: 5.2rem;
+    .font-spec(2rem, @normal, 5.2rem);
+    color: @color-text-gray;
+    text-align: center;
+    padding: 20px;
+  }
+}

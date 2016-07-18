@@ -1,0 +1,64 @@
+// libs
+import _ from 'lodash';
+import React, { PropTypes } from 'react';
+import Transition from 'react-addons-css-transition-group';
+import classNames from 'classnames';
+import { autobind } from 'core-decorators';
+
+// components
+import { Button } from '../common/buttons';
+
+export default class NotificationIndicator extends React.Component {
+
+  static propTypes = {
+    count: PropTypes.number,
+    displayed: PropTypes.bool,
+    toggleNotifications: PropTypes.func.isRequired,
+    markAsReadAndClose: PropTypes.func.isRequired
+  };
+
+  static defaultProps = {
+    count: 0,
+    displayed: false
+  };
+
+  get indicator() {
+    const count = this.props.count;
+
+    if (_.isNumber(count) && count > 0) {
+      return (
+        <div className="fc-activity-notifications__indicator" key={count}>
+          <span>{count}</span>
+        </div>
+      );
+    }
+  }
+
+  @autobind
+  toggleNotifications() {
+    if (this.props.displayed) {
+      this.props.markAsReadAndClose();
+    } else {
+      this.props.toggleNotifications();
+    }
+  }
+
+  render() {
+    const classes = classNames('fc-activity-notifications__toggle', {
+      '_active': this.props.displayed
+    });
+    return (
+      <div className="fc-activity-notifications">
+        <Button icon="bell"
+                className={ classes }
+                onClick={ this.toggleNotifications }>
+          <Transition transitionName="fc-activity-notifications__indicator"
+                      transitionEnterTimeout={300}
+                      transitionLeaveTimeout={300}>
+            { this.indicator }
+          </Transition>
+        </Button>
+      </div>
+    );
+  }
+}

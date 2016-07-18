@@ -1,0 +1,70 @@
+@gutter: 1.85%;
+
+.fc-live-search {
+  padding: 0 @gutter;
+  margin-bottom: 40px;
+
+  .fc-list-page-content:first-child {
+    border-top: 1px solid @color-decor9;
+  }
+
+  .fc-pilled-input {
+    &__pill {
+      .icon-filter, .icon-search {
+        margin-right: 10px;
+      }
+    }
+
+    &__controls-container {
+      .fc-btn {
+        color: @color-decor32;
+        border: none;
+        background-color: transparent;
+        font-size: 20px;
+      }
+    }
+  }
+
+  .icon-chevron-down {
+    font-size: 12px;
+  }
+
+  &__header {
+    background-color: @color-default-bg;
+  }
+
+  &__go-back {
+    border-top: 1px solid @color-decor9;
+
+    > span {
+      font-weight: 600;
+    }
+
+    .icon-back {
+      margin-right: 10px;
+      vertical-align: top;
+      .font-spec(12px);
+    }
+  }
+
+  &__search-control {
+    margin-top: 20px;
+  }
+
+  &__share-button {
+    margin-bottom: 10px;
+  }
+
+  &__table {
+    width: 100% !important;
+    overflow: hidden;
+
+    .fc-tableview {
+      width: 100% !important;
+    }
+
+    &._no-gutter {
+      padding-left: 0;
+    }
+  }
+}

@@ -1,0 +1,91 @@
+.fc-store-credits {
+  .fc-list-page-content {
+    .margin(0 -(@gutter));
+    background: @color-white;
+  }
+
+  .initials {
+    color: @color-white;
+    margin-right: 5px;
+  }
+
+  & &__list {
+    padding-right: 0;
+    margin: 0;
+  }
+
+  .fc-list-page-header {
+    .margin(0 -(@gutter));
+  }
+
+  .fc-live-search {
+    margin-bottom: 40px;
+
+    .fc-list-page-content:first-child {
+      border-top: none;
+    }
+
+    .fc-list-page-content:last-child {
+      padding-bottom: 20px;
+    }
+  }
+
+  .fc-live-search__search-control {
+    margin-top: 30px;
+  }
+
+  &-summary {
+    margin-bottom: @gutter;
+  }
+
+  &-summary-balance {
+    margin: 65px auto;
+    font-size: 48px;
+    font-weight: @semibold;
+    line-height: 65px;
+    color: @color-decor15;
+  }
+
+  .fc-store-credit-cancel-reason {
+    margin: 30px 0 50px 0;
+
+    &-asterisk {
+      color: @color-decor22;
+      .padding-left(5px);
+    }
+
+    &-selector {
+      margin-top: 15px;
+    }
+  }
+
+  .fc-store-credit-table-container {
+    margin-bottom: 30px;
+  }
+
+  .fc-store-credit-new-state {
+    .padding-left(5px);
+  }
+
+  &__status-dropdown {
+    min-width: 100px;
+  }
+}
+
+.fc-store-credit-summary {
+  &__tab-link {
+    width: 100%;
+    height: 100%;
+    .padding-top(20px);
+    font-size: 14px;
+    font-weight: @normal;
+    line-height: 14px;
+    color: @color-decor1;
+  }
+
+  .fc-tab._selected &__tab-link {
+    font-size: 14px;
+    font-weight: @semibold;
+    line-height: 14px;
+  }
+}

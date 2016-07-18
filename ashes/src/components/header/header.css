@@ -1,0 +1,47 @@
+.header,
+.sub-nav,
+.user {
+  display: flex;
+  align-items: center;
+}
+
+.header {
+  align-content: space-between;
+  height: 70px;
+  padding-left: 30px;
+  padding-right: 10px;
+  color: #9ba3a7;
+  background-color: #fcfcfc;
+  font-weight: 400;
+  line-height: 70px;
+  font-size: 15px;
+}
+
+.name,
+.arrow {
+  transition: all .2s;
+}
+
+.user {
+  position: relative;
+  margin-left: 15px;
+  padding-right: 20px;
+  cursor: pointer;
+
+  &:hover {
+    & .name,
+    & .arrow {
+      color: #3a4350;
+    }
+  }
+}
+
+.initials {
+  margin-right: 10px;
+  width: 35px;
+  color: #ffffff;
+}
+
+.name {
+  margin-right: 10px;
+}

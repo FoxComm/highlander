@@ -1,0 +1,308 @@
+// Tables
+@color-tr-odd-bg: @color-white;
+@color-tr-even-bg: @color-decor12;
+
+@color-th-fg: @color-default-fg;
+@color-th-bg: @color-decor12;
+@color-th-bg-hover: @color-decor35;
+@color-th-border: @color-decor9;
+
+@color-border-td: @color-decor9;
+
+@keyframes fc-new-row {
+  from {
+    background-color: @color-decor44;
+  }
+
+  to {
+  }
+}
+
+.fc-table-wrap {
+  position: relative;
+  border: 1px solid @color-border-td;
+
+  &::before, &::after {
+    content: " ";
+    display: table;
+  }
+
+  &::after {
+    clear: both;
+  }
+
+  .fc-table-message {
+    padding: 10px 15px;
+    z-index: 2;
+    background: #fff;
+
+    &__inline {
+      position: absolute;
+      width: 100%;
+      top: 62px;
+      bottom: 0;
+      padding-top: 40px;
+      background: rgba(255, 255, 255, .72);
+    }
+  }
+}
+
+.fc-table {
+  display: table;
+  table-layout: auto;
+  width: 100%;
+
+  thead, .fc-table-head {
+    display: table-header-group;
+
+    th, .fc-table-th {
+      display: table-cell;
+      position: relative;
+      vertical-align: middle;
+      color: @color-th-fg;
+      background: @color-th-bg;
+      padding: 10px 15px;
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 18px;
+      border-right: 1px solid @color-th-border;
+      border-bottom: 1px solid @color-th-border;
+      height: 62px;
+      user-select: none;
+      background-clip: padding-box;
+
+      &:last-child {
+        border-right: none;
+      }
+
+      &.sorting {
+        padding-right: 30px;
+        cursor: pointer;
+
+        &:hover {
+          background-color: @color-th-bg-hover;
+
+          .icon-up {
+            display: block;
+          }
+        }
+      }
+
+      &.sorting-asc {
+        .icon-up {
+          display: block;
+        }
+        &:hover {
+          .icon-up {
+            display: none;
+          }
+          .icon-down {
+            display: block;
+          }
+        }
+      }
+
+      &.sorting-desc {
+        .icon-down {
+          display: block;
+        }
+        &:hover {
+          .icon-down {
+            display: none;
+          }
+          .icon-up {
+            display: block;
+          }
+        }
+      }
+
+      &.__select-column {
+        width: 80px;
+        padding: 19px 15px;
+        text-align: center;
+      }
+
+      &.__toggle-columns {
+        position: static;
+        padding: 0;
+        .font-spec(18px, 400, 18px);
+        width: 70px;
+      }
+    }
+  }
+
+  tbody, .fc-table-body {
+    display: table-row-group;
+
+    tr, .fc-table-tr {
+      display: table-row;
+      width: 100%;
+
+      transition: background-color 500ms;
+
+      &:last-child {
+        td, .fc-table-td {
+          border-bottom: none;
+        }
+      }
+
+      &:nth-child(odd),
+      &.odd {
+        background-color: @color-tr-odd-bg;
+      }
+
+      &:nth-child(even),
+      &.even {
+        background-color: @color-tr-even-bg;
+      }
+
+      &.is-new {
+        animation: fc-new-row 4.6s ease-out;
+      }
+    }
+
+    td, .fc-table-td {
+      display: table-cell;
+      height: 55px;
+      padding: 10px 15px;
+      .font-spec(13px, 18px);
+      color: @color-decor1;
+      vertical-align: middle;
+      background-clip: padding-box;
+      border-bottom: 1px solid @color-decor9;
+
+      transition: background-color 500ms;
+
+      &._no-results {
+        font-weight: @semibold;
+        font-size: 18px;
+        line-height: 24px;
+        color: @color-decor8;
+        padding-top: 40px;
+        padding-bottom: 40px;
+      }
+    }
+  }
+}
+
+.fc-table__sorting {
+  position: absolute;
+  top: 0;
+  right: 10px;
+  color: @color-decor1;
+  .font-spec(16px, 700, 62px);
+
+  .icon-down,
+  .icon-up {
+    display: none;
+  }
+}
+
+.fc-table__header {
+  display: flex;
+  margin-bottom: 20px;
+}
+
+.fc-table__table {
+  width: 100%;
+  // TODO: This is causing some rendering issues in things like the
+  // EditableContentBox. Come back with a fix.
+  // overflow-x: auto;
+}
+
+.fc-table__footer {
+  display: flex;
+  margin-top: 20px;
+}
+
+.fc-table__flex-separator {
+  flex: 1;
+}
+
+.fc-table-actions {
+  line-height: 40px;
+
+  &__dropdown {
+    width: 100px;
+  }
+
+  &__selected {
+    padding-left: 10px;
+  }
+}
+
+.fc-table-pagesize {
+  width: 120px;
+}
+
+.fc-table-paginator {
+  display: flex;
+  float: right;
+  line-height: 40px;
+
+  .fc-btn {
+    .font-spec(10px);
+  }
+
+  &__current-page, &__total-pages {
+    width: 70px;
+    margin: 0 10px;
+
+    .fc-lookup__input {
+      padding-left: 20px;
+    }
+  }
+  &__total-pages {
+    width: auto;
+  }
+
+  &__current-page-field {
+    width: 50px;
+  }
+
+  // somehow it fixes funky scrollbar for table
+  > .fc-btn > i {
+    vertical-align: top;
+  }
+
+  .fc-form-field input.fc-table-paginator__current-page-field._disabled {
+    background-color: @color-decor12;
+    border: 1px solid @color-decor7;
+  }
+
+  &__current-page-selector {
+    background-color: @color-white;
+    position: absolute;
+    width: 50px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    border: 1px solid @color-border;
+    border-radius: .3rem;
+    font-weight: 400;
+    line-height: 6rem;
+    font-size: 12px;
+    z-index: 100;
+    display: none;
+
+    &._shown {
+      display: block;
+    }
+  }
+
+  &__current-page-selector-overlay {
+    position: fixed;
+    display: none;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+
+  &__selector-option {
+    text-align: center;
+  }
+
+  &__selector-option:hover {
+    background-color: @color-decor12;
+  }
+}

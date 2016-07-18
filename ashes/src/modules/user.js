@@ -1,0 +1,160 @@
+/** @flow */
+import { createAction, createReducer } from 'redux-act';
+import superagent from 'superagent';
+import Api from '../lib/api';
+import _ from 'lodash';
+import { dissoc } from 'sprout-data';
+
+// types
+
+export type TUser = {name: String, email: String};
+
+export type LoginPayload = {
+  email: string,
+  password: string,
+  kind: string,
+};
+
+export type UserState = {
+  message: ?String,
+  err: ?String,
+  current: ?TUser,
+  isFetching: boolean,
+};
+
+export const setUser = createAction('USER_SET');
+export const removeUser = createAction('REMOVE_SET');
+const authStart = createAction('USER_AUTH_START');
+const authError = createAction('USER_AUTH_ERROR');
+export const authMessage = createAction('USER_AUTH_MESSAGE');
+
+export const INFO_MESSAGES = {
+  LOGGED_OUT: 'You have successfully logged out.',
+};
+
+const requestMyInfoStart = createAction('USER_AUTH_INFO_START');
+const receiveMyInfoError = createAction('USER_AUTH_INFO_RECEIVE_ERROR');
+
+export function fetchUserInfo(): ActionDispatch {
+  return (dispatch, getState) => {
+    let user = getState().user.current;
+    if (user && user.name) return;
+
+    user = localStorage.getItem('user');
+    if (user) {
+      try {
+        dispatch(setUser(JSON.parse(user)));
+      } catch(e) {
+      }
+    }
+
+    dispatch(requestMyInfoStart());
+    Api.get(`/store-admins/me`)
+      .then(
+        info => dispatch(setUser(info)),
+        err => dispatch(receiveMyInfoError(err))
+      );
+  };
+}
+
+export function authenticate(payload: LoginPayload): ActionDispatch {
+  return dispatch => {
+    let hasError = false;
+
+    dispatch(authStart());
+    return superagent.post(Api.apiURI('/public/login'), payload)
+      .type('json')
+      .then(response => {
+        if (response.status == 200 && response.header['jwt']) {
+          localStorage.setItem('jwt', response.header['jwt']);
+        } else {
+          hasError = true;
+        }
+        const token: TUser = response.body;
+        if (token.email && token.name && !hasError) {
+          localStorage.setItem('user', JSON.stringify(token));
+          return dispatch(setUser(token));
+        }
+
+        const errors = _.get(token, 'errors', ['Unexpected error, try again later']);
+        const message = _.reduce(errors, (res, err) => `${res} ${err}`, '').trim();
+        throw new Error(message);
+      }).catch(reason => {
+        dispatch(authError(reason.message));
+        throw new Error(reason);
+      });
+  };
+}
+
+export function googleSignin(): ActionDispatch {
+  return dispatch => {
+    Api.get('/public/signin/google/admin').then(urlInfo => {
+      window.location.href = urlInfo.url;
+    });
+  };
+}
+
+export function logout(): ActionDispatch {
+  return dispatch => {
+    return Api.post('/public/logout').then(() => {
+      localStorage.removeItem('user');
+      localStorage.removeItem('jwt');
+      dispatch(removeUser());
+    });
+  };
+}
+
+
+const initialState = {
+  isFetching: false,
+  message: null,
+};
+
+const reducer = createReducer({
+  [requestMyInfoStart]: (state) => {
+    return {...state,
+      err: null,
+      isFetching: true,
+    };
+  },
+  [receiveMyInfoError]: (state, err) => {
+    return {...state,
+      isFetching: false,
+      err: err,
+    };
+  },
+  [setUser]: (state: UserState, user: TUser) => {
+    localStorage.setItem('user', JSON.stringify(user));
+    return {
+      ...state,
+      current: user,
+      isFetching: false,
+    };
+  },
+  [removeUser]: (state: UserState, user: TUser) => {
+    return dissoc(state, 'user');
+  },
+  [authStart]: (state: UserState) => {
+    return {
+      ...state,
+      err: null,
+      message: null,
+      isFetching: true,
+    };
+  },
+  [authError]: (state: UserState, error: string) => {
+    return {
+      ...state,
+      err: error,
+      isFetching: false,
+    };
+  },
+  [authMessage]: (state: UserState, message: string) => {
+    return {
+      ...state,
+      message,
+    };
+  },
+}, initialState);
+
+export default reducer;

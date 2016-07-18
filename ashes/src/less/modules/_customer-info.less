@@ -1,0 +1,135 @@
+.fc-customer-title-block {
+  margin: 40px 0;
+  background: @color-white;
+}
+
+.fc-customer-info {
+  .font-spec(14px, 31px);
+
+  a {
+    color: inherit;
+  }
+
+  &__header {
+    height: 6rem;
+    text-align: center;
+  }
+
+  &__comment {
+    .font-spec(14px, 600, 19px);
+    color: #C7C9CB;
+  }
+
+  @head-height: 60px;
+  @circle_size: 98px;
+  @img_size: 84px;
+
+  @avatar-margin-top: -@circle_size/2;
+
+  &__head {
+    height: 6rem;
+    .colors(@fg: @color-decor0, @bg: @color-decor3);
+    border-radius: 3px 3px 0 0;
+    margin: -1px -1px 0 -1px;
+    border: 0;
+  }
+
+  &__rank {
+    padding-top: 2rem;
+    padding-right: 2rem;
+    text-align: right;
+    @line-height: 19px;
+    .font-spec(14px, 700, @line-height);
+    .padding-top((@head-height + @avatar-margin-top - @line-height)/2);
+  }
+
+  &__avatar {
+    .size(@circle_size);
+    background-color: @color-white;
+    border-radius: 50%;
+    text-align: center;
+    .inline-block(top);
+    margin-top: @avatar-margin-top;
+    margin-bottom: 4px;
+
+    img, i {
+      overflow: hidden;
+      border-radius: 50%;
+      .size(@img_size);
+      margin-top: @circle_size/2 - @img_size/2;
+      box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.50);
+    }
+
+    i {
+      .font-spec(60px, @img_size);
+      background-color: @color-decor15;
+      color: @color-decor0;
+    }
+  }
+
+  @name-font-size: 30px;
+  @name-line-height: 41px;
+  @email-font-size: 17px;
+  @email-line-height: 23px;
+
+  &__name {
+    .font-spec(@name-font-size, 700, @name-line-height);
+    color: @color-decor1;
+
+    .padding-bottom(7px);
+  }
+
+  &__email {
+    .font-spec(@email-font-size, 400, @email-line-height);
+    color: @color-decor1;
+  }
+
+  &__body {
+    .font-spec(14px, 600, 19px);
+    color: @color-decor1;
+    padding: 9px 10px 20px 10px;
+  }
+
+  &__fields {
+    display: inline-block;
+    width: 50%;
+
+    li {
+      height: 40px;
+      display: flex;
+      align-items: center;
+
+      > i {
+        width: 25px;
+        font-style: normal;
+        .font-spec(22px, 24px);
+        text-align: center;
+        color: @color-decor6;
+      }
+
+      > span {
+        text-indent: 10px;
+      }
+
+      &.fc-customer-info-days > i {
+        .font-spec(15px, 700, 20px);
+      }
+    }
+  }
+
+  &__group {
+    padding: 5px 10px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    .inline-block(top);
+    .font-spec(14px, 19px);
+    .colors(@fg: @color-decor0, @bg: @color-decor3);
+    box-shadow: inset 0 -2px 3px 0 rgba(0, 0, 0, 0.50), inset 1px 1px 1px 0 rgba(255, 255, 255, 0.89);
+    border-radius: 3px; // don't depend in root font size
+  }
+
+  &__guest {
+    color: @color-decor8;
+    .padding-top(5px);
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "plugins": [
+    "react"
+  ],
+  "ecmaFeatures": {
+    "defaultParams": true,
+    "classes": true,
+    "experimentalObjectRestSpread": true,
+    "blockBindings": true,
+    "forOf": true,
+    "jsx": true
+  },
+  "rules": {
+    "semi": 2,
+    "react/prop-types": 0,
+    "strict": 0,
+    "react/no-did-mount-set-state": [1, "allow-in-func"]
+  },
+  "parser": "babel-eslint"
+}

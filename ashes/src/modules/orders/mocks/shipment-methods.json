@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "carrier": 1,
+    "name": "3 Day Select"
+  },
+  {
+    "id": 2,
+    "carrier": 1,
+    "name": "Standard 5-7 Day Ground"
+  },
+  {
+    "id": 3,
+    "carrier": 2,
+    "name": "Free 2 day"
+  }
+]

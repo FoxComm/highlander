@@ -1,0 +1,47 @@
+.header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 40px;
+}
+
+.accordionContent {
+  padding: 3px;
+}
+
+.accordionTitleText {
+  margin-right: 10px;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.accordionTitleCount {
+  display: inline-block;
+  width: 32px;
+  line-height: 30px;
+  font-size: 13px;
+  border: 1px solid #484848;
+  border-radius: 50%;
+}
+
+.images {
+  & :global(.fc-modal-container) {
+    min-width: 720px;
+
+    & :global(.fc-alert) {
+      margin-bottom: 20px;
+    }
+
+    & :global(.fc-content-box) {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.modal {
+  & :global(.fc-modal-container) {
+    min-width: 720px;
+  }
+  & :global(.fc-alert) {
+    margin-bottom: 20px;
+  }
+}

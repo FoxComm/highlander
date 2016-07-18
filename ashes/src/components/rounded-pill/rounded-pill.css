@@ -1,0 +1,23 @@
+.main {
+  align-items: center;
+  background: #3a4350;
+  border-radius: 20px;
+  color: #fff;
+  display: inline-flex;
+  font-size: 13px;
+  padding: 6px 15px;
+}
+
+.main-closable {
+  composes: main;
+  padding-right: 6px;
+}
+
+.button {
+  background: transparent;
+  border: none;
+}
+
+.text {
+  line-height: 17px;
+}

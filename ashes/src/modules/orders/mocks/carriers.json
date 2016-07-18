@@ -1,0 +1,12 @@
+[
+  {
+    "id": 1,
+    "name": "UPS",
+    "trackingTemplate": "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"
+  },
+  {
+    "id": 2,
+    "name": "DHL",
+    "trackingTemplate": "http://www.dhl.com/en/express/tracking.shtml?AWB=$number&brand=DHL"
+  }
+]

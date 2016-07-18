@@ -1,0 +1,90 @@
+@amount-field-height: 46px;
+
+.fc-new-gift-card {
+  margin-left: @gutter;
+
+  &__types,
+  &__subtypes {
+    .fc-dropdown {
+      max-width: initial;
+    }
+  }
+
+  &__label, .fc-form-field-label {
+    font-weight: @semibold;
+  }
+
+  &__balance-value {
+    .inline-block();
+    cursor: pointer;
+    background: @color-white;
+    box-shadow: 0 0 0 2px @color-decor7, 0 0 0 2px @color-transparent;
+    padding: 8px 16px;
+    border-radius: 3px;
+    margin-right: 10px;
+
+    &._selected {
+      box-shadow: 0 0 0 4px @color-decor39;
+    }
+  }
+
+  &__send-to-customers {
+    background-color: @color-white;
+    padding: 15px;
+    margin-top: 10px;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.30);
+    border: 1px solid @color-decor9;
+    border-radius: 3px;
+
+    textarea,
+    .fc-typeahead input[type=text],
+    .fc-typeahead__menu,
+    .fc-typeahead__items
+    {
+      width: 100%;
+      max-width: 100%;
+    }
+  }
+
+  &__message-to-customers {
+    margin-top: 50px;
+  }
+
+  &__counter {
+    color: @color-decor6;
+    .font-spec(14px, 20px);
+  }
+
+  > form {
+    max-width: 800px;
+  }
+
+  &__fieldset {
+    margin-bottom: 40px;
+  }
+
+  &__balances {
+    margin: 20px 0 0 2px;
+  }
+
+  &__amount input.fc-prepend-input__input-field {
+    font-size: 20px;
+    font-weight: @semibold;
+    line-height: 27px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    height: @amount-field-height;
+    text-align: right;
+  }
+
+  &__amount .fc-prepend-input__icon {
+    font-size: 20px;
+    font-weight: @semibold;
+    line-height: 42px;
+    height: @amount-field-height;
+  }
+
+  &__amount .fc-prepend-input__icon {
+    height: @amount-field-height;
+  }
+}

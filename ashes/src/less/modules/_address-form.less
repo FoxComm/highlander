@@ -1,0 +1,53 @@
+
+.fc-address-form {
+
+  &-modal {
+    min-width: 575px;
+  }
+
+  input,
+  select,
+  .fc-dropdown {
+    width: 100%;
+    max-width: initial;
+  }
+
+  &-header {
+    flex: 1;
+    .font-spec(18px, 24px);
+  }
+
+  > header {
+    > i {
+      cursor: pointer;
+      padding: 0 5px;
+      .font-spec(17px, 22px);
+    }
+  }
+
+  &-fields {
+    .font-spec(15px, 20px);
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+
+    label {
+      display: block;
+      font-weight: 600;
+      padding: 5px 0;
+    }
+
+    > li {
+      margin-bottom: 9px;
+    }
+  }
+
+  &-field-title {
+    border-bottom: 2px solid @color-decor7;
+    .padding-bottom(5px);
+  }
+
+  &-controls {
+    .padding-top(20px);
+  }
+}

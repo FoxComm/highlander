@@ -1,0 +1,29 @@
+@sidebar-width: 74px;
+
+.fc-admin {
+  display: flex;
+  min-height: 100vh;
+
+  .fc-sidebar {
+    flex: 0 0 @sidebar-width;
+  }
+  .fc-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    .fc-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      border-top: 1px solid @color-header-border;
+
+      > * {
+        flex: 1;
+      }
+    }
+  }
+}

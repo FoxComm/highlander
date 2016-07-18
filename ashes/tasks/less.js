@@ -1,0 +1,35 @@
+'use strict';
+
+const path = require('path');
+const merge = require('merge-stream');
+const PluginCleanCSS = require('less-plugin-clean-css');
+const PluginAutoPrefix = require('less-plugin-autoprefix');
+const PluginNpmImport = require('less-plugin-npm-import');
+const groupMediaQueries = require('less-plugin-group-css-media-queries');
+
+const npmImport = new PluginNpmImport();
+const cleanCSS = new PluginCleanCSS({advanced: true});
+const autoPrefix = new PluginAutoPrefix({browsers: ["last 2 versions"]});
+
+module.exports = function(gulp, opts, $) {
+  gulp.task('less', function() {
+    let src = [
+      path.join(opts.srcDir, 'less/[^_]*.less'),
+      path.join(opts.srcDir, 'components/**/*.less')
+    ];
+    return gulp.src(src)
+      .pipe($.if(opts.devMode, $.plumber(function (err) {
+        console.error(err);
+        this.emit('end');
+      })))
+      .pipe($.concat(`less_bundle.less`))
+      .pipe($.less({
+        plugins: [npmImport, groupMediaQueries, autoPrefix, cleanCSS]
+      }))
+      .pipe(gulp.dest('build'));
+  });
+
+  gulp.task('less.watch', function() {
+    gulp.watch(opts.lessSrc, ['less']);
+  });
+};

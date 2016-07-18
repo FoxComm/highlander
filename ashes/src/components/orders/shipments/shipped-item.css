@@ -1,0 +1,49 @@
+.row {
+  display: flex;
+  height: 84px;
+  padding: 10px;
+}
+
+.cell {
+  display: flex;
+  align-items: center;
+}
+
+.name {
+  composes: cell;
+  font-weight: 600;
+  width: 40%;
+
+  & img {
+    max-height: 64px;
+    width: auto;
+    padding-right: 10px;
+  }
+}
+
+.sku {
+  composes: cell;
+  width: 15%;
+}
+
+.price {
+  composes: cell;
+  width: 15%;
+}
+
+.quantity {
+  composes: cell;
+  width: 15%;
+}
+
+.state {
+  composes: cell;
+  width: 15%;
+}
+
+.total {
+  composes: cell;
+  min-width: 80px;
+  padding-right: 10px;
+  justify-content: flex-end;
+}

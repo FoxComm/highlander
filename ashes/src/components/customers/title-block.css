@@ -1,0 +1,138 @@
+@import "colors.css";
+
+:root {
+  --header-height: 60px;
+  --circle-size: 98px;
+}
+
+:root {
+  --avatar-margin-top: calc(- var(--circle-size) / 2);
+}
+
+.block {
+  margin: 40px 0;
+  background-color: var(--white);
+}
+
+.header {
+  text-align: center;
+}
+
+.head {
+  height: 91px;
+  color: var(--decor0);
+  background-color: var(--decor3);
+  border-radius: 3px 3px 0 0;
+  margin: -1px -1px 0 -1px;
+  border: 0;
+}
+
+.comment {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 19px;
+  color: #C7C9CB;
+}
+
+.rank {
+  text-align: right;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 19px;
+  padding-right: 20px;
+  padding-top: 20px;
+}
+
+.avatar {
+  --image-size: 84px;
+  width: var(--circle-size);
+  height: var(--circle-size);
+  background-color: var(--white);
+  border-radius: 50%;
+  text-align: center;
+  display: inline-block;
+  vertical-align: top;
+  margin-top: var(--avatar-margin-top);
+  margin-bottom: 4px;
+
+  & > i {
+    width: var(--image-size);
+    height: var(--image-size);
+    background-color: var(--decor15);
+    overflow: hidden;
+    border-radius: 50%;
+    margin-top: calc((var(--circle-size) - var(--image-size)) / 2);
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.50);
+    font-size: 60px;
+    line-height: var(--image-size);
+    color: var(--decor0);
+  }
+}
+
+.name {
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 41px;
+  color: var(--decor1);
+  padding-bottom: 7px;
+}
+
+.email {
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 23px;
+  color: var(--decor1);
+}
+
+.body {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 19px;
+  color: var(--decor1);
+  padding: 9px 10px 20px 10px;
+}
+
+.fields {
+  display: inline-block;
+  width: 50%;
+
+  & > li {
+    height: 40px;
+    display: flex;
+    align-items: center;
+
+    & > i {
+      width: 40px;
+      font-style: normal;
+      font-size: 22px;
+      line-height: 24px;
+      text-align: center;
+      color: var(--decor6);
+    }
+
+    &.fc-customer-info-days > i {
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 20px;
+    }
+  }
+}
+
+.group {
+  padding: 5px 10px;
+  margin-right: 5px;
+  margin-bottom: 5px;
+  display: inline-block;
+  vertical-align: top;
+  font-size: 14px;
+  line-height: 19px;
+  color: var(--decor0);
+  background-color: var(--decor3);
+  box-shadow: inset 0 -2px 3px 0 rgba(0, 0, 0, 0.50), inset 1px 1px 1px 0 rgba(255, 255, 255, 0.89);
+  border-radius: 3px;
+}
+
+.guest {
+  color: var(--decor8);
+  padding-top: 5px;
+}

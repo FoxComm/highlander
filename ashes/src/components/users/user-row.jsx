@@ -1,0 +1,46 @@
+/* @flow */
+
+import React from 'react';
+import _ from 'lodash';
+
+import RoundedPill from '../rounded-pill/rounded-pill';
+import MultiSelectRow from '../table/multi-select-row';
+import UserInitials from '../user-initials/initials';
+
+const setCellContents = (user: Object, field: string) => {
+  switch (field) {
+    case 'state':
+      const state = _.get(user, 'state', 'invited');
+      const text = state.charAt(0).toUpperCase() + state.slice(1);
+      return <RoundedPill text={text} />;
+    case 'roles':
+      return _.get(user, field, 'Super Admin');
+    case 'image':
+      return <UserInitials name={_.get(user, 'name')} />;
+    default:
+      return _.get(user, field);
+  }
+};
+
+type Props = {
+  user: Object,
+  columns: Array<string>,
+  params: Object,
+};
+
+const UserRow = (props: Props) => {
+  const { user, columns, params } = props;
+  const key = `user-${user.id}`;
+
+  return (
+    <MultiSelectRow
+      columns={columns}
+      linkTo="user"
+      linkParams={{userId: user.id}}
+      row={user}
+      setCellContents={setCellContents}
+      params={params} />
+  );
+};
+
+export default UserRow;

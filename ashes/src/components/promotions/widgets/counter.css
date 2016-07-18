@@ -1,0 +1,5 @@
+
+.counter-input {
+  composes: inline-edit-input from "../attrs-edit.css";
+  width: 80px;
+}
