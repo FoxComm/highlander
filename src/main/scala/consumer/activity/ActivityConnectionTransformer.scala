@@ -51,7 +51,7 @@ final case class ActivityConnectionTransformer(
   def transform(json: String): Future[String] = {
     Console.out.println(json)
 
-    parse(json) \ "id" \ "int" match {
+    parse(json) \ "id" \ "long" match {
       case JInt(id) ⇒ queryPhoenixForConnection(id)
       case _        ⇒ throw new IllegalArgumentException("Activity connection is missing id")
     }
