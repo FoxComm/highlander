@@ -137,9 +137,7 @@ export default class Lookup extends Component {
 
   @autobind
   onFocus() {
-    if (this.isShowable) {
-      this.showMenu(true);
-    }
+    this.showMenu(true);
   }
 
   @autobind
@@ -178,21 +176,14 @@ export default class Lookup extends Component {
     return 0 <= index && index <= this.items.length - 1;
   }
 
-  get isShowable() {
-    return this.items.length && this.state.query.length >= this.props.minQueryLength;
-  }
-
   filter(data, query) {
     return data.filter(({label}) => {
-      return label.toLowerCase().includes(query.toLowerCase());
+      return label.toLowerCase() == query.toLowerCase();
     });
   }
 
   get items() {
-    const {data} = this.props;
-    const {query} = this.state;
-
-    return query ? this.filter(data, query) : data;
+    return this.props.data;
   }
 
   get input() {
@@ -237,7 +228,7 @@ export default class Lookup extends Component {
     return (
       <div className={classNames('fc-lookup', className)}>
         {this.input}
-        {this.isShowable ? this.menu : null}
+        {this.menu}
       </div>
     );
   }
