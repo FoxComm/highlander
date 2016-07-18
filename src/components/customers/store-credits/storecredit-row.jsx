@@ -57,7 +57,7 @@ const setCellContents = (sc, field) => {
     if (_.isEmpty(admin)) return null;
 
     return (
-      <div><DetailedInitials {...admin} />{admin.name}</div>
+      <div><DetailedInitials {...admin} /></div>
     );
   }
 
