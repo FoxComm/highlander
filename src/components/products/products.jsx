@@ -32,7 +32,7 @@ type Product = {
 };
 
 const tableColumns: Array<Column> = [
-  { field: 'id', text: 'Product ID', type: null },
+  { field: 'productId', text: 'Product ID', type: null },
   { field: 'image', text: 'Image', type: 'image' },
   { field: 'title', text: 'Name', type: null },
   { field: 'state', text: 'State', type: null },
