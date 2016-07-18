@@ -1,0 +1,51 @@
+@import "media-queries.css";
+@import "colors";
+
+.gallery {
+  display: flex;
+}
+
+.image {
+  display: inline-block;
+
+  & img {
+    width: 100%;
+    height: auto;
+  }
+}
+
+.single-gallery {
+  composes: gallery;
+}
+
+.multiple-gallery {
+  composes: gallery;
+
+  & .image {
+    lost-column: 5/6;
+  }
+}
+
+.previews {
+  lost-column: 1/6;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+
+  & img {
+    width: 100%;
+    height: auto;
+    cursor: pointer;
+    box-sizing: border-box;
+    border: 1px solid transparent;
+  }
+
+  & .selected {
+    border: 1px solid var(--blackish);
+  }
+
+  & img:not(:last-child) {
+    margin-bottom: 10px;
+  }
+}

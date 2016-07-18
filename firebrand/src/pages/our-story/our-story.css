@@ -1,0 +1,56 @@
+@import 'variables.css';
+@import 'colors.css';
+
+.wrap {
+  composes: wrap from 'ui/css/layout.css';
+  composes: inner-wrap from 'ui/css/layout.css';
+}
+
+.banner {
+  width: 100%;
+  background-size: cover;
+  background-position: 100% 0;
+}
+
+.our-story-banner {
+  composes: banner;
+  height: 640px;
+  background-image: url('images/banners/our-story-hero.jpg');
+
+  & article {
+    lost-column: 1/3;
+  }
+}
+
+.design-banner {
+  composes: banner;
+  height: 620px;
+  background-image: url('images/banners/our-story-design.jpg');
+
+  & article {
+    lost-column: 4/9;
+  }
+}
+
+.handmade-banner {
+  composes: banner;
+  height: 640px;
+  background-image: url('images/banners/our-story-handmade.jpg');
+  background-position: 50% 0;
+
+  & article {
+    lost-column: 1/3;
+    lost-offset: -2/3;
+    text-align: right;
+  }
+}
+
+.materials-banner {
+  composes: banner;
+  height: 620px;
+  background-image: url('images/banners/our-story-materials.jpg');
+
+  & article {
+    lost-column: 4/9;
+  }
+}

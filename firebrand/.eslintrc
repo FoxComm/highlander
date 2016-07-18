@@ -1,0 +1,41 @@
+{
+  "extends": "airbnb",
+  "plugins": [
+    "flow-vars",
+    "no-console-log"
+  ],
+  "rules": {
+    "flow-vars/define-flow-type": 1,
+    "flow-vars/use-flow-type": 1,
+    "no-console-log/no-console-log": 1,
+    "no-console": 0,
+    "eqeqeq": 0,
+    "strict": 0,
+    "space-before-function-paren": 0,
+    "func-names": 0,
+    "comma-dangle": 1,
+    "prefer-arrow-callback": 0,
+    "object-curly-spacing": 0,
+    "max-len": [2, 120, 4,
+      {
+        "ignoreComments": true,
+        "ignoreUrls": true,
+        "ignorePattern": "^\\s*var\\s.+=\\s*require\\s*\\("
+      }
+    ],
+    "arrow-body-style": 0,
+    "react/prop-types": 0,
+    "react/jsx-no-bind": [2,
+      {
+        "allowArrowFunctions": true
+      }
+    ],
+    "react/sort-comp": 0,
+    "no-unused-vars": [2, { "varsIgnorePattern": "^styles$" }],
+    "consistent-return": 0
+  },
+  "globals": {
+    "makeXhr": false
+  },
+  "parser": "babel-eslint"
+}

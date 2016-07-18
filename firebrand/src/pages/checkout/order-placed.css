@@ -1,0 +1,25 @@
+
+.order-placed {
+  text-align: center;
+}
+
+.header {
+  font-weight: bold;
+  font-size: 2.5em;
+  line-height: 2.5em;
+  margin-top: 1em;
+}
+
+.order-number {
+  font-weight: bold;
+  padding-bottom: 1.2em;
+}
+
+.to-home {
+  composes: button from "ui/css/buttons.css";
+  display: inline-block;
+  width: auto;
+  padding: 15px 45px;
+  margin-top: 25px;
+  margin-bottom: 15%;
+}

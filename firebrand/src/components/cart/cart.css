@@ -1,0 +1,153 @@
+
+@import "colors.css";
+@import "media-queries.css";
+
+.cart-hidden {
+  display: none;
+}
+
+.cart-shown {
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  display: flex;
+}
+
+.overlay {
+  flex: 1;
+  height: 100%;
+  background: var(--light-grayish);
+  opacity: 0;
+  transition: opacity .1s;
+  transform: translateX(-100%);
+}
+
+.cart-shown .overlay {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.cart-box {
+  height: 100%;
+  background: var(--whitish);
+  lost-column: 4/11;
+  min-width: 280px;
+  transform: translateX(100%);
+  transition: transform .2s;
+}
+
+.cart-shown .cart-box {
+  transform: translateX(0);
+}
+
+.cart-header {
+  background: var(--blackish);
+  color: var(--whitish);
+  width: 100%;
+  height: 80px;
+  position: absolute;
+  top: 0;
+  text-align: center;
+  font-size: 15px;
+  line-height: 1;
+  display: flex;
+  align-content: space-around;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+
+  &:hover {
+    & .back-icon {
+      margin-left: 10px;
+      margin-right: 20px;
+    }
+  }
+}
+
+.back-icon {
+  margin: 0 15px;
+  transition: margin 300ms;
+}
+
+.header-text {
+  flex-grow: 1;
+  margin-right: 50px; /* 15px paddings + 20px icon width */
+}
+
+.checkout-button {
+  background: var(--blackish);
+  color: var(--whitish);
+  height: 100%;
+  width: 100%;
+  font-size: 15px;
+  line-height: 17px;
+  text-align: center;
+  border-width: 2px;
+  cursor: pointer;
+}
+
+.cart-content {
+  position: absolute;
+  width: 100%;
+  top: 60px;
+  bottom: 60px;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-y: hidden;
+
+  & :global(.fc-errors) {
+    width: 100%;
+  }
+
+  & :global(.fc-alert) {
+    border-radius: 0;
+    margin-top: 0;
+  }
+}
+
+.line-items {
+  overflow-y: auto;
+  height: 100%;
+}
+
+.cart-subtotal {
+  flex-shrink: 0;
+  width: 100%;
+  height: 55px;
+  font-size: 15px;
+  line-height: 17px;
+  display: flex;
+  align-content: space-around;
+  align-items: center;
+  background: var(--whitish);
+}
+
+.cart-footer {
+  width: 100%;
+  height: 60px;
+  position: absolute;
+  bottom: 0;
+}
+
+.subtotal-title {
+  margin-left: 20px;
+  flex-grow: 1;
+}
+
+.subtotal-price {
+  margin-right: 20px;
+}
+
+@media (--medium-viewport) {
+  .cart-box {
+    lost-column: 7/11;
+  }
+
+  .cart-subtotal {
+    height: 77px;
+  }
+}

@@ -1,0 +1,35 @@
+@import "media-queries.css";
+@import "variables.css";
+
+.container {
+  width: 100%;
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+.content-container {
+  flex: 1;
+}
+
+.categories {
+  margin-top: 40px;
+}
+
+.mobile-sidebar {
+  display: none;
+}
+
+.overlay {
+  display: none;
+}
+
+@media (--small-viewport) {
+  .categories {
+    display: none;
+  }
+
+  .mobile-sidebar {
+    display: block;
+  }
+}

@@ -1,0 +1,24 @@
+@import "colors.css";
+
+.editable-block {
+  padding: 20px;
+  background: var(--color-panels-bg);
+}
+
+.header {
+  margin-top: 5px;
+  display: flex;
+}
+
+.title {
+  font-size: 22px;
+  line-height: 27px;
+  flex-grow: 1;
+  text-align: left;
+}
+
+.edit {
+  color: #9E9E9E;
+  text-align: right;
+  cursor: pointer;
+}
