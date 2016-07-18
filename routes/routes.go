@@ -12,6 +12,7 @@ func Run() {
 	runSkus(router.Group("/skus"))
 	runStockItems(router.Group("/stock-items"))
 	runReservations(router.Group("/reservations"))
+	runCarriers(router.Group("/carriers"))
 
 	fmt.Println("Starting middlewarehouse...")
 	router.Run(":9292")
