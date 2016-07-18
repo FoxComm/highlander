@@ -6,16 +6,37 @@ import (
 	"github.com/FoxComm/middlewarehouse/models"
 )
 
-func GetCarriers() ([]models.Carrier, error) {
+func GetCarriers() ([]*models.Carrier, error) {
 	db, err := config.DefaultConnection()
 	if err != nil {
 		return nil, err
 	}
 
-	var carriers []models.Carrier
-	db.Find(&carriers)
+	var data []models.Carrier
+	if err = db.Find(&data).Error; err != nil {
+		return nil, err
+	}
+
+	carriers := make([]*models.Carrier, len(data))
+	for i, _ := range data {
+		carriers[i] = &data[i]
+	}
 
 	return carriers, nil
+}
+
+func GetCarrierById(id uint) (*models.Carrier, error) {
+	db, err := config.DefaultConnection()
+	if err != nil {
+		return nil, err
+	}
+
+	var carrier models.Carrier
+	if err = db.First(&carrier, id).Error; err != nil {
+		return nil, err
+	}
+
+	return &carrier, nil
 }
 
 func CreateCarrier(payload *payloads.Carrier) error {

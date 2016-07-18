@@ -1,7 +1,6 @@
 package services
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/FoxComm/middlewarehouse/api/payloads"
@@ -43,15 +42,30 @@ func (suite *CarrierManagerTestSuite) TestGetCarriers() {
 	carriers, err := GetCarriers()
 
 	//assert
-	if !assert.Nil(suite.T(), err) {
-		return
-	}
+	assert.Nil(suite.T(), err)
 
 	assert.Equal(suite.T(), 2, len(carriers))
 	assert.Equal(suite.T(), carrier1.Name, carriers[0].Name)
 	assert.Equal(suite.T(), carrier1.TrackingTemplate, carriers[0].TrackingTemplate)
 	assert.Equal(suite.T(), carrier2.Name, carriers[1].Name)
 	assert.Equal(suite.T(), carrier2.TrackingTemplate, carriers[1].TrackingTemplate)
+}
+
+func (suite *CarrierManagerTestSuite) TestGetCarrierById() {
+	//arrange
+	carrier1 := &payloads.Carrier{"UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"}
+	CreateCarrier(carrier1)
+	carrier2 := &payloads.Carrier{"DHL", "http://www.dhl.com/en/express/tracking.shtml?AWB=$number&brand=DHL"}
+	CreateCarrier(carrier2)
+	carriers, err := GetCarriers()
+
+	//act
+	carrier, err := GetCarrierById(carriers[1].ID)
+
+	//assert
+	assert.Nil(suite.T(), err)
+	assert.Equal(suite.T(), carrier2.Name, carrier.Name)
+	assert.Equal(suite.T(), carrier2.Name, carrier.Name)
 }
 
 func (suite *CarrierManagerTestSuite) TestCreaterCarrier() {
@@ -63,7 +77,6 @@ func (suite *CarrierManagerTestSuite) TestCreaterCarrier() {
 	err := CreateCarrier(payload)
 
 	//assert
-	fmt.Println(err)
 	assert.Nil(suite.T(), err)
 	var carrier models.Carrier
 	assert.Nil(suite.T(), suite.db.Where("name=?", name).First(&carrier).Error)
