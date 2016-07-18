@@ -346,7 +346,6 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
       pending
       val response = POST(s"v1/products/donkeyContext/${product.formId}/archive")
 
-      println(response)
       response.status must === (StatusCodes.NotFound)
       response.error must === (NotFoundFailure404(ObjectContext, "donkeyContext").description)
     }
