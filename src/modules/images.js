@@ -12,13 +12,14 @@ type Module = {
 }
 
 export type TAlbum = {
-  id?: number;
+  id: number;
   name: string;
   images: Array<ImageFile>;
+  position?: number;
 }
 
 export type FileInfo = {
-  id?: number|string;
+  id?: number;
   src: string;
   file: File;
   loading: boolean;
