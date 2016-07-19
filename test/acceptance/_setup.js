@@ -1,4 +1,4 @@
-require('testdom')('<html><body></body></html>');
+require('./_testdom');
 
 const path = require('path');
 const ReactDOM = require('react-dom');
@@ -63,3 +63,10 @@ global.renderIntoDocument = function(element, attachToDom = false) {
     }));
   });
 };
+
+global.wait = function(ms) {
+  return new Promise(resolve => {
+    setTimeout(resolve, ms);
+  });
+};
+
