@@ -126,6 +126,7 @@ export default class Upload extends Component {
 
     reader.onloadend = () => {
       this.files.push({
+        key: _.uniqueId('image_'),
         file: file,
         src: reader.result,
         loading: false,

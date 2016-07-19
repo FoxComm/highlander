@@ -134,7 +134,7 @@ export default class Image extends Component<void, Props, State> {
           secondaryTitle={`Uploaded ${image.uploadedAt || moment().format('MM/DD/YYYY HH: mm')}`}
           actions={this.getImageActions()}
           loading={image.loading}
-          key={`${image.id}`}
+          key={`${image.key || image.id}`}
         />
       </div>
     );

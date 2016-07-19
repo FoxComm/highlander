@@ -56,6 +56,7 @@ export default class Album extends Component {
       alt: file.file.name,
       src: file.src,
       file: file.file,
+      key: file.key,
       loading: true,
     }));
 
@@ -189,7 +190,7 @@ export default class Album extends Component {
                   image={image}
                   editImage={(form: ImageInfo) => this.props.editImage(idx, form)}
                   deleteImage={() => this.props.deleteImage(idx)}
-                  key={image.id}
+                  key={image.key || image.id}
                 />
               );
             })}
