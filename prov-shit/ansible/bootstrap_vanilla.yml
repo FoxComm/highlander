@@ -45,11 +45,15 @@
     - db
   vars:
     user: '{{ansible_ssh_user}}'
-    seeds_cmd: utils.seeds.Seeds demo 1
+    seeds_cmd: utils.seeds.Seeds
   vars_prompt:
     - name: "hostname"
       prompt: "Enter a hostname with a database to bootstrap"
       default: "vanilla-db"
+      private: no
+    - name: "db_name"
+      prompt: "Enter the name of the database"
+      default: "phoenix"
       private: no
 
   roles:

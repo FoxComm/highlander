@@ -99,4 +99,7 @@ tf-vanilla:
 tf-target:
 	terraform $(TF_CMD) -state=$(TF_ENVS)/gce_target/terraform.tfstate -var-file=$(TF_ENVS)/gce_target/target.tfvars $(TF_BASE)/gce_target
 
+tf-topdrawer:
+	terraform $(TF_CMD) -state=$(TF_ENVS)/gce_topdrawer/terraform.tfstate -var-file=$(TF_ENVS)/gce_topdrawer/topdrawer.tfvars $(TF_BASE)/gce_topdrawer
+
 .PHONY: all build lint test
