@@ -442,8 +442,8 @@ object Mvp {
   def insertAlbumIntoContext(context: ObjectContext,
                              simpleAlbum: SimpleAlbum,
                              albumForm: ObjectForm,
-                             productShadow: ObjectShadow, 
-                            product:Product)(implicit db: DB): DbResultT[Album] = {
+                             productShadow: ObjectShadow,
+                             product: Product)(implicit db: DB): DbResultT[Album] = {
     for {
       albumShadow ← * <~ ObjectShadows.create(
                        SimpleAlbumShadow(simpleAlbum).create.copy(formId = albumForm.id))

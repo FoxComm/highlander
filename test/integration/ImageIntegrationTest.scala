@@ -203,8 +203,9 @@ class ImageIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
       "Creates a new album on an existing product" in new ProductFixture {
         val payload =
           CreateAlbumPayload(name = "Simple Album", images = Seq(ImagePayload(src = "url")).some)
-        val albumResponse = extractIfOk[AlbumRoot](
-            POST(s"v1/products/${context.name}/${prodForm.id}/albums", payload))
+        val response = POST(s"v1/products/${context.name}/${prodForm.id}/albums", payload)
+        response.status must === (StatusCodes.OK)
+        val albumResponse = response.as[AlbumRoot]
 
         albumResponse.images.length must === (1)
 

@@ -1,5 +1,7 @@
 package failures
 
+import models.product.Product
+
 object ProductFailures {
 
   object SkuNotFound {
@@ -56,7 +58,7 @@ object ProductFailures {
   }
 
   object NoAlbumsFoundForProduct {
-    def apply(productId: models.product.Product#Id) =
+    def apply(productId: Product#Id) =
       NotFoundFailure404(s"Product with id=$productId has no albums")
   }
 
