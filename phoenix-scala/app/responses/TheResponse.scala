@@ -1,7 +1,8 @@
 package responses
 
-import failures.Failures
+import failures._
 import responses.BatchMetadata._
+import services.CartValidatorResponse
 import utils.friendlyClassName
 
 case class TheResponse[A](result: A,
@@ -22,6 +23,11 @@ object TheResponse {
                 errors = errors.map(_.flatten),
                 warnings = warnings.map(_.flatten),
                 batch = batch)
+
+  def validated[A](value: A, validatorResponse: CartValidatorResponse): TheResponse[A] =
+    TheResponse(result = value,
+                alerts = validatorResponse.alerts.map(_.flatten),
+                warnings = validatorResponse.warnings.map(_.flatten))
 }
 
 case class BatchMetadata(success: BatchSuccess, failures: BatchFailures) {
