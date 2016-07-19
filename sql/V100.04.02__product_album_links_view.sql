@@ -15,10 +15,10 @@ begin
       else
       json_agg((asv.name, asv.images)::export_albums)::jsonb
     end as albums
-    from object_links as link
-    left join albums as album on album.shadow_id = link.right_id and link.link_type = 'productAlbum'
+    from product_album_links as link
+    left join albums as album on album.id = link.right_id
     left join album_search_view as asv on album.id = asv.id
-    where link.left_id = new.shadow_id;
+    where link.left_id = new.id;
 
     return null;
 end;
@@ -30,16 +30,16 @@ begin
   case tg_table_name
     when 'products' then
       product_ids := array_agg(new.id);
-    when 'object_links' then
+    when 'product_album_links' then
       select array_agg(p.id) into product_ids
       from products as p
-      inner join object_links as link on (link.left_id = p.shadow_id) and link.link_type = 'productAlbum'
+         inner join product_album_links as link on (link.left_id = p.id)
       where link.id = new.id;
     when 'albums' then
       select array_agg(p.id) into product_ids
       from products as p
-      inner join object_links as link on link.left_id = p.shadow_id and link.link_type = 'productAlbum'
-      inner join albums as album on (album.shadow_id = link.right_id)
+      inner join product_album_links as link on link.left_id = p.id
+      inner join albums as album on (album.id = link.right_id)
       where album.id = new.id;
   end case;
 
@@ -54,8 +54,8 @@ begin
                  json_agg((asv.name, asv.images)::export_albums)::jsonb
             end as albums
           from products as p
-            left join object_links as link on link.left_id = p.shadow_id and link.link_type = 'productAlbum'
-            left join albums as album on album.shadow_id = link.right_id
+            left join product_album_links as link on link.left_id = p.id
+            left join albums as album on album.id = link.right_id
             left join album_search_view as asv on album.id = asv.id
          where p.id = any(product_ids)
          group by p.id) as subquery
@@ -75,8 +75,8 @@ create trigger update_product_album_links_view_from_products
   when (old.shadow_id is distinct from new.shadow_id)
   execute procedure update_product_album_links_view_from_products_and_deps_fn();
 
-create trigger update_product_album_links_view_from_object_links
-  after update or insert on object_links
+create trigger update_product_album_links_view_from_product_album_links
+  after update or insert on product_album_links
   for each row
   execute procedure update_product_album_links_view_from_products_and_deps_fn();
 

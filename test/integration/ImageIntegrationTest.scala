@@ -205,8 +205,8 @@ class ImageIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
           CreateAlbumPayload(name = "Simple Album", images = Seq(ImagePayload(src = "url")).some)
         val response = POST(s"v1/products/${context.name}/${prodForm.id}/albums", payload)
         response.status must === (StatusCodes.OK)
-
         val albumResponse = response.as[AlbumRoot]
+
         albumResponse.images.length must === (1)
 
         albumResponse.name must === ("Simple Album")
@@ -390,10 +390,7 @@ class ImageIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
                    shadowId = skuShadow.id,
                    commitId = skuCommit.id,
                    code = "SKU-TEST"))
-      _ ← * <~ ObjectLinks.create(
-             ObjectLink(leftId = sku.shadowId,
-                        rightId = album.shadowId,
-                        linkType = ObjectLink.SkuAlbum))
+      _ ← * <~ SkuAlbumLinks.create(SkuAlbumLink(leftId = sku.id, rightId = album.id))
 
       simpleProd ← * <~ SimpleProduct(title = "Test Product",
                                       description = "Test product description")
@@ -408,10 +405,7 @@ class ImageIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
                            shadowId = prodShadow.id,
                            commitId = prodCommit.id))
 
-      _ ← * <~ ObjectLinks.create(
-             ObjectLink(leftId = product.shadowId,
-                        rightId = album.shadowId,
-                        linkType = ObjectLink.ProductAlbum))
+      _ ← * <~ ProductAlbumLinks.create(ProductAlbumLink(leftId = product.id, rightId = album.id))
       _ ← * <~ ProductSkuLinks.create(ProductSkuLink(leftId = product.id, rightId = sku.id))
     } yield (product, prodForm, prodShadow, sku, skuForm, skuShadow)).gimme
   }

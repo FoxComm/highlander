@@ -3,6 +3,7 @@ package models.cord.lineitems
 import models.inventory.{Sku, Skus}
 import models.objects.ObjectLink._
 import models.objects._
+import models.product.Products
 import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
@@ -55,14 +56,14 @@ object OrderLineItemSkus
   def findLineItemsByCordRef(
       refNum: String): Query[FindLineItemResultMulti, FindLineItemResult, Seq] =
     for {
-      lineItems    ← OrderLineItems.filter(_.cordRef === refNum)
-      skuLineItems ← lineItems.skuLineItems
-      sku          ← skuLineItems.sku
-      skuForm      ← ObjectForms if skuForm.id === sku.formId
-      skuShadow    ← skuLineItems.shadow
-      link         ← ObjectLinks if link.rightId === skuShadow.id &&
-        link.linkType === (ProductSku: LinkType)
-      productShadow ← ObjectShadows if productShadow.id === link.rightId
+      lineItems     ← OrderLineItems.filter(_.cordRef === refNum)
+      skuLineItems  ← lineItems.skuLineItems
+      sku           ← skuLineItems.sku
+      skuForm       ← ObjectForms if skuForm.id === sku.formId
+      skuShadow     ← skuLineItems.shadow
+      link          ← ProductSkuLinks if link.rightId === sku.id
+      product       ← Products if product.id === link.rightId
+      productShadow ← ObjectShadows if productShadow.id === product.shadowId
     } yield (sku, skuForm, skuShadow, productShadow, lineItems)
 
   // Map [SKU code → quantity in cart/order]

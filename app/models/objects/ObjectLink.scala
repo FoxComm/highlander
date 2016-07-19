@@ -28,11 +28,9 @@ case class ObjectLink(id: Int = 0,
 object ObjectLink {
   sealed trait LinkType
 
-  case object ProductAlbum      extends LinkType
   case object ProductSku        extends LinkType
   case object ProductVariant    extends LinkType
   case object PromotionDiscount extends LinkType
-  case object SkuAlbum          extends LinkType
   case object VariantValue      extends LinkType
 
   object LinkType extends ADT[LinkType] {

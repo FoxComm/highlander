@@ -80,9 +80,6 @@ object SkuManager {
                  .update(oldForm.id, oldShadow.id, newFormAttrs, mergedAttrs, force = true)
       commit      ← * <~ ObjectUtils.commit(updated)
       updatedHead ← * <~ updateHead(sku, code, updated.shadow, commit)
-
-      albumLinks ← * <~ ObjectLinks.findByLeftAndType(oldShadow.id, ObjectLink.SkuAlbum).result
-      _          ← * <~ ObjectUtils.updateAssociatedRights(Skus, albumLinks, updatedHead.shadowId)
     } yield FullObject(updatedHead, updated.form, updated.shadow)
   }
 
