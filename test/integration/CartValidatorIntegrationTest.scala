@@ -1,0 +1,194 @@
+import scala.concurrent.ExecutionContext.Implicits.global
+import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
+
+import Extensions._
+import cats.implicits._
+import failures.CartFailures._
+import models.customer.Customers
+import models.inventory.Skus
+import models.location.Addresses
+import models.objects.ObjectContexts
+import models.cord._
+import models.payment.creditcard.CreditCards
+import models.payment.giftcard._
+import models.payment.storecredit._
+import models.product.{Mvp, SimpleContext}
+import models.shipping.ShippingMethods
+import models.{Reasons, StoreAdmins}
+import org.scalatest.AppendedClues
+import payloads.AddressPayloads._
+import payloads.LineItemPayloads.UpdateLineItemsPayload
+import payloads.PaymentPayloads._
+import payloads.UpdateShippingMethod
+import responses.TheResponse
+import responses.cart.FullCart.Root
+import util.{IntegrationTestBase, TestActivityContext}
+import utils.db._
+import utils.seeds.CouponSeeds
+import utils.seeds.Seeds.Factories
+
+class CartValidatorIntegrationTest
+    extends IntegrationTestBase
+    with HttpSupport
+    with AppendedClues
+    with AutomaticAuth {
+
+  "Cart validator must be applied to" - {
+
+    "/v1/orders/:refNum/payment-methods/gift-cards" in new GiftCardFixture {
+      val payload = GiftCardPayment(giftCard.code)
+      checkResponse(POST(s"v1/orders/$refNum/payment-methods/gift-cards", payload),
+                    expectedWarnings)
+      checkResponse(DELETE(s"v1/orders/$refNum/payment-methods/gift-cards/${giftCard.code}"),
+                    expectedWarnings)
+    }
+
+    "/v1/orders/:refNum/payment-methods/store-credit" in new StoreCreditFixture {
+      val payload = StoreCreditPayment(500)
+      checkResponse(POST(s"v1/orders/$refNum/payment-methods/store-credit", payload),
+                    expectedWarnings)
+      checkResponse(DELETE(s"v1/orders/$refNum/payment-methods/store-credit"), expectedWarnings)
+    }
+
+    "/v1/orders/:refNum/payment-methods/credit-cards" in new CreditCardFixture {
+      val payload = CreditCardPayment(creditCard.id)
+      checkResponse(POST(s"v1/orders/$refNum/payment-methods/credit-cards", payload),
+                    expectedWarnings)
+      checkResponse(DELETE(s"v1/orders/$refNum/payment-methods/credit-cards"), expectedWarnings)
+    }
+
+    "/v1/orders/:refNum/shipping-address" in new ShippingAddressFixture {
+      val createPayload = CreateAddressPayload("a", 1, "b", None, "c", "11111")
+      checkResponse(POST(s"v1/orders/$refNum/shipping-address", createPayload), expectedWarnings)
+      val updatePayload = UpdateAddressPayload(name = "z".some)
+      checkResponse(PATCH(s"v1/orders/$refNum/shipping-address", updatePayload), expectedWarnings)
+      checkResponse(DELETE(s"v1/orders/$refNum/shipping-address"),
+                    expectedWarnings :+ NoShipAddress(refNum))
+
+      val address = Addresses.create(Factories.address.copy(customerId = customer.id)).gimme
+      checkResponse(PATCH(s"v1/orders/$refNum/shipping-address/${address.id}"), expectedWarnings)
+    }
+
+    "/v1/orders/:refNum/shipping-method" in new ShippingMethodFixture {
+      val payload = UpdateShippingMethod(shipMethod.id)
+      checkResponse(PATCH(s"v1/orders/$refNum/shipping-method", payload),
+                    Seq(EmptyCart(refNum), InsufficientFunds(refNum)))
+      checkResponse(DELETE(s"v1/orders/$refNum/shipping-method"),
+                    Seq(EmptyCart(refNum), NoShipMethod(refNum)))
+    }
+
+    "/v1/orders/:refNum/line-items" in new LineItemFixture {
+      val payload = Seq(UpdateLineItemsPayload(sku.code, 1))
+      checkResponse(POST(s"v1/orders/$refNum/line-items", payload),
+                    Seq(InsufficientFunds(refNum), NoShipAddress(refNum), NoShipMethod(refNum)))
+    }
+
+    "/v1/orders/:refNum/coupon" in new CouponFixture {
+      checkResponse(POST(s"v1/orders/$refNum/coupon/$couponCode"), expectedWarnings)
+      checkResponse(DELETE(s"v1/orders/$refNum/coupon"), expectedWarnings)
+    }
+
+    def checkResponse(response: HttpResponse, expectedWarnings: Seq[failures.Failure])(
+        implicit line: sourcecode.Line,
+        file: sourcecode.File) = {
+      lazy val errorsStr: String = response.errors match {
+        case Nil  ⇒ "No errors in response."
+        case errs ⇒ s"""Errors: ${errs.mkString(", ")}"""
+      }
+
+      {
+        response.status must === (StatusCodes.OK)
+        val warnings = response.as[TheResponse[Root]].warnings
+        warnings.value must not be empty
+        warnings.value must contain theSameElementsAs (expectedWarnings.map(_.description))
+      } withClue s"""
+      | $errorsStr
+      | (Original source: ${file.value.split("/").last}:${line.value})
+      """.stripMargin
+    }
+  }
+
+  trait CouponFixture
+      extends CouponSeeds
+      with TestActivityContext.AdminAC
+      with ExpectedWarningsForPayment {
+    val (refNum, couponCode) = (for {
+      cart       ← * <~ Carts.create(Factories.cart)
+      admin      ← * <~ StoreAdmins.create(Factories.storeAdmin)
+      search     ← * <~ Factories.createSharedSearches(admin.id)
+      discounts  ← * <~ Factories.createDiscounts(search)
+      promotions ← * <~ Factories.createCouponPromotions(discounts)
+      coupons    ← * <~ Factories.createCoupons(promotions)
+      couponCode = coupons.head._2.head.code
+    } yield (cart.refNum, couponCode)).gimme
+  }
+
+  trait LineItemFixture {
+    val (refNum, sku) = (for {
+      productCtx ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
+      cart       ← * <~ Carts.create(Factories.cart)
+      product    ← * <~ Mvp.insertProduct(productCtx.id, Factories.products.head)
+      sku        ← * <~ Skus.mustFindById404(product.skuId)
+    } yield (cart.refNum, sku)).gimme
+  }
+
+  trait ShippingMethodFixture {
+    val (refNum, shipMethod) = (for {
+      customer ← * <~ Customers.create(Factories.customer)
+      cart     ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
+      address ← * <~ Addresses.create(
+                   Factories.address.copy(customerId = customer.id, regionId = 4129))
+      shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address,
+                                                                cordRef = cart.refNum)
+      shipMethod ← * <~ ShippingMethods.create(Factories.shippingMethods.head)
+    } yield (cart.refNum, shipMethod)).gimme
+  }
+
+  trait ShippingAddressFixture {
+    val (refNum, customer) = (for {
+      customer ← * <~ Customers.create(Factories.customer)
+      cart     ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
+    } yield (cart.refNum, customer)).gimme
+    val expectedWarnings = Seq(EmptyCart(refNum), NoShipMethod(refNum))
+  }
+
+  trait GiftCardFixture extends ExpectedWarningsForPayment {
+    val (refNum, giftCard) = (for {
+      cart   ← * <~ Carts.create(Factories.cart)
+      admin  ← * <~ StoreAdmins.create(Factories.storeAdmin)
+      reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
+      origin ← * <~ GiftCardManuals.create(
+                  GiftCardManual(adminId = admin.id, reasonId = reason.id))
+      giftCard ← * <~ GiftCards.create(
+                    Factories.giftCard.copy(originId = origin.id, state = GiftCard.Active))
+    } yield (cart.refNum, giftCard)).gimme
+  }
+
+  trait StoreCreditFixture extends ExpectedWarningsForPayment {
+    val refNum = (for {
+      customer ← * <~ Customers.create(Factories.customer)
+      cart     ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
+      admin    ← * <~ StoreAdmins.create(Factories.storeAdmin)
+      reason   ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
+      manual ← * <~ StoreCreditManuals.create(
+                  StoreCreditManual(adminId = admin.id, reasonId = reason.id))
+      _ ← * <~ StoreCredits.create(
+             Factories.storeCredit
+               .copy(state = StoreCredit.Active, customerId = customer.id, originId = manual.id))
+    } yield cart.refNum).gimme
+  }
+
+  trait CreditCardFixture extends ExpectedWarningsForPayment {
+    val (refNum, creditCard) = (for {
+      customer ← * <~ Customers.create(Factories.customer)
+      cart     ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
+      address  ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
+      cc       ← * <~ CreditCards.create(Factories.creditCard.copy(customerId = customer.id))
+    } yield (cart.refNum, cc)).gimme
+  }
+
+  trait ExpectedWarningsForPayment {
+    def refNum: String
+    def expectedWarnings = Seq(EmptyCart(refNum), NoShipAddress(refNum), NoShipMethod(refNum))
+  }
+}

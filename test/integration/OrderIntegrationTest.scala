@@ -23,6 +23,7 @@ class OrderIntegrationTest
     "successfully" in new Fixture {
       val response = PATCH(s"v1/orders/${order.refNum}", UpdateOrderPayload(FraudHold))
       response.status must === (StatusCodes.OK)
+
       val responseOrder = response.as[FullOrder.Root]
       responseOrder.orderState must === (FraudHold)
     }

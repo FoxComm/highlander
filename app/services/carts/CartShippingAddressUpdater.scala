@@ -42,7 +42,7 @@ object CartShippingAddressUpdater {
       response    ← * <~ FullCart.buildRefreshed(cart)
       _ ← * <~ LogActivity
            .orderShippingAddressAdded(originator, response, buildOneShipping(shipAddress, region))
-    } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)
+    } yield TheResponse.validated(response, validated)
 
   def createShippingAddressFromPayload(originator: Originator,
                                        payload: CreateAddressPayload,
@@ -62,7 +62,7 @@ object CartShippingAddressUpdater {
       response    ← * <~ FullCart.buildRefreshed(cart)
       _ ← * <~ LogActivity
            .orderShippingAddressAdded(originator, response, buildOneShipping(shipAddress, region))
-    } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)
+    } yield TheResponse.validated(response, validated)
 
   def updateShippingAddressFromPayload(originator: Originator,
                                        payload: UpdateAddressPayload,
@@ -82,7 +82,7 @@ object CartShippingAddressUpdater {
       _ ← * <~ LogActivity.orderShippingAddressUpdated(originator,
                                                        response,
                                                        buildOneShipping(shipAddress, region))
-    } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)
+    } yield TheResponse.validated(response, validated)
 
   def removeShippingAddress(originator: Originator, refNum: Option[String] = None)(
       implicit ec: EC,
@@ -99,5 +99,5 @@ object CartShippingAddressUpdater {
       _ ← * <~ LogActivity.orderShippingAddressDeleted(originator,
                                                        fullOrder,
                                                        buildOneShipping(shipAddress, region))
-    } yield TheResponse.build(fullOrder, alerts = validated.alerts, warnings = validated.warnings)
+    } yield TheResponse.validated(fullOrder, validated)
 }

@@ -42,7 +42,7 @@ object CartPaymentUpdater {
       resp  ← * <~ FullCart.buildRefreshed(cart)
       valid ← * <~ CartValidator(cart).validate()
       _     ← * <~ LogActivity.orderPaymentMethodAddedGc(originator, resp, gc, amount)
-    } yield TheResponse.build(resp, alerts = valid.alerts, warnings = valid.warnings)
+    } yield TheResponse.validated(resp, valid)
 
   def editGiftCard(
       originator: Originator,
@@ -60,7 +60,7 @@ object CartPaymentUpdater {
       valid ← * <~ CartValidator(cart).validate()
       _ ← * <~ LogActivity
            .orderPaymentMethodUpdatedGc(originator, resp, gc, orderPayment.amount, amount)
-    } yield TheResponse.build(resp, alerts = valid.alerts, warnings = valid.warnings)
+    } yield TheResponse.validated(resp, valid)
 
   private def validGiftCardWithAmount(payload: GiftCardPayment)(implicit ec: EC, db: DB, ac: AC) =
     for {
@@ -112,7 +112,7 @@ object CartPaymentUpdater {
       validation ← * <~ CartValidator(cart).validate()
       response   ← * <~ FullCart.buildRefreshed(cart)
       _          ← * <~ LogActivity.orderPaymentMethodAddedSc(originator, response, payload.amount)
-    } yield TheResponse.build(response, alerts = validation.alerts, warnings = validation.warnings)
+    } yield TheResponse.validated(response, validation)
   }
 
   def addCreditCard(originator: Originator, id: Int, refNum: Option[String] = None)(
@@ -131,7 +131,7 @@ object CartPaymentUpdater {
       valid ← * <~ CartValidator(cart).validate()
       resp  ← * <~ FullCart.buildRefreshed(cart)
       _     ← * <~ LogActivity.orderPaymentMethodAddedCc(originator, resp, cc, region)
-    } yield TheResponse.build(resp, alerts = valid.alerts, warnings = valid.warnings)
+    } yield TheResponse.validated(resp, valid)
 
   def deleteCreditCard(
       originator: Originator,
@@ -156,7 +156,7 @@ object CartPaymentUpdater {
               .deleteAll(onSuccess = FullCart.buildRefreshed(cart),
                          onFailure = DbResultT.failure(OrderPaymentNotFoundFailure(pmt)))
       _ ← * <~ LogActivity.orderPaymentMethodDeleted(originator, resp, pmt)
-    } yield TheResponse.build(resp, alerts = valid.alerts, warnings = valid.warnings)
+    } yield TheResponse.validated(resp, valid)
 
   def deleteGiftCard(originator: Originator, code: String, refNum: Option[String] = None)(
       implicit ec: EC,
@@ -175,5 +175,5 @@ object CartPaymentUpdater {
                               onFailure = DbResultT.failure(
                                   OrderPaymentNotFoundFailure(PaymentMethod.GiftCard)))
       _ ← * <~ LogActivity.orderPaymentMethodDeletedGc(originator, deleteRes, giftCard)
-    } yield TheResponse.build(deleteRes, alerts = validated.alerts, warnings = validated.warnings)
+    } yield TheResponse.validated(deleteRes, validated)
 }
