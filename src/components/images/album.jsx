@@ -48,6 +48,12 @@ export default class Album extends Component {
   };
 
   _uploadRef: Upload;
+  idsToKey: { [key:any]: string };
+
+  constructor(...args: Array<any>) {
+    super(...args);
+    this.idsToKey = {};
+  }
 
   @autobind
   handleNewFiles(images: Array<ImageFile>): void {
@@ -185,12 +191,15 @@ export default class Album extends Component {
                        onSort={this.handleSort}
         >
             {album.images.map((image: ImageFile, idx: number) => {
+              if (image.key && image.id) this.idsToKey[image.id] = image.key;
+              const imagePid = image.key || this.idsToKey[image.id] || image.id;
               return (
                 <Image
                   image={image}
+                  imagePid={imagePid}
                   editImage={(form: ImageInfo) => this.props.editImage(idx, form)}
                   deleteImage={() => this.props.deleteImage(idx)}
-                  key={image.key || image.id}
+                  key={imagePid}
                 />
               );
             })}

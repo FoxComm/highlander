@@ -22,6 +22,7 @@ export type Props = {
   image: ImageFile;
   editImage: (info: ImageInfo) => Promise;
   deleteImage: () => Promise;
+  imagePid: string|number;
 };
 
 type State = {
@@ -121,7 +122,7 @@ export default class Image extends Component<void, Props, State> {
   }
 
   render(): Element {
-    const { image } = this.props;
+    const { image, imagePid } = this.props;
 
     return (
       <div>
@@ -134,7 +135,7 @@ export default class Image extends Component<void, Props, State> {
           secondaryTitle={`Uploaded ${image.uploadedAt || moment().format('MM/DD/YYYY HH: mm')}`}
           actions={this.getImageActions()}
           loading={image.loading}
-          key={`${image.key || image.id}`}
+          key={`${imagePid}`}
         />
       </div>
     );

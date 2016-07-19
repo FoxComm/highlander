@@ -21,6 +21,7 @@ type Props = {
 type State = {
   ready: boolean;
   error: boolean;
+  src?: string;
 }
 
 export default class ImageLoader extends Component {
@@ -33,6 +34,7 @@ export default class ImageLoader extends Component {
   };
 
   img: ?Image;
+  showTransition: boolean = true;
 
   componentDidMount(): void {
     this.createImage();
@@ -54,11 +56,18 @@ export default class ImageLoader extends Component {
     this.img = null;
   }
 
-  createImage(): void {
+  componentWillReceiveProps(nextProps: Props) {
+    if (this.props.src != nextProps.src) {
+      this.createImage(nextProps.src);
+    }
+  }
+
+  // $FlowFixMe: there is no global context, stupid flow
+  createImage(src: string = this.props.src): void {
     this.img = new Image();
     this.img.onload = this.handleLoad;
     this.img.onerror = this.handleLoad;
-    this.img.src = this.props.src;
+    this.img.src = src;
   }
 
   @autobind
@@ -72,18 +81,42 @@ export default class ImageLoader extends Component {
       return;
     }
 
+    this.showTransition = !this.state.ready;
+
     this.setState({
       ready: true,
+      src: this.img.src,
       error: !this.img.width && !this.img.height,
     }, this.destroyImage);
   }
 
   get loader(): ?Element {
-    return !this.state.ready ? <WaitAnimation size="m" /> : null;
+    return !this.state.ready ? <WaitAnimation key="loader" size="m" /> : null;
   }
 
   get image(): ?Element {
-    return this.state.ready ? <img src={this.props.src} key={this.props.id} /> : null;
+    return this.state.ready ? <img src={this.state.src} key={this.props.id} /> : null;
+  }
+
+  wrapToTransition(img: ?Element) {
+    if (this.showTransition) {
+      return (
+        <Transition
+          key="image-transition"
+          component="div"
+          transitionName="image"
+          transitionAppear={true}
+          transitionLeave={false}
+          transitionEnterTimeout={500}
+          transitionAppearTimeout={500}
+        >
+          {img}
+        </Transition>
+      );
+    }
+    return (
+      <div key="image">{img}</div>
+    );
   }
 
   render(): Element {
@@ -93,10 +126,10 @@ export default class ImageLoader extends Component {
 
     return (
       <div className={className}>
-        {this.loader}
-        <Transition component="div" transitionName="image" transitionEnterTimeout={500} transitionLeaveTimeout={500}>
-          {this.image}
-        </Transition>
+        {[
+          this.loader,
+          this.wrapToTransition(this.image)
+        ]}
       </div>
     );
   }
