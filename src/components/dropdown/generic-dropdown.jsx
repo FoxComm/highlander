@@ -262,9 +262,9 @@ export default class GenericDropdown extends Component {
         <div className="fc-dropdown__controls" onClick={editable ? this.handleToggleClick : null}>
           {this.controls}
         </div>
-        <div className={this.listClassName}>
+        <div className={this.listClassName} ref="items">
           {this.prependList}
-          <ul ref="items" className={this.optionsContainerClass}>
+          <ul className={this.optionsContainerClass}>
             {this.renderItems()}
           </ul>
           {this.appendList}
