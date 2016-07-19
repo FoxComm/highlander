@@ -1,0 +1,44 @@
+
+.autocomplete {
+  position: relative;
+}
+
+.menu {
+  left: 0;
+  background: #ffffff;
+  box-shadow: 0 8px 13px 0 rgba(0,0,0,0.30);
+  padding: 2px 0;
+  font-size: 90%;
+  z-index: 100;
+  position: absolute;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-width: 100%;
+  max-height: 49vh; /* TODO: don't cheat, let it flow to the bottom */
+}
+
+.menu-dropup {
+  composes: menu;
+  bottom: 100%;
+}
+
+.menu-dropdown {
+  composes: menu;
+  top: 100%;
+}
+
+.input {
+  composes: text-input from "ui/css/input.css";
+}
+
+.item {
+  font-size: 16px;
+  line-height: 19px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.item-highlighted {
+  composes: item;
+  background: #f4f4f4;
+}

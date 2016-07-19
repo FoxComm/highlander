@@ -1,0 +1,6 @@
+export const authBlockTypes = {
+  LOGIN: 'LOGIN',
+  RESET_PASSWORD: 'RESET_PASSWORD',
+  RESTORE_PASSWORD: 'RESTORE_PASSWORD',
+  SIGNUP: 'SIGNUP',
+};

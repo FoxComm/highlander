@@ -1,0 +1,52 @@
+@import "colors.css";
+@import "media-queries.css";
+
+.text-input {
+  padding: 15px 6px;
+  font-size: 1rem;
+  line-height: 19px;
+  border: 1px solid var(--blackish);
+  transition: all 300ms;
+
+  &:hover {
+    border-color: #C6BFBF;
+  }
+
+  &:focus {
+    background: #F4F4F4;
+    border-color: #F4F4F4;
+  }
+}
+
+.input-with-label {
+  position: relative;
+}
+
+.text-input-with-label {
+  composes: text-input;
+  width: 100%;
+}
+
+.label {
+  --line-height: 19px;
+  position: absolute;
+  right: 6px;
+  line-height: var(--line-height);
+  top: calc(50% - var(--line-height)/2 - 2px);
+}
+
+input {
+  box-shadow: none;
+}
+
+
+@media (--small-viewport) {
+  .label {
+    --line-height: 17px;
+  }
+
+  .text-input {
+    line-height: 17px;
+    padding: 11px 6px;
+  }
+}
