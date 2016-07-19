@@ -1,21 +1,29 @@
+/* @flow */
+
 //libs
-import React, { PropTypes } from 'react';
+import React, { PropTypes, Element } from 'react';
 
 //helpers
-import { prefix } from '../../../../lib/text-utils';
-import formatCurrency from '../../../../lib/format-currency';
+import { prefix } from 'lib/text-utils';
 
 //components
 import propTypes from '../widgets/propTypes';
+import Currency from 'components/common/currency';
 
+type LabelProps = {
+  value: string|number,
+  className: string
+};
 
-export const Label = ({value, className}) => {
+export const Label = (props: LabelProps): Element => {
+  const { value, className } = props;
   const prefixed = prefix(className);
 
   return (
     <div className={prefixed('value')}>
-      $({formatCurrency(value, {bigNumber: true, fractionBase: 2})})
+      <Currency value={value} />
     </div>
   );
 };
+
 Label.propTypes = propTypes;
