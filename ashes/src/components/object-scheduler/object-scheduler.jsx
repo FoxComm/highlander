@@ -159,7 +159,7 @@ export default class ObjectScheduler extends Component {
 
   @autobind
   handleActiveChange(value: string) {
-    const now = moment().utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ');
+    const now = moment().utc().format('YYYY-MM-DDTHH:mm:ss.SSS[Z]');
     const activeFrom = value == 'active' ? now : null;
 
     const attributes = this.setFromTo(activeFrom, null);
