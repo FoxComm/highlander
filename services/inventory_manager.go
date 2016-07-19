@@ -65,10 +65,10 @@ func (mgr InventoryManager) IncrementStockItemUnits(id uint, payload *payloads.I
 	}
 
 	if err := txn.Commit().Error; err != nil {
-		return nil
+		return err
 	}
 
-	go UpdateStockItem(id, payload.Qty, StatusChange{to: payload.Status})
+	go UpdateStockItem(id, payload.Qty, statusChange{to: payload.Status})
 
 	return nil
 }
@@ -89,9 +89,13 @@ func (mgr InventoryManager) DecrementStockItemUnits(id uint, payload *payloads.D
 		}
 	}
 
-	go UpdateStockItem(id, -1 * payload.Qty, StatusChange{to: "onHand"})
+	if err := txn.Commit().Error; err != nil {
+		return err
+	}
 
-	return txn.Commit().Error
+	go UpdateStockItem(id, -1 * payload.Qty, statusChange{to: "onHand"})
+
+	return nil
 }
 
 func (mgr InventoryManager) ReserveItems(payload payloads.Reservation) error {
@@ -136,17 +140,20 @@ func (mgr InventoryManager) ReserveItems(payload payloads.Reservation) error {
 		Status: "onHold",
 	}
 
-	err := txn.Model(models.StockItemUnit{}).Where("id in (?)", unitsIds).Updates(updateWith).Error
-	if err != nil {
+	if err := txn.Model(models.StockItemUnit{}).Where("id in (?)", unitsIds).Updates(updateWith).Error; err != nil {
 		txn.Rollback()
 		return err
 	}
 
-	for id, qty := range stockItemsMap {
-		go UpdateStockItem(id, qty, StatusChange{from: "onHand", to: "onHold"})
+	if err := txn.Commit().Error; err != nil {
+		return err
 	}
 
-	return txn.Commit().Error
+	for id, qty := range stockItemsMap {
+		go UpdateStockItem(id, qty, statusChange{from: "onHand", to: "onHold"})
+	}
+
+	return nil
 }
 
 func (mgr InventoryManager) ReleaseItems(payload payloads.Release) error {
@@ -157,7 +164,7 @@ func (mgr InventoryManager) ReleaseItems(payload payloads.Release) error {
 
 	if unitsCount == 0 {
 		txn.Rollback()
-		return errors.New("No stock item units associated with \"" + payload.RefNum + "\"")
+		return fmt.Errorf("No stock item units associated with %s", payload.RefNum)
 	}
 
 	// gorm does not update empty fields when updating with struct, so use map here
@@ -187,11 +194,15 @@ func (mgr InventoryManager) ReleaseItems(payload payloads.Release) error {
 		return err
 	}
 
-	for id, qty := range stockItemsMap {
-		go UpdateStockItem(id, qty, StatusChange{from: "onHold", to: "onHand"})
+	if err := txn.Commit().Error; err != nil {
+		return err
 	}
 
-	return txn.Commit().Error
+	for id, qty := range stockItemsMap {
+		go UpdateStockItem(id, qty, statusChange{from: "onHold", to: "onHand"})
+	}
+
+	return nil
 }
 
 func onHandStockItemUnits(db *gorm.DB, stockItemID uint, count int) ([]models.StockItemUnit, error) {

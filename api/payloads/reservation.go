@@ -4,7 +4,7 @@ import "errors"
 
 type Reservation struct {
 	RefNum string           `json:"refNum" binding:"required"`
-	SKUs   []SKUReservation `json:"skus" binding:"required"`
+	SKUs   []SKUReservation `json:"reservations" binding:"required"`
 }
 
 type SKUReservation struct {

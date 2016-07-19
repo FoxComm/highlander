@@ -41,7 +41,7 @@ func (suite *SummaryManagerTestSuite) SetupTest() {
 }
 
 func (suite *SummaryManagerTestSuite) TestIncrementOnHand() {
-	err := UpdateStockItem(suite.itemResp.ID, 5, StatusChange{to: "onHand"})
+	err := UpdateStockItem(suite.itemResp.ID, 5, statusChange{to: "onHand"})
 	assert.Nil(suite.T(), err)
 
 	summary := models.StockItemSummary{}
@@ -52,7 +52,7 @@ func (suite *SummaryManagerTestSuite) TestIncrementOnHand() {
 }
 
 func (suite *SummaryManagerTestSuite) TestIncrementOnHold() {
-	err := UpdateStockItem(suite.itemResp.ID, 5, StatusChange{to: "onHold"})
+	err := UpdateStockItem(suite.itemResp.ID, 5, statusChange{to: "onHold"})
 	assert.Nil(suite.T(), err)
 
 	summary := models.StockItemSummary{}
@@ -63,7 +63,7 @@ func (suite *SummaryManagerTestSuite) TestIncrementOnHold() {
 }
 
 func (suite *SummaryManagerTestSuite) TestIncrementReserved() {
-	err := UpdateStockItem(suite.itemResp.ID, 5, StatusChange{to: "reserved"})
+	err := UpdateStockItem(suite.itemResp.ID, 5, statusChange{to: "reserved"})
 	assert.Nil(suite.T(), err)
 
 	summary := models.StockItemSummary{}
@@ -74,7 +74,7 @@ func (suite *SummaryManagerTestSuite) TestIncrementReserved() {
 }
 
 func (suite *SummaryManagerTestSuite) TestStatusTransition() {
-	UpdateStockItem(suite.itemResp.ID, 5, StatusChange{to: "onHold"})
+	UpdateStockItem(suite.itemResp.ID, 5, statusChange{to: "onHold"})
 
 	summary := models.StockItemSummary{}
 	suite.db.First(&summary, suite.itemResp.ID)
@@ -82,14 +82,14 @@ func (suite *SummaryManagerTestSuite) TestStatusTransition() {
 	assert.Equal(suite.T(), 5, summary.OnHold)
 	assert.Equal(suite.T(), 0, summary.Reserved)
 
-	UpdateStockItem(suite.itemResp.ID, 2, StatusChange{from: "onHold", to: "reserved"})
+	UpdateStockItem(suite.itemResp.ID, 2, statusChange{from: "onHold", to: "reserved"})
 
 	suite.db.First(&summary, suite.itemResp.ID)
 	assert.Equal(suite.T(), 0, summary.OnHand)
 	assert.Equal(suite.T(), 3, summary.OnHold)
 	assert.Equal(suite.T(), 2, summary.Reserved)
 
-	UpdateStockItem(suite.itemResp.ID, 1, StatusChange{from: "reserved", to: "onHand"})
+	UpdateStockItem(suite.itemResp.ID, 1, statusChange{from: "reserved", to: "onHand"})
 
 	suite.db.First(&summary, suite.itemResp.ID)
 	assert.Equal(suite.T(), 1, summary.OnHand)

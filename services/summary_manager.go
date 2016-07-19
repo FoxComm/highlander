@@ -5,12 +5,12 @@ import (
 	"github.com/FoxComm/middlewarehouse/models"
 )
 
-type StatusChange struct {
+type statusChange struct {
 	from string
 	to   string
 }
 
-func UpdateStockItem(stockItemID uint, qty int, status StatusChange) error {
+func UpdateStockItem(stockItemID uint, qty int, status statusChange) error {
 	db, err := config.DefaultConnection()
 	if err != nil {
 		return err
