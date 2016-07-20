@@ -32,9 +32,12 @@ const types = {
   CREDIT_CARD_UPDATED: 'credit_card_updated',
   CREDIT_CARD_REMOVED: 'credit_card_removed',
 
-  /* Orders */
+  /* Carts */
 
   CART_CREATED: 'cart_created',
+  
+  /* Orders */
+
   ORDER_STATE_CHANGED: 'order_state_changed',
   ORDER_BULK_STATE_CHANGED: 'order_bulk_state_changed',
   ORDER_REMORSE_PERIOD_INCREASED: 'order_remorse_period_increased',
