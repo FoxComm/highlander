@@ -39,15 +39,17 @@ func GetCarrierById(id uint) (*models.Carrier, error) {
 	return &carrier, nil
 }
 
-func CreateCarrier(payload *payloads.Carrier) error {
+func CreateCarrier(payload *payloads.Carrier) (uint, error) {
 	db, err := config.DefaultConnection()
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	carrier := models.NewCarrierFromPayload(payload)
 
-	return db.Create(carrier).Error
+	err = db.Create(carrier).Error
+
+	return carrier.ID, err
 }
 
 func UpdateCarrier(id uint, payload *payloads.Carrier) error {

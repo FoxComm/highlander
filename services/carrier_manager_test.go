@@ -74,12 +74,12 @@ func (suite *CarrierManagerTestSuite) TestCreaterCarrier() {
 	payload := &payloads.Carrier{name, trackingTemplate}
 
 	//act
-	err := CreateCarrier(payload)
+	id, err := CreateCarrier(payload)
 
 	//assert
 	assert.Nil(suite.T(), err)
 	var carrier models.Carrier
-	assert.Nil(suite.T(), suite.db.Where("name=?", name).First(&carrier).Error)
+	assert.Nil(suite.T(), suite.db.First(&carrier, id).Error)
 	assert.Equal(suite.T(), name, carrier.Name)
 	assert.Equal(suite.T(), trackingTemplate, carrier.TrackingTemplate)
 }
@@ -87,16 +87,15 @@ func (suite *CarrierManagerTestSuite) TestCreaterCarrier() {
 func (suite *CarrierManagerTestSuite) TestUpdateCarrier() {
 	//arrange
 	name, newName, trackingTemplate := "DHL", "UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"
-	CreateCarrier(&payloads.Carrier{name, trackingTemplate})
-	carriers, err := GetCarriers()
-	carrier := carriers[0]
+	id, _ := CreateCarrier(&payloads.Carrier{name, trackingTemplate})
 
 	//act
-	err = UpdateCarrier(carrier.ID, &payloads.Carrier{newName, trackingTemplate})
+	err := UpdateCarrier(id, &payloads.Carrier{newName, trackingTemplate})
 
 	//assert
 	assert.Nil(suite.T(), err)
-	assert.Nil(suite.T(), suite.db.Where("tracking_template=?", trackingTemplate).First(&carrier).Error)
+	var carrier models.Carrier
+	assert.Nil(suite.T(), suite.db.First(&carrier, id).Error)
 	assert.Equal(suite.T(), newName, carrier.Name)
 }
 
