@@ -4,6 +4,7 @@ variable "ssh_private_key" {}
 variable "account_file" {}
 variable "gce_project" {}
 variable "region" {}
+variable "base_image" {}
 variable "consul_cluster_image" {}
 variable "tiny_backend_image" {}
 variable "tiny_frontend_image" {}
