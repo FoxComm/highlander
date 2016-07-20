@@ -15,11 +15,13 @@ import (
 func runCarriers(router gin.IRouter) {
 	router.GET("/", func(context *gin.Context) {
 		carriers, err := services.GetCarriers()
+		//ensure fetched successfully
 		if err != nil {
 			context.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}
 
+		//convert to responses slice
 		response := make([]*responses.Carrier, len(carriers))
 		for i := range carriers {
 			response[i] = responses.NewCarrierFromModel(carriers[i])
@@ -28,6 +30,7 @@ func runCarriers(router gin.IRouter) {
 	})
 
 	router.GET("/:id", func(context *gin.Context) {
+		//get id from context
 		idStr := context.Params.ByName("id")
 
 		id, err := strconv.ParseUint(idStr, 10, 64)
@@ -36,6 +39,7 @@ func runCarriers(router gin.IRouter) {
 			return
 		}
 
+		//get carrier by id
 		carrier, err := services.GetCarrierById(uint(id))
 		if err != nil {
 			if err == gorm.ErrRecordNotFound {
@@ -50,38 +54,51 @@ func runCarriers(router gin.IRouter) {
 	})
 
 	router.POST("/", func(context *gin.Context) {
-		var payload *payloads.Carrier
-		if parse(context, payload) != nil {
+		//try parse payload
+		var payload payloads.Carrier
+		if parse(context, &payload) != nil {
 			return
 		}
 
-		if err := services.CreateCarrier(payload); err != nil {
+		//try create
+		if id, err := services.CreateCarrier(&payload); err == nil {
+			context.JSON(http.StatusCreated, id)
+		} else {
 			context.AbortWithError(http.StatusBadRequest, err)
-			return
 		}
-
-		context.JSON(http.StatusCreated, nil)
 	})
 
 	router.PUT("/:id", func(context *gin.Context) {
-		idStr := context.Params.ByName("id")
-		var payload *payloads.Carrier
-		if parse(context, payload) != nil {
+		//try parse payload
+		var payload payloads.Carrier
+		if parse(context, &payload) != nil {
 			return
 		}
 
+		//get id from context
+		idStr := context.Params.ByName("id")
 		id, err := strconv.ParseUint(idStr, 10, 64)
 		if err != nil {
 			context.AbortWithError(http.StatusBadRequest, err)
 			return
 		}
 
-		if err = services.UpdateCarrier(uint(id), payload); err != nil {
+		//get carrier by id
+		if _, err := services.GetCarrierById(uint(id)); err != nil {
+			if err == gorm.ErrRecordNotFound {
+				context.AbortWithStatus(http.StatusNotFound)
+			} else {
+				context.AbortWithError(http.StatusBadRequest, err)
+			}
+			return
+		}
+
+		if err = services.UpdateCarrier(uint(id), &payload); err != nil {
 			context.AbortWithError(http.StatusBadRequest, err)
 			return
 		}
 
-		context.JSON(http.StatusOK, nil)
+		context.Writer.WriteHeader(http.StatusNoContent)
 	})
 
 	router.DELETE("/:id", func(context *gin.Context) {
@@ -93,11 +110,21 @@ func runCarriers(router gin.IRouter) {
 			return
 		}
 
+		//get carrier by id
+		if _, err := services.GetCarrierById(uint(id)); err != nil {
+			if err == gorm.ErrRecordNotFound {
+				context.AbortWithStatus(http.StatusNotFound)
+			} else {
+				context.AbortWithError(http.StatusBadRequest, err)
+			}
+			return
+		}
+
 		if err = services.DeleteCarrier(uint(id)); err != nil {
 			context.AbortWithError(http.StatusBadRequest, err)
 			return
 		}
 
-		context.JSON(http.StatusOK, nil)
+		context.Writer.WriteHeader(http.StatusNoContent)
 	})
 }
