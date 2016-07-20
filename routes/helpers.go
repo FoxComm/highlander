@@ -32,3 +32,16 @@ func paramInt(c *gin.Context, key string) (int, failures.Failure) {
 
 	return id, nil
 }
+
+func paramUint(c *gin.Context, key string) (uint, failures.Failure) {
+	intStr := c.Params.ByName(key)
+	id, err := strconv.Atoi(intStr)
+	if err != nil {
+		fError := fmt.Errorf("Unable to get uint param %s", key)
+		fail := failures.MakeBadRequest(fError)
+		failures.Abort(c, fail)
+		return 0, fail
+	}
+
+	return uint(id), nil
+}

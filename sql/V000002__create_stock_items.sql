@@ -3,9 +3,9 @@ create table stock_items (
   sku sku_code,
   stock_location_id integer not null,
 
-  created_at generic_timestamp,
-  updated_at generic_timestamp,
-  deleted_at timestamp without time zone null
+  created_at generic_timestamp_now,
+  updated_at generic_timestamp_now,
+  deleted_at generic_timestamp_null
 );
 
 create unique index skus_code_id on stock_items (lower(sku));
