@@ -36,9 +36,11 @@ const TableView = props => {
   let bottomItems = [];
 
   if (props.selectableColumns.length) {
-    const toggler = <ColumnSelector setColumns={props.setColumnSelected}
-                                    columns={props.selectableColumns}
-                                    identifier={props.tableIdentifier} />;
+    const toggler = (
+      <ColumnSelector setColumns={props.setColumnSelected}
+                      columns={props.selectableColumns}
+                      identifier={props.tableIdentifier} />
+    );
 
     topItems.push(toggler);
   }

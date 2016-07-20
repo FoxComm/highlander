@@ -138,14 +138,14 @@ class DataTable extends Table {
   }
 
   @autobind
-  handleHeadScroll({ target }: any /* e.target.scrollLeft throws an type error in flow with (e: Event) declaration :( */): void {
+  handleHeadScroll({ target }: SyntheticEvent): void {
     if (target.scrollLeft !== this.scrollCache) {
       this._body.scrollLeft = this.scrollCache = target.scrollLeft;
     }
   }
 
   @autobind
-  handleBodyScroll({ target }: any /* e.target.scrollLeft throws an type error in flow with (e: Event) declaration :( */): void {
+  handleBodyScroll({ target }: SyntheticEvent): void {
     if (target.scrollLeft !== this.scrollCache) {
       this._head.scrollLeft = this.scrollCache = target.scrollLeft;
     }
