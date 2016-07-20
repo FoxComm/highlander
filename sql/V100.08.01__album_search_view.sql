@@ -10,6 +10,22 @@ create table album_search_view
 
 create unique index album_search_view_idx on album_search_view (id, context);
 
+create or replace function get_images_json_for_album(int) returns jsonb as $$
+begin
+  return array_to_json(array_agg(
+                    (SELECT json_build_object(
+                        'src',(image_form.attributes ->> (image_shadow.attributes -> 'src' ->> 'ref')),
+                        'alt', (image_form.attributes ->> (image_shadow.attributes -> 'alt' ->> 'ref')),
+                        'title', (image_form.attributes ->> (image_shadow.attributes -> 'title' ->> 'ref')))
+                     FROM images
+                       INNER JOIN album_image_links ON images.id = album_image_links.right_id
+                       left join object_shadows as image_shadow on (image_shadow.id = images.shadow_id)
+                       left join object_forms as image_form on (image_form.id = images.form_id)
+                     WHERE album_image_links.left_id = $1
+                     ORDER BY album_image_links.position)));
+end;
+$$ language plpgsql;
+
 create or replace function insert_albums_view_from_albums_fn() returns trigger as $$
 begin
   insert into album_search_view 
@@ -17,8 +33,8 @@ begin
       new.id as id,
       context.name as context,
       context.id as context_id,
-      album_form.attributes->>(album_shadow.attributes->'name'->>'ref') as name,
-      album_form.attributes->>(album_shadow.attributes->'images'->>'ref') as images,
+      album_form.attributes ->> (album_shadow.attributes -> 'name' ->> 'ref') as name,
+      get_images_json_for_album(new.id) as images,
       new.archived_at as archived_at
     from
       object_contexts as context
@@ -83,6 +99,8 @@ create or replace function update_albums_view_from_object_attrs_fn() returns tri
         select array_agg(albums.id) into strict album_ids
           from albums
           where albums.id = new.id;
+     when 'album_image_links' then
+        select array_agg(new.left_id) into strict album_ids;
    end case;
  
    update album_search_view set
@@ -92,7 +110,7 @@ create or replace function update_albums_view_from_object_attrs_fn() returns tri
      from (select
          album.id,
          album_form.attributes->>(album_shadow.attributes->'name'->>'ref') as name,
-         album_form.attributes->(album_shadow.attributes->'images'->>'ref') as images,
+         get_images_json_for_album(album.id) as images,
          to_char(album.archived_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as archived_at
        from albums as album
        inner join object_forms as album_form on (album_form.id = album.form_id)
@@ -118,3 +136,8 @@ create trigger update_albums_view_from_albums
   after update on albums
   for each row
   execute procedure update_albums_view_from_object_attrs_fn();
+
+create trigger update_albums_view_from_album_image_links
+after update or insert on album_image_links
+for each row
+execute procedure update_albums_view_from_object_attrs_fn();
