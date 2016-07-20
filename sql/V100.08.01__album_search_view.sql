@@ -12,17 +12,16 @@ create unique index album_search_view_idx on album_search_view (id, context);
 
 create or replace function get_images_json_for_album(int) returns jsonb as $$
 begin
-  return array_to_json(array_agg(
-                    (SELECT json_build_object(
-                        'src',(image_form.attributes ->> (image_shadow.attributes -> 'src' ->> 'ref')),
-                        'alt', (image_form.attributes ->> (image_shadow.attributes -> 'alt' ->> 'ref')),
-                        'title', (image_form.attributes ->> (image_shadow.attributes -> 'title' ->> 'ref')))
-                     FROM images
-                       INNER JOIN album_image_links ON images.id = album_image_links.right_id
-                       left join object_shadows as image_shadow on (image_shadow.id = images.shadow_id)
-                       left join object_forms as image_form on (image_form.id = images.form_id)
-                     WHERE album_image_links.left_id = $1
-                     ORDER BY album_image_links.position)));
+    return json_agg(imgs) from (select json_build_object(
+            'src',(form.attributes ->> (shadow.attributes -> 'src' ->> 'ref')),
+            'alt', (form.attributes ->> (shadow.attributes -> 'alt' ->> 'ref')),
+            'title', (form.attributes ->> (shadow.attributes -> 'title' ->> 'ref')))
+    FROM images as image
+    INNER JOIN album_image_links as lnk on (lnk.right_id = image.id)
+    INNER JOIN object_forms as form on (form.id = image.form_id)
+    INNER JOIN object_shadows as shadow on (shadow.id = image.shadow_id)
+    WHERE lnk.left_id = $1        
+    ORDER BY lnk.position) as imgs;
 end;
 $$ language plpgsql;
 
