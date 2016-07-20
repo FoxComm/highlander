@@ -34,6 +34,12 @@
     - htop
     - unzip
     - tree
+    - libcairo2-dev
+    - libjpeg8-dev
+    - libpango1.0-dev
+    - libgif-dev
+    - build-essential
+    - g++
 
 - name: Create /etc/profile.d Directory
   file: path=/etc/profile.d state=directory
