@@ -95,17 +95,20 @@ export default class ColumnSelector extends React.Component {
     const tableName = this.props.identifier;
     const columnState = this.state.selectedColumns;
 
-    // update table data
     const filteredColumns = _.filter(columnState, { isVisible: true });
-    this.props.setColumns(filteredColumns);
 
-    // save to storage
-    let columns = localStorage.getItem('columns') ? JSON.parse(localStorage.getItem('columns')) : {};
-    columns[tableName] = columnState;
-    localStorage.setItem('columns', JSON.stringify(columns));
+    if (filteredColumns.length > 0) {
+      // update table data
+      this.props.setColumns(filteredColumns);
 
-    // close dropdown
-    this._dropdown.closeMenu();
+      // save to storage
+      let columns = localStorage.getItem('columns') ? JSON.parse(localStorage.getItem('columns')) : {};
+      columns[tableName] = columnState;
+      localStorage.setItem('columns', JSON.stringify(columns));
+
+      // close dropdown
+      this._dropdown.closeMenu();
+    }
   }
 
   renderSelectorItems() {
