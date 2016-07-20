@@ -129,7 +129,10 @@ class DataTable extends Table {
   }
 
   componentDidUpdate(prevProps: Props): void {
-    if (prevProps.data.rows !== this.props.data.rows) {
+    const dataChanged = prevProps.data.rows !== this.props.data.rows;
+    const columnsSetChanged = prevProps.columns.length !== this.props.columns.length;
+
+    if (dataChanged || columnsSetChanged) {
       this.resize();
     }
   }
