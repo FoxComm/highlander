@@ -45,14 +45,15 @@ function setColumnsWidths(headerCells: Array<HTMLElement>,
                           stretchRequired: boolean) {
   _.range(0, headerCells.length).forEach((index: number) => {
     const isLast = index === headerCells.length - 1;
-    const headerCellWidth = !isLast ? `${columnWidths[index]}px` : '100%';
+    const cellWidth = !isLast ? `${columnWidths[index]}px` : '100%';
+    const cellMinWidth = `${columnWidths[index]}px`;
 
-    headerCells[index].style.width = headerCells[index].style.minWidth = headerCellWidth;
+    headerCells[index].style.width = cellWidth;
+    headerCells[index].style.minWidth = cellMinWidth;
 
     if (!_.isEmpty(bodyCells)) {
-      const bodyCellWidth = !stretchRequired || !isLast ? `${columnWidths[index]}px` : '100%';
-
-      bodyCells[index].style.width = bodyCells[index].style.minWidth = bodyCellWidth;
+      bodyCells[index].style.width = cellWidth;
+      bodyCells[index].style.minWidth = cellMinWidth;
     }
   });
 }
