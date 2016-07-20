@@ -1,0 +1,6 @@
+---
+
+- name: Build Phoenix Jar
+  shell: sbt assembly
+  args:
+    chdir: /vagrant/phoenix-scala
