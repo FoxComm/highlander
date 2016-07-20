@@ -5,7 +5,7 @@ import (
 )
 
 type Carrier struct {
-	ID               uint `json:"id"`
+	ID               uint
 	Name             string
 	TrackingTemplate string
 }
