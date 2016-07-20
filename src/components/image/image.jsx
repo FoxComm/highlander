@@ -25,7 +25,6 @@ type State = {
 }
 
 export default class ImageLoader extends Component {
-
   props: Props;
 
   state: State = {
