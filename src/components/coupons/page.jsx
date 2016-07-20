@@ -41,6 +41,7 @@ type CouponPageProps = {
   details: Object,
   children: Element,
   isFetching: boolean,
+  isSaving: boolean,
   fetchError: ?Array<string>,
   submitErrors: ?Array<string>,
 };

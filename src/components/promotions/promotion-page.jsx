@@ -48,6 +48,7 @@ type Props = {
   children: Element,
   fetchError: any,
   isFetching: bool,
+  isSaving: boolean,
   dispatch: Function,
 };
 
