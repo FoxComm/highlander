@@ -28,6 +28,7 @@ export type FileInfo = {
 export type ImageInfo = {
   title: string;
   alt: ?string;
+  key?: string;
 }
 
 export type ImageFile = FileInfo & ImageInfo;
@@ -39,26 +40,6 @@ type State = {
 const initialState: State = {
   albums: [],
 };
-
-// @TODO: get rid of this hack - backend should provide `id` property itself
-function resolveImageId(knownHash, image) {
-  if (!image.id) {
-    knownHash[image.src] = image.src in knownHash ? knownHash[image.src] + 1 : 1;
-    return `${image.src}_${knownHash[image.src]}`;
-  }
-  return image.id;
-}
-
-function insertIds(images) {
-  const hash = {};
-  images.map(image => {
-    if (!image.id) {
-      image.id = resolveImageId(hash, image);
-    }
-  });
-
-  return images;
-}
 
 function actionPath(entity: string, action: string) {
   return `${entity}${_.capitalize(action)}`;
@@ -88,7 +69,22 @@ export default function createImagesModule(entity: string): Module {
         formData.append('upload-file', file.file);
       });
 
-      return Api.post(`/albums/${context}/${albumId}/images`, formData);
+      return Api
+        .post(`/albums/${context}/${albumId}/images`, formData)
+        .then(response => {
+          // try to associate not uploaded files with uploaded files
+          const index = _.findIndex(response.images, {title: files[0].title});
+          if (index != -1) {
+            let filesIndex = 0;
+            for (let i = index; i < response.images.length && filesIndex < files.length; i++, filesIndex++) {
+              const img = response.images[i];
+              if (img.title == files[filesIndex].title) {
+                img.key = files[filesIndex].key;
+              }
+            }
+          }
+          return response;
+        });
     },
     (...args) => [...args]
   );
@@ -218,23 +214,16 @@ export default function createImagesModule(entity: string): Module {
   /** Reducers */
   const asyncReducer = createReducer({
     [_fetchAlbums.succeeded]: (state: State, response: Array<TAlbum>) => {
-      _.each(response, (album: TAlbum) => {
-        album.images = insertIds(album.images);
-      });
       return assoc(state,
         ['albums'],
         response.sort((a: TAlbum, b: TAlbum) => Number(b.id) - Number(a.id)),
       );
     },
     [_addAlbum.succeeded]: (state: State, response: TAlbum) => {
-      response.images = insertIds(response.images);
-
       return assoc(state, ['albums'], [response, ...state.albums]);
     },
     [_editAlbum.succeeded]: (state: State, response: TAlbum) => {
       const idx = _.findIndex(state.albums, (album: TAlbum) => album.id === response.id);
-      response.images = insertIds(response.images);
-
       return assoc(state, ['albums', idx], response);
     },
     [_deleteAlbum.succeeded]: (state: State, response: any) => {
@@ -246,12 +235,10 @@ export default function createImagesModule(entity: string): Module {
 
       images = images.map((image: ImageFile) => assoc(image, 'loading', true));
 
-      return assoc(state, ['albums', idx, 'images'], insertIds([...album.images, ...images]));
+      return assoc(state, ['albums', idx, 'images'], [...album.images, ...images]);
     },
     [_uploadImages.succeeded]: (state: State, [response]) => {
       const idx = _.findIndex(state.albums, (album: TAlbum) => album.id === response.id);
-      response.images = insertIds(response.images);
-
       return assoc(state, ['albums', idx], response);
     },
 
