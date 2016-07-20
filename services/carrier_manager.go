@@ -70,7 +70,7 @@ func DeleteCarrier(id uint) error {
 		return err
 	}
 
-	carrier := new(models.Carrier)
-	carrier.ID = id
+	carrier := models.Carrier{ID: id}
+
 	return db.Delete(&carrier).Error
 }
