@@ -1,6 +1,9 @@
 .vscode
+.idea
 debug
 vendor/
 logs/
 main.exe
 main
+middlewarehouse
+middlewarehouse.exe

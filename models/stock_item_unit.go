@@ -1,15 +1,18 @@
 package models
 
 import (
+	"database/sql"
+
 	"github.com/FoxComm/middlewarehouse/api/payloads"
 	"github.com/FoxComm/middlewarehouse/common/gormfox"
 )
 
 type StockItemUnit struct {
 	gormfox.Base
-	StockItemID uint
-	UnitCost    int
-	Status      string
+	StockItemID   uint
+	RefNum        sql.NullString
+	UnitCost      int
+	Status        string
 }
 
 func (siu StockItemUnit) Identifier() uint {
