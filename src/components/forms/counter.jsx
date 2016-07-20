@@ -12,7 +12,7 @@ const Counter = props => {
   return (
     <div className="fc-input-group fc-counter">
       <div className="fc-input-prepend">
-        <DecrementButton disabled={disabled} onClick={decreaseAction} className="fc-btn-counter" />
+        <DecrementButton type="button" disabled={disabled} onClick={decreaseAction} className="fc-btn-counter" />
       </div>
       <input
         type="number"
@@ -20,7 +20,7 @@ const Counter = props => {
         disabled={disabled}
         {...rest} />
       <div className="fc-input-append">
-        <IncrementButton disabled={disabled} onClick={increaseAction} className="fc-btn-counter" />
+        <IncrementButton type="button"  disabled={disabled} onClick={increaseAction} className="fc-btn-counter" />
       </div>
     </div>
   );

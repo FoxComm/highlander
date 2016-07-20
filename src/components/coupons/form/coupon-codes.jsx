@@ -126,7 +126,7 @@ class CouponCodes extends Component {
 
   get codeLengthValidationError(): Element {
     const message =
-      'Cannot guarentee uniqueness for the required quantity of codes. Please choose a longer character length.';
+      'Cannot guarantee uniqueness for the required quantity of codes. Please choose a longer character length.';
     return <div className="fc-form-field-error">{message}</div>;
   }
 
