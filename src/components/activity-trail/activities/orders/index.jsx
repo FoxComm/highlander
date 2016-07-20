@@ -6,6 +6,7 @@ import { stateTitles } from '../../../../paragons/order';
 import { joinEntities } from '../base/utils';
 
 // components
+import CartTarget from '../base/cart-target';
 import OrderTarget from '../base/order-target';
 import OrderLink from '../base/order-link';
 import Title from '../base/title';
@@ -31,7 +32,7 @@ const representatives = {
     title: (data, activity) => {
       return (
         <Title activity={activity}>
-          <strong>created new</strong> <OrderTarget order={data.order}/>
+          <strong>created new</strong> <CartTarget cart={data.cart}/>
         </Title>
       );
     },
