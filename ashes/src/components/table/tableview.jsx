@@ -9,6 +9,7 @@ import DataTable from './data-table';
 import ActionsDropdown from '../bulk-actions/actions-dropdown';
 import TablePaginator from './paginator';
 import TablePageSize from './pagesize';
+import ColumnSelector from './column-selector';
 
 
 function getLine(position, items) {
@@ -33,6 +34,16 @@ const TableView = props => {
 
   let topItems = [];
   let bottomItems = [];
+
+  if (props.selectableColumns.length) {
+    const toggler = (
+      <ColumnSelector setColumns={props.setColumnSelected}
+                      columns={props.selectableColumns}
+                      identifier={props.tableIdentifier} />
+    );
+
+    topItems.push(toggler);
+  }
 
   // hold actions menu
   const showBulkActions = Boolean(props.bulkActions.length);
@@ -88,6 +99,9 @@ TableView.propTypes = {
   setState: PropTypes.func,
   renderRow: PropTypes.func,
   processRows: PropTypes.func,
+  selectableColumns: PropTypes.array,
+  setColumnSelected: PropTypes.func,
+  tableIdentifier: PropTypes.string,
   detectNewRows: PropTypes.bool,
   paginator: PropTypes.bool,
   bulkActions: PropTypes.arrayOf(PropTypes.array),
@@ -103,6 +117,7 @@ TableView.propTypes = {
 TableView.defaultProps = {
   paginator: true,
   bulkActions: [],
+  selectableColumns: [],
   dataTable: false,
   data: {
     rows: [],

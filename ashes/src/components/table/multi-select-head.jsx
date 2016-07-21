@@ -4,21 +4,13 @@ import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 
 // components
-import CheckboxDropdown from '../checkbox/checkbox-dropdown';
-import { DropdownItem } from '../dropdown';
+import { HalfCheckbox } from '../checkbox/checkbox';
 
 export const selectionState = {
   None: 0,
   Some: 1,
   All: 2,
 };
-
-const dropdownItems = [
-  //['selectAll', 'Select all'],
-  ['selectPage', 'Select current page'],
-  //['deselectAll', 'Deselect all'],
-  ['deselectPage', 'Deselect current page'],
-];
 
 export default class MultiSelectHead extends React.Component {
 
@@ -34,44 +26,22 @@ export default class MultiSelectHead extends React.Component {
   };
 
   @autobind
-  handleToggle({target: { checked }}) {
+  handleToggle({ target: { checked } }) {
     this.props.setPageChecked(checked);
   }
 
-  @autobind
-  handleSelect(key) {
-    switch (key) {
-      case 'selectAll':
-        this.props.setAllChecked(true);
-        break;
-      case 'selectPage':
-        this.props.setPageChecked(true);
-        break;
-      case 'deselectAll':
-        this.props.setAllChecked(false);
-        break;
-      case 'deselectPage':
-        this.props.setPageChecked(false);
-        break;
-    }
-  }
-
   render() {
-    const {pageChecked, disabled} = this.props;
+    const { pageChecked, disabled } = this.props;
 
     return (
-      <div>
-        <CheckboxDropdown id="multi-select"
-                          checked={pageChecked !== selectionState.None}
-                          halfChecked={pageChecked === selectionState.Some}
-                          disabled={disabled}
-                          onToggle={this.handleToggle}
-                          onSelect={this.handleSelect}>
-          {dropdownItems.map(([value, title]) => (
-            <DropdownItem key={value} value={value}>{title}</DropdownItem>
-          ))}
-        </CheckboxDropdown>
-      </div>
+      <HalfCheckbox
+        inline={true}
+        id="multi-select"
+        disabled={disabled}
+        checked={pageChecked !== selectionState.None}
+        halfChecked={pageChecked === selectionState.Some}
+        onChange={this.handleToggle}
+      />
     );
   }
 }

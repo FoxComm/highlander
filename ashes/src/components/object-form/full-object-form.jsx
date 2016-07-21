@@ -61,13 +61,13 @@ export default class FullObjectForm extends Component {
   render(): Element {
     const { form, shadow, onChange, ...rest } = this.props;
     const attributes = this.illuminateAttributes(form, shadow);
-    const innerProps = { ...rest, attributes: attributes, onChange: this.handleChange };
 
     return (
       <ObjectFormInner
         attributes={attributes}
+        {...rest}
         onChange={this.handleChange}
-        {...rest} />
+      />
     );
   }
 }

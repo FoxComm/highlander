@@ -4,15 +4,16 @@
 
 // libs
 import _ from 'lodash';
-import React, {PropTypes} from 'react';
-import {autobind} from 'core-decorators';
+import classNames from 'classnames';
+import { autobind } from 'core-decorators';
+import React, { PropTypes } from 'react';
 import { DragDropContext } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
 import localStorage from 'localStorage';
 
 // components
 import { PrimaryButton } from '../common/buttons';
-import Overlay from '../overlay/overlay';
+import Dropdown from '../dropdown/generic-dropdown';
 import SelectorItem from './column-selector-item';
 
 //styles
@@ -23,24 +24,24 @@ type Props = {
   onChange: Function,
   setColumns: Function,
   identifier: string,
-  toggleColumnSelector: Function,
 }
 
 type State = {
   selectedColumns: Array<Object>,
-  isSelectorVisible: boolean,
   hasDraggingItem: boolean,
 }
 
-/*::`*/ @DragDropContext(HTML5Backend) /*::`;*/
+/*::`*/
+@DragDropContext(HTML5Backend) /*::`;*/
 export default class ColumnSelector extends React.Component {
   props: Props;
 
   state: State = {
     selectedColumns: this.getSelectedColumns(),
-    isSelectorVisible: false,
     hasDraggingItem: false,
   };
+
+  _dropdown: any;
 
   @autobind
   moveItem(dragIndex: number, hoverIndex: number) {
@@ -94,24 +95,20 @@ export default class ColumnSelector extends React.Component {
     const tableName = this.props.identifier;
     const columnState = this.state.selectedColumns;
 
-    // update table data
-    const filteredColumns = _.filter(columnState, {isVisible: true});
-    this.props.setColumns(filteredColumns);
+    const filteredColumns = _.filter(columnState, { isVisible: true });
 
-    // save to storage
-    let columns = localStorage.getItem('columns') ? JSON.parse(localStorage.getItem('columns')) : {};
-    columns[tableName] = columnState;
-    localStorage.setItem('columns', JSON.stringify(columns));
+    if (filteredColumns.length > 0) {
+      // update table data
+      this.props.setColumns(filteredColumns);
 
-    // close dropdown
-    this.toggleColumnSelector();
-  }
+      // save to storage
+      let columns = localStorage.getItem('columns') ? JSON.parse(localStorage.getItem('columns')) : {};
+      columns[tableName] = columnState;
+      localStorage.setItem('columns', JSON.stringify(columns));
 
-  @autobind
-  toggleColumnSelector() {
-    this.setState({
-      isSelectorVisible: !this.state.isSelectorVisible,
-    });
+      // close dropdown
+      this._dropdown.closeMenu();
+    }
   }
 
   renderSelectorItems() {
@@ -120,42 +117,44 @@ export default class ColumnSelector extends React.Component {
 
       return (
         <SelectorItem key={item.id}
-            index={id}
-            id={item.id}
-            text={item.text}
-            moveItem={this.moveItem}
-            dropItem={this.dropItem}
-            checked={checked}
-            onChange={e => this.toggleColumnSelection(id)} />
+                      index={id}
+                      id={item.id}
+                      text={item.text}
+                      moveItem={this.moveItem}
+                      dropItem={this.dropItem}
+                      checked={checked}
+                      onChange={e => this.toggleColumnSelection(id)} />
       );
     });
   }
 
-  renderDropDown() {
-    const listClassName = this.state.hasDraggingItem ? '_hasDraggingItem' : '';
+  @autobind
+  renderActions() {
+    const filteredColumns = _.filter(this.state.selectedColumns, { isVisible: true });
 
     return (
-      <div styleName="dropdown">
-        <ul styleName="list" className={listClassName}>
-          {this.renderSelectorItems()}
-        </ul>
-        <div styleName="actions">
-          <PrimaryButton onClick={this.saveColumns}>
-            Save
-          </PrimaryButton>
-        </div>
+      <div styleName="actions">
+        <PrimaryButton onClick={this.saveColumns} disabled={!filteredColumns.length}>
+          Save
+        </PrimaryButton>
       </div>
     );
   }
 
   render() {
-    const overlay = <Overlay shown={true} onClick={this.toggleColumnSelector}/>;
-
     return (
       <div styleName="column-selector">
-        <i className="icon-settings-col" onClick={this.toggleColumnSelector}/>
-        {this.state.isSelectorVisible && overlay }
-        {this.state.isSelectorVisible && this.renderDropDown() }
+        <Dropdown className={styles.dropdown}
+                  listClassName={classNames(styles.list, { [styles._hasDraggingItem]: this.state.hasDraggingItem })}
+                  placeholder="Toggle Columns"
+                  changeable={false}
+                  inputFirst={false}
+                  dropdownProps={{ icon: 'settings-col' }}
+                  renderAppend={this.renderActions}
+                  ref={d => this._dropdown = d}
+        >
+          {this.renderSelectorItems()}
+        </Dropdown>
       </div>
     );
   }

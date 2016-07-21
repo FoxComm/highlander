@@ -2,6 +2,7 @@
 
 import _ from 'lodash';
 import React, { PropTypes, Element, Component, Children } from 'react';
+import createFragment from 'react-addons-create-fragment';
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
 
@@ -27,10 +28,12 @@ export type Props = {
   editable?: bool,
   changeable?: bool,
   disabled?: bool,
+  inputFirst?: bool,
   renderDropdownInput?: Function,
   renderNullTitle?: Function,
   renderPrepend?: Function,
-  onChange: Function,
+  renderAppend?: Function,
+  onChange?: Function,
   dropdownProps?: Object,
 };
 
@@ -54,6 +57,7 @@ export default class GenericDropdown extends Component {
     disabled: false,
     primary: false,
     editable: false,
+    inputFirst: true,
     dropdownProps: {},
     value: '',
   };
@@ -145,7 +149,7 @@ export default class GenericDropdown extends Component {
     return (
       <Button
         icon={icon}
-        docked="right"
+        docked={this.props.inputFirst ? 'right' : 'left'}
         className="_dropdown-size"
         disabled={this.props.disabled}
         onClick={this.handleToggleClick}
@@ -162,11 +166,11 @@ export default class GenericDropdown extends Component {
     return renderDropdownInput
       ? renderDropdownInput(actualValue, title, this.props, this.handleToggleClick)
       : (
-        <div className="fc-dropdown__value" onClick={this.handleToggleClick}>
-          {title}
-          <input name={name} type="hidden" value={actualValue} readOnly />
-        </div>
-      );
+      <div className="fc-dropdown__value" onClick={this.handleToggleClick}>
+        {title}
+        <input name={name} type="hidden" value={actualValue} readOnly />
+      </div>
+    );
   }
 
   get prependList(): ?Element {
@@ -174,6 +178,13 @@ export default class GenericDropdown extends Component {
       return null;
     }
     return this.props.renderPrepend();
+  }
+
+  get appendList(): ?Element {
+    if (!this.props.renderAppend) {
+      return null;
+    }
+    return this.props.renderAppend();
   }
 
   get optionsContainerClass(): string {
@@ -233,20 +244,30 @@ export default class GenericDropdown extends Component {
     });
   }
 
+  get controls(): Element[] {
+    const { inputFirst } = this.props;
+
+    return createFragment({
+      left: inputFirst ? this.dropdownInput : this.dropdownButton,
+      right: inputFirst ? this.dropdownButton : this.dropdownInput,
+    });
+  }
+
   render() {
     const { editable } = this.props;
+
     return (
       <div className={this.dropdownClassName} ref="container" tabIndex="0">
         <Overlay shown={this.state.open} onClick={this.handleToggleClick} />
         <div className="fc-dropdown__controls" onClick={editable ? this.handleToggleClick : null}>
-          {this.dropdownInput}
-          {this.dropdownButton}
+          {this.controls}
         </div>
-        <div className={this.listClassName}>
+        <div className={this.listClassName} ref="items">
           {this.prependList}
-          <ul ref="items" className={this.optionsContainerClass}>
+          <ul className={this.optionsContainerClass}>
             {this.renderItems()}
           </ul>
+          {this.appendList}
         </div>
       </div>
     );

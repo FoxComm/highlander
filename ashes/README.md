@@ -16,6 +16,18 @@ nvm install 5.1.0
 nvm use 5.1.0
 ```
 
+For installing prerequisites for ubuntu:
+
+```
+./install_ubuntu.sh
+```
+
+For installing prerequisites for mac os x:
+
+```
+./install_osx.sh
+```
+
 ### Install Flow
 
 We're using [Flow](https://flowtype.org) to gradually implement type checking in Ashes. Currently, only PIM modules are typed.

@@ -26,6 +26,7 @@ type Props = {
   className?: string;
   menuPosition?: "left" | "center" | "right";
   animate?: boolean;
+  isLoading?: boolean;
 }
 
 type State = {
@@ -106,7 +107,8 @@ export default class ButtonWithMenu extends Component {
   }
 
   render(): Element {
-    const { icon, title, animate, menuPosition, buttonDisabled, menuDisabled } = this.props;
+    const { props } = this;
+    const { icon, title, animate, menuPosition, buttonDisabled, menuDisabled } = props;
     const { open } = this.state;
 
     const className = classNames(this.props.className, {
@@ -126,7 +128,8 @@ export default class ButtonWithMenu extends Component {
           <PrimaryButton
             className={buttonClassName}
             icon={icon}
-            onClick={this.props.onPrimaryClick}
+            onClick={props.onPrimaryClick}
+            isLoading={props.isLoading}
             onBlur={this.dontPropagate}
             disabled={buttonDisabled} >
             {title}

@@ -1,26 +1,34 @@
 .column-selector {
-  & :global(.icon-settings-col) {
-    width: 100%;
-    padding: 21px 15px;
+  position: relative;
+  margin-right: 20px;
 
-    &:hover {
-      background: #e5e7e8;
-      cursor: pointer;
-    }
+  & :global(.icon-settings-col) {
+    font-size: 20px;
   }
 }
+
+.control {
+  padding: 0 10px;
+}
+
 .dropdown {
-  display: flex;
-  flex-direction: column;
-  position: absolute;
-  z-index: 3;
-  right: 0;
-  min-width: 301px;
-  max-height: 304px;
-  border: 1px solid #D9D9D9;
-  border-radius: 3px;
-  background: #ffffff;
-  box-shadow: 0 2px 4px 0 rgba(0,0,0,.5);
+  & :global(.fc-dropdown__value) {
+    padding-left: 0;
+    padding-right: 10px;
+  }
+
+  & :global(.fc-dropdown__items) {
+    min-width: 300px;
+    max-height: 304px;
+    overflow: auto;
+  }
+
+  &:global(._open) {
+    & :global(.fc-dropdown__items) {
+      display: flex;
+      flex-direction: column;
+    }
+  }
 }
 
 .list {
@@ -76,7 +84,7 @@
 }
 
 .isDragging {
-  box-shadow: inset -1px 1px 6px rgba(0,0,0,0.24);
+  box-shadow: inset -1px 1px 6px rgba(0, 0, 0, 0.24);
 
   & :global(.fc-checkbox),
   & :global(.icon-drag-drop) {
