@@ -9,15 +9,14 @@ begin
 
   insert into product_album_links_view select
     new.id as product_id,
-    case when count(asv) = 0
-      then
+    case when count(asv) = 0 then
           '[]'::jsonb
-      else
+    else
       json_agg((asv.name, asv.images)::export_albums)::jsonb
     end as albums
     from product_album_links as link
     left join albums as album on album.id = link.right_id
-    left join album_search_view as asv on album.id = asv.id
+    left join album_search_view as asv on album.id = asv.album_id
     where link.left_id = new.id;
 
     return null;
@@ -41,12 +40,27 @@ begin
       inner join product_album_links as link on link.left_id = p.id
       inner join albums as album on (album.id = link.right_id)
       where album.id = new.id;
+    when 'album_image_links' then
+      select array_agg(p.id) into product_ids
+      from products as p
+      inner join product_album_links as link on link.left_id = p.id
+      inner join albums as album on (album.id = link.right_id)
+      inner join album_image_links as img_link on (img_link.left_id = album.id)
+      where img_link.id = new.id;
+    when 'images' then
+      select array_agg(p.id) into product_ids
+      from products as p
+      inner join product_album_links as link on link.left_id = p.id
+      inner join albums as album on (album.id = link.right_id)
+      inner join album_image_links as img_link on (img_link.left_id = album.id)
+      inner join images as image on (image.id = img_link.right_id)
+      where image.id = new.id;
   end case;
 
   update product_album_links_view set
     albums = subquery.albums
     from (select
-            p.id,
+            p.id as product_id,
             case when count(asv) = 0
               then
                   '[]'::jsonb
@@ -56,10 +70,10 @@ begin
           from products as p
             left join product_album_links as link on link.left_id = p.id
             left join albums as album on album.id = link.right_id
-            left join album_search_view as asv on album.id = asv.id
+            left join album_search_view as asv on album.id = asv.album_id
          where p.id = any(product_ids)
          group by p.id) as subquery
-    where subquery.id = product_album_links_view.product_id;
+    where subquery.product_id = product_album_links_view.product_id;
     return null;
 end;
 $$ language plpgsql;
@@ -72,7 +86,6 @@ create trigger insert_product_album_links_view_from_products
 create trigger update_product_album_links_view_from_products
   after update on products
   for each row
-  when (old.shadow_id is distinct from new.shadow_id)
   execute procedure update_product_album_links_view_from_products_and_deps_fn();
 
 create trigger update_product_album_links_view_from_product_album_links
@@ -82,5 +95,15 @@ create trigger update_product_album_links_view_from_product_album_links
 
 create trigger update_product_album_links_view_from_albums
   after update or insert on albums
+  for each row
+  execute procedure update_product_album_links_view_from_products_and_deps_fn();
+
+create trigger update_product_album_links_view_from_album_image_links
+  after update or insert on album_image_links
+  for each row
+  execute procedure update_product_album_links_view_from_products_and_deps_fn();
+
+create trigger update_product_album_links_view_from_images
+  after update or insert on images
   for each row
   execute procedure update_product_album_links_view_from_products_and_deps_fn();

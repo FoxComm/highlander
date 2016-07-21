@@ -1,21 +1,21 @@
 create table album_search_view
 (
-  id integer not null,
+  album_id integer not null,
   context generic_string not null,
   context_id integer not null,
   name generic_string not null,
-  images text null default '[]',
+  images jsonb null default '[]',
   archived_at generic_string
 );
 
-create unique index album_search_view_idx on album_search_view (id, context);
+create unique index album_search_view_idx on album_search_view (album_id, context);
 
 create or replace function get_images_json_for_album(int) returns jsonb as $$
 begin
-    return json_agg(imgs) from (select json_build_object(
-            'src',(form.attributes ->> (shadow.attributes -> 'src' ->> 'ref')),
-            'alt', (form.attributes ->> (shadow.attributes -> 'alt' ->> 'ref')),
-            'title', (form.attributes ->> (shadow.attributes -> 'title' ->> 'ref')))
+    return json_agg(imgs) from (select 
+            (form.attributes ->> (shadow.attributes -> 'src' ->> 'ref')) as src,
+            (form.attributes ->> (shadow.attributes -> 'alt' ->> 'ref')) as alt,
+            (form.attributes ->> (shadow.attributes -> 'title' ->> 'ref')) as title
     FROM images as image
     INNER JOIN album_image_links as lnk on (lnk.right_id = image.id)
     INNER JOIN object_forms as form on (form.id = image.form_id)
@@ -29,7 +29,7 @@ create or replace function insert_albums_view_from_albums_fn() returns trigger a
 begin
   insert into album_search_view 
     select
-      new.id as id,
+      new.id as album_id,
       context.name as context,
       context.id as context_id,
       album_form.attributes ->> (album_shadow.attributes -> 'name' ->> 'ref') as name,
@@ -69,7 +69,7 @@ begin
        inner join albums on (albums.context_id = o.id)
        where albums.context_id = new.id) as subquery
     where
-      subquery.album_id = album_search_view.id;
+      subquery.album_id = album_search_view.album_id;
 
   return null;
 end;
@@ -115,7 +115,7 @@ create or replace function update_albums_view_from_object_attrs_fn() returns tri
        inner join object_forms as album_form on (album_form.id = album.form_id)
        inner join object_shadows as album_shadow on (album_shadow.id = album.shadow_id)
        where album.id = any(album_ids)) as subquery
-     where subquery.id = album_search_view.id;
+     where subquery.id = album_search_view.album_id;
  
    return null;
 end;
