@@ -6,5 +6,9 @@ import (
 )
 
 func main() {
-	routes.Run(gin.Default(), ":9292")
+	routes.Run(routes.RouterConfiguration{
+		Engine:   gin.Default(),
+		Endpoint: ":9292",
+		Routes:   routes.Routes,
+	})
 }
