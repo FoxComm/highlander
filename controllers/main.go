@@ -1,5 +1,9 @@
 package controllers
 
+import (
+	"github.com/gin-gonic/gin"
+)
+
 type IController interface {
-	SetUp()
+	SetUp(router gin.IRouter)
 }

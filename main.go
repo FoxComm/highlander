@@ -10,8 +10,8 @@ func main() {
 	engine := gin.Default()
 	db, _ := config.DefaultConnection()
 	routes.Run(routes.RouterConfiguration{
-		Engine:      engine,
-		Endpoint:    ":9292",
-		Controllers: routes.GetControllers(engine, db),
+		Engine:   engine,
+		Endpoint: ":9292",
+		Routes:   routes.GetRoutes(db),
 	})
 }

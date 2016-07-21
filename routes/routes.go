@@ -14,8 +14,8 @@ var Routes = map[string]func(gin.IRouter){
 	"/stock-items":  runStockItems,
 }
 
-func GetControllers(engine *gin.Engine, db *gorm.DB) []controllers.IController {
-	return []controllers.IController{
-		controllers.NewCarrierController(engine.Group("/carriers"), services.NewCarrierService(db)),
+func GetRoutes(db *gorm.DB) map[string]controllers.IController {
+	return map[string]controllers.IController{
+		"/carriers": controllers.NewCarrierController(services.NewCarrierService(db)),
 	}
 }

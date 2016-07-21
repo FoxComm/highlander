@@ -8,20 +8,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type CarrierController struct {
-	router  gin.IRouter
+type carrierController struct {
 	service services.ICarrierService
 }
 
-func NewCarrierController(router gin.IRouter, service services.ICarrierService) IController {
-	return &CarrierController{router, service}
+func NewCarrierController(service services.ICarrierService) IController {
+	return &carrierController{service}
 }
 
-func (controller *CarrierController) SetUp() {
-	controller.router.GET("/", controller.GetCarriers())
+func (controller *carrierController) SetUp(router gin.IRouter) {
+	router.GET("/", controller.GetCarriers())
 }
 
-func (controller *CarrierController) GetCarriers() gin.HandlerFunc {
+func (controller *carrierController) GetCarriers() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		carriers, err := controller.service.Get()
 		//ensure fetched successfully
