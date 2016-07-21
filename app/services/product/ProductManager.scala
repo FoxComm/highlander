@@ -7,6 +7,7 @@ import cats.implicits._
 import cats.data.ValidatedNel
 import failures._
 import failures.ProductFailures._
+import models.image.Albums
 import models.inventory._
 import models.objects._
 import models.product._
@@ -149,11 +150,11 @@ object ProductManager {
                          productObject.model,
                          productObject.model.copy(archivedAt = Some(Instant.now)))
 
-      albumLinks ← * <~ ObjectLinks
-                    .findByLeftAndType(productObject.shadow.id, ObjectLink.ProductAlbum)
-                    .result
+      albumLinks ← * <~ ProductAlbumLinks.filter(_.leftId === archiveResult.id).result
       _ ← * <~ albumLinks.map { link ⇒
-           ObjectLinks.deleteById(link.id, DbResultT.unit, id ⇒ NotFoundFailure400(ObjectLink, id))
+           ProductAlbumLinks.deleteById(link.id,
+                                        DbResultT.unit,
+                                        id ⇒ NotFoundFailure400(ProductAlbumLinks, id))
          }
       albums   ← * <~ ImageManager.getAlbumsForProduct(productObject.form.id)
       skuLinks ← * <~ ProductSkuLinks.filter(_.leftId === productObject.model.id).result

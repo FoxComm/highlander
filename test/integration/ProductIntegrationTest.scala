@@ -224,10 +224,14 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
 
     "Updates the SKUs on a product if variants are Some(Seq.empty)" in new Fixture {
 
-      ObjectLinks.filter(_.leftId === product.shadowId).deleteAll(DbResultT.none, DbResultT.none).gimme
+      ObjectLinks
+        .filter(_.leftId === product.shadowId)
+        .deleteAll(DbResultT.none, DbResultT.none)
+        .gimme
 
-      val payload =
-        UpdateProductPayload(attributes = Map.empty, skus = Some(Seq(skuPayload)), variants = Some(Seq.empty))
+      val payload = UpdateProductPayload(attributes = Map.empty,
+                                         skus = Some(Seq(skuPayload)),
+                                         variants = Some(Seq.empty))
 
       val response = doQuery(product.formId, payload)
       response.skus.length must === (1)
