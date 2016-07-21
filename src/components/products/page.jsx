@@ -11,6 +11,7 @@ import _ from 'lodash';
 
 // actions
 import * as ProductActions from '../../modules/products/details';
+import * as ArchiveActions from '../../modules/products/archive';
 
 // components
 import ConfirmationDialog from '../modal/confirmation-dialog';
@@ -44,7 +45,8 @@ type Props = {
     isUpdating: boolean,
     product: ?Product,
     err: ?Object,
-  }
+  },
+  archiveProduct: Function,
 };
 
 type State = {
@@ -62,7 +64,7 @@ const SELECT_CONTEXT = [
  * ProductPage represents the default layout of a product details page.
  * It displays the title, sub nav, and save button.
  */
-export class ProductPage extends Component {
+class ProductPage extends Component {
   props: Props;
 
   state: State = {
@@ -180,23 +182,30 @@ export class ProductPage extends Component {
         cancel="Cancel"
         confirm="Archive Products"
         cancelAction={this.closeArchiveConfirmation}
-        confirmAction={this.closeArchiveConfirmation}
+        confirmAction={this.archiveProduct}
       />
     );
+  }
+
+  @autobind
+  archiveProduct() {
+    this.props.archiveProduct(this.props.params.productId).then(() => {
+      transitionTo('products');
+    });
   }
 
   @autobind
   showArchiveConfirmation() {
     this.setState({
       archiveConfirmation: true,
-    })
+    });
   }
 
   @autobind
   closeArchiveConfirmation() {
     this.setState({
       archiveConfirmation: false,
-    })
+    });
   }
 
   render(): Element {
@@ -241,5 +250,8 @@ export class ProductPage extends Component {
 
 export default connect(
   state => ({ products: state.products.details }),
-  dispatch => ({ actions: bindActionCreators(ProductActions, dispatch) })
+  dispatch => ({
+    actions: bindActionCreators(ProductActions, dispatch),
+    ...bindActionCreators(ArchiveActions, dispatch),
+  })
 )(ProductPage);
