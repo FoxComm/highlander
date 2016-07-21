@@ -2,6 +2,7 @@ package models.objects
 
 import java.time.Instant
 
+import models.objects.ObjectHeadLinks._
 import models.product.VariantValueSkuLinks._
 import shapeless._
 
@@ -16,13 +17,9 @@ case class ProductSkuLink(id: Int = 0,
                           createdAt: Instant = Instant.now,
                           updatedAt: Instant = Instant.now)
     extends FoxModel[ProductSkuLink]
+    with ObjectHeadLink[ProductSkuLink]
 
-class ProductSkuLinks(tag: Tag) extends FoxTable[ProductSkuLink](tag, "product_sku_links") {
-  def id        = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def leftId    = column[Int]("left_id")
-  def rightId   = column[Int]("right_id")
-  def createdAt = column[Instant]("created_at")
-  def updatedAt = column[Instant]("updated_at")
+class ProductSkuLinks(tag: Tag) extends ObjectHeadLinks[ProductSkuLink](tag, "product_sku_links") {
 
   def * =
     (id, leftId, rightId, createdAt, updatedAt) <> ((ProductSkuLink.apply _).tupled, ProductSkuLink.unapply)
@@ -32,10 +29,8 @@ class ProductSkuLinks(tag: Tag) extends FoxTable[ProductSkuLink](tag, "product_s
 }
 
 object ProductSkuLinks
-    extends FoxTableQuery[ProductSkuLink, ProductSkuLinks](new ProductSkuLinks(_))
+    extends ObjectHeadLinkQueries[ProductSkuLink, ProductSkuLinks](new ProductSkuLinks(_))
     with ReturningId[ProductSkuLink, ProductSkuLinks] {
 
   val returningLens: Lens[ProductSkuLink, Int] = lens[ProductSkuLink].id
-
-  def filterLeft(leftId: Int): QuerySeq = filter(_.leftId === leftId)
 }

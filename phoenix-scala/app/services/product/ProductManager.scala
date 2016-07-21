@@ -4,7 +4,6 @@ import cats.data._
 import cats.implicits._
 import failures.{GeneralFailure, Failures, Failure}
 import failures.ProductFailures._
-import models.image._
 import models.inventory._
 import models.objects._
 import models.product._
@@ -125,9 +124,6 @@ object ProductManager {
                          findOrCreateSkuForProduct(oldProduct.model, sku, !hasVariants))
 
       variants ← * <~ updateAssociatedVariants(updatedHead, oldProduct.shadow.id, payload.variants)
-
-      _ ← * <~ updateAssociatedAlbums(updatedHead, oldProduct.shadow.id)
-
       fullProduct = FullObject(updatedHead, updated.form, updated.shadow)
       _ ← * <~ validateUpdate(updatedSkus, variants)
 
@@ -224,15 +220,6 @@ object ProductManager {
       _       ← * <~ ObjectUtils.updateAssociatedRights(VariantValues, valLinks, link.rightId)
       variant ← * <~ VariantManager.mustFindFullVariantWithValuesByShadowId(link.rightId)
     } yield variant
-
-  private def updateAssociatedAlbums(product: Product,
-                                     oldProductShadowId: Int)(implicit ec: EC, db: DB, oc: OC) =
-    for {
-      existingLinks ← * <~ ObjectLinks
-                       .findByLeftAndType(oldProductShadowId, ObjectLink.ProductAlbum)
-                       .result
-      _ ← * <~ ObjectUtils.updateAssociatedRights(Albums, existingLinks, product.shadowId)
-    } yield {}
 
   private def updateHead(product: Product,
                          shadow: ObjectShadow,

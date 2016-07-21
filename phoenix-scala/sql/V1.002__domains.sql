@@ -28,8 +28,7 @@ create domain zip_code text check (
 create domain sku_code text check (length(value) > 0);
 
 -- Object Links
-create domain object_link_type text check (value in ('productAlbum', 'productSku', 'productVariant',
-                                                     'promotionDiscount', 'skuAlbum', 'skuVariantValue',
+create domain object_link_type text check (value in ('productVariant', 'promotionDiscount', 'skuVariantValue',
                                                      'variantValue'));
 
 -- Gift Cards

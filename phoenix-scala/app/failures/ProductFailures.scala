@@ -1,5 +1,7 @@
 package failures
 
+import models.product.Product
+
 object ProductFailures {
 
   object SkuNotFound {
@@ -53,6 +55,11 @@ object ProductFailures {
     def apply(formId: Int, productContextId: Int) =
       NotFoundFailure404(
           s"Product form with id=$formId with product context $productContextId cannot be found")
+  }
+
+  object NoAlbumsFoundForProduct {
+    def apply(productId: Product#Id) =
+      NotFoundFailure404(s"Product with id=$productId has no albums")
   }
 
   case class ProductShadowHasInvalidAttribute(key: String, value: String) extends Failure {
