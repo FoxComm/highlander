@@ -13,9 +13,11 @@ import _ from 'lodash';
 import * as ProductActions from '../../modules/products/details';
 
 // components
+import ConfirmationDialog from '../modal/confirmation-dialog';
 import { Dropdown, DropdownItem } from '../dropdown';
 import { PageTitle } from '../section-title';
 import { Button, PrimaryButton } from '../common/buttons';
+import Alert from '../alerts/alert';
 import SubNav from './sub-nav';
 import WaitAnimation from '../common/wait-animation';
 
@@ -48,6 +50,7 @@ type Props = {
 type State = {
   product: ?Product,
   context: string,
+  archiveConfirmation: boolean,
 };
 
 const SELECT_CONTEXT = [
@@ -65,6 +68,7 @@ export class ProductPage extends Component {
   state: State = {
     product: this.props.products.product,
     context: _.get(this.props.params, 'context', 'default'),
+    archiveConfirmation: false,
   };
 
   componentDidMount() {
@@ -156,6 +160,45 @@ export class ProductPage extends Component {
     }
   }
 
+  renderConfirmation() {
+    const confirmation = (
+      <div>
+        <Alert type="warning">
+          Warning! This action cannot be undone
+        </Alert>
+        <span>
+          Are you sure you want to archive <strong>{this.props.params.productId}</strong> ?
+        </span>
+      </div>
+    );
+
+    return (
+      <ConfirmationDialog
+        isVisible={this.state.archiveConfirmation}
+        header="Archive Products ?"
+        body={confirmation}
+        cancel="Cancel"
+        confirm="Archive Products"
+        cancelAction={this.closeArchiveConfirmation}
+        confirmAction={this.closeArchiveConfirmation}
+      />
+    );
+  }
+
+  @autobind
+  showArchiveConfirmation() {
+    this.setState({
+      archiveConfirmation: true,
+    })
+  }
+
+  @autobind
+  closeArchiveConfirmation() {
+    this.setState({
+      archiveConfirmation: false,
+    })
+  }
+
   render(): Element {
     const { product, context } = this.state;
     const { isFetching } = this.props.products;
@@ -184,11 +227,13 @@ export class ProductPage extends Component {
             <Button
               className="fc-product-details__archive-button"
               type="button"
-              onClick={this.handleArchive}>
+              onClick={this.showArchiveConfirmation}>
               Archive Product
             </Button>
           </div>
         </div>
+
+        {this.renderConfirmation()}
       </div>
     );
   }
