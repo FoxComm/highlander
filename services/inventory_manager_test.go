@@ -34,6 +34,9 @@ func (suite *InventoryManagerTestSuite) createStockItem(sku string, qty int) (*r
 		return nil, err
 	}
 
+	// hack to wait for summary create goroutine to finish
+	time.Sleep(time.Millisecond * 10)
+
 	if qty > 0 {
 		iPayload := &payloads.IncrementStockItemUnits{
 			Qty:      qty,

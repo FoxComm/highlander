@@ -10,7 +10,27 @@ type statusChange struct {
 	to   string
 }
 
-func UpdateStockItem(stockItemID uint, qty int, status statusChange) error {
+func CreateStockItemSummary(stockItemId uint) error {
+	db, err := config.DefaultConnection()
+	if err != nil {
+		return err
+	}
+
+	summary := models.StockItemSummary{
+		StockItemID: stockItemId,
+		OnHand:      0,
+		OnHold:      0,
+		Reserved:    0,
+	}
+
+	if err := db.Create(&summary).Error; err != nil {
+		return err
+	}
+
+	return err
+}
+
+func UpdateStockItemSummary(stockItemID uint, qty int, status statusChange) error {
 	db, err := config.DefaultConnection()
 	if err != nil {
 		return err

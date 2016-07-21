@@ -10,7 +10,7 @@ import (
 )
 
 func runReservations(router gin.IRouter) {
-	router.POST("/hold", func(c *gin.Context) {
+	router.POST("/reserve", func(c *gin.Context) {
 		var json payloads.Reservation
 		if parse(c, &json) != nil {
 			return
@@ -35,7 +35,7 @@ func runReservations(router gin.IRouter) {
 		c.JSON(http.StatusOK, gin.H{})
 	})
 
-	router.POST("/unhold", func(c *gin.Context) {
+	router.POST("/cancel", func(c *gin.Context) {
 		var json payloads.Release
 		if parse(c, &json) != nil {
 			return

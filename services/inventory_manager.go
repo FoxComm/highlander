@@ -26,9 +26,9 @@ func (mgr InventoryManager) FindStockItemByID(id uint) (*responses.StockItem, er
 	si := &models.StockItem{}
 	if err := mgr.db.First(si, id).Error; err != nil {
 		return nil, err
-	} else {
-		return responses.NewStockItemFromModel(si), nil
 	}
+
+	return responses.NewStockItemFromModel(si), nil
 }
 
 func (mgr InventoryManager) CreateStockItem(payload *payloads.StockItem) (*responses.StockItem, error) {
@@ -38,16 +38,7 @@ func (mgr InventoryManager) CreateStockItem(payload *payloads.StockItem) (*respo
 		return nil, err
 	}
 
-	summary := models.StockItemSummary{
-		StockItemID: si.ID,
-		OnHand:      0,
-		OnHold:      0,
-		Reserved:    0,
-	}
-
-	if err := mgr.db.Create(&summary).Error; err != nil {
-		return nil, err
-	}
+	go CreateStockItemSummary(si.ID)
 
 	return responses.NewStockItemFromModel(si), nil
 }
@@ -68,7 +59,7 @@ func (mgr InventoryManager) IncrementStockItemUnits(id uint, payload *payloads.I
 		return err
 	}
 
-	go UpdateStockItem(id, payload.Qty, statusChange{to: payload.Status})
+	go UpdateStockItemSummary(id, payload.Qty, statusChange{to: payload.Status})
 
 	return nil
 }
@@ -93,7 +84,7 @@ func (mgr InventoryManager) DecrementStockItemUnits(id uint, payload *payloads.D
 		return err
 	}
 
-	go UpdateStockItem(id, -1 * payload.Qty, statusChange{to: "onHand"})
+	go UpdateStockItemSummary(id, -1 * payload.Qty, statusChange{to: "onHand"})
 
 	return nil
 }
@@ -150,7 +141,7 @@ func (mgr InventoryManager) ReserveItems(payload payloads.Reservation) error {
 	}
 
 	for id, qty := range stockItemsMap {
-		go UpdateStockItem(id, qty, statusChange{from: "onHand", to: "onHold"})
+		go UpdateStockItemSummary(id, qty, statusChange{from: "onHand", to: "onHold"})
 	}
 
 	return nil
@@ -199,7 +190,7 @@ func (mgr InventoryManager) ReleaseItems(payload payloads.Release) error {
 	}
 
 	for id, qty := range stockItemsMap {
-		go UpdateStockItem(id, qty, statusChange{from: "onHold", to: "onHand"})
+		go UpdateStockItemSummary(id, qty, statusChange{from: "onHold", to: "onHand"})
 	}
 
 	return nil

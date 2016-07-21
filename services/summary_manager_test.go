@@ -2,6 +2,7 @@ package services
 
 import (
 	"testing"
+	"time"
 
 	"github.com/FoxComm/middlewarehouse/api/payloads"
 	"github.com/FoxComm/middlewarehouse/api/responses"
@@ -38,10 +39,13 @@ func (suite *SummaryManagerTestSuite) SetupTest() {
 	invMgr, err := MakeInventoryManager()
 	suite.itemResp, err = invMgr.CreateStockItem(payload)
 	assert.Nil(suite.T(), err)
+
+	// hack to wait for summary create goroutine to finish
+	time.Sleep(time.Millisecond * 10)
 }
 
 func (suite *SummaryManagerTestSuite) TestIncrementOnHand() {
-	err := UpdateStockItem(suite.itemResp.ID, 5, statusChange{to: "onHand"})
+	err := UpdateStockItemSummary(suite.itemResp.ID, 5, statusChange{to: "onHand"})
 	assert.Nil(suite.T(), err)
 
 	summary := models.StockItemSummary{}
@@ -52,7 +56,7 @@ func (suite *SummaryManagerTestSuite) TestIncrementOnHand() {
 }
 
 func (suite *SummaryManagerTestSuite) TestIncrementOnHold() {
-	err := UpdateStockItem(suite.itemResp.ID, 5, statusChange{to: "onHold"})
+	err := UpdateStockItemSummary(suite.itemResp.ID, 5, statusChange{to: "onHold"})
 	assert.Nil(suite.T(), err)
 
 	summary := models.StockItemSummary{}
@@ -63,7 +67,7 @@ func (suite *SummaryManagerTestSuite) TestIncrementOnHold() {
 }
 
 func (suite *SummaryManagerTestSuite) TestIncrementReserved() {
-	err := UpdateStockItem(suite.itemResp.ID, 5, statusChange{to: "reserved"})
+	err := UpdateStockItemSummary(suite.itemResp.ID, 5, statusChange{to: "reserved"})
 	assert.Nil(suite.T(), err)
 
 	summary := models.StockItemSummary{}
@@ -74,7 +78,7 @@ func (suite *SummaryManagerTestSuite) TestIncrementReserved() {
 }
 
 func (suite *SummaryManagerTestSuite) TestStatusTransition() {
-	UpdateStockItem(suite.itemResp.ID, 5, statusChange{to: "onHold"})
+	UpdateStockItemSummary(suite.itemResp.ID, 5, statusChange{to: "onHold"})
 
 	summary := models.StockItemSummary{}
 	suite.db.First(&summary, suite.itemResp.ID)
@@ -82,14 +86,14 @@ func (suite *SummaryManagerTestSuite) TestStatusTransition() {
 	assert.Equal(suite.T(), 5, summary.OnHold)
 	assert.Equal(suite.T(), 0, summary.Reserved)
 
-	UpdateStockItem(suite.itemResp.ID, 2, statusChange{from: "onHold", to: "reserved"})
+	UpdateStockItemSummary(suite.itemResp.ID, 2, statusChange{from: "onHold", to: "reserved"})
 
 	suite.db.First(&summary, suite.itemResp.ID)
 	assert.Equal(suite.T(), 0, summary.OnHand)
 	assert.Equal(suite.T(), 3, summary.OnHold)
 	assert.Equal(suite.T(), 2, summary.Reserved)
 
-	UpdateStockItem(suite.itemResp.ID, 1, statusChange{from: "reserved", to: "onHand"})
+	UpdateStockItemSummary(suite.itemResp.ID, 1, statusChange{from: "reserved", to: "onHand"})
 
 	suite.db.First(&summary, suite.itemResp.ID)
 	assert.Equal(suite.T(), 1, summary.OnHand)
