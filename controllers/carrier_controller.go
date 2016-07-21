@@ -22,7 +22,7 @@ func (controller *carrierController) SetUp(router gin.IRouter) {
 
 func (controller *carrierController) GetCarriers() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		carriers, err := controller.service.Get()
+		carriers, err := controller.service.GetCarriers()
 		//ensure fetched successfully
 		if err != nil {
 			context.AbortWithError(http.StatusInternalServerError, err)

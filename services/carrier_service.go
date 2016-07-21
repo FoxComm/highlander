@@ -11,18 +11,18 @@ type carrierService struct {
 }
 
 type ICarrierService interface {
-	Get() ([]*models.Carrier, error)
-	GetByID(id uint) (*models.Carrier, error)
-	Create(payload *payloads.Carrier) (uint, error)
-	Update(id uint, payload *payloads.Carrier) error
-	Delete(id uint) error
+	GetCarriers() ([]*models.Carrier, error)
+	GetCarrierByID(id uint) (*models.Carrier, error)
+	CreateCarrier(payload *payloads.Carrier) (uint, error)
+	UpdateCarrier(id uint, payload *payloads.Carrier) error
+	DeleteCarrier(id uint) error
 }
 
 func NewCarrierService(db *gorm.DB) ICarrierService {
 	return &carrierService{db}
 }
 
-func (service *carrierService) Get() ([]*models.Carrier, error) {
+func (service *carrierService) GetCarriers() ([]*models.Carrier, error) {
 	var data []models.Carrier
 	if err := service.db.Find(&data).Error; err != nil {
 		return nil, err
@@ -36,7 +36,7 @@ func (service *carrierService) Get() ([]*models.Carrier, error) {
 	return carriers, nil
 }
 
-func (service *carrierService) GetByID(id uint) (*models.Carrier, error) {
+func (service *carrierService) GetCarrierByID(id uint) (*models.Carrier, error) {
 	var carrier models.Carrier
 	if err := service.db.First(&carrier, id).Error; err != nil {
 		return nil, err
@@ -45,7 +45,7 @@ func (service *carrierService) GetByID(id uint) (*models.Carrier, error) {
 	return &carrier, nil
 }
 
-func (service *carrierService) Create(payload *payloads.Carrier) (uint, error) {
+func (service *carrierService) CreateCarrier(payload *payloads.Carrier) (uint, error) {
 	carrier := models.NewCarrierFromPayload(payload)
 
 	err := service.db.Create(carrier).Error
@@ -53,7 +53,7 @@ func (service *carrierService) Create(payload *payloads.Carrier) (uint, error) {
 	return carrier.ID, err
 }
 
-func (service *carrierService) Update(id uint, payload *payloads.Carrier) error {
+func (service *carrierService) UpdateCarrier(id uint, payload *payloads.Carrier) error {
 
 	carrier := models.NewCarrierFromPayload(payload)
 	carrier.ID = id
@@ -61,7 +61,7 @@ func (service *carrierService) Update(id uint, payload *payloads.Carrier) error 
 	return service.db.Model(&carrier).Updates(carrier).Error
 }
 
-func (service *carrierService) Delete(id uint) error {
+func (service *carrierService) DeleteCarrier(id uint) error {
 	carrier := models.Carrier{ID: id}
 
 	return service.db.Delete(&carrier).Error
