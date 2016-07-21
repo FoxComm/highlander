@@ -130,9 +130,11 @@ export default class ColumnSelector extends React.Component {
 
   @autobind
   renderActions() {
+    const filteredColumns = _.filter(this.state.selectedColumns, { isVisible: true });
+
     return (
       <div styleName="actions">
-        <PrimaryButton onClick={this.saveColumns}>
+        <PrimaryButton onClick={this.saveColumns} disabled={!filteredColumns.length}>
           Save
         </PrimaryButton>
       </div>
