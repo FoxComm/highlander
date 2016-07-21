@@ -1,20 +1,22 @@
 package routes
 
 import (
-	"fmt"
-
 	"github.com/gin-gonic/gin"
 )
 
-func Run() {
-	router := gin.Default()
+func Run(engine *gin.Engine, endpoint string) {
+	for route, handler := range getRoutes() {
+		handler(engine.Group(route))
+	}
 
-	runSkus(router.Group("/skus"))
-	runStockItems(router.Group("/stock-items"))
-	runReservations(router.Group("/reservations"))
-	runCarriers(router.Group("/carriers"))
+	engine.Run(endpoint)
+}
 
-	fmt.Println("Starting middlewarehouse...")
-	router.Run(":9292")
-	fmt.Println("middlewarehouse started on port 9292")
+func getRoutes() map[string]func(gin.IRouter) {
+	return map[string]func(gin.IRouter){
+		"/carriers":     runCarriers,
+		"/reservations": runReservations,
+		"/skus":         runSkus,
+		"/stock-items":  runStockItems,
+	}
 }
