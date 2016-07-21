@@ -72,6 +72,17 @@ class EditImage extends Component {
                    onChange={this.handleUpdateField}
             />
           </FormField>
+          <FormField label="Image URL"
+                     className="fc-product-details__field"
+                     labelClassName="fc-product-details__field-label">
+            <input type="text"
+                   className="fc-product-details__field-value"
+                   name="src"
+                   value={this.state.src}
+                   placeholder="http://"
+                   onChange={this.handleUpdateField}
+             />
+          </FormField>
           <SaveCancel onCancel={this.props.onCancel}
                       onSave={this.handleSave}
                       saveDisabled={saveDisabled}
