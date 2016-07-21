@@ -1,12 +1,13 @@
-package routes
+package controllers
 
 import (
-	"errors"
 	"fmt"
+	"errors"
 	"strconv"
 
-	"github.com/FoxComm/middlewarehouse/common/failures"
 	"github.com/gin-gonic/gin"
+
+	"github.com/FoxComm/middlewarehouse/common/failures"
 )
 
 func parse(c *gin.Context, model interface{}) failures.Failure {

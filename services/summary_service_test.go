@@ -4,11 +4,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/FoxComm/middlewarehouse/api/payloads"
-	"github.com/FoxComm/middlewarehouse/api/responses"
 	"github.com/FoxComm/middlewarehouse/common/db/config"
 	"github.com/FoxComm/middlewarehouse/common/db/tasks"
 	"github.com/FoxComm/middlewarehouse/models"
+
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -16,7 +15,8 @@ import (
 
 type SummaryManagerTestSuite struct {
 	suite.Suite
-	itemResp *responses.StockItem
+	service  ISummaryService
+	itemResp *models.StockItem
 	db       *gorm.DB
 }
 
@@ -35,9 +35,11 @@ func (suite *SummaryManagerTestSuite) SetupTest() {
 		"stock_item_summaries",
 	})
 
-	payload := &payloads.StockItem{StockLocationID: 1, SKU: "TEST-DEFAULT"}
-	invMgr, err := MakeInventoryManager()
-	suite.itemResp, err = invMgr.CreateStockItem(payload)
+	suite.service = NewSummaryService(suite.db)
+	inventoryService := NewInventoryService(suite.db, suite.service)
+
+	stockItem := &models.StockItem{StockLocationID: 1, SKU: "TEST-DEFAULT"}
+	suite.itemResp, err = inventoryService.CreateStockItem(stockItem)
 	assert.Nil(suite.T(), err)
 
 	// hack to wait for summary create goroutine to finish
@@ -45,7 +47,7 @@ func (suite *SummaryManagerTestSuite) SetupTest() {
 }
 
 func (suite *SummaryManagerTestSuite) TestIncrementOnHand() {
-	err := UpdateStockItemSummary(suite.itemResp.ID, 5, statusChange{to: "onHand"})
+	err := suite.service.UpdateStockItemSummary(suite.itemResp.ID, 5, statusChange{to: "onHand"})
 	assert.Nil(suite.T(), err)
 
 	summary := models.StockItemSummary{}
@@ -56,7 +58,7 @@ func (suite *SummaryManagerTestSuite) TestIncrementOnHand() {
 }
 
 func (suite *SummaryManagerTestSuite) TestIncrementOnHold() {
-	err := UpdateStockItemSummary(suite.itemResp.ID, 5, statusChange{to: "onHold"})
+	err := suite.service.UpdateStockItemSummary(suite.itemResp.ID, 5, statusChange{to: "onHold"})
 	assert.Nil(suite.T(), err)
 
 	summary := models.StockItemSummary{}
@@ -67,7 +69,7 @@ func (suite *SummaryManagerTestSuite) TestIncrementOnHold() {
 }
 
 func (suite *SummaryManagerTestSuite) TestIncrementReserved() {
-	err := UpdateStockItemSummary(suite.itemResp.ID, 5, statusChange{to: "reserved"})
+	err := suite.service.UpdateStockItemSummary(suite.itemResp.ID, 5, statusChange{to: "reserved"})
 	assert.Nil(suite.T(), err)
 
 	summary := models.StockItemSummary{}
@@ -78,7 +80,7 @@ func (suite *SummaryManagerTestSuite) TestIncrementReserved() {
 }
 
 func (suite *SummaryManagerTestSuite) TestStatusTransition() {
-	UpdateStockItemSummary(suite.itemResp.ID, 5, statusChange{to: "onHold"})
+	suite.service.UpdateStockItemSummary(suite.itemResp.ID, 5, statusChange{to: "onHold"})
 
 	summary := models.StockItemSummary{}
 	suite.db.First(&summary, suite.itemResp.ID)
@@ -86,14 +88,14 @@ func (suite *SummaryManagerTestSuite) TestStatusTransition() {
 	assert.Equal(suite.T(), 5, summary.OnHold)
 	assert.Equal(suite.T(), 0, summary.Reserved)
 
-	UpdateStockItemSummary(suite.itemResp.ID, 2, statusChange{from: "onHold", to: "reserved"})
+	suite.service.UpdateStockItemSummary(suite.itemResp.ID, 2, statusChange{from: "onHold", to: "reserved"})
 
 	suite.db.First(&summary, suite.itemResp.ID)
 	assert.Equal(suite.T(), 0, summary.OnHand)
 	assert.Equal(suite.T(), 3, summary.OnHold)
 	assert.Equal(suite.T(), 2, summary.Reserved)
 
-	UpdateStockItemSummary(suite.itemResp.ID, 1, statusChange{from: "reserved", to: "onHand"})
+	suite.service.UpdateStockItemSummary(suite.itemResp.ID, 1, statusChange{from: "reserved", to: "onHand"})
 
 	suite.db.First(&summary, suite.itemResp.ID)
 	assert.Equal(suite.T(), 1, summary.OnHand)

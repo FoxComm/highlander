@@ -1,52 +1,66 @@
 package services
 
 import (
+	"fmt"
 	"errors"
 	"database/sql"
-	"fmt"
 
-	"github.com/FoxComm/middlewarehouse/api/payloads"
-	"github.com/FoxComm/middlewarehouse/api/responses"
-	"github.com/FoxComm/middlewarehouse/common/db/config"
 	"github.com/FoxComm/middlewarehouse/models"
+
 	"github.com/jinzhu/gorm"
 )
 
-type InventoryManager struct {
+type inventoryService struct {
 	db *gorm.DB
+	summaryService ISummaryService
 }
 
-func MakeInventoryManager() (mgr InventoryManager, err error) {
-	mgr = InventoryManager{}
-	mgr.db, err = config.DefaultConnection()
-	return
+type IInventoryService interface {
+	GetStockItems() ([]*models.StockItem, error)
+	GetStockItemByID(id uint) (*models.StockItem, error)
+	CreateStockItem(stockItem *models.StockItem) (*models.StockItem, error)
+
+	IncrementStockItemUnits(id uint, units []*models.StockItemUnit) error
+	DecrementStockItemUnits(id uint, qty int) error
+
+	ReserveItems(refNum string, skus map[string]int) error
+	ReleaseItems(refNum string) error
 }
 
-func (mgr InventoryManager) FindStockItemByID(id uint) (*responses.StockItem, error) {
+func NewInventoryService(db *gorm.DB, summaryService ISummaryService) IInventoryService {
+	return &inventoryService{db, summaryService}
+}
+
+func (service *inventoryService) GetStockItems() ([]*models.StockItem, error) {
+	items := []*models.StockItem{}
+	if err := service.db.Find(&items).Error; err != nil {
+		return nil, err
+	}
+
+	return items, nil
+}
+
+func (service *inventoryService) GetStockItemByID(id uint) (*models.StockItem, error) {
 	si := &models.StockItem{}
-	if err := mgr.db.First(si, id).Error; err != nil {
+	if err := service.db.First(si, id).Error; err != nil {
 		return nil, err
 	}
 
-	return responses.NewStockItemFromModel(si), nil
+	return si, nil
 }
 
-func (mgr InventoryManager) CreateStockItem(payload *payloads.StockItem) (*responses.StockItem, error) {
-	si := models.NewStockItemFromPayload(payload)
-
-	if err := mgr.db.Create(si).Error; err != nil {
+func (service *inventoryService) CreateStockItem(stockItem *models.StockItem) (*models.StockItem, error) {
+	if err := service.db.Create(stockItem).Error; err != nil {
 		return nil, err
 	}
 
-	go CreateStockItemSummary(si.ID)
+	go service.summaryService.CreateStockItemSummary(stockItem.ID)
 
-	return responses.NewStockItemFromModel(si), nil
+	return stockItem, nil
 }
 
-func (mgr InventoryManager) IncrementStockItemUnits(id uint, payload *payloads.IncrementStockItemUnits) error {
-	units := models.NewStockItemUnitsFromPayload(id, payload)
-
-	txn := mgr.db.Begin()
+func (service *inventoryService) IncrementStockItemUnits(id uint, units []*models.StockItemUnit) error {
+	txn := service.db.Begin()
 
 	for _, v := range units {
 		if err := txn.Create(v).Error; err != nil {
@@ -59,15 +73,15 @@ func (mgr InventoryManager) IncrementStockItemUnits(id uint, payload *payloads.I
 		return err
 	}
 
-	go UpdateStockItemSummary(id, payload.Qty, statusChange{to: payload.Status})
+	go service.summaryService.UpdateStockItemSummary(id, len(units), statusChange{to: "onHand"})
 
 	return nil
 }
 
-func (mgr InventoryManager) DecrementStockItemUnits(id uint, payload *payloads.DecrementStockItemUnits) error {
-	txn := mgr.db.Begin()
+func (service *inventoryService) DecrementStockItemUnits(id uint, qty int) error {
+	txn := service.db.Begin()
 
-	units, err := onHandStockItemUnits(txn, id, payload.Qty)
+	units, err := onHandStockItemUnits(txn, id, qty)
 	if err != nil {
 		txn.Rollback()
 		return err
@@ -84,19 +98,17 @@ func (mgr InventoryManager) DecrementStockItemUnits(id uint, payload *payloads.D
 		return err
 	}
 
-	go UpdateStockItemSummary(id, -1 * payload.Qty, statusChange{to: "onHand"})
+	go service.summaryService.UpdateStockItemSummary(id, -1 * qty, statusChange{to: "onHand"})
 
 	return nil
 }
 
-func (mgr InventoryManager) ReserveItems(payload payloads.Reservation) error {
-	txn := mgr.db.Begin()
+func (service *inventoryService) ReserveItems(refNum string, skus map[string]int) error {
+	txn := service.db.Begin()
 
 	skusList := []string{}
-	skusMap := map[string]int{}
-	for _, sku := range payload.SKUs {
-		skusList = append(skusList, sku.SKU)
-		skusMap[sku.SKU] = int(sku.Qty)
+	for code := range skus {
+		skusList = append(skusList, code)
 	}
 
 	items := []models.StockItem{}
@@ -112,7 +124,7 @@ func (mgr InventoryManager) ReserveItems(payload payloads.Reservation) error {
 	stockItemsMap := map[uint]int{}
 	unitsIds := []uint{}
 	for _, si := range items {
-		units, err := onHandStockItemUnits(txn, si.ID, skusMap[si.SKU])
+		units, err := onHandStockItemUnits(txn, si.ID, skus[si.SKU])
 		if err != nil {
 			txn.Rollback()
 			return err
@@ -122,12 +134,12 @@ func (mgr InventoryManager) ReserveItems(payload payloads.Reservation) error {
 			unitsIds = append(unitsIds, unit.ID)
 		}
 
-		stockItemsMap[si.ID] = skusMap[si.SKU]
+		stockItemsMap[si.ID] = skus[si.SKU]
 	}
 
 	// update StockItemUnit.ReservationID field
 	updateWith := models.StockItemUnit{
-		RefNum: sql.NullString{String: payload.RefNum, Valid: true},
+		RefNum: sql.NullString{String: refNum, Valid: true},
 		Status: "onHold",
 	}
 
@@ -141,21 +153,21 @@ func (mgr InventoryManager) ReserveItems(payload payloads.Reservation) error {
 	}
 
 	for id, qty := range stockItemsMap {
-		go UpdateStockItemSummary(id, qty, statusChange{from: "onHand", to: "onHold"})
+		go service.summaryService.UpdateStockItemSummary(id, qty, statusChange{from: "onHand", to: "onHold"})
 	}
 
 	return nil
 }
 
-func (mgr InventoryManager) ReleaseItems(payload payloads.Release) error {
-	txn := mgr.db.Begin()
+func (service *inventoryService) ReleaseItems(refNum string) error {
+	txn := service.db.Begin()
 
 	unitsCount := 0
-	txn.Model(&models.StockItemUnit{}).Where("ref_num = ?", payload.RefNum).Count(&unitsCount)
+	txn.Model(&models.StockItemUnit{}).Where("ref_num = ?", refNum).Count(&unitsCount)
 
 	if unitsCount == 0 {
 		txn.Rollback()
-		return fmt.Errorf("No stock item units associated with %s", payload.RefNum)
+		return fmt.Errorf("No stock item units associated with %s", refNum)
 	}
 
 	// gorm does not update empty fields when updating with struct, so use map here
@@ -166,7 +178,7 @@ func (mgr InventoryManager) ReleaseItems(payload payloads.Release) error {
 
 	// extract summary update logic
 	units := []models.StockItemUnit{}
-	if err := txn.Where("ref_num = ?", payload.RefNum).Find(&units).Error; err != nil {
+	if err := txn.Where("ref_num = ?", refNum).Find(&units).Error; err != nil {
 		return err
 	}
 
@@ -179,7 +191,7 @@ func (mgr InventoryManager) ReleaseItems(payload payloads.Release) error {
 		}
 	}
 
-	err := txn.Model(&models.StockItemUnit{}).Where("ref_num = ?", payload.RefNum).Updates(updateWith).Error
+	err := txn.Model(&models.StockItemUnit{}).Where("ref_num = ?", refNum).Updates(updateWith).Error
 	if err != nil {
 		txn.Rollback()
 		return err
@@ -190,7 +202,7 @@ func (mgr InventoryManager) ReleaseItems(payload payloads.Release) error {
 	}
 
 	for id, qty := range stockItemsMap {
-		go UpdateStockItemSummary(id, qty, statusChange{from: "onHold", to: "onHand"})
+		go service.summaryService.UpdateStockItemSummary(id, qty, statusChange{from: "onHold", to: "onHand"})
 	}
 
 	return nil
