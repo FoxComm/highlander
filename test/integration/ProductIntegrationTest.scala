@@ -16,6 +16,7 @@ import utils.JsonFormatters
 import utils.Money.Currency
 import utils.aliases._
 import utils.db._
+import utils.db.ExPostgresDriver.api._
 
 object ProductTestExtensions {
 
@@ -212,6 +213,21 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
       val response = doQuery(product.formId, payload)
       response.skus.length must === (4)
       response.variants.length must === (2)
+
+      val description = response.attributes \ "description" \ "v"
+      description.extract[String] must === ("Test product description")
+    }
+
+    "Updates the SKUs on a product if variants are Some(Seq.empty)" in new Fixture {
+
+      ObjectLinks.filter(_.leftId === product.shadowId).deleteAll(DbResultT.none, DbResultT.none).gimme
+
+      val payload =
+        UpdateProductPayload(attributes = Map.empty, skus = Some(Seq(skuPayload)), variants = Some(Seq.empty))
+
+      val response = doQuery(product.formId, payload)
+      response.skus.length must === (1)
+      response.variants.length must === (0)
 
       val description = response.attributes \ "description" \ "v"
       description.extract[String] must === ("Test product description")
