@@ -5,7 +5,12 @@ import (
 	"github.com/FoxComm/middlewarehouse/models"
 )
 
-func UpdateStockItem(stockItemID uint, qty int, status string) error {
+type statusChange struct {
+	from string
+	to   string
+}
+
+func UpdateStockItem(stockItemID uint, qty int, status statusChange) error {
 	db, err := config.DefaultConnection()
 	if err != nil {
 		return err
@@ -19,23 +24,30 @@ func UpdateStockItem(stockItemID uint, qty int, status string) error {
 		return err
 	}
 
-	switch status {
-	case "onHand":
-		summary.OnHand += qty
-		break
-	case "onHold":
-		summary.OnHold += qty
-		break
-	case "reserved":
-		summary.Reserved += qty
-		break
-	}
+	summary = updateStatus(summary, status.from, -qty)
+	summary = updateStatus(summary, status.to, qty)
 
 	if err := txn.Save(summary).Error; err != nil {
 		txn.Rollback()
 		return err
 	}
 
-	txn.Commit()
-	return nil
+	return txn.Commit().Error
+}
+
+func updateStatus(summary *models.StockItemSummary, status string, qty int) *models.StockItemSummary {
+	if status == "" {
+		return summary
+	}
+
+	switch status {
+		case "onHand":
+			summary.OnHand += qty
+		case "onHold":
+			summary.OnHold += qty
+		case "reserved":
+			summary.Reserved += qty
+		}
+
+	return summary
 }
