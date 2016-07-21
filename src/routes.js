@@ -59,19 +59,22 @@ import CouponPage from './components/coupons/page';
 import CouponForm from './components/coupons/form';
 import CouponCodes from './components/coupons/codes';
 
-import StyleGuide from './components/style-guide/style-guide';
-import StyleGuideGrid from './components/style-guide/style-guide-grid';
-import StyleGuideButtons from './components/style-guide/style-guide-buttons';
-import StyleGuideContainers from './components/style-guide/style-guide-containers';
-
 import UsersListPage from './components/users/user-list';
 import Users from './components/users/users';
 import User from './components/users/user';
 import UserForm from './components/users/user-form';
 
+import Login from './components/auth/login';
+
+// no productions pages, make sure these paths are included in `excludedList` in browserify.js
+
+import StyleGuide from './components/style-guide/style-guide';
+import StyleGuideGrid from './components/style-guide/style-guide-grid';
+import StyleGuideButtons from './components/style-guide/style-guide-buttons';
+import StyleGuideContainers from './components/style-guide/style-guide-containers';
+
 import AllActivities from './components/activity-trail/all';
 import AllNotificationItems from './components/activity-notifications/all';
-import Login from './components/auth/login';
 
 const routes = (
   <Route path="/">
@@ -121,9 +124,9 @@ const routes = (
         <Route name='customers-new' path='new' component={NewCustomer} />
         <Route name='customer' path=':customerId' component={Customer}>
           <IndexRoute name='customer-details' component={CustomerDetails}/>
-          <Route title='Transactions' 
-                 name='customer-transactions' 
-                 path='transactions' 
+          <Route title='Transactions'
+                 name='customer-transactions'
+                 path='transactions'
                  component={CustomerTransactions}/>
           <Route title='Returns' name='customer-returns' path='returns' component={RmaChildList}/>
           <Route title='Cart' name='customer-cart' path='cart' component={CustomerCart}/>
@@ -226,15 +229,19 @@ const routes = (
           <Route name='coupon-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
         </Route>
       </Route>
-      <Route name='style-guide' path='style-guide' component={StyleGuide}>
-        <IndexRoute name='style-guide-grid' component={StyleGuideGrid} />
-        <Route name='style-guide-buttons' path='buttons' component={StyleGuideButtons} />
-        <Route name='style-guide-containers' path='containers' component={StyleGuideContainers} />
-      </Route>
-      <Route name='test' path="_">
-        <Route name='test-activities' path='activities' component={AllActivities} />
-        <Route name='test-notifications' path='notifications' component={AllNotificationItems} />
-      </Route>
+      {process.env.NODE_ENV != 'production' &&
+        <Route name='style-guide' path='style-guide' component={StyleGuide}>
+          <IndexRoute name='style-guide-grid' component={StyleGuideGrid}/>
+          <Route name='style-guide-buttons' path='buttons' component={StyleGuideButtons}/>
+          <Route name='style-guide-containers' path='containers' component={StyleGuideContainers}/>
+        </Route>
+      }
+      {process.env.NODE_ENV != 'production' &&
+        <Route name='test' path="_">
+          <Route name='test-activities' path='activities' component={AllActivities}/>
+          <Route name='test-notifications' path='notifications' component={AllNotificationItems}/>
+        </Route>
+      }
       <Route name='users-base' path='users'>
         <Route name='users-list-page' component={UsersListPage}>
           <IndexRoute name='users' component={Users}/>
