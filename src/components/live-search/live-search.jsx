@@ -601,10 +601,10 @@ export default class LiveSearch extends React.Component {
   }
 
   render() {
-    const gridClass = classNames('fc-grid', 'fc-list-page-content', {
-      'fc-grid-no-gutter': this.props.noGutter
+    const gridClass = classNames('fc-list-page-content', {
+      '_no-gutter': this.props.noGutter
     });
-    const tableClass = classNames('fc-col-md-1-1', 'fc-live-search__table', {
+    const tableClass = classNames('fc-live-search__table', {
       '_no-gutter': this.props.noGutter
     });
 
@@ -613,7 +613,7 @@ export default class LiveSearch extends React.Component {
         {this.shareSearch}
         {this.header}
         <div className={gridClass}>
-          <div className="fc-col-md-1-1 fc-live-search__search-control">
+          <div className="fc-live-search__search-control">
             <form>
               <PilledInput
                 controls={this.controls}

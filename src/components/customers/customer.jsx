@@ -81,7 +81,7 @@ export default class Customer extends Component {
           <Link to="customer-activity-trail" params={params}>Activity Trail</Link>
         </LocalNav>
         <div className="fc-grid">
-          <div className="fc-col-md-1-1">
+          <div className="fc-col-md-1-1 fc-col-no-overflow">
             { this.renderChildren() }
           </div>
         </div>

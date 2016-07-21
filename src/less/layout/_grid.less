@@ -57,6 +57,13 @@
     }
   }
 
+  [class*='fc-col-'] {
+    &.fc-col-no-overflow {
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+  }
+
   &.fc-grid-collapse {
     padding-right: 0;
     margin-left: @gutter;
