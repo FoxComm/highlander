@@ -61,7 +61,7 @@ class CouponsIntegrationTest
       val response    = POST(s"v1/coupons/$contextName/${coupon.form.id}/archive")
 
       response.status must === (StatusCodes.NotFound)
-      response.error === (NotFoundFailure404(ObjectContext, contextName).description)
+      response.error must === (ObjectContextNotFound(contextName).description)
     }
   }
 
