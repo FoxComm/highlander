@@ -38,7 +38,7 @@ object ProductRoutes {
                   ProductManager.updateProduct(productId, payload)
                 }
               } ~
-              (post & path("archive")) {
+              (delete & pathEnd) {
                 mutateOrFailures {
                   ProductManager.archiveByContextAndId(productId)
                 }

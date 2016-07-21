@@ -296,9 +296,9 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
     }
   }
 
-  "POST v1/products/:context/:id/archive" - {
+  "DELETE v1/products/:context/:id" - {
     "Archives product successfully" in new Fixture {
-      val response = POST(s"v1/products/${ctx.name}/${product.formId}/archive")
+      val response = DELETE(s"v1/products/${ctx.name}/${product.formId}")
 
       response.status must === (StatusCodes.OK)
 
@@ -309,7 +309,7 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
     }
 
     "SKUs must be unlinked" in new VariantFixture {
-      val response = POST(s"v1/products/${ctx.name}/${product.formId}/archive")
+      val response = DELETE(s"v1/products/${ctx.name}/${product.formId}")
 
       response.status must === (StatusCodes.OK)
 
@@ -318,7 +318,7 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
     }
 
     "Variants must be unlinked" in new VariantFixture {
-      val response = POST(s"v1/products/${ctx.name}/${product.formId}/archive")
+      val response = DELETE(s"v1/products/${ctx.name}/${product.formId}")
 
       response.status must === (StatusCodes.OK)
 
@@ -327,7 +327,7 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
     }
 
     "Albums must be unlinked" in new VariantFixture {
-      val response = POST(s"v1/products/${ctx.name}/${product.formId}/archive")
+      val response = DELETE(s"v1/products/${ctx.name}/${product.formId}")
 
       response.status must === (StatusCodes.OK)
 
@@ -336,7 +336,7 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
     }
 
     "Responds with NOT FOUND when wrong product is requested" in new VariantFixture {
-      val response = POST(s"v1/products/${ctx.name}/666/archive")
+      val response = DELETE(s"v1/products/${ctx.name}/666")
 
       response.status must === (StatusCodes.NotFound)
       response.error must === (ProductFormNotFoundForContext(666, ctx.id).description)
@@ -344,7 +344,7 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
 
     "Responds with NOT FOUND when wrong context is requested" in new VariantFixture {
       pending
-      val response = POST(s"v1/products/donkeyContext/${product.formId}/archive")
+      val response = DELETE(s"v1/products/donkeyContext/${product.formId}")
 
       response.status must === (StatusCodes.NotFound)
       response.error must === (NotFoundFailure404(ObjectContext, "donkeyContext").description)
