@@ -15,7 +15,7 @@ import * as ProductActions from '../../modules/products/details';
 // components
 import { Dropdown, DropdownItem } from '../dropdown';
 import { PageTitle } from '../section-title';
-import { PrimaryButton } from '../common/buttons';
+import { Button, PrimaryButton } from '../common/buttons';
 import SubNav from './sub-nav';
 import WaitAnimation from '../common/wait-animation';
 
@@ -180,6 +180,13 @@ export class ProductPage extends Component {
         <div className="fc-grid">
           <div className="fc-col-md-1-1">
             {children}
+
+            <Button
+              className="fc-product-details__archive-button"
+              type="button"
+              onClick={this.handleArchive}>
+              Archive Product
+            </Button>
           </div>
         </div>
       </div>
