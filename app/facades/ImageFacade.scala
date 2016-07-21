@@ -10,13 +10,15 @@ import akka.util.ByteString
 import cats.data.Xor
 import cats.implicits._
 import failures.ImageFailures._
+import models.image.Image
+import models.objects.FullObject
 import payloads.ImagePayloads._
 import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
 import responses.AlbumResponses._
 import services.Result
 import services.image.ImageManager._
 import services.objects.ObjectManager
-import utils.JsonFormatters
+import utils.{IlluminateAlgorithm, JsonFormatters}
 import utils.aliases._
 import utils.apis.Apis
 import utils.db._
@@ -42,8 +44,11 @@ object ImageFacade {
             fullPath ← * <~ s"albums/${context.id}/$albumId/$filename"
             url      ← * <~ apis.amazon.uploadFile(fullPath, filePath.toFile)
 
-            payload = ImagePayload(src = url, title = filename.some, alt = filename.some)
-            _           ← * <~ createImagesForAlbum(album.model, Seq(payload), context)
+            existingImages ← * <~ getAlbumImages(album.model.id)
+            payload = existingImages.map(imageToPayload) :+
+              ImagePayload(src = url, title = filename.some, alt = filename.some)
+
+            _           ← * <~ createOrUpdateImagesForAlbum(album.model, payload, context)
             albumImages ← * <~ getAlbumImages(album.model.id)
           } yield AlbumResponse.build(album, albumImages)).runTxn()
         }
@@ -64,4 +69,16 @@ object ImageFacade {
       case None           ⇒ Result.failure(ImageFilenameNotFoundInPayload)
     }
   }
+
+  private def imageToPayload(image: FullObject[Image]): ImagePayload = {
+    val form   = image.form.attributes
+    val shadow = image.shadow.attributes
+
+    val src   = IlluminateAlgorithm.get("src", form, shadow).extract[String]
+    val title = IlluminateAlgorithm.get("title", form, shadow).extractOpt[String]
+    val alt   = IlluminateAlgorithm.get("alt", form, shadow).extractOpt[String]
+
+    ImagePayload(Some(image.model.id), src, title, alt)
+  }
+
 }

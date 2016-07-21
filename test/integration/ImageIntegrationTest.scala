@@ -127,7 +127,7 @@ class ImageIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
 
     "PATCH v1/albums/:context/:id" - {
       "Update the album to have another image" in new Fixture {
-        val moreImages = Seq(images, ImagePayload(src = "http://test.it/test.png"))
+        val moreImages = Seq(testPayload, ImagePayload(src = "http://test.it/test.png"))
         val payload    = UpdateAlbumPayload(images = moreImages.some)
 
         val response = PATCH(s"v1/albums/${context.name}/${album.formId}", payload)
@@ -140,14 +140,14 @@ class ImageIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
 
       "saves image order" in new Fixture {
         private val newImageSrc: String = "http://test.it/test.png"
-        val moreImages                  = Seq(images, ImagePayload(src = newImageSrc))
+        val moreImages                  = Seq(testPayload, ImagePayload(src = newImageSrc))
         val payload                     = UpdateAlbumPayload(images = moreImages.some)
 
         val response = PATCH(s"v1/albums/${context.name}/${album.formId}", payload)
         response.status must === (StatusCodes.OK)
         val albumResponse = response.as[AlbumRoot]
 
-        albumResponse.images(0).src must === (images.src)
+        albumResponse.images(0).src must === (testPayload.src)
         albumResponse.images(1).src must === (newImageSrc)
 
         val response2 = PATCH(s"v1/albums/${context.name}/${album.formId}",
@@ -155,7 +155,7 @@ class ImageIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
         response2.status must === (StatusCodes.OK)
         val albumResponse2 = response2.as[AlbumRoot]
         albumResponse2.images(0).src must === (newImageSrc)
-        albumResponse2.images(1).src must === (images.src)
+        albumResponse2.images(1).src must === (testPayload.src)
       }
 
       "Updates the `position` parameter" in new Fixture {
@@ -170,7 +170,7 @@ class ImageIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
 
       "Update the album fails on image id duplications" in new Fixture {
         val moreImages =
-          Seq(images, ImagePayload(src = "http://test.it/test.png")).map(_.copy(id = Some(1)))
+          Seq(testPayload, ImagePayload(src = "http://test.it/test.png")).map(_.copy(id = Some(1)))
         val payload = UpdateAlbumPayload(images = moreImages.some)
 
         val response = PATCH(s"v1/albums/${context.name}/${album.formId}", payload)
@@ -187,7 +187,7 @@ class ImageIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
           image.title.value must === ("lorem.png")
         }
 
-        val payload = UpdateAlbumPayload(name = "Name 2.0".some, images = Some(Seq(images)))
+        val payload = UpdateAlbumPayload(name = "Name 2.0".some, images = Some(Seq(testPayload)))
 
         val response1 = PATCH(s"v1/albums/${context.name}/${album.formId}", payload)
         response1.status must === (StatusCodes.OK)
@@ -325,6 +325,10 @@ class ImageIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
         val image = Paths.get("test/resources/foxy.jpg")
         image.toFile.exists mustBe true
 
+        val updatedAlbumImages = ImageManager
+          .createOrUpdateImagesForAlbum(album, Seq(testPayload, testPayload), context)
+          .gimme
+
         val bodyPart =
           Multipart.FormData.BodyPart.fromPath(name = "upload-file",
                                                contentType = MediaTypes.`application/octet-stream`,
@@ -338,11 +342,14 @@ class ImageIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
         response.status must === (StatusCodes.OK)
         val responseAlbum = response.as[AlbumRoot]
 
-        responseAlbum.images.filter { image ⇒
-          image.src == "amazon-image-url" &&
-          image.title == "foxy.jpg".some &&
-          image.alt == "foxy.jpg".some
-        } must have size 1
+        responseAlbum.images.size must === (updatedAlbumImages.size + 1)
+
+        val uploadedImage = responseAlbum.images.last
+
+        uploadedImage.src must === ("amazon-image-url")
+        uploadedImage.title must === ("foxy.jpg".some)
+        uploadedImage.alt must === ("foxy.jpg".some)
+
       }
     }
   }
@@ -353,7 +360,7 @@ class ImageIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
 
     private val imageJson =
       ("src" → "http://lorem.png") ~ ("title" → "lorem.png") ~ ("alt" → "Lorem Ipsum")
-    val images = imageJson.extract[ImagePayload]
+    val testPayload = imageJson.extract[ImagePayload]
 
     val albumFormAttrs   = "name" → "Sample Album"
     val albumShadowAttrs = createShadowAttr("name", "string")
@@ -361,7 +368,7 @@ class ImageIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
     val form   = ObjectForm(kind = Album.kind, attributes = albumFormAttrs)
     val shadow = ObjectShadow(attributes = albumShadowAttrs)
 
-    val (context, album) = (for {
+    val (context, album, albumImages) = (for {
       storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
       context ← * <~ ObjectContexts
                  .filterByName(SimpleContext.default)
@@ -372,8 +379,8 @@ class ImageIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
                        shadowId = ins.shadow.id,
                        formId = ins.form.id,
                        commitId = ins.commit.id))
-      _ ← * <~ ImageManager.createImagesForAlbum(album, Seq(images), context)
-    } yield (context, album)).gimme
+      albumImages ← * <~ ImageManager.createImagesForAlbum(album, Seq(testPayload), context)
+    } yield (context, album, albumImages)).gimme
   }
 
   trait ProductFixture extends Fixture {
