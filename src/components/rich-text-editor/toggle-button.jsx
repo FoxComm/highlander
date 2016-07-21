@@ -2,27 +2,29 @@
  * @flow
  */
 
-import React, { Component, Element, PropTypes } from 'react';
+import React, { Component, Element } from 'react';
 import classNames from 'classnames';
+import { autobind } from 'core-decorators';
 
 type Props = {
   isActive: boolean,
   labelIcon: string,
-  onClick: (style: string) => void,
-  style: string,
+  onClick: (value: any) => void,
+  value: any,
 };
 
-function stopPropagation(event: Object) {
+function stop(event: Object) {
   event.preventDefault();
   event.stopPropagation();
 }
 
-export default class StyleButton extends Component<void, Props, void> {
+export default class ToggleButton extends Component {
   props: Props;
 
-  handleClick(event: Object) {
-    stopPropagation(event);
-    this.props.onClick(this.props.style);
+  @autobind
+  handleClick(event: SyntheticEvent) {
+    stop(event);
+    this.props.onClick(this.props.value);
   }
 
   render() {
@@ -33,9 +35,9 @@ export default class StyleButton extends Component<void, Props, void> {
     return (
       <button
         className={className}
-        onClick={this.handleClick.bind(this)}
-        onMouseDown={stopPropagation}
-        onMouseUp={stopPropagation}>
+        onClick={this.handleClick}
+        onMouseDown={stop}
+        onMouseUp={stop}>
         <i className={this.props.labelIcon} />
       </button>
     );

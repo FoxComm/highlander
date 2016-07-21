@@ -3,17 +3,19 @@
  */
 
 // libs
+import _ from 'lodash';
 import React, { Component, Element, PropTypes } from 'react';
 import classNames from 'classnames';
 import { autobind } from 'core-decorators';
 import { stateFromHTML } from 'draft-js-import-html';
 import { stateToHTML } from 'draft-js-export-html';
-import _ from 'lodash';
+import { stateFromMarkdown } from 'draft-js-import-markdown';
+import { stateToMarkdown } from 'draft-js-export-markdown';
 
 // components
 import { ContentBlock, ContentState, Editor, EditorState, RichUtils } from 'draft-js';
-import { Dropdown, DropdownItem } from '../dropdown';
-import StyleButton from './style-button';
+import { Dropdown } from '../dropdown';
+import ToggleButton from './toggle-button';
 
 type Props = {
   label?: string,
@@ -22,40 +24,90 @@ type Props = {
   className?: string,
 };
 
-type State = { editorState: Object };
-type Style = { label: string, style: string };
+type State = {
+  editorState: Object,
+  contentType: string,
+  richMode: boolean;
+};
+type ButtonData = { label: string, value: string };
 
 const headerStyles = [
-  { label: 'H1', style: 'header-one' },
-  { label: 'H2', style: 'header-two' },
-  { label: 'H3', style: 'header-three' },
-  { label: 'H4', style: 'header-four' },
-  { label: 'H5', style: 'header-five' },
-  { label: 'H6', style: 'header-six' },
+  { label: 'H1', value: 'header-one' },
+  { label: 'H2', value: 'header-two' },
+  { label: 'H3', value: 'header-three' },
+  { label: 'H4', value: 'header-four' },
+  { label: 'H5', value: 'header-five' },
+  { label: 'H6', value: 'header-six' },
 ];
 
 const listStyles = [
-  { label: 'icon-bullets', style: 'unordered-list-item' },
-  { label: 'icon-numbers', style: 'ordered-list-item' },
+  { label: 'icon-bullets', value: 'unordered-list-item' },
+  { label: 'icon-numbers', value: 'ordered-list-item' },
 ];
 
 const inlineStyles = [
-  { label: 'icon-bold', style: 'BOLD' },
-  { label: 'icon-italic', style: 'ITALIC' },
-  { label: 'icon-underline', style: 'UNDERLINE' },
+  { label: 'icon-bold', value: 'BOLD' },
+  { label: 'icon-italic', value: 'ITALIC' },
+  { label: 'icon-underline', value: 'UNDERLINE' },
 ];
 
-function stopPropagation(event: Object) {
-  event.preventDefault();
-  event.stopPropagation();
+const controlButtons = [
+  { label: 'icon-html', value: 'html' },
+  { label: 'icon-markdown', value: 'markdown' },
+];
+
+function stateFromPlainText(text: string, type: ?string): ContentState {
+  switch (type) {
+    case 'html':
+      return stateFromHTML(text);
+    case 'markdown':
+      return stateFromMarkdown(text);
+    default:
+      return ContentState.createFromText(text);
+  }
 }
 
-export default class RichTextEditor extends Component<void, Props, State> {
+function stateToPlainText(state: ContentState, type: ?string): string {
+  switch (type) {
+    case 'html':
+      return stateToHTML(state);
+    case 'markdown':
+      return stateToMarkdown(state);
+    default:
+      return state.getPlainText('\n');
+  }
+}
+
+export default class RichTextEditor extends Component {
   props: Props;
 
   state: State = {
     editorState: this.valueToEditorState(this.props.value),
+    contentType: 'html',
+    richMode: true,
   };
+
+  stateFromPlainText = stateFromPlainText;
+  stateToPlainText = stateToPlainText;
+
+  setDisplayProps(contentType: string, richMode: boolean): void {
+    const contentState: ContentState = this.state.editorState.getCurrentContent();
+    let newContent: ContentState = contentState;
+
+    if (this.state.richMode != richMode) {
+      if (richMode) {
+        newContent = stateFromPlainText(stateToPlainText(contentState), this.state.contentType);
+      } else {
+        newContent = stateFromPlainText(stateToPlainText(contentState, contentType));
+      }
+    }
+
+    this.setState({
+      contentType,
+      richMode,
+      editorState: EditorState.createWithContent(newContent),
+    });
+  }
 
   valueToEditorState(value: ?string): any {
     return value ? EditorState.createWithContent(stateFromHTML(value)) : EditorState.createEmpty();
@@ -69,7 +121,9 @@ export default class RichTextEditor extends Component<void, Props, State> {
     }
   }
 
-  get headerButtons(): Element {
+  get headerButtons(): ?Element {
+    if (!this.state.richMode) return null;
+
     const { editorState } = this.state;
     const selection = editorState.getSelection();
     const blockType = editorState
@@ -78,7 +132,7 @@ export default class RichTextEditor extends Component<void, Props, State> {
       .getType();
 
     return (
-      <div className="fc-rich-text-editor__command-set">
+      <div className="fc-rich-text-editor__command-set" key="header-buttons">
         <Dropdown
           className="fc-rich-text-editor__command-headers"
           placeholder={<i className="icon-size" />}
@@ -90,7 +144,9 @@ export default class RichTextEditor extends Component<void, Props, State> {
     );
   }
 
-  get listButtons(): Element {
+  get listButtons(): ?Element {
+    if (!this.state.richMode) return null;
+
     const { editorState } = this.state;
     const selection = editorState.getSelection();
     const blockType = editorState
@@ -99,14 +155,16 @@ export default class RichTextEditor extends Component<void, Props, State> {
       .getType();
 
 
-    const isActive = style => style == blockType;
-    return this.renderStyleButtons(listStyles, isActive, this.handleBlockTypeChange);
+    const isActive = value => value == blockType;
+    return this.renderToggleButtons(listStyles, isActive, this.handleBlockTypeChange);
   }
 
-  get styleButtons(): Element {
+  get styleButtons(): ?Element {
+    if (!this.state.richMode) return null;
+
     const currentStyle = this.state.editorState.getCurrentInlineStyle();
-    const isActive = style => currentStyle.has(style);
-    return this.renderStyleButtons(inlineStyles, isActive, this.handleStyleClick);
+    const isActive = value => currentStyle.has(value);
+    return this.renderToggleButtons(inlineStyles, isActive, this.handleStyleClick);
   }
 
   blockStyleFn(contentBlock: ContentBlock) {
@@ -117,6 +175,17 @@ export default class RichTextEditor extends Component<void, Props, State> {
       case 'unordered-list-item':
         return 'fc-rich-text-editor__ul-block-style';
     }
+  }
+
+  get controlButtons(): Element {
+    const isActive = value => value == this.state.contentType && !this.state.richMode;
+    const buttons = _.filter(controlButtons, button => {
+      return this.state.richMode || button.value == this.state.contentType
+    });
+
+    return this.renderToggleButtons(buttons, isActive, contentType => {
+      this.setDisplayProps(contentType, !this.state.richMode);
+    });
   }
 
   @autobind
@@ -134,11 +203,22 @@ export default class RichTextEditor extends Component<void, Props, State> {
     this.setState({ editorState });
   }
 
+  get htmlContent(): string {
+    const contentState: ContentState = this.state.editorState.getCurrentContent();
+    if (this.state.contentType != 'html' && !this.state.richMode) {
+      return stateToHTML(stateFromPlainText(stateToPlainText(contentState), this.state.contentType));
+    }
+
+    if (this.state.richMode) {
+      return stateToHTML(contentState);
+    } else {
+      return stateToPlainText(contentState);
+    }
+  }
+
   @autobind
   handleBlur() {
-    const contentState: ContentState = this.state.editorState.getCurrentContent();
-    const rawHTML: string = stateToHTML(contentState);
-    this.props.onChange(rawHTML);
+    this.props.onChange(this.htmlContent);
   }
 
   @autobind
@@ -152,16 +232,16 @@ export default class RichTextEditor extends Component<void, Props, State> {
     return false;
   }
 
-  renderStyleButtons(styles: Array<Style>,
-                     isActive: (v: string) => boolean,
-                     onClick: (v: string) => void): Element {
-    const buttons = styles.map(type => {
+  renderToggleButtons(buttonsData: Array<ButtonData>,
+                      isActive: (v: string) => boolean,
+                      onClick: (v: any) => void): Element {
+    const buttons = buttonsData.map(type => {
       return (
-        <StyleButton
-          isActive={isActive(type.style)}
+        <ToggleButton
+          isActive={isActive(type.value)}
           labelIcon={type.label}
           onClick={onClick}
-          style={type.style}
+          value={type.value}
           key={type.label}
         />
       );
@@ -171,7 +251,11 @@ export default class RichTextEditor extends Component<void, Props, State> {
   }
 
   shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
-    return this.state.editorState != nextState.editorState;
+    return (
+      this.state.editorState != nextState.editorState ||
+        this.state.contentType != nextState.contentType ||
+        this.state.richMode != nextState.richMode
+    );
   }
 
   render(): Element {
@@ -184,6 +268,7 @@ export default class RichTextEditor extends Component<void, Props, State> {
           {this.headerButtons}
           {this.styleButtons}
           {this.listButtons}
+          {this.controlButtons}
         </div>
         <div className="fc-rich-text-editor__content">
           <Editor
