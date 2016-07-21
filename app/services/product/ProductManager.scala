@@ -109,7 +109,7 @@ object ProductManager {
                       .findByLeftAndType(oldProduct.shadow.id, ObjectLink.ProductVariant)
                       .result
 
-      hasVariants = variantLinks.nonEmpty || payload.variants.isDefined
+      hasVariants = variantLinks.nonEmpty || payload.variants.exists(_.nonEmpty)
 
       deleted ← * <~ (if (skuLinks.nonEmpty && hasVariants)
                         ProductSkuLinks
@@ -117,7 +117,7 @@ object ProductManager {
                           .deleteAll(
                               DbResultT.unit,
                               DbResultT.failure(new GeneralFailure(
-                                      s"Cannot delete PproductSku links for product ${oldProduct.model.id}")))
+                                      s"Cannot delete ProductSku links for product ${oldProduct.model.id}")))
                       else DbResultT.unit)
 
       updatedSkus ← * <~ payloadSkus.map(sku ⇒
