@@ -25,7 +25,6 @@ export default class ToggleButton extends Component {
 
   @autobind
   handleClick(event: SyntheticEvent) {
-    stop(event);
     this.props.onClick(this.props.value);
   }
 
@@ -36,6 +35,7 @@ export default class ToggleButton extends Component {
 
     return (
       <button
+        type="button"
         title={this.props.title}
         className={className}
         onClick={this.handleClick}
