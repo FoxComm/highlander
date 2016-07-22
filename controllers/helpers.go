@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/gin-gonic/gin"
-
 	"github.com/FoxComm/middlewarehouse/common/failures"
+
+	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 )
 
