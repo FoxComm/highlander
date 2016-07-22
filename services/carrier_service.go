@@ -1,7 +1,6 @@
 package services
 
 import (
-	"github.com/FoxComm/middlewarehouse/api/payloads"
 	"github.com/FoxComm/middlewarehouse/models"
 	"github.com/jinzhu/gorm"
 )
@@ -13,8 +12,8 @@ type carrierService struct {
 type ICarrierService interface {
 	GetCarriers() ([]*models.Carrier, error)
 	GetCarrierByID(id uint) (*models.Carrier, error)
-	CreateCarrier(payload *payloads.Carrier) (uint, error)
-	UpdateCarrier(id uint, payload *payloads.Carrier) error
+	CreateCarrier(carrier *models.Carrier) (uint, error)
+	UpdateCarrier(carrier *models.Carrier) error
 	DeleteCarrier(id uint) error
 }
 
@@ -45,19 +44,13 @@ func (service *carrierService) GetCarrierByID(id uint) (*models.Carrier, error) 
 	return &carrier, nil
 }
 
-func (service *carrierService) CreateCarrier(payload *payloads.Carrier) (uint, error) {
-	carrier := models.NewCarrierFromPayload(payload)
-
+func (service *carrierService) CreateCarrier(carrier *models.Carrier) (uint, error) {
 	err := service.db.Create(carrier).Error
 
 	return carrier.ID, err
 }
 
-func (service *carrierService) UpdateCarrier(id uint, payload *payloads.Carrier) error {
-
-	carrier := models.NewCarrierFromPayload(payload)
-	carrier.ID = id
-
+func (service *carrierService) UpdateCarrier(carrier *models.Carrier) error {
 	return service.db.Model(&carrier).Updates(carrier).Error
 }
 

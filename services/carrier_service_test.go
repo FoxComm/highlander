@@ -3,7 +3,6 @@ package services
 import (
 	"testing"
 
-	"github.com/FoxComm/middlewarehouse/api/payloads"
 	"github.com/FoxComm/middlewarehouse/common/db/config"
 	"github.com/FoxComm/middlewarehouse/common/db/tasks"
 	"github.com/FoxComm/middlewarehouse/models"
@@ -36,10 +35,16 @@ func (suite *CarrierServiceTestSuite) SetupTest() {
 
 func (suite *CarrierServiceTestSuite) TestGetCarriers() {
 	//arrange
-	carrier1 := &payloads.Carrier{"UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"}
-	CreateCarrier(carrier1)
-	carrier2 := &payloads.Carrier{"DHL", "http://www.dhl.com/en/express/tracking.shtml?AWB=$number&brand=DHL"}
-	CreateCarrier(carrier2)
+	carrier1 := &models.Carrier{
+		Name:             "UPS",
+		TrackingTemplate: "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number",
+	}
+	suite.service.CreateCarrier(carrier1)
+	carrier2 := &models.Carrier{
+		Name:             "DHL",
+		TrackingTemplate: "http://www.dhl.com/en/express/tracking.shtml?AWB=$number&brand=DHL",
+	}
+	suite.service.CreateCarrier(carrier2)
 
 	//act
 	carriers, err := suite.service.GetCarriers()
@@ -56,9 +61,15 @@ func (suite *CarrierServiceTestSuite) TestGetCarriers() {
 
 func (suite *CarrierServiceTestSuite) TestGetCarrierById() {
 	//arrange
-	carrier1 := &payloads.Carrier{"UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"}
+	carrier1 := &models.Carrier{
+		Name:             "UPS",
+		TrackingTemplate: "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number",
+	}
 	suite.service.CreateCarrier(carrier1)
-	carrier2 := &payloads.Carrier{"DHL", "http://www.dhl.com/en/express/tracking.shtml?AWB=$number&brand=DHL"}
+	carrier2 := &models.Carrier{
+		Name:             "DHL",
+		TrackingTemplate: "http://www.dhl.com/en/express/tracking.shtml?AWB=$number&brand=DHL",
+	}
 	suite.service.CreateCarrier(carrier2)
 	carriers, err := GetCarriers()
 
@@ -74,10 +85,10 @@ func (suite *CarrierServiceTestSuite) TestGetCarrierById() {
 func (suite *CarrierServiceTestSuite) TestCreaterCarrier() {
 	//arrange
 	name, trackingTemplate := "UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"
-	payload := &payloads.Carrier{name, trackingTemplate}
+	model := &models.Carrier{Name: name, TrackingTemplate: trackingTemplate}
 
 	//act
-	id, err := suite.service.CreateCarrier(payload)
+	id, err := suite.service.CreateCarrier(model)
 
 	//assert
 	assert.Nil(suite.T(), err)
@@ -90,10 +101,10 @@ func (suite *CarrierServiceTestSuite) TestCreaterCarrier() {
 func (suite *CarrierServiceTestSuite) TestUpdateCarrier() {
 	//arrange
 	name, newName, trackingTemplate := "DHL", "UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"
-	id, _ := suite.service.CreateCarrier(&payloads.Carrier{name, trackingTemplate})
+	id, _ := suite.service.CreateCarrier(&models.Carrier{Name: name, TrackingTemplate: trackingTemplate})
 
 	//act
-	err := suite.service.UpdateCarrier(id, &payloads.Carrier{newName, trackingTemplate})
+	err := suite.service.UpdateCarrier(&models.Carrier{ID: id, Name: newName, TrackingTemplate: trackingTemplate})
 
 	//assert
 	assert.Nil(suite.T(), err)
@@ -104,9 +115,15 @@ func (suite *CarrierServiceTestSuite) TestUpdateCarrier() {
 
 func (suite *CarrierServiceTestSuite) TestDeleteCarrier() {
 	//arrange
-	carrier1 := &payloads.Carrier{"UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"}
+	carrier1 := &models.Carrier{
+		Name:             "UPS",
+		TrackingTemplate: "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number",
+	}
 	suite.service.CreateCarrier(carrier1)
-	carrier2 := &payloads.Carrier{"DHL", "http://www.dhl.com/en/express/tracking.shtml?AWB=$number&brand=DHL"}
+	carrier2 := &models.Carrier{
+		Name:             "DHL",
+		TrackingTemplate: "http://www.dhl.com/en/express/tracking.shtml?AWB=$number&brand=DHL",
+	}
 	suite.service.CreateCarrier(carrier2)
 	carriers, err := suite.service.GetCarriers()
 
