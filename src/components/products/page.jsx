@@ -42,7 +42,8 @@ type Props = {
     isUpdating: boolean,
     product: ?Product,
     err: ?Object,
-  }
+  },
+  selectContextAvailable: boolean,
 };
 
 type State = {
@@ -61,6 +62,10 @@ const SELECT_CONTEXT = [
  */
 export class ProductPage extends Component {
   props: Props;
+
+  static defaultProps = {
+    selectContextAvailable: false,
+  };
 
   state: State = {
     product: this.props.products.product,
@@ -104,10 +109,10 @@ export class ProductPage extends Component {
 
     return (
       <div className="fc-product-details__title-actions">
-        <Dropdown onChange={this.handleContextChange}
+        {this.props.selectContextAvailable && <Dropdown onChange={this.handleContextChange}
                   value={this.props.params.context}
                   items={SELECT_CONTEXT}
-        />
+        />}
         <PrimaryButton
           className="fc-product-details__save-button"
           type="submit"
