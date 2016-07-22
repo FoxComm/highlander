@@ -1,12 +1,15 @@
 package responses
 
+import "github.com/FoxComm/middlewarehouse/models"
+
 type skuCounts struct {
-	OnHand      int `json:"onHand"`
-	OnHold      int `json:"onHold"`
-	Reserved    int `json:"reserved"`
-	SafetyStock int `json:"safetyStock"`
-	AFS         int `json:"afs"`
-	AFSCost     int `json:"afsCost"`
+	SKU         string `json:"sku"`
+	OnHand      int    `json:"onHand"`
+	OnHold      int    `json:"onHold"`
+	Reserved    int    `json:"reserved"`
+	SafetyStock int    `json:"safetyStock"`
+	AFS         int    `json:"afs"`
+	AFSCost     int    `json:"afsCost"`
 }
 
 type SKUSummary struct {
@@ -14,21 +17,20 @@ type SKUSummary struct {
 	Counts    skuCounts `json:"counts"`
 }
 
-func NewSKUSummary() *SKUSummary {
-	// TODO: This is just a mock, make the values real at some point in the future.
-	sc := skuCounts{
-		OnHand:      10639,
-		OnHold:      663,
-		Reserved:    52,
-		SafetyStock: 1,
-		AFS:         9923,
-		AFSCost:     34730500,
+func NewSKUSummaryFromModel(sku string, summary *models.StockItemSummary) *SKUSummary {
+	return &SKUSummary{
+		Warehouse{
+			ID:   1,
+			Name: "mocked",
+		},
+		skuCounts{
+			SKU:         sku,
+			OnHand:      summary.OnHand,
+			OnHold:      summary.OnHold,
+			Reserved:    summary.Reserved,
+			SafetyStock: 0,
+			AFS:         summary.OnHand - summary.OnHold - summary.Reserved,
+			AFSCost:     0,
+		},
 	}
-
-	wh := Warehouse{
-		ID:   1,
-		Name: "default",
-	}
-
-	return &SKUSummary{Warehouse: wh, Counts: sc}
 }

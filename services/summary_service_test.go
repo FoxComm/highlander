@@ -12,18 +12,18 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-type SummaryManagerTestSuite struct {
+type summaryServiceTestSuite struct {
 	suite.Suite
 	service  ISummaryService
 	itemResp *models.StockItem
 	db       *gorm.DB
 }
 
-func TestSummaryManagerSuite(t *testing.T) {
-	suite.Run(t, new(SummaryManagerTestSuite))
+func TestSummaryServiceSuite(t *testing.T) {
+	suite.Run(t, new(summaryServiceTestSuite))
 }
 
-func (suite *SummaryManagerTestSuite) SetupTest() {
+func (suite *summaryServiceTestSuite) SetupTest() {
 	var err error
 	suite.db, err = config.DefaultConnection()
 	assert.Nil(suite.T(), err)
@@ -42,7 +42,7 @@ func (suite *SummaryManagerTestSuite) SetupTest() {
 	assert.Nil(suite.T(), err)
 }
 
-func (suite *SummaryManagerTestSuite) TestIncrementOnHand() {
+func (suite *summaryServiceTestSuite) TestIncrementOnHand() {
 	err := suite.service.UpdateStockItemSummary(suite.itemResp.ID, 5, statusChange{to: "onHand"}, nil)
 	assert.Nil(suite.T(), err)
 
@@ -53,7 +53,7 @@ func (suite *SummaryManagerTestSuite) TestIncrementOnHand() {
 	}
 }
 
-func (suite *SummaryManagerTestSuite) TestIncrementOnHold() {
+func (suite *summaryServiceTestSuite) TestIncrementOnHold() {
 	err := suite.service.UpdateStockItemSummary(suite.itemResp.ID, 5, statusChange{to: "onHold"}, nil)
 	assert.Nil(suite.T(), err)
 
@@ -64,7 +64,7 @@ func (suite *SummaryManagerTestSuite) TestIncrementOnHold() {
 	}
 }
 
-func (suite *SummaryManagerTestSuite) TestIncrementReserved() {
+func (suite *summaryServiceTestSuite) TestIncrementReserved() {
 	err := suite.service.UpdateStockItemSummary(suite.itemResp.ID, 5, statusChange{to: "reserved"}, nil)
 	assert.Nil(suite.T(), err)
 
@@ -75,7 +75,7 @@ func (suite *SummaryManagerTestSuite) TestIncrementReserved() {
 	}
 }
 
-func (suite *SummaryManagerTestSuite) TestStatusTransition() {
+func (suite *summaryServiceTestSuite) TestStatusTransition() {
 	suite.service.UpdateStockItemSummary(suite.itemResp.ID, 5, statusChange{to: "onHold"}, nil)
 
 	summary := models.StockItemSummary{}
@@ -97,4 +97,26 @@ func (suite *SummaryManagerTestSuite) TestStatusTransition() {
 	assert.Equal(suite.T(), 1, summary.OnHand)
 	assert.Equal(suite.T(), 3, summary.OnHold)
 	assert.Equal(suite.T(), 1, summary.Reserved)
+}
+
+func (suite *summaryServiceTestSuite) TestGetSummaryById() {
+	summary, err := suite.service.GetSummaryBySKU(suite.itemResp.SKU)
+	assert.Nil(suite.T(), err)
+
+	assert.NotNil(suite.T(), summary)
+	assert.Equal(suite.T(), 0, summary.OnHand)
+}
+
+func (suite *summaryServiceTestSuite) TestSummaryByIdNotFoundSKU() {
+	_, err := suite.service.GetSummaryBySKU("NO-SKU")
+	assert.NotNil(suite.T(), err, "There should be an error as entity should not be found")
+}
+
+func (suite *summaryServiceTestSuite) TestGetSummaryByIdNotEmpty() {
+	onHandCount := 5
+	err := suite.service.UpdateStockItemSummary(suite.itemResp.ID, onHandCount, statusChange{to: "onHand"}, nil)
+	assert.Nil(suite.T(), err)
+
+	summary, err := suite.service.GetSummaryBySKU(suite.itemResp.SKU)
+	assert.Equal(suite.T(), onHandCount, summary.OnHand)
 }

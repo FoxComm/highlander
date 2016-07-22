@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/FoxComm/middlewarehouse/api/payloads"
 	"github.com/FoxComm/middlewarehouse/api/responses"
@@ -48,11 +47,8 @@ func (controller *stockItemController) GetStockItems() gin.HandlerFunc {
 
 func (controller *stockItemController) GetStockItemById() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		idStr := context.Params.ByName("id")
-
-		id, err := strconv.ParseUint(idStr, 10, 64)
-		if err != nil {
-			context.AbortWithError(http.StatusBadRequest, err)
+		id, fail := paramUint(context, "id")
+		if fail != nil {
 			return
 		}
 
@@ -91,9 +87,8 @@ func (controller *stockItemController) CreateStockItem() gin.HandlerFunc {
 
 func (controller *stockItemController) IncrementStockItemUnits() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		id, err := strconv.ParseUint(context.Params.ByName("id"), 10, 64)
-		if err != nil {
-			context.AbortWithError(http.StatusBadRequest, err)
+		id, fail := paramUint(context, "id")
+		if fail != nil {
 			return
 		}
 
@@ -120,9 +115,8 @@ func (controller *stockItemController) IncrementStockItemUnits() gin.HandlerFunc
 
 func (controller *stockItemController) DecrementStockItemUnits() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		id, err := strconv.ParseUint(context.Params.ByName("id"), 10, 64)
-		if err != nil {
-			context.AbortWithError(http.StatusBadRequest, err)
+		id, fail := paramUint(context, "id")
+		if fail != nil {
 			return
 		}
 
@@ -136,7 +130,7 @@ func (controller *stockItemController) DecrementStockItemUnits() gin.HandlerFunc
 			return
 		}
 
-		err = controller.service.DecrementStockItemUnits(uint(id), payload.Qty)
+		err := controller.service.DecrementStockItemUnits(uint(id), payload.Qty)
 		if err != nil {
 			handleServiceError(context, err)
 			return
