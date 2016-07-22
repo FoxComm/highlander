@@ -29,7 +29,7 @@ type State = {
   contentType: string,
   richMode: boolean;
 };
-type ButtonData = { label: string, value: string };
+type ButtonData = { label: string, value: string, title?: string };
 
 const headerStyles = [
   { label: 'H1', value: 'header-one' },
@@ -41,19 +41,19 @@ const headerStyles = [
 ];
 
 const listStyles = [
-  { label: 'icon-bullets', value: 'unordered-list-item' },
-  { label: 'icon-numbers', value: 'ordered-list-item' },
+  { label: 'icon-bullets', value: 'unordered-list-item', title: 'Unordered list' },
+  { label: 'icon-numbers', value: 'ordered-list-item', title: 'Ordered list' },
 ];
 
 const inlineStyles = [
-  { label: 'icon-bold', value: 'BOLD' },
-  { label: 'icon-italic', value: 'ITALIC' },
-  { label: 'icon-underline', value: 'UNDERLINE' },
+  { label: 'icon-bold', value: 'BOLD', title: 'Bold' },
+  { label: 'icon-italic', value: 'ITALIC', title: 'Italic' },
+  { label: 'icon-underline', value: 'UNDERLINE', title: 'Underline' },
 ];
 
 const controlButtons = [
-  { label: 'icon-html', value: 'html' },
-  { label: 'icon-markdown', value: 'markdown' },
+  { label: 'icon-markdown', value: 'markdown', title: 'Markdown' },
+  { label: 'icon-html', value: 'html', title: 'HTML' },
 ];
 
 function stateFromPlainText(text: string, type: ?string): ContentState {
@@ -87,9 +87,6 @@ export default class RichTextEditor extends Component {
     richMode: true,
   };
 
-  stateFromPlainText = stateFromPlainText;
-  stateToPlainText = stateToPlainText;
-
   setDisplayProps(contentType: string, richMode: boolean): void {
     const contentState: ContentState = this.state.editorState.getCurrentContent();
     let newContent: ContentState = contentState;
@@ -105,7 +102,7 @@ export default class RichTextEditor extends Component {
     this.setState({
       contentType,
       richMode,
-      editorState: EditorState.createWithContent(newContent),
+      editorState: EditorState.moveFocusToEnd(EditorState.createWithContent(newContent)),
     });
   }
 
@@ -122,8 +119,6 @@ export default class RichTextEditor extends Component {
   }
 
   get headerButtons(): ?Element {
-    if (!this.state.richMode) return null;
-
     const { editorState } = this.state;
     const selection = editorState.getSelection();
     const blockType = editorState
@@ -138,15 +133,13 @@ export default class RichTextEditor extends Component {
           placeholder={<i className="icon-size" />}
           onChange={this.handleBlockTypeChange}
           value={blockType}
-          items={headerStyles.map(t => [t.style, t.label])}
+          items={headerStyles.map(t => [t.value, t.label])}
         />
       </div>
     );
   }
 
   get listButtons(): ?Element {
-    if (!this.state.richMode) return null;
-
     const { editorState } = this.state;
     const selection = editorState.getSelection();
     const blockType = editorState
@@ -160,8 +153,6 @@ export default class RichTextEditor extends Component {
   }
 
   get styleButtons(): ?Element {
-    if (!this.state.richMode) return null;
-
     const currentStyle = this.state.editorState.getCurrentInlineStyle();
     const isActive = value => currentStyle.has(value);
     return this.renderToggleButtons(inlineStyles, isActive, this.handleStyleClick);
@@ -179,13 +170,34 @@ export default class RichTextEditor extends Component {
 
   get controlButtons(): Element {
     const isActive = value => value == this.state.contentType && !this.state.richMode;
-    const buttons = _.filter(controlButtons, button => {
-      return this.state.richMode || button.value == this.state.contentType
-    });
 
-    return this.renderToggleButtons(buttons, isActive, contentType => {
+    return this.renderToggleButtons(controlButtons, isActive, contentType => {
       this.setDisplayProps(contentType, !this.state.richMode);
     });
+  }
+
+  get markdownLink() {
+    return (
+      <a
+        className="fc-rich-text-editor__link"
+        href="http://markdown-guide.readthedocs.io/en/latest/basics.html"
+        target="_blank"
+      >
+        Markdown Cheatsheet
+      </a>
+    );
+  }
+
+  get commandBarContent() {
+    if (this.state.richMode) {
+      return [
+        this.headerButtons,
+        this.styleButtons,
+        this.listButtons,
+      ];
+    } else if (this.state.contentType == 'markdown') {
+      return this.markdownLink;
+    }
   }
 
   @autobind
@@ -238,11 +250,13 @@ export default class RichTextEditor extends Component {
     const buttons = buttonsData.map(type => {
       return (
         <ToggleButton
+          className={`fc-rich-text-editor__btn-${type.value}`}
           isActive={isActive(type.value)}
           labelIcon={type.label}
           onClick={onClick}
           value={type.value}
           key={type.label}
+          title={type.title}
         />
       );
     });
@@ -259,16 +273,26 @@ export default class RichTextEditor extends Component {
   }
 
   render(): Element {
-    const { editorState } = this.state;
+    const { editorState, contentType, richMode } = this.state;
+
+    const className = classNames(
+      'fc-rich-text-editor',
+      this.props.className,
+      `_content-type-${contentType}`, {
+        '_rich-mode': richMode,
+      }
+    );
 
     return (
-      <div className={classNames('fc-rich-text-editor', this.props.className)}>
+      <div className={className}>
         {this.props.label && <div className="fc-rich-text-editor__label">{this.props.label}</div>}
         <div className="fc-rich-text-editor__command-bar">
-          {this.headerButtons}
-          {this.styleButtons}
-          {this.listButtons}
-          {this.controlButtons}
+          <div className="fc-rich-text-editor__main-commands">
+            {this.commandBarContent}
+          </div>
+          <div>
+            {this.controlButtons}
+          </div>
         </div>
         <div className="fc-rich-text-editor__content">
           <Editor

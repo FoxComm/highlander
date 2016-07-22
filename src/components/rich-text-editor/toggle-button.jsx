@@ -7,8 +7,10 @@ import classNames from 'classnames';
 import { autobind } from 'core-decorators';
 
 type Props = {
+  className?: string,
   isActive: boolean,
   labelIcon: string,
+  title?: string,
   onClick: (value: any) => void,
   value: any,
 };
@@ -28,12 +30,13 @@ export default class ToggleButton extends Component {
   }
 
   render() {
-    const className = classNames('fc-rich-text-editor__command-button', {
+    const className = classNames('fc-rich-text-editor__command-button', this.props.className, {
       '_active': this.props.isActive,
     });
 
     return (
       <button
+        title={this.props.title}
         className={className}
         onClick={this.handleClick}
         onMouseDown={stop}
