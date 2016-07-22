@@ -3,7 +3,6 @@ package services
 import (
 	"math/rand"
 	"testing"
-	"time"
 
 	"github.com/FoxComm/middlewarehouse/common/db/config"
 	"github.com/FoxComm/middlewarehouse/common/db/tasks"
@@ -32,9 +31,6 @@ func (suite *InventoryServiceTestSuite) createStockItem(sku string, qty int) (*m
 	if err != nil {
 		return nil, err
 	}
-
-	// hack to wait for summary create goroutine to finish
-	time.Sleep(time.Millisecond * 10)
 
 	if qty > 0 {
 		units := []*models.StockItemUnit{}
@@ -186,9 +182,6 @@ func (suite *InventoryServiceTestSuite) TestSingleSKUReservation() {
 	}
 
 	// check if StockItemSummary.Reserved got updated for updated StockItem
-	// hack to wait for summary update goroutine to finish
-	time.Sleep(time.Millisecond * 10)
-
 	var summary models.StockItemSummary
 	suite.db.Where("stock_item_id = ?", resp.ID).First(&summary)
 	assert.Equal(suite.T(), len(skus), summary.OnHold)
@@ -277,9 +270,6 @@ func (suite *InventoryServiceTestSuite) TestMultipleSKUReservationSummary() {
 
 	suite.service.ReserveItems(refNum, skus)
 
-	// hack to wait for summary update goroutine to finish
-	time.Sleep(time.Millisecond * 10)
-
 	var summary1 models.StockItemSummary
 	suite.db.Where("stock_item_id = ?", resp1.ID).First(&summary1)
 	assert.Equal(suite.T(), skus[sku1], summary1.OnHold)
@@ -297,9 +287,6 @@ func (suite *InventoryServiceTestSuite) TestSubsequentSKUReservationSummary() {
 
 	suite.service.ReserveItems("BR10001", skus)
 
-	// hack to wait for summary update goroutine to finish
-	time.Sleep(time.Millisecond * 10)
-
 	var summary models.StockItemSummary
 	suite.db.Where("stock_item_id = ?", resp.ID).First(&summary)
 	assert.Equal(suite.T(), skus[sku], summary.OnHold)
@@ -307,9 +294,6 @@ func (suite *InventoryServiceTestSuite) TestSubsequentSKUReservationSummary() {
 	skus[sku] = 5
 
 	suite.service.ReserveItems("BR10002", skus)
-
-	// hack to wait for summary update goroutine to finish
-	time.Sleep(time.Millisecond * 10)
 
 	suite.db.Where("stock_item_id = ?", resp.ID).First(&summary)
 	assert.Equal(suite.T(), 8, summary.OnHold)
@@ -347,18 +331,12 @@ func (suite *InventoryServiceTestSuite) TestSKUReleaseSummary() {
 	err := suite.createReservation(skus, reservedCount, refNum)
 	assert.Nil(suite.T(), err)
 
-	// hack to wait for summary update goroutine to finish
-	time.Sleep(time.Millisecond * 10)
-
 	var summary models.StockItemSummary
 	suite.db.Last(&summary)
 
 	assert.Equal(suite.T(), reservedCount, summary.OnHold, "One stock item unit should be onHold")
 
 	suite.service.ReleaseItems(refNum)
-
-	// hack to wait for summary update goroutine to finish
-	time.Sleep(time.Millisecond * 10)
 
 	suite.db.First(&summary)
 	assert.Equal(suite.T(), 0, summary.OnHold, "No stock item units should be onHold")

@@ -2,7 +2,6 @@ package services
 
 import (
 	"testing"
-	"time"
 
 	"github.com/FoxComm/middlewarehouse/common/db/config"
 	"github.com/FoxComm/middlewarehouse/common/db/tasks"
@@ -41,13 +40,10 @@ func (suite *SummaryManagerTestSuite) SetupTest() {
 	stockItem := &models.StockItem{StockLocationID: 1, SKU: "TEST-DEFAULT"}
 	suite.itemResp, err = inventoryService.CreateStockItem(stockItem)
 	assert.Nil(suite.T(), err)
-
-	// hack to wait for summary create goroutine to finish
-	time.Sleep(time.Millisecond * 10)
 }
 
 func (suite *SummaryManagerTestSuite) TestIncrementOnHand() {
-	err := suite.service.UpdateStockItemSummary(suite.itemResp.ID, 5, statusChange{to: "onHand"})
+	err := suite.service.UpdateStockItemSummary(suite.itemResp.ID, 5, statusChange{to: "onHand"}, nil)
 	assert.Nil(suite.T(), err)
 
 	summary := models.StockItemSummary{}
@@ -58,7 +54,7 @@ func (suite *SummaryManagerTestSuite) TestIncrementOnHand() {
 }
 
 func (suite *SummaryManagerTestSuite) TestIncrementOnHold() {
-	err := suite.service.UpdateStockItemSummary(suite.itemResp.ID, 5, statusChange{to: "onHold"})
+	err := suite.service.UpdateStockItemSummary(suite.itemResp.ID, 5, statusChange{to: "onHold"}, nil)
 	assert.Nil(suite.T(), err)
 
 	summary := models.StockItemSummary{}
@@ -69,7 +65,7 @@ func (suite *SummaryManagerTestSuite) TestIncrementOnHold() {
 }
 
 func (suite *SummaryManagerTestSuite) TestIncrementReserved() {
-	err := suite.service.UpdateStockItemSummary(suite.itemResp.ID, 5, statusChange{to: "reserved"})
+	err := suite.service.UpdateStockItemSummary(suite.itemResp.ID, 5, statusChange{to: "reserved"}, nil)
 	assert.Nil(suite.T(), err)
 
 	summary := models.StockItemSummary{}
@@ -80,7 +76,7 @@ func (suite *SummaryManagerTestSuite) TestIncrementReserved() {
 }
 
 func (suite *SummaryManagerTestSuite) TestStatusTransition() {
-	suite.service.UpdateStockItemSummary(suite.itemResp.ID, 5, statusChange{to: "onHold"})
+	suite.service.UpdateStockItemSummary(suite.itemResp.ID, 5, statusChange{to: "onHold"}, nil)
 
 	summary := models.StockItemSummary{}
 	suite.db.First(&summary, suite.itemResp.ID)
@@ -88,14 +84,14 @@ func (suite *SummaryManagerTestSuite) TestStatusTransition() {
 	assert.Equal(suite.T(), 5, summary.OnHold)
 	assert.Equal(suite.T(), 0, summary.Reserved)
 
-	suite.service.UpdateStockItemSummary(suite.itemResp.ID, 2, statusChange{from: "onHold", to: "reserved"})
+	suite.service.UpdateStockItemSummary(suite.itemResp.ID, 2, statusChange{from: "onHold", to: "reserved"}, nil)
 
 	suite.db.First(&summary, suite.itemResp.ID)
 	assert.Equal(suite.T(), 0, summary.OnHand)
 	assert.Equal(suite.T(), 3, summary.OnHold)
 	assert.Equal(suite.T(), 2, summary.Reserved)
 
-	suite.service.UpdateStockItemSummary(suite.itemResp.ID, 1, statusChange{from: "reserved", to: "onHand"})
+	suite.service.UpdateStockItemSummary(suite.itemResp.ID, 1, statusChange{from: "reserved", to: "onHand"}, nil)
 
 	suite.db.First(&summary, suite.itemResp.ID)
 	assert.Equal(suite.T(), 1, summary.OnHand)

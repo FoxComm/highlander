@@ -16,15 +16,19 @@ type summaryService struct {
 }
 
 type ISummaryService interface {
-	CreateStockItemSummary(stockItemId uint) error
-	UpdateStockItemSummary(stockItemID uint, qty int, status statusChange) error
+	CreateStockItemSummary(stockItemId uint, db *gorm.DB) error
+	UpdateStockItemSummary(stockItemID uint, qty int, status statusChange, db *gorm.DB) error
 }
 
 func NewSummaryService(db *gorm.DB) ISummaryService {
 	return &summaryService{db}
 }
 
-func (service *summaryService) CreateStockItemSummary(stockItemId uint) error {
+func (service *summaryService) CreateStockItemSummary(stockItemId uint, db *gorm.DB) error {
+	if db == nil {
+		db = service.db
+	}
+
 	summary := models.StockItemSummary{
 		StockItemID: stockItemId,
 		OnHand:      0,
@@ -32,31 +36,31 @@ func (service *summaryService) CreateStockItemSummary(stockItemId uint) error {
 		Reserved:    0,
 	}
 
-	if err := service.db.Create(&summary).Error; err != nil {
+	if err := db.Create(&summary).Error; err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (service *summaryService) UpdateStockItemSummary(stockItemID uint, qty int, status statusChange) error {
-	txn := service.db.Begin()
+func (service *summaryService) UpdateStockItemSummary(stockItemID uint, qty int, status statusChange, db *gorm.DB) error {
+	if db == nil {
+		db = service.db
+	}
 
 	summary := &models.StockItemSummary{}
-	if err := txn.Where("stock_item_id = ?", stockItemID).First(summary).Error; err != nil {
-		txn.Rollback()
+	if err := db.Where("stock_item_id = ?", stockItemID).First(summary).Error; err != nil {
 		return err
 	}
 
 	summary = updateStatus(summary, status.from, -qty)
 	summary = updateStatus(summary, status.to, qty)
 
-	if err := txn.Save(summary).Error; err != nil {
-		txn.Rollback()
+	if err := db.Save(summary).Error; err != nil {
 		return err
 	}
 
-	return txn.Commit().Error
+	return nil
 }
 
 func updateStatus(summary *models.StockItemSummary, status string, qty int) *models.StockItemSummary {

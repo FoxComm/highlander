@@ -50,13 +50,18 @@ func (service *inventoryService) GetStockItemByID(id uint) (*models.StockItem, e
 }
 
 func (service *inventoryService) CreateStockItem(stockItem *models.StockItem) (*models.StockItem, error) {
-	if err := service.db.Create(stockItem).Error; err != nil {
+	txn := service.db.Begin()
+	if err := txn.Create(stockItem).Error; err != nil {
+		txn.Rollback()
 		return nil, err
 	}
 
-	go service.summaryService.CreateStockItemSummary(stockItem.ID)
+	if err := service.summaryService.CreateStockItemSummary(stockItem.ID, txn); err != nil {
+		txn.Rollback()
+		return nil, err
+	}
 
-	return stockItem, nil
+	return stockItem, txn.Commit().Error
 }
 
 func (service *inventoryService) IncrementStockItemUnits(id uint, units []*models.StockItemUnit) error {
@@ -69,13 +74,13 @@ func (service *inventoryService) IncrementStockItemUnits(id uint, units []*model
 		}
 	}
 
-	if err := txn.Commit().Error; err != nil {
+	err := service.summaryService.UpdateStockItemSummary(id, len(units), statusChange{to: "onHand"}, txn)
+	if err != nil {
+		txn.Rollback()
 		return err
 	}
 
-	go service.summaryService.UpdateStockItemSummary(id, len(units), statusChange{to: "onHand"})
-
-	return nil
+	return txn.Commit().Error
 }
 
 func (service *inventoryService) DecrementStockItemUnits(id uint, qty int) error {
@@ -94,13 +99,13 @@ func (service *inventoryService) DecrementStockItemUnits(id uint, qty int) error
 		}
 	}
 
-	if err := txn.Commit().Error; err != nil {
+	err = service.summaryService.UpdateStockItemSummary(id, -1*qty, statusChange{to: "onHand"}, txn)
+	if err != nil {
+		txn.Rollback()
 		return err
 	}
 
-	go service.summaryService.UpdateStockItemSummary(id, -1*qty, statusChange{to: "onHand"})
-
-	return nil
+	return txn.Commit().Error
 }
 
 func (service *inventoryService) ReserveItems(refNum string, skus map[string]int) error {
@@ -143,20 +148,22 @@ func (service *inventoryService) ReserveItems(refNum string, skus map[string]int
 		Status: "onHold",
 	}
 
-	if err := txn.Model(models.StockItemUnit{}).Where("id in (?)", unitsIds).Updates(updateWith).Error; err != nil {
+	err := txn.Model(models.StockItemUnit{}).Where("id in (?)", unitsIds).Updates(updateWith).Error
+	if err != nil {
 		txn.Rollback()
 		return err
 	}
 
-	if err := txn.Commit().Error; err != nil {
-		return err
-	}
-
 	for id, qty := range stockItemsMap {
-		go service.summaryService.UpdateStockItemSummary(id, qty, statusChange{from: "onHand", to: "onHold"})
+		err := service.summaryService.
+			UpdateStockItemSummary(id, qty, statusChange{from: "onHand", to: "onHold"}, txn)
+		if err != nil {
+			txn.Rollback()
+			return err
+		}
 	}
 
-	return nil
+	return txn.Commit().Error
 }
 
 func (service *inventoryService) ReleaseItems(refNum string) error {
@@ -197,15 +204,16 @@ func (service *inventoryService) ReleaseItems(refNum string) error {
 		return err
 	}
 
-	if err := txn.Commit().Error; err != nil {
-		return err
-	}
-
 	for id, qty := range stockItemsMap {
-		go service.summaryService.UpdateStockItemSummary(id, qty, statusChange{from: "onHold", to: "onHand"})
+		err := service.summaryService.
+			UpdateStockItemSummary(id, qty, statusChange{from: "onHold", to: "onHand"}, txn)
+		if err != nil {
+			txn.Rollback()
+			return err
+		}
 	}
 
-	return nil
+	return txn.Commit().Error
 }
 
 func onHandStockItemUnits(db *gorm.DB, stockItemID uint, count int) ([]models.StockItemUnit, error) {
