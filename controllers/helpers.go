@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"fmt"
 	"errors"
+	"fmt"
 	"strconv"
 
 	"github.com/gin-gonic/gin"

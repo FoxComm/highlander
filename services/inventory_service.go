@@ -1,9 +1,9 @@
 package services
 
 import (
-	"fmt"
-	"errors"
 	"database/sql"
+	"errors"
+	"fmt"
 
 	"github.com/FoxComm/middlewarehouse/models"
 
@@ -11,7 +11,7 @@ import (
 )
 
 type inventoryService struct {
-	db *gorm.DB
+	db             *gorm.DB
 	summaryService ISummaryService
 }
 
@@ -98,7 +98,7 @@ func (service *inventoryService) DecrementStockItemUnits(id uint, qty int) error
 		return err
 	}
 
-	go service.summaryService.UpdateStockItemSummary(id, -1 * qty, statusChange{to: "onHand"})
+	go service.summaryService.UpdateStockItemSummary(id, -1*qty, statusChange{to: "onHand"})
 
 	return nil
 }
@@ -173,7 +173,7 @@ func (service *inventoryService) ReleaseItems(refNum string) error {
 	// gorm does not update empty fields when updating with struct, so use map here
 	updateWith := map[string]interface{}{
 		"ref_num": sql.NullString{String: "", Valid: false},
-		"status": "onHand",
+		"status":  "onHand",
 	}
 
 	// extract summary update logic

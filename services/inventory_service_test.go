@@ -1,9 +1,9 @@
 package services
 
 import (
-	"time"
-	"testing"
 	"math/rand"
+	"testing"
+	"time"
 
 	"github.com/FoxComm/middlewarehouse/common/db/config"
 	"github.com/FoxComm/middlewarehouse/common/db/tasks"
@@ -61,7 +61,7 @@ func (suite *InventoryServiceTestSuite) createReservation(skus []string, qty int
 	r := rand.New(rand.NewSource(99))
 
 	for _, sku := range skus {
-		_, err := suite.createStockItem(sku, qty + r.Intn(10))
+		_, err := suite.createStockItem(sku, qty+r.Intn(10))
 
 		if err != nil {
 			return err
@@ -212,17 +212,17 @@ func (suite *InventoryServiceTestSuite) TestMultipleSKUReservation() {
 
 	var units []models.StockItemUnit
 	err = suite.db.
-	Where("ref_num = ?", refNum).
-	Where("stock_item_id = ?", resp1.ID).
-	Find(&units).Error
+		Where("ref_num = ?", refNum).
+		Where("stock_item_id = ?", resp1.ID).
+		Find(&units).Error
 	if assert.Nil(suite.T(), err) {
 		assert.Equal(suite.T(), 5, len(units))
 	}
 
 	err = suite.db.
-	Where("ref_num = ?", refNum).
-	Where("stock_item_id = ?", resp2.ID).
-	Find(&units).Error
+		Where("ref_num = ?", refNum).
+		Where("stock_item_id = ?", resp2.ID).
+		Find(&units).Error
 	if assert.Nil(suite.T(), err) {
 		assert.Equal(suite.T(), skus[sku1], len(units))
 	}

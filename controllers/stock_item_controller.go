@@ -1,13 +1,13 @@
 package controllers
 
 import (
-	"strconv"
 	"net/http"
+	"strconv"
 
-	"github.com/FoxComm/middlewarehouse/api/responses"
 	"github.com/FoxComm/middlewarehouse/api/payloads"
-	"github.com/FoxComm/middlewarehouse/services"
+	"github.com/FoxComm/middlewarehouse/api/responses"
 	"github.com/FoxComm/middlewarehouse/models"
+	"github.com/FoxComm/middlewarehouse/services"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"

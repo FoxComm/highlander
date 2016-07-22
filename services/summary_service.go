@@ -65,12 +65,12 @@ func updateStatus(summary *models.StockItemSummary, status string, qty int) *mod
 	}
 
 	switch status {
-		case "onHand":
-			summary.OnHand += qty
-		case "onHold":
-			summary.OnHold += qty
-		case "reserved":
-			summary.Reserved += qty
+	case "onHand":
+		summary.OnHand += qty
+	case "onHold":
+		summary.OnHold += qty
+	case "reserved":
+		summary.Reserved += qty
 	}
 
 	return summary

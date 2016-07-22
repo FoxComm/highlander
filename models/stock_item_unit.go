@@ -9,10 +9,10 @@ import (
 
 type StockItemUnit struct {
 	gormfox.Base
-	StockItemID   uint
-	RefNum        sql.NullString
-	UnitCost      int
-	Status        string
+	StockItemID uint
+	RefNum      sql.NullString
+	UnitCost    int
+	Status      string
 }
 
 func (siu StockItemUnit) Identifier() uint {
