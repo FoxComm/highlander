@@ -149,13 +149,17 @@ export default class RichTextEditor extends Component {
 
 
     const isActive = value => value == blockType;
-    return this.renderToggleButtons(listStyles, isActive, this.handleBlockTypeChange);
+    return this.renderToggleButtons(listStyles, isActive, this.handleBlockTypeChange, {
+      key: 'list-buttons',
+    });
   }
 
   get styleButtons(): ?Element {
     const currentStyle = this.state.editorState.getCurrentInlineStyle();
     const isActive = value => currentStyle.has(value);
-    return this.renderToggleButtons(inlineStyles, isActive, this.handleStyleClick);
+    return this.renderToggleButtons(inlineStyles, isActive, this.handleStyleClick, {
+      key: 'style-buttons',
+    });
   }
 
   blockStyleFn(contentBlock: ContentBlock) {
@@ -246,7 +250,8 @@ export default class RichTextEditor extends Component {
 
   renderToggleButtons(buttonsData: Array<ButtonData>,
                       isActive: (v: string) => boolean,
-                      onClick: (v: any) => void): Element {
+                      onClick: (v: any) => void,
+                      props: ?Object): Element {
     const buttons = buttonsData.map(type => {
       return (
         <ToggleButton
@@ -261,7 +266,7 @@ export default class RichTextEditor extends Component {
       );
     });
 
-    return <div className="fc-rich-text-editor__command-set">{buttons}</div>;
+    return <div className="fc-rich-text-editor__command-set" {...props}>{buttons}</div>;
   }
 
   shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
