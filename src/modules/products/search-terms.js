@@ -16,12 +16,12 @@ const searchTerms = [
   {
     title: 'Product : Active From',
     type: 'date',
-    term: 'activefrom',
+    term: 'activeFrom',
   },
   {
     title: 'Product : Active To',
     type: 'date',
-    term: 'activeto',
+    term: 'activeTo',
   },
 ];
 
