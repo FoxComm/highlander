@@ -2,6 +2,7 @@ package services
 
 import (
 	"github.com/FoxComm/middlewarehouse/models"
+
 	"github.com/jinzhu/gorm"
 )
 
