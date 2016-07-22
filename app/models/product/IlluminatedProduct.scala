@@ -1,5 +1,7 @@
 package models.product
 
+import java.time.Instant
+
 import models.objects._
 import utils.IlluminateAlgorithm
 import utils.aliases._
@@ -8,7 +10,10 @@ import utils.aliases._
   * An IlluminatedProduct is what you get when you combine the product shadow and
   * the form. 
   */
-case class IlluminatedProduct(id: Int, context: IlluminatedContext, attributes: Json)
+case class IlluminatedProduct(id: Int,
+                              context: IlluminatedContext,
+                              attributes: Json,
+                              archivedAt: Option[Instant])
 
 object IlluminatedProduct {
 
@@ -20,6 +25,7 @@ object IlluminatedProduct {
     IlluminatedProduct(id = form.id, //Products should have a code like skus.
                        context = IlluminatedContext(context.name, context.attributes),
                        attributes =
-                         IlluminateAlgorithm.projectAttributes(form.attributes, shadow.attributes))
+                         IlluminateAlgorithm.projectAttributes(form.attributes, shadow.attributes),
+                       archivedAt = product.archivedAt)
   }
 }

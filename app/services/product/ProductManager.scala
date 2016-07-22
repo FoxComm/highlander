@@ -1,9 +1,13 @@
 package services.product
 
+import java.time.Instant
+
 import cats.data._
 import cats.implicits._
-import failures.{GeneralFailure, Failures, Failure}
+import cats.data.ValidatedNel
+import failures._
 import failures.ProductFailures._
+import models.image.Albums
 import models.inventory._
 import models.objects._
 import models.product._
@@ -136,6 +140,50 @@ object ProductManager {
           if (hasVariants) variantSkus else updatedSkus,
           variantResponses)
   }
+
+  def archiveByContextAndId(
+      productId: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[ProductResponse.Root] =
+    for {
+      productObject ← * <~ mustFindFullProductById(productId)
+
+      archiveResult ← * <~ Products.update(
+                         productObject.model,
+                         productObject.model.copy(archivedAt = Some(Instant.now)))
+
+      albumLinks ← * <~ ProductAlbumLinks.filter(_.leftId === archiveResult.id).result
+      _ ← * <~ albumLinks.map { link ⇒
+           ProductAlbumLinks.deleteById(link.id,
+                                        DbResultT.unit,
+                                        id ⇒ NotFoundFailure400(ProductAlbumLinks, id))
+         }
+      albums   ← * <~ ImageManager.getAlbumsForProduct(productObject.form.id)
+      skuLinks ← * <~ ProductSkuLinks.filter(_.leftId === productObject.model.id).result
+      _ ← * <~ skuLinks.map { link ⇒
+           ProductSkuLinks.deleteById(link.id,
+                                      DbResultT.unit,
+                                      id ⇒ NotFoundFailure400(ProductSkuLink, id))
+         }
+      updatedSkuLinks ← * <~ ProductSkuLinks.filter(_.leftId === archiveResult.id).result
+      skus            ← * <~ updatedSkuLinks.map(link ⇒ SkuManager.mustFindIlluminatedSkuById(link.rightId))
+      variantLinks    ← * <~ ProductVariantLinks.filter(_.leftId === archiveResult.id).result
+      _ ← * <~ variantLinks.map { link ⇒
+           ProductVariantLinks.deleteById(link.id,
+                                          DbResultT.unit,
+                                          id ⇒ NotFoundFailure400(ProductSkuLink, link.id))
+         }
+      updatedVariantLinks ← * <~ ProductVariantLinks.filter(_.leftId === archiveResult.id).result
+      variants ← * <~ updatedVariantLinks.map(link ⇒
+                      VariantManager.mustFindFullVariantWithValuesByShadowId(link.rightId))
+      variantAndSkus ← * <~ getVariantsWithRelatedSkus(variants)
+      (variantSkus, variantResponses) = variantAndSkus
+    } yield
+      ProductResponse.build(
+          product = IlluminatedProduct
+            .illuminate(oc, archiveResult, productObject.form, productObject.shadow),
+          albums = albums,
+          if (variantLinks.nonEmpty) variantSkus else skus,
+          variantResponses
+      )
 
   private def getVariantsWithRelatedSkus(variants: Seq[FullVariant])(
       implicit ec: EC,
