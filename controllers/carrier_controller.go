@@ -55,8 +55,9 @@ func (controller *carrierController) GetCarrierByID() gin.HandlerFunc {
 		}
 
 		//get carrier by id
-		carrier, err := controller.getCarrierByID(context, id)
+		carrier, err := controller.service.GetCarrierByID(id)
 		if err != nil {
+			handleServiceError(context, err)
 			return
 		}
 
@@ -96,16 +97,11 @@ func (controller *carrierController) UpdateCarrier() gin.HandlerFunc {
 			return
 		}
 
-		//check carrier existence
-		if _, err := controller.getCarrierByID(context, id); err != nil {
-			return
-		}
-
 		//try update
 		model := models.NewCarrierFromPayload(payload)
 		model.ID = id
 		if err := controller.service.UpdateCarrier(model); err != nil {
-			context.AbortWithError(http.StatusBadRequest, err)
+			handleServiceError(context, err)
 			return
 		}
 
@@ -120,31 +116,11 @@ func (controller *carrierController) DeleteCarrier() gin.HandlerFunc {
 			return
 		}
 
-		//get carrier by id
-		if _, err := controller.getCarrierByID(context, id); err != nil {
-			return
-		}
-
 		if err := controller.service.DeleteCarrier(id); err != nil {
-			context.AbortWithError(http.StatusBadRequest, err)
+			handleServiceError(context, err)
 			return
 		}
 
 		context.Writer.WriteHeader(http.StatusNoContent)
 	}
-}
-
-func (controller *carrierController) getCarrierByID(context *gin.Context, id uint) (*models.Carrier, error) {
-	carrier, err := controller.service.GetCarrierByID(id)
-
-	switch err {
-	case nil:
-		return carrier, nil
-	case gorm.ErrRecordNotFound:
-		context.AbortWithStatus(http.StatusNotFound)
-	default:
-		context.AbortWithError(http.StatusBadRequest, err)
-	}
-
-	return nil, err
 }
