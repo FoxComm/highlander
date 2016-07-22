@@ -16,18 +16,16 @@ type summaryService struct {
 }
 
 type ISummaryService interface {
-	CreateStockItemSummary(stockItemId uint, db *gorm.DB) error
-	UpdateStockItemSummary(stockItemID uint, qty int, status statusChange, db *gorm.DB) error
+	CreateStockItemSummary(stockItemId uint, dbContext *gorm.DB) error
+	UpdateStockItemSummary(stockItemID uint, qty int, status statusChange, dbContext *gorm.DB) error
 }
 
 func NewSummaryService(db *gorm.DB) ISummaryService {
 	return &summaryService{db}
 }
 
-func (service *summaryService) CreateStockItemSummary(stockItemId uint, db *gorm.DB) error {
-	if db == nil {
-		db = service.db
-	}
+func (service *summaryService) CreateStockItemSummary(stockItemId uint, dbContext *gorm.DB) error {
+	db := service.resolveDb(dbContext)
 
 	summary := models.StockItemSummary{
 		StockItemID: stockItemId,
@@ -43,10 +41,8 @@ func (service *summaryService) CreateStockItemSummary(stockItemId uint, db *gorm
 	return nil
 }
 
-func (service *summaryService) UpdateStockItemSummary(stockItemID uint, qty int, status statusChange, db *gorm.DB) error {
-	if db == nil {
-		db = service.db
-	}
+func (service *summaryService) UpdateStockItemSummary(stockItemID uint, qty int, status statusChange, dbContext *gorm.DB) error {
+	db := service.resolveDb(dbContext)
 
 	summary := &models.StockItemSummary{}
 	if err := db.Where("stock_item_id = ?", stockItemID).First(summary).Error; err != nil {
@@ -61,6 +57,15 @@ func (service *summaryService) UpdateStockItemSummary(stockItemID uint, qty int,
 	}
 
 	return nil
+}
+
+func (service *summaryService) resolveDb(db *gorm.DB) *gorm.DB {
+	if db != nil {
+		return db
+	} else {
+		return service.db
+	}
+
 }
 
 func updateStatus(summary *models.StockItemSummary, status string, qty int) *models.StockItemSummary {
