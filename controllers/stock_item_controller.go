@@ -10,7 +10,6 @@ import (
 	"github.com/FoxComm/middlewarehouse/services"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 )
 
 type stockItemController struct {
@@ -59,11 +58,7 @@ func (controller *stockItemController) GetStockItemById() gin.HandlerFunc {
 
 		stockItem, err := controller.service.GetStockItemByID(uint(id))
 		if err != nil {
-			if err == gorm.ErrRecordNotFound {
-				context.AbortWithStatus(http.StatusNotFound)
-			} else {
-				context.AbortWithError(http.StatusInternalServerError, err)
-			}
+			handleServiceError(context, err)
 			return
 		}
 
@@ -84,7 +79,7 @@ func (controller *stockItemController) CreateStockItem() gin.HandlerFunc {
 
 		stockItem, err := controller.service.CreateStockItem(stockItem)
 		if err != nil {
-			context.AbortWithError(http.StatusBadRequest, err)
+			handleServiceError(context, err)
 			return
 		}
 
@@ -115,7 +110,7 @@ func (controller *stockItemController) IncrementStockItemUnits() gin.HandlerFunc
 		units := models.NewStockItemUnitsFromPayload(uint(id), &payload)
 
 		if err := controller.service.IncrementStockItemUnits(uint(id), units); err != nil {
-			context.AbortWithError(http.StatusBadRequest, err)
+			handleServiceError(context, err)
 			return
 		}
 
@@ -143,7 +138,7 @@ func (controller *stockItemController) DecrementStockItemUnits() gin.HandlerFunc
 
 		err = controller.service.DecrementStockItemUnits(uint(id), payload.Qty)
 		if err != nil {
-			context.AbortWithError(http.StatusBadRequest, err)
+			handleServiceError(context, err)
 			return
 		}
 

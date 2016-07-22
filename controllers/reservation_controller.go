@@ -40,7 +40,8 @@ func (controller *reservationController) Reserve() gin.HandlerFunc {
 		}
 
 		if err := controller.service.ReserveItems(payload.RefNum, skuMap); err != nil {
-			context.AbortWithError(http.StatusBadRequest, err)
+			handleServiceError(context, err)
+			return
 		}
 
 		context.JSON(http.StatusOK, gin.H{})
@@ -55,7 +56,8 @@ func (controller *reservationController) Cancel() gin.HandlerFunc {
 		}
 
 		if err := controller.service.ReleaseItems(payload.RefNum); err != nil {
-			context.AbortWithError(http.StatusBadRequest, err)
+			handleServiceError(context, err)
+			return
 		}
 
 		context.JSON(http.StatusOK, gin.H{})

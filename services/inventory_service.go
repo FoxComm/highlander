@@ -65,6 +65,11 @@ func (service *inventoryService) CreateStockItem(stockItem *models.StockItem) (*
 }
 
 func (service *inventoryService) IncrementStockItemUnits(id uint, units []*models.StockItemUnit) error {
+	stockItem := models.StockItem{}
+	if err := service.db.Find(&stockItem, id).Error; err != nil {
+		return err
+	}
+
 	txn := service.db.Begin()
 
 	for _, v := range units {
@@ -84,6 +89,11 @@ func (service *inventoryService) IncrementStockItemUnits(id uint, units []*model
 }
 
 func (service *inventoryService) DecrementStockItemUnits(id uint, qty int) error {
+	stockItem := models.StockItem{}
+	if err := service.db.Find(&stockItem, id).Error; err != nil {
+		return err
+	}
+
 	txn := service.db.Begin()
 
 	units, err := onHandStockItemUnits(txn, id, qty)
