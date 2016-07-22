@@ -72,7 +72,7 @@ func (suite *CarrierServiceTestSuite) TestGetCarrierById() {
 		TrackingTemplate: "http://www.dhl.com/en/express/tracking.shtml?AWB=$number&brand=DHL",
 	}
 	suite.service.CreateCarrier(carrier2)
-	carriers, err := GetCarriers()
+	carriers, err := suite.service.GetCarriers()
 
 	//act
 	carrier, err := suite.service.GetCarrierByID(carriers[1].ID)
