@@ -8,14 +8,14 @@ import Extensions._
 import failures.CartFailures.OrderAlreadyPlaced
 import failures.CouponFailures.CouponIsNotActive
 import failures.NotFoundFailure404
-import failures.ObjectFailures.ObjectContextNotFound
+import failures.ObjectFailures.{ObjectContextNotFound, ShadowAttributeInvalidTime}
 import models.StoreAdmins
 import models.cord.{Carts, Orders}
 import models.coupon.Coupon
 import models.customer.Customers
 import models.objects.{ObjectContext, ObjectContexts}
 import models.product.SimpleContext
-import models.promotion.Promotion
+import models.promotion.{Promotion, Promotions}
 import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods._
 import payloads.CouponPayloads._
@@ -29,6 +29,7 @@ import services.promotion.PromotionManager
 import util.{IntegrationTestBase, TestActivityContext}
 import utils.db._
 import utils.seeds.Seeds.Factories
+import utils.db.ExPostgresDriver.api._
 import utils.time.RichInstant
 
 class CouponsIntegrationTest
@@ -36,6 +37,33 @@ class CouponsIntegrationTest
     with HttpSupport
     with AutomaticAuth
     with TestActivityContext.AdminAC {
+
+  "POST /v1/coupons/:context" - {
+    "create coupon" in new Fixture {
+      val response =
+        POST(s"v1/coupons/${context.name}",
+             CreateCoupon(form = couponForm, shadow = couponShadow, promotion = promotion.id))
+
+      response.status must === (StatusCodes.OK)
+    }
+    "create coupon with invalid date should fail" in new Fixture {
+      val invalidCouponForm = CreateCouponForm(
+          attributes = ("name" → "donkey coupon") ~ ("activeFrom" → "2016-07-19T08:28:21.405+00:00")
+      )
+      val shadow = CreateCouponShadow(
+          attributes = ("name" → (("type" → "string") ~ ("ref" → "name")))
+              ~ ("activeFrom"  → (("type" → "string") ~ ("ref" → "activeFrom")))
+      )
+      val response =
+        POST(s"v1/coupons/${context.name}",
+             CreateCoupon(form = invalidCouponForm, shadow = shadow, promotion = promotion.id))
+
+      response.status must === (StatusCodes.BadRequest)
+      response.error must === (ShadowAttributeInvalidTime(
+              "activeFrom",
+              "JString(2016-07-19T08:28:21.405+00:00)").description)
+    }
+  }
 
   "POST /v1/coupons/:context/:id/archive" - {
     "archive existing coupon" in new Fixture {
@@ -153,9 +181,8 @@ class CouponsIntegrationTest
                                             discounts = Seq(discountShadow))
     val promoPayload = CreatePromotion(applyType = Promotion.Coupon, promoForm, promoShadow)
 
-    val couponForm = CreateCouponForm(
-        attributes = ("name"
-                → (("t" → "string") ~ ("v" → "donkey coupon"))))
+    val couponForm = CreateCouponForm(attributes = ("name" → "donkey coupon"))
+
     val couponShadow = CreateCouponShadow(
         attributes = ("name"
                 → (("type" → "string") ~ ("ref" → "name"))))
@@ -167,8 +194,14 @@ class CouponsIntegrationTest
       context ← * <~ ObjectContexts
                  .filterByName(SimpleContext.default)
                  .mustFindOneOr(ObjectContextNotFound(SimpleContext.default))
-      promotion ← * <~ PromotionManager.create(promoPayload, context.name)
-      coupon    ← * <~ CouponManager.create(couponPayload(promotion.form.id), context.name, None)
+      promoRoot ← * <~ PromotionManager.create(promoPayload, context.name)
+      promotion ← * <~ Promotions
+                   .filter(_.contextId === context.id)
+                   .filter(_.formId === promoRoot.form.id)
+                   .filter(_.shadowId === promoRoot.shadow.id)
+                   .mustFindOneOr(NotFoundFailure404(Promotion, "test"))
+
+      coupon ← * <~ CouponManager.create(couponPayload(promoRoot.form.id), context.name, None)
     } yield (storeAdmin, context, promotion, coupon)).gimme
   }
 
@@ -223,9 +256,9 @@ class CouponsIntegrationTest
     val fromToCode       = "activeWithFromTo"
     val wasActiveCode    = "wasActiveCode"
     val willBeActiveCode = "willBeActiveCode"
-
+    
     def couponPayload(form: CreateCouponForm): CreateCoupon =
-      CreateCoupon(form, orderCouponShadow, promotion.form.id)
+      CreateCoupon(form, orderCouponShadow, promotion.formId)
 
     val (fromCoupon, fromToCoupon, cart, order) = (for {
       fromCoupon   ← * <~ CouponManager.create(couponPayload(fromCouponForm), context.name, None)

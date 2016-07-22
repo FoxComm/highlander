@@ -126,6 +126,7 @@ object ObjectUtils {
 
     for {
       //Make sure form is correct and shadow links are correct
+      _      ← * <~ IlluminateAlgorithm.validateTypesFish(formProto.attributes, shadowProto.attributes)
       form   ← * <~ ObjectForms.create(formProto.copy(attributes = n.form))
       shadow ← * <~ ObjectShadows.create(shadowProto.copy(formId = form.id, attributes = n.shadow))
       commit ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
@@ -168,6 +169,7 @@ object ObjectUtils {
       shadowAttributes: Json,
       force: Boolean = false)(implicit db: DB, ec: EC): DbResultT[UpdateResult] = {
     for {
+      _ ← * <~ IlluminateAlgorithm.validateTypesFish(formAttributes, shadowAttributes)
       newAttributes ← * <~ ObjectUtils.updateFormAndShadow(oldFormAndShadow.form.attributes,
                                                            formAttributes,
                                                            shadowAttributes)
