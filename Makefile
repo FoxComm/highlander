@@ -8,6 +8,9 @@ DB_USER=middlewarehouse
 build:
 	go build main.go
 
+build-linux:
+	GOOS=linux go build -o middlewarehouse main.go
+
 migrate:
 	${FLYWAY} migrate
 
