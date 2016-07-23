@@ -12,8 +12,12 @@
   service: name=postgresql state=restarted
   sudo: true
 
-- name: Create Db
+- name: Create Phoenix DB
   postgresql_db: name={{phoenix_db_name}} encoding='UTF-8' lc_ctype='en_US.UTF-8' lc_collate='en_US.UTF-8' template='template0'
+  sudo: true
+
+- name: Create middlewarehouse DB
+  postgresql_db: name={{middlewarehouse_db_name}} encoding='UTF-8' lc_ctype='en_US.UTF-8' lc_collate='en_US.UTF-8' template='template0'
   sudo: true
 
 - name: Configure Db Users
@@ -23,6 +27,7 @@
       - root
       - "'{{user}}'"
       - phoenix
+      - middlewarehouse
 
 - name: Create Phoenix Directory
   file: path={{phoenix_dir}} state=directory owner="{{user}}"
@@ -81,15 +86,20 @@
   template: src=refresh_locations.sh dest="{{usr_local}}/bin/refresh_locations.sh" mode="u+x,g+x,o+x"
   sudo: true
 
-- name: Clean DB
+- name: Clean phoenix DB
   shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} clean
   args:
     chdir: "{{phoenix_dir}}"
 
-- name: Migrate DB
+- name: Migrate phoenix DB
   shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
   args:
     chdir: "{{phoenix_dir}}"
+
+- name: Migrate middlewarehouse DB
+  shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
+  args:
+    chdir: "{{middlewarehouse_dir}}"
 
 - name: Seed DB
   shell: java -cp {{phoenix_jar}} {{seeds_cmd}}
