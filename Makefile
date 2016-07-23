@@ -64,7 +64,13 @@ deploy-stage:
 	ansible-playbook -v -i bin/envs/staging ansible/stage.yml
 
 deploy-stage-backend:
-	ansible-playbook -v -i bin/envs/staging ansible/stage_backend.yml
+	ansible-playbook -v -i bin/envs/staging ansible/stage.yml --tags=backend
+
+deploy-stage-frontend:
+	ansible-playbook -v -i bin/envs/staging ansible/stage.yml --tags=frontend
+
+deploy-stage-middlewarehouse:
+	ansible-playbook -v -i bin/envs/staging ansible/stage_middlewarehouse.yml
 
 deploy-gatling:
 	ansible-playbook -v -i bin/envs/staging ansible/gatling.yml

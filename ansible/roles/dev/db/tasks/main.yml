@@ -33,7 +33,7 @@
   file: path={{phoenix_dir}} state=directory owner="{{user}}"
   sudo: true
 
-- name: Syncrhonize Phoenix Sql
+- name: Synchronize Phoenix Sql
   synchronize: src="{{phoenix_src}}/sql" dest="{{phoenix_dir}}" delete=yes recursive=yes
   sudo: true
 
@@ -45,7 +45,7 @@
   file: path="{{phoenix_dir}}/gatling-results" state=absent
   sudo: true
 
-- name: Syncrhonize Phoenix Gatling Resources
+- name: Synchronize Phoenix Gatling Resources
   synchronize: src="{{phoenix_src}}/gatling-classes" dest="{{phoenix_dir}}" delete=yes recursive=yes
   become: false
 
@@ -80,10 +80,6 @@
 
 - name: Setup cron files for refresh products catalog view
   template: src=refresh_products_catalog.sh dest="{{usr_local}}/bin/refresh_products_catalog.sh" mode="u+x,g+x,o+x"
-  sudo: true
-
-- name: Setup locations refresh
-  template: src=refresh_locations.sh dest="{{usr_local}}/bin/refresh_locations.sh" mode="u+x,g+x,o+x"
   sudo: true
 
 - name: Clean phoenix DB

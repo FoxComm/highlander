@@ -1,6 +1,6 @@
 ---
 
-- name: Syncrhonize Phoenix Sql
+- name: Synchronize Phoenix Sql
   synchronize: src="{{phoenix_src}}/sql" dest="{{phoenix_dir}}" delete=yes recursive=yes
   sudo: true
 

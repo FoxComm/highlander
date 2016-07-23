@@ -1,0 +1,13 @@
+---
+
+- name: Copy Binary
+  copy: src={{middlewarehouse_bin_src}} dest={{middlewarehouse_bin}} mode="u+x,g+x,o+x"
+  sudo: true
+
+- name: Synchronize middlewarehouse Sql
+  synchronize: src="{{middlewarehouse_src}}/sql" dest="{{middlewarehouse_dir}}" delete=yes recursive=yes
+  sudo: true
+
+- name: Restart middlewarehouse
+  service: name=middlewarehouse state=restarted enabled=yes
+  sudo: true

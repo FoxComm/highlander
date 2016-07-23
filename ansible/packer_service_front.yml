@@ -15,6 +15,7 @@
     firebird_server: 127.0.0.1:4040
     api_server: 127.0.0.1
     isaac_server: "isaac.service.consul:9190"
+    middlewarehouse_server: middlewarehouse.service.consul:9292
     ashes_server_name: admin.vanilla.foxcommerce.com
     firebird_server_name: firebird.vanilla.foxcommerce.com
     firebrand_server_name: vanilla.foxcommerce.com
