@@ -12,7 +12,7 @@ func NewPingController() IController {
 }
 
 func (controller *pingController) SetUp(router gin.IRouter) {
-    router.GET("/ping", controller.HealthCheck())
+    router.GET("/", controller.HealthCheck())
 }
 
 func (controller *pingController) HealthCheck() gin.HandlerFunc {
