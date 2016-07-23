@@ -9,12 +9,17 @@ variable "greenriver_image" {}
 variable "front_image" {}
 variable "ssh_user" {}
 variable "ssh_private_key" {}
-variable "consul_leader" {}
+variable "amigo_leader" {}
 variable "network" {}
 variable "zone" {}
 
 resource "google_storage_bucket" "backups" {
   name     = "${var.datacenter}-backups"
+  location = "${var.bucket_location}"
+}
+
+resource "google_storage_bucket" "registry" {
+  name     = "${var.datacenter}-docker"
   location = "${var.bucket_location}"
 }
 
@@ -55,7 +60,7 @@ resource "google_compute_instance" "kafka" {
           "chmod +x /tmp/bootstrap.sh",
           "chmod +x /tmp/consul.sh",
           "/tmp/bootstrap.sh",
-          "/tmp/consul.sh ${var.datacenter} ${var.consul_leader}"
+          "/tmp/consul.sh ${var.datacenter} ${var.amigo_leader}"
         ]
     }
 }
@@ -74,6 +79,10 @@ resource "google_compute_instance" "db" {
 
     network_interface {
         network = "${var.network}"
+    }
+
+    service_account {
+        scopes = ["storage-rw"]
     }
 
     connection {
@@ -97,9 +106,10 @@ resource "google_compute_instance" "db" {
           "chmod +x /tmp/bootstrap.sh",
           "chmod +x /tmp/consul.sh",
           "/tmp/bootstrap.sh",
-          "/tmp/consul.sh ${var.datacenter} ${var.consul_leader}"
+          "/tmp/consul.sh ${var.datacenter} ${var.amigo_leader}"
         ]
     }
+
 }
 
 resource "google_compute_instance" "es" {
@@ -139,7 +149,7 @@ resource "google_compute_instance" "es" {
           "chmod +x /tmp/bootstrap.sh",
           "chmod +x /tmp/consul.sh",
           "/tmp/bootstrap.sh",
-          "/tmp/consul.sh ${var.datacenter} ${var.consul_leader}"
+          "/tmp/consul.sh ${var.datacenter} ${var.amigo_leader}"
         ]
     }
 }
@@ -181,7 +191,7 @@ resource "google_compute_instance" "log" {
           "chmod +x /tmp/bootstrap.sh",
           "chmod +x /tmp/consul.sh",
           "/tmp/bootstrap.sh",
-          "/tmp/consul.sh ${var.datacenter} ${var.consul_leader}"
+          "/tmp/consul.sh ${var.datacenter} ${var.amigo_leader}"
         ]
     }
 }
@@ -223,7 +233,7 @@ resource "google_compute_instance" "phoenix" {
           "chmod +x /tmp/bootstrap.sh",
           "chmod +x /tmp/consul.sh",
           "/tmp/bootstrap.sh",
-          "/tmp/consul.sh ${var.datacenter} ${var.consul_leader}"
+          "/tmp/consul.sh ${var.datacenter} ${var.amigo_leader}"
         ]
     }
 }
@@ -265,7 +275,7 @@ resource "google_compute_instance" "greenriver" {
           "chmod +x /tmp/bootstrap.sh",
           "chmod +x /tmp/consul.sh",
           "/tmp/bootstrap.sh",
-          "/tmp/consul.sh ${var.datacenter} ${var.consul_leader}"
+          "/tmp/consul.sh ${var.datacenter} ${var.amigo_leader}"
         ]
     }
 }
@@ -307,7 +317,7 @@ resource "google_compute_instance" "front" {
           "chmod +x /tmp/bootstrap.sh",
           "chmod +x /tmp/consul.sh",
           "/tmp/bootstrap.sh",
-          "/tmp/consul.sh ${var.datacenter} ${var.consul_leader}"
+          "/tmp/consul.sh ${var.datacenter} ${var.amigo_leader}"
         ]
     }
 }

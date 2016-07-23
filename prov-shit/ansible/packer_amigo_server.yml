@@ -1,6 +1,6 @@
 ---
 
-- name: Provision Consul Server Image
+- name: The Three Amigos
   hosts: all
   tags:
     - packer
@@ -13,3 +13,6 @@
     - { role: base/common }
     - { role: base/consul }
     - { role: base/consul_server }
+    - { role: base/zookeeper }
+    - { role: base/docker }
+    - { role: base/docker_registry }

@@ -8,7 +8,7 @@ variable "network" {}
 variable "bucket_location" {}
 variable "zone" {}
 variable "vpn_image" {}
-variable "consul_cluster_image" {}
+variable "amigo_cluster_image" {}
 variable "kafka_image" {}
 variable "db_image" {}
 variable "es_image" {}
@@ -98,14 +98,14 @@ module "topdrawer_vpn" {
 }
 
 ##############################################
-# Consul Cluster
+# The Three Amigos
 ##############################################
-module "topdrawer_consul_cluster" {
-    source = "../../modules/gce/consul"
+module "topdrawer_amigo_cluster" {
+    source = "../../modules/gce/amigos"
     network = "${var.network}"
     datacenter = "${var.network}"
     servers = 3
-    image = "${var.consul_cluster_image}"
+    image = "${var.amigo_cluster_image}"
     ssh_user = "${var.ssh_user}"
     ssh_private_key = "${var.ssh_private_key}"
 }
@@ -125,7 +125,7 @@ module "topdrawer_stack" {
     phoenix_image = "${var.phoenix_image}"
     greenriver_image = "${var.greenriver_image}"
     front_image = "${var.front_image}"
-    consul_leader = "${module.topdrawer_consul_cluster.leader}"
+    amigo_leader = "${module.topdrawer_amigo_cluster.leader}"
     bucket_location = "${var.bucket_location}"
     ssh_user = "${var.ssh_user}"
     ssh_private_key = "${var.ssh_private_key}"

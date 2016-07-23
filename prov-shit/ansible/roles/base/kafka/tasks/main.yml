@@ -1,4 +1,8 @@
 ---
+- name: Copy Kafka Config File
+  template: src=server.properties dest=/etc/kafka/server.properties
+  sudo: true
+
 - name: Copy Kafka Service Files
   copy: src=kafka.service dest={{dest_services}}/
   sudo: true

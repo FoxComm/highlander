@@ -69,7 +69,7 @@ Do all the steps while connected to created VPN service.
 	```
 	$ packer build -var-file=packer/envs/vanilla.json packer/base/base_jvm.json
 	$ packer build -var-file=packer/envs/vanilla.json packer/base/base_node.json
-	$ packer build -var-file=packer/envs/vanilla.json packer/consul/consul_server.json
+	$ packer build -var-file=packer/envs/vanilla.json packer/amigos/amigo_server.json
 	```
 
 2. Save base images names above and replace them in `packer/envs/vanilla.json`.
