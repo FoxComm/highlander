@@ -1,0 +1,6 @@
+hash: 5eb70e1750c2963793f31c0a4e8986af712a2e3840498edb504932a75d743e95
+updated: 2016-07-22T15:19:15.671561771-07:00
+imports:
+- name: github.com/jpfuentes2/go-env
+  version: 8e0a68de05f21bcefcd581c6b934a1d1e4390fa1
+devImports: []
