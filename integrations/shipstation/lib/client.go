@@ -36,6 +36,10 @@ func (c *Client) getRequest(url string, resp interface{}) error {
 	return c.request("GET", url, nil, resp)
 }
 
+func (c *Client) postRequest(url string, payload interface{}, resp interface{}) error {
+	return c.request("POST", url, payload, resp)
+}
+
 func (c *Client) putRequest(url string, payload interface{}, resp interface{}) error {
 	return c.request("PUT", url, payload, resp)
 }
@@ -79,6 +83,12 @@ func (c *Client) request(method string, url string, payload interface{}, respBod
 	}
 
 	return nil
+}
+
+func (c *Client) CreateOrder(payload *payloads.Order) (*payloads.Order, error) {
+	order := new(payloads.Order)
+	err := c.postRequest("https://ssapi.shipstation.com/orders/createOrder", payload, order)
+	return order, err
 }
 
 // Products retreives a paginated list of all products in ShipStation.
