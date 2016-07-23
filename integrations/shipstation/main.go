@@ -71,8 +71,8 @@ func main() {
 		ShipTo:        a,
 		Items: []payloads.OrderItem{
 			payloads.OrderItem{
-				SKU:  "SHARK",
-				Name: "Shark (Line Item)",
+				SKU:  "SHARKLING",
+				Name: "Sharkling",
 				Weight: payloads.Weight{
 					Value: 24,
 					Units: "ounces",
