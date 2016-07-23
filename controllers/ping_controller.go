@@ -1,8 +1,6 @@
 package controllers
 
 import (
-    "github.com/FoxComm/middlewarehouse/api/responses"
-
     "github.com/gin-gonic/gin"
 )
 
