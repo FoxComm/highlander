@@ -9,7 +9,6 @@ import (
 	"github.com/FoxComm/middlewarehouse/services"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 )
 
 type carrierController struct {
