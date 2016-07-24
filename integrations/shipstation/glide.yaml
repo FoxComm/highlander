@@ -1,3 +1,20 @@
 package: github.com/FoxComm/shipstation
 import:
   - package: github.com/jpfuentes2/go-env
+  - package: github.com/elodina/go-avro
+  - package: github.com/elodina/go-kafka-avro
+  - package: github.com/elodina/go_kafka_client
+  - package: github.com/Shopify/sarama
+  - package: github.com/cihub/seelog
+  - package: github.com/elodina/siesta
+  - package: github.com/elodina/siesta-producer
+  - package: github.com/davecgh/go-spew
+  - package: github.com/eapache/go-resiliency
+  - package: github.com/eapache/go-xerial-snappy
+  - package: github.com/eapache/queue
+  - package: github.com/golang/snappy
+  - package: github.com/klauspost/crc32
+  - package: github.com/rcrowley/go-metrics
+  - package: github.com/samuel/go-zookeeper
+  - package: github.com/yanzay/cfg
+  - package: gopkg.in/cihub/seelog.v2

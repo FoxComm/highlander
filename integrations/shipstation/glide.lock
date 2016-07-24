@@ -1,6 +1,40 @@
-hash: 5eb70e1750c2963793f31c0a4e8986af712a2e3840498edb504932a75d743e95
-updated: 2016-07-22T15:19:15.671561771-07:00
+hash: ec42f9179be0531f7c5dde8b858d2a135da710402f4154a3b9df18ae51e1243b
+updated: 2016-07-24T14:35:44.203419407-07:00
 imports:
+- name: github.com/cihub/seelog
+  version: 752ef646ce438bc649b2bb565188471879185c33
+- name: github.com/davecgh/go-spew
+  version: 5215b55f46b2b919f50a1df0eaa5886afe4e3b3d
+- name: github.com/eapache/go-resiliency
+  version: b86b1ec0dd4209a588dc1285cdd471e73525c0b3
+- name: github.com/eapache/go-xerial-snappy
+  version: bb955e01b9346ac19dc29eb16586c90ded99a98c
+- name: github.com/eapache/queue
+  version: ded5959c0d4e360646dc9e9908cff48666781367
+- name: github.com/elodina/go-avro
+  version: 0c8185d9a3ba82aeac98db3313a268a5b6df99b5
+- name: github.com/elodina/go-kafka-avro
+  version: ab6b1d1c9a2361e639af25c13653fee505b5d2ce
+- name: github.com/elodina/go_kafka_client
+  version: 95d107b0c102fa81b8c1e5e556adc23352fad065
+- name: github.com/elodina/siesta
+  version: fea3d8822e875ffef3895e68f5c2f172e0dd4300
+- name: github.com/elodina/siesta-producer
+  version: a374fc36c515243efb438aed41c536af55d8b19b
+- name: github.com/golang/snappy
+  version: d9eb7a3d35ec988b8585d4a0068e462c27d28380
 - name: github.com/jpfuentes2/go-env
   version: 8e0a68de05f21bcefcd581c6b934a1d1e4390fa1
+- name: github.com/klauspost/crc32
+  version: 19b0b332c9e4516a6370a0456e6182c3b5036720
+- name: github.com/rcrowley/go-metrics
+  version: bdb33529eca3e55eac7328e07c57012a797af602
+- name: github.com/samuel/go-zookeeper
+  version: e64db453f3512cade908163702045e0f31137843
+- name: github.com/Shopify/sarama
+  version: 146ec3d7f759cc46560c8fafa336790be91cab46
+- name: github.com/yanzay/cfg
+  version: 3b647091f880406fdb14edcb309ce750a38d3e85
+- name: gopkg.in/cihub/seelog.v2
+  version: d2c6e5aa9fbfdd1c624e140287063c7730654115
 devImports: []

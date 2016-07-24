@@ -3,93 +3,65 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/signal"
 
-	"github.com/FoxComm/shipstation/lib"
-	"github.com/FoxComm/shipstation/lib/payloads"
-	_ "github.com/jpfuentes2/go-env/autoload"
+	goavro "github.com/elodina/go-avro"
+	"github.com/elodina/go-kafka-avro"
+	"github.com/elodina/go_kafka_client"
 )
 
 func main() {
-	key := os.Getenv("API_KEY")
-	secret := os.Getenv("API_SECRET")
+	zookeeper := "localhost:2181"
+	schemaRepo := "http://localhost:8081"
 
-	client, err := lib.NewClient(key, secret)
-	if err != nil {
-		panic(err)
+	//Coordinator settings
+	zookeeperConfig := go_kafka_client.NewZookeeperConfig()
+	zookeeperConfig.ZookeeperConnect = []string{zookeeper}
+
+	//Actual consumer settings
+	consumerConfig := go_kafka_client.DefaultConsumerConfig()
+	consumerConfig.AutoOffsetReset = go_kafka_client.SmallestOffset
+	consumerConfig.Coordinator = go_kafka_client.NewZookeeperCoordinator(zookeeperConfig)
+	consumerConfig.NumWorkers = 1
+	consumerConfig.NumConsumerFetchers = 1
+	consumerConfig.KeyDecoder = avro.NewKafkaAvroDecoder(schemaRepo)
+	consumerConfig.ValueDecoder = consumerConfig.KeyDecoder
+
+	consumerConfig.Strategy = func(worker *go_kafka_client.Worker, message *go_kafka_client.Message, taskId go_kafka_client.TaskId) go_kafka_client.WorkerResult {
+		// time.Sleep(2 * time.Second)
+		record, ok := message.DecodedValue.(*goavro.GenericRecord)
+		if !ok {
+			panic("Not a *GenericError, but expected one")
+		}
+
+		fmt.Println("SUCCESS")
+		fmt.Printf("%v\n", record)
+
+		return go_kafka_client.NewSuccessfulResult(taskId)
 	}
 
-	products, err := client.Products()
-	if err != nil {
-		panic(err)
+	consumerConfig.WorkerFailureCallback = func(_ *go_kafka_client.WorkerManager) go_kafka_client.FailedDecision {
+		return go_kafka_client.CommitOffsetAndContinue
+	}
+	consumerConfig.WorkerFailedAttemptCallback = func(_ *go_kafka_client.Task, _ go_kafka_client.WorkerResult) go_kafka_client.FailedDecision {
+		return go_kafka_client.CommitOffsetAndContinue
 	}
 
-	fmt.Printf("Products: %v\n", products.Products)
+	kafkaConsumer := go_kafka_client.NewConsumer(consumerConfig)
+	pingPongLoop(kafkaConsumer)
+}
 
-	product, err := client.Product(products.Products[0].ID)
-	if err != nil {
-		panic(err)
-	}
+func pingPongLoop(kafkaConsumer *go_kafka_client.Consumer) {
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	go func() {
+		<-c
+		fmt.Println("\ngolang > Closing consumer")
+		kafkaConsumer.Close()
+	}()
 
-	fmt.Printf("Product: %v\n", product)
-
-	payload := new(payloads.Product)
-	payload.FromResponse(product)
-	payload.Name = "Sharkling"
-
-	update, err := client.UpdateProduct(payload)
-	if err != nil {
-		fmt.Println(err.Error())
-		return
-	}
-
-	fmt.Printf("Update: %v\n", update)
-
-	fmt.Printf("Creating an Order\n")
-
-	street2 := "Suite 320"
-	phone := "2069637392"
-	email := "jeff@foxcommerce.com"
-
-	a := payloads.Address{
-		Name:        "Jeff Mataya",
-		Street1:     "2101 4th Ave",
-		Street2:     &street2,
-		City:        "Seattle",
-		State:       "WA",
-		PostalCode:  "98121",
-		Country:     "US",
-		Phone:       &phone,
-		Residential: false,
-	}
-
-	o := payloads.Order{
-		OrderNumber:   "BR10001",
-		OrderDate:     "2016-07-05T00:00:00.0000000",
-		OrderStatus:   "awaiting_shipment",
-		CustomerEmail: &email,
-		BillTo:        a,
-		ShipTo:        a,
-		Items: []payloads.OrderItem{
-			payloads.OrderItem{
-				SKU:  "SHARKLING",
-				Name: "Sharkling",
-				Weight: payloads.Weight{
-					Value: 24,
-					Units: "ounces",
-				},
-				Quantity: 1,
-			},
-		},
-		Weight: payloads.Weight{
-			Value: 25,
-			Units: "ounces",
-		},
-	}
-
-	out, err := client.CreateOrder(&o)
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Printf("Order: %v\n", out)
+	fmt.Println("golang > Started!")
+	kafkaConsumer.StartStatic(map[string]int{
+		"orders_search_view": 1,
+	})
 }
