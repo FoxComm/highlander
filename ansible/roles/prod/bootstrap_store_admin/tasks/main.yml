@@ -1,0 +1,8 @@
+---
+
+- name: Create super admin
+  shell: ADMIN_PASSWORD={{store_admin_password}} java -cp {{phoenix_jar}} utils.seeds.Seeds createAdmin --name "{{store_admin_name}}" --email "{{store_admin_email}}"
+  sudo: true
+  args:
+    chdir: "{{phoenix_dir}}"
+
