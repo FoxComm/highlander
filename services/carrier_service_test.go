@@ -6,16 +6,13 @@ import (
 	"github.com/FoxComm/middlewarehouse/models"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
 
 type CarrierServiceTestSuite struct {
-	suite.Suite
+	GeneralServiceTestSuite
 	service ICarrierService
-	db      *gorm.DB
-	mock    sqlmock.Sqlmock
 }
 
 func TestCarrierServiceSuite(t *testing.T) {
@@ -26,6 +23,8 @@ func (suite *CarrierServiceTestSuite) SetupTest() {
 	suite.db, suite.mock = CreateDbMock()
 
 	suite.service = NewCarrierService(suite.db)
+
+	suite.assert = assert.New(suite.T())
 }
 
 func (suite *CarrierServiceTestSuite) TearDownSuite() {
@@ -48,20 +47,19 @@ func (suite *CarrierServiceTestSuite) TestGetCarriers() {
 	rows := sqlmock.NewRows([]string{"id", "name", "tracking_template"}).
 		AddRow(1, carrier1.Name, carrier1.TrackingTemplate).
 		AddRow(2, carrier2.Name, carrier2.TrackingTemplate)
-
 	suite.mock.ExpectQuery("SELECT (.+) FROM \"carriers\"").WillReturnRows(rows)
 
 	//act
 	carriers, err := suite.service.GetCarriers()
 
 	//assert
-	assert.Nil(suite.T(), err)
+	suite.assert.Nil(err)
 
-	assert.Equal(suite.T(), 2, len(carriers))
-	assert.Equal(suite.T(), carrier1.Name, carriers[0].Name)
-	assert.Equal(suite.T(), carrier1.TrackingTemplate, carriers[0].TrackingTemplate)
-	assert.Equal(suite.T(), carrier2.Name, carriers[1].Name)
-	assert.Equal(suite.T(), carrier2.TrackingTemplate, carriers[1].TrackingTemplate)
+	suite.assert.Equal(2, len(carriers))
+	suite.assert.Equal(carrier1.Name, carriers[0].Name)
+	suite.assert.Equal(carrier1.TrackingTemplate, carriers[0].TrackingTemplate)
+	suite.assert.Equal(carrier2.Name, carriers[1].Name)
+	suite.assert.Equal(carrier2.TrackingTemplate, carriers[1].TrackingTemplate)
 }
 
 // func (suite *CarrierServiceTestSuite) TestGetCarrierById() {
