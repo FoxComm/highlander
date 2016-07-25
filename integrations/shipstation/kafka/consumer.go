@@ -1,12 +1,10 @@
 package kafka
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"os/signal"
 
-	goavro "github.com/elodina/go-avro"
 	"github.com/elodina/go-kafka-avro"
 	"github.com/elodina/go_kafka_client"
 )
@@ -21,7 +19,7 @@ type consumer struct {
 	kafkaConsumer *go_kafka_client.Consumer
 }
 
-func NewConsumer(zookeeper, schemaRepo string) (Consumer, error) {
+func NewConsumer(zookeeper string, schemaRepo string, handler MessageHandler) (Consumer, error) {
 	zConfig := go_kafka_client.NewZookeeperConfig()
 	zConfig.ZookeeperConnect = []string{zookeeper}
 
@@ -34,7 +32,7 @@ func NewConsumer(zookeeper, schemaRepo string) (Consumer, error) {
 	consumerConfig.KeyDecoder = avro.NewKafkaAvroDecoder(schemaRepo)
 	consumerConfig.ValueDecoder = consumerConfig.KeyDecoder
 
-	consumerConfig.Strategy = createDefaultStrategy(defaultMessageHandler)
+	consumerConfig.Strategy = createDefaultStrategy(handler)
 
 	consumerConfig.WorkerFailureCallback = defaultFailureCallback
 	consumerConfig.WorkerFailedAttemptCallback = defaultFailedAttemptCallback
@@ -57,16 +55,6 @@ func (con *consumer) RunTopic(topic string) {
 	con.kafkaConsumer.StartStatic(map[string]int{
 		topic: 1,
 	})
-}
-
-func defaultMessageHandler(message *go_kafka_client.Message) error {
-	record, ok := message.DecodedValue.(*goavro.GenericRecord)
-	if !ok {
-		return errors.New("Error decoding Avro message.")
-	}
-
-	fmt.Printf("%v\n", record)
-	return nil
 }
 
 func createDefaultStrategy(fn MessageHandler) go_kafka_client.WorkerStrategy {
