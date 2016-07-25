@@ -94,13 +94,6 @@ func (suite *CarrierServiceTestSuite) TestCreaterCarrier() {
 		ExpectExec(`INSERT INTO "carriers"`).
 		WithArgs(name, trackingTemplate).
 		WillReturnResult(sqlmock.NewResult(1, 1))
-	rows := sqlmock.
-		NewRows([]string{"id", "name", "tracking_template"}).
-		AddRow(1, name, trackingTemplate)
-	suite.mock.
-		ExpectQuery(`SELECT (.+) FROM "carriers" WHERE \("id" = \?\) (.+)`).
-		WithArgs(1).
-		WillReturnRows(rows)
 
 	//act
 	id, err := suite.service.CreateCarrier(model)
@@ -108,10 +101,6 @@ func (suite *CarrierServiceTestSuite) TestCreaterCarrier() {
 	//assert
 	suite.assert.Equal(uint(1), id)
 	suite.assert.Nil(err)
-	var carrier models.Carrier
-	suite.assert.Nil(suite.db.First(&carrier, id).Error)
-	suite.assert.Equal(name, carrier.Name)
-	suite.assert.Equal(trackingTemplate, carrier.TrackingTemplate)
 }
 
 func (suite *CarrierServiceTestSuite) TestUpdateCarrier() {
