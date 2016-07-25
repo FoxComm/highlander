@@ -27,7 +27,7 @@ func (suite *CarrierServiceTestSuite) SetupTest() {
 	suite.assert = assert.New(suite.T())
 }
 
-func (suite *CarrierServiceTestSuite) TearDownSuite() {
+func (suite *CarrierServiceTestSuite) TearDownTest() {
 	// we make sure that all expectations were met
 	assert.Nil(suite.T(), suite.mock.ExpectationsWereMet())
 
