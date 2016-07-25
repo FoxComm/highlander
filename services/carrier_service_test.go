@@ -3,7 +3,6 @@ package services
 import (
 	"testing"
 
-	"github.com/FoxComm/middlewarehouse/common/db/tasks"
 	"github.com/FoxComm/middlewarehouse/models"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -24,26 +23,15 @@ func TestCarrierServiceSuite(t *testing.T) {
 }
 
 func (suite *CarrierServiceTestSuite) SetupTest() {
-	var err error
-	sqldb, mock, err := sqlmock.New()
-	db, err := gorm.Open("sqlmock", sqldb)
-	suite.db, suite.mock = db, mock
-
-	// suite.db, err = config.DefaultConnection()
-	assert.Nil(suite.T(), err)
+	suite.db, suite.mock = CreateDbMock()
 
 	suite.service = NewCarrierService(suite.db)
-
-	tasks.TruncateTables([]string{
-		"carriers",
-	})
 }
 
 func (suite *CarrierServiceTestSuite) TearDownSuite() {
 	// we make sure that all expectations were met
 	assert.Nil(suite.T(), suite.mock.ExpectationsWereMet())
 
-	//make sure all expectations were met
 	suite.db.Close()
 }
 
