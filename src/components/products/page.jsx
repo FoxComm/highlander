@@ -172,7 +172,7 @@ class ProductPage extends Component {
         </Button>
         {this.renderConfirmation()}
       </div>
-    )
+    );
   }
 
   renderConfirmation() {
