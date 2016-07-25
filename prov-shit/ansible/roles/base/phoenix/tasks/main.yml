@@ -9,7 +9,7 @@
   file: path={{phoenix_dir}} state=directory owner="{{user}}"
   sudo: true
 
-- name: Syncrhonize Phoenix Sql
+- name: Synchronize Phoenix Sql
   synchronize: src="{{phoenix_src}}/sql" dest="{{phoenix_dir}}" delete=yes recursive=yes
   sudo: true
 
@@ -21,7 +21,7 @@
   file: path="{{phoenix_dir}}/gatling-results" state=absent
   sudo: true
 
-- name: Syncrhonize Phoenix Gatling Resources
+- name: Synchronize Phoenix Gatling Resources
   synchronize: src="{{phoenix_src}}/gatling-classes" dest="{{phoenix_dir}}" delete=yes recursive=yes
   become: false
 

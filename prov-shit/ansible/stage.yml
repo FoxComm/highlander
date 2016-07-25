@@ -4,7 +4,8 @@
   hosts: stage-backend
   vars:
     user: '{{ansible_ssh_user}}'
-
+  tags:
+    - backend
   roles:
     - { role: dev/kafka }
     - { role: dev/elasticsearch }
@@ -15,7 +16,7 @@
     - { role: dev/greenriver }
     - { role: dev/loyalty }
     - { role: dev/messaging }
-
+    - { role: dev/middlewarehouse }
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml
 
@@ -23,13 +24,14 @@
   hosts: stage-frontend
   vars:
     user: '{{ansible_ssh_user}}'
-
+    middlewarehouse_server: middlewarehouse.service.consul:9292
+  tags:
+    - frontend
   roles:
     - { role: base/ssh_keys }
     - { role: dev/ashes }
     - { role: dev/firebird }
     - { role: dev/firebrand }
     - { role: dev/balancer, sudo: yes }
-
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml

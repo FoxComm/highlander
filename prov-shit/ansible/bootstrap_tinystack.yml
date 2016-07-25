@@ -20,6 +20,7 @@
     - { role: dev/isaac }
     - { role: dev/seeder }
     - { role: dev/greenriver }
+    - { role: dev/middlewarehouse }
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml
@@ -34,6 +35,7 @@
     ashes_server: ashes.service.consul:4000
     firebird_server: firebird.service.consul:4040
     isaac_server: isaac.service.consul:9190
+    middlewarehouse_server: middlewarehouse.service.consul:9292
     phoenix_server: phoenix.service.consul:9090
     search_server_http: elasticsearch.service.consul:9200
     firebird_default_language: en

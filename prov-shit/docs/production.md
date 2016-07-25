@@ -29,15 +29,17 @@ Navigation:
 	$ packer build -var-file=packer/envs/vanilla.json packer/base/base.json
 	```
 
-2. Create new terraform environment containing variables file, similar too `terraform/envs/terraform.tfvars`. Set proper values for `gce_project`, `account_file` and `vpn_image`.
+2. Create terraform base project in `terraform/base/gce_vanilla` by copying & renaming `gce_vanilla` contents.
 
-3. Install dependent terraform modules:
+3. Create new terraform environment containing variables file, similar too `terraform/envs/terraform.tfvars`. Set proper values for `gce_project`, `account_file` and `vpn_image`.
+
+4. Install dependent terraform modules:
 
 	```
 	$ terraform get terraform/base/gce_vanilla
 	```
 
-4. Terraform VPN machine:
+5. Terraform VPN machine:
 
 	```
 	$ export TF_BASE=terraform/base
@@ -46,7 +48,7 @@ Navigation:
 	$ terraform apply -state $TF_BASE/gce_vanilla/terraform.tfstate -var-file $TF_BASE/gce_vanilla/terraform.tfvars $TF_BASE/gce_vanilla
 	```
 
-5. Create `vanilla_vpn` inventory file and write a created machine VPN there under `vanilla-vpn` (host) section.
+6. Create `vanilla_vpn` inventory file and write a created machine VPN there under `vanilla-vpn` (host) section.
 
 7. Bootstrap OpenVPN service:
 

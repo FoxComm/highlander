@@ -30,6 +30,15 @@ phoenix_db_name: phoenix_development
 phoenix_test_db_name: phoenix_test
 phoenix_tracing: "false"
 
+# middlewarehouse
+middlewarehouse_env: staging
+middlewarehouse_src: ../../middlewarehouse/
+middlewarehouse_bin_src: "{{middlewarehouse_src}}/middlewarehouse"
+
+middlewarehouse_dir: /middlewarehouse
+middlewarehouse_bin: "{{middlewarehouse_dir}}/middlewarehouse"
+middlewarehouse_db_name: middlewarehouse_development
+
 # Ashes
 ashes_env: production
 
@@ -64,6 +73,7 @@ firebrand_server: 127.0.0.1:4041
 kafka_server: 127.0.0.1:9092
 zookeeper_server: 127.0.0.1:2181
 schema_server: 127.0.0.1:8081
+middlewarehouse_server: 127.0.0.1:9292
 api_server: 127.0.0.1
 log_host: 127.0.0.1
 

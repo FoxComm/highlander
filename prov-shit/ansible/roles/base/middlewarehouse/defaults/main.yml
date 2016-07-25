@@ -1,0 +1,2 @@
+middlewarehouse_service_requires: postgresql.service
+middlewarehouse_service_after: postgresql.service
