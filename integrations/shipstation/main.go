@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/FoxComm/shipstation/kafka"
+	"github.com/FoxComm/shipstation/lib/kafka"
 
 	goavro "github.com/elodina/go-avro"
 	"github.com/elodina/go_kafka_client"
@@ -58,13 +58,8 @@ type Shipment struct {
 }
 
 type Customer struct {
-	ID            string
-	Name          string
-	Rank          string
-	Email         string
-	Revenue       int
-	JoinedAt      string `json:"joined_at"`
-	IsBlacklisted string `json:"is_blacklisted"`
+	Name  string
+	Email string
 }
 
 type LineItem struct {
@@ -105,6 +100,8 @@ func defaultMessageHandler(message *go_kafka_client.Message) error {
 		customer := new(Customer)
 
 		if err := json.Unmarshal(customerBytes, customer); err != nil {
+			fmt.Println("Error unmarshalling Customer")
+			fmt.Printf("%s\n", shipment.Customer)
 			panic(err)
 		}
 
@@ -112,6 +109,8 @@ func defaultMessageHandler(message *go_kafka_client.Message) error {
 		lineItems := new([]LineItem)
 
 		if err := json.Unmarshal(lineItemBytes, lineItems); err != nil {
+			fmt.Println("Error unmarshalling Line Items")
+			fmt.Printf("%s\n", shipment.LineItems)
 			panic(err)
 		}
 
@@ -119,6 +118,8 @@ func defaultMessageHandler(message *go_kafka_client.Message) error {
 		billingAddresses := new([]Address)
 
 		if err := json.Unmarshal(billingAddressBytes, billingAddresses); err != nil {
+			fmt.Println("Error unmarshalling Billing Addresses")
+			fmt.Printf("%s\n", shipment.BillingAddresses)
 			panic(err)
 		}
 
@@ -126,6 +127,8 @@ func defaultMessageHandler(message *go_kafka_client.Message) error {
 		shippingAddresses := new([]Address)
 
 		if err := json.Unmarshal(shippingAddressBytes, shippingAddresses); err != nil {
+			fmt.Println("Error unmarshalling Shipping Addresses")
+			fmt.Printf("%s\n", shipment.ShippingAddresses)
 			panic(err)
 		}
 
