@@ -2,7 +2,7 @@ package models.objects
 
 import java.time.Instant
 
-import models.image.Albums
+import models.image.{Album, Albums}
 import models.inventory._
 import models.objects.ObjectHeadLinks._
 import shapeless._
@@ -27,7 +27,9 @@ class SkuAlbumLinks(tag: Tag) extends ObjectHeadLinks[SkuAlbumLink](tag, "sku_al
 }
 
 object SkuAlbumLinks
-    extends ObjectHeadLinkQueries[SkuAlbumLink, SkuAlbumLinks](new SkuAlbumLinks(_))
+    extends ObjectHeadLinkQueries[SkuAlbumLink, SkuAlbumLinks, Sku, Album](new SkuAlbumLinks(_),
+                                                                           Skus,
+                                                                           Albums)
     with ReturningId[SkuAlbumLink, SkuAlbumLinks] {
 
   val returningLens: Lens[SkuAlbumLink, Int] = lens[SkuAlbumLink].id

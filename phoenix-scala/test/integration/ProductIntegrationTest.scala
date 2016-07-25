@@ -1,7 +1,11 @@
+import java.time.Instant
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
+import failures.NotFoundFailure404
+import failures.ProductFailures._
 import models.StoreAdmins
 import models.objects._
 import models.product._
@@ -16,6 +20,7 @@ import utils.JsonFormatters
 import utils.Money.Currency
 import utils.aliases._
 import utils.db._
+import utils.time.RichInstant
 
 object ProductTestExtensions {
 
@@ -198,8 +203,7 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
   }
 
   "PATCH v1/products/:context/:id" - {
-    def doQuery(formId: Int,
-                productPayload: UpdateProductPayload)(implicit context: ObjectContext) = {
+    def doQuery(formId: Int, productPayload: UpdateProductPayload)(implicit context: OC) = {
       val response = PATCH(s"v1/products/${context.name}/$formId", productPayload)
       response.status must === (StatusCodes.OK)
       response.as[ProductResponse.Root]
@@ -212,6 +216,23 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
       val response = doQuery(product.formId, payload)
       response.skus.length must === (4)
       response.variants.length must === (2)
+
+      val description = response.attributes \ "description" \ "v"
+      description.extract[String] must === ("Test product description")
+    }
+
+    "Updates the SKUs on a product if variants are Some(Seq.empty)" in new Fixture {
+
+      ProductSkuLinks.filterLeft(product).deleteAll(DbResultT.none, DbResultT.none).gimme
+      ProductVariantLinks.filterLeft(product).deleteAll(DbResultT.none, DbResultT.none).gimme
+
+      val payload = UpdateProductPayload(attributes = Map.empty,
+                                         skus = Some(Seq(skuPayload)),
+                                         variants = Some(Seq.empty))
+
+      val response = doQuery(product.formId, payload)
+      response.skus.length must === (1)
+      response.variants.length must === (0)
 
       val description = response.attributes \ "description" \ "v"
       description.extract[String] must === ("Test product description")
@@ -273,6 +294,61 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
 
       val response = PATCH(s"v1/products/${ctx.name}/${product.formId}", upPayload)
       response.status must === (StatusCodes.BadRequest)
+    }
+  }
+
+  "DELETE v1/products/:context/:id" - {
+    "Archives product successfully" in new Fixture {
+      val response = DELETE(s"v1/products/${ctx.name}/${product.formId}")
+
+      response.status must === (StatusCodes.OK)
+
+      val result = response.as[ProductResponse.Root]
+      withClue(result.archivedAt.value → Instant.now) {
+        result.archivedAt.value.isBeforeNow === true
+      }
+    }
+
+    "SKUs must be unlinked" in new VariantFixture {
+      val response = DELETE(s"v1/products/${ctx.name}/${product.formId}")
+
+      response.status must === (StatusCodes.OK)
+
+      val result = response.as[ProductResponse.Root]
+      result.skus mustBe empty
+    }
+
+    "Variants must be unlinked" in new VariantFixture {
+      val response = DELETE(s"v1/products/${ctx.name}/${product.formId}")
+
+      response.status must === (StatusCodes.OK)
+
+      val result = response.as[ProductResponse.Root]
+      result.variants mustBe empty
+    }
+
+    "Albums must be unlinked" in new VariantFixture {
+      val response = DELETE(s"v1/products/${ctx.name}/${product.formId}")
+
+      response.status must === (StatusCodes.OK)
+
+      val result = response.as[ProductResponse.Root]
+      result.albums mustBe empty
+    }
+
+    "Responds with NOT FOUND when wrong product is requested" in new VariantFixture {
+      val response = DELETE(s"v1/products/${ctx.name}/666")
+
+      response.status must === (StatusCodes.NotFound)
+      response.error must === (ProductFormNotFoundForContext(666, ctx.id).description)
+    }
+
+    "Responds with NOT FOUND when wrong context is requested" in new VariantFixture {
+      pending
+      val response = DELETE(s"v1/products/donkeyContext/${product.formId}")
+
+      response.status must === (StatusCodes.NotFound)
+      response.error must === (NotFoundFailure404(ObjectContext, "donkeyContext").description)
     }
   }
 
@@ -339,7 +415,7 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
 
       // Create the Variants and their Values.
       variantsAndValues ← * <~ variantsWithValues.map { scv ⇒
-                           Mvp.insertVariantWithValues(ctx.id, product.shadowId, scv)
+                           Mvp.insertVariantWithValues(ctx.id, product, scv)
                          }
 
       variants ← * <~ variantsAndValues.map(_.variant)

@@ -56,6 +56,9 @@ def expose_backend_ports(config)
 
     # Consul
     config.vm.network :forwarded_port, guest: 8500, host: 8500, auto_correct: true
+
+    # Middlewarehouse
+    config.vm.network :forwarded_port, guest: 9292, host: 9292, auto_correct: true
 end
 
 def expose_ashes(config)

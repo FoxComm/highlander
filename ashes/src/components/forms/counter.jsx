@@ -20,7 +20,7 @@ const Counter = props => {
         disabled={disabled}
         {...rest} />
       <div className="fc-input-append">
-        <IncrementButton type="button"  disabled={disabled} onClick={increaseAction} className="fc-btn-counter" />
+        <IncrementButton type="button" disabled={disabled} onClick={increaseAction} className="fc-btn-counter" />
       </div>
     </div>
   );

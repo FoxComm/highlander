@@ -1,6 +1,8 @@
-hash: f55bdfa9e3f393a43c243529a4bcb204c26ad2c64381a4356aa95ef71292dc28
-updated: 2016-06-20T19:20:32.966539391-07:00
+hash: 61326a2e94161212c42ac4e567d623bc700ae120736b99662de0503b16815e90
+updated: 2016-07-25T13:44:12.6924789+03:00
 imports:
+- name: github.com/DATA-DOG/go-sqlmock
+  version: 9958e5c69de03e97ec215b23f6fcae1f600c3fb6
 - name: github.com/gin-gonic/gin
   version: f931d1ea80ae95a6fc739213cdd9399bd2967fb6
   subpackages:
@@ -25,7 +27,11 @@ imports:
 - name: github.com/Sirupsen/logrus
   version: f3cfb454f4c209e6668c95216c4744b8fddb2356
 - name: github.com/stretchr/testify
-  version: d77da356e56a7428ad25149ca77381849a6a5232
+  version: f390dcf405f7b83c997eac1b06768bb9f44dec18
+  subpackages:
+  - assert
+  - suite
+  - require
 - name: golang.org/x/net
   version: f315505cf3349909cdf013ea56690da34e96a451
   subpackages:
@@ -38,4 +44,12 @@ imports:
   version: c193cecd124b5cc722d7ee5538e945bdb3348435
 - name: gopkg.in/yaml.v2
   version: a83829b6f1293c91addabc89d0571c246397bbf4
-devImports: []
+testImports:
+- name: github.com/davecgh/go-spew
+  version: 5215b55f46b2b919f50a1df0eaa5886afe4e3b3d
+  subpackages:
+  - spew
+- name: github.com/pmezard/go-difflib
+  version: 792786c7400a136282c1664665ae0a8db921c6c2
+  subpackages:
+  - difflib

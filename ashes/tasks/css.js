@@ -7,9 +7,12 @@ module.exports = function(gulp) {
 
   gulp.task('css', function() {
     const concat = require('gulp-concat');
+    const cssnano = require('gulp-cssnano');
+    const _if = require('gulp-if');
 
     return gulp.src(src)
       .pipe(concat('admin.css'))
+      .pipe(_if(process.env.NODE_ENV === 'production', cssnano()))
       .pipe(gulp.dest('public'));
   });
 

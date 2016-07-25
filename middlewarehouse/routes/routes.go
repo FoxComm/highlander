@@ -1,20 +1,22 @@
 package routes
 
 import (
-	"fmt"
+	"github.com/FoxComm/middlewarehouse/controllers"
+	"github.com/FoxComm/middlewarehouse/services"
 
-	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
 )
 
-func Run() {
-	router := gin.Default()
+func GetRoutes(db *gorm.DB) map[string]controllers.IController {
+	summaryService := services.NewSummaryService(db)
+	inventoryService := services.NewInventoryService(db, summaryService)
+	carrierService := services.NewCarrierService(db)
 
-	runSkus(router.Group("/skus"))
-	runStockItems(router.Group("/stock-items"))
-	runReservations(router.Group("/reservations"))
-	runCarriers(router.Group("/carriers"))
-
-	fmt.Println("Starting middlewarehouse...")
-	router.Run(":9292")
-	fmt.Println("middlewarehouse started on port 9292")
+	return map[string]controllers.IController{
+		"/v1/ping":      controllers.NewPingController(),
+		"/skus":         controllers.NewSKUController(),
+		"/stock-items":  controllers.NewStockItemController(inventoryService),
+		"/reservations": controllers.NewReservationController(inventoryService),
+		"/carriers":     controllers.NewCarrierController(carrierService),
+	}
 }

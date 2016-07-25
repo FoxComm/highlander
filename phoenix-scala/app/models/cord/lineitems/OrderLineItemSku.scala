@@ -1,7 +1,6 @@
 package models.cord.lineitems
 
 import models.inventory.{Sku, Skus}
-import models.objects.ObjectLink._
 import models.objects._
 import models.product.Products
 import shapeless._

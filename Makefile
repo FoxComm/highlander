@@ -8,3 +8,4 @@ update:
 	git subtree pull --prefix middlewarehouse git@github.com:FoxComm/middlewarehouse.git master
 	git subtree pull --prefix phoenix-scala git@github.com:FoxComm/phoenix-scala.git master
 	git subtree pull --prefix prov-shit git@github.com:FoxComm/prov-shit.git master
+	git subtree pull --prefix integrations/shipstation git@github.com:FoxComm/shipstation.git master
