@@ -23,6 +23,15 @@ function setDemoAuthToken() {
   process.env.DEMO_AUTH_TOKEN = demoAuthToken;
 }
 
+const excludeList = [
+  './components/style-guide/style-guide',
+  './components/style-guide/style-guide-grid',
+  './components/style-guide/style-guide-buttons',
+  './components/style-guide/style-guide-containers',
+  './components/activity-trail/all',
+  './components/activity-notifications/all',
+];
+
 module.exports = function(gulp, opts, $) {
   let production = (process.env.NODE_ENV === 'production');
 
@@ -44,9 +53,14 @@ module.exports = function(gulp, opts, $) {
       cache: {},
       packageCache: {}
     }).transform(envify({
+      NODE_ENV: process.env.NODE_ENV,
       DEMO_AUTH_TOKEN: process.env.DEMO_AUTH_TOKEN,
       API_URL: process.env.API_URL
     }));
+
+    if (production) {
+      excludeList.map(file => bundler.exclude(file));
+    }
 
     bundler.plugin(require('css-modulesify'), {
       output: path.resolve('build/css_bundle.css'),
