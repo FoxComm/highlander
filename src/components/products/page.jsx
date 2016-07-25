@@ -232,17 +232,17 @@ class ProductPage extends Component {
         <div className="fc-grid">
           <div className="fc-col-md-1-1">
             {children}
-
-            <Button
-              className="fc-product-details__archive-button"
-              type="button"
-              onClick={this.showArchiveConfirmation}>
-              Archive Product
-            </Button>
           </div>
         </div>
 
-        {this.renderConfirmation()}
+        <div className="fc-archive-actions">
+          <Button
+            type="button"
+            onClick={this.showArchiveConfirmation}>
+            Archive Product
+          </Button>
+          {this.renderConfirmation()}
+        </div>
       </div>
     );
   }
