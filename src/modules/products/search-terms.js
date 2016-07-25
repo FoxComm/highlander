@@ -23,6 +23,11 @@ const searchTerms = [
     type: 'date',
     term: 'activeTo',
   },
+  {
+    title: 'Product : Archived At',
+    type: 'date',
+    term: 'archivedAt',
+  },
 ];
 
 export default searchTerms;
