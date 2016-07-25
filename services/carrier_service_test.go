@@ -44,10 +44,11 @@ func (suite *CarrierServiceTestSuite) TestGetCarriers() {
 		Name:             "DHL",
 		TrackingTemplate: "http://www.dhl.com/en/express/tracking.shtml?AWB=$number&brand=DHL",
 	}
-	rows := sqlmock.NewRows([]string{"id", "name", "tracking_template"}).
+	rows := sqlmock.
+		NewRows([]string{"id", "name", "tracking_template"}).
 		AddRow(1, carrier1.Name, carrier1.TrackingTemplate).
 		AddRow(2, carrier2.Name, carrier2.TrackingTemplate)
-	suite.mock.ExpectQuery("SELECT (.+) FROM \"carriers\"").WillReturnRows(rows)
+	suite.mock.ExpectQuery(`SELECT (.+) FROM "carriers"`).WillReturnRows(rows)
 
 	//act
 	carriers, err := suite.service.GetCarriers()
@@ -62,80 +63,82 @@ func (suite *CarrierServiceTestSuite) TestGetCarriers() {
 	suite.assert.Equal(carrier2.TrackingTemplate, carriers[1].TrackingTemplate)
 }
 
-// func (suite *CarrierServiceTestSuite) TestGetCarrierById() {
-// 	//arrange
-// 	carrier1 := &models.Carrier{
-// 		Name:             "UPS",
-// 		TrackingTemplate: "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number",
-// 	}
-// 	suite.service.CreateCarrier(carrier1)
-// 	carrier2 := &models.Carrier{
-// 		Name:             "DHL",
-// 		TrackingTemplate: "http://www.dhl.com/en/express/tracking.shtml?AWB=$number&brand=DHL",
-// 	}
-// 	suite.service.CreateCarrier(carrier2)
-// 	carriers, err := suite.service.GetCarriers()
+func (suite *CarrierServiceTestSuite) TestGetCarrierById() {
+	//arrange
+	carrier1 := &models.Carrier{
+		Name:             "UPS",
+		TrackingTemplate: "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number",
+	}
+	rows := sqlmock.
+		NewRows([]string{"id", "name", "tracking_template"}).
+		AddRow(1, carrier1.Name, carrier1.TrackingTemplate)
+	suite.mock.
+		ExpectQuery(`SELECT (.+) FROM "carriers" WHERE \("id" = \?\) (.+)`).
+		WithArgs(1).
+		WillReturnRows(rows)
 
-// 	//act
-// 	carrier, err := suite.service.GetCarrierByID(carriers[1].ID)
+	//act
+	carrier, err := suite.service.GetCarrierByID(1)
 
-// 	//assert
-// 	assert.Nil(suite.T(), err)
-// 	assert.Equal(suite.T(), carrier2.Name, carrier.Name)
-// 	assert.Equal(suite.T(), carrier2.Name, carrier.Name)
-// }
+	//assert
+	suite.assert.Nil(err)
+	suite.assert.Equal(carrier1.Name, carrier.Name)
+	suite.assert.Equal(carrier1.Name, carrier.Name)
+}
 
-// func (suite *CarrierServiceTestSuite) TestCreaterCarrier() {
-// 	//arrange
-// 	name, trackingTemplate := "UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"
-// 	model := &models.Carrier{Name: name, TrackingTemplate: trackingTemplate}
+func (suite *CarrierServiceTestSuite) TestCreaterCarrier() {
+	//arrange
+	name, trackingTemplate := "UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"
+	model := &models.Carrier{Name: name, TrackingTemplate: trackingTemplate}
+	suite.mock.
+		ExpectExec(`INSERT INTO "carriers"`).
+		WithArgs(name, trackingTemplate).
+		WillReturnResult(sqlmock.NewResult(1, 1))
+	rows := sqlmock.
+		NewRows([]string{"id", "name", "tracking_template"}).
+		AddRow(1, name, trackingTemplate)
+	suite.mock.
+		ExpectQuery(`SELECT (.+) FROM "carriers" WHERE \("id" = \?\) (.+)`).
+		WithArgs(1).
+		WillReturnRows(rows)
 
-// 	//act
-// 	id, err := suite.service.CreateCarrier(model)
+	//act
+	id, err := suite.service.CreateCarrier(model)
 
-// 	//assert
-// 	assert.Nil(suite.T(), err)
-// 	var carrier models.Carrier
-// 	assert.Nil(suite.T(), suite.db.First(&carrier, id).Error)
-// 	assert.Equal(suite.T(), name, carrier.Name)
-// 	assert.Equal(suite.T(), trackingTemplate, carrier.TrackingTemplate)
-// }
+	//assert
+	suite.assert.Equal(uint(1), id)
+	suite.assert.Nil(err)
+	var carrier models.Carrier
+	suite.assert.Nil(suite.db.First(&carrier, id).Error)
+	suite.assert.Equal(name, carrier.Name)
+	suite.assert.Equal(trackingTemplate, carrier.TrackingTemplate)
+}
 
-// func (suite *CarrierServiceTestSuite) TestUpdateCarrier() {
-// 	//arrange
-// 	name, newName, trackingTemplate := "DHL", "UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"
-// 	id, _ := suite.service.CreateCarrier(&models.Carrier{Name: name, TrackingTemplate: trackingTemplate})
+func (suite *CarrierServiceTestSuite) TestUpdateCarrier() {
+	//arrange
+	name, trackingTemplate := "UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"
+	suite.mock.
+		ExpectExec(`UPDATE "carriers"`).
+		WithArgs(1, name, trackingTemplate, 1).
+		WillReturnResult(sqlmock.NewResult(1, 1))
 
-// 	//act
-// 	err := suite.service.UpdateCarrier(&models.Carrier{ID: id, Name: newName, TrackingTemplate: trackingTemplate})
+	//act
+	err := suite.service.UpdateCarrier(&models.Carrier{ID: 1, Name: name, TrackingTemplate: trackingTemplate})
 
-// 	//assert
-// 	assert.Nil(suite.T(), err)
-// 	var carrier models.Carrier
-// 	assert.Nil(suite.T(), suite.db.First(&carrier, id).Error)
-// 	assert.Equal(suite.T(), newName, carrier.Name)
-// }
+	//assert
+	suite.assert.Nil(err)
+}
 
-// func (suite *CarrierServiceTestSuite) TestDeleteCarrier() {
-// 	//arrange
-// 	carrier1 := &models.Carrier{
-// 		Name:             "UPS",
-// 		TrackingTemplate: "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number",
-// 	}
-// 	suite.service.CreateCarrier(carrier1)
-// 	carrier2 := &models.Carrier{
-// 		Name:             "DHL",
-// 		TrackingTemplate: "http://www.dhl.com/en/express/tracking.shtml?AWB=$number&brand=DHL",
-// 	}
-// 	suite.service.CreateCarrier(carrier2)
-// 	carriers, err := suite.service.GetCarriers()
+func (suite *CarrierServiceTestSuite) TestDeleteCarrier() {
+	//arrange
+	suite.mock.
+		ExpectExec(`DELETE FROM "carriers"`).
+		WithArgs(1).
+		WillReturnResult(sqlmock.NewResult(1, 1))
 
-// 	//act
-// 	err = suite.service.DeleteCarrier(carriers[0].ID)
+	//act
+	err := suite.service.DeleteCarrier(1)
 
-// 	//assert
-// 	assert.Nil(suite.T(), err)
-// 	carriers, err = suite.service.GetCarriers()
-// 	assert.Equal(suite.T(), carrier2.Name, carriers[0].Name)
-// 	assert.Equal(suite.T(), carrier2.TrackingTemplate, carriers[0].TrackingTemplate)
-// }
+	//assert
+	suite.assert.Nil(err)
+}
