@@ -96,15 +96,3 @@ module "prodsmall_vpn" {
     network = "${google_compute_network.prodsmall.name}"
 }
 
-##############################################
-# Consul Cluster
-##############################################
-module "prodsmall_consul_cluster" {
-    source = "../../modules/gce/consul"
-    network = "${var.network}"
-    datacenter = "${var.network}"
-    servers = 3
-    image = "${var.consul_cluster_image}"
-    ssh_user = "${var.ssh_user}"
-    ssh_private_key = "${var.ssh_private_key}"
-}
