@@ -7,12 +7,15 @@ import Form from '../forms/form';
 import FormField from '../forms/formfield';
 import { PrimaryButton, Button } from '../common/buttons';
 import WaitAnimation from '../common/wait-animation';
+import WrapToLines from './wrap-to-lines';
 
 import { transitionTo } from 'browserHistory';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 
 import * as userActions from '../../modules/user';
+
+import styles from './css/auth.css';
 
 // types
 import type {
@@ -111,18 +114,16 @@ export default class Login extends React.Component {
 
   render() {
     return (
-      <div className="fc-login">
+      <div styleName="main">
         <Form className="fc-grid fc-login fc-form-vertical">
-          <img className="fc-login__logo" src="/images/fc-logo-v.svg"/>
-          <div className="fc-login__title">Sign In</div>
+          <div className="fc-auth__title">Sign In</div>
           {this.infoMessage}
           <Button className="fc-login__google-btn" icon="google" onClick={this.onGoogleSignIn}>
             Sign In with Google
           </Button>
         </Form>
         <Form className="fc-grid fc-login fc-login__email-password fc-form-vertical" onSubmit={this.submitLogin}>
-          <div className="fc-login__or">or</div>
-          <div className="fc-login__or-cont"></div>
+          <WrapToLines styleName="or-line">or</WrapToLines>
           {this.errorMessage}
           <FormField className="fc-login__email" label="Email">
             <input onChange={this.onEmailChange} value={this.state.email} type="text" className="fc-input"/>
@@ -136,9 +137,6 @@ export default class Login extends React.Component {
             isLoading={this.props.authenticationState.inProgress}>
             Sign In
           </PrimaryButton>
-          <div className="fc-login__copyright">
-            © 2016 FoxCommerce. All rights reserved. Privacy Policy. Terms of Use.
-          </div>
         </Form>
       </div>
     );

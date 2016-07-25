@@ -1,0 +1,51 @@
+
+.or-line {
+  margin-top: 20px;
+  font-size: 16px;
+  line-height: 22px;
+}
+
+.or-line + :global(.fc-alert) {
+  margin-top: 10px;
+}
+
+.message {
+  margin-top: 40px;
+  margin-bottom: 20px;
+  color: #484848;
+}
+
+.auth-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.main {
+  composes: auth-row;
+  width: 388px;
+
+  & :global(.fc-input) {
+    width: 100%;
+  }
+}
+
+.form {
+  composes: global(fc-form-vertical);
+  width: 100%;
+
+  & :global(.fc-form-field-label) {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 19px;
+  }
+
+  & :global(.fc-form-field) {
+    margin-top: 10px;
+  }
+}
+
+.submit-button {
+  margin-top: 20px;
+  width: 100%;
+}
