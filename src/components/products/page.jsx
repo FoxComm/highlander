@@ -162,6 +162,19 @@ class ProductPage extends Component {
     }
   }
 
+  renderArchiveSection() {
+    return(
+      <div className="fc-archive-actions">
+        <Button
+          type="button"
+          onClick={this.showArchiveConfirmation}>
+          Archive Product
+        </Button>
+        {this.renderConfirmation()}
+      </div>
+    )
+  }
+
   renderConfirmation() {
     const confirmation = (
       <div>
@@ -169,7 +182,7 @@ class ProductPage extends Component {
           Warning! This action cannot be undone
         </Alert>
         <span>
-          Are you sure you want to archive <strong>{this.props.params.productId}</strong> ?
+          Are you sure you want to archive <strong>{this.pageTitle}</strong> ?
         </span>
       </div>
     );
@@ -235,14 +248,7 @@ class ProductPage extends Component {
           </div>
         </div>
 
-        <div className="fc-archive-actions">
-          <Button
-            type="button"
-            onClick={this.showArchiveConfirmation}>
-            Archive Product
-          </Button>
-          {this.renderConfirmation()}
-        </div>
+        {!this.isNew && this.renderArchiveSection()}
       </div>
     );
   }
