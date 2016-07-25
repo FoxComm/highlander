@@ -10,7 +10,7 @@ const defaultContext = 'default';
 const _archiveProduct = createAsyncActions(
   'archiveProduct',
   (id, context = defaultContext) => {
-    return Api.delete(`/products/${context}/${id}/archive`);
+    return Api.delete(`/products/${context}/${id}`);
   }
 );
 
