@@ -69,7 +69,7 @@ export default class ActivityTrailPage extends React.Component {
       if (!err) {
         return <ActivityTrail {...params} />;
       } else {
-        return <ErrorAlerts errors={[err]} />;
+        return <ErrorAlerts error={err} />;
       }
     } else if (isFetching === true) {
       return <WaitAnimation />;

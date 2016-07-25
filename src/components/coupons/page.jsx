@@ -42,8 +42,8 @@ type CouponPageProps = {
   children: Element,
   isFetching: boolean,
   isSaving: boolean,
-  fetchError: ?Array<string>,
-  submitErrors: ?Array<string>,
+  fetchError: any,
+  submitError: any,
 };
 
 class CouponPage extends Component {
@@ -250,7 +250,7 @@ class CouponPage extends Component {
         </PageTitle>
         <SubNav params={this.props.params} />
         <div styleName="coupon-details">
-          <ErrorAlerts errors={this.props.submitErrors} closeAction={actions.clearSubmitErrors} />
+          <ErrorAlerts error={this.props.submitError} closeAction={actions.clearSubmitErrors} />
           {children}
         </div>
       </div>
@@ -268,9 +268,9 @@ export default connect(
       || _.get(state.asyncActions, 'updateCoupon.inProgress', false)
     ),
     fetchError: _.get(state.asyncActions, 'getCoupon.err', null),
-    submitErrors: (
-      _.get(state.asyncActions, 'createCoupon.err.messages') ||
-      _.get(state.asyncActions, 'updateCoupon.err.messages')
+    submitError: (
+      _.get(state.asyncActions, 'createCoupon.err') ||
+      _.get(state.asyncActions, 'updateCoupon.err')
     )
   }),
   dispatch => ({ actions: bindActionCreators(CouponActions, dispatch), dispatch })

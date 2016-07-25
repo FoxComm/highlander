@@ -2,6 +2,7 @@
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
 import Alert from '../alerts/alert';
+import ErrorAlerts from '../alerts/error-alerts';
 import Form from '../forms/form';
 import FormField from '../forms/formfield';
 import { PrimaryButton, Button } from '../common/buttons';
@@ -28,27 +29,33 @@ type TState = {
 type LoginProps = {
   current: TUser,
   authenticate: (payload: LoginPayload) => Promise,
-  user: { 
-    err: Object, 
-    isFetching: boolean, 
+  user: {
     message: String,
   },
+  authenticationState: {
+    err?: any,
+    inProgress?: boolean,
+  },
+  err: any,
   googleSignin: Function,
 }
 
 /* ::`*/
-@connect((state) => ({ user: state.user }), userActions)
+@connect((state) => ({
+  user: state.user,
+  authenticationState: _.get(state.asyncActions, 'authenticate', {})
+}), userActions)
 /* ::`*/
 export default class Login extends React.Component {
   state: TState = {
-      email: '',
-      password: '',
+    email: '',
+    password: '',
   };
 
   props: LoginProps;
 
   @autobind
-  submitLogin () {
+  submitLogin() {
     const payload = _.pick(this.state, 'email', 'password');
     payload['kind'] = 'admin';
 
@@ -97,9 +104,9 @@ export default class Login extends React.Component {
   }
 
   get errorMessage() {
-    const { err } = this.props.user;
+    const err = this.props.authenticationState.err;
     if (!err) return null;
-    return <Alert type="error">{err}</Alert>;
+    return <ErrorAlerts error={err} />;
   }
 
   render() {
@@ -126,7 +133,7 @@ export default class Login extends React.Component {
           <PrimaryButton
             className="fc-login__signin-btn"
             type="submit"
-            isLoading={this.props.user.isFetching}>
+            isLoading={this.props.authenticationState.inProgress}>
             Sign In
           </PrimaryButton>
           <div className="fc-login__copyright">

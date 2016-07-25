@@ -139,7 +139,7 @@ const reducer = createReducer({
 
     return {
       ...state,
-      error: _.get(err, ['responseJson', 'errors'], []),
+      error: _.get(err, 'response.body.errors', []),
       isFetching: false,
     };
   }
