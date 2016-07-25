@@ -11,6 +11,7 @@
     db_host: db.service.consul
     db_user: phoenix
     db_name: phoenix_development
+    phoenix_db_name: phoenix_development
     phoenix_tracing: "true"
     zipkin_collector: zipkin.service.consul
     log_host: es-log.service.consul

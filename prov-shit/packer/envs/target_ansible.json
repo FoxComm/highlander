@@ -4,6 +4,7 @@
 	"db_host": "db.service.consul",
 	"db_user": "phoenix",
 	"db_name": "phoenix_development",
+	"phoenix_db_name": "phoenix_development",
 	"phoenix_env": "staging",
 	"phoenix_tracing": true,
 	"phoenix_server": "phoenix.service.consul:9090",
