@@ -150,17 +150,3 @@ module "usertest2" {
     ssh_user = "${var.ssh_user}"
     ssh_private_key = "${var.ssh_private_key}"
 }
-
-##############################################
-# Setup Target
-##############################################
-module "target" {
-    source = "../../modules/gce/tinystack"
-    datacenter = "target"
-    backend_image = "${var.tiny_backend_image}"
-    frontend_image = "${var.tiny_frontend_image}"
-    ssh_user = "${var.ssh_user}"
-    ssh_private_key = "${var.ssh_private_key}"
-    consul_leader = "${module.consul_cluster.leader}"
-    consul_server_image = "${var.consul_server_image}"
-}
