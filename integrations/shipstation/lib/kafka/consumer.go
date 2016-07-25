@@ -5,11 +5,10 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/elodina/go-kafka-avro"
+	avro "github.com/elodina/go-avro"
+	kafkaavro "github.com/elodina/go-kafka-avro"
 	"github.com/elodina/go_kafka_client"
 )
-
-type MessageHandler func(message *go_kafka_client.Message) error
 
 type Consumer interface {
 	RunTopic(string)
@@ -29,7 +28,7 @@ func NewConsumer(zookeeper string, schemaRepo string, handler MessageHandler) (C
 	consumerConfig.Coordinator = go_kafka_client.NewZookeeperCoordinator(zConfig)
 	consumerConfig.NumWorkers = 1
 	consumerConfig.NumConsumerFetchers = 1
-	consumerConfig.KeyDecoder = avro.NewKafkaAvroDecoder(schemaRepo)
+	consumerConfig.KeyDecoder = kafkaavro.NewKafkaAvroDecoder(schemaRepo)
 	consumerConfig.ValueDecoder = consumerConfig.KeyDecoder
 
 	consumerConfig.Strategy = createDefaultStrategy(handler)
@@ -63,7 +62,15 @@ func createDefaultStrategy(fn MessageHandler) go_kafka_client.WorkerStrategy {
 		message *go_kafka_client.Message,
 		taskId go_kafka_client.TaskId) go_kafka_client.WorkerResult {
 
-		if err := fn(message); err != nil {
+		record, ok := message.DecodedValue.(*avro.GenericRecord)
+		if !ok {
+			panic("Error decoding error message")
+		}
+
+		recordStr := fmt.Sprintf("%v\n", record)
+		bytes := []byte(recordStr)
+
+		if err := fn(&bytes); err != nil {
 			panic(err)
 		}
 

@@ -1,6 +1,6 @@
 package payloads
 
-import "github.com/FoxComm/shipstation/lib/responses"
+import "github.com/FoxComm/shipstation/lib/shipstation/responses"
 
 // Product is the payload taking by the update product endpoint.
 type Product struct {
