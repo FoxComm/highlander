@@ -6,3 +6,4 @@ import:
   - package: github.com/lib/pq
   - package: github.com/Sirupsen/logrus
   - package: github.com/stretchr/testify
+  - package: github.com/DATA-DOG/go-sqlmock
