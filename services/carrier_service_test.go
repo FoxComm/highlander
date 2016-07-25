@@ -92,7 +92,6 @@ func (suite *CarrierServiceTestSuite) TestCreaterCarrier() {
 	model := &models.Carrier{Name: name, TrackingTemplate: trackingTemplate}
 	suite.mock.
 		ExpectExec(`INSERT INTO "carriers"`).
-		WithArgs(name, trackingTemplate).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	//act
@@ -108,7 +107,6 @@ func (suite *CarrierServiceTestSuite) TestUpdateCarrier() {
 	name, trackingTemplate := "UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"
 	suite.mock.
 		ExpectExec(`UPDATE "carriers"`).
-		WithArgs(1, name, trackingTemplate, 1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	//act
