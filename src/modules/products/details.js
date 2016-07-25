@@ -69,8 +69,8 @@ export function fetchProduct(id: string, context: string = defaultContext): Acti
 
 export function createProduct(product: Product, context: string = defaultContext): ActionDispatch {
   return dispatch => {
-    dispatch(productUpdateStart());
     dispatch(productSet(product));
+    dispatch(productUpdateStart());
     return Api.post(`/products/${context}`, product)
       .then(
         (product: Product) => {
@@ -87,8 +87,8 @@ export function createProduct(product: Product, context: string = defaultContext
 
 export function updateProduct(product: Product, context: string = defaultContext): ActionDispatch {
   return dispatch => {
-    dispatch(productUpdateStart());
     dispatch(productSet(product));
+    dispatch(productUpdateStart());
     return Api.patch(`/products/${context}/${product.id}`, product)
       .then(
         (product: Product) => dispatch(productUpdateSuccess(product)),

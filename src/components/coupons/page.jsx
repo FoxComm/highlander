@@ -41,6 +41,7 @@ type CouponPageProps = {
   details: Object,
   children: Element,
   isFetching: boolean,
+  isSaving: boolean,
   fetchError: ?Array<string>,
   submitErrors: ?Array<string>,
 };
@@ -239,6 +240,7 @@ class CouponPage extends Component {
             menuPosition="right"
             onPrimaryClick={this.handleSubmit}
             onSelect={this.handleSelectSaving}
+            isLoading={props.isSaving}
             items={[
               ['save_and_new', 'Save and Create New'],
               ['save_and_duplicate', 'Save and Duplicate'],
@@ -261,6 +263,10 @@ export default connect(
     details: state.coupons.details,
     codeGeneration: state.coupons.details.codeGeneration,
     isFetching: _.get(state.asyncActions, 'getCoupon.inProgress', null),
+    isSaving: (
+      _.get(state.asyncActions, 'createCoupon.inProgress', false)
+      || _.get(state.asyncActions, 'updateCoupon.inProgress', false)
+    ),
     fetchError: _.get(state.asyncActions, 'getCoupon.err', null),
     submitErrors: (
       _.get(state.asyncActions, 'createCoupon.err.messages') ||

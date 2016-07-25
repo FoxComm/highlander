@@ -5,6 +5,7 @@
   }
 
   .initials {
+    display: inline-block;
     color: @color-white;
     margin-right: 5px;
   }
@@ -56,6 +57,10 @@
 
     &-selector {
       margin-top: 15px;
+
+      .fc-dropdown {
+        max-width: 100%;
+      }
     }
   }
 
@@ -68,7 +73,7 @@
   }
 
   &__status-dropdown {
-    min-width: 100px;
+    width: 175px;
   }
 }
 

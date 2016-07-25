@@ -29,6 +29,7 @@ export type ImageInfo = {
   title: string;
   alt: ?string;
   key?: string;
+  src: string;
 }
 
 export type ImageFile = FileInfo & ImageInfo;

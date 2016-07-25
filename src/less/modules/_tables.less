@@ -64,7 +64,7 @@
       padding: 10px 15px;
       font-size: 13px;
       font-weight: 600;
-      line-height: 18px;
+      line-height: 14px;
       border-right: 1px solid @color-th-border;
       border-bottom: 1px solid @color-th-border;
       height: 62px;
@@ -165,7 +165,8 @@
       display: table-cell;
       height: 55px;
       padding: 10px 15px;
-      .font-spec(13px, 18px);
+      font-size: 13px;
+      line-height: 0;
       color: @color-decor1;
       vertical-align: middle;
       background-clip: padding-box;
@@ -220,7 +221,9 @@
 }
 
 .fc-table-actions {
-  line-height: 40px;
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
 
   &__dropdown {
     width: 100px;

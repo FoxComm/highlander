@@ -45,14 +45,15 @@ function setColumnsWidths(headerCells: Array<HTMLElement>,
                           stretchRequired: boolean) {
   _.range(0, headerCells.length).forEach((index: number) => {
     const isLast = index === headerCells.length - 1;
-    const headerCellWidth = !isLast ? `${columnWidths[index]}px` : '100%';
+    const cellWidth = !isLast ? `${columnWidths[index]}px` : '100%';
+    const cellMinWidth = `${columnWidths[index]}px`;
 
-    headerCells[index].style.width = headerCells[index].style.minWidth = headerCellWidth;
+    headerCells[index].style.width = cellWidth;
+    headerCells[index].style.minWidth = cellMinWidth;
 
     if (!_.isEmpty(bodyCells)) {
-      const bodyCellWidth = !stretchRequired || !isLast ? `${columnWidths[index]}px` : '100%';
-
-      bodyCells[index].style.width = bodyCells[index].style.minWidth = bodyCellWidth;
+      bodyCells[index].style.width = cellWidth;
+      bodyCells[index].style.minWidth = cellMinWidth;
     }
   });
 }
@@ -128,20 +129,23 @@ class DataTable extends Table {
   }
 
   componentDidUpdate(prevProps: Props): void {
-    if (prevProps.data.rows !== this.props.data.rows) {
+    const dataChanged = prevProps.data.rows !== this.props.data.rows;
+    const columnsSetChanged = prevProps.columns.length !== this.props.columns.length;
+
+    if (dataChanged || columnsSetChanged) {
       this.resize();
     }
   }
 
   @autobind
-  handleHeadScroll({ target }: any /* e.target.scrollLeft throws an type error in flow with (e: Event) declaration :( */): void {
+  handleHeadScroll({ target }: SyntheticEvent): void {
     if (target.scrollLeft !== this.scrollCache) {
       this._body.scrollLeft = this.scrollCache = target.scrollLeft;
     }
   }
 
   @autobind
-  handleBodyScroll({ target }: any /* e.target.scrollLeft throws an type error in flow with (e: Event) declaration :( */): void {
+  handleBodyScroll({ target }: SyntheticEvent): void {
     if (target.scrollLeft !== this.scrollCache) {
       this._head.scrollLeft = this.scrollCache = target.scrollLeft;
     }

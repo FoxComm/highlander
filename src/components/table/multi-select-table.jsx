@@ -9,7 +9,6 @@ import localStorage from 'localStorage';
 // components
 import TableView from './tableview';
 import MultiSelectHead, { selectionState } from './multi-select-head';
-import ColumnSelector from './column-selector';
 
 export default class MultiSelectTable extends React.Component {
   static propTypes = {
@@ -60,16 +59,16 @@ export default class MultiSelectTable extends React.Component {
   getSelectedColumns() {
     const tableName = this.getTableIdentifier();
     let savedColumns = localStorage.getItem('columns');
-    if(!savedColumns) return this.props.columns;
+    if (!savedColumns) return this.props.columns;
 
     const columns = JSON.parse(savedColumns);
-    if(!columns[tableName]) return this.props.columns;
-    return _.filter(columns[tableName], {isVisible:true});
+    if (!columns[tableName]) return this.props.columns;
+    return _.filter(columns[tableName], { isVisible: true });
   }
 
   getRowSetChecked(key) {
     return (checked) => {
-      let {allChecked, toggledIds} = this.state;
+      let { allChecked, toggledIds } = this.state;
 
       if (allChecked !== checked) {
         toggledIds = toggledIds.concat(key);
@@ -79,24 +78,24 @@ export default class MultiSelectTable extends React.Component {
 
       toggledIds = _.uniq(toggledIds);
 
-      this.setState({toggledIds});
+      this.setState({ toggledIds });
     };
   }
 
   @autobind
   setColumnSelected(columns) {
-    this.setState({columns});
+    this.setState({ columns });
   }
 
   @autobind
   setAllChecked(checked) {
     //set allChecked flag and reset toggledIds list
-    this.setState({allChecked: checked, toggledIds: []});
+    this.setState({ allChecked: checked, toggledIds: [] });
   }
 
   @autobind
   setPageChecked(checked) {
-    let {allChecked, toggledIds} = this.state;
+    let { allChecked, toggledIds } = this.state;
 
     //if checked states differ - add id's, else - remove them
     if (allChecked !== checked) {
@@ -107,25 +106,25 @@ export default class MultiSelectTable extends React.Component {
 
     toggledIds = _.uniq(toggledIds);
 
-    this.setState({toggledIds});
+    this.setState({ toggledIds });
   }
 
   get currentPageIds() {
-    const {data: {rows}, predicate} = this.props;
+    const { data: { rows }, predicate } = this.props;
 
     return _.uniq(_.map(rows, predicate));
   }
 
   get checkboxHead() {
-    const {total} = this.props.data;
-    const {None, Some, All} = selectionState;
+    const { total } = this.props.data;
+    const { None, Some, All } = selectionState;
     if (!total) {
       return (
         <MultiSelectHead pageChecked={None} disabled={true} />
       );
     }
 
-    const {allChecked, toggledIds} = this.state;
+    const { allChecked, toggledIds } = this.state;
     const toggled = toggledIds.length;
 
     let pageChecked;
@@ -152,29 +151,13 @@ export default class MultiSelectTable extends React.Component {
       sortable: false,
     };
 
-    const toggleColumn = {
-      field: 'toggleColumns',
-      control: <ColumnSelector setColumns={this.setColumnSelected}
-                               columns={this.props.columns}
-                               identifier={this.getTableIdentifier()} />,
-      className: '__toggle-columns row-head-right',
-      sortable: false,
-    };
-
-    return this.props.hasActionsColumn ? [
-      selectColumn,
-      ...this.state.columns,
-      toggleColumn,
-    ] : [
-      selectColumn,
-      ...this.state.columns,
-    ];
+    return [selectColumn, ...this.state.columns];
   }
 
   @autobind
   renderRow(row, index, isNew) {
-    const {allChecked, toggledIds} = this.state;
-    const {renderRow, predicate} = this.props;
+    const { allChecked, toggledIds } = this.state;
+    const { renderRow, predicate } = this.props;
     const key = predicate(row);
 
     return renderRow(row, index, this.columns, {
@@ -185,13 +168,18 @@ export default class MultiSelectTable extends React.Component {
   }
 
   render() {
+    const columns = this.columns;
+
     return (
       <TableView
         {...this.props}
         allChecked={this.state.allChecked}
         toggledIds={this.state.toggledIds}
         className={classNames('fc-multi-select-table', this.props.className)}
-        columns={this.columns}
+        columns={columns}
+        setColumnSelected={this.setColumnSelected}
+        selectableColumns={columns.slice(1)}
+        tableIdentifier={this.getTableIdentifier()}
         renderRow={this.renderRow} />
     );
   }

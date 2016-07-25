@@ -2,13 +2,11 @@
 
 const path = require('path');
 const merge = require('merge-stream');
-const PluginCleanCSS = require('less-plugin-clean-css');
 const PluginAutoPrefix = require('less-plugin-autoprefix');
 const PluginNpmImport = require('less-plugin-npm-import');
 const groupMediaQueries = require('less-plugin-group-css-media-queries');
 
 const npmImport = new PluginNpmImport();
-const cleanCSS = new PluginCleanCSS({advanced: true});
 const autoPrefix = new PluginAutoPrefix({browsers: ["last 2 versions"]});
 
 module.exports = function(gulp, opts, $) {
@@ -24,7 +22,7 @@ module.exports = function(gulp, opts, $) {
       })))
       .pipe($.concat(`less_bundle.less`))
       .pipe($.less({
-        plugins: [npmImport, groupMediaQueries, autoPrefix, cleanCSS]
+        plugins: [npmImport, groupMediaQueries, autoPrefix]
       }))
       .pipe(gulp.dest('build'));
   });
