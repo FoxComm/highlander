@@ -35,5 +35,6 @@
     "zookeeper_1": "10.0.0.3",
     "zookeeper_2": "10.0.0.4",
     "zookeeper_3": "10.0.0.5",
-    "docker_registry_bucket": "topdrawer-docker"
+    "docker_registry_bucket": "topdrawer-docker",
+    "cert_path": "topdrawer/docker"
 }

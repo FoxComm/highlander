@@ -8,7 +8,7 @@ Restart=always
 ExecStartPre=-/usr/bin/docker stop registry
 ExecStartPre=-/usr/bin/docker rm registry
 ExecStartPre=/usr/bin/docker pull registry:2
-ExecStart=/usr/bin/docker run --rm --name registry --net=host --volume=/var/run/docker.sock:/tmp/docker.sock -v /etc/docker_registry/config.yml:/etc/docker/registry/config.yml registry:2 
+ExecStart=/usr/bin/docker run --rm --name registry -p 5000:5000 --net=host --volume=/var/run/docker.sock:/tmp/docker.sock -v /etc/docker_registry/config.yml:/etc/docker/registry/config.yml -v /certs:/certs registry:2 
  
 [Install]
 WantedBy=multi-user.target

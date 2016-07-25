@@ -1,0 +1,15 @@
+{
+    "service" : {
+        "name": "mesos_master",
+        "tags": ["mesos_master"], 
+        "port": 5050,
+        "checks": [
+            {
+                "name": "HTTP API on port 5050",
+                "http": "http://localhost:5050",
+                "interval": "30s",
+                "status": "passing"
+            }
+        ]
+    }
+}

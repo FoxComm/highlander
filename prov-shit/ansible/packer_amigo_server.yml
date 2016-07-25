@@ -10,9 +10,10 @@
     join_type: join
 
   roles:
-    - { role: base/common }
-    - { role: base/consul }
     - { role: base/consul_server }
     - { role: base/zookeeper }
-    - { role: base/docker }
     - { role: base/docker_registry }
+    - { role: base/mesos_master }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml

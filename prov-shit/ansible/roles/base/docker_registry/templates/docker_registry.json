@@ -1,0 +1,15 @@
+{
+    "service" : {
+        "name": "docker_registry",
+        "tags": ["docker_registry", "docker"], 
+        "port": 5000,
+        "checks": [
+            {
+                "name": "HTTP on port 5000",
+                "http": "http://localhost:5000",
+                "interval": "30s",
+                "status": "passing"
+            }
+        ]
+    }
+}
