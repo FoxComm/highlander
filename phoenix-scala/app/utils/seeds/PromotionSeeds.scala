@@ -34,8 +34,8 @@ trait PromotionSeeds {
                                formId = ins.form.id,
                                shadowId = ins.shadow.id,
                                commitId = ins.commit.id))
-      link ← * <~ ObjectLinks.create(
-                ObjectLink.buildDiscount(promotion.shadowId, discount.shadowId))
+      link ← * <~ PromotionDiscountLinks.create(
+                PromotionDiscountLink(leftId = promotion.id, rightId = discount.discountId))
     } yield
       BasePromotion(promotion.id, ins.form.id, ins.shadow.id, payload.applyType, discount.title)
 

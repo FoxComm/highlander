@@ -48,7 +48,7 @@ class VariantIntegrationTest extends IntegrationTestBase with HttpSupport with A
 
   "GET v1/variants/:context/:id" - {
     "Gets a created variant successfully" in new VariantFixture {
-      val response = GET(s"v1/variants/${context.name}/${variant.variant.variantId}")
+      val response = GET(s"v1/variants/${context.name}/${variant.variant.variantFormId}")
       response.status must === (StatusCodes.OK)
 
       val variantResponse = response.as[IlluminatedVariantResponse.Root]
@@ -75,7 +75,8 @@ class VariantIntegrationTest extends IntegrationTestBase with HttpSupport with A
       val payload = VariantPayload(attributes =
                                      Map("name" → (("t" → "wtring") ~ ("v" → "New Size"))),
                                    values = None)
-      val response = PATCH(s"v1/variants/${context.name}/${variant.variant.variantId}", payload)
+      val response =
+        PATCH(s"v1/variants/${context.name}/${variant.variant.variantFormId}", payload)
 
       response.status must === (StatusCodes.OK)
 
@@ -143,7 +144,7 @@ class VariantIntegrationTest extends IntegrationTestBase with HttpSupport with A
       productData ← * <~ Mvp.insertProduct(context.id, simpleProd)
       product ← * <~ ProductManager.mustFindProductByContextAndId404(context.id,
                                                                      productData.productId)
-      variant ← * <~ Mvp.insertVariantWithValues(context.id, product.shadowId, simpleSizeVariant)
+      variant ← * <~ Mvp.insertVariantWithValues(context.id, product, simpleSizeVariant)
     } yield (product, variant)).gimme
   }
 }

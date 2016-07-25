@@ -3,6 +3,7 @@ package services.carts
 import cats.data.Xor
 import failures.CouponFailures._
 import failures.DiscountCompilerFailures._
+import failures.Failures
 import failures.OrderFailures._
 import failures.PromotionFailures._
 import models.cord.OrderPromotions.scope._
@@ -44,17 +45,11 @@ object CartPromotionUpdater {
       promoForm   ← * <~ ObjectForms.mustFindById404(promotion.formId)
       promoShadow ← * <~ ObjectShadows.mustFindById404(promotion.shadowId)
       promoObject = IlluminatedPromotion.illuminate(ctx, promotion, promoForm, promoShadow)
-      _ ← * <~ promoObject.mustBeActive
-      // Fetch discount
-      discountLinks ← * <~ ObjectLinks.filter(_.leftId === promoShadow.id).result
-      discountShadowIds = discountLinks.map(_.rightId)
-      discountShadows ← * <~ ObjectShadows.filter(_.id.inSet(discountShadowIds)).result
-      discountFormIds = discountShadows.map(_.formId)
-      discountForms ← * <~ ObjectForms.filter(_.id.inSet(discountFormIds)).result
-      discounts = for (f ← discountForms; s ← discountShadows if s.formId == f.id) yield (f, s)
+      _         ← * <~ promoObject.mustBeActive
+      discounts ← * <~ PromotionDiscountLinks.queryRightByLeft(promotion)
       // Safe AST compilation
       discount ← * <~ tryDiscount(discounts)
-      (form, shadow) = discount
+      (form, shadow) = discount.tupled
       qualifier   ← * <~ QualifierAstCompiler(qualifier(form, shadow)).compile()
       offer       ← * <~ OfferAstCompiler(offer(form, shadow)).compile()
       adjustments ← * <~ getAdjustments(promoShadow, cart, qualifier, offer)
@@ -131,7 +126,7 @@ object CartPromotionUpdater {
   /**
     * Getting only first discount now
     */
-  def tryDiscount(discounts: Seq[(ObjectForm, ObjectShadow)]) = discounts.headOption match {
+  def tryDiscount[T](discounts: Seq[T]): Failures Xor T = discounts.headOption match {
     case Some(discount) ⇒ Xor.Right(discount)
     case _              ⇒ Xor.Left(EmptyDiscountFailure.single)
   }

@@ -25,19 +25,29 @@ object ObjectHeadLinks {
     def updatedAt = column[Instant]("updated_at")
   }
 
-  abstract class ObjectHeadLinkQueries[M <: ObjectHeadLink[M], T <: ObjectHeadLinks[M]](
-      construct: Tag ⇒ T)
+  abstract class ObjectHeadLinkQueries[M <: ObjectHeadLink[M],
+                                       T <: ObjectHeadLinks[M],
+                                       L <: ObjectHead[L],
+                                       R <: ObjectHead[R]](construct: Tag ⇒ T,
+                                                           leftQuery: FoxTableQuery[L, _],
+                                                           rightQuery: FoxTableQuery[R, _])
       extends FoxTableQuery[M, T](construct) {
 
-    def filterLeft(leftId: Int): QuerySeq       = filter(_.leftId === leftId)
-    def filterLeft(leftIds: Seq[Int]): QuerySeq = filter(_.leftId.inSet(leftIds))
+    def filterLeft(left: L): QuerySeq               = filterLeftId(left.id)
+    private def filterLeftId(leftId: Int): QuerySeq = filter(_.leftId === leftId)
 
-    def rightByLeftId[J <: ObjectHead[J]](leftId: Int, readHead: (Int) ⇒ DbResultT[J])(
+    def queryRightByLeft(left: L)(implicit ec: EC, db: DB): DbResultT[Seq[FullObject[R]]] =
+      rightByLeftId(left.id, rightQuery.mustFindById404)
+
+    def queryRightByLeftId(leftId: Int)(implicit ec: EC, db: DB): DbResultT[Seq[FullObject[R]]] =
+      rightByLeftId(leftId, rightQuery.mustFindById404)
+
+    private def rightByLeftId[J <: ObjectHead[J]](leftId: Int, readHead: (Int) ⇒ DbResultT[J])(
         implicit ec: EC,
         db: DB): DbResultT[Seq[FullObject[J]]] =
       for {
-        links         ← * <~ filterLeft(leftId).result
-        linkedObjects ← * <~ links.map(link ⇒ ObjectUtils.getFullObject(readHead(link.id)))
+        links         ← * <~ filterLeftId(leftId).result
+        linkedObjects ← * <~ links.map(link ⇒ ObjectUtils.getFullObject(readHead(link.rightId)))
       } yield linkedObjects
   }
 }

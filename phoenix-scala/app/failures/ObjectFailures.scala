@@ -11,6 +11,10 @@ object ObjectFailures {
     override def description = s"Shadow attribute ref $name is missing from form"
   }
 
+  case class ShadowAttributeInvalidTime(attr: String, value: String) extends Failure {
+    override def description = s"Shadow attribute $attr contains invalid time value $value"
+  }
+
   case class ShadowHasInvalidAttribute(attr: String, key: String) extends Failure {
     override def description = s"Cannot find attribute $attr with key $key in form"
   }

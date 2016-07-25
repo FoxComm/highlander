@@ -5,11 +5,9 @@ import java.time.Instant
 import cats.data.NonEmptyList
 import cats.implicits._
 import failures.Failure
-import failures.ObjectFailures._
 import org.json4s.JsonAST.{JField, JNothing, JObject, JString}
 import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods._
-import slick.driver.PostgresDriver.api._
 import utils.IlluminateAlgorithm
 import utils.aliases._
 import utils.db._
@@ -126,6 +124,7 @@ object ObjectUtils {
 
     for {
       //Make sure form is correct and shadow links are correct
+      _      ← * <~ IlluminateAlgorithm.validateTypesFish(formProto.attributes, shadowProto.attributes)
       form   ← * <~ ObjectForms.create(formProto.copy(attributes = n.form))
       shadow ← * <~ ObjectShadows.create(shadowProto.copy(formId = form.id, attributes = n.shadow))
       commit ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
@@ -168,6 +167,7 @@ object ObjectUtils {
       shadowAttributes: Json,
       force: Boolean = false)(implicit db: DB, ec: EC): DbResultT[UpdateResult] = {
     for {
+      _ ← * <~ IlluminateAlgorithm.validateTypesFish(formAttributes, shadowAttributes)
       newAttributes ← * <~ ObjectUtils.updateFormAndShadow(oldFormAndShadow.form.attributes,
                                                            formAttributes,
                                                            shadowAttributes)
@@ -205,44 +205,6 @@ object ObjectUtils {
     else DbResultT.pure(None)
   }
 
-  def updateLink(oldLeftId: Int,
-                 leftId: Int,
-                 oldRightId: Int,
-                 rightId: Int,
-                 linkType: ObjectLink.LinkType)(implicit ec: EC): DbResultT[Unit] =
-    //Create a new link a product changes.
-    if (oldLeftId != leftId)
-      for {
-        _ ← * <~ ObjectLinks.create(
-               ObjectLink(leftId = leftId, rightId = rightId, linkType = linkType))
-      } yield Unit
-    //If the product didn't change but the sku changed, update the link
-    //This is because we never want two skus of the same type pointing to
-    //the same sku shadow.
-    else if (oldRightId != rightId)
-      for {
-        link ← * <~ ObjectLinks
-                .findByLeftRight(leftId, oldRightId)
-                .mustFindOneOr(ObjectLinkCannotBeFound(leftId, oldRightId))
-        _ ← * <~ ObjectLinks.update(link, link.copy(leftId = leftId, rightId = rightId))
-      } yield Unit
-    //otherwise nothing changed so do nothing.
-    else DbResultT.pure(Unit)
-
-  case class Child(form: ObjectForm, shadow: ObjectShadow)
-
-  def getChildren(leftId: Int, linkType: ObjectLink.LinkType)(
-      implicit ec: EC): DbResultT[Seq[Child]] =
-    for {
-      links ← * <~ ObjectLinks.findByLeftAndType(leftId, linkType).result
-      shadowIds = links.map(_.rightId)
-      shadows ← * <~ ObjectShadows.filter(_.id.inSet(shadowIds)).result
-      formIds = shadows.map(_.formId)
-      forms  ← * <~ ObjectForms.filter(_.id.inSet(formIds)).result
-      pairs  ← * <~ forms.sortBy(_.id).zip(shadows.sortBy(_.formId))
-      result ← * <~ pairs.map { case (form, shadow) ⇒ Child(form, shadow) }
-    } yield result
-
   private def updateIfDifferent(
       old: FormAndShadow,
       newFormAttributes: Json,
@@ -267,96 +229,6 @@ object ObjectUtils {
   def failIfErrors(errors: Seq[Failure])(implicit ec: EC): DbResultT[Unit] = errors match {
     case head :: tail ⇒ DbResultT.failures(NonEmptyList(head, tail))
     case Nil          ⇒ DbResultT.pure(Unit)
-  }
-
-  def updateAssociatedLefts[M <: ObjectHead[M], T <: ObjectHeads[M]](
-      Left: FoxTableQuery[M, T],
-      contextId: Int,
-      oldRightId: Int,
-      newRightId: Int,
-      linkType: ObjectLink.LinkType)(implicit ec: EC, db: DB): DbResultT[Seq[ObjectLink]] =
-    for {
-      links ← * <~ ObjectLinks.findByRightAndType(oldRightId, linkType).result
-      upLinks ← * <~ links.map { link ⇒
-                 for {
-                   shadow    ← * <~ ObjectShadows.mustFindById404(link.leftId)
-                   newShadow ← * <~ ObjectShadows.create(shadow.copy(id = 0))
-                   optModel ← * <~ Left
-                               .filter(_.formId === shadow.formId)
-                               .filter(_.contextId === contextId)
-                               .one
-                   newLink ← * <~ updateLeftLinkIfObject(optModel,
-                                                         Left,
-                                                         newShadow.id,
-                                                         newRightId,
-                                                         linkType)
-                 } yield newLink.getOrElse(link)
-               }
-    } yield upLinks
-
-  def updateAssociatedRights[M <: ObjectHead[M], T <: ObjectHeads[M]](
-      Right: FoxTableQuery[M, T],
-      oldLinks: Seq[ObjectLink],
-      newLeftId: Int)(implicit ec: EC, db: DB): DbResultT[Seq[ObjectLink]] =
-    DbResultT.sequence(oldLinks.map(link ⇒ updateAssociatedRight(Right, link, newLeftId)))
-
-  def updateAssociatedRight[M <: ObjectHead[M], T <: ObjectHeads[M]](
-      Right: FoxTableQuery[M, T],
-      oldLink: ObjectLink,
-      newLeftId: Int)(implicit ec: EC, db: DB): DbResultT[ObjectLink] =
-    for {
-      shadow    ← * <~ ObjectShadows.mustFindById404(oldLink.rightId)
-      newShadow ← * <~ ObjectShadows.create(shadow.copy(id = 0))
-      optModel  ← * <~ Right.filter(_.shadowId === oldLink.rightId).one
-      newLink ← * <~ updateRightLinkIfObject(optModel,
-                                             Right,
-                                             newLeftId,
-                                             newShadow.id,
-                                             oldLink.linkType)
-    } yield newLink.getOrElse(oldLink)
-
-  def updateLeftLinkIfObject[M <: ObjectHead[M], T <: ObjectHeads[M]](
-      maybe: Option[M],
-      table: FoxTableQuery[M, T],
-      newShadowId: Int,
-      newRightId: Int,
-      linkType: ObjectLink.LinkType)(implicit ec: EC, db: DB): DbResultT[Option[ObjectLink]] = {
-
-    maybe match {
-      case Some(model) ⇒
-        for {
-          commit ← * <~ ObjectCommits.create(
-                      ObjectCommit(formId = model.formId, shadowId = newShadowId))
-          update ← * <~ table.update(model, model.withNewShadowAndCommit(newShadowId, commit.id))
-          link ← * <~ ObjectLinks.create(
-                    ObjectLink(leftId = update.shadowId,
-                               rightId = newRightId,
-                               linkType = linkType))
-        } yield link.some
-      case None ⇒
-        DbResultT.pure(None)
-    }
-  }
-
-  private def updateRightLinkIfObject[M <: ObjectHead[M], T <: ObjectHeads[M]](
-      maybe: Option[M],
-      table: FoxTableQuery[M, T],
-      newLeftId: Int,
-      newShadowId: Int,
-      linkType: ObjectLink.LinkType)(implicit ec: EC, db: DB): DbResultT[Option[ObjectLink]] = {
-
-    maybe match {
-      case Some(model) ⇒
-        for {
-          commit ← * <~ ObjectCommits.create(
-                      ObjectCommit(formId = model.formId, shadowId = newShadowId))
-          update ← * <~ table.update(model, model.withNewShadowAndCommit(newShadowId, commit.id))
-          link ← * <~ ObjectLinks.create(
-                    ObjectLink(leftId = newLeftId, rightId = update.shadowId, linkType = linkType))
-        } yield link.some
-      case None ⇒
-        DbResultT.pure(None)
-    }
   }
 
   def getFullObject[T <: ObjectHead[T]](

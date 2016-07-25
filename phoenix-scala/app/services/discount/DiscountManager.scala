@@ -61,6 +61,7 @@ object DiscountManager {
                                   commit: ObjectCommit,
                                   form: ObjectForm,
                                   shadow: ObjectShadow)
+      extends FormAndShadow
 
   def createInternal(payload: CreateDiscount, context: ObjectContext)(
       implicit ec: EC): DbResultT[CreateInternalResult] =

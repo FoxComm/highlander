@@ -113,10 +113,9 @@ object SkuManager {
   def mustFindFullSkuById(id: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[FullObject[Sku]] =
     ObjectManager.getFullObject(Skus.filter(_.id === id).mustFindOneOr(SkuNotFound(id)))
 
-  def mustFindIlluminatedSkuById(
-      id: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[SkuResponse.Root] =
-    for {
-      fullSku ← * <~ mustFindFullSkuById(id)
-      albums  ← * <~ ImageManager.getAlbumsForSkuInner(fullSku.model.code, oc)
-    } yield SkuResponse.buildLite(IlluminatedSku.illuminate(oc, fullSku), albums)
+  def illuminateSku(
+      fullSku: FullObject[Sku])(implicit ec: EC, db: DB, oc: OC): DbResultT[SkuResponse.Root] =
+    ImageManager
+      .getAlbumsBySku(fullSku.model)
+      .map(albums ⇒ SkuResponse.buildLite(IlluminatedSku.illuminate(oc, fullSku), albums))
 }

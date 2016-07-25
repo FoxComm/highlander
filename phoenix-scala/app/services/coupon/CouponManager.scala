@@ -54,7 +54,8 @@ object CouponManager {
       implicit ec: EC,
       db: DB,
       ac: AC): DbResultT[CouponResponse.Root] =
-    (for {
+    for {
+
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
                  .mustFindOneOr(ObjectContextNotFound(contextName))
@@ -72,7 +73,7 @@ object CouponManager {
                          promotionId = payload.promotion))
       response = CouponResponse.build(coupon, ins.form, ins.shadow)
       _ ← * <~ LogActivity.couponCreated(response, admin)
-    } yield response)
+    } yield response
 
   def update(id: Int, payload: UpdateCoupon, contextName: String, admin: StoreAdmin)(
       implicit ec: EC,
