@@ -4,6 +4,7 @@ import failures.ImageFailures._
 import failures.NotFoundFailure404
 import models.StoreAdmin
 import models.image._
+import models.inventory.Sku
 import models.objects.ObjectUtils.InsertResult
 import models.objects._
 import payloads.ImagePayloads._
@@ -38,7 +39,7 @@ object ImageManager {
       productFormId: ObjectForm#Id)(implicit ec: EC, db: DB, oc: OC): DbResultT[Seq[AlbumRoot]] =
     for {
       product ← * <~ ProductManager.mustFindProductByContextAndFormId404(oc.id, productFormId)
-      albums  ← * <~ ProductAlbumLinks.rightByLeftId(product.id, Albums.mustFindById404)
+      albums  ← * <~ ProductAlbumLinks.queryRightByLeft(product)
       images  ← * <~ albums.map(album ⇒ getAlbumImages(album.model.id))
       result ← * <~ albums.zip(images).map {
                 case (album, image) ⇒ AlbumResponse.build(album, image)
@@ -57,7 +58,12 @@ object ImageManager {
       db: DB): DbResultT[Seq[AlbumResponse.Root]] =
     for {
       sku    ← * <~ SkuManager.mustFindSkuByContextAndCode(context.id, code)
-      albums ← * <~ SkuAlbumLinks.rightByLeftId(sku.id, Albums.mustFindById404)
+      result ← * <~ getAlbumsBySku(sku)
+    } yield result
+
+  def getAlbumsBySku(sku: Sku)(implicit ec: EC, db: DB): DbResultT[Seq[AlbumResponse.Root]] =
+    for {
+      albums ← * <~ SkuAlbumLinks.queryRightByLeft(sku)
       images ← * <~ albums.map(album ⇒ getAlbumImages(album.model.id))
       result ← * <~ albums.zip(images).map {
                 case (album, image) ⇒ AlbumResponse.build(album, image)

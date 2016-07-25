@@ -3,7 +3,6 @@ package models.objects
 import java.time.Instant
 
 import models.objects.ObjectHeadLinks._
-import models.product.VariantValueSkuLinks._
 import shapeless._
 
 import models.inventory._
@@ -29,7 +28,10 @@ class ProductSkuLinks(tag: Tag) extends ObjectHeadLinks[ProductSkuLink](tag, "pr
 }
 
 object ProductSkuLinks
-    extends ObjectHeadLinkQueries[ProductSkuLink, ProductSkuLinks](new ProductSkuLinks(_))
+    extends ObjectHeadLinkQueries[ProductSkuLink, ProductSkuLinks, Product, Sku](
+        new ProductSkuLinks(_),
+        Products,
+        Skus)
     with ReturningId[ProductSkuLink, ProductSkuLinks] {
 
   val returningLens: Lens[ProductSkuLink, Int] = lens[ProductSkuLink].id

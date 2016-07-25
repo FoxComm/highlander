@@ -256,7 +256,7 @@ class CouponsIntegrationTest
     val fromToCode       = "activeWithFromTo"
     val wasActiveCode    = "wasActiveCode"
     val willBeActiveCode = "willBeActiveCode"
-    
+
     def couponPayload(form: CreateCouponForm): CreateCoupon =
       CreateCoupon(form, orderCouponShadow, promotion.formId)
 

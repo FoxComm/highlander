@@ -304,18 +304,12 @@ object FullOrder {
                    .mustFindOneOr(PromotionNotFound(coupon.promotionId))
       promoForm   ← * <~ ObjectForms.mustFindById404(promotion.formId)
       promoShadow ← * <~ ObjectShadows.mustFindById404(promotion.shadowId)
-      // Discount
-      discountLinks ← * <~ ObjectLinks.filter(_.leftId === promoShadow.id).result
-      discountShadowIds = discountLinks.map(_.rightId)
-      discountShadows ← * <~ ObjectShadows.filter(_.id.inSet(discountShadowIds)).result
-      discountFormIds = discountShadows.map(_.formId)
-      discountForms ← * <~ ObjectForms.filter(_.id.inSet(discountFormIds)).result
-      discounts = for (f ← discountForms; s ← discountShadows if s.formId == f.id) yield (f, s)
+
+      discounts ← * <~ PromotionDiscountLinks.queryRightByLeft(promotion)
       // Illuminate
       theCoupon = IlluminatedCoupon.illuminate(context, coupon, couponForm, couponShadow)
-      theDiscounts = discounts.map {
-        case (form, shadow) ⇒ IlluminatedDiscount.illuminate(context.some, form, shadow)
-      }
+      theDiscounts = discounts.map(discount ⇒
+            IlluminatedDiscount.illuminate(context.some, discount.form, discount.shadow))
       thePromotion = IlluminatedPromotion.illuminate(context, promotion, promoForm, promoShadow)
       // Responses
       respPromo      = IlluminatedPromotionResponse.build(thePromotion, theDiscounts)

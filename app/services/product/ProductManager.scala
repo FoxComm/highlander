@@ -67,16 +67,15 @@ object ProductManager {
       oldProduct ← * <~ mustFindFullProductById(productId)
       albums     ← * <~ ImageManager.getAlbumsForProduct(oldProduct.form.id)
 
-      skuLinks    ← * <~ ProductSkuLinks.filter(_.leftId === oldProduct.model.id).result
-      productSkus ← * <~ skuLinks.map(link ⇒ SkuManager.mustFindIlluminatedSkuById(link.rightId))
+      fullSkus    ← * <~ ProductSkuLinks.queryRightByLeft(oldProduct.model)
+      productSkus ← * <~ fullSkus.map(SkuManager.illuminateSku)
 
-      variantLinks ← * <~ ProductVariantLinks.filter(_.leftId === oldProduct.model.id).result
+      variants     ← * <~ ProductVariantLinks.queryRightByLeft(oldProduct.model)
+      fullVariants ← * <~ variants.map(VariantManager.zipVariantWithValues)
 
-      hasVariants = variantLinks.nonEmpty
+      hasVariants = variants.nonEmpty
 
-      variants ← * <~ variantLinks.map(link ⇒
-                      VariantManager.mustFindFullVariantWithValuesById(link.rightId))
-      variantAndSkus ← * <~ getVariantsWithRelatedSkus(variants)
+      variantAndSkus ← * <~ getVariantsWithRelatedSkus(fullVariants)
       (variantSkus, variantResponses) = variantAndSkus
     } yield
       ProductResponse.build(
@@ -108,16 +107,14 @@ object ProductManager {
 
       albums ← * <~ ImageManager.getAlbumsForProduct(updated.form.id)
 
-      skuLinks ← * <~ ProductSkuLinks.filterLeft(oldProduct.model.id).result
-      variantLinks ← * <~ ObjectLinks
-                      .findByLeftAndType(oldProduct.shadow.id, ObjectLink.ProductVariant)
-                      .result
+      skuLinks     ← * <~ ProductSkuLinks.filterLeft(oldProduct.model).result
+      variantLinks ← * <~ ProductVariantLinks.filterLeft(oldProduct.model).result
 
       hasVariants = variantLinks.nonEmpty || payload.variants.exists(_.nonEmpty)
 
       deleted ← * <~ (if (skuLinks.nonEmpty && hasVariants)
                         ProductSkuLinks
-                          .filterLeft(oldProduct.model.id)
+                          .filterLeft(oldProduct.model)
                           .deleteAll(
                               DbResultT.unit,
                               DbResultT.failure(new GeneralFailure(
@@ -127,7 +124,7 @@ object ProductManager {
       updatedSkus ← * <~ payloadSkus.map(sku ⇒
                          findOrCreateSkuForProduct(oldProduct.model, sku, !hasVariants))
 
-      variants ← * <~ updateAssociatedVariants(updatedHead, oldProduct.shadow.id, payload.variants)
+      variants ← * <~ updateAssociatedVariants(updatedHead, payload.variants)
       fullProduct = FullObject(updatedHead, updated.form, updated.shadow)
       _ ← * <~ validateUpdate(updatedSkus, variants)
 
@@ -163,18 +160,17 @@ object ProductManager {
                                       DbResultT.unit,
                                       id ⇒ NotFoundFailure400(ProductSkuLink, id))
          }
-      updatedSkuLinks ← * <~ ProductSkuLinks.filter(_.leftId === archiveResult.id).result
-      skus            ← * <~ updatedSkuLinks.map(link ⇒ SkuManager.mustFindIlluminatedSkuById(link.rightId))
-      variantLinks    ← * <~ ProductVariantLinks.filter(_.leftId === archiveResult.id).result
+      updatedSkus  ← * <~ ProductSkuLinks.queryRightByLeft(archiveResult)
+      skus         ← * <~ updatedSkus.map(SkuManager.illuminateSku)
+      variantLinks ← * <~ ProductVariantLinks.filter(_.leftId === archiveResult.id).result
       _ ← * <~ variantLinks.map { link ⇒
            ProductVariantLinks.deleteById(link.id,
                                           DbResultT.unit,
                                           id ⇒ NotFoundFailure400(ProductSkuLink, link.id))
          }
-      updatedVariantLinks ← * <~ ProductVariantLinks.filter(_.leftId === archiveResult.id).result
-      variants ← * <~ updatedVariantLinks.map(link ⇒
-                      VariantManager.mustFindFullVariantWithValuesByShadowId(link.rightId))
-      variantAndSkus ← * <~ getVariantsWithRelatedSkus(variants)
+      updatedVariants ← * <~ ProductVariantLinks.queryRightByLeft(archiveResult)
+      variants        ← * <~ updatedVariants.map(VariantManager.zipVariantWithValues)
+      variantAndSkus  ← * <~ getVariantsWithRelatedSkus(variants)
       (variantSkus, variantResponses) = variantAndSkus
     } yield
       ProductResponse.build(
@@ -227,47 +223,20 @@ object ProductManager {
     }
   }
 
-  private def updateAssociatedSkus(product: Product, skusPayload: Option[Seq[SkuPayload]])(
+  private def updateAssociatedVariants(product: Product,
+                                       variantsPayload: Option[Seq[VariantPayload]])(
       implicit ec: EC,
       db: DB,
-      oc: OC) =
-    skusPayload match {
-      case Some(payloads) ⇒
-        DbResultT.sequence(payloads.map(payload ⇒ findOrCreateSkuForProduct(product, payload)))
-
-      case None ⇒
-        for {
-          links ← * <~ ProductSkuLinks.filter(_.leftId === product.id).result
-          skus  ← * <~ links.map(link ⇒ SkuManager.mustFindIlluminatedSkuById(link.rightId))
-        } yield skus
-    }
-
-  private def updateAssociatedVariants(
-      product: Product,
-      shadowId: Int,
-      variantsPayload: Option[Seq[VariantPayload]])(implicit ec: EC, db: DB, oc: OC) =
+      oc: OC): DbResultT[Seq[FullVariant]] =
     variantsPayload match {
       case Some(payloads) ⇒
         DbResultT.sequence(payloads.map(payload ⇒ findOrCreateVariantForProduct(product, payload)))
-
       case None ⇒
         for {
-          links ← * <~ ObjectLinks.findByLeftAndType(shadowId, ObjectLink.ProductVariant).result
-
-          variants ← * <~ links.map(link ⇒ updateAssociatedVariant(product.shadowId, link))
-        } yield variants
+          variants     ← * <~ ProductVariantLinks.queryRightByLeft(product)
+          fullVariants ← * <~ variants.map(VariantManager.zipVariantWithValues)
+        } yield fullVariants
     }
-
-  private def updateAssociatedVariant(newShadowId: Int,
-                                      variantLink: ObjectLink)(implicit ec: EC, db: DB, oc: OC) =
-    for {
-      link ← * <~ ObjectUtils.updateAssociatedRight(Variants, variantLink, newShadowId)
-      valLinks ← * <~ ObjectLinks
-                  .findByLeftAndType(variantLink.rightId, ObjectLink.VariantValue)
-                  .result
-      _       ← * <~ ObjectUtils.updateAssociatedRights(VariantValues, valLinks, link.rightId)
-      variant ← * <~ VariantManager.mustFindFullVariantWithValuesByShadowId(link.rightId)
-    } yield variant
 
   private def updateHead(product: Product,
                          shadow: ObjectShadow,
@@ -307,14 +276,12 @@ object ProductManager {
   private def findOrCreateVariantForProduct(product: Product, payload: VariantPayload)(
       implicit ec: EC,
       db: DB,
-      oc: OC) =
+      oc: OC): DbResultT[FullVariant] =
     for {
       variant ← * <~ VariantManager.updateOrCreateVariant(oc, payload)
       (fullVariant, _) = variant
-      _ ← * <~ ObjectLinks.create(
-             ObjectLink(leftId = product.shadowId,
-                        rightId = fullVariant.shadow.id,
-                        linkType = ObjectLink.ProductVariant))
+      _ ← * <~ ProductVariantLinks.create(
+             ProductVariantLink(leftId = product.id, rightId = fullVariant.model.id))
     } yield variant
 
   def mustFindProductByContextAndFormId404(contextId: Int, formId: Int)(

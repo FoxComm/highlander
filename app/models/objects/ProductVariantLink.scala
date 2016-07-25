@@ -28,8 +28,10 @@ class ProductVariantLinks(tag: Tag)
 }
 
 object ProductVariantLinks
-    extends ObjectHeadLinkQueries[ProductVariantLink, ProductVariantLinks](
-        new ProductVariantLinks(_))
+    extends ObjectHeadLinkQueries[ProductVariantLink, ProductVariantLinks, Product, Variant](
+        new ProductVariantLinks(_),
+        Products,
+        Variants)
     with ReturningId[ProductVariantLink, ProductVariantLinks] {
 
   val returningLens: Lens[ProductVariantLink, Int] = lens[ProductVariantLink].id

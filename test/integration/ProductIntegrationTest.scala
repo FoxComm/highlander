@@ -20,7 +20,6 @@ import utils.JsonFormatters
 import utils.Money.Currency
 import utils.aliases._
 import utils.db._
-import utils.db.ExPostgresDriver.api._
 import utils.time.RichInstant
 
 object ProductTestExtensions {
@@ -224,10 +223,8 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
 
     "Updates the SKUs on a product if variants are Some(Seq.empty)" in new Fixture {
 
-      ObjectLinks
-        .filter(_.leftId === product.shadowId)
-        .deleteAll(DbResultT.none, DbResultT.none)
-        .gimme
+      ProductSkuLinks.filterLeft(product).deleteAll(DbResultT.none, DbResultT.none).gimme
+      ProductVariantLinks.filterLeft(product).deleteAll(DbResultT.none, DbResultT.none).gimme
 
       val payload = UpdateProductPayload(attributes = Map.empty,
                                          skus = Some(Seq(skuPayload)),
@@ -418,7 +415,7 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
 
       // Create the Variants and their Values.
       variantsAndValues ← * <~ variantsWithValues.map { scv ⇒
-                           Mvp.insertVariantWithValues(ctx.id, product.shadowId, scv)
+                           Mvp.insertVariantWithValues(ctx.id, product, scv)
                          }
 
       variants ← * <~ variantsAndValues.map(_.variant)
