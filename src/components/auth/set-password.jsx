@@ -1,5 +1,6 @@
 // @flow
 
+import _ from 'lodash';
 import React, { Component, Element } from 'react';
 import { connect } from 'react-redux';
 import styles from './css/auth.css';
@@ -7,18 +8,37 @@ import { autobind } from 'core-decorators';
 
 import Form from '../forms/form';
 import FormField from '../forms/formfield';
+import ErrorAlerts from '../alerts/error-alerts';
 import { PrimaryButton, Button } from '../common/buttons';
+
+import type { SignupPayload } from 'modules/user';
+import * as userActions from 'modules/user';
 
 type State = {
   email: string,
-  password: string,
+  password1: string,
+  password2: string,
+}
+
+type Props = {
+  signUpState: {
+    err?: any,
+    inProgress?: boolean,
+  },
+  signUp: (payload: SignupPayload) => Promise,
+}
+
+function mapStateToProps(state) {
+  return {
+    signUpState: _.get(state.asyncActions, 'signup', {})
+  };
 }
 
 class SetPassword extends Component {
-
   state: State = {
     email: '',
-    password: '',
+    password1: '',
+    password2: '',
   };
 
   get username(): string {
@@ -29,9 +49,17 @@ class SetPassword extends Component {
     return this.props.location.query.email;
   }
 
+  get token(): string {
+    return this.props.location.query.token;
+  }
+
   @autobind
   handleSubmit() {
-
+    const payload = {
+      password: this.state.password2,
+      token: this.token,
+    };
+    this.props.signUp(payload);
   }
 
   @autobind
@@ -40,6 +68,19 @@ class SetPassword extends Component {
     this.setState({
       [target.name]: target.value,
     });
+  }
+
+  @autobind
+  validatePassword2(value) {
+    if (this.state.password1 != value) {
+      return 'Passwords does not match';
+    }
+  }
+
+  get errorMessage() {
+    const err = this.props.signUpState.err;
+    if (!err) return null;
+    return <ErrorAlerts error={err} />;
   }
 
   render() {
@@ -52,6 +93,7 @@ class SetPassword extends Component {
           to sign up.
         </div>
         <Form styleName="form" onSubmit={this.handleSubmit}>
+          {this.errorMessage}
           <FormField styleName="signup-email" label="Email">
             <input
               name="email"
@@ -63,18 +105,18 @@ class SetPassword extends Component {
           </FormField>
           <FormField styleName="password" label="Create Password">
             <input
-              name="password"
+              name="password1"
               onChange={this.handleInputChange}
-              value={this.state.password}
+              value={this.state.password1}
               type="password"
               className="fc-input"
             />
           </FormField>
-          <FormField styleName="password" label="Confirm Password">
+          <FormField styleName="password" label="Confirm Password" validator={this.validatePassword2}>
             <input
-              name="password"
+              name="password2"
               onChange={this.handleInputChange}
-              value={this.state.password}
+              value={this.state.password2}
               type="password"
               className="fc-input"
             />
@@ -82,6 +124,7 @@ class SetPassword extends Component {
           <PrimaryButton
             styleName="submit-button"
             type="submit"
+            isLoading={this.props.signUpState.inProgress}
           >
             Sign Up
           </PrimaryButton>
@@ -91,4 +134,4 @@ class SetPassword extends Component {
   }
 }
 
-export default SetPassword;
+export default connect(mapStateToProps, userActions)(SetPassword);

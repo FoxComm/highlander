@@ -16,6 +16,11 @@ export type LoginPayload = {
   kind: string,
 };
 
+export type SignupPayload = {
+  password: string,
+  token: string,
+}
+
 export type UserState = {
   message: ?String,
   err: ?String,
@@ -80,6 +85,25 @@ const _authenticate = createAsyncActions(
 );
 
 export const authenticate = _authenticate.perform;
+
+const _signUp = createAsyncActions(
+  'signup',
+  function(payload: SignupPayload) {
+    return new Promise((resolve, reject) => {
+      if (payload.password == '123') {
+        resolve({});
+      }
+      const err = new Error('Bad request');
+      // $FlowFixMe: yes flow, there is no property response in Error
+      err.response = {
+        body: {errors: ['Already registered']}
+      };
+      reject(err);
+    });
+  }
+);
+
+export const signUp = _signUp.perform;
 
 export function googleSignin(): ActionDispatch {
   return dispatch => {

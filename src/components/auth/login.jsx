@@ -1,6 +1,10 @@
 /** @flow */
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
+import { transitionTo } from 'browserHistory';
+import { autobind } from 'core-decorators';
+import { connect } from 'react-redux';
+
 import Alert from '../alerts/alert';
 import ErrorAlerts from '../alerts/error-alerts';
 import Form from '../forms/form';
@@ -8,11 +12,9 @@ import FormField from '../forms/formfield';
 import { PrimaryButton, Button } from '../common/buttons';
 import WrapToLines from './wrap-to-lines';
 
-import { transitionTo } from 'browserHistory';
-import { autobind } from 'core-decorators';
-import { connect } from 'react-redux';
 
-import * as userActions from '../../modules/user';
+
+import * as userActions from 'modules/user';
 
 import styles from './css/auth.css';
 
@@ -20,7 +22,7 @@ import styles from './css/auth.css';
 import type {
   LoginPayload,
   TUser,
-} from '../../modules/user';
+} from 'modules/user';
 
 
 type TState = {

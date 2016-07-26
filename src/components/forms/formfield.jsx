@@ -1,50 +1,150 @@
+// @flow weak
+
 import _ from 'lodash';
 import { autobind, debounce } from 'core-decorators';
-import React, { PropTypes } from 'react';
+import React, { Component, Element, PropTypes } from 'react';
 import { findDOMNode } from 'react-dom';
-import * as validators from '../../lib/validators';
+import * as validators from 'lib/validators';
 import classNames from 'classnames';
 
-export default class FormField extends React.Component {
+type FormFieldProps = {
+  validator?: string|(value: any) => string;
+  children: Element;
+  required: ?any;
+  maxLength: ?number;
+  target: ?string;
+  name: ?string;
+  error: ?string|boolean;
+  getTargetValue: (node: any) => any;
+  className: ?string;
+  labelClassName?: string;
+  labelAtRight?: Element|string;
+  labelAfterInput?: boolean;
+  label?: Element|string;
+  validationLabel?: string;
+};
 
-  static propTypes = {
-    validator: PropTypes.oneOfType([
-      PropTypes.func,
-      PropTypes.string
-    ]),
-    children: PropTypes.node.isRequired,
-    required: PropTypes.any,
-    maxLength: PropTypes.number,
-    label: PropTypes.node,
-    labelClassName: PropTypes.string,
-    labelAtRight: PropTypes.node,
-    target: PropTypes.string,
-    getTargetValue: PropTypes.func,
-    className: PropTypes.string,
-    labelAfterInput: PropTypes.bool,
-  };
+export default class FormField extends Component {
+  props: FormFieldProps;
+  beforeValue: any;
 
   static contextTypes = {
-    formDispatcher: PropTypes.object
+    formDispatcher: PropTypes.object,
   };
 
   static defaultProps = {
     target: 'input,textarea,select',
     getTargetValue: node => node.type == 'checkbox' ? node.checked : node.value,
-    labelAfterInput: false,
   };
 
-  constructor(...args) {
-    super(...args);
+  state = {
+    fieldErrors: [],
+    submitError: null,
+    touched: false,
+    isValid: true,
+    submitted: false,
+  };
 
-    this.state = {
-      targetId: '',
-      errors: [],
-    };
+  toggleBindToDispatcher(bind) {
+    const { formDispatcher } = this.context;
+    if (formDispatcher) {
+      const toggleBind = bind ? formDispatcher.on : formDispatcher.removeListener;
+
+      toggleBind.call(formDispatcher, 'submit', this.handleSubmit);
+      toggleBind.call(formDispatcher, 'errors', this.handleErrors);
+    }
+  }
+
+  componentWillMount() {
+    this.toggleBindToDispatcher(true);
+  }
+
+  componentDidMount() {
+    this.toggleBindToTarget(true);
+  }
+
+  componentWillUpdate() {
+    this.beforeValue = this.getTargetValue();
+    this.toggleBindToTarget(false);
+  }
+
+  // use this only for sync errors
+  // browser displays this message each time that user changes input
+  setCustomValidity(message) {
+    const targetNode = this.findTargetNode();
+    if (targetNode && targetNode.setCustomValidity) {
+      targetNode.setCustomValidity(message);
+    }
+  }
+
+  componentDidUpdate() {
+    const targetNode = this.findTargetNode();
+
+    if (!targetNode) return;
+
+    this.toggleBindToTarget(true);
+    if (this.getTargetValue() !== this.beforeValue && this.hasError) {
+      // target value was changed
+      setTimeout(this.fullValidate, 0);
+    }
+  }
+
+  componentWillUnmount() {
+    this.toggleBindToDispatcher(false);
+    this.toggleBindToTarget(false);
+  }
+
+  @autobind
+  handleSubmit(reportValidity) {
+    this.setState({
+      submitted: true,
+    });
+    reportValidity(this.validate());
+  }
+
+  @autobind
+  handleErrors(errors = {}) {
+    const { name } = this.props;
+
+    if (name) {
+      this.setState({
+        submitError: errors[name],
+      });
+    }
+  }
+
+  getTargetValue() {
+    return this.props.getTargetValue(this.findTargetNode());
   }
 
   findTargetNode() {
     return findDOMNode(this).querySelector(this.props.target);
+  }
+
+  get errors() {
+    let errors = this.state.fieldErrors;
+
+    if (this.props.error && this.props.error !== true) {
+      errors = [this.props.error, ...errors];
+    }
+
+    if (this.state.submitError && this.state.submitError !== true) {
+      errors = [this.state.submitError, ...errors];
+    }
+
+    if (this.state.validationMessage) {
+      errors = [this.state.validationMessage, ...errors];
+    }
+
+    return errors;
+  }
+
+  get hasError(): boolean {
+    return this.errors.length !== 0 || !this.state.isValid || !!this.props.error || !this.state.submitError;
+  }
+
+  get readyToShowErrors() {
+    return this.state.touched || this.state.submitted || (!this.state.touched && !this.state.isValid);
   }
 
   toggleBindToTarget(bind) {
@@ -53,110 +153,40 @@ export default class FormField extends React.Component {
 
     const toggleBind = bind ? targetNode.addEventListener : targetNode.removeEventListener;
 
-    toggleBind.call(targetNode, 'blur', this.validate);
-    toggleBind.call(targetNode, 'change', this.autoValidate);
-    toggleBind.call(targetNode, 'invalid', () => this.updateInputState(true));
-
-    let id = targetNode.getAttribute('id');
-
-    if (bind) {
-      if (!id) {
-        id = _.uniqueId('form-field-');
-        targetNode.setAttribute('id', id);
-      }
-
-      if (this.state.targetId != id) {
-        this.setState({
-          targetId: id
-        });
-      }
-    }
-  }
-
-  get hasError() {
-    return this.state.errors.length !== 0;
-  }
-
-  errorsAsPlainText() {
-    return this.state.errors.join('\n');
+    toggleBind.call(targetNode, 'blur', this.handleBlur);
+    toggleBind.call(targetNode, 'change', this.handleChange);
+    toggleBind.call(targetNode, 'input', this.handleChange);
+    toggleBind.call(targetNode, 'invalid', this.handleInvalid);
   }
 
   @autobind
-  @debounce(200)
-  autoValidate() {
-    // validate only if field has error message
-    // so we don't produce error if user start typing for example
-    if (this.hasError) {
-      this.validate();
-    }
-  }
-
-  componentWillMount() {
-    if (this.context.formDispatcher) {
-      this.context.formDispatcher.on('submit', this.onSubmit);
-    }
-  }
-
-  componentDidMount() {
-    this.toggleBindToTarget(true);
-  }
-
-  componentWillUpdate() {
-    this.toggleBindToTarget(false);
-  }
-
-  componentDidUpdate() {
-    const targetNode = this.findTargetNode();
-
-    if (!targetNode) return;
-
-    if (targetNode.setCustomValidity) {
-      targetNode.setCustomValidity(this.errorsAsPlainText());
-    }
-    this.updateInputState(false);
-    this.toggleBindToTarget(true);
-  }
-
-  updateInputState(checkNativeValidity) {
-    const inputNode = this.findTargetNode();
-
-    let isError = this.hasError;
-
-    if (checkNativeValidity && !isError) {
-      isError = !inputNode.validity.valid;
-    }
-
-    inputNode.classList[isError ? 'add' : 'remove']('is-error');
-  };
-
-  componentWillUnmount() {
-    if (this.context.formDispatcher) {
-      this.context.formDispatcher.removeListener('submit', this.onSubmit);
-    }
-    this.toggleBindToTarget(false);
+  handleInvalid({target}) {
+    this.setState({
+      isValid: target.validity.valid,
+      validationMessage: target.validationMessage,
+    });
   }
 
   @autobind
-  onSubmit(reportValidity) {
-    reportValidity(this.validate());
-  }
+  handleBlur({target}) {
+    this.fullValidate(target);
 
-  getTargetValue() {
-    return this.props.getTargetValue(this.findTargetNode());
+    this.setState({
+      touched: true,
+    });
   }
 
   @autobind
-  validate() {
+  validate(): boolean {
     let errors = [];
 
-    let validator = this.props.validator;
-    const label = this.props.label;
-
-    if (_.isString(validator)) {
-      validator = validators[validator];
-    }
+    const validator: ?Function =
+      typeof this.props.validator == 'string'
+        ? validators[this.props.validator]
+        : this.props.validator;
 
     const value = this.getTargetValue();
+    const label = this.props.validationLabel || this.props.label || 'This field';
 
     if (value !== void 0 && (!_.isString(value) || value)) {
       if (this.props.maxLength && _.isString(value) && value.length > this.props.maxLength) {
@@ -174,17 +204,39 @@ export default class FormField extends React.Component {
     }
 
     this.setState({
-      errors
+      fieldErrors: errors,
     });
 
     return errors.length === 0;
   }
 
+  @autobind
+  // $FlowFixMe: there is no global context
+  fullValidate(target = this.findTargetNode()) {
+    this.validate();
+
+    const isValid = target.checkValidity ? target.checkValidity() : true;
+    this.setState({
+      isValid,
+      validationMessage: target.validationMessage,
+    });
+  }
+
+  @autobind
+  @debounce(200)
+  handleChange({target}) {
+    // validate only if field had touched once (or we have error for this field)
+    // so we don't produce error if user start typing for example
+    if (this.state.touched || this.hasError) {
+      this.fullValidate(target);
+    }
+  }
+
   get errorMessages() {
-    if (this.state.errors) {
+    if (this.errors.length && this.readyToShowErrors) {
       return (
         <div>
-          {this.state.errors.map((error, index) => {
+          {this.errors.map((error, index) => {
             return (
               <div key={`error-${index}`} className="fc-form-field-error">
                 {error}
@@ -196,7 +248,7 @@ export default class FormField extends React.Component {
     }
   }
 
-  get label() {
+  get label(): ?Element {
     if (this.props.label) {
       const optionalMark = 'optional' in this.props ? <span className="fc-form-field-optional">(optional)</span> : null;
       const className = classNames('fc-form-field-label', this.props.labelClassName);

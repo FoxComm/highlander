@@ -22,7 +22,7 @@ describe('FormField', function() {
     );
 
     formfield.validate();
-    expect(formfield.state.errors).to.deep.equal(
+    expect(formfield.errors).to.deep.equal(
       [
         'Lorem Ipsum can not be more than 5 characters',
         'Lorem Ipsum must contain only ASCII characters'
@@ -39,7 +39,7 @@ describe('FormField', function() {
     );
 
     formfield.validate();
-    expect(formfield.state.errors).to.deep.equal(
+    expect(formfield.errors).to.deep.equal(
       [
         'Lorem Ipsum is required field'
       ]
@@ -55,7 +55,7 @@ describe('FormField', function() {
     );
 
     formfield.validate();
-    expect(formfield.state.errors).to.deep.equal([]);
+    expect(formfield.errors).to.deep.equal([]);
 
   });
 
