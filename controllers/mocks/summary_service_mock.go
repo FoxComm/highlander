@@ -12,7 +12,7 @@ type SummaryServiceMock struct {
 }
 
 // implement service interface to pass mock as service (another solution?)
-func (m SummaryServiceMock) GetSummaries() ([]*models.StockItemSummary, error) {
+func (m SummaryServiceMock) GetSummary() ([]*models.StockItemSummary, error) {
 	args := m.Called()
 
 	if model, ok := args.Get(0).([]*models.StockItemSummary); ok {

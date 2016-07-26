@@ -42,8 +42,8 @@ func (suite *summaryControllerTestSuite) TearDownTest() {
 	suite.service.Calls = []mock.Call{}
 }
 
-func (suite *summaryControllerTestSuite) TestGetSummaries() {
-	suite.service.On("GetSummaries").Return([]*models.StockItemSummary{
+func (suite *summaryControllerTestSuite) Test_GetSummary() {
+	suite.service.On("GetSummary").Return([]*models.StockItemSummary{
 		{
 			SKU:         "SKU",
 			StockItemID: 0,
@@ -62,7 +62,7 @@ func (suite *summaryControllerTestSuite) TestGetSummaries() {
 	suite.service.AssertExpectations(suite.T())
 }
 
-func (suite *summaryControllerTestSuite) TestGetSummaryBySKU() {
+func (suite *summaryControllerTestSuite) Test_GetSummaryBySKU() {
 	sku := "TEST-SKU"
 	suite.service.On("GetSummaryBySKU", sku).Return(&models.StockItemSummary{
 		SKU:         sku,
@@ -81,7 +81,7 @@ func (suite *summaryControllerTestSuite) TestGetSummaryBySKU() {
 	suite.service.AssertExpectations(suite.T())
 }
 
-func (suite *summaryControllerTestSuite) TestGetSummaryBySKUNoSKU() {
+func (suite *summaryControllerTestSuite) Test_GetSummaryBySKUNoSKU() {
 	suite.service.On("GetSummaryBySKU", "NO-SKU").Return(nil, gorm.ErrRecordNotFound).Once()
 
 	req, _ := http.NewRequest("GET", "/summary/NO-SKU", nil)
@@ -93,7 +93,7 @@ func (suite *summaryControllerTestSuite) TestGetSummaryBySKUNoSKU() {
 	suite.service.AssertExpectations(suite.T())
 }
 
-func (suite *summaryControllerTestSuite) TestGetSummaryBySKUServerError() {
+func (suite *summaryControllerTestSuite) Test_GetSummaryBySKUServerError() {
 	suite.service.On("GetSummaryBySKU", "NO-SKU").Return(nil, gorm.ErrUnaddressable).Once()
 
 	req, _ := http.NewRequest("GET", "/summary/NO-SKU", nil)

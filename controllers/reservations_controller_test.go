@@ -44,7 +44,7 @@ func (suite *reservationControllerTestSuite) TearDownTest() {
 	suite.service.Calls = []mock.Call{}
 }
 
-func (suite *reservationControllerTestSuite) TestReserveItems() {
+func (suite *reservationControllerTestSuite) Test_ReserveItems() {
 	suite.service.On("ReserveItems", "BR10001", map[string]int{"SKU": 2}).Return(nil).Once()
 
 	jsonStr := []byte(`{"refNum": "BR10001","reservations": [{ "sku": "SKU", "qty": 2 }]}`)
@@ -59,7 +59,7 @@ func (suite *reservationControllerTestSuite) TestReserveItems() {
 	suite.service.AssertExpectations(suite.T())
 }
 
-func (suite *reservationControllerTestSuite) TestReserveItemsWrongSKUs() {
+func (suite *reservationControllerTestSuite) Test_ReserveItems_WrongSKUs() {
 	suite.service.On("ReserveItems", "BR10001", map[string]int{"SKU": 2}).Return(gorm.ErrRecordNotFound).Once()
 
 	jsonStr := []byte(`{"refNum": "BR10001","reservations": [{ "sku": "SKU", "qty": 2 }]}`)
@@ -74,7 +74,7 @@ func (suite *reservationControllerTestSuite) TestReserveItemsWrongSKUs() {
 	suite.service.AssertExpectations(suite.T())
 }
 
-func (suite *reservationControllerTestSuite) TestReserveItemsEmptySKUsList() {
+func (suite *reservationControllerTestSuite) Test_ReserveItems_EmptySKUsList() {
 	jsonStr := []byte(`{"refNum": "BR10001","reservations": []}`)
 
 	req, _ := http.NewRequest("POST", "/reservations/reserve", bytes.NewBuffer(jsonStr))
@@ -86,7 +86,7 @@ func (suite *reservationControllerTestSuite) TestReserveItemsEmptySKUsList() {
 	suite.assert.Contains(res.Body.String(), "Reservation must have at least one SKU")
 }
 
-func (suite *reservationControllerTestSuite) TestReleaseItems() {
+func (suite *reservationControllerTestSuite) Test_ReleaseItems() {
 	suite.service.On("ReleaseItems", "BR10001").Return(nil).Once()
 
 	jsonStr := []byte(`{"refNum": "BR10001"}`)
@@ -101,7 +101,7 @@ func (suite *reservationControllerTestSuite) TestReleaseItems() {
 	suite.service.AssertExpectations(suite.T())
 }
 
-func (suite *reservationControllerTestSuite) TestReserveItemsWrongRefNum() {
+func (suite *reservationControllerTestSuite) Test_ReserveItems_WrongRefNum() {
 	suite.service.On("ReleaseItems", "BR10001").Return(gorm.ErrRecordNotFound).Once()
 
 	jsonStr := []byte(`{"refNum": "BR10001"}`)

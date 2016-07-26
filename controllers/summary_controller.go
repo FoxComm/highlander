@@ -16,13 +16,13 @@ func NewSummaryController(service services.ISummaryService) IController {
 }
 
 func (controller *summaryController) SetUp(router gin.IRouter) {
-	router.GET("/", controller.GetSummaries())
+	router.GET("/", controller.GetSummary())
 	router.GET("/:code", controller.GetSummaryBySKU())
 }
 
-func (controller *summaryController) GetSummaries() gin.HandlerFunc {
+func (controller *summaryController) GetSummary() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		summary, err := controller.service.GetSummaries()
+		summary, err := controller.service.GetSummary()
 		if err != nil {
 			handleServiceError(context, err)
 			return

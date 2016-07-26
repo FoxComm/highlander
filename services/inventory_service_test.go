@@ -95,7 +95,7 @@ func (suite *InventoryServiceTestSuite) SetupTest() {
 	assert.Nil(suite.T(), err)
 }
 
-func (suite *InventoryServiceTestSuite) TestCreation() {
+func (suite *InventoryServiceTestSuite) Test_CreateStockItem() {
 	stockItem := &models.StockItem{StockLocationID: 1, SKU: "TEST-CREATION"}
 	resp, err := suite.service.CreateStockItem(stockItem)
 	if assert.Nil(suite.T(), err) {
@@ -103,7 +103,7 @@ func (suite *InventoryServiceTestSuite) TestCreation() {
 	}
 }
 
-func (suite *InventoryServiceTestSuite) TestSummaryCreation() {
+func (suite *InventoryServiceTestSuite) Test_CreateStockItem_SummaryCreation() {
 	resp, err := suite.createStockItem("TEST-CREATION", 0)
 
 	summary := models.StockItemSummary{}
@@ -115,7 +115,7 @@ func (suite *InventoryServiceTestSuite) TestSummaryCreation() {
 	}
 }
 
-func (suite *InventoryServiceTestSuite) TestFindByID() {
+func (suite *InventoryServiceTestSuite) Test_GetStockItemByID() {
 	stockItem := &models.StockItem{StockLocationID: 1, SKU: "TEST-FIND"}
 	resp, err := suite.service.CreateStockItem(stockItem)
 	if assert.Nil(suite.T(), err) {
@@ -126,14 +126,14 @@ func (suite *InventoryServiceTestSuite) TestFindByID() {
 	}
 }
 
-func (suite *InventoryServiceTestSuite) TestEmptySKU() {
+func (suite *InventoryServiceTestSuite) Test_CreateStockItem_EmptySKU() {
 	stockItem := &models.StockItem{StockLocationID: 1}
 	_, err := suite.service.CreateStockItem(stockItem)
 
 	assert.NotNil(suite.T(), err)
 }
 
-func (suite *InventoryServiceTestSuite) TestCreateStockItemsUnits() {
+func (suite *InventoryServiceTestSuite) Test_IncrementStockItemUnits() {
 	resp, err := suite.createStockItem("TEST-INCREMENT", 1)
 
 	var units []models.StockItemUnit
@@ -143,7 +143,7 @@ func (suite *InventoryServiceTestSuite) TestCreateStockItemsUnits() {
 	}
 }
 
-func (suite *InventoryServiceTestSuite) TestCreateMultipleStockItemUnits() {
+func (suite *InventoryServiceTestSuite) Test_IncrementStockItemUnits_MultipleItems() {
 	resp, err := suite.createStockItem("TEST-INCREMENT", 10)
 
 	var units []models.StockItemUnit
@@ -153,7 +153,7 @@ func (suite *InventoryServiceTestSuite) TestCreateMultipleStockItemUnits() {
 	}
 }
 
-func (suite *InventoryServiceTestSuite) TestDecrementStockItemUnits() {
+func (suite *InventoryServiceTestSuite) Test_DecrementStockItemUnits() {
 	resp, err := suite.createStockItem("TEST-DECREMENT", 10)
 
 	err = suite.service.DecrementStockItemUnits(resp.ID, 7)
@@ -166,7 +166,7 @@ func (suite *InventoryServiceTestSuite) TestDecrementStockItemUnits() {
 	}
 }
 
-func (suite *InventoryServiceTestSuite) TestSingleSKUReservation() {
+func (suite *InventoryServiceTestSuite) Test_ReserveItems_SingleSKU() {
 	resp, err := suite.createStockItem("TEST-RESERVATION", 1)
 
 	refNum := "BR10001"
@@ -187,7 +187,7 @@ func (suite *InventoryServiceTestSuite) TestSingleSKUReservation() {
 	assert.Equal(suite.T(), len(skus), summary.OnHold)
 }
 
-func (suite *InventoryServiceTestSuite) TestMultipleSKUReservation() {
+func (suite *InventoryServiceTestSuite) Test_ReserveItems_MultipleSKUs() {
 	sku1 := "TEST-RESERVATION-A"
 	sku2 := "TEST-RESERVATION-B"
 
@@ -221,7 +221,7 @@ func (suite *InventoryServiceTestSuite) TestMultipleSKUReservation() {
 	}
 }
 
-func (suite *InventoryServiceTestSuite) TestMultipleSKUQtyReservation() {
+func (suite *InventoryServiceTestSuite) Test_ReserveItems_StockItemChanged() {
 	sku := "TEST-RESERVATION"
 	_, err := suite.createStockItem(sku, 10)
 	assert.Nil(suite.T(), err)
@@ -239,7 +239,7 @@ func (suite *InventoryServiceTestSuite) TestMultipleSKUQtyReservation() {
 	}
 }
 
-func (suite *InventoryServiceTestSuite) TestSKUReservationNoOnHand() {
+func (suite *InventoryServiceTestSuite) Test_ReserveItems_NoOnHand() {
 	refNum := "BR10001"
 	skus := map[string]int{"TEST-DEFAULT": 1}
 
@@ -247,7 +247,7 @@ func (suite *InventoryServiceTestSuite) TestSKUReservationNoOnHand() {
 	assert.NotNil(suite.T(), err)
 }
 
-func (suite *InventoryServiceTestSuite) TestSKUReservationNoSKU() {
+func (suite *InventoryServiceTestSuite) Test_ReserveItems_NoSKU() {
 	refNum := "BR10001"
 	skus := map[string]int{"NO-SKU": 1}
 
@@ -255,7 +255,7 @@ func (suite *InventoryServiceTestSuite) TestSKUReservationNoSKU() {
 	assert.NotNil(suite.T(), err)
 }
 
-func (suite *InventoryServiceTestSuite) TestMultipleSKUReservationSummary() {
+func (suite *InventoryServiceTestSuite) Test_ReleaseItems_MultipleSKUsSummary() {
 	sku1 := "TEST-RESERVATION-A"
 	sku2 := "TEST-RESERVATION-B"
 
@@ -279,7 +279,7 @@ func (suite *InventoryServiceTestSuite) TestMultipleSKUReservationSummary() {
 	assert.Equal(suite.T(), skus[sku2], summary2.OnHold)
 }
 
-func (suite *InventoryServiceTestSuite) TestSubsequentSKUReservationSummary() {
+func (suite *InventoryServiceTestSuite) Test_ReleaseItems_SubsequentSummary() {
 	sku := "TEST-RESERVATION-A"
 	resp, _ := suite.createStockItem(sku, 10)
 
@@ -299,14 +299,14 @@ func (suite *InventoryServiceTestSuite) TestSubsequentSKUReservationSummary() {
 	assert.Equal(suite.T(), 8, summary.OnHold)
 }
 
-func (suite *InventoryServiceTestSuite) TestNoReservedSKUsRelease() {
+func (suite *InventoryServiceTestSuite) Test_ReleaseItems_NoReservedSKUs() {
 	suite.createStockItem("TEST-RESERVATION-A", 1)
 
 	err := suite.service.ReleaseItems("BR10001")
 	assert.NotNil(suite.T(), err, "Should not be able to unreserve items while there are no reservations")
 }
 
-func (suite *InventoryServiceTestSuite) TestSingleSKURelease() {
+func (suite *InventoryServiceTestSuite) Test_ReleaseItems_Single() {
 	skus := []string{"TEST-UNRESERVATION-A"}
 	refNum := "BR10001"
 	err := suite.createReservation(skus, 1, refNum)
@@ -324,7 +324,7 @@ func (suite *InventoryServiceTestSuite) TestSingleSKURelease() {
 	assert.Equal(suite.T(), 0, onHoldUnitsCount, "There should not be units in onHold status")
 }
 
-func (suite *InventoryServiceTestSuite) TestSKUReleaseSummary() {
+func (suite *InventoryServiceTestSuite) Test_ReleaseItems_Summary() {
 	skus := []string{"TEST-UNRESERVATION-A"}
 	refNum := "BR10001"
 	reservedCount := 1
