@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"net/http/httptest"
 	"testing"
 
 	"github.com/FoxComm/middlewarehouse/api/responses"
@@ -22,26 +21,20 @@ func TestCarrierControllerSuite(t *testing.T) {
 	suite.Run(t, new(CarrierControllerTestSuite))
 }
 
-func (suite *CarrierControllerTestSuite) SetupTest() {
-	engine := gin.Default()
+func (suite *CarrierControllerTestSuite) SetupSuite() {
+	suite.router = gin.Default()
 
 	suite.service = mocks.NewCarrierServiceMock()
 
-	suite.controller = NewCarrierController(suite.service)
-	suite.controller.SetUp(engine.Group("/carriers"))
-
-	suite.server = httptest.NewServer(engine)
+	controller := NewCarrierController(suite.service)
+	controller.SetUp(suite.router.Group("/carriers"))
 
 	suite.assert = assert.New(suite.T())
 }
 
-func (suite *CarrierControllerTestSuite) TearDownTest() {
-	suite.server.Close()
-}
-
 func (suite *CarrierControllerTestSuite) Test_GetCarriers_EmptyData() {
 	//act
-	response, err := suite.Get("/carriers", &[]responses.Carrier{})
+	response, err := suite.Get("/carriers/", &[]responses.Carrier{})
 
 	//assert
 	suite.assert.Nil(err)

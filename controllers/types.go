@@ -18,21 +18,19 @@ type IController interface {
 
 type GeneralControllerTestSuite struct {
 	suite.Suite
-	assert     *assert.Assertions
-	controller IController
-	server     *httptest.Server
+	assert *assert.Assertions
+	router *gin.Engine
 }
 
 func (suite *GeneralControllerTestSuite) Get(url string, target interface{}) (interface{}, error) {
-	response, err := http.Get(suite.server.URL + url)
-	if err != nil {
-		return nil, err
-	}
+	request, _ := http.NewRequest("GET", url, nil)
+	response := httptest.NewRecorder()
+	suite.router.ServeHTTP(response, request)
 
-	return suite.parseResponse(response, target)
+	return parseResponse(response, target)
 }
 
-func (suite *GeneralControllerTestSuite) parseResponse(response *http.Response, target interface{}) (interface{}, error) {
+func parseResponse(response *httptest.ResponseRecorder, target interface{}) (interface{}, error) {
 	raw, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		return nil, err
