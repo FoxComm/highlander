@@ -33,4 +33,6 @@ object SkuAlbumLinks
     with ReturningId[SkuAlbumLink, SkuAlbumLinks] {
 
   val returningLens: Lens[SkuAlbumLink, Int] = lens[SkuAlbumLink].id
+
+  def mkLink(left: Sku, right: Album) = SkuAlbumLink(leftId = left.id, rightId = right.id)
 }

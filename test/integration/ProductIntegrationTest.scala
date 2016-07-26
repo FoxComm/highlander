@@ -238,6 +238,23 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
       description.extract[String] must === ("Test product description")
     }
 
+    "Multiple calls with same params create single SKU link" in new Fixture {
+
+      ProductSkuLinks.filterLeft(product).deleteAll(DbResultT.none, DbResultT.none).gimme
+      ProductVariantLinks.filterLeft(product).deleteAll(DbResultT.none, DbResultT.none).gimme
+
+      val payload =
+        UpdateProductPayload(attributes = Map.empty, skus = Some(Seq(skuPayload)), variants = None)
+
+      var response = doQuery(product.formId, payload)
+      response.skus.length must === (1)
+
+      response = doQuery(product.formId, payload)
+      response.skus.length must === (1)
+
+      ProductSkuLinks.filterLeft(product).gimme.size must === (1)
+    }
+
     "Updates the properties on a product successfully" in new Fixture {
       val newAttrMap = Map("name" → (("t" → "string") ~ ("v" → "Some new product name")))
       val payload    = UpdateProductPayload(attributes = newAttrMap, skus = None, variants = None)

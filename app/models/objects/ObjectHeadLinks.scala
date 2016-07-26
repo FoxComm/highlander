@@ -49,5 +49,18 @@ object ObjectHeadLinks {
         links         ← * <~ filterLeftId(leftId).result
         linkedObjects ← * <~ links.map(link ⇒ ObjectUtils.getFullObject(readHead(link.rightId)))
       } yield linkedObjects
+
+    def syncLinks(left: L, rights: Seq[R])(implicit ec: EC, db: DB): DbResultT[Unit] =
+      for {
+        _             ← * <~ filterLeft(left).filter(!_.rightId.inSet(rights.map(_.id))).delete
+        existingLinks ← * <~ filterLeft(left).result
+        linkedRightIds = existingLinks.map(_.rightId)
+        _ ← * <~ rights.collect {
+             case right if !linkedRightIds.contains(right.id) ⇒
+               create(mkLink(left, right))
+           }
+      } yield {}
+
+    def mkLink(left: L, right: R): M
   }
 }
