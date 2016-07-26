@@ -6,15 +6,14 @@ import (
 )
 
 type RouterConfiguration struct {
-	Engine   *gin.Engine
-	Endpoint string
-	Routes   map[string]controllers.IController
+	Engine *gin.Engine
+	Routes map[string]controllers.IController
 }
 
-func Run(configuration RouterConfiguration) {
+func SetUp(configuration RouterConfiguration) *gin.Engine {
 	for route, controller := range configuration.Routes {
 		controller.SetUp(configuration.Engine.Group(route))
 	}
 
-	configuration.Engine.Run(configuration.Endpoint)
+	return configuration.Engine
 }

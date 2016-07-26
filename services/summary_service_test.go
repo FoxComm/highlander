@@ -43,7 +43,7 @@ func (suite *summaryServiceTestSuite) SetupTest() {
 }
 
 func (suite *summaryServiceTestSuite) TestIncrementOnHand() {
-	err := suite.service.UpdateStockItemSummary(suite.itemResp.ID, 5, statusChange{to: "onHand"}, nil)
+	err := suite.service.UpdateStockItemSummary(suite.itemResp.ID, 5, StatusChange{to: "onHand"}, nil)
 	assert.Nil(suite.T(), err)
 
 	summary := models.StockItemSummary{}
@@ -54,7 +54,7 @@ func (suite *summaryServiceTestSuite) TestIncrementOnHand() {
 }
 
 func (suite *summaryServiceTestSuite) TestIncrementOnHold() {
-	err := suite.service.UpdateStockItemSummary(suite.itemResp.ID, 5, statusChange{to: "onHold"}, nil)
+	err := suite.service.UpdateStockItemSummary(suite.itemResp.ID, 5, StatusChange{to: "onHold"}, nil)
 	assert.Nil(suite.T(), err)
 
 	summary := models.StockItemSummary{}
@@ -65,7 +65,7 @@ func (suite *summaryServiceTestSuite) TestIncrementOnHold() {
 }
 
 func (suite *summaryServiceTestSuite) TestIncrementReserved() {
-	err := suite.service.UpdateStockItemSummary(suite.itemResp.ID, 5, statusChange{to: "reserved"}, nil)
+	err := suite.service.UpdateStockItemSummary(suite.itemResp.ID, 5, StatusChange{to: "reserved"}, nil)
 	assert.Nil(suite.T(), err)
 
 	summary := models.StockItemSummary{}
@@ -76,7 +76,7 @@ func (suite *summaryServiceTestSuite) TestIncrementReserved() {
 }
 
 func (suite *summaryServiceTestSuite) TestStatusTransition() {
-	suite.service.UpdateStockItemSummary(suite.itemResp.ID, 5, statusChange{to: "onHold"}, nil)
+	suite.service.UpdateStockItemSummary(suite.itemResp.ID, 5, StatusChange{to: "onHold"}, nil)
 
 	summary := models.StockItemSummary{}
 	suite.db.First(&summary, suite.itemResp.ID)
@@ -84,19 +84,31 @@ func (suite *summaryServiceTestSuite) TestStatusTransition() {
 	assert.Equal(suite.T(), 5, summary.OnHold)
 	assert.Equal(suite.T(), 0, summary.Reserved)
 
-	suite.service.UpdateStockItemSummary(suite.itemResp.ID, 2, statusChange{from: "onHold", to: "reserved"}, nil)
+	suite.service.UpdateStockItemSummary(suite.itemResp.ID, 2, StatusChange{from: "onHold", to: "reserved"}, nil)
 
 	suite.db.First(&summary, suite.itemResp.ID)
 	assert.Equal(suite.T(), 0, summary.OnHand)
 	assert.Equal(suite.T(), 3, summary.OnHold)
 	assert.Equal(suite.T(), 2, summary.Reserved)
 
-	suite.service.UpdateStockItemSummary(suite.itemResp.ID, 1, statusChange{from: "reserved", to: "onHand"}, nil)
+	suite.service.UpdateStockItemSummary(suite.itemResp.ID, 1, StatusChange{from: "reserved", to: "onHand"}, nil)
 
 	suite.db.First(&summary, suite.itemResp.ID)
 	assert.Equal(suite.T(), 1, summary.OnHand)
 	assert.Equal(suite.T(), 3, summary.OnHold)
 	assert.Equal(suite.T(), 1, summary.Reserved)
+}
+
+func (suite *summaryServiceTestSuite) TestGetSummaries() {
+	onHandCount := 5
+	suite.service.UpdateStockItemSummary(suite.itemResp.ID, onHandCount, StatusChange{to: "onHand"}, nil)
+
+	summary, err := suite.service.GetSummaries()
+	assert.Nil(suite.T(), err)
+
+	assert.NotNil(suite.T(), summary)
+	assert.Equal(suite.T(), onHandCount, summary[0].OnHand)
+	assert.Equal(suite.T(), suite.itemResp.SKU, summary[0].SKU)
 }
 
 func (suite *summaryServiceTestSuite) TestGetSummaryById() {
@@ -114,7 +126,7 @@ func (suite *summaryServiceTestSuite) TestSummaryByIdNotFoundSKU() {
 
 func (suite *summaryServiceTestSuite) TestGetSummaryByIdNotEmpty() {
 	onHandCount := 5
-	err := suite.service.UpdateStockItemSummary(suite.itemResp.ID, onHandCount, statusChange{to: "onHand"}, nil)
+	err := suite.service.UpdateStockItemSummary(suite.itemResp.ID, onHandCount, StatusChange{to: "onHand"}, nil)
 	assert.Nil(suite.T(), err)
 
 	summary, err := suite.service.GetSummaryBySKU(suite.itemResp.SKU)
