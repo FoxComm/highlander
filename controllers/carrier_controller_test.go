@@ -14,16 +14,16 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-type CarrierControllerTestSuite struct {
+type carrierControllerTestSuite struct {
 	GeneralControllerTestSuite
 	service services.ICarrierService
 }
 
 func TestCarrierControllerSuite(t *testing.T) {
-	suite.Run(t, new(CarrierControllerTestSuite))
+	suite.Run(t, new(carrierControllerTestSuite))
 }
 
-func (suite *CarrierControllerTestSuite) SetupTest() {
+func (suite *carrierControllerTestSuite) SetupTest() {
 	suite.router = gin.New()
 
 	suite.service = mocks.NewCarrierServiceMock()
@@ -34,7 +34,7 @@ func (suite *CarrierControllerTestSuite) SetupTest() {
 	suite.assert = assert.New(suite.T())
 }
 
-func (suite *CarrierControllerTestSuite) Test_GetCarriers_EmptyData() {
+func (suite *carrierControllerTestSuite) Test_GetCarriers_EmptyData() {
 	//act
 	result := []responses.Carrier{}
 	code, err := suite.Get("/carriers/", &result)
@@ -45,7 +45,7 @@ func (suite *CarrierControllerTestSuite) Test_GetCarriers_EmptyData() {
 	suite.assert.Equal(0, len(result))
 }
 
-func (suite *CarrierControllerTestSuite) Test_GetCarriers_NonEmptyData() {
+func (suite *carrierControllerTestSuite) Test_GetCarriers_NonEmptyData() {
 	//arrange
 	carrier1 := &models.Carrier{Name: "UPS", TrackingTemplate: "http://ups.com"}
 	carrier2 := &models.Carrier{Name: "DHL", TrackingTemplate: "http://dhl.com"}
@@ -66,7 +66,7 @@ func (suite *CarrierControllerTestSuite) Test_GetCarriers_NonEmptyData() {
 	suite.assert.Equal(carrier2.TrackingTemplate, result[1].TrackingTemplate)
 }
 
-func (suite *CarrierControllerTestSuite) Test_GetCarrierById_NotFound() {
+func (suite *carrierControllerTestSuite) Test_GetCarrierById_NotFound() {
 	//act
 	result := responses.Error{}
 	code, err := suite.Get("/carriers/1", &result)
@@ -77,7 +77,7 @@ func (suite *CarrierControllerTestSuite) Test_GetCarrierById_NotFound() {
 	suite.assert.Equal(1, len(result.Errors))
 }
 
-func (suite *CarrierControllerTestSuite) Test_GetCarrierById_Found() {
+func (suite *carrierControllerTestSuite) Test_GetCarrierById_Found() {
 	//arrange
 	carrier := &models.Carrier{Name: "UPS", TrackingTemplate: "http://ups.com"}
 	suite.service.CreateCarrier(carrier)
@@ -93,7 +93,7 @@ func (suite *CarrierControllerTestSuite) Test_GetCarrierById_Found() {
 	suite.assert.Equal(carrier.TrackingTemplate, result.TrackingTemplate)
 }
 
-func (suite *CarrierControllerTestSuite) Test_CreateCarrier() {
+func (suite *carrierControllerTestSuite) Test_CreateCarrier() {
 	//arrange
 	carrier := &models.Carrier{Name: "UPS", TrackingTemplate: "http://ups.com"}
 
@@ -107,7 +107,7 @@ func (suite *CarrierControllerTestSuite) Test_CreateCarrier() {
 	suite.assert.Equal(uint(1), result)
 }
 
-func (suite *CarrierControllerTestSuite) Test_UpdateCarrier_NotFound() {
+func (suite *carrierControllerTestSuite) Test_UpdateCarrier_NotFound() {
 	//arrange
 	updated := &models.Carrier{Name: "DHL", TrackingTemplate: "http://dhl.com"}
 
@@ -121,7 +121,7 @@ func (suite *CarrierControllerTestSuite) Test_UpdateCarrier_NotFound() {
 	suite.assert.Equal(1, len(result.Errors))
 }
 
-func (suite *CarrierControllerTestSuite) Test_UpdateCarrier_Found() {
+func (suite *carrierControllerTestSuite) Test_UpdateCarrier_Found() {
 	//arrange
 	carrier := &models.Carrier{Name: "UPS", TrackingTemplate: "http://ups.com"}
 	suite.service.CreateCarrier(carrier)
@@ -137,7 +137,7 @@ func (suite *CarrierControllerTestSuite) Test_UpdateCarrier_Found() {
 	suite.assert.Equal("", result)
 }
 
-func (suite *CarrierControllerTestSuite) Test_DeleteCarrier_NotFound() {
+func (suite *carrierControllerTestSuite) Test_DeleteCarrier_NotFound() {
 	//act
 	result := responses.Error{}
 	code, err := suite.Delete("/carriers/1", &result)
@@ -148,7 +148,7 @@ func (suite *CarrierControllerTestSuite) Test_DeleteCarrier_NotFound() {
 	suite.assert.Equal(1, len(result.Errors))
 }
 
-func (suite *CarrierControllerTestSuite) Test_DeleteCarrier_Found() {
+func (suite *carrierControllerTestSuite) Test_DeleteCarrier_Found() {
 	//arrange
 	carrier := &models.Carrier{Name: "UPS", TrackingTemplate: "http://ups.com"}
 	suite.service.CreateCarrier(carrier)
