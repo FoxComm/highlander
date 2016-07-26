@@ -111,7 +111,7 @@ func (suite *summaryServiceTestSuite) TestGetSummaries() {
 	assert.Equal(suite.T(), suite.itemResp.SKU, summary[0].SKU)
 }
 
-func (suite *summaryServiceTestSuite) TestGetSummaryById() {
+func (suite *summaryServiceTestSuite) TestGetSummaryBySKU() {
 	summary, err := suite.service.GetSummaryBySKU(suite.itemResp.SKU)
 	assert.Nil(suite.T(), err)
 
@@ -119,12 +119,12 @@ func (suite *summaryServiceTestSuite) TestGetSummaryById() {
 	assert.Equal(suite.T(), 0, summary.OnHand)
 }
 
-func (suite *summaryServiceTestSuite) TestSummaryByIdNotFoundSKU() {
+func (suite *summaryServiceTestSuite) TestSummaryBySKUNotFoundSKU() {
 	_, err := suite.service.GetSummaryBySKU("NO-SKU")
 	assert.NotNil(suite.T(), err, "There should be an error as entity should not be found")
 }
 
-func (suite *summaryServiceTestSuite) TestGetSummaryByIdNotEmpty() {
+func (suite *summaryServiceTestSuite) TestGetSummaryBySKUNotEmpty() {
 	onHandCount := 5
 	err := suite.service.UpdateStockItemSummary(suite.itemResp.ID, onHandCount, StatusChange{to: "onHand"}, nil)
 	assert.Nil(suite.T(), err)
