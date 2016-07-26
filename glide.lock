@@ -27,11 +27,7 @@ imports:
 - name: github.com/Sirupsen/logrus
   version: f3cfb454f4c209e6668c95216c4744b8fddb2356
 - name: github.com/stretchr/testify
-  version: f390dcf405f7b83c997eac1b06768bb9f44dec18
-  subpackages:
-  - assert
-  - suite
-  - require
+  version: d77da356e56a7428ad25149ca77381849a6a5232
 - name: golang.org/x/net
   version: f315505cf3349909cdf013ea56690da34e96a451
   subpackages:

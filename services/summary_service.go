@@ -6,7 +6,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-type statusChange struct {
+type StatusChange struct {
 	from string
 	to   string
 }
@@ -17,11 +17,44 @@ type summaryService struct {
 
 type ISummaryService interface {
 	CreateStockItemSummary(stockItemId uint, dbContext *gorm.DB) error
-	UpdateStockItemSummary(stockItemID uint, qty int, status statusChange, dbContext *gorm.DB) error
+	UpdateStockItemSummary(stockItemID uint, qty int, status StatusChange, dbContext *gorm.DB) error
+
+	GetSummaries() ([]*models.StockItemSummary, error)
+	GetSummaryBySKU(sku string) (*models.StockItemSummary, error)
 }
 
 func NewSummaryService(db *gorm.DB) ISummaryService {
 	return &summaryService{db}
+}
+
+func (service *summaryService) GetSummaries() ([]*models.StockItemSummary, error) {
+	summary := []*models.StockItemSummary{}
+	err := service.db.
+		Select("stock_item_summaries.*, si.sku").
+		Joins("JOIN stock_items si ON si.id = stock_item_summaries.stock_item_id").
+		Find(&summary).
+		Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return summary, nil
+}
+
+func (service *summaryService) GetSummaryBySKU(sku string) (*models.StockItemSummary, error) {
+	summary := &models.StockItemSummary{}
+	err := service.db.
+		Select("stock_item_summaries.*, si.sku").
+		Joins("JOIN stock_items si ON si.id = stock_item_summaries.stock_item_id").
+		Where("si.sku = ?", sku).
+		First(summary).
+		Error
+	if err != nil {
+		return nil, err
+	}
+
+	return summary, nil
 }
 
 func (service *summaryService) CreateStockItemSummary(stockItemId uint, dbContext *gorm.DB) error {
@@ -41,7 +74,7 @@ func (service *summaryService) CreateStockItemSummary(stockItemId uint, dbContex
 	return nil
 }
 
-func (service *summaryService) UpdateStockItemSummary(stockItemID uint, qty int, status statusChange, dbContext *gorm.DB) error {
+func (service *summaryService) UpdateStockItemSummary(stockItemID uint, qty int, status StatusChange, dbContext *gorm.DB) error {
 	db := service.resolveDb(dbContext)
 
 	summary := &models.StockItemSummary{}
@@ -65,7 +98,6 @@ func (service *summaryService) resolveDb(db *gorm.DB) *gorm.DB {
 	} else {
 		return service.db
 	}
-
 }
 
 func updateStatus(summary *models.StockItemSummary, status string, qty int) *models.StockItemSummary {
