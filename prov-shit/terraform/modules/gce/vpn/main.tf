@@ -25,7 +25,7 @@ resource "google_compute_instance" "vpn" {
 }
 
 resource "google_compute_firewall" "vpn" {
-  name    = "vpn"
+  name    = "${var.network}-vpn"
   network = "${var.network}"
 
   allow {
