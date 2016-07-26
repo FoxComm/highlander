@@ -50,15 +50,19 @@
 
 #input-styles {
   .base() {
-    background-color: @color-white;
-    &.disabled {
+    &.disabled,
+    &:disabled {
       background-color: @color-decor9;
     }
     box-shadow: inset 1px 1px 1px 0 rgba(0,0,0,0.1);
-    .border-radius(3px);
+    border-radius: 3px;
     padding: 0 10px;
     height: 40px;
-    .highlight-border-behaviour();
+    border: 1px solid @color-decor7;
+    &:not(:disabled) {
+      background-color: @color-white;
+      .highlight-border-behaviour();
+    }
   }
 
   .textarea() {
@@ -69,6 +73,7 @@
 
 .input-rules(@base-styles: {#input-styles.base}, @textarea-styles: {#input-styles.textarea}) {
   input[type=text],
+  input[type=email],
   input[type=tel],
   input[type=number],
   input[type=date],

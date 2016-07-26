@@ -3,7 +3,10 @@
 import React, { Element } from 'react';
 import styles from './css/wrap-to-lines.css';
 
-type Props = { children: Element }
+type Props = {
+  children: Element,
+  className?: string
+}
 
 const WrapToLines = (props: Props) => {
   const {className, children, ...rest} = props;

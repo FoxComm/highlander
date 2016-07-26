@@ -14,9 +14,6 @@ type State = {
   password: string,
 }
 
-
-
-
 class SetPassword extends Component {
 
   state: State = {
@@ -24,8 +21,12 @@ class SetPassword extends Component {
     password: '',
   };
 
-  get username() {
+  get username(): string {
     return this.props.location.query.username;
+  }
+
+  get email(): string {
+    return this.props.location.query.email;
   }
 
   @autobind
@@ -34,7 +35,7 @@ class SetPassword extends Component {
   }
 
   @autobind
-  handleInputChange(event) {
+  handleInputChange(event: Object) {
     const { target } = event;
     this.setState({
       [target.name]: target.value,
@@ -51,12 +52,12 @@ class SetPassword extends Component {
           to sign up.
         </div>
         <Form styleName="form" onSubmit={this.handleSubmit}>
-          <FormField styleName="email" label="Email">
+          <FormField styleName="signup-email" label="Email">
             <input
               name="email"
-              onChange={this.handleInputChange}
-              value={this.state.email}
-              type="text"
+              value={this.email}
+              type="email"
+              disabled
               className="fc-input"
             />
           </FormField>
@@ -86,7 +87,7 @@ class SetPassword extends Component {
           </PrimaryButton>
         </Form>
       </div>
-    )
+    );
   }
 }
 

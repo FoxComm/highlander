@@ -6,7 +6,6 @@ import ErrorAlerts from '../alerts/error-alerts';
 import Form from '../forms/form';
 import FormField from '../forms/formfield';
 import { PrimaryButton, Button } from '../common/buttons';
-import WaitAnimation from '../common/wait-animation';
 import WrapToLines from './wrap-to-lines';
 
 import { transitionTo } from 'browserHistory';
@@ -68,17 +67,13 @@ export default class Login extends React.Component {
   }
 
   @autobind
-  onEmailChange({target}: SyntheticInputEvent) {
-    if (target instanceof HTMLInputElement) {
-      this.setState({email: target.value});
-    }
+  onEmailChange({target}: Object) {
+    this.setState({email: target.value});
   }
 
   @autobind
-  onPasswordChange({target}: SyntheticInputEvent) {
-    if (target instanceof HTMLInputElement){
-      this.setState({password: target.value});
-    }
+  onPasswordChange({target}: Object) {
+    this.setState({password: target.value});
   }
 
   @autobind
@@ -93,9 +88,9 @@ export default class Login extends React.Component {
 
   get passwordLabel() {
     return (
-      <div className="fc-login__password-label">
-        <div className="fc-login__password-label-title">Password</div>
-        <a onClick={this.onForgotClick} className="fc-login__password-forgot">i forgot</a>
+      <div styleName="password-label">
+        <div>Password</div>
+        <a onClick={this.onForgotClick} styleName="forgot-link">i forgot</a>
       </div>
     );
   }
@@ -115,24 +110,22 @@ export default class Login extends React.Component {
   render() {
     return (
       <div styleName="main">
-        <Form className="fc-grid fc-login fc-form-vertical">
-          <div className="fc-auth__title">Sign In</div>
-          {this.infoMessage}
-          <Button className="fc-login__google-btn" icon="google" onClick={this.onGoogleSignIn}>
-            Sign In with Google
-          </Button>
-        </Form>
-        <Form className="fc-grid fc-login fc-login__email-password fc-form-vertical" onSubmit={this.submitLogin}>
+        <div className="fc-auth__title">Sign In</div>
+        {this.infoMessage}
+        <Button type="button" styleName="google-button" icon="google" onClick={this.onGoogleSignIn}>
+          Sign In with Google
+        </Button>
+        <Form styleName="form" onSubmit={this.submitLogin}>
           <WrapToLines styleName="or-line">or</WrapToLines>
           {this.errorMessage}
-          <FormField className="fc-login__email" label="Email">
+          <FormField label="Email">
             <input onChange={this.onEmailChange} value={this.state.email} type="text" className="fc-input"/>
           </FormField>
-          <FormField className="fc-login__password" label={this.passwordLabel}>
+          <FormField label={this.passwordLabel}>
             <input onChange={this.onPasswordChange} value={this.state.password} type="password" className="fc-input"/>
           </FormField>
           <PrimaryButton
-            className="fc-login__signin-btn"
+            styleName="submit-button"
             type="submit"
             isLoading={this.props.authenticationState.inProgress}>
             Sign In
