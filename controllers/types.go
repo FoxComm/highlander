@@ -22,22 +22,27 @@ type GeneralControllerTestSuite struct {
 	router *gin.Engine
 }
 
-func (suite *GeneralControllerTestSuite) Get(url string, target interface{}) (interface{}, error) {
+func (suite *GeneralControllerTestSuite) Get(url string, target interface{}) error {
 	request, _ := http.NewRequest("GET", url, nil)
-	response := httptest.NewRecorder()
-	suite.router.ServeHTTP(response, request)
 
-	return parseResponse(response, target)
+	return suite.getResponse(request, target)
 }
 
-func parseResponse(response *httptest.ResponseRecorder, target interface{}) (interface{}, error) {
+func (suite *GeneralControllerTestSuite) getResponse(request *http.Request, target interface{}) error {
+	//record response
+	response := httptest.NewRecorder()
+
+	//serve request with router, writing to response
+	suite.router.ServeHTTP(response, request)
+
+	//read body to []byte
 	raw, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
+	//decode body to target object and return it
 	decoder := json.NewDecoder(bytes.NewReader(raw))
-	err = decoder.Decode(&target)
 
-	return target, err
+	return decoder.Decode(target)
 }
