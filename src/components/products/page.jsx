@@ -11,11 +11,14 @@ import _ from 'lodash';
 
 // actions
 import * as ProductActions from '../../modules/products/details';
+import * as ArchiveActions from '../../modules/products/archive';
 
 // components
+import ConfirmationDialog from '../modal/confirmation-dialog';
 import { Dropdown, DropdownItem } from '../dropdown';
 import { PageTitle } from '../section-title';
-import { PrimaryButton } from '../common/buttons';
+import { Button, PrimaryButton } from '../common/buttons';
+import Alert from '../alerts/alert';
 import SubNav from './sub-nav';
 import WaitAnimation from '../common/wait-animation';
 
@@ -44,11 +47,13 @@ type Props = {
     err: ?Object,
   },
   selectContextAvailable: boolean,
+  archiveProduct: Function,
 };
 
 type State = {
   product: ?Product,
   context: string,
+  archiveConfirmation: boolean,
 };
 
 const SELECT_CONTEXT = [
@@ -60,7 +65,7 @@ const SELECT_CONTEXT = [
  * ProductPage represents the default layout of a product details page.
  * It displays the title, sub nav, and save button.
  */
-export class ProductPage extends Component {
+class ProductPage extends Component {
   props: Props;
 
   static defaultProps = {
@@ -70,6 +75,7 @@ export class ProductPage extends Component {
   state: State = {
     product: this.props.products.product,
     context: _.get(this.props.params, 'context', 'default'),
+    archiveConfirmation: false,
   };
 
   componentDidMount() {
@@ -168,6 +174,65 @@ export class ProductPage extends Component {
     }
   }
 
+  renderArchiveSection() {
+    return(
+      <div className="fc-archive-actions">
+        <Button
+          type="button"
+          onClick={this.showArchiveConfirmation}>
+          Archive Product
+        </Button>
+        {this.renderConfirmation()}
+      </div>
+    );
+  }
+
+  renderConfirmation() {
+    const confirmation = (
+      <div>
+        <Alert type="warning">
+          Warning! This action cannot be undone
+        </Alert>
+        <span>
+          Are you sure you want to archive <strong>{this.pageTitle}</strong> ?
+        </span>
+      </div>
+    );
+
+    return (
+      <ConfirmationDialog
+        isVisible={this.state.archiveConfirmation}
+        header="Archive Products ?"
+        body={confirmation}
+        cancel="Cancel"
+        confirm="Archive Products"
+        cancelAction={this.closeArchiveConfirmation}
+        confirmAction={this.archiveProduct}
+      />
+    );
+  }
+
+  @autobind
+  archiveProduct() {
+    this.props.archiveProduct(this.props.params.productId).then(() => {
+      transitionTo('products');
+    });
+  }
+
+  @autobind
+  showArchiveConfirmation() {
+    this.setState({
+      archiveConfirmation: true,
+    });
+  }
+
+  @autobind
+  closeArchiveConfirmation() {
+    this.setState({
+      archiveConfirmation: false,
+    });
+  }
+
   render(): Element {
     const { product, context } = this.state;
     const { isFetching } = this.props.products;
@@ -194,6 +259,8 @@ export class ProductPage extends Component {
             {children}
           </div>
         </div>
+
+        {!this.isNew && this.renderArchiveSection()}
       </div>
     );
   }
@@ -201,5 +268,8 @@ export class ProductPage extends Component {
 
 export default connect(
   state => ({ products: state.products.details }),
-  dispatch => ({ actions: bindActionCreators(ProductActions, dispatch) })
+  dispatch => ({
+    actions: bindActionCreators(ProductActions, dispatch),
+    ...bindActionCreators(ArchiveActions, dispatch),
+  })
 )(ProductPage);
