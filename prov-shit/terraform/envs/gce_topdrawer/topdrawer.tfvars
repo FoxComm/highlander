@@ -13,5 +13,6 @@ log_image 			 = "topdrawer-es-log-1468953205"
 phoenix_image 		 = "topdrawer-phoenix-1469491872"
 greenriver_image 	 = "topdrawer-green-1468953267"
 front_image 		 = "topdrawer-front-1469490914"
-service_worker_image = "service-worker-1469529961"
+service_worker_image = "service-worker-1469562473"
+
 service_workers = "1"

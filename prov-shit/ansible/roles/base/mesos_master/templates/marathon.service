@@ -1,5 +1,5 @@
 [Service]
-ExecStart=/usr/local/marathon-1.1.1/bin/start --master zk://{{zookeeper_server}}/mesos --zk zk://{{zookeeper_server}}/marathon
+ExecStart=/usr/local/marathon-1.1.1/bin/start --master {{zookeepers}}/mesos --zk {{zookeepers}}/marathon
 Restart=always
 RestartSec=5
 StandardOutput=syslog

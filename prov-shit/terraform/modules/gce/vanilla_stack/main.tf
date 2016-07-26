@@ -250,7 +250,7 @@ resource "google_compute_instance" "service_worker" {
     disk {
         image = "${var.service_worker_image}"
         type = "pd-ssd"
-        size = "10"
+        size = "20"
     }
 
     network_interface {

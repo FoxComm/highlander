@@ -1,1 +1,1 @@
-mesos_master: localhost:5050
+zookeepers: zk://localhost:2181

@@ -36,8 +36,8 @@
     "zookeeper_1": "10.0.0.3",
     "zookeeper_2": "10.0.0.4",
     "zookeeper_3": "10.0.0.5",
+    "zookeepers" : "zk://10.0.0.3,10.0.0.4,10.0.0.5:2181",
     "docker_registry_bucket": "topdrawer-docker",
     "cert_path": "topdrawer/docker",
-    "docker_registry":"https://docker.topdrawer.foxcommerce.com",
-    "mesos_master" : "mesos_master.service.consul:5050"
+    "docker_registry":"https://docker.topdrawer.foxcommerce.com"
 }
