@@ -8,11 +8,11 @@ import (
 )
 
 type summaryController struct {
-	summaryService services.ISummaryService
+	service services.ISummaryService
 }
 
 func NewSummaryController(service services.ISummaryService) IController {
-	return &summaryController{summaryService: service}
+	return &summaryController{service}
 }
 
 func (controller *summaryController) SetUp(router gin.IRouter) {
@@ -22,7 +22,7 @@ func (controller *summaryController) SetUp(router gin.IRouter) {
 
 func (controller *summaryController) GetSummaries() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		summary, err := controller.summaryService.GetSummaries()
+		summary, err := controller.service.GetSummaries()
 		if err != nil {
 			handleServiceError(context, err)
 			return
@@ -37,7 +37,7 @@ func (controller *summaryController) GetSummaries() gin.HandlerFunc {
 func (controller *summaryController) GetSummaryBySKU() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		skuCode := context.Params.ByName("code")
-		summary, err := controller.summaryService.GetSummaryBySKU(skuCode)
+		summary, err := controller.service.GetSummaryBySKU(skuCode)
 		if err != nil {
 			handleServiceError(context, err)
 			return
