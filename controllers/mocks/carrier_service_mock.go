@@ -2,64 +2,60 @@ package mocks
 
 import (
 	"github.com/FoxComm/middlewarehouse/models"
-	"github.com/FoxComm/middlewarehouse/services"
 
-	"github.com/jinzhu/gorm"
+	"github.com/stretchr/testify/mock"
 )
 
-type carrierServiceMock struct {
-	id   uint
-	rows []*models.Carrier
+type CarrierServiceMock struct {
+	mock.Mock
 }
 
-func NewCarrierServiceMock() services.ICarrierService {
-	return &carrierServiceMock{}
-}
+func (service *CarrierServiceMock) GetCarriers() ([]*models.Carrier, error) {
+	args := service.Called()
 
-func (service *carrierServiceMock) GetCarriers() ([]*models.Carrier, error) {
-	return service.rows, nil
-}
-
-func (service *carrierServiceMock) GetCarrierByID(id uint) (*models.Carrier, error) {
-	for i := 0; i < len(service.rows); i++ {
-		row := service.rows[i]
-		if row.ID == id {
-			return row, nil
-		}
+	if models, ok := args.Get(0).([]*models.Carrier); ok {
+		return models, nil
 	}
 
-	return nil, gorm.ErrRecordNotFound
+	return nil, args.Error(1)
 }
 
-func (service *carrierServiceMock) CreateCarrier(carrier *models.Carrier) (uint, error) {
-	service.id++
-	carrier.ID = service.id
+func (service *CarrierServiceMock) GetCarrierByID(id uint) (*models.Carrier, error) {
+	args := service.Called()
 
-	service.rows = append(service.rows, carrier)
-
-	return carrier.ID, nil
-}
-
-func (service *carrierServiceMock) UpdateCarrier(carrier *models.Carrier) error {
-	for i := 0; i < len(service.rows); i++ {
-		row := service.rows[i]
-		if row.ID == carrier.ID {
-			service.rows[i] = carrier
-			return nil
-		}
+	if model, ok := args.Get(0).(*models.Carrier); ok {
+		return model, nil
 	}
 
-	return gorm.ErrRecordNotFound
+	return nil, args.Error(1)
 }
 
-func (service *carrierServiceMock) DeleteCarrier(id uint) error {
-	for i := 0; i < len(service.rows); i++ {
-		row := service.rows[i]
-		if row.ID == id {
-			service.rows = append(service.rows[:i], service.rows[i+1:]...)
-			return nil
-		}
+func (service *CarrierServiceMock) CreateCarrier(carrier *models.Carrier) (uint, error) {
+	args := service.Called()
+
+	if id, ok := args.Get(0).(uint); ok {
+		return id, nil
 	}
 
-	return gorm.ErrRecordNotFound
+	return 0, args.Error(1)
+}
+
+func (service *CarrierServiceMock) UpdateCarrier(carrier *models.Carrier) error {
+	args := service.Called()
+
+	if args.Bool(0) {
+		return nil
+	}
+
+	return args.Error(1)
+}
+
+func (service *CarrierServiceMock) DeleteCarrier(id uint) error {
+	args := service.Called()
+
+	if args.Bool(0) {
+		return nil
+	}
+
+	return args.Error(1)
 }
