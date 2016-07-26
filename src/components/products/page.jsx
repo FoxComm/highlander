@@ -14,13 +14,12 @@ import * as ProductActions from '../../modules/products/details';
 import * as ArchiveActions from '../../modules/products/archive';
 
 // components
-import ConfirmationDialog from '../modal/confirmation-dialog';
 import { Dropdown, DropdownItem } from '../dropdown';
 import { PageTitle } from '../section-title';
-import { Button, PrimaryButton } from '../common/buttons';
-import Alert from '../alerts/alert';
+import { PrimaryButton } from '../common/buttons';
 import SubNav from './sub-nav';
 import WaitAnimation from '../common/wait-animation';
+import ArchiveActionsSection from '../arcive-actions/archive-actions';
 
 // helpers
 import { transitionTo } from 'browserHistory';
@@ -52,7 +51,6 @@ type Props = {
 type State = {
   product: ?Product,
   context: string,
-  archiveConfirmation: boolean,
 };
 
 const SELECT_CONTEXT = [
@@ -70,7 +68,6 @@ class ProductPage extends Component {
   state: State = {
     product: this.props.products.product,
     context: _.get(this.props.params, 'context', 'default'),
-    archiveConfirmation: false,
   };
 
   componentDidMount() {
@@ -162,41 +159,11 @@ class ProductPage extends Component {
     }
   }
 
-  renderArchiveSection() {
+  renderArchiveActions() {
     return(
-      <div className="fc-archive-actions">
-        <Button
-          type="button"
-          onClick={this.showArchiveConfirmation}>
-          Archive Product
-        </Button>
-        {this.renderConfirmation()}
-      </div>
-    );
-  }
-
-  renderConfirmation() {
-    const confirmation = (
-      <div>
-        <Alert type="warning">
-          Warning! This action cannot be undone
-        </Alert>
-        <span>
-          Are you sure you want to archive <strong>{this.pageTitle}</strong> ?
-        </span>
-      </div>
-    );
-
-    return (
-      <ConfirmationDialog
-        isVisible={this.state.archiveConfirmation}
-        header="Archive Products ?"
-        body={confirmation}
-        cancel="Cancel"
-        confirm="Archive Products"
-        cancelAction={this.closeArchiveConfirmation}
-        confirmAction={this.archiveProduct}
-      />
+      <ArchiveActionsSection type="Product"
+                             title={this.pageTitle}
+                             archive={this.archiveProduct} />
     );
   }
 
@@ -204,20 +171,6 @@ class ProductPage extends Component {
   archiveProduct() {
     this.props.archiveProduct(this.props.params.productId).then(() => {
       transitionTo('products');
-    });
-  }
-
-  @autobind
-  showArchiveConfirmation() {
-    this.setState({
-      archiveConfirmation: true,
-    });
-  }
-
-  @autobind
-  closeArchiveConfirmation() {
-    this.setState({
-      archiveConfirmation: false,
     });
   }
 
@@ -248,7 +201,7 @@ class ProductPage extends Component {
           </div>
         </div>
 
-        {!this.isNew && this.renderArchiveSection()}
+        {!this.isNew && this.renderArchiveActions()}
       </div>
     );
   }

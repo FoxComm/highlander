@@ -15,7 +15,7 @@ import { PageTitle } from '../section-title';
 import { PrimaryButton } from '../common/buttons';
 import LocalNav from '../local-nav/local-nav';
 import WaitAnimation from '../common/wait-animation';
-import ArchiveActions from '../arcive-actions/archive-actions';
+import ArchiveActionsSection from '../arcive-actions/archive-actions';
 
 // actions
 import * as SkuActions from '../../modules/skus/details';
@@ -131,7 +131,7 @@ class SkuPage extends Component {
           </div>
         </div>
 
-        {!this.isNew && <ArchiveActions type="SKU" title={this.title} />}
+        {!this.isNew && <ArchiveActionsSection type="SKU" title={this.title} />}
       </div>
     );
   }
