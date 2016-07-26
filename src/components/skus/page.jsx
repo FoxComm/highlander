@@ -15,6 +15,7 @@ import { PageTitle } from '../section-title';
 import { PrimaryButton } from '../common/buttons';
 import LocalNav from '../local-nav/local-nav';
 import WaitAnimation from '../common/wait-animation';
+import ArchiveActions from '../arcive-actions/archive-actions';
 
 // actions
 import * as SkuActions from '../../modules/skus/details';
@@ -40,7 +41,7 @@ type State = {
   sku: ?Sku,
 };
 
-export class SkuPage extends Component {
+class SkuPage extends Component {
   props: Props;
 
   state: State = {
@@ -71,6 +72,11 @@ export class SkuPage extends Component {
     return this.entityId === 'new';
   }
 
+  get title(): string {
+    const code = _.get(this.props.sku, 'attributes.code.v', '');
+    return this.isNew ? 'New SKU' : code.toUpperCase();
+  }
+
   @autobind
   handleChange(sku: Sku): void {
     this.setState({ sku });
@@ -94,8 +100,6 @@ export class SkuPage extends Component {
       return <div className="fc-sku"><WaitAnimation /></div>;
     }
 
-    const code = _.get(sku, 'attributes.code.v', '');
-    const title = this.isNew ? 'New SKU' : code.toUpperCase();
     const children = React.cloneElement(this.props.children, {
       entity: { entityId: this.entityId, entityType: 'sku' },
       onChange: this.handleChange,
@@ -104,7 +108,7 @@ export class SkuPage extends Component {
 
     return (
       <div>
-        <PageTitle title={title}>
+        <PageTitle title={this.title}>
           <PrimaryButton
             className="fc-product-details__save-button"
             type="submit"
@@ -126,6 +130,8 @@ export class SkuPage extends Component {
             {children}
           </div>
         </div>
+
+        {!this.isNew && <ArchiveActions type="SKU" title={this.title} />}
       </div>
     );
   }
