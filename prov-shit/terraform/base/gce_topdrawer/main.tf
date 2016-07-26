@@ -14,6 +14,8 @@ variable "db_image" {}
 variable "es_image" {}
 variable "log_image" {}
 variable "phoenix_image" {}
+variable "service_worker_image" {}
+variable "service_workers" {}
 variable "greenriver_image" {}
 variable "front_image" {}
 
@@ -123,6 +125,8 @@ module "topdrawer_stack" {
     es_image = "${var.es_image}"
     log_image = "${var.log_image}"
     phoenix_image = "${var.phoenix_image}"
+    service_worker_image = "${var.service_worker_image}"
+    service_workers = "${var.service_workers}"
     greenriver_image = "${var.greenriver_image}"
     front_image = "${var.front_image}"
     amigo_leader = "${module.topdrawer_amigo_cluster.leader}"

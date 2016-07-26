@@ -7,6 +7,8 @@ variable "log_image" {}
 variable "phoenix_image" {}
 variable "greenriver_image" {}
 variable "front_image" {}
+variable "service_worker_image" {}
+variable "service_workers" {}
 variable "ssh_user" {}
 variable "ssh_private_key" {}
 variable "amigo_leader" {}
@@ -204,6 +206,49 @@ resource "google_compute_instance" "phoenix" {
 
     disk {
         image = "${var.phoenix_image}"
+        type = "pd-ssd"
+        size = "10"
+    }
+
+    network_interface {
+        network = "${var.network}"
+    }
+
+    connection {
+        type = "ssh"
+        user = "${var.ssh_user}"
+        private_key="${file(var.ssh_private_key)}"
+    }
+
+    provisioner "file" {
+        source = "terraform/scripts/bootstrap.sh"
+        destination = "/tmp/bootstrap.sh"
+    }
+
+    provisioner "file" {
+        source = "terraform/scripts/consul.sh"
+        destination = "/tmp/consul.sh"
+    }
+
+    provisioner "remote-exec" {
+        inline = [
+          "chmod +x /tmp/bootstrap.sh",
+          "chmod +x /tmp/consul.sh",
+          "/tmp/bootstrap.sh",
+          "/tmp/consul.sh ${var.datacenter} ${var.amigo_leader}"
+        ]
+    }
+}
+
+resource "google_compute_instance" "service_worker" {
+    name = "${var.datacenter}-service-worker"
+    machine_type = "n1-standard-8"
+    tags = ["ssh", "no-ip", "http-server", "https-server", "${var.datacenter}-service-worker", "${var.datacenter}"]
+    zone = "${var.zone}"
+    count = "${var.service_workers}"
+
+    disk {
+        image = "${var.service_worker_image}"
         type = "pd-ssd"
         size = "10"
     }

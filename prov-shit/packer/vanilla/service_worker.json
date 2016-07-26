@@ -6,21 +6,21 @@
             "project_id" : "{{user `project_id`}}",
             "source_image": "{{user `base_mesos`}}",
             "network": "{{user `network`}}",
-            "zone": "us-central1-a",
-            "image_name": "amigo-server-{{timestamp}}",
+            "zone": "{{user `zone`}}",
+            "image_name": "service-worker-{{timestamp}}",
             "image_description": "base image used for provisioning",
-            "instance_name": "packer-amigo-server-{{uuid}}",
+            "instance_name": "packer-service-worker-{{uuid}}",
             "machine_type": "n1-standard-2",
-            "tags": ["no-ip", "packer-amigo-server"],
+            "tags": ["no-ip", "{{user `image_prefix`}}", "packer-service-worker"],
             "use_internal_ip": true,
             "ssh_username" : "{{user `ssh_username`}}",
-            "disk_size" : 20
+            "disk_size" : 10
         }
     ],
     "provisioners" : [
         {
            "type": "ansible",
-           "playbook_file" : "ansible/packer_amigo_server.yml",
+           "playbook_file" : "ansible/packer_service_worker.yml",
            "extra_arguments": ["--extra-vars", "@packer/envs/{{user `variables_file`}}"]
         }
     ]

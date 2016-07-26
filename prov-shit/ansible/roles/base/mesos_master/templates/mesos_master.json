@@ -6,7 +6,7 @@
         "checks": [
             {
                 "name": "HTTP API on port 5050",
-                "http": "http://localhost:5050",
+                "script": "/usr/local/bin/mesos_master_check.sh",
                 "interval": "30s",
                 "status": "passing"
             }
