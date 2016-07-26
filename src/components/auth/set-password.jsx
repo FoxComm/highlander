@@ -5,11 +5,13 @@ import React, { Component, Element } from 'react';
 import { connect } from 'react-redux';
 import styles from './css/auth.css';
 import { autobind } from 'core-decorators';
+import { transitionTo } from 'browserHistory';
 
 import Form from '../forms/form';
 import FormField from '../forms/formfield';
 import ErrorAlerts from '../alerts/error-alerts';
 import { PrimaryButton, Button } from '../common/buttons';
+import PasswordInput from '../forms/password-input';
 
 import type { SignupPayload } from 'modules/user';
 import * as userActions from 'modules/user';
@@ -59,7 +61,9 @@ class SetPassword extends Component {
       password: this.state.password2,
       token: this.token,
     };
-    this.props.signUp(payload);
+    this.props.signUp(payload).then(() => {
+      transitionTo('home');
+    });
   }
 
   @autobind
@@ -104,20 +108,22 @@ class SetPassword extends Component {
             />
           </FormField>
           <FormField styleName="password" label="Create Password">
-            <input
+            <PasswordInput
               name="password1"
               onChange={this.handleInputChange}
               value={this.state.password1}
               type="password"
+              required
               className="fc-input"
             />
           </FormField>
           <FormField styleName="password" label="Confirm Password" validator={this.validatePassword2}>
-            <input
+            <PasswordInput
               name="password2"
               onChange={this.handleInputChange}
               value={this.state.password2}
               type="password"
+              required
               className="fc-input"
             />
           </FormField>
