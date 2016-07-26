@@ -47,11 +47,10 @@ func (suite *carrierControllerTestSuite) Test_GetCarriers_EmptyData() {
 
 	//act
 	result := []responses.Carrier{}
-	code, err := suite.Get("/carriers/", &result)
+	response := suite.Get("/carriers/", &result)
 
 	//assert
-	suite.assert.Equal(http.StatusOK, code)
-	suite.assert.Nil(err)
+	suite.assert.Equal(http.StatusOK, response.Code)
 	suite.assert.Equal(0, len(result))
 	suite.service.AssertExpectations(suite.T())
 }
@@ -67,11 +66,10 @@ func (suite *carrierControllerTestSuite) Test_GetCarriers_NonEmptyData() {
 
 	//act
 	result := []responses.Carrier{}
-	code, err := suite.Get("/carriers/", &result)
+	response := suite.Get("/carriers/", &result)
 
 	//assert
-	suite.assert.Equal(http.StatusOK, code)
-	suite.assert.Nil(err)
+	suite.assert.Equal(http.StatusOK, response.Code)
 	suite.assert.Equal(2, len(result))
 	suite.assert.Equal(carrier1.Name, result[0].Name)
 	suite.assert.Equal(carrier1.TrackingTemplate, result[0].TrackingTemplate)
@@ -86,11 +84,10 @@ func (suite *carrierControllerTestSuite) Test_GetCarrierByID_NotFound() {
 
 	//act
 	result := responses.Error{}
-	code, err := suite.Get("/carriers/1", &result)
+	response := suite.Get("/carriers/1", &result)
 
 	//assert
-	suite.assert.Equal(http.StatusNotFound, code)
-	suite.assert.Nil(err)
+	suite.assert.Equal(http.StatusNotFound, response.Code)
 	suite.assert.Equal(1, len(result.Errors))
 	suite.service.AssertExpectations(suite.T())
 }
@@ -102,11 +99,10 @@ func (suite *carrierControllerTestSuite) Test_GetCarrierById_Found() {
 
 	//act
 	result := responses.Carrier{}
-	code, err := suite.Get("/carriers/1", &result)
+	response := suite.Get("/carriers/1", &result)
 
 	//assert
-	suite.assert.Equal(http.StatusOK, code)
-	suite.assert.Nil(err)
+	suite.assert.Equal(http.StatusOK, response.Code)
 	suite.assert.Equal(carrier.Name, result.Name)
 	suite.assert.Equal(carrier.TrackingTemplate, result.TrackingTemplate)
 	suite.service.AssertExpectations(suite.T())
@@ -119,11 +115,10 @@ func (suite *carrierControllerTestSuite) Test_CreateCarrier() {
 
 	//act
 	var result uint
-	code, err := suite.Post("/carriers/", carrier, &result)
+	response := suite.Post("/carriers/", carrier, &result)
 
 	//assert
-	suite.assert.Equal(http.StatusCreated, code)
-	suite.assert.Nil(err)
+	suite.assert.Equal(http.StatusCreated, response.Code)
 	suite.assert.Equal(uint(1), result)
 	suite.service.AssertExpectations(suite.T())
 }
@@ -135,11 +130,10 @@ func (suite *carrierControllerTestSuite) Test_UpdateCarrier_NotFound() {
 
 	//act
 	result := responses.Error{}
-	code, err := suite.Put("/carriers/1", updated, &result)
+	response := suite.Put("/carriers/1", updated, &result)
 
 	//assert
-	suite.assert.Equal(http.StatusNotFound, code)
-	suite.assert.Nil(err)
+	suite.assert.Equal(http.StatusNotFound, response.Code)
 	suite.assert.Equal(1, len(result.Errors))
 	suite.service.AssertExpectations(suite.T())
 }
@@ -151,11 +145,10 @@ func (suite *carrierControllerTestSuite) Test_UpdateCarrier_Found() {
 
 	//act
 	var result string
-	code, err := suite.Put("/carriers/1", carrier, &result)
+	response := suite.Put("/carriers/1", carrier, &result)
 
 	//assert
-	suite.assert.Equal(http.StatusNoContent, code)
-	suite.assert.Nil(err)
+	suite.assert.Equal(http.StatusNoContent, response.Code)
 	suite.assert.Equal("", result)
 	suite.service.AssertExpectations(suite.T())
 }
@@ -166,11 +159,10 @@ func (suite *carrierControllerTestSuite) Test_DeleteCarrier_NotFound() {
 
 	//act
 	result := responses.Error{}
-	code, err := suite.Delete("/carriers/1", &result)
+	response := suite.Delete("/carriers/1", &result)
 
 	//assert
-	suite.assert.Equal(http.StatusNotFound, code)
-	suite.assert.Nil(err)
+	suite.assert.Equal(http.StatusNotFound, response.Code)
 	suite.assert.Equal(1, len(result.Errors))
 	suite.service.AssertExpectations(suite.T())
 }
@@ -181,11 +173,10 @@ func (suite *carrierControllerTestSuite) Test_DeleteCarrier_Found() {
 
 	//act
 	var result string
-	code, err := suite.Delete("/carriers/1", &result)
+	response := suite.Delete("/carriers/1", &result)
 
 	//assert
-	suite.assert.Equal(http.StatusNoContent, code)
-	suite.assert.Nil(err)
+	suite.assert.Equal(http.StatusNoContent, response.Code)
 	suite.assert.Equal("", result)
 	suite.service.AssertExpectations(suite.T())
 }

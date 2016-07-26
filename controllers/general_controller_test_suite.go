@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -18,55 +19,67 @@ type GeneralControllerTestSuite struct {
 	router *gin.Engine
 }
 
-func (suite *GeneralControllerTestSuite) Get(url string, target interface{}) (int, error) {
+func (suite *GeneralControllerTestSuite) Get(url string, args ...interface{}) *httptest.ResponseRecorder {
 	request, _ := http.NewRequest("GET", url, nil)
 
-	return suite.getResponse(request, target)
+	return suite.query(request, args...)
 }
 
-func (suite *GeneralControllerTestSuite) Post(url string, body interface{}, target interface{}) (int, error) {
-	request, _ := http.NewRequest("POST", url, prepareBody(body))
+func (suite *GeneralControllerTestSuite) Post(url string, args ...interface{}) *httptest.ResponseRecorder {
+	request, _ := http.NewRequest("POST", url, prepareBody(args[0]))
 
-	return suite.getResponse(request, target)
+	return suite.query(request, args[1:]...)
 }
 
-func (suite *GeneralControllerTestSuite) Put(url string, body interface{}, target interface{}) (int, error) {
-	request, _ := http.NewRequest("PUT", url, prepareBody(body))
+func (suite *GeneralControllerTestSuite) Put(url string, args ...interface{}) *httptest.ResponseRecorder {
+	request, _ := http.NewRequest("PUT", url, prepareBody(args[0]))
 
-	return suite.getResponse(request, target)
+	return suite.query(request, args[1:]...)
 }
 
-func (suite *GeneralControllerTestSuite) Delete(url string, target interface{}) (int, error) {
+func (suite *GeneralControllerTestSuite) Delete(url string, args ...interface{}) *httptest.ResponseRecorder {
 	request, _ := http.NewRequest("DELETE", url, nil)
 
-	return suite.getResponse(request, target)
+	return suite.query(request, args...)
 }
 
-func (suite *GeneralControllerTestSuite) getResponse(request *http.Request, target interface{}) (int, error) {
+func (suite *GeneralControllerTestSuite) query(request *http.Request, target ...interface{}) *httptest.ResponseRecorder {
 	//record response
 	response := httptest.NewRecorder()
 
 	//serve request with router, writing to response
 	suite.router.ServeHTTP(response, request)
 
-	return response.Code, parseBody(response.Body, target)
+	//return raw response or parse, if needed
+	switch len(target) {
+	case 0:
+		return response
+	case 1:
+		return parseBody(response, target[0])
+	default:
+		panic("Unexpected number of arguments")
+	}
 }
 
 func prepareBody(raw interface{}) io.Reader {
-	buffer := new(bytes.Buffer)
-	json.NewEncoder(buffer).Encode(raw)
+	switch raw.(type) {
+	case string:
+		return strings.NewReader(raw.(string))
+	default:
+		buffer := new(bytes.Buffer)
+		json.NewEncoder(buffer).Encode(raw)
 
-	return buffer
+		return buffer
+	}
 }
 
-func parseBody(body *bytes.Buffer, target interface{}) error {
-	//nothing to read, if empty buffer
-	if body.Len() == 0 {
-		return nil
+func parseBody(response *httptest.ResponseRecorder, target interface{}) *httptest.ResponseRecorder {
+	//decode if any data
+	if response.Body.Len() != 0 {
+		if err := json.NewDecoder(response.Body).Decode(target); err != nil {
+			panic(err)
+		}
 	}
 
-	//decode body to target object and return it
-	decoder := json.NewDecoder(body)
-
-	return decoder.Decode(target)
+	return response
 }
