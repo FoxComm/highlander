@@ -17,6 +17,6 @@ func (controller *pingController) SetUp(router gin.IRouter) {
 
 func (controller *pingController) HealthCheck() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		context.JSON(200, map[string]string{})
+		context.JSON(200, gin.H{})
 	}
 }
