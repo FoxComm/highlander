@@ -73,7 +73,7 @@ object Addresses {
          deletedAt = None)
   }
 
-  def forOrderRef(cordRef: String)(implicit ec: EC): DbResultT[Root] = {
+  def forCordRef(cordRef: String)(implicit ec: EC): DbResultT[Root] = {
     val fullAddressDetails = for {
       shipAddress ← OrderShippingAddresses.findByOrderRef(cordRef)
       region      ← shipAddress.region

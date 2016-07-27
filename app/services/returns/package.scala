@@ -17,7 +17,7 @@ package object returns {
 
     def mustFindCcPaymentsByOrderRef(cordRef: String)(implicit ec: EC): DbResultT[OrderPayment] =
       OrderPayments
-        .findAllByOrderRef(cordRef)
+        .findAllByCordRef(cordRef)
         .creditCards
         .mustFindOneOr(OrderPaymentNotFoundFailure(Cart))
   }

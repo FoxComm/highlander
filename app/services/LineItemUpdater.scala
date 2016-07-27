@@ -11,7 +11,7 @@ import models.inventory.Skus
 import models.payment.giftcard._
 import payloads.LineItemPayloads.{AddGiftCardLineItem, UpdateLineItemsPayload}
 import responses.TheResponse
-import responses.cart.FullCart
+import responses.cord.CartResponse
 import services.carts.{CartPromotionUpdater, CartTotaler}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
@@ -23,7 +23,7 @@ object LineItemUpdater {
       implicit ec: EC,
       db: DB,
       ac: AC,
-      ctx: OC): DbResultT[TheResponse[FullCart.Root]] =
+      ctx: OC): DbResultT[TheResponse[CartResponse]] =
     for {
       p      ← * <~ payload.validate
       cart   ← * <~ Carts.mustFindByRefNum(refNum)
@@ -37,7 +37,7 @@ object LineItemUpdater {
       // update changed totals
       cart   ← * <~ CartTotaler.saveTotals(cart)
       valid  ← * <~ CartValidator(cart).validate()
-      result ← * <~ FullCart.buildRefreshed(cart)
+      result ← * <~ CartResponse.buildRefreshed(cart)
       _      ← * <~ LogActivity.orderLineItemsAddedGc(admin, result, gc)
     } yield TheResponse.validated(result, valid)
 
@@ -45,7 +45,7 @@ object LineItemUpdater {
       implicit ec: EC,
       db: DB,
       ac: AC,
-      ctx: OC): DbResultT[TheResponse[FullCart.Root]] =
+      ctx: OC): DbResultT[TheResponse[CartResponse]] =
     for {
       _        ← * <~ payload.validate
       giftCard ← * <~ GiftCards.mustFindByCode(code)
@@ -55,7 +55,7 @@ object LineItemUpdater {
       // update changed totals
       cart   ← * <~ CartTotaler.saveTotals(cart)
       valid  ← * <~ CartValidator(cart).validate()
-      result ← * <~ FullCart.buildRefreshed(cart)
+      result ← * <~ CartResponse.buildRefreshed(cart)
       _      ← * <~ LogActivity.orderLineItemsUpdatedGc(admin, result, giftCard)
     } yield TheResponse.validated(result, valid)
 
@@ -63,7 +63,7 @@ object LineItemUpdater {
       implicit ec: EC,
       db: DB,
       ac: AC,
-      ctx: OC): DbResultT[TheResponse[FullCart.Root]] =
+      ctx: OC): DbResultT[TheResponse[CartResponse]] =
     for {
       gc   ← * <~ GiftCards.mustFindByCode(code)
       _    ← * <~ gc.mustBeCart
@@ -76,7 +76,7 @@ object LineItemUpdater {
       // update changed totals
       cart  ← * <~ CartTotaler.saveTotals(cart)
       valid ← * <~ CartValidator(cart).validate()
-      res   ← * <~ FullCart.buildRefreshed(cart)
+      res   ← * <~ CartResponse.buildRefreshed(cart)
       _     ← * <~ LogActivity.orderLineItemsDeletedGc(admin, res, gc)
     } yield TheResponse.validated(res, valid)
 
@@ -87,10 +87,10 @@ object LineItemUpdater {
       es: ES,
       db: DB,
       ac: AC,
-      ctx: OC): DbResultT[TheResponse[FullCart.Root]] = {
+      ctx: OC): DbResultT[TheResponse[CartResponse]] = {
 
     val finder = Carts.mustFindByRefNum(refNum)
-    val logActivity = (cart: FullCart.Root, oldQtys: Map[String, Int]) ⇒
+    val logActivity = (cart: CartResponse, oldQtys: Map[String, Int]) ⇒
       LogActivity.orderLineItemsUpdated(cart, oldQtys, payload, Some(admin))
 
     runUpdates(finder, logActivity, payload)
@@ -101,14 +101,14 @@ object LineItemUpdater {
       es: ES,
       db: DB,
       ac: AC,
-      ctx: OC): DbResultT[TheResponse[FullCart.Root]] = {
+      ctx: OC): DbResultT[TheResponse[CartResponse]] = {
 
     val findOrCreate = Carts
       .findByCustomer(customer)
       .one
       .findOrCreateExtended(Carts.create(Cart(customerId = customer.id)))
 
-    val logActivity = (cart: FullCart.Root, oldQtys: Map[String, Int]) ⇒
+    val logActivity = (cart: CartResponse, oldQtys: Map[String, Int]) ⇒
       LogActivity.orderLineItemsUpdated(cart, oldQtys, payload)
 
     val finder = findOrCreate.map({ case (cart, _) ⇒ cart })
@@ -117,19 +117,19 @@ object LineItemUpdater {
   }
 
   private def runUpdates(finder: DbResultT[Cart],
-                         logAct: (FullCart.Root, Map[String, Int]) ⇒ DbResultT[Activity],
+                         logAct: (CartResponse, Map[String, Int]) ⇒ DbResultT[Activity],
                          payload: Seq[UpdateLineItemsPayload])(
       implicit ec: EC,
       es: ES,
       db: DB,
-      ctx: OC): DbResultT[TheResponse[FullCart.Root]] =
+      ctx: OC): DbResultT[TheResponse[CartResponse]] =
     for {
       cart  ← * <~ finder
       _     ← * <~ updateQuantities(cart, payload, ctx.id)
       _     ← * <~ CartPromotionUpdater.readjust(cart).recover { case _ ⇒ Unit }
       cart  ← * <~ CartTotaler.saveTotals(cart)
       valid ← * <~ CartValidator(cart).validate()
-      res   ← * <~ FullCart.buildRefreshed(cart)
+      res   ← * <~ CartResponse.buildRefreshed(cart)
       li    ← * <~ OrderLineItemSkus.countSkusByCordRef(cart.refNum)
       _     ← * <~ logAct(res, li)
     } yield TheResponse.validated(res, valid)

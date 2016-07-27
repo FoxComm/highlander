@@ -1,3 +1,5 @@
+import java.time.Instant
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
@@ -11,6 +13,7 @@ import models.customer.Customers
 import models.inventory._
 import models.location.Addresses
 import models.objects._
+import models.payment.giftcard._
 import models.product.{Mvp, SimpleContext}
 import models.shipping.ShippingMethods
 import models.{Reasons, StoreAdmins}
@@ -20,8 +23,7 @@ import payloads.OrderPayloads.CreateCart
 import payloads.PaymentPayloads.GiftCardPayment
 import payloads.UpdateShippingMethod
 import responses.GiftCardResponse
-import responses.cart.FullCart
-import responses.order.FullOrder
+import responses.cord._
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.db._
@@ -35,7 +37,7 @@ class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with 
       // Create cart
       val createCart = POST("v1/orders", CreateCart(Some(customer.id)))
       createCart.status must === (StatusCodes.OK)
-      val refNum = createCart.as[FullCart.Root].referenceNumber
+      val refNum = createCart.as[CartResponse].referenceNumber
       // Add line items
       POST(s"v1/orders/$refNum/line-items", Seq(UpdateLineItemsPayload(sku.code, 2))).status must === (
           StatusCodes.OK)
@@ -45,7 +47,7 @@ class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with 
       val setShipMethod =
         PATCH(s"v1/orders/$refNum/shipping-method", UpdateShippingMethod(shipMethod.id))
       setShipMethod.status must === (StatusCodes.OK)
-      val grandTotal = setShipMethod.ignoreFailuresAndGiveMe[FullCart.Root].totals.total
+      val grandTotal = setShipMethod.ignoreFailuresAndGiveMe[CartResponse].totals.total
       // Pay
       val createGiftCard = POST("v1/gift-cards", GiftCardCreateByCsr(grandTotal, reason.id))
       createGiftCard.status must === (StatusCodes.OK)
@@ -57,16 +59,27 @@ class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with 
       // Checkout!
       val checkout = POST(s"v1/orders/$refNum/checkout")
       checkout.status must === (StatusCodes.OK)
-      checkout.as[FullOrder.Root].orderState must === (Order.RemorseHold)
+
+      val orderResponse = checkout.as[OrderResponse]
+
+      // Checkout:
+      // Triggers cart → order transition
       Orders.findOneByRefNum(refNum).gimme mustBe defined
       Carts.findOneByRefNum(refNum).gimme must not be defined
+
+      // Properly creates an order
+      orderResponse.orderState must === (Order.RemorseHold)
+      orderResponse.remorsePeriodEnd.value.isAfter(Instant.now) mustBe true
+
+      // Authorizes payments
+      GiftCardAdjustments.map(_.state).gimme must contain only GiftCardAdjustment.Auth
     }
 
     "fails if customer's credentials are empty" in new Fixture {
       // Create cart
       val createCart = POST("v1/orders", CreateCart(Some(customer.id)))
       createCart.status must === (StatusCodes.OK)
-      val refNum = createCart.as[FullCart.Root].referenceNumber
+      val refNum = createCart.as[CartResponse].referenceNumber
 
       // Update customer
       Customers.activeCustomerByEmail(customer.email).map(_.email).update(None).run().futureValue
@@ -82,7 +95,7 @@ class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with 
 
       //Create cart
       val refNum =
-        POST("v1/orders", CreateCart(Some(customer.id))).as[FullOrder.Root].referenceNumber
+        POST("v1/orders", CreateCart(Some(customer.id))).as[OrderResponse].referenceNumber
 
       POST(s"v1/orders/$refNum/line-items", Seq(UpdateLineItemsPayload(sku.code, 2))).status must === (
           StatusCodes.OK)
@@ -93,7 +106,7 @@ class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with 
       val setShipMethod =
         PATCH(s"v1/orders/$refNum/shipping-method", UpdateShippingMethod(shipMethod.id))
       setShipMethod.status must === (StatusCodes.OK)
-      val grandTotal = setShipMethod.ignoreFailuresAndGiveMe[FullOrder.Root].totals.total
+      val grandTotal = setShipMethod.ignoreFailuresAndGiveMe[OrderResponse].totals.total
 
       // Pay
       val createGiftCard = POST("v1/gift-cards", GiftCardCreateByCsr(grandTotal, reason.id))

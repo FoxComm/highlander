@@ -1,10 +1,8 @@
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import akka.http.scaladsl.model.StatusCodes
-
 import Extensions._
+import akka.http.scaladsl.model.StatusCodes
 import cats.implicits._
 import com.stripe.exception.CardException
 import com.stripe.model.{DeletedExternalAccount, ExternalAccount}
@@ -32,7 +30,7 @@ import payloads.PaymentPayloads._
 import responses.CreditCardsResponse.{Root ⇒ CardResponse}
 import responses.CustomerResponse
 import responses.CustomerResponse.Root
-import responses.cart.FullCart
+import responses.cord.CartResponse
 import services.carts.CartPaymentUpdater
 import services.{CreditCardManager, Result}
 import slick.driver.PostgresDriver.api._
@@ -42,6 +40,8 @@ import utils.aliases.stripe._
 import utils.db._
 import utils.jdbc._
 import utils.seeds.Seeds.Factories
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class CustomerIntegrationTest
     extends IntegrationTestBase
@@ -253,7 +253,7 @@ class CustomerIntegrationTest
       val response = GET(s"v1/customers/${customer.id}/cart")
       response.status must === (StatusCodes.OK)
 
-      val root = response.as[FullCart.Root]
+      val root = response.as[CartResponse]
       root.referenceNumber must === (cart.referenceNumber)
 
       Carts.findByCustomer(customer).gimme must have size 1
@@ -263,7 +263,7 @@ class CustomerIntegrationTest
       val response = GET(s"v1/customers/${customer.id}/cart")
       response.status must === (StatusCodes.OK)
 
-      val root = response.as[FullCart.Root]
+      val root = response.as[CartResponse]
 
       Carts.findByCustomer(customer).gimme must have size 1
     }

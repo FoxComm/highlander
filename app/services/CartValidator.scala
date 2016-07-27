@@ -119,7 +119,7 @@ case class CartValidator(cart: Cart)(implicit ec: EC) extends CartValidation {
 
     if (cart.grandTotal > 0) {
       OrderPayments
-        .findAllByOrderRef(cart.refNum)
+        .findAllByCordRef(cart.refNum)
         .result
         .flatMap(availableFunds(cart.grandTotal, _))
     } else {

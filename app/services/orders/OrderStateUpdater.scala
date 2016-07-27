@@ -9,7 +9,7 @@ import models.payment.giftcard.GiftCardAdjustments
 import models.payment.giftcard.GiftCardAdjustments.scope._
 import models.payment.storecredit.StoreCreditAdjustments
 import models.payment.storecredit.StoreCreditAdjustments.scope._
-import responses.order.{AllOrders, FullOrder}
+import responses.cord.{AllOrders, OrderResponse}
 import responses.{BatchMetadata, BatchMetadataSource, BatchResponse}
 import services.LogActivity.{orderBulkStateChanged, orderStateChanged}
 import slick.driver.PostgresDriver.api._
@@ -21,13 +21,13 @@ object OrderStateUpdater {
   def updateState(admin: StoreAdmin, refNum: String, newState: Order.State)(
       implicit ec: EC,
       db: DB,
-      ac: AC): DbResultT[FullOrder.Root] =
+      ac: AC): DbResultT[OrderResponse] =
     for {
       order    ← * <~ Orders.mustFindByRefNum(refNum)
       _        ← * <~ order.transitionState(newState)
       _        ← * <~ updateQueries(admin, Seq(refNum), newState)
       updated  ← * <~ Orders.mustFindByRefNum(refNum)
-      response ← * <~ FullOrder.fromOrder(updated)
+      response ← * <~ OrderResponse.fromOrder(updated)
       _ ← * <~ (if (order.state == newState) DbResultT.unit
                 else orderStateChanged(admin, response, order.state))
     } yield response

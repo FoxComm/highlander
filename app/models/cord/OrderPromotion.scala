@@ -55,7 +55,7 @@ object OrderPromotions
 
   val returningLens: Lens[OrderPromotion, Int] = lens[OrderPromotion].id
 
-  def filterByOrderRef(cordRef: String): QuerySeq =
+  def filterByCordRef(cordRef: String): QuerySeq =
     filter(_.cordRef === cordRef)
 
   def filterByOrderRefAndShadows(cordRef: String, shadows: Seq[Int]): QuerySeq =

@@ -9,7 +9,7 @@ import models.traits.Originator
 import payloads.AddressPayloads._
 import responses.Addresses.buildOneShipping
 import responses.TheResponse
-import responses.cart.FullCart
+import responses.cord.CartResponse
 import services.{CartValidator, LogActivity}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
@@ -29,7 +29,7 @@ object CartShippingAddressUpdater {
       implicit ec: EC,
       db: DB,
       ac: AC,
-      ctx: OC): DbResultT[TheResponse[FullCart.Root]] =
+      ctx: OC): DbResultT[TheResponse[CartResponse]] =
     for {
       cart      ← * <~ getCartByOriginator(originator, refNum)
       addAndReg ← * <~ mustFindAddressWithRegion(addressId)
@@ -39,7 +39,7 @@ object CartShippingAddressUpdater {
       shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(address, cart.refNum)
       region      ← * <~ Regions.mustFindById404(shipAddress.regionId)
       validated   ← * <~ CartValidator(cart).validate()
-      response    ← * <~ FullCart.buildRefreshed(cart)
+      response    ← * <~ CartResponse.buildRefreshed(cart)
       _ ← * <~ LogActivity
            .orderShippingAddressAdded(originator, response, buildOneShipping(shipAddress, region))
     } yield TheResponse.validated(response, validated)
@@ -50,7 +50,7 @@ object CartShippingAddressUpdater {
       implicit ec: EC,
       db: DB,
       ac: AC,
-      ctx: OC): DbResultT[TheResponse[FullCart.Root]] =
+      ctx: OC): DbResultT[TheResponse[CartResponse]] =
     for {
       cart ← * <~ getCartByOriginator(originator, refNum)
       newAddress ← * <~ Addresses.create(
@@ -59,7 +59,7 @@ object CartShippingAddressUpdater {
       shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(newAddress, cart.refNum)
       region      ← * <~ Regions.mustFindById404(shipAddress.regionId)
       validated   ← * <~ CartValidator(cart).validate()
-      response    ← * <~ FullCart.buildRefreshed(cart)
+      response    ← * <~ CartResponse.buildRefreshed(cart)
       _ ← * <~ LogActivity
            .orderShippingAddressAdded(originator, response, buildOneShipping(shipAddress, region))
     } yield TheResponse.validated(response, validated)
@@ -70,7 +70,7 @@ object CartShippingAddressUpdater {
       implicit ec: EC,
       db: DB,
       ac: AC,
-      ctx: OC): DbResultT[TheResponse[FullCart.Root]] =
+      ctx: OC): DbResultT[TheResponse[CartResponse]] =
     for {
       cart        ← * <~ getCartByOriginator(originator, refNum)
       shipAddress ← * <~ mustFindShipAddressForCart(cart)
@@ -78,7 +78,7 @@ object CartShippingAddressUpdater {
       patch = OrderShippingAddress.fromPatchPayload(shipAddress, payload)
       _         ← * <~ OrderShippingAddresses.update(shipAddress, patch)
       validated ← * <~ CartValidator(cart).validate()
-      response  ← * <~ FullCart.buildRefreshed(cart)
+      response  ← * <~ CartResponse.buildRefreshed(cart)
       _ ← * <~ LogActivity.orderShippingAddressUpdated(originator,
                                                        response,
                                                        buildOneShipping(shipAddress, region))
@@ -88,14 +88,14 @@ object CartShippingAddressUpdater {
       implicit ec: EC,
       db: DB,
       ac: AC,
-      ctx: OC): DbResultT[TheResponse[FullCart.Root]] =
+      ctx: OC): DbResultT[TheResponse[CartResponse]] =
     for {
       cart        ← * <~ getCartByOriginator(originator, refNum)
       shipAddress ← * <~ mustFindShipAddressForCart(cart)
       region      ← * <~ Regions.mustFindById404(shipAddress.regionId)
       _           ← * <~ OrderShippingAddresses.findById(shipAddress.id).delete
       validated   ← * <~ CartValidator(cart).validate()
-      fullOrder   ← * <~ FullCart.buildRefreshed(cart)
+      fullOrder   ← * <~ CartResponse.buildRefreshed(cart)
       _ ← * <~ LogActivity.orderShippingAddressDeleted(originator,
                                                        fullOrder,
                                                        buildOneShipping(shipAddress, region))

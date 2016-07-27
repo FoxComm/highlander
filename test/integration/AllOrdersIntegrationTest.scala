@@ -1,17 +1,17 @@
-import scala.concurrent.ExecutionContext.Implicits.global
-import akka.http.scaladsl.model.StatusCodes
-
 import Extensions._
+import akka.http.scaladsl.model.StatusCodes
 import failures.{NotFoundFailure404, StateTransitionNotAllowed}
 import models.cord.Order._
 import models.cord._
 import models.customer.Customers
 import payloads.OrderPayloads.BulkUpdateOrdersPayload
 import responses.BatchResponse
-import responses.order._
+import responses.cord._
 import util.IntegrationTestBase
 import utils.db._
 import utils.seeds.Seeds.Factories
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class AllOrdersIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
 

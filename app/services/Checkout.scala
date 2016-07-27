@@ -1,5 +1,7 @@
 package services
 
+import scala.util.Random
+
 import cats.implicits._
 import failures.CouponFailures.CouponWithCodeCannotBeFound
 import failures.GeneralFailure
@@ -13,7 +15,7 @@ import models.payment.creditcard._
 import models.payment.giftcard._
 import models.payment.storecredit._
 import models.promotion._
-import responses.order.FullOrder
+import responses.cord.OrderResponse
 import services.coupon.CouponUsageService
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
@@ -26,7 +28,7 @@ object Checkout {
                                db: DB,
                                apis: Apis,
                                ac: AC,
-                               ctx: OC): DbResultT[FullOrder.Root] =
+                               ctx: OC): DbResultT[OrderResponse] =
     for {
       cart  ← * <~ Carts.mustFindByRefNum(refNum)
       order ← * <~ Checkout(cart, CartValidator(cart)).checkout
@@ -37,7 +39,7 @@ object Checkout {
                                            db: DB,
                                            apis: Apis,
                                            ac: AC,
-                                           ctx: OC): DbResultT[FullOrder.Root] =
+                                           ctx: OC): DbResultT[OrderResponse] =
     for {
       result ← * <~ Carts
                 .findByCustomer(customer)
@@ -53,7 +55,7 @@ case class Checkout(
     cart: Cart,
     cartValidator: CartValidation)(implicit ec: EC, db: DB, apis: Apis, ac: AC, ctx: OC) {
 
-  def checkout: DbResultT[FullOrder.Root] =
+  def checkout: DbResultT[OrderResponse] =
     for {
       customer  ← * <~ Customers.mustFindById404(cart.customerId)
       _         ← * <~ customer.mustHaveCredentials
@@ -66,7 +68,7 @@ case class Checkout(
       _         ← * <~ fraudScore(order)
       _         ← * <~ remorseHold(order)
       _         ← * <~ updateCouponCountersForPromotion(customer)
-      fullOrder ← * <~ FullOrder.fromOrder(order)
+      fullOrder ← * <~ OrderResponse.fromOrder(order)
     } yield fullOrder
 
   private def reserveInMiddleWarehouse: DbResultT[Unit] =
@@ -78,7 +80,7 @@ case class Checkout(
 
   private def activePromos: DbResultT[Unit] =
     for {
-      maybePromo ← * <~ OrderPromotions.filterByOrderRef(cart.refNum).one
+      maybePromo ← * <~ OrderPromotions.filterByCordRef(cart.refNum).one
       maybeCodeId = maybePromo.flatMap(_.couponCodeId)
       _ ← * <~ maybePromo.fold(DbResultT.unit)(promotionMustBeActive)
       _ ← * <~ maybeCodeId.fold(DbResultT.unit)(couponMustBeApplicable)
@@ -113,7 +115,7 @@ case class Checkout(
   private def updateCouponCountersForPromotion(customer: Customer)(
       implicit ctx: OC): DbResultT[Unit] =
     for {
-      maybePromo ← * <~ OrderPromotions.filterByOrderRef(cart.refNum).one
+      maybePromo ← * <~ OrderPromotions.filterByCordRef(cart.refNum).one
       _ ← * <~ maybePromo.map { promo ⇒
            CouponUsageService.updateUsageCounts(promo.couponCodeId, customer)
          }
@@ -121,13 +123,13 @@ case class Checkout(
 
   private def authPayments(customer: Customer): DbResultT[Unit] =
     for {
-      gcPayments ← * <~ OrderPayments.findAllGiftCardsByOrderRef(cart.refNum).result
+      gcPayments ← * <~ OrderPayments.findAllGiftCardsByCordRef(cart.refNum).result
       gcTotal ← * <~ authInternalPaymentMethod(gcPayments,
                                                cart.grandTotal,
                                                GiftCards.authOrderPayment,
                                                (a: GiftCardAdjustment) ⇒ a.getAmount.abs)
 
-      scPayments ← * <~ OrderPayments.findAllStoreCreditsByOrderRef(cart.refNum).result
+      scPayments ← * <~ OrderPayments.findAllStoreCreditsByCordRef(cart.refNum).result
       scTotal ← * <~ authInternalPaymentMethod(
                    scPayments,
                    cart.grandTotal - gcTotal,
@@ -204,18 +206,18 @@ case class Checkout(
     } else DbResultT.none
   }
 
-  private def remorseHold(order: Order): DbResultT[Unit] =
-    (for {
+  private def remorseHold(order: Order): DBIO[Unit] =
+    for {
       items ← OrderLineItemGiftCards.findByOrderRef(cart.refNum).result
       holds ← GiftCards
                .filter(_.id.inSet(items.map(_.giftCardId)))
                .map(_.state)
                .update(GiftCard.OnHold)
-    } yield {}).toXor
+    } yield {}
 
   private def fraudScore(order: Order): DbResultT[Order] =
     for {
-      fraudScore ← * <~ scala.util.Random.nextInt(10)
+      fraudScore ← * <~ Random.nextInt(10)
       order      ← * <~ Orders.update(order, order.copy(fraudScore = fraudScore))
     } yield order
 

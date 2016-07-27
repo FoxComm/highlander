@@ -1,17 +1,17 @@
-import scala.concurrent.ExecutionContext.Implicits.global
-import akka.http.scaladsl.model.StatusCodes
-
 import Extensions._
+import akka.http.scaladsl.model.StatusCodes
 import failures.{AlreadyAssignedFailure, AssigneeNotFoundFailure, NotAssignedFailure, NotFoundFailure404}
 import models.cord._
 import models.customer.Customers
 import models.{Assignment, Assignments, StoreAdmin, StoreAdmins}
 import payloads.AssignmentPayloads._
-import responses.order.AllOrders
+import responses.cord.AllOrders
 import responses.{AssignmentResponse, BatchMetadata, BatchMetadataSource, TheResponse}
 import util.IntegrationTestBase
 import utils.db._
 import utils.seeds.Seeds.Factories
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class AssignmentsIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
 

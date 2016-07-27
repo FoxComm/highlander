@@ -5,93 +5,93 @@ import models.cord.Cart
 import models.coupon.CouponCode
 import models.payment.PaymentMethod
 import models.shipping.ShippingMethod
-import responses.cart.FullCart
+import responses.cord.CartResponse
 import responses.{Addresses, CreditCardsResponse, GiftCardResponse, StoreAdminResponse}
 
 object CartTailored {
 
-  case class CartCreated(admin: Option[StoreAdminResponse.Root], cart: FullCart.Root)
+  case class CartCreated(admin: Option[StoreAdminResponse.Root], cart: CartResponse)
       extends ActivityBase[CartCreated]
 
   /* Cart Line Items */
   case class CartLineItemsAddedGiftCard(admin: StoreAdminResponse.Root,
-                                        cart: FullCart.Root,
+                                        cart: CartResponse,
                                         giftCard: GiftCardResponse.Root)
       extends ActivityBase[CartLineItemsAddedGiftCard]
 
   case class CartLineItemsUpdatedGiftCard(admin: StoreAdminResponse.Root,
-                                          cart: FullCart.Root,
+                                          cart: CartResponse,
                                           giftCard: GiftCardResponse.Root)
       extends ActivityBase[CartLineItemsUpdatedGiftCard]
 
   case class CartLineItemsDeletedGiftCard(admin: StoreAdminResponse.Root,
-                                          cart: FullCart.Root,
+                                          cart: CartResponse,
                                           giftCard: GiftCardResponse.Root)
       extends ActivityBase[CartLineItemsDeletedGiftCard]
 
-  case class CartLineItemsUpdatedQuantities(cart: FullCart.Root,
+  case class CartLineItemsUpdatedQuantities(cart: CartResponse,
                                             oldQuantities: Map[String, Int],
                                             newQuantities: Map[String, Int],
                                             admin: Option[StoreAdminResponse.Root])
       extends ActivityBase[CartLineItemsUpdatedQuantities]
 
   /* Cart Shipping Methods */
-  case class CartShippingMethodUpdated(cart: FullCart.Root,
+  case class CartShippingMethodUpdated(cart: CartResponse,
                                        shippingMethod: Option[ShippingMethod],
                                        admin: Option[StoreAdminResponse.Root])
       extends ActivityBase[CartShippingMethodUpdated]
 
-  case class CartShippingMethodRemoved(cart: FullCart.Root,
+  case class CartShippingMethodRemoved(cart: CartResponse,
                                        shippingMethod: ShippingMethod,
                                        admin: Option[StoreAdminResponse.Root])
       extends ActivityBase[CartShippingMethodRemoved]
 
   /* Cart Shipping Addresses */
-  case class CartShippingAddressAdded(cart: FullCart.Root,
+  case class CartShippingAddressAdded(cart: CartResponse,
                                       shippingAddress: Addresses.Root,
                                       admin: Option[StoreAdminResponse.Root])
       extends ActivityBase[CartShippingAddressAdded]
 
-  case class CartShippingAddressUpdated(cart: FullCart.Root,
+  case class CartShippingAddressUpdated(cart: CartResponse,
                                         shippingAddress: Addresses.Root,
                                         admin: Option[StoreAdminResponse.Root])
       extends ActivityBase[CartShippingAddressUpdated]
 
-  case class CartShippingAddressRemoved(cart: FullCart.Root,
+  case class CartShippingAddressRemoved(cart: CartResponse,
                                         shippingAddress: Addresses.Root,
                                         admin: Option[StoreAdminResponse.Root])
       extends ActivityBase[CartShippingAddressRemoved]
 
   /* Cart Payment Methods */
-  case class CartPaymentMethodAddedCreditCard(cart: FullCart.Root,
+  case class CartPaymentMethodAddedCreditCard(cart: CartResponse,
                                               creditCard: CreditCardsResponse.Root,
                                               admin: Option[StoreAdminResponse.Root])
       extends ActivityBase[CartPaymentMethodAddedCreditCard]
 
-  case class CartPaymentMethodAddedGiftCard(cart: FullCart.Root,
+  case class CartPaymentMethodAddedGiftCard(cart: CartResponse,
                                             giftCard: GiftCardResponse.Root,
                                             amount: Int,
                                             admin: Option[StoreAdminResponse.Root])
       extends ActivityBase[CartPaymentMethodAddedGiftCard]
 
-  case class CartPaymentMethodUpdatedGiftCard(cart: FullCart.Root,
+  case class CartPaymentMethodUpdatedGiftCard(cart: CartResponse,
                                               giftCard: GiftCardResponse.Root,
                                               oldAmount: Option[Int],
                                               amount: Int,
                                               admin: Option[StoreAdminResponse.Root])
       extends ActivityBase[CartPaymentMethodUpdatedGiftCard]
 
-  case class CartPaymentMethodAddedStoreCredit(cart: FullCart.Root,
+  case class CartPaymentMethodAddedStoreCredit(cart: CartResponse,
                                                amount: Int,
                                                admin: Option[StoreAdminResponse.Root])
       extends ActivityBase[CartPaymentMethodAddedStoreCredit]
 
-  case class CartPaymentMethodDeleted(cart: FullCart.Root,
+  case class CartPaymentMethodDeleted(cart: CartResponse,
                                       pmt: PaymentMethod.Type,
                                       admin: Option[StoreAdminResponse.Root])
       extends ActivityBase[CartPaymentMethodDeleted]
 
-  case class CartPaymentMethodDeletedGiftCard(cart: FullCart.Root,
+  case class CartPaymentMethodDeletedGiftCard(cart: CartResponse,
                                               giftCard: GiftCardResponse.Root,
                                               admin: Option[StoreAdminResponse.Root])
       extends ActivityBase[CartPaymentMethodDeletedGiftCard]

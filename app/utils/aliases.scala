@@ -6,6 +6,8 @@ object aliases {
   type ES           = utils.ElasticsearchApi
   type DB           = slick.driver.PostgresDriver.api.Database
   type OC           = models.objects.ObjectContext
+  type SL           = sourcecode.Line
+  type SF           = sourcecode.File
   type Mat          = akka.stream.Materializer
   type Json         = org.json4s.JsonAST.JValue
   type ActivityType = String

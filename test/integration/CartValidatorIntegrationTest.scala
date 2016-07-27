@@ -21,7 +21,7 @@ import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.PaymentPayloads._
 import payloads.UpdateShippingMethod
 import responses.TheResponse
-import responses.cart.FullCart.Root
+import responses.cord.CartResponse
 import util.{IntegrationTestBase, TestActivityContext}
 import utils.db._
 import utils.seeds.CouponSeeds
@@ -98,7 +98,7 @@ class CartValidatorIntegrationTest
 
       {
         response.status must === (StatusCodes.OK)
-        val warnings = response.as[TheResponse[Root]].warnings
+        val warnings = response.as[TheResponse[CartResponse]].warnings
         warnings.value must not be empty
         warnings.value must contain theSameElementsAs (expectedWarnings.map(_.description))
       } withClue s"""

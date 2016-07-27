@@ -7,7 +7,7 @@ import models.shipping.{Shipments, ShippingMethods}
 import models.traits.Originator
 import payloads.UpdateShippingMethod
 import responses.TheResponse
-import responses.cart.FullCart
+import responses.cord.CartResponse
 import services.{CartValidator, LogActivity, ShippingManager}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
@@ -22,7 +22,7 @@ object CartShippingMethodUpdater {
       es: ES,
       db: DB,
       ac: AC,
-      ctx: OC): DbResultT[TheResponse[FullCart.Root]] =
+      ctx: OC): DbResultT[TheResponse[CartResponse]] =
     for {
       cart           ← * <~ getCartByOriginator(originator, refNum)
       oldShipMethod  ← * <~ ShippingMethods.forCordRef(cart.refNum).one
@@ -46,7 +46,7 @@ object CartShippingMethodUpdater {
       _         ← * <~ CartPromotionUpdater.readjust(cart).recover { case _ ⇒ Unit }
       order     ← * <~ CartTotaler.saveTotals(cart)
       validated ← * <~ CartValidator(order).validate()
-      response  ← * <~ FullCart.buildRefreshed(order)
+      response  ← * <~ CartResponse.buildRefreshed(order)
       _         ← * <~ LogActivity.orderShippingMethodUpdated(originator, response, oldShipMethod)
     } yield TheResponse.validated(response, validated)
 
@@ -55,7 +55,7 @@ object CartShippingMethodUpdater {
       es: ES,
       db: DB,
       ac: AC,
-      ctx: OC): DbResultT[TheResponse[FullCart.Root]] =
+      ctx: OC): DbResultT[TheResponse[CartResponse]] =
     for {
       cart ← * <~ getCartByOriginator(originator, refNum)
       shipMethod ← * <~ ShippingMethods
@@ -66,7 +66,7 @@ object CartShippingMethodUpdater {
       _     ← * <~ CartPromotionUpdater.readjust(cart).recover { case _ ⇒ Unit }
       cart  ← * <~ CartTotaler.saveTotals(cart)
       valid ← * <~ CartValidator(cart).validate()
-      resp  ← * <~ FullCart.buildRefreshed(cart)
+      resp  ← * <~ CartResponse.buildRefreshed(cart)
       _     ← * <~ LogActivity.orderShippingMethodDeleted(originator, resp, shipMethod)
     } yield TheResponse.validated(resp, valid)
 }

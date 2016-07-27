@@ -1,9 +1,7 @@
 import java.time.ZonedDateTime
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import akka.http.scaladsl.model.StatusCodes
-
 import Extensions._
+import akka.http.scaladsl.model.StatusCodes
 import cats.implicits._
 import com.stripe.model.DeletedExternalAccount
 import failures.CartFailures.OrderAlreadyPlaced
@@ -32,6 +30,8 @@ import utils.aliases.stripe._
 import utils.db._
 import utils.seeds.Seeds.Factories
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 class CartPaymentsIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
@@ -48,7 +48,7 @@ class CartPaymentsIntegrationTest
           POST(s"v1/orders/${cart.referenceNumber}/payment-methods/gift-cards", payload)
 
         response.status must === (StatusCodes.OK)
-        val (p :: Nil) = OrderPayments.findAllByOrderRef(cart.refNum).gimme.toList
+        val (p :: Nil) = OrderPayments.findAllByCordRef(cart.refNum).gimme.toList
 
         val payments = giftCardPayments(cart)
         payments must have size 1

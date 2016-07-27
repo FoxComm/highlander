@@ -1,7 +1,5 @@
-import scala.concurrent.ExecutionContext.Implicits.global
-import akka.http.scaladsl.model.StatusCodes
-
 import Extensions._
+import akka.http.scaladsl.model.StatusCodes
 import failures.CartFailures.OrderAlreadyPlaced
 import failures.GiftCardFailures.GiftCardMustBeCart
 import failures.{GeneralFailure, NotFoundFailure404}
@@ -10,12 +8,14 @@ import models.cord.lineitems._
 import models.customer.Customers
 import models.payment.giftcard._
 import payloads.LineItemPayloads.AddGiftCardLineItem
-import responses.cart.FullCart
+import responses.cord.CartResponse
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.Money._
 import utils.db._
 import utils.seeds.Seeds.Factories
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class GiftCardAsLineItemIntegrationTest
     extends IntegrationTestBase
@@ -28,7 +28,7 @@ class GiftCardAsLineItemIntegrationTest
         POST(s"v1/orders/${cart.refNum}/gift-cards", AddGiftCardLineItem(balance = 100))
       response.status must === (StatusCodes.OK)
 
-      val root = response.ignoreFailuresAndGiveMe[FullCart.Root]
+      val root = response.ignoreFailuresAndGiveMe[CartResponse]
       root.lineItems.giftCards.size must === (2)
 
       val newGiftCard = root.lineItems.giftCards.tail.head
@@ -70,7 +70,7 @@ class GiftCardAsLineItemIntegrationTest
                            AddGiftCardLineItem(balance = 555))
 
       response.status must === (StatusCodes.OK)
-      val root = response.ignoreFailuresAndGiveMe[FullCart.Root]
+      val root = response.ignoreFailuresAndGiveMe[CartResponse]
       root.lineItems.giftCards.size must === (1)
 
       val newGiftCard = root.lineItems.giftCards.head
@@ -129,7 +129,7 @@ class GiftCardAsLineItemIntegrationTest
       val response = DELETE(s"v1/orders/${cart.refNum}/gift-cards/${giftCard.code}")
 
       response.status must === (StatusCodes.OK)
-      val root = response.ignoreFailuresAndGiveMe[FullCart.Root]
+      val root = response.ignoreFailuresAndGiveMe[CartResponse]
       root.lineItems.giftCards.size must === (0)
 
       GiftCards.findByCode(giftCard.code).one.run().futureValue.isEmpty mustBe true

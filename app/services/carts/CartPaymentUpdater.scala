@@ -15,7 +15,7 @@ import models.payment.storecredit._
 import models.traits.Originator
 import payloads.PaymentPayloads._
 import responses.TheResponse
-import responses.cart.FullCart
+import responses.cord.CartResponse
 import services.{CartValidator, LogActivity}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
@@ -23,7 +23,7 @@ import utils.db._
 
 object CartPaymentUpdater {
 
-  type TheFullCart = DbResultT[TheResponse[FullCart.Root]]
+  type TheFullCart = DbResultT[TheResponse[CartResponse]]
 
   def addGiftCard(originator: Originator, payload: GiftCardPayment, refNum: Option[String] = None)(
       implicit ec: EC,
@@ -39,7 +39,7 @@ object CartPaymentUpdater {
            .mustNotFindOneOr(GiftCardPaymentAlreadyAdded(cart.refNum, payload.code))
       _ ← * <~ OrderPayments.create(
              OrderPayment.build(gc).copy(cordRef = cart.refNum, amount = amount.some))
-      resp  ← * <~ FullCart.buildRefreshed(cart)
+      resp  ← * <~ CartResponse.buildRefreshed(cart)
       valid ← * <~ CartValidator(cart).validate()
       _     ← * <~ LogActivity.orderPaymentMethodAddedGc(originator, resp, gc, amount)
     } yield TheResponse.validated(resp, valid)
@@ -56,7 +56,7 @@ object CartPaymentUpdater {
                       .byCartAndGiftCard(cart, gc)
                       .mustFindOneOr(GiftCardPaymentNotFound(cart.refNum, payload.code))
       _     ← * <~ OrderPayments.update(orderPayment, orderPayment.copy(amount = amount.some))
-      resp  ← * <~ FullCart.buildRefreshed(cart)
+      resp  ← * <~ CartResponse.buildRefreshed(cart)
       valid ← * <~ CartValidator(cart).validate()
       _ ← * <~ LogActivity
            .orderPaymentMethodUpdatedGc(originator, resp, gc, orderPayment.amount, amount)
@@ -110,7 +110,7 @@ object CartPaymentUpdater {
       available = storeCredits.map(_.availableBalance).sum
       -          ← * <~ updateSC(available, reqAmount, cart, storeCredits.toList)
       validation ← * <~ CartValidator(cart).validate()
-      response   ← * <~ FullCart.buildRefreshed(cart)
+      response   ← * <~ CartResponse.buildRefreshed(cart)
       _          ← * <~ LogActivity.orderPaymentMethodAddedSc(originator, response, payload.amount)
     } yield TheResponse.validated(response, validation)
   }
@@ -129,7 +129,7 @@ object CartPaymentUpdater {
       _ ← * <~ OrderPayments.create(
              OrderPayment.build(cc).copy(cordRef = cart.refNum, amount = None))
       valid ← * <~ CartValidator(cart).validate()
-      resp  ← * <~ FullCart.buildRefreshed(cart)
+      resp  ← * <~ CartResponse.buildRefreshed(cart)
       _     ← * <~ LogActivity.orderPaymentMethodAddedCc(originator, resp, cc, region)
     } yield TheResponse.validated(resp, valid)
 
@@ -153,7 +153,7 @@ object CartPaymentUpdater {
       resp ← * <~ OrderPayments
               .filter(_.cordRef === cart.refNum)
               .byType(pmt)
-              .deleteAll(onSuccess = FullCart.buildRefreshed(cart),
+              .deleteAll(onSuccess = CartResponse.buildRefreshed(cart),
                          onFailure = DbResultT.failure(OrderPaymentNotFoundFailure(pmt)))
       _ ← * <~ LogActivity.orderPaymentMethodDeleted(originator, resp, pmt)
     } yield TheResponse.validated(resp, valid)
@@ -171,7 +171,7 @@ object CartPaymentUpdater {
                    .filter(_.paymentMethodId === giftCard.id)
                    .filter(_.cordRef === cart.refNum)
                    .giftCards
-                   .deleteAll(onSuccess = FullCart.buildRefreshed(cart),
+                   .deleteAll(onSuccess = CartResponse.buildRefreshed(cart),
                               onFailure = DbResultT.failure(
                                   OrderPaymentNotFoundFailure(PaymentMethod.GiftCard)))
       _ ← * <~ LogActivity.orderPaymentMethodDeletedGc(originator, deleteRes, giftCard)
