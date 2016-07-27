@@ -25,7 +25,7 @@ func (suite *CarrierResponseTestSuite) SetupSuite() {
 	suite.assert = assert.New(suite.T())
 }
 
-func (suite *CarrierResponseTestSuite) TestNewCarrierFromModel() {
+func (suite *CarrierResponseTestSuite) Test_NewCarrierFromModel_ReturnsValidResponse() {
 	//arrange
 	id, name, trackingTemplate := uint(1), "UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"
 	model := &models.Carrier{id, name, trackingTemplate}
@@ -39,7 +39,7 @@ func (suite *CarrierResponseTestSuite) TestNewCarrierFromModel() {
 	suite.assert.Equal(trackingTemplate, response.TrackingTemplate)
 }
 
-func (suite *CarrierResponseTestSuite) TestCarrierEncoding() {
+func (suite *CarrierResponseTestSuite) Test_CarrierEncoding_RunsNormally() {
 	//arrange
 	id, name, trackingTemplate := uint(1), "UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"
 	response := &Carrier{id, name, trackingTemplate}

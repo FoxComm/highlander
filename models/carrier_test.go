@@ -21,7 +21,7 @@ func (suite *CarrierModelTestSuite) SetupSuite() {
 	suite.assert = assert.New(suite.T())
 }
 
-func (suite *CarrierModelTestSuite) TestNewCarrierFromPayload() {
+func (suite *CarrierModelTestSuite) Test_NewCarrierFromPayload_ReturnsValidModel() {
 	//arrange
 	name, trackingTemplate := "UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"
 	payload := &payloads.Carrier{name, trackingTemplate}
