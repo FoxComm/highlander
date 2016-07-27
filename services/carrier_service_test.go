@@ -33,8 +33,7 @@ func (suite *CarrierServiceTestSuite) TearDownTest() {
 
 	suite.db.Close()
 }
-
-func (suite *CarrierServiceTestSuite) Test_GetCarriers() {
+func (suite *CarrierServiceTestSuite) Test_GetCarriers_ReturnsCarrierModels() {
 	//arrange
 	carrier1 := &models.Carrier{
 		Name:             "UPS",
@@ -63,7 +62,7 @@ func (suite *CarrierServiceTestSuite) Test_GetCarriers() {
 	suite.assert.Equal(carrier2.TrackingTemplate, carriers[1].TrackingTemplate)
 }
 
-func (suite *CarrierServiceTestSuite) Test_GetCarrierById() {
+func (suite *CarrierServiceTestSuite) Test_GetCarrierByID_ReturnsCarrierModel() {
 	//arrange
 	carrier1 := &models.Carrier{
 		Name:             "UPS",
@@ -86,7 +85,7 @@ func (suite *CarrierServiceTestSuite) Test_GetCarrierById() {
 	suite.assert.Equal(carrier1.Name, carrier.Name)
 }
 
-func (suite *CarrierServiceTestSuite) Test_CreateCarrier() {
+func (suite *CarrierServiceTestSuite) Test_CreaterCarrier_ReturnsIdOfCreatedRecord() {
 	//arrange
 	name, trackingTemplate := "UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"
 	model := &models.Carrier{Name: name, TrackingTemplate: trackingTemplate}
@@ -102,7 +101,7 @@ func (suite *CarrierServiceTestSuite) Test_CreateCarrier() {
 	suite.assert.Nil(err)
 }
 
-func (suite *CarrierServiceTestSuite) Test_UpdateCarrier() {
+func (suite *CarrierServiceTestSuite) Test_UpdateCarrier_ReturnsNoError() {
 	//arrange
 	name, trackingTemplate := "UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"
 	suite.mock.
@@ -116,7 +115,7 @@ func (suite *CarrierServiceTestSuite) Test_UpdateCarrier() {
 	suite.assert.Nil(err)
 }
 
-func (suite *CarrierServiceTestSuite) Test_DeleteCarrier() {
+func (suite *CarrierServiceTestSuite) Test_DeleteCarrier_ReturnsNoError() {
 	//arrange
 	suite.mock.
 		ExpectExec(`DELETE FROM "carriers"`).
