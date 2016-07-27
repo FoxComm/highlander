@@ -8,8 +8,8 @@ import TotalsSummary from '../common/totals';
 import CustomerCard from 'components/customer-card/customer-card';
 import Messages from './messages';
 import CartLineItems from './line-items';
+import CartShippingAddress from './shipping-address';
 import DiscountsPanel from 'components/discounts-panel/discounts-panel';
-// import OrderShippingAddress from './shipping-address';
 // import OrderShippingMethod from './order-shipping-method';
 // import Payments from './payments';
 // import OrderCoupons from './order-coupons';
@@ -60,6 +60,7 @@ const CartDetails = props => {
         <div className="fc-order-details-main">
           <CartLineItems status={itemsStatus} cart={cart} />
           <DiscountsPanel promotion={cart.promotion} />
+          <CartShippingAddress status={shippingAddressStatus} cart={cart} />
         </div>
         <div className="fc-order-details-aside">
           <Messages errors={errors} warnings={warnings} />
