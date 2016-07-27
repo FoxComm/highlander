@@ -34,6 +34,12 @@ A JavaScript library for interacting with the FoxCommerce API.
 
 A demo storefront used to show off the capabilities of FoxCommerce APIs.
 
+###[integration-tests](https://github.com/FoxComm/integration-tests)
+
+Our tests for hitting the system as a black box at the API level. They test
+both functionality and that every piece in the system is talking correctly to
+each other.
+
 ###[prov-shit](https://github.com/FoxComm/prov-shit)
 
 All of our DevOps tools for deploying the application to both development and production.
