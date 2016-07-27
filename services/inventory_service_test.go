@@ -115,11 +115,11 @@ func (suite *InventoryServiceTestSuite) Test_CreateStockItem_SummaryCreation() {
 	}
 }
 
-func (suite *InventoryServiceTestSuite) Test_GetStockItemByID() {
+func (suite *InventoryServiceTestSuite) Test_GetStockItemById() {
 	stockItem := &models.StockItem{StockLocationID: 1, SKU: "TEST-FIND"}
 	resp, err := suite.service.CreateStockItem(stockItem)
 	if assert.Nil(suite.T(), err) {
-		item, err := suite.service.GetStockItemByID(resp.ID)
+		item, err := suite.service.GetStockItemById(resp.ID)
 		if assert.Nil(suite.T(), err) {
 			assert.Equal(suite.T(), "TEST-FIND", item.SKU)
 		}

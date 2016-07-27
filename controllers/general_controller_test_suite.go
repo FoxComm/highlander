@@ -37,6 +37,12 @@ func (suite *GeneralControllerTestSuite) Put(url string, body interface{}, args 
 	return suite.query(request, args...)
 }
 
+func (suite *GeneralControllerTestSuite) Patch(url string, body interface{}, args ...interface{}) *httptest.ResponseRecorder {
+	request, _ := http.NewRequest("PATCH", url, prepareBody(body))
+
+	return suite.query(request, args...)
+}
+
 func (suite *GeneralControllerTestSuite) Delete(url string, args ...interface{}) *httptest.ResponseRecorder {
 	request, _ := http.NewRequest("DELETE", url, nil)
 

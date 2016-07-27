@@ -8,6 +8,7 @@ import (
 	"github.com/FoxComm/middlewarehouse/models"
 	"github.com/FoxComm/middlewarehouse/services"
 
+	"github.com/FoxComm/middlewarehouse/common/failures"
 	"github.com/gin-gonic/gin"
 )
 
@@ -32,7 +33,8 @@ func (controller *stockItemController) GetStockItems() gin.HandlerFunc {
 		stockItems, err := controller.service.GetStockItems()
 
 		if err != nil {
-			context.AbortWithError(http.StatusInternalServerError, err)
+			fail := failures.MakeInternalError(err)
+			failures.Abort(context, fail)
 			return
 		}
 
@@ -52,7 +54,7 @@ func (controller *stockItemController) GetStockItemById() gin.HandlerFunc {
 			return
 		}
 
-		stockItem, err := controller.service.GetStockItemByID(uint(id))
+		stockItem, err := controller.service.GetStockItemById(uint(id))
 		if err != nil {
 			handleServiceError(context, err)
 			return
@@ -98,7 +100,7 @@ func (controller *stockItemController) IncrementStockItemUnits() gin.HandlerFunc
 		}
 
 		if err := payload.Validate(); err != nil {
-			context.AbortWithError(http.StatusBadRequest, err)
+			failures.Abort(context, failures.MakeBadRequest(err))
 			return
 		}
 
@@ -126,7 +128,7 @@ func (controller *stockItemController) DecrementStockItemUnits() gin.HandlerFunc
 		}
 
 		if err := payload.Validate(); err != nil {
-			context.AbortWithError(http.StatusBadRequest, err)
+			failures.Abort(context, failures.MakeBadRequest(err))
 			return
 		}
 
@@ -136,6 +138,6 @@ func (controller *stockItemController) DecrementStockItemUnits() gin.HandlerFunc
 			return
 		}
 
-		context.Status(http.StatusNoContent)
+		context.JSON(http.StatusCreated, gin.H{})
 	}
 }
