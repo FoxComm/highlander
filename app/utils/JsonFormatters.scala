@@ -10,6 +10,7 @@ import models.payment.PaymentMethod
 import models.payment.creditcard.CreditCardCharge
 import models.payment.giftcard.{GiftCard, GiftCardAdjustment}
 import models.payment.storecredit.{StoreCredit, StoreCreditAdjustment}
+import models.plugins.PluginSettings
 import models.promotion.Promotion
 import models.returns._
 import models.rules.{Condition, QueryStatement}
@@ -38,5 +39,5 @@ object JsonFormatters {
       CreditCardCharge.State.jsonFormat + CountryWithRegions.jsonFormat +
       QueryStatement.Comparison.jsonFormat + Condition.Operator.jsonFormat +
       PaymentMethod.Type.jsonFormat + SkuType.jsonFormat + SharedSearch.Scope.jsonFormat +
-      IdentityKind.jsonFormat + StoreAdmin.State.jsonFormat
+      IdentityKind.jsonFormat + StoreAdmin.State.jsonFormat + PluginSettings.SettingType.jsonFormat
 }
