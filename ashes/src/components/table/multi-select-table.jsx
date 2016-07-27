@@ -178,7 +178,7 @@ export default class MultiSelectTable extends React.Component {
         className={classNames('fc-multi-select-table', this.props.className)}
         columns={columns}
         setColumnSelected={this.setColumnSelected}
-        selectableColumns={columns.slice(1)}
+        selectableColumns={!!this.props.dataTable && columns.slice(1)}
         tableIdentifier={this.getTableIdentifier()}
         renderRow={this.renderRow} />
     );
