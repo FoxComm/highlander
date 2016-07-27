@@ -20,7 +20,7 @@ create or replace function update_store_admins_view_insert_fn() returns trigger 
             new.department as department,
             new.state as state,
             to_char(new.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as created_at
-            from customers as c;
+            from store_admins as s;
       return null;
   end;
 $$ language plpgsql;
