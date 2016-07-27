@@ -17,7 +17,13 @@ migrate:
 migrate-test:
 	${FLYWAY_TEST} migrate
 
-reset: drop-db drop-user create-user create-db
+reset:
+    drop-db
+    drop-user
+    create-user
+    create-db
+    migrate
+    migrate-test
 
 reset-test:
 	dropdb --if-exists ${DB_TEST}

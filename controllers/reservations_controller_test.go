@@ -1,9 +1,7 @@
 package controllers
 
 import (
-	"bytes"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/FoxComm/middlewarehouse/controllers/mocks"
@@ -16,10 +14,8 @@ import (
 )
 
 type reservationControllerTestSuite struct {
-	suite.Suite
-	assert  *assert.Assertions
+	GeneralControllerTestSuite
 	service *mocks.InventoryServiceMock
-	router  *gin.Engine
 }
 
 func TestReservationControllerSuite(t *testing.T) {
@@ -47,11 +43,9 @@ func (suite *reservationControllerTestSuite) TearDownTest() {
 func (suite *reservationControllerTestSuite) Test_ReserveItems() {
 	suite.service.On("ReserveItems", "BR10001", map[string]int{"SKU": 2}).Return(nil).Once()
 
-	jsonStr := []byte(`{"refNum": "BR10001","reservations": [{ "sku": "SKU", "qty": 2 }]}`)
+	jsonStr := `{"refNum": "BR10001","reservations": [{ "sku": "SKU", "qty": 2 }]}`
 
-	req, _ := http.NewRequest("POST", "/reservations/reserve", bytes.NewBuffer(jsonStr))
-	res := httptest.NewRecorder()
-	suite.router.ServeHTTP(res, req)
+	res := suite.Post("/reservations/reserve", jsonStr)
 
 	suite.assert.Equal(http.StatusOK, res.Code)
 	suite.assert.Equal("{}\n", res.Body.String())
@@ -62,11 +56,9 @@ func (suite *reservationControllerTestSuite) Test_ReserveItems() {
 func (suite *reservationControllerTestSuite) Test_ReserveItems_WrongSKUs() {
 	suite.service.On("ReserveItems", "BR10001", map[string]int{"SKU": 2}).Return(gorm.ErrRecordNotFound).Once()
 
-	jsonStr := []byte(`{"refNum": "BR10001","reservations": [{ "sku": "SKU", "qty": 2 }]}`)
+	jsonStr := `{"refNum": "BR10001","reservations": [{ "sku": "SKU", "qty": 2 }]}`
 
-	req, _ := http.NewRequest("POST", "/reservations/reserve", bytes.NewBuffer(jsonStr))
-	res := httptest.NewRecorder()
-	suite.router.ServeHTTP(res, req)
+	res := suite.Post("/reservations/reserve", jsonStr)
 
 	suite.assert.Equal(http.StatusNotFound, res.Code)
 	suite.assert.Contains(res.Body.String(), "errors")
@@ -75,11 +67,9 @@ func (suite *reservationControllerTestSuite) Test_ReserveItems_WrongSKUs() {
 }
 
 func (suite *reservationControllerTestSuite) Test_ReserveItems_EmptySKUsList() {
-	jsonStr := []byte(`{"refNum": "BR10001","reservations": []}`)
+	jsonStr := `{"refNum": "BR10001","reservations": []}`
 
-	req, _ := http.NewRequest("POST", "/reservations/reserve", bytes.NewBuffer(jsonStr))
-	res := httptest.NewRecorder()
-	suite.router.ServeHTTP(res, req)
+	res := suite.Post("/reservations/reserve", jsonStr)
 
 	suite.assert.Equal(http.StatusBadRequest, res.Code)
 	suite.assert.Contains(res.Body.String(), "errors")
@@ -89,11 +79,9 @@ func (suite *reservationControllerTestSuite) Test_ReserveItems_EmptySKUsList() {
 func (suite *reservationControllerTestSuite) Test_ReleaseItems() {
 	suite.service.On("ReleaseItems", "BR10001").Return(nil).Once()
 
-	jsonStr := []byte(`{"refNum": "BR10001"}`)
+	jsonStr := `{"refNum": "BR10001"}`
 
-	req, _ := http.NewRequest("POST", "/reservations/cancel", bytes.NewBuffer(jsonStr))
-	res := httptest.NewRecorder()
-	suite.router.ServeHTTP(res, req)
+	res := suite.Post("/reservations/cancel", jsonStr)
 
 	suite.assert.Equal(http.StatusOK, res.Code)
 	suite.assert.Equal("{}\n", res.Body.String())
@@ -104,11 +92,9 @@ func (suite *reservationControllerTestSuite) Test_ReleaseItems() {
 func (suite *reservationControllerTestSuite) Test_ReserveItems_WrongRefNum() {
 	suite.service.On("ReleaseItems", "BR10001").Return(gorm.ErrRecordNotFound).Once()
 
-	jsonStr := []byte(`{"refNum": "BR10001"}`)
+	jsonStr := `{"refNum": "BR10001"}`
 
-	req, _ := http.NewRequest("POST", "/reservations/cancel", bytes.NewBuffer(jsonStr))
-	res := httptest.NewRecorder()
-	suite.router.ServeHTTP(res, req)
+	res := suite.Post("/reservations/cancel", jsonStr)
 
 	suite.assert.Equal(http.StatusNotFound, res.Code)
 	suite.assert.Contains(res.Body.String(), "errors")

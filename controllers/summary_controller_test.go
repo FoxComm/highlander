@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/FoxComm/middlewarehouse/controllers/mocks"
@@ -16,10 +15,8 @@ import (
 )
 
 type summaryControllerTestSuite struct {
-	suite.Suite
-	assert  *assert.Assertions
+	GeneralControllerTestSuite
 	service *mocks.SummaryServiceMock
-	router  *gin.Engine
 }
 
 func TestSummaryControllerSuite(t *testing.T) {
@@ -53,9 +50,7 @@ func (suite *summaryControllerTestSuite) Test_GetSummary() {
 		},
 	}, nil).Once()
 
-	req, _ := http.NewRequest("GET", "/summary/", nil)
-	res := httptest.NewRecorder()
-	suite.router.ServeHTTP(res, req)
+	res := suite.Get("/summary/")
 
 	suite.assert.Equal(http.StatusOK, res.Code)
 	suite.assert.Contains(res.Body.String(), "counts\":[")
@@ -72,9 +67,7 @@ func (suite *summaryControllerTestSuite) Test_GetSummaryBySKU() {
 		Reserved:    0,
 	}, nil).Once()
 
-	req, _ := http.NewRequest("GET", "/summary/"+sku, nil)
-	res := httptest.NewRecorder()
-	suite.router.ServeHTTP(res, req)
+	res := suite.Get("/summary/" + sku)
 
 	suite.assert.Equal(http.StatusOK, res.Code)
 	suite.assert.Contains(res.Body.String(), sku)
@@ -84,9 +77,7 @@ func (suite *summaryControllerTestSuite) Test_GetSummaryBySKU() {
 func (suite *summaryControllerTestSuite) Test_GetSummaryBySKUNoSKU() {
 	suite.service.On("GetSummaryBySKU", "NO-SKU").Return(nil, gorm.ErrRecordNotFound).Once()
 
-	req, _ := http.NewRequest("GET", "/summary/NO-SKU", nil)
-	res := httptest.NewRecorder()
-	suite.router.ServeHTTP(res, req)
+	res := suite.Get("/summary/NO-SKU")
 
 	suite.assert.Equal(http.StatusNotFound, res.Code)
 	suite.assert.Contains(res.Body.String(), "errors")
@@ -96,9 +87,7 @@ func (suite *summaryControllerTestSuite) Test_GetSummaryBySKUNoSKU() {
 func (suite *summaryControllerTestSuite) Test_GetSummaryBySKUServerError() {
 	suite.service.On("GetSummaryBySKU", "NO-SKU").Return(nil, gorm.ErrUnaddressable).Once()
 
-	req, _ := http.NewRequest("GET", "/summary/NO-SKU", nil)
-	res := httptest.NewRecorder()
-	suite.router.ServeHTTP(res, req)
+	res := suite.Get("/summary/NO-SKU")
 
 	suite.assert.Equal(http.StatusBadRequest, res.Code)
 	suite.assert.Contains(res.Body.String(), "errors")
