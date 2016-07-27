@@ -6,7 +6,6 @@
     - name: "hostname"
       prompt: "Enter a hostname with a Db to bootstrap"
       private: no
-      
     - name: "store_admin_email"
       prompt: "Enter an email for new admin"
       private: no
