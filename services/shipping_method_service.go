@@ -2,12 +2,11 @@ package services
 
 import (
 	"github.com/FoxComm/middlewarehouse/models"
-
-	"github.com/jinzhu/gorm"
+	"github.com/FoxComm/middlewarehouse/repositories"
 )
 
 type shippingMethodService struct {
-	db *gorm.DB
+	repository repositories.IShippingMethodRepository
 }
 
 type IShippingMethodService interface {
@@ -18,45 +17,26 @@ type IShippingMethodService interface {
 	DeleteShippingMethod(id uint) error
 }
 
-func NewShippingMethodService(db *gorm.DB) IShippingMethodService {
-	return &shippingMethodService{db}
+func NewShippingMethodService(repository repositories.IShippingMethodRepository) IShippingMethodService {
+	return &shippingMethodService{repository}
 }
 
 func (service *shippingMethodService) GetShippingMethods() ([]*models.ShippingMethod, error) {
-	var data []models.ShippingMethod
-	if err := service.db.Find(&data).Error; err != nil {
-		return nil, err
-	}
-
-	shippingMethods := make([]*models.ShippingMethod, len(data))
-	for i := range data {
-		shippingMethods[i] = &data[i]
-	}
-
-	return shippingMethods, nil
+	return service.repository.GetShippingMethods()
 }
 
 func (service *shippingMethodService) GetShippingMethodByID(id uint) (*models.ShippingMethod, error) {
-	var shippingMethod models.ShippingMethod
-	if err := service.db.First(&shippingMethod, id).Error; err != nil {
-		return nil, err
-	}
-
-	return &shippingMethod, nil
+	return service.repository.GetShippingMethodByID(id)
 }
 
 func (service *shippingMethodService) CreateShippingMethod(shippingMethod *models.ShippingMethod) (uint, error) {
-	err := service.db.Create(shippingMethod).Error
-
-	return shippingMethod.ID, err
+	return service.repository.CreateShippingMethod(shippingMethod)
 }
 
 func (service *shippingMethodService) UpdateShippingMethod(shippingMethod *models.ShippingMethod) error {
-	return service.db.Model(&shippingMethod).Updates(shippingMethod).Error
+	return service.repository.UpdateShippingMethod(shippingMethod)
 }
 
 func (service *shippingMethodService) DeleteShippingMethod(id uint) error {
-	shippingMethod := models.ShippingMethod{ID: id}
-
-	return service.db.Delete(&shippingMethod).Error
+	return service.repository.DeleteShippingMethod(id)
 }
