@@ -1,0 +1,27 @@
+{
+    "builders" : [
+        {
+            "type": "googlecompute",
+            "account_file": "{{user `account_file`}}",
+            "project_id" : "{{user `project_id`}}",
+            "source_image": "{{user `base_mesos`}}",
+            "network": "{{user `network`}}",
+            "zone": "{{user `zone`}}",
+            "image_name": "service-worker-{{timestamp}}",
+            "image_description": "base image used for provisioning",
+            "instance_name": "packer-service-worker-{{uuid}}",
+            "machine_type": "n1-standard-2",
+            "tags": ["no-ip", "{{user `image_prefix`}}", "packer-service-worker"],
+            "use_internal_ip": true,
+            "ssh_username" : "{{user `ssh_username`}}",
+            "disk_size" : 10
+        }
+    ],
+    "provisioners" : [
+        {
+           "type": "ansible",
+           "playbook_file" : "ansible/packer_service_worker.yml",
+           "extra_arguments": ["--extra-vars", "@packer/envs/{{user `variables_file`}}"]
+        }
+    ]
+}

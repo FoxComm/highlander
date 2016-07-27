@@ -4,6 +4,7 @@
   hosts: '{{hostname}}'
   vars:
     user: '{{ansible_ssh_user}}'
+    zookeeper_server: "zookeeper.service.consul:2181"
   vars_prompt:
     - name: "hostname"
       prompt: "Enter a hostname with a Kafka to bootstrap"
@@ -45,13 +46,14 @@
     - db
   vars:
     user: '{{ansible_ssh_user}}'
-    seeds_cmd: utils.seeds.Seeds
+    seeds_cmd: -Ddb.name={{db_name}} utils.seeds.Seeds
+    db_name: '{{phoenix_db_name}}'
   vars_prompt:
     - name: "hostname"
       prompt: "Enter a hostname with a database to bootstrap"
       default: "vanilla-db"
       private: no
-    - name: "db_name"
+    - name: "phoenix_db_name"
       prompt: "Enter the name of the database"
       default: "phoenix"
       private: no

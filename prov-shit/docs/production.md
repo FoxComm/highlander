@@ -71,7 +71,7 @@ Do all the steps while connected to created VPN service.
 	```
 	$ packer build -var-file=packer/envs/vanilla.json packer/base/base_jvm.json
 	$ packer build -var-file=packer/envs/vanilla.json packer/base/base_node.json
-	$ packer build -var-file=packer/envs/vanilla.json packer/consul/consul_server.json
+	$ packer build -var-file=packer/envs/vanilla.json packer/amigos/amigo_server.json
 	```
 
 2. Save base images names above and replace them in `packer/envs/vanilla.json`.
@@ -86,6 +86,7 @@ Do all the steps while connected to created VPN service.
 	$ packer build -var-file=packer/envs/vanilla.json packer/vanilla/greenriver.json
 	$ packer build -var-file=packer/envs/vanilla.json packer/vanilla/kafka.json
 	$ packer build -var-file=packer/envs/vanilla.json packer/vanilla/phoenix.json
+	$ packer build -var-file=packer/envs/vanilla.json packer/vanilla/service_worker.json
 	```
 
 4. Save base images names above and replace them in `terraform/envs/gce_vanilla/terraform.tfvars`.
