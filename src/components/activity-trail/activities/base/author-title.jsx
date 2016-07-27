@@ -17,7 +17,9 @@ const AuthorTitle = props => {
       if (!_.isEmpty(adminName)) {
         return <span>{adminName}</span>;
       } else {
-        return <span>Unrecognised Admin</span>;
+        // @TODO: should be `Unrecognised Admin`, but backend is not ready to pass proper userType for system actions
+        // so now correct option here is `FoxCommerce`
+        return <span>FoxCommerce</span>;
       }
     case 'customer':
       if (activity.data.customer) {
