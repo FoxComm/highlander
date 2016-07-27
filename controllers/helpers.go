@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"errors"
 	"fmt"
 	"strconv"
 
@@ -12,12 +11,17 @@ import (
 )
 
 func parse(c *gin.Context, model interface{}) failures.Failure {
-	if c.BindJSON(model) == nil {
+	err := c.BindJSON(model)
+	if err == nil {
 		return nil
 	}
 
+<<<<<<< 127850d5e7abfb83c9177a36dc54db08f82e3101
 	err := errors.New("Invalid payload")
 	fail := failures.NewBadRequest(err)
+=======
+	fail := failures.MakeBadRequest(err)
+>>>>>>> Improved controllers/helpers parse helper to fail with exact binding error
 	failures.Abort(c, fail)
 	return fail
 }
