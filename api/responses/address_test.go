@@ -8,7 +8,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/FoxComm/middlewarehouse/common/gormfox"
 	"github.com/FoxComm/middlewarehouse/models"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -37,15 +39,7 @@ func (suite *AddressResponseTestSuite) Test_NewAddressFromModel_ReturnsValidResp
 	address2 := "Some more here"
 	phoneNumber := "17345791232"
 
-	model := &models.Address{
-		Name:        name,
-		RegionID:    regionID,
-		City:        city,
-		Zip:         zip,
-		Address1:    address1,
-		Address2:    sql.NullString{address2, true},
-		PhoneNumber: phoneNumber,
-	}
+	model := &models.Address{gormfox.Base{}, name, regionID, city, zip, address1, sql.NullString{address2, true}, phoneNumber}
 	model.ID = id
 
 	//act
@@ -72,16 +66,7 @@ func (suite *AddressResponseTestSuite) Test_AddressEncoding_RunsNormally() {
 	address2 := "Some more here"
 	phoneNumber := "17345791232"
 
-	response := &Address{
-		ID:          id,
-		Name:        name,
-		Region:      region,
-		City:        city,
-		Zip:         zip,
-		Address1:    address1,
-		Address2:    &address2,
-		PhoneNumber: phoneNumber,
-	}
+	response := &Address{id, name, region, city, zip, address1, &address2, phoneNumber}
 	expected := fmt.Sprintf(
 		`{"id":%v,"name":"%v","region":{"id":%v,"name":"%v","countryId":%v,"countryName":"%v"},"city":"%v","zip":"%v","address1":"%v","address2":"%v","phoneNumber":"%v"}`,
 		id, name, region.ID, region.Name, region.CountryID, region.CountryName, city, zip, address1, address2, phoneNumber)

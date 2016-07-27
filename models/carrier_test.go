@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/FoxComm/middlewarehouse/api/payloads"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
