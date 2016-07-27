@@ -58,29 +58,28 @@ export function fetchUserInfo(): ActionDispatch {
   };
 }
 
+function handleAuthResponse(dispatch, response) {
+  const token: TUser = response.body;
+
+  if (response.status == 200 && response.header['jwt']) {
+    localStorage.setItem('jwt', response.header['jwt']);
+
+    if (token.email) {
+      return dispatch(setUser(token));
+    }
+  }
+
+  throw new Error('Unexpected error, try again later');
+}
+
 const _authenticate = createAsyncActions(
   'authenticate',
   function(payload: LoginPayload) {
-    let hasError = false;
-
     const {dispatch} = this;
 
     return superagent.post(Api.apiURI('/public/login'), payload)
       .type('json')
-      .then(response => {
-        if (response.status == 200 && response.header['jwt']) {
-          localStorage.setItem('jwt', response.header['jwt']);
-        } else {
-          hasError = true;
-        }
-
-        const token: TUser = response.body;
-        if (token.email && !hasError) {
-          return dispatch(setUser(token));
-        }
-
-        throw new Error('Unexpected error, try again later');
-      });
+      .then(response => handleAuthResponse(dispatch, response));
   }
 );
 
@@ -89,17 +88,11 @@ export const authenticate = _authenticate.perform;
 const _signUp = createAsyncActions(
   'signup',
   function(payload: SignupPayload) {
-    return new Promise((resolve, reject) => {
-      if (payload.password == '123') {
-        resolve({});
-      }
-      const err = new Error('Bad request');
-      // $FlowFixMe: yes flow, there is no property response in Error
-      err.response = {
-        body: {errors: ['Already registered']}
-      };
-      reject(err);
-    });
+    const {dispatch} = this;
+
+    return superagent.post(Api.apiURI('/public/signup'), payload)
+      .type('json')
+      .then(response => handleAuthResponse(dispatch, response));
   }
 );
 
