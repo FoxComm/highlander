@@ -19,6 +19,10 @@ import ArchiveActionsSection from '../arcive-actions/archive-actions';
 
 // actions
 import * as SkuActions from '../../modules/skus/details';
+import * as ArchiveActions from '../../modules/skus/archive';
+
+//helpers
+import { transitionTo } from 'browserHistory';
 
 // types
 import type { Sku } from '../../modules/skus/details';
@@ -35,6 +39,7 @@ type Props = {
   isUpdating: boolean,
   params: { skuCode: string },
   children: Element,
+  archiveSku: Function,
 };
 
 type State = {
@@ -72,8 +77,12 @@ class SkuPage extends Component {
     return this.entityId === 'new';
   }
 
+  get code(): string {
+    return _.get(this.props.sku, 'attributes.code.v', '');
+  }
+
   get title(): string {
-    const code = _.get(this.props.sku, 'attributes.code.v', '');
+    const code = this.code;
     return this.isNew ? 'New SKU' : code.toUpperCase();
   }
 
@@ -91,6 +100,21 @@ class SkuPage extends Component {
         this.props.actions.updateSku(this.state.sku);
       }
     }
+  }
+
+  renderArchiveActions() {
+    return(
+      <ArchiveActionsSection type="SKU"
+                             title={this.title}
+                             archive={this.archiveSku} />
+    );
+  }
+
+  @autobind
+  archiveSku() {
+    this.props.archiveSku(this.code).then(() => {
+      transitionTo('skus');
+    });
   }
 
   render(): Element {
@@ -131,7 +155,7 @@ class SkuPage extends Component {
           </div>
         </div>
 
-        {!this.isNew && <ArchiveActionsSection type="SKU" title={this.title} />}
+        {!this.isNew && this.renderArchiveActions()}
       </div>
     );
   }
@@ -143,5 +167,8 @@ export default connect(
     isFetching: _.get(state, ['skus', 'details', 'isFetching']),
     isUpdating: _.get(state, ['skus', 'details', 'isUpdating']),
   }),
-  dispatch => ({ actions: bindActionCreators(SkuActions, dispatch) })
+  dispatch => ({
+    actions: bindActionCreators(SkuActions, dispatch),
+    ...bindActionCreators(ArchiveActions, dispatch),
+  })
 )(SkuPage);

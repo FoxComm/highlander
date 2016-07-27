@@ -25,9 +25,9 @@ class ArchiveConfirmation extends Component {
         <Alert type="warning">
           Warning! This action cannot be undone
         </Alert>
-        <span>
+        <p>
           Are you sure you want to archive <strong>{this.props.title}</strong> ?
-        </span>
+        </p>
       </div>
     );
 
