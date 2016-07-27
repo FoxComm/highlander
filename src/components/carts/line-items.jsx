@@ -11,7 +11,7 @@ import EditableContentBox from 'components/content-box/editable-content-box';
 import ContentBox from 'components/content-box/content-box';
 import CartLineItem from './line-item';
 import CartLineItemsFooter from './line-items-footer';
-import PanelHeader from './panel-header';
+import PanelHeader from 'components/panel-header/panel-header';
 import SkuLineItems from 'components/sku-line-items/sku-line-items';
 import SkuResult from './sku-result';
 import TableView from 'components/table/tableview';
@@ -103,7 +103,7 @@ export class CartLineItems extends React.Component {
 
     const title = (
       <PanelHeader
-        isCart={true}
+        showStatus={true}
         status={props.status}
         text="Items" />
     );

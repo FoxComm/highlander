@@ -4,11 +4,11 @@ import React, { Component, Element } from 'react';
 import _ from 'lodash';
 
 import ContentBox from 'components/content-box/content-box';
-import PanelHeader from './panel-header';
+import PanelHeader from 'components/panel-header/panel-header';
 import CouponRow from './discounts/coupon-row';
 import TableView from 'components/table/tableview';
 
-import styles from './styles/discounts.css';
+import styles from './styles/coupons.css';
 
 type Target = {
   name: string,
@@ -73,7 +73,7 @@ export default class OrderCoupons extends Component {
   }
 
   render(): Element {
-    const title = <PanelHeader isOptional={true} text="Coupons" />;
+    const title = <PanelHeader showStatus={false} isOptional={true} text="Coupons" />;
     return (
       <ContentBox
         title={title}

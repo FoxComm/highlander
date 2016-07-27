@@ -9,7 +9,7 @@ import OrderLineItems from './order-line-items';
 import OrderShippingAddress from './shipping-address';
 import OrderShippingMethod from './order-shipping-method';
 import Payments from './payments';
-import OrderDiscounts from './order-discounts';
+import DiscountsPanel from 'components/discounts-panel/discounts-panel';
 import OrderCoupons from './order-coupons';
 import Watchers from '../watchers/watchers';
 
@@ -26,7 +26,7 @@ const OrderDetails = props => {
       <div className="fc-order-details-body">
         <div className="fc-order-details-main">
           <OrderLineItems order={currentOrder} />
-          <OrderDiscounts order={currentOrder} />
+          <DiscountsPanel promotion={currentOrder.promotion} />
           <OrderShippingAddress isCart={false} order={currentOrder} />
           <OrderShippingMethod isCart={false} {...props} />
           <OrderCoupons isCart={false} order={currentOrder} />

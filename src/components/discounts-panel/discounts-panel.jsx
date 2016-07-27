@@ -5,16 +5,15 @@ import React, { Component, Element } from 'react';
 import _ from 'lodash';
 import classNames from 'classnames';
 
-import EditableContentBox from 'components/content-box/editable-content-box';
 import ContentBox from 'components/content-box/content-box';
-import PanelHeader from './panel-header';
-import DiscountRow from './discounts/discount-row';
+import PanelHeader from 'components/panel-header/panel-header';
+import DiscountRow from './discount-row';
 import TableView from 'components/table/tableview';
 
-import styles from './styles/discounts.css';
+import styles from './discounts-panel.css';
 
 type Props = {
-  order: Object,
+  promotion: Object,
 };
 
 const viewColumns = [
@@ -22,21 +21,18 @@ const viewColumns = [
   {field: 'storefrontName', text: 'Storefront Name'},
 ];
 
-export default class OrderDiscounts extends Component {
+export default class DiscountsPanel extends Component {
   props: Props;
 
   get title(): Element {
     return (
-      <PanelHeader isOptional={true} text="Discounts" />
+      <PanelHeader isOptional={true} isCart={true} status="success" text="Discounts" />
     );
   }
 
   get discounts(): Array<Object> {
-    const promotion = _.get(this.props, 'order.promotion');
-
-    if (!promotion) return [];
-
-    return [promotion];
+    const { promotion } = this.props;
+    return promotion ? [promotion] : [];
   }
 
   get viewContent(): Element {
@@ -57,7 +53,7 @@ export default class OrderDiscounts extends Component {
   renderRow(row: Object, index: number, isNew: bool): Element {
     return (
       <DiscountRow
-        key={`order-discount-row-${row.id}`}
+        key={`discount-row-${row.id}`}
         item={row}
         columns={viewColumns}
       />

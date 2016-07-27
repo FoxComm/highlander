@@ -4,7 +4,7 @@
 import { get, noop } from 'lodash';
 import React, { Element } from 'react';
 
-import MultiSelectRow from '../../table/multi-select-row';
+import MultiSelectRow from 'components/table/multi-select-row';
 
 function setCellContents(item: Object, field: string): any {
   return get(item, ['attributes', field, 'v'], '');

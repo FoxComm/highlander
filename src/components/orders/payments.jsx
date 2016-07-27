@@ -7,7 +7,7 @@ import TableView from 'components/table/tableview';
 import GiftCard from './payments/gift-card';
 import StoreCredit from './payments/store-credit';
 import CreditCard from './payments/credit-card';
-import PanelHeader from './panel-header';
+import PanelHeader from 'components/panel-header/panel-header';
 
 const viewColumns = [
   {field: 'name', text: 'Method'},
@@ -92,7 +92,7 @@ export default class Payments extends React.Component {
 
   render() {
     const props = this.props;
-    const title = <PanelHeader isCart={false} status={props.status} text="Payment Method" />;
+    const title = <PanelHeader showStatus={false} text="Payment Method" />;
 
     return (
       <ContentBox

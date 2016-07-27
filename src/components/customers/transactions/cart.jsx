@@ -14,7 +14,7 @@ import OrderShippingAddress from '../../orders/shipping-address';
 import OrderShippingMethod from '../../orders/order-shipping-method';
 import Payments from '../../orders/payments';
 import WaitAnimation from '../../common/wait-animation';
-import OrderDiscounts from '../../orders/order-discounts';
+import DiscountsPanel from 'components/discounts-panel/discounts-panel';
 import OrderCoupons from '../../orders/order-coupons';
 
 import * as orderActions from '../../../modules/orders/details';
@@ -131,7 +131,7 @@ export default class CustomerCart extends Component {
           <div className="fc-order-details-body">
             <div className="fc-order-details-main">
               <OrderLineItems readOnly={true} isCart={false} status={itemsStatus} {...props} />
-              <OrderDiscounts readOnly={true} isCart={false} order={order} />
+              <DiscountsPanel readOnly={true} promotion={order.promotion} />
               <OrderShippingAddress readOnly={true} isCart={false} status={shippingAddressStatus} order={order}/>
               <OrderShippingMethod readOnly={true} isCart={false} status={shippingMethodStatus} {...props} />
               <OrderCoupons readOnly={true} isCart={false} order={order} />

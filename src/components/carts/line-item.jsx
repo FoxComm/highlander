@@ -1,9 +1,27 @@
-import React, { PropTypes } from 'react';
-import Counter from '../forms/counter';
-import {DeleteButton} from '../common/buttons';
-import Currency from '../common/currency';
+/* @flow */
 
-const CartLineItem = props => {
+import React, { Element } from 'react';
+import Counter from 'components/forms/counter';
+import {DeleteButton} from 'components/common/buttons';
+import Currency from 'components/common/currency';
+
+type Props = {
+  onStartDelete: Function,
+  onUpdateCount: Function,
+  cart: {
+    referenceNumber: string,
+  },
+  item: {
+    imagePath: srting,
+    name: string,
+    sku: string,
+    price: number,
+    totalPrice: number,
+    quantity: number,
+  },
+};
+
+const CartLineItem = (props: Props): Element => {
   const item = props.item;
   const cart = props.cart;
 
@@ -34,13 +52,6 @@ const CartLineItem = props => {
       </td>
     </tr>
   );
-};
-
-CartLineItem.propTypes = {
-  onStartDelete: PropTypes.func,
-  onUpdateCount: PropTypes.func,
-  cart: PropTypes.object,
-  item: PropTypes.object
 };
 
 export default CartLineItem;
