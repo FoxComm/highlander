@@ -5,18 +5,18 @@ import java.time.Instant
 import models.Note
 import models.cord.Order
 import responses.StoreAdminResponse
-import responses.order.FullOrder
+import responses.cord.OrderResponse
 import utils.Money.Currency
 
 object OrderTailored {
 
   case class OrderStateChanged(admin: StoreAdminResponse.Root,
-                               order: FullOrder.Root,
+                               order: OrderResponse,
                                oldState: Order.State)
       extends ActivityBase[OrderStateChanged]
 
   case class OrderRemorsePeriodIncreased(admin: StoreAdminResponse.Root,
-                                         order: FullOrder.Root,
+                                         order: OrderResponse,
                                          oldPeriodEnd: Option[Instant])
       extends ActivityBase[OrderRemorsePeriodIncreased]
 
@@ -26,7 +26,7 @@ object OrderTailored {
       extends ActivityBase[OrderBulkStateChanged]
 
   /* Order checkout & order payments */
-  case class OrderCheckoutCompleted(order: FullOrder.Root)
+  case class OrderCheckoutCompleted(order: OrderResponse)
       extends ActivityBase[OrderCheckoutCompleted]
 
   case class CreditCardChargeCompleted(customerId: Int,

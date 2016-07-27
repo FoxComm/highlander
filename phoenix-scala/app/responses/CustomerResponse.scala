@@ -7,7 +7,7 @@ import models.location.Region
 
 object CustomerResponse {
   case class Root(id: Int = 0,
-                  email: String,
+                  email: Option[String] = None,
                   name: Option[String] = None,
                   phoneNumber: Option[String] = None,
                   location: Option[String] = None,

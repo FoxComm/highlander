@@ -2,7 +2,7 @@ package services.assignments
 
 import models.cord._
 import models.{Assignment, NotificationSubscription}
-import responses.order.AllOrders._
+import responses.cord.AllOrders._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._

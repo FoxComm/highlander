@@ -54,7 +54,7 @@ class StripeTest extends IntegrationTestBase with MockedApis {
                                        expYear = today.getYear,
                                        expMonth = today.getMonthValue)
         val result =
-          service.createCard("yax@yax.com", payload, none, Factories.address).futureValue
+          service.createCard("yax@yax.com".some, payload, none, Factories.address).futureValue
 
         result.leftVal.head must === (CardDeclined)
       }
@@ -66,7 +66,7 @@ class StripeTest extends IntegrationTestBase with MockedApis {
                                        expYear = today.getYear,
                                        expMonth = today.getMonthValue)
         val result =
-          service.createCard("yax@yax.com", payload, none, Factories.address).futureValue
+          service.createCard("yax@yax.com".some, payload, none, Factories.address).futureValue
 
         result.leftVal.head must === (IncorrectCvc)
       }
@@ -78,7 +78,7 @@ class StripeTest extends IntegrationTestBase with MockedApis {
                                        cvv = "123",
                                        expYear = today.getYear,
                                        expMonth = today.getMonthValue)
-        val result = service.createCard("yax@yax.com", payload, none, address).futureValue
+        val result = service.createCard("yax@yax.com".some, payload, none, address).futureValue
 
         val (cust, card) = result.rightVal
         cust.getDescription must === ("FoxCommerce")
@@ -104,7 +104,7 @@ class StripeTest extends IntegrationTestBase with MockedApis {
                                        expYear = today.getYear,
                                        expMonth = today.getMonthValue)
         val result =
-          service.createCard("yax@yax.com", payload, existingCustId.some, address).futureValue
+          service.createCard("yax@yax.com".some, payload, existingCustId.some, address).futureValue
 
         val (cust, card) = result.rightVal
 

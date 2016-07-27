@@ -2,7 +2,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
-import cats.implicits._
 import failures.CartFailures._
 import failures.LockFailures._
 import failures.NotFoundFailure404
@@ -20,7 +19,7 @@ import org.json4s.jackson.JsonMethods._
 import payloads.AddressPayloads.UpdateAddressPayload
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.UpdateShippingMethod
-import responses.cart.FullCart
+import responses.cord.CartResponse
 import services.carts.CartTotaler
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
@@ -29,18 +28,15 @@ import utils.seeds.Seeds.Factories
 
 class CartIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
 
-  def getUpdated(refNum: String) =
-    db.run(Carts.findByRefNum(refNum).result.headOption).futureValue.value
-
-  "GET /v1/orders/:refNum" - {
+  "GET /v1/carts/:refNum" - {
     "payment state" - {
 
       "displays 'cart' payment state" in new Fixture {
         val response = GET(s"v1/carts/${cart.refNum}")
         response.status must === (StatusCodes.OK)
-        val fullOrder = response.ignoreFailuresAndGiveMe[FullCart.Root]
+        val fullCart = response.ignoreFailuresAndGiveMe[CartResponse]
 
-        fullOrder.paymentState must === (CreditCardCharge.Cart.some)
+        fullCart.paymentState must === (CreditCardCharge.Cart)
       }
 
       "displays 'auth' payment state" in new PaymentStateFixture {
@@ -48,9 +44,9 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
 
         val response = GET(s"v1/carts/${cart.refNum}")
         response.status must === (StatusCodes.OK)
-        val fullOrder = response.ignoreFailuresAndGiveMe[FullCart.Root]
+        val fullCart = response.ignoreFailuresAndGiveMe[CartResponse]
 
-        fullOrder.paymentState must === (CreditCardCharge.Auth.some)
+        fullCart.paymentState must === (CreditCardCharge.Auth)
       }
     }
   }
@@ -63,26 +59,11 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
       val response = POST(s"v1/orders/${cart.refNum}/line-items", payload)
 
       response.status must === (StatusCodes.OK)
-      val root = response.ignoreFailuresAndGiveMe[FullCart.Root]
+      val root = response.ignoreFailuresAndGiveMe[CartResponse]
       val skus = root.lineItems.skus
       skus must have size 2
       skus.map(_.sku).toSet must === (Set("SKU-YAX"))
       skus.map(_.quantity).toSet must === (Set(1))
-    }
-
-    "should run cart validator" in new Fixture {
-      pending
-      // FIXME @anna: Add proper SKU with context
-
-      val response = POST(s"v1/orders/${cart.refNum}/line-items", payload)
-
-      response.status must === (StatusCodes.OK)
-      val ref = cart.refNum
-      val expectedWarnings =
-        List(EmptyCart(ref), NoShipAddress(ref), NoShipMethod(ref)).map(_.description)
-      val responseWithValidation = response.withResultTypeOf[FullCart.Root]
-      responseWithValidation.alerts must not be defined
-      responseWithValidation.warnings.value must contain theSameElementsAs expectedWarnings
     }
 
     "should respond with 404 if cart is not found" in {
@@ -215,7 +196,7 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
       val payment = OrderPayments.findAllByOrderId(cart.refNum).futureValue.head
       val (address, billingAddress) = BillingAddresses.findByPaymentId(payment.id).futureValue.get
 
-      val respOrder = parse(body).extract[FullOrder.Root]
+      val respOrder = parse(body).extract[fullCart.Root]
 
       cc.customerId must === (customerId)
       cc.lastFour must === (payload.lastFour)
@@ -345,14 +326,14 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
       val addressUpdateResponse =
         PATCH(s"v1/orders/${cart.refNum}/shipping-address", updateAddressPayload)
       addressUpdateResponse.status must === (StatusCodes.OK)
-      checkOrder(addressUpdateResponse.ignoreFailuresAndGiveMe[FullCart.Root])
+      checkOrder(addressUpdateResponse.ignoreFailuresAndGiveMe[CartResponse])
 
       val fullOrderResponse = GET(s"v1/carts/${cart.refNum}")
       fullOrderResponse.status must === (StatusCodes.OK)
-      checkOrder(fullOrderResponse.withResultTypeOf[FullCart.Root].result)
+      checkOrder(fullOrderResponse.withResultTypeOf[CartResponse].result)
 
-      def checkOrder(fullOrder: FullCart.Root) = {
-        val addr = fullOrder.shippingAddress.value
+      def checkOrder(fullCart: CartResponse) = {
+        val addr = fullCart.shippingAddress.value
         addr.name must === (name)
         addr.city must === (city)
         addr.address1 must === (address.address1)
@@ -371,15 +352,15 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
       //get cart and make sure it has a shipping address
       val fullOrderResponse = GET(s"v1/carts/${cart.refNum}")
       fullOrderResponse.status must === (StatusCodes.OK)
-      val fullOrder = fullOrderResponse.withResultTypeOf[FullCart.Root].result
-      fullOrder.shippingAddress mustBe defined
+      val fullCart = fullOrderResponse.withResultTypeOf[CartResponse].result
+      fullCart.shippingAddress mustBe defined
 
       //delete the shipping address
       val deleteResponse = DELETE(s"v1/orders/${cart.refNum}/shipping-address")
       deleteResponse.status must === (StatusCodes.OK)
 
       //shipping address must not be defined
-      val lessThanFullOrder = deleteResponse.withResultTypeOf[FullCart.Root]
+      val lessThanFullOrder = deleteResponse.withResultTypeOf[CartResponse]
       lessThanFullOrder.result.shippingAddress must not be defined
       lessThanFullOrder.warnings.value must contain(noShipAddressFailure)
 
@@ -413,8 +394,8 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
                            UpdateShippingMethod(shippingMethodId = lowShippingMethod.id))
 
       response.status must === (StatusCodes.OK)
-      val fullOrder = response.ignoreFailuresAndGiveMe[FullCart.Root]
-      fullOrder.shippingMethod.value.name must === (lowShippingMethod.adminDisplayName)
+      val fullCart = response.ignoreFailuresAndGiveMe[CartResponse]
+      fullCart.shippingMethod.value.name must === (lowShippingMethod.adminDisplayName)
 
       val orderShippingMethod = OrderShippingMethods.findByOrderRef(cart.refNum).gimme.head
       orderShippingMethod.cordRef must === (cart.refNum)

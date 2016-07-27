@@ -83,6 +83,15 @@ object SkuManager {
     } yield FullObject(updatedHead, updated.form, updated.shadow)
   }
 
+  def findOrCreateSku(skuPayload: SkuPayload)(implicit ec: EC, db: DB, oc: OC) =
+    for {
+      code ← * <~ mustGetSkuCode(skuPayload)
+      sku ← * <~ Skus.filterByContextAndCode(oc.id, code).one.toXor.flatMap {
+             case Some(sku) ⇒ SkuManager.updateSkuInner(sku, skuPayload)
+             case None      ⇒ SkuManager.createSkuInner(oc, skuPayload)
+           }
+    } yield sku
+
   private def updateHead(sku: Sku,
                          code: String,
                          shadow: ObjectShadow,

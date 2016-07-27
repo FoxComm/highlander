@@ -1,7 +1,7 @@
 package services
 
 import failures.NotFoundFailure404
-import failures.ShippingMethodFailures.ShippingMethodNotApplicableToOrder
+import failures.ShippingMethodFailures.ShippingMethodNotApplicableToCart
 import models.cord._
 import models.cord.lineitems.OrderLineItemSkus
 import models.customer.Customer
@@ -28,7 +28,7 @@ object ShippingManager {
 
   def getShippingMethodsForCart(originator: Originator)(
       implicit ec: EC,
-      db: DB): DbResultT[Seq[responses.ShippingMethods.Root]] =
+      db: DB): DbResultT[Seq[responses.ShippingMethodsResponse.Root]] =
     for {
       cart        ← * <~ getCartByOriginator(originator, None)
       shipMethods ← * <~ ShippingMethods.findActive.result
@@ -36,13 +36,13 @@ object ShippingManager {
       response = shipMethods.collect {
         case sm if QueryStatement.evaluate(sm.conditions, shipData, evaluateCondition) ⇒
           val restricted = QueryStatement.evaluate(sm.restrictions, shipData, evaluateCondition)
-          responses.ShippingMethods.build(sm, !restricted)
+          responses.ShippingMethodsResponse.build(sm, !restricted)
       }
     } yield response
 
   def getShippingMethodsForCart(refNum: String, customer: Option[Customer] = None)(
       implicit ec: EC,
-      db: DB): DbResultT[Seq[responses.ShippingMethods.Root]] =
+      db: DB): DbResultT[Seq[responses.ShippingMethodsResponse.Root]] =
     for {
       cart        ← * <~ findByRefNumAndOptionalCustomer(refNum, customer)
       shipMethods ← * <~ ShippingMethods.findActive.result
@@ -50,7 +50,7 @@ object ShippingManager {
       response = shipMethods.collect {
         case sm if QueryStatement.evaluate(sm.conditions, shipData, evaluateCondition) ⇒
           val restricted = QueryStatement.evaluate(sm.restrictions, shipData, evaluateCondition)
-          responses.ShippingMethods.build(sm, !restricted)
+          responses.ShippingMethodsResponse.build(sm, !restricted)
       }
     } yield response
 
@@ -65,7 +65,7 @@ object ShippingManager {
   def evaluateShippingMethodForCart(shippingMethod: ShippingMethod, cart: Cart)(
       implicit ec: EC): DbResultT[Unit] = {
     getShippingData(cart).toXor.flatMap { shippingData ⇒
-      val failure = ShippingMethodNotApplicableToOrder(shippingMethod.id, cart.refNum)
+      val failure = ShippingMethodNotApplicableToCart(shippingMethod.id, cart.refNum)
       if (QueryStatement.evaluate(shippingMethod.conditions, shippingData, evaluateCondition)) {
         val hasRestrictions =
           QueryStatement.evaluate(shippingMethod.restrictions, shippingData, evaluateCondition)

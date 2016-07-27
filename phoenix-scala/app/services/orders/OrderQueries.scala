@@ -8,13 +8,14 @@ import models.payment.creditcard._
 import models.payment.giftcard._
 import models.payment.storecredit._
 import responses.TheResponse
-import responses.order.{AllOrders, FullOrder}
+import responses.cord.{AllOrders, OrderResponse}
+import services.CordQueries
 import slick.dbio.DBIO
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
 
-object OrderQueries {
+object OrderQueries extends CordQueries {
 
   def findAllByQuery(query: Orders.QuerySeq = Orders)(
       implicit ec: EC): DbResultT[TheResponse[Seq[AllOrders.Root]]] = {
@@ -31,46 +32,10 @@ object OrderQueries {
   }
 
   def findOne(
-      refNum: String)(implicit ec: EC, db: DB, ctx: OC): DbResultT[TheResponse[FullOrder.Root]] =
+      refNum: String)(implicit ec: EC, db: DB, ctx: OC): DbResultT[TheResponse[OrderResponse]] =
     for {
       order    ← * <~ Orders.mustFindByRefNum(refNum)
-      response ← * <~ FullOrder.fromOrder(order)
+      response ← * <~ OrderResponse.fromOrder(order)
     } yield TheResponse.build(response)
-
-  // TODO dedup
-  def getPaymentState(cordRef: String)(implicit ec: EC): DBIO[CreditCardCharge.State] =
-    for {
-      payments ← OrderPayments.findAllByOrderRef(cordRef).result
-      authorized ← DBIO.sequence(payments.map(payment ⇒
-                            payment.paymentMethodType match {
-                      case PaymentMethod.CreditCard ⇒
-                        import CreditCardCharge._
-                        CreditCardCharges
-                          .filter(_.orderPaymentId === payment.id)
-                          .filter(_.state === (Auth: State))
-                          .size
-                          .result
-                      case PaymentMethod.GiftCard ⇒
-                        import GiftCardAdjustment._
-                        GiftCardAdjustments
-                          .filter(_.orderPaymentId === payment.id)
-                          .filter(_.state === (Auth: State))
-                          .size
-                          .result
-                      case PaymentMethod.StoreCredit ⇒
-                        import StoreCreditAdjustment._
-                        StoreCreditAdjustments
-                          .filter(_.orderPaymentId === payment.id)
-                          .filter(_.state === (Auth: State))
-                          .size
-                          .result
-                  }))
-      // Using CreditCardCharge here as it has both Cart and Auth states. Consider refactoring.
-    } yield
-      (payments.size, authorized.sum) match {
-        case (0, _)                     ⇒ CreditCardCharge.Cart
-        case (pmt, auth) if pmt == auth ⇒ CreditCardCharge.Auth
-        case _                          ⇒ CreditCardCharge.Cart
-      }
 
 }

@@ -23,7 +23,7 @@ import payloads.DiscountPayloads._
 import payloads.PromotionPayloads._
 import responses.CouponResponses.CouponResponse
 import responses.TheResponse
-import responses.cart.FullCart
+import responses.cord.CartResponse
 import services.coupon.CouponManager
 import services.promotion.PromotionManager
 import util.{IntegrationTestBase, TestActivityContext}
@@ -96,10 +96,10 @@ class CouponsIntegrationTest
   "POST /v1/orders/:refNum/coupon/:code" - {
     "attaches coupon successfully" - {
       "when activeFrom is before now" in new OrderCouponFixture {
-        val response = POST(s"v1/orders/${cart.refNum}/coupon/${fromCode}")
+        val response = POST(s"v1/orders/${cart.refNum}/coupon/$fromCode")
 
         response.status must === (StatusCodes.OK)
-        val theCartResponse = response.as[TheResponse[FullCart.Root]].result
+        val theCartResponse = response.as[TheResponse[CartResponse]].result
 
         theCartResponse.referenceNumber must === (cart.refNum)
         theCartResponse.coupon must be('defined)
@@ -108,35 +108,34 @@ class CouponsIntegrationTest
       }
 
       "when activeFrom is before now and activeTo later than now" in new OrderCouponFixture {
-        val response = POST(s"v1/orders/${cart.refNum}/coupon/${fromToCode}")
+        val response = POST(s"v1/orders/${cart.refNum}/coupon/$fromToCode")
 
         response.status must === (StatusCodes.OK)
-        val theCartResponse = response.as[TheResponse[FullCart.Root]].result
+        val theCartResponse = response.as[TheResponse[CartResponse]].result
 
         theCartResponse.referenceNumber must === (cart.refNum)
-        theCartResponse.coupon must be('defined)
         theCartResponse.coupon.value.code must === (fromToCode)
-        theCartResponse.promotion must be('defined)
+        theCartResponse.promotion mustBe 'defined
       }
     }
 
     "fails to attach coupon" - {
       "when activeFrom is after now" in new OrderCouponFixture {
-        val response = POST(s"v1/orders/${cart.refNum}/coupon/${willBeActiveCode}")
+        val response = POST(s"v1/orders/${cart.refNum}/coupon/$willBeActiveCode")
 
         response.status must === (StatusCodes.BadRequest)
         response.error must === (CouponIsNotActive.description)
       }
 
       "when activeTo is before now" in new OrderCouponFixture {
-        val response = POST(s"v1/orders/${cart.refNum}/coupon/${wasActiveCode}")
+        val response = POST(s"v1/orders/${cart.refNum}/coupon/$wasActiveCode")
 
         response.status must === (StatusCodes.BadRequest)
         response.error must === (CouponIsNotActive.description)
       }
 
       "when attaching to order" in new OrderCouponFixture {
-        val response = POST(s"v1/orders/${order.refNum}/coupon/${fromToCode}")
+        val response = POST(s"v1/orders/${order.refNum}/coupon/$fromToCode")
 
         response.status must === (StatusCodes.BadRequest)
         response.error must === (OrderAlreadyPlaced(order.refNum).description)
@@ -278,10 +277,10 @@ class CouponsIntegrationTest
                                           willBeActiveCode,
                                           authedStoreAdmin)
       firstCustomer ← * <~ Customers.create(
-                         Factories.customer.copy(email = "first@example.org",
+                         Factories.customer.copy(email = Some("first@example.org"),
                                                  name = Some("first")))
       otherCustomer ← * <~ Customers.create(
-                         Factories.customer.copy(email = "second@example.org",
+                         Factories.customer.copy(email = Some("second@example.org"),
                                                  name = Some("second")))
       cart ← * <~ Carts.create(Factories.cart.copy(customerId = firstCustomer.id))
       cartForOrder ← * <~ Carts.create(

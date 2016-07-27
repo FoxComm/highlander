@@ -48,10 +48,8 @@ object ProductManager {
                            shadowId = ins.shadow.id,
                            commitId = ins.commit.id))
 
-      productSkus ← * <~ payload.skus.map(sku ⇒
-                         findOrCreateSkuForProduct(product, sku, !hasVariants))
-      variants ← * <~ variantPayloads.map(variant ⇒
-                      findOrCreateVariantForProduct(product, variant))
+      productSkus    ← * <~ findOrCreateSkusForProduct(product, payload.skus, !hasVariants)
+      variants       ← * <~ findOrCreateVariantsForProduct(product, variantPayloads)
       variantAndSkus ← * <~ getVariantsWithRelatedSkus(variants)
       (variantSkus, variantResponses) = variantAndSkus
     } yield
@@ -107,22 +105,11 @@ object ProductManager {
 
       albums ← * <~ ImageManager.getAlbumsForProduct(updated.form.id)
 
-      skuLinks     ← * <~ ProductSkuLinks.filterLeft(oldProduct.model).result
       variantLinks ← * <~ ProductVariantLinks.filterLeft(oldProduct.model).result
 
       hasVariants = variantLinks.nonEmpty || payload.variants.exists(_.nonEmpty)
 
-      deleted ← * <~ (if (skuLinks.nonEmpty && hasVariants)
-                        ProductSkuLinks
-                          .filterLeft(oldProduct.model)
-                          .deleteAll(
-                              DbResultT.unit,
-                              DbResultT.failure(new GeneralFailure(
-                                      s"Cannot delete ProductSku links for product ${oldProduct.model.id}")))
-                      else DbResultT.unit)
-
-      updatedSkus ← * <~ payloadSkus.map(sku ⇒
-                         findOrCreateSkuForProduct(oldProduct.model, sku, !hasVariants))
+      updatedSkus ← * <~ findOrCreateSkusForProduct(oldProduct.model, payloadSkus, !hasVariants)
 
       variants ← * <~ updateAssociatedVariants(updatedHead, payload.variants)
       fullProduct = FullObject(updatedHead, updated.form, updated.shadow)
@@ -230,7 +217,7 @@ object ProductManager {
       oc: OC): DbResultT[Seq[FullVariant]] =
     variantsPayload match {
       case Some(payloads) ⇒
-        DbResultT.sequence(payloads.map(payload ⇒ findOrCreateVariantForProduct(product, payload)))
+        findOrCreateVariantsForProduct(product, payloads)
       case None ⇒
         for {
           variants     ← * <~ ProductVariantLinks.queryRightByLeft(product)
@@ -248,41 +235,32 @@ object ProductManager {
         DbResultT.good(product)
     }
 
-  private def findOrCreateSkuForProduct(
+  private def findOrCreateSkusForProduct(
       product: Product,
-      payload: SkuPayload,
+      skuPayloads: Seq[SkuPayload],
       createLinks: Boolean = true)(implicit ec: EC, db: DB, oc: OC) =
     for {
-      code ← * <~ SkuManager.mustGetSkuCode(payload)
-      sku ← * <~ Skus.filterByContextAndCode(oc.id, code).one.toXor.flatMap {
-             case Some(sku) ⇒
-               for {
-                 existingSku ← * <~ SkuManager.updateSkuInner(sku, payload)
-                 link = ProductSkuLink(leftId = product.id, rightId = existingSku.model.id)
-                 _ ← * <~ ProductSkuLinks.insertOrUpdate(link)
-               } yield existingSku
-             case None ⇒
-               for {
-                 newSku ← * <~ SkuManager.createSkuInner(oc, payload)
-                 _ ← * <~ (if (createLinks)
-                             ProductSkuLinks.create(
-                                 ProductSkuLink(leftId = product.id, rightId = newSku.model.id))
-                           else DbResultT.unit)
-               } yield newSku
-           }
-      albums ← * <~ ImageManager.getAlbumsForSkuInner(code, oc)
-    } yield SkuResponse.buildLite(IlluminatedSku.illuminate(oc, sku), albums)
+      skus ← * <~ skuPayloads.map(SkuManager.findOrCreateSku)
 
-  private def findOrCreateVariantForProduct(product: Product, payload: VariantPayload)(
+      _ ← * <~ ProductSkuLinks.syncLinks(product,
+                                         if (createLinks) skus.map(_.model) else Seq.empty)
+
+      albums ← * <~ skus.map(sku ⇒ ImageManager.getAlbumsForSkuInner(sku.model.code, oc))
+      result = skus.zip(albums).map {
+        case (sku, album) ⇒ SkuResponse.buildLite(IlluminatedSku.illuminate(oc, sku), album)
+      }
+    } yield result
+
+  private def findOrCreateVariantsForProduct(product: Product, payload: Seq[VariantPayload])(
       implicit ec: EC,
       db: DB,
-      oc: OC): DbResultT[FullVariant] =
+      oc: OC): DbResultT[Seq[FullVariant]] =
     for {
-      variant ← * <~ VariantManager.updateOrCreateVariant(oc, payload)
-      (fullVariant, _) = variant
-      _ ← * <~ ProductVariantLinks.create(
-             ProductVariantLink(leftId = product.id, rightId = fullVariant.model.id))
-    } yield variant
+      variants ← * <~ payload.map(VariantManager.updateOrCreateVariant(oc, _))
+      _ ← * <~ ProductVariantLinks.syncLinks(product, variants.map {
+           case (variant, values) ⇒ variant.model
+         })
+    } yield variants
 
   def mustFindProductByContextAndFormId404(contextId: Int, formId: Int)(
       implicit ec: EC,

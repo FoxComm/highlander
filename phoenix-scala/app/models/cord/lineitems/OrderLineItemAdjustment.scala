@@ -56,7 +56,7 @@ object OrderLineItemAdjustments
 
   val returningLens: Lens[OrderLineItemAdjustment, Int] = lens[OrderLineItemAdjustment].id
 
-  def findByOrderRef(cordRef: String): QuerySeq =
+  def findByCordRef(cordRef: String): QuerySeq =
     filter(_.cordRef === cordRef)
 
   def filterByOrderRefAndShadow(cordRef: String, shadowId: Int): QuerySeq =

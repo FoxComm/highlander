@@ -83,20 +83,20 @@ object OrderPayments
 
   val returningLens: Lens[OrderPayment, Int] = lens[OrderPayment].id
 
-  def findAllByOrderRef(cordRef: String): QuerySeq =
+  def findAllByCordRef(cordRef: String): QuerySeq =
     filter(_.cordRef === cordRef)
 
   def findAllStoreCredit: QuerySeq =
     filter(_.paymentMethodType === (PaymentMethod.StoreCredit: PaymentMethod.Type))
 
-  def findAllGiftCardsByOrderRef(
+  def findAllGiftCardsByCordRef(
       cordRef: String): Query[(OrderPayments, GiftCards), (OrderPayment, GiftCard), Seq] =
     for {
       pmts ← OrderPayments.filter(_.cordRef === cordRef)
       gc   ← GiftCards if gc.id === pmts.paymentMethodId
     } yield (pmts, gc)
 
-  def findAllStoreCreditsByOrderRef(
+  def findAllStoreCreditsByCordRef(
       cordRef: String): Query[(OrderPayments, StoreCredits), (OrderPayment, StoreCredit), Seq] =
     for {
       pmts ← OrderPayments.filter(_.cordRef === cordRef)

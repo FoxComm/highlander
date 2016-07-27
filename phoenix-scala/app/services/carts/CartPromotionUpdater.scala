@@ -20,7 +20,7 @@ import models.promotion._
 import models.shipping
 import models.traits.Originator
 import responses.TheResponse
-import responses.cart.FullCart
+import responses.cord.CartResponse
 import services.discount.compilers._
 import services.{CartValidator, LogActivity}
 import slick.driver.PostgresDriver.api._
@@ -33,7 +33,7 @@ object CartPromotionUpdater {
     for {
       // Fetch base stuff
       orderPromo ← * <~ OrderPromotions
-                    .filterByOrderRef(cart.refNum)
+                    .filterByCordRef(cart.refNum)
                     .requiresCoupon
                     .mustFindOneOr(OrderHasNoPromotions)
       // Fetch promotion
@@ -65,12 +65,12 @@ object CartPromotionUpdater {
       es: ES,
       db: DB,
       ac: AC,
-      ctx: OC): DbResultT[TheResponse[FullCart.Root]] =
+      ctx: OC): DbResultT[TheResponse[CartResponse]] =
     for {
       // Fetch base data
       cart ← * <~ getCartByOriginator(originator, refNum)
       orderPromotions ← * <~ OrderPromotions
-                         .filterByOrderRef(cart.refNum)
+                         .filterByCordRef(cart.refNum)
                          .requiresCoupon
                          .mustNotFindOneOr(OrderAlreadyHasCoupon)
       // Fetch coupon + validate
@@ -96,7 +96,7 @@ object CartPromotionUpdater {
       // Response
       cart      ← * <~ CartTotaler.saveTotals(cart)
       validated ← * <~ CartValidator(cart).validate()
-      response  ← * <~ FullCart.buildRefreshed(cart)
+      response  ← * <~ CartResponse.buildRefreshed(cart)
     } yield TheResponse.validated(response, validated)
 
   def detachCoupon(originator: Originator, refNum: Option[String] = None)(
@@ -104,11 +104,11 @@ object CartPromotionUpdater {
       es: ES,
       db: DB,
       ac: AC,
-      ctx: OC): DbResultT[TheResponse[FullCart.Root]] =
+      ctx: OC): DbResultT[TheResponse[CartResponse]] =
     for {
       // Read
       cart            ← * <~ getCartByOriginator(originator, refNum)
-      orderPromotions ← * <~ OrderPromotions.filterByOrderRef(cart.refNum).requiresCoupon.result
+      orderPromotions ← * <~ OrderPromotions.filterByCordRef(cart.refNum).requiresCoupon.result
       shadowIds = orderPromotions.map(_.promotionShadowId)
       promotions ← * <~ Promotions.filter(_.shadowId.inSet(shadowIds)).requiresCoupon.result
       deleteShadowIds = promotions.map(_.shadowId)
@@ -120,7 +120,7 @@ object CartPromotionUpdater {
       _         ← * <~ CartTotaler.saveTotals(cart)
       _         ← * <~ LogActivity.orderCouponDetached(cart)
       validated ← * <~ CartValidator(cart).validate()
-      response  ← * <~ FullCart.buildRefreshed(cart)
+      response  ← * <~ CartResponse.buildRefreshed(cart)
     } yield TheResponse.validated(response, validated)
 
   /**

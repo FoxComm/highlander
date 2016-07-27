@@ -2,13 +2,9 @@ package utils.seeds.generators
 
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.Random
-
 import cats.implicits._
 import failures.CreditCardFailures.CustomerHasNoCreditCard
 import failures.CustomerFailures.CustomerHasNoDefaultAddress
-import failures.ShippingMethodFailures.ShippingMethodIsNotFound
 import faker._
 import models.Note
 import models.cord.Order.{FraudHold, ManualHold, RemorseHold, Shipped}
@@ -21,7 +17,7 @@ import models.payment.creditcard.{CreditCard, CreditCards}
 import models.payment.giftcard._
 import models.payment.storecredit._
 import models.product.Mvp
-import models.shipping.{Shipment, Shipments, ShippingMethods}
+import models.shipping._
 import services.carts.CartTotaler
 import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._
@@ -29,6 +25,10 @@ import utils.aliases._
 import utils.db._
 import utils.seeds.ShipmentSeeds
 import utils.time
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.Random
+
+import failures.NotFoundFailure400
 
 trait OrderGenerator extends ShipmentSeeds {
 
@@ -261,7 +261,7 @@ trait OrderGenerator extends ShipmentSeeds {
       deductFromGc = deductAmount(gc.availableBalance, totals)
       cc         ← * <~ getCc(customerId) // TODO: auth
       _          ← * <~ generateOrderPayments(cart, order, cc, gc, deductFromGc)
-      gcPayments ← * <~ OrderPayments.findAllGiftCardsByOrderRef(cart.refNum).result
+      gcPayments ← * <~ OrderPayments.findAllGiftCardsByCordRef(cart.refNum).result
       _          ← * <~ authGiftCard(gcPayments)
       addr       ← * <~ getDefaultAddress(customerId)
       shipA ← * <~ OrderShippingAddresses.create(
@@ -352,7 +352,7 @@ trait OrderGenerator extends ShipmentSeeds {
   private def getShipMethod(shipMethodId: Int)(implicit db: DB) =
     ShippingMethods
       .findActiveById(shipMethodId)
-      .mustFindOneOr(ShippingMethodIsNotFound(shipMethodId))
+      .mustFindOneOr(NotFoundFailure400(ShippingMethod, shipMethodId))
 
   private def authGiftCard(
       results: Seq[(OrderPayment, GiftCard)]): DbResultT[Seq[GiftCardAdjustment]] =

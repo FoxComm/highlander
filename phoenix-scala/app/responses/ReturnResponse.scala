@@ -14,7 +14,7 @@ import models.returns._
 import models.shipping.Shipment
 import responses.CustomerResponse.{Root ⇒ Customer}
 import responses.StoreAdminResponse.{Root ⇒ StoreAdmin}
-import responses.order.FullOrder
+import responses.cord.OrderResponse
 import services.returns.ReturnTotaler
 import slick.driver.PostgresDriver.api._
 import utils.Money._
@@ -69,7 +69,7 @@ object ReturnResponse {
 
   case class RootExpanded(id: Int,
                           referenceNumber: String,
-                          order: Option[FullOrder.Root],
+                          order: Option[OrderResponse],
                           rmaType: Return.ReturnType,
                           state: Return.State,
                           lineItems: LineItems,
@@ -176,7 +176,7 @@ object ReturnResponse {
          totals = totals)
 
   def buildExpanded(rma: Return,
-                    order: Option[FullOrder.Root] = None,
+                    order: Option[OrderResponse] = None,
                     customer: Option[Customer] = None,
                     lineItems: LineItems = LineItems(),
                     storeAdmin: Option[StoreAdmin] = None,
@@ -200,11 +200,11 @@ object ReturnResponse {
     )
 
   private def fetchRmaDetails(rma: Return, withOrder: Boolean = false)(implicit db: DB, ec: EC) = {
-    val orderQ: DbResultT[Option[FullOrder.Root]] = for {
+    val orderQ: DbResultT[Option[OrderResponse]] = for {
       maybeOrder ← * <~ Orders.findByRefNum(rma.orderRef).one
       fullOrder ← * <~ ((maybeOrder, withOrder) match {
-                       case (Some(order), true) ⇒ FullOrder.fromOrder(order).map(Some(_))
-                       case _                   ⇒ DbResultT.none[FullOrder.Root]
+                       case (Some(order), true) ⇒ OrderResponse.fromOrder(order).map(Some(_))
+                       case _                   ⇒ DbResultT.none[OrderResponse]
                      })
     } yield fullOrder
 

@@ -1,13 +1,13 @@
-package responses.order
+package responses.cord
 
 import java.time.Instant
-
-import scala.concurrent.Future
 
 import models.cord.Order
 import models.customer.Customer
 import models.payment.creditcard.CreditCardCharge
 import responses.ResponseItem
+
+import scala.concurrent.Future
 
 object AllOrders {
   type Response = Future[Seq[Root]]
@@ -16,13 +16,13 @@ object AllOrders {
                   orderState: Order.State,
                   email: Option[String] = None,
                   name: Option[String] = None,
+                  // FIXME: why Option?
                   paymentState: Option[CreditCardCharge.State] = None,
-                  shippingState: Option[Order.State] = None,
+                  shippingState: Option[Order.State],
                   placedAt: Instant,
                   remorsePeriodEnd: Option[Instant] = None,
                   total: Int)
       extends ResponseItem
-      with OrderResponseBase
 
   def build(order: Order,
             customer: Option[Customer] = None,
@@ -30,7 +30,7 @@ object AllOrders {
       referenceNumber = order.referenceNumber,
       orderState = order.state,
       name = customer.flatMap(_.name),
-      email = customer.map(_.email),
+      email = customer.flatMap(_.email),
       paymentState = paymentState,
       shippingState = order.getShippingState,
       placedAt = order.placedAt,

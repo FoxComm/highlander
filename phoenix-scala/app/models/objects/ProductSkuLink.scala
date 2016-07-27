@@ -2,6 +2,7 @@ package models.objects
 
 import java.time.Instant
 
+import models.image.Album
 import models.objects.ObjectHeadLinks._
 import shapeless._
 
@@ -35,4 +36,6 @@ object ProductSkuLinks
     with ReturningId[ProductSkuLink, ProductSkuLinks] {
 
   val returningLens: Lens[ProductSkuLink, Int] = lens[ProductSkuLink].id
+
+  def mkLink(left: Product, right: Sku) = ProductSkuLink(leftId = left.id, rightId = right.id)
 }

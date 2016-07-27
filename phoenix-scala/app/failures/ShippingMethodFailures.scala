@@ -2,8 +2,8 @@ package failures
 
 object ShippingMethodFailures {
 
-  case class ShippingMethodIsNotFound(shippingMethodId: Int) extends Failure {
-    override def description = s"Shipping method $shippingMethodId can't be found"
+  case class ShippingMethodNotFound(orderRef: String) extends Failure {
+    override def description = s"Shipping method is not present in order $orderRef"
   }
 
   case class ShippingMethodIsNotActive(shippingMethodId: Int) extends Failure {
@@ -11,9 +11,9 @@ object ShippingMethodFailures {
       s"Shipping method $shippingMethodId can't be added because it's not active"
   }
 
-  case class ShippingMethodNotApplicableToOrder(shippingMethodId: Int, referenceNumber: String)
+  case class ShippingMethodNotApplicableToCart(shippingMethodId: Int, referenceNumber: String)
       extends Failure {
     override def description =
-      s"Shipping method $shippingMethodId is not applicable to order $referenceNumber"
+      s"Shipping method $shippingMethodId is not applicable to cart $referenceNumber"
   }
 }

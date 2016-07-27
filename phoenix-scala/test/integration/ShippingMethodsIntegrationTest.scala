@@ -1,12 +1,10 @@
-import scala.concurrent.ExecutionContext.Implicits.global
-import akka.http.scaladsl.model.StatusCodes
-
 import Extensions._
+import akka.http.scaladsl.model.StatusCodes
+import models.cord.lineitems._
+import models.cord.{Carts, OrderShippingAddresses}
 import models.customer.Customers
 import models.location.Addresses
 import models.objects._
-import models.cord.lineitems._
-import models.cord.{OrderShippingAddresses, Carts}
 import models.product.{Mvp, SimpleContext}
 import models.rules.QueryStatement
 import models.shipping.ShippingMethods
@@ -16,6 +14,8 @@ import services.carts.CartTotaler
 import util.IntegrationTestBase
 import utils.db._
 import utils.seeds.Seeds.Factories
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class ShippingMethodsIntegrationTest
     extends IntegrationTestBase
@@ -44,7 +44,7 @@ class ShippingMethodsIntegrationTest
         val response = GET(s"v1/shipping-methods/${cart.referenceNumber}")
         response.status must === (StatusCodes.OK)
 
-        val methodResponse = response.as[Seq[responses.ShippingMethods.Root]].head
+        val methodResponse = response.as[Seq[responses.ShippingMethodsResponse.Root]].head
         methodResponse.id must === (shippingMethod.id)
         methodResponse.name must === (shippingMethod.adminDisplayName)
         methodResponse.price must === (shippingMethod.price)
@@ -71,7 +71,7 @@ class ShippingMethodsIntegrationTest
         val response = GET(s"v1/shipping-methods/${cart.referenceNumber}")
         response.status must === (StatusCodes.OK)
 
-        val methodResponse = response.as[Seq[responses.ShippingMethods.Root]]
+        val methodResponse = response.as[Seq[responses.ShippingMethodsResponse.Root]]
         methodResponse mustBe 'empty
       }
     }
@@ -82,7 +82,7 @@ class ShippingMethodsIntegrationTest
         val response = GET(s"v1/shipping-methods/${cart.referenceNumber}")
         response.status must === (StatusCodes.OK)
 
-        val methodResponse = response.as[Seq[responses.ShippingMethods.Root]].head
+        val methodResponse = response.as[Seq[responses.ShippingMethodsResponse.Root]].head
         methodResponse.id must === (shippingMethod.id)
         methodResponse.name must === (shippingMethod.adminDisplayName)
         methodResponse.price must === (shippingMethod.price)
@@ -95,7 +95,7 @@ class ShippingMethodsIntegrationTest
         val response = GET(s"v1/shipping-methods/${cart.referenceNumber}")
         response.status must === (StatusCodes.OK)
 
-        val methodResponse = response.as[Seq[responses.ShippingMethods.Root]].head
+        val methodResponse = response.as[Seq[responses.ShippingMethodsResponse.Root]].head
         methodResponse.id must === (shippingMethod.id)
         methodResponse.name must === (shippingMethod.adminDisplayName)
         methodResponse.price must === (shippingMethod.price)
@@ -108,7 +108,7 @@ class ShippingMethodsIntegrationTest
         val response = GET(s"v1/shipping-methods/${cart.referenceNumber}")
         response.status must === (StatusCodes.OK)
 
-        val methodResponse = response.as[Seq[responses.ShippingMethods.Root]].head
+        val methodResponse = response.as[Seq[responses.ShippingMethodsResponse.Root]].head
         methodResponse.id must === (shippingMethod.id)
         methodResponse.name must === (shippingMethod.adminDisplayName)
         methodResponse.price must === (shippingMethod.price)

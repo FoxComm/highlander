@@ -1,5 +1,6 @@
 package services
 
+import cats.implicits._
 import models.customer.Customers
 import models.location.Addresses
 import models.objects._
@@ -289,7 +290,7 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext {
                                                isDefaultShipping = false))
       _ ← * <~ OrderShippingAddresses.copyFromAddress(address = cheapAddress,
                                                       cordRef = cheapCart.refNum)
-      customer2 ← * <~ Customers.create(Factories.customer.copy(email = "foo@bar.baz"))
+      customer2 ← * <~ Customers.create(Factories.customer.copy(email = "foo@bar.baz".some))
       expensiveCart ← * <~ Carts.create(
                          Factories.cart.copy(customerId = customer2.id,
                                              referenceNumber = "CS1234-AB"))

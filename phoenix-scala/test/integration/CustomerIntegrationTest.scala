@@ -1,10 +1,8 @@
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import akka.http.scaladsl.model.StatusCodes
-
 import Extensions._
+import akka.http.scaladsl.model.StatusCodes
 import cats.implicits._
 import com.stripe.exception.CardException
 import com.stripe.model.{DeletedExternalAccount, ExternalAccount}
@@ -32,7 +30,7 @@ import payloads.PaymentPayloads._
 import responses.CreditCardsResponse.{Root ⇒ CardResponse}
 import responses.CustomerResponse
 import responses.CustomerResponse.Root
-import responses.cart.FullCart
+import responses.cord.CartResponse
 import services.carts.CartPaymentUpdater
 import services.{CreditCardManager, Result}
 import slick.driver.PostgresDriver.api._
@@ -42,6 +40,8 @@ import utils.aliases.stripe._
 import utils.db._
 import utils.jdbc._
 import utils.seeds.Seeds.Factories
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class CustomerIntegrationTest
     extends IntegrationTestBase
@@ -80,8 +80,8 @@ class CustomerIntegrationTest
     }
 
     "fails if email is already in use" in new Fixture {
-      val response =
-        POST(s"v1/customers", CreateCustomerPayload(email = customer.email, name = Some("test")))
+      val response = POST(s"v1/customers",
+                          CreateCustomerPayload(email = customer.email.head, name = Some("test")))
 
       response.status must === (StatusCodes.BadRequest)
       response.error must === (CustomerEmailNotUnique.description)
@@ -253,7 +253,7 @@ class CustomerIntegrationTest
       val response = GET(s"v1/customers/${customer.id}/cart")
       response.status must === (StatusCodes.OK)
 
-      val root = response.as[FullCart.Root]
+      val root = response.as[CartResponse]
       root.referenceNumber must === (cart.referenceNumber)
 
       Carts.findByCustomer(customer).gimme must have size 1
@@ -263,7 +263,7 @@ class CustomerIntegrationTest
       val response = GET(s"v1/customers/${customer.id}/cart")
       response.status must === (StatusCodes.OK)
 
-      val root = response.as[FullCart.Root]
+      val root = response.as[CartResponse]
 
       Carts.findByCustomer(customer).gimme must have size 1
     }
@@ -280,8 +280,7 @@ class CustomerIntegrationTest
       val payload = UpdateCustomerPayload(name = "John Doe".some,
                                           email = "newemail@example.org".some,
                                           phoneNumber = "555 555 55".some)
-      val newEmail = payload.email.getOrElse("")
-      (payload.name, newEmail, payload.phoneNumber) must !==(
+      (payload.name, payload.email, payload.phoneNumber) must !==(
           (customer.name, customer.email, customer.phoneNumber))
 
       val response = PATCH(s"v1/customers/${customer.id}", payload)
@@ -289,7 +288,7 @@ class CustomerIntegrationTest
 
       val updated = response.as[responses.CustomerResponse.Root]
       (updated.name, updated.email, updated.phoneNumber) must === (
-          (payload.name, newEmail, payload.phoneNumber))
+          (payload.name, payload.email, payload.phoneNumber))
     }
 
     "fails if email is already in use" in new Fixture {
@@ -300,7 +299,7 @@ class CustomerIntegrationTest
       newUserResponse.status must === (StatusCodes.OK)
       val root = newUserResponse.as[CustomerResponse.Root]
 
-      val payload  = UpdateCustomerPayload(email = customer.email.some)
+      val payload  = UpdateCustomerPayload(email = customer.email)
       val response = PATCH(s"v1/customers/${root.id}", payload)
 
       response.status must === (StatusCodes.BadRequest)
@@ -311,7 +310,8 @@ class CustomerIntegrationTest
   "POST /v1/customers/:customerId/activate" - {
     "fails if email is already in use by non-guest user" in new Fixture {
       val newUserResponse =
-        POST(s"v1/customers", CreateCustomerPayload(email = customer.email, isGuest = Some(true)))
+        POST(s"v1/customers",
+             CreateCustomerPayload(email = customer.email.value, isGuest = Some(true)))
 
       newUserResponse.status must === (StatusCodes.OK)
       val root = newUserResponse.as[CustomerResponse.Root]
@@ -711,7 +711,8 @@ class CustomerIntegrationTest
   trait FixtureForRanking extends CreditCardFixture {
     val (order, orderPayment, customer2) = (for {
       customer2 ← * <~ Customers.create(
-                     Factories.customer.copy(email = "second@example.org", name = Some("second")))
+                     Factories.customer.copy(email = "second@example.org".some,
+                                             name = "second".some))
       cart ← * <~ Carts.create(
                 Factories.cart.copy(customerId = customer.id, referenceNumber = "ABC-123"))
       cart2 ← * <~ Carts.create(

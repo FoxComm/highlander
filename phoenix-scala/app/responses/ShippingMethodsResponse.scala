@@ -2,7 +2,7 @@ package responses
 
 import models.shipping.ShippingMethod
 
-object ShippingMethods {
+object ShippingMethodsResponse {
   case class Root(id: Int, name: String, price: Int, isEnabled: Boolean) extends ResponseItem
 
   def build(record: ShippingMethod, isEnabled: Boolean = true): Root =
