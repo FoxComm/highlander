@@ -1,0 +1,12 @@
+---
+- name: Install Go
+  apt: name=golang-go state=latest force=yes
+  sudo: true
+
+- name: Add Glide repo
+  apt_repository: repo='ppa:masterminds/glide' update_cache=yes
+  sudo: true
+
+- name: Install Glide
+  apt: name=glide state=latest force=yes
+  
