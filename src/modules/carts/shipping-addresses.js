@@ -1,8 +1,8 @@
-import Api from '../../lib/api';
+import Api from 'lib/api';
 import { assoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
 
-import { orderSuccess } from './details';
+import { cartSuccess } from './details';
 
 const _createAction = (description, ...args) => {
   return createAction(`SHIPPING_ADDRESSES_DEUX_${description}`, ...args);
@@ -17,9 +17,9 @@ export function chooseAddress(refNum, addressId) {
     dispatch(updateAddressStart());
     return Api.patch(`/orders/${refNum}/shipping-address/${addressId}`)
       .then (
-        order => {
+        cart => {
           dispatch(updateAddressFinish());
-          dispatch(orderSuccess(order));
+          dispatch(cartSuccess(cart));
         },
         err => {
           dispatch(updateAddressFinish());
@@ -34,9 +34,9 @@ export function deleteShippingAddress(refNum) {
     dispatch(updateAddressStart());
     return Api.delete(`/orders/${refNum}/shipping-address`)
       .then(
-        order => {
+        cart => {
           dispatch(updateAddressFinish());
-          dispatch(orderSuccess(order));
+          dispatch(cartSuccess(cart));
         },
         err => {
           dispatch(updateAddressFinish());
@@ -53,7 +53,7 @@ export function patchShippingAddress(refNum, data) {
       .then(
         order => {
           dispatch(updateAddressFinish());
-          dispatch(orderSuccess(order));
+          dispatch(cartSuccess(cart));
         },
         err => {
           dispatch(updateAddressFinish());
@@ -70,7 +70,7 @@ export function createShippingAddress(refNum, data) {
       .then(
         order => {
           dispatch(updateAddressFinish());
-          dispatch(orderSuccess(order));
+          dispatch(cartSuccess(cart));
         },
         err => {
           dispatch(updateAddressFinish());

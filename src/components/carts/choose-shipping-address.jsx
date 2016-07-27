@@ -3,25 +3,25 @@ import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 
-import * as AddressActions from '../../modules/customers/addresses';
-import * as ShippingAddressActions from '../../modules/orders/shipping-addresses';
+import * as AddressActions from 'modules/customers/addresses';
+import * as ShippingAddressActions from 'modules/carts/shipping-addresses';
 
-import AddressBox from '../addresses/address-box';
-import AddressForm from '../addresses/address-form/modal';
-import ConfirmationDialog from '../modal/confirmation-dialog';
-import TileSelector from '../tile-selector/tile-selector';
+import AddressBox from 'components/addresses/address-box';
+import AddressForm from 'components/addresses/address-form/modal';
+import ConfirmationDialog from 'components/modal/confirmation-dialog';
+import TileSelector from 'components/tile-selector/tile-selector';
 
 function mapStateToProps(state, props) {
-  const customerId = _.get(props, 'order.customer.id');
+  const customerId = _.get(props, 'cart.customer.id');
   return {
     addressState: state.customers.addresses[customerId],
-    shippingAddressState: state.orders.shippingAddresses,
+    shippingAddressState: state.carts.shippingAddresses,
   };
 }
 
 function mapDispatchToProps(dispatch, props) {
-  const customerId = _.get(props, 'order.customer.id');
-  const refNum = _.get(props, 'order.referenceNumber');
+  const customerId = _.get(props, 'cart.customer.id');
+  const refNum = _.get(props, 'cart.referenceNumber');
 
   const addressActions = _.transform(AddressActions, (res, action, key) => {
     res[key] = (...args) => dispatch(action(customerId, ...args));
@@ -101,7 +101,7 @@ export default class ChooseShippingAddress extends Component {
   }
 
   get customerId() {
-    return _.get(this.props, 'order.customer.id');
+    return _.get(this.props, 'cart.customer.id');
   }
 
   get isFetching() {

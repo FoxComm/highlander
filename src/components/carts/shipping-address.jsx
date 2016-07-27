@@ -40,7 +40,7 @@ export default class CartShippingAddress extends Component {
     if (this.state.isEditing) {
       return (
         <ChooseShippingAddress
-          order={this.props.cart}
+          cart={this.props.cart}
           selectedAddress={this.props.cart.shippingAddress} />
       );
     } else {
