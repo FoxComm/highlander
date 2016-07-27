@@ -85,7 +85,7 @@ trait HttpSupport
 
     serverBinding = service.bind(ConfigFactory.parseString(s"""
            |http.interface = 127.0.0.1
-           |http.port      = ${getFreePort}
+           |http.port      = $getFreePort
         """.stripMargin)).futureValue
   }
 

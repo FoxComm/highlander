@@ -1,12 +1,11 @@
 package services
 
 import scala.collection.JavaConversions.mapAsJavaMap
-import scala.concurrent.Future
-
 import cats.data.Xor
 import cats.data.Xor.{left, right}
 import cats.implicits._
 import com.stripe.model.{DeletedExternalAccount, ExternalAccount}
+import failures.CustomerFailures.CustomerMustHaveCredentials
 import failures.{CreditCardFailures, Failures, StripeFailures}
 import models.location.Address
 import models.payment.creditcard.CreditCard
@@ -22,10 +21,18 @@ case class Stripe(apiKey: Option[String])(implicit apis: Apis, ec: EC) {
   val api: StripeApi = apis.stripe
 
   // Creates a customer in Stripe along with their first CC
-  def createCard(email: String,
+  def createCard(email: Option[String],
                  card: CreateCreditCard,
                  stripeCustomerId: Option[String],
-                 address: Address): Result[(StripeCustomer, StripeCard)] = {
+                 address: Address) = email match {
+    case Some(e) ⇒ createCardInner(e, card, stripeCustomerId, address)
+    case _       ⇒ Result.failure(CustomerMustHaveCredentials)
+  }
+
+  def createCardInner(email: String,
+                      card: CreateCreditCard,
+                      stripeCustomerId: Option[String],
+                      address: Address): Result[(StripeCustomer, StripeCard)] = {
 
     val source = Map[String, Object](
         "object"        → "card",

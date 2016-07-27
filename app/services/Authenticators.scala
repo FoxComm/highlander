@@ -41,6 +41,40 @@ object AuthPayload {
   }
 }
 
+object FailureChallenge {
+  def apply(realm: String, failures: Failures, scheme: String = "Basic"): HttpChallenge =
+    HttpChallenge(scheme = scheme,
+                  realm = realm,
+                  params = Map("error" → failures.flatten.mkString))
+}
+
+object AuthRejections {
+
+  def credentialsMissing[T](challenge: HttpChallenge): Directive1[T] = {
+    val rejection = AuthenticationFailedRejection(CredentialsMissing, challenge)
+    reject(rejection)
+  }
+
+  def credentialsRejected[T](challenge: HttpChallenge): Directive1[T] = {
+    val rejection = AuthenticationFailedRejection(CredentialsRejected, challenge)
+    reject(rejection)
+  }
+}
+
+object JwtCookie {
+  def apply(authPayload: AuthPayload): HttpCookie = HttpCookie(
+      name = "JWT",
+      value = authPayload.jwt,
+      secure = config.getOptBool("auth.cookieSecure").getOrElse(true),
+      httpOnly = true,
+      expires = config.getOptLong("auth.cookieTTL").map { ttl ⇒
+        DateTime.now + ttl * 1000
+      },
+      path = Some("/"),
+      domain = config.getOptString("auth.cookieDomain")
+  )
+}
+
 object Authenticator {
   type EmailFinder[M]  = String ⇒ DBIO[Option[M]]
   type TokenToModel[M] = Token ⇒ Failures Xor DBIO[Option[M]]
@@ -71,11 +105,7 @@ object Authenticator {
         validated ← * <~ validatePassword(user, getHashedPassword(user), userCredentials.secret)
       } yield validated).run().map {
         case Xor.Right(entity) ⇒ AuthenticationResult.success(entity)
-        case Xor.Left(f) ⇒
-          AuthenticationResult.failWithChallenge(
-              HttpChallenge(scheme = "Basic",
-                            realm = realm,
-                            params = Map("error" → f.head.description)))
+        case Xor.Left(f)       ⇒ AuthenticationResult.failWithChallenge(FailureChallenge(realm, f))
       }
     }
   }
@@ -115,20 +145,33 @@ object Authenticator {
         user           ← * <~ userDbio.mustFindOr(LoginFailed)
       } yield user).run().map {
         case Xor.Right(entity) ⇒ AuthenticationResult.success(entity)
-        case Xor.Left(f) ⇒
-          AuthenticationResult.failWithChallenge(
-              HttpChallenge(scheme = "Bearer",
-                            realm = realm,
-                            params = Map("error" → f.head.description)))
+        case Xor.Left(f)       ⇒ AuthenticationResult.failWithChallenge(FailureChallenge(realm, f))
       }
+
+    protected def jwtAuthGuest[F <: TokenToModel[Customer]](
+        realm: String)(implicit ec: EC, db: DB): Future[AuthenticationResult[Customer]] =
+      Customers
+        .create(Customer.buildGuest())
+        .fold(f ⇒ AuthenticationResult.failWithChallenge(FailureChallenge(realm, f)),
+              entity ⇒ AuthenticationResult.success(entity))
+        .run()
   }
 
   case class JwtCustomer(implicit ec: EC, db: DB) extends JwtAuth[Customer] {
-    def checkAuth(credentials: Option[String]): Future[AuthenticationResult[Customer]] = {
-      jwtAuth[TokenToModel[Customer]]("private customer routes")(credentials, customerFromToken)
-    }
+
+    import JwtCustomer._
+
+    def checkAuth(credentials: Option[String]): Future[AuthenticationResult[Customer]] =
+      credentials match {
+        case None ⇒ jwtAuthGuest[TokenToModel[Customer]](realmName)
+        case _    ⇒ jwtAuth[TokenToModel[Customer]](realmName)(credentials, customerFromToken)
+      }
 
     def validateToken(token: String) = Token.fromString(token, Identity.Customer)
+  }
+
+  object JwtCustomer {
+    val realmName = "private customer routes"
   }
 
   case class JwtStoreAdmin(implicit ec: EC, db: DB) extends JwtAuth[StoreAdmin] {
@@ -167,39 +210,52 @@ object Authenticator {
     readCookie().flatMap(_.fold(readHeader(headerName))(v ⇒ provide(Some(v))))
   }
 
-  def requireAuth[T](auth: AsyncAuthenticator[T]): AuthenticationDirective[T] = {
-    auth.readCredentials().flatMap { optCreds ⇒
-      onSuccess(auth.checkAuth(optCreds)).flatMap {
-        case Right(user) ⇒
-          provide(user)
-        case Left(challenge) ⇒
-          val cause = if (optCreds.isEmpty) CredentialsMissing else CredentialsRejected
-          reject(AuthenticationFailedRejection(cause, challenge)): Directive1[T]
-      }
+  def requireAdminAuth(auth: AsyncAuthenticator[StoreAdmin]): AuthenticationDirective[StoreAdmin] =
+    (for {
+      optCreds ← auth.readCredentials()
+      result   ← onSuccess(auth.checkAuth(optCreds))
+    } yield (result, optCreds)).tflatMap {
+      case (Right(user), _) ⇒ provide(user)
+      case (Left(challenge), Some(creds)) ⇒
+        AuthRejections.credentialsRejected[StoreAdmin](challenge)
+      case (Left(challenge), _) ⇒
+        AuthRejections.credentialsMissing[StoreAdmin](challenge)
     }
-  }
+
+  def requireCustomerAuth(auth: AsyncAuthenticator[Customer]): AuthenticationDirective[Customer] =
+    (for {
+      optCreds ← auth.readCredentials()
+      result   ← onSuccess(auth.checkAuth(optCreds))
+    } yield (result, optCreds)).tflatMap {
+      case (Right(user), _) ⇒
+        if (!user.isGuest) provide(user)
+        else {
+          AuthPayload(token = CustomerToken.fromCustomer(user)) match {
+            case Xor.Right(authPayload) ⇒
+              val header = respondWithHeader(RawHeader("JWT", authPayload.jwt))
+              val cookie = setCookie(JwtCookie(authPayload))
+              header & cookie & provide(user)
+            case Xor.Left(failures) ⇒
+              val challenge = FailureChallenge(JwtCustomer.realmName, failures)
+              AuthRejections.credentialsRejected[Customer](challenge)
+          }
+        }
+      case (Left(challenge), Some(creds)) ⇒
+        AuthRejections.credentialsRejected[Customer](challenge)
+      case (Left(challenge), _) ⇒
+        AuthRejections.credentialsMissing[Customer](challenge)
+    }
 
   def authTokenBaseResponse(token: Token,
                             response: AuthPayload ⇒ StandardRoute): Failures Xor Route = {
     for {
       authPayload ← AuthPayload(token)
     } yield
-      respondWithHeader(RawHeader("JWT", authPayload.jwt)).&(
-          setCookie(
-              HttpCookie(
-                  name = "JWT",
-                  value = authPayload.jwt,
-                  secure = config.getOptBool("auth.cookieSecure").getOrElse(true),
-                  httpOnly = true,
-                  expires = config.getOptLong("auth.cookieTTL").map { ttl ⇒
-            DateTime.now + ttl * 1000
-          },
-                  path = Some("/"),
-                  domain = config.getOptString("auth.cookieDomain")
-              ))) {
+      respondWithHeader(RawHeader("JWT", authPayload.jwt)).&(setCookie(JwtCookie(authPayload))) {
         response(authPayload)
       }
   }
+
   def authTokenLoginResponse(token: Token): Failures Xor Route = {
     authTokenBaseResponse(token, { payload ⇒
       complete(

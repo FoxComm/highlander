@@ -2,13 +2,13 @@
 	"variables": [],
 	"info": {
 		"name": "Phoenix Public",
-		"_postman_id": "f5c5c460-1f1f-8e0b-6317-eb85a12ac43f",
+		"_postman_id": "b7a0ebbb-9ede-383e-4a59-57b7cf161795",
 		"description": "",
 		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
 	},
 	"item": [
 		{
-			"name": "Login",
+			"name": "Login as Admin",
 			"request": {
 				"url": "http://localhost:9090/v1/public/login",
 				"method": "POST",
@@ -33,6 +33,56 @@
 			"response": []
 		},
 		{
+			"name": "Login as Customer",
+			"request": {
+				"url": "http://localhost:9090/v1/public/login",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"yax@yax.com\",\n    \"password\": \"password\",\n    \"kind\": \"customer\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Logout",
+			"request": {
+				"url": "http://localhost:9090/v1/public/logout",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
 			"name": "Registration",
 			"request": {
 				"url": "http://localhost:9090/v1/public/registrations/new",
@@ -51,82 +101,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\": \"foobar@example.com\",\n    \"name\": \"Foo Bar\",\n    \"password\": \"mypassword\",\n    \"isGuest\": false\n}"
-				},
-				"description": ""
-			},
-			"response": []
-		},
-		{
-			"name": "List Gift Card Types",
-			"request": {
-				"url": "http://localhost:9090/v1/public/gift-cards/types",
-				"method": "GET",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json",
-						"description": ""
-					},
-					{
-						"key": "Accept",
-						"value": "application/json",
-						"description": ""
-					}
-				],
-				"body": {
-					"mode": "formdata",
-					"formdata": []
-				},
-				"description": ""
-			},
-			"response": []
-		},
-		{
-			"name": "List Store Credit Types",
-			"request": {
-				"url": "http://localhost:9090/v1/public/store-credits/types",
-				"method": "GET",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json",
-						"description": ""
-					},
-					{
-						"key": "Accept",
-						"value": "application/json",
-						"description": ""
-					}
-				],
-				"body": {
-					"mode": "formdata",
-					"formdata": []
-				},
-				"description": ""
-			},
-			"response": []
-		},
-		{
-			"name": "List Reasons By Type",
-			"request": {
-				"url": "http://localhost:9090/v1/public/reasons/cancellation",
-				"method": "GET",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json",
-						"description": ""
-					},
-					{
-						"key": "Accept",
-						"value": "application/json",
-						"description": ""
-					}
-				],
-				"body": {
-					"mode": "formdata",
-					"formdata": []
+					"raw": "{\n    \"email\": \"yax@yax.com\",\n    \"name\": \"Yax Fuentes\",\n    \"password\": \"password\",\n    \"isGuest\": false\n}"
 				},
 				"description": ""
 			},

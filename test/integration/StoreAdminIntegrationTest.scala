@@ -23,8 +23,8 @@ class StoreAdminIntegrationTest extends IntegrationTestBase with HttpSupport wit
       response.status must === (StatusCodes.OK)
 
       val admin = response.as[StoreAdminResponse.Root]
-      admin.name must === (payload.name)
-      admin.email must === (payload.email)
+      admin.name.value must === (payload.name)
+      admin.email.value must === (payload.email)
       admin.department must === (payload.department)
       admin.state must === (StoreAdmin.Invited)
     }
@@ -47,8 +47,8 @@ class StoreAdminIntegrationTest extends IntegrationTestBase with HttpSupport wit
 
       val admin = response.as[StoreAdminResponse.Root]
       admin.id must === (storeAdmin.id)
-      admin.name must === (storeAdmin.name)
-      admin.email must === (storeAdmin.email)
+      admin.name.value must === (storeAdmin.name)
+      admin.email.value must === (storeAdmin.email)
       admin.department must === (storeAdmin.department)
       admin.phoneNumber must === (storeAdmin.phoneNumber)
       admin.state must === (storeAdmin.state)
@@ -82,8 +82,8 @@ class StoreAdminIntegrationTest extends IntegrationTestBase with HttpSupport wit
 
       updated.id must === (storeAdmin.id)
       updated.state must === (storeAdmin.state)
-      updated.email must === (newEmail)
-      updated.name must === (newName)
+      updated.email.value must === (newEmail)
+      updated.name.value must === (newName)
       updated.department must === (newDepartment)
       updated.phoneNumber must === (newPhone)
     }

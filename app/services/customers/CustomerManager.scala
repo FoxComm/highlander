@@ -104,13 +104,11 @@ object CustomerManager {
     for {
       _        ← * <~ payload.validate
       customer ← * <~ Customers.mustFindById404(customerId)
-      _ ← * <~ payload.email
-           .map(Customers.updateEmailMustBeUnique(_, customerId))
-           .getOrElse(DbResultT.unit)
+      _        ← * <~ Customers.updateEmailMustBeUnique(payload.email, customerId)
       updated ← * <~ Customers.update(
                    customer,
                    customer.copy(name = payload.name.fold(customer.name)(Some(_)),
-                                 email = payload.email.getOrElse(customer.email),
+                                 email = payload.email.orElse(customer.email),
                                  phoneNumber =
                                    payload.phoneNumber.fold(customer.phoneNumber)(Some(_))))
       _ ← * <~ LogActivity.customerUpdated(customer, updated, admin)

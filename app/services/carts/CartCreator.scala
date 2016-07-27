@@ -31,7 +31,7 @@ object CartCreator {
 
     def createCartAndGuest(email: String): DbResultT[Root] =
       for {
-        guest ← * <~ Customers.create(Customer.buildGuest(email = email))
+        guest ← * <~ Customers.create(Customer.buildGuest(email = email.some))
         cart  ← * <~ Carts.create(Cart(customerId = guest.id))
         _     ← * <~ LogActivity.cartCreated(Some(admin), root(cart, guest))
       } yield root(cart, guest)

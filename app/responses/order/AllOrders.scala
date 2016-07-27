@@ -30,7 +30,7 @@ object AllOrders {
       referenceNumber = order.referenceNumber,
       orderState = order.state,
       name = customer.flatMap(_.name),
-      email = customer.map(_.email),
+      email = customer.flatMap(_.email),
       paymentState = paymentState,
       shippingState = order.getShippingState,
       placedAt = order.placedAt,

@@ -20,7 +20,7 @@ import models.customer.Customer
 import org.json4s._
 import org.json4s.jackson._
 import services.Authenticator
-import services.Authenticator.{AsyncAuthenticator, requireAuth}
+import services.Authenticator.{AsyncAuthenticator, requireAdminAuth}
 import services.actors._
 import slick.driver.PostgresDriver.api._
 import utils.FoxConfig.{Development, Staging}
@@ -77,7 +77,7 @@ class Service(systemOverride: Option[ActorSystem] = None,
       routes.AuthRoutes.routes ~
       routes.Public.routes ~
       routes.Customer.routes ~
-      requireAuth(storeAdminAuth) { implicit admin ⇒
+      requireAdminAuth(storeAdminAuth) { implicit admin ⇒
         routes.admin.AdminRoutes.routes ~
         routes.admin.NotificationRoutes.routes ~
         routes.admin.AssignmentsRoutes.routes ~
@@ -103,7 +103,7 @@ class Service(systemOverride: Option[ActorSystem] = None,
 
   val devRoutes = {
     pathPrefix("v1") {
-      requireAuth(storeAdminAuth) { implicit admin ⇒
+      requireAdminAuth(storeAdminAuth) { implicit admin ⇒
         routes.admin.DevRoutes.routes
       }
     }

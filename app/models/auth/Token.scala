@@ -6,6 +6,7 @@ import java.security.{KeyFactory, PrivateKey, PublicKey}
 
 import scala.util.{Failure, Success, Try}
 
+import cats.implicits._
 import cats.data.Xor
 import failures.AuthFailures._
 import failures.{Failures, GeneralFailure}
@@ -45,7 +46,7 @@ object Keys {
       val spec = new X509EncodedKeySpec(keyBytes)
       KeyFactory.getInstance("RSA").generatePublic(spec)
     }.recover {
-      case e ⇒ throw new KeyLoadException(e)
+      case e ⇒ throw KeyLoadException(e)
     }
 
   private[auth] lazy val authPrivateKey: Failures Xor PrivateKey =
@@ -58,7 +59,7 @@ sealed trait Token extends Product {
   val id: Int
   val admin: Boolean
   val name: Option[String]
-  val email: String
+  val email: Option[String]
   val scopes: Seq[String]
   val ratchet: Int
   def encode: Failures Xor String = Token.encode(this)
@@ -80,6 +81,12 @@ object Token {
 
     token.name.map { name ⇒
       claims.setClaim("name", name)
+      name
+    }
+
+    token.email.map { email ⇒
+      claims.setClaim("email", email)
+      email
     }
 
     claims.setExpirationTimeMinutesInTheFuture(tokenTTL.toFloat)
@@ -152,7 +159,7 @@ object Token {
 case class AdminToken(id: Int,
                       admin: Boolean = true,
                       name: Option[String],
-                      email: String,
+                      email: Option[String],
                       scopes: Seq[String],
                       department: Option[String] = None,
                       ratchet: Int)
@@ -161,8 +168,8 @@ case class AdminToken(id: Int,
 object AdminToken {
   def fromAdmin(admin: StoreAdmin): AdminToken = {
     AdminToken(id = admin.id,
-               name = Some(admin.name),
-               email = admin.email,
+               name = admin.name.some,
+               email = admin.email.some,
                scopes = Array("admin"),
                department = admin.department,
                ratchet = admin.ratchet)
@@ -172,7 +179,7 @@ object AdminToken {
 case class CustomerToken(id: Int,
                          admin: Boolean = false,
                          name: Option[String],
-                         email: String,
+                         email: Option[String],
                          scopes: Seq[String],
                          ratchet: Int)
     extends Token

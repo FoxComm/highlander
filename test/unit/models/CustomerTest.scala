@@ -10,14 +10,6 @@ class CustomerTest extends TestBase {
   "Customer" - {
     ".validate" - {
       "when isGuest" - {
-        "fails if email is blank" in {
-          val customer = Factories.customer.copy(email = "")
-          val result   = customer.validate
-
-          result mustBe 'invalid
-          invalidValue(result) must includeFailure("email must not be empty")
-        }
-
         "fails if name contains '@' character" in {
           val customer = Factories.customer.copy(name = Some("hi@there"))
           val result   = customer.validate
@@ -36,7 +28,8 @@ class CustomerTest extends TestBase {
 
           val customers = Table(
               ("customer", "errors"),
-              (c.copy(email = ""), "email must not be empty"),
+              (c.copy(email = None), "email must not be empty"),
+              (c.copy(email = Some("")), "email must not be empty"),
               (c.copy(name = None), "name must not be empty"),
               (c.copy(name = Some("")), "name must not be empty")
           )

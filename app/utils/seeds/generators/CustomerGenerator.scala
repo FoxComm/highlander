@@ -1,7 +1,5 @@
 package utils.seeds.generators
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
 import models.customer.Customer
 import GeneratorUtils.randomString
 import utils.Passwords.hashPassword
@@ -15,7 +13,7 @@ trait CustomerGenerator {
 
   def generateCustomer(location: String): Customer = {
     val name = Name.name
-    Customer(email = generateEmail(name),
+    Customer(email = generateEmail(name).some,
              hashedPassword = hashedPassword.some,
              name = name.some,
              location = location.some)

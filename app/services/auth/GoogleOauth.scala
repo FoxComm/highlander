@@ -1,5 +1,6 @@
 package services.auth
 
+import cats.implicits._
 import libs.oauth.{GoogleOauthOptions, GoogleProvider, Oauth, UserInfo}
 import models.auth.{AdminToken, CustomerToken, Identity, Token}
 import models.customer.{Customer, Customers}
@@ -27,7 +28,7 @@ class GoogleOauthCustomer(options: GoogleOauthOptions)
     with GoogleProvider {
 
   def createByUserInfo(userInfo: UserInfo)(implicit ec: EC): DbResultT[Customer] =
-    Customers.create(Customer(email = userInfo.email, name = Some(userInfo.name)))
+    Customers.create(Customer(email = userInfo.email.some, name = userInfo.name.some))
 
   def findByEmail(email: String)(implicit ec: EC, db: DB) = Customers.findByEmail(email)
 

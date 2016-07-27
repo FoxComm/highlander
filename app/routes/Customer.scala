@@ -13,7 +13,7 @@ import payloads.CustomerPayloads.UpdateCustomerPayload
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.PaymentPayloads._
 import payloads.UpdateShippingMethod
-import services.Authenticator.{AsyncAuthenticator, requireAuth}
+import services.Authenticator.{AsyncAuthenticator, requireCustomerAuth}
 import services._
 import services.carts._
 import services.customers.CustomerManager
@@ -31,7 +31,7 @@ object Customer {
              apis: Apis) = {
 
     pathPrefix("my") {
-      requireAuth(customerAuth) { customer ⇒
+      requireCustomerAuth(customerAuth) { customer ⇒
         activityContext(customer) { implicit ac ⇒
           determineObjectContext(db, ec) { implicit ctx ⇒
             path("info") {

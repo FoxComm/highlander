@@ -35,7 +35,7 @@ trait DemoSeedHelpers extends CreditCardSeeds {
   val hashedPassword = hashPassword(randomString(10))
 
   def generateCustomer(name: String, email: String): Customer =
-    Customer(email = email,
+    Customer(email = email.some,
              hashedPassword = hashedPassword.some,
              name = name.some,
              location = "Seattle, WA".some)

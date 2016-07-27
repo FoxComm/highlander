@@ -4,6 +4,7 @@ import akka.http.scaladsl.model.StatusCodes
 import Extensions._
 import cats.implicits._
 import failures.NotFoundFailure404
+import failures.CustomerFailures.CustomerMustHaveCredentials
 import models.cord.Order.RemorseHold
 import models.cord._
 import models.customer.Customers
@@ -21,6 +22,7 @@ import payloads.UpdateShippingMethod
 import responses.GiftCardResponse
 import responses.cart.FullCart
 import responses.order.FullOrder
+import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.db._
 import utils.seeds.Seeds.Factories
@@ -58,6 +60,20 @@ class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with 
       checkout.as[FullOrder.Root].orderState must === (Order.RemorseHold)
       Orders.findOneByRefNum(refNum).gimme mustBe defined
       Carts.findOneByRefNum(refNum).gimme must not be defined
+    }
+
+    "fails if customer's credentials are empty" in new Fixture {
+      // Create cart
+      val createCart = POST("v1/orders", CreateCart(Some(customer.id)))
+      createCart.status must === (StatusCodes.OK)
+      val refNum = createCart.as[FullCart.Root].referenceNumber
+
+      // Update customer
+      Customers.activeCustomerByEmail(customer.email).map(_.email).update(None).run().futureValue
+
+      // Checkout!
+      val checkout = POST(s"v1/orders/$refNum/checkout")
+      checkout.error must === (CustomerMustHaveCredentials.description)
     }
 
     "fails if AFS is zero" in new Fixture {

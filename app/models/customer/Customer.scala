@@ -2,10 +2,10 @@ package models.customer
 
 import java.time.Instant
 
-import cats.data.ValidatedNel
+import cats.data.{Validated, ValidatedNel, Xor}
 import cats.implicits._
-import failures.CustomerFailures.CustomerEmailNotUnique
-import failures.Failure
+import failures.CustomerFailures._
+import failures._
 import models.location._
 import models.payment.creditcard.CreditCards
 import payloads.CustomerPayloads.CreateCustomerPayload
@@ -17,7 +17,7 @@ import utils.aliases._
 import utils.db._
 
 case class Customer(id: Int = 0,
-                    email: String,
+                    email: Option[String] = None,
                     hashedPassword: Option[String] = None,
                     name: Option[String] = None,
                     isDisabled: Boolean = false,
@@ -35,14 +35,19 @@ case class Customer(id: Int = 0,
 
   import Validation._
 
+  def mustHaveCredentials: Failures Xor Customer = (name, email) match {
+    case (Some(n), Some(e)) ⇒ Xor.Right(this)
+    case _                  ⇒ Xor.Left(CustomerMustHaveCredentials.single)
+  }
+
   override def validate: ValidatedNel[Failure, Customer] = {
     if (isGuest) {
-      notEmpty(email, "email").map { case _ ⇒ this }
+      Validated.Valid(this)
     } else {
       (notEmpty(name, "name") |@| notEmpty(name.getOrElse(""), "name") |@| matches(
               name.getOrElse(""),
               Customer.namePattern,
-              "name") |@| notEmpty(email, "email")).map {
+              "name") |@| notEmpty(email, "email") |@| notEmpty(email.getOrElse(""), "email")).map {
         case _ ⇒ this
       }
     }
@@ -53,8 +58,8 @@ object Customer {
 
   val namePattern = "[^@]+"
 
-  def buildGuest(email: String): Customer =
-    Customer(isGuest = true, email = email)
+  def buildGuest(email: Option[String] = None): Customer =
+    Customer(isGuest = true)
 
   def buildFromPayload(payload: CreateCustomerPayload): Customer = {
     build(email = payload.email,
@@ -77,7 +82,7 @@ object Customer {
     val optHash = password.map(hashPassword)
     Customer(id = id,
              name = name,
-             email = email,
+             email = email.some,
              hashedPassword = optHash,
              isGuest = isGuest,
              phoneNumber = phoneNumber,
@@ -95,7 +100,7 @@ class Customers(tag: Tag) extends FoxTable[Customer](tag, "customers") {
   def isBlacklisted     = column[Boolean]("is_blacklisted")
   def blacklistedBy     = column[Option[Int]]("blacklisted_by")
   def blacklistedReason = column[Option[String]]("blacklisted_reason")
-  def email             = column[String]("email")
+  def email             = column[Option[String]]("email")
   def hashedPassword    = column[Option[String]]("hashed_password")
   def name              = column[Option[String]]("name")
   def phoneNumber       = column[Option[String]]("phone_number")
@@ -184,13 +189,14 @@ object Customers
     }
   }
 
-  def activeCustomerByEmail(email: String): QuerySeq =
+  def activeCustomerByEmail(email: Option[String]): QuerySeq =
     filter(c ⇒ c.email === email && !c.isBlacklisted && !c.isDisabled && !c.isGuest)
 
-  def createEmailMustBeUnique(email: String)(implicit ec: EC): DbResultT[Unit] =
+  def createEmailMustBeUnique(email: Option[String])(implicit ec: EC): DbResultT[Unit] =
     activeCustomerByEmail(email).one.mustNotFindOr(CustomerEmailNotUnique)
 
-  def updateEmailMustBeUnique(email: String, customerId: Int)(implicit ec: EC): DbResultT[Unit] =
+  def updateEmailMustBeUnique(email: Option[String], customerId: Int)(
+      implicit ec: EC): DbResultT[Unit] =
     activeCustomerByEmail(email)
       .filterNot(_.id === customerId)
       .one

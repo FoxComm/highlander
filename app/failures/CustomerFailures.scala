@@ -2,6 +2,11 @@ package failures
 
 object CustomerFailures {
 
+  case object CustomerMustHaveCredentials extends Failure {
+    override def description: String =
+      "Customer must have credentials (email, name) set for this operation"
+  }
+
   case object CustomerEmailNotUnique extends Failure {
     override def description = "The email address you entered is already in use"
   }

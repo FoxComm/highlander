@@ -56,6 +56,7 @@ case class Checkout(
   def checkout: DbResultT[FullOrder.Root] =
     for {
       customer  ← * <~ Customers.mustFindById404(cart.customerId)
+      _         ← * <~ customer.mustHaveCredentials
       _         ← * <~ activePromos
       _         ← * <~ cartValidator.validate(isCheckout = false, fatalWarnings = true)
       _         ← * <~ reserveInMiddleWarehouse

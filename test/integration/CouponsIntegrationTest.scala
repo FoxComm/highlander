@@ -278,10 +278,10 @@ class CouponsIntegrationTest
                                           willBeActiveCode,
                                           authedStoreAdmin)
       firstCustomer ← * <~ Customers.create(
-                         Factories.customer.copy(email = "first@example.org",
+                         Factories.customer.copy(email = Some("first@example.org"),
                                                  name = Some("first")))
       otherCustomer ← * <~ Customers.create(
-                         Factories.customer.copy(email = "second@example.org",
+                         Factories.customer.copy(email = Some("second@example.org"),
                                                  name = Some("second")))
       cart ← * <~ Carts.create(Factories.cart.copy(customerId = firstCustomer.id))
       cartForOrder ← * <~ Carts.create(

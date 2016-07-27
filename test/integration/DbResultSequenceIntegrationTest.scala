@@ -1,5 +1,6 @@
 import scala.concurrent.ExecutionContext.Implicits.global
 
+import cats.implicits._
 import failures.DatabaseFailure
 import models.customer.{Customer, Customers}
 import util.IntegrationTestBase
@@ -11,19 +12,19 @@ class DbResultSequenceIntegrationTest extends IntegrationTestBase {
   "DbResultT#sequence" - {
     "must convert Seq[DbResultT[A]] into DbResultT[Seq[A]]" in {
       val sux: Seq[DbResultT[Customer]] = Seq(1, 2, 3).map { i ⇒
-        Customers.create(Factories.customer.copy(email = s"$i"))
+        Customers.create(Factories.customer.copy(email = s"$i".some))
       }
       val cool: DbResultT[Seq[Customer]] = DbResultT.sequence(sux)
       cool.gimme
 
       val allCustomers = Customers.gimme
       allCustomers must have size 3
-      allCustomers.map(_.email) must contain allOf ("1", "2", "3")
+      allCustomers.flatMap(_.email) must contain allOf ("1", "2", "3")
     }
 
     "must rollback transaction on errors" in {
       val sux: Seq[DbResultT[Customer]] = Seq(1, 2, 3).map { i ⇒
-        Customers.create(Factories.customer.copy(email = "nope"))
+        Customers.create(Factories.customer.copy(email = "nope".some))
       }
       val cool: DbResultT[Seq[Customer]] = DbResultT.sequence(sux)
 
@@ -35,7 +36,7 @@ class DbResultSequenceIntegrationTest extends IntegrationTestBase {
 
     "must collect all errors" in {
       val sux: Seq[DbResultT[Customer]] = Seq(1, 2, 3).map { i ⇒
-        Customers.create(Factories.customer.copy(email = "boom"))
+        Customers.create(Factories.customer.copy(email = "boom".some))
       }
       val cool: DbResultT[Seq[Customer]] = DbResultT.sequence(sux)
 
@@ -47,7 +48,7 @@ class DbResultSequenceIntegrationTest extends IntegrationTestBase {
 
       val allCustomers = Customers.gimme
       allCustomers must have size 1
-      allCustomers.head.email must === ("boom")
+      allCustomers.head.email.value must === ("boom")
     }
   }
 }
