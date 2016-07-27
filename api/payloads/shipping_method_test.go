@@ -12,10 +12,15 @@ import (
 
 type ShippingMethodPayloadTestSuite struct {
 	suite.Suite
+	assert *assert.Assertions
 }
 
 func TestShippingMethodPayloadSuite(t *testing.T) {
 	suite.Run(t, new(ShippingMethodPayloadTestSuite))
+}
+
+func (suite *ShippingMethodPayloadTestSuite) SetupSuite() {
+	suite.assert = assert.New(suite.T())
 }
 
 func (suite *ShippingMethodPayloadTestSuite) Test_ShippingMethodDecoding_RunsNormally() {
@@ -32,7 +37,7 @@ func (suite *ShippingMethodPayloadTestSuite) Test_ShippingMethodDecoding_RunsNor
 	err := decoder.Decode(&payload)
 
 	//assert
-	assert.Nil(suite.T(), err)
-	assert.Equal(suite.T(), carrierID, payload.CarrierID)
-	assert.Equal(suite.T(), name, payload.Name)
+	suite.assert.Nil(err)
+	suite.assert.Equal(carrierID, payload.CarrierID)
+	suite.assert.Equal(name, payload.Name)
 }

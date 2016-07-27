@@ -14,10 +14,15 @@ import (
 
 type CarrierResponseTestSuite struct {
 	suite.Suite
+	assert *assert.Assertions
 }
 
 func TestCarrierResponseSuite(t *testing.T) {
 	suite.Run(t, new(CarrierResponseTestSuite))
+}
+
+func (suite *CarrierResponseTestSuite) SetupSuite() {
+	suite.assert = assert.New(suite.T())
 }
 
 func (suite *CarrierResponseTestSuite) TestNewCarrierFromModel() {
@@ -29,9 +34,9 @@ func (suite *CarrierResponseTestSuite) TestNewCarrierFromModel() {
 	response := NewCarrierFromModel(model)
 
 	//assert
-	assert.Equal(suite.T(), id, response.ID)
-	assert.Equal(suite.T(), name, response.Name)
-	assert.Equal(suite.T(), trackingTemplate, response.TrackingTemplate)
+	suite.assert.Equal(id, response.ID)
+	suite.assert.Equal(name, response.Name)
+	suite.assert.Equal(trackingTemplate, response.TrackingTemplate)
 }
 
 func (suite *CarrierResponseTestSuite) TestCarrierEncoding() {
@@ -47,7 +52,6 @@ func (suite *CarrierResponseTestSuite) TestCarrierEncoding() {
 	actual := writer.String()
 
 	//assert
-	assert.Nil(suite.T(), err)
-	fmt.Println(expected, actual)
-	assert.Equal(suite.T(), expected, strings.TrimSpace(actual))
+	suite.assert.Nil(err)
+	suite.assert.Equal(expected, strings.TrimSpace(actual))
 }

@@ -10,10 +10,15 @@ import (
 
 type CarrierModelTestSuite struct {
 	suite.Suite
+	assert *assert.Assertions
 }
 
 func TestCarrierModelSuite(t *testing.T) {
-	suite.Run(t, new(suite.Suite))
+	suite.Run(t, new(CarrierModelTestSuite))
+}
+
+func (suite *CarrierModelTestSuite) SetupSuite() {
+	suite.assert = assert.New(suite.T())
 }
 
 func (suite *CarrierModelTestSuite) TestNewCarrierFromPayload() {
@@ -25,6 +30,6 @@ func (suite *CarrierModelTestSuite) TestNewCarrierFromPayload() {
 	model := NewCarrierFromPayload(payload)
 
 	//assert
-	assert.Equal(suite.T(), name, model.Name)
-	assert.Equal(suite.T(), trackingTemplate, model.TrackingTemplate)
+	suite.assert.Equal(name, model.Name)
+	suite.assert.Equal(trackingTemplate, model.TrackingTemplate)
 }
