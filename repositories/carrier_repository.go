@@ -52,11 +52,23 @@ func (repository *carrierRepository) CreateCarrier(carrier *models.Carrier) (uin
 }
 
 func (repository *carrierRepository) UpdateCarrier(carrier *models.Carrier) error {
-	return repository.db.Model(&carrier).Updates(carrier).Error
+	result := repository.db.Model(&carrier).Updates(carrier)
+
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+
+	return result.Error
 }
 
 func (repository *carrierRepository) DeleteCarrier(id uint) error {
 	carrier := models.Carrier{ID: id}
 
-	return repository.db.Delete(&carrier).Error
+	result := repository.db.Delete(&carrier)
+
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+
+	return result.Error
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/FoxComm/middlewarehouse/models"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -28,9 +29,6 @@ func (suite *CarrierRepositoryTestSuite) SetupTest() {
 }
 
 func (suite *CarrierRepositoryTestSuite) TearDownTest() {
-	// we make sure that all expectations were met
-	assert.Nil(suite.T(), suite.mock.ExpectationsWereMet())
-
 	suite.db.Close()
 }
 
@@ -61,9 +59,31 @@ func (suite *CarrierRepositoryTestSuite) Test_GetCarriers_ReturnsCarrierModels()
 	suite.assert.Equal(carrier1.TrackingTemplate, carriers[0].TrackingTemplate)
 	suite.assert.Equal(carrier2.Name, carriers[1].Name)
 	suite.assert.Equal(carrier2.TrackingTemplate, carriers[1].TrackingTemplate)
+
+	//make sure that all expectations were met
+	suite.assert.Nil(suite.mock.ExpectationsWereMet())
 }
 
-func (suite *CarrierRepositoryTestSuite) Test_GetCarrierById_ReturnsCarrierModel() {
+func (suite *CarrierRepositoryTestSuite) Test_GetCarrierByID_NotFound_ReturnsNotFoundError() {
+	//arrange
+	rows := sqlmock.
+		NewRows([]string{"id", "name", "tracking_template"})
+	suite.mock.
+		ExpectQuery(`SELECT (.+) FROM "carriers" WHERE \("id" = \?\) (.+)`).
+		WithArgs(1).
+		WillReturnRows(rows)
+
+	//act
+	_, err := suite.repository.GetCarrierByID(1)
+
+	//assert
+	suite.assert.Equal(gorm.ErrRecordNotFound, err)
+
+	//make sure that all expectations were met
+	suite.assert.Nil(suite.mock.ExpectationsWereMet())
+}
+
+func (suite *CarrierRepositoryTestSuite) Test_GetCarrierById_Found_ReturnsCarrierModel() {
 	//arrange
 	carrier1 := &models.Carrier{
 		Name:             "UPS",
@@ -83,7 +103,10 @@ func (suite *CarrierRepositoryTestSuite) Test_GetCarrierById_ReturnsCarrierModel
 	//assert
 	suite.assert.Nil(err)
 	suite.assert.Equal(carrier1.Name, carrier.Name)
-	suite.assert.Equal(carrier1.Name, carrier.Name)
+	suite.assert.Equal(carrier1.TrackingTemplate, carrier.TrackingTemplate)
+
+	//make sure that all expectations were met
+	suite.assert.Nil(suite.mock.ExpectationsWereMet())
 }
 
 func (suite *CarrierRepositoryTestSuite) Test_CreaterCarrier_ReturnsIdOfCreatedRecord() {
@@ -100,9 +123,29 @@ func (suite *CarrierRepositoryTestSuite) Test_CreaterCarrier_ReturnsIdOfCreatedR
 	//assert
 	suite.assert.Equal(uint(1), id)
 	suite.assert.Nil(err)
+
+	//make sure that all expectations were met
+	suite.assert.Nil(suite.mock.ExpectationsWereMet())
 }
 
-func (suite *CarrierRepositoryTestSuite) Test_UpdateCarrier_ReturnsNoError() {
+func (suite *CarrierRepositoryTestSuite) Test_UpdateCarrier_NotFound_ReturnsNotFoundError() {
+	//arrange
+	name, trackingTemplate := "UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"
+	suite.mock.
+		ExpectExec(`UPDATE "carriers"`).
+		WillReturnResult(sqlmock.NewResult(1, 0))
+
+	//act
+	err := suite.repository.UpdateCarrier(&models.Carrier{ID: 1, Name: name, TrackingTemplate: trackingTemplate})
+
+	//assert
+	suite.assert.Equal(gorm.ErrRecordNotFound, err)
+
+	//make sure that all expectations were met
+	suite.assert.Nil(suite.mock.ExpectationsWereMet())
+}
+
+func (suite *CarrierRepositoryTestSuite) Test_UpdateCarrier_Found_ReturnsNoError() {
 	//arrange
 	name, trackingTemplate := "UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"
 	suite.mock.
@@ -114,9 +157,29 @@ func (suite *CarrierRepositoryTestSuite) Test_UpdateCarrier_ReturnsNoError() {
 
 	//assert
 	suite.assert.Nil(err)
+
+	//make sure that all expectations were met
+	suite.assert.Nil(suite.mock.ExpectationsWereMet())
 }
 
-func (suite *CarrierRepositoryTestSuite) Test_DeleteCarrier_ReturnsNoError() {
+func (suite *CarrierRepositoryTestSuite) Test_DeleteCarrier_NotFound_ReturnsNotFoundError() {
+	//arrange
+	suite.mock.
+		ExpectExec(`DELETE FROM "carriers"`).
+		WithArgs(1).
+		WillReturnResult(sqlmock.NewResult(1, 0))
+
+	//act
+	err := suite.repository.DeleteCarrier(1)
+
+	//assert
+	suite.assert.Equal(gorm.ErrRecordNotFound, err)
+
+	//make sure that all expectations were met
+	suite.assert.Nil(suite.mock.ExpectationsWereMet())
+}
+
+func (suite *CarrierRepositoryTestSuite) Test_DeleteCarrier_Found_ReturnsNoError() {
 	//arrange
 	suite.mock.
 		ExpectExec(`DELETE FROM "carriers"`).
@@ -128,4 +191,7 @@ func (suite *CarrierRepositoryTestSuite) Test_DeleteCarrier_ReturnsNoError() {
 
 	//assert
 	suite.assert.Nil(err)
+
+	//make sure that all expectations were met
+	suite.assert.Nil(suite.mock.ExpectationsWereMet())
 }
