@@ -15,11 +15,10 @@ type CarrierPayloadTestSuite struct {
 }
 
 func TestCarrierPayloadSuite(t *testing.T) {
-	fmt.Println("TEST")
 	suite.Run(t, new(CarrierPayloadTestSuite))
 }
 
-func (suite *CarrierPayloadTestSuite) TestCarrierDecoding() {
+func (suite *CarrierPayloadTestSuite) Test_CarrierDecoding_RunsNormally() {
 	//arrange
 	name, trackingTemplate := "UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"
 	raw := fmt.Sprintf(`{
