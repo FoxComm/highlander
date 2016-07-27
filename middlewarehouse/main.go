@@ -7,12 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func main() {
-	engine := gin.Default()
+func getEngine() *gin.Engine {
 	db, _ := config.DefaultConnection()
-	routes.Run(routes.RouterConfiguration{
-		Engine:   engine,
-		Endpoint: ":9292",
-		Routes:   routes.GetRoutes(db),
-	})
+
+	configuration := routes.RouterConfiguration{
+		Engine: gin.Default(),
+		Routes: routes.GetRoutes(db),
+	}
+
+	return routes.SetUp(configuration)
+}
+
+func main() {
+	getEngine().Run(":9292")
 }

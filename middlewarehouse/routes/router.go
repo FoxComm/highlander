@@ -6,15 +6,17 @@ import (
 )
 
 type RouterConfiguration struct {
-	Engine   *gin.Engine
-	Endpoint string
-	Routes   map[string]controllers.IController
+	Engine *gin.Engine
+	Routes map[string]controllers.IController
 }
 
-func Run(configuration RouterConfiguration) {
+func SetUp(configuration RouterConfiguration) *gin.Engine {
+	// prefix all routes with "/v1"
+	r := configuration.Engine.Group("/v1")
+
 	for route, controller := range configuration.Routes {
-		controller.SetUp(configuration.Engine.Group(route))
+		controller.SetUp(r.Group(route))
 	}
 
-	configuration.Engine.Run(configuration.Endpoint)
+	return configuration.Engine
 }

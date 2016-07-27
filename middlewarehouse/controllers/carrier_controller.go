@@ -77,7 +77,7 @@ func (controller *carrierController) CreateCarrier() gin.HandlerFunc {
 		if id, err := controller.service.CreateCarrier(model); err == nil {
 			context.JSON(http.StatusCreated, id)
 		} else {
-			context.AbortWithError(http.StatusBadRequest, err)
+			handleServiceError(context, err)
 		}
 	}
 }

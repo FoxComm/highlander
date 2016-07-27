@@ -13,8 +13,8 @@ func GetRoutes(db *gorm.DB) map[string]controllers.IController {
 	carrierService := services.NewCarrierService(db)
 
 	return map[string]controllers.IController{
-		"/v1/ping":      controllers.NewPingController(),
-		"/skus":         controllers.NewSKUController(),
+		"/ping":         controllers.NewPingController(),
+		"/summary":      controllers.NewSummaryController(summaryService),
 		"/stock-items":  controllers.NewStockItemController(inventoryService),
 		"/reservations": controllers.NewReservationController(inventoryService),
 		"/carriers":     controllers.NewCarrierController(carrierService),

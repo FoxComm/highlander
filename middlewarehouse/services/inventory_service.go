@@ -79,7 +79,7 @@ func (service *inventoryService) IncrementStockItemUnits(id uint, units []*model
 		}
 	}
 
-	err := service.summaryService.UpdateStockItemSummary(id, len(units), statusChange{to: "onHand"}, txn)
+	err := service.summaryService.UpdateStockItemSummary(id, len(units), StatusChange{to: "onHand"}, txn)
 	if err != nil {
 		txn.Rollback()
 		return err
@@ -109,7 +109,7 @@ func (service *inventoryService) DecrementStockItemUnits(id uint, qty int) error
 		}
 	}
 
-	err = service.summaryService.UpdateStockItemSummary(id, -1*qty, statusChange{to: "onHand"}, txn)
+	err = service.summaryService.UpdateStockItemSummary(id, -1*qty, StatusChange{to: "onHand"}, txn)
 	if err != nil {
 		txn.Rollback()
 		return err
@@ -166,7 +166,7 @@ func (service *inventoryService) ReserveItems(refNum string, skus map[string]int
 
 	for id, qty := range stockItemsMap {
 		err := service.summaryService.
-			UpdateStockItemSummary(id, qty, statusChange{from: "onHand", to: "onHold"}, txn)
+			UpdateStockItemSummary(id, qty, StatusChange{from: "onHand", to: "onHold"}, txn)
 		if err != nil {
 			txn.Rollback()
 			return err
@@ -216,7 +216,7 @@ func (service *inventoryService) ReleaseItems(refNum string) error {
 
 	for id, qty := range stockItemsMap {
 		err := service.summaryService.
-			UpdateStockItemSummary(id, qty, statusChange{from: "onHold", to: "onHand"}, txn)
+			UpdateStockItemSummary(id, qty, StatusChange{from: "onHold", to: "onHand"}, txn)
 		if err != nil {
 			txn.Rollback()
 			return err

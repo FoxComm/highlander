@@ -1,0 +1,50 @@
+package controllers
+
+import (
+	"github.com/FoxComm/middlewarehouse/api/responses"
+	"github.com/FoxComm/middlewarehouse/services"
+
+	"github.com/gin-gonic/gin"
+)
+
+type summaryController struct {
+	summaryService services.ISummaryService
+}
+
+func NewSummaryController(service services.ISummaryService) IController {
+	return &summaryController{summaryService: service}
+}
+
+func (controller *summaryController) SetUp(router gin.IRouter) {
+	router.GET("/", controller.GetSummaries())
+	router.GET("/:code", controller.GetSummaryBySKU())
+}
+
+func (controller *summaryController) GetSummaries() gin.HandlerFunc {
+	return func(context *gin.Context) {
+		summary, err := controller.summaryService.GetSummaries()
+		if err != nil {
+			handleServiceError(context, err)
+			return
+		}
+
+		resp := responses.StockItemsSummaryFromModel(summary)
+
+		context.JSON(200, resp)
+	}
+}
+
+func (controller *summaryController) GetSummaryBySKU() gin.HandlerFunc {
+	return func(context *gin.Context) {
+		skuCode := context.Params.ByName("code")
+		summary, err := controller.summaryService.GetSummaryBySKU(skuCode)
+		if err != nil {
+			handleServiceError(context, err)
+			return
+		}
+
+		resp := responses.StockItemSummaryFromModel(summary)
+
+		context.JSON(200, resp)
+	}
+}
