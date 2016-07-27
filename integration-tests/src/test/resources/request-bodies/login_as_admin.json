@@ -1,0 +1,5 @@
+{
+	"email": "${email}",
+	"password": "${password}",
+	"kind": "admin"
+}
