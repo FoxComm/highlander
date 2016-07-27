@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/FoxComm/middlewarehouse/api/payloads"
 	"github.com/FoxComm/middlewarehouse/api/responses"
 	"github.com/FoxComm/middlewarehouse/controllers/mocks"
 	"github.com/FoxComm/middlewarehouse/models"
@@ -110,7 +111,7 @@ func (suite *carrierControllerTestSuite) Test_GetCarrierById_Found() {
 
 func (suite *carrierControllerTestSuite) Test_CreateCarrier() {
 	//arrange
-	carrier := &models.Carrier{Name: "UPS", TrackingTemplate: "http://ups.com"}
+	carrier := &payloads.Carrier{Name: "UPS", TrackingTemplate: "http://ups.com"}
 	suite.service.On("CreateCarrier").Return(uint(1), nil).Once()
 
 	//act
@@ -125,12 +126,12 @@ func (suite *carrierControllerTestSuite) Test_CreateCarrier() {
 
 func (suite *carrierControllerTestSuite) Test_UpdateCarrier_NotFound() {
 	//arrange
-	updated := &models.Carrier{Name: "DHL", TrackingTemplate: "http://dhl.com"}
+	carrier := &payloads.Carrier{Name: "DHL", TrackingTemplate: "http://dhl.com"}
 	suite.service.On("UpdateCarrier").Return(false, gorm.ErrRecordNotFound).Once()
 
 	//act
 	result := responses.Error{}
-	response := suite.Put("/carriers/1", updated, &result)
+	response := suite.Put("/carriers/1", carrier, &result)
 
 	//assert
 	suite.assert.Equal(http.StatusNotFound, response.Code)
@@ -140,7 +141,7 @@ func (suite *carrierControllerTestSuite) Test_UpdateCarrier_NotFound() {
 
 func (suite *carrierControllerTestSuite) Test_UpdateCarrier_Found() {
 	//arrange
-	carrier := &models.Carrier{Name: "UPS", TrackingTemplate: "http://ups.com"}
+	carrier := &payloads.Carrier{Name: "UPS", TrackingTemplate: "http://ups.com"}
 	suite.service.On("UpdateCarrier").Return(true).Once()
 
 	//act

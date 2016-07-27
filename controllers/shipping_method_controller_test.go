@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/FoxComm/middlewarehouse/api/payloads"
 	"github.com/FoxComm/middlewarehouse/api/responses"
 	"github.com/FoxComm/middlewarehouse/controllers/mocks"
 	"github.com/FoxComm/middlewarehouse/models"
@@ -110,7 +111,7 @@ func (suite *shippingMethodControllerTestSuite) Test_GetShippingMethodById_Found
 
 func (suite *shippingMethodControllerTestSuite) Test_CreateShippingMethod() {
 	//arrange
-	shippingMethod := &models.ShippingMethod{CarrierID: uint(1), Name: "UPS 2 days ground"}
+	shippingMethod := &payloads.ShippingMethod{CarrierID: uint(1), Name: "UPS 2 days ground"}
 	suite.service.On("CreateShippingMethod").Return(uint(1), nil).Once()
 
 	//act
@@ -125,12 +126,12 @@ func (suite *shippingMethodControllerTestSuite) Test_CreateShippingMethod() {
 
 func (suite *shippingMethodControllerTestSuite) Test_UpdateShippingMethod_NotFound() {
 	//arrange
-	updated := &models.ShippingMethod{CarrierID: uint(1), Name: "UPS 2 days ground"}
+	shippingMethod := &payloads.ShippingMethod{CarrierID: uint(1), Name: "UPS 2 days ground"}
 	suite.service.On("UpdateShippingMethod").Return(false, gorm.ErrRecordNotFound).Once()
 
 	//act
 	result := responses.Error{}
-	response := suite.Put("/shippingMethods/1", updated, &result)
+	response := suite.Put("/shippingMethods/1", shippingMethod, &result)
 
 	//assert
 	suite.assert.Equal(http.StatusNotFound, response.Code)
@@ -140,7 +141,7 @@ func (suite *shippingMethodControllerTestSuite) Test_UpdateShippingMethod_NotFou
 
 func (suite *shippingMethodControllerTestSuite) Test_UpdateShippingMethod_Found() {
 	//arrange
-	shippingMethod := &models.ShippingMethod{CarrierID: uint(1), Name: "UPS 2 days ground"}
+	shippingMethod := &payloads.ShippingMethod{CarrierID: uint(1), Name: "UPS 2 days ground"}
 	suite.service.On("UpdateShippingMethod").Return(true).Once()
 
 	//act
