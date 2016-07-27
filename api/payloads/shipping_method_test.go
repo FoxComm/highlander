@@ -10,15 +10,15 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-type ShipmentPayloadTestSuite struct {
+type ShippingMethodPayloadTestSuite struct {
 	suite.Suite
 }
 
-func TestShipmentMethodPayloadSuite(t *testing.T) {
-	suite.Run(t, new(ShipmentPayloadTestSuite))
+func TestShippingMethodPayloadSuite(t *testing.T) {
+	suite.Run(t, new(ShippingMethodPayloadTestSuite))
 }
 
-func (suite *ShipmentPayloadTestSuite) Test_ShipmentMethodDecoding_RunsNormally() {
+func (suite *ShippingMethodPayloadTestSuite) Test_ShippingMethodDecoding_RunsNormally() {
 	//arrange
 	carrierID, name := uint(1), "UPS 2 days ground"
 	raw := fmt.Sprintf(`{
@@ -28,7 +28,7 @@ func (suite *ShipmentPayloadTestSuite) Test_ShipmentMethodDecoding_RunsNormally(
 	decoder := json.NewDecoder(strings.NewReader(raw))
 
 	//act
-	var payload ShipmentMethod
+	var payload ShippingMethod
 	err := decoder.Decode(&payload)
 
 	//assert

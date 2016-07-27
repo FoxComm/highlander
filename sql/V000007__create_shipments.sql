@@ -1,6 +1,6 @@
 create table shipments (
   id serial primary key,
-  method_id integer not null references shipment_methods(id) on update restrict on delete restrict,
+  method_id integer not null references shipping_methods(id) on update restrict on delete restrict,
   reference_number generic_string not null,
   state shipment_state,
   shipment_date generic_timestamp_null,

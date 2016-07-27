@@ -1,6 +1,6 @@
 package payloads
 
-type ShipmentMethod struct {
+type ShippingMethod struct {
 	CarrierID uint   `json:"carrierId" binding:"required"`
 	Name      string `json:"name" binding:"required"`
 }
