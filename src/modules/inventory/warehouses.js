@@ -3,57 +3,41 @@ import _ from 'lodash';
 import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
 import { assoc } from 'sprout-data';
+import createAsyncActions from '../async-utils';
 
-const warehousesFetchSummaryStart = createAction('WAREHOUSES_FETCH_SUMMARY_START');
-const warehousesFetchSummarySuccess = createAction('WAREHOUSES_FETCH_SUMMARY_SUCCESS',
-                                                   (sku, payload) => [sku, payload]);
-const warehousesFetchSummaryFailed = createAction('WAREHOUSES_FETCH_SUMMARY_ERROR', (sku, err) => [sku, err]);
-const warehousesFetchDetailsStart = createAction('WAREHOUSES_FETCH_DETAILS_START');
-const warehousesFetchDetailsSuccess = createAction('WAREHOUSES_FETCH_DETAILS_SUCCESS',
-                                                   (sku, warehouseId, payload) => [sku, warehouseId, payload]);
-const warehousesFetchDetailsFailed = createAction('WAREHOUSES_FETCH_DETAILS_ERROR', (sku, err) => [sku, err]);
+const _fetchSummary = createAsyncActions(
+  'inventory.sku-summary',
+  (skuCode) => Api.get(`/inventory/skus/${skuCode}/summary`),
+  (...args) => [...args]
+);
+export const fetchSummary = _fetchSummary.perform;
 
-export function fetchSummary(skuCode) {
-  return dispatch => {
-    dispatch(warehousesFetchSummaryStart(skuCode));
-    Api.get(`/inventory/skus/${skuCode}/summary`).then(
-      data => dispatch(warehousesFetchSummarySuccess(skuCode, data)),
-      err => dispatch(warehousesFetchSummaryFailed(err))
-    );
-  };
-}
-
-export function fetchDetails(skuCode, warehouseId) {
-  return dispatch => {
-    dispatch(warehousesFetchDetailsStart(skuCode));
-    Api.get(`/inventory/skus/${skuCode}/${warehouseId}`).then(
-      data => dispatch(warehousesFetchDetailsSuccess(skuCode, warehouseId, data)),
-      err => dispatch(warehousesFetchDetailsFailed(err))
-    );
-  };
-}
+const _fetchDetails = createAsyncActions(
+  'inventory.sku-details',
+  (skuCode, warehouseId) => {
+    return Api.get(`/inventory/skus/${skuCode}/${warehouseId}`);
+  },
+  (...args) => [...args]
+);
+export const fetchDetails = _fetchDetails.perform;
 
 function parseSummaries(summaries) {
-  const data = _.map(summaries, (summary) => {
-    const result = {
+  return _.map(summaries, (summary) => {
+    return {
       id: _.get(summary, ['warehouse', 'id']),
       name: _.get(summary, ['warehouse', 'name']),
       ...summary.counts
     };
-    return result;
   });
-  return data;
 }
 
 function parseDetails(payload) {
-  const data = _.map(payload, (entry) => {
-    const result = {
+  return _.map(payload, (entry) => {
+    return {
       skuType: entry.skuType,
       ...entry.counts
     };
-    return result;
   });
-  return data;
 }
 
 function convertToTableData(data) {
@@ -68,42 +52,22 @@ function convertToTableData(data) {
 const initialState = {};
 
 const reducer = createReducer({
-  [warehousesFetchSummaryStart]: (state, sku) => {
-    return assoc(state, [sku, 'summary', 'isFetching'], true);
-  },
-  [warehousesFetchSummarySuccess]: (state, [sku, payload]) => {
+  [_fetchSummary.succeeded]: (state, [payload, sku]) => {
+    if (!_.isArray(payload)) payload = [payload];
+
     const data = parseSummaries(payload);
     const tableData = convertToTableData(data);
     return assoc(state,
-      [sku, 'summary', 'isFetching'], false,
-      [sku, 'summary', 'failed'], false,
       [sku, 'summary', 'results'], tableData
     );
   },
-  [warehousesFetchDetailsStart]: (state, sku) => {
-    return assoc(state, [sku, 'details', 'isFetching'], true);
-  },
-  [warehousesFetchDetailsSuccess]: (state, [sku, warehouseId, payload]) => {
+  [_fetchDetails.succeeded]: (state, [payload, sku, warehouseId]) => {
     const data = parseDetails(payload);
     const tableData = convertToTableData(data);
     return assoc(state,
       [sku, 'details', 'isFetching'], false,
       [sku, 'details', 'failed'], false,
       [sku, warehouseId, 'results'], tableData
-    );
-  },
-  [warehousesFetchSummaryFailed]: (state, [sku, err]) => {
-    console.error(err);
-    return assoc(state,
-      [sku, 'summary', 'isFetching'], false,
-      [sku, 'summary', 'failed'], true
-    );
-  },
-  [warehousesFetchDetailsFailed]: (state, [sku, err]) => {
-    console.error(err);
-    return assoc(state,
-      [sku, 'details', 'isFetching'], false,
-      [sku, 'details', 'failed'], true
     );
   },
 }, initialState);
