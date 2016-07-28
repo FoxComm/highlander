@@ -29,6 +29,5 @@ func (suite *pingControllerTestSuite) SetupSuite() {
 func (suite *pingControllerTestSuite) Test_Ping() {
 	res := suite.Get("/ping/")
 
-	suite.assert.Equal(http.StatusOK, res.Code)
-	suite.assert.Equal("{}\n", res.Body.String())
+	suite.assert.Equal(http.StatusNoContent, res.Code)
 }

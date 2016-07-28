@@ -46,7 +46,7 @@ func (controller *reservationController) Reserve() gin.HandlerFunc {
 			return
 		}
 
-		context.JSON(http.StatusOK, gin.H{})
+		context.Status(http.StatusNoContent)
 	}
 }
 
@@ -62,6 +62,6 @@ func (controller *reservationController) Cancel() gin.HandlerFunc {
 			return
 		}
 
-		context.JSON(http.StatusOK, gin.H{})
+		context.Status(http.StatusNoContent)
 	}
 }

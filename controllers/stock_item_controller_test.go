@@ -130,7 +130,7 @@ func (suite *stockItemControllerTestSuite) Test_IncrementStockItemUnits() {
 	jsonStr := `{"qty": 1,"unit_cost": 12000,"status": "onHand"}`
 	res := suite.Patch("/stock-items/1/increment", jsonStr)
 
-	suite.assert.Equal(http.StatusCreated, res.Code)
+	suite.assert.Equal(http.StatusNoContent, res.Code)
 	suite.service.AssertExpectations(suite.T())
 }
 
@@ -154,7 +154,7 @@ func (suite *stockItemControllerTestSuite) Test_DecrementStockItemUnits() {
 	jsonStr := `{"qty": 1}`
 	res := suite.Patch("/stock-items/1/decrement", jsonStr)
 
-	suite.assert.Equal(http.StatusCreated, res.Code)
+	suite.assert.Equal(http.StatusNoContent, res.Code)
 	suite.service.AssertExpectations(suite.T())
 }
 

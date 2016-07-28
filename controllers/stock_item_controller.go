@@ -81,9 +81,7 @@ func (controller *stockItemController) CreateStockItem() gin.HandlerFunc {
 			return
 		}
 
-		resp := responses.NewStockItemFromModel(stockItem)
-
-		context.JSON(http.StatusCreated, resp)
+		context.JSON(http.StatusCreated, responses.NewStockItemFromModel(stockItem))
 	}
 }
 
@@ -111,7 +109,7 @@ func (controller *stockItemController) IncrementStockItemUnits() gin.HandlerFunc
 			return
 		}
 
-		context.JSON(http.StatusCreated, gin.H{})
+		context.Status(http.StatusNoContent)
 	}
 }
 
@@ -138,6 +136,6 @@ func (controller *stockItemController) DecrementStockItemUnits() gin.HandlerFunc
 			return
 		}
 
-		context.JSON(http.StatusCreated, gin.H{})
+		context.Status(http.StatusNoContent)
 	}
 }

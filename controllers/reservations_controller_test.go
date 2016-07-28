@@ -47,9 +47,7 @@ func (suite *reservationControllerTestSuite) Test_ReserveItems() {
 
 	res := suite.Post("/reservations/reserve", jsonStr)
 
-	suite.assert.Equal(http.StatusOK, res.Code)
-	suite.assert.Equal("{}\n", res.Body.String())
-
+	suite.assert.Equal(http.StatusNoContent, res.Code)
 	suite.service.AssertExpectations(suite.T())
 }
 
@@ -83,9 +81,7 @@ func (suite *reservationControllerTestSuite) Test_ReleaseItems() {
 
 	res := suite.Post("/reservations/cancel", jsonStr)
 
-	suite.assert.Equal(http.StatusOK, res.Code)
-	suite.assert.Equal("{}\n", res.Body.String())
-
+	suite.assert.Equal(http.StatusNoContent, res.Code)
 	suite.service.AssertExpectations(suite.T())
 }
 
