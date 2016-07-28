@@ -69,7 +69,7 @@ resource "google_compute_instance" "kafka" {
 
 resource "google_compute_instance" "db" {
     name = "${var.datacenter}-db"
-    machine_type = "n1-highmem-2"
+    machine_type = "n1-highmem-4"
     tags = ["ssh", "no-ip", "http-server", "https-server", "${var.datacenter}-db", "${var.datacenter}"]
     zone = "${var.zone}"
 
@@ -200,7 +200,7 @@ resource "google_compute_instance" "log" {
 
 resource "google_compute_instance" "phoenix" {
     name = "${var.datacenter}-phoenix"
-    machine_type = "n1-standard-8"
+    machine_type = "n1-standard-4"
     tags = ["ssh", "no-ip", "http-server", "https-server", "${var.datacenter}-phoenix", "${var.datacenter}"]
     zone = "${var.zone}"
 
@@ -242,7 +242,7 @@ resource "google_compute_instance" "phoenix" {
 
 resource "google_compute_instance" "service_worker" {
     name = "${var.datacenter}-service-worker"
-    machine_type = "n1-standard-8"
+    machine_type = "n1-standard-2"
     tags = ["ssh", "no-ip", "http-server", "https-server", "${var.datacenter}-service-worker", "${var.datacenter}"]
     zone = "${var.zone}"
     count = "${var.service_workers}"

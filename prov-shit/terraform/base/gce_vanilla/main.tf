@@ -14,6 +14,8 @@ variable "db_image" {}
 variable "es_image" {}
 variable "log_image" {}
 variable "phoenix_image" {}
+variable "service_worker_image" {}
+variable "service_workers" {}
 variable "greenriver_image" {}
 variable "front_image" {}
 
@@ -27,6 +29,7 @@ provider "google"
 ##############################################
 # Network
 ##############################################
+
 resource "google_compute_network" "vanilla" {
   name       = "${var.network}"
   ipv4_range = "10.0.0.0/16"
@@ -97,10 +100,11 @@ module "vanilla_vpn" {
 }
 
 ##############################################
-# Consul Cluster
+# The Three Amigos
 ##############################################
+
 module "vanilla_amigo_cluster" {
-    source = "../../modules/gce/amigo"
+    source = "../../modules/gce/amigos"
     network = "${var.network}"
     datacenter = "${var.network}"
     servers = 3
@@ -122,6 +126,8 @@ module "vanilla_stack" {
     es_image = "${var.es_image}"
     log_image = "${var.log_image}"
     phoenix_image = "${var.phoenix_image}"
+    service_worker_image = "${var.service_worker_image}"
+    service_workers = "${var.service_workers}"
     greenriver_image = "${var.greenriver_image}"
     front_image = "${var.front_image}"
     amigo_leader = "${module.vanilla_amigo_cluster.leader}"
