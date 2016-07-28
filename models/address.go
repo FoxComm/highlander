@@ -26,8 +26,8 @@ func NewAddressFromPayload(payload *payloads.Address) *Address {
 	address.Address1 = payload.Address1
 	address.City = payload.City
 	address.Zip = payload.Zip
-	if payload.Address2 != nil {
-		address.Address2 = sql.NullString{*payload.Address2, true}
+	if payload.Address2 != "" {
+		address.Address2 = sql.NullString{payload.Address2, true}
 	}
 	address.PhoneNumber = payload.PhoneNumber
 

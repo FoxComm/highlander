@@ -32,7 +32,7 @@ func (suite *AddressModelTestSuite) Test_NewAddressFromPayload_ReturnsValidModel
 	address2 := "Some more here"
 	phoneNumber := "17345791232"
 
-	payload := &payloads.Address{name, regionID, city, zip, address1, &address2, phoneNumber}
+	payload := &payloads.Address{name, regionID, city, zip, address1, address2, phoneNumber}
 
 	//act
 	model := NewAddressFromPayload(payload)

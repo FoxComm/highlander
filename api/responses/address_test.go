@@ -51,7 +51,7 @@ func (suite *AddressResponseTestSuite) Test_NewAddressFromModel_ReturnsValidResp
 	suite.assert.Equal(city, response.City)
 	suite.assert.Equal(zip, response.Zip)
 	suite.assert.Equal(address1, response.Address1)
-	suite.assert.Equal(address2, *response.Address2)
+	suite.assert.Equal(address2, response.Address2)
 	suite.assert.Equal(phoneNumber, response.PhoneNumber)
 }
 
@@ -66,7 +66,7 @@ func (suite *AddressResponseTestSuite) Test_AddressEncoding_RunsNormally() {
 	address2 := "Some more here"
 	phoneNumber := "17345791232"
 
-	response := &Address{id, name, region, city, zip, address1, &address2, phoneNumber}
+	response := &Address{id, name, region, city, zip, address1, address2, phoneNumber}
 	expected := fmt.Sprintf(
 		`{"id":%v,"name":"%v","region":{"id":%v,"name":"%v","countryId":%v,"countryName":"%v"},"city":"%v","zip":"%v","address1":"%v","address2":"%v","phoneNumber":"%v"}`,
 		id, name, region.ID, region.Name, region.CountryID, region.CountryName, city, zip, address1, address2, phoneNumber)
