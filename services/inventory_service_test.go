@@ -18,6 +18,7 @@ type InventoryServiceTestSuite struct {
 	itemResp *models.StockItem
 	service  IInventoryService
 	db       *gorm.DB
+	assert   *assert.Assertions
 }
 
 func TestInventoryServiceSuite(t *testing.T) {
@@ -73,17 +74,15 @@ func (suite *InventoryServiceTestSuite) createReservation(skus []string, qty int
 	return nil
 }
 
-func (suite *InventoryServiceTestSuite) SetupTest() {
-	var err error
-
-	suite.db, err = config.DefaultConnection()
-	assert.Nil(suite.T(), err)
+func (suite *InventoryServiceTestSuite) SetupSuite() {
+	suite.db, _ = config.DefaultConnection()
+	suite.assert = assert.New(suite.T())
 
 	summaryService := NewSummaryService(suite.db)
 	suite.service = NewInventoryService(suite.db, summaryService)
-	assert.Nil(suite.T(), err)
+}
 
-	assert.Nil(suite.T(), err)
+func (suite *InventoryServiceTestSuite) SetupTest() {
 	tasks.TruncateTables([]string{
 		"reservations",
 		"stock_items",
@@ -91,103 +90,94 @@ func (suite *InventoryServiceTestSuite) SetupTest() {
 		"stock_item_summaries",
 	})
 
-	suite.itemResp, err = suite.createStockItem("TEST-DEFAULT", 0)
-	assert.Nil(suite.T(), err)
+	suite.itemResp, _ = suite.createStockItem("TEST-DEFAULT", 0)
 }
 
-func (suite *InventoryServiceTestSuite) TestCreation() {
+func (suite *InventoryServiceTestSuite) Test_CreateStockItem() {
 	stockItem := &models.StockItem{StockLocationID: 1, SKU: "TEST-CREATION"}
 	resp, err := suite.service.CreateStockItem(stockItem)
-	if assert.Nil(suite.T(), err) {
-		assert.Equal(suite.T(), "TEST-CREATION", resp.SKU)
-	}
+	suite.assert.Nil(err)
+	suite.assert.Equal("TEST-CREATION", resp.SKU)
 }
 
-func (suite *InventoryServiceTestSuite) TestSummaryCreation() {
+func (suite *InventoryServiceTestSuite) Test_CreateStockItem_SummaryCreation() {
 	resp, err := suite.createStockItem("TEST-CREATION", 0)
 
 	summary := models.StockItemSummary{}
 	err = suite.db.First(&summary, resp.ID).Error
-	if assert.Nil(suite.T(), err) {
-		assert.Equal(suite.T(), 0, summary.OnHand)
-		assert.Equal(suite.T(), 0, summary.OnHold)
-		assert.Equal(suite.T(), 0, summary.Reserved)
-	}
+	suite.assert.Nil(err)
+	suite.assert.Equal(0, summary.OnHand)
+	suite.assert.Equal(0, summary.OnHold)
+	suite.assert.Equal(0, summary.Reserved)
 }
 
-func (suite *InventoryServiceTestSuite) TestFindByID() {
+func (suite *InventoryServiceTestSuite) Test_GetStockItemById() {
 	stockItem := &models.StockItem{StockLocationID: 1, SKU: "TEST-FIND"}
 	resp, err := suite.service.CreateStockItem(stockItem)
-	if assert.Nil(suite.T(), err) {
-		item, err := suite.service.GetStockItemByID(resp.ID)
-		if assert.Nil(suite.T(), err) {
-			assert.Equal(suite.T(), "TEST-FIND", item.SKU)
-		}
-	}
+	suite.assert.Nil(err)
+	item, err := suite.service.GetStockItemById(resp.ID)
+	suite.assert.Nil(err)
+	suite.assert.Equal("TEST-FIND", item.SKU)
 }
 
-func (suite *InventoryServiceTestSuite) TestEmptySKU() {
+func (suite *InventoryServiceTestSuite) Test_CreateStockItem_EmptySKU() {
 	stockItem := &models.StockItem{StockLocationID: 1}
 	_, err := suite.service.CreateStockItem(stockItem)
 
-	assert.NotNil(suite.T(), err)
+	suite.assert.NotNil(err)
 }
 
-func (suite *InventoryServiceTestSuite) TestCreateStockItemsUnits() {
+func (suite *InventoryServiceTestSuite) Test_IncrementStockItemUnits() {
 	resp, err := suite.createStockItem("TEST-INCREMENT", 1)
 
 	var units []models.StockItemUnit
 	err = suite.db.Where("stock_item_id = ?", resp.ID).Find(&units).Error
-	if assert.Nil(suite.T(), err) {
-		assert.Equal(suite.T(), 1, len(units))
-	}
+	suite.assert.Nil(err)
+	suite.assert.Equal(1, len(units))
 }
 
-func (suite *InventoryServiceTestSuite) TestCreateMultipleStockItemUnits() {
+func (suite *InventoryServiceTestSuite) Test_IncrementStockItemUnits_MultipleItems() {
 	resp, err := suite.createStockItem("TEST-INCREMENT", 10)
 
 	var units []models.StockItemUnit
 	err = suite.db.Where("stock_item_id = ?", resp.ID).Find(&units).Error
-	if assert.Nil(suite.T(), err) {
-		assert.Equal(suite.T(), 10, len(units))
-	}
+	suite.assert.Nil(err)
+	suite.assert.Equal(10, len(units))
 }
 
-func (suite *InventoryServiceTestSuite) TestDecrementStockItemUnits() {
+func (suite *InventoryServiceTestSuite) Test_DecrementStockItemUnits() {
 	resp, err := suite.createStockItem("TEST-DECREMENT", 10)
 
 	err = suite.service.DecrementStockItemUnits(resp.ID, 7)
-	assert.Nil(suite.T(), err)
+	suite.assert.Nil(err)
 
 	var units []models.StockItemUnit
 	err = suite.db.Where("stock_item_id = ?", resp.ID).Find(&units).Error
-	if assert.Nil(suite.T(), err) {
-		assert.Equal(suite.T(), 3, len(units))
-	}
+	suite.assert.Nil(err)
+	suite.assert.Equal(3, len(units))
 }
 
-func (suite *InventoryServiceTestSuite) TestSingleSKUReservation() {
+func (suite *InventoryServiceTestSuite) Test_ReserveItems_SingleSKU() {
 	resp, err := suite.createStockItem("TEST-RESERVATION", 1)
 
 	refNum := "BR10001"
 	skus := map[string]int{"TEST-RESERVATION": 1}
 
 	err = suite.service.ReserveItems(refNum, skus)
-	assert.Nil(suite.T(), err)
+	suite.assert.Nil(err)
 
 	var units []models.StockItemUnit
 	err = suite.db.Where("ref_num = ?", refNum).Find(&units).Error
-	if assert.Nil(suite.T(), err) {
-		assert.Equal(suite.T(), 1, len(units))
-	}
+	suite.assert.Nil(err)
+	suite.assert.Equal(1, len(units))
 
 	// check if StockItemSummary.Reserved got updated for updated StockItem
 	var summary models.StockItemSummary
 	suite.db.Where("stock_item_id = ?", resp.ID).First(&summary)
-	assert.Equal(suite.T(), len(skus), summary.OnHold)
+	suite.assert.Equal(len(skus), summary.OnHold)
 }
 
-func (suite *InventoryServiceTestSuite) TestMultipleSKUReservation() {
+func (suite *InventoryServiceTestSuite) Test_ReserveItems_MultipleSKUs() {
 	sku1 := "TEST-RESERVATION-A"
 	sku2 := "TEST-RESERVATION-B"
 
@@ -201,61 +191,58 @@ func (suite *InventoryServiceTestSuite) TestMultipleSKUReservation() {
 	}
 
 	err = suite.service.ReserveItems(refNum, skus)
-	assert.Nil(suite.T(), err)
+	suite.assert.Nil(err)
 
 	var units []models.StockItemUnit
 	err = suite.db.
 		Where("ref_num = ?", refNum).
 		Where("stock_item_id = ?", resp1.ID).
 		Find(&units).Error
-	if assert.Nil(suite.T(), err) {
-		assert.Equal(suite.T(), 5, len(units))
-	}
+	suite.assert.Nil(err)
+	suite.assert.Equal(5, len(units))
 
 	err = suite.db.
 		Where("ref_num = ?", refNum).
 		Where("stock_item_id = ?", resp2.ID).
 		Find(&units).Error
-	if assert.Nil(suite.T(), err) {
-		assert.Equal(suite.T(), skus[sku1], len(units))
-	}
+	suite.assert.Nil(err)
+	suite.assert.Equal(skus[sku1], len(units))
 }
 
-func (suite *InventoryServiceTestSuite) TestMultipleSKUQtyReservation() {
+func (suite *InventoryServiceTestSuite) Test_ReserveItems_StockItemChanged() {
 	sku := "TEST-RESERVATION"
 	_, err := suite.createStockItem(sku, 10)
-	assert.Nil(suite.T(), err)
+	suite.assert.Nil(err)
 
 	refNum := "BR10001"
 	skus := map[string]int{sku: 1}
 
 	err = suite.service.ReserveItems(refNum, skus)
-	assert.Nil(suite.T(), err)
+	suite.assert.Nil(err)
 
 	var units []models.StockItemUnit
 	err = suite.db.Where("ref_num = ?", refNum).Find(&units).Error
-	if assert.Nil(suite.T(), err) {
-		assert.Equal(suite.T(), int(skus[sku]), len(units))
-	}
+	suite.assert.Nil(err)
+	suite.assert.Equal(int(skus[sku]), len(units))
 }
 
-func (suite *InventoryServiceTestSuite) TestSKUReservationNoOnHand() {
+func (suite *InventoryServiceTestSuite) Test_ReserveItems_NoOnHand() {
 	refNum := "BR10001"
 	skus := map[string]int{"TEST-DEFAULT": 1}
 
 	err := suite.service.ReserveItems(refNum, skus)
-	assert.NotNil(suite.T(), err)
+	suite.assert.NotNil(err)
 }
 
-func (suite *InventoryServiceTestSuite) TestSKUReservationNoSKU() {
+func (suite *InventoryServiceTestSuite) Test_ReserveItems_NoSKU() {
 	refNum := "BR10001"
 	skus := map[string]int{"NO-SKU": 1}
 
 	err := suite.service.ReserveItems(refNum, skus)
-	assert.NotNil(suite.T(), err)
+	suite.assert.NotNil(err)
 }
 
-func (suite *InventoryServiceTestSuite) TestMultipleSKUReservationSummary() {
+func (suite *InventoryServiceTestSuite) Test_ReleaseItems_MultipleSKUsSummary() {
 	sku1 := "TEST-RESERVATION-A"
 	sku2 := "TEST-RESERVATION-B"
 
@@ -272,14 +259,14 @@ func (suite *InventoryServiceTestSuite) TestMultipleSKUReservationSummary() {
 
 	var summary1 models.StockItemSummary
 	suite.db.Where("stock_item_id = ?", resp1.ID).First(&summary1)
-	assert.Equal(suite.T(), skus[sku1], summary1.OnHold)
+	suite.assert.Equal(skus[sku1], summary1.OnHold)
 
 	var summary2 models.StockItemSummary
 	suite.db.Where("stock_item_id = ?", resp2.ID).First(&summary2)
-	assert.Equal(suite.T(), skus[sku2], summary2.OnHold)
+	suite.assert.Equal(skus[sku2], summary2.OnHold)
 }
 
-func (suite *InventoryServiceTestSuite) TestSubsequentSKUReservationSummary() {
+func (suite *InventoryServiceTestSuite) Test_ReleaseItems_SubsequentSummary() {
 	sku := "TEST-RESERVATION-A"
 	resp, _ := suite.createStockItem(sku, 10)
 
@@ -289,55 +276,55 @@ func (suite *InventoryServiceTestSuite) TestSubsequentSKUReservationSummary() {
 
 	var summary models.StockItemSummary
 	suite.db.Where("stock_item_id = ?", resp.ID).First(&summary)
-	assert.Equal(suite.T(), skus[sku], summary.OnHold)
+	suite.assert.Equal(skus[sku], summary.OnHold)
 
 	skus[sku] = 5
 
 	suite.service.ReserveItems("BR10002", skus)
 
 	suite.db.Where("stock_item_id = ?", resp.ID).First(&summary)
-	assert.Equal(suite.T(), 8, summary.OnHold)
+	suite.assert.Equal(8, summary.OnHold)
 }
 
-func (suite *InventoryServiceTestSuite) TestNoReservedSKUsRelease() {
+func (suite *InventoryServiceTestSuite) Test_ReleaseItems_NoReservedSKUs() {
 	suite.createStockItem("TEST-RESERVATION-A", 1)
 
 	err := suite.service.ReleaseItems("BR10001")
-	assert.NotNil(suite.T(), err, "Should not be able to unreserve items while there are no reservations")
+	suite.assert.NotNil(err, "Should not be able to unreserve items while there are no reservations")
 }
 
-func (suite *InventoryServiceTestSuite) TestSingleSKURelease() {
+func (suite *InventoryServiceTestSuite) Test_ReleaseItems_Single() {
 	skus := []string{"TEST-UNRESERVATION-A"}
 	refNum := "BR10001"
 	err := suite.createReservation(skus, 1, refNum)
-	assert.Nil(suite.T(), err)
+	suite.assert.Nil(err)
 
 	onHoldUnitsCount := 0
 	suite.db.Model(&models.StockItemUnit{}).Where("ref_num = ? AND status = ?", refNum, "onHold").Count(&onHoldUnitsCount)
-	assert.Equal(suite.T(), 1, onHoldUnitsCount, "There should be one unit in onHold status")
+	suite.assert.Equal(1, onHoldUnitsCount, "There should be one unit in onHold status")
 
 	// send release request and check if it was processed successfully
 	err = suite.service.ReleaseItems(refNum)
-	assert.Nil(suite.T(), err, "Reservation should be successfully removed")
+	suite.assert.Nil(err, "Reservation should be successfully removed")
 
 	suite.db.Model(&models.StockItemUnit{}).Where("ref_num = ? AND status = ?", refNum, "onHold").Count(&onHoldUnitsCount)
-	assert.Equal(suite.T(), 0, onHoldUnitsCount, "There should not be units in onHold status")
+	suite.assert.Equal(0, onHoldUnitsCount, "There should not be units in onHold status")
 }
 
-func (suite *InventoryServiceTestSuite) TestSKUReleaseSummary() {
+func (suite *InventoryServiceTestSuite) Test_ReleaseItems_Summary() {
 	skus := []string{"TEST-UNRESERVATION-A"}
 	refNum := "BR10001"
 	reservedCount := 1
 	err := suite.createReservation(skus, reservedCount, refNum)
-	assert.Nil(suite.T(), err)
+	suite.assert.Nil(err)
 
 	var summary models.StockItemSummary
 	suite.db.Last(&summary)
 
-	assert.Equal(suite.T(), reservedCount, summary.OnHold, "One stock item unit should be onHold")
+	suite.assert.Equal(reservedCount, summary.OnHold, "One stock item unit should be onHold")
 
 	suite.service.ReleaseItems(refNum)
 
 	suite.db.First(&summary)
-	assert.Equal(suite.T(), 0, summary.OnHold, "No stock item units should be onHold")
+	suite.assert.Equal(0, summary.OnHold, "No stock item units should be onHold")
 }

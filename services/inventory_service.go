@@ -17,7 +17,7 @@ type inventoryService struct {
 
 type IInventoryService interface {
 	GetStockItems() ([]*models.StockItem, error)
-	GetStockItemByID(id uint) (*models.StockItem, error)
+	GetStockItemById(id uint) (*models.StockItem, error)
 	CreateStockItem(stockItem *models.StockItem) (*models.StockItem, error)
 
 	IncrementStockItemUnits(id uint, units []*models.StockItemUnit) error
@@ -40,7 +40,7 @@ func (service *inventoryService) GetStockItems() ([]*models.StockItem, error) {
 	return items, nil
 }
 
-func (service *inventoryService) GetStockItemByID(id uint) (*models.StockItem, error) {
+func (service *inventoryService) GetStockItemById(id uint) (*models.StockItem, error) {
 	si := &models.StockItem{}
 	if err := service.db.First(si, id).Error; err != nil {
 		return nil, err

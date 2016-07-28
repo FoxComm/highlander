@@ -17,7 +17,7 @@ func parse(c *gin.Context, model interface{}) failures.Failure {
 	}
 
 	err := errors.New("Invalid payload")
-	fail := failures.MakeBadRequest(err)
+	fail := failures.NewBadRequest(err)
 	failures.Abort(c, fail)
 	return fail
 }
@@ -27,7 +27,7 @@ func paramInt(c *gin.Context, key string) (int, failures.Failure) {
 	id, err := strconv.Atoi(intStr)
 	if err != nil {
 		fError := fmt.Errorf("Unable to get int param %s", key)
-		fail := failures.MakeBadRequest(fError)
+		fail := failures.NewBadRequest(fError)
 		failures.Abort(c, fail)
 		return 0, fail
 	}
@@ -40,7 +40,7 @@ func paramUint(c *gin.Context, key string) (uint, failures.Failure) {
 	id, err := strconv.Atoi(intStr)
 	if err != nil {
 		fError := fmt.Errorf("Unable to get uint param %s", key)
-		fail := failures.MakeBadRequest(fError)
+		fail := failures.NewBadRequest(fError)
 		failures.Abort(c, fail)
 		return 0, fail
 	}
@@ -51,9 +51,9 @@ func paramUint(c *gin.Context, key string) (uint, failures.Failure) {
 func handleServiceError(c *gin.Context, err error) failures.Failure {
 	var fail failures.Failure
 	if err == gorm.ErrRecordNotFound {
-		fail = failures.MakeNotFound(err)
+		fail = failures.NewNotFound(err)
 	} else {
-		fail = failures.MakeBadRequest(err)
+		fail = failures.NewBadRequest(err)
 	}
 	failures.Abort(c, fail)
 

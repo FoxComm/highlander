@@ -25,16 +25,22 @@ func (suite *GeneralControllerTestSuite) Get(url string, args ...interface{}) *h
 	return suite.query(request, args...)
 }
 
-func (suite *GeneralControllerTestSuite) Post(url string, args ...interface{}) *httptest.ResponseRecorder {
-	request, _ := http.NewRequest("POST", url, prepareBody(args[0]))
+func (suite *GeneralControllerTestSuite) Post(url string, body interface{}, args ...interface{}) *httptest.ResponseRecorder {
+	request, _ := http.NewRequest("POST", url, prepareBody(body))
 
-	return suite.query(request, args[1:]...)
+	return suite.query(request, args...)
 }
 
-func (suite *GeneralControllerTestSuite) Put(url string, args ...interface{}) *httptest.ResponseRecorder {
-	request, _ := http.NewRequest("PUT", url, prepareBody(args[0]))
+func (suite *GeneralControllerTestSuite) Put(url string, body interface{}, args ...interface{}) *httptest.ResponseRecorder {
+	request, _ := http.NewRequest("PUT", url, prepareBody(body))
 
-	return suite.query(request, args[1:]...)
+	return suite.query(request, args...)
+}
+
+func (suite *GeneralControllerTestSuite) Patch(url string, body interface{}, args ...interface{}) *httptest.ResponseRecorder {
+	request, _ := http.NewRequest("PATCH", url, prepareBody(body))
+
+	return suite.query(request, args...)
 }
 
 func (suite *GeneralControllerTestSuite) Delete(url string, args ...interface{}) *httptest.ResponseRecorder {

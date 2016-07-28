@@ -6,20 +6,20 @@ import (
 	"github.com/FoxComm/middlewarehouse/api/responses"
 )
 
-type NotFound struct {
+type notFound struct {
 	err error
 }
 
-func (f NotFound) Status() int {
+func (f notFound) Status() int {
 	return http.StatusNotFound
 }
 
-func (f NotFound) ToJSON() responses.Error {
+func (f notFound) ToJSON() responses.Error {
 	return responses.Error{
 		Errors: []string{f.err.Error()},
 	}
 }
 
-func MakeNotFound(err error) NotFound {
-	return NotFound{err: err}
+func NewNotFound(err error) notFound {
+	return notFound{err: err}
 }
