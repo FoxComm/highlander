@@ -104,7 +104,7 @@ func (controller *carrierController) UpdateCarrier() gin.HandlerFunc {
 			return
 		}
 
-		context.Writer.WriteHeader(http.StatusNoContent)
+		context.Status(http.StatusNoContent)
 	}
 }
 
@@ -120,6 +120,6 @@ func (controller *carrierController) DeleteCarrier() gin.HandlerFunc {
 			return
 		}
 
-		context.Writer.WriteHeader(http.StatusNoContent)
+		context.Status(http.StatusNoContent)
 	}
 }

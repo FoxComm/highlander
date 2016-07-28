@@ -104,7 +104,7 @@ func (controller *shippingMethodController) UpdateShippingMethod() gin.HandlerFu
 			return
 		}
 
-		context.Writer.WriteHeader(http.StatusNoContent)
+		context.Status(http.StatusNoContent)
 	}
 }
 
@@ -120,6 +120,6 @@ func (controller *shippingMethodController) DeleteShippingMethod() gin.HandlerFu
 			return
 		}
 
-		context.Writer.WriteHeader(http.StatusNoContent)
+		context.Status(http.StatusNoContent)
 	}
 }
