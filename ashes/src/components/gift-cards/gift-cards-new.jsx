@@ -20,13 +20,18 @@ import PilledInput from '../pilled-search/pilled-input';
 import SaveCancel from '../common/save-cancel';
 import CurrencyInput from '../forms/currency-input';
 
+import { ReasonType } from 'lib/reason-utils';
+
 // redux
-import * as GiftCardNewActions from '../../modules/gift-cards/new';
-import { createGiftCard } from '../../modules/gift-cards/list';
+import * as GiftCardNewActions from 'modules/gift-cards/new';
+import { createGiftCard } from 'modules/gift-cards/list';
+import { fetchReasons } from 'modules/reasons';
 
 const typeTitles = {
   'csrAppeasement': 'Appeasement'
 };
+
+const reasonType = ReasonType.GIFT_CARD_CREATION;
 
 const subTypes = createSelector(
   ({ giftCards: { adding } }) => adding.originType,
@@ -37,10 +42,12 @@ const subTypes = createSelector(
 @connect(state => ({
   ...state.giftCards.adding.giftCard,
   suggestedCustomers: state.giftCards.adding.suggestedCustomers,
-  subTypes: subTypes(state)
+  subTypes: subTypes(state),
+  creationReasons: _.get(state, ['reasons', 'reasons', reasonType], []),
 }), {
   ...GiftCardNewActions,
-  createGiftCard
+  createGiftCard,
+  fetchReasons,
 })
 export default class NewGiftCard extends React.Component {
 
@@ -64,6 +71,7 @@ export default class NewGiftCard extends React.Component {
     quantity: PropTypes.number,
     originType: PropTypes.string,
     balances: PropTypes.array,
+    fetchReasons: PropTypes.func.isRequired,
   };
 
   state = {
@@ -77,10 +85,23 @@ export default class NewGiftCard extends React.Component {
     if (_.isEmpty(this.props.types)) {
       this.props.fetchTypes();
     }
+    if (_.isEmpty(this.props.creationReasons)) {
+      this.props.fetchReasons(reasonType).then(() => {
+        this.setReason();
+      });
+    } else {
+      this.setReason();
+    }
   }
 
   get suggestedCustomers() {
     return _.get(this.props, 'suggestedCustomers.results.rows', []);
+  }
+
+  @autobind
+  setReason() {
+    const id = _.get(this.props.creationReasons, [0, 'id']);
+    this.props.changeFormData('reasonId', id);
   }
 
   @autobind

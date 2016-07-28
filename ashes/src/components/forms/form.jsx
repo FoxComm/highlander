@@ -15,13 +15,10 @@ export default class Form extends React.Component {
     formDispatcher: PropTypes.object
   };
 
-  constructor(props, context) {
-    super(props, context);
-  }
 
   getChildContext() {
     return this._context || (this._context = {
-        formDispatcher: new EventEmitter()
+      formDispatcher: new EventEmitter()
     });
   }
 
@@ -42,10 +39,20 @@ export default class Form extends React.Component {
   handleSubmit(event) {
     event.preventDefault();
 
-    const isValid = this.checkValidity();
+    const props = this.props;
 
-    if (isValid && this.props.onSubmit) {
-      this.props.onSubmit(event);
+    let isValid = true;
+    this._emit('submit', (isFieldValid) => {
+      if (!isFieldValid) isValid = false;
+    });
+
+    const setErrors = errors => {
+      this._emit('errors', errors || {});
+    };
+
+    if (isValid && props.onSubmit) {
+      const willResolved = props.onSubmit(event) || Promise.resolve(null);
+      willResolved.then(() => setErrors(null), setErrors);
     }
   }
 

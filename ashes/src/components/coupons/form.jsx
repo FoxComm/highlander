@@ -138,12 +138,16 @@ export default class CouponForm extends Component {
     }
   }
 
+  checkValidity(): boolean {
+    return this.refs.form.checkValidity();
+  }
+
   render() {
     const formAttributes = _.get(this.props, 'coupon.form.attributes', []);
     const shadowAttributes = _.get(this.props, 'coupon.shadow.attributes', []);
 
     return (
-      <Form styleName="coupon-form">
+      <Form ref="form" styleName="coupon-form">
         <div styleName="main">
           <ContentBox title="General">
             <FullObjectForm

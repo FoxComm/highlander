@@ -123,12 +123,12 @@ const reducer = createReducer({
 
     return updater(state);
   },
-  [fetchFailed]: (state, result) => {
-    console.error(result);
+  [fetchFailed]: (state, err) => {
+    console.error(err);
 
     return assoc(state,
       ['isFetching'], false,
-      ['err'], result.responseJson.error
+      ['err'], err
     );
   },
 }, initialState);

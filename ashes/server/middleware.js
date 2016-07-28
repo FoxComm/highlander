@@ -46,7 +46,8 @@ module.exports = function(app) {
   }
 
   app.requireAdmin = function *(next) {
-    if (!this.request.url.match(config.api.auth.loginUri)) {
+    const authFreeUrls = /\/(login|signup)$/;
+    if (!this.request.path.match(authFreeUrls)) {
       const token = getToken(this);
       if (!token || !token.admin) {
         this.redirect(config.api.auth.loginUri);

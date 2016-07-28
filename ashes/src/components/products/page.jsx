@@ -46,6 +46,7 @@ type Props = {
     product: ?Product,
     err: ?Object,
   },
+  selectContextAvailable: boolean,
   archiveProduct: Function,
 };
 
@@ -66,6 +67,10 @@ const SELECT_CONTEXT = [
  */
 class ProductPage extends Component {
   props: Props;
+
+  static defaultProps = {
+    selectContextAvailable: false,
+  };
 
   state: State = {
     product: this.props.products.product,
@@ -105,15 +110,22 @@ class ProductPage extends Component {
     return _.get(product, 'attributes.title.v', '');
   }
 
+  get selectContextDropdown() {
+    if (this.props.selectContextAvailable) {
+      return (
+        <Dropdown onChange={this.handleContextChange}
+                  value={this.props.params.context}
+                  items={SELECT_CONTEXT} />
+      );
+    }
+  }
+
   get titleActions(): Element {
     const { isUpdating } = this.props.products;
 
     return (
       <div className="fc-product-details__title-actions">
-        <Dropdown onChange={this.handleContextChange}
-                  value={this.props.params.context}
-                  items={SELECT_CONTEXT}
-        />
+        { this.selectContextDropdown }
         <PrimaryButton
           className="fc-product-details__save-button"
           type="submit"

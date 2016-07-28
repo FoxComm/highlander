@@ -1,23 +1,28 @@
 /** @flow */
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
-import Alert from '../alerts/alert';
-import Form from '../forms/form';
-import FormField from '../forms/formfield';
-import { PrimaryButton, Button } from '../common/buttons';
-import WaitAnimation from '../common/wait-animation';
-
 import { transitionTo } from 'browserHistory';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 
-import * as userActions from '../../modules/user';
+import Alert from '../alerts/alert';
+import ErrorAlerts from '../alerts/error-alerts';
+import Form from '../forms/form';
+import FormField from '../forms/formfield';
+import { PrimaryButton, Button } from '../common/buttons';
+import WrapToLines from './wrap-to-lines';
+
+
+
+import * as userActions from 'modules/user';
+
+import styles from './css/auth.css';
 
 // types
 import type {
   LoginPayload,
   TUser,
-} from '../../modules/user';
+} from 'modules/user';
 
 
 type TState = {
@@ -28,27 +33,33 @@ type TState = {
 type LoginProps = {
   current: TUser,
   authenticate: (payload: LoginPayload) => Promise,
-  user: { 
-    err: Object, 
-    isFetching: boolean, 
+  user: {
     message: String,
   },
+  authenticationState: {
+    err?: any,
+    inProgress?: boolean,
+  },
+  err: any,
   googleSignin: Function,
 }
 
 /* ::`*/
-@connect((state) => ({ user: state.user }), userActions)
+@connect((state) => ({
+  user: state.user,
+  authenticationState: _.get(state.asyncActions, 'authenticate', {})
+}), userActions)
 /* ::`*/
 export default class Login extends React.Component {
   state: TState = {
-      email: '',
-      password: '',
+    email: '',
+    password: '',
   };
 
   props: LoginProps;
 
   @autobind
-  submitLogin () {
+  submitLogin() {
     const payload = _.pick(this.state, 'email', 'password');
     payload['kind'] = 'admin';
 
@@ -58,17 +69,13 @@ export default class Login extends React.Component {
   }
 
   @autobind
-  onEmailChange({target}: SyntheticInputEvent) {
-    if (target instanceof HTMLInputElement) {
-      this.setState({email: target.value});
-    }
+  onEmailChange({target}: Object) {
+    this.setState({email: target.value});
   }
 
   @autobind
-  onPasswordChange({target}: SyntheticInputEvent) {
-    if (target instanceof HTMLInputElement){
-      this.setState({password: target.value});
-    }
+  onPasswordChange({target}: Object) {
+    this.setState({password: target.value});
   }
 
   @autobind
@@ -83,9 +90,9 @@ export default class Login extends React.Component {
 
   get passwordLabel() {
     return (
-      <div className="fc-login__password-label">
-        <div className="fc-login__password-label-title">Password</div>
-        <a onClick={this.onForgotClick} className="fc-login__password-forgot">i forgot</a>
+      <div styleName="password-label">
+        <div>Password</div>
+        <a onClick={this.onForgotClick} styleName="forgot-link">i forgot</a>
       </div>
     );
   }
@@ -97,41 +104,34 @@ export default class Login extends React.Component {
   }
 
   get errorMessage() {
-    const { err } = this.props.user;
+    const err = this.props.authenticationState.err;
     if (!err) return null;
-    return <Alert type="error">{err}</Alert>;
+    return <ErrorAlerts error={err} />;
   }
 
   render() {
     return (
-      <div className="fc-login">
-        <Form className="fc-grid fc-login fc-form-vertical">
-          <img className="fc-login__logo" src="/images/fc-logo-v.svg"/>
-          <div className="fc-login__title">Sign In</div>
-          {this.infoMessage}
-          <Button className="fc-login__google-btn" icon="google" onClick={this.onGoogleSignIn}>
-            Sign In with Google
-          </Button>
-        </Form>
-        <Form className="fc-grid fc-login fc-login__email-password fc-form-vertical" onSubmit={this.submitLogin}>
-          <div className="fc-login__or">or</div>
-          <div className="fc-login__or-cont"></div>
+      <div styleName="main">
+        <div className="fc-auth__title">Sign In</div>
+        {this.infoMessage}
+        <Button type="button" styleName="google-button" icon="google" onClick={this.onGoogleSignIn}>
+          Sign In with Google
+        </Button>
+        <Form styleName="form" onSubmit={this.submitLogin}>
+          <WrapToLines styleName="or-line">or</WrapToLines>
           {this.errorMessage}
-          <FormField className="fc-login__email" label="Email">
+          <FormField label="Email">
             <input onChange={this.onEmailChange} value={this.state.email} type="text" className="fc-input"/>
           </FormField>
-          <FormField className="fc-login__password" label={this.passwordLabel}>
+          <FormField label={this.passwordLabel}>
             <input onChange={this.onPasswordChange} value={this.state.password} type="password" className="fc-input"/>
           </FormField>
           <PrimaryButton
-            className="fc-login__signin-btn"
+            styleName="submit-button"
             type="submit"
-            isLoading={this.props.user.isFetching}>
+            isLoading={this.props.authenticationState.inProgress}>
             Sign In
           </PrimaryButton>
-          <div className="fc-login__copyright">
-            © 2016 FoxCommerce. All rights reserved. Privacy Policy. Terms of Use.
-          </div>
         </Form>
       </div>
     );
