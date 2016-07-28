@@ -15,8 +15,6 @@ import * as cartActions from 'modules/carts/details';
 
 type Details = {
   cart: Object,
-  isFetching: boolean,
-  failed: Object,
 };
 
 type Params = {
@@ -26,12 +24,16 @@ type Params = {
 type Props = {
   params: Params,
   details: Details,
+  failed: Object,
+  isFetching: boolean,
   fetchCustomerCart: Function,
 };
 
 const mapStateToProps = (state) => {
   return {
     details: state.carts.details,
+    isFetching: _.get(state.asyncActions, 'fetchCart.inProgress', false),
+    failed: _.get(state.asyncActions, 'fetchCart.err'),
   };
 };
 
@@ -57,7 +59,8 @@ export default class CustomerCart extends Component {
   }
 
   render() {
-    const { failed, isFetching, cart } = this.props.details;
+    const { cart } = this.props.details;
+    const { failed, isFetching } = this.props;
 
     let content;
 
@@ -91,8 +94,8 @@ export default class CustomerCart extends Component {
   }
 
   get content(): Element {
-    const order = {
-      currentOrder: this.cart,
+    const details = {
+      order: this.cart,
     };
 
     return (
@@ -103,7 +106,7 @@ export default class CustomerCart extends Component {
             <PrimaryButton onClick={this.editCart}>Edit Cart</PrimaryButton>
           </div>
         </div>
-        <OrderDetails order={order} />
+        <OrderDetails details={details} />
       </div>
     );
   }

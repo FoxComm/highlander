@@ -52,6 +52,11 @@ export default class CartShippingMethod extends Component {
     this.setState({ isEditing: false });
   }
 
+  @autobind
+  updateShippingMethod(order, method) {
+    this.props.updateShippingMethod(order.referenceNumber, method.id);
+  }
+
   render(): Element {
     const { cart, status } = this.props;
     const { shippingMethod } = cart;
@@ -68,6 +73,7 @@ export default class CartShippingMethod extends Component {
         editAction={this.startEditing}
         isEditing={this.state.isEditing}
         doneAction={this.completeEditing}
+        updateAction={this.updateShippingMethod}
         shippingMethods={[shippingMethod]} />
     );
   }
