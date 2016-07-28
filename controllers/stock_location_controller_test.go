@@ -164,7 +164,7 @@ func (suite *stockLocationControllerTestSuite) Test_DeleteLocation() {
 
 	response := suite.Delete("/stock-locations/1")
 
-	suite.assert.Equal(http.StatusOK, response.Code)
+	suite.assert.Equal(http.StatusNoContent, response.Code)
 	suite.service.AssertExpectations(suite.T())
 }
 
