@@ -62,6 +62,7 @@ plugins_api_user_email: ""
 plugins_api_user_password: ""
 
 # Lies & BS
+self_host: 127.0.0.1
 phoenix_api_version: v1
 phoenix_server: 127.0.0.1:9090
 isaac_server: 127.0.0.1:9190
@@ -104,7 +105,7 @@ google_oauth_frontend_redirect_uri: ""
 swap_file: /swap
 swap_size_mb: 2000
 
-# Fix ansible 2 rsync
+# Fix Ansible 2 rsync
 rsync_opts: ssh -l {{user}}
 
 # Consul variables
@@ -119,5 +120,5 @@ zipkin_collector: localhost
 # Are we running packer?
 packing: false
 
-#test stripe api key
+# Test Stripe api key
 stripe_api_key: sk_test_uvaf3GCFsjCsvvKO7FsQhNRm
