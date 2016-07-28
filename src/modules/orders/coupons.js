@@ -87,8 +87,7 @@ const reducer = createReducer({
     return initialState;
   },
   [orderCouponApplyError]: (state, err) => {
-    const errorMessage = _.get(err, ['responseJson', 'errors', 0], 'Unexpected error occured');
-    console.error(err.responseJson);
+    const errorMessage = _.get(err, ['response', 'body', 'errors', 0], 'Unexpected error occurred');
     return {
       ...state,
       error: errorMessage,

@@ -4,6 +4,7 @@ import superagent from 'superagent';
 import Api from '../lib/api';
 import _ from 'lodash';
 import { dissoc } from 'sprout-data';
+import createAsyncActions from './async-utils';
 
 // types
 
@@ -15,6 +16,11 @@ export type LoginPayload = {
   kind: string,
 };
 
+export type SignupPayload = {
+  password: string,
+  token: string,
+}
+
 export type UserState = {
   message: ?String,
   err: ?String,
@@ -24,16 +30,16 @@ export type UserState = {
 
 export const setUser = createAction('USER_SET');
 export const removeUser = createAction('REMOVE_SET');
-const authStart = createAction('USER_AUTH_START');
-const authError = createAction('USER_AUTH_ERROR');
 export const authMessage = createAction('USER_AUTH_MESSAGE');
 
 export const INFO_MESSAGES = {
   LOGGED_OUT: 'You have successfully logged out.',
 };
 
-const requestMyInfoStart = createAction('USER_AUTH_INFO_START');
-const receiveMyInfoError = createAction('USER_AUTH_INFO_RECEIVE_ERROR');
+const _fetchUserInfo = createAsyncActions(
+  'fetchUserInfo',
+  () => Api.get(`/store-admins/me`)
+);
 
 export function fetchUserInfo(): ActionDispatch {
   return (dispatch, getState) => {
@@ -48,43 +54,49 @@ export function fetchUserInfo(): ActionDispatch {
       }
     }
 
-    dispatch(requestMyInfoStart());
-    Api.get(`/store-admins/me`)
-      .then(
-        info => dispatch(setUser(info)),
-        err => dispatch(receiveMyInfoError(err))
-      );
+    dispatch(_fetchUserInfo.perform());
   };
 }
 
-export function authenticate(payload: LoginPayload): ActionDispatch {
-  return dispatch => {
-    let hasError = false;
+function handleAuthResponse(dispatch, response) {
+  const token: TUser = response.body;
 
-    dispatch(authStart());
+  if (response.status == 200 && response.header['jwt']) {
+    localStorage.setItem('jwt', response.header['jwt']);
+
+    if (token.email) {
+      return dispatch(setUser(token));
+    }
+  }
+
+  throw new Error('Unexpected error, try again later');
+}
+
+const _authenticate = createAsyncActions(
+  'authenticate',
+  function(payload: LoginPayload) {
+    const {dispatch} = this;
+
     return superagent.post(Api.apiURI('/public/login'), payload)
       .type('json')
-      .then(response => {
-        if (response.status == 200 && response.header['jwt']) {
-          localStorage.setItem('jwt', response.header['jwt']);
-        } else {
-          hasError = true;
-        }
-        const token: TUser = response.body;
-        if (token.email && token.name && !hasError) {
-          localStorage.setItem('user', JSON.stringify(token));
-          return dispatch(setUser(token));
-        }
+      .then(response => handleAuthResponse(dispatch, response));
+  }
+);
 
-        const errors = _.get(token, 'errors', ['Unexpected error, try again later']);
-        const message = _.reduce(errors, (res, err) => `${res} ${err}`, '').trim();
-        throw new Error(message);
-      }).catch(reason => {
-        dispatch(authError(reason.message));
-        throw new Error(reason);
-      });
-  };
-}
+export const authenticate = _authenticate.perform;
+
+const _signUp = createAsyncActions(
+  'signup',
+  function(payload: SignupPayload) {
+    const {dispatch} = this;
+
+    return superagent.post(Api.apiURI('/public/signup'), payload)
+      .type('json')
+      .then(response => handleAuthResponse(dispatch, response));
+  }
+);
+
+export const signUp = _signUp.perform;
 
 export function googleSignin(): ActionDispatch {
   return dispatch => {
@@ -111,18 +123,6 @@ const initialState = {
 };
 
 const reducer = createReducer({
-  [requestMyInfoStart]: (state) => {
-    return {...state,
-      err: null,
-      isFetching: true,
-    };
-  },
-  [receiveMyInfoError]: (state, err) => {
-    return {...state,
-      isFetching: false,
-      err: err,
-    };
-  },
   [setUser]: (state: UserState, user: TUser) => {
     localStorage.setItem('user', JSON.stringify(user));
     return {
@@ -134,19 +134,10 @@ const reducer = createReducer({
   [removeUser]: (state: UserState, user: TUser) => {
     return dissoc(state, 'user');
   },
-  [authStart]: (state: UserState) => {
+  [_authenticate.started]: (state: UserState) => {
     return {
       ...state,
-      err: null,
       message: null,
-      isFetching: true,
-    };
-  },
-  [authError]: (state: UserState, error: string) => {
-    return {
-      ...state,
-      err: error,
-      isFetching: false,
     };
   },
   [authMessage]: (state: UserState, message: string) => {

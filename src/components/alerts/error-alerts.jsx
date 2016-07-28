@@ -1,5 +1,5 @@
 
-import { get } from 'sprout-data';
+import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import Alert from './alert';
 import AutoScroll from '../common/auto-scroll';
@@ -7,7 +7,7 @@ import AutoScroll from '../common/auto-scroll';
 function parseError(err) {
   if (!err) return null;
 
-  return get(err, ['responseJson', 'errors'], [err.toString()]);
+  return _.get(err, 'response.body.errors', [err.toString()]);
 }
 
 const ErrorAlerts = props => {

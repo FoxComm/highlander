@@ -22,16 +22,10 @@ export function reducer(state = {}, action) {
           [namespace, 'err'], null
         );
       case 'failed':
-        const error = {
-          status: _.get(payload, 'response.status'),
-          statusText: _.get(payload, 'response.statusText', ''),
-          messages: _.get(payload, 'responseJson.errors', []),
-        };
-
         return assoc(state,
           [namespace, 'inProgress'], false,
           [namespace, 'finished'], true,
-          [namespace, 'err'], error
+          [namespace, 'err'], payload
         );
       case 'clearErrors':
         return assoc(state,
@@ -65,17 +59,23 @@ export default function createAsyncActions(namespace, asyncCall, payloadReducer)
   // not last navigated product, but product for which response will be last
 
   const perform = (...args) => {
-    return dispatch => {
+    return (dispatch, getState) => {
       const handleError = err => {
         const httpStatus = _.get(err, 'response.status');
         if (httpStatus != 404) {
           console.error(err && err.stack);
         }
         dispatch(failed(err, ...args));
+        throw err;
+      };
+
+      const callContext = {
+        dispatch,
+        getState,
       };
 
       dispatch(started(...args));
-      return asyncCall(...args)
+      return asyncCall.call(callContext, ...args)
         .then(
           res => dispatch(succeeded(res, ...args)),
           handleError

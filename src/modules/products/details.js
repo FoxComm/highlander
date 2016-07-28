@@ -166,7 +166,7 @@ const reducer = createReducer({
     const error: Error = {
       status: _.get(err, 'response.status'),
       statusText: _.get(err, 'response.statusText', ''),
-      messages: _.get(err, 'responseJson.error', []),
+      messages: _.get(err, 'response.body.errors', []),
     };
 
     return {

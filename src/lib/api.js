@@ -87,7 +87,6 @@ export function request(method, uri, data, options = {}) {
       }
 
       if (error) {
-        error.responseJson = response.body;
         throw error;
       }
 

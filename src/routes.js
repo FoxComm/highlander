@@ -1,6 +1,7 @@
 import React from 'react';
 import { Route, IndexRoute, IndexRedirect } from 'react-router';
 import Site from './components/site/site';
+import AuthPages from './components/site/auth-pages';
 import Home from './components/home/home';
 import Rmas from './components/rmas/rmas';
 import Rma from './components/rmas/rma';
@@ -65,6 +66,7 @@ import User from './components/users/user';
 import UserForm from './components/users/user-form';
 
 import Login from './components/auth/login';
+import SetPassword from './components/auth/set-password';
 
 // no productions pages, make sure these paths are included in `excludedList` in browserify.js
 
@@ -80,7 +82,10 @@ const routes = (
   <Route path="/">
     <IndexRedirect to="/orders/"/>
 
-    <Route name="login" path="login" component={Login}/>
+    <Route component={AuthPages}>
+      <Route name="login" path="login" component={Login}/>
+      <Route name="set-password" path="signup" component={SetPassword}/>
+    </Route>
     <Route component={Site}>
       <IndexRoute name="home" component={Home}/>
       <Route name='rmas-base' path='returns'>
