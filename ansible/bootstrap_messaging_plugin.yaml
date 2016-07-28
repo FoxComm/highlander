@@ -4,29 +4,25 @@
   hosts: '{{hostname}}'
   vars:
     user: '{{ansible_ssh_user}}'
-    group_env: "boostrap-messaging"
+    schema_server: schema-registry.service.consul:8081
+    kafka_server: kafka.service.consul:9092
+    api_server: balancer.service.consul
   vars_prompt:
     - name: "hostname"
       prompt: "Enter a hostname where to install messaging service"
-      private: no
-    - name: "retailer_name"
-      prompt: "Enter a retailer name"
-      private: no
-    - name: "add_new_customers_to_mailchimp"
-      prompt: "Add new users to mailchimp lists? (yes/no)"
-      private: no
-    - name: "mailchimp_customers_list_id"
-      prompt: "Enter mailchimp list id (skip if previous answer is no"
-      private: no
-    - name: "mailchimp_api_key"
-      prompt: "Enter mailchimp api key (same)"
       private: no
     - name: "ashes_server_name"
       prompt: "Enter ashes server name"
       default: "admin.foxcommerce.local"
       private: no
-    - name: "mandrill_key"
-      prompt: "Enter a Mandrill API key"
+    - name: "api_user_email"
+      prompt: "Enter phoenix api user email"
+      private: no
+    - name: "api_user_password"
+      prompt: "Enter phoenix api password email"
+      private: no
+    - name: "self_host"
+      prompt: "Enter plugin host which will be accessible from api server"
       private: no
   roles:
       - { role: dev/messaging, sudo: true }

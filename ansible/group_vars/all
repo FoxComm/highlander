@@ -9,7 +9,6 @@ db_user: phoenix
 db_name: phoenix_development
 db_connection_string: "postgresql://{{db_host}}/phoenix_development?user={{db_user}}"
 scala_version: scala-2.11
-group_env: fc
 
 # Green River
 greenriver_version: 1.0
