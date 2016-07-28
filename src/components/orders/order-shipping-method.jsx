@@ -4,22 +4,21 @@ import ShippingMethod from 'components/shipping/shipping-method';
 
 type Props = {
   order: {
-    currentOrder: {
-      shippingMethod: Object,
-    },
+    shippingMethod: Object,
   },
 };
 
 const OrderShippingMethod = (props: Props): Element => {
-  const { currentOrder } = props.order;
-  const { shippingMethod } = currentOrder;
+  const { order } = props;
+  const { shippingMethod } = order;
 
   return (
     <ShippingMethod
-      currentOrder={currentOrder}
+      currentOrder={order}
       title="Shipping Method"
       readOnly={true}
       availableShippingMethods={[]}
+      isEditing={false}
       shippingMethods={[shippingMethod]} />
   );
 };

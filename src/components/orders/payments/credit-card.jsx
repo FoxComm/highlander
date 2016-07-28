@@ -42,8 +42,6 @@ CreditCard.propTypes = {
   order: PropTypes.shape({
     referenceNumber: PropTypes.string.isRequired
   }),
-  deleteOrderCreditCardPayment: PropTypes.func.isRequired,
-  editCreditCardPayment: PropTypes.func.isRequired,
 };
 
 export default CreditCard;

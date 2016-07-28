@@ -18,8 +18,8 @@ const viewColumns = [
 
 export default class Payments extends React.Component {
   static propTypes = {
-    order: PropTypes.shape({
-      currentOrder: PropTypes.shape({
+    details: PropTypes.shape({
+      order: PropTypes.shape({
         paymentMethods: PropTypes.array
       })
     }).isRequired,
@@ -30,11 +30,11 @@ export default class Payments extends React.Component {
   };
 
   get currentCustomerId() {
-    return _.get(this.props, 'order.currentOrder.customer.id');
+    return _.get(this.props, 'details.order.customer.id');
   }
 
   get paymentMethods() {
-    return this.props.order.currentOrder.paymentMethods;
+    return this.props.details.order.paymentMethods;
   }
 
   get viewContent() {
@@ -63,7 +63,7 @@ export default class Payments extends React.Component {
         editMode: false,
         customerId: this.currentCustomerId,
         ...this.props,
-        order: _.get(this.props, 'order.currentOrder'),
+        order: _.get(this.props, 'details.order'),
         showDetails: this.state.showDetails[id],
         toggleDetails: () => {
           this.setState({
