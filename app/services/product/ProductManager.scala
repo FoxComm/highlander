@@ -6,6 +6,7 @@ import cats.data._
 import cats.implicits._
 import cats.data.ValidatedNel
 import failures._
+import failures.ArchiveFailures._
 import failures.ProductFailures._
 import models.image.Albums
 import models.inventory._
@@ -255,17 +256,33 @@ object ProductManager {
       product: Product,
       skuPayloads: Seq[SkuPayload],
       createLinks: Boolean = true)(implicit ec: EC, db: DB, oc: OC) =
-    for {
-      skus ← * <~ skuPayloads.map(SkuManager.findOrCreateSku)
-
-      _ ← * <~ ProductSkuLinks.syncLinks(product,
-                                         if (createLinks) skus.map(_.model) else Seq.empty)
-
-      albums ← * <~ skus.map(sku ⇒ ImageManager.getAlbumsForSkuInner(sku.model.code, oc))
-      result = skus.zip(albums).map {
-        case (sku, album) ⇒ SkuResponse.buildLite(IlluminatedSku.illuminate(oc, sku), album)
-      }
-    } yield result
+    skuPayloads.map { payload ⇒
+      for {
+        code ← * <~ SkuManager.mustGetSkuCode(payload)
+        sku  ← * <~ Skus.filterByContextAndCode(oc.id, code).one.toXor
+        up ← * <~ sku.map { foundSku ⇒
+              if (foundSku.archivedAt.isEmpty) {
+                for {
+                  existingSku ← * <~ SkuManager.updateSkuInner(foundSku, payload)
+                  link = ProductSkuLink(leftId = product.id, rightId = existingSku.model.id)
+                  _ ← * <~ ProductSkuLinks.syncLinks(product,
+                                                     if (createLinks) Seq(existingSku.model)
+                                                     else Seq.empty)
+                } yield existingSku
+              } else {
+                DbResultT.failure(LinkArchivedSkuFailure(Product, product.id, code))
+              }
+            }.getOrElse {
+              for {
+                newSku ← * <~ SkuManager.createSkuInner(oc, payload)
+                _ ← * <~ ProductSkuLinks.syncLinks(product,
+                                                   if (createLinks) Seq(newSku.model)
+                                                   else Seq.empty)
+              } yield newSku
+            }
+        albums ← * <~ ImageManager.getAlbumsForSkuInner(code, oc)
+      } yield SkuResponse.buildLite(IlluminatedSku.illuminate(oc, up), albums)
+    }
 
   private def findOrCreateVariantsForProduct(product: Product, payload: Seq[VariantPayload])(
       implicit ec: EC,

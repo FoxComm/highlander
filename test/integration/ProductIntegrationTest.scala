@@ -6,7 +6,9 @@ import akka.http.scaladsl.model.StatusCodes
 import Extensions._
 import failures.NotFoundFailure404
 import failures.ProductFailures._
+import failures.ArchiveFailures._
 import models.StoreAdmins
+import models.inventory.Skus
 import models.objects._
 import models.product._
 import org.json4s.JsonDSL._
@@ -187,6 +189,13 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
         val response = POST(s"v1/products/${ctx.name}", newProductPayload)
         response.status must === (StatusCodes.BadRequest)
       }
+
+      "trying to create a product with archived SKU" in new ArchivedSkuFixture {
+        val response = POST(s"v1/products/${ctx.name}", archivedSkuProductPayload)
+
+        response.status must === (StatusCodes.BadRequest)
+        response.error must === (LinkArchivedSkuFailure(Product, 2, archivedSkuCode).description)
+      }
     }
 
     "Creates a product then requests is successfully" in new Fixture {
@@ -297,20 +306,31 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
       }
     }
 
-    "Throws an error if updating adds too many SKUs" in new VariantFixture {
-      val upPayload = UpdateProductPayload(
-          attributes = Map.empty,
-          skus = Some(
-              Seq(skuPayload,
-                  smallRedSkuPayload,
-                  smallGreenSkuPayload,
-                  largeRedSkuPayload,
-                  largeGreenSkuPayload)),
-          variants = None
-      )
+    "Throws an error" - {
+      "if updating adds too many SKUs" in new VariantFixture {
+        val upPayload = UpdateProductPayload(
+            attributes = Map.empty,
+            skus = Some(
+                Seq(skuPayload,
+                    smallRedSkuPayload,
+                    smallGreenSkuPayload,
+                    largeRedSkuPayload,
+                    largeGreenSkuPayload)),
+            variants = None
+        )
 
-      val response = PATCH(s"v1/products/${ctx.name}/${product.formId}", upPayload)
-      response.status must === (StatusCodes.BadRequest)
+        val response = PATCH(s"v1/products/${ctx.name}/${product.formId}", upPayload)
+        response.status must === (StatusCodes.BadRequest)
+      }
+
+      "trying to update a product with archived SKU" in new ArchivedSkuFixture {
+        val response =
+          PATCH(s"v1/products/${ctx.name}/${product.formId}", archivedSkuProductPayload)
+
+        response.status must === (StatusCodes.BadRequest)
+        response.error must === (
+            LinkArchivedSkuFailure(Product, product.id, archivedSkuCode).description)
+      }
     }
   }
 
@@ -520,5 +540,17 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
     val smallGreenSkuPayload = makeSkuPayload(skuGreenSmallCode, "A small, green item")
     val largeRedSkuPayload   = makeSkuPayload(skuRedLargeCode, "A small, green item")
     val largeGreenSkuPayload = makeSkuPayload(skuGreenLargeCode, "A large, green item")
+  }
+
+  trait ArchivedSkuFixture extends VariantFixture {
+
+    val archivedSkus = (for {
+      archivedSkus ← * <~ skus.map { sku ⇒
+                      Skus.update(sku, sku.copy(archivedAt = Some(Instant.now)))
+                    }
+    } yield archivedSkus).gimme
+
+    val archivedSkuCode           = "SKU-RED-SMALL"
+    val archivedSkuProductPayload = productPayload.copy(skus = Seq(smallRedSkuPayload))
   }
 }

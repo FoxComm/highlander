@@ -35,6 +35,11 @@ object SkuRoutes {
                 SkuManager.updateSku(context, code, payload)
               }
             } ~
+            (delete & pathEnd) {
+              mutateOrFailures {
+                SkuManager.archiveByContextAndId(context, code)
+              }
+            } ~
             pathPrefix("albums") {
               (get & pathEnd) {
                 getOrFailures {

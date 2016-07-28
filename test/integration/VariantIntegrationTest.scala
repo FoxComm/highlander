@@ -1,8 +1,12 @@
+import java.time.Instant
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
+import failures.ArchiveFailures.{LinkArchivedSkuFailure, _}
 import failures.ObjectFailures.ObjectContextNotFound
+import models.inventory.Skus
 import models.objects.ObjectContexts
 import models.product._
 import org.json4s.JsonDSL._
@@ -43,6 +47,13 @@ class VariantIntegrationTest extends IntegrationTestBase with HttpSupport with A
 
       val name = variantResponse.attributes \ "name" \ "v"
       name.extract[String] must === ("Color")
+    }
+
+    "Fails when trying to create variant with archived sku as value" in new ArchivedSkusFixture {
+      val response = POST(s"v1/variants/${context.name}", archivedSkuVariantPayload)
+
+      response.status must === (StatusCodes.BadRequest)
+      response.error must === (LinkArchivedSkuFailure(Variant, 10, archivedSkuCode).description)
     }
   }
 
@@ -89,6 +100,19 @@ class VariantIntegrationTest extends IntegrationTestBase with HttpSupport with A
       val names = variantResponse.values.map(_.name).toSet
       names must === (Set("Small", "Large"))
     }
+
+    "Fails when trying to attach archived SKU to the variant" in new ArchivedSkusFixture {
+      var payload = VariantPayload(attributes =
+                                     Map("name" → (("t" → "wtring") ~ ("v" → "New Size"))),
+                                   values = Some(Seq(archivedSkuVariantValuePayload)))
+      val response =
+        PATCH(s"v1/variants/${context.name}/${variant.variant.variantFormId}", payload)
+
+      response.status must === (StatusCodes.BadRequest)
+      response.error must === (LinkArchivedSkuFailure(Variant,
+                                                      variant.variant.variantFormId,
+                                                      archivedSkuCode).description)
+    }
   }
 
   "POST v1/variants/:context/:id/values" - {
@@ -104,6 +128,19 @@ class VariantIntegrationTest extends IntegrationTestBase with HttpSupport with A
 
       valueResponse.swatch must === (Some("ff0000"))
       valueResponse.skuCodes must === (Seq(skus.head.code))
+    }
+
+    "Fails when attaching archived SKU to variant as variant value" in new ArchivedSkusFixture {
+      val response = POST(s"v1/variants/${context.name}", createVariantPayload)
+      response.status must === (StatusCodes.OK)
+      val variantResponse = response.as[IlluminatedVariantResponse.Root]
+
+      val response2 = POST(s"v1/variants/${context.name}/${variantResponse.id}/values",
+                           archivedSkuVariantValuePayload)
+
+      response2.status must === (StatusCodes.BadRequest)
+      response2.error must === (
+          LinkArchivedSkuFailure(Variant, variantResponse.id, archivedSkuCode).description)
     }
   }
 
@@ -146,5 +183,21 @@ class VariantIntegrationTest extends IntegrationTestBase with HttpSupport with A
                                                                      productData.productId)
       variant ← * <~ Mvp.insertVariantWithValues(context.id, product, simpleSizeVariant)
     } yield (product, variant)).gimme
+  }
+
+  trait ArchivedSkusFixture extends VariantFixture {
+
+    val archivedSkus = (for {
+      archivedSkus ← * <~ skus.map { sku ⇒
+                      Skus.update(sku, sku.copy(archivedAt = Some(Instant.now)))
+                    }
+    } yield archivedSkus).gimme
+
+    val archivedSku     = archivedSkus.head
+    val archivedSkuCode = archivedSku.code
+    val archivedSkuVariantValuePayload =
+      createVariantValuePayload.copy(skuCodes = Seq(archivedSkuCode))
+    val archivedSkuVariantPayload =
+      createVariantPayload.copy(values = Some(Seq(archivedSkuVariantValuePayload)))
   }
 }
