@@ -56,6 +56,7 @@ const initialState = {
   users: [],
   balance: 100,
   quantity: 1,
+  reasonId: null,
   originType: 'Appeasement',
   sendToCustomer: false,
   emailCSV: false,
