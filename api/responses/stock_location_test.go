@@ -8,24 +8,25 @@ import (
 	"testing"
 
 	"github.com/FoxComm/middlewarehouse/models"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
 
-type stockLocationTestSuite struct {
+type stockLocationResponseTestSuite struct {
 	suite.Suite
 	assert *assert.Assertions
 }
 
-func TestStockLocationSuite(t *testing.T) {
-	suite.Run(t, new(stockLocationTestSuite))
+func TestStockLocationResponseSuite(t *testing.T) {
+	suite.Run(t, new(stockLocationResponseTestSuite))
 }
 
-func (suite *stockLocationTestSuite) SetupSuite() {
+func (suite *stockLocationResponseTestSuite) SetupSuite() {
 	suite.assert = assert.New(suite.T())
 }
 
-func (suite *stockLocationTestSuite) Test_NewStockLocationFromModel() {
+func (suite *stockLocationResponseTestSuite) Test_NewStockLocationFromModel() {
 	id := uint(1)
 	name, locationType := "First Location", "Warehouse"
 
@@ -58,7 +59,7 @@ func (suite *stockLocationTestSuite) Test_NewStockLocationFromModel() {
 	suite.assert.Equal(addressName, response.Address.Name)
 }
 
-func (suite *stockLocationTestSuite) Test_JSONEncoding() {
+func (suite *stockLocationResponseTestSuite) Test_JSONEncoding() {
 	id := uint(1)
 	name, locationType := "First Location", "Warehouse"
 
@@ -99,7 +100,7 @@ func (suite *stockLocationTestSuite) Test_JSONEncoding() {
 	suite.assert.Equal(expected, strings.TrimSpace(actual))
 }
 
-func (suite *stockLocationTestSuite) Test_JSONEncoding_EmptyAddress() {
+func (suite *stockLocationResponseTestSuite) Test_JSONEncoding_EmptyAddress() {
 	id := uint(1)
 	name, locationType := "First Location", "Warehouse"
 

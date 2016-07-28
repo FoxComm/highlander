@@ -10,20 +10,20 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-type stockLocationTestSuite struct {
+type stockLocationPayloadTestSuite struct {
 	suite.Suite
 	assert *assert.Assertions
 }
 
-func TestStockLocationSuite(t *testing.T) {
-	suite.Run(t, new(stockLocationTestSuite))
+func TestStockLocationPayloadSuite(t *testing.T) {
+	suite.Run(t, new(stockLocationPayloadTestSuite))
 }
 
-func (suite *stockLocationTestSuite) SetupSuite() {
+func (suite *stockLocationPayloadTestSuite) SetupSuite() {
 	suite.assert = assert.New(suite.T())
 }
 
-func (suite *stockLocationTestSuite) Test_StockLocation() {
+func (suite *stockLocationPayloadTestSuite) Test_StockLocation() {
 	name, locationType := "First Location", "Warehouse"
 
 	addressName := "WH Address"
@@ -57,7 +57,7 @@ func (suite *stockLocationTestSuite) Test_StockLocation() {
 	suite.assert.Equal(addressName, payload.Address.Name)
 }
 
-func (suite *stockLocationTestSuite) Test_StockLocation_NoAddress() {
+func (suite *stockLocationPayloadTestSuite) Test_StockLocation_NoAddress() {
 	name, locationType := "First Location", "Warehouse"
 
 	raw := fmt.Sprintf(`{
