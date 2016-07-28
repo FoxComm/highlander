@@ -1,6 +1,7 @@
 // libs
 import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
+import SaveCancel from '../common/save-cancel';
 
 export default class NoteForm extends React.Component {
   static propTypes = {
@@ -14,25 +15,23 @@ export default class NoteForm extends React.Component {
     maxBodyLength: 1000
   };
 
-  constructor(...args) {
-    super(...args);
-    this.state = {
-      body: this.props.body || ''
-    };
-  }
+  state = {
+    body: this.props.body || '',
+  };
 
   componentDidMount() {
-    let node = this.refs.body;
-    let value = node.value;
+    const node = this.refs.body;
+    const value = node.value;
     node.value = '';
     node.value = value;
     node.focus();
   }
 
+
   @autobind
-  handleChange() {
+  handleChange(evt) {
     this.setState({
-      body: this.refs.body.value
+      body: evt.target.value,
     });
   }
 
@@ -45,28 +44,29 @@ export default class NoteForm extends React.Component {
   }
 
   render() {
-    let title = this.props.body ? 'Edit note' : 'New note';
-    const {body} = this.state;
-    const {maxBodyLength, onReset} = this.props;
+    const { state, props } = this;
+    const title = props.body ? 'Edit note' : 'New note';
 
     return (
       <div className="fc-notes-form">
-        <form onChange={this.handleChange} onSubmit={this.handleSubmit}>
+        <form onSubmit={this.handleSubmit}>
           <fieldset>
             <legend>{title}</legend>
             <div className="note-body">
-              <div className="counter">{this.state.body.length}/1000</div>
+              <div className="counter">{state.body.length}/1000</div>
               <textarea
                 ref="body"
                 name="body"
-                maxLength={maxBodyLength}
-                value={body}
-                required>
-              </textarea>
+                maxLength={props.maxBodyLength}
+                value={state.body}
+                onChange={this.handleChange}
+                required
+              />
             </div>
             <div className="fc-notes-form-controls">
-              <input className="fc-btn fc-btn-secondary" type="reset" value="Cancel" onClick={onReset}/>
-              <input className="fc-btn fc-btn-primary" type="submit" value="Save"/>
+              <SaveCancel
+                onCancel={props.onReset}
+              />
             </div>
           </fieldset>
         </form>
