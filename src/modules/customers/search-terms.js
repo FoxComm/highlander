@@ -5,7 +5,7 @@ const searchTerms = [
     options: [
       {
         title: 'Name',
-        type: 'string',
+        type: 'string-not-analyzed',
         term: 'name'
       }, {
         title: 'Email',
@@ -31,7 +31,7 @@ const searchTerms = [
     options: [
       {
         title: 'Reference Number',
-        type: 'identifier',
+        type: 'term',
         term: 'orders.referenceNumber'
       }, {
         title: 'State',
