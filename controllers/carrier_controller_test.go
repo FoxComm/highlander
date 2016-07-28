@@ -173,11 +173,10 @@ func (suite *carrierControllerTestSuite) Test_DeleteCarrier_Found() {
 	suite.service.On("DeleteCarrier").Return(true).Once()
 
 	//act
-	var result string
-	response := suite.Delete("/carriers/1", &result)
+	response := suite.Delete("/carriers/1")
 
 	//assert
 	suite.assert.Equal(http.StatusNoContent, response.Code)
-	suite.assert.Equal("", result)
+	suite.assert.Equal("", response.Body.String())
 	suite.service.AssertExpectations(suite.T())
 }

@@ -173,11 +173,10 @@ func (suite *shippingMethodControllerTestSuite) Test_DeleteShippingMethod_Found(
 	suite.service.On("DeleteShippingMethod").Return(true).Once()
 
 	//act
-	var result string
-	response := suite.Delete("/shippingMethods/1", &result)
+	response := suite.Delete("/shippingMethods/1")
 
 	//assert
 	suite.assert.Equal(http.StatusNoContent, response.Code)
-	suite.assert.Equal("", result)
+	suite.assert.Equal("", response.Body.String())
 	suite.service.AssertExpectations(suite.T())
 }
