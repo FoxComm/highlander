@@ -1,4 +1,5 @@
 export const ReasonType = {
   STORE_CREDIT_CREATION: 'storeCreditCreation',
-  CANCELLATION: 'cancellation'
+  CANCELLATION: 'cancellation',
+  GIFT_CARD_CREATION: 'giftCardCreation',
 };
