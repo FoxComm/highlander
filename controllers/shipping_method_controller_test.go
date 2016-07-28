@@ -31,7 +31,7 @@ func (suite *shippingMethodControllerTestSuite) SetupSuite() {
 	suite.service = &mocks.ShippingMethodServiceMock{}
 
 	controller := NewShippingMethodController(suite.service)
-	controller.SetUp(suite.router.Group("/shippingMethods"))
+	controller.SetUp(suite.router.Group("/shipping-methods"))
 
 	suite.assert = assert.New(suite.T())
 }
@@ -42,141 +42,169 @@ func (suite *shippingMethodControllerTestSuite) TearDownTest() {
 	suite.service.Calls = []mock.Call{}
 }
 
-func (suite *shippingMethodControllerTestSuite) Test_GetShippingMethods_EmptyData() {
+func (suite *shippingMethodControllerTestSuite) Test_GetShippingMethods_EmptyData_ReturnsEmptyArray() {
 	//arrange
 	suite.service.On("GetShippingMethods").Return(&[]*models.ShippingMethod{}, nil).Once()
 
 	//act
-	result := []responses.ShippingMethod{}
-	response := suite.Get("/shippingMethods/", &result)
+	shippingMethods := []responses.ShippingMethod{}
+	response := suite.Get("/shipping-methods/", &shippingMethods)
 
 	//assert
 	suite.assert.Equal(http.StatusOK, response.Code)
-	suite.assert.Equal(0, len(result))
+	suite.assert.Equal(0, len(shippingMethods))
+
+	//assert all expectations were met
 	suite.service.AssertExpectations(suite.T())
 }
 
-func (suite *shippingMethodControllerTestSuite) Test_GetShippingMethods_NonEmptyData() {
+func (suite *shippingMethodControllerTestSuite) Test_GetShippingMethods_NonEmptyData_ReturnsRecordsArray() {
 	//arrange
-	shippingMethod1 := &models.ShippingMethod{CarrierID: uint(1), Name: "UPS 2 days ground"}
-	shippingMethod2 := &models.ShippingMethod{CarrierID: uint(2), Name: "DHL 2 days ground"}
-	suite.service.On("GetShippingMethods").Return([]*models.ShippingMethod{
-		shippingMethod1,
-		shippingMethod2,
-	}, nil).Once()
+	shippingMethod1 := &models.ShippingMethod{uint(1), uint(1), "UPS 2 day ground"}
+	shippingMethod2 := &models.ShippingMethod{uint(2), uint(2), "DHL 2 day ground"}
+	suite.service.On("GetShippingMethods").Return([]*models.ShippingMethod{shippingMethod1, shippingMethod2}, nil).Once()
 
 	//act
-	result := []responses.ShippingMethod{}
-	response := suite.Get("/shippingMethods/", &result)
+	shippingMethods := []responses.ShippingMethod{}
+	response := suite.Get("/shipping-methods/", &shippingMethods)
 
 	//assert
 	suite.assert.Equal(http.StatusOK, response.Code)
-	suite.assert.Equal(2, len(result))
-	suite.assert.Equal(shippingMethod1.CarrierID, result[0].CarrierID)
-	suite.assert.Equal(shippingMethod1.Name, result[0].Name)
-	suite.assert.Equal(shippingMethod2.CarrierID, result[1].CarrierID)
-	suite.assert.Equal(shippingMethod2.Name, result[1].Name)
+	suite.assert.Equal(2, len(shippingMethods))
+	suite.assert.Equal(shippingMethod1.ID, shippingMethods[0].ID)
+	suite.assert.Equal(shippingMethod1.CarrierID, shippingMethods[0].CarrierID)
+	suite.assert.Equal(shippingMethod1.Name, shippingMethods[0].Name)
+	suite.assert.Equal(shippingMethod2.ID, shippingMethods[1].ID)
+	suite.assert.Equal(shippingMethod2.CarrierID, shippingMethods[1].CarrierID)
+	suite.assert.Equal(shippingMethod2.Name, shippingMethods[1].Name)
+
+	//assert all expectations were met
 	suite.service.AssertExpectations(suite.T())
 }
 
-func (suite *shippingMethodControllerTestSuite) Test_GetShippingMethodByID_NotFound() {
+func (suite *shippingMethodControllerTestSuite) Test_GetShippingMethodByID_NotFound_ReturnsNotFoundError() {
 	//arrange
-	suite.service.On("GetShippingMethodByID").Return(nil, gorm.ErrRecordNotFound).Once()
+	suite.service.On("GetShippingMethodByID", uint(1)).Return(nil, gorm.ErrRecordNotFound).Once()
 
 	//act
-	result := responses.Error{}
-	response := suite.Get("/shippingMethods/1", &result)
+	errors := responses.Error{}
+	response := suite.Get("/shipping-methods/1", &errors)
 
 	//assert
 	suite.assert.Equal(http.StatusNotFound, response.Code)
-	suite.assert.Equal(1, len(result.Errors))
+	suite.assert.Equal(1, len(errors.Errors))
+	suite.assert.Equal(gorm.ErrRecordNotFound.Error(), errors.Errors[0])
+
+	//assert all expectations were met
 	suite.service.AssertExpectations(suite.T())
 }
 
-func (suite *shippingMethodControllerTestSuite) Test_GetShippingMethodByID_Found() {
+func (suite *shippingMethodControllerTestSuite) Test_GetShippingMethodByID_Found_ReturnsRecord() {
 	//arrange
-	shippingMethod := &models.ShippingMethod{CarrierID: uint(1), Name: "UPS 2 days ground"}
-	suite.service.On("GetShippingMethodByID").Return(shippingMethod, nil).Once()
+	shippingMethod1 := &models.ShippingMethod{uint(1), uint(1), "UPS 2 day ground"}
+	suite.service.On("GetShippingMethodByID", uint(1)).Return(shippingMethod1, nil).Once()
 
 	//act
-	result := responses.ShippingMethod{}
-	response := suite.Get("/shippingMethods/1", &result)
+	shippingMethod := responses.ShippingMethod{}
+	response := suite.Get("/shipping-methods/1", &shippingMethod)
 
 	//assert
 	suite.assert.Equal(http.StatusOK, response.Code)
-	suite.assert.Equal(shippingMethod.CarrierID, result.CarrierID)
-	suite.assert.Equal(shippingMethod.Name, result.Name)
+	suite.assert.Equal(shippingMethod1.ID, shippingMethod.ID)
+	suite.assert.Equal(shippingMethod1.CarrierID, shippingMethod.CarrierID)
+	suite.assert.Equal(shippingMethod1.Name, shippingMethod.Name)
+
+	//assert all expectations were met
 	suite.service.AssertExpectations(suite.T())
 }
 
-func (suite *shippingMethodControllerTestSuite) Test_CreateShippingMethod() {
+func (suite *shippingMethodControllerTestSuite) Test_CreateShippingMethod_ReturnsRecord() {
 	//arrange
-	shippingMethod := &payloads.ShippingMethod{CarrierID: uint(1), Name: "UPS 2 days ground"}
-	suite.service.On("CreateShippingMethod").Return(uint(1), nil).Once()
+	shippingMethod1 := &payloads.ShippingMethod{uint(1), "UPS 2 day ground"}
+	shippingMethod1Model := models.NewShippingMethodFromPayload(shippingMethod1)
+	suite.service.On("CreateShippingMethod", shippingMethod1Model).Return(shippingMethod1Model, nil).Once()
 
 	//act
-	var result uint
-	response := suite.Post("/shippingMethods/", shippingMethod, &result)
+	shippingMethod := responses.ShippingMethod{}
+	response := suite.Post("/shipping-methods/", shippingMethod1, &shippingMethod)
 
 	//assert
 	suite.assert.Equal(http.StatusCreated, response.Code)
-	suite.assert.Equal(uint(1), result)
+	suite.assert.Equal(shippingMethod1.CarrierID, shippingMethod.CarrierID)
+	suite.assert.Equal(shippingMethod1.Name, shippingMethod.Name)
+
+	//assert all expectations were met
 	suite.service.AssertExpectations(suite.T())
 }
 
-func (suite *shippingMethodControllerTestSuite) Test_UpdateShippingMethod_NotFound() {
+func (suite *shippingMethodControllerTestSuite) Test_UpdateShippingMethod_NotFound_ReturnsNotFoundError() {
 	//arrange
-	shippingMethod := &payloads.ShippingMethod{CarrierID: uint(1), Name: "UPS 2 days ground"}
-	suite.service.On("UpdateShippingMethod").Return(false, gorm.ErrRecordNotFound).Once()
+	shippingMethod1 := &payloads.ShippingMethod{uint(1), "UPS 2 day ground"}
+	shippingMethod1Model := models.NewShippingMethodFromPayload(shippingMethod1)
+	shippingMethod1Model.ID = 1
+	suite.service.On("UpdateShippingMethod", shippingMethod1Model).Return(nil, gorm.ErrRecordNotFound).Once()
 
 	//act
-	result := responses.Error{}
-	response := suite.Put("/shippingMethods/1", shippingMethod, &result)
+	errors := responses.Error{}
+	response := suite.Put("/shipping-methods/1", shippingMethod1, &errors)
 
 	//assert
 	suite.assert.Equal(http.StatusNotFound, response.Code)
-	suite.assert.Equal(1, len(result.Errors))
+	suite.assert.Equal(1, len(errors.Errors))
+	suite.assert.Equal(gorm.ErrRecordNotFound.Error(), errors.Errors[0])
+
+	//assert all expectations were met
 	suite.service.AssertExpectations(suite.T())
 }
 
-func (suite *shippingMethodControllerTestSuite) Test_UpdateShippingMethod_Found() {
+func (suite *shippingMethodControllerTestSuite) Test_UpdateShippingMethod_Found_ReturnsRecord() {
 	//arrange
-	shippingMethod := &payloads.ShippingMethod{CarrierID: uint(1), Name: "UPS 2 days ground"}
-	suite.service.On("UpdateShippingMethod").Return(true).Once()
+	shippingMethod1 := &payloads.ShippingMethod{uint(1), "UPS 2 day ground"}
+	shippingMethod1Model := models.NewShippingMethodFromPayload(shippingMethod1)
+	shippingMethod1Model.ID = 1
+	suite.service.On("UpdateShippingMethod", shippingMethod1Model).Return(shippingMethod1Model, nil).Once()
 
 	//act
-	var result string
-	response := suite.Put("/shippingMethods/1", shippingMethod, &result)
+	shippingMethod := responses.ShippingMethod{}
+	response := suite.Put("/shipping-methods/1", shippingMethod1, &shippingMethod)
 
 	//assert
-	suite.assert.Equal(http.StatusNoContent, response.Code)
-	suite.assert.Equal("", result)
+	suite.assert.Equal(http.StatusOK, response.Code)
+	suite.assert.Equal(shippingMethod1.CarrierID, shippingMethod.CarrierID)
+	suite.assert.Equal(shippingMethod1.Name, shippingMethod.Name)
+
+	//assert all expectations were met
 	suite.service.AssertExpectations(suite.T())
 }
 
-func (suite *shippingMethodControllerTestSuite) Test_DeleteShippingMethod_NotFound() {
+func (suite *shippingMethodControllerTestSuite) Test_DeleteShippingMethod_NotFound_ReturnsNotFoundError() {
 	//arrange
-	suite.service.On("DeleteShippingMethod").Return(false, gorm.ErrRecordNotFound).Once()
+	suite.service.On("DeleteShippingMethod", uint(1)).Return(false, gorm.ErrRecordNotFound).Once()
 
 	//act
-	result := responses.Error{}
-	response := suite.Delete("/shippingMethods/1", &result)
+	errors := responses.Error{}
+	response := suite.Delete("/shipping-methods/1", &errors)
 
 	//assert
 	suite.assert.Equal(http.StatusNotFound, response.Code)
-	suite.assert.Equal(1, len(result.Errors))
+	suite.assert.Equal(1, len(errors.Errors))
+	suite.assert.Equal(gorm.ErrRecordNotFound.Error(), errors.Errors[0])
+
+	//assert all expectations were met
 	suite.service.AssertExpectations(suite.T())
 }
 
 func (suite *shippingMethodControllerTestSuite) Test_DeleteShippingMethod_Found() {
 	//arrange
-	suite.service.On("DeleteShippingMethod").Return(true).Once()
+	suite.service.On("DeleteShippingMethod", uint(1)).Return(true).Once()
 
 	//act
-	response := suite.Delete("/shippingMethods/1")
+	response := suite.Delete("/shipping-methods/1")
 
 	//assert
 	suite.assert.Equal(http.StatusNoContent, response.Code)
 	suite.assert.Equal("", response.Body.String())
+
+	//assert all expectations were met
 	suite.service.AssertExpectations(suite.T())
 }

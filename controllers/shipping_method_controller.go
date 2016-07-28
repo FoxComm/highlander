@@ -55,12 +55,11 @@ func (controller *shippingMethodController) GetShippingMethodByID() gin.HandlerF
 
 		//get shippingMethod by id
 		shippingMethod, err := controller.service.GetShippingMethodByID(id)
-		if err != nil {
+		if err == nil {
+			context.JSON(http.StatusOK, responses.NewShippingMethodFromModel(shippingMethod))
+		} else {
 			handleServiceError(context, err)
-			return
 		}
-
-		context.JSON(http.StatusOK, responses.NewShippingMethodFromModel(shippingMethod))
 	}
 }
 
@@ -73,9 +72,9 @@ func (controller *shippingMethodController) CreateShippingMethod() gin.HandlerFu
 		}
 
 		//try create
-		model := models.NewShippingMethodFromPayload(payload)
-		if id, err := controller.service.CreateShippingMethod(model); err == nil {
-			context.JSON(http.StatusCreated, id)
+		shippingMethod, err := controller.service.CreateShippingMethod(models.NewShippingMethodFromPayload(payload))
+		if err == nil {
+			context.JSON(http.StatusCreated, responses.NewShippingMethodFromModel(shippingMethod))
 		} else {
 			handleServiceError(context, err)
 		}
@@ -99,12 +98,13 @@ func (controller *shippingMethodController) UpdateShippingMethod() gin.HandlerFu
 		//try update
 		model := models.NewShippingMethodFromPayload(payload)
 		model.ID = id
-		if err := controller.service.UpdateShippingMethod(model); err != nil {
-			handleServiceError(context, err)
-			return
-		}
+		shippingMethod, err := controller.service.UpdateShippingMethod(model)
 
-		context.Status(http.StatusNoContent)
+		if err == nil {
+			context.JSON(http.StatusOK, responses.NewShippingMethodFromModel(shippingMethod))
+		} else {
+			handleServiceError(context, err)
+		}
 	}
 }
 
@@ -115,11 +115,10 @@ func (controller *shippingMethodController) DeleteShippingMethod() gin.HandlerFu
 			return
 		}
 
-		if err := controller.service.DeleteShippingMethod(id); err != nil {
+		if err := controller.service.DeleteShippingMethod(id); err == nil {
+			context.Status(http.StatusNoContent)
+		} else {
 			handleServiceError(context, err)
-			return
 		}
-
-		context.Status(http.StatusNoContent)
 	}
 }

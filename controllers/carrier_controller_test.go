@@ -42,135 +42,161 @@ func (suite *carrierControllerTestSuite) TearDownTest() {
 	suite.service.Calls = []mock.Call{}
 }
 
-func (suite *carrierControllerTestSuite) Test_GetCarriers_EmptyData() {
+func (suite *carrierControllerTestSuite) Test_GetCarriers_EmptyData_ReturnsEmptyArray() {
 	//arrange
 	suite.service.On("GetCarriers").Return(&[]*models.Carrier{}, nil).Once()
 
 	//act
-	result := []responses.Carrier{}
-	response := suite.Get("/carriers/", &result)
+	carriers := []responses.Carrier{}
+	response := suite.Get("/carriers/", &carriers)
 
 	//assert
 	suite.assert.Equal(http.StatusOK, response.Code)
-	suite.assert.Equal(0, len(result))
+	suite.assert.Equal(0, len(carriers))
+
+	//assert all expectations were met
 	suite.service.AssertExpectations(suite.T())
 }
 
-func (suite *carrierControllerTestSuite) Test_GetCarriers_NonEmptyData() {
+func (suite *carrierControllerTestSuite) Test_GetCarriers_NonEmptyData_ReturnsRecordsArray() {
 	//arrange
-	carrier1 := &models.Carrier{Name: "UPS", TrackingTemplate: "http://ups.com"}
-	carrier2 := &models.Carrier{Name: "DHL", TrackingTemplate: "http://dhl.com"}
-	suite.service.On("GetCarriers").Return([]*models.Carrier{
-		carrier1,
-		carrier2,
-	}, nil).Once()
+	carrier1 := &models.Carrier{uint(1), "UPS", "http://ups.com"}
+	carrier2 := &models.Carrier{uint(2), "DHL", "http://dhl.com"}
+	suite.service.On("GetCarriers").Return([]*models.Carrier{carrier1, carrier2}, nil).Once()
 
 	//act
-	result := []responses.Carrier{}
-	response := suite.Get("/carriers/", &result)
+	carriers := []responses.Carrier{}
+	response := suite.Get("/carriers/", &carriers)
 
 	//assert
 	suite.assert.Equal(http.StatusOK, response.Code)
-	suite.assert.Equal(2, len(result))
-	suite.assert.Equal(carrier1.Name, result[0].Name)
-	suite.assert.Equal(carrier1.TrackingTemplate, result[0].TrackingTemplate)
-	suite.assert.Equal(carrier2.Name, result[1].Name)
-	suite.assert.Equal(carrier2.TrackingTemplate, result[1].TrackingTemplate)
+	suite.assert.Equal(2, len(carriers))
+	suite.assert.Equal(carrier1.ID, carriers[0].ID)
+	suite.assert.Equal(carrier1.Name, carriers[0].Name)
+	suite.assert.Equal(carrier1.TrackingTemplate, carriers[0].TrackingTemplate)
+	suite.assert.Equal(carrier2.ID, carriers[1].ID)
+	suite.assert.Equal(carrier2.Name, carriers[1].Name)
+	suite.assert.Equal(carrier2.TrackingTemplate, carriers[1].TrackingTemplate)
+
+	//assert all expectations were met
 	suite.service.AssertExpectations(suite.T())
 }
 
-func (suite *carrierControllerTestSuite) Test_GetCarrierByID_NotFound() {
+func (suite *carrierControllerTestSuite) Test_GetCarrierByID_NotFound_ReturnsNotFoundError() {
 	//arrange
-	suite.service.On("GetCarrierByID").Return(nil, gorm.ErrRecordNotFound).Once()
+	suite.service.On("GetCarrierByID", uint(1)).Return(nil, gorm.ErrRecordNotFound).Once()
 
 	//act
-	result := responses.Error{}
-	response := suite.Get("/carriers/1", &result)
+	errors := responses.Error{}
+	response := suite.Get("/carriers/1", &errors)
 
 	//assert
 	suite.assert.Equal(http.StatusNotFound, response.Code)
-	suite.assert.Equal(1, len(result.Errors))
+	suite.assert.Equal(1, len(errors.Errors))
+	suite.assert.Equal(gorm.ErrRecordNotFound.Error(), errors.Errors[0])
+
+	//assert all expectations were met
 	suite.service.AssertExpectations(suite.T())
 }
 
-func (suite *carrierControllerTestSuite) Test_GetCarrierByID_Found() {
+func (suite *carrierControllerTestSuite) Test_GetCarrierByID_Found_ReturnsRecord() {
 	//arrange
-	carrier := &models.Carrier{Name: "UPS", TrackingTemplate: "http://ups.com"}
-	suite.service.On("GetCarrierByID").Return(carrier, nil).Once()
+	carrier1 := &models.Carrier{uint(1), "UPS", "http://ups.com"}
+	suite.service.On("GetCarrierByID", uint(1)).Return(carrier1, nil).Once()
 
 	//act
-	result := responses.Carrier{}
-	response := suite.Get("/carriers/1", &result)
+	carrier := responses.Carrier{}
+	response := suite.Get("/carriers/1", &carrier)
 
 	//assert
 	suite.assert.Equal(http.StatusOK, response.Code)
-	suite.assert.Equal(carrier.Name, result.Name)
-	suite.assert.Equal(carrier.TrackingTemplate, result.TrackingTemplate)
+	suite.assert.Equal(carrier1.ID, carrier.ID)
+	suite.assert.Equal(carrier1.Name, carrier.Name)
+	suite.assert.Equal(carrier1.TrackingTemplate, carrier.TrackingTemplate)
+
+	//assert all expectations were met
 	suite.service.AssertExpectations(suite.T())
 }
 
-func (suite *carrierControllerTestSuite) Test_CreateCarrier() {
+func (suite *carrierControllerTestSuite) Test_CreateCarrier_ReturnsRecord() {
 	//arrange
-	carrier := &payloads.Carrier{Name: "UPS", TrackingTemplate: "http://ups.com"}
-	suite.service.On("CreateCarrier").Return(uint(1), nil).Once()
+	carrier1 := &payloads.Carrier{"UPS", "http://ups.com"}
+	carrier1Model := models.NewCarrierFromPayload(carrier1)
+	suite.service.On("CreateCarrier", carrier1Model).Return(carrier1Model, nil).Once()
 
 	//act
-	var result uint
-	response := suite.Post("/carriers/", carrier, &result)
+	carrier := responses.Carrier{}
+	response := suite.Post("/carriers/", carrier1, &carrier)
 
 	//assert
 	suite.assert.Equal(http.StatusCreated, response.Code)
-	suite.assert.Equal(uint(1), result)
+	suite.assert.Equal(carrier1.Name, carrier.Name)
+	suite.assert.Equal(carrier1.TrackingTemplate, carrier.TrackingTemplate)
+
+	//assert all expectations were met
 	suite.service.AssertExpectations(suite.T())
 }
 
-func (suite *carrierControllerTestSuite) Test_UpdateCarrier_NotFound() {
+func (suite *carrierControllerTestSuite) Test_UpdateCarrier_NotFound_ReturnsNotFoundError() {
 	//arrange
-	carrier := &payloads.Carrier{Name: "DHL", TrackingTemplate: "http://dhl.com"}
-	suite.service.On("UpdateCarrier").Return(false, gorm.ErrRecordNotFound).Once()
+	carrier1 := &payloads.Carrier{"UPS", "http://ups.com"}
+	carrier1Model := models.NewCarrierFromPayload(carrier1)
+	carrier1Model.ID = 1
+	suite.service.On("UpdateCarrier", carrier1Model).Return(nil, gorm.ErrRecordNotFound).Once()
 
 	//act
-	result := responses.Error{}
-	response := suite.Put("/carriers/1", carrier, &result)
+	errors := responses.Error{}
+	response := suite.Put("/carriers/1", carrier1, &errors)
 
 	//assert
 	suite.assert.Equal(http.StatusNotFound, response.Code)
-	suite.assert.Equal(1, len(result.Errors))
+	suite.assert.Equal(1, len(errors.Errors))
+	suite.assert.Equal(gorm.ErrRecordNotFound.Error(), errors.Errors[0])
+
+	//assert all expectations were met
 	suite.service.AssertExpectations(suite.T())
 }
 
-func (suite *carrierControllerTestSuite) Test_UpdateCarrier_Found() {
+func (suite *carrierControllerTestSuite) Test_UpdateCarrier_Found_ReturnsRecord() {
 	//arrange
-	carrier := &payloads.Carrier{Name: "UPS", TrackingTemplate: "http://ups.com"}
-	suite.service.On("UpdateCarrier").Return(true).Once()
+	carrier1 := &payloads.Carrier{"UPS", "http://ups.com"}
+	carrier1Model := models.NewCarrierFromPayload(carrier1)
+	carrier1Model.ID = 1
+	suite.service.On("UpdateCarrier", carrier1Model).Return(carrier1Model, nil).Once()
 
 	//act
-	var result string
-	response := suite.Put("/carriers/1", carrier, &result)
+	carrier := responses.Carrier{}
+	response := suite.Put("/carriers/1", carrier1, &carrier)
 
 	//assert
-	suite.assert.Equal(http.StatusNoContent, response.Code)
-	suite.assert.Equal("", result)
+	suite.assert.Equal(http.StatusOK, response.Code)
+	suite.assert.Equal(carrier1.Name, carrier.Name)
+	suite.assert.Equal(carrier1.TrackingTemplate, carrier.TrackingTemplate)
+
+	//assert all expectations were met
 	suite.service.AssertExpectations(suite.T())
 }
 
-func (suite *carrierControllerTestSuite) Test_DeleteCarrier_NotFound() {
+func (suite *carrierControllerTestSuite) Test_DeleteCarrier_NotFound_ReturnsNotFoundError() {
 	//arrange
-	suite.service.On("DeleteCarrier").Return(false, gorm.ErrRecordNotFound).Once()
+	suite.service.On("DeleteCarrier", uint(1)).Return(false, gorm.ErrRecordNotFound).Once()
 
 	//act
-	result := responses.Error{}
-	response := suite.Delete("/carriers/1", &result)
+	errors := responses.Error{}
+	response := suite.Delete("/carriers/1", &errors)
 
 	//assert
 	suite.assert.Equal(http.StatusNotFound, response.Code)
-	suite.assert.Equal(1, len(result.Errors))
+	suite.assert.Equal(1, len(errors.Errors))
+	suite.assert.Equal(gorm.ErrRecordNotFound.Error(), errors.Errors[0])
+
+	//assert all expectations were met
 	suite.service.AssertExpectations(suite.T())
 }
 
 func (suite *carrierControllerTestSuite) Test_DeleteCarrier_Found() {
 	//arrange
-	suite.service.On("DeleteCarrier").Return(true).Once()
+	suite.service.On("DeleteCarrier", uint(1)).Return(true).Once()
 
 	//act
 	response := suite.Delete("/carriers/1")
@@ -178,5 +204,7 @@ func (suite *carrierControllerTestSuite) Test_DeleteCarrier_Found() {
 	//assert
 	suite.assert.Equal(http.StatusNoContent, response.Code)
 	suite.assert.Equal("", response.Body.String())
+
+	//assert all expectations were met
 	suite.service.AssertExpectations(suite.T())
 }

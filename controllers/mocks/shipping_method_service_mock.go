@@ -21,7 +21,7 @@ func (service *ShippingMethodServiceMock) GetShippingMethods() ([]*models.Shippi
 }
 
 func (service *ShippingMethodServiceMock) GetShippingMethodByID(id uint) (*models.ShippingMethod, error) {
-	args := service.Called()
+	args := service.Called(id)
 
 	if model, ok := args.Get(0).(*models.ShippingMethod); ok {
 		return model, nil
@@ -30,28 +30,28 @@ func (service *ShippingMethodServiceMock) GetShippingMethodByID(id uint) (*model
 	return nil, args.Error(1)
 }
 
-func (service *ShippingMethodServiceMock) CreateShippingMethod(shippingMethod *models.ShippingMethod) (uint, error) {
-	args := service.Called()
+func (service *ShippingMethodServiceMock) CreateShippingMethod(shippingMethod *models.ShippingMethod) (*models.ShippingMethod, error) {
+	args := service.Called(shippingMethod)
 
-	if id, ok := args.Get(0).(uint); ok {
-		return id, nil
+	if model, ok := args.Get(0).(*models.ShippingMethod); ok {
+		return model, nil
 	}
 
-	return 0, args.Error(1)
+	return nil, args.Error(1)
 }
 
-func (service *ShippingMethodServiceMock) UpdateShippingMethod(shippingMethod *models.ShippingMethod) error {
-	args := service.Called()
+func (service *ShippingMethodServiceMock) UpdateShippingMethod(shippingMethod *models.ShippingMethod) (*models.ShippingMethod, error) {
+	args := service.Called(shippingMethod)
 
-	if args.Bool(0) {
-		return nil
+	if model, ok := args.Get(0).(*models.ShippingMethod); ok {
+		return model, nil
 	}
 
-	return args.Error(1)
+	return nil, args.Error(1)
 }
 
 func (service *ShippingMethodServiceMock) DeleteShippingMethod(id uint) error {
-	args := service.Called()
+	args := service.Called(id)
 
 	if args.Bool(0) {
 		return nil
