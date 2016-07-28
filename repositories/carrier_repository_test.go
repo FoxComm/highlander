@@ -75,7 +75,7 @@ func (suite *CarrierRepositoryTestSuite) Test_GetCarrierByID_NotFound_ReturnsNot
 	suite.assert.Nil(suite.mock.ExpectationsWereMet())
 }
 
-func (suite *CarrierRepositoryTestSuite) Test_GetCarrierById_Found_ReturnsCarrierModel() {
+func (suite *CarrierRepositoryTestSuite) Test_GetCarrierByID_Found_ReturnsCarrierModel() {
 	//arrange
 	carrier1 := &models.Carrier{uint(1), "UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"}
 	rows := sqlmock.

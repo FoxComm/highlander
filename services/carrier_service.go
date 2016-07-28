@@ -12,8 +12,8 @@ type carrierService struct {
 type ICarrierService interface {
 	GetCarriers() ([]*models.Carrier, error)
 	GetCarrierByID(id uint) (*models.Carrier, error)
-	CreateCarrier(carrier *models.Carrier) (uint, error)
-	UpdateCarrier(carrier *models.Carrier) error
+	CreateCarrier(carrier *models.Carrier) (*models.Carrier, error)
+	UpdateCarrier(carrier *models.Carrier) (*models.Carrier, error)
 	DeleteCarrier(id uint) error
 }
 
@@ -29,11 +29,11 @@ func (service *carrierService) GetCarrierByID(id uint) (*models.Carrier, error) 
 	return service.repository.GetCarrierByID(id)
 }
 
-func (service *carrierService) CreateCarrier(carrier *models.Carrier) (uint, error) {
+func (service *carrierService) CreateCarrier(carrier *models.Carrier) (*models.Carrier, error) {
 	return service.repository.CreateCarrier(carrier)
 }
 
-func (service *carrierService) UpdateCarrier(carrier *models.Carrier) error {
+func (service *carrierService) UpdateCarrier(carrier *models.Carrier) (*models.Carrier, error) {
 	return service.repository.UpdateCarrier(carrier)
 }
 

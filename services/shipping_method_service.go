@@ -12,8 +12,8 @@ type shippingMethodService struct {
 type IShippingMethodService interface {
 	GetShippingMethods() ([]*models.ShippingMethod, error)
 	GetShippingMethodByID(id uint) (*models.ShippingMethod, error)
-	CreateShippingMethod(shippingMethod *models.ShippingMethod) (uint, error)
-	UpdateShippingMethod(shippingMethod *models.ShippingMethod) error
+	CreateShippingMethod(shippingMethod *models.ShippingMethod) (*models.ShippingMethod, error)
+	UpdateShippingMethod(shippingMethod *models.ShippingMethod) (*models.ShippingMethod, error)
 	DeleteShippingMethod(id uint) error
 }
 
@@ -29,11 +29,11 @@ func (service *shippingMethodService) GetShippingMethodByID(id uint) (*models.Sh
 	return service.repository.GetShippingMethodByID(id)
 }
 
-func (service *shippingMethodService) CreateShippingMethod(shippingMethod *models.ShippingMethod) (uint, error) {
+func (service *shippingMethodService) CreateShippingMethod(shippingMethod *models.ShippingMethod) (*models.ShippingMethod, error) {
 	return service.repository.CreateShippingMethod(shippingMethod)
 }
 
-func (service *shippingMethodService) UpdateShippingMethod(shippingMethod *models.ShippingMethod) error {
+func (service *shippingMethodService) UpdateShippingMethod(shippingMethod *models.ShippingMethod) (*models.ShippingMethod, error) {
 	return service.repository.UpdateShippingMethod(shippingMethod)
 }
 

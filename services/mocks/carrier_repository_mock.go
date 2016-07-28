@@ -30,24 +30,24 @@ func (service *CarrierRepositoryMock) GetCarrierByID(id uint) (*models.Carrier, 
 	return nil, args.Error(1)
 }
 
-func (service *CarrierRepositoryMock) CreateCarrier(carrier *models.Carrier) (uint, error) {
+func (service *CarrierRepositoryMock) CreateCarrier(carrier *models.Carrier) (*models.Carrier, error) {
 	args := service.Called()
 
-	if id, ok := args.Get(0).(uint); ok {
-		return id, nil
+	if model, ok := args.Get(0).(*models.Carrier); ok {
+		return model, nil
 	}
 
-	return 0, args.Error(1)
+	return nil, args.Error(1)
 }
 
-func (service *CarrierRepositoryMock) UpdateCarrier(carrier *models.Carrier) error {
+func (service *CarrierRepositoryMock) UpdateCarrier(carrier *models.Carrier) (*models.Carrier, error) {
 	args := service.Called()
 
-	if args.Bool(0) {
-		return nil
+	if model, ok := args.Get(0).(*models.Carrier); ok {
+		return model, nil
 	}
 
-	return args.Error(1)
+	return nil, args.Error(1)
 }
 
 func (service *CarrierRepositoryMock) DeleteCarrier(id uint) error {

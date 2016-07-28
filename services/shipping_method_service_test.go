@@ -6,6 +6,7 @@ import (
 	"github.com/FoxComm/middlewarehouse/models"
 	"github.com/FoxComm/middlewarehouse/services/mocks"
 
+	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
@@ -36,18 +37,9 @@ func (suite *ShippingMethodServiceTestSuite) TearDownTest() {
 
 func (suite *ShippingMethodServiceTestSuite) Test_GetShippingMethods_ReturnsShippingMethodModels() {
 	//arrange
-	shippingMethod1 := &models.ShippingMethod{
-		CarrierID: uint(1),
-		Name:      "UPS 2 days ground",
-	}
-	shippingMethod2 := &models.ShippingMethod{
-		CarrierID: uint(1),
-		Name:      "DHL 2 days ground",
-	}
-	suite.repository.On("GetShippingMethods").Return([]*models.ShippingMethod{
-		shippingMethod1,
-		shippingMethod2,
-	}, nil).Once()
+	shippingMethod1 := &models.ShippingMethod{uint(1), uint(1), "UPS 2 days ground"}
+	shippingMethod2 := &models.ShippingMethod{uint(2), uint(2), "DHL 2 days ground"}
+	suite.repository.On("GetShippingMethods").Return([]*models.ShippingMethod{shippingMethod1, shippingMethod2}, nil).Once()
 
 	//act
 	shippingMethods, err := suite.service.GetShippingMethods()
@@ -56,19 +48,30 @@ func (suite *ShippingMethodServiceTestSuite) Test_GetShippingMethods_ReturnsShip
 	suite.assert.Nil(err)
 
 	suite.assert.Equal(2, len(shippingMethods))
-	suite.assert.Equal(shippingMethod1.CarrierID, shippingMethods[0].CarrierID)
-	suite.assert.Equal(shippingMethod1.Name, shippingMethods[0].Name)
-	suite.assert.Equal(shippingMethod2.CarrierID, shippingMethods[1].CarrierID)
-	suite.assert.Equal(shippingMethod2.Name, shippingMethods[1].Name)
+	suite.assert.Equal(shippingMethod1, shippingMethods[0])
+	suite.assert.Equal(shippingMethod2, shippingMethods[1])
+
+	//assert all expectations were met
 	suite.repository.AssertExpectations(suite.T())
 }
 
-func (suite *ShippingMethodServiceTestSuite) Test_GetShippingMethodById_ReturnsShippingMethodModel() {
+func (suite *ShippingMethodServiceTestSuite) Test_GetShippingMethodByID_NotFound_ReturnsNotFoundError() {
 	//arrange
-	shippingMethod1 := &models.ShippingMethod{
-		CarrierID: uint(1),
-		Name:      "UPS 2 days ground",
-	}
+	suite.repository.On("GetShippingMethodByID").Return(nil, gorm.ErrRecordNotFound).Once()
+
+	//act
+	_, err := suite.service.GetShippingMethodByID(1)
+
+	//assert
+	suite.assert.Equal(gorm.ErrRecordNotFound, err)
+
+	//assert all expectations were met
+	suite.repository.AssertExpectations(suite.T())
+}
+
+func (suite *ShippingMethodServiceTestSuite) Test_GetShippingMethodByID_Found_ReturnsShippingMethodModel() {
+	//arrange
+	shippingMethod1 := &models.ShippingMethod{uint(1), uint(1), "UPS 2 days ground"}
 	suite.repository.On("GetShippingMethodByID").Return(shippingMethod1, nil).Once()
 
 	//act
@@ -76,39 +79,74 @@ func (suite *ShippingMethodServiceTestSuite) Test_GetShippingMethodById_ReturnsS
 
 	//assert
 	suite.assert.Nil(err)
-	suite.assert.Equal(shippingMethod1.CarrierID, shippingMethod.CarrierID)
-	suite.assert.Equal(shippingMethod1.Name, shippingMethod.Name)
+	suite.assert.Equal(shippingMethod1, shippingMethod)
+
+	//assert all expectations were met
 	suite.repository.AssertExpectations(suite.T())
 }
 
-func (suite *ShippingMethodServiceTestSuite) Test_CreaterShippingMethod_ReturnsIdOfCreatedRecord() {
+func (suite *ShippingMethodServiceTestSuite) Test_CreateShippingMethod_ReturnsCreatedRecord() {
 	//arrange
-	carrierID, name := uint(1), "UPS 2 days ground"
-	model := &models.ShippingMethod{CarrierID: carrierID, Name: name}
-	suite.repository.On("CreateShippingMethod").Return(uint(1), nil).Once()
+	shippingMethod1 := &models.ShippingMethod{uint(1), uint(1), "UPS 2 days ground"}
+	suite.repository.On("CreateShippingMethod").Return(shippingMethod1, nil).Once()
 
 	//act
-	id, err := suite.service.CreateShippingMethod(model)
+	shippingMethod, err := suite.service.CreateShippingMethod(shippingMethod1)
 
 	//assert
-	suite.assert.Equal(uint(1), id)
 	suite.assert.Nil(err)
+	suite.assert.Equal(shippingMethod1, shippingMethod)
+
+	//assert all expectations were met
 	suite.repository.AssertExpectations(suite.T())
 }
 
-func (suite *ShippingMethodServiceTestSuite) Test_UpdateShippingMethod_ReturnsNoError() {
+func (suite *ShippingMethodServiceTestSuite) Test_UpdateShippingMethod_NotFound_ReturnsNotFoundError() {
 	//arrange
-	carrierID, name := uint(1), "UPS 2 days ground"
-	suite.repository.On("UpdateShippingMethod").Return(true).Once()
+	shippingMethod1 := &models.ShippingMethod{uint(1), uint(1), "UPS 2 days ground"}
+	suite.repository.On("UpdateShippingMethod").Return(nil, gorm.ErrRecordNotFound).Once()
 
 	//act
-	err := suite.service.UpdateShippingMethod(&models.ShippingMethod{ID: 1, CarrierID: carrierID, Name: name})
+	_, err := suite.service.UpdateShippingMethod(shippingMethod1)
+
+	//assert
+	suite.assert.Equal(gorm.ErrRecordNotFound, err)
+
+	//assert all expectations were met
+	suite.repository.AssertExpectations(suite.T())
+}
+
+func (suite *ShippingMethodServiceTestSuite) Test_UpdateShippingMethod_Found_ReturnsUpdatedRecord() {
+	//arrange
+	shippingMethod1 := &models.ShippingMethod{uint(1), uint(1), "UPS 2 days ground"}
+	suite.repository.On("UpdateShippingMethod").Return(shippingMethod1, nil).Once()
+
+	//act
+	shippingMethod, err := suite.service.UpdateShippingMethod(shippingMethod1)
 
 	//assert
 	suite.assert.Nil(err)
+	suite.assert.Equal(shippingMethod1, shippingMethod)
+
+	//assert all expectations were met
+	suite.repository.AssertExpectations(suite.T())
 }
 
-func (suite *ShippingMethodServiceTestSuite) Test_DeleteShippingMethod_ReturnsNoError() {
+func (suite *ShippingMethodServiceTestSuite) Test_DeleteShippingMethod_NotFound_ReturnsNotFoundError() {
+	//arrange
+	suite.repository.On("DeleteShippingMethod").Return(false, gorm.ErrRecordNotFound).Once()
+
+	//act
+	err := suite.service.DeleteShippingMethod(1)
+
+	//assert
+	suite.assert.Equal(gorm.ErrRecordNotFound, err)
+
+	//assert all expectations were met
+	suite.repository.AssertExpectations(suite.T())
+}
+
+func (suite *ShippingMethodServiceTestSuite) Test_DeleteShippingMethod_Found_ReturnsNoError() {
 	//arrange
 	suite.repository.On("DeleteShippingMethod").Return(true).Once()
 
@@ -117,4 +155,7 @@ func (suite *ShippingMethodServiceTestSuite) Test_DeleteShippingMethod_ReturnsNo
 
 	//assert
 	suite.assert.Nil(err)
+
+	//assert all expectations were met
+	suite.repository.AssertExpectations(suite.T())
 }

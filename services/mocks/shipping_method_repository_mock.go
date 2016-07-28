@@ -30,24 +30,24 @@ func (service *ShippingMethodRepositoryMock) GetShippingMethodByID(id uint) (*mo
 	return nil, args.Error(1)
 }
 
-func (service *ShippingMethodRepositoryMock) CreateShippingMethod(shippingMethod *models.ShippingMethod) (uint, error) {
+func (service *ShippingMethodRepositoryMock) CreateShippingMethod(shippingMethod *models.ShippingMethod) (*models.ShippingMethod, error) {
 	args := service.Called()
 
-	if id, ok := args.Get(0).(uint); ok {
-		return id, nil
+	if model, ok := args.Get(0).(*models.ShippingMethod); ok {
+		return model, nil
 	}
 
-	return 0, args.Error(1)
+	return nil, args.Error(1)
 }
 
-func (service *ShippingMethodRepositoryMock) UpdateShippingMethod(shippingMethod *models.ShippingMethod) error {
+func (service *ShippingMethodRepositoryMock) UpdateShippingMethod(shippingMethod *models.ShippingMethod) (*models.ShippingMethod, error) {
 	args := service.Called()
 
-	if args.Bool(0) {
-		return nil
+	if model, ok := args.Get(0).(*models.ShippingMethod); ok {
+		return model, nil
 	}
 
-	return args.Error(1)
+	return nil, args.Error(1)
 }
 
 func (service *ShippingMethodRepositoryMock) DeleteShippingMethod(id uint) error {

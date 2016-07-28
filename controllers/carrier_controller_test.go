@@ -93,7 +93,7 @@ func (suite *carrierControllerTestSuite) Test_GetCarrierByID_NotFound() {
 	suite.service.AssertExpectations(suite.T())
 }
 
-func (suite *carrierControllerTestSuite) Test_GetCarrierById_Found() {
+func (suite *carrierControllerTestSuite) Test_GetCarrierByID_Found() {
 	//arrange
 	carrier := &models.Carrier{Name: "UPS", TrackingTemplate: "http://ups.com"}
 	suite.service.On("GetCarrierByID").Return(carrier, nil).Once()

@@ -6,6 +6,7 @@ import (
 	"github.com/FoxComm/middlewarehouse/models"
 	"github.com/FoxComm/middlewarehouse/services/mocks"
 
+	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
@@ -35,18 +36,9 @@ func (suite *CarrierServiceTestSuite) TearDownTest() {
 }
 func (suite *CarrierServiceTestSuite) Test_GetCarriers_ReturnsCarrierModels() {
 	//arrange
-	carrier1 := &models.Carrier{
-		Name:             "UPS",
-		TrackingTemplate: "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number",
-	}
-	carrier2 := &models.Carrier{
-		Name:             "DHL",
-		TrackingTemplate: "http://www.dhl.com/en/express/tracking.shtml?AWB=$number&brand=DHL",
-	}
-	suite.repository.On("GetCarriers").Return([]*models.Carrier{
-		carrier1,
-		carrier2,
-	}, nil).Once()
+	carrier1 := &models.Carrier{uint(1), "UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"}
+	carrier2 := &models.Carrier{uint(2), "DHL", "http://www.dhl.com/en/express/tracking.shtml?AWB=$number&brand=DHL"}
+	suite.repository.On("GetCarriers").Return([]*models.Carrier{carrier1, carrier2}, nil).Once()
 
 	//act
 	carriers, err := suite.service.GetCarriers()
@@ -55,19 +47,30 @@ func (suite *CarrierServiceTestSuite) Test_GetCarriers_ReturnsCarrierModels() {
 	suite.assert.Nil(err)
 
 	suite.assert.Equal(2, len(carriers))
-	suite.assert.Equal(carrier1.Name, carriers[0].Name)
-	suite.assert.Equal(carrier1.TrackingTemplate, carriers[0].TrackingTemplate)
-	suite.assert.Equal(carrier2.Name, carriers[1].Name)
-	suite.assert.Equal(carrier2.TrackingTemplate, carriers[1].TrackingTemplate)
+	suite.assert.Equal(carrier1, carriers[0])
+	suite.assert.Equal(carrier2, carriers[1])
+
+	//assert all expectations were met
 	suite.repository.AssertExpectations(suite.T())
 }
 
-func (suite *CarrierServiceTestSuite) Test_GetCarrierByID_ReturnsCarrierModel() {
+func (suite *CarrierServiceTestSuite) Test_GetCarrierById_NotFound_ReturnsNotFoundError() {
 	//arrange
-	carrier1 := &models.Carrier{
-		Name:             "UPS",
-		TrackingTemplate: "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number",
-	}
+	suite.repository.On("GetCarrierByID").Return(nil, gorm.ErrRecordNotFound).Once()
+
+	//act
+	_, err := suite.service.GetCarrierByID(1)
+
+	//assert
+	suite.assert.Equal(gorm.ErrRecordNotFound, err)
+
+	//assert all expectations were met
+	suite.repository.AssertExpectations(suite.T())
+}
+
+func (suite *CarrierServiceTestSuite) Test_GetCarrierByID_Found_ReturnsCarrierModel() {
+	//arrange
+	carrier1 := &models.Carrier{uint(1), "UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"}
 	suite.repository.On("GetCarrierByID").Return(carrier1, nil).Once()
 
 	//act
@@ -75,39 +78,74 @@ func (suite *CarrierServiceTestSuite) Test_GetCarrierByID_ReturnsCarrierModel() 
 
 	//assert
 	suite.assert.Nil(err)
-	suite.assert.Equal(carrier1.Name, carrier.Name)
-	suite.assert.Equal(carrier1.TrackingTemplate, carrier.TrackingTemplate)
+	suite.assert.Equal(carrier1, carrier)
+
+	//assert all expectations were met
 	suite.repository.AssertExpectations(suite.T())
 }
 
-func (suite *CarrierServiceTestSuite) Test_CreaterCarrier_ReturnsIdOfCreatedRecord() {
+func (suite *CarrierServiceTestSuite) Test_CreateCarrier_ReturnsCreatedRecord() {
 	//arrange
-	name, trackingTemplate := "UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"
-	model := &models.Carrier{Name: name, TrackingTemplate: trackingTemplate}
-	suite.repository.On("CreateCarrier").Return(uint(1), nil).Once()
+	carrier1 := &models.Carrier{uint(1), "UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"}
+	suite.repository.On("CreateCarrier").Return(carrier1, nil).Once()
 
 	//act
-	id, err := suite.service.CreateCarrier(model)
+	carrier, err := suite.service.CreateCarrier(carrier1)
 
 	//assert
-	suite.assert.Equal(uint(1), id)
 	suite.assert.Nil(err)
+	suite.assert.Equal(carrier1, carrier)
+
+	//assert all expectations were met
 	suite.repository.AssertExpectations(suite.T())
 }
 
-func (suite *CarrierServiceTestSuite) Test_UpdateCarrier_ReturnsNoError() {
+func (suite *CarrierServiceTestSuite) Test_UpdateCarrier_NotFound_ReturnsNotFoundError() {
 	//arrange
-	name, trackingTemplate := "UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"
-	suite.repository.On("UpdateCarrier").Return(true).Once()
+	carrier1 := &models.Carrier{uint(1), "UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"}
+	suite.repository.On("UpdateCarrier").Return(nil, gorm.ErrRecordNotFound).Once()
 
 	//act
-	err := suite.service.UpdateCarrier(&models.Carrier{ID: 1, Name: name, TrackingTemplate: trackingTemplate})
+	_, err := suite.service.UpdateCarrier(carrier1)
+
+	//assert
+	suite.assert.Equal(gorm.ErrRecordNotFound, err)
+
+	//assert all expectations were met
+	suite.repository.AssertExpectations(suite.T())
+}
+
+func (suite *CarrierServiceTestSuite) Test_UpdateCarrier_Found_ReturnsUpdatedRecord() {
+	//arrange
+	carrier1 := &models.Carrier{uint(1), "UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"}
+	suite.repository.On("UpdateCarrier").Return(carrier1, nil).Once()
+
+	//act
+	carrier, err := suite.service.UpdateCarrier(carrier1)
 
 	//assert
 	suite.assert.Nil(err)
+	suite.assert.Equal(carrier1, carrier)
+
+	//assert all expectations were met
+	suite.repository.AssertExpectations(suite.T())
 }
 
-func (suite *CarrierServiceTestSuite) Test_DeleteCarrier_ReturnsNoError() {
+func (suite *CarrierServiceTestSuite) Test_DeleteCarrier_NotFound_ReturnsNotFoundError() {
+	//arrange
+	suite.repository.On("DeleteCarrier").Return(false, gorm.ErrRecordNotFound).Once()
+
+	//act
+	err := suite.service.DeleteCarrier(1)
+
+	//assert
+	suite.assert.Equal(gorm.ErrRecordNotFound, err)
+
+	//assert all expectations were met
+	suite.repository.AssertExpectations(suite.T())
+}
+
+func (suite *CarrierServiceTestSuite) Test_DeleteCarrier_Found_ReturnsNoError() {
 	//arrange
 	suite.repository.On("DeleteCarrier").Return(true).Once()
 
@@ -116,4 +154,7 @@ func (suite *CarrierServiceTestSuite) Test_DeleteCarrier_ReturnsNoError() {
 
 	//assert
 	suite.assert.Nil(err)
+
+	//assert all expectations were met
+	suite.repository.AssertExpectations(suite.T())
 }

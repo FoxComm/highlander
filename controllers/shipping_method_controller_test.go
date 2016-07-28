@@ -93,7 +93,7 @@ func (suite *shippingMethodControllerTestSuite) Test_GetShippingMethodByID_NotFo
 	suite.service.AssertExpectations(suite.T())
 }
 
-func (suite *shippingMethodControllerTestSuite) Test_GetShippingMethodById_Found() {
+func (suite *shippingMethodControllerTestSuite) Test_GetShippingMethodByID_Found() {
 	//arrange
 	shippingMethod := &models.ShippingMethod{CarrierID: uint(1), Name: "UPS 2 days ground"}
 	suite.service.On("GetShippingMethodByID").Return(shippingMethod, nil).Once()

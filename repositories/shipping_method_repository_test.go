@@ -75,7 +75,7 @@ func (suite *ShippingMethodRepositoryTestSuite) Test_GetShippingMethodByID_NotFo
 	suite.assert.Nil(suite.mock.ExpectationsWereMet())
 }
 
-func (suite *ShippingMethodRepositoryTestSuite) Test_GetShippingMethodById_Found_ReturnsShippingMethodModel() {
+func (suite *ShippingMethodRepositoryTestSuite) Test_GetShippingMethodByID_Found_ReturnsShippingMethodModel() {
 	//arrange
 	shippingMethod1 := &models.ShippingMethod{uint(1), uint(1), "UPS 2 days ground"}
 	rows := sqlmock.
