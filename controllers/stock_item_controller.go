@@ -33,7 +33,7 @@ func (controller *stockItemController) GetStockItems() gin.HandlerFunc {
 		stockItems, err := controller.service.GetStockItems()
 
 		if err != nil {
-			fail := failures.MakeInternalError(err)
+			fail := failures.NewInternalError(err)
 			failures.Abort(context, fail)
 			return
 		}
@@ -100,7 +100,7 @@ func (controller *stockItemController) IncrementStockItemUnits() gin.HandlerFunc
 		}
 
 		if err := payload.Validate(); err != nil {
-			failures.Abort(context, failures.MakeBadRequest(err))
+			failures.Abort(context, failures.NewBadRequest(err))
 			return
 		}
 
@@ -128,7 +128,7 @@ func (controller *stockItemController) DecrementStockItemUnits() gin.HandlerFunc
 		}
 
 		if err := payload.Validate(); err != nil {
-			failures.Abort(context, failures.MakeBadRequest(err))
+			failures.Abort(context, failures.NewBadRequest(err))
 			return
 		}
 

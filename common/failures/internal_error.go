@@ -6,20 +6,20 @@ import (
 	"github.com/FoxComm/middlewarehouse/api/responses"
 )
 
-type InternalError struct {
+type internalError struct {
 	err error
 }
 
-func (f InternalError) Status() int {
+func (f internalError) Status() int {
 	return http.StatusInternalServerError
 }
 
-func (f InternalError) ToJSON() responses.Error {
+func (f internalError) ToJSON() responses.Error {
 	return responses.Error{
 		Errors: []string{f.err.Error()},
 	}
 }
 
-func MakeInternalError(err error) InternalError {
-	return InternalError{err: err}
+func NewInternalError(err error) internalError {
+	return internalError{err: err}
 }

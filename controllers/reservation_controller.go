@@ -31,7 +31,7 @@ func (controller *reservationController) Reserve() gin.HandlerFunc {
 		}
 
 		if err := payload.Validate(); err != nil {
-			fail := failures.MakeBadRequest(err)
+			fail := failures.NewBadRequest(err)
 			failures.Abort(context, fail)
 			return
 		}
