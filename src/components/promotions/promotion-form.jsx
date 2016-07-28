@@ -116,7 +116,7 @@ export default class PromotionForm extends Component {
     }
   }
 
-  checkValidity(): bool {
+  checkValidity(): boolean {
     return this.refs.form.checkValidity();
   }
 
@@ -155,6 +155,9 @@ export default class PromotionForm extends Component {
               fieldsToRender={this.generalAttrs}
               form={formAttributes}
               shadow={shadowAttributes}
+              options={{
+                name: {required: true}
+              }}
             />
           </ContentBox>
           <ContentBox title="Qualifier">
