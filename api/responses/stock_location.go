@@ -11,6 +11,15 @@ type StockLocation struct {
 	Address *Address `json:"address,omitempty"`
 }
 
+func NewStockLocationsFromModels(locations []*models.StockLocation) []*StockLocation {
+	response := make([]*StockLocation, len(locations))
+	for i := range locations {
+		response[i] = NewStockLocationFromModel(locations[i])
+	}
+
+	return response
+}
+
 func NewStockLocationFromModel(location *models.StockLocation) *StockLocation {
 	response := &StockLocation{
 		ID:   location.ID,
