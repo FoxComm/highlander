@@ -47,9 +47,10 @@ class ArchiveActions extends Component {
           onClick={this.showArchiveConfirmation}>
           Archive {this.props.type}
         </Button>
-        <ArchveConfirmation isVisible={this.state.archiveConfirmation}
-                            closeConfirmation={this.closeConfirmation}
-                            { ...this.props } />
+        <ArchveConfirmation
+          isVisible={this.state.archiveConfirmation}
+          closeConfirmation={this.closeConfirmation}
+          { ...this.props } />
       </div>
     );
   }
