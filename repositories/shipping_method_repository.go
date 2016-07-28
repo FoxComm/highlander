@@ -23,14 +23,9 @@ func NewShippingMethodRepository(db *gorm.DB) IShippingMethodRepository {
 }
 
 func (repository *shippingMethodRepository) GetShippingMethods() ([]*models.ShippingMethod, error) {
-	var data []models.ShippingMethod
-	if err := repository.db.Find(&data).Error; err != nil {
+	var shippingMethods []*models.ShippingMethod
+	if err := repository.db.Find(&shippingMethods).Error; err != nil {
 		return nil, err
-	}
-
-	shippingMethods := make([]*models.ShippingMethod, len(data))
-	for i := range data {
-		shippingMethods[i] = &data[i]
 	}
 
 	return shippingMethods, nil

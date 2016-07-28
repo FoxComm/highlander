@@ -23,14 +23,9 @@ func NewCarrierRepository(db *gorm.DB) ICarrierRepository {
 }
 
 func (repository *carrierRepository) GetCarriers() ([]*models.Carrier, error) {
-	var data []models.Carrier
-	if err := repository.db.Find(&data).Error; err != nil {
+	var carriers []*models.Carrier
+	if err := repository.db.Find(&carriers).Error; err != nil {
 		return nil, err
-	}
-
-	carriers := make([]*models.Carrier, len(data))
-	for i := range data {
-		carriers[i] = &data[i]
 	}
 
 	return carriers, nil
