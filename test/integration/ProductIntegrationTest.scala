@@ -326,6 +326,19 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
       }
     }
 
+    "Archived product must be inactive" in new Fixture {
+      val response = DELETE(s"v1/products/${ctx.name}/${product.formId}")
+
+      response.status must === (StatusCodes.OK)
+
+      val attributes = response.as[ProductResponse.Root].attributes
+      val activeTo   = (attributes \ "activeTo" \ "v").extractOpt[Instant]
+      val activeFrom = (attributes \ "activeFrom" \ "v").extractOpt[Instant]
+
+      activeTo must === (None)
+      activeFrom must === (None)
+    }
+
     "SKUs must be unlinked" in new VariantFixture {
       val response = DELETE(s"v1/products/${ctx.name}/${product.formId}")
 
