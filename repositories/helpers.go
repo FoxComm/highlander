@@ -6,9 +6,17 @@ import (
 )
 
 func CreateDbMock() (*gorm.DB, sqlmock.Sqlmock) {
-	sqldb, mock, _ := sqlmock.New()
+	sqldb, mock, err := sqlmock.New()
 
-	db, _ := gorm.Open("sqlmock", sqldb)
+	if err != nil {
+		panic(err)
+	}
+
+	db, err := gorm.Open("sqlmock", sqldb)
+
+	if err != nil {
+		panic(err)
+	}
 
 	return db, mock
 }
