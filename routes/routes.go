@@ -21,12 +21,12 @@ func GetRoutes(db *gorm.DB) map[string]controllers.IController {
 	// shipmentService := services.NewShipmentService(db)
 
 	return map[string]controllers.IController{
-		"/ping":            controllers.NewPingController(),
-		"/summary":         controllers.NewSummaryController(summaryService),
-		"/stock-items":     controllers.NewStockItemController(inventoryService),
-		"/reservations":    controllers.NewReservationController(inventoryService),
-		"/carriers":        controllers.NewCarrierController(carrierService),
-		"/shippingMethods": controllers.NewShippingMethodController(shippingMethodService),
+		"/ping":             controllers.NewPingController(),
+		"/summary":          controllers.NewSummaryController(summaryService),
+		"/stock-items":      controllers.NewStockItemController(inventoryService),
+		"/reservations":     controllers.NewReservationController(inventoryService),
+		"/carriers":         controllers.NewCarrierController(carrierService),
+		"/shipping-methods": controllers.NewShippingMethodController(shippingMethodService),
 		// "/shipments":    controllers.NewShipments(shipmentService),
 	}
 }
