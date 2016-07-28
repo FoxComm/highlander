@@ -1,7 +1,7 @@
 package consumer.elastic
 
 import com.sksamuel.elastic4s.ElasticDsl._
-import com.sksamuel.elastic4s.analyzers.{CustomAnalyzerDefinition, LowercaseTokenFilter, NGramTokenizer}
+import com.sksamuel.elastic4s.analyzers._
 import com.sksamuel.elastic4s.mappings.FieldType._
 
 package object mappings {
@@ -13,6 +13,12 @@ package object mappings {
                      3,
                      20,
                      Seq("letter", "digit", "punctuation", "symbol", "whitespace")),
+      LowercaseTokenFilter
+  )
+
+  val lowerCasedAnalyzer = CustomAnalyzerDefinition(
+      "lowercased",
+      KeywordTokenizer,
       LowercaseTokenFilter
   )
 

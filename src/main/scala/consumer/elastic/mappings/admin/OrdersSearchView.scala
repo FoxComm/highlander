@@ -10,7 +10,7 @@ final case class OrdersSearchView()(implicit ec: EC) extends AvroTransformer {
   def mapping() = esMapping("orders_search_view").fields(
       // Order
       field("id", IntegerType),
-      field("referenceNumber", StringType) index "not_analyzed",
+      field("referenceNumber", StringType) index "lowercased",
       field("state", StringType) index "not_analyzed",
       field("createdAt", DateType) format dateFormat,
       field("placedAt", DateType) format dateFormat,
@@ -38,7 +38,7 @@ final case class OrdersSearchView()(implicit ec: EC) extends AvroTransformer {
       // Line items
       field("lineItemCount", IntegerType),
       field("lineItems").nested(
-          field("referenceNumber", StringType) index "not_analyzed",
+          field("referenceNumber", StringType) index "lowercased",
           field("state", StringType) index "not_analyzed",
           field("sku", StringType) index "not_analyzed",
           field("name", StringType) analyzer "autocomplete",
@@ -77,7 +77,7 @@ final case class OrdersSearchView()(implicit ec: EC) extends AvroTransformer {
       ),
       // Returns
       field("returns").nested(
-          field("referenceNumber", StringType) index "not_analyzed",
+          field("referenceNumber", StringType) index "lowercased",
           field("state", StringType) index "not_analyzed",
           field("returnType", StringType) index "not_analyzed",
           field("placedAt", DateType) format dateFormat
