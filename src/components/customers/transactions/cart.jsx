@@ -7,22 +7,16 @@ import { connect } from 'react-redux';
 import { transitionTo } from 'browserHistory';
 import { autobind } from 'core-decorators';
 
-import TotalsSummary from '../../common/totals';
-import OrderLineItems from '../../orders/order-line-items';
-import { PrimaryButton } from '../../common/buttons';
-import OrderShippingAddress from '../../orders/shipping-address';
-import OrderShippingMethod from '../../orders/order-shipping-method';
-import Payments from '../../orders/payments';
-import WaitAnimation from '../../common/wait-animation';
-import DiscountsPanel from 'components/discounts-panel/discounts-panel';
-import OrderCoupons from '../../orders/order-coupons';
+import { PrimaryButton } from 'components/common/buttons';
+import OrderDetails from 'components/orders/details';
+import WaitAnimation from 'components/common/wait-animation';
 
-import * as orderActions from '../../../modules/orders/details';
-import * as paymentMethodActions from '../../../modules/orders/payment-methods';
+import * as cartActions from 'modules/carts/details';
 
-type Order = {
-  currentOrder: Object,
-  validations: Object,
+type Details = {
+  cart: Object,
+  isFetching: boolean,
+  failed: Object,
 };
 
 type Params = {
@@ -31,32 +25,18 @@ type Params = {
 
 type Props = {
   params: Params,
-  order: Order,
+  details: Details,
   fetchCustomerCart: Function,
-  failed: bool,
-  isFetching: bool,
 };
 
 const mapStateToProps = (state) => {
   return {
-    order: state.orders.details,
-    lineItems: state.orders.lineItems,
-    skuSearch: state.orders.skuSearch,
-    shippingMethods: state.orders.shippingMethods,
-    skusActions: state.skusActions,
-    payments: state.orders.paymentMethods,
-    isFetching: state.orders.details.isFetching,
-    failed: state.orders.details.failed,
+    details: state.carts.details,
   };
 };
 
-const mapDispatchToProps = {
-  ...orderActions,
-  ...paymentMethodActions
-};
-
 /* ::`*/
-@connect(mapStateToProps, mapDispatchToProps)
+@connect(mapStateToProps, cartActions)
 /* ::`*/
 export default class CustomerCart extends Component {
   props: Props;
@@ -65,25 +45,27 @@ export default class CustomerCart extends Component {
     this.props.fetchCustomerCart(this.props.params.customerId);
   }
 
-  get order(): Object {
-    return this.props.order.currentOrder;
+  get cart(): Object {
+    return this.props.details.cart;
   }
 
   @autobind
   editCart() {
-    if (this.order) {
-      transitionTo('order', { order: this.order.referenceNumber });
+    if (this.cart) {
+      transitionTo('cart', { cart: this.cart.referenceNumber });
     }
   }
 
   render() {
+    const { failed, isFetching, cart } = this.props.details;
+
     let content;
 
-    if (this.props.failed) {
+    if (failed) {
       content = this.errorMessage;
-    } else if (this.props.isFetching) {
+    } else if (isFetching) {
       content = this.waitAnimation;
-    } else if (_.isEmpty(this.props.order.currentOrder)) {
+    } else if (_.isEmpty(cart)) {
       content = this.emptyMessage;
     } else {
       content = this.content;
@@ -105,43 +87,23 @@ export default class CustomerCart extends Component {
   }
 
   get emptyMessage(): Element {
-    return <div className="fc-customer__empty-messages">No current order found for customer.</div>;
+    return <div className="fc-customer__empty-messages">No current cart found for customer.</div>;
   }
 
   get content(): Element {
-    const props = this.props;
-    const order = props.order.currentOrder;
-
-    const {
-      itemsStatus,
-      shippingAddressStatus,
-      shippingMethodStatus,
-      paymentMethodStatus
-    } = props.order.validations;
+    const order = {
+      currentOrder: this.cart,
+    };
 
     return (
       <div>
         <div className="_header">
-          <div className="fc-subtitle">Cart {order.referenceNumber}</div>
+          <div className="fc-subtitle">Cart {this.cart.referenceNumber}</div>
           <div className="fc-customer-cart__edit-btn">
             <PrimaryButton onClick={this.editCart}>Edit Cart</PrimaryButton>
           </div>
         </div>
-        <div className="fc-order-details">
-          <div className="fc-order-details-body">
-            <div className="fc-order-details-main">
-              <OrderLineItems readOnly={true} isCart={false} status={itemsStatus} {...props} />
-              <DiscountsPanel readOnly={true} promotion={order.promotion} />
-              <OrderShippingAddress readOnly={true} isCart={false} status={shippingAddressStatus} order={order}/>
-              <OrderShippingMethod readOnly={true} isCart={false} status={shippingMethodStatus} {...props} />
-              <OrderCoupons readOnly={true} isCart={false} order={order} />
-              <Payments readOnly={true} isCart={false} status={paymentMethodStatus} {...props} />
-            </div>
-            <div className="fc-order-details-aside">
-              <TotalsSummary entity={order} title={order.title}/>
-            </div>
-          </div>
-        </div>
+        <OrderDetails order={order} />
       </div>
     );
   }
