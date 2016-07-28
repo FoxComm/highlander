@@ -7,13 +7,11 @@ import scala.util.control.NonFatal
 import consumer.JsonProcessor
 import consumer.PassthroughSource
 import consumer.elastic.mappings._
-
 import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri}
 import com.sksamuel.elastic4s.ElasticDsl._
 import org.elasticsearch.common.settings.Settings
 import org.elasticsearch.client.transport.NoNodeAvailableException
 import org.elasticsearch.transport.RemoteTransportException
-
 import org.json4s.JsonAST.JInt
 import org.json4s.jackson.JsonMethods.parse
 
@@ -79,11 +77,9 @@ class ElasticSearchProcessor(
       }.mapValues(_.mapping()).values.toSeq
 
       // Execute Elasticsearch query
-      List(autocompleteAnalyzer, lowerCasedAnalyzer).map { analyser ⇒
-        client.execute {
-          create index indexName mappings (jsonMappings: _*) analysis analyser
-        }.await
-      }
+      client.execute {
+        create index indexName mappings (jsonMappings: _*) analysis (autocompleteAnalyzer, lowerCasedAnalyzer)
+      }.await
     } catch {
       case e: RemoteTransportException ⇒
         Console.err.println(s"Error connecting to ES: $e")
