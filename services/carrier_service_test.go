@@ -56,10 +56,10 @@ func (suite *CarrierServiceTestSuite) Test_GetCarriers_ReturnsCarrierModels() {
 
 func (suite *CarrierServiceTestSuite) Test_GetCarrierById_NotFound_ReturnsNotFoundError() {
 	//arrange
-	suite.repository.On("GetCarrierByID").Return(nil, gorm.ErrRecordNotFound).Once()
+	suite.repository.On("GetCarrierByID", uint(1)).Return(nil, gorm.ErrRecordNotFound).Once()
 
 	//act
-	_, err := suite.service.GetCarrierByID(1)
+	_, err := suite.service.GetCarrierByID(uint(1))
 
 	//assert
 	suite.assert.Equal(gorm.ErrRecordNotFound, err)
@@ -71,10 +71,10 @@ func (suite *CarrierServiceTestSuite) Test_GetCarrierById_NotFound_ReturnsNotFou
 func (suite *CarrierServiceTestSuite) Test_GetCarrierByID_Found_ReturnsCarrierModel() {
 	//arrange
 	carrier1 := &models.Carrier{uint(1), "UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"}
-	suite.repository.On("GetCarrierByID").Return(carrier1, nil).Once()
+	suite.repository.On("GetCarrierByID", uint(1)).Return(carrier1, nil).Once()
 
 	//act
-	carrier, err := suite.service.GetCarrierByID(1)
+	carrier, err := suite.service.GetCarrierByID(uint(1))
 
 	//assert
 	suite.assert.Nil(err)
@@ -87,7 +87,7 @@ func (suite *CarrierServiceTestSuite) Test_GetCarrierByID_Found_ReturnsCarrierMo
 func (suite *CarrierServiceTestSuite) Test_CreateCarrier_ReturnsCreatedRecord() {
 	//arrange
 	carrier1 := &models.Carrier{uint(1), "UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"}
-	suite.repository.On("CreateCarrier").Return(carrier1, nil).Once()
+	suite.repository.On("CreateCarrier", carrier1).Return(carrier1, nil).Once()
 
 	//act
 	carrier, err := suite.service.CreateCarrier(carrier1)
@@ -103,7 +103,7 @@ func (suite *CarrierServiceTestSuite) Test_CreateCarrier_ReturnsCreatedRecord() 
 func (suite *CarrierServiceTestSuite) Test_UpdateCarrier_NotFound_ReturnsNotFoundError() {
 	//arrange
 	carrier1 := &models.Carrier{uint(1), "UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"}
-	suite.repository.On("UpdateCarrier").Return(nil, gorm.ErrRecordNotFound).Once()
+	suite.repository.On("UpdateCarrier", carrier1).Return(nil, gorm.ErrRecordNotFound).Once()
 
 	//act
 	_, err := suite.service.UpdateCarrier(carrier1)
@@ -118,7 +118,7 @@ func (suite *CarrierServiceTestSuite) Test_UpdateCarrier_NotFound_ReturnsNotFoun
 func (suite *CarrierServiceTestSuite) Test_UpdateCarrier_Found_ReturnsUpdatedRecord() {
 	//arrange
 	carrier1 := &models.Carrier{uint(1), "UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"}
-	suite.repository.On("UpdateCarrier").Return(carrier1, nil).Once()
+	suite.repository.On("UpdateCarrier", carrier1).Return(carrier1, nil).Once()
 
 	//act
 	carrier, err := suite.service.UpdateCarrier(carrier1)
@@ -133,10 +133,10 @@ func (suite *CarrierServiceTestSuite) Test_UpdateCarrier_Found_ReturnsUpdatedRec
 
 func (suite *CarrierServiceTestSuite) Test_DeleteCarrier_NotFound_ReturnsNotFoundError() {
 	//arrange
-	suite.repository.On("DeleteCarrier").Return(false, gorm.ErrRecordNotFound).Once()
+	suite.repository.On("DeleteCarrier", uint(1)).Return(false, gorm.ErrRecordNotFound).Once()
 
 	//act
-	err := suite.service.DeleteCarrier(1)
+	err := suite.service.DeleteCarrier(uint(1))
 
 	//assert
 	suite.assert.Equal(gorm.ErrRecordNotFound, err)
@@ -147,10 +147,10 @@ func (suite *CarrierServiceTestSuite) Test_DeleteCarrier_NotFound_ReturnsNotFoun
 
 func (suite *CarrierServiceTestSuite) Test_DeleteCarrier_Found_ReturnsNoError() {
 	//arrange
-	suite.repository.On("DeleteCarrier").Return(true).Once()
+	suite.repository.On("DeleteCarrier", uint(1)).Return(true).Once()
 
 	//act
-	err := suite.service.DeleteCarrier(1)
+	err := suite.service.DeleteCarrier(uint(1))
 
 	//assert
 	suite.assert.Nil(err)
