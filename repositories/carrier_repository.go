@@ -13,8 +13,8 @@ type carrierRepository struct {
 type ICarrierRepository interface {
 	GetCarriers() ([]*models.Carrier, error)
 	GetCarrierByID(id uint) (*models.Carrier, error)
-	CreateCarrier(carrier *models.Carrier) (uint, error)
-	UpdateCarrier(carrier *models.Carrier) error
+	CreateCarrier(carrier *models.Carrier) (*models.Carrier, error)
+	UpdateCarrier(carrier *models.Carrier) (*models.Carrier, error)
 	DeleteCarrier(id uint) error
 }
 
@@ -40,20 +40,20 @@ func (repository *carrierRepository) GetCarrierByID(id uint) (*models.Carrier, e
 	return &carrier, nil
 }
 
-func (repository *carrierRepository) CreateCarrier(carrier *models.Carrier) (uint, error) {
+func (repository *carrierRepository) CreateCarrier(carrier *models.Carrier) (*models.Carrier, error) {
 	err := repository.db.Create(carrier).Error
 
-	return carrier.ID, err
+	return carrier, err
 }
 
-func (repository *carrierRepository) UpdateCarrier(carrier *models.Carrier) error {
+func (repository *carrierRepository) UpdateCarrier(carrier *models.Carrier) (*models.Carrier, error) {
 	result := repository.db.Model(&carrier).Updates(carrier)
 
 	if result.RowsAffected == 0 {
-		return gorm.ErrRecordNotFound
+		return carrier, gorm.ErrRecordNotFound
 	}
 
-	return result.Error
+	return carrier, result.Error
 }
 
 func (repository *carrierRepository) DeleteCarrier(id uint) error {

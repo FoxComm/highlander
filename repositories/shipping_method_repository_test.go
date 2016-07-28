@@ -34,18 +34,12 @@ func (suite *ShippingMethodRepositoryTestSuite) TearDownTest() {
 
 func (suite *ShippingMethodRepositoryTestSuite) Test_GetShippingMethods_ReturnsShippingMethodModels() {
 	//arrange
-	shippingMethod1 := &models.ShippingMethod{
-		CarrierID: uint(1),
-		Name:      "UPS 2 days ground",
-	}
-	shippingMethod2 := &models.ShippingMethod{
-		CarrierID: uint(2),
-		Name:      "DHL 2 days ground",
-	}
+	shippingMethod1 := &models.ShippingMethod{uint(1), uint(1), "UPS 2 days ground"}
+	shippingMethod2 := &models.ShippingMethod{uint(2), uint(2), "DHL 2 days ground"}
 	rows := sqlmock.
 		NewRows([]string{"id", "carrier_id", "name"}).
-		AddRow(1, shippingMethod1.CarrierID, shippingMethod1.Name).
-		AddRow(2, shippingMethod2.CarrierID, shippingMethod2.Name)
+		AddRow(shippingMethod1.ID, shippingMethod1.CarrierID, shippingMethod1.Name).
+		AddRow(shippingMethod2.ID, shippingMethod2.CarrierID, shippingMethod2.Name)
 	suite.mock.ExpectQuery(`SELECT (.+) FROM "shipping_methods"`).WillReturnRows(rows)
 
 	//act
@@ -55,10 +49,8 @@ func (suite *ShippingMethodRepositoryTestSuite) Test_GetShippingMethods_ReturnsS
 	suite.assert.Nil(err)
 
 	suite.assert.Equal(2, len(shippingMethods))
-	suite.assert.Equal(shippingMethod1.CarrierID, shippingMethods[0].CarrierID)
-	suite.assert.Equal(shippingMethod1.Name, shippingMethods[0].Name)
-	suite.assert.Equal(shippingMethod2.CarrierID, shippingMethods[1].CarrierID)
-	suite.assert.Equal(shippingMethod2.Name, shippingMethods[1].Name)
+	suite.assert.Equal(shippingMethod1, shippingMethods[0])
+	suite.assert.Equal(shippingMethod2, shippingMethods[1])
 
 	//make sure that all expectations were met
 	suite.assert.Nil(suite.mock.ExpectationsWereMet())
@@ -85,13 +77,10 @@ func (suite *ShippingMethodRepositoryTestSuite) Test_GetShippingMethodByID_NotFo
 
 func (suite *ShippingMethodRepositoryTestSuite) Test_GetShippingMethodById_Found_ReturnsShippingMethodModel() {
 	//arrange
-	shippingMethod1 := &models.ShippingMethod{
-		CarrierID: uint(1),
-		Name:      "UPS 2 days ground",
-	}
+	shippingMethod1 := &models.ShippingMethod{uint(1), uint(1), "UPS 2 days ground"}
 	rows := sqlmock.
 		NewRows([]string{"id", "carrier_id", "name"}).
-		AddRow(1, shippingMethod1.CarrierID, shippingMethod1.Name)
+		AddRow(shippingMethod1.ID, shippingMethod1.CarrierID, shippingMethod1.Name)
 	suite.mock.
 		ExpectQuery(`SELECT (.+) FROM "shipping_methods" WHERE \("id" = \?\) (.+)`).
 		WithArgs(1).
@@ -102,27 +91,26 @@ func (suite *ShippingMethodRepositoryTestSuite) Test_GetShippingMethodById_Found
 
 	//assert
 	suite.assert.Nil(err)
-	suite.assert.Equal(shippingMethod1.CarrierID, shippingMethod.CarrierID)
-	suite.assert.Equal(shippingMethod1.Name, shippingMethod.Name)
+	suite.assert.Equal(shippingMethod1, shippingMethod)
 
 	//make sure that all expectations were met
 	suite.assert.Nil(suite.mock.ExpectationsWereMet())
 }
 
-func (suite *ShippingMethodRepositoryTestSuite) Test_CreaterShippingMethod_ReturnsIdOfCreatedRecord() {
+func (suite *ShippingMethodRepositoryTestSuite) Test_CreaterShippingMethod_ReturnsCreatedRecord() {
 	//arrange
-	carrierID, name := uint(1), "UPS 2 days ground"
-	model := &models.ShippingMethod{CarrierID: carrierID, Name: name}
+	shippingMethod1 := &models.ShippingMethod{0, uint(1), "UPS 2 days ground"}
 	suite.mock.
 		ExpectExec(`INSERT INTO "shipping_methods"`).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	//act
-	id, err := suite.repository.CreateShippingMethod(model)
+	shippingMethod, err := suite.repository.CreateShippingMethod(shippingMethod1)
 
 	//assert
-	suite.assert.Equal(uint(1), id)
 	suite.assert.Nil(err)
+	suite.assert.Equal(uint(1), shippingMethod.ID)
+	suite.assert.Equal(shippingMethod1, shippingMethod)
 
 	//make sure that all expectations were met
 	suite.assert.Nil(suite.mock.ExpectationsWereMet())
@@ -130,13 +118,13 @@ func (suite *ShippingMethodRepositoryTestSuite) Test_CreaterShippingMethod_Retur
 
 func (suite *ShippingMethodRepositoryTestSuite) Test_UpdateShippingMethod_NotFound_ReturnsNotFoundError() {
 	//arrange
-	carrierID, name := uint(1), "UPS 2 days ground"
+	shippingMethod1 := &models.ShippingMethod{uint(1), uint(1), "UPS 2 days ground"}
 	suite.mock.
 		ExpectExec(`UPDATE "shipping_methods"`).
 		WillReturnResult(sqlmock.NewResult(1, 0))
 
 	//act
-	err := suite.repository.UpdateShippingMethod(&models.ShippingMethod{ID: 1, CarrierID: carrierID, Name: name})
+	_, err := suite.repository.UpdateShippingMethod(shippingMethod1)
 
 	//assert
 	suite.assert.Equal(gorm.ErrRecordNotFound, err)
@@ -145,18 +133,19 @@ func (suite *ShippingMethodRepositoryTestSuite) Test_UpdateShippingMethod_NotFou
 	suite.assert.Nil(suite.mock.ExpectationsWereMet())
 }
 
-func (suite *ShippingMethodRepositoryTestSuite) Test_UpdateShippingMethod_Found_ReturnsNoError() {
+func (suite *ShippingMethodRepositoryTestSuite) Test_UpdateShippingMethod_Found_ReturnsUpdatedRecord() {
 	//arrange
-	carrierID, name := uint(1), "UPS 2 days ground"
+	shippingMethod1 := &models.ShippingMethod{uint(1), uint(1), "UPS 2 days ground"}
 	suite.mock.
 		ExpectExec(`UPDATE "shipping_methods"`).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	//act
-	err := suite.repository.UpdateShippingMethod(&models.ShippingMethod{ID: 1, CarrierID: carrierID, Name: name})
+	shippingMethod, err := suite.repository.UpdateShippingMethod(shippingMethod1)
 
 	//assert
 	suite.assert.Nil(err)
+	suite.assert.Equal(shippingMethod1, shippingMethod)
 
 	//make sure that all expectations were met
 	suite.assert.Nil(suite.mock.ExpectationsWereMet())

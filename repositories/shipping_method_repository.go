@@ -13,8 +13,8 @@ type shippingMethodRepository struct {
 type IShippingMethodRepository interface {
 	GetShippingMethods() ([]*models.ShippingMethod, error)
 	GetShippingMethodByID(id uint) (*models.ShippingMethod, error)
-	CreateShippingMethod(shippingMethod *models.ShippingMethod) (uint, error)
-	UpdateShippingMethod(shippingMethod *models.ShippingMethod) error
+	CreateShippingMethod(shippingMethod *models.ShippingMethod) (*models.ShippingMethod, error)
+	UpdateShippingMethod(shippingMethod *models.ShippingMethod) (*models.ShippingMethod, error)
 	DeleteShippingMethod(id uint) error
 }
 
@@ -40,20 +40,20 @@ func (repository *shippingMethodRepository) GetShippingMethodByID(id uint) (*mod
 	return &shippingMethod, nil
 }
 
-func (repository *shippingMethodRepository) CreateShippingMethod(shippingMethod *models.ShippingMethod) (uint, error) {
+func (repository *shippingMethodRepository) CreateShippingMethod(shippingMethod *models.ShippingMethod) (*models.ShippingMethod, error) {
 	err := repository.db.Create(shippingMethod).Error
 
-	return shippingMethod.ID, err
+	return shippingMethod, err
 }
 
-func (repository *shippingMethodRepository) UpdateShippingMethod(shippingMethod *models.ShippingMethod) error {
-	result := repository.db.Model(&shippingMethod).Updates(shippingMethod)
+func (repository *shippingMethodRepository) UpdateShippingMethod(shippingMethod *models.ShippingMethod) (*models.ShippingMethod, error) {
+	result := repository.db.Model(shippingMethod).Updates(shippingMethod)
 
 	if result.RowsAffected == 0 {
-		return gorm.ErrRecordNotFound
+		return shippingMethod, gorm.ErrRecordNotFound
 	}
 
-	return result.Error
+	return shippingMethod, result.Error
 }
 
 func (repository *shippingMethodRepository) DeleteShippingMethod(id uint) error {

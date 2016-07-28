@@ -34,18 +34,12 @@ func (suite *CarrierRepositoryTestSuite) TearDownTest() {
 
 func (suite *CarrierRepositoryTestSuite) Test_GetCarriers_ReturnsCarrierModels() {
 	//arrange
-	carrier1 := &models.Carrier{
-		Name:             "UPS",
-		TrackingTemplate: "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number",
-	}
-	carrier2 := &models.Carrier{
-		Name:             "DHL",
-		TrackingTemplate: "http://www.dhl.com/en/express/tracking.shtml?AWB=$number&brand=DHL",
-	}
+	carrier1 := &models.Carrier{uint(1), "UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"}
+	carrier2 := &models.Carrier{uint(2), "DHL", "http://www.dhl.com/en/express/tracking.shtml?AWB=$number&brand=DHL"}
 	rows := sqlmock.
 		NewRows([]string{"id", "name", "tracking_template"}).
-		AddRow(1, carrier1.Name, carrier1.TrackingTemplate).
-		AddRow(2, carrier2.Name, carrier2.TrackingTemplate)
+		AddRow(carrier1.ID, carrier1.Name, carrier1.TrackingTemplate).
+		AddRow(carrier2.ID, carrier2.Name, carrier2.TrackingTemplate)
 	suite.mock.ExpectQuery(`SELECT (.+) FROM "carriers"`).WillReturnRows(rows)
 
 	//act
@@ -55,10 +49,8 @@ func (suite *CarrierRepositoryTestSuite) Test_GetCarriers_ReturnsCarrierModels()
 	suite.assert.Nil(err)
 
 	suite.assert.Equal(2, len(carriers))
-	suite.assert.Equal(carrier1.Name, carriers[0].Name)
-	suite.assert.Equal(carrier1.TrackingTemplate, carriers[0].TrackingTemplate)
-	suite.assert.Equal(carrier2.Name, carriers[1].Name)
-	suite.assert.Equal(carrier2.TrackingTemplate, carriers[1].TrackingTemplate)
+	suite.assert.Equal(carrier1, carriers[0])
+	suite.assert.Equal(carrier2, carriers[1])
 
 	//make sure that all expectations were met
 	suite.assert.Nil(suite.mock.ExpectationsWereMet())
@@ -85,13 +77,10 @@ func (suite *CarrierRepositoryTestSuite) Test_GetCarrierByID_NotFound_ReturnsNot
 
 func (suite *CarrierRepositoryTestSuite) Test_GetCarrierById_Found_ReturnsCarrierModel() {
 	//arrange
-	carrier1 := &models.Carrier{
-		Name:             "UPS",
-		TrackingTemplate: "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number",
-	}
+	carrier1 := &models.Carrier{uint(1), "UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"}
 	rows := sqlmock.
 		NewRows([]string{"id", "name", "tracking_template"}).
-		AddRow(1, carrier1.Name, carrier1.TrackingTemplate)
+		AddRow(carrier1.ID, carrier1.Name, carrier1.TrackingTemplate)
 	suite.mock.
 		ExpectQuery(`SELECT (.+) FROM "carriers" WHERE \("id" = \?\) (.+)`).
 		WithArgs(1).
@@ -102,27 +91,26 @@ func (suite *CarrierRepositoryTestSuite) Test_GetCarrierById_Found_ReturnsCarrie
 
 	//assert
 	suite.assert.Nil(err)
-	suite.assert.Equal(carrier1.Name, carrier.Name)
-	suite.assert.Equal(carrier1.TrackingTemplate, carrier.TrackingTemplate)
+	suite.assert.Equal(carrier1, carrier)
 
 	//make sure that all expectations were met
 	suite.assert.Nil(suite.mock.ExpectationsWereMet())
 }
 
-func (suite *CarrierRepositoryTestSuite) Test_CreaterCarrier_ReturnsIdOfCreatedRecord() {
+func (suite *CarrierRepositoryTestSuite) Test_CreateCarrier_ReturnsCreatedRecord() {
 	//arrange
-	name, trackingTemplate := "UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"
-	model := &models.Carrier{Name: name, TrackingTemplate: trackingTemplate}
+	carrier1 := &models.Carrier{0, "UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"}
 	suite.mock.
 		ExpectExec(`INSERT INTO "carriers"`).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	//act
-	id, err := suite.repository.CreateCarrier(model)
+	carrier, err := suite.repository.CreateCarrier(carrier1)
 
 	//assert
-	suite.assert.Equal(uint(1), id)
 	suite.assert.Nil(err)
+	suite.assert.Equal(uint(1), carrier.ID)
+	suite.assert.Equal(carrier1, carrier)
 
 	//make sure that all expectations were met
 	suite.assert.Nil(suite.mock.ExpectationsWereMet())
@@ -130,13 +118,13 @@ func (suite *CarrierRepositoryTestSuite) Test_CreaterCarrier_ReturnsIdOfCreatedR
 
 func (suite *CarrierRepositoryTestSuite) Test_UpdateCarrier_NotFound_ReturnsNotFoundError() {
 	//arrange
-	name, trackingTemplate := "UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"
+	carrier1 := &models.Carrier{uint(1), "UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"}
 	suite.mock.
 		ExpectExec(`UPDATE "carriers"`).
 		WillReturnResult(sqlmock.NewResult(1, 0))
 
 	//act
-	err := suite.repository.UpdateCarrier(&models.Carrier{ID: 1, Name: name, TrackingTemplate: trackingTemplate})
+	_, err := suite.repository.UpdateCarrier(carrier1)
 
 	//assert
 	suite.assert.Equal(gorm.ErrRecordNotFound, err)
@@ -145,18 +133,19 @@ func (suite *CarrierRepositoryTestSuite) Test_UpdateCarrier_NotFound_ReturnsNotF
 	suite.assert.Nil(suite.mock.ExpectationsWereMet())
 }
 
-func (suite *CarrierRepositoryTestSuite) Test_UpdateCarrier_Found_ReturnsNoError() {
+func (suite *CarrierRepositoryTestSuite) Test_UpdateCarrier_Found_ReturnsUpdatedRecord() {
 	//arrange
-	name, trackingTemplate := "UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"
+	carrier1 := &models.Carrier{uint(1), "UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"}
 	suite.mock.
 		ExpectExec(`UPDATE "carriers"`).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	//act
-	err := suite.repository.UpdateCarrier(&models.Carrier{ID: 1, Name: name, TrackingTemplate: trackingTemplate})
+	carrier, err := suite.repository.UpdateCarrier(carrier1)
 
 	//assert
 	suite.assert.Nil(err)
+	suite.assert.Equal(carrier1, carrier)
 
 	//make sure that all expectations were met
 	suite.assert.Nil(suite.mock.ExpectationsWereMet())
