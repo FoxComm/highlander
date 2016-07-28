@@ -113,8 +113,7 @@ class CouponPage extends Component {
 
     const coupon = this.coupon;
 
-    if (!_.isNumber(coupon.promotion)) {
-      this.setState({promotionError: true});
+    if (!this.validateForm()) {
       return null;
     }
 
@@ -190,15 +189,30 @@ class CouponPage extends Component {
     });
   }
 
-  @autobind
-  handleSave(): ?Promise {
+  validateForm() {
+    const { form } = this.refs;
     const coupon = this.coupon;
+    let formValid = true;
+
     if (!_.isNumber(coupon.promotion)) {
       this.setState({promotionError: true});
+      formValid = false;
+    }
+
+    if (form && form.checkValidity && !form.checkValidity()) {
+      formValid = false;
+    }
+
+    return formValid;
+  }
+
+  @autobind
+  handleSave(): ?Promise {
+    if (!this.validateForm()) {
       return null;
     }
 
-    return this.props.actions.createCoupon(coupon);
+    return this.props.actions.createCoupon(this.coupon);
   }
 
   render(): Element {
@@ -220,6 +234,7 @@ class CouponPage extends Component {
       coupon,
       promotionError,
       codeGeneration,
+      ref: 'form',
       saveCoupon: this.handleSave,
       selectedPromotions: this.selectedPromotions,
       onUpdateCoupon: this.handleUpdateCoupon,
