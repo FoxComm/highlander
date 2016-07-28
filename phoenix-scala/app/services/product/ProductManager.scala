@@ -6,6 +6,7 @@ import cats.data._
 import cats.implicits._
 import cats.data.ValidatedNel
 import failures._
+import failures.ArchiveFailures._
 import failures.ProductFailures._
 import models.image.Albums
 import models.inventory._
@@ -27,6 +28,8 @@ import slick.driver.PostgresDriver.api._
 import utils.Validation._
 import utils.aliases._
 import utils.db._
+import org.json4s._
+import org.json4s.jackson.JsonMethods._
 
 object ProductManager {
 
@@ -126,13 +129,26 @@ object ProductManager {
   }
 
   def archiveByContextAndId(
-      productId: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[ProductResponse.Root] =
+      productId: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[ProductResponse.Root] = {
+    val payload = Map("activeFrom" → parse("""{"v": null, "t": "datetime"}"""),
+                      "activeTo" → parse("""{"v": null, "t": "datetime"}"""))
+
+    val newFormAttrs   = ObjectForm.fromPayload(Product.kind, payload).attributes
+    val newShadowAttrs = ObjectShadow.fromPayload(payload).attributes
+
     for {
       productObject ← * <~ mustFindFullProductById(productId)
+      mergedAttrs = productObject.shadow.attributes.merge(newShadowAttrs)
+      inactive ← * <~ ObjectUtils.update(productObject.form.id,
+                                         productObject.shadow.id,
+                                         newFormAttrs,
+                                         mergedAttrs,
+                                         force = true)
+      commit      ← * <~ ObjectUtils.commit(inactive)
+      updatedHead ← * <~ updateHead(productObject.model, inactive.shadow, commit)
 
-      archiveResult ← * <~ Products.update(
-                         productObject.model,
-                         productObject.model.copy(archivedAt = Some(Instant.now)))
+      archiveResult ← * <~ Products.update(updatedHead,
+                                           updatedHead.copy(archivedAt = Some(Instant.now)))
 
       albumLinks ← * <~ ProductAlbumLinks.filter(_.leftId === archiveResult.id).result
       _ ← * <~ albumLinks.map { link ⇒
@@ -140,8 +156,8 @@ object ProductManager {
                                         DbResultT.unit,
                                         id ⇒ NotFoundFailure400(ProductAlbumLinks, id))
          }
-      albums   ← * <~ ImageManager.getAlbumsForProduct(productObject.form.id)
-      skuLinks ← * <~ ProductSkuLinks.filter(_.leftId === productObject.model.id).result
+      albums   ← * <~ ImageManager.getAlbumsForProduct(inactive.form.id)
+      skuLinks ← * <~ ProductSkuLinks.filter(_.leftId === archiveResult.id).result
       _ ← * <~ skuLinks.map { link ⇒
            ProductSkuLinks.deleteById(link.id,
                                       DbResultT.unit,
@@ -161,12 +177,13 @@ object ProductManager {
       (variantSkus, variantResponses) = variantAndSkus
     } yield
       ProductResponse.build(
-          product = IlluminatedProduct
-            .illuminate(oc, archiveResult, productObject.form, productObject.shadow),
+          product =
+            IlluminatedProduct.illuminate(oc, archiveResult, inactive.form, inactive.shadow),
           albums = albums,
           if (variantLinks.nonEmpty) variantSkus else skus,
           variantResponses
       )
+  }
 
   private def getVariantsWithRelatedSkus(variants: Seq[FullVariant])(
       implicit ec: EC,
@@ -239,17 +256,33 @@ object ProductManager {
       product: Product,
       skuPayloads: Seq[SkuPayload],
       createLinks: Boolean = true)(implicit ec: EC, db: DB, oc: OC) =
-    for {
-      skus ← * <~ skuPayloads.map(SkuManager.findOrCreateSku)
-
-      _ ← * <~ ProductSkuLinks.syncLinks(product,
-                                         if (createLinks) skus.map(_.model) else Seq.empty)
-
-      albums ← * <~ skus.map(sku ⇒ ImageManager.getAlbumsForSkuInner(sku.model.code, oc))
-      result = skus.zip(albums).map {
-        case (sku, album) ⇒ SkuResponse.buildLite(IlluminatedSku.illuminate(oc, sku), album)
-      }
-    } yield result
+    skuPayloads.map { payload ⇒
+      for {
+        code ← * <~ SkuManager.mustGetSkuCode(payload)
+        sku  ← * <~ Skus.filterByContextAndCode(oc.id, code).one.toXor
+        up ← * <~ sku.map { foundSku ⇒
+              if (foundSku.archivedAt.isEmpty) {
+                for {
+                  existingSku ← * <~ SkuManager.updateSkuInner(foundSku, payload)
+                  link = ProductSkuLink(leftId = product.id, rightId = existingSku.model.id)
+                  _ ← * <~ ProductSkuLinks.syncLinks(product,
+                                                     if (createLinks) Seq(existingSku.model)
+                                                     else Seq.empty)
+                } yield existingSku
+              } else {
+                DbResultT.failure(LinkArchivedSkuFailure(Product, product.id, code))
+              }
+            }.getOrElse {
+              for {
+                newSku ← * <~ SkuManager.createSkuInner(oc, payload)
+                _ ← * <~ ProductSkuLinks.syncLinks(product,
+                                                   if (createLinks) Seq(newSku.model)
+                                                   else Seq.empty)
+              } yield newSku
+            }
+        albums ← * <~ ImageManager.getAlbumsForSkuInner(code, oc)
+      } yield SkuResponse.buildLite(IlluminatedSku.illuminate(oc, up), albums)
+    }
 
   private def findOrCreateVariantsForProduct(product: Product, payload: Seq[VariantPayload])(
       implicit ec: EC,

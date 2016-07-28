@@ -1,7 +1,9 @@
 package services.variant
 
+import failures.ArchiveFailures._
 import failures.NotFoundFailure404
 import failures.ProductFailures._
+import models.inventory.Sku
 import models.objects._
 import models.product._
 import payloads.VariantPayloads._
@@ -157,7 +159,9 @@ object VariantManager {
 
     for {
       skuCodes ← * <~ payload.skuCodes.map(SkuManager.mustFindSkuByContextAndCode(context.id, _))
-      ins      ← * <~ ObjectUtils.insert(form, shadow)
+      _ ← * <~ skuCodes.map(sku ⇒
+               DbResultT.fromXor(sku.mustNotBeArchived(Variant, variant.formId)))
+      ins ← * <~ ObjectUtils.insert(form, shadow)
       variantValue ← * <~ VariantValues.create(
                         VariantValue(contextId = context.id,
                                      formId = ins.form.id,

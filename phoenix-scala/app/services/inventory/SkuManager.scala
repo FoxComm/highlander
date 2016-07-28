@@ -1,8 +1,10 @@
 package services.inventory
 
+import java.time.Instant
+
 import cats.data._
 import failures.ProductFailures._
-import failures.{Failures, GeneralFailure}
+import failures.{Failures, GeneralFailure, NotFoundFailure400}
 import models.inventory._
 import models.objects._
 import payloads.SkuPayloads._
@@ -45,6 +47,34 @@ object SkuManager {
       updatedSku ← * <~ updateSkuInner(sku, payload)
       albums     ← * <~ ImageManager.getAlbumsForSkuInner(updatedSku.model.code, context)
     } yield SkuResponse.build(IlluminatedSku.illuminate(context, updatedSku), albums)
+
+  def archiveByContextAndId(contextName: String,
+                            code: String)(implicit ec: EC, db: DB): DbResultT[SkuResponse.Root] =
+    for {
+      context ← * <~ ObjectManager.mustFindByName404(contextName)
+      fullSku ← * <~ ObjectManager.getFullObject(
+                   SkuManager.mustFindSkuByContextAndCode(context.id, code))
+      archivedSku ← * <~ Skus.update(fullSku.model,
+                                     fullSku.model.copy(archivedAt = Some(Instant.now)))
+      albumLinks ← * <~ SkuAlbumLinks.filter(_.leftId === archivedSku.id).result
+      _ ← * <~ albumLinks.map { link ⇒
+           SkuAlbumLinks.deleteById(link.id,
+                                    DbResultT.unit,
+                                    id ⇒ NotFoundFailure400(SkuAlbumLinks, id))
+         }
+      albums       ← * <~ ImageManager.getAlbumsForSkuInner(archivedSku.code, context)
+      productLinks ← * <~ ProductSkuLinks.filter(_.rightId === archivedSku.id).result
+      _ ← * <~ productLinks.map { link ⇒
+           SkuAlbumLinks.deleteById(link.id,
+                                    DbResultT.unit,
+                                    id ⇒ NotFoundFailure400(SkuAlbumLinks, id))
+         }
+    } yield
+      SkuResponse.build(
+          IlluminatedSku.illuminate(
+              context,
+              FullObject(model = archivedSku, form = fullSku.form, shadow = fullSku.shadow)),
+          albums)
 
   def createSkuInner(context: ObjectContext,
                      payload: SkuPayload)(implicit ec: EC, db: DB): DbResultT[FullObject[Sku]] = {

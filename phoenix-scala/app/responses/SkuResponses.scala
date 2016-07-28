@@ -93,16 +93,22 @@ object SkuResponses {
     case class Root(id: Int,
                     context: Option[ObjectContextResponse.Root],
                     attributes: Json,
-                    albums: Seq[AlbumResponse.Root])
+                    albums: Seq[AlbumResponse.Root],
+                    archivedAt: Option[Instant])
         extends ResponseItem
 
     def build(sku: IlluminatedSku, albums: Seq[AlbumResponse.Root]): Root =
       Root(id = sku.id,
+           archivedAt = sku.archivedAt,
            attributes = sku.attributes,
            context = ObjectContextResponse.build(sku.context).some,
            albums = albums)
 
     def buildLite(sku: IlluminatedSku, albums: Seq[AlbumResponse.Root]): Root =
-      Root(id = sku.id, attributes = sku.attributes, context = None, albums = albums)
+      Root(id = sku.id,
+           archivedAt = sku.archivedAt,
+           attributes = sku.attributes,
+           context = None,
+           albums = albums)
   }
 }
