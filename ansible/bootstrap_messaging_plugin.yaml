@@ -15,10 +15,10 @@
       prompt: "Enter ashes server name"
       default: "admin.foxcommerce.local"
       private: no
-    - name: "api_user_email"
+    - name: "plugins_api_user_email"
       prompt: "Enter phoenix api user email"
       private: no
-    - name: "api_user_password"
+    - name: "plugins_api_user_password"
       prompt: "Enter phoenix api password email"
       private: no
     - name: "self_host"
