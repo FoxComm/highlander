@@ -1,4 +1,4 @@
-create table shipment_methods (
+create table shipping_methods (
   id serial primary key,
   carrier_id integer not null references carriers on update restrict on delete restrict,
   name generic_string

@@ -1,11 +1,11 @@
 create table addresses (
   id serial primary key,
-  region_id integer not null references regions(id) on update restrict on delete restrict,
   name generic_string not null,
-  address1 generic_string not null,
-  address2 generic_string null,
+  region_id integer not null references regions(id) on update restrict on delete restrict,
   city generic_string not null,
   zip zip_code not null,
+  address1 generic_string not null,
+  address2 generic_string null,
   phone_number phone_number null,
 
   created_at generic_timestamp_now,

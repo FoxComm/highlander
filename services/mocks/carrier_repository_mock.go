@@ -6,11 +6,11 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-type CarrierServiceMock struct {
+type CarrierRepositoryMock struct {
 	mock.Mock
 }
 
-func (service *CarrierServiceMock) GetCarriers() ([]*models.Carrier, error) {
+func (service *CarrierRepositoryMock) GetCarriers() ([]*models.Carrier, error) {
 	args := service.Called()
 
 	if models, ok := args.Get(0).([]*models.Carrier); ok {
@@ -20,7 +20,7 @@ func (service *CarrierServiceMock) GetCarriers() ([]*models.Carrier, error) {
 	return nil, args.Error(1)
 }
 
-func (service *CarrierServiceMock) GetCarrierByID(id uint) (*models.Carrier, error) {
+func (service *CarrierRepositoryMock) GetCarrierByID(id uint) (*models.Carrier, error) {
 	args := service.Called(id)
 
 	if model, ok := args.Get(0).(*models.Carrier); ok {
@@ -30,7 +30,7 @@ func (service *CarrierServiceMock) GetCarrierByID(id uint) (*models.Carrier, err
 	return nil, args.Error(1)
 }
 
-func (service *CarrierServiceMock) CreateCarrier(carrier *models.Carrier) (*models.Carrier, error) {
+func (service *CarrierRepositoryMock) CreateCarrier(carrier *models.Carrier) (*models.Carrier, error) {
 	args := service.Called(carrier)
 
 	if model, ok := args.Get(0).(*models.Carrier); ok {
@@ -40,7 +40,7 @@ func (service *CarrierServiceMock) CreateCarrier(carrier *models.Carrier) (*mode
 	return nil, args.Error(1)
 }
 
-func (service *CarrierServiceMock) UpdateCarrier(carrier *models.Carrier) (*models.Carrier, error) {
+func (service *CarrierRepositoryMock) UpdateCarrier(carrier *models.Carrier) (*models.Carrier, error) {
 	args := service.Called(carrier)
 
 	if model, ok := args.Get(0).(*models.Carrier); ok {
@@ -50,7 +50,7 @@ func (service *CarrierServiceMock) UpdateCarrier(carrier *models.Carrier) (*mode
 	return nil, args.Error(1)
 }
 
-func (service *CarrierServiceMock) DeleteCarrier(id uint) error {
+func (service *CarrierRepositoryMock) DeleteCarrier(id uint) error {
 	args := service.Called(id)
 
 	if args.Bool(0) {
