@@ -20,7 +20,7 @@
     - { role: dev/isaac }
     - { role: dev/seeder }
     - { role: dev/greenriver }
-    - { role: dev/middlewarehouse }
+    - { role: dev/middlewarehouse, tags: simple }
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml

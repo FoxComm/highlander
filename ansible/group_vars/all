@@ -29,14 +29,14 @@ phoenix_db_name: phoenix_development
 phoenix_test_db_name: phoenix_test
 phoenix_tracing: "false"
 
-# middlewarehouse
+# Middlewarehouse
 middlewarehouse_env: staging
-middlewarehouse_src: ../../middlewarehouse/
-middlewarehouse_bin_src: "{{middlewarehouse_src}}/middlewarehouse"
-
 middlewarehouse_dir: /middlewarehouse
 middlewarehouse_bin: "{{middlewarehouse_dir}}/middlewarehouse"
 middlewarehouse_db_name: middlewarehouse_development
+
+middlewarehouse_src: ../../middlewarehouse/
+middlewarehouse_bin_src: "{{middlewarehouse_src}}/middlewarehouse"
 
 # Ashes
 ashes_env: production

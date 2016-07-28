@@ -1,13 +1,27 @@
 ---
 
-#- name: Copy Binary
-#  copy: src={{middlewarehouse_bin_src}} dest={{middlewarehouse_bin}} mode="u+x,g+x,o+x"
-#  sudo: true
+- name: Copy Binary
+  copy: src={{middlewarehouse_bin_src}} dest={{middlewarehouse_bin}} mode="u+x,g+x,o+x"
+  sudo: true
+  tags:
+    - extended
 
-#- name: Synchronize middlewarehouse Sql
-#  synchronize: src="{{middlewarehouse_src}}/sql" dest="{{middlewarehouse_dir}}" delete=yes recursive=yes
-#  sudo: true
+- name: Synchronize middlewarehouse Sql
+  synchronize: src="{{middlewarehouse_src}}/sql" dest="{{middlewarehouse_dir}}" delete=yes recursive=yes
+  sudo: true
+  tags:
+    - extended
+
+- name: Migrate middlewarehouse DB
+  shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
+  args:
+    chdir: "{{middlewarehouse_dir}}"
+  tags:
+    - extended
 
 - name: Restart middlewarehouse
   service: name=middlewarehouse state=restarted enabled=yes
   sudo: true
+  tags:
+    - simple
+    - extended
