@@ -8,6 +8,7 @@
    [clojure.string :as string]
    ;; internal
    [messaging.mail :as mail]
+   [messaging.settings :as settings]
    ;; kafka & other libs
    [franzy.clients.consumer.client :as consumer]
    [franzy.clients.consumer.protocols :refer :all]
@@ -26,10 +27,9 @@
 
 (def topics ["activities"])
 
-(def slack-webhook-url (delay (:slack-webhook-url env)))
+(def admin_server_name (delay (:admin_server_name env)))
 (def kafka-broker (delay (:kafka-broker env)))
 (def schema-registry-url (delay (:schema-registry-url env)))
-(def admin-base-url (delay (str "http://" (:admin-server-name env))))
 
 
 (defn decode-embed-json
@@ -88,7 +88,7 @@
     (some->>
       (some-> text
           (string/replace #"(<(?!(a\s|/a)).+?>)" " ")
-          (string/replace #"<a\s.+?href=\"(.*?)\".+?>(.+?)</a>" (str "<" @admin-base-url "$1|$2>"))
+          (string/replace #"<a\s.+?href=\"(.*?)\".+?>(.+?)</a>" (str "<" @admin_server_name "$1|$2>"))
           (string/replace #"\p{Zs}" " ")
           (string/split #"\s"))
       (map string/trim)
@@ -98,7 +98,7 @@
 
 (defn send-to-slack
   [^String msg]
-  (http/post @slack-webhook-url
+  (http/post (settings/get :slack_webhook_url)
              {:body (json/write-str {:text msg})
               :content-type "application/json"
               :accept ["application/json"]}))
