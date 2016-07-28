@@ -133,7 +133,6 @@ const reducer = createReducer({
   },
   [cartSuccess]: (state, payload) => {
     const order = _.get(payload, 'result', payload);
-    const skus = _.get(order, 'lineItems.skus', []);
     const errors = _.get(payload, 'errors', []);
     const warnings = _.get(payload, 'warnings', []);
 

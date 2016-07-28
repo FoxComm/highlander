@@ -4,7 +4,6 @@ import bulk from './bulk';
 import watchers from './watchers';
 import list from './list';
 import newOrder from './new-order';
-import shippingMethods from './shipping-methods';
 import paymentMethods from './payment-methods';
 import coupons from './coupons';
 import discounts from './discounts';
@@ -17,7 +16,6 @@ const orderReducer = combineReducers({
   bulk,
   watchers,
   list,
-  shippingMethods,
   paymentMethods,
   newOrder,
   coupons,

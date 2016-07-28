@@ -6,7 +6,7 @@ import details from './details';
 // import list from './list';
 // import newOrder from './new-order';
 import skuSearch from './sku-search';
-// import shippingMethods from './shipping-methods';
+import shippingMethods from './shipping-methods';
 import shippingAddresses from './shipping-addresses';
 // import paymentMethods from './payment-methods';
 // import coupons from './coupons';
@@ -22,7 +22,7 @@ const orderReducer = combineReducers({
   // watchers,
   // list,
   skuSearch,
-  // shippingMethods,
+  shippingMethods,
   shippingAddresses,
   // paymentMethods,
   // newOrder,
