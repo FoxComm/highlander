@@ -23,7 +23,7 @@ final case class NotesSearchView()(implicit ec: EC) extends AvroTransformer {
       ),
       field("order").nested(
           field("customerId", IntegerType),
-          field("referenceNumber", StringType) index "lowercased",
+          field("referenceNumber", StringType) index "lower_cased",
           field("state", StringType) index "not_analyzed",
           field("createdAt", DateType) format dateFormat,
           field("placedAt", DateType) format dateFormat,

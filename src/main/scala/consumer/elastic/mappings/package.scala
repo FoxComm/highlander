@@ -17,8 +17,8 @@ package object mappings {
   )
 
   val lowerCasedAnalyzer = CustomAnalyzerDefinition(
-      "lowercased",
-      KeywordTokenizer,
+      "lower_cased",
+      KeywordTokenizer("lower_cased_keyword_tokenizer"),
       LowercaseTokenFilter
   )
 
