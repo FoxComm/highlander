@@ -13,10 +13,15 @@ type StockLocation struct {
 }
 
 func NewStockLocationFromPayload(payload *payloads.StockLocation) *StockLocation {
+	var address *Address
+	if payload.Address != nil {
+		address = NewAddressFromPayload(payload.Address)
+	}
+
 	location := &StockLocation{
 		Name:    payload.Name,
 		Type:    payload.Type,
-		Address: NewAddressFromPayload(payload.Address),
+		Address: address,
 	}
 
 	return location

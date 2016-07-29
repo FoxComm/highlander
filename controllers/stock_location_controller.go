@@ -32,7 +32,7 @@ func (controller *stockLocationController) GetLocations() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		locations, err := controller.service.GetLocations()
 		if err != nil {
-			fail := failures.MakeInternalError(err)
+			fail := failures.NewInternalError(err)
 			failures.Abort(context, fail)
 			return
 		}

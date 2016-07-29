@@ -64,11 +64,11 @@ func (suite *stockLocationResponseTestSuite) Test_JSONEncoding() {
 	name, locationType := "First Location", "Warehouse"
 
 	addressName := "WH Address"
-	addressRegionID := uint(1)
 	addressCity := "Moscow"
 	addressZip := "ZIP-ZIP"
 	addressAddress := "Nowhere st"
 	addressPhoneNumber := "Don't call me"
+	region := Region{uint(1), "Texas", uint(2), "USA"}
 
 	response := &StockLocation{
 		ID:   id,
@@ -77,17 +77,17 @@ func (suite *stockLocationResponseTestSuite) Test_JSONEncoding() {
 		Address: &Address{
 			ID:          id,
 			Name:        addressName,
-			RegionId:    addressRegionID,
+			Region:      region,
 			City:        addressCity,
 			Zip:         addressZip,
 			Address1:    addressAddress,
-			Address2:    &addressAddress,
+			Address2:    addressAddress,
 			PhoneNumber: addressPhoneNumber,
 		},
 	}
 	expected := fmt.Sprintf(
-		`{"id":%d,"name":"%s","type":"%s","address":{"id":%d,"name":"%s","region":%d,"city":"%s","zip":"%s","address1":"%s","address2":"%s","phoneNumber":"%s"}}`,
-		id, name, locationType, id, addressName, addressRegionID, addressCity, addressZip, addressAddress, addressAddress, addressPhoneNumber)
+		`{"id":%d,"name":"%s","type":"%s","address":{"id":%d,"name":"%s","region":{"id":%v,"name":"%v","countryId":%v,"countryName":"%v"},"city":"%s","zip":"%s","address1":"%s","address2":"%s","phoneNumber":"%s"}}`,
+		id, name, locationType, id, addressName, region.ID, region.Name, region.CountryID, region.CountryName, addressCity, addressZip, addressAddress, addressAddress, addressPhoneNumber)
 	writer := new(bytes.Buffer)
 	encoder := json.NewEncoder(writer)
 

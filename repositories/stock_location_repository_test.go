@@ -103,8 +103,7 @@ func (suite *stockLocationRepositoryTestSuite) Test_UpdateLocation_NotFound() {
 	location, err := suite.repository.UpdateLocation(model)
 
 	suite.assert.Nil(location)
-	suite.assert.NotNil(err)
-	suite.assert.IsType(gorm.ErrRecordNotFound, err)
+	suite.assert.Equal(gorm.ErrRecordNotFound, err)
 }
 
 func (suite *stockLocationRepositoryTestSuite) Test_DeleteLocation() {
@@ -116,6 +115,5 @@ func (suite *stockLocationRepositoryTestSuite) Test_DeleteLocation() {
 func (suite *stockLocationRepositoryTestSuite) Test_DeleteLocation_NotFound() {
 	err := suite.repository.DeleteLocation(uint(1e9))
 
-	suite.assert.NotNil(err)
-	suite.assert.IsType(gorm.ErrRecordNotFound, err)
+	suite.assert.Equal(gorm.ErrRecordNotFound, err)
 }

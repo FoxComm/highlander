@@ -28,7 +28,6 @@ func NewStockLocationFromModel(location *models.StockLocation) *StockLocation {
 	}
 
 	if location.Address != nil {
-		println("has addtress")
 		response.Address = NewAddressFromModel(location.Address)
 	}
 
