@@ -22,4 +22,4 @@
       private: no
 
   roles:
-    - { role: dev/middlewarehouse, tags: extended }
+    - { role: dev/middlewarehouse, tags: ["extended"] }
