@@ -97,7 +97,7 @@ func (suite *InventoryServiceTestSuite) Test_CreateStockItem() {
 	stockItem := &models.StockItem{StockLocationID: 1, SKU: "TEST-CREATION"}
 	resp, err := suite.service.CreateStockItem(stockItem)
 	suite.assert.Nil(err)
-	suite.assert.Equal("TEST-CREATION", resp.SKU)
+	suite.assert.Equal(stockItem.SKU, resp.SKU)
 }
 
 func (suite *InventoryServiceTestSuite) Test_CreateStockItem_SummaryCreation() {
