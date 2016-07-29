@@ -2,7 +2,7 @@ package server
 
 import scala.collection.immutable
 import scala.concurrent.duration._
-import scala.concurrent.{ExecutionContextExecutor, Future}
+import scala.concurrent.{ExecutionContext, Future}
 import akka.actor.{ActorSystem, Props}
 import akka.agent.Agent
 import akka.event.Logging
@@ -58,7 +58,8 @@ class Service(systemOverride: Option[ActorSystem] = None,
     ActorSystem.create("Orders", config)
   }
 
-  implicit def executionContext: ExecutionContextExecutor = system.dispatcher
+  val threadPool                = java.util.concurrent.Executors.newCachedThreadPool()
+  implicit val executionContext = ExecutionContext.fromExecutor(threadPool)
 
   implicit val materializer: ActorMaterializer = ActorMaterializer()
 
