@@ -24,6 +24,7 @@ func NewStockLocationRepository(db *gorm.DB) IStockLocationRepository {
 
 func (repository *stockLocationRepository) GetLocations() ([]*models.StockLocation, error) {
 	locations := []*models.StockLocation{}
+
 	if err := repository.db.Find(&locations).Error; err != nil {
 		return nil, err
 	}
@@ -33,6 +34,7 @@ func (repository *stockLocationRepository) GetLocations() ([]*models.StockLocati
 
 func (repository *stockLocationRepository) GetLocationByID(id uint) (*models.StockLocation, error) {
 	location := &models.StockLocation{}
+
 	if err := repository.db.First(location, id).Error; err != nil {
 		return nil, err
 	}
@@ -42,6 +44,7 @@ func (repository *stockLocationRepository) GetLocationByID(id uint) (*models.Sto
 
 func (repository *stockLocationRepository) CreateLocation(location *models.StockLocation) (*models.StockLocation, error) {
 	err := repository.db.Create(location).Error
+
 	if err != nil {
 		return nil, err
 	}
@@ -52,11 +55,12 @@ func (repository *stockLocationRepository) CreateLocation(location *models.Stock
 func (repository *stockLocationRepository) UpdateLocation(location *models.StockLocation) (*models.StockLocation, error) {
 	res := repository.db.Model(&location).Updates(location)
 
-	if res.RowsAffected == 0 {
-		return nil, gorm.ErrRecordNotFound
-	}
 	if res.Error != nil {
 		return nil, res.Error
+	}
+
+	if res.RowsAffected == 0 {
+		return nil, gorm.ErrRecordNotFound
 	}
 
 	return repository.GetLocationByID(location.ID)
@@ -64,9 +68,11 @@ func (repository *stockLocationRepository) UpdateLocation(location *models.Stock
 
 func (repository *stockLocationRepository) DeleteLocation(id uint) error {
 	res := repository.db.Delete(&models.StockLocation{}, id)
+
 	if res.Error != nil {
 		return res.Error
 	}
+
 	if res.RowsAffected == 0 {
 		return gorm.ErrRecordNotFound
 	}

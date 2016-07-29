@@ -103,6 +103,13 @@ func (suite *CarrierRepositoryTestSuite) Test_CreateCarrier_ReturnsCreatedRecord
 	suite.mock.
 		ExpectExec(`INSERT INTO "carriers"`).
 		WillReturnResult(sqlmock.NewResult(1, 1))
+	rows := sqlmock.
+		NewRows([]string{"id", "name", "tracking_template"}).
+		AddRow(uint(1), carrier1.Name, carrier1.TrackingTemplate)
+	suite.mock.
+		ExpectQuery(`SELECT (.+) FROM "carriers" WHERE \("id" = \?\) (.+)`).
+		WithArgs(1).
+		WillReturnRows(rows)
 
 	//act
 	carrier, err := suite.repository.CreateCarrier(carrier1)
@@ -139,6 +146,13 @@ func (suite *CarrierRepositoryTestSuite) Test_UpdateCarrier_Found_ReturnsUpdated
 	suite.mock.
 		ExpectExec(`UPDATE "carriers"`).
 		WillReturnResult(sqlmock.NewResult(1, 1))
+	rows := sqlmock.
+		NewRows([]string{"id", "name", "tracking_template"}).
+		AddRow(carrier1.ID, carrier1.Name, carrier1.TrackingTemplate)
+	suite.mock.
+		ExpectQuery(`SELECT (.+) FROM "carriers" WHERE \("id" = \?\) (.+)`).
+		WithArgs(1).
+		WillReturnRows(rows)
 
 	//act
 	carrier, err := suite.repository.UpdateCarrier(carrier1)
