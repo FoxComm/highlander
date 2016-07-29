@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import _ from 'lodash';
 
 import * as AddressActions from 'modules/customers/addresses';
-import * as ShippingAddressActions from 'modules/carts/shipping-addresses';
+import * as CartActions from 'modules/carts/details';
 
 import AddressBox from 'components/addresses/address-box';
 import AddressForm from 'components/addresses/address-form/modal';
@@ -15,7 +15,7 @@ function mapStateToProps(state, props) {
   const customerId = _.get(props, 'cart.customer.id');
   return {
     addressState: state.customers.addresses[customerId],
-    shippingAddressState: state.carts.shippingAddresses,
+    // shippingAddressState: state.carts.shippingAddresses,
   };
 }
 
@@ -27,14 +27,10 @@ function mapDispatchToProps(dispatch, props) {
     res[key] = (...args) => dispatch(action(customerId, ...args));
   });
 
-  const shippingAddressActions = _.transform(ShippingAddressActions, (res, action, key) => {
-    res[key] = (...args) => dispatch(action(refNum, ...args));
-  });
-
   return {
     actions: {
       ...addressActions,
-      ...shippingAddressActions,
+      ...CartActions,
     },
   };
 }
@@ -59,10 +55,6 @@ export default class ChooseShippingAddress extends Component {
       addresses: PropTypes.array,
       isFetching: PropTypes.bool,
     }).isRequired,
-
-    shippingAddressState: PropTypes.shape({
-      updateNum: PropTypes.number.isRequired,
-    }).isRequired,
   };
 
   static defaultProps = {
@@ -85,15 +77,15 @@ export default class ChooseShippingAddress extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.shippingAddressState.updateNum != nextProps.shippingAddressState.updateNum ||
-        !Object.is(this.props.addressState.addresses, nextProps.addressState.addresses)) {
-      this.setState({
-        address: null,
-        isDeleteDialogVisible: false,
-        isFormVisible: false,
-        isShippingAddress: false,
-      });
-    }
+    // if (this.props.shippingAddressState.updateNum != nextProps.shippingAddressState.updateNum ||
+    //     !Object.is(this.props.addressState.addresses, nextProps.addressState.addresses)) {
+    //   this.setState({
+    //     address: null,
+    //     isDeleteDialogVisible: false,
+    //     isFormVisible: false,
+    //     isShippingAddress: false,
+    //   });
+    // }
   }
 
   get addresses() {
@@ -180,7 +172,8 @@ export default class ChooseShippingAddress extends Component {
 
   @autobind
   handleChooseAddress(address) {
-    this.props.actions.chooseAddress(address.id);
+    const refNum = this.props.cart.referenceNumber;
+    this.props.actions.chooseAddress(refNum, address.id);
   }
 
   @autobind
@@ -246,14 +239,15 @@ export default class ChooseShippingAddress extends Component {
   @autobind
   handleFormSubmit(address) {
     const isEdit = address.id;
+    const { referenceNumber } = this.props.cart;
 
     if (!isEdit) {
       this.props.actions.createShippingAddress(address)
         .then(this.props.actions.fetchAddresses);
     } else if (this.state.isShippingAddress) {
-      this.props.actions.patchShippingAddress(address);
+      this.props.actions.patchShippingAddress(referenceNumber, address);
     } else {
-      this.props.actions.patchAddress(address.id, address);
+      this.props.actions.patchAddress(referenceNumber, address.id, address);
     }
   }
 

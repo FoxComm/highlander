@@ -51,6 +51,45 @@ export function deleteLineItem(refNum: string, sku: string) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// Shipping Address Actions
+
+const _chooseShippingAddress = createAsyncActions(
+  'chooseShippingAddress',
+  (refNum: string, addressId: number) => Api.patch(`/orders/${refNum}/shipping-address/${addressId}`)
+);
+
+const _createShippingAddress = createAsyncActions(
+  'createShippingAddress',
+  (refNum: string, payload: Object) => Api.post(`/orders/${refNum}/shipping-address`)
+);
+
+const _updateShippingAddress = createAsyncActions(
+  'updateShippingAddress',
+  (refNum: string, payload: Object) => Api.patch(`/orders/${refNum}/shipping-address`)
+);
+
+const _deleteShippingAddress = createAsyncActions(
+  'deleteShippingAddress',
+  (refNum: string) => Api.delete(`/orders/${refNum}/shipping-address`)
+);
+
+export function chooseShippingAddress(refNum: string, addressId: number) {
+  return dispatch => dispatch(_chooseShippingAddress.perform(refNum, addressId));
+}
+
+export function createShippingAddress(refNum: string, payload: Object) {
+  return dispatch => dispatch(_createShippingAddress.perform(refNum, payload));
+}
+
+export function updateShippingAddress(refNum: string, payload: Object) {
+  return dispatch => dispatch(_updateShippingAddress.perform(refNum, payload));
+}
+
+export function deleteShippingAddress(refNum: string) {
+  return dispatch => dispatch(_deleteShippingAddress.perform(refNum));
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Shipping Method Actions
 
 const _updateShippingMethod = createAsyncActions(
@@ -148,6 +187,10 @@ const reducer = createReducer({
   [_fetchCart.succeeded]: (state, cart) => receiveCart(state, cart),
   [_fetchCustomerCart.succeeded]: (state, cart) => receiveCart(state, cart),
   [_updateLineItemCount.succeeded]: (state, cart) => receiveCart(state, cart),
+  [_chooseShippingAddress.succeeded]: (state, cart) => receiveCart(state, cart),
+  [_createShippingAddress.succeeded]: (state, cart) => receiveCart(state, cart),
+  [_updateShippingAddress.succeeded]: (state, cart) => receiveCart(state, cart),
+  [_deleteShippingAddress.succeeded]: (state, cart) => receiveCart(state, cart),
   [_updateShippingMethod.succeeded]: (state, order) => receiveCart(state, order),
   [checkoutRequest]: (state) => {
     return { ...state, isCheckingOut: true };
