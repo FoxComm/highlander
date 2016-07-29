@@ -1,5 +1,7 @@
 /* @flow */
 
+import { assoc } from 'sprout-data';
+
 import type { Sku } from '../modules/skus/details';
 
 export function generateSkuCode(): string {
@@ -10,7 +12,7 @@ export function createEmptySku(): Sku {
   const emptySku = {
     id: null,
     attributes: {
-      code: { t: 'string', v: '' },
+      code: { label: 'SKU', t: 'string', v: '' },
       title: { t: 'string', v: '' },
       upc: { t: 'string', v: '' },
       description: { t: 'richText', v: '' },
@@ -30,4 +32,8 @@ export function createEmptySku(): Sku {
   };
 
   return emptySku;
+}
+
+export function updateFieldLabels(sku) {
+  return assoc(sku, ['attributes', 'code', 'label'], 'SKU');
 }
