@@ -29,9 +29,9 @@ export default class NoteForm extends React.Component {
 
 
   @autobind
-  handleChange(evt) {
+  handleChange({target}) {
     this.setState({
-      body: evt.target.value,
+      body: target.value,
     });
   }
 
