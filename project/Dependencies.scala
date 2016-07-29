@@ -14,7 +14,11 @@ object Dependencies {
       "com.typesafe.akka" %% "akka-stream-testkit" % akkaV % "test,it"
   )
 
-  val slickV = "3.1.1"
+  val slickV = "3.1.1.2" //This is a patched version  
+                         //found here:
+                         //https://github.com/kwark/slick/blob/3.1-deadlock/README.md
+                         //Fixes a critical deadlock in slick.
+                         //Change once lands in mainline.
   val slick = Seq(
       "com.typesafe.slick" %% "slick"          % slickV,
       "com.typesafe.slick" %% "slick-hikaricp" % slickV
