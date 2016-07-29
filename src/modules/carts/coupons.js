@@ -2,9 +2,9 @@
 /* @flow weak */
 
 import { createAction, createReducer } from 'redux-act';
-import Api from '../../lib/api';
+import Api from 'lib/api';
 import _ from 'lodash';
-import { orderSuccess } from './details.js';
+// import { orderSuccess } from './details.js';
 
 export type CouponModuleProps = {
   isEditing: boolean,
@@ -36,12 +36,12 @@ function basePath(refNum) {
 export function addCoupon(orderRefNum: string) {
   return (dispatch, getState) => {
     const state = getState();
-    const code = _.get(state, 'orders.coupons.code');
+    const code = _.get(state, 'carts.coupons.code');
     return Api.post(`${basePath(orderRefNum)}/${code}`, null)
       .then(
         order => {
           dispatch(orderCouponsStopEdit());
-          dispatch(orderSuccess(order));
+          // dispatch(orderSuccess(order));
         },
         err => {
           dispatch(orderCouponApplyError(err));
@@ -55,7 +55,7 @@ export function removeCoupon(orderRefNum: string) {
     return Api.delete(`${basePath(orderRefNum)}`)
       .then(
         order => {
-          dispatch(orderSuccess(order));
+          // dispatch(orderSuccess(order));
         },
         err => console.log(err)
       );

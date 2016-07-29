@@ -29,7 +29,7 @@ export function updateLineItemCount(order, sku, quantity, confirmDelete = true) 
       return Api.post(`/orders/${order.referenceNumber}/line-items`, payload)
         .then(
           order => {
-            dispatch(cartSuccess(order));
+            // dispatch(cartSuccess(order));
             dispatch(orderLineItemsRequestSuccess(sku));
             dispatch(orderLineItemsFetchSuccess(order));
           },

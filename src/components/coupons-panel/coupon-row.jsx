@@ -3,9 +3,9 @@
 
 import { get, noop } from 'lodash';
 import React, { Element } from 'react';
-import { DeleteButton } from '../../common/buttons';
 
-import MultiSelectRow from '../../table/multi-select-row';
+import { DeleteButton } from 'components/common/buttons';
+import MultiSelectRow from 'components/table/multi-select-row';
 
 function setCellContentsFunctionFactory(onDelete: Function): Function {
   const setCellContents = (item: Object, field: string) => {
@@ -32,7 +32,7 @@ const CouponRow = (props: Props): Element => {
   const { item, columns, params, onDelete } = props;
   const checkedParams = params || {checked: false, setChecked: noop };
 
-  const key = `order-coupon-row-${item.id}`;
+  const key = `coupon-panel-row-${item.id}`;
 
   const setCellContents = setCellContentsFunctionFactory(onDelete);
 

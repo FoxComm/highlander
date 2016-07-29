@@ -9,7 +9,7 @@ import skuSearch from './sku-search';
 import shippingMethods from './shipping-methods';
 import shippingAddresses from './shipping-addresses';
 // import paymentMethods from './payment-methods';
-// import coupons from './coupons';
+import coupons from './coupons';
 // import discounts from './discounts';
 // import shipments from './shipments';
 // import carriers from './carriers';
@@ -26,7 +26,7 @@ const orderReducer = combineReducers({
   shippingAddresses,
   // paymentMethods,
   // newOrder,
-  // coupons,
+  coupons,
   // discounts,
   // shipments,
   // carriers,
