@@ -33,31 +33,19 @@ class StorefrontAccessSimulation extends Simulation {
         .set("intruderEmail", Utils.randomEmail("intruder"))
         .set("intruderPassword", Utils.randomString())
     })
-    // Intruder Login + registration
+    // Intruder registration and login, customer login
     .exec(IntruderActivity.register())
-    .exitHereIfFailed
     .exec(AuthEndpoint.loginAsIntruder())
-    .exec(flushCookieJar)
-    .exec(IntruderActivity.Cart.touch())
-    .exitHereIfFailed
-    // Customer Login and Account Info
     .exec(AuthEndpoint.loginAsCustomer())
     .exec(flushCookieJar)
     .exitHereIfFailed
-    .exec(AccountEndpoint.get())
-    .exitHereIfFailed
     // Customer Address Activity
+    .exec(CustomerActivity.asCustomer())
     .exec(AddressEndpoint.create(baseAddress))
     .exec(AddressEndpoint.update(address))
     .exec(AddressEndpoint.get(address))
     .exec(AddressEndpoint.setAsDefault(address))
     .exitHereIfFailed
-    // Intruder Address Activity
-    .exec(IntruderActivity.Address.get())
-    .exec(IntruderActivity.Address.update(address))
-    .exec(IntruderActivity.Address.setAsDefault())
-    .exec(IntruderActivity.Address.delete())
-    .exec(IntruderActivity.Cart.shippingAddressAdd())
     // Customer Credit Card Activity
     .exec(session ⇒ {
       session
@@ -72,13 +60,21 @@ class StorefrontAccessSimulation extends Simulation {
     .exec(CreditCardEndpoint.get(creditCard, address))
     .exec(CreditCardEndpoint.setAsDefault(creditCard, address))
     .exitHereIfFailed
-    // Intruder Activity
+    // Intruder Address Activity
+    .exec(IntruderActivity.asIntruder())
+    .exec(IntruderActivity.Address.get())
+    .exec(IntruderActivity.Address.update(address))
+    .exec(IntruderActivity.Address.setAsDefault())
+    .exec(IntruderActivity.Address.delete())
+    .exec(IntruderActivity.Cart.shippingAddressAdd())
+    // Intruder Credit Card Activity
     .exec(IntruderActivity.CreditCard.get())
     .exec(IntruderActivity.CreditCard.create())
     .exec(IntruderActivity.CreditCard.update(address))
     .exec(IntruderActivity.CreditCard.setAsDefault())
     .exec(IntruderActivity.CreditCard.delete())
     // Cleanup
+    .exec(CustomerActivity.asCustomer())
     .exec(AddressEndpoint.removeDefault())
     .exec(AddressEndpoint.delete())
     .exec(CreditCardEndpoint.delete())

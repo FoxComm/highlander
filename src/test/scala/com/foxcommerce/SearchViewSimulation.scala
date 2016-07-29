@@ -41,6 +41,7 @@ class SearchViewSimulation extends Simulation {
     })
     // Login
     .exec(AuthEndpoint.loginAsAdmin())
+    .exec(StoreAdminActivity.asStoreAdmin())
     // Create objects
     .exec(CustomerEndpoint.create(baseCustomer))
     .exec(CustomerAddressEndpoint.create(baseAddress))
