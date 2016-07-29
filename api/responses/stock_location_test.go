@@ -81,7 +81,7 @@ func (suite *stockLocationResponseTestSuite) Test_JSONEncoding() {
 			City:        addressCity,
 			Zip:         addressZip,
 			Address1:    addressAddress,
-			Address2:    addressAddress,
+			Address2:    &addressAddress,
 			PhoneNumber: addressPhoneNumber,
 		},
 	}

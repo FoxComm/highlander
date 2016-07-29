@@ -55,6 +55,6 @@ func (suite *AddressPayloadTestSuite) Test_AddressDecoding_RunsNormally() {
 	suite.assert.Equal(city, payload.City)
 	suite.assert.Equal(zip, payload.Zip)
 	suite.assert.Equal(address1, payload.Address1)
-	suite.assert.Equal(address2, payload.Address2)
+	suite.assert.Equal(address2, *payload.Address2)
 	suite.assert.Equal(phoneNumber, payload.PhoneNumber)
 }
