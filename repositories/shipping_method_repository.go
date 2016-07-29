@@ -24,6 +24,7 @@ func NewShippingMethodRepository(db *gorm.DB) IShippingMethodRepository {
 
 func (repository *shippingMethodRepository) GetShippingMethods() ([]*models.ShippingMethod, error) {
 	var shippingMethods []*models.ShippingMethod
+
 	if err := repository.db.Find(&shippingMethods).Error; err != nil {
 		return nil, err
 	}
@@ -33,6 +34,7 @@ func (repository *shippingMethodRepository) GetShippingMethods() ([]*models.Ship
 
 func (repository *shippingMethodRepository) GetShippingMethodByID(id uint) (*models.ShippingMethod, error) {
 	var shippingMethod models.ShippingMethod
+
 	if err := repository.db.First(&shippingMethod, id).Error; err != nil {
 		return nil, err
 	}
@@ -53,25 +55,27 @@ func (repository *shippingMethodRepository) CreateShippingMethod(shippingMethod 
 func (repository *shippingMethodRepository) UpdateShippingMethod(shippingMethod *models.ShippingMethod) (*models.ShippingMethod, error) {
 	result := repository.db.Model(shippingMethod).Updates(shippingMethod)
 
-	if result.RowsAffected == 0 {
-		return nil, gorm.ErrRecordNotFound
-	}
-
 	if result.Error != nil {
 		return nil, result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return nil, gorm.ErrRecordNotFound
 	}
 
 	return repository.GetShippingMethodByID(shippingMethod.ID)
 }
 
 func (repository *shippingMethodRepository) DeleteShippingMethod(id uint) error {
-	shippingMethod := models.ShippingMethod{ID: id}
+	res := repository.db.Delete(&models.ShippingMethod{}, id)
 
-	result := repository.db.Delete(&shippingMethod)
+	if res.Error != nil {
+		return res.Error
+	}
 
-	if result.RowsAffected == 0 {
+	if res.RowsAffected == 0 {
 		return gorm.ErrRecordNotFound
 	}
 
-	return result.Error
+	return nil
 }
