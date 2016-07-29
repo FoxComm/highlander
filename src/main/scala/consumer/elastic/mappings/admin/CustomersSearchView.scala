@@ -29,7 +29,7 @@ final case class CustomersSearchView()(implicit ec: EC) extends AvroTransformer 
       field("orderCount", IntegerType),
       field("orders").nested(
           field("customerId", IntegerType),
-          field("referenceNumber", StringType) index "lower_cased",
+          field("referenceNumber", StringType) analyzer "lower_cased",
           field("state", StringType) index "not_analyzed",
           field("createdAt", DateType) format dateFormat,
           field("placedAt", DateType) format dateFormat,
