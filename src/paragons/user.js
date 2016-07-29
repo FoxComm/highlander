@@ -13,6 +13,7 @@ export function configureUserState(user) {
 
   const attributes = {
     'firstAndLastName': {
+      label: 'First & Last Name',
       v: name,
       t: 'string',
     },
