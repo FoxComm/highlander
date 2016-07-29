@@ -48,7 +48,6 @@ begin
 end;
 $$ language plpgsql;
 
-
 create trigger update_orders_view_from_orders_insert
     after insert on orders
     for each row
