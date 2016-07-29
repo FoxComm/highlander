@@ -16,8 +16,9 @@ const WarehouseDrawer = props => {
           {...props}
           className="fc-inventory-item-details__warehouse-details-table"
           columns={drawerColumns}
-          data={drawerData(row.id)}
-          emptyMessage="No warehouse data found." />
+          data={drawerData(row)}
+          emptyMessage="No warehouse data found."
+        />
       </div>
     </Drawer>
   );

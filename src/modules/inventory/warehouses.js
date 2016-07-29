@@ -1,74 +1,94 @@
+// @flow weak
 
 import _ from 'lodash';
 import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
-import { assoc } from 'sprout-data';
 import createAsyncActions from '../async-utils';
 
-const _fetchSummary = createAsyncActions(
-  'inventory.sku-summary',
-  (skuCode) => Api.get(`/inventory/skus/${skuCode}/summary`),
-  (...args) => [...args]
-);
-export const fetchSummary = _fetchSummary.perform;
+export type StockCounts = {
+  onHand: number,
+  onHold: number,
+  reserved: number,
+  shipped: number,
+  afs: number,
+  afsCost: number,
+}
 
-const _fetchDetails = createAsyncActions(
-  'inventory.sku-details',
-  (skuCode, warehouseId) => {
-    return Api.get(`/inventory/skus/${skuCode}/${warehouseId}`);
+export type StockLocation = StockCounts & {
+  stockLocationId: number,
+  stockLocationName: string,
+}
+
+export type StockItem = StockCounts & {
+  stockItemId: number,
+  sku: string,
+  type: string,
+}
+
+export type InventorySummary = {
+  stockLocation: StockLocation,
+  stockItems: Array<StockItem>
+}
+
+const mockData = [{
+  "stockLocation": {
+    "stockLocationId": 1,
+    "stockLocationName": "Warehouse name",
+    "onHand": 1,
+    "onHold": 1,
+    "reserved": 1,
+    "shipped": 1,
+    "afs": 1,
+    "afsCost": 1
+  },
+  "stockItems": [
+    {
+      "stockItemId": 1,
+      "sku": "SKU-SKU",
+      "type": "Sellable",
+      "onHand": 1,
+      "onHold": 1,
+      "reserved": 1,
+      "shipped": 1,
+      "afs": 1,
+      "afsCost": 1
+    },
+    {
+      "stockItemID": 1,
+      "sku": "SKU-SKU",
+      "type": "Non-sellable",
+      "onHand": 1,
+      "onHold": 1,
+      "reserved": 1,
+      "shipped": 1,
+      "afs": 1,
+      "afsCost": 1
+    }
+  ]
+}];
+
+// @TODO: get rid of mock data when api will be ready
+
+const _fetchSummary = createAsyncActions(
+  'inventory-summary',
+  //(skuCode) => Api.get(`/inventory/summary/${skuCode}`),
+  (skuCode) => {
+    return new Promise(resolve => resolve(mockData));
   },
   (...args) => [...args]
 );
-export const fetchDetails = _fetchDetails.perform;
-
-function parseSummaries(summaries) {
-  return _.map(summaries, (summary) => {
-    return {
-      id: _.get(summary, ['warehouse', 'id']),
-      name: _.get(summary, ['warehouse', 'name']),
-      ...summary.counts
-    };
-  });
-}
-
-function parseDetails(payload) {
-  return _.map(payload, (entry) => {
-    return {
-      skuType: entry.skuType,
-      ...entry.counts
-    };
-  });
-}
-
-function convertToTableData(data) {
-  return {
-    rows: data,
-    total: data.length,
-    from: 0,
-    size: 25,
-  };
-}
+export const fetchSummary = _fetchSummary.perform;
 
 const initialState = {};
 
 const reducer = createReducer({
   [_fetchSummary.succeeded]: (state, [payload, sku]) => {
-    if (!_.isArray(payload)) payload = [payload];
+    const inventoryDetails: Array<InventorySummary> = payload;
 
-    const data = parseSummaries(payload);
-    const tableData = convertToTableData(data);
-    return assoc(state,
-      [sku, 'summary', 'results'], tableData
-    );
-  },
-  [_fetchDetails.succeeded]: (state, [payload, sku, warehouseId]) => {
-    const data = parseDetails(payload);
-    const tableData = convertToTableData(data);
-    return assoc(state,
-      [sku, 'details', 'isFetching'], false,
-      [sku, 'details', 'failed'], false,
-      [sku, warehouseId, 'results'], tableData
-    );
+    return {
+      ...state,
+      [sku]: inventoryDetails,
+    };
   },
 }, initialState);
 

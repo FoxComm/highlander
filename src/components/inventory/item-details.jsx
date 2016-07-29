@@ -1,55 +1,57 @@
-//libs
+// @flow weak
+
 import _ from 'lodash';
-import React, { PropTypes } from 'react';
+import React, { Component } from 'react';
 import { haveType } from '../../modules/state-helpers';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 
 // components
-import { SectionTitle } from '../section-title';
-import { Link, IndexLink } from '../link';
 import ExpandableTable from '../table/expandable-table';
 import InventoryWarehouseRow from './inventory-warehouse-row';
 import WarehouseDrawer from './inventory-warehouse-drawer';
 
 // redux
-import * as WarehousesActions from '../../modules/inventory/warehouses';
+import * as WarehousesActions from 'modules/inventory/warehouses';
+import type { InventorySummary } from 'modules/inventory/warehouses';
 
 const mapStateToProps = (state, props) => ({
-  tableState: _.get(state, ['inventory', 'warehouses', props.params.skuCode], {})
+  inventoryDetails: _.get(state, ['inventory', 'warehouses', props.params.skuCode], {}),
+  fetchState: _.get(state, 'asyncActions.inventory-summary', {}),
 });
 
-@connect(mapStateToProps, {...WarehousesActions})
-export default class InventoryItemDetails extends React.Component {
+type Props = {
+  inventoryDetails: Array<InventorySummary>,
+  params: Object,
+  fetchSummary: (skuCode: string) => Promise,
+  fetchState: {
+    inProgress?: boolean,
+    err?: any,
+  }
+}
 
-  static propTypes = {
-    params: PropTypes.object.isRequired,
-    fetchSummary: PropTypes.func.isRequired,
-    fetchDetails: PropTypes.func.isRequired,
+function array2tableData(rows) {
+  return {
+    rows,
+    total: rows.length,
+    from: 0,
+    size: rows.length,
   };
+}
+
+class InventoryItemDetails extends Component {
+  props: Props;
 
   componentDidMount() {
     this.props.fetchSummary(this.props.params.skuCode);
   }
 
-  componentWillReceiveProps(nextProps) {
-    const namespace = ['tableState', 'summary', 'results', 'rows'];
-    const oldWarehouses = _.get(this.props, namespace, []);
-    const warehouses = _.get(nextProps, namespace, []);
-    if (!_.isEqual(oldWarehouses, warehouses)) {
-      _.each(warehouses, (wh) => {
-        this.props.fetchDetails(this.props.params.skuCode, wh.id);
-      });
-    }
-  }
-
   get tableColumns() {
     return [
-      {field: 'name', text: 'Warehouse'},
+      {field: 'stockLocationName', text: 'Warehouse'},
       {field: 'onHand', text: 'On Hand'},
       {field: 'onHold', text: 'Hold'},
       {field: 'reserved', text: 'Reserved'},
-      {field: 'safetyStock', text: 'Safety Stock'},
       {field: 'afs', text: 'AFS'},
       {field: 'afsCost', text: 'AFS Cost Value', type: 'currency'},
     ];
@@ -57,11 +59,10 @@ export default class InventoryItemDetails extends React.Component {
 
   get drawerColumns() {
     return [
-      {field: 'skuType', text: 'Type'},
+      {field: 'type', text: 'Type'},
       {field: 'onHand', text: 'On Hand'},
       {field: 'onHold', text: 'Hold'},
       {field: 'reserved', text: 'Reserved'},
-      {field: 'safetyStock', text: 'Safety Stock'},
       {field: 'afs', text: 'AFS'},
       {field: 'afsCost', text: 'AFS Cost Value', type: 'currency'},
     ];
@@ -76,9 +77,10 @@ export default class InventoryItemDetails extends React.Component {
         row={row}
         drawerData={params.drawerData}
         drawerColumns={params.drawerColumns}
-        isLoading={_.get(this.props, ['tableState', 'details', 'isFetching'], true)}
-        failed={_.get(this.props, ['tableState', 'details', 'failed'])}
-        params={params}/>
+        isLoading={_.get(this.props, ['fetchState', 'inProgress'], true)}
+        failed={!!_.get(this.props, ['fetchState', 'err'])}
+        params={params}
+      />
     );
   }
 
@@ -90,16 +92,26 @@ export default class InventoryItemDetails extends React.Component {
         key={key}
         warehouse={row}
         columns={columns}
-        params={params}/>
+        params={params}
+      />
     );
   }
 
   get summaryData() {
-    return _.get(this.props, ['tableState', 'summary', 'results'], {rows: []});
+    const { inventoryDetails } = this.props;
+
+    return array2tableData(_.map(inventoryDetails, details => details.stockLocation));
   }
 
   get drawerData() {
-    return warehouseId => _.get(this.props, ['tableState', warehouseId, 'results'], {rows: []});
+    const inventoryDetails: Array<InventorySummary> = this.props.inventoryDetails;
+
+    return stockLocation => {
+      const summary: InventorySummary = _.find(inventoryDetails, (item: InventorySummary) => {
+        return item.stockLocation.stockLocationId == stockLocation.stockLocationId;
+      });
+      return array2tableData(summary ? summary.stockItems : []);
+    };
   }
 
   render() {
@@ -108,8 +120,8 @@ export default class InventoryItemDetails extends React.Component {
       drawerColumns: this.drawerColumns,
     };
 
-    const isFetching = _.get(this.props, ['tableState', 'summary', 'isFetching'], true);
-    const failed = _.get(this.props, ['tableState', 'summary', 'failed']);
+    const isFetching = this.props.fetchState.inProgress !== false;
+    const failed = !!this.props.fetchState.err;
 
     return (
       <div className="fc-grid">
@@ -120,14 +132,16 @@ export default class InventoryItemDetails extends React.Component {
             renderRow={this.renderRow}
             renderDrawer={this.renderDrawer}
             params={params}
-            entity={haveType(this.props.params, 'inventoryItem')}
-            idField="id"
+            idField="stockLocationId"
             isLoading={isFetching}
             failed={failed}
             emptyMessage="No warehouse data found."
-            className="fc-inventory-item-details__warehouses-table"/>
+            className="fc-inventory-item-details__warehouses-table"
+          />
         </div>
       </div>
     );
   }
 }
+
+export default connect(mapStateToProps, WarehousesActions)(InventoryItemDetails);

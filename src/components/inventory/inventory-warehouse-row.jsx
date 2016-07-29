@@ -5,8 +5,6 @@ import _ from 'lodash';
 
 // components
 import ExpandableRow from '../table/expandable-row';
-import Table from '../table/table';
-import WarehouseDrawer from './inventory-warehouse-drawer';
 
 const setCellContents = (warehouse, field, params) => {
   return _.get(warehouse, field);
@@ -22,7 +20,8 @@ const InventoryWarehouseRow = props => {
       columns={columns}
       row={warehouse}
       params={params}
-      setCellContents={setCellContents} />
+      setCellContents={setCellContents}
+    />
   );
 };
 
