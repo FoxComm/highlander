@@ -37,11 +37,12 @@ class StorefrontAccessSimulation extends Simulation {
     .exec(IntruderActivity.register())
     .exitHereIfFailed
     .exec(AuthEndpoint.loginAsIntruder())
+    .exec(flushCookieJar)
     .exec(IntruderActivity.Cart.touch())
     .exitHereIfFailed
     // Customer Login and Account Info
-    .exec(flushCookieJar)    
     .exec(AuthEndpoint.loginAsCustomer())
+    .exec(flushCookieJar)
     .exitHereIfFailed
     .exec(AccountEndpoint.get())
     .exitHereIfFailed
