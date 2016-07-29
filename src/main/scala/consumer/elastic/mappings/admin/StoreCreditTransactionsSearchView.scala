@@ -22,7 +22,7 @@ final case class StoreCreditTransactionsSearchView()(implicit ec: EC) extends Av
       field("storeCreditCreatedAt", DateType) format dateFormat,
       // Order Payment
       field("orderPayment").nested(
-          field("orderReferenceNumber", StringType) index "lower_cased",
+          field("orderReferenceNumber", StringType) analyzer "lower_cased",
           field("orderCreatedAt", DateType) format dateFormat,
           field("orderPaymentCreatedAt", DateType) format dateFormat
       ),
