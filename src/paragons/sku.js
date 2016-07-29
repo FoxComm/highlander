@@ -14,7 +14,7 @@ export function createEmptySku(): Sku {
     attributes: {
       code: { label: 'SKU', t: 'string', v: '' },
       title: { t: 'string', v: '' },
-      upc: { t: 'string', v: '' },
+      upc: { label: 'UPC', t: 'string', v: '' },
       description: { t: 'richText', v: '' },
       retailPrice: {
         t: 'price',
@@ -35,5 +35,8 @@ export function createEmptySku(): Sku {
 }
 
 export function updateFieldLabels(sku: Sku) {
-  return assoc(sku, ['attributes', 'code', 'label'], 'SKU');
+  return assoc(sku,
+    ['attributes', 'code', 'label'], 'SKU',
+    ['attributes', 'upc', 'label'], 'UPC',
+  );
 }
