@@ -30,7 +30,7 @@ final case class FailedAuthorizationsSearchView()(implicit ec: EC) extends AvroT
       field("country", StringType) analyzer "autocomplete",
       field("continent", StringType) analyzer "autocomplete",
       // Order and Customer
-      field("orderReferenceNumber", StringType) index "not_analyzed",
+      field("orderReferenceNumber", StringType) index "lower_cased",
       field("customerId", IntegerType)
   )
 }

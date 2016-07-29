@@ -22,7 +22,7 @@ final case class GiftCardTransactionsSearchView()(implicit ec: EC) extends AvroT
       field("giftCardCreatedAt", DateType) format dateFormat,
       // Order Payment
       field("orderPayment").nested(
-          field("orderReferenceNumber", StringType) index "not_analyzed",
+          field("orderReferenceNumber", StringType) index "lower_cased",
           field("orderCreatedAt", DateType) format dateFormat,
           field("orderPaymentCreatedAt", DateType) format dateFormat
       ),

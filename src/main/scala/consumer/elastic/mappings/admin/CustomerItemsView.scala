@@ -18,7 +18,7 @@ final case class CustomerItemsView()(implicit ec: EC) extends AvroTransformer {
       field("skuTitle", StringType).analyzer("autocomplete"),
       field("skuPrice", IntegerType),
       // Order
-      field("orderReferenceNumber", StringType) index "not_analyzed",
+      field("orderReferenceNumber", StringType) index "lower_cased",
       field("orderPlacedAt", DateType) format dateFormat,
       // Save for later
       field("savedForLaterAt", DateType) format dateFormat
