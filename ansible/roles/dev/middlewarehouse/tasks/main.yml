@@ -14,7 +14,7 @@
   shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
   args:
     chdir: "{{middlewarehouse_dir}}"
-  when: updating_mwh  
+  when: updating_mwh
 
 - name: Restart middlewarehouse
   service: name=middlewarehouse state=restarted enabled=yes
