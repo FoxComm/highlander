@@ -15,7 +15,7 @@ const OriginType = (props) => {
   switch (type) {
     case types.csrAppeasement:
       formattedType = typeTitles[type];
-      content = get(props, ['value', 'orderReferenceNumber']);
+      content = get(props, ['value', 'cordReferenceNumber']);
       break;
     case 'giftCardTransfer':
       formattedType = typeTitles[type];
@@ -42,7 +42,7 @@ const OriginType = (props) => {
 OriginType.propTypes = {
   value: PropTypes.shape({
     originType: PropTypes.string,
-    orderReferenceNumber: PropTypes.string,
+    cordReferenceNumber: PropTypes.string,
     giftCard: PropTypes.shape({
       code: PropTypes.string
     }),

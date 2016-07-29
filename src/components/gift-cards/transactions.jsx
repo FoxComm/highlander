@@ -2,7 +2,6 @@
 // libs
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
-import { createSelector } from 'reselect';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
@@ -55,10 +54,12 @@ export default class GiftCardTransactions extends React.Component {
   renderRow(row, index, columns, params) {
     const key = `gift-card-${index}`;
     return (
-      <GiftCardTransactionRow key={key}
-                              giftCard={row}
-                              columns={columns}
-                              params={params} />
+      <GiftCardTransactionRow
+        key={key}
+        giftCard={row}
+        columns={columns}
+        params={params}
+      />
     );
   }
 
