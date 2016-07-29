@@ -4,13 +4,6 @@ refresh materialized view concurrently customers_ranking;
 -- orders
 refresh materialized view concurrently order_stats_view;
 
--- gift_cards
-refresh materialized view concurrently gift_card_admins_view;
-refresh materialized view concurrently gift_card_from_store_credits_view;
-refresh materialized view concurrently gift_card_subtypes_view;
-refresh materialized view concurrently gift_card_cancellation_reasons_view;
-refresh materialized view concurrently gift_cards_search_view;
-
 -- gift_card_transactions
 refresh materialized view concurrently gift_card_transactions_admins_view;
 refresh materialized view concurrently gift_card_transactions_payments_view;
