@@ -43,17 +43,25 @@ func (repository *carrierRepository) GetCarrierByID(id uint) (*models.Carrier, e
 func (repository *carrierRepository) CreateCarrier(carrier *models.Carrier) (*models.Carrier, error) {
 	err := repository.db.Create(carrier).Error
 
-	return carrier, err
+	if err != nil {
+		return nil, err
+	}
+
+	return repository.GetCarrierByID(carrier.ID)
 }
 
 func (repository *carrierRepository) UpdateCarrier(carrier *models.Carrier) (*models.Carrier, error) {
 	result := repository.db.Model(&carrier).Updates(carrier)
 
 	if result.RowsAffected == 0 {
-		return carrier, gorm.ErrRecordNotFound
+		return nil, gorm.ErrRecordNotFound
 	}
 
-	return carrier, result.Error
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return repository.GetCarrierByID(carrier.ID)
 }
 
 func (repository *carrierRepository) DeleteCarrier(id uint) error {

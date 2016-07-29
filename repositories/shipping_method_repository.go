@@ -43,17 +43,25 @@ func (repository *shippingMethodRepository) GetShippingMethodByID(id uint) (*mod
 func (repository *shippingMethodRepository) CreateShippingMethod(shippingMethod *models.ShippingMethod) (*models.ShippingMethod, error) {
 	err := repository.db.Create(shippingMethod).Error
 
-	return shippingMethod, err
+	if err != nil {
+		return nil, err
+	}
+
+	return repository.GetShippingMethodByID(shippingMethod.ID)
 }
 
 func (repository *shippingMethodRepository) UpdateShippingMethod(shippingMethod *models.ShippingMethod) (*models.ShippingMethod, error) {
 	result := repository.db.Model(shippingMethod).Updates(shippingMethod)
 
 	if result.RowsAffected == 0 {
-		return shippingMethod, gorm.ErrRecordNotFound
+		return nil, gorm.ErrRecordNotFound
 	}
 
-	return shippingMethod, result.Error
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return repository.GetShippingMethodByID(shippingMethod.ID)
 }
 
 func (repository *shippingMethodRepository) DeleteShippingMethod(id uint) error {

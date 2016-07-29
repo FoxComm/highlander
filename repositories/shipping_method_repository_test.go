@@ -103,6 +103,13 @@ func (suite *ShippingMethodRepositoryTestSuite) Test_CreaterShippingMethod_Retur
 	suite.mock.
 		ExpectExec(`INSERT INTO "shipping_methods"`).
 		WillReturnResult(sqlmock.NewResult(1, 1))
+	rows := sqlmock.
+		NewRows([]string{"id", "carrier_id", "name"}).
+		AddRow(uint(1), shippingMethod1.CarrierID, shippingMethod1.Name)
+	suite.mock.
+		ExpectQuery(`SELECT (.+) FROM "shipping_methods" WHERE \("id" = \?\) (.+)`).
+		WithArgs(1).
+		WillReturnRows(rows)
 
 	//act
 	shippingMethod, err := suite.repository.CreateShippingMethod(shippingMethod1)
@@ -139,6 +146,13 @@ func (suite *ShippingMethodRepositoryTestSuite) Test_UpdateShippingMethod_Found_
 	suite.mock.
 		ExpectExec(`UPDATE "shipping_methods"`).
 		WillReturnResult(sqlmock.NewResult(1, 1))
+	rows := sqlmock.
+		NewRows([]string{"id", "carrier_id", "name"}).
+		AddRow(shippingMethod1.ID, shippingMethod1.CarrierID, shippingMethod1.Name)
+	suite.mock.
+		ExpectQuery(`SELECT (.+) FROM "shipping_methods" WHERE \("id" = \?\) (.+)`).
+		WithArgs(1).
+		WillReturnRows(rows)
 
 	//act
 	shippingMethod, err := suite.repository.UpdateShippingMethod(shippingMethod1)
