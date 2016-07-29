@@ -120,5 +120,8 @@ zipkin_collector: localhost
 # Are we running packer?
 packing: false
 
+# Are we updating MWH manually?
+updating_mwh: false
+
 # Test Stripe api key
 stripe_api_key: sk_test_uvaf3GCFsjCsvvKO7FsQhNRm
