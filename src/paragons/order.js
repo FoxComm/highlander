@@ -11,11 +11,19 @@ export type Order = {
   customer: Object,
   promotion: Object,
   coupon: Object,
+  paymentMethods: Array<PaymentMethod>,
 };
 
 export type ShippingMethod = {
   id: number,
 };
+
+export type PaymentMethod = {
+  id?: number,
+  code?: string,
+  type: string,
+};
+
 
 export type SkuItem = {
   imagePath: string,

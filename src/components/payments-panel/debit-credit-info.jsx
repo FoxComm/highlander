@@ -1,6 +1,6 @@
 /* @flow */
 import React from 'react';
-import Currency from '../../common/currency';
+import Currency from 'components/common/currency';
 
 type Props = {
   amount: number;

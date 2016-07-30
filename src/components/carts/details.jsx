@@ -9,11 +9,10 @@ import CustomerCard from 'components/customer-card/customer-card';
 import Messages from './messages';
 import CartCoupons from './coupons';
 import CartLineItems from './line-items';
+import CartPayments from './payments';
 import CartShippingAddress from './shipping-address';
 import CartShippingMethod from './shipping-method';
 import DiscountsPanel from 'components/discounts-panel/discounts-panel';
-// import OrderShippingMethod from './order-shipping-method';
-// import Payments from './payments';
 import Watchers from '../watchers/watchers';
 //
 const CartDetails = props => {
@@ -64,6 +63,7 @@ const CartDetails = props => {
           <CartShippingAddress status={shippingAddressStatus} cart={cart} />
           <CartShippingMethod status={shippingMethodStatus} cart={cart} />
           <CartCoupons cart={cart} />
+          <CartPayments cart={cart} status={paymentMethodStatus} />
         </div>
         <div className="fc-order-details-aside">
           <Messages errors={errors} warnings={warnings} />

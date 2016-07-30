@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 
-import CreditCardForm from '../../credit-cards/card-form';
-import AddressDetails from '../../addresses/address-details';
+import CreditCardForm from 'components/credit-cards/card-form';
+import AddressDetails from 'components/addresses/address-details';
 import PaymentRow from './row';
 
 const CreditCard = props => {

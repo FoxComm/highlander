@@ -18,6 +18,7 @@ const refNum = props => {
 const mapStateToProps = (state) => {
   return {
     details: state.carts.details,
+    isFetching: _.get(state.asyncActions, 'fetchCart.inProgress', false),
   };
 };
 
@@ -62,11 +63,8 @@ export default class Cart extends Component {
     const cart = this.cart;
     const className = 'fc-order fc-cart';
 
-    // if (this.props.order.isFetching) {
-    //   return <div className={className}><WaitAnimation /></div>;
-    // }
-    if (_.isEmpty(cart)) {
-      return <div className={className}></div>;
+    if (this.props.isFetching || _.isEmpty(cart)) {
+      return <div className={className}><WaitAnimation /></div>;
     }
 
     const title = `Cart ${this.refNum}`;
