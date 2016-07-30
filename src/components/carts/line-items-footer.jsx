@@ -23,10 +23,6 @@ type Sku = {
   code: string,
 };
 
-type SkuItem = {
-  sku: string,
-};
-
 type Props = {
   cart: {
     referenceNumber: string,
@@ -42,8 +38,7 @@ type Props = {
   updateLineItemCount: Function,
 };
 
-@connect(mapStateToProps, mapDispatchToProps)
-export default class CartLineItemsFooter extends Component {
+export class CartLineItemsFooter extends Component {
   props: Props;
 
   @autobind
@@ -80,3 +75,5 @@ export default class CartLineItemsFooter extends Component {
     );
   }
 }
+
+export default connect(mapStateToProps, mapDispatchToProps)(CartLineItemsFooter);

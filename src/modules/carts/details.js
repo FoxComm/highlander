@@ -60,12 +60,12 @@ const _chooseShippingAddress = createAsyncActions(
 
 const _createShippingAddress = createAsyncActions(
   'createShippingAddress',
-  (refNum: string, payload: Object) => Api.post(`/orders/${refNum}/shipping-address`)
+  (refNum: string, payload: Object) => Api.post(`/orders/${refNum}/shipping-address`, payload)
 );
 
 const _updateShippingAddress = createAsyncActions(
   'updateShippingAddress',
-  (refNum: string, payload: Object) => Api.patch(`/orders/${refNum}/shipping-address`)
+  (refNum: string, payload: Object) => Api.patch(`/orders/${refNum}/shipping-address`, payload)
 );
 
 const _deleteShippingAddress = createAsyncActions(

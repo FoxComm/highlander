@@ -10,12 +10,12 @@ import styles from 'components/customers/title-block.css';
 type Props = {
   customer: {
     id: number,
+    name: string,
+    email: string,
     isGuest: boolean,
     groups: Array<string>,
     avatarUrl?: string,
     rank: number,
-    name: string,
-    email: string,
     phoneNumber: string,
     location: string,
   },

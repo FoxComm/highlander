@@ -1,5 +1,22 @@
 import _ from 'lodash';
 
+export type Cart = {
+  referenceNumber: string,
+  shippingMethod: ShippingMethod,
+};
+
+export type Order = {
+  referenceNumber: string,
+  title: string,
+  customer: Object,
+  promotion: Object,
+  coupon: Object,
+};
+
+export type ShippingMethod = {
+  id: number,
+};
+
 export type SkuItem = {
   imagePath: string,
   name: string,
@@ -48,7 +65,7 @@ function collectLineItems(skus: Array<SkuItem>): Array<SkuItem> {
   });
 }
 
-export default class Order {
+export default class OrderParagon {
   constructor(order) {
     Object.assign(this, order);
     this.orderState = order.orderState;

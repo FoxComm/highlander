@@ -14,14 +14,11 @@ import DiscountsPanel from 'components/discounts-panel/discounts-panel';
 import OrderCoupons from './order-coupons';
 import Watchers from '../watchers/watchers';
 
+import type { Order } from 'paragons/order';
+
 type Props = {
   details: {
-    order: {
-      referenceNumber: string,
-      title: string,
-      customer: Object,
-      promotion: Object,
-    },
+    order: Order,
   },
 };
 

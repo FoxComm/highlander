@@ -15,7 +15,7 @@ const _getShippingMethods = createAsyncActions(
   }
 );
 
-export function fetchShippingMethods(refNum: string) {
+export function fetchShippingMethods(refNum: string): Function {
   return dispatch => dispatch(_getShippingMethods.perform(refNum));
 }
 

@@ -15,7 +15,9 @@ function mapStateToProps(state, props) {
   const customerId = _.get(props, 'cart.customer.id');
   return {
     addressState: state.customers.addresses[customerId],
-    // shippingAddressState: state.carts.shippingAddresses,
+    createShippingAddressFinished: _.get(state.asyncActions, 'createShippingAddress.finished', false),
+    updateShippingAddressFinished: _.get(state.asyncActions, 'updateShippingAddress.finished', false),
+    deleteShippingAddressFinished: _.get(state.asyncActions, 'deleteShippingAddress.finished', false),
   };
 }
 
@@ -27,10 +29,14 @@ function mapDispatchToProps(dispatch, props) {
     res[key] = (...args) => dispatch(action(customerId, ...args));
   });
 
+  const cartActions = _.transform(CartActions, (res, action, key) => {
+    res[key] = (...args) => dispatch(action(...args));
+  });
+
   return {
     actions: {
       ...addressActions,
-      ...CartActions,
+      ...cartActions,
     },
   };
 }
@@ -41,12 +47,12 @@ export default class ChooseShippingAddress extends Component {
     selectedAddress: PropTypes.object,
 
     actions: PropTypes.shape({
-      chooseAddress: PropTypes.func.isRequired,
+      chooseShippingAddress: PropTypes.func.isRequired,
       createShippingAddress: PropTypes.func.isRequired,
       deleteAddress: PropTypes.func.isRequired,
       deleteShippingAddress: PropTypes.func.isRequired,
       fetchAddresses: PropTypes.func.isRequired,
-      patchShippingAddress: PropTypes.func.isRequired,
+      updateShippingAddress: PropTypes.func.isRequired,
       setAddressDefault: PropTypes.func.isRequired,
       patchAddress: PropTypes.func.isRequired,
     }).isRequired,
@@ -77,15 +83,18 @@ export default class ChooseShippingAddress extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    // if (this.props.shippingAddressState.updateNum != nextProps.shippingAddressState.updateNum ||
-    //     !Object.is(this.props.addressState.addresses, nextProps.addressState.addresses)) {
-    //   this.setState({
-    //     address: null,
-    //     isDeleteDialogVisible: false,
-    //     isFormVisible: false,
-    //     isShippingAddress: false,
-    //   });
-    // }
+    const createdAddress = !this.props.createShippingAddressFinished && nextProps.createShippingAddressFinished;
+    const updatedAddress = !this.props.updateShippingAddressFinished && nextProps.updateShippingAddressFinished;
+    const deletedAddress = !this.props.deleteShippingAddressFinished && nextProps.deleteShippingAddressFinished;
+
+    if (createdAddress || updatedAddress || deletedAddress) {
+      this.setState({
+        address: null,
+        isDeleteDialogVisible: false,
+        isFormVisible: false,
+        isShippingAddress: false,
+      });
+    }
   }
 
   get addresses() {
@@ -154,8 +163,10 @@ export default class ChooseShippingAddress extends Component {
       ? 'Are you sure you want to remove shipping address from order?'
       : 'Are you sure you want to delete address?';
 
+    const { referenceNumber } = this.props.cart;
+
     const deleteAction = this.state.isShippingAddress
-      ? () => this.props.actions.deleteShippingAddress()
+      ? () => this.props.actions.deleteShippingAddress(referenceNumber)
       : () => this.props.actions.deleteAddress(this.state.address.id);
 
     return (
@@ -173,7 +184,8 @@ export default class ChooseShippingAddress extends Component {
   @autobind
   handleChooseAddress(address) {
     const refNum = this.props.cart.referenceNumber;
-    this.props.actions.chooseAddress(refNum, address.id);
+    console.log("Choosing address");
+    this.props.actions.chooseShippingAddress(refNum, address.id);
   }
 
   @autobind
@@ -242,12 +254,12 @@ export default class ChooseShippingAddress extends Component {
     const { referenceNumber } = this.props.cart;
 
     if (!isEdit) {
-      this.props.actions.createShippingAddress(address)
+      this.props.actions.createShippingAddress(referenceNumber, address)
         .then(this.props.actions.fetchAddresses);
     } else if (this.state.isShippingAddress) {
-      this.props.actions.patchShippingAddress(referenceNumber, address);
+      this.props.actions.updateShippingAddress(referenceNumber, address);
     } else {
-      this.props.actions.patchAddress(referenceNumber, address.id, address);
+      this.props.actions.patchAddress(address.id, address);
     }
   }
 

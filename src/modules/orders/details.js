@@ -5,7 +5,13 @@ import Api from 'lib/api';
 import OrderParagon from 'paragons/order';
 import createAsyncActions from 'modules/async-utils';
 
-const initialState = {
+import type { Order } from 'paragons/order';
+
+type State = {
+  order: ?Order,
+};
+
+const initialState: State = {
   order: null,
 };
 
@@ -19,15 +25,15 @@ const _updateOrder = createAsyncActions(
   (id: number, data: Object) => Api.patch(`/orders/${id}`, data)
 );
 
-export function fetchOrder(refNum: string) {
+export function fetchOrder(refNum: string): Function {
   return dispatch => dispatch(_getOrder.perform(refNum));
 }
 
-export function updateOrder(id: number, payload: Object) {
+export function updateOrder(id: number, payload: Object): Function {
   return dispatch => dispatch(_updateOrder.perform(id, payload));
 }
 
-function orderSucceeded(state: Object, payload: Object) {
+function orderSucceeded(state: State, payload: Object): State {
   const order = payload.result || payload;
   return { ...state, order: new OrderParagon(order) };
 }

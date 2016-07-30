@@ -5,6 +5,8 @@ import _ from 'lodash';
 
 import TableView from 'components/table/tableview';
 
+import type { SkuItem } from 'paragons/order';
+
 const defaultColumns = [
   {field: 'imagePath', text: 'Image', type: 'image'},
   {field: 'name', text: 'Name'},

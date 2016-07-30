@@ -5,10 +5,12 @@ import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 
 import PanelHeader from 'components/panel-header/panel-header';
-import ShippingMethod from 'components/shipping/shipping-method';
+import ShippingMethodPanel from 'components/shipping/shipping-method';
 
 import * as detailsActions from 'modules/carts/details';
 import * as shippingActions from 'modules/carts/shipping-methods';
+
+import type { Cart, ShippingMethod } from 'paragons/order';
 
 function mapStateToProps(state) {
   return {
@@ -17,22 +19,20 @@ function mapStateToProps(state) {
 }
 
 type Props = {
-  cart: {
-    referenceNumber: string,
-    shippingMethod: Object,
-  },
+  cart: Cart,
   shippingMethods: {
-    list: Array<Object>,
+    list: Array<ShippingMethod>,
   },
   status: string,
+  fetchShippingMethods: Function,
+  updateShippingMethod: Function,
 };
 
 type State = {
   isEditing: bool;
 }
 
-@connect(mapStateToProps, { ...detailsActions, ...shippingActions })
-export default class CartShippingMethod extends Component {
+export class CartShippingMethod extends Component {
   props: Props;
   state: State = { isEditing: false };
 
@@ -53,8 +53,8 @@ export default class CartShippingMethod extends Component {
   }
 
   @autobind
-  updateShippingMethod(order, method) {
-    this.props.updateShippingMethod(order.referenceNumber, method.id);
+  updateShippingMethod(cart: Cart, method: ShippingMethod) {
+    this.props.updateShippingMethod(cart.referenceNumber, method.id);
   }
 
   render(): Element {
@@ -65,7 +65,7 @@ export default class CartShippingMethod extends Component {
     const title = <PanelHeader text="Shipping Method" showStatus={true} status={status} />;
 
     return (
-      <ShippingMethod
+      <ShippingMethodPanel
         currentOrder={cart}
         title={title}
         readOnly={false}
@@ -78,3 +78,5 @@ export default class CartShippingMethod extends Component {
     );
   }
 };
+
+export default connect(mapStateToProps, { ...detailsActions, ...shippingActions })(CartShippingMethod)

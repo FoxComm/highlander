@@ -18,7 +18,7 @@ type Props = {
     referenceNumber: string,
   },
   item: {
-    imagePath: srting,
+    imagePath: string,
     name: string,
     sku: string,
     price: number,
@@ -31,10 +31,18 @@ type State = {
   isDeleting: boolean,
 };
 
-@connect(null, { updateLineItemCount, deleteLineItem })
-export default class CartLineItem extends Component {
+type DefaultProps = {
+  updateLineItemCount: Function,
+  deleteLineItem: Function,
+};
+
+export class CartLineItem extends Component {
   props: Props;
   state: State = { isDeleting: false };
+  defaultProps: DefaultProps = {
+    updateLineItemCount: () => {},
+    deleteLineItem: () => {},
+  };
 
   @autobind
   startDelete() {
@@ -123,4 +131,4 @@ export default class CartLineItem extends Component {
   }
 };
 
-export default CartLineItem;
+export default connect(null, { updateLineItemCount, deleteLineItem })(CartLineItem);

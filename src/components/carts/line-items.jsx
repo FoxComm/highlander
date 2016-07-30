@@ -2,7 +2,7 @@
 
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
-import React, { Component, PropTypes } from 'react';
+import React, { Component, Element } from 'react';
 import { trackEvent } from 'lib/analytics';
 
 import EditableContentBox from 'components/content-box/editable-content-box';
@@ -10,6 +10,8 @@ import CartLineItem from './line-item';
 import CartLineItemsFooter from './line-items-footer';
 import PanelHeader from 'components/panel-header/panel-header';
 import SkuLineItems from 'components/sku-line-items/sku-line-items';
+
+import type { SkuItem } from 'paragons/order';
 
 const columns = [
   {field: 'imagePath', text: 'Image', type: 'image'},
@@ -25,6 +27,7 @@ type Props = {
   cart: {
     referenceNumber: string,
     lineItems: Array<Object>,
+    isCheckingOut: boolean,
   },
   status: string,
   readOnly: boolean,
@@ -47,16 +50,6 @@ export default class CartLineItems extends React.Component {
     };
 
     return <SkuLineItems items={this.skus} columns={columns} renderRow={renderRow} />;
-  }
-
-  get editFooter(): Element {
-    const { cart, updateLineItemCount } = this.props;
-
-    return (
-      <CartLineItemsFooter
-        cart={cart}
-        updateCount={updateLineItemCount} />
-    );
   }
 
   get skus(): Array<Object> {

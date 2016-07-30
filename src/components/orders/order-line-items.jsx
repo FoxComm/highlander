@@ -5,7 +5,7 @@ import React, { Component, Element } from 'react';
 import ContentBox from 'components/content-box/content-box';
 import SkuLineItems from 'components/sku-line-items/sku-line-items';
 
-import type { SkuItem } from 'components/sku-line-items/sku-line-items';
+import type { SkuItem } from 'paragons/order';
 
 type Props = {
   order: {
