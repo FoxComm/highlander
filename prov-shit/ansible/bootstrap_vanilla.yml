@@ -46,7 +46,7 @@
     - db
   vars:
     user: '{{ansible_ssh_user}}'
-    seeds_cmd: -Ddb.name={{db_name}} utils.seeds.Seeds demo 1
+    seeds_cmd: -Ddb.name={{db_name}} utils.seeds.Seeds
     db_name: '{{phoenix_db_name}}'
   vars_prompt:
     - name: "hostname"
