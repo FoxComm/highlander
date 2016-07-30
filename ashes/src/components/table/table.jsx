@@ -156,11 +156,13 @@ export default class Table extends Component {
   }
 
   get body(): ?Element {
-    const rowsCount = this.rows.length;
+    const { tableRows } = this;
+    // $FlowFixMe: respect lodash typechecks!
+    const dataExists = _.isArray(tableRows) ? tableRows.length > 0 : !!tableRows;
     const isLoading = this.props.isLoading;
 
-    if (!isLoading && rowsCount || isLoading && this.loadingInline) {
-      return this.wrapBody(this.tableRows);
+    if (!isLoading && dataExists || isLoading && this.loadingInline) {
+      return this.wrapBody(tableRows);
     }
   }
 

@@ -41,7 +41,6 @@ function formatLabel(label: string): string {
 }
 
 function renderFormField(label: string, input: Element, args?: any): Element {
-  const formattedLabel = formatLabel(label);
   const isRequired = _.get(args, 'required', false) === true ? { required: true } : null;
   const maybeValidator = _.get(args, 'validator');
   const validator = maybeValidator != null ? { validator: maybeValidator } : null;
@@ -49,7 +48,7 @@ function renderFormField(label: string, input: Element, args?: any): Element {
     <FormField
       className="fc-object-form__field"
       labelClassName="fc-object-form__field-label"
-      label={formattedLabel}
+      label={label}
       key={`object-form-attribute-${label}`}
       {...validator}
       {...isRequired} >
@@ -295,8 +294,9 @@ export default class ObjectFormInner extends Component {
       const optionalArgs = options[name];
       if (attribute) {
         const { t, v } = attribute;
+        const fieldLabel = attribute.label || formatLabel(name);
         const renderFn = _.get(this.renderFunctions, t, this.renderString);
-        return React.cloneElement(renderFn(name, v, optionalArgs), { key: name });
+        return React.cloneElement(renderFn(fieldLabel, v, optionalArgs), { key: name });
       } else {
         console.warn(`You tried to render ${name} attribute, but there is no such attribute in a model`);
       }

@@ -37,7 +37,7 @@ const tableColumns = [
   { field: 'skuCode', text: 'SKU' },
   { field: 'skuPrice', text: 'Price', type: 'currency' },
   { field: 'savedForLaterAt', text: 'Favorite' },
-  { field: 'orderReferenceNumber', text: 'Order' },
+  { field: 'cordReferenceNumber', text: 'Order' },
   { field: 'orderPlacedAt', text: 'Date/Time Order Placed', type: 'datetime' },
 ];
 
