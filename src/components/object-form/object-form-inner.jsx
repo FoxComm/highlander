@@ -40,16 +40,17 @@ function formatLabel(label: string): string {
   });
 }
 
-function renderFormField(label: string, input: Element, args?: any): Element {
+function renderFormField(name: string, input: Element, args?: any): Element {
   const isRequired = _.get(args, 'required', false) === true ? { required: true } : null;
   const maybeValidator = _.get(args, 'validator');
   const validator = maybeValidator != null ? { validator: maybeValidator } : null;
+  const label = _.get(args, 'label', formatLabel(name));
   return (
     <FormField
       className="fc-object-form__field"
       labelClassName="fc-object-form__field-label"
       label={label}
-      key={`object-form-attribute-${label}`}
+      key={`object-form-attribute-${name}`}
       {...validator}
       {...isRequired} >
       {input}
@@ -126,21 +127,21 @@ export default class ObjectFormInner extends Component {
   }
 
   @autobind
-  handleChange(label: string, type: string, value: any) {
+  handleChange(name: string, type: string, value: any) {
     const { attributes, options } = this.props;
     const newAttribute = type == 'price'
       ? { t: 'price', v: { currency: 'USD', value: value } }
       : { t: type, v: value };
     const newAttributes = {
       ...attributes,
-      [label]: newAttribute
+      [name]: newAttribute
     };
 
     if (['options', 'richText'].indexOf(type) >= 0) {
-      const validator = _.get(options, [label, 'validator'], _.noop);
+      const validator = _.get(options, [name, 'validator'], _.noop);
       const error = validator(value);
       const { errors } = this.state;
-      errors[label] = error;
+      errors[name] = error;
       this.setState({ errors });
     }
 
@@ -148,55 +149,55 @@ export default class ObjectFormInner extends Component {
   }
 
   @autobind
-  renderBool(label: string, value: bool, args?: any): Element {
+  renderBool(name: string, value: bool, args?: any): Element {
     const onChange = v => {
-      this.handleChange(label, 'bool', !value);
+      this.handleChange(name, 'bool', !value);
     };
     const sliderCheckbox = (
       <SliderCheckbox
-        id={label}
+        id={name}
         checked={value}
         onChange={onChange}
       />
     );
 
-    return renderFormField(label, sliderCheckbox, args);
+    return renderFormField(name, sliderCheckbox, args);
   }
 
   @autobind
-  renderElement(label: string, value: any, args?: any): Element {
-    return renderFormField(label, value, args);
+  renderElement(name: string, value: any, args?: any): Element {
+    return renderFormField(name, value, args);
   }
 
   @autobind
-  renderDate(label: string, value: string, args?: any): Element {
+  renderDate(name: string, value: string, args?: any): Element {
     const dateValue = new Date(value);
-    const onChange = (v: Date) => this.handleChange(label, 'date', v.toISOString());
+    const onChange = (v: Date) => this.handleChange(name, 'date', v.toISOString());
     const dateInput = <DatePicker date={dateValue} onChange={onChange} />;
-    return renderFormField(label, dateInput, args);
+    return renderFormField(name, dateInput, args);
   }
 
   @autobind
-  renderPrice(label: string, value: any, args?: any): Element {
+  renderPrice(name: string, value: any, args?: any): Element {
     const priceValue: string = _.get(value, 'value', '');
-    const onChange = v => this.handleChange(label, 'price', v);
+    const onChange = v => this.handleChange(name, 'price', v);
     const currencyInput = (
       <CurrencyInput
         inputClass={inputClass}
-        inputName={label}
+        inputName={name}
         value={priceValue}
         onChange={onChange}
       />
     );
 
-    return renderFormField(label, currencyInput, args);
+    return renderFormField(name, currencyInput, args);
   }
 
   @autobind
-  renderRichText(label: string, value: any, args?: any): Element {
-    const formattedLabel = formatLabel(label);
-    const onChange = v => this.handleChange(label, 'richText', v);
-    const error = _.get(this.state, ['errors', label]);
+  renderRichText(name: string, value: any, args?: any): Element {
+    const formattedLabel = formatLabel(name);
+    const onChange = v => this.handleChange(name, 'richText', v);
+    const error = _.get(this.state, ['errors', name]);
     const classForContainer = classNames('fc-object-form__field', {
       '_with-error': error != null,
     });
@@ -218,31 +219,31 @@ export default class ObjectFormInner extends Component {
   }
 
   @autobind
-  renderString(label: string, value: string = '', args?: any): Element {
+  renderString(name: string, value: string = '', args?: any): Element {
     const onChange = ({target}) => {
-      return this.handleChange(label, 'string', target.value);
+      return this.handleChange(name, 'string', target.value);
     };
     const stringInput = (
       <input
         className={inputClass}
         type="text"
-        name={label}
+        name={name}
         value={value || ''}
         onChange={onChange}
       />
     );
 
-    return renderFormField(label, stringInput, args);
+    return renderFormField(name, stringInput, args);
   }
 
   @autobind
-  renderOptions(label: string, value: any, args?: any): Element {
-    const options = this.props.fieldsOptions && this.props.fieldsOptions[label];
+  renderOptions(name: string, value: any, args?: any): Element {
+    const options = this.props.fieldsOptions && this.props.fieldsOptions[name];
     if (!options) throw new Error('You must define fieldOptions for options fields');
 
-    const formattedLabel = formatLabel(label);
-    const onChange = v => this.handleChange(label, 'options', v);
-    const error = _.get(this.state, ['errors', label]);
+    const formattedLabel = _.get(args, 'label', formatLabel(name));
+    const onChange = v => this.handleChange(name, 'options', v);
+    const error = _.get(this.state, ['errors', name]);
     const errorMessage = error && (
       <div className="fc-form-field-error">
         {error}
@@ -263,19 +264,20 @@ export default class ObjectFormInner extends Component {
   }
 
   @autobind
-  renderText(label: string, value: string = '', args?: any): Element {
+  renderText(name: string, value: string = '', args?: any): Element {
     const onChange = ({target}) => {
-      return this.handleChange(label, 'text', target.value);
+      return this.handleChange(name, 'text', target.value);
     };
     const textInput = (
       <textarea
         className={inputClass}
-        name={label}
-        onChange={onChange} value={value}
+        name={name}
+        onChange={onChange}
+        value={value}
       />
     );
 
-    return renderFormField(label, textInput, args);
+    return renderFormField(name, textInput, args);
   }
 
   shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
@@ -294,9 +296,8 @@ export default class ObjectFormInner extends Component {
       const optionalArgs = options[name];
       if (attribute) {
         const { t, v } = attribute;
-        const fieldLabel = attribute.label || formatLabel(name);
         const renderFn = _.get(this.renderFunctions, t, this.renderString);
-        return React.cloneElement(renderFn(fieldLabel, v, optionalArgs), { key: name });
+        return React.cloneElement(renderFn(name, v, optionalArgs), { key: name });
       } else {
         console.warn(`You tried to render ${name} attribute, but there is no such attribute in a model`);
       }

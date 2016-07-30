@@ -9,7 +9,7 @@ import { push } from 'react-router-redux';
 import _ from 'lodash';
 
 import { addIlluminatedAttribute } from '../../paragons/form-shadow-object';
-import { createEmptySku, updateFieldLabels } from '../../paragons/sku';
+import { createEmptySku } from '../../paragons/sku';
 
 type Attribute = { t: string, v: any };
 type Attributes = { [key:string]: Attribute };
@@ -126,7 +126,7 @@ const reducer = createReducer({
     return assoc(state,
       'err', null,
       'isFetching', false,
-      'sku', updateFieldLabels(configuredSku)
+      'sku', configuredSku,
     );
   },
   [skuRequestFailure]: (state: SkuState) => {
@@ -144,7 +144,7 @@ const reducer = createReducer({
     return assoc(state,
       'err', null,
       'isUpdating', false,
-      'sku', updateFieldLabels(configuredSku)
+      'sku', configuredSku,
     );
   },
   [skuUpdateFailure]: (state: SkuState) => {
