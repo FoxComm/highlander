@@ -12,7 +12,11 @@
                  [io.confluent/kafka-avro-serializer "2.0.1"]
                  [com.fasterxml.jackson.core/jackson-core "2.7.3"]
                  [com.fasterxml.jackson.core/jackson-databind "2.7.3"]
+                 ;; http stack
                  [aleph "0.4.1-beta7"]
+                 [compojure "1.5.1"]
+                 [ring/ring-core "1.5.0"]
+                 ;; email
                  [gws/clj-mandrill "0.4.2"]
                  [org.clojars.narma/clojchimp "1.0.2"]
                  [byte-streams "0.2.0"]
@@ -32,8 +36,8 @@
  pom {:project 'foxcomm_messaging
       :version "0.1.0"}
 
- aot {:namespace #{'messaging.main}}
-    ; aot {:all true}
+; aot {:namespace #{'messaging.main}}
+     aot {:all true}
  jar {:main 'messaging.main
       :file "messaging.jar"}
  target {:dir #{"target"}})
