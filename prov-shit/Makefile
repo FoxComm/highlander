@@ -36,6 +36,9 @@ bootstrap-tinystack-frontend:
 bootstrap-tinystack-balancer:
 	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml --tags=balancer --private-key=$(PRIVATE_KEY)
 
+bootstrap-middlewarehouse:
+	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_middlewarehouse.yml --tags=extended
+
 bootstrap-vanilla:
 	ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_vanilla.yml
 
@@ -68,9 +71,6 @@ deploy-stage-backend:
 
 deploy-stage-frontend:
 	ansible-playbook -v -i bin/envs/staging ansible/stage.yml --tags=frontend
-
-deploy-stage-middlewarehouse:
-	ansible-playbook -v -i bin/envs/staging ansible/stage_middlewarehouse.yml
 
 deploy-gatling:
 	ansible-playbook -v -i bin/envs/staging ansible/gatling.yml
