@@ -57,8 +57,6 @@ export default class SkuDetails extends Component {
     const sku = _.get(this.props, 'sku');
     const attributes = _.get(this.props, 'sku.attributes', {});
 
-    console.log(sku);
-
     return (
       <ObjectForm
         canAddProperty={true}
@@ -84,7 +82,7 @@ export default class SkuDetails extends Component {
   @autobind
   handleChange(attributes: Attributes) {
     const { sku } = this.props;
-    console.log(sku);
+
     if (sku) {
       const updatedSku = assoc(sku, 'attributes', attributes);
       this.props.onChange(updatedSku);

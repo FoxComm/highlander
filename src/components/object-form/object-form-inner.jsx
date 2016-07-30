@@ -44,10 +44,7 @@ function renderFormField(name: string, input: Element, args?: any): Element {
   const isRequired = _.get(args, 'required', false) === true ? { required: true } : null;
   const maybeValidator = _.get(args, 'validator');
   const validator = maybeValidator != null ? { validator: maybeValidator } : null;
-  const label = _.get(args, 'label', name);
-  console.log(name);
-  console.log(args);
-  console.log(label);
+  const label = _.get(args, 'label', formatLabel(name));
   return (
     <FormField
       className="fc-object-form__field"
