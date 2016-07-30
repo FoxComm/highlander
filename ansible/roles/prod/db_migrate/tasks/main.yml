@@ -7,6 +7,11 @@
   synchronize: src="{{phoenix_src}}/sql" dest="{{phoenix_dir}}" delete=yes recursive=yes
   sudo: true
 
+- name: Repair schema migrate schema
+  shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} repair
+  args:
+    chdir: "{{phoenix_dir}}"
+
 - name: Migrate Db
   shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
   args:
