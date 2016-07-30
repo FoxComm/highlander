@@ -45,6 +45,9 @@ function renderFormField(name: string, input: Element, args?: any): Element {
   const maybeValidator = _.get(args, 'validator');
   const validator = maybeValidator != null ? { validator: maybeValidator } : null;
   const label = _.get(args, 'label', name);
+  console.log(name);
+  console.log(args);
+  console.log(label);
   return (
     <FormField
       className="fc-object-form__field"
@@ -272,7 +275,8 @@ export default class ObjectFormInner extends Component {
       <textarea
         className={inputClass}
         name={name}
-        onChange={onChange} value={value}
+        onChange={onChange}
+        value={value}
       />
     );
 
