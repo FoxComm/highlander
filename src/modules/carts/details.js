@@ -104,6 +104,95 @@ export function updateShippingMethod(refNum: string, shippingMethodId: number) {
   return dispatch => dispatch(_updateShippingMethod.perform(refNum, shippingMethodId));
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// Payment Method Actions
+
+const _selectCreditCard = createAsyncActions(
+  'selectCreditCard',
+  (refNum: string, creditCardId: number) => {
+    const payload = { creditCardId };
+    return Api.post(`${paymentsBasePath(refNum)}/credit-cards`, payload);
+  }
+);
+
+const _setStoreCreditPayment = createAsyncActions(
+  'setStoreCreditPayment',
+  (refNum: string, amount: number) => {
+    const payload = { amount };
+    return Api.post(`${paymentsBasePath(refNum)}/store-credit`, payload);
+  }
+)
+
+const _addGiftCardPayment = createAsyncActions(
+  'addGiftCardPayment',
+  (refNum: string, code: string, amount: number) => {
+    const payload = { code, amount };
+    return Api.post(`${paymentsBasePath(refNum)}/gift-cards`, payload);
+  }
+);
+
+const _editGiftCardPayment = createAsyncActions(
+  'editGiftCardPayment',
+  (refNum: string, code: string, amount: number) => {
+    const payload = { code, amount };
+    return Api.patch(`${paymentsBasePath(refNum)}/gift-cards`, payload);
+  }
+);
+
+const _deleteCreditCardPayment = createAsyncActions(
+  'deleteCreditCardPayment',
+  (refNum: string) => Api.delete(`${paymentsBasePath(refNum)}/credit-card`)
+);
+
+const _deleteGiftCardPayment = createAsyncActions(
+  'deleteGiftCardPayment',
+  (refNum: string, code: string) => {
+    return Api.delete(`${paymentsBasePath(refNum)}/gift-cards/${code}`);
+  }
+);
+
+const _deleteStoreCreditPayment = createAsyncActions(
+  'deleteStoreCreditPayment',
+  (refNum: string) => Api.delete(`${paymentsBasePath(refNum)}/store-credit`)
+);
+
+export function selectCreditCard(refNum: string, creditCardId: number) {
+  return dispatch => dispatch(_selectCreditCard.perform(refNum, creditCardId));
+}
+
+export function setStoreCreditPayment(refNum: string, amount: number) {
+  return dispatch => dispatch(_setStoreCreditPayment.perform(refNum, amount));
+}
+
+export function addGiftCardPayment(refNum: string, code: string, amount: number) {
+  return dispatch => dispatch(_addGiftCardPayment.perform(refNum, code, amount));
+}
+
+export function editGiftCardPayment(refNum: string, code: string, amount: number) {
+  return dispatch => dispatch(_editGiftCardPayment.perform(refNum, code, amount));
+}
+
+export function deleteCreditCardPayment(refNum: string) {
+  return dispatch => dispatch(_deleteCreditCardPayment.perform(refNum));
+}
+
+export function deleteGiftCardPayment(refNum: string, code: string) {
+  return dispatch => dispatch(_deleteGiftCardPayment.perform(refNum, code));
+}
+
+export function deleteStoreCreditPayment(refNum: string) {
+  return dispatch => dispatch(_deleteStoreCreditPayment.perform(refNum));
+}
+
+function paymentsBasePath(refNum: string): string {
+  return `/orders/${refNum}/payment-methods`;
+}
+
+
+
+function paymentBasePath(refNum: string): string {
+  return `/orders/${refNum}/payment-methods`;
+}
 
 export function checkout(refNum) {
   return dispatch => {
@@ -192,6 +281,13 @@ const reducer = createReducer({
   [_updateShippingAddress.succeeded]: (state, cart) => receiveCart(state, cart),
   [_deleteShippingAddress.succeeded]: (state, cart) => receiveCart(state, cart),
   [_updateShippingMethod.succeeded]: (state, order) => receiveCart(state, order),
+  [_selectCreditCard.succeeded]: (state, cart) => receiveCart(state, cart), 
+  [_setStoreCreditPayment.succeeded]: (state, cart) => receiveCart(state, cart), 
+  [_addGiftCardPayment.succeeded]: (state, cart) => receiveCart(state, cart), 
+  [_editGiftCardPayment.succeeded]: (state, cart) => receiveCart(state, cart), 
+  [_deleteCreditCardPayment.succeeded]: (state, cart) => receiveCart(state, cart), 
+  [_deleteGiftCardPayment.succeeded]: (state, cart) => receiveCart(state, cart), 
+  [_deleteStoreCreditPayment.succeeded]: (state, cart) => receiveCart(state, cart), 
   [checkoutRequest]: (state) => {
     return { ...state, isCheckingOut: true };
   },

@@ -6,14 +6,22 @@ import _ from 'lodash';
 
 import CreditCard from './credit-card';
 import GiftCard from './gift-card';
+import NewPayment from 'components/new-payment/new-payment';
 import StoreCredit from './store-credit';
 import TableView from 'components/table/tableview';
 
 import { Cart, Order, PaymentMethod } from 'paragons/order';
 
 type Props = {
+  isAdding: boolean,
+  isEditing: boolean,
   order: Cart|Order,
   paymentMethods: Array<PaymentMethod>,
+};
+
+type DefaultProps = {
+  isAdding: boolean,
+  isEditing: boolean,
 };
 
 type State = {
@@ -27,9 +35,41 @@ const viewColumns = [
   {field: 'createdAt', text: 'Date/Time', type: 'datetime'},
 ];
 
+const editColumns = viewColumns.concat([
+  {field: 'edit'},
+]);
+
 export default class PaymentsPanel extends Component {
+  static defaultProps: DefaultProps = {
+    isAdding: false,
+    isEditing: false,
+  };
+
   props: Props;
   state: State = { showDetails: {} };
+
+  get newPayment(): Element {
+    const { order } = this.props;
+    const customerId = order.customer.id;
+
+    return (
+      <tbody>
+        <NewPayment order={order} customerId={customerId} />
+      </tbody>
+    );
+  }
+
+  @autobind
+  processRows(rows: Array<Object>): Array<Object> {
+    if (this.props.isAdding) {
+      return [
+        this.newPayment,
+        ...rows,
+      ]
+    }
+
+    return rows;
+  }
 
   getRowRenderer(type: string): Object {
     switch(type) {
@@ -58,7 +98,7 @@ export default class PaymentsPanel extends Component {
     const props = {
       key: `payments-panel-row-${id}`,
       paymentMethod: row,
-      editMode: false,
+      editMode: this.props.isEditing,
       customerId: customerId,
       order: order,
       showDetails: this.state.showDetails[id],
@@ -75,23 +115,37 @@ export default class PaymentsPanel extends Component {
     });
   }
 
-  render(): Element {
-    const { paymentMethods } = this.props;
+  get viewContent(): Element {
+    const { isAdding, isEditing, paymentMethods } = this.props;
+    const editColumns = isEditing ? [{ field: 'edit' }] : [];
 
-    if (_.isEmpty(paymentMethods)) {
+    if (!isEditing && _.isEmpty(paymentMethods)) {
       return (
         <div className="fc-content-box__empty-text">
           No payment method applied.
         </div>
       );
     } else {
+      const columns = [...viewColumns, ...editColumns];
+      let processRows = _.identity;
+      if (isAdding) {
+        console.log('We are in add mode');
+        processRows = this.processRows;
+      }
+
       return (
         <TableView
-          columns={viewColumns}
-          data={{rows: paymentMethods}}
+          columns={columns}
           wrapToTbody={false}
-          renderRow={this.renderRow} />
+          renderRow={this.renderRow}
+          processRows={processRows}
+          data={{rows: paymentMethods}}
+          emptyMessage="No payment method applied" />
       );
     }
+  }
+
+  render(): Element {
+    return this.viewContent;
   }
 }

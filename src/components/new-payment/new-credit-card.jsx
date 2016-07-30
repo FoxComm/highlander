@@ -4,19 +4,20 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 
-import CreditCardBox from '../../credit-cards/card-box';
-import CreditCardDetails from '../../credit-cards/card-details';
-import CreditCardForm from '../../credit-cards/card-form';
-import SaveCancel from '../../common/save-cancel';
-import TileSelector from '../../tile-selector/tile-selector';
+import CreditCardBox from 'components/credit-cards/card-box';
+import CreditCardDetails from 'components/credit-cards/card-details';
+import CreditCardForm from 'components/credit-cards/card-form';
+import SaveCancel from 'components/common/save-cancel';
+import TileSelector from 'components/tile-selector/tile-selector';
 
-import * as CreditCardActions from '../../../modules/customers/credit-cards';
-import * as PaymentMethodActions from '../../../modules/orders/payment-methods';
+import * as CreditCardActions from 'modules/customers/credit-cards';
+import * as CartDetailsActions from 'modules/carts/details';
+import * as PaymentMethodActions from 'modules/carts/payment-methods';
 
 function mapStateToProps(state, props) {
   return {
     creditCards: state.customers.creditCards[props.customerId],
-    paymentMethods: state.orders.paymentMethods,
+    paymentMethods: state.carts.paymentMethods,
   };
 }
 
@@ -32,6 +33,7 @@ function mapDispatchToProps(dispatch, props) {
   return {
     actions: {
       ...mapActionsToCustomer(dispatch, CreditCardActions, props.customerId),
+      ...bindActionCreators(CartDetailsActions, dispatch),
       ...bindActionCreators(PaymentMethodActions, dispatch),
     },
   };
@@ -45,7 +47,7 @@ export default class NewCreditCard extends Component {
     order: PropTypes.object.isRequired,
 
     actions: PropTypes.shape({
-      addOrderCreditCardPayment: PropTypes.func.isRequired,
+      selectCreditCard: PropTypes.func.isRequired,
       createAndAddOrderCreditCardPayment: PropTypes.func.isRequired,
       fetchAddresses: PropTypes.func.isRequired,
       fetchCreditCards: PropTypes.func.isRequired,
@@ -109,7 +111,7 @@ export default class NewCreditCard extends Component {
   get formControls() {
     if (!this.state.showForm) {
       const saveDisabled = _.isNull(this.state.selectedCard);
-      const onSave = () => this.props.actions.addOrderCreditCardPayment(
+      const onSave = () => this.props.actions.selectCreditCard(
         this.props.order.referenceNumber,
         _.get(this.state, 'selectedCard.id')
       );

@@ -4,14 +4,14 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 
-import * as PaymentMethodActions from '../../../modules/orders/payment-methods';
+import * as PaymentMethodActions from 'modules/carts/payment-methods';
 
-import DebitCredit from './debit-credit';
-import { Form, FormField } from '../../forms';
+import DebitCredit from 'components/payments-panel/debit-credit';
+import { Form, FormField } from 'components/forms';
 
 function mapStateToProps(state) {
   return {
-    paymentMethods: state.orders.paymentMethods,
+    paymentMethods: state.carts.paymentMethods,
   };
 }
 

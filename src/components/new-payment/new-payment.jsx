@@ -4,18 +4,18 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 
-import AutoScroll from '../../common/auto-scroll';
-import { Dropdown, DropdownItem } from '../../dropdown';
-import ErrorAlerts from '../../alerts/error-alerts';
-import { Form, FormField } from '../../forms';
+import AutoScroll from 'components/common/auto-scroll';
+import { Dropdown, DropdownItem } from 'components/dropdown';
+import ErrorAlerts from 'components/alerts/error-alerts';
+import { Form, FormField } from 'components/forms';
 import NewGiftCard from './new-gift-card';
 import NewStoreCredit from './new-store-credit';
 import NewCreditCard from './new-credit-card';
-import TableCell from '../../table/cell';
-import TableRow from '../../table/row';
+import TableCell from 'components/table/cell';
+import TableRow from 'components/table/row';
 
-import * as CreditCardActions from '../../../modules/customers/credit-cards';
-import * as PaymentMethodActions from '../../../modules/orders/payment-methods';
+import * as CreditCardActions from 'modules/customers/credit-cards';
+import * as PaymentMethodActions from 'modules/carts/payment-methods';
 
 const SELECT_PAYMENT_FORM = [
   ['creditCard', 'Credit Card'],
@@ -25,7 +25,7 @@ const SELECT_PAYMENT_FORM = [
 
 function mapStateToProps(state, props) {
   return {
-    paymentMethods: state.orders.paymentMethods,
+    paymentMethods: state.carts.paymentMethods,
   };
 }
 

@@ -4,10 +4,10 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 
-import * as PaymentMethodActions from '../../../modules/orders/payment-methods';
-import * as StoreCreditTotalsActions from '../../../modules/customers/store-credit-totals';
+import * as PaymentMethodActions from 'modules/carts/payment-methods';
+import * as StoreCreditTotalsActions from 'modules/customers/store-credit-totals';
 
-import DebitCredit from './debit-credit';
+import DebitCredit from 'components/payments-panel/debit-credit';
 
 function mapActionsToCustomer(dispatch, actions, customerId) {
   return _.transform(actions, (result, action, key) => {
