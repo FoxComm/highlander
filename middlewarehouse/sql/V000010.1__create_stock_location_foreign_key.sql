@@ -1,0 +1,1 @@
+alter table stock_items add foreign key (stock_location_id) references stock_locations(id) on update restrict on delete restrict

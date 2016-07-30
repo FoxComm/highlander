@@ -17,118 +17,115 @@ type summaryServiceTestSuite struct {
 	service  ISummaryService
 	itemResp *models.StockItem
 	db       *gorm.DB
+	assert   *assert.Assertions
 }
 
 func TestSummaryServiceSuite(t *testing.T) {
 	suite.Run(t, new(summaryServiceTestSuite))
 }
 
-func (suite *summaryServiceTestSuite) SetupTest() {
-	var err error
-	suite.db, err = config.DefaultConnection()
-	assert.Nil(suite.T(), err)
+func (suite *summaryServiceTestSuite) SetupSuite() {
+	suite.db, _ = config.DefaultConnection()
+	suite.service = NewSummaryService(suite.db)
+	suite.assert = assert.New(suite.T())
+}
 
-	assert.Nil(suite.T(), err)
+func (suite *summaryServiceTestSuite) SetupTest() {
 	tasks.TruncateTables([]string{
 		"stock_items",
 		"stock_item_summaries",
 	})
 
-	suite.service = NewSummaryService(suite.db)
 	inventoryService := NewInventoryService(suite.db, suite.service)
 
 	stockItem := &models.StockItem{StockLocationID: 1, SKU: "TEST-DEFAULT"}
-	suite.itemResp, err = inventoryService.CreateStockItem(stockItem)
-	assert.Nil(suite.T(), err)
+	suite.itemResp, _ = inventoryService.CreateStockItem(stockItem)
 }
 
-func (suite *summaryServiceTestSuite) TestIncrementOnHand() {
+func (suite *summaryServiceTestSuite) Test_Increment_OnHand() {
 	err := suite.service.UpdateStockItemSummary(suite.itemResp.ID, 5, StatusChange{to: "onHand"}, nil)
-	assert.Nil(suite.T(), err)
+	suite.assert.Nil(err)
 
 	summary := models.StockItemSummary{}
 	err = suite.db.First(&summary, suite.itemResp.ID).Error
-	if assert.Nil(suite.T(), err) {
-		assert.Equal(suite.T(), 5, summary.OnHand)
-	}
+	suite.assert.Nil(err)
+	suite.assert.Equal(5, summary.OnHand)
 }
 
-func (suite *summaryServiceTestSuite) TestIncrementOnHold() {
+func (suite *summaryServiceTestSuite) Test_Increment_OnHold() {
 	err := suite.service.UpdateStockItemSummary(suite.itemResp.ID, 5, StatusChange{to: "onHold"}, nil)
-	assert.Nil(suite.T(), err)
+	suite.assert.Nil(err)
 
 	summary := models.StockItemSummary{}
 	err = suite.db.First(&summary, suite.itemResp.ID).Error
-	if assert.Nil(suite.T(), err) {
-		assert.Equal(suite.T(), 5, summary.OnHold)
-	}
+	suite.assert.Nil(err)
+	suite.assert.Equal(5, summary.OnHold)
 }
 
-func (suite *summaryServiceTestSuite) TestIncrementReserved() {
+func (suite *summaryServiceTestSuite) Test_Increment_Reserved() {
 	err := suite.service.UpdateStockItemSummary(suite.itemResp.ID, 5, StatusChange{to: "reserved"}, nil)
-	assert.Nil(suite.T(), err)
+	suite.assert.Nil(err)
 
 	summary := models.StockItemSummary{}
 	err = suite.db.First(&summary, suite.itemResp.ID).Error
-	if assert.Nil(suite.T(), err) {
-		assert.Equal(suite.T(), 5, summary.Reserved)
-	}
+	suite.assert.Nil(err)
+	suite.assert.Equal(5, summary.Reserved)
 }
 
-func (suite *summaryServiceTestSuite) TestStatusTransition() {
+func (suite *summaryServiceTestSuite) Test_Increment_Chain() {
 	suite.service.UpdateStockItemSummary(suite.itemResp.ID, 5, StatusChange{to: "onHold"}, nil)
 
 	summary := models.StockItemSummary{}
 	suite.db.First(&summary, suite.itemResp.ID)
-	assert.Equal(suite.T(), 0, summary.OnHand)
-	assert.Equal(suite.T(), 5, summary.OnHold)
-	assert.Equal(suite.T(), 0, summary.Reserved)
+	suite.assert.Equal(0, summary.OnHand)
+	suite.assert.Equal(5, summary.OnHold)
+	suite.assert.Equal(0, summary.Reserved)
 
 	suite.service.UpdateStockItemSummary(suite.itemResp.ID, 2, StatusChange{from: "onHold", to: "reserved"}, nil)
 
 	suite.db.First(&summary, suite.itemResp.ID)
-	assert.Equal(suite.T(), 0, summary.OnHand)
-	assert.Equal(suite.T(), 3, summary.OnHold)
-	assert.Equal(suite.T(), 2, summary.Reserved)
+	suite.assert.Equal(0, summary.OnHand)
+	suite.assert.Equal(3, summary.OnHold)
+	suite.assert.Equal(2, summary.Reserved)
 
 	suite.service.UpdateStockItemSummary(suite.itemResp.ID, 1, StatusChange{from: "reserved", to: "onHand"}, nil)
 
 	suite.db.First(&summary, suite.itemResp.ID)
-	assert.Equal(suite.T(), 1, summary.OnHand)
-	assert.Equal(suite.T(), 3, summary.OnHold)
-	assert.Equal(suite.T(), 1, summary.Reserved)
+	suite.assert.Equal(1, summary.OnHand)
+	suite.assert.Equal(3, summary.OnHold)
+	suite.assert.Equal(1, summary.Reserved)
 }
 
-func (suite *summaryServiceTestSuite) TestGetSummaries() {
+func (suite *summaryServiceTestSuite) Test_GetSummary() {
 	onHandCount := 5
 	suite.service.UpdateStockItemSummary(suite.itemResp.ID, onHandCount, StatusChange{to: "onHand"}, nil)
 
-	summary, err := suite.service.GetSummaries()
-	assert.Nil(suite.T(), err)
+	summary, err := suite.service.GetSummary()
+	suite.assert.Nil(err)
 
-	assert.NotNil(suite.T(), summary)
-	assert.Equal(suite.T(), onHandCount, summary[0].OnHand)
-	assert.Equal(suite.T(), suite.itemResp.SKU, summary[0].SKU)
+	suite.assert.NotNil(summary)
+	suite.assert.Equal(onHandCount, summary[0].OnHand)
+	suite.assert.Equal(suite.itemResp.SKU, summary[0].SKU)
 }
 
-func (suite *summaryServiceTestSuite) TestGetSummaryBySKU() {
+func (suite *summaryServiceTestSuite) Test_GetSummaryBySKU() {
 	summary, err := suite.service.GetSummaryBySKU(suite.itemResp.SKU)
-	assert.Nil(suite.T(), err)
+	suite.assert.Nil(err)
 
-	assert.NotNil(suite.T(), summary)
-	assert.Equal(suite.T(), 0, summary.OnHand)
+	suite.assert.NotNil(summary)
+	suite.assert.Equal(0, summary.OnHand)
 }
 
-func (suite *summaryServiceTestSuite) TestSummaryBySKUNotFoundSKU() {
+func (suite *summaryServiceTestSuite) Test_GetSummaryBySKU_NotFoundSKU() {
 	_, err := suite.service.GetSummaryBySKU("NO-SKU")
-	assert.NotNil(suite.T(), err, "There should be an error as entity should not be found")
+	suite.assert.NotNil(err, "There should be an error as entity should not be found")
 }
 
-func (suite *summaryServiceTestSuite) TestGetSummaryBySKUNotEmpty() {
+func (suite *summaryServiceTestSuite) Test_GetSummaryBySKU_NonZero() {
 	onHandCount := 5
 	err := suite.service.UpdateStockItemSummary(suite.itemResp.ID, onHandCount, StatusChange{to: "onHand"}, nil)
-	assert.Nil(suite.T(), err)
+	suite.assert.Nil(err)
 
 	summary, err := suite.service.GetSummaryBySKU(suite.itemResp.SKU)
-	assert.Equal(suite.T(), onHandCount, summary.OnHand)
+	suite.assert.Equal(onHandCount, summary.OnHand)
 }

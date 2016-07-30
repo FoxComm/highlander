@@ -11,11 +11,8 @@ type RouterConfiguration struct {
 }
 
 func SetUp(configuration RouterConfiguration) *gin.Engine {
-	// prefix all routes with "/v1"
-	r := configuration.Engine.Group("/v1")
-
 	for route, controller := range configuration.Routes {
-		controller.SetUp(r.Group(route))
+		controller.SetUp(configuration.Engine.Group(route))
 	}
 
 	return configuration.Engine
