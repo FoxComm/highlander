@@ -4,6 +4,11 @@ import { assoc } from 'sprout-data';
 
 import type { Sku } from '../modules/skus/details';
 
+export const options = {
+  code: { label: 'SKU' },
+  upc: { label: 'UPC' },
+};
+
 export function generateSkuCode(): string {
   return Math.random().toString(36).substring(7).toUpperCase();
 }
@@ -12,9 +17,9 @@ export function createEmptySku(): Sku {
   const emptySku = {
     id: null,
     attributes: {
-      code: { label: 'SKU', t: 'string', v: '' },
+      code: { t: 'string', v: '' },
       title: { t: 'string', v: '' },
-      upc: { label: 'UPC', t: 'string', v: '' },
+      upc: { t: 'string', v: '' },
       description: { t: 'richText', v: '' },
       retailPrice: {
         t: 'price',

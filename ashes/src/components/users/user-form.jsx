@@ -65,15 +65,17 @@ class UserForm extends Component {
   }
 
   renderGeneralForm() {
-    const { attributes, options } = this.props.user.form;
+    const { options } = this.props.user;
+    const { attributes } = this.props.user.form;
 
     return (
       <Form>
         <ContentBox title="General">
           {this.renderUserImage()}
-          <ObjectFormInner onChange={this.handleFormChange}
-                           attributes={attributes}
-                           options={options}
+          <ObjectFormInner
+            onChange={this.handleFormChange}
+            attributes={attributes}
+            options={options}
           />
           {!this.props.isNew && <Button type="button">Change Password</Button>}
         </ContentBox>
