@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/FoxComm/middlewarehouse/api/responses"
-	"github.com/FoxComm/middlewarehouse/controllers/mocks"
-	"github.com/FoxComm/middlewarehouse/models"
+	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
+	"github.com/FoxComm/highlander/middlewarehouse/controllers/mocks"
+	"github.com/FoxComm/highlander/middlewarehouse/models"
 
 	"errors"
 	"fmt"

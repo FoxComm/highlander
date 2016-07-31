@@ -1,8 +1,8 @@
 package services
 
 import (
-	"github.com/FoxComm/middlewarehouse/models"
-	"github.com/FoxComm/middlewarehouse/repositories"
+	"github.com/FoxComm/highlander/middlewarehouse/models"
+	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 )
 
 type shippingMethodService struct {

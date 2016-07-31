@@ -1,6 +1,6 @@
 package responses
 
-import "github.com/FoxComm/middlewarehouse/models"
+import "github.com/FoxComm/highlander/middlewarehouse/models"
 
 type ShippingMethod struct {
 	ID        uint   `json:"id"`

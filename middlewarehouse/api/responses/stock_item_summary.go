@@ -1,6 +1,6 @@
 package responses
 
-import "github.com/FoxComm/middlewarehouse/models"
+import "github.com/FoxComm/highlander/middlewarehouse/models"
 
 type stockItemSummary struct {
 	StockItemID uint   `json:"id"`

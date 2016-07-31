@@ -29,7 +29,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/FoxComm/middlewarehouse/common"
+	"github.com/FoxComm/highlander/middlewarehouse/common"
 	"github.com/Sirupsen/logrus"
 )
 

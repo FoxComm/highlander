@@ -3,7 +3,7 @@ package failures
 import (
 	"net/http"
 
-	"github.com/FoxComm/middlewarehouse/api/responses"
+	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
 )
 
 type internalError struct {

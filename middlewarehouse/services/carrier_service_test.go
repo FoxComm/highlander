@@ -3,8 +3,8 @@ package services
 import (
 	"testing"
 
-	"github.com/FoxComm/middlewarehouse/models"
-	"github.com/FoxComm/middlewarehouse/services/mocks"
+	"github.com/FoxComm/highlander/middlewarehouse/models"
+	"github.com/FoxComm/highlander/middlewarehouse/services/mocks"
 
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/assert"

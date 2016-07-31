@@ -3,12 +3,12 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/FoxComm/middlewarehouse/api/payloads"
-	"github.com/FoxComm/middlewarehouse/api/responses"
-	"github.com/FoxComm/middlewarehouse/models"
-	"github.com/FoxComm/middlewarehouse/services"
+	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
+	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
+	"github.com/FoxComm/highlander/middlewarehouse/models"
+	"github.com/FoxComm/highlander/middlewarehouse/services"
 
-	"github.com/FoxComm/middlewarehouse/common/failures"
+	"github.com/FoxComm/highlander/middlewarehouse/common/failures"
 	"github.com/gin-gonic/gin"
 )
 

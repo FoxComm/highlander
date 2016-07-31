@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/FoxComm/middlewarehouse/common/failures"
+	"github.com/FoxComm/highlander/middlewarehouse/common/failures"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"

@@ -3,7 +3,7 @@ package models
 import (
 	"testing"
 
-	"github.com/FoxComm/middlewarehouse/api/payloads"
+	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"

@@ -1,8 +1,8 @@
 package mocks
 
 import (
-	"github.com/FoxComm/middlewarehouse/models"
-	"github.com/FoxComm/middlewarehouse/services"
+	"github.com/FoxComm/highlander/middlewarehouse/models"
+	"github.com/FoxComm/highlander/middlewarehouse/services"
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/mock"
 )

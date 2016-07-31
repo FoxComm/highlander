@@ -1,9 +1,9 @@
 package routes
 
 import (
-	"github.com/FoxComm/middlewarehouse/controllers"
-	"github.com/FoxComm/middlewarehouse/repositories"
-	"github.com/FoxComm/middlewarehouse/services"
+	"github.com/FoxComm/highlander/middlewarehouse/controllers"
+	"github.com/FoxComm/highlander/middlewarehouse/repositories"
+	"github.com/FoxComm/highlander/middlewarehouse/services"
 
 	"github.com/jinzhu/gorm"
 )

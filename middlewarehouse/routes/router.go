@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"github.com/FoxComm/middlewarehouse/controllers"
+	"github.com/FoxComm/highlander/middlewarehouse/controllers"
 	"github.com/gin-gonic/gin"
 )
 

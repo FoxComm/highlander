@@ -1,8 +1,8 @@
 package models
 
 import (
-	"github.com/FoxComm/middlewarehouse/api/payloads"
-	"github.com/FoxComm/middlewarehouse/common/gormfox"
+	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
+	"github.com/FoxComm/highlander/middlewarehouse/common/gormfox"
 )
 
 type StockLocation struct {

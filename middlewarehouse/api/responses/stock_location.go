@@ -1,7 +1,7 @@
 package responses
 
 import (
-	"github.com/FoxComm/middlewarehouse/models"
+	"github.com/FoxComm/highlander/middlewarehouse/models"
 )
 
 type StockLocation struct {

@@ -1,6 +1,6 @@
 package models
 
-import "github.com/FoxComm/middlewarehouse/common/gormfox"
+import "github.com/FoxComm/highlander/middlewarehouse/common/gormfox"
 
 type StockItemSummary struct {
 	gormfox.Base

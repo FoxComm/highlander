@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/FoxComm/middlewarehouse/controllers/mocks"
+	"github.com/FoxComm/highlander/middlewarehouse/controllers/mocks"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
