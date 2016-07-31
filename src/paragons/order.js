@@ -24,6 +24,14 @@ export type PaymentMethod = {
   type: string,
 };
 
+export type CreditCard = {
+  brand: string,
+  holderName: string,
+  address: Object,
+  expMonth: number,
+  expYear: number,
+  lastFour: string,
+};
 
 export type SkuItem = {
   imagePath: string,

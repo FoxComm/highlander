@@ -2,7 +2,9 @@
 
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
+import { connect } from 'react-redux';
 import { trackEvent } from 'lib/analytics';
+import _ from 'lodash';
 
 import { AddButton } from 'components/common/buttons';
 import EditableContentBox from 'components/content-box/editable-content-box';
@@ -14,6 +16,7 @@ import type { Cart, PaymentMethod } from 'paragons/order';
 type Props = {
   cart: Cart,
   status: string,
+  creditCardSelected: boolean,
 };
 
 type State = {
@@ -21,16 +24,32 @@ type State = {
   isEditing: boolean,
 };
 
-export default class Payments extends Component {
+export class Payments extends Component {
   props: Props;
   state: State = {
     isAdding: false,
     isEditing: false,
   };
 
+  componentWillReceiveProps(nextProps: Props) {
+    const ccUpdated = !this.props.creditCardSelected && nextProps.creditCardSelected;
+
+    if (ccUpdated) {
+      this.setState({ isAdding: false });
+    }
+  }
+
   @autobind
-  toggleEdit() {
-    this.setState({ isEditing: !this.state.isEditing });
+  startEdit() {
+    this.setState({ isEditing: true });
+  }
+
+  @autobind
+  completeEdit() {
+    this.setState({
+      isAdding: false,
+      isEditing: false,
+    });
   }
 
   get editingActions() {
@@ -69,11 +88,19 @@ export default class Payments extends Component {
         title={title}
         indentContent={false}
         isEditing={this.state.isEditing}
-        editAction={this.toggleEdit}
+        editAction={this.startEdit}
         editingActions={this.editingActions}
-        doneAction={this.toggleEdit}
+        doneAction={this.completeEdit}
         editContent={content}
         viewContent={content} />
     );
   }
 }
+
+function mapStateToProps(state) {
+  return {
+    creditCardSelected: _.get(state.asyncActions, 'selectCreditCard.finished', false),
+  };
+}
+
+export default connect(mapStateToProps, null)(Payments);

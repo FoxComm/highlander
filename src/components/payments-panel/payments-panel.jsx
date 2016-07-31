@@ -4,10 +4,8 @@ import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
 
-import CreditCard from './credit-card';
-import GiftCard from './gift-card';
 import NewPayment from 'components/new-payment/new-payment';
-import StoreCredit from './store-credit';
+import PaymentRow from 'components/payment-row/payment-row';
 import TableView from 'components/table/tableview';
 
 import { Cart, Order, PaymentMethod } from 'paragons/order';
@@ -71,47 +69,61 @@ export default class PaymentsPanel extends Component {
     return rows;
   }
 
-  getRowRenderer(type: string): Object {
-    switch(type) {
-      case 'giftCard':
-        return GiftCard;
-      case 'creditCard':
-        return CreditCard;
-      case 'storeCredit':
-        return StoreCredit;
-      default:
-        throw 'Unexpected payment method type!';
-    }
-  }
+  //getRowDetails(type: string): Function {
+    //switch(type) {
+      //case 'giftCard':
+        //return GiftCard;
+      //case 'creditCard':
+        //return CreditCard;
+      //case 'storeCredit':
+        //return StoreCredit;
+      //default:
+        //throw 'Unexpected payment method type!';
+    //}
+  //}
 
   @autobind
   renderRow(row: PaymentMethod): Element {
-    const { order, paymentMethods } = this.props;
+    const { order } = this.props;
+
     const customerId = order.customer.id;
+    const referenceNumber = order.referenceNumber;
 
-    const id = row.id || row.code;
-    if (!id) {
-      throw 'Unable to render payment method without code or ID';
-    }
+    return (
+      <PaymentRow
+        customerId={customerId}
+        editMode={this.props.isEditing}
+        orderReferenceNumber={referenceNumber}
+        paymentMethod={row} />
+    );
+    //const { order, paymentMethods } = this.props;
+    //const customerId = order.customer.id;
 
-    const Renderer = this.getRowRenderer(row.type);
-    const props = {
-      key: `payments-panel-row-${id}`,
-      paymentMethod: row,
-      editMode: this.props.isEditing,
-      customerId: customerId,
-      order: order,
-      showDetails: this.state.showDetails[id],
-      toggleDetails: () => this.toggleDetails(id),
-    };
+    //const id = row.id || row.code;
+    //if (!id) {
+      //throw 'Unable to render payment method without code or ID';
+    //}
 
-    return <Renderer {...props} />;
+    //const Renderer = this.getRowRenderer(row.type);
+    //const props = {
+      //key: `payments-panel-row-${id}`,
+      //paymentMethod: row,
+      //editMode: this.props.isEditing,
+      //customerId: customerId,
+      //order: order,
+      //showDetails: this.state.showDetails[id],
+      //toggleDetails: () => this.toggleDetails(id),
+    //};
+
+    //return <Renderer {...props} />;
   }
 
   @autobind
   toggleDetails(id: number|string) {
     this.setState({
-      [id]: !this.state.showDetails[id],
+      showDetails: {
+        [id]: !this.state.showDetails[id],
+      },
     });
   }
 
@@ -129,7 +141,6 @@ export default class PaymentsPanel extends Component {
       const columns = [...viewColumns, ...editColumns];
       let processRows = _.identity;
       if (isAdding) {
-        console.log('We are in add mode');
         processRows = this.processRows;
       }
 
