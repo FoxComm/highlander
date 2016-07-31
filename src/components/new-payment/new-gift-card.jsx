@@ -4,9 +4,10 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 
+import * as CartActions from 'modules/carts/details';
 import * as PaymentMethodActions from 'modules/carts/payment-methods';
 
-import DebitCredit from 'components/payments-panel/debit-credit';
+import DebitCredit from 'components/payment-row/debit-credit';
 import { Form, FormField } from 'components/forms';
 
 function mapStateToProps(state) {
@@ -17,7 +18,10 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    actions: bindActionCreators(PaymentMethodActions, dispatch),
+    actions: {
+      ...bindActionCreators(PaymentMethodActions, dispatch),
+      ...bindActionCreators(CartActions, dispatch),
+    },
   };
 }
 
@@ -31,7 +35,7 @@ export default class NewGiftCard extends Component {
     }).isRequired,
 
     actions: PropTypes.shape({
-      addOrderGiftCardPayment: PropTypes.func.isRequired,
+      addGiftCardPayment: PropTypes.func.isRequired,
       giftCardSearch: PropTypes.func.isRequired,
       orderPaymentMethodStopEdit: PropTypes.func.isRequired,
     }).isRequired,
@@ -92,7 +96,7 @@ export default class NewGiftCard extends Component {
 
   @autobind
   handleGiftCardSubmit(amountToUse) {
-    this.props.actions.addOrderGiftCardPayment(
+    this.props.actions.addGiftCardPayment(
       this.props.order.referenceNumber,
       this.codeValue,
       amountToUse

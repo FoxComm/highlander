@@ -17,6 +17,9 @@ type Props = {
   cart: Cart,
   status: string,
   creditCardSelected: boolean,
+  giftCardAdded: boolean,
+  giftCardUpdated: boolean,
+  storeCreditSet: boolean,
 };
 
 type State = {
@@ -33,8 +36,11 @@ export class Payments extends Component {
 
   componentWillReceiveProps(nextProps: Props) {
     const ccUpdated = !this.props.creditCardSelected && nextProps.creditCardSelected;
+    const scUpdated = !this.props.storeCreditSet && nextProps.storeCreditSet;
+    const gcAdded = !this.props.giftCardAdded && nextProps.giftCardAdded;
+    const gcUpdated = !this.props.giftCardUpdated && nextProps.giftCardUpdated;
 
-    if (ccUpdated) {
+    if (ccUpdated || scUpdated || gcAdded || gcUpdated) {
       this.setState({ isAdding: false });
     }
   }
@@ -100,6 +106,9 @@ export class Payments extends Component {
 function mapStateToProps(state) {
   return {
     creditCardSelected: _.get(state.asyncActions, 'selectCreditCard.finished', false),
+    giftCardAdded: _.get(state.asyncActions, 'addGiftCardPayment.finished', false),
+    giftCardUpdated: _.get(state.asyncActions, 'editGiftCardPayment.finished', false),
+    storeCreditSet: _.get(state.asyncActions, 'setStoreCreditPayment.finished', false),
   };
 }
 

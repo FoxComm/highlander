@@ -2,22 +2,34 @@
 
 import _ from 'lodash';
 import React, { Component, Element } from 'react';
+import { autobind } from 'core-decorators';
+import { connect } from 'react-redux';
 
 import CreditCardForm from 'components/credit-cards/card-form';
 import AddressDetails from 'components/addresses/address-details';
+
+import * as PaymentMethodActions from 'modules/carts/payment-methods';
 
 import type { CreditCard, Order } from 'paragons/order';
 
 type Props = {
   customerId: number,
+  orderReferenceNumber: string,
   paymentMethod: CreditCard,
   isEditing: boolean,
-
   handleCancel: Function,
+  editCreditCardPayment: Function,
 };
 
-export default class CreditCardDetails extends Component {
+export class CreditCardDetails extends Component {
   props: Props;
+
+  @autobind
+  saveCreditCard(event: Object, card: CreditCard) {
+    const { customerId, orderReferenceNumber } = this.props;
+    this.props.editCreditCardPayment(orderReferenceNumber, card, customerId)
+      .then(this.props.handleCancel);
+  }
 
   render(): Element {
     const card = this.props.paymentMethod;
@@ -33,7 +45,7 @@ export default class CreditCardDetails extends Component {
           isDefaultEnabled={false}
           isNew={false}
           onCancel={handleCancel}
-          onSubmit={_.noop} />
+          onSubmit={this.saveCreditCard} />
       );
     } else {
       details = (
@@ -54,3 +66,4 @@ export default class CreditCardDetails extends Component {
   }
 }
 
+export default connect(null, PaymentMethodActions)(CreditCardDetails);

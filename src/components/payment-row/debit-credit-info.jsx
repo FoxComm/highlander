@@ -17,7 +17,7 @@ const DebitCreditInfo = (props: Props) => {
         <dd><Currency value={props.availableBalance} /></dd>
       </dl>
       <dl>
-        <dt>Future Available Balance</dt>
+        <dt>Balance After Order</dt>
         <dd><Currency value={futureBalance} /></dd>
       </dl>
     </div>

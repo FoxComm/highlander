@@ -188,12 +188,6 @@ function paymentsBasePath(refNum: string): string {
   return `/orders/${refNum}/payment-methods`;
 }
 
-
-
-function paymentBasePath(refNum: string): string {
-  return `/orders/${refNum}/payment-methods`;
-}
-
 export function checkout(refNum) {
   return dispatch => {
     dispatch(checkoutRequest());

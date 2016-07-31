@@ -2,8 +2,12 @@
 
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
+import _ from 'lodash';
 
 import CreditCardDetails from './credit-card';
+import Currency from 'components/common/currency';
+import GiftCardDetails from './gift-card';
+import StoreCreditDetails from './store-credit';
 import PaymentMethodDetails from 'components/payment/payment-method';
 import TableCell from 'components/table/cell';
 import TableRow from 'components/table/row';
@@ -34,24 +38,42 @@ export default class PaymentRow extends Component {
   };
 
   get amount(): ?Element {
-    return null;
+    const amount = _.get(this.props, 'paymentMethod.amount');
+    return _.isNumber(amount) ? <Currency value={amount} /> : null;
   }
 
   get details(): ?Element {
     if (this.state.showDetails) {
-      const { customerId, paymentMethod } = this.props;
-      const details = (
-        <CreditCardDetails
-          customerId={customerId}
-          isEditing={this.state.isEditing}
-          handleCancel={this.cancelEdit}
-          paymentMethod={paymentMethod} />
-      );
+      const { customerId, orderReferenceNumber, paymentMethod } = this.props;
+      const detailsProps = {
+        customerId,
+        orderReferenceNumber,
+        paymentMethod,
+        isEditing: this.state.isEditing,
+        handleCancel: this.cancelEdit,
+      };
+
+      let DetailsElement = null;
+      switch(paymentMethod.type) {
+        case 'creditCard':
+          DetailsElement = CreditCardDetails;
+          break;
+        case 'giftCard':
+          DetailsElement = GiftCardDetails;
+          break;
+        case 'storeCredit':
+          DetailsElement = StoreCreditDetails;
+          break;
+      }
+
+      if (DetailsElement == null) {
+        throw `Unexpected payment method ${paymentMethod.type}`;
+      }
 
       return (
         <TableRow styleName="details-row">
           <TableCell colSpan={5}>
-            {details}
+            <DetailsElement {...detailsProps} />
           </TableCell>
         </TableRow>
       );

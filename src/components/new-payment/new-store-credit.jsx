@@ -4,10 +4,10 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 
-import * as PaymentMethodActions from 'modules/carts/payment-methods';
+import * as CartActions from 'modules/carts/details';
 import * as StoreCreditTotalsActions from 'modules/customers/store-credit-totals';
 
-import DebitCredit from 'components/payments-panel/debit-credit';
+import DebitCredit from 'components/payment-row/debit-credit';
 
 function mapActionsToCustomer(dispatch, actions, customerId) {
   return _.transform(actions, (result, action, key) => {
@@ -26,7 +26,7 @@ function mapStateToProps(state, props) {
 function mapDispatchToProps(dispatch, props) {
   return {
     actions: {
-      ...bindActionCreators(PaymentMethodActions, dispatch),
+      ...bindActionCreators(CartActions, dispatch),
       ...mapActionsToCustomer(dispatch, StoreCreditTotalsActions, props.customerId),
     },
   };
@@ -42,7 +42,7 @@ export default class NewStoreCredit extends Component {
     totals: PropTypes.object.isRequired,
 
     actions: PropTypes.shape({
-      addOrderStoreCreditPayment: PropTypes.func.isRequired,
+      setStoreCreditPayment: PropTypes.func.isRequired,
       fetchTotals: PropTypes.func.isRequired,
       orderPaymentMethodStopEdit: PropTypes.func.isRequired,
     }).isRequired,
@@ -58,7 +58,7 @@ export default class NewStoreCredit extends Component {
 
   @autobind
   handleSubmit(amountToUse) {
-    this.props.actions.addOrderStoreCreditPayment(
+    this.props.actions.setStoreCreditPayment(
       this.props.order.referenceNumber,
       amountToUse
     );
