@@ -4,10 +4,7 @@ import (
 	"net/http"
 	"testing"
 
-<<<<<<< Updated upstream
 	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
-=======
->>>>>>> Stashed changes
 	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
 	"github.com/FoxComm/highlander/middlewarehouse/controllers/mocks"
 	"github.com/FoxComm/highlander/middlewarehouse/models"

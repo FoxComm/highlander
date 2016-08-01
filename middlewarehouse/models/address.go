@@ -2,11 +2,7 @@ package models
 
 import (
 	"database/sql"
-
-<<<<<<< Updated upstream
 	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
-=======
->>>>>>> Stashed changes
 	"github.com/FoxComm/highlander/middlewarehouse/common/gormfox"
 )
 
