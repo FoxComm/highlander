@@ -44,7 +44,7 @@ export class CartShippingMethod extends Component {
 
   @autobind
   startEditing() {
-    this.setState({ isEditing: true }, this.getShippingMethods)
+    this.setState({ isEditing: true }, this.getShippingMethods);
   }
 
   @autobind
@@ -79,4 +79,4 @@ export class CartShippingMethod extends Component {
   }
 };
 
-export default connect(mapStateToProps, { ...detailsActions, ...shippingActions })(CartShippingMethod)
+export default connect(mapStateToProps, { ...detailsActions, ...shippingActions })(CartShippingMethod);

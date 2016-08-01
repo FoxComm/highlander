@@ -66,4 +66,4 @@ export class UserMenu extends Component {
   }
 }
 
-export default connect(null, { logout, authMessage, toggleUserMenu })(UserMenu)
+export default connect(null, { logout, authMessage, toggleUserMenu })(UserMenu);

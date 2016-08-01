@@ -184,7 +184,6 @@ export default class ChooseShippingAddress extends Component {
   @autobind
   handleChooseAddress(address) {
     const refNum = this.props.cart.referenceNumber;
-    console.log("Choosing address");
     this.props.actions.chooseShippingAddress(refNum, address.id);
   }
 

@@ -63,7 +63,7 @@ export default class PaymentsPanel extends Component {
       return [
         this.newPayment,
         ...rows,
-      ]
+      ];
     }
 
     return rows;

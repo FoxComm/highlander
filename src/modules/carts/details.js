@@ -46,7 +46,7 @@ export function updateLineItemCount(refNum: string, sku: string, quantity: numbe
 }
 
 export function deleteLineItem(refNum: string, sku: string) {
-  const payload = [{ sku, quantity: 0 }]
+  const payload = [{ sku, quantity: 0 }];
   return dispatch => dispatch(_updateLineItemCount.perform(refNum, payload));
 }
 
@@ -121,7 +121,7 @@ const _setStoreCreditPayment = createAsyncActions(
     const payload = { amount };
     return Api.post(`${paymentsBasePath(refNum)}/store-credit`, payload);
   }
-)
+);
 
 const _addGiftCardPayment = createAsyncActions(
   'addGiftCardPayment',

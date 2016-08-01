@@ -252,7 +252,7 @@ export default class Order extends React.Component {
           confirmAction={this.confirmStateChange}
         />
       </div>
-    )
+    );
   }
 
   render() {

@@ -27,7 +27,7 @@ const CouponsPanel = (props: Props): Element => {
         columns={columns}
         onDelete={() => {}} />
     );
-  }
+  };
 
   const { coupons } = props;
   if (_.isEmpty(coupons)) {
@@ -45,6 +45,6 @@ const CouponsPanel = (props: Props): Element => {
       emptyMessage="No coupons applied."
       renderRow={renderFn} />
   );
-}
+};
 
 export default CouponsPanel;
