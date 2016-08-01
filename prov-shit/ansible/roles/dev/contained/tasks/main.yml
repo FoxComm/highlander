@@ -1,0 +1,109 @@
+---
+
+- name: Copy Ashes Service
+  template: src=ashes.service dest="{{dest_services}}/ashes.service"
+  sudo: true
+
+- name: Copy Ashes Run Script
+  template: src=run_ashes.sh dest="/usr/local/bin/run_ashes.sh"
+  sudo: true
+
+- name: Copy Ashes Consul Config
+  template: src=ashes.json dest=/etc/consul.d/ashes.json
+  sudo: true
+
+- name: Copy Greenriver Service
+  template: src=greenriver.service dest="{{dest_services}}/greenriver.service"
+  sudo: true
+
+- name: Copy Greenriver Run Script
+  template: src=run_greenriver.sh dest="/usr/local/bin/run_greenriver.sh"
+  sudo: true
+
+- name: Copy Isaac Service
+  template: src=isaac.service dest="{{dest_services}}/isaac.service"
+  sudo: true
+
+- name: Copy Isaac Consul Config
+  template: src=isaac.json dest=/etc/consul.d/isaac.json
+  sudo: true
+
+- name: Copy Middlewarehouse Service
+  template: src=middlewarehouse.service dest="{{dest_services}}/middlewarehouse.service"
+  sudo: true
+
+- name: Copy Middlewarehouse Consul Config
+  template: src=middlewarehouse.json dest=/etc/consul.d/middlewarehouse.json
+  sudo: true
+
+- name: Copy Phoenix Service
+  template: src=phoenix.service dest="{{dest_services}}/phoenix.service"
+  sudo: true
+
+- name: Copy Phoenix Run Script
+  template: src=run_phoenix.sh dest=/usr/local/bin/run_phoenix.sh
+  sudo: true
+
+- name: Copy Phoenix Consul Config
+  template: src=phoenix.json dest=/etc/consul.d/phoenix.json
+  sudo: true
+
+- name: Copy Firebird Service
+  template: src=firebird.service dest="{{dest_services}}/firebird.service"
+  sudo: true
+
+- name: Copy Firebird Run Scipt
+  template: src=run_firebird.sh dest=/usr/local/bin/run_firebird.sh
+  sudo: true
+
+- name: Copy Firebird Consul Config
+  template: src=firebird.json dest=/etc/consul.d/firebird.json
+  sudo: true
+
+- name: Copy Firebrand Service
+  template: src=firebrand.service dest="{{dest_services}}/firebrand.service"
+  sudo: true
+
+- name: Copy Firebrand Run Script
+  template: src=run_firebrand.sh dest=/usr/local/bin/run_firebrand.sh
+  sudo: true
+
+- name: Copy Firebrand Consul Config
+  template: src=firebrand.json dest=/etc/consul.d/firebrand.json
+  sudo: true
+
+- name: Reload Systemd
+  sudo: yes
+  command: systemctl daemon-reload
+
+- name: Restart Ashes
+  service: name=ashes state=restarted enabled=yes
+  sudo: true
+
+- name: Restart Greenriver
+  service: name=greenriver state=restarted enabled=yes
+  sudo: true
+
+- name: Restart Isaac
+  service: name=isaac state=restarted enabled=yes
+  sudo: true
+
+- name: Restart Middlewarehouse
+  service: name=middlewarehouse state=restarted enabled=yes
+  sudo: true
+
+- name: Restart Phoenix
+  service: name=phoenix state=restarted enabled=yes
+  sudo: true
+
+- name: Restart Firebird
+  service: name=firebird state=restarted enabled=yes
+  sudo: true
+
+- name: Restart Firebrand
+  service: name=firebrand state=restarted enabled=yes
+  sudo: true
+
+- name: Copy Consul Service File
+  template: src=middlewarehouse.json dest="/etc/consul.d/middlewarehouse.json"
+  sudo: true

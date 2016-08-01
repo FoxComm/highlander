@@ -1,0 +1,12 @@
+[Service]
+WorkingDirectory=/usr/share
+ExecStart=/usr/local/bin/run_greenriver.sh
+Restart=always
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=greenriver
+TimeoutStartSec=5m
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
