@@ -145,7 +145,8 @@ export default class Album extends Component {
     const body = (
       <div>
         <Alert type="warning">
-          Archiving this album will delete <strong>{album.images.length} images</strong> from the product.
+          Archiving this album will remove <strong>{album.images.length} images</strong> from the product.
+          <strong> This action cannot be undone</strong>
         </Alert>
         <span>
           Are you sure you want to archive <strong>{album.name}</strong> album?
