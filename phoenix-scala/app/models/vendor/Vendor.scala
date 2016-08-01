@@ -28,4 +28,6 @@ class Vendors(tag: Tag) extends FoxTable[Vendor](tag, "vendors") {
      createdAt) <> ((Vendor.apply _).tupled, Vendor.unapply)
 }
 
-
+object Vendors 
+  extends FoxTableQuery[Vendor, Vendors](new Vendors(_))
+  with ReturningId[Vendor, Vendors] {}
