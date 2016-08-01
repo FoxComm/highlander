@@ -17,9 +17,12 @@ import * as ArchiveActions from '../../modules/products/archive';
 import { Dropdown, DropdownItem } from '../dropdown';
 import { PageTitle } from '../section-title';
 import { PrimaryButton } from '../common/buttons';
+import ErrorAlerts from 'components/alerts/error-alerts';
 import SubNav from './sub-nav';
 import WaitAnimation from '../common/wait-animation';
 import ArchiveActionsSection from '../arcive-actions/archive-actions';
+
+import styles from './page.css';
 
 // helpers
 import { transitionTo } from 'browserHistory';
@@ -91,6 +94,18 @@ class ProductPage extends Component {
     const { isFetching, isUpdating } = nextProps.products;
     if (!isFetching && !isUpdating) {
       this.setState({ product: nextProps.products.product });
+    }
+  }
+
+  get error(): ?Element {
+    const { err } = this.props.products;
+    if (err) {
+      const message = _.get(err, ['messages', 0], 'There was an error saving the product.');
+      return (
+        <div styleName="error" className="fc-col-md-1-1">
+          <ErrorAlerts error={message} />
+        </div>
+      );
     }
   }
 
@@ -208,6 +223,7 @@ class ProductPage extends Component {
         </PageTitle>
         <SubNav productId={this.props.params.productId} product={product} context={context}/>
         <div className="fc-grid">
+          {this.error}
           <div className="fc-col-md-1-1">
             {children}
           </div>
