@@ -36,6 +36,9 @@ object ObjectHeadLinks {
     def filterLeft(left: L): QuerySeq               = filterLeftId(left.id)
     private def filterLeftId(leftId: Int): QuerySeq = filter(_.leftId === leftId)
 
+    def filterRight(right: R): QuerySeq               = filterRightId(right.id)
+    private def filterRightId(rightId: Int): QuerySeq = filter(_.rightId === rightId)
+
     def queryRightByLeft(left: L)(implicit ec: EC, db: DB): DbResultT[Seq[FullObject[R]]] =
       rightByLeftId(left.id, rightQuery.mustFindById404)
 

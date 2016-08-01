@@ -16,7 +16,8 @@ object AlbumResponses {
                     images: Seq[ImageResponse.Root],
                     position: Option[Int],
                     createdAt: Instant,
-                    updatedAt: Instant)
+                    updatedAt: Instant,
+                    archivedAt: Option[Instant])
         extends ResponseItem
 
     def build(album: FullObject[Album], images: Seq[FullObject[Image]]): Root = {
@@ -32,7 +33,8 @@ object AlbumResponses {
            images = images.map(ImageResponse.build),
            position = position,
            createdAt = model.createdAt,
-           updatedAt = model.updatedAt)
+           updatedAt = model.updatedAt,
+           archivedAt = model.archivedAt)
     }
   }
 }

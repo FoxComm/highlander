@@ -1,4 +1,5 @@
 import java.nio.file.Paths
+import java.time.Instant
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.marshalling.Marshal
@@ -7,7 +8,9 @@ import akka.stream.scaladsl.Source
 
 import Extensions._
 import cats.implicits._
+import failures.ArchiveFailures.AddImagesToArchivedAlbumFailure
 import failures.ImageFailures._
+import failures.NotFoundFailure404
 import failures.ObjectFailures._
 import models.StoreAdmins
 import models.image._
@@ -24,6 +27,7 @@ import util.IntegrationTestBase
 import utils.Money.Currency
 import utils._
 import utils.db._
+import utils.time.RichInstant
 
 class ImageIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
 
@@ -122,6 +126,33 @@ class ImageIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
                              images = Seq(ImagePayload(id = Some(1), src = "url")).some)
         val response = POST(s"v1/albums/${context.name}", payload)
         response.status must === (StatusCodes.BadRequest)
+      }
+    }
+
+    "DELETE v1/albums/:context/:id" - {
+      "Archives album successfully" in new Fixture {
+        val response = DELETE(s"v1/albums/${ctx.name}/${album.formId}")
+
+        response.status must === (StatusCodes.OK)
+
+        val result = response.as[AlbumRoot]
+        withClue(result.archivedAt.value → Instant.now) {
+          result.archivedAt.value.isBeforeNow must === (true)
+        }
+      }
+
+      "Responds with NOT FOUND when wrong album is requested" in new Fixture {
+        val response = DELETE(s"v1/albums/${ctx.name}/666")
+
+        response.status must === (StatusCodes.NotFound)
+        response.error must === (AlbumNotFoundForContext(666, ctx.id).description)
+      }
+
+      "Responds with NOT FOUND when wrong context is requested" in new Fixture {
+        val response = DELETE(s"v1/albums/donkeyContext/${album.formId}")
+
+        response.status must === (StatusCodes.NotFound)
+        response.error must === (ObjectContextNotFound("donkeyContext").description)
       }
     }
 
@@ -237,6 +268,17 @@ class ImageIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
         val albumResponse = response2.as[Seq[AlbumRoot]].headOption.value
         albumResponse.name must === ("Name 2.0")
       }
+
+      "Archived albums are not present in list" in new ProductFixture {
+        val response = DELETE(s"v1/albums/${ctx.name}/${album.formId}")
+        response.status must === (StatusCodes.OK)
+
+        val response2 = GET(s"v1/products/${context.name}/${prodForm.id}/albums")
+        response2.status must === (StatusCodes.OK)
+
+        val albumResponse = response2.as[Seq[AlbumRoot]]
+        albumResponse.length must === (0)
+      }
     }
 
     "GET v1/products/:context/:id" - {
@@ -262,6 +304,18 @@ class ImageIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
         val headSku         = productResponse.skus.head
         headSku.albums.length must === (1)
       }
+
+      "Archived albums are not present in list" in new ProductFixture {
+        val response = DELETE(s"v1/albums/${ctx.name}/${album.formId}")
+        response.status must === (StatusCodes.OK)
+
+        val response2 = GET(s"v1/products/${context.name}/${prodForm.id}")
+        response2.status must === (StatusCodes.OK)
+
+        val productResponse = response2.as[ProductResponse.Root]
+        val headSku         = productResponse.skus.head
+        headSku.albums.length must === (0)
+      }
     }
 
     "GET v1/skus/:context/:code" - {
@@ -277,6 +331,17 @@ class ImageIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
 
         headAlbum.name must === ("Sample Album")
         headAlbum.images.head.src must === ("http://lorem.png")
+      }
+
+      "Archived albums are not present in list" in new ProductFixture {
+        val response = DELETE(s"v1/albums/${ctx.name}/${album.formId}")
+        response.status must === (StatusCodes.OK)
+
+        val response2 = GET(s"v1/skus/${context.name}/${sku.code}")
+        response2.status must === (StatusCodes.OK)
+
+        val skuResponse = response2.as[SkuResponse.Root]
+        skuResponse.albums.length must === (0)
       }
     }
 
@@ -317,6 +382,17 @@ class ImageIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
         response2.status must === (StatusCodes.OK)
         response2.as[Seq[AlbumRoot]].headOption.value.name must === ("Name 2.0")
       }
+
+      "Archived albums are not present in list" in new ProductFixture {
+        val response = DELETE(s"v1/albums/${ctx.name}/${album.formId}")
+        response.status must === (StatusCodes.OK)
+
+        val response2 = GET(s"v1/skus/${context.name}/${sku.code}/albums")
+        response2.status must === (StatusCodes.OK)
+
+        val albumResponse = response2.as[Seq[AlbumRoot]]
+        albumResponse.length must === (0)
+      }
     }
 
     "POST /v1/albums/:context/images" - {
@@ -349,7 +425,28 @@ class ImageIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
         uploadedImage.src must === ("amazon-image-url")
         uploadedImage.title must === ("foxy.jpg".some)
         uploadedImage.alt must === ("foxy.jpg".some)
+      }
 
+      "fail when uploading to archived album" in new ArchivedAlbumFixture {
+        val image = Paths.get("test/resources/foxy.jpg")
+        image.toFile.exists mustBe true
+
+        val updatedAlbumImages = ImageManager
+          .createOrUpdateImagesForAlbum(album, Seq(testPayload, testPayload), context)
+          .gimme
+
+        val bodyPart =
+          Multipart.FormData.BodyPart.fromPath(name = "upload-file",
+                                               contentType = MediaTypes.`application/octet-stream`,
+                                               file = image)
+        val formData = Multipart.FormData(Source.single(bodyPart))
+        val entity   = Marshal(formData).to[RequestEntity].futureValue
+        val uri      = pathToAbsoluteUrl(s"v1/albums/${context.name}/${archivedAlbum.id}/images")
+        val request  = HttpRequest(method = HttpMethods.POST, uri = uri, entity = entity)
+
+        val response = dispatchRequest(request)
+        response.status must === (StatusCodes.BadRequest)
+        response.error must === (AddImagesToArchivedAlbumFailure(archivedAlbum.id).description)
       }
     }
   }
@@ -415,5 +512,9 @@ class ImageIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
       _ ← * <~ ProductAlbumLinks.create(ProductAlbumLink(leftId = product.id, rightId = album.id))
       _ ← * <~ ProductSkuLinks.create(ProductSkuLink(leftId = product.id, rightId = sku.id))
     } yield (product, prodForm, prodShadow, sku, skuForm, skuShadow)).gimme
+  }
+
+  trait ArchivedAlbumFixture extends Fixture {
+    val archivedAlbum = Albums.update(album, album.copy(archivedAt = Some(Instant.now))).gimme
   }
 }

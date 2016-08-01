@@ -1,7 +1,9 @@
 package services.image
 
+import java.time.Instant
+
 import failures.ImageFailures._
-import failures.NotFoundFailure404
+import failures.{NotFoundFailure400, NotFoundFailure404}
 import models.StoreAdmin
 import models.image._
 import models.inventory.Sku
@@ -225,10 +227,33 @@ object ImageManager {
   def mustFindFullAlbumByFormIdAndContext404(id: Album#Id, context: ObjectContext)(implicit ec: EC,
                                                                                    db: DB) =
     for {
-      album  ← * <~ mustFindAlbumByFormIdAndContext404(id, context)
-      form   ← * <~ ObjectForms.mustFindById404(album.formId)
-      shadow ← * <~ ObjectShadows.mustFindById404(album.shadowId)
-    } yield FullObject(model = album, form = form, shadow = shadow)
+      album      ← * <~ mustFindAlbumByFormIdAndContext404(id, context)
+      fullObject ← * <~ ObjectUtils.getFullObject(mustFindAlbumByFormIdAndContext404(id, context))
+    } yield fullObject
+
+  def archiveByContextAndId(id: Int, contextName: String)(implicit ec: EC, db: DB) =
+    for {
+      context     ← * <~ ObjectManager.mustFindByName404(contextName)
+      albumObject ← * <~ mustFindFullAlbumByFormIdAndContext404(id, context)
+      archiveResult ← * <~ Albums.update(albumObject.model,
+                                         albumObject.model.copy(archivedAt = Some(Instant.now)))
+      productLinks ← * <~ ProductAlbumLinks.filterRight(albumObject.model).result
+      _ ← * <~ productLinks.map { link ⇒
+           ProductAlbumLinks.deleteById(link.id,
+                                        DbResultT.unit,
+                                        id ⇒ NotFoundFailure400(ProductAlbumLinks, id))
+         }
+      skuLinks ← * <~ SkuAlbumLinks.filterRight(albumObject.model).result
+      _ ← * <~ skuLinks.map { link ⇒
+           SkuAlbumLinks.deleteById(link.id,
+                                    DbResultT.unit,
+                                    id ⇒ NotFoundFailure400(SkuAlbumLink, id))
+         }
+      images ← * <~ getAlbumImages(albumObject.model.id)
+    } yield
+      AlbumResponse.build(
+          FullObject(model = archiveResult, form = albumObject.form, shadow = albumObject.shadow),
+          images)
 
   private def mustFindAlbumByFormIdAndContext404(id: Int, context: ObjectContext)(implicit ec: EC,
                                                                                   db: DB) =

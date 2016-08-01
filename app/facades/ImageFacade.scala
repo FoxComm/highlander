@@ -40,6 +40,7 @@ object ImageFacade {
             context  ← * <~ ObjectManager.mustFindByName404(contextName)
             filePath ← * <~ getFileFromRequest(part.entity.dataBytes)
             album    ← * <~ mustFindFullAlbumByFormIdAndContext404(albumId, context)
+            _        ← * <~ album.model.mustNotBeArchived
             filename ← * <~ getFileNameFromBodyPart(part)
             fullPath ← * <~ s"albums/${context.id}/$albumId/$filename"
             url      ← * <~ apis.amazon.uploadFile(fullPath, filePath.toFile)
