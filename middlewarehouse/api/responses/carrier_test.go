@@ -8,7 +8,10 @@ import (
 	"testing"
 
 	"github.com/FoxComm/highlander/middlewarehouse/models"
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )

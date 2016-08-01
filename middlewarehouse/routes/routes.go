@@ -2,7 +2,10 @@ package routes
 
 import (
 	"github.com/FoxComm/highlander/middlewarehouse/controllers"
+<<<<<<< Updated upstream
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
+=======
+>>>>>>> Stashed changes
 	"github.com/FoxComm/highlander/middlewarehouse/services"
 
 	"github.com/jinzhu/gorm"

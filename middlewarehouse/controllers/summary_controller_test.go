@@ -4,8 +4,13 @@ import (
 	"net/http"
 	"testing"
 
+<<<<<<< Updated upstream
 	"github.com/FoxComm/highlander/middlewarehouse/controllers/mocks"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
+=======
+	"github.com/FoxComm/highlander/middlewarehouse/models"
+	"github.com/FoxComm/highlander/middlewarehouse/services"
+>>>>>>> Stashed changes
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"

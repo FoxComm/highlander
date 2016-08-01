@@ -4,7 +4,10 @@ import (
 	"testing"
 
 	"github.com/FoxComm/highlander/middlewarehouse/models"
+<<<<<<< Updated upstream
 	"github.com/FoxComm/highlander/middlewarehouse/services/mocks"
+=======
+>>>>>>> Stashed changes
 
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/assert"
