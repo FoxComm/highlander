@@ -88,18 +88,17 @@ function createFilter(filter) {
     case 'number':
     case 'term':
       return rangeToFilter(term, operator, value);
-    case 'string-not-analyzed':
-      const extValue = {query: value, analyzer: 'standard'};
-      return dsl.matchQuery(term, extValue);
     case 'string':
-      if (operator == 'eq') {
-        return dsl.matchQuery(term, {
-          query: value,
-          type: 'phrase'
-        });
-      } else {
-        return rangeToFilter(term, operator, value.toLowerCase());
-      }
+      return dsl.matchQuery(term, {
+        query: value,
+        analyzer: 'standard',
+        operator: 'and'
+      });
+    case 'phrase':
+      return dsl.matchQuery(term, {
+        query: value,
+        type: 'phrase',
+      });
     case 'identifier':
       return rangeToFilter(term, operator, value.toLowerCase());
     case 'date':

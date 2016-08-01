@@ -17,8 +17,9 @@ function addQuery(searchTerm, search = baseSearch) {
   const query = {
     match: {
       [searchTerm.term]: {
-        query: searchTerm.value.value,
-        type: 'phrase'
+        analyzer: "standard",
+        operator: "and",
+        query: searchTerm.value.value
       },
     },
   };
@@ -158,7 +159,7 @@ describe('elastic.common', () => {
       const terms = [{
         term: 'customer.name',
         operator: 'eq',
-        value: { type: 'identifier', value: 'adil wali' },
+        value: { type: 'identifier', value: 'Adil Wali' },
       }];
 
       const query = toQuery(terms);
