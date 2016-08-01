@@ -9,7 +9,7 @@ const searchTerms = [
         term: 'name'
       }, {
         title: 'Email',
-        type: 'string',
+        type: 'string-not-analyzed',
         term: 'email'
       }, {
         title: 'Revenue',

@@ -93,11 +93,11 @@ const searchTerms = [
     options: [
       {
         title: 'Name',
-        type: 'string',
+        type: 'string-not-analyzed',
         term: 'customer.name'
       }, {
         title: 'Email',
-        type: 'string',
+        type: 'string-not-analyzed',
         term: 'customer.email'
       }, {
         title: 'Total Sales',
