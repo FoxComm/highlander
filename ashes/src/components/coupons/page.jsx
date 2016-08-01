@@ -42,8 +42,8 @@ type CouponPageProps = {
   children: Element,
   isFetching: boolean,
   isSaving: boolean,
-  fetchError: ?Array<string>,
-  submitErrors: ?Array<string>,
+  fetchError: any,
+  submitError: any,
 };
 
 class CouponPage extends Component {
@@ -113,8 +113,7 @@ class CouponPage extends Component {
 
     const coupon = this.coupon;
 
-    if (!_.isNumber(coupon.promotion)) {
-      this.setState({promotionError: true});
+    if (!this.validateForm()) {
       return null;
     }
 
@@ -190,15 +189,30 @@ class CouponPage extends Component {
     });
   }
 
-  @autobind
-  handleSave(): ?Promise {
+  validateForm() {
+    const { form } = this.refs;
     const coupon = this.coupon;
+    let formValid = true;
+
     if (!_.isNumber(coupon.promotion)) {
       this.setState({promotionError: true});
+      formValid = false;
+    }
+
+    if (form && form.checkValidity && !form.checkValidity()) {
+      formValid = false;
+    }
+
+    return formValid;
+  }
+
+  @autobind
+  handleSave(): ?Promise {
+    if (!this.validateForm()) {
       return null;
     }
 
-    return this.props.actions.createCoupon(coupon);
+    return this.props.actions.createCoupon(this.coupon);
   }
 
   render(): Element {
@@ -220,6 +234,7 @@ class CouponPage extends Component {
       coupon,
       promotionError,
       codeGeneration,
+      ref: 'form',
       saveCoupon: this.handleSave,
       selectedPromotions: this.selectedPromotions,
       onUpdateCoupon: this.handleUpdateCoupon,
@@ -250,7 +265,7 @@ class CouponPage extends Component {
         </PageTitle>
         <SubNav params={this.props.params} />
         <div styleName="coupon-details">
-          <ErrorAlerts errors={this.props.submitErrors} closeAction={actions.clearSubmitErrors} />
+          <ErrorAlerts error={this.props.submitError} closeAction={actions.clearSubmitErrors} />
           {children}
         </div>
       </div>
@@ -268,9 +283,9 @@ export default connect(
       || _.get(state.asyncActions, 'updateCoupon.inProgress', false)
     ),
     fetchError: _.get(state.asyncActions, 'getCoupon.err', null),
-    submitErrors: (
-      _.get(state.asyncActions, 'createCoupon.err.messages') ||
-      _.get(state.asyncActions, 'updateCoupon.err.messages')
+    submitError: (
+      _.get(state.asyncActions, 'createCoupon.err') ||
+      _.get(state.asyncActions, 'updateCoupon.err')
     )
   }),
   dispatch => ({ actions: bindActionCreators(CouponActions, dispatch), dispatch })

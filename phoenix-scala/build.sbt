@@ -39,7 +39,9 @@ lazy val phoenixScala = (project in file(".")).
     resolvers ++= Seq(
       "hseeberger bintray" at "http://dl.bintray.com/hseeberger/maven",
       "pellucid bintray"   at "http://dl.bintray.com/pellucid/maven",
-      "justwrote"          at "http://repo.justwrote.it/releases/"
+      "justwrote"          at "http://repo.justwrote.it/releases/",
+      Resolver.bintrayRepo("kwark", "maven") //This is a fix for deadlock in slick. 
+                                             // to official slick repo.
     ),
     libraryDependencies ++= Dependencies.akka,
     libraryDependencies ++= Dependencies.slick,

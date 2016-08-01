@@ -1,28 +1,28 @@
 package controllers
 
 import (
-	"github.com/FoxComm/middlewarehouse/api/responses"
-	"github.com/FoxComm/middlewarehouse/services"
+	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
+	"github.com/FoxComm/highlander/middlewarehouse/services"
 
 	"github.com/gin-gonic/gin"
 )
 
 type summaryController struct {
-	summaryService services.ISummaryService
+	service services.ISummaryService
 }
 
 func NewSummaryController(service services.ISummaryService) IController {
-	return &summaryController{summaryService: service}
+	return &summaryController{service}
 }
 
 func (controller *summaryController) SetUp(router gin.IRouter) {
-	router.GET("/", controller.GetSummaries())
+	router.GET("/", controller.GetSummary())
 	router.GET("/:code", controller.GetSummaryBySKU())
 }
 
-func (controller *summaryController) GetSummaries() gin.HandlerFunc {
+func (controller *summaryController) GetSummary() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		summary, err := controller.summaryService.GetSummaries()
+		summary, err := controller.service.GetSummary()
 		if err != nil {
 			handleServiceError(context, err)
 			return
@@ -37,7 +37,7 @@ func (controller *summaryController) GetSummaries() gin.HandlerFunc {
 func (controller *summaryController) GetSummaryBySKU() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		skuCode := context.Params.ByName("code")
-		summary, err := controller.summaryService.GetSummaryBySKU(skuCode)
+		summary, err := controller.service.GetSummaryBySKU(skuCode)
 		if err != nil {
 			handleServiceError(context, err)
 			return

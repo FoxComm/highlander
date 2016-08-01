@@ -14,13 +14,12 @@ import * as ProductActions from '../../modules/products/details';
 import * as ArchiveActions from '../../modules/products/archive';
 
 // components
-import ConfirmationDialog from '../modal/confirmation-dialog';
 import { Dropdown, DropdownItem } from '../dropdown';
 import { PageTitle } from '../section-title';
-import { Button, PrimaryButton } from '../common/buttons';
-import Alert from '../alerts/alert';
+import { PrimaryButton } from '../common/buttons';
 import SubNav from './sub-nav';
 import WaitAnimation from '../common/wait-animation';
+import ArchiveActionsSection from '../arcive-actions/archive-actions';
 
 // helpers
 import { transitionTo } from 'browserHistory';
@@ -46,13 +45,13 @@ type Props = {
     product: ?Product,
     err: ?Object,
   },
+  selectContextAvailable: boolean,
   archiveProduct: Function,
 };
 
 type State = {
   product: ?Product,
   context: string,
-  archiveConfirmation: boolean,
 };
 
 const SELECT_CONTEXT = [
@@ -67,10 +66,13 @@ const SELECT_CONTEXT = [
 class ProductPage extends Component {
   props: Props;
 
+  static defaultProps = {
+    selectContextAvailable: false,
+  };
+
   state: State = {
     product: this.props.products.product,
     context: _.get(this.props.params, 'context', 'default'),
-    archiveConfirmation: false,
   };
 
   componentDidMount() {
@@ -105,15 +107,22 @@ class ProductPage extends Component {
     return _.get(product, 'attributes.title.v', '');
   }
 
+  get selectContextDropdown() {
+    if (this.props.selectContextAvailable) {
+      return (
+        <Dropdown onChange={this.handleContextChange}
+                  value={this.props.params.context}
+                  items={SELECT_CONTEXT} />
+      );
+    }
+  }
+
   get titleActions(): Element {
     const { isUpdating } = this.props.products;
 
     return (
       <div className="fc-product-details__title-actions">
-        <Dropdown onChange={this.handleContextChange}
-                  value={this.props.params.context}
-                  items={SELECT_CONTEXT}
-        />
+        { this.selectContextDropdown }
         <PrimaryButton
           className="fc-product-details__save-button"
           type="submit"
@@ -162,41 +171,11 @@ class ProductPage extends Component {
     }
   }
 
-  renderArchiveSection() {
+  renderArchiveActions() {
     return(
-      <div className="fc-archive-actions">
-        <Button
-          type="button"
-          onClick={this.showArchiveConfirmation}>
-          Archive Product
-        </Button>
-        {this.renderConfirmation()}
-      </div>
-    );
-  }
-
-  renderConfirmation() {
-    const confirmation = (
-      <div>
-        <Alert type="warning">
-          Warning! This action cannot be undone
-        </Alert>
-        <span>
-          Are you sure you want to archive <strong>{this.pageTitle}</strong> ?
-        </span>
-      </div>
-    );
-
-    return (
-      <ConfirmationDialog
-        isVisible={this.state.archiveConfirmation}
-        header="Archive Products ?"
-        body={confirmation}
-        cancel="Cancel"
-        confirm="Archive Products"
-        cancelAction={this.closeArchiveConfirmation}
-        confirmAction={this.archiveProduct}
-      />
+      <ArchiveActionsSection type="Product"
+                             title={this.pageTitle}
+                             archive={this.archiveProduct} />
     );
   }
 
@@ -204,20 +183,6 @@ class ProductPage extends Component {
   archiveProduct() {
     this.props.archiveProduct(this.props.params.productId).then(() => {
       transitionTo('products');
-    });
-  }
-
-  @autobind
-  showArchiveConfirmation() {
-    this.setState({
-      archiveConfirmation: true,
-    });
-  }
-
-  @autobind
-  closeArchiveConfirmation() {
-    this.setState({
-      archiveConfirmation: false,
     });
   }
 
@@ -248,7 +213,7 @@ class ProductPage extends Component {
           </div>
         </div>
 
-        {!this.isNew && this.renderArchiveSection()}
+        {!this.isNew && this.renderArchiveActions()}
       </div>
     );
   }

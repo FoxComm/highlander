@@ -1,7 +1,7 @@
 package mocks
 
 import (
-	"github.com/FoxComm/middlewarehouse/models"
+	"github.com/FoxComm/highlander/middlewarehouse/models"
 
 	"github.com/stretchr/testify/mock"
 )
@@ -21,7 +21,7 @@ func (service *CarrierServiceMock) GetCarriers() ([]*models.Carrier, error) {
 }
 
 func (service *CarrierServiceMock) GetCarrierByID(id uint) (*models.Carrier, error) {
-	args := service.Called()
+	args := service.Called(id)
 
 	if model, ok := args.Get(0).(*models.Carrier); ok {
 		return model, nil
@@ -30,28 +30,28 @@ func (service *CarrierServiceMock) GetCarrierByID(id uint) (*models.Carrier, err
 	return nil, args.Error(1)
 }
 
-func (service *CarrierServiceMock) CreateCarrier(carrier *models.Carrier) (uint, error) {
-	args := service.Called()
+func (service *CarrierServiceMock) CreateCarrier(carrier *models.Carrier) (*models.Carrier, error) {
+	args := service.Called(carrier)
 
-	if id, ok := args.Get(0).(uint); ok {
-		return id, nil
+	if model, ok := args.Get(0).(*models.Carrier); ok {
+		return model, nil
 	}
 
-	return 0, args.Error(1)
+	return nil, args.Error(1)
 }
 
-func (service *CarrierServiceMock) UpdateCarrier(carrier *models.Carrier) error {
-	args := service.Called()
+func (service *CarrierServiceMock) UpdateCarrier(carrier *models.Carrier) (*models.Carrier, error) {
+	args := service.Called(carrier)
 
-	if args.Bool(0) {
-		return nil
+	if model, ok := args.Get(0).(*models.Carrier); ok {
+		return model, nil
 	}
 
-	return args.Error(1)
+	return nil, args.Error(1)
 }
 
 func (service *CarrierServiceMock) DeleteCarrier(id uint) error {
-	args := service.Called()
+	args := service.Called(id)
 
 	if args.Bool(0) {
 		return nil

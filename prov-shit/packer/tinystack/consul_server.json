@@ -19,8 +19,8 @@
     "provisioners" : [
         {
             "type": "ansible",
-            "playbook_file" : "ansible/packer_consul_server.yml",
-            "extra_arguments": ["--extra-vars", "consul_expect=1"]
+            "playbook_file" : "ansible/packer_amigo_server.yml",
+            "extra_arguments": ["--extra-vars", "@packer/envs/{{user `variables_file`}}"]
         }
     ]
 }

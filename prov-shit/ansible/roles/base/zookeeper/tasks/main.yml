@@ -1,5 +1,13 @@
 ---
 
+- name: Setup Zookeeper Dir
+  file: path=/var/lib/zookeeper state=directory
+  sudo: true
+
+- name: Setup Zookeeper config
+  template: src=zookeeper.properties dest="/etc/kafka/zookeeper.properties"
+  sudo: true
+
 - name: Copy Zookeeper Service Files
   copy: src=zookeeper.service dest={{dest_services}}/
   sudo: true

@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/FoxComm/middlewarehouse/common"
+	"github.com/FoxComm/highlander/middlewarehouse/common"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"

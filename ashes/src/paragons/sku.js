@@ -1,6 +1,13 @@
 /* @flow */
 
+import { assoc } from 'sprout-data';
+
 import type { Sku } from '../modules/skus/details';
+
+export const options = {
+  code: { label: 'SKU' },
+  upc: { label: 'UPC' },
+};
 
 export function generateSkuCode(): string {
   return Math.random().toString(36).substring(7).toUpperCase();
@@ -30,4 +37,11 @@ export function createEmptySku(): Sku {
   };
 
   return emptySku;
+}
+
+export function updateFieldLabels(sku: Sku) {
+  return assoc(sku,
+    ['attributes', 'code', 'label'], 'SKU',
+    ['attributes', 'upc', 'label'], 'UPC',
+  );
 }

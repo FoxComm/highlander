@@ -3,11 +3,12 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/FoxComm/middlewarehouse/api/payloads"
-	"github.com/FoxComm/middlewarehouse/api/responses"
-	"github.com/FoxComm/middlewarehouse/models"
-	"github.com/FoxComm/middlewarehouse/services"
+	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
+	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
+	"github.com/FoxComm/highlander/middlewarehouse/models"
+	"github.com/FoxComm/highlander/middlewarehouse/services"
 
+	"github.com/FoxComm/highlander/middlewarehouse/common/failures"
 	"github.com/gin-gonic/gin"
 )
 
@@ -32,7 +33,8 @@ func (controller *stockItemController) GetStockItems() gin.HandlerFunc {
 		stockItems, err := controller.service.GetStockItems()
 
 		if err != nil {
-			context.AbortWithError(http.StatusInternalServerError, err)
+			fail := failures.NewInternalError(err)
+			failures.Abort(context, fail)
 			return
 		}
 
@@ -52,7 +54,7 @@ func (controller *stockItemController) GetStockItemById() gin.HandlerFunc {
 			return
 		}
 
-		stockItem, err := controller.service.GetStockItemByID(uint(id))
+		stockItem, err := controller.service.GetStockItemById(uint(id))
 		if err != nil {
 			handleServiceError(context, err)
 			return
@@ -79,9 +81,7 @@ func (controller *stockItemController) CreateStockItem() gin.HandlerFunc {
 			return
 		}
 
-		resp := responses.NewStockItemFromModel(stockItem)
-
-		context.JSON(http.StatusCreated, resp)
+		context.JSON(http.StatusCreated, responses.NewStockItemFromModel(stockItem))
 	}
 }
 
@@ -98,7 +98,7 @@ func (controller *stockItemController) IncrementStockItemUnits() gin.HandlerFunc
 		}
 
 		if err := payload.Validate(); err != nil {
-			context.AbortWithError(http.StatusBadRequest, err)
+			failures.Abort(context, failures.NewBadRequest(err))
 			return
 		}
 
@@ -109,7 +109,7 @@ func (controller *stockItemController) IncrementStockItemUnits() gin.HandlerFunc
 			return
 		}
 
-		context.JSON(http.StatusCreated, gin.H{})
+		context.Status(http.StatusNoContent)
 	}
 }
 
@@ -126,7 +126,7 @@ func (controller *stockItemController) DecrementStockItemUnits() gin.HandlerFunc
 		}
 
 		if err := payload.Validate(); err != nil {
-			context.AbortWithError(http.StatusBadRequest, err)
+			failures.Abort(context, failures.NewBadRequest(err))
 			return
 		}
 

@@ -9,7 +9,6 @@ db_user: phoenix
 db_name: phoenix_development
 db_connection_string: "postgresql://{{db_host}}/phoenix_development?user={{db_user}}"
 scala_version: scala-2.11
-group_env: fc
 
 # Green River
 greenriver_version: 1.0
@@ -30,14 +29,14 @@ phoenix_db_name: phoenix_development
 phoenix_test_db_name: phoenix_test
 phoenix_tracing: "false"
 
-# middlewarehouse
+# Middlewarehouse
 middlewarehouse_env: staging
-middlewarehouse_src: ../../middlewarehouse/
-middlewarehouse_bin_src: "{{middlewarehouse_src}}/middlewarehouse"
-
 middlewarehouse_dir: /middlewarehouse
 middlewarehouse_bin: "{{middlewarehouse_dir}}/middlewarehouse"
 middlewarehouse_db_name: middlewarehouse_development
+
+middlewarehouse_src: ../../middlewarehouse/
+middlewarehouse_bin_src: "{{middlewarehouse_src}}/middlewarehouse"
 
 # Ashes
 ashes_env: production
@@ -59,8 +58,11 @@ loyalty_jar: /usr/local/bin/loyalty.jar
 # Messaging
 messaging_jar: /usr/local/bin/messaging.jar
 messaging_jar_src: ../../fox-notifications/target/messaging.jar
+plugins_api_user_email: ""
+plugins_api_user_password: ""
 
 # Lies & BS
+self_host: 127.0.0.1
 phoenix_api_version: v1
 phoenix_server: 127.0.0.1:9090
 isaac_server: 127.0.0.1:9190
@@ -103,7 +105,7 @@ google_oauth_frontend_redirect_uri: ""
 swap_file: /swap
 swap_size_mb: 2000
 
-# Fix ansible 2 rsync
+# Fix Ansible 2 rsync
 rsync_opts: ssh -l {{user}}
 
 # Consul variables
@@ -118,5 +120,8 @@ zipkin_collector: localhost
 # Are we running packer?
 packing: false
 
-#test stripe api key
+# Are we updating MWH manually?
+updating_mwh: false
+
+# Test Stripe api key
 stripe_api_key: sk_test_uvaf3GCFsjCsvvKO7FsQhNRm

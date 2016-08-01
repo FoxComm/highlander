@@ -1,0 +1,87 @@
+
+.or-line {
+  margin-top: 20px;
+  font-size: 16px;
+  line-height: 22px;
+}
+
+.or-line + :global(.fc-alert) {
+  margin-top: 10px;
+}
+
+.message {
+  margin-top: 40px;
+  color: #484848;
+}
+
+.auth-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+:global(.fc-auth__title) + :global(.fc-alert) {
+  margin-top: 20px;
+}
+
+.main {
+  composes: auth-row;
+  width: 388px;
+
+  & :global(.fc-input),
+  & :global(.fc-alert) {
+    width: 100%;
+  }
+}
+
+.form {
+  composes: global(fc-form-vertical);
+  width: 100%;
+  margin-top: 20px;
+
+  & :global(.fc-form-field-label) {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 19px;
+  }
+
+  & :global(.fc-form-field) {
+    margin-top: 10px;
+  }
+}
+
+.submit-button {
+  margin-top: 20px;
+  width: 100%;
+}
+
+.google-button {
+  composes: global(fc-btn);
+
+  margin-top: 30px;
+  width: 100%;
+  color: #ffffff;
+  background-color: rgb(243, 86, 88);
+
+  &:hover {
+    color: #ffffff;
+    background-color: rgb(240, 60, 67);
+  }
+}
+
+.password-label {
+  display: flex;
+}
+
+.forgot-link {
+  margin-left: auto;
+  font-size: 13px;
+  line-height: 18px;
+  &:hover {
+    color: #484848;
+  }
+}
+
+.signup-email input[type=email]:disabled {
+  background-color: #F2F2F2 !important;
+}

@@ -2,11 +2,10 @@ package controllers
 
 import (
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
-	"github.com/FoxComm/middlewarehouse/models"
-	"github.com/FoxComm/middlewarehouse/services"
+	"github.com/FoxComm/highlander/middlewarehouse/controllers/mocks"
+	"github.com/FoxComm/highlander/middlewarehouse/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
@@ -15,15 +14,9 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-// SummaryService Mock
-type summaryServiceMock struct {
-	mock.Mock
-}
-
 type summaryControllerTestSuite struct {
-	suite.Suite
-	service *summaryServiceMock
-	router  *gin.Engine
+	GeneralControllerTestSuite
+	service *mocks.SummaryServiceMock
 }
 
 func TestSummaryControllerSuite(t *testing.T) {
@@ -31,8 +24,9 @@ func TestSummaryControllerSuite(t *testing.T) {
 }
 
 func (suite *summaryControllerTestSuite) SetupSuite() {
+	suite.assert = assert.New(suite.T())
 	// set up test env once
-	suite.service = new(summaryServiceMock)
+	suite.service = new(mocks.SummaryServiceMock)
 	suite.router = gin.Default()
 
 	controller := NewSummaryController(suite.service)
@@ -45,8 +39,8 @@ func (suite *summaryControllerTestSuite) TearDownTest() {
 	suite.service.Calls = []mock.Call{}
 }
 
-func (suite *summaryControllerTestSuite) TestGetSummaries() {
-	suite.service.On("GetSummaries").Return([]*models.StockItemSummary{
+func (suite *summaryControllerTestSuite) Test_GetSummary() {
+	suite.service.On("GetSummary").Return([]*models.StockItemSummary{
 		{
 			SKU:         "SKU",
 			StockItemID: 0,
@@ -56,16 +50,14 @@ func (suite *summaryControllerTestSuite) TestGetSummaries() {
 		},
 	}, nil).Once()
 
-	req, _ := http.NewRequest("GET", "/summary/", nil)
-	res := httptest.NewRecorder()
-	suite.router.ServeHTTP(res, req)
+	res := suite.Get("/summary/")
 
-	assert.Equal(suite.T(), http.StatusOK, res.Code)
-	assert.Contains(suite.T(), res.Body.String(), "counts\":[")
+	suite.assert.Equal(http.StatusOK, res.Code)
+	suite.assert.Contains(res.Body.String(), "counts\":[")
 	suite.service.AssertExpectations(suite.T())
 }
 
-func (suite *summaryControllerTestSuite) TestGetSummaryBySKU() {
+func (suite *summaryControllerTestSuite) Test_GetSummaryBySKU() {
 	sku := "TEST-SKU"
 	suite.service.On("GetSummaryBySKU", sku).Return(&models.StockItemSummary{
 		SKU:         sku,
@@ -75,64 +67,29 @@ func (suite *summaryControllerTestSuite) TestGetSummaryBySKU() {
 		Reserved:    0,
 	}, nil).Once()
 
-	req, _ := http.NewRequest("GET", "/summary/"+sku, nil)
-	res := httptest.NewRecorder()
-	suite.router.ServeHTTP(res, req)
+	res := suite.Get("/summary/" + sku)
 
-	assert.Equal(suite.T(), http.StatusOK, res.Code)
-	assert.Contains(suite.T(), res.Body.String(), sku)
+	suite.assert.Equal(http.StatusOK, res.Code)
+	suite.assert.Contains(res.Body.String(), sku)
 	suite.service.AssertExpectations(suite.T())
 }
 
-func (suite *summaryControllerTestSuite) TestGetSummaryBySKUNoSKU() {
+func (suite *summaryControllerTestSuite) Test_GetSummaryBySKUNoSKU() {
 	suite.service.On("GetSummaryBySKU", "NO-SKU").Return(nil, gorm.ErrRecordNotFound).Once()
 
-	req, _ := http.NewRequest("GET", "/summary/NO-SKU", nil)
-	res := httptest.NewRecorder()
-	suite.router.ServeHTTP(res, req)
+	res := suite.Get("/summary/NO-SKU")
 
-	assert.Equal(suite.T(), http.StatusNotFound, res.Code)
-	assert.Contains(suite.T(), res.Body.String(), "errors")
+	suite.assert.Equal(http.StatusNotFound, res.Code)
+	suite.assert.Contains(res.Body.String(), "errors")
 	suite.service.AssertExpectations(suite.T())
 }
 
-func (suite *summaryControllerTestSuite) TestGetSummaryBySKUServerError() {
+func (suite *summaryControllerTestSuite) Test_GetSummaryBySKUServerError() {
 	suite.service.On("GetSummaryBySKU", "NO-SKU").Return(nil, gorm.ErrUnaddressable).Once()
 
-	req, _ := http.NewRequest("GET", "/summary/NO-SKU", nil)
-	res := httptest.NewRecorder()
-	suite.router.ServeHTTP(res, req)
+	res := suite.Get("/summary/NO-SKU")
 
-	assert.Equal(suite.T(), http.StatusBadRequest, res.Code)
-	assert.Contains(suite.T(), res.Body.String(), "errors")
+	suite.assert.Equal(http.StatusBadRequest, res.Code)
+	suite.assert.Contains(res.Body.String(), "errors")
 	suite.service.AssertExpectations(suite.T())
-}
-
-// implement ISummaryService interface to pass mock as service (another solution?)
-func (m *summaryServiceMock) GetSummaries() ([]*models.StockItemSummary, error) {
-	args := m.Called()
-
-	if model, ok := args.Get(0).([]*models.StockItemSummary); ok {
-		return model, nil
-	}
-
-	return nil, args.Error(1)
-}
-
-func (m *summaryServiceMock) GetSummaryBySKU(code string) (*models.StockItemSummary, error) {
-	args := m.Called(code)
-
-	if model, ok := args.Get(0).(*models.StockItemSummary); ok {
-		return model, nil
-	}
-
-	return nil, args.Error(1)
-}
-
-func (m *summaryServiceMock) CreateStockItemSummary(stockItemId uint, dbContext *gorm.DB) error {
-	return nil
-}
-
-func (m *summaryServiceMock) UpdateStockItemSummary(stockItemID uint, qty int, status services.StatusChange, dbContext *gorm.DB) error {
-	return nil
 }

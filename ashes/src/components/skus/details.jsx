@@ -15,6 +15,9 @@ import ObjectForm from '../object-form/object-form';
 import ObjectScheduler from '../object-scheduler/object-scheduler';
 import WaitAnimation from '../common/wait-animation';
 
+// paragon
+import { options } from '../../paragons/sku';
+
 // types
 import type { Sku } from '../../modules/skus/details';
 
@@ -60,7 +63,8 @@ export default class SkuDetails extends Component {
         title="General"
         onChange={this.handleChange}
         fieldsToRender={this.generalAttrs}
-        attributes={attributes} />
+        attributes={attributes}
+        options={options} />
     );
   }
 
@@ -78,6 +82,7 @@ export default class SkuDetails extends Component {
   @autobind
   handleChange(attributes: Attributes) {
     const { sku } = this.props;
+
     if (sku) {
       const updatedSku = assoc(sku, 'attributes', attributes);
       this.props.onChange(updatedSku);

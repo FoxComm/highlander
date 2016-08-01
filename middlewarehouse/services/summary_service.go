@@ -1,7 +1,7 @@
 package services
 
 import (
-	"github.com/FoxComm/middlewarehouse/models"
+	"github.com/FoxComm/highlander/middlewarehouse/models"
 
 	"github.com/jinzhu/gorm"
 )
@@ -19,7 +19,7 @@ type ISummaryService interface {
 	CreateStockItemSummary(stockItemId uint, dbContext *gorm.DB) error
 	UpdateStockItemSummary(stockItemID uint, qty int, status StatusChange, dbContext *gorm.DB) error
 
-	GetSummaries() ([]*models.StockItemSummary, error)
+	GetSummary() ([]*models.StockItemSummary, error)
 	GetSummaryBySKU(sku string) (*models.StockItemSummary, error)
 }
 
@@ -27,7 +27,7 @@ func NewSummaryService(db *gorm.DB) ISummaryService {
 	return &summaryService{db}
 }
 
-func (service *summaryService) GetSummaries() ([]*models.StockItemSummary, error) {
+func (service *summaryService) GetSummary() ([]*models.StockItemSummary, error) {
 	summary := []*models.StockItemSummary{}
 	err := service.db.
 		Select("stock_item_summaries.*, si.sku").

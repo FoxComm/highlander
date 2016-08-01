@@ -8,7 +8,7 @@ const searchTerms = [
   },
   {
     title: 'Users : Name',
-    type: 'string',
+    type: 'string-not-analyzed',
     term: 'name'
   },
   {

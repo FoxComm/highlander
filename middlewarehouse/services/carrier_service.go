@@ -1,62 +1,42 @@
 package services
 
 import (
-	"github.com/FoxComm/middlewarehouse/models"
-
-	"github.com/jinzhu/gorm"
+	"github.com/FoxComm/highlander/middlewarehouse/models"
+	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 )
 
 type carrierService struct {
-	db *gorm.DB
+	repository repositories.ICarrierRepository
 }
 
 type ICarrierService interface {
 	GetCarriers() ([]*models.Carrier, error)
 	GetCarrierByID(id uint) (*models.Carrier, error)
-	CreateCarrier(carrier *models.Carrier) (uint, error)
-	UpdateCarrier(carrier *models.Carrier) error
+	CreateCarrier(carrier *models.Carrier) (*models.Carrier, error)
+	UpdateCarrier(carrier *models.Carrier) (*models.Carrier, error)
 	DeleteCarrier(id uint) error
 }
 
-func NewCarrierService(db *gorm.DB) ICarrierService {
-	return &carrierService{db}
+func NewCarrierService(repository repositories.ICarrierRepository) ICarrierService {
+	return &carrierService{repository}
 }
 
 func (service *carrierService) GetCarriers() ([]*models.Carrier, error) {
-	var data []models.Carrier
-	if err := service.db.Find(&data).Error; err != nil {
-		return nil, err
-	}
-
-	carriers := make([]*models.Carrier, len(data))
-	for i := range data {
-		carriers[i] = &data[i]
-	}
-
-	return carriers, nil
+	return service.repository.GetCarriers()
 }
 
 func (service *carrierService) GetCarrierByID(id uint) (*models.Carrier, error) {
-	var carrier models.Carrier
-	if err := service.db.First(&carrier, id).Error; err != nil {
-		return nil, err
-	}
-
-	return &carrier, nil
+	return service.repository.GetCarrierByID(id)
 }
 
-func (service *carrierService) CreateCarrier(carrier *models.Carrier) (uint, error) {
-	err := service.db.Create(carrier).Error
-
-	return carrier.ID, err
+func (service *carrierService) CreateCarrier(carrier *models.Carrier) (*models.Carrier, error) {
+	return service.repository.CreateCarrier(carrier)
 }
 
-func (service *carrierService) UpdateCarrier(carrier *models.Carrier) error {
-	return service.db.Model(&carrier).Updates(carrier).Error
+func (service *carrierService) UpdateCarrier(carrier *models.Carrier) (*models.Carrier, error) {
+	return service.repository.UpdateCarrier(carrier)
 }
 
 func (service *carrierService) DeleteCarrier(id uint) error {
-	carrier := models.Carrier{ID: id}
-
-	return service.db.Delete(&carrier).Error
+	return service.repository.DeleteCarrier(id)
 }

@@ -7,8 +7,9 @@
 	"network": "vanilla",
 	"zone": "us-central1-a",
 	"base_ubuntu_image": "ubuntu-1604-xenial-v20160610",
-	"base_image": "base-1467743370",
-	"base_node_image": "base-node-1466724489",
-	"base_jvm_image": "base-jvm-1466724252",
+	"base_image": "base-1468261815",
+	"base_mesos": "base-mesos-1469484355",
+	"base_node_image": "base-node-1468952140",
+	"base_jvm_image": "base-jvm-1468952444",
 	"ssh_username": "ubuntu"
 }

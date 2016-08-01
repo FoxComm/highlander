@@ -10,3 +10,4 @@ update:
 	git subtree pull --prefix prov-shit git@github.com:FoxComm/prov-shit.git master
 	git subtree pull --prefix integrations/shipstation git@github.com:FoxComm/shipstation.git master
 	git subtree pull --prefix integration-tests git@github.com:FoxComm/integration-tests.git master
+	git subtree pull --prefix fox-notifications git@github.com:FoxComm/fox-notifications.git master

@@ -14,7 +14,7 @@ export default class CreditCardDetails extends React.Component {
     return (
       <div className="fc-credit-card">
         <div>
-          <PaymentMethod paymentMethod={card} />
+          <PaymentMethod paymentMethod={card} type="creditCard" />
         </div>
         <dl>
           <dt className="fc-credit-card__label">Name on Card</dt>

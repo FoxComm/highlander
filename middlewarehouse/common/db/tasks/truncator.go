@@ -3,7 +3,7 @@ package tasks
 import (
 	"fmt"
 
-	"github.com/FoxComm/middlewarehouse/common/db/config"
+	"github.com/FoxComm/highlander/middlewarehouse/common/db/config"
 )
 
 func TruncateTables(tables []string) error {

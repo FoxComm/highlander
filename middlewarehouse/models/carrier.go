@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/FoxComm/middlewarehouse/api/payloads"
+	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 )
 
 type Carrier struct {

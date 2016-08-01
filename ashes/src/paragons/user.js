@@ -29,6 +29,7 @@ export function configureUserState(user) {
   const options = {
     'firstAndLastName': {
       required: true,
+      label: 'First & Last Name',
     },
     'emailAddress': {
       required: true,
@@ -38,7 +39,7 @@ export function configureUserState(user) {
   const accountState = {
     state,
     disabled: state === 'invited' || state === 'archived',
-};
+  };
 
   const form = {attributes, };
 
@@ -46,6 +47,7 @@ export function configureUserState(user) {
     name,
     form,
     accountState,
+    options,
     ...rest
   };
 }

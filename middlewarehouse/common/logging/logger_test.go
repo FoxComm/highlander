@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/FoxComm/middlewarehouse/common"
+	"github.com/FoxComm/highlander/middlewarehouse/common"
 )
 
 type LoggingTestSuite struct {

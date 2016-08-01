@@ -3,23 +3,23 @@ package failures
 import (
 	"net/http"
 
-	"github.com/FoxComm/middlewarehouse/api/responses"
+	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
 )
 
-type BadRequest struct {
+type badRequest struct {
 	err error
 }
 
-func (f BadRequest) Status() int {
+func (f badRequest) Status() int {
 	return http.StatusBadRequest
 }
 
-func (f BadRequest) ToJSON() responses.Error {
+func (f badRequest) ToJSON() responses.Error {
 	return responses.Error{
 		Errors: []string{f.err.Error()},
 	}
 }
 
-func MakeBadRequest(err error) BadRequest {
-	return BadRequest{err: err}
+func NewBadRequest(err error) badRequest {
+	return badRequest{err: err}
 }

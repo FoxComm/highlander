@@ -1,0 +1,3 @@
+mesos_dir: mesos
+mesos_build_dir: "{{mesos_dir}}/build"
+mesos_version: "f69a27c43eaf9ade386819dd707ce33041ee1f20"

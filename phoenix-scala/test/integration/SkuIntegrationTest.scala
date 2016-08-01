@@ -1,11 +1,15 @@
+import java.time.Instant
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
+import failures.NotFoundFailure404
 import failures.ObjectFailures.ObjectContextNotFound
+import failures.ProductFailures.SkuNotFoundForContext
 import models.StoreAdmins
 import models.inventory.{Sku, Skus}
-import models.objects.{ObjectCommit, ObjectCommits, ObjectContexts, ObjectForms, ObjectShadows}
+import models.objects.{ObjectCommit, ObjectCommits, ObjectContext, ObjectContexts, ObjectForms, ObjectShadows}
 import models.product.{SimpleContext, SimpleSku, SimpleSkuShadow}
 import org.json4s.JsonDSL._
 import payloads.SkuPayloads.SkuPayload
@@ -14,6 +18,7 @@ import util.IntegrationTestBase
 import utils.Money.Currency
 import utils.aliases._
 import utils.db._
+import utils.time.RichInstant
 
 class SkuIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
 
@@ -92,6 +97,41 @@ class SkuIntegrationTest extends IntegrationTestBase with HttpSupport with Autom
 
       val salePrice = skuResponse.attributes \ "salePrice" \ "v" \ "value"
       salePrice.extract[Int] must === (9999)
+    }
+  }
+
+  "DELETE v1/products/:context/:id" - {
+    "Archives SKU successfully" in new Fixture {
+      val response = DELETE(s"v1/skus/${context.name}/${sku.code}")
+
+      response.status must === (StatusCodes.OK)
+
+      val result = response.as[SkuResponse.Root]
+      withClue(result.archivedAt.value → Instant.now) {
+        result.archivedAt.value.isBeforeNow === true
+      }
+    }
+
+    "SKU Albums must be unlinked" in new Fixture {
+      val response = DELETE(s"v1/skus/${context.name}/${sku.code}")
+
+      response.status must === (StatusCodes.OK)
+      val result = response.as[SkuResponse.Root]
+      result.albums mustBe empty
+    }
+
+    "Responds with NOT FOUND when SKU is requested with wrong code" in new Fixture {
+      val response = DELETE(s"v1/skus/${context.name}/666")
+
+      response.status must === (StatusCodes.NotFound)
+      response.error must === (SkuNotFoundForContext("666", context.id).description)
+    }
+
+    "Responds with NOT FOUND when SKU is requested with wrong context" in new Fixture {
+      val response = DELETE(s"v1/skus/donkeyContext/${sku.code}")
+
+      response.status must === (StatusCodes.NotFound)
+      response.error must === (ObjectContextNotFound("donkeyContext").description)
     }
   }
 

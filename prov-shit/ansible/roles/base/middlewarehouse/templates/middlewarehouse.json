@@ -6,7 +6,7 @@
         "checks": [
             {
                 "name": "Inventory API on port 9292",
-                "http": "http://localhost:9292/v1/ping",
+                "http": "http://localhost:9292/ping",
                 "interval": "30s",
                 "status": "passing"
             }

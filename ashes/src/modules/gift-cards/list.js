@@ -24,7 +24,7 @@ export function createGiftCard() {
     const postData = {
       balance: addingData.balance,
       subTypeId: addingData.subTypeId,
-      reasonId: 1, // @TODO: there only reason for now
+      reasonId: addingData.reasonId,
       currency: 'USD'
     };
     if (quantity > 1) {

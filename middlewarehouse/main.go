@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/FoxComm/middlewarehouse/common/db/config"
-	"github.com/FoxComm/middlewarehouse/routes"
+	"github.com/FoxComm/highlander/middlewarehouse/common/db/config"
+	"github.com/FoxComm/highlander/middlewarehouse/routes"
 
 	"github.com/gin-gonic/gin"
 )

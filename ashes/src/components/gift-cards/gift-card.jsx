@@ -16,7 +16,7 @@ import WaitAnimation from '../common/wait-animation';
 import { PageTitle } from '../section-title';
 import Panel from '../panel/panel';
 import {PanelList, PanelListItem} from '../panel/panel-list';
-import { Dropdown, DropdownItem } from '../dropdown';
+import { Dropdown } from '../dropdown';
 import LocalNav from '../local-nav/local-nav';
 import ConfirmationDialog from '../modal/confirmation-dialog';
 import State, { formattedStatus } from '../common/state';

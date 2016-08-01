@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/FoxComm/middlewarehouse/common"
-	"github.com/FoxComm/middlewarehouse/common/logging"
+	"github.com/FoxComm/highlander/middlewarehouse/common"
+	"github.com/FoxComm/highlander/middlewarehouse/common/logging"
 	"github.com/jinzhu/gorm"
 	_ "github.com/lib/pq" // Needed by gorm.
 )

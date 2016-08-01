@@ -1,0 +1,10 @@
+version: 0.1
+storage:
+  gcs:
+    bucket: {{docker_registry_bucket}}
+    rootdirectory: /
+http:
+    addr: 0.0.0.0:5000
+    tls:
+        certificate: /certs/domain.crt
+        key: /certs/domain.key

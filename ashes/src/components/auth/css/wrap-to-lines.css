@@ -1,0 +1,17 @@
+
+.block {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.line {
+  flex-grow: 1;
+  height: 1px;
+  background: #9ba3a7;
+  margin-top: 2px;
+}
+
+.content {
+  padding: 0 10px;
+}

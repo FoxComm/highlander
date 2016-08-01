@@ -3,10 +3,10 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/FoxComm/middlewarehouse/api/payloads"
-	"github.com/FoxComm/middlewarehouse/api/responses"
-	"github.com/FoxComm/middlewarehouse/models"
-	"github.com/FoxComm/middlewarehouse/services"
+	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
+	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
+	"github.com/FoxComm/highlander/middlewarehouse/models"
+	"github.com/FoxComm/highlander/middlewarehouse/services"
 
 	"github.com/gin-gonic/gin"
 )
@@ -55,12 +55,11 @@ func (controller *carrierController) GetCarrierByID() gin.HandlerFunc {
 
 		//get carrier by id
 		carrier, err := controller.service.GetCarrierByID(id)
-		if err != nil {
+		if err == nil {
+			context.JSON(http.StatusOK, responses.NewCarrierFromModel(carrier))
+		} else {
 			handleServiceError(context, err)
-			return
 		}
-
-		context.JSON(http.StatusOK, responses.NewCarrierFromModel(carrier))
 	}
 }
 
@@ -73,9 +72,9 @@ func (controller *carrierController) CreateCarrier() gin.HandlerFunc {
 		}
 
 		//try create
-		model := models.NewCarrierFromPayload(payload)
-		if id, err := controller.service.CreateCarrier(model); err == nil {
-			context.JSON(http.StatusCreated, id)
+		carrier, err := controller.service.CreateCarrier(models.NewCarrierFromPayload(payload))
+		if err == nil {
+			context.JSON(http.StatusCreated, responses.NewCarrierFromModel(carrier))
 		} else {
 			handleServiceError(context, err)
 		}
@@ -99,12 +98,13 @@ func (controller *carrierController) UpdateCarrier() gin.HandlerFunc {
 		//try update
 		model := models.NewCarrierFromPayload(payload)
 		model.ID = id
-		if err := controller.service.UpdateCarrier(model); err != nil {
-			handleServiceError(context, err)
-			return
-		}
+		carrier, err := controller.service.UpdateCarrier(model)
 
-		context.Writer.WriteHeader(http.StatusNoContent)
+		if err == nil {
+			context.JSON(http.StatusOK, responses.NewCarrierFromModel(carrier))
+		} else {
+			handleServiceError(context, err)
+		}
 	}
 }
 
@@ -115,11 +115,10 @@ func (controller *carrierController) DeleteCarrier() gin.HandlerFunc {
 			return
 		}
 
-		if err := controller.service.DeleteCarrier(id); err != nil {
+		if err := controller.service.DeleteCarrier(id); err == nil {
+			context.Status(http.StatusNoContent)
+		} else {
 			handleServiceError(context, err)
-			return
 		}
-
-		context.Writer.WriteHeader(http.StatusNoContent)
 	}
 }

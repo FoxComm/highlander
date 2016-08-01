@@ -1,7 +1,7 @@
 package failures
 
 import (
-	"github.com/FoxComm/middlewarehouse/api/responses"
+	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
 	"github.com/gin-gonic/gin"
 )
 

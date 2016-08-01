@@ -126,7 +126,7 @@ const reducer = createReducer({
     return assoc(state,
       'err', null,
       'isFetching', false,
-      'sku', configuredSku
+      'sku', configuredSku,
     );
   },
   [skuRequestFailure]: (state: SkuState) => {
@@ -144,7 +144,7 @@ const reducer = createReducer({
     return assoc(state,
       'err', null,
       'isUpdating', false,
-      'sku', configuredSku
+      'sku', configuredSku,
     );
   },
   [skuUpdateFailure]: (state: SkuState) => {
@@ -154,7 +154,7 @@ const reducer = createReducer({
     const error: HttpError = {
       status: _.get(err, 'response.status'),
       statusText: _.get(err, 'response.statusText', ''),
-      messages: _.get(err, 'responseJson.error', []),
+      messages: _.get(err, 'response.body.errors', []),
     };
 
     return assoc(state, 'err', error);

@@ -44,7 +44,7 @@ type Props = {
   actions: Actions,
   params: Params,
   details: Details,
-  submitErrors: Array<any>,
+  submitError: any,
   children: Element,
   fetchError: any,
   isFetching: bool,
@@ -208,7 +208,7 @@ class PromotionPage extends Component {
         </PageTitle>
         <SubNav promotionId={this.entityId} />
         <div styleName="promotion-details">
-          <ErrorAlerts errors={this.props.submitErrors} closeAction={actions.clearSubmitErrors} />
+          <ErrorAlerts error={this.props.submitError} closeAction={actions.clearSubmitErrors} />
           {children}
         </div>
       </div>
@@ -225,9 +225,9 @@ export default connect(
       _.get(state.asyncActions, 'createPromotion.inProgress', false)
       || _.get(state.asyncActions, 'updatePromotion.inProgress', false)
     ),
-    submitErrors: (
-      _.get(state.asyncActions, 'createPromotion.err.messages') ||
-      _.get(state.asyncActions, 'updatePromotion.err.messages')
+    submitError: (
+      _.get(state.asyncActions, 'createPromotion.err') ||
+      _.get(state.asyncActions, 'updatePromotion.err')
     )
   }),
   dispatch => ({

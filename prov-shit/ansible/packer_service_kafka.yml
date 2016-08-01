@@ -9,10 +9,10 @@
     packing: true
     search_host: elasticsearch.service.consul
     log_host: es-log.service.consul
+    zookeeper_server: "zookeeper.service.consul:2181"
 
   roles:
     - { role: base/rsyslog, sudo: yes }
     - { role: base/consul_agent }
-    - { role: base/zookeeper }
     - { role: base/kafka }
     - { role: base/schema-registry }
