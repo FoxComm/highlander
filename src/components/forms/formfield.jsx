@@ -43,6 +43,7 @@ export default class FormField extends Component {
     touched: false,
     isValid: true,
     submitted: false,
+    stopDebounced: false,
   };
 
   toggleBindToDispatcher(bind) {
@@ -92,6 +93,10 @@ export default class FormField extends Component {
   componentWillUnmount() {
     this.toggleBindToDispatcher(false);
     this.toggleBindToTarget(false);
+
+    this.setState({
+      stopDebounced: true,
+    });
   }
 
   @autobind
@@ -140,7 +145,7 @@ export default class FormField extends Component {
   }
 
   get hasError(): boolean {
-    return this.errors.length !== 0 || !this.state.isValid || !!this.props.error || !this.state.submitError;
+    return this.errors.length !== 0 || !this.state.isValid || !!this.props.error || !!this.state.submitError;
   }
 
   get readyToShowErrors() {
@@ -227,7 +232,7 @@ export default class FormField extends Component {
   handleChange({target}) {
     // validate only if field had touched once (or we have error for this field)
     // so we don't produce error if user start typing for example
-    if (this.state.touched || this.hasError) {
+    if (!this.state.stopDebounced && (this.state.touched || this.hasError)) {
       this.fullValidate(target);
     }
   }
