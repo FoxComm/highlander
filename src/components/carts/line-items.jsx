@@ -30,7 +30,6 @@ type Props = {
     isCheckingOut: boolean,
   },
   status: string,
-  readOnly: boolean,
 };
 
 type State = {
