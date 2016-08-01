@@ -20,14 +20,14 @@ func NewCarrierController(service services.ICarrierService) IController {
 }
 
 func (controller *carrierController) SetUp(router gin.IRouter) {
-	router.GET("", controller.GetCarriers())
-	router.GET(":id", controller.GetCarrierByID())
-	router.POST("", controller.CreateCarrier())
-	router.PUT(":id", controller.UpdateCarrier())
-	router.DELETE(":id", controller.DeleteCarrier())
+	router.GET("", controller.getCarriers())
+	router.GET(":id", controller.getCarriers())
+	router.POST("", controller.createCarrier())
+	router.PUT(":id", controller.updateCarrier())
+	router.DELETE(":id", controller.deleteCarrier())
 }
 
-func (controller *carrierController) GetCarriers() gin.HandlerFunc {
+func (controller *carrierController) getCarriers() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		carriers, err := controller.service.GetCarriers()
 		//ensure fetched successfully
@@ -45,7 +45,7 @@ func (controller *carrierController) GetCarriers() gin.HandlerFunc {
 	}
 }
 
-func (controller *carrierController) GetCarrierByID() gin.HandlerFunc {
+func (controller *carrierController) getCarrierByID() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		//get id from context
 		id, failure := paramUint(context, "id")
@@ -63,7 +63,7 @@ func (controller *carrierController) GetCarrierByID() gin.HandlerFunc {
 	}
 }
 
-func (controller *carrierController) CreateCarrier() gin.HandlerFunc {
+func (controller *carrierController) createCarrier() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		//try parse payload
 		payload := &payloads.Carrier{}
@@ -81,7 +81,7 @@ func (controller *carrierController) CreateCarrier() gin.HandlerFunc {
 	}
 }
 
-func (controller *carrierController) UpdateCarrier() gin.HandlerFunc {
+func (controller *carrierController) updateCarrier() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		//try parse payload
 		payload := &payloads.Carrier{}
@@ -108,7 +108,7 @@ func (controller *carrierController) UpdateCarrier() gin.HandlerFunc {
 	}
 }
 
-func (controller *carrierController) DeleteCarrier() gin.HandlerFunc {
+func (controller *carrierController) deleteCarrier() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		id, failure := paramUint(context, "id")
 		if failure != nil {

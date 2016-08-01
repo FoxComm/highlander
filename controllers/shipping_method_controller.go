@@ -20,14 +20,14 @@ func NewShippingMethodController(service services.IShippingMethodService) IContr
 }
 
 func (controller *shippingMethodController) SetUp(router gin.IRouter) {
-	router.GET("", controller.GetShippingMethods())
-	router.GET(":id", controller.GetShippingMethodByID())
-	router.POST("", controller.CreateShippingMethod())
-	router.PUT(":id", controller.UpdateShippingMethod())
-	router.DELETE(":id", controller.DeleteShippingMethod())
+	router.GET("", controller.getShippingMethods())
+	router.GET(":id", controller.getShippingMethodByID())
+	router.POST("", controller.createShippingMethod())
+	router.PUT(":id", controller.updateShippingMethod())
+	router.DELETE(":id", controller.deleteShippingMethod())
 }
 
-func (controller *shippingMethodController) GetShippingMethods() gin.HandlerFunc {
+func (controller *shippingMethodController) getShippingMethods() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		shippingMethods, err := controller.service.GetShippingMethods()
 		//ensure fetched successfully
@@ -45,7 +45,7 @@ func (controller *shippingMethodController) GetShippingMethods() gin.HandlerFunc
 	}
 }
 
-func (controller *shippingMethodController) GetShippingMethodByID() gin.HandlerFunc {
+func (controller *shippingMethodController) getShippingMethodByID() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		//get id from context
 		id, failure := paramUint(context, "id")
@@ -63,7 +63,7 @@ func (controller *shippingMethodController) GetShippingMethodByID() gin.HandlerF
 	}
 }
 
-func (controller *shippingMethodController) CreateShippingMethod() gin.HandlerFunc {
+func (controller *shippingMethodController) createShippingMethod() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		//try parse payload
 		payload := &payloads.ShippingMethod{}
@@ -81,7 +81,7 @@ func (controller *shippingMethodController) CreateShippingMethod() gin.HandlerFu
 	}
 }
 
-func (controller *shippingMethodController) UpdateShippingMethod() gin.HandlerFunc {
+func (controller *shippingMethodController) updateShippingMethod() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		//try parse payload
 		payload := &payloads.ShippingMethod{}
@@ -108,7 +108,7 @@ func (controller *shippingMethodController) UpdateShippingMethod() gin.HandlerFu
 	}
 }
 
-func (controller *shippingMethodController) DeleteShippingMethod() gin.HandlerFunc {
+func (controller *shippingMethodController) deleteShippingMethod() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		id, failure := paramUint(context, "id")
 		if failure != nil {
