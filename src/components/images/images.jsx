@@ -64,7 +64,7 @@ class Images extends Component {
   }
 
   @autobind
-  handleConfirmEditAlbum(name: string): void {
+  addNewAlbum(name: string): void {
     const { context, entityId } = this.props;
 
     this.props.addAlbum(context, entityId, { name, images: [] }).then(this.handleCancelEditAlbum);
@@ -75,7 +75,7 @@ class Images extends Component {
     this.setState({ newAlbumMode: false });
   }
 
-  get editAlbumDialog(): ?Element {
+  get newAlbumDialog(): ?Element {
     const album = { name: '', images: [] };
 
     return (
@@ -84,7 +84,8 @@ class Images extends Component {
                  album={album}
                  loading={this.props.addAlbumInProgress}
                  onCancel={this.handleCancelEditAlbum}
-                 onSave={this.handleConfirmEditAlbum}
+                 onSave={this.addNewAlbum}
+                 isNew={true}
       />
     );
   }
@@ -98,7 +99,7 @@ class Images extends Component {
 
     return (
       <div className={styles.images}>
-        {this.editAlbumDialog}
+        {this.newAlbumDialog}
         <div className={styles.header}>
           <AddButton onClick={this.handleAddAlbum}>Album</AddButton>
         </div>
