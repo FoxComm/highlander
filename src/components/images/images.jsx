@@ -34,7 +34,7 @@ export type Props = {
   fetchAlbums: (context: string, entityId: number) => Promise;
   addAlbum: (context: string, entityId: number, album: TAlbum) => Promise;
   editAlbum: (context: string, albumId: number, album: TAlbum) => Promise;
-  deleteAlbum: (context: string, albumId: number) => Promise;
+  archiveAlbum: (context: string, albumId: number) => Promise;
 };
 
 type State = {
@@ -111,7 +111,7 @@ class Images extends Component {
                    deleteImage={(idx: number) => this.props.deleteImage(context, album.id, idx)}
                    addAlbum={(album: TAlbum) => this.props.addAlbum(context, entityId, album)}
                    editAlbum={(album: TAlbum) => this.props.editAlbum(context, album.id, album)}
-                   deleteAlbum={(id: number) => this.props.deleteAlbum(context, id)}
+                   archiveAlbum={(id: number) => this.props.archiveAlbum(context, id)}
                    key={album.id}
             />
           );

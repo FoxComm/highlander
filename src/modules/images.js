@@ -111,8 +111,8 @@ export default function createImagesModule(entity: string): Module {
     }
   );
 
-  const _deleteAlbum = createAsyncActions(
-    actionPath(entity, 'deleteAlbum'),
+  const _archiveAlbum = createAsyncActions(
+    actionPath(entity, 'archiveAlbum'),
     (context:string, albumId:number) => {
       return Api.delete(`/albums/${context}/${albumId}`);
     }
@@ -162,8 +162,8 @@ export default function createImagesModule(entity: string): Module {
    * @param {String} context System context
    * @param {Number} albumId Album id
    */
-  const deleteAlbum = (context: string, albumId: number) => dispatch => {
-    return dispatch(_deleteAlbum.perform(context, albumId));
+  const archiveAlbum = (context: string, albumId: number) => dispatch => {
+    return dispatch(_archiveAlbum.perform(context, albumId));
   };
 
   /**
@@ -227,7 +227,7 @@ export default function createImagesModule(entity: string): Module {
       const idx = _.findIndex(state.albums, (album: TAlbum) => album.id === response.id);
       return assoc(state, ['albums', idx], response);
     },
-    [_deleteAlbum.succeeded]: (state: State, response: any) => {
+    [_archiveAlbum.succeeded]: (state: State, response: any) => {
       return assoc(state, ['albums'], state.albums);
     },
     [_uploadImages.started]: (state: State, [context, albumId, images]) => {
@@ -259,7 +259,7 @@ export default function createImagesModule(entity: string): Module {
       fetchAlbums,
       addAlbum,
       editAlbum,
-      deleteAlbum
+      archiveAlbum
     }
   };
 };

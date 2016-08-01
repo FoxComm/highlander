@@ -20,20 +20,20 @@ import Image from './image';
 import type { TAlbum, ImageFile, ImageInfo } from '../../modules/images';
 
 export type Props = {
-  album: TAlbum;
-  loading: boolean;
-  upload: (files: Array<ImageFile>) => Promise;
-  editImage: (idx: number, info: ImageInfo) => Promise;
-  deleteImage: (idx: number) => Promise;
-  addAlbum: (album: TAlbum) => Promise;
-  editAlbum: (album: TAlbum) => Promise;
-  deleteAlbum: () => Promise;
+  album: TAlbum,
+  loading: boolean,
+  upload: (files: Array<ImageFile>) => Promise,
+  editImage: (idx: number, info: ImageInfo) => Promise,
+  deleteImage: (idx: number) => Promise,
+  addAlbum: (album: TAlbum) => Promise,
+  editAlbum: (album: TAlbum) => Promise,
+  archiveAlbum: () => Promise,
 };
 
 type State = {
-  editMode: boolean;
-  deleteMode: boolean;
-}
+  editMode: boolean,
+  deleteMode: boolean,
+};
 
 export default class Album extends Component {
   static props: Props;
@@ -102,7 +102,7 @@ export default class Album extends Component {
 
   @autobind
   handleConfirmDeleteAlbum(): void {
-    this.props.deleteAlbum(this.props.album.id);
+    this.props.archiveAlbum(this.props.album.id);
 
     this.setState({ deleteMode: false });
   }
@@ -143,10 +143,10 @@ export default class Album extends Component {
     const body = (
       <div>
         <Alert type="warning">
-          Deleting this album will delete <strong>{album.images.length} images</strong> from the product.
+          Archiving this album will delete <strong>{album.images.length} images</strong> from the product.
         </Alert>
         <span>
-          Are you sure you want to delete <strong>{album.name}</strong> album?
+          Are you sure you want to archive <strong>{album.name}</strong> album?
         </span>
       </div>
     );
@@ -154,10 +154,10 @@ export default class Album extends Component {
     return (
       <ConfirmationDialog className={styles.modal}
                           isVisible={this.state.deleteMode}
-                          header='Delete Album'
+                          header='Archive Album'
                           body={body}
                           cancel='Cancel'
-                          confirm='Yes, Delete'
+                          confirm='Yes, Archive'
                           cancelAction={this.handleCancelDeleteAlbum}
                           confirmAction={this.handleConfirmDeleteAlbum}
       />
