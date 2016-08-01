@@ -28,11 +28,12 @@ export type Props = {
   addAlbum: (album: TAlbum) => Promise,
   editAlbum: (album: TAlbum) => Promise,
   archiveAlbum: () => Promise,
+  fetchAlbums: () => Promise,
 };
 
 type State = {
   editMode: boolean,
-  deleteMode: boolean,
+  archiveMode: boolean,
 };
 
 export default class Album extends Component {
@@ -44,7 +45,7 @@ export default class Album extends Component {
 
   state: State = {
     editMode: false,
-    deleteMode: false,
+    archiveMode: false,
   };
 
   _uploadRef: Upload;
@@ -91,20 +92,21 @@ export default class Album extends Component {
   }
 
   @autobind
-  handleDeleteAlbum(): void {
-    this.setState({ deleteMode: true });
+  handleArchiveAlbum(): void {
+    this.setState({ archiveMode: true });
   }
 
   @autobind
-  handleCancelDeleteAlbum(): void {
-    this.setState({ deleteMode: false });
+  handleCancelArchiveAlbum(): void {
+    this.setState({ archiveMode: false });
   }
 
   @autobind
-  handleConfirmDeleteAlbum(): void {
-    this.props.archiveAlbum(this.props.album.id);
+  handleConfirmArchiveAlbum(): void {
+    this.props.archiveAlbum(this.props.album.id)
+      .then(this.props.fetchAlbums);
 
-    this.setState({ deleteMode: false });
+    this.setState({ archiveMode: false });
   }
 
   @autobind
@@ -137,7 +139,7 @@ export default class Album extends Component {
     );
   }
 
-  get deleteAlbumDialog(): ?Element {
+  get archiveAlbumDialog(): ?Element {
     const album = this.props.album;
 
     const body = (
@@ -153,13 +155,13 @@ export default class Album extends Component {
 
     return (
       <ConfirmationDialog className={styles.modal}
-                          isVisible={this.state.deleteMode}
+                          isVisible={this.state.archiveMode}
                           header='Archive Album'
                           body={body}
                           cancel='Cancel'
                           confirm='Yes, Archive'
-                          cancelAction={this.handleCancelDeleteAlbum}
-                          confirmAction={this.handleConfirmDeleteAlbum}
+                          cancelAction={this.handleCancelArchiveAlbum}
+                          confirmAction={this.handleConfirmArchiveAlbum}
       />
     );
   }
@@ -169,7 +171,7 @@ export default class Album extends Component {
     return [
       { name: 'add', handler: this.handleAddImages },
       { name: 'edit', handler: this.handleEditAlbum },
-      { name: 'trash', handler: this.handleDeleteAlbum },
+      { name: 'trash', handler: this.handleArchiveAlbum },
     ];
   }
 
@@ -210,7 +212,7 @@ export default class Album extends Component {
     return (
       <div>
         {this.editAlbumDialog}
-        {this.deleteAlbumDialog}
+        {this.archiveAlbumDialog}
         <Accordion title={album.name}
                    titleWrapper={(title: string) => this.renderTitle(title, album.images.length)}
                    placeholder="Album Name"

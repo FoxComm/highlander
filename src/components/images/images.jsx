@@ -114,6 +114,7 @@ class Images extends Component {
                    editAlbum={(album: TAlbum) => this.props.editAlbum(context, album.id, album)}
                    archiveAlbum={(id: number) => this.props.archiveAlbum(context, id)}
                    key={album.id}
+                   fetchAlbums={() => this.props.fetchAlbums(context, entityId)}
             />
           );
         })}
