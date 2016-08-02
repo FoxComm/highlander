@@ -21,7 +21,7 @@ func NewCarrierController(service services.ICarrierService) IController {
 
 func (controller *carrierController) SetUp(router gin.IRouter) {
 	router.GET("", controller.getCarriers())
-	router.GET(":id", controller.getCarriers())
+	router.GET(":id", controller.getCarrierByID())
 	router.POST("", controller.createCarrier())
 	router.PUT(":id", controller.updateCarrier())
 	router.DELETE(":id", controller.deleteCarrier())
