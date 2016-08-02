@@ -10,7 +10,6 @@ import Extensions._
 import cats.implicits._
 import failures.ArchiveFailures.AddImagesToArchivedAlbumFailure
 import failures.ImageFailures._
-import failures.NotFoundFailure404
 import failures.ObjectFailures._
 import models.StoreAdmins
 import models.image._
@@ -81,46 +80,47 @@ class ImageIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
     }
 
     "POST v1/albums/:context" - {
-      "Create an album with no images" in new Fixture {
-        val payload  = CreateAlbumPayload(name = "Empty album", position = Some(1))
-        val response = POST(s"v1/albums/${context.name}", payload)
-        response.status must === (StatusCodes.OK)
+      "Creates an album with" - {
+        "no images" in new Fixture {
+          val payload  = CreateAlbumPayload(name = "Empty album", position = Some(1))
+          val response = POST(s"v1/albums/${context.name}", payload)
+          response.status must === (StatusCodes.OK)
 
-        val albumResponse = response.as[AlbumRoot]
-        albumResponse.images.length must === (0)
-        albumResponse.position must === (Some(1))
+          val albumResponse = response.as[AlbumRoot]
+          albumResponse.images.length must === (0)
+        }
+
+        "one image" in new Fixture {
+          val payload = CreateAlbumPayload(name = "Non-empty album",
+                                           images = Seq(ImagePayload(src = "url")).some)
+          val response = POST(s"v1/albums/${context.name}", payload)
+          response.status must === (StatusCodes.OK)
+
+          val albumResponse = response.as[AlbumRoot]
+          albumResponse.images.length must === (1)
+        }
+
+        "multiple images" in new Fixture {
+          val payload =
+            CreateAlbumPayload(name = "Non-empty album",
+                               images =
+                                 Seq(ImagePayload(src = "url"), ImagePayload(src = "url2")).some)
+
+          val response = POST(s"v1/albums/${context.name}", payload)
+          response.status must === (StatusCodes.OK)
+          val albumResponse = response.as[AlbumRoot]
+          albumResponse.images.map(_.src) must === (payload.images.get.map(_.src))
+
+          val response2 = POST(s"v1/albums/${context.name}",
+                               payload.copy(images = payload.images.map(_.reverse)))
+          response2.status must === (StatusCodes.OK)
+          val albumResponse2 = response2.as[AlbumRoot]
+          albumResponse2.images.map(_.src) must === (payload.images.get.map(_.src).reverse)
+
+        }
       }
 
-      "Create an album with one image" in new Fixture {
-        val payload = CreateAlbumPayload(name = "Non-empty album",
-                                         images = Seq(ImagePayload(src = "url")).some)
-        val response = POST(s"v1/albums/${context.name}", payload)
-        response.status must === (StatusCodes.OK)
-
-        val albumResponse = response.as[AlbumRoot]
-        albumResponse.images.length must === (1)
-      }
-
-      "Create an album with multiple images" in new Fixture {
-        val payload =
-          CreateAlbumPayload(name = "Non-empty album",
-                             images =
-                               Seq(ImagePayload(src = "url"), ImagePayload(src = "url2")).some)
-
-        val response = POST(s"v1/albums/${context.name}", payload)
-        response.status must === (StatusCodes.OK)
-        val albumResponse = response.as[AlbumRoot]
-        albumResponse.images.map(_.src) must === (payload.images.get.map(_.src))
-
-        val response2 =
-          POST(s"v1/albums/${context.name}", payload.copy(images = payload.images.map(_.reverse)))
-        response2.status must === (StatusCodes.OK)
-        val albumResponse2 = response2.as[AlbumRoot]
-        albumResponse2.images.map(_.src) must === (payload.images.get.map(_.src).reverse)
-
-      }
-
-      "Create an album fails if id is specified" in new Fixture {
+      "Fails if id  for image is specified" in new Fixture {
         val payload =
           CreateAlbumPayload(name = "Non-empty album",
                              images = Seq(ImagePayload(id = Some(1), src = "url")).some)
@@ -169,7 +169,7 @@ class ImageIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
         albumResponse.images.map(_.id).toSet.size must === (2)
       }
 
-      "saves image order" in new Fixture {
+      "Saves image order" in new Fixture {
         private val newImageSrc: String = "http://test.it/test.png"
         val moreImages                  = Seq(testPayload, ImagePayload(src = newImageSrc))
         val payload                     = UpdateAlbumPayload(images = moreImages.some)
@@ -187,16 +187,6 @@ class ImageIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
         val albumResponse2 = response2.as[AlbumRoot]
         albumResponse2.images(0).src must === (newImageSrc)
         albumResponse2.images(1).src must === (testPayload.src)
-      }
-
-      "Updates the `position` parameter" in new Fixture {
-        val payload = UpdateAlbumPayload(position = Some(1))
-
-        val response = PATCH(s"v1/albums/${context.name}/${album.formId}", payload)
-        response.status must === (StatusCodes.OK)
-
-        val albumResponse = response.as[AlbumRoot]
-        albumResponse.position must === (Some(1))
       }
 
       "Update the album fails on image id duplications" in new Fixture {
@@ -233,15 +223,64 @@ class ImageIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
     "POST v1/products/:context/:id/albums" - {
       "Creates a new album on an existing product" in new ProductFixture {
         val payload =
-          CreateAlbumPayload(name = "Simple Album", images = Seq(ImagePayload(src = "url")).some)
+          CreateAlbumPayload(name = testAlbumName, images = Seq(ImagePayload(src = "url")).some)
         val response = POST(s"v1/products/${context.name}/${prodForm.id}/albums", payload)
         response.status must === (StatusCodes.OK)
         val albumResponse = response.as[AlbumRoot]
 
         albumResponse.images.length must === (1)
 
-        albumResponse.name must === ("Simple Album")
+        albumResponse.name must === (testAlbumName)
         albumResponse.images.head.src must === ("url")
+      }
+
+      "Puts new album at the end" in new ProductFixture {
+        val payload =
+          CreateAlbumPayload(name = testAlbumName, images = Seq(ImagePayload(src = "url")).some)
+        val response =
+          POST(s"v1/products/${context.name}/${prodForm.id}/albums", payload.copy(name = "1"))
+        response.status must === (StatusCodes.OK)
+        val response2 =
+          POST(s"v1/products/${context.name}/${prodForm.id}/albums", payload.copy(name = "2"))
+        response2.status must === (StatusCodes.OK)
+
+        val getAlbumsResponse = GET(s"v1/products/${context.name}/${prodForm.id}/albums")
+        getAlbumsResponse.status must === (StatusCodes.OK)
+        val albums = getAlbumsResponse.as[Seq[AlbumRoot]]
+
+        albums.map(_.name) must === (Seq(testAlbumName, "1", "2"))
+      }
+    }
+
+    "POST products/:context/:productId/albums/position" - {
+      "updates album position" in new ProductFixture {
+        val payload = CreateAlbumPayload(name = "1", images = Seq(ImagePayload(src = "url")).some)
+
+        (1 to 2).map { name ⇒
+          POST(s"v1/products/${context.name}/${prodForm.id}/albums",
+               payload.copy(name = name.toString)).status
+        } must contain only StatusCodes.OK
+
+        val originalOrder: Seq[String] = Seq(testAlbumName, "1", "2")
+        val expectedOrder: Seq[String] = Seq("2", "1", testAlbumName)
+
+        val getAlbumsResponse = GET(s"v1/products/${context.name}/${prodForm.id}/albums")
+        val albums            = getAlbumsResponse.as[Seq[AlbumRoot]]
+
+        albums.map(_.name) must === (originalOrder)
+
+        val postPositionResponse =
+          POST(s"v1/products/${context.name}/${prodForm.id}/albums/position",
+               UpdateAlbumPositionPayload(albums.last.id, 0))
+
+        postPositionResponse.status must === (StatusCodes.OK)
+        postPositionResponse.as[Seq[AlbumRoot]].map(_.name) must === (expectedOrder)
+
+        val getAlbumsResponse2 = GET(s"v1/products/${context.name}/${prodForm.id}/albums")
+        getAlbumsResponse2.status must === (StatusCodes.OK)
+        val albums2 = getAlbumsResponse2.as[Seq[AlbumRoot]]
+
+        albums2.map(_.name) must === (expectedOrder)
       }
     }
 
@@ -253,7 +292,7 @@ class ImageIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
         val albumResponse = response.as[Seq[AlbumRoot]].headOption.value
         albumResponse.images.length must === (1)
 
-        albumResponse.name must === ("Sample Album")
+        albumResponse.name must === (testAlbumName)
         albumResponse.images.head.src must === ("http://lorem.png")
       }
 
@@ -459,7 +498,8 @@ class ImageIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
       ("src" → "http://lorem.png") ~ ("title" → "lorem.png") ~ ("alt" → "Lorem Ipsum")
     val testPayload = imageJson.extract[ImagePayload]
 
-    val albumFormAttrs   = "name" → "Sample Album"
+    val testAlbumName    = "Sample Album"
+    val albumFormAttrs   = "name" → testAlbumName
     val albumShadowAttrs = createShadowAttr("name", "string")
 
     val form   = ObjectForm(kind = Album.kind, attributes = albumFormAttrs)

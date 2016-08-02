@@ -37,6 +37,6 @@ object PromotionDiscountLinks
 
   val returningLens: Lens[PromotionDiscountLink, Int] = lens[PromotionDiscountLink].id
 
-  def mkLink(left: Promotion, right: Discount) =
+  def build(left: Promotion, right: Discount) =
     PromotionDiscountLink(leftId = left.id, rightId = right.id)
 }

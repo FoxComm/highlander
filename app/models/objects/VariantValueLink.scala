@@ -36,6 +36,6 @@ object VariantValueLinks
 
   val returningLens: Lens[VariantValueLink, Int] = lens[VariantValueLink].id
 
-  def mkLink(left: Variant, right: VariantValue) =
+  def build(left: Variant, right: VariantValue) =
     VariantValueLink(leftId = left.id, rightId = right.id)
 }
