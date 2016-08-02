@@ -16,9 +16,9 @@ type Shipment struct {
 	TrackingNumber   string             `json:"trackingNumber"`
 }
 
-func NewShipmentFromModel(model *models.Shipment) Shipment {
+func NewShipmentFromModel(model *models.Shipment) *Shipment {
 
-	shipment := Shipment{
+	shipment := &Shipment{
 		ID:               model.ID,
 		ShippingMethodID: model.ShippingMethodID,
 		ReferenceNumber:  model.ReferenceNumber,
