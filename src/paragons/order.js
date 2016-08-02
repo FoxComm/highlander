@@ -84,7 +84,6 @@ function collectLineItems(skus: Array<SkuItem>): Array<SkuItem> {
 export default class OrderParagon {
   constructor(order) {
     Object.assign(this, order);
-    this.orderState = order.orderState;
     const skus = _.get(order, 'lineItems.skus');
     if (skus) {
       this.lineItems.skus = collectLineItems(skus);

@@ -22,7 +22,6 @@ export default class CartShippingAddress extends Component {
   constructor(...args) {
     super(...args);
 
-    // TODO: Move this out of React state.
     this.state = {
       isEditing: false,
     };

@@ -20,13 +20,8 @@ const _fetchCustomerCart = createAsyncActions(
   (customerId: number) => Api.get(`/customers/${customerId}/cart`)
 );
 
-export function fetchCart(refNum: string): Function {
-  return dispatch => dispatch(_fetchCart.perform(refNum));
-}
-
-export function fetchCustomerCart(customerId: number): Function {
-  return dispatch => dispatch(_fetchCustomerCart.perform(customerId));
-}
+export const fetchCart = _fetchCart.perform;
+export const fetchCustomerCart = _fetchCustomerCart.perform;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Line Item Actions
@@ -38,12 +33,12 @@ const _updateLineItemCount = createAsyncActions(
 
 export function updateLineItemCount(refNum: string, sku: string, quantity: number): Function {
   const payload = [{ sku, quantity }];
-  return dispatch => dispatch(_updateLineItemCount.perform(refNum, payload));
+  return _updateLineItemCount.perform(refNum, payload);
 }
 
 export function deleteLineItem(refNum: string, sku: string): Function {
   const payload = [{ sku, quantity: 0 }];
-  return dispatch => dispatch(_updateLineItemCount.perform(refNum, payload));
+  return _updateLineItemCount.perform(refNum, payload);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -69,21 +64,10 @@ const _deleteShippingAddress = createAsyncActions(
   (refNum: string) => Api.delete(`/orders/${refNum}/shipping-address`)
 );
 
-export function chooseShippingAddress(refNum: string, addressId: number): Function {
-  return dispatch => dispatch(_chooseShippingAddress.perform(refNum, addressId));
-}
-
-export function createShippingAddress(refNum: string, payload: Object): Function {
-  return dispatch => dispatch(_createShippingAddress.perform(refNum, payload));
-}
-
-export function updateShippingAddress(refNum: string, payload: Object): Function {
-  return dispatch => dispatch(_updateShippingAddress.perform(refNum, payload));
-}
-
-export function deleteShippingAddress(refNum: string): Function {
-  return dispatch => dispatch(_deleteShippingAddress.perform(refNum));
-}
+export const chooseShippingAddress = _chooseShippingAddress.perform;
+export const createShippingAddress = _createShippingAddress.perform;
+export const updateShippingAddress = _updateShippingAddress.perform;
+export const deleteShippingADdress = _deleteShippingAddress.perform;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Shipping Method Actions
@@ -96,9 +80,7 @@ const _updateShippingMethod = createAsyncActions(
   }
 );
 
-export function updateShippingMethod(refNum: string, shippingMethodId: number): Function {
-  return dispatch => dispatch(_updateShippingMethod.perform(refNum, shippingMethodId));
-}
+export const updateShippingMethod = _updateShippingMethod.perform;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Payment Method Actions
@@ -152,33 +134,13 @@ const _deleteStoreCreditPayment = createAsyncActions(
   (refNum: string) => Api.delete(`${paymentsBasePath(refNum)}/store-credit`)
 );
 
-export function selectCreditCard(refNum: string, creditCardId: number): Function {
-  return dispatch => dispatch(_selectCreditCard.perform(refNum, creditCardId));
-}
-
-export function setStoreCreditPayment(refNum: string, amount: number): Function {
-  return dispatch => dispatch(_setStoreCreditPayment.perform(refNum, amount));
-}
-
-export function addGiftCardPayment(refNum: string, code: string, amount: number): Function {
-  return dispatch => dispatch(_addGiftCardPayment.perform(refNum, code, amount));
-}
-
-export function editGiftCardPayment(refNum: string, code: string, amount: number): Function {
-  return dispatch => dispatch(_editGiftCardPayment.perform(refNum, code, amount));
-}
-
-export function deleteCreditCardPayment(refNum: string): Function {
-  return dispatch => dispatch(_deleteCreditCardPayment.perform(refNum));
-}
-
-export function deleteGiftCardPayment(refNum: string, code: string): Function {
-  return dispatch => dispatch(_deleteGiftCardPayment.perform(refNum, code));
-}
-
-export function deleteStoreCreditPayment(refNum: string): Function {
-  return dispatch => dispatch(_deleteStoreCreditPayment.perform(refNum));
-}
+export const selectCreditCard = _selectCreditCard.perform;
+export const setStoreCreditPayment = _setStoreCreditPayment.perform;
+export const addGiftCardPayment = _addGiftCardPayment.perform;
+export const editGiftCardPayment = _editGiftCardPayment.perform;
+export const deleteCreditCardPayment = _deleteCreditCardPayment.perform;
+export const deleteGiftCardPayment = _deleteGiftCardPayment.perform;
+export const deleteStoreCreditPayment = _deleteStoreCreditPayment.perform;
 
 function paymentsBasePath(refNum: string): string {
   return `/orders/${refNum}/payment-methods`;
@@ -193,8 +155,9 @@ const _checkout = createAsyncActions(
 );
 
 export function checkout(refNum: string): Function {
-  return dispatch => dispatch(_checkout.perform(refNum))
-    .then(order => transitionTo('order', { order: refNum }));
+  return dispatch => dispatch(_checkout.perform(refNum)).then(() => {
+    transitionTo('order', { order: refNum });
+  });
 }
 
 function parseMessages(messages, state) {
@@ -262,22 +225,22 @@ function receiveCart(state, payload) {
 }
 
 const reducer = createReducer({
-  [_fetchCart.succeeded]: (state, cart) => receiveCart(state, cart),
-  [_fetchCustomerCart.succeeded]: (state, cart) => receiveCart(state, cart),
-  [_updateLineItemCount.succeeded]: (state, cart) => receiveCart(state, cart),
-  [_chooseShippingAddress.succeeded]: (state, cart) => receiveCart(state, cart),
-  [_createShippingAddress.succeeded]: (state, cart) => receiveCart(state, cart),
-  [_updateShippingAddress.succeeded]: (state, cart) => receiveCart(state, cart),
-  [_deleteShippingAddress.succeeded]: (state, cart) => receiveCart(state, cart),
-  [_updateShippingMethod.succeeded]: (state, order) => receiveCart(state, order),
-  [_selectCreditCard.succeeded]: (state, cart) => receiveCart(state, cart),
-  [_setStoreCreditPayment.succeeded]: (state, cart) => receiveCart(state, cart),
-  [_addGiftCardPayment.succeeded]: (state, cart) => receiveCart(state, cart),
-  [_editGiftCardPayment.succeeded]: (state, cart) => receiveCart(state, cart),
-  [_deleteCreditCardPayment.succeeded]: (state, cart) => receiveCart(state, cart),
-  [_deleteGiftCardPayment.succeeded]: (state, cart) => receiveCart(state, cart),
-  [_deleteStoreCreditPayment.succeeded]: (state, cart) => receiveCart(state, cart),
-  [_checkout.succeeded]: (state, cart) => receiveCart(state, cart),
+  [_fetchCart.succeeded]: receiveCart,
+  [_fetchCustomerCart.succeeded]: receiveCart,
+  [_updateLineItemCount.succeeded]: receiveCart,
+  [_chooseShippingAddress.succeeded]: receiveCart,
+  [_createShippingAddress.succeeded]: receiveCart,
+  [_updateShippingAddress.succeeded]: receiveCart,
+  [_deleteShippingAddress.succeeded]: receiveCart,
+  [_updateShippingMethod.succeeded]: receiveCart,
+  [_selectCreditCard.succeeded]: receiveCart,
+  [_setStoreCreditPayment.succeeded]: receiveCart,
+  [_addGiftCardPayment.succeeded]: receiveCart,
+  [_editGiftCardPayment.succeeded]: receiveCart,
+  [_deleteCreditCardPayment.succeeded]: receiveCart,
+  [_deleteGiftCardPayment.succeeded]: receiveCart,
+  [_deleteStoreCreditPayment.succeeded]: receiveCart,
+  [_checkout.succeeded]: receiveCart,
 }, initialState);
 
 export default reducer;

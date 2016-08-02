@@ -39,8 +39,8 @@ function orderSucceeded(state: State, payload: Object): State {
 }
 
 const reducer = createReducer({
-  [_getOrder.succeeded]: (state, payload) => orderSucceeded(state, payload),
-  [_updateOrder.succeeded]: (state, payload) => orderSucceeded(state, payload),
+  [_getOrder.succeeded]: orderSucceeded,
+  [_updateOrder.succeeded]: orderSucceeded,
 }, initialState);
 
 export default reducer;
