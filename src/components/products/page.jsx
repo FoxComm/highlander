@@ -20,7 +20,7 @@ import { PrimaryButton } from '../common/buttons';
 import ErrorAlerts from 'components/alerts/error-alerts';
 import SubNav from './sub-nav';
 import WaitAnimation from '../common/wait-animation';
-import ArchiveActionsSection from '../arcive-actions/archive-actions';
+import ArchiveActionsSection from '../archive-actions/archive-actions';
 
 import styles from './page.css';
 

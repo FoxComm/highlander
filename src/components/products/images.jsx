@@ -5,6 +5,7 @@ import _ from 'lodash';
 import React, { Component, Element, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
+// actions
 import { actions } from '../../modules/products/images';
 
 // components
@@ -15,12 +16,12 @@ import Images from '../images/images';
 import type { Props as ImagesProps } from '../images/images';
 
 type Params = {
-  productId: number;
-  context: string;
+  productId: number,
+  context: string,
 };
 
 type Props = ImagesProps & {
-  params: Params;
+  params: Params,
 };
 
 class ProductImages extends Component {
