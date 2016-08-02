@@ -16,7 +16,7 @@ type Shipment struct {
 	TrackingNumber   string             `json:"trackingNumber"`
 }
 
-func NewShipmentFromModel(model *models.Shipment, lineItems []*models.ShipmentLineItem, address *models.Address) Shipment {
+func NewShipmentFromModel(model *models.Shipment) Shipment {
 
 	shipment := Shipment{
 		ID:               model.ID,
@@ -36,12 +36,6 @@ func NewShipmentFromModel(model *models.Shipment, lineItems []*models.ShipmentLi
 	if model.DeliveredDate.Valid {
 		shipment.DeliveredDate = model.DeliveredDate.String
 	}
-
-	for _, lineItem := range lineItems {
-		shipment.LineItems = append(shipment.LineItems, *NewShipmentLineItemFromModel(lineItem))
-	}
-
-	shipment.Address = *NewAddressFromModel(address)
 
 	return shipment
 }
