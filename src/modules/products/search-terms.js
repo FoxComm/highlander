@@ -5,7 +5,7 @@
 const searchTerms = [
   {
     title: 'Product : ID',
-    type: 'term',
+    type: 'identifier',
     term: 'productId',
   },
   {
@@ -27,7 +27,7 @@ const searchTerms = [
     title: 'Product : Archived At',
     type: 'date',
     term: 'archivedAt',
-  },
+  }
 ];
 
 export default searchTerms;

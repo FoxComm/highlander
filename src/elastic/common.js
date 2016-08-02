@@ -100,7 +100,7 @@ function createFilter(filter) {
         type: 'phrase',
       });
     case 'identifier':
-      return rangeToFilter(term, operator, value.toLowerCase());
+      return rangeToFilter(term, operator, value.toUpperCase());
     case 'date':
       return dateRangeFilter(term, operator, value);
     case 'exists':
