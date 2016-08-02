@@ -76,19 +76,19 @@ func (suite *shipmentControllerTestSuite) Test_GetShipmentByID_NotFound_ReturnsN
 
 func (suite *shipmentControllerTestSuite) Test_GetShipmentByID_Found_ReturnsRecord() {
 	//arrange
-	shipment1 := suite.getTestShipment1()
+	shipment1 := suite.getTestShipment1(uint(1))
 	suite.shipmentService.On("GetShipmentByID", uint(1)).Return(shipment1, nil).Once()
-	address1 := suite.getTestAddess1()
+	address1 := suite.getTestAddess1(uint(1))
 	suite.addressService.On("GetAddressByID", uint(1)).Return(address1, nil).Once()
-	shipmentLineItem1 := suite.getTestShipmentLineItem1()
-	shipmentLineItem2 := suite.getTestShipmentLineItem2()
+	shipmentLineItem1 := suite.getTestShipmentLineItem1(uint(1), shipment1.ID)
+	shipmentLineItem2 := suite.getTestShipmentLineItem2(uint(2), shipment1.ID)
 	suite.shipmentLineItemService.On("GetShipmentLineItemsByShipmentID", uint(1)).Return([]*models.ShipmentLineItem{
 		shipmentLineItem1,
 		shipmentLineItem2,
 	}, nil).Once()
-	shipmentTransaction1 := suite.getTestShipmentTransaction1(shipment1.ID)
-	shipmentTransaction2 := suite.getTestShipmentTransaction2(shipment1.ID)
-	shipmentTransaction3 := suite.getTestShipmentTransaction3(shipment1.ID)
+	shipmentTransaction1 := suite.getTestShipmentTransaction1(uint(1), shipment1.ID)
+	shipmentTransaction2 := suite.getTestShipmentTransaction2(uint(1), shipment1.ID)
+	shipmentTransaction3 := suite.getTestShipmentTransaction3(uint(1), shipment1.ID)
 	suite.shipmentTransactionService.On("GetShipmentTransactionsByShipmentID", uint(1)).Return([]*models.ShipmentTransaction{
 		shipmentTransaction1,
 		shipmentTransaction2,
@@ -113,52 +113,52 @@ func (suite *shipmentControllerTestSuite) Test_GetShipmentByID_Found_ReturnsReco
 	suite.shipmentService.AssertExpectations(suite.T())
 }
 
-func (suite *shipmentControllerTestSuite) getTestShipment1() *models.Shipment {
-	return &models.Shipment{gormfox.Base{ID: uint(1)}, uint(1), "BR10007", "pending",
+func (suite *shipmentControllerTestSuite) getTestShipment1(id uint) *models.Shipment {
+	return &models.Shipment{gormfox.Base{ID: id}, uint(1), "BR10007", "pending",
 		sql.NullString{}, sql.NullString{}, sql.NullString{}, uint(1), sql.NullString{}}
 }
 
-func (suite *shipmentControllerTestSuite) getTestShipment2() *models.Shipment {
-	return &models.Shipment{gormfox.Base{ID: uint(2)}, uint(2), "BR10008", "delivered",
+func (suite *shipmentControllerTestSuite) getTestShipment2(id uint) *models.Shipment {
+	return &models.Shipment{gormfox.Base{ID: id}, uint(2), "BR10008", "delivered",
 		sql.NullString{}, sql.NullString{}, sql.NullString{}, uint(1), sql.NullString{}}
 }
 
-func (suite *shipmentControllerTestSuite) getTestAddess1() *models.Address {
-	return &models.Address{gormfox.Base{ID: uint(1)}, "Home address", uint(1), "Texas", "75231",
+func (suite *shipmentControllerTestSuite) getTestAddess1(id uint) *models.Address {
+	return &models.Address{gormfox.Base{ID: id}, "Home address", uint(1), "Texas", "75231",
 		"Some st, 335", sql.NullString{String: "", Valid: false}, "19527352893"}
 }
 
-func (suite *shipmentControllerTestSuite) getTestAddess2() *models.Address {
-	return &models.Address{gormfox.Base{ID: uint(2)}, "Another address", uint(1), "Florida", "31223",
+func (suite *shipmentControllerTestSuite) getTestAddess2(id uint) *models.Address {
+	return &models.Address{gormfox.Base{ID: id}, "Another address", uint(1), "Florida", "31223",
 		"Other st, 235", sql.NullString{String: "", Valid: false}, "18729327642"}
 }
 
-func (suite *shipmentControllerTestSuite) getTestShipmentLineItem1() *models.ShipmentLineItem {
-	return &models.ShipmentLineItem{gormfox.Base{ID: uint(1)}, uint(1), "AR001", "SKU-TEST1", "Some Name",
+func (suite *shipmentControllerTestSuite) getTestShipmentLineItem1(id uint, shipmentID uint) *models.ShipmentLineItem {
+	return &models.ShipmentLineItem{gormfox.Base{ID: id}, shipmentID, "AR001", "SKU-TEST1", "Some Name",
 		uint(4999), "https://test.com/image1.png", "pending"}
 }
 
-func (suite *shipmentControllerTestSuite) getTestShipmentLineItem2() *models.ShipmentLineItem {
-	return &models.ShipmentLineItem{gormfox.Base{ID: uint(2)}, uint(2), "AR002", "SKU-TEST2", "Some other Name",
+func (suite *shipmentControllerTestSuite) getTestShipmentLineItem2(id uint, shipmentID uint) *models.ShipmentLineItem {
+	return &models.ShipmentLineItem{gormfox.Base{ID: id}, shipmentID, "AR002", "SKU-TEST2", "Some other Name",
 		uint(5999), "https://test.com/image2.png", "shipped"}
 }
 
-func (suite *shipmentControllerTestSuite) getTestShipmentLineItem3() *models.ShipmentLineItem {
-	return &models.ShipmentLineItem{gormfox.Base{ID: uint(3)}, uint(2), "AR003", "SKU-TEST3", "Other Name",
+func (suite *shipmentControllerTestSuite) getTestShipmentLineItem3(id uint, shipmentID uint) *models.ShipmentLineItem {
+	return &models.ShipmentLineItem{gormfox.Base{ID: id}, shipmentID, "AR003", "SKU-TEST3", "Other Name",
 		uint(6999), "https://test.com/image3.png", "delivered"}
 }
 
-func (suite *shipmentControllerTestSuite) getTestShipmentTransaction1(shipmentID uint) *models.ShipmentTransaction {
-	return &models.ShipmentTransaction{uint(1), shipmentID, models.TransactionCreditCard,
+func (suite *shipmentControllerTestSuite) getTestShipmentTransaction1(id uint, shipmentID uint) *models.ShipmentTransaction {
+	return &models.ShipmentTransaction{id, shipmentID, models.TransactionCreditCard,
 		`{"brand":"Visa","holderName":"John Smith","lastFour":"1324","expMonth":10,"expYear":2017}`, time.Unix(1, 0), 4999}
 }
 
-func (suite *shipmentControllerTestSuite) getTestShipmentTransaction2(shipmentID uint) *models.ShipmentTransaction {
-	return &models.ShipmentTransaction{uint(2), shipmentID, models.TransactionGiftCard,
+func (suite *shipmentControllerTestSuite) getTestShipmentTransaction2(id uint, shipmentID uint) *models.ShipmentTransaction {
+	return &models.ShipmentTransaction{id, shipmentID, models.TransactionGiftCard,
 		`{"code":"A1236BC38EE2265G"}`, time.Unix(2, 0), 5999}
 }
 
-func (suite *shipmentControllerTestSuite) getTestShipmentTransaction3(shipmentID uint) *models.ShipmentTransaction {
-	return &models.ShipmentTransaction{uint(3), shipmentID, models.TransactionStoreCredit,
+func (suite *shipmentControllerTestSuite) getTestShipmentTransaction3(id uint, shipmentID uint) *models.ShipmentTransaction {
+	return &models.ShipmentTransaction{id, shipmentID, models.TransactionStoreCredit,
 		`{}`, time.Unix(3, 0), 6999}
 }
