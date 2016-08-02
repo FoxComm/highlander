@@ -7,7 +7,7 @@ const searchTerms = [
     options: [
       {
         title: 'ID',
-        type: 'string',
+        type: 'identifier',
         term: 'id'
       }, {
         title: 'Name',
@@ -15,7 +15,7 @@ const searchTerms = [
         term: 'product'
       }, {
         title: 'SKU',
-        type: 'string',
+        type: 'identifier',
         term: 'code'
       }, {
         title: 'Product State',
