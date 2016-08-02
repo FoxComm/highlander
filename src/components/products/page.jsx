@@ -99,14 +99,14 @@ class ProductPage extends Component {
 
   get error(): ?Element {
     const { err } = this.props.products;
-    if (err) {
-      const message = _.get(err, ['messages', 0], 'There was an error saving the product.');
-      return (
-        <div styleName="error" className="fc-col-md-1-1">
-          <ErrorAlerts error={message} />
-        </div>
-      );
-    }
+    if (!err) return null;
+    
+    const message = _.get(err, ['messages', 0], 'There was an error saving the product.');
+    return (
+      <div styleName="error" className="fc-col-md-1-1">
+        <ErrorAlerts error={message} />
+      </div>
+    );
   }
 
   get isNew(): boolean {
