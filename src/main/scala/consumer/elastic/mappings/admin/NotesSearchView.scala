@@ -42,7 +42,7 @@ final case class NotesSearchView()(implicit ec: EC) extends AvroTransformer {
           field("joinedAt", DateType) format dateFormat
       ),
       field("giftCard").nested(
-          field("code", StringType) index "not_analyzed",
+          field("code", StringType) analyzer "upper_cased",
           field("originType", StringType) index "not_analyzed",
           field("currency", StringType) index "not_analyzed",
           field("createdAt", DateType) format dateFormat

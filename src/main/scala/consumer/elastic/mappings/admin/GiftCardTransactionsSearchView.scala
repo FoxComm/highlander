@@ -16,7 +16,7 @@ final case class GiftCardTransactionsSearchView()(implicit ec: EC) extends AvroT
       field("state", StringType) index "not_analyzed",
       field("createdAt", DateType) format dateFormat,
       // Gift Card
-      field("code", StringType) index "not_analyzed",
+      field("code", StringType) analyzer "upper_cased",
       field("originType", StringType) index "not_analyzed",
       field("currency", StringType) index "not_analyzed",
       field("giftCardCreatedAt", DateType) format dateFormat,

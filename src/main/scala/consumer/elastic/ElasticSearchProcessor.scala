@@ -78,7 +78,7 @@ class ElasticSearchProcessor(
 
       // Execute Elasticsearch query
       client.execute {
-        create index indexName mappings (jsonMappings: _*) analysis (autocompleteAnalyzer, lowerCasedAnalyzer)
+        create index indexName mappings (jsonMappings: _*) analysis (autocompleteAnalyzer, lowerCasedAnalyzer, upperCasedAnalyzer)
       }.await
     } catch {
       case e: RemoteTransportException ⇒
