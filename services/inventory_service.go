@@ -153,7 +153,6 @@ func (service *inventoryService) ReserveItems(refNum string, locationId uint, sk
 		stockItemsMap[si.ID] = skus[si.SKU]
 	}
 
-	// update StockItemUnit.ReservationID field
 	updateWith := models.StockItemUnit{
 		RefNum: sql.NullString{String: refNum, Valid: true},
 		Status: "onHold",
@@ -230,7 +229,7 @@ func (service *inventoryService) ReleaseItems(refNum string, locationId uint) er
 func onHandStockItemUnits(stockItemID uint, typeId uint, count int, db *gorm.DB) ([]models.StockItemUnit, error) {
 	units := []models.StockItemUnit{}
 	err := db.Limit(count).
-		Order("created_at desc").
+		Order("created_at").
 		Where("stock_item_id = ?", stockItemID).
 		Where("type_id = ?", typeId).
 		Where("status = ?", "onHand").

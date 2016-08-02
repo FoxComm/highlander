@@ -83,6 +83,8 @@ func (service *summaryService) UpdateStockItemSummary(stockItemId, locationId, t
 	summary = updateStatus(summary, status.from, -qty)
 	summary = updateStatus(summary, status.to, qty)
 
+	summary = updateAfs(summary, status, qty)
+
 	if err := db.Save(summary).Error; err != nil {
 		return err
 	}
@@ -120,6 +122,18 @@ func updateStatus(summary *models.StockItemSummary, status string, qty int) *mod
 		summary.OnHold += qty
 	case "reserved":
 		summary.Reserved += qty
+	}
+
+	return summary
+}
+
+func updateAfs(summary *models.StockItemSummary, shift StatusChange, qty int) *models.StockItemSummary {
+	if shift.to == "onHand" {
+		summary.AFS += qty
+	}
+
+	if shift.from == "onHand" {
+		summary.AFS -= qty
 	}
 
 	return summary

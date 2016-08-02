@@ -12,6 +12,8 @@ type StockItemSummary struct {
 	OnHold          int
 	Reserved        int
 	Shipped         int
+	AFS             int
+	AFSCost         int
 }
 
 func (sis StockItemSummary) Identifier() uint {
