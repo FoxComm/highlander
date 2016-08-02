@@ -8,5 +8,5 @@ type CreditCardTransaction struct {
 	ExpMonth   uint   `json:"expMonth"`
 	ExpYear    uint   `json:"expYear"`
 	Amount     uint   `json:"amount"`
-	PlacedAt   string `json:"placedAt"`
+	CreatedAt  string `json:"createdAt"`
 }
