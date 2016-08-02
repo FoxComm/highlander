@@ -11,22 +11,22 @@ final case class NotesSearchView()(implicit ec: EC) extends AvroTransformer {
       // Note
       field("id", IntegerType),
       field("referenceId", IntegerType),
-      field("referenceType", StringType) index "not_analyzed",
-      field("body", StringType) analyzer "autocomplete",
-      field("priority", StringType) index "not_analyzed",
-      field("createdAt", DateType) format dateFormat,
-      field("deletedAt", DateType) format dateFormat,
+      field("referenceType", StringType).index("not_analyzed"),
+      field("body", StringType).analyzer("autocomplete"),
+      field("priority", StringType).index("not_analyzed"),
+      field("createdAt", DateType).format(dateFormat),
+      field("deletedAt", DateType).format(dateFormat),
       field("author").nested(
-          field("email", StringType) analyzer "autocomplete",
-          field("name", StringType) analyzer "autocomplete",
-          field("department", StringType) analyzer "autocomplete"
+          field("email", StringType).analyzer("autocomplete"),
+          field("name", StringType).analyzer("autocomplete"),
+          field("department", StringType).analyzer("autocomplete")
       ),
       field("order").nested(
           field("customerId", IntegerType),
-          field("referenceNumber", StringType) analyzer "lower_cased",
-          field("state", StringType) index "not_analyzed",
-          field("createdAt", DateType) format dateFormat,
-          field("placedAt", DateType) format dateFormat,
+          field("referenceNumber", StringType).analyzer("upper_cased"),
+          field("state", StringType).index("not_analyzed"),
+          field("createdAt", DateType).format(dateFormat),
+          field("placedAt", DateType).format(dateFormat),
           field("subTotal", IntegerType),
           field("shippingTotal", IntegerType),
           field("adjustmentsTotal", IntegerType),
@@ -36,41 +36,41 @@ final case class NotesSearchView()(implicit ec: EC) extends AvroTransformer {
       ),
       field("customer").nested(
           field("id", IntegerType),
-          field("name", StringType) analyzer "autocomplete",
-          field("email", StringType) analyzer "autocomplete",
+          field("name", StringType).analyzer("autocomplete"),
+          field("email", StringType).analyzer("autocomplete"),
           field("isBlacklisted", BooleanType),
-          field("joinedAt", DateType) format dateFormat
+          field("joinedAt", DateType).format(dateFormat)
       ),
       field("giftCard").nested(
-          field("code", StringType) analyzer "upper_cased",
-          field("originType", StringType) index "not_analyzed",
-          field("currency", StringType) index "not_analyzed",
-          field("createdAt", DateType) format dateFormat
+          field("code", StringType).analyzer("upper_cased"),
+          field("originType", StringType).index("not_analyzed"),
+          field("currency", StringType).index("not_analyzed"),
+          field("createdAt", DateType).format(dateFormat)
       ),
       field("skuItem").nested(
           field("id", IntegerType),
-          field("sku", StringType) index "not_analyzed",
+          field("sku", StringType).analyzer("upper_cased"),
           field("type", ObjectType),
           field("attributes", ObjectType),
-          field("createdAt", DateType) format dateFormat
+          field("createdAt", DateType).format(dateFormat)
       ),
       field("product").nested(
           field("id", IntegerType),
           field("attributes", ObjectType),
           field("variants", ObjectType),
-          field("createdAt", DateType) format dateFormat
+          field("createdAt", DateType).format(dateFormat)
       ),
       field("promotion").nested(
           field("id", IntegerType),
-          field("applyType", StringType) index "not_analyzed",
+          field("applyType", StringType).index("not_analyzed"),
           field("attributes", ObjectType),
-          field("createdAt", DateType) format dateFormat
+          field("createdAt", DateType).format(dateFormat)
       ),
       field("coupon").nested(
           field("id", IntegerType),
           field("promotion_id", IntegerType),
           field("attributes", ObjectType),
-          field("createdAt", DateType) format dateFormat
+          field("createdAt", DateType).format(dateFormat)
       )
   )
 

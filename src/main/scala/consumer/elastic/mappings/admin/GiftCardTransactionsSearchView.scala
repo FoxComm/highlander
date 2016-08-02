@@ -13,24 +13,24 @@ final case class GiftCardTransactionsSearchView()(implicit ec: EC) extends AvroT
       field("debit", IntegerType),
       field("credit", IntegerType),
       field("availableBalance", IntegerType),
-      field("state", StringType) index "not_analyzed",
-      field("createdAt", DateType) format dateFormat,
+      field("state", StringType).index("not_analyzed"),
+      field("createdAt", DateType).format(dateFormat),
       // Gift Card
-      field("code", StringType) analyzer "upper_cased",
-      field("originType", StringType) index "not_analyzed",
-      field("currency", StringType) index "not_analyzed",
-      field("giftCardCreatedAt", DateType) format dateFormat,
+      field("code", StringType).analyzer("upper_cased"),
+      field("originType", StringType).index("not_analyzed"),
+      field("currency", StringType).index("not_analyzed"),
+      field("giftCardCreatedAt", DateType).format(dateFormat),
       // Order Payment
       field("orderPayment").nested(
-          field("orderReferenceNumber", StringType) analyzer "lower_cased",
-          field("orderCreatedAt", DateType) format dateFormat,
-          field("orderPaymentCreatedAt", DateType) format dateFormat
+          field("orderReferenceNumber", StringType).analyzer("upper_cased"),
+          field("orderCreatedAt", DateType).format(dateFormat),
+          field("orderPaymentCreatedAt", DateType).format(dateFormat)
       ),
       // Store Admins
       field("storeAdmin").nested(
-          field("email", StringType) analyzer "autocomplete",
-          field("name", StringType) analyzer "autocomplete",
-          field("department", StringType) analyzer "autocomplete"
+          field("email", StringType).analyzer("autocomplete"),
+          field("name", StringType).analyzer("autocomplete"),
+          field("department", StringType).analyzer("autocomplete")
       )
   )
 
