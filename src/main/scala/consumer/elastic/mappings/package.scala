@@ -7,6 +7,10 @@ import com.sksamuel.elastic4s.mappings.FieldType._
 package object mappings {
   val dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
 
+  case object UppercaseTokenFilter extends TokenFilter {
+    val name = "uppercase"
+  }
+
   val autocompleteAnalyzer = CustomAnalyzerDefinition(
       "autocomplete",
       NGramTokenizer("autocomplete_tokenizer",
@@ -20,6 +24,12 @@ package object mappings {
       "lower_cased",
       KeywordTokenizer("lower_cased_keyword_tokenizer"),
       LowercaseTokenFilter
+  )
+
+  val upperCasedAnalyzer = CustomAnalyzerDefinition(
+      "upper_cased",
+      KeywordTokenizer("upper_cased_keyword_tokenizer"),
+      UppercaseTokenFilter
   )
 
   def address(name: String) = field(name).nested(

@@ -12,25 +12,25 @@ final case class StoreCreditTransactionsSearchView()(implicit ec: EC) extends Av
       field("id", IntegerType),
       field("debit", IntegerType),
       field("availableBalance", IntegerType),
-      field("state", StringType) index "not_analyzed",
-      field("createdAt", DateType) format dateFormat,
+      field("state", StringType).index("not_analyzed"),
+      field("createdAt", DateType).format(dateFormat),
       // Store Credit
       field("storeCreditId", IntegerType),
       field("customerId", IntegerType),
-      field("originType", StringType) index "not_analyzed",
-      field("currency", StringType) index "not_analyzed",
-      field("storeCreditCreatedAt", DateType) format dateFormat,
+      field("originType", StringType).index("not_analyzed"),
+      field("currency", StringType).index("not_analyzed"),
+      field("storeCreditCreatedAt", DateType).format(dateFormat),
       // Order Payment
       field("orderPayment").nested(
-          field("orderReferenceNumber", StringType) analyzer "lower_cased",
-          field("orderCreatedAt", DateType) format dateFormat,
-          field("orderPaymentCreatedAt", DateType) format dateFormat
+          field("orderReferenceNumber", StringType).analyzer("upper_cased"),
+          field("orderCreatedAt", DateType).format(dateFormat),
+          field("orderPaymentCreatedAt", DateType).format(dateFormat)
       ),
       // Store Admins
       field("storeAdmin").nested(
-          field("email", StringType) analyzer "autocomplete",
-          field("name", StringType) analyzer "autocomplete",
-          field("department", StringType) analyzer "autocomplete"
+          field("email", StringType).analyzer("autocomplete"),
+          field("name", StringType).analyzer("autocomplete"),
+          field("department", StringType).analyzer("autocomplete")
       )
   )
 
