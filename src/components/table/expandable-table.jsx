@@ -23,7 +23,6 @@ export default class ExpandableTable extends Component {
     emptyMessage: PropTypes.string,
     errorMessage: PropTypes.string,
     className: PropTypes.string,
-    params: PropTypes.object,
     idField: PropTypes.string.isRequired,
     isLoading: PropTypes.bool,
     failed: PropTypes.bool,
@@ -48,20 +47,19 @@ export default class ExpandableTable extends Component {
   renderRow(row, index) {
     const { props } = this;
 
-    const {renderRow, renderDrawer, columns, params, idField} = props;
+    const {renderRow, renderDrawer, columns, idField} = props;
     const id = _.get(row, idField, '').toString().replace(/ /g,'-');
     const state = !!this.state.expandedRows[id];
 
-    const hackedParams = {
-      ...params,
+    const params = {
       toggleDrawerState: () => this.toggleExpanded(id),
       isOpen: state,
       colSpan: columns.length,
     };
 
     return [
-      renderRow(row, index, columns, hackedParams),
-      renderDrawer(row, index, hackedParams),
+      renderRow(row, index, columns, params),
+      renderDrawer(row, index, params),
     ];
   }
 

@@ -13,7 +13,7 @@ import WarehouseDrawer from './inventory-warehouse-drawer';
 
 // redux
 import * as WarehousesActions from 'modules/inventory/warehouses';
-import type { InventorySummary } from 'modules/inventory/warehouses';
+import type { InventorySummary, StockLocation } from 'modules/inventory/warehouses';
 
 const mapStateToProps = (state, props) => ({
   inventoryDetails: _.get(state, ['inventory', 'warehouses', props.params.skuCode], {}),
@@ -74,9 +74,8 @@ class InventoryItemDetails extends Component {
     return (
       <WarehouseDrawer
         key={key}
-        row={row}
-        drawerData={params.drawerData}
-        drawerColumns={params.drawerColumns}
+        data={this.drawerData(row)}
+        columns={this.drawerColumns}
         isLoading={_.get(this.props, ['fetchState', 'inProgress'], true)}
         failed={!!_.get(this.props, ['fetchState', 'err'])}
         params={params}
@@ -103,23 +102,16 @@ class InventoryItemDetails extends Component {
     return array2tableData(_.map(inventoryDetails, details => details.stockLocation));
   }
 
-  get drawerData() {
+  drawerData(stockLocation: StockLocation) {
     const inventoryDetails: Array<InventorySummary> = this.props.inventoryDetails;
 
-    return stockLocation => {
-      const summary: InventorySummary = _.find(inventoryDetails, (item: InventorySummary) => {
-        return item.stockLocation.stockLocationId == stockLocation.stockLocationId;
-      });
-      return array2tableData(summary ? summary.stockItems : []);
-    };
+    const summary: InventorySummary = _.find(inventoryDetails, (item: InventorySummary) => {
+      return item.stockLocation.stockLocationId == stockLocation.stockLocationId;
+    });
+    return array2tableData(summary ? summary.stockItems : []);
   }
 
   render() {
-    const params = {
-      drawerData: this.drawerData,
-      drawerColumns: this.drawerColumns,
-    };
-
     const isFetching = this.props.fetchState.inProgress !== false;
     const failed = !!this.props.fetchState.err;
 
@@ -131,7 +123,6 @@ class InventoryItemDetails extends Component {
             data={this.summaryData}
             renderRow={this.renderRow}
             renderDrawer={this.renderDrawer}
-            params={params}
             idField="stockLocationId"
             isLoading={isFetching}
             failed={failed}

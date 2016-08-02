@@ -1,35 +1,47 @@
-
+// @flow
 // libs
-import React, { PropTypes } from 'react';
+import React, { Element } from 'react';
 
 // components
 import Table from '../table/table';
 import Drawer from '../table/drawer';
+import TableRow from '../table/row';
+import AdjustQuantity from '../forms/adjust-quantity';
 
-const WarehouseDrawer = props => {
-  const {drawerColumns, drawerData, row} = props;
+import type { StockItem } from 'modules/inventory/warehouses';
 
+
+function renderRow(row: StockItem): Element {
+  return (
+    <TableRow>
+      <td>{row.type}</td>
+      <td>
+        <AdjustQuantity
+          value={row.onHand}
+          onChange={newQuantity => {console.info('change', newQuantity)}}
+        />
+      </td>
+      <td>{row.onHold}</td>
+      <td>{row.reserved}</td>
+      <td>{row.afs}</td>
+      <td>{row.afsCost}</td>
+    </TableRow>
+  );
+}
+
+const WarehouseDrawer = (props: Object) => {
   return (
     <Drawer {...props} >
       <div>
         <Table
           {...props}
           className="fc-inventory-item-details__warehouse-details-table"
-          columns={drawerColumns}
-          data={drawerData(row)}
+          renderRow={renderRow}
           emptyMessage="No warehouse data found."
         />
       </div>
     </Drawer>
   );
-};
-
-WarehouseDrawer.propTypes = {
-  row: PropTypes.object.isRequired,
-  drawerColumns: PropTypes.array.isRequired,
-  drawerData: PropTypes.func.isRequired,
-  isLoading: PropTypes.bool,
-  failed: PropTypes.bool,
 };
 
 export default WarehouseDrawer;
