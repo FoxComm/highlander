@@ -102,9 +102,15 @@ func (controller *stockItemController) IncrementStockItemUnits() gin.HandlerFunc
 			return
 		}
 
+		typeId, err := models.StockItemTypeFromString(payload.Type)
+		if err != nil {
+			failures.Abort(context, failures.NewBadRequest(err))
+			return
+		}
+
 		units := models.NewStockItemUnitsFromPayload(uint(id), &payload)
 
-		if err := controller.service.IncrementStockItemUnits(uint(id), units); err != nil {
+		if err := controller.service.IncrementStockItemUnits(uint(id), payload.StockLocationID, typeId, units); err != nil {
 			handleServiceError(context, err)
 			return
 		}
@@ -130,8 +136,13 @@ func (controller *stockItemController) DecrementStockItemUnits() gin.HandlerFunc
 			return
 		}
 
-		err := controller.service.DecrementStockItemUnits(uint(id), payload.Qty)
+		typeId, err := models.StockItemTypeFromString(payload.Type)
 		if err != nil {
+			failures.Abort(context, failures.NewBadRequest(err))
+			return
+		}
+
+		if err := controller.service.DecrementStockItemUnits(uint(id), payload.StockLocationID, typeId, payload.Qty); err != nil {
 			handleServiceError(context, err)
 			return
 		}

@@ -10,6 +10,7 @@ import (
 type stockItemTypeTestSuite struct {
 	suite.Suite
 	assert *assert.Assertions
+	types  itemType
 }
 
 func TestStockItemTypeSuite(t *testing.T) {
@@ -18,16 +19,16 @@ func TestStockItemTypeSuite(t *testing.T) {
 
 func (suite *stockItemTypeTestSuite) SetupSuite() {
 	suite.assert = assert.New(suite.T())
+	suite.types = StockItemTypes()
 }
 
 func (suite *stockItemTypeTestSuite) Test_StockItemTypes() {
 	types := StockItemTypes()
 
-	println("HEU")
-	suite.assert.Equal(1, types.Sellable)
-	suite.assert.Equal(2, types.NonSellable)
-	suite.assert.Equal(3, types.Backorder)
-	suite.assert.Equal(4, types.Preorder)
+	suite.assert.Equal(uint(1), types.Sellable)
+	suite.assert.Equal(uint(2), types.NonSellable)
+	suite.assert.Equal(uint(3), types.Backorder)
+	suite.assert.Equal(uint(4), types.Preorder)
 }
 
 func (suite *stockItemTypeTestSuite) Test_StockItemTypes_Immutable() {
@@ -35,5 +36,28 @@ func (suite *stockItemTypeTestSuite) Test_StockItemTypes_Immutable() {
 
 	types.Sellable = 2
 
-	suite.assert.Equal(1, StockItemTypes().Sellable)
+	suite.assert.Equal(uint(1), StockItemTypes().Sellable)
+}
+
+var fromStringTest = []struct {
+	in  string
+	out uint
+}{
+	{"sellable", uint(1)},
+	{"non-sellable", uint(2)},
+	{"backorder", uint(3)},
+	{"preorder", uint(4)},
+}
+
+func (suite *stockItemTypeTestSuite) Test_StockItemTypeFromString() {
+	for _, td := range fromStringTest {
+		typeId, err := StockItemTypeFromString(td.in)
+		suite.assert.Nil(err)
+		suite.assert.Equal(td.out, typeId)
+	}
+}
+
+func (suite *stockItemTypeTestSuite) Test_StockItemTypeFromString_Error() {
+	_, err := StockItemTypeFromString("wtf?")
+	suite.assert.NotNil(err)
 }

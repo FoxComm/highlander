@@ -8,6 +8,7 @@ import (
 	"github.com/FoxComm/middlewarehouse/common/db/tasks"
 	"github.com/FoxComm/middlewarehouse/models"
 
+	"github.com/FoxComm/middlewarehouse/repositories"
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -26,6 +27,12 @@ func TestInventoryServiceSuite(t *testing.T) {
 }
 
 // Just a few helper functions!
+func (suite *InventoryServiceTestSuite) createStockLocation() (*models.StockLocation, error) {
+	stockLocationService := NewStockLocationService(repositories.NewStockLocationRepository(suite.db))
+
+	return stockLocationService.CreateLocation(&models.StockLocation{Type: "Warehouse", Name: "TEST-LOCATION"})
+}
+
 func (suite *InventoryServiceTestSuite) createStockItem(sku string, qty int) (*models.StockItem, error) {
 	stockItem := &models.StockItem{StockLocationID: 1, SKU: sku}
 	resp, err := suite.service.CreateStockItem(stockItem)
@@ -35,17 +42,19 @@ func (suite *InventoryServiceTestSuite) createStockItem(sku string, qty int) (*m
 
 	if qty > 0 {
 		units := []*models.StockItemUnit{}
+		typeId := models.StockItemTypes().Sellable
 
 		for i := 0; i < qty; i++ {
 			item := &models.StockItemUnit{
 				StockItemID: stockItem.ID,
 				UnitCost:    500,
+				TypeID:      typeId,
 				Status:      "onHand",
 			}
 			units = append(units, item)
 		}
 
-		err := suite.service.IncrementStockItemUnits(stockItem.ID, units)
+		err := suite.service.IncrementStockItemUnits(stockItem.ID, stockItem.StockLocationID, typeId, units)
 		if err != nil {
 			return nil, err
 		}
@@ -58,13 +67,13 @@ func (suite *InventoryServiceTestSuite) createReservation(skus []string, qty int
 	r := rand.New(rand.NewSource(99))
 
 	for _, sku := range skus {
-		_, err := suite.createStockItem(sku, qty+r.Intn(10))
+		stockItem, err := suite.createStockItem(sku, qty+r.Intn(10))
 
 		if err != nil {
 			return err
 		}
 
-		err = suite.service.ReserveItems(refNum, map[string]int{sku: qty})
+		err = suite.service.ReserveItems(refNum, stockItem.StockLocationID, map[string]int{sku: qty})
 
 		if err != nil {
 			return err
@@ -88,9 +97,10 @@ func (suite *InventoryServiceTestSuite) SetupTest() {
 		"stock_items",
 		"stock_item_units",
 		"stock_item_summaries",
+		"stock_locations",
 	})
 
-	suite.itemResp, _ = suite.createStockItem("TEST-DEFAULT", 0)
+	suite.createStockLocation()
 }
 
 func (suite *InventoryServiceTestSuite) Test_CreateStockItem() {
@@ -103,12 +113,10 @@ func (suite *InventoryServiceTestSuite) Test_CreateStockItem() {
 func (suite *InventoryServiceTestSuite) Test_CreateStockItem_SummaryCreation() {
 	resp, err := suite.createStockItem("TEST-CREATION", 0)
 
-	summary := models.StockItemSummary{}
-	err = suite.db.First(&summary, resp.ID).Error
+	summary := []*models.StockItemSummary{}
+	err = suite.db.Where("stock_item_id = ?", resp.ID).Find(&summary).Error
 	suite.assert.Nil(err)
-	suite.assert.Equal(0, summary.OnHand)
-	suite.assert.Equal(0, summary.OnHold)
-	suite.assert.Equal(0, summary.Reserved)
+	suite.assert.Equal(4, len(summary))
 }
 
 func (suite *InventoryServiceTestSuite) Test_GetStockItemById() {
@@ -148,7 +156,7 @@ func (suite *InventoryServiceTestSuite) Test_IncrementStockItemUnits_MultipleIte
 func (suite *InventoryServiceTestSuite) Test_DecrementStockItemUnits() {
 	resp, err := suite.createStockItem("TEST-DECREMENT", 10)
 
-	err = suite.service.DecrementStockItemUnits(resp.ID, 7)
+	err = suite.service.DecrementStockItemUnits(resp.ID, resp.StockLocationID, models.StockItemTypes().Sellable, 7)
 	suite.assert.Nil(err)
 
 	var units []models.StockItemUnit
@@ -163,7 +171,7 @@ func (suite *InventoryServiceTestSuite) Test_ReserveItems_SingleSKU() {
 	refNum := "BR10001"
 	skus := map[string]int{"TEST-RESERVATION": 1}
 
-	err = suite.service.ReserveItems(refNum, skus)
+	err = suite.service.ReserveItems(refNum, resp.StockLocationID, skus)
 	suite.assert.Nil(err)
 
 	var units []models.StockItemUnit
@@ -190,7 +198,7 @@ func (suite *InventoryServiceTestSuite) Test_ReserveItems_MultipleSKUs() {
 		sku2: 5,
 	}
 
-	err = suite.service.ReserveItems(refNum, skus)
+	err = suite.service.ReserveItems(refNum, resp1.StockLocationID, skus)
 	suite.assert.Nil(err)
 
 	var units []models.StockItemUnit
@@ -211,13 +219,13 @@ func (suite *InventoryServiceTestSuite) Test_ReserveItems_MultipleSKUs() {
 
 func (suite *InventoryServiceTestSuite) Test_ReserveItems_StockItemChanged() {
 	sku := "TEST-RESERVATION"
-	_, err := suite.createStockItem(sku, 10)
+	resp, err := suite.createStockItem(sku, 10)
 	suite.assert.Nil(err)
 
 	refNum := "BR10001"
 	skus := map[string]int{sku: 1}
 
-	err = suite.service.ReserveItems(refNum, skus)
+	err = suite.service.ReserveItems(refNum, resp.StockLocationID, skus)
 	suite.assert.Nil(err)
 
 	var units []models.StockItemUnit
@@ -230,7 +238,7 @@ func (suite *InventoryServiceTestSuite) Test_ReserveItems_NoOnHand() {
 	refNum := "BR10001"
 	skus := map[string]int{"TEST-DEFAULT": 1}
 
-	err := suite.service.ReserveItems(refNum, skus)
+	err := suite.service.ReserveItems(refNum, uint(1), skus)
 	suite.assert.NotNil(err)
 }
 
@@ -238,7 +246,7 @@ func (suite *InventoryServiceTestSuite) Test_ReserveItems_NoSKU() {
 	refNum := "BR10001"
 	skus := map[string]int{"NO-SKU": 1}
 
-	err := suite.service.ReserveItems(refNum, skus)
+	err := suite.service.ReserveItems(refNum, uint(1), skus)
 	suite.assert.NotNil(err)
 }
 
@@ -255,7 +263,7 @@ func (suite *InventoryServiceTestSuite) Test_ReleaseItems_MultipleSKUsSummary() 
 		sku2: 5,
 	}
 
-	suite.service.ReserveItems(refNum, skus)
+	suite.service.ReserveItems(refNum, resp1.StockLocationID, skus)
 
 	var summary1 models.StockItemSummary
 	suite.db.Where("stock_item_id = ?", resp1.ID).First(&summary1)
@@ -272,7 +280,7 @@ func (suite *InventoryServiceTestSuite) Test_ReleaseItems_SubsequentSummary() {
 
 	skus := map[string]int{sku: 3}
 
-	suite.service.ReserveItems("BR10001", skus)
+	suite.service.ReserveItems("BR10001", resp.StockLocationID, skus)
 
 	var summary models.StockItemSummary
 	suite.db.Where("stock_item_id = ?", resp.ID).First(&summary)
@@ -280,16 +288,16 @@ func (suite *InventoryServiceTestSuite) Test_ReleaseItems_SubsequentSummary() {
 
 	skus[sku] = 5
 
-	suite.service.ReserveItems("BR10002", skus)
+	suite.service.ReserveItems("BR10002", resp.StockLocationID, skus)
 
 	suite.db.Where("stock_item_id = ?", resp.ID).First(&summary)
 	suite.assert.Equal(8, summary.OnHold)
 }
 
 func (suite *InventoryServiceTestSuite) Test_ReleaseItems_NoReservedSKUs() {
-	suite.createStockItem("TEST-RESERVATION-A", 1)
+	resp, _ := suite.createStockItem("TEST-RESERVATION-A", 1)
 
-	err := suite.service.ReleaseItems("BR10001")
+	err := suite.service.ReleaseItems("BR10001", resp.StockLocationID)
 	suite.assert.NotNil(err, "Should not be able to unreserve items while there are no reservations")
 }
 
@@ -304,7 +312,7 @@ func (suite *InventoryServiceTestSuite) Test_ReleaseItems_Single() {
 	suite.assert.Equal(1, onHoldUnitsCount, "There should be one unit in onHold status")
 
 	// send release request and check if it was processed successfully
-	err = suite.service.ReleaseItems(refNum)
+	err = suite.service.ReleaseItems(refNum, uint(1))
 	suite.assert.Nil(err, "Reservation should be successfully removed")
 
 	suite.db.Model(&models.StockItemUnit{}).Where("ref_num = ? AND status = ?", refNum, "onHold").Count(&onHoldUnitsCount)
@@ -312,6 +320,7 @@ func (suite *InventoryServiceTestSuite) Test_ReleaseItems_Single() {
 }
 
 func (suite *InventoryServiceTestSuite) Test_ReleaseItems_Summary() {
+	suite.assert.Nil(nil)
 	skus := []string{"TEST-UNRESERVATION-A"}
 	refNum := "BR10001"
 	reservedCount := 1
@@ -319,12 +328,12 @@ func (suite *InventoryServiceTestSuite) Test_ReleaseItems_Summary() {
 	suite.assert.Nil(err)
 
 	var summary models.StockItemSummary
-	suite.db.Last(&summary)
+	suite.db.Where("type_id = ?", models.StockItemTypes().Sellable).First(&summary)
 
 	suite.assert.Equal(reservedCount, summary.OnHold, "One stock item unit should be onHold")
 
-	suite.service.ReleaseItems(refNum)
+	suite.service.ReleaseItems(refNum, uint(1))
 
-	suite.db.First(&summary)
+	suite.db.Where("type_id = ?", models.StockItemTypes().Sellable).First(&summary)
 	suite.assert.Equal(0, summary.OnHold, "No stock item units should be onHold")
 }

@@ -39,26 +39,26 @@ func (m *InventoryServiceMock) CreateStockItem(stockItem *models.StockItem) (*mo
 	return nil, args.Error(1)
 }
 
-func (m *InventoryServiceMock) IncrementStockItemUnits(id uint, units []*models.StockItemUnit) error {
-	args := m.Called(id, units)
+func (m *InventoryServiceMock) IncrementStockItemUnits(id, locationId, typeId uint, units []*models.StockItemUnit) error {
+	args := m.Called(id, locationId, typeId, units)
 
 	return args.Error(0)
 }
 
-func (m *InventoryServiceMock) DecrementStockItemUnits(id uint, qty int) error {
-	args := m.Called(id, qty)
+func (m *InventoryServiceMock) DecrementStockItemUnits(id, locationId, typeId uint, qty int) error {
+	args := m.Called(id, locationId, typeId, qty)
 
 	return args.Error(0)
 }
 
-func (m *InventoryServiceMock) ReserveItems(refNum string, skus map[string]int) error {
-	args := m.Called(refNum, skus)
+func (m *InventoryServiceMock) ReserveItems(refNum string, locationId uint, skus map[string]int) error {
+	args := m.Called(refNum, locationId, skus)
 
 	return args.Error(0)
 }
 
-func (m *InventoryServiceMock) ReleaseItems(refNum string) error {
-	args := m.Called(refNum)
+func (m *InventoryServiceMock) ReleaseItems(refNum string, locationId uint) error {
+	args := m.Called(refNum, locationId)
 
 	return args.Error(0)
 }

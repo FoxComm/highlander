@@ -16,8 +16,8 @@ type summaryService struct {
 }
 
 type ISummaryService interface {
-	CreateStockItemSummary(stockItemId uint, dbContext *gorm.DB) error
-	UpdateStockItemSummary(stockItemID uint, qty int, status StatusChange, dbContext *gorm.DB) error
+	CreateStockItemSummary(stockItemId, locationId uint, dbContext *gorm.DB) error
+	UpdateStockItemSummary(stockItemId, locationId, typeId uint, qty int, status StatusChange, dbContext *gorm.DB) error
 
 	GetSummary() ([]*models.StockItemSummary, error)
 	GetSummaryBySKU(sku string) (*models.StockItemSummary, error)
@@ -32,6 +32,7 @@ func (service *summaryService) GetSummary() ([]*models.StockItemSummary, error) 
 	err := service.db.
 		Select("stock_item_summaries.*, si.sku").
 		Joins("JOIN stock_items si ON si.id = stock_item_summaries.stock_item_id").
+		Order("created_at").
 		Find(&summary).
 		Error
 
@@ -57,28 +58,25 @@ func (service *summaryService) GetSummaryBySKU(sku string) (*models.StockItemSum
 	return summary, nil
 }
 
-func (service *summaryService) CreateStockItemSummary(stockItemId uint, dbContext *gorm.DB) error {
+func (service *summaryService) CreateStockItemSummary(stockItemId, locationId uint, dbContext *gorm.DB) error {
 	db := service.resolveDb(dbContext)
+	types := models.StockItemTypes()
 
-	summary := models.StockItemSummary{
-		StockItemID: stockItemId,
-		OnHand:      0,
-		OnHold:      0,
-		Reserved:    0,
-	}
+	var err error
 
-	if err := db.Create(&summary).Error; err != nil {
-		return err
-	}
+	err = createStockItemSummary(stockItemId, locationId, types.Sellable, db)
+	err = createStockItemSummary(stockItemId, locationId, types.NonSellable, db)
+	err = createStockItemSummary(stockItemId, locationId, types.Backorder, db)
+	err = createStockItemSummary(stockItemId, locationId, types.Preorder, db)
 
-	return nil
+	return err
 }
 
-func (service *summaryService) UpdateStockItemSummary(stockItemID uint, qty int, status StatusChange, dbContext *gorm.DB) error {
+func (service *summaryService) UpdateStockItemSummary(stockItemId, locationId, typeId uint, qty int, status StatusChange, dbContext *gorm.DB) error {
 	db := service.resolveDb(dbContext)
 
 	summary := &models.StockItemSummary{}
-	if err := db.Where("stock_item_id = ?", stockItemID).First(summary).Error; err != nil {
+	if err := db.Where("stock_item_id = ? AND type_id = ?", stockItemId, typeId).First(summary).Error; err != nil {
 		return err
 	}
 
@@ -98,6 +96,16 @@ func (service *summaryService) resolveDb(db *gorm.DB) *gorm.DB {
 	} else {
 		return service.db
 	}
+}
+
+func createStockItemSummary(stockItemId, locationId, typeId uint, db *gorm.DB) error {
+	summary := models.StockItemSummary{StockItemID: stockItemId, StockLocationID: locationId, TypeID: typeId}
+
+	if err := db.Create(&summary).Error; err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func updateStatus(summary *models.StockItemSummary, status string, qty int) *models.StockItemSummary {

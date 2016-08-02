@@ -28,8 +28,6 @@ func (suite *reservationControllerTestSuite) SetupSuite() {
 	suite.service = new(mocks.InventoryServiceMock)
 	suite.router = gin.Default()
 
-	suite.service = new(mocks.InventoryServiceMock)
-
 	controller := NewReservationController(suite.service)
 	controller.SetUp(suite.router.Group("/reservations"))
 }
@@ -41,9 +39,9 @@ func (suite *reservationControllerTestSuite) TearDownTest() {
 }
 
 func (suite *reservationControllerTestSuite) Test_ReserveItems() {
-	suite.service.On("ReserveItems", "BR10001", map[string]int{"SKU": 2}).Return(nil).Once()
+	suite.service.On("ReserveItems", "BR10001", uint(1), map[string]int{"SKU": 2}).Return(nil).Once()
 
-	jsonStr := `{"refNum": "BR10001","reservations": [{ "sku": "SKU", "qty": 2 }]}`
+	jsonStr := `{"refNum":"BR10001","stockLocationId":1,"reservations":[{ "sku": "SKU", "qty": 2 }]}`
 
 	res := suite.Post("/reservations/reserve", jsonStr)
 
@@ -52,9 +50,9 @@ func (suite *reservationControllerTestSuite) Test_ReserveItems() {
 }
 
 func (suite *reservationControllerTestSuite) Test_ReserveItems_WrongSKUs() {
-	suite.service.On("ReserveItems", "BR10001", map[string]int{"SKU": 2}).Return(gorm.ErrRecordNotFound).Once()
+	suite.service.On("ReserveItems", "BR10001", uint(1), map[string]int{"SKU": 2}).Return(gorm.ErrRecordNotFound).Once()
 
-	jsonStr := `{"refNum": "BR10001","reservations": [{ "sku": "SKU", "qty": 2 }]}`
+	jsonStr := `{"refNum": "BR10001","stockLocationId":1,"reservations": [{ "sku": "SKU", "qty": 2 }]}`
 
 	res := suite.Post("/reservations/reserve", jsonStr)
 
@@ -65,7 +63,7 @@ func (suite *reservationControllerTestSuite) Test_ReserveItems_WrongSKUs() {
 }
 
 func (suite *reservationControllerTestSuite) Test_ReserveItems_EmptySKUsList() {
-	jsonStr := `{"refNum": "BR10001","reservations": []}`
+	jsonStr := `{"refNum": "BR10001","stockLocationId":1,"reservations": []}`
 
 	res := suite.Post("/reservations/reserve", jsonStr)
 
@@ -75,9 +73,9 @@ func (suite *reservationControllerTestSuite) Test_ReserveItems_EmptySKUsList() {
 }
 
 func (suite *reservationControllerTestSuite) Test_ReleaseItems() {
-	suite.service.On("ReleaseItems", "BR10001").Return(nil).Once()
+	suite.service.On("ReleaseItems", "BR10001", uint(1)).Return(nil).Once()
 
-	jsonStr := `{"refNum": "BR10001"}`
+	jsonStr := `{"refNum": "BR10001","stockLocationId":1}`
 
 	res := suite.Post("/reservations/cancel", jsonStr)
 
@@ -86,9 +84,9 @@ func (suite *reservationControllerTestSuite) Test_ReleaseItems() {
 }
 
 func (suite *reservationControllerTestSuite) Test_ReserveItems_WrongRefNum() {
-	suite.service.On("ReleaseItems", "BR10001").Return(gorm.ErrRecordNotFound).Once()
+	suite.service.On("ReleaseItems", "BR10001", uint(1)).Return(gorm.ErrRecordNotFound).Once()
 
-	jsonStr := `{"refNum": "BR10001"}`
+	jsonStr := `{"refNum": "BR10001","stockLocationId":1}`
 
 	res := suite.Post("/reservations/cancel", jsonStr)
 

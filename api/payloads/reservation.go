@@ -3,8 +3,9 @@ package payloads
 import "errors"
 
 type Reservation struct {
-	RefNum string           `json:"refNum" binding:"required"`
-	SKUs   []SKUReservation `json:"reservations" binding:"required"`
+	RefNum          string           `json:"refNum" binding:"required"`
+	SKUs            []SKUReservation `json:"reservations" binding:"required"`
+	StockLocationID uint             `json:"stockLocationId"`
 }
 
 type SKUReservation struct {

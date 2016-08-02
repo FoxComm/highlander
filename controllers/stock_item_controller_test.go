@@ -125,9 +125,9 @@ func (suite *stockItemControllerTestSuite) Test_CreateStockItem_Error() {
 
 func (suite *stockItemControllerTestSuite) Test_IncrementStockItemUnits() {
 	// couldn't find the way to set array of models to mock args expectation
-	suite.service.On("IncrementStockItemUnits", uint(1), mock.AnythingOfType("[]*models.StockItemUnit")).Return(nil).Once()
+	suite.service.On("IncrementStockItemUnits", uint(1), uint(1), models.StockItemTypes().Sellable, mock.AnythingOfType("[]*models.StockItemUnit")).Return(nil).Once()
 
-	jsonStr := `{"qty": 1,"unit_cost": 12000,"status": "onHand"}`
+	jsonStr := `{"stockLocationId":1,"qty":1,"unit_cost":12000,"type":"sellable","status":"onHand"}`
 	res := suite.Patch("/stock-items/1/increment", jsonStr)
 
 	suite.assert.Equal(http.StatusNoContent, res.Code)
@@ -135,23 +135,23 @@ func (suite *stockItemControllerTestSuite) Test_IncrementStockItemUnits() {
 }
 
 func (suite *stockItemControllerTestSuite) Test_IncrementStockItemUnits_WrongId() {
-	jsonStr := `{"qty": 1,"unit_cost": 12000,"status": "onHand"}`
+	jsonStr := `{"stockLocationId":1,"qty": 1,"unit_cost": 12000,"type":"sellable","status": "onHand"}`
 	res := suite.Patch("/stock-items/asdasd/increment", jsonStr)
 
 	suite.assert.Equal(http.StatusBadRequest, res.Code)
 }
 
 func (suite *stockItemControllerTestSuite) Test_IncrementStockItemUnits_WrongQty() {
-	jsonStr := `{"qty": -1,"unit_cost": 12000,"status": "onHand"}`
+	jsonStr := `{"stockLocationId":1,"qty": -1,"unit_cost": 12000,"type":"sellable","status": "onHand"}`
 	res := suite.Patch("/stock-items/1/increment", jsonStr)
 
 	suite.assert.Equal(http.StatusBadRequest, res.Code)
 }
 
 func (suite *stockItemControllerTestSuite) Test_DecrementStockItemUnits() {
-	suite.service.On("DecrementStockItemUnits", uint(1), 1).Return(nil).Once()
+	suite.service.On("DecrementStockItemUnits", uint(1), uint(1), models.StockItemTypes().Sellable, 1).Return(nil).Once()
 
-	jsonStr := `{"qty": 1}`
+	jsonStr := `{"stockLocationId":1,"qty": 1,"type":"sellable"}`
 	res := suite.Patch("/stock-items/1/decrement", jsonStr)
 
 	suite.assert.Equal(http.StatusNoContent, res.Code)
@@ -159,14 +159,14 @@ func (suite *stockItemControllerTestSuite) Test_DecrementStockItemUnits() {
 }
 
 func (suite *stockItemControllerTestSuite) Test_DecrementStockItemUnits_WrongId() {
-	jsonStr := `{"qty": 1}`
+	jsonStr := `{"stockLocationId":1,"qty": 1,"type":"sellable"}`
 	res := suite.Patch("/stock-items/asdasd/decrement", jsonStr)
 
 	suite.assert.Equal(http.StatusBadRequest, res.Code)
 }
 
 func (suite *stockItemControllerTestSuite) Test_DecrementStockItemUnits_WrongQty() {
-	jsonStr := `{"qty": -1}`
+	jsonStr := `{"stockLocationId":1,"qty": -1,"type":"sellable"}`
 	res := suite.Patch("/stock-items/1/decrement", jsonStr)
 
 	suite.assert.Equal(http.StatusBadRequest, res.Code)
