@@ -3,10 +3,11 @@ package controllers
 import (
 	"net/http"
 
-	// "github.com/FoxComm/middlewarehouse/api/payloads"
-	"github.com/FoxComm/middlewarehouse/services"
-	"github.com/gin-gonic/gin"
 	"github.com/FoxComm/middlewarehouse/api/responses"
+	"github.com/FoxComm/middlewarehouse/models"
+	"github.com/FoxComm/middlewarehouse/services"
+
+	"github.com/gin-gonic/gin"
 )
 
 type shipmentController struct {
@@ -44,34 +45,43 @@ func (controller *shipmentController) getShipmentByID() gin.HandlerFunc {
 			return
 		}
 
-		address, err := controller.addressService.GetAddressByID(shipment.AddressID)
+		response, err := controller.getShipmentResponse(shipment)
 		if err != nil {
 			handleServiceError(context, err)
 			return
 		}
-
-		 shipmentLineItems, err := controller.shipmentLineItemService.GetShipmentLineItemsByShipmentID(id)
-		 if err != nil {
-		 	handleServiceError(context, err)
-		 	return
-		 }
-
-		shipmentTransactions, err := controller.shipmentTransactionService.GetShipmentTransactionsByShipmentID(id)
-		if err != nil {
-			handleServiceError(context, err)
-			return
-		}
-
-		response := responses.NewShipmentFromModel(shipment)
-		response.Address = *responses.NewAddressFromModel(address)
-		for _, lineItem := range shipmentLineItems {
-			response.LineItems = append(response.LineItems, *responses.NewShipmentLineItemFromModel(lineItem))
-		}
-		response.Transactions = *responses.NewTransactionListFromModelsList(shipmentTransactions)
-
 
 		context.JSON(http.StatusOK, response)
 	}
+}
+
+func (controller *shipmentController) getShipmentResponse(shipment *models.Shipment) (*responses.Shipment, error) {
+	address, err := controller.addressService.GetAddressByID(shipment.AddressID)
+	if err != nil {
+		return nil, err
+	}
+
+	shipmentLineItems, err := controller.shipmentLineItemService.GetShipmentLineItemsByShipmentID(shipment.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	shipmentTransactions, err := controller.shipmentTransactionService.GetShipmentTransactionsByShipmentID(shipment.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	response := responses.NewShipmentFromModel(shipment)
+
+	response.Address = *responses.NewAddressFromModel(address)
+
+	for _, lineItem := range shipmentLineItems {
+		response.LineItems = append(response.LineItems, *responses.NewShipmentLineItemFromModel(lineItem))
+	}
+
+	response.Transactions = *responses.NewTransactionListFromModelsList(shipmentTransactions)
+
+	return response, nil
 }
 
 // func (controller *shipmentController) createShipment() gin.HandlerFunc {
