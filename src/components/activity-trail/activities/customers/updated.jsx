@@ -7,7 +7,7 @@ export const title = data => {
   return (
     <span>
       <strong>edited the customer details</strong> for&nbsp;
-      <Link className="fc-activity__link" to="customer" params={{customerId: data.customerId}}>
+      <Link className="fc-activity__link" to="customer" params={{customerId: data.newInfo.id}}>
         {data.oldInfo.name}
       </Link>.
     </span>
