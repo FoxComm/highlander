@@ -242,8 +242,8 @@ export default class DynamicGroup extends Component {
   render() {
     return (
       <div className={classNames(prefixed(), 'fc-list-page')}>
-        <div className={classNames(prefixed('details'), 'fc-grid')}>
-          <article className="fc-col-md-1-1">
+        <div className={classNames(prefixed('details'))}>
+          <article>
             {this.header}
             {this.criteria}
             {this.stats}
