@@ -1,8 +1,11 @@
+//libs
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
-import moment from 'moment';
+
+// helpers
 import { activeStatus, archivedStatus } from '../../paragons/common';
 
+// components
 import RoundedPill from '../rounded-pill/rounded-pill';
 import MultiSelectRow from '../table/multi-select-row';
 

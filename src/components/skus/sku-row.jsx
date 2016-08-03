@@ -1,7 +1,11 @@
+// libs
 import React, { Component, Element, PropTypes } from 'react';
-
 import _ from 'lodash';
 
+// helpers
+import { archivedStatus } from '../../paragons/common';
+
+// components
 import MultiSelectRow from '../table/multi-select-row';
 
 function setCellContents(sku, field) {
@@ -11,6 +15,15 @@ function setCellContents(sku, field) {
 const SkuRow = (props) => {
   const { sku, columns, params } = props;
   const key = `sku-${sku.id}`;
+  const isArchived = archivedStatus(sku);
+
+  if (isArchived) return (
+    <MultiSelectRow
+      columns={columns}
+      row={sku}
+      setCellContents={setCellContents}
+      params={params} />
+  );
 
   return (
     <MultiSelectRow
