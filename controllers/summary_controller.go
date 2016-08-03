@@ -28,7 +28,7 @@ func (controller *summaryController) GetSummary() gin.HandlerFunc {
 			return
 		}
 
-		resp := responses.StockItemsSummaryFromModel(summary)
+		resp := responses.SummaryFromModel(summary)
 
 		context.JSON(200, resp)
 	}
@@ -43,7 +43,7 @@ func (controller *summaryController) GetSummaryBySKU() gin.HandlerFunc {
 			return
 		}
 
-		resp := responses.StockItemsSummaryFromModel(summary)
+		resp := responses.SummaryFromModel(summary)
 
 		context.JSON(200, resp)
 	}

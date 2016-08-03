@@ -1,8 +1,6 @@
 package models
 
-import (
-	"fmt"
-)
+import "fmt"
 
 type itemType struct {
 	Sellable    uint
@@ -31,22 +29,36 @@ func StockItemTypes() itemType {
 }
 
 func ValidStockItemTypes() []string {
-	return []string{"sellable", "non-sellable", "backorder", "preorder"}
+	return []string{"Sellable", "Non-sellable", "Backorder", "Preorder"}
 }
 
-func StockItemTypeFromString(strType string) (uint, error) {
+func ValidateStockItemType(strType string) error {
+	for _, str := range ValidStockItemTypes() {
+		if str == strType {
+			return nil
+		}
+	}
+
+	return fmt.Errorf(`Wrong stock item type "%s"`, strType)
+}
+
+func StockItemTypeToString(id uint) string {
+	return ValidStockItemTypes()[id-1]
+}
+
+func StockItemTypeFromString(strType string) uint {
 	types := StockItemTypes()
 
 	switch strType {
-	case "sellable":
-		return types.Sellable, nil
-	case "non-sellable":
-		return types.NonSellable, nil
-	case "backorder":
-		return types.Backorder, nil
-	case "preorder":
-		return types.Preorder, nil
+	case "Sellable":
+		return types.Sellable
+	case "Non-sellable":
+		return types.NonSellable
+	case "Backorder":
+		return types.Backorder
+	case "Preorder":
+		return types.Preorder
+	default:
+		return types.Sellable
 	}
-
-	return 0, fmt.Errorf(`Wrong stock item type "%s"`, strType)
 }

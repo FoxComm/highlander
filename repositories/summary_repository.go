@@ -35,10 +35,13 @@ func (repository *summaryRepository) resolveDb(db *gorm.DB) *gorm.DB {
 func (repository *summaryRepository) GetSummary() ([]*models.StockItemSummary, error) {
 	summary := []*models.StockItemSummary{}
 	err := repository.db.
-		Select("stock_item_summaries.*, si.sku").
-		Joins("JOIN stock_items si ON si.id = stock_item_summaries.stock_item_id").
+		Debug().
+		Table("stock_item_summaries s").
+		Select("s.*, si.sku, sl.id as stock_location_id, sl.name as stock_location_name").
+		Joins("JOIN stock_items si ON si.id = s.stock_item_id").
+		Joins("JOIN stock_locations sl ON si.stock_location_id = sl.id").
 		Order("created_at").
-		Find(&summary).
+		Scan(&summary).
 		Error
 
 	return summary, err
@@ -46,12 +49,14 @@ func (repository *summaryRepository) GetSummary() ([]*models.StockItemSummary, e
 
 func (repository *summaryRepository) GetSummaryBySKU(sku string) ([]*models.StockItemSummary, error) {
 	summary := []*models.StockItemSummary{}
-	err := repository.db.
-		Select("stock_item_summaries.*, si.sku").
-		Joins("JOIN stock_items si ON si.id = stock_item_summaries.stock_item_id").
+	err := repository.db.Debug().
+		Table("stock_item_summaries s").
+		Select("s.*, si.sku, sl.id as stock_location_id, sl.name as stock_location_name").
+		Joins("JOIN stock_items si ON si.id = s.stock_item_id").
+		Joins("JOIN stock_locations sl ON si.stock_location_id = sl.id").
 		Where("si.sku = ?", sku).
 		Order("created_at").
-		Find(&summary).
+		Scan(&summary).
 		Error
 
 	if len(summary) == 0 {

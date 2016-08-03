@@ -28,6 +28,7 @@ func NewStockItemUnitsFromPayload(stockItemID uint, payload *payloads.IncrementS
 			StockItemID: stockItemID,
 			UnitCost:    payload.UnitCost,
 			Status:      payload.Status,
+			TypeID:      StockItemTypeFromString(payload.Type),
 		}
 		units = append(units, item)
 	}

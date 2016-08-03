@@ -14,6 +14,7 @@ func GetRoutes(db *gorm.DB) map[string]controllers.IController {
 	summaryRepository := repositories.NewSummaryRepository(db)
 	stockItemRepository := repositories.NewStockItemRepository(db)
 	unitRepository := repositories.NewStockItemUnitRepository(db)
+	stockLocationRepository := repositories.NewStockLocationRepository(db)
 	shippingMethodRepository := repositories.NewShippingMethodRepository(db)
 
 	transactioner := repositories.NewDBTransactioner(db)
@@ -22,12 +23,14 @@ func GetRoutes(db *gorm.DB) map[string]controllers.IController {
 	summaryService := services.NewSummaryService(summaryRepository, stockItemRepository, transactioner)
 	inventoryService := services.NewInventoryService(stockItemRepository, unitRepository, summaryService, transactioner)
 	carrierService := services.NewCarrierService(carrierRepository)
+	stockLocationService := services.NewStockLocationService(stockLocationRepository)
 	shippingMethodService := services.NewShippingMethodService(shippingMethodRepository)
 
 	return map[string]controllers.IController{
 		"/ping":             controllers.NewPingController(),
 		"/summary":          controllers.NewSummaryController(summaryService),
 		"/stock-items":      controllers.NewStockItemController(inventoryService),
+		"/stock-locations":  controllers.NewStockLocationController(stockLocationService),
 		"/reservations":     controllers.NewReservationController(inventoryService),
 		"/carriers":         controllers.NewCarrierController(carrierService),
 		"/shipping-methods": controllers.NewShippingMethodController(shippingMethodService),

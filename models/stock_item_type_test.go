@@ -51,13 +51,7 @@ var fromStringTest = []struct {
 
 func (suite *stockItemTypeTestSuite) Test_StockItemTypeFromString() {
 	for _, td := range fromStringTest {
-		typeId, err := StockItemTypeFromString(td.in)
-		suite.assert.Nil(err)
+		typeId := StockItemTypeFromString(td.in)
 		suite.assert.Equal(td.out, typeId)
 	}
-}
-
-func (suite *stockItemTypeTestSuite) Test_StockItemTypeFromString_Error() {
-	_, err := StockItemTypeFromString("wtf?")
-	suite.assert.NotNil(err)
 }

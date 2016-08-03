@@ -141,8 +141,8 @@ func (suite *summaryServiceTestSuite) Test_GetSummary() {
 	suite.assert.Nil(err)
 
 	suite.assert.NotNil(summary)
-	suite.assert.Equal(suite.onHand+5, summary[0].OnHand)
-	suite.assert.Equal(suite.si.SKU, summary[0].SKU)
+	suite.assert.Equal(4, len(summary))
+	suite.assert.Equal(suite.si.StockLocationID, summary[0].StockLocationID)
 }
 
 func (suite *summaryServiceTestSuite) Test_GetSummaryBySKU() {
