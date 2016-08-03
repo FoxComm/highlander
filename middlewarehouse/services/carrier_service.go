@@ -3,7 +3,6 @@ package services
 import (
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
-	"github.com/jinzhu/gorm"
 )
 
 type carrierService struct {

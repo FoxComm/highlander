@@ -5,10 +5,10 @@ require 'fileutils'
 
 CONFIG = File.join(File.dirname(__FILE__), "vagrant.local.rb")
 
-$vb_memory = 16348
+$vb_memory = 1024*4
 $vb_cpu = 4
 $nginx_ip = "192.168.10.113"
-$user = "ubuntu"
+$user = "vagrant"
 
 require CONFIG if File.readable?(CONFIG)
 
@@ -44,7 +44,10 @@ def tune_vm(config, opts = {})
 end
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "boxcutter/ubuntu1604"
+  config.vm.box = "base16.04"
+  config.vm.box_url = "https://s3.amazonaws.com/fc-dev-boxes/base16.04.box"
+  config.vm.box_download_checksum = "73402dfe0f94a24d26c5d66dfc31da4b"
+  config.vm.box_download_checksum_type = "md5"
 
   tune_vm(config, cpus: $vb_cpu, memory: $vb_memory)
 
@@ -54,6 +57,7 @@ Vagrant.configure("2") do |config|
     app.vm.provision "shell", inline: "apt-get install -y python-minimal"
     app.vm.provision "ansible" do |ansible|
       ansible.verbose = "vvvv"
+      ansible.skip_tags = "buildkite"
       ansible.playbook = "prov-shit/ansible/vagrant_contained.yml"
       ansible.extra_vars = {
         user: $user
