@@ -86,17 +86,15 @@ func (service *inventoryService) IncrementStockItemUnits(stockItemId, typeId uin
 func (service *inventoryService) DecrementStockItemUnits(stockItemId, typeId uint, qty int) error {
 	txn := service.db.Begin()
 
-	units, err := onHandStockItemUnits(stockItemId, typeId, qty, txn)
+	unitsIds, err := onHandStockItemUnits(stockItemId, typeId, qty, txn)
 	if err != nil {
 		txn.Rollback()
 		return err
 	}
 
-	for _, v := range units {
-		if err := txn.Delete(&v).Error; err != nil {
-			txn.Rollback()
-			return err
-		}
+	if err := txn.Delete(models.StockItemUnit{}, "id in (?)", unitsIds).Error; err != nil {
+		txn.Rollback()
+		return err
 	}
 
 	err = service.summaryService.UpdateStockItemSummary(stockItemId, typeId, -1*qty, StatusChange{to: "onHand"}, txn)
@@ -109,6 +107,7 @@ func (service *inventoryService) DecrementStockItemUnits(stockItemId, typeId uin
 }
 
 func (service *inventoryService) ReserveItems(refNum string, skus map[string]int) error {
+	var err error
 	txn := service.db.Begin()
 
 	skusList := []string{}
@@ -118,7 +117,8 @@ func (service *inventoryService) ReserveItems(refNum string, skus map[string]int
 
 	// stock items associated with SKUs
 	items := []models.StockItem{}
-	if err := txn.Where("sku in (?)", skusList).Find(&items).Error; err != nil {
+	if err = txn.Where("sku in (?)", skusList).Find(&items).Error; err != nil {
+		txn.Rollback()
 		return err
 	}
 
@@ -131,16 +131,13 @@ func (service *inventoryService) ReserveItems(refNum string, skus map[string]int
 	stockItemsMap := map[uint]int{}
 	unitsIds := []uint{}
 	for _, si := range items {
-		units, err := onHandStockItemUnits(si.ID, typeId, skus[si.SKU], txn)
+		ids, err := onHandStockItemUnits(si.ID, typeId, skus[si.SKU], txn)
 		if err != nil {
 			txn.Rollback()
 			return err
 		}
 
-		for _, unit := range units {
-			unitsIds = append(unitsIds, unit.ID)
-		}
-
+		unitsIds = append(unitsIds, ids...)
 		stockItemsMap[si.ID] = skus[si.SKU]
 	}
 
@@ -149,14 +146,13 @@ func (service *inventoryService) ReserveItems(refNum string, skus map[string]int
 		Status: "onHold",
 	}
 
-	err := txn.Model(models.StockItemUnit{}).Where("id in (?)", unitsIds).Updates(updateWith).Error
-	if err != nil {
+	if err = txn.Model(models.StockItemUnit{}).Where("id in (?)", unitsIds).Updates(updateWith).Error; err != nil {
 		txn.Rollback()
 		return err
 	}
 
 	for id, qty := range stockItemsMap {
-		err := service.summaryService.
+		err = service.summaryService.
 			UpdateStockItemSummary(id, typeId, qty, StatusChange{from: "onHand", to: "onHold"}, txn)
 		if err != nil {
 			txn.Rollback()
@@ -170,14 +166,6 @@ func (service *inventoryService) ReserveItems(refNum string, skus map[string]int
 func (service *inventoryService) ReleaseItems(refNum string) error {
 	txn := service.db.Begin()
 
-	unitsCount := 0
-	txn.Model(&models.StockItemUnit{}).Where("ref_num = ?", refNum).Count(&unitsCount)
-
-	if unitsCount == 0 {
-		txn.Rollback()
-		return fmt.Errorf("No stock item units associated with %s", refNum)
-	}
-
 	// gorm does not update empty fields when updating with struct, so use map here
 	updateWith := map[string]interface{}{
 		"ref_num": sql.NullString{String: "", Valid: false},
@@ -185,29 +173,33 @@ func (service *inventoryService) ReleaseItems(refNum string) error {
 	}
 
 	// extract summary update logic
-	units := []models.StockItemUnit{}
-	if err := txn.Where("ref_num = ?", refNum).Find(&units).Error; err != nil {
-		return err
-	}
+	res := []*struct {
+		StockItemID uint
+		Qty         int
+	}{}
 
-	stockItemsMap := map[uint]int{}
-	for _, unit := range units {
-		if _, ok := stockItemsMap[unit.StockItemID]; ok {
-			stockItemsMap[unit.StockItemID] += 1
-		} else {
-			stockItemsMap[unit.StockItemID] = 1
-		}
-	}
+	txn.Table("stock_item_units u").
+		Select("u.stock_item_id, sum(1) as qty").
+		Joins("left join stock_items si on si.id = u.stock_item_id").
+		Where("u.ref_num = ?", refNum).
+		Group("u.stock_item_id").
+		Find(&res)
 
-	err := txn.Model(&models.StockItemUnit{}).Where("ref_num = ?", refNum).Updates(updateWith).Error
-	if err != nil {
+	result := txn.Model(&models.StockItemUnit{}).Where("ref_num = ?", refNum).Updates(updateWith)
+	if result.Error != nil {
 		txn.Rollback()
-		return err
+		return result.Error
 	}
 
-	for id, qty := range stockItemsMap {
+	if result.RowsAffected == 0 {
+		txn.Rollback()
+		return fmt.Errorf(`No stock item units associated with "%s"`, refNum)
+	}
+
+	typeId := models.StockItemTypes().Sellable
+	for _, item := range res {
 		err := service.summaryService.
-			UpdateStockItemSummary(id, models.StockItemTypes().Sellable, qty, StatusChange{from: "onHold", to: "onHand"}, txn)
+			UpdateStockItemSummary(item.StockItemID, typeId, item.Qty, StatusChange{from: "onHold", to: "onHand"}, txn)
 		if err != nil {
 			txn.Rollback()
 			return err
@@ -217,30 +209,29 @@ func (service *inventoryService) ReleaseItems(refNum string) error {
 	return txn.Commit().Error
 }
 
-func onHandStockItemUnits(stockItemID uint, typeId uint, count int, db *gorm.DB) ([]models.StockItemUnit, error) {
-	units := []models.StockItemUnit{}
-	err := db.Limit(count).
+func onHandStockItemUnits(stockItemID uint, typeId uint, count int, db *gorm.DB) ([]uint, error) {
+	var ids []uint
+	err := db.Model(&models.StockItemUnit{}).
+		Limit(count).
 		Order("created_at").
 		Where("stock_item_id = ?", stockItemID).
 		Where("type_id = ?", typeId).
 		Where("status = ?", "onHand").
-		Find(&units).
+		Pluck("id", &ids).
 		Error
 
+	println("onHandStockItemUnits", stockItemID, len(ids))
+
 	if err != nil {
-		return units, err
+		return ids, err
 	}
 
-	if len(units) < count {
-		err := fmt.Errorf(
-			"Not enough onHand units for stock item %v. Expected %v, got %v",
-			stockItemID,
-			count,
-			len(units),
-		)
+	if len(ids) < count {
+		err := fmt.Errorf("Not enough onHand units for stock item %d of type %d. Expected %d, got %d",
+			stockItemID, typeId, count, len(ids))
 
-		return units, err
+		return ids, err
 	}
 
-	return units, nil
+	return ids, nil
 }
