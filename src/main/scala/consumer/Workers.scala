@@ -1,12 +1,11 @@
 package consumer
 
 import scala.concurrent.Future
-
 import consumer.activity._
 import consumer.aliases._
 import consumer.elastic.ElasticSearchProcessor
 import consumer.elastic.mappings._
-import consumer.elastic.mappings.admin.{CouponCodesSearchView, CouponsSearchView, CustomerItemsView, CustomersSearchView, FailedAuthorizationsSearchView, GiftCardTransactionsSearchView, GiftCardsSearchView, InventorySearchView, InventoryTransactionSearchView, NotesSearchView, OrdersSearchView, ProductsSearchView, PromotionsSearchView, SkuSearchView, StoreAdminsSearchView, StoreCreditTransactionsSearchView, StoreCreditsSearchView}
+import consumer.elastic.mappings.admin._
 import consumer.utils.PhoenixConnectionInfo
 
 object Workers {
@@ -89,6 +88,7 @@ object Workers {
 
   def topicTransformers(connectionInfo: PhoenixConnectionInfo)(
       implicit ec: EC, ac: AS, mat: AM, cp: CP, sc: SC) = Map(
+      "carts_search_view"                  → CartsSearchView(),
       "countries"                          → CountriesSearchView(),
       "customer_items_view"                → CustomerItemsView(),
       "customers_search_view"              → CustomersSearchView(),
