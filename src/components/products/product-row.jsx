@@ -3,7 +3,7 @@ import React, { PropTypes } from 'react';
 import _ from 'lodash';
 
 // helpers
-import { activeStatus, archivedStatus } from '../../paragons/common';
+import { activeStatus, archivedStatus } from 'paragons/common';
 
 // components
 import RoundedPill from '../rounded-pill/rounded-pill';

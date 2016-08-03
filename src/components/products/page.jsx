@@ -25,6 +25,7 @@ import ArchiveActionsSection from '../archive-actions/archive-actions';
 import styles from './page.css';
 
 // helpers
+import { archivedStatus } from 'paragons/common';
 import { transitionTo } from 'browserHistory';
 import {
   setSkuAttribute,
@@ -82,7 +83,11 @@ class ProductPage extends Component {
     if (this.isNew) {
       this.props.actions.productNew();
     } else {
-      this.props.actions.fetchProduct(this.props.params.productId, this.props.params.context);
+      this.props.actions.fetchProduct(this.props.params.productId, this.props.params.context)
+        .then(({payload}) => {
+          const isArchived = archivedStatus(payload);
+          if (isArchived) transitionTo('products');
+        });
     }
   }
 
@@ -100,7 +105,7 @@ class ProductPage extends Component {
   get error(): ?Element {
     const { err } = this.props.products;
     if (!err) return null;
-    
+
     const message = _.get(err, ['messages', 0], 'There was an error saving the product.');
     return (
       <div styleName="error" className="fc-col-md-1-1">

@@ -3,7 +3,7 @@ import React, { Component, Element, PropTypes } from 'react';
 import _ from 'lodash';
 
 // helpers
-import { archivedStatus } from '../../paragons/common';
+import { archivedStatus } from 'paragons/common';
 
 // components
 import MultiSelectRow from '../table/multi-select-row';
