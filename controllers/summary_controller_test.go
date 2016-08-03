@@ -44,6 +44,7 @@ func (suite *summaryControllerTestSuite) Test_GetSummary() {
 	suite.service.On("GetSummary").Return([]*models.StockItemSummary{{
 		StockItemID:     1,
 		StockLocationID: 1,
+		TypeID:          1,
 	}}, nil).Once()
 
 	res := suite.Get("/summary/")
@@ -59,6 +60,7 @@ func (suite *summaryControllerTestSuite) Test_GetSummaryBySKU() {
 		StockItemID:     1,
 		SKU:             sku,
 		StockLocationID: 1,
+		TypeID:          1,
 	}}, nil).Once()
 
 	res := suite.Get(fmt.Sprintf("/summary/%s", sku))

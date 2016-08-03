@@ -43,10 +43,10 @@ var fromStringTest = []struct {
 	in  string
 	out uint
 }{
-	{"sellable", uint(1)},
-	{"non-sellable", uint(2)},
-	{"backorder", uint(3)},
-	{"preorder", uint(4)},
+	{"Sellable", uint(1)},
+	{"Non-sellable", uint(2)},
+	{"Backorder", uint(3)},
+	{"Preorder", uint(4)},
 }
 
 func (suite *stockItemTypeTestSuite) Test_StockItemTypeFromString() {

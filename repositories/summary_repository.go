@@ -35,7 +35,6 @@ func (repository *summaryRepository) resolveDb(db *gorm.DB) *gorm.DB {
 func (repository *summaryRepository) GetSummary() ([]*models.StockItemSummary, error) {
 	summary := []*models.StockItemSummary{}
 	err := repository.db.
-		Debug().
 		Table("stock_item_summaries s").
 		Select("s.*, si.sku, sl.id as stock_location_id, sl.name as stock_location_name").
 		Joins("JOIN stock_items si ON si.id = s.stock_item_id").
@@ -49,7 +48,7 @@ func (repository *summaryRepository) GetSummary() ([]*models.StockItemSummary, e
 
 func (repository *summaryRepository) GetSummaryBySKU(sku string) ([]*models.StockItemSummary, error) {
 	summary := []*models.StockItemSummary{}
-	err := repository.db.Debug().
+	err := repository.db.
 		Table("stock_item_summaries s").
 		Select("s.*, si.sku, sl.id as stock_location_id, sl.name as stock_location_name").
 		Joins("JOIN stock_items si ON si.id = s.stock_item_id").
