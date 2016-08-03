@@ -2,8 +2,10 @@ package controllers
 
 import (
 	"database/sql"
+	"fmt"
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/FoxComm/middlewarehouse/api/payloads"
 	"github.com/FoxComm/middlewarehouse/api/responses"
@@ -16,14 +18,13 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
-	"time"
 )
 
 type shipmentControllerTestSuite struct {
 	GeneralControllerTestSuite
-	shipmentService            *mocks.ShipmentServiceMock
-	addressService             *mocks.AddressServiceMock
-	shipmentLineItemService    *mocks.ShipmentLineItemServiceMock
+	shipmentService         *mocks.ShipmentServiceMock
+	addressService          *mocks.AddressServiceMock
+	shipmentLineItemService *mocks.ShipmentLineItemServiceMock
 	//shipmentTransactionService *mocks.ShipmentTransactionServiceMock
 }
 
@@ -39,7 +40,7 @@ func (suite *shipmentControllerTestSuite) SetupSuite() {
 	suite.shipmentLineItemService = &mocks.ShipmentLineItemServiceMock{}
 	//suite.shipmentTransactionService = &mocks.ShipmentTransactionServiceMock{}
 
-	controller := NewShipmentController(suite.shipmentService, suite.addressService, suite.shipmentLineItemService/*, suite.shipmentTransactionService*/)
+	controller := NewShipmentController(suite.shipmentService, suite.addressService, suite.shipmentLineItemService /*, suite.shipmentTransactionService*/)
 	controller.SetUp(suite.router.Group("/shipments"))
 
 	suite.assert = assert.New(suite.T())
@@ -61,13 +62,13 @@ func (suite *shipmentControllerTestSuite) TearDownTest() {
 	//suite.shipmentTransactionService.Calls = []mock.Call{}
 }
 
-func (suite *shipmentControllerTestSuite) Test_GetShipmentByID_NotFound_ReturnsNotFoundError() {
+func (suite *shipmentControllerTestSuite) Test_GetShipmentsByReferenceNumbers_NotFound_ReturnsNotFoundError() {
 	//arrange
-	suite.shipmentService.On("GetShipmentByID", uint(1)).Return(nil, gorm.ErrRecordNotFound).Once()
+	suite.shipmentService.On("GetShipmentByReferenceNumber", "BR1005").Return(nil, gorm.ErrRecordNotFound).Once()
 
 	//act
 	errors := responses.Error{}
-	response := suite.Get("/shipments/1", &errors)
+	response := suite.Get("/shipments/BR1005", &errors)
 
 	//assert
 	suite.assert.Equal(http.StatusNotFound, response.Code)
@@ -75,20 +76,28 @@ func (suite *shipmentControllerTestSuite) Test_GetShipmentByID_NotFound_ReturnsN
 	suite.assert.Equal(gorm.ErrRecordNotFound.Error(), errors.Errors[0])
 }
 
-func (suite *shipmentControllerTestSuite) Test_GetShipmentByID_Found_ReturnsRecord() {
+func (suite *shipmentControllerTestSuite) Test_GetShipmentsByReferenceNumbers_Found_ReturnsRecords() {
 	//arrange
-	shipment1 := suite.getTestShipment1(uint(1))
 	address1 := suite.getTestAddess1(uint(1))
+	address2 := suite.getTestAddess2(uint(2))
+	shipment1 := suite.getTestShipment1(uint(1), address1.ID)
+	shipment2 := suite.getTestShipment2(uint(2), address2.ID)
 	shipmentLineItem1 := suite.getTestShipmentLineItem1(uint(1), shipment1.ID)
 	shipmentLineItem2 := suite.getTestShipmentLineItem2(uint(2), shipment1.ID)
+	shipmentLineItem3 := suite.getTestShipmentLineItem3(uint(3), shipment2.ID)
 	//shipmentTransaction1 := suite.getTestShipmentTransaction1(uint(1), shipment1.ID)
 	//shipmentTransaction2 := suite.getTestShipmentTransaction2(uint(1), shipment1.ID)
 	//shipmentTransaction3 := suite.getTestShipmentTransaction3(uint(1), shipment1.ID)
-	suite.shipmentService.On("GetShipmentByID", uint(1)).Return(shipment1, nil).Once()
-	suite.addressService.On("GetAddressByID", uint(1)).Return(address1, nil).Once()
-	suite.shipmentLineItemService.On("GetShipmentLineItemsByShipmentID", uint(1)).Return([]*models.ShipmentLineItem{
+	suite.shipmentService.On("GetShipmentByReferenceNumber", shipment1.ReferenceNumber).Return(shipment1, nil).Once()
+	suite.shipmentService.On("GetShipmentByReferenceNumber", shipment2.ReferenceNumber).Return(shipment2, nil).Once()
+	suite.addressService.On("GetAddressByID", address1.ID).Return(address1, nil).Once()
+	suite.addressService.On("GetAddressByID", address2.ID).Return(address2, nil).Once()
+	suite.shipmentLineItemService.On("GetShipmentLineItemsByShipmentID", shipment1.ID).Return([]*models.ShipmentLineItem{
 		shipmentLineItem1,
 		shipmentLineItem2,
+	}, nil).Once()
+	suite.shipmentLineItemService.On("GetShipmentLineItemsByShipmentID", shipment2.ID).Return([]*models.ShipmentLineItem{
+		shipmentLineItem3,
 	}, nil).Once()
 	//suite.shipmentTransactionService.On("GetShipmentTransactionsByShipmentID", uint(1)).Return([]*models.ShipmentTransaction{
 	//	shipmentTransaction1,
@@ -97,15 +106,19 @@ func (suite *shipmentControllerTestSuite) Test_GetShipmentByID_Found_ReturnsReco
 	//}, nil).Once()
 
 	//act
-	shipment := responses.Shipment{}
-	response := suite.Get("/shipments/1", &shipment)
+	shipments := []responses.Shipment{}
+	response := suite.Get(fmt.Sprintf("/shipments/%s,%s", shipment1.ReferenceNumber, shipment2.ReferenceNumber), &shipments)
 
 	//assert
 	suite.assert.Equal(http.StatusOK, response.Code)
-	suite.assert.Equal(shipment1.ID, shipment.ID)
-	suite.assert.Equal(address1.ID, shipment.Address.ID)
-	suite.assert.Equal(shipmentLineItem1.ID, shipment.LineItems[0].ID)
-	suite.assert.Equal(shipmentLineItem2.ID, shipment.LineItems[1].ID)
+	suite.assert.Equal(2, len(shipments))
+	suite.assert.Equal(shipment1.ID, shipments[0].ID)
+	suite.assert.Equal(shipment2.ID, shipments[1].ID)
+	suite.assert.Equal(address1.ID, shipments[0].Address.ID)
+	suite.assert.Equal(address2.ID, shipments[1].Address.ID)
+	suite.assert.Equal(shipmentLineItem1.ID, shipments[0].LineItems[0].ID)
+	suite.assert.Equal(shipmentLineItem2.ID, shipments[0].LineItems[1].ID)
+	suite.assert.Equal(shipmentLineItem3.ID, shipments[1].LineItems[0].ID)
 	//suite.assert.Equal(shipmentTransaction1.ID, shipment.Transactions.CreditCards[0].ID)
 	//suite.assert.Equal(shipmentTransaction2.ID, shipment.Transactions.GiftCards[0].ID)
 	//suite.assert.Equal(shipmentTransaction3.ID, shipment.Transactions.StoreCredits[0].ID)
@@ -113,10 +126,10 @@ func (suite *shipmentControllerTestSuite) Test_GetShipmentByID_Found_ReturnsReco
 
 func (suite *shipmentControllerTestSuite) Test_CreateShipment_ReturnsRecord() {
 	//arrange
-	shipment1 := suite.getTestShipment1(uint(1))
+	address1 := suite.getTestAddess1(uint(1))
+	shipment1 := suite.getTestShipment1(uint(1), address1.ID)
 	payload := &payloads.Shipment{shipment1.ShippingMethodID, shipment1.ReferenceNumber, shipment1.State,
 		nil, shipment1.ShipmentDate.String, shipment1.EstimatedArrival.String, shipment1.DeliveredDate.String, payloads.Address{}}
-	address1 := suite.getTestAddess1(uint(1))
 	payload.Address = payloads.Address{address1.Name, address1.RegionID, address1.City,
 		address1.Zip, address1.Address1, &address1.Address2.String, address1.PhoneNumber}
 	shipmentLineItem1 := suite.getTestShipmentLineItem1(uint(1), shipment1.ID)
@@ -154,14 +167,14 @@ func (suite *shipmentControllerTestSuite) Test_CreateShipment_ReturnsRecord() {
 	suite.assert.Equal(shipmentLineItem2.ID, shipment.LineItems[1].ID)
 }
 
-func (suite *shipmentControllerTestSuite) getTestShipment1(id uint) *models.Shipment {
+func (suite *shipmentControllerTestSuite) getTestShipment1(id uint, addressID uint) *models.Shipment {
 	return &models.Shipment{gormfox.Base{ID: id}, uint(1), "BR10007", "pending",
-		sql.NullString{}, sql.NullString{}, sql.NullString{}, uint(1), sql.NullString{}}
+		sql.NullString{}, sql.NullString{}, sql.NullString{}, addressID, sql.NullString{}}
 }
 
-func (suite *shipmentControllerTestSuite) getTestShipment2(id uint) *models.Shipment {
+func (suite *shipmentControllerTestSuite) getTestShipment2(id uint, addressID uint) *models.Shipment {
 	return &models.Shipment{gormfox.Base{ID: id}, uint(2), "BR10008", "delivered",
-		sql.NullString{}, sql.NullString{}, sql.NullString{}, uint(1), sql.NullString{}}
+		sql.NullString{}, sql.NullString{}, sql.NullString{}, addressID, sql.NullString{}}
 }
 
 func (suite *shipmentControllerTestSuite) getTestAddess1(id uint) *models.Address {

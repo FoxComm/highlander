@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/FoxComm/middlewarehouse/api/payloads"
 	"github.com/FoxComm/middlewarehouse/api/responses"
@@ -12,9 +13,9 @@ import (
 )
 
 type shipmentController struct {
-	shipmentService            services.IShipmentService
-	addressService             services.IAddressService
-	shipmentLineItemService    services.IShipmentLineItemService
+	shipmentService         services.IShipmentService
+	addressService          services.IAddressService
+	shipmentLineItemService services.IShipmentLineItemService
 	//shipmentTransactionService services.IShipmentTransactionService
 }
 
@@ -24,32 +25,32 @@ func NewShipmentController(
 	shipmentLineItemService services.IShipmentLineItemService,
 	//shipmentTransactionService services.IShipmentTransactionService,
 ) IController {
-	return &shipmentController{shipmentService, addressService, shipmentLineItemService/*, shipmentTransactionService*/}
+	return &shipmentController{shipmentService, addressService, shipmentLineItemService /*, shipmentTransactionService*/}
 }
 
 func (controller *shipmentController) SetUp(router gin.IRouter) {
 	// router.GET("/", controller.getShipments())
-	router.GET("/:id", controller.getShipmentByID())
+	router.GET("/:referenceNumbers", controller.getShipmentsByReferenceNumbers())
 	router.POST("/", controller.createShipment())
 }
 
-func (controller *shipmentController) getShipmentByID() gin.HandlerFunc {
+func (controller *shipmentController) getShipmentsByReferenceNumbers() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		id, failure := paramUint(context, "id")
-		if failure != nil {
-			return
-		}
+		referenceNumbers := strings.Split(context.Params.ByName("referenceNumbers"), ",")
 
-		shipment, err := controller.shipmentService.GetShipmentByID(id)
-		if err != nil {
-			handleServiceError(context, err)
-			return
-		}
+		response := make([]*responses.Shipment, len(referenceNumbers))
+		for i, referenceNumber := range referenceNumbers {
+			shipment, err := controller.shipmentService.GetShipmentByReferenceNumber(referenceNumber)
+			if err != nil {
+				handleServiceError(context, err)
+				return
+			}
 
-		response, err := controller.getShipmentResponse(shipment)
-		if err != nil {
-			handleServiceError(context, err)
-			return
+			response[i], err = controller.getShipmentResponse(shipment)
+			if err != nil {
+				handleServiceError(context, err)
+				return
+			}
 		}
 
 		context.JSON(http.StatusOK, response)
