@@ -6,15 +6,14 @@ import consumer.aliases._
 import consumer.elastic.AvroTransformer
 import consumer.elastic.mappings._
 
-final case class OrdersSearchView()(implicit ec: EC) extends AvroTransformer {
-  def mapping() = esMapping("orders_search_view").fields(
-      // Order
+final case class CartsSearchView()(implicit ec: EC) extends AvroTransformer {
+  def mapping() = esMapping("carts_search_view").fields(
+      // Cart
       field("id", IntegerType),
-      field("referenceNumber", StringType).analyzer("upper_cased"),
-      field("state", StringType).index("not_analyzed"),
-      field("createdAt", DateType).format(dateFormat),
-      field("placedAt", DateType).format(dateFormat),
-      field("currency", StringType).index("not_analyzed"),
+      field("referenceNumber", StringType) analyzer "lower_cased",
+      field("createdAt", DateType) format dateFormat,
+      field("updatedAt", DateType) format dateFormat,
+      field("currency", StringType) index "not_analyzed",
       // Totals
       field("subTotal", IntegerType),
       field("shippingTotal", IntegerType),
@@ -31,24 +30,24 @@ final case class OrdersSearchView()(implicit ec: EC) extends AvroTransformer {
             .analyzer("autocomplete")
             .fields(field("raw", StringType).index("not_analyzed")),
           field("isBlacklisted", BooleanType),
-          field("joinedAt", DateType).format(dateFormat),
+          field("joinedAt", DateType) format dateFormat,
           field("revenue", IntegerType),
           field("rank", IntegerType)
       ),
       // Line items
       field("lineItemCount", IntegerType),
       field("lineItems").nested(
-          field("referenceNumber", StringType).analyzer("upper_cased"),
-          field("state", StringType).index("not_analyzed"),
-          field("sku", StringType).index("not_analyzed"),
-          field("name", StringType).analyzer("autocomplete"),
+          field("referenceNumber", StringType) analyzer "lower_cased",
+          field("state", StringType) index "not_analyzed",
+          field("sku", StringType) index "not_analyzed",
+          field("name", StringType) analyzer "autocomplete",
           field("price", IntegerType)
       ),
       // Payments
       field("payments").nested(
-          field("paymentMethodType", StringType).index("not_analyzed"),
+          field("paymentMethodType", StringType) index "not_analyzed",
           field("amount", IntegerType),
-          field("currency", StringType).index("not_analyzed")
+          field("currency", StringType) index "not_analyzed"
       ),
       field("creditCardCount", IntegerType),
       field("creditCardTotal", IntegerType),
@@ -59,29 +58,18 @@ final case class OrdersSearchView()(implicit ec: EC) extends AvroTransformer {
       // Shipments
       field("shipmentCount", IntegerType),
       field("shipments").nested(
-          field("state", StringType).index("not_analyzed"),
+          field("state", StringType) index "not_analyzed",
           field("shippingPrice", IntegerType),
-          field("adminDisplayName", StringType).analyzer("autocomplete"),
-          field("storefrontDisplayName", StringType).analyzer("autocomplete")
+          field("adminDisplayName", StringType) analyzer "autocomplete",
+          field("storefrontDisplayName", StringType) analyzer "autocomplete"
       ),
       // Addresses
       field("shippingAddressesCount", IntegerType),
       address("shippingAddresses"),
       field("billingAddressesCount", IntegerType),
       address("billingAddresses"),
-      // Assignments
-      field("assignmentCount", IntegerType),
-      field("assignees").nested(
-          field("name", StringType).analyzer("autocomplete"),
-          field("assignedAt", DateType).format(dateFormat)
-      ),
-      // Returns
-      field("returns").nested(
-          field("referenceNumber", StringType).analyzer("upper_cased"),
-          field("state", StringType).index("not_analyzed"),
-          field("returnType", StringType).index("not_analyzed"),
-          field("placedAt", DateType).format(dateFormat)
-      )
+      // Cart-specific
+      field("deletedAt", DateType) format dateFormat
   )
 
   override def nestedFields() = List(
@@ -90,8 +78,6 @@ final case class OrdersSearchView()(implicit ec: EC) extends AvroTransformer {
       "payments",
       "shipments",
       "shipping_addresses",
-      "billing_addresses",
-      "assignees",
-      "returns"
+      "billing_addresses"
   )
 }
