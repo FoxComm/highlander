@@ -27,6 +27,11 @@ func (consumer *Consumer) Run() {
 }
 
 func (consumer *Consumer) handler(m metamorphosis.AvroMessage) error {
-	fmt.Println(string(m.Bytes()))
+	sku, err := NewSKUFromAvro(m)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%v\n", sku)
 	return nil
 }
