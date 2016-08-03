@@ -23,5 +23,6 @@ func NewStockItemFromPayload(payload *payloads.StockItem) *StockItem {
 		SKU:             payload.SKU,
 		DefaultUnitCost: payload.DefaultUnitCost,
 	}
+
 	return item
 }

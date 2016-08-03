@@ -41,8 +41,14 @@ func (service *inventoryService) GetStockItemById(id uint) (*models.StockItem, e
 }
 
 func (service *inventoryService) CreateStockItem(stockItem *models.StockItem) (*models.StockItem, error) {
-	stockItem, err := service.stockItemRepo.CreateStockItem(stockItem)
-	if err != nil {
+	txn := service.db.Begin()
+	onConflict := fmt.Sprintf(
+		"ON CONFLICT (sku, stock_location_id) DO UPDATE SET default_unit_cost = '%d'",
+		stockItem.DefaultUnitCost,
+	)
+
+	if err := txn.Set("gorm:insert_option", onConflict).Create(stockItem).Error; err != nil {
+		txn.Rollback()
 		return nil, err
 	}
 
