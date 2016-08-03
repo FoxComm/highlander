@@ -3,9 +3,8 @@ package payloads
 import "errors"
 
 type DecrementStockItemUnits struct {
-	StockLocationID uint
-	Qty             int
-	Type            string
+	Qty  int
+	Type string
 }
 
 func (r DecrementStockItemUnits) Validate() error {

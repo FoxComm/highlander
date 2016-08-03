@@ -32,10 +32,14 @@ func (m *SummaryServiceMock) GetSummaryBySKU(code string) (*models.StockItemSumm
 	return nil, args.Error(1)
 }
 
-func (m *SummaryServiceMock) CreateStockItemSummary(stockItemId, locationId uint, dbContext *gorm.DB) error {
-	return nil
+func (m *SummaryServiceMock) CreateStockItemSummary(stockItemId uint, dbContext *gorm.DB) error {
+	args := m.Called(stockItemId, dbContext)
+
+	return args.Error(0)
 }
 
-func (m *SummaryServiceMock) UpdateStockItemSummary(stockItemID, locationId, typeId uint, qty int, status services.StatusChange, dbContext *gorm.DB) error {
-	return nil
+func (m *SummaryServiceMock) UpdateStockItemSummary(stockItemId, typeId uint, qty int, status services.StatusChange, dbContext *gorm.DB) error {
+	args := m.Called(stockItemId, typeId, qty, status, dbContext)
+
+	return args.Error(0)
 }

@@ -16,8 +16,8 @@ type summaryService struct {
 }
 
 type ISummaryService interface {
-	CreateStockItemSummary(stockItemId, locationId uint, dbContext *gorm.DB) error
-	UpdateStockItemSummary(stockItemId, locationId, typeId uint, qty int, status StatusChange, dbContext *gorm.DB) error
+	CreateStockItemSummary(stockItemId uint, dbContext *gorm.DB) error
+	UpdateStockItemSummary(stockItemId, typeId uint, qty int, status StatusChange, dbContext *gorm.DB) error
 
 	GetSummary() ([]*models.StockItemSummary, error)
 	GetSummaryBySKU(sku string) (*models.StockItemSummary, error)
@@ -58,21 +58,21 @@ func (service *summaryService) GetSummaryBySKU(sku string) (*models.StockItemSum
 	return summary, nil
 }
 
-func (service *summaryService) CreateStockItemSummary(stockItemId, locationId uint, dbContext *gorm.DB) error {
+func (service *summaryService) CreateStockItemSummary(stockItemId uint, dbContext *gorm.DB) error {
 	db := service.resolveDb(dbContext)
 	types := models.StockItemTypes()
 
 	var err error
 
-	err = createStockItemSummary(stockItemId, locationId, types.Sellable, db)
-	err = createStockItemSummary(stockItemId, locationId, types.NonSellable, db)
-	err = createStockItemSummary(stockItemId, locationId, types.Backorder, db)
-	err = createStockItemSummary(stockItemId, locationId, types.Preorder, db)
+	err = createStockItemSummary(stockItemId, types.Sellable, db)
+	err = createStockItemSummary(stockItemId, types.NonSellable, db)
+	err = createStockItemSummary(stockItemId, types.Backorder, db)
+	err = createStockItemSummary(stockItemId, types.Preorder, db)
 
 	return err
 }
 
-func (service *summaryService) UpdateStockItemSummary(stockItemId, locationId, typeId uint, qty int, status StatusChange, dbContext *gorm.DB) error {
+func (service *summaryService) UpdateStockItemSummary(stockItemId, typeId uint, qty int, status StatusChange, dbContext *gorm.DB) error {
 	db := service.resolveDb(dbContext)
 
 	summary := &models.StockItemSummary{}
@@ -100,8 +100,8 @@ func (service *summaryService) resolveDb(db *gorm.DB) *gorm.DB {
 	}
 }
 
-func createStockItemSummary(stockItemId, locationId, typeId uint, db *gorm.DB) error {
-	summary := models.StockItemSummary{StockItemID: stockItemId, StockLocationID: locationId, TypeID: typeId}
+func createStockItemSummary(stockItemId uint, typeId uint, db *gorm.DB) error {
+	summary := models.StockItemSummary{StockItemID: stockItemId, TypeID: typeId}
 
 	if err := db.Create(&summary).Error; err != nil {
 		return err

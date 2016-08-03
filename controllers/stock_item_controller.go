@@ -110,7 +110,7 @@ func (controller *stockItemController) IncrementStockItemUnits() gin.HandlerFunc
 
 		units := models.NewStockItemUnitsFromPayload(uint(id), &payload)
 
-		if err := controller.service.IncrementStockItemUnits(uint(id), payload.StockLocationID, typeId, units); err != nil {
+		if err := controller.service.IncrementStockItemUnits(uint(id), typeId, units); err != nil {
 			handleServiceError(context, err)
 			return
 		}
@@ -142,7 +142,7 @@ func (controller *stockItemController) DecrementStockItemUnits() gin.HandlerFunc
 			return
 		}
 
-		if err := controller.service.DecrementStockItemUnits(uint(id), payload.StockLocationID, typeId, payload.Qty); err != nil {
+		if err := controller.service.DecrementStockItemUnits(uint(id), typeId, payload.Qty); err != nil {
 			handleServiceError(context, err)
 			return
 		}

@@ -58,11 +58,11 @@ func (suite *summaryServiceTestSuite) SetupTest() {
 		units = append(units, item)
 	}
 
-	inventoryService.IncrementStockItemUnits(suite.si.ID, suite.si.StockLocationID, typeId, units)
+	inventoryService.IncrementStockItemUnits(suite.si.ID, typeId, units)
 }
 
 func (suite *summaryServiceTestSuite) Test_Increment_OnHand() {
-	err := suite.service.UpdateStockItemSummary(suite.si.ID, suite.si.StockLocationID, suite.typeId, 5, StatusChange{to: "onHand"}, nil)
+	err := suite.service.UpdateStockItemSummary(suite.si.ID, suite.typeId, 5, StatusChange{to: "onHand"}, nil)
 	suite.assert.Nil(err)
 
 	summary := models.StockItemSummary{}
@@ -73,7 +73,7 @@ func (suite *summaryServiceTestSuite) Test_Increment_OnHand() {
 }
 
 func (suite *summaryServiceTestSuite) Test_Increment_OnHold() {
-	err := suite.service.UpdateStockItemSummary(suite.si.ID, suite.si.StockLocationID, suite.typeId, 5, StatusChange{to: "onHold"}, nil)
+	err := suite.service.UpdateStockItemSummary(suite.si.ID, suite.typeId, 5, StatusChange{to: "onHold"}, nil)
 	suite.assert.Nil(err)
 
 	summary := models.StockItemSummary{}
@@ -84,7 +84,7 @@ func (suite *summaryServiceTestSuite) Test_Increment_OnHold() {
 }
 
 func (suite *summaryServiceTestSuite) Test_Increment_Reserved() {
-	err := suite.service.UpdateStockItemSummary(suite.si.ID, suite.si.StockLocationID, suite.typeId, 5, StatusChange{to: "reserved"}, nil)
+	err := suite.service.UpdateStockItemSummary(suite.si.ID, suite.typeId, 5, StatusChange{to: "reserved"}, nil)
 	suite.assert.Nil(err)
 
 	summary := models.StockItemSummary{}
@@ -95,7 +95,7 @@ func (suite *summaryServiceTestSuite) Test_Increment_Reserved() {
 }
 
 func (suite *summaryServiceTestSuite) Test_Increment_Chain() {
-	suite.service.UpdateStockItemSummary(suite.si.ID, suite.si.StockLocationID, suite.typeId, 5, StatusChange{from: "onHand", to: "onHold"}, nil)
+	suite.service.UpdateStockItemSummary(suite.si.ID, suite.typeId, 5, StatusChange{from: "onHand", to: "onHold"}, nil)
 
 	summary := models.StockItemSummary{}
 	suite.db.First(&summary, suite.si.ID)
@@ -104,7 +104,7 @@ func (suite *summaryServiceTestSuite) Test_Increment_Chain() {
 	suite.assert.Equal(0, summary.Reserved)
 	suite.assert.Equal(5, summary.AFS)
 
-	suite.service.UpdateStockItemSummary(suite.si.ID, suite.si.StockLocationID, suite.typeId, 2, StatusChange{from: "onHold", to: "reserved"}, nil)
+	suite.service.UpdateStockItemSummary(suite.si.ID, suite.typeId, 2, StatusChange{from: "onHold", to: "reserved"}, nil)
 
 	suite.db.First(&summary, suite.si.ID)
 	suite.assert.Equal(suite.onHand-5, summary.OnHand)
@@ -112,7 +112,7 @@ func (suite *summaryServiceTestSuite) Test_Increment_Chain() {
 	suite.assert.Equal(2, summary.Reserved)
 	suite.assert.Equal(5, summary.AFS)
 
-	suite.service.UpdateStockItemSummary(suite.si.ID, suite.si.StockLocationID, suite.typeId, 1, StatusChange{from: "reserved", to: "onHand"}, nil)
+	suite.service.UpdateStockItemSummary(suite.si.ID, suite.typeId, 1, StatusChange{from: "reserved", to: "onHand"}, nil)
 
 	suite.db.First(&summary, suite.si.ID)
 	suite.assert.Equal(suite.onHand-5+1, summary.OnHand)
@@ -122,7 +122,7 @@ func (suite *summaryServiceTestSuite) Test_Increment_Chain() {
 }
 
 func (suite *summaryServiceTestSuite) Test_GetSummary() {
-	suite.service.UpdateStockItemSummary(suite.si.ID, suite.si.StockLocationID, suite.typeId, 5, StatusChange{to: "onHand"}, nil)
+	suite.service.UpdateStockItemSummary(suite.si.ID, suite.typeId, 5, StatusChange{to: "onHand"}, nil)
 
 	summary, err := suite.service.GetSummary()
 	suite.assert.Nil(err)
@@ -146,7 +146,7 @@ func (suite *summaryServiceTestSuite) Test_GetSummaryBySKU_NotFoundSKU() {
 }
 
 func (suite *summaryServiceTestSuite) Test_GetSummaryBySKU_NonZero() {
-	err := suite.service.UpdateStockItemSummary(suite.si.ID, suite.si.StockLocationID, suite.typeId, 5, StatusChange{to: "onHand"}, nil)
+	err := suite.service.UpdateStockItemSummary(suite.si.ID, suite.typeId, 5, StatusChange{to: "onHand"}, nil)
 	suite.assert.Nil(err)
 
 	summary, err := suite.service.GetSummaryBySKU(suite.si.SKU)
