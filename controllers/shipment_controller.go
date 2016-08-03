@@ -29,9 +29,9 @@ func NewShipmentController(
 }
 
 func (controller *shipmentController) SetUp(router gin.IRouter) {
-	// router.GET("/", controller.getShipments())
 	router.GET("/:referenceNumbers", controller.getShipmentsByReferenceNumbers())
 	router.POST("/", controller.createShipment())
+	router.PUT("/:id", controller.updateShipment())
 }
 
 func (controller *shipmentController) getShipmentsByReferenceNumbers() gin.HandlerFunc {
@@ -63,7 +63,7 @@ func (controller *shipmentController) getShipmentsByReferenceNumbers() gin.Handl
 
 func (controller *shipmentController) createShipment() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		payload := &payloads.Shipment{}
+		payload := &payloads.ShipmentFull{}
 		if parse(context, payload) != nil {
 			return
 		}
@@ -73,7 +73,7 @@ func (controller *shipmentController) createShipment() gin.HandlerFunc {
 			shipmentLineItems[i] = models.NewShipmentLineItemFromPayload(&shipmentLineItemPayload)
 		}
 		shipment, err := controller.shipmentService.CreateShipment(
-			models.NewShipmentFromPayload(payload),
+			models.NewShipmentFromPayload(payloads.NewShipmentFromShipmentFull(payload)),
 			models.NewAddressFromPayload(&payload.Address),
 			shipmentLineItems,
 		)
@@ -89,6 +89,37 @@ func (controller *shipmentController) createShipment() gin.HandlerFunc {
 		}
 
 		context.JSON(http.StatusCreated, response)
+	}
+}
+
+func (controller *shipmentController) updateShipment() gin.HandlerFunc {
+	return func(context *gin.Context) {
+		payload := &payloads.Shipment{}
+		if parse(context, payload) != nil {
+			return
+		}
+
+		id, failure := paramUint(context, "id")
+		if failure != nil {
+			return
+		}
+
+		model := models.NewShipmentFromPayload(payload)
+		model.ID = id
+		shipment, err := controller.shipmentService.UpdateShipment(model)
+
+		if err != nil {
+			handleServiceError(context, err)
+			return
+		}
+
+		response, err := controller.getShipmentResponse(shipment)
+		if err != nil {
+			handleServiceError(context, err)
+			return
+		}
+
+		context.JSON(http.StatusOK, response)
 	}
 }
 
