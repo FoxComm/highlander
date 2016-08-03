@@ -79,6 +79,23 @@ const _fetchSummary = createAsyncActions(
 );
 export const fetchSummary = _fetchSummary.perform;
 
+const _changeItemUnits = createAsyncActions(
+  'inventory-increment',
+  (skuCode, qty) => {
+    let payload, action;
+    if (qty >= 0) {
+      payload = {Qty: qty};
+      action = 'increment';
+    } else {
+      payload = {Qty: -qty};
+      action = 'decrement';
+    }
+    return Api.patch(`/inventory/stock-items/${skuCode}/${action}`, payload);
+  }
+);
+
+export const changeItemUnits = _changeItemUnits.perform;
+
 const initialState = {};
 
 const reducer = createReducer({
