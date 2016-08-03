@@ -15,16 +15,16 @@ type shipmentController struct {
 	shipmentService            services.IShipmentService
 	addressService             services.IAddressService
 	shipmentLineItemService    services.IShipmentLineItemService
-	shipmentTransactionService services.IShipmentTransactionService
+	//shipmentTransactionService services.IShipmentTransactionService
 }
 
 func NewShipmentController(
 	shipmentService services.IShipmentService,
 	addressService services.IAddressService,
 	shipmentLineItemService services.IShipmentLineItemService,
-	shipmentTransactionService services.IShipmentTransactionService,
+	//shipmentTransactionService services.IShipmentTransactionService,
 ) IController {
-	return &shipmentController{shipmentService, addressService, shipmentLineItemService, shipmentTransactionService}
+	return &shipmentController{shipmentService, addressService, shipmentLineItemService/*, shipmentTransactionService*/}
 }
 
 func (controller *shipmentController) SetUp(router gin.IRouter) {
@@ -98,10 +98,10 @@ func (controller *shipmentController) getShipmentResponse(shipment *models.Shipm
 		return nil, err
 	}
 
-	shipmentTransactions, err := controller.shipmentTransactionService.GetShipmentTransactionsByShipmentID(shipment.ID)
-	if err != nil {
-		return nil, err
-	}
+	//shipmentTransactions, err := controller.shipmentTransactionService.GetShipmentTransactionsByShipmentID(shipment.ID)
+	//if err != nil {
+	//	return nil, err
+	//}
 
 	response := responses.NewShipmentFromModel(shipment)
 
@@ -111,7 +111,7 @@ func (controller *shipmentController) getShipmentResponse(shipment *models.Shipm
 		response.LineItems = append(response.LineItems, *responses.NewShipmentLineItemFromModel(lineItem))
 	}
 
-	response.Transactions = *responses.NewTransactionListFromModelsList(shipmentTransactions)
+	//response.Transactions = *responses.NewTransactionListFromModelsList(shipmentTransactions)
 
 	return response, nil
 }

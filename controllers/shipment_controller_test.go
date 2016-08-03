@@ -24,7 +24,7 @@ type shipmentControllerTestSuite struct {
 	shipmentService            *mocks.ShipmentServiceMock
 	addressService             *mocks.AddressServiceMock
 	shipmentLineItemService    *mocks.ShipmentLineItemServiceMock
-	shipmentTransactionService *mocks.ShipmentTransactionServiceMock
+	//shipmentTransactionService *mocks.ShipmentTransactionServiceMock
 }
 
 func TestShipmentControllerSuite(t *testing.T) {
@@ -37,9 +37,9 @@ func (suite *shipmentControllerTestSuite) SetupSuite() {
 	suite.shipmentService = &mocks.ShipmentServiceMock{}
 	suite.addressService = &mocks.AddressServiceMock{}
 	suite.shipmentLineItemService = &mocks.ShipmentLineItemServiceMock{}
-	suite.shipmentTransactionService = &mocks.ShipmentTransactionServiceMock{}
+	//suite.shipmentTransactionService = &mocks.ShipmentTransactionServiceMock{}
 
-	controller := NewShipmentController(suite.shipmentService, suite.addressService, suite.shipmentLineItemService, suite.shipmentTransactionService)
+	controller := NewShipmentController(suite.shipmentService, suite.addressService, suite.shipmentLineItemService/*, suite.shipmentTransactionService*/)
 	controller.SetUp(suite.router.Group("/shipments"))
 
 	suite.assert = assert.New(suite.T())
@@ -56,9 +56,9 @@ func (suite *shipmentControllerTestSuite) TearDownTest() {
 	suite.shipmentLineItemService.AssertExpectations(suite.T())
 	suite.shipmentLineItemService.ExpectedCalls = []*mock.Call{}
 	suite.shipmentLineItemService.Calls = []mock.Call{}
-	suite.shipmentTransactionService.AssertExpectations(suite.T())
-	suite.shipmentTransactionService.ExpectedCalls = []*mock.Call{}
-	suite.shipmentTransactionService.Calls = []mock.Call{}
+	//suite.shipmentTransactionService.AssertExpectations(suite.T())
+	//suite.shipmentTransactionService.ExpectedCalls = []*mock.Call{}
+	//suite.shipmentTransactionService.Calls = []mock.Call{}
 }
 
 func (suite *shipmentControllerTestSuite) Test_GetShipmentByID_NotFound_ReturnsNotFoundError() {
@@ -81,20 +81,20 @@ func (suite *shipmentControllerTestSuite) Test_GetShipmentByID_Found_ReturnsReco
 	address1 := suite.getTestAddess1(uint(1))
 	shipmentLineItem1 := suite.getTestShipmentLineItem1(uint(1), shipment1.ID)
 	shipmentLineItem2 := suite.getTestShipmentLineItem2(uint(2), shipment1.ID)
-	shipmentTransaction1 := suite.getTestShipmentTransaction1(uint(1), shipment1.ID)
-	shipmentTransaction2 := suite.getTestShipmentTransaction2(uint(1), shipment1.ID)
-	shipmentTransaction3 := suite.getTestShipmentTransaction3(uint(1), shipment1.ID)
+	//shipmentTransaction1 := suite.getTestShipmentTransaction1(uint(1), shipment1.ID)
+	//shipmentTransaction2 := suite.getTestShipmentTransaction2(uint(1), shipment1.ID)
+	//shipmentTransaction3 := suite.getTestShipmentTransaction3(uint(1), shipment1.ID)
 	suite.shipmentService.On("GetShipmentByID", uint(1)).Return(shipment1, nil).Once()
 	suite.addressService.On("GetAddressByID", uint(1)).Return(address1, nil).Once()
 	suite.shipmentLineItemService.On("GetShipmentLineItemsByShipmentID", uint(1)).Return([]*models.ShipmentLineItem{
 		shipmentLineItem1,
 		shipmentLineItem2,
 	}, nil).Once()
-	suite.shipmentTransactionService.On("GetShipmentTransactionsByShipmentID", uint(1)).Return([]*models.ShipmentTransaction{
-		shipmentTransaction1,
-		shipmentTransaction2,
-		shipmentTransaction3,
-	}, nil).Once()
+	//suite.shipmentTransactionService.On("GetShipmentTransactionsByShipmentID", uint(1)).Return([]*models.ShipmentTransaction{
+	//	shipmentTransaction1,
+	//	shipmentTransaction2,
+	//	shipmentTransaction3,
+	//}, nil).Once()
 
 	//act
 	shipment := responses.Shipment{}
@@ -106,9 +106,9 @@ func (suite *shipmentControllerTestSuite) Test_GetShipmentByID_Found_ReturnsReco
 	suite.assert.Equal(address1.ID, shipment.Address.ID)
 	suite.assert.Equal(shipmentLineItem1.ID, shipment.LineItems[0].ID)
 	suite.assert.Equal(shipmentLineItem2.ID, shipment.LineItems[1].ID)
-	suite.assert.Equal(shipmentTransaction1.ID, shipment.Transactions.CreditCards[0].ID)
-	suite.assert.Equal(shipmentTransaction2.ID, shipment.Transactions.GiftCards[0].ID)
-	suite.assert.Equal(shipmentTransaction3.ID, shipment.Transactions.StoreCredits[0].ID)
+	//suite.assert.Equal(shipmentTransaction1.ID, shipment.Transactions.CreditCards[0].ID)
+	//suite.assert.Equal(shipmentTransaction2.ID, shipment.Transactions.GiftCards[0].ID)
+	//suite.assert.Equal(shipmentTransaction3.ID, shipment.Transactions.StoreCredits[0].ID)
 }
 
 func (suite *shipmentControllerTestSuite) Test_CreateShipment_ReturnsRecord() {
@@ -140,7 +140,7 @@ func (suite *shipmentControllerTestSuite) Test_CreateShipment_ReturnsRecord() {
 		shipmentLineItem1,
 		shipmentLineItem2,
 	}, nil).Once()
-	suite.shipmentTransactionService.On("GetShipmentTransactionsByShipmentID", uint(1)).Return([]*models.ShipmentTransaction{}, nil).Once()
+	//suite.shipmentTransactionService.On("GetShipmentTransactionsByShipmentID", uint(1)).Return([]*models.ShipmentTransaction{}, nil).Once()
 
 	//act
 	shipment := responses.Shipment{}
