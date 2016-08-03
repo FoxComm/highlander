@@ -1,3 +1,5 @@
+/* @flow */
+
 // libs
 import React, { Component, Element, PropTypes } from 'react';
 import _ from 'lodash';
@@ -8,22 +10,33 @@ import { archivedStatus } from 'paragons/common';
 // components
 import MultiSelectRow from '../table/multi-select-row';
 
+// types
+import type { Sku } from '../../modules/skus/details';
+
+type Props = {
+  sku: Sku,
+  columns?: Array<Object>,
+  params: Object,
+};
+
 function setCellContents(sku, field) {
   return _.get(sku, field);
 }
 
-const SkuRow = (props) => {
+const SkuRow = (props: Props) => {
   const { sku, columns, params } = props;
   const key = `sku-${sku.id}`;
   const isArchived = archivedStatus(sku);
 
-  if (isArchived) return (
-    <MultiSelectRow
-      columns={columns}
-      row={sku}
-      setCellContents={setCellContents}
-      params={params} />
-  );
+  if (isArchived) {
+    return (
+      <MultiSelectRow
+        columns={columns}
+        row={sku}
+        setCellContents={setCellContents}
+        params={params} />
+    );
+  }
 
   return (
     <MultiSelectRow
@@ -34,12 +47,6 @@ const SkuRow = (props) => {
       setCellContents={setCellContents}
       params={params} />
   );
-};
-
-SkuRow.propTypes = {
-  sku: PropTypes.object.isRequired,
-  columns: PropTypes.array.isRequired,
-  params: PropTypes.object.isRequired,
 };
 
 export default SkuRow;

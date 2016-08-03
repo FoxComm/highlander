@@ -31,7 +31,7 @@ import type { Sku } from '../../modules/skus/details';
 type Props = {
   actions: {
     newSku: () => void,
-    fetchSku: (code: string, context?: string) => void,
+    fetchSku: (code: string, context?: string) => Promise,
     createSku: (sku: Sku, context?: string) => void,
     updateSku: (sku: Sku, context?: string) => void,
   },

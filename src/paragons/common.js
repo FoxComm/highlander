@@ -31,6 +31,6 @@ export function archivedStatus(object: Object): boolean {
   const now = moment();
   let archivedAt = _.get(object, 'archivedAt');
   archivedAt = archivedAt ? moment.utc(archivedAt) : null;
-  return now.diff(archivedAt) > 0
+  return now.diff(archivedAt) > 0;
 }
 

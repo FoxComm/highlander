@@ -9,6 +9,15 @@ import { activeStatus, archivedStatus } from 'paragons/common';
 import RoundedPill from '../rounded-pill/rounded-pill';
 import MultiSelectRow from '../table/multi-select-row';
 
+// types
+import type { Product } from 'paragons/product';
+
+type Props = {
+  product: Product,
+  columns: ?Array,
+  params: Object,
+};
+
 function setCellContents(product, field) {
   switch (field) {
     case 'image':
@@ -20,18 +29,20 @@ function setCellContents(product, field) {
   }
 }
 
-const ProductRow = (props) => {
+const ProductRow = (props: Props) => {
   const { product, columns, params } = props;
   const key = `product-${product.id}`;
   const isArchived = archivedStatus(product);
 
-  if (isArchived) return (
-    <MultiSelectRow
-      columns={columns}
-      row={product}
-      setCellContents={setCellContents}
-      params={params} />
-  );
+  if (isArchived) {
+    return (
+      <MultiSelectRow
+        columns={columns}
+        row={product}
+        setCellContents={setCellContents}
+        params={params} />
+    );
+  }
 
   return (
     <MultiSelectRow
@@ -42,12 +53,6 @@ const ProductRow = (props) => {
       setCellContents={setCellContents}
       params={params} />
   );
-};
-
-ProductRow.propTypes = {
-  product: PropTypes.object.isRequired,
-  columns: PropTypes.array,
-  params: PropTypes.object.isRequired,
 };
 
 export default ProductRow;

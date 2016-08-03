@@ -37,7 +37,7 @@ import type { Product } from 'paragons/product';
 type Props = {
   actions: {
     createProduct: (product: Product) => void,
-    fetchProduct: (productId: string, context: string) => void,
+    fetchProduct: (productId: string, context: string) => Promise,
     productNew: () => void,
     updateProduct: (product: Product, context: string) => void,
   },
