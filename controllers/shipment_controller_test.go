@@ -64,7 +64,7 @@ func (suite *shipmentControllerTestSuite) TearDownTest() {
 
 func (suite *shipmentControllerTestSuite) Test_GetShipmentsByReferenceNumbers_NotFound_ReturnsNotFoundError() {
 	//arrange
-	suite.shipmentService.On("GetShipmentByReferenceNumber", "BR1005").Return(nil, gorm.ErrRecordNotFound).Once()
+	suite.shipmentService.On("GetShipmentsByReferenceNumber", "BR1005").Return(nil, gorm.ErrRecordNotFound).Once()
 
 	//act
 	errors := responses.Error{}
@@ -88,8 +88,12 @@ func (suite *shipmentControllerTestSuite) Test_GetShipmentsByReferenceNumbers_Fo
 	//shipmentTransaction1 := suite.getTestShipmentTransaction1(uint(1), shipment1.ID)
 	//shipmentTransaction2 := suite.getTestShipmentTransaction2(uint(1), shipment1.ID)
 	//shipmentTransaction3 := suite.getTestShipmentTransaction3(uint(1), shipment1.ID)
-	suite.shipmentService.On("GetShipmentByReferenceNumber", shipment1.ReferenceNumber).Return(shipment1, nil).Once()
-	suite.shipmentService.On("GetShipmentByReferenceNumber", shipment2.ReferenceNumber).Return(shipment2, nil).Once()
+	suite.shipmentService.On("GetShipmentsByReferenceNumber", shipment1.ReferenceNumber).Return([]*models.Shipment{
+		shipment1,
+	}, nil).Once()
+	suite.shipmentService.On("GetShipmentsByReferenceNumber", shipment2.ReferenceNumber).Return([]*models.Shipment{
+		shipment2,
+	}, nil).Once()
 	suite.addressService.On("GetAddressByID", address1.ID).Return(address1, nil).Once()
 	suite.addressService.On("GetAddressByID", address2.ID).Return(address2, nil).Once()
 	suite.shipmentLineItemService.On("GetShipmentLineItemsByShipmentID", shipment1.ID).Return([]*models.ShipmentLineItem{

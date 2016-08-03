@@ -10,7 +10,7 @@ import (
 // }
 
 type IShipmentService interface {
-	GetShipmentByReferenceNumber(referenceNumber string) (*models.Shipment, error)
+	GetShipmentsByReferenceNumber(referenceNumber string) ([]*models.Shipment, error)
 	CreateShipment(shipment *models.Shipment, address *models.Address, lineItems []*models.ShipmentLineItem) (*models.Shipment, error)
 	UpdateShipment(shipment *models.Shipment) (*models.Shipment, error)
 }

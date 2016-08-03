@@ -38,18 +38,22 @@ func (controller *shipmentController) getShipmentsByReferenceNumbers() gin.Handl
 	return func(context *gin.Context) {
 		referenceNumbers := strings.Split(context.Params.ByName("referenceNumbers"), ",")
 
-		response := make([]*responses.Shipment, len(referenceNumbers))
-		for i, referenceNumber := range referenceNumbers {
-			shipment, err := controller.shipmentService.GetShipmentByReferenceNumber(referenceNumber)
+		response := []*responses.Shipment{}
+		for _, referenceNumber := range referenceNumbers {
+			shipments, err := controller.shipmentService.GetShipmentsByReferenceNumber(referenceNumber)
 			if err != nil {
 				handleServiceError(context, err)
 				return
 			}
 
-			response[i], err = controller.getShipmentResponse(shipment)
-			if err != nil {
-				handleServiceError(context, err)
-				return
+			for _, shipment := range shipments {
+				responseItem, err := controller.getShipmentResponse(shipment)
+				if err != nil {
+					handleServiceError(context, err)
+					return
+				}
+
+				response = append(response, responseItem)
 			}
 		}
 
