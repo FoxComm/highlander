@@ -471,12 +471,11 @@ class CustomerIntegrationTest
     "deletes successfully if the card exists" in new CreditCardFixture {
       reset(stripeApiMock)
 
-      when(stripeApiMock.findCustomer(m.any(), m.any()))
-        .thenReturn(Result.good(new StripeCustomer))
+      when(stripeApiMock.findCustomer(m.any())).thenReturn(Result.good(new StripeCustomer))
 
-      when(stripeApiMock.findDefaultCard(m.any(), m.any())).thenReturn(Result.good(new StripeCard))
+      when(stripeApiMock.findDefaultCard(m.any())).thenReturn(Result.good(new StripeCard))
 
-      when(stripeApiMock.deleteExternalAccount(m.any(), m.any()))
+      when(stripeApiMock.deleteExternalAccount(m.any()))
         .thenReturn(Result.good(new DeletedExternalAccount))
 
       val response =
@@ -494,13 +493,11 @@ class CustomerIntegrationTest
       "removes the original card from wallet" in new CreditCardFixture {
         reset(stripeApiMock)
 
-        when(stripeApiMock.findCustomer(m.any(), m.any()))
-          .thenReturn(Result.good(new StripeCustomer))
+        when(stripeApiMock.findCustomer(m.any())).thenReturn(Result.good(new StripeCustomer))
 
-        when(stripeApiMock.findDefaultCard(m.any(), m.any()))
-          .thenReturn(Result.good(new StripeCard))
+        when(stripeApiMock.findDefaultCard(m.any())).thenReturn(Result.good(new StripeCard))
 
-        when(stripeApiMock.updateExternalAccount(m.any(), m.any(), m.any()))
+        when(stripeApiMock.updateExternalAccount(m.any(), m.any()))
           .thenReturn(Result.good(new StripeCard))
 
         val payload = EditCreditCard(holderName = Some("Bob"))
@@ -519,13 +516,11 @@ class CustomerIntegrationTest
       "creates a new version of the edited card in the wallet" in new CreditCardFixture {
         reset(stripeApiMock)
 
-        when(stripeApiMock.findCustomer(m.any(), m.any()))
-          .thenReturn(Result.good(new StripeCustomer))
+        when(stripeApiMock.findCustomer(m.any())).thenReturn(Result.good(new StripeCustomer))
 
-        when(stripeApiMock.findDefaultCard(m.any(), m.any()))
-          .thenReturn(Result.good(new StripeCard))
+        when(stripeApiMock.findDefaultCard(m.any())).thenReturn(Result.good(new StripeCard))
 
-        when(stripeApiMock.updateExternalAccount(m.any(), m.any(), m.any()))
+        when(stripeApiMock.updateExternalAccount(m.any(), m.any()))
           .thenReturn(Result.good(new StripeCard))
 
         val payload = EditCreditCard(holderName = Some("Bob"))
@@ -542,13 +537,11 @@ class CustomerIntegrationTest
       "updates the customer's cart to use the new version" in new CreditCardFixture {
         reset(stripeApiMock)
 
-        when(stripeApiMock.findCustomer(m.any(), m.any()))
-          .thenReturn(Result.good(new StripeCustomer))
+        when(stripeApiMock.findCustomer(m.any())).thenReturn(Result.good(new StripeCustomer))
 
-        when(stripeApiMock.findDefaultCard(m.any(), m.any()))
-          .thenReturn(Result.good(new StripeCard))
+        when(stripeApiMock.findDefaultCard(m.any())).thenReturn(Result.good(new StripeCard))
 
-        when(stripeApiMock.updateExternalAccount(m.any(), m.any(), m.any()))
+        when(stripeApiMock.updateExternalAccount(m.any(), m.any()))
           .thenReturn(Result.good(mock[StripeCard]))
 
         val order = Carts.create(Factories.cart.copy(customerId = customer.id)).gimme
@@ -587,13 +580,11 @@ class CustomerIntegrationTest
       "creates a new address book entry if a full address was given" in new CreditCardFixture {
         reset(stripeApiMock)
 
-        when(stripeApiMock.findCustomer(m.any(), m.any()))
-          .thenReturn(Result.good(new StripeCustomer))
+        when(stripeApiMock.findCustomer(m.any())).thenReturn(Result.good(new StripeCustomer))
 
-        when(stripeApiMock.findDefaultCard(m.any(), m.any()))
-          .thenReturn(Result.good(new StripeCard))
+        when(stripeApiMock.findDefaultCard(m.any())).thenReturn(Result.good(new StripeCard))
 
-        when(stripeApiMock.updateExternalAccount(m.any(), m.any(), m.any()))
+        when(stripeApiMock.updateExternalAccount(m.any(), m.any()))
           .thenReturn(Result.good(mock[StripeCard]))
 
         val payload = EditCreditCard(holderName = Some("Bob"),
@@ -629,15 +620,14 @@ class CustomerIntegrationTest
     "fails if the card is not inWallet" in new CreditCardFixture {
       reset(stripeApiMock)
 
-      when(stripeApiMock.findCustomer(m.any(), m.any()))
-        .thenReturn(Result.good(new StripeCustomer))
+      when(stripeApiMock.findCustomer(m.any())).thenReturn(Result.good(new StripeCustomer))
 
-      when(stripeApiMock.findDefaultCard(m.any(), m.any())).thenReturn(Result.good(new StripeCard))
+      when(stripeApiMock.findDefaultCard(m.any())).thenReturn(Result.good(new StripeCard))
 
-      when(stripeApiMock.updateExternalAccount(m.any(), m.any(), m.any()))
+      when(stripeApiMock.updateExternalAccount(m.any(), m.any()))
         .thenReturn(Result.good(new ExternalAccount))
 
-      when(stripeApiMock.deleteExternalAccount(m.any(), m.any()))
+      when(stripeApiMock.deleteExternalAccount(m.any()))
         .thenReturn(Result.good(new DeletedExternalAccount))
 
       CreditCardManager.deleteCreditCard(customer.id, creditCard.id, Some(admin)).gimme
@@ -663,10 +653,9 @@ class CustomerIntegrationTest
     "fails if stripe returns an error" in new CreditCardFixture {
       reset(stripeApiMock)
 
-      when(stripeApiMock.findCustomer(m.any(), m.any()))
-        .thenReturn(Result.good(new StripeCustomer))
+      when(stripeApiMock.findCustomer(m.any())).thenReturn(Result.good(new StripeCustomer))
 
-      when(stripeApiMock.findDefaultCard(m.any(), m.any())).thenReturn(Result.good(new StripeCard))
+      when(stripeApiMock.findDefaultCard(m.any())).thenReturn(Result.good(new StripeCard))
 
       val exception = new CardException("Your card's expiration year is invalid",
                                         "X_REQUEST_ID: 1",
@@ -676,7 +665,7 @@ class CustomerIntegrationTest
                                         null,
                                         null,
                                         null)
-      when(stripeApiMock.updateExternalAccount(m.any(), m.any(), m.any()))
+      when(stripeApiMock.updateExternalAccount(m.any(), m.any()))
         .thenReturn(Result.failure(StripeFailure(exception)))
 
       val payload = EditCreditCard(expYear = Some(2000))
