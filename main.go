@@ -1,23 +1,33 @@
 package main
 
 import (
+	"log"
+
 	"github.com/FoxComm/middlewarehouse/common/db/config"
 	"github.com/FoxComm/middlewarehouse/routes"
 
 	"github.com/gin-gonic/gin"
 )
 
-func getEngine() *gin.Engine {
-	db, _ := config.DefaultConnection()
+func engine() (*gin.Engine, error) {
+	db, err := config.DefaultConnection()
+	if err != nil {
+		return nil, err
+	}
 
 	configuration := routes.RouterConfiguration{
 		Engine: gin.Default(),
 		Routes: routes.GetRoutes(db),
 	}
 
-	return routes.SetUp(configuration)
+	return routes.SetUp(configuration), nil
 }
 
 func main() {
-	getEngine().Run(":9292")
+	engine, err := engine()
+	if err != nil {
+		log.Panicf("Failed to start middlewarehouse with error %s", err.Error())
+	}
+
+	engine.Run(":9292")
 }
