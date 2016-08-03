@@ -8,7 +8,7 @@ import (
 
 type IAddressRepository interface {
 	GetAddressByID(id uint) (*models.Address, error)
-	CreateAddress(*models.Address) (*models.Address, error)
+	CreateAddress(address *models.Address) (*models.Address, error)
 }
 
 type addressRepository struct {
