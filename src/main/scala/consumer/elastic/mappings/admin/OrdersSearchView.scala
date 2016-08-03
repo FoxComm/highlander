@@ -86,7 +86,6 @@ final case class OrdersSearchView()(implicit ec: EC) extends AvroTransformer {
 
   override def nestedFields() = List(
       "customer",
-      "orders",
       "line_items",
       "payments",
       "shipments",
