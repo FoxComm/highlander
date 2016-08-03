@@ -8,7 +8,7 @@ type Shipment struct {
 	ReferenceNumber  string             `json:"referenceNumber"`
 	State            string             `json:"state"`
 	LineItems        []ShipmentLineItem `json:"lineItems"`
-	Transactions     TransactionList    `json:"transactions"`
+	//Transactions     TransactionList    `json:"transactions"`
 	ShipmentDate     string             `json:"shipmentDate"`
 	EstimatedArrival string             `json:"estimatedArrival"`
 	DeliveredDate    string             `json:"deliveredDate"`
