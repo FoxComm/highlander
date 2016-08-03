@@ -27,25 +27,22 @@ const SkuRow = (props: Props) => {
   const { sku, columns, params } = props;
   const key = `sku-${sku.id}`;
   const isArchived = archivedStatus(sku);
+  const commonParams = {
+    columns,
+    row: sku,
+    setCellContents,
+    params,
+  };
 
   if (isArchived) {
-    return (
-      <MultiSelectRow
-        columns={columns}
-        row={sku}
-        setCellContents={setCellContents}
-        params={params} />
-    );
+    return <MultiSelectRow {...commonParams}/>;
   }
 
   return (
     <MultiSelectRow
-      columns={columns}
+      { ...commonParams }
       linkTo="sku-details"
-      linkParams={{skuCode: sku.code}}
-      row={sku}
-      setCellContents={setCellContents}
-      params={params} />
+      linkParams={{skuCode: sku.code}} />
   );
 };
 

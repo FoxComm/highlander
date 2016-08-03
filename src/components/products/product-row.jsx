@@ -14,7 +14,7 @@ import type { Product } from 'paragons/product';
 
 type Props = {
   product: Product,
-  columns: ?Array,
+  columns?: Array<Object>,
   params: Object,
 };
 
@@ -33,25 +33,22 @@ const ProductRow = (props: Props) => {
   const { product, columns, params } = props;
   const key = `product-${product.id}`;
   const isArchived = archivedStatus(product);
+  const commonParams = {
+    columns,
+    row: product,
+    setCellContents,
+    params,
+  };
 
   if (isArchived) {
-    return (
-      <MultiSelectRow
-        columns={columns}
-        row={product}
-        setCellContents={setCellContents}
-        params={params} />
-    );
+    return <MultiSelectRow {...commonParams}/>;
   }
 
   return (
     <MultiSelectRow
-      columns={columns}
+      { ...commonParams }
       linkTo="product-details"
-      linkParams={{productId: product.productId, context: product.context}}
-      row={product}
-      setCellContents={setCellContents}
-      params={params} />
+      linkParams={{productId: product.productId, context: product.context}} />
   );
 };
 
