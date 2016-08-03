@@ -10,11 +10,9 @@ import (
 // }
 
 type IShipmentService interface {
-	GetShipments() ([]*models.Shipment, error)
-	GetShipmentByID(id uint) (*models.Shipment, error)
+	GetShipmentByReferenceNumber(referenceNumber string) (*models.Shipment, error)
 	CreateShipment(shipment *models.Shipment, address *models.Address, lineItems []*models.ShipmentLineItem) (*models.Shipment, error)
 	UpdateShipment(shipment *models.Shipment) (*models.Shipment, error)
-	DeleteShipment(id uint) error
 }
 
 // func NewShipmentService(repository repositories.IShipmentRepository) IShipmentService {
