@@ -113,6 +113,7 @@ class CartValidatorIntegrationTest
       with TestActivityContext.AdminAC
       with ExpectedWarningsForPayment {
     val (refNum, couponCode) = (for {
+      _          ← * <~ Customers.create(Factories.customer)
       cart       ← * <~ Carts.create(Factories.cart)
       admin      ← * <~ StoreAdmins.create(Factories.storeAdmin)
       search     ← * <~ Factories.createSharedSearches(admin.id)
@@ -126,6 +127,7 @@ class CartValidatorIntegrationTest
   trait LineItemFixture {
     val (refNum, sku) = (for {
       productCtx ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
+      _          ← * <~ Customers.create(Factories.customer)
       cart       ← * <~ Carts.create(Factories.cart)
       product    ← * <~ Mvp.insertProduct(productCtx.id, Factories.products.head)
       sku        ← * <~ Skus.mustFindById404(product.skuId)
@@ -154,6 +156,7 @@ class CartValidatorIntegrationTest
 
   trait GiftCardFixture extends ExpectedWarningsForPayment {
     val (refNum, giftCard) = (for {
+      _      ← * <~ Customers.create(Factories.customer)
       cart   ← * <~ Carts.create(Factories.cart)
       admin  ← * <~ StoreAdmins.create(Factories.storeAdmin)
       reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))

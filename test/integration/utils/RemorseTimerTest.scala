@@ -8,9 +8,11 @@ import akka.pattern.ask
 import akka.testkit.{TestActorRef, TestKit}
 
 import models.cord._
+import models.customer.Customers
 import org.scalatest.BeforeAndAfterAll
 import services.actors._
 import util._
+import utils.db._
 import utils.seeds.Seeds.Factories
 
 class RemorseTimerTest(_system: ActorSystem)
@@ -48,7 +50,10 @@ class RemorseTimerTest(_system: ActorSystem)
   }
 
   trait Fixture {
-    val cart  = Carts.create(Factories.cart).gimme
-    val order = Orders.create(cart.toOrder()).gimme
+    val order = (for {
+      customer ← * <~ Customers.create(Factories.customer)
+      cart     ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
+      order    ← * <~ Orders.create(cart.toOrder())
+    } yield order).gimme
   }
 }

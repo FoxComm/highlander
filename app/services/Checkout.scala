@@ -32,7 +32,6 @@ object Checkout {
     for {
       cart  ← * <~ Carts.mustFindByRefNum(refNum)
       order ← * <~ Checkout(cart, CartValidator(cart)).checkout
-      _     ← * <~ LogActivity.orderCheckoutCompleted(order)
     } yield order
 
   def fromCustomerCart(customer: Customer)(implicit ec: EC,
@@ -47,7 +46,6 @@ object Checkout {
                 .findOrCreateExtended(Carts.create(Cart(customerId = customer.id)))
       (cart, _) = result
       order ← * <~ Checkout(cart, CartValidator(cart)).checkout
-      _     ← * <~ LogActivity.orderCheckoutCompleted(order)
     } yield order
 }
 
@@ -69,6 +67,7 @@ case class Checkout(
       _         ← * <~ remorseHold(order)
       _         ← * <~ updateCouponCountersForPromotion(customer)
       fullOrder ← * <~ OrderResponse.fromOrder(order)
+      _         ← * <~ LogActivity.orderCheckoutCompleted(fullOrder)
     } yield fullOrder
 
   private def reserveInMiddleWarehouse: DbResultT[Unit] =

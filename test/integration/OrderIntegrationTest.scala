@@ -39,6 +39,7 @@ class OrderIntegrationTest
 
     "fails if transition from current status is not allowed" in {
       val order = (for {
+        _     ← * <~ Customers.create(Factories.customer)
         cart  ← * <~ Carts.create(Factories.cart)
         order ← * <~ Orders.create(cart.toOrder().copy(state = Canceled))
       } yield order).gimme
