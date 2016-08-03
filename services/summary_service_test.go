@@ -34,10 +34,11 @@ func (suite *summaryServiceTestSuite) SetupSuite() {
 
 	summaryRepository := repositories.NewSummaryRepository(suite.db)
 	stockItemRepository := repositories.NewStockItemRepository(suite.db)
+	unitRepository := repositories.NewStockItemUnitRepository(suite.db)
 	txnr := repositories.NewDBTransactioner(suite.db)
 
 	suite.service = NewSummaryService(summaryRepository, stockItemRepository, txnr)
-	suite.inventoryService = NewInventoryService(suite.db, stockItemRepository, suite.service)
+	suite.inventoryService = NewInventoryService(stockItemRepository, unitRepository, suite.service, txnr)
 	suite.assert = assert.New(suite.T())
 	suite.typeId = models.StockItemTypes().Sellable
 	suite.onHand = 10

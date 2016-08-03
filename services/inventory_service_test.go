@@ -89,10 +89,11 @@ func (suite *InventoryServiceTestSuite) SetupSuite() {
 
 	summaryRepository := repositories.NewSummaryRepository(suite.db)
 	stockItemRepository := repositories.NewStockItemRepository(suite.db)
+	unitRepository := repositories.NewStockItemUnitRepository(suite.db)
 	txnr := repositories.NewDBTransactioner(suite.db)
 
 	summaryService := NewSummaryService(summaryRepository, stockItemRepository, txnr)
-	suite.service = NewInventoryService(suite.db, stockItemRepository, summaryService)
+	suite.service = NewInventoryService(stockItemRepository, unitRepository, summaryService, txnr)
 }
 
 func (suite *InventoryServiceTestSuite) SetupTest() {

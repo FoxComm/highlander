@@ -13,6 +13,7 @@ type stockItemRepository struct {
 type IStockItemRepository interface {
 	GetStockItems() ([]*models.StockItem, error)
 	GetStockItemById(id uint) (*models.StockItem, error)
+	GetStockItemsBySKUs(skus []string) ([]*models.StockItem, error)
 
 	CreateStockItem(stockItem *models.StockItem) (*models.StockItem, error)
 	DeleteStockItem(stockItemId uint) error
@@ -32,20 +33,23 @@ func (repository *stockItemRepository) resolveDb(db *gorm.DB) *gorm.DB {
 
 func (repository *stockItemRepository) GetStockItems() ([]*models.StockItem, error) {
 	items := []*models.StockItem{}
-	if err := repository.db.Find(&items).Error; err != nil {
-		return nil, err
-	}
+	err := repository.db.Find(&items).Error
 
-	return items, nil
+	return items, err
 }
 
 func (repository *stockItemRepository) GetStockItemById(id uint) (*models.StockItem, error) {
 	si := &models.StockItem{}
-	if err := repository.db.First(si, id).Error; err != nil {
-		return nil, err
-	}
+	err := repository.db.First(si, id).Error
 
-	return si, nil
+	return si, err
+}
+
+func (repository *stockItemRepository) GetStockItemsBySKUs(skus []string) ([]*models.StockItem, error) {
+	items := []*models.StockItem{}
+	err := repository.db.Where("sku in (?)", skus).Find(&items).Error
+
+	return items, err
 }
 
 func (repository *stockItemRepository) CreateStockItem(stockItem *models.StockItem) (*models.StockItem, error) {

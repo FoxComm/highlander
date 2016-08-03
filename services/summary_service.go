@@ -8,7 +8,7 @@ import (
 
 type summaryService struct {
 	summaryRepo   repositories.ISummaryRepository
-	inventoryRepo repositories.IStockItemRepository
+	stockItemRepo repositories.IStockItemRepository
 	txnr          repositories.ITransactioner
 }
 
@@ -20,8 +20,8 @@ type ISummaryService interface {
 	GetSummaryBySKU(sku string) ([]*models.StockItemSummary, error)
 }
 
-func NewSummaryService(summaryRepo repositories.ISummaryRepository, inventoryRepo repositories.IStockItemRepository, txnr repositories.ITransactioner) ISummaryService {
-	return &summaryService{summaryRepo, inventoryRepo, txnr}
+func NewSummaryService(summaryRepo repositories.ISummaryRepository, stockItemRepo repositories.IStockItemRepository, txnr repositories.ITransactioner) ISummaryService {
+	return &summaryService{summaryRepo, stockItemRepo, txnr}
 }
 
 func (service *summaryService) GetSummary() ([]*models.StockItemSummary, error) {
@@ -57,7 +57,7 @@ func (service *summaryService) CreateStockItemSummary(stockItemId uint) error {
 }
 
 func (service *summaryService) UpdateStockItemSummary(stockItemId, typeId uint, qty int, status models.StatusChange) error {
-	stockItem, err := service.inventoryRepo.GetStockItemById(stockItemId)
+	stockItem, err := service.stockItemRepo.GetStockItemById(stockItemId)
 	if err != nil {
 		return err
 	}
