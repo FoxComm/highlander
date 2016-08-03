@@ -57,22 +57,22 @@ func (suite *summaryControllerTestSuite) Test_GetSummary() {
 	suite.service.AssertExpectations(suite.T())
 }
 
-func (suite *summaryControllerTestSuite) Test_GetSummaryBySKU() {
-	sku := "TEST-SKU"
-	suite.service.On("GetSummaryBySKU", sku).Return(&models.StockItemSummary{
-		SKU:         sku,
-		StockItemID: 0,
-		OnHand:      0,
-		OnHold:      0,
-		Reserved:    0,
-	}, nil).Once()
-
-	res := suite.Get("/summary/" + sku)
-
-	suite.assert.Equal(http.StatusOK, res.Code)
-	suite.assert.Contains(res.Body.String(), sku)
-	suite.service.AssertExpectations(suite.T())
-}
+//func (suite *summaryControllerTestSuite) Test_GetSummaryBySKU() {
+//	sku := "TEST-SKU"
+//	suite.service.On("GetSummaryBySKU", sku).Return(&models.StockItemSummary{
+//		SKU:         sku,
+//		StockItemID: 0,
+//		OnHand:      0,
+//		OnHold:      0,
+//		Reserved:    0,
+//	}, nil).Once()
+//
+//	res := suite.Get("/summary/" + sku)
+//
+//	suite.assert.Equal(http.StatusOK, res.Code)
+//	suite.assert.Contains(res.Body.String(), sku)
+//	suite.service.AssertExpectations(suite.T())
+//}
 
 func (suite *summaryControllerTestSuite) Test_GetSummaryBySKUNoSKU() {
 	suite.service.On("GetSummaryBySKU", "NO-SKU").Return(nil, gorm.ErrRecordNotFound).Once()

@@ -87,8 +87,12 @@ func (suite *InventoryServiceTestSuite) SetupSuite() {
 	suite.db, _ = config.DefaultConnection()
 	suite.assert = assert.New(suite.T())
 
-	summaryService := NewSummaryService(suite.db)
-	suite.service = NewInventoryService(suite.db, summaryService)
+	summaryRepository := repositories.NewSummaryRepository(suite.db)
+	stockItemRepository := repositories.NewStockItemRepository(suite.db)
+	txnr := repositories.NewDBTransactioner(suite.db)
+
+	summaryService := NewSummaryService(summaryRepository, stockItemRepository, txnr)
+	suite.service = NewInventoryService(suite.db, stockItemRepository, summaryService)
 }
 
 func (suite *InventoryServiceTestSuite) SetupTest() {

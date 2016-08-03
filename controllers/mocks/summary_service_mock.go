@@ -2,8 +2,6 @@ package mocks
 
 import (
 	"github.com/FoxComm/middlewarehouse/models"
-	"github.com/FoxComm/middlewarehouse/services"
-	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -22,24 +20,24 @@ func (m *SummaryServiceMock) GetSummary() ([]*models.StockItemSummary, error) {
 	return nil, args.Error(1)
 }
 
-func (m *SummaryServiceMock) GetSummaryBySKU(code string) (*models.StockItemSummary, error) {
+func (m *SummaryServiceMock) GetSummaryBySKU(code string) ([]*models.StockItemSummary, error) {
 	args := m.Called(code)
 
-	if model, ok := args.Get(0).(*models.StockItemSummary); ok {
+	if model, ok := args.Get(0).([]*models.StockItemSummary); ok {
 		return model, nil
 	}
 
 	return nil, args.Error(1)
 }
 
-func (m *SummaryServiceMock) CreateStockItemSummary(stockItemId uint, dbContext *gorm.DB) error {
-	args := m.Called(stockItemId, dbContext)
+func (m *SummaryServiceMock) CreateStockItemSummary(stockItemId uint) error {
+	args := m.Called(stockItemId)
 
 	return args.Error(0)
 }
 
-func (m *SummaryServiceMock) UpdateStockItemSummary(stockItemId, typeId uint, qty int, status services.StatusChange, dbContext *gorm.DB) error {
-	args := m.Called(stockItemId, typeId, qty, status, dbContext)
+func (m *SummaryServiceMock) UpdateStockItemSummary(stockItemId, typeId uint, qty int, status models.StatusChange) error {
+	args := m.Called(stockItemId, typeId, qty, status)
 
 	return args.Error(0)
 }

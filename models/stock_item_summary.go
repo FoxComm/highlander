@@ -18,3 +18,8 @@ type StockItemSummary struct {
 func (sis StockItemSummary) Identifier() uint {
 	return sis.ID
 }
+
+type StatusChange struct {
+	From string
+	To   string
+}

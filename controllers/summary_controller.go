@@ -43,7 +43,7 @@ func (controller *summaryController) GetSummaryBySKU() gin.HandlerFunc {
 			return
 		}
 
-		resp := responses.StockItemSummaryFromModel(summary)
+		resp := responses.StockItemsSummaryFromModel(summary)
 
 		context.JSON(200, resp)
 	}
