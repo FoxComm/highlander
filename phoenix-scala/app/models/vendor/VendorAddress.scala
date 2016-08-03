@@ -10,6 +10,7 @@ import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.Validation
 import utils.db._
+import models.location._
 
 case class VendorAddress(id: Int = 0,
                          vendorId: Int,
@@ -20,13 +21,14 @@ case class VendorAddress(id: Int = 0,
                          city: String,
                          zip: String,
                          isHeadquarters: Boolean = false,
+                         phoneNumber: Option[String] = None,
                          deletedAt: Option[Instant] = None)
     extends FoxModel[VendorAddress]
     with Addressable[VendorAddress]
     with Validation[VendorAddress] {
 
   def instance: VendorAddress = { this }
-  def zipLens                 = len[VendorAddress].zip
+  def zipLens                 = lens[VendorAddress].zip
   override def sanitize       = super.sanitize(this)
   override def validate       = super.validate
 }
@@ -46,27 +48,39 @@ class VendorAddresses(tag: Tag) extends FoxTable[VendorAddress](tag, "vendorAddr
   def city           = column[String]("city")
   def zip            = column[String]("zip")
   def isHeadquarters = column[Boolean]("is_headquarters")
+  def phoneNumber    = column[Option[String]]("phone_number")
   def deletedAt      = column[Option[Instant]]("deleted_at")
 
   def * =
-    (id, vendorId, regionId, name, address1, address2, city, zip, isHeadquarters, deletedAt) <> ((VendorAddress.apply _).tupled, VendorAddress.unapply)
+    (id,
+     vendorId,
+     regionId,
+     name,
+     address1,
+     address2,
+     city,
+     zip,
+     isHeadquarters,
+     phoneNumber,
+     deletedAt) <> ((VendorAddress.apply _).tupled, VendorAddress.unapply)
 
   def region = foreignKey(Regions.tableName, regionId, Regions)(_.id)
 }
 
 object VendorAddresses
-    extends FoxTableQuery[VendorAddress, VendorAddresses](new VendorAddress(_))
-    with ReturningId[VendorAddresses, VendorAddresses] {
+    extends FoxTableQuery[VendorAddress, VendorAddresses](new VendorAddresses(_))
+    with ReturningId[VendorAddress, VendorAddresses] {
 
   val returningLens: Lens[VendorAddress, Int] = lens[VendorAddress].id
 
   import scope._
 
-  type AddressesWithRegionsQuery = Query[(Addresses, Regions), (Address, Region), Seq]
+  type VendorAddressesWithRegionsQuery =
+    Query[(VendorAddresses, Regions), (VendorAddress, Region), Seq]
 
   object scope {
-    implicit class AddressesQuerySeqConversions(q: QuerySeq) {
-      def withRegions: AddressesWithRegionsQuery =
+    implicit class VendorAddressesQuerySeqConversions(q: QuerySeq) {
+      def withRegions: VendorAddressesWithRegionsQuery =
         for {
           addresses ← q
           regions   ← Regions if regions.id === addresses.regionId
