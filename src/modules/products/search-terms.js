@@ -27,7 +27,16 @@ const searchTerms = [
     title: 'Product : Archived At',
     type: 'date',
     term: 'archivedAt',
-  }
+  },
+  {
+    title: 'Product : Is Archived',
+    type: 'exists',
+    term: 'archivedAt',
+    suggestions: [
+      { display: 'Yes', operator: 'exists' },
+      { display: 'No', operator: 'missing' },
+    ],
+  },
 ];
 
 export default searchTerms;
