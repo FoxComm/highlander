@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
-import { activeStatus } from '../../paragons/common';
+import moment from 'moment';
+import { activeStatus, archivedStatus } from '../../paragons/common';
 
 import RoundedPill from '../rounded-pill/rounded-pill';
 import MultiSelectRow from '../table/multi-select-row';
@@ -19,6 +20,15 @@ function setCellContents(product, field) {
 const ProductRow = (props) => {
   const { product, columns, params } = props;
   const key = `product-${product.id}`;
+  const isArchived = archivedStatus(product);
+
+  if (isArchived) return (
+    <MultiSelectRow
+      columns={columns}
+      row={product}
+      setCellContents={setCellContents}
+      params={params} />
+  );
 
   return (
     <MultiSelectRow
