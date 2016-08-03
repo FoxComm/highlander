@@ -54,7 +54,7 @@ const mockData = [{
       "afsCost": 1
     },
     {
-      "stockItemID": 1,
+      "stockItemId": 2,
       "sku": "SKU-SKU",
       "type": "Non-sellable",
       "onHand": 1,

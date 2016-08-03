@@ -12,12 +12,13 @@ import Overlay from '../overlay/overlay';
 type State = {
   diff: number,
   value: number,
-  popupOpen: boolean,
 }
 
 type Props = {
   value: number,
   onChange: (quantity: number) => void,
+  isPopupShown: boolean,
+  togglePopup: (visible: boolean) => void,
 }
 
 export default class AdjustQuantity extends Component {
@@ -25,7 +26,6 @@ export default class AdjustQuantity extends Component {
   state: State = {
     diff: 0,
     value: this.props.value,
-    popupOpen: false,
   };
 
   adjustValue(newValue: number) {
@@ -38,7 +38,7 @@ export default class AdjustQuantity extends Component {
   }
 
   @autobind
-  handleChange({target}) {
+  handleChange({target}: Object) {
     const quantity = Number(target.value);
     if (!_.isNaN(quantity)) {
       this.adjustValue(quantity);
@@ -47,25 +47,21 @@ export default class AdjustQuantity extends Component {
 
   @autobind
   handleInputFocus() {
-    this.setState({
-      popupOpen: true,
-    });
+    this.props.togglePopup(true);
   }
 
   hide() {
-    this.setState({
-      popupOpen: false,
-    });
+    this.props.togglePopup(false);
   }
 
   render() {
     const popupState = classNames({
-      '_open': this.state.popupOpen,
+      '_open': this.props.isPopupShown,
     });
 
     return (
       <div styleName="block">
-        <Overlay shown={this.state.popupOpen} onClick={() => this.hide()} />
+        <Overlay shown={this.props.isPopupShown} onClick={() => this.hide()} />
         <input
           className="fc-text-input _no-counters"
           styleName="input"
