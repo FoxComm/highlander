@@ -23,6 +23,7 @@ import * as ArchiveActions from '../../modules/skus/archive';
 
 //helpers
 import { transitionTo } from 'browserHistory';
+import { archivedStatus } from 'paragons/common';
 
 // types
 import type { Sku } from '../../modules/skus/details';
@@ -57,7 +58,11 @@ class SkuPage extends Component {
     if (this.isNew) {
       this.props.actions.newSku();
     } else {
-      this.props.actions.fetchSku(this.entityId);
+      this.props.actions.fetchSku(this.entityId)
+        .then(({payload}) => {
+          const isArchived = archivedStatus(payload);
+          if (isArchived) transitionTo('skus');
+        });
     }
   }
 
