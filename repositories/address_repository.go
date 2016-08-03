@@ -7,8 +7,8 @@ import (
 )
 
 type IAddressRepository interface {
-	CreateAddress(*models.Address) (*models.Address, error)
 	GetAddressByID(id uint) (*models.Address, error)
+	CreateAddress(*models.Address) (*models.Address, error)
 }
 
 type addressRepository struct {
