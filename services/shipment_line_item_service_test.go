@@ -38,7 +38,7 @@ func (suite *ShipmentLineItemServiceTestSuite) TearDownTest() {
 	suite.repository.Calls = []mock.Call{}
 }
 
-func (suite *ShipmentLineItemServiceTestSuite) Test_GetShipmentLineItems_ReturnsShipmentLineItemModels() {
+func (suite *ShipmentLineItemServiceTestSuite) Test_GetShipmentLineItemsByShipmentID_ReturnsShipmentLineItemModels() {
 	//arrange
 	shipmentLineItem1 := suite.getTestShipmentLineItem1()
 	shipmentLineItem2 := suite.getTestShipmentLineItem2()
@@ -99,6 +99,6 @@ func (suite *ShipmentLineItemServiceTestSuite) getTestShipmentLineItem1() *model
 }
 
 func (suite *ShipmentLineItemServiceTestSuite) getTestShipmentLineItem2() *models.ShipmentLineItem {
-	return &models.ShipmentLineItem{gormfox.Base{ID: uint(2)}, uint(2), "BR1003", "SKU-TEST2",
+	return &models.ShipmentLineItem{gormfox.Base{ID: uint(2)}, uint(1), "BR1003", "SKU-TEST2",
 		"Other shit", 4999, "https://test.com/other-shit.png", "delivered"}
 }
