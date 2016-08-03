@@ -20,7 +20,8 @@ type IStockItemUnitRepository interface {
 
 	GetReleaseQtyByRefNum(refNum string) ([]*models.Release, error)
 
-	DeleteUnits(ids []uint) error
+	CreateUnits(units []*models.StockItemUnit, dbContext *gorm.DB) error
+	DeleteUnits(ids []uint, dbContext *gorm.DB) error
 }
 
 func NewStockItemUnitRepository(db *gorm.DB) IStockItemUnitRepository {
@@ -33,6 +34,24 @@ func (repository *stockItemUnitRepository) resolveDb(db *gorm.DB) *gorm.DB {
 	} else {
 		return repository.db
 	}
+}
+
+func (repository *stockItemUnitRepository) CreateUnits(units []*models.StockItemUnit, dbContext *gorm.DB) error {
+	db := repository.resolveDb(dbContext)
+
+	for _, v := range units {
+		if err := db.Create(v).Error; err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (repository *stockItemUnitRepository) DeleteUnits(ids []uint, dbContext *gorm.DB) error {
+	db := repository.resolveDb(dbContext)
+
+	return db.Delete(models.StockItemUnit{}, "id in (?)", ids).Error
 }
 
 func (repository *stockItemUnitRepository) OnHandStockItemUnits(stockItemID uint, typeId uint, count int) ([]uint, error) {
@@ -99,8 +118,4 @@ func (repository *stockItemUnitRepository) GetReleaseQtyByRefNum(refNum string) 
 		Error
 
 	return res, err
-}
-
-func (repository *stockItemUnitRepository) DeleteUnits(ids []uint) error {
-	return repository.db.Delete(models.StockItemUnit{}, "id in (?)", ids).Error
 }

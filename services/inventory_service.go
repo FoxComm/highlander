@@ -58,11 +58,9 @@ func (service *inventoryService) CreateStockItem(stockItem *models.StockItem) (*
 func (service *inventoryService) IncrementStockItemUnits(stockItemId, typeId uint, units []*models.StockItemUnit) error {
 	txn := service.txnr.Begin()
 
-	for _, v := range units {
-		if err := txn.Create(v).Error; err != nil {
-			txn.Rollback()
-			return err
-		}
+	if err := service.unitRepo.CreateUnits(units, txn); err != nil {
+		txn.Rollback()
+		return err
 	}
 
 	err := service.summaryService.UpdateStockItemSummary(stockItemId, typeId, len(units), models.StatusChange{To: "onHand"})
@@ -83,7 +81,7 @@ func (service *inventoryService) DecrementStockItemUnits(stockItemId, typeId uin
 		return err
 	}
 
-	if err := service.unitRepo.DeleteUnits(unitsIds); err != nil {
+	if err := service.unitRepo.DeleteUnits(unitsIds, txn); err != nil {
 		txn.Rollback()
 		return err
 	}
