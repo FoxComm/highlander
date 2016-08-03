@@ -75,6 +75,11 @@ func (service *summaryService) CreateStockItemSummary(stockItemId uint, dbContex
 func (service *summaryService) UpdateStockItemSummary(stockItemId, typeId uint, qty int, status StatusChange, dbContext *gorm.DB) error {
 	db := service.resolveDb(dbContext)
 
+	stockItem := &models.StockItem{}
+	if err := db.First(stockItem, stockItem).Error; err != nil {
+		return err
+	}
+
 	summary := &models.StockItemSummary{}
 	if err := db.Where("stock_item_id = ? AND type_id = ?", stockItemId, typeId).First(summary).Error; err != nil {
 		return err
@@ -84,6 +89,7 @@ func (service *summaryService) UpdateStockItemSummary(stockItemId, typeId uint, 
 	summary = updateStatus(summary, status.to, qty)
 
 	summary = updateAfs(summary, status, qty)
+	summary = updateAfsCost(summary, stockItem)
 
 	if err := db.Save(summary).Error; err != nil {
 		return err
@@ -135,6 +141,12 @@ func updateAfs(summary *models.StockItemSummary, shift StatusChange, qty int) *m
 	if shift.from == "onHand" {
 		summary.AFS -= qty
 	}
+
+	return summary
+}
+
+func updateAfsCost(summary *models.StockItemSummary, stockItem *models.StockItem) *models.StockItemSummary {
+	summary.AFSCost = summary.AFS * stockItem.DefaultUnitCost
 
 	return summary
 }

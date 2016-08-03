@@ -9,7 +9,7 @@ type StockItem struct {
 	gormfox.Base
 	SKU             string
 	StockLocationID uint
-	DefaultUnitCost uint
+	DefaultUnitCost int
 }
 
 func (si StockItem) Identifier() uint {

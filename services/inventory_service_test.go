@@ -34,7 +34,7 @@ func (suite *InventoryServiceTestSuite) createStockLocation() (*models.StockLoca
 }
 
 func (suite *InventoryServiceTestSuite) createStockItem(sku string, qty int) (*models.StockItem, error) {
-	stockItem := &models.StockItem{StockLocationID: 1, SKU: sku}
+	stockItem := &models.StockItem{StockLocationID: 1, SKU: sku, DefaultUnitCost: 45000}
 	resp, err := suite.service.CreateStockItem(stockItem)
 	if err != nil {
 		return nil, err

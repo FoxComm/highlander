@@ -14,12 +14,13 @@ import (
 
 type summaryServiceTestSuite struct {
 	suite.Suite
-	service ISummaryService
-	si      *models.StockItem
-	onHand  int
-	typeId  uint
-	db      *gorm.DB
-	assert  *assert.Assertions
+	service  ISummaryService
+	si       *models.StockItem
+	unitCost int
+	onHand   int
+	typeId   uint
+	db       *gorm.DB
+	assert   *assert.Assertions
 }
 
 func TestSummaryServiceSuite(t *testing.T) {
@@ -32,6 +33,7 @@ func (suite *summaryServiceTestSuite) SetupSuite() {
 	suite.assert = assert.New(suite.T())
 	suite.typeId = models.StockItemTypes().Sellable
 	suite.onHand = 10
+	suite.unitCost = 5000
 }
 
 func (suite *summaryServiceTestSuite) SetupTest() {
@@ -42,7 +44,7 @@ func (suite *summaryServiceTestSuite) SetupTest() {
 
 	inventoryService := NewInventoryService(suite.db, suite.service)
 
-	stockItem := &models.StockItem{StockLocationID: 1, SKU: "TEST-DEFAULT"}
+	stockItem := &models.StockItem{StockLocationID: 1, SKU: "TEST-DEFAULT", DefaultUnitCost: suite.unitCost}
 	suite.si, _ = inventoryService.CreateStockItem(stockItem)
 
 	units := []*models.StockItemUnit{}
@@ -70,6 +72,7 @@ func (suite *summaryServiceTestSuite) Test_Increment_OnHand() {
 	suite.assert.Nil(err)
 	suite.assert.Equal(suite.onHand+5, summary.OnHand)
 	suite.assert.Equal(suite.onHand+5, summary.AFS)
+	suite.assert.Equal((suite.onHand+5)*suite.unitCost, summary.AFSCost)
 }
 
 func (suite *summaryServiceTestSuite) Test_Increment_OnHold() {
@@ -103,6 +106,7 @@ func (suite *summaryServiceTestSuite) Test_Increment_Chain() {
 	suite.assert.Equal(5, summary.OnHold)
 	suite.assert.Equal(0, summary.Reserved)
 	suite.assert.Equal(5, summary.AFS)
+	suite.assert.Equal(5*suite.unitCost, summary.AFSCost)
 
 	suite.service.UpdateStockItemSummary(suite.si.ID, suite.typeId, 2, StatusChange{from: "onHold", to: "reserved"}, nil)
 
@@ -111,6 +115,7 @@ func (suite *summaryServiceTestSuite) Test_Increment_Chain() {
 	suite.assert.Equal(3, summary.OnHold)
 	suite.assert.Equal(2, summary.Reserved)
 	suite.assert.Equal(5, summary.AFS)
+	suite.assert.Equal(5*suite.unitCost, summary.AFSCost)
 
 	suite.service.UpdateStockItemSummary(suite.si.ID, suite.typeId, 1, StatusChange{from: "reserved", to: "onHand"}, nil)
 
@@ -119,6 +124,7 @@ func (suite *summaryServiceTestSuite) Test_Increment_Chain() {
 	suite.assert.Equal(3, summary.OnHold)
 	suite.assert.Equal(1, summary.Reserved)
 	suite.assert.Equal(6, summary.AFS)
+	suite.assert.Equal(6*suite.unitCost, summary.AFSCost)
 }
 
 func (suite *summaryServiceTestSuite) Test_GetSummary() {

@@ -220,8 +220,6 @@ func onHandStockItemUnits(stockItemID uint, typeId uint, count int, db *gorm.DB)
 		Pluck("id", &ids).
 		Error
 
-	println("onHandStockItemUnits", stockItemID, len(ids))
-
 	if err != nil {
 		return ids, err
 	}
