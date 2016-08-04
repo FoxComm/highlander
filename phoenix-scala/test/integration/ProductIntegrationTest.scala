@@ -342,7 +342,7 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
 
       val result = response.as[ProductResponse.Root]
       withClue(result.archivedAt.value → Instant.now) {
-        result.archivedAt.value.isBeforeNow === true
+        result.archivedAt.value.isBeforeNow must === (true)
       }
     }
 

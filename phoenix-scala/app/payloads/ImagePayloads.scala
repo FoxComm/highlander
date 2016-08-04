@@ -5,7 +5,7 @@ import failures.Failure
 import models.image._
 import models.objects.ObjectUtils._
 import models.objects._
-import payloads.ObjectPayloads.{AttributesBuilder, IntField, StringField}
+import payloads.ObjectPayloads.{AttributesBuilder, StringField}
 import utils.Validation
 import utils.Validation._
 
@@ -33,8 +33,7 @@ object ImagePayloads {
       extends Validation[CreateAlbumPayload] {
 
     def formAndShadow: FormAndShadow = {
-      val jsonBuilder: AttributesBuilder = ObjectPayloads
-        .optionalAttributes(Some(StringField("name", name)), position.map(IntField("position", _)))
+      val jsonBuilder: AttributesBuilder = AttributesBuilder(StringField("name", name))
 
       (ObjectForm(kind = Album.kind, attributes = jsonBuilder.objectForm),
        ObjectShadow(attributes = jsonBuilder.objectShadow))
@@ -55,9 +54,8 @@ object ImagePayloads {
       extends Validation[UpdateAlbumPayload] {
 
     def formAndShadow: FormAndShadow = {
-      val jsonBuilder: AttributesBuilder = ObjectPayloads.optionalAttributes(
-          name.map(StringField("name", _)),
-          position.map(IntField("position", _)))
+      val jsonBuilder: AttributesBuilder =
+        ObjectPayloads.optionalAttributes(name.map(StringField("name", _)))
 
       (ObjectForm(kind = Album.kind, attributes = jsonBuilder.objectForm),
        ObjectShadow(attributes = jsonBuilder.objectShadow))
@@ -77,4 +75,6 @@ object ImagePayloads {
       Validated.valid(images)
 
   }
+
+  case class UpdateAlbumPositionPayload(albumId: Int, position: Int)
 }

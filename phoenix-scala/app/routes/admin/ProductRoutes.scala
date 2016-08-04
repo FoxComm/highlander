@@ -5,7 +5,7 @@ import akka.http.scaladsl.server.Directives._
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.StoreAdmin
 import payloads.ContextPayloads._
-import payloads.ImagePayloads.CreateAlbumPayload
+import payloads.ImagePayloads.{UpdateAlbumPositionPayload, CreateAlbumPayload}
 import payloads.ProductPayloads._
 import services.image.ImageManager
 import services.objects.ObjectManager
@@ -53,6 +53,15 @@ object ProductRoutes {
               (post & pathEnd & entity(as[CreateAlbumPayload])) { payload ⇒
                 mutateOrFailures {
                   ImageManager.createAlbumForProduct(admin, productId, payload, contextName)
+                }
+              } ~
+              pathPrefix("position") {
+                (post & pathEnd & entity(as[UpdateAlbumPositionPayload])) { payload ⇒
+                  mutateOrFailures {
+                    ImageManager.updateProductAlbumPosition(payload.albumId,
+                                                            productId,
+                                                            payload.position)
+                  }
                 }
               }
             }

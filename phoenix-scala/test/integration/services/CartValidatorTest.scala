@@ -5,14 +5,14 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import cats.implicits._
 import failures.CartFailures._
 import models.cord._
-import models.cord.lineitems.{OrderLineItem, OrderLineItems}
+import models.cord.lineitems._
 import models.customer.Customers
 import models.inventory.Skus
 import models.objects._
 import models.payment.creditcard.CreditCards
-import models.payment.giftcard.{GiftCard, GiftCardManual, GiftCardManuals, GiftCards}
-import models.payment.storecredit.{StoreCredit, StoreCreditManual, StoreCreditManuals, StoreCredits}
-import models.product.{Mvp, Products, SimpleContext}
+import models.payment.giftcard._
+import models.payment.storecredit._
+import models.product._
 import models.{Reasons, StoreAdmins}
 import services.carts.CartTotaler
 import util.{IntegrationTestBase, TestObjectContext}
@@ -143,7 +143,10 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext {
   }
 
   trait Fixture {
-    val cart = Carts.create(Factories.cart).gimme
+    val (customer, cart) = (for {
+      customer ← * <~ Customers.create(Factories.customer)
+      cart     ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
+    } yield (customer, cart)).gimme
   }
 
   trait LineItemsFixture extends Fixture {
@@ -181,12 +184,11 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext {
   }
 
   trait CreditCartFixture extends Fixture {
-    val (customer, cc) = (for {
-      customer ← * <~ Customers.create(Factories.customer)
-      cc       ← * <~ CreditCards.create(Factories.creditCard.copy(customerId = customer.id))
+    val cc = (for {
+      cc ← * <~ CreditCards.create(Factories.creditCard.copy(customerId = customer.id))
       _ ← * <~ OrderPayments.create(
              Factories.orderPayment.copy(cordRef = cart.refNum, paymentMethodId = cc.id))
-    } yield (customer, cc)).gimme
+    } yield cc).gimme
   }
 
   trait GiftCardFixture extends LineItemsFixture {
@@ -212,7 +214,8 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext {
                   StoreCreditManual(adminId = admin.id, reasonId = reason.id))
       storeCredit ← * <~ StoreCredits.create(
                        Factories.storeCredit.copy(originId = origin.id,
-                                                  state = StoreCredit.Active))
+                                                  state = StoreCredit.Active,
+                                                  customerId = customer.id))
       payment ← * <~ OrderPayments.create(
                    OrderPayment
                      .build(storeCredit)
@@ -220,5 +223,5 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext {
     } yield (admin, storeCredit, payment)).gimme
   }
 
-  def refresh(cart: Cart) = Carts.refresh(cart).run().futureValue
+  def refresh(cart: Cart) = Carts.refresh(cart).gimme
 }

@@ -89,8 +89,12 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext {
     }
 
     "must run FSM check if applicable" in {
-      val cart    = Carts.create(Factories.cart).gimme
-      val order   = Orders.create(cart.toOrder()).gimme
+      val order = (for {
+        _     ← * <~ Customers.create(Factories.customer)
+        cart  ← * <~ Carts.create(Factories.cart)
+        order ← * <~ Orders.create(cart.toOrder())
+      } yield order).gimme
+
       val failure = Orders.update(order, order.copy(state = Shipped)).run().futureValue.leftVal
       failure must === (StateTransitionNotAllowed(order.state, Shipped, order.refNum).single)
       Orders.findOneByRefNum(order.refNum).gimme.value must === (order)

@@ -74,10 +74,7 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
   }
 
   "POST /v1/orders/:refNum/lock" - {
-    "successfully locks a cart" in {
-      val cart = Carts.create(Factories.cart).gimme
-      StoreAdmins.create(Factories.storeAdmin).gimme
-
+    "successfully locks a cart" in new Fixture {
       val response = POST(s"v1/orders/${cart.refNum}/lock")
       response.status must === (StatusCodes.OK)
 
@@ -90,18 +87,16 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
       lock.lockedBy must === (1)
     }
 
-    "refuses to lock an already locked cart" in {
-      val cart = Carts.create(Factories.cart.copy(isLocked = true)).gimme
+    "refuses to lock an already locked cart" in new Fixture {
+      Carts.update(cart, cart.copy(isLocked = true)).gimme
 
       val response = POST(s"v1/orders/${cart.refNum}/lock")
       response.status must === (StatusCodes.BadRequest)
       response.error must === (LockedFailure(Cart, cart.refNum).description)
     }
 
-    "avoids race condition" in {
+    "avoids race condition" in new Fixture {
       pending // FIXME when DbResultT gets `select for update` https://github.com/FoxComm/phoenix-scala/issues/587
-      StoreAdmins.create(Factories.storeAdmin).gimme
-      val cart = Carts.create(Factories.cart).gimme
 
       def request = POST(s"v1/orders/${cart.refNum}/lock")
 
@@ -112,10 +107,7 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
   }
 
   "POST /v1/orders/:refNum/unlock" - {
-    "unlocks cart" in {
-      StoreAdmins.create(Factories.storeAdmin).gimme
-      val cart = Carts.create(Factories.cart).gimme
-
+    "unlocks cart" in new Fixture {
       val lock = POST(s"v1/orders/${cart.refNum}/lock")
       lock.status must === (StatusCodes.OK)
 
@@ -126,8 +118,7 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
       unlockedCart.isLocked must === (false)
     }
 
-    "refuses to unlock an already unlocked cart" in {
-      val cart     = Carts.create(Factories.cart).gimme
+    "refuses to unlock an already unlocked cart" in new Fixture {
       val response = POST(s"v1/orders/${cart.refNum}/unlock")
 
       response.status must === (StatusCodes.BadRequest)
@@ -151,7 +142,7 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
     }
 
     "fails if the payload is invalid" in {
-      val cart = Orders.save(Factories.cart.copy(customerId = 1)).run().futureValue
+      val cart = Orders.save(Factories.cart.copy(customerId = 1)).gimme
       val response = POST(
         s"v1/orders/${cart.refNum}/payment-methods/credit-card",
         payload.copy(cvv = "", holderName = ""))
@@ -164,7 +155,7 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
     }
 
     "fails if the card is invalid according to Stripe" ignore {
-      val cart = Orders.save(Factories.cart.copy(customerId = 1)).run().futureValue
+      val cart = Orders.save(Factories.cart.copy(customerId = 1)).gimme
       val customerId = db.run(Customers.returningId += customerStub).futureValue
       val response = POST(
         s"v1/orders/${cart.refNum}/payment-methods/credit-card",
@@ -179,7 +170,7 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
 
     /*
     "successfully creates records" ignore {
-      val cart = Orders.save(Factories.cart.copy(customerId = 1)).run().futureValue
+      val cart = Orders.save(Factories.cart.copy(customerId = 1)).gimme
       val customerId = db.run(Customers.returningId += customerStub).futureValue
       val customer = customerStub.copy(id = customerId)
       val addressPayload = CreateAddressPayload(name = "Home", stateId = 46, state = Some("VA"), street1 = "500 Blah",
@@ -224,18 +215,14 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
       "succeeds if the address exists in their book" in new AddressFixture {
         val response = PATCH(s"v1/orders/${cart.refNum}/shipping-address/${address.id}")
         response.status must === (StatusCodes.OK)
-        val shippingAddress =
-          OrderShippingAddresses.findByOrderRef(cart.refNum).one.run().futureValue.value
+        val shippingAddress = OrderShippingAddresses.findByOrderRef(cart.refNum).one.gimme.value
 
         shippingAddress.cordRef must === (cart.refNum)
       }
 
       "removes an existing shipping address before copying new address" in new AddressFixture {
-        val newAddress = Addresses
-          .create(address.copy(name = "New", isDefaultShipping = false))
-          .run()
-          .futureValue
-          .rightVal
+        val newAddress =
+          Addresses.create(address.copy(name = "New", isDefaultShipping = false)).gimme
 
         val fst :: snd :: Nil = List(address.id, newAddress.id).map { id ⇒
           PATCH(s"v1/orders/${cart.refNum}/shipping-address/$id")
@@ -244,8 +231,7 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
         fst.status must === (StatusCodes.OK)
         snd.status must === (StatusCodes.OK)
 
-        val shippingAddress =
-          OrderShippingAddresses.findByOrderRef(cart.refNum).one.run().futureValue.value
+        val shippingAddress = OrderShippingAddresses.findByOrderRef(cart.refNum).one.gimme.value
         shippingAddress.name must === ("New")
       }
 
@@ -263,8 +249,7 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
         val response = PATCH(s"v1/orders/${cart.refNum}/shipping-address/${newAddress.id}")
 
         response.status must === (StatusCodes.OK)
-        val shippingAddress =
-          OrderShippingAddresses.findByOrderRef(cart.refNum).one.run().futureValue.value
+        val shippingAddress = OrderShippingAddresses.findByOrderRef(cart.refNum).one.gimme.value
         shippingAddress.cordRef must === (cart.refNum)
       }
 
@@ -279,8 +264,7 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
         val response = PATCH(s"v1/orders/${cart.refNum}/shipping-address/101")
 
         response.status must === (StatusCodes.NotFound)
-        val shippingAddress =
-          OrderShippingAddresses.findByOrderRef(cart.refNum).one.run().futureValue.value
+        val shippingAddress = OrderShippingAddresses.findByOrderRef(cart.refNum).one.gimme.value
         shippingAddress.cordRef must === (cart.refNum)
       }
     }
@@ -313,7 +297,7 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
 
       response.status must === (StatusCodes.OK)
 
-      val addressBook = Addresses.findOneById(address.id).run().futureValue.value
+      val addressBook = Addresses.findOneById(address.id).gimme.value
 
       addressBook.name must === (address.name)
       addressBook.city must === (address.city)
@@ -338,7 +322,7 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
         addr.city must === (city)
         addr.address1 must === (address.address1)
         addr.address2 must === (address.address2)
-        val region = Regions.findOneById(address.regionId).run().futureValue.value
+        val region = Regions.findOneById(address.regionId).gimme.value
         addr.region must === (region)
         addr.zip must === (address.zip)
       }
@@ -374,7 +358,7 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
       response.status must === (StatusCodes.NotFound)
       response.error must === (NotFoundFailure404(Cart, "ABC-123").description)
 
-      db.run(OrderShippingAddresses.length.result).futureValue must === (1)
+      OrderShippingAddresses.length.result.gimme must === (1)
     }
 
     "fails if the order has already been placed" in new ShippingAddressFixture {
@@ -384,7 +368,7 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
       response.status must === (StatusCodes.BadRequest)
       response.error must === (OrderAlreadyPlaced(cart.refNum).description)
 
-      db.run(OrderShippingAddresses.length.result).futureValue must === (1)
+      OrderShippingAddresses.length.result.gimme must === (1)
     }
   }
 
@@ -500,9 +484,10 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
       orderShipMethod ← * <~ OrderShippingMethods.create(
                            OrderShippingMethod.build(cordRef = cart.refNum,
                                                      method = highShippingMethod))
-      shipment ← * <~ Shipments.create(Shipment(cordRef = cart.refNum,
-                                                orderShippingMethodId = Some(orderShipMethod.id)))
-    } yield shipment).runTxn().futureValue
+      shipment ← * <~ Shipments.create(
+                    Shipment(cordRef = cart.refNum,
+                             orderShippingMethodId = Some(orderShipMethod.id)))
+    } yield shipment).gimme
   }
 
   trait PaymentStateFixture extends Fixture {

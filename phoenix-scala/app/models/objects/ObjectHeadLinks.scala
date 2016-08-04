@@ -33,22 +33,28 @@ object ObjectHeadLinks {
                                                            rightQuery: FoxTableQuery[R, _])
       extends FoxTableQuery[M, T](construct) {
 
-    def filterLeft(left: L): QuerySeq               = filterLeftId(left.id)
-    private def filterLeftId(leftId: Int): QuerySeq = filter(_.leftId === leftId)
+    def filterLeft(left: L): QuerySeq                 = filterLeftId(left.id)
+    protected def filterLeftId(leftId: Int): QuerySeq = filter(_.leftId === leftId)
+
+    def filterRight(right: R): QuerySeq               = filterRightId(right.id)
+    private def filterRightId(rightId: Int): QuerySeq = filter(_.rightId === rightId)
 
     def queryRightByLeft(left: L)(implicit ec: EC, db: DB): DbResultT[Seq[FullObject[R]]] =
-      rightByLeftId(left.id, rightQuery.mustFindById404)
+      queryRightByLeftIdWithLink(left.id).map(_.map(_._1))
 
-    def queryRightByLeftId(leftId: Int)(implicit ec: EC, db: DB): DbResultT[Seq[FullObject[R]]] =
-      rightByLeftId(leftId, rightQuery.mustFindById404)
+    def queryRightByLeftWithLinks(left: L)(implicit ec: EC,
+                                           db: DB): DbResultT[Seq[(FullObject[R], M)]] =
+      queryRightByLeftIdWithLink(left.id)
 
-    private def rightByLeftId[J <: ObjectHead[J]](leftId: Int, readHead: (Int) ⇒ DbResultT[J])(
-        implicit ec: EC,
-        db: DB): DbResultT[Seq[FullObject[J]]] =
+    private def queryRightByLeftIdWithLink(
+        leftId: Int)(implicit ec: EC, db: DB): DbResultT[Seq[(FullObject[R], M)]] =
       for {
         links         ← * <~ filterLeftId(leftId).result
-        linkedObjects ← * <~ links.map(link ⇒ ObjectUtils.getFullObject(readHead(link.rightId)))
-      } yield linkedObjects
+        linkedObjects ← * <~ links.map(link ⇒ queryLinkedObject(link))
+      } yield linkedObjects.zip(links)
+
+    def queryLinkedObject(link: M)(implicit ec: EC, db: DB): DbResultT[FullObject[R]] =
+      ObjectUtils.getFullObject(rightQuery.mustFindById404(link.rightId))
 
     def syncLinks(left: L, rights: Seq[R])(implicit ec: EC, db: DB): DbResultT[Unit] =
       for {
@@ -57,10 +63,10 @@ object ObjectHeadLinks {
         linkedRightIds = existingLinks.map(_.rightId)
         _ ← * <~ rights.collect {
              case right if !linkedRightIds.contains(right.id) ⇒
-               create(mkLink(left, right))
+               create(build(left, right))
            }
       } yield {}
 
-    def mkLink(left: L, right: R): M
+    def build(left: L, right: R): M
   }
 }

@@ -24,6 +24,18 @@ trait StoreAdminSeeds {
     } yield admins.head
   }
 
+  def createStoreAdminManual(username: String, email: String): DbResultT[StoreAdmin] = {
+    val pw_env = sys.props.get("admin_password").orElse(sys.env.get("ADMIN_PASSWORD"))
+    val pw = pw_env match {
+      case Some(p) ⇒ p
+      case None    ⇒ scala.io.StdIn.readLine(s"Enter password for new admin $username: ")
+    }
+
+    val admin = StoreAdmin
+      .build(name = username, email = email, password = Some(pw), state = StoreAdmin.Active)
+    StoreAdmins.create(admin)
+  }
+
   def storeAdmin =
     StoreAdmin.build(email = "admin@admin.com",
                      password = "password".some,

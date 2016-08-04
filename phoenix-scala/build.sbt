@@ -74,6 +74,8 @@ lazy val phoenixScala = (project in file(".")).
         "ch.qos.logback"             %  "logback-classic"        % "1.1.7",
         "com.typesafe.scala-logging" %% "scala-logging"          % "3.4.0",
         "com.lihaoyi"                %% "sourcecode"             % "0.1.1",
+        // CLI parsing
+        "com.github.scopt"           %% "scopt"                  % "3.5.0",
         // Other
        ("org.spire-math"             %% "cats"                   % "0.3.0").excludeAll(noScalaCheckPlease),
         "com.stripe"                 %  "stripe-java"            % "2.5.0",

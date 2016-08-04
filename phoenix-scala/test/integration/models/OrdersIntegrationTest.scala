@@ -1,12 +1,13 @@
 package models
 
-import java.time.Instant
+import java.time.Instant.now
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import cats.implicits._
 import models.cord.Order._
 import models.cord._
+import models.customer.Customers
 import util._
 import utils.db._
 import utils.seeds.Seeds.Factories
@@ -16,39 +17,32 @@ class OrdersIntegrationTest extends IntegrationTestBase with TestObjectContext {
 
   "Orders" - {
 
-    "trigger sets remorse period end when order moves to RemorseHold" in {
-      val order = (for {
-        cart    ← * <~ Carts.create(Factories.cart)
-        order   ← * <~ Orders.create(cart.toOrder().copy(state = ManualHold))
-        updated ← * <~ Orders.updateReturning(order, order.copy(state = RemorseHold))
-      } yield updated).gimme
-      order.remorsePeriodEnd.value.minuteOfHour must === (Instant.now.plusMinutes(30).minuteOfHour)
+    "trigger sets sets/resets period end when order moves to/from RemorseHold" in new Fixture {
+      order.remorsePeriodEnd mustBe defined
+      val updated1 = Orders.updateReturning(order, order.copy(state = ManualHold)).gimme
+      updated1.remorsePeriodEnd must not be defined
+      val updated2 = Orders.updateReturning(order, order.copy(state = RemorseHold)).gimme
+      updated2.remorsePeriodEnd.value.minuteOfHour must === (now.plusMinutes(30).minuteOfHour)
     }
 
-    "trigger does not change remorse period end if defined when order moves to RemorseHold" in {
-      val order = (for {
-        cart  ← * <~ Carts.create(Factories.cart)
-        order ← * <~ Orders.create(cart.toOrder().copy(state = ManualHold))
-        updated ← * <~ Orders.updateReturning(order,
-                                              order.copy(state = RemorseHold,
-                                                         remorsePeriodEnd =
-                                                           Instant.now.plusMinutes(15).some))
-      } yield updated).gimme
-      order.remorsePeriodEnd.value.minuteOfHour must === (Instant.now.plusMinutes(15).minuteOfHour)
+    "trigger does not change remorse period end if defined when order moves to RemorseHold" in new Fixture {
+      val newRemorseEnd = now.plusMinutes(15)
+      val withRemorse   = order.copy(state = RemorseHold, remorsePeriodEnd = newRemorseEnd.some)
+      val updated       = Orders.updateReturning(order, withRemorse).gimme
+      updated.remorsePeriodEnd.value.minuteOfHour must === (newRemorseEnd.minuteOfHour)
     }
 
-    "trigger resets remorse period after status changes from RemorseHold" in {
-      val cart  = Carts.create(Factories.cart).gimme
-      val order = Orders.create(cart.toOrder()).gimme
-
-      val updated = Orders.updateReturning(order, order.copy(state = ManualHold)).gimme
-      updated.remorsePeriodEnd must not be defined
+    "remorse period end is generated if empty" in new Fixture {
+      val updated = Orders.updateReturning(order, order.copy(remorsePeriodEnd = None)).gimme
+      updated.remorsePeriodEnd.value.minuteOfHour must === (now.plusMinutes(30).minuteOfHour)
     }
+  }
 
-    "remorse period end is generated if empty" in {
-      val cart  = Carts.create(Factories.cart).gimme
-      val order = Orders.create(cart.toOrder().copy(remorsePeriodEnd = None)).gimme
-      order.remorsePeriodEnd.value.minuteOfHour must === (Instant.now.plusMinutes(30).minuteOfHour)
-    }
+  trait Fixture {
+    val order = (for {
+      _     ← * <~ Customers.create(Factories.customer)
+      cart  ← * <~ Carts.create(Factories.cart)
+      order ← * <~ Orders.create(cart.toOrder())
+    } yield order).gimme
   }
 }

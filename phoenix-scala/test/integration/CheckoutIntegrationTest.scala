@@ -82,7 +82,7 @@ class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with 
       val refNum = createCart.as[CartResponse].referenceNumber
 
       // Update customer
-      Customers.activeCustomerByEmail(customer.email).map(_.email).update(None).run().futureValue
+      Customers.update(customer, customer.copy(isGuest = true, email = None)).run().futureValue
 
       // Checkout!
       val checkout = POST(s"v1/orders/$refNum/checkout")

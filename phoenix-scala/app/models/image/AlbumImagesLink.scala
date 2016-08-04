@@ -1,6 +1,8 @@
 package models.image
 
 import java.time.Instant
+import models.objects.ObjectHeadLinks._
+import models.objects.{OrderedObjectHeadLinkQueries, OrderedObjectHeadLinks, OrderedObjectHeadLink}
 import shapeless._
 import utils.db._
 import utils.db.ExPostgresDriver.api._
@@ -12,14 +14,12 @@ case class AlbumImageLink(id: Int = 0,
                           createdAt: Instant = Instant.now,
                           updatedAt: Instant = Instant.now)
     extends FoxModel[AlbumImageLink]
+    with OrderedObjectHeadLink[AlbumImageLink] {
+  override def withPosition(newPosition: Id): AlbumImageLink = copy(position = newPosition)
+}
 
-class AlbumImageLinks(tag: Tag) extends FoxTable[AlbumImageLink](tag, "album_image_links") {
-  def id        = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def leftId    = column[Int]("left_id")
-  def rightId   = column[Int]("right_id")
-  def position  = column[Int]("position")
-  def createdAt = column[Instant]("created_at")
-  def updatedAt = column[Instant]("updated_at")
+class AlbumImageLinks(tag: Tag)
+    extends OrderedObjectHeadLinks[AlbumImageLink](tag, "album_image_links") {
 
   def * =
     (id, leftId, rightId, position, createdAt, updatedAt) <> ((AlbumImageLink.apply _).tupled, AlbumImageLink.unapply)
@@ -29,12 +29,17 @@ class AlbumImageLinks(tag: Tag) extends FoxTable[AlbumImageLink](tag, "album_ima
 }
 
 object AlbumImageLinks
-    extends FoxTableQuery[AlbumImageLink, AlbumImageLinks](new AlbumImageLinks(_))
+    extends OrderedObjectHeadLinkQueries[AlbumImageLink, AlbumImageLinks, Album, Image](
+        new AlbumImageLinks(_),
+        Albums,
+        Images)
     with ReturningId[AlbumImageLink, AlbumImageLinks] {
 
   val returningLens: Lens[AlbumImageLink, Int] = lens[AlbumImageLink].id
-  def filterLeft(leftId: Int): QuerySeq = filter(_.leftId === leftId)
 
   def filterLeftAndRight(leftId: Int, rightId: Int): QuerySeq =
     filter(link ⇒ link.leftId === leftId && link.rightId === rightId)
+
+  def buildOrdered(left: Album, right: Image, position: Int) =
+    AlbumImageLink(leftId = left.id, rightId = right.id, position = position)
 }

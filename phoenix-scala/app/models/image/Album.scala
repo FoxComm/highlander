@@ -2,6 +2,9 @@ package models.image
 
 import java.time.Instant
 
+import cats.data.Xor
+import failures.ArchiveFailures._
+import failures._
 import models.objects._
 import shapeless._
 import slick.driver.PostgresDriver.api._
@@ -27,6 +30,11 @@ case class Album(id: Int = 0,
 
   def withNewShadowAndCommit(shadowId: Int, commitId: Int): Album =
     this.copy(shadowId = shadowId, commitId = commitId)
+
+  def mustNotBeArchived: Failures Xor Album = {
+    if (archivedAt.isEmpty) Xor.right(this)
+    else Xor.left(AddImagesToArchivedAlbumFailure(id).single)
+  }
 }
 
 class Albums(tag: Tag) extends ObjectHeads[Album](tag, "albums") {
