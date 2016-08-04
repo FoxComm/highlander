@@ -12,10 +12,10 @@ final case class InventorySearchView()(implicit ec: EC) extends AvroTransformer 
         .analyzer("autocomplete")
         .fields(field("raw", StringType).index("not_analyzed")),
       field("productActive", BooleanType),
-      field("sku", StringType) index "not_analyzed",
+      field("sku", StringType).analyzer("upper_cased"),
       field("skuActive", BooleanType),
-      field("skuType", StringType) analyzer "autocomplete",
-      field("warehouse", StringType) analyzer "autocomplete",
+      field("skuType", StringType).analyzer("autocomplete"),
+      field("warehouse", StringType).analyzer("autocomplete"),
       field("onHand", IntegerType),
       field("onHold", IntegerType),
       field("reserved", IntegerType),

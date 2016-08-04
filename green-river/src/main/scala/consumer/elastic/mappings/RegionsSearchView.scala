@@ -11,7 +11,7 @@ final case class RegionsSearchView()(implicit ec: EC) extends AvroTransformer {
   def mapping() = esMapping("regions_search_view").fields(
       field("id", IntegerType),
       field("name", StringType).analyzer("autocomplete"),
-      field("abbreviation", StringType) index "not_analyzed",
+      field("abbreviation", StringType).index("not_analyzed"),
       field("countryId", IntegerType)
   )
 }
