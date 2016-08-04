@@ -11,7 +11,7 @@ const searchTerms = [
         term: 'skuTitle'
       }, {
         title: 'SKU',
-        type: 'string',
+        type: 'identifier',
         term: 'skuCode'
       }, {
         title: 'Price',
@@ -19,7 +19,7 @@ const searchTerms = [
         term: 'skuPrice'
       }, {
         title: 'Order',
-        type: 'number',
+        type: 'identifier',
         term: 'orderReferenceNumber'
       }, {
         title: 'Date/Time Order Placed',

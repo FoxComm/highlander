@@ -5,7 +5,7 @@ const searchTerms = [
     options: [
       {
         title: 'Name',
-        type: 'string-not-analyzed',
+        type: 'string',
         term: 'name'
       }, {
         title: 'Email',
@@ -31,14 +31,13 @@ const searchTerms = [
     options: [
       {
         title: 'Reference Number',
-        type: 'term',
+        type: 'identifier',
         term: 'orders.referenceNumber'
       }, {
         title: 'State',
         type: 'enum',
         term: 'orders.state',
         suggestions: [
-          { display: 'Cart', value: 'cart' },
           { display: 'Remorse Hold', value: 'remorseHold' },
           { display: 'Manual Hold', value: 'manualHold' },
           { display: 'Fraud Hold', value: 'fraudHold' },

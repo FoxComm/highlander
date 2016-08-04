@@ -15,7 +15,7 @@ import { PageTitle } from '../section-title';
 import { PrimaryButton } from '../common/buttons';
 import LocalNav from '../local-nav/local-nav';
 import WaitAnimation from '../common/wait-animation';
-import ArchiveActionsSection from '../arcive-actions/archive-actions';
+import ArchiveActionsSection from '../archive-actions/archive-actions';
 
 // actions
 import * as SkuActions from '../../modules/skus/details';

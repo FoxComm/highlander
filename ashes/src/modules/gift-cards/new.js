@@ -34,7 +34,7 @@ export function suggestCustomers(phrase) {
       term: 'name',
       operator: 'eq',
       value: {
-        type: 'string-not-analyzed',
+        type: 'string',
         value: phrase,
       },
     },

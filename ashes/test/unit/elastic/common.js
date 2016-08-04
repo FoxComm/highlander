@@ -17,8 +17,9 @@ function addQuery(searchTerm, search = baseSearch) {
   const query = {
     match: {
       [searchTerm.term]: {
-        query: searchTerm.value.value,
-        type: 'phrase'
+        analyzer: 'standard',
+        operator: 'and',
+        query: searchTerm.value.value
       },
     },
   };
@@ -126,7 +127,7 @@ describe('elastic.common', () => {
       const terms = [{
         term: 'orders.referenceNumber',
         operator: 'eq',
-        value: { type: 'identifier', value: 'BR10007' },
+        value: { type: 'identifier', value: 'br10007' },
       }];
 
       const query = toQuery(terms);
@@ -141,7 +142,7 @@ describe('elastic.common', () => {
                 query: {
                   bool: {
                     filter: {
-                      term: { 'orders.referenceNumber': 'br10007' },
+                      term: { 'orders.referenceNumber': 'BR10007' },
                     },
                   },
                 },
@@ -158,7 +159,7 @@ describe('elastic.common', () => {
       const terms = [{
         term: 'customer.name',
         operator: 'eq',
-        value: { type: 'identifier', value: 'adil wali' },
+        value: { type: 'identifier', value: 'Adil Wali' },
       }];
 
       const query = toQuery(terms);
@@ -173,7 +174,7 @@ describe('elastic.common', () => {
                 query: {
                   bool: {
                     filter: {
-                      term: { 'customer.name': 'adil wali' },
+                      term: { 'customer.name': 'ADIL WALI' },
                     },
                   },
                 },

@@ -49,6 +49,14 @@ const productSet = createAction('PRODUCTS_SET');
 
 const setError = createAction('PRODUCTS_SET_ERROR');
 
+function sanitizeError(error: string): string {
+  if (error.indexOf('sku_code violates check constraint "sku_code_check"') != -1) {
+    return 'Product must contain a SKU.';
+  }
+
+  return error;
+}
+
 export function fetchProduct(id: string, context: string = defaultContext): ActionDispatch {
   return dispatch => {
     if (id.toLowerCase() == 'new') {
@@ -163,10 +171,12 @@ const reducer = createReducer({
     };
   },
   [setError]: (state: ProductDetailsState, err: Object) => {
+    const messages = _.get(err, 'response.body.errors', []);
+
     const error: Error = {
       status: _.get(err, 'response.status'),
       statusText: _.get(err, 'response.statusText', ''),
-      messages: _.get(err, 'response.body.errors', []),
+      messages: _.map(messages, m => sanitizeError(m)),
     };
 
     return {

@@ -16,7 +16,9 @@ type Props = {
   userId: number|string
 };
 
+/* ::`*/
 @connect(null, { logout, authMessage, toggleUserMenu })
+/* ::`*/
 export default class UserMenu extends Component {
   props: Props;
 

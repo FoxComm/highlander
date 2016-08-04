@@ -39,7 +39,7 @@ const searchTerms = [
     options: [
       {
         title: 'Reference Number',
-        type: 'string',
+        type: 'identifier',
         term: 'orderReferenceNumber'
       },
       {
