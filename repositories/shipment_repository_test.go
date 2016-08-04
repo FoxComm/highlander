@@ -71,7 +71,7 @@ func (suite *ShipmentRepositoryTestSuite) Test_GetShipmentsByReferenceNumber_Fou
 //		NewRows(suite.getShipmentColumns()).
 //		AddRow(suite.getShipmentRow(shipment1)...)
 //	suite.mock.
-//		ExpectQuery(`SELECT (.+) FROM "shipments" WHERE (.+) \(\("id" = \?\)\) (.+)`).
+//		ExpectQuery(`SELECT .+ FROM "shipments" WHERE .+ \(\("id" = \?\)\) .+`).
 //		WithArgs(1).
 //		WillReturnRows(rows)
 //

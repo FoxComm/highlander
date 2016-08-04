@@ -40,7 +40,7 @@ func (suite *ShippingMethodRepositoryTestSuite) Test_GetShippingMethods_ReturnsS
 		NewRows([]string{"id", "carrier_id", "name"}).
 		AddRow(shippingMethod1.ID, shippingMethod1.CarrierID, shippingMethod1.Name).
 		AddRow(shippingMethod2.ID, shippingMethod2.CarrierID, shippingMethod2.Name)
-	suite.mock.ExpectQuery(`SELECT (.+) FROM "shipping_methods"`).WillReturnRows(rows)
+	suite.mock.ExpectQuery(`SELECT .+ FROM "shipping_methods"`).WillReturnRows(rows)
 
 	//act
 	shippingMethods, err := suite.repository.GetShippingMethods()
@@ -61,7 +61,7 @@ func (suite *ShippingMethodRepositoryTestSuite) Test_GetShippingMethodByID_NotFo
 	rows := sqlmock.
 		NewRows([]string{"id", "carrier_id", "name"})
 	suite.mock.
-		ExpectQuery(`SELECT (.+) FROM "shipping_methods" WHERE \("id" = \?\) (.+)`).
+		ExpectQuery(`SELECT .+ FROM "shipping_methods" WHERE \("id" = \?\) .+`).
 		WithArgs(1).
 		WillReturnRows(rows)
 
@@ -82,7 +82,7 @@ func (suite *ShippingMethodRepositoryTestSuite) Test_GetShippingMethodByID_Found
 		NewRows([]string{"id", "carrier_id", "name"}).
 		AddRow(shippingMethod1.ID, shippingMethod1.CarrierID, shippingMethod1.Name)
 	suite.mock.
-		ExpectQuery(`SELECT (.+) FROM "shipping_methods" WHERE \("id" = \?\) (.+)`).
+		ExpectQuery(`SELECT .+ FROM "shipping_methods" WHERE \("id" = \?\) .+`).
 		WithArgs(1).
 		WillReturnRows(rows)
 
@@ -107,7 +107,7 @@ func (suite *ShippingMethodRepositoryTestSuite) Test_CreaterShippingMethod_Retur
 		NewRows([]string{"id", "carrier_id", "name"}).
 		AddRow(uint(1), shippingMethod1.CarrierID, shippingMethod1.Name)
 	suite.mock.
-		ExpectQuery(`SELECT (.+) FROM "shipping_methods" WHERE \("id" = \?\) (.+)`).
+		ExpectQuery(`SELECT .+ FROM "shipping_methods" WHERE \("id" = \?\) .+`).
 		WithArgs(1).
 		WillReturnRows(rows)
 
@@ -150,7 +150,7 @@ func (suite *ShippingMethodRepositoryTestSuite) Test_UpdateShippingMethod_Found_
 		NewRows([]string{"id", "carrier_id", "name"}).
 		AddRow(shippingMethod1.ID, shippingMethod1.CarrierID, shippingMethod1.Name)
 	suite.mock.
-		ExpectQuery(`SELECT (.+) FROM "shipping_methods" WHERE \("id" = \?\) (.+)`).
+		ExpectQuery(`SELECT .+ FROM "shipping_methods" WHERE \("id" = \?\) .+`).
 		WithArgs(1).
 		WillReturnRows(rows)
 

@@ -40,7 +40,7 @@ func (suite *AddressRepositoryTestSuite) Test_GetAddressByID_NotFound_ReturnsNot
 	rows := sqlmock.
 		NewRows(suite.getAddressColumns())
 	suite.mock.
-		ExpectQuery(`SELECT (.+) FROM "addresses" WHERE (.+) \(\("id" = \?\)\) (.+)`).
+		ExpectQuery(`SELECT .+ FROM "addresses" WHERE .+ \(\("id" = \?\)\) .+`).
 		WithArgs(1).
 		WillReturnRows(rows)
 
@@ -61,7 +61,7 @@ func (suite *AddressRepositoryTestSuite) Test_GetAddressByID_Found_ReturnsAddres
 		NewRows(suite.getAddressColumns()).
 		AddRow(suite.getAddressRow(address1)...)
 	suite.mock.
-		ExpectQuery(`SELECT (.+) FROM "addresses" WHERE (.+) \(\("id" = \?\)\) (.+)`).
+		ExpectQuery(`SELECT .+ FROM "addresses" WHERE .+ \(\("id" = \?\)\) .+`).
 		WithArgs(1).
 		WillReturnRows(rows)
 
@@ -86,7 +86,7 @@ func (suite *AddressRepositoryTestSuite) Test_CreateAddress_ReturnsCreatedRecord
 		NewRows(suite.getAddressColumns()).
 		AddRow(suite.getAddressRow(address1)...)
 	suite.mock.
-		ExpectQuery(`SELECT (.+) FROM "addresses" WHERE (.+) \(\("id" = \?\)\) (.+)`).
+		ExpectQuery(`SELECT .+ FROM "addresses" WHERE .+ \(\("id" = \?\)\) .+`).
 		WithArgs(1).
 		WillReturnRows(rows)
 

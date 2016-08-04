@@ -40,7 +40,7 @@ func (suite *CarrierRepositoryTestSuite) Test_GetCarriers_ReturnsCarrierModels()
 		NewRows([]string{"id", "name", "tracking_template"}).
 		AddRow(carrier1.ID, carrier1.Name, carrier1.TrackingTemplate).
 		AddRow(carrier2.ID, carrier2.Name, carrier2.TrackingTemplate)
-	suite.mock.ExpectQuery(`SELECT (.+) FROM "carriers"`).WillReturnRows(rows)
+	suite.mock.ExpectQuery(`SELECT .+ FROM "carriers"`).WillReturnRows(rows)
 
 	//act
 	carriers, err := suite.repository.GetCarriers()
@@ -61,7 +61,7 @@ func (suite *CarrierRepositoryTestSuite) Test_GetCarrierByID_NotFound_ReturnsNot
 	rows := sqlmock.
 		NewRows([]string{"id", "name", "tracking_template"})
 	suite.mock.
-		ExpectQuery(`SELECT (.+) FROM "carriers" WHERE \("id" = \?\) (.+)`).
+		ExpectQuery(`SELECT .+ FROM "carriers" WHERE \("id" = \?\) .+`).
 		WithArgs(1).
 		WillReturnRows(rows)
 
@@ -82,7 +82,7 @@ func (suite *CarrierRepositoryTestSuite) Test_GetCarrierByID_Found_ReturnsCarrie
 		NewRows([]string{"id", "name", "tracking_template"}).
 		AddRow(carrier1.ID, carrier1.Name, carrier1.TrackingTemplate)
 	suite.mock.
-		ExpectQuery(`SELECT (.+) FROM "carriers" WHERE \("id" = \?\) (.+)`).
+		ExpectQuery(`SELECT .+ FROM "carriers" WHERE \("id" = \?\) .+`).
 		WithArgs(1).
 		WillReturnRows(rows)
 
@@ -107,7 +107,7 @@ func (suite *CarrierRepositoryTestSuite) Test_CreateCarrier_ReturnsCreatedRecord
 		NewRows([]string{"id", "name", "tracking_template"}).
 		AddRow(uint(1), carrier1.Name, carrier1.TrackingTemplate)
 	suite.mock.
-		ExpectQuery(`SELECT (.+) FROM "carriers" WHERE \("id" = \?\) (.+)`).
+		ExpectQuery(`SELECT .+ FROM "carriers" WHERE \("id" = \?\) .+`).
 		WithArgs(1).
 		WillReturnRows(rows)
 
@@ -150,7 +150,7 @@ func (suite *CarrierRepositoryTestSuite) Test_UpdateCarrier_Found_ReturnsUpdated
 		NewRows([]string{"id", "name", "tracking_template"}).
 		AddRow(carrier1.ID, carrier1.Name, carrier1.TrackingTemplate)
 	suite.mock.
-		ExpectQuery(`SELECT (.+) FROM "carriers" WHERE \("id" = \?\) (.+)`).
+		ExpectQuery(`SELECT .+ FROM "carriers" WHERE \("id" = \?\) .+`).
 		WithArgs(1).
 		WillReturnRows(rows)
 

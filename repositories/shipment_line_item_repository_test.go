@@ -70,7 +70,7 @@ func (suite *ShipmentLineItemRepositoryTestSuite) Test_CreateShipmentLineItem_Re
 		NewRows(suite.getShipmentLineItemColumns()).
 		AddRow(suite.getShipmentLineItemRow(shipmentLineItem1)...)
 	suite.mock.
-		ExpectQuery(`SELECT (.+) FROM "shipment_line_items" WHERE (.+) \(\("id" = \?\)\) (.+)`).
+		ExpectQuery(`SELECT .+ FROM "shipment_line_items" WHERE .+ \(\("id" = \?\)\) .+`).
 		WithArgs(1).
 		WillReturnRows(rows)
 
