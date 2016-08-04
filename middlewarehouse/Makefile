@@ -6,7 +6,7 @@ DB_TEST=middlewarehouse_test
 DB_USER=middlewarehouse
 
 build:
-	go build main.go
+	go build -o middlewarehouse main.go
 
 build-linux:
 	GOOS=linux go build -o middlewarehouse main.go
