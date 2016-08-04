@@ -13,15 +13,15 @@ import WarehouseDrawer from './inventory-warehouse-drawer';
 
 // redux
 import * as WarehousesActions from 'modules/inventory/warehouses';
-import type { InventorySummary, StockLocation } from 'modules/inventory/warehouses';
+import type { WarehouseInventorySummary, WarehouseInventoryMap } from 'modules/inventory/warehouses';
 
 const mapStateToProps = (state, props) => ({
-  inventoryDetails: _.get(state, ['inventory', 'warehouses', props.params.skuCode], {}),
+  inventoryDetails: _.get(state, ['inventory', 'warehouses', 'details', props.params.skuCode], {}),
   fetchState: _.get(state, 'asyncActions.inventory-summary', {}),
 });
 
 type Props = {
-  inventoryDetails: Array<InventorySummary>,
+  inventoryDetails: WarehouseInventoryMap,
   params: Object,
   fetchSummary: (skuCode: string) => Promise,
   fetchState: {
@@ -48,7 +48,7 @@ class InventoryItemDetails extends Component {
 
   get tableColumns() {
     return [
-      {field: 'stockLocationName', text: 'Warehouse'},
+      {field: 'stockLocation.stockLocationName', text: 'Warehouse'},
       {field: 'onHand', text: 'On Hand'},
       {field: 'onHold', text: 'Hold'},
       {field: 'reserved', text: 'Reserved'},
@@ -69,8 +69,8 @@ class InventoryItemDetails extends Component {
   }
 
   @autobind
-  renderDrawer(row, index, params) {
-    const key = `inventory-warehouse-drawer-${row.id}`;
+  renderDrawer(row: WarehouseInventorySummary, index, params) {
+    const key = `inventory-warehouse-drawer-${row.stockLocation.stockLocationId}`;
     return (
       <WarehouseDrawer
         key={key}
@@ -84,8 +84,8 @@ class InventoryItemDetails extends Component {
   }
 
   @autobind
-  renderRow(row, index, columns, params) {
-    const key = `inventory-warehouse-row-${row.id}`;
+  renderRow(row: WarehouseInventorySummary, index, columns, params) {
+    const key = `inventory-warehouse-${row.stockLocation.stockLocationId}`;
     return (
       <InventoryWarehouseRow
         key={key}
@@ -99,16 +99,14 @@ class InventoryItemDetails extends Component {
   get summaryData() {
     const { inventoryDetails } = this.props;
 
-    return array2tableData(_.map(inventoryDetails, details => details.stockLocation));
+    return array2tableData(_.map(inventoryDetails, _.identity));
   }
 
-  drawerData(stockLocation: StockLocation) {
-    const inventoryDetails: Array<InventorySummary> = this.props.inventoryDetails;
+  drawerData(warehouseSummary: WarehouseInventorySummary) {
+    const inventoryDetails: WarehouseInventoryMap = this.props.inventoryDetails;
 
-    const summary: InventorySummary = _.find(inventoryDetails, (item: InventorySummary) => {
-      return item.stockLocation.stockLocationId == stockLocation.stockLocationId;
-    });
-    return array2tableData(summary ? summary.stockItems : []);
+    const stockItems = _.get(inventoryDetails, [warehouseSummary.stockLocation.stockLocationId, 'stockItems'], []);
+    return array2tableData(stockItems);
   }
 
   render() {
@@ -123,7 +121,7 @@ class InventoryItemDetails extends Component {
             data={this.summaryData}
             renderRow={this.renderRow}
             renderDrawer={this.renderDrawer}
-            idField="stockLocationId"
+            idField="stockLocation.stockLocationId"
             isLoading={isFetching}
             failed={failed}
             emptyMessage="No warehouse data found."

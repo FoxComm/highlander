@@ -12,7 +12,7 @@ const setCellContents = (warehouse, field, params) => {
 
 const InventoryWarehouseRow = props => {
   const { warehouse, columns, params } = props;
-  const key = `inventory-list-${warehouse.id}`;
+  const key = `inventory-list-${warehouse.stockLocation.stockLocationId}`;
 
   return (
     <ExpandableRow

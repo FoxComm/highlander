@@ -1,4 +1,4 @@
-// @flow
+
 // libs
 import React, { Element, Component } from 'react';
 import { autobind } from 'core-decorators';
@@ -9,17 +9,21 @@ import Table from '../table/table';
 import Drawer from '../table/drawer';
 import TableRow from '../table/row';
 import AdjustQuantity from '../forms/adjust-quantity';
+import Currency from '../common/currency';
 
 import * as WarehousesActions from 'modules/inventory/warehouses';
 
-import type { StockItem } from 'modules/inventory/warehouses';
+import type { StockItemFlat } from 'modules/inventory/warehouses';
 
 type State = {
   popupOpenedFor: number|null,
 }
 
 type Props = {
-  updateSkuItemsCount: (stockItemId: number, diff: number) => void,
+  updateSkuItemsCount: (sku: string, stockItem: StockItemFlat, diff: number) => void;
+  data: {
+    rows: Array<StockItemFlat>
+  };
 }
 
 class WarehouseDrawer extends Component {
@@ -36,7 +40,7 @@ class WarehouseDrawer extends Component {
   }
 
   @autobind
-  renderRow(row: StockItem): Element {
+  renderRow(row: StockItemFlat): Element {
     const { state } = this;
 
     const handleChangeQuantity = (diff: number) => {
@@ -44,7 +48,7 @@ class WarehouseDrawer extends Component {
     };
 
     return (
-      <TableRow>
+      <TableRow key={row.stockItemId}>
         <td>{row.type}</td>
         <td>
           <AdjustQuantity
@@ -57,7 +61,7 @@ class WarehouseDrawer extends Component {
         <td>{row.onHold}</td>
         <td>{row.reserved}</td>
         <td>{row.afs}</td>
-        <td>{row.afsCost}</td>
+        <td><Currency value={row.afsCost}/></td>
       </TableRow>
     );
   }

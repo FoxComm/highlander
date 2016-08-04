@@ -8,7 +8,7 @@ import createAsyncActions from '../async-utils';
 
 export const updateSkuItemsCount = createAction(
   'SKU_UPDATE_ITEMS_COUNT',
-  (sku: string, stockItem: StockItem, qty: number) => [sku, stockItem, qty]
+  (sku, stockItem, qty) => [sku, stockItem, qty]
 );
 
 export type StockCounts = {
@@ -20,67 +20,75 @@ export type StockCounts = {
   afsCost: number,
 }
 
-export type StockLocation = StockCounts & {
+export type StockLocation = {
   stockLocationId: number,
   stockLocationName: string,
 }
 
-export type StockItem = StockCounts & {
+export type StockItem = {
   stockItemId: number,
   sku: string,
   type: string,
+  defaultUnitCost: number,
 }
 
-export type InventorySummary = {
+export type StockItemSummary = StockCounts & {
   stockLocation: StockLocation,
-  stockItems: Array<StockItem>
+  stockItem: StockItem,
 }
 
+export type StockItemFlat = StockCounts & StockItem;
+
+export type WarehouseInventorySummary = StockCounts & {
+  stockLocation: StockLocation,
+  stockItems: Array<StockItemFlat>,
+}
+
+export type WarehouseInventoryMap = {
+  [stockLocationId: number]: WarehouseInventorySummary
+}
+
+// @TODO: now you can test PR with this data if backend will be not available
+/*
 const mockData = [{
   "stockLocation": {
     "stockLocationId": 1,
     "stockLocationName": "Warehouse name",
-    "onHand": 1,
-    "onHold": 1,
-    "reserved": 1,
-    "shipped": 1,
-    "afs": 1,
-    "afsCost": 1
   },
-  "stockItems": [
-    {
-      "stockItemId": 1,
-      "sku": "SKU-TRL",
-      "type": "Sellable",
-      "onHand": 1,
-      "onHold": 1,
-      "reserved": 1,
-      "shipped": 1,
-      "afs": 1,
-      "afsCost": 1
-    },
-    {
-      "stockItemId": 2,
-      "sku": "SKU-TRL",
-      "type": "Non-sellable",
-      "onHand": 1,
-      "onHold": 1,
-      "reserved": 1,
-      "shipped": 1,
-      "afs": 1,
-      "afsCost": 1
-    }
-  ]
-}];
-
-// @TODO: get rid of mock data when api will be ready
+  "stockItem": {
+    "stockItemId": 1,
+    "sku": "SKU-TRL",
+    "type": "Sellable",
+    "defaultUnitCost": 20,
+  },
+  "onHand": 1,
+  "onHold": 1,
+  "reserved": 1,
+  "shipped": 1,
+  "afs": 1,
+  "afsCost": 1
+}, {
+  "stockLocation": {
+    "stockLocationId": 1,
+    "stockLocationName": "Warehouse name",
+  },
+  "stockItem": {
+    "stockItemId": 2,
+    "sku": "SKU-TRL",
+    "type": "Non-sellable",
+    "defaultUnitCost": 24,
+  },
+  "onHand": 1,
+  "onHold": 1,
+  "reserved": 1,
+  "shipped": 1,
+  "afs": 1,
+  "afsCost": 1
+}]; */
 
 const _fetchSummary = createAsyncActions(
   'inventory-summary',
-  //(skuCode) => Api.get(`/inventory/summary/${skuCode}`),
-  (skuCode) => {
-    return new Promise(resolve => resolve(mockData));
-  },
+  (skuCode) => Api.get(`/inventory/summary/${skuCode}`),
   (...args) => [...args]
 );
 export const fetchSummary = _fetchSummary.perform;
@@ -90,13 +98,12 @@ const _changeItemUnits = createAsyncActions(
   (stockItemId: number, qty: number, type: string) => {
     let payload, action;
     if (qty >= 0) {
-      payload = {Qty: qty};
+      payload = {qty: qty, type};
       action = 'increment';
     } else {
-      payload = {Qty: -qty};
+      payload = {qty: -qty, type};
       action = 'decrement';
     }
-    payload.type = type;
     return Api.patch(`/inventory/stock-items/${stockItemId}/${action}`, payload);
   }
 );
@@ -121,14 +128,43 @@ const initialState = {};
 
 const reducer = createReducer({
   [_fetchSummary.succeeded]: (state, [payload, sku]) => {
-    const inventoryDetails: Array<InventorySummary> = payload;
+    const stockItems: Array<StockItemSummary> = payload;
 
-    return {
-      ...state,
-      [sku]: inventoryDetails,
-    };
+    const inventoryDetailsByLocations = _.reduce(stockItems, (acc, itemSummary: StockItemSummary) => {
+      const warehouseDetails =
+        acc[itemSummary.stockLocation.stockLocationId] = acc[itemSummary.stockLocation.stockLocationId] || {
+        stockItems: [],
+        stockLocation: itemSummary.stockLocation,
+        onHand: 0,
+        onHold: 0,
+        reserved: 0,
+        shipped: 0,
+        afs: 0,
+        afsCost: 0,
+      };
+
+      warehouseDetails.onHand += itemSummary.onHand;
+      warehouseDetails.onHold += itemSummary.onHold;
+      warehouseDetails.reserved += itemSummary.reserved;
+      warehouseDetails.shipped += itemSummary.shipped;
+      warehouseDetails.afs += itemSummary.afs;
+      warehouseDetails.afsCost += itemSummary.afsCost;
+
+      const stockItemsCounts = _.omit(itemSummary, ['stockLocation', 'stockItem']);
+
+      warehouseDetails.stockItems.push({
+        ...stockItemsCounts,
+        ...itemSummary.stockItem,
+      });
+
+      return acc;
+    }, {});
+
+    return assoc(state,
+      ['details', sku], inventoryDetailsByLocations
+    );
   },
-  [updateSkuItemsCount]: (state: SkuState, [sku, stockItem, diff]) => {
+  [updateSkuItemsCount]: (state, [sku, stockItem, diff]) => {
     return assoc(state,
       ['stockItemChanges', sku, stockItem.stockItemId], {diff, type: stockItem.type}
     );
