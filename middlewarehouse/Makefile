@@ -6,7 +6,11 @@ DB_TEST=middlewarehouse_test
 DB_USER=middlewarehouse
 BUILDPATH=${GOPATH}/src/github.com/FoxComm/highlander/middlewarehouse
 
-glide: 
+prep:
+	mkdir -p ${GOPATH}/src/github.com/FoxComm/highlander
+	ln -s `pwd` $(BUILDPATH); true
+
+glide: prep
 	cd $(BUILDPATH) && glide install && glide update
 
 build: glide

@@ -1,5 +1,5 @@
 
-SUBDIRS = api-js ashes firebird green-river isaac middlewarehouse phoenix-scala prov-shit integrations integration-tests fox-notifications
+SUBDIRS = api-js ashes firebird green-river isaac phoenix-scala prov-shit integrations integration-tests fox-notifications
 UPDATEDIRS = $(SUBDIRS:%=update-%)
 BUILDDIRS = $(SUBDIRS:%=build-%)
 

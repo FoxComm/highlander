@@ -46,3 +46,17 @@
   sudo: true
   tags: isaac
 
+- name:
+  file: path={{home}}/go state=directory
+
+- name:
+  file: path={{home}}/go/src state=directory
+
+- name:
+  file: path={{home}}/go/bin state=directory
+
+- name: Install Glide
+  shell: curl https://glide.sh/get | sh
+  args:
+    chdir: "{{home}}"
+

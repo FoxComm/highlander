@@ -44,21 +44,35 @@ def tune_vm(config, opts = {})
 end
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "base16.04"
-  config.vm.box_url = "https://s3.amazonaws.com/fc-dev-boxes/base16.04.box"
-  config.vm.box_download_checksum = "73402dfe0f94a24d26c5d66dfc31da4b"
-  config.vm.box_download_checksum_type = "md5"
 
   tune_vm(config, cpus: $vb_cpu, memory: $vb_memory)
 
   config.vm.define :contained, primary: true do |app|
+    app.vm.box = "base16.04"
+    app.vm.box_url = "https://s3.amazonaws.com/fc-dev-boxes/base16.04.box"
+    app.vm.box_download_checksum = "1592b61d125dfa22899e04c2cab08d1a"
+    app.vm.box_download_checksum_type = "md5"
+    app.vm.network :private_network, ip: $nginx_ip
+
+    app.vm.provision "shell", inline: "apt-get install -y python-minimal"
+    app.vm.provision "ansible" do |ansible|
+      ansible.verbose = "vvvv"
+      ansible.playbook = "prov-shit/ansible/vagrant_contained.yml"
+      ansible.extra_vars = {
+        user: $user
+      }
+    end
+  end
+
+  config.vm.define :base, autostart: false do |app|
+    app.vm.box = "boxcutter/ubuntu1604"
     app.vm.network :private_network, ip: $nginx_ip
 
     app.vm.provision "shell", inline: "apt-get install -y python-minimal"
     app.vm.provision "ansible" do |ansible|
       ansible.verbose = "vvvv"
       ansible.skip_tags = "buildkite"
-      ansible.playbook = "prov-shit/ansible/vagrant_contained.yml"
+      ansible.playbook = "prov-shit/ansible/vagrant_base.yml"
       ansible.extra_vars = {
         user: $user
       }

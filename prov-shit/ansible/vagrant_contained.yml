@@ -7,6 +7,7 @@
     firebrand_server_name: local.foxcommerce.com
   roles:
     - { role: dev/builder }
+    - { role: dev/db }
     - { role: dev/contained }
 
   handlers:

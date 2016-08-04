@@ -1,6 +1,6 @@
 ---
 
-- name: Build Phoenix Jar
-  shell: make -j2 build
+- name: Build All The Things
+  shell: make build
   args:
     chdir: /vagrant/
