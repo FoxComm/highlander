@@ -1,9 +1,15 @@
 // @flow weak
 
 import _ from 'lodash';
+import { assoc } from 'sprout-data';
 import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
 import createAsyncActions from '../async-utils';
+
+export const updateSkuItemsCount = createAction(
+  'SKU_UPDATE_ITEMS_COUNT',
+  (sku: string, stockItem: StockItem, qty: number) => [sku, stockItem, qty]
+);
 
 export type StockCounts = {
   onHand: number,
@@ -44,7 +50,7 @@ const mockData = [{
   "stockItems": [
     {
       "stockItemId": 1,
-      "sku": "SKU-SKU",
+      "sku": "SKU-TRL",
       "type": "Sellable",
       "onHand": 1,
       "onHold": 1,
@@ -55,7 +61,7 @@ const mockData = [{
     },
     {
       "stockItemId": 2,
-      "sku": "SKU-SKU",
+      "sku": "SKU-TRL",
       "type": "Non-sellable",
       "onHand": 1,
       "onHold": 1,
@@ -81,7 +87,7 @@ export const fetchSummary = _fetchSummary.perform;
 
 const _changeItemUnits = createAsyncActions(
   'inventory-increment',
-  (skuCode, qty) => {
+  (stockItemId: number, qty: number, type: string) => {
     let payload, action;
     if (qty >= 0) {
       payload = {Qty: qty};
@@ -90,11 +96,26 @@ const _changeItemUnits = createAsyncActions(
       payload = {Qty: -qty};
       action = 'decrement';
     }
-    return Api.patch(`/inventory/stock-items/${skuCode}/${action}`, payload);
+    payload.type = type;
+    return Api.patch(`/inventory/stock-items/${stockItemId}/${action}`, payload);
   }
 );
 
 export const changeItemUnits = _changeItemUnits.perform;
+
+export function pushStockItemChanges(sku) {
+  return (dispatch, getState) => {
+    const stockItemChanges = _.get(getState(), ['inventory', 'warehouses', 'stockItemChanges', sku]);
+
+    if (stockItemChanges) {
+      const promises = _.map(stockItemChanges, (payload: Object, stockItemId: number) => {
+        return dispatch(changeItemUnits(stockItemId, payload.diff, payload.type));
+      });
+
+      return Promise.all(promises);
+    }
+  };
+}
 
 const initialState = {};
 
@@ -106,6 +127,11 @@ const reducer = createReducer({
       ...state,
       [sku]: inventoryDetails,
     };
+  },
+  [updateSkuItemsCount]: (state: SkuState, [sku, stockItem, diff]) => {
+    return assoc(state,
+      ['stockItemChanges', sku, stockItem.stockItemId], {diff, type: stockItem.type}
+    );
   },
 }, initialState);
 

@@ -2,6 +2,7 @@
 // libs
 import React, { Element, Component } from 'react';
 import { autobind } from 'core-decorators';
+import { connect } from 'react-redux';
 
 // components
 import Table from '../table/table';
@@ -9,13 +10,21 @@ import Drawer from '../table/drawer';
 import TableRow from '../table/row';
 import AdjustQuantity from '../forms/adjust-quantity';
 
+import * as WarehousesActions from 'modules/inventory/warehouses';
+
 import type { StockItem } from 'modules/inventory/warehouses';
 
 type State = {
   popupOpenedFor: number|null,
 }
 
-export default class WarehouseDrawer extends Component {
+type Props = {
+  updateSkuItemsCount: (stockItemId: number, diff: number) => void,
+}
+
+class WarehouseDrawer extends Component {
+  props: Props;
+
   state: State = {
     popupOpenedFor: null,
   };
@@ -30,13 +39,17 @@ export default class WarehouseDrawer extends Component {
   renderRow(row: StockItem): Element {
     const { state } = this;
 
+    const handleChangeQuantity = (diff: number) => {
+      this.props.updateSkuItemsCount(row.sku, row, diff);
+    };
+
     return (
       <TableRow>
         <td>{row.type}</td>
         <td>
           <AdjustQuantity
             value={row.onHand}
-            onChange={newQuantity => {console.info('change', newQuantity);}}
+            onChange={handleChangeQuantity}
             isPopupShown={state.popupOpenedFor === row.stockItemId}
             togglePopup={(show) => this.togglePopupFor(row.stockItemId, show)}
           />
@@ -65,3 +78,5 @@ export default class WarehouseDrawer extends Component {
     );
   }
 }
+
+export default connect(void 0, WarehousesActions)(WarehouseDrawer);

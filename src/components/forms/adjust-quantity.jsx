@@ -16,9 +16,10 @@ type State = {
 
 type Props = {
   value: number,
-  onChange: (quantity: number) => void,
+  onChange: (diff: number, quantity: number) => void,
   isPopupShown: boolean,
   togglePopup: (visible: boolean) => void,
+  min: number,
 }
 
 export default class AdjustQuantity extends Component {
@@ -28,12 +29,21 @@ export default class AdjustQuantity extends Component {
     value: this.props.value,
   };
 
+  static defaultProps = {
+    min: 0,
+  };
+
   adjustValue(newValue: number) {
+    if (newValue < this.props.min) {
+      newValue = this.props.min;
+    }
+    const diff = newValue - this.props.value;
+
     this.setState({
       value: newValue,
-      diff: newValue - this.props.value,
+      diff,
     }, () => {
-      this.props.onChange(newValue);
+      this.props.onChange(diff, newValue);
     });
   }
 
@@ -69,7 +79,7 @@ export default class AdjustQuantity extends Component {
           value={this.state.value}
           onChange={this.handleChange}
           onFocus={this.handleInputFocus}
-          min={0}
+          min={this.props.min}
         />
         <div styleName="popup" className={popupState}>
           <div styleName="title">Adjust Quantity</div>

@@ -18,14 +18,14 @@ import WaitAnimation from '../common/wait-animation';
 import ArchiveActionsSection from '../archive-actions/archive-actions';
 
 // actions
-import * as SkuActions from '../../modules/skus/details';
-import * as ArchiveActions from '../../modules/skus/archive';
+import * as SkuActions from 'modules/skus/details';
+import * as ArchiveActions from 'modules/skus/archive';
 
 //helpers
 import { transitionTo } from 'browserHistory';
 
 // types
-import type { Sku } from '../../modules/skus/details';
+import type { Sku } from 'modules/skus/details';
 
 type Props = {
   actions: {
