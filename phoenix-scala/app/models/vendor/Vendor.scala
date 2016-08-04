@@ -19,11 +19,13 @@ object Vendor {}
 class Vendors(tag: Tag) extends FoxTable[Vendor](tag, "vendors") {
   def id         = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def name       = column[Option[String]]("name")
+  def description = column[Option[String]]("description")
+  def taxId      = columt[Option[String]]("tax_id")
   def isDisabled = column[Boolean]("is_disabled")
   def createdAt  = column[Instant]("created_at")
 
   def * =
-    (id, name, isDisabled, createdAt) <> ((Vendor.apply _).tupled, Vendor.unapply)
+    (id, name, description, tax_id, isDisabled, createdAt) <> ((Vendor.apply _).tupled, Vendor.unapply)
 }
 
 object Vendors
