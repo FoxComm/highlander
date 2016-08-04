@@ -21,6 +21,7 @@ case class SharedSearch(id: Int = 0,
                         rawQuery: Json,
                         scope: Scope = CustomersScope,
                         storeAdminId: Int,
+                        isSystem: Boolean = false,
                         createdAt: Instant = Instant.now,
                         deletedAt: Option[Instant] = None)
     extends FoxModel[SharedSearch] {}
@@ -64,11 +65,12 @@ class SharedSearches(tag: Tag) extends FoxTable[SharedSearch](tag, "shared_searc
   def rawQuery     = column[Json]("raw_query")
   def scope        = column[Scope]("scope")
   def storeAdminId = column[Int]("store_admin_id")
+  def isSystem     = column[Boolean]("is_system")
   def createdAt    = column[Instant]("created_at")
   def deletedAt    = column[Option[Instant]]("deleted_at")
 
   def * =
-    (id, code, title, query, rawQuery, scope, storeAdminId, createdAt, deletedAt) <> ((SharedSearch.apply _).tupled, SharedSearch.unapply)
+    (id, code, title, query, rawQuery, scope, storeAdminId, isSystem, createdAt, deletedAt) <> ((SharedSearch.apply _).tupled, SharedSearch.unapply)
 }
 
 object SharedSearches
