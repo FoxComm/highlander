@@ -67,8 +67,12 @@ func (service *summaryService) UpdateStockItemSummary(stockItemId, typeId uint, 
 		return err
 	}
 
-	summary = updateStatus(summary, status.From, -qty)
-	summary = updateStatus(summary, status.To, qty)
+	if status.From != "onHand" {
+		summary = updateStatus(summary, status.From, -qty)
+	}
+	if status.From == "" || status.To != "onHand" {
+		summary = updateStatus(summary, status.To, qty)
+	}
 
 	summary = updateAfs(summary, status, qty)
 	summary = updateAfsCost(summary, stockItem)

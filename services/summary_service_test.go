@@ -109,7 +109,7 @@ func (suite *summaryServiceTestSuite) Test_Increment_Chain() {
 
 	summary := models.StockItemSummary{}
 	suite.db.First(&summary, suite.si.ID)
-	suite.assert.Equal(suite.onHand-5, summary.OnHand)
+	suite.assert.Equal(suite.onHand, summary.OnHand)
 	suite.assert.Equal(5, summary.OnHold)
 	suite.assert.Equal(0, summary.Reserved)
 	suite.assert.Equal(5, summary.AFS)
@@ -118,7 +118,7 @@ func (suite *summaryServiceTestSuite) Test_Increment_Chain() {
 	suite.service.UpdateStockItemSummary(suite.si.ID, suite.typeId, 2, models.StatusChange{From: "onHold", To: "reserved"})
 
 	suite.db.First(&summary, suite.si.ID)
-	suite.assert.Equal(suite.onHand-5, summary.OnHand)
+	suite.assert.Equal(suite.onHand, summary.OnHand)
 	suite.assert.Equal(3, summary.OnHold)
 	suite.assert.Equal(2, summary.Reserved)
 	suite.assert.Equal(5, summary.AFS)
@@ -127,7 +127,7 @@ func (suite *summaryServiceTestSuite) Test_Increment_Chain() {
 	suite.service.UpdateStockItemSummary(suite.si.ID, suite.typeId, 1, models.StatusChange{From: "reserved", To: "onHand"})
 
 	suite.db.First(&summary, suite.si.ID)
-	suite.assert.Equal(suite.onHand-5+1, summary.OnHand)
+	suite.assert.Equal(suite.onHand, summary.OnHand)
 	suite.assert.Equal(3, summary.OnHold)
 	suite.assert.Equal(1, summary.Reserved)
 	suite.assert.Equal(6, summary.AFS)
