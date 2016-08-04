@@ -34,7 +34,7 @@ func (suite *ShipmentLineItemRepositoryTestSuite) TearDownTest() {
 	suite.db.Close()
 }
 
-func (suite *ShipmentLineItemRepositoryTestSuite) Test_GetShipmentLinesItemByShipmentID_Found_ReturnsShipmentLineItemModels() {
+func (suite *ShipmentLineItemRepositoryTestSuite) Test_GetShipmentLineItemsByShipmentID_Found_ReturnsShipmentLineItemModels() {
 	//arrange
 	shipmentLineItem1 := suite.getTestShipmentLineItem1()
 	shipmentLineItem2 := suite.getTestShipmentLineItem1()
