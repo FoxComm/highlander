@@ -14,14 +14,16 @@ import * as ProductActions from '../../modules/products/details';
 import * as ArchiveActions from '../../modules/products/archive';
 
 // components
-import { Dropdown, DropdownItem } from '../dropdown';
+import { Dropdown } from '../dropdown';
 import { PageTitle } from '../section-title';
-import { PrimaryButton } from '../common/buttons';
+import { Button } from '../common/buttons';
+import ButtonWithMenu from '../common/button-with-menu';
 import ErrorAlerts from 'components/alerts/error-alerts';
 import SubNav from './sub-nav';
 import WaitAnimation from '../common/wait-animation';
 import ArchiveActionsSection from '../archive-actions/archive-actions';
 
+// styles
 import styles from './page.css';
 
 // helpers
@@ -29,6 +31,7 @@ import { transitionTo } from 'browserHistory';
 import {
   setSkuAttribute,
 } from '../../paragons/product';
+import { SAVE_COMBO, SAVE_COMBO_ITEMS } from 'paragons/common';
 
 // types
 import type { Product } from 'paragons/product';
@@ -100,7 +103,7 @@ class ProductPage extends Component {
   get error(): ?Element {
     const { err } = this.props.products;
     if (!err) return null;
-    
+
     const message = _.get(err, ['messages', 0], 'There was an error saving the product.');
     return (
       <div styleName="error" className="fc-col-md-1-1">
@@ -132,24 +135,6 @@ class ProductPage extends Component {
     }
   }
 
-  get titleActions(): Element {
-    const { isUpdating } = this.props.products;
-
-    return (
-      <div className="fc-product-details__title-actions">
-        { this.selectContextDropdown }
-        <PrimaryButton
-          className="fc-product-details__save-button"
-          type="submit"
-          disabled={isUpdating}
-          isLoading={isUpdating}
-          onClick={this.handleSubmit}>
-          Save
-        </PrimaryButton>
-      </div>
-    );
-  }
-
   @autobind
   handleContextChange(context: string) {
     const productId = this.props.params.productId;
@@ -175,15 +160,23 @@ class ProductPage extends Component {
     this.setState({ product });
   }
 
-  @autobind
-  handleSubmit() {
+  save() {
+    let mayBeSaved = false;
+
     if (this.state.product) {
       if (this.isNew) {
-        this.props.actions.createProduct(this.state.product, this.state.context);
+        mayBeSaved = this.props.actions.createProduct(this.state.product, this.state.context);
       } else {
-        this.props.actions.updateProduct(this.state.product, this.state.context);
+        mayBeSaved = this.props.actions.updateProduct(this.state.product, this.state.context);
       }
     }
+
+    return mayBeSaved;
+  }
+
+  @autobind
+  handleSubmit() {
+    this.save();
   }
 
   renderArchiveActions() {
@@ -198,6 +191,38 @@ class ProductPage extends Component {
   archiveProduct() {
     this.props.archiveProduct(this.props.params.productId).then(() => {
       transitionTo('products');
+    });
+  }
+
+  @autobind
+  handleCancel(): void {
+    transitionTo('products');
+  }
+
+  @autobind
+  handleSelectSaving(value) {
+    const mayBeSaved = this.save();
+    if (!mayBeSaved) return;
+
+    mayBeSaved.then(() => {
+      switch (value) {
+        case SAVE_COMBO.NEW:
+          transitionTo('product-details', {
+            productId: 'new',
+            context: this.state.context,
+          });
+          this.props.actions.productNew();
+          break;
+        case SAVE_COMBO.DUPLICATE:
+          transitionTo('product-details', {
+            productId: 'new',
+            context: this.state.context,
+          });
+          break;
+        case SAVE_COMBO.CLOSE:
+          transitionTo('products');
+          break;
+      }
     });
   }
 
@@ -216,10 +241,26 @@ class ProductPage extends Component {
       entity: { entityId: this.props.params.productId, entityType: 'product' },
     });
 
+    const { isUpdating } = this.props.products;
+
     return (
       <div className="fc-product-details">
         <PageTitle title={this.pageTitle}>
-          {this.titleActions}
+          { this.selectContextDropdown }
+          <Button
+            type="button"
+            onClick={this.handleCancel}
+            styleName="cancel-button">
+            Cancel
+          </Button>
+          <ButtonWithMenu
+            title="Save"
+            menuPosition="right"
+            onPrimaryClick={this.handleSubmit}
+            onSelect={this.handleSelectSaving}
+            isLoading={isUpdating}
+            items={SAVE_COMBO_ITEMS}
+          />
         </PageTitle>
         <SubNav productId={this.props.params.productId} product={product} context={context}/>
         <div className="fc-grid">
