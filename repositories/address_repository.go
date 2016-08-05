@@ -9,6 +9,7 @@ import (
 type IAddressRepository interface {
 	GetAddressByID(id uint) (*models.Address, error)
 	CreateAddress(address *models.Address) (*models.Address, error)
+	DeleteAddress(id uint) error
 }
 
 type addressRepository struct {
@@ -37,4 +38,18 @@ func (repository *addressRepository) CreateAddress(address *models.Address) (*mo
 	}
 
 	return repository.GetAddressByID(address.ID)
+}
+
+func (repository *addressRepository) DeleteAddress(id uint) error {
+	res := repository.db.Delete(&models.Address{}, id)
+
+	if res.Error != nil {
+		return res.Error
+	}
+
+	if res.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+
+	return nil
 }

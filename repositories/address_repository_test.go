@@ -104,6 +104,38 @@ func (suite *AddressRepositoryTestSuite) Test_CreateAddress_ReturnsCreatedRecord
 	suite.assert.Nil(suite.mock.ExpectationsWereMet())
 }
 
+func (suite *AddressRepositoryTestSuite) Test_DeleteAddress_NotFound_ReturnsNotFoundError() {
+	//arrange
+	suite.mock.
+		ExpectExec(`UPDATE "addresses" SET deleted_at=\? .+ \(\("id" = \?\)\)`).
+		WillReturnResult(sqlmock.NewResult(1, 0))
+
+	//act
+	err := suite.repository.DeleteAddress(1)
+
+	//assert
+	suite.assert.Equal(gorm.ErrRecordNotFound, err)
+
+	//make sure that all expectations were met
+	suite.assert.Nil(suite.mock.ExpectationsWereMet())
+}
+
+func (suite *AddressRepositoryTestSuite) Test_DeleteAddress_Found_ReturnsNoError() {
+	//arrange
+	suite.mock.
+		ExpectExec(`UPDATE "addresses" SET deleted_at=\? .+ \(\("id" = \?\)\)`).
+		WillReturnResult(sqlmock.NewResult(1, 1))
+
+	//act
+	err := suite.repository.DeleteAddress(1)
+
+	//assert
+	suite.assert.Nil(err)
+
+	//make sure that all expectations were met
+	suite.assert.Nil(suite.mock.ExpectationsWereMet())
+}
+
 func (suite *AddressRepositoryTestSuite) getTestAddress1() *models.Address {
 	return &models.Address{gormfox.Base{ID: uint(1)}, "Home address", uint(1), "Texas", "75231",
 		"Some st, 335", sql.NullString{String: "", Valid: false}, "19527352893"}
