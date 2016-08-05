@@ -119,6 +119,7 @@ class DataTable extends Table {
 
     this._body.addEventListener('scroll', this.handleBodyScroll);
     this._head.addEventListener('scroll', this.handleHeadScroll);
+    this.resize();
   }
 
   componentWillUnmount(): void {
