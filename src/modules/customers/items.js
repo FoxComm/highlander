@@ -11,7 +11,7 @@ const searchTerms = [
         term: 'skuTitle'
       }, {
         title: 'SKU',
-        type: 'string',
+        type: 'identifier',
         term: 'skuCode'
       }, {
         title: 'Price',

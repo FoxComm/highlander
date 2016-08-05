@@ -22,9 +22,15 @@
 
   &__actions {
     text-align: right;
+    flex-shrink: 0;
 
     & > .fc-btn {
       margin-left: 20px;
+      margin-right: 20px;
+
+      &:only-child {
+        margin-right: 0;
+      }
     }
   }
 }

@@ -20,7 +20,7 @@
   min-width: 100%;
   background-color: #ffffff;
   border: 1px solid #d9d9d9;
-  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .5);
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .1);
   user-select: none;
   max-height: 50vh;
   overflow-y: auto;
@@ -31,15 +31,8 @@
 .controls {
   position: relative;
 
-  & > :global(.fc-button-with-menu__left-button) {
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-  }
-
   & > :global(.fc-button-with-menu__right-button) {
     border-left: 1px solid #ffffff;
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
     z-index: 100;
 
     & :global(i) {

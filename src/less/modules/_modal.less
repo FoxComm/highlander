@@ -14,7 +14,6 @@
 
   &-container {
     margin: auto;
-    .border-radius(5px);
     background-color: @color-white;
 
     // fix weird bug in chrome v50, test case - https://jsfiddle.net/x00o9wbL/7/
@@ -32,8 +31,12 @@
       display: inline-block;
     }
 
-    .fc-content-box > .fc-content-box-content {
-      margin-bottom: 20px;
+    .fc-content-box {
+      margin-right: 0;
+
+      > .fc-content-box-content {
+        margin-bottom: 20px;
+      }
     }
 
     .fc-modal-close {

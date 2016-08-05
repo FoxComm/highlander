@@ -16,7 +16,9 @@
 
 .common-panel-content() {
   .font-spec(22px, 600);
-  margin: 22px 0;
+  margin: 22px 10px;
+  word-break: break-word;
+
   &-featured {
     color: @color-decor15;
     .font-spec(40px, 600);
@@ -26,9 +28,8 @@
 
 .fc-panel {
   border: 1px solid @color-decor9;
-  border-radius: 3px;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.30);
   width: 100%;
+
   .common-panel();
 
   &-header {
@@ -43,8 +44,6 @@
 .fc-panel-list {
   display: flex;
   flex-direction: row;
-  border-radius: 3px;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.30);
   border: 1px solid @color-decor9;
 
   &-panel {
@@ -52,15 +51,8 @@
     border-right: 1px solid @color-decor9;
     .common-panel();
 
-    &:first-child {
-      border-top-left-radius: 3px;
-      border-bottom-left-radius: 3px;
-    }
-
     &:last-child {
       border-right: 0;
-      border-top-right-radius: 3px;
-      border-bottom-right-radius: 3px;
     }
   }
 

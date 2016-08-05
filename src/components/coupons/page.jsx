@@ -24,6 +24,8 @@ import styles from './form.css';
 // redux
 import * as CouponActions from '../../modules/coupons/details';
 
+import { SAVE_COMBO, SAVE_COMBO_ITEMS } from 'paragons/common';
+
 type CouponPageState = {
   promotionError: boolean,
 };
@@ -175,14 +177,14 @@ class CouponPage extends Component {
 
     mayBeSaved.then(() => {
       switch (value) {
-        case 'save_and_new':
+        case SAVE_COMBO.NEW:
           actions.couponsNew();
           break;
-        case 'save_and_duplicate':
+        case SAVE_COMBO.DUPLICATE:
           this.props.actions.couponsResetId();
           dispatch(push(`/coupons/new`));
           break;
-        case 'save_and_close':
+        case SAVE_COMBO.CLOSE:
           dispatch(push(`/coupons`));
           break;
       }
@@ -256,11 +258,7 @@ class CouponPage extends Component {
             onPrimaryClick={this.handleSubmit}
             onSelect={this.handleSelectSaving}
             isLoading={props.isSaving}
-            items={[
-              ['save_and_new', 'Save and Create New'],
-              ['save_and_duplicate', 'Save and Duplicate'],
-              ['save_and_close', 'Save and Close'],
-            ]}
+            items={SAVE_COMBO_ITEMS}
           />
         </PageTitle>
         <SubNav params={this.props.params} />
