@@ -19,8 +19,8 @@ func NewReservationController(service services.IInventoryService) IController {
 }
 
 func (controller *reservationController) SetUp(router gin.IRouter) {
-	router.POST("/reserve", controller.Reserve())
-	router.POST("/cancel", controller.Cancel())
+	router.POST("reserve", controller.Reserve())
+	router.POST("cancel", controller.Cancel())
 }
 
 func (controller *reservationController) Reserve() gin.HandlerFunc {

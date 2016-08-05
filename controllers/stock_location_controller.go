@@ -21,11 +21,11 @@ func NewStockLocationController(service services.IStockLocationService) IControl
 }
 
 func (controller *stockLocationController) SetUp(router gin.IRouter) {
-	router.GET("/", controller.GetLocations())
-	router.GET("/:id", controller.GetLocationByID())
-	router.POST("/", controller.CreateLocation())
-	router.PUT("/:id", controller.UpdateLocation())
-	router.DELETE("/:id", controller.DeleteLocation())
+	router.GET("", controller.GetLocations())
+	router.GET(":id", controller.GetLocationByID())
+	router.POST("", controller.CreateLocation())
+	router.PUT(":id", controller.UpdateLocation())
+	router.DELETE(":id", controller.DeleteLocation())
 }
 
 func (controller *stockLocationController) GetLocations() gin.HandlerFunc {

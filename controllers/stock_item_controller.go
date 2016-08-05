@@ -21,11 +21,11 @@ func NewStockItemController(service services.IInventoryService) IController {
 }
 
 func (controller *stockItemController) SetUp(router gin.IRouter) {
-	router.GET("/", controller.GetStockItems())
-	router.GET("/:id", controller.GetStockItemById())
-	router.POST("/", controller.CreateStockItem())
-	router.PATCH("/:id/increment", controller.IncrementStockItemUnits())
-	router.PATCH("/:id/decrement", controller.DecrementStockItemUnits())
+	router.GET("", controller.GetStockItems())
+	router.GET(":id", controller.GetStockItemById())
+	router.POST("", controller.CreateStockItem())
+	router.PATCH(":id/increment", controller.IncrementStockItemUnits())
+	router.PATCH(":id/decrement", controller.DecrementStockItemUnits())
 }
 
 func (controller *stockItemController) GetStockItems() gin.HandlerFunc {
