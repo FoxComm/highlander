@@ -8,9 +8,6 @@ npm run lint && npm run flow
 `;
 
 function installHooks() {
-  fs.writeFileSync(PRE_PUSH, hookScript, {
-    mode: 0o755,
-  });
 }
 
 module.exports = function(gulp, $, opts) {
