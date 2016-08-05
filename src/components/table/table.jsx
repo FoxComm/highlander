@@ -2,8 +2,10 @@
 
 import _ from 'lodash';
 import React, { Component, Element } from 'react';
+import ReactDOM from 'react-dom';
 import classNames from 'classnames';
-import flatMap from '../../lib/flatMap';
+import flatMap from 'lib/flatMap';
+import { isElementInViewport } from 'lib/dom-utils';
 import { autobind } from 'core-decorators';
 
 import TableHead from './head';
@@ -12,7 +14,7 @@ import TableCell from './cell';
 import WaitAnimation from '../common/wait-animation';
 
 export function tableMessage(message: Element|string, inline: boolean = false): Element {
-  const cls = classNames('fc-table-message', { 'fc-table-message__inline': inline });
+  const cls = classNames('fc-table-message', { '_inline': inline });
 
   return (
     <div className={cls}>
@@ -61,6 +63,7 @@ const ROWS_COUNT_TO_SHOW_LOADING_OVERLAY = 4;
 
 export default class Table extends Component {
   props: Props;
+  _shouldScrollIntoView: boolean = false;
 
   static defaultProps = {
     columns: [],
@@ -117,6 +120,17 @@ export default class Table extends Component {
         newIds = _.difference(_.keys(newRows), _.keys(oldRows));
       }
       this.setState({ newIds });
+    }
+
+    if (nextProps.data.from != this.props.data.from) {
+      this._shouldScrollIntoView = true;
+    }
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    if (this._shouldScrollIntoView && !this.props.isLoading) {
+      this.scrollToTop();
+      this._shouldScrollIntoView = false;
     }
   }
 
@@ -175,13 +189,20 @@ export default class Table extends Component {
     return <tbody className="fc-table-body">{body}</tbody>;
   }
 
+  scrollToTop() {
+    const tableHead = ReactDOM.findDOMNode(this.refs.tableHead);
+    if (tableHead && !isElementInViewport(tableHead)) {
+      tableHead.scrollIntoView();
+    }
+  }
+
   render() {
     const { data, setState, className, ...rest } = this.props;
 
     return (
       <div className="fc-table-wrap">
         <table className={classNames('fc-table', className)}>
-          <TableHead {...rest} sortBy={data.sortBy} setState={setState} />
+          <TableHead {...rest} ref="tableHead" sortBy={data.sortBy} setState={setState} />
           {this.body}
         </table>
         {this.message}

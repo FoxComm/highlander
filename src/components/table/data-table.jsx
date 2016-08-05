@@ -130,6 +130,7 @@ class DataTable extends Table {
   }
 
   componentDidUpdate(prevProps: Props): void {
+    super.componentDidUpdate(prevProps);
     const dataChanged = prevProps.data.rows !== this.props.data.rows;
     const columnsSetChanged = prevProps.columns.length !== this.props.columns.length;
 
@@ -177,7 +178,7 @@ class DataTable extends Table {
         <div className="fc-table-wrap" ref={(el) => this._el = el}>
           <div className="inner inner-head" ref={(r) => this._head = r}>
             <table className={classNames('fc-table', className)}>
-              <TableHead {...rest} sortBy={data.sortBy} setState={setState} />
+              <TableHead {...rest} ref="tableHead" sortBy={data.sortBy} setState={setState} />
             </table>
           </div>
 
