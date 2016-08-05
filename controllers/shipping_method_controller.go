@@ -20,11 +20,11 @@ func NewShippingMethodController(service services.IShippingMethodService) IContr
 }
 
 func (controller *shippingMethodController) SetUp(router gin.IRouter) {
-	router.GET("/", controller.GetShippingMethods())
-	router.GET("/:id", controller.GetShippingMethodByID())
-	router.POST("/", controller.CreateShippingMethod())
-	router.PUT("/:id", controller.UpdateShippingMethod())
-	router.DELETE("/:id", controller.DeleteShippingMethod())
+	router.GET("", controller.GetShippingMethods())
+	router.GET(":id", controller.GetShippingMethodByID())
+	router.POST("", controller.CreateShippingMethod())
+	router.PUT(":id", controller.UpdateShippingMethod())
+	router.DELETE(":id", controller.DeleteShippingMethod())
 }
 
 func (controller *shippingMethodController) GetShippingMethods() gin.HandlerFunc {

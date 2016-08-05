@@ -20,11 +20,11 @@ func NewCarrierController(service services.ICarrierService) IController {
 }
 
 func (controller *carrierController) SetUp(router gin.IRouter) {
-	router.GET("/", controller.GetCarriers())
-	router.GET("/:id", controller.GetCarrierByID())
-	router.POST("/", controller.CreateCarrier())
-	router.PUT("/:id", controller.UpdateCarrier())
-	router.DELETE("/:id", controller.DeleteCarrier())
+	router.GET("", controller.GetCarriers())
+	router.GET(":id", controller.GetCarrierByID())
+	router.POST("", controller.CreateCarrier())
+	router.PUT(":id", controller.UpdateCarrier())
+	router.DELETE(":id", controller.DeleteCarrier())
 }
 
 func (controller *carrierController) GetCarriers() gin.HandlerFunc {
