@@ -5,6 +5,42 @@ Highlander is the brand-spanking-new FoxCommerce mono-repo.
 _This project is currently in pre-release form, so the upstream repositories
 (a.k.a. the old ones) should be used for any current feature work._
 
+## Development Environment
+
+The simplest way to get started is to use Vagrant to build out a virtual 
+machine that runs the entire system. It's really easy, though you'll
+probably want to grab a coffee or take a nap the first time you run it -- it
+has a lot to do!
+
+### Install Prerequisites
+
+- Install [Vagrant](https://www.vagrantup.com)
+- Install [Ansible 1.9.x](http://docs.ansible.com/ansible/intro_installation.html#installation)
+
+### Option A: Local Installation
+
+If you have a good machine and a fair bit of RAM, the recommended way to work
+is with the virtual machine running on your local computer. If you have limited
+resources and would like to run it in Google Compute Engine, see the next step.
+
+- Set up the machine using Vagrant
+
+    $ vagrant up contained
+
+- Wait - you'll have some downtime before this step finishes
+- Once it completes, configure your hostfile so that you can access the system.
+
+    $ sudo echo "192.168.10.111 local.foxcommerce.com" >> /etc/hosts
+    $ sudo echo "192.168.10.111 admin.local.foxcommerce.com" >> /etc/hosts
+
+- You're done! Navigate to the storefront on 
+  [local.foxcommerce.com](http://local.foxcommerce.com) or admin on 
+  [admin.local.foxcommerce.com](http://admin.local.foxcommerce.com)
+
+### Option B: Google Compute Engine
+
+Coming soon...
+
 ## The Projects
 
 ###[phoenix-scala](https://github.com/FoxComm/phoenix-scala)
