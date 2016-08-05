@@ -9,20 +9,20 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-type ShippingMethodModelTestSuite struct {
+type shippingMethodModelTestSuite struct {
 	suite.Suite
 	assert *assert.Assertions
 }
 
 func TestShippingMethodModelSuite(t *testing.T) {
-	suite.Run(t, new(suite.Suite))
+	suite.Run(t, new(shippingMethodModelTestSuite))
 }
 
-func (suite *ShippingMethodModelTestSuite) SetupSuite() {
+func (suite *shippingMethodModelTestSuite) SetupSuite() {
 	suite.assert = assert.New(suite.T())
 }
 
-func (suite *ShippingMethodModelTestSuite) Test_NewShippingMethodFromPayload_ReturnsValidModel() {
+func (suite *shippingMethodModelTestSuite) Test_NewShippingMethodFromPayload_ReturnsValidModel() {
 	//arrange
 	carrierID, name := uint(1), "UPS 2 days ground"
 	payload := &payloads.ShippingMethod{carrierID, name}

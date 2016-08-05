@@ -3,61 +3,47 @@ package responses
 import "github.com/FoxComm/middlewarehouse/models"
 
 type stockItemSummary struct {
-	StockItemID uint   `json:"id"`
-	SKU         string `json:"sku"`
-	OnHand      int    `json:"onHand"`
-	OnHold      int    `json:"onHold"`
-	Reserved    int    `json:"reserved"`
-	SafetyStock int    `json:"safetyStock"`
-	AFS         int    `json:"afs"`
-	AFSCost     int    `json:"afsCost"`
+	StockItemID       uint   `json:"stockItemId"`
+	SKU               string `json:"sku"`
+	StockLocationID   uint   `json:"stockLocationId"`
+	StockLocationName string `json:"stockLocationName"`
+	Type              string `json:"type"`
+	OnHand            int    `json:"onHand"`
+	OnHold            int    `json:"onHold"`
+	Reserved          int    `json:"reserved"`
+	Shipped           int    `json:"shipped"`
+	AFS               int    `json:"afs"`
+	AFSCost           int    `json:"afsCost"`
 }
 
 type StockItemSummary struct {
-	Warehouse Warehouse        `json:"warehouse"`
-	Counts    stockItemSummary `json:"counts"`
+	Summary []stockItemSummary `json:"summary"`
 }
 
-type StockItemsSummary struct {
-	Warehouse Warehouse          `json:"warehouse"`
-	Counts    []stockItemSummary `json:"counts"`
-}
-
-func StockItemsSummaryFromModel(summaries []*models.StockItemSummary) *StockItemsSummary {
-	result := StockItemsSummary{
-		Warehouse: Warehouse{
-			ID:   1,
-			Name: "mocked",
-		},
-		Counts: make([]stockItemSummary, len(summaries)),
+func NewSummaryFromModel(summaries []*models.StockItemSummary) *StockItemSummary {
+	result := StockItemSummary{
+		Summary: make([]stockItemSummary, len(summaries)),
 	}
 
 	for i, summary := range summaries {
-		result.Counts[i] = stockItemSummaryFromModel(summary)
+		result.Summary[i] = summaryFromModel(summary)
 	}
 
 	return &result
 }
 
-func StockItemSummaryFromModel(summary *models.StockItemSummary) *StockItemSummary {
-	return &StockItemSummary{
-		Warehouse: Warehouse{
-			ID:   1,
-			Name: "mocked",
-		},
-		Counts: stockItemSummaryFromModel(summary),
-	}
-}
-
-func stockItemSummaryFromModel(summary *models.StockItemSummary) stockItemSummary {
+func summaryFromModel(summary *models.StockItemSummary) stockItemSummary {
 	return stockItemSummary{
-		StockItemID: summary.StockItemID,
-		SKU:         summary.SKU,
-		OnHand:      summary.OnHand,
-		OnHold:      summary.OnHold,
-		Reserved:    summary.Reserved,
-		SafetyStock: 0,
-		AFS:         summary.OnHand - summary.OnHold - summary.Reserved,
-		AFSCost:     0,
+		StockItemID:       summary.StockItemID,
+		SKU:               summary.SKU,
+		StockLocationID:   summary.StockLocationID,
+		StockLocationName: summary.StockLocationName,
+		Type:              string(summary.Type),
+		OnHand:            summary.OnHand,
+		OnHold:            summary.OnHold,
+		Reserved:          summary.Reserved,
+		Shipped:           summary.Shipped,
+		AFS:               summary.AFS,
+		AFSCost:           summary.AFSCost,
 	}
 }

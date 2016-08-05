@@ -10,9 +10,10 @@ import (
 type StockItemUnit struct {
 	gormfox.Base
 	StockItemID uint
+	Type        UnitType
 	RefNum      sql.NullString
 	UnitCost    int
-	Status      string
+	Status      UnitStatus
 }
 
 func (siu StockItemUnit) Identifier() uint {
@@ -26,7 +27,8 @@ func NewStockItemUnitsFromPayload(stockItemID uint, payload *payloads.IncrementS
 		item := &StockItemUnit{
 			StockItemID: stockItemID,
 			UnitCost:    payload.UnitCost,
-			Status:      payload.Status,
+			Status:      UnitStatus(payload.Status),
+			Type:        UnitType(payload.Type),
 		}
 		units = append(units, item)
 	}

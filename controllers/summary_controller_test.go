@@ -7,6 +7,7 @@ import (
 	"github.com/FoxComm/middlewarehouse/controllers/mocks"
 	"github.com/FoxComm/middlewarehouse/models"
 
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/assert"
@@ -40,34 +41,29 @@ func (suite *summaryControllerTestSuite) TearDownTest() {
 }
 
 func (suite *summaryControllerTestSuite) Test_GetSummary() {
-	suite.service.On("GetSummary").Return([]*models.StockItemSummary{
-		{
-			SKU:         "SKU",
-			StockItemID: 0,
-			OnHand:      0,
-			OnHold:      0,
-			Reserved:    0,
-		},
-	}, nil).Once()
+	suite.service.On("GetSummary").Return([]*models.StockItemSummary{{
+		StockItemID:     1,
+		StockLocationID: 1,
+		Type:            models.Sellable,
+	}}, nil).Once()
 
 	res := suite.Get("/summary/")
 
 	suite.assert.Equal(http.StatusOK, res.Code)
-	suite.assert.Contains(res.Body.String(), "counts\":[")
+	suite.assert.Contains(res.Body.String(), "summary\":[")
 	suite.service.AssertExpectations(suite.T())
 }
 
 func (suite *summaryControllerTestSuite) Test_GetSummaryBySKU() {
 	sku := "TEST-SKU"
-	suite.service.On("GetSummaryBySKU", sku).Return(&models.StockItemSummary{
-		SKU:         sku,
-		StockItemID: 0,
-		OnHand:      0,
-		OnHold:      0,
-		Reserved:    0,
-	}, nil).Once()
+	suite.service.On("GetSummaryBySKU", sku).Return([]*models.StockItemSummary{{
+		StockItemID:     1,
+		SKU:             sku,
+		StockLocationID: 1,
+		Type:            models.Sellable,
+	}}, nil).Once()
 
-	res := suite.Get("/summary/" + sku)
+	res := suite.Get(fmt.Sprintf("/summary/%s", sku))
 
 	suite.assert.Equal(http.StatusOK, res.Code)
 	suite.assert.Contains(res.Body.String(), sku)

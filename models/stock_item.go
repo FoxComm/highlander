@@ -9,6 +9,7 @@ type StockItem struct {
 	gormfox.Base
 	SKU             string
 	StockLocationID uint
+	DefaultUnitCost int
 }
 
 func (si StockItem) Identifier() uint {
@@ -16,6 +17,10 @@ func (si StockItem) Identifier() uint {
 }
 
 func NewStockItemFromPayload(payload *payloads.StockItem) *StockItem {
-	item := &StockItem{StockLocationID: payload.StockLocationID, SKU: payload.SKU}
+	item := &StockItem{
+		StockLocationID: payload.StockLocationID,
+		SKU:             payload.SKU,
+		DefaultUnitCost: payload.DefaultUnitCost,
+	}
 	return item
 }

@@ -39,14 +39,14 @@ func (m *InventoryServiceMock) CreateStockItem(stockItem *models.StockItem) (*mo
 	return nil, args.Error(1)
 }
 
-func (m *InventoryServiceMock) IncrementStockItemUnits(id uint, units []*models.StockItemUnit) error {
-	args := m.Called(id, units)
+func (m *InventoryServiceMock) IncrementStockItemUnits(id uint, unitType models.UnitType, units []*models.StockItemUnit) error {
+	args := m.Called(id, unitType, units)
 
 	return args.Error(0)
 }
 
-func (m *InventoryServiceMock) DecrementStockItemUnits(id uint, qty int) error {
-	args := m.Called(id, qty)
+func (m *InventoryServiceMock) DecrementStockItemUnits(id uint, unitType models.UnitType, qty int) error {
+	args := m.Called(id, unitType, qty)
 
 	return args.Error(0)
 }
