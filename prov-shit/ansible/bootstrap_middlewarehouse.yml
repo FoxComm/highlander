@@ -5,7 +5,7 @@
   vars:
     updating_mwh: true
     user: '{{ansible_ssh_user}}'
-    flyway_vers: 3.2.1
+    flyway_vers: 4.0.3
     flyway_dir: "/usr/local/share/flyway-{{flyway_vers}}"
     flyway: "{{flyway_dir}}/flyway -locations=filesystem:sql/ -configFile=sql/flyway.conf"
   vars_prompt:

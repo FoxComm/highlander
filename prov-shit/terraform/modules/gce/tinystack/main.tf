@@ -32,22 +32,10 @@ resource "google_compute_instance" "tiny-consul" {
         private_key="${file(var.ssh_private_key)}"
     }
 
-    provisioner "file" {
-        source = "terraform/scripts/bootstrap.sh"
-        destination = "/tmp/bootstrap.sh"
-    }
-
-    provisioner "file" {
-        source = "terraform/scripts/consul.sh"
-        destination = "/tmp/consul.sh"
-    }
-
     provisioner "remote-exec" {
         inline = [
-          "chmod +x /tmp/bootstrap.sh",
-          "chmod +x /tmp/consul.sh",
-          "/tmp/bootstrap.sh",
-          "/tmp/consul.sh ${var.datacenter} ${var.consul_leader}"
+          "/usr/local/bin/bootstrap.sh",
+          "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${var.consul_leader}"
         ]
     }
 
@@ -75,22 +63,10 @@ resource "google_compute_instance" "tiny-frontend" {
         private_key="${file(var.ssh_private_key)}"
     }
 
-    provisioner "file" {
-        source = "terraform/scripts/bootstrap.sh"
-        destination = "/tmp/bootstrap.sh"
-    }
-
-    provisioner "file" {
-        source = "terraform/scripts/consul.sh"
-        destination = "/tmp/consul.sh"
-    }
-
     provisioner "remote-exec" {
         inline = [
-          "chmod +x /tmp/bootstrap.sh",
-          "chmod +x /tmp/consul.sh",
-          "/tmp/bootstrap.sh",
-          "/tmp/consul.sh ${var.datacenter} ${google_compute_instance.tiny-consul.network_interface.0.address}"
+          "/usr/local/bin/bootstrap.sh",
+          "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${google_compute_instance.tiny-consul.network_interface.0.address}"
         ]
     }
 }
@@ -117,22 +93,10 @@ resource "google_compute_instance" "tiny-backend" {
         private_key="${file(var.ssh_private_key)}"
     }
 
-    provisioner "file" {
-        source = "terraform/scripts/bootstrap.sh"
-        destination = "/tmp/bootstrap.sh"
-    }
-
-    provisioner "file" {
-        source = "terraform/scripts/consul.sh"
-        destination = "/tmp/consul.sh"
-    }
-
     provisioner "remote-exec" {
         inline = [
-          "chmod +x /tmp/bootstrap.sh",
-          "chmod +x /tmp/consul.sh",
-          "bash /tmp/bootstrap.sh ",
-          "/tmp/consul.sh ${var.datacenter} ${google_compute_instance.tiny-consul.network_interface.0.address}"
+          "/usr/local/bin/bootstrap.sh",
+          "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${google_compute_instance.tiny-consul.network_interface.0.address}"
         ]
     }
 }

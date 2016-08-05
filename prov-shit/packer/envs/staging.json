@@ -3,6 +3,7 @@
 	"image_title": "Tinystack",		
 	"account_file": "foxcomm-staging.json",
 	"project_id": "foxcomm-staging",
+	"variables_file": "staging_ansible.json",
 	"network": "default",
 	"zone": "us-central1-a",
 	"base_ubuntu_image": "ubuntu-1604-xenial-v20160610",

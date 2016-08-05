@@ -18,6 +18,11 @@ variable "service_worker_image" {}
 variable "service_workers" {}
 variable "greenriver_image" {}
 variable "front_image" {}
+variable "front_workers" {}
+
+variable "stage_backend_image" {}
+variable "stage_frontend_image" {}
+variable "stage_amigo_image" {}
 
 provider "google"
 {
@@ -121,6 +126,7 @@ module "vanilla_stack" {
     zone = "${var.zone}"
     network = "${var.network}"
     datacenter = "${var.network}"
+    stage_datacenter = "stage"
     kafka_image = "${var.kafka_image}"
     db_image = "${var.db_image}"
     es_image = "${var.es_image}"
@@ -130,8 +136,14 @@ module "vanilla_stack" {
     service_workers = "${var.service_workers}"
     greenriver_image = "${var.greenriver_image}"
     front_image = "${var.front_image}"
+    front_workers = "${var.front_workers}"
     amigo_leader = "${module.vanilla_amigo_cluster.leader}"
     bucket_location = "${var.bucket_location}"
+
+    stage_backend_image = "${var.stage_backend_image}"
+    stage_frontend_image = "${var.stage_frontend_image}"
+    stage_amigo_image = "${var.stage_amigo_image}"
+
     ssh_user = "${var.ssh_user}"
     ssh_private_key = "${var.ssh_private_key}"
 }

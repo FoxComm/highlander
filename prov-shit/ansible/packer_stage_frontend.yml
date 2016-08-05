@@ -1,0 +1,21 @@
+---
+
+- name: Provision Packer Twostack Frontend
+  hosts: all
+  tags:
+      - packer-tinystack-frontend
+  vars:
+    user: ubuntu
+    packing: true
+
+  roles:
+    - { role: base/ssh_keys }
+    - { role: base/mesos_worker }
+    - { role: base/rsyslog, sudo: yes }
+    - { role: base/balancer, sudo: yes }
+    - { role: base/ashes }
+    - { role: base/firebird }
+    - { role: base/firebrand }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml
