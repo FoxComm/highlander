@@ -29,13 +29,15 @@ func NewStockItemUnitRepository(db *gorm.DB) IStockItemUnitRepository {
 }
 
 func (repository *stockItemUnitRepository) CreateUnits(units []*models.StockItemUnit) error {
+	txn := repository.db.Begin()
 	for _, v := range units {
-		if err := repository.db.Create(v).Error; err != nil {
+		if err := txn.Create(v).Error; err != nil {
+			txn.Rollback()
 			return err
 		}
 	}
 
-	return nil
+	return txn.Commit().Error
 }
 
 func (repository *stockItemUnitRepository) DeleteUnits(ids []uint) error {
