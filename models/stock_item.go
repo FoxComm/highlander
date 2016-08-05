@@ -8,6 +8,7 @@ import (
 type StockItem struct {
 	gormfox.Base
 	SKU             string
+	StockLocation   StockLocation
 	StockLocationID uint
 	DefaultUnitCost int
 }

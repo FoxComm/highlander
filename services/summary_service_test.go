@@ -2,16 +2,16 @@ package services
 
 import (
 	"testing"
+	"time"
 
 	"github.com/FoxComm/middlewarehouse/common/db/config"
 	"github.com/FoxComm/middlewarehouse/common/db/tasks"
 	"github.com/FoxComm/middlewarehouse/models"
-
 	"github.com/FoxComm/middlewarehouse/repositories"
+
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"time"
 )
 
 type summaryServiceTestSuite struct {
@@ -71,7 +71,7 @@ func (suite *summaryServiceTestSuite) SetupTest() {
 
 	suite.inventoryService.IncrementStockItemUnits(suite.si.ID, models.Sellable, units)
 
-	time.Sleep(10 * time.Millisecond)
+	time.Sleep(100 * time.Millisecond)
 }
 
 func (suite *summaryServiceTestSuite) Test_Increment_OnHand() {
@@ -146,7 +146,7 @@ func (suite *summaryServiceTestSuite) Test_GetSummary() {
 
 	suite.assert.NotNil(summary)
 	suite.assert.Equal(4, len(summary))
-	suite.assert.Equal(suite.si.StockLocationID, summary[0].StockLocationID)
+	suite.assert.Equal(suite.si.StockLocationID, summary[0].StockItem.StockLocation.ID)
 }
 
 func (suite *summaryServiceTestSuite) Test_GetSummaryBySKU() {

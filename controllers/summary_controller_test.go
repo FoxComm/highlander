@@ -1,13 +1,13 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"testing"
 
 	"github.com/FoxComm/middlewarehouse/controllers/mocks"
 	"github.com/FoxComm/middlewarehouse/models"
 
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/assert"
@@ -42,9 +42,8 @@ func (suite *summaryControllerTestSuite) TearDownTest() {
 
 func (suite *summaryControllerTestSuite) Test_GetSummary() {
 	suite.service.On("GetSummary").Return([]*models.StockItemSummary{{
-		StockItemID:     1,
-		StockLocationID: 1,
-		Type:            models.Sellable,
+		StockItemID: 1,
+		Type:        models.Sellable,
 	}}, nil).Once()
 
 	res := suite.Get("/summary/")
@@ -57,10 +56,9 @@ func (suite *summaryControllerTestSuite) Test_GetSummary() {
 func (suite *summaryControllerTestSuite) Test_GetSummaryBySKU() {
 	sku := "TEST-SKU"
 	suite.service.On("GetSummaryBySKU", sku).Return([]*models.StockItemSummary{{
-		StockItemID:     1,
-		SKU:             sku,
-		StockLocationID: 1,
-		Type:            models.Sellable,
+		StockItemID: 1,
+		StockItem:   models.StockItem{SKU: sku},
+		Type:        models.Sellable,
 	}}, nil).Once()
 
 	res := suite.Get(fmt.Sprintf("/summary/%s", sku))
