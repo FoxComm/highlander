@@ -83,6 +83,34 @@ func (suite *AddressServiceTestSuite) Test_CreateAddress_ReturnsCreatedRecord() 
 	suite.repository.AssertExpectations(suite.T())
 }
 
+func (suite *AddressServiceTestSuite) Test_DeleteAddress_NotFound_ReturnsNotFoundError() {
+	//arrange
+	suite.repository.On("DeleteAddress", uint(1)).Return(false, gorm.ErrRecordNotFound).Once()
+
+	//act
+	err := suite.service.DeleteAddress(uint(1))
+
+	//assert
+	suite.assert.Equal(gorm.ErrRecordNotFound, err)
+
+	//assert all expectations were met
+	suite.repository.AssertExpectations(suite.T())
+}
+
+func (suite *AddressServiceTestSuite) Test_DeleteAddress_Found_ReturnsNoError() {
+	//arrange
+	suite.repository.On("DeleteAddress", uint(1)).Return(true).Once()
+
+	//act
+	err := suite.service.DeleteAddress(uint(1))
+
+	//assert
+	suite.assert.Nil(err)
+
+	//assert all expectations were met
+	suite.repository.AssertExpectations(suite.T())
+}
+
 func (suite *AddressServiceTestSuite) getTestAddress1() *models.Address {
 	return &models.Address{gormfox.Base{ID: uint(1)}, "Home address", uint(1), "Texas", "75231",
 		"Some st, 335", sql.NullString{String: "", Valid: false}, "19527352893"}

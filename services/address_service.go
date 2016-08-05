@@ -12,6 +12,7 @@ type addressService struct {
 type IAddressService interface {
 	GetAddressByID(id uint) (*models.Address, error)
 	CreateAddress(address *models.Address) (*models.Address, error)
+	DeleteAddress(id uint) error
 }
 
 func NewAddressService(repository repositories.IAddressRepository) IAddressService {
@@ -24,4 +25,8 @@ func (service *addressService) GetAddressByID(id uint) (*models.Address, error) 
 
 func (service *addressService) CreateAddress(address *models.Address) (*models.Address, error) {
 	return service.repository.CreateAddress(address)
+}
+
+func (service *addressService) DeleteAddress(id uint) error {
+	return service.repository.DeleteAddress(id)
 }

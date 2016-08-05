@@ -29,3 +29,13 @@ func (service *AddressRepositoryMock) CreateAddress(address *models.Address) (*m
 
 	return nil, args.Error(1)
 }
+
+func (service *AddressRepositoryMock) DeleteAddress(id uint) error {
+	args := service.Called(id)
+
+	if args.Bool(0) {
+		return nil
+	}
+
+	return args.Error(1)
+}
