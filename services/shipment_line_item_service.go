@@ -13,6 +13,7 @@ type IShipmentLineItemService interface {
 	GetShipmentLineItemsByShipmentID(id uint) ([]*models.ShipmentLineItem, error)
 	CreateShipmentLineItem(shipmentLineItem *models.ShipmentLineItem) (*models.ShipmentLineItem, error)
 	UpdateShipmentLineItem(shipmentLineItem *models.ShipmentLineItem) (*models.ShipmentLineItem, error)
+	DeleteShipmentLineItem(id uint) error
 }
 
  func NewShipmentLineItemService(repository repositories.IShipmentLineItemRepository) IShipmentLineItemService {
@@ -29,4 +30,8 @@ type IShipmentLineItemService interface {
 
 func (service *shipmentLineItemService) UpdateShipmentLineItem(shipmentLineItem *models.ShipmentLineItem) (*models.ShipmentLineItem, error) {
 	return service.repository.UpdateShipmentLineItem(shipmentLineItem)
+}
+
+func (service *shipmentLineItemService) DeleteShipmentLineItem(id uint) error {
+	return service.repository.DeleteShipmentLineItem(id)
 }

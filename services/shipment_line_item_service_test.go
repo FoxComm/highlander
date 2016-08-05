@@ -93,6 +93,34 @@ func (suite *ShipmentLineItemServiceTestSuite) Test_UpdateShipmentLineItem_Found
 	suite.assert.Equal(shipmentLineItem1, shipmentLineItem)
 }
 
+func (suite *ShipmentLineItemServiceTestSuite) Test_DeleteShipmentLineItem_NotFound_ReturnsNotFoundError() {
+	//arrange
+	suite.repository.On("DeleteShipmentLineItem", uint(1)).Return(false, gorm.ErrRecordNotFound).Once()
+
+	//act
+	err := suite.service.DeleteShipmentLineItem(uint(1))
+
+	//assert
+	suite.assert.Equal(gorm.ErrRecordNotFound, err)
+
+	//assert all expectations were met
+	suite.repository.AssertExpectations(suite.T())
+}
+
+func (suite *ShipmentLineItemServiceTestSuite) Test_DeleteShipmentLineItem_Found_ReturnsNoError() {
+	//arrange
+	suite.repository.On("DeleteShipmentLineItem", uint(1)).Return(true).Once()
+
+	//act
+	err := suite.service.DeleteShipmentLineItem(uint(1))
+
+	//assert
+	suite.assert.Nil(err)
+
+	//assert all expectations were met
+	suite.repository.AssertExpectations(suite.T())
+}
+
 func (suite *ShipmentLineItemServiceTestSuite) getTestShipmentLineItem1() *models.ShipmentLineItem {
 	return &models.ShipmentLineItem{gormfox.Base{ID: uint(1)}, uint(1), "BR1002", "SKU-TEST1",
 		"Some shit", 3999, "https://test.com/some-shit.png", "pending"}

@@ -39,3 +39,13 @@ func (service *ShipmentLineItemRepositoryMock) UpdateShipmentLineItem(shipmentLi
 
 	return nil, args.Error(1)
 }
+
+func (service *ShipmentLineItemRepositoryMock) DeleteShipmentLineItem(id uint) error {
+	args := service.Called(id)
+
+	if args.Bool(0) {
+		return nil
+	}
+
+	return args.Error(1)
+}
