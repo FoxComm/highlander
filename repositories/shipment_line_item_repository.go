@@ -9,6 +9,7 @@ type IShipmentLineItemRepository interface {
 	GetShipmentLineItemsByShipmentID(id uint) ([]*models.ShipmentLineItem, error)
 	CreateShipmentLineItem(shipmentLineItem *models.ShipmentLineItem) (*models.ShipmentLineItem, error)
 	UpdateShipmentLineItem(shipmentLineItem *models.ShipmentLineItem) (*models.ShipmentLineItem, error)
+	DeleteShipmentLineItem(id uint) error
 }
 
 type shipmentLineItemRepository struct {
@@ -51,6 +52,20 @@ func (repository *shipmentLineItemRepository) UpdateShipmentLineItem(shipmentLin
 	}
 
 	return repository.getShipmentLineItemByID(shipmentLineItem.ID)
+}
+
+func (repository *shipmentLineItemRepository) DeleteShipmentLineItem(id uint) error {
+	res := repository.db.Delete(&models.ShipmentLineItem{}, id)
+
+	if res.Error != nil {
+		return res.Error
+	}
+
+	if res.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+
+	return nil
 }
 
 func (repository *shipmentLineItemRepository) getShipmentLineItemByID(id uint) (*models.ShipmentLineItem, error) {

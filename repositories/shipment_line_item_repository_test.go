@@ -132,6 +132,38 @@ func (suite *ShipmentLineItemRepositoryTestSuite) Test_UpdateShipmentLineItem_Fo
 	suite.assert.Nil(suite.mock.ExpectationsWereMet())
 }
 
+func (suite *ShipmentLineItemRepositoryTestSuite) Test_DeleteShipmentLineItem_NotFound_ReturnsNotFoundError() {
+	//arrange
+	suite.mock.
+		ExpectExec(`UPDATE "shipment_line_items" SET deleted_at=\? .+ \(\("id" = \?\)\)`).
+		WillReturnResult(sqlmock.NewResult(1, 0))
+
+	//act
+	err := suite.repository.DeleteShipmentLineItem(1)
+
+	//assert
+	suite.assert.Equal(gorm.ErrRecordNotFound, err)
+
+	//make sure that all expectations were met
+	suite.assert.Nil(suite.mock.ExpectationsWereMet())
+}
+
+func (suite *ShipmentLineItemRepositoryTestSuite) Test_DeleteShipmentLineItem_Found_ReturnsNoError() {
+	//arrange
+	suite.mock.
+		ExpectExec(`UPDATE "shipment_line_items" SET deleted_at=\? .+ \(\("id" = \?\)\)`).
+		WillReturnResult(sqlmock.NewResult(1, 1))
+
+	//act
+	err := suite.repository.DeleteShipmentLineItem(1)
+
+	//assert
+	suite.assert.Nil(err)
+
+	//make sure that all expectations were met
+	suite.assert.Nil(suite.mock.ExpectationsWereMet())
+}
+
 func (suite *ShipmentLineItemRepositoryTestSuite) getTestShipmentLineItem1() *models.ShipmentLineItem {
 	return &models.ShipmentLineItem{gormfox.Base{ID: uint(1)}, uint(1), "BR1002", "SKU-TEST1",
 		"Some shit", 3999, "https://test.com/some-shit.png", "pending"}
