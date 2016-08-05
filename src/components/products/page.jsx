@@ -27,7 +27,7 @@ import ArchiveActionsSection from '../archive-actions/archive-actions';
 import styles from './page.css';
 
 // helpers
-import { archivedStatus } from 'paragons/common';
+import { isArchived } from 'paragons/common';
 import { transitionTo } from 'browserHistory';
 import {
   setSkuAttribute,
@@ -88,8 +88,7 @@ class ProductPage extends Component {
     } else {
       this.props.actions.fetchProduct(this.props.params.productId, this.props.params.context)
         .then(({payload}) => {
-          const isArchived = archivedStatus(payload);
-          if (isArchived) transitionTo('products');
+          if (isArchived(payload)) transitionTo('products');
         });
     }
   }

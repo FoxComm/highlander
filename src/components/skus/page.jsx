@@ -24,7 +24,7 @@ import * as ArchiveActions from '../../modules/skus/archive';
 
 //helpers
 import { transitionTo } from 'browserHistory';
-import { archivedStatus } from 'paragons/common';
+import { isArchived } from 'paragons/common';
 import { SAVE_COMBO, SAVE_COMBO_ITEMS } from 'paragons/common';
 
 // types
@@ -62,8 +62,7 @@ class SkuPage extends Component {
     } else {
       this.props.actions.fetchSku(this.entityId)
         .then(({payload}) => {
-          const isArchived = archivedStatus(payload);
-          if (isArchived) transitionTo('skus');
+          if (isArchived(payload)) transitionTo('skus');
         });
     }
   }
