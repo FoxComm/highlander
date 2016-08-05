@@ -47,7 +47,7 @@
   vars:
     user: '{{ansible_ssh_user}}'
     db_name: '{{phoenix_db_name}}'
-    seeds_cmd: -Ddb.name={{db_name}} utils.seeds.Seeds seed --seedAdmins 1
+    seeds_cmd: -Ddb.name={{db_name}} utils.seeds.Seeds seed --seedAdmins
   vars_prompt:
     - name: "hostname"
       prompt: "Enter a hostname with a database to bootstrap"

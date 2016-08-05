@@ -3,9 +3,11 @@
 - name: Provision All The Things
   hosts: all
   vars:
-    user: ubuntu
-    packing: true
+    ashes_server_name: admin.foxcommerce.local
+    firebird_server_name: firebird.foxcommerce.local
+    firebrand_server_name: foxcommerce.local
   roles:
+    - { role: base/common }
     - { role: base/docker }
     - { role: base/mesos }
 

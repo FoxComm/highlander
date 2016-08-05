@@ -82,3 +82,12 @@
 - name: Add Swap to Fstab
   lineinfile: dest=/etc/fstab line="/swap none swap sw 0 0"
   sudo: true
+
+
+- name: Install Bootstrap
+  copy: src=bootstrap.sh dest=/usr/local/bin/bootstrap.sh mode=775
+  sudo: true
+
+- name: Install Consul Bootstrap.
+  copy: src=bootstrap_consul.sh dest=/usr/local/bin/bootstrap_consul.sh mode=775
+  sudo: true

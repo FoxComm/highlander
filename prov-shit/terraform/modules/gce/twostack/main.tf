@@ -32,7 +32,7 @@ resource "google_compute_instance" "ashes" {
     }
 
     provisioner "remote-exec" {
-        script = "terraform/scripts/bootstrap.sh"
+        script = "ansible/roles/base/common/files/bootstrap.sh"
     }
 }
 
@@ -59,6 +59,6 @@ resource "google_compute_instance" "backend" {
     }
 
     provisioner "remote-exec" {
-        script = "terraform/scripts/bootstrap.sh"
+        script = "ansible/roles/base/common/files/bootstrap.sh"
     }
 }
