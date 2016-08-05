@@ -5,7 +5,7 @@ import React, { PropTypes } from 'react';
 import _ from 'lodash';
 
 // helpers
-import { activeStatus, archivedStatus } from 'paragons/common';
+import { activeStatus, isArchived } from 'paragons/common';
 
 // components
 import RoundedPill from '../rounded-pill/rounded-pill';
@@ -34,7 +34,6 @@ function setCellContents(product, field) {
 const ProductRow = (props: Props) => {
   const { product, columns, params } = props;
   const key = `product-${product.id}`;
-  const isArchived = archivedStatus(product);
   const commonParams = {
     columns,
     row: product,
@@ -42,7 +41,7 @@ const ProductRow = (props: Props) => {
     params,
   };
 
-  if (isArchived) {
+  if (isArchived(product)) {
     return <MultiSelectRow {...commonParams}/>;
   }
 
