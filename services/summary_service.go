@@ -13,7 +13,7 @@ type summaryService struct {
 
 type ISummaryService interface {
 	CreateStockItemSummary(stockItemId uint) error
-	UpdateStockItemSummary(stockItemId, typeId uint, qty int, status models.StatusChange) error
+	UpdateStockItemSummary(stockItemId uint, unitType models.UnitType, qty int, status models.StatusChange) error
 
 	GetSummary() ([]*models.StockItemSummary, error)
 	GetSummaryBySKU(sku string) ([]*models.StockItemSummary, error)
@@ -33,22 +33,22 @@ func (service *summaryService) GetSummaryBySKU(sku string) ([]*models.StockItemS
 
 func (service *summaryService) CreateStockItemSummary(stockItemId uint) error {
 	summary := []*models.StockItemSummary{
-		{StockItemID: stockItemId, TypeID: models.Sellable},
-		{StockItemID: stockItemId, TypeID: models.NonSellable},
-		{StockItemID: stockItemId, TypeID: models.Backorder},
-		{StockItemID: stockItemId, TypeID: models.Preorder},
+		{StockItemID: stockItemId, Type: models.Sellable},
+		{StockItemID: stockItemId, Type: models.NonSellable},
+		{StockItemID: stockItemId, Type: models.Backorder},
+		{StockItemID: stockItemId, Type: models.Preorder},
 	}
 
 	return service.summaryRepo.CreateStockItemSummary(summary)
 }
 
-func (service *summaryService) UpdateStockItemSummary(stockItemId, typeId uint, qty int, status models.StatusChange) error {
+func (service *summaryService) UpdateStockItemSummary(stockItemId uint, unitType models.UnitType, qty int, status models.StatusChange) error {
 	stockItem, err := service.stockItemRepo.GetStockItemById(stockItemId)
 	if err != nil {
 		return err
 	}
 
-	summary, err := service.summaryRepo.GetSummaryItemByType(stockItemId, typeId)
+	summary, err := service.summaryRepo.GetSummaryItemByType(stockItemId, unitType)
 	if err != nil {
 		return err
 	}
@@ -66,7 +66,7 @@ func (service *summaryService) UpdateStockItemSummary(stockItemId, typeId uint, 
 	return service.summaryRepo.UpdateStockItemSummary(summary)
 }
 
-func updateStatus(summary *models.StockItemSummary, status string, qty int) *models.StockItemSummary {
+func updateStatus(summary *models.StockItemSummary, status models.UnitStatus, qty int) *models.StockItemSummary {
 	if status == "" {
 		return summary
 	}

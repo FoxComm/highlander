@@ -4,7 +4,7 @@ create table inventory_search_view
     sku sku_code,
     stock_item jsonb not null default '{}',
     stock_location jsonb not null default '{}',
-    type generic_string not null,
+    type stock_item_type not null,
     on_hand integer not null,
     on_hold integer not null,
     reserved integer not null,

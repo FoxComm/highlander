@@ -1,12 +1,10 @@
 create or replace function update_inventory_view_from_summary_insert_fn() returns trigger as $$
 declare
     skuCode sku_code;
-    type generic_string;
     stock_item jsonb;
     stock_location jsonb;
 begin
     skuCode := (select si.sku from stock_items si where si.id = new.stock_item_id);
-    type := (select st.type from stock_item_types st where st.id = new.type_id);
 
     stock_item := (
         select json_build_object(
@@ -37,7 +35,7 @@ begin
         stock_item,
         -- stock_locatoin object
         stock_location,
-        type,
+        new.type as type,
 
         new.on_hand as on_hand,
         new.on_hold as on_hold,

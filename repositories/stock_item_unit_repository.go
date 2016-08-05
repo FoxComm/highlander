@@ -14,7 +14,7 @@ type stockItemUnitRepository struct {
 }
 
 type IStockItemUnitRepository interface {
-	OnHandStockItemUnits(stockItemID uint, typeId uint, count int) ([]uint, error)
+	OnHandStockItemUnits(stockItemID uint, unitType models.UnitType, count int) ([]uint, error)
 	SetUnitsInOrder(refNum string, ids []uint) (int, error)
 	UnsetUnitsInOrder(refNum string) (int, error)
 
@@ -42,13 +42,13 @@ func (repository *stockItemUnitRepository) DeleteUnits(ids []uint) error {
 	return repository.db.Delete(models.StockItemUnit{}, "id in (?)", ids).Error
 }
 
-func (repository *stockItemUnitRepository) OnHandStockItemUnits(stockItemID uint, typeId uint, count int) ([]uint, error) {
+func (repository *stockItemUnitRepository) OnHandStockItemUnits(stockItemID uint, unitType models.UnitType, count int) ([]uint, error) {
 	var ids []uint
 	err := repository.db.Model(&models.StockItemUnit{}).
 		Limit(count).
 		Order("created_at").
 		Where("stock_item_id = ?", stockItemID).
-		Where("type_id = ?", typeId).
+		Where("type = ?", unitType).
 		Where("status = ?", "onHand").
 		Pluck("id", &ids).
 		Error
@@ -59,7 +59,7 @@ func (repository *stockItemUnitRepository) OnHandStockItemUnits(stockItemID uint
 
 	if len(ids) < count {
 		err := fmt.Errorf("Not enough onHand units for stock item %d of type %d. Expected %d, got %d",
-			stockItemID, typeId, count, len(ids))
+			stockItemID, unitType, count, len(ids))
 
 		return ids, err
 	}

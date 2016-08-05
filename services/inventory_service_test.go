@@ -47,7 +47,7 @@ func (suite *InventoryServiceTestSuite) createStockItem(sku string, qty int) (*m
 			item := &models.StockItemUnit{
 				StockItemID: stockItem.ID,
 				UnitCost:    500,
-				TypeID:      models.Sellable,
+				Type:        models.Sellable,
 				Status:      models.StatusOnHand,
 			}
 			units = append(units, item)
@@ -349,7 +349,7 @@ func (suite *InventoryServiceTestSuite) Test_ReleaseItems_Summary() {
 	time.Sleep(10 * time.Millisecond)
 
 	var summary models.StockItemSummary
-	suite.db.Where("type_id = ?", models.Sellable).First(&summary)
+	suite.db.Where("type = ?", models.Sellable).First(&summary)
 
 	suite.assert.Equal(reservedCount, summary.OnHold, "One stock item unit should be onHold")
 
@@ -358,6 +358,6 @@ func (suite *InventoryServiceTestSuite) Test_ReleaseItems_Summary() {
 	// workaround for summary goroutines
 	time.Sleep(10 * time.Millisecond)
 
-	suite.db.Where("type_id = ?", models.Sellable).First(&summary)
+	suite.db.Where("type = ?", models.Sellable).First(&summary)
 	suite.assert.Equal(0, summary.OnHold, "No stock item units should be onHold")
 }

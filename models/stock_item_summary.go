@@ -5,10 +5,10 @@ import "github.com/FoxComm/middlewarehouse/common/gormfox"
 type StockItemSummary struct {
 	gormfox.Base
 	StockItemID       uint
-	SKU               string `gorm:"-"`
-	StockLocationID   uint   `gorm:"-"`
-	StockLocationName string `gorm:"-"`
-	TypeID            uint
+	SKU               string   `gorm:"-"`
+	StockLocationID   uint     `gorm:"-"`
+	StockLocationName string   `gorm:"-"`
+	Type              UnitType `gorm:"type:text"`
 	OnHand            int
 	OnHold            int
 	Reserved          int
@@ -20,16 +20,3 @@ type StockItemSummary struct {
 func (sis StockItemSummary) Identifier() uint {
 	return sis.ID
 }
-
-type StatusChange struct {
-	From string
-	To   string
-}
-
-const (
-	StatusOnHand   = "onHand"
-	StatusOnHold   = "onHold"
-	StatusReserved = "reserved"
-	StatusShipped  = "shipped"
-	StatusEmpty    = ""
-)

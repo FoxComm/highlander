@@ -16,29 +16,29 @@ type stockItemSummary struct {
 	AFSCost           int    `json:"afsCost"`
 }
 
-type Summary struct {
+type StockItemSummary struct {
 	Summary []stockItemSummary `json:"summary"`
 }
 
-func NewSummaryFromModel(summaries []*models.StockItemSummary) *Summary {
-	result := Summary{
+func NewSummaryFromModel(summaries []*models.StockItemSummary) *StockItemSummary {
+	result := StockItemSummary{
 		Summary: make([]stockItemSummary, len(summaries)),
 	}
 
 	for i, summary := range summaries {
-		result.Summary[i] = stockItemSummaryFromModel(summary)
+		result.Summary[i] = summaryFromModel(summary)
 	}
 
 	return &result
 }
 
-func stockItemSummaryFromModel(summary *models.StockItemSummary) stockItemSummary {
+func summaryFromModel(summary *models.StockItemSummary) stockItemSummary {
 	return stockItemSummary{
 		StockItemID:       summary.StockItemID,
 		SKU:               summary.SKU,
 		StockLocationID:   summary.StockLocationID,
 		StockLocationName: summary.StockLocationName,
-		Type:              models.StockItemTypeToString(summary.TypeID),
+		Type:              string(summary.Type),
 		OnHand:            summary.OnHand,
 		OnHold:            summary.OnHold,
 		Reserved:          summary.Reserved,

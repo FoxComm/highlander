@@ -45,9 +45,11 @@ func (repository *stockItemRepository) GetStockItemsBySKUs(skus []string) ([]*mo
 }
 
 func (repository *stockItemRepository) CreateStockItem(stockItem *models.StockItem) (*models.StockItem, error) {
-	err := repository.db.Create(stockItem).Error
+	if err := repository.db.Create(stockItem).Error; err != nil {
+		return nil, err
+	}
 
-	return stockItem, err
+	return repository.GetStockItemById(stockItem.ID)
 }
 
 func (repository *stockItemRepository) DeleteStockItem(stockItemId uint) error {

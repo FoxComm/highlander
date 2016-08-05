@@ -19,8 +19,8 @@ type IInventoryService interface {
 	GetStockItemById(id uint) (*models.StockItem, error)
 	CreateStockItem(stockItem *models.StockItem) (*models.StockItem, error)
 
-	IncrementStockItemUnits(id, typeId uint, units []*models.StockItemUnit) error
-	DecrementStockItemUnits(id, typeId uint, qty int) error
+	IncrementStockItemUnits(id uint, unitType models.UnitType, units []*models.StockItemUnit) error
+	DecrementStockItemUnits(id uint, unitType models.UnitType, qty int) error
 
 	ReserveItems(refNum string, skus map[string]int) error
 	ReleaseItems(refNum string) error
@@ -41,7 +41,8 @@ func (service *inventoryService) GetStockItemById(id uint) (*models.StockItem, e
 }
 
 func (service *inventoryService) CreateStockItem(stockItem *models.StockItem) (*models.StockItem, error) {
-	if _, err := service.stockItemRepo.CreateStockItem(stockItem); err != nil {
+	stockItem, err := service.stockItemRepo.CreateStockItem(stockItem)
+	if err != nil {
 		return nil, err
 	}
 
@@ -54,18 +55,18 @@ func (service *inventoryService) CreateStockItem(stockItem *models.StockItem) (*
 	return stockItem, nil
 }
 
-func (service *inventoryService) IncrementStockItemUnits(stockItemId, typeId uint, units []*models.StockItemUnit) error {
+func (service *inventoryService) IncrementStockItemUnits(stockItemId uint, unitType models.UnitType, units []*models.StockItemUnit) error {
 	if err := service.unitRepo.CreateUnits(units); err != nil {
 		return err
 	}
 
-	go service.summaryService.UpdateStockItemSummary(stockItemId, typeId, len(units), models.StatusChange{To: models.StatusOnHand})
+	go service.summaryService.UpdateStockItemSummary(stockItemId, unitType, len(units), models.StatusChange{To: models.StatusOnHand})
 
 	return nil
 }
 
-func (service *inventoryService) DecrementStockItemUnits(stockItemId, typeId uint, qty int) error {
-	unitsIds, err := service.unitRepo.OnHandStockItemUnits(stockItemId, typeId, qty)
+func (service *inventoryService) DecrementStockItemUnits(stockItemId uint, unitType models.UnitType, qty int) error {
+	unitsIds, err := service.unitRepo.OnHandStockItemUnits(stockItemId, unitType, qty)
 	if err != nil {
 		return err
 	}
@@ -74,7 +75,7 @@ func (service *inventoryService) DecrementStockItemUnits(stockItemId, typeId uin
 		return err
 	}
 
-	go service.summaryService.UpdateStockItemSummary(stockItemId, typeId, -1*qty, models.StatusChange{To: models.StatusOnHand})
+	go service.summaryService.UpdateStockItemSummary(stockItemId, unitType, -1*qty, models.StatusChange{To: models.StatusOnHand})
 
 	return nil
 }
@@ -145,7 +146,7 @@ func (service *inventoryService) ReleaseItems(refNum string) error {
 	return nil
 }
 
-func (service *inventoryService) updateSummaryOnReserve(items []*models.StockItem, skus map[string]int, typeId uint) error {
+func (service *inventoryService) updateSummaryOnReserve(items []*models.StockItem, skus map[string]int, unitType models.UnitType) error {
 	stockItemsMap := map[uint]int{}
 	for _, si := range items {
 		stockItemsMap[si.ID] = skus[si.SKU]
@@ -153,7 +154,7 @@ func (service *inventoryService) updateSummaryOnReserve(items []*models.StockIte
 
 	statusShift := models.StatusChange{From: models.StatusOnHand, To: models.StatusOnHold}
 	for id, qty := range stockItemsMap {
-		if err := service.summaryService.UpdateStockItemSummary(id, typeId, qty, statusShift); err != nil {
+		if err := service.summaryService.UpdateStockItemSummary(id, unitType, qty, statusShift); err != nil {
 			return err
 		}
 	}
@@ -161,12 +162,12 @@ func (service *inventoryService) updateSummaryOnReserve(items []*models.StockIte
 	return nil
 }
 
-func (service *inventoryService) updateSummaryOnRelease(unitsQty []*models.Release, typeId uint) error {
+func (service *inventoryService) updateSummaryOnRelease(unitsQty []*models.Release, unitType models.UnitType) error {
 	for _, item := range unitsQty {
 		statusShift := models.StatusChange{From: models.StatusOnHold, To: models.StatusOnHand}
-		println(item.StockItemID, typeId, item.Qty, statusShift.From, statusShift.To)
+		println(item.StockItemID, unitType, item.Qty, statusShift.From, statusShift.To)
 
-		if err := service.summaryService.UpdateStockItemSummary(item.StockItemID, typeId, item.Qty, statusShift); err != nil {
+		if err := service.summaryService.UpdateStockItemSummary(item.StockItemID, unitType, item.Qty, statusShift); err != nil {
 			return err
 		}
 	}

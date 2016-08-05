@@ -14,7 +14,7 @@ type ISummaryRepository interface {
 	GetSummary() ([]*models.StockItemSummary, error)
 	GetSummaryBySKU(sku string) ([]*models.StockItemSummary, error)
 
-	GetSummaryItemByType(stockItemId uint, typeId uint) (*models.StockItemSummary, error)
+	GetSummaryItemByType(stockItemId uint, unitType models.UnitType) (*models.StockItemSummary, error)
 
 	CreateStockItemSummary(summary []*models.StockItemSummary) error
 	UpdateStockItemSummary(summary *models.StockItemSummary) error
@@ -57,9 +57,9 @@ func (repository *summaryRepository) GetSummaryBySKU(sku string) ([]*models.Stoc
 	return summary, err
 }
 
-func (repository *summaryRepository) GetSummaryItemByType(stockItemId uint, typeId uint) (*models.StockItemSummary, error) {
+func (repository *summaryRepository) GetSummaryItemByType(stockItemId uint, unitType models.UnitType) (*models.StockItemSummary, error) {
 	summary := &models.StockItemSummary{}
-	result := repository.db.Where("stock_item_id = ? AND type_id = ?", stockItemId, typeId).First(summary)
+	result := repository.db.Where("stock_item_id = ? AND type = ?", stockItemId, unitType).First(summary)
 
 	return summary, result.Error
 }
