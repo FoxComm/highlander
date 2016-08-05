@@ -53,10 +53,10 @@ func (service *summaryService) UpdateStockItemSummary(stockItemId, typeId uint, 
 		return err
 	}
 
-	if status.From != "onHand" {
+	if status.From != models.StatusOnHand {
 		summary = updateStatus(summary, status.From, -qty)
 	}
-	if status.From == "" || status.To != "onHand" {
+	if status.From == models.StatusEmpty || status.To != models.StatusOnHand {
 		summary = updateStatus(summary, status.To, qty)
 	}
 
@@ -72,11 +72,11 @@ func updateStatus(summary *models.StockItemSummary, status string, qty int) *mod
 	}
 
 	switch status {
-	case "onHand":
+	case models.StatusOnHand:
 		summary.OnHand += qty
-	case "onHold":
+	case models.StatusOnHold:
 		summary.OnHold += qty
-	case "reserved":
+	case models.StatusReserved:
 		summary.Reserved += qty
 	}
 
@@ -84,11 +84,11 @@ func updateStatus(summary *models.StockItemSummary, status string, qty int) *mod
 }
 
 func updateAfs(summary *models.StockItemSummary, shift models.StatusChange, qty int) *models.StockItemSummary {
-	if shift.To == "onHand" {
+	if shift.To == models.StatusOnHand {
 		summary.AFS += qty
 	}
 
-	if shift.From == "onHand" {
+	if shift.From == models.StatusOnHand {
 		summary.AFS -= qty
 	}
 

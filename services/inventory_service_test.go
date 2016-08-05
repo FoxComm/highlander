@@ -48,7 +48,7 @@ func (suite *InventoryServiceTestSuite) createStockItem(sku string, qty int) (*m
 				StockItemID: stockItem.ID,
 				UnitCost:    500,
 				TypeID:      models.Sellable,
-				Status:      "onHand",
+				Status:      models.StatusOnHand,
 			}
 			units = append(units, item)
 		}
@@ -327,14 +327,14 @@ func (suite *InventoryServiceTestSuite) Test_ReleaseItems_Single() {
 	suite.assert.Nil(err)
 
 	onHoldUnitsCount := 0
-	suite.db.Model(&models.StockItemUnit{}).Where("ref_num = ? AND status = ?", refNum, "onHold").Count(&onHoldUnitsCount)
+	suite.db.Model(&models.StockItemUnit{}).Where("ref_num = ? AND status = ?", refNum, models.StatusOnHold).Count(&onHoldUnitsCount)
 	suite.assert.Equal(1, onHoldUnitsCount, "There should be one unit in onHold status")
 
 	// send release request and check if it was processed successfully
 	err = suite.service.ReleaseItems(refNum)
 	suite.assert.Nil(err, "Reservation should be successfully removed")
 
-	suite.db.Model(&models.StockItemUnit{}).Where("ref_num = ? AND status = ?", refNum, "onHold").Count(&onHoldUnitsCount)
+	suite.db.Model(&models.StockItemUnit{}).Where("ref_num = ? AND status = ?", refNum, models.StatusOnHold).Count(&onHoldUnitsCount)
 	suite.assert.Equal(0, onHoldUnitsCount, "There should not be units in onHold status")
 }
 

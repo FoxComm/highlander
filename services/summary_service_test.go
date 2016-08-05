@@ -66,7 +66,7 @@ func (suite *summaryServiceTestSuite) SetupTest() {
 			StockItemID: stockItem.ID,
 			UnitCost:    500,
 			TypeID:      models.Sellable,
-			Status:      "onHand",
+			Status:      models.StatusOnHand,
 		}
 		units = append(units, item)
 	}
@@ -77,7 +77,7 @@ func (suite *summaryServiceTestSuite) SetupTest() {
 }
 
 func (suite *summaryServiceTestSuite) Test_Increment_OnHand() {
-	err := suite.service.UpdateStockItemSummary(suite.si.ID, suite.typeId, 5, models.StatusChange{To: "onHand"})
+	err := suite.service.UpdateStockItemSummary(suite.si.ID, suite.typeId, 5, models.StatusChange{To: models.StatusOnHand})
 	suite.assert.Nil(err)
 
 	summary := models.StockItemSummary{}
@@ -89,7 +89,7 @@ func (suite *summaryServiceTestSuite) Test_Increment_OnHand() {
 }
 
 func (suite *summaryServiceTestSuite) Test_Increment_OnHold() {
-	err := suite.service.UpdateStockItemSummary(suite.si.ID, suite.typeId, 5, models.StatusChange{To: "onHold"})
+	err := suite.service.UpdateStockItemSummary(suite.si.ID, suite.typeId, 5, models.StatusChange{To: models.StatusOnHold})
 	suite.assert.Nil(err)
 
 	summary := models.StockItemSummary{}
@@ -100,7 +100,7 @@ func (suite *summaryServiceTestSuite) Test_Increment_OnHold() {
 }
 
 func (suite *summaryServiceTestSuite) Test_Increment_Reserved() {
-	err := suite.service.UpdateStockItemSummary(suite.si.ID, suite.typeId, 5, models.StatusChange{To: "reserved"})
+	err := suite.service.UpdateStockItemSummary(suite.si.ID, suite.typeId, 5, models.StatusChange{To: models.StatusReserved})
 	suite.assert.Nil(err)
 
 	summary := models.StockItemSummary{}
@@ -111,7 +111,7 @@ func (suite *summaryServiceTestSuite) Test_Increment_Reserved() {
 }
 
 func (suite *summaryServiceTestSuite) Test_Increment_Chain() {
-	suite.service.UpdateStockItemSummary(suite.si.ID, suite.typeId, 5, models.StatusChange{From: "onHand", To: "onHold"})
+	suite.service.UpdateStockItemSummary(suite.si.ID, suite.typeId, 5, models.StatusChange{From: models.StatusOnHand, To: models.StatusOnHold})
 
 	summary := models.StockItemSummary{}
 	suite.db.First(&summary, suite.si.ID)
@@ -121,7 +121,7 @@ func (suite *summaryServiceTestSuite) Test_Increment_Chain() {
 	suite.assert.Equal(5, summary.AFS)
 	suite.assert.Equal(5*suite.unitCost, summary.AFSCost)
 
-	suite.service.UpdateStockItemSummary(suite.si.ID, suite.typeId, 2, models.StatusChange{From: "onHold", To: "reserved"})
+	suite.service.UpdateStockItemSummary(suite.si.ID, suite.typeId, 2, models.StatusChange{From: models.StatusOnHold, To: models.StatusReserved})
 
 	suite.db.First(&summary, suite.si.ID)
 	suite.assert.Equal(suite.onHand, summary.OnHand)
@@ -130,7 +130,7 @@ func (suite *summaryServiceTestSuite) Test_Increment_Chain() {
 	suite.assert.Equal(5, summary.AFS)
 	suite.assert.Equal(5*suite.unitCost, summary.AFSCost)
 
-	suite.service.UpdateStockItemSummary(suite.si.ID, suite.typeId, 1, models.StatusChange{From: "reserved", To: "onHand"})
+	suite.service.UpdateStockItemSummary(suite.si.ID, suite.typeId, 1, models.StatusChange{From: models.StatusReserved, To: models.StatusOnHand})
 
 	suite.db.First(&summary, suite.si.ID)
 	suite.assert.Equal(suite.onHand, summary.OnHand)
@@ -141,7 +141,7 @@ func (suite *summaryServiceTestSuite) Test_Increment_Chain() {
 }
 
 func (suite *summaryServiceTestSuite) Test_GetSummary() {
-	suite.service.UpdateStockItemSummary(suite.si.ID, suite.typeId, 5, models.StatusChange{To: "onHand"})
+	suite.service.UpdateStockItemSummary(suite.si.ID, suite.typeId, 5, models.StatusChange{To: models.StatusOnHand})
 
 	summary, err := suite.service.GetSummary()
 	suite.assert.Nil(err)
@@ -165,7 +165,7 @@ func (suite *summaryServiceTestSuite) Test_GetSummaryBySKU_NotFoundSKU() {
 }
 
 func (suite *summaryServiceTestSuite) Test_GetSummaryBySKU_NonZero() {
-	err := suite.service.UpdateStockItemSummary(suite.si.ID, suite.typeId, 5, models.StatusChange{To: "onHand"})
+	err := suite.service.UpdateStockItemSummary(suite.si.ID, suite.typeId, 5, models.StatusChange{To: models.StatusOnHand})
 	suite.assert.Nil(err)
 
 	summary, err := suite.service.GetSummaryBySKU(suite.si.SKU)

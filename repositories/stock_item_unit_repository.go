@@ -70,7 +70,7 @@ func (repository *stockItemUnitRepository) OnHandStockItemUnits(stockItemID uint
 func (repository *stockItemUnitRepository) SetUnitsInOrder(refNum string, ids []uint) (int, error) {
 	updateWith := models.StockItemUnit{
 		RefNum: sql.NullString{String: refNum, Valid: true},
-		Status: "onHold",
+		Status: models.StatusOnHold,
 	}
 
 	result := repository.db.Model(models.StockItemUnit{}).Where("id in (?)", ids).Updates(updateWith)
@@ -82,7 +82,7 @@ func (repository *stockItemUnitRepository) UnsetUnitsInOrder(refNum string) (int
 	// gorm does not update empty fields when updating with struct, so use map here
 	updateWith := map[string]interface{}{
 		"ref_num": sql.NullString{String: "", Valid: false},
-		"status":  "onHand",
+		"status":  models.StatusOnHand,
 	}
 
 	result := repository.db.Model(&models.StockItemUnit{}).Where("ref_num = ?", refNum).Updates(updateWith)

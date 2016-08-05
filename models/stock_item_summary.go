@@ -25,3 +25,11 @@ type StatusChange struct {
 	From string
 	To   string
 }
+
+const (
+	StatusOnHand   = "onHand"
+	StatusOnHold   = "onHold"
+	StatusReserved = "reserved"
+	StatusShipped  = "shipped"
+	StatusEmpty    = ""
+)

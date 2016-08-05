@@ -59,7 +59,7 @@ func (service *inventoryService) IncrementStockItemUnits(stockItemId, typeId uin
 		return err
 	}
 
-	go service.summaryService.UpdateStockItemSummary(stockItemId, typeId, len(units), models.StatusChange{To: "onHand"})
+	go service.summaryService.UpdateStockItemSummary(stockItemId, typeId, len(units), models.StatusChange{To: models.StatusOnHand})
 
 	return nil
 }
@@ -74,7 +74,7 @@ func (service *inventoryService) DecrementStockItemUnits(stockItemId, typeId uin
 		return err
 	}
 
-	go service.summaryService.UpdateStockItemSummary(stockItemId, typeId, -1*qty, models.StatusChange{To: "onHand"})
+	go service.summaryService.UpdateStockItemSummary(stockItemId, typeId, -1*qty, models.StatusChange{To: models.StatusOnHand})
 
 	return nil
 }
@@ -151,7 +151,7 @@ func (service *inventoryService) updateSummaryOnReserve(items []*models.StockIte
 		stockItemsMap[si.ID] = skus[si.SKU]
 	}
 
-	statusShift := models.StatusChange{From: "onHand", To: "onHold"}
+	statusShift := models.StatusChange{From: models.StatusOnHand, To: models.StatusOnHold}
 	for id, qty := range stockItemsMap {
 		if err := service.summaryService.UpdateStockItemSummary(id, typeId, qty, statusShift); err != nil {
 			return err
@@ -163,7 +163,7 @@ func (service *inventoryService) updateSummaryOnReserve(items []*models.StockIte
 
 func (service *inventoryService) updateSummaryOnRelease(unitsQty []*models.Release, typeId uint) error {
 	for _, item := range unitsQty {
-		statusShift := models.StatusChange{From: "onHold", To: "onHand"}
+		statusShift := models.StatusChange{From: models.StatusOnHold, To: models.StatusOnHand}
 		println(item.StockItemID, typeId, item.Qty, statusShift.From, statusShift.To)
 
 		if err := service.summaryService.UpdateStockItemSummary(item.StockItemID, typeId, item.Qty, statusShift); err != nil {
