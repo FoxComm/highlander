@@ -15,6 +15,7 @@ import (
 type shipmentController struct {
 	shipmentService         services.IShipmentService
 	addressService          services.IAddressService
+	regionService           services.IRegionService
 	shipmentLineItemService services.IShipmentLineItemService
 	//shipmentTransactionService services.IShipmentTransactionService
 }
@@ -22,10 +23,11 @@ type shipmentController struct {
 func NewShipmentController(
 	shipmentService services.IShipmentService,
 	addressService services.IAddressService,
+	regionService services.IRegionService,
 	shipmentLineItemService services.IShipmentLineItemService,
 	//shipmentTransactionService services.IShipmentTransactionService,
 ) IController {
-	return &shipmentController{shipmentService, addressService, shipmentLineItemService /*, shipmentTransactionService*/}
+	return &shipmentController{shipmentService, addressService, regionService, shipmentLineItemService /*, shipmentTransactionService*/}
 }
 
 func (controller *shipmentController) SetUp(router gin.IRouter) {
@@ -129,6 +131,11 @@ func (controller *shipmentController) getShipmentResponse(shipment *models.Shipm
 		return nil, err
 	}
 
+	region, err := controller.regionService.GetRegionByID(address.RegionID)
+	if err != nil {
+		return nil, err
+	}
+
 	shipmentLineItems, err := controller.shipmentLineItemService.GetShipmentLineItemsByShipmentID(shipment.ID)
 	if err != nil {
 		return nil, err
@@ -142,6 +149,7 @@ func (controller *shipmentController) getShipmentResponse(shipment *models.Shipm
 	response := responses.NewShipmentFromModel(shipment)
 
 	response.Address = *responses.NewAddressFromModel(address)
+	response.Address.Region = *responses.NewRegionFromModel(region)
 
 	response.LineItems = []responses.ShipmentLineItem{}
 	for _, lineItem := range shipmentLineItems {
