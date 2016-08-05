@@ -20,6 +20,9 @@ const (
 // implement Scanner and Valuer interfaces to provide read/write for alias type
 func (u *UnitStatus) Scan(value interface{}) error {
 	*u = UnitStatus(string(value.([]byte)))
+
 	return nil
 }
-func (u UnitStatus) Value() (driver.Value, error) { return string(u), nil }
+func (u UnitStatus) Value() (driver.Value, error) {
+	return string(u), nil
+}

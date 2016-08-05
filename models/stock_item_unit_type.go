@@ -12,5 +12,11 @@ const (
 )
 
 // implement Scanner and Valuer interfaces to provide read/write for alias type
-func (u *UnitType) Scan(value interface{}) error { *u = UnitType(string(value.([]byte))); return nil }
-func (u UnitType) Value() (driver.Value, error)  { return string(u), nil }
+func (u *UnitType) Scan(value interface{}) error {
+	*u = UnitType(string(value.([]byte)))
+
+	return nil
+}
+func (u UnitType) Value() (driver.Value, error) {
+	return string(u), nil
+}
