@@ -120,7 +120,7 @@ class SkuPage extends Component {
     mayBeSaved.then(() => {
       switch (value) {
         case SAVE_COMBO.NEW:
-          //transitionTo('sku-details', { skuCode: 'new' });
+          transitionTo('sku-details', { skuCode: 'new' });
           this.props.actions.newSku();
           break;
         case SAVE_COMBO.DUPLICATE:
