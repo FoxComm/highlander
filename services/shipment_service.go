@@ -34,14 +34,14 @@ func (service *shipmentService) CreateShipment(
 	address *models.Address,
 	lineItems []*models.ShipmentLineItem,
 ) (*models.Shipment, error) {
-	shiment, err := service.repository.CreateShipment(shipment)
+	address, err := service.addressService.CreateAddress(address)
 	if err != nil {
 		return nil, err
 	}
 
-	address, err = service.addressService.CreateAddress(address)
+	shipment, err = service.repository.CreateShipment(shipment)
 	if err != nil {
-		service.repository.DeleteShipment(shiment.ID)
+		service.addressService.DeleteAddress(address.ID)
 		return nil, err
 	}
 
@@ -49,7 +49,7 @@ func (service *shipmentService) CreateShipment(
 	for _, lineItem := range lineItems {
 		lineItem, err = service.shipmentLineItemService.CreateShipmentLineItem(lineItem)
 		if err != nil {
-			service.repository.DeleteShipment(shiment.ID)
+			service.repository.DeleteShipment(shipment.ID)
 			service.addressService.DeleteAddress(address.ID)
 			for _, lineItem = range createdLineItems {
 				service.shipmentLineItemService.DeleteShipmentLineItem(lineItem.ID)
@@ -60,7 +60,7 @@ func (service *shipmentService) CreateShipment(
 		createdLineItems = append(createdLineItems, lineItem)
 	}
 
-	return shiment, err
+	return shipment, err
 }
 
 func (service *shipmentService) UpdateShipment(shipment *models.Shipment) (*models.Shipment, error) {

@@ -90,16 +90,16 @@ func (suite *ShipmentServiceTestSuite) Test_CreateShipment_Succeed_ReturnsCreate
 	suite.assert.Equal(shipment1, shipment)
 }
 
-func (suite *ShipmentServiceTestSuite) Test_CreateShipment_AddressFailure_PerformsRollback() {
+func (suite *ShipmentServiceTestSuite) Test_CreateShipment_ShipmentFailure_PerformsRollback() {
 	//arrange
 	shipment1 := suite.getTestShipment1()
 	address1 := suite.getTestAddress1()
 	shipmentLineItem1 := suite.getTestShipmentLineItem1(shipment1.ID)
 	shipmentLineItem2 := suite.getTestShipmentLineItem2(shipment1.ID)
 	err1 := errors.New("some fail")
-	suite.shipmentRepository.On("CreateShipment", shipment1).Return(shipment1, nil).Once()
-	suite.addressService.On("CreateAddress", address1).Return(false, err1).Once()
-	suite.shipmentRepository.On("DeleteShipment", shipment1.ID).Return(true).Once()
+	suite.addressService.On("CreateAddress", address1).Return(address1, nil).Once()
+	suite.shipmentRepository.On("CreateShipment", shipment1).Return(nil, err1).Once()
+	suite.addressService.On("DeleteAddress", address1.ID).Return(true).Once()
 
 	//act
 	_, err := suite.service.CreateShipment(shipment1, address1, []*models.ShipmentLineItem{shipmentLineItem1, shipmentLineItem2})
@@ -115,12 +115,12 @@ func (suite *ShipmentServiceTestSuite) Test_CreateShipment_LineItemFailure_Perfo
 	shipmentLineItem1 := suite.getTestShipmentLineItem1(shipment1.ID)
 	shipmentLineItem2 := suite.getTestShipmentLineItem2(shipment1.ID)
 	err1 := errors.New("some fail")
-	suite.shipmentRepository.On("CreateShipment", shipment1).Return(shipment1, nil).Once()
 	suite.addressService.On("CreateAddress", address1).Return(address1, nil).Once()
+	suite.shipmentRepository.On("CreateShipment", shipment1).Return(shipment1, nil).Once()
 	suite.shipmentLineItemService.On("CreateShipmentLineItem", shipmentLineItem1).Return(shipmentLineItem1, nil).Once()
 	suite.shipmentLineItemService.On("CreateShipmentLineItem", shipmentLineItem2).Return(nil, err1).Once()
-	suite.shipmentRepository.On("DeleteShipment", shipment1.ID).Return(true).Once()
 	suite.addressService.On("DeleteAddress", address1.ID).Return(true).Once()
+	suite.shipmentRepository.On("DeleteShipment", shipment1.ID).Return(true).Once()
 	suite.shipmentLineItemService.On("DeleteShipmentLineItem", shipmentLineItem1.ID).Return(true).Once()
 
 	//act
