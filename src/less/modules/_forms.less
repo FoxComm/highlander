@@ -26,25 +26,9 @@
       padding: 0;
     }
   }
-  .fc-input-prepend, .fc-input-prepend > button {
-    .border-radius(3px);
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-  }
-  .fc-input-append, .fc-input-append > button {
-    .border-radius(3px);
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-  }
+
   input {
     .inline-block();
-  }
-  input:not(:first-child):not(:last-child) {
-    .border-radius(0);
-  }
-  input:not(:first-child):last-child {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
   }
 }
 
@@ -54,8 +38,6 @@
     &:disabled {
       background-color: @color-decor9;
     }
-    box-shadow: inset 1px 1px 1px 0 rgba(0,0,0,0.1);
-    border-radius: 3px;
     padding: 0 10px;
     height: 40px;
     border: 1px solid @color-decor7;
@@ -215,12 +197,12 @@
 
   &-error {
     color: @color-decor22;
-    .font-spec(13px);
+    font-size: 13px;
     .padding-top(8px);
   }
 
   &-label {
-    .font-spec(16px);
+    font-size: 14px;
     font-weight: 600;
   }
 }

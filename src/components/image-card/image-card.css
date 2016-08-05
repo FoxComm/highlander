@@ -2,7 +2,6 @@
   position: relative;
   border: 1px solid #d9d9d9;
   background: #fff;
-  box-shadow: 0 0 4px 0 rgba(0, 0, 0, .3);
   margin: 0 5px;
 }
 
@@ -62,7 +61,7 @@
 .title {
   width: 250px;
   margin-bottom: 10px;
-  font-size: 14px; 
+  font-size: 14px;
   font-weight: 600;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -70,7 +69,7 @@
 }
 
 .secondaryTitle {
-  font-size: 14px; 
+  font-size: 14px;
   font-weight: 400;
   color: #ABB2B6;
 }

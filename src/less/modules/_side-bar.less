@@ -13,18 +13,22 @@
     left: @sidebar-width - @sidebar-control-size/2;
     .circle(@sidebar-control-size);
     .colors(@color-decor5, @color-decor13);
-    box-shadow: 0px 2px 4px 0px @color-decor43;
+    box-shadow: 0 0 0 1px @color-decor9;
     font-size: 12px;
     font-weight: @normal;
     line-height: 12px;
     transition: all 250ms ease-in-out;
 
     > i {
-      margin: 0 auto;
+      margin: 0 2px 0 3px;
     }
 
     &._open {
       .left(@sideber-open-width - @sidebar-control-size/2);
+
+      > i {
+        margin: 0 3px 0 2px;
+      }
     }
 
     &:hover {
