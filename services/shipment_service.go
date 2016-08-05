@@ -39,6 +39,7 @@ func (service *shipmentService) CreateShipment(
 		return nil, err
 	}
 
+	shipment.AddressID = address.ID
 	shipment, err = service.repository.CreateShipment(shipment)
 	if err != nil {
 		service.addressService.DeleteAddress(address.ID)
@@ -47,6 +48,7 @@ func (service *shipmentService) CreateShipment(
 
 	createdLineItems := []*models.ShipmentLineItem{}
 	for _, lineItem := range lineItems {
+		lineItem.ShipmentID = shipment.ID
 		lineItem, err = service.shipmentLineItemService.CreateShipmentLineItem(lineItem)
 		if err != nil {
 			service.repository.DeleteShipment(shipment.ID)
