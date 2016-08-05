@@ -125,7 +125,7 @@ func (suite *stockItemControllerTestSuite) Test_CreateStockItem_Error() {
 
 func (suite *stockItemControllerTestSuite) Test_IncrementStockItemUnits() {
 	// couldn't find the way to set array of models to mock args expectation
-	suite.service.On("IncrementStockItemUnits", uint(1), models.StockItemTypes().Sellable, mock.AnythingOfType("[]*models.StockItemUnit")).Return(nil).Once()
+	suite.service.On("IncrementStockItemUnits", uint(1), models.Sellable, mock.AnythingOfType("[]*models.StockItemUnit")).Return(nil).Once()
 
 	jsonStr := `{"stockLocationId":1,"qty":1,"unit_cost":12000,"type":"Sellable","status":"onHand"}`
 	res := suite.Patch("/stock-items/1/increment", jsonStr)
@@ -149,7 +149,7 @@ func (suite *stockItemControllerTestSuite) Test_IncrementStockItemUnits_WrongQty
 }
 
 func (suite *stockItemControllerTestSuite) Test_DecrementStockItemUnits() {
-	suite.service.On("DecrementStockItemUnits", uint(1), models.StockItemTypes().Sellable, 1).Return(nil).Once()
+	suite.service.On("DecrementStockItemUnits", uint(1), models.Sellable, 1).Return(nil).Once()
 
 	jsonStr := `{"stockLocationId":1,"qty": 1,"type":"Sellable"}`
 	res := suite.Patch("/stock-items/1/decrement", jsonStr)

@@ -3,12 +3,13 @@ package services
 import (
 	"math/rand"
 	"testing"
+	"time"
 
 	"github.com/FoxComm/middlewarehouse/common/db/config"
 	"github.com/FoxComm/middlewarehouse/common/db/tasks"
 	"github.com/FoxComm/middlewarehouse/models"
-
 	"github.com/FoxComm/middlewarehouse/repositories"
+
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -42,19 +43,17 @@ func (suite *InventoryServiceTestSuite) createStockItem(sku string, qty int) (*m
 
 	if qty > 0 {
 		units := []*models.StockItemUnit{}
-		typeId := models.StockItemTypes().Sellable
-
 		for i := 0; i < qty; i++ {
 			item := &models.StockItemUnit{
 				StockItemID: stockItem.ID,
 				UnitCost:    500,
-				TypeID:      typeId,
+				TypeID:      models.Sellable,
 				Status:      "onHand",
 			}
 			units = append(units, item)
 		}
 
-		err := suite.service.IncrementStockItemUnits(stockItem.ID, typeId, units)
+		err := suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, units)
 		if err != nil {
 			return nil, err
 		}
@@ -90,10 +89,9 @@ func (suite *InventoryServiceTestSuite) SetupSuite() {
 	summaryRepository := repositories.NewSummaryRepository(suite.db)
 	stockItemRepository := repositories.NewStockItemRepository(suite.db)
 	unitRepository := repositories.NewStockItemUnitRepository(suite.db)
-	txnr := repositories.NewDBTransactioner(suite.db)
 
-	summaryService := NewSummaryService(summaryRepository, stockItemRepository, txnr)
-	suite.service = NewInventoryService(stockItemRepository, unitRepository, summaryService, txnr)
+	summaryService := NewSummaryService(summaryRepository, stockItemRepository)
+	suite.service = NewInventoryService(stockItemRepository, unitRepository, summaryService)
 }
 
 func (suite *InventoryServiceTestSuite) SetupTest() {
@@ -103,6 +101,7 @@ func (suite *InventoryServiceTestSuite) SetupTest() {
 		"stock_item_units",
 		"stock_item_summaries",
 		"stock_locations",
+		"inventory_search_view",
 	})
 
 	suite.createStockLocation()
@@ -116,7 +115,12 @@ func (suite *InventoryServiceTestSuite) Test_CreateStockItem() {
 }
 
 func (suite *InventoryServiceTestSuite) Test_CreateStockItem_SummaryCreation() {
-	resp, err := suite.createStockItem("TEST-CREATION", 0)
+
+	stockItem := &models.StockItem{StockLocationID: 1, SKU: "TEST-SUMMARY-CREATED"}
+	resp, err := suite.service.CreateStockItem(stockItem)
+
+	// workaround for summary goroutines
+	time.Sleep(10 * time.Millisecond)
 
 	summary := []*models.StockItemSummary{}
 	err = suite.db.Where("stock_item_id = ?", resp.ID).Find(&summary).Error
@@ -161,7 +165,7 @@ func (suite *InventoryServiceTestSuite) Test_IncrementStockItemUnits_MultipleIte
 func (suite *InventoryServiceTestSuite) Test_DecrementStockItemUnits() {
 	resp, err := suite.createStockItem("TEST-DECREMENT", 10)
 
-	err = suite.service.DecrementStockItemUnits(resp.ID, models.StockItemTypes().Sellable, 7)
+	err = suite.service.DecrementStockItemUnits(resp.ID, models.Sellable, 7)
 	suite.assert.Nil(err)
 
 	var units []models.StockItemUnit
@@ -183,6 +187,9 @@ func (suite *InventoryServiceTestSuite) Test_ReserveItems_SingleSKU() {
 	err = suite.db.Where("ref_num = ?", refNum).Find(&units).Error
 	suite.assert.Nil(err)
 	suite.assert.Equal(1, len(units))
+
+	// workaround for summary goroutines
+	time.Sleep(10 * time.Millisecond)
 
 	// check if StockItemSummary.Reserved got updated for updated StockItem
 	var summary models.StockItemSummary
@@ -268,6 +275,9 @@ func (suite *InventoryServiceTestSuite) Test_ReleaseItems_MultipleSKUsSummary() 
 
 	suite.service.ReserveItems(refNum, skus)
 
+	// workaround for summary goroutines
+	time.Sleep(10 * time.Millisecond)
+
 	var summary1 models.StockItemSummary
 	suite.db.Where("stock_item_id = ?", resp1.ID).First(&summary1)
 	suite.assert.Equal(skus[sku1], summary1.OnHold)
@@ -285,6 +295,9 @@ func (suite *InventoryServiceTestSuite) Test_ReleaseItems_SubsequentSummary() {
 
 	suite.service.ReserveItems("BR10001", skus)
 
+	// workaround for summary goroutines
+	time.Sleep(10 * time.Millisecond)
+
 	var summary models.StockItemSummary
 	suite.db.Where("stock_item_id = ?", resp.ID).First(&summary)
 	suite.assert.Equal(skus[sku], summary.OnHold)
@@ -292,6 +305,9 @@ func (suite *InventoryServiceTestSuite) Test_ReleaseItems_SubsequentSummary() {
 	skus[sku] = 5
 
 	suite.service.ReserveItems("BR10002", skus)
+
+	// workaround for summary goroutines
+	time.Sleep(10 * time.Millisecond)
 
 	suite.db.Where("stock_item_id = ?", resp.ID).First(&summary)
 	suite.assert.Equal(8, summary.OnHold)
@@ -323,20 +339,25 @@ func (suite *InventoryServiceTestSuite) Test_ReleaseItems_Single() {
 }
 
 func (suite *InventoryServiceTestSuite) Test_ReleaseItems_Summary() {
-	suite.assert.Nil(nil)
 	skus := []string{"TEST-UNRESERVATION-A"}
 	refNum := "BR10001"
 	reservedCount := 1
 	err := suite.createReservation(skus, reservedCount, refNum)
 	suite.assert.Nil(err)
 
+	// workaround for summary goroutines
+	time.Sleep(10 * time.Millisecond)
+
 	var summary models.StockItemSummary
-	suite.db.Where("type_id = ?", models.StockItemTypes().Sellable).First(&summary)
+	suite.db.Where("type_id = ?", models.Sellable).First(&summary)
 
 	suite.assert.Equal(reservedCount, summary.OnHold, "One stock item unit should be onHold")
 
 	suite.service.ReleaseItems(refNum)
 
-	suite.db.Where("type_id = ?", models.StockItemTypes().Sellable).First(&summary)
+	// workaround for summary goroutines
+	time.Sleep(10 * time.Millisecond)
+
+	suite.db.Where("type_id = ?", models.Sellable).First(&summary)
 	suite.assert.Equal(0, summary.OnHold, "No stock item units should be onHold")
 }

@@ -43,8 +43,6 @@ func (suite *stockLocationModelTestSuite) Test_NewStockLocationFromPayload() {
 
 	model := NewStockLocationFromPayload(payload)
 
-	println("Test_NewStockLocationFromPayload")
-
 	suite.assert.Equal(name, model.Name)
 	suite.assert.Equal(locationType, model.Type)
 	suite.assert.Equal(addressName, model.Address.Name)

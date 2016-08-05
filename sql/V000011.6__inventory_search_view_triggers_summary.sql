@@ -8,21 +8,26 @@ begin
     skuCode := (select si.sku from stock_items si where si.id = new.stock_item_id);
     type := (select st.type from stock_item_types st where st.id = new.type_id);
 
-    stock_item := (select json_build_object(
-        'id', si.id,
-        'sku', si.sku,
-        'defaultUnitCost', si.default_unit_cost
-    )::jsonb from stock_items as si
-    where (new.stock_item_id = si.id));
+    stock_item := (
+        select json_build_object(
+            'id', si.id,
+            'sku', si.sku,
+            'defaultUnitCost', si.default_unit_cost
+        )::jsonb
+        from stock_items as si
+        where (new.stock_item_id = si.id)
+    );
 
-    stock_location := (select json_build_object(
-        'id', sl.id,
-        'name', sl.name,
-        'type', sl.type
-    )::jsonb as stock_location
-    from stock_items as si
-    left join stock_locations sl ON sl.id = si.stock_location_id
-    where (new.stock_item_id = sl.id));
+    stock_location := (
+        select json_build_object(
+            'id', sl.id,
+            'name', sl.name,
+            'type', sl.type
+        )::jsonb as stock_location
+        from stock_items as si
+        left join stock_locations sl ON sl.id = si.stock_location_id
+        where (new.stock_item_id = si.id)
+    );
 
     insert into inventory_search_view select distinct on (new.id)
         -- summary

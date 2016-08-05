@@ -16,20 +16,12 @@ type ISummaryRepository interface {
 
 	GetSummaryItemByType(stockItemId uint, typeId uint) (*models.StockItemSummary, error)
 
-	CreateStockItemSummary(stockItemId uint, typeId uint, dbContext *gorm.DB) error
-	UpdateStockItemSummary(summary *models.StockItemSummary, dbContext *gorm.DB) error
+	CreateStockItemSummary(summary []*models.StockItemSummary) error
+	UpdateStockItemSummary(summary *models.StockItemSummary) error
 }
 
 func NewSummaryRepository(db *gorm.DB) ISummaryRepository {
 	return &summaryRepository{db}
-}
-
-func (repository *summaryRepository) resolveDb(db *gorm.DB) *gorm.DB {
-	if db != nil {
-		return db
-	} else {
-		return repository.db
-	}
 }
 
 func (repository *summaryRepository) GetSummary() ([]*models.StockItemSummary, error) {
@@ -72,15 +64,19 @@ func (repository *summaryRepository) GetSummaryItemByType(stockItemId uint, type
 	return summary, result.Error
 }
 
-func (repository *summaryRepository) CreateStockItemSummary(stockItemId uint, typeId uint, dbContext *gorm.DB) error {
-	db := repository.resolveDb(dbContext)
-	summary := models.StockItemSummary{StockItemID: stockItemId, TypeID: typeId}
+func (repository *summaryRepository) CreateStockItemSummary(summary []*models.StockItemSummary) error {
+	txn := repository.db.Begin()
 
-	return db.Create(&summary).Error
+	for _, item := range summary {
+		if err := txn.Create(item).Error; err != nil {
+			txn.Rollback()
+			return err
+		}
+	}
+
+	return txn.Commit().Error
 }
 
-func (repository *summaryRepository) UpdateStockItemSummary(summary *models.StockItemSummary, dbContext *gorm.DB) error {
-	db := repository.resolveDb(dbContext)
-
-	return db.Save(summary).Error
+func (repository *summaryRepository) UpdateStockItemSummary(summary *models.StockItemSummary) error {
+	return repository.db.Save(summary).Error
 }

@@ -15,32 +15,22 @@ type stockItemUnitRepository struct {
 
 type IStockItemUnitRepository interface {
 	OnHandStockItemUnits(stockItemID uint, typeId uint, count int) ([]uint, error)
-	SetUnitsInOrder(refNum string, ids []uint, dbContext *gorm.DB) (int, error)
-	UnsetUnitsInOrder(refNum string, dbContext *gorm.DB) (int, error)
+	SetUnitsInOrder(refNum string, ids []uint) (int, error)
+	UnsetUnitsInOrder(refNum string) (int, error)
 
 	GetReleaseQtyByRefNum(refNum string) ([]*models.Release, error)
 
-	CreateUnits(units []*models.StockItemUnit, dbContext *gorm.DB) error
-	DeleteUnits(ids []uint, dbContext *gorm.DB) error
+	CreateUnits(units []*models.StockItemUnit) error
+	DeleteUnits(ids []uint) error
 }
 
 func NewStockItemUnitRepository(db *gorm.DB) IStockItemUnitRepository {
 	return &stockItemUnitRepository{db}
 }
 
-func (repository *stockItemUnitRepository) resolveDb(db *gorm.DB) *gorm.DB {
-	if db != nil {
-		return db
-	} else {
-		return repository.db
-	}
-}
-
-func (repository *stockItemUnitRepository) CreateUnits(units []*models.StockItemUnit, dbContext *gorm.DB) error {
-	db := repository.resolveDb(dbContext)
-
+func (repository *stockItemUnitRepository) CreateUnits(units []*models.StockItemUnit) error {
 	for _, v := range units {
-		if err := db.Create(v).Error; err != nil {
+		if err := repository.db.Create(v).Error; err != nil {
 			return err
 		}
 	}
@@ -48,10 +38,8 @@ func (repository *stockItemUnitRepository) CreateUnits(units []*models.StockItem
 	return nil
 }
 
-func (repository *stockItemUnitRepository) DeleteUnits(ids []uint, dbContext *gorm.DB) error {
-	db := repository.resolveDb(dbContext)
-
-	return db.Delete(models.StockItemUnit{}, "id in (?)", ids).Error
+func (repository *stockItemUnitRepository) DeleteUnits(ids []uint) error {
+	return repository.db.Delete(models.StockItemUnit{}, "id in (?)", ids).Error
 }
 
 func (repository *stockItemUnitRepository) OnHandStockItemUnits(stockItemID uint, typeId uint, count int) ([]uint, error) {
@@ -79,29 +67,25 @@ func (repository *stockItemUnitRepository) OnHandStockItemUnits(stockItemID uint
 	return ids, nil
 }
 
-func (repository *stockItemUnitRepository) SetUnitsInOrder(refNum string, ids []uint, dbContext *gorm.DB) (int, error) {
-	db := repository.resolveDb(dbContext)
-
+func (repository *stockItemUnitRepository) SetUnitsInOrder(refNum string, ids []uint) (int, error) {
 	updateWith := models.StockItemUnit{
 		RefNum: sql.NullString{String: refNum, Valid: true},
 		Status: "onHold",
 	}
 
-	result := db.Model(models.StockItemUnit{}).Where("id in (?)", ids).Updates(updateWith)
+	result := repository.db.Model(models.StockItemUnit{}).Where("id in (?)", ids).Updates(updateWith)
 
 	return int(result.RowsAffected), result.Error
 }
 
-func (repository *stockItemUnitRepository) UnsetUnitsInOrder(refNum string, dbContext *gorm.DB) (int, error) {
-	db := repository.resolveDb(dbContext)
-
+func (repository *stockItemUnitRepository) UnsetUnitsInOrder(refNum string) (int, error) {
 	// gorm does not update empty fields when updating with struct, so use map here
 	updateWith := map[string]interface{}{
 		"ref_num": sql.NullString{String: "", Valid: false},
 		"status":  "onHand",
 	}
 
-	result := db.Model(&models.StockItemUnit{}).Where("ref_num = ?", refNum).Updates(updateWith)
+	result := repository.db.Model(&models.StockItemUnit{}).Where("ref_num = ?", refNum).Updates(updateWith)
 
 	return int(result.RowsAffected), result.Error
 }

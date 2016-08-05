@@ -9,7 +9,6 @@ import (
 type summaryService struct {
 	summaryRepo   repositories.ISummaryRepository
 	stockItemRepo repositories.IStockItemRepository
-	txnr          repositories.ITransactioner
 }
 
 type ISummaryService interface {
@@ -20,8 +19,8 @@ type ISummaryService interface {
 	GetSummaryBySKU(sku string) ([]*models.StockItemSummary, error)
 }
 
-func NewSummaryService(summaryRepo repositories.ISummaryRepository, stockItemRepo repositories.IStockItemRepository, txnr repositories.ITransactioner) ISummaryService {
-	return &summaryService{summaryRepo, stockItemRepo, txnr}
+func NewSummaryService(summaryRepo repositories.ISummaryRepository, stockItemRepo repositories.IStockItemRepository) ISummaryService {
+	return &summaryService{summaryRepo, stockItemRepo}
 }
 
 func (service *summaryService) GetSummary() ([]*models.StockItemSummary, error) {
@@ -33,27 +32,14 @@ func (service *summaryService) GetSummaryBySKU(sku string) ([]*models.StockItemS
 }
 
 func (service *summaryService) CreateStockItemSummary(stockItemId uint) error {
-	txn := service.txnr.Begin()
-	types := models.StockItemTypes()
-
-	if err := service.summaryRepo.CreateStockItemSummary(stockItemId, types.Sellable, txn); err != nil {
-		txn.Rollback()
-		return err
-	}
-	if err := service.summaryRepo.CreateStockItemSummary(stockItemId, types.NonSellable, txn); err != nil {
-		txn.Rollback()
-		return err
-	}
-	if err := service.summaryRepo.CreateStockItemSummary(stockItemId, types.Backorder, txn); err != nil {
-		txn.Rollback()
-		return err
-	}
-	if err := service.summaryRepo.CreateStockItemSummary(stockItemId, types.Preorder, txn); err != nil {
-		txn.Rollback()
-		return err
+	summary := []*models.StockItemSummary{
+		{StockItemID: stockItemId, TypeID: models.Sellable},
+		{StockItemID: stockItemId, TypeID: models.NonSellable},
+		{StockItemID: stockItemId, TypeID: models.Backorder},
+		{StockItemID: stockItemId, TypeID: models.Preorder},
 	}
 
-	return txn.Commit().Error
+	return service.summaryRepo.CreateStockItemSummary(summary)
 }
 
 func (service *summaryService) UpdateStockItemSummary(stockItemId, typeId uint, qty int, status models.StatusChange) error {
@@ -77,7 +63,7 @@ func (service *summaryService) UpdateStockItemSummary(stockItemId, typeId uint, 
 	summary = updateAfs(summary, status, qty)
 	summary = updateAfsCost(summary, stockItem)
 
-	return service.summaryRepo.UpdateStockItemSummary(summary, nil)
+	return service.summaryRepo.UpdateStockItemSummary(summary)
 }
 
 func updateStatus(summary *models.StockItemSummary, status string, qty int) *models.StockItemSummary {

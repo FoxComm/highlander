@@ -1,32 +1,18 @@
 package models
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type itemType struct {
-	Sellable    uint
-	NonSellable uint
-	Backorder   uint
-	Preorder    uint
 }
 
-var types *itemType
-
-func initStockItemTypes() {
-	types = &itemType{
-		Sellable:    1,
-		NonSellable: 2,
-		Backorder:   3,
-		Preorder:    4,
-	}
-}
-
-func StockItemTypes() itemType {
-	if types == nil {
-		initStockItemTypes()
-	}
-
-	return *types
-}
+const (
+	Sellable    uint = 1
+	NonSellable uint = 2
+	Backorder   uint = 3
+	Preorder    uint = 4
+)
 
 func ValidStockItemTypes() []string {
 	return []string{"Sellable", "Non-sellable", "Backorder", "Preorder"}
@@ -47,18 +33,16 @@ func StockItemTypeToString(id uint) string {
 }
 
 func StockItemTypeFromString(strType string) uint {
-	types := StockItemTypes()
-
 	switch strType {
 	case "Sellable":
-		return types.Sellable
+		return Sellable
 	case "Non-sellable":
-		return types.NonSellable
+		return NonSellable
 	case "Backorder":
-		return types.Backorder
+		return Backorder
 	case "Preorder":
-		return types.Preorder
+		return Preorder
 	default:
-		return types.Sellable
+		return Sellable
 	}
 }

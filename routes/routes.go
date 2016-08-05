@@ -17,11 +17,9 @@ func GetRoutes(db *gorm.DB) map[string]controllers.IController {
 	stockLocationRepository := repositories.NewStockLocationRepository(db)
 	shippingMethodRepository := repositories.NewShippingMethodRepository(db)
 
-	transactioner := repositories.NewDBTransactioner(db)
-
 	//services
-	summaryService := services.NewSummaryService(summaryRepository, stockItemRepository, transactioner)
-	inventoryService := services.NewInventoryService(stockItemRepository, unitRepository, summaryService, transactioner)
+	summaryService := services.NewSummaryService(summaryRepository, stockItemRepository)
+	inventoryService := services.NewInventoryService(stockItemRepository, unitRepository, summaryService)
 	carrierService := services.NewCarrierService(carrierRepository)
 	stockLocationService := services.NewStockLocationService(stockLocationRepository)
 	shippingMethodService := services.NewShippingMethodService(shippingMethodRepository)

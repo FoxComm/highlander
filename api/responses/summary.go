@@ -20,7 +20,7 @@ type Summary struct {
 	Summary []stockItemSummary `json:"summary"`
 }
 
-func SummaryFromModel(summaries []*models.StockItemSummary) *Summary {
+func NewSummaryFromModel(summaries []*models.StockItemSummary) *Summary {
 	result := Summary{
 		Summary: make([]stockItemSummary, len(summaries)),
 	}

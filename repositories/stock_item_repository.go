@@ -23,14 +23,6 @@ func NewStockItemRepository(db *gorm.DB) IStockItemRepository {
 	return &stockItemRepository{db}
 }
 
-func (repository *stockItemRepository) resolveDb(db *gorm.DB) *gorm.DB {
-	if db != nil {
-		return db
-	} else {
-		return repository.db
-	}
-}
-
 func (repository *stockItemRepository) GetStockItems() ([]*models.StockItem, error) {
 	items := []*models.StockItem{}
 	err := repository.db.Find(&items).Error

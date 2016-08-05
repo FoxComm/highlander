@@ -11,6 +11,7 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
+	"time"
 )
 
 type summaryServiceTestSuite struct {
@@ -35,12 +36,11 @@ func (suite *summaryServiceTestSuite) SetupSuite() {
 	summaryRepository := repositories.NewSummaryRepository(suite.db)
 	stockItemRepository := repositories.NewStockItemRepository(suite.db)
 	unitRepository := repositories.NewStockItemUnitRepository(suite.db)
-	txnr := repositories.NewDBTransactioner(suite.db)
 
-	suite.service = NewSummaryService(summaryRepository, stockItemRepository, txnr)
-	suite.inventoryService = NewInventoryService(stockItemRepository, unitRepository, suite.service, txnr)
+	suite.service = NewSummaryService(summaryRepository, stockItemRepository)
+	suite.inventoryService = NewInventoryService(stockItemRepository, unitRepository, suite.service)
 	suite.assert = assert.New(suite.T())
-	suite.typeId = models.StockItemTypes().Sellable
+	suite.typeId = models.Sellable
 	suite.onHand = 10
 	suite.unitCost = 5000
 }
@@ -49,25 +49,31 @@ func (suite *summaryServiceTestSuite) SetupTest() {
 	tasks.TruncateTables([]string{
 		"stock_items",
 		"stock_item_summaries",
+		"stock_locations",
+		"inventory_search_view",
 	})
+
+	stockLocationService := NewStockLocationService(repositories.NewStockLocationRepository(suite.db))
+	stockLocationService.CreateLocation(&models.StockLocation{Type: "Warehouse", Name: "TEST-LOCATION"})
 
 	stockItem := &models.StockItem{StockLocationID: 1, SKU: "TEST-DEFAULT", DefaultUnitCost: suite.unitCost}
 	suite.si, _ = suite.inventoryService.CreateStockItem(stockItem)
 
 	units := []*models.StockItemUnit{}
-	typeId := models.StockItemTypes().Sellable
 
 	for i := 0; i < suite.onHand; i++ {
 		item := &models.StockItemUnit{
 			StockItemID: stockItem.ID,
 			UnitCost:    500,
-			TypeID:      typeId,
+			TypeID:      models.Sellable,
 			Status:      "onHand",
 		}
 		units = append(units, item)
 	}
 
-	suite.inventoryService.IncrementStockItemUnits(suite.si.ID, typeId, units)
+	suite.inventoryService.IncrementStockItemUnits(suite.si.ID, models.Sellable, units)
+
+	time.Sleep(10 * time.Millisecond)
 }
 
 func (suite *summaryServiceTestSuite) Test_Increment_OnHand() {
