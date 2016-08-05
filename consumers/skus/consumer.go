@@ -1,7 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
+	"log"
+	"net/http"
 
 	"github.com/FoxComm/metamorphosis"
 )
@@ -32,6 +35,28 @@ func (consumer *Consumer) handler(m metamorphosis.AvroMessage) error {
 		return err
 	}
 
+	url := "http://localhost:9292/stock-items"
+	jsonStr := []byte(`{"sku": "TEST-FROM-CONSUMER", "stock_location_id": 1, "default_unit_cost": 999}`)
+
 	fmt.Printf("%v\n", sku)
+
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonStr))
+	if err != nil {
+		return err
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatalf("Error creating stock_item with error: %s", err.Error())
+		return nil
+	}
+
+	defer resp.Body.Close()
+
+	fmt.Println("response status:", resp.Status)
+
 	return nil
 }
