@@ -31,7 +31,7 @@ import { transitionTo } from 'browserHistory';
 import {
   setSkuAttribute,
 } from '../../paragons/product';
-import { SAVE_COMBO_ITEMS } from 'paragons/common';
+import { SAVE_COMBO, SAVE_COMBO_ITEMS } from 'paragons/common';
 
 // types
 import type { Product } from 'paragons/product';
@@ -206,20 +206,20 @@ class ProductPage extends Component {
 
     mayBeSaved.then(() => {
       switch (value) {
-        case 'save_and_new':
+        case SAVE_COMBO.NEW:
           transitionTo('product-details', {
             productId: 'new',
             context: this.state.context,
           });
           this.props.actions.productNew();
           break;
-        case 'save_and_duplicate':
+        case SAVE_COMBO.DUPLICATE:
           transitionTo('product-details', {
             productId: 'new',
             context: this.state.context,
           });
           break;
-        case 'save_and_close':
+        case SAVE_COMBO.CLOSE:
           transitionTo('products');
           break;
       }

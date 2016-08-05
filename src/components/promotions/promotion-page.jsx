@@ -22,7 +22,7 @@ import Error from '../errors/error';
 // actions
 import * as PromotionActions from '../../modules/promotions/details';
 
-import { SAVE_COMBO_ITEMS } from 'paragons/common';
+import { SAVE_COMBO, SAVE_COMBO_ITEMS } from 'paragons/common';
 
 type Actions = {
   fetchPromotion: Function,
@@ -147,13 +147,13 @@ class PromotionPage extends Component {
 
     mayBeSaved.then(() => {
       switch (value) {
-        case 'save_and_new':
+        case SAVE_COMBO.NEW:
           actions.promotionsNew();
           break;
-        case 'save_and_duplicate':
+        case SAVE_COMBO.DUPLICATE:
           dispatch(push(`/promotions/new`));
           break;
-        case 'save_and_close':
+        case SAVE_COMBO.CLOSE:
           dispatch(push(`/promotions`));
           break;
       }

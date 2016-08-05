@@ -27,9 +27,17 @@ export function activeStatus(object: Object): string {
   return isActive(activeFrom, activeTo) ? 'Active' : 'Inactive';
 }
 
-export const SAVE_COMBO_ITEMS = [
-  ['save_and_new', 'Save and Create New'],
-  ['save_and_duplicate', 'Save and Duplicate'],
-  ['save_and_close', 'Save and Close'],
+export const SAVE_COMBO = {
+  NEW: 'save_and_new',
+  DUPLICATE: 'save_and_duplicate',
+  CLOSE: 'save_and_close',
+};
+
+type SaveComboItems = Array<Array<string>>;
+
+export const SAVE_COMBO_ITEMS: SaveComboItems = [
+  [SAVE_COMBO.NEW, 'Save and Create New'],
+  [SAVE_COMBO.DUPLICATE, 'Save and Duplicate'],
+  [SAVE_COMBO.CLOSE, 'Save and Close'],
 ];
 
