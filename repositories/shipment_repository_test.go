@@ -133,6 +133,38 @@ func (suite *ShipmentRepositoryTestSuite) Test_UpdateShipment_Found_ReturnsUpdat
 	suite.assert.Nil(suite.mock.ExpectationsWereMet())
 }
 
+func (suite *ShipmentRepositoryTestSuite) Test_DeleteShipment_NotFound_ReturnsNotFoundError() {
+	//arrange
+	suite.mock.
+		ExpectExec(`UPDATE "shipments" SET deleted_at=\? .+ \(\("id" = \?\)\)`).
+		WillReturnResult(sqlmock.NewResult(1, 0))
+
+	//act
+	err := suite.repository.DeleteShipment(1)
+
+	//assert
+	suite.assert.Equal(gorm.ErrRecordNotFound, err)
+
+	//make sure that all expectations were met
+	suite.assert.Nil(suite.mock.ExpectationsWereMet())
+}
+
+func (suite *ShipmentRepositoryTestSuite) Test_DeleteShipment_Found_ReturnsNoError() {
+	//arrange
+	suite.mock.
+		ExpectExec(`UPDATE "shipments" SET deleted_at=\? .+ \(\("id" = \?\)\)`).
+		WillReturnResult(sqlmock.NewResult(1, 1))
+
+	//act
+	err := suite.repository.DeleteShipment(1)
+
+	//assert
+	suite.assert.Nil(err)
+
+	//make sure that all expectations were met
+	suite.assert.Nil(suite.mock.ExpectationsWereMet())
+}
+
 func (suite *ShipmentRepositoryTestSuite) getTestShipment1() *models.Shipment {
 	return &models.Shipment{gormfox.Base{ID: uint(1)}, uint(1), "BR1002", "pending",
 		sql.NullString{}, sql.NullString{}, sql.NullString{}, uint(1), sql.NullString{}}

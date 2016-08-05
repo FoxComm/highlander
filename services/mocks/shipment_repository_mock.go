@@ -39,3 +39,13 @@ func (service *ShipmentRepositoryMock) UpdateShipment(shipment *models.Shipment)
 
 	return nil, args.Error(1)
 }
+
+func (service *ShipmentRepositoryMock) DeleteShipment(id uint) error {
+	args := service.Called(id)
+
+	if args.Bool(0) {
+		return nil
+	}
+
+	return args.Error(1)
+}

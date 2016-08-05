@@ -10,6 +10,7 @@ type IShipmentRepository interface {
 	GetShipmentsByReferenceNumber(referenceNumber string) ([]*models.Shipment, error)
 	CreateShipment(shipment *models.Shipment) (*models.Shipment, error)
 	UpdateShipment(shipment *models.Shipment) (*models.Shipment, error)
+	DeleteShipment(id uint) error
 }
 
 type shipmentRepository struct {
@@ -52,6 +53,20 @@ func (repository *shipmentRepository) UpdateShipment(shipment *models.Shipment) 
 	}
 
 	return repository.getShipmentByID(shipment.ID)
+}
+
+func (repository *shipmentRepository) DeleteShipment(id uint) error {
+	res := repository.db.Delete(&models.Shipment{}, id)
+
+	if res.Error != nil {
+		return res.Error
+	}
+
+	if res.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+
+	return nil
 }
 
 func (repository *shipmentRepository) getShipmentByID(id uint) (*models.Shipment, error) {
