@@ -46,8 +46,6 @@ case class CreditCard(id: Int = 0,
 
   import Validation._
 
-  def instance: CreditCard = this
-
   // must be implemented for Addressable
   def name: String                      = addressName
   def phoneNumber: Option[String]       = None

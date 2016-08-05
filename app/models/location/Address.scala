@@ -29,8 +29,8 @@ case class Address(id: Int = 0,
     with Addressable[Address]
     with Validation[Address] {
 
-  def instance: Address = { this }
-  def zipLens           = lens[Address].zip
+  def zipLens = lens[Address].zip
+
   override def sanitize = super.sanitize(this)
   override def validate = super.validate
 
