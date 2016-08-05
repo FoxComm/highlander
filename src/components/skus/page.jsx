@@ -24,6 +24,7 @@ import * as ArchiveActions from '../../modules/skus/archive';
 
 //helpers
 import { transitionTo } from 'browserHistory';
+import { isArchived } from 'paragons/common';
 import { SAVE_COMBO, SAVE_COMBO_ITEMS } from 'paragons/common';
 
 // types
@@ -32,7 +33,7 @@ import type { Sku } from '../../modules/skus/details';
 type Props = {
   actions: {
     newSku: () => void,
-    fetchSku: (code: string, context?: string) => void,
+    fetchSku: (code: string, context?: string) => Promise,
     createSku: (sku: Sku, context?: string) => void,
     updateSku: (sku: Sku, context?: string) => void,
   },
@@ -59,7 +60,10 @@ class SkuPage extends Component {
     if (this.isNew) {
       this.props.actions.newSku();
     } else {
-      this.props.actions.fetchSku(this.entityId);
+      this.props.actions.fetchSku(this.entityId)
+        .then(({payload}) => {
+          if (isArchived(payload)) transitionTo('skus');
+        });
     }
   }
 

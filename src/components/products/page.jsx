@@ -27,6 +27,7 @@ import ArchiveActionsSection from '../archive-actions/archive-actions';
 import styles from './page.css';
 
 // helpers
+import { isArchived } from 'paragons/common';
 import { transitionTo } from 'browserHistory';
 import {
   setSkuAttribute,
@@ -39,7 +40,7 @@ import type { Product } from 'paragons/product';
 type Props = {
   actions: {
     createProduct: (product: Product) => void,
-    fetchProduct: (productId: string, context: string) => void,
+    fetchProduct: (productId: string, context: string) => Promise,
     productNew: () => void,
     updateProduct: (product: Product, context: string) => void,
   },
@@ -85,7 +86,10 @@ class ProductPage extends Component {
     if (this.isNew) {
       this.props.actions.productNew();
     } else {
-      this.props.actions.fetchProduct(this.props.params.productId, this.props.params.context);
+      this.props.actions.fetchProduct(this.props.params.productId, this.props.params.context)
+        .then(({payload}) => {
+          if (isArchived(payload)) transitionTo('products');
+        });
     }
   }
 

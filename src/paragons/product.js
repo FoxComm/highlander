@@ -18,8 +18,10 @@ import type { Attribute, Attributes } from './object';
 // exported types
 export type Product = {
   id: ?number,
+  productId: ?number,
   attributes: Attributes,
   skus: Array<Sku>,
+  context: string,
 };
 
 export type Variant = {
@@ -38,8 +40,10 @@ export type VariantValue = {
 export function createEmptyProduct(): Product {
   const product = {
     id: null,
+    productId: null,
     attributes: {},
     skus: [],
+    context: '',
   };
 
   return configureProduct(addEmptySku(product));
