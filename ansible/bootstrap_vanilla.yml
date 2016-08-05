@@ -45,7 +45,7 @@
     - db
   vars:
     user: '{{ansible_ssh_user}}'
-    seeds_cmd: utils.seeds.Seeds seed --seedDemo 1
+    seeds_cmd: utils.seeds.Seeds seed
   vars_prompt:
     - name: "hostname"
       prompt: "Enter a hostname with a database to bootstrap"
