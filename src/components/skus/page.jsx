@@ -12,7 +12,8 @@ import { connect } from 'react-redux';
 // components
 import { Link, IndexLink } from '../link';
 import { PageTitle } from '../section-title';
-import { PrimaryButton } from '../common/buttons';
+import { Button } from '../common/buttons';
+import ButtonWithMenu from '../common/button-with-menu';
 import LocalNav from '../local-nav/local-nav';
 import WaitAnimation from '../common/wait-animation';
 import ArchiveActionsSection from '../archive-actions/archive-actions';
@@ -23,6 +24,7 @@ import * as ArchiveActions from '../../modules/skus/archive';
 
 //helpers
 import { transitionTo } from 'browserHistory';
+import { SAVE_COMBO, SAVE_COMBO_ITEMS } from 'paragons/common';
 
 // types
 import type { Sku } from '../../modules/skus/details';
@@ -91,22 +93,52 @@ class SkuPage extends Component {
     this.setState({ sku });
   }
 
-  @autobind
-  handleSubmit(): void {
+  save() {
+    let mayBeSaved = false;
+
     if (this.state.sku) {
       if (this.isNew) {
-        this.props.actions.createSku(this.state.sku);
+        mayBeSaved = this.props.actions.createSku(this.state.sku);
       } else {
-        this.props.actions.updateSku(this.state.sku);
+        mayBeSaved = this.props.actions.updateSku(this.state.sku);
       }
     }
+
+    return mayBeSaved;
+  }
+
+  @autobind
+  handleSubmit() {
+    this.save();
+  }
+
+  @autobind
+  handleSelectSaving(value) {
+    const mayBeSaved = this.save();
+    if (!mayBeSaved) return;
+
+    mayBeSaved.then(() => {
+      switch (value) {
+        case SAVE_COMBO.NEW:
+          //transitionTo('sku-details', { skuCode: 'new' });
+          this.props.actions.newSku();
+          break;
+        case SAVE_COMBO.DUPLICATE:
+          transitionTo('sku-details', { skuCode: 'new' });
+          break;
+        case SAVE_COMBO.CLOSE:
+          transitionTo('skus');
+          break;
+      }
+    });
   }
 
   renderArchiveActions() {
     return(
-      <ArchiveActionsSection type="SKU"
-                             title={this.title}
-                             archive={this.archiveSku} />
+      <ArchiveActionsSection
+        type="SKU"
+        title={this.title}
+        archive={this.archiveSku} />
     );
   }
 
@@ -115,6 +147,11 @@ class SkuPage extends Component {
     this.props.archiveSku(this.code).then(() => {
       transitionTo('skus');
     });
+  }
+
+  @autobind
+  handleCancel(): void {
+    transitionTo('skus');
   }
 
   render(): Element {
@@ -133,14 +170,19 @@ class SkuPage extends Component {
     return (
       <div>
         <PageTitle title={this.title}>
-          <PrimaryButton
-            className="fc-product-details__save-button"
-            type="submit"
-            disabled={isUpdating}
+          <Button
+            type="button"
+            onClick={this.handleCancel} >
+            Cancel
+          </Button>
+          <ButtonWithMenu
+            title="Save"
+            menuPosition="right"
+            onPrimaryClick={this.handleSubmit}
+            onSelect={this.handleSelectSaving}
             isLoading={isUpdating}
-            onClick={this.handleSubmit}>
-            Save
-          </PrimaryButton>
+            items={SAVE_COMBO_ITEMS}
+          />
         </PageTitle>
         <LocalNav>
           <IndexLink to="sku-details" params={params}>Details</IndexLink>
