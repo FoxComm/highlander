@@ -27,3 +27,9 @@ export function activeStatus(object: Object): string {
   return isActive(activeFrom, activeTo) ? 'Active' : 'Inactive';
 }
 
+export const SAVE_COMBO_ITEMS = [
+  ['save_and_new', 'Save and Create New'],
+  ['save_and_duplicate', 'Save and Duplicate'],
+  ['save_and_close', 'Save and Close'],
+];
+

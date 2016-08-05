@@ -19,8 +19,10 @@ import ButtonWithMenu from '../common/button-with-menu';
 import { Button } from '../common/buttons';
 import Error from '../errors/error';
 
+// actions
 import * as PromotionActions from '../../modules/promotions/details';
 
+import { SAVE_COMBO_ITEMS } from 'paragons/common';
 
 type Actions = {
   fetchPromotion: Function,
@@ -199,11 +201,7 @@ class PromotionPage extends Component {
             onPrimaryClick={this.handleSubmit}
             onSelect={this.handleSelectSaving}
             isLoading={props.isSaving}
-            items={[
-              ['save_and_new', 'Save and Create New'],
-              ['save_and_duplicate', 'Save and Duplicate'],
-              ['save_and_close', 'Save and Close'],
-            ]}
+            items={SAVE_COMBO_ITEMS}
           />
         </PageTitle>
         <SubNav promotionId={this.entityId} />
