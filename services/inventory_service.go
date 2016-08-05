@@ -165,7 +165,6 @@ func (service *inventoryService) updateSummaryOnReserve(items []*models.StockIte
 func (service *inventoryService) updateSummaryOnRelease(unitsQty []*models.Release, unitType models.UnitType) error {
 	for _, item := range unitsQty {
 		statusShift := models.StatusChange{From: models.StatusOnHold, To: models.StatusOnHand}
-		println(item.StockItemID, unitType, item.Qty, statusShift.From, statusShift.To)
 
 		if err := service.summaryService.UpdateStockItemSummary(item.StockItemID, unitType, item.Qty, statusShift); err != nil {
 			return err

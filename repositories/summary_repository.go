@@ -27,12 +27,10 @@ func NewSummaryRepository(db *gorm.DB) ISummaryRepository {
 func (repository *summaryRepository) GetSummary() ([]*models.StockItemSummary, error) {
 	summary := []*models.StockItemSummary{}
 	err := repository.db.
-		Table("stock_item_summaries s").
-		Select("s.*, si.sku, sl.id as stock_location_id, sl.name as stock_location_name").
-		Joins("JOIN stock_items si ON si.id = s.stock_item_id").
-		Joins("JOIN stock_locations sl ON si.stock_location_id = sl.id").
+		Preload("StockItem").
+		Preload("StockItem.StockLocation").
 		Order("created_at").
-		Scan(&summary).
+		Find(&summary).
 		Error
 
 	return summary, err
@@ -41,13 +39,12 @@ func (repository *summaryRepository) GetSummary() ([]*models.StockItemSummary, e
 func (repository *summaryRepository) GetSummaryBySKU(sku string) ([]*models.StockItemSummary, error) {
 	summary := []*models.StockItemSummary{}
 	err := repository.db.
-		Table("stock_item_summaries s").
-		Select("s.*, si.sku, sl.id as stock_location_id, sl.name as stock_location_name").
-		Joins("JOIN stock_items si ON si.id = s.stock_item_id").
-		Joins("JOIN stock_locations sl ON si.stock_location_id = sl.id").
+		Preload("StockItem").
+		Preload("StockItem.StockLocation").
+		Joins("left join stock_items si ON stock_item_summaries.stock_item_id=si.id").
 		Where("si.sku = ?", sku).
 		Order("created_at").
-		Scan(&summary).
+		Find(&summary).
 		Error
 
 	if len(summary) == 0 {

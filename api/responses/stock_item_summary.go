@@ -1,19 +1,23 @@
 package responses
 
-import "github.com/FoxComm/middlewarehouse/models"
+import (
+	"time"
+
+	"github.com/FoxComm/middlewarehouse/models"
+)
 
 type stockItemSummary struct {
-	StockItemID       uint   `json:"stockItemId"`
-	SKU               string `json:"sku"`
-	StockLocationID   uint   `json:"stockLocationId"`
-	StockLocationName string `json:"stockLocationName"`
-	Type              string `json:"type"`
-	OnHand            int    `json:"onHand"`
-	OnHold            int    `json:"onHold"`
-	Reserved          int    `json:"reserved"`
-	Shipped           int    `json:"shipped"`
-	AFS               int    `json:"afs"`
-	AFSCost           int    `json:"afsCost"`
+	SKU           string         `json:"sku"`
+	StockItem     *StockItem     `json:"stockItem"`
+	StockLocation *StockLocation `json:"stockLocation"`
+	Type          string         `json:"type"`
+	OnHand        int            `json:"onHand"`
+	OnHold        int            `json:"onHold"`
+	Reserved      int            `json:"reserved"`
+	Shipped       int            `json:"shipped"`
+	AFS           int            `json:"afs"`
+	AFSCost       int            `json:"afsCost"`
+	CreatedAt     time.Time      `json:"createdAt"`
 }
 
 type StockItemSummary struct {
@@ -34,16 +38,16 @@ func NewSummaryFromModel(summaries []*models.StockItemSummary) *StockItemSummary
 
 func summaryFromModel(summary *models.StockItemSummary) stockItemSummary {
 	return stockItemSummary{
-		StockItemID:       summary.StockItemID,
-		SKU:               summary.SKU,
-		StockLocationID:   summary.StockLocationID,
-		StockLocationName: summary.StockLocationName,
-		Type:              string(summary.Type),
-		OnHand:            summary.OnHand,
-		OnHold:            summary.OnHold,
-		Reserved:          summary.Reserved,
-		Shipped:           summary.Shipped,
-		AFS:               summary.AFS,
-		AFSCost:           summary.AFSCost,
+		SKU:           summary.StockItem.SKU,
+		StockItem:     NewStockItemFromModel(&summary.StockItem),
+		StockLocation: NewStockLocationFromModel(&summary.StockItem.StockLocation),
+		Type:          string(summary.Type),
+		OnHand:        summary.OnHand,
+		OnHold:        summary.OnHold,
+		Reserved:      summary.Reserved,
+		Shipped:       summary.Shipped,
+		AFS:           summary.AFS,
+		AFSCost:       summary.AFSCost,
+		CreatedAt:     summary.CreatedAt,
 	}
 }

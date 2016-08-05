@@ -120,7 +120,7 @@ func (suite *InventoryServiceTestSuite) Test_CreateStockItem_SummaryCreation() {
 	resp, err := suite.service.CreateStockItem(stockItem)
 
 	// workaround for summary goroutines
-	time.Sleep(10 * time.Millisecond)
+	time.Sleep(100 * time.Millisecond)
 
 	summary := []*models.StockItemSummary{}
 	err = suite.db.Where("stock_item_id = ?", resp.ID).Find(&summary).Error
@@ -189,7 +189,7 @@ func (suite *InventoryServiceTestSuite) Test_ReserveItems_SingleSKU() {
 	suite.assert.Equal(1, len(units))
 
 	// workaround for summary goroutines
-	time.Sleep(10 * time.Millisecond)
+	time.Sleep(100 * time.Millisecond)
 
 	// check if StockItemSummary.Reserved got updated for updated StockItem
 	var summary models.StockItemSummary
@@ -276,7 +276,7 @@ func (suite *InventoryServiceTestSuite) Test_ReleaseItems_MultipleSKUsSummary() 
 	suite.service.ReserveItems(refNum, skus)
 
 	// workaround for summary goroutines
-	time.Sleep(10 * time.Millisecond)
+	time.Sleep(100 * time.Millisecond)
 
 	var summary1 models.StockItemSummary
 	suite.db.Where("stock_item_id = ?", resp1.ID).First(&summary1)
@@ -296,7 +296,7 @@ func (suite *InventoryServiceTestSuite) Test_ReleaseItems_SubsequentSummary() {
 	suite.service.ReserveItems("BR10001", skus)
 
 	// workaround for summary goroutines
-	time.Sleep(10 * time.Millisecond)
+	time.Sleep(100 * time.Millisecond)
 
 	var summary models.StockItemSummary
 	suite.db.Where("stock_item_id = ?", resp.ID).First(&summary)
@@ -307,7 +307,7 @@ func (suite *InventoryServiceTestSuite) Test_ReleaseItems_SubsequentSummary() {
 	suite.service.ReserveItems("BR10002", skus)
 
 	// workaround for summary goroutines
-	time.Sleep(10 * time.Millisecond)
+	time.Sleep(100 * time.Millisecond)
 
 	suite.db.Where("stock_item_id = ?", resp.ID).First(&summary)
 	suite.assert.Equal(8, summary.OnHold)
@@ -346,7 +346,7 @@ func (suite *InventoryServiceTestSuite) Test_ReleaseItems_Summary() {
 	suite.assert.Nil(err)
 
 	// workaround for summary goroutines
-	time.Sleep(10 * time.Millisecond)
+	time.Sleep(100 * time.Millisecond)
 
 	var summary models.StockItemSummary
 	suite.db.Where("type = ?", models.Sellable).First(&summary)
@@ -356,7 +356,7 @@ func (suite *InventoryServiceTestSuite) Test_ReleaseItems_Summary() {
 	suite.service.ReleaseItems(refNum)
 
 	// workaround for summary goroutines
-	time.Sleep(10 * time.Millisecond)
+	time.Sleep(100 * time.Millisecond)
 
 	suite.db.Where("type = ?", models.Sellable).First(&summary)
 	suite.assert.Equal(0, summary.OnHold, "No stock item units should be onHold")
