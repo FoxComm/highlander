@@ -1,14 +1,15 @@
 package repositories
 
 import (
+	"database/sql"
 	"database/sql/driver"
 	"testing"
+
 	"github.com/FoxComm/middlewarehouse/common/gormfox"
 	"github.com/FoxComm/middlewarehouse/models"
 
-	"database/sql"
 	"github.com/DATA-DOG/go-sqlmock"
-	//"github.com/jinzhu/gorm"
+	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -60,78 +61,77 @@ func (suite *ShipmentRepositoryTestSuite) Test_GetShipmentsByReferenceNumber_Fou
 	suite.assert.Nil(suite.mock.ExpectationsWereMet())
 }
 
-//
-//func (suite *ShipmentRepositoryTestSuite) Test_CreateShipment_ReturnsCreatedRecord() {
-//	//arrange
-//	shipment1 := suite.getTestShipment1()
-//	suite.mock.
-//		ExpectExec(`INSERT INTO "shipments"`).
-//		WillReturnResult(sqlmock.NewResult(1, 1))
-//	rows := sqlmock.
-//		NewRows(suite.getShipmentColumns()).
-//		AddRow(suite.getShipmentRow(shipment1)...)
-//	suite.mock.
-//		ExpectQuery(`SELECT .+ FROM "shipments" WHERE .+ \(\("id" = \?\)\) .+`).
-//		WithArgs(1).
-//		WillReturnRows(rows)
-//
-//	//act
-//	shipment, err := suite.repository.CreateShipment(shipment1)
-//
-//	//assert
-//	suite.assert.Nil(err)
-//	suite.assert.Equal(uint(1), shipment.ID)
-//	shipment1.CreatedAt = shipment.CreatedAt
-//	shipment1.UpdatedAt = shipment.UpdatedAt
-//	suite.assert.Equal(shipment1, shipment)
-//
-//	//make sure that all expectations were met
-//	suite.assert.Nil(suite.mock.ExpectationsWereMet())
-//}
-//
-//func (suite *ShipmentRepositoryTestSuite) Test_UpdateShipment_NotFound_ReturnsNotFoundError() {
-//	//arrange
-//	shipment1 := suite.getTestShipment1()
-//	suite.mock.
-//		ExpectExec(`UPDATE "shipments"`).
-//		WillReturnResult(sqlmock.NewResult(1, 0))
-//
-//	//act
-//	_, err := suite.repository.UpdateShipment(shipment1)
-//
-//	//assert
-//	suite.assert.Equal(gorm.ErrRecordNotFound, err)
-//
-//	//make sure that all expectations were met
-//	suite.assert.Nil(suite.mock.ExpectationsWereMet())
-//}
-//
-//func (suite *ShipmentRepositoryTestSuite) Test_UpdateShipment_Found_ReturnsUpdatedRecord() {
-//	//arrange
-//	shipment1 := suite.getTestShipment1()
-//	suite.mock.
-//		ExpectExec(`UPDATE "shipments"`).
-//		WillReturnResult(sqlmock.NewResult(1, 1))
-//	rows := sqlmock.
-//		NewRows(suite.getShipmentColumns()).
-//		AddRow(suite.getShipmentRow(shipment1)...)
-//	suite.mock.
-//		ExpectQuery(`SELECT .+ FROM "shipments" WHERE .+ \(\("id" = \?\)\) .+`).
-//		WithArgs(1).
-//		WillReturnRows(rows)
-//
-//	//act
-//	shipment, err := suite.repository.UpdateShipment(shipment1)
-//
-//	//assert
-//	suite.assert.Nil(err)
-//	shipment1.CreatedAt = shipment.CreatedAt
-//	shipment1.UpdatedAt = shipment.UpdatedAt
-//	suite.assert.Equal(shipment1, shipment)
-//
-//	//make sure that all expectations were met
-//	suite.assert.Nil(suite.mock.ExpectationsWereMet())
-//}
+func (suite *ShipmentRepositoryTestSuite) Test_CreateShipment_ReturnsCreatedRecord() {
+	//arrange
+	shipment1 := suite.getTestShipment1()
+	suite.mock.
+		ExpectExec(`INSERT INTO "shipments"`).
+		WillReturnResult(sqlmock.NewResult(1, 1))
+	rows := sqlmock.
+		NewRows(suite.getShipmentColumns()).
+		AddRow(suite.getShipmentRow(shipment1)...)
+	suite.mock.
+		ExpectQuery(`SELECT .+ FROM "shipments" WHERE .+ \(\("id" = \?\)\) .+`).
+		WithArgs(1).
+		WillReturnRows(rows)
+
+	//act
+	shipment, err := suite.repository.CreateShipment(shipment1)
+
+	//assert
+	suite.assert.Nil(err)
+	suite.assert.Equal(uint(1), shipment.ID)
+	shipment1.CreatedAt = shipment.CreatedAt
+	shipment1.UpdatedAt = shipment.UpdatedAt
+	suite.assert.Equal(shipment1, shipment)
+
+	//make sure that all expectations were met
+	suite.assert.Nil(suite.mock.ExpectationsWereMet())
+}
+
+func (suite *ShipmentRepositoryTestSuite) Test_UpdateShipment_NotFound_ReturnsNotFoundError() {
+	//arrange
+	shipment1 := suite.getTestShipment1()
+	suite.mock.
+		ExpectExec(`UPDATE "shipments"`).
+		WillReturnResult(sqlmock.NewResult(1, 0))
+
+	//act
+	_, err := suite.repository.UpdateShipment(shipment1)
+
+	//assert
+	suite.assert.Equal(gorm.ErrRecordNotFound, err)
+
+	//make sure that all expectations were met
+	suite.assert.Nil(suite.mock.ExpectationsWereMet())
+}
+
+func (suite *ShipmentRepositoryTestSuite) Test_UpdateShipment_Found_ReturnsUpdatedRecord() {
+	//arrange
+	shipment1 := suite.getTestShipment1()
+	suite.mock.
+		ExpectExec(`UPDATE "shipments"`).
+		WillReturnResult(sqlmock.NewResult(1, 1))
+	rows := sqlmock.
+		NewRows(suite.getShipmentColumns()).
+		AddRow(suite.getShipmentRow(shipment1)...)
+	suite.mock.
+		ExpectQuery(`SELECT .+ FROM "shipments" WHERE .+ \(\("id" = \?\)\) .+`).
+		WithArgs(1).
+		WillReturnRows(rows)
+
+	//act
+	shipment, err := suite.repository.UpdateShipment(shipment1)
+
+	//assert
+	suite.assert.Nil(err)
+	shipment1.CreatedAt = shipment.CreatedAt
+	shipment1.UpdatedAt = shipment.UpdatedAt
+	suite.assert.Equal(shipment1, shipment)
+
+	//make sure that all expectations were met
+	suite.assert.Nil(suite.mock.ExpectationsWereMet())
+}
 
 func (suite *ShipmentRepositoryTestSuite) getTestShipment1() *models.Shipment {
 	return &models.Shipment{gormfox.Base{ID: uint(1)}, uint(1), "BR1002", "pending",
