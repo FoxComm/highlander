@@ -10,7 +10,6 @@
 
   input[type=text] {
     width: 700px;
-    max-width: 95%;
   }
 
   &__input-icon {
@@ -25,10 +24,11 @@
   }
 
   .fc-form-field input[type=text] {
-    .padding-left(40px);
+    padding-left: 40px;
 
     &.fc-pilled-input__input-field {
-      .padding-left(0);
+      padding-left: 10px;
+      margin-left: 0;
     }
   }
 
@@ -63,9 +63,9 @@
     overflow-x: hidden;
     background-color: @color-white;
     border: 1px solid @color-border;
-    .border-radius(3px);
 
-    .font-spec(12px, 400, 60px);
+    font-size: 12px;
+    line-height: 60px;
 
     li {
       padding: 15px;
