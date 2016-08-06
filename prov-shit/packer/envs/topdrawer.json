@@ -3,6 +3,7 @@
 	"image_title": "topdrawer",
 	"account_file": "foxcomm-vanilla.json",
 	"variables_file": "topdrawer_ansible.json",
+	"key_variables_file": "topdrawer_keys.json",
 	"stage_variables_file": "topdrawer_stage_ansible.json",
 	"project_id": "foxcommerce-production-shared",
 	"network": "topdrawer",

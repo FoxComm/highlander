@@ -10,7 +10,7 @@ kafka_image 		 = "topdrawer-kafka-1469228029"
 db_image 			 = "topdrawer-db-1469490867"
 es_image 			 = "topdrawer-es-1468953321"
 log_image 			 = "topdrawer-es-log-1468953205"
-phoenix_image 		 = "topdrawer-phoenix-1470390544"
+phoenix_image 		 = "topdrawer-phoenix-1470434240"
 greenriver_image 	 = "topdrawer-green-1470391212"
 
 stage_backend_image  = "topdrawer-stage-backend-1470391045"

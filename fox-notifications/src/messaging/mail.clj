@@ -21,7 +21,9 @@
 (def admin_server_name (delay (:admin_server_name env)))
 
 ;; mandrill client
-(def client (delay (client/create (settings/get :mandrill_key))))
+(def client (delay 
+              (println (str "mandrill_key: " (settings/get :mandrill_key)))
+              (client/create (settings/get :mandrill_key))))
 ;; mailchimp client
 (def mclient (delay
               (mailchimp/create-client "fox-messaging"
