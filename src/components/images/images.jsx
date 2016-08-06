@@ -34,6 +34,7 @@ export type Props = {
   fetchAlbums: (context: string, entityId: number) => Promise;
   addAlbum: (context: string, entityId: number, album: TAlbum) => Promise;
   editAlbum: (context: string, albumId: number, album: TAlbum) => Promise;
+  moveAlbum: (context: string, entityId: number, albumId: number, position: number) => Promise;
   archiveAlbum: (context: string, albumId: number) => Promise;
 };
 
@@ -103,7 +104,7 @@ class Images extends Component {
         <div className={styles.header}>
           <AddButton onClick={this.handleAddAlbum}>Album</AddButton>
         </div>
-        {albums.map((album: TAlbum) => {
+        {albums.map((album: TAlbum, i: number) => {
           return (
             <Album album={album}
                    loading={editAlbumInProgress}
@@ -112,7 +113,9 @@ class Images extends Component {
                    deleteImage={(idx: number) => this.props.deleteImage(context, album.id, idx)}
                    addAlbum={(album: TAlbum) => this.props.addAlbum(context, entityId, album)}
                    editAlbum={(album: TAlbum) => this.props.editAlbum(context, album.id, album)}
+                   moveAlbum={(position: number) => this.props.moveAlbum(context, entityId, album.id, position)}
                    archiveAlbum={(id: number) => this.props.archiveAlbum(context, id)}
+                   position={i}
                    key={album.id}
                    fetchAlbums={() => this.props.fetchAlbums(context, entityId)}
             />

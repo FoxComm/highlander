@@ -22,11 +22,13 @@ import type { TAlbum, ImageFile, ImageInfo } from '../../modules/images';
 export type Props = {
   album: TAlbum,
   loading: boolean,
+  position: number,
   upload: (files: Array<ImageFile>) => Promise,
   editImage: (idx: number, info: ImageInfo) => Promise,
   deleteImage: (idx: number) => Promise,
   addAlbum: (album: TAlbum) => Promise,
   editAlbum: (album: TAlbum) => Promise,
+  moveAlbum: (position: number) => Promise,
   archiveAlbum: () => Promise,
   fetchAlbums: () => Promise,
 };
@@ -111,7 +113,7 @@ export default class Album extends Component {
 
   @autobind
   @debounce(300)
-  handleSort(order: Array<number>): void {
+  handleSortImages(order: Array<number>): void {
     const album = { ...this.props.album };
 
     const newOrder = [];
@@ -127,12 +129,8 @@ export default class Album extends Component {
 
   @autobind
   handleMove(direction: number): void {
-    const album = {
-      ...this.props.album,
-      position: this.props.album.position + direction,
-    };
-
-    this.props.editAlbum(album);
+    const position = this.props.position + direction;
+    this.props.moveAlbum(position);
   }
 
   get editAlbumDialog(): ?Element {
@@ -201,9 +199,11 @@ export default class Album extends Component {
                        gutter={10}
                        gutterY={40}
                        loading={loading}
-                       onSort={this.handleSort}
+                       onSort={this.handleSortImages}
         >
           {album.images.map((image: ImageFile, idx: number) => {
+            if (image.key && image.id) this.idsToKey[image.id] = image.key;
+            const imagePid = image.key || this.idsToKey[image.id] || image.id;
             return (
               <Image
                 image={image}
@@ -221,7 +221,7 @@ export default class Album extends Component {
     return (
       <div>
         {this.editAlbumDialog}
-        {this.deleteAlbumDialog}
+        {this.archiveAlbumDialog}
         <AlbumWrapper title={album.name}
                       titleWrapper={(title: string) => this.renderTitle(title, album.images.length)}
                       contentClassName={styles.albumContent}
