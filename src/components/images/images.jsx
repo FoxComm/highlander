@@ -116,6 +116,7 @@ class Images extends Component {
                    moveAlbum={(position: number) => this.props.moveAlbum(context, entityId, album.id, position)}
                    archiveAlbum={(id: number) => this.props.archiveAlbum(context, id)}
                    position={i}
+                   albumsCount={albums.length}
                    key={album.id}
                    fetchAlbums={() => this.props.fetchAlbums(context, entityId)}
             />

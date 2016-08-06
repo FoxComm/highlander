@@ -77,13 +77,18 @@
   cursor: pointer;
   transition: color .3s;
 
-  &:hover {
+  &:not(.controlItemDisabled):hover {
     color: #000;
   }
 
   & i {
     line-height: .9;
   }
+}
+
+.controlItemDisabled {
+  cursor: default;
+  color: #999;
 }
 
 .controlMove {

@@ -17,6 +17,8 @@ type Props = {
   children: ?Array<Element>|Element;
   actions: ?Array<Action>;
   title: ?string;
+  position: number;
+  albumsCount: number;
   onSort: (direction: number) => void;
   titleWrapper: ?(title: string) => Element;
   className: ?string;
@@ -36,16 +38,32 @@ export default class AlbumWrapper extends Component {
   };
 
   @autobind
-  handleMoveUp() {
+  handleMoveUp(): void {
+    if (this.isFirstAlbum) {
+      return;
+    }
+
     this.props.onSort(MOVE_DIRECTION_UP);
   }
 
   @autobind
-  handleMoveDown() {
+  handleMoveDown(): void {
+    if (this.isLastAlbum) {
+      return;
+    }
+
     this.props.onSort(MOVE_DIRECTION_DOWN);
   }
 
-  get title(): ?Element {
+  get isFirstAlbum(): boolean {
+    return this.props.position === 0;
+  }
+
+  get isLastAlbum(): boolean {
+    return this.props.position === this.props.albumsCount - 1;
+  }
+
+  get title(): Element {
     const { title, titleWrapper } = this.props;
 
     return (
@@ -58,14 +76,16 @@ export default class AlbumWrapper extends Component {
   }
 
   get controls(): Element {
+    const moveUpCsl = classNames(styles.controlItem, { [styles.controlItemDisabled]: this.isFirstAlbum });
+    const moveDownCsl = classNames(styles.controlItem, { [styles.controlItemDisabled]: this.isLastAlbum });
     return (
       <div className={styles.controls}>
         <div className={styles.left}>
           <div className={styles.controlMove}>
-            <span className={styles.controlItem}>
+            <span className={moveUpCsl}>
               <i className="icon-up" onClick={this.handleMoveUp} />
             </span>
-            <span className={styles.controlItem}>
+            <span className={moveDownCsl}>
               <i className="icon-down" onClick={this.handleMoveDown} />
             </span>
           </div>

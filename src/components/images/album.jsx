@@ -20,22 +20,23 @@ import Image from './image';
 import type { TAlbum, ImageFile, ImageInfo } from '../../modules/images';
 
 export type Props = {
-  album: TAlbum,
-  loading: boolean,
-  position: number,
-  upload: (files: Array<ImageFile>) => Promise,
-  editImage: (idx: number, info: ImageInfo) => Promise,
-  deleteImage: (idx: number) => Promise,
-  addAlbum: (album: TAlbum) => Promise,
-  editAlbum: (album: TAlbum) => Promise,
-  moveAlbum: (position: number) => Promise,
-  archiveAlbum: () => Promise,
-  fetchAlbums: () => Promise,
+  album: TAlbum;
+  loading: boolean;
+  position: number;
+  albumsCount: number;
+  upload: (files: Array<ImageFile>) => Promise;
+  editImage: (idx: number, info: ImageInfo) => Promise;
+  deleteImage: (idx: number) => Promise;
+  addAlbum: (album: TAlbum) => Promise;
+  editAlbum: (album: TAlbum) => Promise;
+  moveAlbum: (position: number) => Promise;
+  archiveAlbum: () => Promise;
+  fetchAlbums: () => Promise;
 };
 
 type State = {
-  editMode: boolean,
-  archiveMode: boolean,
+  editMode: boolean;
+  archiveMode: boolean;
 };
 
 export default class Album extends Component {
@@ -185,7 +186,7 @@ export default class Album extends Component {
   }
 
   render(): Element {
-    const { album, loading } = this.props;
+    const { album, position, albumsCount, loading } = this.props;
 
     const albumContent = (
       <Upload
@@ -224,6 +225,8 @@ export default class Album extends Component {
         {this.archiveAlbumDialog}
         <AlbumWrapper title={album.name}
                       titleWrapper={(title: string) => this.renderTitle(title, album.images.length)}
+                      position={position}
+                      albumsCount={albumsCount}
                       contentClassName={styles.albumContent}
                       onSort={this.handleMove}
                       actions={this.getAlbumActions()}
