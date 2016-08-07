@@ -10,6 +10,7 @@ import shapeless._
 case class Merchant(id: Int = 0, 
                     name: Option[String],
                     description: Option[String],
+                    taxId: Option[String],
                     isDisabled: Boolean = false,
                     createdAt: Instant = Instant.now)
 
@@ -19,11 +20,12 @@ class Merchants(tag: Tag) extends FoxTable[Merchant](tag, "vendors") {
   def id         = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def name       = column[Option[String]]("name")
   def description = column[Option[String]]("description")
+  def taxId      = columt[Option[String]]("tax_id")
   def isDisabled = column[Boolean]("is_disabled")
   def createdAt  = column[Instant]("created_at")
 
   def * =
-    (id, name, description, isDisabled, createdAt) <> ((Merchant.apply _).tupled, Merchant.unapply)
+    (id, name, description, taxId, isDisabled, createdAt) <> ((Merchant.apply _).tupled, Merchant.unapply)
 }
 
 object Merchants
