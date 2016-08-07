@@ -1,5 +1,8 @@
 build:
-		go build -o consumers-skus main.go consumer.go sku.go
+	go build -o consumers-skus main.go consumer.go sku.go
 
 build-linux:
-		GOOS=linux go build -o consumers-skus main.go consumer.go sku.go
+	GOOS=linux go build -o consumers-skus main.go consumer.go sku.go
+	
+test:
+	GOENV=test go test
