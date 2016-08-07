@@ -9,7 +9,8 @@ import shapeless._
 
 case class Vendor(id: Int = 0,
                   name: Option[String],
-                  isDisabled: Boolean = false,
+                  description: Option[String],
+                  taxId: Option[String],
                   createdAt: Instant = Instant.now)
     extends FoxModel[Vendor]
     with Validation[Vendor] {}
@@ -21,11 +22,10 @@ class Vendors(tag: Tag) extends FoxTable[Vendor](tag, "vendors") {
   def name       = column[Option[String]]("name")
   def description = column[Option[String]]("description")
   def taxId      = columt[Option[String]]("tax_id")
-  def isDisabled = column[Boolean]("is_disabled")
   def createdAt  = column[Instant]("created_at")
 
   def * =
-    (id, name, description, tax_id, isDisabled, createdAt) <> ((Vendor.apply _).tupled, Vendor.unapply)
+    (id, name, description, tax_id, createdAt) <> ((Vendor.apply _).tupled, Vendor.unapply)
 }
 
 object Vendors
