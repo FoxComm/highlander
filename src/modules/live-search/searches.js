@@ -19,7 +19,9 @@ const emptyState = {
   results: void 0,
   query: [],
   searchValue: '',
-  associations: []
+  shares: {
+    associations: []
+  }
 };
 
 function isExistsQueryContext(filters) {

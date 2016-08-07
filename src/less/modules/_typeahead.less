@@ -1,6 +1,13 @@
 .fc-typeahead {
   position: relative;
 
+  &._active {
+    .fc-pilled-input__input-container,
+    .fc-pilled-input__input-container:hover {
+      border-color: #a2dee1 !important;
+    }
+  }
+
   .fc-typeahead__loader {
     position: absolute;
     right: 7px;
@@ -10,6 +17,7 @@
 
   input[type=text] {
     width: 700px;
+    border: none !important;
   }
 
   &__input-icon {
@@ -41,8 +49,8 @@
   }
 
   .fc-image-column {
-      max-width: 50px;
-      max-height: 50px;
+    max-width: 50px;
+    max-height: 50px;
   }
 
   &__menu {

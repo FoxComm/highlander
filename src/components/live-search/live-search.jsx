@@ -504,7 +504,7 @@ export default class LiveSearch extends React.Component {
   @autobind
   submitFilter(searchTerm, tryFinal = false) {
     // First, update the available terms.
-    this.setState({errorMessage: null});
+    this.setState({ errorMessage: null });
 
     let newSearchTerm = searchTerm;
     let options = SearchTerm.potentialTerms(this.state.availableOptions, searchTerm);
@@ -567,7 +567,7 @@ export default class LiveSearch extends React.Component {
   }
 
   @autobind
-  closeShareSearch() {
+  handleCloseShareSearch() {
     this.setState({ isShareVisible: false });
   }
 
@@ -579,16 +579,16 @@ export default class LiveSearch extends React.Component {
     return (
       <ShareSearch
         search={this.currentSearch}
+        isVisible={this.state.isShareVisible}
+        title={this.currentSearch.title}
+        onClose={this.handleCloseShareSearch}
         fetchAssociations={this.props.fetchAssociations}
         suggestAssociations={this.props.suggestAssociations}
         associateSearch={this.props.associateSearch}
         dissociateSearch={this.props.dissociateSearch}
         selectItem={this.props.selectItem}
         deselectItem={this.props.deselectItem}
-        setTerm={this.props.setTerm}
-        closeAction={this.closeShareSearch}
-        isVisible={this.state.isShareVisible}
-        title={this.currentSearch.title} />
+        setTerm={this.props.setTerm} />
     );
   }
 
@@ -600,6 +600,26 @@ export default class LiveSearch extends React.Component {
     }
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    const search = currentSearch(this.props);
+    const newSearch = currentSearch(nextProps);
+
+    if (search.code != newSearch.code) {
+      return true;
+    }
+
+    if (!_.eq(search.shares, newSearch.shares)) {
+      console.log('share-search props changed');
+      // do not rerender entire live-search component on share state update
+      return false;
+    }
+
+    const ls = !_.eq(this.props, nextProps) || !_.eq(this.state, nextState);
+    console.log(`LS CHANGED: ${ls}`);
+
+    return ls;
+  }
+
   render() {
     const gridClass = classNames('fc-list-page-content', {
       '_no-gutter': this.props.noGutter
@@ -607,6 +627,8 @@ export default class LiveSearch extends React.Component {
     const tableClass = classNames('fc-live-search__table', {
       '_no-gutter': this.props.noGutter
     });
+
+    console.log('render live-search');
 
     return (
       <div className="fc-live-search">
