@@ -5,6 +5,9 @@ DB=middlewarehouse_development
 DB_TEST=middlewarehouse_test
 DB_USER=middlewarehouse
 
+SUBDIRS = api common controllers models repositories routes services
+TESTDIRS = $(SUBDIRS:%=test-%)
+
 build:
 	go build -o middlewarehouse main.go
 
@@ -38,5 +41,8 @@ drop-user:
 create-user:
 	createuser -s ${DB_USER}
 
-test:
-	GOENV=test go test $(shell go list ./... | grep -v /vendor/)
+test: $(TESTDIRS)
+$(TESTDIRS): PACKAGE = $(@:test-%=%)
+$(TESTDIRS):
+	cd $(PACKAGE) && GOENV=test go test ./...
+
