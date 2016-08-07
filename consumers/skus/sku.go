@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/FoxComm/metamorphosis"
+	"github.com/FoxComm/middlewarehouse/api/payloads"
 )
 
 type SKU struct {
@@ -18,4 +19,12 @@ func NewSKUFromAvro(message metamorphosis.AvroMessage) (*SKU, error) {
 	}
 
 	return s, nil
+}
+
+func (s SKU) StockItem(stockLocationID uint) payloads.StockItem {
+	return payloads.StockItem{
+		SKU:             s.Code,
+		StockLocationID: stockLocationID,
+		DefaultUnitCost: 0,
+	}
 }

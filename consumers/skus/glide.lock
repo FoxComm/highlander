@@ -1,5 +1,5 @@
-hash: e227488ce87b1a1210546336dba2ea0f5985b17300e515b71f8baceeebc0f1bc
-updated: 2016-08-07T11:39:25.900685041-07:00
+hash: 7ad3f932889b16eeae53326aad5052ce3dc23c8fa918d9e1c24279a89bd9e595
+updated: 2016-08-07T11:44:09.76145555-07:00
 imports:
 - name: github.com/cihub/seelog
   version: d2c6e5aa9fbfdd1c624e140287063c7730654115
@@ -27,6 +27,8 @@ imports:
   vcs: git
 - name: github.com/golang/snappy
   version: 723cc1e459b8eea2dea4583200fd60757d40097a
+- name: github.com/jpfuentes2/go-env
+  version: 8e0a68de05f21bcefcd581c6b934a1d1e4390fa1
 - name: github.com/rcrowley/go-metrics
   version: 51425a2415d21afadfd55cd93432c0bc69e9598d
 - name: github.com/samuel/go-zookeeper
@@ -35,6 +37,8 @@ imports:
   - zk
 - name: github.com/Shopify/sarama
   version: 094e483251042a52ce92f76dbcf140ad2bd7cffb
+- name: github.com/stretchr/testify
+  version: d77da356e56a7428ad25149ca77381849a6a5232
 - name: github.com/yanzay/cfg
   version: 3b647091f880406fdb14edcb309ce750a38d3e85
 - name: gopkg.in/cihub/seelog.v2

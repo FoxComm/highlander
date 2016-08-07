@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -9,23 +10,21 @@ import (
 	"github.com/FoxComm/metamorphosis"
 )
 
-const topic = "sku_search_view"
-const partition = 1
-
 type Consumer struct {
-	c metamorphosis.Consumer
+	c      metamorphosis.Consumer
+	mwhURL string
 }
 
-func NewConsumer(zookeeper string, schemaRepo string) (*Consumer, error) {
+func NewConsumer(zookeeper string, schemaRepo string, mwhURL string) (*Consumer, error) {
 	consumer, err := metamorphosis.NewConsumer(zookeeper, schemaRepo)
 	if err != nil {
 		return nil, err
 	}
 
-	return &Consumer{c: consumer}, nil
+	return &Consumer{c: consumer, mwhURL: mwhURL}, nil
 }
 
-func (consumer *Consumer) Run() {
+func (consumer *Consumer) Run(topic string, partition int) {
 	consumer.c.RunTopic(topic, partition, consumer.handler)
 }
 
@@ -35,12 +34,14 @@ func (consumer *Consumer) handler(m metamorphosis.AvroMessage) error {
 		return err
 	}
 
-	url := "http://localhost:9292/stock-items"
-	jsonStr := []byte(`{"sku": "TEST-FROM-CONSUMER", "stock_location_id": 1, "default_unit_cost": 999}`)
+	stockItem := sku.StockItem(1)
+	b, err := json.Marshal(&stockItem)
+	if err != nil {
+		return err
+	}
 
-	fmt.Printf("%v\n", sku)
-
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonStr))
+	url := fmt.Sprintf("%s/stock-items", consumer.mwhURL)
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(b))
 	if err != nil {
 		return err
 	}

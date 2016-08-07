@@ -14,3 +14,5 @@ import:
     version: fea3d8822e875ffef3895e68f5c2f172e0dd4300
   - package: github.com/elodina/siesta-producer
     version: a374fc36c515243efb438aed41c536af55d8b19b
+  - package: github.com/jpfuentes2/go-env
+  - package: github.com/stretchr/testify
