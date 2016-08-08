@@ -208,10 +208,11 @@ export default class CreditCardForm extends React.Component {
     const year = _.get(this.state, 'card.expYear');
 
     return (
-      <ExpirationBlock month={month}
-                       year={year}
-                       onMonthChange={this.onExpMonthChange}
-                       onYearChange={this.onExpYearChange}
+      <ExpirationBlock
+        month={month}
+        year={year}
+        onMonthChange={this.onExpMonthChange}
+        onYearChange={this.onExpYearChange}
       />
     );
   };

@@ -189,7 +189,14 @@ export default class FormField extends Component {
         : this.props.validator;
 
     const value = this.getTargetValue();
-    const label = this.props.validationLabel || this.props.label || 'This field';
+    let label = this.props.validationLabel || this.props.label || 'This field';
+    let requiredMessage;
+    if (!label) {
+      label = 'This field';
+      requiredMessage = `${label} is required`;
+    } else {
+      requiredMessage = `${label} is required field`;
+    }
 
     if (value !== void 0 && (!_.isString(value) || value)) {
       if (this.props.maxLength && _.isString(value) && value.length > this.props.maxLength) {
@@ -203,7 +210,7 @@ export default class FormField extends Component {
         }
       }
     } else if ('required' in this.props) {
-      errors = [...errors, `${label} is required field`];
+      errors = [...errors, requiredMessage];
     }
 
     this.setState({
