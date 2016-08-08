@@ -19,8 +19,8 @@ import WaitAnimation from '../common/wait-animation';
 import ArchiveActionsSection from '../archive-actions/archive-actions';
 
 // actions
-import * as SkuActions from '../../modules/skus/details';
-import * as ArchiveActions from '../../modules/skus/archive';
+import * as SkuActions from 'modules/skus/details';
+import * as ArchiveActions from 'modules/skus/archive';
 
 //helpers
 import { transitionTo } from 'browserHistory';
@@ -28,7 +28,7 @@ import { isArchived } from 'paragons/common';
 import { SAVE_COMBO, SAVE_COMBO_ITEMS } from 'paragons/common';
 
 // types
-import type { Sku } from '../../modules/skus/details';
+import type { Sku } from 'modules/skus/details';
 
 type Props = {
   actions: {
