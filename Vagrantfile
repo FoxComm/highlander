@@ -78,4 +78,19 @@ Vagrant.configure("2") do |config|
       }
     end
   end
+
+  config.vm.define :build, autostart: false do |app|
+    app.vm.box = "boxcutter/ubuntu1604"
+    app.vm.network :private_network, ip: $nginx_ip
+
+    app.vm.provision "shell", inline: "apt-get install -y python-minimal"
+    app.vm.provision "ansible" do |ansible|
+      ansible.verbose = "vvvv"
+      ansible.skip_tags = "buildkite"
+      ansible.playbook = "prov-shit/ansible/vagrant_base.yml"
+      ansible.extra_vars = {
+        user: $user
+      }
+    end
+  end
 end
