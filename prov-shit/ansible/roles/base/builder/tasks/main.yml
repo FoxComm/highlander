@@ -66,8 +66,12 @@
 - name:
   file: path={{home}}/go/bin state=directory
 
-- name: Install Glide
-  shell: GOPATH={{ home }}/go curl https://glide.sh/get | sh
-  args:
-    chdir: "{{home}}"
+- name: Add Glide repository
+  apt_repository: repo='ppa:masterminds/glide' update_cache=yes
+  sudo: true
 
+- name: Install Glide
+  apt: name={{ item }} state=latest force=yes
+  sudo: true
+  with_items:
+    - glide
