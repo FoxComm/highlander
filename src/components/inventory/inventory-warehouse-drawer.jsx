@@ -20,10 +20,10 @@ type State = {
 }
 
 type Props = {
-  updateSkuItemsCount: (sku: string, stockItem: StockItemFlat, diff: number) => void;
+  updateSkuItemsCount: (sku: string, stockItem: StockItemFlat, diff: number) => void,
   data: {
     rows: Array<StockItemFlat>
-  };
+  },
 }
 
 class WarehouseDrawer extends Component {
