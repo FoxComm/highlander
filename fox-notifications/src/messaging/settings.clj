@@ -74,6 +74,26 @@
      :type "string"
      :default ""
      }
+    {:name "user_invitation_template"
+     :title "User Invitation Mandrill Template"
+     :type "string"
+     :default "user-invitation"
+     }
+    {:name "customer_created_template"
+     :title "Customer Creation Mandrill Template"
+     :type "string"
+     :default "customer-created"
+     }
+    {:name "order_canceled_template"
+     :title "Order Canceled Mandrill Template"
+     :type "string"
+     :default "order-canceled"
+     }
+    {:name "order_confirmation_template"
+     :title "Order Confirmation Mandrill Template"
+     :type "string"
+     :default "order-confirmation"
+     }
     ])
 
 (def store (atom {}))

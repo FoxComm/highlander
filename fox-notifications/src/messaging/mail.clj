@@ -76,7 +76,7 @@
                      {:message (format (settings/get :order_checkout_text) order-ref)
                       :rewards ""}
                      {:subject (settings/get :order_checkout_subject)})]
-    (send-template! (:order-confirmation templates) msg)))
+    (send-template! ((settings/get :order_confirmation_template) templates) msg)))
 
 (defmethod handle-activity :order_state_changed
   [activity]
@@ -86,7 +86,7 @@
         order-ref (get-in data ["order" "referenceNumber"])
         new-state (get-in data ["order" "orderState"])]
    (when (= "canceled" new-state)
-     (send-template! (:order-canceled templates)
+     (send-template! ((settings/get :order_canceled_template) templates)
                      (gen-msg {:email email :name customer-name}
                               {:message (format (settings/get :order_canceled_text) order-ref)
                                :rewards ""}
@@ -123,7 +123,7 @@
        (catch Exception e (prn "Can't add user to list" e))))
 
 
-   (send-template! (:customer-created templates)
+   (send-template! ((settings/get :customer_created_template) templates)
                    (gen-msg {:email email :name customer-name}
                             {:reset_password_link reset-password-link
                              :customer_name customer-name
@@ -144,4 +144,4 @@
 
                      {:subject (settings/get :admin_invintation_subject)})]
 
-    (send-template! (:user-invintation templates) msg)))
+    (send-template! ((settings/get :user_invitation_template) templates) msg)))
