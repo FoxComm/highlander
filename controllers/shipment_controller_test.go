@@ -141,7 +141,7 @@ func (suite *shipmentControllerTestSuite) Test_CreateShipment_ReturnsRecord() {
 	address1 := suite.getTestAddess1(uint(1))
 	region1 := suite.getTestRegion1()
 	shipment1 := suite.getTestShipment1(uint(1), address1.ID)
-	payload := &payloads.Shipment{shipment1.ShippingMethodID, shipment1.ReferenceNumber, shipment1.State,
+	payload := &payloads.Shipment{shipment1.ShippingMethodID, shipment1.ReferenceNumber, string(shipment1.State),
 		&shipment1.ShipmentDate.String, &shipment1.EstimatedArrival.String, &shipment1.DeliveredDate.String,
 		&shipment1.TrackingNumber.String, []payloads.ShipmentLineItem{}, payloads.Address{}}
 	payload.Address = payloads.Address{address1.Name, address1.RegionID, address1.City,
@@ -150,9 +150,9 @@ func (suite *shipmentControllerTestSuite) Test_CreateShipment_ReturnsRecord() {
 	shipmentLineItem2 := suite.getTestShipmentLineItem2(uint(2), shipment1.ID)
 	payload.LineItems = []payloads.ShipmentLineItem{
 		{shipmentLineItem1.ReferenceNumber, shipmentLineItem1.SKU, shipmentLineItem1.Name,
-			shipmentLineItem1.Price, shipmentLineItem1.ImagePath, shipmentLineItem1.State},
+			shipmentLineItem1.Price, shipmentLineItem1.ImagePath, string(shipmentLineItem1.State)},
 		{shipmentLineItem2.ReferenceNumber, shipmentLineItem2.SKU, shipmentLineItem2.Name,
-			shipmentLineItem2.Price, shipmentLineItem2.ImagePath, shipmentLineItem2.State},
+			shipmentLineItem2.Price, shipmentLineItem2.ImagePath, string(shipmentLineItem2.State)},
 	}
 	suite.shipmentService.On("CreateShipment",
 		models.NewShipmentFromPayload(payload),

@@ -42,5 +42,5 @@ func (suite *ShipmentLineItemModelTestSuite) Test_NewShipmentLineItemFromPayload
 	suite.assert.Equal(name, model.Name)
 	suite.assert.Equal(price, model.Price)
 	suite.assert.Equal(imagePath, model.ImagePath)
-	suite.assert.Equal(state, model.State)
+	suite.assert.Equal(ShipmentStatePending, model.State)
 }

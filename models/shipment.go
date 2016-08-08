@@ -11,7 +11,7 @@ type Shipment struct {
 	gormfox.Base
 	ShippingMethodID uint
 	ReferenceNumber  string
-	State            string
+	State            ShipmentState
 	ShipmentDate     sql.NullString
 	EstimatedArrival sql.NullString
 	DeliveredDate    sql.NullString
@@ -23,7 +23,7 @@ func NewShipmentFromPayload(payload *payloads.Shipment) *Shipment {
 	shipment := &Shipment{
 		ShippingMethodID: payload.ShippingMethodID,
 		ReferenceNumber:  payload.ReferenceNumber,
-		State:            payload.State,
+		State:            ShipmentState(payload.State),
 	}
 
 	if payload.ShipmentDate != nil {

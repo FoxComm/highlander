@@ -22,7 +22,7 @@ func NewShipmentFromModel(model *models.Shipment) *Shipment {
 		ID:               model.ID,
 		ShippingMethodID: model.ShippingMethodID,
 		ReferenceNumber:  model.ReferenceNumber,
-		State:            model.State,
+		State:            string(model.State),
 	}
 
 	if model.ShipmentDate.Valid {

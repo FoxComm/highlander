@@ -166,12 +166,12 @@ func (suite *ShipmentLineItemRepositoryTestSuite) Test_DeleteShipmentLineItem_Fo
 
 func (suite *ShipmentLineItemRepositoryTestSuite) getTestShipmentLineItem1() *models.ShipmentLineItem {
 	return &models.ShipmentLineItem{gormfox.Base{ID: uint(1)}, uint(1), "BR1002", "SKU-TEST1",
-		"Some shit", 3999, "https://test.com/some-shit.png", "pending"}
+		"Some shit", 3999, "https://test.com/some-shit.png", models.ShipmentStatePending}
 }
 
 func (suite *ShipmentLineItemRepositoryTestSuite) getTestShipmentLineItem2() *models.ShipmentLineItem {
 	return &models.ShipmentLineItem{gormfox.Base{ID: uint(2)}, uint(1), "BR1003", "SKU-TEST2",
-		"Other shit", 4999, "https://test.com/other-shit.png", "delivered"}
+		"Other shit", 4999, "https://test.com/other-shit.png", models.ShipmentStateDelivered}
 }
 
 func (suite *ShipmentLineItemRepositoryTestSuite) getShipmentLineItemColumns() []string {
@@ -182,5 +182,5 @@ func (suite *ShipmentLineItemRepositoryTestSuite) getShipmentLineItemColumns() [
 func (suite *ShipmentLineItemRepositoryTestSuite) getShipmentLineItemRow(shipmentLineItem *models.ShipmentLineItem) []driver.Value {
 	return []driver.Value{shipmentLineItem.ID, shipmentLineItem.ShipmentID, shipmentLineItem.Name,
 		shipmentLineItem.ReferenceNumber, shipmentLineItem.SKU, shipmentLineItem.Price, shipmentLineItem.ImagePath,
-		shipmentLineItem.State, shipmentLineItem.CreatedAt, shipmentLineItem.UpdatedAt, shipmentLineItem.DeletedAt}
+		string(shipmentLineItem.State), shipmentLineItem.CreatedAt, shipmentLineItem.UpdatedAt, shipmentLineItem.DeletedAt}
 }

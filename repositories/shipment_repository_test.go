@@ -166,12 +166,12 @@ func (suite *ShipmentRepositoryTestSuite) Test_DeleteShipment_Found_ReturnsNoErr
 }
 
 func (suite *ShipmentRepositoryTestSuite) getTestShipment1() *models.Shipment {
-	return &models.Shipment{gormfox.Base{ID: uint(1)}, uint(1), "BR1002", "pending",
+	return &models.Shipment{gormfox.Base{ID: uint(1)}, uint(1), "BR1002", models.ShipmentStatePending,
 		sql.NullString{}, sql.NullString{}, sql.NullString{}, uint(1), sql.NullString{}}
 }
 
 func (suite *ShipmentRepositoryTestSuite) getTestShipment2() *models.Shipment {
-	return &models.Shipment{gormfox.Base{ID: uint(2)}, uint(1), "BR1002", "pending",
+	return &models.Shipment{gormfox.Base{ID: uint(2)}, uint(1), "BR1002", models.ShipmentStatePending,
 		sql.NullString{}, sql.NullString{}, sql.NullString{}, uint(1), sql.NullString{}}
 }
 
@@ -182,5 +182,5 @@ func (suite *ShipmentRepositoryTestSuite) getShipmentColumns() []string {
 
 func (suite *ShipmentRepositoryTestSuite) getShipmentRow(shipment *models.Shipment) []driver.Value {
 	return []driver.Value{shipment.ID, shipment.ShippingMethodID, shipment.AddressID, shipment.ReferenceNumber,
-		shipment.State, nil, nil, nil, nil, shipment.CreatedAt, shipment.UpdatedAt, shipment.DeletedAt}
+		string(shipment.State), nil, nil, nil, nil, shipment.CreatedAt, shipment.UpdatedAt, shipment.DeletedAt}
 }

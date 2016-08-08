@@ -38,7 +38,7 @@ func (suite *ShipmentLineItemResponseTestSuite) Test_NewShipmentLineItemFromMode
 	imagePath := "http://test.com/test.png"
 	state := "pending"
 
-	model := &models.ShipmentLineItem{gormfox.Base{}, shipmentID, referenceNumber, sku, name, price, imagePath, state}
+	model := &models.ShipmentLineItem{gormfox.Base{}, shipmentID, referenceNumber, sku, name, price, imagePath, models.ShipmentState(state)}
 	model.ID = id
 
 	//act
