@@ -26,7 +26,7 @@ func (suite *AddressPayloadTestSuite) SetupSuite() {
 func (suite *AddressPayloadTestSuite) Test_AddressDecoding_RunsNormally() {
 	//arrange
 	name := "Home address"
-	regionID := uint(1)
+	region := Region{uint(1), "Texas", uint(2), "USA"}
 	city := "Seattle"
 	zip := "71234"
 	address1 := "Some st, 51"
@@ -35,13 +35,18 @@ func (suite *AddressPayloadTestSuite) Test_AddressDecoding_RunsNormally() {
 
 	raw := fmt.Sprintf(`{
 		"name": "%v",
-		"regionId": %v,
+		"region": {
+			"id": %v,
+			"name": "%v",
+			"countryId": %v,
+			"countryName": "%v"
+		},
 		"city": "%v",
 		"zip": "%v",
 		"address1": "%v",
 		"address2": "%v",
 		"phoneNumber": "%v"
-	}`, name, regionID, city, zip, address1, address2, phoneNumber)
+	}`, name, region.ID, region.Name, region.CountryID, region.CountryName, city, zip, address1, address2, phoneNumber)
 	decoder := json.NewDecoder(strings.NewReader(raw))
 
 	//act
@@ -51,7 +56,7 @@ func (suite *AddressPayloadTestSuite) Test_AddressDecoding_RunsNormally() {
 	//assert
 	suite.assert.Nil(err)
 	suite.assert.Equal(name, payload.Name)
-	suite.assert.Equal(regionID, payload.RegionID)
+	suite.assert.Equal(region, payload.Region)
 	suite.assert.Equal(city, payload.City)
 	suite.assert.Equal(zip, payload.Zip)
 	suite.assert.Equal(address1, payload.Address1)

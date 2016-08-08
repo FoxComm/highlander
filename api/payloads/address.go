@@ -2,7 +2,7 @@ package payloads
 
 type Address struct {
 	Name        string  `json:"name"`
-	RegionID    uint    `json:"regionId" binding:"required"`
+	Region      Region  `json:"region" binding:"required"`
 	City        string  `json:"city" binding:"required"`
 	Zip         string  `json:"zip" binding:"required"`
 	Address1    string  `json:"address1" binding:"required"`

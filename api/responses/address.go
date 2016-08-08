@@ -18,6 +18,7 @@ func NewAddressFromModel(model *models.Address) *Address {
 
 	address.ID = model.ID
 	address.Name = model.Name
+	address.Region = *NewRegionFromModel(&model.Region)
 	address.City = model.City
 	address.Zip = model.Zip
 	address.Address1 = model.Address1

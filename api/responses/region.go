@@ -13,7 +13,7 @@ func NewRegionFromModel(model *models.Region) *Region {
 	return &Region{
 		ID:          model.ID,
 		Name:        model.Name,
-		CountryID:   model.CountryID,
-		CountryName: model.CountryName,
+		CountryID:   model.Country.ID,
+		CountryName: model.Country.Name,
 	}
 }

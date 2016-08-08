@@ -34,7 +34,7 @@ func (suite *stockLocationModelTestSuite) Test_NewStockLocationFromPayload() {
 
 	payload := &payloads.StockLocation{name, locationType, &payloads.Address{
 		Name:        addressName,
-		RegionID:    addressRegionID,
+		Region:      payloads.Region{ID: addressRegionID},
 		City:        addressCity,
 		Zip:         addressZip,
 		Address1:    addressAddress,

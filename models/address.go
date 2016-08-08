@@ -10,7 +10,7 @@ import (
 type Address struct {
 	gormfox.Base
 	Name        string
-	RegionID    uint
+	Region      Region
 	City        string
 	Zip         string
 	Address1    string
@@ -22,7 +22,7 @@ func NewAddressFromPayload(payload *payloads.Address) *Address {
 	address := new(Address)
 
 	address.Name = payload.Name
-	address.RegionID = payload.RegionID
+	address.Region = *NewRegionFromPayload(&payload.Region)
 	address.Address1 = payload.Address1
 	address.City = payload.City
 	address.Zip = payload.Zip

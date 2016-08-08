@@ -32,14 +32,14 @@ func (suite *AddressResponseTestSuite) Test_NewAddressFromModel_ReturnsValidResp
 	//arrange
 	id := uint(1)
 	name := "Home address"
-	regionID := uint(1)
+	region := &models.Region{uint(1), "Texas", models.Country{uint(2), "USA"}, uint(2)}
 	city := "Seattle"
 	zip := "71234"
 	address1 := "Some st, 51"
 	address2 := "Some more here"
 	phoneNumber := "17345791232"
 
-	model := &models.Address{gormfox.Base{}, name, regionID, city, zip, address1, sql.NullString{address2, true}, phoneNumber}
+	model := &models.Address{gormfox.Base{}, name, *region, city, zip, address1, sql.NullString{address2, true}, phoneNumber}
 	model.ID = id
 
 	//act
@@ -48,6 +48,7 @@ func (suite *AddressResponseTestSuite) Test_NewAddressFromModel_ReturnsValidResp
 	//assert
 	suite.assert.Equal(id, response.ID)
 	suite.assert.Equal(name, response.Name)
+	suite.assert.Equal(*NewRegionFromModel(region), response.Region)
 	suite.assert.Equal(city, response.City)
 	suite.assert.Equal(zip, response.Zip)
 	suite.assert.Equal(address1, response.Address1)
@@ -59,17 +60,17 @@ func (suite *AddressResponseTestSuite) Test_AddressEncoding_RunsNormally() {
 	//arrange
 	id := uint(1)
 	name := "Home address"
-	region := Region{uint(1), "Texas", uint(2), "USA"}
+	region := &models.Region{uint(1), "Texas", models.Country{uint(2), "USA"}, uint(2)}
 	city := "Seattle"
 	zip := "71234"
 	address1 := "Some st, 51"
 	address2 := "Some more here"
 	phoneNumber := "17345791232"
 
-	response := &Address{id, name, region, city, zip, address1, &address2, phoneNumber}
+	response := &Address{id, name, *NewRegionFromModel(region), city, zip, address1, &address2, phoneNumber}
 	expected := fmt.Sprintf(
 		`{"id":%v,"name":"%v","region":{"id":%v,"name":"%v","countryId":%v,"countryName":"%v"},"city":"%v","zip":"%v","address1":"%v","address2":"%v","phoneNumber":"%v"}`,
-		id, name, region.ID, region.Name, region.CountryID, region.CountryName, city, zip, address1, address2, phoneNumber)
+		id, name, region.ID, region.Name, region.Country.ID, region.Country.Name, city, zip, address1, address2, phoneNumber)
 	writer := new(bytes.Buffer)
 	encoder := json.NewEncoder(writer)
 

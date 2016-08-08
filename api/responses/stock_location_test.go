@@ -42,7 +42,7 @@ func (suite *stockLocationResponseTestSuite) Test_NewStockLocationFromModel() {
 		Type: locationType,
 		Address: &models.Address{
 			Name:        addressName,
-			RegionID:    addressRegionID,
+			Region:      models.Region{ID: addressRegionID},
 			City:        addressCity,
 			Zip:         addressZip,
 			Address1:    addressAddress,
