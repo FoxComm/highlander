@@ -3,6 +3,7 @@
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
+import { connect } from 'react-redux';
 
 import CreditCardDetails from './credit-card';
 import Currency from 'components/common/currency';
@@ -12,9 +13,10 @@ import PaymentMethodDetails from 'components/payment/payment-method';
 import TableCell from 'components/table/cell';
 import TableRow from 'components/table/row';
 import { DateTime } from 'components/common/datetime';
-import { EditButton } from 'components/common/buttons';
+import { EditButton, DeleteButton } from 'components/common/buttons';
 
 import styles from './payment-row.css';
+import {deleteCreditCardPayment, deleteGiftCardPayment, deleteStoreCreditPayment} from 'modules/carts/details';
 
 import type { PaymentMethod } from 'paragons/order';
 
@@ -23,6 +25,9 @@ type Props = {
   editMode: boolean,
   orderReferenceNumber: string,
   paymentMethod: PaymentMethod,
+  deleteCreditCardPayment: (refNum: string) => Promise,
+  deleteGiftCardPayment: (refNum: string, code: string) => Promise,
+  deleteStoreCreditPayment: (refNum: string) => Promise,
 };
 
 type State = {
@@ -30,12 +35,26 @@ type State = {
   showDetails: boolean,
 };
 
-export default class PaymentRow extends Component {
+class PaymentRow extends Component {
   props: Props;
   state: State = {
     isEditing: false,
     showDetails: false,
   };
+
+  @autobind
+  deletePayment(): ?Promise {
+    const { orderReferenceNumber, paymentMethod } = this.props;
+
+    switch (paymentMethod.type) {
+      case 'creditCard':
+        return this.props.deleteCreditCardPayment(orderReferenceNumber);
+      case 'giftCard':
+        return this.props.deleteGiftCardPayment(orderReferenceNumber, paymentMethod.code);
+      case 'storeCredit':
+        return this.props.deleteStoreCreditPayment(orderReferenceNumber);
+    }
+  }
 
   get amount(): ?Element {
     const amount = _.get(this.props, 'paymentMethod.amount');
@@ -89,6 +108,7 @@ export default class PaymentRow extends Component {
       return (
         <TableCell styleName="actions-cell">
           {editButton}
+          <DeleteButton onClick={this.deletePayment} />
         </TableCell>
       );
     }
@@ -149,4 +169,10 @@ export default class PaymentRow extends Component {
     );
   }
 }
+
+const deleteActions = {
+  deleteCreditCardPayment, deleteGiftCardPayment, deleteStoreCreditPayment
+};
+
+export default connect(void 0, deleteActions)(PaymentRow);
 

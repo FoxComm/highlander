@@ -119,7 +119,7 @@ const _editGiftCardPayment = createAsyncActions(
 
 const _deleteCreditCardPayment = createAsyncActions(
   'deleteCreditCardPayment',
-  (refNum: string) => Api.delete(`${paymentsBasePath(refNum)}/credit-card`)
+  (refNum: string) => Api.delete(`${paymentsBasePath(refNum)}/credit-cards`)
 );
 
 const _deleteGiftCardPayment = createAsyncActions(
