@@ -26,16 +26,16 @@ func NewShipmentFromPayload(payload *payloads.Shipment) *Shipment {
 		State:            payload.State,
 	}
 
-	if payload.ShipmentDate != "" {
-		shipment.ShipmentDate = sql.NullString{String: payload.ShipmentDate, Valid: true}
+	if payload.ShipmentDate != nil {
+		shipment.ShipmentDate = sql.NullString{String: *payload.ShipmentDate, Valid: true}
 	}
 
-	if payload.EstimatedArrival != "" {
-		shipment.EstimatedArrival = sql.NullString{String: payload.EstimatedArrival, Valid: true}
+	if payload.EstimatedArrival != nil {
+		shipment.EstimatedArrival = sql.NullString{String: *payload.EstimatedArrival, Valid: true}
 	}
 
-	if payload.DeliveredDate != "" {
-		shipment.DeliveredDate = sql.NullString{String: payload.DeliveredDate, Valid: true}
+	if payload.DeliveredDate != nil {
+		shipment.DeliveredDate = sql.NullString{String: *payload.DeliveredDate, Valid: true}
 	}
 
 	return shipment

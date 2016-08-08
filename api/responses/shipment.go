@@ -9,11 +9,11 @@ type Shipment struct {
 	State            string             `json:"state"`
 	LineItems        []ShipmentLineItem `json:"lineItems"`
 	//Transactions     TransactionList    `json:"transactions"`
-	ShipmentDate     string             `json:"shipmentDate"`
-	EstimatedArrival string             `json:"estimatedArrival"`
-	DeliveredDate    string             `json:"deliveredDate"`
+	ShipmentDate     *string            `json:"shipmentDate"`
+	EstimatedArrival *string            `json:"estimatedArrival"`
+	DeliveredDate    *string            `json:"deliveredDate"`
 	Address          Address            `json:"address"`
-	TrackingNumber   string             `json:"trackingNumber"`
+	TrackingNumber   *string            `json:"trackingNumber"`
 }
 
 func NewShipmentFromModel(model *models.Shipment) *Shipment {
@@ -26,15 +26,15 @@ func NewShipmentFromModel(model *models.Shipment) *Shipment {
 	}
 
 	if model.ShipmentDate.Valid {
-		shipment.ShipmentDate = model.ShipmentDate.String
+		shipment.ShipmentDate = &model.ShipmentDate.String
 	}
 
 	if model.EstimatedArrival.Valid {
-		shipment.EstimatedArrival = model.EstimatedArrival.String
+		shipment.EstimatedArrival = &model.EstimatedArrival.String
 	}
 
 	if model.DeliveredDate.Valid {
-		shipment.DeliveredDate = model.DeliveredDate.String
+		shipment.DeliveredDate = &model.DeliveredDate.String
 	}
 
 	return shipment

@@ -65,7 +65,7 @@ func (controller *shipmentController) getShipmentsByReferenceNumbers() gin.Handl
 
 func (controller *shipmentController) createShipment() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		payload := &payloads.ShipmentFull{}
+		payload := &payloads.Shipment{}
 		if parse(context, payload) != nil {
 			return
 		}
@@ -75,7 +75,7 @@ func (controller *shipmentController) createShipment() gin.HandlerFunc {
 			shipmentLineItems[i] = models.NewShipmentLineItemFromPayload(&shipmentLineItemPayload)
 		}
 		shipment, err := controller.shipmentService.CreateShipment(
-			models.NewShipmentFromPayload(payloads.NewShipmentFromShipmentFull(payload)),
+			models.NewShipmentFromPayload(payload),
 			models.NewAddressFromPayload(&payload.Address),
 			shipmentLineItems,
 		)
