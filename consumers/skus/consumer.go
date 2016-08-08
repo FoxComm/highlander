@@ -57,7 +57,5 @@ func (consumer *Consumer) handler(m metamorphosis.AvroMessage) error {
 
 	defer resp.Body.Close()
 
-	fmt.Println("response status:", resp.Status)
-
 	return nil
 }

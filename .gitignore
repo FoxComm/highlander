@@ -19,4 +19,4 @@ middlewarehouse.exe
 .DS_Store
 
 # consumers
-consumers/skus/consumers-sku
+consumers/skus/consumers-skus
