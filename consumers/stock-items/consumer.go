@@ -50,7 +50,7 @@ func (consumer *Consumer) handler(m metamorphosis.AvroMessage) error {
 
 	client := &http.Client{}
 	if _, err := client.Do(req); err != nil {
-		log.Fatalf("Error creating stock_item with error: %s", err.Error())
+		log.Printf("Error creating stock_item with error: %s", err.Error())
 	}
 
 	return nil
