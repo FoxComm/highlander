@@ -49,13 +49,9 @@ func (consumer *Consumer) handler(m metamorphosis.AvroMessage) error {
 	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
+	if _, err := client.Do(req); err != nil {
 		log.Fatalf("Error creating stock_item with error: %s", err.Error())
-		return nil
 	}
-
-	defer resp.Body.Close()
 
 	return nil
 }
