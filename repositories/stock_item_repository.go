@@ -16,7 +16,8 @@ type IStockItemRepository interface {
 	GetStockItems() ([]*models.StockItem, error)
 	GetStockItemById(id uint) (*models.StockItem, error)
 	GetStockItemsBySKUs(skus []string) ([]*models.StockItem, error)
-	GetAFS(id uint, unitType models.UnitType) (*models.AFS, error)
+	GetAFSByID(id uint, unitType models.UnitType) (*models.AFS, error)
+	GetAFSBySKU(sku string, unitType models.UnitType) (*models.AFS, error)
 
 	CreateStockItem(stockItem *models.StockItem) (*models.StockItem, error)
 	UpsertStockItem(item *models.StockItem) error
@@ -48,17 +49,20 @@ func (repository *stockItemRepository) GetStockItemsBySKUs(skus []string) ([]*mo
 	return items, err
 }
 
-func (repository *stockItemRepository) GetAFS(id uint, unitType models.UnitType) (*models.AFS, error) {
+func (repository *stockItemRepository) GetAFSByID(id uint, unitType models.UnitType) (*models.AFS, error) {
 	afs := &models.AFS{}
-	err := repository.db.
-		Table("stock_items si").
-		Select("si.id as stock_item_id, si.sku, s.afs").
-		Joins("left join stock_item_summaries s ON s.stock_item_id=si.id").
-		Where("si.id = ? AND s.type = ?", id, unitType).
-		Find(afs).
-		Error
 
-	if err != nil {
+	if err := repository.getAFSQuery(unitType).Where("si.id = ?", id).Find(afs).Error; err != nil {
+		return nil, err
+	}
+
+	return afs, nil
+}
+
+func (repository *stockItemRepository) GetAFSBySKU(sku string, unitType models.UnitType) (*models.AFS, error) {
+	afs := &models.AFS{}
+
+	if err := repository.getAFSQuery(unitType).Where("si.sku = ?", sku).Find(afs).Error; err != nil {
 		return nil, err
 	}
 
@@ -88,4 +92,12 @@ func (repository *stockItemRepository) UpsertStockItem(item *models.StockItem) e
 	}
 
 	return nil
+}
+
+func (repository *stockItemRepository) getAFSQuery(unitType models.UnitType) *gorm.DB {
+	return repository.db.
+		Table("stock_items si").
+		Select("si.id as stock_item_id, si.sku, s.afs").
+		Joins("left join stock_item_summaries s ON s.stock_item_id=si.id").
+		Where("s.type = ?", unitType)
 }
