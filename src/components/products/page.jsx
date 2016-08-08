@@ -193,7 +193,7 @@ class ProductPage extends Component {
 
   @autobind
   archiveProduct() {
-    this.props.archiveProduct(this.props.params.productId).then(() => {
+    this.props.archiveProduct(this.props.params.productId, this.state.context).then(() => {
       transitionTo('products');
     });
   }
