@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import _ from 'lodash';
 
 import AutoScroll from 'components/common/auto-scroll';
-import { Dropdown, DropdownItem } from 'components/dropdown';
+import { Dropdown } from 'components/dropdown';
 import ErrorAlerts from 'components/alerts/error-alerts';
 import { Form, FormField } from 'components/forms';
 import NewGiftCard from './new-gift-card';
@@ -48,30 +48,33 @@ class NewPayment extends Component {
     order: PropTypes.object.isRequired,
     orderPaymentMethodNewCreditCard: PropTypes.func.isRequired,
     paymentMethods: PropTypes.object,
+    cancelAction: PropTypes.func.isRequired,
   };
 
-  constructor(...args) {
-    super(...args);
-
-    this.state = {
-      paymentType: null,
-    };
-  }
+  state = {
+    paymentType: null,
+  };
 
   get errorMessages() {
     return <ErrorAlerts error={this.props.paymentMethods.err} />;
   }
 
   get newPaymentMethod() {
-    const { customerId, order } = this.props;
+    const { customerId, order, cancelAction } = this.props;
 
-    switch(this.state.paymentType) {
-    case 'creditCard':
-      return <NewCreditCard order={order} customerId={customerId} />;
-    case 'giftCard':
-      return <NewGiftCard order={order} customerId={customerId} />;
-    case 'storeCredit':
-      return <NewStoreCredit order={order} customerId={customerId} />;
+    const newPaymentProps = {
+      order,
+      customerId,
+      cancelAction,
+    };
+
+    switch (this.state.paymentType) {
+      case 'creditCard':
+        return <NewCreditCard {...newPaymentProps} />;
+      case 'giftCard':
+        return <NewGiftCard {...newPaymentProps} />;
+      case 'storeCredit':
+        return <NewStoreCredit {...newPaymentProps} />;
     }
   }
 

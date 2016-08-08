@@ -40,11 +40,11 @@ export default class NewStoreCredit extends Component {
       referenceNumber: PropTypes.string.isRequired,
     }).isRequired,
     totals: PropTypes.object.isRequired,
+    cancelAction: PropTypes.func.isRequired,
 
     actions: PropTypes.shape({
       setStoreCreditPayment: PropTypes.func.isRequired,
       fetchTotals: PropTypes.func.isRequired,
-      orderPaymentMethodStopEdit: PropTypes.func.isRequired,
     }).isRequired,
   };
 
@@ -69,7 +69,7 @@ export default class NewStoreCredit extends Component {
       <div className="fc-order-apply-store-credit">
         <DebitCredit
           availableBalance={this.availableBalance}
-          onCancel={this.props.actions.orderPaymentMethodStopEdit}
+          onCancel={this.props.cancelAction}
           onSubmit={this.handleSubmit}
           title="Customer's Store Credit"
         />

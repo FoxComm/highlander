@@ -45,13 +45,13 @@ export default class NewCreditCard extends Component {
     creditCards: PropTypes.object.isRequired,
     customerId: PropTypes.number.isRequired,
     order: PropTypes.object.isRequired,
+    cancelAction: PropTypes.func.isRequired,
 
     actions: PropTypes.shape({
       selectCreditCard: PropTypes.func.isRequired,
       createAndAddOrderCreditCardPayment: PropTypes.func.isRequired,
       fetchAddresses: PropTypes.func.isRequired,
       fetchCreditCards: PropTypes.func.isRequired,
-      orderPaymentMethodStopAdd: PropTypes.func.isRequired,
     }).isRequired,
   };
 
@@ -121,7 +121,7 @@ export default class NewCreditCard extends Component {
                     saveText="Add Payment Method"
                     saveDisabled={saveDisabled}
                     onSave={onSave}
-                    onCancel={this.props.actions.orderPaymentMethodStopAdd} />
+                    onCancel={this.props.cancelAction} />
       );
     }
   }

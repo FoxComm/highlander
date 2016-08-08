@@ -33,11 +33,11 @@ export default class NewGiftCard extends Component {
       isSearchingGiftCards: PropTypes.bool.isRequired,
       giftCards: PropTypes.array,
     }).isRequired,
+    cancelAction: PropTypes.func.isRequired,
 
     actions: PropTypes.shape({
       addGiftCardPayment: PropTypes.func.isRequired,
       giftCardSearch: PropTypes.func.isRequired,
-      orderPaymentMethodStopEdit: PropTypes.func.isRequired,
     }).isRequired,
   };
 
@@ -54,7 +54,7 @@ export default class NewGiftCard extends Component {
   componentWillReceiveProps(nextProps) {
     const gcResults = _.get(nextProps, 'paymentMethods.giftCards', []);
     const gcCode = _.get(gcResults, [0, 'code'], '');
-    if (gcResults.length == 1 && _.startsWith(gcCode, this.codeValue)) {
+    if (gcResults.length == 1 && _.startsWith(gcCode.toLowerCase(), this.codeValue.toLowerCase())) {
       this.setState({
         giftCard: gcResults[0],
         giftCardCode: gcCode,
@@ -72,7 +72,7 @@ export default class NewGiftCard extends Component {
       return (
         <DebitCredit
           availableBalance={this.availableBalance}
-          onCancel={this.props.actions.orderPaymentMethodStopEdit}
+          onCancel={this.props.cancelAction}
           onSubmit={this.handleGiftCardSubmit}
         />
       );

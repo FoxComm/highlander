@@ -58,6 +58,13 @@ export class Payments extends Component {
     });
   }
 
+  @autobind
+  cancelAdding() {
+    this.setState({
+      isAdding: false,
+    });
+  }
+
   get editingActions() {
     if (!this.state.isAdding) {
       const handleClick = () => {
@@ -84,8 +91,10 @@ export class Payments extends Component {
       <PaymentsPanel
         isAdding={this.state.isAdding}
         isEditing={this.state.isEditing}
+        cancelAdding={this.cancelAdding}
         order={cart}
-        paymentMethods={paymentMethods} />
+        paymentMethods={paymentMethods}
+      />
     );
 
     return (

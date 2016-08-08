@@ -15,6 +15,7 @@ type Props = {
   isEditing: boolean,
   order: Cart|Order,
   paymentMethods: Array<PaymentMethod>,
+  cancelAdding?: () => void,
 };
 
 type DefaultProps = {
@@ -52,7 +53,11 @@ export default class PaymentsPanel extends Component {
 
     return (
       <tbody>
-        <NewPayment order={order} customerId={customerId} />
+        <NewPayment
+          order={order}
+          customerId={customerId}
+          cancelAction={this.props.cancelAdding}
+        />
       </tbody>
     );
   }
@@ -69,19 +74,6 @@ export default class PaymentsPanel extends Component {
     return rows;
   }
 
-  //getRowDetails(type: string): Function {
-    //switch(type) {
-      //case 'giftCard':
-        //return GiftCard;
-      //case 'creditCard':
-        //return CreditCard;
-      //case 'storeCredit':
-        //return StoreCredit;
-      //default:
-        //throw 'Unexpected payment method type!';
-    //}
-  //}
-
   @autobind
   renderRow(row: PaymentMethod): Element {
     const { order } = this.props;
@@ -94,28 +86,9 @@ export default class PaymentsPanel extends Component {
         customerId={customerId}
         editMode={this.props.isEditing}
         orderReferenceNumber={referenceNumber}
-        paymentMethod={row} />
+        paymentMethod={row}
+      />
     );
-    //const { order, paymentMethods } = this.props;
-    //const customerId = order.customer.id;
-
-    //const id = row.id || row.code;
-    //if (!id) {
-      //throw 'Unable to render payment method without code or ID';
-    //}
-
-    //const Renderer = this.getRowRenderer(row.type);
-    //const props = {
-      //key: `payments-panel-row-${id}`,
-      //paymentMethod: row,
-      //editMode: this.props.isEditing,
-      //customerId: customerId,
-      //order: order,
-      //showDetails: this.state.showDetails[id],
-      //toggleDetails: () => this.toggleDetails(id),
-    //};
-
-    //return <Renderer {...props} />;
   }
 
   @autobind
@@ -128,7 +101,7 @@ export default class PaymentsPanel extends Component {
   }
 
   get viewContent(): Element {
-    const { isAdding, isEditing, paymentMethods } = this.props;
+    const { isEditing, paymentMethods } = this.props;
     const editColumns = isEditing ? [{ field: 'edit' }] : [];
 
     if (!isEditing && _.isEmpty(paymentMethods)) {
@@ -139,19 +112,16 @@ export default class PaymentsPanel extends Component {
       );
     } else {
       const columns = [...viewColumns, ...editColumns];
-      let processRows = _.identity;
-      if (isAdding) {
-        processRows = this.processRows;
-      }
 
       return (
         <TableView
           columns={columns}
           wrapToTbody={false}
           renderRow={this.renderRow}
-          processRows={processRows}
+          processRows={this.processRows}
           data={{rows: paymentMethods}}
-          emptyMessage="No payment method applied" />
+          emptyMessage="No payment method applied"
+        />
       );
     }
   }

@@ -32,7 +32,7 @@ type State = {
 
 export default class PaymentRow extends Component {
   props: Props;
-  state: State = { 
+  state: State = {
     isEditing: false,
     showDetails: false,
   };
