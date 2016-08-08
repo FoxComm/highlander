@@ -609,15 +609,11 @@ export default class LiveSearch extends React.Component {
     }
 
     if (!_.eq(search.shares, newSearch.shares)) {
-      console.log('share-search props changed');
       // do not rerender entire live-search component on share state update
       return false;
     }
 
-    const ls = !_.eq(this.props, nextProps) || !_.eq(this.state, nextState);
-    console.log(`LS CHANGED: ${ls}`);
-
-    return ls;
+    return !_.eq(this.props, nextProps) || !_.eq(this.state, nextState);
   }
 
   render() {
@@ -627,8 +623,6 @@ export default class LiveSearch extends React.Component {
     const tableClass = classNames('fc-live-search__table', {
       '_no-gutter': this.props.noGutter
     });
-
-    console.log('render live-search');
 
     return (
       <div className="fc-live-search">
