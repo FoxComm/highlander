@@ -31,9 +31,9 @@ func NewShipmentController(
 }
 
 func (controller *shipmentController) SetUp(router gin.IRouter) {
-	router.GET("/:referenceNumbers", controller.getShipmentsByReferenceNumbers())
-	router.POST("/", controller.createShipment())
-	router.PUT("/:id", controller.updateShipment())
+	router.GET(":referenceNumbers", controller.getShipmentsByReferenceNumbers())
+	router.POST("", controller.createShipment())
+	router.PUT(":id", controller.updateShipment())
 }
 
 func (controller *shipmentController) getShipmentsByReferenceNumbers() gin.HandlerFunc {

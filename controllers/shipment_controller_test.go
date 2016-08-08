@@ -173,7 +173,7 @@ func (suite *shipmentControllerTestSuite) Test_CreateShipment_ReturnsRecord() {
 
 	//act
 	shipment := responses.Shipment{}
-	response := suite.Post("/shipments/", payload, &shipment)
+	response := suite.Post("/shipments", payload, &shipment)
 
 	//assert
 	suite.assert.Equal(http.StatusCreated, response.Code)
