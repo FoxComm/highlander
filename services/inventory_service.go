@@ -41,8 +41,7 @@ func (service *inventoryService) GetStockItemById(id uint) (*models.StockItem, e
 }
 
 func (service *inventoryService) CreateStockItem(stockItem *models.StockItem) (*models.StockItem, error) {
-	stockItem, err := service.stockItemRepo.CreateStockItem(stockItem)
-	if err != nil {
+	if err := service.stockItemRepo.UpsertStockItem(stockItem); err != nil {
 		return nil, err
 	}
 

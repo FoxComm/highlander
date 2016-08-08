@@ -144,6 +144,38 @@ func (suite *InventoryServiceTestSuite) Test_CreateStockItem_EmptySKU() {
 	suite.assert.NotNil(err)
 }
 
+func (suite *InventoryServiceTestSuite) Test_CreateExistingStockItem() {
+	stockItem := &models.StockItem{
+		StockLocationID: 1,
+		SKU:             "TEST-UPSERT",
+		DefaultUnitCost: 999,
+	}
+
+	resp, err := suite.service.CreateStockItem(stockItem)
+	suite.assert.Nil(err)
+
+	var item models.StockItem
+	err = suite.db.First(&item, resp.ID).Error
+	suite.assert.Nil(err)
+	suite.assert.Equal(stockItem.DefaultUnitCost, item.DefaultUnitCost)
+
+	stockItemUpdate := &models.StockItem{
+		StockLocationID: 1,
+		SKU:             "TEST-UPSERT",
+		DefaultUnitCost: 599,
+	}
+
+	respUpdate, err := suite.service.CreateStockItem(stockItemUpdate)
+	suite.assert.Nil(err)
+	suite.assert.Equal(resp.ID, respUpdate.ID)
+	suite.assert.Equal(resp.SKU, respUpdate.SKU)
+
+	var itemUpdate models.StockItem
+	err = suite.db.First(&itemUpdate, respUpdate.ID).Error
+	suite.assert.Nil(err)
+	suite.assert.Equal(stockItemUpdate.DefaultUnitCost, itemUpdate.DefaultUnitCost)
+}
+
 func (suite *InventoryServiceTestSuite) Test_IncrementStockItemUnits() {
 	resp, err := suite.createStockItem("TEST-INCREMENT", 1)
 
