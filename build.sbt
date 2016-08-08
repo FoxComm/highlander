@@ -78,7 +78,7 @@ lazy val phoenixScala = (project in file(".")).
         "com.github.scopt"           %% "scopt"                  % "3.5.0",
         // Other
        ("org.spire-math"             %% "cats"                   % "0.3.0").excludeAll(noScalaCheckPlease),
-        "com.stripe"                 %  "stripe-java"            % "2.5.0",
+        "com.stripe"                 %  "stripe-java"            % "2.7.0",
         "org.slf4j"                  %  "slf4j-api"              % "1.7.21",
         "org.joda"                   %  "joda-money"             % "0.11",
         "com.pellucid"               %% "sealerate"              % "0.0.3",
