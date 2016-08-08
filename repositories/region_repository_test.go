@@ -23,7 +23,6 @@ func TestRegionRepositorySuite(t *testing.T) {
 
 func (suite *RegionRepositoryTestSuite) SetupTest() {
 	suite.db, suite.mock = CreateDbMock()
-	//suite.db, _ = config.DefaultConnection()
 
 	suite.repository = NewRegionRepository(suite.db)
 

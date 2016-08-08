@@ -21,7 +21,6 @@ func NewRegionRepository(db *gorm.DB) IRegionRepository {
 func (repository *regionRepository) GetRegionByID(id uint) (*models.Region, error) {
 	var region models.Region
 
-	//err := repository.db.First(&region, id).Error
 	result := repository.db.
 		Select([]string{
 			"regions.id as id",
