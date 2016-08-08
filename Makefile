@@ -10,9 +10,11 @@ TESTDIRS = $(SUBDIRS:%=test-%)
 
 build:
 	go build -o middlewarehouse main.go
+	$(MAKE) -C consumers/stock-items build
 
 build-linux:
 	GOOS=linux go build -o middlewarehouse main.go
+	$(MAKE) -C consumers/stock-items build-linux
 
 migrate:
 	${FLYWAY} migrate
@@ -41,7 +43,10 @@ drop-user:
 create-user:
 	createuser -s ${DB_USER}
 
-test: $(TESTDIRS)
+test-consumers:
+	$(MAKE) -C consumers/stock-items test
+
+test: $(TESTDIRS) test-consumers
 $(TESTDIRS): PACKAGE = $(@:test-%=%)
 $(TESTDIRS):
 	cd $(PACKAGE) && GOENV=test go test ./...
