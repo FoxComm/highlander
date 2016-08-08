@@ -43,9 +43,5 @@ func (service *AddressServiceMock) UpdateAddress(address *models.Address) (*mode
 func (service *AddressServiceMock) DeleteAddress(id uint) error {
 	args := service.Called(id)
 
-	if args.Bool(0) {
-		return nil
-	}
-
-	return args.Error(1)
+	return args.Error(0)
 }

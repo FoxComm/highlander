@@ -133,7 +133,7 @@ func (suite *CarrierServiceTestSuite) Test_UpdateCarrier_Found_ReturnsUpdatedRec
 
 func (suite *CarrierServiceTestSuite) Test_DeleteCarrier_NotFound_ReturnsNotFoundError() {
 	//arrange
-	suite.repository.On("DeleteCarrier", uint(1)).Return(false, gorm.ErrRecordNotFound).Once()
+	suite.repository.On("DeleteCarrier", uint(1)).Return(gorm.ErrRecordNotFound).Once()
 
 	//act
 	err := suite.service.DeleteCarrier(uint(1))
@@ -147,7 +147,7 @@ func (suite *CarrierServiceTestSuite) Test_DeleteCarrier_NotFound_ReturnsNotFoun
 
 func (suite *CarrierServiceTestSuite) Test_DeleteCarrier_Found_ReturnsNoError() {
 	//arrange
-	suite.repository.On("DeleteCarrier", uint(1)).Return(true).Once()
+	suite.repository.On("DeleteCarrier", uint(1)).Return(nil).Once()
 
 	//act
 	err := suite.service.DeleteCarrier(uint(1))

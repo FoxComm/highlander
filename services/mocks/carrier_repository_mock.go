@@ -53,9 +53,5 @@ func (service *CarrierRepositoryMock) UpdateCarrier(carrier *models.Carrier) (*m
 func (service *CarrierRepositoryMock) DeleteCarrier(id uint) error {
 	args := service.Called(id)
 
-	if args.Bool(0) {
-		return nil
-	}
-
-	return args.Error(1)
+	return args.Error(0)
 }

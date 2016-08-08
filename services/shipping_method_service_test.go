@@ -134,7 +134,7 @@ func (suite *ShippingMethodServiceTestSuite) Test_UpdateShippingMethod_Found_Ret
 
 func (suite *ShippingMethodServiceTestSuite) Test_DeleteShippingMethod_NotFound_ReturnsNotFoundError() {
 	//arrange
-	suite.repository.On("DeleteShippingMethod", uint(1)).Return(false, gorm.ErrRecordNotFound).Once()
+	suite.repository.On("DeleteShippingMethod", uint(1)).Return(gorm.ErrRecordNotFound).Once()
 
 	//act
 	err := suite.service.DeleteShippingMethod(uint(1))
@@ -148,7 +148,7 @@ func (suite *ShippingMethodServiceTestSuite) Test_DeleteShippingMethod_NotFound_
 
 func (suite *ShippingMethodServiceTestSuite) Test_DeleteShippingMethod_Found_ReturnsNoError() {
 	//arrange
-	suite.repository.On("DeleteShippingMethod", uint(1)).Return(true).Once()
+	suite.repository.On("DeleteShippingMethod", uint(1)).Return(nil).Once()
 
 	//act
 	err := suite.service.DeleteShippingMethod(uint(1))

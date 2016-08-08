@@ -179,7 +179,7 @@ func (suite *carrierControllerTestSuite) Test_UpdateCarrier_Found_ReturnsRecord(
 
 func (suite *carrierControllerTestSuite) Test_DeleteCarrier_NotFound_ReturnsNotFoundError() {
 	//arrange
-	suite.service.On("DeleteCarrier", uint(1)).Return(false, gorm.ErrRecordNotFound).Once()
+	suite.service.On("DeleteCarrier", uint(1)).Return(gorm.ErrRecordNotFound).Once()
 
 	//act
 	errors := responses.Error{}
@@ -196,7 +196,7 @@ func (suite *carrierControllerTestSuite) Test_DeleteCarrier_NotFound_ReturnsNotF
 
 func (suite *carrierControllerTestSuite) Test_DeleteCarrier_Found() {
 	//arrange
-	suite.service.On("DeleteCarrier", uint(1)).Return(true).Once()
+	suite.service.On("DeleteCarrier", uint(1)).Return(nil).Once()
 
 	//act
 	response := suite.Delete("/carriers/1")

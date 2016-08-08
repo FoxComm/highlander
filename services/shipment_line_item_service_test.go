@@ -95,7 +95,7 @@ func (suite *ShipmentLineItemServiceTestSuite) Test_UpdateShipmentLineItem_Found
 
 func (suite *ShipmentLineItemServiceTestSuite) Test_DeleteShipmentLineItem_NotFound_ReturnsNotFoundError() {
 	//arrange
-	suite.repository.On("DeleteShipmentLineItem", uint(1)).Return(false, gorm.ErrRecordNotFound).Once()
+	suite.repository.On("DeleteShipmentLineItem", uint(1)).Return(gorm.ErrRecordNotFound).Once()
 
 	//act
 	err := suite.service.DeleteShipmentLineItem(uint(1))
@@ -109,7 +109,7 @@ func (suite *ShipmentLineItemServiceTestSuite) Test_DeleteShipmentLineItem_NotFo
 
 func (suite *ShipmentLineItemServiceTestSuite) Test_DeleteShipmentLineItem_Found_ReturnsNoError() {
 	//arrange
-	suite.repository.On("DeleteShipmentLineItem", uint(1)).Return(true).Once()
+	suite.repository.On("DeleteShipmentLineItem", uint(1)).Return(nil).Once()
 
 	//act
 	err := suite.service.DeleteShipmentLineItem(uint(1))

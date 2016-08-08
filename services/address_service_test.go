@@ -85,7 +85,7 @@ func (suite *AddressServiceTestSuite) Test_CreateAddress_ReturnsCreatedRecord() 
 
 func (suite *AddressServiceTestSuite) Test_DeleteAddress_NotFound_ReturnsNotFoundError() {
 	//arrange
-	suite.repository.On("DeleteAddress", uint(1)).Return(false, gorm.ErrRecordNotFound).Once()
+	suite.repository.On("DeleteAddress", uint(1)).Return(gorm.ErrRecordNotFound).Once()
 
 	//act
 	err := suite.service.DeleteAddress(uint(1))
@@ -99,7 +99,7 @@ func (suite *AddressServiceTestSuite) Test_DeleteAddress_NotFound_ReturnsNotFoun
 
 func (suite *AddressServiceTestSuite) Test_DeleteAddress_Found_ReturnsNoError() {
 	//arrange
-	suite.repository.On("DeleteAddress", uint(1)).Return(true).Once()
+	suite.repository.On("DeleteAddress", uint(1)).Return(nil).Once()
 
 	//act
 	err := suite.service.DeleteAddress(uint(1))

@@ -53,9 +53,5 @@ func (service *ShipmentLineItemServiceMock) UpdateShipmentLineItem(shipmentLineI
 func (service *ShipmentLineItemServiceMock) DeleteShipmentLineItem(id uint) error {
 	args := service.Called(id)
 
-	if args.Bool(0) {
-		return nil
-	}
-
-	return args.Error(1)
+	return args.Error(0)
 }
