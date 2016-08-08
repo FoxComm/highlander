@@ -46,6 +46,7 @@ export default class Typeahead extends React.Component {
   constructor(...args) {
     super(...args);
     this.state = {
+      active: false,
       showMenu: false,
       showAlert: false,
       query: '',
@@ -85,6 +86,8 @@ export default class Typeahead extends React.Component {
 
   @autobind
   onBlur(event) {
+    this.setState({ active: false });
+
     if (this.props.hideOnBlur) {
       this.toggleVisibility(false);
     }
@@ -93,6 +96,8 @@ export default class Typeahead extends React.Component {
 
   @autobind
   onFocus() {
+    this.setState({ active: true });
+
     if (this.state.query.length >= this.props.minQueryLength) {
       this.toggleVisibility(true);
     }
@@ -105,7 +110,7 @@ export default class Typeahead extends React.Component {
     }
   }
 
-  @debounce(500)
+  @debounce(400)
   fetchItems(value) {
     if (value.length < this.props.minQueryLength) {
       return this.toggleAlert(true);
@@ -167,7 +172,6 @@ export default class Typeahead extends React.Component {
       clearInputState: this.clearState,
     };
 
-
     if (itemsElement) {
       return React.cloneElement(itemsElement, { ...ourProps, ...clearState });
     } else {
@@ -175,7 +179,7 @@ export default class Typeahead extends React.Component {
         <TypeaheadItems {...ourProps}
           component={this.props.component}
           items={this.props.items}
-          onItemSelected={this.onItemSelected}/>
+          onItemSelected={this.onItemSelected} />
       );
     }
   }
@@ -209,7 +213,7 @@ export default class Typeahead extends React.Component {
   }
 
   render() {
-    const elementClass = classNames('fc-typeahead', this.props.className);
+    const elementClass = classNames('fc-typeahead', { '_active': this.state.active }, this.props.className);
 
     const menuClass = classNames('fc-typeahead__menu', {
       '_visible': this.state.showMenu
