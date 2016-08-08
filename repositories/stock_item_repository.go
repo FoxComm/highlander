@@ -16,6 +16,7 @@ type IStockItemRepository interface {
 	GetStockItems() ([]*models.StockItem, error)
 	GetStockItemById(id uint) (*models.StockItem, error)
 	GetStockItemsBySKUs(skus []string) ([]*models.StockItem, error)
+	GetAFS(id uint, unitType models.UnitType) (*models.AFS, error)
 
 	CreateStockItem(stockItem *models.StockItem) (*models.StockItem, error)
 	UpsertStockItem(item *models.StockItem) error
@@ -45,6 +46,23 @@ func (repository *stockItemRepository) GetStockItemsBySKUs(skus []string) ([]*mo
 	err := repository.db.Where("sku in (?)", skus).Find(&items).Error
 
 	return items, err
+}
+
+func (repository *stockItemRepository) GetAFS(id uint, unitType models.UnitType) (*models.AFS, error) {
+	afs := &models.AFS{}
+	err := repository.db.
+		Table("stock_items si").
+		Select("si.id as stock_item_id, si.sku, s.afs").
+		Joins("left join stock_item_summaries s ON s.stock_item_id=si.id").
+		Where("si.id = ? AND s.type = ?", id, unitType).
+		Find(afs).
+		Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return afs, nil
 }
 
 func (repository *stockItemRepository) CreateStockItem(stockItem *models.StockItem) (*models.StockItem, error) {

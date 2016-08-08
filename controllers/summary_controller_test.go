@@ -46,7 +46,7 @@ func (suite *summaryControllerTestSuite) Test_GetSummary() {
 		Type:        models.Sellable,
 	}}, nil).Once()
 
-	res := suite.Get("/summary/")
+	res := suite.Get("/summary")
 
 	suite.assert.Equal(http.StatusOK, res.Code)
 	suite.assert.Contains(res.Body.String(), "summary\":[")

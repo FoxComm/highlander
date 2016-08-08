@@ -18,6 +18,7 @@ type IInventoryService interface {
 	GetStockItems() ([]*models.StockItem, error)
 	GetStockItemById(id uint) (*models.StockItem, error)
 	CreateStockItem(stockItem *models.StockItem) (*models.StockItem, error)
+	GetAFS(id uint, unitType models.UnitType) (*models.AFS, error)
 
 	IncrementStockItemUnits(id uint, unitType models.UnitType, units []*models.StockItemUnit) error
 	DecrementStockItemUnits(id uint, unitType models.UnitType, qty int) error
@@ -52,6 +53,10 @@ func (service *inventoryService) CreateStockItem(stockItem *models.StockItem) (*
 	}
 
 	return stockItem, nil
+}
+
+func (service *inventoryService) GetAFS(id uint, unitType models.UnitType) (*models.AFS, error) {
+	return service.stockItemRepo.GetAFS(id, unitType)
 }
 
 func (service *inventoryService) IncrementStockItemUnits(stockItemId uint, unitType models.UnitType, units []*models.StockItemUnit) error {

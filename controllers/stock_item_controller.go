@@ -26,6 +26,8 @@ func (controller *stockItemController) SetUp(router gin.IRouter) {
 	router.POST("", controller.CreateStockItem())
 	router.PATCH(":id/increment", controller.IncrementStockItemUnits())
 	router.PATCH(":id/decrement", controller.DecrementStockItemUnits())
+
+	router.GET(":id/afs/:type", controller.GetAFSByIdType())
 }
 
 func (controller *stockItemController) GetStockItems() gin.HandlerFunc {
@@ -135,5 +137,26 @@ func (controller *stockItemController) DecrementStockItemUnits() gin.HandlerFunc
 		}
 
 		context.Status(http.StatusNoContent)
+	}
+}
+
+func (controller *stockItemController) GetAFSByIdType() gin.HandlerFunc {
+	return func(context *gin.Context) {
+		id, fail := paramUint(context, "id")
+		if fail != nil {
+			return
+		}
+
+		unitType := context.Params.ByName("type")
+
+		afs, err := controller.service.GetAFS(id, models.UnitType(unitType))
+		if err != nil {
+			handleServiceError(context, err)
+			return
+		}
+
+		resp := responses.NewAFSFromModel(afs)
+
+		context.JSON(200, resp)
 	}
 }
