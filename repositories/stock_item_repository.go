@@ -18,7 +18,7 @@ type IStockItemRepository interface {
 	GetStockItemsBySKUs(skus []string) ([]*models.StockItem, error)
 
 	CreateStockItem(stockItem *models.StockItem) (*models.StockItem, error)
-	Upsert(item *models.StockItem) error
+	UpsertStockItem(item *models.StockItem) error
 	DeleteStockItem(stockItemId uint) error
 }
 
@@ -59,13 +59,13 @@ func (repository *stockItemRepository) DeleteStockItem(stockItemId uint) error {
 	return repository.db.Delete(&models.StockItem{}, stockItemId).Error
 }
 
-func (s stockItemRepository) Upsert(item *models.StockItem) error {
+func (repository *stockItemRepository) UpsertStockItem(item *models.StockItem) error {
 	onConflict := fmt.Sprintf(
 		"ON CONFLICT (sku, stock_location_id) DO UPDATE SET default_unit_cost = '%d'",
 		item.DefaultUnitCost,
 	)
 
-	if err := s.db.Set("gorm:insert_option", onConflict).Create(item).Error; err != nil {
+	if err := repository.db.Set("gorm:insert_option", onConflict).Create(item).Error; err != nil {
 		return err
 	}
 
