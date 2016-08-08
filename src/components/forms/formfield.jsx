@@ -22,6 +22,7 @@ type FormFieldProps = {
   labelAfterInput?: boolean;
   label?: Element|string;
   validationLabel?: string;
+  requiredMessage?: string;
 };
 
 export default class FormField extends Component {
@@ -190,12 +191,12 @@ export default class FormField extends Component {
 
     const value = this.getTargetValue();
     let label = this.props.validationLabel || this.props.label || 'This field';
-    let requiredMessage;
+    let requiredMessage = this.props.requiredMessage;
     if (!label) {
       label = 'This field';
-      requiredMessage = `${label} is required`;
+      if (!requiredMessage) requiredMessage = `${label} is required`;
     } else {
-      requiredMessage = `${label} is required field`;
+      if (!requiredMessage) requiredMessage = `${label} is required field`;
     }
 
     if (value !== void 0 && (!_.isString(value) || value)) {
