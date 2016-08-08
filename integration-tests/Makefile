@@ -1,3 +1,6 @@
 
 build:
 	true
+
+test:
+	true

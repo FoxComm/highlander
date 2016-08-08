@@ -2,4 +2,7 @@
 build:
 	boot build
 
-.PHONY: build
+test:
+	true
+
+.PHONY: build test

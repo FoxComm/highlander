@@ -3,4 +3,7 @@ build:
 	mkdir build; true
 	cd build && cmake .. && make
 
-.PHONY: build
+test:
+	true
+
+.PHONY: build test

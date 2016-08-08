@@ -9,6 +9,8 @@ build: setup
 package: build
 	touch firebrand.tar.bz2
 	tar --exclude 'firebrand.tar.bz2' -jcf firebrand.tar.bz2 ./
-	
 
-.PHONY: setup build package
+test:
+	npm test
+
+.PHONY: setup build package test

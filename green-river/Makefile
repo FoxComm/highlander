@@ -1,4 +1,7 @@
 build:
 	sbt assembly
 
-.PHONY: build
+test:
+	sbt test
+
+.PHONY: build test

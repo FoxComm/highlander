@@ -1,2 +1,5 @@
 build:
 	true
+
+test:
+	true
