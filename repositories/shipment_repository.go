@@ -24,11 +24,9 @@ func NewShipmentRepository(db *gorm.DB) IShipmentRepository {
 func (repository *shipmentRepository) GetShipmentsByReferenceNumber(referenceNumber string) ([]*models.Shipment, error) {
 	var shipments []*models.Shipment
 
-	if err := repository.db.Where("reference_number = ?", referenceNumber).Find(&shipments).Error; err != nil {
-		return nil, err
-	}
+	err := repository.db.Where("reference_number = ?", referenceNumber).Find(&shipments).Error
 
-	return shipments, nil
+	return shipments, err
 }
 
 func (repository *shipmentRepository) CreateShipment(shipment *models.Shipment) (*models.Shipment, error) {

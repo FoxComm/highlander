@@ -19,7 +19,7 @@ func NewRegionRepository(db *gorm.DB) IRegionRepository {
 }
 
 func (repository *regionRepository) GetRegionByID(id uint) (*models.Region, error) {
-	var region models.Region
+	region := &models.Region{}
 
 	result := repository.db.
 		Select([]string{
@@ -30,7 +30,7 @@ func (repository *regionRepository) GetRegionByID(id uint) (*models.Region, erro
 		}).
 		Joins("join countries ON regions.country_id=countries.id").
 		Where("regions.id=?", id).
-		Find(&region)
+		Find(region)
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -40,5 +40,5 @@ func (repository *regionRepository) GetRegionByID(id uint) (*models.Region, erro
 		return nil, gorm.ErrRecordNotFound
 	}
 
-	return &region, nil
+	return region, nil
 }

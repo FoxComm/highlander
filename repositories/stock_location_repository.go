@@ -25,11 +25,9 @@ func NewStockLocationRepository(db *gorm.DB) IStockLocationRepository {
 func (repository *stockLocationRepository) GetLocations() ([]*models.StockLocation, error) {
 	locations := []*models.StockLocation{}
 
-	if err := repository.db.Find(&locations).Error; err != nil {
-		return nil, err
-	}
+	err := repository.db.Find(&locations).Error
 
-	return locations, nil
+	return locations, err
 }
 
 func (repository *stockLocationRepository) GetLocationByID(id uint) (*models.StockLocation, error) {

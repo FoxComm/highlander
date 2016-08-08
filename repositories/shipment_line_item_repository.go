@@ -23,11 +23,9 @@ func NewShipmentLineItemRepository(db *gorm.DB) IShipmentLineItemRepository {
 func (repository *shipmentLineItemRepository) GetShipmentLineItemsByShipmentID(id uint) ([]*models.ShipmentLineItem, error) {
 	var shipmentLineItems []*models.ShipmentLineItem
 
-	if err := repository.db.Where("shipment_id = ?", id).Find(&shipmentLineItems).Error; err != nil {
-		return nil, err
-	}
+	err := repository.db.Where("shipment_id = ?", id).Find(&shipmentLineItems).Error
 
-	return shipmentLineItems, nil
+	return shipmentLineItems, err
 }
 
 func (repository *shipmentLineItemRepository) CreateShipmentLineItem(shipmentLineItem *models.ShipmentLineItem) (*models.ShipmentLineItem, error) {

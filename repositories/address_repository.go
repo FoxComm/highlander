@@ -21,13 +21,13 @@ func NewAddressRepository(db *gorm.DB) IAddressRepository {
 }
 
 func (repository *addressRepository) GetAddressByID(id uint) (*models.Address, error) {
-	var address models.Address
+	address := &models.Address{}
 
-	if err := repository.db.First(&address, id).Error; err != nil {
+	if err := repository.db.First(address, id).Error; err != nil {
 		return nil, err
 	}
 
-	return &address, nil
+	return address, nil
 }
 
 func (repository *addressRepository) CreateAddress(address *models.Address) (*models.Address, error) {
