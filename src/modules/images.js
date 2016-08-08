@@ -245,15 +245,16 @@ export default function createImagesModule(entity: string): Module {
     },
     [_editAlbum.succeeded]: (state: State, response: TAlbum) => {
       const idx = _.findIndex(state.albums, (album: TAlbum) => album.id === response.id);
+
       return assoc(state, ['albums', idx], response);
     },
-    [_moveAlbum.succeeded]: (state: State, [response, context, entityId, albumId, newPosition]) => {
-      // why does response has an array???
+    [_moveAlbum.started]: (state: State, [context, entityId, albumId, newPosition]) => {
       const oldPosition = _.findIndex(state.albums, {id: albumId});
       const albums = [...state.albums];
+      const albumToMove = albums[oldPosition];
 
       albums.splice(oldPosition, 1);
-      albums.splice(newPosition, 0, response[0]);
+      albums.splice(newPosition, 0, albumToMove);
 
       return assoc(state, ['albums'], albums);
     },
