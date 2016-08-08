@@ -5,7 +5,7 @@ require 'fileutils'
 
 CONFIG = File.join(File.dirname(__FILE__), "vagrant.local.rb")
 
-$vb_memory = 1024*4
+$vb_memory = 1024*8
 $vb_cpu = 4
 $nginx_ip = "192.168.10.113"
 $user = "vagrant"
@@ -47,38 +47,6 @@ Vagrant.configure("2") do |config|
 
   tune_vm(config, cpus: $vb_cpu, memory: $vb_memory)
 
-  config.vm.define :contained, primary: true do |app|
-    app.vm.box = "base16.04"
-    app.vm.box_url = "https://s3.amazonaws.com/fc-dev-boxes/base16.04.box"
-    app.vm.box_download_checksum = "1592b61d125dfa22899e04c2cab08d1a"
-    app.vm.box_download_checksum_type = "md5"
-    app.vm.network :private_network, ip: $nginx_ip
-
-    app.vm.provision "shell", inline: "apt-get install -y python-minimal"
-    app.vm.provision "ansible" do |ansible|
-      ansible.verbose = "vvvv"
-      ansible.playbook = "prov-shit/ansible/vagrant_contained.yml"
-      ansible.extra_vars = {
-        user: $user
-      }
-    end
-  end
-
-  config.vm.define :base, autostart: false do |app|
-    app.vm.box = "boxcutter/ubuntu1604"
-    app.vm.network :private_network, ip: $nginx_ip
-
-    app.vm.provision "shell", inline: "apt-get install -y python-minimal"
-    app.vm.provision "ansible" do |ansible|
-      ansible.verbose = "vvvv"
-      ansible.skip_tags = "buildkite"
-      ansible.playbook = "prov-shit/ansible/vagrant_base.yml"
-      ansible.extra_vars = {
-        user: $user
-      }
-    end
-  end
-
   config.vm.define :build, autostart: false do |app|
     app.vm.box = "boxcutter/ubuntu1604"
     app.vm.network :private_network, ip: $nginx_ip
@@ -87,7 +55,7 @@ Vagrant.configure("2") do |config|
     app.vm.provision "ansible" do |ansible|
       ansible.verbose = "vvvv"
       ansible.skip_tags = "buildkite"
-      ansible.playbook = "prov-shit/ansible/vagrant_base.yml"
+      ansible.playbook = "prov-shit/ansible/vagrant_builder.yml"
       ansible.extra_vars = {
         user: $user
       }
