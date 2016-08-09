@@ -44,6 +44,11 @@ trait ShipmentSeeds {
                        price = 300,
                        isActive = true,
                        conditions = Some(under50Bucks)),
+        ShippingMethod(adminDisplayName = "Standard shipping (USPS)",
+                       storefrontDisplayName = "Standard shipping",
+                       price = 0,
+                       isActive = true,
+                       conditions = Some(over50Bucks)),
         ShippingMethod(adminDisplayName = "2-3 day express (FedEx)",
                        storefrontDisplayName = "2-3 day express",
                        price = 1500,
@@ -53,12 +58,7 @@ trait ShipmentSeeds {
                        storefrontDisplayName = "Overnight",
                        price = 3000,
                        isActive = true,
-                       conditions = Some(usOnly)),
-        ShippingMethod(adminDisplayName = "Standard shipping (USPS)",
-                       storefrontDisplayName = "Standard shipping",
-                       price = 0,
-                       isActive = true,
-                       conditions = Some(over50Bucks))
+                       conditions = Some(usOnly))
     )
 
   def shippingPriceRules = Seq(
@@ -76,15 +76,16 @@ trait ShipmentSeeds {
                         flatMarkup = 0),
       ShippingPriceRule(name = "Flat Shipping Over 50",
                         ruleType = Flat,
-                        flatPrice = 5000,
+                        flatPrice = 0,
                         flatMarkup = 0)
   )
 
   def shippingMethodRuleMappings = Seq(
       ShippingMethodPriceRule(shippingMethodId = 1, shippingPriceRuleId = 1, ruleRank = 1),
       ShippingMethodPriceRule(shippingMethodId = 1, shippingPriceRuleId = 4, ruleRank = 2),
-      ShippingMethodPriceRule(shippingMethodId = 2, shippingPriceRuleId = 2, ruleRank = 1),
-      ShippingMethodPriceRule(shippingMethodId = 3, shippingPriceRuleId = 3, ruleRank = 1)
+      ShippingMethodPriceRule(shippingMethodId = 2, shippingPriceRuleId = 4, ruleRank = 1),
+      ShippingMethodPriceRule(shippingMethodId = 3, shippingPriceRuleId = 2, ruleRank = 1),
+      ShippingMethodPriceRule(shippingMethodId = 4, shippingPriceRuleId = 3, ruleRank = 1)
   )
 
   def usOnly = parse(s"""
