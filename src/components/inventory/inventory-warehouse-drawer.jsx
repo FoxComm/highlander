@@ -16,7 +16,7 @@ import * as WarehousesActions from 'modules/inventory/warehouses';
 import type { StockItemFlat } from 'modules/inventory/warehouses';
 
 type State = {
-  popupOpenedFor: number|null,
+  popupOpenedFor: string|null,
 }
 
 type Props = {
@@ -33,7 +33,7 @@ class WarehouseDrawer extends Component {
     popupOpenedFor: null,
   };
 
-  togglePopupFor(id: number, show: boolean): void {
+  togglePopupFor(id: string, show: boolean): void {
     this.setState({
       popupOpenedFor: show ? id : null,
     });
@@ -47,15 +47,17 @@ class WarehouseDrawer extends Component {
       this.props.updateSkuItemsCount(row.sku, row, diff);
     };
 
+    const uniqId = `${row.type}-${row.id}`;
+
     return (
-      <TableRow key={row.stockItemId}>
+      <TableRow key={uniqId}>
         <td>{row.type}</td>
         <td>
           <AdjustQuantity
             value={row.onHand}
             onChange={handleChangeQuantity}
-            isPopupShown={state.popupOpenedFor === row.stockItemId}
-            togglePopup={(show) => this.togglePopupFor(row.stockItemId, show)}
+            isPopupShown={state.popupOpenedFor === uniqId}
+            togglePopup={(show) => this.togglePopupFor(uniqId, show)}
           />
         </td>
         <td>{row.onHold}</td>

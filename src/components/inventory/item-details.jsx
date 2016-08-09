@@ -48,7 +48,7 @@ class InventoryItemDetails extends Component {
 
   get tableColumns() {
     return [
-      {field: 'stockLocation.stockLocationName', text: 'Warehouse'},
+      {field: 'stockLocation.name', text: 'Warehouse'},
       {field: 'onHand', text: 'On Hand'},
       {field: 'onHold', text: 'Hold'},
       {field: 'reserved', text: 'Reserved'},
@@ -70,7 +70,7 @@ class InventoryItemDetails extends Component {
 
   @autobind
   renderDrawer(row: WarehouseInventorySummary, index, params) {
-    const key = `inventory-warehouse-drawer-${row.stockLocation.stockLocationId}`;
+    const key = `inventory-warehouse-drawer-${row.stockLocation.id}`;
     return (
       <WarehouseDrawer
         key={key}
@@ -85,7 +85,7 @@ class InventoryItemDetails extends Component {
 
   @autobind
   renderRow(row: WarehouseInventorySummary, index, columns, params) {
-    const key = `inventory-warehouse-${row.stockLocation.stockLocationId}`;
+    const key = `inventory-warehouse-${row.stockLocation.id}`;
     return (
       <InventoryWarehouseRow
         key={key}
@@ -105,7 +105,7 @@ class InventoryItemDetails extends Component {
   drawerData(warehouseSummary: WarehouseInventorySummary) {
     const inventoryDetails: WarehouseInventoryMap = this.props.inventoryDetails;
 
-    const stockItems = _.get(inventoryDetails, [warehouseSummary.stockLocation.stockLocationId, 'stockItems'], []);
+    const stockItems = _.get(inventoryDetails, [warehouseSummary.stockLocation.id, 'stockItems'], []);
     return array2tableData(stockItems);
   }
 
@@ -121,7 +121,7 @@ class InventoryItemDetails extends Component {
             data={this.summaryData}
             renderRow={this.renderRow}
             renderDrawer={this.renderDrawer}
-            idField="stockLocation.stockLocationId"
+            idField="stockLocation.id"
             isLoading={isFetching}
             failed={failed}
             emptyMessage="No warehouse data found."
