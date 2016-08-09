@@ -27,11 +27,14 @@ func (repository *addressRepository) GetAddressByID(id uint) (*models.Address, e
 		return nil, err
 	}
 
+	repository.db.Model(address).Related(&address.Region)
+	repository.db.Model(address.Region).Related(&address.Region.Country)
+
 	return address, nil
 }
 
 func (repository *addressRepository) CreateAddress(address *models.Address) (*models.Address, error) {
-	err := repository.db.Create(address).Error
+	err := repository.db.Set("gorm:save_associations", false).Create(address).Error
 
 	if err != nil {
 		return nil, err
