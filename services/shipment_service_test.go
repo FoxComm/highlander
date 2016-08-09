@@ -2,14 +2,14 @@ package services
 
 import (
 	"database/sql"
+	"errors"
 	"testing"
 
 	"github.com/FoxComm/middlewarehouse/common/gormfox"
-	"github.com/FoxComm/middlewarehouse/models"
 	serviceMocks "github.com/FoxComm/middlewarehouse/controllers/mocks"
+	"github.com/FoxComm/middlewarehouse/models"
 	repositoryMocks "github.com/FoxComm/middlewarehouse/services/mocks"
 
-	"errors"
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -166,8 +166,17 @@ func (suite *ShipmentServiceTestSuite) getTestShipment2() *models.Shipment {
 }
 
 func (suite *ShipmentServiceTestSuite) getTestAddress1() *models.Address {
-	return &models.Address{gormfox.Base{ID: uint(1)}, "Home address", uint(1), "Texas", "75231",
+	return &models.Address{gormfox.Base{ID: uint(1)}, "Home address", uint(1),
+		*suite.getTestRegion1(), "Texas", "75231",
 		"Some st, 335", sql.NullString{String: "", Valid: false}, "19527352893"}
+}
+
+func (suite *ShipmentServiceTestSuite) getTestRegion1() *models.Region {
+	return &models.Region{uint(1), "Texas", uint(2), *suite.getTestCountry1()}
+}
+
+func (suite *ShipmentServiceTestSuite) getTestCountry1() *models.Country {
+	return &models.Country{uint(2), "USA"}
 }
 
 func (suite *ShipmentServiceTestSuite) getTestShipmentLineItem1(shipmentID uint) *models.ShipmentLineItem {

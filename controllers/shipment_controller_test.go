@@ -24,7 +24,6 @@ type shipmentControllerTestSuite struct {
 	GeneralControllerTestSuite
 	shipmentService         *mocks.ShipmentServiceMock
 	addressService          *mocks.AddressServiceMock
-	regionService           *mocks.RegionServiceMock
 	shipmentLineItemService *mocks.ShipmentLineItemServiceMock
 	//shipmentTransactionService *mocks.ShipmentTransactionServiceMock
 }
@@ -38,11 +37,10 @@ func (suite *shipmentControllerTestSuite) SetupSuite() {
 
 	suite.shipmentService = &mocks.ShipmentServiceMock{}
 	suite.addressService = &mocks.AddressServiceMock{}
-	suite.regionService = &mocks.RegionServiceMock{}
 	suite.shipmentLineItemService = &mocks.ShipmentLineItemServiceMock{}
 	//suite.shipmentTransactionService = &mocks.ShipmentTransactionServiceMock{}
 
-	controller := NewShipmentController(suite.shipmentService, suite.addressService, suite.regionService, suite.shipmentLineItemService /*, suite.shipmentTransactionService*/)
+	controller := NewShipmentController(suite.shipmentService, suite.addressService, suite.shipmentLineItemService /*, suite.shipmentTransactionService*/)
 	controller.SetUp(suite.router.Group("/shipments"))
 
 	suite.assert = assert.New(suite.T())
@@ -81,9 +79,9 @@ func (suite *shipmentControllerTestSuite) Test_GetShipmentsByReferenceNumbers_No
 func (suite *shipmentControllerTestSuite) Test_GetShipmentsByReferenceNumbers_Found_ReturnsRecords() {
 	//arrange
 	region1 := suite.getTestRegion1()
-	region2 := suite.getTestRegion2()
-	address1 := suite.getTestAddess1(uint(1))
-	address2 := suite.getTestAddess2(uint(2))
+	country1 := suite.getTestCountry1()
+	address1 := suite.getTestAddress1(uint(1))
+	address2 := suite.getTestAddress2(uint(2))
 	shipment1 := suite.getTestShipment1(uint(1), address1.ID)
 	shipment2 := suite.getTestShipment2(uint(2), address2.ID)
 	shipmentLineItem1 := suite.getTestShipmentLineItem1(uint(1), shipment1.ID)
@@ -100,8 +98,6 @@ func (suite *shipmentControllerTestSuite) Test_GetShipmentsByReferenceNumbers_Fo
 	}, nil).Once()
 	suite.addressService.On("GetAddressByID", address1.ID).Return(address1, nil).Once()
 	suite.addressService.On("GetAddressByID", address2.ID).Return(address2, nil).Once()
-	suite.regionService.On("GetRegionByID", region1.ID).Return(region1, nil).Once()
-	suite.regionService.On("GetRegionByID", region2.ID).Return(region2, nil).Once()
 	suite.shipmentLineItemService.On("GetShipmentLineItemsByShipmentID", shipment1.ID).Return([]*models.ShipmentLineItem{
 		shipmentLineItem1,
 		shipmentLineItem2,
@@ -127,7 +123,9 @@ func (suite *shipmentControllerTestSuite) Test_GetShipmentsByReferenceNumbers_Fo
 	suite.assert.Equal(address1.ID, shipments[0].Address.ID)
 	suite.assert.Equal(address2.ID, shipments[1].Address.ID)
 	suite.assert.Equal(region1.ID, shipments[0].Address.Region.ID)
-	suite.assert.Equal(region2.ID, shipments[1].Address.Region.ID)
+	suite.assert.Equal(region1.ID, shipments[1].Address.Region.ID)
+	suite.assert.Equal(country1.ID, shipments[0].Address.Region.CountryID)
+	suite.assert.Equal(country1.ID, shipments[1].Address.Region.CountryID)
 	suite.assert.Equal(shipmentLineItem1.ID, shipments[0].LineItems[0].ID)
 	suite.assert.Equal(shipmentLineItem2.ID, shipments[0].LineItems[1].ID)
 	suite.assert.Equal(shipmentLineItem3.ID, shipments[1].LineItems[0].ID)
@@ -138,14 +136,14 @@ func (suite *shipmentControllerTestSuite) Test_GetShipmentsByReferenceNumbers_Fo
 
 func (suite *shipmentControllerTestSuite) Test_CreateShipment_ReturnsRecord() {
 	//arrange
-	address1 := suite.getTestAddess1(uint(1))
-	region1 := suite.getTestRegion1()
+	address1 := suite.getTestAddress1(uint(1))
 	shipment1 := suite.getTestShipment1(uint(1), address1.ID)
 	payload := &payloads.Shipment{shipment1.ShippingMethodID, shipment1.ReferenceNumber, string(shipment1.State),
 		&shipment1.ShipmentDate.String, &shipment1.EstimatedArrival.String, &shipment1.DeliveredDate.String,
 		&shipment1.TrackingNumber.String, []payloads.ShipmentLineItem{}, payloads.Address{}}
-	payload.Address = payloads.Address{address1.Name, address1.RegionID, address1.City,
-		address1.Zip, address1.Address1, &address1.Address2.String, address1.PhoneNumber}
+	payload.Address = payloads.Address{address1.Name,
+		payloads.Region{address1.Region.ID, address1.Region.Name, address1.Region.Country.ID, address1.Region.Country.Name},
+		address1.City, address1.Zip, address1.Address1, &address1.Address2.String, address1.PhoneNumber}
 	shipmentLineItem1 := suite.getTestShipmentLineItem1(uint(1), shipment1.ID)
 	shipmentLineItem2 := suite.getTestShipmentLineItem2(uint(2), shipment1.ID)
 	payload.LineItems = []payloads.ShipmentLineItem{
@@ -163,7 +161,6 @@ func (suite *shipmentControllerTestSuite) Test_CreateShipment_ReturnsRecord() {
 		}).
 		Return(shipment1, nil).Once()
 	suite.addressService.On("GetAddressByID", address1.ID).Return(address1, nil).Once()
-	suite.regionService.On("GetRegionByID", region1.ID).Return(region1, nil).Once()
 	suite.shipmentLineItemService.On("GetShipmentLineItemsByShipmentID", shipment1.ID).Return([]*models.ShipmentLineItem{
 		shipmentLineItem1,
 		shipmentLineItem2,
@@ -178,10 +175,12 @@ func (suite *shipmentControllerTestSuite) Test_CreateShipment_ReturnsRecord() {
 	suite.assert.Equal(http.StatusCreated, response.Code)
 	suite.assert.Equal(shipment1.ID, shipment.ID)
 	suite.assert.Equal(address1.ID, shipment.Address.ID)
-	suite.assert.Equal(region1.ID, shipment.Address.Region.ID)
+	suite.assert.Equal(address1.Region.ID, shipment.Address.Region.ID)
+	suite.assert.Equal(address1.Region.Country.ID, shipment.Address.Region.CountryID)
 	suite.assert.Equal(shipmentLineItem1.ID, shipment.LineItems[0].ID)
 	suite.assert.Equal(shipmentLineItem2.ID, shipment.LineItems[1].ID)
 }
+
 //
 //func (suite *shipmentControllerTestSuite) Test_UpdateShipment_Found_ReturnsRecord() {
 //	//arrange
@@ -227,22 +226,24 @@ func (suite *shipmentControllerTestSuite) getTestShipment2(id uint, addressID ui
 		sql.NullString{}, sql.NullString{}, sql.NullString{}, addressID, sql.NullString{}}
 }
 
-func (suite *shipmentControllerTestSuite) getTestAddess1(id uint) *models.Address {
-	return &models.Address{gormfox.Base{ID: id}, "Home address", uint(1), "Texas", "75231",
+func (suite *shipmentControllerTestSuite) getTestAddress1(id uint) *models.Address {
+	return &models.Address{gormfox.Base{ID: id}, "Home address", uint(1),
+		*suite.getTestRegion1(), "Texas", "75231",
 		"Some st, 335", sql.NullString{String: "", Valid: false}, "19527352893"}
 }
 
-func (suite *shipmentControllerTestSuite) getTestAddess2(id uint) *models.Address {
-	return &models.Address{gormfox.Base{ID: id}, "Another address", uint(2), "Florida", "31223",
+func (suite *shipmentControllerTestSuite) getTestAddress2(id uint) *models.Address {
+	return &models.Address{gormfox.Base{ID: id}, "Another address", uint(2),
+		*suite.getTestRegion1(), "Florida", "31223",
 		"Other st, 235", sql.NullString{String: "", Valid: false}, "18729327642"}
 }
 
 func (suite *shipmentControllerTestSuite) getTestRegion1() *models.Region {
-	return &models.Region{uint(1), "Texas", uint(1), "My Country"}
+	return &models.Region{uint(1), "Texas", uint(2), *suite.getTestCountry1()}
 }
 
-func (suite *shipmentControllerTestSuite) getTestRegion2() *models.Region {
-	return &models.Region{uint(2), "Florida", uint(1), "My Country"}
+func (suite *shipmentControllerTestSuite) getTestCountry1() *models.Country {
+	return &models.Country{uint(2), "USA"}
 }
 
 func (suite *shipmentControllerTestSuite) getTestShipmentLineItem1(id uint, shipmentID uint) *models.ShipmentLineItem {
