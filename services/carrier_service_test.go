@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/FoxComm/middlewarehouse/models"
+	"github.com/FoxComm/middlewarehouse/fixtures"
 	"github.com/FoxComm/middlewarehouse/services/mocks"
 
 	"github.com/jinzhu/gorm"
@@ -30,14 +31,17 @@ func (suite *CarrierServiceTestSuite) SetupTest() {
 }
 
 func (suite *CarrierServiceTestSuite) TearDownTest() {
+	//assert all expectations were met
+	suite.repository.AssertExpectations(suite.T())
+
 	// clear service mock calls expectations after each test
 	suite.repository.ExpectedCalls = []*mock.Call{}
 	suite.repository.Calls = []mock.Call{}
 }
 func (suite *CarrierServiceTestSuite) Test_GetCarriers_ReturnsCarrierModels() {
 	//arrange
-	carrier1 := &models.Carrier{uint(1), "UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"}
-	carrier2 := &models.Carrier{uint(2), "DHL", "http://www.dhl.com/en/express/tracking.shtml?AWB=$number&brand=DHL"}
+	carrier1 := fixtures.GetCarrier(uint(1))
+	carrier2 := fixtures.GetCarrier(uint(2))
 	suite.repository.On("GetCarriers").Return([]*models.Carrier{carrier1, carrier2}, nil).Once()
 
 	//act
@@ -49,9 +53,6 @@ func (suite *CarrierServiceTestSuite) Test_GetCarriers_ReturnsCarrierModels() {
 	suite.assert.Equal(2, len(carriers))
 	suite.assert.Equal(carrier1, carriers[0])
 	suite.assert.Equal(carrier2, carriers[1])
-
-	//assert all expectations were met
-	suite.repository.AssertExpectations(suite.T())
 }
 
 func (suite *CarrierServiceTestSuite) Test_GetCarrierById_NotFound_ReturnsNotFoundError() {
@@ -63,14 +64,11 @@ func (suite *CarrierServiceTestSuite) Test_GetCarrierById_NotFound_ReturnsNotFou
 
 	//assert
 	suite.assert.Equal(gorm.ErrRecordNotFound, err)
-
-	//assert all expectations were met
-	suite.repository.AssertExpectations(suite.T())
 }
 
 func (suite *CarrierServiceTestSuite) Test_GetCarrierByID_Found_ReturnsCarrierModel() {
 	//arrange
-	carrier1 := &models.Carrier{uint(1), "UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"}
+	carrier1 := fixtures.GetCarrier(uint(1))
 	suite.repository.On("GetCarrierByID", uint(1)).Return(carrier1, nil).Once()
 
 	//act
@@ -79,14 +77,11 @@ func (suite *CarrierServiceTestSuite) Test_GetCarrierByID_Found_ReturnsCarrierMo
 	//assert
 	suite.assert.Nil(err)
 	suite.assert.Equal(carrier1, carrier)
-
-	//assert all expectations were met
-	suite.repository.AssertExpectations(suite.T())
 }
 
 func (suite *CarrierServiceTestSuite) Test_CreateCarrier_ReturnsCreatedRecord() {
 	//arrange
-	carrier1 := &models.Carrier{uint(1), "UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"}
+	carrier1 := fixtures.GetCarrier(uint(1))
 	suite.repository.On("CreateCarrier", carrier1).Return(carrier1, nil).Once()
 
 	//act
@@ -95,14 +90,11 @@ func (suite *CarrierServiceTestSuite) Test_CreateCarrier_ReturnsCreatedRecord() 
 	//assert
 	suite.assert.Nil(err)
 	suite.assert.Equal(carrier1, carrier)
-
-	//assert all expectations were met
-	suite.repository.AssertExpectations(suite.T())
 }
 
 func (suite *CarrierServiceTestSuite) Test_UpdateCarrier_NotFound_ReturnsNotFoundError() {
 	//arrange
-	carrier1 := &models.Carrier{uint(1), "UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"}
+	carrier1 := fixtures.GetCarrier(uint(1))
 	suite.repository.On("UpdateCarrier", carrier1).Return(nil, gorm.ErrRecordNotFound).Once()
 
 	//act
@@ -110,14 +102,11 @@ func (suite *CarrierServiceTestSuite) Test_UpdateCarrier_NotFound_ReturnsNotFoun
 
 	//assert
 	suite.assert.Equal(gorm.ErrRecordNotFound, err)
-
-	//assert all expectations were met
-	suite.repository.AssertExpectations(suite.T())
 }
 
 func (suite *CarrierServiceTestSuite) Test_UpdateCarrier_Found_ReturnsUpdatedRecord() {
 	//arrange
-	carrier1 := &models.Carrier{uint(1), "UPS", "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number"}
+	carrier1 := fixtures.GetCarrier(uint(1))
 	suite.repository.On("UpdateCarrier", carrier1).Return(carrier1, nil).Once()
 
 	//act
@@ -126,9 +115,6 @@ func (suite *CarrierServiceTestSuite) Test_UpdateCarrier_Found_ReturnsUpdatedRec
 	//assert
 	suite.assert.Nil(err)
 	suite.assert.Equal(carrier1, carrier)
-
-	//assert all expectations were met
-	suite.repository.AssertExpectations(suite.T())
 }
 
 func (suite *CarrierServiceTestSuite) Test_DeleteCarrier_NotFound_ReturnsNotFoundError() {
@@ -140,9 +126,6 @@ func (suite *CarrierServiceTestSuite) Test_DeleteCarrier_NotFound_ReturnsNotFoun
 
 	//assert
 	suite.assert.Equal(gorm.ErrRecordNotFound, err)
-
-	//assert all expectations were met
-	suite.repository.AssertExpectations(suite.T())
 }
 
 func (suite *CarrierServiceTestSuite) Test_DeleteCarrier_Found_ReturnsNoError() {
@@ -154,7 +137,4 @@ func (suite *CarrierServiceTestSuite) Test_DeleteCarrier_Found_ReturnsNoError() 
 
 	//assert
 	suite.assert.Nil(err)
-
-	//assert all expectations were met
-	suite.repository.AssertExpectations(suite.T())
 }
