@@ -7,6 +7,10 @@
   cursor: pointer;
 }
 
+.toggle-column {
+  white-space: nowrap;
+}
+
 :global(.fc-editable-content-box.is-editing) {
   & .payment-row {
     & td:last-child {

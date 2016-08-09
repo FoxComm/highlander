@@ -121,7 +121,7 @@ class PaymentRow extends Component {
 
     return (
       <TableRow styleName="payment-row">
-        <TableCell>
+        <TableCell styleName="toggle-column">
           <i styleName="row-toggle" className={iconClass} onClick={this.toggleDetails} />
           <PaymentMethodDetails paymentMethod={paymentMethod} />
         </TableCell>
