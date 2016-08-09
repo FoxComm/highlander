@@ -28,23 +28,24 @@ func (suite *ShippingMethodResponseTestSuite) SetupSuite() {
 
 func (suite *ShippingMethodResponseTestSuite) Test_NewShippingMethodFromModel_ReturnsValidResponse() {
 	//arrange
-	id, carrierID, name := uint(1), uint(2), "UPS 2 days ground"
-	model := &models.ShippingMethod{id, carrierID, name}
+	carrier := models.Carrier{uint(2), "DHL", "https://dhl.com/tracking"}
+	model := &models.ShippingMethod{uint(1), carrier.ID, carrier, "UPS 2 days ground"}
 
 	//act
 	response := NewShippingMethodFromModel(model)
 
 	//assert
-	suite.assert.Equal(id, response.ID)
-	suite.assert.Equal(carrierID, response.CarrierID)
-	suite.assert.Equal(name, response.Name)
+	suite.assert.Equal(model.ID, response.ID)
+	suite.assert.Equal(model.Name, response.Name)
+	suite.assert.Equal(carrier.ID, response.Carrier.ID)
 }
 
 func (suite *ShippingMethodResponseTestSuite) Test_ShippingMethodEncoding_RunsNormally() {
 	//arrange
-	id, carrierID, name := uint(1), uint(2), "UPS 2 days ground"
-	response := &ShippingMethod{id, carrierID, name}
-	expected := fmt.Sprintf(`{"id":%v,"carrierId":%v,"name":"%v"}`, id, carrierID, name)
+	carrier := Carrier{uint(2), "DHL", "https://dhl.com/tracking"}
+	response := &ShippingMethod{uint(1), carrier, "UPS 2 days ground"}
+	expected := fmt.Sprintf(`{"id":%v,"carrier":{"id":%v,"name":"%v","trackingTemplate":"%v"},"name":"%v"}`,
+		response.ID, carrier.ID, carrier.Name, carrier.TrackingTemplate, response.Name)
 	writer := new(bytes.Buffer)
 	encoder := json.NewEncoder(writer)
 
