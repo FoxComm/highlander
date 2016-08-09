@@ -5,9 +5,9 @@ require 'fileutils'
 
 CONFIG = File.join(File.dirname(__FILE__), "vagrant.local.rb")
 
-$vb_memory = 1024*8
+$vb_memory = 1024*4
 $vb_cpu = 4
-$nginx_ip = "192.168.10.113"
+$nginx_ip = "192.168.10.111"
 $user = "vagrant"
 
 require CONFIG if File.readable?(CONFIG)
@@ -27,6 +27,8 @@ def tune_vm(config, opts = {})
   end
 
   config.vm.provider :google do |g, override|
+    $user = "ubuntu"
+
     override.vm.box = "gce"
     override.ssh.username = ENV['GOOGLE_SSH_USERNAME']
     override.ssh.private_key_path = ENV['GOOGLE_SSH_KEY']
@@ -47,7 +49,20 @@ Vagrant.configure("2") do |config|
 
   tune_vm(config, cpus: $vb_cpu, memory: $vb_memory)
 
-  config.vm.define :build, autostart: false do |app|
+  config.vm.define :appliance, primary: true do |app|
+    app.vm.network :private_network, ip: $nginx_ip
+
+    app.vm.provision "shell", inline: "apt-get install -y python-minimal"
+    app.vm.provision "ansible" do |ansible|
+      ansible.verbose = "vvvv"
+      ansible.playbook = "prov-shit/ansible/vagrant_appliance.yml"
+      ansible.extra_vars = {
+        user: $user
+      }
+    end
+  end
+
+  config.vm.define :base, autostart: false do |app|
     app.vm.box = "boxcutter/ubuntu1604"
     app.vm.network :private_network, ip: $nginx_ip
 
@@ -60,5 +75,14 @@ Vagrant.configure("2") do |config|
         user: $user
       }
     end
+  end
+
+  config.vm.define :build, autostart: false do |app|
+    app.vm.box = "build16.04"
+    app.vm.box_url = "https://s3.amazonaws.com/fc-dev-boxes/build16.04.box"
+    app.vm.box_download_checksum = "550f65256533c6dd4bcb5278dfa46ffe"
+    app.vm.box_download_checksum_type = "md5"
+
+    app.vm.provision "shell", inline: "apt.get install -y python-minimal"
   end
 end

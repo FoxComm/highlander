@@ -75,3 +75,7 @@
   sudo: true
   with_items:
     - glide
+
+- name: Install ansible-lint
+  pip: name=ansible-lint
+  sudo: true
