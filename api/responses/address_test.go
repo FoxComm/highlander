@@ -39,7 +39,7 @@ func (suite *AddressResponseTestSuite) Test_NewAddressFromModel_ReturnsValidResp
 	address2 := "Some more here"
 	phoneNumber := "17345791232"
 
-	model := &models.Address{gormfox.Base{}, name, *region, city, zip, address1, sql.NullString{address2, true}, phoneNumber}
+	model := &models.Address{gormfox.Base{}, name, *region, region.ID, city, zip, address1, sql.NullString{address2, true}, phoneNumber}
 	model.ID = id
 
 	//act
