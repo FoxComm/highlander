@@ -1,0 +1,6 @@
+
+build:
+	true
+
+test:
+	true

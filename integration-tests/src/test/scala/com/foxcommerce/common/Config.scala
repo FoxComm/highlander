@@ -1,7 +1,7 @@
 package com.foxcommerce.common
 
 import com.typesafe.config.ConfigFactory
-
+import scala.concurrent.duration._
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 
@@ -9,7 +9,7 @@ final case class Config(environment: String, apiUrl: String, userAgent: String, 
   greenRiverPause: Int) {
 
   val defaultAssertion        = global.failedRequests.count.is(0)
-  val defaultInjectionProfile = atOnceUsers(usersCount)
+  val defaultInjectionProfile = rampUsers(usersCount) over(30 seconds)
 
   val httpConf = http
       .baseURL(apiUrl)

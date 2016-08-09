@@ -1,0 +1,11 @@
+[Service]
+WorkingDirectory=/vagrant/firebrand
+ExecStart=/bin/bash /usr/local/bin/run_firebrand.sh
+Restart=always
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=firebrand
+Environment=PHOENIX_PUBLIC_KEY={{ public_keys_dest_dir }}/public_key.pem
+
+[Install]
+WantedBy=multi-user.target

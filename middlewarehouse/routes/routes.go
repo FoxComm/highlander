@@ -4,7 +4,6 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/controllers"
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 	"github.com/FoxComm/highlander/middlewarehouse/services"
-
 	"github.com/jinzhu/gorm"
 )
 

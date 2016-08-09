@@ -4,9 +4,17 @@ FLYWAY_TEST=flyway -configFile=sql/flyway.test.conf -locations=filesystem:sql/
 DB=middlewarehouse_development
 DB_TEST=middlewarehouse_test
 DB_USER=middlewarehouse
+BUILDPATH=${GOPATH}/src/github.com/FoxComm/highlander/middlewarehouse
 
-build:
-	go build -o middlewarehouse main.go
+prep:
+	mkdir -p ${GOPATH}/src/github.com/FoxComm/highlander
+	ln -s `pwd` $(BUILDPATH); true
+
+glide: prep
+	cd $(BUILDPATH) && glide install && glide update
+
+build: glide
+	cd $(BUILDPATH) && go build -o middlewarehouse main.go
 
 build-linux:
 	GOOS=linux go build -o middlewarehouse main.go

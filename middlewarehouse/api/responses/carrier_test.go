@@ -6,9 +6,7 @@ import (
 	"fmt"
 	"strings"
 	"testing"
-
 	"github.com/FoxComm/highlander/middlewarehouse/models"
-
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )

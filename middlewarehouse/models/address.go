@@ -2,7 +2,6 @@ package models
 
 import (
 	"database/sql"
-
 	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/common/gormfox"
 )
