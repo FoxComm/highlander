@@ -15,7 +15,7 @@ build:
 lint:
 	ansible-lint -x ANSIBLE0007,ANSIBLE0004 ansible/*.yml
 
-test: lint
+test: 
 	$(GO) test -v ./inventory/
 
 bootstrap-consul-alerts:
