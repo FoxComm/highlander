@@ -11,6 +11,8 @@ export const updateSkuItemsCount = createAction(
   (sku, stockItem, qty) => [sku, stockItem, qty]
 );
 
+const clearSkuItemsChanges = createAction('SKU_CLEAR_ITEMS_CHANGES');
+
 export type StockCounts = {
   onHand: number,
   onHold: number,
@@ -21,23 +23,25 @@ export type StockCounts = {
 }
 
 export type StockLocation = {
-  stockLocationId: number,
-  stockLocationName: string,
+  id: number,
+  name: string,
 }
 
 export type StockItem = {
-  stockItemId: number,
+  id: number,
   sku: string,
-  type: string,
   defaultUnitCost: number,
 }
 
 export type StockItemSummary = StockCounts & {
   stockLocation: StockLocation,
   stockItem: StockItem,
+  type: string,
 }
 
-export type StockItemFlat = StockCounts & StockItem;
+export type StockItemFlat = StockCounts & StockItem & {
+  type: string,
+};
 
 export type WarehouseInventorySummary = StockCounts & {
   stockLocation: StockLocation,
@@ -47,44 +51,6 @@ export type WarehouseInventorySummary = StockCounts & {
 export type WarehouseInventoryMap = {
   [stockLocationId: number]: WarehouseInventorySummary
 }
-
-// @TODO: now you can test PR with this data if backend will be not available
-/*
-const mockData = [{
-  "stockLocation": {
-    "stockLocationId": 1,
-    "stockLocationName": "Warehouse name",
-  },
-  "stockItem": {
-    "stockItemId": 1,
-    "sku": "SKU-TRL",
-    "type": "Sellable",
-    "defaultUnitCost": 20,
-  },
-  "onHand": 1,
-  "onHold": 1,
-  "reserved": 1,
-  "shipped": 1,
-  "afs": 1,
-  "afsCost": 1
-}, {
-  "stockLocation": {
-    "stockLocationId": 1,
-    "stockLocationName": "Warehouse name",
-  },
-  "stockItem": {
-    "stockItemId": 2,
-    "sku": "SKU-TRL",
-    "type": "Non-sellable",
-    "defaultUnitCost": 24,
-  },
-  "onHand": 1,
-  "onHold": 1,
-  "reserved": 1,
-  "shipped": 1,
-  "afs": 1,
-  "afsCost": 1
-}]; */
 
 const _fetchSummary = createAsyncActions(
   'inventory-summary',
@@ -98,10 +64,10 @@ const _changeItemUnits = createAsyncActions(
   (stockItemId: number, qty: number, type: string) => {
     let payload, action;
     if (qty >= 0) {
-      payload = {qty: qty, type};
+      payload = {qty: qty, type, status: 'onHand'};
       action = 'increment';
     } else {
-      payload = {qty: -qty, type};
+      payload = {qty: -qty, type, status: 'onHand'};
       action = 'decrement';
     }
     return Api.patch(`/inventory/stock-items/${stockItemId}/${action}`, payload);
@@ -115,9 +81,11 @@ export function pushStockItemChanges(sku) {
     const stockItemChanges = _.get(getState(), ['inventory', 'warehouses', 'stockItemChanges', sku]);
 
     if (stockItemChanges) {
-      const promises = _.map(stockItemChanges, (payload: Object, stockItemId: number) => {
-        return dispatch(changeItemUnits(stockItemId, payload.diff, payload.type));
+      const promises = _.map(stockItemChanges, (payload: Object, key: string) => {
+        return dispatch(changeItemUnits(payload.id, payload.diff, payload.type));
       });
+
+      dispatch(clearSkuItemsChanges(sku));
 
       return Promise.all(promises);
     }
@@ -132,7 +100,7 @@ const reducer = createReducer({
 
     const inventoryDetailsByLocations = _.reduce(stockItems, (acc, itemSummary: StockItemSummary) => {
       const warehouseDetails =
-        acc[itemSummary.stockLocation.stockLocationId] = acc[itemSummary.stockLocation.stockLocationId] || {
+        acc[itemSummary.stockLocation.id] = acc[itemSummary.stockLocation.id] || {
         stockItems: [],
         stockLocation: itemSummary.stockLocation,
         onHand: 0,
@@ -166,9 +134,14 @@ const reducer = createReducer({
   },
   [updateSkuItemsCount]: (state, [sku, stockItem, diff]) => {
     return assoc(state,
-      ['stockItemChanges', sku, stockItem.stockItemId], {diff, type: stockItem.type}
+      ['stockItemChanges', sku, `${stockItem.type}-${stockItem.id}`], {diff, type: stockItem.type, id: stockItem.id}
     );
   },
+  [clearSkuItemsChanges]: (state, sku) => {
+    return assoc(state,
+      ['stockItemChanges', sku], {}
+    );
+  }
 }, initialState);
 
 export default reducer;

@@ -20,7 +20,7 @@ type Props = {
 
 const InventoryWarehouseRow = (props: Props) => {
   const { warehouse, columns, params } = props;
-  const key = `inventory-list-${warehouse.stockLocation.stockLocationId}`;
+  const key = `inventory-list-${warehouse.stockLocation.id}`;
 
   return (
     <ExpandableRow

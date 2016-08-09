@@ -79,7 +79,6 @@ export function updateSku(sku: Sku, context: string = defaultContext): ActionDis
   return (dispatch, getState) => {
     const oldSku = _.get(getState(), ['skus', 'details', 'sku', 'attributes', 'code', 'v']);
     if (oldSku) {
-      const stockItemChanges = _.get(getState(), ['skus', 'details', 'stockItemChanges', oldSku]);
       dispatch(skuUpdateStart());
       const stockItemsPromise = dispatch(pushStockItemChanges(oldSku));
       const updatePromise = Api.patch(`/skus/${context}/${oldSku}`, sku)
