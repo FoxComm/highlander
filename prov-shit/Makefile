@@ -10,6 +10,7 @@ PRIVATE_KEY ?= ~/.ssh/id_rsa
 all: build
 
 build:
+	$(GO) get ./...
 	$(GO) build -o bin/inventory inventory/inventory.go
 
 lint:
