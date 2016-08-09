@@ -15,7 +15,9 @@ import utils.aliases._
 import utils.db._
 import utils.JsonFormatters
 
-object PluginsManager {
+import com.typesafe.scalalogging.LazyLogging
+
+object PluginsManager extends LazyLogging {
 
   private def fetchSchemaSettings(
       plugin: Plugin,
@@ -34,7 +36,14 @@ object PluginsManager {
     val rawReq = host(plugin.apiHost, plugin.apiPort) / "_settings" / "upload"
     val body   = compact(render(plugin.settings.toJson))
     val req    = rawReq.setContentType("application/json", "UTF-8") << body
-    Http(req.POST OK as.String)
+    logger.info(s"Updating plugin ${plugin.name} at ${plugin.apiHost}:${plugin.apiPort}: ${body}")
+    val res = Http(req.POST OK as.String)
+    for {
+      r ← res
+    } yield {
+      logger.info(s"Plugin Response: $r")
+      r
+    }
   }
 
   private def updatePluginSchema(plugin: Plugin, schema: SettingsSchema)(

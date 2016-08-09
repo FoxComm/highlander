@@ -37,5 +37,5 @@ object ProductSkuLinks
 
   val returningLens: Lens[ProductSkuLink, Int] = lens[ProductSkuLink].id
 
-  def mkLink(left: Product, right: Sku) = ProductSkuLink(leftId = left.id, rightId = right.id)
+  def build(left: Product, right: Sku) = ProductSkuLink(leftId = left.id, rightId = right.id)
 }

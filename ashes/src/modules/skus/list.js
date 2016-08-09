@@ -4,7 +4,38 @@
 
 import makeLiveSearch from '../live-search';
 
-const searchTerms = [];
+const searchTerms = [
+  {
+    title: 'SKU : Code',
+    type: 'identifier',
+    term: 'code',
+  },
+  {
+    title: 'SKU : Title',
+    type: 'string',
+    term: 'title',
+  },
+  {
+    title: 'SKU : Price',
+    type: 'currency',
+    term: 'price'
+  },
+  {
+    title: 'SKU : Archived At',
+    type: 'date',
+    term: 'archivedAt',
+  },
+  {
+    title: 'SKU : Is Archived',
+    type: 'exists',
+    term: 'archivedAt',
+    suggestions: [
+      { display: 'Yes', operator: 'exists' },
+      { display: 'No', operator: 'missing' },
+    ],
+  },
+];
+
 const { reducer, actions } = makeLiveSearch(
   'skus.list',
   searchTerms,

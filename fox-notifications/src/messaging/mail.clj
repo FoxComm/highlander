@@ -12,16 +12,11 @@
     [gws.mandrill.api.templates :as templates]))
 
 
-(def templates {:order-confirmation "fc-order-confirmation"
-                :order-canceled "fc-order-cancellation"
-                :customer-created "fc-customer-created"
-                :user-invintation "new-user-invitation"})
-
-
 (def admin_server_name (delay (:admin_server_name env)))
 
 ;; mandrill client
-(def client (delay (client/create (settings/get :mandrill_key))))
+(def client (delay 
+              (client/create (settings/get :mandrill_key))))
 ;; mailchimp client
 (def mclient (delay
               (mailchimp/create-client "fox-messaging"
@@ -74,7 +69,7 @@
                      {:message (format (settings/get :order_checkout_text) order-ref)
                       :rewards ""}
                      {:subject (settings/get :order_checkout_subject)})]
-    (send-template! (:order-confirmation templates) msg)))
+    (send-template! (settings/get :order_confirmation_template) msg)))
 
 (defmethod handle-activity :order_state_changed
   [activity]
@@ -84,7 +79,7 @@
         order-ref (get-in data ["order" "referenceNumber"])
         new-state (get-in data ["order" "orderState"])]
    (when (= "canceled" new-state)
-     (send-template! (:order-canceled templates)
+     (send-template! (settings/get :order_canceled_template)
                      (gen-msg {:email email :name customer-name}
                               {:message (format (settings/get :order_canceled_text) order-ref)
                                :rewards ""}
@@ -103,7 +98,7 @@
                             (get-in activity [:data "opts"])))]
     (messages/send @client {:message msg})))
 
-(defmethod handle-activity :customer_created
+(defn handle-new-customer 
   [activity]
   (let [email (get-in activity [:data "customer" "email"])
         customer-name (get-in activity [:data "customer" "name"])
@@ -121,12 +116,21 @@
        (catch Exception e (prn "Can't add user to list" e))))
 
 
-   (send-template! (:customer-created templates)
+   (send-template! (settings/get :customer_created_template)
                    (gen-msg {:email email :name customer-name}
                             {:reset_password_link reset-password-link
                              :customer_name customer-name
                              :rewards ""}
-                            {:subject (settings/get :customer_invintation_subject)}))))
+                            {:subject (settings/get :customer_invintation_subject)})))
+  )
+
+(defmethod handle-activity :customer_registered
+  [activity]
+  (handle-new-customer activity))
+
+(defmethod handle-activity :customer_created
+  [activity]
+  (handle-new-customer activity))
 
 (defmethod handle-activity :store_admin_created
   ;; TODO: change type of activity when phoenix will be updated
@@ -142,4 +146,4 @@
 
                      {:subject (settings/get :admin_invintation_subject)})]
 
-    (send-template! (:user-invintation templates) msg)))
+    (send-template! (settings/get :user_invitation_template) msg)))

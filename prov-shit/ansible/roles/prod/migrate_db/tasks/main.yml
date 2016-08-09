@@ -4,8 +4,9 @@
   synchronize: src="{{phoenix_src}}/sql" dest="{{phoenix_dir}}" delete=yes recursive=yes
   sudo: true
 
-- name: Copy Phoenix
-  copy: src="{{phoenix_jar_src}}" dest="{{phoenix_jar}}" owner="{{user}}"
+- name: Setup Flyway Config
+  template: src=flyway.conf dest="{{phoenix_dir}}/sql/flyway.conf" mode="u+x,g+x,o+x"
+  sudo: true
 
 - name: Migrate Db
   shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
@@ -13,5 +14,5 @@
     chdir: "{{phoenix_dir}}"
 
 - name: Setup Update Materialzied Views Sql
-  copy: src=../../dev/db/files/update_materialized_views.sql dest={{update_materialized_views_sql}}
+  copy: src={{role_path}}/../../dev/db/files/update_materialized_views.sql dest={{update_materialized_views_sql}}
   sudo: true

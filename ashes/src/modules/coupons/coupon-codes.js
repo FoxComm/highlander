@@ -4,7 +4,7 @@ import makeLiveSearch from '../live-search';
 const searchTerms = [
   {
     title: 'Coupon Code : Code',
-    type: 'string',
+    type: 'identifier',
     term: 'code',
   },
   {

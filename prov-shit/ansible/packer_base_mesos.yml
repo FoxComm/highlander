@@ -6,8 +6,6 @@
     user: ubuntu
     packing: true
   roles:
-    - { role: base/common }
-    - { role: base/consul }
     - { role: base/docker }
     - { role: base/mesos }
 

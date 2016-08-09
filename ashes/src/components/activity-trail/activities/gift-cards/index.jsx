@@ -17,10 +17,11 @@ const authorizedAndCapturedDesc = {
 
     const actionTitle = activity.kind == types.GIFT_CARD_AUTHORIZED_FUNDS ?
       'authorized funds' : 'captured funds';
-
+    const order = data.order || data.cart;
+    
     return (
       <Title activity={activity}>
-        <strong>{actionTitle}</strong> for <OrderTarget order={data.order} />
+        <strong>{actionTitle}</strong> for <OrderTarget order={order} />
         &nbsp;with amount <Currency value={data.amount} /> from {joinEntities(giftCards)} {giftCardText}
       </Title>
     );

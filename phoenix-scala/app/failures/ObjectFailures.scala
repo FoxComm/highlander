@@ -27,6 +27,16 @@ object ObjectFailures {
     override def description = "Shadow attributes are empty"
   }
 
+  case class LinkAtPositionCannotBeFound(clazz: Class[_], left: Int, position: Int)
+      extends Failure {
+    override def description =
+      s"No object link ${clazz.getSimpleName} with left id $left exists at position $position"
+  }
+
+  case class LinkCannotBeFound(clazz: Class[_], left: Int, right: Int) extends Failure {
+    override def description = s"Object link ${clazz.getSimpleName} $left ⇒ $right cannot be found"
+  }
+
   case class ObjectLinkCannotBeFound(left: Int, right: Int) extends Failure {
     override def description = s"Object link $left ⇒ $right cannot be found"
   }

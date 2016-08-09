@@ -37,7 +37,7 @@ bootstrap-tinystack-balancer:
 	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml --tags=balancer --private-key=$(PRIVATE_KEY)
 
 bootstrap-middlewarehouse:
-	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_middlewarehouse.yml --tags=extended
+	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_middlewarehouse.yml
 
 bootstrap-vanilla:
 	ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_vanilla.yml

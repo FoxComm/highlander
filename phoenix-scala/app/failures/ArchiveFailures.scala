@@ -13,4 +13,8 @@ object ArchiveFailures {
     }
   }
 
+  case class AddImagesToArchivedAlbumFailure(albumId: Int) extends Failure {
+    override def description: String = s"Cannot add image to archived album with id=${albumId}"
+  }
+
 }

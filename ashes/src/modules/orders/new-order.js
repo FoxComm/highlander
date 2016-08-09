@@ -31,7 +31,7 @@ function suggestCustomers(phrase, guest = false) {
       term: 'name',
       operator: 'eq',
       value: {
-        type: 'string-not-analyzed',
+        type: 'string',
         value: phrase,
       },
     },

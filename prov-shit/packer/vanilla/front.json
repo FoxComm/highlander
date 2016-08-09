@@ -13,14 +13,15 @@
             "machine_type": "n1-standard-1",
             "tags": ["ssh", "no-ip", "{{user `image_prefix`}}", "front"],
             "use_internal_ip": true,
-            "ssh_username" : "{{user `ssh_username`}}"
+            "ssh_username" : "{{user `ssh_username`}}",
+            "disk_size" : 20
         }
     ],
     "provisioners" : [
         {
             "type": "ansible",
             "playbook_file" : "ansible/packer_service_front.yml",
-            "extra_arguments": ["--extra-vars", "@packer/envs/{{user `variables_file`}}"]
+            "extra_arguments": ["--skip-tags", "firebird,firebrand","--extra-vars", "@packer/envs/{{user `variables_file`}}"]
         }
     ]
 }

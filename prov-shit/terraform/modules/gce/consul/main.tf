@@ -44,10 +44,8 @@ resource "google_compute_instance" "consul_server" {
 
     provisioner "remote-exec" {
         inline = [
-          "chmod +x /tmp/bootstrap.sh",
-          "chmod +x /tmp/consul.sh",
-          "/tmp/bootstrap.sh",
-          "/tmp/consul.sh ${var.datacenter} ${google_compute_instance.consul_server.0.network_interface.0.address}"
+          "/usr/local/bin/bootstrap.sh",
+          "/usr/local/bin/bootsrap_consul.sh ${var.datacenter} ${google_compute_instance.consul_server.0.network_interface.0.address}"
         ]
     }
 

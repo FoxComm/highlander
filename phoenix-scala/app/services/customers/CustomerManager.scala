@@ -105,14 +105,20 @@ object CustomerManager {
       _        ← * <~ payload.validate
       customer ← * <~ Customers.mustFindById404(customerId)
       _        ← * <~ Customers.updateEmailMustBeUnique(payload.email, customerId)
-      updated ← * <~ Customers.update(
-                   customer,
-                   customer.copy(name = payload.name.fold(customer.name)(Some(_)),
-                                 email = payload.email.orElse(customer.email),
-                                 phoneNumber =
-                                   payload.phoneNumber.fold(customer.phoneNumber)(Some(_))))
-      _ ← * <~ LogActivity.customerUpdated(customer, updated, admin)
+      updated  ← * <~ Customers.update(customer, updatedCustomer(customer, payload))
+      _        ← * <~ LogActivity.customerUpdated(customer, updated, admin)
     } yield build(updated)
+
+  def updatedCustomer(customer: Customer, payload: UpdateCustomerPayload): Customer = {
+    val updatedCustomer = (payload.name, payload.email) match {
+      case (Some(name), Some(email)) ⇒ customer.copy(isGuest = false)
+      case _                         ⇒ customer
+    }
+
+    updatedCustomer.copy(name = payload.name.fold(customer.name)(Some(_)),
+                         email = payload.email.orElse(customer.email),
+                         phoneNumber = payload.phoneNumber.fold(customer.phoneNumber)(Some(_)))
+  }
 
   def activate(customerId: Int, payload: ActivateCustomerPayload, admin: StoreAdmin)(
       implicit ec: EC,

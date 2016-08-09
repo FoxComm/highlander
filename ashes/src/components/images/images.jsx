@@ -34,7 +34,7 @@ export type Props = {
   fetchAlbums: (context: string, entityId: number) => Promise;
   addAlbum: (context: string, entityId: number, album: TAlbum) => Promise;
   editAlbum: (context: string, albumId: number, album: TAlbum) => Promise;
-  deleteAlbum: (context: string, albumId: number) => Promise;
+  archiveAlbum: (context: string, albumId: number) => Promise;
 };
 
 type State = {
@@ -64,7 +64,7 @@ class Images extends Component {
   }
 
   @autobind
-  handleConfirmEditAlbum(name: string): void {
+  addNewAlbum(name: string): void {
     const { context, entityId } = this.props;
 
     this.props.addAlbum(context, entityId, { name, images: [] }).then(this.handleCancelEditAlbum);
@@ -75,7 +75,7 @@ class Images extends Component {
     this.setState({ newAlbumMode: false });
   }
 
-  get editAlbumDialog(): ?Element {
+  get newAlbumDialog(): ?Element {
     const album = { name: '', images: [] };
 
     return (
@@ -84,7 +84,8 @@ class Images extends Component {
                  album={album}
                  loading={this.props.addAlbumInProgress}
                  onCancel={this.handleCancelEditAlbum}
-                 onSave={this.handleConfirmEditAlbum}
+                 onSave={this.addNewAlbum}
+                 isNew={true}
       />
     );
   }
@@ -98,7 +99,7 @@ class Images extends Component {
 
     return (
       <div className={styles.images}>
-        {this.editAlbumDialog}
+        {this.newAlbumDialog}
         <div className={styles.header}>
           <AddButton onClick={this.handleAddAlbum}>Album</AddButton>
         </div>
@@ -111,8 +112,9 @@ class Images extends Component {
                    deleteImage={(idx: number) => this.props.deleteImage(context, album.id, idx)}
                    addAlbum={(album: TAlbum) => this.props.addAlbum(context, entityId, album)}
                    editAlbum={(album: TAlbum) => this.props.editAlbum(context, album.id, album)}
-                   deleteAlbum={(id: number) => this.props.deleteAlbum(context, id)}
+                   archiveAlbum={(id: number) => this.props.archiveAlbum(context, id)}
                    key={album.id}
+                   fetchAlbums={() => this.props.fetchAlbums(context, entityId)}
             />
           );
         })}

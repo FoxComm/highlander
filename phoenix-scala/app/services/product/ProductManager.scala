@@ -8,10 +8,12 @@ import cats.data.ValidatedNel
 import failures._
 import failures.ArchiveFailures._
 import failures.ProductFailures._
+import models.StoreAdmin
 import models.image.Albums
 import models.inventory._
 import models.objects._
 import models.product._
+import payloads.ImagePayloads.UpdateAlbumPositionPayload
 import payloads.ProductPayloads._
 import payloads.SkuPayloads._
 import payloads.VariantPayloads._

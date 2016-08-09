@@ -16,7 +16,7 @@ export default class CustomerInfo extends React.Component {
   }
 
   customerLink(text) {
-    return <Link to="customer-details" params={{customerId: this.order.customer.id}}>{text}</Link>;
+    return <Link to="customer-details" params={{customerId: this.order.customer.id}} title={text}>{text}</Link>;
   }
 
   get customerGroups() {

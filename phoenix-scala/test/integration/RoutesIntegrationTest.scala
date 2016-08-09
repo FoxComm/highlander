@@ -1,10 +1,12 @@
+import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.directives.SecurityDirectives.challengeFor
 
 import models.StoreAdmin
-import models.customer.Customer
+import models.customer.{Customer, Customers}
 import services.Authenticator.AsyncAuthenticator
 import util.IntegrationTestBase
+import utils.seeds.Seeds.Factories
 
 class RoutesAdminOnlyIntegrationTest extends IntegrationTestBase with HttpSupport {
 
@@ -44,6 +46,7 @@ class RoutesCustomerOnlyIntegrationTest extends IntegrationTestBase with HttpSup
     }
 
     "GET v1/my/cart" in {
+      Customers.create(Factories.customer).gimme
       GET(s"v1/my/cart").status must === (StatusCodes.OK)
     }
   }

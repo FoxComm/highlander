@@ -7,44 +7,127 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 
 import cats.data.Xor
+import com.pellucid.sealerate
 import com.typesafe.config.Config
-import failures.{Failures, FailuresOps}
+import failures.{Failures, FailuresOps, NotFoundFailure404}
 import models.Reason._
 import models.activity.ActivityContext
 import models.cord.{OrderPayment, OrderShippingAddress}
 import models.objects.ObjectContexts
 import models.payment.creditcard.CreditCardCharge
 import models.product.SimpleContext
-import models.{Reason, Reasons}
+import models.{Reason, Reasons, StoreAdmin, StoreAdmins}
 import org.postgresql.ds.PGSimpleDataSource
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.DatabaseDef
 import utils.aliases._
 import utils.db._
 import utils.db.flyway.newFlyway
-import utils.{FoxConfig, JsonFormatters}
+import utils.{ADT, FoxConfig, JsonFormatters}
 
 object Seeds {
 
+  sealed trait Command
+  case object NoCommand   extends Command
+  case object CreateAdmin extends Command
+  case object Seed        extends Command
+
+  object Command extends ADT[Command] {
+    def types = sealerate.values[Command]
+  }
+
+  case class CliConfig(
+      migrateDb: Boolean = true,
+      seedBase: Boolean = true,
+      seedAdmins: Boolean = false,
+      seedAdmin: Boolean = false,
+      seedRandom: Int = 0,
+      seedStage: Boolean = false,
+      seedDemo: Int = 0,
+      scale: Int = 1,
+      mode: Command = NoCommand,
+      adminName: String = "",
+      adminEmail: String = ""
+  )
+
   def main(args: Array[String]): Unit = {
-    Console.err.println("Cleaning DB and running migrations")
+    val parser = new scopt.OptionParser[CliConfig]("phoenix") {
+      head("phoenix", "1.0")
+
+      cmd("seed")
+        .action((_, c) ⇒ c.copy(mode = Seed))
+        .text("Insert seeds")
+        .children(
+            opt[Unit]("skipMigrate")
+              .action((_, c) ⇒ c.copy(migrateDb = false))
+              .text("Skip migration step for database."),
+            opt[Unit]("skipBase")
+              .action((x, c) ⇒ c.copy(seedBase = false))
+              .text("Skip seed base seeds."),
+            opt[Unit]("seedAdmins")
+              .action((_, c) ⇒ c.copy(seedAdmins = true))
+              .text("Create predefined admins"),
+            opt[Int]("seedRandom")
+              .action((x, c) ⇒ c.copy(seedRandom = x))
+              .text("Create random seeds"),
+            opt[Unit]("seedStage")
+              .action((x, c) ⇒ c.copy(seedStage = true))
+              .text("Create stage seeds"),
+            opt[Int]("seedDemo").action((x, c) ⇒ c.copy(seedDemo = x)).text("Create demo seeds"))
+
+      cmd("createAdmin")
+        .action((_, c) ⇒ c.copy(mode = CreateAdmin))
+        .text(
+            "Create Admin. Password prompts via stdin or can be set via admin_password env or prop")
+        .children(
+            opt[String]("name")
+              .required()
+              .action((x, c) ⇒ c.copy(adminName = x))
+              .text("Admin name"),
+            opt[String]("email")
+              .required()
+              .action((x, c) ⇒ c.copy(adminEmail = x))
+              .text("Admin email")
+        )
+    }
+
+    parser.parse(args, CliConfig()) match {
+      case Some(cfg) ⇒
+        runMain(cfg, parser.usage)
+      case None ⇒
+        sys.exit(1)
+    }
+  }
+
+  def runMain(cfg: CliConfig, usage: String): Unit = {
     val config: Config           = FoxConfig.loadWithEnv()
     implicit val db: DatabaseDef = Database.forConfig("db", config)
     implicit val ac: AC          = ActivityContext(userId = 1, userType = "admin", transactionId = "seeds")
-    flyWayMigrate(config)
 
-    val adminId = createBaseSeeds()
+    cfg.mode match {
+      case Seed ⇒
+        if (cfg.migrateDb) {
+          Console.err.println("Cleaning DB and running migrations")
+          flyWayMigrate(config)
+        }
 
-    val scale = if (args.length == 2) args(1).toInt else 1
-
-    args.headOption.map {
-      case "stage" ⇒
-        createStageSeeds(adminId)
-      case "demo" ⇒
-        createStageSeeds(adminId)
-        createDemoSeeds()
-        createRandomSeeds(scale)
-      case _ ⇒ None
+        if (cfg.seedBase) createBaseSeeds()
+        if (cfg.seedAdmins) createAdminsSeeds()
+        if (cfg.seedRandom > 0) createRandomSeeds(cfg.seedRandom)
+        if (cfg.seedStage) {
+          val adminId = mustGetFirstAdmin().id
+          createStageSeeds(adminId)
+        }
+        if (cfg.seedDemo > 0) {
+          val adminId = mustGetFirstAdmin().id
+          createStageSeeds(adminId)
+          createDemoSeeds()
+          createRandomSeeds(cfg.seedDemo)
+        }
+      case CreateAdmin ⇒
+        createAdminManually(name = cfg.adminName, email = cfg.adminEmail)
+      case _ ⇒
+        System.err.println(usage)
     }
 
     db.close()
@@ -54,6 +137,26 @@ object Seeds {
     Console.err.println("Inserting Base Seeds")
     val result: Failures Xor Int = Await.result(createBase().runTxn(), 4.minutes)
     validateResults("base", result)
+  }
+
+  def getFirstAdmin()(implicit db: DB): DbResultT[StoreAdmin] =
+    StoreAdmins.take(1).mustFindOneOr(NotFoundFailure404(StoreAdmin, "first"))
+
+  def mustGetFirstAdmin()(implicit db: DB): StoreAdmin = {
+    val result = Await.result(getFirstAdmin().run(), 1.minute)
+    validateResults("get first admin", result)
+  }
+
+  def createAdminsSeeds()(implicit db: DB): Int = {
+    val result: Failures Xor Int = Await.result(Factories.createStoreAdmins.runTxn(), 4.minutes)
+    validateResults("admins", result)
+  }
+
+  def createAdminManually(name: String, email: String)(implicit db: DB): StoreAdmin = {
+    Console.err.println("Create Store Admin seeds")
+    val result: Failures Xor StoreAdmin =
+      Await.result(Factories.createStoreAdminManual(name, email).runTxn(), 1.minute)
+    validateResults("admin", result)
   }
 
   def createStageSeeds(adminId: Int)(implicit db: DB, ac: AC) {
@@ -93,8 +196,10 @@ object Seeds {
   def createBase()(implicit db: DB): DbResultT[Int] =
     for {
       context ← * <~ ObjectContexts.create(SimpleContext.create())
-      admin   ← * <~ Factories.createStoreAdmins
-    } yield admin
+    } yield context.id
+
+  def createAdmins()(implicit db: DB): DbResultT[Int] =
+    Factories.createStoreAdmins
 
   def createStage(adminId: Int)(implicit db: DB, ac: AC): DbResultT[Unit] =
     for {

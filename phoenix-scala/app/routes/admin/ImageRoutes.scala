@@ -33,6 +33,11 @@ object ImageRoutes {
                 ImageManager.updateAlbum(albumId, payload, context)
               }
             } ~
+            (delete & pathEnd) {
+              mutateOrFailures {
+                ImageManager.archiveByContextAndId(albumId, context)
+              }
+            } ~
             pathPrefix("images") {
               (post & pathEnd) {
                 extractRequest { req ⇒

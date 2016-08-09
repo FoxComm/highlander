@@ -36,22 +36,10 @@ resource "google_compute_instance" "amigo_server" {
         private_key="${file(var.ssh_private_key)}"
     }
 
-    provisioner "file" {
-        source = "terraform/scripts/bootstrap.sh"
-        destination = "/tmp/bootstrap.sh"
-    }
-
-    provisioner "file" {
-        source = "terraform/scripts/consul.sh"
-        destination = "/tmp/consul.sh"
-    }
-
     provisioner "remote-exec" {
         inline = [
-          "chmod +x /tmp/bootstrap.sh",
-          "chmod +x /tmp/consul.sh",
-          "/tmp/bootstrap.sh",
-          "/tmp/consul.sh ${var.datacenter} ${google_compute_instance.amigo_server.0.network_interface.0.address}",
+          "/usr/local/bin/bootstrap.sh",
+          "/usr/local/bin/boostrap_consul.sh ${var.datacenter} ${google_compute_instance.amigo_server.0.network_interface.0.address}",
           "sudo su -c 'echo ${count.index + 1} > /var/lib/zookeeper/myid'"
         ]
     }

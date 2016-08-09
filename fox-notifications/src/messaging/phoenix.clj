@@ -40,6 +40,7 @@
 (defroutes app
   (GET "/_settings/schema" [] (response settings/schema))
   (POST "/_settings/upload" {body :body}
+        (println "Updating Settings: " body)
         (settings/update-settings body)
         (response {:ok "updated"}))
 
@@ -81,9 +82,12 @@
 (defn register-plugin
   []
   (if @api-server
-    (http/post (str @api-server "/api/v1/plugins/register")
+    (println "Registering Plugin: " (-> (http/post (str @api-server "/api/v1/plugins/register")
              {:body (json/write-str @plugin-info)
               :headers {"JWT" (authenticate)
                         "Content-Type" "application/json"}})
+     deref
+     :body
+     bs/to-string))
 
     (println "Phoenix address not set, can't register myself into phoenix :(")))

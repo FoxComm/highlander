@@ -39,7 +39,7 @@ export function createEmptySku(): Sku {
   return emptySku;
 }
 
-export function updateFieldLabels(sku: Sku) {
+export function updateFieldLabels(sku: Sku): Sku {
   return assoc(sku,
     ['attributes', 'code', 'label'], 'SKU',
     ['attributes', 'upc', 'label'], 'UPC',

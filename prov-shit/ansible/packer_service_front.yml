@@ -25,8 +25,8 @@
     - { role: base/rsyslog, sudo: yes }
     - { role: base/balancer, sudo: yes }
     - { role: base/ashes }
-    - { role: base/firebird }
-    - { role: base/firebrand }
+    - { role: base/firebird, tags: ['firebird']}
+    - { role: base/firebrand, tags: ['firebrand']}
     - { role: dev/balancer, sudo: yes }
 
   handlers:

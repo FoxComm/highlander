@@ -268,7 +268,8 @@ class CheckoutTest
         ids ← * <~ StoreCredits.createAllReturningIds(
                  amount.map(scAmount ⇒
                        Factories.storeCredit.copy(originalBalance = scAmount,
-                                                  originId = origin.id)))
+                                                  originId = origin.id,
+                                                  customerId = customer.id)))
       } yield ids
 
     implicit val es = utils.ElasticsearchApi.default()

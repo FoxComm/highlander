@@ -10,7 +10,7 @@ import akka.util.ByteString
 import cats.data.Xor
 import cats.implicits._
 import failures.ImageFailures._
-import models.image.Image
+import models.image.{AlbumImageLinks, Image}
 import models.objects.FullObject
 import payloads.ImagePayloads._
 import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
@@ -40,16 +40,17 @@ object ImageFacade {
             context  ← * <~ ObjectManager.mustFindByName404(contextName)
             filePath ← * <~ getFileFromRequest(part.entity.dataBytes)
             album    ← * <~ mustFindFullAlbumByFormIdAndContext404(albumId, context)
+            _        ← * <~ album.model.mustNotBeArchived
             filename ← * <~ getFileNameFromBodyPart(part)
             fullPath ← * <~ s"albums/${context.id}/$albumId/$filename"
             url      ← * <~ apis.amazon.uploadFile(fullPath, filePath.toFile)
 
-            existingImages ← * <~ getAlbumImages(album.model.id)
+            existingImages ← * <~ AlbumImageLinks.queryRightByLeft(album.model)
             payload = existingImages.map(imageToPayload) :+
               ImagePayload(src = url, title = filename.some, alt = filename.some)
 
             _           ← * <~ createOrUpdateImagesForAlbum(album.model, payload, context)
-            albumImages ← * <~ getAlbumImages(album.model.id)
+            albumImages ← * <~ AlbumImageLinks.queryRightByLeft(album.model)
           } yield AlbumResponse.build(album, albumImages)).runTxn()
         }
         .flatMap(a ⇒ a)

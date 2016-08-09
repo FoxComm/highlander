@@ -68,12 +68,12 @@ export default class Groups extends Component {
     const {list, actions: {updateStateAndFetch}} = this.props;
 
     return (
-      <div className={classNames('fc-grid', prefixed())}>
-        <div className={classNames('fc-col-md-1-1', prefixed('header'))}>
+      <div className={classNames(prefixed())}>
+        <div className={classNames(prefixed('header'))}>
           <h2 className={prefixed('header__title')}>Customers Groups</h2>
           <PrimaryButton icon="add" onClick={this.handleAddGroup} />
         </div>
-        <div className={classNames('fc-col-md-1-1', prefixed('table'))}>
+        <div className={classNames(prefixed('table'))}>
           <MultiSelectTable
             columns={tableColumns}
             data={list}
