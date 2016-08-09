@@ -3,6 +3,7 @@ package services
 import (
 	"testing"
 
+	"github.com/FoxComm/middlewarehouse/fixtures"
 	"github.com/FoxComm/middlewarehouse/models"
 	"github.com/FoxComm/middlewarehouse/services/mocks"
 
@@ -10,8 +11,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
-	"github.com/FoxComm/middlewarehouse/common/gormfox"
-	"database/sql"
 )
 
 type AddressServiceTestSuite struct {
@@ -32,6 +31,9 @@ func (suite *AddressServiceTestSuite) SetupTest() {
 }
 
 func (suite *AddressServiceTestSuite) TearDownTest() {
+	//assert all expectations were met
+	suite.repository.AssertExpectations(suite.T())
+
 	// clear service mock calls expectations after each test
 	suite.repository.ExpectedCalls = []*mock.Call{}
 	suite.repository.Calls = []mock.Call{}
@@ -46,30 +48,24 @@ func (suite *AddressServiceTestSuite) Test_GetAddressById_NotFound_ReturnsNotFou
 
 	//assert
 	suite.assert.Equal(gorm.ErrRecordNotFound, err)
-
-	//assert all expectations were met
-	suite.repository.AssertExpectations(suite.T())
 }
 
 func (suite *AddressServiceTestSuite) Test_GetAddressByID_Found_ReturnsAddressModel() {
 	//arrange
-	address1 := suite.getTestAddress1()
-	suite.repository.On("GetAddressByID", uint(1)).Return(address1, nil).Once()
+	address1 := fixtures.GetAddress(uint(1), uint(1), &models.Region{ID: uint(1)})
+	suite.repository.On("GetAddressByID", address1.ID).Return(address1, nil).Once()
 
 	//act
-	address, err := suite.service.GetAddressByID(uint(1))
+	address, err := suite.service.GetAddressByID(address1.ID)
 
 	//assert
 	suite.assert.Nil(err)
 	suite.assert.Equal(address1, address)
-
-	//assert all expectations were met
-	suite.repository.AssertExpectations(suite.T())
 }
 
 func (suite *AddressServiceTestSuite) Test_CreateAddress_ReturnsCreatedRecord() {
 	//arrange
-	address1 := suite.getTestAddress1()
+	address1 := fixtures.GetAddress(uint(1), uint(1), &models.Region{ID: uint(1)})
 	suite.repository.On("CreateAddress", address1).Return(address1, nil).Once()
 
 	//act
@@ -78,9 +74,6 @@ func (suite *AddressServiceTestSuite) Test_CreateAddress_ReturnsCreatedRecord() 
 	//assert
 	suite.assert.Nil(err)
 	suite.assert.Equal(address1, address)
-
-	//assert all expectations were met
-	suite.repository.AssertExpectations(suite.T())
 }
 
 func (suite *AddressServiceTestSuite) Test_DeleteAddress_NotFound_ReturnsNotFoundError() {
@@ -92,9 +85,6 @@ func (suite *AddressServiceTestSuite) Test_DeleteAddress_NotFound_ReturnsNotFoun
 
 	//assert
 	suite.assert.Equal(gorm.ErrRecordNotFound, err)
-
-	//assert all expectations were met
-	suite.repository.AssertExpectations(suite.T())
 }
 
 func (suite *AddressServiceTestSuite) Test_DeleteAddress_Found_ReturnsNoError() {
@@ -106,21 +96,4 @@ func (suite *AddressServiceTestSuite) Test_DeleteAddress_Found_ReturnsNoError() 
 
 	//assert
 	suite.assert.Nil(err)
-
-	//assert all expectations were met
-	suite.repository.AssertExpectations(suite.T())
-}
-
-func (suite *AddressServiceTestSuite) getTestAddress1() *models.Address {
-	return &models.Address{gormfox.Base{ID: uint(1)}, "Home address", uint(1),
-		*suite.getTestRegion1(), "Texas", "75231",
-		"Some st, 335", sql.NullString{String: "", Valid: false}, "19527352893"}
-}
-
-func (suite *AddressServiceTestSuite) getTestRegion1() *models.Region {
-	return &models.Region{uint(1), "Texas", uint(2), *suite.getTestCountry1()}
-}
-
-func (suite *AddressServiceTestSuite) getTestCountry1() *models.Country {
-	return &models.Country{uint(2), "USA"}
 }
