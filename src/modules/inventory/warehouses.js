@@ -128,7 +128,7 @@ const initialState = {};
 
 const reducer = createReducer({
   [_fetchSummary.succeeded]: (state, [payload, sku]) => {
-    const stockItems: Array<StockItemSummary> = payload;
+    const stockItems: Array<StockItemSummary> = payload.summary;
 
     const inventoryDetailsByLocations = _.reduce(stockItems, (acc, itemSummary: StockItemSummary) => {
       const warehouseDetails =
