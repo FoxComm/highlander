@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 import { PageTitle } from 'components/section-title';
 import SubNav from './sub-nav';
 import WaitAnimation from 'components/common/wait-animation';
+import Error from 'components/errors/error';
 
 // redux
 import * as cartActions from 'modules/carts/details';
@@ -19,6 +20,7 @@ const mapStateToProps = (state) => {
   return {
     details: state.carts.details,
     isFetching: _.get(state.asyncActions, 'fetchCart.inProgress', false),
+    fetchError: _.get(state.asyncActions, 'fetchCart.err', null),
   };
 };
 
@@ -63,8 +65,12 @@ export default class Cart extends Component {
     const cart = this.cart;
     const className = 'fc-order fc-cart';
 
-    if (this.props.isFetching || _.isEmpty(cart)) {
+    if (this.props.isFetching !== false) {
       return <div className={className}><WaitAnimation /></div>;
+    }
+
+    if (_.isEmpty(this.cart)) {
+      return <Error err={this.props.fetchError} notFound={`There is no cart with reference number ${this.refNum}`} />;
     }
 
     const title = `Cart ${this.refNum}`;

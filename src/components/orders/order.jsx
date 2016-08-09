@@ -17,9 +17,10 @@ import SubNav from './sub-nav';
 import State, { states } from '../common/state';
 import ConfirmationDialog from '../modal/confirmation-dialog';
 import WaitAnimation from '../common/wait-animation';
+import Error from 'components/errors/error';
 
 // redux
-import * as orderActions from '../../modules/orders/details';
+import * as orderActions from 'modules/orders/details';
 
 const orderRefNum = props => {
   return props.params.order;
@@ -28,7 +29,8 @@ const orderRefNum = props => {
 const mapStateToProps = (state) => {
   return {
     details: state.orders.details,
-    isFetching: _.get(state.asyncActions, 'getOrder.inProgress', false),
+    isFetching: _.get(state.asyncActions, 'getOrder.inProgress', null),
+    fetchError: _.get(state.asyncActions, 'getOrder.err', null),
   };
 };
 
@@ -255,15 +257,25 @@ export default class Order extends React.Component {
     );
   }
 
-  render() {
-    const order = this.order;
-    const contents = this.props.isFetching || _.isEmpty(order)
-      ? <WaitAnimation />
-      : this.contents;
+  get body() {
+    if (this.props.isFetching !== false) {
+      return <WaitAnimation/>;
+    }
+    if (_.isEmpty(this.order)) {
+      return (
+        <Error
+          err={this.props.fetchError}
+          notFound={`There is no order with reference number ${this.orderRefNum}`}
+        />
+      );
+    }
+    return this.contents;
+  }
 
+  render() {
     return (
       <div className="fc-order">
-        {contents}
+        {this.body}
       </div>
     );
   }
