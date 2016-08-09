@@ -4,9 +4,9 @@ import (
 	"testing"
 
 	"github.com/FoxComm/middlewarehouse/models"
+	"github.com/FoxComm/middlewarehouse/fixtures"
 	"github.com/FoxComm/middlewarehouse/services/mocks"
 
-	"github.com/FoxComm/middlewarehouse/common/gormfox"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
@@ -40,8 +40,8 @@ func (suite *ShipmentLineItemServiceTestSuite) TearDownTest() {
 
 func (suite *ShipmentLineItemServiceTestSuite) Test_GetShipmentLineItemsByShipmentID_ReturnsShipmentLineItemModels() {
 	//arrange
-	shipmentLineItem1 := suite.getTestShipmentLineItem1()
-	shipmentLineItem2 := suite.getTestShipmentLineItem2()
+	shipmentLineItem1 := fixtures.GetShipmentLineItem(uint(1), uint(1))
+	shipmentLineItem2 := fixtures.GetShipmentLineItem(uint(2), uint(1))
 	suite.repository.On("GetShipmentLineItemsByShipmentID", uint(1)).Return([]*models.ShipmentLineItem{shipmentLineItem1, shipmentLineItem2}, nil).Once()
 
 	//act
@@ -57,7 +57,7 @@ func (suite *ShipmentLineItemServiceTestSuite) Test_GetShipmentLineItemsByShipme
 
 func (suite *ShipmentLineItemServiceTestSuite) Test_CreateShipmentLineItem_ReturnsCreatedRecord() {
 	//arrange
-	shipmentLineItem1 := suite.getTestShipmentLineItem1()
+	shipmentLineItem1 := fixtures.GetShipmentLineItem(uint(1), uint(1))
 	suite.repository.On("CreateShipmentLineItem", shipmentLineItem1).Return(shipmentLineItem1, nil).Once()
 
 	//act
@@ -70,7 +70,7 @@ func (suite *ShipmentLineItemServiceTestSuite) Test_CreateShipmentLineItem_Retur
 
 func (suite *ShipmentLineItemServiceTestSuite) Test_UpdateShipmentLineItem_NotFound_ReturnsNotFoundError() {
 	//arrange
-	shipmentLineItem1 := suite.getTestShipmentLineItem1()
+	shipmentLineItem1 := fixtures.GetShipmentLineItem(uint(1), uint(1))
 	suite.repository.On("UpdateShipmentLineItem", shipmentLineItem1).Return(nil, gorm.ErrRecordNotFound).Once()
 
 	//act
@@ -82,7 +82,7 @@ func (suite *ShipmentLineItemServiceTestSuite) Test_UpdateShipmentLineItem_NotFo
 
 func (suite *ShipmentLineItemServiceTestSuite) Test_UpdateShipmentLineItem_Found_ReturnsUpdatedRecord() {
 	//arrange
-	shipmentLineItem1 := suite.getTestShipmentLineItem1()
+	shipmentLineItem1 := fixtures.GetShipmentLineItem(uint(1), uint(1))
 	suite.repository.On("UpdateShipmentLineItem", shipmentLineItem1).Return(shipmentLineItem1, nil).Once()
 
 	//act
@@ -102,9 +102,6 @@ func (suite *ShipmentLineItemServiceTestSuite) Test_DeleteShipmentLineItem_NotFo
 
 	//assert
 	suite.assert.Equal(gorm.ErrRecordNotFound, err)
-
-	//assert all expectations were met
-	suite.repository.AssertExpectations(suite.T())
 }
 
 func (suite *ShipmentLineItemServiceTestSuite) Test_DeleteShipmentLineItem_Found_ReturnsNoError() {
@@ -116,17 +113,4 @@ func (suite *ShipmentLineItemServiceTestSuite) Test_DeleteShipmentLineItem_Found
 
 	//assert
 	suite.assert.Nil(err)
-
-	//assert all expectations were met
-	suite.repository.AssertExpectations(suite.T())
-}
-
-func (suite *ShipmentLineItemServiceTestSuite) getTestShipmentLineItem1() *models.ShipmentLineItem {
-	return &models.ShipmentLineItem{gormfox.Base{ID: uint(1)}, uint(1), "BR1002", "SKU-TEST1",
-		"Some shit", 3999, "https://test.com/some-shit.png", "pending"}
-}
-
-func (suite *ShipmentLineItemServiceTestSuite) getTestShipmentLineItem2() *models.ShipmentLineItem {
-	return &models.ShipmentLineItem{gormfox.Base{ID: uint(2)}, uint(1), "BR1003", "SKU-TEST2",
-		"Other shit", 4999, "https://test.com/other-shit.png", "delivered"}
 }

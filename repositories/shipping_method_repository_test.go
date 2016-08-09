@@ -172,13 +172,13 @@ func (suite *ShippingMethodRepositoryTestSuite) Test_DeleteShippingMethod_Found_
 }
 
 func (suite *ShippingMethodRepositoryTestSuite) expectSelectByID(shippingMethod *models.ShippingMethod) {
-	shippingMethoRows := sqlmock.
+	shippingMethodRows := sqlmock.
 		NewRows(fixtures.GetShippingMethodColumns()).
 		AddRow(fixtures.GetShippingMethodRow(shippingMethod)...)
 	suite.mock.
 		ExpectQuery(`SELECT .+ FROM "shipping_methods" WHERE \("id" = \?\) .+`).
 		WithArgs(shippingMethod.ID).
-		WillReturnRows(shippingMethoRows)
+		WillReturnRows(shippingMethodRows)
 	carrierRows := sqlmock.
 		NewRows(fixtures.GetCarrierColumns()).
 		AddRow(fixtures.GetCarrierRow(&shippingMethod.Carrier)...)
