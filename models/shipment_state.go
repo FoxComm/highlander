@@ -13,7 +13,7 @@ const (
 
 // implement Scanner and Valuer interfaces to provide read/write for alias type
 func (u *ShipmentState) Scan(value interface{}) error {
-	*u = ShipmentState(value.(string))
+	*u = ShipmentState(value.([]uint8))
 
 	return nil
 }

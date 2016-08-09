@@ -182,5 +182,5 @@ func (suite *ShipmentRepositoryTestSuite) getShipmentColumns() []string {
 
 func (suite *ShipmentRepositoryTestSuite) getShipmentRow(shipment *models.Shipment) []driver.Value {
 	return []driver.Value{shipment.ID, shipment.ShippingMethodID, shipment.AddressID, shipment.ReferenceNumber,
-		string(shipment.State), nil, nil, nil, nil, shipment.CreatedAt, shipment.UpdatedAt, shipment.DeletedAt}
+		[]uint8(shipment.State), nil, nil, nil, nil, shipment.CreatedAt, shipment.UpdatedAt, shipment.DeletedAt}
 }

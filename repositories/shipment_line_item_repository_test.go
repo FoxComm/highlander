@@ -182,5 +182,5 @@ func (suite *ShipmentLineItemRepositoryTestSuite) getShipmentLineItemColumns() [
 func (suite *ShipmentLineItemRepositoryTestSuite) getShipmentLineItemRow(shipmentLineItem *models.ShipmentLineItem) []driver.Value {
 	return []driver.Value{shipmentLineItem.ID, shipmentLineItem.ShipmentID, shipmentLineItem.Name,
 		shipmentLineItem.ReferenceNumber, shipmentLineItem.SKU, shipmentLineItem.Price, shipmentLineItem.ImagePath,
-		string(shipmentLineItem.State), shipmentLineItem.CreatedAt, shipmentLineItem.UpdatedAt, shipmentLineItem.DeletedAt}
+		[]uint8(shipmentLineItem.State), shipmentLineItem.CreatedAt, shipmentLineItem.UpdatedAt, shipmentLineItem.DeletedAt}
 }
