@@ -83,6 +83,6 @@ Vagrant.configure("2") do |config|
     app.vm.box_download_checksum = "550f65256533c6dd4bcb5278dfa46ffe"
     app.vm.box_download_checksum_type = "md5"
 
-    app.vm.provision "shell", inline: "apt.get install -y python-minimal"
+    app.vm.provision "shell", inline: "apt-get install -y python-minimal"
   end
 end

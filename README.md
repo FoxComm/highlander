@@ -17,29 +17,99 @@ has a lot to do!
 - Install [Vagrant](https://www.vagrantup.com)
 - Install [Ansible 1.9.x](http://docs.ansible.com/ansible/intro_installation.html#installation)
 
-### Option A: Local Installation
+### Build the Application
 
-If you have a good machine and a fair bit of RAM, the recommended way to work
-is with the virtual machine running on your local computer. If you have limited
-resources and would like to run it in Google Compute Engine, see the next step.
+The easiest way to get the entire application built is to use the Vagrant Build
+environment. This will launch a VM that contains all the dependencies needed to
+build all services.
 
-- Set up the machine using Vagrant
+**Step 1: Build the VM**
 
-    $ vagrant up contained
+```
+$ vagrant up build
+```
 
-- Wait - you'll have some downtime before this step finishes
-- Once it completes, configure your hostfile so that you can access the system.
+**Step 2: Build the Services**
 
-    $ sudo echo "192.168.10.111 local.foxcommerce.com" >> /etc/hosts
-    $ sudo echo "192.168.10.111 admin.local.foxcommerce.com" >> /etc/hosts
+- SSH into the build VM
 
-- You're done! Navigate to the storefront on 
-  [local.foxcommerce.com](http://local.foxcommerce.com) or admin on 
-  [admin.local.foxcommerce.com](http://admin.local.foxcommerce.com)
+    ```
+    $ vagrant ssh build
+    ```
 
-### Option B: Google Compute Engine
+- Navigate to the source directory
 
-Coming soon...
+    ```
+    $ cd /vagrant
+    ```
+
+- Start all of the build scripts
+
+    ```
+    $ make build
+    ```
+
+- Grab a cup of coffee... this will take a while.
+
+When everything is completed, all executables needed to build a development VM
+will have been created. You can exit the VM.
+
+### Launch a VM
+
+The appliance VM (a single VM containing all services) can be run either on your
+local environment through VirtualBox or VMWare Fusion, or in the cloud through
+Google Compute Engine. If you have sufficient hardware resources, a local VM
+will give you the most flexibility and performance.
+
+**Local VM**
+
+Provision a VM
+
+    $ vagrant up
+
+Set your hosts file so that you can access the site by adding the following to `/etc/hosts`
+
+    192.168.10.111 local.foxcommerce.com
+    192.168.10.111 admin.local.foxcommerce.com
+
+Connect to the site through your browser.
+
+**Google Compute VM**
+
+Install the GCE vagrant provider
+
+    $ vagrant plugin install vagrant-google
+
+Add the following vagrant box.
+
+    $ vagrant box add gce https://github.com/mitchellh/vagrant-google/raw/master/google.box
+
+Set the following environment variables.
+
+    $ export GOOGLE_SSH_KEY=~/.ssh/google_compute_engine # Or the location of your key
+    $ export GOOGLE_CLIENT_EMAIL=<Your FoxCommerce email>
+
+Download a JSON key for our GCE environment. You can follow 
+[Google's instructions for generating a private key](https://cloud.google.com/storage/docs/authentication#generating-a-private-key).
+
+Make sure to generate a JSON key. And save it with the name `foxcomm-staging.json` in the root directory of this project.
+
+Once downloaded, set the location.
+
+    $ export GOOGLE_JSON_KEY_LOCATION=`pwd`/foxcomm-staging.json
+
+Then run
+
+    $ vagrant up --provider=google
+
+Test machines are created without a public facing IP address, so you'll need to use the VPN to access it.
+
+Get the private IP address
+
+    $ vagrant ssh
+    $ ifconfig eth0
+    
+Edit your hosts file so that `local.foxcommerce.com` and `admin.local.foxcommerce.com` point to the new box using the private IP address you just retrieved.  
 
 ## The Projects
 
