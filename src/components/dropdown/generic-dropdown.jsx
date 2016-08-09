@@ -162,13 +162,14 @@ export default class GenericDropdown extends Component {
     const { name, placeholder, value, renderDropdownInput } = this.props;
     const actualValue = this.state.selectedValue;
     const title = this.findTitleByValue(actualValue, this.props) || this.renderNullTitle(value, placeholder);
+    const valueForInput = actualValue === null ? '' : actualValue;
 
     return renderDropdownInput
       ? renderDropdownInput(actualValue, title, this.props, this.handleToggleClick)
       : (
       <div className="fc-dropdown__value" onClick={this.handleToggleClick}>
         {title}
-        <input name={name} type="hidden" value={actualValue} readOnly />
+        <input name={name} type="hidden" value={valueForInput} readOnly />
       </div>
     );
   }

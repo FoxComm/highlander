@@ -46,7 +46,6 @@ class NewPayment extends Component {
     customerId: PropTypes.number.isRequired,
     fetchCreditCards: PropTypes.func.isRequired,
     order: PropTypes.object.isRequired,
-    orderPaymentMethodNewCreditCard: PropTypes.func.isRequired,
     paymentMethods: PropTypes.object,
     cancelAction: PropTypes.func.isRequired,
   };
@@ -112,7 +111,7 @@ class NewPayment extends Component {
   render() {
     return (
       <TableRow>
-        <TableCell className="fc-new-order-payment" colspan={5}>
+        <TableCell className="fc-new-order-payment" colSpan={5}>
           {this.paymentForm}
           {this.newPaymentMethod}
         </TableCell>

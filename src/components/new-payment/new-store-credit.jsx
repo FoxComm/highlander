@@ -39,7 +39,7 @@ export default class NewStoreCredit extends Component {
     order: PropTypes.shape({
       referenceNumber: PropTypes.string.isRequired,
     }).isRequired,
-    totals: PropTypes.object.isRequired,
+    totals: PropTypes.object,
     cancelAction: PropTypes.func.isRequired,
 
     actions: PropTypes.shape({

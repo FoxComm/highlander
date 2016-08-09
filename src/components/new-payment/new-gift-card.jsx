@@ -41,15 +41,11 @@ export default class NewGiftCard extends Component {
     }).isRequired,
   };
 
-  constructor(...args) {
-    super(...args);
-
-    this.state = {
-      giftCard: null,
-      giftCardCode: null,
-      showGiftCardSummary: false,
-    };
-  }
+  state = {
+    giftCard: null,
+    giftCardCode: '',
+    showGiftCardSummary: false,
+  };
 
   componentWillReceiveProps(nextProps) {
     const gcResults = _.get(nextProps, 'paymentMethods.giftCards', []);
@@ -114,8 +110,8 @@ export default class NewGiftCard extends Component {
                    onChange={this.handleGiftCardChange}
                    value={this.state.giftCardCode} />
           </FormField>
-          {this.giftCardSummary}
         </Form>
+        {this.giftCardSummary}
       </div>
     );
   }

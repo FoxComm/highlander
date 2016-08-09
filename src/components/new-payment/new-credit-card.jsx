@@ -42,28 +42,24 @@ function mapDispatchToProps(dispatch, props) {
 @connect(mapStateToProps, mapDispatchToProps)
 export default class NewCreditCard extends Component {
   static propTypes = {
-    creditCards: PropTypes.object.isRequired,
+    creditCards: PropTypes.object,
     customerId: PropTypes.number.isRequired,
     order: PropTypes.object.isRequired,
     cancelAction: PropTypes.func.isRequired,
 
     actions: PropTypes.shape({
-      selectCreditCard: PropTypes.func.isRequired,
-      createAndAddOrderCreditCardPayment: PropTypes.func.isRequired,
-      fetchAddresses: PropTypes.func.isRequired,
-      fetchCreditCards: PropTypes.func.isRequired,
+      selectCreditCard: PropTypes.func,
+      createAndAddOrderCreditCardPayment: PropTypes.func,
+      fetchAddresses: PropTypes.func,
+      fetchCreditCards: PropTypes.func,
     }).isRequired,
   };
 
-  constructor(...args) {
-    super(...args);
-
-    this.state = {
-      newCard: null,
-      selectedCard: null,
-      showForm: false,
-    };
-  }
+  state = {
+    newCard: null,
+    selectedCard: null,
+    showForm: false,
+  };
 
   componentDidMount() {
     this.props.actions.fetchCreditCards();
@@ -100,10 +96,14 @@ export default class NewCreditCard extends Component {
 
   get creditCardTiles() {
     if (!this.state.showForm && _.isNull(this.state.selectedCard)) {
+      const isFetching = _.get(this.props, 'creditCards.isFetching', null);
       return (
-        <TileSelector items={this.creditCards}
-                      onAddClick={this.toggleCreditCardForm}
-                      title="Customer's Credit Cards" />
+        <TileSelector
+          isFetching={isFetching}
+          items={this.creditCards}
+          onAddClick={this.toggleCreditCardForm}
+          title="Customer's Credit Cards"
+        />
       );
     }
   }

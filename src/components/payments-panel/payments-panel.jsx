@@ -52,7 +52,7 @@ export default class PaymentsPanel extends Component {
     const customerId = order.customer.id;
 
     return (
-      <tbody>
+      <tbody key="new-payment">
         <NewPayment
           order={order}
           customerId={customerId}
@@ -83,6 +83,7 @@ export default class PaymentsPanel extends Component {
 
     return (
       <PaymentRow
+        key={row.id || row.code}
         customerId={customerId}
         editMode={this.props.isEditing}
         orderReferenceNumber={referenceNumber}

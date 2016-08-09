@@ -90,7 +90,7 @@ class PaymentRow extends Component {
       }
 
       return (
-        <TableRow styleName="details-row">
+        <TableRow key="details" styleName="details-row">
           <TableCell colSpan={5}>
             <DetailsElement {...detailsProps} />
           </TableCell>
@@ -120,7 +120,7 @@ class PaymentRow extends Component {
     const iconClass = `icon-chevron-${dir}`;
 
     return (
-      <TableRow styleName="payment-row">
+      <TableRow key="summary" styleName="payment-row">
         <TableCell styleName="toggle-column">
           <i styleName="row-toggle" className={iconClass} onClick={this.toggleDetails} />
           <PaymentMethodDetails paymentMethod={paymentMethod} />
