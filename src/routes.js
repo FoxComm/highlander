@@ -11,6 +11,8 @@ import OrdersListPage from './components/orders/list-page';
 import Orders from './components/orders/orders';
 import Order from './components/orders/order';
 import OrderDetails from './components/orders/details';
+import CartsListPage from './components/carts/list-page';
+import Carts from './components/carts/carts';
 import Cart from './components/carts/cart';
 import CartDetails from './components/carts/details';
 import NewOrder from './components/orders/new-order';
@@ -115,6 +117,9 @@ const routes = (
         </Route>
       </Route>
       <Route name='carts-base' path='carts'>
+        <Route name='carts-list-pages' component={CartsListPage}>
+          <IndexRoute name='carts' component={Carts} />
+        </Route>
         <Route name='cart' path=':cart' component={Cart}>
           <IndexRoute name='cart-details' component={CartDetails}/>
           <Route name='cart-notes' path='notes' component={Notes}/>
