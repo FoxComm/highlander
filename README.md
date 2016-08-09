@@ -31,25 +31,19 @@ $ vagrant up build
 
 **Step 2: Build the Services**
 
-- SSH into the build VM
+SSH into the build VM
 
-    ```
     $ vagrant ssh build
-    ```
 
-- Navigate to the source directory
+Navigate to the source directory
 
-    ```
     $ cd /vagrant
-    ```
 
-- Start all of the build scripts
+Start all of the build scripts
 
-    ```
     $ make build
-    ```
 
-- Grab a cup of coffee... this will take a while.
+Grab a cup of coffee... this will take a while.
 
 When everything is completed, all executables needed to build a development VM
 will have been created. You can exit the VM.
