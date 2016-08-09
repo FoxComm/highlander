@@ -16,6 +16,7 @@ import services.promotion.PromotionManager
 import utils.aliases._
 import utils.db._
 import utils.seeds.generators.SimplePromotion._
+import utils.time.JavaInstantFormatters._
 
 object SimplePromotion {
   type Percent = Int
@@ -36,7 +37,7 @@ case class SimplePromotionForm(percentOff: Percent, totalAmount: Int) {
       "storefrontName" : "$percentOff% off after spending $totalAmount dollars",
       "description" : "$percentOff% off full order after spending $totalAmount dollars",
       "details" : "This offer applies after you spend over $totalAmount dollars",
-      "activeFrom" : "${Instant.now}",
+      "activeFrom" : "${Instant.now.forEs}",
       "activeTo" : null,
       "tags" : []
       }

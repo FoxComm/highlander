@@ -9,6 +9,7 @@ import models.promotion.Promotion
 import org.json4s.jackson.JsonMethods._
 import org.json4s.jackson.Serialization._
 import utils.JsonFormatters.phoenixFormats
+import utils.time.JavaInstantFormatters._
 
 package object seeds {
   case class BaseDiscount(title: String, discountId: Int = 0, formId: Int = 0, shadowId: Int = 0)
@@ -61,7 +62,7 @@ package object seeds {
       "storefrontName" : "$name",
       "description" : "$name",
       "details" : "",
-      "activeFrom" : "${Instant.now}",
+      "activeFrom" : "${Instant.now.forEs}",
       "activeTo" : null,
       "tags" : []
       }
@@ -94,7 +95,7 @@ package object seeds {
       "storefrontName" : "$title",
       "description" : "$title",
       "details" : "",
-      "activeFrom" : "${Instant.now}",
+      "activeFrom" : "${Instant.now.forEs}",
       "activeTo" : null,
       "tags" : [],
       "usageRules": {
