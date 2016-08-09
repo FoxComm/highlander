@@ -25,15 +25,15 @@ func NewShippingMethodRepository(db *gorm.DB) IShippingMethodRepository {
 func (repository *shippingMethodRepository) GetShippingMethods() ([]*models.ShippingMethod, error) {
 	var shippingMethods []*models.ShippingMethod
 
-	err := repository.db.Find(&shippingMethods).Error
+	err := repository.db.Preload("Carrier").Find(&shippingMethods).Error
 
 	return shippingMethods, err
 }
 
 func (repository *shippingMethodRepository) GetShippingMethodByID(id uint) (*models.ShippingMethod, error) {
-	shippingMethod :=&models.ShippingMethod{}
+	shippingMethod := &models.ShippingMethod{}
 
-	if err := repository.db.First(shippingMethod, id).Error; err != nil {
+	if err := repository.db.First(shippingMethod, id).Related(&shippingMethod.Carrier).Error; err != nil {
 		return nil, err
 	}
 
@@ -41,7 +41,7 @@ func (repository *shippingMethodRepository) GetShippingMethodByID(id uint) (*mod
 }
 
 func (repository *shippingMethodRepository) CreateShippingMethod(shippingMethod *models.ShippingMethod) (*models.ShippingMethod, error) {
-	err := repository.db.Create(shippingMethod).Error
+	err := repository.db.Set("gorm:save_associations", false).Save(shippingMethod).Error
 
 	if err != nil {
 		return nil, err
@@ -51,7 +51,7 @@ func (repository *shippingMethodRepository) CreateShippingMethod(shippingMethod 
 }
 
 func (repository *shippingMethodRepository) UpdateShippingMethod(shippingMethod *models.ShippingMethod) (*models.ShippingMethod, error) {
-	result := repository.db.Model(shippingMethod).Updates(shippingMethod)
+	result := repository.db.Set("gorm:save_associations", false).Save(shippingMethod)
 
 	if result.Error != nil {
 		return nil, result.Error
