@@ -23,6 +23,7 @@ func NewAddressFromPayload(payload *payloads.Address) *Address {
 	address := new(Address)
 
 	address.Name = payload.Name
+	address.RegionID = payload.Region.ID
 	address.Region = *NewRegionFromPayload(&payload.Region)
 	address.Address1 = payload.Address1
 	address.City = payload.City

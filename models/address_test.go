@@ -39,6 +39,7 @@ func (suite *AddressModelTestSuite) Test_NewAddressFromPayload_ReturnsValidModel
 
 	//assert
 	suite.assert.Equal(name, model.Name)
+	suite.assert.Equal(region.ID, model.RegionID)
 	suite.assert.Equal(*NewRegionFromPayload(region), model.Region)
 	suite.assert.Equal(city, model.City)
 	suite.assert.Equal(zip, model.Zip)

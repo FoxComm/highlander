@@ -13,8 +13,9 @@ type Region struct {
 
 func NewRegionFromPayload(payload *payloads.Region) *Region {
 	return &Region{
-		ID:   payload.ID,
-		Name: payload.Name,
+		ID:        payload.ID,
+		Name:      payload.Name,
+		CountryID: payload.CountryID,
 		Country: Country{
 			ID:   payload.CountryID,
 			Name: payload.CountryName,
