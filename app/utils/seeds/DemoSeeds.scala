@@ -208,7 +208,7 @@ trait DemoScenario3 extends DemoSeedHelpers {
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       shippingMethod ← * <~ ShippingMethods
-                        .filter(_.adminDisplayName === "2-3 day express [FedEx]")
+                        .filter(_.adminDisplayName === "2-3 day express (FedEx)")
                         .mustFindOneOr(
                             NotFoundFailure404("Unable to find 2-3 day shipping method"))
       customerIds ← * <~ Customers.createAllReturningIds(customers3)

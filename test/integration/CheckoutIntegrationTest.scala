@@ -138,7 +138,7 @@ class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with 
       address    ← * <~ Addresses.create(Factories.usAddress1.copy(customerId = customer.id))
       _          ← * <~ Factories.shippingMethods.map(ShippingMethods.create(_))
       shipMethod ← * <~ ShippingMethods
-                    .filter(_.adminDisplayName === "2-3 day express [FedEx]")
+                    .filter(_.adminDisplayName === "2-3 day express (FedEx)")
                     .mustFindOneOr(NotFoundFailure404("Unable to find 2-3 day shipping method"))
       product ← * <~ Mvp.insertProduct(productCtx.id, Factories.products.head)
       sku     ← * <~ Skus.mustFindById404(product.skuId)
