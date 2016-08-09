@@ -32,14 +32,14 @@ func (suite *AddressResponseTestSuite) Test_NewAddressFromModel_ReturnsValidResp
 	//arrange
 	id := uint(1)
 	name := "Home address"
-	region := &models.Region{uint(1), "Texas", models.Country{uint(2), "USA"}, uint(2)}
+	region := &models.Region{uint(1), "Texas", uint(2), models.Country{uint(2), "USA"}}
 	city := "Seattle"
 	zip := "71234"
 	address1 := "Some st, 51"
 	address2 := "Some more here"
 	phoneNumber := "17345791232"
 
-	model := &models.Address{gormfox.Base{}, name, *region, region.ID, city, zip, address1, sql.NullString{address2, true}, phoneNumber}
+	model := &models.Address{gormfox.Base{}, name, region.ID, *region, city, zip, address1, sql.NullString{address2, true}, phoneNumber}
 	model.ID = id
 
 	//act
@@ -60,7 +60,7 @@ func (suite *AddressResponseTestSuite) Test_AddressEncoding_RunsNormally() {
 	//arrange
 	id := uint(1)
 	name := "Home address"
-	region := &models.Region{uint(1), "Texas", models.Country{uint(2), "USA"}, uint(2)}
+	region := &models.Region{uint(1), "Texas", uint(2), models.Country{uint(2), "USA"}}
 	city := "Seattle"
 	zip := "71234"
 	address1 := "Some st, 51"

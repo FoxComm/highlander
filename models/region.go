@@ -7,8 +7,8 @@ import (
 type Region struct {
 	ID        uint
 	Name      string
-	Country   Country
 	CountryID uint
+	Country   Country
 }
 
 func NewRegionFromPayload(payload *payloads.Region) *Region {

@@ -10,6 +10,7 @@ import (
 type Address struct {
 	gormfox.Base
 	Name        string
+	RegionID    uint
 	Region      Region
 	City        string
 	Zip         string
