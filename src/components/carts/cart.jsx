@@ -1,5 +1,5 @@
-// libs
-import React, { Component } from 'react';
+// @flow
+import React, { Component, Element } from 'react';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 
@@ -12,23 +12,43 @@ import Error from 'components/errors/error';
 // redux
 import * as cartActions from 'modules/carts/details';
 
-const refNum = props => {
+type RouteParams = {
+  cart: string,
+}
+
+type CartDetails = {
+  cart?: Object,
+}
+
+type Props = {
+  fetchCart: (refNum: string) => Promise,
+  clearFetchCartErrors: () => void,
+  params: RouteParams,
+  details: CartDetails,
+  children: Element,
+  isFetching: boolean|null,
+  fetchError: ?Object,
+}
+
+const refNum = (props: Props): string => {
   return props.params.cart;
 };
 
 const mapStateToProps = (state) => {
   return {
     details: state.carts.details,
-    isFetching: _.get(state.asyncActions, 'fetchCart.inProgress', false),
+    isFetching: _.get(state.asyncActions, 'fetchCart.inProgress', null),
     fetchError: _.get(state.asyncActions, 'fetchCart.err', null),
   };
 };
 
 const mapDispatchToProps = { ...cartActions };
 
-@connect(mapStateToProps, mapDispatchToProps)
-export default class Cart extends Component {
+class Cart extends Component {
+  props: Props;
+
   componentDidMount() {
+    this.props.clearFetchCartErrors();
     this.props.fetchCart(this.refNum);
   }
 
@@ -38,11 +58,11 @@ export default class Cart extends Component {
     }
   }
 
-  get refNum() {
+  get refNum(): string {
     return refNum(this.props);
   }
 
-  get cart() {
+  get cart(): ?Object {
     return this.props.details.cart;
   }
 
@@ -86,3 +106,5 @@ export default class Cart extends Component {
     );
   }
 }
+
+export default connect(mapStateToProps, mapDispatchToProps)(Cart);

@@ -25,13 +25,9 @@ const _updateOrder = createAsyncActions(
   (id: number, data: Object) => Api.patch(`/orders/${id}`, data)
 );
 
-export function fetchOrder(refNum: string): Function {
-  return dispatch => dispatch(_getOrder.perform(refNum));
-}
-
-export function updateOrder(id: number, payload: Object): Function {
-  return dispatch => dispatch(_updateOrder.perform(id, payload));
-}
+export const fetchOrder = _getOrder.perform;
+export const updateOrder = _updateOrder.perform;
+export const clearFetchErrors =_getOrder.clearErrors;
 
 function orderSucceeded(state: State, payload: Object): State {
   const order = payload.result || payload;

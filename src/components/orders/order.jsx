@@ -48,6 +48,7 @@ export default class Order extends React.Component {
     children: PropTypes.node,
     updateOrder: PropTypes.func,
     fetchOrder: PropTypes.func,
+    clearFetchErrors: PropTypes.func,
     increaseRemorsePeriod: PropTypes.func
   };
 
@@ -61,6 +62,7 @@ export default class Order extends React.Component {
   updateInterval = null;
 
   componentDidMount() {
+    this.props.clearFetchErrors();
     this.props.fetchOrder(this.orderRefNum);
   }
 

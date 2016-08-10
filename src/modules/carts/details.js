@@ -22,6 +22,7 @@ const _fetchCustomerCart = createAsyncActions(
 
 export const fetchCart = _fetchCart.perform;
 export const fetchCustomerCart = _fetchCustomerCart.perform;
+export const clearFetchCartErrors = _fetchCart.clearErrors;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Line Item Actions
