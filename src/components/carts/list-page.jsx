@@ -1,4 +1,4 @@
-// libs
+// @flow
 import React, { Element } from 'react';
 
 // components

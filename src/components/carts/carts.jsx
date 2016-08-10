@@ -1,4 +1,4 @@
-// libs
+// @flow
 import React, { Element, Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
