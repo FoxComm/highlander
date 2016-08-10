@@ -4,6 +4,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 
 import Extensions._
+import Fixtures._
 import failures.NotFoundFailure404
 import models.cord.{Carts, OrderShippingAddresses}
 import models.customer.{Customer, Customers}
@@ -154,16 +155,6 @@ class AddressesIntegrationTest extends IntegrationTestBase with HttpSupport with
     }
   }
 
-  trait CustomerFixture {
-    val customer = Customers.create(Factories.customer).gimme
-  }
-
-  trait AddressFixture extends CustomerFixture {
-    val address = Addresses
-      .create(Factories.address.copy(customerId = customer.id, isDefaultShipping = true))
-      .gimme
-  }
-
   trait DeletedAddressFixture {
     val (customer, address) = (for {
       customer ← * <~ Customers.create(authedCustomer)
@@ -181,12 +172,7 @@ class AddressesIntegrationTest extends IntegrationTestBase with HttpSupport with
     } yield (cart, shippingAddress)).gimme
   }
 
-  trait NoDefaultAddressFixture extends CustomerFixture {
-    val (address, cart, shippingAddress) = (for {
-      address ← * <~ Addresses.create(
-                   Factories.address.copy(customerId = customer.id, isDefaultShipping = false))
-      cart    ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
-      shipAdd ← * <~ OrderShippingAddresses.copyFromAddress(address, cart.refNum)
-    } yield (address, cart, shipAdd)).gimme
+  trait NoDefaultAddressFixture extends AddressFixture with EmptyCustomerCart {
+    val shippingAddress = OrderShippingAddresses.copyFromAddress(address, cart.refNum).gimme
   }
 }
