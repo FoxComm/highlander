@@ -1,19 +1,18 @@
 package services
 
 import (
-	"database/sql"
 	"errors"
 	"testing"
 
-	"github.com/FoxComm/middlewarehouse/common/gormfox"
 	serviceMocks "github.com/FoxComm/middlewarehouse/controllers/mocks"
+	"github.com/FoxComm/middlewarehouse/fixtures"
 	"github.com/FoxComm/middlewarehouse/models"
 	repositoryMocks "github.com/FoxComm/middlewarehouse/services/mocks"
 
-	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
+	"github.com/jinzhu/gorm"
 )
 
 type ShipmentServiceTestSuite struct {
@@ -54,8 +53,8 @@ func (suite *ShipmentServiceTestSuite) TearDownTest() {
 
 func (suite *ShipmentServiceTestSuite) Test_GetShipmentsByReferenceNumber_ReturnsShipmentModels() {
 	//arrange
-	shipment1 := suite.getTestShipment1()
-	shipment2 := suite.getTestShipment2()
+	shipment1 := fixtures.GetShipmentShort(uint(1))
+	shipment2 := fixtures.GetShipmentShort(uint(2))
 	suite.shipmentRepository.On("GetShipmentsByReferenceNumber", shipment1.ReferenceNumber).Return([]*models.Shipment{
 		shipment1,
 		shipment2,
@@ -73,17 +72,15 @@ func (suite *ShipmentServiceTestSuite) Test_GetShipmentsByReferenceNumber_Return
 
 func (suite *ShipmentServiceTestSuite) Test_CreateShipment_Succeed_ReturnsCreatedRecord() {
 	//arrange
-	shipment1 := suite.getTestShipment1()
-	address1 := suite.getTestAddress1()
-	shipmentLineItem1 := suite.getTestShipmentLineItem1(shipment1.ID)
-	shipmentLineItem2 := suite.getTestShipmentLineItem2(shipment1.ID)
+	shipment1 := fixtures.GetShipmentShort(uint(1))
+	suite.addressService.On("CreateAddress", &shipment1.Address).Return(&shipment1.Address, nil).Once()
 	suite.shipmentRepository.On("CreateShipment", shipment1).Return(shipment1, nil).Once()
-	suite.addressService.On("CreateAddress", address1).Return(address1, nil).Once()
-	suite.shipmentLineItemService.On("CreateShipmentLineItem", shipmentLineItem1).Return(shipmentLineItem1, nil).Once()
-	suite.shipmentLineItemService.On("CreateShipmentLineItem", shipmentLineItem2).Return(shipmentLineItem2, nil).Once()
+	suite.shipmentLineItemService.On("CreateShipmentLineItem", &shipment1.ShipmentLineItems[0]).Return(&shipment1.ShipmentLineItems[0], nil).Once()
+	suite.shipmentLineItemService.On("CreateShipmentLineItem", &shipment1.ShipmentLineItems[1]).Return(&shipment1.ShipmentLineItems[1], nil).Once()
+	suite.shipmentRepository.On("GetShipmentByID", shipment1.ID).Return(shipment1, nil).Once()
 
 	//act
-	shipment, err := suite.service.CreateShipment(shipment1, address1, []*models.ShipmentLineItem{shipmentLineItem1, shipmentLineItem2})
+	shipment, err := suite.service.CreateShipment(shipment1)
 
 	//assert
 	suite.assert.Nil(err)
@@ -92,17 +89,14 @@ func (suite *ShipmentServiceTestSuite) Test_CreateShipment_Succeed_ReturnsCreate
 
 func (suite *ShipmentServiceTestSuite) Test_CreateShipment_ShipmentFailure_PerformsRollback() {
 	//arrange
-	shipment1 := suite.getTestShipment1()
-	address1 := suite.getTestAddress1()
-	shipmentLineItem1 := suite.getTestShipmentLineItem1(shipment1.ID)
-	shipmentLineItem2 := suite.getTestShipmentLineItem2(shipment1.ID)
+	shipment1 := fixtures.GetShipmentShort(uint(1))
 	err1 := errors.New("some fail")
-	suite.addressService.On("CreateAddress", address1).Return(address1, nil).Once()
+	suite.addressService.On("CreateAddress", &shipment1.Address).Return(&shipment1.Address, nil).Once()
 	suite.shipmentRepository.On("CreateShipment", shipment1).Return(nil, err1).Once()
-	suite.addressService.On("DeleteAddress", address1.ID).Return(nil).Once()
+	suite.addressService.On("DeleteAddress", shipment1.AddressID).Return(nil).Once()
 
 	//act
-	_, err := suite.service.CreateShipment(shipment1, address1, []*models.ShipmentLineItem{shipmentLineItem1, shipmentLineItem2})
+	_, err := suite.service.CreateShipment(shipment1)
 
 	//assert
 	suite.assert.Equal(err1, err)
@@ -110,21 +104,18 @@ func (suite *ShipmentServiceTestSuite) Test_CreateShipment_ShipmentFailure_Perfo
 
 func (suite *ShipmentServiceTestSuite) Test_CreateShipment_LineItemFailure_PerformsRollback() {
 	//arrange
-	shipment1 := suite.getTestShipment1()
-	address1 := suite.getTestAddress1()
-	shipmentLineItem1 := suite.getTestShipmentLineItem1(shipment1.ID)
-	shipmentLineItem2 := suite.getTestShipmentLineItem2(shipment1.ID)
+	shipment1 := fixtures.GetShipmentShort(uint(1))
 	err1 := errors.New("some fail")
-	suite.addressService.On("CreateAddress", address1).Return(address1, nil).Once()
+	suite.addressService.On("CreateAddress", &shipment1.Address).Return(&shipment1.Address, nil).Once()
 	suite.shipmentRepository.On("CreateShipment", shipment1).Return(shipment1, nil).Once()
-	suite.shipmentLineItemService.On("CreateShipmentLineItem", shipmentLineItem1).Return(shipmentLineItem1, nil).Once()
-	suite.shipmentLineItemService.On("CreateShipmentLineItem", shipmentLineItem2).Return(nil, err1).Once()
-	suite.addressService.On("DeleteAddress", address1.ID).Return(nil).Once()
+	suite.shipmentLineItemService.On("CreateShipmentLineItem", &shipment1.ShipmentLineItems[0]).Return(&shipment1.ShipmentLineItems[0], nil).Once()
+	suite.shipmentLineItemService.On("CreateShipmentLineItem", &shipment1.ShipmentLineItems[1]).Return(nil, err1).Once()
+	suite.addressService.On("DeleteAddress", shipment1.AddressID).Return(nil).Once()
 	suite.shipmentRepository.On("DeleteShipment", shipment1.ID).Return(nil).Once()
-	suite.shipmentLineItemService.On("DeleteShipmentLineItem", shipmentLineItem1.ID).Return(nil).Once()
+	suite.shipmentLineItemService.On("DeleteShipmentLineItem", shipment1.ShipmentLineItems[0].ID).Return(nil).Once()
 
 	//act
-	_, err := suite.service.CreateShipment(shipment1, address1, []*models.ShipmentLineItem{shipmentLineItem1, shipmentLineItem2})
+	_, err := suite.service.CreateShipment(shipment1)
 
 	//assert
 	suite.assert.Equal(err1, err)
@@ -132,7 +123,7 @@ func (suite *ShipmentServiceTestSuite) Test_CreateShipment_LineItemFailure_Perfo
 
 func (suite *ShipmentServiceTestSuite) Test_UpdateShipment_NotFound_ReturnsNotFoundError() {
 	//arrange
-	shipment1 := suite.getTestShipment1()
+	shipment1 := fixtures.GetShipmentShort(uint(1))
 	suite.shipmentRepository.On("UpdateShipment", shipment1).Return(nil, gorm.ErrRecordNotFound).Once()
 
 	//act
@@ -144,8 +135,11 @@ func (suite *ShipmentServiceTestSuite) Test_UpdateShipment_NotFound_ReturnsNotFo
 
 func (suite *ShipmentServiceTestSuite) Test_UpdateShipment_Found_ReturnsUpdatedRecord() {
 	//arrange
-	shipment1 := suite.getTestShipment1()
+	shipment1 := fixtures.GetShipmentShort(uint(1))
 	suite.shipmentRepository.On("UpdateShipment", shipment1).Return(shipment1, nil).Once()
+	suite.shipmentLineItemService.On("UpdateShipmentLineItem", &shipment1.ShipmentLineItems[0]).Return(&shipment1.ShipmentLineItems[0], nil).Once()
+	suite.shipmentLineItemService.On("UpdateShipmentLineItem", &shipment1.ShipmentLineItems[1]).Return(&shipment1.ShipmentLineItems[1], nil).Once()
+	suite.shipmentRepository.On("GetShipmentByID", shipment1.ID).Return(shipment1, nil).Once()
 
 	//act
 	shipment, err := suite.service.UpdateShipment(shipment1)
@@ -153,38 +147,4 @@ func (suite *ShipmentServiceTestSuite) Test_UpdateShipment_Found_ReturnsUpdatedR
 	//assert
 	suite.assert.Nil(err)
 	suite.assert.Equal(shipment1, shipment)
-}
-
-func (suite *ShipmentServiceTestSuite) getTestShipment1() *models.Shipment {
-	return &models.Shipment{gormfox.Base{ID: uint(1)}, uint(1), "BR1002", "pending",
-		sql.NullString{}, sql.NullString{}, sql.NullString{}, uint(1), sql.NullString{}}
-}
-
-func (suite *ShipmentServiceTestSuite) getTestShipment2() *models.Shipment {
-	return &models.Shipment{gormfox.Base{ID: uint(2)}, uint(1), "BR1002", "shipped",
-		sql.NullString{}, sql.NullString{}, sql.NullString{}, uint(1), sql.NullString{}}
-}
-
-func (suite *ShipmentServiceTestSuite) getTestAddress1() *models.Address {
-	return &models.Address{gormfox.Base{ID: uint(1)}, "Home address", uint(1),
-		*suite.getTestRegion1(), "Texas", "75231",
-		"Some st, 335", sql.NullString{String: "", Valid: false}, "19527352893"}
-}
-
-func (suite *ShipmentServiceTestSuite) getTestRegion1() *models.Region {
-	return &models.Region{uint(1), "Texas", uint(2), *suite.getTestCountry1()}
-}
-
-func (suite *ShipmentServiceTestSuite) getTestCountry1() *models.Country {
-	return &models.Country{uint(2), "USA"}
-}
-
-func (suite *ShipmentServiceTestSuite) getTestShipmentLineItem1(shipmentID uint) *models.ShipmentLineItem {
-	return &models.ShipmentLineItem{gormfox.Base{ID: uint(1)}, shipmentID, "BR1002", "SKU-TEST1",
-		"Some shit", 3999, "https://test.com/some-shit.png", "pending"}
-}
-
-func (suite *ShipmentServiceTestSuite) getTestShipmentLineItem2(shipmentID uint) *models.ShipmentLineItem {
-	return &models.ShipmentLineItem{gormfox.Base{ID: uint(2)}, shipmentID, "BR1003", "SKU-TEST2",
-		"Other shit", 4999, "https://test.com/other-shit.png", "delivered"}
 }

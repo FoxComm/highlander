@@ -13,7 +13,7 @@ type shipmentService struct {
 
 type IShipmentService interface {
 	GetShipmentsByReferenceNumber(referenceNumber string) ([]*models.Shipment, error)
-	CreateShipment(shipment *models.Shipment, address *models.Address, lineItems []*models.ShipmentLineItem) (*models.Shipment, error)
+	CreateShipment(shipment *models.Shipment) (*models.Shipment, error)
 	UpdateShipment(shipment *models.Shipment) (*models.Shipment, error)
 }
 
@@ -29,12 +29,8 @@ func (service *shipmentService) GetShipmentsByReferenceNumber(referenceNumber st
 	return service.repository.GetShipmentsByReferenceNumber(referenceNumber)
 }
 
-func (service *shipmentService) CreateShipment(
-	shipment *models.Shipment,
-	address *models.Address,
-	lineItems []*models.ShipmentLineItem,
-) (*models.Shipment, error) {
-	address, err := service.addressService.CreateAddress(address)
+func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*models.Shipment, error) {
+	address, err := service.addressService.CreateAddress(&shipment.Address)
 	if err != nil {
 		return nil, err
 	}
@@ -46,10 +42,10 @@ func (service *shipmentService) CreateShipment(
 		return nil, err
 	}
 
-	createdLineItems := []*models.ShipmentLineItem{}
-	for _, lineItem := range lineItems {
+	createdLineItems := []models.ShipmentLineItem{}
+	for _, lineItem := range shipment.ShipmentLineItems {
 		lineItem.ShipmentID = shipment.ID
-		lineItem, err = service.shipmentLineItemService.CreateShipmentLineItem(lineItem)
+		createdLineItem, err := service.shipmentLineItemService.CreateShipmentLineItem(&lineItem)
 		if err != nil {
 			service.repository.DeleteShipment(shipment.ID)
 			service.addressService.DeleteAddress(address.ID)
@@ -59,12 +55,22 @@ func (service *shipmentService) CreateShipment(
 
 			return nil, err
 		}
-		createdLineItems = append(createdLineItems, lineItem)
+
+		createdLineItems = append(createdLineItems, *createdLineItem)
 	}
 
-	return shipment, err
+	return service.repository.GetShipmentByID(shipment.ID)
 }
 
 func (service *shipmentService) UpdateShipment(shipment *models.Shipment) (*models.Shipment, error) {
-	return service.repository.UpdateShipment(shipment)
+	shipment, err := service.repository.UpdateShipment(shipment)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, lineItem := range shipment.ShipmentLineItems {
+		service.shipmentLineItemService.UpdateShipmentLineItem(&lineItem)
+	}
+
+	return service.repository.GetShipmentByID(shipment.ID)
 }

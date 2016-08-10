@@ -20,6 +20,16 @@ func (service *ShipmentRepositoryMock) GetShipmentsByReferenceNumber(referenceNu
 	return nil, args.Error(1)
 }
 
+func (service *ShipmentRepositoryMock) GetShipmentByID(id uint) (*models.Shipment, error) {
+	args := service.Called(id)
+
+	if model, ok := args.Get(0).(*models.Shipment); ok {
+		return model, nil
+	}
+
+	return nil, args.Error(1)
+}
+
 func (service *ShipmentRepositoryMock) CreateShipment(shipment *models.Shipment) (*models.Shipment, error) {
 	args := service.Called(shipment)
 
