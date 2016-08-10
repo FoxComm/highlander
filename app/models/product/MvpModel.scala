@@ -22,6 +22,7 @@ import slick.driver.PostgresDriver.api._
 import utils.Money.Currency
 import utils.aliases._
 import utils.db._
+import utils.time.JavaInstantFormatters._
 
 object SimpleContext {
   val id      = 1
@@ -46,7 +47,7 @@ case class SimpleProduct(title: String,
                          description: String,
                          active: Boolean = false,
                          tags: Seq[String] = Seq.empty) {
-  val activeFrom = if (active) s""""${Instant.now}"""" else "null";
+  val activeFrom = if (active) s""""${Instant.now.forEs}"""" else "null";
   val ts: String = compact(render(JArray(tags.map(t ⇒ JString(t)).toList)))
 
   val (keyMap, form) = ObjectUtils.createForm(parse(s"""
@@ -107,7 +108,7 @@ case class SimpleSku(code: String,
                      active: Boolean = false,
                      tags: Seq[String] = Seq.empty) {
 
-  val activeFrom = if (active) s""""${Instant.now}"""" else "null";
+  val activeFrom = if (active) s""""${Instant.now.forEs}"""" else "null";
   val ts: String = compact(render(JArray(tags.map(t ⇒ JString(t)).toList)))
 
   val (keyMap, form) = ObjectUtils.createForm(parse(s"""
