@@ -9,11 +9,11 @@ SUBDIRS = api common controllers models repositories routes services
 TESTDIRS = $(SUBDIRS:%=test-%)
 
 build:
-	go build -o middlewarehouse main.go
+	glide install && go build -o middlewarehouse main.go
 	$(MAKE) -C consumers/stock-items build
 
 build-linux:
-	GOOS=linux go build -o middlewarehouse main.go
+	GOOS=linux $(MAKE) build
 	$(MAKE) -C consumers/stock-items build-linux
 
 migrate:
