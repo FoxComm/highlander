@@ -18,6 +18,9 @@ type ShipmentLineItem struct {
 
 func NewShipmentLineItemFromPayload(payload *payloads.ShipmentLineItem) *ShipmentLineItem {
 	return &ShipmentLineItem{
+		Base: gormfox.Base{
+			ID: payload.ID,
+		},
 		ReferenceNumber: payload.ReferenceNumber,
 		SKU:             payload.SKU,
 		Name:            payload.Name,

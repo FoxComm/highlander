@@ -25,6 +25,7 @@ func GetShipmentLineItem(id uint, shipmentID uint) *models.ShipmentLineItem {
 
 func ToShipmentLineItemPayload(shipmentLineItem *models.ShipmentLineItem) *payloads.ShipmentLineItem {
 	return &payloads.ShipmentLineItem{
+		ID:              shipmentLineItem.ID,
 		ReferenceNumber: shipmentLineItem.ReferenceNumber,
 		SKU:             shipmentLineItem.SKU,
 		Name:            shipmentLineItem.Name,
