@@ -1,5 +1,5 @@
 
 build:
-	go build main.go
+	go build -o shipstation main.go order.go utils.go
 
 .PHONY: build
