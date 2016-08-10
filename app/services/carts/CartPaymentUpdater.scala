@@ -165,9 +165,8 @@ object CartPaymentUpdater {
       ac: AC,
       ctx: OC): TheFullCart =
     for {
-      cart      ← * <~ getCartByOriginator(originator, refNum)
-      giftCard  ← * <~ GiftCards.mustFindByCode(code)
-      validated ← * <~ CartValidator(cart).validate()
+      cart     ← * <~ getCartByOriginator(originator, refNum)
+      giftCard ← * <~ GiftCards.mustFindByCode(code)
       deleteRes ← * <~ OrderPayments
                    .filter(_.paymentMethodId === giftCard.id)
                    .filter(_.cordRef === cart.refNum)
@@ -175,6 +174,8 @@ object CartPaymentUpdater {
                    .deleteAll(onSuccess = CartResponse.buildRefreshed(cart),
                               onFailure = DbResultT.failure(
                                   OrderPaymentNotFoundFailure(PaymentMethod.GiftCard)))
-      _ ← * <~ LogActivity.orderPaymentMethodDeletedGc(originator, deleteRes, giftCard)
+      updatedCart ← * <~ getCartByOriginator(originator, refNum)
+      validated   ← * <~ CartValidator(updatedCart).validate()
+      _           ← * <~ LogActivity.orderPaymentMethodDeletedGc(originator, deleteRes, giftCard)
     } yield TheResponse.validated(deleteRes, validated)
 }
