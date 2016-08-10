@@ -15,7 +15,7 @@ import models.location.Addresses
 import models.objects._
 import models.payment.giftcard._
 import models.product.{Mvp, SimpleContext}
-import models.shipping.ShippingMethods
+import models.shipping._
 import models.{Reasons, StoreAdmins}
 import payloads.GiftCardPayloads.GiftCardCreateByCsr
 import payloads.LineItemPayloads.UpdateLineItemsPayload
@@ -138,7 +138,7 @@ class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with 
       address    ← * <~ Addresses.create(Factories.usAddress1.copy(customerId = customer.id))
       _          ← * <~ Factories.shippingMethods.map(ShippingMethods.create(_))
       shipMethod ← * <~ ShippingMethods
-                    .filter(_.adminDisplayName === "2-3 day express (FedEx)")
+                    .filter(_.adminDisplayName === ShippingMethod.expressShippingNameForAdmin)
                     .mustFindOneOr(NotFoundFailure404("Unable to find 2-3 day shipping method"))
       product ← * <~ Mvp.insertProduct(productCtx.id, Factories.products.head)
       sku     ← * <~ Skus.mustFindById404(product.skuId)

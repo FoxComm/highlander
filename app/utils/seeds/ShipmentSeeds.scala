@@ -11,6 +11,7 @@ import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
 import utils.seeds.Seeds.Factories._
+import models.shipping.ShippingMethod._
 
 trait ShipmentSeeds {
 
@@ -39,23 +40,23 @@ trait ShipmentSeeds {
 
   def shippingMethods =
     Seq(
-        ShippingMethod(adminDisplayName = "Standard shipping (USPS)",
-                       storefrontDisplayName = "Standard shipping",
+        ShippingMethod(adminDisplayName = standardShippingNameForAdmin,
+                       storefrontDisplayName = standardShippingName,
                        price = 300,
                        isActive = true,
                        conditions = Some(under50Bucks)),
-        ShippingMethod(adminDisplayName = "Standard shipping (USPS)",
-                       storefrontDisplayName = "Standard shipping",
+        ShippingMethod(adminDisplayName = standardShippingNameForAdmin,
+                       storefrontDisplayName = standardShippingName,
                        price = 0,
                        isActive = true,
                        conditions = Some(over50Bucks)),
-        ShippingMethod(adminDisplayName = "2-3 day express (FedEx)",
-                       storefrontDisplayName = "2-3 day express",
+        ShippingMethod(adminDisplayName = expressShippingNameForAdmin,
+                       storefrontDisplayName = expressShippingName,
                        price = 1500,
                        isActive = true,
                        conditions = Some(usOnly)),
-        ShippingMethod(adminDisplayName = "Overnight (FedEx)",
-                       storefrontDisplayName = "Overnight",
+        ShippingMethod(adminDisplayName = overnightShippingNameForAdmin,
+                       storefrontDisplayName = overnightShippingName,
                        price = 3000,
                        isActive = true,
                        conditions = Some(usOnly))
