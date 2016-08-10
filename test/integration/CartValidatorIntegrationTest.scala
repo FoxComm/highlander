@@ -88,6 +88,19 @@ class CartValidatorIntegrationTest
       checkResponse(DELETE(s"v1/orders/$refNum/coupon"), expectedWarnings)
     }
 
+    "funds with line items" - {
+      "must return warning when credit card is removed" in new LineItemAndCreditCardFixture {
+        val lineItemPayload = Seq(UpdateLineItemsPayload(sku.code, 1))
+        POST(s"v1/orders/$refNum/line-items", lineItemPayload)
+
+        val ccPayload = CreditCardPayment(creditCard.id)
+        POST(s"v1/orders/$refNum/payment-methods/credit-cards", ccPayload)
+
+        checkResponse(DELETE(s"v1/orders/$refNum/payment-methods/credit-cards"),
+                      Seq(NoShipAddress(refNum), NoShipMethod(refNum), InsufficientFunds(refNum)))
+      }
+    }
+
     def checkResponse(response: HttpResponse, expectedWarnings: Seq[failures.Failure])(
         implicit line: sourcecode.Line,
         file: sourcecode.File) = {
@@ -188,6 +201,18 @@ class CartValidatorIntegrationTest
       address  ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
       cc       ← * <~ CreditCards.create(Factories.creditCard.copy(customerId = customer.id))
     } yield (cart.refNum, cc)).gimme
+  }
+
+  trait LineItemAndCreditCardFixture {
+    val (refNum, sku, creditCard) = (for {
+      customer   ← * <~ Customers.create(Factories.customer)
+      address    ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
+      cc         ← * <~ CreditCards.create(Factories.creditCard.copy(customerId = customer.id))
+      productCtx ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
+      cart       ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
+      product    ← * <~ Mvp.insertProduct(productCtx.id, Factories.products.head)
+      sku        ← * <~ Skus.mustFindById404(product.skuId)
+    } yield (cart.refNum, sku, cc)).gimme
   }
 
   trait ExpectedWarningsForPayment {
