@@ -30,11 +30,12 @@ func NewShipmentFromPayload(payload *payloads.Shipment) *Shipment {
 		ShipmentDate:     NewSqlNullStringFromString(payload.ShipmentDate),
 		EstimatedArrival: NewSqlNullStringFromString(payload.EstimatedArrival),
 		DeliveredDate:    NewSqlNullStringFromString(payload.DeliveredDate),
+		AddressID:        payload.Address.ID,
 		Address:          *NewAddressFromPayload(&payload.Address),
 		TrackingNumber:   NewSqlNullStringFromString(payload.TrackingNumber),
 	}
 
-	for _, lineItem := range payload.LineItems {
+	for _, lineItem := range payload.ShipmentLineItems {
 		shipment.ShipmentLineItems = append(shipment.ShipmentLineItems, *NewShipmentLineItemFromPayload(&lineItem))
 	}
 
