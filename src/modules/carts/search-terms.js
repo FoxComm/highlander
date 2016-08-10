@@ -154,14 +154,6 @@ const searchTerms = [
         term: 'lineItems.sku'
       }
     ]
-  }, {
-    title: 'Assignee',
-    type: 'enum',
-    term: 'assignmentCount',
-    suggestions: [
-      { display: 'Has Assignee', operator: 'gt', value: 0 },
-      { display: 'Has No Assignee', operator: 'eq', value: 0 }
-    ]
   }
 ];
 
