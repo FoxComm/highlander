@@ -1,6 +1,7 @@
 package payloads
 
 type Address struct {
+	ID          uint    `json:"id"`
 	Name        string  `json:"name"`
 	Region      Region  `json:"region" binding:"required"`
 	City        string  `json:"city" binding:"required"`

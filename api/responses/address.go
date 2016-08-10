@@ -14,18 +14,14 @@ type Address struct {
 }
 
 func NewAddressFromModel(model *models.Address) *Address {
-	address := new(Address)
-
-	address.ID = model.ID
-	address.Name = model.Name
-	address.Region = *NewRegionFromModel(&model.Region)
-	address.City = model.City
-	address.Zip = model.Zip
-	address.Address1 = model.Address1
-	if model.Address2.Valid {
-		address.Address2 = &model.Address2.String
+	return &Address{
+		ID:          model.ID,
+		Name:        model.Name,
+		Region:      *NewRegionFromModel(&model.Region),
+		City:        model.City,
+		Zip:         model.Zip,
+		Address1:    model.Address1,
+		Address2:    NewStringFromSqlNullString(model.Address2),
+		PhoneNumber: model.PhoneNumber,
 	}
-	address.PhoneNumber = model.PhoneNumber
-
-	return address
 }

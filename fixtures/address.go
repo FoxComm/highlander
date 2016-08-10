@@ -5,6 +5,7 @@ import (
 	"database/sql/driver"
 
 	"github.com/FoxComm/middlewarehouse/api/payloads"
+	"github.com/FoxComm/middlewarehouse/api/responses"
 	"github.com/FoxComm/middlewarehouse/common/gormfox"
 	"github.com/FoxComm/middlewarehouse/models"
 )
@@ -27,12 +28,13 @@ func GetAddress(id uint, regionID uint, region *models.Region) *models.Address {
 
 func ToAddressPayload(address *models.Address) *payloads.Address {
 	return &payloads.Address{
+		ID:          address.ID,
 		Name:        address.Name,
 		Region:      *ToRegionPayload(&address.Region),
 		City:        address.City,
 		Zip:         address.Zip,
 		Address1:    address.Address1,
-		Address2:    &address.Address2.String,
+		Address2:    responses.NewStringFromSqlNullString(address.Address2),
 		PhoneNumber: address.PhoneNumber,
 	}
 }
