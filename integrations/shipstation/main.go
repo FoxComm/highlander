@@ -10,8 +10,8 @@ import (
 )
 
 func main() {
-	zookeeper := "localhost:2181"
-	schemaRepo := "http://localhost:8081"
+	zookeeper := os.Getenv("ZOOKEEPER")
+	schemaRepo := os.Getenv("SCHEMA_REGISTRY")
 
 	consumer, err := kafka.NewConsumer(zookeeper, schemaRepo, defaultMessageHandler)
 	if err != nil {
