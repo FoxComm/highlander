@@ -7,6 +7,8 @@ import (
 	"github.com/FoxComm/shipstation/lib/shipstation/payloads"
 )
 
+const awaitingShipmentStatus = "awaiting_shipment"
+
 func ToShipStationOrder(order *phoenix.Order) (*payloads.Order, error) {
 	if len(*order.BillingAddresses) == 0 {
 		return nil, fmt.Errorf("Order %s does not have a billing address", order.ReferenceNumber)
@@ -29,7 +31,7 @@ func ToShipStationOrder(order *phoenix.Order) (*payloads.Order, error) {
 	ssOrder := payloads.Order{
 		OrderNumber:      order.ReferenceNumber,
 		OrderDate:        order.PlacedAt,
-		OrderStatus:      "awaiting_shipment",
+		OrderStatus:      awaitingShipmentStatus,
 		CustomerUsername: &(order.Customer.Name),
 		CustomerEmail:    &(order.Customer.Email),
 		BillTo:           billingAddress,
