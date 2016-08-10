@@ -269,7 +269,11 @@ export default class FormField extends Component {
   }
 
   render() {
-    const className = classNames('fc-form-field', this.props.className);
+    const className = classNames(
+      'fc-form-field',
+      this.props.className,
+      {'_form-field-error': this.hasError}
+    );
     const children = React.cloneElement(this.props.children, {
       key: `fc-form-field-children-${this.props.label}`,
     });

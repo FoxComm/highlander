@@ -50,7 +50,7 @@ const PilledInput = props => {
     '_solid': solid
   });
 
-  const inputClass = classNames('fc-pilled-input__input-field', '_no-fc-behavior', {
+  const inputClass = classNames('fc-pilled-input__input-field', '_no-fc-behaviour', {
     '_solid-input': solid
   });
 
