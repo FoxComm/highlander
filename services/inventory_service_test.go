@@ -393,3 +393,46 @@ func (suite *InventoryServiceTestSuite) Test_ReleaseItems_Summary() {
 	suite.db.Where("type = ?", models.Sellable).First(&summary)
 	suite.assert.Equal(0, summary.OnHold, "No stock item units should be onHold")
 }
+
+func (suite *InventoryServiceTestSuite) Test_GetAFSByID() {
+	resp, _ := suite.createStockItem("TEST-DECREMENT", 10)
+
+	// workaround for summary goroutines
+	time.Sleep(100 * time.Millisecond)
+
+	afs, err := suite.service.GetAFSByID(resp.ID, models.Sellable)
+
+	suite.assert.Nil(err)
+	suite.assert.Equal(resp.ID, afs.StockItemID)
+	suite.assert.Equal(resp.SKU, afs.SKU)
+	suite.assert.Equal(10, afs.AFS)
+}
+
+func (suite *InventoryServiceTestSuite) Test_GetAFSByID_NotFound() {
+	suite.createStockItem("TEST-DECREMENT", 10)
+
+	afs, err := suite.service.GetAFSByID(uint(222), models.Sellable)
+
+	suite.assert.Equal(gorm.ErrRecordNotFound, err)
+	suite.assert.Nil(afs)
+}
+
+func (suite *InventoryServiceTestSuite) Test_GetAFSBySKU() {
+	resp, _ := suite.createStockItem("TEST-DECREMENT", 10)
+
+	// workaround for summary goroutines
+	time.Sleep(100 * time.Millisecond)
+
+	afs, _ := suite.service.GetAFSBySKU(resp.SKU, models.Sellable)
+
+	suite.assert.Equal(resp.SKU, afs.SKU)
+}
+
+func (suite *InventoryServiceTestSuite) Test_GetAFSBySKU_NotFound() {
+	suite.createStockItem("TEST-DECREMENT", 10)
+
+	afs, err := suite.service.GetAFSBySKU("BLA-BLA-SKU", models.Sellable)
+
+	suite.assert.Equal(gorm.ErrRecordNotFound, err)
+	suite.assert.Nil(afs)
+}

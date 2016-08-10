@@ -48,7 +48,7 @@ func (suite *stockItemControllerTestSuite) Test_GetStockItems() {
 		},
 	}, nil).Once()
 
-	res := suite.Get("/stock-items/")
+	res := suite.Get("/stock-items")
 
 	suite.assert.Equal(http.StatusOK, res.Code)
 	suite.assert.Contains(res.Body.String(), `"sku":"SKU"`)
@@ -59,7 +59,7 @@ func (suite *stockItemControllerTestSuite) Test_GetStockItems_Error() {
 	errText := "Some error"
 	suite.service.On("GetStockItems").Return(nil, errors.New(errText)).Once()
 
-	res := suite.Get("/stock-items/")
+	res := suite.Get("/stock-items")
 
 	suite.assert.Equal(http.StatusInternalServerError, res.Code)
 	suite.assert.Contains(res.Body.String(), "errors")
@@ -104,7 +104,7 @@ func (suite *stockItemControllerTestSuite) Test_CreateStockItem() {
 
 	var result models.StockItem
 	jsonStr := `{"sku":"SKU","stockLocationID":1,"defaultUnitCost":1000}`
-	res := suite.Post("/stock-items/", jsonStr, &result)
+	res := suite.Post("/stock-items", jsonStr, &result)
 
 	suite.assert.Equal(http.StatusCreated, res.Code)
 	suite.assert.Equal(stockItem.StockLocationID, result.StockLocationID)
@@ -117,7 +117,7 @@ func (suite *stockItemControllerTestSuite) Test_CreateStockItem_Error() {
 	suite.service.On("CreateStockItem", stockItem).Return(nil, gorm.ErrInvalidTransaction).Once()
 
 	jsonStr := `{"sku":"SKU","stockLocationID":1,"defaultUnitCost":1000}`
-	res := suite.Post("/stock-items/", jsonStr)
+	res := suite.Post("/stock-items", jsonStr)
 
 	suite.assert.Equal(http.StatusBadRequest, res.Code)
 	suite.service.AssertExpectations(suite.T())
@@ -170,4 +170,32 @@ func (suite *stockItemControllerTestSuite) Test_DecrementStockItemUnits_WrongQty
 	res := suite.Patch("/stock-items/1/decrement", jsonStr)
 
 	suite.assert.Equal(http.StatusBadRequest, res.Code)
+}
+
+func (suite *stockItemControllerTestSuite) Test_GetAFS_ById() {
+	suite.service.On("GetAFSByID", uint(1), models.Sellable).Return(&models.AFS{
+		StockItemID: 1,
+		SKU:         "SKU",
+		AFS:         10,
+	}, nil).Once()
+
+	res := suite.Get("/stock-items/1/afs/Sellable")
+
+	suite.assert.Equal(http.StatusOK, res.Code)
+	suite.assert.Contains(res.Body.String(), `"sku":"SKU"`)
+	suite.service.AssertExpectations(suite.T())
+}
+
+func (suite *stockItemControllerTestSuite) Test_GetAFS_BySKU() {
+	suite.service.On("GetAFSBySKU", "SKU", models.Sellable).Return(&models.AFS{
+		StockItemID: 1,
+		SKU:         "SKU",
+		AFS:         10,
+	}, nil).Once()
+
+	res := suite.Get("/stock-items/SKU/afs/Sellable")
+
+	suite.assert.Equal(http.StatusOK, res.Code)
+	suite.assert.Contains(res.Body.String(), `"sku":"SKU"`)
+	suite.service.AssertExpectations(suite.T())
 }

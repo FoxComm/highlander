@@ -51,7 +51,7 @@ func (suite *stockLocationControllerTestSuite) Test_GetLocations() {
 	suite.service.On("GetLocations").Return(models, nil).Once()
 
 	result := []responses.StockLocation{}
-	response := suite.Get("/stock-locations/", &result)
+	response := suite.Get("/stock-locations", &result)
 
 	suite.assert.Equal(http.StatusOK, response.Code)
 	suite.assert.Equal(2, len(result))
@@ -64,7 +64,7 @@ func (suite *stockLocationControllerTestSuite) Test_GetLocations_Empty() {
 	suite.service.On("GetLocations").Return([]*models.StockLocation{}, nil).Once()
 
 	result := []responses.StockLocation{}
-	response := suite.Get("/stock-locations/", &result)
+	response := suite.Get("/stock-locations", &result)
 
 	suite.assert.Equal(http.StatusOK, response.Code)
 	suite.assert.Equal(0, len(result))
@@ -74,7 +74,7 @@ func (suite *stockLocationControllerTestSuite) Test_GetLocations_Empty() {
 func (suite *stockLocationControllerTestSuite) Test_GetLocations_Error() {
 	suite.service.On("GetLocations").Return(nil, errors.New("Error")).Once()
 
-	response := suite.Get("/stock-locations/")
+	response := suite.Get("/stock-locations")
 
 	suite.assert.Equal(http.StatusInternalServerError, response.Code)
 	suite.service.AssertExpectations(suite.T())
@@ -117,7 +117,7 @@ func (suite *stockLocationControllerTestSuite) Test_CreateLocation() {
 
 	result := &responses.StockLocation{}
 	jsonStr := fmt.Sprintf(`{"name":"%s","type":"%s"}`, model.Name, model.Type)
-	response := suite.Post("/stock-locations/", jsonStr, &result)
+	response := suite.Post("/stock-locations", jsonStr, &result)
 
 	suite.assert.Equal(http.StatusCreated, response.Code)
 	suite.assert.Equal(model.Name, result.Name)
@@ -129,7 +129,7 @@ func (suite *stockLocationControllerTestSuite) Test_CreateLocation_Error() {
 	suite.service.On("CreateLocation", model).Return(nil, errors.New("Error")).Once()
 
 	jsonStr := fmt.Sprintf(`{"name":"%s","type":"%s"}`, model.Name, model.Type)
-	response := suite.Post("/stock-locations/", jsonStr)
+	response := suite.Post("/stock-locations", jsonStr)
 
 	suite.assert.Equal(http.StatusBadRequest, response.Code)
 	suite.service.AssertExpectations(suite.T())

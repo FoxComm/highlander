@@ -48,7 +48,7 @@ func (suite *shippingMethodControllerTestSuite) Test_GetShippingMethods_EmptyDat
 
 	//act
 	shippingMethods := []responses.ShippingMethod{}
-	response := suite.Get("/shipping-methods/", &shippingMethods)
+	response := suite.Get("/shipping-methods", &shippingMethods)
 
 	//assert
 	suite.assert.Equal(http.StatusOK, response.Code)
@@ -66,7 +66,7 @@ func (suite *shippingMethodControllerTestSuite) Test_GetShippingMethods_NonEmpty
 
 	//act
 	shippingMethods := []responses.ShippingMethod{}
-	response := suite.Get("/shipping-methods/", &shippingMethods)
+	response := suite.Get("/shipping-methods", &shippingMethods)
 
 	//assert
 	suite.assert.Equal(http.StatusOK, response.Code)
@@ -126,7 +126,7 @@ func (suite *shippingMethodControllerTestSuite) Test_CreateShippingMethod_Return
 
 	//act
 	shippingMethod := responses.ShippingMethod{}
-	response := suite.Post("/shipping-methods/", shippingMethod1, &shippingMethod)
+	response := suite.Post("/shipping-methods", shippingMethod1, &shippingMethod)
 
 	//assert
 	suite.assert.Equal(http.StatusCreated, response.Code)

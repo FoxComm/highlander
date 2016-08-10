@@ -48,7 +48,7 @@ func (suite *carrierControllerTestSuite) Test_GetCarriers_EmptyData_ReturnsEmpty
 
 	//act
 	carriers := []responses.Carrier{}
-	response := suite.Get("/carriers/", &carriers)
+	response := suite.Get("/carriers", &carriers)
 
 	//assert
 	suite.assert.Equal(http.StatusOK, response.Code)
@@ -66,7 +66,7 @@ func (suite *carrierControllerTestSuite) Test_GetCarriers_NonEmptyData_ReturnsRe
 
 	//act
 	carriers := []responses.Carrier{}
-	response := suite.Get("/carriers/", &carriers)
+	response := suite.Get("/carriers", &carriers)
 
 	//assert
 	suite.assert.Equal(http.StatusOK, response.Code)
@@ -126,7 +126,7 @@ func (suite *carrierControllerTestSuite) Test_CreateCarrier_ReturnsRecord() {
 
 	//act
 	carrier := responses.Carrier{}
-	response := suite.Post("/carriers/", carrier1, &carrier)
+	response := suite.Post("/carriers", carrier1, &carrier)
 
 	//assert
 	suite.assert.Equal(http.StatusCreated, response.Code)
