@@ -47,13 +47,7 @@ func (controller *shipmentController) getShipmentsByReferenceNumbers() gin.Handl
 			}
 
 			for _, shipment := range shipments {
-				responseItem, err := controller.getShipmentResponse(shipment)
-				if err != nil {
-					handleServiceError(context, err)
-					return
-				}
-
-				response = append(response, responseItem)
+				response = append(response, responses.NewShipmentFromModel(shipment))
 			}
 		}
 
@@ -68,27 +62,13 @@ func (controller *shipmentController) createShipment() gin.HandlerFunc {
 			return
 		}
 
-		shipmentLineItems := make([]*models.ShipmentLineItem, len(payload.LineItems))
-		for i, shipmentLineItemPayload := range payload.LineItems {
-			shipmentLineItems[i] = models.NewShipmentLineItemFromPayload(&shipmentLineItemPayload)
-		}
-		shipment, err := controller.shipmentService.CreateShipment(
-			models.NewShipmentFromPayload(payload),
-			models.NewAddressFromPayload(&payload.Address),
-			shipmentLineItems,
-		)
+		shipment, err := controller.shipmentService.CreateShipment(models.NewShipmentFromPayload(payload))
 		if err != nil {
 			handleServiceError(context, err)
 			return
 		}
 
-		response, err := controller.getShipmentResponse(shipment)
-		if err != nil {
-			handleServiceError(context, err)
-			return
-		}
-
-		context.JSON(http.StatusCreated, response)
+		context.JSON(http.StatusCreated, responses.NewShipmentFromModel(shipment))
 	}
 }
 
@@ -106,6 +86,9 @@ func (controller *shipmentController) updateShipment() gin.HandlerFunc {
 
 		model := models.NewShipmentFromPayload(payload)
 		model.ID = id
+		for i, _ := range model.ShipmentLineItems {
+			model.ShipmentLineItems[i].ShipmentID = model.ID
+		}
 		shipment, err := controller.shipmentService.UpdateShipment(model)
 
 		if err != nil {
@@ -113,42 +96,6 @@ func (controller *shipmentController) updateShipment() gin.HandlerFunc {
 			return
 		}
 
-		response, err := controller.getShipmentResponse(shipment)
-		if err != nil {
-			handleServiceError(context, err)
-			return
-		}
-
-		context.JSON(http.StatusOK, response)
+		context.JSON(http.StatusOK, responses.NewShipmentFromModel(shipment))
 	}
-}
-
-func (controller *shipmentController) getShipmentResponse(shipment *models.Shipment) (*responses.Shipment, error) {
-	address, err := controller.addressService.GetAddressByID(shipment.AddressID)
-	if err != nil {
-		return nil, err
-	}
-
-	shipmentLineItems, err := controller.shipmentLineItemService.GetShipmentLineItemsByShipmentID(shipment.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	//shipmentTransactions, err := controller.shipmentTransactionService.GetShipmentTransactionsByShipmentID(shipment.ID)
-	//if err != nil {
-	//	return nil, err
-	//}
-
-	response := responses.NewShipmentFromModel(shipment)
-
-	response.Address = *responses.NewAddressFromModel(address)
-
-	response.ShipmentLineItems = []responses.ShipmentLineItem{}
-	for _, lineItem := range shipmentLineItems {
-		response.ShipmentLineItems = append(response.ShipmentLineItems, *responses.NewShipmentLineItemFromModel(lineItem))
-	}
-
-	//response.Transactions = *responses.NewTransactionListFromModelsList(shipmentTransactions)
-
-	return response, nil
 }

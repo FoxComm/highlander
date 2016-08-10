@@ -20,8 +20,8 @@ func (service *ShipmentServiceMock) GetShipmentsByReferenceNumber(referenceNumbe
 	return nil, args.Error(1)
 }
 
-func (service *ShipmentServiceMock) CreateShipment(shipment *models.Shipment, address *models.Address, lineItems []*models.ShipmentLineItem) (*models.Shipment, error) {
-	args := service.Called(shipment, address, lineItems)
+func (service *ShipmentServiceMock) CreateShipment(shipment *models.Shipment) (*models.Shipment, error) {
+	args := service.Called(shipment)
 
 	if model, ok := args.Get(0).(*models.Shipment); ok {
 		return model, nil
