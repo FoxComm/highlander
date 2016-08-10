@@ -17,15 +17,16 @@ type Shipment struct {
 
 func NewShipmentFromModel(model *models.Shipment) *Shipment {
 	shipment := &Shipment{
-		ID:               model.ID,
-		ShippingMethod:   *NewShippingMethodFromModel(&model.ShippingMethod),
-		ReferenceNumber:  model.ReferenceNumber,
-		State:            string(model.State),
-		ShipmentDate:     NewStringFromSqlNullString(model.ShipmentDate),
-		EstimatedArrival: NewStringFromSqlNullString(model.EstimatedArrival),
-		DeliveredDate:    NewStringFromSqlNullString(model.DeliveredDate),
-		Address:          *NewAddressFromModel(&model.Address),
-		TrackingNumber:   NewStringFromSqlNullString(model.TrackingNumber),
+		ID:                model.ID,
+		ShippingMethod:    *NewShippingMethodFromModel(&model.ShippingMethod),
+		ReferenceNumber:   model.ReferenceNumber,
+		State:             string(model.State),
+		ShipmentDate:      NewStringFromSqlNullString(model.ShipmentDate),
+		EstimatedArrival:  NewStringFromSqlNullString(model.EstimatedArrival),
+		DeliveredDate:     NewStringFromSqlNullString(model.DeliveredDate),
+		Address:           *NewAddressFromModel(&model.Address),
+		ShipmentLineItems: make([]ShipmentLineItem, 0),
+		TrackingNumber:    NewStringFromSqlNullString(model.TrackingNumber),
 	}
 
 	for _, lineItem := range model.ShipmentLineItems {
