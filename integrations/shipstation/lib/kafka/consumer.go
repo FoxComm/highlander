@@ -2,6 +2,7 @@ package kafka
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"os/signal"
 
@@ -50,7 +51,7 @@ func (con *consumer) RunTopic(topic string) {
 		con.kafkaConsumer.Close()
 	}()
 
-	fmt.Println("ShipStation consumer started!")
+	log.Println("ShipStation consumer started!")
 	con.kafkaConsumer.StartStatic(map[string]int{
 		topic: 1,
 	})

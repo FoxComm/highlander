@@ -22,6 +22,8 @@ func main() {
 }
 
 func defaultMessageHandler(message *[]byte) error {
+	log.Println("Received a new message from orders_search_view")
+
 	order, err := phoenix.NewOrderFromAvro(*message)
 	if err != nil {
 		log.Printf("Unable to decode Avro message with error %s", err.Error())
