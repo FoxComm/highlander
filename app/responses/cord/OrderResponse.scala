@@ -23,7 +23,7 @@ case class OrderResponse(referenceNumber: String,
                          totals: CordResponseTotals,
                          customer: Option[CustomerResponse.Root] = None,
                          shippingMethod: ShippingMethodsResponse.Root,
-                         shippingAddress: Addresses.Root,
+                         shippingAddress: AddressResponse,
                          paymentMethods: Seq[_ <: CordResponsePayments] = Seq.empty,
                          // Order-specific
                          orderState: Order.State,
