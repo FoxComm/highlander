@@ -3,15 +3,15 @@ package responses
 import "github.com/FoxComm/middlewarehouse/models"
 
 type ShippingMethod struct {
-	ID        uint   `json:"id"`
-	CarrierID uint   `json:"carrierId"`
-	Name      string `json:"name"`
+	ID      uint    `json:"id"`
+	Carrier Carrier `json:"carrier"`
+	Name    string  `json:"name"`
 }
 
 func NewShippingMethodFromModel(shippingMethod *models.ShippingMethod) *ShippingMethod {
 	return &ShippingMethod{
-		ID:        shippingMethod.ID,
-		CarrierID: shippingMethod.CarrierID,
-		Name:      shippingMethod.Name,
+		ID:      shippingMethod.ID,
+		Carrier: *NewCarrierFromModel(&shippingMethod.Carrier),
+		Name:    shippingMethod.Name,
 	}
 }

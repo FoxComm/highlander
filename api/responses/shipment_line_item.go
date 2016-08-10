@@ -20,6 +20,6 @@ func NewShipmentLineItemFromModel(model *models.ShipmentLineItem) *ShipmentLineI
 		Name:            model.Name,
 		Price:           model.Price,
 		ImagePath:       model.ImagePath,
-		State:           model.State,
+		State:           string(model.State),
 	}
 }

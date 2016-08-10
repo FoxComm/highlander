@@ -25,21 +25,19 @@ func NewCarrierRepository(db *gorm.DB) ICarrierRepository {
 func (repository *carrierRepository) GetCarriers() ([]*models.Carrier, error) {
 	var carriers []*models.Carrier
 
-	if err := repository.db.Find(&carriers).Error; err != nil {
-		return nil, err
-	}
+	err := repository.db.Find(&carriers).Error
 
-	return carriers, nil
+	return carriers, err
 }
 
 func (repository *carrierRepository) GetCarrierByID(id uint) (*models.Carrier, error) {
-	var carrier models.Carrier
+	carrier := &models.Carrier{}
 
-	if err := repository.db.First(&carrier, id).Error; err != nil {
+	if err := repository.db.First(carrier, id).Error; err != nil {
 		return nil, err
 	}
 
-	return &carrier, nil
+	return carrier, nil
 }
 
 func (repository *carrierRepository) CreateCarrier(carrier *models.Carrier) (*models.Carrier, error) {
