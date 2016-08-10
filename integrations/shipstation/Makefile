@@ -1,8 +1,8 @@
 
 build:
-	go build -o shipstation main.go order.go utils.go
+	go build -o shipstation main.go
 
 build-linux:
-	GOOS=linux go build -o shipstation main.go order.go utils.go
+	GOOS=linux $(MAKE) build
 
 .PHONY: build

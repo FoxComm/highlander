@@ -14,7 +14,7 @@ type Product struct {
 	Height                  float64
 	WeightOz                float64
 	InternalNotes           string
-	FulfillmentSKU          string `json:"fulfillmentSku"`
+	FulfillmentSKU          *string `json:"fulfillmentSku"`
 	Active                  bool
 	ProductCategory         *int
 	ProductType             string
@@ -47,7 +47,6 @@ func (p *Product) FromResponse(resp *responses.Product) {
 	p.Height = resp.Height
 	p.WeightOz = resp.WeightOz
 	p.InternalNotes = resp.InternalNotes
-	p.FulfillmentSKU = resp.FulfillmentSKU
 	p.Active = resp.Active
 	p.ProductType = resp.ProductType
 	p.WarehouseLocation = resp.WarehouseLocation
@@ -64,6 +63,10 @@ func (p *Product) FromResponse(resp *responses.Product) {
 	p.CustomsTariffNo = resp.CustomsTariffNo
 	p.CustomsCountryCode = resp.CustomsCountryCode
 	p.NoCustoms = resp.NoCustoms
+
+	if resp.FulfillmentSKU != "" {
+		p.FulfillmentSKU = &(resp.FulfillmentSKU)
+	}
 
 	if resp.ProductCategory != nil {
 		productCategory := resp.ProductCategory.ID
