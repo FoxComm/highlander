@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/FoxComm/shipstation/lib/kafka"
+	"github.com/FoxComm/metamorphosis"
 	"github.com/FoxComm/shipstation/lib/phoenix"
 	"github.com/FoxComm/shipstation/lib/shipstation"
 )
@@ -13,24 +13,32 @@ func main() {
 	zookeeper := os.Getenv("ZOOKEEPER")
 	schemaRepo := os.Getenv("SCHEMA_REGISTRY")
 
-	consumer, err := kafka.NewConsumer(zookeeper, schemaRepo, defaultMessageHandler)
+	consumer, err := metamorphosis.NewConsumer(zookeeper, schemaRepo)
 	if err != nil {
 		panic(err)
 	}
 
-	consumer.RunTopic("orders_search_view")
+	//consumer, err := kafka.NewConsumer(zookeeper, schemaRepo, defaultMessageHandler)
+	//if err != nil {
+	//panic(err)
+	//}
+
+	//consumer.RunTopic("orders_search_view")
+	consumer.RunTopic("orders_search_view", 1, orderHandler)
 }
 
-func defaultMessageHandler(message *[]byte) error {
+func orderHandler(message metamorphosis.AvroMessage) error {
 	log.Println("Received a new message from orders_search_view")
 
-	order, err := phoenix.NewOrderFromAvro(*message)
+	order, err := phoenix.NewOrderFromAvro(message)
 	if err != nil {
 		log.Printf("Unable to decode Avro message with error %s", err.Error())
 		return nil
 	}
 
 	if order.State == "fulfillmentStarted" {
+		log.Printf("Handling order with reference number %s", order.ReferenceNumber)
+
 		ssOrder, err := toShipStationOrder(order)
 		if err != nil {
 			log.Printf("Unable to create ShipStation order with error %s", err.Error())

@@ -1,6 +1,10 @@
 package phoenix
 
-import "encoding/json"
+import (
+	"encoding/json"
+
+	"github.com/FoxComm/metamorphosis"
+)
 
 // Order represents the order object that exists in the orders_search_view.
 type Order struct {
@@ -39,9 +43,9 @@ type Order struct {
 
 // NewOrderFromAvro consumes a decoded Avro message and unmarshals it into an
 // Order object.
-func NewOrderFromAvro(bt []byte) (*Order, error) {
+func NewOrderFromAvro(message metamorphosis.AvroMessage) (*Order, error) {
 	o := new(order)
-	if err := json.Unmarshal(bt, o); err != nil {
+	if err := json.Unmarshal(message.Bytes(), o); err != nil {
 		return nil, err
 	}
 
