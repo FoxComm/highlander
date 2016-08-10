@@ -1,4 +1,4 @@
-package: github.com/FoxComm/middlewarehouse/consumers/skus
+package: github.com/FoxComm/middlewarehouse/consumers/stock-items
 import:
   - package: github.com/FoxComm/metamorphosis
     vcs: git
