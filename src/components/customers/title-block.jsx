@@ -3,9 +3,6 @@ import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import moment from 'moment';
 
-//helpers
-import { prefix } from '../../lib/text-utils';
-
 //styles
 import styles from './title-block.css';
 
