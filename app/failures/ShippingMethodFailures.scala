@@ -16,4 +16,8 @@ object ShippingMethodFailures {
     override def description =
       s"Shipping method $shippingMethodId is not applicable to cart $referenceNumber"
   }
+
+  case class ShippingMethodCannotBeFoundInDatabase(name: String) extends Failure {
+    override def description = s"Shipping method with name: '$name' cannot be found in database"
+  }
 }

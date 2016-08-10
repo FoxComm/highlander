@@ -5,6 +5,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import cats.implicits._
 import failures.CustomerFailures.CustomerHasNoDefaultAddress
 import failures.NotFoundFailure404
+import failures.ShippingMethodFailures.ShippingMethodCannotBeFoundInDatabase
 import models.cord.Order.Shipped
 import models.cord._
 import models.cord.lineitems._
@@ -209,8 +210,8 @@ trait DemoScenario3 extends DemoSeedHelpers {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       shippingMethod ← * <~ ShippingMethods
                         .filter(_.adminDisplayName === ShippingMethod.expressShippingNameForAdmin)
-                        .mustFindOneOr(
-                            NotFoundFailure404("Unable to find 2-3 day shipping method"))
+                        .mustFindOneOr(ShippingMethodCannotBeFoundInDatabase(
+                                ShippingMethod.expressShippingNameForAdmin))
       customerIds ← * <~ Customers.createAllReturningIds(customers3)
       addressIds  ← * <~ createAddresses(customerIds, address3)
       productData ← * <~ Mvp.insertProducts(products3, context.id)
