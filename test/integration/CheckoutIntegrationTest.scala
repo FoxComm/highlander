@@ -7,7 +7,7 @@ import Extensions._
 import cats.implicits._
 import failures.NotFoundFailure404
 import failures.CustomerFailures.CustomerMustHaveCredentials
-import failures.ShippingMethodFailures.ShippingMethodCannotBeFoundInDatabase
+import failures.ShippingMethodFailures.ShippingMethodNotFoundByName
 import models.cord.Order.RemorseHold
 import models.cord._
 import models.customer.Customers
@@ -140,7 +140,8 @@ class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with 
       _          ← * <~ Factories.shippingMethods.map(ShippingMethods.create(_))
       shipMethod ← * <~ ShippingMethods
                     .filter(_.adminDisplayName === ShippingMethod.expressShippingNameForAdmin)
-                    .mustFindOneOr(ShippingMethodCannotBeFoundInDatabase(ShippingMethod.expressShippingNameForAdmin))
+                    .mustFindOneOr(
+                        ShippingMethodNotFoundByName(ShippingMethod.expressShippingNameForAdmin))
       product ← * <~ Mvp.insertProduct(productCtx.id, Factories.products.head)
       sku     ← * <~ Skus.mustFindById404(product.skuId)
       admin   ← * <~ StoreAdmins.create(Factories.storeAdmin)
