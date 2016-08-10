@@ -9,14 +9,17 @@ import (
 
 type Shipment struct {
 	gormfox.Base
-	ShippingMethodID uint
-	ReferenceNumber  string
-	State            ShipmentState
-	ShipmentDate     sql.NullString
-	EstimatedArrival sql.NullString
-	DeliveredDate    sql.NullString
-	AddressID        uint
-	TrackingNumber   sql.NullString
+	ShippingMethodID  uint
+	ShippingMethod    ShippingMethod
+	ReferenceNumber   string
+	State             ShipmentState
+	ShipmentDate      sql.NullString
+	EstimatedArrival  sql.NullString
+	DeliveredDate     sql.NullString
+	AddressID         uint
+	Address           Address
+	ShipmentLineItems []ShipmentLineItem
+	TrackingNumber    sql.NullString
 }
 
 func NewShipmentFromPayload(payload *payloads.Shipment) *Shipment {
@@ -24,18 +27,15 @@ func NewShipmentFromPayload(payload *payloads.Shipment) *Shipment {
 		ShippingMethodID: payload.ShippingMethodID,
 		ReferenceNumber:  payload.ReferenceNumber,
 		State:            ShipmentState(payload.State),
+		ShipmentDate:     NewSqlNullStringFromString(payload.ShipmentDate),
+		EstimatedArrival: NewSqlNullStringFromString(payload.EstimatedArrival),
+		DeliveredDate:    NewSqlNullStringFromString(payload.DeliveredDate),
+		Address:          *NewAddressFromPayload(&payload.Address),
+		TrackingNumber:   NewSqlNullStringFromString(payload.TrackingNumber),
 	}
 
-	if payload.ShipmentDate != nil {
-		shipment.ShipmentDate = sql.NullString{String: *payload.ShipmentDate, Valid: true}
-	}
-
-	if payload.EstimatedArrival != nil {
-		shipment.EstimatedArrival = sql.NullString{String: *payload.EstimatedArrival, Valid: true}
-	}
-
-	if payload.DeliveredDate != nil {
-		shipment.DeliveredDate = sql.NullString{String: *payload.DeliveredDate, Valid: true}
+	for _, lineItem := range payload.LineItems {
+		shipment.ShipmentLineItems = append(shipment.ShipmentLineItems, *NewShipmentLineItemFromPayload(&lineItem))
 	}
 
 	return shipment

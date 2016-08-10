@@ -143,9 +143,9 @@ func (controller *shipmentController) getShipmentResponse(shipment *models.Shipm
 
 	response.Address = *responses.NewAddressFromModel(address)
 
-	response.LineItems = []responses.ShipmentLineItem{}
+	response.ShipmentLineItems = []responses.ShipmentLineItem{}
 	for _, lineItem := range shipmentLineItems {
-		response.LineItems = append(response.LineItems, *responses.NewShipmentLineItemFromModel(lineItem))
+		response.ShipmentLineItems = append(response.ShipmentLineItems, *responses.NewShipmentLineItemFromModel(lineItem))
 	}
 
 	//response.Transactions = *responses.NewTransactionListFromModelsList(shipmentTransactions)

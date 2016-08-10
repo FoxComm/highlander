@@ -3,38 +3,33 @@ package responses
 import "github.com/FoxComm/middlewarehouse/models"
 
 type Shipment struct {
-	ID               uint               `json:"id"`
-	ShippingMethodID uint               `json:"shippingMethodId"`
-	ReferenceNumber  string             `json:"referenceNumber"`
-	State            string             `json:"state"`
-	LineItems        []ShipmentLineItem `json:"lineItems"`
-	//Transactions     TransactionList    `json:"transactions"`
-	ShipmentDate     *string            `json:"shipmentDate"`
-	EstimatedArrival *string            `json:"estimatedArrival"`
-	DeliveredDate    *string            `json:"deliveredDate"`
-	Address          Address            `json:"address"`
-	TrackingNumber   *string            `json:"trackingNumber"`
+	ID                uint               `json:"id"`
+	ShippingMethod    ShippingMethod     `json:"shippingMethod"`
+	ReferenceNumber   string             `json:"referenceNumber"`
+	State             string             `json:"state"`
+	ShipmentDate      *string            `json:"shipmentDate"`
+	EstimatedArrival  *string            `json:"estimatedArrival"`
+	DeliveredDate     *string            `json:"deliveredDate"`
+	Address           Address            `json:"address"`
+	ShipmentLineItems []ShipmentLineItem `json:"lineItems"`
+	TrackingNumber    *string            `json:"trackingNumber"`
 }
 
 func NewShipmentFromModel(model *models.Shipment) *Shipment {
-
 	shipment := &Shipment{
 		ID:               model.ID,
-		ShippingMethodID: model.ShippingMethodID,
+		ShippingMethod:   *NewShippingMethodFromModel(&model.ShippingMethod),
 		ReferenceNumber:  model.ReferenceNumber,
 		State:            string(model.State),
+		ShipmentDate:     NewStringFromSqlNullString(model.ShipmentDate),
+		EstimatedArrival: NewStringFromSqlNullString(model.EstimatedArrival),
+		DeliveredDate:    NewStringFromSqlNullString(model.DeliveredDate),
+		Address:          *NewAddressFromModel(&model.Address),
+		TrackingNumber:   NewStringFromSqlNullString(model.TrackingNumber),
 	}
 
-	if model.ShipmentDate.Valid {
-		shipment.ShipmentDate = &model.ShipmentDate.String
-	}
-
-	if model.EstimatedArrival.Valid {
-		shipment.EstimatedArrival = &model.EstimatedArrival.String
-	}
-
-	if model.DeliveredDate.Valid {
-		shipment.DeliveredDate = &model.DeliveredDate.String
+	for _, lineItem := range model.ShipmentLineItems {
+		shipment.ShipmentLineItems = append(shipment.ShipmentLineItems, *NewShipmentLineItemFromModel(&lineItem))
 	}
 
 	return shipment
