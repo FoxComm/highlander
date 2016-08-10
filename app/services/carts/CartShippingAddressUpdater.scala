@@ -7,7 +7,7 @@ import models.location.Addresses.scope._
 import models.location._
 import models.traits.Originator
 import payloads.AddressPayloads._
-import responses.Addresses.buildOneShipping
+import responses.AddressResponse.buildOneShipping
 import responses.TheResponse
 import responses.cord.CartResponse
 import services.{CartValidator, LogActivity}
