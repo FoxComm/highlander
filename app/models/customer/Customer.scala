@@ -40,6 +40,11 @@ case class Customer(id: Int = 0,
     case _                  ⇒ Xor.Left(CustomerMustHaveCredentials.single)
   }
 
+  def mustNotBeBlacklisted: Failures Xor Customer = {
+    if (isBlacklisted) Xor.Left(CustomerIsBlacklisted(id).single)
+    else Xor.Right(this)
+  }
+
   override def validate: ValidatedNel[Failure, Customer] = {
     if (isGuest) {
       Validated.Valid(this)
