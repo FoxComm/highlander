@@ -362,8 +362,8 @@ class CartIntegrationTest
       OrderShippingAddresses.length.result.gimme must === (1)
     }
 
-    "fails if the order has already been placed" in new ShippingAddressFixture {
-      Orders.create(cart.toOrder()).gimme
+    "fails if the order has already been placed" in new OrderFromCartFixture
+    with ShippingAddressFixture {
 
       val response = DELETE(s"v1/orders/${cart.refNum}/shipping-address")
       response.status must === (StatusCodes.BadRequest)

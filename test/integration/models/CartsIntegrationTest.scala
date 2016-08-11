@@ -1,6 +1,6 @@
 package models
 
-import models.cord.{Carts, Orders}
+import models.cord.Carts
 import util.{Fixtures, IntegrationTestBase, TestObjectContext}
 import utils.db._
 import utils.seeds.Seeds.Factories
@@ -8,12 +8,12 @@ import utils.seeds.Seeds.Factories
 class CartsIntegrationTest extends IntegrationTestBase with TestObjectContext with Fixtures {
 
   "Carts" - {
-    "generates a referenceNumber via a cord" in new CustomerFixture {
-      val dummy = Factories.cart.copy(customerId = customer.id, referenceNumber = "")
-      val cart1 = Carts.create(dummy).gimme
-      cart1.referenceNumber must === ("BR10001")
-      Orders.create(cart1.toOrder()).gimme
-      val cart2 = Carts.create(dummy).gimme
+    "generates a referenceNumber via a cord" in new OrderFromCartFixture {
+      override def buildCart = Factories.cart.copy(customerId = customer.id, referenceNumber = "")
+
+      cart.referenceNumber must === ("BR10001")
+
+      val cart2 = Carts.create(cart.copy(id = 0, referenceNumber = "")).gimme
       cart2.referenceNumber must === ("BR10002")
     }
 

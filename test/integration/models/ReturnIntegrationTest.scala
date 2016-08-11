@@ -31,7 +31,7 @@ class ReturnIntegrationTest extends IntegrationTestBase with TestObjectContext w
   }
 
   trait Fixture extends OrderFromCartFixture with StoreAdminFixture {
-    override def buildCarts =
-      Seq(Factories.cart.copy(referenceNumber = "ABC-123", customerId = customer.id))
+    override def buildCart =
+      Factories.cart.copy(referenceNumber = "ABC-123", customerId = customer.id)
   }
 }

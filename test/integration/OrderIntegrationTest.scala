@@ -4,7 +4,6 @@ import Extensions._
 import failures.{NotFoundFailure404, StateTransitionNotAllowed}
 import models.cord.Order._
 import models.cord._
-import models.customer.Customers
 import models.shipping.ShippingMethods
 import payloads.OrderPayloads.UpdateOrderPayload
 import responses.cord.OrderResponse
@@ -36,12 +35,8 @@ class OrderIntegrationTest
           StateTransitionNotAllowed(order.state, Shipped, order.refNum).description)
     }
 
-    "fails if transition from current status is not allowed" in {
-      val order = (for {
-        _     ← * <~ Customers.create(Factories.customer)
-        cart  ← * <~ Carts.create(Factories.cart)
-        order ← * <~ Orders.create(cart.toOrder().copy(state = Canceled))
-      } yield order).gimme
+    "fails if transition from current status is not allowed" in new EmptyCustomerCartFixture {
+      val order = Orders.create(cart.toOrder().copy(state = Canceled)).gimme
 
       val response = PATCH(s"v1/orders/${order.refNum}", UpdateOrderPayload(ManualHold))
       response.status must === (StatusCodes.BadRequest)
