@@ -61,9 +61,9 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
       response.status must === (StatusCodes.OK)
       val root = response.ignoreFailuresAndGiveMe[CartResponse]
       val skus = root.lineItems.skus
-      skus must have size 2
+      skus must have size 1
       skus.map(_.sku).toSet must === (Set("SKU-YAX"))
-      skus.map(_.quantity).toSet must === (Set(1))
+      skus.map(_.quantity).toSet must === (Set(2))
     }
 
     "should respond with 404 if cart is not found" in {

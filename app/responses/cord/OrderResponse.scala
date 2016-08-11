@@ -38,8 +38,8 @@ object OrderResponse {
     for {
       context     ← * <~ ObjectContexts.mustFindById400(order.contextId)
       payState    ← * <~ OrderQueries.getPaymentState(order.refNum)
-      lineItems   ← * <~ CordResponseLineItems.fetch(order.refNum)
       lineItemAdj ← * <~ CordResponseLineItemAdjustments.fetch(order.refNum)
+      lineItems   ← * <~ CordResponseLineItems.fetch(order.refNum, lineItemAdj)
       promo       ← * <~ CordResponsePromotions.fetch(order.refNum)(db, ec, context)
       customer    ← * <~ Customers.findOneById(order.customerId)
       shippingMethod ← * <~ CordResponseShipping
