@@ -8,11 +8,11 @@ import consumer.elastic.mappings._
 
 final case class InventorySearchView()(implicit ec: EC) extends AvroTransformer {
   def mapping() = esMapping("inventory_search_view").fields(
+      field("id", IntegerType),
       field("sku", StringType).analyzer("upper_cased"),
       field("stockItem").nested(
           field("id", IntegerType),
           field("sku", StringType).analyzer("upper_cased"),
-          field("stockLocationId", IntegerType),
           field("defaultUnitCost", IntegerType)
       ),
       field("stockLocation").nested(
@@ -26,6 +26,10 @@ final case class InventorySearchView()(implicit ec: EC) extends AvroTransformer 
       field("shipped", IntegerType),
       field("afs", IntegerType),
       field("afsCost", IntegerType),
-      field("createdAt", DateType).format(dateFormat)
+      field("createdAt", DateType).format(dateFormat),
+      field("updatedAt", DateType).format(dateFormat),
+      field("deletedAt", DateType).format(dateFormat)
   )
+
+  override def nestedFields() = List("stockItem", "stockLocation")
 }
