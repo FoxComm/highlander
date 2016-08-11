@@ -2,7 +2,7 @@ package responses.cord
 
 import java.time.Instant
 
-import failures.ShippingMethodFailures.ShippingMethodNotFound
+import failures.ShippingMethodFailures.ShippingMethodNotFoundInOrder
 import models.cord._
 import models.customer.Customers
 import models.objects._
@@ -44,7 +44,7 @@ object OrderResponse {
       customer    ← * <~ Customers.findOneById(order.customerId)
       shippingMethod ← * <~ CordResponseShipping
                         .shippingMethod(order.refNum)
-                        .mustFindOr(ShippingMethodNotFound(order.refNum))
+                        .mustFindOr(ShippingMethodNotFoundInOrder(order.refNum))
       shippingAddress ← * <~ CordResponseShipping.shippingAddress(order.refNum)
       paymentMethods  ← * <~ CordResponsePayments.fetchAll(order.refNum)
     } yield

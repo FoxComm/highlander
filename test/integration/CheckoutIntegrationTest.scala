@@ -7,6 +7,7 @@ import Extensions._
 import cats.implicits._
 import failures.NotFoundFailure404
 import failures.CustomerFailures.CustomerMustHaveCredentials
+import failures.ShippingMethodFailures.ShippingMethodNotFoundByName
 import models.cord.Order.RemorseHold
 import models.cord._
 import models.customer.Customers
@@ -15,7 +16,7 @@ import models.location.Addresses
 import models.objects._
 import models.payment.giftcard._
 import models.product.{Mvp, SimpleContext}
-import models.shipping.ShippingMethods
+import models.shipping._
 import models.{Reasons, StoreAdmins}
 import payloads.GiftCardPayloads.GiftCardCreateByCsr
 import payloads.LineItemPayloads.UpdateLineItemsPayload
@@ -136,11 +137,15 @@ class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with 
       productCtx ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       customer   ← * <~ Customers.create(Factories.customer)
       address    ← * <~ Addresses.create(Factories.usAddress1.copy(customerId = customer.id))
-      shipMethod ← * <~ ShippingMethods.create(Factories.shippingMethods.head)
-      product    ← * <~ Mvp.insertProduct(productCtx.id, Factories.products.head)
-      sku        ← * <~ Skus.mustFindById404(product.skuId)
-      admin      ← * <~ StoreAdmins.create(Factories.storeAdmin)
-      reason     ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
+      _          ← * <~ Factories.shippingMethods.map(ShippingMethods.create(_))
+      shipMethod ← * <~ ShippingMethods
+                    .filter(_.adminDisplayName === ShippingMethod.expressShippingNameForAdmin)
+                    .mustFindOneOr(
+                        ShippingMethodNotFoundByName(ShippingMethod.expressShippingNameForAdmin))
+      product ← * <~ Mvp.insertProduct(productCtx.id, Factories.products.head)
+      sku     ← * <~ Skus.mustFindById404(product.skuId)
+      admin   ← * <~ StoreAdmins.create(Factories.storeAdmin)
+      reason  ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
     } yield (customer, address, shipMethod, product, sku, reason)).gimme
   }
 }

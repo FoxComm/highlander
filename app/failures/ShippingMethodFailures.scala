@@ -2,8 +2,12 @@ package failures
 
 object ShippingMethodFailures {
 
-  case class ShippingMethodNotFound(orderRef: String) extends Failure {
+  case class ShippingMethodNotFoundInOrder(orderRef: String) extends Failure {
     override def description = s"Shipping method is not present in order $orderRef"
+  }
+
+  case class ShippingMethodNotFoundByName(name: String) extends Failure {
+    override def description = s"Shipping method with name: '$name' cannot be found"
   }
 
   case class ShippingMethodIsNotActive(shippingMethodId: Int) extends Failure {
