@@ -20,6 +20,7 @@ final case class InventorySearchView()(implicit ec: EC) extends AvroTransformer 
           field("name", StringType).analyzer("autocomplete"),
           field("type", StringType)
       ),
+      field("type", StringType),
       field("onHand", IntegerType),
       field("onHold", IntegerType),
       field("reserved", IntegerType),
@@ -31,5 +32,5 @@ final case class InventorySearchView()(implicit ec: EC) extends AvroTransformer 
       field("deletedAt", DateType).format(dateFormat)
   )
 
-  override def nestedFields() = List("stockItem", "stockLocation")
+  override def nestedFields() = List("stock_item", "stock_location")
 }
