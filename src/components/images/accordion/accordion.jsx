@@ -14,19 +14,19 @@ type Action = {
 }
 
 type Props = {
-  children: ?Array<Element>|Element;
-  actions: ?Array<Action>;
-  title: ?string;
-  placeholder: ?string;
-  open: ?boolean;
-  loading: ?boolean;
-  editMode: ?boolean;
+  actions: Array<Action>;
+  title: string;
+  placeholder: string;
+  open: boolean;
+  loading: boolean;
+  editMode: boolean;
   onEditComplete: Function;
   onEditCancel: Function;
-  titleWrapper: ?(title: string) => Element;
-  resetOverflowTimeout: ?number;
-  className: ?string;
-  contentClassName: ?string;
+  titleWrapper?: (title: string) => Element;
+  resetOverflowTimeout: number;
+  className?: string;
+  contentClassName?: string;
+  children?: Array<Element>|Element;
 }
 
 type State = {
@@ -36,7 +36,7 @@ type State = {
 
 export default class Accordion extends Component {
 
-  static props: Props;
+  props: Props;
 
   static defaultProps = {
     title: '',

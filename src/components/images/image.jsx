@@ -31,7 +31,7 @@ type State = {
 }
 
 export default class Image extends Component<void, Props, State> {
-  static props: Props;
+  props: Props;
 
   state: State = {
     editMode: false,

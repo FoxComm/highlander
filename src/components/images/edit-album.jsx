@@ -15,13 +15,13 @@ import ContentBox from '../content-box/content-box';
 import SaveCancel from '../common/save-cancel';
 
 // types
-import type { TAlbum } from '../../modules/images';
+import type { NewAlbum } from '../../modules/images';
 
 type Props = {
   isVisible: boolean;
-  isNew: boolean;
+  isNew?: boolean;
   loading: boolean;
-  album: TAlbum;
+  album: NewAlbum;
   onSave: (name: string) => void;
   onCancel: () => void;
 };
@@ -31,15 +31,20 @@ type State = {
 }
 
 class EditAlbum extends Component {
-  static props: Props;
+
+  props: Props;
 
   state: State = {
     name: this.props.album.name,
   };
 
+  static defaultProps = {
+    isNew: false,
+  };
+
   _input: HTMLInputElement;
 
-  componentDidMount(){
+  componentDidMount() {
     this._input ? this._input.focus() : _.noop();
   }
 

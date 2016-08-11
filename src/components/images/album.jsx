@@ -17,7 +17,7 @@ import SortableTiles from '../sortable/sortable-tiles';
 import Image from './image';
 
 // types
-import type { TAlbum, ImageFile, ImageInfo } from '../../modules/images';
+import type { Album as TAlbum, ImageFile, ImageInfo } from '../../modules/images';
 
 export type Props = {
   album: TAlbum;
@@ -27,10 +27,9 @@ export type Props = {
   upload: (files: Array<ImageFile>) => Promise;
   editImage: (idx: number, info: ImageInfo) => Promise;
   deleteImage: (idx: number) => Promise;
-  addAlbum: (album: TAlbum) => Promise;
   editAlbum: (album: TAlbum) => Promise;
   moveAlbum: (position: number) => Promise;
-  archiveAlbum: () => Promise;
+  archiveAlbum: (id: number) => Promise;
   fetchAlbums: () => Promise;
 };
 
@@ -40,7 +39,7 @@ type State = {
 };
 
 export default class Album extends Component {
-  static props: Props;
+  props: Props;
 
   static defaultProps = {
     loading: false,

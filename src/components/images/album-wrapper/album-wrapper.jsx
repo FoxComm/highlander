@@ -14,15 +14,15 @@ type Action = {
 }
 
 type Props = {
-  children: ?Array<Element>|Element;
-  actions: ?Array<Action>;
-  title: ?string;
+  actions: Array<Action>;
+  title: string;
   position: number;
   albumsCount: number;
   onSort: (direction: number) => void;
-  titleWrapper: ?(title: string) => Element;
-  className: ?string;
+  titleWrapper?: (title: string) => Element;
+  className?: string;
   contentClassName: ?string;
+  children?: Array<Element>|Element;
 }
 
 const MOVE_DIRECTION_UP = -1;
@@ -30,7 +30,7 @@ const MOVE_DIRECTION_DOWN = 1;
 
 export default class AlbumWrapper extends Component {
 
-  static props: Props;
+  props: Props;
 
   static defaultProps = {
     title: '',

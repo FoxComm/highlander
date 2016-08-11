@@ -26,9 +26,9 @@ type Props = {
   gutterY: number;
   spaceBetween: boolean;
   onSort: (order: Array<number>) => void;
-  children: ?Array<Element>;
   loading: boolean;
-  itemStyles: ?{[key: string]: number};
+  itemStyles?: Object;
+  children: Array<Element>;
 }
 
 type State = {
@@ -52,7 +52,7 @@ const springSetting2 = { stiffness: 150, damping: 16 };
 
 class SortableTiles extends Component {
 
-  static props: Props;
+  props: Props;
 
   static defaultProps = {
     itemStyles: {},
@@ -61,6 +61,7 @@ class SortableTiles extends Component {
     spaceBetween: false,
     loading: false,
     onSort: _.noop,
+    children: [],
   };
 
   state: State = {

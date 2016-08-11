@@ -34,6 +34,7 @@ type Entity = {
 type CouponFormProps = {
   promotionError: bool,
   coupon: Object,
+  codeGeneration: Object,
   onUpdateCoupon: Function,
   onGenerateBulkCodes: Function,
   onUpdateCouponCode: Function,
@@ -44,7 +45,7 @@ type CouponFormProps = {
 
 export default class CouponForm extends Component {
 
-  static props: CouponFormProps;
+  props: CouponFormProps;
 
   get generalAttrs() {
     return ['name', 'storefrontName', 'description', 'details'];
