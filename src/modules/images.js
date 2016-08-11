@@ -15,7 +15,6 @@ export type TAlbum = {
   id: number;
   name: string;
   images: Array<ImageFile>;
-  position?: number;
 }
 
 export type FileInfo = {
@@ -235,10 +234,7 @@ export default function createImagesModule(entity: string): Module {
   /** Reducers */
   const asyncReducer = createReducer({
     [_fetchAlbums.succeeded]: (state: State, response: Array<TAlbum>) => {
-      return assoc(state,
-        ['albums'],
-        response.sort((a: TAlbum, b: TAlbum) => Number(b.id) - Number(a.id)),
-      );
+      return assoc(state, ['albums'], response);
     },
     [_addAlbum.succeeded]: (state: State, response: TAlbum) => {
       return assoc(state, ['albums'], [response, ...state.albums]);
