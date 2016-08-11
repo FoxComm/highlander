@@ -13,7 +13,6 @@ import services.coupon.CouponManager
 import utils.aliases._
 import utils.db._
 import utils.seeds.generators.SimpleCoupon._
-import utils.time.JavaInstantFormatters._
 
 object SimpleCoupon {
   type Percent = Int
@@ -33,7 +32,7 @@ case class SimpleCouponForm(percentOff: Percent, totalAmount: Int) {
       "storefrontName" : "Get $percentOff% off over $totalAmount dollars",
       "description" : "Get $percentOff% full order after spending more than $totalAmount dollars",
       "details" : "This offer applies only when you have a total amount $totalAmount dollars",
-      "activeFrom" : "${Instant.now.forEs}",
+      "activeFrom" : "${Instant.now}",
       "activeTo" : null,
       "tags" : []
       }
