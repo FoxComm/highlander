@@ -15,7 +15,6 @@ import ObjectScheduler from '../object-scheduler/object-scheduler';
 import SkuList from './sku-list';
 import Tags from '../tags/tags';
 import VariantList from './variant-list';
-import WaitAnimation from '../common/wait-animation';
 
 // types
 import type { Attributes } from 'paragons/object';
@@ -48,14 +47,9 @@ const defaultKeys = {
 export default class ProductForm extends Component {
   props: Props;
 
-  state: State;
-
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      isAddingProperty: false,
-    };
-  }
+  state: State = {
+    isAddingProperty: false,
+  };
 
   get generalAttrs(): Array<string> {
     const toOmit = [
@@ -76,7 +70,8 @@ export default class ProductForm extends Component {
       <ContentBox title="SKUs">
         <SkuList
           fullProduct={this.props.product}
-          updateField={this.props.onSetSkuProperty} />
+          updateField={this.props.onSetSkuProperty}
+        />
       </ContentBox>
     );
   }
@@ -109,8 +104,6 @@ export default class ProductForm extends Component {
 
   render(): Element {
     const attributes = _.get(this.props, 'product.attributes', {});
-    const formAttributes = _.get(this.props, 'product.form.product.attributes', []);
-    const shadowAttributes = _.get(this.props, 'product.shadow.product.attributes', []);
 
     return (
       <div className="fc-grid fc-grid-no-gutter">

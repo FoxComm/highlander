@@ -6,12 +6,15 @@ import React, { Component, Element } from 'react';
 import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
+import { post } from 'lib/search';
+import * as dsl from 'elastic/dsl';
 
 import { FormField } from '../forms';
 import CurrencyInput from '../forms/currency-input';
 import MultiSelectRow from '../table/multi-select-row';
+import Typeahead from '../typeahead/typeahead';
 
-import type { Sku } from '../../modules/skus/details';
+import type { Sku } from 'modules/skus/details';
 
 type Column = {
   field: string,
@@ -22,6 +25,7 @@ type Props = {
   columns: Array<Column>,
   sku: Sku,
   params: Object,
+  skuContext: string,
   updateField: (code: string, field: string, value: string) => void,
 };
 
@@ -29,14 +33,28 @@ type State = {
   sku: { [key:string]: string },
 };
 
-export default class EditableSkuRow extends Component<void, Props, State> {
-  props: Props;
-  state: State;
+function suggestSkus(code, context) {
+  return post('sku_search_view/_search', dsl.query({
+    bool: {
+      filter: [
+        dsl.termFilter('context', context),
+      ],
+      must: [
+        dsl.matchQuery('code', {
+          query: code,
+          type: 'phrase'
+        }),
+      ]
+    },
+  }));
+}
 
-  constructor(props: Props) {
-    super(props);
-    this.state = { sku: {} };
-  }
+export default class EditableSkuRow extends Component {
+  props: Props;
+
+  state: State = {
+    sku: {},
+  };
 
   @autobind
   priceCell(sku: Sku, field: string): Element {
@@ -99,6 +117,7 @@ export default class EditableSkuRow extends Component<void, Props, State> {
   @autobind
   handleUpdateCode({ target }: Object) {
     const value = target.value;
+    suggestSkus(value, this.props.skuContext).then(response => console.log('got', response));
     this.setState(
       assoc(this.state, ['sku', 'code'], value),
       () => this.props.updateField(this.code, 'code', 'string', value)

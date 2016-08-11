@@ -76,7 +76,9 @@ export function request(method, uri, data, options = {}) {
     window.location.href = '/login';
   };
 
-  return result
+  const abort = _.bind(result.abort, result);
+
+  const promise = result
     .then(response => {
       if (response.status == 401) {
         unauthorizedHandler(response);
@@ -92,6 +94,10 @@ export function request(method, uri, data, options = {}) {
 
       return response.body;
     });
+
+  // pass through abort method
+  promise.abort = abort;
+  return promise;
 }
 
 export default class Api {

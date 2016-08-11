@@ -116,7 +116,7 @@ export default class Typeahead extends React.Component {
       return this.toggleAlert(true);
     }
 
-    this.props.fetchItems(value);
+    this._fetchRequest = this.props.fetchItems(value);
   }
 
   @autobind
@@ -127,6 +127,11 @@ export default class Typeahead extends React.Component {
       query: value,
       showAlert: false
     });
+
+    if (this._fetchRequest && this._fetchRequest.abort) {
+      console.log('abort request!');
+      this._fetchRequest.abort();
+    }
 
     if (value.length === 0) {
       return this.toggleVisibility(false);

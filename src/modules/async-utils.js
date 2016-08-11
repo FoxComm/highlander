@@ -88,7 +88,9 @@ export default function createAsyncActions(namespace, asyncCall, payloadReducer)
           handleError
         );
 
-      if (process.env.NODE_ENV === 'debug') {
+      // caching errors hinder debugging process
+      // but in production it leads to more expected behaviour
+      if (process.env.NODE_ENV === 'production') {
         return result.catch(handleError);
       }
 

@@ -4,10 +4,9 @@
 
 // libs
 import _ from 'lodash';
-import { assoc, merge } from 'sprout-data';
+import { assoc } from 'sprout-data';
 
 // helpers
-import { copyShadowAttributes } from './form-shadow-object';
 import { generateSkuCode } from './sku';
 
 // types
@@ -15,13 +14,21 @@ import type { Sku } from 'modules/skus/details';
 import type { Dictionary } from './types';
 import type { Attribute, Attributes } from './object';
 
+type Context = {
+  name: string,
+  attributes: {
+    lang: string,
+    modality: string,
+  },
+}
+
 // exported types
 export type Product = {
   id: ?number,
   productId: ?number,
   attributes: Attributes,
   skus: Array<Sku>,
-  context: string,
+  context: Context,
 };
 
 export type Variant = {
@@ -43,7 +50,7 @@ export function createEmptyProduct(): Product {
     productId: null,
     attributes: {},
     skus: [],
-    context: '',
+    context: {name: 'default'},
   };
 
   return configureProduct(addEmptySku(product));
@@ -61,10 +68,6 @@ export function addEmptySku(product: Product): Product {
     feCode: pseudoRandomCode,
     attributes: {
       code: {
-        t: 'string',
-        v: '',
-      },
-      title: {
         t: 'string',
         v: '',
       },
@@ -92,12 +95,6 @@ export function configureProduct(product: Product): Product {
     url: 'string',
     metaTitle: 'string',
     metaDescription: 'string',
-  };
-
-  const defaultSkuAttrs = {
-    retailPrice: 'price',
-    salePrice: 'price',
-    upc: 'string',
   };
 
   return _.reduce(defaultAttrs, (res, val, key) => {

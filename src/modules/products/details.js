@@ -4,21 +4,29 @@
 
 // libs
 import _ from 'lodash';
-import { assoc } from 'sprout-data';
+import { update } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
 import { push } from 'react-router-redux';
+import reduceReducers from 'reduce-reducers';
 
 // helpers
 import Api from 'lib/api';
 import { createEmptyProduct, configureProduct } from 'paragons/product';
-import createStore from 'lib/store-creator';
+import makeQuickSearch from '../quick-search';
 
 // types
-import type { Store } from 'lib/store-creator';
-import type { Dictionary } from 'paragons/types';
-import type { Attribute, Attributes } from 'paragons/object';
-import type { Product, Variant, VariantValue } from 'paragons/product';
-import type { Sku } from 'modules/skus/details';
+import type { Product } from 'paragons/product';
+
+const searchSkus = makeQuickSearch(
+  'products.details.suggestedSkus',
+  'sku_search_view/_search',
+  [],
+  ''
+);
+
+export function suggestSkus(phrase) {
+  return searchSkus.actions.fetch(phrase);
+}
 
 export type Error = {
   status: ?number,
@@ -114,6 +122,7 @@ const initialState: ProductDetailsState = {
   isUpdating: false,
   product: null,
   response: null,
+  suggestedSkus: {},
 };
 
 const reducer = createReducer({
@@ -186,4 +195,8 @@ const reducer = createReducer({
   },
 }, initialState);
 
-export default reducer;
+function skuSuggestReducer(state, action) {
+  return update(state, 'suggestedSkus', searchSkus.reducer, action);
+}
+
+export default reduceReducers(reducer, skuSuggestReducer);

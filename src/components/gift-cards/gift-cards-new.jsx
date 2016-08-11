@@ -12,7 +12,7 @@ import { transitionTo } from 'browserHistory';
 // components
 import Counter from '../forms/counter';
 import Typeahead from '../typeahead/typeahead';
-import { Dropdown, DropdownItem } from '../dropdown';
+import { Dropdown } from '../dropdown';
 import { Checkbox } from '../checkbox/checkbox';
 import { Form, FormField } from '../forms';
 import ChooseCustomers from './choose-customers';
@@ -179,7 +179,8 @@ export default class NewGiftCard extends React.Component {
         onChange={e => this.setState({customersQuery: e.target.value})}
         pills={customers.map(customer => customer.name)}
         icon={null}
-        onPillClose={(name, idx) => removeCustomer(customers[idx].id)} />
+        onPillClose={(name, idx) => removeCustomer(customers[idx].id)}
+      />
     );
   }
 
@@ -202,7 +203,8 @@ export default class NewGiftCard extends React.Component {
             minQueryLength={2}
             label="Choose customers:"
             placeholder="Customer name or email..."
-            name="customerQuery" />
+            name="customerQuery"
+          />
           <FormField className="fc-new-gift-card__message-to-customers"
                      label="Write a message for customers" optional
                      labelAtRight={ labelAtRight }
