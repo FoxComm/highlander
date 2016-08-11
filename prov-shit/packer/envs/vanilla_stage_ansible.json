@@ -35,7 +35,7 @@
 	"google_oauth_frontend_redirect_uri": "http://vanilla.foxcommerce.com/api/v1/public/oauth2callback/google/customer",
     "zookeepers" : "zk://stage-amigo.node.consul:2181",
     "docker_registry_bucket": "vanilla-docker",
-    "cert_path": "vanilla/docker",
+    "cert_path": "vanilla",
     "docker_registry":"https://docker.vanilla.foxcommerce.com",
     "join_type" : "join-wan",
     "consul_expect" : "1"

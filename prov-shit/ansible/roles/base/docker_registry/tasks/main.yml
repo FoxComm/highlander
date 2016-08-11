@@ -17,11 +17,11 @@
   sudo: true
 
 - name: Copy Cert
-  copyv: src="{{role_path}}/../secret_keys/files/certs/{{cert_path}}/domain.crt" dest=/certs/domain.crt
+  copyv: src="{{role_path}}/../secret_keys/files/certs/{{cert_path}}/docker/domain.crt" dest=/certs/domain.crt
   sudo: true
 
 - name: Copy Key
-  copyv: src="{{role_path}}/../secret_keys/files/certs/{{cert_path}}/domain.key" dest=/certs/domain.key
+  copyv: src="{{role_path}}/../secret_keys/files/certs/{{cert_path}}/docker/domain.key" dest=/certs/domain.key
   sudo: true
 
 - name: Reload Systemd for Docker Registry

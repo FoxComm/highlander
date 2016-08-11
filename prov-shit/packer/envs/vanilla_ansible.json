@@ -38,6 +38,6 @@
     "zookeeper_3": "10.0.0.5",
     "zookeepers" : "zk://10.0.0.3:2181,10.0.0.4:2181,10.0.0.5:2181",
     "docker_registry_bucket": "vanilla-docker",
-    "cert_path": "vanilla/docker",
+    "cert_path": "vanilla",
     "docker_registry":"https://docker.vanilla.foxcommerce.com"
 }
