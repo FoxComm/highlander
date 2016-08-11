@@ -5,6 +5,7 @@ import Extensions._
 import failures.InvalidReasonTypeFailure
 import models.returns.ReturnReasons
 import models.{Reason, Reasons, StoreAdmins}
+import util.Fixtures.StoreAdminFixture
 import util.IntegrationTestBase
 import utils.Strings._
 import utils.db._
@@ -34,9 +35,8 @@ class ReasonsIntegrationTest extends IntegrationTestBase with HttpSupport with A
     }
   }
 
-  trait Fixture {
+  trait Fixture extends StoreAdminFixture {
     val (reason, returnReason) = (for {
-      storeAdmin ← * <~ StoreAdmins.create(Factories.storeAdmin)
       reason ← * <~ Reasons.create(
                   Factories.reasons.head.copy(reasonType = Reason.GiftCardCreation,
                                               storeAdminId = storeAdmin.id))

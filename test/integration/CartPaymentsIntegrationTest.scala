@@ -2,6 +2,8 @@ import java.time.ZonedDateTime
 
 import Extensions._
 import akka.http.scaladsl.model.StatusCodes
+import util._
+import Fixtures.EmptyCustomerCartFixture
 import cats.implicits._
 import com.stripe.model.DeletedExternalAccount
 import failures.CartFailures.OrderAlreadyPlaced
@@ -25,7 +27,6 @@ import org.scalatest.mock.MockitoSugar
 import payloads.PaymentPayloads._
 import services.{CreditCardManager, Result}
 import slick.driver.PostgresDriver.api._
-import util._
 import utils.aliases.stripe._
 import utils.db._
 import utils.seeds.Seeds.Factories
@@ -456,12 +457,8 @@ class CartPaymentsIntegrationTest
   def storeCreditPayments(cart: Cart) =
     paymentsFor(cart, PaymentMethod.StoreCredit)
 
-  trait Fixture {
-    val (cart, admin, customer) = (for {
-      customer ← * <~ Customers.create(Factories.customer)
-      cart     ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
-      admin    ← * <~ StoreAdmins.create(authedStoreAdmin)
-    } yield (cart, admin, customer)).gimme
+  trait Fixture extends EmptyCustomerCartFixture {
+    val admin = StoreAdmins.create(authedStoreAdmin).gimme
   }
 
   trait GiftCardFixture extends Fixture {

@@ -2,6 +2,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
+import util.{Fixtures, IntegrationTestBase}
+import Fixtures.EmptyCustomerCartFixture
 import failures.GiftCardFailures.GiftCardConvertFailure
 import failures._
 import models.customer.{Customer, Customers}
@@ -306,10 +308,8 @@ class GiftCardIntegrationTest extends IntegrationTestBase with HttpSupport with 
     }
   }
 
-  trait Fixture {
-    val (customer, admin, giftCard, order, payment, adjustment1, gcSecond, gcSubType) = (for {
-      customer  ← * <~ Customers.create(Factories.customer)
-      cart      ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
+  trait Fixture extends EmptyCustomerCartFixture {
+    val (admin, giftCard, order, payment, adjustment1, gcSecond, gcSubType) = (for {
       admin     ← * <~ StoreAdmins.create(authedStoreAdmin)
       reason    ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
       gcSubType ← * <~ GiftCardSubtypes.create(Factories.giftCardSubTypes.head)
@@ -327,6 +327,6 @@ class GiftCardIntegrationTest extends IntegrationTestBase with HttpSupport with 
                                                   amount = Some(25)))
       adj1     ← * <~ GiftCards.auth(giftCard, Some(payment.id), 10)
       giftCard ← * <~ GiftCards.findOneById(giftCard.id)
-    } yield (customer, admin, giftCard.value, cart, payment, adj1, gcSecond, gcSubType)).gimme
+    } yield (admin, giftCard.value, cart, payment, adj1, gcSecond, gcSubType)).gimme
   }
 }

@@ -1,15 +1,15 @@
-import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
 import failures.ProductFailures.SkuNotFoundForContext
 import failures.{AlreadySavedForLater, NotFoundFailure404}
-import models.customer.{Customer, Customers}
+import models.customer.Customer
 import models.objects._
 import models.product.{Mvp, SimpleContext}
 import models.{SaveForLater, SaveForLaters}
 import responses.SaveForLaterResponse
 import services.SaveForLaterManager.SavedForLater
+import util.Fixtures.CustomerFixture
 import util.IntegrationTestBase
 import utils.db._
 import utils.seeds.Seeds.Factories
@@ -88,12 +88,11 @@ class SaveForLaterIntegrationTest extends IntegrationTestBase with HttpSupport w
     }
   }
 
-  trait Fixture {
-    val (customer, product, productContext) = (for {
+  trait Fixture extends CustomerFixture {
+    val (product, productContext) = (for {
       productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-      customer       ← * <~ Customers.create(Factories.customer)
       product        ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head)
-    } yield (customer, product, productContext)).gimme
+    } yield (product, productContext)).gimme
 
     def roots = Seq(SaveForLaterResponse.forSkuId(product.skuId, productContext.id).gimme)
   }

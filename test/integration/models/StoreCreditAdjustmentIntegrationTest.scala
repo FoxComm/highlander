@@ -7,6 +7,7 @@ import models.cord.{OrderPayments, Carts}
 import models.payment.storecredit._
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import org.scalatest.prop.Tables.Table
+import util.Fixtures.{StoreAdminFixture, EmptyCustomerCartFixture}
 import util.IntegrationTestBase
 import utils.db._
 import utils.seeds.Seeds.Factories
@@ -19,7 +20,7 @@ class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
     "debit must be greater than zero" in new Fixture {
       val (sc, payment) = (for {
         origin ← * <~ StoreCreditManuals.create(
-                    StoreCreditManual(adminId = admin.id, reasonId = reason.id))
+                    StoreCreditManual(adminId = storeAdmin.id, reasonId = reason.id))
         sc ← * <~ StoreCredits.create(
                 Factories.storeCredit.copy(originId = origin.id, customerId = customer.id))
         payment ← * <~ OrderPayments.create(Factories.giftCardPayment
@@ -41,7 +42,7 @@ class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
     "updates the StoreCredit's currentBalance and availableBalance before insert" in new Fixture {
       val sc = (for {
         origin ← * <~ StoreCreditManuals.create(
-                    StoreCreditManual(adminId = admin.id, reasonId = reason.id))
+                    StoreCreditManual(adminId = storeAdmin.id, reasonId = reason.id))
         sc ← * <~ StoreCredits.create(Factories.storeCredit
                   .copy(originalBalance = 500, originId = origin.id, customerId = customer.id))
         pay ← * <~ OrderPayments.create(Factories.giftCardPayment
@@ -66,7 +67,7 @@ class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
     "a Postgres trigger updates the adjustment's availableBalance before insert" in new Fixture {
       val (adj, sc) = (for {
         origin ← * <~ StoreCreditManuals.create(
-                    StoreCreditManual(adminId = admin.id, reasonId = reason.id))
+                    StoreCreditManual(adminId = storeAdmin.id, reasonId = reason.id))
         sc ← * <~ StoreCredits.create(Factories.storeCredit
                   .copy(originalBalance = 500, originId = origin.id, customerId = customer.id))
         pay ← * <~ OrderPayments.create(Factories.giftCardPayment
@@ -86,7 +87,7 @@ class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
     "cancels an adjustment and removes its effect on current/available balances" in new Fixture {
       val (sc, payment) = (for {
         origin ← * <~ StoreCreditManuals.create(
-                    StoreCreditManual(adminId = admin.id, reasonId = reason.id))
+                    StoreCreditManual(adminId = storeAdmin.id, reasonId = reason.id))
         sc ← * <~ StoreCredits.create(Factories.storeCredit
                   .copy(originalBalance = 500, originId = origin.id, customerId = customer.id))
         payment ← * <~ OrderPayments.create(Factories.giftCardPayment
@@ -114,12 +115,7 @@ class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
     }
   }
 
-  trait Fixture {
-    val (admin, customer, reason, cart) = (for {
-      admin    ← * <~ StoreAdmins.create(Factories.storeAdmin)
-      customer ← * <~ Customers.create(Factories.customer)
-      cart     ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
-      reason   ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
-    } yield (admin, customer, reason, cart)).gimme
+  trait Fixture extends EmptyCustomerCartFixture with StoreAdminFixture {
+    val reason = Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id)).gimme
   }
 }

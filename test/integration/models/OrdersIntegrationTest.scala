@@ -2,15 +2,11 @@ package models
 
 import java.time.Instant.now
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
+import util.Fixtures.EmptyCustomerCartFixture
 import cats.implicits._
 import models.cord.Order._
 import models.cord._
-import models.customer.Customers
 import util._
-import utils.db._
-import utils.seeds.Seeds.Factories
 import utils.time._
 
 class OrdersIntegrationTest extends IntegrationTestBase with TestObjectContext {
@@ -38,11 +34,7 @@ class OrdersIntegrationTest extends IntegrationTestBase with TestObjectContext {
     }
   }
 
-  trait Fixture {
-    val order = (for {
-      _     ← * <~ Customers.create(Factories.customer)
-      cart  ← * <~ Carts.create(Factories.cart)
-      order ← * <~ Orders.create(cart.toOrder())
-    } yield order).gimme
+  trait Fixture extends EmptyCustomerCartFixture {
+    val order = Orders.create(cart.toOrder()).gimme
   }
 }

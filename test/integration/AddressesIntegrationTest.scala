@@ -4,13 +4,13 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 
 import Extensions._
-import Fixtures._
 import failures.NotFoundFailure404
 import models.cord.{Carts, OrderShippingAddresses}
 import models.customer.{Customer, Customers}
 import models.location.{Address, Addresses}
 import payloads.AddressPayloads.CreateAddressPayload
 import responses.AddressResponse
+import util.Fixtures._
 import util.IntegrationTestBase
 import utils.db._
 import utils.seeds.Seeds.Factories
@@ -172,7 +172,7 @@ class AddressesIntegrationTest extends IntegrationTestBase with HttpSupport with
     } yield (cart, shippingAddress)).gimme
   }
 
-  trait NoDefaultAddressFixture extends AddressFixture with EmptyCustomerCart {
+  trait NoDefaultAddressFixture extends AddressFixture with EmptyCustomerCartFixture {
     val shippingAddress = OrderShippingAddresses.copyFromAddress(address, cart.refNum).gimme
   }
 }

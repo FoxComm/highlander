@@ -1,4 +1,3 @@
-import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
@@ -11,6 +10,7 @@ import models.{StoreAdmin, StoreAdmins}
 import org.json4s.jackson.JsonMethods._
 import payloads.SharedSearchPayloads._
 import responses.StoreAdminResponse.{Root ⇒ AdminRoot, build ⇒ buildAdmin}
+import util.Fixtures.StoreAdminFixture
 import util.IntegrationTestBase
 import utils.db._
 import utils.seeds.Seeds.Factories
@@ -320,9 +320,7 @@ class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport w
     }
   }
 
-  trait Fixture {
-    val storeAdmin = StoreAdmins.create(authedStoreAdmin).gimme
-  }
+  trait Fixture extends StoreAdminFixture
 
   trait SharedSearchFixture extends Fixture {
     val customerScope = SharedSearch(title = "Active Customers",

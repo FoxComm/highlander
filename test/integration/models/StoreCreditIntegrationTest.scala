@@ -1,14 +1,13 @@
 package models
 
-import models.customer.Customers
-import models.cord.{OrderPayments, Carts}
+import util.Fixtures.{StoreAdminFixture, EmptyCustomerCartFixture}
+import models.cord.OrderPayments
 import models.payment.storecredit._
 import util.IntegrationTestBase
 import utils.db._
 import utils.seeds.Seeds.Factories
 
 class StoreCreditIntegrationTest extends IntegrationTestBase {
-  import concurrent.ExecutionContext.Implicits.global
 
   "StoreCreditTest" - {
     "sets availableBalance and currentBalance equal to originalBalance upon insert" in new Fixture {
@@ -42,20 +41,17 @@ class StoreCreditIntegrationTest extends IntegrationTestBase {
     }
   }
 
-  trait Fixture {
-    val (customer, origin, storeCredit, payment) = (for {
-      admin    ← * <~ StoreAdmins.create(Factories.storeAdmin)
-      customer ← * <~ Customers.create(Factories.customer)
-      cart     ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
-      reason   ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
+  trait Fixture extends EmptyCustomerCartFixture with StoreAdminFixture {
+    val (origin, storeCredit, payment) = (for {
+      reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
       origin ← * <~ StoreCreditManuals.create(
-                  StoreCreditManual(adminId = admin.id, reasonId = reason.id))
+                  StoreCreditManual(adminId = storeAdmin.id, reasonId = reason.id))
       sc ← * <~ StoreCredits.create(
               Factories.storeCredit.copy(customerId = customer.id, originId = origin.id))
       sCredit ← * <~ StoreCredits.findOneById(sc.id)
       payment ← * <~ OrderPayments.create(
                    Factories.storeCreditPayment
                      .copy(cordRef = cart.refNum, paymentMethodId = sc.id, amount = Some(25)))
-    } yield (customer, origin, sCredit.value, payment)).gimme
+    } yield (origin, sCredit.value, payment)).gimme
   }
 }

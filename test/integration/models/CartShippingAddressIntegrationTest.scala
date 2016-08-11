@@ -1,10 +1,8 @@
 package models
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
+import util.Fixtures.EmptyCustomerCartFixture
 import failures.GeneralFailure
-import models.customer.Customers
-import models.cord.{OrderShippingAddresses, Carts}
+import models.cord.OrderShippingAddresses
 import util.IntegrationTestBase
 import utils.db._
 import utils.jdbc._
@@ -22,12 +20,8 @@ class CartShippingAddressIntegrationTest extends IntegrationTestBase {
     }
   }
 
-  trait Fixture {
-    val (order, shippingAddress) = (for {
-      customer ← * <~ Customers.create(Factories.customer)
-      order    ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
-      shippingAddress ← * <~ OrderShippingAddresses.create(
-                           Factories.shippingAddress.copy(cordRef = order.refNum))
-    } yield (order, shippingAddress)).gimme
+  trait Fixture extends EmptyCustomerCartFixture {
+    val shippingAddress =
+      OrderShippingAddresses.create(Factories.shippingAddress.copy(cordRef = cart.refNum)).gimme
   }
 }

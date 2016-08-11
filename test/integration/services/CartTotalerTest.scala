@@ -1,10 +1,9 @@
 package services
 
-import models.customer.Customers
-import models.location.Addresses
-import models.objects._
+import util.Fixtures.{AddressFixture, EmptyCustomerCartFixture}
 import models.cord.lineitems._
-import models.cord.{Carts, OrderShippingMethod, OrderShippingMethods}
+import models.cord.{OrderShippingMethod, OrderShippingMethods}
+import models.objects._
 import models.payment.giftcard.{GiftCard, GiftCardOrder, GiftCardOrders, GiftCards}
 import models.product.{Mvp, SimpleContext}
 import models.shipping.ShippingMethods
@@ -13,7 +12,6 @@ import util.{IntegrationTestBase, TestObjectContext}
 import utils.Money.Currency
 import utils.db._
 import utils.seeds.Seeds.Factories
-import concurrent.ExecutionContext.Implicits.global
 
 class CartTotalerTest extends IntegrationTestBase with TestObjectContext {
 
@@ -71,13 +69,7 @@ class CartTotalerTest extends IntegrationTestBase with TestObjectContext {
     }
   }
 
-  trait Fixture {
-    val (customer, address, cart) = (for {
-      customer ← * <~ Customers.create(Factories.customer)
-      address  ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
-      cart     ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
-    } yield (customer, address, cart)).gimme
-  }
+  trait Fixture extends EmptyCustomerCartFixture with AddressFixture
 
   trait SkuLineItemsFixture extends Fixture {
     val (productContext, product, productShadow, sku, skuShadow, skuPrice) = (for {

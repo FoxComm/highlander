@@ -4,7 +4,10 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
+import util.{Fixtures, IntegrationTestBase}
+import Fixtures._
 import cats.implicits._
+import failures.CustomerFailures.CustomerMustHaveCredentials
 import failures.NotFoundFailure404
 import failures.ShippingMethodFailures.ShippingMethodNotFoundByName
 import failures.CustomerFailures._
@@ -161,21 +164,17 @@ class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with 
     }
   }
 
-  trait Fixture {
-    val (customer, address, shipMethod, product, sku, reason) = (for {
-      productCtx ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-      customer   ← * <~ Customers.create(Factories.customer)
-      address    ← * <~ Addresses.create(Factories.usAddress1.copy(customerId = customer.id))
+  trait Fixture extends AddressFixture with StoreAdminFixture {
+    val (shipMethod, product, sku, reason) = (for {
       _          ← * <~ Factories.shippingMethods.map(ShippingMethods.create(_))
       shipMethod ← * <~ ShippingMethods
-                    .filter(_.adminDisplayName === ShippingMethod.expressShippingNameForAdmin)
-                    .mustFindOneOr(
-                        ShippingMethodNotFoundByName(ShippingMethod.expressShippingNameForAdmin))
-      product ← * <~ Mvp.insertProduct(productCtx.id, Factories.products.head)
-      sku     ← * <~ Skus.mustFindById404(product.skuId)
-      admin   ← * <~ StoreAdmins.create(Factories.storeAdmin)
-      reason  ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
-    } yield (customer, address, shipMethod, product, sku, reason)).gimme
+        .filter(_.adminDisplayName === ShippingMethod.expressShippingNameForAdmin)
+        .mustFindOneOr(
+          ShippingMethodNotFoundByName(ShippingMethod.expressShippingNameForAdmin))
+      product    ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head)
+      sku        ← * <~ Skus.mustFindById404(product.skuId)
+      reason     ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
+    } yield (shipMethod, product, sku, reason)).gimme
   }
 
   trait BlacklistedFixture {
@@ -183,13 +182,13 @@ class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with 
       productCtx ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       admin      ← * <~ StoreAdmins.create(Factories.storeAdmin)
       customer ← * <~ Customers.create(
-                    Factories.customer.copy(isBlacklisted = true, blacklistedBy = Some(admin.id)))
+        Factories.customer.copy(isBlacklisted = true, blacklistedBy = Some(admin.id)))
       address ← * <~ Addresses.create(Factories.usAddress1.copy(customerId = customer.id))
       _       ← * <~ Factories.shippingMethods.map(ShippingMethods.create(_))
       shipMethod ← * <~ ShippingMethods
-                    .filter(_.adminDisplayName === ShippingMethod.expressShippingNameForAdmin)
-                    .mustFindOneOr(
-                        ShippingMethodNotFoundByName(ShippingMethod.expressShippingNameForAdmin))
+        .filter(_.adminDisplayName === ShippingMethod.expressShippingNameForAdmin)
+        .mustFindOneOr(
+          ShippingMethodNotFoundByName(ShippingMethod.expressShippingNameForAdmin))
       product ← * <~ Mvp.insertProduct(productCtx.id, Factories.products.head)
       sku     ← * <~ Skus.mustFindById404(product.skuId)
       reason  ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))

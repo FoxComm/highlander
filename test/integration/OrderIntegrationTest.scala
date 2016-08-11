@@ -6,10 +6,10 @@ import failures.{NotFoundFailure404, StateTransitionNotAllowed}
 import models.cord.Order._
 import models.cord._
 import models.customer.Customers
-import models.location.Addresses
 import models.shipping.ShippingMethods
 import payloads.OrderPayloads.UpdateOrderPayload
 import responses.cord.OrderResponse
+import util.Fixtures.{AddressFixture, EmptyCustomerCartFixture}
 import util._
 import utils.db._
 import utils.seeds.Seeds.Factories
@@ -77,13 +77,10 @@ class OrderIntegrationTest
     }
   }
 
-  trait Fixture {
+  trait Fixture extends EmptyCustomerCartFixture with AddressFixture {
     val order = (for {
-      customer   ← * <~ Customers.create(Factories.customer)
-      cart       ← * <~ Carts.create(Factories.cart)
       shipMethod ← * <~ ShippingMethods.create(Factories.shippingMethods.head)
       _          ← * <~ OrderShippingMethods.create(OrderShippingMethod.build(cart.refNum, shipMethod))
-      address    ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
       _          ← * <~ OrderShippingAddresses.copyFromAddress(address = address, cordRef = cart.refNum)
       order      ← * <~ Orders.create(cart.toOrder())
     } yield order).gimme

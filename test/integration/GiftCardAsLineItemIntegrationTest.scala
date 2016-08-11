@@ -1,5 +1,7 @@
 import Extensions._
 import akka.http.scaladsl.model.StatusCodes
+import util.{Fixtures, IntegrationTestBase}
+import Fixtures.EmptyCustomerCartFixture
 import failures.CartFailures.OrderAlreadyPlaced
 import failures.GiftCardFailures.GiftCardMustBeCart
 import failures.{GeneralFailure, NotFoundFailure404}
@@ -166,10 +168,8 @@ class GiftCardAsLineItemIntegrationTest
     }
   }
 
-  trait Fixture {
-    val (customer, cart, giftCard) = (for {
-      customer ← * <~ Customers.create(Factories.customer)
-      cart     ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
+  trait Fixture extends EmptyCustomerCartFixture {
+    val (giftCard) = (for {
       gcOrigin ← * <~ GiftCardOrders.create(GiftCardOrder(cordRef = cart.refNum))
       giftCard ← * <~ GiftCards.create(
                     GiftCard.buildLineItem(balance = 150,
@@ -178,6 +178,6 @@ class GiftCardAsLineItemIntegrationTest
       lineItemGc ← * <~ OrderLineItemGiftCards.create(
                       OrderLineItemGiftCard(giftCardId = giftCard.id, cordRef = cart.refNum))
       lineItem ← * <~ OrderLineItems.create(OrderLineItem.buildGiftCard(cart, lineItemGc))
-    } yield (customer, cart, giftCard)).gimme
+    } yield (giftCard)).gimme
   }
 }

@@ -1,10 +1,8 @@
 package services
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
+import util.Fixtures.{StoreAdminFixture, AddressFixture, EmptyCustomerCartFixture}
 import models.StoreAdmins
 import models.cord._
-import models.customer.Customers
 import models.location.Addresses
 import models.traits.Originator
 import payloads.AddressPayloads._
@@ -21,8 +19,9 @@ class CartShippingAddressUpdaterTest
   "OrderUpdater" - {
 
     "Adds a shipping address by referencing an order that already exists" in new Fixture {
-      val fullCart =
-        createShippingAddressFromAddressId(Originator(admin), address.id, Some(cart.refNum)).gimme
+      val fullCart = createShippingAddressFromAddressId(Originator(storeAdmin),
+                                                        address.id,
+                                                        Some(cart.refNum)).gimme
       fullCart.result.shippingAddress must not be 'empty
       val cartAddress = fullCart.result.shippingAddress.value
 
@@ -40,8 +39,9 @@ class CartShippingAddressUpdaterTest
                                             city = "Seattle",
                                             zip = "55555")
 
-      val fullCart =
-        createShippingAddressFromPayload(Originator(admin), newAddress, Some(cart.refNum)).gimme
+      val fullCart = createShippingAddressFromPayload(Originator(storeAdmin),
+                                                      newAddress,
+                                                      Some(cart.refNum)).gimme
       fullCart.result.shippingAddress must not be 'empty
       val cartAddress = fullCart.result.shippingAddress.value
 
@@ -53,7 +53,7 @@ class CartShippingAddressUpdaterTest
     }
 
     "Updates a shipping address by referencing an order that already exists" in new UpdateAddressFixture {
-      val fullCart = createShippingAddressFromAddressId(Originator(admin),
+      val fullCart = createShippingAddressFromAddressId(Originator(storeAdmin),
                                                         newAddress.id,
                                                         Some(cart.refNum)).gimme
       fullCart.result.shippingAddress must not be 'empty
@@ -69,7 +69,7 @@ class CartShippingAddressUpdaterTest
     "Updates a shipping address by sending fields in the payload" in new UpdateAddressFixture {
       val payload = UpdateAddressPayload(name = Some("Don Keyhote"))
       val fullCart =
-        updateShippingAddressFromPayload(Originator(admin), payload, Some(cart.refNum)).gimme
+        updateShippingAddressFromPayload(Originator(storeAdmin), payload, Some(cart.refNum)).gimme
       fullCart.result.shippingAddress must not be 'empty
       val cartAddress = fullCart.result.shippingAddress.value
 
@@ -77,14 +77,7 @@ class CartShippingAddressUpdaterTest
     }
   }
 
-  trait Fixture {
-    val (admin, customer, address, cart) = (for {
-      admin    ← * <~ StoreAdmins.create(Factories.storeAdmin)
-      customer ← * <~ Customers.create(Factories.customer)
-      address  ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
-      cart     ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
-    } yield (admin, customer, address, cart)).gimme
-  }
+  trait Fixture extends EmptyCustomerCartFixture with AddressFixture with StoreAdminFixture
 
   trait UpdateAddressFixture extends Fixture {
     val (orderShippingAddress, newAddress) = (for {

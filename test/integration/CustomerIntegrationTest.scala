@@ -6,6 +6,8 @@ import akka.http.scaladsl.model.StatusCodes
 import cats.implicits._
 import com.stripe.exception.CardException
 import com.stripe.model.{DeletedExternalAccount, ExternalAccount}
+import util._
+import Fixtures._
 import failures.CreditCardFailures.CannotUseInactiveCreditCard
 import failures.CustomerFailures._
 import failures.StripeFailures.StripeFailure
@@ -249,7 +251,7 @@ class CustomerIntegrationTest
   }
 
   "GET /v1/customers/:customerId/cart" - {
-    "returns customer cart" in new CartFixture {
+    "returns customer cart" in new EmptyCustomerCartFixture {
       val response = GET(s"v1/customers/${customer.id}/cart")
       response.status must === (StatusCodes.OK)
 
@@ -268,7 +270,7 @@ class CustomerIntegrationTest
       Carts.findByCustomer(customer).gimme must have size 1
     }
 
-    "returns 404 if customer not found" in new CartFixture {
+    "returns 404 if customer not found" in new EmptyCustomerCartFixture {
       val response = GET(s"v1/customers/999/cart")
       response.status must === (StatusCodes.NotFound)
       response.error must === (NotFoundFailure404(Customer, 999).description)
@@ -678,32 +680,22 @@ class CustomerIntegrationTest
     }
   }
 
-  trait Fixture {
-    val (customer, address, region, admin) = (for {
-      customer ← * <~ Customers.create(Factories.customer)
-      address  ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
-      region   ← * <~ Regions.findOneById(address.regionId)
-      admin    ← * <~ StoreAdmins.create(authedStoreAdmin)
-    } yield (customer, address, region, admin)).gimme
+  trait Fixture extends AddressFixture {
+    val (region, admin) = (for {
+      region ← * <~ Regions.findOneById(address.regionId)
+      admin  ← * <~ StoreAdmins.create(authedStoreAdmin)
+    } yield (region, admin)).gimme
   }
 
   trait CreditCardFixture extends Fixture {
     val creditCard = CreditCards.create(Factories.creditCard.copy(customerId = customer.id)).gimme
   }
 
-  trait CartFixture extends Fixture {
-    val cart = Carts
-      .create(Factories.cart.copy(customerId = customer.id, referenceNumber = "ABC-123"))
-      .gimme
-  }
-
-  trait FixtureForRanking extends CreditCardFixture {
+  trait FixtureForRanking extends EmptyCustomerCartFixture with CreditCardFixture {
     val (order, orderPayment, customer2) = (for {
       customer2 ← * <~ Customers.create(
                      Factories.customer.copy(email = "second@example.org".some,
                                              name = "second".some))
-      cart ← * <~ Carts.create(
-                Factories.cart.copy(customerId = customer.id, referenceNumber = "ABC-123"))
       cart2 ← * <~ Carts.create(
                  Factories.cart.copy(customerId = customer2.id, referenceNumber = "ABC-456"))
       order  ← * <~ Orders.create(cart.toOrder().copy(state = Order.Shipped))

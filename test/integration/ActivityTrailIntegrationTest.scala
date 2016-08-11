@@ -3,10 +3,11 @@ import scala.language.implicitConversions
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
+import util._
+import util.Fixtures._
 import cats.implicits._
 import models.StoreAdmins
 import models.activity._
-import models.customer.Customers
 import org.json4s.{DefaultFormats, Extraction}
 import org.scalacheck.Prop.forAll
 import org.scalacheck.{Gen, Test ⇒ QTest}
@@ -18,7 +19,6 @@ import services.activity.CustomerTailored.CustomerUpdated
 import slick.driver.PostgresDriver.api._
 import util._
 import utils.db._
-import utils.seeds.Seeds.Factories
 
 case class DumbActivity(randomWord: String, randomNumber: Int)
 
@@ -183,10 +183,7 @@ class ActivityTrailIntegrationTest
     appendResponse.as[ActivityConnectionResponse.Root]
   }
 
-  trait Fixture {
-    val (customer, admin) = (for {
-      customer ← * <~ Customers.create(Factories.customer)
-      admin    ← * <~ StoreAdmins.create(authedStoreAdmin)
-    } yield (customer, admin)).gimme
+  trait Fixture extends CustomerFixture {
+    val admin = StoreAdmins.create(authedStoreAdmin).gimme
   }
 }

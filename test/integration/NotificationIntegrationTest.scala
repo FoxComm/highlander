@@ -19,6 +19,7 @@ import responses.{ActivityResponse, LastSeenActivityResponse}
 import services.NotificationManager
 import services.NotificationManager.unsubscribe
 import slick.driver.PostgresDriver.api._
+import util.Fixtures.{CustomerFixture, StoreAdminFixture}
 import util.IntegrationTestBase
 import utils.db._
 import utils.seeds.Seeds.Factories
@@ -100,8 +101,7 @@ class NotificationIntegrationTest extends IntegrationTestBase with HttpSupport w
       sseProbe(s"v1/notifications").requestNext(activityJson(2))
     }
 
-    "404 if activity not found" in {
-      val adminId  = StoreAdmins.create(Factories.storeAdmin).gimme.id
+    "404 if activity not found" in new StoreAdminFixture {
       val response = POST(s"v1/notifications/last-seen/666")
       response.status must === (StatusCodes.NotFound)
       response.error must === (NotFoundFailure404(Activity, 666).description)
@@ -218,13 +218,9 @@ class NotificationIntegrationTest extends IntegrationTestBase with HttpSupport w
     val customerDimension = "customer"
 
     // Basic flow test for 1 admin + 1 subscription + 1 object updates
-    "...must flow!" in {
+    "...must flow!" in new CustomerFixture with StoreAdminFixture {
       // Setup data
-      (for {
-        _ ← * <~ Customers.create(Factories.customer)
-        _ ← * <~ StoreAdmins.create(Factories.storeAdmin)
-        _ ← * <~ createDimension
-      } yield {}).runTxn().futureValue
+      createDimension.gimme
 
       // Let's go
       createActivityAndConnections("X")
@@ -307,19 +303,17 @@ class NotificationIntegrationTest extends IntegrationTestBase with HttpSupport w
   def unsubscribeFromNotifications() =
     NotificationManager.unsubscribe(Seq(1), Seq("1"), Watching, Dimension.order).gimme
 
-  trait Fixture {
+  trait Fixture extends StoreAdminFixture {
     val (adminId, activityId) = (for {
       _        ← * <~ createDimension
-      admin    ← * <~ StoreAdmins.create(Factories.storeAdmin)
       activity ← * <~ createActivity
-    } yield (admin.id, activity.id)).gimme
+    } yield (storeAdmin.id, activity.id)).gimme
   }
 
-  trait Fixture2 {
+  trait Fixture2 extends StoreAdminFixture {
     val adminId = (for {
-      _     ← * <~ createDimension
-      admin ← * <~ StoreAdmins.create(Factories.storeAdmin)
-      _     ← * <~ Activities.createAll(List.fill(2)(newActivity))
-    } yield admin.id).gimme
+      _ ← * <~ createDimension
+      _ ← * <~ Activities.createAll(List.fill(2)(newActivity))
+    } yield storeAdmin.id).gimme
   }
 }

@@ -1,8 +1,7 @@
 package models
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
 import util.CustomMatchers._
+import util.Fixtures.StoreAdminFixture
 import util.IntegrationTestBase
 import utils.seeds.Seeds.Factories
 
@@ -41,8 +40,7 @@ class NoteIntegrationTest extends IntegrationTestBase {
     }
   }
 
-  trait Fixture {
-    val admin = StoreAdmins.create(Factories.storeAdmin).gimme
-    val note  = Factories.orderNotes.head.copy(storeAdminId = admin.id)
+  trait Fixture extends StoreAdminFixture {
+    val note = Factories.orderNotes.head.copy(storeAdminId = storeAdmin.id)
   }
 }

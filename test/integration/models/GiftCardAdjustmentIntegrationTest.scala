@@ -1,9 +1,7 @@
 package models
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
-import models.customer.Customers
-import models.cord.{OrderPayments, Carts}
+import util.Fixtures.{StoreAdminFixture, EmptyCustomerCartFixture}
+import models.cord.OrderPayments
 import models.payment.giftcard._
 import util.IntegrationTestBase
 import utils.db._
@@ -17,7 +15,7 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
     "neither credit nor debit can be negative" in new Fixture {
       val inserts = for {
         origin ← * <~ GiftCardManuals.create(
-                    GiftCardManual(adminId = admin.id, reasonId = reason.id))
+                    GiftCardManual(adminId = storeAdmin.id, reasonId = reason.id))
         gc ← * <~ GiftCards.create(Factories.giftCard.copy(originId = origin.id))
         payment ← * <~ OrderPayments.create(
                      Factories.giftCardPayment.copy(cordRef = cart.refNum,
@@ -36,7 +34,7 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
     "only one of credit or debit can be greater than zero" in new Fixture {
       val inserts = for {
         origin ← * <~ GiftCardManuals.create(
-                    GiftCardManual(adminId = admin.id, reasonId = reason.id))
+                    GiftCardManual(adminId = storeAdmin.id, reasonId = reason.id))
         gc ← * <~ GiftCards.create(Factories.giftCard.copy(originId = origin.id))
         payment ← * <~ OrderPayments.create(Factories.giftCardPayment
                        .copy(cordRef = cart.refNum, paymentMethodId = gc.id, amount = Some(50)))
@@ -53,7 +51,7 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
     "one of credit or debit must be greater than zero" in new Fixture {
       val (_, adjustment) = (for {
         origin ← * <~ GiftCardManuals.create(
-                    GiftCardManual(adminId = admin.id, reasonId = reason.id))
+                    GiftCardManual(adminId = storeAdmin.id, reasonId = reason.id))
         gc ← * <~ GiftCards.create(
                 Factories.giftCard.copy(originId = origin.id, originalBalance = 50))
         payment ← * <~ OrderPayments.create(Factories.giftCardPayment
@@ -70,7 +68,7 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
     "updates the GiftCard's currentBalance and availableBalance before insert" in new Fixture {
       val gc = (for {
         origin ← * <~ GiftCardManuals.create(
-                    GiftCardManual(adminId = admin.id, reasonId = reason.id))
+                    GiftCardManual(adminId = storeAdmin.id, reasonId = reason.id))
         gc ← * <~ GiftCards.create(
                 Factories.giftCard.copy(originId = origin.id, originalBalance = 500))
         payment ← * <~ OrderPayments.create(
@@ -119,7 +117,7 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
     "a Postgres trigger updates the adjustment's availableBalance before insert" in new Fixture {
       val (adj, gc) = (for {
         origin ← * <~ GiftCardManuals.create(
-                    GiftCardManual(adminId = admin.id, reasonId = reason.id))
+                    GiftCardManual(adminId = storeAdmin.id, reasonId = reason.id))
         gc ← * <~ GiftCards.create(
                 Factories.giftCard.copy(originId = origin.id, originalBalance = 500))
         payment ← * <~ OrderPayments.create(
@@ -142,7 +140,7 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
     "cancels an adjustment and removes its effect on current/available balances" in new Fixture {
       val (gc, payment) = (for {
         origin ← * <~ GiftCardManuals.create(
-                    GiftCardManual(adminId = admin.id, reasonId = reason.id))
+                    GiftCardManual(adminId = storeAdmin.id, reasonId = reason.id))
         gc ← * <~ GiftCards.create(
                 Factories.giftCard.copy(originId = origin.id, originalBalance = 500))
         payment ← * <~ OrderPayments.create(
@@ -171,13 +169,10 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
     }
   }
 
-  trait Fixture {
-    val (admin, reason, cart) = (for {
-      customer ← * <~ Customers.create(Factories.customer)
-      admin    ← * <~ StoreAdmins.create(Factories.storeAdmin)
-      reason   ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
-      cart     ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
-      reason   ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
-    } yield (admin, reason, cart)).gimme
+  trait Fixture extends EmptyCustomerCartFixture with StoreAdminFixture {
+    val (reason) = (for {
+      reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
+      reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
+    } yield (reason)).gimme
   }
 }

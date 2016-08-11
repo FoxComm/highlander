@@ -19,6 +19,7 @@ import payloads.ReturnPayloads._
 import responses.{AllReturns, ReturnLockResponse, ReturnResponse}
 import services.returns.{ReturnLineItemUpdater, ReturnLockUpdater}
 import slick.driver.PostgresDriver.api._
+import util.Fixtures.{StoreAdminFixture, EmptyCustomerCartFixture}
 import util.IntegrationTestBase
 import utils.db._
 import utils.seeds.Seeds.Factories
@@ -476,16 +477,13 @@ class ReturnIntegrationTest extends IntegrationTestBase with HttpSupport with Au
     }
   }
 
-  trait Fixture {
-    val (storeAdmin, customer, order, rma, reason) = (for {
-      storeAdmin ← * <~ StoreAdmins.create(Factories.storeAdmin)
-      customer   ← * <~ Customers.create(Factories.customer)
-      cart       ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
-      order      ← * <~ Orders.create(cart.toOrder())
+  trait Fixture extends EmptyCustomerCartFixture with StoreAdminFixture {
+    val (order, rma, reason) = (for {
+      order ← * <~ Orders.create(cart.toOrder())
       rma ← * <~ Returns.create(
                Factories.rma.copy(orderRef = order.refNum, customerId = customer.id))
       reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
-    } yield (storeAdmin, customer, order, rma, reason)).gimme
+    } yield (order, rma, reason)).gimme
   }
 
   trait LineItemFixture extends Fixture {

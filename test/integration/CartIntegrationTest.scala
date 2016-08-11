@@ -1,18 +1,17 @@
-import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
+import util.{Fixtures, IntegrationTestBase}
+import Fixtures.EmptyCustomerCartFixture
 import failures.CartFailures._
 import failures.LockFailures._
 import failures.NotFoundFailure404
 import models.StoreAdmins
 import models.cord._
 import models.cord.lineitems._
-import models.customer.Customers
 import models.location.{Address, Addresses, Regions}
-import models.objects._
 import models.payment.creditcard._
-import models.product.{Mvp, SimpleContext}
+import models.product.Mvp
 import models.rules.QueryStatement
 import models.shipping._
 import org.json4s.jackson.JsonMethods._
@@ -408,17 +407,11 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
     }
   }
 
-  trait Fixture {
-    val (cart, storeAdmin, customer) = (for {
-      customer   ← * <~ Customers.create(Factories.customer)
-      cart       ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
-      storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
-    } yield (cart, storeAdmin, customer)).gimme
+  trait Fixture extends EmptyCustomerCartFixture {
+    val storeAdmin = StoreAdmins.create(authedStoreAdmin).gimme
   }
 
-  trait AddressFixture extends Fixture {
-    val address = Addresses.create(Factories.address.copy(customerId = customer.id)).gimme
-  }
+  trait AddressFixture extends Fixture with Fixtures.AddressFixture
 
   trait ShippingAddressFixture extends AddressFixture {
     val (orderShippingAddress, newAddress) = (for {
@@ -461,9 +454,7 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
       .copy(adminDisplayName = "High", conditions = Some(highConditions))
 
     val (lowShippingMethod, inactiveShippingMethod, highShippingMethod) = (for {
-      productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-      product ← * <~ Mvp.insertProduct(productContext.id,
-                                       Factories.products.head.copy(price = 100))
+      product     ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head.copy(price = 100))
       lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(product.skuId)
       lineItem ← * <~ OrderLineItems.create(
                     OrderLineItem(cordRef = cart.refNum,

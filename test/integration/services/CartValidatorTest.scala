@@ -2,11 +2,11 @@ package services
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
+import util.Fixtures.{StoreAdminFixture, EmptyCustomerCartFixture}
 import cats.implicits._
 import failures.CartFailures._
 import models.cord._
 import models.cord.lineitems._
-import models.customer.Customers
 import models.inventory.Skus
 import models.objects._
 import models.payment.creditcard.CreditCards
@@ -52,15 +52,15 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext {
         result.warnings.value.toList must contain(InsufficientFunds(cart.refNum))
       }
 
-      "if the cart has no credit card and insufficient GC/SC available balances" in new LineItemsFixture {
+      "if the cart has no credit card and insufficient GC/SC available balances" in new LineItemsFixture
+      with StoreAdminFixture {
         val skuPrice       = Mvp.priceAsInt(skuForm, skuShadow)
         val notEnoughFunds = skuPrice - 1
 
         (for {
-          admin  ← * <~ StoreAdmins.create(Factories.storeAdmin)
-          reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
+          reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
           origin ← * <~ GiftCardManuals.create(
-                      GiftCardManual(adminId = admin.id, reasonId = reason.id))
+                      GiftCardManual(adminId = storeAdmin.id, reasonId = reason.id))
           giftCard ← * <~ GiftCards.create(
                         Factories.giftCard.copy(originId = origin.id,
                                                 state = GiftCard.Active,
@@ -142,17 +142,11 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext {
     }
   }
 
-  trait Fixture {
-    val (customer, cart) = (for {
-      customer ← * <~ Customers.create(Factories.customer)
-      cart     ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
-    } yield (customer, cart)).gimme
-  }
+  trait Fixture extends EmptyCustomerCartFixture
 
   trait LineItemsFixture extends Fixture {
     val (product, productForm, productShadow, sku, skuForm, skuShadow, items) = (for {
-      context       ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-      productData   ← * <~ Mvp.insertProduct(context.id, Factories.products.head)
+      productData   ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head)
       product       ← * <~ Products.mustFindById404(productData.productId)
       productForm   ← * <~ ObjectForms.mustFindById404(product.formId)
       productShadow ← * <~ ObjectShadows.mustFindById404(product.shadowId)
@@ -168,8 +162,7 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext {
 
   trait LineItemsFixture0 extends Fixture {
     val (product, productForm, productShadow, sku, skuForm, skuShadow, items) = (for {
-      context       ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-      productData   ← * <~ Mvp.insertProduct(context.id, Factories.products.head.copy(price = 0))
+      productData   ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head.copy(price = 0))
       product       ← * <~ Products.mustFindById404(productData.productId)
       productForm   ← * <~ ObjectForms.mustFindById404(product.formId)
       productShadow ← * <~ ObjectShadows.mustFindById404(product.shadowId)
@@ -191,27 +184,25 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext {
     } yield cc).gimme
   }
 
-  trait GiftCardFixture extends LineItemsFixture {
-    val (admin, giftCard, orderPayment) = (for {
-      admin  ← * <~ StoreAdmins.create(Factories.storeAdmin)
-      reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
+  trait GiftCardFixture extends LineItemsFixture with StoreAdminFixture {
+    val (giftCard, orderPayment) = (for {
+      reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
       origin ← * <~ GiftCardManuals.create(
-                  GiftCardManual(adminId = admin.id, reasonId = reason.id))
+                  GiftCardManual(adminId = storeAdmin.id, reasonId = reason.id))
       giftCard ← * <~ GiftCards.create(
                     Factories.giftCard.copy(originId = origin.id, state = GiftCard.Active))
       payment ← * <~ OrderPayments.create(
                    OrderPayment
                      .build(giftCard)
                      .copy(cordRef = cart.refNum, amount = grandTotal.some))
-    } yield (admin, giftCard, payment)).gimme
+    } yield (giftCard, payment)).gimme
   }
 
-  trait StoreCreditFixture extends LineItemsFixture {
-    val (admin, storeCredit, orderPayment) = (for {
-      admin  ← * <~ StoreAdmins.create(Factories.storeAdmin)
-      reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
+  trait StoreCreditFixture extends LineItemsFixture with StoreAdminFixture {
+    val (storeCredit, orderPayment) = (for {
+      reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
       origin ← * <~ StoreCreditManuals.create(
-                  StoreCreditManual(adminId = admin.id, reasonId = reason.id))
+                  StoreCreditManual(adminId = storeAdmin.id, reasonId = reason.id))
       storeCredit ← * <~ StoreCredits.create(
                        Factories.storeCredit.copy(originId = origin.id,
                                                   state = StoreCredit.Active,
@@ -220,7 +211,7 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext {
                    OrderPayment
                      .build(storeCredit)
                      .copy(cordRef = cart.refNum, amount = grandTotal.some))
-    } yield (admin, storeCredit, payment)).gimme
+    } yield (storeCredit, payment)).gimme
   }
 
   def refresh(cart: Cart) = Carts.refresh(cart).gimme

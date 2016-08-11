@@ -4,6 +4,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
+import util._
+import Fixtures.CustomerFixture
 import failures.NotFoundFailure404
 import models._
 import models.customer.Customers
@@ -116,10 +118,9 @@ class ReturnNotesIntegrationTest
     }
   }
 
-  trait Fixture {
+  trait Fixture extends CustomerFixture {
     val (admin, rma) = (for {
-      admin    ← * <~ StoreAdmins.create(authedStoreAdmin)
-      customer ← * <~ Customers.create(Factories.customer)
+      admin ← * <~ StoreAdmins.create(authedStoreAdmin)
       order ← * <~ Orders.create(
                  Factories.order.copy(state = Order.RemorseHold,
                                       remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
