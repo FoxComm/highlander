@@ -5,7 +5,7 @@ import com.sksamuel.elastic4s.analyzers._
 import com.sksamuel.elastic4s.mappings.FieldType._
 
 package object mappings {
-  val dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+  val dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ||yyyy-MM-dd'T'HH:mm:ssZ"
 
   val autocompleteAnalyzer = CustomAnalyzerDefinition(
       "autocomplete",
