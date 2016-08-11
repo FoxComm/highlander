@@ -184,11 +184,15 @@ class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with 
       admin      ← * <~ StoreAdmins.create(Factories.storeAdmin)
       customer ← * <~ Customers.create(
                     Factories.customer.copy(isBlacklisted = true, blacklistedBy = Some(admin.id)))
-      address    ← * <~ Addresses.create(Factories.usAddress1.copy(customerId = customer.id))
-      shipMethod ← * <~ ShippingMethods.create(Factories.shippingMethods.head)
-      product    ← * <~ Mvp.insertProduct(productCtx.id, Factories.products.head)
-      sku        ← * <~ Skus.mustFindById404(product.skuId)
-      reason     ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
+      address ← * <~ Addresses.create(Factories.usAddress1.copy(customerId = customer.id))
+      _       ← * <~ Factories.shippingMethods.map(ShippingMethods.create(_))
+      shipMethod ← * <~ ShippingMethods
+                    .filter(_.adminDisplayName === ShippingMethod.expressShippingNameForAdmin)
+                    .mustFindOneOr(
+                        ShippingMethodNotFoundByName(ShippingMethod.expressShippingNameForAdmin))
+      product ← * <~ Mvp.insertProduct(productCtx.id, Factories.products.head)
+      sku     ← * <~ Skus.mustFindById404(product.skuId)
+      reason  ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
     } yield (customer, address, shipMethod, product, sku, reason)).gimme
   }
 }
