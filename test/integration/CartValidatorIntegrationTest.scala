@@ -19,8 +19,7 @@ import payloads.PaymentPayloads._
 import payloads.UpdateShippingMethod
 import responses.TheResponse
 import responses.cord.CartResponse
-import util.Fixtures.{AddressFixture, EmptyCustomerCartFixture, StoreAdminFixture}
-import util.{IntegrationTestBase, TestActivityContext}
+import util.{Fixtures, IntegrationTestBase, TestActivityContext}
 import utils.db._
 import utils.seeds.CouponSeeds
 import utils.seeds.Seeds.Factories
@@ -29,7 +28,8 @@ class CartValidatorIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
     with AppendedClues
-    with AutomaticAuth {
+    with AutomaticAuth
+    with Fixtures {
 
   "Cart validator must be applied to" - {
 

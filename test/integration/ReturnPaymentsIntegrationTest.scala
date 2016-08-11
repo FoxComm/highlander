@@ -2,7 +2,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import util.{Fixtures, IntegrationTestBase}
-import Fixtures.CustomerFixture
 import failures.NotFoundFailure404
 import models.StoreAdmins
 import models.customer.Customers
@@ -19,7 +18,8 @@ import utils.seeds.Seeds.Factories
 class ReturnPaymentsIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
-    with AutomaticAuth {
+    with AutomaticAuth
+    with Fixtures {
 
   import Extensions._
 

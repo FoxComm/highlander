@@ -1,6 +1,5 @@
 package services
 
-import util.Fixtures.{AddressFixture, EmptyCustomerCartFixture}
 import models.cord.lineitems._
 import models.cord.{OrderShippingMethod, OrderShippingMethods}
 import models.objects._
@@ -8,12 +7,12 @@ import models.payment.giftcard.{GiftCard, GiftCardOrder, GiftCardOrders, GiftCar
 import models.product.{Mvp, SimpleContext}
 import models.shipping.ShippingMethods
 import services.carts.CartTotaler
-import util.{IntegrationTestBase, TestObjectContext}
+import util.{Fixtures, IntegrationTestBase, TestObjectContext}
 import utils.Money.Currency
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class CartTotalerTest extends IntegrationTestBase with TestObjectContext {
+class CartTotalerTest extends IntegrationTestBase with TestObjectContext with Fixtures {
 
   "OrderTotalerTest" - {
     "subTotal" - {

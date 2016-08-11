@@ -1,14 +1,12 @@
 package models
 
-import util.Fixtures.{StoreAdminFixture, EmptyCustomerCartFixture}
 import failures.DatabaseFailure
-import models.cord._
 import models.returns._
 import util._
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class ReturnIntegrationTest extends IntegrationTestBase with TestObjectContext {
+class ReturnIntegrationTest extends IntegrationTestBase with TestObjectContext with Fixtures {
 
   "Returns" - {
     "generates a referenceNumber in Postgres after insert when blank" in new Fixture {
@@ -32,10 +30,8 @@ class ReturnIntegrationTest extends IntegrationTestBase with TestObjectContext {
     }
   }
 
-  trait Fixture extends EmptyCustomerCartFixture with StoreAdminFixture {
+  trait Fixture extends OrderFromCartFixture with StoreAdminFixture {
     override def buildCarts =
       Seq(Factories.cart.copy(referenceNumber = "ABC-123", customerId = customer.id))
-
-    val order = Orders.create(cart.toOrder()).gimme
   }
 }

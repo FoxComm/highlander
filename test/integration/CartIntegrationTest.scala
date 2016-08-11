@@ -1,8 +1,6 @@
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
-import util.{Fixtures, IntegrationTestBase}
-import Fixtures.EmptyCustomerCartFixture
 import failures.CartFailures._
 import failures.LockFailures._
 import failures.NotFoundFailure404
@@ -21,11 +19,15 @@ import payloads.UpdateShippingMethod
 import responses.cord.CartResponse
 import services.carts.CartTotaler
 import slick.driver.PostgresDriver.api._
-import util.IntegrationTestBase
+import util.{Fixtures, IntegrationTestBase}
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class CartIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
+class CartIntegrationTest
+    extends IntegrationTestBase
+    with HttpSupport
+    with AutomaticAuth
+    with Fixtures {
 
   "GET /v1/carts/:refNum" - {
     "payment state" - {
@@ -211,7 +213,7 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
 
     "copying a shipping address from a customer's book" - {
 
-      "succeeds if the address exists in their book" in new AddressFixture {
+      "succeeds if the address exists in their book" in new CartAndAddressFixture {
         val response = PATCH(s"v1/orders/${cart.refNum}/shipping-address/${address.id}")
         response.status must === (StatusCodes.OK)
         val shippingAddress = OrderShippingAddresses.findByOrderRef(cart.refNum).one.gimme.value
@@ -219,7 +221,7 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
         shippingAddress.cordRef must === (cart.refNum)
       }
 
-      "removes an existing shipping address before copying new address" in new AddressFixture {
+      "removes an existing shipping address before copying new address" in new CartAndAddressFixture {
         val newAddress =
           Addresses.create(address.copy(name = "New", isDefaultShipping = false)).gimme
 
@@ -234,7 +236,7 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
         shippingAddress.name must === ("New")
       }
 
-      "errors if the address does not exist" in new AddressFixture {
+      "errors if the address does not exist" in new CartAndAddressFixture {
         val response = PATCH(s"v1/orders/${cart.refNum}/shipping-address/99")
 
         response.status must === (StatusCodes.NotFound)
@@ -353,9 +355,9 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
     }
 
     "fails if the cart is not found" in new ShippingAddressFixture {
-      val response = DELETE(s"v1/orders/ABC-123/shipping-address")
+      val response = DELETE(s"v1/orders/ABC-1234/shipping-address")
       response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Cart, "ABC-123").description)
+      response.error must === (NotFoundFailure404(Cart, "ABC-1234").description)
 
       OrderShippingAddresses.length.result.gimme must === (1)
     }
@@ -411,9 +413,9 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
     val storeAdmin = StoreAdmins.create(authedStoreAdmin).gimme
   }
 
-  trait AddressFixture extends Fixture with Fixtures.AddressFixture
+  trait CartAndAddressFixture extends Fixture with AddressFixture
 
-  trait ShippingAddressFixture extends AddressFixture {
+  trait ShippingAddressFixture extends CartAndAddressFixture {
     val (orderShippingAddress, newAddress) = (for {
       orderShippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address,
                                                                          cordRef = cart.refNum)
@@ -427,7 +429,7 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
     } yield (orderShippingAddress, newAddress)).gimme
   }
 
-  trait ShippingMethodFixture extends AddressFixture {
+  trait ShippingMethodFixture extends CartAndAddressFixture {
     val lowConditions = parse(
         """
               | {

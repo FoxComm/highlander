@@ -5,7 +5,6 @@ import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
 import util.{Fixtures, IntegrationTestBase}
-import Fixtures._
 import cats.implicits._
 import failures.CustomerFailures.CustomerMustHaveCredentials
 import failures.NotFoundFailure404
@@ -33,7 +32,11 @@ import util.IntegrationTestBase
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
+class CheckoutIntegrationTest
+    extends IntegrationTestBase
+    with HttpSupport
+    with AutomaticAuth
+    with Fixtures {
 
   "POST v1/orders/:refNum/checkout" - {
 

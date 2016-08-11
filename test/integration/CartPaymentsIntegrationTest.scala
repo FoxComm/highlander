@@ -3,7 +3,6 @@ import java.time.ZonedDateTime
 import Extensions._
 import akka.http.scaladsl.model.StatusCodes
 import util._
-import Fixtures.EmptyCustomerCartFixture
 import cats.implicits._
 import com.stripe.model.DeletedExternalAccount
 import failures.CartFailures.OrderAlreadyPlaced
@@ -38,7 +37,8 @@ class CartPaymentsIntegrationTest
     with HttpSupport
     with AutomaticAuth
     with MockitoSugar
-    with TestActivityContext.AdminAC {
+    with TestActivityContext.AdminAC
+    with Fixtures {
 
   "gift cards" - {
     "POST /v1/orders/:ref/payment-methods/gift-cards" - {
@@ -101,8 +101,8 @@ class CartPaymentsIntegrationTest
         giftCardPayments(cart) mustBe 'empty
       }
 
-      "fails if the order has already been placed" in new GiftCardFixture {
-        Orders.create(cart.toOrder()).gimme
+      "fails if the order has already been placed" in new GiftCardFixture
+      with OrderFromCartFixture {
         val payload =
           GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance.some)
         val response =
@@ -312,8 +312,8 @@ class CartPaymentsIntegrationTest
         storeCreditPayments(cart) mustBe 'empty
       }
 
-      "fails if the order has already been placed" in new StoreCreditFixture {
-        Orders.create(cart.toOrder()).gimme
+      "fails if the order has already been placed" in new StoreCreditFixture
+      with OrderFromCartFixture {
         val payload  = StoreCreditPayment(amount = 50)
         val response = POST(s"v1/orders/${cart.refNum}/payment-methods/store-credit", payload)
 
@@ -403,8 +403,8 @@ class CartPaymentsIntegrationTest
         creditCardPayments(cart) mustBe 'empty
       }
 
-      "fails if the order has already been placed" in new CreditCardFixture {
-        Orders.create(cart.toOrder()).gimme
+      "fails if the order has already been placed" in new CreditCardFixture
+      with OrderFromCartFixture {
         val response = POST(s"v1/orders/${cart.referenceNumber}/payment-methods/credit-cards",
                             CreditCardPayment(creditCard.id))
 

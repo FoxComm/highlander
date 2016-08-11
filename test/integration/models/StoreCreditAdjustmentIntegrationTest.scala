@@ -1,18 +1,17 @@
 package models
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
-import models.customer.Customers
-import models.cord.{OrderPayments, Carts}
+import models.cord.OrderPayments
 import models.payment.storecredit._
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import org.scalatest.prop.Tables.Table
-import util.Fixtures.{StoreAdminFixture, EmptyCustomerCartFixture}
-import util.IntegrationTestBase
+import util.{TestObjectContext, Fixtures, IntegrationTestBase}
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
+class StoreCreditAdjustmentIntegrationTest
+    extends IntegrationTestBase
+    with Fixtures
+    with TestObjectContext {
 
   import api._
 

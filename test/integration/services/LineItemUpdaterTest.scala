@@ -1,13 +1,10 @@
 package services
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
 import models.activity.ActivityContext
 import models.cord.lineitems._
 import models.objects._
 import models.product.{Mvp, SimpleContext, SimpleProductData}
 import payloads.LineItemPayloads.{UpdateLineItemsPayload ⇒ Payload}
-import util.Fixtures.{EmptyCustomerCartFixture, StoreAdminFixture}
 import util._
 import utils.db._
 import utils.seeds.Seeds.Factories
@@ -15,7 +12,8 @@ import utils.seeds.Seeds.Factories
 class LineItemUpdaterTest
     extends IntegrationTestBase
     with TestObjectContext
-    with TestActivityContext.AdminAC {
+    with TestActivityContext.AdminAC
+    with Fixtures {
 
   implicit val activityContext = ActivityContext(userId = 1, userType = "b", transactionId = "c")
   implicit val elaticsearchApi = utils.ElasticsearchApi.default()

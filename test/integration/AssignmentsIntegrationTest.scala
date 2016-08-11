@@ -7,12 +7,15 @@ import models.{Assignment, Assignments, StoreAdmin, StoreAdmins}
 import payloads.AssignmentPayloads._
 import responses.cord.AllOrders
 import responses.{AssignmentResponse, BatchMetadata, BatchMetadataSource, TheResponse}
-import util.Fixtures.{StoreAdminFixture, EmptyCustomerCartFixture}
 import util.{Fixtures, IntegrationTestBase}
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class AssignmentsIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
+class AssignmentsIntegrationTest
+    extends IntegrationTestBase
+    with HttpSupport
+    with AutomaticAuth
+    with Fixtures {
 
   "POST /v1/orders/:refNum/assignees" - {
 
@@ -133,11 +136,8 @@ class AssignmentsIntegrationTest extends IntegrationTestBase with HttpSupport wi
     }
   }
 
-  trait Fixture extends Fixtures.EmptyCustomerCartFixture {
-    val (order, storeAdmin) = (for {
-      order      ← * <~ Orders.create(cart.toOrder())
-      storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
-    } yield (order, storeAdmin)).gimme
+  trait Fixture extends OrderFromCartFixture {
+    val storeAdmin = StoreAdmins.create(authedStoreAdmin).gimme
   }
 
   trait AssignmentFixture extends Fixture {
@@ -151,18 +151,20 @@ class AssignmentsIntegrationTest extends IntegrationTestBase with HttpSupport wi
     } yield (assignee, secondAdmin)).gimme
   }
 
-  trait BulkAssignmentFixture extends EmptyCustomerCartFixture with StoreAdminFixture {
-    override def buildCarts =
-      Seq("foo", "bar").map(refNum ⇒
-            Factories.cart.copy(customerId = customer.id, referenceNumber = refNum))
+  trait BulkAssignmentFixture extends CustomerFixture with StoreAdminFixture {
     val (order1, order2) = (for {
-      orders ← * <~ Orders.createAllReturningModels(carts.map(_.toOrder))
+      cart ← * <~ Carts.create(
+                Factories.cart.copy(customerId = customer.id, referenceNumber = "foo"))
+      order1 ← * <~ Orders.create(cart.toOrder())
+      cart ← * <~ Carts.create(
+                Factories.cart.copy(customerId = customer.id, referenceNumber = "bar"))
+      order2 ← * <~ Orders.create(cart.toOrder())
       assignee ← * <~ Assignments.create(
                     Assignment(referenceType = Assignment.Order,
-                               referenceId = orders.head.id,
+                               referenceId = order1.id,
                                storeAdminId = storeAdmin.id,
                                assignmentType = Assignment.Assignee))
-    } yield (orders(0), orders(1))).gimme
+    } yield (order1, order2)).gimme
 
     val orderRef1 = order1.referenceNumber
     val orderRef2 = order2.referenceNumber

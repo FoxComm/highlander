@@ -1,10 +1,7 @@
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.implicitConversions
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
-import util._
-import util.Fixtures._
 import cats.implicits._
 import models.StoreAdmins
 import models.activity._
@@ -38,7 +35,8 @@ class ActivityTrailIntegrationTest
     with HttpSupport
     with AutomaticAuth
     with MockitoSugar
-    with TestActivityContext.AdminAC {
+    with TestActivityContext.AdminAC
+    with Fixtures {
 
   val customerActivity = "customer_activity"
   val typeName         = "customer_updated"

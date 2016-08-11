@@ -5,24 +5,28 @@ import scala.concurrent.ExecutionContext
 import models.StoreAdmins
 import models.cord._
 import models.customer.{Customer, Customers}
-import models.location.Addresses
-import utils.aliases.{DB, EC}
+import models.location.{Addresses, Regions}
+import utils.aliases.{OC, DB, EC}
 import utils.seeds.Seeds.Factories
 
-object Fixtures extends GimmeSupport {
+trait Fixtures extends GimmeSupport {
+  implicit val ec: EC = ExecutionContext.global
+  implicit val db: DB
+  implicit val ctx: OC
 
-  trait ImplicitBase {
-    implicit val ec: EC = ExecutionContext.global
+  /*  trait ImplicitBase {
+    implicit val ec: EC =
     implicit val db: DB = DbTestSupport.database
-  }
+  }*/
 
   trait AddressFixture extends CustomerFixture {
     val address = Addresses
       .create(Factories.address.copy(customerId = customer.id, isDefaultShipping = true))
       .gimme
+    lazy val region = Regions.findOneById(address.regionId).gimme
   }
 
-  trait CustomerFixture extends ImplicitBase {
+  trait CustomerFixture {
     def createCustomer: Customer = Customers.create(Factories.customer).gimme
     val customer = createCustomer
   }
@@ -33,7 +37,7 @@ object Fixtures extends GimmeSupport {
     val cart  = carts.head
   }
 
-  trait StoreAdminFixture extends ImplicitBase {
+  trait StoreAdminFixture {
     val storeAdmin = StoreAdmins.create(Factories.storeAdmin).gimme
   }
 
@@ -46,15 +50,21 @@ object Fixtures extends GimmeSupport {
       _       ← * <~ Carts.update(cart, cart.copy(shippingAddressId = address.id.some))
     } yield address).gimme
   }
+   */
 
-  trait FullOrder extends EmptyCustomerCart with CartShippingAddresses {
+  /*trait FullOrderFixture extends EmptyCustomerCartFixture {
     implicit val apis: Apis
     implicit val ctx: OC
     implicit val ac: AC
 
     val order: Order = (for {
-      _     ← * <~ Checkout.fromCart(cart)
+      _     ← * <~ Checkout.fromCart(cart.referenceNumber)
       order ← * <~ Orders.mustFindByRefNum(cart.refNum)
     } yield order).gimme
   }*/
+
+  trait OrderFromCartFixture extends EmptyCustomerCartFixture {
+
+    val order = Orders.create(cart.toOrder).gimme
+  }
 }

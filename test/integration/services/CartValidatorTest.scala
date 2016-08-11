@@ -2,7 +2,6 @@ package services
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import util.Fixtures.{StoreAdminFixture, EmptyCustomerCartFixture}
 import cats.implicits._
 import failures.CartFailures._
 import models.cord._
@@ -15,11 +14,11 @@ import models.payment.storecredit._
 import models.product._
 import models.{Reasons, StoreAdmins}
 import services.carts.CartTotaler
-import util.{IntegrationTestBase, TestObjectContext}
+import util.{Fixtures, IntegrationTestBase, TestObjectContext}
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class CartValidatorTest extends IntegrationTestBase with TestObjectContext {
+class CartValidatorTest extends IntegrationTestBase with TestObjectContext with Fixtures {
 
   "CartValidator" - {
 

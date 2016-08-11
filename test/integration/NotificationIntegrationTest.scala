@@ -19,12 +19,15 @@ import responses.{ActivityResponse, LastSeenActivityResponse}
 import services.NotificationManager
 import services.NotificationManager.unsubscribe
 import slick.driver.PostgresDriver.api._
-import util.Fixtures.{CustomerFixture, StoreAdminFixture}
-import util.IntegrationTestBase
+import util.{Fixtures, IntegrationTestBase}
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class NotificationIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
+class NotificationIntegrationTest
+    extends IntegrationTestBase
+    with HttpSupport
+    with AutomaticAuth
+    with Fixtures {
 
   import SSE._
 

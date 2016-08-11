@@ -4,7 +4,6 @@ import akka.http.scaladsl.model.StatusCodes
 
 import cats.implicits._
 import util.{Fixtures, IntegrationTestBase, StripeSupport}
-import Fixtures._
 import failures.CreditCardFailures.InvalidCvc
 import failures.NotFoundFailure404
 import models.customer.{Customer, Customers}
@@ -18,7 +17,8 @@ import utils.seeds.Seeds.Factories
 class CreditCardManagerIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
-    with AutomaticAuth {
+    with AutomaticAuth
+    with Fixtures {
 
   import concurrent.ExecutionContext.Implicits.global
 

@@ -1,12 +1,11 @@
 package models
 
-import util.Fixtures.AddressFixture
 import models.payment.creditcard.CreditCards
-import util.IntegrationTestBase
+import util.{TestObjectContext, Fixtures, IntegrationTestBase}
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class CreditCardIntegrationTest extends IntegrationTestBase {
+class CreditCardIntegrationTest extends IntegrationTestBase with Fixtures with TestObjectContext {
 
   "CreditCard" - {
     "has only one default per customer" in new Fixture {

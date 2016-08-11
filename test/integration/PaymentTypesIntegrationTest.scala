@@ -5,12 +5,11 @@ import models.Reasons
 import models.payment.giftcard._
 import models.payment.storecredit._
 import responses.{GiftCardSubTypesResponse, StoreCreditSubTypesResponse}
-import util.Fixtures.{CustomerFixture, StoreAdminFixture}
-import util.IntegrationTestBase
+import util.{Fixtures, IntegrationTestBase}
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class PaymentTypesIntegrationTest extends IntegrationTestBase with HttpSupport {
+class PaymentTypesIntegrationTest extends IntegrationTestBase with HttpSupport with Fixtures {
 
   "GiftCard Types" - {
     "GET /v1/public/gift-cards/types" - {

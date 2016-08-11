@@ -10,12 +10,15 @@ import models.{StoreAdmin, StoreAdmins}
 import org.json4s.jackson.JsonMethods._
 import payloads.SharedSearchPayloads._
 import responses.StoreAdminResponse.{Root ⇒ AdminRoot, build ⇒ buildAdmin}
-import util.Fixtures.StoreAdminFixture
-import util.IntegrationTestBase
+import util.{Fixtures, IntegrationTestBase}
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
+class SharedSearchIntegrationTest
+    extends IntegrationTestBase
+    with HttpSupport
+    with AutomaticAuth
+    with Fixtures {
 
   val dummyJVal = parse("{}")
 
@@ -320,7 +323,9 @@ class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport w
     }
   }
 
-  trait Fixture extends StoreAdminFixture
+  trait Fixture {
+    val storeAdmin = StoreAdmins.create(authedStoreAdmin).gimme
+  }
 
   trait SharedSearchFixture extends Fixture {
     val customerScope = SharedSearch(title = "Active Customers",

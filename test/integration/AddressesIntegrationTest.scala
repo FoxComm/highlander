@@ -10,12 +10,16 @@ import models.customer.{Customer, Customers}
 import models.location.{Address, Addresses}
 import payloads.AddressPayloads.CreateAddressPayload
 import responses.AddressResponse
-import util.Fixtures._
+import util._
 import util.IntegrationTestBase
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class AddressesIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
+class AddressesIntegrationTest
+    extends IntegrationTestBase
+    with HttpSupport
+    with AutomaticAuth
+    with Fixtures {
 
   def validateDeleteResponse(response: HttpResponse) {
     response.status must === (StatusCodes.NoContent)

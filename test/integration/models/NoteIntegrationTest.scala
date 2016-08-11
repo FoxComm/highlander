@@ -1,11 +1,10 @@
 package models
 
 import util.CustomMatchers._
-import util.Fixtures.StoreAdminFixture
-import util.IntegrationTestBase
+import util.{TestObjectContext, Fixtures, IntegrationTestBase}
 import utils.seeds.Seeds.Factories
 
-class NoteIntegrationTest extends IntegrationTestBase {
+class NoteIntegrationTest extends IntegrationTestBase with Fixtures with TestObjectContext {
 
   "Note" - {
     "Postgres constraints" - {

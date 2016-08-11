@@ -21,7 +21,6 @@ import org.scalacheck.{Gen, Prop, Test ⇒ QTest}
 import org.scalatest.mock.MockitoSugar
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import slick.driver.PostgresDriver.api._
-import util.Fixtures.{AddressFixture, EmptyCustomerCartFixture, StoreAdminFixture}
 import util._
 import utils.Money.Currency.USD
 import utils.db._
@@ -32,7 +31,8 @@ class CheckoutTest
     with MockitoSugar
     with MockedApis
     with TestObjectContext
-    with TestActivityContext.AdminAC {
+    with TestActivityContext.AdminAC
+    with Fixtures {
 
   def cartValidator(resp: CartValidatorResponse = CartValidatorResponse()): CartValidation = {
     val m = mock[CartValidation]

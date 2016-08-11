@@ -4,7 +4,6 @@ import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
 import util._
-import Fixtures.CustomerFixture
 import failures.NotFoundFailure404
 import models.customer.Customer
 import models.{Notes, _}
@@ -19,7 +18,8 @@ class CustomerNotesIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
     with AutomaticAuth
-    with TestActivityContext.AdminAC {
+    with TestActivityContext.AdminAC
+    with Fixtures {
 
   "POST /v1/notes/customer/:customerId" - {
     "can be created by an admin for a customer" in new Fixture {

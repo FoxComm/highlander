@@ -1,7 +1,6 @@
 import Extensions._
 import akka.http.scaladsl.model.StatusCodes
 import util.{Fixtures, IntegrationTestBase}
-import Fixtures.EmptyCustomerCartFixture
 import failures.CartFailures.OrderAlreadyPlaced
 import failures.GiftCardFailures.GiftCardMustBeCart
 import failures.{GeneralFailure, NotFoundFailure404}
@@ -22,7 +21,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class GiftCardAsLineItemIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
-    with AutomaticAuth {
+    with AutomaticAuth
+    with Fixtures {
 
   "POST /v1/orders/:refNum/gift-cards" - {
     "successfully creates new GC as line item" in new Fixture {
@@ -47,8 +47,8 @@ class GiftCardAsLineItemIntegrationTest
       response.error must === (NotFoundFailure404(Cart, "ABC-666").description)
     }
 
-    "fails to create new GC as line item if order has already been placed" in new Fixture {
-      Orders.create(cart.toOrder()).gimme
+    "fails to create new GC as line item if order has already been placed" in new Fixture
+    with OrderFromCartFixture {
       val response =
         POST(s"v1/orders/${cart.refNum}/gift-cards", AddGiftCardLineItem(balance = 100))
 
@@ -90,8 +90,8 @@ class GiftCardAsLineItemIntegrationTest
       response.error must === (NotFoundFailure404(Cart, "ABC-666").description)
     }
 
-    "fails to update GC as line item for already placed order" in new Fixture {
-      Orders.create(cart.toOrder()).gimme
+    "fails to update GC as line item for already placed order" in new Fixture
+    with OrderFromCartFixture {
       val response = PATCH(s"v1/orders/${cart.refNum}/gift-cards/${giftCard.code}",
                            AddGiftCardLineItem(balance = 100))
 
@@ -144,8 +144,8 @@ class GiftCardAsLineItemIntegrationTest
       response.error must === (NotFoundFailure404(Cart, "ABC-666").description)
     }
 
-    "fails to delete GC as line item for already placed order" in new Fixture {
-      Orders.create(cart.toOrder()).gimme
+    "fails to delete GC as line item for already placed order" in new Fixture
+    with OrderFromCartFixture {
       val response = DELETE(s"v1/orders/${cart.refNum}/gift-cards/${giftCard.code}")
 
       response.status must === (StatusCodes.BadRequest)

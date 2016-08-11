@@ -5,7 +5,6 @@ import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
 import util._
-import Fixtures.CustomerFixture
 import failures.NotFoundFailure404
 import models._
 import models.customer.Customers
@@ -23,7 +22,8 @@ class ReturnNotesIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
     with AutomaticAuth
-    with TestActivityContext.AdminAC {
+    with TestActivityContext.AdminAC
+    with Fixtures {
 
   "Return Notes" - {
     pending

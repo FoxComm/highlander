@@ -1,14 +1,16 @@
 package models
 
-import util.Fixtures.EmptyCustomerCartFixture
 import failures.GeneralFailure
 import models.cord.OrderShippingAddresses
-import util.IntegrationTestBase
+import util.{TestObjectContext, Fixtures, IntegrationTestBase}
 import utils.db._
 import utils.jdbc._
 import utils.seeds.Seeds.Factories
 
-class CartShippingAddressIntegrationTest extends IntegrationTestBase {
+class CartShippingAddressIntegrationTest
+    extends IntegrationTestBase
+    with Fixtures
+    with TestObjectContext {
 
   "OrderShippingAddress" - {
     "has only one shipping address per order" in new Fixture {

@@ -1,7 +1,5 @@
 package services
 
-import util.Fixtures.{StoreAdminFixture, AddressFixture, EmptyCustomerCartFixture}
-import models.StoreAdmins
 import models.cord._
 import models.location.Addresses
 import models.traits.Originator
@@ -14,7 +12,8 @@ import utils.seeds.Seeds.Factories
 class CartShippingAddressUpdaterTest
     extends IntegrationTestBase
     with TestObjectContext
-    with TestActivityContext.AdminAC {
+    with TestActivityContext.AdminAC
+    with Fixtures {
 
   "OrderUpdater" - {
 

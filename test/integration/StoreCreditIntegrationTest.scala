@@ -3,7 +3,6 @@ import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
 import util.{Fixtures, IntegrationTestBase}
-import Fixtures.EmptyCustomerCartFixture
 import failures.StoreCreditFailures.StoreCreditConvertFailure
 import failures._
 import models.customer.{Customer, Customers}
@@ -21,7 +20,11 @@ import util.IntegrationTestBase
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class StoreCreditIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
+class StoreCreditIntegrationTest
+    extends IntegrationTestBase
+    with HttpSupport
+    with AutomaticAuth
+    with Fixtures {
 
   "StoreCredits" - {
     "POST /v1/customers/:id/payment-methods/store-credit" - {

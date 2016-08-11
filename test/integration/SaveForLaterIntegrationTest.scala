@@ -9,12 +9,15 @@ import models.product.{Mvp, SimpleContext}
 import models.{SaveForLater, SaveForLaters}
 import responses.SaveForLaterResponse
 import services.SaveForLaterManager.SavedForLater
-import util.Fixtures.CustomerFixture
-import util.IntegrationTestBase
+import util.{Fixtures, IntegrationTestBase}
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class SaveForLaterIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
+class SaveForLaterIntegrationTest
+    extends IntegrationTestBase
+    with HttpSupport
+    with AutomaticAuth
+    with Fixtures {
 
   "GET v1/save-for-later/:customerId" - {
     "shows all save for later items for customer" in new Fixture {

@@ -1,13 +1,15 @@
 package models
 
-import util.Fixtures.{StoreAdminFixture, EmptyCustomerCartFixture}
 import models.cord.OrderPayments
 import models.payment.giftcard._
-import util.IntegrationTestBase
+import util.{TestObjectContext, Fixtures, IntegrationTestBase}
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
+class GiftCardAdjustmentIntegrationTest
+    extends IntegrationTestBase
+    with Fixtures
+    with TestObjectContext {
 
   import api._
 

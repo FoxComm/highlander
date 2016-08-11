@@ -1,8 +1,6 @@
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
-import util._
-import Fixtures.EmptyCustomerCartFixture
 import failures.NotFoundFailure404
 import models._
 import models.cord._
@@ -17,7 +15,8 @@ class OrderNotesIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
     with AutomaticAuth
-    with TestActivityContext.AdminAC {
+    with TestActivityContext.AdminAC
+    with Fixtures {
 
   "POST /v1/notes/order/:refNum" - {
     "can be created by an admin for an order" in new Fixture {
@@ -96,10 +95,7 @@ class OrderNotesIntegrationTest
     }
   }
 
-  trait Fixture extends EmptyCustomerCartFixture {
-    val (order, storeAdmin) = (for {
-      order      ← * <~ Orders.create(cart.toOrder())
-      storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
-    } yield (order, storeAdmin)).gimme
+  trait Fixture extends OrderFromCartFixture {
+    val storeAdmin = StoreAdmins.create(authedStoreAdmin).gimme
   }
 }

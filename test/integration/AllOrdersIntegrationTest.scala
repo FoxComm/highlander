@@ -1,7 +1,5 @@
-import scala.concurrent.ExecutionContext.Implicits.global
-import akka.http.scaladsl.model.StatusCodes
-
 import Extensions._
+import akka.http.scaladsl.model.StatusCodes
 import failures.{NotFoundFailure404, StateTransitionNotAllowed}
 import models.cord.Order._
 import models.cord._
@@ -9,10 +7,11 @@ import models.customer.Customers
 import payloads.OrderPayloads.BulkUpdateOrdersPayload
 import responses.BatchResponse
 import responses.cord._
-import util.Fixtures.EmptyCustomerCartFixture
 import util.IntegrationTestBase
 import utils.db._
 import utils.seeds.Seeds.Factories
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class AllOrdersIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
 
@@ -54,14 +53,16 @@ class AllOrdersIntegrationTest extends IntegrationTestBase with HttpSupport with
     }
   }
 
-  trait StateUpdateFixture extends EmptyCustomerCartFixture {
-    override def buildCarts =
-      Seq("foo", "bar", "baz").map(refNum ⇒
-            Factories.cart.copy(customerId = customer.id, referenceNumber = refNum))
-
-    val states = Seq(FraudHold, Order.RemorseHold, ManualHold)
-    Orders
-      .createAll(carts.zip(states).map { case (cart, state) ⇒ cart.toOrder().copy(state = state) })
-      .gimme
+  trait StateUpdateFixture {
+    (for {
+      cust ← * <~ Customers.create(Factories.customer)
+      c = Factories.cart.copy(customerId = cust.id)
+      cart ← * <~ Carts.create(c.copy(referenceNumber = "foo"))
+      _    ← * <~ Orders.create(cart.toOrder().copy(state = FraudHold))
+      cart ← * <~ Carts.create(c.copy(referenceNumber = "bar"))
+      _    ← * <~ Orders.create(cart.toOrder())
+      cart ← * <~ Carts.create(c.copy(referenceNumber = "baz"))
+      _    ← * <~ Orders.create(cart.toOrder().copy(state = ManualHold))
+    } yield {}).gimme
   }
 }

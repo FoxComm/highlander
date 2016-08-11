@@ -1,14 +1,12 @@
 package services
 
-import models.cord._
 import models.returns._
 import payloads.ReturnPayloads.ReturnCreatePayload
 import services.returns.ReturnService
-import util.Fixtures.{EmptyCustomerCartFixture, StoreAdminFixture}
-import util.{IntegrationTestBase, TestObjectContext}
+import util.{Fixtures, IntegrationTestBase, TestObjectContext}
 import utils.db._
 
-class ReturnServiceTest extends IntegrationTestBase with TestObjectContext {
+class ReturnServiceTest extends IntegrationTestBase with TestObjectContext with Fixtures {
 
   val numberOfInserts = 20
 
@@ -29,7 +27,5 @@ class ReturnServiceTest extends IntegrationTestBase with TestObjectContext {
     }
   }
 
-  trait Fixture extends EmptyCustomerCartFixture with StoreAdminFixture {
-    val order = Orders.create(cart.toOrder()).gimme
-  }
+  trait Fixture extends OrderFromCartFixture with StoreAdminFixture
 }

@@ -1,13 +1,12 @@
 package models
 
-import util.Fixtures.{StoreAdminFixture, EmptyCustomerCartFixture}
 import models.cord.OrderPayments
 import models.payment.storecredit._
-import util.IntegrationTestBase
+import util.{TestObjectContext, Fixtures, IntegrationTestBase}
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class StoreCreditIntegrationTest extends IntegrationTestBase {
+class StoreCreditIntegrationTest extends IntegrationTestBase with Fixtures with TestObjectContext {
 
   "StoreCreditTest" - {
     "sets availableBalance and currentBalance equal to originalBalance upon insert" in new Fixture {

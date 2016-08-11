@@ -2,11 +2,10 @@ package models
 
 import models.cord._
 import slick.driver.PostgresDriver.api._
-import util.Fixtures.CustomerFixture
-import util.{IntegrationTestBase, TestObjectContext}
+import util.{Fixtures, IntegrationTestBase, TestObjectContext}
 import utils.seeds.Seeds.Factories
 
-class CordsIntegrationTest extends IntegrationTestBase with TestObjectContext {
+class CordsIntegrationTest extends IntegrationTestBase with TestObjectContext with Fixtures {
 
   "should not override cart's reference_number" in new CustomerFixture {
     Carts.create(Factories.cart.copy(referenceNumber = "foo")).gimme

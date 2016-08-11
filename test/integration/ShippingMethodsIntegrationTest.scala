@@ -1,7 +1,6 @@
 import Extensions._
 import akka.http.scaladsl.model.StatusCodes
 import util.{Fixtures, IntegrationTestBase}
-import Fixtures.EmptyCustomerCartFixture
 import models.cord.lineitems._
 import models.cord.{Carts, OrderShippingAddresses}
 import models.customer.Customers
@@ -22,7 +21,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class ShippingMethodsIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
-    with AutomaticAuth {
+    with AutomaticAuth
+    with Fixtures {
 
   "GET /v1/shipping-methods/:refNum" - {
 

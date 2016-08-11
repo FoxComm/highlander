@@ -3,12 +3,11 @@ package models
 import models.cord.OrderPayments
 import models.payment.PaymentMethod
 import models.payment.giftcard.{GiftCardAdjustments, GiftCardManual, GiftCardManuals, GiftCards}
-import util.Fixtures.{StoreAdminFixture, EmptyCustomerCartFixture}
-import util.IntegrationTestBase
+import util.{TestObjectContext, Fixtures, IntegrationTestBase}
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class GiftCardIntegrationTest extends IntegrationTestBase {
+class GiftCardIntegrationTest extends IntegrationTestBase with Fixtures with TestObjectContext {
 
   "GiftCardTest" - {
     "generates a unique alpha-numeric code of size 16 upon insert" in new Fixture {

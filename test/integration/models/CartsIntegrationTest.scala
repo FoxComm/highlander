@@ -1,12 +1,11 @@
 package models
 
 import models.cord.{Carts, Orders}
-import util.Fixtures.CustomerFixture
-import util.{IntegrationTestBase, TestObjectContext}
+import util.{Fixtures, IntegrationTestBase, TestObjectContext}
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class CartsIntegrationTest extends IntegrationTestBase with TestObjectContext {
+class CartsIntegrationTest extends IntegrationTestBase with TestObjectContext with Fixtures {
 
   "Carts" - {
     "generates a referenceNumber via a cord" in new CustomerFixture {

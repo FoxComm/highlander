@@ -1,4 +1,3 @@
-import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
@@ -9,7 +8,6 @@ import models.customer.Customers
 import models.shipping.ShippingMethods
 import payloads.OrderPayloads.UpdateOrderPayload
 import responses.cord.OrderResponse
-import util.Fixtures.{AddressFixture, EmptyCustomerCartFixture}
 import util._
 import utils.db._
 import utils.seeds.Seeds.Factories
@@ -19,7 +17,8 @@ class OrderIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
     with AutomaticAuth
-    with TestObjectContext {
+    with TestObjectContext
+    with Fixtures {
 
   "PATCH /v1/orders/:refNum" - {
 

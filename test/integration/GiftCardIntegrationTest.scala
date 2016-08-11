@@ -3,7 +3,6 @@ import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
 import util.{Fixtures, IntegrationTestBase}
-import Fixtures.EmptyCustomerCartFixture
 import failures.GiftCardFailures.GiftCardConvertFailure
 import failures._
 import models.customer.{Customer, Customers}
@@ -21,7 +20,11 @@ import utils.Money._
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class GiftCardIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
+class GiftCardIntegrationTest
+    extends IntegrationTestBase
+    with HttpSupport
+    with AutomaticAuth
+    with Fixtures {
 
   "GiftCards" - {
 

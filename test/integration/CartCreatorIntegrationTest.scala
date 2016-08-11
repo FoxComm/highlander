@@ -1,7 +1,6 @@
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
-import util.Fixtures._
 import cats.implicits._
 import failures.NotFoundFailure400
 import models.StoreAdmins
@@ -15,7 +14,8 @@ class CartCreatorIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
     with AutomaticAuth
-    with TestActivityContext.AdminAC {
+    with TestActivityContext.AdminAC
+    with Fixtures {
 
   "POST /v1/orders" - {
     "for an existing customer" - {
