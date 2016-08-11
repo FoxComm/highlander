@@ -1,13 +1,13 @@
 ---
 
 - name: Copy Service
-  template: src=registrator.service dest="{{dest_services}}/registrator.service"
+  template: src=consul_mesos.service dest="{{dest_services}}/consul_mesos.service"
   sudo: true
 
-- name: Reload Systemd for Registrator Server
+- name: Reload Systemd for Consul_Mesos Server
   sudo: yes
   command: systemctl daemon-reload
 
-- name: Restart Registrator Server
-  service: name=registrator state=restarted enabled=yes
-  sudo: true
+#- name: Restart Consul_Mesos Server
+  #service: name=consul_mesos state=restarted enabled=yes
+  #sudo: true
