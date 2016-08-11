@@ -21,18 +21,6 @@
 - name: Enable Firebrand hosts
   file: src=/etc/nginx/sites-available/storefront dest=/etc/nginx/sites-enabled/storefront owner=root group=root state=link
 
-- name: Make Certs Directory
-  file: path=/certs state=directory mode="600"
-  sudo: true
-
-- name: Copy Cert
-  copyv: src="{{role_path}}/../secret_keys/files/certs/{{cert_path}}/storefront/domain.crt" dest=/certs/domain.crt mode="600"
-  sudo: true
-
-- name: Copy Key
-  copyv: src="{{role_path}}/../secret_keys/files/certs/{{cert_path}}/storefront/domain.key" dest=/certs/domain.key mode="600"
-  sudo: true
-
 - name: Restart Nginx
   service: name=nginx state=restarted
   when: not packing

@@ -51,6 +51,10 @@ firebrand_env: production
 firebrand_default_language: en
 firebrand_fixed_language: false
 
+# Storefront variables
+storefront_default_language: en
+storefront_fixed_language: false
+
 # Loyalty
 loyalty_jar_src: ../../fox-loyalty/target/loyalty.jar
 loyalty_jar: /usr/local/bin/loyalty.jar
@@ -70,8 +74,7 @@ search_host: 127.0.0.1
 search_server_http: "{{search_host}}:9200"
 search_server: "{{search_host}}:9300"
 ashes_server: 127.0.0.1:4000
-firebird_server: 127.0.0.1:4040
-firebrand_server: 127.0.0.1:4041
+storefront_server: 127.0.0.1:4041
 kafka_server: 127.0.0.1:9092
 zookeeper_server: 127.0.0.1:2181
 schema_server: 127.0.0.1:8081

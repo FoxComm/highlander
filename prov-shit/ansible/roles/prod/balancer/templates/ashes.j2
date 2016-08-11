@@ -12,8 +12,8 @@ server {
 
 server {
   listen 443 ssl;
-  ssl_certificate     domain.crt;
-  ssl_certificate_key domain.key;
+  ssl_certificate     /certs/domain.crt;
+  ssl_certificate_key /certs/domain.key;
   keepalive_timeout   70;
 
   index index.html;
@@ -22,8 +22,7 @@ server {
 
   # Proxy to ashes
   location / {
-      root {{ashes_root_dir}};
-      try_files $uri @ashes;
+      proxy_pass http://ashes;
   }
 
   location @ashes {
