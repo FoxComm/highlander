@@ -4,22 +4,33 @@ import com.sksamuel.elastic4s.ElasticDsl.{mapping ⇒ esMapping, _}
 import com.sksamuel.elastic4s.mappings.FieldType._
 import consumer.aliases._
 import consumer.elastic.AvroTransformer
+import consumer.elastic.mappings._
 
 final case class InventorySearchView()(implicit ec: EC) extends AvroTransformer {
   def mapping() = esMapping("inventory_search_view").fields(
       field("id", IntegerType),
-      field("product", StringType)
-        .analyzer("autocomplete")
-        .fields(field("raw", StringType).index("not_analyzed")),
-      field("productActive", BooleanType),
       field("sku", StringType).analyzer("upper_cased"),
-      field("skuActive", BooleanType),
-      field("skuType", StringType).analyzer("autocomplete"),
-      field("warehouse", StringType).analyzer("autocomplete"),
+      field("stockItem").nested(
+          field("id", IntegerType),
+          field("sku", StringType).analyzer("upper_cased"),
+          field("defaultUnitCost", IntegerType)
+      ),
+      field("stockLocation").nested(
+          field("id", IntegerType),
+          field("name", StringType).analyzer("autocomplete"),
+          field("type", StringType)
+      ),
+      field("type", StringType),
       field("onHand", IntegerType),
       field("onHold", IntegerType),
       field("reserved", IntegerType),
-      field("safetyStock", IntegerType),
-      field("afs", IntegerType)
+      field("shipped", IntegerType),
+      field("afs", IntegerType),
+      field("afsCost", IntegerType),
+      field("createdAt", DateType).format(dateFormat),
+      field("updatedAt", DateType).format(dateFormat),
+      field("deletedAt", DateType).format(dateFormat)
   )
+
+  override def nestedFields() = List("stock_item", "stock_location")
 }
