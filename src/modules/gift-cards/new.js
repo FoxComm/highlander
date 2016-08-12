@@ -54,10 +54,10 @@ export function suggestCustomers(phrase) {
 const initialState = {
   customers: [],
   users: [],
-  balance: 100,
+  balance: 0,
   quantity: 1,
   reasonId: null,
-  originType: 'Appeasement',
+  originType: 'csrAppeasement',
   sendToCustomer: false,
   emailCSV: false,
   types: [],
