@@ -1,111 +1,147 @@
+// @flow weak
 
 import _ from 'lodash';
+import { assoc } from 'sprout-data';
 import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
-import { assoc } from 'sprout-data';
+import createAsyncActions from '../async-utils';
 
-const warehousesFetchSummaryStart = createAction('WAREHOUSES_FETCH_SUMMARY_START');
-const warehousesFetchSummarySuccess = createAction('WAREHOUSES_FETCH_SUMMARY_SUCCESS',
-                                                   (sku, payload) => [sku, payload]);
-const warehousesFetchSummaryFailed = createAction('WAREHOUSES_FETCH_SUMMARY_ERROR', (sku, err) => [sku, err]);
-const warehousesFetchDetailsStart = createAction('WAREHOUSES_FETCH_DETAILS_START');
-const warehousesFetchDetailsSuccess = createAction('WAREHOUSES_FETCH_DETAILS_SUCCESS',
-                                                   (sku, warehouseId, payload) => [sku, warehouseId, payload]);
-const warehousesFetchDetailsFailed = createAction('WAREHOUSES_FETCH_DETAILS_ERROR', (sku, err) => [sku, err]);
+export const updateSkuItemsCount = createAction(
+  'SKU_UPDATE_ITEMS_COUNT',
+  (sku, stockItem, qty) => [sku, stockItem, qty]
+);
 
-export function fetchSummary(skuCode) {
-  return dispatch => {
-    dispatch(warehousesFetchSummaryStart(skuCode));
-    Api.get(`/inventory/skus/${skuCode}/summary`).then(
-      data => dispatch(warehousesFetchSummarySuccess(skuCode, data)),
-      err => dispatch(warehousesFetchSummaryFailed(err))
-    );
-  };
+const clearSkuItemsChanges = createAction('SKU_CLEAR_ITEMS_CHANGES');
+
+export type StockCounts = {
+  onHand: number,
+  onHold: number,
+  reserved: number,
+  shipped: number,
+  afs: number,
+  afsCost: number,
 }
 
-export function fetchDetails(skuCode, warehouseId) {
-  return dispatch => {
-    dispatch(warehousesFetchDetailsStart(skuCode));
-    Api.get(`/inventory/skus/${skuCode}/${warehouseId}`).then(
-      data => dispatch(warehousesFetchDetailsSuccess(skuCode, warehouseId, data)),
-      err => dispatch(warehousesFetchDetailsFailed(err))
-    );
-  };
+export type StockLocation = {
+  id: number,
+  name: string,
 }
 
-function parseSummaries(summaries) {
-  const data = _.map(summaries, (summary) => {
-    const result = {
-      id: _.get(summary, ['warehouse', 'id']),
-      name: _.get(summary, ['warehouse', 'name']),
-      ...summary.counts
-    };
-    return result;
-  });
-  return data;
+export type StockItem = {
+  id: number,
+  sku: string,
+  defaultUnitCost: number,
 }
 
-function parseDetails(payload) {
-  const data = _.map(payload, (entry) => {
-    const result = {
-      skuType: entry.skuType,
-      ...entry.counts
-    };
-    return result;
-  });
-  return data;
+export type StockItemSummary = StockCounts & {
+  stockLocation: StockLocation,
+  stockItem: StockItem,
+  type: string,
 }
 
-function convertToTableData(data) {
-  return {
-    rows: data,
-    total: data.length,
-    from: 0,
-    size: 25,
+export type StockItemFlat = StockCounts & StockItem & {
+  type: string,
+};
+
+export type WarehouseInventorySummary = StockCounts & {
+  stockLocation: StockLocation,
+  stockItems: Array<StockItemFlat>,
+}
+
+export type WarehouseInventoryMap = {
+  [stockLocationId: number]: WarehouseInventorySummary
+}
+
+const _fetchSummary = createAsyncActions(
+  'inventory-summary',
+  (skuCode) => Api.get(`/inventory/summary/${skuCode}`),
+  (...args) => [...args]
+);
+export const fetchSummary = _fetchSummary.perform;
+
+const _changeItemUnits = createAsyncActions(
+  'inventory-increment',
+  (stockItemId: number, qty: number, type: string) => {
+    let payload, action;
+    if (qty >= 0) {
+      payload = {qty: qty, type, status: 'onHand'};
+      action = 'increment';
+    } else {
+      payload = {qty: -qty, type, status: 'onHand'};
+      action = 'decrement';
+    }
+    return Api.patch(`/inventory/stock-items/${stockItemId}/${action}`, payload);
+  }
+);
+
+export const changeItemUnits = _changeItemUnits.perform;
+
+export function pushStockItemChanges(sku) {
+  return (dispatch, getState) => {
+    const stockItemChanges = _.get(getState(), ['inventory', 'warehouses', 'stockItemChanges', sku]);
+
+    if (stockItemChanges) {
+      const promises = _.map(stockItemChanges, (payload: Object, key: string) => {
+        return dispatch(changeItemUnits(payload.id, payload.diff, payload.type));
+      });
+
+      dispatch(clearSkuItemsChanges(sku));
+
+      return Promise.all(promises);
+    }
   };
 }
 
 const initialState = {};
 
 const reducer = createReducer({
-  [warehousesFetchSummaryStart]: (state, sku) => {
-    return assoc(state, [sku, 'summary', 'isFetching'], true);
-  },
-  [warehousesFetchSummarySuccess]: (state, [sku, payload]) => {
-    const data = parseSummaries(payload);
-    const tableData = convertToTableData(data);
+  [_fetchSummary.succeeded]: (state, [payload, sku]) => {
+    const stockItems: Array<StockItemSummary> = payload.summary;
+
+    const inventoryDetailsByLocations = _.reduce(stockItems, (acc, itemSummary: StockItemSummary) => {
+      const warehouseDetails =
+        acc[itemSummary.stockLocation.id] = acc[itemSummary.stockLocation.id] || {
+        stockItems: [],
+        stockLocation: itemSummary.stockLocation,
+        onHand: 0,
+        onHold: 0,
+        reserved: 0,
+        shipped: 0,
+        afs: 0,
+        afsCost: 0,
+      };
+
+      warehouseDetails.onHand += itemSummary.onHand;
+      warehouseDetails.onHold += itemSummary.onHold;
+      warehouseDetails.reserved += itemSummary.reserved;
+      warehouseDetails.shipped += itemSummary.shipped;
+      warehouseDetails.afs += itemSummary.afs;
+      warehouseDetails.afsCost += itemSummary.afsCost;
+
+      const stockItemsCounts = _.omit(itemSummary, ['stockLocation', 'stockItem']);
+
+      warehouseDetails.stockItems.push({
+        ...stockItemsCounts,
+        ...itemSummary.stockItem,
+      });
+
+      return acc;
+    }, {});
+
     return assoc(state,
-      [sku, 'summary', 'isFetching'], false,
-      [sku, 'summary', 'failed'], false,
-      [sku, 'summary', 'results'], tableData
+      ['details', sku], inventoryDetailsByLocations
     );
   },
-  [warehousesFetchDetailsStart]: (state, sku) => {
-    return assoc(state, [sku, 'details', 'isFetching'], true);
-  },
-  [warehousesFetchDetailsSuccess]: (state, [sku, warehouseId, payload]) => {
-    const data = parseDetails(payload);
-    const tableData = convertToTableData(data);
+  [updateSkuItemsCount]: (state, [sku, stockItem, diff]) => {
     return assoc(state,
-      [sku, 'details', 'isFetching'], false,
-      [sku, 'details', 'failed'], false,
-      [sku, warehouseId, 'results'], tableData
+      ['stockItemChanges', sku, `${stockItem.type}-${stockItem.id}`], {diff, type: stockItem.type, id: stockItem.id}
     );
   },
-  [warehousesFetchSummaryFailed]: (state, [sku, err]) => {
-    console.error(err);
+  [clearSkuItemsChanges]: (state, sku) => {
     return assoc(state,
-      [sku, 'summary', 'isFetching'], false,
-      [sku, 'summary', 'failed'], true
+      ['stockItemChanges', sku], {}
     );
-  },
-  [warehousesFetchDetailsFailed]: (state, [sku, err]) => {
-    console.error(err);
-    return assoc(state,
-      [sku, 'details', 'isFetching'], false,
-      [sku, 'details', 'failed'], true
-    );
-  },
+  }
 }, initialState);
 
 export default reducer;

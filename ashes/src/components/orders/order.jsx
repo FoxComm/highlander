@@ -9,8 +9,7 @@ import { trackEvent } from 'lib/analytics';
 import { allowedStateTransitions } from '../../paragons/order';
 
 // components
-import { Dropdown, DropdownItem } from '../dropdown';
-import ConfirmModal from '../modal/confirm';
+import { Dropdown } from '../dropdown';
 import RemorseTimer from './remorseTimer';
 import { DateTime } from '../common/datetime';
 import { PanelList, PanelListItem } from '../panel/panel-list';

@@ -19,6 +19,7 @@ const ListPageContainer = props => {
         <PageTitle
           title={props.title}
           subtitle={props.subtitle}
+          documentTitle={props.documentTitle}
           onAddClick={props.handleAddAction}
           addTitle={props.addTitle} />
         {localNav}

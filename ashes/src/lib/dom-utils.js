@@ -1,3 +1,9 @@
+/**
+ * Detects element is viewport or not.
+ * Use this method if you need to write some logic related to scrolling, for example.
+ * @param el
+ * @returns {boolean}
+ */
 export function isElementInViewport(el) {
   const rect = el.getBoundingClientRect();
 
@@ -9,6 +15,12 @@ export function isElementInViewport(el) {
   );
 }
 
+/**
+ * Detects element is overlapped by over elements or not.
+ * @param element
+ * @param ancestors
+ * @returns {boolean}
+ */
 export function isElementVisible(element, ...ancestors) {
   const elements = [element, ...ancestors];
   const {left, right, top, bottom} = element.getBoundingClientRect();

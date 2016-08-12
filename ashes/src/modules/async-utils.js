@@ -2,6 +2,8 @@ import _ from 'lodash';
 import { assoc } from 'sprout-data';
 import { createAction } from 'redux-act';
 
+const registeredActions = Object.create(null);
+
 export function reducer(state = {}, action) {
   const kind = _.get(action, 'meta.kind');
   const payload = action.payload;
@@ -49,6 +51,11 @@ function createAsyncAction(namespace, type, payloadReducer) {
 }
 
 export default function createAsyncActions(namespace, asyncCall, payloadReducer) {
+  if (namespace in registeredActions) {
+    throw new Error(`You already have ${namespace} action`);
+  }
+  registeredActions[namespace] = true;
+
   const started = createAsyncAction(namespace, 'started', payloadReducer);
   const succeeded = createAsyncAction(namespace, 'succeeded', payloadReducer);
   const failed = createAsyncAction(namespace, 'failed', payloadReducer);
@@ -75,11 +82,17 @@ export default function createAsyncActions(namespace, asyncCall, payloadReducer)
       };
 
       dispatch(started(...args));
-      return asyncCall.call(callContext, ...args)
+      const result = asyncCall.call(callContext, ...args)
         .then(
           res => dispatch(succeeded(res, ...args)),
           handleError
-        ).catch(handleError);
+        );
+
+      if (process.env.NODE_ENV === 'debug') {
+        return result.catch(handleError);
+      }
+
+      return result;
     };
   };
 
