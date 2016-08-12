@@ -2,11 +2,11 @@
     "service" : {
         "name": "balancer",
         "tags": ["balancer"], 
-        "port": 80,
+        "port": 443,
         "checks": [
             {
                 "name": "HTTP API on port 80",
-                "http": "http://localhost",
+                "https": "https://localhost",
                 "interval": "30s",
                 "status": "passing"
             }

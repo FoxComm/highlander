@@ -181,10 +181,10 @@ resource "google_compute_instance" "phoenix" {
 }
 
 resource "google_compute_instance_template" "service_worker_template" {
-    name = "${var.datacenter}-service-worker-template"
+    name_prefix = "${var.datacenter}-service-worker-template"
     tags = ["ssh", "no-ip", "http-server", "https-server", "service-worker", "${var.datacenter}-service-worker", "${var.datacenter}"]
 
-    machine_type = "n1-standard-2"
+    machine_type = "n1-standard-4"
     automatic_restart = true
 
     disk {
@@ -249,7 +249,7 @@ resource "google_compute_instance" "greenriver" {
 }
 
 resource "google_compute_instance_template" "front_template" {
-    name = "${var.datacenter}-front-template"
+    name_prefix = "${var.datacenter}-front-template-"
     machine_type = "n1-standard-2"
     tags = ["ssh", "no-ip", "http-server", "https-server", "${var.datacenter}-front", "${var.datacenter}"]
 
@@ -261,6 +261,10 @@ resource "google_compute_instance_template" "front_template" {
 
     network_interface {
         network = "${var.network}"
+    }
+
+    lifecycle { 
+        create_before_destroy = true
     }
 
     metadata {

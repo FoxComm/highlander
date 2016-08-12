@@ -1,5 +1,5 @@
 upstream storefront {
-  server {{ storefront_server }} fail_timeout=15s;
+  server {{ storefront_server }} fail_timeout=10s  max_fails=360;
 }
 
 server {

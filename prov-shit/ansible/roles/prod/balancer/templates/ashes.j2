@@ -1,5 +1,5 @@
 upstream ashes {
-    server {{ ashes_server }} fail_timeout=15s;
+    server {{ ashes_server }} fail_timeout=10s  max_fails=360;
 }
 
 server {

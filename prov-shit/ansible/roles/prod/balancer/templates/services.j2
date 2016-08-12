@@ -1,16 +1,16 @@
 
 upstream search {
-    server {{ search_server_http }} fail_timeout=30s;
+    server {{ search_server_http }} fail_timeout=10s  max_fails=360;
 }
 
 upstream phoenix {
-    server {{ phoenix_server }} fail_timeout=30s;
+    server {{ phoenix_server }} fail_timeout=10s  max_fails=360;
 }
 
 upstream isaac {
-    server {{ isaac_server }} fail_timeout=30s;
+    server {{ isaac_server }} fail_timeout=10s  max_fails=360;
 }
 
 upstream middlewarehouse {
-	server {{ middlewarehouse_server }} fail_timeout=30s;
+	server {{ middlewarehouse_server }} fail_timeout=10s  max_fails=360;
 }

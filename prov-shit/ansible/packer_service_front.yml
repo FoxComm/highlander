@@ -22,7 +22,7 @@
     - { role: base/ssh_keys }
     - { role: base/rsyslog, sudo: yes }
     - { role: base/balancer, sudo: yes }
-    - { role: dev/balancer, sudo: yes }
+    - { role: prod/balancer, sudo: yes }
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml
