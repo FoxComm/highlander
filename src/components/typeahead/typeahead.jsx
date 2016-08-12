@@ -129,7 +129,6 @@ export default class Typeahead extends React.Component {
     });
 
     if (this._fetchRequest && this._fetchRequest.abort) {
-      console.log('abort request!');
       this._fetchRequest.abort();
     }
 
