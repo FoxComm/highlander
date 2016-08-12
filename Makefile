@@ -18,7 +18,7 @@ update: $(UPDATEDIRS)
 $(UPDATEDIRS): REPO = $(@:update-%=%) 
 $(UPDATEDIRS): REPOGIT = $(addsuffix .git,$(REPO)) 
 $(UPDATEDIRS): 
-	echo git subtree pull --prefix $(REPO) git@github.com:FoxComm/$(REPOGIT) $(REPO)
+	git subtree pull --prefix $(REPO) git@github.com:FoxComm/$(REPOGIT) $(REPO)
  
 
 .PHONY: update build $(UPDATEDIRS) $(SUBDIRS) $(BUILDDIRS)
