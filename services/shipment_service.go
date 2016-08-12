@@ -36,20 +36,20 @@ func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*mode
 	}
 
 	shipment.AddressID = address.ID
-	shipment, err = service.repository.CreateShipment(shipment)
+	result, err := service.repository.CreateShipment(shipment)
 	if err != nil {
 		service.addressService.DeleteAddress(address.ID)
 		return nil, err
 	}
 
 	createdLineItems := []models.ShipmentLineItem{}
-	for _, lineItem := range shipment.ShipmentLineItems {
-		lineItem.ShipmentID = shipment.ID
-		createdLineItem, err := service.shipmentLineItemService.CreateShipmentLineItem(&lineItem)
+	for i, _ := range shipment.ShipmentLineItems {
+		shipment.ShipmentLineItems[i].ShipmentID = result.ID
+		createdLineItem, err := service.shipmentLineItemService.CreateShipmentLineItem(&shipment.ShipmentLineItems[i])
 		if err != nil {
-			service.repository.DeleteShipment(shipment.ID)
+			service.repository.DeleteShipment(result.ID)
 			service.addressService.DeleteAddress(address.ID)
-			for _, lineItem = range createdLineItems {
+			for _, lineItem := range createdLineItems {
 				service.shipmentLineItemService.DeleteShipmentLineItem(lineItem.ID)
 			}
 
@@ -59,17 +59,17 @@ func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*mode
 		createdLineItems = append(createdLineItems, *createdLineItem)
 	}
 
-	return service.repository.GetShipmentByID(shipment.ID)
+	return service.repository.GetShipmentByID(result.ID)
 }
 
 func (service *shipmentService) UpdateShipment(shipment *models.Shipment) (*models.Shipment, error) {
-	shipment, err := service.repository.UpdateShipment(shipment)
+	_, err := service.repository.UpdateShipment(shipment)
 	if err != nil {
 		return nil, err
 	}
 
-	for _, lineItem := range shipment.ShipmentLineItems {
-		service.shipmentLineItemService.UpdateShipmentLineItem(&lineItem)
+	for i, _ := range shipment.ShipmentLineItems {
+		service.shipmentLineItemService.UpdateShipmentLineItem(&shipment.ShipmentLineItems[i])
 	}
 
 	return service.repository.GetShipmentByID(shipment.ID)
