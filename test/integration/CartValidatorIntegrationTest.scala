@@ -21,7 +21,7 @@ import payloads.PaymentPayloads._
 import payloads.UpdateShippingMethod
 import responses.TheResponse
 import responses.cord.CartResponse
-import util.{Fixtures, IntegrationTestBase, TestActivityContext}
+import util._
 import utils.db._
 import utils.seeds.CouponSeeds
 import utils.seeds.Seeds.Factories
@@ -31,7 +31,7 @@ class CartValidatorIntegrationTest
     with HttpSupport
     with AppendedClues
     with AutomaticAuth
-    with Fixtures {
+    with BakedFixtures {
 
   "Cart validator must be applied to" - {
 
@@ -153,8 +153,8 @@ class CartValidatorIntegrationTest
       extends CouponSeeds
       with TestActivityContext.AdminAC
       with ExpectedWarningsForPayment
-      with EmptyCustomerCartFixture
-      with StoreAdminFixture {
+      with EmptyCustomerCart_Baked
+      with StoreAdmin_Seed {
     val (refNum, couponCode) = (for {
       search     ← * <~ Factories.createSharedSearches(storeAdmin.id)
       discounts  ← * <~ Factories.createDiscounts(search)
@@ -164,7 +164,7 @@ class CartValidatorIntegrationTest
     } yield (cart.refNum, couponCode)).gimme
   }
 
-  trait LineItemFixture extends EmptyCustomerCartFixture {
+  trait LineItemFixture extends EmptyCustomerCart_Baked {
     val (sku) = (for {
       product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head)
       sku     ← * <~ Skus.mustFindById404(product.skuId)
@@ -172,7 +172,7 @@ class CartValidatorIntegrationTest
     val refNum = cart.refNum
   }
 
-  trait ShippingMethodFixture extends EmptyCustomerCartFixture {
+  trait ShippingMethodFixture extends EmptyCustomerCart_Baked {
     val (shipMethod) = (for {
       address ← * <~ Addresses.create(
                    Factories.address.copy(customerId = customer.id, regionId = 4129))
@@ -183,15 +183,15 @@ class CartValidatorIntegrationTest
     val refNum = cart.refNum
   }
 
-  trait ShippingAddressFixture extends EmptyCustomerCartFixture {
+  trait ShippingAddressFixture extends EmptyCustomerCart_Baked {
     val refNum           = cart.refNum
     val expectedWarnings = Seq(EmptyCart(refNum), NoShipMethod(refNum))
   }
 
   trait GiftCardFixture
       extends ExpectedWarningsForPayment
-      with EmptyCustomerCartFixture
-      with StoreAdminFixture {
+      with EmptyCustomerCart_Baked
+      with StoreAdmin_Seed {
     val (giftCard) = (for {
       reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
       origin ← * <~ GiftCardManuals.create(
@@ -204,8 +204,8 @@ class CartValidatorIntegrationTest
 
   trait StoreCreditFixture
       extends ExpectedWarningsForPayment
-      with EmptyCustomerCartFixture
-      with StoreAdminFixture {
+      with EmptyCustomerCart_Baked
+      with StoreAdmin_Seed {
     (for {
       reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
       manual ← * <~ StoreCreditManuals.create(
@@ -219,8 +219,8 @@ class CartValidatorIntegrationTest
 
   trait CreditCardFixture
       extends ExpectedWarningsForPayment
-      with EmptyCustomerCartFixture
-      with AddressFixture {
+      with EmptyCustomerCart_Baked
+      with CustomerAddress_Raw {
     val creditCard = CreditCards.create(Factories.creditCard.copy(customerId = customer.id)).gimme
     val refNum     = cart.refNum
   }

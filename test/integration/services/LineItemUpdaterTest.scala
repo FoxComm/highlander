@@ -14,7 +14,7 @@ class LineItemUpdaterTest
     with TestObjectContext
     with TestActivityContext.AdminAC
     with MockedApis
-    with Fixtures {
+    with BakedFixtures {
 
   def createProducts(num: Int): DbResultT[(ObjectContext, Seq[SimpleProductData])] =
     for {
@@ -73,5 +73,5 @@ class LineItemUpdaterTest
     }
   }
 
-  trait Fixture extends EmptyCustomerCartFixture with StoreAdminFixture
+  trait Fixture extends EmptyCustomerCart_Baked with StoreAdmin_Seed
 }

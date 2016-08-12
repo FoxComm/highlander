@@ -1,11 +1,14 @@
 package models
 
 import models.payment.creditcard.CreditCards
-import util.{TestObjectContext, Fixtures, IntegrationTestBase}
+import util._
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class CreditCardIntegrationTest extends IntegrationTestBase with Fixtures with TestObjectContext {
+class CreditCardIntegrationTest
+    extends IntegrationTestBase
+    with BakedFixtures
+    with TestObjectContext {
 
   "CreditCard" - {
     "has only one default per customer" in new Fixture {
@@ -16,7 +19,7 @@ class CreditCardIntegrationTest extends IntegrationTestBase with Fixtures with T
     }
   }
 
-  trait Fixture extends AddressFixture {
+  trait Fixture extends CustomerAddress_Baked {
     val cc = CreditCards.create(Factories.creditCard.copy(customerId = customer.id)).gimme
   }
 }

@@ -19,7 +19,7 @@ import payloads.ReturnPayloads._
 import responses.{AllReturns, ReturnLockResponse, ReturnResponse}
 import services.returns.{ReturnLineItemUpdater, ReturnLockUpdater}
 import slick.driver.PostgresDriver.api._
-import util.{Fixtures, IntegrationTestBase}
+import util._
 import utils.db._
 import utils.seeds.Seeds.Factories
 
@@ -27,7 +27,7 @@ class ReturnIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
     with AutomaticAuth
-    with Fixtures {
+    with BakedFixtures {
 
   "Returns" - {
     pending
@@ -480,7 +480,7 @@ class ReturnIntegrationTest
     }
   }
 
-  trait Fixture extends OrderFromCartFixture with StoreAdminFixture {
+  trait Fixture extends Order_Baked with StoreAdmin_Seed {
     val (rma, reason) = (for {
       rma ← * <~ Returns.create(
                Factories.rma.copy(orderRef = order.refNum, customerId = customer.id))

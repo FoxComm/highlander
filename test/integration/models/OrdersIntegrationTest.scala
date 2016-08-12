@@ -8,11 +8,11 @@ import models.cord._
 import util._
 import utils.time._
 
-class OrdersIntegrationTest extends IntegrationTestBase with TestObjectContext with Fixtures {
+class OrdersIntegrationTest extends IntegrationTestBase with TestObjectContext with BakedFixtures {
 
   "Orders" - {
 
-    "trigger sets sets/resets period end when order moves to/from RemorseHold" in new OrderFromCartFixture {
+    "trigger sets sets/resets period end when order moves to/from RemorseHold" in new Order_Baked {
       order.remorsePeriodEnd mustBe defined
       val updated1 = Orders.updateReturning(order, order.copy(state = ManualHold)).gimme
       updated1.remorsePeriodEnd must not be defined
@@ -20,14 +20,14 @@ class OrdersIntegrationTest extends IntegrationTestBase with TestObjectContext w
       updated2.remorsePeriodEnd.value.minuteOfHour must === (now.plusMinutes(30).minuteOfHour)
     }
 
-    "trigger does not change remorse period end if defined when order moves to RemorseHold" in new OrderFromCartFixture {
+    "trigger does not change remorse period end if defined when order moves to RemorseHold" in new Order_Baked {
       val newRemorseEnd = now.plusMinutes(15)
       val withRemorse   = order.copy(state = RemorseHold, remorsePeriodEnd = newRemorseEnd.some)
       val updated       = Orders.updateReturning(order, withRemorse).gimme
       updated.remorsePeriodEnd.value.minuteOfHour must === (newRemorseEnd.minuteOfHour)
     }
 
-    "remorse period end is generated if empty" in new OrderFromCartFixture {
+    "remorse period end is generated if empty" in new Order_Baked {
       val updated = Orders.updateReturning(order, order.copy(remorsePeriodEnd = None)).gimme
       updated.remorsePeriodEnd.value.minuteOfHour must === (now.plusMinutes(30).minuteOfHour)
     }

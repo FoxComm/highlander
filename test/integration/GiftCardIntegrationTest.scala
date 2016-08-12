@@ -2,7 +2,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
-import util.{Fixtures, IntegrationTestBase}
+import util._
 import failures.GiftCardFailures.GiftCardConvertFailure
 import failures._
 import models.customer.{Customer, Customers}
@@ -24,7 +24,7 @@ class GiftCardIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
     with AutomaticAuth
-    with Fixtures {
+    with BakedFixtures {
 
   "GiftCards" - {
 
@@ -311,7 +311,7 @@ class GiftCardIntegrationTest
     }
   }
 
-  trait Fixture extends EmptyCustomerCartFixture {
+  trait Fixture extends EmptyCustomerCart_Baked {
     val (admin, giftCard, order, payment, adjustment1, gcSecond, gcSubType) = (for {
       admin     ← * <~ StoreAdmins.create(authedStoreAdmin)
       reason    ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))

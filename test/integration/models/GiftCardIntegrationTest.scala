@@ -3,11 +3,14 @@ package models
 import models.cord.OrderPayments
 import models.payment.PaymentMethod
 import models.payment.giftcard.{GiftCardAdjustments, GiftCardManual, GiftCardManuals, GiftCards}
-import util.{TestObjectContext, Fixtures, IntegrationTestBase}
+import util._
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class GiftCardIntegrationTest extends IntegrationTestBase with Fixtures with TestObjectContext {
+class GiftCardIntegrationTest
+    extends IntegrationTestBase
+    with BakedFixtures
+    with TestObjectContext {
 
   "GiftCardTest" - {
     "generates a unique alpha-numeric code of size 16 upon insert" in new Fixture {
@@ -45,7 +48,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase with Fixtures with Tes
     }
   }
 
-  trait Fixture extends EmptyCustomerCartFixture with StoreAdminFixture {
+  trait Fixture extends EmptyCustomerCart_Baked with StoreAdmin_Seed {
     val (origin, giftCard, payment) = (for {
       reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
       origin ← * <~ GiftCardManuals.create(

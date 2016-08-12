@@ -14,11 +14,11 @@ import models.payment.storecredit._
 import models.product._
 import models.{Reasons, StoreAdmins}
 import services.carts.CartTotaler
-import util.{Fixtures, IntegrationTestBase, TestObjectContext}
+import util._
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class CartValidatorTest extends IntegrationTestBase with TestObjectContext with Fixtures {
+class CartValidatorTest extends IntegrationTestBase with TestObjectContext with BakedFixtures {
 
   "CartValidator" - {
 
@@ -52,7 +52,7 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
       }
 
       "if the cart has no credit card and insufficient GC/SC available balances" in new LineItemsFixture
-      with StoreAdminFixture {
+      with StoreAdmin_Seed {
         val skuPrice       = Mvp.priceAsInt(skuForm, skuShadow)
         val notEnoughFunds = skuPrice - 1
 
@@ -141,7 +141,7 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
     }
   }
 
-  trait Fixture extends EmptyCustomerCartFixture
+  trait Fixture extends EmptyCustomerCart_Baked
 
   trait LineItemsFixture extends Fixture {
     val (product, productForm, productShadow, sku, skuForm, skuShadow, items) = (for {
@@ -183,7 +183,7 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
     } yield cc).gimme
   }
 
-  trait GiftCardFixture extends LineItemsFixture with StoreAdminFixture {
+  trait GiftCardFixture extends LineItemsFixture with StoreAdmin_Seed {
     val (giftCard, orderPayment) = (for {
       reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
       origin ← * <~ GiftCardManuals.create(
@@ -197,7 +197,7 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
     } yield (giftCard, payment)).gimme
   }
 
-  trait StoreCreditFixture extends LineItemsFixture with StoreAdminFixture {
+  trait StoreCreditFixture extends LineItemsFixture with StoreAdmin_Seed {
     val (storeCredit, orderPayment) = (for {
       reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
       origin ← * <~ StoreCreditManuals.create(

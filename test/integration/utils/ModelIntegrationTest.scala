@@ -9,7 +9,7 @@ import util._
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext with Fixtures {
+class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext with BakedFixtures {
 
   "New model create" - {
     "validates model" in {
@@ -86,7 +86,7 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
       Customers.findOneById(customer.id).run().futureValue.value must === (updated)
     }
 
-    "must run FSM check if applicable" in new OrderFromCartFixture {
+    "must run FSM check if applicable" in new Order_Baked {
 
       val failure = Orders.update(order, order.copy(state = Shipped)).run().futureValue.leftVal
       failure must === (StateTransitionNotAllowed(order.state, Shipped, order.refNum).single)

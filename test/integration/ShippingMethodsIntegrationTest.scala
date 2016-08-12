@@ -1,6 +1,6 @@
 import Extensions._
 import akka.http.scaladsl.model.StatusCodes
-import util.{Fixtures, IntegrationTestBase}
+import util._
 import models.cord.lineitems._
 import models.cord.{Carts, OrderShippingAddresses}
 import models.customer.Customers
@@ -22,7 +22,7 @@ class ShippingMethodsIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
     with AutomaticAuth
-    with Fixtures {
+    with BakedFixtures {
 
   "GET /v1/shipping-methods/:refNum" - {
 
@@ -119,9 +119,7 @@ class ShippingMethodsIntegrationTest
     }
   }
 
-  trait Fixture extends EmptyCustomerCartFixture {
-    val storeAdmin = StoreAdmins.create(authedStoreAdmin).gimme
-  }
+  trait Fixture extends EmptyCustomerCart_Baked with StoreAdmin_Seed
 
   trait ShippingMethodsFixture extends Fixture {
     val californiaId = 4129
