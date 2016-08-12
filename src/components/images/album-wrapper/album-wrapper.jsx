@@ -76,8 +76,8 @@ export default class AlbumWrapper extends Component {
   }
 
   get controls(): Element {
-    const moveUpCsl = classNames(styles.controlItem, { [styles.controlItemDisabled]: this.isFirstAlbum });
-    const moveDownCsl = classNames(styles.controlItem, { [styles.controlItemDisabled]: this.isLastAlbum });
+    const moveUpCsl = classNames(styles.controlItem, { '_disabled': this.isFirstAlbum });
+    const moveDownCsl = classNames(styles.controlItem, { '_disabled': this.isLastAlbum });
     return (
       <div className={styles.controls}>
         <div className={styles.left}>
