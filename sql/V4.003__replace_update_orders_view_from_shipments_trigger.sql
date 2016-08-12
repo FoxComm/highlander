@@ -10,8 +10,11 @@ begin
               then
                 '[]'
             else
-              json_agg((shipments.state, shipments.shipping_price, sm.admin_display_name, sm.storefront_display_name)
-              ::export_shipments)::jsonb
+              json_agg((
+                  shipments.state,
+                  shipments.shipping_price,
+                  sm.admin_display_name,
+                  sm.storefront_display_name)::export_shipments)::jsonb
             end as shipments
           from orders as o
           left join shipments on (o.reference_number = shipments.cord_ref)
