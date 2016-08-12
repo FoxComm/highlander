@@ -1,6 +1,6 @@
 package services.activity
 
-import responses.{Addresses, CustomerResponse, CreditCardsResponse, StoreAdminResponse}
+import responses.{AddressResponse, CreditCardsResponse, CustomerResponse, StoreAdminResponse}
 
 object CustomerTailored {
   case class CustomerCreated(admin: StoreAdminResponse.Root, customer: CustomerResponse.Root)
@@ -32,18 +32,18 @@ object CustomerTailored {
 
   /* Customer Addresses */
   case class CustomerAddressCreated(customer: CustomerResponse.Root,
-                                    address: Addresses.Root,
+                                    address: AddressResponse,
                                     admin: Option[StoreAdminResponse.Root])
       extends ActivityBase[CustomerAddressCreated]
 
   case class CustomerAddressUpdated(customer: CustomerResponse.Root,
-                                    oldInfo: Addresses.Root,
-                                    newInfo: Addresses.Root,
+                                    oldInfo: AddressResponse,
+                                    newInfo: AddressResponse,
                                     admin: Option[StoreAdminResponse.Root])
       extends ActivityBase[CustomerAddressUpdated]
 
   case class CustomerAddressDeleted(customer: CustomerResponse.Root,
-                                    address: Addresses.Root,
+                                    address: AddressResponse,
                                     admin: Option[StoreAdminResponse.Root])
       extends ActivityBase[CustomerAddressDeleted]
 

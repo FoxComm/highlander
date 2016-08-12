@@ -57,6 +57,7 @@ case class Checkout(
     for {
       customer  ← * <~ Customers.mustFindById404(cart.customerId)
       _         ← * <~ customer.mustHaveCredentials
+      _         ← * <~ customer.mustNotBeBlacklisted
       _         ← * <~ activePromos
       _         ← * <~ cartValidator.validate(isCheckout = false, fatalWarnings = true)
       _         ← * <~ reserveInMiddleWarehouse

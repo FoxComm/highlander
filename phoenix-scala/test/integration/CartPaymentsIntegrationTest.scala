@@ -386,13 +386,11 @@ class CartPaymentsIntegrationTest
       "fails if the creditCard is inActive" in new CreditCardFixture {
         reset(stripeApiMock)
 
-        when(stripeApiMock.findCustomer(m.any(), m.any()))
-          .thenReturn(Result.good(new StripeCustomer))
+        when(stripeApiMock.findCustomer(m.any())).thenReturn(Result.good(new StripeCustomer))
 
-        when(stripeApiMock.findDefaultCard(m.any(), m.any()))
-          .thenReturn(Result.good(new StripeCard))
+        when(stripeApiMock.findDefaultCard(m.any())).thenReturn(Result.good(new StripeCard))
 
-        when(stripeApiMock.deleteExternalAccount(m.any(), m.any()))
+        when(stripeApiMock.deleteExternalAccount(m.any()))
           .thenReturn(Result.good(new DeletedExternalAccount))
 
         CreditCardManager.deleteCreditCard(customer.id, creditCard.id, Some(admin)).gimme

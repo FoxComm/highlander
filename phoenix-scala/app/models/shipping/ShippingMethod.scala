@@ -24,7 +24,14 @@ case class ShippingMethod(id: Int = 0,
     if (isActive) Xor.right(this) else Xor.left(ShippingMethodIsNotActive(id).single)
 }
 
-object ShippingMethod
+object ShippingMethod {
+  val standardShippingName          = "Standard shipping"
+  val standardShippingNameForAdmin  = "Standard shipping (USPS)"
+  val expressShippingName           = "2-3 day express"
+  val expressShippingNameForAdmin   = "2-3 day express (FedEx)"
+  val overnightShippingName         = "Overnight"
+  val overnightShippingNameForAdmin = "Overnight (FedEx)"
+}
 
 class ShippingMethods(tag: Tag) extends FoxTable[ShippingMethod](tag, "shipping_methods") {
   def id                    = column[Int]("id", O.PrimaryKey, O.AutoInc)

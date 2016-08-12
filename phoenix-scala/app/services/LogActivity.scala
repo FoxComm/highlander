@@ -7,7 +7,7 @@ import models.activity.{Activities, Activity}
 import models.cord.{Cart, Order}
 import models.coupon.{Coupon, CouponCode}
 import models.customer.Customer
-import models.location.{Address, Region}
+import models.location.Region
 import models.payment.PaymentMethod
 import models.payment.creditcard.{CreditCard, CreditCardCharge}
 import models.payment.giftcard.GiftCard
@@ -28,7 +28,7 @@ import responses.ProductResponses.ProductResponse
 import responses.SkuResponses.SkuResponse
 import responses.StoreAdminResponse.{Root ⇒ AdminResponse, build ⇒ buildAdmin}
 import responses.cord.{CartResponse, OrderResponse}
-import responses.{Addresses, CreditCardsResponse, GiftCardResponse, StoreCreditResponse}
+import responses.{AddressResponse, CreditCardsResponse, GiftCardResponse, StoreCreditResponse}
 import services.LineItemUpdater.foldQuantityPayload
 import services.activity.AssignmentsTailored._
 import services.activity.CartTailored._
@@ -161,34 +161,28 @@ object LogActivity {
   }
 
   /* Customer Addresses */
-  def addressCreated(originator: Originator, customer: Customer, address: Address, region: Region)(
+  def addressCreated(originator: Originator, customer: Customer, address: AddressResponse)(
       implicit ec: EC,
       ac: AC): DbResultT[Activity] = {
     Activities.log(
-        CustomerAddressCreated(buildCustomer(customer),
-                               Addresses.build(address, region),
-                               buildOriginator(originator)))
+        CustomerAddressCreated(buildCustomer(customer), address, buildOriginator(originator)))
   }
 
   def addressUpdated(originator: Originator,
                      customer: Customer,
-                     newAddress: Address,
-                     newRegion: Region,
-                     oldAddress: Address,
-                     oldRegion: Region)(implicit ec: EC, ac: AC): DbResultT[Activity] =
+                     newAddress: AddressResponse,
+                     oldAddress: AddressResponse)(implicit ec: EC, ac: AC): DbResultT[Activity] =
     Activities.log(
-        CustomerAddressUpdated(buildCustomer(customer),
-                               Addresses.build(newAddress, newRegion),
-                               Addresses.build(oldAddress, oldRegion),
-                               buildOriginator(originator)))
+        CustomerAddressUpdated(customer = buildCustomer(customer),
+                               newInfo = newAddress,
+                               oldInfo = oldAddress,
+                               admin = buildOriginator(originator)))
 
-  def addressDeleted(originator: Originator, customer: Customer, address: Address, region: Region)(
+  def addressDeleted(originator: Originator, customer: Customer, address: AddressResponse)(
       implicit ec: EC,
       ac: AC): DbResultT[Activity] =
     Activities.log(
-        CustomerAddressDeleted(buildCustomer(customer),
-                               Addresses.build(address, region),
-                               buildOriginator(originator)))
+        CustomerAddressDeleted(buildCustomer(customer), address, buildOriginator(originator)))
 
   /* Customer Credit Cards */
   def ccCreated(customer: Customer, cc: CreditCard, admin: Option[StoreAdmin])(
@@ -388,19 +382,19 @@ object LogActivity {
   def orderShippingAddressAdded(
       originator: Originator,
       cart: CartResponse,
-      address: Addresses.Root)(implicit ec: EC, ac: AC): DbResultT[Activity] =
+      address: AddressResponse)(implicit ec: EC, ac: AC): DbResultT[Activity] =
     Activities.log(CartShippingAddressAdded(cart, address, buildOriginator(originator)))
 
   def orderShippingAddressUpdated(
       originator: Originator,
       cart: CartResponse,
-      address: Addresses.Root)(implicit ec: EC, ac: AC): DbResultT[Activity] =
+      address: AddressResponse)(implicit ec: EC, ac: AC): DbResultT[Activity] =
     Activities.log(CartShippingAddressUpdated(cart, address, buildOriginator(originator)))
 
   def orderShippingAddressDeleted(
       originator: Originator,
       cart: CartResponse,
-      address: Addresses.Root)(implicit ec: EC, ac: AC): DbResultT[Activity] =
+      address: AddressResponse)(implicit ec: EC, ac: AC): DbResultT[Activity] =
     Activities.log(CartShippingAddressRemoved(cart, address, buildOriginator(originator)))
 
   /* Cart Shipping Methods */

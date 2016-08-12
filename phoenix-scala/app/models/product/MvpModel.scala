@@ -78,12 +78,14 @@ case class SimpleProductShadow(p: SimpleProduct) {
     ObjectShadow(attributes = shadow)
 }
 
-case class SimpleAlbum(name: String, image: String) {
+case class SimpleAlbum(payload: CreateAlbumPayload) {
 
-  val payload = CreateAlbumPayload(
-      name = name,
-      position = Some(1),
-      images = Seq(ImagePayload(src = image, title = image.some, alt = image.some)).some)
+  def this(name: String, image: String) =
+    this(
+        CreateAlbumPayload(
+            name = name,
+            position = Some(1),
+            images = Seq(ImagePayload(src = image, title = image.some, alt = image.some)).some))
 
   val (keyMap, form) = ObjectUtils.createForm(payload.formAndShadow.form.attributes)
 
@@ -255,7 +257,7 @@ object Mvp {
                .filter(_.id === albumLink.rightId)
                .mustFindOneOr(AlbumNotFoundForContext(albumLink.rightId, oldContextId))
 
-      simpleAlbum  ← * <~ SimpleAlbum(p.title, p.image)
+      simpleAlbum  ← * <~ new SimpleAlbum(p.title, p.image)
       oldAlbumForm ← * <~ ObjectForms.mustFindById404(album.formId)
       albumForm    ← * <~ ObjectForms.update(oldAlbumForm, simpleAlbum.update(oldAlbumForm))
 
@@ -276,7 +278,7 @@ object Mvp {
       productForm   ← * <~ ObjectForms.create(simpleProduct.create)
       simpleSku     ← * <~ SimpleSku(p.code, p.title, p.price, p.currency, p.active, p.tags)
       skuForm       ← * <~ ObjectForms.create(simpleSku.create)
-      simpleAlbum   ← * <~ SimpleAlbum(p.title, p.image)
+      simpleAlbum   ← * <~ new SimpleAlbum(p.title, p.image)
       albumForm     ← * <~ ObjectForms.create(simpleAlbum.create)
       r ← * <~ insertProductIntoContext(contextId,
                                         productForm,
@@ -296,6 +298,13 @@ object Mvp {
                                          productData.description,
                                          productData.active,
                                          productData.tags)
+      result ← * <~ insertProductWithExistingSkus(contextId, simpleProduct, skus)
+    } yield result
+
+  def insertProductWithExistingSkus(contextId: Int,
+                                    simpleProduct: SimpleProduct,
+                                    skus: Seq[Sku]): DbResultT[Product] =
+    for {
       productForm   ← * <~ ObjectForms.create(simpleProduct.create)
       simpleShadow  ← * <~ SimpleProductShadow(simpleProduct)
       productShadow ← * <~ ObjectShadows.create(simpleShadow.create.copy(formId = productForm.id))

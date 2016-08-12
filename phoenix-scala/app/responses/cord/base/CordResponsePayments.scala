@@ -5,7 +5,7 @@ import java.time.Instant
 import models.cord.OrderPayments
 import models.payment.PaymentMethod._
 import models.payment.creditcard.CreditCards
-import responses.Addresses
+import responses.AddressResponse
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 
@@ -30,7 +30,7 @@ case class CordResponseCreditCardPayment(id: Int,
                                          expMonth: Int,
                                          expYear: Int,
                                          brand: String,
-                                         address: Addresses.Root,
+                                         address: AddressResponse,
                                          `type`: Type = CreditCard)
     extends CordResponsePayments
 
@@ -50,7 +50,8 @@ object CordResponseCreditCardPayment {
                                       expMonth = creditCard.expMonth,
                                       expYear = creditCard.expYear,
                                       brand = creditCard.brand,
-                                      address = Addresses.buildFromCreditCard(creditCard, region))
+                                      address =
+                                        AddressResponse.buildFromCreditCard(creditCard, region))
     })
 }
 
