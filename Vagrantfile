@@ -5,7 +5,7 @@ require 'fileutils'
 
 CONFIG = File.join(File.dirname(__FILE__), "vagrant.local.rb")
 
-$vb_memory = 1024*4
+$vb_memory = 1024*6
 $vb_cpu = 4
 $nginx_ip = "192.168.10.111"
 user = "vagrant"
