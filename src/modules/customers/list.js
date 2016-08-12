@@ -8,7 +8,8 @@ const { reducer, actions } = makeLiveSearch(
   'customersScope',
   {
     initialState: { sortBy: '-joinedAt' },
-    rawSorts: ['name', 'email']
+    rawSorts: ['name', 'email'],
+    skipInitialFetch: true,
   }
 );
 
