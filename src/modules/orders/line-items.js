@@ -44,18 +44,10 @@ export function deleteLineItem(order, sku) {
 }
 
 export function collectLineItems(skus) {
-  let uniqueSkus = {};
-  const items = _.transform(skus, (result, lineItem) => {
-    const sku = lineItem.sku;
-    if (_.isNumber(uniqueSkus[sku])) {
-      const qty = result[uniqueSkus[sku]].quantity += 1;
-      result[uniqueSkus[sku]].totalPrice = lineItem.price * qty;
-    } else {
-      uniqueSkus[sku] = result.length;
-      result.push({ ...lineItem, quantity: 1 });
-    }
+  return _.map(skus, (l) => { 
+    l.totalPrice = l.quanity * l.price;
+    return l;
   });
-  return items;
 }
 
 const initialState = {
