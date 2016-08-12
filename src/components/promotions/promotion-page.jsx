@@ -79,9 +79,9 @@ class PromotionPage extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { isFetching } = nextProps;
+    const { isFetching, isSaving } = nextProps;
 
-    if (!isFetching && !nextProps.fetchError) {
+    if (!isFetching && !isSaving && !nextProps.fetchError) {
       const nextPromotion = nextProps.details.promotion;
       if (!nextPromotion) return;
 

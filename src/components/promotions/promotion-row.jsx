@@ -20,6 +20,8 @@ const setCellContents = (promotion: Object, field: string) => {
   switch (field) {
     case 'state':
       return <RoundedPill text={activeStatus(promotion)} />;
+    case 'storefrontName':
+      return <div dangerouslySetInnerHTML={{__html: _.get(promotion, field)}} />;
     default:
       return _.get(promotion, field);
   }
@@ -27,7 +29,6 @@ const setCellContents = (promotion: Object, field: string) => {
 
 const PromotionRow = (props: PromotionRowProps) => {
   const { promotion, columns, params } = props;
-  const key = `promotion-${promotion.id}`;
 
   return (
     <MultiSelectRow
