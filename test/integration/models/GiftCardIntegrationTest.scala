@@ -1,15 +1,13 @@
 package models
 
-import models.customer.Customers
-import models.cord.{OrderPayments, Carts}
+import models.cord.OrderPayments
 import models.payment.PaymentMethod
 import models.payment.giftcard.{GiftCardAdjustments, GiftCardManual, GiftCardManuals, GiftCards}
-import util.IntegrationTestBase
+import util.{TestObjectContext, Fixtures, IntegrationTestBase}
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class GiftCardIntegrationTest extends IntegrationTestBase {
-  import concurrent.ExecutionContext.Implicits.global
+class GiftCardIntegrationTest extends IntegrationTestBase with Fixtures with TestObjectContext {
 
   "GiftCardTest" - {
     "generates a unique alpha-numeric code of size 16 upon insert" in new Fixture {
@@ -47,14 +45,11 @@ class GiftCardIntegrationTest extends IntegrationTestBase {
     }
   }
 
-  trait Fixture {
+  trait Fixture extends EmptyCustomerCartFixture with StoreAdminFixture {
     val (origin, giftCard, payment) = (for {
-      customer ← * <~ Customers.create(Factories.customer)
-      cart     ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
-      admin    ← * <~ StoreAdmins.create(Factories.storeAdmin)
-      reason   ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
+      reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
       origin ← * <~ GiftCardManuals.create(
-                  GiftCardManual(adminId = admin.id, reasonId = reason.id))
+                  GiftCardManual(adminId = storeAdmin.id, reasonId = reason.id))
       gc ← * <~ GiftCards.create(
               Factories.giftCard.copy(originalBalance = 50, originId = origin.id))
       giftCard ← * <~ GiftCards.findOneById(gc.id)

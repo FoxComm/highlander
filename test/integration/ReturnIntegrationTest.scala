@@ -19,11 +19,15 @@ import payloads.ReturnPayloads._
 import responses.{AllReturns, ReturnLockResponse, ReturnResponse}
 import services.returns.{ReturnLineItemUpdater, ReturnLockUpdater}
 import slick.driver.PostgresDriver.api._
-import util.IntegrationTestBase
+import util.{Fixtures, IntegrationTestBase}
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class ReturnIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
+class ReturnIntegrationTest
+    extends IntegrationTestBase
+    with HttpSupport
+    with AutomaticAuth
+    with Fixtures {
 
   "Returns" - {
     pending
@@ -476,16 +480,12 @@ class ReturnIntegrationTest extends IntegrationTestBase with HttpSupport with Au
     }
   }
 
-  trait Fixture {
-    val (storeAdmin, customer, order, rma, reason) = (for {
-      storeAdmin ← * <~ StoreAdmins.create(Factories.storeAdmin)
-      customer   ← * <~ Customers.create(Factories.customer)
-      cart       ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
-      order      ← * <~ Orders.create(cart.toOrder())
+  trait Fixture extends OrderFromCartFixture with StoreAdminFixture {
+    val (rma, reason) = (for {
       rma ← * <~ Returns.create(
                Factories.rma.copy(orderRef = order.refNum, customerId = customer.id))
       reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
-    } yield (storeAdmin, customer, order, rma, reason)).gimme
+    } yield (rma, reason)).gimme
   }
 
   trait LineItemFixture extends Fixture {
