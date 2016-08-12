@@ -16,6 +16,7 @@ export default class Typeahead extends React.Component {
 
   static propTypes = {
     onBlur: PropTypes.func,
+    onChange: PropTypes.func,
     onItemSelected: PropTypes.func,
     // fetchItems if passed should return promise for results
     fetchItems: PropTypes.func,
@@ -31,6 +32,7 @@ export default class Typeahead extends React.Component {
     inputElement: PropTypes.element,
     minQueryLength: PropTypes.number,
     autoComplete: PropTypes.string,
+    initialValue: PropTypes.string,
   };
 
   static defaultProps = {
@@ -41,17 +43,15 @@ export default class Typeahead extends React.Component {
     placeholder: 'Search',
     minQueryLength: 1,
     autoComplete: 'off',
+    initialValue: '',
   };
 
-  constructor(...args) {
-    super(...args);
-    this.state = {
-      active: false,
-      showMenu: false,
-      showAlert: false,
-      query: '',
-    };
-  }
+  state = {
+    active: false,
+    showMenu: false,
+    showAlert: false,
+    query: this.props.initialValue,
+  };
 
   componentWillReceiveProps(nextProps) {
     if (this.props.isFetching && !nextProps.isFetching) {
@@ -80,7 +80,7 @@ export default class Typeahead extends React.Component {
   clearState() {
     this.setState({
       showMenu: false,
-      query: '',
+      query: this.props.initialValue,
     });
   }
 
@@ -127,6 +127,9 @@ export default class Typeahead extends React.Component {
       query: value,
       showAlert: false
     });
+    if (this.props.onChange) {
+      this.props.onChange(value);
+    }
 
     if (this._fetchRequest && this._fetchRequest.abort) {
       this._fetchRequest.abort();

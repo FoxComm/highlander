@@ -6,14 +6,16 @@ import React, { Component, Element } from 'react';
 import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
-import { post } from 'lib/search';
-import * as dsl from 'elastic/dsl';
+import { connect } from 'react-redux';
+import Api from 'lib/api';
 
 import { FormField } from '../forms';
 import CurrencyInput from '../forms/currency-input';
 import MultiSelectRow from '../table/multi-select-row';
 import Typeahead from '../typeahead/typeahead';
+import SkuSuggestRow from './sku-suggest-row';
 
+import { suggestSkus } from 'modules/products/details';
 import type { Sku } from 'modules/skus/details';
 
 type Column = {
@@ -27,29 +29,23 @@ type Props = {
   params: Object,
   skuContext: string,
   updateField: (code: string, field: string, value: string) => void,
+  isFetchingSkus: boolean|null,
+  suggestSkus: (context: string, code: string) => Promise,
+  suggestedSkus: Array<Sku>
 };
 
 type State = {
   sku: { [key:string]: string },
 };
 
-function suggestSkus(code, context) {
-  return post('sku_search_view/_search', dsl.query({
-    bool: {
-      filter: [
-        dsl.termFilter('context', context),
-      ],
-      must: [
-        dsl.matchQuery('code', {
-          query: code,
-          type: 'phrase'
-        }),
-      ]
-    },
-  }));
+function mapStateToProps(state) {
+  return {
+    isFetchingSkus: _.get(state.asyncActions, 'products-suggestSkus.inProgress', null),
+    suggestedSkus: _.get(state, 'products.details.suggestedSkus', []),
+  };
 }
 
-export default class EditableSkuRow extends Component {
+class EditableSkuRow extends Component {
   props: Props;
 
   state: State = {
@@ -85,13 +81,64 @@ export default class EditableSkuRow extends Component {
     return this.props.sku.feCode || 'new';
   }
 
+  @autobind
+  suggestSkus(text) {
+    return this.props.suggestSkus(this.props.skuContext, text);
+  }
+
+  @autobind
+  handleSelectSku(sku) {
+    this._skusTypeahead.clearState();
+    this.handleUpdateCode(sku.code);
+    this.handleUpdatePrice('salePrice', sku.price);
+    // @TODO: get retailPrice directly from `sku` variable when this issue will be resolved:
+    // https://github.com/FoxComm/green-river/issues/135
+    Api.get(`/skus/${this.props.skuContext}/${sku.code}`).then(sku => {
+      this.handleUpdatePrice('retailPrice', _.get(sku.attributes, 'retailPrice.v.value', 0));
+    });
+  }
+
+  get skusMenu() {
+    const items = this.props.suggestedSkus;
+    if (_.isEmpty(items)) {
+      return <div></div>;
+    }
+
+    return (
+      <ul className="fc-typeahead__items">
+        {items.map(sku => {
+          return (
+            <li
+              className="fc-typeahead__item"
+              onMouseDown={() => { this.handleSelectSku(sku) }}
+              key={`item-${sku.id}`}
+            >
+              <SkuSuggestRow sku={sku} />
+            </li>
+          );
+        })}
+      </ul>
+    );
+  }
+
   skuCell(sku: Sku): Element {
     const code = _.get(this.props, 'sku.attributes.code.v');
     if (this.props.sku.feCode) {
       const value = this.state.sku.code || code;
       return (
         <FormField>
-          <input type="text" value={value} onChange={this.handleUpdateCode} required />
+          <Typeahead
+            ref={component => this._skusTypeahead = component}
+            className="_no-search-icon"
+            initialValue={value}
+            onChange={this.handleUpdateCode}
+            isFetching={this.props.isFetchingSkus}
+            fetchItems={this.suggestSkus}
+            itemsElement={this.skusMenu}
+            minQueryLength={2}
+            placeholder="SKU code"
+            name="skuCode"
+          />
         </FormField>
       );
     }
@@ -115,9 +162,7 @@ export default class EditableSkuRow extends Component {
   }
 
   @autobind
-  handleUpdateCode({ target }: Object) {
-    const value = target.value;
-    suggestSkus(value, this.props.skuContext).then(response => console.log('got', response));
+  handleUpdateCode(value: string) {
     this.setState(
       assoc(this.state, ['sku', 'code'], value),
       () => this.props.updateField(this.code, 'code', 'string', value)
@@ -154,3 +199,5 @@ export default class EditableSkuRow extends Component {
     );
   }
 }
+
+export default connect(mapStateToProps, { suggestSkus })(EditableSkuRow);

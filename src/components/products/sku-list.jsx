@@ -27,7 +27,7 @@ const tableColumns = [
   { field: 'salePrice', text: 'Sale Price' },
 ];
 
-export default class SkuList extends Component<void, Props, void> {
+export default class SkuList extends Component {
   props: Props;
 
   get skus(): Array<Sku> {

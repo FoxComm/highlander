@@ -8,25 +8,14 @@ import { update } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
 import { push } from 'react-router-redux';
 import reduceReducers from 'reduce-reducers';
-
-// helpers
+import { post } from 'lib/search';
 import Api from 'lib/api';
 import { createEmptyProduct, configureProduct } from 'paragons/product';
-import makeQuickSearch from '../quick-search';
+import * as dsl from 'elastic/dsl';
+import createAsyncActions from 'modules/async-utils';
 
 // types
 import type { Product } from 'paragons/product';
-
-const searchSkus = makeQuickSearch(
-  'products.details.suggestedSkus',
-  'sku_search_view/_search',
-  [],
-  ''
-);
-
-export function suggestSkus(phrase) {
-  return searchSkus.actions.fetch(phrase);
-}
 
 export type Error = {
   status: ?number,
@@ -41,6 +30,25 @@ export type ProductDetailsState = {
   product: ?Product,
 };
 
+const _suggestSkus = createAsyncActions(
+  'products-suggestSkus',
+  (context: string, code: string) => {
+    return post('sku_search_view/_search', dsl.query({
+      bool: {
+        // filter: [
+        //   dsl.termFilter('context', context),
+        // ],
+        must: [
+          dsl.matchQuery('_all', {
+            query: code,
+          }),
+        ]
+      },
+    }));
+  }
+);
+
+export const suggestSkus = _suggestSkus.perform;
 
 const defaultContext = 'default';
 
@@ -122,7 +130,7 @@ const initialState: ProductDetailsState = {
   isUpdating: false,
   product: null,
   response: null,
-  suggestedSkus: {},
+  suggestedSkus: [],
 };
 
 const reducer = createReducer({
@@ -179,6 +187,12 @@ const reducer = createReducer({
       isUpdating: false,
     };
   },
+  [_suggestSkus.succeeded]: (state, response) => {
+    return {
+      ...state,
+      suggestedSkus: _.get(response, 'result', [])
+    };
+  },
   [setError]: (state: ProductDetailsState, err: Object) => {
     const messages = _.get(err, 'response.body.errors', []);
 
@@ -195,8 +209,5 @@ const reducer = createReducer({
   },
 }, initialState);
 
-function skuSuggestReducer(state, action) {
-  return update(state, 'suggestedSkus', searchSkus.reducer, action);
-}
 
-export default reduceReducers(reducer, skuSuggestReducer);
+export default reducer;
