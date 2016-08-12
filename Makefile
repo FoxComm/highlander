@@ -1,8 +1,8 @@
 
-SUBDIRS = ashes firebird green-river isaac phoenix-scala prov-shit integrations integration-tests fox-notifications
+SUBDIRS = ashes firebird green-river isaac phoenix-scala prov-shit integration-tests fox-notifications middlewarehouse
 UPDATEDIRS = $(SUBDIRS:%=update-%)
-BUILDDIRS = $(SUBDIRS:%=build-%)
-TESTDIRS = $(SUBDIRS:%=test-%)
+BUILDDIRS = $(SUBDIRS:%=build-%) build-integrations
+TESTDIRS = $(SUBDIRS:%=test-%) test-integrations
 
 build: $(BUILDDIRS)
 	$(MAKE) -C api-js build
