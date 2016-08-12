@@ -1,7 +1,11 @@
 create or replace function update_orders_view_from_assignments_fn() returns trigger as $$
-declare cord_refs text[];
+declare cord_refs bigint[];
 begin
   case tg_table_name
+    when 'orders' then
+      select array_agg(o.id) into strict cord_refs
+      from orders as o
+      where o.id = new.id;
     when 'assignments' then
       select array_agg(o.id) into strict cord_refs
       from assignments as a
@@ -30,7 +34,7 @@ begin
         from orders as o
         left join assignments as a on (o.id = a.reference_id and a.reference_type = 'order')
         left join store_admins as sa on (sa.id = a.store_admin_id)
-        where o.reference_number = any(cord_refs)
+        where o.id = any(cord_refs)
         group by o.id) as subquery
   where orders_search_view.id = subquery.id;
 
@@ -38,6 +42,10 @@ begin
 end;
 $$ language plpgsql;
 
+create trigger update_order_view_for_orders_fn
+    after insert on orders
+    for each row
+    execute procedure update_orders_view_from_assignments_fn();
 
 create trigger update_orders_view_from_assignments_fn
     after update or insert on assignments
