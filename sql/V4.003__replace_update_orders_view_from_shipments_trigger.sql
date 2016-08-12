@@ -24,8 +24,8 @@ begin
 end;
 $$ language plpgsql;
 
-drop trigger update_orders_view_from_shipments;
-drop trigger update_orders_view_from_shipping_methods;
+drop trigger if exists update_orders_view_from_shipments on shipments;
+drop trigger if exists update_orders_view_from_shipping_methods on shipping_methods;
 
 create trigger update_orders_view_for_shipping_methods
     after insert on orders

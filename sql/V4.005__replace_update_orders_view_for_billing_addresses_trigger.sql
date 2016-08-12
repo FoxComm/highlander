@@ -34,10 +34,10 @@ begin
 end;
 $$ language plpgsql;
 
-drop trigger update_orders_view_from_billing_addresses_order_payments;
-drop trigger update_orders_view_from_billing_addresses_credit_cards;
-drop trigger update_orders_view_from_billing_addresses_regions;
-drop trigger update_orders_view_from_billing_addresses_countries;
+drop trigger if exists update_orders_view_from_billing_addresses_order_payments on order_payments;
+drop trigger if exists update_orders_view_from_billing_addresses_credit_cards on credit_cards;
+drop trigger if exists update_orders_view_from_billing_addresses_regions on regions;
+drop trigger if exists update_orders_view_from_billing_addresses_countries on countries;
 
 create trigger update_orders_view_for_billing_addresses
     after insert on orders

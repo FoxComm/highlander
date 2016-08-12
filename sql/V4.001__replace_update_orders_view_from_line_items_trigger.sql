@@ -32,7 +32,11 @@ begin
 end;
 $$ language plpgsql;
 
-drop trigger update_orders_view_from_line_items;
+drop trigger if exists update_orders_view_from_line_items on order_line_items;
+drop trigger if exists update_orders_view_from_line_items on order_line_item_skus;
+drop trigger if exists update_orders_view_from_line_items on skus;
+drop trigger if exists update_orders_view_from_line_items on object_forms;
+drop trigger if exists update_orders_view_from_line_items on object_shadows;
 
 create trigger update_orders_view_for_line_items
     after insert on orders

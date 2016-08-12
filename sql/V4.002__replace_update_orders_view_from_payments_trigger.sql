@@ -24,13 +24,13 @@ begin
 end;
 $$ language plpgsql;
 
-drop trigger update_orders_view_from_payments;
-drop trigger update_orders_view_from_payments_creditCards;
-drop trigger update_orders_view_from_payments_giftCards;
-drop trigger update_orders_view_from_payments_storeCredits;
-drop trigger update_orders_view_from_payments_ccc;
-drop trigger update_orders_view_from_payments_gca;
-drop trigger update_orders_view_from_payments_sca;
+drop trigger if exists update_orders_view_from_payments on order_payments;
+drop trigger if exists update_orders_view_from_payments_creditCards on order_payments;
+drop trigger if exists update_orders_view_from_payments_giftCards on order_payments;
+drop trigger if exists update_orders_view_from_payments_storeCredits on order_payments;
+drop trigger if exists update_orders_view_from_payments_ccc on credit_card_charges;
+drop trigger if exists update_orders_view_from_payments_gca on gift_card_adjustments;
+drop trigger if exists update_orders_view_from_payments_sca on store_credit_adjustments;
 
 create trigger update_orders_view_for_payments
     after insert on orders

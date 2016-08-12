@@ -33,9 +33,9 @@ begin
 end;
 $$ language plpgsql;
 
-drop trigger update_orders_view_from_order_shipping_addresses;
-drop trigger update_orders_view_from_regions;
-drop trigger update_orders_view_from_countries;
+drop trigger if exists update_orders_view_from_order_shipping_addresses on order_shipping_addresses;
+drop trigger if exists update_orders_view_from_regions on regions;
+drop trigger if exists update_orders_view_from_countries on countries;
 
 create trigger update_orders_view_shipping_address_when_new_order
   after insert on orders
