@@ -1,66 +1,78 @@
 // libs
 import _ from 'lodash';
-import React, { PropTypes } from 'react';
+import React, { PropTypes, Component } from 'react';
 import classNames from 'classnames';
-import { connect } from 'react-redux';
+import { autobind } from 'core-decorators';
 
 // components
 import TableView from './tableview';
 import MultiSelectHead, { selectionState } from './multi-select-head';
 
-// redux
-import * as ExtandableTableActions from '../../modules/expandable-tables';
+export default class ExpandableTable extends Component {
 
-const mapStateToProps = (state, props) => ({
-  tableState: _.get(state, ['expandableTables', props.entity.entityType, props.entity.entityId], {})
-});
+  static propTypes = {
+    columns: PropTypes.array.isRequired,
+    data: PropTypes.shape({
+      rows: PropTypes.array,
+      total: PropTypes.number,
+      from: PropTypes.number,
+      size: PropTypes.number,
+    }),
+    renderRow: PropTypes.func.isRequired,
+    renderDrawer: PropTypes.func.isRequired,
+    emptyMessage: PropTypes.string,
+    errorMessage: PropTypes.string,
+    className: PropTypes.string,
+    idField: PropTypes.string.isRequired,
+    isLoading: PropTypes.bool,
+    failed: PropTypes.bool,
+  };
 
-const ExpandableTable = props => {
-  const renderRow = (row, index) => {
-    const {renderRow, renderDrawer, entity, columns, params, tableState, idField, toggleDrawerState} = props;
-    const id = _.get(row, idField).toString().replace(/ /g,'-');
-    const state = _.get(tableState, [id], false);
+  state = {
+    expandedRows: {},
+  };
 
-    const hackedParams = {
-      ...params,
-      toggleDrawerState: () => toggleDrawerState(entity, id),
+  toggleExpanded(id) {
+    const state = this.state.expandedRows[id];
+
+    this.setState({
+      expandedRows: {
+        ...this.state.expandedRows,
+        [id]: !state,
+      },
+    });
+  }
+
+  @autobind
+  renderRow(row, index) {
+    const { props } = this;
+
+    const {renderRow, renderDrawer, columns, idField} = props;
+    const id = _.get(row, idField, '').toString().replace(/ /g,'-');
+    const state = !!this.state.expandedRows[id];
+
+    const params = {
+      toggleDrawerState: () => this.toggleExpanded(id),
       isOpen: state,
       colSpan: columns.length,
     };
 
     return [
-      renderRow(row, index, columns, hackedParams),
-      renderDrawer(row, index, hackedParams),
+      renderRow(row, index, columns, params),
+      renderDrawer(row, index, params),
     ];
-  };
+  }
 
-  return (
-    <TableView
-      {...props}
-      className={classNames('fc-expandable-table', props.className)}
-      columns={props.columns}
-      renderRow={renderRow} />
-  );
-};
+  render() {
+    const { props } = this;
 
-ExpandableTable.propTypes = {
-  columns: PropTypes.array.isRequired,
-  data: PropTypes.shape({
-    rows: PropTypes.array,
-    total: PropTypes.number,
-    from: PropTypes.number,
-    size: PropTypes.number,
-  }),
-  renderRow: PropTypes.func.isRequired,
-  renderDrawer: PropTypes.func.isRequired,
-  emptyMessage: PropTypes.string,
-  errorMessage: PropTypes.string,
-  className: PropTypes.string,
-  params: PropTypes.object,
-  tableState: PropTypes.object,
-  idField: PropTypes.string.isRequired,
-  isLoading: PropTypes.bool,
-  failed: PropTypes.bool,
-};
-
-export default connect(mapStateToProps, {...ExtandableTableActions})(ExpandableTable);
+    return (
+      <TableView
+        {...props}
+        className={classNames('fc-expandable-table', props.className)}
+        columns={props.columns}
+        renderRow={this.renderRow}
+      />
+    );
+  }
+}

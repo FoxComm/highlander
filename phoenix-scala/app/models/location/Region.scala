@@ -13,6 +13,7 @@ object Region {
   val usRegions        = 4121 to 4180
   val armedRegions     = Seq(4121, 4122, 4125)
   val regularUsRegions = usRegions.toSeq.diff(armedRegions)
+  val californiaId     = 4129
 }
 
 class Regions(tag: Tag) extends FoxTable[Region](tag, "regions") {

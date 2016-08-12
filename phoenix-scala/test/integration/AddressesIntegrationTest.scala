@@ -5,10 +5,11 @@ import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 
 import Extensions._
 import failures.NotFoundFailure404
+import models.cord.{Carts, OrderShippingAddresses}
 import models.customer.{Customer, Customers}
 import models.location.{Address, Addresses}
-import models.cord.{OrderShippingAddresses, Carts}
 import payloads.AddressPayloads.CreateAddressPayload
+import responses.AddressResponse
 import util.IntegrationTestBase
 import utils.db._
 import utils.seeds.Seeds.Factories
@@ -26,7 +27,7 @@ class AddressesIntegrationTest extends IntegrationTestBase with HttpSupport with
 
       response.status must === (StatusCodes.OK)
 
-      val addresses = response.as[Seq[responses.Addresses.Root]]
+      val addresses = response.as[Seq[AddressResponse]]
 
       addresses must have size 1
       addresses.head.name must === (address.name)
@@ -44,7 +45,7 @@ class AddressesIntegrationTest extends IntegrationTestBase with HttpSupport with
 
       response.status must === (StatusCodes.OK)
 
-      val newAddress = response.as[responses.Addresses.Root]
+      val newAddress = response.as[AddressResponse]
 
       newAddress.name must === (payload.name)
       newAddress.isDefault must === (Some(false))
@@ -98,7 +99,7 @@ class AddressesIntegrationTest extends IntegrationTestBase with HttpSupport with
 
       val response = PATCH(s"v1/customers/${customer.id}/addresses/${address.id}", payload)
 
-      val updated = response.as[responses.Addresses.Root]
+      val updated = response.as[AddressResponse]
       response.status must === (StatusCodes.OK)
 
       (updated.name, updated.address1) must === ((payload.name, payload.address1))
@@ -118,7 +119,7 @@ class AddressesIntegrationTest extends IntegrationTestBase with HttpSupport with
 
       val response = POST(s"v1/customers/${customer.id}/addresses", payload)
       response.status must === (StatusCodes.OK)
-      val newAddress = response.as[responses.Addresses.Root]
+      val newAddress = response.as[AddressResponse]
 
       //now delete
       val deleteResponse = DELETE(s"v1/customers/${customer.id}/addresses/${newAddress.id}")

@@ -15,7 +15,7 @@ object CreditCardsResponse {
                   zipCheck: Option[String] = None,
                   inWallet: Boolean = true,
                   brand: String,
-                  address: responses.Addresses.Root)
+                  address: responses.AddressResponse)
       extends ResponseItem
 
   def build(cc: CreditCard, region: Region): Root =
@@ -30,7 +30,7 @@ object CreditCardsResponse {
          zipCheck = cc.zipCheck,
          inWallet = cc.inWallet,
          brand = cc.brand,
-         address = responses.Addresses.buildFromCreditCard(cc, region))
+         address = responses.AddressResponse.buildFromCreditCard(cc, region))
 
   // Temporary simplified version w/o address
   case class RootSimple(id: Int,

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
@@ -21,11 +22,13 @@ func NewStockItemController(service services.IInventoryService) IController {
 }
 
 func (controller *stockItemController) SetUp(router gin.IRouter) {
-	router.GET("/", controller.GetStockItems())
-	router.GET("/:id", controller.GetStockItemById())
-	router.POST("/", controller.CreateStockItem())
-	router.PATCH("/:id/increment", controller.IncrementStockItemUnits())
-	router.PATCH("/:id/decrement", controller.DecrementStockItemUnits())
+	router.GET("", controller.GetStockItems())
+	router.GET(":id", controller.GetStockItemById())
+	router.POST("", controller.CreateStockItem())
+	router.PATCH(":id/increment", controller.IncrementStockItemUnits())
+	router.PATCH(":id/decrement", controller.DecrementStockItemUnits())
+
+	router.GET(":id/afs/:type", controller.GetAFS())
 }
 
 func (controller *stockItemController) GetStockItems() gin.HandlerFunc {
@@ -104,7 +107,7 @@ func (controller *stockItemController) IncrementStockItemUnits() gin.HandlerFunc
 
 		units := models.NewStockItemUnitsFromPayload(uint(id), &payload)
 
-		if err := controller.service.IncrementStockItemUnits(uint(id), units); err != nil {
+		if err := controller.service.IncrementStockItemUnits(uint(id), models.UnitType(payload.Type), units); err != nil {
 			handleServiceError(context, err)
 			return
 		}
@@ -129,13 +132,39 @@ func (controller *stockItemController) DecrementStockItemUnits() gin.HandlerFunc
 			failures.Abort(context, failures.NewBadRequest(err))
 			return
 		}
-
-		err := controller.service.DecrementStockItemUnits(uint(id), payload.Qty)
-		if err != nil {
+		if err := controller.service.DecrementStockItemUnits(uint(id), models.UnitType(payload.Type), payload.Qty); err != nil {
 			handleServiceError(context, err)
 			return
 		}
 
 		context.Status(http.StatusNoContent)
+	}
+}
+
+func (controller *stockItemController) GetAFS() gin.HandlerFunc {
+	return func(context *gin.Context) {
+		idOrSKUStr := context.Params.ByName("id")
+		unitType := context.Params.ByName("type")
+
+		// trying to convert idOrSKU string to int
+		idOrSKU, err := strconv.Atoi(idOrSKUStr)
+
+		afs := &models.AFS{}
+		if err == nil {
+			// if successfully converted to int try to find by ID
+			afs, err = controller.service.GetAFSByID(uint(idOrSKU), models.UnitType(unitType))
+		} else {
+			// trying find by sku code otherwise
+			afs, err = controller.service.GetAFSBySKU(idOrSKUStr, models.UnitType(unitType))
+		}
+
+		if err != nil {
+			handleServiceError(context, err)
+			return
+		}
+
+		resp := responses.NewAFSFromModel(afs)
+
+		context.JSON(200, resp)
 	}
 }

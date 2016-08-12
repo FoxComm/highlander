@@ -3,116 +3,100 @@ package services
 import (
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 
-	"github.com/jinzhu/gorm"
+	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 )
 
-type StatusChange struct {
-	from string
-	to   string
-}
-
 type summaryService struct {
-	db *gorm.DB
+	summaryRepo   repositories.ISummaryRepository
+	stockItemRepo repositories.IStockItemRepository
 }
 
 type ISummaryService interface {
-	CreateStockItemSummary(stockItemId uint, dbContext *gorm.DB) error
-	UpdateStockItemSummary(stockItemID uint, qty int, status StatusChange, dbContext *gorm.DB) error
+	CreateStockItemSummary(stockItemId uint) error
+	UpdateStockItemSummary(stockItemId uint, unitType models.UnitType, qty int, status models.StatusChange) error
 
 	GetSummary() ([]*models.StockItemSummary, error)
-	GetSummaryBySKU(sku string) (*models.StockItemSummary, error)
+	GetSummaryBySKU(sku string) ([]*models.StockItemSummary, error)
 }
 
-func NewSummaryService(db *gorm.DB) ISummaryService {
-	return &summaryService{db}
+func NewSummaryService(summaryRepo repositories.ISummaryRepository, stockItemRepo repositories.IStockItemRepository) ISummaryService {
+	return &summaryService{summaryRepo, stockItemRepo}
 }
 
 func (service *summaryService) GetSummary() ([]*models.StockItemSummary, error) {
-	summary := []*models.StockItemSummary{}
-	err := service.db.
-		Select("stock_item_summaries.*, si.sku").
-		Joins("JOIN stock_items si ON si.id = stock_item_summaries.stock_item_id").
-		Find(&summary).
-		Error
+	return service.summaryRepo.GetSummary()
+}
 
+func (service *summaryService) GetSummaryBySKU(sku string) ([]*models.StockItemSummary, error) {
+	return service.summaryRepo.GetSummaryBySKU(sku)
+}
+
+func (service *summaryService) CreateStockItemSummary(stockItemId uint) error {
+	summary := []*models.StockItemSummary{
+		{StockItemID: stockItemId, Type: models.Sellable},
+		{StockItemID: stockItemId, Type: models.NonSellable},
+		{StockItemID: stockItemId, Type: models.Backorder},
+		{StockItemID: stockItemId, Type: models.Preorder},
+	}
+
+	return service.summaryRepo.CreateStockItemSummary(summary)
+}
+
+func (service *summaryService) UpdateStockItemSummary(stockItemId uint, unitType models.UnitType, qty int, status models.StatusChange) error {
+	stockItem, err := service.stockItemRepo.GetStockItemById(stockItemId)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return summary, nil
-}
-
-func (service *summaryService) GetSummaryBySKU(sku string) (*models.StockItemSummary, error) {
-	summary := &models.StockItemSummary{}
-	err := service.db.
-		Select("stock_item_summaries.*, si.sku").
-		Joins("JOIN stock_items si ON si.id = stock_item_summaries.stock_item_id").
-		Where("si.sku = ?", sku).
-		First(summary).
-		Error
+	summary, err := service.summaryRepo.GetSummaryItemByType(stockItemId, unitType)
 	if err != nil {
-		return nil, err
-	}
-
-	return summary, nil
-}
-
-func (service *summaryService) CreateStockItemSummary(stockItemId uint, dbContext *gorm.DB) error {
-	db := service.resolveDb(dbContext)
-
-	summary := models.StockItemSummary{
-		StockItemID: stockItemId,
-		OnHand:      0,
-		OnHold:      0,
-		Reserved:    0,
-	}
-
-	if err := db.Create(&summary).Error; err != nil {
 		return err
 	}
 
-	return nil
-}
-
-func (service *summaryService) UpdateStockItemSummary(stockItemID uint, qty int, status StatusChange, dbContext *gorm.DB) error {
-	db := service.resolveDb(dbContext)
-
-	summary := &models.StockItemSummary{}
-	if err := db.Where("stock_item_id = ?", stockItemID).First(summary).Error; err != nil {
-		return err
+	if status.From != models.StatusOnHand {
+		summary = updateStatus(summary, status.From, -qty)
+	}
+	if status.From == models.StatusEmpty || status.To != models.StatusOnHand {
+		summary = updateStatus(summary, status.To, qty)
 	}
 
-	summary = updateStatus(summary, status.from, -qty)
-	summary = updateStatus(summary, status.to, qty)
+	summary = updateAfs(summary, status, qty)
+	summary = updateAfsCost(summary, stockItem)
 
-	if err := db.Save(summary).Error; err != nil {
-		return err
-	}
-
-	return nil
+	return service.summaryRepo.UpdateStockItemSummary(summary)
 }
 
-func (service *summaryService) resolveDb(db *gorm.DB) *gorm.DB {
-	if db != nil {
-		return db
-	} else {
-		return service.db
-	}
-}
-
-func updateStatus(summary *models.StockItemSummary, status string, qty int) *models.StockItemSummary {
+func updateStatus(summary *models.StockItemSummary, status models.UnitStatus, qty int) *models.StockItemSummary {
 	if status == "" {
 		return summary
 	}
 
 	switch status {
-	case "onHand":
+	case models.StatusOnHand:
 		summary.OnHand += qty
-	case "onHold":
+	case models.StatusOnHold:
 		summary.OnHold += qty
-	case "reserved":
+	case models.StatusReserved:
 		summary.Reserved += qty
 	}
+
+	return summary
+}
+
+func updateAfs(summary *models.StockItemSummary, shift models.StatusChange, qty int) *models.StockItemSummary {
+	if shift.To == models.StatusOnHand {
+		summary.AFS += qty
+	}
+
+	if shift.From == models.StatusOnHand {
+		summary.AFS -= qty
+	}
+
+	return summary
+}
+
+func updateAfsCost(summary *models.StockItemSummary, stockItem *models.StockItem) *models.StockItemSummary {
+	summary.AFSCost = summary.AFS * stockItem.DefaultUnitCost
 
 	return summary
 }

@@ -17,7 +17,6 @@ import storeCreditTypes from './store-credit-types';
 import activityTrail from './activity-trail';
 import siteMenu from './site-menu';
 import inventory from './inventory';
-import expandableTables from './expandable-tables';
 import products from './products';
 import skus from './skus';
 import user from './user';
@@ -46,7 +45,6 @@ const rootReducer = combineReducers({
   activityTrail,
   siteMenu,
   inventory,
-  expandableTables,
   products,
   skus,
   promotions,

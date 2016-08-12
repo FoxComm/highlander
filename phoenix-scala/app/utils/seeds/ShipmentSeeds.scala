@@ -11,19 +11,20 @@ import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
 import utils.seeds.Seeds.Factories._
+import models.shipping.ShippingMethod._
 
 trait ShipmentSeeds {
 
   type ShippingMethods =
-    (ShippingMethod#Id, ShippingMethod#Id, ShippingMethod#Id, ShippingMethod#Id, ShippingMethod#Id)
+    (ShippingMethod#Id, ShippingMethod#Id, ShippingMethod#Id, ShippingMethod#Id)
 
   def getShipmentRules(implicit db: DB): DbResultT[ShippingMethods] =
     for {
       methods ← * <~ ShippingMethods.findActive.result
     } yield
       methods.seq.toList match {
-        case m1 :: m2 :: m3 :: m4 :: m5 :: Nil ⇒ (m1.id, m2.id, m3.id, m4.id, m5.id)
-        case _                                 ⇒ ???
+        case m1 :: m2 :: m3 :: m4 :: Nil ⇒ (m1.id, m2.id, m3.id, m4.id)
+        case _                           ⇒ ???
       }
 
   def createShipmentRules: DbResultT[ShippingMethods] =
@@ -33,65 +34,62 @@ trait ShipmentSeeds {
       _       ← * <~ ShippingMethodsPriceRules.createAll(shippingMethodRuleMappings)
     } yield
       methods.seq.toList match {
-        case m1 :: m2 :: m3 :: m4 :: m5 :: Nil ⇒ (m1, m2, m3, m4, m5)
-        case _                                 ⇒ ???
+        case m1 :: m2 :: m3 :: m4 :: Nil ⇒ (m1, m2, m3, m4)
+        case _                           ⇒ ???
       }
 
   def shippingMethods =
     Seq(
-        ShippingMethod(adminDisplayName = "UPS Ground",
-                       storefrontDisplayName = "UPS Ground",
-                       price = 250,
-                       isActive = true,
-                       conditions = Some(upsGround)),
-        ShippingMethod(adminDisplayName = "UPS Next day",
-                       storefrontDisplayName = "UPS Next day",
-                       price = 700,
-                       isActive = true,
-                       conditions = Some(over50Bucks)),
-        ShippingMethod(adminDisplayName = "UPS 2-day",
-                       storefrontDisplayName = "UPS 2-day",
-                       price = 550,
-                       isActive = true,
-                       conditions = Some(upsGround)),
-        ShippingMethod(adminDisplayName = "DHL Express",
-                       storefrontDisplayName = "DHL Express",
-                       price = 1500,
+        ShippingMethod(adminDisplayName = standardShippingNameForAdmin,
+                       storefrontDisplayName = standardShippingName,
+                       price = 300,
                        isActive = true,
                        conditions = Some(under50Bucks)),
-        ShippingMethod(adminDisplayName = "International",
-                       storefrontDisplayName = "International",
-                       price = 1000,
+        ShippingMethod(adminDisplayName = standardShippingNameForAdmin,
+                       storefrontDisplayName = standardShippingName,
+                       price = 0,
                        isActive = true,
-                       conditions = Some(international))
+                       conditions = Some(over50Bucks)),
+        ShippingMethod(adminDisplayName = expressShippingNameForAdmin,
+                       storefrontDisplayName = expressShippingName,
+                       price = 1500,
+                       isActive = true,
+                       conditions = Some(usOnly)),
+        ShippingMethod(adminDisplayName = overnightShippingNameForAdmin,
+                       storefrontDisplayName = overnightShippingName,
+                       price = 3000,
+                       isActive = true,
+                       conditions = Some(usOnly))
     )
 
   def shippingPriceRules = Seq(
-      ShippingPriceRule(name = "Flat Shipping Over 20",
+      ShippingPriceRule(name = "Flat Shipping for Standard Delivery",
                         ruleType = Flat,
-                        flatPrice = 10000,
+                        flatPrice = 300,
+                        flatMarkup = 0),
+      ShippingPriceRule(name = "Flat Shipping for Express Delivery",
+                        ruleType = Flat,
+                        flatPrice = 1500,
+                        flatMarkup = 0),
+      ShippingPriceRule(name = "Flat Shipping for Overnight Delivery",
+                        ruleType = Flat,
+                        flatPrice = 3000,
                         flatMarkup = 0),
       ShippingPriceRule(name = "Flat Shipping Over 50",
                         ruleType = Flat,
-                        flatPrice = 5000,
-                        flatMarkup = 0),
-      ShippingPriceRule(name = "Flat Shipping Over 100",
-                        ruleType = Flat,
-                        flatPrice = 1000,
+                        flatPrice = 0,
                         flatMarkup = 0)
   )
 
   def shippingMethodRuleMappings = Seq(
       ShippingMethodPriceRule(shippingMethodId = 1, shippingPriceRuleId = 1, ruleRank = 1),
-      ShippingMethodPriceRule(shippingMethodId = 1, shippingPriceRuleId = 2, ruleRank = 2),
-      ShippingMethodPriceRule(shippingMethodId = 1, shippingPriceRuleId = 3, ruleRank = 3),
-      ShippingMethodPriceRule(shippingMethodId = 2, shippingPriceRuleId = 1, ruleRank = 1),
-      ShippingMethodPriceRule(shippingMethodId = 2, shippingPriceRuleId = 2, ruleRank = 2),
-      ShippingMethodPriceRule(shippingMethodId = 2, shippingPriceRuleId = 3, ruleRank = 3),
-      ShippingMethodPriceRule(shippingMethodId = 4, shippingPriceRuleId = 1, ruleRank = 1)
+      ShippingMethodPriceRule(shippingMethodId = 1, shippingPriceRuleId = 4, ruleRank = 2),
+      ShippingMethodPriceRule(shippingMethodId = 2, shippingPriceRuleId = 4, ruleRank = 1),
+      ShippingMethodPriceRule(shippingMethodId = 3, shippingPriceRuleId = 2, ruleRank = 1),
+      ShippingMethodPriceRule(shippingMethodId = 4, shippingPriceRuleId = 3, ruleRank = 1)
   )
 
-  def upsGround = parse(s"""
+  def usOnly = parse(s"""
     | {
     |   "comparison": "and",
     |   "conditions": [{
@@ -100,26 +98,13 @@ trait ShipmentSeeds {
     | }
   """.stripMargin).extract[QueryStatement]
 
-  def international = parse(s"""
-    | {
-    |   "comparison": "and",
-    |   "conditions": [{
-    |     "rootObject": "ShippingAddress", "field": "countryId", "operator": "notEquals", "valInt": $unitedStatesId
-    |   }]
-    | }
-  """.stripMargin).extract[QueryStatement]
-
-  val canadaId = 39
-
   def over50Bucks = parse(s"""
     | {
     |   "comparison": "and",
     |   "statements": [{
-    |     "comparison": "or",
+    |     "comparison": "and",
     |     "conditions": [{
     |       "rootObject": "ShippingAddress", "field": "countryId", "operator": "equals", "valInt": $unitedStatesId
-    |     }, {
-    |       "rootObject": "ShippingAddress", "field": "countryId", "operator": "equals", "valInt": $canadaId
     |     }]
     |   }, {
     |     "comparison": "and",
@@ -134,11 +119,9 @@ trait ShipmentSeeds {
      | {
      |   "comparison": "and",
      |   "statements": [{
-     |     "comparison": "or",
+     |     "comparison": "and",
      |     "conditions": [{
      |       "rootObject": "ShippingAddress", "field": "countryId", "operator": "equals", "valInt": $unitedStatesId
-     |     }, {
-     |       "rootObject": "ShippingAddress", "field": "countryId", "operator": "equals", "valInt": $canadaId
      |     }]
      |   }, {
      |     "comparison": "and",

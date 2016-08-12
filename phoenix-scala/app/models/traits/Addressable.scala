@@ -8,7 +8,7 @@ import shapeless._
 import failures.Failure
 import utils.Validation
 
-trait Addressable[M] {
+trait Addressable[M] { self: M ⇒
   import Validation._
 
   def city: String
@@ -19,17 +19,13 @@ trait Addressable[M] {
   def address2: Option[String]
   def zip: String
 
-  def instance: M
-
   def zipLens: Lens[M, String]
 
-  def sanitize(model: M): M = {
-    if (Region.usRegions.contains(regionId)) {
+  def sanitize(model: M): M =
+    if (Region.usRegions.contains(regionId))
       zipLens.set(model)(zip.replace("-", ""))
-    } else {
-      zipLens.set(model)(zip)
-    }
-  }
+    else
+      model
 
   def validate: ValidatedNel[Failure, M] = {
     val isUsAddress = Region.usRegions.contains(regionId)
@@ -51,7 +47,7 @@ trait Addressable[M] {
     }
 
     (notEmpty(name, "name") |@| notEmpty(address1, "address1") |@| notEmpty(city, "city") |@| zipValidation |@| phone).map {
-      case _ ⇒ instance
+      case _ ⇒ this
     }
   }
 }

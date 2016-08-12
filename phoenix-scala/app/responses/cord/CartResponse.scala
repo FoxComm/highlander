@@ -22,7 +22,7 @@ case class CartResponse(referenceNumber: String,
                         totals: CordResponseTotals,
                         customer: Option[CustomerResponse.Root] = None,
                         shippingMethod: Option[ShippingMethodsResponse.Root] = None,
-                        shippingAddress: Option[Addresses.Root] = None,
+                        shippingAddress: Option[AddressResponse] = None,
                         paymentMethods: Seq[CordResponsePayments] = Seq.empty,
                         // Cart-specific
                         lockedBy: Option[StoreAdmin] = None)

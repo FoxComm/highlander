@@ -88,6 +88,47 @@ class CartValidatorIntegrationTest
       checkResponse(DELETE(s"v1/orders/$refNum/coupon"), expectedWarnings)
     }
 
+    "must validate funds with line items:" - {
+      "must return warning when credit card is removed" in new LineItemAndFundsFixture {
+        val lineItemPayload = Seq(UpdateLineItemsPayload(sku.code, 1))
+        val response1       = POST(s"v1/orders/$refNum/line-items", lineItemPayload)
+        response1.status must === (StatusCodes.OK)
+
+        val ccPayload = CreditCardPayment(creditCard.id)
+        val response2 = POST(s"v1/orders/$refNum/payment-methods/credit-cards", ccPayload)
+        response2.status must === (StatusCodes.OK)
+
+        checkResponse(DELETE(s"v1/orders/$refNum/payment-methods/credit-cards"),
+                      Seq(NoShipAddress(refNum), NoShipMethod(refNum), InsufficientFunds(refNum)))
+      }
+
+      "must return warning when store credits are removed" in new LineItemAndFundsFixture {
+        val lineItemPayload = Seq(UpdateLineItemsPayload(sku.code, 1))
+        val response1       = POST(s"v1/orders/$refNum/line-items", lineItemPayload)
+        response1.status must === (StatusCodes.OK)
+
+        val scPayload = StoreCreditPayment(500)
+        val response2 = POST(s"v1/orders/$refNum/payment-methods/store-credit", scPayload)
+        response2.status must === (StatusCodes.OK)
+
+        checkResponse(DELETE(s"v1/orders/$refNum/payment-methods/store-credit"),
+                      Seq(NoShipAddress(refNum), NoShipMethod(refNum), InsufficientFunds(refNum)))
+      }
+
+      "must return warning when gift card is removed" in new LineItemAndFundsFixture {
+        val lineItemPayload = Seq(UpdateLineItemsPayload(sku.code, 1))
+        val response1       = POST(s"v1/orders/$refNum/line-items", lineItemPayload)
+        response1.status must === (StatusCodes.OK)
+
+        val gcPayload = GiftCardPayment(giftCard.code)
+        val response2 = POST(s"v1/orders/$refNum/payment-methods/gift-cards", gcPayload)
+        response2.status must === (StatusCodes.OK)
+
+        checkResponse(DELETE(s"v1/orders/$refNum/payment-methods/gift-cards/${giftCard.code}"),
+                      Seq(NoShipAddress(refNum), NoShipMethod(refNum), InsufficientFunds(refNum)))
+      }
+    }
+
     def checkResponse(response: HttpResponse, expectedWarnings: Seq[failures.Failure])(
         implicit line: sourcecode.Line,
         file: sourcecode.File) = {
@@ -188,6 +229,29 @@ class CartValidatorIntegrationTest
       address  ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
       cc       ← * <~ CreditCards.create(Factories.creditCard.copy(customerId = customer.id))
     } yield (cart.refNum, cc)).gimme
+  }
+
+  trait LineItemAndFundsFixture {
+    val (refNum, sku, creditCard, giftCard) = (for {
+      customer   ← * <~ Customers.create(Factories.customer)
+      address    ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
+      cc         ← * <~ CreditCards.create(Factories.creditCard.copy(customerId = customer.id))
+      productCtx ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
+      cart       ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
+      product    ← * <~ Mvp.insertProduct(productCtx.id, Factories.products.head)
+      sku        ← * <~ Skus.mustFindById404(product.skuId)
+      admin      ← * <~ StoreAdmins.create(Factories.storeAdmin)
+      reason     ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
+      manual ← * <~ StoreCreditManuals.create(
+                  StoreCreditManual(adminId = admin.id, reasonId = reason.id))
+      _ ← * <~ StoreCredits.create(
+             Factories.storeCredit
+               .copy(state = StoreCredit.Active, customerId = customer.id, originId = manual.id))
+      origin ← * <~ GiftCardManuals.create(
+                  GiftCardManual(adminId = admin.id, reasonId = reason.id))
+      giftCard ← * <~ GiftCards.create(
+                    Factories.giftCard.copy(originId = origin.id, state = GiftCard.Active))
+    } yield (cart.refNum, sku, cc, giftCard)).gimme
   }
 
   trait ExpectedWarningsForPayment {

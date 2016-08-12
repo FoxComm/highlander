@@ -17,3 +17,6 @@ main
 middlewarehouse
 middlewarehouse.exe
 .DS_Store
+
+# consumers
+consumers/stock-items/stock-items-consumer

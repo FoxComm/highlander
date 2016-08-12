@@ -6,7 +6,7 @@ import models.coupon.CouponCode
 import models.payment.PaymentMethod
 import models.shipping.ShippingMethod
 import responses.cord.CartResponse
-import responses.{Addresses, CreditCardsResponse, GiftCardResponse, StoreAdminResponse}
+import responses.{AddressResponse, CreditCardsResponse, GiftCardResponse, StoreAdminResponse}
 
 object CartTailored {
 
@@ -48,17 +48,17 @@ object CartTailored {
 
   /* Cart Shipping Addresses */
   case class CartShippingAddressAdded(cart: CartResponse,
-                                      shippingAddress: Addresses.Root,
+                                      shippingAddress: AddressResponse,
                                       admin: Option[StoreAdminResponse.Root])
       extends ActivityBase[CartShippingAddressAdded]
 
   case class CartShippingAddressUpdated(cart: CartResponse,
-                                        shippingAddress: Addresses.Root,
+                                        shippingAddress: AddressResponse,
                                         admin: Option[StoreAdminResponse.Root])
       extends ActivityBase[CartShippingAddressUpdated]
 
   case class CartShippingAddressRemoved(cart: CartResponse,
-                                        shippingAddress: Addresses.Root,
+                                        shippingAddress: AddressResponse,
                                         admin: Option[StoreAdminResponse.Root])
       extends ActivityBase[CartShippingAddressRemoved]
 

@@ -11,6 +11,8 @@ import _ from 'lodash';
 import { addIlluminatedAttribute } from '../../paragons/form-shadow-object';
 import { createEmptySku } from '../../paragons/sku';
 
+import { pushStockItemChanges } from '../inventory/warehouses';
+
 type Attribute = { t: string, v: any };
 type Attributes = { [key:string]: Attribute };
 
@@ -18,6 +20,7 @@ export type Sku = {
   code?: string,
   feCode?: string,
   attributes: Attributes,
+  id: any,
 };
 
 const defaultContext = 'default';
@@ -77,7 +80,8 @@ export function updateSku(sku: Sku, context: string = defaultContext): ActionDis
     const oldSku = _.get(getState(), ['skus', 'details', 'sku', 'attributes', 'code', 'v']);
     if (oldSku) {
       dispatch(skuUpdateStart());
-      return Api.patch(`/skus/${context}/${oldSku}`, sku)
+      const stockItemsPromise = dispatch(pushStockItemChanges(oldSku));
+      const updatePromise = Api.patch(`/skus/${context}/${oldSku}`, sku)
         .then(
           (res: Sku) => {
             const newCode = _.get(res, ['attributes', 'code', 'v']);
@@ -89,6 +93,8 @@ export function updateSku(sku: Sku, context: string = defaultContext): ActionDis
             dispatch(setError(err));
           }
         );
+
+      return Promise.all([updatePromise, stockItemsPromise]);
     }
   };
 }

@@ -62,7 +62,6 @@
     overflow: hidden;
     border-radius: 50%;
     margin-top: calc((var(--circle-size) - var(--image-size)) / 2);
-    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.50);
     font-size: 60px;
     line-height: var(--image-size);
     color: var(--decor0);

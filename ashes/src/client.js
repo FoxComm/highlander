@@ -25,6 +25,8 @@ export function start() {
 
   initTracker();
   history.listen(location => {
+    // reset title in order to have default title if page will not set own one
+    document.title = 'FoxCommerce';
     trackPageView(location.pathname);
   });
 

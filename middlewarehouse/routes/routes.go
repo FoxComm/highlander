@@ -10,20 +10,33 @@ import (
 func GetRoutes(db *gorm.DB) map[string]controllers.IController {
 	//repositories
 	carrierRepository := repositories.NewCarrierRepository(db)
+	summaryRepository := repositories.NewSummaryRepository(db)
+	stockItemRepository := repositories.NewStockItemRepository(db)
+	unitRepository := repositories.NewStockItemUnitRepository(db)
+	stockLocationRepository := repositories.NewStockLocationRepository(db)
 	shippingMethodRepository := repositories.NewShippingMethodRepository(db)
+	shipmentRepository := repositories.NewShipmentRepository(db)
+	addressRepository := repositories.NewAddressRepository(db)
+	shipmentLineItemRepository := repositories.NewShipmentLineItemRepository(db)
 
 	//services
-	summaryService := services.NewSummaryService(db)
-	inventoryService := services.NewInventoryService(db, summaryService)
+	summaryService := services.NewSummaryService(summaryRepository, stockItemRepository)
+	inventoryService := services.NewInventoryService(stockItemRepository, unitRepository, summaryService)
 	carrierService := services.NewCarrierService(carrierRepository)
+	stockLocationService := services.NewStockLocationService(stockLocationRepository)
 	shippingMethodService := services.NewShippingMethodService(shippingMethodRepository)
+	addressService := services.NewAddressService(addressRepository)
+	shipmentLineItemService := services.NewShipmentLineItemService(shipmentLineItemRepository)
+	shipmentService := services.NewShipmentService(shipmentRepository, addressService, shipmentLineItemService)
 
 	return map[string]controllers.IController{
 		"/ping":             controllers.NewPingController(),
 		"/summary":          controllers.NewSummaryController(summaryService),
 		"/stock-items":      controllers.NewStockItemController(inventoryService),
+		"/stock-locations":  controllers.NewStockLocationController(stockLocationService),
 		"/reservations":     controllers.NewReservationController(inventoryService),
 		"/carriers":         controllers.NewCarrierController(carrierService),
 		"/shipping-methods": controllers.NewShippingMethodController(shippingMethodService),
+		"/shipments":        controllers.NewShipmentController(shipmentService, addressService, shipmentLineItemService),
 	}
 }

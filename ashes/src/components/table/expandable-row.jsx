@@ -6,21 +6,18 @@ import classNames from 'classnames';
 // components
 import TableCell from '../table/cell';
 import TableRow from '../table/row';
-import Drawer from './drawer';
 
 function cells(columns, row, params, setCellContents) {
-  const cells = _.reduce(columns, (visibleCells, col) => {
+  return _.map(columns, col => {
     const cellKey = `row-${col.field}`;
     const cellContents = setCellContents(row, col.field);
-    visibleCells.push(
+
+    return (
       <TableCell onClick={params.toggleDrawerState} key={cellKey} column={col}>
         {cellContents}
       </TableCell>
     );
-    return visibleCells;
-  }, []);
-
-  return cells;
+  });
 }
 
 const ExpandableRow = props => {
@@ -46,11 +43,6 @@ ExpandableRow.propTypes = {
     toggleDrawerState: PropTypes.func.isRequired,
     isOpen: PropTypes.bool,
   }),
-  isOpen: PropTypes.bool,
-};
-
-ExpandableRow.defaultProps = {
-  isOpen: false,
 };
 
 export default ExpandableRow;

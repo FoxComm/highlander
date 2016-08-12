@@ -1,17 +1,18 @@
 package services
 
 import (
-	"database/sql"
 	"errors"
 	"fmt"
 
 	"github.com/FoxComm/highlander/middlewarehouse/models"
+	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 
 	"github.com/jinzhu/gorm"
 )
 
 type inventoryService struct {
-	db             *gorm.DB
+	stockItemRepo  repositories.IStockItemRepository
+	unitRepo       repositories.IStockItemUnitRepository
 	summaryService ISummaryService
 }
 
@@ -19,236 +20,167 @@ type IInventoryService interface {
 	GetStockItems() ([]*models.StockItem, error)
 	GetStockItemById(id uint) (*models.StockItem, error)
 	CreateStockItem(stockItem *models.StockItem) (*models.StockItem, error)
+	GetAFSByID(id uint, unitType models.UnitType) (*models.AFS, error)
+	GetAFSBySKU(sku string, unitType models.UnitType) (*models.AFS, error)
 
-	IncrementStockItemUnits(id uint, units []*models.StockItemUnit) error
-	DecrementStockItemUnits(id uint, qty int) error
+	IncrementStockItemUnits(id uint, unitType models.UnitType, units []*models.StockItemUnit) error
+	DecrementStockItemUnits(id uint, unitType models.UnitType, qty int) error
 
 	ReserveItems(refNum string, skus map[string]int) error
 	ReleaseItems(refNum string) error
 }
 
-func NewInventoryService(db *gorm.DB, summaryService ISummaryService) IInventoryService {
-	return &inventoryService{db, summaryService}
+func NewInventoryService(stockItemRepo repositories.IStockItemRepository, unitRepo repositories.IStockItemUnitRepository,
+	summaryService ISummaryService) IInventoryService {
+
+	return &inventoryService{stockItemRepo, unitRepo, summaryService}
 }
 
 func (service *inventoryService) GetStockItems() ([]*models.StockItem, error) {
-	items := []*models.StockItem{}
-	if err := service.db.Find(&items).Error; err != nil {
-		return nil, err
-	}
-
-	return items, nil
+	return service.stockItemRepo.GetStockItems()
 }
 
 func (service *inventoryService) GetStockItemById(id uint) (*models.StockItem, error) {
-	si := &models.StockItem{}
-	if err := service.db.First(si, id).Error; err != nil {
-		return nil, err
-	}
-
-	return si, nil
+	return service.stockItemRepo.GetStockItemById(id)
 }
 
 func (service *inventoryService) CreateStockItem(stockItem *models.StockItem) (*models.StockItem, error) {
-	txn := service.db.Begin()
-	if err := txn.Create(stockItem).Error; err != nil {
-		txn.Rollback()
+	if err := service.stockItemRepo.UpsertStockItem(stockItem); err != nil {
 		return nil, err
 	}
 
-	if err := service.summaryService.CreateStockItemSummary(stockItem.ID, txn); err != nil {
-		txn.Rollback()
+	if err := service.summaryService.CreateStockItemSummary(stockItem.ID); err != nil {
+		service.stockItemRepo.DeleteStockItem(stockItem.ID)
+
 		return nil, err
 	}
 
-	return stockItem, txn.Commit().Error
+	return stockItem, nil
 }
 
-func (service *inventoryService) IncrementStockItemUnits(id uint, units []*models.StockItemUnit) error {
-	stockItem := models.StockItem{}
-	if err := service.db.Find(&stockItem, id).Error; err != nil {
-		return err
-	}
-
-	txn := service.db.Begin()
-
-	for _, v := range units {
-		if err := txn.Create(v).Error; err != nil {
-			txn.Rollback()
-			return err
-		}
-	}
-
-	err := service.summaryService.UpdateStockItemSummary(id, len(units), StatusChange{to: "onHand"}, txn)
-	if err != nil {
-		txn.Rollback()
-		return err
-	}
-
-	return txn.Commit().Error
+func (service *inventoryService) GetAFSByID(id uint, unitType models.UnitType) (*models.AFS, error) {
+	return service.stockItemRepo.GetAFSByID(id, unitType)
 }
 
-func (service *inventoryService) DecrementStockItemUnits(id uint, qty int) error {
-	stockItem := models.StockItem{}
-	if err := service.db.Find(&stockItem, id).Error; err != nil {
+func (service *inventoryService) GetAFSBySKU(sku string, unitType models.UnitType) (*models.AFS, error) {
+	return service.stockItemRepo.GetAFSBySKU(sku, unitType)
+}
+
+func (service *inventoryService) IncrementStockItemUnits(stockItemId uint, unitType models.UnitType, units []*models.StockItemUnit) error {
+	if err := service.unitRepo.CreateUnits(units); err != nil {
 		return err
 	}
 
-	txn := service.db.Begin()
+	go service.summaryService.UpdateStockItemSummary(stockItemId, unitType, len(units), models.StatusChange{To: models.StatusOnHand})
 
-	units, err := onHandStockItemUnits(txn, id, qty)
+	return nil
+}
+
+func (service *inventoryService) DecrementStockItemUnits(stockItemId uint, unitType models.UnitType, qty int) error {
+	unitsIds, err := service.unitRepo.OnHandStockItemUnits(stockItemId, unitType, qty)
 	if err != nil {
-		txn.Rollback()
 		return err
 	}
 
-	for _, v := range units {
-		if err := txn.Delete(&v).Error; err != nil {
-			txn.Rollback()
-			return err
-		}
-	}
-
-	err = service.summaryService.UpdateStockItemSummary(id, -1*qty, StatusChange{to: "onHand"}, txn)
-	if err != nil {
-		txn.Rollback()
+	if err := service.unitRepo.DeleteUnits(unitsIds); err != nil {
 		return err
 	}
 
-	return txn.Commit().Error
+	go service.summaryService.UpdateStockItemSummary(stockItemId, unitType, -1*qty, models.StatusChange{To: models.StatusOnHand})
+
+	return nil
 }
 
 func (service *inventoryService) ReserveItems(refNum string, skus map[string]int) error {
-	txn := service.db.Begin()
-
+	// map [sku]qty to list of SKUs
 	skusList := []string{}
 	for code := range skus {
 		skusList = append(skusList, code)
 	}
 
-	items := []models.StockItem{}
-	if err := txn.Where("sku in (?)", skusList).Find(&items).Error; err != nil {
+	// get stock items associated with SKUs
+	items, err := service.stockItemRepo.GetStockItemsBySKUs(skusList)
+	if err != nil {
 		return err
 	}
 
+	// not all stock items by SKUs found
 	if len(skusList) != len(items) {
-		txn.Rollback()
 		return errors.New("Wrong SKUs list")
 	}
 
-	stockItemsMap := map[uint]int{}
+	// get available units for each stock item
 	unitsIds := []uint{}
 	for _, si := range items {
-		units, err := onHandStockItemUnits(txn, si.ID, skus[si.SKU])
+		ids, err := service.unitRepo.OnHandStockItemUnits(si.ID, models.Sellable, skus[si.SKU])
 		if err != nil {
-			txn.Rollback()
 			return err
 		}
 
-		for _, unit := range units {
-			unitsIds = append(unitsIds, unit.ID)
-		}
-
-		stockItemsMap[si.ID] = skus[si.SKU]
+		unitsIds = append(unitsIds, ids...)
 	}
 
-	// update StockItemUnit.ReservationID field
-	updateWith := models.StockItemUnit{
-		RefNum: sql.NullString{String: refNum, Valid: true},
-		Status: "onHold",
-	}
-
-	err := txn.Model(models.StockItemUnit{}).Where("id in (?)", unitsIds).Updates(updateWith).Error
+	// updated units with refNum and appropriate status
+	count, err := service.unitRepo.SetUnitsInOrder(refNum, unitsIds)
 	if err != nil {
-		txn.Rollback()
 		return err
 	}
 
-	for id, qty := range stockItemsMap {
-		err := service.summaryService.
-			UpdateStockItemSummary(id, qty, StatusChange{from: "onHand", to: "onHold"}, txn)
-		if err != nil {
-			txn.Rollback()
-			return err
-		}
+	if count == 0 {
+		return fmt.Errorf(`No stock item units associated with "%s"`, refNum)
 	}
 
-	return txn.Commit().Error
+	// updated summary
+	go service.updateSummaryOnReserve(items, skus, models.Sellable)
+
+	return nil
 }
 
 func (service *inventoryService) ReleaseItems(refNum string) error {
-	txn := service.db.Begin()
-
-	unitsCount := 0
-	txn.Model(&models.StockItemUnit{}).Where("ref_num = ?", refNum).Count(&unitsCount)
-
-	if unitsCount == 0 {
-		txn.Rollback()
-		return fmt.Errorf("No stock item units associated with %s", refNum)
-	}
-
-	// gorm does not update empty fields when updating with struct, so use map here
-	updateWith := map[string]interface{}{
-		"ref_num": sql.NullString{String: "", Valid: false},
-		"status":  "onHand",
-	}
-
-	// extract summary update logic
-	units := []models.StockItemUnit{}
-	if err := txn.Where("ref_num = ?", refNum).Find(&units).Error; err != nil {
-		return err
-	}
-
-	stockItemsMap := map[uint]int{}
-	for _, unit := range units {
-		if _, ok := stockItemsMap[unit.StockItemID]; ok {
-			stockItemsMap[unit.StockItemID] += 1
-		} else {
-			stockItemsMap[unit.StockItemID] = 1
-		}
-	}
-
-	err := txn.Model(&models.StockItemUnit{}).Where("ref_num = ?", refNum).Updates(updateWith).Error
+	// extract stock item ids/qty by refNum
+	unitsQty, err := service.unitRepo.GetReleaseQtyByRefNum(refNum)
 	if err != nil {
-		txn.Rollback()
 		return err
 	}
 
+	count, err := service.unitRepo.UnsetUnitsInOrder(refNum)
+	if err != nil {
+		return err
+	}
+
+	if count == 0 {
+		return fmt.Errorf(`No stock item units associated with "%s"`, refNum)
+	}
+
+	go service.updateSummaryOnRelease(unitsQty, models.Sellable)
+
+	return nil
+}
+
+func (service *inventoryService) updateSummaryOnReserve(items []*models.StockItem, skus map[string]int, unitType models.UnitType) error {
+	stockItemsMap := map[uint]int{}
+	for _, si := range items {
+		stockItemsMap[si.ID] = skus[si.SKU]
+	}
+
+	statusShift := models.StatusChange{From: models.StatusOnHand, To: models.StatusOnHold}
 	for id, qty := range stockItemsMap {
-		err := service.summaryService.
-			UpdateStockItemSummary(id, qty, StatusChange{from: "onHold", to: "onHand"}, txn)
-		if err != nil {
-			txn.Rollback()
+		if err := service.summaryService.UpdateStockItemSummary(id, unitType, qty, statusShift); err != nil {
 			return err
 		}
 	}
 
-	return txn.Commit().Error
+	return nil
 }
 
-func onHandStockItemUnits(db *gorm.DB, stockItemID uint, count int) ([]models.StockItemUnit, error) {
-	units := []models.StockItemUnit{}
-	err := db.Limit(count).
-		Order("created_at desc").
-		Where("stock_item_id = ?", stockItemID).
-		Where("status = ?", "onHand").
-		Find(&units).
-		Error
+func (service *inventoryService) updateSummaryOnRelease(unitsQty []*models.Release, unitType models.UnitType) error {
+	for _, item := range unitsQty {
+		statusShift := models.StatusChange{From: models.StatusOnHold, To: models.StatusOnHand}
 
-	if err != nil {
-		return units, err
+		if err := service.summaryService.UpdateStockItemSummary(item.StockItemID, unitType, item.Qty, statusShift); err != nil {
+			return err
+		}
 	}
 
-	if len(units) < count {
-		err := fmt.Errorf(
-			"Not enough onHand units for stock item %v. Expected %v, got %v",
-			stockItemID,
-			count,
-			len(units),
-		)
-
-		return units, err
-	}
-
-	return units, nil
+	return nil
 }

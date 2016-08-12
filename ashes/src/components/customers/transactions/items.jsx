@@ -65,18 +65,22 @@ class CustomerItems extends Component {
   }
 
   render(): Element {
+    const { props } = this;
+
     return (
       <div className="fc-customer-items">
         <ListPage
           addTitle="Items"
+          documentTitle={`${props.customer.name || 'Customer'} Items`}
           emptyMessage="No purchased items found."
-          list={this.props.list}
+          list={props.list}
           renderRow={this.renderRow}
           tableColumns={tableColumns}
-          searchActions={this.props.actions}
+          searchActions={props.actions}
           searchOptions={{singleSearch: true}}
           hasActionsColumn={false}
-          title="Items"/>
+          title="Items"
+        />
       </div>
     );
   }

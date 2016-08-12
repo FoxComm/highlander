@@ -18,4 +18,8 @@ object CustomerFailures {
   case object CustomerHasDefaultShippingAddress extends Failure {
     override def description = "customer already has default shipping address"
   }
+
+  case class CustomerIsBlacklisted(customerId: Int) extends Failure {
+    override def description = s"Customer with id = $customerId is blacklisted"
+  }
 }

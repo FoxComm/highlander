@@ -1,0 +1,1 @@
+alter table shipments rename column method_id to shipping_method_id
