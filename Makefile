@@ -5,13 +5,13 @@ BUILDDIRS = $(SUBDIRS:%=build-%)
 TESTDIRS = $(SUBDIRS:%=test-%)
 
 build: $(BUILDDIRS)
-    $(MAKE) -C api-js build
+	$(MAKE) -C api-js build
 $(BUILDDIRS): REPO = $(@:build-%=%) 
 $(BUILDDIRS): 
 	$(MAKE) -C $(REPO) build
 
 test: $(TESTDIRS)
-    $(MAKE) -C api-js test
+	$(MAKE) -C api-js test
 $(TESTDIRS): REPO = $(@:test-%=%) 
 $(TESTDIRS): 
 	$(MAKE) -C $(REPO) test
