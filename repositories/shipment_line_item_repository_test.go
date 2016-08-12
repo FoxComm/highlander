@@ -8,7 +8,6 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/jinzhu/gorm"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -25,13 +24,11 @@ func (suite *ShipmentLineItemRepositoryTestSuite) SetupTest() {
 	suite.db, suite.mock = CreateDbMock()
 
 	suite.repository = NewShipmentLineItemRepository(suite.db)
-
-	suite.assert = assert.New(suite.T())
 }
 
 func (suite *ShipmentLineItemRepositoryTestSuite) TearDownTest() {
 	//make sure that all expectations were met
-	suite.assert.Nil(suite.mock.ExpectationsWereMet())
+	suite.Nil(suite.mock.ExpectationsWereMet())
 
 	suite.db.Close()
 }
@@ -53,10 +50,10 @@ func (suite *ShipmentLineItemRepositoryTestSuite) Test_GetShipmentLineItemsByShi
 	shipmentLineItems, err := suite.repository.GetShipmentLineItemsByShipmentID(shipmentLineItem1.ShipmentID)
 
 	//assert
-	suite.assert.Nil(err)
-	suite.assert.Equal(2, len(shipmentLineItems))
-	suite.assert.Equal(shipmentLineItem1, shipmentLineItems[0])
-	suite.assert.Equal(shipmentLineItem2, shipmentLineItems[1])
+	suite.Nil(err)
+	suite.Equal(2, len(shipmentLineItems))
+	suite.Equal(shipmentLineItem1, shipmentLineItems[0])
+	suite.Equal(shipmentLineItem2, shipmentLineItems[1])
 }
 
 func (suite *ShipmentLineItemRepositoryTestSuite) Test_CreateShipmentLineItem_ReturnsCreatedRecord() {
@@ -71,10 +68,10 @@ func (suite *ShipmentLineItemRepositoryTestSuite) Test_CreateShipmentLineItem_Re
 	shipmentLineItem, err := suite.repository.CreateShipmentLineItem(fixtures.GetShipmentLineItem(uint(0), uint(1)))
 
 	//assert
-	suite.assert.Nil(err)
+	suite.Nil(err)
 	shipmentLineItem1.CreatedAt = shipmentLineItem.CreatedAt
 	shipmentLineItem1.UpdatedAt = shipmentLineItem.UpdatedAt
-	suite.assert.Equal(shipmentLineItem1, shipmentLineItem)
+	suite.Equal(shipmentLineItem1, shipmentLineItem)
 }
 
 func (suite *ShipmentLineItemRepositoryTestSuite) Test_UpdateShipmentLineItem_NotFound_ReturnsNotFoundError() {
@@ -88,7 +85,7 @@ func (suite *ShipmentLineItemRepositoryTestSuite) Test_UpdateShipmentLineItem_No
 	_, err := suite.repository.UpdateShipmentLineItem(shipmentLineItem1)
 
 	//assert
-	suite.assert.Equal(gorm.ErrRecordNotFound, err)
+	suite.Equal(gorm.ErrRecordNotFound, err)
 }
 
 func (suite *ShipmentLineItemRepositoryTestSuite) Test_UpdateShipmentLineItem_Found_ReturnsUpdatedRecord() {
@@ -103,10 +100,10 @@ func (suite *ShipmentLineItemRepositoryTestSuite) Test_UpdateShipmentLineItem_Fo
 	shipmentLineItem, err := suite.repository.UpdateShipmentLineItem(shipmentLineItem1)
 
 	//assert
-	suite.assert.Nil(err)
+	suite.Nil(err)
 	shipmentLineItem1.CreatedAt = shipmentLineItem.CreatedAt
 	shipmentLineItem1.UpdatedAt = shipmentLineItem.UpdatedAt
-	suite.assert.Equal(shipmentLineItem1, shipmentLineItem)
+	suite.Equal(shipmentLineItem1, shipmentLineItem)
 }
 
 func (suite *ShipmentLineItemRepositoryTestSuite) Test_DeleteShipmentLineItem_NotFound_ReturnsNotFoundError() {
@@ -119,7 +116,7 @@ func (suite *ShipmentLineItemRepositoryTestSuite) Test_DeleteShipmentLineItem_No
 	err := suite.repository.DeleteShipmentLineItem(1)
 
 	//assert
-	suite.assert.Equal(gorm.ErrRecordNotFound, err)
+	suite.Equal(gorm.ErrRecordNotFound, err)
 }
 
 func (suite *ShipmentLineItemRepositoryTestSuite) Test_DeleteShipmentLineItem_Found_ReturnsNoError() {
@@ -132,7 +129,7 @@ func (suite *ShipmentLineItemRepositoryTestSuite) Test_DeleteShipmentLineItem_Fo
 	err := suite.repository.DeleteShipmentLineItem(1)
 
 	//assert
-	suite.assert.Nil(err)
+	suite.Nil(err)
 }
 
 func (suite *ShipmentLineItemRepositoryTestSuite) expectSelectByID(shipmentLineItem *models.ShipmentLineItem) {

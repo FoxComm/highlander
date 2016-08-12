@@ -8,7 +8,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
@@ -23,7 +22,6 @@ func TestReservationControllerSuite(t *testing.T) {
 }
 
 func (suite *reservationControllerTestSuite) SetupSuite() {
-	suite.assert = assert.New(suite.T())
 	// set up test env once
 	suite.service = new(mocks.InventoryServiceMock)
 	suite.router = gin.Default()
@@ -45,7 +43,7 @@ func (suite *reservationControllerTestSuite) Test_ReserveItems() {
 
 	res := suite.Post("/reservations/reserve", jsonStr)
 
-	suite.assert.Equal(http.StatusNoContent, res.Code)
+	suite.Equal(http.StatusNoContent, res.Code)
 	suite.service.AssertExpectations(suite.T())
 }
 
@@ -56,8 +54,8 @@ func (suite *reservationControllerTestSuite) Test_ReserveItems_WrongSKUs() {
 
 	res := suite.Post("/reservations/reserve", jsonStr)
 
-	suite.assert.Equal(http.StatusNotFound, res.Code)
-	suite.assert.Contains(res.Body.String(), "errors")
+	suite.Equal(http.StatusNotFound, res.Code)
+	suite.Contains(res.Body.String(), "errors")
 
 	suite.service.AssertExpectations(suite.T())
 }
@@ -67,9 +65,9 @@ func (suite *reservationControllerTestSuite) Test_ReserveItems_EmptySKUsList() {
 
 	res := suite.Post("/reservations/reserve", jsonStr)
 
-	suite.assert.Equal(http.StatusBadRequest, res.Code)
-	suite.assert.Contains(res.Body.String(), "errors")
-	suite.assert.Contains(res.Body.String(), "Reservation must have at least one SKU")
+	suite.Equal(http.StatusBadRequest, res.Code)
+	suite.Contains(res.Body.String(), "errors")
+	suite.Contains(res.Body.String(), "Reservation must have at least one SKU")
 }
 
 func (suite *reservationControllerTestSuite) Test_ReleaseItems() {
@@ -79,7 +77,7 @@ func (suite *reservationControllerTestSuite) Test_ReleaseItems() {
 
 	res := suite.Post("/reservations/cancel", jsonStr)
 
-	suite.assert.Equal(http.StatusNoContent, res.Code)
+	suite.Equal(http.StatusNoContent, res.Code)
 	suite.service.AssertExpectations(suite.T())
 }
 
@@ -90,8 +88,8 @@ func (suite *reservationControllerTestSuite) Test_ReserveItems_WrongRefNum() {
 
 	res := suite.Post("/reservations/cancel", jsonStr)
 
-	suite.assert.Equal(http.StatusNotFound, res.Code)
-	suite.assert.Contains(res.Body.String(), "errors")
+	suite.Equal(http.StatusNotFound, res.Code)
+	suite.Contains(res.Body.String(), "errors")
 
 	suite.service.AssertExpectations(suite.T())
 }

@@ -8,8 +8,8 @@ import (
 
 func GetCountry(id uint) *models.Country {
 	return &models.Country{
-		ID:               id,
-		Name:             "Russia",
+		ID:   id,
+		Name: "Russia",
 	}
 }
 

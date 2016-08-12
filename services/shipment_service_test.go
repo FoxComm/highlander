@@ -10,7 +10,6 @@ import (
 	repositoryMocks "github.com/FoxComm/middlewarehouse/services/mocks"
 
 	"github.com/jinzhu/gorm"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
@@ -32,8 +31,6 @@ func (suite *ShipmentServiceTestSuite) SetupTest() {
 	suite.addressService = &serviceMocks.AddressServiceMock{}
 	suite.shipmentLineItemService = &serviceMocks.ShipmentLineItemServiceMock{}
 	suite.service = NewShipmentService(suite.shipmentRepository, suite.addressService, suite.shipmentLineItemService)
-
-	suite.assert = assert.New(suite.T())
 }
 
 func (suite *ShipmentServiceTestSuite) TearDownTest() {
@@ -64,10 +61,10 @@ func (suite *ShipmentServiceTestSuite) Test_GetShipmentsByReferenceNumber_Return
 	shipments, err := suite.service.GetShipmentsByReferenceNumber(shipment1.ReferenceNumber)
 
 	//assert
-	suite.assert.Nil(err)
-	suite.assert.Equal(2, len(shipments))
-	suite.assert.Equal(shipment1, shipments[0])
-	suite.assert.Equal(shipment2, shipments[1])
+	suite.Nil(err)
+	suite.Equal(2, len(shipments))
+	suite.Equal(shipment1, shipments[0])
+	suite.Equal(shipment2, shipments[1])
 }
 
 func (suite *ShipmentServiceTestSuite) Test_CreateShipment_Succeed_ReturnsCreatedRecord() {
@@ -84,8 +81,8 @@ func (suite *ShipmentServiceTestSuite) Test_CreateShipment_Succeed_ReturnsCreate
 	shipment, err := suite.service.CreateShipment(shipment1)
 
 	//assert
-	suite.assert.Nil(err)
-	suite.assert.Equal(shipment1, shipment)
+	suite.Nil(err)
+	suite.Equal(shipment1, shipment)
 }
 
 func (suite *ShipmentServiceTestSuite) Test_CreateShipment_ShipmentFailure_PerformsRollback() {
@@ -100,7 +97,7 @@ func (suite *ShipmentServiceTestSuite) Test_CreateShipment_ShipmentFailure_Perfo
 	_, err := suite.service.CreateShipment(shipment1)
 
 	//assert
-	suite.assert.Equal(err1, err)
+	suite.Equal(err1, err)
 }
 
 func (suite *ShipmentServiceTestSuite) Test_CreateShipment_LineItemFailure_PerformsRollback() {
@@ -120,7 +117,7 @@ func (suite *ShipmentServiceTestSuite) Test_CreateShipment_LineItemFailure_Perfo
 	_, err := suite.service.CreateShipment(shipment1)
 
 	//assert
-	suite.assert.Equal(err1, err)
+	suite.Equal(err1, err)
 }
 
 func (suite *ShipmentServiceTestSuite) Test_UpdateShipment_NotFound_ReturnsNotFoundError() {
@@ -132,7 +129,7 @@ func (suite *ShipmentServiceTestSuite) Test_UpdateShipment_NotFound_ReturnsNotFo
 	_, err := suite.service.UpdateShipment(shipment1)
 
 	//assert
-	suite.assert.Equal(gorm.ErrRecordNotFound, err)
+	suite.Equal(gorm.ErrRecordNotFound, err)
 }
 
 func (suite *ShipmentServiceTestSuite) Test_UpdateShipment_Found_ReturnsUpdatedRecord() {
@@ -147,6 +144,6 @@ func (suite *ShipmentServiceTestSuite) Test_UpdateShipment_Found_ReturnsUpdatedR
 	shipment, err := suite.service.UpdateShipment(shipment1)
 
 	//assert
-	suite.assert.Nil(err)
-	suite.assert.Equal(shipment1, shipment)
+	suite.Nil(err)
+	suite.Equal(shipment1, shipment)
 }

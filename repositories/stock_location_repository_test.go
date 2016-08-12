@@ -7,7 +7,6 @@ import (
 	"github.com/FoxComm/middlewarehouse/common/db/tasks"
 	"github.com/FoxComm/middlewarehouse/models"
 	"github.com/jinzhu/gorm"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -24,8 +23,8 @@ func TestStockLocationRepositorySuite(t *testing.T) {
 func (suite *stockLocationRepositoryTestSuite) SetupSuite() {
 	suite.db, _ = config.DefaultConnection()
 	suite.repository = NewStockLocationRepository(suite.db)
-	suite.assert = assert.New(suite.T())
 }
+
 func (suite *stockLocationRepositoryTestSuite) SetupTest() {
 	tasks.TruncateTables([]string{
 		"stock_locations",
@@ -47,23 +46,23 @@ func (suite *stockLocationRepositoryTestSuite) TearDownSuite() {
 func (suite *stockLocationRepositoryTestSuite) Test_GetLocations() {
 	locations, err := suite.repository.GetLocations()
 
-	suite.assert.Nil(err)
-	suite.assert.Equal(1, len(locations))
+	suite.Nil(err)
+	suite.Equal(1, len(locations))
 }
 
 func (suite *stockLocationRepositoryTestSuite) Test_GetLocationById() {
 	location, err := suite.repository.GetLocationByID(suite.location.ID)
 
-	suite.assert.Nil(err)
-	suite.assert.Equal(suite.location.Name, location.Name)
+	suite.Nil(err)
+	suite.Equal(suite.location.Name, location.Name)
 }
 
 func (suite *stockLocationRepositoryTestSuite) Test_GetLocationById_NotFound() {
 	location, err := suite.repository.GetLocationByID(suite.location.ID + 1)
 
-	suite.assert.Nil(location)
-	suite.assert.NotNil(err)
-	suite.assert.IsType(gorm.ErrRecordNotFound, err)
+	suite.Nil(location)
+	suite.NotNil(err)
+	suite.IsType(gorm.ErrRecordNotFound, err)
 }
 
 func (suite *stockLocationRepositoryTestSuite) Test_CreateLocation() {
@@ -75,9 +74,9 @@ func (suite *stockLocationRepositoryTestSuite) Test_CreateLocation() {
 
 	location, err := suite.repository.CreateLocation(model)
 
-	suite.assert.NotNil(location)
-	suite.assert.Nil(err)
-	suite.assert.NotNil(location.ID)
+	suite.NotNil(location)
+	suite.Nil(err)
+	suite.NotNil(location.ID)
 }
 
 func (suite *stockLocationRepositoryTestSuite) Test_UpdateLocation() {
@@ -86,10 +85,10 @@ func (suite *stockLocationRepositoryTestSuite) Test_UpdateLocation() {
 
 	location, err := suite.repository.UpdateLocation(&model)
 
-	suite.assert.NotNil(location)
-	suite.assert.Nil(err)
-	suite.assert.Equal(model.Name, location.Name)
-	suite.assert.NotEqual(suite.location.Name, location.Name)
+	suite.NotNil(location)
+	suite.Nil(err)
+	suite.Equal(model.Name, location.Name)
+	suite.NotEqual(suite.location.Name, location.Name)
 }
 
 func (suite *stockLocationRepositoryTestSuite) Test_UpdateLocation_NotFound() {
@@ -102,18 +101,18 @@ func (suite *stockLocationRepositoryTestSuite) Test_UpdateLocation_NotFound() {
 
 	location, err := suite.repository.UpdateLocation(model)
 
-	suite.assert.Nil(location)
-	suite.assert.Equal(gorm.ErrRecordNotFound, err)
+	suite.Nil(location)
+	suite.Equal(gorm.ErrRecordNotFound, err)
 }
 
 func (suite *stockLocationRepositoryTestSuite) Test_DeleteLocation() {
 	err := suite.repository.DeleteLocation(suite.location.ID)
 
-	suite.assert.Nil(err)
+	suite.Nil(err)
 }
 
 func (suite *stockLocationRepositoryTestSuite) Test_DeleteLocation_NotFound() {
 	err := suite.repository.DeleteLocation(uint(1e9))
 
-	suite.assert.Equal(gorm.ErrRecordNotFound, err)
+	suite.Equal(gorm.ErrRecordNotFound, err)
 }
