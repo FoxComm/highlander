@@ -3,7 +3,7 @@ package services.image
 import java.time.Instant
 
 import failures.ImageFailures._
-import failures.{ImageFailures, NotFoundFailure400, NotFoundFailure404, ProductFailures}
+import failures.{NotFoundFailure400, NotFoundFailure404}
 import models.StoreAdmin
 import models.image._
 import models.inventory.Sku
@@ -235,12 +235,8 @@ object ImageManager {
       productFormId: ObjectForm#Id,
       position: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[Seq[AlbumRoot]] =
     for {
-      product ← * <~ Products
-                 .filter(_.formId === productFormId)
-                 .mustFindOneOr(ProductFailures.ProductFormNotFound(productFormId))
-      album ← * <~ Albums
-               .filter(_.formId === albumFormId)
-               .mustFindOneOr(ImageFailures.AlbumNotFoundForContext(albumFormId, oc.id))
+      product     ← * <~ ProductManager.mustFindProductByContextAndFormId404(oc.id, productFormId)
+      album       ← * <~ ImageManager.mustFindAlbumByFormIdAndContext404(albumFormId, oc)
       updatedLink ← * <~ ProductAlbumLinks.updatePosition(product, album, position)
       albums      ← * <~ getAlbumsForProductInner(product)
     } yield albums
