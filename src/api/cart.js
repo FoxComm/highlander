@@ -10,20 +10,10 @@ import * as endpoints from '../endpoints';
 
 // reduce SKU list
 function collectLineItems(skus) {
-  const uniqueSkus = Object.create(null);
-  return _.reduce(skus, (result, lineItem) => {
-    const sku = lineItem.sku;
-
-    if (sku in uniqueSkus) {
-      const qty = result[uniqueSkus[sku]].quantity += lineItem.quantity;
-      result[uniqueSkus[sku]].totalPrice = lineItem.price * qty;
-    } else {
-      uniqueSkus[sku] = result.length;
-      result.push(lineItem);
-    }
-
-    return result;
-  }, []);
+    return _.map(skus, (l) => { 
+    l.totalPrice = l.quanity * l.price;
+    return l;
+  });
 }
 
 function normalizeResponse(payload) {
