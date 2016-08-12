@@ -44,10 +44,7 @@ class Customers extends Component {
       dsl.termFilter('isGuest', false)
       //dsl.termFilter('storeCreditTotal', 0)
     ]);
-    this.props.actions.searchSuccess();
-    // if(this.props.actions.searchSuccess()) {
-    //   this.props.actions.fetch();
-    // }
+    this.props.actions.fetch();
   }
 
   renderRow(row, index, columns, params) {
