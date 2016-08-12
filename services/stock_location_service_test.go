@@ -7,7 +7,6 @@ import (
 	"github.com/FoxComm/middlewarehouse/models"
 	"github.com/FoxComm/middlewarehouse/services/mocks"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
@@ -25,8 +24,6 @@ func TestStockLocationServiceSuite(t *testing.T) {
 func (suite *StockLocationServiceTestSuite) SetupSuite() {
 	suite.repository = &mocks.StockLocationRepositoryMock{}
 	suite.service = NewStockLocationService(suite.repository)
-
-	suite.assert = assert.New(suite.T())
 }
 
 func (suite *StockLocationServiceTestSuite) TearDownTest() {
@@ -44,8 +41,8 @@ func (suite *StockLocationServiceTestSuite) Test_GetLocations() {
 
 	locations, err := suite.service.GetLocations()
 
-	suite.assert.Nil(err)
-	suite.assert.Equal(models, locations)
+	suite.Nil(err)
+	suite.Equal(models, locations)
 	suite.repository.AssertExpectations(suite.T())
 }
 
@@ -55,8 +52,8 @@ func (suite *StockLocationServiceTestSuite) Test_GetLocationByID() {
 
 	location, err := suite.service.GetLocationByID(1)
 
-	suite.assert.Nil(err)
-	suite.assert.Equal(model, location)
+	suite.Nil(err)
+	suite.Equal(model, location)
 	suite.repository.AssertExpectations(suite.T())
 }
 
@@ -65,8 +62,8 @@ func (suite *StockLocationServiceTestSuite) Test_GetLocationByID_NotFound() {
 
 	location, err := suite.service.GetLocationByID(1)
 
-	suite.assert.NotNil(err)
-	suite.assert.Nil(location)
+	suite.NotNil(err)
+	suite.Nil(location)
 	suite.repository.AssertExpectations(suite.T())
 }
 
@@ -76,8 +73,8 @@ func (suite *StockLocationServiceTestSuite) Test_CreateLocation() {
 
 	location, err := suite.service.CreateLocation(model)
 
-	suite.assert.Nil(err)
-	suite.assert.Equal(model, location)
+	suite.Nil(err)
+	suite.Equal(model, location)
 	suite.repository.AssertExpectations(suite.T())
 }
 
@@ -87,8 +84,8 @@ func (suite *StockLocationServiceTestSuite) Test_CreateLocation_Error() {
 
 	location, err := suite.service.CreateLocation(model)
 
-	suite.assert.NotNil(err)
-	suite.assert.Nil(location)
+	suite.NotNil(err)
+	suite.Nil(location)
 	suite.repository.AssertExpectations(suite.T())
 }
 
@@ -98,8 +95,8 @@ func (suite *StockLocationServiceTestSuite) Test_UpdateLocation() {
 
 	location, err := suite.service.UpdateLocation(model)
 
-	suite.assert.Nil(err)
-	suite.assert.Equal(model, location)
+	suite.Nil(err)
+	suite.Equal(model, location)
 	suite.repository.AssertExpectations(suite.T())
 }
 
@@ -109,8 +106,8 @@ func (suite *StockLocationServiceTestSuite) Test_UpdateLocation_Error() {
 
 	location, err := suite.service.CreateLocation(model)
 
-	suite.assert.NotNil(err)
-	suite.assert.Nil(location)
+	suite.NotNil(err)
+	suite.Nil(location)
 	suite.repository.AssertExpectations(suite.T())
 }
 
@@ -119,7 +116,7 @@ func (suite *StockLocationServiceTestSuite) Test_DeleteLocation() {
 
 	err := suite.service.DeleteLocation(1)
 
-	suite.assert.Nil(err)
+	suite.Nil(err)
 }
 
 func (suite *StockLocationServiceTestSuite) Test_DeleteLocation_Error() {
@@ -127,5 +124,5 @@ func (suite *StockLocationServiceTestSuite) Test_DeleteLocation_Error() {
 
 	err := suite.service.DeleteLocation(1)
 
-	suite.assert.NotNil(err)
+	suite.NotNil(err)
 }

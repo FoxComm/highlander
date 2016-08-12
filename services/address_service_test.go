@@ -8,7 +8,6 @@ import (
 	"github.com/FoxComm/middlewarehouse/services/mocks"
 
 	"github.com/jinzhu/gorm"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
@@ -26,8 +25,6 @@ func TestAddressServiceSuite(t *testing.T) {
 func (suite *AddressServiceTestSuite) SetupTest() {
 	suite.repository = &mocks.AddressRepositoryMock{}
 	suite.service = NewAddressService(suite.repository)
-
-	suite.assert = assert.New(suite.T())
 }
 
 func (suite *AddressServiceTestSuite) TearDownTest() {
@@ -47,7 +44,7 @@ func (suite *AddressServiceTestSuite) Test_GetAddressById_NotFound_ReturnsNotFou
 	_, err := suite.service.GetAddressByID(uint(1))
 
 	//assert
-	suite.assert.Equal(gorm.ErrRecordNotFound, err)
+	suite.Equal(gorm.ErrRecordNotFound, err)
 }
 
 func (suite *AddressServiceTestSuite) Test_GetAddressByID_Found_ReturnsAddressModel() {
@@ -59,8 +56,8 @@ func (suite *AddressServiceTestSuite) Test_GetAddressByID_Found_ReturnsAddressMo
 	address, err := suite.service.GetAddressByID(address1.ID)
 
 	//assert
-	suite.assert.Nil(err)
-	suite.assert.Equal(address1, address)
+	suite.Nil(err)
+	suite.Equal(address1, address)
 }
 
 func (suite *AddressServiceTestSuite) Test_CreateAddress_ReturnsCreatedRecord() {
@@ -72,8 +69,8 @@ func (suite *AddressServiceTestSuite) Test_CreateAddress_ReturnsCreatedRecord() 
 	address, err := suite.service.CreateAddress(address1)
 
 	//assert
-	suite.assert.Nil(err)
-	suite.assert.Equal(address1, address)
+	suite.Nil(err)
+	suite.Equal(address1, address)
 }
 
 func (suite *AddressServiceTestSuite) Test_DeleteAddress_NotFound_ReturnsNotFoundError() {
@@ -84,7 +81,7 @@ func (suite *AddressServiceTestSuite) Test_DeleteAddress_NotFound_ReturnsNotFoun
 	err := suite.service.DeleteAddress(uint(1))
 
 	//assert
-	suite.assert.Equal(gorm.ErrRecordNotFound, err)
+	suite.Equal(gorm.ErrRecordNotFound, err)
 }
 
 func (suite *AddressServiceTestSuite) Test_DeleteAddress_Found_ReturnsNoError() {
@@ -95,5 +92,5 @@ func (suite *AddressServiceTestSuite) Test_DeleteAddress_Found_ReturnsNoError() 
 	err := suite.service.DeleteAddress(uint(1))
 
 	//assert
-	suite.assert.Nil(err)
+	suite.Nil(err)
 }

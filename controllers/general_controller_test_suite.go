@@ -10,13 +10,11 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
 
 type GeneralControllerTestSuite struct {
 	suite.Suite
-	assert *assert.Assertions
 	router *gin.Engine
 }
 

@@ -7,10 +7,9 @@ import (
 	"github.com/FoxComm/middlewarehouse/models"
 	"github.com/FoxComm/middlewarehouse/services/mocks"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
-	"github.com/jinzhu/gorm"
 )
 
 type ShippingMethodServiceTestSuite struct {
@@ -26,8 +25,6 @@ func TestShippingMethodServiceSuite(t *testing.T) {
 func (suite *ShippingMethodServiceTestSuite) SetupTest() {
 	suite.repository = &mocks.ShippingMethodRepositoryMock{}
 	suite.service = NewShippingMethodService(suite.repository)
-
-	suite.assert = assert.New(suite.T())
 }
 
 func (suite *ShippingMethodServiceTestSuite) TearDownTest() {
@@ -49,11 +46,11 @@ func (suite *ShippingMethodServiceTestSuite) Test_GetShippingMethods_ReturnsShip
 	shippingMethods, err := suite.service.GetShippingMethods()
 
 	//assert
-	suite.assert.Nil(err)
+	suite.Nil(err)
 
-	suite.assert.Equal(2, len(shippingMethods))
-	suite.assert.Equal(shippingMethod1, shippingMethods[0])
-	suite.assert.Equal(shippingMethod2, shippingMethods[1])
+	suite.Equal(2, len(shippingMethods))
+	suite.Equal(shippingMethod1, shippingMethods[0])
+	suite.Equal(shippingMethod2, shippingMethods[1])
 }
 
 func (suite *ShippingMethodServiceTestSuite) Test_GetShippingMethodByID_NotFound_ReturnsNotFoundError() {
@@ -64,7 +61,7 @@ func (suite *ShippingMethodServiceTestSuite) Test_GetShippingMethodByID_NotFound
 	_, err := suite.service.GetShippingMethodByID(uint(1))
 
 	//assert
-	suite.assert.Equal(gorm.ErrRecordNotFound, err)
+	suite.Equal(gorm.ErrRecordNotFound, err)
 }
 
 func (suite *ShippingMethodServiceTestSuite) Test_GetShippingMethodByID_Found_ReturnsShippingMethodModel() {
@@ -76,8 +73,8 @@ func (suite *ShippingMethodServiceTestSuite) Test_GetShippingMethodByID_Found_Re
 	shippingMethod, err := suite.service.GetShippingMethodByID(shippingMethod1.ID)
 
 	//assert
-	suite.assert.Nil(err)
-	suite.assert.Equal(shippingMethod1, shippingMethod)
+	suite.Nil(err)
+	suite.Equal(shippingMethod1, shippingMethod)
 }
 
 func (suite *ShippingMethodServiceTestSuite) Test_CreateShippingMethod_ReturnsCreatedRecord() {
@@ -89,8 +86,8 @@ func (suite *ShippingMethodServiceTestSuite) Test_CreateShippingMethod_ReturnsCr
 	shippingMethod, err := suite.service.CreateShippingMethod(shippingMethod1)
 
 	//assert
-	suite.assert.Nil(err)
-	suite.assert.Equal(shippingMethod1, shippingMethod)
+	suite.Nil(err)
+	suite.Equal(shippingMethod1, shippingMethod)
 }
 
 func (suite *ShippingMethodServiceTestSuite) Test_UpdateShippingMethod_NotFound_ReturnsNotFoundError() {
@@ -102,7 +99,7 @@ func (suite *ShippingMethodServiceTestSuite) Test_UpdateShippingMethod_NotFound_
 	_, err := suite.service.UpdateShippingMethod(shippingMethod1)
 
 	//assert
-	suite.assert.Equal(gorm.ErrRecordNotFound, err)
+	suite.Equal(gorm.ErrRecordNotFound, err)
 }
 
 func (suite *ShippingMethodServiceTestSuite) Test_UpdateShippingMethod_Found_ReturnsUpdatedRecord() {
@@ -114,8 +111,8 @@ func (suite *ShippingMethodServiceTestSuite) Test_UpdateShippingMethod_Found_Ret
 	shippingMethod, err := suite.service.UpdateShippingMethod(shippingMethod1)
 
 	//assert
-	suite.assert.Nil(err)
-	suite.assert.Equal(shippingMethod1, shippingMethod)
+	suite.Nil(err)
+	suite.Equal(shippingMethod1, shippingMethod)
 }
 
 func (suite *ShippingMethodServiceTestSuite) Test_DeleteShippingMethod_NotFound_ReturnsNotFoundError() {
@@ -126,7 +123,7 @@ func (suite *ShippingMethodServiceTestSuite) Test_DeleteShippingMethod_NotFound_
 	err := suite.service.DeleteShippingMethod(uint(1))
 
 	//assert
-	suite.assert.Equal(gorm.ErrRecordNotFound, err)
+	suite.Equal(gorm.ErrRecordNotFound, err)
 }
 
 func (suite *ShippingMethodServiceTestSuite) Test_DeleteShippingMethod_Found_ReturnsNoError() {
@@ -137,5 +134,5 @@ func (suite *ShippingMethodServiceTestSuite) Test_DeleteShippingMethod_Found_Ret
 	err := suite.service.DeleteShippingMethod(uint(1))
 
 	//assert
-	suite.assert.Nil(err)
+	suite.Nil(err)
 }

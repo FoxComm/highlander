@@ -3,12 +3,11 @@ package services
 import (
 	"testing"
 
-	"github.com/FoxComm/middlewarehouse/models"
 	"github.com/FoxComm/middlewarehouse/fixtures"
+	"github.com/FoxComm/middlewarehouse/models"
 	"github.com/FoxComm/middlewarehouse/services/mocks"
 
 	"github.com/jinzhu/gorm"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
@@ -26,8 +25,6 @@ func TestCarrierServiceSuite(t *testing.T) {
 func (suite *CarrierServiceTestSuite) SetupTest() {
 	suite.repository = &mocks.CarrierRepositoryMock{}
 	suite.service = NewCarrierService(suite.repository)
-
-	suite.assert = assert.New(suite.T())
 }
 
 func (suite *CarrierServiceTestSuite) TearDownTest() {
@@ -48,11 +45,11 @@ func (suite *CarrierServiceTestSuite) Test_GetCarriers_ReturnsCarrierModels() {
 	carriers, err := suite.service.GetCarriers()
 
 	//assert
-	suite.assert.Nil(err)
+	suite.Nil(err)
 
-	suite.assert.Equal(2, len(carriers))
-	suite.assert.Equal(carrier1, carriers[0])
-	suite.assert.Equal(carrier2, carriers[1])
+	suite.Equal(2, len(carriers))
+	suite.Equal(carrier1, carriers[0])
+	suite.Equal(carrier2, carriers[1])
 }
 
 func (suite *CarrierServiceTestSuite) Test_GetCarrierById_NotFound_ReturnsNotFoundError() {
@@ -63,7 +60,7 @@ func (suite *CarrierServiceTestSuite) Test_GetCarrierById_NotFound_ReturnsNotFou
 	_, err := suite.service.GetCarrierByID(uint(1))
 
 	//assert
-	suite.assert.Equal(gorm.ErrRecordNotFound, err)
+	suite.Equal(gorm.ErrRecordNotFound, err)
 }
 
 func (suite *CarrierServiceTestSuite) Test_GetCarrierByID_Found_ReturnsCarrierModel() {
@@ -75,8 +72,8 @@ func (suite *CarrierServiceTestSuite) Test_GetCarrierByID_Found_ReturnsCarrierMo
 	carrier, err := suite.service.GetCarrierByID(uint(1))
 
 	//assert
-	suite.assert.Nil(err)
-	suite.assert.Equal(carrier1, carrier)
+	suite.Nil(err)
+	suite.Equal(carrier1, carrier)
 }
 
 func (suite *CarrierServiceTestSuite) Test_CreateCarrier_ReturnsCreatedRecord() {
@@ -88,8 +85,8 @@ func (suite *CarrierServiceTestSuite) Test_CreateCarrier_ReturnsCreatedRecord() 
 	carrier, err := suite.service.CreateCarrier(carrier1)
 
 	//assert
-	suite.assert.Nil(err)
-	suite.assert.Equal(carrier1, carrier)
+	suite.Nil(err)
+	suite.Equal(carrier1, carrier)
 }
 
 func (suite *CarrierServiceTestSuite) Test_UpdateCarrier_NotFound_ReturnsNotFoundError() {
@@ -101,7 +98,7 @@ func (suite *CarrierServiceTestSuite) Test_UpdateCarrier_NotFound_ReturnsNotFoun
 	_, err := suite.service.UpdateCarrier(carrier1)
 
 	//assert
-	suite.assert.Equal(gorm.ErrRecordNotFound, err)
+	suite.Equal(gorm.ErrRecordNotFound, err)
 }
 
 func (suite *CarrierServiceTestSuite) Test_UpdateCarrier_Found_ReturnsUpdatedRecord() {
@@ -113,8 +110,8 @@ func (suite *CarrierServiceTestSuite) Test_UpdateCarrier_Found_ReturnsUpdatedRec
 	carrier, err := suite.service.UpdateCarrier(carrier1)
 
 	//assert
-	suite.assert.Nil(err)
-	suite.assert.Equal(carrier1, carrier)
+	suite.Nil(err)
+	suite.Equal(carrier1, carrier)
 }
 
 func (suite *CarrierServiceTestSuite) Test_DeleteCarrier_NotFound_ReturnsNotFoundError() {
@@ -125,7 +122,7 @@ func (suite *CarrierServiceTestSuite) Test_DeleteCarrier_NotFound_ReturnsNotFoun
 	err := suite.service.DeleteCarrier(uint(1))
 
 	//assert
-	suite.assert.Equal(gorm.ErrRecordNotFound, err)
+	suite.Equal(gorm.ErrRecordNotFound, err)
 }
 
 func (suite *CarrierServiceTestSuite) Test_DeleteCarrier_Found_ReturnsNoError() {
@@ -136,5 +133,5 @@ func (suite *CarrierServiceTestSuite) Test_DeleteCarrier_Found_ReturnsNoError() 
 	err := suite.service.DeleteCarrier(uint(1))
 
 	//assert
-	suite.assert.Nil(err)
+	suite.Nil(err)
 }

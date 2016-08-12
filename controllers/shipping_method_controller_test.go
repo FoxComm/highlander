@@ -11,7 +11,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
@@ -32,8 +31,6 @@ func (suite *shippingMethodControllerTestSuite) SetupSuite() {
 
 	controller := NewShippingMethodController(suite.service)
 	controller.SetUp(suite.router.Group("/shipping-methods"))
-
-	suite.assert = assert.New(suite.T())
 }
 
 func (suite *shippingMethodControllerTestSuite) TearDownTest() {
@@ -54,8 +51,8 @@ func (suite *shippingMethodControllerTestSuite) Test_GetShippingMethods_EmptyDat
 	response := suite.Get("/shipping-methods", &shippingMethods)
 
 	//assert
-	suite.assert.Equal(http.StatusOK, response.Code)
-	suite.assert.Equal(0, len(shippingMethods))
+	suite.Equal(http.StatusOK, response.Code)
+	suite.Equal(0, len(shippingMethods))
 }
 
 func (suite *shippingMethodControllerTestSuite) Test_GetShippingMethods_NonEmptyData_ReturnsRecordsArray() {
@@ -69,10 +66,10 @@ func (suite *shippingMethodControllerTestSuite) Test_GetShippingMethods_NonEmpty
 	response := suite.Get("/shipping-methods", &shippingMethods)
 
 	//assert
-	suite.assert.Equal(http.StatusOK, response.Code)
-	suite.assert.Equal(2, len(shippingMethods))
-	suite.assert.Equal(responses.NewShippingMethodFromModel(shippingMethod1), shippingMethods[0])
-	suite.assert.Equal(responses.NewShippingMethodFromModel(shippingMethod2), shippingMethods[1])
+	suite.Equal(http.StatusOK, response.Code)
+	suite.Equal(2, len(shippingMethods))
+	suite.Equal(responses.NewShippingMethodFromModel(shippingMethod1), shippingMethods[0])
+	suite.Equal(responses.NewShippingMethodFromModel(shippingMethod2), shippingMethods[1])
 }
 
 func (suite *shippingMethodControllerTestSuite) Test_GetShippingMethodByID_NotFound_ReturnsNotFoundError() {
@@ -84,9 +81,9 @@ func (suite *shippingMethodControllerTestSuite) Test_GetShippingMethodByID_NotFo
 	response := suite.Get("/shipping-methods/1", errors)
 
 	//assert
-	suite.assert.Equal(http.StatusNotFound, response.Code)
-	suite.assert.Equal(1, len(errors.Errors))
-	suite.assert.Equal(gorm.ErrRecordNotFound.Error(), errors.Errors[0])
+	suite.Equal(http.StatusNotFound, response.Code)
+	suite.Equal(1, len(errors.Errors))
+	suite.Equal(gorm.ErrRecordNotFound.Error(), errors.Errors[0])
 }
 
 func (suite *shippingMethodControllerTestSuite) Test_GetShippingMethodByID_Found_ReturnsRecord() {
@@ -99,8 +96,8 @@ func (suite *shippingMethodControllerTestSuite) Test_GetShippingMethodByID_Found
 	response := suite.Get("/shipping-methods/1", shippingMethod)
 
 	//assert
-	suite.assert.Equal(http.StatusOK, response.Code)
-	suite.assert.Equal(responses.NewShippingMethodFromModel(shippingMethod1), shippingMethod)
+	suite.Equal(http.StatusOK, response.Code)
+	suite.Equal(responses.NewShippingMethodFromModel(shippingMethod1), shippingMethod)
 }
 
 func (suite *shippingMethodControllerTestSuite) Test_CreateShippingMethod_ReturnsRecord() {
@@ -114,8 +111,8 @@ func (suite *shippingMethodControllerTestSuite) Test_CreateShippingMethod_Return
 	response := suite.Post("/shipping-methods", payload, shippingMethod)
 
 	//assert
-	suite.assert.Equal(http.StatusCreated, response.Code)
-	suite.assert.Equal(responses.NewShippingMethodFromModel(shippingMethod1), shippingMethod)
+	suite.Equal(http.StatusCreated, response.Code)
+	suite.Equal(responses.NewShippingMethodFromModel(shippingMethod1), shippingMethod)
 }
 
 func (suite *shippingMethodControllerTestSuite) Test_UpdateShippingMethod_NotFound_ReturnsNotFoundError() {
@@ -128,9 +125,9 @@ func (suite *shippingMethodControllerTestSuite) Test_UpdateShippingMethod_NotFou
 	response := suite.Put("/shipping-methods/1", fixtures.ToShippingMethodPayload(shippingMethod1), errors)
 
 	//assert
-	suite.assert.Equal(http.StatusNotFound, response.Code)
-	suite.assert.Equal(1, len(errors.Errors))
-	suite.assert.Equal(gorm.ErrRecordNotFound.Error(), errors.Errors[0])
+	suite.Equal(http.StatusNotFound, response.Code)
+	suite.Equal(1, len(errors.Errors))
+	suite.Equal(gorm.ErrRecordNotFound.Error(), errors.Errors[0])
 }
 
 func (suite *shippingMethodControllerTestSuite) Test_UpdateShippingMethod_Found_ReturnsRecord() {
@@ -143,8 +140,8 @@ func (suite *shippingMethodControllerTestSuite) Test_UpdateShippingMethod_Found_
 	response := suite.Put("/shipping-methods/1", fixtures.ToShippingMethodPayload(shippingMethod1), shippingMethod)
 
 	//assert
-	suite.assert.Equal(http.StatusOK, response.Code)
-	suite.assert.Equal(responses.NewShippingMethodFromModel(shippingMethod1), shippingMethod)
+	suite.Equal(http.StatusOK, response.Code)
+	suite.Equal(responses.NewShippingMethodFromModel(shippingMethod1), shippingMethod)
 }
 
 func (suite *shippingMethodControllerTestSuite) Test_DeleteShippingMethod_NotFound_ReturnsNotFoundError() {
@@ -156,9 +153,9 @@ func (suite *shippingMethodControllerTestSuite) Test_DeleteShippingMethod_NotFou
 	response := suite.Delete("/shipping-methods/1", &errors)
 
 	//assert
-	suite.assert.Equal(http.StatusNotFound, response.Code)
-	suite.assert.Equal(1, len(errors.Errors))
-	suite.assert.Equal(gorm.ErrRecordNotFound.Error(), errors.Errors[0])
+	suite.Equal(http.StatusNotFound, response.Code)
+	suite.Equal(1, len(errors.Errors))
+	suite.Equal(gorm.ErrRecordNotFound.Error(), errors.Errors[0])
 }
 
 func (suite *shippingMethodControllerTestSuite) Test_DeleteShippingMethod_Found() {
@@ -169,6 +166,6 @@ func (suite *shippingMethodControllerTestSuite) Test_DeleteShippingMethod_Found(
 	response := suite.Delete("/shipping-methods/1")
 
 	//assert
-	suite.assert.Equal(http.StatusNoContent, response.Code)
-	suite.assert.Equal("", response.Body.String())
+	suite.Equal(http.StatusNoContent, response.Code)
+	suite.Equal("", response.Body.String())
 }
