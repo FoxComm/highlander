@@ -1,24 +1,22 @@
-import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
 import failures.NotFoundFailure404
 import models._
 import models.cord._
-import models.customer.Customers
 import payloads.NotePayloads._
 import responses.AdminNotes
 import services.notes.OrderNoteManager
 import util._
 import utils.db._
-import utils.seeds.Seeds.Factories
 import utils.time._
 
 class OrderNotesIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
     with AutomaticAuth
-    with TestActivityContext.AdminAC {
+    with TestActivityContext.AdminAC
+    with Fixtures {
 
   "POST /v1/notes/order/:refNum" - {
     "can be created by an admin for an order" in new Fixture {
@@ -97,12 +95,7 @@ class OrderNotesIntegrationTest
     }
   }
 
-  trait Fixture {
-    val (order, storeAdmin, customer) = (for {
-      customer   ← * <~ Customers.create(Factories.customer)
-      cart       ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
-      order      ← * <~ Orders.create(cart.toOrder())
-      storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
-    } yield (order, storeAdmin, customer)).gimme
+  trait Fixture extends OrderFromCartFixture {
+    val storeAdmin = StoreAdmins.create(authedStoreAdmin).gimme
   }
 }

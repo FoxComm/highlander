@@ -10,11 +10,16 @@ import models.customer.{Customer, Customers}
 import models.location.{Address, Addresses}
 import payloads.AddressPayloads.CreateAddressPayload
 import responses.AddressResponse
+import util._
 import util.IntegrationTestBase
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class AddressesIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
+class AddressesIntegrationTest
+    extends IntegrationTestBase
+    with HttpSupport
+    with AutomaticAuth
+    with Fixtures {
 
   def validateDeleteResponse(response: HttpResponse) {
     response.status must === (StatusCodes.NoContent)
@@ -154,16 +159,6 @@ class AddressesIntegrationTest extends IntegrationTestBase with HttpSupport with
     }
   }
 
-  trait CustomerFixture {
-    val customer = Customers.create(Factories.customer).gimme
-  }
-
-  trait AddressFixture extends CustomerFixture {
-    val address = Addresses
-      .create(Factories.address.copy(customerId = customer.id, isDefaultShipping = true))
-      .gimme
-  }
-
   trait DeletedAddressFixture {
     val (customer, address) = (for {
       customer ← * <~ Customers.create(authedCustomer)
@@ -181,12 +176,7 @@ class AddressesIntegrationTest extends IntegrationTestBase with HttpSupport with
     } yield (cart, shippingAddress)).gimme
   }
 
-  trait NoDefaultAddressFixture extends CustomerFixture {
-    val (address, cart, shippingAddress) = (for {
-      address ← * <~ Addresses.create(
-                   Factories.address.copy(customerId = customer.id, isDefaultShipping = false))
-      cart    ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
-      shipAdd ← * <~ OrderShippingAddresses.copyFromAddress(address, cart.refNum)
-    } yield (address, cart, shipAdd)).gimme
+  trait NoDefaultAddressFixture extends AddressFixture with EmptyCustomerCartFixture {
+    val shippingAddress = OrderShippingAddresses.copyFromAddress(address, cart.refNum).gimme
   }
 }
