@@ -33,7 +33,7 @@ func (suite *stockLocationRepositoryTestSuite) SetupTest() {
 
 	// create one stock location for test cases
 	suite.location = &models.StockLocation{
-		Name:    "Test Location",
+		Name:    "Testsss Location",
 		Type:    "Warehouse",
 		Address: &models.Address{Name: "WH Address"},
 	}

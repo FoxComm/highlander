@@ -1,8 +1,9 @@
 package controllers
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 type pingController struct {
@@ -13,7 +14,7 @@ func NewPingController() IController {
 }
 
 func (controller *pingController) SetUp(router gin.IRouter) {
-	router.GET("/", controller.HealthCheck())
+	router.GET("", controller.HealthCheck())
 }
 
 func (controller *pingController) HealthCheck() gin.HandlerFunc {

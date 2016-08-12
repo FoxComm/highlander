@@ -1,0 +1,46 @@
+hash: 7ad3f932889b16eeae53326aad5052ce3dc23c8fa918d9e1c24279a89bd9e595
+updated: 2016-08-07T11:44:09.76145555-07:00
+imports:
+- name: github.com/cihub/seelog
+  version: d2c6e5aa9fbfdd1c624e140287063c7730654115
+- name: github.com/eapache/go-resiliency
+  version: b86b1ec0dd4209a588dc1285cdd471e73525c0b3
+  subpackages:
+  - breaker
+- name: github.com/eapache/queue
+  version: ded5959c0d4e360646dc9e9908cff48666781367
+- name: github.com/elodina/go-avro
+  version: 0c8185d9a3ba82aeac98db3313a268a5b6df99b5
+- name: github.com/elodina/go-kafka-avro
+  version: ab6b1d1c9a2361e639af25c13653fee505b5d2ce
+- name: github.com/elodina/go_kafka_client
+  version: 95d107b0c102fa81b8c1e5e556adc23352fad065
+  subpackages:
+  - avro
+- name: github.com/elodina/siesta
+  version: fea3d8822e875ffef3895e68f5c2f172e0dd4300
+- name: github.com/elodina/siesta-producer
+  version: a374fc36c515243efb438aed41c536af55d8b19b
+- name: github.com/FoxComm/metamorphosis
+  version: e034438c2ca03d5dbdc117eaadfb2c1b23ee21c0
+  repo: git@github.com:FoxComm/metamorphosis.git
+  vcs: git
+- name: github.com/golang/snappy
+  version: 723cc1e459b8eea2dea4583200fd60757d40097a
+- name: github.com/jpfuentes2/go-env
+  version: 8e0a68de05f21bcefcd581c6b934a1d1e4390fa1
+- name: github.com/rcrowley/go-metrics
+  version: 51425a2415d21afadfd55cd93432c0bc69e9598d
+- name: github.com/samuel/go-zookeeper
+  version: 218e9c81c0dd8b3b18172b2bbfad92cc7d6db55f
+  subpackages:
+  - zk
+- name: github.com/Shopify/sarama
+  version: 094e483251042a52ce92f76dbcf140ad2bd7cffb
+- name: github.com/stretchr/testify
+  version: d77da356e56a7428ad25149ca77381849a6a5232
+- name: github.com/yanzay/cfg
+  version: 3b647091f880406fdb14edcb309ce750a38d3e85
+- name: gopkg.in/cihub/seelog.v2
+  version: d2c6e5aa9fbfdd1c624e140287063c7730654115
+testImports: []

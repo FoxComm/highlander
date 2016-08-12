@@ -7,6 +7,7 @@ import (
 type ShippingMethod struct {
 	ID        uint
 	CarrierID uint
+	Carrier   Carrier
 	Name      string
 }
 

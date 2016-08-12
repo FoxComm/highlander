@@ -16,8 +16,8 @@ func NewSummaryController(service services.ISummaryService) IController {
 }
 
 func (controller *summaryController) SetUp(router gin.IRouter) {
-	router.GET("/", controller.GetSummary())
-	router.GET("/:code", controller.GetSummaryBySKU())
+	router.GET("", controller.GetSummary())
+	router.GET(":code", controller.GetSummaryBySKU())
 }
 
 func (controller *summaryController) GetSummary() gin.HandlerFunc {
@@ -28,7 +28,7 @@ func (controller *summaryController) GetSummary() gin.HandlerFunc {
 			return
 		}
 
-		resp := responses.StockItemsSummaryFromModel(summary)
+		resp := responses.NewSummaryFromModel(summary)
 
 		context.JSON(200, resp)
 	}
@@ -43,7 +43,7 @@ func (controller *summaryController) GetSummaryBySKU() gin.HandlerFunc {
 			return
 		}
 
-		resp := responses.StockItemSummaryFromModel(summary)
+		resp := responses.NewSummaryFromModel(summary)
 
 		context.JSON(200, resp)
 	}

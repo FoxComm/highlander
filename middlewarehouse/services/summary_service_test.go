@@ -2,10 +2,12 @@ package services
 
 import (
 	"testing"
+	"time"
 
 	"github.com/FoxComm/highlander/middlewarehouse/common/db/config"
 	"github.com/FoxComm/highlander/middlewarehouse/common/db/tasks"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
+	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/assert"
@@ -14,10 +16,13 @@ import (
 
 type summaryServiceTestSuite struct {
 	suite.Suite
-	service  ISummaryService
-	itemResp *models.StockItem
-	db       *gorm.DB
-	assert   *assert.Assertions
+	service          ISummaryService
+	inventoryService IInventoryService
+	si               *models.StockItem
+	unitCost         int
+	onHand           int
+	db               *gorm.DB
+	assert           *assert.Assertions
 }
 
 func TestSummaryServiceSuite(t *testing.T) {
@@ -26,94 +31,130 @@ func TestSummaryServiceSuite(t *testing.T) {
 
 func (suite *summaryServiceTestSuite) SetupSuite() {
 	suite.db, _ = config.DefaultConnection()
-	suite.service = NewSummaryService(suite.db)
+
+	summaryRepository := repositories.NewSummaryRepository(suite.db)
+	stockItemRepository := repositories.NewStockItemRepository(suite.db)
+	unitRepository := repositories.NewStockItemUnitRepository(suite.db)
+
+	suite.service = NewSummaryService(summaryRepository, stockItemRepository)
+	suite.inventoryService = NewInventoryService(stockItemRepository, unitRepository, suite.service)
 	suite.assert = assert.New(suite.T())
+	suite.onHand = 10
+	suite.unitCost = 5000
 }
 
 func (suite *summaryServiceTestSuite) SetupTest() {
 	tasks.TruncateTables([]string{
 		"stock_items",
 		"stock_item_summaries",
+		"stock_locations",
+		"inventory_search_view",
 	})
 
-	inventoryService := NewInventoryService(suite.db, suite.service)
+	stockLocationService := NewStockLocationService(repositories.NewStockLocationRepository(suite.db))
+	stockLocationService.CreateLocation(&models.StockLocation{Type: "Warehouse", Name: "TEST-LOCATION"})
 
-	stockItem := &models.StockItem{StockLocationID: 1, SKU: "TEST-DEFAULT"}
-	suite.itemResp, _ = inventoryService.CreateStockItem(stockItem)
+	stockItem := &models.StockItem{StockLocationID: 1, SKU: "TEST-DEFAULT", DefaultUnitCost: suite.unitCost}
+	suite.si, _ = suite.inventoryService.CreateStockItem(stockItem)
+
+	units := []*models.StockItemUnit{}
+
+	for i := 0; i < suite.onHand; i++ {
+		item := &models.StockItemUnit{
+			StockItemID: stockItem.ID,
+			UnitCost:    500,
+			Type:        models.Sellable,
+			Status:      models.StatusOnHand,
+		}
+		units = append(units, item)
+	}
+
+	suite.inventoryService.IncrementStockItemUnits(suite.si.ID, models.Sellable, units)
+
+	time.Sleep(100 * time.Millisecond)
 }
 
 func (suite *summaryServiceTestSuite) Test_Increment_OnHand() {
-	err := suite.service.UpdateStockItemSummary(suite.itemResp.ID, 5, StatusChange{to: "onHand"}, nil)
+	err := suite.service.UpdateStockItemSummary(suite.si.ID, models.Sellable, 5, models.StatusChange{To: models.StatusOnHand})
 	suite.assert.Nil(err)
 
 	summary := models.StockItemSummary{}
-	err = suite.db.First(&summary, suite.itemResp.ID).Error
+	err = suite.db.First(&summary, suite.si.ID).Error
 	suite.assert.Nil(err)
-	suite.assert.Equal(5, summary.OnHand)
+	suite.assert.Equal(suite.onHand+5, summary.OnHand)
+	suite.assert.Equal(suite.onHand+5, summary.AFS)
+	suite.assert.Equal((suite.onHand+5)*suite.unitCost, summary.AFSCost)
 }
 
 func (suite *summaryServiceTestSuite) Test_Increment_OnHold() {
-	err := suite.service.UpdateStockItemSummary(suite.itemResp.ID, 5, StatusChange{to: "onHold"}, nil)
+	err := suite.service.UpdateStockItemSummary(suite.si.ID, models.Sellable, 5, models.StatusChange{To: models.StatusOnHold})
 	suite.assert.Nil(err)
 
 	summary := models.StockItemSummary{}
-	err = suite.db.First(&summary, suite.itemResp.ID).Error
+	err = suite.db.First(&summary, suite.si.ID).Error
 	suite.assert.Nil(err)
+	suite.assert.Equal(suite.onHand, summary.OnHand)
 	suite.assert.Equal(5, summary.OnHold)
 }
 
 func (suite *summaryServiceTestSuite) Test_Increment_Reserved() {
-	err := suite.service.UpdateStockItemSummary(suite.itemResp.ID, 5, StatusChange{to: "reserved"}, nil)
+	err := suite.service.UpdateStockItemSummary(suite.si.ID, models.Sellable, 5, models.StatusChange{To: models.StatusReserved})
 	suite.assert.Nil(err)
 
 	summary := models.StockItemSummary{}
-	err = suite.db.First(&summary, suite.itemResp.ID).Error
+	err = suite.db.First(&summary, suite.si.ID).Error
 	suite.assert.Nil(err)
+	suite.assert.Equal(suite.onHand, summary.OnHand)
 	suite.assert.Equal(5, summary.Reserved)
 }
 
 func (suite *summaryServiceTestSuite) Test_Increment_Chain() {
-	suite.service.UpdateStockItemSummary(suite.itemResp.ID, 5, StatusChange{to: "onHold"}, nil)
+	suite.service.UpdateStockItemSummary(suite.si.ID, models.Sellable, 5, models.StatusChange{From: models.StatusOnHand, To: models.StatusOnHold})
 
 	summary := models.StockItemSummary{}
-	suite.db.First(&summary, suite.itemResp.ID)
-	suite.assert.Equal(0, summary.OnHand)
+	suite.db.First(&summary, suite.si.ID)
+	suite.assert.Equal(suite.onHand, summary.OnHand)
 	suite.assert.Equal(5, summary.OnHold)
 	suite.assert.Equal(0, summary.Reserved)
+	suite.assert.Equal(5, summary.AFS)
+	suite.assert.Equal(5*suite.unitCost, summary.AFSCost)
 
-	suite.service.UpdateStockItemSummary(suite.itemResp.ID, 2, StatusChange{from: "onHold", to: "reserved"}, nil)
+	suite.service.UpdateStockItemSummary(suite.si.ID, models.Sellable, 2, models.StatusChange{From: models.StatusOnHold, To: models.StatusReserved})
 
-	suite.db.First(&summary, suite.itemResp.ID)
-	suite.assert.Equal(0, summary.OnHand)
+	suite.db.First(&summary, suite.si.ID)
+	suite.assert.Equal(suite.onHand, summary.OnHand)
 	suite.assert.Equal(3, summary.OnHold)
 	suite.assert.Equal(2, summary.Reserved)
+	suite.assert.Equal(5, summary.AFS)
+	suite.assert.Equal(5*suite.unitCost, summary.AFSCost)
 
-	suite.service.UpdateStockItemSummary(suite.itemResp.ID, 1, StatusChange{from: "reserved", to: "onHand"}, nil)
+	suite.service.UpdateStockItemSummary(suite.si.ID, models.Sellable, 1, models.StatusChange{From: models.StatusReserved, To: models.StatusOnHand})
 
-	suite.db.First(&summary, suite.itemResp.ID)
-	suite.assert.Equal(1, summary.OnHand)
+	suite.db.First(&summary, suite.si.ID)
+	suite.assert.Equal(suite.onHand, summary.OnHand)
 	suite.assert.Equal(3, summary.OnHold)
 	suite.assert.Equal(1, summary.Reserved)
+	suite.assert.Equal(6, summary.AFS)
+	suite.assert.Equal(6*suite.unitCost, summary.AFSCost)
 }
 
 func (suite *summaryServiceTestSuite) Test_GetSummary() {
-	onHandCount := 5
-	suite.service.UpdateStockItemSummary(suite.itemResp.ID, onHandCount, StatusChange{to: "onHand"}, nil)
+	suite.service.UpdateStockItemSummary(suite.si.ID, models.Sellable, 5, models.StatusChange{To: models.StatusOnHand})
 
 	summary, err := suite.service.GetSummary()
 	suite.assert.Nil(err)
 
 	suite.assert.NotNil(summary)
-	suite.assert.Equal(onHandCount, summary[0].OnHand)
-	suite.assert.Equal(suite.itemResp.SKU, summary[0].SKU)
+	suite.assert.Equal(4, len(summary))
+	suite.assert.Equal(suite.si.StockLocationID, summary[0].StockItem.StockLocation.ID)
 }
 
 func (suite *summaryServiceTestSuite) Test_GetSummaryBySKU() {
-	summary, err := suite.service.GetSummaryBySKU(suite.itemResp.SKU)
+	summary, err := suite.service.GetSummaryBySKU(suite.si.SKU)
 	suite.assert.Nil(err)
 
 	suite.assert.NotNil(summary)
-	suite.assert.Equal(0, summary.OnHand)
+	suite.assert.Equal(suite.onHand, summary[0].OnHand)
 }
 
 func (suite *summaryServiceTestSuite) Test_GetSummaryBySKU_NotFoundSKU() {
@@ -122,10 +163,9 @@ func (suite *summaryServiceTestSuite) Test_GetSummaryBySKU_NotFoundSKU() {
 }
 
 func (suite *summaryServiceTestSuite) Test_GetSummaryBySKU_NonZero() {
-	onHandCount := 5
-	err := suite.service.UpdateStockItemSummary(suite.itemResp.ID, onHandCount, StatusChange{to: "onHand"}, nil)
+	err := suite.service.UpdateStockItemSummary(suite.si.ID, models.Sellable, 5, models.StatusChange{To: models.StatusOnHand})
 	suite.assert.Nil(err)
 
-	summary, err := suite.service.GetSummaryBySKU(suite.itemResp.SKU)
-	suite.assert.Equal(onHandCount, summary.OnHand)
+	summary, err := suite.service.GetSummaryBySKU(suite.si.SKU)
+	suite.assert.Equal(suite.onHand+5, summary[0].OnHand)
 }

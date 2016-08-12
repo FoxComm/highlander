@@ -1,0 +1,1 @@
+alter table shipments_transactions rename to shipment_transactions

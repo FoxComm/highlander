@@ -10,6 +10,7 @@ type Address struct {
 	gormfox.Base
 	Name        string
 	RegionID    uint
+	Region      Region
 	City        string
 	Zip         string
 	Address1    string
@@ -18,17 +19,17 @@ type Address struct {
 }
 
 func NewAddressFromPayload(payload *payloads.Address) *Address {
-	address := new(Address)
-
-	address.Name = payload.Name
-	address.RegionID = payload.RegionID
-	address.Address1 = payload.Address1
-	address.City = payload.City
-	address.Zip = payload.Zip
-	if payload.Address2 != "" {
-		address.Address2 = sql.NullString{payload.Address2, true}
+	return &Address{
+		Base: gormfox.Base{
+			ID: payload.ID,
+		},
+		Name:        payload.Name,
+		RegionID:    payload.Region.ID,
+		Region:      *NewRegionFromPayload(&payload.Region),
+		Address1:    payload.Address1,
+		City:        payload.City,
+		Zip:         payload.Zip,
+		Address2:    NewSqlNullStringFromString(payload.Address2),
+		PhoneNumber: payload.PhoneNumber,
 	}
-	address.PhoneNumber = payload.PhoneNumber
-
-	return address
 }
