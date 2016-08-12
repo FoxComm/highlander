@@ -24,7 +24,7 @@ type Props = ImagesProps & {
 };
 
 class SkuImages extends Component {
-  static props: Props;
+  props: Props;
 
   componentDidMount(): void {
     const { context, skuCode } = this.props.params;
@@ -33,13 +33,10 @@ class SkuImages extends Component {
   }
 
   render(): Element {
-    const { params: { skuCode, context }, isLoading } = this.props;
-    if (isLoading) {
-      return <WaitAnimation />;
-    }
+    const { params: { skuCode, context }, ...rest } = this.props;
 
     return (
-      <Images {...this.props} entityId={skuCode} context={context} />
+      <Images {...rest} entityId={skuCode} context={context} />
     );
   }
 

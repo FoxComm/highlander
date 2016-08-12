@@ -22,7 +22,7 @@ type Props = {
 };
 
 class EditImage extends Component {
-  static props: Props;
+  props: Props;
 
   state: ImageInfo = {
     src: this.props.image.src,

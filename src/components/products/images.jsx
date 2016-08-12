@@ -16,16 +16,16 @@ import Images from '../images/images';
 import type { Props as ImagesProps } from '../images/images';
 
 type Params = {
-  productId: number,
-  context: string,
+  productId: number;
+  context: string;
 };
 
 type Props = ImagesProps & {
-  params: Params,
+  params: Params;
 };
 
 class ProductImages extends Component {
-  static props: Props;
+  props: Props;
 
   componentDidMount(): void {
     const { context, productId } = this.props.params;
@@ -34,13 +34,10 @@ class ProductImages extends Component {
   }
 
   render(): Element {
-    const { params: { productId, context }, isLoading } = this.props;
-    if (isLoading) {
-      return <WaitAnimation />;
-    }
+    const { params: { productId, context }, ...rest } = this.props;
 
     return (
-      <Images {...this.props} entityId={productId} context={context} />
+      <Images {...rest} entityId={productId} context={context} />
     );
   }
 
