@@ -55,12 +55,14 @@ class AllOrdersIntegrationTest
     (for {
       cust ← * <~ Customers.create(Factories.customer)
       c = Factories.cart.copy(customerId = cust.id)
-      cart ← * <~ Carts.create(c.copy(referenceNumber = "foo"))
-      _    ← * <~ Orders.create(cart.toOrder().copy(state = FraudHold))
-      cart ← * <~ Carts.create(c.copy(referenceNumber = "bar"))
-      _    ← * <~ Orders.create(cart.toOrder())
-      cart ← * <~ Carts.create(c.copy(referenceNumber = "baz"))
-      _    ← * <~ Orders.create(cart.toOrder().copy(state = ManualHold))
+      cart  ← * <~ Carts.create(c.copy(referenceNumber = "foo"))
+      order ← * <~ Orders.createFromCart(cart)
+      _     ← * <~ Orders.update(order, order.copy(state = FraudHold))
+      cart  ← * <~ Carts.create(c.copy(referenceNumber = "bar"))
+      _     ← * <~ Orders.createFromCart(cart)
+      cart  ← * <~ Carts.create(c.copy(referenceNumber = "baz"))
+      order ← * <~ Orders.createFromCart(cart)
+      _     ← * <~ Orders.update(order, order.copy(state = ManualHold))
     } yield {}).gimme
   }
 }

@@ -7,7 +7,7 @@ import failures.CreditCardFailures.CustomerHasNoCreditCard
 import failures.CustomerFailures.CustomerHasNoDefaultAddress
 import faker._
 import models.Note
-import models.cord.Order.{FraudHold, ManualHold, RemorseHold, Shipped}
+import models.cord.Order._
 import models.cord._
 import models.cord.lineitems._
 import models.customer.Customer
@@ -72,16 +72,16 @@ trait OrderGenerator extends ShipmentSeeds {
     } yield {}
   }
 
+  private val yesterday: Instant = time.yesterday.toInstant
+
   def manualHoldOrder(customerId: Customer#Id,
                       context: ObjectContext,
                       skuIds: Seq[Int],
                       giftCard: GiftCard)(implicit db: DB): DbResultT[Order] =
     for {
-      cart ← * <~ Carts.create(Cart(customerId = customerId))
-      order ← * <~ Orders.create(
-                 cart
-                   .toOrder(context.id)
-                   .copy(state = ManualHold, placedAt = time.yesterday.toInstant))
+      cart   ← * <~ Carts.create(Cart(customerId = customerId))
+      order  ← * <~ Orders.createFromCart(cart, context.id)
+      order  ← * <~ Orders.update(order, order.copy(state = ManualHold, placedAt = yesterday))
       _      ← * <~ addProductsToOrder(skuIds, cart.refNum, OrderLineItem.Pending)
       origin ← * <~ StoreCreditManuals.create(StoreCreditManual(adminId = 1, reasonId = 1))
       cc     ← * <~ getCc(customerId)
@@ -102,11 +102,9 @@ trait OrderGenerator extends ShipmentSeeds {
                                  skuIds: Seq[Int],
                                  giftCard: GiftCard)(implicit db: DB): DbResultT[Order] =
     for {
-      cart ← * <~ Carts.create(Cart(customerId = customerId))
-      order ← * <~ Orders.create(
-                 cart
-                   .toOrder(context.id)
-                   .copy(state = ManualHold, placedAt = time.yesterday.toInstant))
+      cart   ← * <~ Carts.create(Cart(customerId = customerId))
+      order  ← * <~ Orders.createFromCart(cart, context.id)
+      order  ← * <~ Orders.update(order, order.copy(state = ManualHold, placedAt = yesterday))
       _      ← * <~ addProductsToOrder(skuIds, cart.refNum, OrderLineItem.Pending)
       origin ← * <~ StoreCreditManuals.create(StoreCreditManual(adminId = 1, reasonId = 1))
       totals ← * <~ total(skuIds)
@@ -130,13 +128,11 @@ trait OrderGenerator extends ShipmentSeeds {
                      skuIds: Seq[Int],
                      giftCard: GiftCard)(implicit db: DB): DbResultT[Order] =
     for {
-      cart ← * <~ Carts.create(Cart(customerId = customerId))
-      order ← * <~ Orders.create(
-                 cart
-                   .toOrder(context.id)
-                   .copy(state = FraudHold, placedAt = time.yesterday.toInstant))
-      _  ← * <~ addProductsToOrder(skuIds, cart.refNum, OrderLineItem.Pending)
-      cc ← * <~ getCc(customerId)
+      cart  ← * <~ Carts.create(Cart(customerId = customerId))
+      order ← * <~ Orders.createFromCart(cart, context.id)
+      order ← * <~ Orders.update(order, order.copy(state = FraudHold, placedAt = yesterday))
+      _     ← * <~ addProductsToOrder(skuIds, cart.refNum, OrderLineItem.Pending)
+      cc    ← * <~ getCc(customerId)
       op ← * <~ OrderPayments.create(
               OrderPayment.build(cc).copy(cordRef = cart.refNum, amount = none))
       addr          ← * <~ getDefaultAddress(customerId)
@@ -157,12 +153,12 @@ trait OrderGenerator extends ShipmentSeeds {
       randomHour    ← * <~ 1 + Random.nextInt(48)
       randomSeconds ← * <~ randomHour * 3600
       cart          ← * <~ Carts.create(Cart(customerId = customerId))
-      order ← * <~ Orders.create(
-                 cart
-                   .toOrder(context.id)
-                   .copy(state = RemorseHold,
-                         remorsePeriodEnd = Instant.now.plusSeconds(randomSeconds.toLong).some,
-                         placedAt = time.yesterday.toInstant))
+      order         ← * <~ Orders.createFromCart(cart, context.id)
+      order ← * <~ Orders.update(order,
+                                 order.copy(state = RemorseHold,
+                                            remorsePeriodEnd =
+                                              Instant.now.plusSeconds(randomSeconds.toLong).some,
+                                            placedAt = yesterday))
       _  ← * <~ addProductsToOrder(skuIds, cart.refNum, OrderLineItem.Pending)
       cc ← * <~ getCc(customerId)
       op ← * <~ OrderPayments.create(
@@ -222,12 +218,11 @@ trait OrderGenerator extends ShipmentSeeds {
       shipMethodIds ← * <~ ShippingMethods.map(_.id).result
       shipMethod    ← * <~ getShipMethod(1 + Random.nextInt(shipMethodIds.length))
       cart          ← * <~ Carts.create(Cart(customerId = customerId))
-      order ← * <~ Orders.create(
-                 cart
-                   .toOrder(context.id)
-                   .copy(state = Shipped, placedAt = time.yesterday.toInstant))
-      _  ← * <~ addProductsToOrder(skuIds, cart.refNum, OrderLineItem.Shipped)
-      cc ← * <~ getCc(customerId) // TODO: auth
+      order         ← * <~ Orders.createFromCart(cart, context.id)
+      order         ← * <~ Orders.update(order, order.copy(state = FulfillmentStarted))
+      order         ← * <~ Orders.update(order, order.copy(state = Shipped, placedAt = yesterday))
+      _             ← * <~ addProductsToOrder(skuIds, cart.refNum, OrderLineItem.Shipped)
+      cc            ← * <~ getCc(customerId) // TODO: auth
       op ← * <~ OrderPayments.create(
               OrderPayment.build(cc).copy(cordRef = cart.refNum, amount = none))
       addr ← * <~ getDefaultAddress(customerId)
@@ -251,13 +246,12 @@ trait OrderGenerator extends ShipmentSeeds {
       shipMethodIds ← * <~ ShippingMethods.map(_.id).result
       shipMethod    ← * <~ getShipMethod(1 + Random.nextInt(shipMethodIds.length))
       cart          ← * <~ Carts.create(Cart(customerId = customerId))
-      order ← * <~ Orders.create(
-                 cart
-                   .toOrder(context.id)
-                   .copy(state = Shipped, placedAt = time.yesterday.toInstant))
-      _      ← * <~ addProductsToOrder(skuIds, cart.refNum, OrderLineItem.Shipped)
-      gc     ← * <~ GiftCards.mustFindById404(giftCard.id)
-      totals ← * <~ total(skuIds)
+      order         ← * <~ Orders.createFromCart(cart, context.id)
+      order         ← * <~ Orders.update(order, order.copy(state = FulfillmentStarted))
+      order         ← * <~ Orders.update(order, order.copy(state = Shipped, placedAt = yesterday))
+      _             ← * <~ addProductsToOrder(skuIds, cart.refNum, OrderLineItem.Shipped)
+      gc            ← * <~ GiftCards.mustFindById404(giftCard.id)
+      totals        ← * <~ total(skuIds)
       deductFromGc = deductAmount(gc.availableBalance, totals)
       cc         ← * <~ getCc(customerId) // TODO: auth
       _          ← * <~ generateOrderPayments(cart, order, cc, gc, deductFromGc)

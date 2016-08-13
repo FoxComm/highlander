@@ -35,6 +35,6 @@ trait Fixtures extends GimmeSupport {
   }
 
   trait OrderFromCartFixture extends EmptyCustomerCartFixture {
-    val order = Orders.create(cart.toOrder).gimme
+    val order = Orders.createFromCart(cart).gimme
   }
 }

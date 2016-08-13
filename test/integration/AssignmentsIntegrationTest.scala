@@ -155,10 +155,10 @@ class AssignmentsIntegrationTest
     val (order1, order2) = (for {
       cart ← * <~ Carts.create(
                 Factories.cart.copy(customerId = customer.id, referenceNumber = "foo"))
-      order1 ← * <~ Orders.create(cart.toOrder())
+      order1 ← * <~ Orders.createFromCart(cart)
       cart ← * <~ Carts.create(
                 Factories.cart.copy(customerId = customer.id, referenceNumber = "bar"))
-      order2 ← * <~ Orders.create(cart.toOrder())
+      order2 ← * <~ Orders.createFromCart(cart)
       assignee ← * <~ Assignments.create(
                     Assignment(referenceType = Assignment.Order,
                                referenceId = order1.id,

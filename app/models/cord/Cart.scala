@@ -25,30 +25,6 @@ case class Cart(id: Int = 0,
     with Lockable[Cart] {
 
   override def primarySearchKey: String = referenceNumber
-
-  def toOrder()(implicit ec: EC, ctx: OC): Order =
-    Order(referenceNumber = referenceNumber,
-          customerId = customerId,
-          currency = currency,
-          subTotal = subTotal,
-          shippingTotal = shippingTotal,
-          adjustmentsTotal = adjustmentsTotal,
-          taxesTotal = taxesTotal,
-          grandTotal = grandTotal,
-          state = Order.RemorseHold,
-          contextId = ctx.id)
-
-  // TODO: remove this in favor of implicit param
-  def toOrder(contextId: Int)(implicit ec: EC): Order =
-    Order(referenceNumber = referenceNumber,
-          customerId = customerId,
-          currency = currency,
-          subTotal = subTotal,
-          shippingTotal = shippingTotal,
-          adjustmentsTotal = adjustmentsTotal,
-          taxesTotal = taxesTotal,
-          grandTotal = grandTotal,
-          contextId = contextId)
 }
 
 class Carts(tag: Tag) extends FoxTable[Cart](tag, "carts") {

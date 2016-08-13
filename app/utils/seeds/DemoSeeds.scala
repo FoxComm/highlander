@@ -4,9 +4,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import cats.implicits._
 import failures.CustomerFailures.CustomerHasNoDefaultAddress
-import failures.NotFoundFailure404
 import failures.ShippingMethodFailures.ShippingMethodNotFoundByName
-import models.cord.Order.Shipped
+import models.cord.Order._
 import models.cord._
 import models.cord.lineitems._
 import models.customer.{Customer, Customers}
@@ -22,6 +21,7 @@ import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._
 import utils.Money.Currency
 import utils.Passwords.hashPassword
+import utils.aliases._
 import utils.db._
 import utils.seeds.generators.GeneratorUtils.randomString
 import utils.seeds.generators.ProductGenerator
@@ -44,14 +44,15 @@ trait DemoSeedHelpers extends CreditCardSeeds {
   def createShippedOrder(customerId: Customer#Id,
                          contextId: Int,
                          skuIds: Seq[Sku#Id],
-                         shipMethod: ShippingMethod)(implicit db: Database): DbResultT[Order] =
+                         shipMethod: ShippingMethod)(implicit db: DB): DbResultT[Order] =
     for {
-      cart ← * <~ Carts.create(Cart(customerId = customerId))
-      _    ← * <~ addSkusToCart(skuIds, cart.refNum, OrderLineItem.Shipped)
-      order ← * <~ Orders.create(
-                 cart
-                   .toOrder(contextId)
-                   .copy(state = Shipped, placedAt = time.yesterday.toInstant))
+      cart  ← * <~ Carts.create(Cart(customerId = customerId))
+      _     ← * <~ addSkusToCart(skuIds, cart.refNum, OrderLineItem.Shipped)
+      _     ← * <~ CartTotaler.saveTotals(cart)
+      order ← * <~ Orders.createFromCart(cart, contextId)
+      _     ← * <~ Orders.update(order, order.copy(state = FulfillmentStarted))
+      _ ← * <~ Orders.update(order,
+                             order.copy(state = Shipped, placedAt = time.yesterday.toInstant))
       cc ← * <~ CreditCards.create(creditCard1.copy(customerId = customerId))
       op ← * <~ OrderPayments.create(
               OrderPayment.build(cc).copy(cordRef = cart.refNum, amount = none))
@@ -81,7 +82,7 @@ trait DemoSeedHelpers extends CreditCardSeeds {
          })
     } yield {}
 
-  private def getDefaultAddress(customerId: Customer#Id)(implicit db: Database) =
+  private def getDefaultAddress(customerId: Customer#Id)(implicit db: DB) =
     Addresses
       .findAllByCustomerId(customerId)
       .filter(_.isDefaultShipping)
@@ -154,7 +155,7 @@ trait DemoScenario2 extends DemoSeedHelpers {
             isDefaultShipping = true,
             phoneNumber = "2025550113".some)
 
-  def createScenario2(implicit db: Database) =
+  def createScenario2(implicit db: DB) =
     for {
       context     ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       customerIds ← * <~ Customers.createAllReturningIds(customers2)
@@ -205,7 +206,7 @@ trait DemoScenario3 extends DemoSeedHelpers {
             isDefaultShipping = true,
             phoneNumber = "2025550113".some)
 
-  def createScenario3(implicit db: Database) =
+  def createScenario3(implicit db: DB) =
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       shippingMethod ← * <~ ShippingMethods
@@ -234,15 +235,15 @@ trait DemoScenario6 extends DemoSeedHelpers {
 
   def customer6 = generateCustomer("Joe Carson", "carson19@yahoo.com")
 
-  def createScenario6(implicit db: Database): DbResultT[Unit] =
+  def createScenario6(implicit db: DB): DbResultT[Unit] =
     for {
       context  ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       customer ← * <~ Customers.create(customer6)
       cart     ← * <~ Carts.create(Cart(customerId = customer.id))
-      order ← * <~ Orders.create(
-                 cart
-                   .toOrder(context.id)
-                   .copy(state = Shipped, placedAt = time.yesterday.toInstant))
+      order    ← * <~ Orders.createFromCart(cart, context.id)
+      order    ← * <~ Orders.update(order, order.copy(state = FulfillmentStarted))
+      order ← * <~ Orders.update(order,
+                                 order.copy(state = Shipped, placedAt = time.yesterday.toInstant))
       _    ← * <~ OrderTotaler.saveTotals(cart, order)
       orig ← * <~ GiftCardOrders.create(GiftCardOrder(cordRef = cart.refNum))
       _ ← * <~ GiftCards.createAll((1 to 23).map { _ ⇒
@@ -253,7 +254,7 @@ trait DemoScenario6 extends DemoSeedHelpers {
 
 object DemoSeeds extends DemoScenario2 with DemoScenario3 with DemoScenario6 {
 
-  def insertDemoSeeds(implicit db: Database): DbResultT[Unit] =
+  def insertDemoSeeds(implicit db: DB): DbResultT[Unit] =
     for {
       _ ← * <~ createScenario2
       _ ← * <~ createScenario3
