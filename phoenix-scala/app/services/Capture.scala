@@ -22,11 +22,17 @@ import utils.aliases._
 import utils.apis.{Apis, OrderReservation, SkuReservation}
 import utils.db._
 
+import payloads.CapturePayloads
+import responses.CaptureResponse
 //TODO: Create order state InsufficientFundHold
 //TODO: Create order state PaymentErrorHold
 
-case class Capture(order: Order, lineItems: Seq[OrderLineItem], shippingCost: ShippingCost)(implicit ec: EC, db: DB, apis: Apis, ac: AC, ctx: OC) {
+case class Capture(
+    payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, apis: Apis, ac: AC, ctx: OC) {
 
+  def capture: DbResultT[CaptureResponse.Root] = DbResultT.good(CaptureResponse.build("dummy"))
+
+  /*
   def capture: DbResultT[CaptureResponse] = { 
 
     
@@ -88,5 +94,6 @@ case class Capture(order: Order, lineItems: Seq[OrderLineItem], shippingCost: Sh
       errors = Stripe.capture(authToken, total, currency)
     } yield errors
 
+ */
 
 }
