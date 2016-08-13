@@ -9,8 +9,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/FoxComm/shipstation/lib/shipstation/payloads"
-	"github.com/FoxComm/shipstation/lib/shipstation/responses"
+	"github.com/FoxComm/highlander/integrations/shipstation/lib/shipstation/payloads"
+	"github.com/FoxComm/highlander/integrations/shipstation/lib/shipstation/responses"
 )
 
 // Client in the interface for interacting with ShipStation.

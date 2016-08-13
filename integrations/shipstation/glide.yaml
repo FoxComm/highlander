@@ -1,4 +1,4 @@
-package: github.com/FoxComm/shipstation
+package: github.com/FoxComm/highlander/integrations/shipstation
 import:
   - package: github.com/FoxComm/metamorphosis
     vcs: git
