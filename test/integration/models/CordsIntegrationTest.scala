@@ -21,13 +21,13 @@ class CordsIntegrationTest extends IntegrationTestBase with TestObjectContext wi
       cord.referenceNumber must === (s"BR1000$i")
       cart.referenceNumber must === (cord.referenceNumber)
       cord.isCart mustBe true
-      Orders.create(cart.toOrder()).gimme
+      Orders.createFromCart(cart).gimme
     }
   }
 
   "cord should be updated and cart should be deleted on order creation" in new CustomerFixture {
     val cart  = Carts.create(Factories.cart).gimme
-    val order = Orders.create(cart.toOrder()).gimme
+    val order = Orders.createFromCart(cart).gimme
     val cord  = Cords.result.headOption.gimme.value
     cart.referenceNumber must === (cord.referenceNumber)
     order.referenceNumber must === (cord.referenceNumber)

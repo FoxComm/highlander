@@ -63,7 +63,7 @@ case class Checkout(
       _         ← * <~ reserveInMiddleWarehouse
       _         ← * <~ authPayments(customer)
       _         ← * <~ cartValidator.validate(isCheckout = true, fatalWarnings = true)
-      order     ← * <~ Orders.create(cart.toOrder())
+      order     ← * <~ Orders.createFromCart(cart)
       _         ← * <~ fraudScore(order)
       _         ← * <~ remorseHold(order)
       _         ← * <~ updateCouponCountersForPromotion(customer)

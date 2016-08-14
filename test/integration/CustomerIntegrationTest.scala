@@ -171,10 +171,14 @@ class CustomerIntegrationTest
           customer ← * <~ Customers.create(Factories.customer.copy(phoneNumber = None))
           address  ← * <~ Addresses.create(defaultAddress.copy(customerId = customer.id))
           region   ← * <~ Regions.findOneById(address.regionId)
-          cart1    ← * <~ Carts.create(Factories.cart.copy(referenceNumber = "ABC-1"))
-          order1   ← * <~ Orders.create(cart1.toOrder().copy(state = Order.Shipped))
-          cart2    ← * <~ Carts.create(Factories.cart.copy(referenceNumber = "ABC-2"))
-          order2   ← * <~ Orders.create(cart2.toOrder().copy(state = Order.Shipped))
+          cart1    ← * <~ Carts.create(Cart(referenceNumber = "ABC-1", customerId = customer.id))
+          order1   ← * <~ Orders.createFromCart(cart1)
+          order1   ← * <~ Orders.update(order1, order1.copy(state = Order.FulfillmentStarted))
+          order1   ← * <~ Orders.update(order1, order1.copy(state = Order.Shipped))
+          cart2    ← * <~ Carts.create(Cart(referenceNumber = "ABC-2", customerId = customer.id))
+          order2   ← * <~ Orders.createFromCart(cart2)
+          order2   ← Orders.update(order2, order2.copy(state = Order.FulfillmentStarted))
+          order2   ← Orders.update(order2, order2.copy(state = Order.Shipped))
           orders = Seq(order1, order2)
           addresses ← * <~ shippingAddresses(orders.zip(phoneNumbers)).map(a ⇒
                            OrderShippingAddresses.create(a))
@@ -690,10 +694,13 @@ class CustomerIntegrationTest
       customer2 ← * <~ Customers.create(
                      Factories.customer.copy(email = "second@example.org".some,
                                              name = "second".some))
-      cart2 ← * <~ Carts.create(
-                 Factories.cart.copy(customerId = customer2.id, referenceNumber = "ABC-456"))
-      order  ← * <~ Orders.create(cart.toOrder().copy(state = Order.Shipped))
-      order2 ← * <~ Orders.create(cart2.toOrder().copy(state = Order.Shipped))
+      cart2  ← * <~ Carts.create(Cart(customerId = customer2.id, referenceNumber = "ABC-456"))
+      order  ← * <~ Orders.createFromCart(cart)
+      order  ← * <~ Orders.update(order, order.copy(state = Order.FulfillmentStarted))
+      order  ← * <~ Orders.update(order, order.copy(state = Order.Shipped))
+      order2 ← * <~ Orders.createFromCart(cart2)
+      order2 ← * <~ Orders.update(order2, order2.copy(state = Order.FulfillmentStarted))
+      order2 ← * <~ Orders.update(order2, order2.copy(state = Order.Shipped))
       orderPayment ← * <~ OrderPayments.create(
                         Factories.orderPayment.copy(cordRef = order.refNum,
                                                     paymentMethodId = creditCard.id,

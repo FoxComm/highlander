@@ -36,7 +36,10 @@ class OrderIntegrationTest
     }
 
     "fails if transition from current status is not allowed" in new EmptyCustomerCartFixture {
-      val order = Orders.create(cart.toOrder().copy(state = Canceled)).gimme
+      val order = (for {
+        order ← * <~ Orders.createFromCart(cart)
+        order ← * <~ Orders.update(order, order.copy(state = Canceled))
+      } yield order).gimme
 
       val response = PATCH(s"v1/orders/${order.refNum}", UpdateOrderPayload(ManualHold))
       response.status must === (StatusCodes.BadRequest)
@@ -76,7 +79,7 @@ class OrderIntegrationTest
       shipMethod ← * <~ ShippingMethods.create(Factories.shippingMethods.head)
       _          ← * <~ OrderShippingMethods.create(OrderShippingMethod.build(cart.refNum, shipMethod))
       _          ← * <~ OrderShippingAddresses.copyFromAddress(address = address, cordRef = cart.refNum)
-      order      ← * <~ Orders.create(cart.toOrder())
+      order      ← * <~ Orders.createFromCart(cart)
     } yield order).gimme
   }
 }

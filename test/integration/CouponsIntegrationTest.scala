@@ -281,7 +281,7 @@ class CouponsIntegrationTest
       cartForOrder ← * <~ Carts.create(
                         Factories.cart.copy(referenceNumber = "ORDER-123456",
                                             customerId = otherCustomer.id))
-      order ← * <~ Orders.create(cartForOrder.toOrder())
+      order ← * <~ Orders.createFromCart(cartForOrder)
     } yield (fromCoupon, fromToCoupon, cart, order)).gimme
   }
 
