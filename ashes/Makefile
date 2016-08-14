@@ -34,4 +34,7 @@ package: build
 	touch ashes.tar.bz2
 	tar --exclude 'ashes.tar.bz2' --exclude '.git' --exclude '.gitignore' --exclude '.gitattributes' -jcf ashes.tar.bz2 ./
 
+docker: build
+	docker build -t ashes .
+
 .PHONY: test test-cov tag build package

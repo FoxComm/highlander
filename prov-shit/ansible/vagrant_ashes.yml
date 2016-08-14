@@ -5,8 +5,7 @@
   vars:
     user: vagrant
     ashes_server_name: admin.foxcommerce.local
-    firebird_server_name: firebird.foxcommerce.local
-    firebrand_server_name: foxcommerce.local
+    storefront_server_name: foxcommerce.local
   roles:
     - { role: base/common }
     - { role: base/consul }
@@ -15,7 +14,6 @@
     - { role: base/balancer, sudo: yes }
     - { role: base/node }
     - { role: base/ashes }
-    - { role: base/firebird }
     - { role: base/firebrand }
     - { role: dev/balancer, sudo: yes }
 

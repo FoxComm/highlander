@@ -5,10 +5,10 @@ require 'fileutils'
 
 CONFIG = File.join(File.dirname(__FILE__), "vagrant.local.rb")
 
-$vb_memory = 1024*4
+$vb_memory = 1024*6
 $vb_cpu = 4
 $nginx_ip = "192.168.10.111"
-$user = "vagrant"
+user = "vagrant"
 
 require CONFIG if File.readable?(CONFIG)
 
@@ -17,6 +17,7 @@ def tune_vm(config, opts = {})
   memory = opts[:memory]
 
   config.vm.provider :virtualbox do |vb|
+    user = "vagrant"
     vb.cpus = cpus if cpus
     vb.memory = memory if memory
   end
@@ -27,7 +28,7 @@ def tune_vm(config, opts = {})
   end
 
   config.vm.provider :google do |g, override|
-    $user = "ubuntu"
+    user = "ubuntu"
 
     override.vm.box = "gce"
     override.ssh.username = ENV['GOOGLE_SSH_USERNAME']
@@ -50,6 +51,7 @@ Vagrant.configure("2") do |config|
   tune_vm(config, cpus: $vb_cpu, memory: $vb_memory)
 
   config.vm.define :appliance, primary: true do |app|
+    app.vm.box = "boxcutter/ubuntu1604"
     app.vm.network :private_network, ip: $nginx_ip
 
     app.vm.provision "shell", inline: "apt-get install -y python-minimal"
@@ -57,7 +59,7 @@ Vagrant.configure("2") do |config|
       ansible.verbose = "vvvv"
       ansible.playbook = "prov-shit/ansible/vagrant_appliance.yml"
       ansible.extra_vars = {
-        user: $user
+        user: user
       }
     end
   end
@@ -72,7 +74,7 @@ Vagrant.configure("2") do |config|
       ansible.skip_tags = "buildkite"
       ansible.playbook = "prov-shit/ansible/vagrant_builder.yml"
       ansible.extra_vars = {
-        user: $user
+        user: user
       }
     end
   end

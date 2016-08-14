@@ -30,6 +30,18 @@
   sudo: yes
   file: path=/etc/nginx/sites-available/default state=absent
 
+- name: Make Certs Directory
+  file: path=/certs state=directory mode="600"
+  sudo: true
+
+- name: Copy Cert
+  copyv: src="{{role_path}}/../secret_keys/files/certs/{{cert_path}}/frontend/domain.crt" dest=/certs/domain.crt mode="600"
+  sudo: true
+
+- name: Copy Key
+  copyv: src="{{role_path}}/../secret_keys/files/certs/{{cert_path}}/frontend/domain.key" dest=/certs/domain.key mode="600"
+  sudo: true
+
 - name: Restart Nginx
   service: name=nginx state=restarted enabled=true
   sudo: yes
