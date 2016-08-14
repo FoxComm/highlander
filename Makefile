@@ -3,6 +3,12 @@ SUBDIRS = ashes firebird green-river isaac phoenix-scala prov-shit integration-t
 UPDATEDIRS = $(SUBDIRS:%=update-%)
 BUILDDIRS = $(SUBDIRS:%=build-%) build-integrations
 TESTDIRS = $(SUBDIRS:%=test-%) test-integrations
+CLEANDIRS = $(SUBDIRS:%=clean-%)
+
+clean: $(CLEANDIRS)
+$(CLEANDIRS): REPO = $(@:clean-%=%) 
+$(CLEANDIRS): 
+	$(MAKE) -C $(REPO) clean
 
 build: $(BUILDDIRS)
 	$(MAKE) -C api-js build

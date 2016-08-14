@@ -13,7 +13,7 @@ prep:
 	ln -s `pwd` $(BUILDPATH); true
 
 glide: prep
-	cd $(BUILDPATH) && glide install && glide update
+	cd $(BUILDPATH) && glide install
 
 build: glide
 	cd $(BUILDPATH) && go build -o middlewarehouse main.go
@@ -22,6 +22,9 @@ build: glide
 build-linux:
 	GOOS=linux $(MAKE) build
 	$(MAKE) -C consumers/stock-items build-linux
+
+clean:
+	rm -rf ./vendor
 
 migrate:
 	${FLYWAY} migrate
