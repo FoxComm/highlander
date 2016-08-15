@@ -33,7 +33,6 @@ function setCellContents(product, field) {
 
 const ProductRow = (props: Props) => {
   const { product, columns, params } = props;
-  const key = `product-${product.id}`;
   const commonParams = {
     columns,
     row: product,
@@ -42,14 +41,15 @@ const ProductRow = (props: Props) => {
   };
 
   if (isArchived(product)) {
-    return <MultiSelectRow {...commonParams}/>;
+    return <MultiSelectRow {...commonParams} />;
   }
 
   return (
     <MultiSelectRow
       { ...commonParams }
       linkTo="product-details"
-      linkParams={{productId: product.productId, context: product.context}} />
+      linkParams={{productId: product.productId, context: product.context}}
+    />
   );
 };
 

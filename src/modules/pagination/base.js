@@ -40,7 +40,13 @@ export function makeFetchAction(fetcher, actions, findSearchState) {
     if (!searchState.isFetching && !searchState.isRefreshing) {
       dispatch(actions.searchStart(...args));
 
-      fetchPromise = fetcher.apply({ searchState, getState, dispatch }, args)
+      const promise = fetcher.apply({ searchState, getState, dispatch }, args);
+      const abort = () => {
+        if (promise.abort) promise.abort();
+        dispatch(actions.searchAborted());
+      };
+
+      fetchPromise = promise
         .then(
           result => {
             if (_.isEmpty(result.error)) {
@@ -51,6 +57,7 @@ export function makeFetchAction(fetcher, actions, findSearchState) {
           },
           err => dispatch(actions.searchFailure(err))
         );
+      fetchPromise.abort = abort;
     }
 
     return fetchPromise;
@@ -105,6 +112,7 @@ export default function makePagination(namespace, fetcher = null, findSearchInSt
   const refreshStart = _createAction('REFRESH_START', (...args) => args);
   const searchSuccess = _createAction('SEARCH_SUCCESS', (...args) => args);
   const searchFailure = _createAction('SEARCH_FAILURE');
+  const searchAborted = _createAction('SEARCH_ABORTED');
   const updateState = _createAction('UPDATE_STATE');
   const addEntity = _createAction('ADD_ENTITY');
   const addEntities = _createAction('ADD_ENTITIES');
@@ -112,7 +120,8 @@ export default function makePagination(namespace, fetcher = null, findSearchInSt
   const resetSearch = _createAction('RESET_SEARCH');
   const updateItems = _createAction('UPDATE_ITEMS');
 
-  const fetch = makeFetchAction(fetcher, { searchStart, searchSuccess, searchFailure }, findSearchInState);
+  const fetchActions = { searchStart, searchSuccess, searchFailure, searchAborted };
+  const fetch = makeFetchAction(fetcher, fetchActions, findSearchInState);
 
   const updateStateAndFetch = (newState, ...args) => {
     return dispatch => {
@@ -169,6 +178,12 @@ export default function makePagination(namespace, fetcher = null, findSearchInSt
         failed: true,
         isFetching: false,
         isRefreshing: false,
+      };
+    },
+    [searchAborted]: state => {
+      return {
+        ...state,
+        isFetching: false,
       };
     },
     [addEntity]: (state, entity) => {

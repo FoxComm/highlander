@@ -38,7 +38,8 @@ export function toQuery(filters, options = {}) {
 
   if (!_.isEmpty(phrase)) {
     es.queries.push(dsl.matchQuery('_all', {
-      query: phrase
+      query: phrase,
+      type: 'phrase',
     }));
   }
 

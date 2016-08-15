@@ -8,13 +8,6 @@
     }
   }
 
-  .fc-typeahead__loader {
-    position: absolute;
-    right: 7px;
-    bottom: 0;
-    margin: 5px 0;
-  }
-
   input[type=text] {
     width: 700px;
     border: none !important;
@@ -74,27 +67,27 @@
 
     font-size: 12px;
     line-height: 60px;
+  }
 
-    li {
-      padding: 15px;
-      border-bottom: 1px solid @color-border;
+  &__item {
+    padding: 15px;
+    border-bottom: 1px solid @color-border;
 
-      &:last-child {
-        border-bottom: none;
-      }
+    &:last-child {
+      border-bottom: none;
+    }
 
-      &.fc-typeahead__item:hover {
-        background-color: @color-tr-even-bg;
-        cursor: pointer;
-      }
+    &:hover {
+      background-color: @color-tr-even-bg;
+      cursor: pointer;
+    }
 
-      .fc-grid {
-        line-height: 20px;
-      }
+    .fc-grid {
+      line-height: 20px;
     }
   }
 
-  .fc-typeahead__need-more-characters {
+  &__need-more-characters {
     .fc-alert {
       margin-top: 0;
     }
