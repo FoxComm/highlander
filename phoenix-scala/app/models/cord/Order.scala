@@ -12,6 +12,7 @@ import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import utils.Money.Currency
+import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 import utils.time._
@@ -123,6 +124,24 @@ object Orders
     extends FoxTableQuery[Order, Orders](new Orders(_))
     with ReturningTableQuery[Order, Orders]
     with SearchByRefNum[Order, Orders] {
+
+  def createFromCart(cart: Cart)(implicit ec: EC, db: DB, ctx: OC): DbResultT[Order] =
+    createFromCart(cart, ctx.id)
+
+  def createFromCart(cart: Cart, contextId: Int)(implicit ec: EC, db: DB): DbResultT[Order] = {
+    val newOrder = Order(referenceNumber = cart.referenceNumber,
+                         customerId = cart.customerId,
+                         currency = cart.currency,
+                         subTotal = cart.subTotal,
+                         shippingTotal = cart.shippingTotal,
+                         adjustmentsTotal = cart.adjustmentsTotal,
+                         taxesTotal = cart.taxesTotal,
+                         grandTotal = cart.grandTotal,
+                         contextId = contextId)
+    for {
+      order ← * <~ Orders.create(newOrder)
+    } yield order
+  }
 
   def findByCustomer(cust: Customer): QuerySeq =
     findByCustomerId(cust.id)

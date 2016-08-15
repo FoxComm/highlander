@@ -1,23 +1,21 @@
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
 import cats.implicits._
+import failures.CustomerFailures.{CustomerMustHaveCredentials, _}
 import failures.NotFoundFailure404
 import failures.ShippingMethodFailures.ShippingMethodNotFoundByName
-import failures.CustomerFailures._
+import models.Reasons
 import models.cord.Order.RemorseHold
 import models.cord._
 import models.customer.Customers
 import models.inventory._
 import models.location.Addresses
-import models.objects._
 import models.payment.giftcard._
-import models.product.{Mvp, SimpleContext}
+import models.product.Mvp
 import models.shipping._
-import models.{Reasons, StoreAdmins}
 import payloads.GiftCardPayloads.GiftCardCreateByCsr
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.OrderPayloads.CreateCart
@@ -26,11 +24,15 @@ import payloads.UpdateShippingMethod
 import responses.GiftCardResponse
 import responses.cord._
 import slick.driver.PostgresDriver.api._
-import util.IntegrationTestBase
+import util.{Fixtures, IntegrationTestBase}
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
+class CheckoutIntegrationTest
+    extends IntegrationTestBase
+    with HttpSupport
+    with AutomaticAuth
+    with Fixtures {
 
   "POST v1/orders/:refNum/checkout" - {
 
@@ -161,38 +163,33 @@ class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with 
     }
   }
 
-  trait Fixture {
-    val (customer, address, shipMethod, product, sku, reason) = (for {
-      productCtx ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-      customer   ← * <~ Customers.create(Factories.customer)
-      address    ← * <~ Addresses.create(Factories.usAddress1.copy(customerId = customer.id))
-      _          ← * <~ Factories.shippingMethods.map(ShippingMethods.create(_))
+  trait Fixture extends AddressFixture with StoreAdminFixture {
+    val (shipMethod, product, sku, reason) = (for {
+      _ ← * <~ Factories.shippingMethods.map(ShippingMethods.create)
       shipMethod ← * <~ ShippingMethods
                     .filter(_.adminDisplayName === ShippingMethod.expressShippingNameForAdmin)
                     .mustFindOneOr(
                         ShippingMethodNotFoundByName(ShippingMethod.expressShippingNameForAdmin))
-      product ← * <~ Mvp.insertProduct(productCtx.id, Factories.products.head)
+      product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head)
       sku     ← * <~ Skus.mustFindById404(product.skuId)
-      admin   ← * <~ StoreAdmins.create(Factories.storeAdmin)
-      reason  ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
-    } yield (customer, address, shipMethod, product, sku, reason)).gimme
+      reason  ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
+    } yield (shipMethod, product, sku, reason)).gimme
   }
 
-  trait BlacklistedFixture {
+  trait BlacklistedFixture extends StoreAdminFixture {
     val (customer, address, shipMethod, product, sku, reason) = (for {
-      productCtx ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-      admin      ← * <~ StoreAdmins.create(Factories.storeAdmin)
       customer ← * <~ Customers.create(
-                    Factories.customer.copy(isBlacklisted = true, blacklistedBy = Some(admin.id)))
+                    Factories.customer.copy(isBlacklisted = true,
+                                            blacklistedBy = Some(storeAdmin.id)))
       address ← * <~ Addresses.create(Factories.usAddress1.copy(customerId = customer.id))
-      _       ← * <~ Factories.shippingMethods.map(ShippingMethods.create(_))
+      _       ← * <~ Factories.shippingMethods.map(ShippingMethods.create)
       shipMethod ← * <~ ShippingMethods
                     .filter(_.adminDisplayName === ShippingMethod.expressShippingNameForAdmin)
                     .mustFindOneOr(
                         ShippingMethodNotFoundByName(ShippingMethod.expressShippingNameForAdmin))
-      product ← * <~ Mvp.insertProduct(productCtx.id, Factories.products.head)
+      product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head)
       sku     ← * <~ Skus.mustFindById404(product.skuId)
-      reason  ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
+      reason  ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
     } yield (customer, address, shipMethod, product, sku, reason)).gimme
   }
 }

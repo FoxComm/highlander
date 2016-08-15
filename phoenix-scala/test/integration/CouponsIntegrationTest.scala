@@ -13,8 +13,6 @@ import models.StoreAdmins
 import models.cord.{Carts, Orders}
 import models.coupon.Coupon
 import models.customer.Customers
-import models.objects.{ObjectContext, ObjectContexts}
-import models.product.SimpleContext
 import models.promotion.{Promotion, Promotions}
 import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods._
@@ -27,9 +25,9 @@ import responses.cord.CartResponse
 import services.coupon.CouponManager
 import services.promotion.PromotionManager
 import util.{IntegrationTestBase, TestActivityContext}
+import utils.db.ExPostgresDriver.api._
 import utils.db._
 import utils.seeds.Seeds.Factories
-import utils.db.ExPostgresDriver.api._
 import utils.time.RichInstant
 
 class CouponsIntegrationTest
@@ -41,7 +39,7 @@ class CouponsIntegrationTest
   "POST /v1/coupons/:context" - {
     "create coupon" in new Fixture {
       val response =
-        POST(s"v1/coupons/${context.name}",
+        POST(s"v1/coupons/${ctx.name}",
              CreateCoupon(form = couponForm, shadow = couponShadow, promotion = promotion.id))
 
       response.status must === (StatusCodes.OK)
@@ -55,7 +53,7 @@ class CouponsIntegrationTest
               ~ ("activeFrom"  → (("type" → "string") ~ ("ref" → "activeFrom")))
       )
       val response =
-        POST(s"v1/coupons/${context.name}",
+        POST(s"v1/coupons/${ctx.name}",
              CreateCoupon(form = invalidCouponForm, shadow = shadow, promotion = promotion.id))
 
       response.status must === (StatusCodes.BadRequest)
@@ -67,7 +65,7 @@ class CouponsIntegrationTest
 
   "POST /v1/coupons/:context/:id/archive" - {
     "archive existing coupon" in new Fixture {
-      val response = POST(s"v1/coupons/${context.name}/${coupon.form.id}/archive")
+      val response = POST(s"v1/coupons/${ctx.name}/${coupon.form.id}/archive")
 
       response.status must === (StatusCodes.OK)
 
@@ -78,7 +76,7 @@ class CouponsIntegrationTest
     }
 
     "404 for not existing coupon" in new Fixture {
-      val response = POST(s"v1/coupons/${context.name}/666/archive")
+      val response = POST(s"v1/coupons/${ctx.name}/666/archive")
 
       response.status must === (StatusCodes.NotFound)
       response.error === (NotFoundFailure404(Coupon, 666).description)
@@ -188,20 +186,17 @@ class CouponsIntegrationTest
 
     def couponPayload(promoId: Int): CreateCoupon = CreateCoupon(couponForm, couponShadow, promoId)
 
-    val (storeAdmin, context, promotion, coupon) = (for {
+    val (storeAdmin, promotion, coupon) = (for {
       storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
-      context ← * <~ ObjectContexts
-                 .filterByName(SimpleContext.default)
-                 .mustFindOneOr(ObjectContextNotFound(SimpleContext.default))
-      promoRoot ← * <~ PromotionManager.create(promoPayload, context.name)
+      promoRoot  ← * <~ PromotionManager.create(promoPayload, ctx.name)
       promotion ← * <~ Promotions
-                   .filter(_.contextId === context.id)
+                   .filter(_.contextId === ctx.id)
                    .filter(_.formId === promoRoot.form.id)
                    .filter(_.shadowId === promoRoot.shadow.id)
                    .mustFindOneOr(NotFoundFailure404(Promotion, "test"))
 
-      coupon ← * <~ CouponManager.create(couponPayload(promoRoot.form.id), context.name, None)
-    } yield (storeAdmin, context, promotion, coupon)).gimme
+      coupon ← * <~ CouponManager.create(couponPayload(promoRoot.form.id), ctx.name, None)
+    } yield (storeAdmin, promotion, coupon)).gimme
   }
 
   trait OrderCouponFixture extends Fixture {
@@ -260,13 +255,13 @@ class CouponsIntegrationTest
       CreateCoupon(form, orderCouponShadow, promotion.formId)
 
     val (fromCoupon, fromToCoupon, cart, order) = (for {
-      fromCoupon   ← * <~ CouponManager.create(couponPayload(fromCouponForm), context.name, None)
-      fromToCoupon ← * <~ CouponManager.create(couponPayload(fromToCouponForm), context.name, None)
+      fromCoupon   ← * <~ CouponManager.create(couponPayload(fromCouponForm), ctx.name, None)
+      fromToCoupon ← * <~ CouponManager.create(couponPayload(fromToCouponForm), ctx.name, None)
       wasActiveBeforeCoupon ← * <~ CouponManager.create(couponPayload(wasActiveBeforeCouponForm),
-                                                        context.name,
+                                                        ctx.name,
                                                         None)
       willBeActiveCoupon ← * <~ CouponManager.create(couponPayload(willBeActiveCouponForm),
-                                                     context.name,
+                                                     ctx.name,
                                                      None)
       _ ← * <~ CouponManager.generateCode(fromCoupon.form.id, fromCode, authedStoreAdmin)
       _ ← * <~ CouponManager.generateCode(fromToCoupon.form.id, fromToCode, authedStoreAdmin)
@@ -286,7 +281,7 @@ class CouponsIntegrationTest
       cartForOrder ← * <~ Carts.create(
                         Factories.cart.copy(referenceNumber = "ORDER-123456",
                                             customerId = otherCustomer.id))
-      order ← * <~ Orders.create(cartForOrder.toOrder())
+      order ← * <~ Orders.createFromCart(cartForOrder)
     } yield (fromCoupon, fromToCoupon, cart, order)).gimme
   }
 

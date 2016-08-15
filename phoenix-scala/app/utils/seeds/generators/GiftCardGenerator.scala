@@ -29,10 +29,10 @@ trait GiftCardGenerator {
   def generateGiftCardPurchase(customerId: Int, context: ObjectContext)(
       implicit db: DB): DbResultT[GiftCard] =
     for {
-      cart ← * <~ Carts.create(Cart(customerId = customerId))
-      order ← * <~ Orders.create(
-                 cart.toOrder(contextId = context.id).copy(state = Order.ManualHold))
-      orig ← * <~ GiftCardOrders.create(GiftCardOrder(cordRef = order.refNum))
+      cart  ← * <~ Carts.create(Cart(customerId = customerId))
+      order ← * <~ Orders.createFromCart(cart, context.id)
+      order ← * <~ Orders.update(order, order.copy(state = Order.ManualHold))
+      orig  ← * <~ GiftCardOrders.create(GiftCardOrder(cordRef = order.refNum))
       gc ← * <~ GiftCards.create(
               GiftCard.build(balance = nextGcBalance, originId = orig.id, currency = Currency.USD))
     } yield gc

@@ -2,6 +2,7 @@ import java.time.ZonedDateTime
 
 import Extensions._
 import akka.http.scaladsl.model.StatusCodes
+import util._
 import cats.implicits._
 import com.stripe.model.DeletedExternalAccount
 import failures.CartFailures.OrderAlreadyPlaced
@@ -25,7 +26,6 @@ import org.scalatest.mock.MockitoSugar
 import payloads.PaymentPayloads._
 import services.{CreditCardManager, Result}
 import slick.driver.PostgresDriver.api._
-import util._
 import utils.aliases.stripe._
 import utils.db._
 import utils.seeds.Seeds.Factories
@@ -37,7 +37,8 @@ class CartPaymentsIntegrationTest
     with HttpSupport
     with AutomaticAuth
     with MockitoSugar
-    with TestActivityContext.AdminAC {
+    with TestActivityContext.AdminAC
+    with Fixtures {
 
   "gift cards" - {
     "POST /v1/orders/:ref/payment-methods/gift-cards" - {
@@ -100,8 +101,8 @@ class CartPaymentsIntegrationTest
         giftCardPayments(cart) mustBe 'empty
       }
 
-      "fails if the order has already been placed" in new GiftCardFixture {
-        Orders.create(cart.toOrder()).gimme
+      "fails if the order has already been placed" in new GiftCardFixture
+      with OrderFromCartFixture {
         val payload =
           GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance.some)
         val response =
@@ -311,8 +312,8 @@ class CartPaymentsIntegrationTest
         storeCreditPayments(cart) mustBe 'empty
       }
 
-      "fails if the order has already been placed" in new StoreCreditFixture {
-        Orders.create(cart.toOrder()).gimme
+      "fails if the order has already been placed" in new StoreCreditFixture
+      with OrderFromCartFixture {
         val payload  = StoreCreditPayment(amount = 50)
         val response = POST(s"v1/orders/${cart.refNum}/payment-methods/store-credit", payload)
 
@@ -402,8 +403,8 @@ class CartPaymentsIntegrationTest
         creditCardPayments(cart) mustBe 'empty
       }
 
-      "fails if the order has already been placed" in new CreditCardFixture {
-        Orders.create(cart.toOrder()).gimme
+      "fails if the order has already been placed" in new CreditCardFixture
+      with OrderFromCartFixture {
         val response = POST(s"v1/orders/${cart.referenceNumber}/payment-methods/credit-cards",
                             CreditCardPayment(creditCard.id))
 
@@ -456,12 +457,8 @@ class CartPaymentsIntegrationTest
   def storeCreditPayments(cart: Cart) =
     paymentsFor(cart, PaymentMethod.StoreCredit)
 
-  trait Fixture {
-    val (cart, admin, customer) = (for {
-      customer ← * <~ Customers.create(Factories.customer)
-      cart     ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
-      admin    ← * <~ StoreAdmins.create(authedStoreAdmin)
-    } yield (cart, admin, customer)).gimme
+  trait Fixture extends EmptyCustomerCartFixture {
+    val admin = StoreAdmins.create(authedStoreAdmin).gimme
   }
 
   trait GiftCardFixture extends Fixture {

@@ -3,6 +3,7 @@ import java.time.ZonedDateTime
 import akka.http.scaladsl.model.StatusCodes
 
 import cats.implicits._
+import util.{Fixtures, IntegrationTestBase, StripeSupport}
 import failures.CreditCardFailures.InvalidCvc
 import failures.NotFoundFailure404
 import models.customer.{Customer, Customers}
@@ -16,7 +17,8 @@ import utils.seeds.Seeds.Factories
 class CreditCardManagerIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
-    with AutomaticAuth {
+    with AutomaticAuth
+    with Fixtures {
 
   import concurrent.ExecutionContext.Implicits.global
 
@@ -71,7 +73,7 @@ class CreditCardManagerIntegrationTest
           cc.address1Check mustBe 'defined
         }
 
-        "creates a new address in the book and copies it to the new creditCard" ignore new Fixture {
+        "creates a new address in the book and copies it to the new creditCard" ignore new CustomerFixture {
           val a       = Factories.address
           val payload = payloadWithFullAddress(payloadStub.copy(isDefault = true), a)
 
@@ -121,7 +123,7 @@ class CreditCardManagerIntegrationTest
       }
 
       "fails" - {
-        "if neither addressId nor full address was provided" ignore new Fixture {
+        "if neither addressId nor full address was provided" ignore new CustomerFixture {
           val payload  = payloadStub.copy(address = None, addressId = None)
           val response = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
           val cards    = CreditCards.gimme
@@ -131,7 +133,7 @@ class CreditCardManagerIntegrationTest
           cards mustBe 'empty
         }
 
-        "if the addressId cannot be found in address book" ignore new Fixture {
+        "if the addressId cannot be found in address book" ignore new CustomerFixture {
           val payload  = payloadStub.copy(addressId = Some(1))
           val response = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
           val cards    = CreditCards.gimme
@@ -141,7 +143,7 @@ class CreditCardManagerIntegrationTest
           cards mustBe 'empty
         }
 
-        "if card info is invalid" ignore new Fixture {
+        "if card info is invalid" ignore new CustomerFixture {
           val payload = payloadWithFullAddress(
               payloadStub.copy(cardNumber = StripeSupport.incorrectNumberCard),
               Factories.address)
@@ -175,13 +177,5 @@ class CreditCardManagerIntegrationTest
         }
       }
     }
-  }
-
-  trait Fixture {
-    val customer = Customers.create(Factories.customer).gimme
-  }
-
-  trait AddressFixture extends Fixture {
-    val address = Addresses.create(Factories.address.copy(customerId = customer.id)).gimme
   }
 }

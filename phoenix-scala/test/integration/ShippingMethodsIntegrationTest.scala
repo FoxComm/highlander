@@ -1,5 +1,6 @@
 import Extensions._
 import akka.http.scaladsl.model.StatusCodes
+import util.{Fixtures, IntegrationTestBase}
 import models.cord.lineitems._
 import models.cord.{Carts, OrderShippingAddresses}
 import models.customer.Customers
@@ -20,7 +21,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class ShippingMethodsIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
-    with AutomaticAuth {
+    with AutomaticAuth
+    with Fixtures {
 
   "GET /v1/shipping-methods/:refNum" - {
 
@@ -117,12 +119,8 @@ class ShippingMethodsIntegrationTest
     }
   }
 
-  trait Fixture {
-    val (cart, storeAdmin, customer) = (for {
-      customer   ← * <~ Customers.create(Factories.customer)
-      cart       ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
-      storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
-    } yield (cart, storeAdmin, customer)).gimme
+  trait Fixture extends EmptyCustomerCartFixture {
+    val storeAdmin = StoreAdmins.create(authedStoreAdmin).gimme
   }
 
   trait ShippingMethodsFixture extends Fixture {
