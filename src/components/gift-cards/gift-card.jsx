@@ -110,9 +110,10 @@ export default class GiftCard extends React.Component {
   }
 
   get cardState() {
-    const {card} = this.props;
+    const {card, nextState} = this.props;
     const {state} = card;
     const transitions = getStateTransitions(card);
+    const dropdownValue = nextState ? nextState : state;
 
     if (!transitions.length) {
       return <State value={state} model={"giftCard"} />;
@@ -121,9 +122,10 @@ export default class GiftCard extends React.Component {
     return (
       <Dropdown
         placeholder={stateTitles[state]}
-        value={state}
+        value={dropdownValue}
         onChange={this.onChangeState}
-        items={transitions.map(state => [state, stateActionTitles[state]])} />
+        items={transitions.map(state => [state, stateActionTitles[state]])}
+      />
     );
   }
 
