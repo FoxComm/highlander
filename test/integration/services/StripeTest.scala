@@ -7,7 +7,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import cats.implicits._
 import failures.CreditCardFailures.{CardDeclined, IncorrectCvc}
 import payloads.PaymentPayloads.CreateCreditCard
-import util.{IntegrationTestBase, MockedApis, StripeSupport}
+import util._
 import utils.Money.Currency
 import utils.seeds.Seeds.Factories
 

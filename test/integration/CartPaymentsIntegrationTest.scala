@@ -38,11 +38,11 @@ class CartPaymentsIntegrationTest
     with AutomaticAuth
     with MockitoSugar
     with TestActivityContext.AdminAC
-    with Fixtures {
+    with BakedFixtures {
 
   "gift cards" - {
     "POST /v1/orders/:ref/payment-methods/gift-cards" - {
-      "succeeds" in new GiftCardFixture {
+      "succeeds" in new CartWithGcFixture {
         val payload =
           GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance.some)
         val response =
@@ -56,7 +56,7 @@ class CartPaymentsIntegrationTest
         payments.head.amount must === (payload.amount)
       }
 
-      "fails when adding same gift card twice" in new GiftCardFixture {
+      "fails when adding same gift card twice" in new CartWithGcFixture {
         val payload =
           GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance.some)
         val response =
@@ -70,7 +70,7 @@ class CartPaymentsIntegrationTest
             GiftCardPaymentAlreadyAdded(cart.referenceNumber, giftCard.code).description)
       }
 
-      "fails if the cart is not found" in new GiftCardFixture {
+      "fails if the cart is not found" in new CartWithGcFixture {
         val payload =
           GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance.some)
         val response = POST(s"v1/orders/ABC123/payment-methods/gift-cards", payload)
@@ -79,7 +79,7 @@ class CartPaymentsIntegrationTest
         giftCardPayments(cart) mustBe 'empty
       }
 
-      "fails if the giftCard is not found" in new GiftCardFixture {
+      "fails if the giftCard is not found" in new CartWithGcFixture {
         val payload =
           GiftCardPayment(code = giftCard.code ++ "xyz", amount = giftCard.availableBalance.some)
         val response =
@@ -90,7 +90,7 @@ class CartPaymentsIntegrationTest
         giftCardPayments(cart) mustBe 'empty
       }
 
-      "fails if the giftCard does not have sufficient available balance" in new GiftCardFixture {
+      "fails if the giftCard does not have sufficient available balance" in new CartWithGcFixture {
         val requestedAmount = giftCard.availableBalance + 1
         val payload         = GiftCardPayment(code = giftCard.code, amount = requestedAmount.some)
         val response =
@@ -101,8 +101,7 @@ class CartPaymentsIntegrationTest
         giftCardPayments(cart) mustBe 'empty
       }
 
-      "fails if the order has already been placed" in new GiftCardFixture
-      with OrderFromCartFixture {
+      "fails if the order has already been placed" in new GiftCardFixture with Order_Baked {
         val payload =
           GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance.some)
         val response =
@@ -113,7 +112,7 @@ class CartPaymentsIntegrationTest
         giftCardPayments(cart) must have size 0
       }
 
-      "fails if the giftCard is inactive" in new GiftCardFixture {
+      "fails if the giftCard is inactive" in new CartWithGcFixture {
         GiftCards.findByCode(giftCard.code).map(_.state).update(GiftCard.Canceled).gimme
         val payload =
           GiftCardPayment(code = giftCard.code, amount = (giftCard.availableBalance + 1).some)
@@ -125,7 +124,7 @@ class CartPaymentsIntegrationTest
         giftCardPayments(cart) mustBe 'empty
       }
 
-      "fails to add GC with cart status as payment method" in new GiftCardFixture {
+      "fails to add GC with cart status as payment method" in new CartWithGcFixture {
         GiftCards.findByCode(giftCard.code).map(_.state).update(GiftCard.Cart).run().futureValue
         val payload  = GiftCardPayment(code = giftCard.code, amount = Some(15))
         val response = POST(s"v1/orders/${cart.refNum}/payment-methods/gift-cards", payload)
@@ -136,7 +135,7 @@ class CartPaymentsIntegrationTest
     }
 
     "PATCH /v1/orders/:ref/payment-methods/gift-cards" - {
-      "successfully updates giftCard payment" in new GiftCardFixture {
+      "successfully updates giftCard payment" in new CartWithGcFixture {
         val payload =
           GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance.some)
         val create = POST(s"v1/orders/${cart.referenceNumber}/payment-methods/gift-cards", payload)
@@ -147,7 +146,7 @@ class CartPaymentsIntegrationTest
         update.status must === (StatusCodes.OK)
       }
 
-      "fails if the cart is not found" in new GiftCardFixture {
+      "fails if the cart is not found" in new CartWithGcFixture {
         val payload =
           GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance.some)
         val response = PATCH(s"v1/orders/ABC123/payment-methods/gift-cards", payload)
@@ -156,7 +155,7 @@ class CartPaymentsIntegrationTest
         giftCardPayments(cart) mustBe 'empty
       }
 
-      "fails if the giftCard is not found" in new GiftCardFixture {
+      "fails if the giftCard is not found" in new CartWithGcFixture {
         val payload =
           GiftCardPayment(code = giftCard.code ++ "xyz", amount = giftCard.availableBalance.some)
         val response =
@@ -169,7 +168,7 @@ class CartPaymentsIntegrationTest
     }
 
     "DELETE /v1/orders/:ref/payment-methods/gift-cards/:code" - {
-      "successfully deletes a giftCard" in new GiftCardFixture {
+      "successfully deletes a giftCard" in new CartWithGcFixture {
         val payload =
           GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance.some)
         val create = POST(s"v1/orders/${cart.referenceNumber}/payment-methods/gift-cards", payload)
@@ -183,7 +182,7 @@ class CartPaymentsIntegrationTest
         payments mustBe 'empty
       }
 
-      "fails if the cart is not found" in new GiftCardFixture {
+      "fails if the cart is not found" in new CartWithGcFixture {
         val response = DELETE(s"v1/orders/99/payment-methods/gift-cards/123")
 
         response.status must === (StatusCodes.NotFound)
@@ -191,7 +190,7 @@ class CartPaymentsIntegrationTest
         creditCardPayments(cart) mustBe 'empty
       }
 
-      "fails if the giftCard is not found" in new GiftCardFixture {
+      "fails if the giftCard is not found" in new CartWithGcFixture {
         val response =
           DELETE(s"v1/orders/${cart.referenceNumber}/payment-methods/gift-cards/abc-123")
 
@@ -200,7 +199,7 @@ class CartPaymentsIntegrationTest
         creditCardPayments(cart) mustBe 'empty
       }
 
-      "fails if the giftCard orderPayment is not found" in new GiftCardFixture {
+      "fails if the giftCard orderPayment is not found" in new CartWithGcFixture {
         val response =
           DELETE(s"v1/orders/${cart.referenceNumber}/payment-methods/gift-cards/${giftCard.code}")
 
@@ -312,8 +311,7 @@ class CartPaymentsIntegrationTest
         storeCreditPayments(cart) mustBe 'empty
       }
 
-      "fails if the order has already been placed" in new StoreCreditFixture
-      with OrderFromCartFixture {
+      "fails if the order has already been placed" in new StoreCreditFixture with Order_Baked {
         val payload  = StoreCreditPayment(amount = 50)
         val response = POST(s"v1/orders/${cart.refNum}/payment-methods/store-credit", payload)
 
@@ -394,7 +392,7 @@ class CartPaymentsIntegrationTest
         when(stripeApiMock.deleteExternalAccount(m.any()))
           .thenReturn(Result.good(new DeletedExternalAccount))
 
-        CreditCardManager.deleteCreditCard(customer.id, creditCard.id, Some(admin)).gimme
+        CreditCardManager.deleteCreditCard(customer.id, creditCard.id, Some(storeAdmin)).gimme
         val response = POST(s"v1/orders/${cart.referenceNumber}/payment-methods/credit-cards",
                             CreditCardPayment(creditCard.id))
 
@@ -403,8 +401,7 @@ class CartPaymentsIntegrationTest
         creditCardPayments(cart) mustBe 'empty
       }
 
-      "fails if the order has already been placed" in new CreditCardFixture
-      with OrderFromCartFixture {
+      "fails if the order has already been placed" in new CreditCardFixture with Order_Baked {
         val response = POST(s"v1/orders/${cart.referenceNumber}/payment-methods/credit-cards",
                             CreditCardPayment(creditCard.id))
 
@@ -457,25 +454,25 @@ class CartPaymentsIntegrationTest
   def storeCreditPayments(cart: Cart) =
     paymentsFor(cart, PaymentMethod.StoreCredit)
 
-  trait Fixture extends EmptyCustomerCartFixture {
-    val admin = StoreAdmins.create(authedStoreAdmin).gimme
-  }
+  trait Fixture extends EmptyCustomerCart_Baked with StoreAdmin_Seed
 
-  trait GiftCardFixture extends Fixture {
+  trait GiftCardFixture extends StoreAdmin_Seed {
     val giftCard = (for {
-      reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
+      reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
       origin ← * <~ GiftCardManuals.create(
-                  GiftCardManual(adminId = admin.id, reasonId = reason.id))
+                  GiftCardManual(adminId = storeAdmin.id, reasonId = reason.id))
       giftCard ← * <~ GiftCards.create(
                     Factories.giftCard.copy(originId = origin.id, state = GiftCard.Active))
     } yield giftCard).gimme
   }
 
+  trait CartWithGcFixture extends Fixture with GiftCardFixture
+
   trait StoreCreditFixture extends Fixture {
     val storeCredits = (for {
-      reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
+      reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
       _ ← * <~ StoreCreditManuals.createAll((1 to 5).map { _ ⇒
-           StoreCreditManual(adminId = admin.id, reasonId = reason.id)
+           StoreCreditManual(adminId = storeAdmin.id, reasonId = reason.id)
          })
       _ ← * <~ StoreCredits.createAll((1 to 5).map { i ⇒
            Factories.storeCredit.copy(state = StoreCredit.Active,
@@ -487,9 +484,6 @@ class CartPaymentsIntegrationTest
   }
 
   trait CreditCardFixture extends Fixture {
-    val creditCard = (for {
-      address ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
-      cc      ← * <~ CreditCards.create(Factories.creditCard.copy(customerId = customer.id))
-    } yield cc).gimme
+    val creditCard = CreditCards.create(Factories.creditCard.copy(customerId = customer.id)).gimme
   }
 }

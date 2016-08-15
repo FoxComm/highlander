@@ -11,7 +11,7 @@ import models.rules.QueryStatement
 import models.shipping.ShippingMethods
 import services.ShippingManager.getShippingMethodsForCart
 import services.carts.CartTotaler
-import util.{Fixtures, IntegrationTestBase, TestObjectContext}
+import util._
 import utils._
 import utils.db.ExPostgresDriver.api._
 import utils.db.ExPostgresDriver.jsonMethods._
@@ -19,7 +19,7 @@ import utils.db._
 import utils.seeds.Seeds.Factories
 import utils.seeds.ShipmentSeeds
 
-class ShippingManagerTest extends IntegrationTestBase with TestObjectContext with Fixtures {
+class ShippingManagerTest extends IntegrationTestBase with TestObjectContext with BakedFixtures {
 
   implicit val formats = JsonFormatters.phoenixFormats
 
@@ -144,7 +144,7 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
     }
   }
 
-  trait Fixture extends CustomerFixture {
+  trait Fixture extends Customer_Seed {
     val cart = (for {
       cart ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
       product ← * <~ Mvp.insertProduct(ctx.id,

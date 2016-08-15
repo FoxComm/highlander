@@ -1,6 +1,6 @@
 import Extensions._
 import akka.http.scaladsl.model.StatusCodes
-import util.{Fixtures, IntegrationTestBase}
+import util._
 import failures.CartFailures.OrderAlreadyPlaced
 import failures.GiftCardFailures.GiftCardMustBeCart
 import failures.{GeneralFailure, NotFoundFailure404}
@@ -22,7 +22,7 @@ class GiftCardAsLineItemIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
     with AutomaticAuth
-    with Fixtures {
+    with BakedFixtures {
 
   "POST /v1/orders/:refNum/gift-cards" - {
     "successfully creates new GC as line item" in new Fixture {
@@ -48,7 +48,7 @@ class GiftCardAsLineItemIntegrationTest
     }
 
     "fails to create new GC as line item if order has already been placed" in new Fixture
-    with OrderFromCartFixture {
+    with Order_Baked {
       val response =
         POST(s"v1/orders/${cart.refNum}/gift-cards", AddGiftCardLineItem(balance = 100))
 
@@ -90,8 +90,7 @@ class GiftCardAsLineItemIntegrationTest
       response.error must === (NotFoundFailure404(Cart, "ABC-666").description)
     }
 
-    "fails to update GC as line item for already placed order" in new Fixture
-    with OrderFromCartFixture {
+    "fails to update GC as line item for already placed order" in new Fixture with Order_Baked {
       val response = PATCH(s"v1/orders/${cart.refNum}/gift-cards/${giftCard.code}",
                            AddGiftCardLineItem(balance = 100))
 
@@ -144,8 +143,7 @@ class GiftCardAsLineItemIntegrationTest
       response.error must === (NotFoundFailure404(Cart, "ABC-666").description)
     }
 
-    "fails to delete GC as line item for already placed order" in new Fixture
-    with OrderFromCartFixture {
+    "fails to delete GC as line item for already placed order" in new Fixture with Order_Baked {
       val response = DELETE(s"v1/orders/${cart.refNum}/gift-cards/${giftCard.code}")
 
       response.status must === (StatusCodes.BadRequest)
@@ -168,7 +166,7 @@ class GiftCardAsLineItemIntegrationTest
     }
   }
 
-  trait Fixture extends EmptyCustomerCartFixture {
+  trait Fixture extends EmptyCustomerCart_Baked {
     val (giftCard) = (for {
       gcOrigin ← * <~ GiftCardOrders.create(GiftCardOrder(cordRef = cart.refNum))
       giftCard ← * <~ GiftCards.create(
@@ -178,6 +176,6 @@ class GiftCardAsLineItemIntegrationTest
       lineItemGc ← * <~ OrderLineItemGiftCards.create(
                       OrderLineItemGiftCard(giftCardId = giftCard.id, cordRef = cart.refNum))
       lineItem ← * <~ OrderLineItems.create(OrderLineItem.buildGiftCard(cart, lineItemGc))
-    } yield (giftCard)).gimme
+    } yield giftCard).gimme
   }
 }

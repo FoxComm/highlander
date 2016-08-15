@@ -2,7 +2,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
-import util.{Fixtures, IntegrationTestBase}
+import util._
 import failures.StoreCreditFailures.StoreCreditConvertFailure
 import failures._
 import models.customer.{Customer, Customers}
@@ -24,7 +24,7 @@ class StoreCreditIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
     with AutomaticAuth
-    with Fixtures {
+    with BakedFixtures {
 
   "StoreCredits" - {
     "POST /v1/customers/:id/payment-methods/store-credit" - {
@@ -258,7 +258,7 @@ class StoreCreditIntegrationTest
     }
   }
 
-  trait Fixture extends EmptyCustomerCartFixture {
+  trait Fixture extends EmptyCustomerCart_Baked {
     val (admin, scReason, storeCredit, adjustment, scSecond, payment, scSubType) = (for {
       admin     ← * <~ StoreAdmins.create(authedStoreAdmin)
       scReason  ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))

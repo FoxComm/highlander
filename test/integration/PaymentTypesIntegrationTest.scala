@@ -5,11 +5,11 @@ import models.Reasons
 import models.payment.giftcard._
 import models.payment.storecredit._
 import responses.{GiftCardSubTypesResponse, StoreCreditSubTypesResponse}
-import util.{Fixtures, IntegrationTestBase}
+import util._
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class PaymentTypesIntegrationTest extends IntegrationTestBase with HttpSupport with Fixtures {
+class PaymentTypesIntegrationTest extends IntegrationTestBase with HttpSupport with BakedFixtures {
 
   "GiftCard Types" - {
     "GET /v1/public/gift-cards/types" - {
@@ -39,7 +39,7 @@ class PaymentTypesIntegrationTest extends IntegrationTestBase with HttpSupport w
     }
   }
 
-  trait GiftCardFixture extends StoreAdminFixture {
+  trait GiftCardFixture extends StoreAdmin_Seed {
     val (giftCard, gcSubType) = (for {
       reason    ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
       gcSubType ← * <~ GiftCardSubtypes.create(Factories.giftCardSubTypes.head)
@@ -50,7 +50,7 @@ class PaymentTypesIntegrationTest extends IntegrationTestBase with HttpSupport w
     } yield (giftCard, gcSubType)).gimme
   }
 
-  trait StoreCreditFixture extends CustomerFixture with StoreAdminFixture {
+  trait StoreCreditFixture extends Customer_Seed with StoreAdmin_Seed {
     val (storeCredit, scSubType) = (for {
       scReason  ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
       scSubType ← * <~ StoreCreditSubtypes.create(Factories.storeCreditSubTypes.head)

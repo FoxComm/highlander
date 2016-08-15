@@ -15,7 +15,7 @@ class CartCreatorIntegrationTest
     with HttpSupport
     with AutomaticAuth
     with TestActivityContext.AdminAC
-    with Fixtures {
+    with BakedFixtures {
 
   "POST /v1/orders" - {
     "for an existing customer" - {
@@ -69,7 +69,7 @@ class CartCreatorIntegrationTest
     }
   }
 
-  trait Fixture extends CustomerFixture {
+  trait Fixture extends Customer_Seed {
     val storeAdmin = StoreAdmins.create(authedStoreAdmin).gimme
   }
 }

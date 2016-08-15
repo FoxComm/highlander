@@ -23,7 +23,7 @@ class ReturnNotesIntegrationTest
     with HttpSupport
     with AutomaticAuth
     with TestActivityContext.AdminAC
-    with Fixtures {
+    with BakedFixtures {
 
   "Return Notes" - {
     pending
@@ -118,7 +118,7 @@ class ReturnNotesIntegrationTest
     }
   }
 
-  trait Fixture extends CustomerFixture {
+  trait Fixture extends Order_Baked {
     val (admin, rma) = (for {
       admin ← * <~ StoreAdmins.create(authedStoreAdmin)
       order ← * <~ Orders.create(

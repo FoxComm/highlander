@@ -7,12 +7,12 @@ import models.payment.giftcard.{GiftCard, GiftCardOrder, GiftCardOrders, GiftCar
 import models.product.{Mvp, SimpleContext}
 import models.shipping.ShippingMethods
 import services.carts.CartTotaler
-import util.{Fixtures, IntegrationTestBase, TestObjectContext}
+import util._
 import utils.Money.Currency
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class CartTotalerTest extends IntegrationTestBase with TestObjectContext with Fixtures {
+class CartTotalerTest extends IntegrationTestBase with TestObjectContext with BakedFixtures {
 
   "OrderTotalerTest" - {
     "subTotal" - {
@@ -68,7 +68,7 @@ class CartTotalerTest extends IntegrationTestBase with TestObjectContext with Fi
     }
   }
 
-  trait Fixture extends EmptyCustomerCartFixture with AddressFixture
+  trait Fixture extends EmptyCustomerCart_Baked with CustomerAddress_Raw
 
   trait SkuLineItemsFixture extends Fixture {
     val (productContext, product, productShadow, sku, skuShadow, skuPrice) = (for {

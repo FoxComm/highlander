@@ -19,7 +19,7 @@ class CustomerNotesIntegrationTest
     with HttpSupport
     with AutomaticAuth
     with TestActivityContext.AdminAC
-    with Fixtures {
+    with BakedFixtures {
 
   "POST /v1/notes/customer/:customerId" - {
     "can be created by an admin for a customer" in new Fixture {
@@ -110,7 +110,7 @@ class CustomerNotesIntegrationTest
     }
   }
 
-  trait Fixture extends CustomerFixture {
+  trait Fixture extends Customer_Seed {
     val admin = StoreAdmins.create(authedStoreAdmin).gimme
   }
 }

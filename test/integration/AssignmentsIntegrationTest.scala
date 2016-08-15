@@ -16,11 +16,11 @@ class AssignmentsIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
     with AutomaticAuth
-    with Fixtures {
+    with BakedFixtures {
 
   "POST /v1/orders/:refNum/assignees" - {
 
-    "can be assigned to order" in new Fixture {
+    "can be assigned to order" in new Order_Baked {
       val payload  = AssignmentPayload(assignees = Seq(storeAdmin.id))
       val response = POST(s"v1/orders/${order.refNum}/assignees", payload)
       response.status must === (StatusCodes.OK)
@@ -33,7 +33,7 @@ class AssignmentsIntegrationTest
       theResponse.errors mustBe None
     }
 
-    "extends response with errors if one of store admins is not found" in new Fixture {
+    "extends response with errors if one of store admins is not found" in new Order_Baked {
       val nonExistentAdminId = 2
       val payload            = AssignmentPayload(assignees = Seq(storeAdmin.id, nonExistentAdminId))
       val response           = POST(s"v1/orders/${order.refNum}/assignees", payload)
@@ -51,7 +51,7 @@ class AssignmentsIntegrationTest
           nonExistentAdminId).description
     }
 
-    "returns error if order not found" in new Fixture {
+    "returns error if order not found" in new Order_Baked {
       val payload  = AssignmentPayload(assignees = Seq(storeAdmin.id))
       val response = POST(s"v1/orders/NOPE/assignees", payload)
       response.status must === (StatusCodes.NotFound)
@@ -137,22 +137,19 @@ class AssignmentsIntegrationTest
     }
   }
 
-  trait Fixture extends OrderFromCartFixture {
-    val storeAdmin = StoreAdmins.create(authedStoreAdmin).gimme
-  }
-
-  trait AssignmentFixture extends Fixture {
+  trait AssignmentFixture extends Order_Baked {
     val (assignee, secondAdmin) = (for {
       assignee ← * <~ Assignments.create(
                     Assignment(referenceType = Assignment.Order,
                                referenceId = order.id,
                                storeAdminId = storeAdmin.id,
                                assignmentType = Assignment.Assignee))
-      secondAdmin ← * <~ StoreAdmins.create(Factories.storeAdmin)
+      secondAdmin ← * <~ StoreAdmins.create(
+                       Factories.storeAdmin.copy(email = "a@b.c", name = "Admin2"))
     } yield (assignee, secondAdmin)).gimme
   }
 
-  trait BulkAssignmentFixture extends CustomerFixture with StoreAdminFixture {
+  trait BulkAssignmentFixture extends Customer_Seed with StoreAdmin_Seed {
     val (order1, order2) = (for {
       cart ← * <~ Carts.create(
                 Factories.cart.copy(customerId = customer.id, referenceNumber = "foo"))

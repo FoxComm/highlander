@@ -17,7 +17,7 @@ class OrderIntegrationTest
     with HttpSupport
     with AutomaticAuth
     with TestObjectContext
-    with Fixtures {
+    with BakedFixtures {
 
   "PATCH /v1/orders/:refNum" - {
 
@@ -35,7 +35,7 @@ class OrderIntegrationTest
           StateTransitionNotAllowed(order.state, Shipped, order.refNum).description)
     }
 
-    "fails if transition from current status is not allowed" in new EmptyCustomerCartFixture {
+    "fails if transition from current status is not allowed" in new EmptyCustomerCart_Baked {
       val order = (for {
         order ← * <~ Orders.createFromCart(cart)
         order ← * <~ Orders.update(order, order.copy(state = Canceled))
@@ -74,11 +74,10 @@ class OrderIntegrationTest
     }
   }
 
-  trait Fixture extends EmptyCustomerCartFixture with AddressFixture {
+  trait Fixture extends EmptyCartWithShipAddress_Baked {
     val order = (for {
       shipMethod ← * <~ ShippingMethods.create(Factories.shippingMethods.head)
       _          ← * <~ OrderShippingMethods.create(OrderShippingMethod.build(cart.refNum, shipMethod))
-      _          ← * <~ OrderShippingAddresses.copyFromAddress(address = address, cordRef = cart.refNum)
       order      ← * <~ Orders.createFromCart(cart)
     } yield order).gimme
   }

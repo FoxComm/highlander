@@ -10,7 +10,7 @@ import models.{StoreAdmin, StoreAdmins}
 import org.json4s.jackson.JsonMethods._
 import payloads.SharedSearchPayloads._
 import responses.StoreAdminResponse.{Root ⇒ AdminRoot, build ⇒ buildAdmin}
-import util.{Fixtures, IntegrationTestBase}
+import util._
 import utils.db._
 import utils.seeds.Seeds.Factories
 
@@ -18,7 +18,7 @@ class SharedSearchIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
     with AutomaticAuth
-    with Fixtures {
+    with BakedFixtures {
 
   val dummyJVal = parse("{}")
 

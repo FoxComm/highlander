@@ -36,7 +36,7 @@ class ActivityTrailIntegrationTest
     with AutomaticAuth
     with MockitoSugar
     with TestActivityContext.AdminAC
-    with Fixtures {
+    with BakedFixtures {
 
   val customerActivity = "customer_activity"
   val typeName         = "customer_updated"
@@ -181,7 +181,7 @@ class ActivityTrailIntegrationTest
     appendResponse.as[ActivityConnectionResponse.Root]
   }
 
-  trait Fixture extends CustomerFixture {
+  trait Fixture extends Customer_Seed {
     val admin = StoreAdmins.create(authedStoreAdmin).gimme
   }
 }
