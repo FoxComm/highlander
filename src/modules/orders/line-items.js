@@ -45,7 +45,7 @@ export function deleteLineItem(order, sku) {
 
 export function collectLineItems(skus) {
   return _.map(skus, (l) => { 
-    l.totalPrice = l.quanity * l.price;
+    l.totalPrice = l.quantity * l.price;
     return l;
   });
 }
