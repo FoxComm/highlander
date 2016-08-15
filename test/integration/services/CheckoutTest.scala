@@ -227,7 +227,7 @@ class CheckoutTest
       lineItemGc ← * <~ OrderLineItemGiftCards.create(
                       OrderLineItemGiftCard(giftCardId = giftCard.id, cordRef = cart.refNum))
       lineItem ← * <~ OrderLineItems.create(OrderLineItem.buildGiftCard(cart, lineItemGc))
-    } yield (giftCard)).gimme
+    } yield giftCard).gimme
   }
 
   trait PaymentFixture extends AddressFixture with StoreAdminFixture {
@@ -265,8 +265,6 @@ class CheckoutTest
                                                   originId = origin.id,
                                                   customerId = customer.id)))
       } yield ids
-
-    implicit val es = utils.ElasticsearchApi.default()
   }
 
   trait PaymentFixtureWithCart extends PaymentFixture {
