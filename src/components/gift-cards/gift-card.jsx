@@ -141,13 +141,15 @@ export default class GiftCard extends React.Component {
       </span>
     );
     return (
-      <ConfirmationDialog isVisible={shouldDisplay}
-                          header="Change Gift Card State?"
-                          body={message}
-                          cancel="Cancel"
-                          confirm="Yes, Change State"
-                          cancelAction={() => this.props.cancelChangeGiftCardStatus(this.props.params.giftCard)}
-                          confirmAction={() => this.props.saveGiftCardStatus(this.props.params.giftCard)} />
+      <ConfirmationDialog
+        isVisible={shouldDisplay}
+        header="Change Gift Card State?"
+        body={message}
+        cancel="Cancel"
+        confirm="Yes, Change State"
+        cancelAction={() => this.props.cancelChangeGiftCardStatus(this.props.params.giftCard)}
+        confirmAction={() => this.props.saveGiftCardStatus(this.props.params.giftCard)}
+      />
     );
   }
 
@@ -172,11 +174,13 @@ export default class GiftCard extends React.Component {
             </label>
           </div>
           <div className="fc-gift-card-detail__cancel-reason-selector">
-            <Dropdown name="cancellationReason"
-                      placeholder="- Select -"
-                      items={reasons}
-                      value={value}
-                      onChange={(reasonId) => this.props.changeCancellationReason(this.props.params.giftCard, reasonId)} />
+            <Dropdown
+              name="cancellationReason"
+              placeholder="- Select -"
+              items={reasons}
+              value={value}
+              onChange={(reasonId) => this.props.changeCancellationReason(this.props.params.giftCard, reasonId)}
+            />
           </div>
         </div>
       </div>
@@ -190,7 +194,8 @@ export default class GiftCard extends React.Component {
         cancel="Cancel"
         confirm="Yes, Cancel"
         cancelAction={() => this.props.cancelChangeGiftCardStatus(this.props.params.giftCard)}
-        confirmAction={() => this.props.saveGiftCardStatus(this.props.params.giftCard)} />
+        confirmAction={() => this.props.saveGiftCardStatus(this.props.params.giftCard)}
+      />
     );
   }
 
