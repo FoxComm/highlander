@@ -94,23 +94,41 @@ class ShipmentRow extends Component {
     this.setState({ isExpanded: !this.state.isExpanded });
   }
 
-  get summaryRow() {
-    const { props, state } = this;
-    const toggleAction = state.isExpanded ? 'up' : 'down';
+  get carrier() {
+    const { props } = this;
 
-    const shippingMethod = props.shippingMethods
-      .filter(shippingMethod => shippingMethod.id === _.get(props,'shippingMethod.id',null)).pop();
-    const carrier = props.carriers
+    return props.carriers
       .filter(carrier => carrier.id === _.get(props, 'shippingMethod.carrier.id', null)).pop();
-    const trackingLink = props.trackingNumber ? (
+  }
+
+  get shippingMethod() {
+    const { props } = this;
+
+    return props.shippingMethods
+      .filter(shippingMethod => shippingMethod.id === _.get(props,'shippingMethod.id',null)).pop();
+  }
+
+  get trackingLink(): Element {
+    const { trackingNumber } = this.props;
+
+    if (!trackingNumber) {
+      return null;
+    }
+
+    return (
       <a
-        href={carrier.trackingTemplate.replace('$number', props.trackingNumber)}
+        href={this.carrier.trackingTemplate.replace('$number', trackingNumber)}
         styleName="tracking-link"
         target="_blank"
       >
-        {props.trackingNumber}
+        {trackingNumber}
       </a>
-    ) : null;
+    );
+  }
+
+  get summaryRow() {
+    const { props, state } = this;
+    const toggleAction = state.isExpanded ? 'up' : 'down';
 
     return (
       <TableRow styleName="summary-row">
@@ -119,21 +137,21 @@ class ShipmentRow extends Component {
              className={`icon-chevron-${toggleAction}`}
              onClick={this.toggleExpanded}
           />
-          {shippingMethod.name}
+          {this.shippingMethod.name}
         </TableCell>
         <TableCell>{props.state}</TableCell>
         <TableCell>{props.lineItems.length}</TableCell>
         <TableCell>
           <DateTime value={props.shipmentDate} />
         </TableCell>
-        <TableCell>{carrier.name}</TableCell>
+        <TableCell>{this.carrier.name}</TableCell>
         <TableCell>
           <DateTime value={props.estimatedArrival} />
         </TableCell>
         <TableCell>
           <DateTime value={props.deliveredDate} />
         </TableCell>
-        <TableCell>{trackingLink}</TableCell>
+        <TableCell>{this.trackingLink}</TableCell>
       </TableRow>
     );
   }
