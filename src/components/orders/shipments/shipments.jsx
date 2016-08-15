@@ -13,16 +13,17 @@ import { getStore } from 'lib/store-creator';
 import WaitAnimation from 'components/common/wait-animation';
 import { PrimaryButton } from 'components/common/buttons';
 import SectionTitle from 'components/section-title/section-title';
-import Shipment from './shipment';
-import UnshippedItems from './unshipped-items';
+import ShipmentView from './shipment';
+import UnshippedItemsView from './unshipped-items';
 
 // types
 import type AsyncState from 'lib/async-action-creator';
+import type { Shipment, ShipmentLineItem, UnshippedLineItem } from 'paragons/shipment';
 
 
 type Props = {
-  shipments: Array<Object>;
-  unshippedItems: Array<Object>;
+  shipments: Array<Shipment>;
+  unshippedItems: Array<UnshippedLineItem>;
   load: AsyncState;
   actions: {
     load: Function;
@@ -53,14 +54,20 @@ class Shipments extends Component<void, Props, void> {
   }
 
   get data() {
-    if (this.props.load.isRunning) {
+    const { shipments, load, unshippedItems} = this.props;
+
+    if (load.isRunning) {
       return <WaitAnimation />;
     }
 
     return (
       <div>
         {this.shipments}
-        <UnshippedItems items={this.props.unshippedItems} />
+        {
+          shipments.length > 0
+            ? <UnshippedItemsView items={unshippedItems} />
+            : null
+        }
       </div>
     );
   }
@@ -74,7 +81,7 @@ class Shipments extends Component<void, Props, void> {
     return (
       <div>
         {shipments.map((shipment, index) => (
-          <Shipment
+          <ShipmentView
             key={index}
             index={index + 1}
             total={shipments.length}
@@ -92,6 +99,6 @@ class Shipments extends Component<void, Props, void> {
       </div>
     );
   }
-};
+}
 
 export default connect(mapStateToProps, mapDispatchToProps)(Shipments);

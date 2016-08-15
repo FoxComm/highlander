@@ -24,23 +24,25 @@ import Transaction from './transaction';
 import WaitAnimation from 'components/common/wait-animation';
 
 //types
+import type { Dictionary } from 'paragons/types';
+import type { Carrier, ShippingMethod, ShipmentLineItem } from 'paragons/shipment';
+
 type Props = {
   actions: {
-    carriers: { [key: string]: Function};
-    shipmentMethods: { [key: string]: Function};
+    carriers: Dictionary<Function>;
+    shippingMethods: Dictionary<Function>;
   };
-  carriers: Array<Object>;
-  shipmentMethods: Array<Object>;
-  method: string;
+  carriers: Array<Carrier>;
+  shippingMethods: Array<ShippingMethod>;
+  shippingMethod: ShippingMethod;
   state: string;
   shipmentDate: string;
-  carrier: string;
   estimatedArrival: string;
   deliveredDate: string;
   trackingNumber: string;
   address: Object;
-  lineItems: Array<Object>;
-  transactions: Object;
+  lineItems: Array<ShipmentLineItem>;
+  transactions: Array<Object>; //TODO: will be picked from phoenix
 }
 
 type State = {
@@ -50,12 +52,12 @@ type State = {
 
 const mapStateToProps = state => ({
   carriers: state.orders.carriers.list,
-  shipmentMethods: state.orders.shipmentMethods.list,
+  shippingMethods: state.orders.shipmentMethods.list,
 });
 const mapDispatchToProps = dispatch => ({
   actions: {
     carriers: bindActionCreators(getStore('orders.carriers').actions, dispatch),
-    shipmentMethods: bindActionCreators(getStore('orders.shipmentMethods').actions, dispatch),
+    shippingMethods: bindActionCreators(getStore('orders.shipmentMethods').actions, dispatch),
   },
 });
 
@@ -67,12 +69,16 @@ class ShipmentRow extends Component {
     isExpanded: false,
   };
 
+  static defaultProps = {
+    transactions: [],
+  };
+
   componentDidMount(): void {
-    const { carriers, shipmentMethods } = this.props.actions;
+    const { carriers, shippingMethods } = this.props.actions;
 
     this.setState({ isLoading: true });
 
-    Promise.all([carriers.load(), shipmentMethods.load()])
+    Promise.all([carriers.load(), shippingMethods.load()])
       .then(() => this.setState({ isLoading: false }));
   }
 
@@ -85,9 +91,11 @@ class ShipmentRow extends Component {
     const { props, state } = this;
     const toggleAction = state.isExpanded ? 'up' : 'down';
 
-    const method = props.shipmentMethods.filter(method => method.id === props.method).pop();
-    const carrier = props.carriers.filter(carrier => carrier.id === props.carrier).pop();
-    const trackingLink = (
+    const shippingMethod = props.shippingMethods
+      .filter(shippingMethod => shippingMethod.id === _.get(props,'shippingMethod.id',null)).pop();
+    const carrier = props.carriers
+      .filter(carrier => carrier.id === _.get(props, 'shippingMethod.carrier.id', null)).pop();
+    const trackingLink = props.trackingNumber ? (
       <a
         href={carrier.trackingTemplate.replace('$number', props.trackingNumber)}
         styleName="tracking-link"
@@ -95,7 +103,7 @@ class ShipmentRow extends Component {
       >
         {props.trackingNumber}
       </a>
-    );
+    ) : null;
 
     return (
       <TableRow styleName="summary-row">
@@ -104,7 +112,7 @@ class ShipmentRow extends Component {
              className={`icon-chevron-${toggleAction}`}
              onClick={this.toggleExpanded}
           />
-          {method.name}
+          {shippingMethod.name}
         </TableCell>
         <TableCell>{props.state}</TableCell>
         <TableCell>{props.lineItems.length}</TableCell>
