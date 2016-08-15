@@ -313,13 +313,25 @@ object LogActivity {
   def orderCheckoutCompleted(order: OrderResponse)(implicit ec: EC, ac: AC): DbResultT[Activity] =
     Activities.log(OrderCheckoutCompleted(order))
 
-  def creditCardCharge(cart: Cart, charge: CreditCardCharge)(implicit ec: EC,
-                                                             ac: AC): DbResultT[Activity] =
+  def creditCardAuth(cart: Cart, charge: CreditCardCharge)(implicit ec: EC,
+                                                           ac: AC): DbResultT[Activity] =
     Activities.log(
-        CreditCardChargeCompleted(
+        CreditCardAuthCompleted(
             customerId = cart.customerId,
             cordRef = cart.refNum,
             orderNum = cart.refNum,
+            cardId = charge.creditCardId,
+            amount = charge.amount,
+            currency = charge.currency
+        ))
+
+  def creditCardCharge(order: Order, charge: CreditCardCharge)(implicit ec: EC,
+                                                               ac: AC): DbResultT[Activity] =
+    Activities.log(
+        CreditCardChargeCompleted(
+            customerId = order.customerId,
+            cordRef = order.refNum,
+            orderNum = order.refNum,
             cardId = charge.creditCardId,
             amount = charge.amount,
             currency = charge.currency
