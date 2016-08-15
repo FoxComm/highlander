@@ -9,12 +9,20 @@ import carriers from './mocks/carriers.json';
 import type { Store } from '../../lib/store-creator';
 import createStore from '../../lib/store-creator';
 
-const initialState = {
+// types
+import type { Carrier } from 'paragons/shipment';
+
+
+type CarriersState = {
+  list: Array<Carrier>,
+};
+
+const initialState: CarriersState = {
   list: []
 };
 
 const reducers = {
-  setData: function (state: Object, list: Array<Object>): Object {
+  setList: function (state: Object, list: Array<Carrier>): Object {
     return {
       ...state,
       list,
@@ -23,12 +31,9 @@ const reducers = {
 };
 
 function load(actions: Object): Function {
-  return dispatch => new Promise(resolve => {
-    setTimeout(()=>{
-      dispatch(actions.setData(carriers));
-      resolve(carriers);
-    }, 500);
-  });
+  return dispatch =>
+    Api.get(`/inventory/carriers`)
+      .then(data => dispatch(actions.setList(data)));
 }
 
 const { actions, reducer } = createStore({

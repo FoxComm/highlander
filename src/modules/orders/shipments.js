@@ -8,13 +8,21 @@ import shipments from './mocks/shipments.json';
 import type { Store } from '../../lib/store-creator';
 import createStore from '../../lib/store-creator';
 
-const initialState = {
+// types
+import type { Shipment, ShipmentLineItem, UnshippedLineItem } from 'paragons/shipment';
+
+type ShipmentsState = {
+  shipments: Array<Shipment>,
+  unshippedItems: Array<UnshippedLineItem>,
+};
+
+const initialState: ShipmentsState = {
   shipments: [],
-  unshippedItems: [],
+  unshippedItems: []
 };
 
 const reducers = {
-  setData: function (state: Object, data: Object): Object {
+  setData: function (state: Object, data: ShipmentsState): Object {
     return {
       ...state,
       ...data,
@@ -23,12 +31,9 @@ const reducers = {
 };
 
 function load(actions: Object, state: Object, referenceNumber: string): Function {
-  return dispatch => new Promise(resolve => {
-    setTimeout(()=>{
-      dispatch(actions.setData(shipments));
-      resolve(shipments);
-    }, 500);
-  });
+  return dispatch =>
+    Api.get(`/inventory/shipments/${referenceNumber}`)
+      .then(shipments => dispatch(actions.setData({shipments, unshippedItems:[]})));
 }
 
 const { actions, reducer } = createStore({
