@@ -8,7 +8,6 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/jinzhu/gorm"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -25,13 +24,11 @@ func (suite *ShipmentRepositoryTestSuite) SetupTest() {
 	suite.db, suite.mock = CreateDbMock()
 
 	suite.repository = NewShipmentRepository(suite.db)
-
-	suite.assert = assert.New(suite.T())
 }
 
 func (suite *ShipmentRepositoryTestSuite) TearDownTest() {
 	//make sure that all expectations were met
-	suite.assert.Nil(suite.mock.ExpectationsWereMet())
+	suite.Nil(suite.mock.ExpectationsWereMet())
 
 	suite.db.Close()
 }
@@ -98,10 +95,10 @@ func (suite *ShipmentRepositoryTestSuite) Test_GetShipmentsByReferenceNumber_Fou
 	shipments, err := suite.repository.GetShipmentsByReferenceNumber(shipment1.ReferenceNumber)
 
 	//assert
-	suite.assert.Nil(err)
-	suite.assert.Equal(2, len(shipments))
-	suite.assert.Equal(shipment1, shipments[0])
-	//suite.assert.Equal(shipment2, shipments[1])
+	suite.Nil(err)
+	suite.Equal(2, len(shipments))
+	suite.Equal(shipment1, shipments[0])
+	//suite.Equal(shipment2, shipments[1])
 }
 
 func (suite *ShipmentRepositoryTestSuite) Test_GetShipmentByID_NotFound_ReturnsNotFoundError() {
@@ -117,7 +114,7 @@ func (suite *ShipmentRepositoryTestSuite) Test_GetShipmentByID_NotFound_ReturnsN
 	_, err := suite.repository.GetShipmentByID(1)
 
 	//assert
-	suite.assert.Equal(gorm.ErrRecordNotFound, err)
+	suite.Equal(gorm.ErrRecordNotFound, err)
 }
 
 func (suite *ShipmentRepositoryTestSuite) Test_GetShipmentByID_Found_ReturnsShipmentModel() {
@@ -129,8 +126,8 @@ func (suite *ShipmentRepositoryTestSuite) Test_GetShipmentByID_Found_ReturnsShip
 	shipment, err := suite.repository.GetShipmentByID(shipment1.ID)
 
 	//assert
-	suite.assert.Nil(err)
-	suite.assert.Equal(shipment1, shipment)
+	suite.Nil(err)
+	suite.Equal(shipment1, shipment)
 }
 
 func (suite *ShipmentRepositoryTestSuite) Test_CreateShipment_ReturnsCreatedRecord() {
@@ -145,10 +142,10 @@ func (suite *ShipmentRepositoryTestSuite) Test_CreateShipment_ReturnsCreatedReco
 	shipment, err := suite.repository.CreateShipment(fixtures.GetShipmentShort(uint(0)))
 
 	//assert
-	suite.assert.Nil(err)
+	suite.Nil(err)
 	shipment1.CreatedAt = shipment.CreatedAt
 	shipment1.UpdatedAt = shipment.UpdatedAt
-	suite.assert.Equal(shipment1, shipment)
+	suite.Equal(shipment1, shipment)
 }
 
 func (suite *ShipmentRepositoryTestSuite) Test_UpdateShipment_NotFound_ReturnsNotFoundError() {
@@ -162,10 +159,10 @@ func (suite *ShipmentRepositoryTestSuite) Test_UpdateShipment_NotFound_ReturnsNo
 	_, err := suite.repository.UpdateShipment(shipment1)
 
 	//assert
-	suite.assert.Equal(gorm.ErrRecordNotFound, err)
+	suite.Equal(gorm.ErrRecordNotFound, err)
 
 	//make sure that all expectations were met
-	suite.assert.Nil(suite.mock.ExpectationsWereMet())
+	suite.Nil(suite.mock.ExpectationsWereMet())
 }
 
 func (suite *ShipmentRepositoryTestSuite) Test_UpdateShipment_Found_ReturnsUpdatedRecord() {
@@ -180,10 +177,10 @@ func (suite *ShipmentRepositoryTestSuite) Test_UpdateShipment_Found_ReturnsUpdat
 	shipment, err := suite.repository.UpdateShipment(shipment1)
 
 	//assert
-	suite.assert.Nil(err)
+	suite.Nil(err)
 	shipment1.CreatedAt = shipment.CreatedAt
 	shipment1.UpdatedAt = shipment.UpdatedAt
-	suite.assert.Equal(shipment1, shipment)
+	suite.Equal(shipment1, shipment)
 }
 
 func (suite *ShipmentRepositoryTestSuite) Test_DeleteShipment_NotFound_ReturnsNotFoundError() {
@@ -196,7 +193,7 @@ func (suite *ShipmentRepositoryTestSuite) Test_DeleteShipment_NotFound_ReturnsNo
 	err := suite.repository.DeleteShipment(1)
 
 	//assert
-	suite.assert.Equal(gorm.ErrRecordNotFound, err)
+	suite.Equal(gorm.ErrRecordNotFound, err)
 }
 
 func (suite *ShipmentRepositoryTestSuite) Test_DeleteShipment_Found_ReturnsNoError() {
@@ -209,7 +206,7 @@ func (suite *ShipmentRepositoryTestSuite) Test_DeleteShipment_Found_ReturnsNoErr
 	err := suite.repository.DeleteShipment(1)
 
 	//assert
-	suite.assert.Nil(err)
+	suite.Nil(err)
 }
 
 func (suite *ShipmentRepositoryTestSuite) expectSelectByID(shipment *models.Shipment) {

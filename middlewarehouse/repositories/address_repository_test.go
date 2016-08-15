@@ -8,7 +8,6 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/jinzhu/gorm"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -25,13 +24,11 @@ func (suite *AddressRepositoryTestSuite) SetupTest() {
 	suite.db, suite.mock = CreateDbMock()
 
 	suite.repository = NewAddressRepository(suite.db)
-
-	suite.assert = assert.New(suite.T())
 }
 
 func (suite *AddressRepositoryTestSuite) TearDownTest() {
 	//make sure that all expectations were met
-	suite.assert.Nil(suite.mock.ExpectationsWereMet())
+	suite.Nil(suite.mock.ExpectationsWereMet())
 
 	suite.db.Close()
 }
@@ -49,7 +46,7 @@ func (suite *AddressRepositoryTestSuite) Test_GetAddressByID_NotFound_ReturnsNot
 	_, err := suite.repository.GetAddressByID(1)
 
 	//assert
-	suite.assert.Equal(gorm.ErrRecordNotFound, err)
+	suite.Equal(gorm.ErrRecordNotFound, err)
 }
 
 func (suite *AddressRepositoryTestSuite) Test_GetAddressByID_Found_ReturnsAddressModel() {
@@ -63,8 +60,8 @@ func (suite *AddressRepositoryTestSuite) Test_GetAddressByID_Found_ReturnsAddres
 	address, err := suite.repository.GetAddressByID(1)
 
 	//assert
-	suite.assert.Nil(err)
-	suite.assert.Equal(address1, address)
+	suite.Nil(err)
+	suite.Equal(address1, address)
 }
 
 func (suite *AddressRepositoryTestSuite) Test_CreateAddress_ReturnsCreatedRecord() {
@@ -81,12 +78,11 @@ func (suite *AddressRepositoryTestSuite) Test_CreateAddress_ReturnsCreatedRecord
 	address, err := suite.repository.CreateAddress(fixtures.GetAddress(uint(0), uint(1), &models.Region{}))
 
 	//assert
-	suite.assert.Nil(err)
+	suite.Nil(err)
 	address1.CreatedAt = address.CreatedAt
 	address1.UpdatedAt = address.UpdatedAt
-	suite.assert.Equal(address1, address)
+	suite.Equal(address1, address)
 }
-
 
 func (suite *AddressRepositoryTestSuite) Test_DeleteAddress_NotFound_ReturnsNotFoundError() {
 	//arrange
@@ -98,7 +94,7 @@ func (suite *AddressRepositoryTestSuite) Test_DeleteAddress_NotFound_ReturnsNotF
 	err := suite.repository.DeleteAddress(1)
 
 	//assert
-	suite.assert.Equal(gorm.ErrRecordNotFound, err)
+	suite.Equal(gorm.ErrRecordNotFound, err)
 }
 
 func (suite *AddressRepositoryTestSuite) Test_DeleteAddress_Found_ReturnsNoError() {
@@ -111,7 +107,7 @@ func (suite *AddressRepositoryTestSuite) Test_DeleteAddress_Found_ReturnsNoError
 	err := suite.repository.DeleteAddress(1)
 
 	//assert
-	suite.assert.Nil(err)
+	suite.Nil(err)
 }
 
 func (suite *AddressRepositoryTestSuite) expectSelectByID(address *models.Address) {

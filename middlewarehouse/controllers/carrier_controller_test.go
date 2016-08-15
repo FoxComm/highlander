@@ -11,7 +11,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
@@ -32,8 +31,6 @@ func (suite *carrierControllerTestSuite) SetupSuite() {
 
 	controller := NewCarrierController(suite.service)
 	controller.SetUp(suite.router.Group("/carriers"))
-
-	suite.assert = assert.New(suite.T())
 }
 
 func (suite *carrierControllerTestSuite) TearDownTest() {
@@ -54,8 +51,8 @@ func (suite *carrierControllerTestSuite) Test_GetCarriers_EmptyData_ReturnsEmpty
 	response := suite.Get("/carriers", &carriers)
 
 	//assert
-	suite.assert.Equal(http.StatusOK, response.Code)
-	suite.assert.Equal(0, len(carriers))
+	suite.Equal(http.StatusOK, response.Code)
+	suite.Equal(0, len(carriers))
 }
 
 func (suite *carrierControllerTestSuite) Test_GetCarriers_NonEmptyData_ReturnsRecordsArray() {
@@ -69,10 +66,10 @@ func (suite *carrierControllerTestSuite) Test_GetCarriers_NonEmptyData_ReturnsRe
 	response := suite.Get("/carriers", &carriers)
 
 	//assert
-	suite.assert.Equal(http.StatusOK, response.Code)
-	suite.assert.Equal(2, len(carriers))
-	suite.assert.Equal(responses.NewCarrierFromModel(carrier1), carriers[0])
-	suite.assert.Equal(responses.NewCarrierFromModel(carrier2), carriers[1])
+	suite.Equal(http.StatusOK, response.Code)
+	suite.Equal(2, len(carriers))
+	suite.Equal(responses.NewCarrierFromModel(carrier1), carriers[0])
+	suite.Equal(responses.NewCarrierFromModel(carrier2), carriers[1])
 }
 
 func (suite *carrierControllerTestSuite) Test_GetCarrierByID_NotFound_ReturnsNotFoundError() {
@@ -84,9 +81,9 @@ func (suite *carrierControllerTestSuite) Test_GetCarrierByID_NotFound_ReturnsNot
 	response := suite.Get("/carriers/1", errors)
 
 	//assert
-	suite.assert.Equal(http.StatusNotFound, response.Code)
-	suite.assert.Equal(1, len(errors.Errors))
-	suite.assert.Equal(gorm.ErrRecordNotFound.Error(), errors.Errors[0])
+	suite.Equal(http.StatusNotFound, response.Code)
+	suite.Equal(1, len(errors.Errors))
+	suite.Equal(gorm.ErrRecordNotFound.Error(), errors.Errors[0])
 }
 
 func (suite *carrierControllerTestSuite) Test_GetCarrierByID_Found_ReturnsRecord() {
@@ -99,8 +96,8 @@ func (suite *carrierControllerTestSuite) Test_GetCarrierByID_Found_ReturnsRecord
 	response := suite.Get("/carriers/1", carrier)
 
 	//assert
-	suite.assert.Equal(http.StatusOK, response.Code)
-	suite.assert.Equal(responses.NewCarrierFromModel(carrier1), carrier)
+	suite.Equal(http.StatusOK, response.Code)
+	suite.Equal(responses.NewCarrierFromModel(carrier1), carrier)
 }
 
 func (suite *carrierControllerTestSuite) Test_CreateCarrier_ReturnsRecord() {
@@ -114,8 +111,8 @@ func (suite *carrierControllerTestSuite) Test_CreateCarrier_ReturnsRecord() {
 	response := suite.Post("/carriers", fixtures.ToCarrierPayload(carrier1), carrier)
 
 	//assert
-	suite.assert.Equal(http.StatusCreated, response.Code)
-	suite.assert.Equal(responses.NewCarrierFromModel(carrier1), carrier)
+	suite.Equal(http.StatusCreated, response.Code)
+	suite.Equal(responses.NewCarrierFromModel(carrier1), carrier)
 }
 
 func (suite *carrierControllerTestSuite) Test_UpdateCarrier_NotFound_ReturnsNotFoundError() {
@@ -128,9 +125,9 @@ func (suite *carrierControllerTestSuite) Test_UpdateCarrier_NotFound_ReturnsNotF
 	response := suite.Put("/carriers/1", fixtures.ToCarrierPayload(carrier1), errors)
 
 	//assert
-	suite.assert.Equal(http.StatusNotFound, response.Code)
-	suite.assert.Equal(1, len(errors.Errors))
-	suite.assert.Equal(gorm.ErrRecordNotFound.Error(), errors.Errors[0])
+	suite.Equal(http.StatusNotFound, response.Code)
+	suite.Equal(1, len(errors.Errors))
+	suite.Equal(gorm.ErrRecordNotFound.Error(), errors.Errors[0])
 }
 
 func (suite *carrierControllerTestSuite) Test_UpdateCarrier_Found_ReturnsRecord() {
@@ -143,8 +140,8 @@ func (suite *carrierControllerTestSuite) Test_UpdateCarrier_Found_ReturnsRecord(
 	response := suite.Put("/carriers/1", fixtures.ToCarrierPayload(carrier1), carrier)
 
 	//assert
-	suite.assert.Equal(http.StatusOK, response.Code)
-	suite.assert.Equal(responses.NewCarrierFromModel(carrier1), carrier)
+	suite.Equal(http.StatusOK, response.Code)
+	suite.Equal(responses.NewCarrierFromModel(carrier1), carrier)
 }
 
 func (suite *carrierControllerTestSuite) Test_DeleteCarrier_NotFound_ReturnsNotFoundError() {
@@ -156,9 +153,9 @@ func (suite *carrierControllerTestSuite) Test_DeleteCarrier_NotFound_ReturnsNotF
 	response := suite.Delete("/carriers/1", errors)
 
 	//assert
-	suite.assert.Equal(http.StatusNotFound, response.Code)
-	suite.assert.Equal(1, len(errors.Errors))
-	suite.assert.Equal(gorm.ErrRecordNotFound.Error(), errors.Errors[0])
+	suite.Equal(http.StatusNotFound, response.Code)
+	suite.Equal(1, len(errors.Errors))
+	suite.Equal(gorm.ErrRecordNotFound.Error(), errors.Errors[0])
 }
 
 func (suite *carrierControllerTestSuite) Test_DeleteCarrier_Found() {
@@ -169,6 +166,6 @@ func (suite *carrierControllerTestSuite) Test_DeleteCarrier_Found() {
 	response := suite.Delete("/carriers/1")
 
 	//assert
-	suite.assert.Equal(http.StatusNoContent, response.Code)
-	suite.assert.Equal("", response.Body.String())
+	suite.Equal(http.StatusNoContent, response.Code)
+	suite.Equal("", response.Body.String())
 }

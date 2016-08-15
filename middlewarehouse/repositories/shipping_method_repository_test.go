@@ -8,7 +8,6 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/jinzhu/gorm"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -25,13 +24,11 @@ func (suite *ShippingMethodRepositoryTestSuite) SetupTest() {
 	suite.db, suite.mock = CreateDbMock()
 
 	suite.repository = NewShippingMethodRepository(suite.db)
-
-	suite.assert = assert.New(suite.T())
 }
 
 func (suite *ShippingMethodRepositoryTestSuite) TearDownTest() {
 	//make sure that all expectations were met
-	suite.assert.Nil(suite.mock.ExpectationsWereMet())
+	suite.Nil(suite.mock.ExpectationsWereMet())
 
 	suite.db.Close()
 }
@@ -59,11 +56,11 @@ func (suite *ShippingMethodRepositoryTestSuite) Test_GetShippingMethods_ReturnsS
 	shippingMethods, err := suite.repository.GetShippingMethods()
 
 	//assert
-	suite.assert.Nil(err)
+	suite.Nil(err)
 
-	suite.assert.Equal(2, len(shippingMethods))
-	suite.assert.Equal(shippingMethod1, shippingMethods[0])
-	suite.assert.Equal(shippingMethod2, shippingMethods[1])
+	suite.Equal(2, len(shippingMethods))
+	suite.Equal(shippingMethod1, shippingMethods[0])
+	suite.Equal(shippingMethod2, shippingMethods[1])
 }
 
 func (suite *ShippingMethodRepositoryTestSuite) Test_GetShippingMethodByID_NotFound_ReturnsNotFoundError() {
@@ -79,7 +76,7 @@ func (suite *ShippingMethodRepositoryTestSuite) Test_GetShippingMethodByID_NotFo
 	_, err := suite.repository.GetShippingMethodByID(1)
 
 	//assert
-	suite.assert.Equal(gorm.ErrRecordNotFound, err)
+	suite.Equal(gorm.ErrRecordNotFound, err)
 }
 
 func (suite *ShippingMethodRepositoryTestSuite) Test_GetShippingMethodByID_Found_ReturnsShippingMethodModel() {
@@ -92,8 +89,8 @@ func (suite *ShippingMethodRepositoryTestSuite) Test_GetShippingMethodByID_Found
 	shippingMethod, err := suite.repository.GetShippingMethodByID(shippingMethod1.ID)
 
 	//assert
-	suite.assert.Nil(err)
-	suite.assert.Equal(shippingMethod1, shippingMethod)
+	suite.Nil(err)
+	suite.Equal(shippingMethod1, shippingMethod)
 }
 
 func (suite *ShippingMethodRepositoryTestSuite) Test_CreateShippingMethod_ReturnsCreatedRecord() {
@@ -109,8 +106,8 @@ func (suite *ShippingMethodRepositoryTestSuite) Test_CreateShippingMethod_Return
 	shippingMethod, err := suite.repository.CreateShippingMethod(fixtures.GetShippingMethod(uint(0), uint(1), &models.Carrier{}))
 
 	//assert
-	suite.assert.Nil(err)
-	suite.assert.Equal(shippingMethod1, shippingMethod)
+	suite.Nil(err)
+	suite.Equal(shippingMethod1, shippingMethod)
 }
 
 func (suite *ShippingMethodRepositoryTestSuite) Test_UpdateShippingMethod_NotFound_ReturnsNotFoundError() {
@@ -124,7 +121,7 @@ func (suite *ShippingMethodRepositoryTestSuite) Test_UpdateShippingMethod_NotFou
 	_, err := suite.repository.UpdateShippingMethod(shippingMethod1)
 
 	//assert
-	suite.assert.Equal(gorm.ErrRecordNotFound, err)
+	suite.Equal(gorm.ErrRecordNotFound, err)
 }
 
 func (suite *ShippingMethodRepositoryTestSuite) Test_UpdateShippingMethod_Found_ReturnsUpdatedRecord() {
@@ -139,8 +136,8 @@ func (suite *ShippingMethodRepositoryTestSuite) Test_UpdateShippingMethod_Found_
 	shippingMethod, err := suite.repository.UpdateShippingMethod(shippingMethod1)
 
 	//assert
-	suite.assert.Nil(err)
-	suite.assert.Equal(shippingMethod1, shippingMethod)
+	suite.Nil(err)
+	suite.Equal(shippingMethod1, shippingMethod)
 }
 
 func (suite *ShippingMethodRepositoryTestSuite) Test_DeleteShippingMethod_NotFound_ReturnsNotFoundError() {
@@ -154,7 +151,7 @@ func (suite *ShippingMethodRepositoryTestSuite) Test_DeleteShippingMethod_NotFou
 	err := suite.repository.DeleteShippingMethod(1)
 
 	//assert
-	suite.assert.Equal(gorm.ErrRecordNotFound, err)
+	suite.Equal(gorm.ErrRecordNotFound, err)
 }
 
 func (suite *ShippingMethodRepositoryTestSuite) Test_DeleteShippingMethod_Found_ReturnsNoError() {
@@ -168,7 +165,7 @@ func (suite *ShippingMethodRepositoryTestSuite) Test_DeleteShippingMethod_Found_
 	err := suite.repository.DeleteShippingMethod(1)
 
 	//assert
-	suite.assert.Nil(err)
+	suite.Nil(err)
 }
 
 func (suite *ShippingMethodRepositoryTestSuite) expectSelectByID(shippingMethod *models.ShippingMethod) {

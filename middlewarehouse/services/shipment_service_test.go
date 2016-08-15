@@ -9,10 +9,9 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	repositoryMocks "github.com/FoxComm/highlander/middlewarehouse/services/mocks"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
-	"github.com/jinzhu/gorm"
 )
 
 type ShipmentServiceTestSuite struct {
@@ -32,8 +31,6 @@ func (suite *ShipmentServiceTestSuite) SetupTest() {
 	suite.addressService = &serviceMocks.AddressServiceMock{}
 	suite.shipmentLineItemService = &serviceMocks.ShipmentLineItemServiceMock{}
 	suite.service = NewShipmentService(suite.shipmentRepository, suite.addressService, suite.shipmentLineItemService)
-
-	suite.assert = assert.New(suite.T())
 }
 
 func (suite *ShipmentServiceTestSuite) TearDownTest() {
@@ -64,17 +61,18 @@ func (suite *ShipmentServiceTestSuite) Test_GetShipmentsByReferenceNumber_Return
 	shipments, err := suite.service.GetShipmentsByReferenceNumber(shipment1.ReferenceNumber)
 
 	//assert
-	suite.assert.Nil(err)
-	suite.assert.Equal(2, len(shipments))
-	suite.assert.Equal(shipment1, shipments[0])
-	suite.assert.Equal(shipment2, shipments[1])
+	suite.Nil(err)
+	suite.Equal(2, len(shipments))
+	suite.Equal(shipment1, shipments[0])
+	suite.Equal(shipment2, shipments[1])
 }
 
 func (suite *ShipmentServiceTestSuite) Test_CreateShipment_Succeed_ReturnsCreatedRecord() {
 	//arrange
 	shipment1 := fixtures.GetShipmentShort(uint(1))
+	createdShipment := fixtures.GetShipment(shipment1.ID, shipment1.ShippingMethodID, &models.ShippingMethod{}, shipment1.AddressID, &models.Address{}, []models.ShipmentLineItem{})
 	suite.addressService.On("CreateAddress", &shipment1.Address).Return(&shipment1.Address, nil).Once()
-	suite.shipmentRepository.On("CreateShipment", shipment1).Return(shipment1, nil).Once()
+	suite.shipmentRepository.On("CreateShipment", shipment1).Return(createdShipment, nil).Once()
 	suite.shipmentLineItemService.On("CreateShipmentLineItem", &shipment1.ShipmentLineItems[0]).Return(&shipment1.ShipmentLineItems[0], nil).Once()
 	suite.shipmentLineItemService.On("CreateShipmentLineItem", &shipment1.ShipmentLineItems[1]).Return(&shipment1.ShipmentLineItems[1], nil).Once()
 	suite.shipmentRepository.On("GetShipmentByID", shipment1.ID).Return(shipment1, nil).Once()
@@ -83,8 +81,8 @@ func (suite *ShipmentServiceTestSuite) Test_CreateShipment_Succeed_ReturnsCreate
 	shipment, err := suite.service.CreateShipment(shipment1)
 
 	//assert
-	suite.assert.Nil(err)
-	suite.assert.Equal(shipment1, shipment)
+	suite.Nil(err)
+	suite.Equal(shipment1, shipment)
 }
 
 func (suite *ShipmentServiceTestSuite) Test_CreateShipment_ShipmentFailure_PerformsRollback() {
@@ -99,15 +97,16 @@ func (suite *ShipmentServiceTestSuite) Test_CreateShipment_ShipmentFailure_Perfo
 	_, err := suite.service.CreateShipment(shipment1)
 
 	//assert
-	suite.assert.Equal(err1, err)
+	suite.Equal(err1, err)
 }
 
 func (suite *ShipmentServiceTestSuite) Test_CreateShipment_LineItemFailure_PerformsRollback() {
 	//arrange
 	shipment1 := fixtures.GetShipmentShort(uint(1))
+	createdShipment := fixtures.GetShipment(shipment1.ID, shipment1.ShippingMethodID, &models.ShippingMethod{}, shipment1.AddressID, &models.Address{}, []models.ShipmentLineItem{})
 	err1 := errors.New("some fail")
 	suite.addressService.On("CreateAddress", &shipment1.Address).Return(&shipment1.Address, nil).Once()
-	suite.shipmentRepository.On("CreateShipment", shipment1).Return(shipment1, nil).Once()
+	suite.shipmentRepository.On("CreateShipment", shipment1).Return(createdShipment, nil).Once()
 	suite.shipmentLineItemService.On("CreateShipmentLineItem", &shipment1.ShipmentLineItems[0]).Return(&shipment1.ShipmentLineItems[0], nil).Once()
 	suite.shipmentLineItemService.On("CreateShipmentLineItem", &shipment1.ShipmentLineItems[1]).Return(nil, err1).Once()
 	suite.addressService.On("DeleteAddress", shipment1.AddressID).Return(nil).Once()
@@ -118,7 +117,7 @@ func (suite *ShipmentServiceTestSuite) Test_CreateShipment_LineItemFailure_Perfo
 	_, err := suite.service.CreateShipment(shipment1)
 
 	//assert
-	suite.assert.Equal(err1, err)
+	suite.Equal(err1, err)
 }
 
 func (suite *ShipmentServiceTestSuite) Test_UpdateShipment_NotFound_ReturnsNotFoundError() {
@@ -130,7 +129,7 @@ func (suite *ShipmentServiceTestSuite) Test_UpdateShipment_NotFound_ReturnsNotFo
 	_, err := suite.service.UpdateShipment(shipment1)
 
 	//assert
-	suite.assert.Equal(gorm.ErrRecordNotFound, err)
+	suite.Equal(gorm.ErrRecordNotFound, err)
 }
 
 func (suite *ShipmentServiceTestSuite) Test_UpdateShipment_Found_ReturnsUpdatedRecord() {
@@ -145,6 +144,6 @@ func (suite *ShipmentServiceTestSuite) Test_UpdateShipment_Found_ReturnsUpdatedR
 	shipment, err := suite.service.UpdateShipment(shipment1)
 
 	//assert
-	suite.assert.Nil(err)
-	suite.assert.Equal(shipment1, shipment)
+	suite.Nil(err)
+	suite.Equal(shipment1, shipment)
 }

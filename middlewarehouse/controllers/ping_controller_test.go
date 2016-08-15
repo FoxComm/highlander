@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -18,7 +17,6 @@ func TestPingControllerSuite(t *testing.T) {
 }
 
 func (suite *pingControllerTestSuite) SetupSuite() {
-	suite.assert = assert.New(suite.T())
 	// set up test env once
 	suite.router = gin.Default()
 
@@ -29,5 +27,5 @@ func (suite *pingControllerTestSuite) SetupSuite() {
 func (suite *pingControllerTestSuite) Test_Ping() {
 	res := suite.Get("/ping")
 
-	suite.assert.Equal(http.StatusNoContent, res.Code)
+	suite.Equal(http.StatusNoContent, res.Code)
 }

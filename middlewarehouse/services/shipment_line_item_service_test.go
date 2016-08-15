@@ -3,14 +3,13 @@ package services
 import (
 	"testing"
 
-	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
+	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/services/mocks"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
-	"github.com/jinzhu/gorm"
 )
 
 type ShipmentLineItemServiceTestSuite struct {
@@ -26,8 +25,6 @@ func TestShipmentLineItemServiceSuite(t *testing.T) {
 func (suite *ShipmentLineItemServiceTestSuite) SetupTest() {
 	suite.repository = &mocks.ShipmentLineItemRepositoryMock{}
 	suite.service = NewShipmentLineItemService(suite.repository)
-
-	suite.assert = assert.New(suite.T())
 }
 
 func (suite *ShipmentLineItemServiceTestSuite) TearDownTest() {
@@ -48,11 +45,11 @@ func (suite *ShipmentLineItemServiceTestSuite) Test_GetShipmentLineItemsByShipme
 	shipmentLineItems, err := suite.service.GetShipmentLineItemsByShipmentID(uint(1))
 
 	//assert
-	suite.assert.Nil(err)
+	suite.Nil(err)
 
-	suite.assert.Equal(2, len(shipmentLineItems))
-	suite.assert.Equal(shipmentLineItem1, shipmentLineItems[0])
-	suite.assert.Equal(shipmentLineItem2, shipmentLineItems[1])
+	suite.Equal(2, len(shipmentLineItems))
+	suite.Equal(shipmentLineItem1, shipmentLineItems[0])
+	suite.Equal(shipmentLineItem2, shipmentLineItems[1])
 }
 
 func (suite *ShipmentLineItemServiceTestSuite) Test_CreateShipmentLineItem_ReturnsCreatedRecord() {
@@ -64,8 +61,8 @@ func (suite *ShipmentLineItemServiceTestSuite) Test_CreateShipmentLineItem_Retur
 	shipmentLineItem, err := suite.service.CreateShipmentLineItem(shipmentLineItem1)
 
 	//assert
-	suite.assert.Nil(err)
-	suite.assert.Equal(shipmentLineItem1, shipmentLineItem)
+	suite.Nil(err)
+	suite.Equal(shipmentLineItem1, shipmentLineItem)
 }
 
 func (suite *ShipmentLineItemServiceTestSuite) Test_UpdateShipmentLineItem_NotFound_ReturnsNotFoundError() {
@@ -77,7 +74,7 @@ func (suite *ShipmentLineItemServiceTestSuite) Test_UpdateShipmentLineItem_NotFo
 	_, err := suite.service.UpdateShipmentLineItem(shipmentLineItem1)
 
 	//assert
-	suite.assert.Equal(gorm.ErrRecordNotFound, err)
+	suite.Equal(gorm.ErrRecordNotFound, err)
 }
 
 func (suite *ShipmentLineItemServiceTestSuite) Test_UpdateShipmentLineItem_Found_ReturnsUpdatedRecord() {
@@ -89,8 +86,8 @@ func (suite *ShipmentLineItemServiceTestSuite) Test_UpdateShipmentLineItem_Found
 	shipmentLineItem, err := suite.service.UpdateShipmentLineItem(shipmentLineItem1)
 
 	//assert
-	suite.assert.Nil(err)
-	suite.assert.Equal(shipmentLineItem1, shipmentLineItem)
+	suite.Nil(err)
+	suite.Equal(shipmentLineItem1, shipmentLineItem)
 }
 
 func (suite *ShipmentLineItemServiceTestSuite) Test_DeleteShipmentLineItem_NotFound_ReturnsNotFoundError() {
@@ -101,7 +98,7 @@ func (suite *ShipmentLineItemServiceTestSuite) Test_DeleteShipmentLineItem_NotFo
 	err := suite.service.DeleteShipmentLineItem(uint(1))
 
 	//assert
-	suite.assert.Equal(gorm.ErrRecordNotFound, err)
+	suite.Equal(gorm.ErrRecordNotFound, err)
 }
 
 func (suite *ShipmentLineItemServiceTestSuite) Test_DeleteShipmentLineItem_Found_ReturnsNoError() {
@@ -112,5 +109,5 @@ func (suite *ShipmentLineItemServiceTestSuite) Test_DeleteShipmentLineItem_Found
 	err := suite.service.DeleteShipmentLineItem(uint(1))
 
 	//assert
-	suite.assert.Nil(err)
+	suite.Nil(err)
 }

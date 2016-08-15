@@ -11,7 +11,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
@@ -26,7 +25,6 @@ func TestSummaryControllerSuite(t *testing.T) {
 }
 
 func (suite *summaryControllerTestSuite) SetupSuite() {
-	suite.assert = assert.New(suite.T())
 	// set up test env once
 	suite.service = new(mocks.SummaryServiceMock)
 	suite.router = gin.Default()
@@ -49,8 +47,8 @@ func (suite *summaryControllerTestSuite) Test_GetSummary() {
 
 	res := suite.Get("/summary")
 
-	suite.assert.Equal(http.StatusOK, res.Code)
-	suite.assert.Contains(res.Body.String(), "summary\":[")
+	suite.Equal(http.StatusOK, res.Code)
+	suite.Contains(res.Body.String(), "summary\":[")
 	suite.service.AssertExpectations(suite.T())
 }
 
@@ -64,8 +62,8 @@ func (suite *summaryControllerTestSuite) Test_GetSummaryBySKU() {
 
 	res := suite.Get(fmt.Sprintf("/summary/%s", sku))
 
-	suite.assert.Equal(http.StatusOK, res.Code)
-	suite.assert.Contains(res.Body.String(), sku)
+	suite.Equal(http.StatusOK, res.Code)
+	suite.Contains(res.Body.String(), sku)
 	suite.service.AssertExpectations(suite.T())
 }
 
@@ -74,8 +72,8 @@ func (suite *summaryControllerTestSuite) Test_GetSummaryBySKUNoSKU() {
 
 	res := suite.Get("/summary/NO-SKU")
 
-	suite.assert.Equal(http.StatusNotFound, res.Code)
-	suite.assert.Contains(res.Body.String(), "errors")
+	suite.Equal(http.StatusNotFound, res.Code)
+	suite.Contains(res.Body.String(), "errors")
 	suite.service.AssertExpectations(suite.T())
 }
 
@@ -84,7 +82,7 @@ func (suite *summaryControllerTestSuite) Test_GetSummaryBySKUServerError() {
 
 	res := suite.Get("/summary/NO-SKU")
 
-	suite.assert.Equal(http.StatusBadRequest, res.Code)
-	suite.assert.Contains(res.Body.String(), "errors")
+	suite.Equal(http.StatusBadRequest, res.Code)
+	suite.Contains(res.Body.String(), "errors")
 	suite.service.AssertExpectations(suite.T())
 }
