@@ -39,18 +39,13 @@ type FormData = {
 
 // reduce SKU list
 function collectLineItems(skus) {
-  const uniqueSkus = {};
-  const items = _.transform(skus, (result, lineItem) => {
-    const sku = lineItem.sku;
-    if (_.isNumber(uniqueSkus[sku])) {
-      const qty = result[uniqueSkus[sku]].quantity += 1; // eslint-disable-line no-param-reassign
-      result[uniqueSkus[sku]].totalPrice = lineItem.price * qty; // eslint-disable-line no-param-reassign
-    } else {
-      uniqueSkus[sku] = result.length;
-      result.push({ ...lineItem, quantity: 1 });
-    }
+  return _.map(skus, (s) => {
+    const totalPrice = s.quantity * s.price;
+    return {
+      ...s,
+      totalPrice,
+    };
   });
-  return items;
 }
 
 // get line items from response
