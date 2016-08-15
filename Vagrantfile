@@ -27,8 +27,6 @@ def tune_vm(config, opts = {})
   end
 
   config.vm.provider :google do |g, override|
-    $user = "ubuntu"
-
     override.vm.box = "gce"
     override.ssh.username = ENV['GOOGLE_SSH_USERNAME']
     override.ssh.private_key_path = ENV['GOOGLE_SSH_KEY']
@@ -50,6 +48,7 @@ Vagrant.configure("2") do |config|
   tune_vm(config, cpus: $vb_cpu, memory: $vb_memory)
 
   config.vm.define :appliance, primary: true do |app|
+    app.vm.box = "boxcutter/ubuntu1604"
     app.vm.network :private_network, ip: $nginx_ip
 
     app.vm.provision "shell", inline: "apt-get install -y python-minimal"

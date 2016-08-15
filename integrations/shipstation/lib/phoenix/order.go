@@ -33,6 +33,7 @@ type Order struct {
 	Shipments              string           `json:"shipments"`
 	ShippingAddresses      *[]Address       `json:"shipping_addresses"`
 	ShippingAddressesCount int              `json:"shipping_addresses_count"`
+	ShippingMethod         ShippingMethod   `json:"shipping_method"`
 	ShippingTotal          int              `json:"shipping_total"`
 	State                  string           `json:"state"`
 	StoreCreditCount       int              `json:"store_credit_count"`
@@ -87,6 +88,15 @@ func NewOrderFromAvro(message metamorphosis.AvroMessage) (*Order, error) {
 
 	finalOrder.ShippingAddresses = shippingAddresses
 
+	shippingMethodBytes := []byte(o.ShippingMethod)
+	shippingMethod := new(ShippingMethod)
+
+	if err := json.Unmarshal(shippingMethodBytes, shippingMethod); err != nil {
+		return nil, err
+	}
+
+	finalOrder.ShippingMethod = shippingMethod
+
 	return finalOrder, nil
 }
 
@@ -111,6 +121,7 @@ func newOrder(o *order) *Order {
 		Returns:                o.Returns,
 		ShipmentCount:          o.ShipmentCount,
 		ShippingAddressesCount: o.ShippingAddressesCount,
+		ShippingMethod:         o.ShippingMethod,
 		ShippingTotal:          o.ShippingTotal,
 		State:                  o.State,
 		StoreCreditCount:       o.StoreCreditCount,
@@ -146,6 +157,7 @@ type order struct {
 	Shipments              string `json:"shipments"`
 	ShippingAddresses      string `json:"shipping_addresses"`
 	ShippingAddressesCount int    `json:"shipping_addresses_count"`
+	ShippingMethod         string `json:"shipping_method"`
 	ShippingTotal          int    `json:"shipping_total"`
 	State                  string `json:"state"`
 	StoreCreditCount       int    `json:"store_credit_count"`

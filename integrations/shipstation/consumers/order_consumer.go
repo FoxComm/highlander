@@ -51,3 +51,7 @@ func (c OrderConsumer) Handler(message metamorphosis.AvroMessage) error {
 
 	return nil
 }
+
+func createShipment() error {
+	return nil
+}
