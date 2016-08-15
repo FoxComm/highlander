@@ -13,10 +13,8 @@ class LineItemUpdaterTest
     extends IntegrationTestBase
     with TestObjectContext
     with TestActivityContext.AdminAC
+    with MockedApis
     with Fixtures {
-
-  implicit val activityContext = ActivityContext(userId = 1, userType = "b", transactionId = "c")
-  implicit val elaticsearchApi = utils.ElasticsearchApi.default()
 
   def createProducts(num: Int): DbResultT[(ObjectContext, Seq[SimpleProductData])] =
     for {
