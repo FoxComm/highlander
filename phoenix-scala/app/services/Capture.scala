@@ -105,9 +105,38 @@ case class Capture(
                                                            scPayments,
                                                            order.currency)
       externalCaptureTotal = total - internalCaptureTotal
-      externalCapturedAmount ← * <~ externalCapture(externalCaptureTotal, order)
+      _ ← * <~ externalCapture(externalCaptureTotal, order)
+      _ ← * <~ internalCapture(internalCaptureTotal)
 
     } yield CaptureResponse.build("dummy")
+
+
+  private def internalCapture(total: Int, 
+    gcPayments: Seq[(OrderPayment, GiftCard)], 
+    scPayments: Seq[(OrderPayment, StoreCredit)]) : DbResultT[Int] = {
+
+      gcTotal ← * <~ OrderPayments.paymentTransaction(gcPayments,
+        cart.grandTotal,
+        GiftCards.authOrderPayment,
+        (a: GiftCardAdjustment) ⇒ a.getAmount.abs)
+
+      scTotal ← * <~ OrderPayments.paymentTransaction(
+        scPayments,
+        cart.grandTotal - gcTotal,
+        StoreCredits.authOrderPayment,
+        (a: StoreCreditAdjustment) ⇒ a.getAmount.abs
+      )
+
+      gcCodes = gcPayments.map { case (_, gc) ⇒ gc.code }.distinct
+      scIds   = scPayments.map { case (_, sc) ⇒ sc.id }.distinct
+
+      _ ← * <~ (if (gcTotal > 0) LogActivity.gcFundsAuthorized(customer, cart, gcCodes, gcTotal)
+                else DbResultT.unit)
+      _ ← * <~ (if (scTotal > 0) LogActivity.scFundsAuthorized(customer, cart, scIds, scTotal)
+                else DbResultT.unit)
+
+
+  }
 
   private def externalCapture(total: Int, order: Order): DbResultT[Option[CreditCardCharge]] = {
     require(total >= 0)

@@ -120,4 +120,33 @@ object OrderPayments
         q.giftCards.filter(_.paymentMethodId === giftCard.id).filter(_.cordRef === cart.refNum)
     }
   }
+
+  def paymentTransaction[Adjustment, Card](
+      payments: Seq[(OrderPayment, Card)],
+      maxPaymentAmount: Int,
+      doTransaction: (Card, OrderPayment, Option[Int]) ⇒ DbResultT[Adjustment],
+      getAdjustmentAmount: (Adjustment) ⇒ Int): DbResultT[Int] = {
+
+    if (payments.isEmpty) {
+      DbResultT.pure(0)
+    } else {
+
+      val amounts: Seq[Int] = payments.map { case (payment, _) ⇒ payment.getAmount() }
+      val limitedAmounts = amounts
+        .scan(maxPaymentAmount) {
+          case (maxAmount, paymentAmount) ⇒ (maxAmount - paymentAmount).max(0)
+        }
+        .zip(amounts)
+        .map { case (max, amount) ⇒ Math.min(max, amount) }
+        .ensuring(_.sum <= maxPaymentAmount)
+
+      for {
+        adjustments ← * <~ payments.zip(limitedAmounts).collect {
+                       case ((payment, card), amount) if amount > 0 ⇒
+                         authOrderPayment(card, payment, amount.some)
+                     }
+        total = adjustments.map(getAdjustmentAmount).sum.ensuring(_ <= maxPaymentAmount)
+      } yield total
+    }
+  }
 }
