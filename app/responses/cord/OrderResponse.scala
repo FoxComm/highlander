@@ -29,7 +29,8 @@ case class OrderResponse(referenceNumber: String,
                          orderState: Order.State,
                          shippingState: Option[Order.State] = None,
                          fraudScore: Int,
-                         remorsePeriodEnd: Option[Instant] = None)
+                         remorsePeriodEnd: Option[Instant] = None,
+                         placedAt: Instant)
     extends ResponseItem
 
 object OrderResponse {
@@ -63,7 +64,8 @@ object OrderResponse {
           orderState = order.state,
           shippingState = order.getShippingState,
           fraudScore = order.fraudScore,
-          remorsePeriodEnd = order.remorsePeriodEnd
+          remorsePeriodEnd = order.remorsePeriodEnd,
+          placedAt = order.placedAt
       )
 
 }
