@@ -37,6 +37,8 @@ function mapStateToProps(state) {
 }
 
 class SetPassword extends Component {
+  props: Props;
+
   state: State = {
     email: '',
     password1: '',
