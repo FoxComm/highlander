@@ -39,7 +39,7 @@ type Props = {
   updateField: (code: string, field: string, value: string) => void,
   isFetchingSkus: boolean|null,
   suggestSkus: (context: string, code: string) => Promise,
-  suggestedSkus: Array<SearchViewSku>
+  suggestedSkus: Array<SearchViewSku>,
 };
 
 type State = {
@@ -152,13 +152,13 @@ class EditableSkuRow extends Component {
       return (
         <li
           styleName="sku-item"
-          onMouseDown={() => { this.handleSelectSku(sku) }}
+          onMouseDown={() => { this.handleSelectSku(sku); }}
           key={`item-${sku.id}`}
         >
           <strong>{sku.code}</strong>
         </li>
       );
-    })
+    });
   }
 
   get skusMenu(): Element {

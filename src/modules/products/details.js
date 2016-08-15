@@ -56,7 +56,7 @@ export function suggestSkus(context: string, code: string): ActionDispatch {
     }
 
     return dispatch(_suggestSkus.perform(context, code));
-  }
+  };
 }
 
 const defaultContext = 'default';

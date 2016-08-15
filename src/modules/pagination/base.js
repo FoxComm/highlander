@@ -43,7 +43,7 @@ export function makeFetchAction(fetcher, actions, findSearchState) {
       const promise = fetcher.apply({ searchState, getState, dispatch }, args);
       const abort = () => {
         if (promise.abort) promise.abort();
-        dispatch(actions.searchAborted())
+        dispatch(actions.searchAborted());
       };
 
       fetchPromise = promise
