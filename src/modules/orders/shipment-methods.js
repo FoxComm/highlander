@@ -3,7 +3,6 @@
 // libs
 import _ from 'lodash';
 import Api, { request } from '../../lib/api';
-import shipmentMethods from './mocks/shipment-methods.json';
 
 // helpers
 import type { Store } from '../../lib/store-creator';
