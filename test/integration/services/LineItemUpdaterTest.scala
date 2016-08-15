@@ -38,11 +38,18 @@ class LineItemUpdaterTest
 
       val root =
         LineItemUpdater.updateQuantitiesOnCart(storeAdmin, cart.refNum, payload).gimme.result
-      root.lineItems.skus.count(_.sku == "1") must be(3)
+      root.lineItems.skus.count(_.sku == "1") must be(1)
       root.lineItems.skus.count(_.sku == "2") must be(0)
 
+      root.lineItems.skus.find(_.sku === "1") match {
+        case Some(s) ⇒
+          s.quantity must be(3)
+        case None ⇒
+          assert(false, "Should have found sku 1")
+      }
+
       val allRecords = OrderLineItems.gimme
-      root.lineItems.skus.size must === (allRecords.size)
+      root.lineItems.skus.foldLeft(0)(_ + _.quantity) must === (allRecords.size)
 
       OrderLineItemSkus.gimme.size must === (2)
     }
@@ -65,11 +72,18 @@ class LineItemUpdaterTest
 
       val root =
         LineItemUpdater.updateQuantitiesOnCart(storeAdmin, cart.refNum, payload).gimme.result
-      root.lineItems.skus.count(_.sku == "1") must be(3)
+      root.lineItems.skus.count(_.sku == "1") must be(1)
       root.lineItems.skus.count(_.sku == "2") must be(0)
       root.lineItems.skus.count(_.sku == "3") must be(1)
 
-      root.lineItems.skus.size must === (OrderLineItems.gimme.size)
+      root.lineItems.skus.find(_.sku === "1") match {
+        case Some(s) ⇒
+          s.quantity must be(3)
+        case None ⇒
+          assert(false, "Should have found sku 1")
+      }
+
+      root.lineItems.skus.foldLeft(0)(_ + _.quantity) must === (OrderLineItems.gimme.size)
     }
   }
 
