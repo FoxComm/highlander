@@ -1,13 +1,14 @@
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
-import failures.{AlreadyAssignedFailure, AssigneeNotFoundFailure, NotAssignedFailure, NotFoundFailure404}
+import failures.AssignmentFailures._
+import failures.NotFoundFailure404
+import models._
 import models.cord._
-import models.{Assignment, Assignments, StoreAdmin, StoreAdmins}
 import payloads.AssignmentPayloads._
+import responses._
 import responses.cord.AllOrders
-import responses.{AssignmentResponse, BatchMetadata, BatchMetadataSource, TheResponse}
-import util.{Fixtures, IntegrationTestBase}
+import util._
 import utils.db._
 import utils.seeds.Seeds.Factories
 

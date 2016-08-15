@@ -1,15 +1,16 @@
 package services.assignments
 
 import cats.implicits._
+import failures.AssignmentFailures._
+import failures.NotFoundFailure404
 import failures.Util._
-import failures.{AlreadyAssignedFailure, AssigneeNotFoundFailure, NotAssignedFailure, NotFoundFailure404}
 import models.Assignment._
-import models.{Assignment, Assignments, NotificationSubscription, StoreAdmin, StoreAdmins}
+import models._
 import payloads.AssignmentPayloads._
 import responses.AssignmentResponse.{Root, build ⇒ buildAssignment}
 import responses.BatchMetadata._
 import responses.StoreAdminResponse.{build ⇒ buildAdmin}
-import responses.{BatchMetadata, BatchMetadataSource, ResponseItem, TheResponse}
+import responses._
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
