@@ -51,7 +51,7 @@ class LineItemUpdaterTest
       }
 
       val allRecords = OrderLineItems.gimme
-      root.lineItems.skus.foldLeft(0)((a, b) ⇒ a + b.quantity) must === (allRecords.size)
+      root.lineItems.skus.foldLeft(0)(_ + _.quantity) must === (allRecords.size)
 
       OrderLineItemSkus.gimme.size must === (2)
     }
@@ -85,7 +85,7 @@ class LineItemUpdaterTest
           assert(false, "Should have found sku 1")
       }
 
-      root.lineItems.skus.foldLeft(0)((a, b) ⇒ a + b.quantity) must === (OrderLineItems.gimme.size)
+      root.lineItems.skus.foldLeft(0)(_ + _.quantity) must === (OrderLineItems.gimme.size)
     }
   }
 

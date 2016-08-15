@@ -179,13 +179,14 @@ class CheckoutIntegrationTest
   trait BlacklistedFixture extends StoreAdminFixture {
     val (customer, address, shipMethod, product, sku, reason) = (for {
       customer ← * <~ Customers.create(
-        Factories.customer.copy(isBlacklisted = true, blacklistedBy = Some(storeAdmin.id)))
+                    Factories.customer.copy(isBlacklisted = true,
+                                            blacklistedBy = Some(storeAdmin.id)))
       address ← * <~ Addresses.create(Factories.usAddress1.copy(customerId = customer.id))
       _       ← * <~ Factories.shippingMethods.map(ShippingMethods.create)
       shipMethod ← * <~ ShippingMethods
-        .filter(_.adminDisplayName === ShippingMethod.expressShippingNameForAdmin)
-        .mustFindOneOr(
-          ShippingMethodNotFoundByName(ShippingMethod.expressShippingNameForAdmin))
+                    .filter(_.adminDisplayName === ShippingMethod.expressShippingNameForAdmin)
+                    .mustFindOneOr(
+                        ShippingMethodNotFoundByName(ShippingMethod.expressShippingNameForAdmin))
       product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head)
       sku     ← * <~ Skus.mustFindById404(product.skuId)
       reason  ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))

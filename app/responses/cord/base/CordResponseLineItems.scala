@@ -8,7 +8,7 @@ import utils.aliases._
 
 case class CordResponseLineItem(imagePath: String,
                                 referenceNumber: String,
-                                name: String,
+                                name: Option[String],
                                 sku: String,
                                 price: Int,
                                 quantity: Int = 1,
@@ -22,7 +22,7 @@ case class CordResponseLineItems(skus: Seq[CordResponseLineItem] = Seq.empty,
     extends ResponseItem
 
 object CordResponseLineItems {
-  val noImage      = "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/no_image.jpg"
+
   val NOT_ADJUSTED = "na"
 
   def fetch(cordRef: String, adjustments: Seq[CordResponseLineItemAdjustment])(
@@ -33,17 +33,12 @@ object CordResponseLineItems {
       .result
       .map(
           //Convert to OrderLineItemProductData
-          _.map { d ⇒
-            (OrderLineItemProductData.apply _).tupled(d)
-          }
+          _.map(resultToData)
           //Group by adjustments/unadjusted
-          .groupBy { lineItem ⇒
-            groupKey(lineItem, adjustmentMap)
-          }
-          //Convert groups to responses.
-          .map { lineItemGroup ⇒
-            createResponse(lineItemGroup._2, adjustmentMap)
-          }.toSeq
+            .groupBy(lineItem ⇒ groupKey(lineItem, adjustmentMap))
+            //Convert groups to responses.
+            .map { case (key, lineItemGroup) ⇒ createResponse(lineItemGroup, adjustmentMap) }
+            .toSeq
       )
 
     val gcLiQ = OrderLineItemGiftCards
@@ -56,6 +51,10 @@ object CordResponseLineItems {
       gcList  ← gcLiQ
     } yield CordResponseLineItems(skus = skuList, giftCards = gcList)
   }
+
+  private def resultToData(
+      result: OrderLineItemSkus.FindLineItemResult): OrderLineItemProductData =
+    (OrderLineItemProductData.apply _).tupled(result)
 
   private val NOT_A_REF = "not_a_ref"
 
@@ -73,14 +72,17 @@ object CordResponseLineItems {
     s"$prefix,$suffix"
   }
 
+  private val NO_IMAGE =
+    "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/no_image.jpg"
+
   private def createResponse(
       lineItemData: Seq[OrderLineItemProductData],
       adjMap: Map[String, CordResponseLineItemAdjustment]): CordResponseLineItem = {
 
     val data  = lineItemData.head
     val price = Mvp.priceAsInt(data.skuForm, data.skuShadow)
-    val name  = Mvp.name(data.skuForm, data.skuShadow).getOrElse("")
-    val image = Mvp.firstImage(data.skuForm, data.skuShadow).getOrElse(noImage)
+    val name  = Mvp.name(data.skuForm, data.skuShadow)
+    val image = Mvp.firstImage(data.skuForm, data.skuShadow).getOrElse(NO_IMAGE)
     val referenceNumber =
       if (adjMap.contains(data.lineItem.referenceNumber))
         data.lineItem.referenceNumber
