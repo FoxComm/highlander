@@ -28,6 +28,7 @@ type SearchViewSku = {
   code: string,
   id: number,
   context: string,
+  title: string,
   image: string|null,
 }
 
@@ -58,6 +59,15 @@ function stop(event: SyntheticEvent) {
   event.stopPropagation();
 }
 
+function pickSkuAttrs(searchViewSku: SearchViewSku) {
+  return {
+    code: searchViewSku.code,
+    title: searchViewSku.title,
+    context: searchViewSku.context,
+    salePrice: searchViewSku.price,
+  };
+}
+
 class EditableSkuRow extends Component {
   props: Props;
 
@@ -71,6 +81,17 @@ class EditableSkuRow extends Component {
       this.setState({
         isMenuVisible: true,
       });
+    }
+  }
+
+  updateSkuFromSuggest() {
+    const { props } = this;
+
+    if (!_.isEmpty(props.suggestedSkus)) {
+      const matchedSku = _.find(props.suggestedSkus, {code: this.skuCodeValue.toUpperCase()});
+      if (matchedSku) {
+        this.updateAttrsBySearchViewSku(matchedSku);
+      }
     }
   }
 
@@ -103,26 +124,27 @@ class EditableSkuRow extends Component {
     return this.props.sku.feCode || 'new';
   }
 
-  suggestSkus(text: string) {
+  suggestSkus(text: string): Promise|void {
     return this.props.suggestSkus(this.props.skuContext, text);
+  }
+
+  updateAttrsBySearchViewSku(searchViewSku: SearchViewSku) {
+    this.updateSku(pickSkuAttrs(searchViewSku), () => {
+      // @TODO: get retailPrice directly from `sku` variable when this issue will be resolved:
+      // https://github.com/FoxComm/green-river/issues/135
+      Api.get(`/skus/${this.props.skuContext}/${searchViewSku.code}`).then(sku => {
+        const retailPrice = _.get(sku.attributes, 'retailPrice.v.value', 0);
+        this.updateSku({
+          retailPrice,
+        });
+      });
+    });
   }
 
   @autobind
   handleSelectSku(searchViewSku: SearchViewSku) {
     this.closeSkusMenu();
-
-    this.updateSku({
-      salePrice: searchViewSku.price,
-      code: searchViewSku.code,
-    });
-    // @TODO: get retailPrice directly from `sku` variable when this issue will be resolved:
-    // https://github.com/FoxComm/green-river/issues/135
-    Api.get(`/skus/${this.props.skuContext}/${searchViewSku.code}`).then(sku => {
-      const retailPrice = _.get(sku.attributes, 'retailPrice.v.value', 0);
-      this.updateSku({
-        retailPrice,
-      });
-    });
+    this.updateAttrsBySearchViewSku(searchViewSku);
   }
 
   @autobind
@@ -225,16 +247,22 @@ class EditableSkuRow extends Component {
     this.updateSku({
       code: value,
     });
-    this.suggestSkus(value);
+    const promise = this.suggestSkus(value);
+    if (promise) {
+      promise.then(() => {
+        this.updateSkuFromSuggest();
+      });
+    }
   }
 
-  updateSku(values: {[key: string]: any}) {
+  updateSku(values: {[key: string]: any}, callback: ?Function) {
     this.setState({
       sku: Object.assign({}, this.state.sku, values),
     }, () => {
       _.each(values, (value: any, field: string) => {
         this.props.updateField(this.code, field, value);
       });
+      if (callback) callback();
     });
   }
 

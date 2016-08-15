@@ -36,11 +36,11 @@ const _suggestSkus = createAsyncActions(
   (context: string, code: string) => {
     return post('sku_search_view/_search', dsl.query({
       bool: {
-        // filter: [
-        //   dsl.termFilter('context', context),
-        // ],
+        filter: [
+          dsl.termFilter('context', context),
+        ],
         must: [
-          dsl.matchQuery('_all', {
+          dsl.matchQuery('code', {
             query: code,
           }),
         ]
@@ -199,7 +199,13 @@ const reducer = createReducer({
   [_suggestSkus.succeeded]: (state, response) => {
     return {
       ...state,
-      suggestedSkus: _.get(response, 'result', [])
+      suggestedSkus: _.get(response, 'result', []),
+    };
+  },
+  [resetSuggestedSkus]: state => {
+    return {
+      ...state,
+      suggestedSkus: [],
     };
   },
   [setError]: (state: ProductDetailsState, err: Object) => {
