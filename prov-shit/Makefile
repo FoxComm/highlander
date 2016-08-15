@@ -13,6 +13,9 @@ build:
 	$(GO) get ./...
 	$(GO) build -o bin/inventory inventory/inventory.go
 
+clean:
+	true
+
 lint:
 	ansible-lint -x ANSIBLE0007,ANSIBLE0004 ansible/*.yml
 

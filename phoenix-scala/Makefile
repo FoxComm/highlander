@@ -1,6 +1,9 @@
 build:
 	sbt assembly
 
+clean:
+	sbt clean
+
 test:
 	sbt test
 
