@@ -1,15 +1,16 @@
-package utils.seeds
+package utils.seeds.generators
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
 
 import cats.implicits._
 import faker.Faker
+import models.cord._
 import models.coupon._
-import models.customer.{Customer, CustomerDynamicGroup, Customers}
+import models.customer._
 import models.inventory._
 import models.location.{Address, Addresses}
 import models.objects.{ObjectContext, ObjectContexts}
-import models.cord._
 import models.payment.PaymentMethod
 import models.payment.creditcard.{CreditCard, CreditCards}
 import models.product.SimpleContext
@@ -19,7 +20,6 @@ import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
 import utils.seeds.Seeds.Factories
-import utils.seeds.generators._
 
 object RankingSeedsGenerator {
   def fakeJson = JObject()
@@ -28,13 +28,6 @@ object RankingSeedsGenerator {
     Customer.build(email = s"${randomString(10)}@email.com",
                    password = Some(randomString(10)),
                    name = Some(randomString(10)))
-
-  def generateOrder(state: Order.State, customerId: Int, context: ObjectContext): Order = {
-    Order(customerId = customerId,
-          referenceNumber = randomString(8) + "-17",
-          state = state,
-          contextId = context.id)
-  }
 
   def generateOrderPayment[A <: PaymentMethod with FoxModel[A]](
       orderRef: String,
@@ -63,13 +56,17 @@ object RankingSeedsGenerator {
                          customersCount = Some(Random.nextInt))
 
   def insertRankingSeeds(customersCount: Int)(implicit db: Database) = {
-    import scala.concurrent.ExecutionContext.Implicits.global
 
     val location = "Arkham"
 
     def makeOrders(c: Customer, context: ObjectContext) = {
       (1 to 5 + Random.nextInt(20)).map { i ⇒
-        generateOrder(Order.Shipped, c.id, context)
+        for {
+          cart  ← * <~ Carts.create(Cart(customerId = c.id))
+          order ← * <~ Orders.createFromCart(cart, context.id)
+          order ← * <~ Orders.update(order, order.copy(state = Order.FulfillmentStarted))
+          order ← * <~ Orders.update(order, order.copy(state = Order.Shipped))
+        } yield order
       }
     }
 
@@ -95,10 +92,7 @@ object RankingSeedsGenerator {
                                                     holderName = c.name.getOrElse(""))
                         }
         _ ← * <~ CreditCards.createAll(newCreditCards)
-        orders ← * <~ customers.flatMap { c ⇒
-                  makeOrders(c, context)
-                }
-        _ ← * <~ Orders.createAll(orders)
+        _ ← * <~ customers.flatMap(c ⇒ makeOrders(c, context))
       } yield {}
 
     def insertPayments() = {

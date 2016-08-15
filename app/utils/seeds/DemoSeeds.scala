@@ -46,14 +46,10 @@ trait DemoSeedHelpers extends CreditCardSeeds {
                          skuIds: Seq[Sku#Id],
                          shipMethod: ShippingMethod)(implicit db: DB): DbResultT[Order] =
     for {
-      cart  ← * <~ Carts.create(Cart(customerId = customerId))
-      _     ← * <~ addSkusToCart(skuIds, cart.refNum, OrderLineItem.Shipped)
-      _     ← * <~ CartTotaler.saveTotals(cart)
-      order ← * <~ Orders.createFromCart(cart, contextId)
-      _     ← * <~ Orders.update(order, order.copy(state = FulfillmentStarted))
-      _ ← * <~ Orders.update(order,
-                             order.copy(state = Shipped, placedAt = time.yesterday.toInstant))
-      cc ← * <~ CreditCards.create(creditCard1.copy(customerId = customerId))
+      cart ← * <~ Carts.create(Cart(customerId = customerId))
+      _    ← * <~ addSkusToCart(skuIds, cart.refNum, OrderLineItem.Shipped)
+      _    ← * <~ CartTotaler.saveTotals(cart)
+      cc   ← * <~ CreditCards.create(creditCard1.copy(customerId = customerId))
       op ← * <~ OrderPayments.create(
               OrderPayment.build(cc).copy(cordRef = cart.refNum, amount = none))
       addr ← * <~ getDefaultAddress(customerId)
@@ -61,7 +57,11 @@ trait DemoSeedHelpers extends CreditCardSeeds {
                  OrderShippingAddress.buildFromAddress(addr).copy(cordRef = cart.refNum))
       shipM ← * <~ OrderShippingMethods.create(
                  OrderShippingMethod.build(cordRef = cart.refNum, method = shipMethod))
-      _ ← * <~ CartTotaler.saveTotals(cart)
+      _     ← * <~ CartTotaler.saveTotals(cart)
+      order ← * <~ Orders.createFromCart(cart, contextId)
+      order ← * <~ Orders.update(order, order.copy(state = FulfillmentStarted))
+      order ← * <~ Orders.update(order,
+                                 order.copy(state = Shipped, placedAt = time.yesterday.toInstant))
       _ ← * <~ Shipments.create(
              Shipment(cordRef = cart.refNum,
                       orderShippingMethodId = shipM.id.some,
