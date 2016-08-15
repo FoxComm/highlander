@@ -8,7 +8,12 @@ import createAsyncActions from './async-utils';
 
 // types
 
-export type TUser = {name: String, email: String};
+export type TUser = {
+  id: number,
+  name: string,
+  email: string,
+  scopes: Array<string>,
+};
 
 export type LoginPayload = {
   email: string,

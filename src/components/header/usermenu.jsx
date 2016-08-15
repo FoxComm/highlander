@@ -9,15 +9,13 @@ import { transitionTo } from 'browserHistory';
 
 import styles from './usermenu.css';
 
-type User = {
-  id: string|number,
-}
+import type { TUser } from 'modules/user';
 
 type Props = {
   toggleUserMenu: Function,
   logout: Function,
   authMessage: Function,
-  user?: User,
+  user?: TUser,
 };
 
 /* ::`*/
