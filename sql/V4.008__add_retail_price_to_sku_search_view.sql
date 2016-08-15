@@ -1,10 +1,10 @@
---- update view
+----- update view
 alter table sku_search_view add column retail_price text;
 alter table sku_search_view add column retail_price_currency text;
 alter table sku_search_view rename column price to sale_price;
 alter table sku_search_view rename column currency to sale_price_currency;
 
---- update trigger functions
+----- update trigger functions
 create or replace function insert_skus_view_from_skus_fn() returns trigger as $$
 begin
   insert into sku_search_view select
@@ -16,9 +16,9 @@ begin
     sku_form.attributes->(sku_shadow.attributes->'images'->>'ref')->>0 as image,
     sku_form.attributes->(sku_shadow.attributes->'salePrice'->>'ref')->>'value' as sale_price,
     sku_form.attributes->(sku_shadow.attributes->'salePrice'->>'ref')->>'currency' as sale_price_currency,
+    to_char(new.archived_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as archived_at,
     sku_form.attributes->(sku_shadow.attributes->'retailPrice'->>'ref')->>'value' as retail_price,
-    sku_form.attributes->(sku_shadow.attributes->'retailPrice'->>'ref')->>'currency' as retail_price_currency,
-    to_char(new.archived_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as archived_at
+    sku_form.attributes->(sku_shadow.attributes->'retailPrice'->>'ref')->>'currency' as retail_price_currency
     from object_contexts as context
        inner join object_shadows as sku_shadow on (sku_shadow.id = new.shadow_id)
        inner join object_forms as sku_form on (sku_form.id = new.form_id)
@@ -44,9 +44,9 @@ begin
         sku_form.attributes->(sku_shadow.attributes->'images'->>'ref')->>0 as image,
         sku_form.attributes->(sku_shadow.attributes->'salePrice'->>'ref')->>'value' as sale_price,
         sku_form.attributes->(sku_shadow.attributes->'salePrice'->>'ref')->>'currency' as sale_price_currency,
+        to_char(sku.archived_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as archived_at,
         sku_form.attributes->(sku_shadow.attributes->'retailPrice'->>'ref')->>'value' as retail_price,
-        sku_form.attributes->(sku_shadow.attributes->'retailPrice'->>'ref')->>'currency' as retail_price_currency,
-        to_char(sku.archived_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as archived_at
+        sku_form.attributes->(sku_shadow.attributes->'retailPrice'->>'ref')->>'currency' as retail_price_currency
       from skus as sku
       inner join object_forms as sku_form on (sku_form.id = sku.form_id)
       inner join object_shadows as sku_shadow on (sku_shadow.id = sku.shadow_id)
