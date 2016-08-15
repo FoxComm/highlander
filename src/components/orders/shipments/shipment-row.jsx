@@ -34,6 +34,7 @@ type Props = {
   };
   carriers: Array<Carrier>;
   shippingMethods: Array<ShippingMethod>;
+  isLoading: boolean;
   shippingMethod: ShippingMethod;
   state: string;
   shipmentDate: string;
@@ -46,14 +47,23 @@ type Props = {
 }
 
 type State = {
-  isLoading: boolean;
   isExpanded: boolean;
 }
 
-const mapStateToProps = state => ({
-  carriers: state.orders.carriers.list,
-  shippingMethods: state.orders.shipmentMethods.list,
-});
+const mapStateToProps = state => {
+  const { carriers, shipmentMethods } = state.orders;
+  const { fetchCarriers } = carriers;
+  const { fetchShippingMethods } = shipmentMethods;
+  const carriersLoading = !fetchCarriers.isCompleted || fetchCarriers.isRunning;
+  const shippingMethodsLoading = !fetchShippingMethods.isCompleted || fetchShippingMethods.isRunning;
+
+  return {
+    carriers: carriers.list,
+    shippingMethods: shipmentMethods.list,
+    isLoading: carriersLoading || shippingMethodsLoading,
+  };
+};
+
 const mapDispatchToProps = dispatch => ({
   actions: {
     carriers: bindActionCreators(getStore('orders.carriers').actions, dispatch),
@@ -65,7 +75,6 @@ class ShipmentRow extends Component {
   props: Props;
 
   state: State = {
-    isLoading: true,
     isExpanded: false,
   };
 
@@ -76,10 +85,8 @@ class ShipmentRow extends Component {
   componentDidMount(): void {
     const { carriers, shippingMethods } = this.props.actions;
 
-    this.setState({ isLoading: true });
-
-    Promise.all([carriers.fetchCarriers(), shippingMethods.fetchShippingMethods()])
-      .then(() => this.setState({ isLoading: false }));
+    carriers.fetchCarriers();
+    shippingMethods.fetchShippingMethods();
   }
 
   @autobind
@@ -163,7 +170,7 @@ class ShipmentRow extends Component {
   }
 
   render() {
-    if (this.state.isLoading) {
+    if (this.props.isLoading) {
       return (
         <tbody>
           <tr>
