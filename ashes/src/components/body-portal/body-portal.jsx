@@ -9,7 +9,7 @@ type Props = {
 };
 
 export default class BodyPortal extends Component {
-  static props: Props;
+  props: Props;
 
   static defaultProps: Props = {
     left: 0,

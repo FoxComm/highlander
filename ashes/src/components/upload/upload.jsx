@@ -14,7 +14,7 @@ import type { FileInfo } from '../../modules/images';
 
 type Props = {
   children?: Element;
-  onDrop?: Function;
+  onDrop: Function;
   className: ?string;
   empty: boolean;
 }
@@ -26,7 +26,7 @@ type State = {
 
 export default class Upload extends Component {
 
-  static props: Props;
+  props: Props;
 
   static defaultProps = {
     className: '',

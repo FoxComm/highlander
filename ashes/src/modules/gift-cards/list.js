@@ -23,13 +23,11 @@ export function createGiftCard() {
 
     const postData = {
       balance: addingData.balance,
+      quantity: addingData.quantity,
       subTypeId: addingData.subTypeId,
       reasonId: addingData.reasonId,
       currency: 'USD'
     };
-    if (quantity > 1) {
-      postData.quantity = quantity;
-    }
 
     return Api.post('/gift-cards', postData)
       .then(
