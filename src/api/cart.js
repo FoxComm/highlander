@@ -11,7 +11,7 @@ import * as endpoints from '../endpoints';
 // reduce SKU list
 function collectLineItems(skus) {
     return _.map(skus, (l) => { 
-    l.totalPrice = l.quanity * l.price;
+    l.totalPrice = l.quantity * l.price;
     return l;
   });
 }
