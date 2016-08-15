@@ -138,7 +138,7 @@ lazy val phoenixScala = (project in file(".")).
       /** We need to do nothing here. Unit and ITs will run in parallel
         * and this task will fail if any of those fail. */
       ()
-    }.dependsOn(test in Test, test in IT)
+    }.dependsOn(compile in Test, compile in IT, test in Test, test in IT)
 )
 
 lazy val IT = config("it") extend Test
