@@ -1,5 +1,3 @@
-@import "colors.css";
-
 .box {
   margin-top: 20px;
   margin-bottom: 60px;
@@ -12,5 +10,5 @@
   font-family: "Open Sans";
   font-weight: 500;
   font-size: 18px;
-  color: var(--decor8);
+  color: #bfbfbf;
 }

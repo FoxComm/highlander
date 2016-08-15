@@ -1,10 +1,8 @@
 /* @flow */
 // libs
-import _ from 'lodash';
 import Api, { request } from '../../lib/api';
 
 // helpers
-import type { Store } from '../../lib/store-creator';
 import createStore from '../../lib/store-creator';
 
 // types
@@ -17,7 +15,7 @@ type ShipmentsState = {
 
 const initialState: ShipmentsState = {
   shipments: [],
-  unshippedItems: []
+  unshippedItems: [],
 };
 
 const reducers = {
@@ -29,7 +27,7 @@ const reducers = {
   },
 };
 
-function load(actions: Object, state: Object, referenceNumber: string): Function {
+function fetchShipments(actions: Object, state: Object, referenceNumber: string): Function {
   return dispatch =>
     Api.get(`/inventory/shipments/${referenceNumber}`)
       .then(shipments => dispatch(actions.setData({shipments, unshippedItems:[]})));
@@ -38,7 +36,7 @@ function load(actions: Object, state: Object, referenceNumber: string): Function
 const { actions, reducer } = createStore({
   path: 'orders.shipments',
   asyncActions: {
-    load
+    fetchShipments,
   },
   reducers,
   initialState,

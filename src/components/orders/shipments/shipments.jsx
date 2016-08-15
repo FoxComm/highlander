@@ -24,9 +24,9 @@ import type { Shipment, ShipmentLineItem, UnshippedLineItem } from 'paragons/shi
 type Props = {
   shipments: Array<Shipment>;
   unshippedItems: Array<UnshippedLineItem>;
-  load: AsyncState;
+  fetchShipments: AsyncState;
   actions: {
-    load: Function;
+    fetchShipments: Function;
   };
   entity: {
     referenceNumber: string;
@@ -46,7 +46,7 @@ class Shipments extends Component<void, Props, void> {
   props: Props;
 
   componentDidMount(): void {
-    this.props.actions.load(this.props.entity.referenceNumber);
+    this.props.actions.fetchShipments(this.props.entity.referenceNumber);
   }
 
   get controls() {
@@ -54,20 +54,16 @@ class Shipments extends Component<void, Props, void> {
   }
 
   get data() {
-    const { shipments, load, unshippedItems} = this.props;
+    const { shipments, fetchShipments, unshippedItems} = this.props;
 
-    if (load.isRunning) {
+    if (fetchShipments.isRunning) {
       return <WaitAnimation />;
     }
 
     return (
       <div>
         {this.shipments}
-        {
-          shipments.length > 0
-            ? <UnshippedItemsView items={unshippedItems} />
-            : null
-        }
+        <UnshippedItemsView items={unshippedItems} />
       </div>
     );
   }

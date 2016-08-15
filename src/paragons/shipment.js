@@ -45,7 +45,7 @@ export type ShipmentLineItem = {
 };
 
 export type UnshippedLineItem = ShipmentLineItem & {
-  reason: ?string;
+  reason: string;
 };
 
 export type Carrier = {

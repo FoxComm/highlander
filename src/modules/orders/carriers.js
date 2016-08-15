@@ -1,11 +1,9 @@
 /* @flow */
 
 // libs
-import _ from 'lodash';
 import Api, { request } from '../../lib/api';
 
 // helpers
-import type { Store } from '../../lib/store-creator';
 import createStore from '../../lib/store-creator';
 
 // types
@@ -17,7 +15,7 @@ type CarriersState = {
 };
 
 const initialState: CarriersState = {
-  list: []
+  list: [],
 };
 
 const reducers = {
@@ -29,7 +27,7 @@ const reducers = {
   },
 };
 
-function load(actions: Object): Function {
+function fetchCarriers(actions: Object): Function {
   return dispatch =>
     Api.get(`/inventory/carriers`)
       .then(data => dispatch(actions.setList(data)));
@@ -38,7 +36,7 @@ function load(actions: Object): Function {
 const { actions, reducer } = createStore({
   path: 'orders.carriers',
   asyncActions: {
-    load
+    fetchCarriers,
   },
   reducers,
   initialState,

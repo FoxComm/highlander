@@ -78,7 +78,7 @@ class ShipmentRow extends Component {
 
     this.setState({ isLoading: true });
 
-    Promise.all([carriers.load(), shippingMethods.load()])
+    Promise.all([carriers.fetchCarriers(), shippingMethods.fetchShippingMethods()])
       .then(() => this.setState({ isLoading: false }));
   }
 
