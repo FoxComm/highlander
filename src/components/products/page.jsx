@@ -150,11 +150,11 @@ class ProductPage extends Component {
   }
 
   @autobind
-  handleSetSkuProperty(code: string, field: string, type: string, value: string) {
+  handleSetSkuProperty(code: string, field: string, value: string) {
     const { product } = this.state;
     if (product) {
       this.setState({
-        product: setSkuAttribute(product, code, field, type, value),
+        product: setSkuAttribute(product, code, field, value),
       });
     }
   }

@@ -7,7 +7,6 @@ import _ from 'lodash';
 import { update } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
 import { push } from 'react-router-redux';
-import reduceReducers from 'reduce-reducers';
 import { post } from 'lib/search';
 import Api from 'lib/api';
 import { createEmptyProduct, configureProduct } from 'paragons/product';
@@ -30,6 +29,8 @@ export type ProductDetailsState = {
   product: ?Product,
 };
 
+const resetSuggestedSkus = createAction('PRODUCTS_RESET_SUGGESTED_SKUS');
+
 const _suggestSkus = createAsyncActions(
   'products-suggestSkus',
   (context: string, code: string) => {
@@ -48,7 +49,15 @@ const _suggestSkus = createAsyncActions(
   }
 );
 
-export const suggestSkus = _suggestSkus.perform;
+export function suggestSkus(context: string, code: string): ActionDispatch {
+  return (dispatch: Function) => {
+    if (!code) {
+      return dispatch(resetSuggestedSkus());
+    }
+
+    return dispatch(_suggestSkus.perform(context, code));
+  }
+}
 
 const defaultContext = 'default';
 

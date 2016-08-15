@@ -23,7 +23,7 @@ import type { Product } from 'paragons/product';
 type Props = {
   product: Product,
   onUpdateProduct: (product: Product) => void,
-  onSetSkuProperty: (code: string, field: string, type: string, value: any) => void,
+  onSetSkuProperty: (code: string, field: string, value: any) => void,
 };
 
 type State = {

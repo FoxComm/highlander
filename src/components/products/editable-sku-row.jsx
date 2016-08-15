@@ -8,12 +8,12 @@ import { autobind } from 'core-decorators';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 import Api from 'lib/api';
+import styles from './editable-sku-row.css';
 
 import { FormField } from '../forms';
 import CurrencyInput from '../forms/currency-input';
 import MultiSelectRow from '../table/multi-select-row';
-import Typeahead from '../typeahead/typeahead';
-import SkuSuggestRow from './sku-suggest-row';
+import LoadingInputWrapper from '../forms/loading-input-wrapper';
 
 import { suggestSkus } from 'modules/products/details';
 import type { Sku } from 'modules/skus/details';
@@ -23,6 +23,14 @@ type Column = {
   text: string,
 };
 
+type SearchViewSku = {
+  price: string,
+  code: string,
+  id: number,
+  context: string,
+  image: string|null,
+}
+
 type Props = {
   columns: Array<Column>,
   sku: Sku,
@@ -31,11 +39,12 @@ type Props = {
   updateField: (code: string, field: string, value: string) => void,
   isFetchingSkus: boolean|null,
   suggestSkus: (context: string, code: string) => Promise,
-  suggestedSkus: Array<Sku>
+  suggestedSkus: Array<SearchViewSku>
 };
 
 type State = {
   sku: { [key:string]: string },
+  isMenuVisible: boolean,
 };
 
 function mapStateToProps(state) {
@@ -45,12 +54,25 @@ function mapStateToProps(state) {
   };
 }
 
+function stop(event: SyntheticEvent) {
+  event.stopPropagation();
+}
+
 class EditableSkuRow extends Component {
   props: Props;
 
   state: State = {
     sku: {},
+    isMenuVisible: false,
   };
+
+  componentWillReceiveProps(nextProps: Props) {
+    if (this.props.isFetchingSkus && !nextProps.isFetchingSkus) {
+      this.setState({
+        isMenuVisible: true,
+      });
+    }
+  }
 
   @autobind
   priceCell(sku: Sku, field: string): Element {
@@ -81,65 +103,101 @@ class EditableSkuRow extends Component {
     return this.props.sku.feCode || 'new';
   }
 
-  @autobind
-  suggestSkus(text) {
+  suggestSkus(text: string) {
     return this.props.suggestSkus(this.props.skuContext, text);
   }
 
   @autobind
-  handleSelectSku(sku) {
-    this._skusTypeahead.clearState();
-    this.handleUpdateCode(sku.code);
-    this.handleUpdatePrice('salePrice', sku.price);
+  handleSelectSku(searchViewSku: SearchViewSku) {
+    this.closeSkusMenu();
+
+    this.updateSku({
+      salePrice: searchViewSku.price,
+      code: searchViewSku.code,
+    });
     // @TODO: get retailPrice directly from `sku` variable when this issue will be resolved:
     // https://github.com/FoxComm/green-river/issues/135
-    Api.get(`/skus/${this.props.skuContext}/${sku.code}`).then(sku => {
-      this.handleUpdatePrice('retailPrice', _.get(sku.attributes, 'retailPrice.v.value', 0));
+    Api.get(`/skus/${this.props.skuContext}/${searchViewSku.code}`).then(sku => {
+      const retailPrice = _.get(sku.attributes, 'retailPrice.v.value', 0);
+      this.updateSku({
+        retailPrice,
+      });
     });
   }
 
-  get skusMenu() {
+  @autobind
+  closeSkusMenu() {
+    this.setState({
+      isMenuVisible: false
+    });
+  }
+
+  get menuEmptyContent(): Element {
+    return (
+      <li
+        styleName="sku-item"
+        className="_new"
+        onMouseDown={ this.closeSkusMenu }
+      >
+        <div>New SKU</div>
+        <strong>{this.state.sku.code}</strong>
+      </li>
+    );
+  }
+
+  get menuItemsContent(): Array<Element> {
     const items = this.props.suggestedSkus;
-    if (_.isEmpty(items)) {
-      return <div></div>;
-    }
+
+    return items.map(sku => {
+      return (
+        <li
+          styleName="sku-item"
+          onMouseDown={() => { this.handleSelectSku(sku) }}
+          key={`item-${sku.id}`}
+        >
+          <strong>{sku.code}</strong>
+        </li>
+      );
+    })
+  }
+
+  get skusMenu(): Element {
+    const content = _.isEmpty(this.props.suggestedSkus) ? this.menuEmptyContent : this.menuItemsContent;
+    const openMenu =
+      this.state.isMenuVisible && this.skuCodeValue.length > 0 && !this.props.isFetchingSkus;
+
+    const className = openMenu ? '_visible' : void 0;
 
     return (
-      <ul className="fc-typeahead__items">
-        {items.map(sku => {
-          return (
-            <li
-              className="fc-typeahead__item"
-              onMouseDown={() => { this.handleSelectSku(sku) }}
-              key={`item-${sku.id}`}
-            >
-              <SkuSuggestRow sku={sku} />
-            </li>
-          );
-        })}
+      <ul styleName="skus-menu" className={className} onMouseEnter={stop}>
+        {content}
       </ul>
     );
+  }
+
+  get skuCodeValue(): string {
+    const code = _.get(this.props, 'sku.attributes.code.v');
+    return this.state.sku.code || code || '';
   }
 
   skuCell(sku: Sku): Element {
     const code = _.get(this.props, 'sku.attributes.code.v');
     if (this.props.sku.feCode) {
-      const value = this.state.sku.code || code;
       return (
-        <FormField>
-          <Typeahead
-            ref={component => this._skusTypeahead = component}
-            className="_no-search-icon"
-            initialValue={value}
-            onChange={this.handleUpdateCode}
-            isFetching={this.props.isFetchingSkus}
-            fetchItems={this.suggestSkus}
-            itemsElement={this.skusMenu}
-            minQueryLength={2}
-            placeholder="SKU code"
-            name="skuCode"
-          />
-        </FormField>
+        <div styleName="sku-cell">
+          <FormField>
+            <LoadingInputWrapper inProgress={this.props.isFetchingSkus}>
+              <input
+                className="fc-text-input"
+                type="text"
+                value={this.skuCodeValue}
+                onChange={this.handleUpdateCode}
+                placeholder="SKU"
+              />
+            </LoadingInputWrapper>
+          </FormField>
+          {this.skusMenu}
+        </div>
       );
     }
 
@@ -162,29 +220,38 @@ class EditableSkuRow extends Component {
   }
 
   @autobind
-  handleUpdateCode(value: string) {
-    this.setState(
-      assoc(this.state, ['sku', 'code'], value),
-      () => this.props.updateField(this.code, 'code', 'string', value)
-    );
+  handleUpdateCode({ target }: Object) {
+    const { value } = target;
+    this.updateSku({
+      code: value,
+    });
+    this.suggestSkus(value);
+  }
+
+  updateSku(values: {[key: string]: any}) {
+    this.setState({
+      sku: Object.assign({}, this.state.sku, values),
+    }, () => {
+      _.each(values, (value: any, field: string) => {
+        this.props.updateField(this.code, field, value);
+      });
+    });
   }
 
   @autobind
   handleUpdatePrice(field: string, value: string) {
-    this.setState(
-      assoc(this.state, ['sku', field], value),
-      () => this.props.updateField(this.code, field, 'price', value)
-    );
+    this.updateSku({
+      [field]: value,
+    });
   }
 
   @autobind
   handleUpdateUpc({target}: Object) {
     const value = target.value;
 
-    this.setState(
-      assoc(this.state, ['sku', 'upc'], value),
-      () => this.props.updateField(this.code, 'upc', 'string', value)
-    );
+    this.updateSku({
+      upc: value,
+    });
   }
 
   render(): Element {

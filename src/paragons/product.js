@@ -5,6 +5,7 @@
 // libs
 import _ from 'lodash';
 import { assoc } from 'sprout-data';
+import { skuEmptyAttributes } from './sku';
 
 // helpers
 import { generateSkuCode } from './sku';
@@ -16,7 +17,7 @@ import type { Attribute, Attributes } from './object';
 
 type Context = {
   name: string,
-  attributes: {
+  attributes?: {
     lang: string,
     modality: string,
   },
@@ -116,8 +117,9 @@ export function configureProduct(product: Product): Product {
 export function setSkuAttribute(product: Product,
                                 code: string,
                                 label: string,
-                                type: string,
                                 value: string): Product {
+  const type = _.get(skuEmptyAttributes, [label, 't'], 'string');
+
   const attrPath = type == 'price'
     ? ['attributes', label, 'v', 'value']
     : ['attributes', label, 'v'];
