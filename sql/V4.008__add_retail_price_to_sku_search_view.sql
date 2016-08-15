@@ -34,9 +34,11 @@ begin
     code = subquery.code,
     title = subquery.title,
     image = subquery.image,
-    price = subquery.price,
-    currency = subquery.currency,
-    archived_at = subquery.archived_at
+    sale_price = subquery.sale_price,
+    sale_price_currency = subquery.sale_price_currency,
+    archived_at = subquery.archived_at,
+    retail_price = subquery.retail_price,
+    retail_price_currency = subquery.retail_price_currency
     from (select
         sku.id,
         sku.code,
