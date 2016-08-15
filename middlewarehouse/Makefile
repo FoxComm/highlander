@@ -13,7 +13,7 @@ prep:
 	ln -s `pwd` $(BUILDPATH); true
 
 glide: prep
-	cd $(BUILDPATH) && glide install && glide update
+	cd $(BUILDPATH) && glide install
 
 build: glide
 	cd $(BUILDPATH) && go build -o middlewarehouse main.go
