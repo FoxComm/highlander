@@ -34,12 +34,11 @@ import utils.Money.Currency
 
 import payloads.CapturePayloads
 import responses.CaptureResponse
+
+//
 //TODO: Create order state InsufficientFundHold
 //TODO: Create order state PaymentErrorHold
 //
-//TODO: Save captures in captures table. While each individual payment method has
-//a capture table, there is a new table that captures based on order. Is this nessasary?
-
 case class LineItemPrice(referenceNumber: String, sku: String, price: Int, currency: Currency)
 
 object Capture {
