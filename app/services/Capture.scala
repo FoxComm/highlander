@@ -122,8 +122,18 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
       _ ← * <~ externalCapture(externalCaptureTotal, order)
       _ ← * <~ internalCapture(internalCaptureTotal, order, customer, gcPayments, scPayments)
 
+      resp = CaptureResponse.build(order = order,
+                                   captured = total,
+                                   external = externalCaptureTotal,
+                                   internal = internalCaptureTotal,
+                                   lineItems = totalLineItemPrice,
+                                   taxes = order.taxesTotal,
+                                   shipping = adjustedShippingCost,
+                                   currency = order.currency)
+
+      _ ← * <~ LogActivity.orderCaptured(order, resp)
       //return Capture table tuple id?
-    } yield CaptureResponse.build("ok")
+    } yield resp
 
   private def internalCapture(total: Int,
                               order: Order,

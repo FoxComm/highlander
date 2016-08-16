@@ -26,6 +26,7 @@ import responses.CustomerResponse.{Root ⇒ CustomerResponse, build ⇒ buildCus
 import responses.ObjectResponses.ObjectContextResponse
 import responses.ProductResponses.ProductResponse
 import responses.SkuResponses.SkuResponse
+import responses.CaptureResponse
 import responses.StoreAdminResponse.{Root ⇒ AdminResponse, build ⇒ buildAdmin}
 import responses.cord.{CartResponse, OrderResponse}
 import responses.{AddressResponse, CreditCardsResponse, GiftCardResponse, StoreCreditResponse}
@@ -322,6 +323,19 @@ object LogActivity {
 
   def orderCheckoutCompleted(order: OrderResponse)(implicit ec: EC, ac: AC): DbResultT[Activity] =
     Activities.log(OrderCheckoutCompleted(order))
+
+  def orderCaptured(order: Order, cap: CaptureResponse.Root)(implicit ec: EC,
+                                                             ac: AC): DbResultT[Activity] =
+    Activities.log(
+        OrderCaptured(orderNum = order.referenceNumber,
+                      customerId = order.customerId,
+                      captured = cap.captured,
+                      external = cap.external,
+                      internal = cap.internal,
+                      lineItems = cap.lineItems,
+                      taxes = cap.taxes,
+                      shipping = cap.shipping,
+                      currency = cap.currency))
 
   def creditCardAuth(cart: Cart, charge: CreditCardCharge)(implicit ec: EC,
                                                            ac: AC): DbResultT[Activity] =
