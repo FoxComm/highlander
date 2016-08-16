@@ -12,9 +12,9 @@ import styles from './shipped-item.css';
 import Currency from 'components/common/currency';
 
 //types
-import type { ShipmentLineItem } from 'paragons/shipment';
+import type { TShipmentLineItem } from 'paragons/shipment';
 
-const ShippedItem = (props: ShipmentLineItem): Element => (
+const ShippedItem = (props: TShipmentLineItem): Element => (
   <div styleName="row">
     <div styleName="name">
       <img src={props.imagePath} />

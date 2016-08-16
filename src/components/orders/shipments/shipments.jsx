@@ -18,12 +18,12 @@ import UnshippedItemsView from './unshipped-items';
 
 // types
 import type AsyncState from 'lib/async-action-creator';
-import type { Shipment, ShipmentLineItem, UnshippedLineItem } from 'paragons/shipment';
+import type { TShipment, TShipmentLineItem, TUnshippedLineItem } from 'paragons/shipment';
 
 
 type Props = {
-  shipments: Array<Shipment>;
-  unshippedItems: Array<UnshippedLineItem>;
+  shipments: Array<TShipment>;
+  unshippedItems: Array<TUnshippedLineItem>;
   fetchShipments: AsyncState;
   actions: {
     fetchShipments: Function;

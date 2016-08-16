@@ -6,11 +6,11 @@ import Api, { request } from '../../lib/api';
 import createStore from '../../lib/store-creator';
 
 // types
-import type { Shipment, ShipmentLineItem, UnshippedLineItem } from 'paragons/shipment';
+import type { TShipment, TUnshippedLineItem } from 'paragons/shipment';
 
 type ShipmentsState = {
-  shipments: Array<Shipment>,
-  unshippedItems: Array<UnshippedLineItem>,
+  shipments: Array<TShipment>,
+  unshippedItems: Array<TUnshippedLineItem>,
 };
 
 const initialState: ShipmentsState = {

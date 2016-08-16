@@ -25,24 +25,24 @@ import WaitAnimation from 'components/common/wait-animation';
 
 //types
 import type { Dictionary } from 'paragons/types';
-import type { Carrier, ShippingMethod, ShipmentLineItem } from 'paragons/shipment';
+import type { TCarrier, TShippingMethod, TShipmentLineItem } from 'paragons/shipment';
 
 type Props = {
   actions: {
     carriers: Dictionary<Function>;
     shippingMethods: Dictionary<Function>;
   };
-  carriers: Array<Carrier>;
-  shippingMethods: Array<ShippingMethod>;
+  carriers: Array<TCarrier>;
+  shippingMethods: Array<TShippingMethod>;
   isLoading: boolean;
-  shippingMethod: ShippingMethod;
+  shippingMethod: TShippingMethod;
   state: string;
   shipmentDate: string;
   estimatedArrival: string;
   deliveredDate: string;
   trackingNumber: string;
   address: Object;
-  lineItems: Array<ShipmentLineItem>;
+  lineItems: Array<TShipmentLineItem>;
   transactions: Array<Object>; //TODO: will be picked from phoenix
 }
 
@@ -108,7 +108,7 @@ class ShipmentRow extends Component {
       .filter(shippingMethod => shippingMethod.id === _.get(props,'shippingMethod.id',null)).pop();
   }
 
-  get trackingLink(): Element {
+  get trackingLink() {
     const { trackingNumber } = this.props;
 
     if (!trackingNumber) {

@@ -7,11 +7,11 @@ import Api, { request } from '../../lib/api';
 import createStore from '../../lib/store-creator';
 
 // types
-import type { ShippingMethod } from 'paragons/shipment';
+import type { TShippingMethod } from 'paragons/shipment';
 
 
 type ShippingMethodsState = {
-  list: Array<ShippingMethod>,
+  list: Array<TShippingMethod>,
 };
 
 const initialState: ShippingMethodsState = {
@@ -19,7 +19,7 @@ const initialState: ShippingMethodsState = {
 };
 
 const reducers = {
-  setList: function (state: Object, list: Array<ShippingMethod>): Object {
+  setList: function (state: Object, list: Array<TShippingMethod>): Object {
     return {
       ...state,
       list,

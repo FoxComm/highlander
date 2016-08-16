@@ -19,10 +19,10 @@ import Currency from 'components/common/currency';
 import styles from './unshipped-items.css';
 
 // types
-import type { UnshippedLineItem } from 'paragons/shipment';
+import type { TUnshippedLineItem } from 'paragons/shipment';
 
 type Props = {
-  items: Array<UnshippedLineItem>;
+  items: Array<TUnshippedLineItem>;
 };
 
 
