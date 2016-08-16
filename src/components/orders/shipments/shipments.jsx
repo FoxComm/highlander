@@ -13,8 +13,8 @@ import { getStore } from 'lib/store-creator';
 import WaitAnimation from 'components/common/wait-animation';
 import { PrimaryButton } from 'components/common/buttons';
 import SectionTitle from 'components/section-title/section-title';
-import ShipmentView from './shipment';
-import UnshippedItemsView from './unshipped-items';
+import Shipment from './shipment';
+import UnshippedItems from './unshipped-items';
 
 // types
 import type AsyncState from 'lib/async-action-creator';
@@ -63,7 +63,7 @@ class Shipments extends Component<void, Props, void> {
     return (
       <div>
         {this.shipments}
-        <UnshippedItemsView items={unshippedItems} />
+        <UnshippedItems items={unshippedItems} />
       </div>
     );
   }
@@ -77,7 +77,7 @@ class Shipments extends Component<void, Props, void> {
     return (
       <div>
         {shipments.map((shipment, index) => (
-          <ShipmentView
+          <Shipment
             key={index}
             index={index + 1}
             total={shipments.length}
