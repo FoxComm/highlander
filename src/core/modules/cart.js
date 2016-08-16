@@ -120,9 +120,15 @@ const initialState: FormData = {
   },
 };
 
+function totalSkuQuantity(cart) {
+  return _.reduce(cart.lineItem.skus, (sum, sku) => {
+    return sum + sku.quantity;
+  }, 0);
+}
+
 function updateCartState(state, cart) {
   const data = getLineItems(cart);
-  const quantity = cart.lineItems.skus.length;
+  const quantity = totalSkuQuantity(cart);
 
   return {
     ...state,
@@ -148,7 +154,7 @@ const reducer = createReducer({
   },
   [changeCartActions.succeeded]: (state, { result }) => {
     const data = getLineItems(result);
-    const quantity = result.lineItems.skus.length;
+    const quantity = totalSkuQuantity(result);
     const totals = _.get(result, ['totals'], {});
     return {
       ...state,
