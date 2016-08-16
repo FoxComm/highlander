@@ -123,6 +123,7 @@ object CartPaymentUpdater {
     for {
       cart   ← * <~ getCartByOriginator(originator, refNum)
       cc     ← * <~ CreditCards.mustFindById400(id)
+      _      ← * <~ cc.mustBelongToCustomer(cart.customerId)
       _      ← * <~ cc.mustBeInWallet
       region ← * <~ Regions.findOneById(cc.regionId).safeGet
       _      ← * <~ OrderPayments.filter(_.cordRef === cart.refNum).creditCards.delete

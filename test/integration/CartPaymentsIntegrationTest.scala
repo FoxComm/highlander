@@ -2,13 +2,14 @@ import java.time.ZonedDateTime
 
 import Extensions._
 import akka.http.scaladsl.model.StatusCodes
+
 import util._
 import cats.implicits._
 import com.stripe.model.DeletedExternalAccount
 import failures.CartFailures.OrderAlreadyPlaced
 import failures.CreditCardFailures.CannotUseInactiveCreditCard
 import failures.GiftCardFailures._
-import failures.NotFoundFailure404
+import failures._
 import failures.OrderFailures.OrderPaymentNotFoundFailure
 import failures.StoreCreditFailures.CustomerHasInsufficientStoreCredit
 import models.cord.OrderPayments.scope._
@@ -19,7 +20,7 @@ import models.payment.PaymentMethod
 import models.payment.creditcard.{CreditCard, CreditCards}
 import models.payment.giftcard._
 import models.payment.storecredit._
-import models.{Reasons, StoreAdmins}
+import models.Reasons
 import org.mockito.Mockito._
 import org.mockito.{Matchers ⇒ m}
 import org.scalatest.mock.MockitoSugar
@@ -29,7 +30,6 @@ import slick.driver.PostgresDriver.api._
 import utils.aliases.stripe._
 import utils.db._
 import utils.seeds.Seeds.Factories
-
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class CartPaymentsIntegrationTest
@@ -409,6 +409,15 @@ class CartPaymentsIntegrationTest
         response.error must === (OrderAlreadyPlaced(cart.refNum).description)
         creditCardPayments(cart) must have size 0
       }
+
+      "fails if customer does not own credit card" in new CreditCardFixture {
+        val response = POST(s"v1/orders/${cart.referenceNumber}/payment-methods/credit-cards",
+                            CreditCardPayment(creditCardOfOtherCustomer.id))
+
+        response.status must === (StatusCodes.BadRequest)
+        response.error must === (
+            NotFoundFailure400(CreditCard, creditCardOfOtherCustomer.id).description)
+      }
     }
 
     "DELETE /v1/orders/:ref/payment-methods/credit-cards" - {
@@ -484,6 +493,11 @@ class CartPaymentsIntegrationTest
   }
 
   trait CreditCardFixture extends Fixture {
-    val creditCard = CreditCards.create(Factories.creditCard.copy(customerId = customer.id)).gimme
+    val (creditCard, creditCardOfOtherCustomer) = (for {
+      cc ← * <~ CreditCards.create(Factories.creditCard.copy(customerId = customer.id))
+      otherCustomer ← * <~ Customers.create(
+                         Factories.customer.copy(email = Some("other.customer@email.com")))
+      otherCC ← * <~ CreditCards.create(Factories.creditCard.copy(customerId = otherCustomer.id))
+    } yield (cc, otherCC)).gimme
   }
 }
