@@ -3,13 +3,14 @@ alter table sku_search_view add column retail_price text;
 alter table sku_search_view add column retail_price_currency text;
 alter table sku_search_view rename column price to sale_price;
 alter table sku_search_view rename column currency to sale_price_currency;
+alter table sku_search_view rename column code to sku_code;
 
 ----- update trigger functions
 create or replace function insert_skus_view_from_skus_fn() returns trigger as $$
 begin
   insert into sku_search_view select
     new.id as id,
-    new.code as code,
+    new.code as sku_code,
     context.name as context,
     context.id as context_id,
     sku_form.attributes->>(sku_shadow.attributes->'title'->>'ref') as title,
@@ -31,7 +32,7 @@ $$ language plpgsql;
 create or replace function update_skus_view_from_object_attrs_fn() returns trigger as $$
 begin
   update sku_search_view set
-    code = subquery.code,
+    sku_code = subquery.code,
     title = subquery.title,
     image = subquery.image,
     sale_price = subquery.sale_price,
@@ -90,7 +91,7 @@ begin
         from products as p
           inner join object_contexts as context on (p.context_id = context.id)
           inner join product_sku_links_view as sv on (sv.product_id = p.id)--get list of sku codes for the product
-          inner join sku_search_view as sku on (sku.context_id = context.id and sku.code = sv.skus->>0)
+          inner join sku_search_view as sku on (sku.context_id = context.id and sku.sku_code = sv.skus->>0)
         where sku.id = new.id;
   end case;
 
@@ -123,7 +124,7 @@ begin
         inner join object_forms as f on (f.id = p.form_id)
         inner join object_shadows as s on (s.id = p.shadow_id)
         inner join product_sku_links_view as sv on (sv.product_id = p.id)--get list of sku codes for the product
-        inner join sku_search_view as sku on (sku.context_id = context.id and sku.code = sv.skus->>0)
+        inner join sku_search_view as sku on (sku.context_id = context.id and sku.sku_code = sv.skus->>0)
         left join product_album_links_view as albumLink on (albumLink.product_id = p.id)
       where p.id = any(insert_ids) and
             (p.archived_at is null or (p.archived_at)::timestamp > current_timestamp) and
@@ -158,7 +159,7 @@ begin
         inner join object_forms as f on (f.id = p.form_id)
         inner join object_shadows as s on (s.id = p.shadow_id)
         inner join product_sku_links_view as sv on (sv.product_id = p.id)--get list of sku codes for the product
-        inner join sku_search_view as sku on (sku.context_id = context.id and sku.code = sv.skus->>0)
+        inner join sku_search_view as sku on (sku.context_id = context.id and sku.sku_code = sv.skus->>0)
         left join product_album_links_view as albumLink on (albumLink.product_id = p.id)
       where p.id = any(update_ids) and
             (p.archived_at is null or (p.archived_at)::timestamp > current_timestamp) and
