@@ -31,8 +31,7 @@ object PaymentHelper {
       getAdjustmentAmount: (Adjustment) ⇒ Int)(implicit ec: EC,
                                                db: DB,
                                                apis: Apis,
-                                               ac: AC,
-                                               ctx: OC): DbResultT[Int] = {
+                                               ac: AC): DbResultT[Int] = {
 
     if (payments.isEmpty) {
       DbResultT.pure(0)

@@ -42,8 +42,16 @@ import responses.CaptureResponse
 
 case class LineItemPrice(referenceNumber: String, sku: String, price: Int, currency: Currency)
 
-case class Capture(
-    payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, apis: Apis, ac: AC, ctx: OC) {
+object Capture {
+  def capture(payload: CapturePayloads.Capture)(implicit ec: EC,
+                                                db: DB,
+                                                apis: Apis,
+                                                ac: AC): DbResultT[CaptureResponse.Root] = {
+    Capture(payload).capture
+  }
+}
+
+case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, apis: Apis, ac: AC) {
 
   def capture: DbResultT[CaptureResponse.Root] =
     for {
@@ -112,7 +120,8 @@ case class Capture(
       _ ← * <~ externalCapture(externalCaptureTotal, order)
       _ ← * <~ internalCapture(internalCaptureTotal, order, customer, gcPayments, scPayments)
 
-    } yield CaptureResponse.build("dummy")
+      //return Capture table tuple id?
+    } yield CaptureResponse.build("ok")
 
   private def internalCapture(total: Int,
                               order: Order,
