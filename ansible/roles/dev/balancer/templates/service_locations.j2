@@ -198,6 +198,10 @@ location /api/v1/my/ {
     break;
 }
 
+location /api/v1/service/ {
+    return 404;
+}
+
 location /api/ {
     proxy_pass http://phoenix/;
     proxy_pass_header Authorization;
