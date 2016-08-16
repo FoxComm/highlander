@@ -55,6 +55,7 @@ func (suite *InventoryServiceIntegrationTestSuite) SetupTest() {
 		"stock_item_summaries",
 		"stock_item_transactions",
 		"inventory_search_view",
+		"inventory_transactions_search_view",
 	})
 }
 
