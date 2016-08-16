@@ -11,7 +11,7 @@ import { isArchived } from 'paragons/common';
 import MultiSelectRow from '../table/multi-select-row';
 
 // types
-import type { Sku } from '../../modules/skus/details';
+import type { Sku } from 'modules/skus/details';
 
 type Props = {
   sku: Sku,

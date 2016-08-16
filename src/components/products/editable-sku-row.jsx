@@ -7,7 +7,6 @@ import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
 import { connect } from 'react-redux';
-import Api from 'lib/api';
 import styles from './editable-sku-row.css';
 
 import { FormField } from '../forms';
@@ -60,12 +59,7 @@ function stop(event: SyntheticEvent) {
 }
 
 function pickSkuAttrs(searchViewSku: SearchViewSku) {
-  return {
-    code: searchViewSku.code,
-    title: searchViewSku.title,
-    context: searchViewSku.context,
-    salePrice: searchViewSku.price,
-  };
+  return _.pick(searchViewSku, ['code', 'title', 'context', 'salePrice', 'retailPrice']);
 }
 
 class EditableSkuRow extends Component {
@@ -129,16 +123,7 @@ class EditableSkuRow extends Component {
   }
 
   updateAttrsBySearchViewSku(searchViewSku: SearchViewSku) {
-    this.updateSku(pickSkuAttrs(searchViewSku), () => {
-      // @TODO: get retailPrice directly from `sku` variable when this issue will be resolved:
-      // https://github.com/FoxComm/green-river/issues/135
-      Api.get(`/skus/${this.props.skuContext}/${searchViewSku.code}`).then(sku => {
-        const retailPrice = _.get(sku.attributes, 'retailPrice.v.value', 0);
-        this.updateSku({
-          retailPrice,
-        });
-      });
-    });
+    this.updateSku(pickSkuAttrs(searchViewSku));
   }
 
   @autobind
@@ -255,14 +240,13 @@ class EditableSkuRow extends Component {
     }
   }
 
-  updateSku(values: {[key: string]: any}, callback: ?Function) {
+  updateSku(values: {[key: string]: any}) {
     this.setState({
       sku: Object.assign({}, this.state.sku, values),
     }, () => {
       _.each(values, (value: any, field: string) => {
         this.props.updateField(this.code, field, value);
       });
-      if (callback) callback();
     });
   }
 

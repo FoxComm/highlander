@@ -40,7 +40,7 @@ const _suggestSkus = createAsyncActions(
           dsl.termFilter('context', context),
         ],
         must: [
-          dsl.matchQuery('code', {
+          dsl.matchQuery('skuCode', {
             query: code,
           }),
         ]

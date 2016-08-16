@@ -8,7 +8,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
 // data
-import { actions } from '../../modules/skus/list';
+import { actions } from 'modules/skus/list';
 
 // components
 import SelectableSearchList from '../list-page/selectable-search-list';
@@ -29,16 +29,18 @@ type Sku = {
   id: number;
   code: string,
   title: string,
-  price: string,
+  salePrice: string,
+  retailPrice: string,
 };
 
-export class Skus extends Component<void, Props, void> {
+export class Skus extends Component {
   props: Props;
 
   static tableColumns: Array<Column> = [
     { field: 'code', text: 'SKU', type: null },
     { field: 'title', text: 'Title', type: null },
-    { field: 'price', text: 'Price', type: 'currency' }
+    { field: 'salePrice', text: 'Sale Price', type: 'currency' },
+    { field: 'retailPrice', text: 'Retail Price', type: 'currency' }
   ];
 
   renderRow(row: Sku, index: number, columns: Array<Column>, params: Object) {
