@@ -30,8 +30,15 @@ run-production: setup stop
 build: setup
 	gulp build
 
+build-production:
+	NODE_ENV=production gulp build
+
 package: build
 	touch ashes.tar.bz2
 	tar --exclude 'ashes.tar.bz2' --exclude '.git' --exclude '.gitignore' --exclude '.gitattributes' -jcf ashes.tar.bz2 ./
 
-.PHONY: test test-cov tag build package
+package-production: build-production
+	touch ashes.tar.bz2
+	tar --exclude 'ashes.tar.bz2' --exclude '.git' --exclude '.gitignore' --exclude '.gitattributes' -jcf ashes.tar.bz2 ./
+
+.PHONY: test test-cov tag build build-production package package-production
