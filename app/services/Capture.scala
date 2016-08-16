@@ -59,7 +59,9 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
       //OrderLineItemSkus to get all the relevant data for the order line item.
       //The function returns a tuple so we will convert it to a case class for
       //convenience.
-      order    ← * <~ Orders.mustFindByRefNum(payload.order)
+      order ← * <~ Orders.mustFindByRefNum(payload.order)
+      _     ← * <~ validateOrder(order)
+
       customer ← * <~ Customers.mustFindById404(order.customerId)
       items    ← * <~ OrderLineItemSkus.findLineItemsByCordRef(payload.order).result
 
@@ -112,11 +114,11 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
       gcPayments ← * <~ OrderPayments.findAllGiftCardsByCordRef(payload.order).result
       scPayments ← * <~ OrderPayments.findAllStoreCreditsByCordRef(payload.order).result
 
-      internalCaptureTotal ← * <~ determineInternalCapture(total,
+      externalCaptureTotal ← * <~ determineExternalCapture(total,
                                                            gcPayments,
                                                            scPayments,
                                                            order.currency)
-      externalCaptureTotal = total - internalCaptureTotal
+      internalCaptureTotal = total - externalCaptureTotal
       _ ← * <~ externalCapture(externalCaptureTotal, order)
       _ ← * <~ internalCapture(internalCaptureTotal, order, customer, gcPayments, scPayments)
 
@@ -181,7 +183,7 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
     } yield updatedCharge.some
   }
 
-  private def determineInternalCapture(total: Int,
+  private def determineExternalCapture(total: Int,
                                        gcPayments: Seq[(OrderPayment, GiftCard)],
                                        scPayments: Seq[(OrderPayment, StoreCredit)],
                                        currency: Currency): DbResultT[Int] =
@@ -298,6 +300,16 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
       _     ← * <~ mustHaveSameLineItems(payload.items.length, orderSkus.length, payload.order)
       _     ← * <~ mustHavePositiveShippingCost(payload.shipping)
     } yield Unit
+
+  private def validateOrder(order: Order): DbResultT[Unit] =
+    for {
+      _ ← * <~ mustBeInFullfillmentStarted(order)
+    } yield Unit
+
+  private def mustBeInFullfillmentStarted(order: Order): DbResultT[Unit] =
+    if (order.state != Order.FulfillmentStarted)
+      DbResultT.failure(CaptureFailures.OrderMustBeInFullimentStarted(order.referenceNumber))
+    else DbResultT.pure(Unit)
 
   private def mustHavePositiveShippingCost(
       shippingCost: CapturePayloads.ShippingCost): DbResultT[Unit] =

@@ -28,4 +28,9 @@ object CaptureFailures {
     override def description =
       s"Stripe charge for order $refNum is not found."
   }
+
+  case class OrderMustBeInFullimentStarted(refNum: String) extends Failure {
+    override def description =
+      s"Order $refNum is not in Fullillment Started state."
+  }
 }
