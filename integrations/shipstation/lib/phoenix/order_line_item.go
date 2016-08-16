@@ -4,7 +4,8 @@ package phoenix
 type OrderLineItem struct {
 	SKU             string `json:"sku"`
 	Name            string
-	Price           int
+	Price           uint
 	State           string
 	ReferenceNumber string `json:"reference_number"`
+	ImagePath       string `json:"image_path"`
 }

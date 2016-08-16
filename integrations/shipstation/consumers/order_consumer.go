@@ -6,6 +6,7 @@ import (
 
 	"github.com/FoxComm/highlander/integrations/shipstation/lib/phoenix"
 	"github.com/FoxComm/highlander/integrations/shipstation/lib/shipstation"
+	"github.com/FoxComm/highlander/integrations/shipstation/lib/shipstation/payloads"
 	"github.com/FoxComm/highlander/integrations/shipstation/utils"
 	"github.com/FoxComm/metamorphosis"
 )
@@ -38,7 +39,7 @@ func (c OrderConsumer) Handler(message metamorphosis.AvroMessage) error {
 	if order.State == "fulfillmentStarted" {
 		log.Printf("Handling order with reference number %s", order.ReferenceNumber)
 
-		ssOrder, err := utils.ToShipStationOrder(order)
+		ssOrder, err := payloads.NewOrderFromPhoenix(order)
 		if err != nil {
 			log.Panicf("Unable to create ShipStation order with error %s", err.Error())
 		}
@@ -47,11 +48,20 @@ func (c OrderConsumer) Handler(message metamorphosis.AvroMessage) error {
 		if err != nil {
 			log.Panicf("Unable to create order in ShipStation with error %s", err.Error())
 		}
+
+		if err := createShipment(order); err != nil {
+			log.Panicf("Unable to create shipment in middlewarehouse with error %s", err.Error())
+		}
 	}
 
 	return nil
 }
 
-func createShipment() error {
+func createShipment(o *phoenix.Order) error {
+	_, err := utils.NewShipmentFromOrder(o)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

@@ -1,21 +1,20 @@
 package shipstation
 
 import (
-	"bytes"
 	"encoding/base64"
-	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
-	"net/http"
 
 	"github.com/FoxComm/highlander/integrations/shipstation/lib/shipstation/payloads"
 	"github.com/FoxComm/highlander/integrations/shipstation/lib/shipstation/responses"
+	"github.com/FoxComm/highlander/integrations/shipstation/utils"
 )
+
+const baseURL = "https://ssapi.shipstation.com"
 
 // Client in the interface for interacting with ShipStation.
 type Client struct {
-	authHeader string
+	httpClient *utils.HTTPClient
 }
 
 // NewClient initializes the Client with an API key and secret.
@@ -27,89 +26,43 @@ func NewClient(key, secret string) (*Client, error) {
 	}
 
 	authStr := fmt.Sprintf("%s:%s", key, secret)
-	authHeader := base64.StdEncoding.EncodeToString([]byte(authStr))
+	encodedString := base64.StdEncoding.EncodeToString([]byte(authStr))
+	authHeader := fmt.Sprintf("Basic %s", encodedString)
 
-	return &Client{authHeader: fmt.Sprintf("Basic %s", authHeader)}, nil
-}
+	httpClient := utils.NewHTTPClient()
+	httpClient.SetHeader("Content-Type", "application/json")
+	httpClient.SetHeader("Authorization", authHeader)
 
-func (c *Client) getRequest(url string, resp interface{}) error {
-	return c.request("GET", url, nil, resp)
-}
-
-func (c *Client) postRequest(url string, payload interface{}, resp interface{}) error {
-	return c.request("POST", url, payload, resp)
-}
-
-func (c *Client) putRequest(url string, payload interface{}, resp interface{}) error {
-	return c.request("PUT", url, payload, resp)
-}
-
-func (c *Client) request(method string, url string, payload interface{}, respBody interface{}) error {
-	client := &http.Client{}
-	body := new(bytes.Buffer)
-
-	if method != "GET" {
-		if err := json.NewEncoder(body).Encode(payload); err != nil {
-			return err
-		}
-	}
-
-	req, err := http.NewRequest(method, url, body)
-	if err != nil {
-		return err
-	}
-
-	req.Header.Add("Authorization", c.authHeader)
-	req.Header.Add("Content-Type", "application/json")
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-
-	defer resp.Body.Close()
-	if resp.StatusCode < 200 || resp.StatusCode > 299 {
-
-		errResp, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			return err
-		}
-
-		return errors.New(string(errResp))
-	}
-
-	if err := json.NewDecoder(resp.Body).Decode(respBody); err != nil {
-		return err
-	}
-
-	return nil
+	return &Client{httpClient}, nil
 }
 
 func (c *Client) CreateOrder(payload *payloads.Order) (*payloads.Order, error) {
 	order := new(payloads.Order)
-	err := c.postRequest("https://ssapi.shipstation.com/orders/createOrder", payload, order)
+	url := fmt.Sprintf("%s/%s", baseURL, "orders/createOrder")
+	err := c.httpClient.Post(url, payload, order)
 	return order, err
 }
 
 // Products retreives a paginated list of all products in ShipStation.
 func (c *Client) Products() (*responses.ProductCollection, error) {
 	collection := new(responses.ProductCollection)
-	err := c.getRequest("https://ssapi.shipstation.com/products", collection)
+	url := fmt.Sprintf("%s/%s", baseURL, "products")
+	err := c.httpClient.Get(url, collection)
 	return collection, err
 }
 
 // Product retreives a product from ShipStation.
 func (c *Client) Product(id int) (*responses.Product, error) {
 	product := new(responses.Product)
-	url := fmt.Sprintf("https://ssapi.shipstation.com/products/%d", id)
-	err := c.getRequest(url, product)
+	url := fmt.Sprintf("%s/%d", baseURL, id)
+	err := c.httpClient.Get(url, product)
 	return product, err
 }
 
 // UpdateProduct updates an existing ShipStation product.
 func (c *Client) UpdateProduct(payload *payloads.Product) (*responses.Product, error) {
 	product := new(responses.Product)
-	url := fmt.Sprintf("https://ssapi.shipstation.com/products/%d", payload.ID)
-	err := c.putRequest(url, payload, product)
+	url := fmt.Sprintf("%s/%d", baseURL, payload.ID)
+	err := c.httpClient.Put(url, payload, product)
 	return product, err
 }

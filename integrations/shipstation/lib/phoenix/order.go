@@ -95,7 +95,7 @@ func NewOrderFromAvro(message metamorphosis.AvroMessage) (*Order, error) {
 		return nil, err
 	}
 
-	finalOrder.ShippingMethod = shippingMethod
+	finalOrder.ShippingMethod = *shippingMethod
 
 	return finalOrder, nil
 }
@@ -121,7 +121,6 @@ func newOrder(o *order) *Order {
 		Returns:                o.Returns,
 		ShipmentCount:          o.ShipmentCount,
 		ShippingAddressesCount: o.ShippingAddressesCount,
-		ShippingMethod:         o.ShippingMethod,
 		ShippingTotal:          o.ShippingTotal,
 		State:                  o.State,
 		StoreCreditCount:       o.StoreCreditCount,
