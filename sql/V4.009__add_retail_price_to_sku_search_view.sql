@@ -59,6 +59,17 @@ begin
 end;
 $$ language plpgsql;
 
+--- include archived_at updates in sku trigger
+drop trigger if exists update_skus_view_from_object_shadows on skus;
+create trigger update_skus_view_from_object_head_and_shadows
+    after update on skus
+    for each row
+    when (old.form_id is distinct from new.form_id or
+          old.shadow_id is distinct from new.shadow_id or
+          old.code is distinct from new.code or
+          old.archived_at is distinct from new.archived_at)
+    execute procedure update_skus_view_from_object_attrs_fn();
+
 --- products
 create or replace function refresh_products_cat_search_view_fn() returns trigger as $$
 declare
