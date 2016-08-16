@@ -12,7 +12,7 @@ import EditableSkuRow from './editable-sku-row';
 import MultiSelectTable from '../table/multi-select-table';
 
 import type { Product } from 'paragons/product';
-import type { Sku } from '../../modules/skus/details';
+import type { Sku } from 'modules/skus/details';
 
 type UpdateFn = (code: string, field: string, value: any) => void;
 
@@ -27,7 +27,7 @@ const tableColumns = [
   { field: 'salePrice', text: 'Sale Price' },
 ];
 
-export default class SkuList extends Component<void, Props, void> {
+export default class SkuList extends Component {
   props: Props;
 
   get skus(): Array<Sku> {
@@ -46,12 +46,20 @@ export default class SkuList extends Component<void, Props, void> {
     );
   }
 
+  get productContext(): string {
+    if (this.props.fullProduct) {
+      return this.props.fullProduct.context.name;
+    }
+    return 'default';
+  }
+
   skuContent(skus: Array<Sku>): Element {
     const renderRow = (row, index, columns, params) => {
       const key = row.feCode || row.code || row.id;
 
       return (
         <EditableSkuRow
+          skuContext={this.productContext}
           columns={columns}
           sku={row}
           params={params}

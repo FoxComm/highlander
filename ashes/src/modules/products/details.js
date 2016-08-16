@@ -4,21 +4,17 @@
 
 // libs
 import _ from 'lodash';
-import { assoc } from 'sprout-data';
+import { update } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
 import { push } from 'react-router-redux';
-
-// helpers
+import { post } from 'lib/search';
 import Api from 'lib/api';
 import { createEmptyProduct, configureProduct } from 'paragons/product';
-import createStore from 'lib/store-creator';
+import * as dsl from 'elastic/dsl';
+import createAsyncActions from 'modules/async-utils';
 
 // types
-import type { Store } from 'lib/store-creator';
-import type { Dictionary } from 'paragons/types';
-import type { Attribute, Attributes } from 'paragons/object';
-import type { Product, Variant, VariantValue } from 'paragons/product';
-import type { Sku } from 'modules/skus/details';
+import type { Product } from 'paragons/product';
 
 export type Error = {
   status: ?number,
@@ -33,6 +29,35 @@ export type ProductDetailsState = {
   product: ?Product,
 };
 
+const resetSuggestedSkus = createAction('PRODUCTS_RESET_SUGGESTED_SKUS');
+
+const _suggestSkus = createAsyncActions(
+  'products-suggestSkus',
+  (context: string, code: string) => {
+    return post('sku_search_view/_search', dsl.query({
+      bool: {
+        filter: [
+          dsl.termFilter('context', context),
+        ],
+        must: [
+          dsl.matchQuery('code', {
+            query: code,
+          }),
+        ]
+      },
+    }));
+  }
+);
+
+export function suggestSkus(context: string, code: string): ActionDispatch {
+  return (dispatch: Function) => {
+    if (!code) {
+      return dispatch(resetSuggestedSkus());
+    }
+
+    return dispatch(_suggestSkus.perform(context, code));
+  };
+}
 
 const defaultContext = 'default';
 
@@ -114,6 +139,7 @@ const initialState: ProductDetailsState = {
   isUpdating: false,
   product: null,
   response: null,
+  suggestedSkus: [],
 };
 
 const reducer = createReducer({
@@ -170,6 +196,18 @@ const reducer = createReducer({
       isUpdating: false,
     };
   },
+  [_suggestSkus.succeeded]: (state, response) => {
+    return {
+      ...state,
+      suggestedSkus: _.get(response, 'result', []),
+    };
+  },
+  [resetSuggestedSkus]: state => {
+    return {
+      ...state,
+      suggestedSkus: [],
+    };
+  },
   [setError]: (state: ProductDetailsState, err: Object) => {
     const messages = _.get(err, 'response.body.errors', []);
 
@@ -185,5 +223,6 @@ const reducer = createReducer({
     };
   },
 }, initialState);
+
 
 export default reducer;
