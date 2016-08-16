@@ -121,7 +121,7 @@ const initialState: FormData = {
 };
 
 function totalSkuQuantity(cart) {
-  return _.reduce(cart.lineItem.skus, (sum, sku) => {
+  return _.reduce(cart.lineItems.skus, (sum, sku) => {
     return sum + sku.quantity;
   }, 0);
 }
