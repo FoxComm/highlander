@@ -12,6 +12,7 @@ es_image 			 = "vanilla-es-1469695393"
 log_image 			 = "vanilla-es-log-1469695405"
 phoenix_image 		 = "vanilla-phoenix-1470988034"
 greenriver_image 	 = "vanilla-green-1470988046"
+
 stage_backend_image  = "vanilla-stage-backend-1470385104"
 stage_frontend_image = "vanilla-stage-frontend-1470349427"
 stage_amigo_image    = "amigo-server-1470351008"

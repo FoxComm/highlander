@@ -325,7 +325,7 @@ resource "google_compute_instance" "stage-amigo" {
 
 resource "google_compute_instance" "stage-frontend" { 
     name = "${var.stage_datacenter}-frontend"
-    machine_type = "n1-highcpu-8"
+    machine_type = "n1-highcpu-4"
     tags = ["no-ip", "http-server", "https-server", "${var.stage_datacenter}-frontend", "${var.stage_datacenter}"]
     zone = "us-central1-a"
 
