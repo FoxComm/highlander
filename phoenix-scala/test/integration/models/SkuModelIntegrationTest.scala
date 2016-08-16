@@ -1,13 +1,14 @@
 package models
 
+import concurrent.ExecutionContext.Implicits.global
+
 import models.cord.lineitems.OrderLineItemSkus
 import models.product.Mvp
-import util.{IntegrationTestBase, TestObjectContext}
+import util._
 import utils.db._
 import utils.seeds.Seeds.Factories
 
 class SkuModelIntegrationTest extends IntegrationTestBase with TestObjectContext {
-  import concurrent.ExecutionContext.Implicits.global
 
   "Skus" - {
     "a Postgres trigger creates a `order_line_item_skus` record after `skus` insert" in {

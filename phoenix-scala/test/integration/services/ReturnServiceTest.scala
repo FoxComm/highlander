@@ -3,10 +3,10 @@ package services
 import models.returns._
 import payloads.ReturnPayloads.ReturnCreatePayload
 import services.returns.ReturnService
-import util.{Fixtures, IntegrationTestBase, TestObjectContext}
+import util._
 import utils.db._
 
-class ReturnServiceTest extends IntegrationTestBase with TestObjectContext with Fixtures {
+class ReturnServiceTest extends IntegrationTestBase with TestObjectContext with BakedFixtures {
 
   val numberOfInserts = 20
 
@@ -27,5 +27,5 @@ class ReturnServiceTest extends IntegrationTestBase with TestObjectContext with 
     }
   }
 
-  trait Fixture extends OrderFromCartFixture with StoreAdminFixture
+  trait Fixture extends Order_Baked with StoreAdmin_Seed
 }

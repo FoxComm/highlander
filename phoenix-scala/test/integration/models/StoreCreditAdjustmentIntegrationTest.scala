@@ -4,13 +4,13 @@ import models.cord.OrderPayments
 import models.payment.storecredit._
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import org.scalatest.prop.Tables.Table
-import util.{TestObjectContext, Fixtures, IntegrationTestBase}
+import util._
 import utils.db._
 import utils.seeds.Seeds.Factories
 
 class StoreCreditAdjustmentIntegrationTest
     extends IntegrationTestBase
-    with Fixtures
+    with BakedFixtures
     with TestObjectContext {
 
   import api._
@@ -108,13 +108,13 @@ class StoreCreditAdjustmentIntegrationTest
         })
         .gimme
 
-      val finalSc = StoreCredits.findOneById(sc.id).run().futureValue.value
+      val finalSc = StoreCredits.findOneById(sc.id).gimme.value
       (finalSc.originalBalance, finalSc.availableBalance, finalSc.currentBalance) must === (
           (500, 500, 500))
     }
   }
 
-  trait Fixture extends EmptyCustomerCartFixture with StoreAdminFixture {
+  trait Fixture extends EmptyCustomerCart_Baked with StoreAdmin_Seed {
     val reason = Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id)).gimme
   }
 }

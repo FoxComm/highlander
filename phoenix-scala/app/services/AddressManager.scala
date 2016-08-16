@@ -1,4 +1,5 @@
 package services
+
 import java.time.Instant
 
 import cats.implicits._

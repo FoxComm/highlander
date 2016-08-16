@@ -5,13 +5,12 @@ import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 
 import Extensions._
 import failures.NotFoundFailure404
-import models.cord.{Carts, OrderShippingAddresses}
+import models.cord.OrderShippingAddresses
 import models.customer.{Customer, Customers}
 import models.location.{Address, Addresses}
 import payloads.AddressPayloads.CreateAddressPayload
 import responses.AddressResponse
 import util._
-import util.IntegrationTestBase
 import utils.db._
 import utils.seeds.Seeds.Factories
 
@@ -19,7 +18,7 @@ class AddressesIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
     with AutomaticAuth
-    with Fixtures {
+    with BakedFixtures {
 
   def validateDeleteResponse(response: HttpResponse) {
     response.status must === (StatusCodes.NoContent)
@@ -27,7 +26,7 @@ class AddressesIntegrationTest
   }
 
   "GET /v1/customers/:customerId/addresses" - {
-    "lists addresses" in new AddressFixture {
+    "lists addresses" in new CustomerAddress_Baked {
       val response = GET(s"v1/customers/${customer.id}/addresses")
 
       response.status must === (StatusCodes.OK)
@@ -40,7 +39,7 @@ class AddressesIntegrationTest
   }
 
   "POST /v1/customers/:customerId/addresses" - {
-    "creates an address" in new CustomerFixture {
+    "creates an address" in new Customer_Seed {
       val payload = CreateAddressPayload(name = "Home Office",
                                          regionId = 1,
                                          address1 = "3000 Coolio Dr",
@@ -64,7 +63,7 @@ class AddressesIntegrationTest
       Addresses.findOneById(address.id).gimme.value.isDefaultShipping mustBe true
     }
 
-    "sets a new shipping address if there's already a default shipping address" in new AddressFixture {
+    "sets a new shipping address if there's already a default shipping address" in new CustomerAddress_Baked {
       val another  = Addresses.create(address.copy(id = 0, isDefaultShipping = false)).gimme
       val response = POST(s"v1/customers/${customer.id}/addresses/${another.id}/default")
 
@@ -76,7 +75,7 @@ class AddressesIntegrationTest
   }
 
   "DELETE /v1/customers/:customerId/addresses/default" - {
-    "removes an existing default from a shipping address" in new AddressFixture {
+    "removes an existing default from a shipping address" in new CustomerAddress_Baked {
       val response = DELETE(s"v1/customers/${customer.id}/addresses/default")
 
       validateDeleteResponse(response)
@@ -84,7 +83,7 @@ class AddressesIntegrationTest
       Addresses.findOneById(address.id).gimme.value.isDefaultShipping mustBe false
     }
 
-    "attempts to removes default shipping address when none is set" in new CustomerFixture {
+    "attempts to removes default shipping address when none is set" in new Customer_Seed {
       val response = DELETE(s"v1/customers/${customer.id}/addresses/default")
 
       validateDeleteResponse(response)
@@ -94,7 +93,7 @@ class AddressesIntegrationTest
   }
 
   "PATCH /v1/customers/:customerId/addresses/:addressId" - {
-    "can be edited" in new AddressFixture {
+    "can be edited" in new CustomerAddress_Baked {
       val payload = CreateAddressPayload(name = "Home Office",
                                          regionId = 1,
                                          address1 = "3000 Coolio Dr",
@@ -112,7 +111,7 @@ class AddressesIntegrationTest
   }
 
   "DELETE /v1/customers/:customerId/addresses/:addressId" - {
-    "can be deleted" in new AddressFixture {
+    "can be deleted" in new CustomerAddress_Baked {
 
       //notice the payload is a default shipping address. Delete should make it not default.
       val payload = CreateAddressPayload(name = "Delete Me",
@@ -146,13 +145,13 @@ class AddressesIntegrationTest
       response.error must === (NotFoundFailure404(Address, address.id).description)
     }
 
-    "fails deleting using wrong address id" in new AddressFixture {
+    "fails deleting using wrong address id" in new CustomerAddress_Baked {
       val response = DELETE(s"v1/customers/${customer.id}/addresses/65536")
       response.status must === (StatusCodes.NotFound)
       response.error must === (NotFoundFailure404(Address, 65536).description)
     }
 
-    "fails deleting using wrong customer id" in new AddressFixture {
+    "fails deleting using wrong customer id" in new CustomerAddress_Baked {
       val response = DELETE(s"v1/customers/65536/addresses/${address.id}")
       response.status must === (StatusCodes.NotFound)
       response.error must === (NotFoundFailure404(Customer, 65536).description)
@@ -163,20 +162,15 @@ class AddressesIntegrationTest
     val (customer, address) = (for {
       customer ← * <~ Customers.create(authedCustomer)
       address ← * <~ Addresses.create(
-                   Factories.address.copy(customerId = authedCustomer.id,
+                   Factories.address.copy(customerId = customer.id,
                                           isDefaultShipping = false,
                                           deletedAt = Some(Instant.now)))
     } yield (customer, address)).gimme
   }
 
-  trait ShippingAddressFixture extends AddressFixture {
-    (for {
-      cart            ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
-      shippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address, cart.refNum)
-    } yield (cart, shippingAddress)).gimme
-  }
+  trait ShippingAddressFixture extends EmptyCartWithShipAddress_Baked
 
-  trait NoDefaultAddressFixture extends AddressFixture with EmptyCustomerCartFixture {
+  trait NoDefaultAddressFixture extends CustomerAddress_Baked with EmptyCustomerCart_Baked {
     val shippingAddress = OrderShippingAddresses.copyFromAddress(address, cart.refNum).gimme
   }
 }

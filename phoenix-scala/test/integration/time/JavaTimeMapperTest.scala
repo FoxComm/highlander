@@ -2,11 +2,12 @@ package time
 
 import java.time.{Instant, ZoneId, ZonedDateTime}
 
-import util.{DbTestSupport, IntegrationTestBase}
+import scala.concurrent.ExecutionContext.Implicits.global
+
+import util._
 import utils.db._
 
 class JavaTimeMapperTest extends IntegrationTestBase with DbTestSupport {
-  import concurrent.ExecutionContext.Implicits.global
 
   import api._
 

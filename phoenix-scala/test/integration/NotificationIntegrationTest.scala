@@ -19,7 +19,7 @@ import responses.{ActivityResponse, LastSeenActivityResponse}
 import services.NotificationManager
 import services.NotificationManager.unsubscribe
 import slick.driver.PostgresDriver.api._
-import util.{Fixtures, IntegrationTestBase}
+import util._
 import utils.db._
 import utils.seeds.Seeds.Factories
 
@@ -27,7 +27,7 @@ class NotificationIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
     with AutomaticAuth
-    with Fixtures {
+    with BakedFixtures {
 
   import SSE._
 
@@ -104,7 +104,7 @@ class NotificationIntegrationTest
       sseProbe(s"v1/notifications").requestNext(activityJson(2))
     }
 
-    "404 if activity not found" in new StoreAdminFixture {
+    "404 if activity not found" in new StoreAdmin_Seed {
       val response = POST(s"v1/notifications/last-seen/666")
       response.status must === (StatusCodes.NotFound)
       response.error must === (NotFoundFailure404(Activity, 666).description)
@@ -221,7 +221,7 @@ class NotificationIntegrationTest
     val customerDimension = "customer"
 
     // Basic flow test for 1 admin + 1 subscription + 1 object updates
-    "...must flow!" in new CustomerFixture with StoreAdminFixture {
+    "...must flow!" in new Customer_Seed with StoreAdmin_Seed {
       // Setup data
       createDimension.gimme
 
@@ -306,14 +306,14 @@ class NotificationIntegrationTest
   def unsubscribeFromNotifications() =
     NotificationManager.unsubscribe(Seq(1), Seq("1"), Watching, Dimension.order).gimme
 
-  trait Fixture extends StoreAdminFixture {
+  trait Fixture extends StoreAdmin_Seed {
     val (adminId, activityId) = (for {
       _        ← * <~ createDimension
       activity ← * <~ createActivity
     } yield (storeAdmin.id, activity.id)).gimme
   }
 
-  trait Fixture2 extends StoreAdminFixture {
+  trait Fixture2 extends StoreAdmin_Seed {
     val adminId = (for {
       _ ← * <~ createDimension
       _ ← * <~ Activities.createAll(List.fill(2)(newActivity))

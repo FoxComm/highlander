@@ -13,7 +13,7 @@ class CartShippingAddressUpdaterTest
     extends IntegrationTestBase
     with TestObjectContext
     with TestActivityContext.AdminAC
-    with Fixtures {
+    with BakedFixtures {
 
   "OrderUpdater" - {
 
@@ -76,16 +76,12 @@ class CartShippingAddressUpdaterTest
     }
   }
 
-  trait Fixture extends EmptyCustomerCartFixture with AddressFixture with StoreAdminFixture
+  trait Fixture extends EmptyCartWithShipAddress_Baked with StoreAdmin_Seed
 
   trait UpdateAddressFixture extends Fixture {
-    val (orderShippingAddress, newAddress) = (for {
-      orderShippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address,
-                                                                         cordRef = cart.refNum)
-      newAddress ← * <~ Addresses.create(
-                      Factories.address.copy(customerId = customer.id,
-                                             name = "New Address",
-                                             isDefaultShipping = false))
-    } yield (orderShippingAddress, newAddress)).gimme
+    val newAddress = Addresses
+      .create(Factories.address
+            .copy(customerId = customer.id, name = "New Address", isDefaultShipping = false))
+      .gimme
   }
 }

@@ -24,7 +24,7 @@ import payloads.UpdateShippingMethod
 import responses.GiftCardResponse
 import responses.cord._
 import slick.driver.PostgresDriver.api._
-import util.{Fixtures, IntegrationTestBase}
+import util._
 import utils.db._
 import utils.seeds.Seeds.Factories
 
@@ -32,7 +32,7 @@ class CheckoutIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
     with AutomaticAuth
-    with Fixtures {
+    with BakedFixtures {
 
   "POST v1/orders/:refNum/checkout" - {
 
@@ -163,7 +163,7 @@ class CheckoutIntegrationTest
     }
   }
 
-  trait Fixture extends AddressFixture with StoreAdminFixture {
+  trait Fixture extends CustomerAddress_Baked with StoreAdmin_Seed {
     val (shipMethod, product, sku, reason) = (for {
       _ ← * <~ Factories.shippingMethods.map(ShippingMethods.create)
       shipMethod ← * <~ ShippingMethods
@@ -176,7 +176,7 @@ class CheckoutIntegrationTest
     } yield (shipMethod, product, sku, reason)).gimme
   }
 
-  trait BlacklistedFixture extends StoreAdminFixture {
+  trait BlacklistedFixture extends StoreAdmin_Seed {
     val (customer, address, shipMethod, product, sku, reason) = (for {
       customer ← * <~ Customers.create(
                     Factories.customer.copy(isBlacklisted = true,

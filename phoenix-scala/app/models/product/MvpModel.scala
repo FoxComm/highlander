@@ -36,12 +36,6 @@ object SimpleContext {
     ObjectContext(id = id, name = name, attributes = ("modality" → modality) ~ ("lang" → lang))
 }
 
-object SimpleProductDefaults {
-
-  val imageUrl =
-    "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/no_image.jpg"
-}
-
 case class SimpleProduct(title: String,
                          description: String,
                          active: Boolean = false,
@@ -196,7 +190,7 @@ case class SimpleProductData(productId: Int = 0,
                              albumId: Int = 0,
                              title: String,
                              description: String,
-                             image: String = SimpleProductDefaults.imageUrl,
+                             image: String,
                              code: String,
                              price: Int,
                              currency: Currency = Currency.USD,

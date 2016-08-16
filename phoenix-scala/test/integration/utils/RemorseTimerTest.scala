@@ -16,7 +16,7 @@ class RemorseTimerTest(_system: ActorSystem)
     with IntegrationTestBase
     with BeforeAndAfterAll
     with TestObjectContext
-    with Fixtures {
+    with BakedFixtures {
 
   def this() = this(ActorSystem("RemorseTimerTest"))
 
@@ -26,7 +26,7 @@ class RemorseTimerTest(_system: ActorSystem)
 
   "Remorse timer" - {
 
-    "advances to fulfillment once remorse period ends" in new OrderFromCartFixture {
+    "advances to fulfillment once remorse period ends" in new Order_Baked {
       val overdue = Some(Instant.now.minusSeconds(60))
       Orders.update(order, order.copy(remorsePeriodEnd = overdue)).gimme
       tick()
