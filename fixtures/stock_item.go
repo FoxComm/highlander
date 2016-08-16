@@ -4,10 +4,10 @@ import (
 	"github.com/FoxComm/middlewarehouse/models"
 )
 
-func GetStockItem(stockLocationId uint) *models.StockItem {
+func GetStockItem(stockLocationId uint, sku string) *models.StockItem {
 	return &models.StockItem{
 		StockLocationID: stockLocationId,
-		SKU:             "TEST-DEFAULT",
+		SKU:             sku,
 		DefaultUnitCost: 5000,
 	}
 }
