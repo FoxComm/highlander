@@ -7,7 +7,6 @@ import { actions } from '../../modules/customers/list';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import _ from 'lodash';
-import * as dsl from '../../elastic/dsl';
 
 import CustomerRow from './customer-row';
 import { SelectableSearchList } from '../list-page';
@@ -38,14 +37,6 @@ class Customers extends Component {
       { field: 'joinedAt', text: 'Date/Time Joined', type: 'datetime' }
     ]
   };
-
-  componentDidMount() {
-    this.props.actions.setExtraFilters([
-      dsl.termFilter('isGuest', false)
-      //dsl.termFilter('storeCreditTotal', 0)
-    ]);
-    this.props.actions.fetch();
-  }
 
   renderRow(row, index, columns, params) {
     const key = `customer-${row.id}`;
