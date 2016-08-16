@@ -2,8 +2,9 @@ package services
 
 import (
 	"github.com/FoxComm/middlewarehouse/models"
-
 	"github.com/FoxComm/middlewarehouse/repositories"
+
+	"log"
 	"reflect"
 	"strings"
 )
@@ -70,9 +71,17 @@ func (service *summaryService) UpdateStockItemSummary(stockItemId uint, unitType
 	summary = updateAfs(summary, status, qty)
 	summary = updateAfsCost(summary, stockItem)
 
-	go service.CreateStockItemTransaction(summary, status.To, qty)
+	// update stock item summary values
+	if err := service.summaryRepo.UpdateStockItemSummary(summary); err != nil {
+		log.Printf("Error updating stock_item_summaries with error: %s", err.Error())
+	}
 
-	return service.summaryRepo.UpdateStockItemSummary(summary)
+	// create related stock item transaction
+	if err := service.CreateStockItemTransaction(summary, status.To, qty); err != nil {
+		log.Printf("Error creating stock_item_transactions with error: %s", err.Error())
+	}
+
+	return nil
 }
 
 func (service *summaryService) CreateStockItemTransaction(summary *models.StockItemSummary, status models.UnitStatus, qty int) error {
