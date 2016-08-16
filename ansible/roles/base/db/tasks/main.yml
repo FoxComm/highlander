@@ -104,20 +104,32 @@
     - libpq-dev
     - python-psycopg2
 
-- name: Copy Bottledwater Run File
-  template: src=run_bottledwater.sh dest="/usr/local/bin/run_bottledwater.sh" mode="u+x,g+x,o+x"
+- name: Copy Bottledwater For Phoenix Run File
+  template: src=run_bottledwater_phoenix.sh dest="/usr/local/bin/run_bottledwater_phoenix.sh" mode="u+x,g+x,o+x"
   sudo: true
 
-- name: Copy Bottledwater Service
-  copy: src=bottledwater.service dest="{{dest_services}}/bottledwater.service"
+- name: Copy Bottledwater For Middlewarehouse Run File
+  template: src=run_bottledwater_middlewarehouse.sh dest="/usr/local/bin/run_bottledwater_middlewarehouse.sh" mode="u+x,g+x,o+x"
+  sudo: true
+
+- name: Copy Bottledwater For Phoenix Service
+  copy: src=bottledwater_phoenix.service dest="{{dest_services}}/bottledwater_phoenix.service"
+  sudo: true
+
+- name: Copy Bottledwater For Middlewarehouse Service
+  copy: src=bottledwater_middlewarehouse.service dest="{{dest_services}}/bottledwater_middlewarehouse.service"
   sudo: true
 
 - name: Reload Systemd for Bottledwater
   sudo: yes
   command: systemctl daemon-reload
 
-- name: Start Bottledwater
-  service: name=bottledwater state=started enabled=yes sleep=10
+- name: Start Bottledwater For Phoenix
+  service: name=bottledwater_phoenix state=started enabled=yes sleep=10
+  sudo: true
+
+- name: Start Bottledwater For Middlewarehouse
+  service: name=bottledwater_middlewarehouse state=started enabled=yes sleep=10
   sudo: true
 
 - name: Copy Consul Service File

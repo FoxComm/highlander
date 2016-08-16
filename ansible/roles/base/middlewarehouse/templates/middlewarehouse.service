@@ -11,7 +11,7 @@ RestartSec=5
 
 Environment=LOG_LEVEL=info
 Environment=DB_NAME={{middlewarehouse_db_name}}
-Environment=DB_USER=middlewarehouse
+Environment=DB_USER={{middlewarehouse_db_user}}
 Environment=DB_HOST={{db_host}}
 Environment=DB_SSLMODE=disable
 Environment=TOKEN_SECRET=thef0xlaughstwic3

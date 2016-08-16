@@ -1,7 +1,11 @@
 ---
 
 - name: Kill Bottledwater if it is Running
-  shell: systemctl stop bottledwater || true
+  shell: systemctl stop bottledwater_phoenix || true
+  sudo: true
+
+- name: Kill Bottledwater For Middlewarehouse if it is Running
+  shell: systemctl stop bottledwater_middlewarehouse || true
   sudo: true
 
 - name: Kill Materialized Views if it is Running
@@ -120,5 +124,9 @@
   sudo: true
 
 - name: Start Bottledwater
-  service: name=bottledwater state=started enabled=yes sleep=10
+  service: name=bottledwater_phoenix state=started enabled=yes sleep=10
+  sudo: true
+
+- name: Start Bottledwater For Middlewarehouse
+  service: name=bottledwater_middlewarehouse state=started enabled=yes sleep=10
   sudo: true
