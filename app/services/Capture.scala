@@ -173,14 +173,18 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
   private def captureFromStripe(total: Int,
                                 charge: CreditCardCharge,
                                 order: Order): DbResultT[Option[CreditCardCharge]] = {
-    val f = Stripe().captureCharge(charge.chargeId, total)
 
-    for {
-      stripeCharge ← * <~ Await.result(f, 5.seconds)
-      updatedCharge = charge.copy(state = CreditCardCharge.FullCapture)
-      chargeId ← * <~ CreditCardCharges.update(charge, updatedCharge)
-      _        ← * <~ LogActivity.creditCardCharge(order, updatedCharge)
-    } yield updatedCharge.some
+    if (charge.state == CreditCardCharge.Auth) {
+      val f = Stripe().captureCharge(charge.chargeId, total)
+
+      for {
+        stripeCharge ← * <~ Await.result(f, 5.seconds)
+        updatedCharge = charge.copy(state = CreditCardCharge.FullCapture)
+        chargeId ← * <~ CreditCardCharges.update(charge, updatedCharge)
+        _        ← * <~ LogActivity.creditCardCharge(order, updatedCharge)
+      } yield updatedCharge.some
+    } else
+      DbResultT.failure(CaptureFailures.ChargeNotInAuth(charge.chargeId, charge.state.toString))
   }
 
   private def determineExternalCapture(total: Int,

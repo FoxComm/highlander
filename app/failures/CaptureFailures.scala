@@ -33,4 +33,9 @@ object CaptureFailures {
     override def description =
       s"Order $refNum is not in Fullillment Started state."
   }
+
+  case class ChargeNotInAuth(chargeId: String, chargeState: String) extends Failure {
+    override def description =
+      s"The charge $chargeId must be in Auth state. The charge is in $chargeState state."
+  }
 }
