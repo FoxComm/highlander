@@ -4,10 +4,10 @@ import (
 	"log"
 	"os"
 
+	"github.com/FoxComm/highlander/integrations/shipstation/lib/mwh"
 	"github.com/FoxComm/highlander/integrations/shipstation/lib/phoenix"
 	"github.com/FoxComm/highlander/integrations/shipstation/lib/shipstation"
 	"github.com/FoxComm/highlander/integrations/shipstation/lib/shipstation/payloads"
-	"github.com/FoxComm/highlander/integrations/shipstation/utils"
 	"github.com/FoxComm/metamorphosis"
 )
 
@@ -58,7 +58,13 @@ func (c OrderConsumer) Handler(message metamorphosis.AvroMessage) error {
 }
 
 func createShipment(o *phoenix.Order) error {
-	_, err := utils.NewShipmentFromOrder(o)
+	shipment, err := mwh.NewShipmentFromOrder(o)
+	if err != nil {
+		return err
+	}
+
+	mwhClient := mwh.NewClient()
+	_, err = mwhClient.CreateShipment(shipment)
 	if err != nil {
 		return err
 	}

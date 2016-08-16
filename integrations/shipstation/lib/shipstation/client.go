@@ -36,6 +36,7 @@ func NewClient(key, secret string) (*Client, error) {
 	return &Client{httpClient}, nil
 }
 
+// CreateOrder creates a new order in ShipStation.
 func (c *Client) CreateOrder(payload *payloads.Order) (*payloads.Order, error) {
 	order := new(payloads.Order)
 	url := fmt.Sprintf("%s/%s", baseURL, "orders/createOrder")
