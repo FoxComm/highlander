@@ -58,7 +58,7 @@ object CordResponseLineItems {
 
 case class CordResponseLineItemAdjustment(
     adjustmentType: OrderLineItemAdjustment.AdjustmentType,
-    substract: Int,
+    subtract: Int,
     lineItemRefNum: Option[String]
 ) extends ResponseItem
 
@@ -70,7 +70,7 @@ object CordResponseLineItemAdjustments {
       .result
       .map(_.map { model ⇒
         CordResponseLineItemAdjustment(adjustmentType = model.adjustmentType,
-                                       substract = model.substract,
+                                       subtract = model.subtract,
                                        lineItemRefNum = model.lineItemRefNum)
       })
 }

@@ -14,7 +14,7 @@ final case class OrderLineItemAdjustment(id: Int = 0,
                                          cordRef: String,
                                          promotionShadowId: Int,
                                          adjustmentType: OrderLineItemAdjustment.AdjustmentType,
-                                         substract: Int,
+                                         subtract: Int,
                                          lineItemRefNum: Option[String] = None,
                                          createdAt: Instant = Instant.now)
     extends FoxModel[OrderLineItemAdjustment]
@@ -26,12 +26,12 @@ class OrderLineItemAdjustments(tag: Tag)
   def cordRef           = column[String]("cord_ref")
   def promotionShadowId = column[Int]("promotion_shadow_id")
   def adjustmentType    = column[OrderLineItemAdjustment.AdjustmentType]("adjustment_type")
-  def substract         = column[Int]("substract")
+  def subtract          = column[Int]("subtract")
   def lineItemRefNum    = column[Option[String]]("line_item_ref_num")
   def createdAt         = column[Instant]("created_at")
 
   def * =
-    (id, cordRef, promotionShadowId, adjustmentType, substract, lineItemRefNum, createdAt) <> ((OrderLineItemAdjustment.apply _).tupled, OrderLineItemAdjustment.unapply)
+    (id, cordRef, promotionShadowId, adjustmentType, subtract, lineItemRefNum, createdAt) <> ((OrderLineItemAdjustment.apply _).tupled, OrderLineItemAdjustment.unapply)
 }
 
 object OrderLineItemAdjustment {

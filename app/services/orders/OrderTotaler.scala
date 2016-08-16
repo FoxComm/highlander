@@ -50,7 +50,7 @@ object OrderTotaler {
   def adjustmentsTotal(order: Order)(implicit ec: EC): DbResultT[Int] =
     for {
       lineItemAdjustments ← * <~ OrderLineItemAdjustments.filter(_.cordRef === order.refNum).result
-      sum = lineItemAdjustments.foldLeft(0)(_ + _.substract)
+      sum = lineItemAdjustments.foldLeft(0)(_ + _.subtract)
     } yield sum
 
   def totals(cart: Cart, order: Order)(implicit ec: EC): DbResultT[Totals] =
