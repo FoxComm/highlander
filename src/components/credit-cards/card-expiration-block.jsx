@@ -5,9 +5,10 @@ import React, { Component, Element } from 'react';
 
 // components
 import Dropdown from '../dropdown/dropdown';
+import FormField from '../forms/formfield';
 
 // utils
-import * as CardUtils from '../../lib/credit-card-utils';
+import * as CardUtils from 'lib/credit-card-utils';
 
 type Props = {
   month: string;
@@ -18,11 +19,6 @@ type Props = {
 
 export default class ExpirationBlock extends Component {
   props: Props;
-
-  static defaultProps = {
-    month: 1,
-    year: 2016,
-  };
 
   shouldComponentUpdate(nextProps: Props): boolean {
     return nextProps.month !== this.props.month || nextProps.year !== this.props.year;
@@ -36,18 +32,23 @@ export default class ExpirationBlock extends Component {
         <label className="fc-credit-card-form__label">Expiration Date</label>
         <div className="fc-grid">
           <div className="fc-col-md-1-2">
-            <Dropdown name="expMonth"
-                      items={CardUtils.monthList()}
-                      placeholder="Month"
-                      value={month}
-                      onChange={onMonthChange} />
+            <FormField getTargetValue={() => month} validationLabel="Month" required>
+              <Dropdown name="expMonth"
+                        items={CardUtils.monthList()}
+                        placeholder="Month"
+                        value={month}
+                        onChange={onMonthChange} />
+            </FormField>
+
           </div>
           <div className="fc-col-md-1-2">
-            <Dropdown name="expYear"
-                      items={CardUtils.expirationYears()}
-                      placeholder="Year"
-                      value={year}
-                      onChange={onYearChange} />
+            <FormField getTargetValue={() => year} validationLabel="Year" required>
+              <Dropdown name="expYear"
+                        items={CardUtils.expirationYears()}
+                        placeholder="Year"
+                        value={year}
+                        onChange={onYearChange} />
+            </FormField>
           </div>
         </div>
       </li>

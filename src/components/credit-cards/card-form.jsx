@@ -208,10 +208,11 @@ export default class CreditCardForm extends React.Component {
     const year = _.get(this.state, 'card.expYear');
 
     return (
-      <ExpirationBlock month={month}
-                       year={year}
-                       onMonthChange={this.onExpMonthChange}
-                       onYearChange={this.onExpYearChange}
+      <ExpirationBlock
+        month={month}
+        year={year}
+        onMonthChange={this.onExpMonthChange}
+        onYearChange={this.onExpYearChange}
       />
     );
   };
@@ -252,13 +253,17 @@ export default class CreditCardForm extends React.Component {
     if (this.state.editingAddress) {
       return (
         <li className="fc-credit-card-form__addresses">
-          <div>
+          <FormField
+            requiredMessage="Please choose address"
+            getTargetValue={() => _.get(this.state, 'card.address')}
+            required
+          >
             <AddressSelect name="addressId"
                            customerId={customerId}
                            items={addresses}
                            initialValue={addressId}
                            onItemSelect={this.onAddressChange} />
-          </div>
+          </FormField>
         </li>
       );
     }

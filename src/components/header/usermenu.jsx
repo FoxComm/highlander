@@ -18,10 +18,7 @@ type Props = {
   user?: TUser,
 };
 
-/* ::`*/
-@connect(null, { logout, authMessage, toggleUserMenu })
-/* ::`*/
-export default class UserMenu extends Component {
+export class UserMenu extends Component {
   props: Props;
 
   componentDidMount() {
@@ -68,3 +65,5 @@ export default class UserMenu extends Component {
     );
   }
 }
+
+export default connect(null, { logout, authMessage, toggleUserMenu })(UserMenu);

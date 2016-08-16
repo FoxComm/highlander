@@ -98,7 +98,10 @@ function registerAction(actions: Dictionary<Function>): Function {
   };
 }
 
-function registerAsyncAction(path: Array<string>, actions: Dictionary<Function>, reducers: Dictionary<Function>, initialState: Object): Function {
+function registerAsyncAction(
+  path: Array<string>,
+  actions: Dictionary<Function>,
+  reducers: Dictionary<Function>, initialState: Object): Function {
   return function (handler: Function, name: string): void {
     //state of async action is stored under it's name in given path
     const asyncStateStorePath = _.compact([...path, name]).join('.');
@@ -160,7 +163,8 @@ function registerAsyncAction(path: Array<string>, actions: Dictionary<Function>,
  * Reducer, respectively, is created with all plain actions
  * @param {Object}  [initialState]  initial state for reducer, passed as is
  */
-export default function createStore({path, asyncActions, actions, reducers, initialState}: CreatorConfiguration): Store {
+export default function createStore(
+  {path, asyncActions, actions, reducers, initialState}: CreatorConfiguration): Store {
   path = preparePath(path);
 
   //restoring Object type from ?Object

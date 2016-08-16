@@ -3,7 +3,6 @@ import React, { PropTypes } from 'react';
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
-import classNames from 'classnames';
 import { trackEvent } from 'lib/analytics';
 
 import { allowedStateTransitions } from '../../paragons/order';
@@ -18,9 +17,10 @@ import SubNav from './sub-nav';
 import State, { states } from '../common/state';
 import ConfirmationDialog from '../modal/confirmation-dialog';
 import WaitAnimation from '../common/wait-animation';
+import Error from 'components/errors/error';
 
 // redux
-import * as orderActions from '../../modules/orders/details';
+import * as orderActions from 'modules/orders/details';
 
 const orderRefNum = props => {
   return props.params.order;
@@ -28,7 +28,9 @@ const orderRefNum = props => {
 
 const mapStateToProps = (state) => {
   return {
-    order: state.orders.details,
+    details: state.orders.details,
+    isFetching: _.get(state.asyncActions, 'getOrder.inProgress', null),
+    fetchError: _.get(state.asyncActions, 'getOrder.err', null),
   };
 };
 
@@ -40,13 +42,13 @@ export default class Order extends React.Component {
     params: PropTypes.shape({
       order: PropTypes.string.isRequired
     }).isRequired,
-    order: PropTypes.shape({
-      currentOrder: PropTypes.object,
-      isFetching: PropTypes.bool,
+    details: PropTypes.shape({
+      order: PropTypes.object,
     }),
     children: PropTypes.node,
     updateOrder: PropTypes.func,
     fetchOrder: PropTypes.func,
+    clearFetchErrors: PropTypes.func,
     increaseRemorsePeriod: PropTypes.func
   };
 
@@ -60,6 +62,7 @@ export default class Order extends React.Component {
   updateInterval = null;
 
   componentDidMount() {
+    this.props.clearFetchErrors();
     this.props.fetchOrder(this.orderRefNum);
   }
 
@@ -67,7 +70,7 @@ export default class Order extends React.Component {
     if (this.orderRefNum != orderRefNum(nextProps)) {
       this.props.fetchOrder(orderRefNum(nextProps));
     }
-    if (_.get(nextProps, ['order', 'currentOrder', 'state']) !== 'remorseHold') {
+    if (_.get(nextProps, 'details.order.state') !== 'remorseHold') {
       clearInterval(this.updateInterval);
       this.updateInterval = null;
     }
@@ -103,7 +106,7 @@ export default class Order extends React.Component {
   }
 
   get order() {
-    return this.props.order.currentOrder;
+    return this.props.details.order;
   }
 
   get remorseTimer() {
@@ -209,10 +212,6 @@ export default class Order extends React.Component {
   get statusHeader() {
     const order = this.order;
 
-    if (order.isCart) {
-      return;
-    }
-
     return (
       <div className="fc-grid fc-grid-gutter">
         <div className="fc-col-md-1-1">
@@ -235,19 +234,10 @@ export default class Order extends React.Component {
     );
   }
 
-  render() {
+  get contents() {
     const order = this.order;
-    const className = classNames('fc-order', { 'fc-cart': order.isCart });
-
-    if (this.props.order.isFetching) {
-      return <div className={className}><WaitAnimation /></div>;
-    }
-    else if (_.isEmpty(order)) {
-      return <div className={className}></div>;
-    }
-
     return (
-      <div className={className}>
+      <div>
         <PageTitle title={`${order.title} ${this.orderRefNum}`}>
           {this.remorseTimer}
         </PageTitle>
@@ -265,6 +255,29 @@ export default class Order extends React.Component {
           cancelAction={this.cancelStateChange}
           confirmAction={this.confirmStateChange}
         />
+      </div>
+    );
+  }
+
+  get body() {
+    if (this.props.isFetching !== false) {
+      return <WaitAnimation/>;
+    }
+    if (_.isEmpty(this.order)) {
+      return (
+        <Error
+          err={this.props.fetchError}
+          notFound={`There is no order with reference number ${this.orderRefNum}`}
+        />
+      );
+    }
+    return this.contents;
+  }
+
+  render() {
+    return (
+      <div className="fc-order">
+        {this.body}
       </div>
     );
   }
