@@ -29,15 +29,15 @@ func NewOrderConsumer(topic string) (*OrderConsumer, error) {
 }
 
 func (c OrderConsumer) Handler(message metamorphosis.AvroMessage) error {
-	log.Printf("Received a new message from %s", c.topic)
-
 	order, err := phoenix.NewOrderFromAvro(message)
 	if err != nil {
 		log.Panicf("Unable to decode Avro message with error %s", err.Error())
 	}
 
 	if order.State == "fulfillmentStarted" {
+		orderStr := string(message.Bytes())
 		log.Printf("Handling order with reference number %s", order.ReferenceNumber)
+		log.Printf(orderStr)
 
 		ssOrder, err := payloads.NewOrderFromPhoenix(order)
 		if err != nil {

@@ -24,12 +24,12 @@ func NewShipmentFromOrder(o *phoenix.Order) (*payloads.Shipment, error) {
 	}
 
 	shippingAddress := payloads.Address{
-		Region: payloads.Region{
-			Name: sa.Region,
-		},
+		Region:   sa.Region,
+		Country:  sa.Country,
 		City:     sa.City,
 		Address1: sa.Address1,
 		Address2: address2,
+		Zip:      sa.Zip,
 	}
 
 	lineItems := make([]payloads.ShipmentLineItem, len(*o.LineItems))
@@ -38,7 +38,7 @@ func NewShipmentFromOrder(o *phoenix.Order) (*payloads.Shipment, error) {
 			ReferenceNumber: oli.ReferenceNumber,
 			SKU:             oli.SKU,
 			Name:            oli.Name,
-			State:           oli.State,
+			State:           "pending",
 			Price:           oli.Price,
 			ImagePath:       oli.ImagePath,
 		}
@@ -47,7 +47,7 @@ func NewShipmentFromOrder(o *phoenix.Order) (*payloads.Shipment, error) {
 	shipment := &payloads.Shipment{
 		ShippingMethodID:  o.ShippingMethod.ShippingMethodID,
 		ReferenceNumber:   o.ReferenceNumber,
-		State:             o.State,
+		State:             "pending",
 		Address:           shippingAddress,
 		ShipmentLineItems: lineItems,
 	}

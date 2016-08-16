@@ -7,7 +7,7 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 )
 
-const baseURL = "https://localhost:9292"
+const baseURL = "http://localhost:9292"
 
 // Client in the interface for interacting with middlewarehouse.
 type Client struct {
