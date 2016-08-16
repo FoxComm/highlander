@@ -178,7 +178,7 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
     for {
       stripeCharge ← * <~ Await.result(f, 5.seconds)
       updatedCharge = charge.copy(state = CreditCardCharge.FullCapture)
-      chargeId ← * <~ CreditCardCharges.update(updatedCharge)
+      chargeId ← * <~ CreditCardCharges.update(charge, updatedCharge)
       _        ← * <~ LogActivity.creditCardCharge(order, updatedCharge)
     } yield updatedCharge.some
   }
