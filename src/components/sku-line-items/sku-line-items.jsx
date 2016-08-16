@@ -3,8 +3,6 @@
 import React, { Element } from 'react';
 import _ from 'lodash';
 
-import { collectLineItems } from 'paragons/order';
-
 import TableView from 'components/table/tableview';
 
 const defaultColumns = [
@@ -33,12 +31,11 @@ const SkuLineItems = (props: Props): Element => {
   const columns = props.columns ? props.columns : defaultColumns;
 
   if (items.length > 0) {
-    const collectedItems = collectLineItems(items);
     return (
       <TableView
         columns={columns}
         emptyMessage="No items yet."
-        data={{rows: collectedItems}}
+        data={{rows: items}}
         renderRow={renderRow} />
     );
   } else {

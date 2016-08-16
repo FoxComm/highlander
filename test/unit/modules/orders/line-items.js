@@ -1,9 +1,8 @@
 import _ from 'lodash';
 import nock from 'nock';
 
-const { 
+const {
   default: reducer,
-  collectLineItems,
   updateLineItemCount,
   orderLineItemsFetchSuccess,
   orderLineItemsStartDelete,
@@ -20,27 +19,6 @@ const { orderSuccess } = requireSource('modules/orders/details.js');
 describe('order details module line items', function() {
 
   const orderLineItems = require('../../../fixtures/order-line-items.json');
-
-  context('collectLineItems', function() {
-
-    it('should collapse non-unique skus', function() {
-      const result = collectLineItems(orderLineItems);
-      expect(result.length).to.be.equal(3);
-    });
-
-    it('should sum non-unique sku quantities', function() {
-      const result = collectLineItems(orderLineItems);
-      const skuYax = _.find(result, obj => obj.sku === 'SKU-YAX');
-      expect(skuYax.quantity).to.be.equal(3);
-    });
-
-    it('should save quantity for unique skus', function() {
-      const result = collectLineItems(orderLineItems);
-      const skuZya = _.find(result, obj => obj.sku === 'SKU-ZYA');
-      expect(skuZya.quantity).to.be.equal(1);
-    });
-
-  });
 
   context('deleting line item', function() {
 
@@ -132,7 +110,7 @@ describe('order details module line items', function() {
       };
 
       const newState = reducer(initialState, orderLineItemsCancelEdit());
-      expect(newState.items).to.deep.equal(collectLineItems(orderLineItems));
+      expect(newState.items).to.deep.equal(orderLineItems);
     });
 
   });

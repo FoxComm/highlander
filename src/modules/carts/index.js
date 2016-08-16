@@ -1,5 +1,4 @@
 import { combineReducers } from 'redux';
-import lineItems from './line-items';
 import details from './details';
 // import bulk from './bulk';
 // import watchers from './watchers';
@@ -15,8 +14,7 @@ import coupons from './coupons';
 // import carriers from './carriers';
 // import shipmentMethods from './shipment-methods';
 
-const orderReducer = combineReducers({
-  lineItems,
+const cartReducer = combineReducers({
   details,
   // bulk,
   // watchers,
@@ -33,4 +31,4 @@ const orderReducer = combineReducers({
   // shipmentMethods,
 });
 
-export default orderReducer;
+export default cartReducer;

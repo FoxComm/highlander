@@ -5,12 +5,11 @@ import { connect } from 'react-redux';
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
 
-import { collectLineItems } from 'paragons/order';
-
 import SkuResult from './sku-result';
 import Typeahead from 'components/typeahead/typeahead';
 
 import * as skuSearchActions from 'modules/carts/sku-search';
+import { updateLineItemCount } from 'modules/carts/details';
 
 const mapStateToProps = state => {
   return {
@@ -18,7 +17,7 @@ const mapStateToProps = state => {
   };
 };
 
-const mapDispatchToProps = { ...skuSearchActions };
+const mapDispatchToProps = { ...skuSearchActions, updateLineItemCount };
 
 type Sku = {
   code: string,
@@ -40,7 +39,7 @@ type Props = {
     },
   },
   suggestSkus: Function,
-  updateCount: Function,
+  updateLineItemCount: Function,
 };
 
 @connect(mapStateToProps, mapDispatchToProps)
@@ -49,17 +48,16 @@ export default class CartLineItemsFooter extends Component {
 
   @autobind
   currentQuantityForSku(sku: string): number {
-    const items = _.get(this.props, 'cart.lineItems.skus', []);
-    const skus = collectLineItems(items);
-    const matched = skus.find((o) => { return o.sku === sku;});
+    const skus = _.get(this.props, 'cart.lineItems.skus', []);
+    const matched = skus.find({sku});
     return _.isEmpty(matched) ? 0 : matched.quantity;
   }
 
   @autobind
   skuSelected(item: Sku) {
-    const { cart, updateCount } = this.props;
+    const { cart, updateLineItemCount } = this.props;
     const newQuantity = this.currentQuantityForSku(item.code) + 1;
-    updateCount(cart, item.code, newQuantity);
+    updateLineItemCount(cart.referenceNumber, item.code, newQuantity);
   }
 
   render() {

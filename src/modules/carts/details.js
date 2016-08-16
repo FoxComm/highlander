@@ -11,6 +11,9 @@ const checkoutRequest = createAction('ORDER_CHECKOUT_REQUEST');
 const checkoutSuccess = createAction('ORDER_CHECKOUT_SUCCESS');
 const checkoutFailed = createAction('ORDER_CHECKOUT_FAILURE');
 
+////////////////////////////////////////////////////////////////////////////////
+// Cart Manipulation Actions
+
 const _fetchCart = createAsyncActions(
   'fetchCart',
   (refNum: string) => Api.get(`/carts/${refNum}`)
@@ -20,6 +23,35 @@ const _fetchCustomerCart = createAsyncActions(
   'fetchCustomerCart',
   (customerId: number) => Api.get(`/customers/${customerId}/cart`)
 );
+
+export function fetchCart(refNum: string) {
+  return dispatch => dispatch(_fetchCart.perform(refNum));
+}
+
+export function fetchCustomerCart(customerId: number) {
+  return dispatch => dispatch(_fetchCustomerCart.perform(customerId));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Line Item Actions
+
+const _updateLineItemCount = createAsyncActions(
+  'updateLineItemCount',
+  (refNum: string, payload: Object) => Api.post(`/orders/${refNum}/line-items`, payload)
+);
+
+export function updateLineItemCount(refNum: string, sku: string, quantity: number) {
+  const payload = [{ sku, quantity }];
+  return dispatch => dispatch(_updateLineItemCount.perform(refNum, payload));
+}
+
+export function deleteLineItem(refNum: string, sku: string) {
+  const payload = [{ sku, quantity: 0 }]
+  return dispatch => dispatch(_updateLineItemCount.perform(refNum, payload));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Shipping Method Actions
 
 const _updateShippingMethod = createAsyncActions(
   'updateShippingMethod',
@@ -33,13 +65,6 @@ export function updateShippingMethod(refNum: string, shippingMethodId: number) {
   return dispatch => dispatch(_updateShippingMethod.perform(refNum, shippingMethodId));
 }
 
-export function fetchCart(refNum: string) {
-  return dispatch => dispatch(_fetchCart.perform(refNum));
-}
-
-export function fetchCustomerCart(customerId: number) {
-  return dispatch => dispatch(_fetchCustomerCart.perform(customerId));
-}
 
 export function checkout(refNum) {
   return dispatch => {
@@ -122,6 +147,7 @@ function receiveCart(state, payload) {
 const reducer = createReducer({
   [_fetchCart.succeeded]: (state, cart) => receiveCart(state, cart),
   [_fetchCustomerCart.succeeded]: (state, cart) => receiveCart(state, cart),
+  [_updateLineItemCount.succeeded]: (state, cart) => receiveCart(state, cart),
   [_updateShippingMethod.succeeded]: (state, order) => receiveCart(state, order),
   [checkoutRequest]: (state) => {
     return { ...state, isCheckingOut: true };

@@ -41,25 +41,21 @@ export const allowedStateTransitions = {
   [states.fulfillmentStarted]: [states.shipped, states.canceled],
 };
 
-export function collectLineItems(skus: Array<SkuItem>): Array<SkuItem> {
-  let uniqueSkus = {};
-  const items = _.transform(skus, (result, lineItem) => {
-    const sku = lineItem.sku;
-    if (_.isNumber(uniqueSkus[sku])) {
-      const qty = result[uniqueSkus[sku]].quantity += 1;
-      result[uniqueSkus[sku]].totalPrice = lineItem.price * qty;
-    } else {
-      uniqueSkus[sku] = result.length;
-      result.push({ ...lineItem, quantity: 1 });
-    }
+function collectLineItems(skus: Array<SkuItem>): Array<SkuItem> {
+  return _.map(skus, (l: SkuItem) => {
+    l.totalPrice = l.quantity * l.price;
+    return l;
   });
-  return items;
 }
 
 export default class Order {
   constructor(order) {
     Object.assign(this, order);
     this.orderState = order.orderState;
+    const skus = _.get(order, 'lineItems.skus');
+    if (skus) {
+      this.lineItems.skus = collectLineItems(skus);
+    }
   }
 
   get entityId() {
