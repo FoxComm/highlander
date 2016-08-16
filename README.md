@@ -3,6 +3,7 @@
 ### Docs
 
 - [Build and Deploy for Infrastructure](docs/build_and_deploy.md)
+- [How To Update Base Images](docs/base_images.md)
 - [Production Environment From Scratch](docs/production.md)
 
 ### Dependencies
