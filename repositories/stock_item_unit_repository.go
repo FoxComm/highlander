@@ -75,7 +75,7 @@ func (repository *stockItemUnitRepository) SetUnitsInOrder(refNum string, ids []
 		Status: models.StatusOnHold,
 	}
 
-	result := repository.db.Model(models.StockItemUnit{}).Where("id in (?)", ids).Updates(updateWith)
+	result := repository.db.Model(&models.StockItemUnit{}).Where("id in (?)", ids).Updates(updateWith)
 
 	return int(result.RowsAffected), result.Error
 }

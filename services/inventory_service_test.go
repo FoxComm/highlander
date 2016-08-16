@@ -92,11 +92,15 @@ func (suite *InventoryServiceTestSuite) SetupSuite() {
 }
 
 func (suite *InventoryServiceTestSuite) SetupTest() {
+
+	time.Sleep(100 * time.Millisecond)
+
 	tasks.TruncateTables([]string{
 		"reservations",
 		"stock_items",
 		"stock_item_units",
 		"stock_item_summaries",
+		"stock_item_transactions",
 		"stock_locations",
 		"inventory_search_view",
 	})

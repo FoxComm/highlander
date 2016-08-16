@@ -8,6 +8,6 @@ import (
 
 type GeneralServiceTestSuite struct {
 	suite.Suite
-	db     *gorm.DB
-	mock   sqlmock.Sqlmock
+	db   *gorm.DB
+	mock sqlmock.Sqlmock
 }

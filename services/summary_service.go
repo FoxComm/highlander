@@ -4,6 +4,8 @@ import (
 	"github.com/FoxComm/middlewarehouse/models"
 
 	"github.com/FoxComm/middlewarehouse/repositories"
+	"reflect"
+	"strings"
 )
 
 type summaryService struct {
@@ -14,6 +16,8 @@ type summaryService struct {
 type ISummaryService interface {
 	CreateStockItemSummary(stockItemId uint) error
 	UpdateStockItemSummary(stockItemId uint, unitType models.UnitType, qty int, status models.StatusChange) error
+
+	CreateStockItemTransaction(summary *models.StockItemSummary, status models.UnitStatus, qty int) error
 
 	GetSummary() ([]*models.StockItemSummary, error)
 	GetSummaryBySKU(sku string) ([]*models.StockItemSummary, error)
@@ -53,20 +57,38 @@ func (service *summaryService) UpdateStockItemSummary(stockItemId uint, unitType
 		return err
 	}
 
+	// changing status from onHand does not affect onHand count, so skip it
 	if status.From != models.StatusOnHand {
-		summary = updateStatus(summary, status.From, -qty)
+		summary = updateStatusUnitsAmount(summary, status.From, -qty)
 	}
+
+	// update count of .To status if it is new record or it's not moved to onHand status
 	if status.From == models.StatusEmpty || status.To != models.StatusOnHand {
-		summary = updateStatus(summary, status.To, qty)
+		summary = updateStatusUnitsAmount(summary, status.To, qty)
 	}
 
 	summary = updateAfs(summary, status, qty)
 	summary = updateAfsCost(summary, stockItem)
 
+	go service.CreateStockItemTransaction(summary, status.To, qty)
+
 	return service.summaryRepo.UpdateStockItemSummary(summary)
 }
 
-func updateStatus(summary *models.StockItemSummary, status models.UnitStatus, qty int) *models.StockItemSummary {
+func (service *summaryService) CreateStockItemTransaction(summary *models.StockItemSummary, status models.UnitStatus, qty int) error {
+	transaction := &models.StockItemTransaction{
+		StockItemId:  summary.StockItemID,
+		Type:         summary.Type,
+		Status:       status,
+		AmountNew:    getStatusAmountChange(summary, status),
+		AmountChange: qty,
+		AFSNew:       uint(summary.AFS),
+	}
+
+	return service.summaryRepo.CreateStockItemTransaction(transaction)
+}
+
+func updateStatusUnitsAmount(summary *models.StockItemSummary, status models.UnitStatus, qty int) *models.StockItemSummary {
 	if status == "" {
 		return summary
 	}
@@ -99,4 +121,12 @@ func updateAfsCost(summary *models.StockItemSummary, stockItem *models.StockItem
 	summary.AFSCost = summary.AFS * stockItem.DefaultUnitCost
 
 	return summary
+}
+
+func getStatusAmountChange(summary *models.StockItemSummary, status models.UnitStatus) uint {
+	field := strings.Title(string(status))
+	r := reflect.ValueOf(summary)
+	f := reflect.Indirect(r).FieldByName(field)
+
+	return uint(f.Int())
 }
