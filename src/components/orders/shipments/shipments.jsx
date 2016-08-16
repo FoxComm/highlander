@@ -18,14 +18,15 @@ import UnshippedItems from './unshipped-items';
 
 // types
 import type AsyncState from 'lib/async-action-creator';
+import type { TShipment, TShipmentLineItem, TUnshippedLineItem } from 'paragons/shipment';
 
 
 type Props = {
-  shipments: Array<Object>;
-  unshippedItems: Array<Object>;
-  load: AsyncState;
+  shipments: Array<TShipment>;
+  unshippedItems: Array<TUnshippedLineItem>;
+  fetchShipments: AsyncState;
   actions: {
-    load: Function;
+    fetchShipments: Function;
   };
   entity: {
     referenceNumber: string;
@@ -45,7 +46,7 @@ class Shipments extends Component<void, Props, void> {
   props: Props;
 
   componentDidMount(): void {
-    this.props.actions.load(this.props.entity.referenceNumber);
+    this.props.actions.fetchShipments(this.props.entity.referenceNumber);
   }
 
   get controls() {
@@ -53,14 +54,16 @@ class Shipments extends Component<void, Props, void> {
   }
 
   get data() {
-    if (this.props.load.isRunning) {
+    const { shipments, fetchShipments, unshippedItems} = this.props;
+
+    if (fetchShipments.isRunning) {
       return <WaitAnimation />;
     }
 
     return (
       <div>
         {this.shipments}
-        <UnshippedItems items={this.props.unshippedItems} />
+        <UnshippedItems items={unshippedItems} />
       </div>
     );
   }
@@ -92,6 +95,6 @@ class Shipments extends Component<void, Props, void> {
       </div>
     );
   }
-};
+}
 
 export default connect(mapStateToProps, mapDispatchToProps)(Shipments);

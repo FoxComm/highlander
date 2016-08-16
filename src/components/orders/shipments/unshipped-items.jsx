@@ -19,18 +19,10 @@ import Currency from 'components/common/currency';
 import styles from './unshipped-items.css';
 
 // types
-type Item = {
-  imagePath: string;
-  name: string;
-  sku: string;
-  price: number;
-  quantity: number;
-  state: string;
-  reason: ?string;
-};
+import type { TUnshippedLineItem } from 'paragons/shipment';
 
 type Props = {
-  items: Array<Item>;
+  items: Array<TUnshippedLineItem>;
 };
 
 
@@ -71,7 +63,7 @@ export default class UnshippedItems extends Component<void, Props, void> {
     const { items } = this.props;
 
     if (!items.length) {
-      return <span styleName="empty">All Items have shipped!</span>;
+      return <div styleName="empty">All Items have shipped!</div>;
     }
 
     return (
