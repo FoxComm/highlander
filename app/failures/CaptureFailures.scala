@@ -21,7 +21,7 @@ object CaptureFailures {
 
   case class SplitCaptureNotSupported(refNum: String) extends Failure {
     override def description =
-      s"Spli Capture is not supported for order $refNum. Please provide all line items in order."
+      s"Split capture is not supported for order $refNum. Please provide all line items in order."
   }
 
   case class StripeChargeForOrderNotFound(refNum: String) extends Failure {
