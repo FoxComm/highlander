@@ -12,17 +12,9 @@ import styles from './shipped-item.css';
 import Currency from 'components/common/currency';
 
 //types
-type Props = {
-  imagePath: string;
-  name: string;
-  price: number;
-  quantity: number;
-  sku: string;
-  state: string;
-};
+import type { TShipmentLineItem } from 'paragons/shipment';
 
-
-const ShippedItem = (props: Props): Element => (
+const ShippedItem = (props: TShipmentLineItem): Element => (
   <div styleName="row">
     <div styleName="name">
       <img src={props.imagePath} />
@@ -32,7 +24,7 @@ const ShippedItem = (props: Props): Element => (
     <div styleName="price">
       <Currency value={props.price} />
     </div>
-    <div styleName="quantity">{props.quantity}</div>
+    <div styleName="quantity">1</div>
     <div styleName="state">{props.state}</div>
     <div styleName="total">
       <Currency value={props.price} />

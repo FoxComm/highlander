@@ -1,6 +1,6 @@
 /* @flow */
 
-import React, { Component, PropTypes } from 'react';
+import React, { Component, Element } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import { toggleUserMenu } from '../../modules/usermenu';
@@ -9,17 +9,16 @@ import { transitionTo } from 'browserHistory';
 
 import styles from './usermenu.css';
 
+import type { TUser } from 'modules/user';
+
 type Props = {
   toggleUserMenu: Function,
   logout: Function,
   authMessage: Function,
-  userId: number|string
+  user?: TUser,
 };
 
-/* ::`*/
-@connect(null, { logout, authMessage, toggleUserMenu })
-/* ::`*/
-export default class UserMenu extends Component {
+export class UserMenu extends Component {
   props: Props;
 
   componentDidMount() {
@@ -43,17 +42,28 @@ export default class UserMenu extends Component {
 
   @autobind
   goToSettings() {
-    const { userId } = this.props;
-    transitionTo('user', {userId});
+    const { user } = this.props;
+    if (user) {
+      transitionTo('user', {userId: user.id});
+    }
+  }
+
+  get settingsLink(): ?Element {
+    const { user } = this.props;
+    if (user && user.id != null) {
+      return <li><a onClick={this.goToSettings}>Settings</a></li>;
+    }
   }
 
   render() {
     return (
       <ul styleName="usermenu">
-        <li><a onClick={this.goToSettings}>Settings</a></li>
+        {this.settingsLink}
         <li><a onClick={this.handleLogout}>Log out</a></li>
         <li styleName="copyright">&copy; FoxCommerce. All rights reserved.</li>
       </ul>
     );
   }
 }
+
+export default connect(null, { logout, authMessage, toggleUserMenu })(UserMenu);

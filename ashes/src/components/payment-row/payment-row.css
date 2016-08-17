@@ -1,0 +1,80 @@
+
+.row-toggle {
+  vertical-align: top;
+  margin: 5px 15px 0 0;
+  font-size: 22px;
+  line-height: 26px;
+  cursor: pointer;
+}
+
+.toggle-column {
+  white-space: nowrap;
+}
+
+:global(.fc-editable-content-box.is-editing) {
+  & .payment-row {
+    & td:last-child {
+      width: 100px;
+      padding: 1.5rem 0;
+
+      & > :global(.fc-btn) {
+        margin: 0 5px;
+      }
+    }
+  }
+}
+
+
+:global(.fc-table) {
+  & .payment-row :global(.fc-table-td),
+  & .details-row :global(.fc-table-td) {
+    background: #fff;
+    border-bottom: none;
+  }
+
+  & .payment-row :global(.fc-table-td) {
+    padding: 15px;
+    vertical-align: top;
+  }
+
+  & .payment-row :global(.fc-table-td) {
+    padding: 15px;
+    vertical-align: top;
+  }
+}
+
+.details-row {
+  & dt {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 24px;
+  }
+
+  & dd {
+    font-size: 13px;
+    line-height: 19px;
+    -webkit-margin-start: 0;
+  }
+
+  & :global .fc-address-details {
+    height: auto;
+    margin-bottom: 0;
+
+    & :global .name {
+      font-weight: 400;
+      font-size: inherit;
+    }
+  }
+}
+
+.actions-cell {
+  text-align: right;
+}
+
+:global .fc-order-payment .fc-table-body:nth-child(odd) .fc-table-tr {
+  background: #f7f7f7;
+}
+
+:global .fc-order-payment .fc-credit-card-form {
+  width: 410px;
+}

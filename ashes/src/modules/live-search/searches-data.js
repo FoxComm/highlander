@@ -41,14 +41,14 @@ export default function makeDataInSearches(namespace, esUrl, options = {}) {
     const fetchingSearchIdx = _.get(getState(), [...ns, 'selectedSearch']);
     const selectedSearchState = getSelectedSearch(getState());
     const searchTerms = _.get(selectedSearchState, 'query', []);
-    const extraFilters = _.get(getState(), [...ns, 'extraFilters'], extraFilters);
+    const nativeFilters = _.get(getState(), [...ns, 'extraFilters'], extraFilters);
     const jsonQuery = toQuery(searchTerms, {
       sortBy: searchState.sortBy,
       sortRaw: rawSorts.indexOf(_.trim(searchState.sortBy, '-')) != -1
     });
 
-    if (extraFilters) {
-      addNativeFilters(jsonQuery, extraFilters);
+    if (nativeFilters) {
+      addNativeFilters(jsonQuery, nativeFilters);
     }
 
     const promise = post(addPaginationParams(esUrl, searchState), processQuery(jsonQuery, { searchState, getState }))

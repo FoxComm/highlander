@@ -1,6 +1,7 @@
 
 .payment-method {
   display: inline-block;
+  white-space: initial;
 }
 
 .payment-icon {

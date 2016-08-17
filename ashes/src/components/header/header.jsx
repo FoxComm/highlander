@@ -11,10 +11,10 @@ import NotificationBlock from '../activity-notifications/notification-block';
 import DetailedInitials from '../user-initials/detailed-initials';
 import Breadcrumb from './breadcrumb';
 import UserMenu from './usermenu';
-import * as userActions from '../../modules/user';
-import { toggleUserMenu } from '../../modules/usermenu';
+import * as userActions from 'modules/user';
+import { toggleUserMenu } from 'modules/usermenu';
 
-import type { TUser } from '../../modules/user';
+import type { TUser } from 'modules/user';
 
 import styles from './header.css';
 
@@ -46,7 +46,7 @@ export default class Header extends React.Component {
 
   render() {
     const props = this.props;
-    const user:TUser = props.user;
+    const user: ?TUser = props.user;
 
     const name = (_.isEmpty(user) || user.name == null) ? '' : user.name.split(' ')[0];
     return (
@@ -62,7 +62,7 @@ export default class Header extends React.Component {
             <div styleName="arrow">
               {props.isMenuVisible ? <i className="icon-chevron-up"/> : <i className="icon-chevron-down"/>}
             </div>
-            {props.isMenuVisible && <UserMenu userId={props.user.id}/>}
+            {props.isMenuVisible && <UserMenu user={props.user}/>}
           </div>
         </div>
       </header>

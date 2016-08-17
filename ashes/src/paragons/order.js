@@ -1,5 +1,47 @@
 import _ from 'lodash';
 
+export type Cart = {
+  referenceNumber: string,
+  shippingMethod: ShippingMethod,
+};
+
+export type Order = {
+  referenceNumber: string,
+  title: string,
+  customer: Object,
+  promotion: Object,
+  coupon: Object,
+  paymentMethods: Array<PaymentMethod>,
+};
+
+export type ShippingMethod = {
+  id: number,
+};
+
+export type PaymentMethod = {
+  id?: number,
+  code?: string,
+  type: string,
+};
+
+export type CreditCard = {
+  brand: string,
+  holderName: string,
+  address: Object,
+  expMonth: number,
+  expYear: number,
+  lastFour: string,
+};
+
+export type SkuItem = {
+  imagePath: string,
+  name: string,
+  sku: string,
+  price: number,
+  quantity: number,
+  totalPrice: number,
+};
+
 export const states = {
   cart: 'cart',
   remorseHold: 'remorseHold',
@@ -32,10 +74,20 @@ export const allowedStateTransitions = {
   [states.fulfillmentStarted]: [states.shipped, states.canceled],
 };
 
-export default class Order {
+function collectLineItems(skus: Array<SkuItem>): Array<SkuItem> {
+  return _.map(skus, (l: SkuItem) => {
+    l.totalPrice = l.quantity * l.price;
+    return l;
+  });
+}
+
+export default class OrderParagon {
   constructor(order) {
     Object.assign(this, order);
-    this.orderState = order.orderState || 'cart';
+    const skus = _.get(order, 'lineItems.skus');
+    if (skus) {
+      this.lineItems.skus = collectLineItems(skus);
+    }
   }
 
   get entityId() {

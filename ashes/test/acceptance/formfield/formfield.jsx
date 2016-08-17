@@ -41,7 +41,7 @@ describe('FormField', function() {
     formfield.validate();
     expect(formfield.errors).to.deep.equal(
       [
-        'Lorem Ipsum is required field'
+        'Lorem Ipsum is a required field'
       ]
     );
   });

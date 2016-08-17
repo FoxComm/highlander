@@ -19,3 +19,44 @@ export const itemReasons = {
 export const itemReasonsTitles = {
   [itemReasons.outOfStock]: 'Out Of Stock',
 };
+
+export type TShipment = {
+  id: number;
+  shippingMethodId: number;
+  referenceNumber: string;
+  state: string;
+  shipmentDate: ?string;
+  deliveredDate: ?string;
+  estimatedArrival: ?string;
+  address: Object;
+  lineItems: Array<TShipmentLineItem>;
+  trackingNumber: ?string;
+};
+
+export type TShipmentLineItem = {
+  id: number;
+  referenceNumber: string;
+  sku: string;
+  name: string;
+  price: number;
+  imagePath: string;
+  state: string;
+  quantity: number;
+};
+
+export type TUnshippedLineItem = TShipmentLineItem & {
+  reason: string;
+};
+
+export type TCarrier = {
+  id: number;
+  name: string;
+  trackingTemplate: string;
+};
+
+export type TShippingMethod = {
+  id: number;
+  carrierId: ?number;
+  carrier: ?TCarrier;
+  name: string;
+};

@@ -5,6 +5,7 @@ import { reducer as asyncReducer } from './async-utils';
 import giftCards from './gift-cards';
 import customers from './customers';
 import customerGroups from './customer-groups';
+import carts from './carts';
 import orders from './orders';
 import rmas from './rmas';
 import notes from './notes';
@@ -30,6 +31,7 @@ const rootReducer = combineReducers({
   asyncActions: asyncReducer,
   giftCards,
   customers,
+  carts,
   orders,
   rmas,
   notes,

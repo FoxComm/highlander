@@ -51,7 +51,8 @@ function getSubtitle(type, paymentMethod) {
 
 const PaymentMethod = (props: Props) => {
   const { paymentMethod } = props;
-  const type = props.type || paymentMethod.type || '';
+
+  const type = _.get(props, 'paymentMethod.type', 'creditCard');
   const icon = static_url(`images/payments/payment_${getIconType(type, paymentMethod)}.svg`);
   return (
     <div className={props.className} styleName="payment-method">

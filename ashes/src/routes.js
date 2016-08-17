@@ -11,6 +11,10 @@ import OrdersListPage from './components/orders/list-page';
 import Orders from './components/orders/orders';
 import Order from './components/orders/order';
 import OrderDetails from './components/orders/details';
+import CartsListPage from './components/carts/list-page';
+import Carts from './components/carts/carts';
+import Cart from './components/carts/cart';
+import CartDetails from './components/carts/details';
 import NewOrder from './components/orders/new-order';
 import Customers from './components/customers/customers';
 import CustomersListPage from './components/customers/list-page';
@@ -69,14 +73,15 @@ import Login from './components/auth/login';
 import SetPassword from './components/auth/set-password';
 
 // no productions pages, make sure these paths are included in `excludedList` in browserify.js
+if (process.env.NODE_ENV != 'production') {
+  var StyleGuide = require('./components/style-guide/style-guide').default;
+  var StyleGuideGrid = require('./components/style-guide/style-guide-grid').default;
+  var StyleGuideButtons = require('./components/style-guide/style-guide-buttons').default;
+  var StyleGuideContainers = require('./components/style-guide/style-guide-containers').default;
 
-import StyleGuide from './components/style-guide/style-guide';
-import StyleGuideGrid from './components/style-guide/style-guide-grid';
-import StyleGuideButtons from './components/style-guide/style-guide-buttons';
-import StyleGuideContainers from './components/style-guide/style-guide-containers';
-
-import AllActivities from './components/activity-trail/all';
-import AllNotificationItems from './components/activity-notifications/all';
+  var AllActivities = require('./components/activity-trail/all').default;
+  var AllNotificationItems = require('components/activity-notifications/all').default;
+}
 
 const routes = (
   <Route path="/">
@@ -110,6 +115,16 @@ const routes = (
           <Route name='order-notes' path='notes' component={Notes}/>
           <Route name='order-returns' path='returns' component={RmaChildList}/>
           <Route name='order-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
+        </Route>
+      </Route>
+      <Route name='carts-base' path='carts'>
+        <Route name='carts-list-pages' component={CartsListPage}>
+          <IndexRoute name='carts' component={Carts} />
+        </Route>
+        <Route name='cart' path=':cart' component={Cart}>
+          <IndexRoute name='cart-details' component={CartDetails}/>
+          <Route name='cart-notes' path='notes' component={Notes}/>
+          <Route name='cart-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
         </Route>
       </Route>
       <Route name='customers-base' path='customers'>
