@@ -47,7 +47,7 @@ trait DemoSeedHelpers extends CreditCardSeeds {
                          shipMethod: ShippingMethod)(implicit db: DB): DbResultT[Order] =
     for {
       cart ← * <~ Carts.create(Cart(customerId = customerId))
-      _    ← * <~ addSkusToCart(skuIds, cart.refNum, OrderLineItem.Shipped)
+      skus ← * <~ addSkusToCart(skuIds, cart.refNum)
       _    ← * <~ CartTotaler.saveTotals(cart)
       cc   ← * <~ CreditCards.create(creditCard1.copy(customerId = customerId))
       op ← * <~ OrderPayments.create(
@@ -59,6 +59,12 @@ trait DemoSeedHelpers extends CreditCardSeeds {
                  OrderShippingMethod.build(cordRef = cart.refNum, method = shipMethod))
       _     ← * <~ CartTotaler.saveTotals(cart)
       order ← * <~ Orders.createFromCart(cart, contextId)
+      lineItems ← * <~ OrderLineItems
+                   .filter(_.cordRef === cart.referenceNumber)
+                   .filter(_.referenceNumber inSet skus.map(_.referenceNumber))
+                   .result
+      _ ← * <~ lineItems.map(lineItem ⇒
+               OrderLineItems.update(lineItem, lineItem.copy(state = OrderLineItem.Shipped)))
       order ← * <~ Orders.update(order, order.copy(state = FulfillmentStarted))
       order ← * <~ Orders.update(order,
                                  order.copy(state = Shipped, placedAt = time.yesterday.toInstant))
@@ -70,17 +76,10 @@ trait DemoSeedHelpers extends CreditCardSeeds {
     } yield order
 
   private def addSkusToCart(skuIds: Seq[Sku#Id],
-                            orderRef: String,
-                            state: OrderLineItem.State): DbResultT[Unit] =
-    for {
-      liSkus ← * <~ OrderLineItemSkus.filter(_.skuId.inSet(skuIds)).result
-      _ ← * <~ OrderLineItems.createAll(liSkus.seq.map { liSku ⇒
-           OrderLineItem(cordRef = orderRef,
-                         originId = liSku.id,
-                         originType = OrderLineItem.SkuItem,
-                         state = state)
-         })
-    } yield {}
+                            cordRef: String): DbResultT[Seq[CartLineItemSku]] = {
+    val itemsToInsert = skuIds.map(skuId ⇒ CartLineItemSku(cordRef = cordRef, skuId = skuId))
+    CartLineItemSkus.createAllReturningModels(itemsToInsert)
+  }
 
   private def getDefaultAddress(customerId: Customer#Id)(implicit db: DB) =
     Addresses

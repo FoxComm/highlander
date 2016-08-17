@@ -3,9 +3,9 @@ package services
 import failures.NotFoundFailure404
 import failures.ShippingMethodFailures.ShippingMethodNotApplicableToCart
 import models.cord._
-import models.cord.lineitems.OrderLineItemSkus
+import models.cord.lineitems.CartLineItemSkus
 import models.customer.Customer
-import models.inventory.{Sku, Skus}
+import models.inventory.Sku
 import models.location.Region
 import models.rules.{Condition, QueryStatement}
 import models.shipping.{ShippingMethod, ShippingMethods}
@@ -83,9 +83,9 @@ object ShippingManager {
                               .result
                               .headOption
       skus ← (for {
-              liSku ← OrderLineItemSkus.findByOrderRef(cart.refNum)
-              skus  ← Skus if skus.id === liSku.skuId
-            } yield skus).result
+              liSku ← CartLineItemSkus.byCordRef(cart.refNum)
+              sku   ← liSku.sku
+            } yield sku).result
     } yield
       ShippingData(cart = cart,
                    cartTotal = cart.grandTotal,

@@ -11,6 +11,7 @@ import models.cord.Order._
 import models.cord._
 import models.cord.lineitems._
 import models.customer.Customer
+import models.inventory.Skus
 import models.location.Addresses
 import models.objects.ObjectContext
 import models.payment.creditcard.{CreditCard, CreditCards}
@@ -180,7 +181,7 @@ trait OrderGenerator extends ShipmentSeeds {
 
     for {
       cart   ← * <~ Carts.create(Cart(customerId = customerId))
-      _      ← * <~ addProductsToOrder(skuIds, orderRef = cart.refNum, OrderLineItem.Cart)
+      _      ← * <~ addProductsToCart(skuIds, cart.refNum)
       cc     ← * <~ getCc(customerId)
       gc     ← * <~ GiftCards.mustFindById404(giftCard.id)
       totals ← * <~ total(skuIds)
@@ -200,7 +201,7 @@ trait OrderGenerator extends ShipmentSeeds {
                                giftCard: GiftCard)(implicit db: DB): DbResultT[Cart] =
     for {
       cart ← * <~ Carts.create(Cart(customerId = customerId))
-      _    ← * <~ addProductsToOrder(skuIds, cart.refNum, OrderLineItem.Cart)
+      _    ← * <~ addProductsToCart(skuIds, cart.refNum)
       cc   ← * <~ getCc(customerId)
       _ ← * <~ OrderPayments.create(
              OrderPayment.build(cc).copy(cordRef = cart.refNum, amount = none))
@@ -270,18 +271,25 @@ trait OrderGenerator extends ShipmentSeeds {
     } yield order
   }
 
-  //TODO: Fix line item skus. bug if two or more contexts.
   def addProductsToOrder(skuIds: Seq[Int], orderRef: String, state: OrderLineItem.State)(
       implicit db: DB): DbResultT[Unit] =
     for {
-      liSkus ← * <~ OrderLineItemSkus.filter(_.id.inSet(skuIds)).result
-      _ ← * <~ OrderLineItems.createAll(liSkus.seq.map { liSku ⇒
+      skus ← * <~ Skus.filter(_.id inSet skuIds).result
+      liSkus ← * <~ OrderLineItemSkus.createAllReturningIds(
+                  skus.map(sku ⇒ OrderLineItemSku(skuId = sku.id, skuShadowId = sku.shadowId)))
+      _ ← * <~ OrderLineItems.createAll(liSkus.seq.map { liSkuId ⇒
            OrderLineItem(cordRef = orderRef,
-                         originId = liSku.id,
+                         originId = liSkuId,
                          originType = OrderLineItem.SkuItem,
                          state = state)
          })
     } yield {}
+
+  def addProductsToCart(skuIds: Seq[Int], cartRef: String)(
+      implicit db: DB): DbResultT[Seq[CartLineItemSku]] = {
+    val itemsToInsert = skuIds.map(skuId ⇒ CartLineItemSku(cordRef = cartRef, skuId = skuId))
+    CartLineItemSkus.createAllReturningModels(itemsToInsert)
+  }
 
   def orderNotes: Seq[Note] = {
     def newNote(body: String) =

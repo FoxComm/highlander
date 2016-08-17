@@ -76,10 +76,10 @@ object OrderLineItem {
     )
   }
 
-  def buildSku(cart: Cart, sku: Sku): OrderLineItem = {
+  def buildSku(cart: Cart, origin: OrderLineItemSku): OrderLineItem = {
     OrderLineItem(
         cordRef = cart.refNum,
-        originId = sku.id,
+        originId = origin.id,
         originType = SkuItem,
         state = Cart
     )
@@ -110,13 +110,6 @@ object OrderLineItems
 
   def findByOrderRef(cordRef: Rep[String]): Query[OrderLineItems, OrderLineItem, Seq] =
     filter(_.cordRef === cordRef)
-
-  def countByOrder(cart: Cart): DBIO[Int] = findByOrderRef(cart.refNum).length.result
-
-  def countBySkuIdForCart(cart: Cart): Query[(Rep[Int], Rep[Int]), (Int, Int), Seq] =
-    for {
-      (skuId, group) ← findByOrderRef(cart.refNum).skuItems.groupBy(_.originId)
-    } yield (skuId, group.length)
 
   object scope {
     implicit class OriginTypeQuerySeqConversions(q: QuerySeq) {

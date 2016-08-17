@@ -1,22 +1,19 @@
-import Extensions._
 import akka.http.scaladsl.model.StatusCodes
-import util._
+
+import Extensions._
+import models.cord.OrderShippingAddresses
 import models.cord.lineitems._
-import models.cord.{Carts, OrderShippingAddresses}
-import models.customer.Customers
 import models.location.Addresses
 import models.objects._
 import models.product.{Mvp, SimpleContext}
 import models.rules.QueryStatement
+import models.shipping
 import models.shipping.ShippingMethods
-import models.{StoreAdmins, shipping}
 import org.json4s.jackson.JsonMethods._
 import services.carts.CartTotaler
-import util.IntegrationTestBase
+import util._
 import utils.db._
 import utils.seeds.Seeds.Factories
-
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class ShippingMethodsIntegrationTest
     extends IntegrationTestBase
@@ -135,9 +132,8 @@ class ShippingMethodsIntegrationTest
                                                                 cordRef = cart.refNum)
       product ← * <~ Mvp.insertProduct(productContext.id,
                                        Factories.products.head.copy(title = "Donkey", price = 27))
-      lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(product.skuId)
-      lineItems ← * <~ OrderLineItems.create(
-                     OrderLineItem(cordRef = cart.refNum, originId = lineItemSku.id))
+      li ← * <~ CartLineItemSkus.create(
+              CartLineItemSku(cordRef = cart.refNum, skuId = product.skuId))
       _ ← * <~ CartTotaler.saveTotals(cart)
     } yield (address, shipAddress)).gimme
   }

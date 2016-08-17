@@ -7,7 +7,8 @@ import failures.CouponFailures.CouponWithCodeCannotBeFound
 import failures.GeneralFailure
 import failures.PromotionFailures.PromotionNotFoundForContext
 import models.cord._
-import models.cord.lineitems.{OrderLineItemGiftCards, OrderLineItemSkus}
+import models.cord.lineitems.{CartLineItemSkus, OrderLineItemGiftCards}
+import CartLineItemSkus.scope._
 import models.coupon._
 import models.customer.{Customer, Customers}
 import models.objects._
@@ -73,7 +74,7 @@ case class Checkout(
 
   private def reserveInMiddleWarehouse: DbResultT[Unit] =
     for {
-      liSkus ← * <~ OrderLineItemSkus.countSkusByCordRef(cart.refNum)
+      liSkus ← * <~ CartLineItemSkus.byCordRef(cart.refNum).countSkus
       skuReservations = liSkus.map { case (skuCode, qty) ⇒ SkuReservation(skuCode, qty) }.toSeq
       _ ← * <~ apis.middlwarehouse.reserve(OrderReservation(cart.referenceNumber, skuReservations))
     } yield {}

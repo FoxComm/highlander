@@ -521,16 +521,10 @@ class ReturnIntegrationTest
   }
 
   def addSkusToOrder(skuIds: Seq[Int],
-                     orderRef: String,
-                     state: OrderLineItem.State): DbResultT[Unit] =
-    for {
-      liSkus ← * <~ OrderLineItemSkus.filter(_.skuId.inSet(skuIds)).result
-      _ ← * <~ OrderLineItems.createAll(liSkus.seq.map { liSku ⇒
-           OrderLineItem(cordRef = orderRef,
-                         originId = liSku.id,
-                         originType = OrderLineItem.SkuItem,
-                         state = state)
-         })
-    } yield {}
+                     cordRef: String,
+                     state: OrderLineItem.State): DbResultT[Unit] = {
+    val itemsToInsert = skuIds.map(skuId ⇒ CartLineItemSku(cordRef = cordRef, skuId = skuId))
+    CartLineItemSkus.createAll(itemsToInsert).map(_ ⇒ Unit)
+  }
 
 }

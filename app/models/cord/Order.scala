@@ -7,7 +7,10 @@ import cats.data.Xor.{left, right}
 import cats.implicits._
 import com.pellucid.sealerate
 import failures.{Failures, GeneralFailure}
+import models.cord.lineitems.OrderLineItem.SkuItem
+import models.cord.lineitems.{OrderLineItemSku, OrderLineItem, OrderLineItemSkus, CartLineItemSkus, OrderLineItems}
 import models.customer.Customer
+import models.inventory.Skus
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
@@ -139,8 +142,40 @@ object Orders
                          grandTotal = cart.grandTotal,
                          contextId = contextId)
     for {
-      order ← * <~ Orders.create(newOrder)
+      lineItems ← * <~ prepareOrderLineItemsFromCart(cart, contextId)
+      order     ← * <~ Orders.create(newOrder)
+      _         ← * <~ OrderLineItems.createAll(lineItems)
     } yield order
+  }
+
+  def prepareOrderLineItemsFromCart(cart: Cart, contextId: Int)(
+      implicit ec: EC,
+      db: DB): DbResultT[Seq[OrderLineItem]] = {
+    val countBySku = CartLineItemSkus.byCordRef(cart.referenceNumber).groupBy(_.skuId).map {
+      case (sku, q) ⇒ sku → q.length
+    }
+
+    val orderLineItemSkusQuery = for {
+      countBySku ← countBySku
+      (skuId, count) = countBySku
+      sku ← Skus if sku.id === skuId
+    } yield (sku, count)
+
+    for {
+      skuItems ← * <~ orderLineItemSkusQuery.result
+      items ← * <~ OrderLineItemSkus.createAllReturningModels(skuItems.map {
+               case (sku, _) ⇒
+                 OrderLineItemSku(skuId = sku.id, skuShadowId = sku.shadowId)
+             })
+      lineItems ← * <~ items.zip(skuItems).flatMap {
+                   case (oli, (_, count)) ⇒
+                     List.fill(count)(
+                         OrderLineItem(cordRef = cart.referenceNumber,
+                                       originId = oli.id,
+                                       originType = SkuItem,
+                                       state = OrderLineItem.Pending))
+                 }
+    } yield lineItems
   }
 
   def findByCustomer(cust: Customer): QuerySeq =

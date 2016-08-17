@@ -6,6 +6,7 @@ import models.activity.Activity
 import models.cord._
 import models.cord.lineitems.OrderLineItems.scope._
 import models.cord.lineitems._
+import CartLineItemSkus.scope._
 import models.customer.Customer
 import models.inventory.Skus
 import models.payment.giftcard._
@@ -130,7 +131,7 @@ object LineItemUpdater {
       cart  ← * <~ CartTotaler.saveTotals(cart)
       valid ← * <~ CartValidator(cart).validate()
       res   ← * <~ CartResponse.buildRefreshed(cart)
-      li    ← * <~ OrderLineItemSkus.countSkusByCordRef(cart.refNum)
+      li    ← * <~ CartLineItemSkus.byCordRef(cart.refNum).countSkus
       _     ← * <~ logAct(res, li)
     } yield TheResponse.validated(res, valid)
 
@@ -141,7 +142,7 @@ object LineItemUpdater {
     }
 
   private def updateQuantities(cart: Cart, payload: Seq[UpdateLineItemsPayload], contextId: Int)(
-      implicit ec: EC): DbResultT[Seq[OrderLineItem]] = {
+      implicit ec: EC): DbResultT[Seq[CartLineItemSku]] = {
 
     val lineItemUpdActions = foldQuantityPayload(payload).map {
       case (skuCode, qty) ⇒
@@ -150,55 +151,31 @@ object LineItemUpdater {
                  .filterByContext(contextId)
                  .filter(_.code === skuCode)
                  .mustFindOneOr(SkuNotFoundForContext(skuCode, contextId))
-          lis ← * <~ fuckingHell(sku.id, qty, cart.refNum)
+          lis ← * <~ doUpdateLineItems(sku.id, qty, cart.refNum)
         } yield lis
     }
     DbResultT.sequence(lineItemUpdActions).map(_.flatten.toSeq)
   }
 
-  private def fuckingHell(skuId: Int, newQuantity: Int, cordRef: String)(
-      implicit ec: EC): DbResultT[Seq[OrderLineItem]] = {
-    val counts = for {
-      (skuId, q) ← OrderLineItems
-                    .filter(_.cordRef === cordRef)
-                    .skuItems
-                    .join(OrderLineItemSkus)
-                    .on(_.originId === _.id)
-                    .groupBy(_._2.skuId)
-    } yield (skuId, q.length)
+  private def doUpdateLineItems(skuId: Int, newQuantity: Int, cordRef: String)(
+      implicit ec: EC): DbResultT[Seq[CartLineItemSku]] = {
 
-    counts.result.toXor.flatMap { (items: Seq[(Int, Int)]) ⇒
-      val existingSkuCounts = items.toMap
+    val allRelatedLineItems = CartLineItemSkus.byCordRef(cordRef).filter(_.skuId === skuId)
 
-      val current = existingSkuCounts.getOrElse(skuId, 0)
+    val counts = allRelatedLineItems.size.result.toXor
 
+    counts.flatMap { (current: Int) ⇒
       // we're using absolute values from payload, so if newQuantity is greater then create N items
       if (newQuantity > current) {
-        val delta = newQuantity - current
-
-        val queries = for {
-          origin ← OrderLineItemSkus.safeFindBySkuId(skuId)
-          // FIXME: should use `createAll` instead of `++=` but this method is a nightmare to refactor
-          bulkInsert ← OrderLineItems ++= (1 to delta).map { _ ⇒
-                        OrderLineItem(cordRef = cordRef, originId = origin.id)
-                      }.toSeq
-        } yield ()
-
-        DbResultT.fromDbio(queries)
+        val itemsToInsert: List[CartLineItemSku] =
+          List.fill(newQuantity - current)(CartLineItemSku(cordRef = cordRef, skuId = skuId))
+        CartLineItemSkus.createAll(itemsToInsert).ignoreResult
       } else if (current - newQuantity > 0) {
+
         // otherwise delete N items
         val queries = for {
-          deleteLi ← OrderLineItems
-                      .filter(
-                          _.id in OrderLineItems
-                            .filter(_.cordRef === cordRef)
-                            .skuItems
-                            .join(OrderLineItemSkus)
-                            .on(_.originId === _.id)
-                            .filter(_._2.skuId === skuId)
-                            .sortBy(_._1.id.asc)
-                            .take(current - newQuantity)
-                            .map(_._1.id))
+          deleteLi ← allRelatedLineItems
+                      .filter(_.id in allRelatedLineItems.take(current - newQuantity).map(_.id))
                       .delete
         } yield ()
 
@@ -207,7 +184,7 @@ object LineItemUpdater {
         DbResultT.unit
       }
     }.flatMap { _ ⇒
-      DbResultT.fromDbio(OrderLineItems.filter(_.cordRef === cordRef).result)
+      DbResultT.fromDbio(CartLineItemSkus.byCordRef(cordRef).result)
     }
   }
 }

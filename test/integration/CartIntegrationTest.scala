@@ -450,12 +450,9 @@ class CartIntegrationTest
       .copy(adminDisplayName = "High", conditions = Some(highConditions))
 
     val (lowShippingMethod, inactiveShippingMethod, highShippingMethod) = (for {
-      product     ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head.copy(price = 100))
-      lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(product.skuId)
-      lineItem ← * <~ OrderLineItems.create(
-                    OrderLineItem(cordRef = cart.refNum,
-                                  originId = lineItemSku.id,
-                                  originType = OrderLineItem.SkuItem))
+      product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head.copy(price = 100))
+      li ← * <~ CartLineItemSkus.create(
+              CartLineItemSku(cordRef = cart.refNum, skuId = product.skuId))
 
       lowShippingMethod ← * <~ ShippingMethods.create(lowSm)
       inactiveShippingMethod ← * <~ ShippingMethods.create(

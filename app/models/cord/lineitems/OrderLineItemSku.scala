@@ -5,17 +5,42 @@ import models.objects._
 import models.product.Products
 import shapeless._
 import slick.driver.PostgresDriver.api._
-import utils.aliases._
 import utils.db._
 
 case class OrderLineItemSku(id: Int = 0, skuId: Int, skuShadowId: Int)
     extends FoxModel[OrderLineItemSku]
+
+trait LineItemProductData[LI] {
+  def sku: Sku
+  def skuForm: ObjectForm
+  def skuShadow: ObjectShadow
+  def product: ObjectShadow
+  def lineItem: LI
+
+  def lineItemReferenceNumber: String
+  def lineItemState: OrderLineItem.State
+}
 
 case class OrderLineItemProductData(sku: Sku,
                                     skuForm: ObjectForm,
                                     skuShadow: ObjectShadow,
                                     product: ObjectShadow,
                                     lineItem: OrderLineItem)
+    extends LineItemProductData[OrderLineItem] {
+  def lineItemReferenceNumber = lineItem.referenceNumber
+  def lineItemState           = lineItem.state
+}
+
+case class CartLineItemProductData(sku: Sku,
+                                   skuForm: ObjectForm,
+                                   skuShadow: ObjectShadow,
+                                   product: ObjectShadow,
+                                   lineItem: CartLineItemSku)
+    extends LineItemProductData[CartLineItemSku] {
+
+  def lineItemReferenceNumber = lineItem.referenceNumber
+  def lineItemState           = OrderLineItem.Cart
+}
 
 object OrderLineItemSku {}
 
@@ -39,16 +64,6 @@ object OrderLineItemSkus
   def findBySkuId(id: Int): DBIO[Option[OrderLineItemSku]] =
     filter(_.skuId === id).one
 
-  // we can safeGet here since we generate these records upon creation of the `skus` record via trigger
-  def safeFindBySkuId(id: Int)(implicit ec: EC): DBIO[OrderLineItemSku] =
-    filter(_.skuId === id).one.safeGet
-
-  def findByOrderRef(cordRef: Rep[String]): QuerySeq =
-    for {
-      lis    ← OrderLineItems.filter(_.cordRef === cordRef)
-      skuLis ← lis.skuLineItems
-    } yield skuLis
-
   type FindLineItemResult      = (Sku, ObjectForm, ObjectShadow, ObjectShadow, OrderLineItem)
   type FindLineItemResultMulti = (Skus, ObjectForms, ObjectShadows, ObjectShadows, OrderLineItems)
 
@@ -64,16 +79,6 @@ object OrderLineItemSkus
       product       ← Products if product.id === link.rightId
       productShadow ← ObjectShadows if productShadow.id === product.shadowId
     } yield (sku, skuForm, skuShadow, productShadow, lineItems)
-
-  // Map [SKU code → quantity in cart/order]
-  def countSkusByCordRef(refNum: String)(implicit ec: EC): DBIO[Map[String, Int]] =
-    OrderLineItemSkus.findLineItemsByCordRef(refNum).result.map { li ⇒
-      li.foldLeft(Map[String, Int]()) {
-        case (acc, (sku, _, _, _, _)) ⇒
-          val quantity = acc.getOrElse(sku.code, 0)
-          acc.updated(sku.code, quantity + 1)
-      }
-    }
 
   object scope {
     implicit class OrderLineItemSkusQuerySeqConversions(q: QuerySeq) {
