@@ -324,8 +324,8 @@ object LogActivity {
   def orderCheckoutCompleted(order: OrderResponse)(implicit ec: EC, ac: AC): DbResultT[Activity] =
     Activities.log(OrderCheckoutCompleted(order))
 
-  def orderCaptured(order: Order, cap: CaptureResponse.Root)(implicit ec: EC,
-                                                             ac: AC): DbResultT[Activity] =
+  def orderCaptured(order: Order, cap: CaptureResponse)(implicit ec: EC,
+                                                        ac: AC): DbResultT[Activity] =
     Activities.log(
         OrderCaptured(orderNum = order.referenceNumber,
                       customerId = order.customerId,

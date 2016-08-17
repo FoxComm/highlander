@@ -158,26 +158,28 @@ case class Checkout(
 
   private def authPayments(customer: Customer): DbResultT[Unit] =
     for {
-      gcPayments ← * <~ OrderPayments.findAllGiftCardsByCordRef(cart.refNum).result
-      gcTotal ← * <~ PaymentHelper.paymentTransaction(gcPayments,
-                                                      cart.grandTotal,
-                                                      GiftCards.authOrderPayment,
-                                                      (a: GiftCardAdjustment) ⇒ a.getAmount.abs)
 
       scPayments ← * <~ OrderPayments.findAllStoreCreditsByCordRef(cart.refNum).result
       scTotal ← * <~ PaymentHelper.paymentTransaction(
                    scPayments,
-                   cart.grandTotal - gcTotal,
+                   cart.grandTotal,
                    StoreCredits.authOrderPayment,
                    (a: StoreCreditAdjustment) ⇒ a.getAmount.abs
                )
 
-      gcCodes = gcPayments.map { case (_, gc) ⇒ gc.code }.distinct
+      gcPayments ← * <~ OrderPayments.findAllGiftCardsByCordRef(cart.refNum).result
+      gcTotal ← * <~ PaymentHelper.paymentTransaction(gcPayments,
+                                                      cart.grandTotal - scTotal,
+                                                      GiftCards.authOrderPayment,
+                                                      (a: GiftCardAdjustment) ⇒ a.getAmount.abs)
+
       scIds   = scPayments.map { case (_, sc) ⇒ sc.id }.distinct
+      gcCodes = gcPayments.map { case (_, gc) ⇒ gc.code }.distinct
+
+      _ ← * <~ (if (scTotal > 0) LogActivity.scFundsAuthorized(customer, cart, scIds, scTotal)
+                else DbResultT.unit)
 
       _ ← * <~ (if (gcTotal > 0) LogActivity.gcFundsAuthorized(customer, cart, gcCodes, gcTotal)
-                else DbResultT.unit)
-      _ ← * <~ (if (scTotal > 0) LogActivity.scFundsAuthorized(customer, cart, scIds, scTotal)
                 else DbResultT.unit)
 
       // Authorize funds on credit card
@@ -196,11 +198,9 @@ case class Checkout(
         card ← pmt.creditCard
       } yield (pmt, card)).one.toXor.flatMap {
         case Some((pmt, card)) ⇒
-          val f = Stripe().authorizeAmount(card.gatewayCustomerId, authAmount, cart.currency)
-
           for {
-            // TODO: remove the blocking Await which causes us to change types (I knew it was coming anyways!)
-            stripeCharge ← * <~ scala.concurrent.Await.result(f, 5.seconds)
+            stripeCharge ← * <~ Stripe()
+                            .authorizeAmount(card.gatewayCustomerId, authAmount, cart.currency)
             ourCharge = CreditCardCharge.authFromStripe(card, pmt, stripeCharge, cart.currency)
             _       ← * <~ LogActivity.creditCardAuth(cart, ourCharge)
             created ← * <~ CreditCardCharges.create(ourCharge)

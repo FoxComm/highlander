@@ -2,6 +2,8 @@ package failures
 
 import utils.friendlyClassName
 
+import models.payment.creditcard._
+
 object CaptureFailures {
 
   case class SkuNotFoundInOrder(sku: String, refNum: String) extends Failure {
@@ -29,13 +31,18 @@ object CaptureFailures {
       s"Stripe charge for order $refNum is not found."
   }
 
-  case class OrderMustBeInFullimentStarted(refNum: String) extends Failure {
+  case class OrderMustBeInFullfillmentStarted(refNum: String) extends Failure {
     override def description =
-      s"Order $refNum is not in Fullillment Started state."
+      s"Order $refNum is not in Fullfillment Started state."
   }
 
-  case class ChargeNotInAuth(chargeId: String, chargeState: String) extends Failure {
+  case class ChargeNotInAuth(charge: CreditCardCharge) extends Failure {
     override def description =
-      s"The charge $chargeId must be in Auth state. The charge is in $chargeState state."
+      s"The charge ${charge.chargeId} must be in Auth state. The charge is in ${charge.state} state."
+  }
+
+  case class CreditCardNotFound(refNum: String) extends Failure {
+    override def description =
+      s"Unable to find a credit card for the order $refNum"
   }
 }
