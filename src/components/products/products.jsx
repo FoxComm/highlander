@@ -7,14 +7,16 @@ import React, { Component, Element } from 'react';
 import _ from 'lodash';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import * as dsl from 'elastic/dsl';
+import { autobind } from 'core-decorators';
 
 // data
-import { actions } from '../../modules/products/list';
+import { actions } from 'modules/products/list';
 
 // components
 import SelectableSearchList from '../list-page/selectable-search-list';
 import ProductRow from './product-row';
+
+import type { SearchFilter } from 'elastic/common';
 
 type Column = {
   field: string,
@@ -40,42 +42,25 @@ const tableColumns: Array<Column> = [
   { field: 'state', text: 'State', type: null },
 ];
 
-export class Products extends Component<void, Props, void> {
+export class Products extends Component {
   props: Props;
 
-  componentDidMount() {
-    this.props.actions.setExtraFilters([
-      dsl.existsFilter('archivedAt', 'missing')
-    ]);
-
-    this.props.actions.fetch();
-  }
-
-  //it worked the same way with componentWillReceiveProps
-  componentDidUpdate(prevProps) {
-    const { list } = this.props;
-
-    const prevSearchId = prevProps.list.selectedSearch;
-    const currentSearchId = list.selectedSearch;
-    const prevSearchQuery = prevProps.list.savedSearches[prevSearchId].query;
-    const currentSearchQuery = list.savedSearches[currentSearchId].query;
-
-    //if I don't check this, set extra filters will loop forever
-    if (currentSearchId === prevSearchId && _.isEqual(prevSearchQuery.sort(), currentSearchQuery.sort())) return;
-
-    //in the ideal world if you search with archivedAt term, archived items should be shown
-    if (_.find(currentSearchQuery, 'term', 'archivedAt')) {
-      this.props.actions.clearExtraFilters();
-      //this.props.actions.submitFilters(currentSearchQuery);
-      this.props.actions.fetch();
-    } else {
-      this.props.actions.setExtraFilters([
-        dsl.existsFilter('archivedAt', 'missing')
-      ]);
-
-      //this.props.actions.submitFilters(currentSearchQuery);
-      this.props.actions.fetch();
+  @autobind
+  addSearchFilters(filters: Array<SearchFilter>, initial: boolean = false) {
+    if (!_.find(filters, {term: 'archivedAt'})) {
+      filters = [
+        {
+          term: 'archivedAt',
+          hidden: true,
+          operator: 'missing',
+          value: {
+            type: 'exists'
+          }
+        },
+        ...filters,
+      ];
     }
+    return this.props.actions.addSearchFilters(filters, initial);
   }
 
   renderRow(row: Product, index: number, columns: Array<Column>, params: Object) {
@@ -86,6 +71,11 @@ export class Products extends Component<void, Props, void> {
   render(): Element {
     const { list, actions } = this.props;
 
+    const searchActions = {
+      ...actions,
+      addSearchFilters: this.addSearchFilters,
+    };
+
     return (
       <div className="fc-products-list">
         <SelectableSearchList
@@ -93,7 +83,7 @@ export class Products extends Component<void, Props, void> {
           list={list}
           renderRow={this.renderRow}
           tableColumns={tableColumns}
-          searchActions={actions}
+          searchActions={searchActions}
           predicate={({id}) => id} />
       </div>
     );
