@@ -86,12 +86,12 @@ func (service *summaryService) UpdateStockItemSummary(stockItemId uint, unitType
 
 func (service *summaryService) CreateStockItemTransaction(summary *models.StockItemSummary, status models.UnitStatus, qty int) error {
 	transaction := &models.StockItemTransaction{
-		StockItemId:  summary.StockItemID,
-		Type:         summary.Type,
-		Status:       status,
-		AmountNew:    getStatusAmountChange(summary, status),
-		AmountChange: qty,
-		AFSNew:       uint(summary.AFS),
+		StockItemId:    summary.StockItemID,
+		Type:           summary.Type,
+		Status:         status,
+		QuantityNew:    getStatusAmountChange(summary, status),
+		QuantityChange: qty,
+		AFSNew:         uint(summary.AFS),
 	}
 
 	return service.summaryRepo.CreateStockItemTransaction(transaction)

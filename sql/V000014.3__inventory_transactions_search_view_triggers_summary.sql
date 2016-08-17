@@ -21,9 +21,9 @@ begin
         stockLocationName as stock_location_name,
         new.type as type,
         new.status as status,
-        new.amount_new - new.amount_change as amount_previous,
-        new.amount_new as amount_new,
-        new.amount_change as amount_change,
+        new.quantity_new - new.quantity_change as quantity_previous,
+        new.quantity_new as quantity_new,
+        new.quantity_change as quantity_change,
         new.afs_new as afs_new,
         to_char(new.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as created_at;
     return null;
