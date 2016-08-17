@@ -3,28 +3,20 @@
   .inner {
     overflow-x: auto;
     overflow-y: hidden;
-    background: linear-gradient(90deg, #fff 100%, rgba(255, 255, 255, 0)) 0 0, linear-gradient(270deg, #fff 100%, rgba(255, 255, 255, 0)) 100% 0, linear-gradient(90deg, #e3e3e3 80%, rgba(255, 255, 255, 0)) 0% 0, linear-gradient(270deg, #e3e3e3 0, rgba(255, 255, 255, 0)) 100% 0;
 
-    background-repeat: no-repeat;
-    background-color: #fff;
-    background-size: 68px 100%, 13px 100%, 68px 100%, 13px 100%;
-    background-attachment: local, local, scroll, scroll;
+    .scroll-shadow(#e3e3e3, #fff, 12px);
 
     &.inner-head {
-      background: linear-gradient(90deg, #f7f7f7 100%, rgba(255, 255, 255, 0)) 0 0, linear-gradient(270deg, #f7f7f7 100%, rgba(255, 255, 255, 0)) 100% 0, linear-gradient(90deg, #e3e3e3 80%, rgba(255, 255, 255, 0)) 0 0, linear-gradient(270deg, #e3e3e3 0, rgba(255, 255, 255, 0)) 100% 0;
-      background-color: #f7f7f7;;
-      background-size: 68px 100%, 13px 100%, 68px 100%, 13px 100%;
-      background-attachment: local, local, scroll, scroll;
-      background-repeat: no-repeat;
+      .scroll-shadow(#e3e3e3, #f7f7f7, 12px);
     }
   }
 
   .fc-table {
     width: auto;
-    table-layout: fixed;
     border: none;
-    margin-left: 55px;
+    table-layout: fixed;
     border-collapse: separate;
+    white-space: nowrap;
 
     thead, .fc-table-head {
       th, .fc-table-th {
@@ -39,6 +31,10 @@
           width: 50%;
         }
       }
+    }
+
+    time {
+      white-space: nowrap;
     }
 
     tbody, .fc-table-body {
