@@ -1,4 +1,7 @@
+import _ from 'lodash';
+import { autobind } from 'core-decorators';
 import React, { PropTypes } from 'react';
+import localStorage from 'localStorage';
 
 import LiveSearchAdapter from '../live-search/live-search-adapter';
 import TableView from '../table/tableview.jsx';
@@ -40,6 +43,10 @@ export default class SearchList extends React.Component {
     autoRefresh: false,
   };
 
+  state = {
+    columns: this.selectedColumns
+  };
+
   componentDidMount() {
     if (this.props.autoRefresh) {
       this.autoFetcher = this.autoFetcher || setInterval(this.props.searchActions.refresh, 1500);
@@ -48,6 +55,37 @@ export default class SearchList extends React.Component {
 
   componentWillUnmount() {
     clearInterval(this.autoFetcher);
+  }
+
+  @autobind
+  setColumnSelected(columns) {
+    this.setState({ columns });
+  }
+
+  get tableIdentifier() {
+    if (!this.props.identifier) {
+      return this.props.tableColumns.map(item => {
+        return item.text;
+      }).toString();
+    }
+    return this.props.identifier;
+  }
+
+  get selectedColumns() {
+    const tableName = this.tableIdentifier;
+    const savedColumns = localStorage.getItem('columns');
+
+    if (!savedColumns) {
+      return this.props.tableColumns;
+    }
+
+    const columns = JSON.parse(savedColumns);
+
+    if (!columns[tableName]) {
+      return this.props.tableColumns;
+    }
+
+    return _.filter(columns[tableName], { isVisible: true });
   }
 
   render() {
@@ -66,7 +104,10 @@ export default class SearchList extends React.Component {
           {...props}
           data={results}
           dataTable={true}
-          columns={props.tableColumns}
+          columns={this.state.columns}
+          selectableColumns={props.tableColumns}
+          setColumnSelected={this.setColumnSelected}
+          tableIdentifier={this.tableIdentifier}
           isLoading={results.isFetching}
           failed={results.failed} />
       </LiveSearchAdapter>

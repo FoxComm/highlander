@@ -43,9 +43,7 @@ const tableColumns = [
 ];
 
 const renderRow = (row) => {
-  const keyRow = `inventory-transaction-${row.id}`;
-
-  return <InventoryItemTransactionsRow transaction={row} columns={tableColumns} key={keyRow}/>;
+  return <InventoryItemTransactionsRow transaction={row} columns={tableColumns}/>;
 };
 
 /** InventoryItemTransactions Component */
