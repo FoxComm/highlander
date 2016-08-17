@@ -73,9 +73,9 @@ func (repository *stockItemUnitRepository) GetStockItemUnitIds(stockItemID uint,
 func (repository *stockItemUnitRepository) GetUnitsInOrder(refNum string) ([]*models.StockItemUnit, error) {
 	var units []*models.StockItemUnit
 	err := repository.db.
-		Table("stock_item_units u").
-		Joins("left join stock_items si on si.id = u.stock_item_id").
-		Where("ref_num = ?", refNum).
+		Preload("StockItem").
+		Joins("LEFT JOIN stock_items on stock_items.id = stock_item_units.stock_item_id").
+		Where("stock_item_units.ref_num = ?", refNum).
 		Find(&units).
 		Error
 
