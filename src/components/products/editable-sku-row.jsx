@@ -3,7 +3,6 @@
  */
 
 import React, { Component, Element } from 'react';
-import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
 import { connect } from 'react-redux';
@@ -14,22 +13,14 @@ import CurrencyInput from '../forms/currency-input';
 import MultiSelectRow from '../table/multi-select-row';
 import LoadingInputWrapper from '../forms/loading-input-wrapper';
 
-import { suggestSkus } from 'modules/products/details';
+import { suggestSkus } from 'modules/skus/suggest';
 import type { Sku } from 'modules/skus/details';
+import type { Sku as SearchViewSku } from 'modules/skus/list';
 
 type Column = {
   field: string,
   text: string,
 };
-
-type SearchViewSku = {
-  price: string,
-  code: string,
-  id: number,
-  context: string,
-  title: string,
-  image: string|null,
-}
 
 type Props = {
   columns: Array<Column>,
@@ -38,7 +29,7 @@ type Props = {
   skuContext: string,
   updateField: (code: string, field: string, value: string) => void,
   isFetchingSkus: boolean|null,
-  suggestSkus: (context: string, code: string) => Promise,
+  suggestSkus: (code: string, context: ?string) => Promise,
   suggestedSkus: Array<SearchViewSku>,
 };
 
@@ -49,8 +40,8 @@ type State = {
 
 function mapStateToProps(state) {
   return {
-    isFetchingSkus: _.get(state.asyncActions, 'products-suggestSkus.inProgress', null),
-    suggestedSkus: _.get(state, 'products.details.suggestedSkus', []),
+    isFetchingSkus: _.get(state.asyncActions, 'skus-suggest.inProgress', null),
+    suggestedSkus: _.get(state, 'skus.suggest.skus', []),
   };
 }
 
@@ -119,7 +110,7 @@ class EditableSkuRow extends Component {
   }
 
   suggestSkus(text: string): Promise|void {
-    return this.props.suggestSkus(this.props.skuContext, text);
+    return this.props.suggestSkus(text, this.props.skuContext);
   }
 
   updateAttrsBySearchViewSku(searchViewSku: SearchViewSku) {
@@ -155,14 +146,14 @@ class EditableSkuRow extends Component {
   get menuItemsContent(): Array<Element> {
     const items = this.props.suggestedSkus;
 
-    return items.map(sku => {
+    return items.map((sku: SearchViewSku) => {
       return (
         <li
           styleName="sku-item"
           onMouseDown={() => { this.handleSelectSku(sku); }}
           key={`item-${sku.id}`}
         >
-          <strong>{sku.code}</strong>
+          <strong>{sku.skuCode}</strong>
         </li>
       );
     });

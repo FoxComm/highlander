@@ -99,7 +99,7 @@ export default class Table extends Component {
       <TableRow key={`row-${rowKey}`} isNew={isNew}>
         {this.props.columns.map((column, cellIdx) => {
           return (
-            <TableCell column={column} key={`cell-${cellIdx}`}>
+            <TableCell column={column} key={`cell-${cellIdx}`} row={row}>
               {row[column.field]}
             </TableCell>
           );
