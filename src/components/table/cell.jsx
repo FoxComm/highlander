@@ -11,8 +11,12 @@ import State from '../common/state';
 import Change from '../common/change';
 import Link from '../link/link';
 
+function getCurrency(column, row) {
+  const currencyField = column.currencyField;
+  return currencyField ? _.get(row, currencyField) : void 0;
+}
 
-function getCell(column, children) {
+function getCell(column, children, row) {
   const type = _.get(column, 'type');
   switch (type) {
     case 'id':
@@ -22,9 +26,9 @@ function getCell(column, children) {
     case 'state':
       return <State value={children} model={column.model} />;
     case 'currency':
-      return <Currency value={children} />;
+      return <Currency value={children} currency={getCurrency(column, row)} />;
     case 'transaction':
-      return <Currency value={children} isTransaction={true} />;
+      return <Currency value={children} currency={getCurrency(column, row)} isTransaction={true} />;
     case 'moment':
       return <Moment value={children} />;
     case 'date':
@@ -41,9 +45,9 @@ function getCell(column, children) {
 }
 
 const TableBodyCell = props => {
-  const { children, colSpan, column, className, ...rest } = props;
+  const { row, children, colSpan, column, className, ...rest } = props;
 
-  const cell = _.isNull(children) ? null : getCell(column, children);
+  const cell = _.isNull(children) ? null : getCell(column, children, row);
 
   return <td className={classNames('fc-table-td', className)} colSpan={colSpan} {...rest}>{cell}</td>;
 };

@@ -55,7 +55,7 @@ const MultiSelectRow = (props, context) => {
     });
 
     visibleCells.push(
-      <TableCell className={cls} onClick={cellClickAction} key={cellKey} column={col}>
+      <TableCell className={cls} onClick={cellClickAction} key={cellKey} column={col} row={row}>
         {cellContents}
       </TableCell>
     );
