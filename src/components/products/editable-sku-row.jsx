@@ -50,7 +50,9 @@ function stop(event: SyntheticEvent) {
 }
 
 function pickSkuAttrs(searchViewSku: SearchViewSku) {
-  return _.pick(searchViewSku, ['code', 'title', 'context', 'salePrice', 'retailPrice']);
+  const sku = _.pick(searchViewSku, ['title', 'context', 'salePrice', 'retailPrice']);
+  sku.code = searchViewSku.skuCode;
+  return sku;
 }
 
 class EditableSkuRow extends Component {
