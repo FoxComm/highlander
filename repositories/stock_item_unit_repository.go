@@ -15,6 +15,7 @@ type stockItemUnitRepository struct {
 
 type IStockItemUnitRepository interface {
 	GetStockItemUnitIds(stockItemID uint, unitStatus models.UnitStatus, unitType models.UnitType, count int) ([]uint, error)
+	GetUnitsInOrder(refNum string) ([]*models.StockItemUnit, error)
 	SetUnitsInOrder(refNum string, ids []uint) (int, error)
 	UnsetUnitsInOrder(refNum string) (int, error)
 
@@ -67,6 +68,22 @@ func (repository *stockItemUnitRepository) GetStockItemUnitIds(stockItemID uint,
 	}
 
 	return ids, nil
+}
+
+func (repository *stockItemUnitRepository) GetUnitsInOrder(refNum string) ([]*models.StockItemUnit, error) {
+	var units []*models.StockItemUnit
+	err := repository.db.
+		Table("stock_item_units u").
+		Joins("left join stock_items si on si.id = u.stock_item_id").
+		Where("ref_num = ?", refNum).
+		Find(&units).
+		Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return units, nil
 }
 
 func (repository *stockItemUnitRepository) SetUnitsInOrder(refNum string, ids []uint) (int, error) {
