@@ -74,13 +74,13 @@ import SetPassword from './components/auth/set-password';
 
 // no productions pages, make sure these paths are included in `excludedList` in browserify.js
 if (process.env.NODE_ENV != 'production') {
-  var StyleGuide = require('./components/style-guide/style-guide');
-  var StyleGuideGrid = require('./components/style-guide/style-guide-grid');
-  var StyleGuideButtons = require('./components/style-guide/style-guide-buttons');
-  var StyleGuideContainers = require('./components/style-guide/style-guide-containers');
+  var StyleGuide = require('./components/style-guide/style-guide').default;
+  var StyleGuideGrid = require('./components/style-guide/style-guide-grid').default;
+  var StyleGuideButtons = require('./components/style-guide/style-guide-buttons').default;
+  var StyleGuideContainers = require('./components/style-guide/style-guide-containers').default;
 
-  var AllActivities = require('./components/activity-trail/all');
-  var AllNotificationItems = require('./components/activity-notifications/all');
+  var AllActivities = require('./components/activity-trail/all').default;
+  var AllNotificationItems = require('components/activity-notifications/all').default;
 }
 
 const routes = (
