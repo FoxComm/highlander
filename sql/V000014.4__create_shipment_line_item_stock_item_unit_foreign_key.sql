@@ -1,0 +1,1 @@
+alter table shipment_line_items add column stock_item_unit_id integer references stock_item_units(id) on update restrict on delete restrict;
