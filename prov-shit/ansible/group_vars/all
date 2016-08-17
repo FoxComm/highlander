@@ -10,6 +10,10 @@ db_name: phoenix_development
 db_connection_string: "postgresql://{{db_host}}/phoenix_development?user={{db_user}}"
 scala_version: scala-2.11
 
+# Bottled Water
+bottledwater_slot_phoenix: bottledwater_phoenix
+bottledwater_slot_middlewarehouse: bottledwater_middlewarehouse
+
 # Green River
 greenriver_version: 1.0
 greenriver_env: localhost
@@ -34,6 +38,8 @@ middlewarehouse_env: staging
 middlewarehouse_dir: /middlewarehouse
 middlewarehouse_bin: "{{middlewarehouse_dir}}/middlewarehouse"
 middlewarehouse_db_name: middlewarehouse_development
+middlewarehouse_db_user: middlewarehouse
+middlewarehouse_db_connection_string: "postgresql://{{db_host}}/{{middlewarehouse_db_name}}?user={{middlewarehouse_db_user}}"
 
 middlewarehouse_src: ../../middlewarehouse/
 middlewarehouse_bin_src: "{{middlewarehouse_src}}/middlewarehouse"

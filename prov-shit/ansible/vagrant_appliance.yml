@@ -33,6 +33,7 @@
     - { role: dev/db }
     - { role: dev/phoenix }
     - { role: dev/seeder }
+    - { role: dev/middlewarehouse }
     - { role: dev/greenriver }
     - { role: dev/messaging, retailer_name: 'FoxCommerce' }
 
