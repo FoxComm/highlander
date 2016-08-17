@@ -1,11 +1,14 @@
+configure:
+	glide install
+
 build:
-	glide install && go build -o stock-items-consumer main.go consumer.go sku.go
+	go build -o stock-items-consumer main.go consumer.go sku.go
 
 build-linux:
 	GOOS=linux $(MAKE) build
 
 docker-build:
-	@make build
+	@make build-test
 	docker build -t stock-items-consumer .
 	
 test:

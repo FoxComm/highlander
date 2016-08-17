@@ -1,0 +1,22 @@
+hash: ae545dc4148e16c4cc1283a3f4f26a2443b4a29b91a56df1e9961d625e50b815
+updated: 2016-08-17T16:27:18.141155001-07:00
+imports:
+- name: github.com/elodina/go-avro
+  version: 0c8185d9a3ba82aeac98db3313a268a5b6df99b5
+- name: github.com/elodina/go-kafka-avro
+  version: ab6b1d1c9a2361e639af25c13653fee505b5d2ce
+- name: github.com/elodina/go_kafka_client
+  version: 95d107b0c102fa81b8c1e5e556adc23352fad065
+- name: github.com/elodina/siesta
+  version: fea3d8822e875ffef3895e68f5c2f172e0dd4300
+- name: github.com/elodina/siesta-producer
+  version: a374fc36c515243efb438aed41c536af55d8b19b
+- name: github.com/FoxComm/metamorphosis
+  version: e034438c2ca03d5dbdc117eaadfb2c1b23ee21c0
+  repo: git@github.com:FoxComm/metamorphosis.git
+  vcs: git
+- name: github.com/jpfuentes2/go-env
+  version: 8e0a68de05f21bcefcd581c6b934a1d1e4390fa1
+- name: github.com/stretchr/testify
+  version: d77da356e56a7428ad25149ca77381849a6a5232
+devImports: []
