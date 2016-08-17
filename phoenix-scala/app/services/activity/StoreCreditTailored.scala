@@ -27,7 +27,7 @@ object StoreCreditTailored {
       extends ActivityBase[StoreCreditAuthorizedFunds]
 
   case class StoreCreditCapturedFunds(customer: CustomerResponse.Root,
-                                      cart: Cart,
+                                      order: Order,
                                       storeCreditIds: Seq[Int],
                                       amount: Int)
       extends ActivityBase[StoreCreditCapturedFunds]

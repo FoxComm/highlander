@@ -124,13 +124,13 @@ case class Checkout(
   private def authPayments(customer: Customer): DbResultT[Unit] =
     for {
       gcPayments ← * <~ OrderPayments.findAllGiftCardsByCordRef(cart.refNum).result
-      gcTotal ← * <~ authInternalPaymentMethod(gcPayments,
+      gcTotal ← * <~ OrderPayments.paymentTransaction(gcPayments,
                                                cart.grandTotal,
                                                GiftCards.authOrderPayment,
                                                (a: GiftCardAdjustment) ⇒ a.getAmount.abs)
 
       scPayments ← * <~ OrderPayments.findAllStoreCreditsByCordRef(cart.refNum).result
-      scTotal ← * <~ authInternalPaymentMethod(
+      scTotal ← * <~ OrderPayments.paymentTransaction(
                    scPayments,
                    cart.grandTotal - gcTotal,
                    StoreCredits.authOrderPayment,
@@ -148,35 +148,6 @@ case class Checkout(
       // Authorize funds on credit card
       ccs ← * <~ authCreditCard(cart.grandTotal, gcTotal + scTotal)
     } yield {}
-
-  private def authInternalPaymentMethod[Adjustment, Card](
-      orderPayments: Seq[(OrderPayment, Card)],
-      maxPaymentAmount: Int,
-      authOrderPayment: (Card, OrderPayment, Option[Int]) ⇒ DbResultT[Adjustment],
-      getAdjustmentAmount: (Adjustment) ⇒ Int): DbResultT[Int] = {
-
-    if (orderPayments.isEmpty) {
-      DbResultT.pure(0)
-    } else {
-
-      val amounts: Seq[Int] = orderPayments.map { case (payment, _) ⇒ payment.getAmount() }
-      val limitedAmounts = amounts
-        .scan(maxPaymentAmount) {
-          case (maxAmount, paymentAmount) ⇒ (maxAmount - paymentAmount).max(0)
-        }
-        .zip(amounts)
-        .map { case (max, amount) ⇒ Math.min(max, amount) }
-        .ensuring(_.sum <= maxPaymentAmount)
-
-      for {
-        adjustments ← * <~ orderPayments.zip(limitedAmounts).collect {
-                       case ((payment, card), amount) if amount > 0 ⇒
-                         authOrderPayment(card, payment, amount.some)
-                     }
-        total = adjustments.map(getAdjustmentAmount).sum.ensuring(_ <= maxPaymentAmount)
-      } yield total
-    }
-  }
 
   private def authCreditCard(orderTotal: Int,
                              internalPaymentTotal: Int): DbResultT[Option[CreditCardCharge]] = {
@@ -196,7 +167,7 @@ case class Checkout(
             // TODO: remove the blocking Await which causes us to change types (I knew it was coming anyways!)
             stripeCharge ← * <~ scala.concurrent.Await.result(f, 5.seconds)
             ourCharge = CreditCardCharge.authFromStripe(card, pmt, stripeCharge, cart.currency)
-            _       ← * <~ LogActivity.creditCardCharge(cart, ourCharge)
+            _       ← * <~ LogActivity.creditCardAuth(cart, ourCharge)
             created ← * <~ CreditCardCharges.create(ourCharge)
           } yield created.some
 

@@ -25,7 +25,7 @@ object GiftCardTailored {
       extends ActivityBase[GiftCardAuthorizedFunds]
 
   case class GiftCardCapturedFunds(customer: CustomerResponse.Root,
-                                   cart: Cart,
+                                   order: Order,
                                    giftCardCodes: Seq[String],
                                    amount: Int)
       extends ActivityBase[GiftCardCapturedFunds]
