@@ -7,10 +7,10 @@ import utils.aliases._
 
 object PluginCommonResponses {
 
-  case class RegisterAnswer(foundOrCreated: String)
+  case class RegisterAnswer(foundOrCreated: String, settings: SettingsValues)
 
   def buildRegister(plugin: Plugin, foundOrCreated: db.FoundOrCreated): RegisterAnswer = {
-    RegisterAnswer(foundOrCreated = foundOrCreated.toString)
+    RegisterAnswer(foundOrCreated = foundOrCreated.toString, settings = plugin.settings)
   }
 
   case class SettingsUpdated(settings: SettingsValues)
