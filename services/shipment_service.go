@@ -3,9 +3,11 @@ package services
 import (
 	"github.com/FoxComm/middlewarehouse/models"
 	"github.com/FoxComm/middlewarehouse/repositories"
+	"github.com/jinzhu/gorm"
 )
 
 type shipmentService struct {
+	db                      *gorm.DB
 	repository              repositories.IShipmentRepository
 	addressService          IAddressService
 	shipmentLineItemService IShipmentLineItemService
@@ -18,11 +20,12 @@ type IShipmentService interface {
 }
 
 func NewShipmentService(
+	db *gorm.DB,
 	repository repositories.IShipmentRepository,
 	addressService IAddressService,
 	shipmentLineItemService IShipmentLineItemService,
 ) IShipmentService {
-	return &shipmentService{repository, addressService, shipmentLineItemService}
+	return &shipmentService{db, repository, addressService, shipmentLineItemService}
 }
 
 func (service *shipmentService) GetShipmentsByReferenceNumber(referenceNumber string) ([]*models.Shipment, error) {
@@ -30,36 +33,44 @@ func (service *shipmentService) GetShipmentsByReferenceNumber(referenceNumber st
 }
 
 func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*models.Shipment, error) {
-	address, err := service.addressService.CreateAddress(&shipment.Address)
+	txn := service.db.Begin()
+
+	addressRepo := repositories.NewAddressRepository(txn)
+	address, err := addressRepo.CreateAddress(&shipment.Address)
 	if err != nil {
+		txn.Rollback()
 		return nil, err
 	}
 
+	shipmentRepo := repositories.NewShipmentRepository(txn)
+
 	shipment.AddressID = address.ID
-	result, err := service.repository.CreateShipment(shipment)
+	result, err := shipmentRepo.CreateShipment(shipment)
 	if err != nil {
-		service.addressService.DeleteAddress(address.ID)
+		txn.Rollback()
 		return nil, err
 	}
+
+	lineItemRepo := repositories.NewShipmentLineItemRepository(txn)
 
 	createdLineItems := []models.ShipmentLineItem{}
 	for i, _ := range shipment.ShipmentLineItems {
 		shipment.ShipmentLineItems[i].ShipmentID = result.ID
-		createdLineItem, err := service.shipmentLineItemService.CreateShipmentLineItem(&shipment.ShipmentLineItems[i])
-		if err != nil {
-			service.repository.DeleteShipment(result.ID)
-			service.addressService.DeleteAddress(address.ID)
-			for _, lineItem := range createdLineItems {
-				service.shipmentLineItemService.DeleteShipmentLineItem(lineItem.ID)
-			}
 
+		createdLineItem, err := lineItemRepo.CreateShipmentLineItem(&shipment.ShipmentLineItems[i])
+		if err != nil {
+			txn.Rollback()
 			return nil, err
 		}
 
 		createdLineItems = append(createdLineItems, *createdLineItem)
 	}
 
-	return service.repository.GetShipmentByID(result.ID)
+	shipment.Address = *address
+	shipment.ShipmentLineItems = createdLineItems
+
+	err = txn.Commit().Error
+	return shipment, err
 }
 
 func (service *shipmentService) UpdateShipment(shipment *models.Shipment) (*models.Shipment, error) {
