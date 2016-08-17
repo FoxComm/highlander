@@ -9,6 +9,7 @@ type shipmentService struct {
 	shipmentRepository      repositories.IShipmentRepository
 	addressService          IAddressService
 	shipmentLineItemService IShipmentLineItemService
+	stockItemUnitRepository repositories.IStockItemUnitRepository
 }
 
 type IShipmentService interface {
@@ -21,8 +22,14 @@ func NewShipmentService(
 	repository repositories.IShipmentRepository,
 	addressService IAddressService,
 	shipmentLineItemService IShipmentLineItemService,
+	stockItemUnitRepository repositories.IStockItemUnitRepository,
 ) IShipmentService {
-	return &shipmentService{repository, addressService, shipmentLineItemService}
+	return &shipmentService{
+		repository,
+		addressService,
+		shipmentLineItemService,
+		stockItemUnitRepository,
+	}
 }
 
 func (service *shipmentService) GetShipmentsByReferenceNumber(referenceNumber string) ([]*models.Shipment, error) {

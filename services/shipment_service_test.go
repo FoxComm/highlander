@@ -19,6 +19,7 @@ type ShipmentServiceTestSuite struct {
 	shipmentRepository      *repositoryMocks.ShipmentRepositoryMock
 	addressService          *serviceMocks.AddressServiceMock
 	shipmentLineItemService *serviceMocks.ShipmentLineItemServiceMock
+	stockItemUnitRepository *repositoryMocks.StockItemUnitRepositoryMock
 	service                 IShipmentService
 }
 
@@ -30,7 +31,13 @@ func (suite *ShipmentServiceTestSuite) SetupTest() {
 	suite.shipmentRepository = &repositoryMocks.ShipmentRepositoryMock{}
 	suite.addressService = &serviceMocks.AddressServiceMock{}
 	suite.shipmentLineItemService = &serviceMocks.ShipmentLineItemServiceMock{}
-	suite.service = NewShipmentService(suite.shipmentRepository, suite.addressService, suite.shipmentLineItemService)
+	suite.stockItemUnitRepository = &repositoryMocks.StockItemUnitRepositoryMock{}
+	suite.service = NewShipmentService(
+		suite.shipmentRepository,
+		suite.addressService,
+		suite.shipmentLineItemService,
+		suite.stockItemUnitRepository,
+	)
 }
 
 func (suite *ShipmentServiceTestSuite) TearDownTest() {
@@ -46,6 +53,10 @@ func (suite *ShipmentServiceTestSuite) TearDownTest() {
 	suite.shipmentLineItemService.AssertExpectations(suite.T())
 	suite.shipmentLineItemService.ExpectedCalls = []*mock.Call{}
 	suite.shipmentLineItemService.Calls = []mock.Call{}
+
+	suite.stockItemUnitRepository.AssertExpectations(suite.T())
+	suite.stockItemUnitRepository.ExpectedCalls = []*mock.Call{}
+	suite.stockItemUnitRepository.Calls = []mock.Call{}
 }
 
 func (suite *ShipmentServiceTestSuite) Test_GetShipmentsByReferenceNumber_ReturnsShipmentModels() {
