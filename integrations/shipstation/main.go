@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	topic     = "orders_search_view"
+	topic     = "activities"
 	partition = 1
 )
 

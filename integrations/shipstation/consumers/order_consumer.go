@@ -4,7 +4,6 @@ import (
 	"log"
 	"os"
 
-	"github.com/FoxComm/highlander/integrations/shipstation/lib/mwh"
 	"github.com/FoxComm/highlander/integrations/shipstation/lib/phoenix"
 	"github.com/FoxComm/highlander/integrations/shipstation/lib/shipstation"
 	"github.com/FoxComm/highlander/integrations/shipstation/lib/shipstation/payloads"
@@ -29,45 +28,58 @@ func NewOrderConsumer(topic string) (*OrderConsumer, error) {
 }
 
 func (c OrderConsumer) Handler(message metamorphosis.AvroMessage) error {
-	order, err := phoenix.NewOrderFromAvro(message)
+	activity, err := phoenix.NewActivityFromAvro(message)
 	if err != nil {
 		log.Panicf("Unable to decode Avro message with error %s", err.Error())
 	}
 
-	if order.State == "fulfillmentStarted" {
-		orderStr := string(message.Bytes())
-		log.Printf("Handling order with reference number %s", order.ReferenceNumber)
-		log.Printf(orderStr)
-
-		ssOrder, err := payloads.NewOrderFromPhoenix(order)
-		if err != nil {
-			log.Panicf("Unable to create ShipStation order with error %s", err.Error())
-		}
-
-		_, err = c.client.CreateOrder(ssOrder)
-		if err != nil {
-			log.Panicf("Unable to create order in ShipStation with error %s", err.Error())
-		}
-
-		if err := createShipment(order); err != nil {
-			log.Panicf("Unable to create shipment in middlewarehouse with error %s", err.Error())
-		}
+	if activity.Type != "order_state_changed" {
+		return nil
 	}
+
+	fullOrder, err := phoenix.NewFullOrderFromActivity(activity)
+	if err != nil {
+		log.Panicf("Unable to decode order from activity")
+	}
+
+	if fullOrder.Order.OrderState != "fulfillmentStarted" {
+		return nil
+	}
+
+	log.Printf(
+		"Found order %s in fulfillmentStarted. Add to ShipStation!",
+		fullOrder.Order.ReferenceNumber,
+	)
+
+	ssOrder, err := payloads.NewOrderFromPhoenix(fullOrder.Order)
+	if err != nil {
+		log.Panicf("Unable to create ShipStation order with error %s", err.Error())
+	}
+
+	_, err = c.client.CreateOrder(ssOrder)
+	if err != nil {
+		log.Panicf("Unable to create order in ShipStation with error %s", err.Error())
+	}
+
+	//if err := createShipment(order); err != nil {
+	//log.Panicf("Unable to create shipment in middlewarehouse with error %s", err.Error())
+	//}
+	//}
 
 	return nil
 }
 
-func createShipment(o *phoenix.Order) error {
-	shipment, err := mwh.NewShipmentFromOrder(o)
-	if err != nil {
-		return err
-	}
+//func createShipment(o *phoenix.Order) error {
+//shipment, err := mwh.NewShipmentFromOrder(o)
+//if err != nil {
+//return err
+//}
 
-	mwhClient := mwh.NewClient()
-	_, err = mwhClient.CreateShipment(shipment)
-	if err != nil {
-		return err
-	}
+//mwhClient := mwh.NewClient()
+//_, err = mwhClient.CreateShipment(shipment)
+//if err != nil {
+//return err
+//}
 
-	return nil
-}
+//return nil
+//}

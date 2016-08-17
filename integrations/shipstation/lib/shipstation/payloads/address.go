@@ -22,31 +22,25 @@ type Address struct {
 	Residential bool
 }
 
-func NewAddressFromPhoenix(name string, address phoenix.Address) (Address, error) {
-	street2 := new(string)
-
-	if address.Address2 != "" {
-		street2 = &(address.Address2)
-	}
-
-	state, err := convertRegionFromPhoenix(address.Region)
+func NewAddressFromPhoenix(name string, address phoenix.Address) (*Address, error) {
+	state, err := convertRegionFromPhoenix(address.Region.Name)
 	if err != nil {
-		return Address{}, err
+		return nil, err
 	}
 
-	country, err := convertCountryFromPhoenix(address.Country)
-	if err != nil {
-		return Address{}, err
+	if address.Region.CountryID != 234 {
+		err := fmt.Errorf("Attempted to create address with country ID = %d. Only the US (234) is supported", address.Region.CountryID)
+		return nil, err
 	}
 
-	return Address{
+	return &Address{
 		Name:        name,
 		Street1:     address.Address1,
-		Street2:     street2,
+		Street2:     address.Address2,
 		City:        address.City,
 		State:       state,
 		PostalCode:  address.Zip,
-		Country:     country,
+		Country:     "US",
 		Residential: true,
 	}, nil
 }
@@ -120,13 +114,4 @@ func convertRegionFromPhoenix(region string) (string, error) {
 		return "", fmt.Errorf("Abbreviation not found for %s", region)
 	}
 	return ssRegion, nil
-}
-
-func convertCountryFromPhoenix(country string) (string, error) {
-	key := strings.ToLower(country)
-	ssCountry, ok := countryMap[key]
-	if !ok {
-		return "", fmt.Errorf("Abbreviation not found for %s", country)
-	}
-	return ssCountry, nil
 }

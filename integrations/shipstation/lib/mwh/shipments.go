@@ -1,56 +1,49 @@
 package mwh
 
-import (
-	"errors"
+//func NewShipmentFromOrder(o *phoenix.Order) (*payloads.Shipment, error) {
+//if len(*o.ShippingAddresses) != 1 {
+//return nil, errors.New("Order must have one shipping address")
+//}
 
-	"github.com/FoxComm/highlander/integrations/shipstation/lib/phoenix"
-	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
-)
+//if len(*o.LineItems) == 0 {
+//return nil, errors.New("Order must have at least one line item")
+//}
 
-func NewShipmentFromOrder(o *phoenix.Order) (*payloads.Shipment, error) {
-	if len(*o.ShippingAddresses) != 1 {
-		return nil, errors.New("Order must have one shipping address")
-	}
+//sa := (*o.ShippingAddresses)[0]
 
-	if len(*o.LineItems) == 0 {
-		return nil, errors.New("Order must have at least one line item")
-	}
+//var address2 *string
+//if sa.Address2 != "" {
+//address2 = &(sa.Address2)
+//}
 
-	sa := (*o.ShippingAddresses)[0]
+//shippingAddress := payloads.Address{
+//Region:   sa.Region,
+//Country:  sa.Country,
+//City:     sa.City,
+//Address1: sa.Address1,
+//Address2: address2,
+//Zip:      sa.Zip,
+//}
 
-	var address2 *string
-	if sa.Address2 != "" {
-		address2 = &(sa.Address2)
-	}
+//lineItems := make([]payloads.ShipmentLineItem, len(*o.LineItems))
+//for idx, oli := range *o.LineItems {
+//lineItems[idx] = payloads.ShipmentLineItem{
+//ReferenceNumber: oli.ReferenceNumber,
+//SKU:             oli.SKU,
+//Name:            oli.Name,
+//State:           "pending",
+//Price:           oli.Price,
+//ImagePath:       oli.ImagePath,
+//}
+//}
 
-	shippingAddress := payloads.Address{
-		Region:   sa.Region,
-		Country:  sa.Country,
-		City:     sa.City,
-		Address1: sa.Address1,
-		Address2: address2,
-		Zip:      sa.Zip,
-	}
+//shipment := &payloads.Shipment{
+//ShippingMethodID:  o.ShippingMethod.ShippingMethodID,
+//ReferenceNumber:   o.ReferenceNumber,
+//State:             "pending",
+//Address:           shippingAddress,
+//ShipmentLineItems: lineItems,
+//}
 
-	lineItems := make([]payloads.ShipmentLineItem, len(*o.LineItems))
-	for idx, oli := range *o.LineItems {
-		lineItems[idx] = payloads.ShipmentLineItem{
-			ReferenceNumber: oli.ReferenceNumber,
-			SKU:             oli.SKU,
-			Name:            oli.Name,
-			State:           "pending",
-			Price:           oli.Price,
-			ImagePath:       oli.ImagePath,
-		}
-	}
-
-	shipment := &payloads.Shipment{
-		ShippingMethodID:  o.ShippingMethod.ShippingMethodID,
-		ReferenceNumber:   o.ReferenceNumber,
-		State:             "pending",
-		Address:           shippingAddress,
-		ShipmentLineItems: lineItems,
-	}
-
-	return shipment, nil
-}
+//return shipment, nil
+//}

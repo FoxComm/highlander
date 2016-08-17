@@ -1,9 +1,8 @@
 package phoenix
 
 type ShippingMethod struct {
-	ID                    int    `json:"id"`
-	ShippingMethodID      uint   `json:"shipping_method_id"`
-	AdminDisplayName      string `json:"admin_display_name"`
-	StorefrontDisplayName string `json:"storefront_display_name"`
-	Price                 int    `json:"price"`
+	ID        int    `json:"id" binding:"required"`
+	Name      string `json:"name" binding:"required"`
+	Price     int    `json:"price" binding:"required"`
+	IsEnabled bool   `json:"isEnabled" binding:"required"`
 }
