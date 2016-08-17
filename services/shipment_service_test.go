@@ -18,7 +18,6 @@ import (
 type ShipmentServiceTestSuite struct {
 	GeneralServiceTestSuite
 	shipmentRepository      *repositoryMocks.ShipmentRepositoryMock
-	addressService          *serviceMocks.AddressServiceMock
 	shipmentLineItemService *serviceMocks.ShipmentLineItemServiceMock
 	service                 IShipmentService
 	db                      *gorm.DB
@@ -41,9 +40,8 @@ func (suite *ShipmentServiceTestSuite) SetupTest() {
 	suite.db, err = config.DefaultConnection()
 	suite.Nil(err)
 	suite.shipmentRepository = &repositoryMocks.ShipmentRepositoryMock{}
-	suite.addressService = &serviceMocks.AddressServiceMock{}
 	suite.shipmentLineItemService = &serviceMocks.ShipmentLineItemServiceMock{}
-	suite.service = NewShipmentService(suite.db, suite.shipmentRepository, suite.addressService, suite.shipmentLineItemService)
+	suite.service = NewShipmentService(suite.db, suite.shipmentRepository, suite.shipmentLineItemService)
 }
 
 func (suite *ShipmentServiceTestSuite) TearDownTest() {
@@ -51,10 +49,6 @@ func (suite *ShipmentServiceTestSuite) TearDownTest() {
 	suite.shipmentRepository.AssertExpectations(suite.T())
 	suite.shipmentRepository.ExpectedCalls = []*mock.Call{}
 	suite.shipmentRepository.Calls = []mock.Call{}
-
-	suite.addressService.AssertExpectations(suite.T())
-	suite.addressService.ExpectedCalls = []*mock.Call{}
-	suite.addressService.Calls = []mock.Call{}
 
 	suite.shipmentLineItemService.AssertExpectations(suite.T())
 	suite.shipmentLineItemService.ExpectedCalls = []*mock.Call{}

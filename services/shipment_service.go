@@ -9,7 +9,6 @@ import (
 type shipmentService struct {
 	db                      *gorm.DB
 	repository              repositories.IShipmentRepository
-	addressService          IAddressService
 	shipmentLineItemService IShipmentLineItemService
 }
 
@@ -22,10 +21,9 @@ type IShipmentService interface {
 func NewShipmentService(
 	db *gorm.DB,
 	repository repositories.IShipmentRepository,
-	addressService IAddressService,
 	shipmentLineItemService IShipmentLineItemService,
 ) IShipmentService {
-	return &shipmentService{db, repository, addressService, shipmentLineItemService}
+	return &shipmentService{db, repository, shipmentLineItemService}
 }
 
 func (service *shipmentService) GetShipmentsByReferenceNumber(referenceNumber string) ([]*models.Shipment, error) {
