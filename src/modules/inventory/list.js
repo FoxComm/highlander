@@ -16,7 +16,7 @@ const searchTerms = [
       }, {
         title: 'SKU',
         type: 'identifier',
-        term: 'code'
+        term: 'sku'
       }, {
         title: 'Product State',
         type: 'enum',
@@ -36,12 +36,12 @@ const searchTerms = [
       }, {
         title: 'SKU Type',
         type: 'enum',
-        term: 'skuType',
+        term: 'type',
         suggestions: [
-          { display: 'Backorder', value: 'backorder' },
-          { display: 'Sellable', value: 'sellable' },
-          { display: 'Preorder', value: 'preorder' },
-          { display: 'Non-sellable', value: 'nonSellable' },
+          { display: 'Sellable', value: 'Sellable' },
+          { display: 'Non-sellable', value: 'Non-sellable' },
+          { display: 'Preorder', value: 'Preorder' },
+          { display: 'Backorder', value: 'Backorder' },
         ]
       }, {
         title: 'On Hand',

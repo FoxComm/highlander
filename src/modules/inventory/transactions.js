@@ -2,58 +2,49 @@ import makeLiveSearch from '../live-search';
 
 const searchTerms = [
   {
-    title: 'Transaction',
-    type: 'object',
-    options: [
-      {
-        title: 'Date/Time',
-        type: 'date',
-        term: 'createdAt'
-      }, {
-        title: 'Event',
-        type: 'string',
-        term: 'event'
-      }, {
-        title: 'Warehouse',
-        type: 'string',
-        term: 'warehouse'
-      }, {
-        title: 'Type',
-        type: 'enum',
-        term: 'skuType',
-        suggestions: [
-          { display: 'Backorder', value: 'backorder' },
-          { display: 'Preorder', value: 'preorder' },
-          { display: 'Sellable', value: 'sellable' },
-          { display: 'Non-sellable', value: 'nonSellable' },
-        ]
-      }, {
-        title: 'State',
-        type: 'enum',
-        term: 'state',
-        suggestions: [
-          { display: 'On Hand', value: 'onHand' },
-          { display: 'On Hold', value: 'onHold' },
-          { display: 'Reserved', value: 'reserved' }
-        ]
-      }, {
-        title: 'Previous',
-        type: 'number',
-        term: 'previousQuantity'
-      }, {
-        title: 'New',
-        type: 'number',
-        term: 'newQuantity'
-      }, {
-        title: 'Change',
-        type: 'number',
-        term: 'change'
-      }, {
-        title: 'New AFS',
-        type: 'number',
-        term: 'newAfs'
-      }
+    title: 'Date/Time',
+    type: 'date',
+    term: 'createdAt'
+  }, {
+    title: 'Warehouse',
+    type: 'string',
+    term: 'stockLocationName'
+  }, {
+    title: 'Type',
+    type: 'enum',
+    term: 'type',
+    suggestions: [
+      { display: 'Sellable', value: 'Sellable' },
+      { display: 'Non-sellable', value: 'Non-sellable' },
+      { display: 'Backorder', value: 'Backorder' },
+      { display: 'Preorder', value: 'Preorder' },
     ]
+  }, {
+    title: 'State',
+    type: 'enum',
+    term: 'status',
+    suggestions: [
+      { display: 'OnHand', value: 'onHand' },
+      { display: 'OnHold', value: 'onHold' },
+      { display: 'Reserved', value: 'reserved' },
+      { display: 'Shipped', value: 'shipped' }
+    ]
+  }, {
+    title: 'Previous',
+    type: 'number',
+    term: 'quantityPrevious'
+  }, {
+    title: 'New',
+    type: 'number',
+    term: 'quantityNew'
+  }, {
+    title: 'Change',
+    type: 'number',
+    term: 'quantityChange'
+  }, {
+    title: 'New AFS',
+    type: 'number',
+    term: 'afsNew'
   }
 ];
 
