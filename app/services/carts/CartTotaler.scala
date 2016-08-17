@@ -52,7 +52,7 @@ object CartTotaler {
   def adjustmentsTotal(cart: Cart)(implicit ec: EC): DbResultT[Int] =
     for {
       lineItemAdjustments ← * <~ OrderLineItemAdjustments.filter(_.cordRef === cart.refNum).result
-      sum = lineItemAdjustments.foldLeft(0)(_ + _.substract)
+      sum = lineItemAdjustments.foldLeft(0)(_ + _.subtract)
     } yield sum
 
   def taxesTotal(cart: Cart, subTotal: Int, shipping: Int, adjustments: Int)(

@@ -12,7 +12,7 @@ case class OrderAmountOffer(discount: Int) extends Offer with AmountOffer {
 
   def adjust(input: DiscountInput)(implicit db: DB, ec: EC, es: ES): OfferResult =
     if (discount > 0)
-      buildResult(input, substract(input.cart.subTotal, discount))
+      buildResult(input, subtract(input.cart.subTotal, discount))
     else
       pureResult()
 }
