@@ -1,7 +1,7 @@
 import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
-import util.{Fixtures, IntegrationTestBase}
+import util._
 import failures.NotFoundFailure404
 import models.StoreAdmins
 import models.customer.Customers
@@ -19,7 +19,7 @@ class ReturnPaymentsIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
     with AutomaticAuth
-    with Fixtures {
+    with BakedFixtures {
 
   import Extensions._
 
@@ -183,17 +183,14 @@ class ReturnPaymentsIntegrationTest
     }
   }
 
-  trait Fixture extends CustomerFixture {
-    val (rma, order, admin) = (for {
-      admin ← * <~ StoreAdmins.create(authedStoreAdmin)
-
-      order   ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
-      address ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
-      cc      ← * <~ CreditCards.create(Factories.creditCard.copy(customerId = customer.id))
+  trait Fixture extends StoreAdmin_Seed with Order_Baked {
+    val rma = (for {
+      order ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
+      cc    ← * <~ CreditCards.create(Factories.creditCard.copy(customerId = customer.id))
       orderPayment ← * <~ OrderPayments.create(
                         Factories.orderPayment
                           .copy(cordRef = order.refNum, paymentMethodId = cc.id, amount = None))
       rma ← * <~ Returns.create(Factories.rma.copy(referenceNumber = "ABCD1234-11.1"))
-    } yield (rma, order, admin)).gimme
+    } yield rma).gimme
   }
 }

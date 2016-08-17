@@ -9,7 +9,7 @@ import models.product.{Mvp, SimpleContext}
 import models.{SaveForLater, SaveForLaters}
 import responses.SaveForLaterResponse
 import services.SaveForLaterManager.SavedForLater
-import util.{Fixtures, IntegrationTestBase}
+import util._
 import utils.db._
 import utils.seeds.Seeds.Factories
 
@@ -17,7 +17,7 @@ class SaveForLaterIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
     with AutomaticAuth
-    with Fixtures {
+    with BakedFixtures {
 
   "GET v1/save-for-later/:customerId" - {
     "shows all save for later items for customer" in new Fixture {
@@ -91,7 +91,7 @@ class SaveForLaterIntegrationTest
     }
   }
 
-  trait Fixture extends CustomerFixture {
+  trait Fixture extends Customer_Seed {
     val (product, productContext) = (for {
       productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       product        ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head)

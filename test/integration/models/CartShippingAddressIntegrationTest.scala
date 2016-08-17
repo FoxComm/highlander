@@ -2,14 +2,14 @@ package models
 
 import failures.GeneralFailure
 import models.cord.OrderShippingAddresses
-import util.{TestObjectContext, Fixtures, IntegrationTestBase}
+import util._
 import utils.db._
 import utils.jdbc._
 import utils.seeds.Seeds.Factories
 
 class CartShippingAddressIntegrationTest
     extends IntegrationTestBase
-    with Fixtures
+    with BakedFixtures
     with TestObjectContext {
 
   "OrderShippingAddress" - {
@@ -22,7 +22,7 @@ class CartShippingAddressIntegrationTest
     }
   }
 
-  trait Fixture extends EmptyCustomerCartFixture {
+  trait Fixture extends EmptyCustomerCart_Baked {
     val shippingAddress =
       OrderShippingAddresses.create(Factories.shippingAddress.copy(cordRef = cart.refNum)).gimme
   }

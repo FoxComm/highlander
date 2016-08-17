@@ -1,12 +1,17 @@
 package models
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import models.cord.OrderPayments
 import models.payment.storecredit._
-import util.{TestObjectContext, Fixtures, IntegrationTestBase}
+import util._
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class StoreCreditIntegrationTest extends IntegrationTestBase with Fixtures with TestObjectContext {
+class StoreCreditIntegrationTest
+    extends IntegrationTestBase
+    with BakedFixtures
+    with TestObjectContext {
 
   "StoreCreditTest" - {
     "sets availableBalance and currentBalance equal to originalBalance upon insert" in new Fixture {
@@ -40,7 +45,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase with Fixtures with 
     }
   }
 
-  trait Fixture extends EmptyCustomerCartFixture with StoreAdminFixture {
+  trait Fixture extends EmptyCustomerCart_Baked with StoreAdmin_Seed {
     val (origin, storeCredit, payment) = (for {
       reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
       origin ← * <~ StoreCreditManuals.create(

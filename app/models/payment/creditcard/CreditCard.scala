@@ -5,7 +5,7 @@ import java.time.Instant
 import cats.data.{ValidatedNel, Xor}
 import cats.implicits._
 import failures.CreditCardFailures.CannotUseInactiveCreditCard
-import failures.{Failure, Failures, NotFoundFailure404}
+import failures._
 import models.customer.Customers
 import models.location._
 import models.payment.PaymentMethod
@@ -66,6 +66,10 @@ case class CreditCard(id: Int = 0,
 
   def mustBeInWallet: Failures Xor CreditCard =
     if (inWallet) Xor.right(this) else Xor.left(CannotUseInactiveCreditCard(this).single)
+
+  def mustBelongToCustomer(ownerId: Int): Failures Xor CreditCard =
+    if (customerId == ownerId) Xor.right(this)
+    else Xor.left(NotFoundFailure400(CreditCard, id).single)
 
   def copyFromAddress(a: Address): CreditCard =
     this.copy(regionId = a.regionId,

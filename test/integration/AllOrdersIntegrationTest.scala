@@ -8,7 +8,7 @@ import models.customer.Customers
 import payloads.OrderPayloads.BulkUpdateOrdersPayload
 import responses.BatchResponse
 import responses.cord._
-import util.{Fixtures, IntegrationTestBase}
+import util._
 import utils.db._
 import utils.seeds.Seeds.Factories
 
@@ -16,7 +16,7 @@ class AllOrdersIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
     with AutomaticAuth
-    with Fixtures {
+    with BakedFixtures {
 
   "PATCH /v1/orders" - {
     "bulk update states" in new StateUpdateFixture {
@@ -36,7 +36,7 @@ class AllOrdersIntegrationTest
       all.errors.value must contain only NotFoundFailure404(Order, "nonExistent").description
     }
 
-    "refuses invalid status transition" in new OrderFromCartFixture {
+    "refuses invalid status transition" in new Order_Baked {
 
       val response = PATCH("v1/orders", BulkUpdateOrdersPayload(Seq(order.refNum), Shipped))
 

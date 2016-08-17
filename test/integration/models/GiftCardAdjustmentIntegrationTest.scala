@@ -2,13 +2,13 @@ package models
 
 import models.cord.OrderPayments
 import models.payment.giftcard._
-import util.{TestObjectContext, Fixtures, IntegrationTestBase}
+import util._
 import utils.db._
 import utils.seeds.Seeds.Factories
 
 class GiftCardAdjustmentIntegrationTest
     extends IntegrationTestBase
-    with Fixtures
+    with BakedFixtures
     with TestObjectContext {
 
   import api._
@@ -171,10 +171,7 @@ class GiftCardAdjustmentIntegrationTest
     }
   }
 
-  trait Fixture extends EmptyCustomerCartFixture with StoreAdminFixture {
-    val (reason) = (for {
-      reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
-      reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
-    } yield (reason)).gimme
+  trait Fixture extends EmptyCustomerCart_Baked with StoreAdmin_Seed {
+    val reason = Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id)).gimme
   }
 }

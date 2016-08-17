@@ -4,7 +4,7 @@ import Extensions._
 import failures.InvalidReasonTypeFailure
 import models.returns.ReturnReasons
 import models.{Reason, Reasons}
-import util.{Fixtures, IntegrationTestBase}
+import util._
 import utils.Strings._
 import utils.db._
 import utils.seeds.Seeds.Factories
@@ -13,7 +13,7 @@ class ReasonsIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
     with AutomaticAuth
-    with Fixtures {
+    with BakedFixtures {
 
   "Reasons" - {
 
@@ -37,7 +37,7 @@ class ReasonsIntegrationTest
     }
   }
 
-  trait Fixture extends StoreAdminFixture {
+  trait Fixture extends StoreAdmin_Seed {
     val (reason, returnReason) = (for {
       reason ← * <~ Reasons.create(
                   Factories.reasons.head.copy(reasonType = Reason.GiftCardCreation,

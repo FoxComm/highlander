@@ -1,10 +1,12 @@
 package models
 
+import concurrent.ExecutionContext.Implicits.global
+
 import util.CustomMatchers._
-import util.{TestObjectContext, Fixtures, IntegrationTestBase}
+import util._
 import utils.seeds.Seeds.Factories
 
-class NoteIntegrationTest extends IntegrationTestBase with Fixtures with TestObjectContext {
+class NoteIntegrationTest extends IntegrationTestBase with BakedFixtures with TestObjectContext {
 
   "Note" - {
     "Postgres constraints" - {
@@ -39,7 +41,7 @@ class NoteIntegrationTest extends IntegrationTestBase with Fixtures with TestObj
     }
   }
 
-  trait Fixture extends StoreAdminFixture {
+  trait Fixture extends StoreAdmin_Seed {
     val note = Factories.orderNotes.head.copy(storeAdminId = storeAdmin.id)
   }
 }

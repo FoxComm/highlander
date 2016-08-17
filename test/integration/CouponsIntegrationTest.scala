@@ -24,7 +24,7 @@ import responses.TheResponse
 import responses.cord.CartResponse
 import services.coupon.CouponManager
 import services.promotion.PromotionManager
-import util.{IntegrationTestBase, TestActivityContext}
+import util._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 import utils.seeds.Seeds.Factories
