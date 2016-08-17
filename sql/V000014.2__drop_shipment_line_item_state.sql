@@ -1,0 +1,1 @@
+alter table shipment_line_items drop column if exists state;
