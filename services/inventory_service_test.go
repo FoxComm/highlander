@@ -10,13 +10,11 @@ import (
 
 	"github.com/FoxComm/middlewarehouse/fixtures"
 	"github.com/FoxComm/middlewarehouse/services/mocks"
-	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/suite"
 )
 
 type InventoryServiceTestSuite struct {
-	suite.Suite
-	db      *gorm.DB
+	GeneralServiceTestSuite
 	sl      *models.StockLocation
 	service IInventoryService
 }

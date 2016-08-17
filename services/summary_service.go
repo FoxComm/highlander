@@ -77,9 +77,7 @@ func (service *summaryService) UpdateStockItemSummary(stockItemId uint, unitType
 	}
 
 	// create related stock item transaction
-	if err := service.CreateStockItemTransaction(summary, status.To, qty); err != nil {
-		log.Printf("Error creating stock_item_transactions with error: %s", err.Error())
-	}
+	go service.CreateStockItemTransaction(summary, status.To, qty)
 
 	return nil
 }
@@ -94,7 +92,11 @@ func (service *summaryService) CreateStockItemTransaction(summary *models.StockI
 		AFSNew:         uint(summary.AFS),
 	}
 
-	return service.summaryRepo.CreateStockItemTransaction(transaction)
+	if err := service.summaryRepo.CreateStockItemTransaction(transaction); err != nil {
+		log.Printf("Error creating stock_item_transactions with error: %s", err.Error())
+	}
+
+	return nil
 }
 
 func updateStatusUnitsAmount(summary *models.StockItemSummary, status models.UnitStatus, qty int) *models.StockItemSummary {
