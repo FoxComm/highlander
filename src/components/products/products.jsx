@@ -4,8 +4,10 @@
 
 // libs
 import React, { Component, Element } from 'react';
+import _ from 'lodash';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import * as dsl from 'elastic/dsl';
 
 // data
 import { actions } from '../../modules/products/list';
@@ -40,6 +42,41 @@ const tableColumns: Array<Column> = [
 
 export class Products extends Component<void, Props, void> {
   props: Props;
+
+  componentDidMount() {
+    this.props.actions.setExtraFilters([
+      dsl.existsFilter('archivedAt', 'missing')
+    ]);
+
+    this.props.actions.fetch();
+  }
+
+  //it worked the same way with componentWillReceiveProps
+  componentDidUpdate(prevProps) {
+    const { list } = this.props;
+
+    const prevSearchId = prevProps.list.selectedSearch;
+    const currentSearchId = list.selectedSearch;
+    const prevSearchQuery = prevProps.list.savedSearches[prevSearchId].query;
+    const currentSearchQuery = list.savedSearches[currentSearchId].query;
+
+    //if I don't check this, set extra filters will loop forever
+    if (currentSearchId === prevSearchId && _.isEqual(prevSearchQuery.sort(), currentSearchQuery.sort())) return;
+
+    //in the ideal world if you search with archivedAt term, archived items should be shown
+    if (_.find(currentSearchQuery, 'term', 'archivedAt')) {
+      this.props.actions.clearExtraFilters();
+      //this.props.actions.submitFilters(currentSearchQuery);
+      this.props.actions.fetch();
+    } else {
+      this.props.actions.setExtraFilters([
+        dsl.existsFilter('archivedAt', 'missing')
+      ]);
+
+      //this.props.actions.submitFilters(currentSearchQuery);
+      this.props.actions.fetch();
+    }
+  }
 
   renderRow(row: Product, index: number, columns: Array<Column>, params: Object) {
     const key = `products-${row.id}`;

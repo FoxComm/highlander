@@ -27,7 +27,7 @@ const ProductsListPage = (props: Props) => {
   return (
     <ListPageContainer
       title="Products"
-      subtitle={<TotalCounter />}
+      //subtitle={<TotalCounter />}
       addTitle="Product"
       handleAddAction={addAction}
       navLinks={navLinks}>
