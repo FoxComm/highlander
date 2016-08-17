@@ -37,8 +37,8 @@ func (suite *ShipmentLineItemServiceTestSuite) TearDownTest() {
 
 func (suite *ShipmentLineItemServiceTestSuite) Test_GetShipmentLineItemsByShipmentID_ReturnsShipmentLineItemModels() {
 	//arrange
-	shipmentLineItem1 := fixtures.GetShipmentLineItem(uint(1), uint(1))
-	shipmentLineItem2 := fixtures.GetShipmentLineItem(uint(2), uint(1))
+	shipmentLineItem1 := fixtures.GetShipmentLineItem(uint(1), uint(1), uint(1))
+	shipmentLineItem2 := fixtures.GetShipmentLineItem(uint(2), uint(1), uint(2))
 	suite.repository.On("GetShipmentLineItemsByShipmentID", uint(1)).Return([]*models.ShipmentLineItem{shipmentLineItem1, shipmentLineItem2}, nil).Once()
 
 	//act
@@ -54,7 +54,7 @@ func (suite *ShipmentLineItemServiceTestSuite) Test_GetShipmentLineItemsByShipme
 
 func (suite *ShipmentLineItemServiceTestSuite) Test_CreateShipmentLineItem_ReturnsCreatedRecord() {
 	//arrange
-	shipmentLineItem1 := fixtures.GetShipmentLineItem(uint(1), uint(1))
+	shipmentLineItem1 := fixtures.GetShipmentLineItem(uint(1), uint(1), uint(1))
 	suite.repository.On("CreateShipmentLineItem", shipmentLineItem1).Return(shipmentLineItem1, nil).Once()
 
 	//act
@@ -67,7 +67,7 @@ func (suite *ShipmentLineItemServiceTestSuite) Test_CreateShipmentLineItem_Retur
 
 func (suite *ShipmentLineItemServiceTestSuite) Test_UpdateShipmentLineItem_NotFound_ReturnsNotFoundError() {
 	//arrange
-	shipmentLineItem1 := fixtures.GetShipmentLineItem(uint(1), uint(1))
+	shipmentLineItem1 := fixtures.GetShipmentLineItem(uint(1), uint(1), uint(1))
 	suite.repository.On("UpdateShipmentLineItem", shipmentLineItem1).Return(nil, gorm.ErrRecordNotFound).Once()
 
 	//act
@@ -79,7 +79,7 @@ func (suite *ShipmentLineItemServiceTestSuite) Test_UpdateShipmentLineItem_NotFo
 
 func (suite *ShipmentLineItemServiceTestSuite) Test_UpdateShipmentLineItem_Found_ReturnsUpdatedRecord() {
 	//arrange
-	shipmentLineItem1 := fixtures.GetShipmentLineItem(uint(1), uint(1))
+	shipmentLineItem1 := fixtures.GetShipmentLineItem(uint(1), uint(1), uint(1))
 	suite.repository.On("UpdateShipmentLineItem", shipmentLineItem1).Return(shipmentLineItem1, nil).Once()
 
 	//act

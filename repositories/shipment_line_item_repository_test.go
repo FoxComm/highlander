@@ -35,8 +35,8 @@ func (suite *ShipmentLineItemRepositoryTestSuite) TearDownTest() {
 
 func (suite *ShipmentLineItemRepositoryTestSuite) Test_GetShipmentLineItemsByShipmentID_Found_ReturnsShipmentLineItemModels() {
 	//arrange
-	shipmentLineItem1 := fixtures.GetShipmentLineItem(uint(1), uint(1))
-	shipmentLineItem2 := fixtures.GetShipmentLineItem(uint(2), uint(1))
+	shipmentLineItem1 := fixtures.GetShipmentLineItem(uint(1), uint(1), uint(1))
+	shipmentLineItem2 := fixtures.GetShipmentLineItem(uint(2), uint(1), uint(2))
 	rows := sqlmock.
 		NewRows(fixtures.GetShipmentLineItemColumns()).
 		AddRow(fixtures.GetShipmentLineItemRow(shipmentLineItem1)...).
@@ -58,14 +58,14 @@ func (suite *ShipmentLineItemRepositoryTestSuite) Test_GetShipmentLineItemsByShi
 
 func (suite *ShipmentLineItemRepositoryTestSuite) Test_CreateShipmentLineItem_ReturnsCreatedRecord() {
 	//arrange
-	shipmentLineItem1 := fixtures.GetShipmentLineItem(uint(1), uint(1))
+	shipmentLineItem1 := fixtures.GetShipmentLineItem(uint(1), uint(1), uint(1))
 	suite.mock.
 		ExpectExec(`INSERT INTO "shipment_line_items"`).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 	suite.expectSelectByID(shipmentLineItem1)
 
 	//act
-	shipmentLineItem, err := suite.repository.CreateShipmentLineItem(fixtures.GetShipmentLineItem(uint(0), uint(1)))
+	shipmentLineItem, err := suite.repository.CreateShipmentLineItem(fixtures.GetShipmentLineItem(uint(0), uint(1), uint(1)))
 
 	//assert
 	suite.Nil(err)
@@ -76,7 +76,7 @@ func (suite *ShipmentLineItemRepositoryTestSuite) Test_CreateShipmentLineItem_Re
 
 func (suite *ShipmentLineItemRepositoryTestSuite) Test_UpdateShipmentLineItem_NotFound_ReturnsNotFoundError() {
 	//arrange
-	shipmentLineItem1 := fixtures.GetShipmentLineItem(uint(1), uint(1))
+	shipmentLineItem1 := fixtures.GetShipmentLineItem(uint(1), uint(1), uint(1))
 	suite.mock.
 		ExpectExec(`UPDATE "shipment_line_items"`).
 		WillReturnResult(sqlmock.NewResult(1, 0))
@@ -90,7 +90,7 @@ func (suite *ShipmentLineItemRepositoryTestSuite) Test_UpdateShipmentLineItem_No
 
 func (suite *ShipmentLineItemRepositoryTestSuite) Test_UpdateShipmentLineItem_Found_ReturnsUpdatedRecord() {
 	//arrange
-	shipmentLineItem1 := fixtures.GetShipmentLineItem(uint(1), uint(1))
+	shipmentLineItem1 := fixtures.GetShipmentLineItem(uint(1), uint(1), uint(1))
 	suite.mock.
 		ExpectExec(`UPDATE "shipment_line_items"`).
 		WillReturnResult(sqlmock.NewResult(1, 1))

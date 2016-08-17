@@ -73,7 +73,7 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_CreateStockItem_SummaryC
 
 func (suite *InventoryServiceIntegrationTestSuite) Test_IncrementStockItemUnits_SummaryUpdate() {
 	stockItem, _ := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, suite.sku))
-	suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem.ID, 5))
+	suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 5))
 
 	// workaround for summary goroutines
 	time.Sleep(100 * time.Millisecond)
@@ -87,7 +87,7 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_IncrementStockItemUnits_
 
 func (suite *InventoryServiceIntegrationTestSuite) Test_DecrementStockItemUnits_SummaryUpdate() {
 	stockItem, _ := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, suite.sku))
-	suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem.ID, 10))
+	suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 10))
 	suite.service.DecrementStockItemUnits(stockItem.ID, models.Sellable, 7)
 
 	// workaround for summary goroutines
@@ -105,10 +105,10 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_ReleaseItems_MultipleSKU
 	sku2 := "TEST-RESERVATION-B"
 
 	stockItem1, _ := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, sku1))
-	suite.service.IncrementStockItemUnits(stockItem1.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem1.ID, 5))
+	suite.service.IncrementStockItemUnits(stockItem1.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem1, 5))
 
 	stockItem2, _ := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, sku2))
-	suite.service.IncrementStockItemUnits(stockItem2.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem2.ID, 5))
+	suite.service.IncrementStockItemUnits(stockItem2.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem2, 5))
 
 	refNum := "BR10001"
 	skus := map[string]int{
@@ -130,7 +130,7 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_ReleaseItems_MultipleSKU
 
 func (suite *InventoryServiceIntegrationTestSuite) Test_ReleaseItems_SubsequentSummary() {
 	stockItem, _ := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, suite.sku))
-	suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem.ID, 10))
+	suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 10))
 
 	skus := map[string]int{suite.sku: 3}
 
@@ -159,7 +159,7 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_ReleaseItems_Summary() {
 	skus := map[string]int{suite.sku: 1}
 	refNum := "BR10001"
 	stockItem, _ := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, suite.sku))
-	suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem.ID, 1))
+	suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 1))
 	suite.service.ReserveItems(refNum, skus)
 
 	suite.service.ReleaseItems(refNum)
@@ -174,7 +174,7 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_ReleaseItems_Summary() {
 
 func (suite *InventoryServiceIntegrationTestSuite) Test_GetAFSByID() {
 	stockItem, _ := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, suite.sku))
-	suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem.ID, 10))
+	suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 10))
 
 	// workaround for summary goroutines
 	time.Sleep(100 * time.Millisecond)
@@ -189,7 +189,7 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_GetAFSByID() {
 
 func (suite *InventoryServiceIntegrationTestSuite) Test_GetAFSByID_NotFound() {
 	stockItem, _ := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, suite.sku))
-	suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem.ID, 10))
+	suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 10))
 
 	afs, err := suite.service.GetAFSByID(uint(222), models.Sellable)
 
@@ -199,7 +199,7 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_GetAFSByID_NotFound() {
 
 func (suite *InventoryServiceIntegrationTestSuite) Test_GetAFSBySKU() {
 	stockItem, _ := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, suite.sku))
-	suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem.ID, 10))
+	suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 10))
 
 	// workaround for summary goroutines
 	time.Sleep(100 * time.Millisecond)
@@ -211,7 +211,7 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_GetAFSBySKU() {
 
 func (suite *InventoryServiceIntegrationTestSuite) Test_GetAFSBySKU_NotFound() {
 	stockItem, _ := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, suite.sku))
-	suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem.ID, 10))
+	suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 10))
 
 	afs, err := suite.service.GetAFSBySKU("BLA-BLA-SKU", models.Sellable)
 

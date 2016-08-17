@@ -8,6 +8,7 @@ import (
 type ShipmentLineItem struct {
 	gormfox.Base
 	ShipmentID      uint
+	StockItemUnitID uint
 	SKU             string
 	Name            string
 	Price           uint
@@ -19,9 +20,9 @@ func NewShipmentLineItemFromPayload(payload *payloads.ShipmentLineItem) *Shipmen
 		Base: gormfox.Base{
 			ID: payload.ID,
 		},
-		SKU:             payload.SKU,
-		Name:            payload.Name,
-		Price:           payload.Price,
-		ImagePath:       payload.ImagePath,
+		SKU:       payload.SKU,
+		Name:      payload.Name,
+		Price:     payload.Price,
+		ImagePath: payload.ImagePath,
 	}
 }

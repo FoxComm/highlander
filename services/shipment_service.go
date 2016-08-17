@@ -1,6 +1,7 @@
 package services
 
 import (
+	"fmt"
 	"github.com/FoxComm/middlewarehouse/models"
 	"github.com/FoxComm/middlewarehouse/repositories"
 )
@@ -37,6 +38,11 @@ func (service *shipmentService) GetShipmentsByReferenceNumber(referenceNumber st
 }
 
 func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*models.Shipment, error) {
+	stockItemUnits, err := service.stockItemUnitRepository.GetUnitsInOrder(shipment.ReferenceNumber)
+	if err != nil {
+		return nil, err
+	}
+
 	address, err := service.addressService.CreateAddress(&shipment.Address)
 	if err != nil {
 		return nil, err
@@ -50,10 +56,20 @@ func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*mode
 	}
 
 	createdLineItems := []models.ShipmentLineItem{}
+	boundItems := make(map[uint]uint)
 	for i, _ := range shipment.ShipmentLineItems {
+		var createdLineItem *models.ShipmentLineItem
 		lineItem := &shipment.ShipmentLineItems[i]
 		lineItem.ShipmentID = result.ID
-		createdLineItem, err := service.shipmentLineItemService.CreateShipmentLineItem(lineItem)
+
+		stockItemUnit := service.getStockItemUnitForShipmentLineItem(lineItem.SKU, boundItems, stockItemUnits)
+		if stockItemUnit == nil {
+			err = fmt.Errorf("Not found stock item unit with reference number %s and sku %s", shipment.ReferenceNumber, lineItem.SKU)
+		} else {
+			lineItem.StockItemUnitID = stockItemUnit.ID
+			createdLineItem, err = service.shipmentLineItemService.CreateShipmentLineItem(lineItem)
+		}
+
 		if err != nil {
 			service.shipmentRepository.DeleteShipment(result.ID)
 			service.addressService.DeleteAddress(address.ID)
@@ -70,14 +86,25 @@ func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*mode
 	return service.shipmentRepository.GetShipmentByID(result.ID)
 }
 
+func (service *shipmentService) getStockItemUnitForShipmentLineItem(
+	sku string,
+	boundItems map[uint]uint,
+	stockItemUnits []*models.StockItemUnit,
+) *models.StockItemUnit {
+	for _, stockItemUnit := range stockItemUnits {
+		if _, bound := boundItems[stockItemUnit.ID]; stockItemUnit.StockItem.SKU == sku && !bound {
+			boundItems[stockItemUnit.ID] = stockItemUnit.ID
+			return stockItemUnit
+		}
+	}
+
+	return nil
+}
+
 func (service *shipmentService) UpdateShipment(shipment *models.Shipment) (*models.Shipment, error) {
 	_, err := service.shipmentRepository.UpdateShipment(shipment)
 	if err != nil {
 		return nil, err
-	}
-
-	for i, _ := range shipment.ShipmentLineItems {
-		service.shipmentLineItemService.UpdateShipmentLineItem(&shipment.ShipmentLineItems[i])
 	}
 
 	return service.shipmentRepository.GetShipmentByID(shipment.ID)
