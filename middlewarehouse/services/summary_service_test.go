@@ -2,10 +2,10 @@ package services
 
 import (
 	"testing"
-	"time"
 
 	"github.com/FoxComm/highlander/middlewarehouse/common/db/config"
 	"github.com/FoxComm/highlander/middlewarehouse/common/db/tasks"
+	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 
@@ -30,47 +30,43 @@ func TestSummaryServiceSuite(t *testing.T) {
 }
 
 func (suite *summaryServiceTestSuite) SetupSuite() {
+	tasks.TruncateTables([]string{
+		"stock_items",
+		"stock_locations",
+		"inventory_search_view",
+	})
+
 	suite.db, _ = config.DefaultConnection()
 
 	summaryRepository := repositories.NewSummaryRepository(suite.db)
 	stockItemRepository := repositories.NewStockItemRepository(suite.db)
-	unitRepository := repositories.NewStockItemUnitRepository(suite.db)
+	stockLocationRepository := repositories.NewStockLocationRepository(suite.db)
+	stockItemUnitRepository := repositories.NewStockItemUnitRepository(suite.db)
 
 	suite.service = NewSummaryService(summaryRepository, stockItemRepository)
-	suite.inventoryService = NewInventoryService(stockItemRepository, unitRepository, suite.service)
+
+	inventoryService := NewInventoryService(stockItemRepository, stockItemUnitRepository, suite.service)
+	stockLocationService := NewStockLocationService(stockLocationRepository)
+
+	sl, _ := stockLocationService.CreateLocation(fixtures.GetStockLocation())
+	si, _ := inventoryService.CreateStockItem(fixtures.GetStockItem(sl.ID, "SKU"))
+
+	suite.si = si
 	suite.onHand = 10
 	suite.unitCost = 5000
 }
 
 func (suite *summaryServiceTestSuite) SetupTest() {
 	tasks.TruncateTables([]string{
-		"stock_items",
 		"stock_item_summaries",
-		"stock_locations",
+		"stock_item_transactions",
 		"inventory_search_view",
+		"inventory_transactions_search_view",
 	})
 
-	stockLocationService := NewStockLocationService(repositories.NewStockLocationRepository(suite.db))
-	stockLocationService.CreateLocation(&models.StockLocation{Type: "Warehouse", Name: "TEST-LOCATION"})
-
-	stockItem := &models.StockItem{StockLocationID: 1, SKU: "TEST-DEFAULT", DefaultUnitCost: suite.unitCost}
-	suite.si, _ = suite.inventoryService.CreateStockItem(stockItem)
-
-	units := []*models.StockItemUnit{}
-
-	for i := 0; i < suite.onHand; i++ {
-		item := &models.StockItemUnit{
-			StockItemID: stockItem.ID,
-			UnitCost:    500,
-			Type:        models.Sellable,
-			Status:      models.StatusOnHand,
-		}
-		units = append(units, item)
-	}
-
-	suite.inventoryService.IncrementStockItemUnits(suite.si.ID, models.Sellable, units)
-
-	time.Sleep(100 * time.Millisecond)
+	// setup initial summary for all tests
+	suite.service.CreateStockItemSummary(suite.si.ID)
+	suite.service.UpdateStockItemSummary(suite.si.ID, models.Sellable, suite.onHand, models.StatusChange{To: models.StatusOnHand})
 }
 
 func (suite *summaryServiceTestSuite) Test_Increment_OnHand() {

@@ -42,3 +42,9 @@ func (m *SummaryServiceMock) UpdateStockItemSummary(stockItemId uint, unitType m
 
 	return args.Error(0)
 }
+
+func (m *SummaryServiceMock) CreateStockItemTransaction(summary *models.StockItemSummary, status models.UnitStatus, qty int) error {
+	args := m.Called(summary, status, qty)
+
+	return args.Error(0)
+}
