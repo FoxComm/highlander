@@ -75,7 +75,7 @@ func (service *inventoryService) IncrementStockItemUnits(stockItemId uint, unitT
 }
 
 func (service *inventoryService) DecrementStockItemUnits(stockItemId uint, unitType models.UnitType, qty int) error {
-	unitsIds, err := service.unitRepo.OnHandStockItemUnits(stockItemId, unitType, qty)
+	unitsIds, err := service.unitRepo.GetStockItemUnitIds(stockItemId, models.StatusOnHand, unitType, qty)
 	if err != nil {
 		return err
 	}
@@ -110,7 +110,7 @@ func (service *inventoryService) ReserveItems(refNum string, skus map[string]int
 	// get available units for each stock item
 	unitsIds := []uint{}
 	for _, si := range items {
-		ids, err := service.unitRepo.OnHandStockItemUnits(si.ID, models.Sellable, skus[si.SKU])
+		ids, err := service.unitRepo.GetStockItemUnitIds(si.ID, models.StatusOnHand, models.Sellable, skus[si.SKU])
 		if err != nil {
 			return err
 		}
