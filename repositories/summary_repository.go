@@ -18,6 +18,8 @@ type ISummaryRepository interface {
 
 	CreateStockItemSummary(summary []*models.StockItemSummary) error
 	UpdateStockItemSummary(summary *models.StockItemSummary) error
+
+	CreateStockItemTransaction(transaction *models.StockItemTransaction) error
 }
 
 func NewSummaryRepository(db *gorm.DB) ISummaryRepository {
@@ -76,4 +78,8 @@ func (repository *summaryRepository) CreateStockItemSummary(summary []*models.St
 
 func (repository *summaryRepository) UpdateStockItemSummary(summary *models.StockItemSummary) error {
 	return repository.db.Save(summary).Error
+}
+
+func (repository *summaryRepository) CreateStockItemTransaction(transaction *models.StockItemTransaction) error {
+	return repository.db.Create(transaction).Error
 }
