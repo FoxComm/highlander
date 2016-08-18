@@ -40,8 +40,8 @@ export type Props = {
     size?: number,
     total?: number,
   };
-  renderRow: (row: RowType, index: number, isNew: ?boolean) => ?Element;
-  setState: Function;
+  renderRow?: (row: RowType, index: number, isNew: ?boolean) => ?Element;
+  setState?: Function;
   predicate: (row: RowType) => string|number;
   processRows: (rows: Array<Element>) => Element;
   detectNewRows?: boolean;
@@ -99,7 +99,7 @@ export default class Table extends Component {
       <TableRow key={`row-${rowKey}`} isNew={isNew}>
         {this.props.columns.map((column, cellIdx) => {
           return (
-            <TableCell column={column} key={`cell-${cellIdx}`} row={row}>
+            <TableCell column={column} row={row} key={`cell-${cellIdx}`}>
               {row[column.field]}
             </TableCell>
           );

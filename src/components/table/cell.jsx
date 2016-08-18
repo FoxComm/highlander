@@ -40,6 +40,9 @@ function getCell(column, children, row) {
     case 'change':
       return <Change value={children} />;
     default:
+      if (column.render) {
+        return column.render(children, row);
+      }
       return children;
   }
 }

@@ -168,6 +168,9 @@ const Navigation = props => {
                           status={getMenuItemState(props, 'settings')}
                           toggleMenuItem={props.toggleMenuItem} >
             <IndexLink to="users" className="fc-navigation-item__sublink">Users</IndexLink>
+            <Link to="plugins" className="fc-navigation-item__sublink">
+              Plugins
+            </Link>
             <a href="" className="fc-navigation-item__sublink" onClick={goNowhere}>Roles & Permissions</a>
             <a href="" className="fc-navigation-item__sublink" onClick={goNowhere}>Integrations</a>
           </NavigationItem>
