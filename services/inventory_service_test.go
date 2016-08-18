@@ -134,7 +134,7 @@ func (suite *InventoryServiceTestSuite) Test_ReserveItems_SingleSKU() {
 	refNum := "BR10001"
 	skus := map[string]int{sku: 1}
 
-	err := suite.service.ReserveItems(refNum, skus)
+	err := suite.service.HoldItems(refNum, skus)
 
 	var units []models.StockItemUnit
 	suite.db.Where("ref_num = ?", refNum).Find(&units)
@@ -159,7 +159,7 @@ func (suite *InventoryServiceTestSuite) Test_ReserveItems_MultipleSKUs() {
 		sku2: 5,
 	}
 
-	err := suite.service.ReserveItems(refNum, skus)
+	err := suite.service.HoldItems(refNum, skus)
 	suite.Nil(err)
 
 	var units []models.StockItemUnit
@@ -178,7 +178,7 @@ func (suite *InventoryServiceTestSuite) Test_ReserveItems_NoOnHand() {
 	refNum := "BR10001"
 	skus := map[string]int{"TEST-DEFAULT": 1}
 
-	err := suite.service.ReserveItems(refNum, skus)
+	err := suite.service.HoldItems(refNum, skus)
 	suite.NotNil(err)
 }
 
@@ -186,7 +186,7 @@ func (suite *InventoryServiceTestSuite) Test_ReserveItems_NoSKU() {
 	refNum := "BR10001"
 	skus := map[string]int{"NO-SKU": 1}
 
-	err := suite.service.ReserveItems(refNum, skus)
+	err := suite.service.HoldItems(refNum, skus)
 	suite.NotNil(err)
 }
 
@@ -204,7 +204,7 @@ func (suite *InventoryServiceTestSuite) Test_ReleaseItems_Single() {
 	stockItem, _ := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, sku))
 	suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 1))
 
-	err := suite.service.ReserveItems(refNum, skus)
+	err := suite.service.HoldItems(refNum, skus)
 
 	onHoldUnitsCount := 0
 	suite.db.Model(&models.StockItemUnit{}).Where("ref_num = ? AND status = ?", refNum, models.StatusOnHold).Count(&onHoldUnitsCount)

@@ -116,7 +116,7 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_ReleaseItems_MultipleSKU
 		sku2: 5,
 	}
 
-	suite.service.ReserveItems(refNum, skus)
+	suite.service.HoldItems(refNum, skus)
 
 	// workaround for summary goroutines
 	time.Sleep(100 * time.Millisecond)
@@ -134,7 +134,7 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_ReleaseItems_SubsequentS
 
 	skus := map[string]int{suite.sku: 3}
 
-	suite.service.ReserveItems("BR10001", skus)
+	suite.service.HoldItems("BR10001", skus)
 
 	// workaround for summary goroutines
 	time.Sleep(100 * time.Millisecond)
@@ -145,7 +145,7 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_ReleaseItems_SubsequentS
 
 	skus[suite.sku] = 5
 
-	suite.service.ReserveItems("BR10002", skus)
+	suite.service.HoldItems("BR10002", skus)
 
 	// workaround for summary goroutines
 	time.Sleep(100 * time.Millisecond)
@@ -160,7 +160,7 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_ReleaseItems_Summary() {
 	refNum := "BR10001"
 	stockItem, _ := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, suite.sku))
 	suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 1))
-	suite.service.ReserveItems(refNum, skus)
+	suite.service.HoldItems(refNum, skus)
 
 	suite.service.ReleaseItems(refNum)
 

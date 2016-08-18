@@ -24,7 +24,7 @@ type IInventoryService interface {
 	IncrementStockItemUnits(id uint, unitType models.UnitType, units []*models.StockItemUnit) error
 	DecrementStockItemUnits(id uint, unitType models.UnitType, qty int) error
 
-	ReserveItems(refNum string, skus map[string]int) error
+	HoldItems(refNum string, skus map[string]int) error
 	ReleaseItems(refNum string) error
 }
 
@@ -89,7 +89,7 @@ func (service *inventoryService) DecrementStockItemUnits(stockItemId uint, unitT
 	return nil
 }
 
-func (service *inventoryService) ReserveItems(refNum string, skus map[string]int) error {
+func (service *inventoryService) HoldItems(refNum string, skus map[string]int) error {
 	// map [sku]qty to list of SKUs
 	skusList := []string{}
 	for code := range skus {
