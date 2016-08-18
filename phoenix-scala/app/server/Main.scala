@@ -79,7 +79,8 @@ class Service(systemOverride: Option[ActorSystem] = None,
   val logger = Logging(system, getClass)
 
   implicit val db: Database         = dbOverride.getOrElse(Database.forConfig("db", config))
-  lazy val defaultApis: Apis        = Apis(setupStripe(), new AmazonS3, setupMiddlewarehouse())
+  lazy val defaultApis: Apis        = Apis(setupStripe(), new AmazonS3, setupMiddlewarehouse(), new Avalara)
+
   implicit val apis: Apis           = apisOverride.getOrElse(defaultApis: Apis)
   implicit val es: ElasticsearchApi = esOverride.getOrElse(ElasticsearchApi.fromConfig(config))
 
