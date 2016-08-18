@@ -42,8 +42,8 @@ const tableColumns = [
   { field: 'afsNew', text: 'New AFS' },
 ];
 
-const renderRow = (row) => {
-  return <InventoryItemTransactionsRow transaction={row} columns={tableColumns} key={row.id}/>;
+const renderRow = (row, index, columns) => {
+  return <InventoryItemTransactionsRow transaction={row} columns={columns} key={row.id}/>;
 };
 
 /** InventoryItemTransactions Component */

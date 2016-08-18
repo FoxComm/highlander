@@ -88,6 +88,11 @@ export default class SearchList extends React.Component {
     return _.filter(columns[tableName], { isVisible: true });
   }
 
+  @autobind
+  renderRow(row, index, isNew) {
+    return this.props.renderRow(row, index, this.state.columns, { isNew });
+  }
+
   render() {
     const props = this.props;
 
@@ -105,11 +110,13 @@ export default class SearchList extends React.Component {
           data={results}
           dataTable={true}
           columns={this.state.columns}
+          renderRow={this.renderRow}
           selectableColumns={props.tableColumns}
           setColumnSelected={this.setColumnSelected}
           tableIdentifier={this.tableIdentifier}
           isLoading={results.isFetching}
-          failed={results.failed} />
+          failed={results.failed}
+        />
       </LiveSearchAdapter>
     );
   };
