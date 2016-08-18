@@ -30,8 +30,18 @@ func (service *StockItemUnitRepositoryMock) GetUnitsInOrder(refNum string) ([]*m
 	return nil, args.Error(1)
 }
 
-func (service *StockItemUnitRepositoryMock) SetUnitsInOrder(refNum string, ids []uint) (int, error) {
+func (service *StockItemUnitRepositoryMock) HoldUnitsInOrder(refNum string, ids []uint) (int, error) {
 	args := service.Called(refNum, ids)
+
+	if result, ok := args.Get(0).(int); ok {
+		return result, nil
+	}
+
+	return 0, args.Error(1)
+}
+
+func (service *StockItemUnitRepositoryMock) ReserveUnitsInOrder(refNum string) (int, error) {
+	args := service.Called(refNum)
 
 	if result, ok := args.Get(0).(int); ok {
 		return result, nil

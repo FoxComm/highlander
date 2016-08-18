@@ -16,7 +16,8 @@ type stockItemUnitRepository struct {
 type IStockItemUnitRepository interface {
 	GetStockItemUnitIds(stockItemID uint, unitStatus models.UnitStatus, unitType models.UnitType, count int) ([]uint, error)
 	GetUnitsInOrder(refNum string) ([]*models.StockItemUnit, error)
-	SetUnitsInOrder(refNum string, ids []uint) (int, error)
+	HoldUnitsInOrder(refNum string, ids []uint) (int, error)
+	ReserveUnitsInOrder(refNum string) (int, error)
 	UnsetUnitsInOrder(refNum string) (int, error)
 
 	GetReleaseQtyByRefNum(refNum string) ([]*models.Release, error)
@@ -86,13 +87,23 @@ func (repository *stockItemUnitRepository) GetUnitsInOrder(refNum string) ([]*mo
 	return units, nil
 }
 
-func (repository *stockItemUnitRepository) SetUnitsInOrder(refNum string, ids []uint) (int, error) {
+func (repository *stockItemUnitRepository) HoldUnitsInOrder(refNum string, ids []uint) (int, error) {
 	updateWith := models.StockItemUnit{
 		RefNum: sql.NullString{String: refNum, Valid: true},
 		Status: models.StatusOnHold,
 	}
 
 	result := repository.db.Model(&models.StockItemUnit{}).Where("id in (?)", ids).Updates(updateWith)
+
+	return int(result.RowsAffected), result.Error
+}
+
+func (repository *stockItemUnitRepository) ReserveUnitsInOrder(refNum string) (int, error) {
+	updateWith := models.StockItemUnit{
+		Status: models.StatusReserved,
+	}
+
+	result := repository.db.Model(&models.StockItemUnit{}).Where("ref_num = ?", refNum).Updates(updateWith)
 
 	return int(result.RowsAffected), result.Error
 }

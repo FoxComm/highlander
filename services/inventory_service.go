@@ -119,7 +119,7 @@ func (service *inventoryService) ReserveItems(refNum string, skus map[string]int
 	}
 
 	// updated units with refNum and appropriate status
-	count, err := service.unitRepo.SetUnitsInOrder(refNum, unitsIds)
+	count, err := service.unitRepo.HoldUnitsInOrder(refNum, unitsIds)
 	if err != nil {
 		return err
 	}
