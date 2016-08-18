@@ -10,14 +10,13 @@ final case class InventoryTransactionSearchView()(implicit ec: EC) extends AvroT
   def mapping() = esMapping("inventory_transactions_search_view").fields(
       field("id", IntegerType),
       field("sku", StringType).analyzer("upper_cased"),
-      field("createdAt", DateType).format(dateFormat),
-      field("warehouse", StringType).analyzer("autocomplete"),
-      field("event", StringType),
-      field("previousQuantity", IntegerType),
-      field("newQuantity", IntegerType),
-      field("change", IntegerType),
-      field("newAfs", IntegerType),
-      field("skuType", StringType).analyzer("autocomplete"),
-      field("state", StringType).index("not_analyzed")
+      field("type", StringType).index("not_analyzed"),
+      field("status", StringType).index("not_analyzed"),
+      field("stockLocationName", StringType).analyzer("autocomplete"),
+      field("quantityPrevious", IntegerType),
+      field("quantityNew", IntegerType),
+      field("quantityChange", IntegerType),
+      field("afsNew", IntegerType),
+      field("createdAt", DateType).format(dateFormat)
   )
 }

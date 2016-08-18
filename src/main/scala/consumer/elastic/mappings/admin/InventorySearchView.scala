@@ -18,9 +18,9 @@ final case class InventorySearchView()(implicit ec: EC) extends AvroTransformer 
       field("stockLocation").nested(
           field("id", IntegerType),
           field("name", StringType).analyzer("autocomplete"),
-          field("type", StringType)
+          field("type", StringType).index("not_analyzed")
       ),
-      field("type", StringType),
+      field("type", StringType).index("not_analyzed"),
       field("onHand", IntegerType),
       field("onHold", IntegerType),
       field("reserved", IntegerType),
