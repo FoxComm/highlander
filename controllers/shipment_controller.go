@@ -99,9 +99,17 @@ func (controller *shipmentController) updateShipment() gin.HandlerFunc {
 
 func (controller *shipmentController) createShipmentFromOrder() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		// TODO: Add the ability for middlewarehouse to programmatically create
-		// shipments based on the order that's passed in. For now, it's super
-		// simple and always creates one shipment per order.
-		context.JSON(http.StatusOK, gin.H{"message": "I'm here!"})
+		payload := &payloads.Order{}
+		if parse(context, payload) != nil {
+			return
+		}
+
+		shipment, err := controller.shipmentService.CreateShipment(models.NewShipmentFromOrderPayload(payload))
+		if err != nil {
+			handleServiceError(context, err)
+			return
+		}
+
+		context.JSON(http.StatusCreated, responses.NewShipmentFromModel(shipment))
 	}
 }

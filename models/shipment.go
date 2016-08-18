@@ -41,3 +41,18 @@ func NewShipmentFromPayload(payload *payloads.Shipment) *Shipment {
 
 	return shipment
 }
+
+func NewShipmentFromOrderPayload(payload *payloads.Order) *Shipment {
+	shipment := &Shipment{
+		ShippingMethodID: payload.ShippingMethod.ID,
+		ReferenceNumber:  payload.ReferenceNumber,
+		State:            ShipmentStatePending,
+		Address:          *NewAddressFromPayload(&payload.ShippingAddress),
+	}
+
+	for _, lineItem := range payload.LineItems.SKUs {
+		shipment.ShipmentLineItems = append(shipment.ShipmentLineItems, *NewShipmentLineItemFromOrderPayload(&lineItem))
+	}
+
+	return shipment
+}

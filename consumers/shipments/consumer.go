@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 
@@ -58,8 +59,25 @@ func FulfilledOrderHandler(message metamorphosis.AvroMessage) error {
 	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}
-	if _, err := client.Do(req); err != nil {
+	resp, err := client.Do(req)
+	if err != nil {
 		log.Printf("Error creating shipment with error: %s", err.Error())
+	}
+
+	defer resp.Body.Close()
+	if resp.StatusCode < 200 || resp.StatusCode > 299 {
+		errResp, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return fmt.Errorf(
+				"Failed to create shipment. Unable to read response with error %s",
+				err.Error(),
+			)
+		}
+
+		return fmt.Errorf(
+			"Failed to create shipment with error %s",
+			string(errResp),
+		)
 	}
 
 	log.Printf("Created shipment(s) for order %s", order.ReferenceNumber)

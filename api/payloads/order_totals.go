@@ -5,5 +5,5 @@ type OrderTotals struct {
 	Total       int `json:"total" binding:"required"`
 	Shipping    int `json:"shipping" binding:"required"`
 	SubTotal    int `json:"subTotal" binding:"required"`
-	Adjustments int `json:"adjustments" binding:"required"`
+	Adjustments int `json:"adjustments"`
 }

@@ -5,7 +5,7 @@ type Customer struct {
 	ID            int    `json:"id" binding:"required"`
 	Name          string `json:"name" binding:"required"`
 	Email         string `json:"email" binding:"required"`
-	IsGuest       bool   `json:"isGuest" binding:"required"`
-	Disabled      bool   `json:"disabled" binding:"required"`
-	IsBlacklisted bool   `json:"isBlacklisted" binding:"required"`
+	IsGuest       bool   `json:"isGuest"`
+	Disabled      bool   `json:"disabled"`
+	IsBlacklisted bool   `json:"isBlacklisted"`
 }

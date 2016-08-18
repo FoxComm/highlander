@@ -6,7 +6,7 @@ type Order struct {
 	Customer        Customer            `json:"customer" binding:"required"`
 	PlacedAt        string              `json:"placedAt" binding:"required"`
 	LineItems       OrderLineItems      `json:"lineItems" binding:"required"`
-	FraudScore      int                 `json:"fraudScore" binding:"required"`
+	FraudScore      int                 `json:"fraudScore"`
 	OrderState      string              `json:"orderState" binding:"required"`
 	PaymentState    string              `json:"paymentState" binding:"required"`
 	ShippingState   string              `json:"shippingState" binding:"required"`
