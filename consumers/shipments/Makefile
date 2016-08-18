@@ -2,7 +2,7 @@ configure:
 	glide install
 
 build:
-	go build -o shipments-consumer main.go
+	go build -o shipments-consumer
 
 build-linux:
 	GOOS=linux $(MAKE) build
