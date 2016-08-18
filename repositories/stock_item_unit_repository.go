@@ -14,7 +14,7 @@ type stockItemUnitRepository struct {
 }
 
 type IStockItemUnitRepository interface {
-	GetStockItemUnitIds(stockItemID uint, unitStatus models.UnitStatus, unitType models.UnitType, count int) ([]uint, error)
+	GetStockItemUnitIDs(stockItemID uint, unitStatus models.UnitStatus, unitType models.UnitType, count int) ([]uint, error)
 	GetUnitsInOrder(refNum string) ([]*models.StockItemUnit, error)
 	HoldUnitsInOrder(refNum string, ids []uint) (int, error)
 	ReserveUnitsInOrder(refNum string) (int, error)
@@ -46,7 +46,7 @@ func (repository *stockItemUnitRepository) DeleteUnits(ids []uint) error {
 	return repository.db.Delete(models.StockItemUnit{}, "id in (?)", ids).Error
 }
 
-func (repository *stockItemUnitRepository) GetStockItemUnitIds(stockItemID uint, unitStatus models.UnitStatus, unitType models.UnitType, count int) ([]uint, error) {
+func (repository *stockItemUnitRepository) GetStockItemUnitIDs(stockItemID uint, unitStatus models.UnitStatus, unitType models.UnitType, count int) ([]uint, error) {
 	var ids []uint
 	err := repository.db.Model(&models.StockItemUnit{}).
 		Limit(count).

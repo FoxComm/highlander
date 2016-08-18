@@ -10,7 +10,7 @@ type StockItemUnitRepositoryMock struct {
 	mock.Mock
 }
 
-func (service *StockItemUnitRepositoryMock) GetStockItemUnitIds(stockItemID uint, unitStatus models.UnitStatus, unitType models.UnitType, count int) ([]uint, error) {
+func (service *StockItemUnitRepositoryMock) GetStockItemUnitIDs(stockItemID uint, unitStatus models.UnitStatus, unitType models.UnitType, count int) ([]uint, error) {
 	args := service.Called(stockItemID, unitStatus, unitType, count)
 
 	if models, ok := args.Get(0).([]uint); ok {
