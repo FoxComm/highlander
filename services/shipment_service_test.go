@@ -1,9 +1,10 @@
 package services
 
 import (
-	"errors"
 	"testing"
 
+	"github.com/FoxComm/middlewarehouse/common/db/config"
+	"github.com/FoxComm/middlewarehouse/common/db/tasks"
 	serviceMocks "github.com/FoxComm/middlewarehouse/controllers/mocks"
 	"github.com/FoxComm/middlewarehouse/fixtures"
 	"github.com/FoxComm/middlewarehouse/models"
@@ -17,9 +18,9 @@ import (
 type ShipmentServiceTestSuite struct {
 	GeneralServiceTestSuite
 	shipmentRepository      *repositoryMocks.ShipmentRepositoryMock
-	addressService          *serviceMocks.AddressServiceMock
 	shipmentLineItemService *serviceMocks.ShipmentLineItemServiceMock
 	service                 IShipmentService
+	db                      *gorm.DB
 }
 
 func TestShipmentServiceSuite(t *testing.T) {
@@ -27,10 +28,20 @@ func TestShipmentServiceSuite(t *testing.T) {
 }
 
 func (suite *ShipmentServiceTestSuite) SetupTest() {
+	tasks.TruncateTables([]string{
+		"shipments",
+		"carriers",
+		"shipping_methods",
+		"shipment_line_items",
+		"addresses",
+	})
+
+	var err error
+	suite.db, err = config.DefaultConnection()
+	suite.Nil(err)
 	suite.shipmentRepository = &repositoryMocks.ShipmentRepositoryMock{}
-	suite.addressService = &serviceMocks.AddressServiceMock{}
 	suite.shipmentLineItemService = &serviceMocks.ShipmentLineItemServiceMock{}
-	suite.service = NewShipmentService(suite.shipmentRepository, suite.addressService, suite.shipmentLineItemService)
+	suite.service = NewShipmentService(suite.db, suite.shipmentRepository, suite.shipmentLineItemService)
 }
 
 func (suite *ShipmentServiceTestSuite) TearDownTest() {
@@ -38,10 +49,6 @@ func (suite *ShipmentServiceTestSuite) TearDownTest() {
 	suite.shipmentRepository.AssertExpectations(suite.T())
 	suite.shipmentRepository.ExpectedCalls = []*mock.Call{}
 	suite.shipmentRepository.Calls = []mock.Call{}
-
-	suite.addressService.AssertExpectations(suite.T())
-	suite.addressService.ExpectedCalls = []*mock.Call{}
-	suite.addressService.Calls = []mock.Call{}
 
 	suite.shipmentLineItemService.AssertExpectations(suite.T())
 	suite.shipmentLineItemService.ExpectedCalls = []*mock.Call{}
@@ -69,13 +76,16 @@ func (suite *ShipmentServiceTestSuite) Test_GetShipmentsByReferenceNumber_Return
 
 func (suite *ShipmentServiceTestSuite) Test_CreateShipment_Succeed_ReturnsCreatedRecord() {
 	//arrange
-	shipment1 := fixtures.GetShipmentShort(uint(1))
-	createdShipment := fixtures.GetShipment(shipment1.ID, shipment1.ShippingMethodID, &models.ShippingMethod{}, shipment1.AddressID, &models.Address{}, []models.ShipmentLineItem{})
-	suite.addressService.On("CreateAddress", &shipment1.Address).Return(&shipment1.Address, nil).Once()
-	suite.shipmentRepository.On("CreateShipment", shipment1).Return(createdShipment, nil).Once()
-	suite.shipmentLineItemService.On("CreateShipmentLineItem", &shipment1.ShipmentLineItems[0]).Return(&shipment1.ShipmentLineItems[0], nil).Once()
-	suite.shipmentLineItemService.On("CreateShipmentLineItem", &shipment1.ShipmentLineItems[1]).Return(&shipment1.ShipmentLineItems[1], nil).Once()
-	suite.shipmentRepository.On("GetShipmentByID", shipment1.ID).Return(shipment1, nil).Once()
+	carrier := &models.Carrier{Name: "USPS"}
+	err := suite.db.Create(carrier).Error
+	suite.Nil(err)
+
+	method := &models.ShippingMethod{Name: "Standard Shipping", CarrierID: carrier.ID}
+	err = suite.db.Create(method).Error
+	suite.Nil(err)
+
+	shipment1 := fixtures.GetShipmentShort(uint(0))
+	shipment1.ShippingMethodID = method.ID
 
 	//act
 	shipment, err := suite.service.CreateShipment(shipment1)
@@ -83,41 +93,6 @@ func (suite *ShipmentServiceTestSuite) Test_CreateShipment_Succeed_ReturnsCreate
 	//assert
 	suite.Nil(err)
 	suite.Equal(shipment1, shipment)
-}
-
-func (suite *ShipmentServiceTestSuite) Test_CreateShipment_ShipmentFailure_PerformsRollback() {
-	//arrange
-	shipment1 := fixtures.GetShipmentShort(uint(1))
-	err1 := errors.New("some fail")
-	suite.addressService.On("CreateAddress", &shipment1.Address).Return(&shipment1.Address, nil).Once()
-	suite.shipmentRepository.On("CreateShipment", shipment1).Return(nil, err1).Once()
-	suite.addressService.On("DeleteAddress", shipment1.AddressID).Return(nil).Once()
-
-	//act
-	_, err := suite.service.CreateShipment(shipment1)
-
-	//assert
-	suite.Equal(err1, err)
-}
-
-func (suite *ShipmentServiceTestSuite) Test_CreateShipment_LineItemFailure_PerformsRollback() {
-	//arrange
-	shipment1 := fixtures.GetShipmentShort(uint(1))
-	createdShipment := fixtures.GetShipment(shipment1.ID, shipment1.ShippingMethodID, &models.ShippingMethod{}, shipment1.AddressID, &models.Address{}, []models.ShipmentLineItem{})
-	err1 := errors.New("some fail")
-	suite.addressService.On("CreateAddress", &shipment1.Address).Return(&shipment1.Address, nil).Once()
-	suite.shipmentRepository.On("CreateShipment", shipment1).Return(createdShipment, nil).Once()
-	suite.shipmentLineItemService.On("CreateShipmentLineItem", &shipment1.ShipmentLineItems[0]).Return(&shipment1.ShipmentLineItems[0], nil).Once()
-	suite.shipmentLineItemService.On("CreateShipmentLineItem", &shipment1.ShipmentLineItems[1]).Return(nil, err1).Once()
-	suite.addressService.On("DeleteAddress", shipment1.AddressID).Return(nil).Once()
-	suite.shipmentRepository.On("DeleteShipment", shipment1.ID).Return(nil).Once()
-	suite.shipmentLineItemService.On("DeleteShipmentLineItem", shipment1.ShipmentLineItems[0].ID).Return(nil).Once()
-
-	//act
-	_, err := suite.service.CreateShipment(shipment1)
-
-	//assert
-	suite.Equal(err1, err)
 }
 
 func (suite *ShipmentServiceTestSuite) Test_UpdateShipment_NotFound_ReturnsNotFoundError() {

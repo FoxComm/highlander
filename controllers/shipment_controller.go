@@ -14,18 +14,16 @@ import (
 
 type shipmentController struct {
 	shipmentService         services.IShipmentService
-	addressService          services.IAddressService
 	shipmentLineItemService services.IShipmentLineItemService
 	//shipmentTransactionService services.IShipmentTransactionService
 }
 
 func NewShipmentController(
 	shipmentService services.IShipmentService,
-	addressService services.IAddressService,
 	shipmentLineItemService services.IShipmentLineItemService,
 	//shipmentTransactionService services.IShipmentTransactionService,
 ) IController {
-	return &shipmentController{shipmentService, addressService, shipmentLineItemService /*, shipmentTransactionService*/}
+	return &shipmentController{shipmentService, shipmentLineItemService /*, shipmentTransactionService*/}
 }
 
 func (controller *shipmentController) SetUp(router gin.IRouter) {
