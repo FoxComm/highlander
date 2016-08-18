@@ -2,15 +2,26 @@ package utils.apis
 
 import java.time.Instant
 
+import scala.collection.immutable._
+import scala.concurrent.Future
+import akka.http.scaladsl.Http
+import scala.util.{Failure, Success}
+import akka.actor.ActorSystem
+import akka.http.scaladsl.model._
+import akka.http.scaladsl.model.headers._
+import akka.stream.scaladsl._
+import akka.stream.ActorMaterializer
+
 import com.pellucid.sealerate
 import services.Result
 import utils.ADT
 import utils.FoxConfig._
+import utils.aliases.EC
 
 trait AvalaraApi {
 
   def estimateTax: Result[Unit]
-  def getTax: Result[Unit]
+  def getTax()(implicit ec: EC): Result[Unit]
 
 }
 
@@ -92,16 +103,32 @@ object AvalaraApiResponses {
   )
 }
 
-class Avalara extends AvalaraApi {
-  private def getConfig(): (Option[String], Option[String], Option[String], Option[String]) = {
-    val url     = config.getOptString("avalara.url")
-    val account = config.getOptString("avalara.account")
-    val licence = config.getOptString("avalara.licence")
-    val profile = config.getOptString("avalara.profile")
-    (url, account, licence, profile)
+class Avalara()(implicit as: ActorSystem, am: ActorMaterializer) extends AvalaraApi {
+  private def getConfig(): (String, String, String, String) = {
+    val url     = config.getString("avalara.url")
+    val account = config.getString("avalara.account")
+    val license = config.getString("avalara.license")
+    val profile = config.getString("avalara.profile")
+    (url, account, license, profile)
   }
 
   override def estimateTax: Result[Unit] = Result.unit
 
-  override def getTax: Result[Unit] = Result.unit
+  override def getTax()(implicit ec: EC): Result[Unit] = {
+    val (url, account, license, profile) = getConfig()
+    val connectionFlow: Flow[HttpRequest, HttpResponse, Future[Http.OutgoingConnection]] =
+      Http().outgoingConnectionHttps(url)
+    val headers: Seq[HttpHeader] = Seq(Authorization(BasicHttpCredentials(account, license)))
+    val responseFuture: Future[HttpResponse] = Source
+      .single(HttpRequest(uri = "/1.0/tax/get", method = HttpMethods.POST, headers = headers))
+      .via(connectionFlow)
+      .runWith(Sink.head)
+
+    responseFuture.andThen {
+      case Success(_) ⇒ println("request succeded")
+      case Failure(_) ⇒ println("request failed")
+    }
+
+    Result.unit
+  }
 }

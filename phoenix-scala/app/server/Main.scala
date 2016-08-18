@@ -43,6 +43,7 @@ object Main extends App with LazyLogging {
     service.performSelfCheck()
     service.bind()
     service.setupRemorseTimers()
+    service.pingAvalara()
 
     logger.info("Startup process complete")
   } catch {
@@ -79,6 +80,7 @@ class Service(systemOverride: Option[ActorSystem] = None,
   val logger = Logging(system, getClass)
 
   implicit val db: Database         = dbOverride.getOrElse(Database.forConfig("db", config))
+
   lazy val defaultApis: Apis        = Apis(setupStripe(), new AmazonS3, setupMiddlewarehouse(), new Avalara)
 
   implicit val apis: Apis           = apisOverride.getOrElse(defaultApis: Apis)
@@ -193,5 +195,9 @@ class Service(systemOverride: Option[ActorSystem] = None,
   def setupMiddlewarehouse(): Middlewarehouse = {
     val url = config.getString("middlewarehouse.url")
     new Middlewarehouse(url)
+  }
+
+  def pingAvalara(): Unit = {
+    apis.avalaraApi.getTax()
   }
 }
