@@ -7,9 +7,6 @@ import _ from 'lodash';
 import MultiSelectRow from '../table/multi-select-row';
 
 const setCellContents = (sku, field) => {
-  if (field === 'productActive' || field === 'skuActive') {
-    return _.get(sku, field) ? 'Active' : 'Inactive';
-  }
   return _.get(sku, field);
 };
 
@@ -20,7 +17,7 @@ const InventoryListRow = (props) => {
     <MultiSelectRow
       columns={columns}
       linkTo="sku-inventory-details"
-      linkParams={{skuCode: sku.code}}
+      linkParams={{skuCode: sku.sku}}
       row={sku}
       setCellContents={setCellContents}
       params={params} />
