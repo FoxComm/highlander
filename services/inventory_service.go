@@ -128,8 +128,44 @@ func (service *inventoryService) HoldItems(refNum string, skus map[string]int) e
 		return fmt.Errorf(`No stock item units associated with "%s"`, refNum)
 	}
 
+	// update summary
+	stockItemsMap := make(map[uint]int)
+	for _, si := range items {
+		stockItemsMap[si.ID] = skus[si.SKU]
+	}
+	statusShift := models.StatusChange{From: models.StatusOnHand, To: models.StatusOnHold}
+	go service.updateSummary(stockItemsMap, models.Sellable, statusShift)
+
+	return nil
+}
+
+func (service *inventoryService) ReserveItems(refNum string) error {
+	//get order units
+	stockItemUnits, err := service.unitRepo.GetUnitsInOrder(refNum)
+	
+	// map stockItemUnits to map[stockItem]int
+	stockItemsMap := make(map[uint]int)
+	for _, stockItemUnit := range stockItemUnits {
+		if _, ok := stockItemsMap[stockItemUnit.StockItem.ID]; ok {
+			stockItemsMap[stockItemUnit.StockItem.ID]++
+		} else {
+			stockItemsMap[stockItemUnit.StockItem.ID] = 0
+		}
+	}
+
+	// updated units with refNum and appropriate status
+	count, err := service.unitRepo.ReserveUnitsInOrder(refNum)
+	if err != nil {
+		return err
+	}
+
+	if count == 0 {
+		return fmt.Errorf(`No stock item units associated with "%s"`, refNum)
+	}
+
 	// updated summary
-	go service.updateSummaryOnReserve(items, skus, models.Sellable)
+	statusShift := models.StatusChange{From: models.StatusOnHold, To: models.StatusReserved}
+	go service.updateSummary(stockItemsMap, models.Sellable, statusShift)
 
 	return nil
 }
@@ -150,32 +186,19 @@ func (service *inventoryService) ReleaseItems(refNum string) error {
 		return fmt.Errorf(`No stock item units associated with "%s"`, refNum)
 	}
 
-	go service.updateSummaryOnRelease(unitsQty, models.Sellable)
+	stockItemsMap := make(map[uint]int)
+	for _, item := range unitsQty {
+		stockItemsMap[item.StockItemID] = item.Qty
+	}
+	statusShift := models.StatusChange{From: models.StatusOnHold, To: models.StatusOnHand}
+	go service.updateSummary(stockItemsMap, models.Sellable, statusShift)
 
 	return nil
 }
 
-func (service *inventoryService) updateSummaryOnReserve(items []*models.StockItem, skus map[string]int, unitType models.UnitType) error {
-	stockItemsMap := map[uint]int{}
-	for _, si := range items {
-		stockItemsMap[si.ID] = skus[si.SKU]
-	}
-
-	statusShift := models.StatusChange{From: models.StatusOnHand, To: models.StatusOnHold}
+func (service *inventoryService) updateSummary(stockItemsMap map[uint]int, unitType models.UnitType, statusShift models.StatusChange) error {
 	for id, qty := range stockItemsMap {
 		if err := service.summaryService.UpdateStockItemSummary(id, unitType, qty, statusShift); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (service *inventoryService) updateSummaryOnRelease(unitsQty []*models.Release, unitType models.UnitType) error {
-	for _, item := range unitsQty {
-		statusShift := models.StatusChange{From: models.StatusOnHold, To: models.StatusOnHand}
-
-		if err := service.summaryService.UpdateStockItemSummary(item.StockItemID, unitType, item.Qty, statusShift); err != nil {
 			return err
 		}
 	}
