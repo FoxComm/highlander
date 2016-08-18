@@ -1,4 +1,4 @@
-package phoenix
+package payloads
 
 // Customer represents the representation of the customer that is part of an order.
 type Customer struct {

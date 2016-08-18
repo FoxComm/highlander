@@ -1,4 +1,4 @@
-package phoenix
+package payloads
 
 type OrderTotals struct {
 	Taxes       int `json:"taxes" binding:"required"`

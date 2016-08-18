@@ -8,7 +8,6 @@ import (
 	"net/http"
 
 	"github.com/FoxComm/metamorphosis"
-	"github.com/FoxComm/middlewarehouse/common/lib/phoenix"
 )
 
 const (
@@ -30,7 +29,7 @@ func FulfilledOrderHandler(message metamorphosis.AvroMessage) error {
 		return nil
 	}
 
-	fullOrder, err := phoenix.NewFullOrderFromActivity(activity)
+	fullOrder, err := NewFullOrderFromActivity(activity)
 	if err != nil {
 		return fmt.Errorf("Unable to decode order from activity with error %s", err.Error())
 	}

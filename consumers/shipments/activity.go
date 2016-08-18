@@ -4,11 +4,15 @@ import (
 	"encoding/json"
 
 	"github.com/FoxComm/metamorphosis"
-	"github.com/FoxComm/middlewarehouse/common/lib/phoenix"
 )
 
-func NewActivityFromAvro(message metamorphosis.AvroMessage) (*phoenix.Activity, error) {
-	a := new(phoenix.Activity)
+type Activity struct {
+	Type string `json:"activity_type" binding:"required"`
+	Data string `json:"data"`
+}
+
+func NewActivityFromAvro(message metamorphosis.AvroMessage) (*Activity, error) {
+	a := new(Activity)
 	err := json.Unmarshal(message.Bytes(), a)
 	return a, err
 }

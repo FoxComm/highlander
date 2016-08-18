@@ -1,4 +1,4 @@
-package phoenix
+package payloads
 
 // OrderLineItem is the representation a SKU that is part of an order.
 type OrderLineItem struct {

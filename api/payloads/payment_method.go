@@ -1,4 +1,4 @@
-package phoenix
+package payloads
 
 type PaymentMethod struct {
 	ID         int      `json:"id" binding:"required"`
