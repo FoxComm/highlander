@@ -25,82 +25,191 @@ trait AvalaraApi {
 
 }
 
-object AvalaraApiRequests {}
+object Avalara {
+  object Requests {
+    sealed trait AddressType
+    case object F extends AddressType //Firm or company address
+    case object G extends AddressType //General Delivery address
+    case object H extends AddressType //High-rise or business complex
+    case object P extends AddressType //PO box address
+    case object R extends AddressType //Rural route address
+    case object S extends AddressType //Street or residential address, probably, we will mostly use it
 
-object AvalaraApiResponses {
-  sealed trait SeverityLevel
-  case object Success   extends SeverityLevel
-  case object Warning   extends SeverityLevel
-  case object Error     extends SeverityLevel
-  case object Exception extends SeverityLevel
+    object AddressType extends ADT[AddressType] {
+      def types = sealerate.values[AddressType]
+    }
 
-  object SeverityLevel extends ADT[SeverityLevel] {
-    def types = sealerate.values[SeverityLevel]
+    sealed trait DetailLevel
+    case object Tax        extends DetailLevel
+    case object Document   extends DetailLevel
+    case object Line       extends DetailLevel
+    case object Diagnostic extends DetailLevel
+
+    object DetailLevel extends ADT[DetailLevel] {
+      def types = sealerate.values[DetailLevel]
+    }
+
+    sealed trait DocType
+    case object SalesOrder           extends DocType
+    case object SalesInvoice         extends DocType
+    case object ReturnOrder          extends DocType
+    case object ReturnInvoice        extends DocType
+    case object PurchaseOrder        extends DocType
+    case object PurchaseInvoice      extends DocType
+    case object ReverseChargeOrder   extends DocType
+    case object ReverseChargeInvoice extends DocType
+
+    object DocType extends ADT[DocType] {
+      def types = sealerate.values[DocType]
+    }
+
+    case class Address(
+        AddressCode: String, //Input for GetTax only, not by address validation
+        Line1: String,
+        Line2: String,
+        Line3: String,
+        City: String,
+        Region: String,
+        PostalCode: String,
+        Country: String,
+        County: String, //Output for ValidateAddress only
+        FipsCode: String, //Output for ValidateAddress only
+        CarrierRoute: String, //Output for ValidateAddress only
+        PostNet: String, //Output for ValidateAddress only
+        AddressType: AddressType, //Output for ValidateAddress only
+        Latitude: BigDecimal, //Input for GetTax only
+        Longitude: BigDecimal, //Input for GetTax only
+        TaxRegionId: String    //Input for GetTax only
+    )
+
+    case class TaxOverrideDef(
+        TaxOverrideType: String, //Limited permitted values: TaxAmount, Exemption, TaxDate
+        Reason: String,
+        TaxAmount: String, //If included, must be valid decimal
+        TaxDate: String
+    )
+
+    case class Line(
+        LineNo: String, //Required
+        DestinationCode: String, //Required
+        OriginCode: String, //Required
+        ItemCode: String, //Required
+        Qty: BigDecimal, //Required
+        Amount: BigDecimal, //Required
+        TaxCode: String, //Best practice
+        CustomerUsageType: String,
+        Description: String, //Best Practice
+        Discounted: Boolean,
+        TaxIncluded: Boolean,
+        Ref1: String,
+        Ref2: String,
+        BusinessIdentificationNo: String,
+        TaxOverride: TaxOverrideDef
+    )
+
+    case class GetTaxes(
+        //Required for tax calculation
+        DocDate: Instant, //Must be valid YYYY-MM-DD format
+        CustomerCode: String,
+        Addresses: Seq[Address],
+        Lines: Seq[Line],
+        //Best Practice for tax calculation
+        DocCode: String,
+        DocType: DocType,
+        CompanyCode: String,
+        Commit: Boolean,
+        DetailLevel: DetailLevel,
+        Client: String,
+        //Use where appropriate to the situation
+        CustomerUsageType: String,
+        ExemptionNo: String,
+        Discount: BigDecimal,
+        TaxOverride: TaxOverrideDef,
+        BusinessIdentificationNo: String,
+        //Optional
+        PurchaseOrderNo: String,
+        PaymentDate: String,
+        ReferenceCode: String,
+        PosLaneCode: String,
+        CurrencyCode: String
+    )
   }
 
-  case class Message(
-      Summary: String,
-      Details: String,
-      RefersTo: String,
-      Severity: SeverityLevel,
-      Source: String
-  )
+  object Responses {
+    sealed trait SeverityLevel
+    case object Success   extends SeverityLevel
+    case object Warning   extends SeverityLevel
+    case object Error     extends SeverityLevel
+    case object Exception extends SeverityLevel
 
-  case class TaxAddress(
-      Address: String,
-      AddressCode: String,
-      City: String,
-      Region: String,
-      Country: String,
-      PostalCode: String,
-      Latitude: String,
-      Longitude: String,
-      TaxRegionId: String,
-      JurisCode: String
-  )
+    object SeverityLevel extends ADT[SeverityLevel] {
+      def types = sealerate.values[SeverityLevel]
+    }
 
-  case class TaxDetail(
-      Rate: Double,
-      Tax: Double,
-      Taxable: Double,
-      Country: String,
-      Region: String,
-      JurisType: String,
-      JurisName: String,
-      TaxName: String
-  )
+    case class Message(
+        Summary: String,
+        Details: String,
+        RefersTo: String,
+        Severity: SeverityLevel,
+        Source: String
+    )
 
-  case class TaxLine(
-      LineNo: String,
-      TaxCode: String,
-      Taxability: Boolean,
-      Taxable: Double,
-      Rate: Double,
-      Tax: Double,
-      Discount: Double,
-      TaxCalculated: Double,
-      Exemption: Double,
-      TaxDetails: Seq[TaxDetail],
-      BoundaryLevel: String
-  )
+    case class TaxAddress(
+        Address: String,
+        AddressCode: String,
+        City: String,
+        Region: String,
+        Country: String,
+        PostalCode: String,
+        Latitude: String,
+        Longitude: String,
+        TaxRegionId: String,
+        JurisCode: String
+    )
 
-  case class GetTaxes(
-      docCode: String,
-      docDate: Instant,
-      timestamp: Instant,
-      totalAmount: Double,
-      TotalDiscount: Double,
-      TotalExemption: Double,
-      TotalTaxable: Double,
-      TotalTax: Double,
-      TotalTaxCalculated: Double,
-      TaxDate: Instant,
-      TaxLines: Seq[TaxLine],
-      TaxSummary: Seq[TaxLine],
-      TaxAddresses: Seq[TaxAddress],
-      ResultCode: SeverityLevel,
-      Messages: Seq[Message]
-  )
+    case class TaxDetail(
+        Rate: Double,
+        Tax: Double,
+        Taxable: Double,
+        Country: String,
+        Region: String,
+        JurisType: String,
+        JurisName: String,
+        TaxName: String
+    )
+
+    case class TaxLine(
+        LineNo: String,
+        TaxCode: String,
+        Taxability: Boolean,
+        Taxable: Double,
+        Rate: Double,
+        Tax: Double,
+        Discount: Double,
+        TaxCalculated: Double,
+        Exemption: Double,
+        TaxDetails: Seq[TaxDetail],
+        BoundaryLevel: String
+    )
+
+    case class GetTaxes(
+        docCode: String,
+        docDate: Instant,
+        timestamp: Instant,
+        totalAmount: Double,
+        TotalDiscount: Double,
+        TotalExemption: Double,
+        TotalTaxable: Double,
+        TotalTax: Double,
+        TotalTaxCalculated: Double,
+        TaxDate: Instant,
+        TaxLines: Seq[TaxLine],
+        TaxSummary: Seq[TaxLine],
+        TaxAddresses: Seq[TaxAddress],
+        ResultCode: SeverityLevel,
+        Messages: Seq[Message]
+    )
+  }
 }
 
 class Avalara()(implicit as: ActorSystem, am: ActorMaterializer) extends AvalaraApi {
