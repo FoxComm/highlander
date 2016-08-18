@@ -63,6 +63,12 @@ object PluginsManager {
       plugin ← * <~ updatePluginInfo(plugin, schema, payload)
     } yield plugin
 
+  def listPlugins()(implicit ec: EC, db: DB, ac: AC): DbResultT[ListPluginsAnswer] = {
+    for {
+      plugins ← * <~ Plugins.result
+    } yield plugins.map(PluginInfo.fromPlugin)
+  }
+
   def registerPlugin(payload: RegisterPluginPayload)(implicit ec: EC,
                                                      db: DB,
                                                      ac: AC): DbResultT[RegisterAnswer] = {
