@@ -1,8 +1,11 @@
-package shipments
+package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 
 	"github.com/FoxComm/metamorphosis"
 	"github.com/FoxComm/middlewarehouse/common/lib/phoenix"
@@ -42,5 +45,24 @@ func FulfilledOrderHandler(message metamorphosis.AvroMessage) error {
 		order.ReferenceNumber,
 	)
 
+	b, err := json.Marshal(&order)
+	if err != nil {
+		return err
+	}
+
+	url := fmt.Sprintf("%s/shipments/from-order", "http://localhost:9292")
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(b))
+	if err != nil {
+		return err
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	if _, err := client.Do(req); err != nil {
+		log.Printf("Error creating shipment with error: %s", err.Error())
+	}
+
+	log.Printf("Created shipment(s) for order %s", order.ReferenceNumber)
 	return nil
 }

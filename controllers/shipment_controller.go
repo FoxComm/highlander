@@ -15,21 +15,20 @@ import (
 type shipmentController struct {
 	shipmentService         services.IShipmentService
 	shipmentLineItemService services.IShipmentLineItemService
-	//shipmentTransactionService services.IShipmentTransactionService
 }
 
 func NewShipmentController(
 	shipmentService services.IShipmentService,
 	shipmentLineItemService services.IShipmentLineItemService,
-	//shipmentTransactionService services.IShipmentTransactionService,
 ) IController {
-	return &shipmentController{shipmentService, shipmentLineItemService /*, shipmentTransactionService*/}
+	return &shipmentController{shipmentService, shipmentLineItemService}
 }
 
 func (controller *shipmentController) SetUp(router gin.IRouter) {
 	router.GET(":referenceNumbers", controller.getShipmentsByReferenceNumbers())
 	router.POST("", controller.createShipment())
 	router.PUT(":id", controller.updateShipment())
+	router.POST("from-order", controller.createShipmentFromOrder())
 }
 
 func (controller *shipmentController) getShipmentsByReferenceNumbers() gin.HandlerFunc {
@@ -95,5 +94,14 @@ func (controller *shipmentController) updateShipment() gin.HandlerFunc {
 		}
 
 		context.JSON(http.StatusOK, responses.NewShipmentFromModel(shipment))
+	}
+}
+
+func (controller *shipmentController) createShipmentFromOrder() gin.HandlerFunc {
+	return func(context *gin.Context) {
+		// TODO: Add the ability for middlewarehouse to programmatically create
+		// shipments based on the order that's passed in. For now, it's super
+		// simple and always creates one shipment per order.
+		context.JSON(http.StatusOK, gin.H{"message": "I'm here!"})
 	}
 }

@@ -1,4 +1,4 @@
-package shipments
+package main
 
 import (
 	"log"
