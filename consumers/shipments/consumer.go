@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -16,11 +17,23 @@ const (
 	orderStateFulfillmentStarted = "fulfillmentStarted"
 )
 
-// FulfilledOrderHandler accepts an Avro encoded message from Kafka and takes
+type OrderHandler struct {
+	mwhURL string
+}
+
+func NewOrderHandler(mwhURL string) (*OrderHandler, error) {
+	if mwhURL == "" {
+		return nil, errors.New("middlewarehouse URL must be set")
+	}
+
+	return &OrderHandler{mwhURL}, nil
+}
+
+// Handler accepts an Avro encoded message from Kafka and takes
 // based on the activities topic and looks for orders that were just placed in
 // fulfillment started. If it finds one, it sends to middlewarehouse to create
 // a shipment. Returning an error will cause a panic.
-func FulfilledOrderHandler(message metamorphosis.AvroMessage) error {
+func (o OrderHandler) Handler(message metamorphosis.AvroMessage) error {
 	activity, err := NewActivityFromAvro(message)
 	if err != nil {
 		return fmt.Errorf("Unable to decode Avro message with error %s", err.Error())
@@ -50,7 +63,7 @@ func FulfilledOrderHandler(message metamorphosis.AvroMessage) error {
 		return err
 	}
 
-	url := fmt.Sprintf("%s/shipments/from-order", "http://localhost:9292")
+	url := fmt.Sprintf("%s/shipments/from-order", o.mwhURL)
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(b))
 	if err != nil {
 		return err

@@ -17,6 +17,12 @@ func main() {
 		log.Fatalf("Unable to connect to Kafka with error %s", err.Error())
 	}
 
+	mwhURL := os.Getenv("MWH_URL")
+	oh, err := NewOrderHandler(mwhURL)
+	if err != nil {
+		log.Fatalf("Can't create handler for orders with error %s", err.Error())
+	}
+
 	topic := os.Getenv("TOPIC")
 	partition := os.Getenv("PARTITION")
 	partNum, err := strconv.Atoi(partition)
@@ -24,5 +30,5 @@ func main() {
 		log.Fatalf("Unable to get Kafka partition with error %s", err.Error())
 	}
 
-	consumer.RunTopic(topic, partNum, FulfilledOrderHandler)
+	consumer.RunTopic(topic, partNum, oh.Handler)
 }
