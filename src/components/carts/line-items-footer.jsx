@@ -11,6 +11,8 @@ import Typeahead from 'components/typeahead/typeahead';
 import { suggestSkus } from 'modules/skus/suggest';
 import { updateLineItemCount } from 'modules/carts/details';
 
+import type { SuggestOptions } from 'modules/skus/suggest';
+
 import type { Sku } from 'modules/skus/list';
 
 const mapStateToProps = state => {
@@ -28,7 +30,7 @@ type Props = {
   },
   suggestedSkus: Array<Sku>,
   isFetchingSkus: boolean,
-  suggestSkus: (code: string, context: ?string) => Promise,
+  suggestSkus: (code: string, options?: SuggestOptions) => Promise,
   updateLineItemCount: Function,
 };
 
@@ -49,6 +51,13 @@ export class CartLineItemsFooter extends Component {
     updateLineItemCount(cart.referenceNumber, item.skuCode, newQuantity);
   }
 
+  @autobind
+  suggestSkus(value: string): Promise {
+    return this.props.suggestSkus(value, {
+      useTitle: true,
+    });
+  }
+
   render() {
     const { props } = this;
 
@@ -61,7 +70,7 @@ export class CartLineItemsFooter extends Component {
           onItemSelected={this.skuSelected}
           component={SkuResult}
           isFetching={props.isFetchingSkus}
-          fetchItems={props.suggestSkus}
+          fetchItems={this.suggestSkus}
           items={props.suggestedSkus}
           placeholder="Product name or SKU..."
         />

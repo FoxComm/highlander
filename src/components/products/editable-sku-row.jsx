@@ -14,6 +14,7 @@ import MultiSelectRow from '../table/multi-select-row';
 import LoadingInputWrapper from '../forms/loading-input-wrapper';
 
 import { suggestSkus } from 'modules/skus/suggest';
+import type { SuggestOptions } from 'modules/skus/suggest';
 import type { Sku } from 'modules/skus/details';
 import type { Sku as SearchViewSku } from 'modules/skus/list';
 
@@ -29,7 +30,7 @@ type Props = {
   skuContext: string,
   updateField: (code: string, field: string, value: string) => void,
   isFetchingSkus: boolean|null,
-  suggestSkus: (code: string, context: ?string) => Promise,
+  suggestSkus: (code: string, context?: SuggestOptions) => Promise,
   suggestedSkus: Array<SearchViewSku>,
 };
 
@@ -112,7 +113,9 @@ class EditableSkuRow extends Component {
   }
 
   suggestSkus(text: string): Promise|void {
-    return this.props.suggestSkus(text, this.props.skuContext);
+    return this.props.suggestSkus(text, {
+      context: this.props.skuContext
+    });
   }
 
   updateAttrsBySearchViewSku(searchViewSku: SearchViewSku) {

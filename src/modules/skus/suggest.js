@@ -9,33 +9,46 @@ import createAsyncActions from 'modules/async-utils';
 
 const resetSuggestedSkus = createAction('PRODUCTS_RESET_SUGGESTED_SKUS');
 
+export type SuggestOptions = {
+  context?: string,
+  useTitle?: boolean,
+}
+
 const _suggestSkus = createAsyncActions(
   'skus-suggest',
-  (code: string, context: ?string) => {
-    const contextFilter = context ? [dsl.termFilter('context', context)] : void 0;
+  (value: string, options: SuggestOptions = {}) => {
+    const contextFilter = options.context ? [dsl.termFilter('context', options.context)] : void 0;
+    let titleMatch = [];
+    if (options.useTitle) {
+      titleMatch = [dsl.matchQuery('title', {
+        query: value,
+        operator: 'and',
+      })];
+    }
 
     return post('sku_search_view/_search', dsl.query({
       bool: {
         filter: contextFilter,
-        must: [
+        should: [
           dsl.matchQuery('skuCode', {
-            query: code,
+            query: value,
             operator: 'and',
           }),
-        ]
+          ...titleMatch
+        ],
+        minimum_should_match: 1
       },
     }));
   }
 );
 
-
-export function suggestSkus(code: string, context: ?string = null): ActionDispatch {
+export function suggestSkus(value: string, options: SuggestOptions = {}): ActionDispatch {
   return (dispatch: Function) => {
-    if (!code) {
+    if (!value) {
       return dispatch(resetSuggestedSkus());
     }
 
-    return dispatch(_suggestSkus.perform(code, context));
+    return dispatch(_suggestSkus.perform(value, options));
   };
 }
 
