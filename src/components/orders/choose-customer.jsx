@@ -42,17 +42,15 @@ const ChooseCustomer = (props) => {
   );
 
   const data = props.updating ? { rows: [] } : props.items;
-  const waitAnimation = props.updating && <WaitAnimation />;
-  const hasNoResults = !props.updating && _.isEmpty(_.get(props, 'items.rows'));
 
   return (
     <div className="fc-orders-choose-customer">
       <Table
         data={data}
         emptyMessage="No results."
+        isLoading={props.updating}
         renderRow={renderRow}
         columns={tableColumns} />
-      {waitAnimation}
       {footer}
     </div>
   );
