@@ -48,7 +48,7 @@ export default class NewOrder extends Component {
     const cart = _.get(nextProps, 'newOrder.order.cart.referenceNumber');
     if (cart) {
       this.props.resetForm();
-      transitionTo('order', { order: cart });
+      transitionTo('cart', { cart: cart });
       return false;
     }
 
