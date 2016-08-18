@@ -53,7 +53,10 @@ const { reducer, actions } = makeLiveSearch(
   searchTerms,
   'inventory_transactions_search_view/_search',
   'inventoryScope',
-  { skipInitialFetch: true }
+  {
+    initialState: { sortBy: '-createdAt' },
+    skipInitialFetch: true
+  }
 );
 
 export {
