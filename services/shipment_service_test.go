@@ -91,7 +91,6 @@ func (suite *ShipmentServiceTestSuite) Test_CreateShipment_Succeed_ReturnsCreate
 	suite.shipmentRepository.On("CreateShipment", shipment1).Return(createdShipment, nil).Once()
 	suite.shipmentLineItemService.On("CreateShipmentLineItem", &shipment1.ShipmentLineItems[0]).Return(&shipment1.ShipmentLineItems[0], nil).Once()
 	suite.shipmentLineItemService.On("CreateShipmentLineItem", &shipment1.ShipmentLineItems[1]).Return(&shipment1.ShipmentLineItems[1], nil).Once()
-	suite.shipmentRepository.On("GetShipmentByID", shipment1.ID).Return(shipment1, nil).Once()
 
 	//act
 	shipment, err := suite.service.CreateShipment(shipment1)
@@ -182,7 +181,6 @@ func (suite *ShipmentServiceTestSuite) Test_UpdateShipment_Found_ReturnsUpdatedR
 	shipment1 := fixtures.GetShipmentShort(uint(1))
 
 	suite.shipmentRepository.On("UpdateShipment", shipment1).Return(shipment1, nil).Once()
-	suite.shipmentRepository.On("GetShipmentByID", shipment1.ID).Return(shipment1, nil).Once()
 
 	//act
 	shipment, err := suite.service.UpdateShipment(shipment1)

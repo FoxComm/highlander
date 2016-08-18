@@ -54,13 +54,14 @@ func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*mode
 		service.addressService.DeleteAddress(address.ID)
 		return nil, err
 	}
+	shipment.ID = result.ID
 
 	createdLineItems := []models.ShipmentLineItem{}
 	boundItems := make(map[uint]uint)
 	for i, _ := range shipment.ShipmentLineItems {
 		var createdLineItem *models.ShipmentLineItem
 		lineItem := &shipment.ShipmentLineItems[i]
-		lineItem.ShipmentID = result.ID
+		lineItem.ShipmentID = shipment.ID
 
 		stockItemUnit := service.getStockItemUnitForShipmentLineItem(lineItem.SKU, boundItems, stockItemUnits)
 		if stockItemUnit == nil {
@@ -71,7 +72,7 @@ func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*mode
 		}
 
 		if err != nil {
-			service.shipmentRepository.DeleteShipment(result.ID)
+			service.shipmentRepository.DeleteShipment(shipment.ID)
 			service.addressService.DeleteAddress(address.ID)
 			for _, lineItem := range createdLineItems {
 				service.shipmentLineItemService.DeleteShipmentLineItem(lineItem.ID)
@@ -83,7 +84,10 @@ func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*mode
 		createdLineItems = append(createdLineItems, *createdLineItem)
 	}
 
-	return service.shipmentRepository.GetShipmentByID(result.ID)
+	shipment.Address = *address
+	shipment.ShipmentLineItems = createdLineItems
+
+	return shipment, nil
 }
 
 func (service *shipmentService) getStockItemUnitForShipmentLineItem(
@@ -102,10 +106,10 @@ func (service *shipmentService) getStockItemUnitForShipmentLineItem(
 }
 
 func (service *shipmentService) UpdateShipment(shipment *models.Shipment) (*models.Shipment, error) {
-	_, err := service.shipmentRepository.UpdateShipment(shipment)
+	shipment, err := service.shipmentRepository.UpdateShipment(shipment)
 	if err != nil {
 		return nil, err
 	}
 
-	return service.shipmentRepository.GetShipmentByID(shipment.ID)
+	return shipment, nil
 }
