@@ -84,6 +84,9 @@ func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*mode
 		createdLineItems = append(createdLineItems, *createdLineItem)
 	}
 
+	//TODO transactions
+	service.stockItemUnitRepository.ReserveUnitsInOrder(shipment.ReferenceNumber)
+
 	shipment.Address = *address
 	shipment.ShipmentLineItems = createdLineItems
 
@@ -106,9 +109,19 @@ func (service *shipmentService) getStockItemUnitForShipmentLineItem(
 }
 
 func (service *shipmentService) UpdateShipment(shipment *models.Shipment) (*models.Shipment, error) {
-	shipment, err := service.shipmentRepository.UpdateShipment(shipment)
+	source, err := service.shipmentRepository.GetShipmentByID(shipment.ID)
 	if err != nil {
 		return nil, err
+	}
+
+	shipment, err = service.shipmentRepository.UpdateShipment(shipment)
+	if err != nil {
+		return nil, err
+	}
+
+	//TODO: transactions
+	if shipment.State != source.State && shipment.State == models.ShipmentStateCancelled {
+		service.stockItemUnitRepository.UnsetUnitsInOrder(shipment.ReferenceNumber)
 	}
 
 	return shipment, nil
