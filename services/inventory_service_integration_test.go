@@ -91,7 +91,7 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_DecrementStockItemUnits_
 	suite.service.DecrementStockItemUnits(stockItem.ID, models.Sellable, 7)
 
 	// workaround for summary goroutines
-	time.Sleep(4000 * time.Millisecond)
+	time.Sleep(100 * time.Millisecond)
 	summary, err := suite.summaryService.GetSummaryBySKU(suite.sku)
 
 	suite.Nil(err)

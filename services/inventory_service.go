@@ -66,7 +66,9 @@ func (service *inventoryService) IncrementStockItemUnits(stockItemId uint, unitT
 		return err
 	}
 
-	return service.summaryService.UpdateStockItemSummary(stockItemId, unitType, len(units), models.StatusChange{To: models.StatusOnHand})
+	go service.summaryService.UpdateStockItemSummary(stockItemId, unitType, len(units), models.StatusChange{To: models.StatusOnHand})
+
+	return nil
 }
 
 func (service *inventoryService) DecrementStockItemUnits(stockItemId uint, unitType models.UnitType, qty int) error {
