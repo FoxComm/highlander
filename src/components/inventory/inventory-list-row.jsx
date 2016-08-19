@@ -15,7 +15,6 @@ const setCellContents = (sku, field) => {
 
 const InventoryListRow = (props) => {
   const { sku, columns, params } = props;
-  const key = `inventory-list-${sku.id}`;
 
   return (
     <MultiSelectRow

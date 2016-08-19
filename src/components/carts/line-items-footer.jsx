@@ -8,33 +8,29 @@ import { autobind } from 'core-decorators';
 import SkuResult from './sku-result';
 import Typeahead from 'components/typeahead/typeahead';
 
-import * as skuSearchActions from 'modules/carts/sku-search';
+import { suggestSkus } from 'modules/skus/suggest';
 import { updateLineItemCount } from 'modules/carts/details';
+
+import type { SuggestOptions } from 'modules/skus/suggest';
+
+import type { Sku } from 'modules/skus/list';
 
 const mapStateToProps = state => {
   return {
-    skuSearch: state.carts.skuSearch,
+    suggestedSkus: _.get(state, 'skus.suggest.skus', []),
+    isFetchingSkus: _.get(state.asyncActions, 'skus-suggest.inProgress', null),
   };
 };
 
-const mapDispatchToProps = { ...skuSearchActions, updateLineItemCount };
-
-type Sku = {
-  code: string,
-};
+const mapDispatchToProps = { suggestSkus, updateLineItemCount };
 
 type Props = {
   cart: {
     referenceNumber: string,
   },
-  skuSearch: {
-    phrase: string,
-    results: {
-      isFetching: boolean,
-      rows: Array<Sku>,
-    },
-  },
-  suggestSkus: Function,
+  suggestedSkus: Array<Sku>,
+  isFetchingSkus: boolean,
+  suggestSkus: (code: string, options?: SuggestOptions) => Promise,
   updateLineItemCount: Function,
 };
 
@@ -44,33 +40,40 @@ export class CartLineItemsFooter extends Component {
   @autobind
   currentQuantityForSku(sku: string): number {
     const skus = _.get(this.props, 'cart.lineItems.skus', []);
-    const matched = skus.find({sku});
+    const matched = _.find(skus, {skuCode: sku});
     return _.isEmpty(matched) ? 0 : matched.quantity;
   }
 
   @autobind
   skuSelected(item: Sku) {
     const { cart, updateLineItemCount } = this.props;
-    const newQuantity = this.currentQuantityForSku(item.code) + 1;
-    updateLineItemCount(cart.referenceNumber, item.code, newQuantity);
+    const newQuantity = this.currentQuantityForSku(item.skuCode) + 1;
+    updateLineItemCount(cart.referenceNumber, item.skuCode, newQuantity);
+  }
+
+  @autobind
+  suggestSkus(value: string): Promise {
+    return this.props.suggestSkus(value, {
+      useTitle: true,
+    });
   }
 
   render() {
-    const suggestedSkus = _.get(this.props, 'skuSearch.results.rows', []);
-    const isFetching = _.get(this.props, 'skuSearch.results.isFetching', false);
-    const query = _.get(this.props, 'skuSearch.phrase', '');
+    const { props } = this;
+
     return (
       <div className="fc-line-items-add">
         <div className="fc-line-items-add-label">
           <strong>Add Item</strong>
         </div>
-        <Typeahead onItemSelected={this.skuSelected}
-                   component={SkuResult}
-                   isFetching={isFetching}
-                   fetchItems={this.props.suggestSkus}
-                   items={suggestedSkus}
-                   query={query}
-                   placeholder="Product name or SKU..."/>
+        <Typeahead
+          onItemSelected={this.skuSelected}
+          component={SkuResult}
+          isFetching={props.isFetchingSkus}
+          fetchItems={this.suggestSkus}
+          items={props.suggestedSkus}
+          placeholder="Product name or SKU..."
+        />
       </div>
     );
   }

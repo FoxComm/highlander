@@ -1,13 +1,21 @@
 .fc-multi-select-table {
-  white-space: nowrap;
+  &.fc-data-table {
+    .inner {
+      .scroll-shadow(#e3e3e3, #fff, 12px, 55px);
 
-  tr:hover, .fc-table-tr:hover {
-    td, .fc-table-td {
-      background: @color-decor35;
+      &.inner-head {
+        .scroll-shadow(#e3e3e3, #f7f7f7, 12px, 55px);
+      }
     }
   }
 
-  time {
-    white-space: nowrap;
+  .fc-table {
+    margin-left: 55px;
+
+    tr:hover, .fc-table-tr:hover {
+      td, .fc-table-td {
+        background: @color-decor35;
+      }
+    }
   }
 }

@@ -159,7 +159,7 @@
   },
   "devDependencies": {
     "babel-core": "^6.6.5",
-    "babel-eslint": "^4.1.8",
+    "babel-eslint": "^6.1.2",
     "babel-plugin-react-transform": "^2.0.0",
     "babel-plugin-transform-class-properties": "~6.5.2",
     "babel-plugin-transform-decorators-legacy": "^1.3.4",
@@ -179,7 +179,7 @@
     "css-modulesify": "github:anru/css-modulesify#update-me-to-0-23-version-later",
     "cssnano": "^3.7.3",
     "envify": "^3.4.0",
-    "eslint": "^1.10.1",
+    "eslint": "^3.3.1",
     "eslint-plugin-react": "^3.10.0",
     "flow-bin": "0.23.0",
     "gulp": "^3.9.0",

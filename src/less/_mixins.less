@@ -210,6 +210,18 @@
   }
 }
 
+.scroll-shadow(@shadow-color, @bg-color, @size: 12px, @from-left: 0, @from-right: 100%) {
+  background:
+    linear-gradient(to right,  @bg-color 20%, rgba(255,255,255,0)) @from-left 0,
+    linear-gradient(to left, @bg-color 20%, rgba(255,255,255,0)) @from-right 0,
+    linear-gradient(to right,  @shadow-color 20%, rgba(255,255,255,0)) @from-left 0,
+    linear-gradient(to left, @shadow-color 20%, rgba(255,255,255,0)) @from-right 0;
+  background-color: @bg-color;
+  background-repeat: no-repeat;
+  background-size: (@size + 30px) 100%, (@size + 30px) 100%, @size 100%, @size 100%;
+  background-attachment: local, local, scroll, scroll;
+}
+
 // ===== Animations =====
 
 .dd-transition(@dir, @origin) {

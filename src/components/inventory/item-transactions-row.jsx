@@ -10,14 +10,12 @@ import Cell from '../table/cell';
 const InventoryItemTransactionsRow = props => {
   const { transaction, columns } = props;
 
-  const keyRow = `inventory-transaction-${transaction.id}`;
-
   return (
-    <Row key={keyRow}>{columns.map(column => {
-      const keyCol = `${keyRow}-${column.field}`;
-
-      return <Cell column={column} key={keyCol}>{get(transaction, column.field)}</Cell>;
-    })}</Row>
+    <Row>
+      {columns.map(column => {
+        return <Cell column={column} key={column.field}>{get(transaction, column.field)}</Cell>;
+      })}
+    </Row>
   );
 };
 
