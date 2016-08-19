@@ -2,8 +2,10 @@ package services
 
 import (
 	"fmt"
+
 	"github.com/FoxComm/middlewarehouse/models"
 	"github.com/FoxComm/middlewarehouse/repositories"
+
 	"github.com/jinzhu/gorm"
 )
 
@@ -18,6 +20,7 @@ type IShipmentService interface {
 	GetShipmentsByReferenceNumber(referenceNumber string) ([]*models.Shipment, error)
 	CreateShipment(shipment *models.Shipment) (*models.Shipment, error)
 	UpdateShipment(shipment *models.Shipment) (*models.Shipment, error)
+	GetUnshippedItems(shipment *models.Shipment) ([]*models.ShipmentLineItem, error)
 }
 
 func NewShipmentService(
@@ -71,9 +74,9 @@ func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*mode
 		lineItem := &shipment.ShipmentLineItems[i]
 		lineItem.ShipmentID = shipment.ID
 
-		stockItemUnit := service.getStockItemUnitForShipmentLineItem(lineItem.SKU, boundItems, stockItemUnits)
-		if stockItemUnit == nil {
-			return nil, fmt.Errorf("Not found stock item unit with reference number %s and sku %s", shipment.ReferenceNumber, lineItem.SKU)
+		stockItemUnit, err := service.getStockItemUnitForShipmentLineItem(shipment.ReferenceNumber, lineItem.SKU, boundItems, stockItemUnits)
+		if err != nil {
+			return nil, err
 		}
 		lineItem.StockItemUnitID = stockItemUnit.ID
 		createdLineItem, err := lineItemRepo.CreateShipmentLineItem(lineItem)
@@ -98,18 +101,19 @@ func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*mode
 }
 
 func (service *shipmentService) getStockItemUnitForShipmentLineItem(
+	referenceNumber string,
 	sku string,
 	boundItems map[uint]uint,
 	stockItemUnits []*models.StockItemUnit,
-) *models.StockItemUnit {
+) (*models.StockItemUnit, error) {
 	for _, stockItemUnit := range stockItemUnits {
 		if _, bound := boundItems[stockItemUnit.ID]; stockItemUnit.StockItem.SKU == sku && !bound {
 			boundItems[stockItemUnit.ID] = stockItemUnit.ID
-			return stockItemUnit
+			return stockItemUnit, nil
 		}
 	}
 
-	return nil
+	return nil, fmt.Errorf("Not found stock item unit with reference number %s and sku %s", referenceNumber, sku)
 }
 
 func (service *shipmentService) UpdateShipment(shipment *models.Shipment) (*models.Shipment, error) {
@@ -129,4 +133,36 @@ func (service *shipmentService) UpdateShipment(shipment *models.Shipment) (*mode
 	}
 
 	return shipment, nil
+}
+
+func (service *shipmentService) GetUnshippedItems(shipment *models.Shipment) ([]*models.ShipmentLineItem, error) {
+	stockItemUnits, err := service.stockItemUnitRepository.GetUnitsInOrder(shipment.ReferenceNumber)
+	if err != nil {
+		return nil, err
+	}
+
+	shipmentLineItems, err := service.shipmentLineItemService.GetShipmentLineItemsByShipmentID(shipment.ID)
+
+	unshippedLineItems := []*models.ShipmentLineItem{}
+	for _, stockItemUnit := range stockItemUnits {
+		var shipmentLineItem *models.ShipmentLineItem
+
+		//find respective stockItemUnit found
+		for i := range shipmentLineItems {
+			if shipmentLineItems[i].StockItemUnitID == stockItemUnit.ID {
+				shipmentLineItem = shipmentLineItems[i]
+				break
+			}
+		}
+
+		//if not found - add to unshipped
+		if shipmentLineItem == nil {
+			unshippedLineItems = append(unshippedLineItems, &models.ShipmentLineItem{
+				SKU: stockItemUnit.StockItem.SKU,
+				Price: stockItemUnit.UnitCost,
+			})
+		}
+	}
+
+	return unshippedLineItems, nil
 }

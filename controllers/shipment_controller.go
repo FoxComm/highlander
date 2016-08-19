@@ -10,6 +10,7 @@ import (
 	"github.com/FoxComm/middlewarehouse/services"
 
 	"github.com/gin-gonic/gin"
+	"golang.org/x/net/context"
 )
 
 type shipmentController struct {
@@ -35,7 +36,7 @@ func (controller *shipmentController) getShipmentsByReferenceNumbers() gin.Handl
 	return func(context *gin.Context) {
 		referenceNumbers := strings.Split(context.Params.ByName("referenceNumbers"), ",")
 
-		response := []*responses.Shipment{}
+		response := &responses.Shipments{}
 		for _, referenceNumber := range referenceNumbers {
 			shipments, err := controller.shipmentService.GetShipmentsByReferenceNumber(referenceNumber)
 			if err != nil {
@@ -44,7 +45,18 @@ func (controller *shipmentController) getShipmentsByReferenceNumbers() gin.Handl
 			}
 
 			for _, shipment := range shipments {
-				response = append(response, responses.NewShipmentFromModel(shipment))
+				response.Shipments = append(response.Shipments, responses.NewShipmentFromModel(shipment))
+
+				unshippedItems, err := controller.shipmentService.GetUnshippedItems(shipment)
+
+				if err != nil {
+					handleServiceError(context, err)
+					return
+				}
+
+				for _, unshippedItem := range unshippedItems {
+					response.UnshippedItems = append(response.UnshippedItems, responses.NewShipmentLineItemFromModel(unshippedItem))
+				}
 			}
 		}
 
