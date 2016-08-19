@@ -63,9 +63,9 @@ class CouponsIntegrationTest
     }
   }
 
-  "POST /v1/coupons/:context/:id/archive" - {
+  "DELETE /v1/coupons/:context/:id" - {
     "archive existing coupon" in new Fixture {
-      val response = POST(s"v1/coupons/${ctx.name}/${coupon.form.id}/archive")
+      val response = DELETE(s"v1/coupons/${ctx.name}/${coupon.form.id}")
 
       response.status must === (StatusCodes.OK)
 
@@ -76,7 +76,7 @@ class CouponsIntegrationTest
     }
 
     "404 for not existing coupon" in new Fixture {
-      val response = POST(s"v1/coupons/${ctx.name}/666/archive")
+      val response = DELETE(s"v1/coupons/${ctx.name}/666")
 
       response.status must === (StatusCodes.NotFound)
       response.error === (NotFoundFailure404(Coupon, 666).description)
@@ -84,7 +84,7 @@ class CouponsIntegrationTest
 
     "404 when context not found" in new Fixture {
       val contextName = "donkeyContext"
-      val response    = POST(s"v1/coupons/$contextName/${coupon.form.id}/archive")
+      val response    = DELETE(s"v1/coupons/$contextName/${coupon.form.id}")
 
       response.status must === (StatusCodes.NotFound)
       response.error must === (ObjectContextNotFound(contextName).description)

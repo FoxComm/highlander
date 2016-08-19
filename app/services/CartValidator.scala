@@ -3,7 +3,7 @@ package services
 import failures.CartFailures._
 import failures.{Failure, Failures}
 import models.cord._
-import models.cord.lineitems.CartLineItemSkus
+import models.cord.lineitems.CartLineItems
 import models.payment.giftcard.{GiftCardAdjustments, GiftCards}
 import models.payment.storecredit.{StoreCreditAdjustments, StoreCredits}
 import slick.driver.PostgresDriver.api._
@@ -47,7 +47,7 @@ case class CartValidator(cart: Cart)(implicit ec: EC) extends CartValidation {
 
   //todo: do we need alway have sku or at least sku or gc
   private def hasItems(response: CartValidatorResponse): DBIO[CartValidatorResponse] = {
-    CartLineItemSkus.byCordRef(cart.refNum).length.result.map { numItems ⇒
+    CartLineItems.byCordRef(cart.refNum).length.result.map { numItems ⇒
       if (numItems == 0) warning(response, EmptyCart(cart.refNum)) else response
     }
   }

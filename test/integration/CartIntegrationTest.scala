@@ -451,8 +451,7 @@ class CartIntegrationTest
 
     val (lowShippingMethod, inactiveShippingMethod, highShippingMethod) = (for {
       product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head.copy(price = 100))
-      li ← * <~ CartLineItemSkus.create(
-              CartLineItemSku(cordRef = cart.refNum, skuId = product.skuId))
+      li      ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
 
       lowShippingMethod ← * <~ ShippingMethods.create(lowSm)
       inactiveShippingMethod ← * <~ ShippingMethods.create(

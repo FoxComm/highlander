@@ -275,20 +275,19 @@ trait OrderGenerator extends ShipmentSeeds {
       implicit db: DB): DbResultT[Unit] =
     for {
       skus ← * <~ Skus.filter(_.id inSet skuIds).result
-      liSkus ← * <~ OrderLineItemSkus.createAllReturningIds(
-                  skus.map(sku ⇒ OrderLineItemSku(skuId = sku.id, skuShadowId = sku.shadowId)))
-      _ ← * <~ OrderLineItems.createAll(liSkus.seq.map { liSkuId ⇒
-           OrderLineItem(cordRef = orderRef,
-                         originId = liSkuId,
-                         originType = OrderLineItem.SkuItem,
-                         state = state)
-         })
+      _ ← * <~ OrderLineItems.createAll(
+             skus.map(
+                 sku ⇒
+                   OrderLineItem(cordRef = orderRef,
+                                 skuId = sku.id,
+                                 skuShadowId = sku.shadowId,
+                                 state = state)))
     } yield {}
 
   def addProductsToCart(skuIds: Seq[Int], cartRef: String)(
-      implicit db: DB): DbResultT[Seq[CartLineItemSku]] = {
-    val itemsToInsert = skuIds.map(skuId ⇒ CartLineItemSku(cordRef = cartRef, skuId = skuId))
-    CartLineItemSkus.createAllReturningModels(itemsToInsert)
+      implicit db: DB): DbResultT[Seq[CartLineItem]] = {
+    val itemsToInsert = skuIds.map(skuId ⇒ CartLineItem(cordRef = cartRef, skuId = skuId))
+    CartLineItems.createAllReturningModels(itemsToInsert)
   }
 
   def orderNotes: Seq[Note] = {

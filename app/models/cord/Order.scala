@@ -7,8 +7,7 @@ import cats.data.Xor.{left, right}
 import cats.implicits._
 import com.pellucid.sealerate
 import failures.{Failures, GeneralFailure}
-import models.cord.lineitems.OrderLineItem.SkuItem
-import models.cord.lineitems.{OrderLineItemSku, OrderLineItem, OrderLineItemSkus, CartLineItemSkus, OrderLineItems}
+import models.cord.lineitems.{OrderLineItem, OrderLineItems, CartLineItems}
 import models.customer.Customer
 import models.inventory.Skus
 import shapeless._
@@ -151,7 +150,7 @@ object Orders
   def prepareOrderLineItemsFromCart(cart: Cart, contextId: Int)(
       implicit ec: EC,
       db: DB): DbResultT[Seq[OrderLineItem]] = {
-    val countBySku = CartLineItemSkus.byCordRef(cart.referenceNumber).groupBy(_.skuId).map {
+    val countBySku = CartLineItems.byCordRef(cart.referenceNumber).groupBy(_.skuId).map {
       case (sku, q) ⇒ sku → q.length
     }
 
@@ -163,16 +162,12 @@ object Orders
 
     for {
       skuItems ← * <~ orderLineItemSkusQuery.result
-      items ← * <~ OrderLineItemSkus.createAllReturningModels(skuItems.map {
-               case (sku, _) ⇒
-                 OrderLineItemSku(skuId = sku.id, skuShadowId = sku.shadowId)
-             })
-      lineItems ← * <~ items.zip(skuItems).flatMap {
-                   case (oli, (_, count)) ⇒
+      lineItems ← * <~ skuItems.flatMap {
+                   case (sku, count) ⇒
                      List.fill(count)(
                          OrderLineItem(cordRef = cart.referenceNumber,
-                                       originId = oli.id,
-                                       originType = SkuItem,
+                                       skuId = sku.id,
+                                       skuShadowId = sku.shadowId,
                                        state = OrderLineItem.Pending))
                  }
     } yield lineItems

@@ -5,7 +5,7 @@ import models.product.Mvp
 import responses.{GiftCardResponse, ResponseItem}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
-import CartLineItemSkus.scope._
+import CartLineItems.scope._
 
 case class CordResponseLineItem(imagePath: String,
                                 referenceNumber: String,
@@ -18,9 +18,7 @@ case class CordResponseLineItem(imagePath: String,
                                 state: OrderLineItem.State)
     extends ResponseItem
 
-case class CordResponseLineItems(skus: Seq[CordResponseLineItem] = Seq.empty,
-                                 giftCards: Seq[GiftCardResponse.Root] = Seq.empty)
-    extends ResponseItem
+case class CordResponseLineItems(skus: Seq[CordResponseLineItem] = Seq.empty) extends ResponseItem
 
 object CordResponseLineItems {
 
@@ -39,22 +37,15 @@ object CordResponseLineItems {
             readLineItems: (String, AdjustmentMap) ⇒ DBIO[Seq[CordResponseLineItem]])(
       implicit ec: EC): DBIO[CordResponseLineItems] = {
     val adjustmentMap = mapAdjustments(adjustments)
-    val liQ           = readLineItems(cordRef, adjustmentMap)
-
-    val gcLiQ = OrderLineItemGiftCards
-      .findLineItemsByCordRef(cordRef)
-      .result
-      .map(_.map { case (gc, li) ⇒ GiftCardResponse.build(gc) })
 
     for {
-      skuList ← liQ
-      gcList  ← gcLiQ
-    } yield CordResponseLineItems(skus = skuList, giftCards = gcList)
+      skuList ← readLineItems(cordRef, adjustmentMap)
+    } yield CordResponseLineItems(skus = skuList)
   }
 
   def cordLineItemsFromOrder(cordRef: String, adjustmentMap: AdjustmentMap)(
       implicit ec: EC): DBIO[Seq[CordResponseLineItem]] = {
-    OrderLineItemSkus
+    OrderLineItems
       .findLineItemsByCordRef(cordRef)
       .result
       .map(
@@ -67,7 +58,7 @@ object CordResponseLineItems {
 
   def cordLineItemsFromCart(cordRef: String, adjustmentMap: AdjustmentMap)(
       implicit ec: EC): DBIO[Seq[CordResponseLineItem]] = {
-    CartLineItemSkus.byCordRef(cordRef).lineItems.result.map {
+    CartLineItems.byCordRef(cordRef).lineItems.result.map {
       //Convert to OrderLineItemProductData
       _.map(resultToCartData)
       //Group by adjustments/unadjusted
@@ -78,12 +69,10 @@ object CordResponseLineItems {
     }
   }
 
-  private def resultToData(
-      result: OrderLineItemSkus.FindLineItemResult): OrderLineItemProductData =
+  private def resultToData(result: OrderLineItems.FindLineItemResult): OrderLineItemProductData =
     (OrderLineItemProductData.apply _).tupled(result)
 
-  private def resultToCartData(
-      result: CartLineItemSkus.FindLineItemResult): CartLineItemProductData =
+  private def resultToCartData(result: CartLineItems.FindLineItemResult): CartLineItemProductData =
     (CartLineItemProductData.apply _).tupled(result)
 
   private val NOT_A_REF = "not_a_ref"

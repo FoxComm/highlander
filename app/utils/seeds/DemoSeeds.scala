@@ -75,10 +75,9 @@ trait DemoSeedHelpers extends CreditCardSeeds {
       _ ← * <~ OrderTotaler.saveTotals(cart, order)
     } yield order
 
-  private def addSkusToCart(skuIds: Seq[Sku#Id],
-                            cordRef: String): DbResultT[Seq[CartLineItemSku]] = {
-    val itemsToInsert = skuIds.map(skuId ⇒ CartLineItemSku(cordRef = cordRef, skuId = skuId))
-    CartLineItemSkus.createAllReturningModels(itemsToInsert)
+  private def addSkusToCart(skuIds: Seq[Sku#Id], cordRef: String): DbResultT[Seq[CartLineItem]] = {
+    val itemsToInsert = skuIds.map(skuId ⇒ CartLineItem(cordRef = cordRef, skuId = skuId))
+    CartLineItems.createAllReturningModels(itemsToInsert)
   }
 
   private def getDefaultAddress(customerId: Customer#Id)(implicit db: DB) =

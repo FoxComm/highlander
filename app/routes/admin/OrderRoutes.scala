@@ -104,22 +104,6 @@ object OrderRoutes {
                 LineItemUpdater.updateQuantitiesOnCart(admin, refNum, reqItems)
               }
           } ~
-          (post & path("gift-cards") & pathEnd & entity(as[AddGiftCardLineItem])) { payload ⇒
-            mutateOrFailures {
-              LineItemUpdater.addGiftCard(admin, refNum, payload)
-            }
-          } ~
-          (patch & path("gift-cards" / giftCardCodeRegex) & pathEnd & entity(
-                  as[AddGiftCardLineItem])) { (code, payload) ⇒
-            mutateOrFailures {
-              LineItemUpdater.editGiftCard(admin, refNum, code, payload)
-            }
-          } ~
-          (delete & path("gift-cards" / giftCardCodeRegex) & pathEnd) { code ⇒
-            mutateOrFailures {
-              LineItemUpdater.deleteGiftCard(admin, refNum, code)
-            }
-          } ~
           pathPrefix("payment-methods" / "credit-cards") {
             (post & pathEnd & entity(as[CreditCardPayment])) { payload ⇒
               mutateOrFailures {

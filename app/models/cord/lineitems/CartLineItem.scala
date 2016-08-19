@@ -9,31 +9,41 @@ import slick.driver.PostgresDriver.api._
 import utils.aliases.EC
 import utils.db.{FoxModel, ReturningId, FoxTableQuery, FoxTable}
 
-case class CartLineItemSku(id: Int = 0, referenceNumber: String = "", cordRef: String, skuId: Int)
-    extends FoxModel[CartLineItemSku]
+case class CartLineItemProductData(sku: Sku,
+                                   skuForm: ObjectForm,
+                                   skuShadow: ObjectShadow,
+                                   product: ObjectShadow,
+                                   lineItem: CartLineItem)
+    extends LineItemProductData[CartLineItem] {
 
-class CartLineItemSkus(tag: Tag) extends FoxTable[CartLineItemSku](tag, "cart_line_item_skus") {
+  def lineItemReferenceNumber = lineItem.referenceNumber
+  def lineItemState           = OrderLineItem.Cart
+}
+
+case class CartLineItem(id: Int = 0, referenceNumber: String = "", cordRef: String, skuId: Int)
+    extends FoxModel[CartLineItem]
+
+class CartLineItems(tag: Tag) extends FoxTable[CartLineItem](tag, "cart_line_items") {
   def id              = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def referenceNumber = column[String]("reference_number")
   def cordRef         = column[String]("cord_ref")
   def skuId           = column[Int]("sku_id")
 
   def * =
-    (id, referenceNumber, cordRef, skuId) <> ((CartLineItemSku.apply _).tupled, CartLineItemSku.unapply)
+    (id, referenceNumber, cordRef, skuId) <> ((CartLineItem.apply _).tupled, CartLineItem.unapply)
   def sku = foreignKey(Skus.tableName, skuId, Skus)(_.id)
 }
 
-object CartLineItemSkus
-    extends FoxTableQuery[CartLineItemSku, CartLineItemSkus](new CartLineItemSkus(_))
-    with ReturningId[CartLineItemSku, CartLineItemSkus] {
+object CartLineItems
+    extends FoxTableQuery[CartLineItem, CartLineItems](new CartLineItems(_))
+    with ReturningId[CartLineItem, CartLineItems] {
 
-  val returningLens: Lens[CartLineItemSku, Int] = lens[CartLineItemSku].id
+  val returningLens: Lens[CartLineItem, Int] = lens[CartLineItem].id
 
   def byCordRef(cordRef: String): QuerySeq = filter(_.cordRef === cordRef)
 
-  type FindLineItemResult = (Sku, ObjectForm, ObjectShadow, ObjectShadow, CartLineItemSku)
-  type FindLineItemResultMulti =
-    (Skus, ObjectForms, ObjectShadows, ObjectShadows, CartLineItemSkus)
+  type FindLineItemResult      = (Sku, ObjectForm, ObjectShadow, ObjectShadow, CartLineItem)
+  type FindLineItemResultMulti = (Skus, ObjectForms, ObjectShadows, ObjectShadows, CartLineItems)
 
   object scope {
     implicit class ExtractLineItems(q: QuerySeq) {

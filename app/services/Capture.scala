@@ -55,14 +55,14 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
   def capture: DbResultT[CaptureResponse] =
     for {
       //get data for capture. We use the findLineItemsByCordRef function in 
-      //OrderLineItemSkus to get all the relevant data for the order line item.
+      //OrderLineItems to get all the relevant data for the order line item.
       //The function returns a tuple so we will convert it to a case class for
       //convenience.
       order ← * <~ Orders.mustFindByRefNum(payload.order)
       _     ← * <~ validateOrder(order)
 
       customer ← * <~ Customers.mustFindById404(order.customerId)
-      items    ← * <~ OrderLineItemSkus.findLineItemsByCordRef(payload.order).result
+      items    ← * <~ OrderLineItems.findLineItemsByCordRef(payload.order).result
 
       lineItemData ← * <~ items.map { lineItem ⇒
                       (OrderLineItemProductData.apply _).tupled(lineItem)

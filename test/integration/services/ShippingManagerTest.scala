@@ -149,8 +149,7 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
       cart ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
       product ← * <~ Mvp.insertProduct(ctx.id,
                                        Factories.products.head.copy(title = "Donkey", price = 27))
-      li ← * <~ CartLineItemSkus.create(
-              CartLineItemSku(cordRef = cart.refNum, skuId = product.skuId))
+      li ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
 
       cart ← * <~ CartTotaler.saveTotals(cart)
     } yield cart).gimme
@@ -274,8 +273,8 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
                                             Factories.products.head.copy(title = "Cheap Donkey",
                                                                          price = 10,
                                                                          code = "SKU-CHP"))
-      li ← * <~ CartLineItemSkus.create(
-              CartLineItemSku(cordRef = cheapCart.refNum, skuId = cheapProduct.skuId))
+      li ← * <~ CartLineItems.create(
+              CartLineItem(cordRef = cheapCart.refNum, skuId = cheapProduct.skuId))
 
       cheapAddress ← * <~ Addresses.create(
                         Factories.address.copy(customerId = customer.id,
@@ -291,8 +290,8 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
                                                                                "Expensive Donkey",
                                                                              price = 100,
                                                                              code = "SKU-EXP"))
-      li ← * <~ CartLineItemSkus.create(
-              CartLineItemSku(cordRef = expensiveCart.refNum, skuId = expensiveProduct.skuId))
+      li ← * <~ CartLineItems.create(
+              CartLineItem(cordRef = expensiveCart.refNum, skuId = expensiveProduct.skuId))
       expensiveAddress ← * <~ Addresses.create(
                             Factories.address.copy(customerId = customer.id,
                                                    isDefaultShipping = false))

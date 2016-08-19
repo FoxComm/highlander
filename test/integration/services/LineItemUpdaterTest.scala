@@ -45,17 +45,17 @@ class LineItemUpdaterTest
           assert(false, "Should have found sku 1")
       }
 
-      val allRecords = CartLineItemSkus.gimme
+      val allRecords = CartLineItems.gimme
       root.lineItems.skus.foldLeft(0)(_ + _.quantity) must === (allRecords.size)
     }
 
     "Updates line items when the Sku already is in cart" in new Fixture {
       val (context, products) = createProducts(3).gimme
       val seedItems = Seq(1, 1, 1, 1, 1, 1, 2, 3, 3).map { skuId ⇒
-        CartLineItemSku(cordRef = cart.refNum, skuId = skuId)
+        CartLineItem(cordRef = cart.refNum, skuId = skuId)
       }
 
-      CartLineItemSkus.createAll(seedItems).gimme
+      CartLineItems.createAll(seedItems).gimme
 
       val payload = Seq[Payload](
           Payload(sku = "1", quantity = 3),
@@ -76,7 +76,7 @@ class LineItemUpdaterTest
           assert(false, "Should have found sku 1")
       }
 
-      root.lineItems.skus.foldLeft(0)(_ + _.quantity) must === (CartLineItemSkus.gimme.size)
+      root.lineItems.skus.foldLeft(0)(_ + _.quantity) must === (CartLineItems.gimme.size)
     }
   }
 
