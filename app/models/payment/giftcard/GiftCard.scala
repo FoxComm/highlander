@@ -256,7 +256,11 @@ object GiftCards
          orderPaymentId = pmt.id.some,
          debit = pmt.getAmount(maxPaymentAmount))
 
-  def capture(giftCard: GiftCard, orderPaymentId: Option[Int], debit: Int = 0, credit: Int = 0)(
+  def captureOrderPayment(giftCard: GiftCard, pmt: OrderPayment, maxAmount: Option[Int] = None)(
+      implicit ec: EC): DbResultT[GiftCardAdjustment] =
+    capture(giftCard, pmt.id.some, debit = pmt.getAmount(maxAmount))
+
+  def capture(giftCard: GiftCard, orderPaymentId: Option[Int], debit: Int, credit: Int = 0)(
       implicit ec: EC): DbResultT[GiftCardAdjustment] =
     adjust(giftCard, orderPaymentId, debit = debit, credit = credit, state = Adj.Capture)
 
