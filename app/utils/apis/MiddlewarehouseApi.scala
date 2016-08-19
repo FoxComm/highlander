@@ -9,8 +9,9 @@ import utils.aliases._
 import utils.FoxConfig.{RichConfig, config}
 import org.json4s.jackson.JsonMethods._
 import org.json4s.Extraction
+import failures.MiddlewarehouseFailures
 
-import dispatch.{Http, as, url}
+import dispatch._
 
 case class SkuReservation(sku: String, qty: Int)
 case class OrderReservation(refNum: String, reservations: Seq[SkuReservation])
@@ -34,6 +35,10 @@ class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
     val rawReq = baseUrl / "reservations" / "reserve"
     val body   = compact(Extraction.decompose(reservation))
     val req    = rawReq.setContentType("application/json", "UTF-8") << body
-    Result.fromFuture(Http(req.POST OK as.String))
+    Http(req.POST OK as.String).either.flatMap {
+      case Right(resp) ⇒ Result.good(resp)
+      case Left(error) ⇒ Result.failure(MiddlewarehouseFailures.UnableToReserveLineItems(error))
+    }
+
   }
 }
