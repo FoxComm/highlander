@@ -1,6 +1,8 @@
 package services
 
 import (
+	"fmt"
+
 	"github.com/FoxComm/middlewarehouse/models"
 	"github.com/FoxComm/middlewarehouse/repositories"
 
@@ -55,6 +57,7 @@ func (service *summaryService) UpdateStockItemSummary(stockItemId uint, unitType
 
 	summary, err := service.summaryRepo.GetSummaryItemByType(stockItemId, unitType)
 	if err != nil {
+		fmt.Printf("stockItemId: %d\nunitType: %s\n", stockItemId, unitType)
 		return err
 	}
 
@@ -77,9 +80,9 @@ func (service *summaryService) UpdateStockItemSummary(stockItemId uint, unitType
 	}
 
 	// create related stock item transaction
-	go service.CreateStockItemTransaction(summary, status.To, qty)
+	return service.CreateStockItemTransaction(summary, status.To, qty)
 
-	return nil
+	//return nil
 }
 
 func (service *summaryService) CreateStockItemTransaction(summary *models.StockItemSummary, status models.UnitStatus, qty int) error {
