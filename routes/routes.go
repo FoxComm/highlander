@@ -26,7 +26,7 @@ func GetRoutes(db *gorm.DB) map[string]controllers.IController {
 	stockLocationService := services.NewStockLocationService(stockLocationRepository)
 	shippingMethodService := services.NewShippingMethodService(shippingMethodRepository)
 	shipmentLineItemService := services.NewShipmentLineItemService(shipmentLineItemRepository)
-	shipmentService := services.NewShipmentService(db, shipmentRepository, shipmentLineItemService)
+	shipmentService := services.NewShipmentService(db, shipmentRepository, shipmentLineItemService, unitRepository)
 
 	return map[string]controllers.IController{
 		"/ping":             controllers.NewPingController(),

@@ -41,7 +41,7 @@ func (controller *reservationController) Reserve() gin.HandlerFunc {
 			skuMap[sku.SKU] = int(sku.Qty)
 		}
 
-		if err := controller.service.ReserveItems(payload.RefNum, skuMap); err != nil {
+		if err := controller.service.HoldItems(payload.RefNum, skuMap); err != nil {
 			handleServiceError(context, err)
 			return
 		}

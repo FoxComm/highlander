@@ -104,10 +104,10 @@ func (suite *shipmentControllerTestSuite) Test_CreateShipment_ReturnsRecord() {
 
 func (suite *shipmentControllerTestSuite) Test_UpdateShipment_NotFound_ReturnsNotFoundError() {
 	//arrange
-	shipment1 := fixtures.GetShipmentShort(uint(1))
+	shipment1 := fixtures.GetShipment(uint(1), uint(1), &models.ShippingMethod{},
+		uint(1), &models.Address{}, []models.ShipmentLineItem{})
 	suite.shipmentService.
-		On("UpdateShipment", fixtures.GetShipment(shipment1.ID, shipment1.ShippingMethodID, &models.ShippingMethod{},
-			shipment1.AddressID, &shipment1.Address, []models.ShipmentLineItem{shipment1.ShipmentLineItems[0], shipment1.ShipmentLineItems[1]})).
+		On("UpdateShipment", shipment1).
 		Return(nil, gorm.ErrRecordNotFound).Once()
 
 	//act
@@ -123,9 +123,11 @@ func (suite *shipmentControllerTestSuite) Test_UpdateShipment_NotFound_ReturnsNo
 func (suite *shipmentControllerTestSuite) Test_UpdateShipment_Found_ReturnsRecord() {
 	//arrange
 	shipment1 := fixtures.GetShipmentShort(uint(1))
+	shipmentLineItem1 := *fixtures.GetShipmentLineItem(uint(1), shipment1.ID, 0)
+	shipmentLineItem2 := *fixtures.GetShipmentLineItem(uint(2), shipment1.ID, 0)
 	suite.shipmentService.
 		On("UpdateShipment", fixtures.GetShipment(shipment1.ID, shipment1.ShippingMethodID, &models.ShippingMethod{},
-			shipment1.AddressID, &shipment1.Address, []models.ShipmentLineItem{shipment1.ShipmentLineItems[0], shipment1.ShipmentLineItems[1]})).
+			shipment1.AddressID, &shipment1.Address, []models.ShipmentLineItem{shipmentLineItem1, shipmentLineItem2})).
 		Return(shipment1, nil).Once()
 
 	//act
