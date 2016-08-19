@@ -58,7 +58,7 @@ class PluginsList extends Component {
             columns={tableColumns}
             data={this.pluginsTableData}
             isLoading={this.props.isLoading}
-            emptyMessage="There is no plugins installed"
+            emptyMessage="There are no plugins installed"
           />
         </div>
       </div>
