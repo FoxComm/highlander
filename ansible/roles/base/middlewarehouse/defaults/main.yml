@@ -1,2 +1,5 @@
 middlewarehouse_service_requires: postgresql.service
 middlewarehouse_service_after: postgresql.service
+
+middlewarehouse_cunsumers_services_requires: postgresql.service schema-registry.service
+middlewarehouse_consumers_services_after: postgresql.service schema-registry.service
