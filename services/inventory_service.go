@@ -3,6 +3,7 @@ package services
 import (
 	"errors"
 	"fmt"
+	"log"
 
 	"github.com/FoxComm/middlewarehouse/models"
 	"github.com/FoxComm/middlewarehouse/repositories"
@@ -188,7 +189,12 @@ func (service *inventoryService) ReleaseItems(refNum string) error {
 
 func (service *inventoryService) execAsync(fn func() error) error {
 	if service.updateSummaryAsync {
-		go fn()
+		go func() {
+			err := fn()
+			if err != nil {
+				log.Printf("Error updating summaries: %s", err.Error())
+			}
+		}()
 		return nil
 	}
 
