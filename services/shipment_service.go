@@ -159,7 +159,7 @@ func (service *shipmentService) GetUnshippedItems(shipment *models.Shipment) ([]
 		if shipmentLineItem == nil {
 			unshippedLineItems = append(unshippedLineItems, &models.ShipmentLineItem{
 				SKU: stockItemUnit.StockItem.SKU,
-				Price: stockItemUnit.UnitCost,
+				Price: uint(stockItemUnit.UnitCost),
 			})
 		}
 	}
