@@ -25,6 +25,7 @@ type IInventoryService interface {
 	DecrementStockItemUnits(id uint, unitType models.UnitType, qty int) error
 
 	HoldItems(refNum string, skus map[string]int) error
+	ReserveItems(refNum string) error
 	ReleaseItems(refNum string) error
 }
 

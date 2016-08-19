@@ -8,9 +8,9 @@ import (
 	"github.com/FoxComm/middlewarehouse/fixtures"
 	"github.com/FoxComm/middlewarehouse/repositories"
 
+	"github.com/FoxComm/middlewarehouse/models"
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/suite"
-	"github.com/FoxComm/middlewarehouse/models"
 )
 
 type ShipmentServiceTestSuite struct {

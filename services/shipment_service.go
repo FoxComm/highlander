@@ -25,7 +25,7 @@ type IShipmentService interface {
 
 func NewShipmentService(
 	db *gorm.DB,
-shipmentRepository repositories.IShipmentRepository,
+	shipmentRepository repositories.IShipmentRepository,
 	shipmentLineItemService IShipmentLineItemService,
 	stockItemUnitRepository repositories.IStockItemUnitRepository,
 ) IShipmentService {
@@ -158,7 +158,7 @@ func (service *shipmentService) GetUnshippedItems(shipment *models.Shipment) ([]
 		//if not found - add to unshipped
 		if shipmentLineItem == nil {
 			unshippedLineItems = append(unshippedLineItems, &models.ShipmentLineItem{
-				SKU: stockItemUnit.StockItem.SKU,
+				SKU:   stockItemUnit.StockItem.SKU,
 				Price: uint(stockItemUnit.UnitCost),
 			})
 		}

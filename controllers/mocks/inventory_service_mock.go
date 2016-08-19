@@ -77,6 +77,12 @@ func (m *InventoryServiceMock) HoldItems(refNum string, skus map[string]int) err
 	return args.Error(0)
 }
 
+func (m *InventoryServiceMock) ReserveItems(refNum string) error {
+	args := m.Called(refNum)
+
+	return args.Error(0)
+}
+
 func (m *InventoryServiceMock) ReleaseItems(refNum string) error {
 	args := m.Called(refNum)
 
