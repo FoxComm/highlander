@@ -36,6 +36,5 @@ func NewShipmentLineItemFromOrderPayload(payload *payloads.OrderLineItem) *Shipm
 		Name:            payload.Name,
 		Price:           payload.Price,
 		ImagePath:       payload.ImagePath,
-		State:           ShipmentStatePending,
 	}
 }
