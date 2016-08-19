@@ -68,12 +68,6 @@ class CheckoutTest
       result must === (failure.single)
     }
 
-    "sets all gift card line item purchases as GiftCard.OnHold" in new GCLineItemFixture {
-      Checkout(cart, cartValidator()).checkout.gimme
-      val gc = GiftCards.mustFindById404(giftCard.id).gimme
-      gc.state must === (GiftCard.OnHold)
-    }
-
     "authorizes payments" - {
       "for all gift cards" in new PaymentFixtureWithCart {
         val gcAmount = cart.grandTotal - 1
@@ -184,11 +178,9 @@ class CheckoutTest
             // Do not mock validator because OrderResponse requires that data anyway
             _ ← * <~ Checkout.fromCart(cart.refNum)
 
-            gcAdjustments ← * <~ GiftCardAdjustments.filter(_.giftCardId.inSet(gcIds)).result
             scAdjustments ← * <~ StoreCreditAdjustments.filter(_.storeCreditId.inSet(scIds)).result
 
-            totalAdjustments = gcAdjustments.map(_.getAmount.abs).sum +
-              scAdjustments.map(_.getAmount.abs).sum
+            totalAdjustments = scAdjustments.map(_.getAmount.abs).sum
           } yield totalAdjustments
 
           dbResultT
@@ -202,19 +194,6 @@ class CheckoutTest
         fail(qr.status.toString)
       }
     }
-  }
-
-  trait GCLineItemFixture extends EmptyCartWithShipAddress_Baked {
-    val giftCard = (for {
-      shipMethod ← * <~ ShippingMethods.create(Factories.shippingMethods.head)
-      _          ← * <~ OrderShippingMethods.create(OrderShippingMethod.build(cart.refNum, shipMethod))
-      origin     ← * <~ GiftCardOrders.create(GiftCardOrder(cordRef = cart.refNum))
-      giftCard ← * <~ GiftCards.create(
-                    GiftCard.buildLineItem(balance = 150, originId = origin.id, currency = USD))
-      lineItemGc ← * <~ OrderLineItemGiftCards.create(
-                      OrderLineItemGiftCard(giftCardId = giftCard.id, cordRef = cart.refNum))
-      lineItem ← * <~ OrderLineItems.create(OrderLineItem.buildGiftCard(cart, lineItemGc))
-    } yield giftCard).gimme
   }
 
   trait PaymentFixture extends CustomerAddress_Baked with StoreAdmin_Seed {

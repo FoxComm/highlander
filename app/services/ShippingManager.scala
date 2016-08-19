@@ -3,7 +3,7 @@ package services
 import failures.NotFoundFailure404
 import failures.ShippingMethodFailures.ShippingMethodNotApplicableToCart
 import models.cord._
-import models.cord.lineitems.CartLineItemSkus
+import models.cord.lineitems.CartLineItems
 import models.customer.Customer
 import models.inventory.Sku
 import models.location.Region
@@ -83,7 +83,7 @@ object ShippingManager {
                               .result
                               .headOption
       skus ← (for {
-              liSku ← CartLineItemSkus.byCordRef(cart.refNum)
+              liSku ← CartLineItems.byCordRef(cart.refNum)
               sku   ← liSku.sku
             } yield sku).result
     } yield

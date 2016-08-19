@@ -9,7 +9,7 @@ import failures.PromotionFailures._
 import models.cord.OrderPromotions.scope._
 import models.cord._
 import models.cord.lineitems._
-import CartLineItemSkus.scope._
+import CartLineItems.scope._
 import models.coupon._
 import models.discount.DiscountHelpers._
 import models.discount._
@@ -146,7 +146,7 @@ object CartPromotionUpdater {
 
   private def fetchCartDetails(cart: Cart)(implicit ec: EC) =
     for {
-      lineItemTup ← CartLineItemSkus.byCordRef(cart.refNum).lineItems.result
+      lineItemTup ← CartLineItems.byCordRef(cart.refNum).lineItems.result
       lineItems = lineItemTup.map {
         case (sku, skuForm, skuShadow, productShadow, lineItem) ⇒
           CartLineItemProductData(sku, skuForm, skuShadow, productShadow, lineItem)

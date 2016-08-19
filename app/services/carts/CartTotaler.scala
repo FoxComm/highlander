@@ -28,30 +28,16 @@ object CartTotaler {
   val defaultTaxRate = 0.0
 
   def subTotal(cart: Cart)(implicit ec: EC): DBIO[Int] =
-    for {
-      skus ← skuSubTotalForCart(cart)
-      gcs  ← gcSubTotalForCart(cart)
-    } yield skus + gcs
+    skuSubTotalForCart(cart)
 
   def skuSubTotalForCart(cart: Cart)(implicit ec: EC): DBIO[Int] =
     sql"""select count(*), sum(coalesce(cast(sku_form.attributes->(sku_shadow.attributes->'salePrice'->>'ref')->>'value' as integer), 0)) as sum
-       |	from cart_line_item_skus sli
+       |	from cart_line_items sli
        |	left outer join skus sku on (sku.id = sli.sku_id)
        |	left outer join object_forms sku_form on (sku_form.id = sku.form_id)
        |	left outer join object_shadows sku_shadow on (sku_shadow.id = sku.shadow_id)
        |
        |	where sli.cord_ref = ${cart.refNum}
-       | """.stripMargin.as[(Int, Int)].headOption.map {
-      case Some((count, total)) if count > 0 ⇒ total
-      case _                                 ⇒ 0
-    }
-
-  def gcSubTotalForCart(cart: Cart)(implicit ec: EC): DBIO[Int] =
-    sql"""select count(*), sum(coalesce(gc.original_balance, 0))  as sum
-       |	from order_line_items oli
-         |	left outer join order_line_item_gift_cards gcli on (gcli.id = oli.origin_id)
-       |	left outer join gift_cards gc on (gc.id = gcli.gift_card_id)
-       |	where oli.cord_ref = ${cart.refNum}
        | """.stripMargin.as[(Int, Int)].headOption.map {
       case Some((count, total)) if count > 0 ⇒ total
       case _                                 ⇒ 0

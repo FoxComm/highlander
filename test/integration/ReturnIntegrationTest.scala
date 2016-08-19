@@ -390,36 +390,6 @@ class ReturnIntegrationTest
       }
     }
 
-    "DELETE /v1/returns/:refNum/line-items/gift-cards/:id" - {
-      "successfully deletes gift card line item" in new LineItemFixture {
-        // Create
-        val payload =
-          ReturnGiftCardLineItemsPayload(code = giftCard.code, reasonId = returnReason.id)
-        val updatedRma =
-          ReturnLineItemUpdater.addGiftCardLineItem(rma.referenceNumber, payload).gimme
-        val lineItemId = updatedRma.lineItems.giftCards.headOption.value.lineItemId
-
-        // Delete
-        val response =
-          DELETE(s"v1/returns/${rma.referenceNumber}/line-items/gift-cards/$lineItemId")
-        response.status must === (StatusCodes.OK)
-        val root = response.as[ReturnResponse.Root]
-        root.lineItems.giftCards mustBe 'empty
-      }
-
-      "fails if refNum is not found" in new LineItemFixture {
-        val response = DELETE(s"v1/returns/ABC-666/line-items/gift-cards/1")
-        response.status must === (StatusCodes.NotFound)
-        response.error must === (NotFoundFailure404(Return, "ABC-666").description)
-      }
-
-      "fails if line item ID is not found" in new LineItemFixture {
-        val response = DELETE(s"v1/returns/${rma.referenceNumber}/line-items/gift-cards/666")
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (NotFoundFailure400(ReturnLineItem, 666).description)
-      }
-    }
-
     // Shipping Costs Line Items
     "POST /v1/returns/:refNum/line-items/shipping-costs" - {
       "successfully adds shipping cost line item" in new LineItemFixture {
@@ -503,13 +473,6 @@ class ReturnIntegrationTest
                     Factories.giftCard.copy(originId = gcOrigin.id,
                                             originType = GiftCard.RmaProcess))
 
-      gcLineItem ← * <~ OrderLineItemGiftCards.create(
-                      OrderLineItemGiftCard(cordRef = order.refNum, giftCardId = giftCard.id))
-      lineItem2 ← * <~ OrderLineItems.create(
-                     OrderLineItem(originId = gcLineItem.id,
-                                   originType = OrderLineItem.GiftCardItem,
-                                   cordRef = order.refNum))
-
       shippingAddress ← * <~ OrderShippingAddresses.create(
                            Factories.shippingAddress.copy(cordRef = order.refNum, regionId = 1))
       shippingMethod ← * <~ ShippingMethods.create(Factories.shippingMethods.head)
@@ -523,8 +486,8 @@ class ReturnIntegrationTest
   def addSkusToOrder(skuIds: Seq[Int],
                      cordRef: String,
                      state: OrderLineItem.State): DbResultT[Unit] = {
-    val itemsToInsert = skuIds.map(skuId ⇒ CartLineItemSku(cordRef = cordRef, skuId = skuId))
-    CartLineItemSkus.createAll(itemsToInsert).map(_ ⇒ Unit)
+    val itemsToInsert = skuIds.map(skuId ⇒ CartLineItem(cordRef = cordRef, skuId = skuId))
+    CartLineItems.createAll(itemsToInsert).map(_ ⇒ Unit)
   }
 
 }

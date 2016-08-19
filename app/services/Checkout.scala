@@ -7,8 +7,8 @@ import failures.CouponFailures.CouponWithCodeCannotBeFound
 import failures.GeneralFailure
 import failures.PromotionFailures.PromotionNotFoundForContext
 import models.cord._
-import models.cord.lineitems.{CartLineItemSkus, OrderLineItemGiftCards}
-import CartLineItemSkus.scope._
+import models.cord.lineitems.{CartLineItems}
+import CartLineItems.scope._
 import models.coupon._
 import models.customer.{Customer, Customers}
 import models.objects._
@@ -101,7 +101,6 @@ case class Checkout(
       _         ← * <~ cartValidator.validate(isCheckout = true, fatalWarnings = true)
       order     ← * <~ Orders.createFromCart(cart)
       _         ← * <~ fraudScore(order)
-      _         ← * <~ remorseHold(order)
       _         ← * <~ updateCouponCountersForPromotion(customer)
       fullOrder ← * <~ OrderResponse.fromOrder(order)
       _         ← * <~ LogActivity.orderCheckoutCompleted(fullOrder)
@@ -109,7 +108,7 @@ case class Checkout(
 
   private def reserveInMiddleWarehouse: DbResultT[Unit] =
     for {
-      liSkus ← * <~ CartLineItemSkus.byCordRef(cart.refNum).countSkus
+      liSkus ← * <~ CartLineItems.byCordRef(cart.refNum).countSkus
       skuReservations = liSkus.map { case (skuCode, qty) ⇒ SkuReservation(skuCode, qty) }.toSeq
       _ ← * <~ apis.middlwarehouse.reserve(OrderReservation(cart.referenceNumber, skuReservations))
     } yield {}
@@ -213,19 +212,11 @@ case class Checkout(
     } else DbResultT.none
   }
 
-  private def remorseHold(order: Order): DBIO[Unit] =
-    for {
-      items ← OrderLineItemGiftCards.findByOrderRef(cart.refNum).result
-      holds ← GiftCards
-               .filter(_.id.inSet(items.map(_.giftCardId)))
-               .map(_.state)
-               .update(GiftCard.OnHold)
-    } yield {}
-
+  //TODO: Replace with the real deal once we figure out how to do it.
   private def fraudScore(order: Order): DbResultT[Order] =
     for {
-      fraudScore ← * <~ Random.nextInt(10)
-      order      ← * <~ Orders.update(order, order.copy(fraudScore = fraudScore))
+      fakeFraudScore ← * <~ Random.nextInt(10)
+      order          ← * <~ Orders.update(order, order.copy(fraudScore = fakeFraudScore))
     } yield order
 
 }
