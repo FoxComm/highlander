@@ -70,7 +70,6 @@ export default class UnshippedItems extends Component<void, Props, void> {
       <TableView
         columns={viewColumns}
         data={{rows: items}}
-        wrapToTbody={false}
         renderRow={this.renderRow}
       />
     );

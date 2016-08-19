@@ -30,7 +30,7 @@ const reducers = {
 function fetchShipments(actions: Object, state: Object, referenceNumber: string): Function {
   return dispatch =>
     Api.get(`/inventory/shipments/${referenceNumber}`)
-      .then(shipments => dispatch(actions.setData({shipments, unshippedItems:[]})));
+      .then(data => dispatch(actions.setData(data)));
 }
 
 const { actions, reducer } = createStore({
