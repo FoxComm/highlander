@@ -13,13 +13,15 @@ import Images from '../images/images';
 
 // types
 import type { Props as ImagesProps } from '../images/images';
+import type { Sku } from '../../modules/skus/details';
 
 type Params = {
-  skuCode: number;
+  skuCode: number,
 };
 
 type Props = ImagesProps & {
-  params: Params;
+  params: Params,
+  sku: Sku,
 };
 
 class SkuImages extends Component {
