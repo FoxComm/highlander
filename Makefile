@@ -28,8 +28,8 @@ migrate-test:
 reset: drop-db drop-user create-user create-db migrate migrate-test
 
 reset-test:
-	dropdb --if-exists ${DB_TEST}
-	createdb ${DB_TEST}
+	dropdb --if-exists ${DB_TEST} -U ${DB_USER}
+	createdb ${DB_TEST} -U ${DB_USER}
 	@make migrate-test
 
 drop-db:
