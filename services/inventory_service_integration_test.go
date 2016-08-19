@@ -115,8 +115,11 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_ReleaseItems_MultipleSKU
 
 	suite.service.HoldItems(refNum, skus)
 
-	summary1, _ := suite.summaryService.GetSummaryBySKU(sku1)
-	summary2, _ := suite.summaryService.GetSummaryBySKU(sku2)
+	summary1, err := suite.summaryService.GetSummaryBySKU(sku1)
+	suite.Nil(err)
+
+	summary2, err := suite.summaryService.GetSummaryBySKU(sku2)
+	suite.Nil(err)
 
 	suite.Equal(skus[sku1], summary1[0].OnHold)
 	suite.Equal(skus[sku2], summary2[0].OnHold)

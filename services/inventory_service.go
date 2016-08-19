@@ -129,9 +129,7 @@ func (service *inventoryService) HoldItems(refNum string, skus map[string]int) e
 		stockItemsMap[si.ID] = skus[si.SKU]
 	}
 	statusShift := models.StatusChange{From: models.StatusOnHand, To: models.StatusOnHold}
-	go service.updateSummary(stockItemsMap, models.Sellable, statusShift)
-
-	return nil
+	return service.updateSummary(stockItemsMap, models.Sellable, statusShift)
 }
 
 func (service *inventoryService) ReserveItems(refNum string) error {
