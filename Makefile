@@ -8,13 +8,16 @@ DB_USER=middlewarehouse
 SUBDIRS = api common controllers models repositories routes services
 TESTDIRS = $(SUBDIRS:%=test-%)
 
+configure:
+	glide install
+
 build:
-	glide install && go build -o middlewarehouse main.go
-	$(MAKE) -C consumers/stock-items build
+	go build -o middlewarehouse main.go
+	go build -o shipments-consumer consumers/shipments/*.go
+	go build -o stock-items-consumer consumers/stock-items/*.go
 
 build-linux:
 	GOOS=linux $(MAKE) build
-	$(MAKE) -C consumers/stock-items build-linux
 
 migrate:
 	${FLYWAY} migrate
@@ -44,9 +47,10 @@ create-user:
 	createuser -s ${DB_USER}
 
 test-consumers:
-	$(MAKE) -C consumers/stock-items test
+	GOENV=test cd consumers/shipments && go test -v ./...
+	GOENV=test cd consumers/stock-items && go test -v ./...
 
-test: $(TESTDIRS) test-consumers
+test: $(TESTDIRS)
 $(TESTDIRS): PACKAGE = $(@:test-%=%)
 $(TESTDIRS):
 	cd $(PACKAGE) && GOENV=test go test ./...

@@ -8,5 +8,5 @@ type Address struct {
 	Zip         string  `json:"zip" binding:"required"`
 	Address1    string  `json:"address1" binding:"required"`
 	Address2    *string `json:"address2"`
-	PhoneNumber string  `json:"phoneNumber" binding:"required"`
+	PhoneNumber string  `json:"phoneNumber"`
 }

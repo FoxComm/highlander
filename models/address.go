@@ -21,9 +21,6 @@ type Address struct {
 
 func NewAddressFromPayload(payload *payloads.Address) *Address {
 	return &Address{
-		Base: gormfox.Base{
-			ID: payload.ID,
-		},
 		Name:        payload.Name,
 		RegionID:    payload.Region.ID,
 		Region:      *NewRegionFromPayload(&payload.Region),

@@ -47,11 +47,7 @@ func (service *inventoryService) CreateStockItem(stockItem *models.StockItem) (*
 		return nil, err
 	}
 
-	if err := service.summaryService.CreateStockItemSummary(stockItem.ID); err != nil {
-		service.stockItemRepo.DeleteStockItem(stockItem.ID)
-
-		return nil, err
-	}
+	go service.summaryService.CreateStockItemSummary(stockItem.ID)
 
 	return stockItem, nil
 }

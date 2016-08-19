@@ -7,3 +7,25 @@ import:
   - package: github.com/Sirupsen/logrus
   - package: github.com/stretchr/testify
   - package: github.com/DATA-DOG/go-sqlmock
+  - package: github.com/FoxComm/metamorphosis
+    vcs: git
+    version: e034438c2ca03d5dbdc117eaadfb2c1b23ee21c0
+    repo: git@github.com:FoxComm/metamorphosis.git
+  - package: github.com/elodina/go-avro
+    version: 0c8185d9a3ba82aeac98db3313a268a5b6df99b5
+  - package: github.com/elodina/go-kafka-avro
+    version: ab6b1d1c9a2361e639af25c13653fee505b5d2ce
+  - package: github.com/elodina/go_kafka_client
+    version: 95d107b0c102fa81b8c1e5e556adc23352fad065
+  - package: github.com/elodina/siesta
+    version: fea3d8822e875ffef3895e68f5c2f172e0dd4300
+  - package: github.com/elodina/siesta-producer
+    version: a374fc36c515243efb438aed41c536af55d8b19b
+  - package: github.com/jpfuentes2/go-env
+  - package: github.com/stretchr/testify
+  - package: gopkg.in/cihub/seelog.v2
+  - package: github.com/yanzay/cfg
+  - package: github.com/samuel/go-zookeeper
+  - package: github.com/golang/snappy
+  - package: github.com/Shopify/sarama
+  - package: github.com/cihub/seelog
