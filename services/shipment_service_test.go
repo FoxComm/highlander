@@ -16,7 +16,6 @@ import (
 type ShipmentServiceTestSuite struct {
 	GeneralServiceTestSuite
 	service IShipmentService
-	db      *gorm.DB
 }
 
 func TestShipmentServiceSuite(t *testing.T) {
