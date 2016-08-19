@@ -15,21 +15,20 @@ import (
 type shipmentController struct {
 	shipmentService         services.IShipmentService
 	shipmentLineItemService services.IShipmentLineItemService
-	//shipmentTransactionService services.IShipmentTransactionService
 }
 
 func NewShipmentController(
 	shipmentService services.IShipmentService,
 	shipmentLineItemService services.IShipmentLineItemService,
-	//shipmentTransactionService services.IShipmentTransactionService,
 ) IController {
-	return &shipmentController{shipmentService, shipmentLineItemService /*, shipmentTransactionService*/}
+	return &shipmentController{shipmentService, shipmentLineItemService}
 }
 
 func (controller *shipmentController) SetUp(router gin.IRouter) {
 	router.GET(":referenceNumbers", controller.getShipmentsByReferenceNumbers())
 	router.POST("", controller.createShipment())
 	router.PUT(":id", controller.updateShipment())
+	router.POST("from-order", controller.createShipmentFromOrder())
 }
 
 func (controller *shipmentController) getShipmentsByReferenceNumbers() gin.HandlerFunc {
@@ -95,5 +94,22 @@ func (controller *shipmentController) updateShipment() gin.HandlerFunc {
 		}
 
 		context.JSON(http.StatusOK, responses.NewShipmentFromModel(shipment))
+	}
+}
+
+func (controller *shipmentController) createShipmentFromOrder() gin.HandlerFunc {
+	return func(context *gin.Context) {
+		payload := &payloads.Order{}
+		if parse(context, payload) != nil {
+			return
+		}
+
+		shipment, err := controller.shipmentService.CreateShipment(models.NewShipmentFromOrderPayload(payload))
+		if err != nil {
+			handleServiceError(context, err)
+			return
+		}
+
+		context.JSON(http.StatusCreated, responses.NewShipmentFromModel(shipment))
 	}
 }

@@ -29,3 +29,14 @@ func NewShipmentLineItemFromPayload(payload *payloads.ShipmentLineItem) *Shipmen
 		State:           ShipmentState(payload.State),
 	}
 }
+
+func NewShipmentLineItemFromOrderPayload(payload *payloads.OrderLineItem) *ShipmentLineItem {
+	return &ShipmentLineItem{
+		ReferenceNumber: payload.ReferenceNumber,
+		SKU:             payload.SKU,
+		Name:            payload.Name,
+		Price:           payload.Price,
+		ImagePath:       payload.ImagePath,
+		State:           ShipmentStatePending,
+	}
+}
