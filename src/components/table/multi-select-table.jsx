@@ -180,7 +180,8 @@ export default class MultiSelectTable extends React.Component {
         setColumnSelected={this.setColumnSelected}
         selectableColumns={!!this.props.dataTable && columns.slice(1)}
         tableIdentifier={this.getTableIdentifier()}
-        renderRow={this.renderRow} />
+        renderRow={this.renderRow}
+      />
     );
   }
 }

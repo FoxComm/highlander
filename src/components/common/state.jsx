@@ -49,8 +49,8 @@ export const states = {
     nonsellable: 'Non-sellable',
   },
   skuState: {
-    onHand: 'Hand',
-    onHold: 'Hold',
+    onHand: 'OnHand',
+    onHold: 'OnHold',
     reserved: 'Reserved',
   }
 };

@@ -33,20 +33,17 @@ type Props = {
 
 const tableColumns = [
   { field: 'createdAt', text: 'Date/Time', type: 'datetime' },
-  { field: 'event', text: 'Event' },
-  { field: 'warehouse', text: 'Warehouse' },
-  { field: 'skuType', text: 'Type', type: 'state', model: 'sku' },
-  { field: 'state', text: 'State', type: 'state', model: 'skuState' },
-  { field: 'previousQuantity', text: 'Previous' },
-  { field: 'newQuantity', text: 'New' },
-  { field: 'change', text: 'Change', type: 'change' },
-  { field: 'newAfs', text: 'New AFS' },
+  { field: 'stockLocationName', text: 'Warehouse' },
+  { field: 'type', text: 'Type' },
+  { field: 'status', text: 'State', type: 'state', model: 'skuState' },
+  { field: 'quantityPrevious', text: 'Previous' },
+  { field: 'quantityNew', text: 'New' },
+  { field: 'quantityChange', text: 'Change', type: 'change' },
+  { field: 'afsNew', text: 'New AFS' },
 ];
 
-const renderRow = (row) => {
-  const keyRow = `inventory-transaction-${row.id}`;
-
-  return <InventoryItemTransactionsRow transaction={row} columns={tableColumns} key={keyRow}/>;
+const renderRow = (row, index, columns) => {
+  return <InventoryItemTransactionsRow transaction={row} columns={columns} key={row.id}/>;
 };
 
 /** InventoryItemTransactions Component */
@@ -71,7 +68,7 @@ class InventoryItemTransactions extends Component {
         searchOptions={{singleSearch: true}}
         searchActions={this.props.actions}
         setState={this.props.actions.updateStateAndFetch}
-        className="fc-inventory-item-details__transactions-table"/>
+      />
     );
   }
 }
