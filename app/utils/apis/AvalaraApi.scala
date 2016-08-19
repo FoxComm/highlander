@@ -19,6 +19,7 @@ import org.json4s.jackson.JsonMethods._
 import org.json4s.jackson
 import org.json4s.jackson.Serialization._
 import com.pellucid.sealerate
+import failures.AvalaraFailures._
 import services.Result
 import utils.{ADT, Money, time}
 import utils.FoxConfig._
@@ -201,21 +202,21 @@ object Avalara {
     )
 
     case class GetTaxes(
-        DocCode: Option[String],
-        DocDate: Option[Instant],
-        Timestamp: Option[Instant],
-        TotalAmount: Option[Double],
-        TotalDiscount: Option[Double],
-        TotalExemption: Option[Double],
-        TotalTaxable: Option[Double],
-        TotalTax: Option[Double],
-        TotalTaxCalculated: Option[Double],
-        TaxDate: Option[Instant],
-        TaxLines: Option[Seq[TaxLine]],
-        TaxSummary: Option[Seq[TaxLine]],
-        TaxAddresses: Option[Seq[TaxAddress]],
-        ResultCode: Option[String],
-        Messages: Option[Seq[Message]]
+        DocCode: Option[String] = None,
+        DocDate: Option[Instant] = None,
+        Timestamp: Option[Instant] = None,
+        TotalAmount: Option[Double] = None,
+        TotalDiscount: Option[Double] = None,
+        TotalExemption: Option[Double] = None,
+        TotalTaxable: Option[Double] = None,
+        TotalTax: Option[Double] = None,
+        TotalTaxCalculated: Option[Double] = None,
+        TaxDate: Option[Instant] = None,
+        TaxLines: Option[Seq[TaxLine]] = None,
+        TaxSummary: Option[Seq[TaxLine]] = None,
+        TaxAddresses: Option[Seq[TaxAddress]] = None,
+        ResultCode: Option[String] = None,
+        Messages: Seq[Message] = Seq()
     )
 
     case class SimpleErrorMessage(
@@ -246,7 +247,8 @@ class Avalara()(implicit as: ActorSystem, am: ActorMaterializer) extends Avalara
           .map(_.data)
           .map(_.decodeString("utf-8"))
           .map(json ⇒ { println(s"Deserialized to: $json"); json })
-          .map(json ⇒ { println(s"Received $json"); val a = read[T](json); println(a); a })
+          .map(
+              json ⇒ { println(s"Received $json"); val a = parse(json).extract[T]; println(a); a })
       }
     }
   }
@@ -264,18 +266,28 @@ class Avalara()(implicit as: ActorSystem, am: ActorMaterializer) extends Avalara
 //      .via(connectionFlow)
 //      .runWith(Sink.head)
 
-    val result: Future[Avalara.Responses.GetTaxes] = Source
+    val result: Future[Option[Avalara.Responses.GetTaxes]] = Source
       .single(HttpRequest(uri = "/1.0/tax/get", method = HttpMethods.POST, headers = headers))
       .via(connectionFlow)
-      .mapAsync(1)(response ⇒ Unmarshal(response).to[Avalara.Responses.GetTaxes])
+      .mapAsync(1)(response ⇒ Unmarshal(response).to[Option[Avalara.Responses.GetTaxes]])
       .runWith(Sink.head)
 
 //    val result: Future[Avalara.Responses.GetTaxes] =
 //      responseFuture.flatMap(response ⇒ Unmarshal(response).to[Avalara.Responses.GetTaxes])
-    result.map { res ⇒
-      println(s"Result: $res")
-    }
 
-    Result.unit
+    val itWillBe = result.map {
+      case Some(res) ⇒ {
+        println(s"Result: $res")
+        Result.unit
+      }
+      case None ⇒ {
+        println("No result")
+        Result.unit
+      }
+    } orE {
+      println("We are doomed by failre")
+      Result.left(UnableToMatchResponse.single)
+    }
+    itWillBe
   }
 }
