@@ -78,7 +78,7 @@ class Service(systemOverride: Option[ActorSystem] = None,
   val logger = Logging(system, getClass)
 
   implicit val db: Database         = dbOverride.getOrElse(Database.forConfig("db", config))
-  lazy val defaultApis: Apis        = Apis(new WiredStripeApi, new AmazonS3, new Middlewarehouse)
+  lazy val defaultApis: Apis        = Apis(new WiredStripeApi, new AmazonS3, setupMiddlewarehouse())
   implicit val apis: Apis           = apisOverride.getOrElse(defaultApis: Apis)
   implicit val es: ElasticsearchApi = esOverride.getOrElse(ElasticsearchApi.fromConfig(config))
 
@@ -180,5 +180,10 @@ class Service(systemOverride: Option[ActorSystem] = None,
     logger.info("Loading Stripe API key")
     Stripe.apiKey = config.getString("stripe.key")
     logger.info("Successfully set Stripe key")
+  }
+
+  def setupMiddlewarehouse(): Middlewarehouse = {
+    val url = config.getString("middlewarehouse.url")
+    new Middlewarehouse(url)
   }
 }
