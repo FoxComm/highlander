@@ -21,6 +21,10 @@ export type Sku = {
   feCode?: string,
   attributes: Attributes,
   id: any,
+  context: {
+    attributes?: Object,
+    name: string,
+  }
 };
 
 const defaultContext = 'default';

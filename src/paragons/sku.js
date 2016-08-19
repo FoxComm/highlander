@@ -38,6 +38,9 @@ export function createEmptySku(): Sku {
   return {
     id: null,
     attributes: cloneDeep(skuEmptyAttributes),
+    context: {
+      name: 'default',
+    }
   };
 }
 
