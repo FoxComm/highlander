@@ -9,12 +9,18 @@ import scala.util.{Failure, Success}
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers._
+import akka.http.scaladsl.unmarshalling.{FromResponseUnmarshaller, Unmarshal, Unmarshaller}
 import akka.stream.scaladsl._
-import akka.stream.ActorMaterializer
+import akka.stream.{ActorMaterializer, Materializer}
+import concurrent.duration._
 
+import org.json4s._
+import org.json4s.jackson.JsonMethods._
+import org.json4s.jackson
+import org.json4s.jackson.Serialization._
 import com.pellucid.sealerate
 import services.Result
-import utils.ADT
+import utils.{ADT, Money, time}
 import utils.FoxConfig._
 import utils.aliases.EC
 
@@ -146,11 +152,13 @@ object Avalara {
       def types = sealerate.values[SeverityLevel]
     }
 
+    val severityLevelFormatter = SeverityLevel.jsonFormats
+
     case class Message(
         Summary: String,
-        Details: String,
-        RefersTo: String,
-        Severity: SeverityLevel,
+        Details: Option[String],
+        RefersTo: Option[String],
+        Severity: String,
         Source: String
     )
 
@@ -193,22 +201,28 @@ object Avalara {
     )
 
     case class GetTaxes(
-        docCode: String,
-        docDate: Instant,
-        timestamp: Instant,
-        totalAmount: Double,
-        TotalDiscount: Double,
-        TotalExemption: Double,
-        TotalTaxable: Double,
-        TotalTax: Double,
-        TotalTaxCalculated: Double,
-        TaxDate: Instant,
-        TaxLines: Seq[TaxLine],
-        TaxSummary: Seq[TaxLine],
-        TaxAddresses: Seq[TaxAddress],
-        ResultCode: SeverityLevel,
+        DocCode: Option[String],
+        DocDate: Option[Instant],
+        Timestamp: Option[Instant],
+        TotalAmount: Option[Double],
+        TotalDiscount: Option[Double],
+        TotalExemption: Option[Double],
+        TotalTaxable: Option[Double],
+        TotalTax: Option[Double],
+        TotalTaxCalculated: Option[Double],
+        TaxDate: Option[Instant],
+        TaxLines: Option[Seq[TaxLine]],
+        TaxSummary: Option[Seq[TaxLine]],
+        TaxAddresses: Option[Seq[TaxAddress]],
+        ResultCode: Option[String],
+        Messages: Option[Seq[Message]]
+    )
+
+    case class SimpleErrorMessage(
+        ResultCode: Option[String],
         Messages: Seq[Message]
     )
+
   }
 }
 
@@ -221,6 +235,22 @@ class Avalara()(implicit as: ActorSystem, am: ActorMaterializer) extends Avalara
     (url, account, license, profile)
   }
 
+  implicit val formats: Formats = org.json4s.DefaultFormats + time.JavaTimeJson4sSerializer.jsonFormat + Money.jsonFormat + Avalara.Responses.SeverityLevel.jsonFormat
+
+  implicit def responseUnmarshaller[T: Manifest]: FromResponseUnmarshaller[T] = {
+    new Unmarshaller[HttpResponse, T] {
+      override def apply(resp: HttpResponse)(implicit ec: EC, am: Materializer): Future[T] = {
+        resp.entity
+          .withContentType(ContentTypes.`application/json`)
+          .toStrict(1.second)
+          .map(_.data)
+          .map(_.decodeString("utf-8"))
+          .map(json ⇒ { println(s"Deserialized to: $json"); json })
+          .map(json ⇒ { println(s"Received $json"); val a = read[T](json); println(a); a })
+      }
+    }
+  }
+
   override def estimateTax: Result[Unit] = Result.unit
 
   override def getTax()(implicit ec: EC): Result[Unit] = {
@@ -228,14 +258,22 @@ class Avalara()(implicit as: ActorSystem, am: ActorMaterializer) extends Avalara
     val connectionFlow: Flow[HttpRequest, HttpResponse, Future[Http.OutgoingConnection]] =
       Http().outgoingConnectionHttps(url)
     val headers: Seq[HttpHeader] = Seq(Authorization(BasicHttpCredentials(account, license)))
-    val responseFuture: Future[HttpResponse] = Source
+
+//    val responseFuture: Future[HttpResponse] = Source
+//      .single(HttpRequest(uri = "/1.0/tax/get", method = HttpMethods.POST, headers = headers))
+//      .via(connectionFlow)
+//      .runWith(Sink.head)
+
+    val result: Future[Avalara.Responses.GetTaxes] = Source
       .single(HttpRequest(uri = "/1.0/tax/get", method = HttpMethods.POST, headers = headers))
       .via(connectionFlow)
+      .mapAsync(1)(response ⇒ Unmarshal(response).to[Avalara.Responses.GetTaxes])
       .runWith(Sink.head)
 
-    responseFuture.andThen {
-      case Success(_) ⇒ println("request succeded")
-      case Failure(_) ⇒ println("request failed")
+//    val result: Future[Avalara.Responses.GetTaxes] =
+//      responseFuture.flatMap(response ⇒ Unmarshal(response).to[Avalara.Responses.GetTaxes])
+    result.map { res ⇒
+      println(s"Result: $res")
     }
 
     Result.unit
