@@ -26,8 +26,6 @@ object CordResponseLineItems {
 
   type AdjustmentMap = Map[String, CordResponseLineItemAdjustment]
 
-  val NOT_ADJUSTED = "na"
-
   def fetch(cordRef: String, adjustments: Seq[CordResponseLineItemAdjustment])(
       implicit ec: EC): DBIO[CordResponseLineItems] =
     fetch(cordRef, adjustments, cordLineItemsFromOrder)
@@ -56,15 +54,15 @@ object CordResponseLineItems {
 
   def cordLineItemsFromOrder(cordRef: String, adjustmentMap: AdjustmentMap)(
       implicit ec: EC): DBIO[Seq[CordResponseLineItem]] = {
-    OrderLineItemSkus.findLineItemsByCordRef(cordRef).result.map {
-      //Convert to OrderLineItemProductData
-      _.map(resultToData)
-      //Group by adjustments/unadjusted
-        .groupBy(lineItem ⇒ groupKey(lineItem, adjustmentMap))
-        //Convert groups to responses.
-        .map { case (_, lineItemGroup) ⇒ createResponse(lineItemGroup, adjustmentMap) }
-        .toSeq
-    }
+    OrderLineItemSkus
+      .findLineItemsByCordRef(cordRef)
+      .result
+      .map(
+          //Convert to OrderLineItemProductData
+          _.map(resultToData).map { data ⇒
+            createResponse(data, 1)
+          }.toSeq
+      )
   }
 
   def cordLineItemsFromCart(cordRef: String, adjustmentMap: AdjustmentMap)(
@@ -75,7 +73,7 @@ object CordResponseLineItems {
       //Group by adjustments/unadjusted
         .groupBy(lineItem ⇒ groupKey(lineItem, adjustmentMap))
         //Convert groups to responses.
-        .map { case (_, lineItemGroup) ⇒ createResponse(lineItemGroup, adjustmentMap) }
+        .map { case (_, lineItemGroup) ⇒ createResponseGrouped(lineItemGroup, adjustmentMap) }
         .toSeq
     }
   }
@@ -95,7 +93,9 @@ object CordResponseLineItems {
     adjustments.map(a ⇒ a.lineItemRefNum.getOrElse(NOT_A_REF) → a).toMap
   }
 
-  private def groupKey(data: LineItemProductData[_],
+  val NOT_ADJUSTED = "na"
+
+  private def groupKey(data: CartLineItemProductData,
                        adjMap: Map[String, CordResponseLineItemAdjustment]): String = {
     val prefix = data.sku.id
     val suffix =
@@ -107,33 +107,42 @@ object CordResponseLineItems {
   private val NO_IMAGE =
     "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/no_image.jpg"
 
-  private def createResponse(
-      lineItemData: Seq[LineItemProductData[_]],
+  private def createResponseGrouped(
+      lineItemData: Seq[CartLineItemProductData],
       adjMap: Map[String, CordResponseLineItemAdjustment]): CordResponseLineItem = {
 
-    val data  = lineItemData.head
-    val price = Mvp.priceAsInt(data.skuForm, data.skuShadow)
-    val name  = Mvp.name(data.skuForm, data.skuShadow)
-    val image = Mvp.firstImage(data.skuForm, data.skuShadow).getOrElse(NO_IMAGE)
+    val data = lineItemData.head
+
+    //only show reference number for line items that have adjustments.
+    //This is because the adjustment list references the line item by the 
+    //reference number. In the future it would be better if each line item
+    //simply had a list of adjustments instead of the list sitting outside 
+    //the line item.
     val referenceNumber =
       if (adjMap.contains(data.lineItemReferenceNumber))
         data.lineItemReferenceNumber
       else ""
 
+    createResponse(data.copy(lineItem = data.lineItem.copy(referenceNumber = referenceNumber)),
+                   lineItemData.length)
+  }
+
+  private def createResponse(data: LineItemProductData[_], quantity: Int): CordResponseLineItem = {
+    require(quantity > 0)
+
+    val price = Mvp.priceAsInt(data.skuForm, data.skuShadow)
+    val name  = Mvp.name(data.skuForm, data.skuShadow)
+    val image = Mvp.firstImage(data.skuForm, data.skuShadow).getOrElse(NO_IMAGE)
+
     CordResponseLineItem(imagePath = image,
                          sku = data.sku.code,
-                         //only show reference number for line items that have adjustments.
-                         //This is because the adjustment list references the line item by the 
-                         //reference number. In the future it would be better if each line item
-                         //simply had a list of adjustments instead of the list sitting outside 
-                         //the line item.
-                         referenceNumber = referenceNumber,
+                         referenceNumber = data.lineItemReferenceNumber,
                          state = data.lineItemState,
                          name = name,
                          price = price,
                          productFormId = data.product.formId,
                          totalPrice = price,
-                         quantity = lineItemData.length)
+                         quantity = quantity)
   }
 
 }
