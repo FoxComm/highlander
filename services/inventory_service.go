@@ -9,9 +9,10 @@ import (
 )
 
 type inventoryService struct {
-	stockItemRepo  repositories.IStockItemRepository
-	unitRepo       repositories.IStockItemUnitRepository
-	summaryService ISummaryService
+	stockItemRepo      repositories.IStockItemRepository
+	unitRepo           repositories.IStockItemUnitRepository
+	summaryService     ISummaryService
+	updateSummaryAsync bool
 }
 
 type IInventoryService interface {
@@ -32,7 +33,7 @@ type IInventoryService interface {
 func NewInventoryService(stockItemRepo repositories.IStockItemRepository, unitRepo repositories.IStockItemUnitRepository,
 	summaryService ISummaryService) IInventoryService {
 
-	return &inventoryService{stockItemRepo, unitRepo, summaryService}
+	return &inventoryService{stockItemRepo, unitRepo, summaryService, true}
 }
 
 func (service *inventoryService) GetStockItems() ([]*models.StockItem, error) {
@@ -185,16 +186,33 @@ func (service *inventoryService) ReleaseItems(refNum string) error {
 	return service.updateSummary(stockItemsMap, models.Sellable, statusShift)
 }
 
+func (service *inventoryService) execAsync(fn func() error) error {
+	if service.updateSummaryAsync {
+		go fn()
+		return nil
+	}
+
+	return fn()
+}
+
 func (service *inventoryService) updateStockItemSummary(stockItemID uint, unitType models.UnitType, unitCount int, change models.StatusChange) error {
-	return service.summaryService.UpdateStockItemSummary(stockItemID, unitType, unitCount, change)
+	fn := func() error {
+		return service.summaryService.UpdateStockItemSummary(stockItemID, unitType, unitCount, change)
+	}
+
+	return service.execAsync(fn)
 }
 
 func (service *inventoryService) updateSummary(stockItemsMap map[uint]int, unitType models.UnitType, statusShift models.StatusChange) error {
-	for id, qty := range stockItemsMap {
-		if err := service.summaryService.UpdateStockItemSummary(id, unitType, qty, statusShift); err != nil {
-			return err
+	fn := func() error {
+		for id, qty := range stockItemsMap {
+			if err := service.summaryService.UpdateStockItemSummary(id, unitType, qty, statusShift); err != nil {
+				return err
+			}
 		}
+
+		return nil
 	}
 
-	return nil
+	return service.execAsync(fn)
 }

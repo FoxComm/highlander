@@ -37,7 +37,7 @@ func (suite *InventoryServiceIntegrationTestSuite) SetupSuite() {
 	stockLocationService := NewStockLocationService(stockLocationRepository)
 
 	suite.summaryService = NewSummaryService(summaryRepository, stockItemRepository)
-	suite.service = NewInventoryService(stockItemRepository, unitRepository, suite.summaryService)
+	suite.service = &inventoryService{stockItemRepository, unitRepository, suite.summaryService, false}
 
 	suite.sl, _ = stockLocationService.CreateLocation(fixtures.GetStockLocation())
 	suite.sku = "SKU-INTEGRATION"
