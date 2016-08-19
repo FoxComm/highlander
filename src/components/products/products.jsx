@@ -4,7 +4,6 @@
 
 // libs
 import React, { Component, Element } from 'react';
-import _ from 'lodash';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
@@ -16,6 +15,10 @@ import { actions } from 'modules/products/list';
 import SelectableSearchList from '../list-page/selectable-search-list';
 import ProductRow from './product-row';
 
+// helpers
+import { addArchiveFilters } from 'elastic/archive';
+
+// types
 import type { SearchFilter } from 'elastic/common';
 
 type Column = {
@@ -47,20 +50,7 @@ export class Products extends Component {
 
   @autobind
   addSearchFilters(filters: Array<SearchFilter>, initial: boolean = false) {
-    if (!_.find(filters, {term: 'archivedAt'})) {
-      filters = [
-        {
-          term: 'archivedAt',
-          hidden: true,
-          operator: 'missing',
-          value: {
-            type: 'exists'
-          }
-        },
-        ...filters,
-      ];
-    }
-    return this.props.actions.addSearchFilters(filters, initial);
+    return this.props.actions.addSearchFilters(addArchiveFilters(filters), initial);
   }
 
   renderRow(row: Product, index: number, columns: Array<Column>, params: Object) {
