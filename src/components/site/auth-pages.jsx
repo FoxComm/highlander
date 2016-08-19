@@ -46,5 +46,3 @@ export default class AuthPages extends Component {
     );
   }
 }
-
-export default AuthPages;

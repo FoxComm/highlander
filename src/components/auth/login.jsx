@@ -27,7 +27,6 @@ import type {
 type TState = {
   email: string;
   password: string;
-  isMounted: boolean;
 };
 
 type LoginProps = {
@@ -42,6 +41,7 @@ type LoginProps = {
   },
   err: any,
   googleSignin: Function,
+  isMounted: boolean,
 }
 
 /* ::`*/
@@ -54,16 +54,10 @@ export default class Login extends Component {
   state: TState = {
     email: '',
     password: '',
-    isMounted: false,
   };
 
   props: LoginProps;
 
-  componentDidMount() {
-    this.setState({
-      isMounted: true,
-    });
-  }
 
   @autobind
   submitLogin() {
@@ -116,13 +110,15 @@ export default class Login extends Component {
     return <ErrorAlerts error={err} />;
   }
 
-  render() {
+  get content() {
+    if (!this.props.isMounted) {
+      return <WaitAnimation />;
+    }
+
     return (
-      <div styleName="main">
-        <div className="fc-auth__title">Sign In</div>
+      <div styleName="content">
         {this.infoMessage}
         <Button
-          disabled={!this.state.isMounted}
           type="button"
           styleName="google-button"
           icon="google"
@@ -139,15 +135,22 @@ export default class Login extends Component {
           <FormField label={this.passwordLabel}>
             <input onChange={this.onPasswordChange} value={this.state.password} type="password" className="fc-input"/>
           </FormField>
-          {this}
           <PrimaryButton
-            disabled={!this.state.isMounted}
             styleName="submit-button"
             type="submit"
             isLoading={this.props.authenticationState.inProgress}>
             Sign In
           </PrimaryButton>
         </Form>
+      </div>
+    );
+  }
+
+  render() {
+    return (
+      <div styleName="main">
+        <div className="fc-auth__title">Sign In</div>
+        {this.content}
       </div>
     );
   }
