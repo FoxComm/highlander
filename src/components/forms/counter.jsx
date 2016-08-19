@@ -1,3 +1,4 @@
+/* @flow */
 
 // libs
 import React, { PropTypes } from 'react';
@@ -6,7 +7,18 @@ import classNames from 'classnames';
 // components
 import { IncrementButton, DecrementButton } from '../common/buttons';
 
-const Counter = props => {
+type Props = {
+  value: number|string,
+  min: number,
+  max: number,
+  step: number,
+  decreaseAction: Function,
+  increaseAction: Function,
+  className: string,
+  disabled: boolean,
+};
+
+const Counter = (props: Props) => {
   const {decreaseAction, increaseAction, disabled, ...rest} = props;
 
   return (
@@ -24,17 +36,6 @@ const Counter = props => {
       </div>
     </div>
   );
-};
-
-Counter.propTypes = {
-  value: PropTypes.number,
-  min: PropTypes.number,
-  max: PropTypes.number,
-  step: PropTypes.number,
-  decreaseAction: PropTypes.func,
-  increaseAction: PropTypes.func,
-  className: PropTypes.string,
-  disabled: PropTypes.bool,
 };
 
 Counter.defaultProps = {

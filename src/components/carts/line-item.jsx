@@ -27,8 +27,13 @@ type Props = {
   },
 };
 
+type Target = {
+  value: string|number,
+};
+
 type State = {
   isDeleting: boolean,
+  quantity: number|string,
 };
 
 type DefaultProps = {
@@ -38,7 +43,12 @@ type DefaultProps = {
 
 export class CartLineItem extends Component {
   props: Props;
-  state: State = { isDeleting: false };
+
+  state: State = {
+    isDeleting: false,
+    quantity: this.props.item.quantity,
+  };
+
   defaultProps: DefaultProps = {
     updateLineItemCount: () => {},
     deleteLineItem: () => {},
@@ -52,6 +62,11 @@ export class CartLineItem extends Component {
   @autobind
   cancelDelete() {
     this.setState({ isDeleting: false });
+    if (this.state.quantity == 0) {
+      const { cart, item, updateLineItemCount } = this.props;
+      this.setState({quantity: 1});
+      updateLineItemCount(cart.referenceNumber, item.sku, 1);
+    }
   }
 
   @autobind
@@ -65,37 +80,48 @@ export class CartLineItem extends Component {
   @autobind
   decreaseCount() {
     const { cart, item, updateLineItemCount } = this.props;
-    if (item.quantity == 1) {
+    const { quantity } = this.state;
+
+    if (quantity == 1 || !quantity) {
       this.startDelete();
     } else {
-      updateLineItemCount(cart.referenceNumber, item.sku, item.quantity - 1);
+      const decreased = parseInt(quantity, 10) - 1;
+      this.setState({quantity: decreased});
+      updateLineItemCount(cart.referenceNumber, item.sku, decreased);
     }
   }
 
   @autobind
   increaseCount() {
     const { cart, item, updateLineItemCount } = this.props;
-    updateLineItemCount(cart.referenceNumber, item.sku, item.quantity + 1);
+    const { quantity } = this.state;
+
+    const increased = quantity ? item.quantity + 1 : 1;
+
+    this.setState({quantity: increased});
+
+    updateLineItemCount(cart.referenceNumber, item.sku, increased);
   }
 
   @autobind
-  changeCount(count: string) {
-    const countNum = parseInt(count, 10);
-    if (countNum == 0) {
+  changeCount({ target: { value }}: {target: Target}) {
+    const quantity = value ? parseInt(value, 10) : '';
+
+    this.setState({quantity});
+
+    if (quantity === '') return;
+
+    if (quantity == 0) {
       this.startDelete();
     } else {
-      const { cart, item, updateLineItemCount } = this.props;
-      updateLineItemCount(cart.referenceNumber, item.sku, countNum);
+      const {cart, item, updateLineItemCount} = this.props;
+      updateLineItemCount(cart.referenceNumber, item.sku, quantity);
     }
   }
 
   render() {
-    const { cart, item, updateLineItemCount, deleteLineItem } = this.props;
-    const { isDeleting } = this.state;
-
-    const toNumber = value => {
-      return value ? parseInt(value, 10) : 1;
-    };
+    const { item } = this.props;
+    const { isDeleting, quantity } = this.state;
 
     return (
       <tr>
@@ -106,7 +132,7 @@ export class CartLineItem extends Component {
         <td>
           <Counter
             id={`line-item-quantity-${item.sku}`}
-            value={item.quantity}
+            value={quantity}
             min={0}
             max={1000000}
             step={1}
