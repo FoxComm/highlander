@@ -52,7 +52,8 @@ function renderFormField(name: string, input: Element, args?: any): Element {
       label={label}
       key={`object-form-attribute-${name}`}
       {...validator}
-      {...isRequired} >
+      {...isRequired}
+    >
       {input}
     </FormField>
   );
@@ -99,6 +100,7 @@ export default class ObjectFormInner extends Component {
       price: this.renderPrice,
       richText: this.renderRichText,
       string: this.renderString,
+      number: this.renderNumber,
       options: this.renderOptions,
       text: this.renderText,
       element: this.renderElement,
@@ -228,6 +230,24 @@ export default class ObjectFormInner extends Component {
         type="text"
         name={name}
         value={value || ''}
+        onChange={onChange}
+      />
+    );
+
+    return renderFormField(name, stringInput, args);
+  }
+
+  @autobind
+  renderNumber(name: string, value: ?number = null, args?: any): Element {
+    const onChange = ({target}) => {
+      return this.handleChange(name, 'number', target.value == '' ? null : Number(target.value));
+    };
+    const stringInput = (
+      <input
+        className={inputClass}
+        type="number"
+        name={name}
+        value={value == null ? '' : value}
         onChange={onChange}
       />
     );
