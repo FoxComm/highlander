@@ -51,8 +51,11 @@ func (service *inventoryService) CreateStockItem(stockItem *models.StockItem) (*
 	}
 
 	err := service.summaryService.CreateStockItemSummary(stockItem.ID)
+	if err != nil {
+		return nil, err
+	}
 
-	return stockItem, err
+	return stockItem, nil
 }
 
 func (service *inventoryService) GetAFSByID(id uint, unitType models.UnitType) (*models.AFS, error) {
