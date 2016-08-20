@@ -6,10 +6,10 @@ import (
 
 	"github.com/FoxComm/middlewarehouse/api/payloads"
 	"github.com/FoxComm/middlewarehouse/api/responses"
+	"github.com/FoxComm/middlewarehouse/common/failures"
 	"github.com/FoxComm/middlewarehouse/models"
 	"github.com/FoxComm/middlewarehouse/services"
 
-	"github.com/FoxComm/middlewarehouse/common/failures"
 	"github.com/gin-gonic/gin"
 )
 
