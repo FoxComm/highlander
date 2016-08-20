@@ -9,7 +9,7 @@ import (
 
 type SKU struct {
 	ID   int    `json:"id" binding:"required"`
-	Code string `json:"code" binding:"required"`
+	Code string `json:"sku_code" binding:"required"`
 }
 
 func NewSKUFromAvro(message metamorphosis.AvroMessage) (*SKU, error) {
