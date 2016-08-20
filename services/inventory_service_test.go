@@ -32,7 +32,7 @@ func (suite *InventoryServiceTestSuite) SetupSuite() {
 
 	summaryService := &mocks.SummaryServiceStub{}
 	stockLocationService := NewStockLocationService(stockLocationRepository)
-	suite.service = NewInventoryService(stockItemRepository, unitRepository, summaryService)
+	suite.service = &inventoryService{stockItemRepository, unitRepository, summaryService, false}
 
 	suite.sl, _ = stockLocationService.CreateLocation(fixtures.GetStockLocation())
 }
@@ -41,6 +41,10 @@ func (suite *InventoryServiceTestSuite) SetupTest() {
 	tasks.TruncateTables([]string{
 		"stock_items",
 		"stock_item_units",
+		"stock_item_summaries",
+		"stock_item_transactions",
+		"inventory_search_view",
+		"inventory_transactions_search_view",
 	})
 }
 
@@ -100,15 +104,17 @@ func (suite *InventoryServiceTestSuite) Test_IncrementStockItemUnits() {
 
 func (suite *InventoryServiceTestSuite) Test_IncrementStockItemUnits_MultipleItems() {
 	unitsCount := 10
-	stockItem, _ := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, "TEST-INCREMENT"))
+	stockItem, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, "TEST-INCREMENT"))
+	suite.Nil(err)
+
 	units := fixtures.GetStockItemUnits(stockItem, unitsCount)
 
-	err := suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, units)
+	err = suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, units)
+	suite.Nil(err)
 
 	var resp []models.StockItemUnit
 	suite.db.Where("stock_item_id = ?", stockItem.ID).Find(&resp)
 
-	suite.Nil(err)
 	suite.Equal(unitsCount, len(units))
 }
 

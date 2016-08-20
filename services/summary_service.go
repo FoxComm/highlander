@@ -77,9 +77,7 @@ func (service *summaryService) UpdateStockItemSummary(stockItemId uint, unitType
 	}
 
 	// create related stock item transaction
-	go service.CreateStockItemTransaction(summary, status.To, qty)
-
-	return nil
+	return service.CreateStockItemTransaction(summary, status.To, qty)
 }
 
 func (service *summaryService) CreateStockItemTransaction(summary *models.StockItemSummary, status models.UnitStatus, qty int) error {

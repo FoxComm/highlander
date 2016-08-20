@@ -9,7 +9,6 @@ import (
 	"github.com/FoxComm/middlewarehouse/repositories"
 
 	"github.com/FoxComm/middlewarehouse/models"
-	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -54,7 +53,11 @@ func (suite *ShipmentServiceTestSuite) Test_GetShipmentsByReferenceNumber_Return
 	suite.Nil(suite.db.Set("gorm:save_associations", false).Create(&shipment1.Address).Error)
 	suite.Nil(suite.db.Create(&shipment1.ShippingMethod.Carrier).Error)
 	suite.Nil(suite.db.Create(&shipment1.ShippingMethod).Error)
+	shipment1.AddressID = shipment1.Address.ID
 	suite.Nil(suite.db.Set("gorm:save_associations", false).Create(shipment1).Error)
+
+	suite.Nil(suite.db.Set("gorm:save_associations", false).Create(&shipment2.Address).Error)
+	shipment2.AddressID = shipment2.Address.ID
 	suite.Nil(suite.db.Set("gorm:save_associations", false).Create(shipment2).Error)
 
 	//act
@@ -84,9 +87,9 @@ func (suite *ShipmentServiceTestSuite) Test_CreateShipment_Succeed_ReturnsCreate
 	stockItem := fixtures.GetStockItem(stockLocation.ID, shipment1.ShipmentLineItems[0].SKU)
 	suite.Nil(suite.db.Create(stockItem).Error)
 
-	stockItemUnit1 := fixtures.GetStockItemUnit(0, stockItem)
+	stockItemUnit1 := fixtures.GetStockItemUnit(stockItem)
 	stockItemUnit1.RefNum = models.NewSqlNullStringFromString(&shipment1.ReferenceNumber)
-	stockItemUnit2 := fixtures.GetStockItemUnit(0, stockItem)
+	stockItemUnit2 := fixtures.GetStockItemUnit(stockItem)
 	stockItemUnit2.RefNum = models.NewSqlNullStringFromString(&shipment1.ReferenceNumber)
 	suite.Nil(suite.db.Create(stockItemUnit1).Error)
 	suite.Nil(suite.db.Create(stockItemUnit2).Error)

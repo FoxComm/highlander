@@ -3,15 +3,17 @@ package services
 import (
 	"errors"
 	"fmt"
+	"log"
 
 	"github.com/FoxComm/middlewarehouse/models"
 	"github.com/FoxComm/middlewarehouse/repositories"
 )
 
 type inventoryService struct {
-	stockItemRepo  repositories.IStockItemRepository
-	unitRepo       repositories.IStockItemUnitRepository
-	summaryService ISummaryService
+	stockItemRepo      repositories.IStockItemRepository
+	unitRepo           repositories.IStockItemUnitRepository
+	summaryService     ISummaryService
+	updateSummaryAsync bool
 }
 
 type IInventoryService interface {
@@ -32,7 +34,7 @@ type IInventoryService interface {
 func NewInventoryService(stockItemRepo repositories.IStockItemRepository, unitRepo repositories.IStockItemUnitRepository,
 	summaryService ISummaryService) IInventoryService {
 
-	return &inventoryService{stockItemRepo, unitRepo, summaryService}
+	return &inventoryService{stockItemRepo, unitRepo, summaryService, true}
 }
 
 func (service *inventoryService) GetStockItems() ([]*models.StockItem, error) {
@@ -48,7 +50,10 @@ func (service *inventoryService) CreateStockItem(stockItem *models.StockItem) (*
 		return nil, err
 	}
 
-	go service.summaryService.CreateStockItemSummary(stockItem.ID)
+	err := service.summaryService.CreateStockItemSummary(stockItem.ID)
+	if err != nil {
+		return nil, err
+	}
 
 	return stockItem, nil
 }
@@ -66,24 +71,20 @@ func (service *inventoryService) IncrementStockItemUnits(stockItemId uint, unitT
 		return err
 	}
 
-	go service.summaryService.UpdateStockItemSummary(stockItemId, unitType, len(units), models.StatusChange{To: models.StatusOnHand})
-
-	return nil
+	return service.updateStockItemSummary(stockItemId, unitType, len(units), models.StatusChange{To: models.StatusOnHand})
 }
 
-func (service *inventoryService) DecrementStockItemUnits(stockItemId uint, unitType models.UnitType, qty int) error {
-	unitsIds, err := service.unitRepo.GetStockItemUnitIDs(stockItemId, models.StatusOnHand, unitType, qty)
+func (service *inventoryService) DecrementStockItemUnits(stockItemID uint, unitType models.UnitType, qty int) error {
+	unitsIDs, err := service.unitRepo.GetStockItemUnitIDs(stockItemID, models.StatusOnHand, unitType, qty)
 	if err != nil {
 		return err
 	}
 
-	if err := service.unitRepo.DeleteUnits(unitsIds); err != nil {
+	if err := service.unitRepo.DeleteUnits(unitsIDs); err != nil {
 		return err
 	}
 
-	go service.summaryService.UpdateStockItemSummary(stockItemId, unitType, -1*qty, models.StatusChange{To: models.StatusOnHand})
-
-	return nil
+	return service.updateStockItemSummary(stockItemID, unitType, -1*qty, models.StatusChange{To: models.StatusOnHand})
 }
 
 func (service *inventoryService) HoldItems(refNum string, skus map[string]int) error {
@@ -131,9 +132,7 @@ func (service *inventoryService) HoldItems(refNum string, skus map[string]int) e
 		stockItemsMap[si.ID] = skus[si.SKU]
 	}
 	statusShift := models.StatusChange{From: models.StatusOnHand, To: models.StatusOnHold}
-	go service.updateSummary(stockItemsMap, models.Sellable, statusShift)
-
-	return nil
+	return service.updateSummary(stockItemsMap, models.Sellable, statusShift)
 }
 
 func (service *inventoryService) ReserveItems(refNum string) error {
@@ -162,9 +161,7 @@ func (service *inventoryService) ReserveItems(refNum string) error {
 
 	// updated summary
 	statusShift := models.StatusChange{From: models.StatusOnHold, To: models.StatusReserved}
-	go service.updateSummary(stockItemsMap, models.Sellable, statusShift)
-
-	return nil
+	return service.updateSummary(stockItemsMap, models.Sellable, statusShift)
 }
 
 func (service *inventoryService) ReleaseItems(refNum string) error {
@@ -188,17 +185,41 @@ func (service *inventoryService) ReleaseItems(refNum string) error {
 		stockItemsMap[item.StockItemID] = item.Qty
 	}
 	statusShift := models.StatusChange{From: models.StatusOnHold, To: models.StatusOnHand}
-	go service.updateSummary(stockItemsMap, models.Sellable, statusShift)
+	return service.updateSummary(stockItemsMap, models.Sellable, statusShift)
+}
 
-	return nil
+func (service *inventoryService) execAsync(fn func() error) error {
+	if service.updateSummaryAsync {
+		go func() {
+			err := fn()
+			if err != nil {
+				log.Printf("Error updating summaries: %s", err.Error())
+			}
+		}()
+		return nil
+	}
+
+	return fn()
+}
+
+func (service *inventoryService) updateStockItemSummary(stockItemID uint, unitType models.UnitType, unitCount int, change models.StatusChange) error {
+	fn := func() error {
+		return service.summaryService.UpdateStockItemSummary(stockItemID, unitType, unitCount, change)
+	}
+
+	return service.execAsync(fn)
 }
 
 func (service *inventoryService) updateSummary(stockItemsMap map[uint]int, unitType models.UnitType, statusShift models.StatusChange) error {
-	for id, qty := range stockItemsMap {
-		if err := service.summaryService.UpdateStockItemSummary(id, unitType, qty, statusShift); err != nil {
-			return err
+	fn := func() error {
+		for id, qty := range stockItemsMap {
+			if err := service.summaryService.UpdateStockItemSummary(id, unitType, qty, statusShift); err != nil {
+				return err
+			}
 		}
+
+		return nil
 	}
 
-	return nil
+	return service.execAsync(fn)
 }
