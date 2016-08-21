@@ -27,7 +27,3 @@ refresh materialized view concurrently notes_products_view;
 refresh materialized view concurrently notes_promotions_view;
 refresh materialized view concurrently notes_coupons_view;
 refresh materialized view concurrently notes_search_view;
-
--- promotions
-refresh materialized view concurrently promotion_discount_links_view;
-refresh materialized view concurrently promotions_search_view;
