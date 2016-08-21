@@ -25,7 +25,7 @@ trait MiddlewarehouseApi {
 
 class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
 
-  val baseUrl = dispatch.host(s"http://$url")
+  val baseUrl = dispatch.host(url)
 
   override def reserve(reservation: OrderReservation)(implicit ec: EC): Result[String] = {
     // TODO: make request, parse, check for errors
