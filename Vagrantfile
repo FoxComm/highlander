@@ -44,6 +44,22 @@ def tune_vm(config, opts = {})
     g.zone = "us-central1-a"
     g.tags = ['vagrant', 'no-ports']
   end
+
+  config.vm.provider :aws do |aws, override|
+    override.vm.box = "dummy"
+    override.ssh.username = "ubuntu"
+
+    aws.access_key_id = ENV['AWS_ACCESS_KEY']
+    aws.secret_access_key = ENV['AWS_SECRET_ACCESS_KEY']
+    aws.keypair_name = "goldfish"
+
+    aws.ami = "ami-7747d01e"
+    aws.subnet_id = "subnet-db5fee83"
+    # aws.instance_type = "m4.xlarge"
+    # aws.subnet_id = "subnet-8fbaabd6"
+    # aws.security_groups = ["sg-9d3c70f9"]
+    override.ssh.private_key_path = "~/.ssh/goldfish.pem"
+  end
 end
 
 Vagrant.configure("2") do |config|
