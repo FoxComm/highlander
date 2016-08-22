@@ -25,16 +25,14 @@ trait MiddlewarehouseApi {
 
 class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
 
-  val baseUrl = dispatch.host(url)
-
   override def reserve(reservation: OrderReservation)(implicit ec: EC): Result[String] = {
     // TODO: make request, parse, check for errors
     // If response status code is BadRequest and/or errors are present in response, wrap as Xor.left to fail checkout
-    logger.info("middlewarehouse reservation: ", write(reservation))
 
-    val rawReq = baseUrl / "reservations" / "reserve"
+    val reqUrl = dispatch.url(s"$url/reservations/reserve")
     val body   = compact(Extraction.decompose(reservation))
-    val req    = rawReq.setContentType("application/json", "UTF-8") << body
+    val req    = reqUrl.setContentType("application/json", "UTF-8") << body
+    logger.info(s"middlewarehouse reservation: $reqUrl : $body")
     Http(req.POST OK as.String).either.flatMap {
       case Right(resp) ⇒ Result.good(resp)
       case Left(error) ⇒ Result.failure(MiddlewarehouseFailures.UnableToReserveLineItems(error))
