@@ -13,8 +13,10 @@ import seeds.simulations._
 
 object Addresses {
 
+  val USA_COUNTRY_CODE = 234
+
   private val addressFeeder = dbFeeder(
-      """select id as "customerRegionId", name as "customerCity" from regions""")
+      s"""select id as "customerRegionId", name as "customerCity" from regions where country_id=$USA_COUNTRY_CODE""")
 
   private val addCustomerAddress = http("Add new address for customer")
     .post("/v1/customers/${customerId}/addresses")

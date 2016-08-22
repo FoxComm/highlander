@@ -15,7 +15,6 @@ import org.json4s.jackson.JsonMethods._
 import payloads.AddressPayloads.UpdateAddressPayload
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.UpdateShippingMethod
-import responses.AddressResponse
 import responses.cord.CartResponse
 import services.carts.CartTotaler
 import slick.driver.PostgresDriver.api._
@@ -49,6 +48,21 @@ class CartIntegrationTest
 
         fullCart.paymentState must === (CreditCardCharge.Auth)
       }
+    }
+
+    "returns correct image path" in new Fixture {
+      val imgUrl = "testImgUrl";
+      (for {
+        product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head.copy(image = imgUrl))
+        li      ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
+      } yield {}).gimme
+
+      val response = GET(s"v1/carts/${cart.refNum}")
+      response.status must === (StatusCodes.OK)
+      val fullCart = response.ignoreFailuresAndGiveMe[CartResponse]
+
+      fullCart.lineItems.skus.size must === (1)
+      fullCart.lineItems.skus.head.imagePath must === (imgUrl)
     }
   }
 
