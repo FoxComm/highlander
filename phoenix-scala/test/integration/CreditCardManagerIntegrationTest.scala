@@ -1,27 +1,26 @@
 import java.time.ZonedDateTime
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
+import Extensions._
 import cats.implicits._
 import failures.CreditCardFailures.InvalidCvc
 import failures.NotFoundFailure404
-import models.customer.{Customer, Customers}
+import models.customer.Customer
 import models.location.{Address, Addresses}
 import models.payment.creditcard.CreditCards
 import payloads.AddressPayloads.CreateAddressPayload
 import payloads.PaymentPayloads.CreateCreditCard
-import util.{IntegrationTestBase, StripeSupport}
+import slick.driver.PostgresDriver.api._
+import util._
 import utils.seeds.Seeds.Factories
 
 class CreditCardManagerIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
-    with AutomaticAuth {
-
-  import concurrent.ExecutionContext.Implicits.global
-
-  import Extensions._
-  import slick.driver.PostgresDriver.api._
+    with AutomaticAuth
+    with BakedFixtures {
 
   "CreditCardManagerTest" - {
     "POST /v1/customers/:id/payment-methods/credit-cards" - {
@@ -44,7 +43,7 @@ class CreditCardManagerIntegrationTest
       }
 
       "successfully" - {
-        "copies an existing address to the new creditCard" ignore new AddressFixture {
+        "copies an existing address to the new creditCard" ignore new CustomerAddress_Baked {
           val payload     = payloadStub.copy(addressId = Some(address.id), isDefault = true)
           val response    = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
           val (cc :: Nil) = CreditCards.filter(_.customerId === customer.id).gimme.toList
@@ -71,7 +70,7 @@ class CreditCardManagerIntegrationTest
           cc.address1Check mustBe 'defined
         }
 
-        "creates a new address in the book and copies it to the new creditCard" ignore new Fixture {
+        "creates a new address in the book and copies it to the new creditCard" ignore new Customer_Seed {
           val a       = Factories.address
           val payload = payloadWithFullAddress(payloadStub.copy(isDefault = true), a)
 
@@ -104,7 +103,7 @@ class CreditCardManagerIntegrationTest
           cc.address1Check mustBe 'defined
         }
 
-        "uses an existing stripe customerId when it exists" ignore new AddressFixture {
+        "uses an existing stripe customerId when it exists" ignore new CustomerAddress_Baked {
           val payload = payloadStub.copy(addressId = address.id.some)
           val seed    = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
 
@@ -114,14 +113,14 @@ class CreditCardManagerIntegrationTest
           val cards    = CreditCards.filter(_.customerId === customer.id).gimme
 
           response.status must === (StatusCodes.OK)
-          cards must have size (2)
-          cards.map(_.gatewayCustomerId).toSet must have size (1)
-          cards.map(_.gatewayCardId).toSet must have size (2)
+          cards must have size 2
+          cards.map(_.gatewayCustomerId).toSet must have size 1
+          cards.map(_.gatewayCardId).toSet must have size 2
         }
       }
 
       "fails" - {
-        "if neither addressId nor full address was provided" ignore new Fixture {
+        "if neither addressId nor full address was provided" ignore new Customer_Seed {
           val payload  = payloadStub.copy(address = None, addressId = None)
           val response = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
           val cards    = CreditCards.gimme
@@ -131,7 +130,7 @@ class CreditCardManagerIntegrationTest
           cards mustBe 'empty
         }
 
-        "if the addressId cannot be found in address book" ignore new Fixture {
+        "if the addressId cannot be found in address book" ignore new Customer_Seed {
           val payload  = payloadStub.copy(addressId = Some(1))
           val response = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
           val cards    = CreditCards.gimme
@@ -141,7 +140,7 @@ class CreditCardManagerIntegrationTest
           cards mustBe 'empty
         }
 
-        "if card info is invalid" ignore new Fixture {
+        "if card info is invalid" ignore new Customer_Seed {
           val payload = payloadWithFullAddress(
               payloadStub.copy(cardNumber = StripeSupport.incorrectNumberCard),
               Factories.address)
@@ -153,7 +152,7 @@ class CreditCardManagerIntegrationTest
           cards mustBe 'empty
         }
 
-        "if Stripe's CVC check fails" ignore new AddressFixture {
+        "if Stripe's CVC check fails" ignore new CustomerAddress_Baked {
           val payload =
             payloadStub.copy(cardNumber = StripeSupport.incorrectCvc, addressId = Some(1))
           val response = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
@@ -175,13 +174,5 @@ class CreditCardManagerIntegrationTest
         }
       }
     }
-  }
-
-  trait Fixture {
-    val customer = Customers.create(Factories.customer).gimme
-  }
-
-  trait AddressFixture extends Fixture {
-    val address = Addresses.create(Factories.address.copy(customerId = customer.id)).gimme
   }
 }

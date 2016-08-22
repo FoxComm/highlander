@@ -12,7 +12,7 @@ import { transitionTo } from 'browserHistory';
 // components
 import Counter from '../forms/counter';
 import Typeahead from '../typeahead/typeahead';
-import { Dropdown, DropdownItem } from '../dropdown';
+import { Dropdown } from '../dropdown';
 import { Checkbox } from '../checkbox/checkbox';
 import { Form, FormField } from '../forms';
 import ChooseCustomers from './choose-customers';
@@ -165,7 +165,7 @@ export default class NewGiftCard extends React.Component {
           this.setState({
             customersQuery: ''
           });
-        }}/>
+        }} />
     );
   }
 
@@ -179,7 +179,8 @@ export default class NewGiftCard extends React.Component {
         onChange={e => this.setState({customersQuery: e.target.value})}
         pills={customers.map(customer => customer.name)}
         icon={null}
-        onPillClose={(name, idx) => removeCustomer(customers[idx].id)}/>
+        onPillClose={(name, idx) => removeCustomer(customers[idx].id)}
+      />
     );
   }
 
@@ -202,13 +203,14 @@ export default class NewGiftCard extends React.Component {
             minQueryLength={2}
             label="Choose customers:"
             placeholder="Customer name or email..."
-            name="customerQuery"/>
+            name="customerQuery"
+          />
           <FormField className="fc-new-gift-card__message-to-customers"
                      label="Write a message for customers" optional
                      labelAtRight={ labelAtRight }
                      labelClassName="fc-new-gift-card__label">
             <textarea className="fc-input" name="customerMessage"
-                      maxLength="1000" onChange={this.changeCustomerMessage}/>
+                      maxLength="1000" onChange={this.changeCustomerMessage} />
           </FormField>
         </div>
       );
@@ -231,7 +233,7 @@ export default class NewGiftCard extends React.Component {
           increaseAction={event => changeQuantity(event, 1)}
           decreaseAction={event => changeQuantity(event, -1)}
           onChange={({target}) => this.props.changeQuantity(target.value)}
-          min={1}/>
+          min={1} />
       </fieldset>
     );
   }
@@ -246,6 +248,8 @@ export default class NewGiftCard extends React.Component {
       customers,
       balances
     } = this.props;
+
+    const saveDisabled = sendToCustomer && customers.length === 0 || balance === 0;
 
     return (
       <div className="fc-new-gift-card">
@@ -267,13 +271,12 @@ export default class NewGiftCard extends React.Component {
           </div>
           <fieldset className="fc-new-gift-card__fieldset fc-new-gift-card__amount">
             <label className="fc-new-gift-card__label" htmlFor="value">Value</label>
-            <CurrencyInput
-              inputClass="_no-counters"
-              inputName="balance"
-              value={balance}
-              onChange={this.onChangeAmount}
-              step={0.01}
-              min={1}/>
+            <CurrencyInput inputClass="_no-counters"
+                           inputName="balance"
+                           value={balance}
+                           onChange={this.onChangeAmount}
+                           step={0.01}
+            />
             <div className="fc-new-gift-card__balances">
               {
                 balances.map((balance, idx) => {
@@ -305,8 +308,8 @@ export default class NewGiftCard extends React.Component {
             { this.customerListBlock }
           </fieldset>
           <SaveCancel cancelTo="gift-cards"
-                      saveDisabled={sendToCustomer && customers.length === 0}
-                      saveText="Issue Gift Card"/>
+                      saveDisabled={saveDisabled}
+                      saveText="Issue Gift Card" />
         </Form>
       </div>
     );

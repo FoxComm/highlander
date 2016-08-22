@@ -1,57 +1,49 @@
+/* @flow */
+
 // libs
-import _ from 'lodash';
-import React, { PropTypes } from 'react';
+import React, { Element } from 'react';
 
 // components
-import TotalsSummary from '../common/totals';
-import CustomerInfo from './customer-info';
+import TotalsSummary from 'components/common/totals';
+import CustomerCard from 'components/customer-card/customer-card';
 import OrderLineItems from './order-line-items';
 import OrderShippingAddress from './shipping-address';
 import OrderShippingMethod from './order-shipping-method';
 import Payments from './payments';
-import OrderDiscounts from './order-discounts';
+import DiscountsPanel from 'components/discounts-panel/discounts-panel';
 import OrderCoupons from './order-coupons';
 import Watchers from '../watchers/watchers';
 
-const OrderDetails = props => {
-  const {order} = props;
-  const {currentOrder} = order;
+import type { Order } from 'paragons/order';
 
-  if (_.isEmpty(currentOrder)) {
-    return <div className="fc-order-details"></div>;
-  }
+type Props = {
+  details: {
+    order: Order,
+  },
+};
+
+const OrderDetails = (props: Props): Element => {
+  const { order } = props.details;
 
   return (
     <div className="fc-order-details">
       <div className="fc-order-details-body">
         <div className="fc-order-details-main">
-          <OrderLineItems order={currentOrder} />
-          <OrderDiscounts order={currentOrder} />
-          <OrderShippingAddress isCart={false} order={currentOrder} />
-          <OrderShippingMethod isCart={false} {...props} />
-          <OrderCoupons isCart={false} order={currentOrder} />
+          <OrderLineItems order={order} />
+          <DiscountsPanel promotion={order.promotion} />
+          <OrderShippingAddress isCart={false} order={order} />
+          <OrderShippingMethod isCart={false} order={order} />
+          <OrderCoupons isCart={false} order={order} />
           <Payments {...props} />
         </div>
         <div className="fc-order-details-aside">
-          <TotalsSummary entity={currentOrder} title={currentOrder.title} />
-          <CustomerInfo order={currentOrder} />
-          <Watchers entity={{entityId: currentOrder.referenceNumber, entityType: 'orders'}} />
+          <TotalsSummary entity={order} title={order.title} />
+          <CustomerCard customer={order.customer} />
+          <Watchers entity={{entityId: order.referenceNumber, entityType: 'orders'}} />
         </div>
       </div>
     </div>
   );
-};
-
-OrderDetails.propTypes = {
-  order: PropTypes.shape({
-    currentOrder: PropTypes.object,
-    validations: PropTypes.object,
-  }),
-  checkout: PropTypes.func,
-};
-
-OrderDetails.defaultProps = {
-  checkout: _.noop,
 };
 
 export default OrderDetails;

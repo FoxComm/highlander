@@ -4,18 +4,17 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
 
 type GeneralControllerTestSuite struct {
 	suite.Suite
-	assert *assert.Assertions
 	router *gin.Engine
 }
 
@@ -83,7 +82,7 @@ func parseBody(response *httptest.ResponseRecorder, target interface{}) *httptes
 	//decode if any data
 	if response.Body.Len() != 0 {
 		if err := json.NewDecoder(response.Body).Decode(target); err != nil {
-			panic(err)
+			log.Panicf(`Cannot decode "%v" into "%v".\n%v`, response.Body, target, err)
 		}
 	}
 

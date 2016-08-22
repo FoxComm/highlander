@@ -2,6 +2,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
+import util._
 import failures.StoreCreditFailures.StoreCreditConvertFailure
 import failures._
 import models.customer.{Customer, Customers}
@@ -19,7 +20,11 @@ import util.IntegrationTestBase
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class StoreCreditIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
+class StoreCreditIntegrationTest
+    extends IntegrationTestBase
+    with HttpSupport
+    with AutomaticAuth
+    with BakedFixtures {
 
   "StoreCredits" - {
     "POST /v1/customers/:id/payment-methods/store-credit" - {
@@ -253,29 +258,24 @@ class StoreCreditIntegrationTest extends IntegrationTestBase with HttpSupport wi
     }
   }
 
-  trait Fixture {
-    val (admin, customer, scReason, storeCredit, order, adjustment, scSecond, payment, scSubType) =
-      (for {
-        admin     ← * <~ StoreAdmins.create(authedStoreAdmin)
-        customer  ← * <~ Customers.create(Factories.customer)
-        cart      ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
-        scReason  ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
-        scSubType ← * <~ StoreCreditSubtypes.create(Factories.storeCreditSubTypes.head)
-        scOrigin ← * <~ StoreCreditManuals.create(
-                      StoreCreditManual(adminId = admin.id, reasonId = scReason.id))
-        storeCredit ← * <~ StoreCredits.create(
-                         Factories.storeCredit.copy(originId = scOrigin.id,
-                                                    customerId = customer.id))
-        scSecond ← * <~ StoreCredits.create(
-                      Factories.storeCredit.copy(originId = scOrigin.id, customerId = customer.id))
-        payment ← * <~ OrderPayments.create(
-                     Factories.storeCreditPayment.copy(
-                         cordRef = cart.refNum,
-                         paymentMethodId = storeCredit.id,
-                         paymentMethodType = PaymentMethod.StoreCredit,
-                         amount = Some(storeCredit.availableBalance)))
-        adjustment ← * <~ StoreCredits.auth(storeCredit, Some(payment.id), 10)
-      } yield
-        (admin, customer, scReason, storeCredit, cart, adjustment, scSecond, payment, scSubType)).gimme
+  trait Fixture extends EmptyCustomerCart_Baked {
+    val (admin, scReason, storeCredit, adjustment, scSecond, payment, scSubType) = (for {
+      admin     ← * <~ StoreAdmins.create(authedStoreAdmin)
+      scReason  ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
+      scSubType ← * <~ StoreCreditSubtypes.create(Factories.storeCreditSubTypes.head)
+      scOrigin ← * <~ StoreCreditManuals.create(
+                    StoreCreditManual(adminId = admin.id, reasonId = scReason.id))
+      storeCredit ← * <~ StoreCredits.create(
+                       Factories.storeCredit.copy(originId = scOrigin.id,
+                                                  customerId = customer.id))
+      scSecond ← * <~ StoreCredits.create(
+                    Factories.storeCredit.copy(originId = scOrigin.id, customerId = customer.id))
+      payment ← * <~ OrderPayments.create(
+                   Factories.storeCreditPayment.copy(cordRef = cart.refNum,
+                                                     paymentMethodId = storeCredit.id,
+                                                     paymentMethodType = PaymentMethod.StoreCredit,
+                                                     amount = Some(storeCredit.availableBalance)))
+      adjustment ← * <~ StoreCredits.auth(storeCredit, Some(payment.id), 10)
+    } yield (admin, scReason, storeCredit, adjustment, scSecond, payment, scSubType)).gimme
   }
 }

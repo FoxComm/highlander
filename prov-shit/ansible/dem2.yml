@@ -21,6 +21,7 @@
     - { role: base/rsyslog, sudo: yes }
     - { role: base/kibana, sudo: yes }
     - { role: base/phoenix }
+    - { role: base/middlewarehouse }
     - { role: base/isaac }
     - { role: base/greenriver }
     - { role: dev/kafka }
@@ -28,6 +29,7 @@
     - { role: dev/db }
     - { role: dev/phoenix }
     - { role: dev/seeder }
+    - { role: dev/middlewarehouse }
     - { role: dev/greenriver }
     - { role: dev/loyalty }
     - { role: dev/messaging }

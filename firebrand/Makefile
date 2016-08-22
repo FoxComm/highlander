@@ -5,10 +5,16 @@ setup:
 
 build: setup
 	gulp build
-
-package: build
 	touch firebrand.tar.bz2
 	tar --exclude 'firebrand.tar.bz2' -jcf firebrand.tar.bz2 ./
-	
 
-.PHONY: setup build package
+docker: build
+	docker build -t firebrand .
+
+clean:
+	rm -rf ./node_modules
+
+test:
+	npm test
+
+.PHONY: setup build package test docker

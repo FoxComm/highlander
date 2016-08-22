@@ -25,10 +25,10 @@ case class OrderShippingAddress(id: Int = 0,
     extends FoxModel[OrderShippingAddress]
     with Addressable[OrderShippingAddress] {
 
-  def instance: OrderShippingAddress = { this }
-  def zipLens                        = lens[OrderShippingAddress].zip
-  override def sanitize              = super.sanitize(this)
-  override def validate              = super.validate
+  def zipLens = lens[OrderShippingAddress].zip
+
+  override def sanitize = super.sanitize(this)
+  override def validate = super.validate
 }
 
 object OrderShippingAddress {

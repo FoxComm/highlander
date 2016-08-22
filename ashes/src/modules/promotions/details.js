@@ -2,9 +2,9 @@
 import { dissoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
 
-import { createEmptyPromotion, configurePromotion} from '../../paragons/promotion';
+import { createEmptyPromotion, configurePromotion } from 'paragons/promotion';
 import createAsyncActions from '../async-utils';
-import Api from '../../lib/api';
+import Api from 'lib/api';
 
 export const promotionsNew = createAction('PROMOTIONS_NEW');
 const clearPromotion = createAction('PROMOTION_CLEAR');

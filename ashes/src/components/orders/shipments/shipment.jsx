@@ -43,7 +43,7 @@ export default class Shipment extends Component<void, Props, void> {
       <ShipmentRow
         key={index}
         {...row}
-        />
+      />
     );
   }
 

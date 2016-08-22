@@ -10,6 +10,10 @@ db_name: phoenix_development
 db_connection_string: "postgresql://{{db_host}}/phoenix_development?user={{db_user}}"
 scala_version: scala-2.11
 
+# Bottled Water
+bottledwater_slot_phoenix: bottledwater_phoenix
+bottledwater_slot_middlewarehouse: bottledwater_middlewarehouse
+
 # Green River
 greenriver_version: 1.0
 greenriver_env: localhost
@@ -34,6 +38,8 @@ middlewarehouse_env: staging
 middlewarehouse_dir: /middlewarehouse
 middlewarehouse_bin: "{{middlewarehouse_dir}}/middlewarehouse"
 middlewarehouse_db_name: middlewarehouse_development
+middlewarehouse_db_user: middlewarehouse
+middlewarehouse_db_connection_string: "postgresql://{{db_host}}/{{middlewarehouse_db_name}}?user={{middlewarehouse_db_user}}"
 
 middlewarehouse_src: ../../middlewarehouse/
 middlewarehouse_bin_src: "{{middlewarehouse_src}}/middlewarehouse"
@@ -50,6 +56,10 @@ firebird_fixed_language: false
 firebrand_env: production
 firebrand_default_language: en
 firebrand_fixed_language: false
+
+# Storefront variables
+storefront_default_language: en
+storefront_fixed_language: false
 
 # Loyalty
 loyalty_jar_src: ../../fox-loyalty/target/loyalty.jar
@@ -70,8 +80,7 @@ search_host: 127.0.0.1
 search_server_http: "{{search_host}}:9200"
 search_server: "{{search_host}}:9300"
 ashes_server: 127.0.0.1:4000
-firebird_server: 127.0.0.1:4040
-firebrand_server: 127.0.0.1:4041
+storefront_server: 127.0.0.1:4041
 kafka_server: 127.0.0.1:9092
 zookeeper_server: 127.0.0.1:2181
 schema_server: 127.0.0.1:8081

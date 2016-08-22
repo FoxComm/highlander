@@ -2,7 +2,7 @@ package responses.cord
 
 import java.time.Instant
 
-import failures.ShippingMethodFailures.ShippingMethodNotFound
+import failures.ShippingMethodFailures.ShippingMethodNotFoundInOrder
 import models.cord._
 import models.customer.Customers
 import models.objects._
@@ -23,13 +23,14 @@ case class OrderResponse(referenceNumber: String,
                          totals: CordResponseTotals,
                          customer: Option[CustomerResponse.Root] = None,
                          shippingMethod: ShippingMethodsResponse.Root,
-                         shippingAddress: Addresses.Root,
+                         shippingAddress: AddressResponse,
                          paymentMethods: Seq[_ <: CordResponsePayments] = Seq.empty,
                          // Order-specific
                          orderState: Order.State,
                          shippingState: Option[Order.State] = None,
                          fraudScore: Int,
-                         remorsePeriodEnd: Option[Instant] = None)
+                         remorsePeriodEnd: Option[Instant] = None,
+                         placedAt: Instant)
     extends ResponseItem
 
 object OrderResponse {
@@ -38,13 +39,13 @@ object OrderResponse {
     for {
       context     ← * <~ ObjectContexts.mustFindById400(order.contextId)
       payState    ← * <~ OrderQueries.getPaymentState(order.refNum)
-      lineItems   ← * <~ CordResponseLineItems.fetch(order.refNum)
       lineItemAdj ← * <~ CordResponseLineItemAdjustments.fetch(order.refNum)
+      lineItems   ← * <~ CordResponseLineItems.fetch(order.refNum, lineItemAdj)
       promo       ← * <~ CordResponsePromotions.fetch(order.refNum)(db, ec, context)
       customer    ← * <~ Customers.findOneById(order.customerId)
       shippingMethod ← * <~ CordResponseShipping
                         .shippingMethod(order.refNum)
-                        .mustFindOr(ShippingMethodNotFound(order.refNum))
+                        .mustFindOr(ShippingMethodNotFoundInOrder(order.refNum))
       shippingAddress ← * <~ CordResponseShipping.shippingAddress(order.refNum)
       paymentMethods  ← * <~ CordResponsePayments.fetchAll(order.refNum)
     } yield
@@ -63,7 +64,8 @@ object OrderResponse {
           orderState = order.state,
           shippingState = order.getShippingState,
           fraudScore = order.fraudScore,
-          remorsePeriodEnd = order.remorsePeriodEnd
+          remorsePeriodEnd = order.remorsePeriodEnd,
+          placedAt = order.placedAt
       )
 
 }

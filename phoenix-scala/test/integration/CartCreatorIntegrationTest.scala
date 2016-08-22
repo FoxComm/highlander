@@ -1,23 +1,21 @@
-import Extensions._
 import akka.http.scaladsl.model.StatusCodes
+
+import Extensions._
 import cats.implicits._
 import failures.NotFoundFailure400
 import models.StoreAdmins
-import models.customer.{Customer, Customers}
+import models.customer.Customer
 import payloads.OrderPayloads.CreateCart
 import responses.cord.CartResponse
 import services.carts.CartCreator
 import util._
-import utils.db._
-import utils.seeds.Seeds.Factories
-
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class CartCreatorIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
     with AutomaticAuth
-    with TestActivityContext.AdminAC {
+    with TestActivityContext.AdminAC
+    with BakedFixtures {
 
   "POST /v1/orders" - {
     "for an existing customer" - {
@@ -71,10 +69,7 @@ class CartCreatorIntegrationTest
     }
   }
 
-  trait Fixture {
-    val (storeAdmin, customer) = (for {
-      customer   ← * <~ Customers.create(Factories.customer)
-      storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
-    } yield (storeAdmin, customer)).gimme
+  trait Fixture extends Customer_Seed {
+    val storeAdmin = StoreAdmins.create(authedStoreAdmin).gimme
   }
 }

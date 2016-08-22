@@ -2,24 +2,21 @@ package utils
 
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import akka.actor.ActorSystem
 import akka.pattern.ask
 import akka.testkit.{TestActorRef, TestKit}
 
 import models.cord._
-import models.customer.Customers
 import org.scalatest.BeforeAndAfterAll
 import services.actors._
 import util._
-import utils.db._
-import utils.seeds.Seeds.Factories
 
 class RemorseTimerTest(_system: ActorSystem)
     extends TestKit(_system)
     with IntegrationTestBase
     with BeforeAndAfterAll
-    with TestObjectContext {
+    with TestObjectContext
+    with BakedFixtures {
 
   def this() = this(ActorSystem("RemorseTimerTest"))
 
@@ -29,7 +26,7 @@ class RemorseTimerTest(_system: ActorSystem)
 
   "Remorse timer" - {
 
-    "advances to fulfillment once remorse period ends" in new Fixture {
+    "advances to fulfillment once remorse period ends" in new Order_Baked {
       val overdue = Some(Instant.now.minusSeconds(60))
       Orders.update(order, order.copy(remorsePeriodEnd = overdue)).gimme
       tick()
@@ -47,13 +44,5 @@ class RemorseTimerTest(_system: ActorSystem)
       case _ ⇒
         fail("Remorse timer had to reply with Future but something went wrong")
     }
-  }
-
-  trait Fixture {
-    val order = (for {
-      customer ← * <~ Customers.create(Factories.customer)
-      cart     ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
-      order    ← * <~ Orders.create(cart.toOrder())
-    } yield order).gimme
   }
 }

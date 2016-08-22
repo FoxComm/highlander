@@ -12,9 +12,9 @@ const TileItems = props => {
   } else if (_.isEmpty(items)) {
     content = <div className="fc-tile-selector__empty-message">{emptyMessage}</div>;
   } else {
-    content = items.map(i => <div className="fc-tile-selector__item">{i}</div>);
+    content = items.map((item, i) => <div key={i} className="fc-tile-selector__item">{item}</div>);
   }
-  
+
   return (
     <div className="fc-tile-selector__items">
       {content}

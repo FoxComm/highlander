@@ -1,0 +1,13 @@
+---
+
+- name: Copy Service
+  template: src=consul_mesos.service dest="{{dest_services}}/consul_mesos.service"
+  sudo: true
+
+- name: Reload Systemd for Consul_Mesos Server
+  sudo: yes
+  command: systemctl daemon-reload
+
+#- name: Restart Consul_Mesos Server
+  #service: name=consul_mesos state=restarted enabled=yes
+  #sudo: true

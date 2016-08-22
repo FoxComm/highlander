@@ -4,8 +4,7 @@
   hosts: all
   vars:
     ashes_server_name: admin.foxcommerce.local
-    firebird_server_name: firebird.foxcommerce.local
-    firebrand_server_name: foxcommerce.local
+    storefront_server_name: foxcommerce.local
   roles:
     - { role: base/common }
     - { role: base/docker }

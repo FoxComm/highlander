@@ -45,7 +45,7 @@ export default class NavigationItem extends React.Component {
   get isSelected() {
     let isSelected = false;
     if (!_.isEmpty(this.props.children)) {
-      const tos = _.compact(this.props.children.map(c => c.props.to));
+      const tos = _.compact(React.Children.map(this.props.children, c => c.props.to));
       const routeNames = _.compact(this.props.routes.map(route => route.name));
       isSelected = !_.isEmpty(_.intersection(tos, routeNames));
     }

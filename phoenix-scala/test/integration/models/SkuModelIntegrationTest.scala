@@ -1,20 +1,19 @@
 package models
 
-import models.objects._
+import concurrent.ExecutionContext.Implicits.global
+
 import models.cord.lineitems.OrderLineItemSkus
-import models.product.{Mvp, SimpleContext}
-import util.IntegrationTestBase
+import models.product.Mvp
+import util._
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class SkuModelIntegrationTest extends IntegrationTestBase {
-  import concurrent.ExecutionContext.Implicits.global
+class SkuModelIntegrationTest extends IntegrationTestBase with TestObjectContext {
 
   "Skus" - {
     "a Postgres trigger creates a `order_line_item_skus` record after `skus` insert" in {
       val (product, liSku) = (for {
-        context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-        product ← * <~ Mvp.insertProduct(context.id, Factories.products.head)
+        product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head)
         liSku   ← * <~ OrderLineItemSkus.safeFindBySkuId(product.skuId)
       } yield (product, liSku)).gimme
 

@@ -4,6 +4,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
+import util._
 import failures.NotFoundFailure404
 import models._
 import models.customer.Customers
@@ -21,7 +22,8 @@ class ReturnNotesIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
     with AutomaticAuth
-    with TestActivityContext.AdminAC {
+    with TestActivityContext.AdminAC
+    with BakedFixtures {
 
   "Return Notes" - {
     pending
@@ -116,10 +118,9 @@ class ReturnNotesIntegrationTest
     }
   }
 
-  trait Fixture {
+  trait Fixture extends Order_Baked {
     val (admin, rma) = (for {
-      admin    ← * <~ StoreAdmins.create(authedStoreAdmin)
-      customer ← * <~ Customers.create(Factories.customer)
+      admin ← * <~ StoreAdmins.create(authedStoreAdmin)
       order ← * <~ Orders.create(
                  Factories.order.copy(state = Order.RemorseHold,
                                       remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))

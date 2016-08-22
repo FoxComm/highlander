@@ -23,7 +23,7 @@ class VariantIntegrationTest extends IntegrationTestBase with HttpSupport with A
 
   "POST v1/variants/:context" - {
     "Creates a variant successfully" in new Fixture {
-      val response = POST(s"v1/variants/${context.name}", createVariantPayload)
+      val response = POST(s"v1/variants/${ctx.name}", createVariantPayload)
       response.status must === (StatusCodes.OK)
 
       val variantResponse = response.as[IlluminatedVariantResponse.Root]
@@ -35,7 +35,7 @@ class VariantIntegrationTest extends IntegrationTestBase with HttpSupport with A
 
     "Creates a variant with a value successfully" in new Fixture {
       val payload  = createVariantPayload.copy(values = Some(Seq(createVariantValuePayload)))
-      val response = POST(s"v1/variants/${context.name}", payload)
+      val response = POST(s"v1/variants/${ctx.name}", payload)
       response.status must === (StatusCodes.OK)
 
       val variantResponse = response.as[IlluminatedVariantResponse.Root]
@@ -50,7 +50,7 @@ class VariantIntegrationTest extends IntegrationTestBase with HttpSupport with A
     }
 
     "Fails when trying to create variant with archived sku as value" in new ArchivedSkusFixture {
-      val response = POST(s"v1/variants/${context.name}", archivedSkuVariantPayload)
+      val response = POST(s"v1/variants/${ctx.name}", archivedSkuVariantPayload)
 
       response.status must === (StatusCodes.BadRequest)
       response.error must === (LinkArchivedSkuFailure(Variant, 10, archivedSkuCode).description)
@@ -59,7 +59,7 @@ class VariantIntegrationTest extends IntegrationTestBase with HttpSupport with A
 
   "GET v1/variants/:context/:id" - {
     "Gets a created variant successfully" in new VariantFixture {
-      val response = GET(s"v1/variants/${context.name}/${variant.variant.variantFormId}")
+      val response = GET(s"v1/variants/${ctx.name}/${variant.variant.variantFormId}")
       response.status must === (StatusCodes.OK)
 
       val variantResponse = response.as[IlluminatedVariantResponse.Root]
@@ -76,7 +76,7 @@ class VariantIntegrationTest extends IntegrationTestBase with HttpSupport with A
     }
 
     "Throws a 404 if given an invalid id" in new Fixture {
-      val response = GET(s"v1/variants/${context.name}/123")
+      val response = GET(s"v1/variants/${ctx.name}/123")
       response.status must === (StatusCodes.NotFound)
     }
   }
@@ -86,8 +86,7 @@ class VariantIntegrationTest extends IntegrationTestBase with HttpSupport with A
       val payload = VariantPayload(attributes =
                                      Map("name" → (("t" → "wtring") ~ ("v" → "New Size"))),
                                    values = None)
-      val response =
-        PATCH(s"v1/variants/${context.name}/${variant.variant.variantFormId}", payload)
+      val response = PATCH(s"v1/variants/${ctx.name}/${variant.variant.variantFormId}", payload)
 
       response.status must === (StatusCodes.OK)
 
@@ -105,8 +104,7 @@ class VariantIntegrationTest extends IntegrationTestBase with HttpSupport with A
       var payload = VariantPayload(attributes =
                                      Map("name" → (("t" → "wtring") ~ ("v" → "New Size"))),
                                    values = Some(Seq(archivedSkuVariantValuePayload)))
-      val response =
-        PATCH(s"v1/variants/${context.name}/${variant.variant.variantFormId}", payload)
+      val response = PATCH(s"v1/variants/${ctx.name}/${variant.variant.variantFormId}", payload)
 
       response.status must === (StatusCodes.BadRequest)
       response.error must === (LinkArchivedSkuFailure(Variant,
@@ -117,12 +115,12 @@ class VariantIntegrationTest extends IntegrationTestBase with HttpSupport with A
 
   "POST v1/variants/:context/:id/values" - {
     "Creates a variant value successfully" in new Fixture {
-      val response = POST(s"v1/variants/${context.name}", createVariantPayload)
+      val response = POST(s"v1/variants/${ctx.name}", createVariantPayload)
       response.status must === (StatusCodes.OK)
       val variantResponse = response.as[IlluminatedVariantResponse.Root]
 
-      val response2 = POST(s"v1/variants/${context.name}/${variantResponse.id}/values",
-                           createVariantValuePayload)
+      val response2 =
+        POST(s"v1/variants/${ctx.name}/${variantResponse.id}/values", createVariantValuePayload)
       response2.status must === (StatusCodes.OK)
       val valueResponse = response2.as[IlluminatedVariantValueResponse.Root]
 
@@ -131,11 +129,11 @@ class VariantIntegrationTest extends IntegrationTestBase with HttpSupport with A
     }
 
     "Fails when attaching archived SKU to variant as variant value" in new ArchivedSkusFixture {
-      val response = POST(s"v1/variants/${context.name}", createVariantPayload)
+      val response = POST(s"v1/variants/${ctx.name}", createVariantPayload)
       response.status must === (StatusCodes.OK)
       val variantResponse = response.as[IlluminatedVariantResponse.Root]
 
-      val response2 = POST(s"v1/variants/${context.name}/${variantResponse.id}/values",
+      val response2 = POST(s"v1/variants/${ctx.name}/${variantResponse.id}/values",
                            archivedSkuVariantValuePayload)
 
       response2.status must === (StatusCodes.BadRequest)
@@ -152,13 +150,7 @@ class VariantIntegrationTest extends IntegrationTestBase with HttpSupport with A
     val testSkus = Seq(new SimpleSku("SKU-TST", "SKU test", 1000, Currency.USD, true),
                        new SimpleSku("SKU-TS2", "SKU test 2", 1000, Currency.USD, true))
 
-    val (context, skus) = (for {
-      context ← * <~ ObjectContexts
-                 .filterByName(SimpleContext.default)
-                 .mustFindOneOr(ObjectContextNotFound(SimpleContext.default))
-
-      skus ← * <~ Mvp.insertSkus(context.id, testSkus)
-    } yield (context, skus)).gimme
+    val skus = Mvp.insertSkus(ctx.id, testSkus).gimme
 
     val createVariantValuePayload = VariantValuePayload(name = Some("Red"),
                                                         swatch = Some("ff0000"),
@@ -178,10 +170,9 @@ class VariantIntegrationTest extends IntegrationTestBase with HttpSupport with A
                             SimpleVariantValue("Large", "", Seq(skus(1).code))))
 
     val (product, variant) = (for {
-      productData ← * <~ Mvp.insertProduct(context.id, simpleProd)
-      product ← * <~ ProductManager.mustFindProductByContextAndId404(context.id,
-                                                                     productData.productId)
-      variant ← * <~ Mvp.insertVariantWithValues(context.id, product, simpleSizeVariant)
+      productData ← * <~ Mvp.insertProduct(ctx.id, simpleProd)
+      product     ← * <~ ProductManager.mustFindProductByContextAndId404(ctx.id, productData.productId)
+      variant     ← * <~ Mvp.insertVariantWithValues(ctx.id, product, simpleSizeVariant)
     } yield (product, variant)).gimme
   }
 

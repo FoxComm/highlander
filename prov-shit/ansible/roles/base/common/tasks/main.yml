@@ -58,7 +58,7 @@
     - ca-certificates-java
 
 - name: Setup Unprivileged
-  command: /usr/sbin/usermod -a -G systemd-journal {{ user }}
+  command: /usr/sbin/usermod -a -G systemd-journal {{user}}
   sudo: true
 
 - name: Create Swap File

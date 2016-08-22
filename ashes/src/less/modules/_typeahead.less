@@ -1,16 +1,16 @@
 .fc-typeahead {
   position: relative;
 
-  .fc-typeahead__loader {
-    position: absolute;
-    right: 7px;
-    bottom: 0;
-    margin: 5px 0;
+  &._active {
+    .fc-pilled-input__input-container,
+    .fc-pilled-input__input-container:hover {
+      border-color: #a2dee1 !important;
+    }
   }
 
   input[type=text] {
     width: 700px;
-    max-width: 95%;
+    border: none !important;
   }
 
   &__input-icon {
@@ -25,10 +25,11 @@
   }
 
   .fc-form-field input[type=text] {
-    .padding-left(40px);
+    padding-left: 40px;
 
     &.fc-pilled-input__input-field {
-      .padding-left(0);
+      padding-left: 10px;
+      margin-left: 0;
     }
   }
 
@@ -41,8 +42,8 @@
   }
 
   .fc-image-column {
-      max-width: 50px;
-      max-height: 50px;
+    max-width: 50px;
+    max-height: 50px;
   }
 
   &__menu {
@@ -63,30 +64,30 @@
     overflow-x: hidden;
     background-color: @color-white;
     border: 1px solid @color-border;
-    .border-radius(3px);
 
-    .font-spec(12px, 400, 60px);
+    font-size: 12px;
+    line-height: 60px;
+  }
 
-    li {
-      padding: 15px;
-      border-bottom: 1px solid @color-border;
+  &__item {
+    padding: 15px;
+    border-bottom: 1px solid @color-border;
 
-      &:last-child {
-        border-bottom: none;
-      }
+    &:last-child {
+      border-bottom: none;
+    }
 
-      &.fc-typeahead__item:hover {
-        background-color: @color-tr-even-bg;
-        cursor: pointer;
-      }
+    &:hover {
+      background-color: @color-tr-even-bg;
+      cursor: pointer;
+    }
 
-      .fc-grid {
-        line-height: 20px;
-      }
+    .fc-grid {
+      line-height: 20px;
     }
   }
 
-  .fc-typeahead__need-more-characters {
+  &__need-more-characters {
     .fc-alert {
       margin-top: 0;
     }

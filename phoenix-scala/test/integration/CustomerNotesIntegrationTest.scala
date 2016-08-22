@@ -1,25 +1,25 @@
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
+import util._
 import failures.NotFoundFailure404
-import models.customer.{Customer, Customers}
+import models.customer.Customer
 import models.{Notes, _}
 import payloads.NotePayloads._
 import responses.AdminNotes
 import services.notes.CustomerNoteManager
 import util._
 import utils.db._
-import utils.seeds.Seeds.Factories
 import utils.time.RichInstant
 
 class CustomerNotesIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
     with AutomaticAuth
-    with TestActivityContext.AdminAC {
+    with TestActivityContext.AdminAC
+    with BakedFixtures {
 
   "POST /v1/notes/customer/:customerId" - {
     "can be created by an admin for a customer" in new Fixture {
@@ -110,10 +110,7 @@ class CustomerNotesIntegrationTest
     }
   }
 
-  trait Fixture {
-    val (admin, customer) = (for {
-      admin    ← * <~ StoreAdmins.create(authedStoreAdmin)
-      customer ← * <~ Customers.create(Factories.customer)
-    } yield (admin, customer)).gimme
+  trait Fixture extends Customer_Seed {
+    val admin = StoreAdmins.create(authedStoreAdmin).gimme
   }
 }

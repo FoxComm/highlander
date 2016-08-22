@@ -20,7 +20,7 @@ export type Action = {
 type Props = {
   id: number;
   src: string;
-  actions?: Array<Action>;
+  actions: Array<Action>;
   title: string;
   loading: boolean;
   secondaryTitle?: string;
@@ -33,10 +33,14 @@ type State = {
 
 export default class ImageCard extends Component {
 
-  static props: Props;
+  props: Props;
 
   state: State = {
     actionsVisible: false,
+  };
+
+  static defaultProps = {
+    actions: [],
   };
 
   overTimeout: ?number = null;

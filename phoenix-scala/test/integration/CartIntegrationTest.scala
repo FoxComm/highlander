@@ -1,32 +1,33 @@
-import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
 import failures.CartFailures._
 import failures.LockFailures._
 import failures.NotFoundFailure404
-import models.StoreAdmins
 import models.cord._
 import models.cord.lineitems._
-import models.customer.Customers
 import models.location.{Address, Addresses, Regions}
-import models.objects._
 import models.payment.creditcard._
-import models.product.{Mvp, SimpleContext}
+import models.product.Mvp
 import models.rules.QueryStatement
 import models.shipping._
 import org.json4s.jackson.JsonMethods._
 import payloads.AddressPayloads.UpdateAddressPayload
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.UpdateShippingMethod
+import responses.AddressResponse
 import responses.cord.CartResponse
 import services.carts.CartTotaler
 import slick.driver.PostgresDriver.api._
-import util.IntegrationTestBase
+import util._
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class CartIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
+class CartIntegrationTest
+    extends IntegrationTestBase
+    with HttpSupport
+    with AutomaticAuth
+    with BakedFixtures {
 
   "GET /v1/carts/:refNum" - {
     "payment state" - {
@@ -55,15 +56,15 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
     val payload = Seq(UpdateLineItemsPayload("SKU-YAX", 2))
 
     "should successfully update line items" in new OrderShippingMethodFixture
-    with ShippingAddressFixture with PaymentStateFixture {
+    with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
       val response = POST(s"v1/orders/${cart.refNum}/line-items", payload)
 
       response.status must === (StatusCodes.OK)
       val root = response.ignoreFailuresAndGiveMe[CartResponse]
       val skus = root.lineItems.skus
-      skus must have size 2
+      skus must have size 1
       skus.map(_.sku).toSet must === (Set("SKU-YAX"))
-      skus.map(_.quantity).toSet must === (Set(1))
+      skus.map(_.quantity).toSet must === (Set(2))
     }
 
     "should respond with 404 if cart is not found" in {
@@ -76,6 +77,7 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
   "POST /v1/orders/:refNum/lock" - {
     "successfully locks a cart" in new Fixture {
       val response = POST(s"v1/orders/${cart.refNum}/lock")
+      println(response.errors)
       response.status must === (StatusCodes.OK)
 
       val lockedCart = Carts.findByRefNum(cart.refNum).gimme.head
@@ -212,15 +214,18 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
 
     "copying a shipping address from a customer's book" - {
 
-      "succeeds if the address exists in their book" in new AddressFixture {
+      "succeeds if the address exists in their book" in new EmptyCustomerCart_Baked
+      with CustomerAddress_Raw {
         val response = PATCH(s"v1/orders/${cart.refNum}/shipping-address/${address.id}")
         response.status must === (StatusCodes.OK)
-        val shippingAddress = OrderShippingAddresses.findByOrderRef(cart.refNum).one.gimme.value
 
-        shippingAddress.cordRef must === (cart.refNum)
+        val cartResponse = response.ignoreFailuresAndGiveMe[CartResponse]
+
+        val shippingAddressUpd = OrderShippingAddresses.findByOrderRef(cart.refNum).one.gimme.value
+        shippingAddressUpd.cordRef must === (cart.refNum)
       }
 
-      "removes an existing shipping address before copying new address" in new AddressFixture {
+      "removes an existing shipping address before copying new address" in new EmptyCartWithShipAddress_Baked {
         val newAddress =
           Addresses.create(address.copy(name = "New", isDefaultShipping = false)).gimme
 
@@ -231,11 +236,11 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
         fst.status must === (StatusCodes.OK)
         snd.status must === (StatusCodes.OK)
 
-        val shippingAddress = OrderShippingAddresses.findByOrderRef(cart.refNum).one.gimme.value
-        shippingAddress.name must === ("New")
+        val shippingAddressUpd = OrderShippingAddresses.findByOrderRef(cart.refNum).one.gimme.value
+        shippingAddressUpd.name must === ("New")
       }
 
-      "errors if the address does not exist" in new AddressFixture {
+      "errors if the address does not exist" in new EmptyCartWithShipAddress_Baked {
         val response = PATCH(s"v1/orders/${cart.refNum}/shipping-address/99")
 
         response.status must === (StatusCodes.NotFound)
@@ -245,52 +250,62 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
 
     "editing a shipping address by copying from a customer's address book" - {
 
-      "succeeds when the address exists" in new ShippingAddressFixture {
+      "succeeds when the address exists" in new EmptyCartWithShipAddress_Baked {
+        val newAddress = Addresses
+          .create(
+              Factories.address.copy(customerId = customer.id,
+                                     isDefaultShipping = false,
+                                     name = "New Shipping",
+                                     address1 = "29918 Kenloch Dr",
+                                     city = "Farmington Hills",
+                                     regionId = 4177))
+          .gimme
+
         val response = PATCH(s"v1/orders/${cart.refNum}/shipping-address/${newAddress.id}")
 
         response.status must === (StatusCodes.OK)
-        val shippingAddress = OrderShippingAddresses.findByOrderRef(cart.refNum).one.gimme.value
-        shippingAddress.cordRef must === (cart.refNum)
+        val shippingAddressUpd = OrderShippingAddresses.findByOrderRef(cart.refNum).one.gimme.value
+        shippingAddressUpd.cordRef must === (cart.refNum)
       }
 
-      "errors if the address does not exist" in new ShippingAddressFixture {
+      "errors if the address does not exist" in new EmptyCartWithShipAddress_Baked {
         val response = PATCH(s"v1/orders/${cart.refNum}/shipping-address/99")
 
         response.status must === (StatusCodes.NotFound)
         response.error must === (NotFoundFailure404(Address, 99).description)
       }
 
-      "does not change the current shipping address if the edit fails" in new ShippingAddressFixture {
+      "does not change the current shipping address if the edit fails" in new EmptyCartWithShipAddress_Baked {
         val response = PATCH(s"v1/orders/${cart.refNum}/shipping-address/101")
 
         response.status must === (StatusCodes.NotFound)
-        val shippingAddress = OrderShippingAddresses.findByOrderRef(cart.refNum).one.gimme.value
-        shippingAddress.cordRef must === (cart.refNum)
+        val shippingAddressUpd = OrderShippingAddresses.findByOrderRef(cart.refNum).one.gimme.value
+        shippingAddressUpd.cordRef must === (cart.refNum)
       }
     }
   }
 
   "PATCH /v1/orders/:refNum/shipping-address" - {
 
-    "succeeds when a subset of the fields in the address change" in new ShippingAddressFixture {
+    "succeeds when a subset of the fields in the address change" in new EmptyCartWithShipAddress_Baked {
       val updateAddressPayload =
         UpdateAddressPayload(name = Some("New name"), city = Some("Queen Anne"))
       val response = PATCH(s"v1/orders/${cart.refNum}/shipping-address", updateAddressPayload)
 
       response.status must === (StatusCodes.OK)
 
-      val (shippingAddress :: Nil) =
+      val (shippingAddressUpd :: Nil) =
         OrderShippingAddresses.findByOrderRef(cart.refNum).gimme.toList
 
-      shippingAddress.name must === ("New name")
-      shippingAddress.city must === ("Queen Anne")
-      shippingAddress.address1 must === (address.address1)
-      shippingAddress.address2 must === (address.address2)
-      shippingAddress.regionId must === (address.regionId)
-      shippingAddress.zip must === (address.zip)
+      shippingAddressUpd.name must === ("New name")
+      shippingAddressUpd.city must === ("Queen Anne")
+      shippingAddressUpd.address1 must === (address.address1)
+      shippingAddressUpd.address2 must === (address.address2)
+      shippingAddressUpd.regionId must === (address.regionId)
+      shippingAddressUpd.zip must === (address.zip)
     }
 
-    "does not update the address book" in new ShippingAddressFixture {
+    "does not update the address book" in new EmptyCartWithShipAddress_Baked {
       val updateAddressPayload =
         UpdateAddressPayload(name = Some("Another name"), city = Some("Fremont"))
       val response = PATCH(s"v1/orders/${cart.refNum}/shipping-address", updateAddressPayload)
@@ -303,7 +318,7 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
       addressBook.city must === (address.city)
     }
 
-    "full cart returns updated shipping address" in new ShippingAddressFixture {
+    "full cart returns updated shipping address" in new EmptyCartWithShipAddress_Baked {
       val name                 = "Even newer name"
       val city                 = "Queen Max"
       val updateAddressPayload = UpdateAddressPayload(name = Some(name), city = Some(city))
@@ -330,41 +345,39 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
   }
 
   "DELETE /v1/orders/:refNum/shipping-address" - {
-    "succeeds if an address exists" in new ShippingAddressFixture {
+    "succeeds if an address exists" in new EmptyCartWithShipAddress_Baked {
       val noShipAddressFailure = NoShipAddress(cart.refNum).description
 
       //get cart and make sure it has a shipping address
-      val fullOrderResponse = GET(s"v1/carts/${cart.refNum}")
-      fullOrderResponse.status must === (StatusCodes.OK)
-      val fullCart = fullOrderResponse.withResultTypeOf[CartResponse].result
-      fullCart.shippingAddress mustBe defined
+      val fullCartResponse = GET(s"v1/carts/${cart.refNum}")
+      fullCartResponse.status must === (StatusCodes.OK)
+      val cartWithAddress = fullCartResponse.withResultTypeOf[CartResponse].result
+      cartWithAddress.shippingAddress mustBe defined
 
       //delete the shipping address
       val deleteResponse = DELETE(s"v1/orders/${cart.refNum}/shipping-address")
       deleteResponse.status must === (StatusCodes.OK)
 
       //shipping address must not be defined
-      val lessThanFullOrder = deleteResponse.withResultTypeOf[CartResponse]
-      lessThanFullOrder.result.shippingAddress must not be defined
-      lessThanFullOrder.warnings.value must contain(noShipAddressFailure)
+      val cartWithoutAddress = deleteResponse.withResultTypeOf[CartResponse]
+      cartWithoutAddress.result.shippingAddress must not be defined
+      cartWithoutAddress.warnings.value must contain(noShipAddressFailure)
 
       //fails if the cart does not have shipping address
       val deleteFailedResponse = DELETE(s"v1/orders/${cart.refNum}/shipping-address")
       deleteFailedResponse.status must === (StatusCodes.BadRequest)
     }
 
-    "fails if the cart is not found" in new ShippingAddressFixture {
-      val response = DELETE(s"v1/orders/ABC-123/shipping-address")
+    "fails if the cart is not found" in new EmptyCartWithShipAddress_Baked {
+      val response = DELETE(s"v1/orders/ABC-1234/shipping-address")
       response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Cart, "ABC-123").description)
+      response.error must === (NotFoundFailure404(Cart, "ABC-1234").description)
 
       OrderShippingAddresses.length.result.gimme must === (1)
     }
 
-    "fails if the order has already been placed" in new ShippingAddressFixture {
-      Orders.create(cart.toOrder()).gimme
-
-      val response = DELETE(s"v1/orders/${cart.refNum}/shipping-address")
+    "fails if the order has already been placed" in new Order_Baked {
+      val response = DELETE(s"v1/orders/${order.refNum}/shipping-address")
       response.status must === (StatusCodes.BadRequest)
       response.error must === (OrderAlreadyPlaced(cart.refNum).description)
 
@@ -408,33 +421,9 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
     }
   }
 
-  trait Fixture {
-    val (cart, storeAdmin, customer) = (for {
-      customer   ← * <~ Customers.create(Factories.customer)
-      cart       ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
-      storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
-    } yield (cart, storeAdmin, customer)).gimme
-  }
+  trait Fixture extends EmptyCustomerCart_Baked with StoreAdmin_Seed
 
-  trait AddressFixture extends Fixture {
-    val address = Addresses.create(Factories.address.copy(customerId = customer.id)).gimme
-  }
-
-  trait ShippingAddressFixture extends AddressFixture {
-    val (orderShippingAddress, newAddress) = (for {
-      orderShippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address,
-                                                                         cordRef = cart.refNum)
-      newAddress ← * <~ Addresses.create(
-                      Factories.address.copy(customerId = customer.id,
-                                             isDefaultShipping = false,
-                                             name = "New Shipping",
-                                             address1 = "29918 Kenloch Dr",
-                                             city = "Farmington Hills",
-                                             regionId = 4177))
-    } yield (orderShippingAddress, newAddress)).gimme
-  }
-
-  trait ShippingMethodFixture extends AddressFixture {
+  trait ShippingMethodFixture extends EmptyCartWithShipAddress_Baked {
     val lowConditions = parse(
         """
               | {
@@ -461,9 +450,7 @@ class CartIntegrationTest extends IntegrationTestBase with HttpSupport with Auto
       .copy(adminDisplayName = "High", conditions = Some(highConditions))
 
     val (lowShippingMethod, inactiveShippingMethod, highShippingMethod) = (for {
-      productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-      product ← * <~ Mvp.insertProduct(productContext.id,
-                                       Factories.products.head.copy(price = 100))
+      product     ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head.copy(price = 100))
       lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(product.skuId)
       lineItem ← * <~ OrderLineItems.create(
                     OrderLineItem(cordRef = cart.refNum,

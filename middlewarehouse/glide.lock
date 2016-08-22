@@ -1,5 +1,5 @@
-hash: dd2249458efc26e0945124db8d8baa501f3ff2a6128bf973b56a932f80897fff
-updated: 2016-07-30T21:56:38.913415498-07:00
+hash: d6ee5cae3308720b0f61c9d9d0a5a0c0acfa3c592ddef0ee2e5c776d5a8e1d22
+updated: 2016-08-02T17:20:56.774779404-07:00
 imports:
 - name: github.com/DATA-DOG/go-sqlmock
   version: 9958e5c69de03e97ec215b23f6fcae1f600c3fb6
@@ -55,4 +55,4 @@ imports:
   version: c193cecd124b5cc722d7ee5538e945bdb3348435
 - name: gopkg.in/yaml.v2
   version: a83829b6f1293c91addabc89d0571c246397bbf4
-testImports: []
+devImports: []

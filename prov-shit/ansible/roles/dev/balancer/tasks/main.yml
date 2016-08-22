@@ -15,17 +15,11 @@
 - name: Enable Ashes hosts
   file: src=/etc/nginx/sites-available/ashes dest=/etc/nginx/sites-enabled/ashes owner=root group=root state=link
 
-- name: Install Firebird hosts
-  template: src=firebird.j2 dest=/etc/nginx/sites-available/firebird
+- name: Install Storefront hosts
+  template: src=storefront.j2 dest=/etc/nginx/sites-available/storefront
 
-- name: Enable Firebird hosts
-  file: src=/etc/nginx/sites-available/firebird dest=/etc/nginx/sites-enabled/firebird owner=root group=root state=link
-
-- name: Install Firebrand hosts
-  template: src=firebrand.j2 dest=/etc/nginx/sites-available/firebrand
-
-- name: Enable Firebrand hosts
-  file: src=/etc/nginx/sites-available/firebrand dest=/etc/nginx/sites-enabled/firebrand owner=root group=root state=link
+- name: Enable Storefront hosts
+  file: src=/etc/nginx/sites-available/storefront dest=/etc/nginx/sites-enabled/storefront owner=root group=root state=link
 
 - name: Restart Nginx
   service: name=nginx state=restarted

@@ -5,17 +5,16 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import cats.implicits._
 import failures.GeneralFailure
 import faker.Lorem
+import models.Reasons
 import models.cord._
 import models.cord.lineitems._
 import models.customer.Customers
 import models.inventory.Skus
-import models.location.Addresses
 import models.objects.ObjectContexts
 import models.payment.giftcard._
 import models.payment.storecredit._
 import models.product.{Mvp, SimpleContext}
 import models.shipping.ShippingMethods
-import models.{Reasons, StoreAdmins}
 import org.mockito.Mockito._
 import org.scalacheck.Prop.BooleanOperators
 import org.scalacheck.{Gen, Prop, Test ⇒ QTest}
@@ -32,7 +31,8 @@ class CheckoutTest
     with MockitoSugar
     with MockedApis
     with TestObjectContext
-    with TestActivityContext.AdminAC {
+    with TestActivityContext.AdminAC
+    with BakedFixtures {
 
   def cartValidator(resp: CartValidatorResponse = CartValidatorResponse()): CartValidation = {
     val m = mock[CartValidation]
@@ -45,21 +45,17 @@ class CheckoutTest
 
   "Checkout" - {
 
-    "fails if the cart validator fails" in new CustomerFixture {
+    "fails if the cart validator fails" in new EmptyCustomerCart_Baked {
       val failure       = GeneralFailure("scalac")
       val mockValidator = mock[CartValidation]
       when(mockValidator.validate(isCheckout = false, fatalWarnings = true))
         .thenReturn(DbResultT.failure[CartValidatorResponse](failure))
 
-      val cart = Carts.create(Factories.cart).gimme
-      val result = Checkout(cart.copy(customerId = customer.id), mockValidator).checkout
-        .run()
-        .futureValue
-        .leftVal
+      val result = Checkout(cart, mockValidator).checkout.run().futureValue.leftVal
       result must === (failure.single)
     }
 
-    "fails if the cart validator has warnings" in new CustomerFixture {
+    "fails if the cart validator has warnings" in new EmptyCustomerCart_Baked {
       val failure       = GeneralFailure("scalac")
       val mockValidator = mock[CartValidation]
       val liftedFailure = DbResultT.failure[CartValidatorResponse](failure)
@@ -68,11 +64,7 @@ class CheckoutTest
       when(mockValidator.validate(isCheckout = true, fatalWarnings = true))
         .thenReturn(liftedFailure)
 
-      val cart = Carts.create(Factories.cart).gimme
-      val result = Checkout(cart.copy(customerId = customer.id), mockValidator).checkout
-        .run()
-        .futureValue
-        .leftVal
+      val result = Checkout(cart, mockValidator).checkout.run().futureValue.leftVal
       result must === (failure.single)
     }
 
@@ -167,7 +159,7 @@ class CheckoutTest
 
             cart ← * <~ Carts.create(Cart(customerId = customer.id))
 
-            _ ← * <~ LineItemUpdater.updateQuantitiesOnCart(admin,
+            _ ← * <~ LineItemUpdater.updateQuantitiesOnCart(storeAdmin,
                                                             cart.refNum,
                                                             lineItemPayload(total))
 
@@ -212,35 +204,24 @@ class CheckoutTest
     }
   }
 
-  trait CustomerFixture {
-    val customer = Customers.create(Factories.customer).gimme
-  }
-
-  trait GCLineItemFixture {
-    val (customer, cart, giftCard) = (for {
-      customer   ← * <~ Customers.create(Factories.customer)
-      cart       ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
+  trait GCLineItemFixture extends EmptyCartWithShipAddress_Baked {
+    val giftCard = (for {
       shipMethod ← * <~ ShippingMethods.create(Factories.shippingMethods.head)
       _          ← * <~ OrderShippingMethods.create(OrderShippingMethod.build(cart.refNum, shipMethod))
-      address    ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
-      _          ← * <~ OrderShippingAddresses.copyFromAddress(address = address, cordRef = cart.refNum)
       origin     ← * <~ GiftCardOrders.create(GiftCardOrder(cordRef = cart.refNum))
       giftCard ← * <~ GiftCards.create(
                     GiftCard.buildLineItem(balance = 150, originId = origin.id, currency = USD))
       lineItemGc ← * <~ OrderLineItemGiftCards.create(
                       OrderLineItemGiftCard(giftCardId = giftCard.id, cordRef = cart.refNum))
       lineItem ← * <~ OrderLineItems.create(OrderLineItem.buildGiftCard(cart, lineItemGc))
-    } yield (customer, cart, giftCard)).gimme
+    } yield giftCard).gimme
   }
 
-  trait PaymentFixture {
-    val (admin, customer, reason, address, shipMethod) = (for {
-      admin      ← * <~ StoreAdmins.create(Factories.storeAdmin)
-      customer   ← * <~ Customers.create(Factories.customer)
-      reason     ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
-      address    ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
+  trait PaymentFixture extends CustomerAddress_Baked with StoreAdmin_Seed {
+    val (reason, shipMethod) = (for {
+      reason     ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
       shipMethod ← * <~ ShippingMethods.create(Factories.shippingMethods.head)
-    } yield (admin, customer, reason, address, shipMethod)).gimme
+    } yield (reason, shipMethod)).gimme
 
     def lineItemPayload(cost: Int) = {
       val sku = (for {
@@ -256,7 +237,7 @@ class CheckoutTest
     def generateGiftCards(amount: Seq[Int]) =
       for {
         origin ← * <~ GiftCardManuals.create(
-                    GiftCardManual(adminId = admin.id, reasonId = reason.id))
+                    GiftCardManual(adminId = storeAdmin.id, reasonId = reason.id))
         ids ← * <~ GiftCards.createAllReturningIds(amount.map(gcAmount ⇒
                        Factories.giftCard.copy(originalBalance = gcAmount, originId = origin.id)))
       } yield ids
@@ -264,22 +245,20 @@ class CheckoutTest
     def generateStoreCredits(amount: Seq[Int]) =
       for {
         origin ← * <~ StoreCreditManuals.create(
-                    StoreCreditManual(adminId = admin.id, reasonId = reason.id))
+                    StoreCreditManual(adminId = storeAdmin.id, reasonId = reason.id))
         ids ← * <~ StoreCredits.createAllReturningIds(
                  amount.map(scAmount ⇒
                        Factories.storeCredit.copy(originalBalance = scAmount,
                                                   originId = origin.id,
                                                   customerId = customer.id)))
       } yield ids
-
-    implicit val es = utils.ElasticsearchApi.default()
   }
 
-  trait PaymentFixtureWithCart extends PaymentFixture {
-    val cart = (for {
-      cart ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id, grandTotal = 1000))
-      _    ← * <~ OrderShippingMethods.create(OrderShippingMethod.build(cart.refNum, shipMethod))
-      _    ← * <~ OrderShippingAddresses.copyFromAddress(address = address, cordRef = cart.refNum)
-    } yield cart).gimme
+  trait PaymentFixtureWithCart extends PaymentFixture with EmptyCustomerCart_Raw {
+    override val cart = super.cart.copy(grandTotal = 1000)
+    (for {
+      _ ← * <~ OrderShippingMethods.create(OrderShippingMethod.build(cart.refNum, shipMethod))
+      _ ← * <~ OrderShippingAddresses.copyFromAddress(address = address, cordRef = cart.refNum)
+    } yield {}).gimme
   }
 }

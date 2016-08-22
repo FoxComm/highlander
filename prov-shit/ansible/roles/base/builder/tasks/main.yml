@@ -39,6 +39,17 @@
   git: repo=https://github.com/facebook/proxygen.git dest={{proxygen_install_dir}} version={{proxygen_version}}
   tags: isaac
 
+- name: Get Folly
+  git: repo=https://github.com/facebook/folly.git dest={{folly_install_dir}} version={{folly_version}}
+  tags: isaac
+
+- name: Get Wangle
+  git: repo=https://github.com/facebook/wangle.git dest={{wangle_install_dir}} version={{wangle_version}}
+  tags: isaac
+ 
+- name: Don't checkout master
+  lineinfile: dest={{proxygen_install_dir}}/proxygen/deps.sh state=absent regexp="checkout master"
+
 - name: Make and Install Proxygen
   shell: ./deps.sh && ./reinstall.sh
   args:
@@ -46,3 +57,25 @@
   sudo: true
   tags: isaac
 
+- name:
+  file: path={{home}}/go state=directory
+
+- name:
+  file: path={{home}}/go/src state=directory
+
+- name:
+  file: path={{home}}/go/bin state=directory
+
+- name: Add Glide repository
+  apt_repository: repo='ppa:masterminds/glide' update_cache=yes
+  sudo: true
+
+- name: Install Glide
+  apt: name={{ item }} state=latest force=yes
+  sudo: true
+  with_items:
+    - glide
+
+- name: Install ansible-lint
+  pip: name=ansible-lint
+  sudo: true

@@ -1,5 +1,6 @@
 import Extensions._
 import akka.http.scaladsl.model.StatusCodes
+import util._
 import failures.CartFailures.OrderAlreadyPlaced
 import failures.GiftCardFailures.GiftCardMustBeCart
 import failures.{GeneralFailure, NotFoundFailure404}
@@ -20,7 +21,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class GiftCardAsLineItemIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
-    with AutomaticAuth {
+    with AutomaticAuth
+    with BakedFixtures {
 
   "POST /v1/orders/:refNum/gift-cards" - {
     "successfully creates new GC as line item" in new Fixture {
@@ -45,8 +47,8 @@ class GiftCardAsLineItemIntegrationTest
       response.error must === (NotFoundFailure404(Cart, "ABC-666").description)
     }
 
-    "fails to create new GC as line item if order has already been placed" in new Fixture {
-      Orders.create(cart.toOrder()).gimme
+    "fails to create new GC as line item if order has already been placed" in new Fixture
+    with Order_Baked {
       val response =
         POST(s"v1/orders/${cart.refNum}/gift-cards", AddGiftCardLineItem(balance = 100))
 
@@ -88,8 +90,7 @@ class GiftCardAsLineItemIntegrationTest
       response.error must === (NotFoundFailure404(Cart, "ABC-666").description)
     }
 
-    "fails to update GC as line item for already placed order" in new Fixture {
-      Orders.create(cart.toOrder()).gimme
+    "fails to update GC as line item for already placed order" in new Fixture with Order_Baked {
       val response = PATCH(s"v1/orders/${cart.refNum}/gift-cards/${giftCard.code}",
                            AddGiftCardLineItem(balance = 100))
 
@@ -142,8 +143,7 @@ class GiftCardAsLineItemIntegrationTest
       response.error must === (NotFoundFailure404(Cart, "ABC-666").description)
     }
 
-    "fails to delete GC as line item for already placed order" in new Fixture {
-      Orders.create(cart.toOrder()).gimme
+    "fails to delete GC as line item for already placed order" in new Fixture with Order_Baked {
       val response = DELETE(s"v1/orders/${cart.refNum}/gift-cards/${giftCard.code}")
 
       response.status must === (StatusCodes.BadRequest)
@@ -166,10 +166,8 @@ class GiftCardAsLineItemIntegrationTest
     }
   }
 
-  trait Fixture {
-    val (customer, cart, giftCard) = (for {
-      customer ← * <~ Customers.create(Factories.customer)
-      cart     ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
+  trait Fixture extends EmptyCustomerCart_Baked {
+    val (giftCard) = (for {
       gcOrigin ← * <~ GiftCardOrders.create(GiftCardOrder(cordRef = cart.refNum))
       giftCard ← * <~ GiftCards.create(
                     GiftCard.buildLineItem(balance = 150,
@@ -178,6 +176,6 @@ class GiftCardAsLineItemIntegrationTest
       lineItemGc ← * <~ OrderLineItemGiftCards.create(
                       OrderLineItemGiftCard(giftCardId = giftCard.id, cordRef = cart.refNum))
       lineItem ← * <~ OrderLineItems.create(OrderLineItem.buildGiftCard(cart, lineItemGc))
-    } yield (customer, cart, giftCard)).gimme
+    } yield giftCard).gimme
   }
 }

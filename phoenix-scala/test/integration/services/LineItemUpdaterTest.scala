@@ -1,12 +1,7 @@
 package services
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
-import models.StoreAdmins
 import models.activity.ActivityContext
-import models.cord.Carts
 import models.cord.lineitems._
-import models.customer.Customers
 import models.objects._
 import models.product.{Mvp, SimpleContext, SimpleProductData}
 import payloads.LineItemPayloads.{UpdateLineItemsPayload ⇒ Payload}
@@ -17,12 +12,9 @@ import utils.seeds.Seeds.Factories
 class LineItemUpdaterTest
     extends IntegrationTestBase
     with TestObjectContext
-    with TestActivityContext.AdminAC {
-
-  import api._
-
-  implicit val activityContext = ActivityContext(userId = 1, userType = "b", transactionId = "c")
-  implicit val elaticsearchApi = utils.ElasticsearchApi.default()
+    with TestActivityContext.AdminAC
+    with MockedApis
+    with BakedFixtures {
 
   def createProducts(num: Int): DbResultT[(ObjectContext, Seq[SimpleProductData])] =
     for {
@@ -44,12 +36,20 @@ class LineItemUpdaterTest
           Payload(sku = "2", quantity = 0)
       )
 
-      val root = LineItemUpdater.updateQuantitiesOnCart(admin, cart.refNum, payload).gimme.result
-      root.lineItems.skus.count(_.sku == "1") must be(3)
+      val root =
+        LineItemUpdater.updateQuantitiesOnCart(storeAdmin, cart.refNum, payload).gimme.result
+      root.lineItems.skus.count(_.sku == "1") must be(1)
       root.lineItems.skus.count(_.sku == "2") must be(0)
 
+      root.lineItems.skus.find(_.sku === "1") match {
+        case Some(s) ⇒
+          s.quantity must be(3)
+        case None ⇒
+          assert(false, "Should have found sku 1")
+      }
+
       val allRecords = OrderLineItems.gimme
-      root.lineItems.skus.size must === (allRecords.size)
+      root.lineItems.skus.foldLeft(0)(_ + _.quantity) must === (allRecords.size)
 
       OrderLineItemSkus.gimme.size must === (2)
     }
@@ -70,20 +70,22 @@ class LineItemUpdaterTest
           Payload(sku = "3", quantity = 1)
       )
 
-      val root = LineItemUpdater.updateQuantitiesOnCart(admin, cart.refNum, payload).gimme.result
-      root.lineItems.skus.count(_.sku == "1") must be(3)
+      val root =
+        LineItemUpdater.updateQuantitiesOnCart(storeAdmin, cart.refNum, payload).gimme.result
+      root.lineItems.skus.count(_.sku == "1") must be(1)
       root.lineItems.skus.count(_.sku == "2") must be(0)
       root.lineItems.skus.count(_.sku == "3") must be(1)
 
-      root.lineItems.skus.size must === (OrderLineItems.gimme.size)
+      root.lineItems.skus.find(_.sku === "1") match {
+        case Some(s) ⇒
+          s.quantity must be(3)
+        case None ⇒
+          assert(false, "Should have found sku 1")
+      }
+
+      root.lineItems.skus.foldLeft(0)(_ + _.quantity) must === (OrderLineItems.gimme.size)
     }
   }
 
-  trait Fixture {
-    val (cart, admin) = (for {
-      _     ← * <~ Customers.create(Factories.customer)
-      cart  ← * <~ Carts.create(Factories.cart)
-      admin ← * <~ StoreAdmins.create(Factories.storeAdmin)
-    } yield (cart, admin)).gimme
-  }
+  trait Fixture extends EmptyCustomerCart_Baked with StoreAdmin_Seed
 }

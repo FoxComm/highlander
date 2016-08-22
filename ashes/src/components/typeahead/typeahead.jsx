@@ -10,12 +10,13 @@ import TypeaheadItems from './items';
 import TypeaheadInput from './input';
 import { FormField } from '../forms';
 import Alert from '../alerts/alert';
-import WaitAnimation from '../common/wait-animation';
+import LoadingInputWrapper from '../forms/loading-input-wrapper';
 
 export default class Typeahead extends React.Component {
 
   static propTypes = {
     onBlur: PropTypes.func,
+    onChange: PropTypes.func,
     onItemSelected: PropTypes.func,
     // fetchItems if passed should return promise for results
     fetchItems: PropTypes.func,
@@ -31,6 +32,7 @@ export default class Typeahead extends React.Component {
     inputElement: PropTypes.element,
     minQueryLength: PropTypes.number,
     autoComplete: PropTypes.string,
+    initialValue: PropTypes.string,
   };
 
   static defaultProps = {
@@ -41,16 +43,15 @@ export default class Typeahead extends React.Component {
     placeholder: 'Search',
     minQueryLength: 1,
     autoComplete: 'off',
+    initialValue: '',
   };
 
-  constructor(...args) {
-    super(...args);
-    this.state = {
-      showMenu: false,
-      showAlert: false,
-      query: '',
-    };
-  }
+  state = {
+    active: false,
+    showMenu: false,
+    showAlert: false,
+    query: this.props.initialValue,
+  };
 
   componentWillReceiveProps(nextProps) {
     if (this.props.isFetching && !nextProps.isFetching) {
@@ -79,12 +80,14 @@ export default class Typeahead extends React.Component {
   clearState() {
     this.setState({
       showMenu: false,
-      query: '',
+      query: this.props.initialValue,
     });
   }
 
   @autobind
   onBlur(event) {
+    this.setState({ active: false });
+
     if (this.props.hideOnBlur) {
       this.toggleVisibility(false);
     }
@@ -93,6 +96,8 @@ export default class Typeahead extends React.Component {
 
   @autobind
   onFocus() {
+    this.setState({ active: true });
+
     if (this.state.query.length >= this.props.minQueryLength) {
       this.toggleVisibility(true);
     }
@@ -105,13 +110,13 @@ export default class Typeahead extends React.Component {
     }
   }
 
-  @debounce(500)
+  @debounce(400)
   fetchItems(value) {
     if (value.length < this.props.minQueryLength) {
       return this.toggleAlert(true);
     }
 
-    this.props.fetchItems(value);
+    this._fetchRequest = this.props.fetchItems(value);
   }
 
   @autobind
@@ -122,6 +127,13 @@ export default class Typeahead extends React.Component {
       query: value,
       showAlert: false
     });
+    if (this.props.onChange) {
+      this.props.onChange(value);
+    }
+
+    if (this._fetchRequest && this._fetchRequest.abort) {
+      this._fetchRequest.abort();
+    }
 
     if (value.length === 0) {
       return this.toggleVisibility(false);
@@ -167,7 +179,6 @@ export default class Typeahead extends React.Component {
       clearInputState: this.clearState,
     };
 
-
     if (itemsElement) {
       return React.cloneElement(itemsElement, { ...ourProps, ...clearState });
     } else {
@@ -175,7 +186,7 @@ export default class Typeahead extends React.Component {
         <TypeaheadItems {...ourProps}
           component={this.props.component}
           items={this.props.items}
-          onItemSelected={this.onItemSelected}/>
+          onItemSelected={this.onItemSelected} />
       );
     }
   }
@@ -204,12 +215,8 @@ export default class Typeahead extends React.Component {
     }
   }
 
-  get loader() {
-    return this.props.isFetching ? <WaitAnimation className="fc-typeahead__loader" size="s" /> : null;
-  }
-
   render() {
-    const elementClass = classNames('fc-typeahead', this.props.className);
+    const elementClass = classNames('fc-typeahead', { '_active': this.state.active }, this.props.className);
 
     const menuClass = classNames('fc-typeahead__menu', {
       '_visible': this.state.showMenu
@@ -218,9 +225,10 @@ export default class Typeahead extends React.Component {
     return (
       <div className={elementClass}>
         <FormField className="fc-typeahead__input-group" label={this.props.label}>
-          {this.inputContent}
+          <LoadingInputWrapper inProgress={this.props.isFetching}>
+            {this.inputContent}
+          </LoadingInputWrapper>
         </FormField>
-        {this.loader}
         <div className={menuClass}>
           {this.menuContent}
         </div>

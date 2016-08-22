@@ -12,12 +12,12 @@
 
 .fc-dropdown {
   display: inline-block;
+  position: relative;
   width: 100%;
   max-width: 200px;
   text-align: left;
 
   &__controls {
-    border-radius: 3px;
     overflow: hidden;
     display: flex;
   }
@@ -38,11 +38,11 @@
   &__items {
     display: none;
     position: absolute;
+    width: 100%;
     z-index: 100;
     background-color: @color-white;
     border: 1px solid @color-decor9;
-    border-radius: 3px;
-    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .5);
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .1);
     user-select: none;
     max-height: 50vh;
     overflow: hidden;

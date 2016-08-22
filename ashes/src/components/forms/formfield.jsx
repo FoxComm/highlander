@@ -22,6 +22,7 @@ type FormFieldProps = {
   labelAfterInput?: boolean;
   label?: Element|string;
   validationLabel?: string;
+  requiredMessage?: string;
 };
 
 export default class FormField extends Component {
@@ -189,7 +190,14 @@ export default class FormField extends Component {
         : this.props.validator;
 
     const value = this.getTargetValue();
-    const label = this.props.validationLabel || this.props.label || 'This field';
+    let label = this.props.validationLabel || this.props.label;
+    let requiredMessage = this.props.requiredMessage;
+    if (!label) {
+      label = 'This field';
+      if (!requiredMessage) requiredMessage = `${label} is required`;
+    } else {
+      if (!requiredMessage) requiredMessage = `${label} is a required field`;
+    }
 
     if (value !== void 0 && (!_.isString(value) || value)) {
       if (this.props.maxLength && _.isString(value) && value.length > this.props.maxLength) {
@@ -203,7 +211,7 @@ export default class FormField extends Component {
         }
       }
     } else if ('required' in this.props) {
-      errors = [...errors, `${label} is required field`];
+      errors = [...errors, requiredMessage];
     }
 
     this.setState({
@@ -269,7 +277,11 @@ export default class FormField extends Component {
   }
 
   render() {
-    const className = classNames('fc-form-field', this.props.className);
+    const className = classNames(
+      'fc-form-field',
+      this.props.className,
+      {'_form-field-error': this.hasError}
+    );
     const children = React.cloneElement(this.props.children, {
       key: `fc-form-field-children-${this.props.label}`,
     });

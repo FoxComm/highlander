@@ -1,0 +1,14 @@
+Description=Consul_Mesos Container
+After=docker.service
+Requires=docker.service
+ 
+[Service]
+TimeoutStartSec=0
+Restart=always
+ExecStartPre=-/usr/bin/docker stop consul_mesos
+ExecStartPre=-/usr/bin/docker rm consul_mesos
+ExecStartPre=/usr/bin/docker pull gliderlabs/consul_mesos
+ExecStart=/usr/bin/docker run --rm --name consul_mesos --net=host --volume=/var/run/docker.sock:/tmp/docker.sock ciscocloud/consul-mesos:latest --zk={{ zookeepers }}
+ 
+[Install]
+WantedBy=multi-user.target

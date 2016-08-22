@@ -21,9 +21,17 @@
 }
 
 .toggle-control {
-  cursor: pointer;
   position: relative;
+  height: 61px;
+  width: 50px;
+  margin: -10px -15px;
+  padding: 22px 15px;
+  cursor: pointer;
   font-size: 15px;
+
+  &:hover {
+    background-color: #e5e7e8;
+  }
 }
 
 .row-type {

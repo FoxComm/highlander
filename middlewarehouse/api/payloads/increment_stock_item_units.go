@@ -3,9 +3,10 @@ package payloads
 import "errors"
 
 type IncrementStockItemUnits struct {
-	Qty      int
-	UnitCost int
-	Status   string
+	Qty      int    `json:"qty" binding:"required"`
+	UnitCost int    `json:"unitCost"`
+	Status   string `json:"status"`
+	Type     string `json:"type" binding:"required"`
 }
 
 func (r IncrementStockItemUnits) Validate() error {

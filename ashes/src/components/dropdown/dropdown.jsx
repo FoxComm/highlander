@@ -27,6 +27,7 @@ export default class Dropdown extends Component {
 
   @autobind
   buildInput(value: string|number, title: string, props: Props, handleToggleClick: Function): Element {
+    if (value === null) value = '';
     if (props.editable) {
       return (
         <div className="fc-dropdown__value">

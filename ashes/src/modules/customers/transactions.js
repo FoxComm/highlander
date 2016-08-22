@@ -82,7 +82,7 @@ const searchTerms = [
         term: 'lineItems.name'
       }, {
         title: 'Product SKU',
-        type: 'string',
+        type: 'identifier',
         term: 'lineItems.sku'
       }
     ]

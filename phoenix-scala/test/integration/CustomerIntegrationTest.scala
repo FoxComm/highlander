@@ -1,8 +1,9 @@
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-import Extensions._
 import akka.http.scaladsl.model.StatusCodes
+
+import Extensions._
 import cats.implicits._
 import com.stripe.exception.CardException
 import com.stripe.model.{DeletedExternalAccount, ExternalAccount}
@@ -41,14 +42,13 @@ import utils.db._
 import utils.jdbc._
 import utils.seeds.Seeds.Factories
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
 class CustomerIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
     with AutomaticAuth
     with MockitoSugar
-    with TestActivityContext.AdminAC {
+    with TestActivityContext.AdminAC
+    with BakedFixtures {
 
   "Customer" - {
     "accounts are unique based on email, non-guest, and active" in {
@@ -68,7 +68,7 @@ class CustomerIntegrationTest
   }
 
   "POST /v1/customers" - {
-    "successfully creates customer from payload" in new Fixture {
+    "successfully creates customer from payload" in {
       val response = POST(s"v1/customers",
                           CreateCustomerPayload(email = "test@example.com", name = Some("test")))
 
@@ -79,9 +79,9 @@ class CustomerIntegrationTest
       created.id must === (root.id)
     }
 
-    "fails if email is already in use" in new Fixture {
+    "fails if email is already in use" in new Customer_Seed {
       val response = POST(s"v1/customers",
-                          CreateCustomerPayload(email = customer.email.head, name = Some("test")))
+                          CreateCustomerPayload(email = customer.email.value, name = Some("test")))
 
       response.status must === (StatusCodes.BadRequest)
       response.error must === (CustomerEmailNotUnique.description)
@@ -91,19 +91,14 @@ class CustomerIntegrationTest
   "GET /v1/customers/:customerId" - {
     "fetches customer info" in new Fixture {
       val response     = GET(s"v1/customers/${customer.id}")
-      val customerRoot = CustomerResponse.build(customer, shippingRegion = region)
+      val customerRoot = CustomerResponse.build(customer, shippingRegion = region.some)
 
       response.status must === (StatusCodes.OK)
       response.as[CustomerResponse.Root] must === (customerRoot)
     }
 
     "fetches customer info without default address" in new Fixture {
-      Addresses
-        .filter(_.id === address.id)
-        .map(_.isDefaultShipping)
-        .update(false)
-        .run()
-        .futureValue
+      Addresses.filter(_.id === address.id).map(_.isDefaultShipping).update(false).gimme
       val response     = GET(s"v1/customers/${customer.id}")
       val customerRoot = CustomerResponse.build(customer)
 
@@ -112,20 +107,20 @@ class CustomerIntegrationTest
     }
 
     "customer info shows valid billingRegion" in new CreditCardFixture {
-      val billRegion = Regions.findOneById(creditCard.regionId).run().futureValue
+      val billRegion = Regions.findOneById(creditCard.regionId).gimme
 
       val response = GET(s"v1/customers/${customer.id}")
       val customerRoot =
-        CustomerResponse.build(customer, shippingRegion = region, billingRegion = billRegion)
+        CustomerResponse.build(customer, shippingRegion = region.some, billingRegion = billRegion)
 
       response.status must === (StatusCodes.OK)
       response.as[CustomerResponse.Root] must === (customerRoot)
     }
 
     "customer info shows valid billingRegion without default CreditCard" in new CreditCardFixture {
-      CreditCards.filter(_.id === creditCard.id).map(_.isDefault).update(false).run().futureValue
+      CreditCards.filter(_.id === creditCard.id).map(_.isDefault).update(false).gimme
       val response     = GET(s"v1/customers/${customer.id}")
-      val customerRoot = CustomerResponse.build(customer, shippingRegion = region)
+      val customerRoot = CustomerResponse.build(customer, shippingRegion = region.some)
 
       response.status must === (StatusCodes.OK)
       response.as[CustomerResponse.Root] must === (customerRoot)
@@ -171,10 +166,14 @@ class CustomerIntegrationTest
           customer ← * <~ Customers.create(Factories.customer.copy(phoneNumber = None))
           address  ← * <~ Addresses.create(defaultAddress.copy(customerId = customer.id))
           region   ← * <~ Regions.findOneById(address.regionId)
-          cart1    ← * <~ Carts.create(Factories.cart.copy(referenceNumber = "ABC-1"))
-          order1   ← * <~ Orders.create(cart1.toOrder().copy(state = Order.Shipped))
-          cart2    ← * <~ Carts.create(Factories.cart.copy(referenceNumber = "ABC-2"))
-          order2   ← * <~ Orders.create(cart2.toOrder().copy(state = Order.Shipped))
+          cart1    ← * <~ Carts.create(Cart(referenceNumber = "ABC-1", customerId = customer.id))
+          order1   ← * <~ Orders.createFromCart(cart1)
+          order1   ← * <~ Orders.update(order1, order1.copy(state = Order.FulfillmentStarted))
+          order1   ← * <~ Orders.update(order1, order1.copy(state = Order.Shipped))
+          cart2    ← * <~ Carts.create(Cart(referenceNumber = "ABC-2", customerId = customer.id))
+          order2   ← * <~ Orders.createFromCart(cart2)
+          order2   ← Orders.update(order2, order2.copy(state = Order.FulfillmentStarted))
+          order2   ← Orders.update(order2, order2.copy(state = Order.Shipped))
           orders = Seq(order1, order2)
           addresses ← * <~ shippingAddresses(orders.zip(phoneNumbers)).map(a ⇒
                            OrderShippingAddresses.create(a))
@@ -206,11 +205,9 @@ class CustomerIntegrationTest
       }
     }
 
-    "fetches customer info with lastOrderDays value" in new Fixture {
-      val cart  = Carts.create(Factories.cart.copy(customerId = customer.id)).gimme
-      val order = Orders.create(cart.toOrder()).gimme
+    "fetches customer info with lastOrderDays value" in new Order_Baked {
       val expectedCustomer =
-        CustomerResponse.build(customer, shippingRegion = region, lastOrderDays = Some(0))
+        CustomerResponse.build(customer, shippingRegion = region.some, lastOrderDays = Some(0))
 
       val response = GET(s"v1/customers/${customer.id}")
       response.status must === (StatusCodes.OK)
@@ -234,13 +231,13 @@ class CustomerIntegrationTest
         sqlu"UPDATE orders SET state = 'shipped' WHERE reference_number = ${order.refNum}"
           .run()
           .futureValue
-        sqlu"UPDATE rmas SET state = 'complete' WHERE id = ${orderPayment.id}".run().futureValue
+        sqlu"UPDATE rmas SET state = 'complete' WHERE id = ${orderPayment.id}".gimme
 
         val response = GET(s"v1/customers/${customer.id}")
         response.status must === (StatusCodes.OK)
         response.as[CustomerResponse.Root].rank must === (Some(2))
-        val rank  = CustomersRanks.findById(customer.id).extract.result.head.run().futureValue
-        val rank2 = CustomersRanks.findById(customer2.id).extract.result.head.run().futureValue
+        val rank  = CustomersRanks.findById(customer.id).extract.result.head.gimme
+        val rank2 = CustomersRanks.findById(customer2.id).extract.result.head.gimme
         rank.revenue must === (63)
         rank2.revenue must === (100)
         rank2.rank must === (1)
@@ -249,7 +246,7 @@ class CustomerIntegrationTest
   }
 
   "GET /v1/customers/:customerId/cart" - {
-    "returns customer cart" in new CartFixture {
+    "returns customer cart" in new EmptyCustomerCart_Baked {
       val response = GET(s"v1/customers/${customer.id}/cart")
       response.status must === (StatusCodes.OK)
 
@@ -268,7 +265,7 @@ class CustomerIntegrationTest
       Carts.findByCustomer(customer).gimme must have size 1
     }
 
-    "returns 404 if customer not found" in new CartFixture {
+    "returns 404 if customer not found" in new EmptyCustomerCart_Baked {
       val response = GET(s"v1/customers/999/cart")
       response.status must === (StatusCodes.NotFound)
       response.error must === (NotFoundFailure404(Customer, 999).description)
@@ -335,7 +332,7 @@ class CustomerIntegrationTest
       val response = POST(s"v1/customers/${root.id}/activate", payload)
       response.status must === (StatusCodes.OK)
 
-      val created = Customers.findOneById(root.id).run().futureValue.value
+      val created = Customers.findOneById(root.id).gimme.value
       CustomerResponse.build(created) must === (root.copy(name = Some("test"), isGuest = false))
       created.isGuest must === (false)
     }
@@ -410,7 +407,7 @@ class CustomerIntegrationTest
 
       val response = GET(s"v1/customers/${customer.id}/payment-methods/credit-cards")
       val cc       = response.as[Seq[CardResponse]]
-      val ccRegion = Regions.findOneById(creditCard.regionId).run().futureValue.value
+      val ccRegion = Regions.findOneById(creditCard.regionId).gimme.value
 
       response.status must === (StatusCodes.OK)
       cc must have size 1
@@ -421,7 +418,7 @@ class CustomerIntegrationTest
 
   "POST /v1/customers/:customerId/payment-methods/credit-cards/:creditCardId/default" - {
     "sets the isDefault flag on a credit card" in new CreditCardFixture {
-      CreditCards.filter(_.id === creditCard.id).map(_.isDefault).update(false).run().futureValue
+      CreditCards.filter(_.id === creditCard.id).map(_.isDefault).update(false).gimme
 
       val payload = ToggleDefaultCreditCard(isDefault = true)
       val response =
@@ -447,8 +444,8 @@ class CustomerIntegrationTest
         POST(s"v1/customers/${customer.id}/payment-methods/credit-cards/${nonDefault.id}/default",
              payload)
 
-      val (prevDefault, currDefault) = (CreditCards.refresh(default).run().futureValue,
-                                        CreditCards.refresh(nonDefault).run().futureValue)
+      val (prevDefault, currDefault) =
+        (CreditCards.refresh(default).gimme, CreditCards.refresh(nonDefault).gimme)
 
       response.status must === (StatusCodes.OK)
       val ccResp = response.as[CardResponse]
@@ -471,17 +468,16 @@ class CustomerIntegrationTest
     "deletes successfully if the card exists" in new CreditCardFixture {
       reset(stripeApiMock)
 
-      when(stripeApiMock.findCustomer(m.any(), m.any()))
-        .thenReturn(Result.good(new StripeCustomer))
+      when(stripeApiMock.findCustomer(m.any())).thenReturn(Result.good(new StripeCustomer))
 
-      when(stripeApiMock.findDefaultCard(m.any(), m.any())).thenReturn(Result.good(new StripeCard))
+      when(stripeApiMock.findDefaultCard(m.any())).thenReturn(Result.good(new StripeCard))
 
-      when(stripeApiMock.deleteExternalAccount(m.any(), m.any()))
+      when(stripeApiMock.deleteExternalAccount(m.any()))
         .thenReturn(Result.good(new DeletedExternalAccount))
 
       val response =
         DELETE(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}")
-      val deleted = CreditCards.findOneById(creditCard.id).run().futureValue.value
+      val deleted = CreditCards.findOneById(creditCard.id).gimme.value
 
       response.status must === (StatusCodes.NoContent)
       deleted.inWallet must === (false)
@@ -494,20 +490,18 @@ class CustomerIntegrationTest
       "removes the original card from wallet" in new CreditCardFixture {
         reset(stripeApiMock)
 
-        when(stripeApiMock.findCustomer(m.any(), m.any()))
-          .thenReturn(Result.good(new StripeCustomer))
+        when(stripeApiMock.findCustomer(m.any())).thenReturn(Result.good(new StripeCustomer))
 
-        when(stripeApiMock.findDefaultCard(m.any(), m.any()))
-          .thenReturn(Result.good(new StripeCard))
+        when(stripeApiMock.findDefaultCard(m.any())).thenReturn(Result.good(new StripeCard))
 
-        when(stripeApiMock.updateExternalAccount(m.any(), m.any(), m.any()))
+        when(stripeApiMock.updateExternalAccount(m.any(), m.any()))
           .thenReturn(Result.good(new StripeCard))
 
         val payload = EditCreditCard(holderName = Some("Bob"))
         val response =
           PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}",
                 payload)
-        val inactive = CreditCards.findOneById(creditCard.id).run().futureValue.value
+        val inactive = CreditCards.findOneById(creditCard.id).gimme.value
 
         response.status must === (StatusCodes.OK)
 
@@ -519,13 +513,11 @@ class CustomerIntegrationTest
       "creates a new version of the edited card in the wallet" in new CreditCardFixture {
         reset(stripeApiMock)
 
-        when(stripeApiMock.findCustomer(m.any(), m.any()))
-          .thenReturn(Result.good(new StripeCustomer))
+        when(stripeApiMock.findCustomer(m.any())).thenReturn(Result.good(new StripeCustomer))
 
-        when(stripeApiMock.findDefaultCard(m.any(), m.any()))
-          .thenReturn(Result.good(new StripeCard))
+        when(stripeApiMock.findDefaultCard(m.any())).thenReturn(Result.good(new StripeCard))
 
-        when(stripeApiMock.updateExternalAccount(m.any(), m.any(), m.any()))
+        when(stripeApiMock.updateExternalAccount(m.any(), m.any()))
           .thenReturn(Result.good(new StripeCard))
 
         val payload = EditCreditCard(holderName = Some("Bob"))
@@ -542,26 +534,22 @@ class CustomerIntegrationTest
       "updates the customer's cart to use the new version" in new CreditCardFixture {
         reset(stripeApiMock)
 
-        when(stripeApiMock.findCustomer(m.any(), m.any()))
-          .thenReturn(Result.good(new StripeCustomer))
+        when(stripeApiMock.findCustomer(m.any())).thenReturn(Result.good(new StripeCustomer))
 
-        when(stripeApiMock.findDefaultCard(m.any(), m.any()))
-          .thenReturn(Result.good(new StripeCard))
+        when(stripeApiMock.findDefaultCard(m.any())).thenReturn(Result.good(new StripeCard))
 
-        when(stripeApiMock.updateExternalAccount(m.any(), m.any(), m.any()))
+        when(stripeApiMock.updateExternalAccount(m.any(), m.any()))
           .thenReturn(Result.good(mock[StripeCard]))
 
-        val order = Carts.create(Factories.cart.copy(customerId = customer.id)).gimme
         CartPaymentUpdater
-          .addCreditCard(Originator(admin), creditCard.id, Some(order.refNum))
+          .addCreditCard(Originator(storeAdmin), creditCard.id, Some(cart.refNum))
           .gimme
 
         val payload = EditCreditCard(holderName = Some("Bob"))
         val response =
           PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}",
                 payload)
-        val (pmt :: Nil) =
-          OrderPayments.filter(_.cordRef === order.refNum).creditCards.gimme.toList
+        val (pmt :: Nil)        = OrderPayments.filter(_.cordRef === cart.refNum).creditCards.gimme.toList
         val (newVersion :: Nil) = CreditCards.filter(_.parentId === creditCard.id).gimme.toList
 
         response.status must === (StatusCodes.OK)
@@ -587,13 +575,11 @@ class CustomerIntegrationTest
       "creates a new address book entry if a full address was given" in new CreditCardFixture {
         reset(stripeApiMock)
 
-        when(stripeApiMock.findCustomer(m.any(), m.any()))
-          .thenReturn(Result.good(new StripeCustomer))
+        when(stripeApiMock.findCustomer(m.any())).thenReturn(Result.good(new StripeCustomer))
 
-        when(stripeApiMock.findDefaultCard(m.any(), m.any()))
-          .thenReturn(Result.good(new StripeCard))
+        when(stripeApiMock.findDefaultCard(m.any())).thenReturn(Result.good(new StripeCard))
 
-        when(stripeApiMock.updateExternalAccount(m.any(), m.any(), m.any()))
+        when(stripeApiMock.updateExternalAccount(m.any(), m.any()))
           .thenReturn(Result.good(mock[StripeCard]))
 
         val payload = EditCreditCard(holderName = Some("Bob"),
@@ -629,18 +615,17 @@ class CustomerIntegrationTest
     "fails if the card is not inWallet" in new CreditCardFixture {
       reset(stripeApiMock)
 
-      when(stripeApiMock.findCustomer(m.any(), m.any()))
-        .thenReturn(Result.good(new StripeCustomer))
+      when(stripeApiMock.findCustomer(m.any())).thenReturn(Result.good(new StripeCustomer))
 
-      when(stripeApiMock.findDefaultCard(m.any(), m.any())).thenReturn(Result.good(new StripeCard))
+      when(stripeApiMock.findDefaultCard(m.any())).thenReturn(Result.good(new StripeCard))
 
-      when(stripeApiMock.updateExternalAccount(m.any(), m.any(), m.any()))
+      when(stripeApiMock.updateExternalAccount(m.any(), m.any()))
         .thenReturn(Result.good(new ExternalAccount))
 
-      when(stripeApiMock.deleteExternalAccount(m.any(), m.any()))
+      when(stripeApiMock.deleteExternalAccount(m.any()))
         .thenReturn(Result.good(new DeletedExternalAccount))
 
-      CreditCardManager.deleteCreditCard(customer.id, creditCard.id, Some(admin)).gimme
+      CreditCardManager.deleteCreditCard(customer.id, creditCard.id, Some(storeAdmin)).gimme
 
       val response =
         PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}",
@@ -663,10 +648,9 @@ class CustomerIntegrationTest
     "fails if stripe returns an error" in new CreditCardFixture {
       reset(stripeApiMock)
 
-      when(stripeApiMock.findCustomer(m.any(), m.any()))
-        .thenReturn(Result.good(new StripeCustomer))
+      when(stripeApiMock.findCustomer(m.any())).thenReturn(Result.good(new StripeCustomer))
 
-      when(stripeApiMock.findDefaultCard(m.any(), m.any())).thenReturn(Result.good(new StripeCard))
+      when(stripeApiMock.findDefaultCard(m.any())).thenReturn(Result.good(new StripeCard))
 
       val exception = new CardException("Your card's expiration year is invalid",
                                         "X_REQUEST_ID: 1",
@@ -676,7 +660,7 @@ class CustomerIntegrationTest
                                         null,
                                         null,
                                         null)
-      when(stripeApiMock.updateExternalAccount(m.any(), m.any(), m.any()))
+      when(stripeApiMock.updateExternalAccount(m.any(), m.any()))
         .thenReturn(Result.failure(StripeFailure(exception)))
 
       val payload = EditCreditCard(expYear = Some(2000))
@@ -689,36 +673,24 @@ class CustomerIntegrationTest
     }
   }
 
-  trait Fixture {
-    val (customer, address, region, admin) = (for {
-      customer ← * <~ Customers.create(Factories.customer)
-      address  ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
-      region   ← * <~ Regions.findOneById(address.regionId)
-      admin    ← * <~ StoreAdmins.create(authedStoreAdmin)
-    } yield (customer, address, region, admin)).gimme
-  }
+  trait Fixture extends CustomerAddress_Baked with StoreAdmin_Seed
 
-  trait CreditCardFixture extends Fixture {
+  trait CreditCardFixture extends Fixture with EmptyCustomerCart_Baked {
     val creditCard = CreditCards.create(Factories.creditCard.copy(customerId = customer.id)).gimme
   }
 
-  trait CartFixture extends Fixture {
-    val cart = Carts
-      .create(Factories.cart.copy(customerId = customer.id, referenceNumber = "ABC-123"))
-      .gimme
-  }
-
-  trait FixtureForRanking extends CreditCardFixture {
+  trait FixtureForRanking extends EmptyCustomerCart_Baked with CreditCardFixture {
     val (order, orderPayment, customer2) = (for {
       customer2 ← * <~ Customers.create(
                      Factories.customer.copy(email = "second@example.org".some,
                                              name = "second".some))
-      cart ← * <~ Carts.create(
-                Factories.cart.copy(customerId = customer.id, referenceNumber = "ABC-123"))
-      cart2 ← * <~ Carts.create(
-                 Factories.cart.copy(customerId = customer2.id, referenceNumber = "ABC-456"))
-      order  ← * <~ Orders.create(cart.toOrder().copy(state = Order.Shipped))
-      order2 ← * <~ Orders.create(cart2.toOrder().copy(state = Order.Shipped))
+      cart2  ← * <~ Carts.create(Cart(customerId = customer2.id, referenceNumber = "ABC-456"))
+      order  ← * <~ Orders.createFromCart(cart)
+      order  ← * <~ Orders.update(order, order.copy(state = Order.FulfillmentStarted))
+      order  ← * <~ Orders.update(order, order.copy(state = Order.Shipped))
+      order2 ← * <~ Orders.createFromCart(cart2)
+      order2 ← * <~ Orders.update(order2, order2.copy(state = Order.FulfillmentStarted))
+      order2 ← * <~ Orders.update(order2, order2.copy(state = Order.Shipped))
       orderPayment ← * <~ OrderPayments.create(
                         Factories.orderPayment.copy(cordRef = order.refNum,
                                                     paymentMethodId = creditCard.id,

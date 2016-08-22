@@ -27,3 +27,24 @@ export function activeStatus(object: Object): string {
   return isActive(activeFrom, activeTo) ? 'Active' : 'Inactive';
 }
 
+export function isArchived(object: Object): boolean {
+  const now = moment();
+  let archivedAt = _.get(object, 'archivedAt');
+  archivedAt = archivedAt ? moment.utc(archivedAt) : null;
+  return now.diff(archivedAt) > 0;
+}
+
+export const SAVE_COMBO = {
+  NEW: 'save_and_new',
+  DUPLICATE: 'save_and_duplicate',
+  CLOSE: 'save_and_close',
+};
+
+type SaveComboItems = Array<Array<string>>;
+
+export const SAVE_COMBO_ITEMS: SaveComboItems = [
+  [SAVE_COMBO.NEW, 'Save and Create New'],
+  [SAVE_COMBO.DUPLICATE, 'Save and Duplicate'],
+  [SAVE_COMBO.CLOSE, 'Save and Close'],
+];
+

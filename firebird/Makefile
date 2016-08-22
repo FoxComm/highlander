@@ -5,9 +5,13 @@ setup:
 
 build: setup
 	gulp build
-
-package: build
 	touch firebird.tar.bz2
 	tar --exclude 'firebird.tar.bz2' -jcf firebird.tar.bz2 ./
 
-.PHONY: setup build package
+clean:
+	rm -rf ./node_modules
+
+test:
+	npm test
+
+.PHONY: setup build package test

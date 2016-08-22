@@ -1,16 +1,19 @@
-import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
 import failures.InvalidReasonTypeFailure
 import models.returns.ReturnReasons
-import models.{Reason, Reasons, StoreAdmins}
-import util.IntegrationTestBase
+import models.{Reason, Reasons}
+import util._
 import utils.Strings._
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class ReasonsIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
+class ReasonsIntegrationTest
+    extends IntegrationTestBase
+    with HttpSupport
+    with AutomaticAuth
+    with BakedFixtures {
 
   "Reasons" - {
 
@@ -34,9 +37,8 @@ class ReasonsIntegrationTest extends IntegrationTestBase with HttpSupport with A
     }
   }
 
-  trait Fixture {
+  trait Fixture extends StoreAdmin_Seed {
     val (reason, returnReason) = (for {
-      storeAdmin ← * <~ StoreAdmins.create(Factories.storeAdmin)
       reason ← * <~ Reasons.create(
                   Factories.reasons.head.copy(reasonType = Reason.GiftCardCreation,
                                               storeAdminId = storeAdmin.id))

@@ -22,7 +22,7 @@ case class CartResponse(referenceNumber: String,
                         totals: CordResponseTotals,
                         customer: Option[CustomerResponse.Root] = None,
                         shippingMethod: Option[ShippingMethodsResponse.Root] = None,
-                        shippingAddress: Option[Addresses.Root] = None,
+                        shippingAddress: Option[AddressResponse] = None,
                         paymentMethods: Seq[CordResponsePayments] = Seq.empty,
                         // Cart-specific
                         lockedBy: Option[StoreAdmin] = None)
@@ -35,8 +35,8 @@ object CartResponse {
 
   def fromCart(cart: Cart)(implicit db: DB, ec: EC, ctx: OC): DbResultT[CartResponse] =
     for {
-      lineItems      ← * <~ CordResponseLineItems.fetch(cart.refNum)
       lineItemAdj    ← * <~ CordResponseLineItemAdjustments.fetch(cart.refNum)
+      lineItems      ← * <~ CordResponseLineItems.fetch(cart.refNum, lineItemAdj)
       promo          ← * <~ CordResponsePromotions.fetch(cart.refNum)
       customer       ← * <~ Customers.findOneById(cart.customerId)
       shippingMethod ← * <~ CordResponseShipping.shippingMethod(cart.refNum)

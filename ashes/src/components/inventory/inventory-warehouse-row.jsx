@@ -5,16 +5,22 @@ import _ from 'lodash';
 
 // components
 import ExpandableRow from '../table/expandable-row';
-import Table from '../table/table';
-import WarehouseDrawer from './inventory-warehouse-drawer';
+
+import type { WarehouseInventorySummary } from 'modules/inventory/warehouses';
 
 const setCellContents = (warehouse, field, params) => {
   return _.get(warehouse, field);
 };
 
-const InventoryWarehouseRow = props => {
+type Props = {
+  warehouse: WarehouseInventorySummary,
+  columns: Array<any>,
+  params: Object,
+}
+
+const InventoryWarehouseRow = (props: Props) => {
   const { warehouse, columns, params } = props;
-  const key = `inventory-list-${warehouse.id}`;
+  const key = `inventory-list-${warehouse.stockLocation.id}`;
 
   return (
     <ExpandableRow
@@ -22,14 +28,9 @@ const InventoryWarehouseRow = props => {
       columns={columns}
       row={warehouse}
       params={params}
-      setCellContents={setCellContents} />
+      setCellContents={setCellContents}
+    />
   );
-};
-
-InventoryWarehouseRow.propTypes = {
-  warehouse: PropTypes.object.isRequired,
-  columns: PropTypes.array.isRequired,
-  params: PropTypes.object.isRequired,
 };
 
 export default InventoryWarehouseRow;

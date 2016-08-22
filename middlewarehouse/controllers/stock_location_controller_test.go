@@ -12,7 +12,6 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
@@ -33,8 +32,6 @@ func (suite *stockLocationControllerTestSuite) SetupSuite() {
 
 	controller := NewStockLocationController(suite.service)
 	controller.SetUp(suite.router.Group("/stock-locations"))
-
-	suite.assert = assert.New(suite.T())
 }
 
 func (suite *stockLocationControllerTestSuite) TearDownTest() {
@@ -51,12 +48,12 @@ func (suite *stockLocationControllerTestSuite) Test_GetLocations() {
 	suite.service.On("GetLocations").Return(models, nil).Once()
 
 	result := []responses.StockLocation{}
-	response := suite.Get("/stock-locations/", &result)
+	response := suite.Get("/stock-locations", &result)
 
-	suite.assert.Equal(http.StatusOK, response.Code)
-	suite.assert.Equal(2, len(result))
-	suite.assert.Equal(models[0].Name, result[0].Name)
-	suite.assert.Equal(models[1].Name, result[1].Name)
+	suite.Equal(http.StatusOK, response.Code)
+	suite.Equal(2, len(result))
+	suite.Equal(models[0].Name, result[0].Name)
+	suite.Equal(models[1].Name, result[1].Name)
 	suite.service.AssertExpectations(suite.T())
 }
 
@@ -64,19 +61,19 @@ func (suite *stockLocationControllerTestSuite) Test_GetLocations_Empty() {
 	suite.service.On("GetLocations").Return([]*models.StockLocation{}, nil).Once()
 
 	result := []responses.StockLocation{}
-	response := suite.Get("/stock-locations/", &result)
+	response := suite.Get("/stock-locations", &result)
 
-	suite.assert.Equal(http.StatusOK, response.Code)
-	suite.assert.Equal(0, len(result))
+	suite.Equal(http.StatusOK, response.Code)
+	suite.Equal(0, len(result))
 	suite.service.AssertExpectations(suite.T())
 }
 
 func (suite *stockLocationControllerTestSuite) Test_GetLocations_Error() {
 	suite.service.On("GetLocations").Return(nil, errors.New("Error")).Once()
 
-	response := suite.Get("/stock-locations/")
+	response := suite.Get("/stock-locations")
 
-	suite.assert.Equal(http.StatusInternalServerError, response.Code)
+	suite.Equal(http.StatusInternalServerError, response.Code)
 	suite.service.AssertExpectations(suite.T())
 }
 
@@ -88,8 +85,8 @@ func (suite *stockLocationControllerTestSuite) Test_GetLocationByID() {
 	response := suite.Get("/stock-locations/1", &result)
 
 	//assert
-	suite.assert.Equal(http.StatusOK, response.Code)
-	suite.assert.Equal(model.Name, result.Name)
+	suite.Equal(http.StatusOK, response.Code)
+	suite.Equal(model.Name, result.Name)
 	suite.service.AssertExpectations(suite.T())
 }
 
@@ -98,7 +95,7 @@ func (suite *stockLocationControllerTestSuite) Test_GetLocationByID_NotFound() {
 
 	response := suite.Get("/stock-locations/1")
 
-	suite.assert.Equal(http.StatusNotFound, response.Code)
+	suite.Equal(http.StatusNotFound, response.Code)
 	suite.service.AssertExpectations(suite.T())
 }
 
@@ -107,7 +104,7 @@ func (suite *stockLocationControllerTestSuite) Test_GetLocationByID_Error() {
 
 	response := suite.Get("/stock-locations/1")
 
-	suite.assert.Equal(http.StatusBadRequest, response.Code)
+	suite.Equal(http.StatusBadRequest, response.Code)
 	suite.service.AssertExpectations(suite.T())
 }
 
@@ -117,10 +114,10 @@ func (suite *stockLocationControllerTestSuite) Test_CreateLocation() {
 
 	result := &responses.StockLocation{}
 	jsonStr := fmt.Sprintf(`{"name":"%s","type":"%s"}`, model.Name, model.Type)
-	response := suite.Post("/stock-locations/", jsonStr, &result)
+	response := suite.Post("/stock-locations", jsonStr, &result)
 
-	suite.assert.Equal(http.StatusCreated, response.Code)
-	suite.assert.Equal(model.Name, result.Name)
+	suite.Equal(http.StatusCreated, response.Code)
+	suite.Equal(model.Name, result.Name)
 	suite.service.AssertExpectations(suite.T())
 }
 
@@ -129,9 +126,9 @@ func (suite *stockLocationControllerTestSuite) Test_CreateLocation_Error() {
 	suite.service.On("CreateLocation", model).Return(nil, errors.New("Error")).Once()
 
 	jsonStr := fmt.Sprintf(`{"name":"%s","type":"%s"}`, model.Name, model.Type)
-	response := suite.Post("/stock-locations/", jsonStr)
+	response := suite.Post("/stock-locations", jsonStr)
 
-	suite.assert.Equal(http.StatusBadRequest, response.Code)
+	suite.Equal(http.StatusBadRequest, response.Code)
 	suite.service.AssertExpectations(suite.T())
 }
 
@@ -143,8 +140,8 @@ func (suite *stockLocationControllerTestSuite) Test_UpdateLocation() {
 	jsonStr := fmt.Sprintf(`{"name":"%s","type":"%s"}`, model.Name, model.Type)
 	response := suite.Put("/stock-locations/0", jsonStr, &result)
 
-	suite.assert.Equal(http.StatusOK, response.Code)
-	suite.assert.Equal(model.Name, result.Name)
+	suite.Equal(http.StatusOK, response.Code)
+	suite.Equal(model.Name, result.Name)
 	suite.service.AssertExpectations(suite.T())
 }
 
@@ -155,7 +152,7 @@ func (suite *stockLocationControllerTestSuite) Test_UpdateLocation_NotFound() {
 	jsonStr := fmt.Sprintf(`{"name":"%s","type":"%s"}`, model.Name, model.Type)
 	response := suite.Put("/stock-locations/0", jsonStr)
 
-	suite.assert.Equal(http.StatusNotFound, response.Code)
+	suite.Equal(http.StatusNotFound, response.Code)
 	suite.service.AssertExpectations(suite.T())
 }
 
@@ -164,7 +161,7 @@ func (suite *stockLocationControllerTestSuite) Test_DeleteLocation() {
 
 	response := suite.Delete("/stock-locations/1")
 
-	suite.assert.Equal(http.StatusNoContent, response.Code)
+	suite.Equal(http.StatusNoContent, response.Code)
 	suite.service.AssertExpectations(suite.T())
 }
 
@@ -173,6 +170,6 @@ func (suite *stockLocationControllerTestSuite) Test_DeleteLocation_NotFound() {
 
 	response := suite.Delete("/stock-locations/1")
 
-	suite.assert.Equal(http.StatusNotFound, response.Code)
+	suite.Equal(http.StatusNotFound, response.Code)
 	suite.service.AssertExpectations(suite.T())
 }

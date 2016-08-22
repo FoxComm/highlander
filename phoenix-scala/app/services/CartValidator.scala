@@ -31,7 +31,7 @@ case class CartValidator(cart: Cart)(implicit ec: EC) extends CartValidation {
       state ← validShipMethod(state)
       state ← sufficientPayments(state, isCheckout)
     } yield state
-    if (fatalWarnings)
+    if (fatalWarnings) {
       validationResult.toXor.flatMap { validatorResponse ⇒
         validatorResponse.warnings match {
           case Some(warnings) ⇒
@@ -39,7 +39,10 @@ case class CartValidator(cart: Cart)(implicit ec: EC) extends CartValidation {
           case _ ⇒
             DbResultT.good(validatorResponse)
         }
-      } else DbResultT.fromDbio(validationResult)
+      }
+    } else {
+      DbResultT.fromDbio(validationResult)
+    }
   }
 
   private def hasItems(response: CartValidatorResponse): DBIO[CartValidatorResponse] = {
@@ -117,7 +120,7 @@ case class CartValidator(cart: Cart)(implicit ec: EC) extends CartValidation {
       }
     }
 
-    if (cart.grandTotal > 0) {
+    if (cart.grandTotal > 0 || cart.subTotal > 0) {
       OrderPayments
         .findAllByCordRef(cart.refNum)
         .result

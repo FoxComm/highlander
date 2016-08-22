@@ -3,7 +3,8 @@ package payloads
 import "errors"
 
 type DecrementStockItemUnits struct {
-	Qty int
+	Qty  int    `json:"qty" binding:"required"`
+	Type string `json:"type" binding:"required"`
 }
 
 func (r DecrementStockItemUnits) Validate() error {

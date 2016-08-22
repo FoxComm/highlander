@@ -4,6 +4,7 @@
 	"account_file": "foxcomm-vanilla.json",
 	"variables_file": "vanilla_ansible.json",
 	"stage_variables_file": "vanilla_stage_ansible.json",
+	"key_variables_file": "vanilla_keys.json",
 	"project_id": "foxcommerce-production-shared",
 	"network": "vanilla",
 	"zone": "us-central1-a",

@@ -35,6 +35,19 @@ const Navigation = props => {
           </NavigationItem>
         </li>
         <li>
+          <NavigationItem to="carts"
+                          icon="icon-orders"
+                          title="Carts"
+                          isIndex={true}
+                          isExpandable={true}
+                          routes={props.routes}
+                          collapsed={props.collapsed}
+                          status={getMenuItemState(props, 'carts')}
+                          toggleMenuItem={props.toggleMenuItem} >
+            <IndexLink to="carts" className="fc-navigation-item__sublink">Lists</IndexLink>
+          </NavigationItem>
+        </li>
+        <li>
           <NavigationItem to="orders"
                           icon="icon-orders"
                           title="Orders"

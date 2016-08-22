@@ -23,24 +23,24 @@ trait Offer extends DiscountBase {
 
   // Returns single line item adjustment for now
   def build(input: DiscountInput,
-            substract: Int,
+            subtract: Int,
             lineItemRefNum: Option[String] = None): OrderLineItemAdjustment =
     OrderLineItemAdjustment(cordRef = input.cart.refNum,
                             promotionShadowId = input.promotion.id,
                             adjustmentType = adjustmentType,
-                            substract = substract,
+                            subtract = subtract,
                             lineItemRefNum = lineItemRefNum)
 
   def buildXor(
       input: DiscountInput,
-      substract: Int,
+      subtract: Int,
       lineItemRefNum: Option[String] = None): Xor[Failures, Seq[OrderLineItemAdjustment]] =
-    Xor.Right(Seq(build(input, substract, lineItemRefNum)))
+    Xor.Right(Seq(build(input, subtract, lineItemRefNum)))
 
   def buildResult(input: DiscountInput,
-                  substract: Int,
+                  subtract: Int,
                   lineItemRefNum: Option[String] = None): OfferResult =
-    Result.good(Seq(build(input, substract, lineItemRefNum)))
+    Result.good(Seq(build(input, subtract, lineItemRefNum)))
 
   def pureResult(): Result[Seq[OrderLineItemAdjustment]]     = Result.good(Seq.empty)
   def pureXor(): Xor[Failures, Seq[OrderLineItemAdjustment]] = Xor.Left(SearchFailure.single)
@@ -52,24 +52,24 @@ object Offer {
 }
 
 /**
-  * Offers that substract amount from base price
+  * Offers that subtract amount from base price
   */
 trait AmountOffer {
 
-  // If discount amount is bigger than price - substract price, otherwise substract discount
-  def substract(price: Int, discount: Int): Int = {
+  // If discount amount is bigger than price - subtract price, otherwise subtract discount
+  def subtract(price: Int, discount: Int): Int = {
     val delta = price - discount
     if (delta > 0) discount else price
   }
 }
 
 /**
-  * Offers that substract percent from base price
+  * Offers that subtract percent from base price
   */
 trait PercentOffer {
 
   // Ceiling will give a discount bigger by one penny
-  def substract(price: Int, discount: Int): Int = Math.ceil((price * discount) / 100.0d).toInt
+  def subtract(price: Int, discount: Int): Int = Math.ceil((price * discount) / 100.0d).toInt
 }
 
 /**
@@ -77,8 +77,8 @@ trait PercentOffer {
   */
 trait SetOffer {
 
-  // If set value is bigger than price - substract price, otherwise substract delta to reach desired set value
-  def substract(price: Int, setPrice: Int): Int = {
+  // If set value is bigger than price - subtract price, otherwise subtract delta to reach desired set value
+  def subtract(price: Int, setPrice: Int): Int = {
     val delta = price - setPrice
     if (delta > 0) delta else price
   }

@@ -1,26 +1,25 @@
 package services
 
 import cats.implicits._
+import models.cord.lineitems._
+import models.cord.{Carts, OrderShippingAddresses}
 import models.customer.Customers
 import models.location.Addresses
 import models.objects._
-import models.cord.lineitems._
-import models.cord.{Carts, OrderShippingAddresses}
 import models.product.{Mvp, SimpleContext}
 import models.rules.QueryStatement
 import models.shipping.ShippingMethods
 import services.ShippingManager.getShippingMethodsForCart
 import services.carts.CartTotaler
-import util.{IntegrationTestBase, TestObjectContext}
+import util._
 import utils._
 import utils.db.ExPostgresDriver.api._
 import utils.db.ExPostgresDriver.jsonMethods._
 import utils.db._
 import utils.seeds.Seeds.Factories
 import utils.seeds.ShipmentSeeds
-import concurrent.ExecutionContext.Implicits.global
 
-class ShippingManagerTest extends IntegrationTestBase with TestObjectContext {
+class ShippingManagerTest extends IntegrationTestBase with TestObjectContext with BakedFixtures {
 
   implicit val formats = JsonFormatters.phoenixFormats
 
@@ -145,12 +144,10 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext {
     }
   }
 
-  trait Fixture {
-    val (productContext, customer, cart) = (for {
-      productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-      customer       ← * <~ Customers.create(Factories.customer)
-      cart           ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
-      product ← * <~ Mvp.insertProduct(productContext.id,
+  trait Fixture extends Customer_Seed {
+    val cart = (for {
+      cart ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
+      product ← * <~ Mvp.insertProduct(ctx.id,
                                        Factories.products.head.copy(title = "Donkey", price = 27))
       lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(product.skuId)
       lineItem ← * <~ OrderLineItems.create(
@@ -159,7 +156,7 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext {
                                   originType = OrderLineItem.SkuItem))
 
       cart ← * <~ CartTotaler.saveTotals(cart)
-    } yield (productContext, customer, cart)).gimme
+    } yield cart).gimme
 
     val californiaId = 4129
     val michiganId   = 4148

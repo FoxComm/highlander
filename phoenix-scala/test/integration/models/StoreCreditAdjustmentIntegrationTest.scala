@@ -1,17 +1,17 @@
 package models
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
-import models.customer.Customers
-import models.cord.{OrderPayments, Carts}
+import models.cord.OrderPayments
 import models.payment.storecredit._
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import org.scalatest.prop.Tables.Table
-import util.IntegrationTestBase
+import util._
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
+class StoreCreditAdjustmentIntegrationTest
+    extends IntegrationTestBase
+    with BakedFixtures
+    with TestObjectContext {
 
   import api._
 
@@ -19,7 +19,7 @@ class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
     "debit must be greater than zero" in new Fixture {
       val (sc, payment) = (for {
         origin ← * <~ StoreCreditManuals.create(
-                    StoreCreditManual(adminId = admin.id, reasonId = reason.id))
+                    StoreCreditManual(adminId = storeAdmin.id, reasonId = reason.id))
         sc ← * <~ StoreCredits.create(
                 Factories.storeCredit.copy(originId = origin.id, customerId = customer.id))
         payment ← * <~ OrderPayments.create(Factories.giftCardPayment
@@ -41,7 +41,7 @@ class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
     "updates the StoreCredit's currentBalance and availableBalance before insert" in new Fixture {
       val sc = (for {
         origin ← * <~ StoreCreditManuals.create(
-                    StoreCreditManual(adminId = admin.id, reasonId = reason.id))
+                    StoreCreditManual(adminId = storeAdmin.id, reasonId = reason.id))
         sc ← * <~ StoreCredits.create(Factories.storeCredit
                   .copy(originalBalance = 500, originId = origin.id, customerId = customer.id))
         pay ← * <~ OrderPayments.create(Factories.giftCardPayment
@@ -66,7 +66,7 @@ class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
     "a Postgres trigger updates the adjustment's availableBalance before insert" in new Fixture {
       val (adj, sc) = (for {
         origin ← * <~ StoreCreditManuals.create(
-                    StoreCreditManual(adminId = admin.id, reasonId = reason.id))
+                    StoreCreditManual(adminId = storeAdmin.id, reasonId = reason.id))
         sc ← * <~ StoreCredits.create(Factories.storeCredit
                   .copy(originalBalance = 500, originId = origin.id, customerId = customer.id))
         pay ← * <~ OrderPayments.create(Factories.giftCardPayment
@@ -86,7 +86,7 @@ class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
     "cancels an adjustment and removes its effect on current/available balances" in new Fixture {
       val (sc, payment) = (for {
         origin ← * <~ StoreCreditManuals.create(
-                    StoreCreditManual(adminId = admin.id, reasonId = reason.id))
+                    StoreCreditManual(adminId = storeAdmin.id, reasonId = reason.id))
         sc ← * <~ StoreCredits.create(Factories.storeCredit
                   .copy(originalBalance = 500, originId = origin.id, customerId = customer.id))
         payment ← * <~ OrderPayments.create(Factories.giftCardPayment
@@ -108,18 +108,13 @@ class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
         })
         .gimme
 
-      val finalSc = StoreCredits.findOneById(sc.id).run().futureValue.value
+      val finalSc = StoreCredits.findOneById(sc.id).gimme.value
       (finalSc.originalBalance, finalSc.availableBalance, finalSc.currentBalance) must === (
           (500, 500, 500))
     }
   }
 
-  trait Fixture {
-    val (admin, customer, reason, cart) = (for {
-      admin    ← * <~ StoreAdmins.create(Factories.storeAdmin)
-      customer ← * <~ Customers.create(Factories.customer)
-      cart     ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
-      reason   ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
-    } yield (admin, customer, reason, cart)).gimme
+  trait Fixture extends EmptyCustomerCart_Baked with StoreAdmin_Seed {
+    val reason = Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id)).gimme
   }
 }

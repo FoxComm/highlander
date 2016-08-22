@@ -125,81 +125,83 @@ export default function makeAssociations(namespace) {
 
   /** Reducers functions */
   function _suggestAssociationsStart(state) {
-    return assoc(state, ['savedSearches', state.selectedSearch, 'isFetchingSuggestions'], true);
+    return assoc(state, ['savedSearches', state.selectedSearch, 'shares', 'isFetchingSuggestions'], true);
   }
 
   function _suggestAssociationsSuccess(state, list) {
-    const associations = get(state, ['savedSearches', state.selectedSearch, 'associations'], []);
+    const associations = get(state, ['savedSearches', state.selectedSearch, 'shares', 'associations'], []);
+
+    list = _.isArray(list) ? list : [];
 
     /** skip already associated users */
     list = list.filter(suggestion => _.findIndex(associations, ({ id }) => id === suggestion.id) < 0);
 
     return assoc(state,
-      ['savedSearches', state.selectedSearch, 'suggested'], list,
-      ['savedSearches', state.selectedSearch, 'isFetchingSuggestions'], false
+      ['savedSearches', state.selectedSearch, 'shares', 'suggested'], list,
+      ['savedSearches', state.selectedSearch, 'shares', 'isFetchingSuggestions'], false
     );
   }
 
   function _suggestAssociationsFailure(state) {
-    return assoc(state, ['savedSearches', state.selectedSearch, 'isFetchingSuggestions'], false);
+    return assoc(state, ['savedSearches', state.selectedSearch, 'shares', 'isFetchingSuggestions'], false);
   }
 
   function _fetchAssociationsStart(state) {
-    return assoc(state, ['savedSearches', state.selectedSearch, 'isFetchingAssociations'], true);
+    return assoc(state, ['savedSearches', state.selectedSearch, 'shares', 'isFetchingAssociations'], true);
   }
 
   function _fetchAssociationsSuccess(state, payload) {
     return assoc(state,
-      ['savedSearches', state.selectedSearch, 'associations'], payload,
-      ['savedSearches', state.selectedSearch, 'isFetchingAssociations'], false
+      ['savedSearches', state.selectedSearch, 'shares', 'associations'], payload,
+      ['savedSearches', state.selectedSearch, 'shares', 'isFetchingAssociations'], false
     );
   }
 
   function _fetchAssociationsFailure(state) {
-    return assoc(state, ['savedSearches', state.selectedSearch, 'isFetchingAssociations'], false);
+    return assoc(state, ['savedSearches', state.selectedSearch, 'shares', 'isFetchingAssociations'], false);
   }
 
   function _associateSearchStart(state) {
-    return assoc(state, ['savedSearches', state.selectedSearch, 'isUpdatingAssociations'], true);
+    return assoc(state, ['savedSearches', state.selectedSearch, 'shares', 'isUpdatingAssociations'], true);
   }
 
   function _associateSearchSuccess(state, users) {
-    const path = ['savedSearches', state.selectedSearch, 'associations'];
+    const path = ['savedSearches', state.selectedSearch, 'shares', 'associations'];
     const items = get(state, path, []);
 
     return assoc(state,
       path, [...items, ...users],
-      ['savedSearches', state.selectedSearch, 'isUpdatingAssociations'], false
+      ['savedSearches', state.selectedSearch, 'shares', 'isUpdatingAssociations'], false
     );
   }
 
   function _associateSearchFailure(state) {
-    return assoc(state, ['savedSearches', state.selectedSearch, 'isUpdatingAssociations'], false);
+    return assoc(state, ['savedSearches', state.selectedSearch, 'shares', 'isUpdatingAssociations'], false);
   }
 
   function _dissociateSearchStart(state) {
-    return assoc(state, ['savedSearches', state.selectedSearch, 'isUpdatingAssociations'], true);
+    return assoc(state, ['savedSearches', state.selectedSearch, 'shares', 'isUpdatingAssociations'], true);
   }
 
   function _dissociateSearchSuccess(state, userId) {
-    const path = ['savedSearches', state.selectedSearch, 'associations'];
+    const path = ['savedSearches', state.selectedSearch, 'shares', 'associations'];
 
     const associations = get(state, path, []);
     const newAssociations = associations.filter(({id}) => id !== userId);
 
     return assoc(state,
       path, newAssociations,
-      ['savedSearches', state.selectedSearch, 'isUpdatingAssociations'], false
+      ['savedSearches', state.selectedSearch, 'shares', 'isUpdatingAssociations'], false
     );
   }
 
   function _dissociateSearchFailure(state) {
-    return assoc(state, ['savedSearches', state.selectedSearch, 'isUpdatingAssociations'], false);
+    return assoc(state, ['savedSearches', state.selectedSearch, 'shares', 'isUpdatingAssociations'], false);
   }
 
 
   function _selectItem(state, item) {
-    const path = ['savedSearches', state.selectedSearch, 'selected'];
+    const path = ['savedSearches', state.selectedSearch, 'shares', 'selected'];
 
     const items = get(state, path, []);
 
@@ -211,7 +213,7 @@ export default function makeAssociations(namespace) {
   }
 
   function _deselectItem(state, index) {
-    const path = ['savedSearches', state.selectedSearch, 'selected'];
+    const path = ['savedSearches', state.selectedSearch, 'shares', 'selected'];
 
     const items = get(state, path, []);
     const newItems = _.without(items, items[index]);
@@ -220,13 +222,13 @@ export default function makeAssociations(namespace) {
   }
 
   function _clearSelected(state) {
-    const path = ['savedSearches', state.selectedSearch, 'selected'];
+    const path = ['savedSearches', state.selectedSearch, 'shares', 'selected'];
 
     return assoc(state, path, []);
   }
 
   function _setTerm(state, term) {
-    return assoc(state, ['savedSearches', state.selectedSearch, 'term'], term);
+    return assoc(state, ['savedSearches', state.selectedSearch, 'shares', 'term'], term);
   }
 
   return {

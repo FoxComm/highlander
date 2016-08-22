@@ -2,7 +2,6 @@
 import React, { PropTypes } from 'react';
 import Header from '../header/header';
 import Sidebar from '../sidebar/sidebar';
-import Modal from '../modal/modal';
 import * as CountriesActions from '../../modules/countries';
 import { connect } from 'react-redux';
 
@@ -30,7 +29,6 @@ export default class Site extends React.Component {
             {this.props.children}
           </main>
         </div>
-        <Modal />
       </div>
     );
   }

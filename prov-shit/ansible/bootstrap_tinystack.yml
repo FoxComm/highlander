@@ -33,7 +33,6 @@
     user: '{{ansible_ssh_user}}'
     api_server: balancer.service.consul
     ashes_server: ashes.service.consul:4000
-    firebird_server: firebird.service.consul:4040
     isaac_server: isaac.service.consul:9190
     middlewarehouse_server: middlewarehouse.service.consul:9292
     phoenix_server: phoenix.service.consul:9090
@@ -51,18 +50,13 @@
       prompt: "Enter a Ashes server domain name"
       default: "admin.vanilla.foxcommerce.com"
       private: no
-    - name: "firebird_server_name"
-      prompt: "Enter a Firebird server domain name"
-      default: "firebird.vanilla.foxcommerce.com"
-      private: no
-    - name: "firebrand_server_name"
+    - name: "storefront_server_name"
       prompt: "Enter a Firebrand server domain name"
       default: "vanilla.foxcommerce.com"
       private: no
 
   roles:
     - { role: dev/ashes }
-    - { role: dev/firebird }
     - { role: dev/firebrand }
     - { role: dev/balancer, sudo: yes }
 

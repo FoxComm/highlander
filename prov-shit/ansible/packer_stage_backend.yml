@@ -1,6 +1,6 @@
 ---
 
-- name: Provision Packer Tinystack Backend
+- name: Provision Packer Stage Backend
   hosts: all
   tags:
       - packer-tinystack-backend

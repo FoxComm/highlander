@@ -1,15 +1,16 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"testing"
 
 	"github.com/FoxComm/highlander/middlewarehouse/controllers/mocks"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
+	"github.com/FoxComm/highlander/middlewarehouse/services"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
@@ -24,7 +25,6 @@ func TestSummaryControllerSuite(t *testing.T) {
 }
 
 func (suite *summaryControllerTestSuite) SetupSuite() {
-	suite.assert = assert.New(suite.T())
 	// set up test env once
 	suite.service = new(mocks.SummaryServiceMock)
 	suite.router = gin.Default()
@@ -40,37 +40,30 @@ func (suite *summaryControllerTestSuite) TearDownTest() {
 }
 
 func (suite *summaryControllerTestSuite) Test_GetSummary() {
-	suite.service.On("GetSummary").Return([]*models.StockItemSummary{
-		{
-			SKU:         "SKU",
-			StockItemID: 0,
-			OnHand:      0,
-			OnHold:      0,
-			Reserved:    0,
-		},
-	}, nil).Once()
+	suite.service.On("GetSummary").Return([]*models.StockItemSummary{{
+		StockItemID: 1,
+		Type:        models.Sellable,
+	}}, nil).Once()
 
-	res := suite.Get("/summary/")
+	res := suite.Get("/summary")
 
-	suite.assert.Equal(http.StatusOK, res.Code)
-	suite.assert.Contains(res.Body.String(), "counts\":[")
+	suite.Equal(http.StatusOK, res.Code)
+	suite.Contains(res.Body.String(), "summary\":[")
 	suite.service.AssertExpectations(suite.T())
 }
 
 func (suite *summaryControllerTestSuite) Test_GetSummaryBySKU() {
 	sku := "TEST-SKU"
-	suite.service.On("GetSummaryBySKU", sku).Return(&models.StockItemSummary{
-		SKU:         sku,
-		StockItemID: 0,
-		OnHand:      0,
-		OnHold:      0,
-		Reserved:    0,
-	}, nil).Once()
+	suite.service.On("GetSummaryBySKU", sku).Return([]*models.StockItemSummary{{
+		StockItemID: 1,
+		StockItem:   models.StockItem{SKU: sku},
+		Type:        models.Sellable,
+	}}, nil).Once()
 
-	res := suite.Get("/summary/" + sku)
+	res := suite.Get(fmt.Sprintf("/summary/%s", sku))
 
-	suite.assert.Equal(http.StatusOK, res.Code)
-	suite.assert.Contains(res.Body.String(), sku)
+	suite.Equal(http.StatusOK, res.Code)
+	suite.Contains(res.Body.String(), sku)
 	suite.service.AssertExpectations(suite.T())
 }
 
@@ -79,8 +72,8 @@ func (suite *summaryControllerTestSuite) Test_GetSummaryBySKUNoSKU() {
 
 	res := suite.Get("/summary/NO-SKU")
 
-	suite.assert.Equal(http.StatusNotFound, res.Code)
-	suite.assert.Contains(res.Body.String(), "errors")
+	suite.Equal(http.StatusNotFound, res.Code)
+	suite.Contains(res.Body.String(), "errors")
 	suite.service.AssertExpectations(suite.T())
 }
 
@@ -89,7 +82,7 @@ func (suite *summaryControllerTestSuite) Test_GetSummaryBySKUServerError() {
 
 	res := suite.Get("/summary/NO-SKU")
 
-	suite.assert.Equal(http.StatusBadRequest, res.Code)
-	suite.assert.Contains(res.Body.String(), "errors")
+	suite.Equal(http.StatusBadRequest, res.Code)
+	suite.Contains(res.Body.String(), "errors")
 	suite.service.AssertExpectations(suite.T())
 }

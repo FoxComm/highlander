@@ -23,6 +23,7 @@ import slick.driver.PostgresDriver.backend.DatabaseDef
 import utils.aliases._
 import utils.db._
 import utils.db.flyway.newFlyway
+import utils.seeds.generators.SeedsGenerator
 import utils.{ADT, FoxConfig, JsonFormatters}
 
 object Seeds {

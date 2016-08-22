@@ -123,6 +123,7 @@ object CartPaymentUpdater {
     for {
       cart   ← * <~ getCartByOriginator(originator, refNum)
       cc     ← * <~ CreditCards.mustFindById400(id)
+      _      ← * <~ cc.mustBelongToCustomer(cart.customerId)
       _      ← * <~ cc.mustBeInWallet
       region ← * <~ Regions.findOneById(cc.regionId).safeGet
       _      ← * <~ OrderPayments.filter(_.cordRef === cart.refNum).creditCards.delete
@@ -148,14 +149,15 @@ object CartPaymentUpdater {
       refNum: Option[String],
       pmt: PaymentMethod.Type)(implicit ec: EC, db: DB, ac: AC, ctx: OC): TheFullCart =
     for {
-      cart  ← * <~ getCartByOriginator(originator, refNum)
-      valid ← * <~ CartValidator(cart).validate()
+      cart ← * <~ getCartByOriginator(originator, refNum)
       resp ← * <~ OrderPayments
               .filter(_.cordRef === cart.refNum)
               .byType(pmt)
               .deleteAll(onSuccess = CartResponse.buildRefreshed(cart),
                          onFailure = DbResultT.failure(OrderPaymentNotFoundFailure(pmt)))
-      _ ← * <~ LogActivity.orderPaymentMethodDeleted(originator, resp, pmt)
+      updatedCart ← * <~ getCartByOriginator(originator, refNum)
+      valid       ← * <~ CartValidator(updatedCart).validate()
+      _           ← * <~ LogActivity.orderPaymentMethodDeleted(originator, resp, pmt)
     } yield TheResponse.validated(resp, valid)
 
   def deleteGiftCard(originator: Originator, code: String, refNum: Option[String] = None)(
@@ -164,9 +166,8 @@ object CartPaymentUpdater {
       ac: AC,
       ctx: OC): TheFullCart =
     for {
-      cart      ← * <~ getCartByOriginator(originator, refNum)
-      giftCard  ← * <~ GiftCards.mustFindByCode(code)
-      validated ← * <~ CartValidator(cart).validate()
+      cart     ← * <~ getCartByOriginator(originator, refNum)
+      giftCard ← * <~ GiftCards.mustFindByCode(code)
       deleteRes ← * <~ OrderPayments
                    .filter(_.paymentMethodId === giftCard.id)
                    .filter(_.cordRef === cart.refNum)
@@ -174,6 +175,8 @@ object CartPaymentUpdater {
                    .deleteAll(onSuccess = CartResponse.buildRefreshed(cart),
                               onFailure = DbResultT.failure(
                                   OrderPaymentNotFoundFailure(PaymentMethod.GiftCard)))
-      _ ← * <~ LogActivity.orderPaymentMethodDeletedGc(originator, deleteRes, giftCard)
+      updatedCart ← * <~ getCartByOriginator(originator, refNum)
+      validated   ← * <~ CartValidator(updatedCart).validate()
+      _           ← * <~ LogActivity.orderPaymentMethodDeletedGc(originator, deleteRes, giftCard)
     } yield TheResponse.validated(deleteRes, validated)
 }

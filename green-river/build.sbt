@@ -60,6 +60,7 @@ lazy val greenRiver = (project in file(".")).
       )
     },
     (mainClass in Compile) := Some("consumer.Main"),
+    (mainClass in reStart) := Some("consumer.Main"),
     cleanupCommands in console := """system.terminate""",
     initialCommands in console :=
       """
@@ -98,3 +99,6 @@ lazy val greenRiver = (project in file(".")).
 
 lazy val consume = inputKey[Unit]("Runs the Kafka Consumers")
 consume := { (runMain in Compile).partialInput(" consumer.Main").evaluated }
+
+lazy val createMappings = inputKey[Unit]("Runs Mapping Creation in ES")
+createMappings := { (runMain in Compile).partialInput(" consumer.Main").evaluated }

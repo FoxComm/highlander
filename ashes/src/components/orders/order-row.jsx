@@ -1,11 +1,6 @@
 import React, { PropTypes } from 'react';
-
 import _ from 'lodash';
 
-import { DateTime } from '../common/datetime';
-import { Checkbox } from '../checkbox/checkbox';
-import Currency from '../common/currency';
-import Link from '../link/link';
 import MultiSelectRow from '../table/multi-select-row';
 
 const compileShippingStatus = order => {

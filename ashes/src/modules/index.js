@@ -5,6 +5,7 @@ import { reducer as asyncReducer } from './async-utils';
 import giftCards from './gift-cards';
 import customers from './customers';
 import customerGroups from './customer-groups';
+import carts from './carts';
 import orders from './orders';
 import rmas from './rmas';
 import notes from './notes';
@@ -17,7 +18,6 @@ import storeCreditTypes from './store-credit-types';
 import activityTrail from './activity-trail';
 import siteMenu from './site-menu';
 import inventory from './inventory';
-import expandableTables from './expandable-tables';
 import products from './products';
 import skus from './skus';
 import user from './user';
@@ -31,6 +31,7 @@ const rootReducer = combineReducers({
   asyncActions: asyncReducer,
   giftCards,
   customers,
+  carts,
   orders,
   rmas,
   notes,
@@ -46,7 +47,6 @@ const rootReducer = combineReducers({
   activityTrail,
   siteMenu,
   inventory,
-  expandableTables,
   products,
   skus,
   promotions,

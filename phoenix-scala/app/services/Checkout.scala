@@ -57,12 +57,13 @@ case class Checkout(
     for {
       customer  ← * <~ Customers.mustFindById404(cart.customerId)
       _         ← * <~ customer.mustHaveCredentials
+      _         ← * <~ customer.mustNotBeBlacklisted
       _         ← * <~ activePromos
       _         ← * <~ cartValidator.validate(isCheckout = false, fatalWarnings = true)
       _         ← * <~ reserveInMiddleWarehouse
       _         ← * <~ authPayments(customer)
       _         ← * <~ cartValidator.validate(isCheckout = true, fatalWarnings = true)
-      order     ← * <~ Orders.create(cart.toOrder())
+      order     ← * <~ Orders.createFromCart(cart)
       _         ← * <~ fraudScore(order)
       _         ← * <~ remorseHold(order)
       _         ← * <~ updateCouponCountersForPromotion(customer)

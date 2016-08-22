@@ -1,9 +1,24 @@
+/* @flow */
+
+//libs
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
-import { activeStatus } from '../../paragons/common';
 
+// helpers
+import { activeStatus, isArchived } from 'paragons/common';
+
+// components
 import RoundedPill from '../rounded-pill/rounded-pill';
 import MultiSelectRow from '../table/multi-select-row';
+
+// types
+import type { Product } from 'paragons/product';
+
+type Props = {
+  product: Product,
+  columns?: Array<Object>,
+  params: Object,
+};
 
 function setCellContents(product, field) {
   switch (field) {
@@ -16,25 +31,26 @@ function setCellContents(product, field) {
   }
 }
 
-const ProductRow = (props) => {
+const ProductRow = (props: Props) => {
   const { product, columns, params } = props;
-  const key = `product-${product.id}`;
+  const commonParams = {
+    columns,
+    row: product,
+    setCellContents,
+    params,
+  };
+
+  if (isArchived(product)) {
+    return <MultiSelectRow {...commonParams} />;
+  }
 
   return (
     <MultiSelectRow
-      columns={columns}
+      { ...commonParams }
       linkTo="product-details"
       linkParams={{productId: product.productId, context: product.context}}
-      row={product}
-      setCellContents={setCellContents}
-      params={params} />
+    />
   );
-};
-
-ProductRow.propTypes = {
-  product: PropTypes.object.isRequired,
-  columns: PropTypes.array,
-  params: PropTypes.object.isRequired,
 };
 
 export default ProductRow;

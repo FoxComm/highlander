@@ -1,12 +1,9 @@
-import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
 import failures.{NotFoundFailure404, StateTransitionNotAllowed}
 import models.cord.Order._
 import models.cord._
-import models.customer.Customers
-import models.location.Addresses
 import models.shipping.ShippingMethods
 import payloads.OrderPayloads.UpdateOrderPayload
 import responses.cord.OrderResponse
@@ -19,7 +16,8 @@ class OrderIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
     with AutomaticAuth
-    with TestObjectContext {
+    with TestObjectContext
+    with BakedFixtures {
 
   "PATCH /v1/orders/:refNum" - {
 
@@ -37,11 +35,10 @@ class OrderIntegrationTest
           StateTransitionNotAllowed(order.state, Shipped, order.refNum).description)
     }
 
-    "fails if transition from current status is not allowed" in {
+    "fails if transition from current status is not allowed" in new EmptyCustomerCart_Baked {
       val order = (for {
-        _     ← * <~ Customers.create(Factories.customer)
-        cart  ← * <~ Carts.create(Factories.cart)
-        order ← * <~ Orders.create(cart.toOrder().copy(state = Canceled))
+        order ← * <~ Orders.createFromCart(cart)
+        order ← * <~ Orders.update(order, order.copy(state = Canceled))
       } yield order).gimme
 
       val response = PATCH(s"v1/orders/${order.refNum}", UpdateOrderPayload(ManualHold))
@@ -77,15 +74,11 @@ class OrderIntegrationTest
     }
   }
 
-  trait Fixture {
+  trait Fixture extends EmptyCartWithShipAddress_Baked {
     val order = (for {
-      customer   ← * <~ Customers.create(Factories.customer)
-      cart       ← * <~ Carts.create(Factories.cart)
       shipMethod ← * <~ ShippingMethods.create(Factories.shippingMethods.head)
       _          ← * <~ OrderShippingMethods.create(OrderShippingMethod.build(cart.refNum, shipMethod))
-      address    ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
-      _          ← * <~ OrderShippingAddresses.copyFromAddress(address = address, cordRef = cart.refNum)
-      order      ← * <~ Orders.create(cart.toOrder())
+      order      ← * <~ Orders.createFromCart(cart)
     } yield order).gimme
   }
 }

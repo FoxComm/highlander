@@ -1,4 +1,3 @@
-
 // libs
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
@@ -15,7 +14,7 @@ import { PrimaryButton } from '../common/buttons';
 import WaitAnimation from '../common/wait-animation';
 import { PageTitle } from '../section-title';
 import Panel from '../panel/panel';
-import {PanelList, PanelListItem} from '../panel/panel-list';
+import { PanelList, PanelListItem } from '../panel/panel-list';
 import { Dropdown } from '../dropdown';
 import LocalNav from '../local-nav/local-nav';
 import ConfirmationDialog from '../modal/confirmation-dialog';
@@ -25,7 +24,6 @@ import State, { formattedStatus } from '../common/state';
 import * as GiftCardActions from '../../modules/gift-cards/details';
 import * as ReasonsActions from '../../modules/reasons';
 import { states, stateTitles, stateActionTitles, getStateTransitions, typeTitles } from '../../paragons/gift-card';
-
 
 @connect((state, props) => ({
   ...state.giftCards.details[props.params.giftCard],
@@ -81,13 +79,13 @@ export default class GiftCard extends React.Component {
   }
 
   get subNav() {
-    const params = {giftCard: this.props.card.code};
+    const params = { giftCard: this.props.card.code };
 
     if (!this.props.card.code) {
       return null;
     }
 
-    const content = React.cloneElement(this.props.children, {entity: this.props.card });
+    const content = React.cloneElement(this.props.children, { entity: this.props.card });
 
     return (
       <div>
@@ -96,10 +94,8 @@ export default class GiftCard extends React.Component {
           <Link to="gift-card-notes" params={params}>Notes</Link>
           <Link to="gift-card-activity-trail" params={params}>Activity Trail</Link>
         </LocalNav>
-        <div className="fc-grid">
-          <div className="fc-col-md-1-1">
-            {content}
-          </div>
+        <div className="fc-gift-card-tabs">
+          {content}
         </div>
       </div>
     );
@@ -110,9 +106,10 @@ export default class GiftCard extends React.Component {
   }
 
   get cardState() {
-    const {card} = this.props;
-    const {state} = card;
+    const { card, nextState } = this.props;
+    const { state } = card;
     const transitions = getStateTransitions(card);
+    const dropdownValue = nextState ? nextState : state;
 
     if (!transitions.length) {
       return <State value={state} model={"giftCard"} />;
@@ -121,9 +118,10 @@ export default class GiftCard extends React.Component {
     return (
       <Dropdown
         placeholder={stateTitles[state]}
-        value={state}
+        value={dropdownValue}
         onChange={this.onChangeState}
-        items={transitions.map(state => [state, stateActionTitles[state]])} />
+        items={transitions.map(state => [state, stateActionTitles[state]])}
+      />
     );
   }
 
@@ -144,13 +142,14 @@ export default class GiftCard extends React.Component {
     );
     return (
       <ConfirmationDialog
-          isVisible={shouldDisplay}
-          header="Change Gift Card State?"
-          body={message}
-          cancel="Cancel"
-          confirm="Yes, Change State"
-          cancelAction={() => this.props.cancelChangeGiftCardStatus(this.props.params.giftCard)}
-          confirmAction={() => this.props.saveGiftCardStatus(this.props.params.giftCard)} />
+        isVisible={shouldDisplay}
+        header="Change Gift Card State?"
+        body={message}
+        cancel="Cancel"
+        confirm="Yes, Change State"
+        cancelAction={() => this.props.cancelChangeGiftCardStatus(this.props.params.giftCard)}
+        confirmAction={() => this.props.saveGiftCardStatus(this.props.params.giftCard)}
+      />
     );
   }
 
@@ -175,11 +174,13 @@ export default class GiftCard extends React.Component {
             </label>
           </div>
           <div className="fc-gift-card-detail__cancel-reason-selector">
-            <Dropdown name="cancellationReason"
+            <Dropdown
+              name="cancellationReason"
               placeholder="- Select -"
               items={reasons}
               value={value}
-              onChange={(reasonId) => this.props.changeCancellationReason(this.props.params.giftCard, reasonId)} />
+              onChange={(reasonId) => this.props.changeCancellationReason(this.props.params.giftCard, reasonId)}
+            />
           </div>
         </div>
       </div>
@@ -187,13 +188,14 @@ export default class GiftCard extends React.Component {
 
     return (
       <ConfirmationDialog
-          isVisible={shouldDisplay}
-          header="Cancel Gift Card?"
-          body={body}
-          cancel="Cancel"
-          confirm="Yes, Cancel"
-          cancelAction={() => this.props.cancelChangeGiftCardStatus(this.props.params.giftCard)}
-          confirmAction={() => this.props.saveGiftCardStatus(this.props.params.giftCard)} />
+        isVisible={shouldDisplay}
+        header="Cancel Gift Card?"
+        body={body}
+        cancel="Cancel"
+        confirm="Yes, Cancel"
+        cancelAction={() => this.props.cancelChangeGiftCardStatus(this.props.params.giftCard)}
+        confirmAction={() => this.props.saveGiftCardStatus(this.props.params.giftCard)}
+      />
     );
   }
 
@@ -201,7 +203,7 @@ export default class GiftCard extends React.Component {
     const card = this.props.card;
 
     if (!card) {
-      return <div className="fc-gift-card-detail"><WaitAnimation/></div>;
+      return <div className="fc-gift-card-detail"><WaitAnimation /></div>;
     }
 
     return (
@@ -212,19 +214,19 @@ export default class GiftCard extends React.Component {
         <div className="fc-grid fc-grid-gutter">
           <div className="fc-col-md-1-3">
             <Panel title="Available Balance" featured={true}>
-              <Currency value={card.availableBalance}/>
+              <Currency value={card.availableBalance} />
             </Panel>
           </div>
         </div>
         <PanelList className="fc-grid fc-grid-collapse fc-grid-md-1-5">
           <PanelListItem title="Original Balance">
-            <Currency value={card.originalBalance}/>
+            <Currency value={card.originalBalance} />
           </PanelListItem>
           <PanelListItem title="Current Balance">
-            <Currency value={card.currentBalance}/>
+            <Currency value={card.currentBalance} />
           </PanelListItem>
           <PanelListItem title="Date/Time Issued">
-            <DateTime value={card.createdAt}/>
+            <DateTime value={card.createdAt} />
           </PanelListItem>
           <PanelListItem title="Gift Card Type">
             { typeTitles[card.originType] }

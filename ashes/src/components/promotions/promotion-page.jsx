@@ -19,8 +19,10 @@ import ButtonWithMenu from '../common/button-with-menu';
 import { Button } from '../common/buttons';
 import Error from '../errors/error';
 
+// actions
 import * as PromotionActions from '../../modules/promotions/details';
 
+import { SAVE_COMBO, SAVE_COMBO_ITEMS } from 'paragons/common';
 
 type Actions = {
   fetchPromotion: Function,
@@ -77,9 +79,9 @@ class PromotionPage extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { isFetching } = nextProps;
+    const { isFetching, isSaving } = nextProps;
 
-    if (!isFetching && !nextProps.fetchError) {
+    if (!isFetching && !isSaving && !nextProps.fetchError) {
       const nextPromotion = nextProps.details.promotion;
       if (!nextPromotion) return;
 
@@ -145,13 +147,13 @@ class PromotionPage extends Component {
 
     mayBeSaved.then(() => {
       switch (value) {
-        case 'save_and_new':
+        case SAVE_COMBO.NEW:
           actions.promotionsNew();
           break;
-        case 'save_and_duplicate':
+        case SAVE_COMBO.DUPLICATE:
           dispatch(push(`/promotions/new`));
           break;
-        case 'save_and_close':
+        case SAVE_COMBO.CLOSE:
           dispatch(push(`/promotions`));
           break;
       }
@@ -199,11 +201,7 @@ class PromotionPage extends Component {
             onPrimaryClick={this.handleSubmit}
             onSelect={this.handleSelectSaving}
             isLoading={props.isSaving}
-            items={[
-              ['save_and_new', 'Save and Create New'],
-              ['save_and_duplicate', 'Save and Duplicate'],
-              ['save_and_close', 'Save and Close'],
-            ]}
+            items={SAVE_COMBO_ITEMS}
           />
         </PageTitle>
         <SubNav promotionId={this.entityId} />

@@ -1,17 +1,15 @@
-import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
-import models.customer.Customers
+import models.Reasons
 import models.payment.giftcard._
 import models.payment.storecredit._
-import models.{Reasons, StoreAdmins}
 import responses.{GiftCardSubTypesResponse, StoreCreditSubTypesResponse}
-import util.IntegrationTestBase
+import util._
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class PaymentTypesIntegrationTest extends IntegrationTestBase with HttpSupport {
+class PaymentTypesIntegrationTest extends IntegrationTestBase with HttpSupport with BakedFixtures {
 
   "GiftCard Types" - {
     "GET /v1/public/gift-cards/types" - {
@@ -41,26 +39,23 @@ class PaymentTypesIntegrationTest extends IntegrationTestBase with HttpSupport {
     }
   }
 
-  trait GiftCardFixture {
+  trait GiftCardFixture extends StoreAdmin_Seed {
     val (giftCard, gcSubType) = (for {
-      admin     ← * <~ StoreAdmins.create(Factories.storeAdmin)
-      reason    ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
+      reason    ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
       gcSubType ← * <~ GiftCardSubtypes.create(Factories.giftCardSubTypes.head)
       origin ← * <~ GiftCardManuals.create(
-                  GiftCardManual(adminId = admin.id, reasonId = reason.id))
+                  GiftCardManual(adminId = storeAdmin.id, reasonId = reason.id))
       giftCard ← * <~ GiftCards.create(
                     Factories.giftCard.copy(originId = origin.id, state = GiftCard.Active))
     } yield (giftCard, gcSubType)).gimme
   }
 
-  trait StoreCreditFixture {
+  trait StoreCreditFixture extends Customer_Seed with StoreAdmin_Seed {
     val (storeCredit, scSubType) = (for {
-      admin     ← * <~ StoreAdmins.create(Factories.storeAdmin)
-      customer  ← * <~ Customers.create(Factories.customer)
-      scReason  ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
+      scReason  ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
       scSubType ← * <~ StoreCreditSubtypes.create(Factories.storeCreditSubTypes.head)
       scOrigin ← * <~ StoreCreditManuals.create(
-                    StoreCreditManual(adminId = admin.id, reasonId = scReason.id))
+                    StoreCreditManual(adminId = storeAdmin.id, reasonId = scReason.id))
       storeCredit ← * <~ StoreCredits.create(
                        Factories.storeCredit.copy(originId = scOrigin.id,
                                                   customerId = customer.id))

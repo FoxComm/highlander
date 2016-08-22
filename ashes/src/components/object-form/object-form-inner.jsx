@@ -58,7 +58,6 @@ function renderFormField(name: string, input: Element, args?: any): Element {
   );
 }
 
-
 export default class ObjectFormInner extends Component {
   props: Props;
   state: State = { isAddingProperty: false, errors: {} };

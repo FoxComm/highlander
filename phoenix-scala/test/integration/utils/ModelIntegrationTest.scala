@@ -1,7 +1,5 @@
 package utils
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
 import failures.{DatabaseFailure, GeneralFailure, StateTransitionNotAllowed}
 import models.cord.Order.Shipped
 import models.cord._
@@ -11,7 +9,7 @@ import util._
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext {
+class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext with BakedFixtures {
 
   "New model create" - {
     "validates model" in {
@@ -88,12 +86,7 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext {
       Customers.findOneById(customer.id).run().futureValue.value must === (updated)
     }
 
-    "must run FSM check if applicable" in {
-      val order = (for {
-        _     ← * <~ Customers.create(Factories.customer)
-        cart  ← * <~ Carts.create(Factories.cart)
-        order ← * <~ Orders.create(cart.toOrder())
-      } yield order).gimme
+    "must run FSM check if applicable" in new Order_Baked {
 
       val failure = Orders.update(order, order.copy(state = Shipped)).run().futureValue.leftVal
       failure must === (StateTransitionNotAllowed(order.state, Shipped, order.refNum).single)

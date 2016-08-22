@@ -1,13 +1,33 @@
-update:
-	git subtree pull --prefix api-js git@github.com:FoxComm/api-js.git gh-pages
-	git subtree pull --prefix ashes git@github.com:FoxComm/ashes.git master
-	git subtree pull --prefix firebrand git@github.com:FoxComm/firebrand.git master
-	git subtree pull --prefix firebird git@github.com:FoxComm/firebird.git master
-	git subtree pull --prefix green-river git@github.com:FoxComm/green-river.git master
-	git subtree pull --prefix isaac git@github.com:FoxComm/isaac.git master
-	git subtree pull --prefix middlewarehouse git@github.com:FoxComm/middlewarehouse.git master
-	git subtree pull --prefix phoenix-scala git@github.com:FoxComm/phoenix-scala.git master
-	git subtree pull --prefix prov-shit git@github.com:FoxComm/prov-shit.git master
-	git subtree pull --prefix integrations/shipstation git@github.com:FoxComm/shipstation.git master
-	git subtree pull --prefix integration-tests git@github.com:FoxComm/integration-tests.git master
-	git subtree pull --prefix fox-notifications git@github.com:FoxComm/fox-notifications.git master
+
+SUBDIRS = ashes firebird green-river isaac phoenix-scala prov-shit integration-tests fox-notifications middlewarehouse
+UPDATEDIRS = $(SUBDIRS:%=update-%)
+BUILDDIRS = $(SUBDIRS:%=build-%) build-integrations
+TESTDIRS = $(SUBDIRS:%=test-%) test-integrations
+CLEANDIRS = $(SUBDIRS:%=clean-%)
+
+clean: $(CLEANDIRS)
+$(CLEANDIRS): REPO = $(@:clean-%=%) 
+$(CLEANDIRS): 
+	$(MAKE) -C $(REPO) clean
+
+build: $(BUILDDIRS)
+	$(MAKE) -C api-js build
+$(BUILDDIRS): REPO = $(@:build-%=%) 
+$(BUILDDIRS): 
+	$(MAKE) -C $(REPO) build
+
+test: $(TESTDIRS)
+	$(MAKE) -C api-js test
+$(TESTDIRS): REPO = $(@:test-%=%) 
+$(TESTDIRS): 
+	$(MAKE) -C $(REPO) test
+
+update: $(UPDATEDIRS)
+	git subtree pull --prefix api-js git@github.com:FoxComm/api-js gh-pages
+$(UPDATEDIRS): REPO = $(@:update-%=%) 
+$(UPDATEDIRS): REPOGIT = $(addsuffix .git,$(REPO)) 
+$(UPDATEDIRS): 
+	git subtree pull --prefix $(REPO) git@github.com:FoxComm/$(REPOGIT) master
+ 
+
+.PHONY: update build $(UPDATEDIRS) $(SUBDIRS) $(BUILDDIRS)

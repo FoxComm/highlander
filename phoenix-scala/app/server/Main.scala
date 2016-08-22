@@ -13,7 +13,8 @@ import akka.http.scaladsl.server.RouteResult._
 import akka.http.scaladsl.server._
 import akka.stream.ActorMaterializer
 
-import com.typesafe.config.Config
+import com.stripe.Stripe
+import com.typesafe.config.{Config, ConfigException}
 import com.typesafe.scalalogging.LazyLogging
 import models.StoreAdmin
 import models.customer.Customer
@@ -30,14 +31,25 @@ import utils.http.HttpLogger.logFailedRequests
 import utils.{ElasticsearchApi, FoxConfig}
 
 object Main extends App with LazyLogging {
-  logger.info("Starting phoenix server")
   implicit val env = FoxConfig.environment
-  val service      = new Service()
-  service.performSelfCheck()
-  service.bind()
-  service.setupRemorseTimers()
 
-  logger.info("Startup process complete")
+  logger.info("Starting phoenix server")
+
+  val service = new Service()
+
+  try {
+    service.performSelfCheck()
+    service.loadStripeApiKey()
+    service.bind()
+    service.setupRemorseTimers()
+
+    logger.info("Startup process complete")
+  } catch {
+    case e: Throwable ⇒
+      logger.error(s"${e.getMessage}\nExiting now!")
+      Thread.sleep(1000)
+      System.exit(1)
+  }
 }
 
 class Service(systemOverride: Option[ActorSystem] = None,
@@ -160,5 +172,11 @@ class Service(systemOverride: Option[ActorSystem] = None,
       assert(Keys.loadPublicKey.isSuccess, "Can't load public key")
     }
     logger.info("Self check complete")
+  }
+
+  def loadStripeApiKey(): Unit = {
+    logger.info("Loading Stripe API key")
+    Stripe.apiKey = config.getString("stripe.key")
+    logger.info("Successfully set Stripe key")
   }
 }

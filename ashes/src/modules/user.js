@@ -8,7 +8,12 @@ import createAsyncActions from './async-utils';
 
 // types
 
-export type TUser = {name: String, email: String};
+export type TUser = {
+  id: number,
+  name: string,
+  email: string,
+  scopes: Array<string>,
+};
 
 export type LoginPayload = {
   email: string,
@@ -25,7 +30,6 @@ export type UserState = {
   message: ?String,
   err: ?String,
   current: ?TUser,
-  isFetching: boolean,
 };
 
 export const setUser = createAction('USER_SET');
@@ -118,19 +122,20 @@ export function logout(): ActionDispatch {
 
 
 const initialState = {
-  isFetching: false,
   message: null,
 };
 
+function saveUser(state: UserState, user: TUser) {
+  localStorage.setItem('user', JSON.stringify(user));
+  return {
+    ...state,
+    current: user
+  };
+}
+
 const reducer = createReducer({
-  [setUser]: (state: UserState, user: TUser) => {
-    localStorage.setItem('user', JSON.stringify(user));
-    return {
-      ...state,
-      current: user,
-      isFetching: false,
-    };
-  },
+  [setUser]: saveUser,
+  [_fetchUserInfo.succeeded]: saveUser,
   [removeUser]: (state: UserState, user: TUser) => {
     return dissoc(state, 'user');
   },

@@ -1,18 +1,12 @@
 package services
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
-import models.StoreAdmins
-import models.cord._
-import models.customer.Customers
 import models.returns._
 import payloads.ReturnPayloads.ReturnCreatePayload
 import services.returns.ReturnService
-import util.{IntegrationTestBase, TestObjectContext}
+import util._
 import utils.db._
-import utils.seeds.Seeds.Factories
 
-class ReturnServiceTest extends IntegrationTestBase with TestObjectContext {
+class ReturnServiceTest extends IntegrationTestBase with TestObjectContext with BakedFixtures {
 
   val numberOfInserts = 20
 
@@ -20,7 +14,7 @@ class ReturnServiceTest extends IntegrationTestBase with TestObjectContext {
     "doesn't create duplicate IDs during parallel requests for single order" in new Fixture {
       val payload = ReturnCreatePayload(order.refNum, Return.Standard)
       val futures = (1 to numberOfInserts).map { _ ⇒
-        ReturnService.createByAdmin(admin, payload)
+        ReturnService.createByAdmin(storeAdmin, payload)
       }
       DbResultT.sequence(futures).gimme
 
@@ -33,12 +27,5 @@ class ReturnServiceTest extends IntegrationTestBase with TestObjectContext {
     }
   }
 
-  trait Fixture {
-    val (admin, order) = (for {
-      admin    ← * <~ StoreAdmins.create(Factories.storeAdmin)
-      customer ← * <~ Customers.create(Factories.customer)
-      cart     ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
-      order    ← * <~ Orders.create(cart.toOrder())
-    } yield (admin, order)).gimme
-  }
+  trait Fixture extends Order_Baked with StoreAdmin_Seed
 }

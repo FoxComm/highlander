@@ -40,7 +40,7 @@ lazy val phoenixScala = (project in file(".")).
       "hseeberger bintray" at "http://dl.bintray.com/hseeberger/maven",
       "pellucid bintray"   at "http://dl.bintray.com/pellucid/maven",
       "justwrote"          at "http://repo.justwrote.it/releases/",
-      Resolver.bintrayRepo("kwark", "maven") //This is a fix for deadlock in slick. 
+      Resolver.bintrayRepo("kwark", "maven") //This is a fix for deadlock in slick.
                                              // to official slick repo.
     ),
     libraryDependencies ++= Dependencies.akka,
@@ -78,7 +78,7 @@ lazy val phoenixScala = (project in file(".")).
         "com.github.scopt"           %% "scopt"                  % "3.5.0",
         // Other
        ("org.spire-math"             %% "cats"                   % "0.3.0").excludeAll(noScalaCheckPlease),
-        "com.stripe"                 %  "stripe-java"            % "2.5.0",
+        "com.stripe"                 %  "stripe-java"            % "2.7.0",
         "org.slf4j"                  %  "slf4j-api"              % "1.7.21",
         "org.joda"                   %  "joda-money"             % "0.11",
         "com.pellucid"               %% "sealerate"              % "0.0.3",
@@ -138,13 +138,13 @@ lazy val phoenixScala = (project in file(".")).
       /** We need to do nothing here. Unit and ITs will run in parallel
         * and this task will fail if any of those fail. */
       ()
-    }.dependsOn(test in Test, test in IT)
+    }.dependsOn(compile in Test, compile in IT, test in Test, test in IT)
 )
 
 lazy val IT = config("it") extend Test
 
 lazy val seed = inputKey[Unit]("Resets and seeds the database")
-seed := { (runMain in Compile).partialInput(" utils.seeds.Seeds").evaluated }
+seed := { (runMain in Compile).partialInput(" utils.seeds.Seeds seed --seedAdmins --seedDemo 1").evaluated }
 
 /** Cats pulls in disciple which pulls in scalacheck, and SBT will notice and set up a test for ScalaCheck */
 lazy val noScalaCheckPlease: ExclusionRule = ExclusionRule(organization = "org.scalacheck")

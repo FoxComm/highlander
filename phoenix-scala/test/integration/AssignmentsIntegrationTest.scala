@@ -1,23 +1,26 @@
-import Extensions._
 import akka.http.scaladsl.model.StatusCodes
-import failures.{AlreadyAssignedFailure, AssigneeNotFoundFailure, NotAssignedFailure, NotFoundFailure404}
+
+import Extensions._
+import failures.AssignmentFailures._
+import failures.NotFoundFailure404
+import models._
 import models.cord._
-import models.customer.Customers
-import models.{Assignment, Assignments, StoreAdmin, StoreAdmins}
 import payloads.AssignmentPayloads._
+import responses._
 import responses.cord.AllOrders
-import responses.{AssignmentResponse, BatchMetadata, BatchMetadataSource, TheResponse}
-import util.IntegrationTestBase
+import util._
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
-class AssignmentsIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
+class AssignmentsIntegrationTest
+    extends IntegrationTestBase
+    with HttpSupport
+    with AutomaticAuth
+    with BakedFixtures {
 
   "POST /v1/orders/:refNum/assignees" - {
 
-    "can be assigned to order" in new Fixture {
+    "can be assigned to order" in new Order_Baked {
       val payload  = AssignmentPayload(assignees = Seq(storeAdmin.id))
       val response = POST(s"v1/orders/${order.refNum}/assignees", payload)
       response.status must === (StatusCodes.OK)
@@ -30,7 +33,7 @@ class AssignmentsIntegrationTest extends IntegrationTestBase with HttpSupport wi
       theResponse.errors mustBe None
     }
 
-    "extends response with errors if one of store admins is not found" in new Fixture {
+    "extends response with errors if one of store admins is not found" in new Order_Baked {
       val nonExistentAdminId = 2
       val payload            = AssignmentPayload(assignees = Seq(storeAdmin.id, nonExistentAdminId))
       val response           = POST(s"v1/orders/${order.refNum}/assignees", payload)
@@ -48,7 +51,7 @@ class AssignmentsIntegrationTest extends IntegrationTestBase with HttpSupport wi
           nonExistentAdminId).description
     }
 
-    "returns error if order not found" in new Fixture {
+    "returns error if order not found" in new Order_Baked {
       val payload  = AssignmentPayload(assignees = Seq(storeAdmin.id))
       val response = POST(s"v1/orders/NOPE/assignees", payload)
       response.status must === (StatusCodes.NotFound)
@@ -89,7 +92,7 @@ class AssignmentsIntegrationTest extends IntegrationTestBase with HttpSupport wi
 
     "can be assigned to multiple orders with graceful error handling" in new BulkAssignmentFixture {
       val payload = BulkAssignmentPayload(entityIds = Seq(order1.refNum, order2.refNum, "NOPE"),
-                                          storeAdminId = admin.id)
+                                          storeAdminId = storeAdmin.id)
       val response = POST(s"v1/orders/assignees", payload)
       response.status must === (StatusCodes.OK)
 
@@ -98,7 +101,7 @@ class AssignmentsIntegrationTest extends IntegrationTestBase with HttpSupport wi
 
       val notFoundFailure = NotFoundFailure404(Order, "NOPE").description
       val alreadyAssignedFailure =
-        AlreadyAssignedFailure(Order, order1.refNum, admin.id).description
+        AlreadyAssignedFailure(Order, order1.refNum, storeAdmin.id).description
       val assertFailures =
         Map[String, String]("NOPE" → notFoundFailure, order1.refNum → alreadyAssignedFailure)
 
@@ -114,7 +117,7 @@ class AssignmentsIntegrationTest extends IntegrationTestBase with HttpSupport wi
 
     "can be unassigned from multiple orders with graceful error handling" in new BulkAssignmentFixture {
       val payload = BulkAssignmentPayload(entityIds = Seq(order1.refNum, order2.refNum, "NOPE"),
-                                          storeAdminId = admin.id)
+                                          storeAdminId = storeAdmin.id)
       val response = POST(s"v1/orders/assignees/delete", payload)
       response.status must === (StatusCodes.OK)
 
@@ -122,7 +125,7 @@ class AssignmentsIntegrationTest extends IntegrationTestBase with HttpSupport wi
       theResponse.result.size mustBe 2
 
       val notFoundFailure    = NotFoundFailure404(Order, "NOPE").description
-      val notAssignedFailure = NotAssignedFailure(Order, order2.refNum, admin.id).description
+      val notAssignedFailure = NotAssignedFailure(Order, order2.refNum, storeAdmin.id).description
       val assertFailures =
         Map[String, String]("NOPE" → notFoundFailure, order2.refNum → notAssignedFailure)
 
@@ -134,45 +137,35 @@ class AssignmentsIntegrationTest extends IntegrationTestBase with HttpSupport wi
     }
   }
 
-  trait Fixture {
-    val (order, storeAdmin, customer) = (for {
-      customer   ← * <~ Customers.create(Factories.customer)
-      cart       ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
-      order      ← * <~ Orders.create(cart.toOrder())
-      storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
-    } yield (order, storeAdmin, customer)).gimme
-  }
-
-  trait AssignmentFixture extends Fixture {
+  trait AssignmentFixture extends Order_Baked {
     val (assignee, secondAdmin) = (for {
       assignee ← * <~ Assignments.create(
                     Assignment(referenceType = Assignment.Order,
                                referenceId = order.id,
                                storeAdminId = storeAdmin.id,
                                assignmentType = Assignment.Assignee))
-      secondAdmin ← * <~ StoreAdmins.create(Factories.storeAdmin)
+      secondAdmin ← * <~ StoreAdmins.create(
+                       Factories.storeAdmin.copy(email = "a@b.c", name = "Admin2"))
     } yield (assignee, secondAdmin)).gimme
   }
 
-  trait BulkAssignmentFixture {
-    val (order1, order2, admin) = (for {
-      customer ← * <~ Customers.create(Factories.customer)
+  trait BulkAssignmentFixture extends Customer_Seed with StoreAdmin_Seed {
+    val (order1, order2) = (for {
       cart ← * <~ Carts.create(
                 Factories.cart.copy(customerId = customer.id, referenceNumber = "foo"))
-      order1 ← * <~ Orders.create(cart.toOrder())
+      order1 ← * <~ Orders.createFromCart(cart)
       cart ← * <~ Carts.create(
                 Factories.cart.copy(customerId = customer.id, referenceNumber = "bar"))
-      order2 ← * <~ Orders.create(cart.toOrder())
-      admin  ← * <~ StoreAdmins.create(Factories.storeAdmin)
+      order2 ← * <~ Orders.createFromCart(cart)
       assignee ← * <~ Assignments.create(
                     Assignment(referenceType = Assignment.Order,
                                referenceId = order1.id,
-                               storeAdminId = admin.id,
+                               storeAdminId = storeAdmin.id,
                                assignmentType = Assignment.Assignee))
-    } yield (order1, order2, admin)).gimme
+    } yield (order1, order2)).gimme
 
     val orderRef1 = order1.referenceNumber
     val orderRef2 = order2.referenceNumber
-    val adminId   = admin.id
+    val adminId   = storeAdmin.id
   }
 }

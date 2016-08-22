@@ -2,6 +2,8 @@ import _ from 'lodash';
 import { assoc } from 'sprout-data';
 import { createAction } from 'redux-act';
 
+const registeredActions = Object.create(null);
+
 export function reducer(state = {}, action) {
   const kind = _.get(action, 'meta.kind');
   const payload = action.payload;
@@ -27,6 +29,12 @@ export function reducer(state = {}, action) {
           [namespace, 'finished'], true,
           [namespace, 'err'], payload
         );
+      case 'aborted':
+        return assoc(state,
+          [namespace, 'inProgress'], false,
+          [namespace, 'finished'], false,
+          [namespace, 'err'], null
+        );
       case 'clearErrors':
         return assoc(state,
           [namespace, 'err'], null
@@ -48,15 +56,17 @@ function createAsyncAction(namespace, type, payloadReducer) {
   }));
 }
 
-export default function createAsyncActions(namespace, asyncCall, payloadReducer) {
+export default function createAsyncActions(namespace, asyncMethod, payloadReducer) {
+  if (namespace in registeredActions) {
+    throw new Error(`You already have ${namespace} action`);
+  }
+  registeredActions[namespace] = true;
+
   const started = createAsyncAction(namespace, 'started', payloadReducer);
   const succeeded = createAsyncAction(namespace, 'succeeded', payloadReducer);
   const failed = createAsyncAction(namespace, 'failed', payloadReducer);
+  const aborted = createAsyncAction(namespace, 'aborted', payloadReducer);
   const clearErrors = createAsyncAction(namespace, 'clearErrors', payloadReducer);
-
-  // @TODO! think about cancelling request on client side
-  // for example in navigate to product 1, then to 2, then back to 1 and there user will see
-  // not last navigated product, but product for which response will be last
 
   const perform = (...args) => {
     return (dispatch, getState) => {
@@ -75,11 +85,25 @@ export default function createAsyncActions(namespace, asyncCall, payloadReducer)
       };
 
       dispatch(started(...args));
-      return asyncCall.call(callContext, ...args)
+      const promise = asyncMethod.call(callContext, ...args);
+      const abort = () => {
+        if (promise.abort) promise.abort();
+        dispatch(aborted());
+      };
+
+      let result = promise
         .then(
           res => dispatch(succeeded(res, ...args)),
           handleError
-        ).catch(handleError);
+        );
+
+      // caching errors hinder debugging process
+      // but in production it leads to more expected behaviour
+      if (process.env.NODE_ENV === 'production') {
+        result = result.catch(handleError);
+      }
+      result.abort = abort;
+      return result;
     };
   };
 

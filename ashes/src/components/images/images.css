@@ -4,17 +4,17 @@
   margin-bottom: 40px;
 }
 
-.accordionContent {
+.albumContent {
   padding: 3px;
 }
 
-.accordionTitleText {
+.albumTitleText {
   margin-right: 10px;
   font-size: 16px;
   font-weight: 400;
 }
 
-.accordionTitleCount {
+.albumTitleCount {
   display: inline-block;
   width: 32px;
   line-height: 30px;
