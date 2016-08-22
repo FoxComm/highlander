@@ -9,7 +9,7 @@ import failures._
 import failures.ArchiveFailures._
 import failures.ProductFailures._
 import models.StoreAdmin
-import models.image.Albums
+import models.image.{AlbumImageLinks, Albums}
 import models.inventory._
 import models.objects._
 import models.product._
@@ -17,6 +17,7 @@ import payloads.ImagePayloads.UpdateAlbumPositionPayload
 import payloads.ProductPayloads._
 import payloads.SkuPayloads._
 import payloads.VariantPayloads._
+import responses.ImageResponses.ImageResponse
 import responses.ObjectResponses.ObjectContextResponse
 import responses.ProductResponses._
 import responses.SkuResponses._
@@ -186,6 +187,17 @@ object ProductManager {
           variantResponses
       )
   }
+
+  def getFirstProductImageByFromId(formId: ObjectForm#Id)(implicit ec: EC,
+                                                          db: DB): DbResultT[Option[String]] =
+    for {
+      products ← * <~ Products.filterByFormId(formId).result
+      albums   ← * <~ products.take(1).map(ProductAlbumLinks.queryRightByLeft)
+      images ← * <~ albums.flatten
+                .take(1)
+                .map(album ⇒ AlbumImageLinks.queryRightByLeft(album.model))
+      productImage ← * <~ images.flatten.take(1).map(i ⇒ ImageResponse.build(i).src).headOption
+    } yield productImage
 
   private def getVariantsWithRelatedSkus(variants: Seq[FullVariant])(
       implicit ec: EC,
