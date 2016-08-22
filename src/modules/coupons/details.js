@@ -43,8 +43,10 @@ export function fetchCoupon(id: string, context: string = defaultContext) {
     if (id.toLowerCase() == 'new') {
       dispatch(couponsNew());
     } else {
-      dispatch(getCoupon.perform(id, context));
-      dispatch(_getCodes.perform(id));
+      return dispatch(getCoupon.perform(id, context))
+        .then(
+          dispatch(_getCodes.perform(id))
+        );
     }
   };
 }

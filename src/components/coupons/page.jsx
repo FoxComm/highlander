@@ -40,7 +40,7 @@ type Params = {
 
 type Actions = {
   couponsNew: Function,
-  fetchCoupon: Function,
+  fetchCoupon: () => Promise,
   createCoupon: Function,
   updateCoupon: Function,
   generateCode: Function,
@@ -81,7 +81,10 @@ class CouponPage extends Component {
     if (this.isNew) {
       this.props.actions.couponsNew();
     } else {
-      this.props.actions.fetchCoupon(this.entityId);
+      this.props.actions.fetchCoupon(this.entityId)
+        .then(({payload}) => {
+          if (isArchived(payload)) transitionTo('coupons');
+        });
     }
   }
 
