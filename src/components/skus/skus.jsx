@@ -6,6 +6,7 @@
 import React, { Component, Element } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { autobind } from 'core-decorators';
 
 // data
 import { actions } from 'modules/skus/list';
@@ -14,7 +15,12 @@ import { actions } from 'modules/skus/list';
 import SelectableSearchList from '../list-page/selectable-search-list';
 import SkuRow from './sku-row';
 
+// helpers
+import { filterArchived } from 'elastic/archive';
+
+// types
 import type { Sku } from 'modules/skus/list';
+import type { SearchFilter } from 'elastic/common';
 
 type Column = {
   field: string,
@@ -37,6 +43,11 @@ export class Skus extends Component {
     { field: 'retailPrice', currencyField: 'retailPriceCurrency', text: 'Retail Price', type: 'currency' }
   ];
 
+  @autobind
+  addSearchFilters(filters: Array<SearchFilter>, initial: boolean = false) {
+    return this.props.actions.addSearchFilters(filterArchived(filters), initial);
+  }
+
   renderRow(row: Sku, index: number, columns: Array<Column>, params: Object) {
     const key = `skus-${row.id}`;
     return <SkuRow key={key} sku={row} columns={columns} params={params} />;
@@ -45,6 +56,11 @@ export class Skus extends Component {
   render(): Element {
     const { list, actions } = this.props;
 
+    const searchActions = {
+      ...actions,
+      addSearchFilters: this.addSearchFilters,
+    };
+
     return (
       <div>
         <SelectableSearchList
@@ -52,7 +68,7 @@ export class Skus extends Component {
           list={list}
           renderRow={this.renderRow}
           tableColumns={Skus.tableColumns}
-          searchActions={actions}
+          searchActions={searchActions}
           predicate={({code}) => code} />
       </div>
     );
