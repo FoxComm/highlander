@@ -41,7 +41,7 @@ func (suite *reservationControllerTestSuite) Test_ReserveItems() {
 
 	jsonStr := `{"refNum":"BR10001","stockLocationId":1,"reservations":[{ "sku": "SKU", "qty": 2 }]}`
 
-	res := suite.Post("/reservations/reserve", jsonStr)
+	res := suite.Post("/reservations/hold", jsonStr)
 
 	suite.Equal(http.StatusNoContent, res.Code)
 	suite.service.AssertExpectations(suite.T())
@@ -52,7 +52,7 @@ func (suite *reservationControllerTestSuite) Test_ReserveItems_WrongSKUs() {
 
 	jsonStr := `{"refNum": "BR10001","stockLocationId":1,"reservations": [{ "sku": "SKU", "qty": 2 }]}`
 
-	res := suite.Post("/reservations/reserve", jsonStr)
+	res := suite.Post("/reservations/hold", jsonStr)
 
 	suite.Equal(http.StatusNotFound, res.Code)
 	suite.Contains(res.Body.String(), "errors")
@@ -63,7 +63,7 @@ func (suite *reservationControllerTestSuite) Test_ReserveItems_WrongSKUs() {
 func (suite *reservationControllerTestSuite) Test_ReserveItems_EmptySKUsList() {
 	jsonStr := `{"refNum": "BR10001","stockLocationId":1,"reservations": []}`
 
-	res := suite.Post("/reservations/reserve", jsonStr)
+	res := suite.Post("/reservations/hold", jsonStr)
 
 	suite.Equal(http.StatusBadRequest, res.Code)
 	suite.Contains(res.Body.String(), "errors")
@@ -73,9 +73,7 @@ func (suite *reservationControllerTestSuite) Test_ReserveItems_EmptySKUsList() {
 func (suite *reservationControllerTestSuite) Test_ReleaseItems() {
 	suite.service.On("ReleaseItems", "BR10001").Return(nil).Once()
 
-	jsonStr := `{"refNum": "BR10001","stockLocationId":1}`
-
-	res := suite.Post("/reservations/cancel", jsonStr)
+	res := suite.Delete("/reservations/hold/BR10001")
 
 	suite.Equal(http.StatusNoContent, res.Code)
 	suite.service.AssertExpectations(suite.T())
@@ -84,9 +82,7 @@ func (suite *reservationControllerTestSuite) Test_ReleaseItems() {
 func (suite *reservationControllerTestSuite) Test_ReserveItems_WrongRefNum() {
 	suite.service.On("ReleaseItems", "BR10001").Return(gorm.ErrRecordNotFound).Once()
 
-	jsonStr := `{"refNum": "BR10001","stockLocationId":1}`
-
-	res := suite.Post("/reservations/cancel", jsonStr)
+	res := suite.Delete("/reservations/hold/BR10001")
 
 	suite.Equal(http.StatusNotFound, res.Code)
 	suite.Contains(res.Body.String(), "errors")
