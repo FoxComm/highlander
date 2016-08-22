@@ -9,7 +9,7 @@ import:
   - package: github.com/DATA-DOG/go-sqlmock
   - package: github.com/FoxComm/metamorphosis
     vcs: git
-    version: e034438c2ca03d5dbdc117eaadfb2c1b23ee21c0
+    version: c859231aa299071ddce3db524cb06d6bd6003936
     repo: git@github.com:FoxComm/metamorphosis.git
   - package: github.com/elodina/go-avro
     version: 0c8185d9a3ba82aeac98db3313a268a5b6df99b5

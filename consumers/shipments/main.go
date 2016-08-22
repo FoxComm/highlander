@@ -8,6 +8,11 @@ import (
 	"github.com/FoxComm/metamorphosis"
 )
 
+const (
+	clientID = "shipments-01"
+	groupID  = "mwh-shipments-consumers"
+)
+
 func main() {
 	zookeeper := os.Getenv("ZOOKEEPER")
 	schemaRegistry := os.Getenv("SCHEMA_REGISTRY")
@@ -16,6 +21,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("Unable to connect to Kafka with error %s", err.Error())
 	}
+
+	consumer.SetGroupID(groupID)
+	consumer.SetClientID(clientID)
 
 	mwhURL := os.Getenv("MWH_URL")
 	oh, err := NewOrderHandler(mwhURL)

@@ -1,9 +1,9 @@
 package payloads
 
 type OrderTotals struct {
-	Taxes       int `json:"taxes" binding:"required"`
-	Total       int `json:"total" binding:"required"`
-	Shipping    int `json:"shipping" binding:"required"`
-	SubTotal    int `json:"subTotal" binding:"required"`
+	Taxes       int `json:"taxes"`
+	Total       int `json:"total"`
+	Shipping    int `json:"shipping"`
+	SubTotal    int `json:"subTotal"`
 	Adjustments int `json:"adjustments"`
 }
