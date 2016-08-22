@@ -16,7 +16,7 @@ import SelectableSearchList from '../list-page/selectable-search-list';
 import ProductRow from './product-row';
 
 // helpers
-import { addArchiveFilters } from 'elastic/archive';
+import { filterArchived } from 'elastic/archive';
 
 // types
 import type { SearchFilter } from 'elastic/common';
@@ -50,7 +50,7 @@ export class Products extends Component {
 
   @autobind
   addSearchFilters(filters: Array<SearchFilter>, initial: boolean = false) {
-    return this.props.actions.addSearchFilters(addArchiveFilters(filters), initial);
+    return this.props.actions.addSearchFilters(filterArchived(filters), initial);
   }
 
   renderRow(row: Product, index: number, columns: Array<Column>, params: Object) {

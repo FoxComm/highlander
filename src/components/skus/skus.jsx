@@ -16,7 +16,7 @@ import SelectableSearchList from '../list-page/selectable-search-list';
 import SkuRow from './sku-row';
 
 // helpers
-import { addArchiveFilters } from 'elastic/archive';
+import { filterArchived } from 'elastic/archive';
 
 // types
 import type { Sku } from 'modules/skus/list';
@@ -45,7 +45,7 @@ export class Skus extends Component {
 
   @autobind
   addSearchFilters(filters: Array<SearchFilter>, initial: boolean = false) {
-    return this.props.actions.addSearchFilters(addArchiveFilters(filters), initial);
+    return this.props.actions.addSearchFilters(filterArchived(filters), initial);
   }
 
   renderRow(row: Sku, index: number, columns: Array<Column>, params: Object) {

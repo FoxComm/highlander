@@ -2,7 +2,7 @@ import _ from 'lodash';
 
 import type { SearchFilter } from 'elastic/common';
 
-export function addArchiveFilters(filters: Array<SearchFilter>) {
+export function filterArchived(filters: Array<SearchFilter>) {
   if (!_.find(filters, {term: 'archivedAt'})) {
     filters = [
       {
