@@ -6,7 +6,7 @@
   when: updating_mwh
 
 - name: Copy stock-items-consumer Binary
-  copy: src={{middlewarehouse_consumers_stock_items_consumer_bin_src}} dest={{middlewarehouse_consumers_stock_items_consumer_bin}} mode="u+x,g+x,o+x"
+  copy: src={{stock_items_consumer_bin_src}} dest={{stock_items_consumer_bin}} mode="u+x,g+x,o+x"
   sudo: true
   when: updating_mwh
 
@@ -26,5 +26,5 @@
   sudo: true
 
 - name: Restart stock-items-consumer
-  service: name=middlewarehouse-stock-items-consumer state=restarted enabled=yes
+  service: name=stock-items-consumer state=restarted enabled=yes
   sudo: true

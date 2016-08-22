@@ -13,7 +13,7 @@
   sudo: true
 
 - name: Copy stock-items-consumer Binary
-  copy: src={{middlewarehouse_consumers_stock_items_consumer_bin_src}} dest={{middlewarehouse_consumers_stock_items_consumer_bin}} mode="u+x,g+x,o+x"
+  copy: src={{stock_items_consumer_bin_src}} dest={{stock_items_consumer_bin}} mode="u+x,g+x,o+x"
   sudo: true
 
 - name: Synchronize middlewarehouse Sql
@@ -31,7 +31,7 @@
   sudo: true
 
 - name: Copy stock-items-consumer Service
-  template: src=middlewarehouse-stock-items-consumer.service dest="{{dest_services}}/middlewarehouse-stock-items-consumer.service"
+  template: src=middlewarehouse-stock-items-consumer.service dest="{{dest_services}}/stock-items-consumer.service"
   sudo: true
 
 - name: Reload Systemd for middlewarehouse

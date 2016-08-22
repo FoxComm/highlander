@@ -18,5 +18,5 @@ Environment=TOPIC=sku_search_view
 WantedBy=multi-user.target
 
 [Unit]
-Requires={{middlewarehouse_cunsumers_services_requires}}
+Requires={{middlewarehouse_consumers_services_requires}}
 After={{middlewarehouse_consumers_services_after}}
