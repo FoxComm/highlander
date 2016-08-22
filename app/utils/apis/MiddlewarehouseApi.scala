@@ -37,6 +37,5 @@ class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
       case Right(_)    ⇒ Result.unit
       case Left(error) ⇒ Result.failure(MiddlewarehouseFailures.UnableToReserveLineItems(error))
     }
-
   }
 }
