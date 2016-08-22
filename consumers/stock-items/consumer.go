@@ -17,7 +17,7 @@ type Consumer struct {
 
 const (
 	clientID = "stock-items-01"
-	groupID  = "mwh-shipments-consumers"
+	groupID  = "mwh-stock-items-consumers"
 )
 
 func NewConsumer(zookeeper string, schemaRepo string, mwhURL string) (*Consumer, error) {
