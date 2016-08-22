@@ -25,6 +25,10 @@
       prompt: "Enter a local path to middlewarehouse stock-items-consumer binary"
       default: "~/golang/src/github.com/FoxComm/middlewarehouse/consumers/stock-items/stock-items-consumer"
       private: no
+    - name: "shipments_consumer_bin_src"
+      prompt: "Enter a local path to middlewarehouse shipments-consumer binary"
+      default: "~/golang/src/github.com/FoxComm/middlewarehouse/consumers/shipments/shipments-consumer"
+      private: no
 
   roles:
     - { role: dev/middlewarehouse }

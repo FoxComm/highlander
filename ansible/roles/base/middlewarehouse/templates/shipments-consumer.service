@@ -1,18 +1,19 @@
 [Service]
 Environment="GOENV={{middlewarehouse_env}}"
 WorkingDirectory={{middlewarehouse_consumers_dir}}
-ExecStart={{stock_items_consumer_bin}}
+ExecStart={{shipments_consumer_bin}}
 Restart=always
 StandardOutput=syslog
 StandardError=syslog
-SyslogIdentifier=stock-items-consumer
+SyslogIdentifier=shipments-consumer
 TimeoutStartSec=5m
 RestartSec=5
 
-Environment=ZOOKEEPER_URL={{zookeeper_server}}
-Environment=SCHEMA_REPO_URL=http://{{schema_server}}
+Environment=ZOOKEEPER={{zookeeper_server}}
+Environment=SCHEMA_REGISTRY=http://{{schema_server}}
 Environment=MWH_URL=http://{{middlewarehouse_server}}
-Environment=TOPIC=sku_search_view
+Environment=TOPIC=activities
+Environment=PARTITION=1
 
 [Install]
 WantedBy=multi-user.target
