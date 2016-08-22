@@ -93,6 +93,12 @@ deploy-dem2:
 deploy-build-agents:
 	ansible-playbook -v -i bin/envs/staging ansible/build_agents.yml --private-key=$(PRIVATE_KEY)
 
+tf-aws-demo:
+	terraform $(TF_CMD) -state=$(TF_ENVS)/aws_demo_env/terraform.tfstate -var-file=$(TF_ENVS)/aws_demo_env/demo.tfvars $(TF_BASE)/aws_demo_env
+
+tf-aws-target:
+	terraform $(TF_CMD) -state=$(TF_ENVS)/aws_target/terraform.tfstate -var-file=$(TF_ENVS)/aws_target/target.tfvars $(TF_BASE)/aws_target
+
 tf-stage:
 	terraform $(TF_CMD) -state=$(TF_ENVS)/gce_dev/terraform.tfstate -var-file=$(TF_ENVS)/gce_dev/dev.tfvars $(TF_BASE)/gce_dev
 

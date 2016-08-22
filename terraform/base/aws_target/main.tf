@@ -11,11 +11,11 @@ provider "aws" {
     region = "${var.region}"
 }
 
-module "demo_networking" {
+module "target_networking" {
     source ="../../modules/aws/networking"
     vpc_cidr = "10.0.0.0/16"
     public_subnet_cidr = "${var.public_subnet_cidr}"
     private_subnet_cidr = "${var.private_subnet_cidr}"
-    name = "demo"
+    name = "tgt"
     key_name = "${var.aws_key_name}"
 }
