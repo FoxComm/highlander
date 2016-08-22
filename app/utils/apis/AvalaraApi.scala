@@ -18,6 +18,7 @@ import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import org.json4s.jackson
 import org.json4s.jackson.Serialization._
+import org.json4s.ext._
 import com.pellucid.sealerate
 import failures.AvalaraFailures._
 import services.Result
@@ -28,11 +29,16 @@ import utils.aliases.EC
 trait AvalaraApi {
 
   def estimateTax: Result[Unit]
-  def getTax()(implicit ec: EC): Result[Unit]
+  def getTaxForCart()(implicit ec: EC): Result[Unit]
+  def getTaxForOrder()(implicit ec: EC): Result[Unit]
 
 }
 
 object Avalara {
+  trait AvalaraADT[W] extends ADT[W] {
+    override def show(f: W): String = f.toString
+  }
+
   object Requests {
     sealed trait AddressType
     case object F extends AddressType //Firm or company address
@@ -42,7 +48,7 @@ object Avalara {
     case object R extends AddressType //Rural route address
     case object S extends AddressType //Street or residential address, probably, we will mostly use it
 
-    object AddressType extends ADT[AddressType] {
+    object AddressType extends AvalaraADT[AddressType] {
       def types = sealerate.values[AddressType]
     }
 
@@ -52,7 +58,7 @@ object Avalara {
     case object Line       extends DetailLevel
     case object Diagnostic extends DetailLevel
 
-    object DetailLevel extends ADT[DetailLevel] {
+    object DetailLevel extends AvalaraADT[DetailLevel] {
       def types = sealerate.values[DetailLevel]
     }
 
@@ -66,7 +72,7 @@ object Avalara {
     case object ReverseChargeOrder   extends DocType
     case object ReverseChargeInvoice extends DocType
 
-    object DocType extends ADT[DocType] {
+    object DocType extends AvalaraADT[DocType] {
       def types = sealerate.values[DocType]
     }
 
@@ -149,7 +155,7 @@ object Avalara {
     case object Error     extends SeverityLevel
     case object Exception extends SeverityLevel
 
-    object SeverityLevel extends ADT[SeverityLevel] {
+    object SeverityLevel extends AvalaraADT[SeverityLevel] {
       def types = sealerate.values[SeverityLevel]
     }
 
@@ -159,7 +165,7 @@ object Avalara {
         Summary: String,
         Details: Option[String],
         RefersTo: Option[String],
-        Severity: String,
+        Severity: SeverityLevel,
         Source: String
     )
 
@@ -255,7 +261,15 @@ class Avalara()(implicit as: ActorSystem, am: ActorMaterializer) extends Avalara
 
   override def estimateTax: Result[Unit] = Result.unit
 
-  override def getTax()(implicit ec: EC): Result[Unit] = {
+  override def getTaxForCart()(implicit ec: EC): Result[Unit] = {
+    getTax()
+  }
+
+  override def getTaxForOrder()(implicit ec: EC): Result[Unit] = {
+    getTax()
+  }
+
+  private def getTax()(implicit ec: EC): Result[Unit] = {
     val (url, account, license, profile) = getConfig()
     val connectionFlow: Flow[HttpRequest, HttpResponse, Future[Http.OutgoingConnection]] =
       Http().outgoingConnectionHttps(url)
@@ -266,10 +280,10 @@ class Avalara()(implicit as: ActorSystem, am: ActorMaterializer) extends Avalara
 //      .via(connectionFlow)
 //      .runWith(Sink.head)
 
-    val result: Future[Option[Avalara.Responses.GetTaxes]] = Source
+    val result: Future[Option[Avalara.Responses.SimpleErrorMessage]] = Source
       .single(HttpRequest(uri = "/1.0/tax/get", method = HttpMethods.POST, headers = headers))
       .via(connectionFlow)
-      .mapAsync(1)(response ⇒ Unmarshal(response).to[Option[Avalara.Responses.GetTaxes]])
+      .mapAsync(1)(response ⇒ Unmarshal(response).to[Option[Avalara.Responses.SimpleErrorMessage]])
       .runWith(Sink.head)
 
 //    val result: Future[Avalara.Responses.GetTaxes] =

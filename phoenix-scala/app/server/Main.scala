@@ -198,6 +198,6 @@ class Service(systemOverride: Option[ActorSystem] = None,
   }
 
   def pingAvalara(): Unit = {
-    apis.avalaraApi.getTax()
+    apis.avalaraApi.getTaxForCart()
   }
 }
