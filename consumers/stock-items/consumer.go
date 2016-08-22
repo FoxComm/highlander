@@ -15,11 +15,19 @@ type Consumer struct {
 	mwhURL string
 }
 
+const (
+	clientID = "stock-items-01"
+	groupID  = "mwh-shipments-consumers"
+)
+
 func NewConsumer(zookeeper string, schemaRepo string, mwhURL string) (*Consumer, error) {
 	consumer, err := metamorphosis.NewConsumer(zookeeper, schemaRepo)
 	if err != nil {
 		return nil, err
 	}
+
+	consumer.SetGroupID(groupID)
+	consumer.SetClientID(clientID)
 
 	return &Consumer{c: consumer, mwhURL: mwhURL}, nil
 }

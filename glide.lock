@@ -1,5 +1,5 @@
-hash: def5b2804c99118abf56bc3f38980cd6aadfcecf6c7819a09a8c414d2c0f835e
-updated: 2016-08-17T23:37:20.254323231-07:00
+hash: 2a0f110f694f61d556c80011a9c9e9adc4412451a909404fd9ca30360057339e
+updated: 2016-08-21T22:59:28.256221876-07:00
 imports:
 - name: github.com/cihub/seelog
   version: d2c6e5aa9fbfdd1c624e140287063c7730654115
@@ -28,7 +28,7 @@ imports:
 - name: github.com/elodina/siesta-producer
   version: a374fc36c515243efb438aed41c536af55d8b19b
 - name: github.com/FoxComm/metamorphosis
-  version: e034438c2ca03d5dbdc117eaadfb2c1b23ee21c0
+  version: c859231aa299071ddce3db524cb06d6bd6003936
   repo: git@github.com:FoxComm/metamorphosis.git
   vcs: git
 - name: github.com/gin-gonic/gin
