@@ -109,8 +109,8 @@ case class Checkout(
   private def reserveInMiddleWarehouse: DbResultT[Unit] =
     for {
       liSkus ← * <~ CartLineItems.byCordRef(cart.refNum).countSkus
-      skuReservations = liSkus.map { case (skuCode, qty) ⇒ SkuReservation(skuCode, qty) }.toSeq
-      _ ← * <~ apis.middlwarehouse.reserve(OrderReservation(cart.referenceNumber, skuReservations))
+      skus = liSkus.map { case (skuCode, qty) ⇒ SkuReservation(skuCode, qty) }.toSeq
+      _ ← * <~ apis.middlwarehouse.reserve(OrderReservation(cart.referenceNumber, skus))
     } yield {}
 
   private def activePromos: DbResultT[Unit] =

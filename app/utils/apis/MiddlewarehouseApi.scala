@@ -14,7 +14,7 @@ import failures.MiddlewarehouseFailures
 import dispatch._
 
 case class SkuReservation(sku: String, qty: Int)
-case class OrderReservation(refNum: String, reservations: Seq[SkuReservation])
+case class OrderReservation(refNum: String, items: Seq[SkuReservation])
 
 trait MiddlewarehouseApi {
 
@@ -29,7 +29,7 @@ class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
     // TODO: make request, parse, check for errors
     // If response status code is BadRequest and/or errors are present in response, wrap as Xor.left to fail checkout
 
-    val reqUrl = dispatch.url(s"$url/reservations/reserve")
+    val reqUrl = dispatch.url(s"$url/v1/private/reservations/hold")
     val body   = compact(Extraction.decompose(reservation))
     val req    = reqUrl.setContentType("application/json", "UTF-8") << body
     logger.info(s"middlewarehouse reservation: $reqUrl : $body")
