@@ -2,7 +2,7 @@ package models.Vendor
 
 import models.Vendor._
 import cats.data.ValidatedNel
-import cats.implicits._ 
+import cats.implicits._
 import utils.aliases._
 import cats.data.ValidatedNel
 import cats.implicits._
@@ -18,14 +18,12 @@ import utils.aliases._
 import utils.db._
 import models.StoreAdmin._
 
-
-
-case class VendorAdmin (id: Int = 0,
-                        email: Option[String] = None,
-                        hashedPassword: Option[String] = None,
-                        isDisabled: Boolean = false,
-                        disabledBy: Option[Int] = None,
-                        createdAt: Instant = Instant.now)
+case class VendorAdmin(id: Int = 0,
+                       email: Option[String] = None,
+                       hashedPassword: Option[String] = None,
+                       isDisabled: Boolean = false,
+                       disabledBy: Option[Int] = None,
+                       createdAt: Instant = Instant.now)
     extends FoxModel[VendorAdmin]
     with Validation[VendorAdmin] {
 
@@ -48,34 +46,30 @@ object VendorAdmin {
             isDisabled: Boolean = false,
             disabledBy: Option[Int] = None,
             createdAt: Instant = Instant.now): VendorAdmin = {
-  val passwordHash = password.map(hashPassword)
-  VendorAdmin(id = id,
-              hashedPassword = passwordHash,
-              isDisabled = isDisabled,
-              disabledBy = disabledBy,
-              createdAt = createdAt)
+    val passwordHash = password.map(hashPassword)
+    VendorAdmin(id = id,
+                hashedPassword = passwordHash,
+                isDisabled = isDisabled,
+                disabledBy = disabledBy,
+                createdAt = createdAt)
   }
 }
 
-class VendorAdmins(tag: Tag) extends FoxTable[VendorAdmin](tag, "vendor_admins") { 
-  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def email = column[String]("email")
+class VendorAdmins(tag: Tag) extends FoxTable[VendorAdmin](tag, "vendor_admins") {
+  def id             = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def email          = column[String]("email")
   def hashedPassword = column[Option[String]]("hashed_password")
-  def isDisabled = column[Boolean]("is_disabled")
-  def disabledBy = column[Option[Int]]("disabled_by")
-  def createdAt = column[Instant]("created_at")
+  def isDisabled     = column[Boolean]("is_disabled")
+  def disabledBy     = column[Option[Int]]("disabled_by")
+  def createdAt      = column[Instant]("created_at")
 
-  def * = (id, 
-           email, 
-           hashedPassword, 
-           isDisabled, 
-           disabledBy,
-           createdAt) <> ((VendorAdmin.apply _).tupled, VendorAdmin.unapply)
+  def * =
+    (id, email, hashedPassword, isDisabled, disabledBy, createdAt) <> ((VendorAdmin.apply _).tupled, VendorAdmin.unapply)
 }
 
 object VendorAdmins
     extends FoxTableQuery[VendorAdmin, VendorAdmins](new VendorAdmins(_))
     with ReturningId[VendorAdmin, VendorAdmins] {
-    
+
   val returningLens: Lens[VendorAdmin, Int] = lens[VendorAdmin].id
 }

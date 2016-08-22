@@ -8,7 +8,6 @@ import utils.Validation
 import shapeless._
 import com.pellucid.sealerate
 
-
 case class Vendor(id: Int = 0,
                   name: Option[String],
                   description: Option[String],
@@ -20,11 +19,11 @@ case class Vendor(id: Int = 0,
 object Vendor {
   sealed trait State
 
-  case object New          extends State
-  case object Active        extends State
-  case object Suspended         extends State
-  case object Dropped           extends State
-  case object Inactive extends State
+  case object New       extends State
+  case object Active    extends State
+  case object Suspended extends State
+  case object Dropped   extends State
+  case object Inactive  extends State
 
   object State extends ADT[State] {
     def types = sealerate.values[State]
@@ -32,15 +31,14 @@ object Vendor {
 
   implicit val stateColumnType: JdbcType[State] with BaseTypedType[State] = State.slickColumn
 
-
 }
 
 class Vendors(tag: Tag) extends FoxTable[Vendor](tag, "vendors") {
-  def id         = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def name       = column[Option[String]]("name")
+  def id          = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def name        = column[Option[String]]("name")
   def description = column[Option[String]]("description")
-  def state            = column[Vendor.State]("state")  
-  def createdAt  = column[Instant]("created_at")
+  def state       = column[Vendor.State]("state")
+  def createdAt   = column[Instant]("created_at")
 
   def * =
     (id, name, description, state, createdAt) <> ((Vendor.apply _).tupled, Vendor.unapply)

@@ -13,24 +13,24 @@ import utils.db._
 import models.location._
 
 case class MerchantAddress(id: Int = 0,
-                         merchantId: Int,
-                         regionId: Int,
-                         name: String,
-                         address1: String,
-                         address2: Option[String],
-                         city: String,
-                         zip: String,
-                         isHeadquarters: Boolean = false,
-                         phoneNumber: Option[String] = None,
-                         deletedAt: Option[Instant] = None)
+                           merchantId: Int,
+                           regionId: Int,
+                           name: String,
+                           address1: String,
+                           address2: Option[String],
+                           city: String,
+                           zip: String,
+                           isHeadquarters: Boolean = false,
+                           phoneNumber: Option[String] = None,
+                           deletedAt: Option[Instant] = None)
     extends FoxModel[MerchantAddress]
     with Addressable[MerchantAddress]
     with Validation[MerchantAddress] {
 
   def instance: MerchantAddress = { this }
-  def zipLens                 = lens[MerchantAddress].zip
-  override def sanitize       = super.sanitize(this)
-  override def validate       = super.validate
+  def zipLens                   = lens[MerchantAddress].zip
+  override def sanitize         = super.sanitize(this)
+  override def validate         = super.validate
 }
 
 object MerchantAddress {
@@ -40,7 +40,7 @@ object MerchantAddress {
 
 class MerchantAddresses(tag: Tag) extends FoxTable[MerchantAddress](tag, "merchantAddresses") {
   def id             = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def merchantId       = column[Int]("merchant_id")
+  def merchantId     = column[Int]("merchant_id")
   def regionId       = column[Int]("region_id")
   def name           = column[String]("name")
   def address1       = column[String]("address1")

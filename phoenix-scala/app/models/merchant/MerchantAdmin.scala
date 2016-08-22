@@ -2,7 +2,7 @@ package models.Merchant
 
 import models.Merchant._
 import cats.data.ValidatedNel
-import cats.implicits._ 
+import cats.implicits._
 import utils.aliases._
 import cats.data.ValidatedNel
 import cats.implicits._
@@ -18,14 +18,12 @@ import utils.aliases._
 import utils.db._
 import models.StoreAdmin._
 
-
-
-case class MerchantAdmin (id: Int = 0,
-                        email: Option[String] = None,
-                        hashedPassword: Option[String] = None,
-                        isDisabled: Boolean = false,
-                        disabledBy: Option[Int] = None,
-                        createdAt: Instant = Instant.now)
+case class MerchantAdmin(id: Int = 0,
+                         email: Option[String] = None,
+                         hashedPassword: Option[String] = None,
+                         isDisabled: Boolean = false,
+                         disabledBy: Option[Int] = None,
+                         createdAt: Instant = Instant.now)
     extends FoxModel[MerchantAdmin]
     with Validation[MerchantAdmin] {
 
@@ -48,34 +46,30 @@ object MerchantAdmin {
             isDisabled: Boolean = false,
             disabledBy: Option[Int] = None,
             createdAt: Instant = Instant.now): MerchantAdmin = {
-  val passwordHash = password.map(hashPassword)
-  MerchantAdmin(id = id,
-              hashedPassword = passwordHash,
-              isDisabled = isDisabled,
-              disabledBy = disabledBy,
-              createdAt = createdAt)
+    val passwordHash = password.map(hashPassword)
+    MerchantAdmin(id = id,
+                  hashedPassword = passwordHash,
+                  isDisabled = isDisabled,
+                  disabledBy = disabledBy,
+                  createdAt = createdAt)
   }
 }
 
-class MerchantAdmins(tag: Tag) extends FoxTable[MerchantAdmin](tag, "merchant_admins") { 
-  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def email = column[String]("email")
+class MerchantAdmins(tag: Tag) extends FoxTable[MerchantAdmin](tag, "merchant_admins") {
+  def id             = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def email          = column[String]("email")
   def hashedPassword = column[Option[String]]("hashed_password")
-  def isDisabled = column[Boolean]("is_disabled")
-  def disabledBy = column[Option[Int]]("disabled_by")
-  def createdAt = column[Instant]("created_at")
+  def isDisabled     = column[Boolean]("is_disabled")
+  def disabledBy     = column[Option[Int]]("disabled_by")
+  def createdAt      = column[Instant]("created_at")
 
-  def * = (id, 
-           email, 
-           hashedPassword, 
-           isDisabled, 
-           disabledBy,
-           createdAt) <> ((MerchantAdmin.apply _).tupled, MerchantAdmin.unapply)
+  def * =
+    (id, email, hashedPassword, isDisabled, disabledBy, createdAt) <> ((MerchantAdmin.apply _).tupled, MerchantAdmin.unapply)
 }
 
 object MerchantAdmins
     extends FoxTableQuery[MerchantAdmin, MerchantAdmins](new MerchantAdmins(_))
     with ReturningId[MerchantAdmin, MerchantAdmins] {
-    
+
   val returningLens: Lens[MerchantAdmin, Int] = lens[MerchantAdmin].id
 }
