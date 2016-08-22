@@ -20,12 +20,12 @@ trait MiddlewarehouseApi {
 
   implicit val formats = JsonFormatters.phoenixFormats
 
-  def reserve(reservation: OrderReservation)(implicit ec: EC): Result[String]
+  def reserve(reservation: OrderReservation)(implicit ec: EC): Result[Unit]
 }
 
 class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
 
-  override def reserve(reservation: OrderReservation)(implicit ec: EC): Result[String] = {
+  override def reserve(reservation: OrderReservation)(implicit ec: EC): Result[Unit] = {
     // TODO: make request, parse, check for errors
     // If response status code is BadRequest and/or errors are present in response, wrap as Xor.left to fail checkout
 
@@ -34,7 +34,7 @@ class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
     val req    = reqUrl.setContentType("application/json", "UTF-8") << body
     logger.info(s"middlewarehouse reservation: $reqUrl : $body")
     Http(req.POST OK as.String).either.flatMap {
-      case Right(resp) ⇒ Result.good(resp)
+      case Right(_)    ⇒ Result.unit
       case Left(error) ⇒ Result.failure(MiddlewarehouseFailures.UnableToReserveLineItems(error))
     }
 
