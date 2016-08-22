@@ -29,21 +29,23 @@ func (consumer *Consumer) Run(topic string, partition int) {
 }
 
 func (consumer *Consumer) handler(m metamorphosis.AvroMessage) error {
+	log.Printf("Received SKU %s", string(m.Bytes()))
+
 	sku, err := NewSKUFromAvro(m)
 	if err != nil {
-		return err
+		log.Panicf("Error unmarshaling from Avro with error: %s", err.Error())
 	}
 
 	stockItem := sku.StockItem(1)
 	b, err := json.Marshal(&stockItem)
 	if err != nil {
-		return err
+		log.Panicf("Error marshaling to stock item with error: %s", err.Error())
 	}
 
 	url := fmt.Sprintf("%s/stock-items", consumer.mwhURL)
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(b))
 	if err != nil {
-		return err
+		log.Panicf("Error creating POST request to MWH with error: %s", err.Error())
 	}
 
 	req.Header.Set("Content-Type", "application/json")
