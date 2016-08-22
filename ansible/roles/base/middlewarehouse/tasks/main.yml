@@ -39,7 +39,7 @@
   sudo: true
 
 - name: Copy shipments-consumer Service
-  template: src=shipments-consumer.service dest="{{dest_services}}/stock-items-consumer.service"
+  template: src=shipments-consumer.service dest="{{dest_services}}/shipments-consumer.service"
   sudo: true
 
 - name: Reload Systemd for middlewarehouse
