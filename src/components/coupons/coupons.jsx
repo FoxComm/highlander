@@ -22,6 +22,9 @@ import { actions } from '../../modules/coupons/list';
 // helpers
 import { filterArchived } from 'elastic/archive';
 
+// types
+import type { SearchFilter } from 'elastic/common';
+
 type CouponsProps = {
   actions: Object,
   list: Object,
