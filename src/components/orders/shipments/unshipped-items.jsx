@@ -61,8 +61,9 @@ export default class UnshippedItems extends Component<void, Props, void> {
 
   get content(): Element {
     const { items } = this.props;
+    const length = _.get(items, 'length', 0);
 
-    if (!items.length) {
+    if (length == 0) {
       return <div styleName="empty">All Items have shipped!</div>;
     }
 
