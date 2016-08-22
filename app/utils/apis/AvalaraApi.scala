@@ -275,7 +275,12 @@ class Avalara()(implicit as: ActorSystem, am: ActorMaterializer) extends Avalara
 //    val result: Future[Avalara.Responses.GetTaxes] =
 //      responseFuture.flatMap(response ⇒ Unmarshal(response).to[Avalara.Responses.GetTaxes])
 
-    val itWillBe = result.map {
+    def failureHandler(failure: Throwable) = {
+      println(s"We are doomed by failre $failure")
+      Result.left(UnableToMatchResponse.single)
+    }
+
+    result.flatMap {
       case Some(res) ⇒ {
         println(s"Result: $res")
         Result.unit
@@ -284,10 +289,8 @@ class Avalara()(implicit as: ActorSystem, am: ActorMaterializer) extends Avalara
         println("No result")
         Result.unit
       }
-    } orE {
-      println("We are doomed by failre")
-      Result.left(UnableToMatchResponse.single)
+    }.recoverWith {
+      case err: Throwable ⇒ failureHandler(err)
     }
-    itWillBe
   }
 }
