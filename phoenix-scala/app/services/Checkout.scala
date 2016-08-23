@@ -106,6 +106,7 @@ case class Checkout(
       _         ← * <~ activePromos
       _         ← * <~ cartValidator.validate(isCheckout = false, fatalWarnings = true)
       _         ← * <~ holdInMiddleWarehouse
+      _         ← * <~ finalizeTaxes
       _         ← * <~ authPayments(customer)
       _         ← * <~ cartValidator.validate(isCheckout = true, fatalWarnings = true)
       order     ← * <~ Orders.createFromCart(cart)
@@ -237,5 +238,10 @@ case class Checkout(
       fakeFraudScore ← * <~ Random.nextInt(10)
       order          ← * <~ Orders.update(order, order.copy(fraudScore = fakeFraudScore))
     } yield order
+
+  private def finalizeTaxes(): DbResultT[Unit] =
+    for {
+      _ ← * <~ apis.avalaraApi.getTaxForOrder()
+    } yield DbResultT.unit
 
 }

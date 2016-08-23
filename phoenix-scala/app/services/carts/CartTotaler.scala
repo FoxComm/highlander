@@ -6,6 +6,7 @@ import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
 import models.location.Region._
+import utils.apis.Apis
 
 // TODO: Use utils.Money
 object CartTotaler {
@@ -56,16 +57,19 @@ object CartTotaler {
     } yield sum
 
   def taxesTotal(cart: Cart, subTotal: Int, shipping: Int, adjustments: Int)(
-      implicit ec: EC): DbResultT[Int] =
+      implicit ec: EC,
+      apis: Apis): DbResultT[Int] =
     for {
       maybeAddress ← * <~ OrderShippingAddresses.findByOrderRef(cart.refNum).one
       taxRate = maybeAddress.map { address ⇒
-        if (address.regionId == californiaId) caTaxRate
-        else defaultTaxRate
+        for {
+          taxResponse ← * <~ apis.avalaraApi.getTaxForCart()
+        } yield caTaxRate
       }.getOrElse(defaultTaxRate)
-    } yield ((subTotal - adjustments + shipping) * taxRate).toInt
+    } yield
+      ((subTotal - adjustments + shipping) * defaultTaxRate).toInt //ToDo @Eugene: replace defaultTaxRate
 
-  def totals(cart: Cart)(implicit ec: EC): DbResultT[Totals] =
+  def totals(cart: Cart)(implicit ec: EC, apis: Apis): DbResultT[Totals] =
     for {
       sub  ← * <~ subTotal(cart)
       ship ← * <~ shippingTotal(cart)
@@ -73,7 +77,7 @@ object CartTotaler {
       tax  ← * <~ taxesTotal(cart = cart, subTotal = sub, shipping = ship, adjustments = adj)
     } yield Totals.build(subTotal = sub, shipping = ship, adjustments = adj, taxes = tax)
 
-  def saveTotals(cart: Cart)(implicit ec: EC): DbResultT[Cart] =
+  def saveTotals(cart: Cart)(implicit ec: EC, apis: Apis): DbResultT[Cart] =
     for {
       t ← * <~ totals(cart)
       withTotals = cart.copy(subTotal = t.subTotal,
