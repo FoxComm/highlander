@@ -13,15 +13,13 @@ import (
 )
 
 type shipmentController struct {
-	shipmentService         services.IShipmentService
-	shipmentLineItemService services.IShipmentLineItemService
+	shipmentService services.IShipmentService
 }
 
 func NewShipmentController(
 	shipmentService services.IShipmentService,
-	shipmentLineItemService services.IShipmentLineItemService,
 ) IController {
-	return &shipmentController{shipmentService, shipmentLineItemService}
+	return &shipmentController{shipmentService}
 }
 
 func (controller *shipmentController) SetUp(router gin.IRouter) {

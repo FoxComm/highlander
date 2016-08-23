@@ -12,7 +12,6 @@ import (
 type shipmentService struct {
 	db                      *gorm.DB
 	shipmentRepository      repositories.IShipmentRepository
-	shipmentLineItemService IShipmentLineItemService
 	stockItemUnitRepository repositories.IStockItemUnitRepository
 }
 
@@ -26,13 +25,11 @@ type IShipmentService interface {
 func NewShipmentService(
 	db *gorm.DB,
 	shipmentRepository repositories.IShipmentRepository,
-	shipmentLineItemService IShipmentLineItemService,
 	stockItemUnitRepository repositories.IStockItemUnitRepository,
 ) IShipmentService {
 	return &shipmentService{
 		db,
 		shipmentRepository,
-		shipmentLineItemService,
 		stockItemUnitRepository,
 	}
 }
@@ -141,7 +138,11 @@ func (service *shipmentService) GetUnshippedItems(shipment *models.Shipment) ([]
 		return nil, err
 	}
 
-	shipmentLineItems, err := service.shipmentLineItemService.GetShipmentLineItemsByShipmentID(shipment.ID)
+	lineItemRepo := repositories.NewShipmentLineItemRepository(service.db)
+	shipmentLineItems, err := lineItemRepo.GetShipmentLineItemsByShipmentID(shipment.ID)
+	if err != nil {
+		return nil, err
+	}
 
 	unshippedLineItems := []*models.ShipmentLineItem{}
 	for _, stockItemUnit := range stockItemUnits {
