@@ -3,17 +3,17 @@ package payloads
 import "errors"
 
 type Reservation struct {
-	RefNum string           `json:"refNum" binding:"required"`
-	SKUs   []SKUReservation `json:"reservations" binding:"required"`
+	RefNum string            `json:"refNum" binding:"required"`
+	Items  []ItemReservation `json:"items" binding:"required"`
 }
 
-type SKUReservation struct {
+type ItemReservation struct {
 	SKU string `json:"sku" binding:"required"`
 	Qty uint   `json:"qty" binding:"required"`
 }
 
 func (r Reservation) Validate() error {
-	if len(r.SKUs) == 0 {
+	if len(r.Items) == 0 {
 		return errors.New("Reservation must have at least one SKU")
 	}
 

@@ -14,8 +14,10 @@ type stockItemUnitRepository struct {
 }
 
 type IStockItemUnitRepository interface {
-	OnHandStockItemUnits(stockItemID uint, unitType models.UnitType, count int) ([]uint, error)
-	SetUnitsInOrder(refNum string, ids []uint) (int, error)
+	GetStockItemUnitIDs(stockItemID uint, unitStatus models.UnitStatus, unitType models.UnitType, count int) ([]uint, error)
+	GetUnitsInOrder(refNum string) ([]*models.StockItemUnit, error)
+	HoldUnitsInOrder(refNum string, ids []uint) (int, error)
+	ReserveUnitsInOrder(refNum string) (int, error)
 	UnsetUnitsInOrder(refNum string) (int, error)
 
 	GetReleaseQtyByRefNum(refNum string) ([]*models.Release, error)
@@ -44,14 +46,14 @@ func (repository *stockItemUnitRepository) DeleteUnits(ids []uint) error {
 	return repository.db.Delete(models.StockItemUnit{}, "id in (?)", ids).Error
 }
 
-func (repository *stockItemUnitRepository) OnHandStockItemUnits(stockItemID uint, unitType models.UnitType, count int) ([]uint, error) {
+func (repository *stockItemUnitRepository) GetStockItemUnitIDs(stockItemID uint, unitStatus models.UnitStatus, unitType models.UnitType, count int) ([]uint, error) {
 	var ids []uint
 	err := repository.db.Model(&models.StockItemUnit{}).
 		Limit(count).
 		Order("created_at").
 		Where("stock_item_id = ?", stockItemID).
 		Where("type = ?", unitType).
-		Where("status = ?", "onHand").
+		Where("status = ?", string(unitStatus)).
 		Pluck("id", &ids).
 		Error
 
@@ -60,8 +62,8 @@ func (repository *stockItemUnitRepository) OnHandStockItemUnits(stockItemID uint
 	}
 
 	if len(ids) < count {
-		err := fmt.Errorf("Not enough onHand units for stock item %d of type %d. Expected %d, got %d",
-			stockItemID, unitType, count, len(ids))
+		err := fmt.Errorf("Not enough %s units for stock item %d of type %d. Expected %d, got %d",
+			unitStatus, stockItemID, unitType, count, len(ids))
 
 		return ids, err
 	}
@@ -69,13 +71,38 @@ func (repository *stockItemUnitRepository) OnHandStockItemUnits(stockItemID uint
 	return ids, nil
 }
 
-func (repository *stockItemUnitRepository) SetUnitsInOrder(refNum string, ids []uint) (int, error) {
+func (repository *stockItemUnitRepository) GetUnitsInOrder(refNum string) ([]*models.StockItemUnit, error) {
+	var units []*models.StockItemUnit
+	err := repository.db.
+		Preload("StockItem").
+		Where("stock_item_units.ref_num = ?", refNum).
+		Find(&units).
+		Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return units, nil
+}
+
+func (repository *stockItemUnitRepository) HoldUnitsInOrder(refNum string, ids []uint) (int, error) {
 	updateWith := models.StockItemUnit{
 		RefNum: sql.NullString{String: refNum, Valid: true},
 		Status: models.StatusOnHold,
 	}
 
 	result := repository.db.Model(&models.StockItemUnit{}).Where("id in (?)", ids).Updates(updateWith)
+
+	return int(result.RowsAffected), result.Error
+}
+
+func (repository *stockItemUnitRepository) ReserveUnitsInOrder(refNum string) (int, error) {
+	updateWith := models.StockItemUnit{
+		Status: models.StatusReserved,
+	}
+
+	result := repository.db.Model(&models.StockItemUnit{}).Where("ref_num = ?", refNum).Updates(updateWith)
 
 	return int(result.RowsAffected), result.Error
 }

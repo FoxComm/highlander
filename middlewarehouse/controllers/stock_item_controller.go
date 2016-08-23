@@ -6,10 +6,10 @@ import (
 
 	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
+	"github.com/FoxComm/highlander/middlewarehouse/common/failures"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/services"
 
-	"github.com/FoxComm/highlander/middlewarehouse/common/failures"
 	"github.com/gin-gonic/gin"
 )
 
