@@ -23,7 +23,7 @@
 	"search_host": "elasticsearch.service.consul",
 	"search_server_http": "elasticsearch.service.consul:9200",
 	"api_server": "127.0.0.1",
-	"ashes_server": "ashes.service.consul:4000",
+	"ashes_server": "ashes.service.consul:4040",
 	"storefront_server": "storefront.service.consul:8080",
 	"ashes_server_name": "admin.topdrawer-stage.foxcommerce.com",
 	"storefront_server_name": "topdrawer-stage.foxcommerce.com",

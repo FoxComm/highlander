@@ -13,7 +13,7 @@ log_image 			 = "topdrawer-es-log-1468953205"
 phoenix_image 		 = "topdrawer-phoenix-1471344193"
 greenriver_image 	 = "topdrawer-green-1471344202"
 
-stage_backend_image  = "topdrawer-stage-backend-1471345491"
+stage_backend_image  = "topdrawer-stage-backend-1471469177"
 stage_frontend_image = "topdrawer-stage-frontend-1471345729"
 stage_amigo_image    = "stage-amigo-server-1470391221"
 
