@@ -37,7 +37,7 @@ func (controller *reservationController) Hold() gin.HandlerFunc {
 		}
 
 		skuMap := map[string]int{}
-		for _, sku := range payload.SKUs {
+		for _, sku := range payload.Items {
 			skuMap[sku.SKU] = int(sku.Qty)
 		}
 
