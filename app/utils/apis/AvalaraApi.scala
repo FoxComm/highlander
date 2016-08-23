@@ -230,6 +230,11 @@ object Avalara {
         Messages: Seq[Message]
     )
 
+//    object TaxesSerializer extends CustomSerializer[GetTaxes](format ⇒ {
+//      case JString(s) ⇒ GetTaxes.fromString(s)
+//    }
+//    )
+
   }
 }
 
