@@ -17,7 +17,6 @@ type IShipmentService interface {
 	GetShipmentsByReferenceNumber(referenceNumber string) ([]*models.Shipment, error)
 	CreateShipment(shipment *models.Shipment) (*models.Shipment, error)
 	UpdateShipment(shipment *models.Shipment) (*models.Shipment, error)
-	GetUnshippedItems(shipment *models.Shipment) ([]*models.ShipmentLineItem, error)
 }
 
 func NewShipmentService(db *gorm.DB) IShipmentService {
@@ -133,41 +132,4 @@ func (service *shipmentService) UpdateShipment(shipment *models.Shipment) (*mode
 
 	err = txn.Commit().Error
 	return shipment, err
-}
-
-func (service *shipmentService) GetUnshippedItems(shipment *models.Shipment) ([]*models.ShipmentLineItem, error) {
-	unitRepo := repositories.NewStockItemUnitRepository(service.db)
-	stockItemUnits, err := unitRepo.GetUnitsInOrder(shipment.ReferenceNumber)
-	if err != nil {
-		return nil, err
-	}
-
-	lineItemRepo := repositories.NewShipmentLineItemRepository(service.db)
-	shipmentLineItems, err := lineItemRepo.GetShipmentLineItemsByShipmentID(shipment.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	unshippedLineItems := []*models.ShipmentLineItem{}
-	for _, stockItemUnit := range stockItemUnits {
-		var shipmentLineItem *models.ShipmentLineItem
-
-		//find respective stockItemUnit found
-		for i := range shipmentLineItems {
-			if shipmentLineItems[i].StockItemUnitID == stockItemUnit.ID {
-				shipmentLineItem = shipmentLineItems[i]
-				break
-			}
-		}
-
-		//if not found - add to unshipped
-		if shipmentLineItem == nil {
-			unshippedLineItems = append(unshippedLineItems, &models.ShipmentLineItem{
-				SKU:   stockItemUnit.StockItem.SKU,
-				Price: uint(stockItemUnit.UnitCost),
-			})
-		}
-	}
-
-	return unshippedLineItems, nil
 }
