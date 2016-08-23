@@ -1,4 +1,3 @@
-import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import util._
@@ -12,6 +11,7 @@ import models.returns._
 import payloads.ReturnPayloads._
 import responses.ReturnResponse.Root
 import util.IntegrationTestBase
+import util.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 
@@ -183,10 +183,9 @@ class ReturnPaymentsIntegrationTest
     }
   }
 
-  trait Fixture extends StoreAdmin_Seed with Order_Baked {
+  trait Fixture extends Order_Baked {
     val rma = (for {
-      order ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
-      cc    ← * <~ CreditCards.create(Factories.creditCard.copy(customerId = customer.id))
+      cc ← * <~ CreditCards.create(Factories.creditCard.copy(customerId = customer.id))
       orderPayment ← * <~ OrderPayments.create(
                         Factories.orderPayment
                           .copy(cordRef = order.refNum, paymentMethodId = cc.id, amount = None))

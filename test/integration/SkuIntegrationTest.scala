@@ -1,25 +1,28 @@
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
 import failures.ObjectFailures.ObjectContextNotFound
 import failures.ProductFailures.SkuNotFoundForContext
-import models.StoreAdmins
-import models.inventory.{Sku, Skus}
-import models.objects.{ObjectCommit, ObjectCommits, ObjectForms, ObjectShadows}
-import models.product.{SimpleSku, SimpleSkuShadow}
+import models.inventory._
+import models.objects._
+import models.product._
 import org.json4s.JsonDSL._
 import payloads.SkuPayloads.SkuPayload
 import responses.SkuResponses.SkuResponse
 import util.IntegrationTestBase
+import util.fixtures.BakedFixtures
 import utils.Money.Currency
 import utils.aliases._
 import utils.db._
 import utils.time.RichInstant
 
-class SkuIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
+class SkuIntegrationTest
+    extends IntegrationTestBase
+    with HttpSupport
+    with AutomaticAuth
+    with BakedFixtures {
 
   "POST v1/skus/:context" - {
     "Creates a SKU successfully" in new Fixture {
@@ -134,14 +137,13 @@ class SkuIntegrationTest extends IntegrationTestBase with HttpSupport with Autom
     }
   }
 
-  trait Fixture {
+  trait Fixture extends StoreAdmin_Seed {
     def makeSkuPayload(code: String, attrMap: Map[String, Json]) = {
       val codeJson = ("t" → "string") ~ ("v" → code)
       SkuPayload(attrMap + ("code" → codeJson))
     }
 
     val (sku, skuForm, skuShadow) = (for {
-      storeAdmin      ← * <~ StoreAdmins.create(authedStoreAdmin).gimme
       simpleSku       ← * <~ SimpleSku("SKU-TEST", "Test SKU", 9999, Currency.USD)
       skuForm         ← * <~ ObjectForms.create(simpleSku.create)
       simpleSkuShadow ← * <~ SimpleSkuShadow(simpleSku)

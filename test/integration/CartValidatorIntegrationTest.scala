@@ -3,16 +3,14 @@ import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 import Extensions._
 import cats.implicits._
 import failures.CartFailures._
-import models.{StoreAdmins, Reasons}
 import models.cord._
-import models.customer.Customers
 import models.inventory.Skus
 import models.location.Addresses
 import models.objects.ObjectContexts
 import models.payment.creditcard.CreditCards
 import models.payment.giftcard._
 import models.payment.storecredit._
-import models.product.{SimpleContext, Mvp}
+import models.product.{Mvp, SimpleContext}
 import models.shipping.ShippingMethods
 import org.scalatest.AppendedClues
 import payloads.AddressPayloads._
@@ -22,6 +20,7 @@ import payloads.UpdateShippingMethod
 import responses.TheResponse
 import responses.cord.CartResponse
 import util._
+import util.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.CouponSeeds
 import utils.seeds.Seeds.Factories
@@ -141,7 +140,7 @@ class CartValidatorIntegrationTest
         response.status must === (StatusCodes.OK)
         val warnings = response.as[TheResponse[CartResponse]].warnings
         warnings.value must not be empty
-        warnings.value must contain theSameElementsAs (expectedWarnings.map(_.description))
+        warnings.value must contain theSameElementsAs expectedWarnings.map(_.description)
       } withClue s"""
       | $errorsStr
       | (Original source: ${file.value.split("/").last}:${line.value})
@@ -191,9 +190,8 @@ class CartValidatorIntegrationTest
   trait GiftCardFixture
       extends ExpectedWarningsForPayment
       with EmptyCustomerCart_Baked
-      with StoreAdmin_Seed {
-    val (giftCard) = (for {
-      reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
+      with Reason_Baked {
+    val giftCard = (for {
       origin ← * <~ GiftCardManuals.create(
                   GiftCardManual(adminId = storeAdmin.id, reasonId = reason.id))
       giftCard ← * <~ GiftCards.create(
@@ -205,9 +203,8 @@ class CartValidatorIntegrationTest
   trait StoreCreditFixture
       extends ExpectedWarningsForPayment
       with EmptyCustomerCart_Baked
-      with StoreAdmin_Seed {
+      with Reason_Baked {
     (for {
-      reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
       manual ← * <~ StoreCreditManuals.create(
                   StoreCreditManual(adminId = storeAdmin.id, reasonId = reason.id))
       _ ← * <~ StoreCredits.create(
@@ -225,24 +222,21 @@ class CartValidatorIntegrationTest
     val refNum     = cart.refNum
   }
 
-  trait LineItemAndFundsFixture {
+  trait LineItemAndFundsFixture extends Reason_Baked with Customer_Seed {
     val (refNum, sku, creditCard, giftCard) = (for {
-      customer   ← * <~ Customers.create(Factories.customer)
       address    ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
       cc         ← * <~ CreditCards.create(Factories.creditCard.copy(customerId = customer.id))
       productCtx ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       cart       ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
       product    ← * <~ Mvp.insertProduct(productCtx.id, Factories.products.head)
       sku        ← * <~ Skus.mustFindById404(product.skuId)
-      admin      ← * <~ StoreAdmins.create(Factories.storeAdmin)
-      reason     ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
       manual ← * <~ StoreCreditManuals.create(
-                  StoreCreditManual(adminId = admin.id, reasonId = reason.id))
+                  StoreCreditManual(adminId = storeAdmin.id, reasonId = reason.id))
       _ ← * <~ StoreCredits.create(
              Factories.storeCredit
                .copy(state = StoreCredit.Active, customerId = customer.id, originId = manual.id))
       origin ← * <~ GiftCardManuals.create(
-                  GiftCardManual(adminId = admin.id, reasonId = reason.id))
+                  GiftCardManual(adminId = storeAdmin.id, reasonId = reason.id))
       giftCard ← * <~ GiftCards.create(
                     Factories.giftCard.copy(originId = origin.id, state = GiftCard.Active))
     } yield (cart.refNum, sku, cc, giftCard)).gimme

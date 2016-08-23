@@ -12,6 +12,7 @@ import models.shipping.ShippingMethods
 import org.json4s.jackson.JsonMethods._
 import services.carts.CartTotaler
 import util._
+import util.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 

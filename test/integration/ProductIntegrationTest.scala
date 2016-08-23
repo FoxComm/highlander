@@ -1,13 +1,11 @@
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
+import failures.ArchiveFailures._
 import failures.NotFoundFailure404
 import failures.ProductFailures._
-import failures.ArchiveFailures._
-import models.StoreAdmins
 import models.inventory.Skus
 import models.objects._
 import models.product._
@@ -18,6 +16,7 @@ import payloads.SkuPayloads.SkuPayload
 import payloads.VariantPayloads.{VariantPayload, VariantValuePayload}
 import responses.ProductResponses._
 import util.IntegrationTestBase
+import util.fixtures.BakedFixtures
 import utils.JsonFormatters
 import utils.Money.Currency
 import utils.aliases._
@@ -34,7 +33,11 @@ object ProductTestExtensions {
   }
 }
 
-class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
+class ProductIntegrationTest
+    extends IntegrationTestBase
+    with HttpSupport
+    with AutomaticAuth
+    with BakedFixtures {
   import ProductTestExtensions._
 
   "POST v1/products/:context" - {
@@ -402,7 +405,7 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
     }
   }
 
-  trait Fixture {
+  trait Fixture extends StoreAdmin_Seed {
     def makeSkuPayload(code: String, name: String) = {
       val attrMap =
         Map("name" → (("t" → "string") ~ ("v" → name)), "code" → (("t" → "string") ~ ("v" → code)))
@@ -454,9 +457,6 @@ class ProductIntegrationTest extends IntegrationTestBase with HttpSupport with A
                                                              (skuGreenLargeCode, "green", "large"))
 
     val (product, skus, variants) = (for {
-      // Create common objects.
-      storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
-
       // Create the SKUs.
       skus ← * <~ Mvp.insertSkus(ctx.id, simpleSkus)
 

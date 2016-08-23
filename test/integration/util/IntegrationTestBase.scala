@@ -19,4 +19,6 @@ trait IntegrationTestBase
   )
 
   implicit val timeout: Timeout = Timeout(6, TimeUnit.SECONDS)
+
+  implicit val ec = scala.concurrent.ExecutionContext.Implicits.global
 }

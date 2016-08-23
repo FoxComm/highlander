@@ -1,27 +1,26 @@
-import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
-import failures.ObjectFailures.ObjectContextNotFound
-import models.StoreAdmins
-import models.activity.ActivityContext
-import models.objects.ObjectContexts
-import models.product.SimpleContext
 import org.json4s.JsonAST.{JObject, JString}
 import org.json4s.JsonDSL._
 import payloads.CategoryPayloads._
 import responses.CategoryResponses._
 import services.category.CategoryManager
-import util.IntegrationTestBase
+import util._
+import util.fixtures.BakedFixtures
 import utils.aliases._
-import utils.db._
 
-class CategoryIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
+class CategoryIntegrationTest
+    extends IntegrationTestBase
+    with HttpSupport
+    with AutomaticAuth
+    with TestActivityContext.AdminAC
+    with BakedFixtures {
 
   "Categories" - {
     "GET v1/categories/:context/:formId" - {
       "returns a full category" in new Fixture {
-        val response = GET(s"v1/categories/${context.name}/${category.form.id}")
+        val response = GET(s"v1/categories/${ctx.name}/${category.form.id}")
         response.status must === (StatusCodes.OK)
 
         val content = response.as[FullCategoryResponse.Root]
@@ -37,7 +36,7 @@ class CategoryIntegrationTest extends IntegrationTestBase with HttpSupport with 
         val newValue          = JString("val2")
         val updatedAttributes = newAttribute → newValue
 
-        val response = PATCH(s"v1/categories/${context.name}/${category.form.id}",
+        val response = PATCH(s"v1/categories/${ctx.name}/${category.form.id}",
                              UpdateFullCategory(UpdateCategoryForm(updatedAttributes),
                                                 UpdateCategoryShadow(updatedAttributes)))
 
@@ -98,7 +97,7 @@ class CategoryIntegrationTest extends IntegrationTestBase with HttpSupport with 
 
     "GET v1/categories/:context/:formId/baked" - {
       "returns illuminated object" in new Fixture {
-        val response = GET(s"v1/categories/${context.name}/${category.form.id}/baked")
+        val response = GET(s"v1/categories/${ctx.name}/${category.form.id}/baked")
         response.status must === (StatusCodes.OK)
 
         val content = response.as[IlluminatedCategoryResponse.Root]
@@ -112,7 +111,7 @@ class CategoryIntegrationTest extends IntegrationTestBase with HttpSupport with 
 
     "GET v1/categories/:context/:formId/shadow" - {
       "returns shadow" in new Fixture {
-        val response = GET(s"v1/categories/${context.name}/${category.form.id}/shadow")
+        val response = GET(s"v1/categories/${ctx.name}/${category.form.id}/shadow")
         response.status must === (StatusCodes.OK)
 
         val keys =
@@ -122,24 +121,14 @@ class CategoryIntegrationTest extends IntegrationTestBase with HttpSupport with 
       }
     }
 
-    trait Fixture {
-      implicit val ac: AC = ActivityContext(0, "", "")
-
+    trait Fixture extends StoreAdmin_Seed {
       val testAttributes = List("attr1" → JString("val1"))
-
-      val (storeAdmin, context) = (for {
-        storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
-        context ← * <~ ObjectContexts
-                   .filterByName(SimpleContext.default)
-                   .one
-                   .mustFindOr(ObjectContextNotFound(SimpleContext.default))
-      } yield (storeAdmin, context)).gimme
 
       val category = CategoryManager
         .createCategory(storeAdmin,
                         CreateFullCategory(CreateCategoryForm(testAttributes),
                                            CreateCategoryShadow(testAttributes)),
-                        context.name)
+                        ctx.name)
         .gimme
     }
   }

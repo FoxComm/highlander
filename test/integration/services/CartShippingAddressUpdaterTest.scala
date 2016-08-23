@@ -6,6 +6,7 @@ import models.traits.Originator
 import payloads.AddressPayloads._
 import services.carts.CartShippingAddressUpdater._
 import util._
+import util.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 

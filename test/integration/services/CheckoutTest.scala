@@ -1,7 +1,5 @@
 package services
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
 import cats.implicits._
 import failures.GeneralFailure
 import faker.Lorem
@@ -22,6 +20,7 @@ import org.scalatest.mock.MockitoSugar
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import slick.driver.PostgresDriver.api._
 import util._
+import util.fixtures.BakedFixtures
 import utils.Money.Currency.USD
 import utils.db._
 import utils.seeds.Seeds.Factories
@@ -198,7 +197,7 @@ class CheckoutTest
 
   trait PaymentFixture extends CustomerAddress_Baked with StoreAdmin_Seed {
     val (reason, shipMethod) = (for {
-      reason     ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
+      reason     ← * <~ Reasons.create(Factories.reason(storeAdmin.id))
       shipMethod ← * <~ ShippingMethods.create(Factories.shippingMethods.head)
     } yield (reason, shipMethod)).gimme
 
@@ -233,7 +232,7 @@ class CheckoutTest
       } yield ids
   }
 
-  trait PaymentFixtureWithCart extends PaymentFixture with EmptyCustomerCart_Raw {
+  trait PaymentFixtureWithCart extends PaymentFixture with EmptyCart_Raw {
     override val cart = super.cart.copy(grandTotal = 1000)
     (for {
       _ ← * <~ OrderShippingMethods.create(OrderShippingMethod.build(cart.refNum, shipMethod))

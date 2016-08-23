@@ -6,6 +6,7 @@ import models.payment.giftcard._
 import models.payment.storecredit._
 import responses.{GiftCardSubTypesResponse, StoreCreditSubTypesResponse}
 import util._
+import util.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 
@@ -20,7 +21,8 @@ class PaymentTypesIntegrationTest extends IntegrationTestBase with HttpSupport w
         val root = response.as[Seq[GiftCardSubTypesResponse.Root]]
         root.size must === (GiftCard.OriginType.types.size)
         root.map(_.originType) must === (GiftCard.OriginType.types.toSeq)
-        root.filter(_.originType == gcSubType.originType).head.subTypes must === (Seq(gcSubType))
+        root.filter(_.originType == giftCardSubtype.originType).head.subTypes must === (
+            Seq(giftCardSubtype))
       }
     }
   }
@@ -39,20 +41,19 @@ class PaymentTypesIntegrationTest extends IntegrationTestBase with HttpSupport w
     }
   }
 
-  trait GiftCardFixture extends StoreAdmin_Seed {
-    val (giftCard, gcSubType) = (for {
-      reason    ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
-      gcSubType ← * <~ GiftCardSubtypes.create(Factories.giftCardSubTypes.head)
+  trait GiftCardFixture extends StoreAdmin_Seed with GiftCardSubtype_Seed {
+    val (giftCard) = (for {
+      reason ← * <~ Reasons.create(Factories.reason(storeAdmin.id))
       origin ← * <~ GiftCardManuals.create(
                   GiftCardManual(adminId = storeAdmin.id, reasonId = reason.id))
       giftCard ← * <~ GiftCards.create(
                     Factories.giftCard.copy(originId = origin.id, state = GiftCard.Active))
-    } yield (giftCard, gcSubType)).gimme
+    } yield giftCard).gimme
   }
 
   trait StoreCreditFixture extends Customer_Seed with StoreAdmin_Seed {
     val (storeCredit, scSubType) = (for {
-      scReason  ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
+      scReason  ← * <~ Reasons.create(Factories.reason(storeAdmin.id))
       scSubType ← * <~ StoreCreditSubtypes.create(Factories.storeCreditSubTypes.head)
       scOrigin ← * <~ StoreCreditManuals.create(
                     StoreCreditManual(adminId = storeAdmin.id, reasonId = scReason.id))

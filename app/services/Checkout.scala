@@ -70,11 +70,11 @@ object Checkout {
       order ← * <~ Checkout(cart, CartValidator(cart)).checkout
     } yield order
 
-  def fromCustomerCart(customer: Customer)(implicit ec: EC,
-                                           db: DB,
-                                           apis: Apis,
-                                           ac: AC,
-                                           ctx: OC): DbResultT[OrderResponse] =
+  def forCustomer(customer: Customer)(implicit ec: EC,
+                                      db: DB,
+                                      apis: Apis,
+                                      ac: AC,
+                                      ctx: OC): DbResultT[OrderResponse] =
     for {
       result ← * <~ Carts
                 .findByCustomer(customer)

@@ -19,6 +19,7 @@ import responses.cord.CartResponse
 import services.carts.CartTotaler
 import slick.driver.PostgresDriver.api._
 import util._
+import util.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 
@@ -91,7 +92,6 @@ class CartIntegrationTest
   "POST /v1/orders/:refNum/lock" - {
     "successfully locks a cart" in new Fixture {
       val response = POST(s"v1/orders/${cart.refNum}/lock")
-      println(response.errors)
       response.status must === (StatusCodes.OK)
 
       val lockedCart = Carts.findByRefNum(cart.refNum).gimme.head

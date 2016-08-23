@@ -1,7 +1,5 @@
 package utils
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
 import cats.implicits._
 import models.customer.Customers
 import slick.driver.PostgresDriver.api._

@@ -1,9 +1,8 @@
 package models
 
-import concurrent.ExecutionContext.Implicits.global
-
 import util.CustomMatchers._
 import util._
+import util.fixtures.BakedFixtures
 import utils.seeds.Seeds.Factories
 
 class NoteIntegrationTest extends IntegrationTestBase with BakedFixtures with TestObjectContext {

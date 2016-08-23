@@ -2,8 +2,6 @@ package time
 
 import java.time.{Instant, ZoneId, ZonedDateTime}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
 import util._
 import utils.db._
 

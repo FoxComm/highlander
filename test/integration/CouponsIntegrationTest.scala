@@ -1,7 +1,6 @@
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
@@ -9,7 +8,6 @@ import failures.CartFailures.OrderAlreadyPlaced
 import failures.CouponFailures.CouponIsNotActive
 import failures.NotFoundFailure404
 import failures.ObjectFailures.{ObjectContextNotFound, ShadowAttributeInvalidTime}
-import models.StoreAdmins
 import models.cord.{Carts, Orders}
 import models.coupon.Coupon
 import models.customer.Customers
@@ -25,6 +23,7 @@ import responses.cord.CartResponse
 import services.coupon.CouponManager
 import services.promotion.PromotionManager
 import util._
+import util.fixtures.BakedFixtures
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 import utils.seeds.Seeds.Factories
@@ -34,13 +33,14 @@ class CouponsIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
     with AutomaticAuth
-    with TestActivityContext.AdminAC {
+    with TestActivityContext.AdminAC
+    with BakedFixtures {
 
   "POST /v1/coupons/:context" - {
     "create coupon" in new Fixture {
-      val response =
-        POST(s"v1/coupons/${ctx.name}",
-             CreateCoupon(form = couponForm, shadow = couponShadow, promotion = promotion.id))
+      val payload =
+        CreateCoupon(form = couponForm, shadow = couponShadow, promotion = promotion.id)
+      val response = POST(s"v1/coupons/${ctx.name}", payload)
 
       response.status must === (StatusCodes.OK)
     }
@@ -79,7 +79,7 @@ class CouponsIntegrationTest
       val response = DELETE(s"v1/coupons/${ctx.name}/666")
 
       response.status must === (StatusCodes.NotFound)
-      response.error === (NotFoundFailure404(Coupon, 666).description)
+      response.error must === (NotFoundFailure404(Coupon, 666).description)
     }
 
     "404 when context not found" in new Fixture {
@@ -141,7 +141,7 @@ class CouponsIntegrationTest
     }
   }
 
-  trait Fixture {
+  trait Fixture extends StoreAdmin_Seed {
     val percentOff   = 10
     val totalAmount  = 0
     val discountForm = CreateDiscountForm(attributes = parse(s"""
@@ -186,9 +186,8 @@ class CouponsIntegrationTest
 
     def couponPayload(promoId: Int): CreateCoupon = CreateCoupon(couponForm, couponShadow, promoId)
 
-    val (storeAdmin, promotion, coupon) = (for {
-      storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
-      promoRoot  ← * <~ PromotionManager.create(promoPayload, ctx.name)
+    val (promotion, coupon) = (for {
+      promoRoot ← * <~ PromotionManager.create(promoPayload, ctx.name)
       promotion ← * <~ Promotions
                    .filter(_.contextId === ctx.id)
                    .filter(_.formId === promoRoot.form.id)
@@ -196,7 +195,7 @@ class CouponsIntegrationTest
                    .mustFindOneOr(NotFoundFailure404(Promotion, "test"))
 
       coupon ← * <~ CouponManager.create(couponPayload(promoRoot.form.id), ctx.name, None)
-    } yield (storeAdmin, promotion, coupon)).gimme
+    } yield (promotion, coupon)).gimme
   }
 
   trait OrderCouponFixture extends Fixture {

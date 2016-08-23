@@ -1,15 +1,19 @@
-import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
-import failures.{NotFoundFailure404, StateTransitionNotAllowed}
 import failures.StoreAdminFailures.AlreadyExistsWithEmail
-import models.{StoreAdmin, StoreAdmins}
+import failures.{NotFoundFailure404, StateTransitionNotAllowed}
+import models.StoreAdmin
 import payloads.StoreAdminPayloads._
 import responses.StoreAdminResponse
 import util.IntegrationTestBase
+import util.fixtures.BakedFixtures
 
-class StoreAdminIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
+class StoreAdminIntegrationTest
+    extends IntegrationTestBase
+    with HttpSupport
+    with AutomaticAuth
+    with BakedFixtures {
 
   "POST /v1/store-admins" - {
     "create successfully" in new Fixture {
@@ -150,7 +154,5 @@ class StoreAdminIntegrationTest extends IntegrationTestBase with HttpSupport wit
     }
   }
 
-  trait Fixture {
-    val storeAdmin = StoreAdmins.create(authedStoreAdmin).gimme
-  }
+  trait Fixture extends StoreAdmin_Seed
 }

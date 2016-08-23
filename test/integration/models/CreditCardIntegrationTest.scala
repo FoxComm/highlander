@@ -2,6 +2,7 @@ package models
 
 import models.payment.creditcard.CreditCards
 import util._
+import util.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 

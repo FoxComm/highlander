@@ -1,4 +1,3 @@
-import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
@@ -20,6 +19,7 @@ import responses.{AllReturns, ReturnLockResponse, ReturnResponse}
 import services.returns.{ReturnLineItemUpdater, ReturnLockUpdater}
 import slick.driver.PostgresDriver.api._
 import util._
+import util.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 
@@ -338,7 +338,7 @@ class ReturnIntegrationTest
                                                 isReturnItem = true,
                                                 inventoryDisposition = ReturnLineItem.Putaway)
         val updatedRma =
-          ReturnLineItemUpdater.addSkuLineItem(rma.referenceNumber, payload, productContext).gimme
+          ReturnLineItemUpdater.addSkuLineItem(rma.referenceNumber, payload, ctx).gimme
         val lineItemId = updatedRma.lineItems.skus.headOption.value.lineItemId
 
         // Delete
@@ -450,23 +450,19 @@ class ReturnIntegrationTest
     }
   }
 
-  trait Fixture extends Order_Baked with StoreAdmin_Seed {
-    val (rma, reason) = (for {
-      rma ← * <~ Returns.create(
-               Factories.rma.copy(orderRef = order.refNum, customerId = customer.id))
-      reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
-    } yield (rma, reason)).gimme
+  trait Fixture extends Order_Baked with Reason_Baked {
+    val rma =
+      Returns.create(Factories.rma.copy(orderRef = order.refNum, customerId = customer.id)).gimme
   }
 
   trait LineItemFixture extends Fixture {
-    val (productContext, returnReason, sku, giftCard, shipment) = (for {
-      returnReason   ← * <~ ReturnReasons.create(Factories.returnReasons.head)
-      productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-      product        ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head)
-      sku            ← * <~ Skus.mustFindById404(product.skuId)
-      _              ← * <~ addSkusToOrder(Seq(sku.id), order.refNum, OrderLineItem.Cart)
+    val (returnReason, sku, giftCard, shipment) = (for {
+      returnReason ← * <~ ReturnReasons.create(Factories.returnReasons.head)
+      product      ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head)
+      sku          ← * <~ Skus.mustFindById404(product.skuId)
+      _            ← * <~ addSkusToOrder(Seq(sku.id), order.refNum, OrderLineItem.Cart)
 
-      gcReason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
+      gcReason ← * <~ Reasons.create(Factories.reason(storeAdmin.id))
       gcOrigin ← * <~ GiftCardManuals.create(
                     GiftCardManual(adminId = storeAdmin.id, reasonId = gcReason.id))
       giftCard ← * <~ GiftCards.create(
@@ -480,7 +476,7 @@ class ReturnIntegrationTest
                                OrderShippingMethod.build(cordRef = order.refNum,
                                                          method = shippingMethod))
       shipment ← * <~ Shipments.create(Factories.shipment)
-    } yield (productContext, returnReason, sku, giftCard, shipment)).gimme
+    } yield (returnReason, sku, giftCard, shipment)).gimme
   }
 
   def addSkusToOrder(skuIds: Seq[Int],
