@@ -41,8 +41,17 @@ middlewarehouse_db_name: middlewarehouse_development
 middlewarehouse_db_user: middlewarehouse
 middlewarehouse_db_connection_string: "postgresql://{{db_host}}/{{middlewarehouse_db_name}}?user={{middlewarehouse_db_user}}"
 
+middlewarehouse_consumers_dir: "{{middlewarehouse_dir}}/consumers"
+stock_items_consumer_bin: "{{middlewarehouse_consumers_dir}}/stock-items-consumer"
+shipments_consumer_bin: "{{middlewarehouse_consumers_dir}}/shipments-consumer"
+
 middlewarehouse_src: ../../middlewarehouse/
 middlewarehouse_bin_src: "{{middlewarehouse_src}}/middlewarehouse"
+
+stock_items_consumer_src: "{{middlewarehouse_src}}/consumers/stock-items"
+stock_items_consumer_bin_src: "{{stock_items_consumer_src}}/stock-items-consumer"
+shipments_consumer_src: "{{middlewarehouse_src}}/consumers/shipments"
+shipments_consumer_bin_src: "{{shipments_consumer_src}}/shipments-consumer"
 
 # Ashes
 ashes_env: production

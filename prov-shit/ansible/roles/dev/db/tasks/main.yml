@@ -108,6 +108,11 @@
   args:
     chdir: "{{phoenix_dir}}"
 
+- name: Clean middlewarehouse DB
+  shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} clean
+  args:
+    chdir: "{{middlewarehouse_dir}}"
+
 - name: Migrate middlewarehouse DB
   shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
   args:

@@ -27,13 +27,3 @@ refresh materialized view concurrently notes_products_view;
 refresh materialized view concurrently notes_promotions_view;
 refresh materialized view concurrently notes_coupons_view;
 refresh materialized view concurrently notes_search_view;
-
--- pim
-refresh materialized view concurrently customer_purchased_items_view;
-refresh materialized view concurrently customer_save_for_later_view;
-alter sequence customer_items_view_seq restart 1;
-refresh materialized view concurrently customer_items_view;
-
--- promotions
-refresh materialized view concurrently promotion_discount_links_view;
-refresh materialized view concurrently promotions_search_view;

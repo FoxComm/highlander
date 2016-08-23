@@ -4,6 +4,7 @@
   hosts: stage-backend
   vars:
     user: '{{ansible_ssh_user}}'
+    updating_mwh: true
   tags:
     - backend
   roles:

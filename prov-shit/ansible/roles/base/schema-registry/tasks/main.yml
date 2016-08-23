@@ -1,4 +1,7 @@
 ---
+
+- include_vars: ../../../base/db/vars/main.yml
+
 - name: Copy Schema Service Files
   copy: src=schema-registry.service dest={{dest_services}}/
   sudo: true
