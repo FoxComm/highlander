@@ -50,7 +50,7 @@ func (consumer *Consumer) handler(m metamorphosis.AvroMessage) error {
 		log.Panicf("Error marshaling to stock item with error: %s", err.Error())
 	}
 
-	url := fmt.Sprintf("%s/stock-items", consumer.mwhURL)
+	url := fmt.Sprintf("%s/v1/public/stock-items", consumer.mwhURL)
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(b))
 	if err != nil {
 		log.Panicf("Error creating POST request to MWH with error: %s", err.Error())
