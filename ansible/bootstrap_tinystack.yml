@@ -7,6 +7,7 @@
   vars:
     user: '{{ansible_ssh_user}}'
     seeds_cmd: utils.seeds.Seeds seed --seedDemo 1
+    updating_mwh: true
   vars_prompt:
     - name: "hostname"
       prompt: "Enter a hostname with a backend to provision"
