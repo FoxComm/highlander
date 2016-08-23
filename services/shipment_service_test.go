@@ -39,7 +39,6 @@ func (suite *ShipmentServiceTestSuite) SetupTest() {
 	suite.Nil(err)
 	suite.service = NewShipmentService(
 		suite.db,
-		repositories.NewShipmentRepository(suite.db),
 		repositories.NewStockItemUnitRepository(suite.db),
 	)
 }

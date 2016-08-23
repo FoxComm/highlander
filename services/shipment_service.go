@@ -11,7 +11,6 @@ import (
 
 type shipmentService struct {
 	db                      *gorm.DB
-	shipmentRepository      repositories.IShipmentRepository
 	stockItemUnitRepository repositories.IStockItemUnitRepository
 }
 
@@ -24,18 +23,17 @@ type IShipmentService interface {
 
 func NewShipmentService(
 	db *gorm.DB,
-	shipmentRepository repositories.IShipmentRepository,
 	stockItemUnitRepository repositories.IStockItemUnitRepository,
 ) IShipmentService {
 	return &shipmentService{
 		db,
-		shipmentRepository,
 		stockItemUnitRepository,
 	}
 }
 
 func (service *shipmentService) GetShipmentsByReferenceNumber(referenceNumber string) ([]*models.Shipment, error) {
-	return service.shipmentRepository.GetShipmentsByReferenceNumber(referenceNumber)
+	repo := repositories.NewShipmentRepository(service.db)
+	return repo.GetShipmentsByReferenceNumber(referenceNumber)
 }
 
 func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*models.Shipment, error) {
@@ -114,12 +112,13 @@ func (service *shipmentService) getStockItemUnitForShipmentLineItem(
 }
 
 func (service *shipmentService) UpdateShipment(shipment *models.Shipment) (*models.Shipment, error) {
-	source, err := service.shipmentRepository.GetShipmentByID(shipment.ID)
+	shipmentRepo := repositories.NewShipmentRepository(service.db)
+	source, err := shipmentRepo.GetShipmentByID(shipment.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	shipment, err = service.shipmentRepository.UpdateShipment(shipment)
+	shipment, err = shipmentRepo.UpdateShipment(shipment)
 	if err != nil {
 		return nil, err
 	}
