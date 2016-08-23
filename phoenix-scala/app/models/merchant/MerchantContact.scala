@@ -1,5 +1,13 @@
 package models.Merchant
 
+import java.time.Instant
+import models.location._
+import slick.driver.PostgresDriver.api._
+import utils.db._
+import utils.Validation
+import shapeless._
+import com.pellucid.sealerate
+
 case class MerchantContact(id: Int = 0,
                            email: Option[String] = None,
                            name: Option[String] = None,
@@ -22,6 +30,7 @@ object MerchantContact {}
 class MerchantContacts(tag: Tag) extends FoxTable[MerchantContact](tag, "merchant_contacts") {
   def id              = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def email           = column[Option[String]]("email")
+  def name            = column[Option[String]]("name")
   def description     = column[Option[String]]("description")
   def department      = column[Option[String]]("department")
   def location        = column[Option[Int]]("location_id")
@@ -30,7 +39,7 @@ class MerchantContacts(tag: Tag) extends FoxTable[MerchantContact](tag, "merchan
   def createdAt       = column[Instant]("created_at")
 
   def * =
-    (id, email, description, department, location, phoneNumber, merchantAdminId, createdAt) <> ((MerchantContact.apply _).tupled, MerchantContact.unapply)
+    (id, email, name, description, department, location, phoneNumber, merchantAdminId, createdAt) <> ((MerchantContact.apply _).tupled, MerchantContact.unapply)
 }
 
 object MerchantContacts

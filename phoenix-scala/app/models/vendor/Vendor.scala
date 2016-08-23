@@ -7,6 +7,9 @@ import utils.db._
 import utils.Validation
 import shapeless._
 import com.pellucid.sealerate
+import utils.{ADT, Validation, FSM}
+import slick.jdbc.JdbcType
+import slick.ast.BaseTypedType
 
 case class Vendor(id: Int = 0,
                   name: Option[String],

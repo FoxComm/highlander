@@ -28,6 +28,7 @@ object VendorContact {}
 class VendorContacts(tag: Tag) extends FoxTable[VendorContact](tag, "vendor_contacts") {
   def id            = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def email         = column[Option[String]]("email")
+  def name          = column[Option[String]]("name")
   def description   = column[Option[String]]("description")
   def department    = column[Option[String]]("department")
   def location      = column[Option[Int]]("location_id")
@@ -36,7 +37,7 @@ class VendorContacts(tag: Tag) extends FoxTable[VendorContact](tag, "vendor_cont
   def createdAt     = column[Instant]("created_at")
 
   def * =
-    (id, email, description, department, location, phoneNumber, vendorAdminId, createdAt) <> ((VendorContact.apply _).tupled, VendorContact.unapply)
+    (id, email, name, description, department, location, phoneNumber, vendorAdminId, createdAt) <> ((VendorContact.apply _).tupled, VendorContact.unapply)
 }
 
 object VendorContacts

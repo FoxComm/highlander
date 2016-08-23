@@ -7,8 +7,9 @@ package models.Merchant
 case class MerchantConfiguration(
     id: Int = 0,
     merchantId: Int,
-    environment: Merchant.EnvironmentType = EnvironmentType.Staging,
-    inventorySourceType: Merchant.SourceOrDestinationType = SourceOrDestinationType.FoxCommerce,
+    environment: MerchantConfiguration.EnvironmentType = MerchantConfiguration.Staging,
+    inventorySourceType: MerchantConfiguration.SourceOrDestinationType =
+      MerchantConfiguration.FoxCommerce,
     inventorySync: Boolean = false, // is polling enabled?
     inventoryPollingInterval: Int = 3600, //in seconds
     inventorySourceName: Option[String], // Magento, NetSuite, etc.
@@ -21,7 +22,8 @@ case class MerchantConfiguration(
     catalogSourceURL: Option[String],
     catalogSourceVersion: Option[String],
     catalogSourceCredentials: Option[String],
-    fulfillmentType: Merchant.FulfillmentType = SourceOrDestinationType.FoxCommerce,
+    fulfillmentType: MerchantConfiguration.SourceOrDestinationType =
+      MerchantConfiguration.FoxCommerce,
     fulfillmentDestinationName: Option[String],
     fulfillmentDestinationURL: Option[String],
     fulfillmentDestinationVersion: Option[String],
@@ -40,15 +42,19 @@ case class MerchantConfiguration(
 object MerchantConfiguration {
 
   sealed trait SourceOrDestinationType
+
   // They manage inventory locally in FoxCommerce
-  case object FoxCommerce extends InventorySource
+  case object FoxCommerce extends SourceOrDestinationType
+
   // Fox retrieves the inventory from their ERP or WMS
-  case object ERP         extends InventorySource
-  case object Netsuite    extends ERP
-  case object WMS         extends InventorySource
+  sealed trait ERP
+  case object Netsuite extends ERP
+
+  sealed trait WMS
   case object ShipStation extends WMS
+
   // Fox retrieves the inventory from their legacy/existing eCommerce platform
-  case object LegacyEcommerce extends InventorySource
+  case object LegacyEcommerce extends SourceOrDestinationType
 
   sealed trait EnvironmentType
   case object Staging    extends EnvironmentType

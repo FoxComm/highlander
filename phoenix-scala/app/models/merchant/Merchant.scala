@@ -13,14 +13,16 @@ case class Merchant(id: Int = 0,
                     taxId: Option[String],
                     isDisabled: Boolean = false,
                     createdAt: Instant = Instant.now)
+    extends FoxModel[Merchant]
+    with Validation[Merchant] {}
 
 object Merchant {}
 
-class Merchants(tag: Tag) extends FoxTable[Merchant](tag, "vendors") {
+class Merchants(tag: Tag) extends FoxTable[Merchant](tag, "merchants") {
   def id          = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def name        = column[Option[String]]("name")
   def description = column[Option[String]]("description")
-  def taxId       = columt[Option[String]]("tax_id")
+  def taxId       = column[Option[String]]("tax_id")
   def isDisabled  = column[Boolean]("is_disabled")
   def createdAt   = column[Instant]("created_at")
 

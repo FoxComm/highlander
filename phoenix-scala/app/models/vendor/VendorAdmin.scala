@@ -1,5 +1,6 @@
 package models.Vendor
 
+import java.time.Instant
 import models.Vendor._
 import cats.data.ValidatedNel
 import cats.implicits._
@@ -19,7 +20,7 @@ import utils.db._
 import models.StoreAdmin._
 
 case class VendorAdmin(id: Int = 0,
-                       email: Option[String] = None,
+                       email: String,
                        hashedPassword: Option[String] = None,
                        isDisabled: Boolean = false,
                        disabledBy: Option[Int] = None,
@@ -30,7 +31,7 @@ case class VendorAdmin(id: Int = 0,
   import Validation._
 
   override def validate: ValidatedNel[Failure, VendorAdmin] = {
-    (notEmpty(name, "name") |@| notEmpty(email, "email")).map { case _ ⇒ this }
+    (notEmpty(email, "email")).map { case _ ⇒ this }
   }
 
 }
@@ -48,6 +49,7 @@ object VendorAdmin {
             createdAt: Instant = Instant.now): VendorAdmin = {
     val passwordHash = password.map(hashPassword)
     VendorAdmin(id = id,
+                email = email,
                 hashedPassword = passwordHash,
                 isDisabled = isDisabled,
                 disabledBy = disabledBy,
