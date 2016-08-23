@@ -63,7 +63,7 @@ func (o OrderHandler) Handler(message metamorphosis.AvroMessage) error {
 		return err
 	}
 
-	url := fmt.Sprintf("%s/shipments/from-order", o.mwhURL)
+	url := fmt.Sprintf("%s/v1/public/shipments/from-order", o.mwhURL)
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(b))
 	if err != nil {
 		return err
