@@ -34,6 +34,10 @@
   }
 }
 
+.content {
+  width: 100%;
+}
+
 .form {
   composes: global(fc-form-vertical);
   width: 100%;

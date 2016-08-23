@@ -12,6 +12,7 @@ import FormField from '../forms/formfield';
 import ErrorAlerts from '../alerts/error-alerts';
 import { PrimaryButton, Button } from '../common/buttons';
 import PasswordInput from '../forms/password-input';
+import WaitAnimation from '../common/wait-animation';
 
 import type { SignupPayload } from 'modules/user';
 import * as userActions from 'modules/user';
@@ -28,6 +29,8 @@ type Props = {
     inProgress?: boolean,
   },
   signUp: (payload: SignupPayload) => Promise,
+  isMounted: boolean,
+  location: Location,
 }
 
 function mapStateToProps(state) {
@@ -37,6 +40,8 @@ function mapStateToProps(state) {
 }
 
 class SetPassword extends Component {
+  props: Props;
+
   state: State = {
     email: '',
     password1: '',
@@ -87,10 +92,13 @@ class SetPassword extends Component {
     return <ErrorAlerts error={err} />;
   }
 
-  render() {
+  get content() {
+    if (!this.props.isMounted) {
+      return <WaitAnimation />;
+    }
+
     return (
-      <div styleName="main">
-        <div className="fc-auth__title">Create Account</div>
+      <div>
         <div styleName="message">
           Hey, {this.username}! You’ve been invited to create an account with
           FoxCommerce. All you need to do is choose your method
@@ -135,6 +143,15 @@ class SetPassword extends Component {
             Sign Up
           </PrimaryButton>
         </Form>
+      </div>
+    );
+  }
+
+  render() {
+    return (
+      <div styleName="main">
+        <div className="fc-auth__title">Create Account</div>
+        {this.content}
       </div>
     );
   }

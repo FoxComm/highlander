@@ -1,5 +1,5 @@
 /** @flow */
-import React, { PropTypes } from 'react';
+import React, { PropTypes, Component } from 'react';
 import _ from 'lodash';
 import { transitionTo } from 'browserHistory';
 import { autobind } from 'core-decorators';
@@ -11,8 +11,7 @@ import Form from '../forms/form';
 import FormField from '../forms/formfield';
 import { PrimaryButton, Button } from '../common/buttons';
 import WrapToLines from './wrap-to-lines';
-
-
+import WaitAnimation from '../common/wait-animation';
 
 import * as userActions from 'modules/user';
 
@@ -42,6 +41,7 @@ type LoginProps = {
   },
   err: any,
   googleSignin: Function,
+  isMounted: boolean,
 }
 
 /* ::`*/
@@ -50,13 +50,14 @@ type LoginProps = {
   authenticationState: _.get(state.asyncActions, 'authenticate', {})
 }), userActions)
 /* ::`*/
-export default class Login extends React.Component {
+export default class Login extends Component {
   state: TState = {
     email: '',
     password: '',
   };
 
   props: LoginProps;
+
 
   @autobind
   submitLogin() {
@@ -109,12 +110,20 @@ export default class Login extends React.Component {
     return <ErrorAlerts error={err} />;
   }
 
-  render() {
+  get content() {
+    if (!this.props.isMounted) {
+      return <WaitAnimation />;
+    }
+
     return (
-      <div styleName="main">
-        <div className="fc-auth__title">Sign In</div>
+      <div styleName="content">
         {this.infoMessage}
-        <Button type="button" styleName="google-button" icon="google" onClick={this.onGoogleSignIn}>
+        <Button
+          type="button"
+          styleName="google-button"
+          icon="google"
+          onClick={this.onGoogleSignIn}
+        >
           Sign In with Google
         </Button>
         <Form styleName="form" onSubmit={this.submitLogin}>
@@ -133,6 +142,15 @@ export default class Login extends React.Component {
             Sign In
           </PrimaryButton>
         </Form>
+      </div>
+    );
+  }
+
+  render() {
+    return (
+      <div styleName="main">
+        <div className="fc-auth__title">Sign In</div>
+        {this.content}
       </div>
     );
   }
