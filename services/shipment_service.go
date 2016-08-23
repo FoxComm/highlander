@@ -30,13 +30,14 @@ func (service *shipmentService) GetShipmentsByReferenceNumber(referenceNumber st
 }
 
 func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*models.Shipment, error) {
-	unitRepo := repositories.NewStockItemUnitRepository(service.db)
+	txn := service.db.Begin()
+
+	unitRepo := repositories.NewStockItemUnitRepository(txn)
 	stockItemUnits, err := unitRepo.GetUnitsInOrder(shipment.ReferenceNumber)
 	if err != nil {
+		txn.Rollback()
 		return nil, err
 	}
-
-	txn := service.db.Begin()
 
 	addressRepo := repositories.NewAddressRepository(txn)
 	address, err := addressRepo.CreateAddress(&shipment.Address)
@@ -53,8 +54,8 @@ func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*mode
 		txn.Rollback()
 		return nil, err
 	}
-	shipment.ID = result.ID
 
+	shipment.ID = result.ID
 	lineItemRepo := repositories.NewShipmentLineItemRepository(txn)
 
 	createdLineItems := []models.ShipmentLineItem{}
@@ -65,6 +66,7 @@ func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*mode
 
 		stockItemUnit, err := service.getStockItemUnitForShipmentLineItem(shipment.ReferenceNumber, lineItem.SKU, boundItems, stockItemUnits)
 		if err != nil {
+			txn.Rollback()
 			return nil, err
 		}
 		lineItem.StockItemUnitID = stockItemUnit.ID
@@ -106,26 +108,31 @@ func (service *shipmentService) getStockItemUnitForShipmentLineItem(
 }
 
 func (service *shipmentService) UpdateShipment(shipment *models.Shipment) (*models.Shipment, error) {
-	shipmentRepo := repositories.NewShipmentRepository(service.db)
+	txn := service.db.Begin()
+
+	shipmentRepo := repositories.NewShipmentRepository(txn)
 	source, err := shipmentRepo.GetShipmentByID(shipment.ID)
 	if err != nil {
+		txn.Rollback()
 		return nil, err
 	}
 
 	shipment, err = shipmentRepo.UpdateShipment(shipment)
 	if err != nil {
+		txn.Rollback()
 		return nil, err
 	}
 
-	//TODO: transactions
 	if shipment.State != source.State && shipment.State == models.ShipmentStateCancelled {
-		unitRepo := repositories.NewStockItemUnitRepository(service.db)
-		if _, err := unitRepo.UnsetUnitsInOrder(shipment.ReferenceNumber); err != nil {
+		unitRepo := repositories.NewStockItemUnitRepository(txn)
+		if _, err = unitRepo.UnsetUnitsInOrder(shipment.ReferenceNumber); err != nil {
+			txn.Rollback()
 			return nil, err
 		}
 	}
 
-	return shipment, nil
+	err = txn.Commit().Error
+	return shipment, err
 }
 
 func (service *shipmentService) GetUnshippedItems(shipment *models.Shipment) ([]*models.ShipmentLineItem, error) {
