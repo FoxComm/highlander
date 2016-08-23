@@ -1,5 +1,6 @@
 package services.activity
 
+import models.cord.Order
 import models.cord.Cart
 import payloads.GiftCardPayloads.GiftCardUpdateStateByCsr
 import responses.{CustomerResponse, GiftCardResponse, StoreAdminResponse, StoreCreditResponse}
@@ -25,7 +26,7 @@ object GiftCardTailored {
       extends ActivityBase[GiftCardAuthorizedFunds]
 
   case class GiftCardCapturedFunds(customer: CustomerResponse.Root,
-                                   cart: Cart,
+                                   order: Order,
                                    giftCardCodes: Seq[String],
                                    amount: Int)
       extends ActivityBase[GiftCardCapturedFunds]

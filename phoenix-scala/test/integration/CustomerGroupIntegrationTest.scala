@@ -2,24 +2,22 @@ import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
 import failures.NotFoundFailure404
-import models.StoreAdmins
 import models.customer.{CustomerDynamicGroup, CustomerDynamicGroups}
 import org.json4s.JObject
-import org.mockito.{Matchers ⇒ m}
 import org.scalatest.mock.MockitoSugar
 import payloads.CustomerGroupPayloads.CustomerDynamicGroupPayload
-import responses.CreditCardsResponse.{Root ⇒ CardResponse}
 import responses.DynamicGroupResponse
-import util.IntegrationTestBase
+import util._
+import util.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
-import concurrent.ExecutionContext.Implicits.global
 
 class CustomerGroupIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
     with AutomaticAuth
-    with MockitoSugar {
+    with MockitoSugar
+    with BakedFixtures {
 
   "GET /v1/groups" - {
     "lists customers groups" in new Fixture {
@@ -91,10 +89,7 @@ class CustomerGroupIntegrationTest
     }
   }
 
-  trait Fixture {
-    val (group, admin) = (for {
-      admin ← * <~ StoreAdmins.create(authedStoreAdmin)
-      group ← * <~ CustomerDynamicGroups.create(Factories.group.copy(createdBy = admin.id))
-    } yield (group, admin)).gimme
+  trait Fixture extends StoreAdmin_Seed {
+    val group = CustomerDynamicGroups.create(Factories.group.copy(createdBy = storeAdmin.id)).gimme
   }
 }

@@ -1,7 +1,5 @@
 package utils
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
 import cats.data.Xor
 import failures.GeneralFailure
 import util._
@@ -9,6 +7,8 @@ import utils.db._
 import utils.seeds.Seeds.Factories
 
 class DbResultTTest extends TestBase with DbTestSupport with CatsHelpers with GimmeSupport {
+
+  implicit val ec = scala.concurrent.ExecutionContext.Implicits.global
 
   "DbResultT" - {
     "when we lift (do you even?)" - {

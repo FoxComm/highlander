@@ -29,6 +29,25 @@ object OrderTailored {
   case class OrderCheckoutCompleted(order: OrderResponse)
       extends ActivityBase[OrderCheckoutCompleted]
 
+  case class OrderCaptured(customerId: Int,
+                           orderNum: String,
+                           captured: Int,
+                           external: Int,
+                           internal: Int,
+                           lineItems: Int,
+                           taxes: Int,
+                           shipping: Int,
+                           currency: Currency)
+      extends ActivityBase[OrderCaptured]
+
+  case class CreditCardAuthCompleted(customerId: Int,
+                                     cordRef: String,
+                                     orderNum: String,
+                                     amount: Int,
+                                     currency: Currency,
+                                     cardId: Int)
+      extends ActivityBase[CreditCardAuthCompleted]
+
   case class CreditCardChargeCompleted(customerId: Int,
                                        cordRef: String,
                                        orderNum: String,

@@ -1,5 +1,3 @@
-import scala.concurrent.ExecutionContext.Implicits.global
-
 import cats.implicits._
 import failures.DatabaseFailure
 import models.customer.{Customer, Customers}

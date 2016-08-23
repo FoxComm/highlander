@@ -15,6 +15,11 @@ object PluginRoutes {
   def routes(implicit ec: EC, db: DB, admin: StoreAdmin) = {
     activityContext(admin) { implicit ac ⇒
       pathPrefix("plugins") {
+        (get & pathEnd) {
+          getOrFailures {
+            listPlugins()
+          }
+        } ~
         pathPrefix("register") {
           (post & pathEnd & entity(as[RegisterPluginPayload])) { payload ⇒
             mutateOrFailures {

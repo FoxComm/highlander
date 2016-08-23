@@ -1,6 +1,5 @@
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
@@ -11,6 +10,7 @@ import payloads.NotePayloads._
 import responses.AdminNotes
 import services.notes.GiftCardNoteManager
 import util._
+import util.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 import utils.time.RichInstant
@@ -19,6 +19,7 @@ class GiftCardNotesIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
     with AutomaticAuth
+    with BakedFixtures
     with TestActivityContext.AdminAC {
 
   "POST /v1/notes/gift-card/:code" - {
@@ -30,7 +31,7 @@ class GiftCardNotesIntegrationTest
 
       val note = response.as[AdminNotes.Root]
       note.body must === ("Hello, FoxCommerce!")
-      note.author must === (AdminNotes.buildAuthor(admin))
+      note.author must === (AdminNotes.buildAuthor(storeAdmin))
     }
 
     "returns a validation error if failed to create" in new Fixture {
@@ -52,7 +53,7 @@ class GiftCardNotesIntegrationTest
 
     "can be listed" in new Fixture {
       val createNotes = List("abc", "123", "xyz").map { body ⇒
-        GiftCardNoteManager.create(giftCard.code, admin, CreateNote(body = body))
+        GiftCardNoteManager.create(giftCard.code, storeAdmin, CreateNote(body = body))
       }
       DbResultT.sequence(createNotes).gimme
 
@@ -69,7 +70,7 @@ class GiftCardNotesIntegrationTest
 
     "can update the body text" in new Fixture {
       val rootNote = GiftCardNoteManager
-        .create(giftCard.code, admin, CreateNote(body = "Hello, FoxCommerce!"))
+        .create(giftCard.code, storeAdmin, CreateNote(body = "Hello, FoxCommerce!"))
         .gimme
 
       val response =
@@ -110,14 +111,12 @@ class GiftCardNotesIntegrationTest
     }
   }
 
-  trait Fixture {
-    val (admin, giftCard) = (for {
-      admin  ← * <~ StoreAdmins.create(authedStoreAdmin)
-      reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
+  trait Fixture extends Reason_Baked {
+    val giftCard = (for {
       origin ← * <~ GiftCardManuals.create(
-                  GiftCardManual(adminId = admin.id, reasonId = reason.id))
+                  GiftCardManual(adminId = storeAdmin.id, reasonId = reason.id))
       giftCard ← * <~ GiftCards.create(
                     Factories.giftCard.copy(originId = origin.id, state = GiftCard.Active))
-    } yield (admin, giftCard)).gimme
+    } yield giftCard).gimme
   }
 }

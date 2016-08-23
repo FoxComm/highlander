@@ -1,10 +1,9 @@
 package models
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
 import models.cord.OrderPayments
 import models.payment.storecredit._
 import util._
+import util.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 
@@ -47,7 +46,7 @@ class StoreCreditIntegrationTest
 
   trait Fixture extends EmptyCustomerCart_Baked with StoreAdmin_Seed {
     val (origin, storeCredit, payment) = (for {
-      reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
+      reason ← * <~ Reasons.create(Factories.reason(storeAdmin.id))
       origin ← * <~ StoreCreditManuals.create(
                   StoreCreditManual(adminId = storeAdmin.id, reasonId = reason.id))
       sc ← * <~ StoreCredits.create(

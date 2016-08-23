@@ -15,11 +15,11 @@ import org.json4s.jackson.JsonMethods._
 import payloads.AddressPayloads.UpdateAddressPayload
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.UpdateShippingMethod
-import responses.AddressResponse
 import responses.cord.CartResponse
 import services.carts.CartTotaler
 import slick.driver.PostgresDriver.api._
 import util._
+import util.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 
@@ -50,6 +50,21 @@ class CartIntegrationTest
         fullCart.paymentState must === (CreditCardCharge.Auth)
       }
     }
+
+    "returns correct image path" in new Fixture {
+      val imgUrl = "testImgUrl";
+      (for {
+        product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head.copy(image = imgUrl))
+        li      ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
+      } yield {}).gimme
+
+      val response = GET(s"v1/carts/${cart.refNum}")
+      response.status must === (StatusCodes.OK)
+      val fullCart = response.ignoreFailuresAndGiveMe[CartResponse]
+
+      fullCart.lineItems.skus.size must === (1)
+      fullCart.lineItems.skus.head.imagePath must === (imgUrl)
+    }
   }
 
   "POST /v1/orders/:refNum/line-items" - {
@@ -77,7 +92,6 @@ class CartIntegrationTest
   "POST /v1/orders/:refNum/lock" - {
     "successfully locks a cart" in new Fixture {
       val response = POST(s"v1/orders/${cart.refNum}/lock")
-      println(response.errors)
       response.status must === (StatusCodes.OK)
 
       val lockedCart = Carts.findByRefNum(cart.refNum).gimme.head
@@ -450,12 +464,8 @@ class CartIntegrationTest
       .copy(adminDisplayName = "High", conditions = Some(highConditions))
 
     val (lowShippingMethod, inactiveShippingMethod, highShippingMethod) = (for {
-      product     ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head.copy(price = 100))
-      lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(product.skuId)
-      lineItem ← * <~ OrderLineItems.create(
-                    OrderLineItem(cordRef = cart.refNum,
-                                  originId = lineItemSku.id,
-                                  originType = OrderLineItem.SkuItem))
+      product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head.copy(price = 100))
+      li      ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
 
       lowShippingMethod ← * <~ ShippingMethods.create(lowSm)
       inactiveShippingMethod ← * <~ ShippingMethods.create(

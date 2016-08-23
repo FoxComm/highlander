@@ -1,7 +1,5 @@
 package util
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
 import models.objects.{ObjectContext, ObjectContexts}
 import models.product.SimpleContext
 import org.scalatest.{Suite, SuiteMixin}

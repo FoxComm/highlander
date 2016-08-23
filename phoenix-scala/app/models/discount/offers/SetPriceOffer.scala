@@ -30,7 +30,7 @@ case class SetPriceOffer(setPrice: Int, numUnits: Int, search: Seq[ProductSearch
           .filter(data ⇒ matchedFormIds.contains(data.product.formId.toString))
           .take(numUnits)
           .map { data ⇒
-            build(input, subtract(price(data), setPrice), data.lineItem.referenceNumber.some)
+            build(input, subtract(price(data), setPrice), data.lineItemReferenceNumber.some)
           }
 
         Xor.Right(adjustments)

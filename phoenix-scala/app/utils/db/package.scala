@@ -151,6 +151,9 @@ package object db {
     def fromDbio[A](v: DBIO[A])(implicit ec: EC): DbResultT[A] =
       XorT.right[DBIO, Failures, A](v)
 
+    def fromFuture[A](v: Future[A])(implicit ec: EC): DbResultT[A] =
+      fromDbio(DBIO.from(v))
+
     def good[A](v: A)(implicit ec: EC): DbResultT[A] =
       XorT.right[DBIO, Failures, A](DBIO.successful(v))
 
@@ -191,6 +194,9 @@ package object db {
 
     def <~[A](v: Future[Failures Xor A]): DbResultT[A] =
       DbResultT(DBIO.from(v))
+
+    def <~[A](v: Future[A])(implicit ec: EC): DbResultT[A] =
+      DbResultT.fromFuture(v)
 
     def <~[A](v: A)(implicit ec: EC): DbResultT[A] =
       DbResultT.pure(v)

@@ -14,7 +14,6 @@ import models.payment.PaymentMethod
 import models.payment.giftcard.GiftCard._
 import models.payment.giftcard.{GiftCardAdjustment ⇒ Adj, GiftCardAdjustments ⇒ Adjs}
 import payloads.GiftCardPayloads.GiftCardCreateByCsr
-import payloads.LineItemPayloads.AddGiftCardLineItem
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
@@ -121,13 +120,6 @@ object GiftCard {
   }
 
   val giftCardCodeRegex = """([a-zA-Z0-9-_]*)""".r
-
-  def update(giftCard: GiftCard, payload: AddGiftCardLineItem): GiftCard = {
-    giftCard.copy(availableBalance = payload.balance,
-                  currentBalance = payload.balance,
-                  originalBalance = payload.balance,
-                  currency = payload.currency)
-  }
 
   def build(balance: Int, originId: Int, currency: Currency): GiftCard = {
     GiftCard(
@@ -256,7 +248,11 @@ object GiftCards
          orderPaymentId = pmt.id.some,
          debit = pmt.getAmount(maxPaymentAmount))
 
-  def capture(giftCard: GiftCard, orderPaymentId: Option[Int], debit: Int = 0, credit: Int = 0)(
+  def captureOrderPayment(giftCard: GiftCard, pmt: OrderPayment, maxAmount: Option[Int] = None)(
+      implicit ec: EC): DbResultT[GiftCardAdjustment] =
+    capture(giftCard, pmt.id.some, debit = pmt.getAmount(maxAmount))
+
+  def capture(giftCard: GiftCard, orderPaymentId: Option[Int], debit: Int, credit: Int = 0)(
       implicit ec: EC): DbResultT[GiftCardAdjustment] =
     adjust(giftCard, orderPaymentId, debit = debit, credit = credit, state = Adj.Capture)
 

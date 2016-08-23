@@ -3,6 +3,7 @@ package models
 import failures.GeneralFailure
 import models.cord.OrderShippingAddresses
 import util._
+import util.fixtures.BakedFixtures
 import utils.db._
 import utils.jdbc._
 import utils.seeds.Seeds.Factories

@@ -1,6 +1,5 @@
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 
 import Extensions._
@@ -11,6 +10,7 @@ import models.location.{Address, Addresses}
 import payloads.AddressPayloads.CreateAddressPayload
 import responses.AddressResponse
 import util._
+import util.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 

@@ -6,10 +6,11 @@ import models.activity.Activity
 import models.cord._
 import models.cord.lineitems.OrderLineItems.scope._
 import models.cord.lineitems._
+import CartLineItems.scope._
 import models.customer.Customer
 import models.inventory.Skus
 import models.payment.giftcard._
-import payloads.LineItemPayloads.{AddGiftCardLineItem, UpdateLineItemsPayload}
+import payloads.LineItemPayloads.UpdateLineItemsPayload
 import responses.TheResponse
 import responses.cord.CartResponse
 import services.carts.{CartPromotionUpdater, CartTotaler}
@@ -18,67 +19,6 @@ import utils.aliases._
 import utils.db._
 
 object LineItemUpdater {
-
-  def addGiftCard(admin: StoreAdmin, refNum: String, payload: AddGiftCardLineItem)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC,
-      ctx: OC): DbResultT[TheResponse[CartResponse]] =
-    for {
-      p      ← * <~ payload.validate
-      cart   ← * <~ Carts.mustFindByRefNum(refNum)
-      origin ← * <~ GiftCardOrders.create(GiftCardOrder(cordRef = cart.refNum))
-      gc ← * <~ GiftCards.create(
-              GiftCard
-                .buildLineItem(balance = p.balance, originId = origin.id, currency = p.currency))
-      liGc ← * <~ OrderLineItemGiftCards.create(
-                OrderLineItemGiftCard(giftCardId = gc.id, cordRef = cart.refNum))
-      _ ← * <~ OrderLineItems.create(OrderLineItem.buildGiftCard(cart, liGc))
-      // update changed totals
-      cart   ← * <~ CartTotaler.saveTotals(cart)
-      valid  ← * <~ CartValidator(cart).validate()
-      result ← * <~ CartResponse.buildRefreshed(cart)
-      _      ← * <~ LogActivity.orderLineItemsAddedGc(admin, result, gc)
-    } yield TheResponse.validated(result, valid)
-
-  def editGiftCard(admin: StoreAdmin, refNum: String, code: String, payload: AddGiftCardLineItem)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC,
-      ctx: OC): DbResultT[TheResponse[CartResponse]] =
-    for {
-      _        ← * <~ payload.validate
-      giftCard ← * <~ GiftCards.mustFindByCode(code)
-      _        ← * <~ giftCard.mustBeCart
-      cart     ← * <~ Carts.mustFindByRefNum(refNum)
-      _        ← * <~ GiftCards.filter(_.id === giftCard.id).update(GiftCard.update(giftCard, payload))
-      // update changed totals
-      cart   ← * <~ CartTotaler.saveTotals(cart)
-      valid  ← * <~ CartValidator(cart).validate()
-      result ← * <~ CartResponse.buildRefreshed(cart)
-      _      ← * <~ LogActivity.orderLineItemsUpdatedGc(admin, result, giftCard)
-    } yield TheResponse.validated(result, valid)
-
-  def deleteGiftCard(admin: StoreAdmin, refNum: String, code: String)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC,
-      ctx: OC): DbResultT[TheResponse[CartResponse]] =
-    for {
-      gc   ← * <~ GiftCards.mustFindByCode(code)
-      _    ← * <~ gc.mustBeCart
-      cart ← * <~ Carts.mustFindByRefNum(refNum)
-      _    ← * <~ OrderLineItemGiftCards.findByGcId(gc.id).delete
-      // FIXME @anna WTF? Order id or GC id?
-      _ ← * <~ OrderLineItems.filter(_.cordRef === cart.refNum).giftCards.delete
-      _ ← * <~ GiftCards.filter(_.id === gc.id).delete
-      _ ← * <~ GiftCardOrders.filter(_.id === gc.originId).delete
-      // update changed totals
-      cart  ← * <~ CartTotaler.saveTotals(cart)
-      valid ← * <~ CartValidator(cart).validate()
-      res   ← * <~ CartResponse.buildRefreshed(cart)
-      _     ← * <~ LogActivity.orderLineItemsDeletedGc(admin, res, gc)
-    } yield TheResponse.validated(res, valid)
 
   def updateQuantitiesOnCart(admin: StoreAdmin,
                              refNum: String,
@@ -130,7 +70,7 @@ object LineItemUpdater {
       cart  ← * <~ CartTotaler.saveTotals(cart)
       valid ← * <~ CartValidator(cart).validate()
       res   ← * <~ CartResponse.buildRefreshed(cart)
-      li    ← * <~ OrderLineItemSkus.countSkusByCordRef(cart.refNum)
+      li    ← * <~ CartLineItems.byCordRef(cart.refNum).countSkus
       _     ← * <~ logAct(res, li)
     } yield TheResponse.validated(res, valid)
 
@@ -141,7 +81,7 @@ object LineItemUpdater {
     }
 
   private def updateQuantities(cart: Cart, payload: Seq[UpdateLineItemsPayload], contextId: Int)(
-      implicit ec: EC): DbResultT[Seq[OrderLineItem]] = {
+      implicit ec: EC): DbResultT[Seq[CartLineItem]] = {
 
     val lineItemUpdActions = foldQuantityPayload(payload).map {
       case (skuCode, qty) ⇒
@@ -150,55 +90,31 @@ object LineItemUpdater {
                  .filterByContext(contextId)
                  .filter(_.code === skuCode)
                  .mustFindOneOr(SkuNotFoundForContext(skuCode, contextId))
-          lis ← * <~ fuckingHell(sku.id, qty, cart.refNum)
+          lis ← * <~ doUpdateLineItems(sku.id, qty, cart.refNum)
         } yield lis
     }
     DbResultT.sequence(lineItemUpdActions).map(_.flatten.toSeq)
   }
 
-  private def fuckingHell(skuId: Int, newQuantity: Int, cordRef: String)(
-      implicit ec: EC): DbResultT[Seq[OrderLineItem]] = {
-    val counts = for {
-      (skuId, q) ← OrderLineItems
-                    .filter(_.cordRef === cordRef)
-                    .skuItems
-                    .join(OrderLineItemSkus)
-                    .on(_.originId === _.id)
-                    .groupBy(_._2.skuId)
-    } yield (skuId, q.length)
+  private def doUpdateLineItems(skuId: Int, newQuantity: Int, cordRef: String)(
+      implicit ec: EC): DbResultT[Seq[CartLineItem]] = {
 
-    counts.result.toXor.flatMap { (items: Seq[(Int, Int)]) ⇒
-      val existingSkuCounts = items.toMap
+    val allRelatedLineItems = CartLineItems.byCordRef(cordRef).filter(_.skuId === skuId)
 
-      val current = existingSkuCounts.getOrElse(skuId, 0)
+    val counts = allRelatedLineItems.size.result.toXor
 
+    counts.flatMap { (current: Int) ⇒
       // we're using absolute values from payload, so if newQuantity is greater then create N items
       if (newQuantity > current) {
-        val delta = newQuantity - current
-
-        val queries = for {
-          origin ← OrderLineItemSkus.safeFindBySkuId(skuId)
-          // FIXME: should use `createAll` instead of `++=` but this method is a nightmare to refactor
-          bulkInsert ← OrderLineItems ++= (1 to delta).map { _ ⇒
-                        OrderLineItem(cordRef = cordRef, originId = origin.id)
-                      }.toSeq
-        } yield ()
-
-        DbResultT.fromDbio(queries)
+        val itemsToInsert: List[CartLineItem] =
+          List.fill(newQuantity - current)(CartLineItem(cordRef = cordRef, skuId = skuId))
+        CartLineItems.createAll(itemsToInsert).ignoreResult
       } else if (current - newQuantity > 0) {
+
         // otherwise delete N items
         val queries = for {
-          deleteLi ← OrderLineItems
-                      .filter(
-                          _.id in OrderLineItems
-                            .filter(_.cordRef === cordRef)
-                            .skuItems
-                            .join(OrderLineItemSkus)
-                            .on(_.originId === _.id)
-                            .filter(_._2.skuId === skuId)
-                            .sortBy(_._1.id.asc)
-                            .take(current - newQuantity)
-                            .map(_._1.id))
+          deleteLi ← allRelatedLineItems
+                      .filter(_.id in allRelatedLineItems.take(current - newQuantity).map(_.id))
                       .delete
         } yield ()
 
@@ -207,7 +123,7 @@ object LineItemUpdater {
         DbResultT.unit
       }
     }.flatMap { _ ⇒
-      DbResultT.fromDbio(OrderLineItems.filter(_.cordRef === cordRef).result)
+      DbResultT.fromDbio(CartLineItems.byCordRef(cordRef).result)
     }
   }
 }

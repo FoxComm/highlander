@@ -46,14 +46,22 @@ object PluginsManager extends LazyLogging {
     }
   }
 
-  private def updatePluginSchema(plugin: Plugin, schema: SettingsSchema)(
-      implicit ec: EC): DbResultT[Plugin] = {
+  private def updatePluginInfo(
+      plugin: Plugin,
+      schema: SettingsSchema,
+      payload: RegisterPluginPayload)(implicit ec: EC): DbResultT[Plugin] = {
     val newSettings = schema.filterNot { s ⇒
       plugin.settings.contains(s.name)
     }.foldLeft(plugin.settings) { (settings, schemaSetting) ⇒
       settings + (schemaSetting.name → schemaSetting.default)
     }
-    Plugins.update(plugin, plugin.copy(settings = newSettings, schemaSettings = schema))
+    Plugins.update(plugin,
+                   plugin.copy(settings = newSettings,
+                               schemaSettings = schema,
+                               apiHost = payload.apiHost,
+                               apiPort = payload.apiPort,
+                               version = payload.version,
+                               description = payload.description))
   }
 
   private def updatePlugin(plugin: Plugin,
@@ -61,8 +69,14 @@ object PluginsManager extends LazyLogging {
                            foundOrCreated: FoundOrCreated)(implicit ec: EC): DbResultT[Plugin] =
     for {
       schema ← * <~ fetchSchemaSettings(plugin, payload, foundOrCreated)
-      plugin ← * <~ updatePluginSchema(plugin, schema)
+      plugin ← * <~ updatePluginInfo(plugin, schema, payload)
     } yield plugin
+
+  def listPlugins()(implicit ec: EC, db: DB, ac: AC): DbResultT[ListPluginsAnswer] = {
+    for {
+      plugins ← * <~ Plugins.result
+    } yield plugins.map(PluginInfo.fromPlugin)
+  }
 
   def registerPlugin(payload: RegisterPluginPayload)(implicit ec: EC,
                                                      db: DB,

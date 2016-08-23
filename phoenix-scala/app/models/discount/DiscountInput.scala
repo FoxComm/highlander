@@ -7,5 +7,5 @@ import models.shipping.ShippingMethod
 
 case class DiscountInput(promotion: ObjectShadow,
                          cart: Cart,
-                         lineItems: Seq[OrderLineItemProductData],
+                         lineItems: Seq[LineItemProductData[_]],
                          shippingMethod: Option[ShippingMethod])

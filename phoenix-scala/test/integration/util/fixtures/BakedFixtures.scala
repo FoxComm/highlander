@@ -1,4 +1,6 @@
-package util
+package util.fixtures
+
+import util.TestSeeds
 
 /**
   * Cake-inspired class names galore.
@@ -11,14 +13,17 @@ package util
   * screwed that up.
   * The cake is a lie tho.
   */
-trait BakedFixtures extends RawFixtures with TestSeeds with GimmeSupport {
+trait BakedFixtures extends TestSeeds with RawFixtures {
 
-  trait EmptyCustomerCart_Baked extends Customer_Seed with EmptyCustomerCart_Raw
+  trait Reason_Baked extends StoreAdmin_Seed with Reason_Raw
+
+  trait EmptyCustomerCart_Baked extends Customer_Seed with StoreAdmin_Seed with EmptyCart_Raw
 
   trait CustomerAddress_Baked extends Customer_Seed with CustomerAddress_Raw
 
   trait EmptyCartWithShipAddress_Baked
       extends StoreAdmin_Seed
+      with EmptyCustomerCart_Baked
       with CustomerAddress_Baked
       with CartWithShipAddress_Raw
 

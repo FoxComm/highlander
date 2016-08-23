@@ -1,4 +1,3 @@
-import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 import akka.stream.scaladsl.Source
 
@@ -20,6 +19,7 @@ import services.NotificationManager
 import services.NotificationManager.unsubscribe
 import slick.driver.PostgresDriver.api._
 import util._
+import util.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 

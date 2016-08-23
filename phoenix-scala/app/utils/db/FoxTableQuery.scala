@@ -58,7 +58,7 @@ abstract class FoxTableQuery[M <: FoxModel[M], T <: FoxTable[M]](construct: Tag 
       _        ← * <~ oldModel.mustBeCreated
       prepared ← * <~ beforeSave(newModel)
       _        ← * <~ oldModel.updateTo(prepared)
-      _        ← * <~ findById(oldModel.id).update(prepared)
+      _        ← * <~ wrapDbio(findById(oldModel.id).update(prepared))
     } yield prepared
 
   def updateReturning(oldModel: M, newModel: M)(implicit ec: EC): DbResultT[M] =

@@ -11,7 +11,7 @@ class ReasonTest extends TestBase {
   "Reason" - {
     ".validateNew" - {
       "returns errors when body is empty" in {
-        val emptyBodyReason = Factories.reason.copy(body = "")
+        val emptyBodyReason = Factories.reason(0).copy(body = "")
 
         val reasons = Table(
             ("reason", "errors"),
@@ -19,7 +19,7 @@ class ReasonTest extends TestBase {
         )
 
         forAll(reasons) { (reason: Reason, errors: NonEmptyList[GeneralFailure]) ⇒
-          invalidValue(reason.validate) mustBe (errors)
+          invalidValue(reason.validate) mustBe errors
         }
       }
     }

@@ -3,6 +3,7 @@ package responses.cord
 import cats.implicits._
 import models.StoreAdmin
 import models.cord._
+import models.cord.lineitems.CartLineItems
 import models.customer._
 import models.payment.creditcard._
 import responses.PromotionResponses.IlluminatedPromotionResponse
@@ -36,7 +37,8 @@ object CartResponse {
   def fromCart(cart: Cart)(implicit db: DB, ec: EC, ctx: OC): DbResultT[CartResponse] =
     for {
       lineItemAdj    ← * <~ CordResponseLineItemAdjustments.fetch(cart.refNum)
-      lineItems      ← * <~ CordResponseLineItems.fetch(cart.refNum, lineItemAdj)
+      lineItemsSku   ← * <~ CartLineItems.byCordRef(cart.refNum).result
+      lineItems      ← * <~ CordResponseLineItems.fetchCart(cart.refNum, lineItemAdj)
       promo          ← * <~ CordResponsePromotions.fetch(cart.refNum)
       customer       ← * <~ Customers.findOneById(cart.customerId)
       shippingMethod ← * <~ CordResponseShipping.shippingMethod(cart.refNum)

@@ -12,6 +12,8 @@ import akka.http.scaladsl.server.Directive1
 import akka.http.scaladsl.server.directives.BasicDirectives.provide
 import akka.http.scaladsl.server.directives.SecurityDirectives._
 
+import utils.seeds.Seeds.Factories
+
 trait FakeAuth[M] extends AsyncAuthenticator[M] {
   type C = String
   def readCredentials(): Directive1[Option[String]] = provide(Some("ok"))
@@ -32,16 +34,9 @@ case class AuthFailWith[M](challenge: HttpChallenge) extends FakeAuth[M] {
 trait AutomaticAuth extends SuiteMixin with ScalaFutures with HttpSupport {
   this: Suite with PatienceConfiguration with DbTestSupport ⇒
 
-  val authedStoreAdmin = StoreAdmin.build(id = 1,
-                                          email = "donkey@donkey.com",
-                                          password = Some("donkeyPass"),
-                                          name = "Mister Donkey",
-                                          state = StoreAdmin.Active)
+  val authedStoreAdmin = Factories.storeAdmin.copy(id = 1)
 
-  val authedCustomer = Customer.build(id = 1,
-                                      email = "donkey@donkey.com",
-                                      password = Some("donkeyPass"),
-                                      name = Some("Mister Donkey"))
+  val authedCustomer = Factories.customer.copy(id = 1)
 
   override def overrideStoreAdminAuth: AsyncAuthenticator[StoreAdmin] =
     AuthAs(authedStoreAdmin)

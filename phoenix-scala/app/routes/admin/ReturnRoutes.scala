@@ -73,18 +73,6 @@ object ReturnRoutes {
               }
             }
           } ~
-          pathPrefix("line-items" / "gift-cards") {
-            (post & pathEnd & entity(as[ReturnGiftCardLineItemsPayload])) { payload ⇒
-              mutateOrFailures {
-                ReturnLineItemUpdater.addGiftCardLineItem(refNum, payload)
-              }
-            } ~
-            (delete & path(IntNumber) & pathEnd) { lineItemId ⇒
-              mutateOrFailures {
-                ReturnLineItemUpdater.deleteGiftCardLineItem(refNum, lineItemId)
-              }
-            }
-          } ~
           pathPrefix("line-items" / "shipping-costs") {
             (post & pathEnd & entity(as[ReturnShippingCostLineItemsPayload])) { payload ⇒
               mutateOrFailures {

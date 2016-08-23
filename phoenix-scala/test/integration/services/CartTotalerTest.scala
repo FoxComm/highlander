@@ -8,6 +8,7 @@ import models.product.{Mvp, SimpleContext}
 import models.shipping.ShippingMethods
 import services.carts.CartTotaler
 import util._
+import util.fixtures.BakedFixtures
 import utils.Money.Currency
 import utils.db._
 import utils.seeds.Seeds.Factories
@@ -22,10 +23,10 @@ class CartTotalerTest extends IntegrationTestBase with TestObjectContext with Ba
         subTotal === 0
       }
 
-      "includes both SKU line items and purchased gift cards" in new AllLineItemsFixture {
+      "includes both SKU line items and purchased gift cards" in new SkuLineItemsFixture {
         val subTotal = CartTotaler.subTotal(cart).run().futureValue
 
-        subTotal must === (skuPrice + giftCard.originalBalance)
+        subTotal must === (skuPrice)
       }
 
       "uses SKU line items only if order purchases no gift cards" in new SkuLineItemsFixture {
@@ -75,22 +76,10 @@ class CartTotalerTest extends IntegrationTestBase with TestObjectContext with Ba
       productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       simpleProduct  ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head)
       tup            ← * <~ Mvp.getProductTuple(simpleProduct)
-      _              ← * <~ OrderLineItems.create(OrderLineItem.buildSku(cart, tup.sku))
+      _              ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = tup.sku.id))
       skuPrice       ← * <~ Mvp.priceAsInt(tup.skuForm, tup.skuShadow)
     } yield
       (productContext, tup.product, tup.productShadow, tup.sku, tup.skuShadow, skuPrice)).gimme
-  }
-
-  trait AllLineItemsFixture extends SkuLineItemsFixture {
-    val (giftCard, lineItems) = (for {
-      origin ← * <~ GiftCardOrders.create(GiftCardOrder(cordRef = cart.refNum))
-      giftCard ← * <~ GiftCards.create(
-                    GiftCard
-                      .buildLineItem(balance = 150, originId = origin.id, currency = Currency.USD))
-      gcLi ← * <~ OrderLineItemGiftCards.create(
-                OrderLineItemGiftCard(giftCardId = giftCard.id, cordRef = cart.refNum))
-      lineItems ← * <~ OrderLineItems.create(OrderLineItem.buildGiftCard(cart, gcLi))
-    } yield (giftCard, lineItems)).gimme
   }
 
   trait ShippingMethodFixture extends Fixture {

@@ -217,6 +217,14 @@ object StoreCredits extends FoxTableQuery[StoreCredit, StoreCredits](new StoreCr
          orderPaymentId = pmt.id.some,
          amount = pmt.getAmount(maxPaymentAmount))
 
+  def captureOrderPayment(
+      storeCredit: StoreCredit,
+      pmt: OrderPayment,
+      maxPaymentAmount: Option[Int] = None)(implicit ec: EC): DbResultT[StoreCreditAdjustment] =
+    capture(storeCredit = storeCredit,
+            orderPaymentId = pmt.id.some,
+            amount = pmt.getAmount(maxPaymentAmount))
+
   def capture(storeCredit: StoreCredit, orderPaymentId: Option[Int], amount: Int = 0)(
       implicit ec: EC): DbResultT[StoreCreditAdjustment] =
     debit(storeCredit = storeCredit,

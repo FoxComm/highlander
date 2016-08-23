@@ -57,47 +57,6 @@ object ReturnLineItemUpdater {
       response ← * <~ ReturnResponse.fromRma(updated)
     } yield response)
 
-  def addGiftCardLineItem(refNum: String, payload: ReturnGiftCardLineItemsPayload)(
-      implicit ec: EC,
-      db: DB): DbResultT[Root] =
-    (for {
-      // Checks
-      rma ← * <~ mustFindPendingReturnByRefNum(refNum)
-      reason ← * <~ ReturnReasons
-                .filter(_.id === payload.reasonId)
-                .mustFindOneOr(NotFoundFailure400(ReturnReason, payload.reasonId))
-      oli ← * <~ OrderLineItemGiftCards
-             .join(GiftCards)
-             .on(_.giftCardId === _.id)
-             .filter { case (oli, gc) ⇒ oli.cordRef === rma.orderRef && gc.code === payload.code }
-             .mustFindOneOr(NotFoundFailure404(GiftCard, payload.code))
-      // Inserts
-      origin ← * <~ ReturnLineItemGiftCards.create(
-                  ReturnLineItemGiftCard(returnId = rma.id, giftCardId = oli._2.id))
-      li ← * <~ ReturnLineItems.create(ReturnLineItem.buildGiftCard(rma, reason, origin))
-      // Response
-      updated  ← * <~ Returns.refresh(rma)
-      response ← * <~ ReturnResponse.fromRma(updated)
-    } yield response)
-
-  def deleteGiftCardLineItem(refNum: String, lineItemId: Int)(implicit ec: EC,
-                                                              db: DB): DbResultT[Root] =
-    for {
-      // Checks
-      rma ← * <~ mustFindPendingReturnByRefNum(refNum)
-      lineItem ← * <~ ReturnLineItems
-                  .join(ReturnLineItemGiftCards)
-                  .on(_.originId === _.id)
-                  .filter { case (oli, sku) ⇒ oli.returnId === rma.id && oli.id === lineItemId }
-                  .mustFindOneOr(NotFoundFailure400(ReturnLineItem, lineItemId))
-      // Deletes
-      _ ← * <~ ReturnLineItems.filter(_.id === lineItemId).delete
-      _ ← * <~ ReturnLineItemGiftCards.filter(_.id === lineItem._2.id).delete
-      // Response
-      updated  ← * <~ Returns.refresh(rma)
-      response ← * <~ ReturnResponse.fromRma(updated)
-    } yield response
-
   def addShippingCostItem(refNum: String, payload: ReturnShippingCostLineItemsPayload)(
       implicit ec: EC,
       db: DB): DbResultT[Root] =

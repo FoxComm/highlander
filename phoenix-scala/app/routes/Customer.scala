@@ -68,7 +68,7 @@ object Customer {
               } ~
               (post & path("checkout") & pathEnd) {
                 mutateOrFailures {
-                  Checkout.fromCustomerCart(customer)
+                  Checkout.forCustomer(customer)
                 }
               } ~
               pathPrefix("payment-methods" / "credit-cards") {
