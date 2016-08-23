@@ -44,7 +44,7 @@ export function fetchPromotion(id: string, context: string = defaultContext) {
     if (id.toLowerCase() == 'new') {
       dispatch(promotionsNew());
     } else {
-      dispatch(_getPromotion.perform(id, context));
+      return dispatch(_getPromotion.perform(id, context));
     }
   };
 }

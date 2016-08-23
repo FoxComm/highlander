@@ -2,15 +2,19 @@
  * @flow
  */
 
-import React, { PropTypes, Element } from 'react';
-
+//libs
+import React, { Element } from 'react';
 import _ from 'lodash';
 import { activeStatus } from '../../paragons/common';
 
+// components
 import RoundedPill from '../rounded-pill/rounded-pill';
 import MultiSelectRow from '../table/multi-select-row';
 
-type PromotionRowProps = {
+// helpers
+import { isArchived } from 'paragons/common';
+
+type Props = {
   promotion: Object,
   columns: Array<string>,
   params: Object,
@@ -27,24 +31,26 @@ const setCellContents = (promotion: Object, field: string) => {
   }
 };
 
-const PromotionRow = (props: PromotionRowProps) => {
+const PromotionRow = (props: Props) => {
   const { promotion, columns, params } = props;
+  const commonParams = {
+    columns,
+    row: promotion,
+    setCellContents,
+    params,
+  };
+
+  if (isArchived(promotion)) {
+    return <MultiSelectRow {...commonParams} />;
+  }
 
   return (
     <MultiSelectRow
-      columns={columns}
+      {...commonParams}
       linkTo="promotion-details"
       linkParams={{promotionId: promotion.id}}
-      row={promotion}
-      setCellContents={setCellContents}
-      params={params} />
+    />
   );
-};
-
-PromotionRow.propTypes = {
-  promotion: PropTypes.object,
-  columns: PropTypes.array,
-  params: PropTypes.object,
 };
 
 export default PromotionRow;

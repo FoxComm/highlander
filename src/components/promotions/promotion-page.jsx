@@ -31,7 +31,7 @@ import { transitionTo } from 'browserHistory';
 import { SAVE_COMBO, SAVE_COMBO_ITEMS } from 'paragons/common';
 
 type Actions = {
-  fetchPromotion: Function,
+  fetchPromotion: () => Promise,
   promotionsNew: Function,
   createPromotion: Function,
   updatePromotion: Function,
@@ -81,7 +81,10 @@ class PromotionPage extends Component {
     if (this.isNew) {
       this.props.actions.promotionsNew();
     } else {
-      this.props.actions.fetchPromotion(this.entityId);
+      this.props.actions.fetchPromotion(this.entityId)
+        .then(({payload}) => {
+          if (isArchived(payload)) transitionTo('promotions');
+        });
     }
   }
 
@@ -177,7 +180,7 @@ class PromotionPage extends Component {
 
   @autobind
   archivePromotion() {
-    this.props.archivePromotion(this.props.params.promotionId).then(() => {
+    this.props.archivePromotion(this.entityId).then(() => {
       transitionTo('promotions');
     });
   }
