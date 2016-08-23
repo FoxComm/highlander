@@ -1,13 +1,14 @@
-
 /* @flow weak */
 
+// libs
 import _ from 'lodash';
-import React, { Component, PropTypes, Element } from 'react';
+import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { push } from 'react-router-redux';
 
+// styles
 import styles from './promotion-page.css';
 
 // components
@@ -18,10 +19,15 @@ import ErrorAlerts from '../alerts/error-alerts';
 import ButtonWithMenu from '../common/button-with-menu';
 import { Button } from '../common/buttons';
 import Error from '../errors/error';
+import ArchiveActionsSection from '../archive-actions/archive-actions';
 
 // actions
 import * as PromotionActions from '../../modules/promotions/details';
+import * as ArchiveActions from '../../modules/promotions/archive';
 
+// helpers
+import { isArchived } from 'paragons/common';
+import { transitionTo } from 'browserHistory';
 import { SAVE_COMBO, SAVE_COMBO_ITEMS } from 'paragons/common';
 
 type Actions = {
@@ -52,6 +58,7 @@ type Props = {
   isFetching: bool,
   isSaving: boolean,
   dispatch: Function,
+  archivePromotion: Function,
 };
 
 class PromotionPage extends Component {
@@ -160,9 +167,24 @@ class PromotionPage extends Component {
     });
   }
 
+  renderArchiveActions() {
+    return(
+      <ArchiveActionsSection type="Promotion"
+                             title={this.pageTitle}
+                             archive={this.archivePromotion} />
+    );
+  }
+
+  @autobind
+  archivePromotion() {
+    this.props.archivePromotion(this.props.params.promotionId).then(() => {
+      transitionTo('promotions');
+    });
+  }
+
   @autobind
   handleCancel(): void {
-    this.props.dispatch(push('/promotions'));
+    transitionTo('promotions');
   }
 
   render(): Element {
@@ -209,6 +231,8 @@ class PromotionPage extends Component {
           <ErrorAlerts error={this.props.submitError} closeAction={actions.clearSubmitErrors} />
           {children}
         </div>
+
+        {!this.isNew && this.renderArchiveActions()}
       </div>
     );
   }
@@ -230,6 +254,7 @@ export default connect(
   }),
   dispatch => ({
     actions: bindActionCreators(PromotionActions, dispatch),
+    ...bindActionCreators(ArchiveActions, dispatch),
     dispatch,
   })
 )(PromotionPage);
