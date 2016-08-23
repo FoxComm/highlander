@@ -10,8 +10,7 @@ import (
 )
 
 type shipmentService struct {
-	db                      *gorm.DB
-	stockItemUnitRepository repositories.IStockItemUnitRepository
+	db *gorm.DB
 }
 
 type IShipmentService interface {
@@ -21,14 +20,8 @@ type IShipmentService interface {
 	GetUnshippedItems(shipment *models.Shipment) ([]*models.ShipmentLineItem, error)
 }
 
-func NewShipmentService(
-	db *gorm.DB,
-	stockItemUnitRepository repositories.IStockItemUnitRepository,
-) IShipmentService {
-	return &shipmentService{
-		db,
-		stockItemUnitRepository,
-	}
+func NewShipmentService(db *gorm.DB) IShipmentService {
+	return &shipmentService{db}
 }
 
 func (service *shipmentService) GetShipmentsByReferenceNumber(referenceNumber string) ([]*models.Shipment, error) {
@@ -37,7 +30,8 @@ func (service *shipmentService) GetShipmentsByReferenceNumber(referenceNumber st
 }
 
 func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*models.Shipment, error) {
-	stockItemUnits, err := service.stockItemUnitRepository.GetUnitsInOrder(shipment.ReferenceNumber)
+	unitRepo := repositories.NewStockItemUnitRepository(service.db)
+	stockItemUnits, err := unitRepo.GetUnitsInOrder(shipment.ReferenceNumber)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +77,7 @@ func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*mode
 		createdLineItems = append(createdLineItems, *createdLineItem)
 	}
 
-	if _, err = service.stockItemUnitRepository.ReserveUnitsInOrder(shipment.ReferenceNumber); err != nil {
+	if _, err = unitRepo.ReserveUnitsInOrder(shipment.ReferenceNumber); err != nil {
 		txn.Rollback()
 		return nil, err
 	}
@@ -125,14 +119,18 @@ func (service *shipmentService) UpdateShipment(shipment *models.Shipment) (*mode
 
 	//TODO: transactions
 	if shipment.State != source.State && shipment.State == models.ShipmentStateCancelled {
-		service.stockItemUnitRepository.UnsetUnitsInOrder(shipment.ReferenceNumber)
+		unitRepo := repositories.NewStockItemUnitRepository(service.db)
+		if _, err := unitRepo.UnsetUnitsInOrder(shipment.ReferenceNumber); err != nil {
+			return nil, err
+		}
 	}
 
 	return shipment, nil
 }
 
 func (service *shipmentService) GetUnshippedItems(shipment *models.Shipment) ([]*models.ShipmentLineItem, error) {
-	stockItemUnits, err := service.stockItemUnitRepository.GetUnitsInOrder(shipment.ReferenceNumber)
+	unitRepo := repositories.NewStockItemUnitRepository(service.db)
+	stockItemUnits, err := unitRepo.GetUnitsInOrder(shipment.ReferenceNumber)
 	if err != nil {
 		return nil, err
 	}
