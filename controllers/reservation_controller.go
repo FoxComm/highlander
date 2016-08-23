@@ -19,11 +19,11 @@ func NewReservationController(service services.IInventoryService) IController {
 }
 
 func (controller *reservationController) SetUp(router gin.IRouter) {
-	router.POST("reserve", controller.Reserve())
-	router.POST("cancel", controller.Cancel())
+	router.POST("hold", controller.Hold())
+	router.DELETE("hold/:refNum", controller.Unhold())
 }
 
-func (controller *reservationController) Reserve() gin.HandlerFunc {
+func (controller *reservationController) Hold() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		var payload payloads.Reservation
 		if parse(context, &payload) != nil {
@@ -37,7 +37,7 @@ func (controller *reservationController) Reserve() gin.HandlerFunc {
 		}
 
 		skuMap := map[string]int{}
-		for _, sku := range payload.SKUs {
+		for _, sku := range payload.Items {
 			skuMap[sku.SKU] = int(sku.Qty)
 		}
 
@@ -50,14 +50,11 @@ func (controller *reservationController) Reserve() gin.HandlerFunc {
 	}
 }
 
-func (controller *reservationController) Cancel() gin.HandlerFunc {
+func (controller *reservationController) Unhold() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		var payload payloads.Release
-		if parse(context, &payload) != nil {
-			return
-		}
+		refNum := context.Params.ByName("refNum")
 
-		if err := controller.service.ReleaseItems(payload.RefNum); err != nil {
+		if err := controller.service.ReleaseItems(refNum); err != nil {
 			handleServiceError(context, err)
 			return
 		}
