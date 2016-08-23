@@ -11,7 +11,7 @@ import { isArchived } from 'paragons/common';
 import MultiSelectRow from '../table/multi-select-row';
 
 // types
-import type { Sku } from '../../modules/skus/details';
+import type { Sku } from 'modules/skus/list';
 
 type Props = {
   sku: Sku,
@@ -25,7 +25,6 @@ function setCellContents(sku, field) {
 
 const SkuRow = (props: Props) => {
   const { sku, columns, params } = props;
-  const key = `sku-${sku.id}`;
   const commonParams = {
     columns,
     row: sku,
@@ -34,14 +33,15 @@ const SkuRow = (props: Props) => {
   };
 
   if (isArchived(sku)) {
-    return <MultiSelectRow {...commonParams}/>;
+    return <MultiSelectRow {...commonParams} />;
   }
 
   return (
     <MultiSelectRow
       { ...commonParams }
       linkTo="sku-details"
-      linkParams={{skuCode: sku.code}} />
+      linkParams={{skuCode: sku.skuCode}}
+    />
   );
 };
 

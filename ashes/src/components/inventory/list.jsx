@@ -1,4 +1,3 @@
-
 // libs
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
@@ -17,26 +16,23 @@ const mapDispatchToProps = dispatch => {
   return { actions: bindActionCreators(actions, dispatch) };
 };
 
+const tableColumns = [
+  { field: 'sku', text: 'SKU' },
+  { field: 'type', text: 'SKU Type' },
+  { field: 'stockLocation.name', text: 'Warehouse' },
+  { field: 'onHand', text: 'On Hand' },
+  { field: 'onHold', text: 'Hold' },
+  { field: 'reserved', text: 'Reserved' },
+  { field: 'afs', text: 'AFS' },
+  { field: 'afsCost', text: 'AFS Cost', type: 'currency' },
+];
+
 const InventoryList = props => {
 
   const renderRow = (row, index, columns, params) => {
     const key = `inventory-sku-${row.id}`;
     return <InventoryListRow sku={row} columns={columns} params={params} key={key} />;
   };
-
-  const tableColumns = [
-    {field: 'product', text: 'Product'},
-    {field: 'productActive', text: 'Product State'},
-    {field: 'code', text: 'SKU'},
-    {field: 'skuActive', text: 'SKU State'},
-    {field: 'skuType', text: 'SKU Type', type: 'state', model: 'sku'},
-    {field: 'warehouse', text: 'Warehouse'},
-    {field: 'onHand', text: 'On Hand'},
-    {field: 'onHold', text: 'Hold'},
-    {field: 'reserved', text: 'Reserved'},
-    {field: 'safetyStock', text: 'Safety Stock'},
-    {field: 'afs', text: 'AFS'},
-  ];
 
   return (
     <SelectableSearchList

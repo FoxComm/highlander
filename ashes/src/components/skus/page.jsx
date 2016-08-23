@@ -196,7 +196,7 @@ class SkuPage extends Component {
           <Link to="sku-activity-trail" params={params}>Activity Trail</Link>
         </LocalNav>
         <div className="fc-grid">
-          <div className="fc-col-md-1-1">
+          <div className="fc-col-md-1-1 fc-col-no-overflow">
             {children}
           </div>
         </div>

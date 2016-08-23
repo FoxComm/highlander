@@ -2,6 +2,16 @@ import _ from 'lodash';
 import moment from 'moment';
 import * as dsl from './dsl';
 
+export type SearchFilter = {
+  term: string,
+  operator?: string,
+  hidden?: boolean,
+  value: {
+    type: string,
+    value: any,
+  },
+}
+
 // https://www.elastic.co/guide/en/elasticsearch/reference/current/breaking_20_query_dsl_changes.html
 // https://www.elastic.co/blog/better-query-execution-coming-elasticsearch-2-0
 

@@ -2,69 +2,53 @@ import makeLiveSearch from '../live-search';
 
 const searchTerms = [
   {
-    title: 'Product',
+    title: 'SKU',
+    type: 'identifier',
+    term: 'sku',
+  }, {
+    title: 'SKU Type',
+    type: 'enum',
+    term: 'type',
+    suggestions: [
+      { display: 'Sellable', value: 'Sellable' },
+      { display: 'Non-sellable', value: 'Non-sellable' },
+      { display: 'Preorder', value: 'Preorder' },
+      { display: 'Backorder', value: 'Backorder' },
+    ]
+  }, {
+    title: 'Warehouse',
     type: 'object',
     options: [
       {
-        title: 'ID',
-        type: 'identifier',
-        term: 'id'
-      }, {
         title: 'Name',
         type: 'string',
-        term: 'product'
+        term: 'stockLocation.name',
       }, {
-        title: 'SKU',
-        type: 'identifier',
-        term: 'code'
-      }, {
-        title: 'Product State',
-        type: 'enum',
-        term: 'productActive',
-        suggestions: [
-          { display: 'Active', value: 'true' },
-          { display: 'Inactive', value: 'false' },
-        ]
-      }, {
-        title: 'SKU State',
-        type: 'enum',
-        term: 'skuActive',
-        suggestions: [
-          { display: 'Active', value: 'true' },
-          { display: 'Inactive', value: 'false' },
-        ]
-      }, {
-        title: 'SKU Type',
-        type: 'enum',
-        term: 'skuType',
-        suggestions: [
-          { display: 'Backorder', value: 'backorder' },
-          { display: 'Sellable', value: 'sellable' },
-          { display: 'Preorder', value: 'preorder' },
-          { display: 'Non-sellable', value: 'nonSellable' },
-        ]
-      }, {
-        title: 'On Hand',
-        type: 'number',
-        term: 'onHand'
-      }, {
-        title: 'On Hold',
-        type: 'number',
-        term: 'onHold'
-      }, {
-        title: 'Reserved',
-        type: 'number',
-        term: 'reserved'
-      }, {
-        title: 'Safety Stock',
-        type: 'number',
-        term: 'safetyStock'
-      }, {
-        title: 'AFS',
-        type: 'number',
-        term: 'afs'
+        title: 'Type',
+        type: 'string',
+        term: 'stockLocation.type',
       }
-    ]
+    ],
+  }, {
+    title: 'OnHand',
+    type: 'number',
+    term: 'onHand',
+  }, {
+    title: 'OnHold',
+    type: 'number',
+    term: 'onHold'
+  }, {
+    title: 'Reserved',
+    type: 'number',
+    term: 'reserved',
+  }, {
+    title: 'AFS',
+    type: 'number',
+    term: 'afs',
+  }, {
+    title: 'AFS Cost',
+    type: 'number',
+    term: 'afsCost',
   }
 ];
 
@@ -74,7 +58,7 @@ const { reducer, actions } = makeLiveSearch(
   'inventory_search_view/_search',
   'inventoryScope',
   {
-    initialState: { sortBy: 'product' },
+    initialState: { sortBy: '-createdAt' },
     rawSorts: ['product']
   }
 );

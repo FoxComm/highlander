@@ -3,6 +3,7 @@ import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import TransitionGroup from 'react-addons-css-transition-group';
 import { connect } from 'react-redux';
+import { autobind } from 'core-decorators';
 
 class TotalCounter extends React.Component {
   static propTypes = {
@@ -24,6 +25,15 @@ class TotalCounter extends React.Component {
   }
 
   componentDidMount() {
+    this.fetchTimer = setTimeout(this.fetchData, 100);
+  }
+
+  componentWillUnmount() {
+    clearTimeout(this.fetchTimer);
+  }
+
+  @autobind
+  fetchData() {
     const { isFetching, fetch } = this.props;
     if (isFetching === null) {
       fetch();

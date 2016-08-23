@@ -44,8 +44,9 @@ export type TShipmentLineItem = {
   quantity: number;
 };
 
+//TODO - reasons are to be implemented in middlewarehouse
 export type TUnshippedLineItem = TShipmentLineItem & {
-  reason: string;
+  reason?: string;
 };
 
 export type TCarrier = {

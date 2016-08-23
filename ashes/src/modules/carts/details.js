@@ -68,7 +68,7 @@ const _deleteShippingAddress = createAsyncActions(
 export const chooseShippingAddress = _chooseShippingAddress.perform;
 export const createShippingAddress = _createShippingAddress.perform;
 export const updateShippingAddress = _updateShippingAddress.perform;
-export const deleteShippingADdress = _deleteShippingAddress.perform;
+export const deleteShippingAddress = _deleteShippingAddress.perform;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Shipping Method Actions

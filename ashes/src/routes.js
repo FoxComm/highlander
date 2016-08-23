@@ -69,6 +69,9 @@ import Users from './components/users/users';
 import User from './components/users/user';
 import UserForm from './components/users/user-form';
 
+import PluginsList from './components/plugins/plugins-list';
+import Plugin from './components/plugins/plugin';
+
 import Login from './components/auth/login';
 import SetPassword from './components/auth/set-password';
 
@@ -270,6 +273,10 @@ const routes = (
           <IndexRoute name='user-form' component={UserForm}/>
           <Route name='user-activity-trail' path='activity-trail' component={UserForm}/>
         </Route>
+      </Route>
+      <Route path="plugins" name="plugins-base">
+        <IndexRoute name="plugins" component={PluginsList} />
+        <Route name="plugin" path=":name" component={Plugin} />
       </Route>
     </Route>
   </Route>
