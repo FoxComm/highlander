@@ -87,18 +87,3 @@ func (service *shipmentService) UpdateShipment(shipment *models.Shipment) (*mode
 	err = txn.Commit().Error
 	return shipment, err
 }
-
-func (service *shipmentService) handleShipmentStateChange(db *gorm.DB, origShip, newShip *models.Shipment) error {
-	if origShip.State == newShip.State {
-		return nil
-	}
-
-	var err error
-	switch newShip.State {
-	case models.ShipmentStateCancelled:
-		unitRepo := repositories.NewStockItemUnitRepository(db)
-		_, err = unitRepo.UnsetUnitsInOrder(newShip.ReferenceNumber)
-	}
-
-	return err
-}

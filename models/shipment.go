@@ -22,10 +22,6 @@ type Shipment struct {
 	TrackingNumber    sql.NullString
 }
 
-func (s Shipment) Identifier() uint {
-	return s.ID
-}
-
 func NewShipmentFromPayload(payload *payloads.Shipment) *Shipment {
 	shipment := &Shipment{
 		ShippingMethodID: payload.ShippingMethodID,
