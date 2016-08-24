@@ -8,8 +8,8 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 
-	"github.com/FoxComm/middlewarehouse/fixtures"
-	"github.com/FoxComm/middlewarehouse/services/mocks"
+	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
+	"github.com/FoxComm/highlander/middlewarehouse/services/mocks"
 	"github.com/stretchr/testify/suite"
 )
 

@@ -3,12 +3,12 @@ package services
 import (
 	"testing"
 
-	"github.com/FoxComm/middlewarehouse/common/db/config"
-	"github.com/FoxComm/middlewarehouse/common/db/tasks"
-	"github.com/FoxComm/middlewarehouse/models"
-	"github.com/FoxComm/middlewarehouse/repositories"
+	"github.com/FoxComm/highlander/middlewarehouse/common/db/config"
+	"github.com/FoxComm/highlander/middlewarehouse/common/db/tasks"
+	"github.com/FoxComm/highlander/middlewarehouse/models"
+	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 
-	"github.com/FoxComm/middlewarehouse/fixtures"
+	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/suite"
 )

@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 
-	"github.com/FoxComm/middlewarehouse/api/payloads"
+	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 )
 
 type FullOrder struct {

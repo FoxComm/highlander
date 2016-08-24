@@ -1,6 +1,6 @@
 package fixtures
 
-import "github.com/FoxComm/middlewarehouse/models"
+import "github.com/FoxComm/highlander/middlewarehouse/models"
 
 func GetStockItemUnit(stockItem *models.StockItem) *models.StockItemUnit {
 	return &models.StockItemUnit{
