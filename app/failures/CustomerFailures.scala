@@ -28,6 +28,10 @@ object CustomerFailures {
   }
 
   case object CustomerHasNoEmail extends Failure {
-    override def description = "The customer don't have email"
+    override def description = "Customer don't have email"
+  }
+
+  case object ResetPasswordCodeInvalid extends Failure {
+    override def description = "Reset password code is not valid"
   }
 }

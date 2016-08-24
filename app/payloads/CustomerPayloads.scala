@@ -52,4 +52,10 @@ object CustomerPayloads {
       }
     }
   }
+
+  case class ResetPassword(code: String, newPassword: String) extends Validation[ResetPassword] {
+    def validate: ValidatedNel[Failure, ResetPassword] = {
+      (notEmpty(code, "code") |@| notEmpty(newPassword, "password")).map { case _ ⇒ this }
+    }
+  }
 }

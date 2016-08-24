@@ -19,6 +19,7 @@ case class CustomerPasswordReset(id: Int = 0,
                                  email: String,
                                  state: State = Initial,
                                  code: String,
+                                 activatedAt: Option[Instant] = None,
                                  createdAt: Instant = Instant.now)
     extends FoxModel[CustomerPasswordReset] {}
 
@@ -48,15 +49,17 @@ class CustomerPasswordResets(tag: Tag)
 
   import CustomerPasswordReset._
 
-  def id         = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def customerId = column[Int]("customer_id")
-  def email      = column[String]("email")
-  def state      = column[CustomerPasswordReset.State]("state")
-  def code       = column[String]("code")
-  def createdAt  = column[Instant]("created_at")
+  def id          = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def customerId  = column[Int]("customer_id")
+  def email       = column[String]("email")
+  def state       = column[CustomerPasswordReset.State]("state")
+  def code        = column[String]("code")
+  def activatedAt = column[Option[Instant]]("activated_at")
+  def createdAt   = column[Instant]("created_at")
 
   def * =
-    (id, customerId, email, state, code, createdAt) <> ((CustomerPasswordReset.apply _).tupled, CustomerPasswordReset.unapply)
+    (id, customerId, email, state, code, activatedAt, createdAt) <> ((CustomerPasswordReset.apply _).tupled,
+        CustomerPasswordReset.unapply)
 }
 
 object CustomerPasswordResets
@@ -65,6 +68,10 @@ object CustomerPasswordResets
     with ReturningId[CustomerPasswordReset, CustomerPasswordResets] {
 
   val returningLens: Lens[CustomerPasswordReset, Int] = lens[CustomerPasswordReset].id
+
+  def findActiveByCode(code: String): DBIO[Option[CustomerPasswordReset]] = {
+    filter(_.code === code).one
+  }
 
   object scope {
     import CustomerPasswordReset._

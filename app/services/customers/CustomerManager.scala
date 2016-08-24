@@ -15,8 +15,7 @@ import models.customer.CustomerPasswordResets.scope._
 import models.location.Addresses
 import models.shipping.Shipments
 import payloads.CustomerPayloads._
-import responses.CustomerResponse.{build, Root}
-import responses.customers.RemindPasswordAnswer
+import responses.CustomerResponse._
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
@@ -62,6 +61,22 @@ object CustomerManager {
       remindCreated ← * <~ CustomerPasswordResets.create(remind)
       _             ← * <~ LogActivity.customerRemindPassword(customer, remindCreated.code)
     } yield RemindPasswordAnswer(status = "ok")
+  }
+
+  def resetPassword(code: String, newPassword: String)(implicit ec: EC,
+                                                       db: DB,
+                                                       ac: AC): DbResultT[ResetPasswordAnswer] = {
+    for {
+      remind ← * <~ CustomerPasswordResets
+                .findActiveByCode(code)
+                .mustFindOr(ResetPasswordCodeInvalid)
+      customer ← * <~ Customers.mustFindById404(remind.customerId)
+      _ ← * <~ CustomerPasswordResets.update(
+             remind.copy(state = CustomerPasswordReset.PasswordRestored,
+                         activatedAt = Option(Instant.now)))
+      _ ← * <~ Customers.update(customer.updatePassword(newPassword))
+      _ ← * <~ LogActivity.customerPasswordReset(customer)
+    } yield ResetPasswordAnswer(status = "ok")
   }
 
   private def resolvePhoneNumber(customerId: Int)(implicit ec: EC): DbResultT[Option[String]] = {

@@ -28,6 +28,9 @@ object CustomerTailored {
   case class CustomerRemindPassword(customer: CustomerResponse.Root, code: String)
       extends ActivityBase[CustomerRemindPassword]
 
+  case class CustomerPasswordReset(customer: CustomerResponse.Root)
+      extends ActivityBase[CustomerPasswordReset]
+
   case class CustomerUpdated(oldInfo: CustomerResponse.Root,
                              newInfo: CustomerResponse.Root,
                              admin: Option[StoreAdminResponse.Root] = None)

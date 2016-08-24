@@ -6,7 +6,7 @@ import akka.http.scaladsl.server.Directives._
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.auth.Identity
 import payloads.LoginPayload
-import payloads.CustomerPayloads.RemindPassword
+import payloads.CustomerPayloads._
 import services.Authenticator
 import services.auth.GoogleOauth.oauthServiceFromConfig
 import services.auth.OauthDirectives._
@@ -33,6 +33,11 @@ object AuthRoutes {
         (post & path("remind-password") & pathEnd & entity(as[RemindPassword])) { payload ⇒
           mutateOrFailures {
             CustomerManager.remindPassword(payload.email)
+          }
+        } ~
+        (post & path("reset-password") & pathEnd & entity(as[ResetPassword])) { payload ⇒
+          mutateOrFailures {
+            CustomerManager.resetPassword(code = payload.code, newPassword = payload.newPassword)
           }
         }
       } ~

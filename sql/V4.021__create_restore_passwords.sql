@@ -4,7 +4,8 @@ create table customer_password_resets(
   email generic_string,
   state generic_string not null default 'initial',
   code generic_string not null unique,
-  created_at generic_timestamp
+  created_at generic_timestamp,
+  activated_at timestamp without time zone
 );
 
 create unique index customer_password_resets__m_idx on customer_password_resets (email,customer_id,state);
