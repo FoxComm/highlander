@@ -8,7 +8,11 @@ defmodule Marketplace.VendorView do
   def render("vendor.json", %{vendor: vendor}) do
     %{id: vendor.id,
       name: vendor.name,
-      descripiton: vendor.description,
+      description: vendor.description,
       state: vendor.state}
+  end
+
+  def render("show.json", %{vendor: vendor}) do 
+    %{vendor: render_one(vendor, Marketplace.VendorView, "vendor.json")}
   end
 end

@@ -16,11 +16,16 @@ defmodule Marketplace.VendorController do
         conn
         |> put_status(:created)
         |> put_resp_header("location", vendor_path(conn, :show, vendor))
-        |> render("vendor.json", vendor:vendor)
+        |> render("vendor.json", vendor: vendor)
       {:error, changeset} -> 
         conn
         |> put_status(:unprocessable_entity)
         |> render(Marketplace.ChangesetView, "error.json", changeset: changeset)
     end
+  end
+
+  def show(conn, %{"id" => id}) do
+    vendor = Repo.get!(Vendor, id)
+    render(conn, "show.json", vendor: vendor)
   end
 end
