@@ -28,7 +28,7 @@ import responses.cord.OrderResponse
 
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
-import utils.apis.{Apis, OrderReservation, SkuReservation}
+import utils.apis.Apis
 import utils.db._
 import utils.Money.Currency
 
