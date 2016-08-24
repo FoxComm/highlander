@@ -34,6 +34,12 @@ function orderSucceeded(state: State, payload: Object): State {
   return { ...state, order: new OrderParagon(order) };
 }
 
+export function increaseRemorsePeriod(refNum: string) {
+  return (dispatch: Function): Promise =>
+    Api.post(`/orders/${refNum}/increase-remorse-period`)
+      .then(order => dispatch(_updateOrder.succeeded(order)));
+}
+
 const reducer = createReducer({
   [_getOrder.succeeded]: orderSucceeded,
   [_updateOrder.succeeded]: orderSucceeded,
