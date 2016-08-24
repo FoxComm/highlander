@@ -29,31 +29,27 @@ func (service *shipmentService) GetShipmentsByReferenceNumber(referenceNumber st
 func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*models.Shipment, error) {
 	txn := service.db.Begin()
 
-	shipmentRepo := repositories.NewShipmentRepository(txn)
-	result, err := shipmentRepo.CreateShipment(shipment)
-	if err != nil {
-		txn.Rollback()
-		return nil, err
-	}
-
 	unitRepo := repositories.NewStockItemUnitRepository(txn)
-	for _, lineItem := range result.ShipmentLineItems {
+	for i, lineItem := range shipment.ShipmentLineItems {
 		siu, err := unitRepo.GetUnitForLineItem(shipment.ReferenceNumber, lineItem.SKU)
 		if err != nil {
 			txn.Rollback()
 			return nil, err
 		}
 
-		// TODO: Pull into repository.
 		if err := txn.Model(siu).Update("status", "reserved").Error; err != nil {
 			txn.Rollback()
 			return nil, err
 		}
 
-		if err := txn.Model(&lineItem).Update("stock_item_unit_id", siu.ID).Error; err != nil {
-			txn.Rollback()
-			return nil, err
-		}
+		shipment.ShipmentLineItems[i].StockItemUnitID = siu.ID
+	}
+
+	shipmentRepo := repositories.NewShipmentRepository(txn)
+	result, err := shipmentRepo.CreateShipment(shipment)
+	if err != nil {
+		txn.Rollback()
+		return nil, err
 	}
 
 	err = txn.Commit().Error
