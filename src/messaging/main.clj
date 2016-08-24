@@ -9,13 +9,14 @@
 
 (defn -main
  [& args]
+ (start-phoenix)
+ (register-plugin)
  (let [react-app (start-react-app)]
     ;; Clean up on a SIGTERM or Ctrl-C
    (println "react app started")
-   (start-phoenix)
-   (register-plugin)
-  (.addShutdownHook (Runtime/getRuntime)
-                    (Thread. #(do
-                                (stop-phoenix)
-                                (stop-app))))
-  (<!! (thread (start-app react-app)))))
+
+   (.addShutdownHook (Runtime/getRuntime)
+                     (Thread. #(do
+                                 (stop-phoenix)
+                                 (stop-app))))
+   (<!! (thread (start-app react-app)))))
