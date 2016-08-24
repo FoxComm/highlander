@@ -10,6 +10,7 @@ type ShipmentLineItem struct {
 	ShipmentID      uint
 	ReferenceNumber string
 	StockItemUnitID uint
+	StockItemUnit   StockItemUnit
 	SKU             string
 	Name            string
 	Price           uint

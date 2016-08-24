@@ -48,6 +48,7 @@ func (repository *shipmentRepository) GetShipmentByID(id uint) (*models.Shipment
 		Preload("Address.Region").
 		Preload("Address.Region.Country").
 		Preload("ShipmentLineItems").
+		Preload("ShipmentLineItems.StockItemUnit").
 		First(&shipment, id).
 		Error
 

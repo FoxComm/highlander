@@ -95,8 +95,29 @@ func (service *shipmentService) UpdateShipment(shipment *models.Shipment) (*mode
 		return nil, err
 	}
 
-	err = txn.Commit().Error
-	return shipment, err
+	if err = txn.Commit().Error; err != nil {
+		txn.Rollback()
+		return nil, err
+	}
+
+	stockItemCounts := make(map[uint]int)
+	for _, lineItem := range source.ShipmentLineItems {
+		siu := lineItem.StockItemUnit
+
+		// Aggregate which stock items, and how many, have been updated, so that we
+		// can update summaries asynchronously at the end.
+		if count, ok := stockItemCounts[siu.StockItemID]; ok {
+			stockItemCounts[siu.StockItemID] = count + 1
+		} else {
+			stockItemCounts[siu.StockItemID] = 1
+		}
+	}
+
+	if err = service.updateSummariesToShipped(stockItemCounts); err != nil {
+		return nil, err
+	}
+
+	return shipment, nil
 }
 
 func (service *shipmentService) updateSummariesToReserved(stockItemsMap map[uint]int) error {
