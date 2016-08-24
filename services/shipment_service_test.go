@@ -6,6 +6,7 @@ import (
 	"github.com/FoxComm/middlewarehouse/common/db/config"
 	"github.com/FoxComm/middlewarehouse/common/db/tasks"
 	"github.com/FoxComm/middlewarehouse/fixtures"
+	"github.com/FoxComm/middlewarehouse/services/mocks"
 
 	"github.com/FoxComm/middlewarehouse/models"
 	"github.com/stretchr/testify/suite"
@@ -36,7 +37,7 @@ func (suite *ShipmentServiceTestSuite) SetupTest() {
 	db, err := config.DefaultConnection()
 	suite.db = db.Debug()
 	suite.Nil(err)
-	suite.service = NewShipmentService(suite.db)
+	suite.service = NewShipmentService(suite.db, &mocks.SummaryServiceStub{})
 }
 
 func (suite *ShipmentServiceTestSuite) Test_GetShipmentsByReferenceNumber_ReturnsShipmentModels() {
