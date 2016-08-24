@@ -24,7 +24,7 @@ object CustomerFailures {
   }
 
   case class PasswordResetAlreadyInitiated(email: String) extends Failure {
-    override def description = s"Password reset procedure already initated for email $email"
+    override def description = s"Password reset procedure already initiated for email $email"
   }
 
   case object CustomerHasNoEmail extends Failure {
