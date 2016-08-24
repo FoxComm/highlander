@@ -42,4 +42,14 @@ object CustomerPayloads {
     def validate: ValidatedNel[Failure, CustomerSearchForNewOrder] =
       greaterThan(term.length, 1, "term size").map { case _ ⇒ this }
   }
+
+  // Restore passwords
+  case class RemindPassword(email: String) extends Validation[RemindPassword] {
+
+    def validate: ValidatedNel[Failure, RemindPassword] = {
+      notEmpty(email, "email").map { _ ⇒
+        this
+      }
+    }
+  }
 }

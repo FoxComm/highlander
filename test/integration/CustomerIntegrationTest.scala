@@ -284,7 +284,7 @@ class CustomerIntegrationTest
       val response = PATCH(s"v1/customers/${customer.id}", payload)
       response.status must === (StatusCodes.OK)
 
-      val updated = response.as[responses.CustomerResponse.Root]
+      val updated = response.as[CustomerResponse.Root]
       (updated.name, updated.email, updated.phoneNumber) must === (
           (payload.name, payload.email, payload.phoneNumber))
     }

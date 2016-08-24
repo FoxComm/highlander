@@ -22,4 +22,12 @@ object CustomerFailures {
   case class CustomerIsBlacklisted(customerId: Int) extends Failure {
     override def description = s"Customer with id = $customerId is blacklisted"
   }
+
+  case class PasswordResetAlreadyInitiated(email: String) extends Failure {
+    override def description = s"Password reset procedure already initated for email $email"
+  }
+
+  case object CustomerHasNoEmail extends Failure {
+    override def description = "The customer don't have email"
+  }
 }

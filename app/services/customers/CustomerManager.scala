@@ -5,14 +5,18 @@ import java.time.temporal.ChronoUnit.DAYS
 
 import cats.implicits._
 import failures.NotFoundFailure404
+import failures.CustomerFailures._
 import models.StoreAdmin
 import models.cord.{OrderShippingAddresses, Orders}
 import models.customer.Customers.scope._
 import models.customer.{Customer, Customers}
+import models.customer.{CustomerPasswordResets, CustomerPasswordReset}
+import models.customer.CustomerPasswordResets.scope._
 import models.location.Addresses
 import models.shipping.Shipments
 import payloads.CustomerPayloads._
-import responses.CustomerResponse.{Root, build}
+import responses.CustomerResponse.{build, Root}
+import responses.customers.RemindPasswordAnswer
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
@@ -42,6 +46,23 @@ object CustomerManager {
                    customer.copy(isBlacklisted = blacklisted, blacklistedBy = Some(admin.id)))
       _ ← * <~ LogActivity.customerBlacklisted(blacklisted, customer, admin)
     } yield build(updated)
+
+  def remindPassword(
+      email: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[RemindPasswordAnswer] = {
+    for {
+      customer ← * <~ Customers
+                  .activeCustomerByEmail(Option(email))
+                  .one
+                  .mustFindOr(NotFoundFailure404(Customer, email))
+      _ ← * <~ CustomerPasswordResets.mustBeNotActivated(email)
+      remind ← * <~ DbResultT.fromXor(
+                  CustomerPasswordReset
+                    .optionFromCustomer(customer)
+                    .toXor(CustomerHasNoEmail.single))
+      remindCreated ← * <~ CustomerPasswordResets.create(remind)
+      _             ← * <~ LogActivity.customerRemindPassword(customer, remindCreated.code)
+    } yield RemindPasswordAnswer(status = "ok")
+  }
 
   private def resolvePhoneNumber(customerId: Int)(implicit ec: EC): DbResultT[Option[String]] = {
     def resolveFromShipments(customerId: Int) =

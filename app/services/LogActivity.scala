@@ -161,6 +161,12 @@ object LogActivity {
     }
   }
 
+  def customerRemindPassword(customer: Customer, code: String)(implicit ec: EC,
+                                                               ac: AC): DbResultT[Activity] = {
+    val customerResponse = buildCustomer(customer)
+    Activities.log(CustomerRemindPassword(customer = customerResponse, code = code))
+  }
+
   /* Customer Addresses */
   def addressCreated(originator: Originator, customer: Customer, address: AddressResponse)(
       implicit ec: EC,
