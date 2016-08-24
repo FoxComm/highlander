@@ -1,15 +1,8 @@
 package services
 
 import (
-<<<<<<< HEAD
-	"fmt"
-
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
-=======
-	"github.com/FoxComm/middlewarehouse/models"
-	"github.com/FoxComm/middlewarehouse/repositories"
->>>>>>> 7db212db027038ab85b3b1f13f7b210e31190810
 
 	"github.com/jinzhu/gorm"
 )

@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/FoxComm/highlander/middlewarehouse/models"
-	"github.com/FoxComm/highlander/middlewarehouse/models"
 
 	"github.com/jinzhu/gorm"
 )
