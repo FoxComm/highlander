@@ -14,6 +14,7 @@
     "greenriver_service_after": "",
 	"log_host": "elasticsearch.service.consul",
 	"es_heap_size": "4000m",
+	"kafka_host": "kafka.service.consul",
 	"kafka_server": "kafka.service.consul:9092",
 	"schema_server": "schema-registry.service.consul:8081",
 	"zookeeper_server": "zookeeper.service.consul:2181",

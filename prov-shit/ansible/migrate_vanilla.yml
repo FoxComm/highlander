@@ -19,4 +19,5 @@
       private: no
 
   roles:
+      - { role: base/db_tmp }
       - { role: prod/migrate_db }

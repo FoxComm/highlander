@@ -19,6 +19,9 @@
     phoenix_service_after: ""
     middlewarehouse_service_requires: ""
     middlewarehouse_service_after: ""
+    middlewarehouse_consumers_services_requires: ""
+    middlewarehouse_consumers_services_after: ""
+
 
   roles:
     - { role: base/ssh_keys }
