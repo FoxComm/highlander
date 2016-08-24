@@ -29,6 +29,7 @@ type Props = {
   params: Object,
   skuContext: string,
   updateField: (code: string, field: string, value: string) => void,
+  updateFields: (code: string, toUpdate: Array<Array<any>>) => void,
   isFetchingSkus: boolean|null,
   suggestSkus: (code: string, context?: SuggestOptions) => Promise,
   suggestedSkus: Array<SearchViewSku>,
@@ -124,12 +125,13 @@ class EditableSkuRow extends Component {
 
   @autobind
   handleSelectSku(searchViewSku: SearchViewSku) {
-    this.closeSkusMenu();
-    this.updateAttrsBySearchViewSku(searchViewSku);
+    this.closeSkusMenu(
+      this.updateAttrsBySearchViewSku(searchViewSku)
+    );
   }
 
   @autobind
-  closeSkusMenu() {
+  closeSkusMenu(callback: Function = _.noop) {
     this.setState({
       isMenuVisible: false
     });
@@ -240,9 +242,10 @@ class EditableSkuRow extends Component {
     this.setState({
       sku: Object.assign({}, this.state.sku, values),
     }, () => {
-      _.each(values, (value: any, field: string) => {
-        this.props.updateField(this.code, field, value);
+      const toUpdate = _.map(values, (value: any, field: string) => {
+        return [field, value];
       });
+      this.props.updateFields(this.code, toUpdate);
     });
   }
 
