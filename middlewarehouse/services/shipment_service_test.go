@@ -3,10 +3,9 @@ package services
 import (
 	"testing"
 
-	"github.com/FoxComm/highlander/middlewarehouse/common/db/config"
-	"github.com/FoxComm/highlander/middlewarehouse/common/db/tasks"
-	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
-	"github.com/FoxComm/highlander/middlewarehouse/repositories"
+	"github.com/FoxComm/highlander/iddlewarehouse/common/db/config"
+	"github.com/FoxComm/highlander/iddlewarehouse/common/db/tasks"
+	"github.com/FoxComm/highlander/iddlewarehouse/fixtures"
 
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/stretchr/testify/suite"
@@ -37,12 +36,7 @@ func (suite *ShipmentServiceTestSuite) SetupTest() {
 	db, err := config.DefaultConnection()
 	suite.db = db.Debug()
 	suite.Nil(err)
-	suite.service = NewShipmentService(
-		suite.db,
-		repositories.NewShipmentRepository(suite.db),
-		repositories.NewShipmentLineItemRepository(suite.db),
-		repositories.NewStockItemUnitRepository(suite.db),
-	)
+	suite.service = NewShipmentService(suite.db)
 }
 
 func (suite *ShipmentServiceTestSuite) Test_GetShipmentsByReferenceNumber_ReturnsShipmentModels() {
@@ -73,6 +67,8 @@ func (suite *ShipmentServiceTestSuite) Test_GetShipmentsByReferenceNumber_Return
 func (suite *ShipmentServiceTestSuite) Test_CreateShipment_Succeed_ReturnsCreatedRecord() {
 	//arrange
 	shipment1 := fixtures.GetShipmentShort(uint(0))
+	shipment1.ShipmentLineItems[0].ID = 0
+	shipment1.ShipmentLineItems[1].ID = 0
 
 	carrier := fixtures.GetCarrier(0)
 	suite.Nil(suite.db.Create(carrier).Error)
@@ -89,8 +85,10 @@ func (suite *ShipmentServiceTestSuite) Test_CreateShipment_Succeed_ReturnsCreate
 
 	stockItemUnit1 := fixtures.GetStockItemUnit(stockItem)
 	stockItemUnit1.RefNum = models.NewSqlNullStringFromString(&shipment1.ReferenceNumber)
+	stockItemUnit1.Status = "onHold"
 	stockItemUnit2 := fixtures.GetStockItemUnit(stockItem)
 	stockItemUnit2.RefNum = models.NewSqlNullStringFromString(&shipment1.ReferenceNumber)
+	stockItemUnit2.Status = "onHold"
 	suite.Nil(suite.db.Create(stockItemUnit1).Error)
 	suite.Nil(suite.db.Create(stockItemUnit2).Error)
 
@@ -99,7 +97,9 @@ func (suite *ShipmentServiceTestSuite) Test_CreateShipment_Succeed_ReturnsCreate
 
 	//assert
 	suite.Nil(err)
-	suite.Equal(shipment1, shipment)
+	suite.Equal(shipment1.ShippingMethodID, shipment.ShippingMethodID)
+	suite.Equal(shipment1.ReferenceNumber, shipment.ReferenceNumber)
+	suite.Equal(shipment1.State, shipment.State)
 }
 
 //func (suite *ShipmentServiceTestSuite) Test_UpdateShipment_NotFound_ReturnsNotFoundError() {

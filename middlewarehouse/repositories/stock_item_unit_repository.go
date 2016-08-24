@@ -19,6 +19,7 @@ type IStockItemUnitRepository interface {
 	HoldUnitsInOrder(refNum string, ids []uint) (int, error)
 	ReserveUnitsInOrder(refNum string) (int, error)
 	UnsetUnitsInOrder(refNum string) (int, error)
+	GetUnitForLineItem(refNum string, sku string) (*models.StockItemUnit, error)
 
 	GetReleaseQtyByRefNum(refNum string) ([]*models.Release, error)
 
@@ -84,6 +85,19 @@ func (repository *stockItemUnitRepository) GetUnitsInOrder(refNum string) ([]*mo
 	}
 
 	return units, nil
+}
+
+func (repository *stockItemUnitRepository) GetUnitForLineItem(refNum string, sku string) (*models.StockItemUnit, error) {
+	unit := new(models.StockItemUnit)
+	err := repository.db.
+		Joins("JOIN stock_items ON stock_items.id = stock_item_units.stock_item_id").
+		Where("stock_items.sku = ?", sku).
+		Where("stock_item_units.ref_num = ?", refNum).
+		Where("stock_item_units.status = ?", "onHold").
+		First(unit).
+		Error
+
+	return unit, err
 }
 
 func (repository *stockItemUnitRepository) HoldUnitsInOrder(refNum string, ids []uint) (int, error) {

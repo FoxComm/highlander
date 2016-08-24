@@ -17,9 +17,7 @@ import (
 
 type shipmentControllerTestSuite struct {
 	GeneralControllerTestSuite
-	shipmentService         *mocks.ShipmentServiceMock
-	shipmentLineItemService *mocks.ShipmentLineItemServiceMock
-	//shipmentTransactionService *mocks.ShipmentTransactionServiceMock
+	shipmentService *mocks.ShipmentServiceMock
 }
 
 func TestShipmentControllerSuite(t *testing.T) {
@@ -30,10 +28,8 @@ func (suite *shipmentControllerTestSuite) SetupSuite() {
 	suite.router = gin.New()
 
 	suite.shipmentService = &mocks.ShipmentServiceMock{}
-	suite.shipmentLineItemService = &mocks.ShipmentLineItemServiceMock{}
-	//suite.shipmentTransactionService = &mocks.ShipmentTransactionServiceMock{}
 
-	controller := NewShipmentController(suite.shipmentService, suite.shipmentLineItemService /*, suite.shipmentTransactionService*/)
+	controller := NewShipmentController(suite.shipmentService)
 	controller.SetUp(suite.router.Group("/shipments"))
 }
 
@@ -42,12 +38,6 @@ func (suite *shipmentControllerTestSuite) TearDownTest() {
 	suite.shipmentService.AssertExpectations(suite.T())
 	suite.shipmentService.ExpectedCalls = []*mock.Call{}
 	suite.shipmentService.Calls = []mock.Call{}
-	suite.shipmentLineItemService.AssertExpectations(suite.T())
-	suite.shipmentLineItemService.ExpectedCalls = []*mock.Call{}
-	suite.shipmentLineItemService.Calls = []mock.Call{}
-	//suite.shipmentTransactionService.AssertExpectations(suite.T())
-	//suite.shipmentTransactionService.ExpectedCalls = []*mock.Call{}
-	//suite.shipmentTransactionService.Calls = []mock.Call{}
 }
 
 func (suite *shipmentControllerTestSuite) Test_GetShipmentsByReferenceNumbers_NotFound_ReturnsNotFoundError() {
