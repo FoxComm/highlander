@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/FoxComm/middlewarehouse/api/payloads"
 	"github.com/FoxComm/middlewarehouse/api/responses"
@@ -13,50 +12,34 @@ import (
 )
 
 type shipmentController struct {
-	shipmentService         services.IShipmentService
-	shipmentLineItemService services.IShipmentLineItemService
+	shipmentService services.IShipmentService
 }
 
 func NewShipmentController(
 	shipmentService services.IShipmentService,
-	shipmentLineItemService services.IShipmentLineItemService,
 ) IController {
-	return &shipmentController{shipmentService, shipmentLineItemService}
+	return &shipmentController{shipmentService}
 }
 
 func (controller *shipmentController) SetUp(router gin.IRouter) {
-	router.GET(":referenceNumbers", controller.getShipmentsByReferenceNumbers())
+	router.GET(":referenceNumber", controller.getShipmentsByReferenceNumber())
 	router.POST("", controller.createShipment())
 	router.PUT(":id", controller.updateShipment())
 	router.POST("from-order", controller.createShipmentFromOrder())
 }
 
-func (controller *shipmentController) getShipmentsByReferenceNumbers() gin.HandlerFunc {
+func (controller *shipmentController) getShipmentsByReferenceNumber() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		referenceNumbers := strings.Split(context.Params.ByName("referenceNumbers"), ",")
+		referenceNumber := context.Params.ByName("referenceNumber")
+		shipments, err := controller.shipmentService.GetShipmentsByReferenceNumber(referenceNumber)
+		if err != nil {
+			handleServiceError(context, err)
+			return
+		}
 
 		response := &responses.Shipments{}
-		for _, referenceNumber := range referenceNumbers {
-			shipments, err := controller.shipmentService.GetShipmentsByReferenceNumber(referenceNumber)
-			if err != nil {
-				handleServiceError(context, err)
-				return
-			}
-
-			for _, shipment := range shipments {
-				response.Shipments = append(response.Shipments, *responses.NewShipmentFromModel(shipment))
-
-				unshippedItems, err := controller.shipmentService.GetUnshippedItems(shipment)
-
-				if err != nil {
-					handleServiceError(context, err)
-					return
-				}
-
-				for _, unshippedItem := range unshippedItems {
-					response.UnshippedItems = append(response.UnshippedItems, *responses.NewShipmentLineItemFromModel(unshippedItem))
-				}
-			}
+		for _, shipment := range shipments {
+			response.Shipments = append(response.Shipments, *responses.NewShipmentFromModel(shipment))
 		}
 
 		context.JSON(http.StatusOK, response)
