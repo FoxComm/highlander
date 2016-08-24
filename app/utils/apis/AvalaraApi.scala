@@ -25,10 +25,11 @@ import services.Result
 import utils.{ADT, Money, time}
 import utils.FoxConfig._
 import utils.aliases.EC
+import utils.apis.Avalara.Responses.{Message, SeverityLevel}
 
 trait AvalaraApi {
 
-  def estimateTax: Result[Unit]
+  def validateAddress()(implicit ec: EC): Result[Unit]
   def getTaxForCart()(implicit ec: EC): Result[Unit]
   def getTaxForOrder()(implicit ec: EC): Result[Unit]
 
@@ -39,19 +40,38 @@ object Avalara {
     override def show(f: W): String = f.toString
   }
 
+  sealed trait AddressType
+  case object F extends AddressType //Firm or company address
+  case object G extends AddressType //General Delivery address
+  case object H extends AddressType //High-rise or business complex
+  case object P extends AddressType //PO box address
+  case object R extends AddressType //Rural route address
+  case object S extends AddressType //Street or residential address, probably, we will mostly use it
+
+  object AddressType extends AvalaraADT[AddressType] {
+    def types = sealerate.values[AddressType]
+  }
+
+  case class Address(
+      AddressCode: String, //Input for GetTax only, not by address validation
+      Line1: String,
+      Line2: String,
+      Line3: String,
+      City: String,
+      Region: String,
+      PostalCode: String,
+      Country: String,
+      County: String, //Output for ValidateAddress only
+      FipsCode: String, //Output for ValidateAddress only
+      CarrierRoute: String, //Output for ValidateAddress only
+      PostNet: String, //Output for ValidateAddress only
+      AddressType: AddressType, //Output for ValidateAddress only
+      Latitude: BigDecimal, //Input for GetTax only
+      Longitude: BigDecimal, //Input for GetTax only
+      TaxRegionId: String    //Input for GetTax only
+  )
+
   object Requests {
-    sealed trait AddressType
-    case object F extends AddressType //Firm or company address
-    case object G extends AddressType //General Delivery address
-    case object H extends AddressType //High-rise or business complex
-    case object P extends AddressType //PO box address
-    case object R extends AddressType //Rural route address
-    case object S extends AddressType //Street or residential address, probably, we will mostly use it
-
-    object AddressType extends AvalaraADT[AddressType] {
-      def types = sealerate.values[AddressType]
-    }
-
     sealed trait DetailLevel
     case object Tax        extends DetailLevel
     case object Document   extends DetailLevel
@@ -75,25 +95,6 @@ object Avalara {
     object DocType extends AvalaraADT[DocType] {
       def types = sealerate.values[DocType]
     }
-
-    case class Address(
-        AddressCode: String, //Input for GetTax only, not by address validation
-        Line1: String,
-        Line2: String,
-        Line3: String,
-        City: String,
-        Region: String,
-        PostalCode: String,
-        Country: String,
-        County: String, //Output for ValidateAddress only
-        FipsCode: String, //Output for ValidateAddress only
-        CarrierRoute: String, //Output for ValidateAddress only
-        PostNet: String, //Output for ValidateAddress only
-        AddressType: AddressType, //Output for ValidateAddress only
-        Latitude: BigDecimal, //Input for GetTax only
-        Longitude: BigDecimal, //Input for GetTax only
-        TaxRegionId: String    //Input for GetTax only
-    )
 
     case class TaxOverrideDef(
         TaxOverrideType: String, //Limited permitted values: TaxAmount, Exemption, TaxDate
@@ -225,6 +226,12 @@ object Avalara {
         Messages: Seq[Message] = Seq()
     )
 
+    case class AddressValidation(
+        Address: Option[Address],
+        ResultCode: SeverityLevel,
+        Messages: Seq[Message]
+    )
+
     case class SimpleErrorMessage(
         ResultCode: Option[String],
         Messages: Seq[Message]
@@ -264,7 +271,36 @@ class Avalara()(implicit as: ActorSystem, am: ActorMaterializer) extends Avalara
     }
   }
 
-  override def estimateTax: Result[Unit] = Result.unit
+  override def validateAddress()(implicit ec: EC): Result[Unit] = {
+    val (url, account, license, profile) = getConfig()
+    val connectionFlow: Flow[HttpRequest, HttpResponse, Future[Http.OutgoingConnection]] =
+      Http().outgoingConnectionHttps(url)
+    val headers: Seq[HttpHeader] = Seq(Authorization(BasicHttpCredentials(account, license)))
+
+    val result: Future[Avalara.Responses.AddressValidation] = Source
+      .single(
+          HttpRequest(uri = "/1.0/address/validate", method = HttpMethods.GET, headers = headers))
+      .via(connectionFlow)
+      .mapAsync(1)(response ⇒ Unmarshal(response).to[Avalara.Responses.AddressValidation])
+      .runWith(Sink.head)
+
+    def failureHandler(failure: Throwable) = {
+      println(s"We are doomed by failre $failure")
+      Result.left(UnableToMatchResponse.single)
+    }
+
+    result.flatMap {
+      case response ⇒
+        if (response.Address.isDefined && response.ResultCode == Success) {
+          Result.unit
+        } else {
+          val message = response.Messages.map(_.Summary).mkString(", ")
+          Result.failure(AddressValidationFailure(message))
+        }
+    }.recoverWith {
+      case err: Throwable ⇒ failureHandler(err)
+    }
+  }
 
   override def getTaxForCart()(implicit ec: EC): Result[Unit] = {
     getTax()
