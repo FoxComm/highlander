@@ -31,7 +31,7 @@ Moment.defaultProps = {
 };
 
 
-const DateTime = props => <Moment {...props} value={props.value} format={'L LT'} />;
+const DateTime = props => <Moment {...props} format={'L LT'} />;
 
 DateTime.propTypes = {
   utc: PropTypes.bool,
@@ -43,7 +43,7 @@ DateTime.defaultProps = {
 };
 
 
-const Date = props => <Moment {...props} value={props.value} format={'L'} />;
+const Date = props => <Moment {...props} format={'L'} />;
 
 Date.propTypes = {
   utc: PropTypes.bool,
@@ -55,7 +55,7 @@ Date.defaultProps = {
 };
 
 
-const Time = props => <Moment {...props} value={props.value} format={'LT'} />;
+const Time = props => <Moment {...props} format={'LT'} />;
 
 Time.propTypes = {
   utc: PropTypes.bool,
