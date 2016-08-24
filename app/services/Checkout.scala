@@ -3,6 +3,7 @@ package services
 import scala.util.Random
 
 import cats.implicits._
+import cats.data.Xor
 import failures.CouponFailures.CouponWithCodeCannotBeFound
 import failures.GeneralFailure
 import failures.PromotionFailures.PromotionNotFoundForContext
@@ -20,7 +21,7 @@ import responses.cord.OrderResponse
 import services.coupon.CouponUsageService
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
-import utils.apis.{Apis, OrderReservation, SkuReservation}
+import utils.apis.{Apis, OrderInventoryHold, SkuInventoryHold}
 import utils.db._
 
 object PaymentHelper {
@@ -85,18 +86,25 @@ object Checkout {
     } yield order
 }
 
+class ExternalCalls {
+  var authPaymentsSuccess: Boolean    = false
+  var middleWarehouseSuccess: Boolean = false
+}
+
 case class Checkout(
     cart: Cart,
     cartValidator: CartValidation)(implicit ec: EC, db: DB, apis: Apis, ac: AC, ctx: OC) {
 
-  def checkout: DbResultT[OrderResponse] =
-    for {
+  var externalCalls = new ExternalCalls()
+
+  def checkout: Result[OrderResponse] = {
+    val actions = for {
       customer  ← * <~ Customers.mustFindById404(cart.customerId)
       _         ← * <~ customer.mustHaveCredentials
       _         ← * <~ customer.mustNotBeBlacklisted
       _         ← * <~ activePromos
       _         ← * <~ cartValidator.validate(isCheckout = false, fatalWarnings = true)
-      _         ← * <~ reserveInMiddleWarehouse
+      _         ← * <~ holdInMiddleWarehouse
       _         ← * <~ authPayments(customer)
       _         ← * <~ cartValidator.validate(isCheckout = true, fatalWarnings = true)
       order     ← * <~ Orders.createFromCart(cart)
@@ -106,12 +114,25 @@ case class Checkout(
       _         ← * <~ LogActivity.orderCheckoutCompleted(fullOrder)
     } yield fullOrder
 
-  private def reserveInMiddleWarehouse: DbResultT[Unit] =
+    actions.runTxn().map {
+      case failures @ Xor.Left(_) ⇒
+        if (externalCalls.middleWarehouseSuccess) cancelHoldInMiddleWarehouse
+        failures
+      case result @ Xor.Right(_) ⇒
+        result
+    }
+  }
+
+  private def holdInMiddleWarehouse: DbResultT[Unit] =
     for {
       liSkus ← * <~ CartLineItems.byCordRef(cart.refNum).countSkus
-      skus = liSkus.map { case (skuCode, qty) ⇒ SkuReservation(skuCode, qty) }.toSeq
-      _ ← * <~ apis.middlwarehouse.reserve(OrderReservation(cart.referenceNumber, skus))
+      skus = liSkus.map { case (skuCode, qty) ⇒ SkuInventoryHold(skuCode, qty) }.toSeq
+      _ ← * <~ apis.middlwarehouse.hold(OrderInventoryHold(cart.referenceNumber, skus))
+      mutatingResult = externalCalls.middleWarehouseSuccess = true
     } yield {}
+
+  private def cancelHoldInMiddleWarehouse: Result[Unit] =
+    apis.middlwarehouse.cancelHold(cart.referenceNumber)
 
   private def activePromos: DbResultT[Unit] =
     for {
@@ -184,6 +205,7 @@ case class Checkout(
 
       // Authorize funds on credit card
       ccs ← * <~ authCreditCard(cart.grandTotal, gcTotal + scTotal)
+      mutatingResult = externalCalls.authPaymentsSuccess = true
     } yield {}
 
   private def authCreditCard(orderTotal: Int,

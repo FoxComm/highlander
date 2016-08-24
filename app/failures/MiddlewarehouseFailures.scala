@@ -4,7 +4,11 @@ import com.stripe.exception.StripeException
 
 object MiddlewarehouseFailures {
 
-  case class UnableToReserveLineItems(error: Throwable) extends Failure {
-    override def description = s"Unable to reserve line items: $error"
+  case object UnableToHoldLineItems extends Failure {
+    override def description = s"Unable to hold line items"
+  }
+
+  case object UnableToCancelHoldLineItems extends Failure {
+    override def description = s"Unable to cancel hold on line items"
   }
 }
