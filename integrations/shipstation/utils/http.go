@@ -69,5 +69,5 @@ func (c HTTPClient) request(method string, url string, payload interface{}, resp
 		return errors.New(string(errResp))
 	}
 
-	return nil
+	return json.NewDecoder(resp.Body).Decode(respBody)
 }

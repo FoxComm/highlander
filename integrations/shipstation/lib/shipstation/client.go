@@ -67,3 +67,10 @@ func (c *Client) UpdateProduct(payload *payloads.Product) (*responses.Product, e
 	err := c.httpClient.Put(url, payload, product)
 	return product, err
 }
+
+func (c *Client) Shipments() (*responses.ShipmentCollection, error) {
+	collection := new(responses.ShipmentCollection)
+	url := fmt.Sprintf("%s/%s", baseURL, "shipments")
+	err := c.httpClient.Get(url, collection)
+	return collection, err
+}

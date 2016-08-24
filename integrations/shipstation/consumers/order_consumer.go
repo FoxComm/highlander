@@ -61,25 +61,5 @@ func (c OrderConsumer) Handler(message metamorphosis.AvroMessage) error {
 		log.Panicf("Unable to create order in ShipStation with error %s", err.Error())
 	}
 
-	//if err := createShipment(order); err != nil {
-	//log.Panicf("Unable to create shipment in middlewarehouse with error %s", err.Error())
-	//}
-	//}
-
 	return nil
 }
-
-//func createShipment(o *phoenix.Order) error {
-//shipment, err := mwh.NewShipmentFromOrder(o)
-//if err != nil {
-//return err
-//}
-
-//mwhClient := mwh.NewClient()
-//_, err = mwhClient.CreateShipment(shipment)
-//if err != nil {
-//return err
-//}
-
-//return nil
-//}
