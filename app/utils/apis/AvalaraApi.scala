@@ -1,5 +1,6 @@
 package utils.apis
 
+import java.net.URLEncoder
 import java.time.Instant
 
 import scala.collection.immutable._
@@ -21,15 +22,18 @@ import org.json4s.jackson.Serialization._
 import org.json4s.ext._
 import com.pellucid.sealerate
 import failures.AvalaraFailures._
+import models.location._
 import services.Result
 import utils.{ADT, Money, time}
 import utils.FoxConfig._
 import utils.aliases.EC
-import utils.apis.Avalara.Responses.{Message, SeverityLevel}
+import utils.apis.Avalara.AddressBuilder
+import utils.apis.Avalara.Responses._
 
 trait AvalaraApi {
 
-  def validateAddress()(implicit ec: EC): Result[Unit]
+  def validateAddress(address: Address, region: Region, country: Country)(
+      implicit ec: EC): Result[Unit]
   def getTaxForCart()(implicit ec: EC): Result[Unit]
   def getTaxForOrder()(implicit ec: EC): Result[Unit]
 
@@ -52,24 +56,42 @@ object Avalara {
     def types = sealerate.values[AddressType]
   }
 
-  case class Address(
-      AddressCode: String, //Input for GetTax only, not by address validation
+  case class AvalaraAddress(
+      AddressCode: Option[String] = None, //Input for GetTax only, not by address validation
       Line1: String,
-      Line2: String,
-      Line3: String,
+      Line2: Option[String] = None,
+      Line3: Option[String] = None,
       City: String,
       Region: String,
       PostalCode: String,
       Country: String,
-      County: String, //Output for ValidateAddress only
-      FipsCode: String, //Output for ValidateAddress only
-      CarrierRoute: String, //Output for ValidateAddress only
-      PostNet: String, //Output for ValidateAddress only
-      AddressType: AddressType, //Output for ValidateAddress only
-      Latitude: BigDecimal, //Input for GetTax only
-      Longitude: BigDecimal, //Input for GetTax only
-      TaxRegionId: String    //Input for GetTax only
-  )
+      County: Option[String] = None, //Output for ValidateAddress only
+      FipsCode: Option[String] = None, //Output for ValidateAddress only
+      CarrierRoute: Option[String] = None, //Output for ValidateAddress only
+      PostNet: Option[String] = None, //Output for ValidateAddress only
+      AddressType: Option[AddressType] = None, //Output for ValidateAddress only
+      Latitude: Option[BigDecimal] = None, //Input for GetTax only
+      Longitude: Option[BigDecimal] = None, //Input for GetTax only
+      TaxRegionId: Option[String] = None    //Input for GetTax only
+  ) {
+    def toQuery(): String = {
+      def p(string: String)          = URLEncoder.encode(string, "UTF-8")
+      def po(string: Option[String]) = string.map(URLEncoder.encode(_, "UTF-8")).getOrElse("")
+      s"Line1=${p(Line1)}&Line2=${po(Line2)}&Line3=${po(Line3)}&City=${p(City)}&Region=${p(Region)}&" +
+      s"PostalCode=${p(PostalCode)}&Country=${p(Country)}"
+    }
+  }
+
+  object AddressBuilder {
+    def fromAddress(address: Address, region: Region, country: Country): AvalaraAddress = {
+      AvalaraAddress(Line1 = address.address1,
+                     Line2 = address.address2,
+                     City = address.city,
+                     PostalCode = address.zip,
+                     Region = region.abbrev.getOrElse(""),
+                     Country = country.code.getOrElse(""))
+    }
+  }
 
   object Requests {
     sealed trait DetailLevel
@@ -125,7 +147,7 @@ object Avalara {
         //Required for tax calculation
         DocDate: Instant, //Must be valid YYYY-MM-DD format
         CustomerCode: String,
-        Addresses: Seq[Address],
+        Addresses: Seq[AvalaraAddress],
         Lines: Seq[Line],
         //Best Practice for tax calculation
         DocCode: String,
@@ -227,7 +249,7 @@ object Avalara {
     )
 
     case class AddressValidation(
-        Address: Option[Address],
+        Address: Option[AvalaraAddress],
         ResultCode: SeverityLevel,
         Messages: Seq[Message]
     )
@@ -271,15 +293,19 @@ class Avalara()(implicit as: ActorSystem, am: ActorMaterializer) extends Avalara
     }
   }
 
-  override def validateAddress()(implicit ec: EC): Result[Unit] = {
+  override def validateAddress(address: Address, region: Region, country: Country)(
+      implicit ec: EC): Result[Unit] = {
     val (url, account, license, profile) = getConfig()
     val connectionFlow: Flow[HttpRequest, HttpResponse, Future[Http.OutgoingConnection]] =
       Http().outgoingConnectionHttps(url)
+
     val headers: Seq[HttpHeader] = Seq(Authorization(BasicHttpCredentials(account, license)))
+    val payload                  = AddressBuilder.fromAddress(address, region, country)
 
     val result: Future[Avalara.Responses.AddressValidation] = Source
-      .single(
-          HttpRequest(uri = "/1.0/address/validate", method = HttpMethods.GET, headers = headers))
+      .single(HttpRequest(uri = s"/1.0/address/validate?${payload.toQuery}",
+                          method = HttpMethods.GET,
+                          headers = headers))
       .via(connectionFlow)
       .mapAsync(1)(response ⇒ Unmarshal(response).to[Avalara.Responses.AddressValidation])
       .runWith(Sink.head)
