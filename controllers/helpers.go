@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 
 	"github.com/FoxComm/middlewarehouse/common/failures"
@@ -48,6 +49,8 @@ func paramUint(c *gin.Context, key string) (uint, failures.Failure) {
 }
 
 func handleServiceError(c *gin.Context, err error) failures.Failure {
+	log.Printf("ServiceError: %s", err.Error())
+
 	var fail failures.Failure
 	if err == gorm.ErrRecordNotFound {
 		fail = failures.NewNotFound(err)

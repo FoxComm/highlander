@@ -1,6 +1,15 @@
 package services
 
 import (
+	"bytes"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"log"
+	"net/http"
+	"os"
+
+	"github.com/FoxComm/middlewarehouse/api/payloads"
 	"github.com/FoxComm/middlewarehouse/common/async"
 	"github.com/FoxComm/middlewarehouse/models"
 	"github.com/FoxComm/middlewarehouse/repositories"
@@ -100,21 +109,23 @@ func (service *shipmentService) UpdateShipment(shipment *models.Shipment) (*mode
 		return nil, err
 	}
 
-	stockItemCounts := make(map[uint]int)
-	for _, lineItem := range source.ShipmentLineItems {
-		siu := lineItem.StockItemUnit
+	if source.State != shipment.State && shipment.State == models.ShipmentStateShipped {
+		stockItemCounts := make(map[uint]int)
+		for _, lineItem := range source.ShipmentLineItems {
+			siu := lineItem.StockItemUnit
 
-		// Aggregate which stock items, and how many, have been updated, so that we
-		// can update summaries asynchronously at the end.
-		if count, ok := stockItemCounts[siu.StockItemID]; ok {
-			stockItemCounts[siu.StockItemID] = count + 1
-		} else {
-			stockItemCounts[siu.StockItemID] = 1
+			// Aggregate which stock items, and how many, have been updated, so that we
+			// can update summaries asynchronously at the end.
+			if count, ok := stockItemCounts[siu.StockItemID]; ok {
+				stockItemCounts[siu.StockItemID] = count + 1
+			} else {
+				stockItemCounts[siu.StockItemID] = 1
+			}
 		}
-	}
 
-	if err = service.updateSummariesToShipped(stockItemCounts); err != nil {
-		return nil, err
+		if err = service.updateSummariesToShipped(stockItemCounts); err != nil {
+			return nil, err
+		}
 	}
 
 	return shipment, nil
@@ -163,15 +174,76 @@ func (service *shipmentService) handleStatusChange(db *gorm.DB, oldShipment, new
 	var err error
 
 	switch newShipment.State {
-	case models.ShipmentStateCancelled:
+	case "cancelled":
 		_, err = unitRepo.UnsetUnitsInOrder(newShipment.ReferenceNumber)
-	case models.ShipmentStateShipped:
-		unitIDs := []uint{}
-		for _, lineItem := range newShipment.ShipmentLineItems {
-			unitIDs = append(unitIDs, lineItem.StockItemUnitID)
+
+	case "shipped":
+		err = service.capturePayment(newShipment)
+		if err != nil {
+			unitIDs := []uint{}
+			for _, lineItem := range newShipment.ShipmentLineItems {
+				unitIDs = append(unitIDs, lineItem.StockItemUnitID)
+			}
+			err = unitRepo.DeleteUnits(unitIDs)
 		}
-		err = unitRepo.DeleteUnits(unitIDs)
 	}
 
 	return err
+}
+
+func (service *shipmentService) capturePayment(shipment *models.Shipment) error {
+	// TODO: Move this whole thing to a consumer.
+	log.Printf("Starting capture")
+	capture := payloads.Capture{
+		ReferenceNumber: shipment.ReferenceNumber,
+		Shipping: payloads.CaptureShippingCost{
+			Total:    0,
+			Currency: "USD",
+		},
+	}
+
+	for _, lineItem := range shipment.ShipmentLineItems {
+		cLineItem := payloads.CaptureLineItem{
+			ReferenceNumber: lineItem.ReferenceNumber,
+			SKU:             lineItem.SKU,
+		}
+
+		capture.Items = append(capture.Items, cLineItem)
+	}
+
+	phoenixURL := os.Getenv("PHOENIX_URL")
+	jwt := os.Getenv("JWT")
+
+	b, err := json.Marshal(&capture)
+	if err != nil {
+		log.Printf("Error marshalling")
+		return err
+	}
+
+	log.Printf("Payload: %s", string(b))
+
+	url := fmt.Sprintf("%s/v1/service/capture", phoenixURL)
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(b))
+	if err != nil {
+		log.Printf("Error creating post")
+		return err
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("JWT", jwt)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Printf("Error on the request")
+		return err
+	}
+
+	if resp.StatusCode < 200 || resp.StatusCode > 299 {
+		msg := fmt.Sprintf("Error in response from capture with status %d", resp.StatusCode)
+		log.Printf(msg)
+		return errors.New(msg)
+	}
+
+	return nil
 }
