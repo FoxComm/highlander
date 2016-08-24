@@ -64,6 +64,7 @@ func (service *summaryService) UpdateStockItemSummary(stockItemId uint, unitType
 	}
 
 	// update count of .To status if it is new record or it's not moved to onHand status
+	// or shipped (because in that case, the stock item unit is deleted).
 	if status.From == models.StatusEmpty || status.To != models.StatusOnHand {
 		summary = updateStatusUnitsAmount(summary, status.To, qty)
 	}

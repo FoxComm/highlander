@@ -73,23 +73,6 @@ func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*mode
 	return result, err
 }
 
-func (service *shipmentService) updateSummariesToReserved(stockItemsMap map[uint]int) error {
-	statusShift := models.StatusChange{From: models.StatusOnHold, To: models.StatusReserved}
-	unitType := models.Sellable
-
-	fn := func() error {
-		for id, qty := range stockItemsMap {
-			if err := service.summaryService.UpdateStockItemSummary(id, unitType, qty, statusShift); err != nil {
-				return err
-			}
-		}
-
-		return nil
-	}
-
-	return async.MaybeExecAsync(fn, service.updateSummaryAsync, "Error updating stock item summary after shipment")
-}
-
 func (service *shipmentService) UpdateShipment(shipment *models.Shipment) (*models.Shipment, error) {
 	txn := service.db.Begin()
 
@@ -106,14 +89,68 @@ func (service *shipmentService) UpdateShipment(shipment *models.Shipment) (*mode
 		return nil, err
 	}
 
-	if shipment.State != source.State && shipment.State == models.ShipmentStateCancelled {
-		unitRepo := repositories.NewStockItemUnitRepository(txn)
-		if _, err = unitRepo.UnsetUnitsInOrder(shipment.ReferenceNumber); err != nil {
-			txn.Rollback()
-			return nil, err
-		}
+	err = service.handleStatusChange(txn, source, shipment)
+	if err != nil {
+		txn.Rollback()
+		return nil, err
 	}
 
 	err = txn.Commit().Error
 	return shipment, err
+}
+
+func (service *shipmentService) updateSummariesToReserved(stockItemsMap map[uint]int) error {
+	statusShift := models.StatusChange{From: models.StatusOnHold, To: models.StatusReserved}
+	unitType := models.Sellable
+
+	fn := func() error {
+		for id, qty := range stockItemsMap {
+			if err := service.summaryService.UpdateStockItemSummary(id, unitType, qty, statusShift); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	}
+
+	return async.MaybeExecAsync(fn, service.updateSummaryAsync, "Error updating stock item summary creating shipment")
+}
+
+func (service *shipmentService) updateSummariesToShipped(stockItemsMap map[uint]int) error {
+	statusShift := models.StatusChange{From: models.StatusReserved, To: models.StatusShipped}
+	unitType := models.Sellable
+
+	fn := func() error {
+		for id, qty := range stockItemsMap {
+			if err := service.summaryService.UpdateStockItemSummary(id, unitType, qty, statusShift); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	}
+
+	return async.MaybeExecAsync(fn, service.updateSummaryAsync, "Error updating stock item summary after shipment")
+}
+
+func (service *shipmentService) handleStatusChange(db *gorm.DB, oldShipment, newShipment *models.Shipment) error {
+	if oldShipment.State == newShipment.State {
+		return nil
+	}
+
+	unitRepo := repositories.NewStockItemUnitRepository(db)
+	var err error
+
+	switch newShipment.State {
+	case models.ShipmentStateCancelled:
+		_, err = unitRepo.UnsetUnitsInOrder(newShipment.ReferenceNumber)
+	case models.ShipmentStateShipped:
+		unitIDs := []uint{}
+		for _, lineItem := range newShipment.ShipmentLineItems {
+			unitIDs = append(unitIDs, lineItem.StockItemUnitID)
+		}
+		err = unitRepo.DeleteUnits(unitIDs)
+	}
+
+	return err
 }
