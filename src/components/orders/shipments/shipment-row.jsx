@@ -25,15 +25,9 @@ import WaitAnimation from 'components/common/wait-animation';
 
 //types
 import type { Dictionary } from 'paragons/types';
-import type { TCarrier, TShippingMethod, TShipmentLineItem } from 'paragons/shipment';
+import type { TShippingMethod, TShipmentLineItem } from 'paragons/shipment';
 
 type Props = {
-  actions: {
-    carriers: Dictionary<Function>;
-    shippingMethods: Dictionary<Function>;
-  };
-  carriers: Array<TCarrier>;
-  shippingMethods: Array<TShippingMethod>;
   isLoading: boolean;
   shippingMethod: TShippingMethod;
   state: string;
@@ -50,28 +44,7 @@ type State = {
   isExpanded: boolean;
 }
 
-const mapStateToProps = state => {
-  const { carriers, shipmentMethods } = state.orders;
-  const { fetchCarriers } = carriers;
-  const { fetchShippingMethods } = shipmentMethods;
-  const carriersLoading = !fetchCarriers.isCompleted || fetchCarriers.isRunning;
-  const shippingMethodsLoading = !fetchShippingMethods.isCompleted || fetchShippingMethods.isRunning;
-
-  return {
-    carriers: carriers.list,
-    shippingMethods: shipmentMethods.list,
-    isLoading: carriersLoading || shippingMethodsLoading,
-  };
-};
-
-const mapDispatchToProps = dispatch => ({
-  actions: {
-    carriers: bindActionCreators(getStore('orders.carriers').actions, dispatch),
-    shippingMethods: bindActionCreators(getStore('orders.shipmentMethods').actions, dispatch),
-  },
-});
-
-class ShipmentRow extends Component {
+export default class ShipmentRow extends Component {
   props: Props;
 
   state: State = {
@@ -82,34 +55,13 @@ class ShipmentRow extends Component {
     transactions: [],
   };
 
-  componentDidMount(): void {
-    const { carriers, shippingMethods } = this.props.actions;
-
-    carriers.fetchCarriers();
-    shippingMethods.fetchShippingMethods();
-  }
-
   @autobind
   toggleExpanded() {
     this.setState({ isExpanded: !this.state.isExpanded });
   }
 
-  get carrier() {
-    const { props } = this;
-
-    return props.carriers
-      .filter(carrier => carrier.id === _.get(props, 'shippingMethod.carrier.id', null)).pop();
-  }
-
-  get shippingMethod() {
-    const { props } = this;
-
-    return props.shippingMethods
-      .filter(shippingMethod => shippingMethod.id === _.get(props,'shippingMethod.id',null)).pop();
-  }
-
   get trackingLink() {
-    const { trackingNumber } = this.props;
+    const { shippingMethod, trackingNumber } = this.props;
 
     if (!trackingNumber) {
       return null;
@@ -117,7 +69,7 @@ class ShipmentRow extends Component {
 
     return (
       <a
-        href={this.carrier.trackingTemplate.replace('$number', trackingNumber)}
+        href={shippingMethod.carrier.trackingTemplate.replace('$number', trackingNumber)}
         styleName="tracking-link"
         target="_blank"
       >
@@ -137,14 +89,14 @@ class ShipmentRow extends Component {
              className={`icon-chevron-${toggleAction}`}
              onClick={this.toggleExpanded}
           />
-          {this.shippingMethod.name}
+          {props.shippingMethod.name}
         </TableCell>
         <TableCell>{props.state}</TableCell>
         <TableCell>{props.lineItems.length}</TableCell>
         <TableCell>
           <DateTime value={props.shipmentDate} />
         </TableCell>
-        <TableCell>{this.carrier.name}</TableCell>
+        <TableCell>{props.shippingMethod.carrier.name}</TableCell>
         <TableCell>
           <DateTime value={props.estimatedArrival} />
         </TableCell>
@@ -188,18 +140,6 @@ class ShipmentRow extends Component {
   }
 
   render() {
-    if (this.props.isLoading) {
-      return (
-        <tbody>
-          <tr>
-            <td colSpan={8}>
-              <WaitAnimation />
-            </td>
-          </tr>
-        </tbody>
-      );
-    }
-
     return (
       <tbody>
         {this.summaryRow}
@@ -208,5 +148,3 @@ class ShipmentRow extends Component {
     );
   }
 }
-
-export default connect(mapStateToProps, mapDispatchToProps)(ShipmentRow);
