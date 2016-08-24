@@ -70,7 +70,7 @@ object CustomerPasswordResets
   val returningLens: Lens[CustomerPasswordReset, Int] = lens[CustomerPasswordReset].id
 
   def findActiveByCode(code: String): DBIO[Option[CustomerPasswordReset]] = {
-    filter(_.code === code).one
+    filter(c ⇒ c.code === code && c.state === (Initial: State)).one
   }
 
   object scope {

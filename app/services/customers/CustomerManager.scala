@@ -71,11 +71,12 @@ object CustomerManager {
                 .findActiveByCode(code)
                 .mustFindOr(ResetPasswordCodeInvalid)
       customer ← * <~ Customers.mustFindById404(remind.customerId)
-      _ ← * <~ CustomerPasswordResets.update(
-             remind.copy(state = CustomerPasswordReset.PasswordRestored,
-                         activatedAt = Option(Instant.now)))
-      _ ← * <~ Customers.update(customer.updatePassword(newPassword))
-      _ ← * <~ LogActivity.customerPasswordReset(customer)
+      _ ← * <~ CustomerPasswordResets.update(remind,
+                                             remind.copy(state =
+                                                           CustomerPasswordReset.PasswordRestored,
+                                                         activatedAt = Option(Instant.now)))
+      updatedCustomer ← * <~ Customers.update(customer, customer.updatePassword(newPassword))
+      _               ← * <~ LogActivity.customerPasswordReset(updatedCustomer)
     } yield ResetPasswordAnswer(status = "ok")
   }
 
