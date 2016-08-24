@@ -1,14 +1,23 @@
 package consumers
 
 import (
+	"fmt"
 	"log"
 	"os"
 
 	"github.com/FoxComm/highlander/integrations/shipstation/lib/shipstation"
+	"github.com/FoxComm/highlander/integrations/shipstation/utils"
 )
 
 type ShipmentConsumer struct {
 	client *shipstation.Client
+}
+
+type S struct {
+	ReferenceNumber string `json:"referenceNumber"`
+	State           string `json:"state"`
+	ShipmentDate    string `json:"shipmentDate"`
+	TrackingNumber  string `json:"trackingNumber"`
 }
 
 func NewShipmentConsumer() (*ShipmentConsumer, error) {
@@ -29,6 +38,26 @@ func (c ShipmentConsumer) GetShipments() error {
 		return err
 	}
 
-	log.Printf("%s", shipments.Shipments)
+	httpClient := utils.NewHTTPClient()
+	httpClient.SetHeader("Content-Type", "application/json")
+	for _, shipment := range shipments.Shipments {
+		log.Printf("Processing shipment %s", shipment.OrderNumber)
+
+		s := S{
+			ReferenceNumber: shipment.OrderNumber,
+			State:           "shipped",
+			ShipmentDate:    shipment.ShipDate,
+			TrackingNumber:  shipment.TrackingNumber,
+		}
+
+		url := fmt.Sprintf("http://127.0.0.1:9292/v1/public/shipments/%s", s.ReferenceNumber)
+		resp := new(S)
+
+		err := httpClient.Patch(url, s, resp)
+		if err != nil {
+			log.Printf("Failed with error: %s", err.Error())
+		}
+	}
+
 	return nil
 }

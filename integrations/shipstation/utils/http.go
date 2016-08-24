@@ -34,6 +34,10 @@ func (c HTTPClient) Put(url string, payload interface{}, resp interface{}) error
 	return c.request("PUT", url, payload, resp)
 }
 
+func (c HTTPClient) Patch(url string, payload interface{}, resp interface{}) error {
+	return c.request("PATCH", url, payload, resp)
+}
+
 func (c HTTPClient) request(method string, url string, payload interface{}, respBody interface{}) error {
 	client := &http.Client{}
 	body := new(bytes.Buffer)
