@@ -22,7 +22,8 @@ const reducers = {
   setData: function (state: Object, data: ShipmentsState): Object {
     return {
       ...state,
-      ...data,
+      shipments: data.shipments || [],
+      unshippedItems: data.unshippedItems || [],
     };
   },
 };
