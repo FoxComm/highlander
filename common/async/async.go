@@ -6,7 +6,7 @@ import "log"
 // It returns an error, with is always nil if run async, but used if run synchronously.
 type AsyncFn func() error
 
-// MaybeExecAsync will conditionally run a function synchronously or synchronously.
+// MaybeExecAsync will conditionally run a function synchronously or asynchronously.
 func MaybeExecAsync(fn AsyncFn, isAsync bool, logMsg string) error {
 	if isAsync {
 		go func() {

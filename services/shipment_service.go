@@ -174,10 +174,10 @@ func (service *shipmentService) handleStatusChange(db *gorm.DB, oldShipment, new
 	var err error
 
 	switch newShipment.State {
-	case "cancelled":
+	case models.ShipmentStateCancelled:
 		_, err = unitRepo.UnsetUnitsInOrder(newShipment.ReferenceNumber)
 
-	case "shipped":
+	case models.ShipmentStateShipped:
 		err = service.capturePayment(newShipment)
 		if err != nil {
 			unitIDs := []uint{}
