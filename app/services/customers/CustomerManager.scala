@@ -11,7 +11,6 @@ import models.cord.{OrderShippingAddresses, Orders}
 import models.customer.Customers.scope._
 import models.customer.{Customer, Customers}
 import models.customer.{CustomerPasswordResets, CustomerPasswordReset}
-import models.customer.CustomerPasswordResets.scope._
 import models.location.Addresses
 import models.shipping.Shipments
 import payloads.CustomerPayloads._

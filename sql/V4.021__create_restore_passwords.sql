@@ -12,5 +12,8 @@ create table customer_password_resets(
   activated_at timestamp without time zone
 );
 
-create unique index customer_password_resets__m_idx on customer_password_resets (email,customer_id,state);
+create unique index customer_password_resets__m_idx
+  on customer_password_resets (email,customer_id,state)
+  where state = 'initial';
 
+create index customer_password_resets__customer_idx on customer_password_resets (email,customer_id);

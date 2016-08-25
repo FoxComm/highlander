@@ -675,7 +675,7 @@ class CustomerIntegrationTest
   }
 
   "POST /v1/public/send-password-reset" - {
-    "Successfully creates remind" in new Fixture {
+    "Successfully creates password reset instance" in new Fixture {
       val email    = customer.email.value
       val response = POST(s"v1/public/send-password-reset", ResetPasswordSend(email))
       response.status must === (StatusCodes.OK)
@@ -685,13 +685,16 @@ class CustomerIntegrationTest
       resetPw.email must === (email)
     }
 
-    "fails if customer already have active remind" in new Fixture {
+    "re-send with new code if phoenix already send it but customer not activated it" in new Fixture {
       val email = customer.email.value
-      CustomerPasswordResets.create(CustomerPasswordReset.optionFromCustomer(customer).value).gimme
+      val oldResetPw = CustomerPasswordResets
+        .create(CustomerPasswordReset.optionFromCustomer(customer).value)
+        .gimme
 
       val response = POST(s"v1/public/send-password-reset", ResetPasswordSend(email))
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === (PasswordResetAlreadyInitiated(email).description)
+      response.status must === (StatusCodes.OK)
+      val resetPw = CustomerPasswordResets.findActiveByEmail(email).one.gimme.value
+      oldResetPw.code must !==(resetPw.code)
     }
   }
 

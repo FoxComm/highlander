@@ -75,13 +75,7 @@ object CustomerPasswordResets
   def findActiveByCode(code: String): DBIO[Option[CustomerPasswordReset]] =
     filter(c ⇒ c.code === code && c.state === (Initial: State)).one
 
-  object scope {
-    import CustomerPasswordReset._
+  def findActiveByEmail(email: String): QuerySeq =
+    filter(c ⇒ c.email === email && c.state === (Initial: State))
 
-    implicit class QuerySeqConversions(query: QuerySeq) {
-
-      def findActiveByEmail(email: String): QuerySeq =
-        filter(c ⇒ c.email === email && c.state == (Initial: State))
-    }
-  }
 }
