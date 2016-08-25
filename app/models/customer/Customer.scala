@@ -59,7 +59,7 @@ case class Customer(id: Int = 0,
   }
 
   def updatePassword(newPassword: String): Customer = {
-    this.copy(hashedPassword = Option(hashPassword(newPassword)))
+    this.copy(hashedPassword = hashPassword(newPassword).some)
   }
 }
 

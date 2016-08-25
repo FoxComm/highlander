@@ -46,38 +46,35 @@ object CustomerManager {
       _ ← * <~ LogActivity.customerBlacklisted(blacklisted, customer, admin)
     } yield build(updated)
 
-  def remindPassword(
-      email: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[RemindPasswordAnswer] = {
+  def resetPasswordSend(
+      email: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[ResetPasswordSendAnswer] =
     for {
       customer ← * <~ Customers
                   .activeCustomerByEmail(Option(email))
-                  .one
-                  .mustFindOr(NotFoundFailure404(Customer, email))
+                  .mustFindOneOr(NotFoundFailure404(Customer, email))
       _ ← * <~ CustomerPasswordResets.mustBeNotActivated(email)
-      remind ← * <~ DbResultT.fromXor(
-                  CustomerPasswordReset
-                    .optionFromCustomer(customer)
-                    .toXor(CustomerHasNoEmail.single))
-      remindCreated ← * <~ CustomerPasswordResets.create(remind)
-      _             ← * <~ LogActivity.customerRemindPassword(customer, remindCreated.code)
-    } yield RemindPasswordAnswer(status = "ok")
-  }
+      resetPw ← * <~ CustomerPasswordReset
+                 .optionFromCustomer(customer)
+                 .toXor(CustomerHasNoEmail(customer.id).single)
+      resetPwCreated ← * <~ CustomerPasswordResets.create(resetPw)
+      _              ← * <~ LogActivity.customerRemindPassword(customer, resetPwCreated.code)
+    } yield ResetPasswordSendAnswer(status = "ok")
 
-  def resetPassword(code: String, newPassword: String)(implicit ec: EC,
-                                                       db: DB,
-                                                       ac: AC): DbResultT[ResetPasswordAnswer] = {
+  def resetPassword(
+      code: String,
+      newPassword: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[ResetPasswordDoneAnswer] = {
     for {
       remind ← * <~ CustomerPasswordResets
                 .findActiveByCode(code)
-                .mustFindOr(ResetPasswordCodeInvalid)
+                .mustFindOr(ResetPasswordCodeInvalid(code))
       customer ← * <~ Customers.mustFindById404(remind.customerId)
       _ ← * <~ CustomerPasswordResets.update(remind,
                                              remind.copy(state =
                                                            CustomerPasswordReset.PasswordRestored,
-                                                         activatedAt = Option(Instant.now)))
+                                                         activatedAt = Instant.now.some))
       updatedCustomer ← * <~ Customers.update(customer, customer.updatePassword(newPassword))
       _               ← * <~ LogActivity.customerPasswordReset(updatedCustomer)
-    } yield ResetPasswordAnswer(status = "ok")
+    } yield ResetPasswordDoneAnswer(status = "ok")
   }
 
   private def resolvePhoneNumber(customerId: Int)(implicit ec: EC): DbResultT[Option[String]] = {

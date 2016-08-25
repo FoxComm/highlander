@@ -27,11 +27,11 @@ object CustomerFailures {
     override def description = s"Password reset procedure already initiated for email $email"
   }
 
-  case object CustomerHasNoEmail extends Failure {
-    override def description = "Customer don't have email"
+  case class CustomerHasNoEmail(customerId: Int) extends Failure {
+    override def description = s"Customer $customerId has no email"
   }
 
-  case object ResetPasswordCodeInvalid extends Failure {
-    override def description = "Reset password code is not valid"
+  case class ResetPasswordCodeInvalid(code: String) extends Failure {
+    override def description = s"Reset password code $code is not valid"
   }
 }

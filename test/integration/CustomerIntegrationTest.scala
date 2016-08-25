@@ -674,26 +674,22 @@ class CustomerIntegrationTest
     }
   }
 
-  "POST /v1/public/remind-password" - {
+  "POST /v1/public/send-password-reset" - {
     "Successfully creates remind" in new Fixture {
       val email    = customer.email.value
-      val response = POST(s"v1/public/remind-password", RemindPassword(email))
+      val response = POST(s"v1/public/send-password-reset", ResetPasswordSend(email))
       response.status must === (StatusCodes.OK)
 
-      val remindOpt = CustomerPasswordResets.filter(_.email === email).one.gimme
-      remindOpt mustBe 'defined
-      val remind = remindOpt.value
-      remind.state must === (CustomerPasswordReset.Initial)
-      remind.email must === (email)
+      val resetPw = CustomerPasswordResets.filter(_.email === email).one.gimme.value
+      resetPw.state must === (CustomerPasswordReset.Initial)
+      resetPw.email must === (email)
     }
 
     "fails if customer already have active remind" in new Fixture {
       val email = customer.email.value
-      val remind = CustomerPasswordResets
-        .create(CustomerPasswordReset.optionFromCustomer(customer).value)
-        .gimme
+      CustomerPasswordResets.create(CustomerPasswordReset.optionFromCustomer(customer).value).gimme
 
-      val response = POST(s"v1/public/remind-password", RemindPassword(email))
+      val response = POST(s"v1/public/send-password-reset", ResetPasswordSend(email))
       response.status must === (StatusCodes.BadRequest)
       response.error must === (PasswordResetAlreadyInitiated(email).description)
     }
@@ -701,34 +697,34 @@ class CustomerIntegrationTest
 
   "POST /v1/public/reset-password" - {
     "Successfully reset password" in new Fixture {
-      val remind = CustomerPasswordResets
+      val resetPw = CustomerPasswordResets
         .create(CustomerPasswordReset.optionFromCustomer(customer).value)
         .gimme
 
       val response =
-        POST(s"v1/public/reset-password", ResetPassword(code = remind.code, newPassword = "456"))
+        POST(s"v1/public/reset-password", ResetPassword(code = resetPw.code, newPassword = "456"))
       response.status must === (StatusCodes.OK)
       val updatedCustomer = Customers.mustFindById404(customer.id).gimme
       updatedCustomer.hashedPassword must !==(customer.hashedPassword)
 
-      val newRemind = CustomerPasswordResets.mustFindById404(remind.id).gimme
-      newRemind.state must === (CustomerPasswordReset.PasswordRestored)
-      newRemind.activatedAt mustBe 'defined
+      val newResetPw = CustomerPasswordResets.mustFindById404(resetPw.id).gimme
+      newResetPw.state must === (CustomerPasswordReset.PasswordRestored)
+      newResetPw.activatedAt mustBe 'defined
     }
 
     "fails if customer reset code is already used" in new Fixture {
-      val remind = CustomerPasswordResets
+      val resetPw = CustomerPasswordResets
         .create(CustomerPasswordReset.optionFromCustomer(customer).value)
         .gimme
 
       val response =
-        POST(s"v1/public/reset-password", ResetPassword(code = remind.code, newPassword = "456"))
+        POST(s"v1/public/reset-password", ResetPassword(code = resetPw.code, newPassword = "456"))
       response.status must === (StatusCodes.OK)
 
       val response2 =
-        POST(s"v1/public/reset-password", ResetPassword(code = remind.code, newPassword = "456"))
+        POST(s"v1/public/reset-password", ResetPassword(code = resetPw.code, newPassword = "456"))
       response2.status must === (StatusCodes.BadRequest)
-      response2.error must === (ResetPasswordCodeInvalid.description)
+      response2.error must === (ResetPasswordCodeInvalid(resetPw.code).description)
     }
   }
 

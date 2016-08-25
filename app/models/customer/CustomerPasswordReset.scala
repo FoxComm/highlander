@@ -29,6 +29,7 @@ object CustomerPasswordReset {
 
   case object Initial          extends State
   case object EmailSended      extends State
+  case object Disabled         extends State
   case object PasswordRestored extends State
 
   object State extends ADT[State] {
@@ -69,22 +70,20 @@ object CustomerPasswordResets
 
   val returningLens: Lens[CustomerPasswordReset, Int] = lens[CustomerPasswordReset].id
 
-  def findActiveByCode(code: String): DBIO[Option[CustomerPasswordReset]] = {
+  def findActiveByCode(code: String): DBIO[Option[CustomerPasswordReset]] =
     filter(c ⇒ c.code === code && c.state === (Initial: State)).one
-  }
 
   object scope {
     import CustomerPasswordReset._
 
     implicit class QuerySeqConversions(query: QuerySeq) {
 
-      def findActiveByEmail(email: String): QuerySeq = {
-        filter(c ⇒ c.email === email && c.state =!= (PasswordRestored: State))
-      }
+      def findActiveByEmail(email: String): QuerySeq =
+        filter(c ⇒ c.email === email && c.state == (Initial: State))
 
-      def mustBeNotActivated(email: String)(implicit ec: EC): DbResultT[Unit] = {
+      def mustBeNotActivated(email: String)(implicit ec: EC): DbResultT[Unit] =
         findActiveByEmail(email).one.mustNotFindOr(PasswordResetAlreadyInitiated(email))
-      }
+
     }
   }
 }

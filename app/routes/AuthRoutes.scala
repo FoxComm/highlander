@@ -30,9 +30,9 @@ object AuthRoutes {
         }
       } ~
       activityContext() { implicit ac ⇒
-        (post & path("remind-password") & pathEnd & entity(as[RemindPassword])) { payload ⇒
+        (post & path("send-password-reset") & pathEnd & entity(as[ResetPasswordSend])) { payload ⇒
           mutateOrFailures {
-            CustomerManager.remindPassword(payload.email)
+            CustomerManager.resetPasswordSend(payload.email)
           }
         } ~
         (post & path("reset-password") & pathEnd & entity(as[ResetPassword])) { payload ⇒
