@@ -7,10 +7,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/FoxComm/middlewarehouse/api/payloads"
 	"github.com/FoxComm/middlewarehouse/common/async"
+	"github.com/FoxComm/middlewarehouse/common/config"
 	"github.com/FoxComm/middlewarehouse/models"
 	"github.com/FoxComm/middlewarehouse/repositories"
 
@@ -211,9 +211,6 @@ func (service *shipmentService) capturePayment(shipment *models.Shipment) error 
 		capture.Items = append(capture.Items, cLineItem)
 	}
 
-	phoenixURL := os.Getenv("PHOENIX_URL")
-	jwt := os.Getenv("JWT")
-
 	b, err := json.Marshal(&capture)
 	if err != nil {
 		log.Printf("Error marshalling")
@@ -222,7 +219,7 @@ func (service *shipmentService) capturePayment(shipment *models.Shipment) error 
 
 	log.Printf("Payload: %s", string(b))
 
-	url := fmt.Sprintf("%s/v1/service/capture", phoenixURL)
+	url := fmt.Sprintf("%s/v1/service/capture", config.Config.PhoenixURL)
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(b))
 	if err != nil {
 		log.Printf("Error creating post")
@@ -230,7 +227,7 @@ func (service *shipmentService) capturePayment(shipment *models.Shipment) error 
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("JWT", jwt)
+	req.Header.Set("JWT", config.Config.PhoenixJWT)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
