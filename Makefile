@@ -15,7 +15,6 @@ build:
 	go build -o middlewarehouse main.go
 	go build -o consumers/shipments/shipments-consumer consumers/shipments/*.go
 	go build -o consumers/stock-items/stock-items-consumer consumers/stock-items/*.go
-	go build -o consumers/capture/capture-consumer consumers/capture/*.go
 
 build-linux:
 	GOOS=linux $(MAKE) build
@@ -50,10 +49,8 @@ create-user:
 test-consumers:
 	GOENV=test cd consumers/shipments && go test -v ./...
 	GOENV=test cd consumers/stock-items && go test -v ./...
-	GOENV=test cd consumers/capture && go test -v ./...
 
 test: $(TESTDIRS)
 $(TESTDIRS): PACKAGE = $(@:test-%=%)
 $(TESTDIRS):
 	cd $(PACKAGE) && GOENV=test go test ./...
-
