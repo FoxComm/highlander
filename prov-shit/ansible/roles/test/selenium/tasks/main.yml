@@ -1,0 +1,18 @@
+---
+
+- name: Add Chrome apt key
+  apt_key: url=https://dl-ssl.google.com/linux/linux_signing_key.pub
+  sudo: true
+
+- name: Add Chrome apt repository
+  apt_repository: repo='{{ item }}' state=present update_cache=yes
+  with_items:
+    - deb http://dl.google.com/linux/chrome/deb/ stable main
+  sudo: true
+
+- name: Add Chrome and dependencies
+  apt: name={{ item }} force=yes state=latest
+  with_items:
+    - google-chrome-stable
+    - xvfb
+  sudo: true
