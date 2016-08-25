@@ -28,7 +28,7 @@ object CustomerPasswordReset {
   sealed trait State
 
   case object Initial          extends State
-  case object EmailSended      extends State
+  case object EmailSend        extends State
   case object Disabled         extends State
   case object PasswordRestored extends State
 
