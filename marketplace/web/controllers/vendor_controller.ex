@@ -28,4 +28,19 @@ defmodule Marketplace.VendorController do
     vendor = Repo.get!(Vendor, id)
     render(conn, "show.json", vendor: vendor)
   end
+
+  def update(conn, %{"vendor" => vendor_params}) do 
+    changeset = Vendor.changeset(%Vendor{}, vendor_params)
+    case Repo.update(changeset) do
+      {:ok, vendor} -> 
+        conn 
+        |> put_status(:updated)
+        |> put_resp_header("location", vendor_path(conn, :show, vendor))
+        |> render("vendor.json", vendor: vendor)
+      {:error, changeset} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(Marketplace.ChangesetView, "error.json", changeset: changeset)
+    end
+  end
 end

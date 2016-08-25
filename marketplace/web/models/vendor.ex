@@ -32,6 +32,11 @@ defmodule Marketplace.Vendor do
 
   def changeset(model, params \\ :empty) do
     model 
-    |> cast(params, @required_fields, @optional_fields)
+    |> cast(params, ~w(name description), ~w(state))
+  end
+
+  def update_changeset(model, params \\ :empty) do
+    model 
+    |> cast(params, ~w(id), ~w(name description state))
   end
 end
