@@ -9,10 +9,8 @@ defmodule Marketplace.Vendor do
     timestamps
   end
 
-  @required_fields ~w(name description)
-  @optional_fields ~w(state)
   @states ~w(new approved suspended cancelled)a
-  
+
   use EctoStateMachine,
     states: @states,
     events: [
@@ -33,12 +31,12 @@ defmodule Marketplace.Vendor do
 
   def changeset(model, params \\ :empty) do
     model 
-    |> cast(params, ~w(name description), ~w(state))
+    |> cast(params, ~w(name description state), ~w())
   end
 
   def update_changeset(model, params \\ :empty) do
     model 
-    |> cast(params, ~w(id), ~w(name description state))
+    |> cast(params,  ~w(name description state), ~w())
     |> make_valid_state_change
   end
 
