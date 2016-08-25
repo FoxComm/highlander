@@ -52,12 +52,20 @@ object CustomerManager {
       customer ← * <~ Customers
                   .activeCustomerByEmail(Option(email))
                   .mustFindOneOr(NotFoundFailure404(Customer, email))
-      _ ← * <~ CustomerPasswordResets.mustBeNotActivated(email)
-      resetPw ← * <~ CustomerPasswordReset
-                 .optionFromCustomer(customer)
-                 .toXor(CustomerHasNoEmail(customer.id).single)
-      resetPwCreated ← * <~ CustomerPasswordResets.create(resetPw)
-      _              ← * <~ LogActivity.customerRemindPassword(customer, resetPwCreated.code)
+      resetPwInstance ← * <~ CustomerPasswordReset
+                         .optionFromCustomer(customer)
+                         .toXor(CustomerHasNoEmail(customer.id).single)
+      findOrCreate ← * <~ CustomerPasswordResets
+                      .findActiveByEmail(email)
+                      .one
+                      .findOrCreateExtended(CustomerPasswordResets.create(resetPwInstance))
+      (resetPw, foundOrCreated) = findOrCreate
+      updatedResetPw ← * <~ (foundOrCreated match {
+                            case Found ⇒
+                              CustomerPasswordResets.update(resetPw, resetPw.updateCode())
+                            case Created ⇒ DbResultT.good(resetPw)
+                          })
+      _ ← * <~ LogActivity.customerRemindPassword(customer, updatedResetPw.code)
     } yield ResetPasswordSendAnswer(status = "ok")
 
   def resetPassword(

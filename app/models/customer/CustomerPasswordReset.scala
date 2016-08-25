@@ -8,10 +8,8 @@ import slick.driver.PostgresDriver.api._
 import utils.ADT
 import utils.db._
 import CustomerPasswordReset.{Initial, State}
-import failures.CustomerFailures.PasswordResetAlreadyInitiated
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
-import utils.aliases.EC
 import utils.generateUuid
 
 case class CustomerPasswordReset(id: Int = 0,
@@ -21,7 +19,11 @@ case class CustomerPasswordReset(id: Int = 0,
                                  code: String,
                                  activatedAt: Option[Instant] = None,
                                  createdAt: Instant = Instant.now)
-    extends FoxModel[CustomerPasswordReset] {}
+    extends FoxModel[CustomerPasswordReset] {
+
+  def updateCode(): CustomerPasswordReset = this.copy(code = generateUuid)
+
+}
 
 object CustomerPasswordReset {
 
@@ -80,10 +82,6 @@ object CustomerPasswordResets
 
       def findActiveByEmail(email: String): QuerySeq =
         filter(c ⇒ c.email === email && c.state == (Initial: State))
-
-      def mustBeNotActivated(email: String)(implicit ec: EC): DbResultT[Unit] =
-        findActiveByEmail(email).one.mustNotFindOr(PasswordResetAlreadyInitiated(email))
-
     }
   }
 }
