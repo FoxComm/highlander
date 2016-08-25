@@ -23,8 +23,7 @@ object CartShippingMethodUpdater {
       es: ES,
       db: DB,
       ac: AC,
-      ctx: OC,
-      apis: Apis): DbResultT[TheResponse[CartResponse]] =
+      ctx: OC): DbResultT[TheResponse[CartResponse]] =
     for {
       cart           ← * <~ getCartByOriginator(originator, refNum)
       oldShipMethod  ← * <~ ShippingMethods.forCordRef(cart.refNum).one
@@ -57,8 +56,7 @@ object CartShippingMethodUpdater {
       es: ES,
       db: DB,
       ac: AC,
-      ctx: OC,
-      apis: Apis): DbResultT[TheResponse[CartResponse]] =
+      ctx: OC): DbResultT[TheResponse[CartResponse]] =
     for {
       cart ← * <~ getCartByOriginator(originator, refNum)
       shipMethod ← * <~ ShippingMethods

@@ -34,7 +34,7 @@ import utils.apis.Apis
 
 trait OrderGenerator extends ShipmentSeeds {
 
-  def orderGenerators()(implicit db: DB, apis: Apis) =
+  def orderGenerators()(implicit db: DB) =
     List[(Int, ObjectContext, Seq[Int], GiftCard) ⇒ DbResultT[Order]](manualHoldOrder,
                                                                       manualHoldStoreCreditOrder,
                                                                       fraudHoldOrder,
@@ -42,7 +42,7 @@ trait OrderGenerator extends ShipmentSeeds {
                                                                       shippedOrderUsingGiftCard,
                                                                       shippedOrderUsingCreditCard)
 
-  def cartGenerators()(implicit db: DB, apis: Apis) =
+  def cartGenerators()(implicit db: DB) =
     List[(Int, ObjectContext, Seq[Int], GiftCard) ⇒ DbResultT[Cart]](cartOrderUsingGiftCard,
                                                                      cartOrderUsingCreditCard)
 
@@ -59,7 +59,7 @@ trait OrderGenerator extends ShipmentSeeds {
   def generateOrders(customerId: Int,
                      context: ObjectContext,
                      skuIds: Seq[Int],
-                     giftCard: GiftCard)(implicit db: DB, apis: Apis): DbResultT[Unit] = {
+                     giftCard: GiftCard)(implicit db: DB): DbResultT[Unit] = {
     val cartFunctions  = cartGenerators
     val orderFunctions = orderGenerators
     val cartIdx        = Random.nextInt(cartFunctions.length)
@@ -174,7 +174,7 @@ trait OrderGenerator extends ShipmentSeeds {
   def cartOrderUsingGiftCard(accountId: Int,
                              context: ObjectContext,
                              skuIds: Seq[Int],
-                             giftCard: GiftCard)(implicit db: DB, apis: Apis): DbResultT[Cart] = {
+                             giftCard: GiftCard)(implicit db: DB): DbResultT[Cart] = {
 
     for {
       cart   ← * <~ Carts.create(Cart(accountId = accountId))
@@ -195,7 +195,7 @@ trait OrderGenerator extends ShipmentSeeds {
   def cartOrderUsingCreditCard(accountId: Int,
                                context: ObjectContext,
                                skuIds: Seq[Int],
-                               giftCard: GiftCard)(implicit db: DB, apis: Apis): DbResultT[Cart] =
+                               giftCard: GiftCard)(implicit db: DB): DbResultT[Cart] =
     for {
       cart ← * <~ Carts.create(Cart(accountId = accountId))
       _    ← * <~ addProductsToCart(skuIds, cart.refNum)

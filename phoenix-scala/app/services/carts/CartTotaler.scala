@@ -57,19 +57,17 @@ object CartTotaler {
     } yield sum
 
   def taxesTotal(cart: Cart, subTotal: Int, shipping: Int, adjustments: Int)(
-      implicit ec: EC,
-      apis: Apis): DbResultT[Int] =
+      implicit ec: EC): DbResultT[Int] =
     for {
       maybeAddress ← * <~ OrderShippingAddresses.findByOrderRef(cart.refNum).one
       taxRate = maybeAddress.map { address ⇒
-        for {
-          taxResponse ← * <~ apis.avalaraApi.getTaxForCart()
-        } yield caTaxRate
+        if (address.regionId == californiaId) caTaxRate
+        else defaultTaxRate
       }.getOrElse(defaultTaxRate)
     } yield
       ((subTotal - adjustments + shipping) * defaultTaxRate).toInt //ToDo @Eugene: replace defaultTaxRate
 
-  def totals(cart: Cart)(implicit ec: EC, apis: Apis): DbResultT[Totals] =
+  def totals(cart: Cart)(implicit ec: EC): DbResultT[Totals] =
     for {
       sub  ← * <~ subTotal(cart)
       ship ← * <~ shippingTotal(cart)
@@ -77,7 +75,7 @@ object CartTotaler {
       tax  ← * <~ taxesTotal(cart = cart, subTotal = sub, shipping = ship, adjustments = adj)
     } yield Totals.build(subTotal = sub, shipping = ship, adjustments = adj, taxes = tax)
 
-  def saveTotals(cart: Cart)(implicit ec: EC, apis: Apis): DbResultT[Cart] =
+  def saveTotals(cart: Cart)(implicit ec: EC): DbResultT[Cart] =
     for {
       t ← * <~ totals(cart)
       withTotals = cart.copy(subTotal = t.subTotal,
