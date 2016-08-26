@@ -225,8 +225,16 @@ function receiveCart(state, payload) {
   };
 }
 
+function resetCart(state) {
+  return {
+    ...state,
+    ...initialState,
+  };
+}
+
 const reducer = createReducer({
   [_fetchCart.succeeded]: receiveCart,
+  [_fetchCart.failed]: resetCart,
   [_fetchCustomerCart.succeeded]: receiveCart,
   [_updateLineItemCount.succeeded]: receiveCart,
   [_chooseShippingAddress.succeeded]: receiveCart,
