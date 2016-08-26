@@ -8,6 +8,10 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+const (
+	ErroStockItemNotFound = "Not found stock item with id=%d"
+)
+
 type stockItemRepository struct {
 	db *gorm.DB
 }
@@ -39,7 +43,15 @@ func (repository *stockItemRepository) GetStockItemById(id uint) (*models.StockI
 	si := &models.StockItem{}
 	err := repository.db.First(si, id).Error
 
-	return si, err
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, fmt.Errorf(ErroStockItemNotFound, id)
+		}
+
+		return nil, err
+	}
+
+	return si, nil
 }
 
 func (repository *stockItemRepository) GetStockItemsBySKUs(skus []string) ([]*models.StockItem, error) {
@@ -53,6 +65,10 @@ func (repository *stockItemRepository) GetAFSByID(id uint, unitType models.UnitT
 	afs := &models.AFS{}
 
 	if err := repository.getAFSQuery(unitType).Where("si.id = ?", id).Find(afs).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, fmt.Errorf(ErroStockItemNotFound, id)
+		}
+
 		return nil, err
 	}
 
@@ -78,7 +94,17 @@ func (repository *stockItemRepository) CreateStockItem(stockItem *models.StockIt
 }
 
 func (repository *stockItemRepository) DeleteStockItem(stockItemId uint) error {
-	return repository.db.Delete(&models.StockItem{}, stockItemId).Error
+	result := repository.db.Delete(&models.StockItem{}, stockItemId)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return fmt.Errorf(ErroStockItemNotFound, stockItemId)
+	}
+
+	return nil
 }
 
 func (repository *stockItemRepository) UpsertStockItem(item *models.StockItem) error {
