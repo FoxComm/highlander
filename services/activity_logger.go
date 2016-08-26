@@ -37,13 +37,21 @@ const (
 	}`
 )
 
-func LogActivity(producer metamorphosis.Producer, activity activities.SiteActivity) error {
+type ActivityLogger struct {
+	producer metamorphosis.Producer
+}
+
+func NewActivityLogger(producer metamorphosis.Producer) *ActivityLogger {
+	return &ActivityLogger{producer}
+}
+
+func (a *ActivityLogger) Log(activity activities.SiteActivity) error {
 	rec, err := newRecord(activity)
 	if err != nil {
 		return err
 	}
 
-	return producer.Emit(topic, rec)
+	return a.producer.Emit(topic, rec)
 }
 
 type record struct {
