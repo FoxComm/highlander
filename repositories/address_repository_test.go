@@ -4,20 +4,19 @@ import (
 	"fmt"
 	"testing"
 
-	//"github.com/FoxComm/middlewarehouse/fixtures"
-	//"github.com/FoxComm/middlewarehouse/models"
 	"github.com/FoxComm/middlewarehouse/common/db/config"
 	"github.com/FoxComm/middlewarehouse/common/db/tasks"
-	"github.com/FoxComm/middlewarehouse/fixtures"
-
 	"github.com/FoxComm/middlewarehouse/common/tests"
+	"github.com/FoxComm/middlewarehouse/fixtures"
 	"github.com/FoxComm/middlewarehouse/models"
+
 	"github.com/stretchr/testify/suite"
 )
 
 type AddressRepositoryTestSuite struct {
 	GeneralRepositoryTestSuite
 	repository IAddressRepository
+	region1    *models.Region
 }
 
 func TestAddressRepositorySuite(t *testing.T) {
@@ -28,6 +27,8 @@ func (suite *AddressRepositoryTestSuite) SetupSuite() {
 	suite.db, _ = config.Connect(config.NewPGConfig())
 
 	suite.repository = NewAddressRepository(suite.db)
+	suite.region1 = &models.Region{}
+	suite.db.Preload("Country").First(suite.region1, 1)
 }
 
 func (suite *AddressRepositoryTestSuite) SetupTest() {
@@ -50,9 +51,7 @@ func (suite *AddressRepositoryTestSuite) Test_GetAddressByID_NotFound_ReturnsNot
 
 func (suite *AddressRepositoryTestSuite) Test_GetAddressByID_Found_ReturnsAddressModel() {
 	//arrange
-	country1 := fixtures.GetCountry(1)
-	region1 := fixtures.GetRegion(1, 1, country1)
-	address1 := fixtures.GetAddress(1, 1, region1)
+	address1 := fixtures.GetAddress(1, 1, suite.region1)
 	suite.db.Create(address1)
 
 	//act
@@ -66,9 +65,7 @@ func (suite *AddressRepositoryTestSuite) Test_GetAddressByID_Found_ReturnsAddres
 
 func (suite *AddressRepositoryTestSuite) Test_CreateAddress_ReturnsCreatedRecord() {
 	//arrange
-	country1 := fixtures.GetCountry(1)
-	region1 := fixtures.GetRegion(1, 1, country1)
-	address1 := fixtures.GetAddress(1, 1, region1)
+	address1 := fixtures.GetAddress(1, 1, suite.region1)
 
 	//act
 	address, err := suite.repository.CreateAddress(fixtures.GetAddress(0, 1, &models.Region{}))
@@ -89,9 +86,7 @@ func (suite *AddressRepositoryTestSuite) Test_DeleteAddress_NotFound_ReturnsNotF
 
 func (suite *AddressRepositoryTestSuite) Test_DeleteAddress_Found_ReturnsNoError() {
 	//arrange
-	country1 := fixtures.GetCountry(1)
-	region1 := fixtures.GetRegion(1, 1, country1)
-	address1 := fixtures.GetAddress(1, 1, region1)
+	address1 := fixtures.GetAddress(1, 1, suite.region1)
 	suite.db.Create(address1)
 
 	//act
