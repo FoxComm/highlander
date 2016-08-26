@@ -6,7 +6,6 @@ import:
   - package: github.com/lib/pq
   - package: github.com/Sirupsen/logrus
   - package: github.com/stretchr/testify
-  - package: github.com/DATA-DOG/go-sqlmock
   - package: github.com/FoxComm/metamorphosis
     vcs: git
     version: c859231aa299071ddce3db524cb06d6bd6003936
