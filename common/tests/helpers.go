@@ -1,20 +1,17 @@
 package tests
 
 import (
-	"fmt"
 	"reflect"
 	"time"
 )
 
 func SyncDates(models ...interface{}) {
-	fmt.Println()
 	for _, field := range []string{"CreatedAt", "UpdatedAt"} {
 		value := getTime(models[0], field)
 		for i := range models {
 			setTime(models[i], field, value)
 		}
 	}
-	fmt.Println()
 }
 
 func getField(model interface{}, field string) reflect.Value {
