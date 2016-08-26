@@ -57,7 +57,7 @@ class Promotions(tag: Tag) extends ObjectHeads[Promotion](tag, "promotions") {
 }
 
 object Promotions
-    extends FoxTableQuery[Promotion, Promotions](new Promotions(_))
+    extends ObjectHeadsQueries[Promotion, Promotions](new Promotions(_))
     with ReturningId[Promotion, Promotions] {
 
   val returningLens: Lens[Promotion, Int] = lens[Promotion].id

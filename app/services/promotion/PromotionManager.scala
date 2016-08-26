@@ -1,8 +1,11 @@
 package services.promotion
 
+import java.time.Instant
+
 import failures.NotFoundFailure404
 import failures.ObjectFailures._
 import failures.PromotionFailures._
+import models.coupon.Coupons
 import models.discount._
 import models.objects._
 import models.promotion._
@@ -10,6 +13,7 @@ import payloads.DiscountPayloads._
 import payloads.PromotionPayloads._
 import responses.PromotionResponses._
 import services.discount.DiscountManager
+import services.objects.ObjectManager
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
@@ -130,6 +134,34 @@ object PromotionManager {
     } yield
       PromotionResponse
         .build(promotion, updated.form, updated.shadow, discount.forms, discount.shadows)
+
+  def archiveByContextAndId(contextName: String, formId: Int)(
+      implicit ec: EC,
+      db: DB): DbResultT[PromotionResponse.Root] =
+    for {
+      context ← * <~ ObjectContexts
+                 .filterByName(contextName)
+                 .mustFindOneOr(ObjectContextNotFound(contextName))
+      fullObject ← * <~ ObjectManager.getFullObject(
+                      mustFindPromotionByContextAndFormId(context.id, formId))
+      model = fullObject.model
+      now   = Some(Instant.now)
+      archiveResult ← * <~ Promotions.update(model, model.copy(archivedAt = now))
+      coupons       ← * <~ Coupons.filterByContextAndPromotionId(context.id, archiveResult.id).result
+      _             ← * <~ coupons.map(coupon ⇒ Coupons.update(coupon, coupon.copy(archivedAt = now)))
+      discounts     ← * <~ PromotionDiscountLinks.queryRightByLeft(archiveResult)
+      discountForms   = discounts.map(_.form)
+      discountShadows = discounts.map(_.shadow)
+    } yield
+      PromotionResponse
+        .build(archiveResult, fullObject.form, fullObject.shadow, discountForms, discountShadows)
+
+  private def mustFindPromotionByContextAndFormId(contextId: Int, formId: Int)(
+      implicit ec: EC,
+      db: DB): DbResultT[Promotion] =
+    Promotions
+      .findOneByContextAndFormId(contextId, formId)
+      .mustFindOneOr(NotFoundFailure404(Promotion, formId))
 
   private case class UpdateDiscountsResult(forms: Seq[ObjectForm], shadows: Seq[ObjectShadow])
 

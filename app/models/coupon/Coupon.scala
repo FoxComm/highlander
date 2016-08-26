@@ -52,4 +52,7 @@ object Coupons
 
   def filterByContextAndFormId(contextId: Int, formId: Int): QuerySeq =
     filter(_.contextId === contextId).filter(_.formId === formId)
+
+  def filterByContextAndPromotionId(contextId: Int, promotionId: Int): QuerySeq =
+    filterByContext(contextId).filter(_.promotionId === promotionId)
 }

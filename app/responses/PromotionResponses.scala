@@ -53,6 +53,7 @@ object PromotionResponses {
 
   object PromotionResponse {
     case class Root(applyType: Promotion.ApplyType,
+                    archivedAt: Option[Instant],
                     form: PromotionAndDiscountFormResponse.Root,
                     shadow: PromotionShadowResponse.Root)
         extends ResponseItem
@@ -63,6 +64,7 @@ object PromotionResponses {
               discountForms: Seq[ObjectForm],
               discountShadows: Seq[ObjectShadow]): Root =
       Root(applyType = promotion.applyType,
+           archivedAt = promotion.archivedAt,
            form = PromotionAndDiscountFormResponse.build(f, discountForms),
            shadow = PromotionShadowResponse.build(s, discountShadows))
   }
