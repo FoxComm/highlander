@@ -11,9 +11,10 @@ defmodule Marketplace.Vendor do
 
   @required_fields ~w(name description)
   @optional_fields ~w(state)
+  @states ~w(new approved suspended cancelled)a
   
   use EctoStateMachine,
-    states: [:new, :approved, :suspended, :cancelled],
+    states: @states,
     events: [
       [
         name: :approve,
@@ -38,5 +39,19 @@ defmodule Marketplace.Vendor do
   def update_changeset(model, params \\ :empty) do
     model 
     |> cast(params, ~w(id), ~w(name description state))
+    |> make_valid_state_change
+  end
+
+  def make_valid_state_change(changeset) do
+    case changeset.fetch_change(:state) do
+      {:error} -> 
+        changeset
+      {:ok, newValue} -> 
+        unless newValue in @states do 
+          changeset
+          |> add_error(:state, "Not a valid state.")
+        end
+        changeset.change(%{:state => newValue})
+    end
   end
 end
