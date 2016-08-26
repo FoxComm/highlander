@@ -18,5 +18,5 @@ func CreateDbMock() (*gorm.DB, sqlmock.Sqlmock) {
 		panic(err)
 	}
 
-	return db.Debug(), mock
+	return db, mock
 }
