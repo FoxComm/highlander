@@ -59,7 +59,7 @@ lazy val phoenixScala = (project in file(".")).
         // Database
         "com.github.tminglei"        %% "slick-pg"               % slickPgV,
         "com.github.tminglei"        %% "slick-pg_json4s"        % slickPgV,
-        "com.zaxxer"                 %  "HikariCP"               % "2.4.7"    % "provided",
+        "com.zaxxer"                 %  "HikariCP"               % "2.4.7"  % "provided",
         "org.postgresql"             %  "postgresql"             % "9.4.1208",
         "org.flywaydb"               %  "flyway-core"            % "4.0.3",
         "com.github.mauricio"        %% "postgresql-async"       % "0.2.20",
