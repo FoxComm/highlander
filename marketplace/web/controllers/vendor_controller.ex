@@ -32,7 +32,7 @@ defmodule Marketplace.VendorController do
   def update(conn, %{"id" => id, "vendor" => vendor_params}) do 
     vendor = Repo.get!(Vendor, id)
     changeset = Vendor.update_changeset(vendor, vendor_params)
-    case Repo.update(changeset) do
+    case Repo.update(IO.inspect(changeset)) do
       {:ok, vendor} -> 
         conn 
         |> render("vendor.json", vendor: vendor)
