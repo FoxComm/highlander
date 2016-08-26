@@ -1,9 +1,8 @@
-
 /* @flow */
 
 // libs
 import _ from 'lodash';
-import React, { Component, PropTypes, Element } from 'react';
+import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -17,28 +16,49 @@ import WaitAnimation from '../common/wait-animation';
 import ButtonWithMenu from '../common/button-with-menu';
 import ErrorAlerts from '../alerts/error-alerts';
 import Error from '../errors/error';
+import ArchiveActionsSection from '../archive-actions/archive-actions';
 
 // styles
 import styles from './form.css';
 
-// redux
+// actions
 import * as CouponActions from '../../modules/coupons/details';
+import * as ArchiveActions from '../../modules/coupons/archive';
 
+//helpers
+import { isArchived } from 'paragons/common';
+import { transitionTo } from 'browserHistory';
 import { SAVE_COMBO, SAVE_COMBO_ITEMS } from 'paragons/common';
 
-type CouponPageState = {
+type State = {
   promotionError: boolean,
 };
 
-type CouponPageParams = {
+type Params = {
   couponId: string,
 };
 
-type CouponPageProps = {
-  params: CouponPageParams,
+type Actions = {
+  couponsNew: Function,
+  fetchCoupon: () => Promise,
+  createCoupon: Function,
+  updateCoupon: Function,
+  generateCode: Function,
+  couponsChange: Function,
+  couponsResetId: Function,
+  clearFetchErrors: Function,
+  reset: Function,
+  codeIsOfValidLength: Function,
+  couponsGenerationShowDialog: Function,
+  couponsGenerationReset: Function,
+  clearSubmitErrors: Function,
+};
+
+type Props = {
+  params: Params,
   coupon: Object,
   codeGeneration: Object,
-  actions: Object,
+  actions: Actions,
   dispatch: Function,
   details: Object,
   children: Element,
@@ -46,13 +66,13 @@ type CouponPageProps = {
   isSaving: boolean,
   fetchError: any,
   submitError: any,
+  archiveCoupon: Function,
 };
 
 class CouponPage extends Component {
+  props: Props;
 
-  props: CouponPageProps;
-
-  state: CouponPageState = {
+  state: State = {
     promotionError: false,
   };
 
@@ -61,11 +81,14 @@ class CouponPage extends Component {
     if (this.isNew) {
       this.props.actions.couponsNew();
     } else {
-      this.props.actions.fetchCoupon(this.entityId);
+      this.props.actions.fetchCoupon(this.entityId)
+        .then(({payload}) => {
+          if (isArchived(payload)) transitionTo('coupons');
+        });
     }
   }
 
-  componentWillReceiveProps(nextProps: CouponPageProps): void {
+  componentWillReceiveProps(nextProps: Props): void {
     const { isFetching } = nextProps;
 
     if (!isFetching) {
@@ -217,6 +240,21 @@ class CouponPage extends Component {
     return this.props.actions.createCoupon(this.coupon);
   }
 
+  renderArchiveActions() {
+    return(
+      <ArchiveActionsSection type="Coupon"
+                             title={this.pageTitle}
+                             archive={this.archiveCoupon} />
+    );
+  }
+
+  @autobind
+  archiveCoupon() {
+    this.props.archiveCoupon(this.props.params.couponId).then(() => {
+      transitionTo('coupons');
+    });
+  }
+
   render(): Element {
     const props = this.props;
     const coupon = this.coupon;
@@ -266,6 +304,8 @@ class CouponPage extends Component {
           <ErrorAlerts error={this.props.submitError} closeAction={actions.clearSubmitErrors} />
           {children}
         </div>
+
+        {!this.isNew && this.renderArchiveActions()}
       </div>
     );
   }
@@ -286,5 +326,9 @@ export default connect(
       _.get(state.asyncActions, 'updateCoupon.err')
     )
   }),
-  dispatch => ({ actions: bindActionCreators(CouponActions, dispatch), dispatch })
+  dispatch => ({
+    actions: bindActionCreators(CouponActions, dispatch),
+    ...bindActionCreators(ArchiveActions, dispatch),
+    dispatch
+  })
 )(CouponPage);

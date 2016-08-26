@@ -2,11 +2,14 @@
  * @flow
  */
 
-import React, { PropTypes, Element } from 'react';
-
+//libs
+import React, { Element } from 'react';
 import _ from 'lodash';
-import { activeStatus } from '../../paragons/common';
 
+// helpers
+import { activeStatus, isArchived } from 'paragons/common';
+
+// components
 import RoundedPill from '../rounded-pill/rounded-pill';
 import MultiSelectRow from '../table/multi-select-row';
 
@@ -32,22 +35,24 @@ const setCellContents = (coupon: Object, field: string) => {
 const CouponRow = (props: CouponRowProps) => {
   const { coupon, columns, params } = props;
   const key = `coupon-${coupon.id}`;
+  const commonParams = {
+    columns,
+    row: coupon,
+    setCellContents,
+    params,
+  };
+
+  if (isArchived(coupon)) {
+    return <MultiSelectRow {...commonParams} />;
+  }
 
   return (
     <MultiSelectRow
-      columns={columns}
+      {...commonParams}
       linkTo="coupon-details"
       linkParams={{couponId: coupon.id}}
-      row={coupon}
-      setCellContents={setCellContents}
-      params={params} />
+    />
   );
-};
-
-CouponRow.propTypes = {
-  coupon: PropTypes.object,
-  columns: PropTypes.array,
-  params: PropTypes.object,
 };
 
 export default CouponRow;
