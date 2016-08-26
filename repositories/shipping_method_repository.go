@@ -1,9 +1,15 @@
 package repositories
 
 import (
+	"fmt"
+
 	"github.com/FoxComm/middlewarehouse/models"
 
 	"github.com/jinzhu/gorm"
+)
+
+const (
+	ErrorShippingMethodNotFound = "Not found shipping method with id=%d"
 )
 
 type shippingMethodRepository struct {
@@ -34,6 +40,10 @@ func (repository *shippingMethodRepository) GetShippingMethodByID(id uint) (*mod
 	shippingMethod := &models.ShippingMethod{}
 
 	if err := repository.db.First(shippingMethod, id).Related(&shippingMethod.Carrier).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, fmt.Errorf(ErrorShippingMethodNotFound, id)
+		}
+
 		return nil, err
 	}
 
@@ -58,7 +68,7 @@ func (repository *shippingMethodRepository) UpdateShippingMethod(shippingMethod 
 	}
 
 	if result.RowsAffected == 0 {
-		return nil, gorm.ErrRecordNotFound
+		return nil, fmt.Errorf(ErrorShippingMethodNotFound, shippingMethod.ID)
 	}
 
 	return repository.GetShippingMethodByID(shippingMethod.ID)
@@ -72,7 +82,7 @@ func (repository *shippingMethodRepository) DeleteShippingMethod(id uint) error 
 	}
 
 	if res.RowsAffected == 0 {
-		return gorm.ErrRecordNotFound
+		return fmt.Errorf(ErrorShippingMethodNotFound, id)
 	}
 
 	return nil
