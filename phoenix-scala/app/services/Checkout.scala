@@ -5,13 +5,14 @@ import scala.util.Random
 import cats.data.Xor
 import cats.implicits._
 import failures.CouponFailures.CouponWithCodeCannotBeFound
-import failures.GeneralFailure
+import failures.{GeneralFailure, NotFoundFailure400}
 import failures.PromotionFailures.PromotionNotFoundForContext
 import models.cord._
 import models.cord.lineitems.CartLineItems
 import models.cord.lineitems.CartLineItems.scope._
 import models.coupon._
 import models.account._
+import models.location._
 import models.customer._
 import models.objects._
 import models.payment.creditcard._
@@ -241,7 +242,17 @@ case class Checkout(
 
   private def finalizeTaxes(): DbResultT[Unit] =
     for {
-      _ ← * <~ apis.avalaraApi.getTaxForOrder()
+      lineItems ← * <~ CartLineItems.byCordRef(cart.refNum).lineItems.result
+      address ← * <~ OrderShippingAddresses
+                 .findByOrderRef(cart.refNum)
+                 .mustFindOneOr(NotFoundFailure400(OrderShippingAddress, cart.refNum))
+      region  ← * <~ Regions.mustFindById404(address.regionId)
+      country ← * <~ Countries.mustFindById404(region.countryId)
+      _ ← * <~ apis.avalaraApi.getTaxForOrder(cart,
+                                              lineItems,
+                                              Address.fromOrderShippingAddress(address),
+                                              region,
+                                              country)
     } yield DbResultT.unit
 
 }

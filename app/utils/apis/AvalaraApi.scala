@@ -3,7 +3,7 @@ package utils.apis
 import java.net.URLEncoder
 import java.time.Instant
 
-import scala.collection.immutable._
+import scala.collection.immutable.{Seq ⇒ ImmutableSeq}
 import scala.concurrent.Future
 import akka.http.scaladsl.Http
 import scala.util.{Failure, Success}
@@ -22,20 +22,30 @@ import org.json4s.jackson.Serialization._
 import org.json4s.ext._
 import com.pellucid.sealerate
 import failures.AvalaraFailures._
+import models.cord.{Cart, OrderShippingAddresses}
+import models.cord.lineitems.CartLineItems.FindLineItemResult
 import models.location._
 import services.Result
 import utils.{ADT, Money, time}
 import utils.FoxConfig._
 import utils.aliases.EC
-import utils.apis.Avalara.AddressBuilder
+import utils.apis.Avalara.PayloadBuilder
 import utils.apis.Avalara.Responses._
 
 trait AvalaraApi {
 
   def validateAddress(address: Address, region: Region, country: Country)(
       implicit ec: EC): Result[Unit]
-  def getTaxForCart()(implicit ec: EC): Result[Unit]
-  def getTaxForOrder()(implicit ec: EC): Result[Unit]
+  def getTaxForCart(cart: Cart,
+                    lineItems: Seq[FindLineItemResult],
+                    address: Address,
+                    region: Region,
+                    country: Country)(implicit ec: EC): Result[Unit]
+  def getTaxForOrder(cart: Cart,
+                     lineItems: Seq[FindLineItemResult],
+                     address: Address,
+                     region: Region,
+                     country: Country)(implicit ec: EC): Result[Unit]
 
 }
 
@@ -51,6 +61,30 @@ object Avalara {
   case object P extends AddressType //PO box address
   case object R extends AddressType //Rural route address
   case object S extends AddressType //Street or residential address, probably, we will mostly use it
+
+  sealed trait DetailLevel
+  case object Tax        extends DetailLevel
+  case object Document   extends DetailLevel
+  case object Line       extends DetailLevel
+  case object Diagnostic extends DetailLevel
+
+  object DetailLevel extends AvalaraADT[DetailLevel] {
+    def types = sealerate.values[DetailLevel]
+  }
+
+  sealed trait DocType
+  case object SalesOrder           extends DocType
+  case object SalesInvoice         extends DocType
+  case object ReturnOrder          extends DocType
+  case object ReturnInvoice        extends DocType
+  case object PurchaseOrder        extends DocType
+  case object PurchaseInvoice      extends DocType
+  case object ReverseChargeOrder   extends DocType
+  case object ReverseChargeInvoice extends DocType
+
+  object DocType extends AvalaraADT[DocType] {
+    def types = sealerate.values[DocType]
+  }
 
   object AddressType extends AvalaraADT[AddressType] {
     def types = sealerate.values[AddressType]
@@ -82,8 +116,8 @@ object Avalara {
     }
   }
 
-  object AddressBuilder {
-    def fromAddress(address: Address, region: Region, country: Country): AvalaraAddress = {
+  object PayloadBuilder {
+    def buildAddress(address: Address, region: Region, country: Country): AvalaraAddress = {
       AvalaraAddress(Line1 = address.address1,
                      Line2 = address.address2,
                      City = address.city,
@@ -91,32 +125,49 @@ object Avalara {
                      Region = region.abbrev.getOrElse(""),
                      Country = country.code.getOrElse(""))
     }
+
+    def buildLine(lineItem: FindLineItemResult, idx: Int): Requests.Line = {
+      val (sku, form, shadow, otherShadow, cartItem) = lineItem;
+      Requests.Line(
+          LineNo = idx.toString,
+          ItemCode = sku.code,
+          Qty = BigDecimal(1),
+          Amount = BigDecimal(10)
+      )
+    }
+
+    def buildInvoice(cart: Cart,
+                     lineItems: Seq[FindLineItemResult],
+                     address: Address,
+                     region: Region,
+                     country: Country): Requests.GetTaxes = {
+      Requests.GetTaxes(
+          DocDate = Instant.now,
+          CustomerCode = cart.customerId.toString,
+          Addresses = Seq(buildAddress(address, region, country)),
+          Lines = lineItems.zipWithIndex.map(zipped ⇒ buildLine(zipped._1, zipped._2)),
+          DocCode = cart.referenceNumber,
+          DocType = SalesInvoice,
+          Commit = true
+      )
+    }
+
+    def buildOrder(cart: Cart,
+                   lineItems: Seq[FindLineItemResult],
+                   address: Address,
+                   region: Region,
+                   country: Country): Requests.GetTaxes = {
+      Requests.GetTaxes(
+          DocDate = Instant.now,
+          CustomerCode = cart.customerId.toString,
+          Addresses = Seq(buildAddress(address, region, country)),
+          Lines = lineItems.zipWithIndex.map(zipped ⇒ buildLine(zipped._1, zipped._2)),
+          DocCode = cart.referenceNumber
+      )
+    }
   }
 
   object Requests {
-    sealed trait DetailLevel
-    case object Tax        extends DetailLevel
-    case object Document   extends DetailLevel
-    case object Line       extends DetailLevel
-    case object Diagnostic extends DetailLevel
-
-    object DetailLevel extends AvalaraADT[DetailLevel] {
-      def types = sealerate.values[DetailLevel]
-    }
-
-    sealed trait DocType
-    case object SalesOrder           extends DocType
-    case object SalesInvoice         extends DocType
-    case object ReturnOrder          extends DocType
-    case object ReturnInvoice        extends DocType
-    case object PurchaseOrder        extends DocType
-    case object PurchaseInvoice      extends DocType
-    case object ReverseChargeOrder   extends DocType
-    case object ReverseChargeInvoice extends DocType
-
-    object DocType extends AvalaraADT[DocType] {
-      def types = sealerate.values[DocType]
-    }
 
     case class TaxOverrideDef(
         TaxOverrideType: String, //Limited permitted values: TaxAmount, Exemption, TaxDate
@@ -127,20 +178,20 @@ object Avalara {
 
     case class Line(
         LineNo: String, //Required
-        DestinationCode: String, //Required
-        OriginCode: String, //Required
+        DestinationCode: Option[String] = None, //Required
+        OriginCode: Option[String] = None, //Required
         ItemCode: String, //Required
         Qty: BigDecimal, //Required
         Amount: BigDecimal, //Required
-        TaxCode: String, //Best practice
-        CustomerUsageType: String,
-        Description: String, //Best Practice
-        Discounted: Boolean,
-        TaxIncluded: Boolean,
-        Ref1: String,
-        Ref2: String,
-        BusinessIdentificationNo: String,
-        TaxOverride: TaxOverrideDef
+        TaxCode: Option[String] = None, //Best practice
+        CustomerUsageType: Option[String] = None,
+        Description: Option[String] = None, //Best Practice
+        Discounted: Boolean = false,
+        TaxIncluded: Boolean = false,
+        Ref1: Option[String] = None,
+        Ref2: Option[String] = None,
+        BusinessIdentificationNo: Option[String] = None,
+        TaxOverride: Option[TaxOverrideDef] = None
     )
 
     case class GetTaxes(
@@ -151,23 +202,23 @@ object Avalara {
         Lines: Seq[Line],
         //Best Practice for tax calculation
         DocCode: String,
-        DocType: DocType,
-        CompanyCode: String,
-        Commit: Boolean,
-        DetailLevel: DetailLevel,
-        Client: String,
+        DocType: DocType = SalesOrder,
+        CompanyCode: Option[String] = None,
+        Commit: Boolean = false,
+        DetailLevel: DetailLevel = Tax,
+        Client: Option[String] = None,
         //Use where appropriate to the situation
-        CustomerUsageType: String,
-        ExemptionNo: String,
-        Discount: BigDecimal,
-        TaxOverride: TaxOverrideDef,
-        BusinessIdentificationNo: String,
+        CustomerUsageType: Option[String] = None,
+        ExemptionNo: Option[String] = None,
+        Discount: Option[BigDecimal] = None,
+        TaxOverride: Option[TaxOverrideDef] = None,
+        BusinessIdentificationNo: Option[String] = None,
         //Optional
-        PurchaseOrderNo: String,
-        PaymentDate: String,
-        ReferenceCode: String,
-        PosLaneCode: String,
-        CurrencyCode: String
+        PurchaseOrderNo: Option[String] = None,
+        PaymentDate: Option[String] = None,
+        ReferenceCode: Option[String] = None,
+        PosLaneCode: Option[String] = None,
+        CurrencyCode: Option[String] = None
     )
   }
 
@@ -258,12 +309,6 @@ object Avalara {
         ResultCode: Option[String],
         Messages: Seq[Message]
     )
-
-//    object TaxesSerializer extends CustomSerializer[GetTaxes](format ⇒ {
-//      case JString(s) ⇒ GetTaxes.fromString(s)
-//    }
-//    )
-
   }
 }
 
@@ -286,9 +331,7 @@ class Avalara()(implicit as: ActorSystem, am: ActorMaterializer) extends Avalara
           .toStrict(1.second)
           .map(_.data)
           .map(_.decodeString("utf-8"))
-          .map(json ⇒ { println(s"Deserialized to: $json"); json })
-          .map(
-              json ⇒ { println(s"Received $json"); val a = parse(json).extract[T]; println(a); a })
+          .map(json ⇒ parse(json).extract[T])
       }
     }
   }
@@ -299,8 +342,9 @@ class Avalara()(implicit as: ActorSystem, am: ActorMaterializer) extends Avalara
     val connectionFlow: Flow[HttpRequest, HttpResponse, Future[Http.OutgoingConnection]] =
       Http().outgoingConnectionHttps(url)
 
-    val headers: Seq[HttpHeader] = Seq(Authorization(BasicHttpCredentials(account, license)))
-    val payload                  = AddressBuilder.fromAddress(address, region, country)
+    val headers: ImmutableSeq[HttpHeader] = ImmutableSeq(
+        Authorization(BasicHttpCredentials(account, license)))
+    val payload = PayloadBuilder.buildAddress(address, region, country)
 
     val result: Future[Avalara.Responses.AddressValidation] = Source
       .single(HttpRequest(uri = s"/1.0/address/validate?${payload.toQuery}",
@@ -328,33 +372,40 @@ class Avalara()(implicit as: ActorSystem, am: ActorMaterializer) extends Avalara
     }
   }
 
-  override def getTaxForCart()(implicit ec: EC): Result[Unit] = {
-    getTax()
+  override def getTaxForCart(cart: Cart,
+                             lineItems: Seq[FindLineItemResult],
+                             address: Address,
+                             region: Region,
+                             country: Country)(implicit ec: EC): Result[Unit] = {
+    val payload = PayloadBuilder.buildOrder(cart, lineItems, address, region, country)
+    getTax(payload)
   }
 
-  override def getTaxForOrder()(implicit ec: EC): Result[Unit] = {
-    getTax()
+  override def getTaxForOrder(cart: Cart,
+                              lineItems: Seq[FindLineItemResult],
+                              address: Address,
+                              region: Region,
+                              country: Country)(implicit ec: EC): Result[Unit] = {
+    val payload = PayloadBuilder.buildInvoice(cart, lineItems, address, region, country)
+    getTax(payload)
   }
 
-  private def getTax()(implicit ec: EC): Result[Unit] = {
+  private def getTax(payload: Avalara.Requests.GetTaxes)(implicit ec: EC): Result[Unit] = {
     val (url, account, license, profile) = getConfig()
     val connectionFlow: Flow[HttpRequest, HttpResponse, Future[Http.OutgoingConnection]] =
       Http().outgoingConnectionHttps(url)
-    val headers: Seq[HttpHeader] = Seq(Authorization(BasicHttpCredentials(account, license)))
-
-//    val responseFuture: Future[HttpResponse] = Source
-//      .single(HttpRequest(uri = "/1.0/tax/get", method = HttpMethods.POST, headers = headers))
-//      .via(connectionFlow)
-//      .runWith(Sink.head)
+    val headers: ImmutableSeq[HttpHeader] = ImmutableSeq(
+        Authorization(BasicHttpCredentials(account, license)))
 
     val result: Future[Option[Avalara.Responses.SimpleErrorMessage]] = Source
-      .single(HttpRequest(uri = "/1.0/tax/get", method = HttpMethods.POST, headers = headers))
+      .single(
+          HttpRequest(uri = "/1.0/tax/get",
+                      method = HttpMethods.POST,
+                      headers = headers,
+                      entity = HttpEntity(payload.toString)))
       .via(connectionFlow)
       .mapAsync(1)(response ⇒ Unmarshal(response).to[Option[Avalara.Responses.SimpleErrorMessage]])
       .runWith(Sink.head)
-
-//    val result: Future[Avalara.Responses.GetTaxes] =
-//      responseFuture.flatMap(response ⇒ Unmarshal(response).to[Avalara.Responses.GetTaxes])
 
     def failureHandler(failure: Throwable) = {
       println(s"We are doomed by failre $failure")

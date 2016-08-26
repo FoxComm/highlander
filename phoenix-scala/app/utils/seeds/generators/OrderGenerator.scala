@@ -188,7 +188,7 @@ trait OrderGenerator extends ShipmentSeeds {
       addr ← * <~ getDefaultAddress(accountId)
       _ ← * <~ OrderShippingAddresses.create(
              OrderShippingAddress.buildFromAddress(addr).copy(cordRef = cart.refNum))
-      _ ← * <~ CartTotaler.saveTotals(cart)
+      _ ← * <~ CartTotaler.saveTotals(cart, 5)
     } yield cart
   }
 

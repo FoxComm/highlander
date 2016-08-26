@@ -43,7 +43,6 @@ object Main extends App with LazyLogging {
     service.performSelfCheck()
     service.bind()
     service.setupRemorseTimers()
-    service.pingAvalara()
 
     logger.info("Startup process complete")
   } catch {
@@ -195,9 +194,5 @@ class Service(systemOverride: Option[ActorSystem] = None,
   def setupMiddlewarehouse(): Middlewarehouse = {
     val url = config.getString("middlewarehouse.url")
     new Middlewarehouse(url)
-  }
-
-  def pingAvalara(): Unit = {
-    apis.avalaraApi.getTaxForCart()
   }
 }
