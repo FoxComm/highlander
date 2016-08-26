@@ -1,12 +1,13 @@
 package repositories
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/FoxComm/middlewarehouse/common/db/config"
 	"github.com/FoxComm/middlewarehouse/common/db/tasks"
 	"github.com/FoxComm/middlewarehouse/models"
-	"github.com/jinzhu/gorm"
+
 	"github.com/stretchr/testify/suite"
 )
 
@@ -21,7 +22,8 @@ func TestStockLocationRepositorySuite(t *testing.T) {
 }
 
 func (suite *stockLocationRepositoryTestSuite) SetupSuite() {
-	suite.db, _ = config.DefaultConnection()
+	suite.db = config.TestConnection()
+
 	suite.repository = NewStockLocationRepository(suite.db)
 }
 
@@ -61,8 +63,7 @@ func (suite *stockLocationRepositoryTestSuite) Test_GetLocationById_NotFound() {
 	location, err := suite.repository.GetLocationByID(suite.location.ID + 1)
 
 	suite.Nil(location)
-	suite.NotNil(err)
-	suite.IsType(gorm.ErrRecordNotFound, err)
+	suite.Equal(fmt.Errorf(ErrorStockLocationNotFound, suite.location.ID+1), err)
 }
 
 func (suite *stockLocationRepositoryTestSuite) Test_CreateLocation() {
@@ -97,12 +98,12 @@ func (suite *stockLocationRepositoryTestSuite) Test_UpdateLocation_NotFound() {
 		Type:    "Warehouse",
 		Address: &models.Address{Name: "Warehouse Address"},
 	}
-	model.ID = 1e9
+	model.ID = 100
 
 	location, err := suite.repository.UpdateLocation(model)
 
 	suite.Nil(location)
-	suite.Equal(gorm.ErrRecordNotFound, err)
+	suite.Equal(fmt.Errorf(ErrorStockLocationNotFound, 100), err)
 }
 
 func (suite *stockLocationRepositoryTestSuite) Test_DeleteLocation() {
@@ -112,7 +113,7 @@ func (suite *stockLocationRepositoryTestSuite) Test_DeleteLocation() {
 }
 
 func (suite *stockLocationRepositoryTestSuite) Test_DeleteLocation_NotFound() {
-	err := suite.repository.DeleteLocation(uint(1e9))
+	err := suite.repository.DeleteLocation(100)
 
-	suite.Equal(gorm.ErrRecordNotFound, err)
+	suite.Equal(fmt.Errorf(ErrorStockLocationNotFound, 100), err)
 }

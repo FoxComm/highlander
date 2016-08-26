@@ -8,6 +8,12 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+const (
+	ErrorSummaryNotFound              = "Summary with id=%d not found"
+	ErrorSummaryForSKUNotFound        = "Summary for sku=%s not found"
+	ErrorSummaryForItemByTypeNotFound = "Summary for stock item with id=%d and type=%s not found"
+)
+
 type summaryRepository struct {
 	db *gorm.DB
 }
@@ -52,7 +58,7 @@ func (repository *summaryRepository) GetSummaryBySKU(sku string) ([]*models.Stoc
 		Error
 
 	if len(summary) == 0 {
-		return nil, gorm.ErrRecordNotFound
+		return nil, fmt.Errorf(ErrorSummaryForSKUNotFound, sku)
 	}
 
 	return summary, err
@@ -62,7 +68,15 @@ func (repository *summaryRepository) GetSummaryItemByType(stockItemId uint, unit
 	summary := &models.StockItemSummary{}
 	result := repository.db.Where("stock_item_id = ? AND type = ?", stockItemId, unitType).First(summary)
 
-	return summary, result.Error
+	if result.Error != nil {
+		if result.Error == gorm.ErrRecordNotFound {
+			return nil, fmt.Errorf(ErrorSummaryForItemByTypeNotFound, stockItemId, unitType)
+		}
+
+		return nil, result.Error
+	}
+
+	return summary, nil
 }
 
 func (repository *summaryRepository) CreateStockItemSummary(summary []*models.StockItemSummary) error {
@@ -86,7 +100,13 @@ func (repository *summaryRepository) CreateStockItemSummary(summary []*models.St
 }
 
 func (repository *summaryRepository) UpdateStockItemSummary(summary *models.StockItemSummary) error {
-	return repository.db.Save(summary).Error
+	err := repository.db.Save(summary).Error
+
+	if err == gorm.ErrRecordNotFound {
+		return fmt.Errorf(ErrorSummaryNotFound, summary.ID)
+	}
+
+	return err
 }
 
 func (repository *summaryRepository) CreateStockItemTransaction(transaction *models.StockItemTransaction) error {

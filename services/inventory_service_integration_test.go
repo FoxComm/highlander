@@ -8,6 +8,7 @@ import (
 	"github.com/FoxComm/middlewarehouse/models"
 	"github.com/FoxComm/middlewarehouse/repositories"
 
+	"fmt"
 	"github.com/FoxComm/middlewarehouse/fixtures"
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/suite"
@@ -188,7 +189,7 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_GetAFSByID_NotFound() {
 
 	afs, err := suite.service.GetAFSByID(uint(222), models.Sellable)
 
-	suite.Equal(gorm.ErrRecordNotFound, err)
+	suite.Equal(fmt.Errorf(repositories.ErrorStockItemNotFound, 222), err)
 	suite.Nil(afs)
 }
 
