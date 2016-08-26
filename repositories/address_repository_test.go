@@ -28,7 +28,7 @@ func (suite *AddressRepositoryTestSuite) SetupSuite() {
 
 	suite.repository = NewAddressRepository(suite.db)
 	suite.region1 = &models.Region{}
-	suite.db.Preload("Country").First(suite.region1, 1)
+	suite.Nil(suite.db.Preload("Country").First(suite.region1, 1).Error)
 }
 
 func (suite *AddressRepositoryTestSuite) SetupTest() {
@@ -52,7 +52,7 @@ func (suite *AddressRepositoryTestSuite) Test_GetAddressByID_NotFound_ReturnsNot
 func (suite *AddressRepositoryTestSuite) Test_GetAddressByID_Found_ReturnsAddressModel() {
 	//arrange
 	address1 := fixtures.GetAddress(1, 1, suite.region1)
-	suite.db.Create(address1)
+	suite.Nil(suite.db.Create(address1).Error)
 
 	//act
 	address, err := suite.repository.GetAddressByID(address1.ID)
@@ -87,7 +87,7 @@ func (suite *AddressRepositoryTestSuite) Test_DeleteAddress_NotFound_ReturnsNotF
 func (suite *AddressRepositoryTestSuite) Test_DeleteAddress_Found_ReturnsNoError() {
 	//arrange
 	address1 := fixtures.GetAddress(1, 1, suite.region1)
-	suite.db.Create(address1)
+	suite.Nil(suite.db.Create(address1).Error)
 
 	//act
 	err := suite.repository.DeleteAddress(1)

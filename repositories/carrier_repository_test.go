@@ -39,9 +39,9 @@ func (suite *CarrierRepositoryTestSuite) TearDownSuite() {
 func (suite *CarrierRepositoryTestSuite) Test_GetCarriers_ReturnsCarrierModels() {
 	//arrange
 	carrier1 := fixtures.GetCarrier(1)
-	suite.db.Create(carrier1)
+	suite.Nil(suite.db.Create(carrier1).Error)
 	carrier2 := fixtures.GetCarrier(2)
-	suite.db.Create(carrier2)
+	suite.Nil(suite.db.Create(carrier2).Error)
 
 	//act
 	carriers, err := suite.repository.GetCarriers()
@@ -65,7 +65,7 @@ func (suite *CarrierRepositoryTestSuite) Test_GetCarrierByID_NotFound_ReturnsNot
 func (suite *CarrierRepositoryTestSuite) Test_GetCarrierByID_Found_ReturnsCarrierModel() {
 	//arrange
 	carrier1 := fixtures.GetCarrier(1)
-	suite.db.Create(carrier1)
+	suite.Nil(suite.db.Create(carrier1).Error)
 
 	//act
 	carrier, err := suite.repository.GetCarrierByID(carrier1.ID)
@@ -101,7 +101,7 @@ func (suite *CarrierRepositoryTestSuite) Test_UpdateCarrier_NotFound_ReturnsNotF
 func (suite *CarrierRepositoryTestSuite) Test_UpdateCarrier_Found_ReturnsUpdatedRecord() {
 	//arrange
 	carrier1 := fixtures.GetCarrier(1)
-	suite.db.Create(carrier1)
+	suite.Nil(suite.db.Create(carrier1).Error)
 
 	//act
 	carrier, err := suite.repository.UpdateCarrier(carrier1)
@@ -122,7 +122,7 @@ func (suite *CarrierRepositoryTestSuite) Test_DeleteCarrier_NotFound_ReturnsNotF
 func (suite *CarrierRepositoryTestSuite) Test_DeleteCarrier_Found_ReturnsNoError() {
 	//arrange
 	carrier1 := fixtures.GetCarrier(1)
-	suite.db.Create(carrier1)
+	suite.Nil(suite.db.Create(carrier1).Error)
 
 	//act
 	err := suite.repository.DeleteCarrier(carrier1.ID)

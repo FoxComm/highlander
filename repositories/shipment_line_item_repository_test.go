@@ -42,32 +42,32 @@ func (suite *ShipmentLineItemRepositoryTestSuite) SetupSuite() {
 	})
 
 	carrier := fixtures.GetCarrier(1)
-	suite.db.Create(carrier)
+	suite.Nil(suite.db.Create(carrier).Error)
 
 	shippingMethod := fixtures.GetShippingMethod(1, carrier.ID, carrier)
-	suite.db.Create(shippingMethod)
+	suite.Nil(suite.db.Create(shippingMethod).Error)
 
 	region := &models.Region{}
-	suite.db.Preload("Country").First(region)
+	suite.Nil(suite.db.Preload("Country").First(region).Error)
 	address := fixtures.GetAddress(1, region.ID, region)
-	suite.db.Create(address)
+	suite.Nil(suite.db.Create(address).Error)
 
 	stockLocation := fixtures.GetStockLocation()
-	suite.db.Create(stockLocation)
+	suite.Nil(suite.db.Create(stockLocation).Error)
 
 	stockItem := fixtures.GetStockItem(stockLocation.ID, "SKU-TEST")
-	suite.db.Create(stockItem)
+	suite.Nil(suite.db.Create(stockItem).Error)
 
 	suite.stockItemUnit1 = fixtures.GetStockItemUnit(stockItem)
 	suite.stockItemUnit1.RefNum = sql.NullString{"BR1001", true}
-	suite.db.Create(suite.stockItemUnit1)
+	suite.Nil(suite.db.Create(suite.stockItemUnit1).Error)
 
 	suite.stockItemUnit2 = fixtures.GetStockItemUnit(stockItem)
 	suite.stockItemUnit2.RefNum = sql.NullString{"BR1001", true}
-	suite.db.Create(suite.stockItemUnit2)
+	suite.Nil(suite.db.Create(suite.stockItemUnit2).Error)
 
 	suite.shipment1 = fixtures.GetShipment(0, shippingMethod.ID, shippingMethod, address.ID, address, nil)
-	suite.db.Create(suite.shipment1)
+	suite.Nil(suite.db.Create(suite.shipment1).Error)
 }
 
 func (suite *ShipmentLineItemRepositoryTestSuite) SetupTest() {
@@ -83,9 +83,9 @@ func (suite *ShipmentLineItemRepositoryTestSuite) TearDownSuite() {
 func (suite *ShipmentLineItemRepositoryTestSuite) Test_GetShipmentLineItemsByShipmentID_Found_ReturnsShipmentLineItemModels() {
 	//arrange
 	shipmentLineItem1 := fixtures.GetShipmentLineItem(1, suite.shipment1.ID, suite.stockItemUnit1.ID)
-	suite.db.Create(shipmentLineItem1)
+	suite.Nil(suite.db.Create(shipmentLineItem1).Error)
 	shipmentLineItem2 := fixtures.GetShipmentLineItem(2, suite.shipment1.ID, suite.stockItemUnit1.ID)
-	suite.db.Create(shipmentLineItem2)
+	suite.Nil(suite.db.Create(shipmentLineItem2).Error)
 
 	//act
 	shipmentLineItems, err := suite.repository.GetShipmentLineItemsByShipmentID(shipmentLineItem1.ShipmentID)
@@ -125,7 +125,7 @@ func (suite *ShipmentLineItemRepositoryTestSuite) Test_UpdateShipmentLineItem_No
 func (suite *ShipmentLineItemRepositoryTestSuite) Test_UpdateShipmentLineItem_Found_ReturnsUpdatedRecord() {
 	//arrange
 	shipmentLineItem1 := fixtures.GetShipmentLineItem(1, suite.shipment1.ID, suite.stockItemUnit1.ID)
-	suite.db.Create(shipmentLineItem1)
+	suite.Nil(suite.db.Create(shipmentLineItem1).Error)
 	shipmentLineItem1.Price = 4900
 
 	//act
@@ -148,7 +148,7 @@ func (suite *ShipmentLineItemRepositoryTestSuite) Test_DeleteShipmentLineItem_No
 func (suite *ShipmentLineItemRepositoryTestSuite) Test_DeleteShipmentLineItem_Found_ReturnsNoError() {
 	//arrange
 	shipmentLineItem1 := fixtures.GetShipmentLineItem(1, suite.shipment1.ID, suite.stockItemUnit1.ID)
-	suite.db.Create(shipmentLineItem1)
+	suite.Nil(suite.db.Create(shipmentLineItem1).Error)
 
 	//act
 	err := suite.repository.DeleteShipmentLineItem(shipmentLineItem1.ID)

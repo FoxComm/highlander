@@ -32,7 +32,7 @@ func (suite *ShippingMethodRepositoryTestSuite) SetupSuite() {
 	})
 
 	suite.carrier1 = fixtures.GetCarrier(1)
-	suite.db.Create(suite.carrier1)
+	suite.Nil(suite.db.Create(suite.carrier1).Error)
 }
 
 func (suite *ShippingMethodRepositoryTestSuite) SetupTest() {
@@ -48,9 +48,9 @@ func (suite *ShippingMethodRepositoryTestSuite) TearDownSuite() {
 func (suite *ShippingMethodRepositoryTestSuite) Test_GetShippingMethods_ReturnsShippingMethodModels() {
 	//arrange
 	shippingMethod1 := fixtures.GetShippingMethod(1, suite.carrier1.ID, suite.carrier1)
-	suite.db.Create(shippingMethod1)
+	suite.Nil(suite.db.Create(shippingMethod1).Error)
 	shippingMethod2 := fixtures.GetShippingMethod(2, suite.carrier1.ID, suite.carrier1)
-	suite.db.Create(shippingMethod2)
+	suite.Nil(suite.db.Create(shippingMethod2).Error)
 
 	//act
 	shippingMethods, err := suite.repository.GetShippingMethods()
@@ -74,7 +74,7 @@ func (suite *ShippingMethodRepositoryTestSuite) Test_GetShippingMethodByID_NotFo
 func (suite *ShippingMethodRepositoryTestSuite) Test_GetShippingMethodByID_Found_ReturnsShippingMethodModel() {
 	//arrange
 	shippingMethod1 := fixtures.GetShippingMethod(1, suite.carrier1.ID, suite.carrier1)
-	suite.db.Create(shippingMethod1)
+	suite.Nil(suite.db.Create(shippingMethod1).Error)
 
 	//act
 	shippingMethod, err := suite.repository.GetShippingMethodByID(shippingMethod1.ID)
@@ -110,7 +110,7 @@ func (suite *ShippingMethodRepositoryTestSuite) Test_UpdateShippingMethod_NotFou
 func (suite *ShippingMethodRepositoryTestSuite) Test_UpdateShippingMethod_Found_ReturnsUpdatedRecord() {
 	//arrange
 	shippingMethod1 := fixtures.GetShippingMethod(1, 1, fixtures.GetCarrier(1))
-	suite.db.Create(shippingMethod1)
+	suite.Nil(suite.db.Create(shippingMethod1).Error)
 	shippingMethod1.Name = "Other"
 
 	//act
@@ -132,7 +132,7 @@ func (suite *ShippingMethodRepositoryTestSuite) Test_DeleteShippingMethod_NotFou
 func (suite *ShippingMethodRepositoryTestSuite) Test_DeleteShippingMethod_Found_ReturnsNoError() {
 	//arrange
 	shippingMethod1 := fixtures.GetShippingMethod(1, 1, fixtures.GetCarrier(1))
-	suite.db.Create(shippingMethod1)
+	suite.Nil(suite.db.Create(shippingMethod1).Error)
 
 	//act
 	err := suite.repository.DeleteShippingMethod(shippingMethod1.ID)
