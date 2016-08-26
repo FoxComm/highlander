@@ -10,6 +10,7 @@ TimeoutStartSec=5m
 RestartSec=5
 
 Environment=LOG_LEVEL=info
+Environment=PHOENIX_URL=http://{{phoenix_server}}
 Environment=DB_NAME={{middlewarehouse_db_name}}
 Environment=DB_USER={{middlewarehouse_db_user}}
 Environment=DB_HOST={{db_host}}
