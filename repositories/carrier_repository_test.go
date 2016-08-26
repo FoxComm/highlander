@@ -21,7 +21,7 @@ func TestCarrierRepositorySuite(t *testing.T) {
 }
 
 func (suite *CarrierRepositoryTestSuite) SetupSuite() {
-	suite.db, _ = config.Connect(config.NewPGConfig())
+	suite.db = config.TestConnection()
 
 	suite.repository = NewCarrierRepository(suite.db)
 }

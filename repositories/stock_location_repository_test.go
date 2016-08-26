@@ -22,7 +22,7 @@ func TestStockLocationRepositorySuite(t *testing.T) {
 }
 
 func (suite *stockLocationRepositoryTestSuite) SetupSuite() {
-	suite.db, _ = config.Connect(config.NewPGConfig())
+	suite.db = config.TestConnection()
 
 	suite.repository = NewStockLocationRepository(suite.db)
 }

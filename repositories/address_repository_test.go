@@ -24,7 +24,7 @@ func TestAddressRepositorySuite(t *testing.T) {
 }
 
 func (suite *AddressRepositoryTestSuite) SetupSuite() {
-	suite.db, _ = config.Connect(config.NewPGConfig())
+	suite.db = config.TestConnection()
 
 	suite.repository = NewAddressRepository(suite.db)
 	suite.region1 = &models.Region{}

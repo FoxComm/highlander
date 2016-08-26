@@ -25,7 +25,7 @@ func TestShipmentRepositorySuite(t *testing.T) {
 }
 
 func (suite *ShipmentRepositoryTestSuite) SetupSuite() {
-	suite.db, _ = config.Connect(config.NewPGConfig())
+	suite.db = config.TestConnection()
 
 	suite.repository = NewShipmentRepository(suite.db)
 
