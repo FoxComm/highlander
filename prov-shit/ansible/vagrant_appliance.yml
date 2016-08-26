@@ -7,20 +7,6 @@
     ashes_server_name: admin.foxcommerce.local
     storefront_server_name: foxcommerce.local
   roles:
-    - { role: base/common }
-    - { role: base/consul }
-    - { role: base/ssh_keys }
-    - { role: base/scala }
-    - { role: base/confluence }
-    - { role: base/zookeeper }
-    - { role: base/kafka }
-    - { role: base/schema-registry }
-    - { role: base/elasticsearch }
-    - { role: base/db }
-    - { role: base/rsyslog, sudo: yes }
-    - { role: base/kibana, sudo: yes }
-    - { role: base/node }
-    - { role: base/balancer, sudo: yes }
     - { role: base/phoenix }
     - { role: base/middlewarehouse }
     - { role: base/isaac }
@@ -32,7 +18,6 @@
     - { role: dev/balancer, sudo: yes }
     - { role: dev/db }
     - { role: dev/phoenix }
-    - { role: dev/seeder }
     - { role: dev/middlewarehouse }
     - { role: dev/greenriver }
     - { role: dev/messaging, retailer_name: 'FoxCommerce' }

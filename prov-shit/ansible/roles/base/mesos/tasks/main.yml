@@ -50,3 +50,6 @@
     chdir: "{{mesos_build_dir}}"
     creates: "/usr/local/sbin/mesos-master"
 
+- name: Cleanup Mesos
+  file: path="{{mesos_dir}}" state=absent
+  sudo: true
