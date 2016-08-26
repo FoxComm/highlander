@@ -1,8 +1,15 @@
 package repositories
 
 import (
+	"fmt"
+
 	"github.com/FoxComm/middlewarehouse/models"
+
 	"github.com/jinzhu/gorm"
+)
+
+const (
+	ErrorShipmentLineItemNotFound = "Not found shipment line item with id=%d"
 )
 
 type IShipmentLineItemRepository interface {
@@ -46,7 +53,7 @@ func (repository *shipmentLineItemRepository) UpdateShipmentLineItem(shipmentLin
 	}
 
 	if result.RowsAffected == 0 {
-		return nil, gorm.ErrRecordNotFound
+		return nil, fmt.Errorf(ErrorShipmentLineItemNotFound, shipmentLineItem.ID)
 	}
 
 	return repository.getShipmentLineItemByID(shipmentLineItem.ID)
@@ -60,7 +67,7 @@ func (repository *shipmentLineItemRepository) DeleteShipmentLineItem(id uint) er
 	}
 
 	if res.RowsAffected == 0 {
-		return gorm.ErrRecordNotFound
+		return fmt.Errorf(ErrorShipmentLineItemNotFound, id)
 	}
 
 	return nil
@@ -70,6 +77,10 @@ func (repository *shipmentLineItemRepository) getShipmentLineItemByID(id uint) (
 	var shipmentLineItem models.ShipmentLineItem
 
 	if err := repository.db.First(&shipmentLineItem, id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, fmt.Errorf(ErrorShipmentLineItemNotFound, id)
+		}
+
 		return nil, err
 	}
 
