@@ -15,12 +15,12 @@ import (
 
 type shipmentController struct {
 	shipmentService services.IShipmentService
-	activityLogger  *services.ActivityLogger
+	activityLogger  services.IActivityLogger
 }
 
 func NewShipmentController(
 	shipmentService services.IShipmentService,
-	activityLogger *services.ActivityLogger,
+	activityLogger services.IActivityLogger,
 ) IController {
 	return &shipmentController{shipmentService, activityLogger}
 }
