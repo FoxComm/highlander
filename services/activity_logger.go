@@ -2,6 +2,7 @@ package services
 
 import (
 	"github.com/FoxComm/metamorphosis"
+	"github.com/FoxComm/middlewarehouse/models/activities"
 	avro "github.com/elodina/go-avro"
 )
 
@@ -36,17 +37,17 @@ const (
 	}`
 )
 
-func LogActivity(producer metamorphosis.Producer, activity models.SiteActivity) error {
+func LogActivity(producer metamorphosis.Producer, activity activities.SiteActivity) error {
 	rec, err := newRecord(activity)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	return producer.Emit(topic, rec)
 }
 
 type record struct {
-	schema *avro.Schema
+	schema avro.Schema
 
 	// The formatting here is unfortunate, but required by how Avro handles parses.
 	Id            int32
@@ -55,8 +56,8 @@ type record struct {
 	Created_at    string
 }
 
-func newRecord(activity models.SiteActivity) (*record, error) {
-	schema, err := avro.Parse(activityAvroSchema)
+func newRecord(activity activities.SiteActivity) (*record, error) {
+	schema, err := avro.ParseSchema(activityAvroSchema)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +67,7 @@ func newRecord(activity models.SiteActivity) (*record, error) {
 		Activity_type: activity.Type(),
 		Data:          activity.Data(),
 		Created_at:    activity.CreatedAt(),
-	}
+	}, nil
 }
 
 func (a *record) Schema() avro.Schema {
