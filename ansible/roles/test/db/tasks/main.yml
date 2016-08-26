@@ -35,8 +35,12 @@
     - libpq-dev
     - python-psycopg2
 
-- name: Create Test Db
+- name: Create Phoenix Test DB
   postgresql_db: name={{phoenix_test_db_name}}
+  sudo: true
+
+- name: Create Middlewarehouse Test DB
+  postgresql_db: name={{middlewarehouse_test_db_name}}
   sudo: true
 
 - name: Configure Db Users
@@ -46,3 +50,6 @@
       - root
       - "{{user}}"
       - phoenix
+      - middlewarehouse
+
+- include: flyway_install.yml
