@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	ErrorShippingMethodNotFound = "Not found shipping method with id=%d"
+	ErrorShippingMethodNotFound = "Shipping method with id=%d not found"
 )
 
 type shippingMethodRepository struct {

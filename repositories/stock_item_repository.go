@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	ErrorStockItemNotFound = "Not found stock item with id=%d"
+	ErrorStockItemNotFound = "Stock item with id=%d not found"
 )
 
 type stockItemRepository struct {

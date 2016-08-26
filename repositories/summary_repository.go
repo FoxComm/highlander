@@ -9,9 +9,9 @@ import (
 )
 
 const (
-	ErrorSummaryNotFound              = "Not found summary with id=%d"
-	ErrorSummaryForSKUNotFound        = "Not found summary for sku=%s"
-	ErrorSummaryForItemByTypeNotFound = "Not found summary for stock item with id=%d and type=%s"
+	ErrorSummaryNotFound              = "Summary with id=%d not found"
+	ErrorSummaryForSKUNotFound        = "Summary for sku=%s not found"
+	ErrorSummaryForItemByTypeNotFound = "Summary for stock item with id=%d and type=%s not found"
 )
 
 type summaryRepository struct {

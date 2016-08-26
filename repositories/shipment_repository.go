@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	ErrorShipmentNotFound = "Not found shipment line item with id=%d"
+	ErrorShipmentNotFound = "Shipment with id=%d not found"
 )
 
 type IShipmentRepository interface {

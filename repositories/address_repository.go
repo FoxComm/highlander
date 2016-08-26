@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	ErrorAddressNotFound = "Not found address with id=%d"
+	ErrorAddressNotFound = "Address with id=%d not found"
 )
 
 type IAddressRepository interface {

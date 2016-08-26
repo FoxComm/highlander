@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	ErrorCarrierNotFound = "Not found carrier with id=%d"
+	ErrorCarrierNotFound = "Carrier with id=%d not found"
 )
 
 type carrierRepository struct {
