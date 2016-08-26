@@ -3,8 +3,8 @@ package services
 import (
 	"errors"
 	"fmt"
-	"log"
 
+	"github.com/FoxComm/middlewarehouse/common/async"
 	"github.com/FoxComm/middlewarehouse/models"
 	"github.com/FoxComm/middlewarehouse/repositories"
 )
@@ -188,26 +188,12 @@ func (service *inventoryService) ReleaseItems(refNum string) error {
 	return service.updateSummary(stockItemsMap, models.Sellable, statusShift)
 }
 
-func (service *inventoryService) execAsync(fn func() error) error {
-	if service.updateSummaryAsync {
-		go func() {
-			err := fn()
-			if err != nil {
-				log.Printf("Error updating summaries: %s", err.Error())
-			}
-		}()
-		return nil
-	}
-
-	return fn()
-}
-
 func (service *inventoryService) updateStockItemSummary(stockItemID uint, unitType models.UnitType, unitCount int, change models.StatusChange) error {
 	fn := func() error {
 		return service.summaryService.UpdateStockItemSummary(stockItemID, unitType, unitCount, change)
 	}
 
-	return service.execAsync(fn)
+	return async.MaybeExecAsync(fn, service.updateSummaryAsync, "Error updating stock item summary")
 }
 
 func (service *inventoryService) updateSummary(stockItemsMap map[uint]int, unitType models.UnitType, statusShift models.StatusChange) error {
@@ -221,5 +207,5 @@ func (service *inventoryService) updateSummary(stockItemsMap map[uint]int, unitT
 		return nil
 	}
 
-	return service.execAsync(fn)
+	return async.MaybeExecAsync(fn, service.updateSummaryAsync, "Error updating stock item summary")
 }

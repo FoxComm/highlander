@@ -54,4 +54,3 @@ test: $(TESTDIRS)
 $(TESTDIRS): PACKAGE = $(@:test-%=%)
 $(TESTDIRS):
 	cd $(PACKAGE) && GOENV=test go test ./...
-
