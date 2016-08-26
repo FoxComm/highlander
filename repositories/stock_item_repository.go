@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	ErroStockItemNotFound = "Not found stock item with id=%d"
+	ErrorStockItemNotFound = "Not found stock item with id=%d"
 )
 
 type stockItemRepository struct {
@@ -45,7 +45,7 @@ func (repository *stockItemRepository) GetStockItemById(id uint) (*models.StockI
 
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, fmt.Errorf(ErroStockItemNotFound, id)
+			return nil, fmt.Errorf(ErrorStockItemNotFound, id)
 		}
 
 		return nil, err
@@ -66,7 +66,7 @@ func (repository *stockItemRepository) GetAFSByID(id uint, unitType models.UnitT
 
 	if err := repository.getAFSQuery(unitType).Where("si.id = ?", id).Find(afs).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, fmt.Errorf(ErroStockItemNotFound, id)
+			return nil, fmt.Errorf(ErrorStockItemNotFound, id)
 		}
 
 		return nil, err
@@ -101,7 +101,7 @@ func (repository *stockItemRepository) DeleteStockItem(stockItemId uint) error {
 	}
 
 	if result.RowsAffected == 0 {
-		return fmt.Errorf(ErroStockItemNotFound, stockItemId)
+		return fmt.Errorf(ErrorStockItemNotFound, stockItemId)
 	}
 
 	return nil

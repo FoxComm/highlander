@@ -189,7 +189,7 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_GetAFSByID_NotFound() {
 
 	afs, err := suite.service.GetAFSByID(uint(222), models.Sellable)
 
-	suite.Equal(fmt.Errorf(repositories.ErroStockItemNotFound, 222), err)
+	suite.Equal(fmt.Errorf(repositories.ErrorStockItemNotFound, 222), err)
 	suite.Nil(afs)
 }
 
