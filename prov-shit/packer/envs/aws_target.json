@@ -1,0 +1,9 @@
+{
+    "ssh_username": "ubuntu",
+    "region": "us-west-2",
+    "instance_type": "m1.small",
+    "source_ami": "ami-9ece19fe",
+    "vpc_id": "vpc-ec476d88",
+    "subnet_id": "subnet-9094cdf4",
+    "security_group_id": "sg-75051113"
+}
