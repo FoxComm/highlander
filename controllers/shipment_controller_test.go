@@ -28,8 +28,9 @@ func (suite *shipmentControllerTestSuite) SetupSuite() {
 	suite.router = gin.New()
 
 	suite.shipmentService = &mocks.ShipmentServiceMock{}
+	loggerService := &mocks.ActivityLoggerMock{}
 
-	controller := NewShipmentController(suite.shipmentService)
+	controller := NewShipmentController(suite.shipmentService, loggerService)
 	controller.SetUp(suite.router.Group("/shipments"))
 }
 
