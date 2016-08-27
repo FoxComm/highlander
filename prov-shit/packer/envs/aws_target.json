@@ -1,7 +1,7 @@
 {
     "ssh_username": "ubuntu",
     "region": "us-west-2",
-    "instance_type": "t2.small",
+    "instance_type": "t2.medium",
     "source_ami": "ami-9ece19fe",
     "vpc_id": "vpc-ec476d88",
     "subnet_id": "subnet-9794cdf3",
