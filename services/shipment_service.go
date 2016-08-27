@@ -178,14 +178,12 @@ func (service *shipmentService) handleStatusChange(db *gorm.DB, oldShipment, new
 		_, err = unitRepo.UnsetUnitsInOrder(newShipment.ReferenceNumber)
 
 	case models.ShipmentStateShipped:
-		err = service.capturePayment(newShipment)
-		if err != nil {
-			unitIDs := []uint{}
-			for _, lineItem := range newShipment.ShipmentLineItems {
-				unitIDs = append(unitIDs, lineItem.StockItemUnitID)
-			}
-			err = unitRepo.DeleteUnits(unitIDs)
+		// TODO: Bring capture back when we move to the capture consumer
+		unitIDs := []uint{}
+		for _, lineItem := range newShipment.ShipmentLineItems {
+			unitIDs = append(unitIDs, lineItem.StockItemUnitID)
 		}
+		err = unitRepo.DeleteUnits(unitIDs)
 	}
 
 	return err
