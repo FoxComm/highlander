@@ -42,16 +42,13 @@ defmodule Marketplace.Vendor do
 
   def make_valid_state_change(changeset) do
     IO.inspect(changeset)
-    case IO.inspect(Ecto.Changeset.fetch_change(changeset, :state)) do
+    case Ecto.Changeset.fetch_change(changeset, :state) do
       :error -> 
         changeset
       {:ok, newValue} -> 
-        if newValue in @states do 
+        if String.to_atom(newValue) in @states do 
           Ecto.Changeset.change(changeset, %{:state => newValue})
-          IO.inspect("WTF")
-          IO.inspect(changeset)
         else 
-          IO.inspect("wtf2")
           Ecto.Changeset.add_error(changeset, :state, "Not a valid state.")
         end
     end
