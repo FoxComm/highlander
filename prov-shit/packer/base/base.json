@@ -24,7 +24,7 @@
             "region": "{{user `region`}}",
             "ami_name": "base-{{timestamp}}",
             "ami_description": "Base image used for provisioning",
-            "associate_public_ip_address": false,
+            "associate_public_ip_address": true,
             "ssh_username" : "{{user `ssh_username`}}",
             "vpc_id": "{{user `vpc_id`}}",
             "security_group_id": "{{user `security_group_id`}}",

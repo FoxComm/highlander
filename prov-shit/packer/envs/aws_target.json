@@ -4,6 +4,6 @@
     "instance_type": "m1.small",
     "source_ami": "ami-99ce19f9",
     "vpc_id": "vpc-ec476d88",
-    "subnet_id": "subnet-9094cdf4",
-    "security_group_id": "sg-75051113"
+    "subnet_id": "subnet-9794cdf3",
+    "security_group_id": "sg-60051106"
 }
