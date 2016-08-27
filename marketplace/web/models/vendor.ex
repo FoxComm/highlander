@@ -47,12 +47,12 @@ defmodule Marketplace.Vendor do
         changeset
       {:ok, newValue} -> 
         if newValue in @states do 
-          Ecto.Changeset.change(changeset, %{:state => newValue})          
+          Ecto.Changeset.change(changeset, %{:state => newValue})
           IO.inspect("WTF")
           IO.inspect(changeset)
         else 
           IO.inspect("wtf2")
-          Ecto.Changeset.add_error(changeset, :state, "Not a valid state.")          
+          Ecto.Changeset.add_error(changeset, :state, "Not a valid state.")
         end
     end
   end
