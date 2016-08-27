@@ -16,7 +16,7 @@ defmodule Marketplace.Router do
   scope "/", Marketplace do
     pipe_through :api # Use the default browser stack
 
-    resources "/vendors", VendorController
+    resources "/merchants", MerchantController
     get "/", PageController, :index
   end
 

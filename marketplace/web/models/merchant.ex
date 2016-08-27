@@ -1,7 +1,7 @@
-defmodule Marketplace.Vendor do
+defmodule Marketplace.Merchant do
   use Marketplace.Web, :model
 
-  schema "vendors" do
+  schema "merchants" do
     field :name, :string
     field :description, :string
     field :state, :string, default: "new"

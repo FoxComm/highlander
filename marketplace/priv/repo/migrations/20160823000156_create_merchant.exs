@@ -1,8 +1,8 @@
-defmodule Marketplace.Repo.Migrations.CreateVendor do
+defmodule Marketplace.Repo.Migrations.CreateMerchant do
   use Ecto.Migration
 
   def change do
-    create table(:vendors) do
+    create table(:merchants) do
       add :name, :string
       add :description, :string
       add :state, :string
@@ -10,6 +10,6 @@ defmodule Marketplace.Repo.Migrations.CreateVendor do
       timestamps
     end
 
-    create unique_index(:vendors, [:name])
+    create unique_index(:merchants, [:name])
   end
 end
