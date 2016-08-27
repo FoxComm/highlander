@@ -6,5 +6,8 @@
     "vpc_id": "vpc-ec476d88",
     "subnet_id": "subnet-9794cdf3",
     "security_group_id": "sg-60051106",
-    "base_ami": "ami-522cfb32"
+    "base_ami": "ami-522cfb32",
+    "base_jvm_ami": "ami-fc2ef99c",
+    "base_mesos_ami": "",
+    "base_node_ami": "ami-ef26f18f"
 }
