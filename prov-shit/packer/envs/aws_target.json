@@ -7,7 +7,7 @@
     "subnet_id": "subnet-9794cdf3",
     "security_group_id": "sg-60051106",
     "base_ami": "ami-ed21f68d",
-    "base_jvm_ami": "",
-    "base_node_ami": "",
+    "base_jvm_ami": "ami-ae2ff8ce",
+    "base_node_ami": "ami-5b2bfc3b",
     "base_mesos_ami": ""
 }
