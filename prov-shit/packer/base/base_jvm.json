@@ -15,6 +15,24 @@
             "tags": ["no-ip", "packer-base-jvm"],
             "use_internal_ip": true,
             "ssh_username" : "{{user `ssh_username`}}"
+        },
+        {
+            "name": "amazon",
+            "type": "amazon-ebs",
+            "source_ami": "{{user `base_ami`}}",
+            "instance_type": "{{user `instance_type`}}",
+            "region": "{{user `region`}}",
+            "ami_name": "base-jvm-{{timestamp}}",
+            "ami_description": "Base JVM image used for provisioning",
+            "associate_public_ip_address": true,
+            "ssh_username" : "{{user `ssh_username`}}",
+            "vpc_id": "{{user `vpc_id`}}",
+            "security_group_id": "{{user `security_group_id`}}",
+            "subnet_id": "{{user `subnet_id`}}",
+            "tags": {
+                "packer": "base-jvm",
+                "ip": "none"
+            }
         }
     ],
     "provisioners" : [

@@ -5,5 +5,6 @@
     "source_ami": "ami-99ce19f9",
     "vpc_id": "vpc-ec476d88",
     "subnet_id": "subnet-9794cdf3",
-    "security_group_id": "sg-60051106"
+    "security_group_id": "sg-60051106",
+    "base_ami": "ami-522cfb32"
 }

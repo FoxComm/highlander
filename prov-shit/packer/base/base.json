@@ -17,7 +17,7 @@
             "ssh_username" : "{{user `ssh_username`}}"
         },
         {
-            "name": "amazon",            
+            "name": "amazon",
             "type": "amazon-ebs",
             "source_ami": "{{user `source_ami`}}",
             "instance_type": "{{user `instance_type`}}",
@@ -33,7 +33,7 @@
                 "packer": "base",
                 "ip": "none"
             }
-        }        
+        }
     ],
     "provisioners" : [
         {
