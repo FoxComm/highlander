@@ -70,6 +70,7 @@ type record struct {
 	Activity_type string
 	Data          string
 	Created_at    string
+	Context       string
 }
 
 func newRecord(activity activities.SiteActivity) (*record, error) {
@@ -80,9 +81,11 @@ func newRecord(activity activities.SiteActivity) (*record, error) {
 
 	return &record{
 		schema:        schema,
+		Id:            1,
 		Activity_type: activity.Type(),
 		Data:          activity.Data(),
 		Created_at:    activity.CreatedAt(),
+		Context:       "",
 	}, nil
 }
 

@@ -122,6 +122,20 @@ func (controller *shipmentController) createShipmentFromOrder() gin.HandlerFunc 
 			return
 		}
 
-		context.JSON(http.StatusCreated, responses.NewShipmentFromModel(shipment))
+		resp := responses.NewShipmentFromModel(shipment)
+		context.JSON(http.StatusCreated, resp)
+
+		// Having this in the controller seems wrong...
+		activity, err := activities.NewShipmentCreated(resp, shipment.CreatedAt)
+		if err != nil {
+			// Don't respond to user with this error.
+			log.Printf("Unable to create shipment created activity with error %s", err.Error())
+		}
+
+		err = controller.activityLogger.Log(activity)
+		if err != nil {
+			// Don't respond to user with this error.
+			log.Printf("Unable to create shipment activity in Kafka with error %s", err.Error())
+		}
 	}
 }
