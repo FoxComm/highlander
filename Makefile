@@ -4,6 +4,9 @@ BUILDDIRS = $(SUBDIRS:%=build-%)
 TESTDIRS = $(SUBDIRS:%=test-%)
 CLEANDIRS = $(SUBDIRS:%=clean-%)
 
+subdirs:
+	@echo $(SUBDIRS)
+
 clean: $(CLEANDIRS)
 $(CLEANDIRS): REPO = $(@:clean-%=%)
 $(CLEANDIRS):

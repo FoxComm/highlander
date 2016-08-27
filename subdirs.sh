@@ -4,7 +4,7 @@ OUTPUT=$(curl -sf https://api.github.com/repos/FoxComm/highlander/pulls\?head\=F
 
 if [ -z "$OUTPUT" ]
 then
-    export SUBDIRS=$DEFAULT
+    echo $DEFAULT
 else
-    export SUBDIRS=$OUTPUT
+    echo $OUTPUT
 fi
