@@ -8,14 +8,34 @@
             "source_image": "{{user `base_mesos`}}",
             "network": "{{user `network`}}",
             "zone": "{{user `zone`}}",
-            "image_name": "service-worker-{{timestamp}}",
-            "image_description": "base image used for provisioning",
+            "image_name": "{{user `image_prefix`}}-service-worker-{{timestamp}}",
+            "image_description": "{{user `image_title`}} Service Worker Image",
             "instance_name": "packer-service-worker-{{uuid}}",
             "machine_type": "n1-standard-2",
             "tags": ["no-ip", "{{user `image_prefix`}}", "packer-service-worker"],
             "use_internal_ip": true,
             "ssh_username" : "{{user `ssh_username`}}",
             "disk_size" : 10
+        },
+        {
+            "name": "amazon",
+            "type": "amazon-ebs",
+            "source_ami": "{{user `base_mesos_ami`}}",
+            "instance_type": "{{user `instance_type`}}",
+            "region": "{{user `region`}}",
+            "ami_name": "{{user `image_prefix`}}-service-worker-{{timestamp}}",
+            "ami_description": "{{user `image_title`}} Service Worker Image",
+            "associate_public_ip_address": true,
+            "ssh_username" : "{{user `ssh_username`}}",
+            "vpc_id": "{{user `vpc_id`}}",
+            "security_group_id": "{{user `security_group_id`}}",
+            "subnet_id": "{{user `subnet_id`}}",
+            "tags": {
+                "packer": "db",
+                "ip": "none",
+                "project": "{{user `image_prefix`}}",
+                "type": "service-worker"
+            }
         }
     ],
     "provisioners" : [

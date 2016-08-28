@@ -15,6 +15,26 @@
             "tags": ["ssh", "no-ip", "{{user `image_prefix`}}", "elasticsearch"],
             "use_internal_ip": true,
             "ssh_username" : "{{user `ssh_username`}}"
+        },
+        {
+            "name": "amazon",
+            "type": "amazon-ebs",
+            "source_ami": "{{user `base_ami`}}",
+            "instance_type": "{{user `instance_type`}}",
+            "region": "{{user `region`}}",
+            "ami_name": "{{user `image_prefix`}}-es-{{timestamp}}",
+            "ami_description": "{{user `image_title`}} ES Image",
+            "associate_public_ip_address": true,
+            "ssh_username" : "{{user `ssh_username`}}",
+            "vpc_id": "{{user `vpc_id`}}",
+            "security_group_id": "{{user `security_group_id`}}",
+            "subnet_id": "{{user `subnet_id`}}",
+            "tags": {
+                "packer": "db",
+                "ip": "none",
+                "project": "{{user `image_prefix`}}",
+                "type": "elasticsearch"
+            }
         }
     ],
     "provisioners" : [
