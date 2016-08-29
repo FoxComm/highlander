@@ -23,6 +23,7 @@ export const itemReasonsTitles = {
 export type TShipment = {
   id: number;
   shippingMethodId: number;
+  shippingMethod: TShippingMethod;
   referenceNumber: string;
   state: string;
   shipmentDate: ?string;
@@ -57,7 +58,6 @@ export type TCarrier = {
 
 export type TShippingMethod = {
   id: number;
-  carrierId: ?number;
-  carrier: ?TCarrier;
+  carrier: TCarrier;
   name: string;
 };

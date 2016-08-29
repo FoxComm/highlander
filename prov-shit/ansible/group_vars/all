@@ -144,3 +144,8 @@ updating_mwh: false
 
 # Test Stripe api key
 stripe_api_key: sk_test_uvaf3GCFsjCsvvKO7FsQhNRm
+
+cert_path: stage
+
+#mesos
+mesos_quorum: 2
