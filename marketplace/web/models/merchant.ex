@@ -7,6 +7,8 @@ defmodule Marketplace.Merchant do
     field :state, :string, default: "new"
 
     timestamps
+
+    has_many :merchant_addresses, Marketplace.MerchantAddress
   end
 
   @states ~w(new approved suspended cancelled)a
