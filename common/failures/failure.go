@@ -19,7 +19,7 @@ func Abort(c *gin.Context, f Failure) {
 func toJSON(err error) responses.Error {
 	if err, ok := err.(errors.AggregateError); ok {
 		return responses.Error{
-			Errors: err.ToJSON(),
+			Errors: err.Messages(),
 		}
 	}
 

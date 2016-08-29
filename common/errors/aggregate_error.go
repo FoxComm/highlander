@@ -1,8 +1,7 @@
 package errors
 
 import (
-	"bytes"
-	"encoding/json"
+	"strings"
 )
 
 type AggregateError struct {
@@ -18,14 +17,10 @@ func (e *AggregateError) Length() int {
 }
 
 func (e AggregateError) Error() string {
-	buffer := new(bytes.Buffer)
-
-	json.NewEncoder(buffer).Encode(e.ToJSON())
-
-	return buffer.String()
+	return strings.Join(e.Messages(), ", ")
 }
 
-func (e *AggregateError) ToJSON() []string {
+func (e *AggregateError) Messages() []string {
 	result := []string{}
 
 	for _, err := range e.errors {
