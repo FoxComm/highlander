@@ -15,9 +15,7 @@ func (f notFound) Status() int {
 }
 
 func (f notFound) ToJSON() responses.Error {
-	return responses.Error{
-		Errors: []string{f.err.Error()},
-	}
+	return toJSON(f.err)
 }
 
 func NewNotFound(err error) notFound {

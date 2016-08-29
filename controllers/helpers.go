@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"strings"
 
 	"github.com/FoxComm/middlewarehouse/common/failures"
 
@@ -48,16 +49,27 @@ func paramUint(c *gin.Context, key string) (uint, failures.Failure) {
 	return uint(id), nil
 }
 
-func handleServiceError(c *gin.Context, err error) failures.Failure {
-	log.Printf("ServiceError: %s", err.Error())
+func handleServiceError(c *gin.Context, err error) {
+	fail := getFailure(err)
 
-	var fail failures.Failure
-	if err == gorm.ErrRecordNotFound {
-		fail = failures.NewNotFound(err)
-	} else {
-		fail = failures.NewBadRequest(err)
-	}
+	logFailure(fail)
+
 	failures.Abort(c, fail)
+}
 
-	return fail
+func getFailure(err error) failures.Failure {
+	if err == gorm.ErrRecordNotFound {
+		return failures.NewNotFound(err)
+	}
+
+	return failures.NewBadRequest(err)
+}
+
+func logFailure(fail failures.Failure) {
+	messages := []string{}
+	for _, err := range fail.ToJSON().Errors {
+		messages = append(messages, fmt.Sprintf("ServiceError: %s", err))
+	}
+
+	log.Println(strings.Join(messages, "\n"))
 }
