@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/FoxComm/middlewarehouse/common/async"
+	commonErrors "github.com/FoxComm/middlewarehouse/common/errors"
 	"github.com/FoxComm/middlewarehouse/models"
 	"github.com/FoxComm/middlewarehouse/repositories"
 )
@@ -106,14 +107,19 @@ func (service *inventoryService) HoldItems(refNum string, skus map[string]int) e
 	}
 
 	// get available units for each stock item
+	aggregateErr := commonErrors.AggregateError{}
 	unitsIds := []uint{}
 	for _, si := range items {
 		ids, err := service.unitRepo.GetStockItemUnitIDs(si.ID, models.StatusOnHand, models.Sellable, skus[si.SKU])
 		if err != nil {
-			return err
+			aggregateErr.Add(err)
 		}
 
 		unitsIds = append(unitsIds, ids...)
+	}
+
+	if aggregateErr.Length() > 0 {
+		return aggregateErr
 	}
 
 	// updated units with refNum and appropriate status
