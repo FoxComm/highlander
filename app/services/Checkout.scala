@@ -2,14 +2,14 @@ package services
 
 import scala.util.Random
 
-import cats.implicits._
 import cats.data.Xor
+import cats.implicits._
 import failures.CouponFailures.CouponWithCodeCannotBeFound
 import failures.GeneralFailure
 import failures.PromotionFailures.PromotionNotFoundForContext
 import models.cord._
-import models.cord.lineitems.{CartLineItems}
-import CartLineItems.scope._
+import models.cord.lineitems.CartLineItems
+import models.cord.lineitems.CartLineItems.scope._
 import models.coupon._
 import models.customer.{Customer, Customers}
 import models.objects._
@@ -17,6 +17,7 @@ import models.payment.creditcard._
 import models.payment.giftcard._
 import models.payment.storecredit._
 import models.promotion._
+import responses.TheResponse
 import responses.cord.OrderResponse
 import services.coupon.CouponUsageService
 import slick.driver.PostgresDriver.api._
@@ -65,7 +66,7 @@ object Checkout {
                                db: DB,
                                apis: Apis,
                                ac: AC,
-                               ctx: OC): DbResultT[OrderResponse] =
+                               ctx: OC): DbResultT[TheResponse[Option[OrderResponse]]] =
     for {
       cart  ← * <~ Carts.mustFindByRefNum(refNum)
       order ← * <~ Checkout(cart, CartValidator(cart)).checkout
@@ -75,7 +76,7 @@ object Checkout {
                                       db: DB,
                                       apis: Apis,
                                       ac: AC,
-                                      ctx: OC): DbResultT[OrderResponse] =
+                                      ctx: OC): DbResultT[TheResponse[Option[OrderResponse]]] =
     for {
       result ← * <~ Carts
                 .findByCustomer(customer)
@@ -97,7 +98,7 @@ case class Checkout(
 
   var externalCalls = new ExternalCalls()
 
-  def checkout: Result[OrderResponse] = {
+  def checkout: Result[TheResponse[Option[OrderResponse]]] = {
     val actions = for {
       customer  ← * <~ Customers.mustFindById404(cart.customerId)
       _         ← * <~ customer.mustHaveCredentials
@@ -115,11 +116,11 @@ case class Checkout(
     } yield fullOrder
 
     actions.runTxn().map {
-      case failures @ Xor.Left(_) ⇒
+      case failures @ Xor.Left(failList) ⇒
         if (externalCalls.middleWarehouseSuccess) cancelHoldInMiddleWarehouse
-        failures
+        Xor.Right(TheResponse(None, errors = Option(failList.toList.map(_.description))))
       case result @ Xor.Right(_) ⇒
-        result
+        result.map(order ⇒ TheResponse(Some(order)))
     }
   }
 
@@ -210,7 +211,6 @@ case class Checkout(
 
   private def authCreditCard(orderTotal: Int,
                              internalPaymentTotal: Int): DbResultT[Option[CreditCardCharge]] = {
-    import scala.concurrent.duration._
 
     val authAmount = orderTotal - internalPaymentTotal
 

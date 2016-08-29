@@ -5,8 +5,6 @@ import failures.GeneralFailure
 import faker.Lorem
 import models.Reasons
 import models.cord._
-import models.cord.lineitems._
-import models.customer.Customers
 import models.inventory.Skus
 import models.objects.ObjectContexts
 import models.payment.giftcard._
@@ -21,7 +19,6 @@ import payloads.LineItemPayloads.UpdateLineItemsPayload
 import slick.driver.PostgresDriver.api._
 import util._
 import util.fixtures.BakedFixtures
-import utils.Money.Currency.USD
 import utils.db._
 import utils.seeds.Seeds.Factories
 
@@ -50,8 +47,8 @@ class CheckoutTest
       when(mockValidator.validate(isCheckout = false, fatalWarnings = true))
         .thenReturn(DbResultT.failure[CartValidatorResponse](failure))
 
-      val result = Checkout(cart, mockValidator).checkout.futureValue.leftVal
-      result must === (failure.single)
+      val result = Checkout(cart, mockValidator).checkout.futureValue.rightVal
+      result.errors.get.head must === (failure.description)
     }
 
     "fails if the cart validator has warnings" in new EmptyCustomerCart_Baked {
@@ -63,8 +60,8 @@ class CheckoutTest
       when(mockValidator.validate(isCheckout = true, fatalWarnings = true))
         .thenReturn(liftedFailure)
 
-      val result = Checkout(cart, mockValidator).checkout.futureValue.leftVal
-      result must === (failure.single)
+      val result = Checkout(cart, mockValidator).checkout.futureValue.rightVal
+      result.errors.get.head must === (failure.description)
     }
 
     "authorizes payments" - {
