@@ -47,12 +47,10 @@ object ImageFacade {
                 fullPath = s"albums/${context.id}/$albumId/$filename"
                 url ← * <~ apis.amazon.uploadFile(fullPath, filePath.toFile)
               } yield (context, url, filename)).run().flatMap {
-                case Xor.Right(tup) ⇒
-                  tup match {
-                    case (context, url, filename) ⇒
-                      addImage(context, albumId, url, filename)
-                  }
-                case Xor.Left(err) ⇒ Result.left(err)
+                case Xor.Right((context, url, filename)) ⇒
+                  addImage(context, albumId, url, filename)
+                case Xor.Left(err) ⇒
+                  Result.left(err)
               }
             }
             .flatMap(a ⇒ a)
