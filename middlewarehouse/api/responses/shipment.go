@@ -29,8 +29,10 @@ func NewShipmentFromModel(model *models.Shipment) *Shipment {
 		TrackingNumber:    NewStringFromSqlNullString(model.TrackingNumber),
 	}
 
-	for _, lineItem := range model.ShipmentLineItems {
-		shipment.ShipmentLineItems = append(shipment.ShipmentLineItems, *NewShipmentLineItemFromModel(&lineItem))
+	for i := range model.ShipmentLineItems {
+		lineItem := NewShipmentLineItemFromModel(&model.ShipmentLineItems[i])
+
+		shipment.ShipmentLineItems = append(shipment.ShipmentLineItems, *lineItem)
 	}
 
 	return shipment

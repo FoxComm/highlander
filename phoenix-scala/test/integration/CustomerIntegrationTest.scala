@@ -36,6 +36,7 @@ import services.carts.CartPaymentUpdater
 import services.{CreditCardManager, Result}
 import slick.driver.PostgresDriver.api._
 import util._
+import util.fixtures.BakedFixtures
 import utils.Money.Currency
 import utils.aliases.stripe._
 import utils.db._
@@ -673,7 +674,7 @@ class CustomerIntegrationTest
     }
   }
 
-  trait Fixture extends CustomerAddress_Baked with StoreAdmin_Seed
+  trait Fixture extends StoreAdmin_Seed with CustomerAddress_Baked
 
   trait CreditCardFixture extends Fixture with EmptyCustomerCart_Baked {
     val creditCard = CreditCards.create(Factories.creditCard.copy(customerId = customer.id)).gimme

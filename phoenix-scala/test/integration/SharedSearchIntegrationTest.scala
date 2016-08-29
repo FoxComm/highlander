@@ -11,6 +11,7 @@ import org.json4s.jackson.JsonMethods._
 import payloads.SharedSearchPayloads._
 import responses.StoreAdminResponse.{Root ⇒ AdminRoot, build ⇒ buildAdmin}
 import util._
+import util.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 
@@ -99,7 +100,7 @@ class SharedSearchIntegrationTest
     }
 
     "returns associated scopes created by different admins" in new SharedSearchAssociationFixture {
-      SharedSearchAssociations.create(buildAssociation(search, storeAdmin)).run().futureValue
+      SharedSearchAssociations.create(buildAssociation(search, storeAdmin)).gimme
 
       val response = GET(s"v1/shared-search?scope=customersScope")
       response.status must === (StatusCodes.OK)
@@ -218,7 +219,7 @@ class SharedSearchIntegrationTest
 
       searchResponse.as[Seq[SharedSearch]] must === (Seq.empty[SharedSearch])
 
-      SharedSearches.findOneByCode(code).run().futureValue.isDefined must === (true)
+      SharedSearches.findOneByCode(code).gimme.isDefined must === (true)
     }
 
     "404 if not found" in {
@@ -278,7 +279,7 @@ class SharedSearchIntegrationTest
     }
 
     "returns multiple associates by code" in new AssociateSecondaryFixture {
-      SharedSearchAssociations.create(buildAssociation(search, secondAdmin)).run().futureValue
+      SharedSearchAssociations.create(buildAssociation(search, secondAdmin)).gimme
 
       val response = GET(s"v1/shared-search/${search.code}/associates")
       response.status must === (StatusCodes.OK)
@@ -404,9 +405,14 @@ class SharedSearchIntegrationTest
        couponsSearch)).gimme
   }
 
-  trait SharedSearchAssociationFixture extends Fixture {
-    val (secondAdmin, search) = (for {
-      secondAdmin ← * <~ StoreAdmins.create(Factories.storeAdmin)
+  trait SecondAdminFixture {
+    val secondAdmin = StoreAdmins
+      .create(Factories.storeAdmin.copy(name = "Junior", email = "another@domain.com"))
+      .gimme
+  }
+
+  trait SharedSearchAssociationFixture extends Fixture with SecondAdminFixture {
+    val search = (for {
       search ← * <~ SharedSearches.create(
                   SharedSearch(title = "Test",
                                query = dummyJVal,
@@ -414,7 +420,7 @@ class SharedSearchIntegrationTest
                                scope = CustomersScope,
                                storeAdminId = secondAdmin.id))
       _ ← * <~ SharedSearchAssociations.create(buildAssociation(search, secondAdmin))
-    } yield (secondAdmin, search)).gimme
+    } yield search).gimme
   }
 
   trait AssociateBaseFixture extends Fixture {
@@ -427,10 +433,7 @@ class SharedSearchIntegrationTest
     val search = SharedSearches.create(customerScope).gimme
   }
 
-  trait AssociateSecondaryFixture extends AssociateBaseFixture {
-    val (associate, secondAdmin) = (for {
-      associate   ← * <~ SharedSearchAssociations.create(buildAssociation(search, storeAdmin))
-      secondAdmin ← * <~ StoreAdmins.create(Factories.storeAdmin)
-    } yield (associate, secondAdmin)).gimme
+  trait AssociateSecondaryFixture extends AssociateBaseFixture with SecondAdminFixture {
+    val associate = SharedSearchAssociations.create(buildAssociation(search, storeAdmin)).gimme
   }
 }

@@ -38,9 +38,9 @@ func GetShipment(
 
 func GetShipmentShort(id uint) *models.Shipment {
 	shippingMethod1 := GetShippingMethod(uint(1), uint(1), GetCarrier(uint(1)))
-	address1 := GetAddress(uint(1), uint(1), GetRegion(uint(1), uint(1), GetCountry(uint(1))))
-	shipmentLineItem1 := GetShipmentLineItem(uint(1), id)
-	shipmentLineItem2 := GetShipmentLineItem(uint(2), id)
+	address1 := GetAddress(uint(0), uint(1), GetRegion(uint(1), uint(1), GetCountry(uint(1))))
+	shipmentLineItem1 := GetShipmentLineItem(uint(1), id, uint(1))
+	shipmentLineItem2 := GetShipmentLineItem(uint(2), id, uint(2))
 
 	return GetShipment(id, shippingMethod1.ID, shippingMethod1, address1.ID, address1,
 		[]models.ShipmentLineItem{*shipmentLineItem1, *shipmentLineItem2})

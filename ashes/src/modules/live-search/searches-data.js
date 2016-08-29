@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { dissoc } from 'sprout-data';
 import { post } from '../../lib/search';
 import { createReducer } from 'redux-act';
 import { createNsAction } from './../utils';
@@ -13,6 +14,7 @@ export default function makeDataInSearches(namespace, esUrl, options = {}) {
   const { extraFilters = null, processQuery = _.identity, initialState = {}, rawSorts = [] } = options;
 
   const setExtraFilters = createNsAction(namespace, 'SET_EXTRA_FILTERS');
+  const clearExtraFilters = createNsAction(namespace, 'CLEAR_EXTRA_FILTERS');
   const ns = namespace.split(/\./);
 
   const rootReducer = createReducer({
@@ -21,6 +23,9 @@ export default function makeDataInSearches(namespace, esUrl, options = {}) {
         ...state,
         extraFilters,
       };
+    },
+    [clearExtraFilters]: (state) => {
+      return dissoc(state, 'extraFilters');
     },
   });
 
@@ -83,6 +88,7 @@ export default function makeDataInSearches(namespace, esUrl, options = {}) {
       refresh,
       updateStateAndFetch,
       setExtraFilters,
+      clearExtraFilters,
     }
   };
 }

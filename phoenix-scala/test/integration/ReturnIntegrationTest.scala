@@ -1,4 +1,3 @@
-import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
@@ -20,6 +19,7 @@ import responses.{AllReturns, ReturnLockResponse, ReturnResponse}
 import services.returns.{ReturnLineItemUpdater, ReturnLockUpdater}
 import slick.driver.PostgresDriver.api._
 import util._
+import util.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 
@@ -338,7 +338,7 @@ class ReturnIntegrationTest
                                                 isReturnItem = true,
                                                 inventoryDisposition = ReturnLineItem.Putaway)
         val updatedRma =
-          ReturnLineItemUpdater.addSkuLineItem(rma.referenceNumber, payload, productContext).gimme
+          ReturnLineItemUpdater.addSkuLineItem(rma.referenceNumber, payload, ctx).gimme
         val lineItemId = updatedRma.lineItems.skus.headOption.value.lineItemId
 
         // Delete
@@ -387,36 +387,6 @@ class ReturnIntegrationTest
 
         response.status must === (StatusCodes.BadRequest)
         response.error must === (NotFoundFailure400(ReturnReason, 100).description)
-      }
-    }
-
-    "DELETE /v1/returns/:refNum/line-items/gift-cards/:id" - {
-      "successfully deletes gift card line item" in new LineItemFixture {
-        // Create
-        val payload =
-          ReturnGiftCardLineItemsPayload(code = giftCard.code, reasonId = returnReason.id)
-        val updatedRma =
-          ReturnLineItemUpdater.addGiftCardLineItem(rma.referenceNumber, payload).gimme
-        val lineItemId = updatedRma.lineItems.giftCards.headOption.value.lineItemId
-
-        // Delete
-        val response =
-          DELETE(s"v1/returns/${rma.referenceNumber}/line-items/gift-cards/$lineItemId")
-        response.status must === (StatusCodes.OK)
-        val root = response.as[ReturnResponse.Root]
-        root.lineItems.giftCards mustBe 'empty
-      }
-
-      "fails if refNum is not found" in new LineItemFixture {
-        val response = DELETE(s"v1/returns/ABC-666/line-items/gift-cards/1")
-        response.status must === (StatusCodes.NotFound)
-        response.error must === (NotFoundFailure404(Return, "ABC-666").description)
-      }
-
-      "fails if line item ID is not found" in new LineItemFixture {
-        val response = DELETE(s"v1/returns/${rma.referenceNumber}/line-items/gift-cards/666")
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (NotFoundFailure400(ReturnLineItem, 666).description)
       }
     }
 
@@ -480,35 +450,24 @@ class ReturnIntegrationTest
     }
   }
 
-  trait Fixture extends Order_Baked with StoreAdmin_Seed {
-    val (rma, reason) = (for {
-      rma ← * <~ Returns.create(
-               Factories.rma.copy(orderRef = order.refNum, customerId = customer.id))
-      reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
-    } yield (rma, reason)).gimme
+  trait Fixture extends Order_Baked with Reason_Baked {
+    val rma =
+      Returns.create(Factories.rma.copy(orderRef = order.refNum, customerId = customer.id)).gimme
   }
 
   trait LineItemFixture extends Fixture {
-    val (productContext, returnReason, sku, giftCard, shipment) = (for {
-      returnReason   ← * <~ ReturnReasons.create(Factories.returnReasons.head)
-      productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-      product        ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head)
-      sku            ← * <~ Skus.mustFindById404(product.skuId)
-      _              ← * <~ addSkusToOrder(Seq(sku.id), order.refNum, OrderLineItem.Cart)
+    val (returnReason, sku, giftCard, shipment) = (for {
+      returnReason ← * <~ ReturnReasons.create(Factories.returnReasons.head)
+      product      ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head)
+      sku          ← * <~ Skus.mustFindById404(product.skuId)
+      _            ← * <~ addSkusToOrder(Seq(sku.id), order.refNum, OrderLineItem.Cart)
 
-      gcReason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
+      gcReason ← * <~ Reasons.create(Factories.reason(storeAdmin.id))
       gcOrigin ← * <~ GiftCardManuals.create(
                     GiftCardManual(adminId = storeAdmin.id, reasonId = gcReason.id))
       giftCard ← * <~ GiftCards.create(
                     Factories.giftCard.copy(originId = gcOrigin.id,
                                             originType = GiftCard.RmaProcess))
-
-      gcLineItem ← * <~ OrderLineItemGiftCards.create(
-                      OrderLineItemGiftCard(cordRef = order.refNum, giftCardId = giftCard.id))
-      lineItem2 ← * <~ OrderLineItems.create(
-                     OrderLineItem(originId = gcLineItem.id,
-                                   originType = OrderLineItem.GiftCardItem,
-                                   cordRef = order.refNum))
 
       shippingAddress ← * <~ OrderShippingAddresses.create(
                            Factories.shippingAddress.copy(cordRef = order.refNum, regionId = 1))
@@ -517,20 +476,14 @@ class ReturnIntegrationTest
                                OrderShippingMethod.build(cordRef = order.refNum,
                                                          method = shippingMethod))
       shipment ← * <~ Shipments.create(Factories.shipment)
-    } yield (productContext, returnReason, sku, giftCard, shipment)).gimme
+    } yield (returnReason, sku, giftCard, shipment)).gimme
   }
 
   def addSkusToOrder(skuIds: Seq[Int],
-                     orderRef: String,
-                     state: OrderLineItem.State): DbResultT[Unit] =
-    for {
-      liSkus ← * <~ OrderLineItemSkus.filter(_.skuId.inSet(skuIds)).result
-      _ ← * <~ OrderLineItems.createAll(liSkus.seq.map { liSku ⇒
-           OrderLineItem(cordRef = orderRef,
-                         originId = liSku.id,
-                         originType = OrderLineItem.SkuItem,
-                         state = state)
-         })
-    } yield {}
+                     cordRef: String,
+                     state: OrderLineItem.State): DbResultT[Unit] = {
+    val itemsToInsert = skuIds.map(skuId ⇒ CartLineItem(cordRef = cordRef, skuId = skuId))
+    CartLineItems.createAll(itemsToInsert).map(_ ⇒ Unit)
+  }
 
 }

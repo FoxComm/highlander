@@ -1,6 +1,8 @@
 package repositories
 
 import (
+	"fmt"
+
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 
 	"github.com/jinzhu/gorm"
@@ -67,7 +69,14 @@ func (repository *summaryRepository) CreateStockItemSummary(summary []*models.St
 	txn := repository.db.Begin()
 
 	for _, item := range summary {
-		if err := txn.Create(item).Error; err != nil {
+		// use `UPDATE SET stock_item_id = '%d'` as postgres driver does not return anything on `DO NOTHING`
+		// resulting in 'no rows in result set' sql error
+		onConflict := fmt.Sprintf(
+			"ON CONFLICT (stock_item_id, type) DO UPDATE SET stock_item_id = '%d'",
+			item.StockItemID,
+		)
+
+		if err := txn.Set("gorm:insert_option", onConflict).Create(item).Error; err != nil {
 			txn.Rollback()
 			return err
 		}

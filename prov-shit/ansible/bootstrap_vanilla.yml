@@ -47,7 +47,7 @@
   vars:
     user: '{{ansible_ssh_user}}'
     db_name: '{{phoenix_db_name}}'
-    seeds_cmd: -Ddb.name={{db_name}} utils.seeds.Seeds seed --seedAdmins
+    seeds_cmd: utils.seeds.Seeds seed
   vars_prompt:
     - name: "hostname"
       prompt: "Enter a hostname with a database to bootstrap"
@@ -56,7 +56,11 @@
     - name: "phoenix_db_name"
       prompt: "Enter the name of the database"
       default: "phoenix"
+    - name: "seed_predefined_admins"
+      prompt: "Seed predefined admins or create only one manually? P - predefined. M - manually"
+      default: "P"
       private: no
 
   roles:
       - { role: dev/db }
+      - { role: prod/bootstrap_manual_or_predefined_admins }

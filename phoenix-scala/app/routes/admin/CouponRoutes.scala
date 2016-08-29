@@ -78,7 +78,7 @@ object CouponRoutes {
                 CouponManager.update(id, payload, context, admin)
               }
             } ~
-            (post & path("archive")) {
+            (delete & pathEnd) {
               mutateOrFailures {
                 CouponManager.archiveByContextAndId(context, id)
               }

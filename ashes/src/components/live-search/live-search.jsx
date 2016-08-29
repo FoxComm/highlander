@@ -44,7 +44,7 @@ export default class LiveSearch extends React.Component {
 
     const search = currentSearch(props);
 
-    const { searchValue = '', query: pills } = search;
+    const { searchValue = '', query } = search;
     const options = _.get(props, ['searches', 'searchOptions'], []);
 
     this.state = {
@@ -53,7 +53,7 @@ export default class LiveSearch extends React.Component {
       isFocused: false,
       isShareVisible: false,
       optionsVisible: false,
-      pills: pills,
+      pills: this.queryToPills(query),
       searchDisplay: searchValue,
       searchPrepend: '',
       searchOptions: options,
@@ -109,6 +109,10 @@ export default class LiveSearch extends React.Component {
     }
   }
 
+  queryToPills(query) {
+    return _.filter(query, q => !q.hidden);
+  }
+
   componentWillReceiveProps(nextProps) {
     const search = currentSearch(nextProps);
     const searchOptions = _.get(nextProps, ['searches', 'searchOptions'], []);
@@ -120,7 +124,7 @@ export default class LiveSearch extends React.Component {
         searchPrepend: '',
         selectionIndex: -1,
         inputMask: null,
-        pills: search.query,
+        pills: this.queryToPills(search.query),
         searchDisplay: search.searchValue,
         optionsVisible: isVisible,
         searchOptions: searchOptions,

@@ -101,7 +101,7 @@ function isStretchRequired(columnWidths: Array<number>, hostWidth: number) {
  */
 function getStretchedColumnsWidths(headerCells: Array<HTMLElement>, columnWidths: Array<number>, hostWidth: number) {
   const widthLack = hostWidth - columnWidths.reduce((a, b) => a + b, 0);
-  const extra = Math.floor(widthLack / (headerCells.length - 2));
+  const extra = Math.floor(widthLack / (headerCells.length - 1));
 
   return columnWidths.map((width: number, index: number) => index < columnWidths.length - 1 ? width + extra : width);
 }
@@ -174,16 +174,16 @@ class DataTable extends Table {
     const { data, setState, className, ...rest } = this.props;
 
     return (
-      <div className="fc-data-table">
+      <div className={classNames('fc-data-table', className)}>
         <div className="fc-table-wrap" ref={(el) => this._el = el}>
           <div className="inner inner-head" ref={(r) => this._head = r}>
-            <table className={classNames('fc-table', className)}>
+            <table className="fc-table">
               <TableHead {...rest} ref="tableHead" sortBy={data.sortBy} setState={setState} />
             </table>
           </div>
 
           <div className="inner" ref={(r) => this._body = r}>
-            <table className={classNames('fc-table', className)}>
+            <table className="fc-table">
               {this.body}
             </table>
           </div>

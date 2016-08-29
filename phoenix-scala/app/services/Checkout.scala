@@ -3,11 +3,13 @@ package services
 import scala.util.Random
 
 import cats.implicits._
+import cats.data.Xor
 import failures.CouponFailures.CouponWithCodeCannotBeFound
 import failures.GeneralFailure
 import failures.PromotionFailures.PromotionNotFoundForContext
 import models.cord._
-import models.cord.lineitems.{OrderLineItemGiftCards, OrderLineItemSkus}
+import models.cord.lineitems.{CartLineItems}
+import CartLineItems.scope._
 import models.coupon._
 import models.customer.{Customer, Customers}
 import models.objects._
@@ -19,8 +21,43 @@ import responses.cord.OrderResponse
 import services.coupon.CouponUsageService
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
-import utils.apis.{Apis, OrderReservation, SkuReservation}
+import utils.apis.{Apis, OrderInventoryHold, SkuInventoryHold}
 import utils.db._
+
+object PaymentHelper {
+
+  def paymentTransaction[Adjustment, Card](
+      payments: Seq[(OrderPayment, Card)],
+      maxPaymentAmount: Int,
+      doTransaction: (Card, OrderPayment, Option[Int]) ⇒ DbResultT[Adjustment],
+      getAdjustmentAmount: (Adjustment) ⇒ Int)(implicit ec: EC,
+                                               db: DB,
+                                               apis: Apis,
+                                               ac: AC): DbResultT[Int] = {
+
+    if (payments.isEmpty) {
+      DbResultT.pure(0)
+    } else {
+
+      val amounts: Seq[Int] = payments.map { case (payment, _) ⇒ payment.getAmount() }
+      val limitedAmounts = amounts
+        .scan(maxPaymentAmount) {
+          case (maxAmount, paymentAmount) ⇒ (maxAmount - paymentAmount).max(0)
+        }
+        .zip(amounts)
+        .map { case (max, amount) ⇒ Math.min(max, amount) }
+        .ensuring(_.sum <= maxPaymentAmount)
+
+      for {
+        adjustments ← * <~ payments.zip(limitedAmounts).collect {
+                       case ((payment, card), amount) if amount > 0 ⇒
+                         doTransaction(card, payment, amount.some)
+                     }
+        total = adjustments.map(getAdjustmentAmount).sum.ensuring(_ <= maxPaymentAmount)
+      } yield total
+    }
+  }
+}
 
 object Checkout {
 
@@ -34,11 +71,11 @@ object Checkout {
       order ← * <~ Checkout(cart, CartValidator(cart)).checkout
     } yield order
 
-  def fromCustomerCart(customer: Customer)(implicit ec: EC,
-                                           db: DB,
-                                           apis: Apis,
-                                           ac: AC,
-                                           ctx: OC): DbResultT[OrderResponse] =
+  def forCustomer(customer: Customer)(implicit ec: EC,
+                                      db: DB,
+                                      apis: Apis,
+                                      ac: AC,
+                                      ctx: OC): DbResultT[OrderResponse] =
     for {
       result ← * <~ Carts
                 .findByCustomer(customer)
@@ -49,34 +86,53 @@ object Checkout {
     } yield order
 }
 
+class ExternalCalls {
+  var authPaymentsSuccess: Boolean    = false
+  var middleWarehouseSuccess: Boolean = false
+}
+
 case class Checkout(
     cart: Cart,
     cartValidator: CartValidation)(implicit ec: EC, db: DB, apis: Apis, ac: AC, ctx: OC) {
 
-  def checkout: DbResultT[OrderResponse] =
-    for {
+  var externalCalls = new ExternalCalls()
+
+  def checkout: Result[OrderResponse] = {
+    val actions = for {
       customer  ← * <~ Customers.mustFindById404(cart.customerId)
       _         ← * <~ customer.mustHaveCredentials
       _         ← * <~ customer.mustNotBeBlacklisted
       _         ← * <~ activePromos
       _         ← * <~ cartValidator.validate(isCheckout = false, fatalWarnings = true)
-      _         ← * <~ reserveInMiddleWarehouse
+      _         ← * <~ holdInMiddleWarehouse
       _         ← * <~ authPayments(customer)
       _         ← * <~ cartValidator.validate(isCheckout = true, fatalWarnings = true)
       order     ← * <~ Orders.createFromCart(cart)
       _         ← * <~ fraudScore(order)
-      _         ← * <~ remorseHold(order)
       _         ← * <~ updateCouponCountersForPromotion(customer)
       fullOrder ← * <~ OrderResponse.fromOrder(order)
       _         ← * <~ LogActivity.orderCheckoutCompleted(fullOrder)
     } yield fullOrder
 
-  private def reserveInMiddleWarehouse: DbResultT[Unit] =
+    actions.runTxn().map {
+      case failures @ Xor.Left(_) ⇒
+        if (externalCalls.middleWarehouseSuccess) cancelHoldInMiddleWarehouse
+        failures
+      case result @ Xor.Right(_) ⇒
+        result
+    }
+  }
+
+  private def holdInMiddleWarehouse: DbResultT[Unit] =
     for {
-      liSkus ← * <~ OrderLineItemSkus.countSkusByCordRef(cart.refNum)
-      skuReservations = liSkus.map { case (skuCode, qty) ⇒ SkuReservation(skuCode, qty) }.toSeq
-      _ ← * <~ apis.middlwarehouse.reserve(OrderReservation(cart.referenceNumber, skuReservations))
+      liSkus ← * <~ CartLineItems.byCordRef(cart.refNum).countSkus
+      skus = liSkus.map { case (skuCode, qty) ⇒ SkuInventoryHold(skuCode, qty) }.toSeq
+      _ ← * <~ apis.middlwarehouse.hold(OrderInventoryHold(cart.referenceNumber, skus))
+      mutatingResult = externalCalls.middleWarehouseSuccess = true
     } yield {}
+
+  private def cancelHoldInMiddleWarehouse: Result[Unit] =
+    apis.middlwarehouse.cancelHold(cart.referenceNumber)
 
   private def activePromos: DbResultT[Unit] =
     for {
@@ -123,60 +179,34 @@ case class Checkout(
 
   private def authPayments(customer: Customer): DbResultT[Unit] =
     for {
-      gcPayments ← * <~ OrderPayments.findAllGiftCardsByCordRef(cart.refNum).result
-      gcTotal ← * <~ authInternalPaymentMethod(gcPayments,
-                                               cart.grandTotal,
-                                               GiftCards.authOrderPayment,
-                                               (a: GiftCardAdjustment) ⇒ a.getAmount.abs)
 
       scPayments ← * <~ OrderPayments.findAllStoreCreditsByCordRef(cart.refNum).result
-      scTotal ← * <~ authInternalPaymentMethod(
+      scTotal ← * <~ PaymentHelper.paymentTransaction(
                    scPayments,
-                   cart.grandTotal - gcTotal,
+                   cart.grandTotal,
                    StoreCredits.authOrderPayment,
                    (a: StoreCreditAdjustment) ⇒ a.getAmount.abs
                )
 
-      gcCodes = gcPayments.map { case (_, gc) ⇒ gc.code }.distinct
+      gcPayments ← * <~ OrderPayments.findAllGiftCardsByCordRef(cart.refNum).result
+      gcTotal ← * <~ PaymentHelper.paymentTransaction(gcPayments,
+                                                      cart.grandTotal - scTotal,
+                                                      GiftCards.authOrderPayment,
+                                                      (a: GiftCardAdjustment) ⇒ a.getAmount.abs)
+
       scIds   = scPayments.map { case (_, sc) ⇒ sc.id }.distinct
+      gcCodes = gcPayments.map { case (_, gc) ⇒ gc.code }.distinct
+
+      _ ← * <~ (if (scTotal > 0) LogActivity.scFundsAuthorized(customer, cart, scIds, scTotal)
+                else DbResultT.unit)
 
       _ ← * <~ (if (gcTotal > 0) LogActivity.gcFundsAuthorized(customer, cart, gcCodes, gcTotal)
-                else DbResultT.unit)
-      _ ← * <~ (if (scTotal > 0) LogActivity.scFundsAuthorized(customer, cart, scIds, scTotal)
                 else DbResultT.unit)
 
       // Authorize funds on credit card
       ccs ← * <~ authCreditCard(cart.grandTotal, gcTotal + scTotal)
+      mutatingResult = externalCalls.authPaymentsSuccess = true
     } yield {}
-
-  private def authInternalPaymentMethod[Adjustment, Card](
-      orderPayments: Seq[(OrderPayment, Card)],
-      maxPaymentAmount: Int,
-      authOrderPayment: (Card, OrderPayment, Option[Int]) ⇒ DbResultT[Adjustment],
-      getAdjustmentAmount: (Adjustment) ⇒ Int): DbResultT[Int] = {
-
-    if (orderPayments.isEmpty) {
-      DbResultT.pure(0)
-    } else {
-
-      val amounts: Seq[Int] = orderPayments.map { case (payment, _) ⇒ payment.getAmount() }
-      val limitedAmounts = amounts
-        .scan(maxPaymentAmount) {
-          case (maxAmount, paymentAmount) ⇒ (maxAmount - paymentAmount).max(0)
-        }
-        .zip(amounts)
-        .map { case (max, amount) ⇒ Math.min(max, amount) }
-        .ensuring(_.sum <= maxPaymentAmount)
-
-      for {
-        adjustments ← * <~ orderPayments.zip(limitedAmounts).collect {
-                       case ((payment, card), amount) if amount > 0 ⇒
-                         authOrderPayment(card, payment, amount.some)
-                     }
-        total = adjustments.map(getAdjustmentAmount).sum.ensuring(_ <= maxPaymentAmount)
-      } yield total
-    }
-  }
 
   private def authCreditCard(orderTotal: Int,
                              internalPaymentTotal: Int): DbResultT[Option[CreditCardCharge]] = {
@@ -190,13 +220,11 @@ case class Checkout(
         card ← pmt.creditCard
       } yield (pmt, card)).one.toXor.flatMap {
         case Some((pmt, card)) ⇒
-          val f = Stripe().authorizeAmount(card.gatewayCustomerId, authAmount, cart.currency)
-
           for {
-            // TODO: remove the blocking Await which causes us to change types (I knew it was coming anyways!)
-            stripeCharge ← * <~ scala.concurrent.Await.result(f, 5.seconds)
+            stripeCharge ← * <~ Stripe()
+                            .authorizeAmount(card.gatewayCustomerId, authAmount, cart.currency)
             ourCharge = CreditCardCharge.authFromStripe(card, pmt, stripeCharge, cart.currency)
-            _       ← * <~ LogActivity.creditCardCharge(cart, ourCharge)
+            _       ← * <~ LogActivity.creditCardAuth(cart, ourCharge)
             created ← * <~ CreditCardCharges.create(ourCharge)
           } yield created.some
 
@@ -206,19 +234,11 @@ case class Checkout(
     } else DbResultT.none
   }
 
-  private def remorseHold(order: Order): DBIO[Unit] =
-    for {
-      items ← OrderLineItemGiftCards.findByOrderRef(cart.refNum).result
-      holds ← GiftCards
-               .filter(_.id.inSet(items.map(_.giftCardId)))
-               .map(_.state)
-               .update(GiftCard.OnHold)
-    } yield {}
-
+  //TODO: Replace with the real deal once we figure out how to do it.
   private def fraudScore(order: Order): DbResultT[Order] =
     for {
-      fraudScore ← * <~ Random.nextInt(10)
-      order      ← * <~ Orders.update(order, order.copy(fraudScore = fraudScore))
+      fakeFraudScore ← * <~ Random.nextInt(10)
+      order          ← * <~ Orders.update(order, order.copy(fraudScore = fakeFraudScore))
     } yield order
 
 }

@@ -63,24 +63,7 @@
   file: src="{{bottledwater_dir}}/kafka/bottledwater" dest="/usr/local/bin/bottledwater" state=link
   sudo: true
 
-- name: Get Flyway
-  get_url: url={{flyway_url}} dest={{home}}/flyway.tar.gz
-
-- name: Unzip Flyway
-  unarchive: src={{home}}/flyway.tar.gz dest=/usr/local/share copy=no
-  sudo: true
-
-- name: Make Flyway Executable
-  file: path={{flyway_dir}}/flyway mode="u+x,g+x,o+x"
-  sudo: true
-
-- name: Add Flyway Home
-  lineinfile: dest=/etc/profile line="FLYWAY_HOME={{flyway_dir}}"
-  sudo: true
-
-- name: Add Flyway Path
-  lineinfile: dest=/etc/profile line="PATH=$PATH:$FLYWAY_HOME" insertafter="^FLYWAY"
-  sudo: true
+- include: flyway_install.yml
 
 - name: Copy Postgres Configuration
   copy: src={{item}} dest="/etc/postgresql/9.5/main/{{item}}" mode="644"

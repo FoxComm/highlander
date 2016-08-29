@@ -3,12 +3,12 @@ package services
 import (
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
+
+	"github.com/jinzhu/gorm"
 )
 
 type shipmentService struct {
-	repository              repositories.IShipmentRepository
-	addressService          IAddressService
-	shipmentLineItemService IShipmentLineItemService
+	db *gorm.DB
 }
 
 type IShipmentService interface {
@@ -17,60 +17,69 @@ type IShipmentService interface {
 	UpdateShipment(shipment *models.Shipment) (*models.Shipment, error)
 }
 
-func NewShipmentService(
-	repository repositories.IShipmentRepository,
-	addressService IAddressService,
-	shipmentLineItemService IShipmentLineItemService,
-) IShipmentService {
-	return &shipmentService{repository, addressService, shipmentLineItemService}
+func NewShipmentService(db *gorm.DB) IShipmentService {
+	return &shipmentService{db}
 }
 
 func (service *shipmentService) GetShipmentsByReferenceNumber(referenceNumber string) ([]*models.Shipment, error) {
-	return service.repository.GetShipmentsByReferenceNumber(referenceNumber)
+	repo := repositories.NewShipmentRepository(service.db)
+	return repo.GetShipmentsByReferenceNumber(referenceNumber)
 }
 
 func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*models.Shipment, error) {
-	address, err := service.addressService.CreateAddress(&shipment.Address)
-	if err != nil {
-		return nil, err
-	}
+	txn := service.db.Begin()
 
-	shipment.AddressID = address.ID
-	result, err := service.repository.CreateShipment(shipment)
-	if err != nil {
-		service.addressService.DeleteAddress(address.ID)
-		return nil, err
-	}
-
-	createdLineItems := []models.ShipmentLineItem{}
-	for i, _ := range shipment.ShipmentLineItems {
-		shipment.ShipmentLineItems[i].ShipmentID = result.ID
-		createdLineItem, err := service.shipmentLineItemService.CreateShipmentLineItem(&shipment.ShipmentLineItems[i])
+	unitRepo := repositories.NewStockItemUnitRepository(txn)
+	for i, lineItem := range shipment.ShipmentLineItems {
+		siu, err := unitRepo.GetUnitForLineItem(shipment.ReferenceNumber, lineItem.SKU)
 		if err != nil {
-			service.repository.DeleteShipment(result.ID)
-			service.addressService.DeleteAddress(address.ID)
-			for _, lineItem := range createdLineItems {
-				service.shipmentLineItemService.DeleteShipmentLineItem(lineItem.ID)
-			}
-
+			txn.Rollback()
 			return nil, err
 		}
 
-		createdLineItems = append(createdLineItems, *createdLineItem)
+		if err := txn.Model(siu).Update("status", "reserved").Error; err != nil {
+			txn.Rollback()
+			return nil, err
+		}
+
+		shipment.ShipmentLineItems[i].StockItemUnitID = siu.ID
 	}
 
-	return service.repository.GetShipmentByID(result.ID)
-}
-
-func (service *shipmentService) UpdateShipment(shipment *models.Shipment) (*models.Shipment, error) {
-	_, err := service.repository.UpdateShipment(shipment)
+	shipmentRepo := repositories.NewShipmentRepository(txn)
+	result, err := shipmentRepo.CreateShipment(shipment)
 	if err != nil {
+		txn.Rollback()
 		return nil, err
 	}
 
-	for i, _ := range shipment.ShipmentLineItems {
-		service.shipmentLineItemService.UpdateShipmentLineItem(&shipment.ShipmentLineItems[i])
+	err = txn.Commit().Error
+	return result, err
+}
+
+func (service *shipmentService) UpdateShipment(shipment *models.Shipment) (*models.Shipment, error) {
+	txn := service.db.Begin()
+
+	shipmentRepo := repositories.NewShipmentRepository(txn)
+	source, err := shipmentRepo.GetShipmentByID(shipment.ID)
+	if err != nil {
+		txn.Rollback()
+		return nil, err
 	}
 
-	return service.repository.GetShipmentByID(shipment.ID)
+	shipment, err = shipmentRepo.UpdateShipment(shipment)
+	if err != nil {
+		txn.Rollback()
+		return nil, err
+	}
+
+	if shipment.State != source.State && shipment.State == models.ShipmentStateCancelled {
+		unitRepo := repositories.NewStockItemUnitRepository(txn)
+		if _, err = unitRepo.UnsetUnitsInOrder(shipment.ReferenceNumber); err != nil {
+			txn.Rollback()
+			return nil, err
+		}
+	}
+
+	err = txn.Commit().Error
+	return shipment, err
 }

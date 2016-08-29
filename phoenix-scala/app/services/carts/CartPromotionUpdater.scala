@@ -9,6 +9,7 @@ import failures.PromotionFailures._
 import models.cord.OrderPromotions.scope._
 import models.cord._
 import models.cord.lineitems._
+import CartLineItems.scope._
 import models.coupon._
 import models.discount.DiscountHelpers._
 import models.discount._
@@ -145,10 +146,10 @@ object CartPromotionUpdater {
 
   private def fetchCartDetails(cart: Cart)(implicit ec: EC) =
     for {
-      lineItemTup ← OrderLineItemSkus.findLineItemsByCordRef(cart.refNum).result
+      lineItemTup ← CartLineItems.byCordRef(cart.refNum).lineItems.result
       lineItems = lineItemTup.map {
         case (sku, skuForm, skuShadow, productShadow, lineItem) ⇒
-          OrderLineItemProductData(sku, skuForm, skuShadow, productShadow, lineItem)
+          CartLineItemProductData(sku, skuForm, skuShadow, productShadow, lineItem)
       }
       shipMethod ← shipping.ShippingMethods.forCordRef(cart.refNum).one
     } yield (lineItems, shipMethod)

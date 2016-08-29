@@ -18,6 +18,8 @@
 }
 
 .fc-inventory-item-details {
+  margin: 0 -1.85%;
+
   &__summary {
     background: @color-decor0;
   }
@@ -32,22 +34,57 @@
     color: @color-decor1;
   }
 
-  &__warehouses-table {
-    margin-top: 40px;
-    margin-bottom: 60px;
+  .fc-tab._selected &__tab-link {
+    font-weight: @semibold;
+  }
 
-    tbody tr {
+  .fc-table__table > .fc-table-wrap {
+    padding: 40px 20px 60px;
+    border-top: none;
+    background: #fff;
+
+    .fc-table-wrap {
+      padding: 0;
+      border: none;
+    }
+  }
+
+  &__warehouses-table {
+    .fc-table-head {
+      .fc-table-tr {
+        border-top: 1px solid #d9d9d9;
+
+        &:first-child {
+          border-left: 1px solid #d9d9d9;
+        }
+        &:last-child {
+          border-right: 1px solid #d9d9d9;
+        }
+      }
+    }
+    .fc-table-body > .fc-table-tr {
       height: 84px;
     }
 
-    tbody tr.fc-expandable-table__drawer {
-      height: 62px;
+    .fc-table-body .fc-table-tr.fc-expandable-table__drawer {
+      background: #fff !important;
     }
   }
 
   &__warehouse-details-table {
-    thead tr {
-      height: 62px;
+    .fc-table-head .fc-table-tr,
+    .fc-table-head .fc-table-tr th {
+      border-top: none !important;
+      background: #e4e6ea;
+    }
+
+    .fc-table-body {
+      .fc-table-tr:nth-child(odd) {
+        background: #f4f5f6;
+      }
+      .fc-table-tr:nth-child(even) {
+        background: #e4e6ea;
+      }
     }
   }
 

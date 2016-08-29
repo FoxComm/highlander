@@ -1,11 +1,8 @@
 package models
 
-import models.cord.OrderPayments
-import models.payment.PaymentMethod
-import models.payment.giftcard.{GiftCardAdjustments, GiftCardManual, GiftCardManuals, GiftCards}
+import models.payment.giftcard._
 import util._
-import utils.db._
-import utils.seeds.Seeds.Factories
+import util.fixtures.BakedFixtures
 
 class GiftCardIntegrationTest
     extends IntegrationTestBase
@@ -13,54 +10,47 @@ class GiftCardIntegrationTest
     with TestObjectContext {
 
   "GiftCardTest" - {
-    "generates a unique alpha-numeric code of size 16 upon insert" in new Fixture {
-      giftCard.code must have size (16)
+    "generates a unique alpha-numeric code of size 16 upon insert" in new SimpleFixture {
+      giftCard.code must have size 16
     }
 
-    "sets availableBalance and currentBalance equal to originalBalance upon insert" in new Fixture {
+    "sets availableBalance and currentBalance equal to originalBalance upon insert" in new SimpleFixture {
       giftCard.originalBalance must === (50)
       giftCard.currentBalance must === (50)
       giftCard.availableBalance must === (50)
     }
 
     "updates availableBalance if auth adjustment is created + cancel handling" in new Fixture {
-      val adjustment = GiftCards.capture(giftCard, Some(payment.id), 10).gimme
+      val adjustment = GiftCards.capture(giftCard, Some(orderPayments.head.id), 10).gimme
 
-      val updatedGiftCard = GiftCards.findOneById(giftCard.id).run().futureValue.value
-      updatedGiftCard.availableBalance must === (giftCard.availableBalance - 10)
+      val updatedGiftCard = GiftCards.refresh(giftCard).gimme
+      updatedGiftCard.availableBalance must === (giftCard.originalBalance - 10)
 
-      GiftCardAdjustments.cancel(adjustment.id).run().futureValue
-      val canceledGiftCard = GiftCards.findOneById(giftCard.id).run().futureValue.value
-      canceledGiftCard.availableBalance must === (giftCard.availableBalance)
+      GiftCardAdjustments.cancel(adjustment.id).gimme
+      val canceledGiftCard = GiftCards.refresh(giftCard).gimme
+      canceledGiftCard.availableBalance must === (giftCard.originalBalance)
     }
 
     "updates availableBalance and currentBalance if capture adjustment is created + cancel handling" in new Fixture {
-      val adjustment = GiftCards.capture(giftCard, Some(payment.id), 0, 10).gimme
+      val adjustment = GiftCards.capture(giftCard, Some(orderPayments.head.id), 0, 10).gimme
 
-      val updatedGiftCard = GiftCards.findOneById(giftCard.id).run().futureValue.value
-      updatedGiftCard.availableBalance must === (giftCard.availableBalance + 10)
-      updatedGiftCard.currentBalance must === (giftCard.currentBalance + 10)
+      val updatedGiftCard = GiftCards.refresh(giftCard).gimme
+      updatedGiftCard.availableBalance must === (giftCard.originalBalance + 10)
+      updatedGiftCard.currentBalance must === (giftCard.originalBalance + 10)
 
-      GiftCardAdjustments.cancel(adjustment.id).run().futureValue
-      val canceledGiftCard = GiftCards.findOneById(giftCard.id).run().futureValue.value
-      canceledGiftCard.availableBalance must === (giftCard.availableBalance)
-      canceledGiftCard.currentBalance must === (giftCard.currentBalance)
+      GiftCardAdjustments.cancel(adjustment.id).gimme
+      val canceledGiftCard = GiftCards.refresh(giftCard).gimme
+      canceledGiftCard.availableBalance must === (giftCard.originalBalance)
+      canceledGiftCard.currentBalance must === (giftCard.originalBalance)
     }
   }
 
-  trait Fixture extends EmptyCustomerCart_Baked with StoreAdmin_Seed {
-    val (origin, giftCard, payment) = (for {
-      reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
-      origin ← * <~ GiftCardManuals.create(
-                  GiftCardManual(adminId = storeAdmin.id, reasonId = reason.id))
-      gc ← * <~ GiftCards.create(
-              Factories.giftCard.copy(originalBalance = 50, originId = origin.id))
-      giftCard ← * <~ GiftCards.findOneById(gc.id)
-      payment ← * <~ OrderPayments.create(
-                   Factories.giftCardPayment.copy(cordRef = cart.refNum,
-                                                  paymentMethodId = gc.id,
-                                                  paymentMethodType = PaymentMethod.GiftCard,
-                                                  amount = Some(gc.availableBalance)))
-    } yield (origin, giftCard.value, payment)).gimme
+  trait SimpleFixture extends Reason_Baked with GiftCard_Raw {
+    override def giftCardBalance = 50
   }
+
+  trait Fixture
+      extends SimpleFixture
+      with EmptyCustomerCart_Baked
+      with CartWithGiftCardOnlyPayment_Raw
 }

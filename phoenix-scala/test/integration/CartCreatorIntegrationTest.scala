@@ -3,12 +3,12 @@ import akka.http.scaladsl.model.StatusCodes
 import Extensions._
 import cats.implicits._
 import failures.NotFoundFailure400
-import models.StoreAdmins
 import models.customer.Customer
 import payloads.OrderPayloads.CreateCart
 import responses.cord.CartResponse
 import services.carts.CartCreator
 import util._
+import util.fixtures.BakedFixtures
 
 class CartCreatorIntegrationTest
     extends IntegrationTestBase
@@ -69,7 +69,5 @@ class CartCreatorIntegrationTest
     }
   }
 
-  trait Fixture extends Customer_Seed {
-    val storeAdmin = StoreAdmins.create(authedStoreAdmin).gimme
-  }
+  trait Fixture extends Customer_Seed with StoreAdmin_Seed
 }

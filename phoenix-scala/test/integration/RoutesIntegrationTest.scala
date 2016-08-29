@@ -1,4 +1,3 @@
-import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.directives.SecurityDirectives.challengeFor
 

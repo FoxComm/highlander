@@ -1,7 +1,5 @@
 package services
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
 import cats.implicits._
 import failures.GeneralFailure
 import faker.Lorem
@@ -22,6 +20,7 @@ import org.scalatest.mock.MockitoSugar
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import slick.driver.PostgresDriver.api._
 import util._
+import util.fixtures.BakedFixtures
 import utils.Money.Currency.USD
 import utils.db._
 import utils.seeds.Seeds.Factories
@@ -51,7 +50,7 @@ class CheckoutTest
       when(mockValidator.validate(isCheckout = false, fatalWarnings = true))
         .thenReturn(DbResultT.failure[CartValidatorResponse](failure))
 
-      val result = Checkout(cart, mockValidator).checkout.run().futureValue.leftVal
+      val result = Checkout(cart, mockValidator).checkout.futureValue.leftVal
       result must === (failure.single)
     }
 
@@ -64,14 +63,8 @@ class CheckoutTest
       when(mockValidator.validate(isCheckout = true, fatalWarnings = true))
         .thenReturn(liftedFailure)
 
-      val result = Checkout(cart, mockValidator).checkout.run().futureValue.leftVal
+      val result = Checkout(cart, mockValidator).checkout.futureValue.leftVal
       result must === (failure.single)
-    }
-
-    "sets all gift card line item purchases as GiftCard.OnHold" in new GCLineItemFixture {
-      Checkout(cart, cartValidator()).checkout.gimme
-      val gc = GiftCards.mustFindById404(giftCard.id).gimme
-      gc.state must === (GiftCard.OnHold)
     }
 
     "authorizes payments" - {
@@ -184,11 +177,9 @@ class CheckoutTest
             // Do not mock validator because OrderResponse requires that data anyway
             _ ← * <~ Checkout.fromCart(cart.refNum)
 
-            gcAdjustments ← * <~ GiftCardAdjustments.filter(_.giftCardId.inSet(gcIds)).result
             scAdjustments ← * <~ StoreCreditAdjustments.filter(_.storeCreditId.inSet(scIds)).result
 
-            totalAdjustments = gcAdjustments.map(_.getAmount.abs).sum +
-              scAdjustments.map(_.getAmount.abs).sum
+            totalAdjustments = scAdjustments.map(_.getAmount.abs).sum
           } yield totalAdjustments
 
           dbResultT
@@ -204,22 +195,9 @@ class CheckoutTest
     }
   }
 
-  trait GCLineItemFixture extends EmptyCartWithShipAddress_Baked {
-    val giftCard = (for {
-      shipMethod ← * <~ ShippingMethods.create(Factories.shippingMethods.head)
-      _          ← * <~ OrderShippingMethods.create(OrderShippingMethod.build(cart.refNum, shipMethod))
-      origin     ← * <~ GiftCardOrders.create(GiftCardOrder(cordRef = cart.refNum))
-      giftCard ← * <~ GiftCards.create(
-                    GiftCard.buildLineItem(balance = 150, originId = origin.id, currency = USD))
-      lineItemGc ← * <~ OrderLineItemGiftCards.create(
-                      OrderLineItemGiftCard(giftCardId = giftCard.id, cordRef = cart.refNum))
-      lineItem ← * <~ OrderLineItems.create(OrderLineItem.buildGiftCard(cart, lineItemGc))
-    } yield giftCard).gimme
-  }
-
   trait PaymentFixture extends CustomerAddress_Baked with StoreAdmin_Seed {
     val (reason, shipMethod) = (for {
-      reason     ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
+      reason     ← * <~ Reasons.create(Factories.reason(storeAdmin.id))
       shipMethod ← * <~ ShippingMethods.create(Factories.shippingMethods.head)
     } yield (reason, shipMethod)).gimme
 
@@ -254,7 +232,7 @@ class CheckoutTest
       } yield ids
   }
 
-  trait PaymentFixtureWithCart extends PaymentFixture with EmptyCustomerCart_Raw {
+  trait PaymentFixtureWithCart extends PaymentFixture with EmptyCart_Raw {
     override val cart = super.cart.copy(grandTotal = 1000)
     (for {
       _ ← * <~ OrderShippingMethods.create(OrderShippingMethod.build(cart.refNum, shipMethod))

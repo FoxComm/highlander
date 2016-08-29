@@ -10,6 +10,7 @@ import models.cord._
 import org.scalatest.BeforeAndAfterAll
 import services.actors._
 import util._
+import util.fixtures.BakedFixtures
 
 class RemorseTimerTest(_system: ActorSystem)
     extends TestKit(_system)

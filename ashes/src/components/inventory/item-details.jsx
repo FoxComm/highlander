@@ -70,10 +70,8 @@ class InventoryItemDetails extends Component {
 
   @autobind
   renderDrawer(row: WarehouseInventorySummary, index, params) {
-    const key = `inventory-warehouse-drawer-${row.stockLocation.id}`;
     return (
       <WarehouseDrawer
-        key={key}
         data={this.drawerData(row)}
         columns={this.drawerColumns}
         isLoading={_.get(this.props, ['fetchState', 'inProgress'], true)}

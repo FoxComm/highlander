@@ -8,18 +8,18 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 )
 
-func GetShipmentLineItem(id uint, shipmentID uint) *models.ShipmentLineItem {
+func GetShipmentLineItem(id uint, shipmentID uint, stockItemUnitId uint) *models.ShipmentLineItem {
 	return &models.ShipmentLineItem{
 		Base: gormfox.Base{
 			ID: id,
 		},
 		ShipmentID:      shipmentID,
-		ReferenceNumber: "BR1002",
+		ReferenceNumber: "e1a56545-8ada-4132-8d8c-b8aceda68bbe",
+		StockItemUnitID: stockItemUnitId,
 		SKU:             "SKU-TEST1",
 		Name:            "Some shit",
 		Price:           uint(3999),
 		ImagePath:       "https://test.com/some-shit.png",
-		State:           models.ShipmentStatePending,
 	}
 }
 
@@ -31,17 +31,16 @@ func ToShipmentLineItemPayload(shipmentLineItem *models.ShipmentLineItem) *paylo
 		Name:            shipmentLineItem.Name,
 		Price:           shipmentLineItem.Price,
 		ImagePath:       shipmentLineItem.ImagePath,
-		State:           string(shipmentLineItem.State),
 	}
 }
 
 func GetShipmentLineItemColumns() []string {
-	return []string{"id", "shipment_id", "name", "reference_number", "sku", "price",
-		"image_path", "state", "created_at", "updated_at", "deleted_at"}
+	return []string{"id", "shipment_id", "stock_item_unit_id", "name", "reference_number",
+		"sku", "price", "image_path", "created_at", "updated_at", "deleted_at"}
 }
 
 func GetShipmentLineItemRow(shipmentLineItem *models.ShipmentLineItem) []driver.Value {
-	return []driver.Value{shipmentLineItem.ID, shipmentLineItem.ShipmentID, shipmentLineItem.Name,
-		shipmentLineItem.ReferenceNumber, shipmentLineItem.SKU, shipmentLineItem.Price, shipmentLineItem.ImagePath,
-		[]uint8(shipmentLineItem.State), shipmentLineItem.CreatedAt, shipmentLineItem.UpdatedAt, shipmentLineItem.DeletedAt}
+	return []driver.Value{shipmentLineItem.ID, shipmentLineItem.ShipmentID, shipmentLineItem.StockItemUnitID,
+		shipmentLineItem.Name, shipmentLineItem.ReferenceNumber, shipmentLineItem.SKU, shipmentLineItem.Price,
+		shipmentLineItem.ImagePath, shipmentLineItem.CreatedAt, shipmentLineItem.UpdatedAt, shipmentLineItem.DeletedAt}
 }

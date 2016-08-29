@@ -59,7 +59,7 @@ func (repository *shipmentRepository) GetShipmentByID(id uint) (*models.Shipment
 }
 
 func (repository *shipmentRepository) CreateShipment(shipment *models.Shipment) (*models.Shipment, error) {
-	err := repository.db.Set("gorm:save_associations", false).Save(shipment).Error
+	err := repository.db.Create(shipment).Error
 
 	if err != nil {
 		return nil, err
@@ -69,7 +69,17 @@ func (repository *shipmentRepository) CreateShipment(shipment *models.Shipment) 
 }
 
 func (repository *shipmentRepository) UpdateShipment(shipment *models.Shipment) (*models.Shipment, error) {
-	result := repository.db.Set("gorm:save_associations", false).Save(shipment)
+	result := repository.db.
+		Set("gorm:save_associations", false).
+		Model(shipment).
+		Select(
+			"state",
+			"shipment_date",
+			"estimated_arrival",
+			"delivered_date",
+			"tracking_number",
+		).
+		Save(shipment)
 
 	if result.Error != nil {
 		return nil, result.Error

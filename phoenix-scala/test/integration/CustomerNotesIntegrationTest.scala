@@ -3,14 +3,14 @@ import java.time.Instant
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
-import util._
 import failures.NotFoundFailure404
+import models.Notes
 import models.customer.Customer
-import models.{Notes, _}
 import payloads.NotePayloads._
 import responses.AdminNotes
 import services.notes.CustomerNoteManager
 import util._
+import util.fixtures.BakedFixtures
 import utils.db._
 import utils.time.RichInstant
 
@@ -30,7 +30,7 @@ class CustomerNotesIntegrationTest
 
       val note = response.as[AdminNotes.Root]
       note.body must === ("Hello, FoxCommerce!")
-      note.author must === (AdminNotes.buildAuthor(admin))
+      note.author must === (AdminNotes.buildAuthor(storeAdmin))
     }
 
     "returns a validation error if failed to create" in new Fixture {
@@ -52,7 +52,7 @@ class CustomerNotesIntegrationTest
 
     "can be listed" in new Fixture {
       val createNotes = List("abc", "123", "xyz").map { body ⇒
-        CustomerNoteManager.create(customer.id, admin, CreateNote(body = body))
+        CustomerNoteManager.create(customer.id, storeAdmin, CreateNote(body = body))
       }
       DbResultT.sequence(createNotes).gimme
 
@@ -69,7 +69,7 @@ class CustomerNotesIntegrationTest
 
     "can update the body text" in new Fixture {
       val rootNote = CustomerNoteManager
-        .create(customer.id, admin, CreateNote(body = "Hello, FoxCommerce!"))
+        .create(customer.id, storeAdmin, CreateNote(body = "Hello, FoxCommerce!"))
         .gimme
 
       val response =
@@ -110,7 +110,5 @@ class CustomerNotesIntegrationTest
     }
   }
 
-  trait Fixture extends Customer_Seed {
-    val admin = StoreAdmins.create(authedStoreAdmin).gimme
-  }
+  trait Fixture extends Customer_Seed with StoreAdmin_Seed
 }

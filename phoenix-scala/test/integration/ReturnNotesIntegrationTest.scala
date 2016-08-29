@@ -1,19 +1,16 @@
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
-import util._
 import failures.NotFoundFailure404
 import models._
-import models.customer.Customers
-import models.cord.{Order, Orders}
 import models.returns._
 import payloads.NotePayloads._
 import responses.AdminNotes
 import services.notes.ReturnNoteManager
 import util._
+import util.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 import utils.time.RichInstant
@@ -37,7 +34,7 @@ class ReturnNotesIntegrationTest
 
         val note = response.as[AdminNotes.Root]
         note.body must === ("Hello, FoxCommerce!")
-        note.author must === (AdminNotes.buildAuthor(admin))
+        note.author must === (AdminNotes.buildAuthor(storeAdmin))
       }
 
       "returns a validation error if failed to create" in new Fixture {
@@ -59,7 +56,7 @@ class ReturnNotesIntegrationTest
 
       "can be listed" in new Fixture {
         val createNotes = List("abc", "123", "xyz").map { body ⇒
-          ReturnNoteManager.create(rma.refNum, admin, CreateNote(body = body))
+          ReturnNoteManager.create(rma.refNum, storeAdmin, CreateNote(body = body))
         }
         DbResultT.sequence(createNotes).gimme
 
@@ -76,7 +73,7 @@ class ReturnNotesIntegrationTest
 
       "can update the body text" in new Fixture {
         val rootNote = ReturnNoteManager
-          .create(rma.refNum, admin, CreateNote(body = "Hello, FoxCommerce!"))
+          .create(rma.refNum, storeAdmin, CreateNote(body = "Hello, FoxCommerce!"))
           .gimme
 
         val response =
@@ -118,14 +115,8 @@ class ReturnNotesIntegrationTest
     }
   }
 
-  trait Fixture extends Order_Baked {
-    val (admin, rma) = (for {
-      admin ← * <~ StoreAdmins.create(authedStoreAdmin)
-      order ← * <~ Orders.create(
-                 Factories.order.copy(state = Order.RemorseHold,
-                                      remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
-      rma ← * <~ Returns.create(
-               Factories.rma.copy(orderRef = order.refNum, customerId = customer.id))
-    } yield (admin, rma)).gimme
+  trait Fixture extends StoreAdmin_Seed with Order_Baked {
+    val rma =
+      Returns.create(Factories.rma.copy(orderRef = order.refNum, customerId = customer.id)).gimme
   }
 }

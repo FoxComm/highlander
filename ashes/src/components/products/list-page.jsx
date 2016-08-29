@@ -10,7 +10,7 @@ import { transitionTo } from 'browserHistory';
 import { ListPageContainer, makeTotalCounter } from '../list-page';
 
 // actions
-import { actions } from '../../modules/products/list';
+import { actions } from 'modules/products/list';
 
 type Props = {
   children: any,

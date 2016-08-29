@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
@@ -13,42 +12,34 @@ import (
 )
 
 type shipmentController struct {
-	shipmentService         services.IShipmentService
-	addressService          services.IAddressService
-	shipmentLineItemService services.IShipmentLineItemService
-	//shipmentTransactionService services.IShipmentTransactionService
+	shipmentService services.IShipmentService
 }
 
 func NewShipmentController(
 	shipmentService services.IShipmentService,
-	addressService services.IAddressService,
-	shipmentLineItemService services.IShipmentLineItemService,
-	//shipmentTransactionService services.IShipmentTransactionService,
 ) IController {
-	return &shipmentController{shipmentService, addressService, shipmentLineItemService /*, shipmentTransactionService*/}
+	return &shipmentController{shipmentService}
 }
 
 func (controller *shipmentController) SetUp(router gin.IRouter) {
-	router.GET(":referenceNumbers", controller.getShipmentsByReferenceNumbers())
+	router.GET(":referenceNumber", controller.getShipmentsByReferenceNumber())
 	router.POST("", controller.createShipment())
 	router.PUT(":id", controller.updateShipment())
+	router.POST("from-order", controller.createShipmentFromOrder())
 }
 
-func (controller *shipmentController) getShipmentsByReferenceNumbers() gin.HandlerFunc {
+func (controller *shipmentController) getShipmentsByReferenceNumber() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		referenceNumbers := strings.Split(context.Params.ByName("referenceNumbers"), ",")
+		referenceNumber := context.Params.ByName("referenceNumber")
+		shipments, err := controller.shipmentService.GetShipmentsByReferenceNumber(referenceNumber)
+		if err != nil {
+			handleServiceError(context, err)
+			return
+		}
 
-		response := []*responses.Shipment{}
-		for _, referenceNumber := range referenceNumbers {
-			shipments, err := controller.shipmentService.GetShipmentsByReferenceNumber(referenceNumber)
-			if err != nil {
-				handleServiceError(context, err)
-				return
-			}
-
-			for _, shipment := range shipments {
-				response = append(response, responses.NewShipmentFromModel(shipment))
-			}
+		response := &responses.Shipments{}
+		for _, shipment := range shipments {
+			response.Shipments = append(response.Shipments, *responses.NewShipmentFromModel(shipment))
 		}
 
 		context.JSON(http.StatusOK, response)
@@ -97,5 +88,22 @@ func (controller *shipmentController) updateShipment() gin.HandlerFunc {
 		}
 
 		context.JSON(http.StatusOK, responses.NewShipmentFromModel(shipment))
+	}
+}
+
+func (controller *shipmentController) createShipmentFromOrder() gin.HandlerFunc {
+	return func(context *gin.Context) {
+		payload := &payloads.Order{}
+		if parse(context, payload) != nil {
+			return
+		}
+
+		shipment, err := controller.shipmentService.CreateShipment(models.NewShipmentFromOrderPayload(payload))
+		if err != nil {
+			handleServiceError(context, err)
+			return
+		}
+
+		context.JSON(http.StatusCreated, responses.NewShipmentFromModel(shipment))
 	}
 }

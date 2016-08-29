@@ -263,7 +263,8 @@ object Seeds {
                        chargeId = "foo",
                        amount = 25)
 
-    def reason = Reason(id = 0, storeAdminId = 0, body = "I'm a reason", parentId = None)
+    def reason(storeAdminId: Int) =
+      Reason(storeAdminId = storeAdminId, body = "I'm a reason", parentId = None)
 
     def reasons: Seq[Reason] =
       Seq(

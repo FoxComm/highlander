@@ -17,11 +17,11 @@ glide: prep
 
 build: glide
 	cd $(BUILDPATH) && go build -o middlewarehouse main.go
-	$(MAKE) -C consumers/stock-items build
+	cd $(BUILDPATH) && go build -o consumers/shipments/shipments-consumer consumers/shipments/*.go
+	cd $(BUILDPATH) && go build -o consumers/stock-items/stock-items-consumer consumers/stock-items/*.go
 
 build-linux:
 	GOOS=linux $(MAKE) build
-	$(MAKE) -C consumers/stock-items build-linux
 
 clean:
 	rm -rf ./vendor
@@ -35,8 +35,8 @@ migrate-test:
 reset: drop-db drop-user create-user create-db migrate migrate-test
 
 reset-test:
-	dropdb --if-exists ${DB_TEST}
-	createdb ${DB_TEST}
+	dropdb --if-exists ${DB_TEST} -U ${DB_USER}
+	createdb ${DB_TEST} -U ${DB_USER}
 	@make migrate-test
 
 drop-db:
@@ -54,9 +54,10 @@ create-user:
 	createuser -s ${DB_USER}
 
 test-consumers:
-	$(MAKE) -C consumers/stock-items test
+	GOENV=test cd consumers/shipments && go test -v ./...
+	GOENV=test cd consumers/stock-items && go test -v ./...
 
-test: $(TESTDIRS) test-consumers
+test: $(TESTDIRS)
 $(TESTDIRS): PACKAGE = $(@:test-%=%)
 $(TESTDIRS):
 	cd $(PACKAGE) && GOENV=test go test ./...

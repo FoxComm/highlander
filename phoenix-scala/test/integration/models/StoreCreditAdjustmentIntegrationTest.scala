@@ -5,6 +5,7 @@ import models.payment.storecredit._
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import org.scalatest.prop.Tables.Table
 import util._
+import util.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 
@@ -115,6 +116,6 @@ class StoreCreditAdjustmentIntegrationTest
   }
 
   trait Fixture extends EmptyCustomerCart_Baked with StoreAdmin_Seed {
-    val reason = Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id)).gimme
+    val reason = Reasons.create(Factories.reason(storeAdmin.id)).gimme
   }
 }

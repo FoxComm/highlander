@@ -9,11 +9,11 @@ type ShipmentLineItem struct {
 	gormfox.Base
 	ShipmentID      uint
 	ReferenceNumber string
+	StockItemUnitID uint
 	SKU             string
 	Name            string
 	Price           uint
 	ImagePath       string
-	State           ShipmentState
 }
 
 func NewShipmentLineItemFromPayload(payload *payloads.ShipmentLineItem) *ShipmentLineItem {
@@ -26,6 +26,15 @@ func NewShipmentLineItemFromPayload(payload *payloads.ShipmentLineItem) *Shipmen
 		Name:            payload.Name,
 		Price:           payload.Price,
 		ImagePath:       payload.ImagePath,
-		State:           ShipmentState(payload.State),
+	}
+}
+
+func NewShipmentLineItemFromOrderPayload(payload *payloads.OrderLineItem) *ShipmentLineItem {
+	return &ShipmentLineItem{
+		ReferenceNumber: payload.ReferenceNumber,
+		SKU:             payload.SKU,
+		Name:            payload.Name,
+		Price:           payload.Price,
+		ImagePath:       payload.ImagePath,
 	}
 }

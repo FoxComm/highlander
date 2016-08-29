@@ -1,11 +1,11 @@
 package services
 
-import models.activity.ActivityContext
 import models.cord.lineitems._
 import models.objects._
 import models.product.{Mvp, SimpleContext, SimpleProductData}
 import payloads.LineItemPayloads.{UpdateLineItemsPayload ⇒ Payload}
 import util._
+import util.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 
@@ -23,8 +23,6 @@ class LineItemUpdaterTest
                   Factories.products.head.copy(code = i.toString, price = 5)
                 }, context.id)
     } yield (context, products)
-
-  def createLineItems(items: Seq[OrderLineItem]) = OrderLineItems.createAll(items).gimme
 
   "LineItemUpdater" - {
 
@@ -48,21 +46,17 @@ class LineItemUpdaterTest
           assert(false, "Should have found sku 1")
       }
 
-      val allRecords = OrderLineItems.gimme
+      val allRecords = CartLineItems.gimme
       root.lineItems.skus.foldLeft(0)(_ + _.quantity) must === (allRecords.size)
-
-      OrderLineItemSkus.gimme.size must === (2)
     }
 
     "Updates line items when the Sku already is in cart" in new Fixture {
       val (context, products) = createProducts(3).gimme
-      val seedItems = Seq(1, 1, 1, 1, 1, 1, 2, 3, 3).map { linkId ⇒
-        OrderLineItem(id = 0,
-                      cordRef = cart.refNum,
-                      originId = linkId,
-                      originType = OrderLineItem.SkuItem)
+      val seedItems = Seq(1, 1, 1, 1, 1, 1, 2, 3, 3).map { skuId ⇒
+        CartLineItem(cordRef = cart.refNum, skuId = skuId)
       }
-      createLineItems(seedItems)
+
+      CartLineItems.createAll(seedItems).gimme
 
       val payload = Seq[Payload](
           Payload(sku = "1", quantity = 3),
@@ -83,7 +77,7 @@ class LineItemUpdaterTest
           assert(false, "Should have found sku 1")
       }
 
-      root.lineItems.skus.foldLeft(0)(_ + _.quantity) must === (OrderLineItems.gimme.size)
+      root.lineItems.skus.foldLeft(0)(_ + _.quantity) must === (CartLineItems.gimme.size)
     }
   }
 

@@ -4,9 +4,10 @@ import cats.data.Xor
 import com.pellucid.sealerate
 import failures.Failures
 import models.cord.Cart
-import models.cord.lineitems.OrderLineItem.{GiftCardItem, OriginType, SkuItem}
 import models.cord.lineitems.{OrderLineItem ⇒ OLI}
-import models.inventory.Sku
+import models.inventory.{Sku, Skus}
+import models.objects._
+import models.product._
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
@@ -14,11 +15,32 @@ import slick.jdbc.JdbcType
 import utils._
 import utils.db._
 
+trait LineItemProductData[LI] {
+  def sku: Sku
+  def skuForm: ObjectForm
+  def skuShadow: ObjectShadow
+  def product: ObjectShadow
+  def lineItem: LI
+
+  def lineItemReferenceNumber: String
+  def lineItemState: OrderLineItem.State
+}
+
+case class OrderLineItemProductData(sku: Sku,
+                                    skuForm: ObjectForm,
+                                    skuShadow: ObjectShadow,
+                                    product: ObjectShadow,
+                                    lineItem: OrderLineItem)
+    extends LineItemProductData[OrderLineItem] {
+  def lineItemReferenceNumber = lineItem.referenceNumber
+  def lineItemState           = lineItem.state
+}
+
 case class OrderLineItem(id: Int = 0,
                          referenceNumber: String = "",
                          cordRef: String,
-                         originId: Int,
-                         originType: OLI.OriginType = OLI.SkuItem,
+                         skuId: Int,
+                         skuShadowId: Int,
                          state: OLI.State = OLI.Cart)
     extends FoxModel[OrderLineItem]
     with FSM[OrderLineItem.State, OrderLineItem] {
@@ -55,49 +77,22 @@ object OrderLineItem {
     def types = sealerate.values[State]
   }
 
-  sealed trait OriginType
-  case object SkuItem      extends OriginType
-  case object GiftCardItem extends OriginType
-
-  object OriginType extends ADT[OriginType] {
-    def types = sealerate.values[OriginType]
-  }
-
   implicit val stateColumnType: JdbcType[State] with BaseTypedType[State] = State.slickColumn
-  implicit val originTypeColumnType: JdbcType[OriginType] with BaseTypedType[OriginType] =
-    OriginType.slickColumn
-
-  def buildGiftCard(cart: Cart, origin: OrderLineItemGiftCard): OrderLineItem = {
-    OrderLineItem(
-        cordRef = cart.refNum,
-        originId = origin.id,
-        originType = GiftCardItem,
-        state = Cart
-    )
-  }
-
-  def buildSku(cart: Cart, sku: Sku): OrderLineItem = {
-    OrderLineItem(
-        cordRef = cart.refNum,
-        originId = sku.id,
-        originType = SkuItem,
-        state = Cart
-    )
-  }
 }
 
 class OrderLineItems(tag: Tag) extends FoxTable[OrderLineItem](tag, "order_line_items") {
   def id              = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def referenceNumber = column[String]("reference_number")
   def cordRef         = column[String]("cord_ref")
-  def originId        = column[Int]("origin_id")
-  def originType      = column[OrderLineItem.OriginType]("origin_type")
+  def skuId           = column[Int]("sku_id")
+  def skuShadowId     = column[Int]("sku_shadow_id")
   def state           = column[OrderLineItem.State]("state")
   def * =
-    (id, referenceNumber, cordRef, originId, originType, state) <>
+    (id, referenceNumber, cordRef, skuId, skuShadowId, state) <>
       ((OrderLineItem.apply _).tupled, OrderLineItem.unapply)
 
-  def skuLineItems = foreignKey(OrderLineItemSkus.tableName, originId, OrderLineItemSkus)(_.id)
+  def sku    = foreignKey(Skus.tableName, skuId, Skus)(_.id)
+  def shadow = foreignKey(ObjectShadows.tableName, skuShadowId, ObjectShadows)(_.id)
 }
 
 object OrderLineItems
@@ -111,20 +106,32 @@ object OrderLineItems
   def findByOrderRef(cordRef: Rep[String]): Query[OrderLineItems, OrderLineItem, Seq] =
     filter(_.cordRef === cordRef)
 
-  def countByOrder(cart: Cart): DBIO[Int] = findByOrderRef(cart.refNum).length.result
+  def findBySkuId(id: Int): DBIO[Option[OrderLineItem]] =
+    filter(_.skuId === id).one
 
-  def countBySkuIdForCart(cart: Cart): Query[(Rep[Int], Rep[Int]), (Int, Int), Seq] =
+  type FindLineItemResult      = (Sku, ObjectForm, ObjectShadow, ObjectShadow, OrderLineItem)
+  type FindLineItemResultMulti = (Skus, ObjectForms, ObjectShadows, ObjectShadows, OrderLineItems)
+
+  def findLineItemsByCordRef(
+      refNum: String): Query[FindLineItemResultMulti, FindLineItemResult, Seq] =
     for {
-      (skuId, group) ← findByOrderRef(cart.refNum).skuItems.groupBy(_.originId)
-    } yield (skuId, group.length)
+      lineItems     ← OrderLineItems.filter(_.cordRef === refNum)
+      sku           ← lineItems.sku
+      skuForm       ← ObjectForms if skuForm.id === sku.formId
+      skuShadow     ← lineItems.shadow
+      link          ← ProductSkuLinks if link.rightId === sku.id
+      product       ← Products if product.id === link.rightId
+      productShadow ← ObjectShadows if productShadow.id === product.shadowId
+    } yield (sku, skuForm, skuShadow, productShadow, lineItems)
 
   object scope {
-    implicit class OriginTypeQuerySeqConversions(q: QuerySeq) {
-      def giftCards: QuerySeq = q.byOriginType(GiftCardItem)
-      def skuItems: QuerySeq  = q.byOriginType(SkuItem)
-
-      def byOriginType(originType: OriginType): QuerySeq =
-        q.filter(_.originType === (originType: OriginType))
+    implicit class OrderLineItemQuerySeqConversions(q: QuerySeq) {
+      def withSkus: Query[(OrderLineItems, Skus), (OrderLineItem, Sku), Seq] =
+        for {
+          items ← q
+          skus  ← items.sku
+        } yield (items, skus)
     }
   }
+
 }

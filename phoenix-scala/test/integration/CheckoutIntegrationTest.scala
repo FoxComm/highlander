@@ -4,7 +4,7 @@ import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
 import cats.implicits._
-import failures.CustomerFailures.{CustomerMustHaveCredentials, _}
+import failures.CustomerFailures._
 import failures.NotFoundFailure404
 import failures.ShippingMethodFailures.ShippingMethodNotFoundByName
 import models.Reasons
@@ -25,6 +25,7 @@ import responses.GiftCardResponse
 import responses.cord._
 import slick.driver.PostgresDriver.api._
 import util._
+import util.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 
@@ -163,16 +164,23 @@ class CheckoutIntegrationTest
     }
   }
 
+  trait FullCartWithGcPayment
+      extends Reason_Baked
+      with EmptyCartWithShipAddress_Baked
+      with FullCart_Raw
+      with GiftCard_Raw
+      with CartWithGiftCardPayment_Raw
+
   trait Fixture extends CustomerAddress_Baked with StoreAdmin_Seed {
     val (shipMethod, product, sku, reason) = (for {
       _ ← * <~ Factories.shippingMethods.map(ShippingMethods.create)
+      shipMethodName = ShippingMethod.expressShippingNameForAdmin
       shipMethod ← * <~ ShippingMethods
-                    .filter(_.adminDisplayName === ShippingMethod.expressShippingNameForAdmin)
-                    .mustFindOneOr(
-                        ShippingMethodNotFoundByName(ShippingMethod.expressShippingNameForAdmin))
+                    .filter(_.adminDisplayName === shipMethodName)
+                    .mustFindOneOr(ShippingMethodNotFoundByName(shipMethodName))
       product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head)
       sku     ← * <~ Skus.mustFindById404(product.skuId)
-      reason  ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
+      reason  ← * <~ Reasons.create(Factories.reason(storeAdmin.id))
     } yield (shipMethod, product, sku, reason)).gimme
   }
 
@@ -189,7 +197,7 @@ class CheckoutIntegrationTest
                         ShippingMethodNotFoundByName(ShippingMethod.expressShippingNameForAdmin))
       product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head)
       sku     ← * <~ Skus.mustFindById404(product.skuId)
-      reason  ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
+      reason  ← * <~ Reasons.create(Factories.reason(storeAdmin.id))
     } yield (customer, address, shipMethod, product, sku, reason)).gimme
   }
 }

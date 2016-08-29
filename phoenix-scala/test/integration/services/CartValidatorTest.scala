@@ -1,7 +1,5 @@
 package services
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
 import cats.implicits._
 import failures.CartFailures._
 import models.cord._
@@ -15,6 +13,7 @@ import models.product._
 import models.{Reasons, StoreAdmins}
 import services.carts.CartTotaler
 import util._
+import util.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 
@@ -57,7 +56,7 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
         val notEnoughFunds = skuPrice - 1
 
         (for {
-          reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
+          reason ← * <~ Reasons.create(Factories.reason(storeAdmin.id))
           origin ← * <~ GiftCardManuals.create(
                       GiftCardManual(adminId = storeAdmin.id, reasonId = reason.id))
           giftCard ← * <~ GiftCards.create(
@@ -152,7 +151,7 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
       sku           ← * <~ Skus.mustFindById404(productData.skuId)
       skuForm       ← * <~ ObjectForms.mustFindById404(sku.formId)
       skuShadow     ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
-      items         ← * <~ OrderLineItems.create(OrderLineItem.buildSku(cart, sku))
+      items         ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = sku.id))
       _             ← * <~ CartTotaler.saveTotals(cart)
     } yield (product, productForm, productShadow, sku, skuForm, skuShadow, items)).gimme
 
@@ -168,7 +167,7 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
       sku           ← * <~ Skus.mustFindById404(productData.skuId)
       skuForm       ← * <~ ObjectForms.mustFindById404(sku.formId)
       skuShadow     ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
-      items         ← * <~ OrderLineItems.create(OrderLineItem.buildSku(cart, sku))
+      items         ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = sku.id))
       _             ← * <~ CartTotaler.saveTotals(cart)
     } yield (product, productForm, productShadow, sku, skuForm, skuShadow, items)).gimme
 
@@ -185,7 +184,7 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
 
   trait GiftCardFixture extends LineItemsFixture with StoreAdmin_Seed {
     val (giftCard, orderPayment) = (for {
-      reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
+      reason ← * <~ Reasons.create(Factories.reason(storeAdmin.id))
       origin ← * <~ GiftCardManuals.create(
                   GiftCardManual(adminId = storeAdmin.id, reasonId = reason.id))
       giftCard ← * <~ GiftCards.create(
@@ -199,7 +198,7 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
 
   trait StoreCreditFixture extends LineItemsFixture with StoreAdmin_Seed {
     val (storeCredit, orderPayment) = (for {
-      reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
+      reason ← * <~ Reasons.create(Factories.reason(storeAdmin.id))
       origin ← * <~ StoreCreditManuals.create(
                   StoreCreditManual(adminId = storeAdmin.id, reasonId = reason.id))
       storeCredit ← * <~ StoreCredits.create(

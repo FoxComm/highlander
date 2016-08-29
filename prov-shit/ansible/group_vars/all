@@ -41,8 +41,17 @@ middlewarehouse_db_name: middlewarehouse_development
 middlewarehouse_db_user: middlewarehouse
 middlewarehouse_db_connection_string: "postgresql://{{db_host}}/{{middlewarehouse_db_name}}?user={{middlewarehouse_db_user}}"
 
+middlewarehouse_consumers_dir: "{{middlewarehouse_dir}}/consumers"
+stock_items_consumer_bin: "{{middlewarehouse_consumers_dir}}/stock-items-consumer"
+shipments_consumer_bin: "{{middlewarehouse_consumers_dir}}/shipments-consumer"
+
 middlewarehouse_src: ../../middlewarehouse/
 middlewarehouse_bin_src: "{{middlewarehouse_src}}/middlewarehouse"
+
+stock_items_consumer_src: "{{middlewarehouse_src}}/consumers/stock-items"
+stock_items_consumer_bin_src: "{{stock_items_consumer_src}}/stock-items-consumer"
+shipments_consumer_src: "{{middlewarehouse_src}}/consumers/shipments"
+shipments_consumer_bin_src: "{{shipments_consumer_src}}/shipments-consumer"
 
 # Ashes
 ashes_env: production
@@ -81,6 +90,7 @@ search_server_http: "{{search_host}}:9200"
 search_server: "{{search_host}}:9300"
 ashes_server: 127.0.0.1:4000
 storefront_server: 127.0.0.1:4041
+kafka_host: 127.0.0.1
 kafka_server: 127.0.0.1:9092
 zookeeper_server: 127.0.0.1:2181
 schema_server: 127.0.0.1:8081

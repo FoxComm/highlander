@@ -5,7 +5,6 @@ import java.util.Locale
 import javax.sql.DataSource
 
 import scala.annotation.tailrec
-import scala.concurrent.ExecutionContext.Implicits.global
 
 import models.objects.{ObjectContext, ObjectContexts}
 import models.product.SimpleContext
@@ -13,6 +12,7 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{BeforeAndAfterAll, Outcome, Suite, SuiteMixin}
 import slick.driver.PostgresDriver.api.Database
 import slick.jdbc.hikaricp.HikariCPJdbcDataSource
+import utils.aliases.EC
 import utils.db.flyway.newFlyway
 
 trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with ScalaFutures with GimmeSupport {
@@ -23,6 +23,8 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with ScalaFutures 
   val api = slick.driver.PostgresDriver.api
 
   implicit lazy val db = database
+
+  implicit val ec: EC
 
   /* tables which should *not* be truncated b/c they're static and seeded by migration */
   val doNotTruncate = Set("states", "countries", "regions", "schema_version")

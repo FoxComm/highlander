@@ -12,6 +12,7 @@ import models.shipping.ShippingMethods
 import services.ShippingManager.getShippingMethodsForCart
 import services.carts.CartTotaler
 import util._
+import util.fixtures.BakedFixtures
 import utils._
 import utils.db.ExPostgresDriver.api._
 import utils.db.ExPostgresDriver.jsonMethods._
@@ -149,11 +150,7 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
       cart ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
       product ← * <~ Mvp.insertProduct(ctx.id,
                                        Factories.products.head.copy(title = "Donkey", price = 27))
-      lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(product.skuId)
-      lineItem ← * <~ OrderLineItems.create(
-                    OrderLineItem(cordRef = cart.refNum,
-                                  originId = lineItemSku.id,
-                                  originType = OrderLineItem.SkuItem))
+      li ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
 
       cart ← * <~ CartTotaler.saveTotals(cart)
     } yield cart).gimme
@@ -277,11 +274,9 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
                                             Factories.products.head.copy(title = "Cheap Donkey",
                                                                          price = 10,
                                                                          code = "SKU-CHP"))
-      cheapLineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(cheapProduct.skuId)
-      cheapLineItem ← * <~ OrderLineItems.create(
-                         OrderLineItem(cordRef = cheapCart.refNum,
-                                       originId = cheapLineItemSku.id,
-                                       originType = OrderLineItem.SkuItem))
+      li ← * <~ CartLineItems.create(
+              CartLineItem(cordRef = cheapCart.refNum, skuId = cheapProduct.skuId))
+
       cheapAddress ← * <~ Addresses.create(
                         Factories.address.copy(customerId = customer.id,
                                                isDefaultShipping = false))
@@ -296,11 +291,8 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
                                                                                "Expensive Donkey",
                                                                              price = 100,
                                                                              code = "SKU-EXP"))
-      expensiveLineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(expensiveProduct.skuId)
-      expensiveLineItem ← * <~ OrderLineItems.create(
-                             OrderLineItem(cordRef = expensiveCart.refNum,
-                                           originId = expensiveLineItemSku.id,
-                                           originType = OrderLineItem.SkuItem))
+      li ← * <~ CartLineItems.create(
+              CartLineItem(cordRef = expensiveCart.refNum, skuId = expensiveProduct.skuId))
       expensiveAddress ← * <~ Addresses.create(
                             Factories.address.copy(customerId = customer.id,
                                                    isDefaultShipping = false))

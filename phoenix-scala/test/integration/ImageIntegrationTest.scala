@@ -1,7 +1,6 @@
 import java.nio.file.Paths
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.marshalling.Marshal
 import akka.http.scaladsl.model._
 import akka.stream.scaladsl.Source
@@ -11,7 +10,6 @@ import cats.implicits._
 import failures.ArchiveFailures.AddImagesToArchivedAlbumFailure
 import failures.ImageFailures._
 import failures.ObjectFailures._
-import models.StoreAdmins
 import models.image._
 import models.inventory._
 import models.objects._
@@ -23,12 +21,17 @@ import responses.ProductResponses._
 import responses.SkuResponses._
 import services.image.ImageManager
 import util.IntegrationTestBase
+import util.fixtures.BakedFixtures
 import utils.Money.Currency
 import utils._
 import utils.db._
 import utils.time.RichInstant
 
-class ImageIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
+class ImageIntegrationTest
+    extends IntegrationTestBase
+    with HttpSupport
+    with AutomaticAuth
+    with BakedFixtures {
 
   "Album Tests" - {
     "GET v1/albums/:context/:id" - {
@@ -489,7 +492,7 @@ class ImageIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
     }
   }
 
-  trait Fixture {
+  trait Fixture extends StoreAdmin_Seed {
     def createShadowAttr(key: String, attrType: String) =
       key → (("type" → attrType) ~ ("ref" → key))
 
@@ -505,8 +508,7 @@ class ImageIntegrationTest extends IntegrationTestBase with HttpSupport with Aut
     val shadow = ObjectShadow(attributes = albumShadowAttrs)
 
     val (album, albumImages) = (for {
-      storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
-      ins        ← * <~ ObjectUtils.insert(form, shadow)
+      ins ← * <~ ObjectUtils.insert(form, shadow)
       album ← * <~ Albums.create(
                  Album(contextId = ctx.id,
                        shadowId = ins.shadow.id,

@@ -39,3 +39,13 @@ func (service *ShipmentServiceMock) UpdateShipment(shipment *models.Shipment) (*
 
 	return nil, args.Error(1)
 }
+
+func (service *ShipmentServiceMock) GetUnshippedItems(shipment *models.Shipment) ([]*models.ShipmentLineItem, error) {
+	args := service.Called(shipment)
+
+	if model, ok := args.Get(0).([]*models.ShipmentLineItem); ok {
+		return model, nil
+	}
+
+	return nil, args.Error(1)
+}

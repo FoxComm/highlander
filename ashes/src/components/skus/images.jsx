@@ -13,27 +13,30 @@ import Images from '../images/images';
 
 // types
 import type { Props as ImagesProps } from '../images/images';
+import type { Sku } from '../../modules/skus/details';
 
 type Params = {
-  skuCode: number;
-  context: string;
+  skuCode: number,
 };
 
 type Props = ImagesProps & {
-  params: Params;
+  params: Params,
+  sku: Sku,
 };
 
 class SkuImages extends Component {
   props: Props;
 
   componentDidMount(): void {
-    const { context, skuCode } = this.props.params;
+    const { skuCode } = this.props.params;
+    const context = this.props.sku.context.name;
 
     this.props.fetchAlbums(context, skuCode);
   }
 
   render(): Element {
-    const { params: { skuCode, context }, ...rest } = this.props;
+    const { params: { skuCode }, ...rest } = this.props;
+    const context = this.props.sku.context.name;
 
     return (
       <Images {...rest} entityId={skuCode} context={context} />

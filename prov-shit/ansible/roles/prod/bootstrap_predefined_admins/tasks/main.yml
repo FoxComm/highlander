@@ -1,0 +1,8 @@
+---
+
+- name: Seed predefined admins
+  shell: java -cp {{phoenix_jar}} utils.seeds.Seeds seed --skipMigrate --skipBase --seedAdmins
+  sudo: true
+  args:
+    chdir: "{{phoenix_dir}}"
+

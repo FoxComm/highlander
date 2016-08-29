@@ -17,7 +17,7 @@ object GiftCardPayloads {
       extends Validation[GiftCardCreateByCsr] {
 
     def validate: ValidatedNel[Failure, GiftCardCreateByCsr] = {
-      greaterThan(balance, 0, "Balance").map { case _ ⇒ this }
+      greaterThan(balance, 0, "Balance").map(_ ⇒ this)
     }
   }
 
@@ -42,7 +42,7 @@ object GiftCardPayloads {
       extends Validation[GiftCardUpdateStateByCsr] {
 
     def validate: ValidatedNel[Failure, GiftCardUpdateStateByCsr] = {
-      GiftCard.validateStateReason(state, reasonId).map { case _ ⇒ this }
+      GiftCard.validateStateReason(state, reasonId).map(_ ⇒ this)
     }
   }
 

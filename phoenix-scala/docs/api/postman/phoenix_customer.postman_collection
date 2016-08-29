@@ -673,7 +673,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"holderName\": \"John Smith\",\n    \"number\": \"4242424242424242\",\n    \"cvv\": \"555\",\n    \"expMonth\": 4,\n    \"expYear\": 2022,\n    \"addressId\": 1\n}"
+							"raw": "{\n    \"holderName\": \"John Smith\",\n    \"cardNumber\": \"4242424242424242\",\n    \"cvv\": \"555\",\n    \"expMonth\": 4,\n    \"expYear\": 2022,\n    \"addressId\": 705,\n    \"isShipping\": true\n}"
 						},
 						"description": ""
 					},

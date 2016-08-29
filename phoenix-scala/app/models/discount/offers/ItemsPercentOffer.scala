@@ -30,7 +30,7 @@ case class ItemsPercentOffer(discount: Int, search: Seq[ProductSearch])
         val adjustments = input.lineItems
           .filter(data ⇒ matchedFormIds.contains(data.product.formId.toString))
           .map { data ⇒
-            build(input, subtract(price(data), discount), data.lineItem.referenceNumber.some)
+            build(input, subtract(price(data), discount), data.lineItemReferenceNumber.some)
           }
 
         Xor.Right(adjustments)

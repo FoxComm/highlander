@@ -1,7 +1,7 @@
 package fixtures
 
 import (
-	"github.com/FoxComm/middlewarehouse/models"
+	"github.com/FoxComm/highlander/middlewarehouse/models"
 )
 
 func GetStockItem(stockLocationId uint, sku string) *models.StockItem {

@@ -28,7 +28,7 @@ func TestConsumerSuite(t *testing.T) {
 
 func (suite *ConsumerTestSuite) TestMessageHander() {
 	msg := testAvroMessage{
-		b: []byte(`{"id": 1, "code": "SKU-HANDLER"}`),
+		b: []byte(`{"id": 1, "sku_code": "SKU-HANDLER"}`),
 	}
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

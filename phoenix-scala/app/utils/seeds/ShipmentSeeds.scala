@@ -4,7 +4,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import models.location.Country.unitedStatesId
 import models.rules._
-import models.shipping.ShippingPriceRule._
 import models.shipping._
 import org.json4s.jackson.JsonMethods._
 import slick.driver.PostgresDriver.api._
@@ -30,8 +29,6 @@ trait ShipmentSeeds {
   def createShipmentRules: DbResultT[ShippingMethods] =
     for {
       methods ← * <~ ShippingMethods.createAllReturningIds(shippingMethods)
-      _       ← * <~ ShippingPriceRules.createAll(shippingPriceRules)
-      _       ← * <~ ShippingMethodsPriceRules.createAll(shippingMethodRuleMappings)
     } yield
       methods.seq.toList match {
         case m1 :: m2 :: m3 :: m4 :: Nil ⇒ (m1, m2, m3, m4)
@@ -61,33 +58,6 @@ trait ShipmentSeeds {
                        isActive = true,
                        conditions = Some(usOnly))
     )
-
-  def shippingPriceRules = Seq(
-      ShippingPriceRule(name = "Flat Shipping for Standard Delivery",
-                        ruleType = Flat,
-                        flatPrice = 300,
-                        flatMarkup = 0),
-      ShippingPriceRule(name = "Flat Shipping for Express Delivery",
-                        ruleType = Flat,
-                        flatPrice = 1500,
-                        flatMarkup = 0),
-      ShippingPriceRule(name = "Flat Shipping for Overnight Delivery",
-                        ruleType = Flat,
-                        flatPrice = 3000,
-                        flatMarkup = 0),
-      ShippingPriceRule(name = "Flat Shipping Over 50",
-                        ruleType = Flat,
-                        flatPrice = 0,
-                        flatMarkup = 0)
-  )
-
-  def shippingMethodRuleMappings = Seq(
-      ShippingMethodPriceRule(shippingMethodId = 1, shippingPriceRuleId = 1, ruleRank = 1),
-      ShippingMethodPriceRule(shippingMethodId = 1, shippingPriceRuleId = 4, ruleRank = 2),
-      ShippingMethodPriceRule(shippingMethodId = 2, shippingPriceRuleId = 4, ruleRank = 1),
-      ShippingMethodPriceRule(shippingMethodId = 3, shippingPriceRuleId = 2, ruleRank = 1),
-      ShippingMethodPriceRule(shippingMethodId = 4, shippingPriceRuleId = 3, ruleRank = 1)
-  )
 
   def usOnly = parse(s"""
     | {

@@ -6,6 +6,7 @@ import models.cord._
 import models.customer.{Customer, Customers}
 import models.location.Addresses
 import util._
+import util.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 

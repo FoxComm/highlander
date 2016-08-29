@@ -30,7 +30,8 @@ import slick.driver.PostgresDriver.api._
 import utils.aliases.stripe._
 import utils.db._
 import utils.seeds.Seeds.Factories
-import scala.concurrent.ExecutionContext.Implicits.global
+
+import util.fixtures.BakedFixtures
 
 class CartPaymentsIntegrationTest
     extends IntegrationTestBase
@@ -467,7 +468,7 @@ class CartPaymentsIntegrationTest
 
   trait GiftCardFixture extends StoreAdmin_Seed {
     val giftCard = (for {
-      reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
+      reason ← * <~ Reasons.create(Factories.reason(storeAdmin.id))
       origin ← * <~ GiftCardManuals.create(
                   GiftCardManual(adminId = storeAdmin.id, reasonId = reason.id))
       giftCard ← * <~ GiftCards.create(
@@ -479,7 +480,7 @@ class CartPaymentsIntegrationTest
 
   trait StoreCreditFixture extends Fixture {
     val storeCredits = (for {
-      reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
+      reason ← * <~ Reasons.create(Factories.reason(storeAdmin.id))
       _ ← * <~ StoreCreditManuals.createAll((1 to 5).map { _ ⇒
            StoreCreditManual(adminId = storeAdmin.id, reasonId = reason.id)
          })

@@ -2,8 +2,6 @@ package services
 
 import java.time.{Instant, ZoneId}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
 import cats.implicits._
 import failures.CreditCardFailures.{CardDeclined, IncorrectCvc}
 import payloads.PaymentPayloads.CreateCreditCard
