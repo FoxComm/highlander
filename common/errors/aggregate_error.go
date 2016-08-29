@@ -13,6 +13,10 @@ func (e *AggregateError) Add(err error) {
 	e.errors = append(e.errors, err)
 }
 
+func (e *AggregateError) Length() int {
+	return len(e.errors)
+}
+
 func (e AggregateError) Error() string {
 	buffer := new(bytes.Buffer)
 
