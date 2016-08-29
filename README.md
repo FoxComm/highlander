@@ -1,7 +1,7 @@
 Isaac
 =========================
 
-Isaac is a prototype auth service which validates JWT tokens quickly. 
+Isaac is an auth service which validates JWT tokens as fast as possible. 
 Maybe it will generate them one day too. 
 
 Validation
