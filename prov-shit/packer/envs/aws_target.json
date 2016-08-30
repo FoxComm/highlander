@@ -3,7 +3,7 @@
     "image_prefix": "tgt",
     "image_title": "TGT",
     "region": "us-west-2",
-    "instance_type": "t2.medium",
+    "instance_type": "t2.small",
     "source_ami": "ami-9ece19fe",
     "vpc_id": "vpc-ec476d88",
     "subnet_id": "subnet-9794cdf3",
@@ -11,6 +11,6 @@
     "base_ami": "ami-ed21f68d",
     "base_jvm_ami": "ami-ae2ff8ce",
     "base_node_ami": "ami-5b2bfc3b",
-    "base_mesos_ami": "",
+    "base_mesos_ami": "ami-23fa2c43",
     "variables_file": "aws_target_ansible.json"
 }
