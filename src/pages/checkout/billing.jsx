@@ -37,8 +37,10 @@ let ViewBilling = (props) => {
   const paymentType = billingData.brand ? _.kebabCase(billingData.brand) : '';
 
   const lastTwoYear = billingData.expYear && billingData.expYear.slice(-2);
-  const monthYear = billingData.expMonth || billingData.expYear ? <span>{billingData.expMonth}/{lastTwoYear}</span> : null;
-  const addressInfo = !_.isEmpty(props.billingAddress) ? <ViewAddress styleName="billing-address" {...props.billingAddress} /> : null;
+  const monthYear = billingData.expMonth || billingData.expYear ?
+    <span>{billingData.expMonth}/{lastTwoYear}</span> : null;
+  const addressInfo = !_.isEmpty(props.billingAddress) ?
+    <ViewAddress styleName="billing-address" {...props.billingAddress} /> : null;
 
   return (
     <div>
@@ -227,9 +229,9 @@ class EditBilling extends Component {
             <FormField required styleName="text-field" getTargetValue={() => data.expMonth}>
               <Autocomplete
                 inputProps={{
-                placeholder: t('MONTH'),
-                type: 'text',
-              }}
+                  placeholder: t('MONTH'),
+                  type: 'text',
+                }}
                 compareValues={(value1, value2) => Number(value1) == Number(value2)}
                 getItemValue={item => item}
                 items={months}
@@ -240,9 +242,9 @@ class EditBilling extends Component {
             <FormField required styleName="text-field" getTargetValue={() => data.expYear}>
               <Autocomplete
                 inputProps={{
-                placeholder: t('YEAR'),
-                type: 'number',
-              }}
+                  placeholder: t('YEAR'),
+                  type: 'number',
+                }}
                 allowCustomValues
                 getItemValue={item => item}
                 items={years}
@@ -263,11 +265,11 @@ class EditBilling extends Component {
           <Button isLoading={inProgress} styleName="checkout-submit" type="submit">{t('PLACE ORDER')}</Button>
         </Form>
       </div>
-    )
+    );
   }
 
   render() {
-    const { inProgress, t } = this.props;
+    const { t } = this.props;
 
     return (
       <div>

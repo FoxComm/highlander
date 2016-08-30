@@ -11,7 +11,6 @@ import { Link } from 'react-router';
 import Icon from 'ui/icon';
 import Shipping from './shipping';
 import Delivery from './delivery';
-import CreditCards from './credit-cards';
 import Billing from './billing';
 import OrderSummary from './order-summary';
 import GiftCard from './gift-card';

@@ -79,9 +79,7 @@ export function initAddressData(kind: AddressKindType): Function {
     const countries = state.countries.list;
 
     const usaCountry = _.find(countries, { alpha3: 'USA' });
-    const countryDetails = state.countries.details[usaCountry && usaCountry.id] || {
-        regions: [],
-      };
+    const countryDetails = state.countries.details[usaCountry && usaCountry.id] || { regions: [] };
 
     let uiAddressData = {
       country: usaCountry,
@@ -158,10 +156,10 @@ export function saveCouponCode(code: string): Function {
 }
 
 export function addCreditCard(): Function {
-  return (dispatch, getState, api) => {
+  return (dispatch, getState) => {
     const creditCard = getState().cart.creditCard;
 
-    if(creditCard && creditCard.id) {
+    if (creditCard && creditCard.id) {
       return foxApi.cart.addCreditCard(creditCard.id)
         .then(res => {
           dispatch(setBillingData(_.get(res, 'result.paymentMethods[0]')));
@@ -181,10 +179,10 @@ export function addCreditCard(): Function {
     }
 
     return foxApi.creditCards.create(cardData, addressToPayload(billingAddress))
-      .then(creditCard => {
-        console.info(`added credit card ${creditCard.id}`);
+      .then(creditCardRes => {
+        console.info(`added credit card ${creditCardRes.id}`);
 
-        return foxApi.cart.addCreditCard(creditCard.id)
+        return foxApi.cart.addCreditCard(creditCardRes.id)
           .then(res => {
             dispatch(setBillingData(_.get(res, 'result.paymentMethods[0]')));
 

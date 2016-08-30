@@ -38,7 +38,7 @@ class CreditCards extends Component {
     }
 
     if (_.isEmpty(creditCards)) {
-      return <div styleName="credit-cards-empty">{t('No credit cards yet')}</div>
+      return <div styleName="credit-cards-empty">{t('No credit cards yet')}</div>;
     }
 
     return (
@@ -56,7 +56,9 @@ class CreditCards extends Component {
               >
                 <span>
                   <span>•••• {creditCard.lastFour}</span>
-                  <span styleName="credit-card-valid">{creditCard.expMonth}/{creditCard.expYear.toString().slice(-2)}</span>
+                  <span styleName="credit-card-valid">
+                    {creditCard.expMonth}/{creditCard.expYear.toString().slice(-2)}
+                  </span>
                 </span>
               </Checkbox>
               <Icon styleName="payment-icon" name={`fc-payment-${brand}`} />
