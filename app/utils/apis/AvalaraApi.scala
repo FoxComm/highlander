@@ -123,7 +123,7 @@ object Avalara {
                      City = address.city,
                      PostalCode = address.zip,
                      Region = region.abbrev.getOrElse(""),
-                     Country = country.code.getOrElse(""))
+                     Country = country.alpha2)
     }
 
     def buildLine(lineItem: FindLineItemResult, idx: Int): Requests.Line = {
@@ -324,14 +324,6 @@ class Avalara(url: String, account: String, license: String, profile: String)(
     implicit as: ActorSystem,
     am: ActorMaterializer)
     extends AvalaraApi {
-  private def getConfig(): (String, String, String, String) = {
-    val url     = config.getString("avalara.url")
-    val account = config.getString("avalara.account")
-    val license = config.getString("avalara.license")
-    val profile = config.getString("avalara.profile")
-    println(url, account, license, profile)
-    (url, account, license, profile)
-  }
 
   implicit val formats: Formats = org.json4s.DefaultFormats + time.JavaTimeJson4sSerializer.jsonFormat + Money.jsonFormat + Avalara.Responses.SeverityLevel.jsonFormat
 
@@ -351,7 +343,6 @@ class Avalara(url: String, account: String, license: String, profile: String)(
 
   override def validateAddress(address: Address, region: Region, country: Country)(
       implicit ec: EC): Result[Unit] = {
-    val (url, account, license, profile) = getConfig()
     val connectionFlow: Flow[HttpRequest, HttpResponse, Future[Http.OutgoingConnection]] =
       Http().outgoingConnectionHttps(url)
 
@@ -406,7 +397,6 @@ class Avalara(url: String, account: String, license: String, profile: String)(
   }
 
   private def getTax(payload: Avalara.Requests.GetTaxes)(implicit ec: EC): Result[Unit] = {
-    val (url, account, license, profile) = getConfig()
     val connectionFlow: Flow[HttpRequest, HttpResponse, Future[Http.OutgoingConnection]] =
       Http().outgoingConnectionHttps(url)
     val headers: ImmutableSeq[HttpHeader] = ImmutableSeq(
