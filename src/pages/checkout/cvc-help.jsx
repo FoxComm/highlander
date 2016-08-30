@@ -3,7 +3,7 @@
 import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 
-import styles from './cvv-help.css';
+import styles from './cvc-help.css';
 
 import Icon from 'ui/icon';
 
@@ -11,7 +11,7 @@ type State = {
   popupVisible: boolean;
 }
 
-export default class CvvHelp extends Component {
+export default class CvcHelp extends Component {
 
   state: State = {
     popupVisible: false,
@@ -42,9 +42,9 @@ export default class CvvHelp extends Component {
         <p>
           For American Express (right), the 4 digits on the front of the card.
         </p>
-        <div styleName="cvv-images">
-          <Icon name="fc-cvv-visa" />
-          <Icon name="fc-cvv-amex" />
+        <div styleName="cvc-images">
+          <Icon name="fc-cvc-visa" />
+          <Icon name="fc-cvc-amex" />
         </div>
       </div>
     );
@@ -52,7 +52,7 @@ export default class CvvHelp extends Component {
 
   render() {
     return (
-      <div styleName="cvv-help" onMouseEnter={this.showPopup} onMouseLeave={this.hidePopup}>
+      <div styleName="cvc-help" onMouseEnter={this.showPopup} onMouseLeave={this.hidePopup}>
         ?
         {this.popup}
       </div>

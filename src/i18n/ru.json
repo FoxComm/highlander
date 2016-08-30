@@ -177,9 +177,24 @@
           "Пожалуйста, введите корректный номер карты"
         ]
       },
-      "Please enter a valid cvv number": {
+      "Please enter a valid cvc number": {
         "msgstr": [
-          "Пожалуйста, введите корректный cvv"
+          "Пожалуйста, введите корректный cvc"
+        ]
+      },
+      "SELECT CREDIT CARD": {
+        "msgstr": [
+          "ВЫБЕРИТЕ КАРТУ"
+        ]
+      },
+      "No credit cards yet": {
+        "msgstr": [
+          "Кредитных карт ещё нет"
+        ]
+      },
+      "NEW CREDIT CARD": {
+        "msgstr": [
+          "НОВАЯ КАРТА"
         ]
       },
       "NAME ON CARD": {
@@ -192,9 +207,9 @@
           "НОМЕР КАРТЫ"
         ]
       },
-      "CVV": {
+      "CVC": {
         "msgstr": [
-          "CVV"
+          "CVC"
         ]
       },
       "MONTH": {

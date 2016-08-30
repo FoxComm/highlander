@@ -1,12 +1,12 @@
-
 /* @flow weak */
 
 import _ from 'lodash';
-import {createAction, createReducer} from 'redux-act';
+import { createAction, createReducer } from 'redux-act';
 import { assoc } from 'sprout-data';
 import createAsyncActions from './async-utils';
 import { fetchCountry } from 'modules/countries';
 import { updateCart } from 'modules/cart';
+import { api as foxApi } from '../lib/api';
 
 export const AddressKind = {
   SHIPPING: 0,
@@ -35,10 +35,12 @@ export type CheckoutState = {
 };
 
 export type BillingData = {
-  holderName?: string;
-  cardNumber?: string;
+  name?: string;
+  number?: string;
+  brand?: string;
   expMonth?: string;
   expYear?: string;
+  lastFour?: string;
 }
 
 export const setEditStage = createAction('CHECKOUT_SET_EDIT_STAGE');
@@ -55,11 +57,17 @@ function _fetchShippingMethods() {
   return this.api.get('/v1/my/cart/shipping-methods');
 }
 
+function _fetchCreditCards() {
+  return foxApi.creditCards.list();
+}
+
 /* eslint-enable quotes, quote-props */
 
 const shippingMethodsActions = createAsyncActions('shipping-methods', _fetchShippingMethods);
+const creditCardsActions = createAsyncActions('creditCards', _fetchCreditCards);
 
 export const fetchShippingMethods = shippingMethodsActions.fetch;
+export const fetchCreditCards = creditCardsActions.fetch;
 export const toggleSeparateBillingAddress = createAction('CHECKOUT_TOGGLE_BILLING_ADDRESS');
 
 export function initAddressData(kind: AddressKindType): Function {
@@ -70,10 +78,10 @@ export function initAddressData(kind: AddressKindType): Function {
 
     const countries = state.countries.list;
 
-    const usaCountry = _.find(countries, {alpha3: 'USA'});
+    const usaCountry = _.find(countries, { alpha3: 'USA' });
     const countryDetails = state.countries.details[usaCountry && usaCountry.id] || {
-      regions: [],
-    };
+        regions: [],
+      };
 
     let uiAddressData = {
       country: usaCountry,
@@ -86,7 +94,7 @@ export function initAddressData(kind: AddressKindType): Function {
 
         uiAddressData = _.pick(shippingAddress, ['name', 'address1', 'address2', 'city', 'zip', 'phoneNumber']);
         uiAddressData.country = countryInfo;
-        uiAddressData.state = _.find(countryInfo.regions, {id: shippingAddress.region.id});
+        uiAddressData.state = _.find(countryInfo.regions, { id: shippingAddress.region.id });
 
         dispatch(extendAddressData(kind, uiAddressData));
       });
@@ -98,7 +106,7 @@ export function initAddressData(kind: AddressKindType): Function {
 
 function addressToPayload(address) {
   const payload = _.pick(address, ['name', 'address1', 'address2', 'city', 'zip', 'phoneNumber']);
-  payload.regionId = address.state.id;
+  payload.regionId = _.get(address, 'region.id', _.get(address, 'state.id', ''));
   payload.phoneNumber = String(payload.phoneNumber);
 
   return payload;
@@ -151,32 +159,37 @@ export function saveCouponCode(code: string): Function {
 
 export function addCreditCard(): Function {
   return (dispatch, getState, api) => {
-    const billingData = getState().checkout.billingData;
-    let payload = _.pick(billingData, ['holderName', 'cvv']);
+    const creditCard = getState().cart.creditCard;
 
-    payload = {
-      ...payload,
-      cardNumber: billingData.cardNumber,
-      expMonth: Number(billingData.expMonth),
-      expYear: Number(billingData.expYear),
-      isShipping: true,
-    };
+    if(creditCard && creditCard.id) {
+      return foxApi.cart.addCreditCard(creditCard.id)
+        .then(res => {
+          dispatch(setBillingData(_.get(res, 'result.paymentMethods[0]')));
 
-    if (getState().checkout.billingAddressIsSame) {
-      payload.addressId = getState().cart.shippingAddress.id;
-    } else {
-      payload.address = addressToPayload(getState().checkout.billingAddress);
+          return res;
+        });
     }
 
-    return api.post('/v1/my/payment-methods/credit-cards', payload)
+    let billingAddress;
+
+    const cardData = _.pick(getState().checkout.billingData, ['name', 'number', 'cvc', 'expMonth', 'expYear']);
+
+    if (getState().checkout.billingAddressIsSame) {
+      billingAddress = getState().cart.shippingAddress;
+    } else {
+      billingAddress = getState().checkout.billingAddress;
+    }
+
+    return foxApi.creditCards.create(cardData, addressToPayload(billingAddress))
       .then(creditCard => {
-        console.info('added credit card', creditCard);
+        console.info(`added credit card ${creditCard.id}`);
 
-        const addCreditCardPayload = {
-          creditCardId: creditCard.id,
-        };
+        return foxApi.cart.addCreditCard(creditCard.id)
+          .then(res => {
+            dispatch(setBillingData(_.get(res, 'result.paymentMethods[0]')));
 
-        return api.post('/v1/my/cart/payment-methods/credit-cards', addCreditCardPayload);
+            return res;
+          });
       })
       .then(res => {
         dispatch(updateCart(res.result));
@@ -201,6 +214,7 @@ const initialState: CheckoutState = {
   billingData: {},
   billingAddressIsSame: true,
   shippingMethods: [],
+  creditCards: [],
 };
 
 const reducer = createReducer({
@@ -231,6 +245,12 @@ const reducer = createReducer({
     return {
       ...state,
       shippingMethods: list,
+    };
+  },
+  [creditCardsActions.succeeded]: (state, list) => {
+    return {
+      ...state,
+      creditCards: list,
     };
   },
   [toggleSeparateBillingAddress]: state => {

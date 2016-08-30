@@ -23,7 +23,7 @@
   stroke: none;
 }
 
-:global(.icon--fc-cvv-visa),
-:global(.icon--fc-cvv-amex) {
+:global(.icon--fc-cvc-visa),
+:global(.icon--fc-cvc-amex) {
   stroke: none;
 }

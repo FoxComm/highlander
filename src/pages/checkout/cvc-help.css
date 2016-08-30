@@ -1,7 +1,7 @@
 
 @import "colors.css";
 
-.cvv-help {
+.cvc-help {
   background: var(--greyish);
   border-radius: 50%;
   color: var(--whitish);
@@ -59,7 +59,7 @@
   }
 }
 
-.cvv-images {
+.cvc-images {
   & > :global(.icon) {
     width: 160px;
     height: 107px;
