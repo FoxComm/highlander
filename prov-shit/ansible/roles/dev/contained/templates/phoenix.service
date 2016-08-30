@@ -31,7 +31,7 @@ Environment=STRIPE_API_KEY={{ stripe_api_key }}
 
 Environment=AVALARA_URL={{ avalara_url }}
 Environment=AVALARA_ACCOUNT={{ avalara_account }}
-Environemnt=AVALARA_LICENSE={{ avalara_license }}
+Environment=AVALARA_LICENSE={{ avalara_license }}
 Environment=AVALARA_PROFILE={{ avalara_profile }}
 
 [Install]
