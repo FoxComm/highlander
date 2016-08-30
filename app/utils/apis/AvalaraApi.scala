@@ -312,12 +312,24 @@ object Avalara {
   }
 }
 
-class Avalara()(implicit as: ActorSystem, am: ActorMaterializer) extends AvalaraApi {
+object AvalaraAdapter {
+  def apply(url: String, account: String, license: String, profile: String)(
+      implicit as: ActorSystem,
+      am: ActorMaterializer) = {
+    new Avalara(url, account, license, profile)
+  }
+}
+
+class Avalara(url: String, account: String, license: String, profile: String)(
+    implicit as: ActorSystem,
+    am: ActorMaterializer)
+    extends AvalaraApi {
   private def getConfig(): (String, String, String, String) = {
     val url     = config.getString("avalara.url")
     val account = config.getString("avalara.account")
     val license = config.getString("avalara.license")
     val profile = config.getString("avalara.profile")
+    println(url, account, license, profile)
     (url, account, license, profile)
   }
 
@@ -331,6 +343,7 @@ class Avalara()(implicit as: ActorSystem, am: ActorMaterializer) extends Avalara
           .toStrict(1.second)
           .map(_.data)
           .map(_.decodeString("utf-8"))
+          .map(json ⇒ { println(json); json })
           .map(json ⇒ parse(json).extract[T])
       }
     }
@@ -362,9 +375,11 @@ class Avalara()(implicit as: ActorSystem, am: ActorMaterializer) extends Avalara
     result.flatMap {
       case response ⇒
         if (response.Address.isDefined && response.ResultCode == Success) {
+          println("success")
           Result.unit
         } else {
           val message = response.Messages.map(_.Summary).mkString(", ")
+          println(s"Error: $message")
           Result.failure(AddressValidationFailure(message))
         }
     }.recoverWith {
