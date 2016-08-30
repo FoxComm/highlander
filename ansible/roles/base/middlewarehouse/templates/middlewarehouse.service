@@ -16,6 +16,9 @@ Environment=DB_USER={{middlewarehouse_db_user}}
 Environment=DB_HOST={{db_host}}
 Environment=DB_SSLMODE=disable
 Environment=TOKEN_SECRET=thef0xlaughstwic3
+Environment=KAFKA_BROKER={{kafka_server}}
+Environment=ZOOKEEPER_URL={{zookeeper_server}}
+Environment=SCHEMA_REGISTRY_URL=http://{{schema_server}}
 
 [Install]
 WantedBy=multi-user.target
