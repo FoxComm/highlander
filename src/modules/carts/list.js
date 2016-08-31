@@ -10,7 +10,7 @@ const { reducer, actions } = makeLiveSearch(
   'cartsScope',
   {
     processQuery: (query) => addNativeFilters(query,[dsl.existsFilter('deletedAt', 'missing')]),
-    initialState: { sortBy: '-placedAt' },
+    initialState: { sortBy: '-createdAt' },
     rawSorts: ['customer.name', 'customer.email']
   }
 );
