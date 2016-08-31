@@ -31,13 +31,13 @@ func GetRoutes(db *gorm.DB) map[string]controllers.IController {
 	shippingMethodRepository := repositories.NewShippingMethodRepository(db)
 
 	//services
+	activityLogger := services.NewActivityLogger(producer)
 	summaryService := services.NewSummaryService(summaryRepository, stockItemRepository)
 	inventoryService := services.NewInventoryService(stockItemRepository, unitRepository, summaryService)
 	carrierService := services.NewCarrierService(carrierRepository)
 	stockLocationService := services.NewStockLocationService(stockLocationRepository)
 	shippingMethodService := services.NewShippingMethodService(shippingMethodRepository)
-	shipmentService := services.NewShipmentService(db, summaryService)
-	activityLogger := services.NewActivityLogger(producer)
+	shipmentService := services.NewShipmentService(db, summaryService, activityLogger)
 
 	return map[string]controllers.IController{
 		"v1/public/ping":             controllers.NewPingController(),
@@ -46,7 +46,7 @@ func GetRoutes(db *gorm.DB) map[string]controllers.IController {
 		"v1/public/stock-locations":  controllers.NewStockLocationController(stockLocationService),
 		"v1/public/carriers":         controllers.NewCarrierController(carrierService),
 		"v1/public/shipping-methods": controllers.NewShippingMethodController(shippingMethodService),
-		"v1/public/shipments":        controllers.NewShipmentController(shipmentService, activityLogger),
+		"v1/public/shipments":        controllers.NewShipmentController(shipmentService),
 
 		"v1/private/reservations": controllers.NewReservationController(inventoryService),
 	}

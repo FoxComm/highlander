@@ -1,13 +1,11 @@
 package controllers
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/FoxComm/middlewarehouse/api/payloads"
 	"github.com/FoxComm/middlewarehouse/api/responses"
 	"github.com/FoxComm/middlewarehouse/models"
-	"github.com/FoxComm/middlewarehouse/models/activities"
 	"github.com/FoxComm/middlewarehouse/services"
 
 	"github.com/gin-gonic/gin"
@@ -15,14 +13,12 @@ import (
 
 type shipmentController struct {
 	shipmentService services.IShipmentService
-	activityLogger  services.IActivityLogger
 }
 
 func NewShipmentController(
 	shipmentService services.IShipmentService,
-	activityLogger services.IActivityLogger,
 ) IController {
-	return &shipmentController{shipmentService, activityLogger}
+	return &shipmentController{shipmentService}
 }
 
 func (controller *shipmentController) SetUp(router gin.IRouter) {
@@ -63,21 +59,7 @@ func (controller *shipmentController) createShipment() gin.HandlerFunc {
 			return
 		}
 
-		resp := responses.NewShipmentFromModel(shipment)
-		context.JSON(http.StatusCreated, resp)
-
-		// Having this in the controller seems wrong...
-		activity, err := activities.NewShipmentCreated(resp, shipment.CreatedAt)
-		if err != nil {
-			// Don't respond to user with this error.
-			log.Printf("Unable to create shipment created activity with error %s", err.Error())
-		}
-
-		err = controller.activityLogger.Log(activity)
-		if err != nil {
-			// Don't respond to user with this error.
-			log.Printf("Unable to create shipment activity in Kafka with error %s", err.Error())
-		}
+		context.JSON(http.StatusCreated, shipment)
 	}
 }
 
@@ -122,20 +104,6 @@ func (controller *shipmentController) createShipmentFromOrder() gin.HandlerFunc 
 			return
 		}
 
-		resp := responses.NewShipmentFromModel(shipment)
-		context.JSON(http.StatusCreated, resp)
-
-		// Having this in the controller seems wrong...
-		activity, err := activities.NewShipmentCreated(resp, shipment.CreatedAt)
-		if err != nil {
-			// Don't respond to user with this error.
-			log.Printf("Unable to create shipment created activity with error %s", err.Error())
-		}
-
-		err = controller.activityLogger.Log(activity)
-		if err != nil {
-			// Don't respond to user with this error.
-			log.Printf("Unable to create shipment activity in Kafka with error %s", err.Error())
-		}
+		context.JSON(http.StatusCreated, shipment)
 	}
 }

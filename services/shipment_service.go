@@ -1,8 +1,10 @@
 package services
 
 import (
+	"github.com/FoxComm/middlewarehouse/api/responses"
 	"github.com/FoxComm/middlewarehouse/common/async"
 	"github.com/FoxComm/middlewarehouse/models"
+	"github.com/FoxComm/middlewarehouse/models/activities"
 	"github.com/FoxComm/middlewarehouse/repositories"
 
 	"github.com/jinzhu/gorm"
@@ -11,17 +13,18 @@ import (
 type shipmentService struct {
 	db                 *gorm.DB
 	summaryService     ISummaryService
+	activityLogger     IActivityLogger
 	updateSummaryAsync bool
 }
 
 type IShipmentService interface {
 	GetShipmentsByReferenceNumber(referenceNumber string) ([]*models.Shipment, error)
-	CreateShipment(shipment *models.Shipment) (*models.Shipment, error)
+	CreateShipment(shipment *models.Shipment) (*responses.Shipment, error)
 	UpdateShipment(shipment *models.Shipment) (*models.Shipment, error)
 }
 
-func NewShipmentService(db *gorm.DB, summaryService ISummaryService) IShipmentService {
-	return &shipmentService{db, summaryService, true}
+func NewShipmentService(db *gorm.DB, summaryService ISummaryService, activityLogger IActivityLogger) IShipmentService {
+	return &shipmentService{db, summaryService, activityLogger, true}
 }
 
 func (service *shipmentService) GetShipmentsByReferenceNumber(referenceNumber string) ([]*models.Shipment, error) {
@@ -29,7 +32,7 @@ func (service *shipmentService) GetShipmentsByReferenceNumber(referenceNumber st
 	return repo.GetShipmentsByReferenceNumber(referenceNumber)
 }
 
-func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*models.Shipment, error) {
+func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*responses.Shipment, error) {
 	txn := service.db.Begin()
 
 	stockItemCounts := make(map[uint]int)
@@ -70,7 +73,22 @@ func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*mode
 	}
 
 	err = service.updateSummariesToReserved(stockItemCounts)
-	return result, err
+	if err != nil {
+		return nil, err
+	}
+
+	resp := responses.NewShipmentFromModel(result)
+
+	activity, err := activities.NewShipmentCreated(resp, result.CreatedAt)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := service.activityLogger.Log(activity); err != nil {
+		return nil, err
+	}
+
+	return resp, nil
 }
 
 func (service *shipmentService) UpdateShipment(shipment *models.Shipment) (*models.Shipment, error) {

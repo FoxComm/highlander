@@ -37,7 +37,8 @@ func (suite *ShipmentServiceTestSuite) SetupTest() {
 	db, err := config.DefaultConnection()
 	suite.db = db.Debug()
 	suite.Nil(err)
-	suite.service = NewShipmentService(suite.db, &mocks.SummaryServiceStub{})
+
+	suite.service = NewShipmentService(suite.db, &mocks.SummaryServiceStub{}, &mocks.ActivityLoggerMock{})
 }
 
 func (suite *ShipmentServiceTestSuite) Test_GetShipmentsByReferenceNumber_ReturnsShipmentModels() {
@@ -98,9 +99,9 @@ func (suite *ShipmentServiceTestSuite) Test_CreateShipment_Succeed_ReturnsCreate
 
 	//assert
 	suite.Nil(err)
-	suite.Equal(shipment1.ShippingMethodID, shipment.ShippingMethodID)
+	suite.Equal(shipment1.ShippingMethodID, shipment.ShippingMethod.ID)
 	suite.Equal(shipment1.ReferenceNumber, shipment.ReferenceNumber)
-	suite.Equal(shipment1.State, shipment.State)
+	suite.Equal(string(shipment1.State), shipment.State)
 }
 
 //func (suite *ShipmentServiceTestSuite) Test_UpdateShipment_NotFound_ReturnsNotFoundError() {
