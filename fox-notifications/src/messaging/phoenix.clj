@@ -79,15 +79,21 @@
       (get "jwt")))
 
 
+
 (defn register-plugin
   []
   (if @api-server
-    (println "Registering Plugin: " (-> (http/post (str @api-server "/api/v1/plugins/register")
-             {:body (json/write-str @plugin-info)
-              :headers {"JWT" (authenticate)
-                        "Content-Type" "application/json"}})
-     deref
-     :body
-     bs/to-string))
-
+    (try
+      (let [answer (-> (http/post
+                         (str @api-server "/api/v1/plugins/register")
+                         {:body (json/write-str @plugin-info)
+                          :headers {"JWT" (authenticate)
+                                    "Content-Type" "application/json"}})
+                       deref
+                       :body
+                       bs/to-string
+                       json/read-str)]
+        (settings/update-settings (get answer "settings")))
+     (catch Exception e #(println "Can't register plugin at phoenix" e)))
     (println "Phoenix address not set, can't register myself into phoenix :(")))
+
