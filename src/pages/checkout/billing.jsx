@@ -32,11 +32,11 @@ import { AddressKind } from 'modules/checkout';
 import type { BillingData } from 'modules/checkout';
 
 let ViewBilling = (props) => {
-  const billingData: BillingData = props.billingData;
+  const billingData: BillingData = props.creditCard ? props.creditCard : props.billingData;
 
   const paymentType = billingData.brand ? _.kebabCase(billingData.brand) : '';
 
-  const lastTwoYear = billingData.expYear && billingData.expYear.slice(-2);
+  const lastTwoYear = billingData.expYear && billingData.expYear.toString().slice(-2);
   const monthYear = billingData.expMonth || billingData.expYear ?
     <span>{billingData.expMonth}/{lastTwoYear}</span> : null;
   const addressInfo = !_.isEmpty(props.billingAddress) ?
@@ -53,7 +53,11 @@ let ViewBilling = (props) => {
     </div>
   );
 };
-ViewBilling = connect(state => state.checkout)(ViewBilling);
+
+ViewBilling = connect(state => ({
+  billingData: state.checkout.billingData,
+  creditCard: state.cart.creditCard,
+}))(ViewBilling);
 
 function mapStateToProps(state) {
   return {
@@ -173,10 +177,6 @@ class EditBilling extends Component {
   }
 
   get form() {
-    if (!this.state.addingNew) {
-      return;
-    }
-
     const { props } = this;
     const { data, inProgress, t } = props;
 
@@ -187,9 +187,9 @@ class EditBilling extends Component {
           <FormField styleName="text-field">
             <TextInput
               required
-              name="name"
+              name="holderName"
               placeholder={t('NAME ON CARD')}
-              value={data.name}
+              value={data.holderName}
               onChange={this.changeFormData}
             />
           </FormField>
@@ -269,7 +269,20 @@ class EditBilling extends Component {
   }
 
   render() {
-    const { t } = this.props;
+    const { inProgress, t } = this.props;
+
+    let form;
+
+    if (this.state.addingNew) {
+      form = this.form;
+    } else {
+      form = (
+        <Button isLoading={inProgress} styleName="checkout-submit" onClick={this.handleSubmit}>
+          {t('PLACE ORDER')}
+        </Button>
+      );
+    }
+
 
     return (
       <div>
@@ -278,7 +291,7 @@ class EditBilling extends Component {
           <div onClick={this.addNew} styleName="credit-card-add">{t('ADD')}</div>
         </div>
         <CreditCards selectCreditCard={this.selectCreditCard} />
-        {this.form}
+        {form}
       </div>
     );
   }

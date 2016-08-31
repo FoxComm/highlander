@@ -35,12 +35,12 @@ export type CheckoutState = {
 };
 
 export type BillingData = {
-  name?: string;
-  number?: string;
+  holderName?: string;
+  number?: string|number;
   brand?: string;
-  expMonth?: string;
-  expYear?: string;
-  lastFour?: string;
+  expMonth?: string|number;
+  expYear?: string|number;
+  lastFour?: string|number;
 }
 
 export const setEditStage = createAction('CHECKOUT_SET_EDIT_STAGE');
@@ -63,7 +63,7 @@ function _fetchCreditCards() {
 
 /* eslint-enable quotes, quote-props */
 
-const shippingMethodsActions = createAsyncActions('shipping-methods', _fetchShippingMethods);
+const shippingMethodsActions = createAsyncActions('shippingMethods', _fetchShippingMethods);
 const creditCardsActions = createAsyncActions('creditCards', _fetchCreditCards);
 
 export const fetchShippingMethods = shippingMethodsActions.fetch;
@@ -102,10 +102,16 @@ export function initAddressData(kind: AddressKindType): Function {
   };
 }
 
-function addressToPayload(address) {
+function addressToPayload(address, countries = []) {
   const payload = _.pick(address, ['name', 'address1', 'address2', 'city', 'zip', 'phoneNumber']);
-  payload.regionId = _.get(address, 'region.id', _.get(address, 'state.id', ''));
   payload.phoneNumber = String(payload.phoneNumber);
+  payload.regionId = _.get(address, 'region.id', _.get(address, 'state.id', ''));
+
+  if (!_.isEmpty(countries)) {
+    const countryId = _.get(address, 'region.countryId', _.get(address, 'state.countryId', ''));
+    payload.state = _.get(address, 'region.name', _.get(address, 'state.name', ''));
+    payload.country = _.get(countries.filter(country => country.id === countryId), '[0].name', '');
+  }
 
   return payload;
 }
@@ -160,17 +166,12 @@ export function addCreditCard(): Function {
     const creditCard = getState().cart.creditCard;
 
     if (creditCard && creditCard.id) {
-      return foxApi.cart.addCreditCard(creditCard.id)
-        .then(res => {
-          dispatch(setBillingData(_.get(res, 'result.paymentMethods[0]')));
-
-          return res;
-        });
+      return foxApi.cart.addCreditCard(creditCard.id);
     }
 
     let billingAddress;
 
-    const cardData = _.pick(getState().checkout.billingData, ['name', 'number', 'cvc', 'expMonth', 'expYear']);
+    const cardData = _.pick(getState().checkout.billingData, ['holderName', 'number', 'cvc', 'expMonth', 'expYear']);
 
     if (getState().checkout.billingAddressIsSame) {
       billingAddress = getState().cart.shippingAddress;
@@ -178,16 +179,11 @@ export function addCreditCard(): Function {
       billingAddress = getState().checkout.billingAddress;
     }
 
-    return foxApi.creditCards.create(cardData, addressToPayload(billingAddress))
+    const address = addressToPayload(billingAddress, getState().countries.list);
+
+    return foxApi.creditCards.create(cardData, address)
       .then(creditCardRes => {
-        console.info(`added credit card ${creditCardRes.id}`);
-
-        return foxApi.cart.addCreditCard(creditCardRes.id)
-          .then(res => {
-            dispatch(setBillingData(_.get(res, 'result.paymentMethods[0]')));
-
-            return res;
-          });
+        return foxApi.cart.addCreditCard(creditCardRes.id);
       })
       .then(res => {
         dispatch(updateCart(res.result));
