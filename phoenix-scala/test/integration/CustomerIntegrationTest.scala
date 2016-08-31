@@ -284,7 +284,7 @@ class CustomerIntegrationTest
       val response = PATCH(s"v1/customers/${customer.id}", payload)
       response.status must === (StatusCodes.OK)
 
-      val updated = response.as[responses.CustomerResponse.Root]
+      val updated = response.as[CustomerResponse.Root]
       (updated.name, updated.email, updated.phoneNumber) must === (
           (payload.name, payload.email, payload.phoneNumber))
     }
@@ -671,6 +671,63 @@ class CustomerIntegrationTest
 
       response.status must === (StatusCodes.BadRequest)
       response.error must === ("Your card's expiration year is invalid")
+    }
+  }
+
+  "POST /v1/public/send-password-reset" - {
+    "Successfully creates password reset instance" in new Fixture {
+      val email    = customer.email.value
+      val response = POST(s"v1/public/send-password-reset", ResetPasswordSend(email))
+      response.status must === (StatusCodes.OK)
+
+      val resetPw = CustomerPasswordResets.filter(_.email === email).one.gimme.value
+      resetPw.state must === (CustomerPasswordReset.Initial)
+      resetPw.email must === (email)
+    }
+
+    "re-send with new code if phoenix already send it but customer not activated it" in new Fixture {
+      val email = customer.email.value
+      val oldResetPw = CustomerPasswordResets
+        .create(CustomerPasswordReset.optionFromCustomer(customer).value)
+        .gimme
+
+      val response = POST(s"v1/public/send-password-reset", ResetPasswordSend(email))
+      response.status must === (StatusCodes.OK)
+      val resetPw = CustomerPasswordResets.findActiveByEmail(email).one.gimme.value
+      oldResetPw.code must !==(resetPw.code)
+    }
+  }
+
+  "POST /v1/public/reset-password" - {
+    "Successfully reset password" in new Fixture {
+      val resetPw = CustomerPasswordResets
+        .create(CustomerPasswordReset.optionFromCustomer(customer).value)
+        .gimme
+
+      val response =
+        POST(s"v1/public/reset-password", ResetPassword(code = resetPw.code, newPassword = "456"))
+      response.status must === (StatusCodes.OK)
+      val updatedCustomer = Customers.mustFindById404(customer.id).gimme
+      updatedCustomer.hashedPassword must !==(customer.hashedPassword)
+
+      val newResetPw = CustomerPasswordResets.mustFindById404(resetPw.id).gimme
+      newResetPw.state must === (CustomerPasswordReset.PasswordRestored)
+      newResetPw.activatedAt mustBe 'defined
+    }
+
+    "fails if customer reset code is already used" in new Fixture {
+      val resetPw = CustomerPasswordResets
+        .create(CustomerPasswordReset.optionFromCustomer(customer).value)
+        .gimme
+
+      val response =
+        POST(s"v1/public/reset-password", ResetPassword(code = resetPw.code, newPassword = "456"))
+      response.status must === (StatusCodes.OK)
+
+      val response2 =
+        POST(s"v1/public/reset-password", ResetPassword(code = resetPw.code, newPassword = "456"))
+      response2.status must === (StatusCodes.BadRequest)
+      response2.error must === (ResetPasswordCodeInvalid(resetPw.code).description)
     }
   }
 

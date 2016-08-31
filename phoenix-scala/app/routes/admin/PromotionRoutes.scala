@@ -49,6 +49,11 @@ object PromotionRoutes {
               mutateOrFailures {
                 PromotionManager.update(id, payload, context)
               }
+            } ~
+            (delete & pathEnd) {
+              mutateOrFailures {
+                PromotionManager.archiveByContextAndId(context, id)
+              }
             }
           }
         }
