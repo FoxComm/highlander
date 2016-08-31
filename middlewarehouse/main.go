@@ -1,8 +1,6 @@
 package main
 
 import (
-	"log"
-
 	dbConfig "github.com/FoxComm/highlander/middlewarehouse/common/db/config"
 	"github.com/FoxComm/highlander/middlewarehouse/routes"
 

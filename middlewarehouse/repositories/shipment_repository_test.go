@@ -7,9 +7,9 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/common/db/tasks"
 	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
+	"github.com/FoxComm/highlander/middlewarehouse/common/tests"
 
 	"fmt"
-	"github.com/FoxComm/middlewarehouse/common/tests"
 	"github.com/stretchr/testify/suite"
 )
 

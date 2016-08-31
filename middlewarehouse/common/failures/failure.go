@@ -1,9 +1,10 @@
 package failures
 
 import (
-	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
 	"github.com/gin-gonic/gin"
-	"github.com/FoxComm/middlewarehouse/common/errors"
+
+	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
+	"github.com/FoxComm/highlander/middlewarehouse/common/errors"
 )
 
 type Failure interface {
