@@ -6,7 +6,6 @@ import { autobind } from 'core-decorators';
 
 // components
 import TableView from './tableview';
-import MultiSelectHead, { selectionState } from './multi-select-head';
 
 export default class ExpandableTable extends Component {
 

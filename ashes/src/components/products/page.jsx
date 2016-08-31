@@ -152,10 +152,23 @@ class ProductPage extends Component {
   @autobind
   handleSetSkuProperty(code: string, field: string, value: string) {
     const { product } = this.state;
+
     if (product) {
       this.setState({
         product: setSkuAttribute(product, code, field, value),
       });
+    }
+  }
+
+  @autobind
+  handleSetSkuProperties(code: string, updateArray: Array<Array<any>>) {
+    const { product } = this.state;
+
+    if (product) {
+      const newProduct = _.reduce(updateArray, (p, [field, value]) => {
+        return setSkuAttribute(p, code, field, value);
+      }, product);
+      this.setState({product: newProduct});
     }
   }
 
@@ -241,6 +254,7 @@ class ProductPage extends Component {
       ...this.props.children.props,
       onUpdateProduct: this.handleUpdateProduct,
       onSetSkuProperty: this.handleSetSkuProperty,
+      onSetSkuProperties: this.handleSetSkuProperties,
       product,
       entity: { entityId: this.props.params.productId, entityType: 'product' },
     });
