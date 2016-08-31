@@ -9,7 +9,6 @@ import (
 // that middlewarehouse can have. All values are expected to be set at initialization.
 type SiteConfig struct {
 	KafkaBroker       string
-	ZookeeperURL      string
 	SchemaRegistryURL string
 }
 
@@ -22,16 +21,11 @@ func InitializeSiteConfig() error {
 		return errors.New("KAFKA_BROKER not found in the environment")
 	}
 
-	zookeeperURL := os.Getenv("ZOOKEEPER_URL")
-	if zookeeperURL == "" {
-		return errors.New("ZOOKEEPER_URL not found in the environment")
-	}
-
 	schemaRegistryURL := os.Getenv("SCHEMA_REGISTRY_URL")
 	if schemaRegistryURL == "" {
 		return errors.New("SCHEMA_REGISTRY_URL not found in the environment")
 	}
 
-	Config = &SiteConfig{kafkaBroker, zookeeperURL, schemaRegistryURL}
+	Config = &SiteConfig{kafkaBroker, schemaRegistryURL}
 	return nil
 }

@@ -15,10 +15,9 @@ import (
 func GetRoutes(db *gorm.DB) map[string]controllers.IController {
 	// Kkkkkafka
 	broker := config.Config.KafkaBroker
-	zookeeperURL := config.Config.ZookeeperURL
 	schemaRegistryURL := config.Config.SchemaRegistryURL
 
-	producer, err := metamorphosis.NewProducer(broker, zookeeperURL, schemaRegistryURL)
+	producer, err := metamorphosis.NewProducer(broker, schemaRegistryURL)
 	if err != nil {
 		log.Panicf("Unable to initialize Kafka producer with error %s", err.Error())
 	}
