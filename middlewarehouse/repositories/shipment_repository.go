@@ -1,13 +1,9 @@
 package repositories
 
 import (
-<<<<<<< HEAD
-	"github.com/FoxComm/highlander/middlewarehouse/models"
-=======
 	"fmt"
 
-	"github.com/FoxComm/middlewarehouse/models"
->>>>>>> e1751c7bf34dd94b197008a007e3b33a9a89ec5e
+	"github.com/FoxComm/highlander/middlewarehouse/models"
 
 	"github.com/jinzhu/gorm"
 )
