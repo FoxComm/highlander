@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/FoxComm/highlander/middlewarehouse/common"
@@ -87,6 +88,16 @@ func DefaultConnection() (*gorm.DB, error) {
 	}
 
 	return defaultConnection, err
+}
+
+func TestConnection() *gorm.DB {
+	db, err := Connect(NewPGConfig())
+
+	if err != nil {
+		log.Panicf("Failed to connect to test db with %s", err.Error())
+	}
+
+	return db
 }
 
 func init() {

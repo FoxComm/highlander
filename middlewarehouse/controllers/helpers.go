@@ -2,7 +2,9 @@ package controllers
 
 import (
 	"fmt"
+	"log"
 	"strconv"
+	"strings"
 
 	"github.com/FoxComm/highlander/middlewarehouse/common/failures"
 
@@ -47,14 +49,27 @@ func paramUint(c *gin.Context, key string) (uint, failures.Failure) {
 	return uint(id), nil
 }
 
-func handleServiceError(c *gin.Context, err error) failures.Failure {
-	var fail failures.Failure
-	if err == gorm.ErrRecordNotFound {
-		fail = failures.NewNotFound(err)
-	} else {
-		fail = failures.NewBadRequest(err)
-	}
-	failures.Abort(c, fail)
+func handleServiceError(c *gin.Context, err error) {
+	fail := getFailure(err)
 
-	return fail
+	logFailure(fail)
+
+	failures.Abort(c, fail)
+}
+
+func getFailure(err error) failures.Failure {
+	if err == gorm.ErrRecordNotFound {
+		return failures.NewNotFound(err)
+	}
+
+	return failures.NewBadRequest(err)
+}
+
+func logFailure(fail failures.Failure) {
+	messages := []string{}
+	for _, err := range fail.ToJSON().Errors {
+		messages = append(messages, fmt.Sprintf("ServiceError: %s", err))
+	}
+
+	log.Println(strings.Join(messages, "\n"))
 }

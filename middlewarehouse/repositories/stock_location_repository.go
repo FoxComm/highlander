@@ -1,9 +1,15 @@
 package repositories
 
 import (
+	"fmt"
+
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 
 	"github.com/jinzhu/gorm"
+)
+
+const (
+	ErrorStockLocationNotFound = "Stock location with id=%d not found"
 )
 
 type stockLocationRepository struct {
@@ -34,6 +40,9 @@ func (repository *stockLocationRepository) GetLocationByID(id uint) (*models.Sto
 	location := &models.StockLocation{}
 
 	if err := repository.db.First(location, id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, fmt.Errorf(ErrorStockLocationNotFound, id)
+		}
 		return nil, err
 	}
 
@@ -58,7 +67,7 @@ func (repository *stockLocationRepository) UpdateLocation(location *models.Stock
 	}
 
 	if res.RowsAffected == 0 {
-		return nil, gorm.ErrRecordNotFound
+		return nil, fmt.Errorf(ErrorStockLocationNotFound, location.ID)
 	}
 
 	return repository.GetLocationByID(location.ID)
@@ -72,7 +81,7 @@ func (repository *stockLocationRepository) DeleteLocation(id uint) error {
 	}
 
 	if res.RowsAffected == 0 {
-		return gorm.ErrRecordNotFound
+		return fmt.Errorf(ErrorStockLocationNotFound, id)
 	}
 
 	return nil

@@ -15,9 +15,7 @@ func (f internalError) Status() int {
 }
 
 func (f internalError) ToJSON() responses.Error {
-	return responses.Error{
-		Errors: []string{f.err.Error()},
-	}
+	return toJSON(f.err)
 }
 
 func NewInternalError(err error) internalError {

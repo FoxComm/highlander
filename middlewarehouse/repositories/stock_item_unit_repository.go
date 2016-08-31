@@ -9,6 +9,10 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+const (
+	ErrorNotEnoughStockItemUnits = "Not enough %s units for stock item %d of type %v. Expected %d, got %d"
+)
+
 type stockItemUnitRepository struct {
 	db *gorm.DB
 }
@@ -63,8 +67,7 @@ func (repository *stockItemUnitRepository) GetStockItemUnitIDs(stockItemID uint,
 	}
 
 	if len(ids) < count {
-		err := fmt.Errorf("Not enough %s units for stock item %d of type %d. Expected %d, got %d",
-			unitStatus, stockItemID, unitType, count, len(ids))
+		err := fmt.Errorf(ErrorNotEnoughStockItemUnits, unitStatus, stockItemID, unitType, count, len(ids))
 
 		return ids, err
 	}

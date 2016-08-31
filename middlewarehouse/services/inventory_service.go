@@ -3,8 +3,9 @@ package services
 import (
 	"errors"
 	"fmt"
-	"log"
 
+	"github.com/FoxComm/highlander/middlewarehouse/common/async"
+	commonErrors "github.com/FoxComm/highlander/middlewarehouse/common/errors"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 )
@@ -106,14 +107,19 @@ func (service *inventoryService) HoldItems(refNum string, skus map[string]int) e
 	}
 
 	// get available units for each stock item
+	aggregateErr := commonErrors.AggregateError{}
 	unitsIds := []uint{}
 	for _, si := range items {
 		ids, err := service.unitRepo.GetStockItemUnitIDs(si.ID, models.StatusOnHand, models.Sellable, skus[si.SKU])
 		if err != nil {
-			return err
+			aggregateErr.Add(err)
 		}
 
 		unitsIds = append(unitsIds, ids...)
+	}
+
+	if aggregateErr.Length() > 0 {
+		return aggregateErr
 	}
 
 	// updated units with refNum and appropriate status
@@ -188,26 +194,12 @@ func (service *inventoryService) ReleaseItems(refNum string) error {
 	return service.updateSummary(stockItemsMap, models.Sellable, statusShift)
 }
 
-func (service *inventoryService) execAsync(fn func() error) error {
-	if service.updateSummaryAsync {
-		go func() {
-			err := fn()
-			if err != nil {
-				log.Printf("Error updating summaries: %s", err.Error())
-			}
-		}()
-		return nil
-	}
-
-	return fn()
-}
-
 func (service *inventoryService) updateStockItemSummary(stockItemID uint, unitType models.UnitType, unitCount int, change models.StatusChange) error {
 	fn := func() error {
 		return service.summaryService.UpdateStockItemSummary(stockItemID, unitType, unitCount, change)
 	}
 
-	return service.execAsync(fn)
+	return async.MaybeExecAsync(fn, service.updateSummaryAsync, "Error updating stock item summary")
 }
 
 func (service *inventoryService) updateSummary(stockItemsMap map[uint]int, unitType models.UnitType, statusShift models.StatusChange) error {
@@ -221,5 +213,5 @@ func (service *inventoryService) updateSummary(stockItemsMap map[uint]int, unitT
 		return nil
 	}
 
-	return service.execAsync(fn)
+	return async.MaybeExecAsync(fn, service.updateSummaryAsync, "Error updating stock item summary")
 }

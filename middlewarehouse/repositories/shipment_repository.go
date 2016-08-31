@@ -1,9 +1,19 @@
 package repositories
 
 import (
+<<<<<<< HEAD
 	"github.com/FoxComm/highlander/middlewarehouse/models"
+=======
+	"fmt"
+
+	"github.com/FoxComm/middlewarehouse/models"
+>>>>>>> e1751c7bf34dd94b197008a007e3b33a9a89ec5e
 
 	"github.com/jinzhu/gorm"
+)
+
+const (
+	ErrorShipmentNotFound = "Shipment with id=%d not found"
 )
 
 type IShipmentRepository interface {
@@ -48,10 +58,15 @@ func (repository *shipmentRepository) GetShipmentByID(id uint) (*models.Shipment
 		Preload("Address.Region").
 		Preload("Address.Region.Country").
 		Preload("ShipmentLineItems").
+		Preload("ShipmentLineItems.StockItemUnit").
 		First(&shipment, id).
 		Error
 
 	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, fmt.Errorf(ErrorShipmentNotFound, id)
+		}
+
 		return nil, err
 	}
 
@@ -86,7 +101,7 @@ func (repository *shipmentRepository) UpdateShipment(shipment *models.Shipment) 
 	}
 
 	if result.RowsAffected == 0 {
-		return nil, gorm.ErrRecordNotFound
+		return nil, fmt.Errorf(ErrorShipmentNotFound, shipment.ID)
 	}
 
 	return repository.GetShipmentByID(shipment.ID)
@@ -100,7 +115,7 @@ func (repository *shipmentRepository) DeleteShipment(id uint) error {
 	}
 
 	if res.RowsAffected == 0 {
-		return gorm.ErrRecordNotFound
+		return fmt.Errorf(ErrorShipmentNotFound, id)
 	}
 
 	return nil

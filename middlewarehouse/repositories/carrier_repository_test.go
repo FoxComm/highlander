@@ -1,13 +1,13 @@
 package repositories
 
 import (
+	"fmt"
 	"testing"
 
-	"github.com/FoxComm/highlander/middlewarehouse/models"
+	"github.com/FoxComm/highlander/middlewarehouse/common/db/config"
+	"github.com/FoxComm/highlander/middlewarehouse/common/db/tasks"
 	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
 
-	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -20,27 +20,28 @@ func TestCarrierRepositorySuite(t *testing.T) {
 	suite.Run(t, new(CarrierRepositoryTestSuite))
 }
 
-func (suite *CarrierRepositoryTestSuite) SetupTest() {
-	suite.db, suite.mock = CreateDbMock()
+func (suite *CarrierRepositoryTestSuite) SetupSuite() {
+	suite.db = config.TestConnection()
 
 	suite.repository = NewCarrierRepository(suite.db)
 }
 
-func (suite *CarrierRepositoryTestSuite) TearDownTest() {
-	//make sure that all expectations were met
-	suite.Nil(suite.mock.ExpectationsWereMet())
+func (suite *CarrierRepositoryTestSuite) SetupTest() {
+	tasks.TruncateTables([]string{
+		"carriers",
+	})
+}
+
+func (suite *CarrierRepositoryTestSuite) TearDownSuite() {
 	suite.db.Close()
 }
 
 func (suite *CarrierRepositoryTestSuite) Test_GetCarriers_ReturnsCarrierModels() {
 	//arrange
-	carrier1 := fixtures.GetCarrier(uint(1))
-	carrier2 := fixtures.GetCarrier(uint(2))
-	rows := sqlmock.
-		NewRows(fixtures.GetCarrierColumns()).
-		AddRow(fixtures.GetCarrierRow(carrier1)...).
-		AddRow(fixtures.GetCarrierRow(carrier2)...)
-	suite.mock.ExpectQuery(`SELECT .+ FROM "carriers"`).WillReturnRows(rows)
+	carrier1 := fixtures.GetCarrier(1)
+	suite.Nil(suite.db.Create(carrier1).Error)
+	carrier2 := fixtures.GetCarrier(2)
+	suite.Nil(suite.db.Create(carrier2).Error)
 
 	//act
 	carriers, err := suite.repository.GetCarriers()
@@ -54,25 +55,17 @@ func (suite *CarrierRepositoryTestSuite) Test_GetCarriers_ReturnsCarrierModels()
 }
 
 func (suite *CarrierRepositoryTestSuite) Test_GetCarrierByID_NotFound_ReturnsNotFoundError() {
-	//arrange
-	rows := sqlmock.
-		NewRows(fixtures.GetCarrierColumns())
-	suite.mock.
-		ExpectQuery(`SELECT .+ FROM "carriers" WHERE \("id" = \?\) .+`).
-		WithArgs(1).
-		WillReturnRows(rows)
-
 	//act
 	_, err := suite.repository.GetCarrierByID(1)
 
 	//assert
-	suite.Equal(gorm.ErrRecordNotFound, err)
+	suite.Equal(fmt.Errorf(ErrorCarrierNotFound, 1), err)
 }
 
 func (suite *CarrierRepositoryTestSuite) Test_GetCarrierByID_Found_ReturnsCarrierModel() {
 	//arrange
-	carrier1 := fixtures.GetCarrier(uint(1))
-	suite.expectSelectByID(carrier1)
+	carrier1 := fixtures.GetCarrier(1)
+	suite.Nil(suite.db.Create(carrier1).Error)
 
 	//act
 	carrier, err := suite.repository.GetCarrierByID(carrier1.ID)
@@ -84,14 +77,10 @@ func (suite *CarrierRepositoryTestSuite) Test_GetCarrierByID_Found_ReturnsCarrie
 
 func (suite *CarrierRepositoryTestSuite) Test_CreateCarrier_ReturnsCreatedRecord() {
 	//arrange
-	carrier1 := fixtures.GetCarrier(uint(1))
-	suite.mock.
-		ExpectExec(`INSERT INTO "carriers"`).
-		WillReturnResult(sqlmock.NewResult(1, 1))
-	suite.expectSelectByID(carrier1)
+	carrier1 := fixtures.GetCarrier(1)
 
 	//act
-	carrier, err := suite.repository.CreateCarrier(fixtures.GetCarrier(uint(0)))
+	carrier, err := suite.repository.CreateCarrier(fixtures.GetCarrier(0))
 
 	//assert
 	suite.Nil(err)
@@ -100,25 +89,19 @@ func (suite *CarrierRepositoryTestSuite) Test_CreateCarrier_ReturnsCreatedRecord
 
 func (suite *CarrierRepositoryTestSuite) Test_UpdateCarrier_NotFound_ReturnsNotFoundError() {
 	//arrange
-	carrier1 := fixtures.GetCarrier(uint(1))
-	suite.mock.
-		ExpectExec(`UPDATE "carriers"`).
-		WillReturnResult(sqlmock.NewResult(1, 0))
+	carrier1 := fixtures.GetCarrier(1)
 
 	//act
 	_, err := suite.repository.UpdateCarrier(carrier1)
 
 	//assert
-	suite.Equal(gorm.ErrRecordNotFound, err)
+	suite.Equal(fmt.Errorf(ErrorCarrierNotFound, carrier1.ID), err)
 }
 
 func (suite *CarrierRepositoryTestSuite) Test_UpdateCarrier_Found_ReturnsUpdatedRecord() {
 	//arrange
-	carrier1 := fixtures.GetCarrier(uint(1))
-	suite.mock.
-		ExpectExec(`UPDATE "carriers"`).
-		WillReturnResult(sqlmock.NewResult(1, 1))
-	suite.expectSelectByID(carrier1)
+	carrier1 := fixtures.GetCarrier(1)
+	suite.Nil(suite.db.Create(carrier1).Error)
 
 	//act
 	carrier, err := suite.repository.UpdateCarrier(carrier1)
@@ -129,39 +112,21 @@ func (suite *CarrierRepositoryTestSuite) Test_UpdateCarrier_Found_ReturnsUpdated
 }
 
 func (suite *CarrierRepositoryTestSuite) Test_DeleteCarrier_NotFound_ReturnsNotFoundError() {
-	//arrange
-	suite.mock.
-		ExpectExec(`DELETE FROM "carriers"`).
-		WithArgs(1).
-		WillReturnResult(sqlmock.NewResult(1, 0))
-
 	//act
 	err := suite.repository.DeleteCarrier(1)
 
 	//assert
-	suite.Equal(gorm.ErrRecordNotFound, err)
+	suite.Equal(fmt.Errorf(ErrorCarrierNotFound, 1), err)
 }
 
 func (suite *CarrierRepositoryTestSuite) Test_DeleteCarrier_Found_ReturnsNoError() {
 	//arrange
-	suite.mock.
-		ExpectExec(`DELETE FROM "carriers"`).
-		WithArgs(1).
-		WillReturnResult(sqlmock.NewResult(1, 1))
+	carrier1 := fixtures.GetCarrier(1)
+	suite.Nil(suite.db.Create(carrier1).Error)
 
 	//act
-	err := suite.repository.DeleteCarrier(1)
+	err := suite.repository.DeleteCarrier(carrier1.ID)
 
 	//assert
 	suite.Nil(err)
-}
-
-func (suite *CarrierRepositoryTestSuite) expectSelectByID(carrier *models.Carrier) {
-	rows := sqlmock.
-		NewRows(fixtures.GetCarrierColumns()).
-		AddRow(fixtures.GetCarrierRow(carrier)...)
-	suite.mock.
-		ExpectQuery(`SELECT .+ FROM "carriers" WHERE \("id" = \?\) .+`).
-		WithArgs(carrier.ID).
-		WillReturnRows(rows)
 }

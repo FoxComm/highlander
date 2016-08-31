@@ -1,9 +1,15 @@
 package repositories
 
 import (
+	"fmt"
+
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 
 	"github.com/jinzhu/gorm"
+)
+
+const (
+	ErrorAddressNotFound = "Address with id=%d not found"
 )
 
 type IAddressRepository interface {
@@ -24,6 +30,10 @@ func (repository *addressRepository) GetAddressByID(id uint) (*models.Address, e
 	address := &models.Address{}
 
 	if err := repository.db.First(address, id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, fmt.Errorf(ErrorAddressNotFound, id)
+		}
+
 		return nil, err
 	}
 
@@ -51,7 +61,7 @@ func (repository *addressRepository) DeleteAddress(id uint) error {
 	}
 
 	if res.RowsAffected == 0 {
-		return gorm.ErrRecordNotFound
+		return fmt.Errorf(ErrorAddressNotFound, id)
 	}
 
 	return nil

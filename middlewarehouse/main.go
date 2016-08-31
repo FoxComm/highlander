@@ -1,7 +1,9 @@
 package main
 
 import (
-	"github.com/FoxComm/highlander/middlewarehouse/common/db/config"
+	"log"
+
+	dbConfig "github.com/FoxComm/highlander/middlewarehouse/common/db/config"
 	"github.com/FoxComm/highlander/middlewarehouse/routes"
 
 	"log"
@@ -9,7 +11,7 @@ import (
 )
 
 func engine() (*gin.Engine, error) {
-	db, err := config.DefaultConnection()
+	db, err := dbConfig.DefaultConnection()
 	if err != nil {
 		return nil, err
 	}
@@ -23,6 +25,11 @@ func engine() (*gin.Engine, error) {
 }
 
 func main() {
+	// TODO: Bring this back when moving capture to a consumer.
+	// if err := config.InitializeSiteConfig(); err != nil {
+	// 	log.Panicf("Failed to initialize middlewarehouse config with error %s", err.Error())
+	// }
+
 	engine, err := engine()
 	if err != nil {
 		log.Panicf("Failed to start middlewarehouse with error %s", err.Error())

@@ -15,9 +15,7 @@ func (f badRequest) Status() int {
 }
 
 func (f badRequest) ToJSON() responses.Error {
-	return responses.Error{
-		Errors: []string{f.err.Error()},
-	}
+	return toJSON(f.err)
 }
 
 func NewBadRequest(err error) badRequest {
