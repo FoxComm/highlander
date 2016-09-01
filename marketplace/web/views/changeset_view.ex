@@ -8,8 +8,4 @@ defmodule Marketplace.ChangesetView do
   def render("errors.json", %{changeset: changeset}) do 
     %{errors: translate_errors(changeset)}
   end
-
-  #def render("error.json", %{error: error}) do 
-  #  %{error: error.value}
-  #end
 end
