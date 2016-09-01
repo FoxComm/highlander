@@ -1,16 +1,9 @@
-create table organization_type
-(
-    id integer primary key not null,
-    name varchar(255)
-);
-
 create table organizations
 (
-    id integer primary key not null,
+    id serial primary key,
     name varchar(255) not null,
-    organization_type_id integer,
-    parent_id integer default null,
-    constraint organizations_organization_type_id_fk foreign key (organization_type_id) references organization_type (id)
+    type generic_string,
+    parent_id integer default null references organizations(id) on update restrict on delete restrict
 );
 
 create table organization_domains
@@ -41,7 +34,8 @@ create table scopes
 (
     id integer primary key not null,
     path exts.ltree not null,
-    parent_id integer references scopes(id) on update restrict on delete restrict
+    parent_id integer references scopes(id) on update restrict on delete restrict,
+    organization_id integer references organizations(id) on update restrict on delete restrict
 );
 
 create table permissions
@@ -143,17 +137,4 @@ create table store_admins
 );
 
 alter table users add foreign key (disabled_by) references store_admins(id) on update restrict on delete restrict;
-
-/* create table service
-(
-    id integer primary key,
---find and assign correct sku_id and shadow_id
-update order_line_items set sku_id = ols.sku_id, sku_shadow_id = ols.sku_shadow_id
-    from (select id, sku_id, sku_shadow_id from order_line_item_skus) as ols
-    where ols.id = origin_id;
-    account_id integer not null references accounts(id) on update restrict on delete restrict,
-    client_id generic_string,
-    description generic_string
-);
-*/
 
