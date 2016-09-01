@@ -25,8 +25,8 @@ config :phoenix, :stacktrace_depth, 20
 # Configure your database
 config :permissions, Permissions.Repo,
   adapter: Ecto.Adapters.Postgres,
-  username: "postgres",
-  password: "postgres",
+  username: "adilwali",
+  password: "",
   database: "permissions_2",
   hostname: "localhost",
   pool_size: 10
