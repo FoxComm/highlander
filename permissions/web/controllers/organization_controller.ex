@@ -23,4 +23,9 @@ defmodule Permissions.OrganizationController do
         |> render(Permissions.ChangesetView, "errors.json", changeset: changeset)
     end
   end
+
+  def show(conn, %{"id" => id}) do
+    organization = Repo.get!(Organization, id)
+    render(conn, "show.json", organization: organization)
+  end
 end

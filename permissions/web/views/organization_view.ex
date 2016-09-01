@@ -6,6 +6,10 @@ defmodule Permissions.OrganizationView do
     %{organizations: render_many(organizations, OrganizationView, "organization.json")}
   end
 
+  def render("show.json", %{organization: organization}) do
+    %{organization: render_one(organization, OrganizationView, "organization.json")}
+  end
+
   def render("organization.json", %{organization: organization}) do
     %{id: organization.id,
       name: organization.name,
