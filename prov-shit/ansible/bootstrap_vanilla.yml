@@ -56,6 +56,7 @@
     - name: "phoenix_db_name"
       prompt: "Enter the name of the database"
       default: "phoenix"
+      private: no
     - name: "seed_predefined_admins"
       prompt: "Seed predefined admins or create only one manually? P - predefined. M - manually"
       default: "P"

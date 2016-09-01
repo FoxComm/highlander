@@ -3,12 +3,16 @@ import moment from 'moment';
 
 import styles from './datetime.css';
 
-const Moment = props => {
-  const timeValue = props.utc ? moment.utc(props.value) : moment(props.value);
+const Moment = ({utc, value, format, emptyValue}) => {
+  if (!value) {
+    return <span styleName="time">{emptyValue}</span>;
+  }
+  
+  const timeValue = utc ? moment.utc(value) : moment(value);
 
   return (
     <time styleName="time" dateTime={timeValue.local().format()}>
-      {timeValue.local().format(props.format)}
+      {timeValue.local().format(format)}
     </time>
   );
 };
@@ -16,38 +20,52 @@ const Moment = props => {
 Moment.propTypes = {
   utc: PropTypes.bool,
   value: PropTypes.string,
-  format: PropTypes.string
+  format: PropTypes.string,
+  emptyValue: PropTypes.string,
 };
 
 Moment.defaultProps = {
   format: 'L LTS',
   utc: true,
+  emptyValue: 'not set',
 };
 
-const DateTime = props => <Moment value={props.value} format={'L LT'}/>;
+
+const DateTime = props => <Moment {...props} format={'L LT'} />;
 
 DateTime.propTypes = {
   utc: PropTypes.bool,
   value: PropTypes.string
 };
 
-const Date = props => <Moment value={props.value} format={'L'}/>;
+DateTime.defaultProps = {
+  utc: true,
+};
+
+
+const Date = props => <Moment {...props} format={'L'} />;
 
 Date.propTypes = {
   utc: PropTypes.bool,
   value: PropTypes.string
 };
 
-const Time = props => <Moment value={props.value} format={'LT'}/>;
+Date.defaultProps = {
+  utc: true,
+};
+
+
+const Time = props => <Moment {...props} format={'LT'} />;
 
 Time.propTypes = {
   utc: PropTypes.bool,
   value: PropTypes.string
 };
 
-DateTime.defaultProps = Date.defaultProps = Time.defaultProps = {
+Time.defaultProps = {
   utc: true,
 };
+
 
 export {
   Moment,

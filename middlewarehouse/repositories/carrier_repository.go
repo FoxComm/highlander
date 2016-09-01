@@ -1,9 +1,15 @@
 package repositories
 
 import (
+	"fmt"
+
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 
 	"github.com/jinzhu/gorm"
+)
+
+const (
+	ErrorCarrierNotFound = "Carrier with id=%d not found"
 )
 
 type carrierRepository struct {
@@ -34,6 +40,10 @@ func (repository *carrierRepository) GetCarrierByID(id uint) (*models.Carrier, e
 	carrier := &models.Carrier{}
 
 	if err := repository.db.First(carrier, id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, fmt.Errorf(ErrorCarrierNotFound, id)
+		}
+
 		return nil, err
 	}
 
@@ -58,7 +68,7 @@ func (repository *carrierRepository) UpdateCarrier(carrier *models.Carrier) (*mo
 	}
 
 	if result.RowsAffected == 0 {
-		return nil, gorm.ErrRecordNotFound
+		return nil, fmt.Errorf(ErrorCarrierNotFound, carrier.ID)
 	}
 
 	return repository.GetCarrierByID(carrier.ID)
@@ -72,7 +82,7 @@ func (repository *carrierRepository) DeleteCarrier(id uint) error {
 	}
 
 	if res.RowsAffected == 0 {
-		return gorm.ErrRecordNotFound
+		return fmt.Errorf(ErrorCarrierNotFound, id)
 	}
 
 	return nil

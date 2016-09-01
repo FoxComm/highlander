@@ -2,14 +2,14 @@ package services
 
 import scala.util.Random
 
-import cats.implicits._
 import cats.data.Xor
+import cats.implicits._
 import failures.CouponFailures.CouponWithCodeCannotBeFound
 import failures.GeneralFailure
 import failures.PromotionFailures.PromotionNotFoundForContext
 import models.cord._
-import models.cord.lineitems.{CartLineItems}
-import CartLineItems.scope._
+import models.cord.lineitems.CartLineItems
+import models.cord.lineitems.CartLineItems.scope._
 import models.coupon._
 import models.customer.{Customer, Customers}
 import models.objects._
@@ -210,7 +210,6 @@ case class Checkout(
 
   private def authCreditCard(orderTotal: Int,
                              internalPaymentTotal: Int): DbResultT[Option[CreditCardCharge]] = {
-    import scala.concurrent.duration._
 
     val authAmount = orderTotal - internalPaymentTotal
 

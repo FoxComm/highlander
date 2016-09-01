@@ -40,6 +40,7 @@ middlewarehouse_bin: "{{middlewarehouse_dir}}/middlewarehouse"
 middlewarehouse_db_name: middlewarehouse_development
 middlewarehouse_db_user: middlewarehouse
 middlewarehouse_db_connection_string: "postgresql://{{db_host}}/{{middlewarehouse_db_name}}?user={{middlewarehouse_db_user}}"
+middlewarehouse_test_db_name: middlewarehouse_test
 
 middlewarehouse_consumers_dir: "{{middlewarehouse_dir}}/consumers"
 stock_items_consumer_bin: "{{middlewarehouse_consumers_dir}}/stock-items-consumer"
@@ -144,3 +145,8 @@ updating_mwh: false
 
 # Test Stripe api key
 stripe_api_key: sk_test_uvaf3GCFsjCsvvKO7FsQhNRm
+
+cert_path: stage
+
+#mesos
+mesos_quorum: 2

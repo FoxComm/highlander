@@ -3,93 +3,66 @@ package repositories
 import (
 	"testing"
 
+	"github.com/FoxComm/highlander/middlewarehouse/common/db/config"
+	"github.com/FoxComm/highlander/middlewarehouse/common/db/tasks"
 	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
+	"github.com/FoxComm/highlander/middlewarehouse/common/tests"
 
-	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/jinzhu/gorm"
+	"fmt"
 	"github.com/stretchr/testify/suite"
 )
 
 type ShipmentRepositoryTestSuite struct {
 	GeneralRepositoryTestSuite
-	repository IShipmentRepository
+	repository     IShipmentRepository
+	shippingMethod *models.ShippingMethod
+	address        *models.Address
 }
 
 func TestShipmentRepositorySuite(t *testing.T) {
 	suite.Run(t, new(ShipmentRepositoryTestSuite))
 }
 
-func (suite *ShipmentRepositoryTestSuite) SetupTest() {
-	suite.db, suite.mock = CreateDbMock()
+func (suite *ShipmentRepositoryTestSuite) SetupSuite() {
+	suite.db = config.TestConnection()
 
 	suite.repository = NewShipmentRepository(suite.db)
+
+	tasks.TruncateTables([]string{
+		"carriers",
+		"shipping_methods",
+		"addresses",
+	})
+
+	carrier := fixtures.GetCarrier(1)
+	suite.Nil(suite.db.Create(carrier).Error)
+
+	suite.shippingMethod = fixtures.GetShippingMethod(1, carrier.ID, carrier)
+	suite.Nil(suite.db.Create(suite.shippingMethod).Error)
+
+	region := &models.Region{}
+	suite.Nil(suite.db.Preload("Country").First(region).Error)
+	suite.address = fixtures.GetAddress(1, region.ID, region)
+	suite.Nil(suite.db.Create(suite.address).Error)
 }
 
-func (suite *ShipmentRepositoryTestSuite) TearDownTest() {
-	//make sure that all expectations were met
-	suite.Nil(suite.mock.ExpectationsWereMet())
+func (suite *ShipmentRepositoryTestSuite) SetupTest() {
+	tasks.TruncateTables([]string{
+		"shipments",
+	})
+}
 
+func (suite *ShipmentRepositoryTestSuite) TearDownSuite() {
 	suite.db.Close()
 }
 
 func (suite *ShipmentRepositoryTestSuite) Test_GetShipmentsByReferenceNumber_Found_ReturnsShipmentModels() {
 	//arrange
-	shipment1 := fixtures.GetShipmentShort(uint(1))
-	shipment2 := fixtures.GetShipmentShort(uint(2))
-	shipmentRows := sqlmock.
-		NewRows(fixtures.GetShipmentColumns()).
-		AddRow(fixtures.GetShipmentRow(shipment1)...).
-		AddRow(fixtures.GetShipmentRow(shipment2)...)
-	suite.mock.
-		ExpectQuery(`SELECT .+ FROM "shipments" WHERE .+ \(\(reference_number = \?\)\)`).
-		WithArgs(shipment1.ReferenceNumber).
-		WillReturnRows(shipmentRows)
-	shippingMethodRows := sqlmock.
-		NewRows(fixtures.GetShippingMethodColumns()).
-		AddRow(fixtures.GetShippingMethodRow(&shipment1.ShippingMethod)...)
-	suite.mock.
-		ExpectQuery(`SELECT .+ FROM "shipping_methods" WHERE \("id" IN \(\?,\?\)\)`).
-		WithArgs(shipment1.ShippingMethodID, shipment2.ShippingMethodID).
-		WillReturnRows(shippingMethodRows)
-	carrierRows := sqlmock.
-		NewRows(fixtures.GetCarrierColumns()).
-		AddRow(fixtures.GetCarrierRow(&shipment1.ShippingMethod.Carrier)...)
-	suite.mock.
-		ExpectQuery(`SELECT .+ FROM "carriers" WHERE \("id" IN \(\?,\?\)\)`).
-		WithArgs(shipment1.ShippingMethod.CarrierID, shipment2.ShippingMethod.CarrierID).
-		WillReturnRows(carrierRows)
-	addressRows := sqlmock.
-		NewRows(fixtures.GetAddressColumns()).
-		AddRow(fixtures.GetAddressRow(&shipment1.Address)...)
-	suite.mock.
-		ExpectQuery(`SELECT .+ FROM "addresses" WHERE .+ \(\("id" IN \(\?,\?\)\)\)`).
-		WithArgs(shipment1.AddressID, shipment2.AddressID).
-		WillReturnRows(addressRows)
-	regionRows := sqlmock.
-		NewRows(fixtures.GetRegionColumns()).
-		AddRow(fixtures.GetRegionRow(&shipment1.Address.Region)...)
-	suite.mock.
-		ExpectQuery(`SELECT .+ FROM "regions" WHERE \("id" IN \(\?,\?\)\)`).
-		WithArgs(shipment1.Address.RegionID, shipment2.Address.RegionID).
-		WillReturnRows(regionRows)
-	countryRows := sqlmock.
-		NewRows(fixtures.GetCountryColumns()).
-		AddRow(fixtures.GetCountryRow(&shipment1.Address.Region.Country)...)
-	suite.mock.
-		ExpectQuery(`SELECT .+ FROM "countries" WHERE \("id" IN \(\?,\?\)\)`).
-		WithArgs(shipment1.Address.Region.CountryID, shipment2.Address.Region.CountryID).
-		WillReturnRows(countryRows)
-	shipmentLineItemRows := sqlmock.
-		NewRows(fixtures.GetShipmentLineItemColumns()).
-		AddRow(fixtures.GetShipmentLineItemRow(&shipment1.ShipmentLineItems[0])...).
-		AddRow(fixtures.GetShipmentLineItemRow(&shipment1.ShipmentLineItems[1])...).
-		AddRow(fixtures.GetShipmentLineItemRow(&shipment2.ShipmentLineItems[0])...).
-		AddRow(fixtures.GetShipmentLineItemRow(&shipment2.ShipmentLineItems[1])...)
-	suite.mock.
-		ExpectQuery(`SELECT .+ FROM "shipment_line_items" WHERE .+ \(\("shipment_id" IN \(\?,\?\)\)\)`).
-		WithArgs(shipment1.ID, shipment2.ID).
-		WillReturnRows(shipmentLineItemRows)
+	shipment1 := fixtures.GetShipment(1, suite.shippingMethod.ID, suite.shippingMethod, suite.address.ID, suite.address, nil)
+	suite.Nil(suite.db.Create(shipment1).Error)
+	shipment2 := fixtures.GetShipment(2, suite.shippingMethod.ID, suite.shippingMethod, suite.address.ID, suite.address, nil)
+	suite.Nil(suite.db.Create(shipment2).Error)
 
 	//act
 	shipments, err := suite.repository.GetShipmentsByReferenceNumber(shipment1.ReferenceNumber)
@@ -97,168 +70,90 @@ func (suite *ShipmentRepositoryTestSuite) Test_GetShipmentsByReferenceNumber_Fou
 	//assert
 	suite.Nil(err)
 	suite.Equal(2, len(shipments))
+	tests.SyncDates(shipment1, shipment2, shipments[0], shipments[1],
+		&shipment1.Address, &shipment2.Address, &shipments[0].Address, &shipments[1].Address)
 	suite.Equal(shipment1, shipments[0])
-	//suite.Equal(shipment2, shipments[1])
+	suite.Equal(shipment2, shipments[1])
 }
 
 func (suite *ShipmentRepositoryTestSuite) Test_GetShipmentByID_NotFound_ReturnsNotFoundError() {
-	//arrange
-	rows := sqlmock.
-		NewRows(fixtures.GetShipmentColumns())
-	suite.mock.
-		ExpectQuery(`SELECT .+ FROM "shipments" WHERE .+ \(\("id" = \?\)\)`).
-		WithArgs(1).
-		WillReturnRows(rows)
-
 	//act
 	_, err := suite.repository.GetShipmentByID(1)
 
 	//assert
-	suite.Equal(gorm.ErrRecordNotFound, err)
+	suite.Equal(fmt.Errorf(ErrorShipmentNotFound, 1), err)
 }
 
 func (suite *ShipmentRepositoryTestSuite) Test_GetShipmentByID_Found_ReturnsShipmentModel() {
 	//arrange
-	shipment1 := fixtures.GetShipmentShort(uint(1))
-	suite.expectSelectByID(shipment1)
+	shipment1 := fixtures.GetShipment(1, suite.shippingMethod.ID, suite.shippingMethod, suite.address.ID, suite.address, []models.ShipmentLineItem{})
+	suite.Nil(suite.db.Create(shipment1).Error)
 
 	//act
 	shipment, err := suite.repository.GetShipmentByID(shipment1.ID)
 
 	//assert
 	suite.Nil(err)
+	tests.SyncDates(shipment1, shipment, &shipment1.Address, &shipment.Address)
 	suite.Equal(shipment1, shipment)
 }
 
-// TODO: Re-enable
-// func (suite *ShipmentRepositoryTestSuite) Test_CreateShipment_ReturnsCreatedRecord() {
-// 	//arrange
-// 	shipment1 := fixtures.GetShipmentShort(uint(1))
-// 	suite.mock.
-// 		ExpectExec(`INSERT INTO "shipments"`).
-// 		WillReturnResult(sqlmock.NewResult(1, 1))
-// 	suite.expectSelectByID(shipment1)
-//
-// 	//act
-// 	shipment, err := suite.repository.CreateShipment(fixtures.GetShipmentShort(uint(0)))
-//
-// 	//assert
-// 	suite.Nil(err)
-// 	shipment1.CreatedAt = shipment.CreatedAt
-// 	shipment1.UpdatedAt = shipment.UpdatedAt
-// 	suite.Equal(shipment1, shipment)
-// }
+func (suite *ShipmentRepositoryTestSuite) Test_CreateShipment_ReturnsCreatedRecord() {
+	//arrange
+	shipment1 := fixtures.GetShipment(1, suite.shippingMethod.ID, suite.shippingMethod, suite.address.ID, suite.address, []models.ShipmentLineItem{})
+
+	//act
+	shipment, err := suite.repository.CreateShipment(fixtures.GetShipment(0, suite.shippingMethod.ID, suite.shippingMethod, suite.address.ID, suite.address, []models.ShipmentLineItem{}))
+
+	//assert
+	suite.Nil(err)
+	tests.SyncDates(shipment1, shipment, &shipment1.Address, &shipment.Address)
+	suite.Equal(shipment1, shipment)
+}
+
 
 func (suite *ShipmentRepositoryTestSuite) Test_UpdateShipment_NotFound_ReturnsNotFoundError() {
 	//arrange
-	shipment1 := fixtures.GetShipmentShort(uint(1))
-	suite.mock.
-		ExpectExec(`UPDATE "shipments"`).
-		WillReturnResult(sqlmock.NewResult(1, 0))
+	shipment1 := fixtures.GetShipmentShort(1)
 
 	//act
 	_, err := suite.repository.UpdateShipment(shipment1)
 
 	//assert
-	suite.Equal(gorm.ErrRecordNotFound, err)
-
-	//make sure that all expectations were met
-	suite.Nil(suite.mock.ExpectationsWereMet())
+	suite.Equal(fmt.Errorf(ErrorShipmentNotFound, shipment1.ID), err)
 }
 
 func (suite *ShipmentRepositoryTestSuite) Test_UpdateShipment_Found_ReturnsUpdatedRecord() {
 	//arrange
-	shipment1 := fixtures.GetShipmentShort(uint(1))
-	suite.mock.
-		ExpectExec(`UPDATE "shipments"`).
-		WillReturnResult(sqlmock.NewResult(1, 1))
-	suite.expectSelectByID(shipment1)
+	shipment1 := fixtures.GetShipment(1, suite.shippingMethod.ID, suite.shippingMethod, suite.address.ID, suite.address, []models.ShipmentLineItem{})
+	suite.Nil(suite.db.Create(shipment1).Error)
+	shipment1.State = models.ShipmentStateDelivered
 
 	//act
 	shipment, err := suite.repository.UpdateShipment(shipment1)
 
 	//assert
 	suite.Nil(err)
-	shipment1.CreatedAt = shipment.CreatedAt
-	shipment1.UpdatedAt = shipment.UpdatedAt
+	tests.SyncDates(shipment1, shipment, &shipment1.Address, &shipment.Address)
 	suite.Equal(shipment1, shipment)
 }
 
 func (suite *ShipmentRepositoryTestSuite) Test_DeleteShipment_NotFound_ReturnsNotFoundError() {
-	//arrange
-	suite.mock.
-		ExpectExec(`UPDATE "shipments" SET deleted_at=\? .+ \(\("id" = \?\)\)`).
-		WillReturnResult(sqlmock.NewResult(1, 0))
-
 	//act
 	err := suite.repository.DeleteShipment(1)
 
 	//assert
-	suite.Equal(gorm.ErrRecordNotFound, err)
+	suite.Equal(fmt.Errorf(ErrorShipmentNotFound, 1), err)
 }
 
 func (suite *ShipmentRepositoryTestSuite) Test_DeleteShipment_Found_ReturnsNoError() {
 	//arrange
-	suite.mock.
-		ExpectExec(`UPDATE "shipments" SET deleted_at=\? .+ \(\("id" = \?\)\)`).
-		WillReturnResult(sqlmock.NewResult(1, 1))
+	shipment1 := fixtures.GetShipment(1, suite.shippingMethod.ID, suite.shippingMethod, suite.address.ID, suite.address, []models.ShipmentLineItem{})
+	suite.Nil(suite.db.Create(shipment1).Error)
 
 	//act
-	err := suite.repository.DeleteShipment(1)
+	err := suite.repository.DeleteShipment(shipment1.ID)
 
 	//assert
 	suite.Nil(err)
-}
-
-func (suite *ShipmentRepositoryTestSuite) expectSelectByID(shipment *models.Shipment) {
-	shipmentRows := sqlmock.
-		NewRows(fixtures.GetShipmentColumns()).
-		AddRow(fixtures.GetShipmentRow(shipment)...)
-	suite.mock.
-		ExpectQuery(`SELECT .+ FROM "shipments" WHERE .+ \(\("id" = \?\)\)`).
-		WithArgs(shipment.ID).
-		WillReturnRows(shipmentRows)
-	shippingMethodRows := sqlmock.
-		NewRows(fixtures.GetShippingMethodColumns()).
-		AddRow(fixtures.GetShippingMethodRow(&shipment.ShippingMethod)...)
-	suite.mock.
-		ExpectQuery(`SELECT .+ FROM "shipping_methods" WHERE \("id" IN \(\?\)\)`).
-		WithArgs(shipment.ShippingMethodID).
-		WillReturnRows(shippingMethodRows)
-	carrierRows := sqlmock.
-		NewRows(fixtures.GetCarrierColumns()).
-		AddRow(fixtures.GetCarrierRow(&shipment.ShippingMethod.Carrier)...)
-	suite.mock.
-		ExpectQuery(`SELECT .+ FROM "carriers" WHERE \("id" IN \(\?\)\)`).
-		WithArgs(shipment.ShippingMethod.CarrierID).
-		WillReturnRows(carrierRows)
-	addressRows := sqlmock.
-		NewRows(fixtures.GetAddressColumns()).
-		AddRow(fixtures.GetAddressRow(&shipment.Address)...)
-	suite.mock.
-		ExpectQuery(`SELECT .+ FROM "addresses" WHERE .+ \(\("id" IN \(\?\)\)\)`).
-		WithArgs(shipment.AddressID).
-		WillReturnRows(addressRows)
-	regionRows := sqlmock.
-		NewRows(fixtures.GetRegionColumns()).
-		AddRow(fixtures.GetRegionRow(&shipment.Address.Region)...)
-	suite.mock.
-		ExpectQuery(`SELECT .+ FROM "regions" WHERE \("id" IN \(\?\)\)`).
-		WithArgs(shipment.Address.RegionID).
-		WillReturnRows(regionRows)
-	countryRows := sqlmock.
-		NewRows(fixtures.GetCountryColumns()).
-		AddRow(fixtures.GetCountryRow(&shipment.Address.Region.Country)...)
-	suite.mock.
-		ExpectQuery(`SELECT .+ FROM "countries" WHERE \("id" IN \(\?\)\)`).
-		WithArgs(shipment.Address.Region.CountryID).
-		WillReturnRows(countryRows)
-	shipmentLineItemRows := sqlmock.
-		NewRows(fixtures.GetShipmentLineItemColumns()).
-		AddRow(fixtures.GetShipmentLineItemRow(&shipment.ShipmentLineItems[0])...).
-		AddRow(fixtures.GetShipmentLineItemRow(&shipment.ShipmentLineItems[1])...)
-	suite.mock.
-		ExpectQuery(`SELECT .+ FROM "shipment_line_items" WHERE .+ \(\("shipment_id" IN \(\?\)\)\)`).
-		WithArgs(shipment.ID).
-		WillReturnRows(shipmentLineItemRows)
 }

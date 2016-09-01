@@ -54,7 +54,7 @@ export default class QueryBuilder extends React.Component {
     };
 
     return (
-      <Criterion key={index}
+      <Criterion key={`${field}.${operator}.${index}`}
                  field={field}
                  operator={operator}
                  value={value}

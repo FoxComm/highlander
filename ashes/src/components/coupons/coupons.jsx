@@ -19,6 +19,12 @@ import BulkWrapper from '../discounts/bulk';
 // redux
 import { actions } from '../../modules/coupons/list';
 
+// helpers
+import { filterArchived } from 'elastic/archive';
+
+// types
+import type { SearchFilter } from 'elastic/common';
+
 type CouponsProps = {
   actions: Object,
   list: Object,
@@ -52,6 +58,11 @@ const tableColumns: Array<Object> = [
 export default class Coupons extends Component {
   props: CouponsProps;
 
+  @autobind
+  addSearchFilters(filters: Array<SearchFilter>, initial: boolean = false) {
+    return this.props.actions.addSearchFilters(filterArchived(filters), initial);
+  }
+
   renderRow(row: Object, index: number, columns: Array<any>, params: Object): Element {
     const key = `coupon-${row.id}`;
 
@@ -68,6 +79,11 @@ export default class Coupons extends Component {
   render(): Element {
     const {list, actions} = this.props;
 
+    const searchActions = {
+      ...actions,
+      addSearchFilters: this.addSearchFilters,
+    };
+
     return (
       <div className="coupons">
         <BulkWrapper entity="coupon">
@@ -76,7 +92,7 @@ export default class Coupons extends Component {
             list={list}
             renderRow={this.renderRow}
             tableColumns={tableColumns}
-            searchActions={actions}
+            searchActions={searchActions}
           />
         </BulkWrapper>
       </div>

@@ -19,6 +19,7 @@ type UpdateFn = (code: string, field: string, value: any) => void;
 type Props = {
   fullProduct: ?Product,
   updateField: UpdateFn,
+  updateFields: (code: string, toUpdate: Array<Array<any>>) => void,
 };
 
 const tableColumns = [
@@ -64,6 +65,7 @@ export default class SkuList extends Component {
           sku={row}
           params={params}
           updateField={this.props.updateField}
+          updateFields={this.props.updateFields}
           key={key}
         />
       );

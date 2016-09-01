@@ -3,9 +3,10 @@ package services
 import (
 	"testing"
 
-	"github.com/FoxComm/highlander/iddlewarehouse/common/db/config"
-	"github.com/FoxComm/highlander/iddlewarehouse/common/db/tasks"
-	"github.com/FoxComm/highlander/iddlewarehouse/fixtures"
+	"github.com/FoxComm/highlander/middlewarehouse/common/db/config"
+	"github.com/FoxComm/highlander/middlewarehouse/common/db/tasks"
+	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
+	"github.com/FoxComm/highlander/middlewarehouse/services/mocks"
 
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/stretchr/testify/suite"
@@ -36,7 +37,7 @@ func (suite *ShipmentServiceTestSuite) SetupTest() {
 	db, err := config.DefaultConnection()
 	suite.db = db.Debug()
 	suite.Nil(err)
-	suite.service = NewShipmentService(suite.db)
+	suite.service = NewShipmentService(suite.db, &mocks.SummaryServiceStub{})
 }
 
 func (suite *ShipmentServiceTestSuite) Test_GetShipmentsByReferenceNumber_ReturnsShipmentModels() {

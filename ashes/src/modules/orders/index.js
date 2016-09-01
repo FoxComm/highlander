@@ -5,8 +5,6 @@ import watchers from './watchers';
 import list from './list';
 import newOrder from './new-order';
 import shipments from './shipments';
-import carriers from './carriers';
-import shipmentMethods from './shipment-methods';
 
 const orderReducer = combineReducers({
   details,
@@ -15,8 +13,6 @@ const orderReducer = combineReducers({
   list,
   newOrder,
   shipments,
-  carriers,
-  shipmentMethods,
 });
 
 export default orderReducer;

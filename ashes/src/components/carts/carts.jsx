@@ -24,7 +24,7 @@ const mapDispatchToProps = dispatch => {
 
 const tableColumns = [
   {field: 'referenceNumber', text: 'Cart'},
-  {field: 'placedAt', text: 'Date/Time Placed', type: 'datetime'},
+  {field: 'createdAt', text: 'Date/Time Placed', type: 'datetime'},
   {field: 'customer.name', text: 'Customer Name'},
   {field: 'customer.email', text: 'Customer Email'},
   {field: 'grandTotal', text: 'Total', type: 'currency'}

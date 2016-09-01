@@ -2,5 +2,9 @@
 
 - name: Install Docker
   shell: curl -sSL https://get.docker.io/ | sudo sh
-  sudo: yes
+  sudo: true
+ 
+- name: Add User to Docker Group
+  user: name={{user}} groups=docker append=yes
+  sudo: true
 

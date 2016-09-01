@@ -18,8 +18,8 @@
       prompt: "Enter a password for new admin"
       private: no
 
-  include: ../../bootstrap_predefined_admins/tasks/main.yml
+  include: ../../bootstrap_store_admin/tasks/main.yml
 
 - name: Create predefined admins
   when: seed_predefined_admins == "P"
-  include: ../../bootstrap_store_admin/tasks/main.yml
+  include: ../../bootstrap_predefined_admins/tasks/main.yml

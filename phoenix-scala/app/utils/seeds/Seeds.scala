@@ -45,7 +45,7 @@ object Seeds {
       seedRandom: Int = 0,
       seedStage: Boolean = false,
       seedDemo: Int = 0,
-      scale: Int = 1,
+      customersScaleMultiplier: Int = 1000,
       mode: Command = NoCommand,
       adminName: String = "",
       adminEmail: String = ""
@@ -71,6 +71,9 @@ object Seeds {
             opt[Int]("seedRandom")
               .action((x, c) ⇒ c.copy(seedRandom = x))
               .text("Create random seeds"),
+            opt[Int]("customersScaleMultiplier")
+              .action((x, c) ⇒ c.copy(customersScaleMultiplier = x))
+              .text("Customers scale multiplier for random seeds"),
             opt[Unit]("seedStage")
               .action((x, c) ⇒ c.copy(seedStage = true))
               .text("Create stage seeds"),
@@ -114,7 +117,8 @@ object Seeds {
 
         if (cfg.seedBase) createBaseSeeds()
         if (cfg.seedAdmins) createAdminsSeeds()
-        if (cfg.seedRandom > 0) createRandomSeeds(cfg.seedRandom)
+        if (cfg.seedRandom > 0)
+          createRandomSeeds(cfg.seedRandom, cfg.customersScaleMultiplier)
         if (cfg.seedStage) {
           val adminId = mustGetFirstAdmin().id
           createStageSeeds(adminId)
@@ -123,7 +127,7 @@ object Seeds {
           val adminId = mustGetFirstAdmin().id
           createStageSeeds(adminId)
           createDemoSeeds()
-          createRandomSeeds(cfg.seedDemo)
+          createRandomSeeds(cfg.seedDemo, cfg.customersScaleMultiplier)
         }
       case CreateAdmin ⇒
         createAdminManually(name = cfg.adminName, email = cfg.adminEmail)
@@ -171,11 +175,11 @@ object Seeds {
     validateResults("demo", result)
   }
 
-  def createRandomSeeds(scale: Int)(implicit db: DB, ac: AC) {
+  def createRandomSeeds(scale: Int, customersScaleMultiplier: Int)(implicit db: DB, ac: AC) {
     Console.err.println("Inserting random seeds")
 
-    val customers            = 1000 * scale
-    val batchSize            = 100
+    val customers            = customersScaleMultiplier * scale
+    val batchSize            = Math.min(100, customers)
     val appeasementsPerBatch = 8
     val batchs               = customers / batchSize
 

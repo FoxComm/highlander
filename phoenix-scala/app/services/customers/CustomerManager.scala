@@ -5,14 +5,16 @@ import java.time.temporal.ChronoUnit.DAYS
 
 import cats.implicits._
 import failures.NotFoundFailure404
+import failures.CustomerFailures._
 import models.StoreAdmin
 import models.cord.{OrderShippingAddresses, Orders}
 import models.customer.Customers.scope._
 import models.customer.{Customer, Customers}
+import models.customer.{CustomerPasswordResets, CustomerPasswordReset}
 import models.location.Addresses
 import models.shipping.Shipments
 import payloads.CustomerPayloads._
-import responses.CustomerResponse.{Root, build}
+import responses.CustomerResponse._
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
@@ -42,6 +44,45 @@ object CustomerManager {
                    customer.copy(isBlacklisted = blacklisted, blacklistedBy = Some(admin.id)))
       _ ← * <~ LogActivity.customerBlacklisted(blacklisted, customer, admin)
     } yield build(updated)
+
+  def resetPasswordSend(
+      email: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[ResetPasswordSendAnswer] =
+    for {
+      customer ← * <~ Customers
+                  .activeCustomerByEmail(Option(email))
+                  .mustFindOneOr(NotFoundFailure404(Customer, email))
+      resetPwInstance ← * <~ CustomerPasswordReset
+                         .optionFromCustomer(customer)
+                         .toXor(CustomerHasNoEmail(customer.id).single)
+      findOrCreate ← * <~ CustomerPasswordResets
+                      .findActiveByEmail(email)
+                      .one
+                      .findOrCreateExtended(CustomerPasswordResets.create(resetPwInstance))
+      (resetPw, foundOrCreated) = findOrCreate
+      updatedResetPw ← * <~ (foundOrCreated match {
+                            case Found ⇒
+                              CustomerPasswordResets.update(resetPw, resetPw.updateCode())
+                            case Created ⇒ DbResultT.good(resetPw)
+                          })
+      _ ← * <~ LogActivity.customerRemindPassword(customer, updatedResetPw.code)
+    } yield ResetPasswordSendAnswer(status = "ok")
+
+  def resetPassword(
+      code: String,
+      newPassword: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[ResetPasswordDoneAnswer] = {
+    for {
+      remind ← * <~ CustomerPasswordResets
+                .findActiveByCode(code)
+                .mustFindOr(ResetPasswordCodeInvalid(code))
+      customer ← * <~ Customers.mustFindById404(remind.customerId)
+      _ ← * <~ CustomerPasswordResets.update(remind,
+                                             remind.copy(state =
+                                                           CustomerPasswordReset.PasswordRestored,
+                                                         activatedAt = Instant.now.some))
+      updatedCustomer ← * <~ Customers.update(customer, customer.updatePassword(newPassword))
+      _               ← * <~ LogActivity.customerPasswordReset(updatedCustomer)
+    } yield ResetPasswordDoneAnswer(status = "ok")
+  }
 
   private def resolvePhoneNumber(customerId: Int)(implicit ec: EC): DbResultT[Option[String]] = {
     def resolveFromShipments(customerId: Int) =

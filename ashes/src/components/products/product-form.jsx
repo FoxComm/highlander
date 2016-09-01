@@ -24,6 +24,7 @@ type Props = {
   product: Product,
   onUpdateProduct: (product: Product) => void,
   onSetSkuProperty: (code: string, field: string, value: any) => void,
+  onSetSkuProperties: (code: string, toUpdate: Array<Array<any>>) => void,
 };
 
 type State = {
@@ -71,6 +72,7 @@ export default class ProductForm extends Component {
         <SkuList
           fullProduct={this.props.product}
           updateField={this.props.onSetSkuProperty}
+          updateFields={this.props.onSetSkuProperties}
         />
       </ContentBox>
     );

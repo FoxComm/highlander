@@ -8,12 +8,13 @@ import TableCell from '../table/cell';
 import TableRow from '../table/row';
 
 function cells(columns, row, params, setCellContents) {
-  return _.map(columns, col => {
+  return _.map(columns, (col, index) => {
     const cellKey = `row-${col.field}`;
     const cellContents = setCellContents(row, col.field);
+    const className = classNames({'icon-chevron-down': index === 0});
 
     return (
-      <TableCell onClick={params.toggleDrawerState} key={cellKey} column={col}>
+      <TableCell className={className} onClick={params.toggleDrawerState} key={cellKey} column={col}>
         {cellContents}
       </TableCell>
     );

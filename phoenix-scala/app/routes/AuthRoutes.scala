@@ -6,9 +6,12 @@ import akka.http.scaladsl.server.Directives._
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.auth.Identity
 import payloads.LoginPayload
+import payloads.CustomerPayloads._
 import services.Authenticator
 import services.auth.GoogleOauth.oauthServiceFromConfig
 import services.auth.OauthDirectives._
+import utils.http.CustomDirectives._
+import services.customers.CustomerManager
 import utils.http.Http._
 import utils.aliases._
 
@@ -24,6 +27,18 @@ object AuthRoutes {
           result.fold({ f ⇒
             complete(renderFailure(f))
           }, identity)
+        }
+      } ~
+      activityContext() { implicit ac ⇒
+        (post & path("send-password-reset") & pathEnd & entity(as[ResetPasswordSend])) { payload ⇒
+          mutateOrFailures {
+            CustomerManager.resetPasswordSend(payload.email)
+          }
+        } ~
+        (post & path("reset-password") & pathEnd & entity(as[ResetPassword])) { payload ⇒
+          mutateOrFailures {
+            CustomerManager.resetPassword(code = payload.code, newPassword = payload.newPassword)
+          }
         }
       } ~
       (post & path("logout")) {
