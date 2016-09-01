@@ -15,11 +15,21 @@
     storefront_server: storefront.service.consul:8080
     isaac_server: isaac.service.consul:9190
     middlewarehouse_server: middlewarehouse.service.consul:9292
+    phoenix_service_requires: ""
+    phoenix_service_after: ""
+    middlewarehouse_service_requires: ""
+    middlewarehouse_service_after: ""
+    middlewarehouse_consumers_services_requires: ""
+    middlewarehouse_consumers_services_after: ""
 
   roles:
     - { role: base/ssh_keys }
     - { role: base/mesos_worker }
     - { role: base/rsyslog, sudo: yes }
+    - { role: base/phoenix }
+    - { role: base/isaac }
+    - { role: base/greenriver }
+    - { role: base/middlewarehouse }
     - { role: base/balancer, sudo: yes }
     - { role: prod/balancer, sudo: yes }
 
