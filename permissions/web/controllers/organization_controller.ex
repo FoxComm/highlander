@@ -28,4 +28,18 @@ defmodule Permissions.OrganizationController do
     organization = Repo.get!(Organization, id)
     render(conn, "show.json", organization: organization)
   end
+
+  def update(conn, %{"id" => id, "organization" => organization_params}) do
+    organization = Repo.get!(Organization, id)
+    changeset = Organization.update_changeset(organization, organization_params)
+    case Repo.update(changeset) do
+      {:ok, organization} -> 
+        conn
+        |> render("show.json", organization: organization)
+      {:error, changeset} -> 
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(Permissions.ChangesetView, "errors.json", changeset: changeset)
+    end
+  end
 end

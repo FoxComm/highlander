@@ -16,4 +16,9 @@ defmodule Permissions.Organization do
     model 
     |> cast(params, ~w(name type), ~w(parent_id))
   end
+  
+  def update_changeset(model, params \\ :empty) do
+    model 
+    |> cast(params, ~w(name type), ~w(parent_id))
+  end
 end
