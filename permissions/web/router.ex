@@ -5,7 +5,9 @@ defmodule Permissions.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/api", Permissions do
+  scope "/", Permissions do
     pipe_through :api
+
+    resources "/organizations", OrganizationController
   end
 end
