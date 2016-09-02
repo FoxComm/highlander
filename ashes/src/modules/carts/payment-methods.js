@@ -18,7 +18,7 @@ type CreditCard = {
 };
 
 const _createAction = (description, ...args) => {
-  return createAction('ORDER_PAYMENT_METHOD_' + description, ...args);
+  return createAction('CART_PAYMENT_METHOD_' + description, ...args);
 };
 
 const setError = _createAction('ERROR');

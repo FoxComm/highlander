@@ -1,5 +1,6 @@
 
-// list of all available types https://github.com/FoxComm/phoenix-scala/blob/master/app/services/activity/Tailored.scala
+// list of all available types 
+// https://github.com/FoxComm/phoenix-scala/tree/master/app/services/activity
 
 const types = {
   /* Assignments */
@@ -32,41 +33,41 @@ const types = {
   CREDIT_CARD_UPDATED: 'credit_card_updated',
   CREDIT_CARD_REMOVED: 'credit_card_removed',
 
-  /* Carts */
-
-  CART_CREATED: 'cart_created',
-  
   /* Orders */
 
   ORDER_STATE_CHANGED: 'order_state_changed',
   ORDER_BULK_STATE_CHANGED: 'order_bulk_state_changed',
   ORDER_REMORSE_PERIOD_INCREASED: 'order_remorse_period_increased',
 
+  /* Carts */
+
+  CART_CREATED: 'cart_created',
+
   /* Order Line Items */
 
-  ORDER_LINE_ITEMS_ADDED_GIFT_CARD: 'order_line_items_added_gift_card',
-  ORDER_LINE_ITEMS_UPDATED_GIFT_CARD: 'order_line_items_updated_gift_card',
-  ORDER_LINE_ITEMS_DELETED_GIFT_CARD: 'order_line_items_deleted_gift_card',
-  ORDER_LINE_ITEMS_UPDATED_QUANTITIES: 'order_line_items_updated_quantities',
+  CART_LINE_ITEMS_ADDED_GIFT_CARD: 'cart_line_items_added_gift_card',
+  CART_LINE_ITEMS_UPDATED_GIFT_CARD: 'cart_line_items_updated_gift_card',
+  CART_LINE_ITEMS_DELETED_GIFT_CARD: 'cart_line_items_deleted_gift_card',
+  CART_LINE_ITEMS_UPDATED_QUANTITIES: 'cart_line_items_updated_quantities',
 
   /* Order Shipping Methods */
 
-  ORDER_SHIPPING_METHOD_UPDATED: 'order_shipping_method_updated',
-  ORDER_SHIPPING_METHOD_REMOVED: 'order_shipping_method_removed',
+  CART_SHIPPING_METHOD_UPDATED: 'cart_shipping_method_updated',
+  CART_SHIPPING_METHOD_REMOVED: 'cart_shipping_method_removed',
 
   /* Order Shipping Addresses */
 
-  ORDER_SHIPPING_ADDRESS_ADDED: 'order_shipping_address_added',
-  ORDER_SHIPPING_ADDRESS_UPDATED: 'order_shipping_address_updated',
-  ORDER_SHIPPING_ADDRESS_REMOVED: 'order_shipping_address_removed',
+  CART_SHIPPING_ADDRESS_ADDED: 'cart_shipping_address_added',
+  CART_SHIPPING_ADDRESS_UPDATED: 'cart_shipping_address_updated',
+  CART_SHIPPING_ADDRESS_REMOVED: 'cart_shipping_address_removed',
 
   /* Order Payment Methods */
 
-  ORDER_PAYMENT_METHOD_ADDED_CREDIT_CARD: 'order_payment_method_added_credit_card',
-  ORDER_PAYMENT_METHOD_ADDED_GIFT_CARD: 'order_payment_method_added_gift_card',
-  ORDER_PAYMENT_METHOD_ADDED_STORE_CREDIT: 'order_payment_method_added_store_credit',
-  ORDER_PAYMENT_METHOD_DELETED: 'order_payment_method_deleted',
-  ORDER_PAYMENT_METHOD_DELETED_GIFT_CARD: 'order_payment_method_deleted_gift_card',
+  CART_PAYMENT_METHOD_ADDED_CREDIT_CARD: 'cart_payment_method_added_credit_card',
+  CART_PAYMENT_METHOD_ADDED_GIFT_CARD: 'cart_payment_method_added_gift_card',
+  CART_PAYMENT_METHOD_ADDED_STORE_CREDIT: 'cart_payment_method_added_store_credit',
+  CART_PAYMENT_METHOD_DELETED: 'cart_payment_method_deleted',
+  CART_PAYMENT_METHOD_DELETED_GIFT_CARD: 'cart_payment_method_deleted_gift_card',
 
   /* Notes */
 
@@ -101,8 +102,8 @@ const types = {
 };
 
 export const derivedTypes = {
-  ORDER_LINE_ITEMS_ADDED_SKU: 'order_added_sku',
-  ORDER_LINE_ITEMS_REMOVED_SKU: 'order_removed_sku',
+  CART_LINE_ITEMS_ADDED_SKU: 'order_added_sku',
+  CART_LINE_ITEMS_REMOVED_SKU: 'order_removed_sku',
 };
 
 export default types;
