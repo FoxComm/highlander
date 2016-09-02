@@ -59,7 +59,7 @@ func (controller *shipmentController) createShipment() gin.HandlerFunc {
 			return
 		}
 
-		context.JSON(http.StatusCreated, shipment)
+		context.JSON(http.StatusCreated, responses.NewShipmentFromModel(shipment))
 	}
 }
 
@@ -104,6 +104,6 @@ func (controller *shipmentController) createShipmentFromOrder() gin.HandlerFunc 
 			return
 		}
 
-		context.JSON(http.StatusCreated, shipment)
+		context.JSON(http.StatusCreated, responses.NewShipmentFromModel(shipment))
 	}
 }

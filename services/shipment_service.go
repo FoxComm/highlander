@@ -1,7 +1,6 @@
 package services
 
 import (
-	"github.com/FoxComm/middlewarehouse/api/responses"
 	"github.com/FoxComm/middlewarehouse/common/async"
 	"github.com/FoxComm/middlewarehouse/models"
 	"github.com/FoxComm/middlewarehouse/models/activities"
@@ -19,7 +18,7 @@ type shipmentService struct {
 
 type IShipmentService interface {
 	GetShipmentsByReferenceNumber(referenceNumber string) ([]*models.Shipment, error)
-	CreateShipment(shipment *models.Shipment) (*responses.Shipment, error)
+	CreateShipment(shipment *models.Shipment) (*models.Shipment, error)
 	UpdateShipment(shipment *models.Shipment) (*models.Shipment, error)
 }
 
@@ -32,7 +31,7 @@ func (service *shipmentService) GetShipmentsByReferenceNumber(referenceNumber st
 	return repo.GetShipmentsByReferenceNumber(referenceNumber)
 }
 
-func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*responses.Shipment, error) {
+func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*models.Shipment, error) {
 	txn := service.db.Begin()
 
 	stockItemCounts := make(map[uint]int)
@@ -77,9 +76,7 @@ func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*resp
 		return nil, err
 	}
 
-	resp := responses.NewShipmentFromModel(result)
-
-	activity, err := activities.NewShipmentCreated(resp, result.CreatedAt)
+	activity, err := activities.NewShipmentCreated(result, result.CreatedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +85,7 @@ func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*resp
 		return nil, err
 	}
 
-	return resp, nil
+	return result, nil
 }
 
 func (service *shipmentService) UpdateShipment(shipment *models.Shipment) (*models.Shipment, error) {

@@ -1,7 +1,6 @@
 package mocks
 
 import (
-	"github.com/FoxComm/middlewarehouse/api/responses"
 	"github.com/FoxComm/middlewarehouse/models"
 
 	"github.com/stretchr/testify/mock"
@@ -21,11 +20,11 @@ func (service *ShipmentServiceMock) GetShipmentsByReferenceNumber(referenceNumbe
 	return nil, args.Error(1)
 }
 
-func (service *ShipmentServiceMock) CreateShipment(shipment *models.Shipment) (*responses.Shipment, error) {
+func (service *ShipmentServiceMock) CreateShipment(shipment *models.Shipment) (*models.Shipment, error) {
 	args := service.Called(shipment)
 
 	if model, ok := args.Get(0).(*models.Shipment); ok {
-		return responses.NewShipmentFromModel(model), nil
+		return model, nil
 	}
 
 	return nil, args.Error(1)

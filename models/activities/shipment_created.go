@@ -5,12 +5,15 @@ import (
 	"time"
 
 	"github.com/FoxComm/middlewarehouse/api/responses"
+	"github.com/FoxComm/middlewarehouse/models"
 )
 
 const activityType = "shipment_created"
 
-func NewShipmentCreated(shipment *responses.Shipment, createdAt time.Time) (SiteActivity, error) {
-	shipBytes, err := json.Marshal(shipment)
+func NewShipmentCreated(shipment *models.Shipment, createdAt time.Time) (SiteActivity, error) {
+	resp := responses.NewShipmentFromModel(shipment)
+
+	shipBytes, err := json.Marshal(resp)
 	if err != nil {
 		return nil, err
 	}
