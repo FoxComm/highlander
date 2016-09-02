@@ -3,8 +3,9 @@ defmodule Permissions.Resource do
 
   schema "resources" do 
     field :name, :string
-    field :frn, :string #Fox Resource Name
     field :description, :string
+
+    belongs_to :system, Permissions.System
   end
 
 end
