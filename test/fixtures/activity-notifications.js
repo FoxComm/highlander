@@ -671,7 +671,7 @@ createdAt = getStartDate().subtract(shiftDays++, 'days').toString();
 
 activities = [...activities,
   {
-    kind: types.ORDER_LINE_ITEMS_UPDATED_QUANTITIES,
+    kind: types.CART_LINE_ITEMS_UPDATED_QUANTITIES,
     id: id++,
     createdAt,
     data: {
@@ -686,7 +686,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_LINE_ITEMS_UPDATED_QUANTITIES_BY_CUSTOMER,
+    kind: types.CART_LINE_ITEMS_UPDATED_QUANTITIES_BY_CUSTOMER,
     id: id++,
     createdAt,
     data: {
@@ -704,7 +704,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_LINE_ITEMS_ADDED_GIFT_CARD,
+    kind: types.CART_LINE_ITEMS_ADDED_GIFT_CARD,
     id: id++,
     createdAt,
     data: {
@@ -713,7 +713,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_LINE_ITEMS_DELETED_GIFT_CARD,
+    kind: types.CART_LINE_ITEMS_DELETED_GIFT_CARD,
     id: id++,
     createdAt,
     data: {
@@ -722,7 +722,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_LINE_ITEMS_UPDATED_GIFT_CARD,
+    kind: types.CART_LINE_ITEMS_UPDATED_GIFT_CARD,
     id: id++,
     createdAt,
     data: {
