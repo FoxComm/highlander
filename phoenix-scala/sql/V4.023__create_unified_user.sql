@@ -3,13 +3,14 @@ create table organizations
     id serial primary key,
     name varchar(255) not null,
     type generic_string,
-    parent_id integer default null references organizations(id) on update restrict on delete restrict
+    parent_id integer default null references organizations(id) on update restrict on delete restrict,
+    scope_id integer references scopes(id) on update restrict on delete restrict
 );
 
-create table organization_domains
+create table scope_domains
 (
     id integer primary key not null,
-    organization_id integer not null references organizations(id) on update restrict on delete restrict,
+    scope_id integer not null references scopes(id) on update restrict on delete restrict,
     domain generic_string not null --used to tie users to an organization if the registration
                                     --page requires an organization
 );
@@ -22,10 +23,15 @@ CREATE TABLE resources (
 );
 CREATE UNIQUE INDEX resources_id_uindex ON resources USING BTREE (id);
 
+--Actions will include the base-level of read and write
+--Future actions can include limited-read functionality
+--Ex: Merchant viewing order with only their owned-line-items
+--Every action exists for a specified resource, allowing the resource to register custom actions downstream
 CREATE TABLE actions (
-  id INTEGER PRIMARY KEY NOT NULL,
-  name CHARACTER VARYING(255) NOT NULL
-);
+    id INTEGER PRIMARY KEY NOT NULL,
+    name CHARACTER VARYING(255) NOT NULL,
+    resource_id integer references resources(id) on update restrict on delete restrict
+ );
 CREATE UNIQUE INDEX actions_id_uindex ON actions USING BTREE (id);
 
 --These are the legal scopes in the system
@@ -33,11 +39,11 @@ CREATE UNIQUE INDEX actions_id_uindex ON actions USING BTREE (id);
 create table scopes
 (
     id integer primary key not null,
-    path exts.ltree not null,
+    source generic_string,
     parent_id integer references scopes(id) on update restrict on delete restrict,
-    organization_id integer references organizations(id) on update restrict on delete restrict
 );
 
+--This is the baseline permission that an entity has.
 create table permissions
 (
     id integer primary key not null,
@@ -49,7 +55,30 @@ create table permissions
     constraint permissions_scopes_id_fk foreign key (scope_id) references scopes (id)
 );
 
+--We use the permissions above to generate the claims; which are flattened/simplified representations of permissions
+create table claims
+(
+    id serial primary key,
+    account
+    frn generic_string not null --Fox System Resource Name
+);
+
 create table roles
+(
+    id integer primary key not null,
+    name varchar(255) not null,
+    scope_id integer references scopes(id) on update restrict on delete restrict
+);
+
+create table role_claims
+(
+    id serial primary key,
+    claim_id integer not null references claims(id) on update restrict on delete restrict,
+    role_id integer not null references roles(id) on update restrict on delete restrict
+);
+
+--Role Archetypes are the generic permission-set that can be applied to any sub-scope.
+create table role_archetypes
 (
     id integer primary key not null,
     name varchar(255) not null,
@@ -60,7 +89,7 @@ create table role_permissions
 (
     id serial primary key not null,
     permission_id integer not null references permissions(id) on update restrict on delete restrict,
-    role_id integer not null references roles(id) on update restrict on delete restrict
+    role_archetype_id integer not null references role_archetypes(id) on update restrict on delete restrict
 );
 
 create unique index role_permissions_id_permission_id_role_id_uindex on role_permissions (id, permission_id, role_id);
@@ -91,6 +120,7 @@ create table account_access_methods
     disabled_at timestamp without time zone null
 );
 
+--
 create table account_organizations
 (
     id integer primary key,
@@ -137,4 +167,18 @@ create table store_admins
 );
 
 alter table users add foreign key (disabled_by) references store_admins(id) on update restrict on delete restrict;
+
+/* create table service
+(
+    id integer primary key,
+--find and assign correct sku_id and shadow_id
+update order_line_items set sku_id = ols.sku_id, sku_shadow_id = ols.sku_shadow_id
+    from (select id, sku_id, sku_shadow_id from order_line_item_skus) as ols
+    where ols.id = origin_id;
+    account_id integer not null references accounts(id) on update restrict on delete restrict,
+    client_id generic_string,
+    description generic_string
+);
+*/
+
 
