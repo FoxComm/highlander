@@ -43,7 +43,7 @@ CREATE UNIQUE INDEX resources_id_uindex ON resources USING BTREE (id);
 --Ex: Merchant viewing order with only their owned-line-items
 --Every action exists for a specified resource, allowing the resource to register custom actions downstream
 CREATE TABLE actions (
-    id INTEGER PRIMARY KEY NOT NULL,
+    id serial primary key,
     name CHARACTER VARYING(255) NOT NULL,
     resource_id integer references resources(id) on update restrict on delete restrict
  );
@@ -53,7 +53,7 @@ CREATE UNIQUE INDEX actions_id_uindex ON actions USING BTREE (id);
 --This is the baseline permission that an entity has.
 create table permissions
 (
-    id integer primary key not null,
+    id serial primary key,
     resource_id integer not null,
     action_id integer not null,
     scope_id integer not null,
