@@ -10,11 +10,12 @@ import Title from '../base/title';
 
 const orderLineItemsChangedDesc = {
   title: (data, activity) => {
+    const order = data.order || data.cart;
     const title = activity.kind == derivedTypes.CART_LINE_ITEMS_ADDED_SKU ? 'added' : 'removed';
 
     return (
       <Title activity={activity}>
-        <strong>{title} {data.difference} of {data.skuName}</strong> on <OrderTarget order={data.order} />
+        <strong>{title} {data.difference} of {data.skuName}</strong> on <OrderTarget order={order} />
       </Title>
     );
   },
@@ -29,11 +30,12 @@ const actionTitleByType = {
 const orderLineItemsGcDesc = {
   title: (data, activity) => {
     const [actionTitle, pretext] = actionTitleByType[activity.kind];
+    const order = data.order || data.cart;
 
     return (
       <Title activity={activity}>
         <strong>{actionTitle} gift card</strong>
-        &nbsp;<GiftCardLink {...data.gc} /> {pretext} <OrderTarget order={data.order} />
+        &nbsp;<GiftCardLink {...data.gc} /> {pretext} <OrderTarget order={order} />
       </Title>
     );
   },
