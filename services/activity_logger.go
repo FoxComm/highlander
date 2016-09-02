@@ -1,10 +1,22 @@
 package services
 
 import (
+	"log"
+
 	"github.com/FoxComm/metamorphosis"
 	"github.com/FoxComm/middlewarehouse/models/activities"
 	avro "github.com/elodina/go-avro"
 )
+
+var avroSchema avro.Schema
+
+func init() {
+	var err error
+	avroSchema, err = avro.ParseSchema(activityAvroSchema)
+	if err != nil {
+		log.Fatalf("Unable to parse Avro schema for activities")
+	}
+}
 
 const (
 	topic              = "activities"
@@ -74,13 +86,8 @@ type record struct {
 }
 
 func newRecord(activity activities.SiteActivity) (*record, error) {
-	schema, err := avro.ParseSchema(activityAvroSchema)
-	if err != nil {
-		return nil, err
-	}
-
 	return &record{
-		schema:        schema,
+		schema:        avroSchema,
 		Id:            1,
 		Activity_type: activity.Type(),
 		Data:          activity.Data(),
