@@ -10,7 +10,7 @@ import Title from '../base/title';
 
 const orderLineItemsChangedDesc = {
   title: (data, activity) => {
-    const title = activity.kind == derivedTypes.ORDER_LINE_ITEMS_ADDED_SKU ? 'added' : 'removed';
+    const title = activity.kind == derivedTypes.CART_LINE_ITEMS_ADDED_SKU ? 'added' : 'removed';
 
     return (
       <Title activity={activity}>
@@ -21,9 +21,9 @@ const orderLineItemsChangedDesc = {
 };
 
 const actionTitleByType = {
-  [types.ORDER_LINE_ITEMS_ADDED_GIFT_CARD]: ['added', 'to'],
-  [types.ORDER_LINE_ITEMS_DELETED_GIFT_CARD]: ['deleted', 'from'],
-  [types.ORDER_LINE_ITEMS_UPDATED_GIFT_CARD]: ['updated', 'on'],
+  [types.CART_LINE_ITEMS_ADDED_GIFT_CARD]: ['added', 'to'],
+  [types.CART_LINE_ITEMS_DELETED_GIFT_CARD]: ['deleted', 'from'],
+  [types.CART_LINE_ITEMS_UPDATED_GIFT_CARD]: ['updated', 'on'],
 };
 
 const orderLineItemsGcDesc = {
@@ -40,11 +40,11 @@ const orderLineItemsGcDesc = {
 };
 
 const representatives = {
-  [derivedTypes.ORDER_LINE_ITEMS_ADDED_SKU]: orderLineItemsChangedDesc,
-  [derivedTypes.ORDER_LINE_ITEMS_REMOVED_SKU]: orderLineItemsChangedDesc,
-  [types.ORDER_LINE_ITEMS_ADDED_GIFT_CARD]: orderLineItemsGcDesc,
-  [types.ORDER_LINE_ITEMS_DELETED_GIFT_CARD]: orderLineItemsGcDesc,
-  [types.ORDER_LINE_ITEMS_UPDATED_GIFT_CARD]: orderLineItemsGcDesc,
+  [derivedTypes.CART_LINE_ITEMS_ADDED_SKU]: orderLineItemsChangedDesc,
+  [derivedTypes.CART_LINE_ITEMS_REMOVED_SKU]: orderLineItemsChangedDesc,
+  [types.CART_LINE_ITEMS_ADDED_GIFT_CARD]: orderLineItemsGcDesc,
+  [types.CART_LINE_ITEMS_DELETED_GIFT_CARD]: orderLineItemsGcDesc,
+  [types.CART_LINE_ITEMS_UPDATED_GIFT_CARD]: orderLineItemsGcDesc,
 };
 
 export default representatives;

@@ -6,7 +6,7 @@ import OrderTarget from '../base/order-target';
 import Title from '../base/title';
 
 const representatives = {
-  [types.ORDER_SHIPPING_METHOD_UPDATED]: {
+  [types.CART_SHIPPING_METHOD_UPDATED]: {
     title: (data, activity) => {
       return (
         <Title activity={activity}>
@@ -16,7 +16,7 @@ const representatives = {
       );
     },
   },
-  [types.ORDER_SHIPPING_METHOD_REMOVED]: {
+  [types.CART_SHIPPING_METHOD_REMOVED]: {
     title: (data, activity) => {
       return (
         <Title activity={activity}>

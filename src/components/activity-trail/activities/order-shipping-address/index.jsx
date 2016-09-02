@@ -14,7 +14,7 @@ function omitAddressName(address) {
 }
 
 const representatives = {
-  [types.ORDER_SHIPPING_ADDRESS_UPDATED]: {
+  [types.CART_SHIPPING_ADDRESS_UPDATED]: {
     title: (data, activity) => {
       return (
         <Title activity={activity}>
@@ -29,7 +29,7 @@ const representatives = {
       };
     }
   },
-  [types.ORDER_SHIPPING_ADDRESS_ADDED]: {
+  [types.CART_SHIPPING_ADDRESS_ADDED]: {
     title: (data, activity) => {
       return (
         <Title activity={activity}>
@@ -44,7 +44,7 @@ const representatives = {
       };
     }
   },
-  [types.ORDER_SHIPPING_ADDRESS_REMOVED]: {
+  [types.CART_SHIPPING_ADDRESS_REMOVED]: {
     title: (data, activity) => {
       return (
         <Title activity={activity}>
