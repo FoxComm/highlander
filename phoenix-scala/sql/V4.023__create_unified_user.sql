@@ -2,7 +2,7 @@
 --Scopes are used to create claims for roles.
 create table scopes
 (
-    id integer primary key not null,
+    id serial primary key,
     source generic_string,
     parent_id integer references scopes(id) on update restrict on delete restrict
 );
@@ -18,7 +18,7 @@ create table organizations
 
 create table scope_domains
 (
-    id integer primary key not null,
+    id serial primary key,
     scope_id integer not null references scopes(id) on update restrict on delete restrict,
     domain generic_string not null --used to tie users to an organization if the registration
                                     --page requires an organization
@@ -69,7 +69,7 @@ create table claims
 --Roles exist at every specific level of scope.
 create table roles
 (
-    id integer primary key not null,
+    id serial primary key,
     name varchar(255) not null,
     scope_id integer references scopes(id) on update restrict on delete restrict
 );
@@ -85,7 +85,7 @@ create table role_claims
 --They are used to bootstap roles.
 create table role_archetypes
 (
-    id integer primary key not null,
+    id serial primary key,
     name varchar(255) not null,
     scope_id integer references scopes(id) on update restrict on delete restrict
 );
@@ -101,14 +101,14 @@ create unique index role_permissions_id_permission_id_role_id_uindex on role_per
 
 create table accounts
 (
-    id integer primary key not null,
+    id serial primary key,
     name generic_string,
     ratchet integer not null
 );
 
 create table account_roles
 (
-    id integer primary key not null,
+    id serial primary key,
     account_id integer not null references accounts(id) on update restrict on delete restrict,
     role_id integer not null references roles(id) on update restrict on delete restrict
 );
@@ -118,7 +118,7 @@ create table account_roles
 -- API keys have a key id and key secret.
 create table account_access_methods
 (
-    id integer primary key not null,
+    id serial primary key,
     account_id integer not null references accounts(id) on update restrict on delete restrict,
     name generic_string,
     hashed_password generic_string not null, --This is computed with scrypt which includes salt.
@@ -128,7 +128,7 @@ create table account_access_methods
 --
 create table account_organizations
 (
-    id integer primary key,
+    id serial primary key,
     account_id integer not null references accounts(id) on update restrict on delete restrict,
     organization_id integer not null references organizations(id) on update restrict on delete restrict
 );
@@ -136,7 +136,7 @@ create table account_organizations
 
 create table users
 (
-    id integer primary key,
+    id serial primary key,
     account_id integer not null references accounts(id) on update restrict on delete restrict,
     email email not null,
     is_disabled boolean not null default false,
@@ -153,7 +153,7 @@ create table users
 
 create table customers
 (
-    id integer primary key,
+    id serial primary key,
     user_id integer not null references users(id) on update restrict on delete restrict,
     account_id integer not null references accounts(id) on update restrict on delete restrict,
 
@@ -165,7 +165,7 @@ create table customers
 
 create table store_admins
 (
-    id integer primary key,
+    id serial primary key,
     user_id integer not null references users(id) on update restrict on delete restrict,
     account_id integer not null references accounts(id) on update restrict on delete restrict,
     state generic_string
@@ -185,4 +185,6 @@ update order_line_items set sku_id = ols.sku_id, sku_shadow_id = ols.sku_shadow_
     description generic_string
 );
 */
+
+
 
