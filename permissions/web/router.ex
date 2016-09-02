@@ -9,5 +9,6 @@ defmodule Permissions.Router do
     pipe_through :api
 
     resources "/organizations", OrganizationController
+    resources "/roles", RoleController
   end
 end
