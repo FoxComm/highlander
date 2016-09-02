@@ -14,26 +14,32 @@ function omitAddressName(address) {
 }
 
 const representatives = {
-  [types.ORDER_SHIPPING_ADDRESS_UPDATED]: {
+  [types.CART_SHIPPING_ADDRESS_UPDATED]: {
     title: (data, activity) => {
+      const order = data.order || data.cart;
+
       return (
         <Title activity={activity}>
-          <strong>edited a shipping address</strong> on <OrderTarget order={data.order} />
+          <strong>edited a shipping address</strong> on <OrderTarget order={order} />
         </Title>
       );
     },
     details: data => {
+      const order = data.order || data.cart;
+
       return {
-        newOne: <AddressDetails address={omitAddressName(data.order.shippingAddress)} />,
+        newOne: <AddressDetails address={omitAddressName(order.shippingAddress)} />,
         previous: <AddressDetails address={omitAddressName(data.address)} />,
       };
     }
   },
-  [types.ORDER_SHIPPING_ADDRESS_ADDED]: {
+  [types.CART_SHIPPING_ADDRESS_ADDED]: {
     title: (data, activity) => {
+      const order = data.order || data.cart;
+
       return (
         <Title activity={activity}>
-          <strong>added the shipping address</strong> to <OrderTarget order={data.order} />
+          <strong>added the shipping address</strong> to <OrderTarget order={order} />
         </Title>
       );
     },
@@ -44,11 +50,13 @@ const representatives = {
       };
     }
   },
-  [types.ORDER_SHIPPING_ADDRESS_REMOVED]: {
+  [types.CART_SHIPPING_ADDRESS_REMOVED]: {
     title: (data, activity) => {
+      const order = data.order || data.cart;
+
       return (
         <Title activity={activity}>
-          <strong>removed the shipping address</strong> from <OrderTarget order={data.order} />
+          <strong>removed the shipping address</strong> from <OrderTarget order={order} />
         </Title>
       );
     },

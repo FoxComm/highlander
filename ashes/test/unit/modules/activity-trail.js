@@ -7,7 +7,7 @@ describe('Activity Trail module', function() {
     {
       original: [
         {
-          kind: types.ORDER_LINE_ITEMS_UPDATED_QUANTITIES,
+          kind: types.CART_LINE_ITEMS_UPDATED_QUANTITIES,
           data: {
             oldQuantities: {sku1: 1, sku2: 1},
             newQuantities: {sku1: 0}
@@ -16,7 +16,7 @@ describe('Activity Trail module', function() {
       ],
       expected: [
         {
-          kind: derivedTypes.ORDER_LINE_ITEMS_REMOVED_SKU,
+          kind: derivedTypes.CART_LINE_ITEMS_REMOVED_SKU,
           data: {
             difference: 1,
             skuName: 'sku1'
@@ -27,7 +27,7 @@ describe('Activity Trail module', function() {
     {
       original: [
         {
-          kind: types.ORDER_LINE_ITEMS_UPDATED_QUANTITIES,
+          kind: types.CART_LINE_ITEMS_UPDATED_QUANTITIES,
           data: {
             oldQuantities: {sku1: 1, sku2: 1},
             newQuantities: {sku2: 4}
@@ -36,7 +36,7 @@ describe('Activity Trail module', function() {
       ],
       expected: [
         {
-          kind: derivedTypes.ORDER_LINE_ITEMS_ADDED_SKU,
+          kind: derivedTypes.CART_LINE_ITEMS_ADDED_SKU,
           data: {
             difference: 3,
             skuName: 'sku2'
@@ -47,14 +47,14 @@ describe('Activity Trail module', function() {
     {
       original: [
         {
-          kind: types.ORDER_LINE_ITEMS_UPDATED_QUANTITIES,
+          kind: types.CART_LINE_ITEMS_UPDATED_QUANTITIES,
           data: {
             oldQuantities: {sku1: 1, sku2: 1},
             newQuantities: {sku1: 2}
           }
         },
         {
-          kind: types.ORDER_LINE_ITEMS_UPDATED_QUANTITIES,
+          kind: types.CART_LINE_ITEMS_UPDATED_QUANTITIES,
           data: {
             oldQuantities: {sku1: 2, sku2: 1},
             newQuantities: {sku1: 3}
@@ -63,14 +63,14 @@ describe('Activity Trail module', function() {
       ],
       expected: [
         {
-          kind: derivedTypes.ORDER_LINE_ITEMS_ADDED_SKU,
+          kind: derivedTypes.CART_LINE_ITEMS_ADDED_SKU,
           data: {
             difference: 1,
             skuName: 'sku1'
           }
         },
         {
-          kind: derivedTypes.ORDER_LINE_ITEMS_ADDED_SKU,
+          kind: derivedTypes.CART_LINE_ITEMS_ADDED_SKU,
           data: {
             difference: 1,
             skuName: 'sku1'
@@ -81,7 +81,7 @@ describe('Activity Trail module', function() {
     {
       original: [
         {
-          kind: types.ORDER_LINE_ITEMS_UPDATED_QUANTITIES,
+          kind: types.CART_LINE_ITEMS_UPDATED_QUANTITIES,
           data: {
             oldQuantities: {'SKU-BRO': 1, 'SKU-TRL': 1},
             newQuantities: {'SKU-BRO': 0, 'SKU-TRL': 1}
@@ -90,7 +90,7 @@ describe('Activity Trail module', function() {
       ],
       expected: [
         {
-          kind: derivedTypes.ORDER_LINE_ITEMS_REMOVED_SKU,
+          kind: derivedTypes.CART_LINE_ITEMS_REMOVED_SKU,
           data: {
             difference: 1,
             skuName: 'SKU-BRO'
@@ -112,7 +112,7 @@ describe('Activity Trail module', function() {
     const data = [
       {
         id: 1841,
-        kind: types.ORDER_LINE_ITEMS_UPDATED_QUANTITIES,
+        kind: types.CART_LINE_ITEMS_UPDATED_QUANTITIES,
         data: {
           oldQuantities: {'SKU-BRO': 1, 'SKU-TRL': 0},
           newQuantities: {'SKU-BRO': 0, 'SKU-TRL': 1}

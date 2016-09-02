@@ -14,16 +14,20 @@ import Title from '../base/title';
 const representatives = {
   [types.ORDER_STATE_CHANGED]: {
     title: (data, activity) => {
+      const order = data.order || data.cart;
+
       return (
         <Title activity={activity}>
-          <strong>changed the order state</strong> to {data.order.stateTitle}
-          &nbsp;on <OrderTarget order={data.order}/>
+          <strong>changed the order state</strong> to {order.stateTitle}
+          &nbsp;on <OrderTarget order={order}/>
         </Title>
       );
     },
     details: data => {
+      const order = data.order || data.cart;
+
       return {
-        newOne: data.order.stateTitle,
+        newOne: order.stateTitle,
         previous: stateTitles[data.oldState] || data.oldState,
       };
     }
@@ -52,9 +56,11 @@ const representatives = {
   },
   [types.ORDER_REMORSE_PERIOD_INCREASED]: {
     title: (data, activity) => {
+      const order = data.order || data.cart;
+
       return (
         <Title activity={activity}>
-          <strong>increased remorse period</strong> for <OrderTarget order={data.order}/>
+          <strong>increased remorse period</strong> for <OrderTarget order={order}/>
         </Title>
       );
     }
