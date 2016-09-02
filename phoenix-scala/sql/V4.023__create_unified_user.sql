@@ -65,6 +65,7 @@ create table claims
     frn generic_string not null 
 );
 
+--Roles exist at every specific level of scope.  
 create table roles
 (
     id integer primary key not null,
@@ -80,6 +81,7 @@ create table role_claims
 );
 
 --Role Archetypes are the generic permission-set that can be applied to any sub-scope.
+--They are used to bootstap roles.
 create table role_archetypes
 (
     id integer primary key not null,
@@ -91,7 +93,7 @@ create table role_permissions
 (
     id serial primary key not null,
     permission_id integer not null references permissions(id) on update restrict on delete restrict,
-    role_archetype_id integer not null references role_archetypes(id) on update restrict on delete restrict
+    role_id integer not null references roles(id) on update restrict on delete restrict
 );
 
 create unique index role_permissions_id_permission_id_role_id_uindex on role_permissions (id, permission_id, role_id);
