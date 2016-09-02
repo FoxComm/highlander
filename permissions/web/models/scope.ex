@@ -9,4 +9,8 @@ defmodule Permissions.Scope do
     has_many :children, Permissions.Scope, foreign_key: :parent_id
   end
 
+  def changeset(model, params \\ :empty) do
+    model 
+    |> cast(params, ~w(), ~w(source parent_id))
+  end
 end
