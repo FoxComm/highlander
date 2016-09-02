@@ -24,9 +24,16 @@ create table scope_domains
                                     --page requires an organization
 );
 
+create table systems (
+    id serial primary key,
+    name generic_string not null,
+    description generic_string not null
+);
+
 CREATE TABLE resources (
     id serial primary key not null,
     name generic_string NOT NULL,
+    system_id integer references systems(id) on update restrict on delete restrict,
     frn text not null, --Fox Resource Name: used to inject into the claim
     description TEXT
 );
