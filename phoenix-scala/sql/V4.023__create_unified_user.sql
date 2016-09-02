@@ -1,3 +1,12 @@
+--These are the legal scopes in the system
+--Scopes are used to create claims for roles.
+create table scopes
+(
+    id integer primary key not null,
+    source generic_string,
+    parent_id integer references scopes(id) on update restrict on delete restrict
+);
+
 create table organizations
 (
     id serial primary key,
@@ -34,14 +43,6 @@ CREATE TABLE actions (
  );
 CREATE UNIQUE INDEX actions_id_uindex ON actions USING BTREE (id);
 
---These are the legal scopes in the system
---Scopes are used to create claims for roles.
-create table scopes
-(
-    id integer primary key not null,
-    source generic_string,
-    parent_id integer references scopes(id) on update restrict on delete restrict,
-);
 
 --This is the baseline permission that an entity has.
 create table permissions
@@ -62,10 +63,10 @@ create table claims
     --Fox Resource Name
     --The FRN includes the scope
     --TODO: Figure out top/bottom cascading rules for nested scopes.
-    frn generic_string not null 
+    frn generic_string not null
 );
 
---Roles exist at every specific level of scope.  
+--Roles exist at every specific level of scope.
 create table roles
 (
     id integer primary key not null,
@@ -121,7 +122,7 @@ create table account_access_methods
     account_id integer not null references accounts(id) on update restrict on delete restrict,
     name generic_string,
     hashed_password generic_string not null, --This is computed with scrypt which includes salt.
-    disabled_at timestamp without time zone null
+    disabled_at generic_timestamp_null
 );
 
 --
@@ -184,5 +185,4 @@ update order_line_items set sku_id = ols.sku_id, sku_shadow_id = ols.sku_shadow_
     description generic_string
 );
 */
-
 
