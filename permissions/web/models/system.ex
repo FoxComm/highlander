@@ -1,20 +1,20 @@
-defmodule Permissions.Role do
+defmodule Permissions.System do
   use Permissions.Web, :model
 
-  schema "roles" do
+  schema "systems" do
     field :name, :string
-
-    belongs_to :scope, Permissions.Scope
+    field :description, :string
   end
 
   def changeset(model, params \\ :empty) do
     model 
-    |> cast(params, ~w(name scope_id), ~w())
+    |> cast(params, ~w(name), ~w(description))
   end
 
   def update_changeset(model, params \\ :empty) do
     model 
-    |> cast(params, ~w(name scope_id), ~w())
+    |> cast(params, ~w(name), ~w(description))
   end
 
 end
+

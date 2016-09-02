@@ -24,5 +24,23 @@ defmodule Permissions.ScopeController do
     end
   end
 
+  def show(conn, %{"id" => id}) do
+    scope = Repo.get!(Scope, id)
+    render(conn, "show.json", scope: scope)
+  end
+
+  def update(conn, %{"id" => id, "scope" => scope_params}) do
+    scope = Repo.get!(Scope, id)
+    changeset = Scope.update_changeset(scope, scope_params)
+    case Repo.update(changeset) do
+      {:ok, scope} -> 
+        conn
+        |> render("show.json", scope: scope)
+      {:error, changeset} -> 
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(Permissions.ChangesetView, "errors.json", changeset: changeset)
+    end
+  end
 end
 

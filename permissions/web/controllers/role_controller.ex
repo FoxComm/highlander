@@ -24,5 +24,24 @@ defmodule Permissions.RoleController do
     end
   end
 
+  def show(conn, %{"id" => id}) do
+    role = Repo.get!(Role, id)
+    render(conn, "show.json", role: role)
+  end
+
+  def update(conn, %{"id" => id, "role" => role_params}) do
+    role = Repo.get!(Role, id)
+    changeset = Role.update_changeset(role, role_params)
+    case Repo.update(changeset) do
+      {:ok, role} -> 
+        conn
+        |> render("show.json", role: role)
+      {:error, changeset} -> 
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(Permissions.ChangesetView, "errors.json", changeset: changeset)
+    end
+  end 
+
 end
 

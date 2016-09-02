@@ -13,4 +13,9 @@ defmodule Permissions.Scope do
     model 
     |> cast(params, ~w(), ~w(source parent_id))
   end
+
+  def update_changeset(model, params \\ :empty) do
+    model 
+    |> cast(params, ~w(), ~w(source parent_id))
+  end
 end
