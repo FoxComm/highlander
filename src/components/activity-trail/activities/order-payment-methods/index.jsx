@@ -15,7 +15,7 @@ const paymentMethodTitles = {
 
 
 const representatives = {
-  [types.ORDER_PAYMENT_METHOD_ADDED_CREDIT_CARD]: {
+  [types.CART_PAYMENT_METHOD_ADDED_CREDIT_CARD]: {
     title: (data, activity) => {
       return (
         <Title activity={activity}>
@@ -25,7 +25,7 @@ const representatives = {
       );
     },
   },
-  [types.ORDER_PAYMENT_METHOD_ADDED_GIFT_CARD]: {
+  [types.CART_PAYMENT_METHOD_ADDED_GIFT_CARD]: {
     title: (data, activity) => {
       return (
         <Title activity={activity}>
@@ -35,7 +35,7 @@ const representatives = {
       );
     },
   },
-  [types.ORDER_PAYMENT_METHOD_DELETED_GIFT_CARD]: {
+  [types.CART_PAYMENT_METHOD_DELETED_GIFT_CARD]: {
     title: (data, activity) => {
       return (
         <Title activity={activity}>
@@ -45,7 +45,7 @@ const representatives = {
       );
     },
   },
-  [types.ORDER_PAYMENT_METHOD_ADDED_STORE_CREDIT]: {
+  [types.CART_PAYMENT_METHOD_ADDED_STORE_CREDIT]: {
     title: (data, activity) => {
       return (
         <Title activity={activity}>
@@ -55,7 +55,7 @@ const representatives = {
       );
     },
   },
-  [types.ORDER_PAYMENT_METHOD_DELETED]: {
+  [types.CART_PAYMENT_METHOD_DELETED]: {
     title: (data, activity) => {
       return (
         <Title activity={activity}>
