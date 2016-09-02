@@ -85,7 +85,7 @@ export default class PromotionForm extends Component {
     const newPromotion = assoc(this.props.promotion, 'applyType', value);
 
     this.props.onUpdatePromotion(newPromotion);
-    this.refs.applyTypeField.autoValidate();
+    this.refs.applyTypeField.validate();
   }
 
   get promotionState(): ?Element {
