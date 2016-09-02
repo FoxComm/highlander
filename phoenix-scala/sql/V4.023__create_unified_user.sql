@@ -59,8 +59,10 @@ create table permissions
 create table claims
 (
     id serial primary key,
-    account
-    frn generic_string not null --Fox System Resource Name
+    --Fox Resource Name
+    --The FRN includes the scope
+    --TODO: Figure out top/bottom cascading rules for nested scopes.
+    frn generic_string not null 
 );
 
 create table roles
