@@ -6,4 +6,8 @@ defmodule Permissions.RolePermission do
     belongs_to :permission, Permissions.Permission
   end
 
+  def changeset(model, params \\ :empty) do
+    model 
+    |> cast(params, ~w(role_id permission_id), ~w())
+  end
 end
