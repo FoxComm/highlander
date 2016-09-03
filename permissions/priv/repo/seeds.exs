@@ -17,6 +17,7 @@ alias Permissions.Action
 alias Permissions.Role
 alias Permissions.RoleArchetype
 alias Permissions.Scope
+alias Permissions.Permission
 
 
 Repo.insert! %Account{
@@ -29,29 +30,59 @@ Repo.insert! %System{
   description: "Order management system."
 }
 
-Repo.insert! %Resource{
-  name: "Orders",
-  description: "Access to orders",
-  system_id: 1
-}
-
-for action <- ~w(Read Write) do 
-  Repo.insert! %Action{
-  name: action,
-  resource_id: 1
+resources = 
+for resource <- ~W(Orders Returns LineItems) do
+  Repo.insert! %Resource{
+    name: resource,
+    description: "Access to #{resource}",
+    system_id: 1
   }
 end
 
-for source <- ~w(Organization Project Merchant), parent <- [nil, 1, 2] do
-  Repo.insert! %Scope{
-    source: source,
-    parent_id: parent
-  }
-end
+actions = 
+  for action <- ~w(Read Write) do
+    Repo.insert! %Action{
+      name: action,
+      resource_id: 1
+    }
+  end
+
+  #Enum.each actions, fn a -> 
+  #Repo.insert! a 
+  #end 
+
+scopes = 
+  for source <- ~w(Organization Project Merchant), parent <- [nil, 1, 2] do
+    Repo.insert! %Scope{
+      source: source,
+      parent_id: parent
+    }
+  end
+
+
 
 for ra <- ~w(Marketer Analyst CSR Manager) do
   Repo.insert! %RoleArchetype{
     name: ra,
     scope_id: 1
   }
+end
+
+permissions = 
+  for action <- actions, scope <- scopes, resource <- resources do 
+    IO.puts("stuff: #{action.id}, #{scope.id}, #{resource.id}.")
+    Repo.insert! %Permission{
+      action_id: action.id,
+      resource_id: resource.id,
+      scope_id: scope.id
+    }
+  end
+
+  #Enum.concat actions, scopes
+  #|> insert
+
+insert =  fn (coll) -> 
+  Enum.each coll, fn a -> 
+    Repo.insert! a
+  end
 end
