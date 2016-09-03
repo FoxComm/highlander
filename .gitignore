@@ -1,3 +1,6 @@
 # Local Build Artifacts
 .vagrant/
 .vault_pass
+
+# OSX Caches
+.DS_Store
