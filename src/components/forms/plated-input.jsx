@@ -1,7 +1,21 @@
+/* @flow */
+
 import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 
-const PlatedInput = props => {
+type Props = {
+  icon: string,
+  direction: 'append'|'prepend',
+  inputClass: string,
+  inputName: string,
+  inputType: string,
+  plate: string,
+  value: string|number,
+  inputValuePretty: string,
+  className: string,
+};
+
+const PlatedInput = (props: Props) => {
   const {
     icon, plate, inputClass, className, inputName, inputType, direction, value, inputValuePretty, ...rest
   } = props;
@@ -42,23 +56,11 @@ const PlatedInput = props => {
   );
 };
 
-PlatedInput.propTypes = {
-  icon: PropTypes.string.isRequired,
-  direction: PropTypes.oneOf(['append', 'prepend']),
-  inputClass: PropTypes.string,
-  inputName: PropTypes.string.isRequired,
-  inputType: PropTypes.string,
-  plate: PropTypes.node,
-  value: PropTypes.string.isRequired,
-  inputValuePretty: PropTypes.string,
-  className: PropTypes.string,
-};
-
 PlatedInput.defaultTypes = {
   inputClass: '',
   inputType: 'text',
   direction: 'prepend',
-  inputValuePretty: null
+  inputValuePretty: null,
 };
 
 export default PlatedInput;
