@@ -15,6 +15,7 @@ alias Permissions.System
 alias Permissions.Resource
 alias Permissions.Action
 alias Permissions.Role
+alias Permissions.RolePermission
 alias Permissions.RoleArchetype
 alias Permissions.Scope
 alias Permissions.Permission
@@ -61,12 +62,22 @@ scopes =
 
 
 
-for ra <- ~w(Marketer Analyst CSR Manager) do
+role_archetypes = 
+for ra <- ~w(Marketer Analyst CSR Manager), scope <- scopes do
   Repo.insert! %RoleArchetype{
     name: ra,
-    scope_id: 1
+    scope_id: scope.id
   }
 end
+
+roles = 
+for r <- ~w(Marketer Analyst CSR Manager), scope <- scopes do
+  Repo.insert! %Role{
+    name: r,
+    scope_id: scope.id
+  }
+end
+
 
 permissions = 
   for action <- actions, scope <- scopes, resource <- resources do 
@@ -75,6 +86,14 @@ permissions =
       action_id: action.id,
       resource_id: resource.id,
       scope_id: scope.id
+    }
+  end
+
+role_permissions = 
+  for role <- roles, permission <- permissions do 
+    Repo.insert! %RolePermission{
+      role_id: role.id, 
+      permission_id: permission.id
     }
   end
 
