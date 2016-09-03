@@ -3,7 +3,7 @@ defmodule Permissions.RolePermission do
 
   schema "role_permissions" do 
     belongs_to :role, Permissions.Role
-    has_many :permission, Permissions.Permission
+    belongs_to :permission, Permissions.Permission
   end
 
 end
