@@ -31,7 +31,6 @@ defmodule Permissions.RolePermissionController do
     role_permission = 
       Repo.get!(RolePermission, id) 
       |> Repo.preload(:permission)
-      |> Repo.preload(:permission, [:resource, :action, :scope])
     render(conn, "role_permission.json", role_permission: role_permission)
   end
 

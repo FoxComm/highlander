@@ -14,8 +14,7 @@ defmodule Permissions.RolePermissionView do
 
   def render("role_permission.json", %{role_permission: role_permission}) do
     %{id: role_permission.id,
-      permission_id: role_permission.permission.id,
-      resource_name: role_permission.permission.resource.name
+      permission_id: role_permission.permission.id
     }
   end
 end
