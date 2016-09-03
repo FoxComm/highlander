@@ -53,13 +53,13 @@ Navigation:
 7. Bootstrap OpenVPN service:
 
 	```
-	$ ansible-playbook -v -i vanilla_vpn ansible/bootstrap_vanilla_vpn.yml
+	$ ansible-playbook -v -i bin/envs/vanilla_vpn ansible/bootstrap_vanilla_vpn.yml
 	```
 
 8. Generate OpenVPN credentials (any number you want):
 
 	```
-	$ ansible-playbook -v -i vanilla_vpn ansible/bootstrap_openvpn_key.yml
+	$ ansible-playbook -v -i bin/envs/vanilla_vpn ansible/bootstrap_openvpn_key.yml
 	```
 
 ## Service machines
