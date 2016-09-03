@@ -9,7 +9,9 @@ defmodule Permissions.Router do
     pipe_through :api
 
     resources "/organizations", OrganizationController
-    resources "/roles", RoleController
+    resources "/roles", RoleController do
+      resources "/granted_permissions", RolePermissionController
+    end
     resources "/scopes", ScopeController, as: :fc_scope
     resources "/systems", SystemController
     resources "/permissions", PermissionController

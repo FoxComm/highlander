@@ -15,7 +15,7 @@ defmodule Permissions.RoleView do
     %{id: role.id,
       name: role.name,
       scope_id: role.scope_id, 
-      permissions: render_many(role.permissions, PermissionView, "permission.json")
+      granted_permissions: render_many(role.permissions, PermissionView, "permission.json")
     }
   end
 end
