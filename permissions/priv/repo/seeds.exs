@@ -42,13 +42,11 @@ for action <- ~w(Read Write) do
   }
 end
 
-c = nil
-for source <- ~w(Organization Project Merchant) do
+for source <- ~w(Organization Project Merchant), parent <- [nil, 1, 2] do
   Repo.insert! %Scope{
     source: source,
-    parent: c
+    parent_id: parent
   }
-  c = (c || 0) + 1
 end
 
 for ra <- ~w(Marketer Analyst CSR Manager) do
@@ -57,4 +55,3 @@ for ra <- ~w(Marketer Analyst CSR Manager) do
     scope_id: 1
   }
 end
-
