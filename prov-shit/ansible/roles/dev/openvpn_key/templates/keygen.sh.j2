@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -ue
+
 cd {{easy_rsa_dir}}
 source ./vars
 ./build-key --batch {{username}}
