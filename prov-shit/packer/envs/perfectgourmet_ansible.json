@@ -1,0 +1,16 @@
+{
+	"google_oauth_admin_client_id": "953682058057-trm1gl4qpa6c9c8av6b42e4p766bloa7.apps.googleusercontent.com",
+	"google_oauth_admin_secret": "Ed_hMJkHbxSjLrH5GwUDsaLn",
+	"google_oauth_admin_hosted_domain": "foxcommerce.com",
+	"google_oauth_admin_redirect_uri": "http://admin.stage.foxcommerce.com/api/v1/public/oauth2callback/google/admin",
+	"google_oauth_frontend_client_id": "953682058057-trm1gl4qpa6c9c8av6b42e4p766bloa7.apps.googleusercontent.com",
+	"google_oauth_frontend_secret": "Ed_hMJkHbxSjLrH5GwUDsaLn",
+	"google_oauth_frontend_redirect_uri": "http://stage.foxcommerce.com/api/v1/public/oauth2callback/google/customer",
+	"zookeeper_1": "10.240.0.10",
+	"zookeeper_2": "10.240.0.11",
+	"zookeeper_3": "10.240.0.12",
+	"zookeepers" : "zk://10.240.0.10:2181,10.240.0.11:2181,10.240.0.12:2181",
+	"cert_path": "stage/docker",
+	"docker_registry_bucket": "stage-docker",
+	"docker_registry":"https://docker.stage.foxcommerce.com"
+}
