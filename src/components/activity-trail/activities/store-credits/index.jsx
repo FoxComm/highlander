@@ -43,7 +43,6 @@ const representatives = {
   [types.STORE_CREDIT_AUTHORIZED_FUNDS]: {
     title: data => {
       const order = data.order || data.cart;
-      console.dir(data);
       return (
         <span>
           <strong>authorized funds</strong> for <OrderTarget order={order} />
