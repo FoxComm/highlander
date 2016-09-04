@@ -1,6 +1,3 @@
--- customers
-refresh materialized view concurrently customers_ranking;
-
 -- orders
 refresh materialized view concurrently order_stats_view;
 
