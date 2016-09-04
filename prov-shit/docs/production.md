@@ -101,10 +101,17 @@ Do all the steps while connected to created VPN service.
 5. Terraform service machines:
 
 	```
-	$ export TF_BASE=terraform/base
-	$ export TF_ENVS=terraform/envs
-	$ terraform plan -state $TF_BASE/gce_vanilla/terraform.tfstate -var-file $TF_BASE/gce_vanilla/terraform.tfvars $TF_BASE/gce_vanilla
-	$ terraform apply -state $TF_BASE/gce_vanilla/terraform.tfstate -var-file $TF_BASE/gce_vanilla/terraform.tfvars $TF_BASE/gce_vanilla
+	# Plan
+	$ terraform plan \
+		-state=terraform/envs/gce_vanilla/terraform.tfstate \
+		-var-file=terraform/envs/gce_vanilla/vanilla.tfvars \
+		terraform/envs/gce_vanilla
+	
+	# Apply
+	$ terraform apply \
+		-state=terraform/envs/gce_vanilla/terraform.tfstate \
+		-var-file=terraform/envs/gce_vanilla/vanilla.tfvars \
+		terraform/envs/gce_vanilla
 	```
 
 6. Add a new project ID in `projects.json` and
