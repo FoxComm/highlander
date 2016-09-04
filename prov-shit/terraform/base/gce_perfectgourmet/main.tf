@@ -105,45 +105,45 @@ module "perfectgourmet_vpn" {
     network = "${google_compute_network.perfectgourmet.name}"
 }
 
-##############################################
-# The Three Amigos
-##############################################
-module "vanilla_amigo_cluster" {
-    source = "../../modules/gce/amigos"
-    network = "${var.network}"
-    datacenter = "${var.network}"
-    servers = 3
-    image = "${var.amigo_cluster_image}"
-    ssh_user = "${var.ssh_user}"
-    ssh_private_key = "${var.ssh_private_key}"
-}
+# ##############################################
+# # The Three Amigos
+# ##############################################
+# module "perfectgourmet_amigo_cluster" {
+#     source = "../../modules/gce/amigos"
+#     network = "${var.network}"
+#     datacenter = "${var.network}"
+#     servers = 3
+#     image = "${var.amigo_cluster_image}"
+#     ssh_user = "${var.ssh_user}"
+#     ssh_private_key = "${var.ssh_private_key}"
+# }
 
-##############################################
-# Small Production Stack
-##############################################
-module "vanilla_stack" {
-    source = "../../modules/gce/vanilla_stack"
-    zone = "${var.zone}"
-    network = "${var.network}"
-    datacenter = "${var.network}"
-    stage_datacenter = "${var.stage_datacenter}"
-    kafka_image = "${var.kafka_image}"
-    db_image = "${var.db_image}"
-    es_image = "${var.es_image}"
-    log_image = "${var.log_image}"
-    phoenix_image = "${var.phoenix_image}"
-    service_worker_image = "${var.service_worker_image}"
-    service_workers = "${var.service_workers}"
-    greenriver_image = "${var.greenriver_image}"
-    front_image = "${var.front_image}"
-    front_workers = "${var.front_workers}"
-    amigo_leader = "${module.vanilla_amigo_cluster.leader}"
-    bucket_location = "${var.bucket_location}"
+# ##############################################
+# # Small Production Stack
+# ##############################################
+# module "perfectgourmet_stack" {
+#     source = "../../modules/gce/vanilla_stack"
+#     zone = "${var.zone}"
+#     network = "${var.network}"
+#     datacenter = "${var.network}"
+#     stage_datacenter = "${var.stage_datacenter}"
+#     kafka_image = "${var.kafka_image}"
+#     db_image = "${var.db_image}"
+#     es_image = "${var.es_image}"
+#     log_image = "${var.log_image}"
+#     phoenix_image = "${var.phoenix_image}"
+#     service_worker_image = "${var.service_worker_image}"
+#     service_workers = "${var.service_workers}"
+#     greenriver_image = "${var.greenriver_image}"
+#     front_image = "${var.front_image}"
+#     front_workers = "${var.front_workers}"
+#     amigo_leader = "${module.perfectgourmet_amigo_cluster.leader}"
+#     bucket_location = "${var.bucket_location}"
 
-    stage_backend_image = "${var.stage_backend_image}"
-    stage_frontend_image = "${var.stage_frontend_image}"
-    stage_amigo_image = "${var.stage_amigo_image}"
+#     stage_backend_image = "${var.stage_backend_image}"
+#     stage_frontend_image = "${var.stage_frontend_image}"
+#     stage_amigo_image = "${var.stage_amigo_image}"
 
-    ssh_user = "${var.ssh_user}"
-    ssh_private_key = "${var.ssh_private_key}"
-}
+#     ssh_user = "${var.ssh_user}"
+#     ssh_private_key = "${var.ssh_private_key}"
+# }
