@@ -11,7 +11,7 @@
 	"base_ubuntu_image": "ubuntu-1604-xenial-v20160610",
 	"base_image": "base-1472991103",
 	"base_mesos": "base-mesos-1472991688",
-	"base_node_image": "",
-	"base_jvm_image": "",
+	"base_node_image": "base-node-1472994734",
+	"base_jvm_image": "base-jvm-1472994725",
 	"ssh_username": "ubuntu"
 }
