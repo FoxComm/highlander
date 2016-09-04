@@ -1,6 +1,7 @@
 account_file 		 = "account.json"
 gce_project 	 	 = "foxcommerce-production-shared"
 network 			 = "perfectgourmet"
+stage_datacenter     = "perfectgourmet-stage"
 bucket_location 	 = "us"
 region 				 = "us-central1"
 zone 			 	 = "us-central1-a"

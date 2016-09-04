@@ -7,6 +7,7 @@ variable "region" {}
 variable "network" {}
 variable "bucket_location" {}
 variable "zone" {}
+variable "stage_datacenter" {}
 variable "vpn_image" {}
 variable "amigo_cluster_image" {}
 variable "kafka_image" {}
@@ -98,7 +99,7 @@ resource "google_compute_firewall" "perfectgourmet_internal" {
 ##############################################
 # Vpn
 ##############################################
-module "vanilla_vpn" {
+module "perfectgourmet_vpn" {
     source = "../../modules/gce/vpn"
     image = "${var.vpn_image}"
     network = "${google_compute_network.perfectgourmet.name}"
@@ -125,7 +126,7 @@ module "vanilla_stack" {
     zone = "${var.zone}"
     network = "${var.network}"
     datacenter = "${var.network}"
-    stage_datacenter = "stage"
+    stage_datacenter = "${var.stage_datacenter}"
     kafka_image = "${var.kafka_image}"
     db_image = "${var.db_image}"
     es_image = "${var.es_image}"
