@@ -98,7 +98,7 @@ resource "google_compute_firewall" "perfectgourmet_internal" {
 ##############################################
 # Vpn
 ##############################################
-module "perfectgourmet_vpn" {
+module "vanilla_vpn" {
     source = "../../modules/gce/vpn"
     image = "${var.vpn_image}"
     network = "${google_compute_network.perfectgourmet.name}"

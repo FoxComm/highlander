@@ -14,7 +14,7 @@ phoenix_image 		 = "perfectgourmet-phoenix-1473002389"
 greenriver_image 	 = "perfectgourmet-green-1473001753"
 
 stage_backend_image  = "perfectgourmet-stage-backend-1473002902"
-stage_frontend_image = ""
+stage_frontend_image = "perfectgourmet-stage-frontend-1473002881"
 stage_amigo_image    = "perfectgourmet-stage-amigo-1473002871"
 
 front_image 		 = "perfectgourmet-front-1473002170"

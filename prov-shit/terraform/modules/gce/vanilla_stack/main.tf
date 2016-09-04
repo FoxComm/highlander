@@ -181,7 +181,7 @@ resource "google_compute_instance" "phoenix" {
 }
 
 resource "google_compute_instance_template" "service_worker_template" {
-    name_prefix = "${var.datacenter}-service-worker-template"
+    name_prefix = "${var.datacenter}-service-worker-tmpl"
     tags = ["ssh", "no-ip", "http-server", "https-server", "service-worker", "${var.datacenter}-service-worker", "${var.datacenter}"]
 
     machine_type = "n1-standard-4"
