@@ -20,6 +20,8 @@ final case class CustomersSearchView()(implicit ec: EC) extends AvroTransformer 
       field("isDisabled", BooleanType),
       field("isGuest", BooleanType),
       field("isBlacklisted", BooleanType),
+      field("blacklistedBy", IntegerType),
+      field("blacklistedReason", StringType).analyzer("autocomplete"),
       field("phoneNumber", StringType).index("not_analyzed"),
       field("location", StringType).analyzer("autocomplete"),
       field("joinedAt", DateType).format(dateFormat),
@@ -47,7 +49,10 @@ final case class CustomersSearchView()(implicit ec: EC) extends AvroTransformer 
       address("billingAddresses"),
       // Store credits
       field("storeCreditTotal", IntegerType),
-      field("storeCreditCount", IntegerType)
+      field("storeCreditCount", IntegerType),
+      // Revenue and rank
+      field("revenue", IntegerType),
+      field("rank", IntegerType)
   )
 
   override def nestedFields() = List(
