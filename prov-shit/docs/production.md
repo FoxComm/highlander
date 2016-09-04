@@ -66,9 +66,10 @@ Navigation:
 
 Do all the steps while connected to created VPN service.
 
-1. Build base images for backend, frontend and consul servers (can be ran in parallel):
+1. Build core base images:
 
 	```
+	$ packer build -var-file=packer/envs/vanilla.json packer/base/base_mesos.json
 	$ packer build -var-file=packer/envs/vanilla.json packer/base/base_jvm.json
 	$ packer build -var-file=packer/envs/vanilla.json packer/base/base_node.json
 	$ packer build -var-file=packer/envs/vanilla.json packer/amigos/amigo_server.json
@@ -76,7 +77,7 @@ Do all the steps while connected to created VPN service.
 
 2. Save base images names above and replace them in `packer/envs/vanilla.json`.
 
-3. Build specific images (can be ran in parallel):
+3. Build application-specific base images (can be ran in parallel):
 
 	```
 	$ packer build -var-file=packer/envs/vanilla.json packer/vanilla/db.json
