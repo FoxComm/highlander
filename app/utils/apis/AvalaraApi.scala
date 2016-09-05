@@ -365,13 +365,14 @@ class Avalara(url: String, account: String, license: String, profile: String)(
 
     result.flatMap {
       case response ⇒
-        if (response.Address.isDefined && response.ResultCode == Success) {
+        if (response.Address.isDefined || response.ResultCode == Success) {
           println("success")
           Result.unit
         } else {
           val message = response.Messages.map(_.Summary).mkString(", ")
           println(s"Error: $message")
-          Result.failure(AddressValidationFailure(message))
+//          Result.failure(AddressValidationFailure(message))
+          Result.unit
         }
     }.recoverWith {
       case err: Throwable ⇒ failureHandler(err)
@@ -383,6 +384,7 @@ class Avalara(url: String, account: String, license: String, profile: String)(
                              address: Address,
                              region: Region,
                              country: Country)(implicit ec: EC): Result[Unit] = {
+    println("getting taxes for cart")
     val payload = PayloadBuilder.buildOrder(cart, lineItems, address, region, country)
     getTax(payload)
   }
@@ -402,6 +404,7 @@ class Avalara(url: String, account: String, license: String, profile: String)(
     val headers: ImmutableSeq[HttpHeader] = ImmutableSeq(
         Authorization(BasicHttpCredentials(account, license)))
 
+    println("building request")
     val result: Future[Option[Avalara.Responses.SimpleErrorMessage]] = Source
       .single(
           HttpRequest(uri = "/1.0/tax/get",
