@@ -118,8 +118,9 @@ create table account_access_methods
 (
     id serial primary key,
     account_id integer not null references accounts(id) on update restrict on delete restrict,
-    name generic_string,
+    name generic_string not null,
     hashed_password generic_string not null, --This is computed with scrypt which includes salt.
+    algorithm int not null,  -- 0 is scrypt, the rest are reserved for future.
     created_at generic_timestamp,
     updated_at generic_timestamp,
     disabled_at generic_timestamp default null
