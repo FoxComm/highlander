@@ -32,12 +32,13 @@ Demo storefront implementation of a FoxCommerce-powered store. Isomorphic React 
 1. Develop it at http://localhost:4040/
 
 
-You can set the backend API URL as a shell variable `API_URL`.
+You can set the backend API URL as a shell variable `API_URL` and set stripe publishable key.
 
 For example, to hit staging:
 
 ```
 export API_URL=http://10.240.0.8:9090
+export STRIPE_PUBLISHABLE_KEY=pk_test_some_test_key
 ```
 then run
 

@@ -181,7 +181,7 @@ export function addCreditCard(): Function {
 
     const address = addressToPayload(billingAddress, getState().countries.list);
 
-    return foxApi.creditCards.create(cardData, address)
+    return foxApi.creditCards.create(cardData, address, !getState().checkout.billingAddressIsSame)
       .then(creditCardRes => {
         return foxApi.cart.addCreditCard(creditCardRes.id);
       })

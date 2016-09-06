@@ -4,11 +4,11 @@ setup:
 	npm build
 
 build: setup
-	gulp build
+	export eval `cat .env` && gulp build
 
 package: build
 	touch firebrand.tar.bz2
 	tar --exclude 'firebrand.tar.bz2' -jcf firebrand.tar.bz2 ./
-	
+
 
 .PHONY: setup build package
