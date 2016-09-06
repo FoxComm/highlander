@@ -6,6 +6,7 @@ import (
 	"github.com/FoxComm/middlewarehouse/api/payloads"
 	"github.com/FoxComm/middlewarehouse/common/db/config"
 	"github.com/FoxComm/middlewarehouse/common/db/tasks"
+	"github.com/FoxComm/middlewarehouse/common/db/utils"
 	"github.com/FoxComm/middlewarehouse/fixtures"
 	"github.com/FoxComm/middlewarehouse/services/mocks"
 
@@ -86,10 +87,10 @@ func (suite *ShipmentServiceTestSuite) Test_CreateShipment_Succeed_ReturnsCreate
 	suite.Nil(suite.db.Create(stockItem).Error)
 
 	stockItemUnit1 := fixtures.GetStockItemUnit(stockItem)
-	stockItemUnit1.RefNum = models.NewSqlNullStringFromString(&shipment1.ReferenceNumber)
+	stockItemUnit1.RefNum = utils.MakeSqlNullString(&shipment1.ReferenceNumber)
 	stockItemUnit1.Status = "onHold"
 	stockItemUnit2 := fixtures.GetStockItemUnit(stockItem)
-	stockItemUnit2.RefNum = models.NewSqlNullStringFromString(&shipment1.ReferenceNumber)
+	stockItemUnit2.RefNum = utils.MakeSqlNullString(&shipment1.ReferenceNumber)
 	stockItemUnit2.Status = "onHold"
 	suite.Nil(suite.db.Create(stockItemUnit1).Error)
 	suite.Nil(suite.db.Create(stockItemUnit2).Error)

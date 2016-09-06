@@ -1,8 +1,8 @@
-package models
+package utils
 
 import "database/sql"
 
-func NewSqlNullStringFromString(str *string) sql.NullString {
+func MakeSqlNullString(str *string) sql.NullString {
 	if str == nil {
 		return sql.NullString{String: "", Valid: false}
 	}

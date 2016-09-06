@@ -4,6 +4,7 @@ import (
 	"database/sql"
 
 	"github.com/FoxComm/middlewarehouse/api/payloads"
+	"github.com/FoxComm/middlewarehouse/common/db/utils"
 	"github.com/FoxComm/middlewarehouse/common/gormfox"
 )
 
@@ -27,12 +28,12 @@ func NewShipmentFromPayload(payload *payloads.Shipment) *Shipment {
 		ShippingMethodID: payload.ShippingMethodID,
 		ReferenceNumber:  payload.ReferenceNumber,
 		State:            ShipmentState(payload.State),
-		ShipmentDate:     NewSqlNullStringFromString(payload.ShipmentDate),
-		EstimatedArrival: NewSqlNullStringFromString(payload.EstimatedArrival),
-		DeliveredDate:    NewSqlNullStringFromString(payload.DeliveredDate),
+		ShipmentDate:     utils.MakeSqlNullString(payload.ShipmentDate),
+		EstimatedArrival: utils.MakeSqlNullString(payload.EstimatedArrival),
+		DeliveredDate:    utils.MakeSqlNullString(payload.DeliveredDate),
 		AddressID:        payload.Address.ID,
 		Address:          *NewAddressFromPayload(&payload.Address),
-		TrackingNumber:   NewSqlNullStringFromString(payload.TrackingNumber),
+		TrackingNumber:   utils.MakeSqlNullString(payload.TrackingNumber),
 	}
 
 	for _, lineItem := range payload.ShipmentLineItems {
@@ -53,10 +54,10 @@ func NewShipmentFromUpdatePayload(payload *payloads.UpdateShipment) *Shipment {
 		shipment.State = ShipmentState(payload.State)
 	}
 
-	shipment.ShipmentDate = NewSqlNullStringFromString(payload.ShipmentDate)
-	shipment.EstimatedArrival = NewSqlNullStringFromString(payload.EstimatedArrival)
-	shipment.DeliveredDate = NewSqlNullStringFromString(payload.DeliveredDate)
-	shipment.TrackingNumber = NewSqlNullStringFromString(payload.TrackingNumber)
+	shipment.ShipmentDate = utils.MakeSqlNullString(payload.ShipmentDate)
+	shipment.EstimatedArrival = utils.MakeSqlNullString(payload.EstimatedArrival)
+	shipment.DeliveredDate = utils.MakeSqlNullString(payload.DeliveredDate)
+	shipment.TrackingNumber = utils.MakeSqlNullString(payload.TrackingNumber)
 
 	if payload.Address != nil {
 		shipment.AddressID = payload.Address.ID
