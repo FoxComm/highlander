@@ -42,6 +42,45 @@ func NewShipmentFromPayload(payload *payloads.Shipment) *Shipment {
 	return shipment
 }
 
+func NewShipmentFromUpdatePayload(payload *payloads.UpdateShipment) *Shipment {
+	shipment := new(Shipment)
+
+	if payload.ShippingMethodID != 0 {
+		shipment.ShippingMethodID = payload.ShippingMethodID
+	}
+
+	if payload.State != nil {
+		shipment.State = ShipmentState(*(payload.State))
+	}
+
+	if payload.ShipmentDate != nil {
+		shipment.ShipmentDate = NewSqlNullStringFromString(payload.ShipmentDate)
+	}
+
+	if payload.EstimatedArrival != nil {
+		shipment.EstimatedArrival = NewSqlNullStringFromString(payload.EstimatedArrival)
+	}
+
+	if payload.DeliveredDate != nil {
+		shipment.DeliveredDate = NewSqlNullStringFromString(payload.DeliveredDate)
+	}
+
+	if payload.TrackingNumber != nil {
+		shipment.TrackingNumber = NewSqlNullStringFromString(payload.TrackingNumber)
+	}
+
+	if payload.Address != nil {
+		shipment.AddressID = payload.Address.ID
+		shipment.Address = *NewAddressFromPayload(payload.Address)
+	}
+
+	for _, lineItem := range payload.ShipmentLineItems {
+		shipment.ShipmentLineItems = append(shipment.ShipmentLineItems, *NewShipmentLineItemFromPayload(&lineItem))
+	}
+
+	return shipment
+}
+
 func NewShipmentFromOrderPayload(payload *payloads.Order) *Shipment {
 	shipment := &Shipment{
 		ShippingMethodID: payload.ShippingMethod.ID,
