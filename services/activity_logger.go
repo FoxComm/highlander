@@ -52,7 +52,7 @@ const (
 // IActivityLogger is the service responsible for saving activities that are
 // part of the activity trail to Kafka.
 type IActivityLogger interface {
-	Log(activity activities.SiteActivity) error
+	Log(activity activities.ISiteActivity) error
 }
 
 // NewActivityLogger creates a new instance on an activity logger with the
@@ -65,7 +65,7 @@ type activityLogger struct {
 	producer metamorphosis.Producer
 }
 
-func (a *activityLogger) Log(activity activities.SiteActivity) error {
+func (a *activityLogger) Log(activity activities.ISiteActivity) error {
 	rec, err := newRecord(activity)
 	if err != nil {
 		return err
@@ -85,7 +85,7 @@ type record struct {
 	Context       string
 }
 
-func newRecord(activity activities.SiteActivity) (*record, error) {
+func newRecord(activity activities.ISiteActivity) (*record, error) {
 	return &record{
 		schema:        avroSchema,
 		Id:            1,

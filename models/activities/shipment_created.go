@@ -8,7 +8,7 @@ import (
 	"github.com/FoxComm/middlewarehouse/models"
 )
 
-func NewShipmentCreated(shipment *models.Shipment, createdAt time.Time) (SiteActivity, error) {
+func NewShipmentCreated(shipment *models.Shipment, createdAt time.Time) (ISiteActivity, error) {
 	resp := responses.NewShipmentFromModel(shipment)
 
 	activityType := "shipment_created"
