@@ -147,7 +147,7 @@ class LocalNav extends Component {
   hasActiveLink(item) {
     const { routes } = this.context.router;
     const linkList = this.compileLinks(item);
-    const linkNames = _.pluck(linkList, ['props', 'to']);
+    const linkNames = _.map(linkList, ['props', 'to']);
 
     const currentRoute = routes[routes.length - 1];
 

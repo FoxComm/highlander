@@ -41,7 +41,7 @@ const reducer = createReducer({
     };
   },
   [countriesReceived]: (state, countries) => {
-    return deepMerge(state, _.indexBy(countries, 'id'));
+    return deepMerge(state, _.keyBy(countries, 'id'));
   },
   [countriesFailed]: (state, err) => {
     console.error(err);

@@ -7,6 +7,7 @@ import React, { Component, Element, PropTypes } from 'react';
 import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
+import { flow, filter } from 'lodash/fp';
 
 // components
 import { FormField } from '../forms';
@@ -46,10 +47,14 @@ export default class SkuDetails extends Component {
       ...keysToOmit,
     ];
     const attributes = _.get(this.props, 'sku.attributes', {});
+    const filteredAttributes = flow(
+      _.keys,
+      filter((attr: string) => !_.includes(toOmitArray, attr))
+    )(attributes);
     return [
       ...defaultKeys.base,
       ...defaultKeys.general,
-      ...(_(attributes).omit(toOmitArray).keys().value())
+      ...filteredAttributes
     ];
   }
 

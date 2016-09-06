@@ -1,22 +1,13 @@
+/* @flow */
 
 // libs
 import _ from 'lodash';
-import React, { PropTypes } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 
 // components
 import Summary from './summary';
-import TableView from '../../table/tableview';
-import TableRow from '../../table/row';
-import TableCell from '../../table/cell';
-import MultiSelectTable from '../../table/multi-select-table';
-import { DateTime } from '../../common/datetime';
-import Currency from '../../common/currency';
-import SearchBar from '../../search-bar/search-bar';
-import { Checkbox } from '../../checkbox/checkbox';
-import State from '../../common/state';
 import SelectableSearchList from '../../list-page/selectable-search-list';
 import StoreCreditTransactionRow from './transactions-row';
 
@@ -24,30 +15,20 @@ import StoreCreditTransactionRow from './transactions-row';
 import { actions as StoreCreditTransactionsActions } from '../../../modules/customers/store-credit-transactions';
 import * as StoreCreditTotalsActions from '../../../modules/customers/store-credit-totals';
 
-const mapStateToProps = (state, props) => ({
-  list: state.customers.storeCreditTransactions,
-  storeCreditTotals: state.customers.storeCreditTotals[props.params.customerId]
-});
-
-const mapDispatchToProps = dispatch => {
-  return {
-    actions: bindActionCreators(StoreCreditTransactionsActions, dispatch),
-    totalsActions: bindActionCreators(StoreCreditTotalsActions, dispatch)
-  };
+type Actions = {
+  fetchTotals: Function,
 };
 
-@connect(mapStateToProps, mapDispatchToProps)
-export default class StoreCreditTransactions extends React.Component {
+type Props = {
+  params: Object,
+  tableColumns: Array<any>,
+  totalsActions: Actions,
+  list: Object,
+  actions: Object,
+};
 
-  static propTypes = {
-    params: PropTypes.object,
-    tableColumns: PropTypes.array,
-    totalsActions: PropTypes.shape({
-      fetchTotals: PropTypes.func,
-    }).isRequired,
-    list: PropTypes.object,
-    actions: PropTypes.object,
-  };
+class StoreCreditTransactions extends Component {
+  props: Props;
 
   static defaultProps = {
     tableColumns: [
@@ -68,8 +49,6 @@ export default class StoreCreditTransactions extends React.Component {
       {
         field: 'state',
         text: 'Payment State',
-        type: 'state',
-        model: 'storeCreditTransaction'
       },
       {
         field: 'availableBalance',
@@ -123,3 +102,17 @@ export default class StoreCreditTransactions extends React.Component {
     );
   }
 }
+
+const mapStateToProps = (state, props) => ({
+  list: state.customers.storeCreditTransactions,
+  storeCreditTotals: state.customers.storeCreditTotals[props.params.customerId]
+});
+
+const mapDispatchToProps = dispatch => {
+  return {
+    actions: bindActionCreators(StoreCreditTransactionsActions, dispatch),
+    totalsActions: bindActionCreators(StoreCreditTotalsActions, dispatch)
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(StoreCreditTransactions);

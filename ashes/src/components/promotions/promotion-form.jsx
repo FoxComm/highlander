@@ -39,11 +39,6 @@ const SELECT_COUPON_TYPE = [
 export default class PromotionForm extends Component {
   props: Props;
 
-  static propTypes = {
-    promotion: PropTypes.object.isRequired,
-    onUpdatePromotion: PropTypes.func.isRequired,
-  };
-
   state: State = {
     qualifiedCustomerGroupIds: [], // it's temporary state until qualified customer groups not implented in backend!
   };
@@ -85,7 +80,7 @@ export default class PromotionForm extends Component {
     const newPromotion = assoc(this.props.promotion, 'applyType', value);
 
     this.props.onUpdatePromotion(newPromotion);
-    this.refs.applyTypeField.autoValidate();
+    this.refs.applyTypeField.validate();
   }
 
   get promotionState(): ?Element {

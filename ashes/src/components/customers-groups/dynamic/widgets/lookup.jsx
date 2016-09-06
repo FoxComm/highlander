@@ -8,7 +8,7 @@ import { Label } from '../labels/lookup';
 
 
 const connected = getState => connect(state => ({
-  data: _.chain(getState(state)).values().map(({id,name}) => ({id, label: name})).value(),
+  data: _.mapValues(getState(state), ({id,name}) => ({id, label: name}))
 }));
 
 export default function(type) {
