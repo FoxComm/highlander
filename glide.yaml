@@ -2,8 +2,10 @@ package: github.com/FoxComm/middlewarehouse
 import:
   - package: github.com/gin-gonic/gin
   - package: github.com/jinzhu/gorm
+    version: caa792644ce60fd7b429e0616afbdbccdf011be2
   - package: github.com/jpfuentes2/go-env
   - package: github.com/lib/pq
+    version: 55196ec83d60d789e27b2627549bf00974a70084
   - package: github.com/Sirupsen/logrus
   - package: github.com/stretchr/testify
   - package: github.com/FoxComm/metamorphosis

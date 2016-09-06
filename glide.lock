@@ -1,5 +1,5 @@
-hash: 96a164a6e65deda262f32d4a963bd4df504a3d0ba4c6d9e29308e352a1cceee0
-updated: 2016-09-06T00:47:14.727286485-07:00
+hash: 6991e74fd920c788593f67de2343c66949f12798a8e266885406dcb1ad6e2b00
+updated: 2016-09-06T00:50:21.626838389-07:00
 imports:
 - name: github.com/cihub/seelog
   version: d2c6e5aa9fbfdd1c624e140287063c7730654115
@@ -43,7 +43,7 @@ imports:
 - name: github.com/golang/snappy
   version: 723cc1e459b8eea2dea4583200fd60757d40097a
 - name: github.com/jinzhu/gorm
-  version: 446ce99a42ffe050b77bdd761271f97dd1e2b554
+  version: caa792644ce60fd7b429e0616afbdbccdf011be2
 - name: github.com/jinzhu/inflection
   version: 74387dc39a75e970e7a3ae6a3386b5bd2e5c5cff
 - name: github.com/jpfuentes2/go-env
@@ -51,7 +51,7 @@ imports:
   subpackages:
   - autoload
 - name: github.com/lib/pq
-  version: 50761b0867bd1d9d069276790bcd4a3bccf2324a
+  version: 55196ec83d60d789e27b2627549bf00974a70084
   subpackages:
   - oid
 - name: github.com/manucorporat/sse
