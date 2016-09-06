@@ -70,7 +70,7 @@ export default class CustomerAddressBook extends React.Component {
 
   @autobind
   createAddressBox(address, idx, props) {
-    if (_.contains(props.editingIds, address.id)) {
+    if (_.includes(props.editingIds, address.id)) {
       return (
         <AddressBox
           key={`address-${idx}`}

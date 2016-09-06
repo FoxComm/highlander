@@ -19,8 +19,8 @@ export function makeEntityId(type) {
 
 export function updateItems(items, newItems, iteratee='id') {
   return _.values({
-    ..._.indexBy(items, iteratee),
-    ..._.indexBy(newItems, iteratee)
+    ..._.keyBy(items, iteratee),
+    ..._.keyBy(newItems, iteratee)
   });
 }
 

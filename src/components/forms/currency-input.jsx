@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
+import { pick, flow, reduce } from 'lodash/fp';
 import formatCurrency, { stringToCurrency } from '../../lib/format-currency';
 import { autobind } from 'core-decorators';
 import { assoc } from 'sprout-data';
@@ -94,12 +95,12 @@ export default class CurrencyInput extends React.Component {
     } else {
       inputValue = formatCurrency(this.value, {bigNumber: true, fractionBase: this.props.fractionBase});
     }
-
     const keys = ['value', 'defaultValue'];
-    const valueProps = _.chain(this.props)
-      .pick(keys).reduce( (r, v, k) => assoc(r, k, inputValue), {})
-      .value();
-    return valueProps;
+
+    return flow(
+      pick(keys),
+      reduce((r, v, k) => assoc(r, k, inputValue), {})
+    )(this.props);
   }
 
   render() {

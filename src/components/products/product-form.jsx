@@ -7,6 +7,7 @@ import React, { Component, Element, PropTypes } from 'react';
 import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
+import { flow, filter } from 'lodash/fp';
 
 // components
 import ContentBox from '../content-box/content-box';
@@ -60,9 +61,13 @@ export default class ProductForm extends Component {
       ..._.flatten(_.valuesIn(omitKeys)),
     ];
     const attributes = _.get(this.props, 'product.attributes', {});
+    const filteredAttributes = flow(
+      _.keys,
+      filter((attr: string) => !_.includes(toOmit, attr))
+    )(attributes);
     return [
       ...defaultKeys.general,
-      ...(_(attributes).omit(toOmit).keys().value())
+      ...filteredAttributes
     ];
   }
 

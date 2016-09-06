@@ -99,8 +99,8 @@ export default class NavigationItem extends React.Component {
 
   get containerClass() {
     const routeNames = this.props.routes.map(route => route.name);
-    const isActive = _.contains(routeNames, this.props.to) ||
-      _.contains(routeNames, `${this.props.to}-base`);
+    const isActive = _.includes(routeNames, this.props.to) ||
+      _.includes(routeNames, `${this.props.to}-base`);
     return classNames('fc-navigation-item-container', {
       '_active': isActive
     });
