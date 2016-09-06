@@ -1,17 +1,9 @@
 package services
 
 import (
-	"bytes"
-	"encoding/json"
-	"errors"
-	"fmt"
-	"log"
-	"net/http"
-
-	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/common/async"
-	"github.com/FoxComm/highlander/middlewarehouse/common/config"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
+	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 
 	"github.com/jinzhu/gorm"
@@ -20,6 +12,7 @@ import (
 type shipmentService struct {
 	db                 *gorm.DB
 	summaryService     ISummaryService
+	activityLogger     IActivityLogger
 	updateSummaryAsync bool
 }
 
@@ -29,8 +22,8 @@ type IShipmentService interface {
 	UpdateShipment(shipment *models.Shipment) (*models.Shipment, error)
 }
 
-func NewShipmentService(db *gorm.DB, summaryService ISummaryService) IShipmentService {
-	return &shipmentService{db, summaryService, true}
+func NewShipmentService(db *gorm.DB, summaryService ISummaryService, activityLogger IActivityLogger) IShipmentService {
+	return &shipmentService{db, summaryService, activityLogger, true}
 }
 
 func (service *shipmentService) GetShipmentsByReferenceNumber(referenceNumber string) ([]*models.Shipment, error) {
@@ -79,7 +72,20 @@ func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*mode
 	}
 
 	err = service.updateSummariesToReserved(stockItemCounts)
-	return result, err
+	if err != nil {
+		return nil, err
+	}
+
+	activity, err := activities.NewShipmentCreated(result, result.CreatedAt)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := service.activityLogger.Log(activity); err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
 
 func (service *shipmentService) UpdateShipment(shipment *models.Shipment) (*models.Shipment, error) {
@@ -189,56 +195,56 @@ func (service *shipmentService) handleStatusChange(db *gorm.DB, oldShipment, new
 	return err
 }
 
-func (service *shipmentService) capturePayment(shipment *models.Shipment) error {
-	// TODO: Move this whole thing to a consumer.
-	log.Printf("Starting capture")
-	capture := payloads.Capture{
-		ReferenceNumber: shipment.ReferenceNumber,
-		Shipping: payloads.CaptureShippingCost{
-			Total:    0,
-			Currency: "USD",
-		},
-	}
-
-	for _, lineItem := range shipment.ShipmentLineItems {
-		cLineItem := payloads.CaptureLineItem{
-			ReferenceNumber: lineItem.ReferenceNumber,
-			SKU:             lineItem.SKU,
-		}
-
-		capture.Items = append(capture.Items, cLineItem)
-	}
-
-	b, err := json.Marshal(&capture)
-	if err != nil {
-		log.Printf("Error marshalling")
-		return err
-	}
-
-	log.Printf("Payload: %s", string(b))
-
-	url := fmt.Sprintf("%s/v1/service/capture", config.Config.PhoenixURL)
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(b))
-	if err != nil {
-		log.Printf("Error creating post")
-		return err
-	}
-
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("JWT", config.Config.PhoenixJWT)
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		log.Printf("Error on the request")
-		return err
-	}
-
-	if resp.StatusCode < 200 || resp.StatusCode > 299 {
-		msg := fmt.Sprintf("Error in response from capture with status %d", resp.StatusCode)
-		log.Printf(msg)
-		return errors.New(msg)
-	}
-
-	return nil
-}
+// func (service *shipmentService) capturePayment(shipment *models.Shipment) error {
+// 	// TODO: Move this whole thing to a consumer.
+// 	log.Printf("Starting capture")
+// 	capture := payloads.Capture{
+// 		ReferenceNumber: shipment.ReferenceNumber,
+// 		Shipping: payloads.CaptureShippingCost{
+// 			Total:    0,
+// 			Currency: "USD",
+// 		},
+// 	}
+//
+// 	for _, lineItem := range shipment.ShipmentLineItems {
+// 		cLineItem := payloads.CaptureLineItem{
+// 			ReferenceNumber: lineItem.ReferenceNumber,
+// 			SKU:             lineItem.SKU,
+// 		}
+//
+// 		capture.Items = append(capture.Items, cLineItem)
+// 	}
+//
+// 	b, err := json.Marshal(&capture)
+// 	if err != nil {
+// 		log.Printf("Error marshalling")
+// 		return err
+// 	}
+//
+// 	log.Printf("Payload: %s", string(b))
+//
+// 	url := fmt.Sprintf("%s/v1/service/capture", config.Config.PhoenixURL)
+// 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(b))
+// 	if err != nil {
+// 		log.Printf("Error creating post")
+// 		return err
+// 	}
+//
+// 	req.Header.Set("Content-Type", "application/json")
+// 	req.Header.Set("JWT", config.Config.PhoenixJWT)
+//
+// 	client := &http.Client{}
+// 	resp, err := client.Do(req)
+// 	if err != nil {
+// 		log.Printf("Error on the request")
+// 		return err
+// 	}
+//
+// 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
+// 		msg := fmt.Sprintf("Error in response from capture with status %d", resp.StatusCode)
+// 		log.Printf(msg)
+// 		return errors.New(msg)
+// 	}
+//
+// 	return nil
+// }
