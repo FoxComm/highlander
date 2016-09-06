@@ -37,7 +37,8 @@ func (suite *ShipmentServiceTestSuite) SetupTest() {
 	db, err := config.DefaultConnection()
 	suite.db = db.Debug()
 	suite.Nil(err)
-	suite.service = NewShipmentService(suite.db, &mocks.SummaryServiceStub{})
+
+	suite.service = NewShipmentService(suite.db, &mocks.SummaryServiceStub{}, &mocks.ActivityLoggerMock{})
 }
 
 func (suite *ShipmentServiceTestSuite) Test_GetShipmentsByReferenceNumber_ReturnsShipmentModels() {

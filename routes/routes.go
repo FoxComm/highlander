@@ -1,6 +1,10 @@
 package routes
 
 import (
+	"log"
+
+	"github.com/FoxComm/metamorphosis"
+	"github.com/FoxComm/middlewarehouse/common/config"
 	"github.com/FoxComm/middlewarehouse/controllers"
 	"github.com/FoxComm/middlewarehouse/repositories"
 	"github.com/FoxComm/middlewarehouse/services"
@@ -9,6 +13,15 @@ import (
 )
 
 func GetRoutes(db *gorm.DB) map[string]controllers.IController {
+	// Kkkkkafka
+	broker := config.Config.KafkaBroker
+	schemaRegistryURL := config.Config.SchemaRegistryURL
+
+	producer, err := metamorphosis.NewProducer(broker, schemaRegistryURL)
+	if err != nil {
+		log.Panicf("Unable to initialize Kafka producer with error %s", err.Error())
+	}
+
 	//repositories
 	carrierRepository := repositories.NewCarrierRepository(db)
 	summaryRepository := repositories.NewSummaryRepository(db)
@@ -18,12 +31,13 @@ func GetRoutes(db *gorm.DB) map[string]controllers.IController {
 	shippingMethodRepository := repositories.NewShippingMethodRepository(db)
 
 	//services
+	activityLogger := services.NewActivityLogger(producer)
 	summaryService := services.NewSummaryService(summaryRepository, stockItemRepository)
 	inventoryService := services.NewInventoryService(stockItemRepository, unitRepository, summaryService)
 	carrierService := services.NewCarrierService(carrierRepository)
 	stockLocationService := services.NewStockLocationService(stockLocationRepository)
 	shippingMethodService := services.NewShippingMethodService(shippingMethodRepository)
-	shipmentService := services.NewShipmentService(db, summaryService)
+	shipmentService := services.NewShipmentService(db, summaryService, activityLogger)
 
 	return map[string]controllers.IController{
 		"v1/public/ping":             controllers.NewPingController(),

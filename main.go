@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 
+	"github.com/FoxComm/middlewarehouse/common/config"
 	dbConfig "github.com/FoxComm/middlewarehouse/common/db/config"
 	"github.com/FoxComm/middlewarehouse/routes"
 
@@ -24,10 +25,9 @@ func engine() (*gin.Engine, error) {
 }
 
 func main() {
-	// TODO: Bring this back when moving capture to a consumer.
-	// if err := config.InitializeSiteConfig(); err != nil {
-	// 	log.Panicf("Failed to initialize middlewarehouse config with error %s", err.Error())
-	// }
+	if err := config.InitializeSiteConfig(); err != nil {
+		log.Panicf("Failed to initialize middlewarehouse config with error %s", err.Error())
+	}
 
 	engine, err := engine()
 	if err != nil {
