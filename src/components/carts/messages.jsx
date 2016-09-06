@@ -3,6 +3,7 @@ import classnames from 'classnames';
 import _ from 'lodash';
 
 import Alert from '../alerts/alert';
+import AutoScroll from '../common/auto-scroll';
 
 const formatMessage = message => {
   if (message.indexOf('empty cart') != -1) {
@@ -43,8 +44,11 @@ const Messages = props => {
     '_empty': errorAlerts.length + warningAlerts.length == 0
   });
 
+  const scrollToMessages = errorAlerts.length || warningAlerts.length ? <AutoScroll/> : null;
+
   return (
     <div className={className}>
+      {scrollToMessages}
       {errorAlerts}
       {warningAlerts}
     </div>
