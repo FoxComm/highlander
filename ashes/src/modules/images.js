@@ -46,7 +46,7 @@ const initialState: State = {
 };
 
 function actionPath(entity: string, action: string) {
-  return `${entity}${_.capitalize(action)}`;
+  return `${entity}${_.upperFirst(action)}`;
 }
 
 /**
