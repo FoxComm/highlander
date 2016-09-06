@@ -118,3 +118,7 @@
 - name: Copy Consul Service File
   template: src=db.json dest="/etc/consul.d/db.json"
   sudo: true
+
+- name: Copy Bottled Water Consul Health Checks
+  template: src=bottledwater_checks.json dest="/etc/consul.d/bottledwater_checks.json"
+  sudo: true
