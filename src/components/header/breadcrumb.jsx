@@ -1,6 +1,7 @@
 
 // libs
 import _ from 'lodash';
+import { filter, map, join, flow } from 'lodash/fp';
 import React, {PropTypes} from 'react';
 import { inflect } from 'fleck';
 import { assoc } from 'sprout-data';
@@ -19,11 +20,12 @@ export default class Breadcrumb extends React.Component {
   @autobind
   readableName(route) {
     const parts = route.name.split('-');
-    const title = _.get(route, 'title', _.chain(parts)
-      .filter(item => item !== 'base')
-      .map(_.capitalize)
-      .join(' ')
-      .value());
+    const titlePath = flow(
+      filter(item => item !== 'base'),
+      map(_.capitalize),
+      join(' ')
+    )(parts);
+    const title = _.get(route, 'title', titlePath);
 
     let titleParam = route.titleParam;
     if (!titleParam && route.path && route.path[0] === ':') {

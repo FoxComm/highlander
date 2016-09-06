@@ -18,7 +18,7 @@ const openStoreCreditList = _createAction('OPEN_LIST');
 const failNewStoreCredit = _createAction('FAIL');
 
 function changeGiftCardUrl(customerId, code) {
-  const uppercasedCode = _.toUpperCase(code);
+  const uppercasedCode = _.toUpper(code);
   return `/gift-cards/${uppercasedCode}/convert/${customerId}`;
 }
 
@@ -61,7 +61,7 @@ export function changeGCCode(value) {
     dispatch(changeScFormData('code', value));
 
     if (!_.isEmpty(value)) {
-      const uppercasedCode = _.toUpperCase(value);
+      const uppercasedCode = _.toUpper(value);
       return Api.get(`/gift-cards/${uppercasedCode}`)
         .then(
           json => dispatch(changeScFormData('availableAmount', json.availableBalance)),
