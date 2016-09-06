@@ -53,21 +53,10 @@ func NewShipmentFromUpdatePayload(payload *payloads.UpdateShipment) *Shipment {
 		shipment.State = ShipmentState(payload.State)
 	}
 
-	if payload.ShipmentDate != nil {
-		shipment.ShipmentDate = NewSqlNullStringFromString(payload.ShipmentDate)
-	}
-
-	if payload.EstimatedArrival != nil {
-		shipment.EstimatedArrival = NewSqlNullStringFromString(payload.EstimatedArrival)
-	}
-
-	if payload.DeliveredDate != nil {
-		shipment.DeliveredDate = NewSqlNullStringFromString(payload.DeliveredDate)
-	}
-
-	if payload.TrackingNumber != nil {
-		shipment.TrackingNumber = NewSqlNullStringFromString(payload.TrackingNumber)
-	}
+	shipment.ShipmentDate = NewSqlNullStringFromString(payload.ShipmentDate)
+	shipment.EstimatedArrival = NewSqlNullStringFromString(payload.EstimatedArrival)
+	shipment.DeliveredDate = NewSqlNullStringFromString(payload.DeliveredDate)
+	shipment.TrackingNumber = NewSqlNullStringFromString(payload.TrackingNumber)
 
 	if payload.Address != nil {
 		shipment.AddressID = payload.Address.ID
