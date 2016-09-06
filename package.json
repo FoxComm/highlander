@@ -35,69 +35,6 @@
   },
   "contributors": "https://github.com/FoxComm/Ashes/graphs/contributors",
   "homepage": "https://github.com/FoxComm/Ashes#readme",
-  "eslintConfig": {
-    "env": {
-      "node": true,
-      "browser": true,
-      "es6": true,
-      "mocha": true
-    },
-    "plugins": [
-      "react"
-    ],
-    "ecmaFeatures": {
-      "jsx": true,
-      "modules": true
-    },
-    "globals": {
-      "expect": false
-    },
-    "rules": {
-      "max-len": [
-        1,
-        120,
-        2,
-        {
-          "ignoreComments": true,
-          "ignoreUrls": true,
-          "ignorePattern": "^.+=\\s*require\\s*\\("
-        }
-      ],
-      "quotes": [
-        1,
-        "single"
-      ],
-      "curly": [
-        2,
-        "multi-line"
-      ],
-      "no-process-exit": 0,
-      "no-underscore-dangle": 0,
-      "no-multi-spaces": [
-        1,
-        {
-          "exceptions": {
-            "VariableDeclarator": true
-          }
-        }
-      ],
-      "react/display-name": 0,
-      "react/jsx-uses-react": 1,
-      "react/jsx-uses-vars": 1,
-      "react/no-did-mount-set-state": 1,
-      "react/no-did-update-set-state": 1,
-      "react/no-multi-comp": [
-        1,
-        {
-          "ignoreStateless": true
-        }
-      ],
-      "react/prop-types": 1,
-      "react/react-in-jsx-scope": 1,
-      "react/self-closing-comp": 1,
-      "react/wrap-multilines": 1
-    }
-  },
   "dependencies": {
     "babel-polyfill": "^6.5.0",
     "browserHistory": "file:src/opt/browserHistory",
@@ -179,13 +116,13 @@
     "css-modulesify": "github:anru/css-modulesify#update-me-to-0-23-version-later",
     "cssnano": "^3.7.3",
     "envify": "^3.4.0",
-    "eslint": "^3.3.1",
-    "eslint-plugin-react": "^3.10.0",
+    "eslint": "^3.4.0",
+    "eslint-plugin-react": "^6.2.0",
     "flow-bin": "0.23.0",
     "gulp": "^3.9.0",
     "gulp-concat": "^2.6.0",
     "gulp-cssnano": "^2.1.2",
-    "gulp-eslint": "^1.0.0",
+    "gulp-eslint": "^3.0.1",
     "gulp-if": "^1.2.5",
     "gulp-imagemin": "^2.3.0",
     "gulp-less": "^3.0.3",
