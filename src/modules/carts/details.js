@@ -1,6 +1,7 @@
 /* @flow */
 import _ from 'lodash';
 import Api from 'lib/api';
+import { assoc } from 'sprout-data';
 import { createReducer } from 'redux-act';
 import { transitionTo } from 'browserHistory';
 import OrderParagon from 'paragons/order';
@@ -259,6 +260,17 @@ function resetCart(state) {
   };
 }
 
+function cartError(state, err) {
+  const errResponse = _.get(err, 'response.body');
+  if (errResponse) {
+    return receiveCart(state, errResponse);
+  }
+
+  return assoc(state,
+    ['validations', 'errors'], [err]
+  );
+}
+
 const reducer = createReducer({
   [_fetchCart.succeeded]: receiveCart,
   [_fetchCart.failed]: resetCart,
@@ -277,7 +289,7 @@ const reducer = createReducer({
   [_deleteGiftCardPayment.succeeded]: receiveCart,
   [_deleteStoreCreditPayment.succeeded]: receiveCart,
   [_checkout.succeeded]: receiveCart,
-  [_checkout.failed]: receiveCart,
+  [_checkout.failed]: cartError,
 }, initialState);
 
 export default reducer;
