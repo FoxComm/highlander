@@ -49,8 +49,8 @@ func NewShipmentFromUpdatePayload(payload *payloads.UpdateShipment) *Shipment {
 		shipment.ShippingMethodID = payload.ShippingMethodID
 	}
 
-	if payload.State != nil {
-		shipment.State = ShipmentState(*(payload.State))
+	if payload.State != "" {
+		shipment.State = ShipmentState(payload.State)
 	}
 
 	if payload.ShipmentDate != nil {
