@@ -8,10 +8,10 @@ import (
 	"github.com/FoxComm/middlewarehouse/models"
 )
 
-const activityType = "shipment_created"
-
 func NewShipmentCreated(shipment *models.Shipment, createdAt time.Time) (SiteActivity, error) {
 	resp := responses.NewShipmentFromModel(shipment)
+
+	activityType := "shipment_created"
 
 	shipBytes, err := json.Marshal(resp)
 	if err != nil {
