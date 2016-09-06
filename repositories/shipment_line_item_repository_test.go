@@ -66,7 +66,7 @@ func (suite *ShipmentLineItemRepositoryTestSuite) SetupSuite() {
 	suite.stockItemUnit2.RefNum = sql.NullString{"BR1001", true}
 	suite.Nil(suite.db.Create(suite.stockItemUnit2).Error)
 
-	suite.shipment1 = fixtures.GetShipment(0, shippingMethod.ID, shippingMethod, address.ID, address, nil)
+	suite.shipment1 = fixtures.GetShipment(0, "BR1001", shippingMethod.ID, shippingMethod, address.ID, address, nil)
 	suite.Nil(suite.db.Create(suite.shipment1).Error)
 }
 

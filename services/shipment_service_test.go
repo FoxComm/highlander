@@ -3,8 +3,10 @@ package services
 import (
 	"testing"
 
+	"github.com/FoxComm/middlewarehouse/api/payloads"
 	"github.com/FoxComm/middlewarehouse/common/db/config"
 	"github.com/FoxComm/middlewarehouse/common/db/tasks"
+	"github.com/FoxComm/middlewarehouse/common/db/utils"
 	"github.com/FoxComm/middlewarehouse/fixtures"
 	"github.com/FoxComm/middlewarehouse/services/mocks"
 
@@ -86,10 +88,10 @@ func (suite *ShipmentServiceTestSuite) Test_CreateShipment_Succeed_ReturnsCreate
 	suite.Nil(suite.db.Create(stockItem).Error)
 
 	stockItemUnit1 := fixtures.GetStockItemUnit(stockItem)
-	stockItemUnit1.RefNum = models.NewSqlNullStringFromString(&shipment1.ReferenceNumber)
+	stockItemUnit1.RefNum = utils.MakeSqlNullString(&shipment1.ReferenceNumber)
 	stockItemUnit1.Status = "onHold"
 	stockItemUnit2 := fixtures.GetStockItemUnit(stockItem)
-	stockItemUnit2.RefNum = models.NewSqlNullStringFromString(&shipment1.ReferenceNumber)
+	stockItemUnit2.RefNum = utils.MakeSqlNullString(&shipment1.ReferenceNumber)
 	stockItemUnit2.Status = "onHold"
 	suite.Nil(suite.db.Create(stockItemUnit1).Error)
 	suite.Nil(suite.db.Create(stockItemUnit2).Error)
@@ -102,6 +104,30 @@ func (suite *ShipmentServiceTestSuite) Test_CreateShipment_Succeed_ReturnsCreate
 	suite.Equal(shipment1.ShippingMethodID, shipment.ShippingMethodID)
 	suite.Equal(shipment1.ReferenceNumber, shipment.ReferenceNumber)
 	suite.Equal(shipment1.State, shipment.State)
+}
+
+func (suite *ShipmentServiceTestSuite) Test_UpdateShipment_Partial_ReturnsUpdatedRecord() {
+	//arrange
+	shipment := fixtures.GetShipmentShort(uint(1))
+
+	suite.Nil(suite.db.Set("gorm:save_associations", false).Create(&shipment.Address).Error)
+	suite.Nil(suite.db.Create(&shipment.ShippingMethod.Carrier).Error)
+	suite.Nil(suite.db.Create(&shipment.ShippingMethod).Error)
+	shipment.AddressID = shipment.Address.ID
+	suite.Nil(suite.db.Set("gorm:save_associations", false).Create(shipment).Error)
+
+	payload := payloads.UpdateShipment{State: "shipped"}
+	updateShipment := models.NewShipmentFromUpdatePayload(&payload)
+	updateShipment.ID = shipment.ID
+
+	//act
+	updated, err := suite.service.UpdateShipment(updateShipment)
+
+	//assert
+	suite.Nil(err)
+	suite.Equal(shipment.ID, updated.ID)
+	suite.Equal(shipment.ReferenceNumber, updated.ReferenceNumber)
+	suite.Equal(models.ShipmentStateShipped, updated.State)
 }
 
 //func (suite *ShipmentServiceTestSuite) Test_UpdateShipment_NotFound_ReturnsNotFoundError() {

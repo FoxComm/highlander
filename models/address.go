@@ -4,6 +4,7 @@ import (
 	"database/sql"
 
 	"github.com/FoxComm/middlewarehouse/api/payloads"
+	"github.com/FoxComm/middlewarehouse/common/db/utils"
 	"github.com/FoxComm/middlewarehouse/common/gormfox"
 )
 
@@ -27,7 +28,7 @@ func NewAddressFromPayload(payload *payloads.Address) *Address {
 		Address1:    payload.Address1,
 		City:        payload.City,
 		Zip:         payload.Zip,
-		Address2:    NewSqlNullStringFromString(payload.Address2),
+		Address2:    utils.MakeSqlNullString(payload.Address2),
 		PhoneNumber: payload.PhoneNumber,
 	}
 }

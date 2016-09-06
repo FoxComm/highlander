@@ -12,6 +12,7 @@ import (
 
 func GetShipment(
 	id uint,
+	referenceNumber string,
 	shippingMethodID uint,
 	shippingMethod *models.ShippingMethod,
 	addressID uint,
@@ -24,7 +25,7 @@ func GetShipment(
 		},
 		ShippingMethodID:  shippingMethodID,
 		ShippingMethod:    *shippingMethod,
-		ReferenceNumber:   "BR1005",
+		ReferenceNumber:   referenceNumber,
 		State:             models.ShipmentStatePending,
 		ShipmentDate:      sql.NullString{},
 		EstimatedArrival:  sql.NullString{},
@@ -42,7 +43,7 @@ func GetShipmentShort(id uint) *models.Shipment {
 	shipmentLineItem1 := GetShipmentLineItem(uint(1), id, uint(1))
 	shipmentLineItem2 := GetShipmentLineItem(uint(2), id, uint(2))
 
-	return GetShipment(id, shippingMethod1.ID, shippingMethod1, address1.ID, address1,
+	return GetShipment(id, "BR10005", shippingMethod1.ID, shippingMethod1, address1.ID, address1,
 		[]models.ShipmentLineItem{*shipmentLineItem1, *shipmentLineItem2})
 }
 
