@@ -169,7 +169,7 @@ function dateRangeFilter(field, operator, value) {
 export function rangeToFilter(field, operator, value) {
   if (operator == 'eq') {
     return dsl.termFilter(field, value);
-  } else if (_.contains(operator, '__') && _.isArray(value)) {
+  } else if (_.includes(operator, '__') && _.isArray(value)) {
     const [op1, op2] = operator.split('__');
 
     return dsl.rangeFilter(field, {

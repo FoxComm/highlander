@@ -36,7 +36,7 @@ const reasonType = ReasonType.GIFT_CARD_CREATION;
 const subTypes = createSelector(
   ({ giftCards: { adding } }) => adding.originType,
   ({ giftCards: { adding } }) => adding.types,
-  (originType, types = []) => _.get(_.findWhere(types, { originType }), 'subTypes', [])
+  (originType, types = []) => _.get(_.find(types, { originType }), 'subTypes', [])
 );
 
 @connect(state => ({

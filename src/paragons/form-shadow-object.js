@@ -118,8 +118,8 @@ export function denormalize(obj: FormShadowObject, path: ?string = null) {
   if (!_.isArray(formTarget)) {
     copyShadowAttributes(formTarget.attributes, shadowTarget.attributes);
   } else {
-    const forms = _.indexBy(formTarget, 'id');
-    const shadows = _.indexBy(shadowTarget, 'id');
+    const forms = _.keyBy(formTarget, 'id');
+    const shadows = _.keyBy(shadowTarget, 'id');
 
     _.each(forms, (form, id) => {
       const shadow = shadows[id];

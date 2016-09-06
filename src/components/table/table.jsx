@@ -114,8 +114,8 @@ export default class Table extends Component {
 
       if (this.props.predicate && nextProps.data.rows && nextProps.data.rows !== this.rows) {
 
-        const oldRows = _.indexBy(this.rows, this.props.predicate);
-        const newRows = _.indexBy(nextProps.data.rows, this.props.predicate);
+        const oldRows = _.keyBy(this.rows, this.props.predicate);
+        const newRows = _.keyBy(nextProps.data.rows, this.props.predicate);
 
         newIds = _.difference(_.keys(newRows), _.keys(oldRows));
       }

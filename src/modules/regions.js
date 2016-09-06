@@ -23,7 +23,7 @@ const reducer = createReducer({
     return state;
   },
   [regionsReceived]: (state, regions) => {
-    return _.indexBy(regions, 'id');
+    return _.keyBy(regions, 'id');
   }
 }, initialState);
 
