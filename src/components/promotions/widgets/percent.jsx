@@ -7,11 +7,11 @@ import AppendInput from '../../forms/append-input';
 import type { Context, ItemDesc } from '../types';
 
 type Props = ItemDesc & {
-  context: Context;
-}
+  context: Context,
+};
 
 const Percent = (props: Props): Element => {
-  const value = props.context.params[props.name];
+  const value = props.context.params[props.name] || 0;
   const onChange = (event: Object) => {
     let percent = Number(event.target.value);
     percent = isNaN(percent) ? 0 : percent;
