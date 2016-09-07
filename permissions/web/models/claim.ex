@@ -4,4 +4,9 @@ defmodule Permission.Claim do
   schema "claims" do
     field :frn, :string #Fox Resource Name
   end
-end
+
+  def changeset_from_frn(model, frn \\ :empty) do
+    model
+    |> change
+    |> put_change(:frn, frn)
+  end
