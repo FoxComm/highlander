@@ -6,9 +6,8 @@ import styles from './checkout.css';
 
 import localized from 'lib/i18n';
 
-import Checkbox from 'ui/checkbox';
 import Loader from 'ui/loader';
-import Icon from 'ui/icon';
+import CreditCard from './credit-card';
 
 import { fetchCreditCards } from 'modules/checkout';
 
@@ -44,25 +43,13 @@ class CreditCards extends Component {
     return (
       <div>
         {creditCards.map(creditCard => {
-          const brand = creditCard.brand ? creditCard.brand.toLowerCase() : '';
-
           return (
-            <div key={creditCard.id} styleName="credit-card">
-              <Checkbox
-                name="credit-card"
-                checked={selectedCreditCard && selectedCreditCard.id == creditCard.id}
-                onChange={() => selectCreditCard(creditCard)}
-                id={`credit-card-${creditCard.id}`}
-              >
-                <span>
-                  <span>•••• {creditCard.lastFour}</span>
-                  <span styleName="credit-card-valid">
-                    {creditCard.expMonth}/{creditCard.expYear.toString().slice(-2)}
-                  </span>
-                </span>
-              </Checkbox>
-              <Icon styleName="payment-icon" name={`fc-payment-${brand}`} />
-            </div>
+            <CreditCard
+              creditCard={creditCard}
+              selected={!!selectedCreditCard && selectedCreditCard.id === creditCard.id}
+              onSelect={selectCreditCard}
+              key={creditCard.id}
+            />
           );
         })}
       </div>
