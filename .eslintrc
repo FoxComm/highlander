@@ -63,10 +63,14 @@
     "react/react-in-jsx-scope": 1,
     "react/self-closing-comp": 0,
     "react/jsx-wrap-multilines": 1,
-    "react/no-did-mount-set-state": 1
+    "react/no-did-mount-set-state": 1,
+    "lodash-fp/use-fp": 0,
+    "lodash-fp/no-extraneous-function-wrapping": 0,
+    "lodash-fp/prefer-constant": 0,
+    "lodash-fp/no-extraneous-iteratee-args": 2
   },
   "plugins": [
-    "react"
+    "react", "lodash-fp"
   ],
   "parser": "babel-eslint"
 }

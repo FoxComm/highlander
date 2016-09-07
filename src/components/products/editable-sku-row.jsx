@@ -126,7 +126,7 @@ class EditableSkuRow extends Component {
   @autobind
   handleSelectSku(searchViewSku: SearchViewSku) {
     this.closeSkusMenu(
-      this.updateAttrsBySearchViewSku(searchViewSku)
+      () => this.updateAttrsBySearchViewSku(searchViewSku)
     );
   }
 
@@ -134,7 +134,7 @@ class EditableSkuRow extends Component {
   closeSkusMenu(callback: Function = _.noop) {
     this.setState({
       isMenuVisible: false
-    });
+    }, callback);
   }
 
   get menuEmptyContent(): Element {
