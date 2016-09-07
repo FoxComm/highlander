@@ -64,6 +64,13 @@ final case class OrdersSearchView()(implicit ec: EC) extends AvroTransformer {
           field("adminDisplayName", StringType).analyzer("autocomplete"),
           field("storefrontDisplayName", StringType).analyzer("autocomplete")
       ),
+      field("shippingMethod").nested(
+          field("id", IntegerType),
+          field("price", IntegerType),
+          field("shippingMethodId", IntegerType),
+          field("adminDisplayName", StringType).analyzer("autocomplete"),
+          field("storefrontDisplayName", StringType).analyzer("autocomplete")
+      ),
       // Addresses
       field("shippingAddressesCount", IntegerType),
       address("shippingAddresses"),
@@ -89,6 +96,7 @@ final case class OrdersSearchView()(implicit ec: EC) extends AvroTransformer {
       "line_items",
       "payments",
       "shipments",
+      "shipping_method",
       "shipping_addresses",
       "billing_addresses",
       "assignees",

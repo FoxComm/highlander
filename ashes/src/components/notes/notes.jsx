@@ -26,7 +26,7 @@ const editingNote = createSelector(
   state => _.get(state.notes.list.currentSearch(), 'results.rows', []),
   state => _.get(state.notes, 'editingNoteId'),
   (notes, editingNoteId) => {
-    return _.findWhere(notes, {id: editingNoteId});
+    return _.find(notes, {id: editingNoteId});
   }
 );
 

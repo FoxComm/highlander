@@ -3,7 +3,7 @@
 	"user": "ubuntu",
 	"db_host": "db.service.consul",
 	"db_user": "phoenix",
-	"db_name": "phoenix",
+	"db_name": "phoenix_development",
 	"phoenix_db_name": "phoenix_development",
 	"phoenix_env": "staging",
 	"phoenix_tracing": true,

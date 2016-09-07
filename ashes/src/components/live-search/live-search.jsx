@@ -617,7 +617,7 @@ export default class LiveSearch extends React.Component {
       return false;
     }
 
-    return !_.eq(this.props, nextProps) || !_.eq(this.state, nextState);
+    return true;
   }
 
   render() {

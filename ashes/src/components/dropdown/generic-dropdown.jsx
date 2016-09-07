@@ -118,7 +118,7 @@ export default class GenericDropdown extends Component {
       const item = _.find(props.items, item => item[0] == value);
       return item && item[1];
     } else {
-      const item = _.findWhere(React.Children.toArray(props.children), { props: { value: value } });
+      const item = _.find(React.Children.toArray(props.children), { props: { value: value } });
       return item && item.props.children;
     }
   }

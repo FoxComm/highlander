@@ -236,7 +236,7 @@ activities = [...activities,
   // order shipping address
 
   {
-    kind: types.ORDER_SHIPPING_ADDRESS_UPDATED,
+    kind: types.CART_SHIPPING_ADDRESS_UPDATED,
     id: id++,
     createdAt,
     data: {
@@ -257,7 +257,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_SHIPPING_ADDRESS_ADDED,
+    kind: types.CART_SHIPPING_ADDRESS_ADDED,
     id: id++,
     createdAt,
     data: {
@@ -266,7 +266,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_SHIPPING_ADDRESS_REMOVED,
+    kind: types.CART_SHIPPING_ADDRESS_REMOVED,
     id: id++,
     createdAt,
     data: {
@@ -393,7 +393,7 @@ createdAt = getStartDate().subtract(shiftDays++, 'days').toString();
 
 activities = [...activities,
   {
-    kind: types.ORDER_SHIPPING_METHOD_UPDATED,
+    kind: types.CART_SHIPPING_METHOD_UPDATED,
     id: id++,
     createdAt,
     data: {
@@ -401,7 +401,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_SHIPPING_METHOD_REMOVED,
+    kind: types.CART_SHIPPING_METHOD_REMOVED,
     id: id++,
     createdAt,
     data: {
@@ -414,7 +414,7 @@ createdAt = getStartDate().subtract(shiftDays++, 'days').toString();
 
 activities = [...activities,
   {
-    kind: types.ORDER_PAYMENT_METHOD_ADDED_CREDIT_CARD,
+    kind: types.CART_PAYMENT_METHOD_ADDED_CREDIT_CARD,
     id: id++,
     createdAt,
     data: {
@@ -423,7 +423,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_PAYMENT_METHOD_ADDED_GIFT_CARD,
+    kind: types.CART_PAYMENT_METHOD_ADDED_GIFT_CARD,
     id: id++,
     createdAt,
     data: {
@@ -432,7 +432,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_PAYMENT_METHOD_ADDED_STORE_CREDIT,
+    kind: types.CART_PAYMENT_METHOD_ADDED_STORE_CREDIT,
     id: id++,
     createdAt,
     data: {
@@ -441,7 +441,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_PAYMENT_METHOD_DELETED,
+    kind: types.CART_PAYMENT_METHOD_DELETED,
     id: id++,
     createdAt,
     data: {
@@ -450,7 +450,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_PAYMENT_METHOD_DELETED,
+    kind: types.CART_PAYMENT_METHOD_DELETED,
     id: id++,
     createdAt,
     data: {
@@ -459,7 +459,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_PAYMENT_METHOD_DELETED,
+    kind: types.CART_PAYMENT_METHOD_DELETED,
     id: id++,
     createdAt,
     data: {
@@ -468,7 +468,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_PAYMENT_METHOD_DELETED_GIFT_CARD,
+    kind: types.CART_PAYMENT_METHOD_DELETED_GIFT_CARD,
     id: id++,
     createdAt,
     data: {
@@ -668,7 +668,7 @@ createdAt = getStartDate().subtract(shiftDays++, 'days').toString();
 
 activities = [...activities,
   {
-    kind: types.ORDER_LINE_ITEMS_UPDATED_QUANTITIES,
+    kind: types.CART_LINE_ITEMS_UPDATED_QUANTITIES,
     id: id++,
     createdAt,
     data: {
@@ -683,7 +683,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_LINE_ITEMS_UPDATED_QUANTITIES_BY_CUSTOMER,
+    kind: types.CART_LINE_ITEMS_UPDATED_QUANTITIES_BY_CUSTOMER,
     id: id++,
     createdAt,
     data: {
@@ -701,7 +701,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_LINE_ITEMS_ADDED_GIFT_CARD,
+    kind: types.CART_LINE_ITEMS_ADDED_GIFT_CARD,
     id: id++,
     createdAt,
     data: {
@@ -710,7 +710,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_LINE_ITEMS_DELETED_GIFT_CARD,
+    kind: types.CART_LINE_ITEMS_DELETED_GIFT_CARD,
     id: id++,
     createdAt,
     data: {
@@ -719,7 +719,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_LINE_ITEMS_UPDATED_GIFT_CARD,
+    kind: types.CART_LINE_ITEMS_UPDATED_GIFT_CARD,
     id: id++,
     createdAt,
     data: {

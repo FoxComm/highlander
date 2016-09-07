@@ -28,7 +28,7 @@ export function processActivity(activity) {
 
 export function processActivities(activities) {
   return flatMap(activities, activity => {
-    if (activity.kind == types.ORDER_LINE_ITEMS_UPDATED_QUANTITIES) {
+    if (activity.kind == types.CART_LINE_ITEMS_UPDATED_QUANTITIES) {
       const { oldQuantities, newQuantities, ...restData } = activity.data;
 
       let newActivities = [];
@@ -38,7 +38,7 @@ export function processActivities(activities) {
         if (oldQuantity === quantity) return;
 
         const kind = oldQuantity > quantity ?
-          derivedTypes.ORDER_LINE_ITEMS_REMOVED_SKU : derivedTypes.ORDER_LINE_ITEMS_ADDED_SKU;
+          derivedTypes.CART_LINE_ITEMS_REMOVED_SKU : derivedTypes.CART_LINE_ITEMS_ADDED_SKU;
 
         newActivities = [...newActivities, {
           ...activity,
@@ -82,8 +82,8 @@ export function fetchActivityTrail({dimension, objectId = null}, from) {
 
 export function mergeActivities(activities = [], newActivities) {
   const merged = updateItems(activities, newActivities, activity => {
-    if (activity.kind === derivedTypes.ORDER_LINE_ITEMS_REMOVED_SKU ||
-      activity.kind === derivedTypes.ORDER_LINE_ITEMS_ADDED_SKU) {
+    if (activity.kind === derivedTypes.CART_LINE_ITEMS_REMOVED_SKU ||
+      activity.kind === derivedTypes.CART_LINE_ITEMS_ADDED_SKU) {
       return `${activity.id}-${activity.data.skuName}`;
     }
 

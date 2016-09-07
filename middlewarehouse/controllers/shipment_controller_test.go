@@ -116,14 +116,15 @@ func (suite *shipmentControllerTestSuite) Test_UpdateShipment_Found_ReturnsRecor
 	shipment1 := fixtures.GetShipmentShort(uint(1))
 	shipmentLineItem1 := *fixtures.GetShipmentLineItem(uint(1), shipment1.ID, 0)
 	shipmentLineItem2 := *fixtures.GetShipmentLineItem(uint(2), shipment1.ID, 0)
+
 	suite.shipmentService.
-		On("UpdateShipment", fixtures.GetShipment(shipment1.ID, shipment1.ShippingMethodID, &models.ShippingMethod{},
+		On("UpdateShipment", fixtures.GetShipment(shipment1.ID, "", shipment1.ShippingMethodID, &models.ShippingMethod{},
 			shipment1.AddressID, &shipment1.Address, []models.ShipmentLineItem{shipmentLineItem1, shipmentLineItem2})).
 		Return(shipment1, nil).Once()
 
 	//act
 	shipment := &responses.Shipment{}
-	response := suite.Put("/shipments/1", fixtures.ToShipmentPayload(shipment1), shipment)
+	response := suite.Patch("/shipments/1", fixtures.ToShipmentPayload(shipment1), shipment)
 
 	//assert
 	suite.Equal(http.StatusOK, response.Code)

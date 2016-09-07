@@ -42,9 +42,10 @@ const representatives = {
   },
   [types.STORE_CREDIT_AUTHORIZED_FUNDS]: {
     title: data => {
+      const order = data.order || data.cart;
       return (
         <span>
-          <strong>authorized funds</strong> for <OrderTarget order={data.order} />
+          <strong>authorized funds</strong> for <OrderTarget order={order} />
           &nbsp;with amount <Currency value={data.amount} /> from store credit.
         </span>
       );
@@ -52,9 +53,11 @@ const representatives = {
   },
   [types.STORE_CREDIT_CAPTURED_FUNDS]: {
     title: data => {
+      const order = data.order || data.cart;
+
       return (
         <span>
-          <strong>captured funds</strong> for <OrderTarget order={data.order} />
+          <strong>captured funds</strong> for <OrderTarget order={order} />
           &nbsp;with amount <Currency value={data.amount} /> from store credit.
         </span>
       );

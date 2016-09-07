@@ -120,7 +120,7 @@ class ProductsQualifier extends Component {
           return acc;
         }, {});
 
-      const indexedReferences = _.indexBy(references, 'referenceId');
+      const indexedReferences = _.keyBy(references, 'referenceId');
 
       let counter = 1;
       const initialItems = _.transform(productSearches, (items, title, id) => {

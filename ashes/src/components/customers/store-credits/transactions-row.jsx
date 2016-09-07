@@ -1,25 +1,31 @@
+/* @flow */
 
 // libs
 import _ from 'lodash';
-import React, { PropTypes } from 'react';
+import React from 'react';
 
 // components
 import MultiSelectRow from '../../table/multi-select-row';
 import OriginType from '../../common/origin-type';
 
-const setCellContents = (txn, field) => {
-  if (field === 'debit') {
-    return (-1) * _.get(txn, field, null);
+const setCellContents = (transaction, field) => {
+  switch(field) {
+    case 'debit': return (-1) * _.get(transaction, field, null);
+    case 'transaction': return <OriginType value={transaction}/>;
+    case 'state':
+      const state = _.get(transaction, field);
+      return state.charAt(0).toUpperCase() + state.slice(1);
+    default: return _.get(transaction, field, null);
   }
-  if (field === 'transaction') {
-    return (
-      <OriginType value={txn}/>
-    );
-  }
-  return _.get(txn, field, null);
 };
 
-const StoreCreditTransactionRow = props => {
+type Props = {
+  storeCreditTransaction: Object,
+  columns: Array<any>,
+  params: Object,
+};
+
+const StoreCreditTransactionRow = (props: Props) => {
   const { storeCreditTransaction, columns, params } = props;
 
   const key = `sc-transaction-${storeCreditTransaction.id}`;
@@ -31,12 +37,6 @@ const StoreCreditTransactionRow = props => {
       setCellContents={setCellContents}
       params={params} />
   );
-};
-
-StoreCreditTransactionRow.propTypes = {
-  storeCreditTransaction: PropTypes.object.isRequired,
-  columns: PropTypes.array.isRequired,
-  params: PropTypes.object.isRequired,
 };
 
 export default StoreCreditTransactionRow;

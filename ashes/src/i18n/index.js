@@ -6,7 +6,7 @@ export function regionName(countryCode) {
     return 'Province';
   }
   // USA & India have states
-  return _.contains(['US', 'IN'], countryCode) ? 'State' : 'Region';
+  return _.includes(['US', 'IN'], countryCode) ? 'State' : 'Region';
 }
 
 export function zipName(countryCode) {

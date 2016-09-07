@@ -15,52 +15,57 @@ const paymentMethodTitles = {
 
 
 const representatives = {
-  [types.ORDER_PAYMENT_METHOD_ADDED_CREDIT_CARD]: {
+  [types.CART_PAYMENT_METHOD_ADDED_CREDIT_CARD]: {
     title: (data, activity) => {
+      const order = data.order || data.cart;
       return (
         <Title activity={activity}>
           <strong>added credit card</strong> ending in {data.creditCard.lastFour}
-          &nbsp;as payment method for <OrderTarget order={data.order} />
+          &nbsp;as payment method for <OrderTarget order={order} />
         </Title>
       );
     },
   },
-  [types.ORDER_PAYMENT_METHOD_ADDED_GIFT_CARD]: {
+  [types.CART_PAYMENT_METHOD_ADDED_GIFT_CARD]: {
     title: (data, activity) => {
+      const order = data.order || data.cart;
       return (
         <Title activity={activity}>
           <strong>added gift card</strong> with code <GiftCardLink {...data.giftCard} />
-          &nbsp;as payment method for <OrderTarget order={data.order} />
+          &nbsp;as payment method for <OrderTarget order={order} />
         </Title>
       );
     },
   },
-  [types.ORDER_PAYMENT_METHOD_DELETED_GIFT_CARD]: {
+  [types.CART_PAYMENT_METHOD_DELETED_GIFT_CARD]: {
     title: (data, activity) => {
+      const order = data.order || data.cart;
       return (
         <Title activity={activity}>
           <strong>removed gift card</strong> with code <GiftCardLink {...data.giftCard} />
-          &nbsp;from payment method for <OrderTarget order={data.order} />
+          &nbsp;from payment method for <OrderTarget order={order} />
         </Title>
       );
     },
   },
-  [types.ORDER_PAYMENT_METHOD_ADDED_STORE_CREDIT]: {
+  [types.CART_PAYMENT_METHOD_ADDED_STORE_CREDIT]: {
     title: (data, activity) => {
+      const order = data.order || data.cart;
       return (
         <Title activity={activity}>
           <strong>added store credit</strong> with amount <Currency value={data.amount} />
-          &nbsp;as payment method for <OrderTarget order={data.order} />
+          &nbsp;as payment method for <OrderTarget order={order} />
         </Title>
       );
     },
   },
-  [types.ORDER_PAYMENT_METHOD_DELETED]: {
+  [types.CART_PAYMENT_METHOD_DELETED]: {
     title: (data, activity) => {
+      const order = data.order || data.cart;
       return (
         <Title activity={activity}>
           <strong>removed payment method</strong> {paymentMethodTitles[data.pmt]}
-          &nbsp;from <OrderTarget order={data.order} />
+          &nbsp;from <OrderTarget order={order} />
         </Title>
       );
     },

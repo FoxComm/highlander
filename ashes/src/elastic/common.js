@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { map, flow, compact } from 'lodash/fp';
 import moment from 'moment';
 import * as dsl from './dsl';
 
@@ -139,10 +140,10 @@ function createNestedFilter(filter) {
 // uses nested strategy for nested filters
 
 export function convertFilters(filters) {
-  return _.chain(filters)
-    .map(filter => isNestedFilter(filter) ? createNestedFilter(filter) : createFilter(filter))
-    .compact()
-    .value();
+  return flow(
+    map(filter => isNestedFilter(filter) ? createNestedFilter(filter) : createFilter(filter)),
+    compact
+  )(filters);
 }
 
 function dateRangeFilter(field, operator, value) {
@@ -169,7 +170,7 @@ function dateRangeFilter(field, operator, value) {
 export function rangeToFilter(field, operator, value) {
   if (operator == 'eq') {
     return dsl.termFilter(field, value);
-  } else if (_.contains(operator, '__') && _.isArray(value)) {
+  } else if (_.includes(operator, '__') && _.isArray(value)) {
     const [op1, op2] = operator.split('__');
 
     return dsl.rangeFilter(field, {
