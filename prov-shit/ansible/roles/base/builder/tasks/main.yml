@@ -36,7 +36,7 @@
   tags: isaac
 
 - name: Get Proxygen
-  git: repo=https://github.com/facebook/proxygen.git dest={{proxygen_install_dir}} version={{proxygen_version}}
+  git: repo=https://github.com/facebook/proxygen.git dest={{proxygen_install_dir}} version={{proxygen_version}} force=yes
   tags: isaac
 
 - name: Get Folly
@@ -75,6 +75,10 @@
   sudo: true
   with_items:
     - glide
+
+- name: Install Package for Ansible Lint
+  apt: name=libffi-dev state=latest force=yes
+  sudo: true
 
 - name: Install ansible-lint
   pip: name=ansible-lint
