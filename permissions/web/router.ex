@@ -15,6 +15,9 @@ defmodule Permissions.Router do
     resources "/scopes", ScopeController, as: :fc_scope
     resources "/systems", SystemController
     resources "/permissions", PermissionController
-    resources "/accounts", AccountController
+    resources "/accounts", AccountController do 
+      resources "/granted_roles", AccountRoleController
+      resources "/granted_permissions", AccountsPermissionController
+    end
   end
 end

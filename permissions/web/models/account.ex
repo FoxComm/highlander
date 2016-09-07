@@ -4,6 +4,9 @@ defmodule Permissions.Account do
   schema "accounts" do
     field :name, :string
     field :ratchet, :integer
+
+    has_many :account_roles, Permissions.AccountRole
+    has_many :roles, through: [:account_roles, :role]
   end
 
   def changeset(model, params \\ :empty) do 
