@@ -7,11 +7,11 @@ defmodule Permissions.AccountRoleController do
   def index(conn, %{"account_id" => account_id}) do 
     account_roles = 
       Repo.all(account_roles(account_id))
-      |> Repo.preload(:permission)
+      |> Repo.preload(:role)
     render(conn, "index.json", account_roles: account_roles)
   end
 
-  def create(conn, %{"granted_permission" => account_role_params, "account_id" => account_id}) do
+  def create(conn, %{"granted_role" => account_role_params, "account_id" => account_id}) do
     changeset = AccountRole.changeset(%AccountRole{account_id: String.to_integer(account_id)}, account_role_params)
 
     case Repo.insert(changeset) do

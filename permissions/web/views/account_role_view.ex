@@ -12,8 +12,10 @@ defmodule Permissions.AccountRoleView do
     %{granted_role: render_one(account_role, PermissionView, "account_role.json")}
   end
 
+  # We add 'grant_' in front of id to help the API consumer know that this is explicitly
+  # the id for the mapping, and not the role itself.
   def render("account_role.json", %{account_role: account_role}) do
-    %{id: account_role.id,
+    %{grant_id: account_role.id,
       role_id: account_role.role_id
     }
   end
