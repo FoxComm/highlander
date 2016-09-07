@@ -6,6 +6,7 @@ const Api = require('../lib/index').default;
 function getApi() {
   return new Api({
     api_url: 'http://api.foxcommerce',
+    stripe_key: 'not_used_here',
   });
 }
 

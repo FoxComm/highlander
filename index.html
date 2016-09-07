@@ -52,7 +52,7 @@
 <div class='section-comments'></div>
 
 
-<pre><code class="lang-js">const api = new FoxApi({api_url: &#39;http://api.foxcommerce&#39;});
+<pre><code class="lang-js">const api = new FoxApi({api_url: &#39;http://api.foxcommerce&#39;, stripe_key: &#39;abcdef1234567890&#39;});
 api.products.search({state: &#39;cart&#39;});
 </code></pre>
 
@@ -83,6 +83,12 @@ api.products.search({state: &#39;cart&#39;});
 		<td><code>String</code>
 		<td><code></code></td>
 		<td>Required option. Should point to phoenix backend.</td>
+	</tr>
+	<tr id='foxapi-stripe_key'>
+		<td><code><b>stripe_key</b></code></td>
+		<td><code>String</code>
+		<td><code></code></td>
+		<td>Required option. Should contain Stripe.js publishable key. <a href="https://stripe.com/docs/stripe.js#setting-publishable-key">https://stripe.com/docs/stripe.js#setting-publishable-key</a></td>
 	</tr>
 </tbody></table>
 
@@ -215,6 +221,97 @@ You can define jwt string via <code>addAuth</code> method, if there is no jwt st
 </section>
 
 </section>
+<span id='region'></span>
+
+<section>
+<h3 id='region-field'>Region</h3>
+
+<section >
+
+
+
+<div class='section-comments'></div>
+
+<table><thead>
+<tr>
+    <th>Field</th>
+    <th>Type</th>
+    <th>Required</th>
+    <th>Example</th>
+    <th>Description</th>
+</tr>
+</thead><tbody>
+    <tr id='region-id'>
+        <td><code><b>id</b></code></td>
+        <td><code>Number</code>
+        <td><div data-icon="ei-check"></div></td>
+        <td>1</td>
+        <td>Unique identifier.</td>
+    </tr>
+    <tr id='region-countryid'>
+        <td><code><b>countryId</b></code></td>
+        <td><code>Number</code>
+        <td><div data-icon="ei-check"></div></td>
+        <td>2794</td>
+        <td>Country unique identifier.</td>
+    </tr>
+    <tr id='region-name'>
+        <td><code><b>name</b></code></td>
+        <td><code>String</code>
+        <td><div data-icon="ei-check"></div></td>
+        <td><code>Washington</code></td>
+        <td>Region name.</td>
+    </tr>
+</tbody></table>
+
+
+</section>
+
+</section>
+<span id='shippingstate'></span>
+
+<section>
+<h3 id='shippingstate-field'>ShippingState</h3>
+
+<section >
+
+
+
+<div class='section-comments'></div>
+
+<table><thead>
+<tr>
+    <th>Field</th>
+    <th>Type</th>
+    <th>Required</th>
+    <th>Example</th>
+    <th>Description</th>
+</tr>
+</thead><tbody>
+    <tr id='shippingstate-shippingstate'>
+        <td><code><b>shippingState</b></code></td>
+        <td><code>String</code>
+        <td><div data-icon="ei-check"></div></td>
+        <td>Cart</td>
+        <td>Shipping state.
+Available values:
+<ul class="collapsible collapsed">
+<li><a href="#cart"><code>Cart</code></a></li>
+<li><code>Ordered</code></li>
+<li><code>FraudHold</code></li>
+<li><code>RemorseHold</code></li>
+<li><code>ManualHold</code></li>
+<li><code>Canceled</code></li>
+<li><code>FulfillmentStarted</code></li>
+<li><code>Shipped</code></li>
+</ul></td>
+    </tr>
+</tbody></table>
+
+
+</section>
+
+</section>
 <span id='storeadminresponse'></span>
 
 <section>
@@ -255,140 +352,6 @@ You can define jwt string via <code>addAuth</code> method, if there is no jwt st
         <td><div data-icon="ei-check"></div></td>
         <td><code>john@smith.com</code></td>
         <td>E-mail.</td>
-    </tr>
-</tbody></table>
-
-
-</section>
-
-</section>
-<span id='pagingmetadata'></span>
-
-<section>
-<h3 id='pagingmetadata-field'>PagingMetadata</h3>
-
-<section >
-
-
-
-<div class='section-comments'></div>
-
-<table><thead>
-<tr>
-    <th>Field</th>
-    <th>Type</th>
-    <th>Required</th>
-    <th>Example</th>
-    <th>Description</th>
-</tr>
-</thead><tbody>
-    <tr id='pagingmetadata-from'>
-        <td><code><b>from</b></code></td>
-        <td><code>Number</code>
-        <td></td>
-        <td>0</td>
-        <td>Start element (counting from 0) or # of elements to skip.</td>
-    </tr>
-    <tr id='pagingmetadata-size'>
-        <td><code><b>size</b></code></td>
-        <td><code>Number</code>
-        <td></td>
-        <td>10</td>
-        <td>Page size.</td>
-    </tr>
-    <tr id='pagingmetadata-pageno'>
-        <td><code><b>pageNo</b></code></td>
-        <td><code>Number</code>
-        <td></td>
-        <td>1</td>
-        <td>Page number (counting from 1).</td>
-    </tr>
-    <tr id='pagingmetadata-total'>
-        <td><code><b>total</b></code></td>
-        <td><code>Number</code>
-        <td></td>
-        <td>35</td>
-        <td>Total number of elements found.</td>
-    </tr>
-</tbody></table>
-
-
-</section>
-
-</section>
-<span id='sortingmetadata'></span>
-
-<section>
-<h3 id='sortingmetadata-field'>SortingMetadata</h3>
-
-<section >
-
-
-
-<div class='section-comments'></div>
-
-<table><thead>
-<tr>
-    <th>Field</th>
-    <th>Type</th>
-    <th>Required</th>
-    <th>Example</th>
-    <th>Description</th>
-</tr>
-</thead><tbody>
-    <tr id='sortingmetadata-sortby'>
-        <td><code><b>sortBy</b></code></td>
-        <td><code>String</code>
-        <td></td>
-        <td><code>lastName</code></td>
-        <td>Field to sort by (<code>-fieldName</code> for descending order).</td>
-    </tr>
-</tbody></table>
-
-
-</section>
-
-</section>
-<span id='resultmetadata'></span>
-
-<section>
-<h3 id='resultmetadata-field'>ResultMetadata</h3>
-
-<section >
-
-
-
-<div class='section-comments'></div>
-
-<table><thead>
-<tr>
-    <th>Field</th>
-    <th>Type</th>
-    <th>Required</th>
-    <th>Example</th>
-    <th>Description</th>
-</tr>
-</thead><tbody>
-    <tr id='resultmetadata-pagination'>
-        <td><code><b>pagination</b></code></td>
-        <td><code><a href='#pagingmetadata'>PagingMetadata</a></code>
-        <td></td>
-        <td></td>
-        <td>Pagination metadata.</td>
-    </tr>
-    <tr id='resultmetadata-sorting'>
-        <td><code><b>sorting</b></code></td>
-        <td><code><a href='#sortingmetadata'>SortingMetadata</a></code>
-        <td></td>
-        <td></td>
-        <td>Sorting metadata.</td>
-    </tr>
-    <tr id='resultmetadata-errors'>
-        <td><code><b>errors</b></code></td>
-        <td><code>Array&lt;String&gt;</code>
-        <td></td>
-        <td><code>List of possible errors and warnings</code></td>
-        <td>List of possible errors.</td>
     </tr>
 </tbody></table>
 
@@ -462,7 +425,7 @@ You can define jwt string via <code>addAuth</code> method, if there is no jwt st
         <td><code><b>createdAt</b></code></td>
         <td><code>String</code>
         <td><div data-icon="ei-check"></div></td>
-        <td><code>2015-09-10T14:55:50Z</code></td>
+        <td><code>2020-01-01T12:00:00Z</code></td>
         <td>Creation date.</td>
     </tr>
     <tr id='customerbase-disabled'>
@@ -615,7 +578,7 @@ You can define jwt string via <code>addAuth</code> method, if there is no jwt st
         <td><code><b>createdAt</b></code></td>
         <td><code>String</code>
         <td><div data-icon="ei-check"></div></td>
-        <td><code>2015-09-10T14:55:50Z</code></td>
+        <td><code>2020-01-01T12:00:00Z</code></td>
         <td>Creation date.</td>
     </tr>
     <tr id='customerresponse-disabled'>
@@ -755,7 +718,7 @@ Available values:
         <td><code><b>createdAt</b></code></td>
         <td><code>String</code>
         <td><div data-icon="ei-check"></div></td>
-        <td><code>2015-09-10T14:55:50Z</code></td>
+        <td><code>2020-01-01T12:00:00Z</code></td>
         <td>Creation date.</td>
     </tr>
     <tr id='giftcardbase-code'>
@@ -938,7 +901,7 @@ Available values:
         <td><code><b>createdAt</b></code></td>
         <td><code>String</code>
         <td><div data-icon="ei-check"></div></td>
-        <td><code>2015-09-10T14:55:50Z</code></td>
+        <td><code>2020-01-01T12:00:00Z</code></td>
         <td>Creation date.</td>
     </tr>
     <tr id='giftcard-code'>
@@ -1145,7 +1108,7 @@ In case if err is Error itself returns array of single element - that error as a
 	</thead><tbody>
 	<tr id='addresses-list'>
 		<td><code><b>list</b>(<nobr>&lt;<a href='#query-options'>Query options</a>&gt;</nobr> <i>options</i>)</nobr></code></td>
-		<td><code>Promise&lt;<a href='#addressesresponse'>AddressesResponse</a>&gt;</code></td>
+		<td><code>Promise&lt;AddressesResponse&gt;</code></td>
 		<td>Choices for <code>options.sortBy</code> parameter:
 <ul class="collapsible collapsed">
   <li><code>id</code></li>
@@ -1281,53 +1244,6 @@ In case if err is Error itself returns array of single element - that error as a
         <td></td>
         <td>false</td>
         <td>Default or not in address book.</td>
-    </tr>
-</tbody></table>
-
-
-</section>
-
-</section>
-<span id='region'></span>
-
-<section>
-<h3 id='region-field'>Region</h3>
-
-<section >
-
-
-
-<div class='section-comments'></div>
-
-<table><thead>
-<tr>
-    <th>Field</th>
-    <th>Type</th>
-    <th>Required</th>
-    <th>Example</th>
-    <th>Description</th>
-</tr>
-</thead><tbody>
-    <tr id='region-id'>
-        <td><code><b>id</b></code></td>
-        <td><code>Number</code>
-        <td><div data-icon="ei-check"></div></td>
-        <td>1</td>
-        <td>Unique identifier.</td>
-    </tr>
-    <tr id='region-countryid'>
-        <td><code><b>countryId</b></code></td>
-        <td><code>Number</code>
-        <td><div data-icon="ei-check"></div></td>
-        <td>2794</td>
-        <td>Country unique identifier.</td>
-    </tr>
-    <tr id='region-name'>
-        <td><code><b>name</b></code></td>
-        <td><code>String</code>
-        <td><div data-icon="ei-check"></div></td>
-        <td><code>Washington</code></td>
-        <td>Region name.</td>
     </tr>
 </tbody></table>
 
@@ -1497,83 +1413,6 @@ In case if err is Error itself returns array of single element - that error as a
 
 
 </section>
-
-</section>
-<span id='addressesresponse'></span>
-
-<section>
-<h3 id='addressesresponse-field'>AddressesResponse</h3>
-
-<section >
-
-
-
-<div class='section-comments'></div>
-
-<table><thead>
-<tr>
-    <th>Field</th>
-    <th>Type</th>
-    <th>Required</th>
-    <th>Example</th>
-    <th>Description</th>
-</tr>
-</thead><tbody>
-    <tr id='addressesresponse-result'>
-        <td><code><b>result</b></code></td>
-        <td><code>Array&lt;<a href='#address'>Address</a>&gt;</code>
-        <td><div data-icon="ei-check"></div></td>
-        <td></td>
-        <td>The resulting list of Addresses.</td>
-    </tr>
-</tbody></table>
-
-
-</section>
-
-<div class='accordion'>
-	<label><span class='expander'>▶</span> Fields inherited from <a href='#resultmetadata'>ResultMetadata</a></label>
-	<div class='accordion-content'><section >
-
-
-
-<div class='section-comments'></div>
-
-<table><thead>
-<tr>
-    <th>Field</th>
-    <th>Type</th>
-    <th>Required</th>
-    <th>Example</th>
-    <th>Description</th>
-</tr>
-</thead><tbody>
-    <tr id='addressesresponse-pagination'>
-        <td><code><b>pagination</b></code></td>
-        <td><code><a href='#pagingmetadata'>PagingMetadata</a></code>
-        <td><div data-icon="ei-check"></div></td>
-        <td></td>
-        <td>Pagination metadata.</td>
-    </tr>
-    <tr id='addressesresponse-sorting'>
-        <td><code><b>sorting</b></code></td>
-        <td><code><a href='#sortingmetadata'>SortingMetadata</a></code>
-        <td><div data-icon="ei-check"></div></td>
-        <td></td>
-        <td>Sorting metadata.</td>
-    </tr>
-    <tr id='addressesresponse-errors'>
-        <td><code><b>errors</b></code></td>
-        <td><code>Array&lt;String&gt;</code>
-        <td><div data-icon="ei-check"></div></td>
-        <td><code>List of possible errors and warnings</code></td>
-        <td>List of possible errors.</td>
-    </tr>
-</tbody></table>
-
-
-</section></div>
-</div>
 
 </section>
 <h2 id='auth'>Auth</h2><p>Accessible via <a href="#foxapi-auth">auth</a> property of <a href="#foxapi">FoxApi</a> instance.</p>
@@ -1940,50 +1779,6 @@ Available values:
 </section>
 
 </section>
-<span id='shippingstate'></span>
-
-<section>
-<h3 id='shippingstate-field'>ShippingState</h3>
-
-<section >
-
-
-
-<div class='section-comments'></div>
-
-<table><thead>
-<tr>
-    <th>Field</th>
-    <th>Type</th>
-    <th>Required</th>
-    <th>Example</th>
-    <th>Description</th>
-</tr>
-</thead><tbody>
-    <tr id='shippingstate-shippingstate'>
-        <td><code><b>shippingState</b></code></td>
-        <td><code>String</code>
-        <td><div data-icon="ei-check"></div></td>
-        <td>Cart</td>
-        <td>Shipping state.
-Available values:
-<ul class="collapsible collapsed">
-<li><a href="#cart"><code>Cart</code></a></li>
-<li><code>Ordered</code></li>
-<li><code>FraudHold</code></li>
-<li><code>RemorseHold</code></li>
-<li><code>ManualHold</code></li>
-<li><code>Canceled</code></li>
-<li><code>FulfillmentStarted</code></li>
-<li><code>Shipped</code></li>
-</ul></td>
-    </tr>
-</tbody></table>
-
-
-</section>
-
-</section>
 <span id='fullorder'></span>
 
 <section>
@@ -2071,7 +1866,7 @@ Available values:
         <td><code><b>remorsePeriodEnd</b></code></td>
         <td><code>String</code>
         <td></td>
-        <td><code>2015-09-10T14:55:50Z</code></td>
+        <td><code>2020-01-01T12:00:00Z</code></td>
         <td>Remorse period end.</td>
     </tr>
     <tr id='fullorder-paymentmethods'>
@@ -2815,7 +2610,7 @@ Available values:
 		<td>Returns credit card by id.</td>
 	</tr>
 	<tr id='creditcards-add'>
-		<td><code><b>add</b>(<nobr>&lt;<a href='#creditcardcreatepayload'>CreditCardCreatePayload</a>&gt;</nobr> <i>creditCard</i>)</nobr></code></td>
+		<td><code><b>add</b>(<nobr>&lt;<a href='#creditcardcreatepayload'>CreditCardCreatePayload</a>&gt;</nobr> <i>creditCard</i>, <nobr>&lt;BillingAddressCreatePayload&gt;</nobr> <i>billingAddress</i>, <nobr>&lt;Boolean&gt;</nobr> <i>addressIsNew</i>)</nobr></code></td>
 		<td><code>Promise&lt;<a href='#creditcard'>CreditCard</a>&gt;</code></td>
 		<td>Adds new credit card.</td>
 	</tr>
@@ -2833,6 +2628,26 @@ Available values:
 		<td><code><b>delete</b>(<nobr>&lt;Number&gt;</nobr> <i>creditCardId</i>)</nobr></code></td>
 		<td><code>Promise</code></td>
 		<td>Deletes selected credit card.</td>
+	</tr>
+	<tr id='creditcards-cardtype'>
+		<td><code><b>cardType</b>(<nobr>&lt;String&gt;</nobr> <i>number</i>)</nobr></code></td>
+		<td><code>String</code></td>
+		<td>Detects credit card type</td>
+	</tr>
+	<tr id='creditcards-validatecardnumber'>
+		<td><code><b>validateCardNumber</b>(<nobr>&lt;String&gt;</nobr> <i>number</i>)</nobr></code></td>
+		<td><code>Boolean</code></td>
+		<td>Check if credit card&#39;c number is valid</td>
+	</tr>
+	<tr id='creditcards-validatecvc'>
+		<td><code><b>validateCVC</b>(<nobr>&lt;String|Number&gt;</nobr> <i>cvc</i>)</nobr></code></td>
+		<td><code>Boolean</code></td>
+		<td>Check if credit card&#39;s cvc is valid</td>
+	</tr>
+	<tr id='creditcards-validateexpiry'>
+		<td><code><b>validateExpiry</b>(<nobr>&lt;String|Number&gt;</nobr> <i>month</i>, <nobr>&lt;String|Number&gt;</nobr> <i>year</i>)</nobr></code></td>
+		<td><code>Boolean</code></td>
+		<td>Check if credit card&#39;s valid thru date is valid</td>
 	</tr>
 </tbody></table>
 
@@ -3080,56 +2895,6 @@ Available values:
 </section>
 <span id='creditcardsresponse'></span>
 
-<section>
-<h3 id=''>CreditCardsResponse</h3>
-
-
-
-<div class='accordion'>
-	<label><span class='expander'>▶</span> Fields inherited from <a href='#resultmetadata'>ResultMetadata</a></label>
-	<div class='accordion-content'><section >
-
-
-
-<div class='section-comments'></div>
-
-<table><thead>
-<tr>
-    <th>Field</th>
-    <th>Type</th>
-    <th>Required</th>
-    <th>Example</th>
-    <th>Description</th>
-</tr>
-</thead><tbody>
-    <tr id='creditcardsresponse-pagination'>
-        <td><code><b>pagination</b></code></td>
-        <td><code><a href='#pagingmetadata'>PagingMetadata</a></code>
-        <td><div data-icon="ei-check"></div></td>
-        <td></td>
-        <td>Pagination metadata.</td>
-    </tr>
-    <tr id='creditcardsresponse-sorting'>
-        <td><code><b>sorting</b></code></td>
-        <td><code><a href='#sortingmetadata'>SortingMetadata</a></code>
-        <td><div data-icon="ei-check"></div></td>
-        <td></td>
-        <td>Sorting metadata.</td>
-    </tr>
-    <tr id='creditcardsresponse-errors'>
-        <td><code><b>errors</b></code></td>
-        <td><code>Array&lt;String&gt;</code>
-        <td><div data-icon="ei-check"></div></td>
-        <td><code>List of possible errors and warnings</code></td>
-        <td>List of possible errors.</td>
-    </tr>
-</tbody></table>
-
-
-</section></div>
-</div>
-
-</section>
 <h2 id='storecredits'>StoreCredits</h2><p>Accessible via <a href="#foxapi-storecredits">storeCredits</a> property of <a href="#foxapi">FoxApi</a> instance.</p>
 
 <section>
@@ -3277,7 +3042,7 @@ Available values:
         <td><code><b>createdAt</b></code></td>
         <td><code>String</code>
         <td><div data-icon="ei-check"></div></td>
-        <td><code>2015-09-10T14:55:50Z</code></td>
+        <td><code>2020-01-01T12:00:00Z</code></td>
         <td>Creation date.</td>
     </tr>
     <tr id='storecredit-currency'>
@@ -3393,157 +3158,6 @@ Available values:
 </div>
 
 </section>
-<span id='storecreditadjustment'></span>
-
-<section>
-<h3 id='storecreditadjustment-field'>StoreCreditAdjustment</h3>
-
-<section >
-
-
-
-<div class='section-comments'></div>
-
-<table><thead>
-<tr>
-    <th>Field</th>
-    <th>Type</th>
-    <th>Required</th>
-    <th>Example</th>
-    <th>Description</th>
-</tr>
-</thead><tbody>
-    <tr id='storecreditadjustment-id'>
-        <td><code><b>id</b></code></td>
-        <td><code>Number</code>
-        <td><div data-icon="ei-check"></div></td>
-        <td>1</td>
-        <td>Unique identifier.</td>
-    </tr>
-    <tr id='storecreditadjustment-debit'>
-        <td><code><b>debit</b></code></td>
-        <td><code>Number</code>
-        <td><div data-icon="ei-check"></div></td>
-        <td>50</td>
-        <td>Debit of adjustment.</td>
-    </tr>
-    <tr id='storecreditadjustment-availablebalance'>
-        <td><code><b>availableBalance</b></code></td>
-        <td><code>Number</code>
-        <td><div data-icon="ei-check"></div></td>
-        <td>10</td>
-        <td>Current availableBalance for this SC.</td>
-    </tr>
-    <tr id='storecreditadjustment-state'>
-        <td><code><b>state</b></code></td>
-        <td><code>String</code>
-        <td><div data-icon="ei-check"></div></td>
-        <td>Auth</td>
-        <td>Gift Card state.</td>
-    </tr>
-    <tr id='storecreditadjustment-orderref'>
-        <td><code><b>orderRef</b></code></td>
-        <td><code>String</code>
-        <td><div data-icon="ei-check"></div></td>
-        <td><code>ABC-123</code></td>
-        <td>Order reference number.</td>
-    </tr>
-    <tr id='storecreditadjustment-createdat'>
-        <td><code><b>createdAt</b></code></td>
-        <td><code>String</code>
-        <td><div data-icon="ei-check"></div></td>
-        <td><code>2015-09-10T14:55:50Z</code></td>
-        <td>Creation date.
-Available values:
-<ul class="collapsible collapsed">
-<li><a href="#auth"><code>auth</code></a></li>
-<li><code>capture</code></li>
-<li><code>canceled</code></li>
-</ul></td>
-    </tr>
-</tbody></table>
-
-
-</section>
-
-</section>
-<span id='storecreditadjustments'></span>
-
-<section>
-<h3 id='storecreditadjustments-field'>StoreCreditAdjustments</h3>
-
-<section >
-
-
-
-<div class='section-comments'></div>
-
-<table><thead>
-<tr>
-    <th>Field</th>
-    <th>Type</th>
-    <th>Required</th>
-    <th>Example</th>
-    <th>Description</th>
-</tr>
-</thead><tbody>
-    <tr id='storecreditadjustments-result'>
-        <td><code><b>result</b></code></td>
-        <td><code>Array&lt;<a href='#storecreditadjustment'>StoreCreditAdjustment</a>&gt;</code>
-        <td><div data-icon="ei-check"></div></td>
-        <td></td>
-        <td>The resulting list of StoreCreditAdjustment-s.</td>
-    </tr>
-</tbody></table>
-
-
-</section>
-
-<div class='accordion'>
-	<label><span class='expander'>▶</span> Fields inherited from <a href='#resultmetadata'>ResultMetadata</a></label>
-	<div class='accordion-content'><section >
-
-
-
-<div class='section-comments'></div>
-
-<table><thead>
-<tr>
-    <th>Field</th>
-    <th>Type</th>
-    <th>Required</th>
-    <th>Example</th>
-    <th>Description</th>
-</tr>
-</thead><tbody>
-    <tr id='storecreditadjustments-pagination'>
-        <td><code><b>pagination</b></code></td>
-        <td><code><a href='#pagingmetadata'>PagingMetadata</a></code>
-        <td><div data-icon="ei-check"></div></td>
-        <td></td>
-        <td>Pagination metadata.</td>
-    </tr>
-    <tr id='storecreditadjustments-sorting'>
-        <td><code><b>sorting</b></code></td>
-        <td><code><a href='#sortingmetadata'>SortingMetadata</a></code>
-        <td><div data-icon="ei-check"></div></td>
-        <td></td>
-        <td>Sorting metadata.</td>
-    </tr>
-    <tr id='storecreditadjustments-errors'>
-        <td><code><b>errors</b></code></td>
-        <td><code>Array&lt;String&gt;</code>
-        <td><div data-icon="ei-check"></div></td>
-        <td><code>List of possible errors and warnings</code></td>
-        <td>List of possible errors.</td>
-    </tr>
-</tbody></table>
-
-
-</section></div>
-</div>
-
-</section>
 <span id='storecredittotals'></span>
 
 <section>
@@ -3615,50 +3229,6 @@ Available values:
 
 
 </section>
-
-<div class='accordion'>
-	<label><span class='expander'>▶</span> Fields inherited from <a href='#resultmetadata'>ResultMetadata</a></label>
-	<div class='accordion-content'><section >
-
-
-
-<div class='section-comments'></div>
-
-<table><thead>
-<tr>
-    <th>Field</th>
-    <th>Type</th>
-    <th>Required</th>
-    <th>Example</th>
-    <th>Description</th>
-</tr>
-</thead><tbody>
-    <tr id='storecreditsresponse-pagination'>
-        <td><code><b>pagination</b></code></td>
-        <td><code><a href='#pagingmetadata'>PagingMetadata</a></code>
-        <td><div data-icon="ei-check"></div></td>
-        <td></td>
-        <td>Pagination metadata.</td>
-    </tr>
-    <tr id='storecreditsresponse-sorting'>
-        <td><code><b>sorting</b></code></td>
-        <td><code><a href='#sortingmetadata'>SortingMetadata</a></code>
-        <td><div data-icon="ei-check"></div></td>
-        <td></td>
-        <td>Sorting metadata.</td>
-    </tr>
-    <tr id='storecreditsresponse-errors'>
-        <td><code><b>errors</b></code></td>
-        <td><code>Array&lt;String&gt;</code>
-        <td><div data-icon="ei-check"></div></td>
-        <td><code>List of possible errors and warnings</code></td>
-        <td>List of possible errors.</td>
-    </tr>
-</tbody></table>
-
-
-</section></div>
-</div>
 
 </section>
 

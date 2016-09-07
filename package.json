@@ -7,7 +7,7 @@
     "test": "mocha test",
     "build": "babel src -d lib",
     "postinstall": "postinstall-build lib 'npm run build'",
-    "docs": "node ./bin/import-docs.js && node ./bin/make-docs.js",
+    "docs": "APIARY_DOCS_PATH=../phoenix-scala/docs/api/docs/objects node ./bin/import-docs.js && node ./bin/make-docs.js",
     "prepublish": "npm run build"
   },
   "repository": {

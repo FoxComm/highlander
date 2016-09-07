@@ -234,6 +234,7 @@ const importData = {
     'CreditCard',
     'CreditCards:CreditCardsResponse',
     'CreditCardCreatePayload',
+    'BillingAddressCreatePayload',
     'CreditCardUpdatePayload'
   ],
   'StoreCredits': [

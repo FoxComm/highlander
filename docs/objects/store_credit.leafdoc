@@ -31,7 +31,7 @@ Available values:
 @field id: Number = 1
 Unique identifier.
 
-@field createdAt: String = `2015-09-10T14:55:50Z`
+@field createdAt: String = `2020-01-01T12:00:00Z`
 Creation date.
 
 @field currency: String = USD
@@ -48,40 +48,6 @@ Opening balance minus "captured" debits.
 
 @field availableBalance: Number = 50
 Opening balance minus "auth" debits.
-
-@miniclass StoreCreditAdjustment (StoreCredits)
-@aka storecreditadjustment
-
-@field id: Number = 1
-Unique identifier.
-
-@field debit: Number = 50
-Debit of adjustment.
-
-@field availableBalance: Number = 10
-Current availableBalance for this SC.
-
-@field state: String = Auth
-Gift Card state.
-
-@field orderRef: String = `ABC-123`
-Order reference number.
-
-@field createdAt: String = `2015-09-10T14:55:50Z`
-Creation date.
-Available values:
-<ul class="collapsible collapsed">
-<li>`auth`</li>
-<li>`capture`</li>
-<li>`canceled`</li>
-</ul>
-
-@miniclass StoreCreditAdjustments (StoreCredits)
-@aka storecreditadjustments
-@inherits ResultMetadata
-
-@field result: Array<StoreCreditAdjustment>
-The resulting list of StoreCreditAdjustment-s.
 
 @miniclass StoreCreditTotals (StoreCredits)
 @aka storecredittotals
