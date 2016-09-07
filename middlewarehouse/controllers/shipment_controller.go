@@ -24,7 +24,7 @@ func NewShipmentController(
 func (controller *shipmentController) SetUp(router gin.IRouter) {
 	router.GET(":referenceNumber", controller.getShipmentsByReferenceNumber())
 	router.POST("", controller.createShipment())
-	router.PUT(":id", controller.updateShipment())
+	router.PATCH(":id", controller.updateShipment())
 	router.POST("from-order", controller.createShipmentFromOrder())
 }
 
@@ -65,7 +65,7 @@ func (controller *shipmentController) createShipment() gin.HandlerFunc {
 
 func (controller *shipmentController) updateShipment() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		payload := &payloads.Shipment{}
+		payload := &payloads.UpdateShipment{}
 		if parse(context, payload) != nil {
 			return
 		}
@@ -75,7 +75,7 @@ func (controller *shipmentController) updateShipment() gin.HandlerFunc {
 			return
 		}
 
-		model := models.NewShipmentFromPayload(payload)
+		model := models.NewShipmentFromUpdatePayload(payload)
 		model.ID = id
 		for i, _ := range model.ShipmentLineItems {
 			model.ShipmentLineItems[i].ShipmentID = model.ID

@@ -5,6 +5,9 @@ defmodule Permissions.Role do
     field :name, :string
 
     belongs_to :scope, Permissions.Scope
+
+    has_many :role_permissions, Permissions.RolePermission
+    has_many :permissions, through: [:role_permissions, :permission]
   end
 
   def changeset(model, params \\ :empty) do

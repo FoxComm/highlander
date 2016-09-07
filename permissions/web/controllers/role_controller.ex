@@ -25,7 +25,9 @@ defmodule Permissions.RoleController do
   end
 
   def show(conn, %{"id" => id}) do
-    role = Repo.get!(Role, id)
+    role = 
+      Repo.get!(Role, id)
+      |> Repo.preload(:permissions)
     render(conn, "show.json", role: role)
   end
 

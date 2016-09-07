@@ -17,7 +17,7 @@ import models.cord._
 import models.customer._
 import models.location.{Addresses, Regions}
 import models.payment.PaymentMethod
-import models.payment.creditcard.{CreditCard, CreditCards}
+import models.payment.creditcard.{CreditCard, CreditCards, CreditCardCharge, CreditCardCharges}
 import models.returns._
 import models.shipping.Shipment.Shipped
 import models.shipping.{Shipment, Shipments}
@@ -225,23 +225,19 @@ class CustomerIntegrationTest
 
     "ranking" - {
       "customer must be with rank" in new FixtureForRanking {
-        pending
-        CustomersRanks.refresh.futureValue
 
         // check that states used in sql still actual
-        sqlu"UPDATE orders SET state = 'shipped' WHERE reference_number = ${order.refNum}"
-          .run()
-          .futureValue
-        sqlu"UPDATE rmas SET state = 'complete' WHERE id = ${orderPayment.id}".gimme
+        sqlu"UPDATE orders SET state = 'shipped' WHERE reference_number = ${order.refNum}".gimme
+        sql"SELECT public.update_customers_ranking()".as[Boolean].gimme
 
         val response = GET(s"v1/customers/${customer.id}")
         response.status must === (StatusCodes.OK)
         response.as[CustomerResponse.Root].rank must === (Some(2))
         val rank  = CustomersRanks.findById(customer.id).extract.result.head.gimme
         val rank2 = CustomersRanks.findById(customer2.id).extract.result.head.gimme
-        rank.revenue must === (63)
-        rank2.revenue must === (100)
-        rank2.rank must === (1)
+        rank.revenue must === (charge1.amount)
+        rank2.revenue must === (charge2.amount)
+        rank2.rank must === (Some(1))
       }
     }
   }
@@ -738,38 +734,42 @@ class CustomerIntegrationTest
   }
 
   trait FixtureForRanking extends EmptyCustomerCart_Baked with CreditCardFixture {
-    val (order, orderPayment, customer2) = (for {
+    val (order, orderPayment, customer2, charge1, charge2) = (for {
       customer2 ← * <~ Customers.create(
                      Factories.customer.copy(email = "second@example.org".some,
                                              name = "second".some))
       cart2  ← * <~ Carts.create(Cart(customerId = customer2.id, referenceNumber = "ABC-456"))
       order  ← * <~ Orders.createFromCart(cart)
-      order  ← * <~ Orders.update(order, order.copy(state = Order.FulfillmentStarted))
-      order  ← * <~ Orders.update(order, order.copy(state = Order.Shipped))
       order2 ← * <~ Orders.createFromCart(cart2)
-      order2 ← * <~ Orders.update(order2, order2.copy(state = Order.FulfillmentStarted))
-      order2 ← * <~ Orders.update(order2, order2.copy(state = Order.Shipped))
       orderPayment ← * <~ OrderPayments.create(
                         Factories.orderPayment.copy(cordRef = order.refNum,
                                                     paymentMethodId = creditCard.id,
                                                     amount = None))
+      creditCardCharge1 ← * <~ CreditCardCharges.create(
+                             CreditCardCharge(
+                                 creditCardId = creditCard.id,
+                                 orderPaymentId = orderPayment.id,
+                                 chargeId = "asd",
+                                 state = CreditCardCharge.FullCapture,
+                                 amount = 100
+                             ))
       orderPayment2 ← * <~ OrderPayments.create(
                          Factories.orderPayment.copy(cordRef = order2.refNum,
                                                      paymentMethodId = creditCard.id,
                                                      amount = None))
-      rma ← * <~ Returns.create(
-               Factories.rma.copy(referenceNumber = "ABC-123.1",
-                                  orderId = order.id,
-                                  orderRef = order.refNum,
-                                  state = Return.Complete,
-                                  customerId = customer.id))
-      returnPayment ← * <~ sqlu"""insert into return_payments(return_id, payment_method_id, payment_method_type,
-                            amount,
-                            currency)
-              values(${rma.id}, ${creditCard.id}, ${PaymentMethod.Type.show(
-                         PaymentMethod.CreditCard)}, 37,
-               ${Currency.USD.toString})
-            """
-    } yield (order, orderPayment, customer2)).gimme
+      creditCardCharge2 ← * <~ CreditCardCharges.create(
+                             CreditCardCharge(
+                                 creditCardId = creditCard.id,
+                                 orderPaymentId = orderPayment2.id,
+                                 chargeId = "asd",
+                                 state = CreditCardCharge.FullCapture,
+                                 amount = 1000000
+                             ))
+      order  ← * <~ Orders.update(order, order.copy(state = Order.FulfillmentStarted))
+      order  ← * <~ Orders.update(order, order.copy(state = Order.Shipped))
+      order2 ← * <~ Orders.update(order2, order2.copy(state = Order.FulfillmentStarted))
+      order2 ← * <~ Orders.update(order2, order2.copy(state = Order.Shipped))
+
+    } yield (order, orderPayment, customer2, creditCardCharge1, creditCardCharge2)).gimme
   }
 }
