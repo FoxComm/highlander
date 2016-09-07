@@ -12,16 +12,17 @@ defmodule Permissions.AccountPermissionController do
   alias Permissions.Account
   alias Permissions.Permission
 
-  def index(conn, %{"account_id" => account_id}) do 
-    account_permissions = 
-      Repo.all(account_roles(account_id))
-      |> Enum.flat_map( fn(ar) -> 
-        Repo.all(role_permissions(ar.role_id))
-        |> Enum.flat_map( fn(rp) -> 
-          Repo.get!(Permission, rp.permission_id)
-        end)
-      end)
-                #Repo.get!(Permission, permission_id)
+  def index(conn, %{"account_id" => account_id}) do
+    ac_id = String.to_integer(account_id)
+    account_permissions = Repo.all(
+      from account in Account,
+      join: account_roles in assoc(account, :account_roles),
+      join: role in assoc(account_roles, :role),
+      join: permissions in assoc(role, :permissions),
+      where: account.id == ^ac_id,
+      select: %{
+        permission_id: permissions.id
+      })
     render(conn, "index.json", account_permissions: account_permissions)
   end
 
