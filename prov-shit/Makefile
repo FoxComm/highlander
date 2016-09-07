@@ -106,9 +106,6 @@ tf-aws-target:
 tf-stage:
 	terraform $(TF_CMD) -state=$(TF_ENVS)/gce_dev/terraform.tfstate -var-file=$(TF_ENVS)/gce_dev/dev.tfvars $(TF_BASE)/gce_dev
 
-tf-prodsmall:
-	terraform $(TF_CMD) -state=$(TF_ENVS)/gce_prodsmall/terraform.tfstate -var-file=$(TF_ENVS)/gce_prodsmall/prodsmall.tfvars $(TF_BASE)/gce_prodsmall
-
 tf-vanilla:
 	terraform $(TF_CMD) -state=$(TF_ENVS)/gce_vanilla/terraform.tfstate -var-file=$(TF_ENVS)/gce_vanilla/vanilla.tfvars $(TF_BASE)/gce_vanilla
 
