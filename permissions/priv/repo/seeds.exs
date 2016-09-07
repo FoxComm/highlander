@@ -19,12 +19,15 @@ alias Permissions.RolePermission
 alias Permissions.RoleArchetype
 alias Permissions.Scope
 alias Permissions.Permission
+alias Permissions.AccountRole
 
 
-Repo.insert! %Account{
-  name: "User123",
-  ratchet: 3
-}
+accounts = for num <- 1..3 do 
+  Repo.insert! %Account{
+    name: "User#{num}",
+    ratchet: 3
+  }
+end
 
 Repo.insert! %System{
   name: "OMS",
@@ -94,6 +97,14 @@ role_permissions =
     Repo.insert! %RolePermission{
       role_id: role.id, 
       permission_id: permission.id
+    }
+  end
+
+account_roles = 
+  for account <- accounts, role <- roles do
+    Repo.insert! %AccountRole{
+      account_id: account.id,
+      role_id: role.id
     }
   end
 
