@@ -3,10 +3,8 @@ import java.time.Instant
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
-import failures.ArchiveFailures.{LinkArchivedSkuFailure, _}
-import failures.ObjectFailures.ObjectContextNotFound
+import failures.ArchiveFailures.LinkArchivedSkuFailure
 import models.inventory.Skus
-import models.objects.ObjectContexts
 import models.product._
 import org.json4s.JsonDSL._
 import payloads.VariantPayloads._
@@ -14,11 +12,15 @@ import responses.VariantResponses.IlluminatedVariantResponse
 import responses.VariantValueResponses.IlluminatedVariantValueResponse
 import responses.VariantValueResponses.IlluminatedVariantValueResponse.Root
 import services.product.ProductManager
-import util.IntegrationTestBase
-import utils.db._
+import util._
 import utils.Money.Currency
+import utils.db._
 
-class VariantIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
+class VariantIntegrationTest
+    extends IntegrationTestBase
+    with HttpSupport
+    with AutomaticAuth
+    with MockedApis {
 
   "POST v1/variants/:context" - {
     "Creates a variant successfully" in new Fixture {

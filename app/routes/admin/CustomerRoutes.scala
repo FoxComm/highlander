@@ -113,9 +113,9 @@ object CustomerRoutes {
                 CreditCardManager.toggleCreditCardDefault(customerId, cardId, payload.isDefault)
               }
           } ~
-          (post & pathEnd & entity(as[CreateCreditCard])) { payload ⇒
+          (post & pathEnd & entity(as[CreateCreditCardFromTokenPayload])) { payload ⇒
             mutateOrFailures {
-              CreditCardManager.createCardThroughGateway(customerId, payload, Some(admin))
+              CreditCardManager.createCardFromToken(customerId, payload, Some(admin))
             }
           } ~
           (patch & path(IntNumber) & pathEnd & entity(as[EditCreditCard])) { (cardId, payload) ⇒

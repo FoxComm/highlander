@@ -10,7 +10,7 @@ import models.customer.Customers
 import models.location._
 import models.payment.PaymentMethod
 import models.traits.Addressable
-import payloads.PaymentPayloads.CreateCreditCard
+import payloads.PaymentPayloads.{CreateCreditCardFromSourcePayload, CreateCreditCardFromTokenPayload}
 import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils._
@@ -81,11 +81,32 @@ case class CreditCard(id: Int = 0,
 }
 
 object CreditCard {
-  def build(customerId: Int,
-            sCust: StripeCustomer,
-            card: StripeCard,
-            p: CreateCreditCard,
-            a: Address): CreditCard = {
+  def buildFromToken(customerId: Int,
+                     customerToken: String,
+                     cardToken: String,
+                     payload: CreateCreditCardFromTokenPayload,
+                     address: Address): CreditCard =
+    CreditCard(customerId = customerId,
+               gatewayCustomerId = customerToken,
+               gatewayCardId = cardToken,
+               brand = payload.brand,
+               lastFour = payload.lastFour,
+               expMonth = payload.expMonth,
+               expYear = payload.expYear,
+               holderName = payload.holderName,
+               addressName = address.name,
+               regionId = address.regionId,
+               address1 = address.address1,
+               address2 = address.address2,
+               zip = address.zip,
+               city = address.city)
+
+  @deprecated(message = "Use `buildFromToken` instead", "Until we are PCI compliant")
+  def buildFromSource(customerId: Int,
+                      sCust: StripeCustomer,
+                      card: StripeCard,
+                      p: CreateCreditCardFromSourcePayload,
+                      a: Address): CreditCard = {
     CreditCard(customerId = customerId,
                gatewayCustomerId = sCust.getId,
                gatewayCardId = card.getId,

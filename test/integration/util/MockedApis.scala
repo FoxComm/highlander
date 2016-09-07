@@ -4,17 +4,49 @@ import java.io.File
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import org.mockito.Matchers._
+import com.stripe.model.{DeletedExternalAccount, ExternalAccount}
+import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import services.Result
-import utils.ElasticsearchApi
+import utils.TestStripeSupport.randomStripeishId
 import utils.aliases._
+import utils.aliases.stripe._
 import utils.apis._
+import utils.{ElasticsearchApi, TestStripeSupport}
 
 trait MockedApis extends MockitoSugar {
 
-  lazy val stripeApiMock = mock[StripeApi]
+  val stripeCustomer = {
+    val stripeCustomer = new StripeCustomer
+    stripeCustomer.setId(s"cus_$randomStripeishId")
+    stripeCustomer
+  }
+
+  val stripeCard = {
+    val stripeCard = spy(new StripeCard)
+    doReturn(s"card_$randomStripeishId", Nil: _*).when(stripeCard).getId
+    stripeCard
+  }
+
+  lazy val stripeApiMock: StripeApi = initStripeApiMock(mock[StripeApi])
+
+  def initStripeApiMock(mocked: StripeApi): StripeApi = {
+    reset(mocked)
+
+    when(mocked.findCustomer(any())).thenReturn(Result.good(stripeCustomer))
+    when(mocked.createCustomer(any())).thenReturn(Result.good(stripeCustomer))
+
+    when(mocked.findDefaultCard(any())).thenReturn(Result.good(stripeCard))
+    when(mocked.createCard(any(), any())).thenReturn(Result.good(stripeCard))
+
+    when(mocked.updateExternalAccount(any(), any())).thenReturn(Result.good(new ExternalAccount))
+    when(mocked.deleteExternalAccount(any())).thenReturn(Result.good(new DeletedExternalAccount))
+
+    when(mocked.captureCharge(any(), any())).thenReturn(Result.good(new StripeCharge))
+    when(mocked.createCharge(any())).thenReturn(Result.good(new StripeCharge))
+    mocked
+  }
 
   lazy val amazonApiMock = {
     val mocked = mock[AmazonApi]

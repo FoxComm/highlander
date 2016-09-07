@@ -16,6 +16,7 @@ import services.{Result, ResultT}
 import utils.aliases.stripe._
 
 trait StripeApi {
+
   def createCustomer(options: Map[String, AnyRef]): Result[StripeCustomer]
 
   def createCard(customer: StripeCustomer, options: Map[String, AnyRef]): Result[StripeCard]
@@ -112,7 +113,8 @@ class WiredStripeApi extends StripeApi {
     * Stripe exceptions are caught and turned into a [[StripeFailure]].
     */
   // param: ⇒ A makes method param "lazy". Do not remove!
-  @inline protected[utils] final def inBlockingPool[A](action: ⇒ A): Future[Failures Xor A] = {
+  @inline protected[utils] final def inBlockingPool[A <: AnyRef](
+      action: ⇒ A): Future[Failures Xor A] = {
     implicit val ec: ExecutionContext = blockingIOPool
 
     Future(Xor.right(blocking(action))).recoverWith {

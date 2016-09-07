@@ -10,7 +10,7 @@ import payloads.ImagePayloads._
 import services.image.ImageManager
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.SQLActionBuilder
-import util.IntegrationTestBase
+import util._
 import utils.Money.Currency
 import utils.db._
 
@@ -28,7 +28,8 @@ object ProductsCatalogViewIntegrationTest {
 class ProductsCatalogViewIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
-    with AutomaticAuth {
+    with AutomaticAuth
+    with MockedApis {
 
   import ProductsCatalogViewIntegrationTest._
 

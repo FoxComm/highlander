@@ -229,9 +229,9 @@ object Customer {
                                                               payload.isDefault)
                   }
               } ~
-              (post & pathEnd & entity(as[CreateCreditCard])) { payload ⇒
+              (post & pathEnd & entity(as[CreateCreditCardFromTokenPayload])) { payload ⇒
                 mutateOrFailures {
-                  CreditCardManager.createCardThroughGateway(customer.id, payload)
+                  CreditCardManager.createCardFromToken(customer.id, payload)
                 }
               } ~
               (patch & path(IntNumber) & pathEnd & entity(as[EditCreditCard])) {

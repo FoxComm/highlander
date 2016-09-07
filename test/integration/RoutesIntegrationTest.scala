@@ -4,10 +4,10 @@ import akka.http.scaladsl.server.directives.SecurityDirectives.challengeFor
 import models.StoreAdmin
 import models.customer.{Customer, Customers}
 import services.Authenticator.AsyncAuthenticator
-import util.IntegrationTestBase
+import util._
 import utils.seeds.Seeds.Factories
 
-class RoutesAdminOnlyIntegrationTest extends IntegrationTestBase with HttpSupport {
+class RoutesAdminOnlyIntegrationTest extends IntegrationTestBase with HttpSupport with MockedApis {
 
   val authedStoreAdmin = StoreAdmin.build(id = 1,
                                           email = "donkey@donkey.com",
@@ -27,7 +27,10 @@ class RoutesAdminOnlyIntegrationTest extends IntegrationTestBase with HttpSuppor
   }
 }
 
-class RoutesCustomerOnlyIntegrationTest extends IntegrationTestBase with HttpSupport {
+class RoutesCustomerOnlyIntegrationTest
+    extends IntegrationTestBase
+    with HttpSupport
+    with MockedApis {
 
   val authedCustomer = Customer.build(id = 1,
                                       email = "donkey@donkey.com",

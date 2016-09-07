@@ -2,15 +2,12 @@ package services
 
 import scala.collection.JavaConversions.mapAsJavaMap
 
-import cats.data.Xor
-import cats.data.Xor.{left, right}
 import cats.implicits._
 import com.stripe.model.{DeletedExternalAccount, ExternalAccount}
 import failures.CustomerFailures.CustomerMustHaveCredentials
-import failures.{CreditCardFailures, Failures}
 import models.location.Address
 import models.payment.creditcard.CreditCard
-import payloads.PaymentPayloads.CreateCreditCard
+import payloads.PaymentPayloads.CreateCreditCardFromSourcePayload
 import utils.Money._
 import utils.aliases._
 import utils.aliases.stripe._
@@ -20,53 +17,60 @@ case class Stripe(implicit apis: Apis, ec: EC) {
 
   val api: StripeApi = apis.stripe
 
-  // Creates a customer in Stripe along with their first CC
-  def createCard(email: Option[String],
-                 card: CreateCreditCard,
-                 stripeCustomerId: Option[String],
-                 address: Address) = email match {
-    case Some(e) ⇒ createCardInner(e, card, stripeCustomerId, address)
-    case _       ⇒ Result.failure(CustomerMustHaveCredentials)
+  @deprecated(message = "Use `createCardFromToken` instead", "Until we are PCI compliant")
+  def createCardFromSource(email: Option[String],
+                           card: CreateCreditCardFromSourcePayload,
+                           stripeCustomerId: Option[String],
+                           address: Address) = {
+    lazy val details = Map[String, Object]("object" → "card",
+                                           "number"        → card.cardNumber,
+                                           "exp_month"     → card.expMonth.toString,
+                                           "exp_year"      → card.expYear.toString,
+                                           "cvc"           → card.cvv,
+                                           "name"          → card.holderName,
+                                           "address_line1" → address.address1,
+                                           "address_line2" → address.address2.orNull,
+                                           "address_city"  → address.city,
+                                           "address_zip"   → address.zip)
+    lazy val source = Map("source" → mapAsJavaMap(details))
+
+    email match {
+      case Some(e) ⇒ createCardAndMaybeCustomer(e, source, stripeCustomerId, address)
+      case _       ⇒ Result.failure(CustomerMustHaveCredentials)
+    }
   }
 
-  def createCardInner(email: String,
-                      card: CreateCreditCard,
-                      stripeCustomerId: Option[String],
-                      address: Address): Result[(StripeCustomer, StripeCard)] = {
+  def createCardFromToken(email: Option[String],
+                          token: String,
+                          stripeCustomerId: Option[String],
+                          address: Address): Result[(StripeCustomer, StripeCard)] = email match {
+    case Some(e) ⇒
+      createCardAndMaybeCustomer(e, Map("source" → token), stripeCustomerId, address)
+    case _ ⇒
+      Result.failure(CustomerMustHaveCredentials)
+  }
 
-    val source = Map[String, Object](
-        "object"        → "card",
-        "number"        → card.cardNumber,
-        "exp_month"     → card.expMonth.toString,
-        "exp_year"      → card.expYear.toString,
-        "cvc"           → card.cvv,
-        "name"          → card.holderName,
-        "address_line1" → address.address1,
-        "address_line2" → address.address2.orNull,
-        "address_city"  → address.city,
-        "address_zip"   → address.zip
-    )
-
+  private def createCardAndMaybeCustomer(
+      email: String,
+      source: Map[String, Object],
+      stripeCustomerId: Option[String],
+      address: Address): Result[(StripeCustomer, StripeCard)] = {
     def existingCustomer(id: String): ResultT[(StripeCustomer, StripeCard)] = {
-      val params = Map[String, Object]("source" → mapAsJavaMap(source))
-
       for {
         cust ← ResultT(getCustomer(id))
-        card ← ResultT(api.createCard(cust, params))
+        card ← ResultT(api.createCard(cust, source))
       } yield (cust, card)
     }
 
     def newCustomer: ResultT[(StripeCustomer, StripeCard)] = {
       val params = Map[String, Object](
-          "description" → "FoxCommerce",
-          "email"       → email,
-          "source"      → mapAsJavaMap(source)
-      )
+            "description" → "FoxCommerce",
+            "email"       → email
+        ) ++ source
 
       for {
         cust ← ResultT(api.createCustomer(params))
         card ← ResultT(getCard(cust))
-        _    ← ResultT.fromXor(cvcCheck(card))
       } yield (cust, card)
     }
 
@@ -126,10 +130,4 @@ case class Stripe(implicit apis: Apis, ec: EC) {
   private def getCard(customer: StripeCustomer): Result[StripeCard] =
     api.findDefaultCard(customer)
 
-  private def cvcCheck(card: StripeCard): Failures Xor StripeCard = {
-    card.getCvcCheck.some.getOrElse("").toLowerCase match {
-      case "pass" ⇒ right(card)
-      case _      ⇒ left(CreditCardFailures.InvalidCvc.single)
-    }
-  }
 }

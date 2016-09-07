@@ -9,11 +9,15 @@ import org.scalatest.Matchers._
 import payloads.GenericTreePayloads._
 import responses.GenericTreeResponses.{FullTreeResponse, TreeResponse}
 import slick.driver.PostgresDriver.api._
-import util.IntegrationTestBase
+import util._
 import utils.aliases._
 import utils.db._
 
-class GenericTreeIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
+class GenericTreeIntegrationTest
+    extends IntegrationTestBase
+    with HttpSupport
+    with AutomaticAuth
+    with MockedApis {
 
   "GenericTreeIntegrationTest" - {
     "GET /v1/tree/default/test" - {

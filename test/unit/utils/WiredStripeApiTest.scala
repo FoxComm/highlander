@@ -21,7 +21,9 @@ class WiredStripeApiTest extends TestBase {
     }
 
     "does not catch other exceptions" in {
-      lazy val oops = 42 / 0
+      // Must be A <: AnyRef
+      case class IntWrapper(value: Int)
+      lazy val oops = IntWrapper(42 / 0)
 
       /** Scalatest’s futureValue wraps the exception, so we can’t use it here. */
       an[ArithmeticException] must be thrownBy { Await.result(api.inBlockingPool(oops), Inf) }
