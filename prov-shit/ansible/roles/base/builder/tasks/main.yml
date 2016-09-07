@@ -85,7 +85,9 @@
 - name: Install Package for Ansible Lint
   apt: name=libffi-dev state=latest force=yes
   sudo: true
+  tags: ansible
 
 - name: Install ansible-lint
   pip: name=ansible-lint
   sudo: true
+  tags: ansible
