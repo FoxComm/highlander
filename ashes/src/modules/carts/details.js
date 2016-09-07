@@ -1,6 +1,7 @@
 /* @flow */
 import _ from 'lodash';
 import Api from 'lib/api';
+import { assoc } from 'sprout-data';
 import { createReducer } from 'redux-act';
 import { transitionTo } from 'browserHistory';
 import OrderParagon from 'paragons/order';
@@ -156,8 +157,13 @@ const _checkout = createAsyncActions(
 );
 
 export function checkout(refNum: string): Function {
-  return dispatch => dispatch(_checkout.perform(refNum)).then(() => {
-    transitionTo('order', { order: refNum });
+  return dispatch => dispatch(_checkout.perform(refNum)).then(({payload}) => {
+    const errors = _.get(payload, 'errors', []);
+    const warnings = _.get(payload, 'warnings', []);
+
+    if (!errors.length && !warnings.length) {
+      transitionTo('order', {order: refNum});
+    }
   });
 }
 
@@ -175,6 +181,8 @@ function parseMessages(messages, state) {
       return { ...results, paymentMethodStatus: state };
     } else if (message.indexOf('insufficient funds') != -1) {
       return { ...results, paymentMethodStatus: state };
+    } else if (message.indexOf('stock item') != -1) {
+      return { ...results, itemsStatus: state };
     }
 
     return results;
@@ -200,6 +208,30 @@ function receiveCart(state, payload) {
   const errors = _.get(payload, 'errors', []);
   const warnings = _.get(payload, 'warnings', []);
 
+  //if no result and messages given - update messages
+  if (!('result' in payload) && (errors.length || warnings.length)) {
+    return updateMessages(state, errors, warnings);
+  }
+
+  return updateCart(state, order, errors, warnings);
+}
+
+function updateCart(state, order, errors, warnings) {
+  return {
+    ...state,
+    cart: new OrderParagon(order),
+    validations: getValidations(errors, warnings),
+  };
+}
+
+function updateMessages(state, errors, warnings) {
+  return {
+    ...state,
+    validations: getValidations(errors, warnings),
+  };
+}
+
+function getValidations(errors, warnings) {
   // Initial state (assume in good standing)
   const status = {
     itemsStatus: 'success',
@@ -215,13 +247,9 @@ function receiveCart(state, payload) {
   };
 
   return {
-    ...state,
-    cart: new OrderParagon(order),
-    validations: {
-      errors: errors,
-      warnings: warnings,
-      ...status
-    }
+    errors: errors,
+    warnings: warnings,
+    ...status,
   };
 }
 
@@ -230,6 +258,17 @@ function resetCart(state) {
     ...state,
     ...initialState,
   };
+}
+
+function cartError(state, err) {
+  const errResponse = _.get(err, 'response.body');
+  if (errResponse) {
+    return receiveCart(state, errResponse);
+  }
+
+  return assoc(state,
+    ['validations', 'errors'], [err]
+  );
 }
 
 const reducer = createReducer({
@@ -250,6 +289,7 @@ const reducer = createReducer({
   [_deleteGiftCardPayment.succeeded]: receiveCart,
   [_deleteStoreCreditPayment.succeeded]: receiveCart,
   [_checkout.succeeded]: receiveCart,
+  [_checkout.failed]: cartError,
 }, initialState);
 
 export default reducer;

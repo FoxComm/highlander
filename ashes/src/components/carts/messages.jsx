@@ -3,6 +3,7 @@ import classnames from 'classnames';
 import _ from 'lodash';
 
 import Alert from '../alerts/alert';
+import AutoScroll from '../common/auto-scroll';
 
 const formatMessage = message => {
   if (message.indexOf('empty cart') != -1) {
@@ -15,6 +16,8 @@ const formatMessage = message => {
     return 'No shipping method applied.';
   } else if (message.indexOf('no payment method') != -1) {
     return 'No payment method applied.';
+  } else if (message.indexOf('stock item') != -1) {
+    return 'Not enough items in stock.';
   } else if (message.indexOf('insufficient funds') != -1) {
     return 'Insufficient funds.';
   }
@@ -41,8 +44,11 @@ const Messages = props => {
     '_empty': errorAlerts.length + warningAlerts.length == 0
   });
 
+  const scrollToMessages = errorAlerts.length || warningAlerts.length ? <AutoScroll/> : null;
+
   return (
     <div className={className}>
+      {scrollToMessages}
       {errorAlerts}
       {warningAlerts}
     </div>
