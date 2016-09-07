@@ -22,7 +22,8 @@ defmodule Permissions.AccountPermissionController do
       where: account.id == ^ac_id,
       select: %{
         permission_id: permissions.id
-      })
+      },
+      distinct: permissions.id)
     render(conn, "index.json", account_permissions: account_permissions)
   end
 
