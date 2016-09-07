@@ -118,7 +118,8 @@ object Avalara {
 
   object PayloadBuilder {
     def buildAddress(address: Address, region: Region, country: Country): AvalaraAddress = {
-      AvalaraAddress(Line1 = address.address1,
+      AvalaraAddress(AddressCode = Some(address.id.toString),
+                     Line1 = address.address1,
                      Line2 = address.address2,
                      City = address.city,
                      PostalCode = address.zip,
@@ -126,9 +127,11 @@ object Avalara {
                      Country = country.alpha2)
     }
 
-    def buildLine(lineItem: FindLineItemResult, idx: Int): Requests.Line = {
+    def buildLine(lineItem: FindLineItemResult, idx: Int, addressId: Int): Requests.Line = {
       val (sku, form, shadow, otherShadow, cartItem) = lineItem;
       Requests.Line(
+          DestinationCode = addressId.toString,
+          OriginCode = addressId.toString,
           LineNo = idx.toString,
           ItemCode = sku.code,
           Qty = BigDecimal(1),
@@ -145,9 +148,9 @@ object Avalara {
           DocDate = Instant.now,
           CustomerCode = cart.customerId.toString,
           Addresses = Seq(buildAddress(address, region, country)),
-          Lines = lineItems.zipWithIndex.map(zipped ⇒ buildLine(zipped._1, zipped._2)),
+          Lines = lineItems.zipWithIndex.map(zipped ⇒ buildLine(zipped._1, zipped._2, address.id)),
           DocCode = cart.referenceNumber,
-          DocType = SalesInvoice,
+          DocType = Some(SalesInvoice),
           Commit = true
       )
     }
@@ -161,7 +164,7 @@ object Avalara {
           DocDate = Instant.now,
           CustomerCode = cart.customerId.toString,
           Addresses = Seq(buildAddress(address, region, country)),
-          Lines = lineItems.zipWithIndex.map(zipped ⇒ buildLine(zipped._1, zipped._2)),
+          Lines = lineItems.zipWithIndex.map(zipped ⇒ buildLine(zipped._1, zipped._2, address.id)),
           DocCode = cart.referenceNumber
       )
     }
@@ -178,8 +181,8 @@ object Avalara {
 
     case class Line(
         LineNo: String, //Required
-        DestinationCode: Option[String] = None, //Required
-        OriginCode: Option[String] = None, //Required
+        DestinationCode: String, //Required
+        OriginCode: String, //Required
         ItemCode: String, //Required
         Qty: BigDecimal, //Required
         Amount: BigDecimal, //Required
@@ -202,7 +205,7 @@ object Avalara {
         Lines: Seq[Line],
         //Best Practice for tax calculation
         DocCode: String,
-        DocType: DocType = SalesOrder,
+        DocType: Option[DocType] = None,
         CompanyCode: Option[String] = None,
         Commit: Boolean = false,
         DetailLevel: DetailLevel = Tax,
@@ -386,6 +389,7 @@ class Avalara(url: String, account: String, license: String, profile: String)(
                              country: Country)(implicit ec: EC): Result[Unit] = {
     println("getting taxes for cart")
     val payload = PayloadBuilder.buildOrder(cart, lineItems, address, region, country)
+    println(payload)
     getTax(payload)
   }
 
@@ -395,6 +399,7 @@ class Avalara(url: String, account: String, license: String, profile: String)(
                               region: Region,
                               country: Country)(implicit ec: EC): Result[Unit] = {
     val payload = PayloadBuilder.buildInvoice(cart, lineItems, address, region, country)
+    println(payload)
     getTax(payload)
   }
 
@@ -410,7 +415,7 @@ class Avalara(url: String, account: String, license: String, profile: String)(
           HttpRequest(uri = "/1.0/tax/get",
                       method = HttpMethods.POST,
                       headers = headers,
-                      entity = HttpEntity(payload.toString)))
+                      entity = HttpEntity(write(payload))))
       .via(connectionFlow)
       .mapAsync(1)(response ⇒ Unmarshal(response).to[Option[Avalara.Responses.SimpleErrorMessage]])
       .runWith(Sink.head)
