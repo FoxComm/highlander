@@ -15,6 +15,7 @@ object TaxesService {
                address: OrderShippingAddress,
                region: Region)(implicit ec: EC, db: DB, apis: Apis): DbResultT[Unit] =
     for {
+      _       ← * <~ DbResultT.good("fetch taxes")
       li      ← * <~ CartLineItems.byCordRef(cart.refNum).lineItems.result
       country ← * <~ Countries.mustFindById400(region.countryId)
       result ← * <~ apis.avalaraApi.getTaxForCart(cart,

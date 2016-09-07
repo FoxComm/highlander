@@ -145,13 +145,10 @@ object Avalara {
                      region: Region,
                      country: Country): Requests.GetTaxes = {
       Requests.GetTaxes(
-          DocDate = Instant.now,
           CustomerCode = cart.customerId.toString,
           Addresses = Seq(buildAddress(address, region, country)),
           Lines = lineItems.zipWithIndex.map(zipped ⇒ buildLine(zipped._1, zipped._2, address.id)),
-          DocCode = cart.referenceNumber,
-          DocType = Some(SalesInvoice),
-          Commit = true
+          DocCode = cart.referenceNumber
       )
     }
 
@@ -161,7 +158,6 @@ object Avalara {
                    region: Region,
                    country: Country): Requests.GetTaxes = {
       Requests.GetTaxes(
-          DocDate = Instant.now,
           CustomerCode = cart.customerId.toString,
           Addresses = Seq(buildAddress(address, region, country)),
           Lines = lineItems.zipWithIndex.map(zipped ⇒ buildLine(zipped._1, zipped._2, address.id)),
@@ -199,29 +195,11 @@ object Avalara {
 
     case class GetTaxes(
         //Required for tax calculation
-        DocDate: Instant, //Must be valid YYYY-MM-DD format
         CustomerCode: String,
         Addresses: Seq[AvalaraAddress],
         Lines: Seq[Line],
         //Best Practice for tax calculation
-        DocCode: String,
-        DocType: Option[DocType] = None,
-        CompanyCode: Option[String] = None,
-        Commit: Boolean = false,
-        DetailLevel: DetailLevel = Tax,
-        Client: Option[String] = None,
-        //Use where appropriate to the situation
-        CustomerUsageType: Option[String] = None,
-        ExemptionNo: Option[String] = None,
-        Discount: Option[BigDecimal] = None,
-        TaxOverride: Option[TaxOverrideDef] = None,
-        BusinessIdentificationNo: Option[String] = None,
-        //Optional
-        PurchaseOrderNo: Option[String] = None,
-        PaymentDate: Option[String] = None,
-        ReferenceCode: Option[String] = None,
-        PosLaneCode: Option[String] = None,
-        CurrencyCode: Option[String] = None
+        DocCode: String
     )
   }
 
@@ -390,6 +368,7 @@ class Avalara(url: String, account: String, license: String, profile: String)(
     println("getting taxes for cart")
     val payload = PayloadBuilder.buildOrder(cart, lineItems, address, region, country)
     println(payload)
+    println(write(payload))
     getTax(payload)
   }
 
@@ -400,6 +379,7 @@ class Avalara(url: String, account: String, license: String, profile: String)(
                               country: Country)(implicit ec: EC): Result[Unit] = {
     val payload = PayloadBuilder.buildInvoice(cart, lineItems, address, region, country)
     println(payload)
+    println(write(payload))
     getTax(payload)
   }
 
