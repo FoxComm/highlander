@@ -7,7 +7,6 @@ import (
 
 	"github.com/FoxComm/highlander/middlewarehouse/controllers/mocks"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
-	"github.com/FoxComm/highlander/middlewarehouse/services"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"

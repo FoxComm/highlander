@@ -22,6 +22,9 @@ lint:
 test: 
 	$(GO) test -v ./inventory/
 
+bootstrap-build-agents:
+	ansible-playbook -v -i bin/envs/staging ansible/build_agents.yml
+
 bootstrap-consul-alerts:
 	ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_consul_alerts.yml
 
@@ -93,9 +96,6 @@ deploy-dem1:
 
 deploy-dem2:
 	ansible-playbook -v -i bin/envs/staging ansible/dem2.yml
-
-deploy-build-agents:
-	ansible-playbook -v -i bin/envs/staging ansible/build_agents.yml --private-key=$(PRIVATE_KEY)
 
 tf-aws-demo:
 	terraform $(TF_CMD) -state=$(TF_ENVS)/aws_demo_env/terraform.tfstate -var-file=$(TF_ENVS)/aws_demo_env/demo.tfvars $(TF_BASE)/aws_demo_env

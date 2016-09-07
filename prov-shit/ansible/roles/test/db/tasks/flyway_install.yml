@@ -16,3 +16,7 @@
 - name: Add Flyway Path
   lineinfile: dest=/etc/profile line="PATH=$PATH:$FLYWAY_HOME" insertafter="^FLYWAY"
   sudo: true
+
+- name: Symlink Flyway Executable
+  file: src="{{flyway_dir}}/flyway" dest="/usr/local/bin/flyway" state=link
+  sudo: true

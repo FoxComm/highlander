@@ -49,6 +49,7 @@
  
 - name: Don't checkout master
   lineinfile: dest={{proxygen_install_dir}}/proxygen/deps.sh state=absent regexp="checkout master"
+  tags: isaac
 
 - name: Make and Install Proxygen
   shell: ./deps.sh && ./reinstall.sh
@@ -57,24 +58,34 @@
   sudo: true
   tags: isaac
 
-- name:
+- name: Create Go Directories
   file: path={{home}}/go state=directory
+  tags:
+    - golang
 
-- name:
+- name: Create Go Directories
   file: path={{home}}/go/src state=directory
+  tags:
+    - golang
 
-- name:
+- name: Create Go Directories
   file: path={{home}}/go/bin state=directory
+  tags:
+    - golang
 
 - name: Add Glide repository
   apt_repository: repo='ppa:masterminds/glide' update_cache=yes
   sudo: true
+  tags:
+    - golang
 
 - name: Install Glide
   apt: name={{ item }} state=latest force=yes
   sudo: true
   with_items:
     - glide
+  tags:
+    - golang
 
 - name: Install Package for Ansible Lint
   apt: name=libffi-dev state=latest force=yes

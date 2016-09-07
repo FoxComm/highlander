@@ -1,3 +1,4 @@
 # Local Build Artifacts
 .vagrant/
 .vault_pass
+.DS_Store
