@@ -27,7 +27,6 @@ defmodule Permissions.AccountController do
   def show(conn, %{"id" => id}) do
     account = 
       Repo.get!(Account, id)
-      |> Repo.preload(:permissions)
     render(conn, "show.json", account: account)
   end
 
