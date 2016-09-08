@@ -16,7 +16,8 @@ import:
     version: 0c8185d9a3ba82aeac98db3313a268a5b6df99b5
   - package: github.com/elodina/go-kafka-avro
     vcs: git
-    version: ab6b1d1c9a2361e639af25c13653fee505b5d2ce
+    version: 0c29ad915b6b7dc6cf416005fdae3d1c6b5d9672
+    repo: git@github.com:FoxComm/go-kafka-avro.git
   - package: github.com/elodina/go_kafka_client
     version: 95d107b0c102fa81b8c1e5e556adc23352fad065
   - package: github.com/elodina/siesta

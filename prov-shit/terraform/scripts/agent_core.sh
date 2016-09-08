@@ -29,3 +29,6 @@ sudo cp /etc/sudoers.bk /etc/sudoers
 
 sudo su $US -c "mkdir /var/lib/buildkite-agent/.ssh"
 sudo su $US -c "echo '$PUB_KEY' >> /var/lib/buildkite-agent/.ssh/authorized_keys"
+
+# Change home directory ownership
+sudo chown buildkite-agent /home/buildkite-agent
