@@ -6,6 +6,7 @@
 # Local Build Artifacts
 .vagrant/
 .vault_pass
+.env.local
 .DS_Store
 
 # Keys
