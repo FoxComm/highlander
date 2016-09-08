@@ -3,8 +3,8 @@ setup:
 	npm install
 	npm build
 
-build:
-	test -f .env && export eval `cat .env` || true && gulp build
+build: setup
+	test -f .env && export eval `cat .env` || true && ./node_modules/.bin/gulp build
 
 package: build
 	touch firebrand.tar.bz2
