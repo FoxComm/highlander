@@ -34,8 +34,8 @@ const typeTitles = {
 const reasonType = ReasonType.GIFT_CARD_CREATION;
 
 const subTypes = createSelector(
-  ({ giftCards: { adding } }) => adding.originType,
-  ({ giftCards: { adding } }) => adding.types,
+  ({ giftCards: { adding } }) => adding.giftCard.originType,
+  ({ giftCards: { adding } }) => adding.giftCard.types,
   (originType, types = []) => _.get(_.find(types, { originType }), 'subTypes', [])
 );
 
