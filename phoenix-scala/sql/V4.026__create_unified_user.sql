@@ -59,6 +59,13 @@ create table roles
     scope_id integer references scopes(id) on update restrict on delete restrict
 );
 
+create table role_permissions
+(
+    id serial primary key not null,
+    permission_id integer not null references permissions(id) on update restrict on delete restrict,
+    role_id integer not null references roles(id) on update restrict on delete restrict
+);
+
 create table accounts
 (
     id serial primary key,
