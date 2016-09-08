@@ -1,4 +1,4 @@
-defmodule PermissionClaimService do
+defmodule Permissions.PermissionClaimService do
   alias Ecto.Multi
   import Ecto
   alias Permissions.Permission
@@ -26,7 +26,7 @@ defmodule PermissionClaimService do
       }
     )
     |> claim_frn
-    claim_changeset = Claim.changeset(%Claim{})
+    claim_changeset = Claim.changeset_from_frn(%Claim{}, claim_frn)
   end
 
   defp claim_frn(fp) do
