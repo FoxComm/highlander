@@ -4,6 +4,7 @@ defmodule Permissions.Resource do
   schema "resources" do 
     field :name, :string
     field :description, :string
+    field :actions, {:array, :string}
 
     belongs_to :system, Permissions.System
   end
