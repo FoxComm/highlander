@@ -1,9 +1,8 @@
 
 setup:
 	npm install
-	npm build
 
-build: setup
+build:
 	test -f .env && export eval `cat .env` || true && ./node_modules/.bin/gulp build
 
 build-production:
