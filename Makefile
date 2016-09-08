@@ -14,6 +14,6 @@ package: build
 
 package-production: build-production
 	touch firebrand.tar.bz2
-	tar --exclude 'firebrand.tar.bz2' --exclude '.git' --exclude '.gitignore' --exclude '.gitattributes' -jcf firebrand.tar.bz2 ./
+	tar --exclude 'firebrand.tar.bz2' -jcf firebrand.tar.bz2 ./
 
 .PHONY: setup build package
