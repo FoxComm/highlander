@@ -1,0 +1,16 @@
+
+.object-details {
+  margin: 0 1.85%;
+
+  & > :global(.fc-errors) {
+    margin-bottom: 20px;
+
+    & > :global(.fc-alert) {
+      margin-top: 0;
+    }
+  }
+}
+
+.cancel-button {
+  margin-right: 20px;
+}

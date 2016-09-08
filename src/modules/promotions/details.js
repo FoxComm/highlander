@@ -10,8 +10,8 @@ export const promotionsNew = createAction('PROMOTIONS_NEW');
 const clearPromotion = createAction('PROMOTION_CLEAR');
 const defaultContext = 'default';
 
-const _getPromotion = createAsyncActions(
-  'getPromotion',
+const _fetchPromotion = createAsyncActions(
+  'fetchPromotion',
   (id: string, context) => {
     return Api.get(`/promotions/${context}/${id}`);
   }
@@ -44,14 +44,22 @@ export function fetchPromotion(id: string, context: string = defaultContext) {
     if (id.toLowerCase() == 'new') {
       dispatch(promotionsNew());
     } else {
-      return dispatch(_getPromotion.perform(id, context));
+      return dispatch(_fetchPromotion.perform(id, context));
     }
   };
 }
 
+const _archivePromotion = createAsyncActions(
+  'archivePromotion',
+  (id, context = defaultContext) => {
+    return Api.delete(`/promotions/${context}/${id}`);
+  }
+);
+
+export const archivePromotion = _archivePromotion.perform;
 export const createPromotion = _createPromotion.perform;
 export const updatePromotion = _updatePromotion.perform;
-export const clearFetchErrors = _getPromotion.clearErrors;
+export const clearFetchErrors = _fetchPromotion.clearErrors;
 
 export function reset() {
   return dispatch => {
@@ -82,7 +90,7 @@ const reducer = createReducer({
   [clearPromotion]: state => {
     return dissoc(state, 'promotion');
   },
-  [_getPromotion.succeeded]: updatePromotionInState,
+  [_fetchPromotion.succeeded]: updatePromotionInState,
   [_createPromotion.succeeded]: updatePromotionInState,
   [_updatePromotion.succeeded]: updatePromotionInState,
 }, initialState);

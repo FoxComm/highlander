@@ -11,13 +11,12 @@ import Api from '../../lib/api';
 /* coupon actions */
 
 export const couponsNew = createAction('COUPONS_NEW');
-export const couponsChange = createAction('COUPONS_CHANGE');
 const clearCoupon = createAction('COUPONS_CLEAR');
 
 const defaultContext = 'default';
 
-const getCoupon = createAsyncActions(
-  'getCoupon',
+const _fetchCoupon = createAsyncActions(
+  'fetchCoupon',
   (id: string, context = defaultContext) => {
     return Api.get(`/coupons/${context}/${id}`);
   }
@@ -38,12 +37,19 @@ const _updateCoupon = createAsyncActions(
   }
 );
 
+const _archiveCoupon = createAsyncActions(
+  'archiveCoupon',
+  (id, context = defaultContext) => {
+    return Api.delete(`/coupons/${context}/${id}`);
+  }
+);
+
 export function fetchCoupon(id: string, context: string = defaultContext) {
   return dispatch => {
     if (id.toLowerCase() == 'new') {
       dispatch(couponsNew());
     } else {
-      return dispatch(getCoupon.perform(id, context))
+      return dispatch(_fetchCoupon.perform(id, context))
         .then(
           dispatch(_getCodes.perform(id))
         );
@@ -51,7 +57,7 @@ export function fetchCoupon(id: string, context: string = defaultContext) {
   };
 }
 
-export const clearFetchErrors = getCoupon.clearErrors;
+export const clearFetchErrors = _fetchCoupon.clearErrors;
 
 export function reset() {
   return dispatch => {
@@ -70,6 +76,7 @@ export function clearSubmitErrors() {
 
 export const createCoupon = _createCoupon.perform;
 export const updateCoupon = _updateCoupon.perform;
+export const archiveCoupon = _archiveCoupon.perform;
 
 function updateCouponInState(state, response) {
   return {
@@ -165,13 +172,7 @@ const reducer = createReducer({
       coupon: null,
     };
   },
-  [couponsChange]: (state, coupon) => {
-    return {
-      ...state,
-      coupon,
-    };
-  },
-  [getCoupon.succeeded]: updateCouponInState,
+  [_fetchCoupon.succeeded]: updateCouponInState,
   [_createCoupon.succeeded]: updateCouponInState,
   [_updateCoupon.succeeded]: updateCouponInState,
   [_getCodes.succeeded]: (state, codes) => {
