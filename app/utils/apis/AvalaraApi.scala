@@ -148,7 +148,8 @@ object Avalara {
           CustomerCode = cart.customerId.toString,
           Addresses = Seq(buildAddress(address, region, country)),
           Lines = lineItems.zipWithIndex.map(zipped ⇒ buildLine(zipped._1, zipped._2, address.id)),
-          DocCode = cart.referenceNumber
+          DocCode = cart.referenceNumber,
+          Commit = true
       )
     }
 
@@ -199,7 +200,8 @@ object Avalara {
         Addresses: Seq[AvalaraAddress],
         Lines: Seq[Line],
         //Best Practice for tax calculation
-        DocCode: String
+        DocCode: String,
+        Commit: Boolean = false
     )
   }
 
