@@ -52,7 +52,6 @@
     - { role: base/node }
     - { role: base/balancer, sudo: yes }
     - { role: base/ashes }
-    - { role: base/firebird }
     - { role: base/firebrand }
     - { role: dev/balancer, sudo: yes }
     - { role: demo/ashes, sudo: yes }
@@ -74,7 +73,6 @@
     - { role: base/rsyslog, sudo: yes }
     - { role: base/node }
     - { role: base/balancer, sudo: yes }
-    - { role: base/firebird }
     - { role: base/firebrand }
     - { role: dev/balancer, sudo: yes }
     - { role: demo/ashes, sudo: yes }
