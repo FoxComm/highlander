@@ -63,6 +63,47 @@ object LineItemUpdater {
     } yield response
   }
 
+  def addQuantitiesOnCart(admin: StoreAdmin, refNum: String, payload: Seq[UpdateLineItemsPayload])(
+      implicit ec: EC,
+      es: ES,
+      db: DB,
+      ac: AC,
+      ctx: OC): DbResultT[TheResponse[CartResponse]] = {
+
+    val logActivity = (cart: CartResponse, oldQtys: Map[String, Int]) ⇒
+      LogActivity.orderLineItemsUpdated(cart, oldQtys, payload, Some(admin))
+
+    for {
+      cart     ← * <~ Carts.mustFindByRefNum(refNum)
+      _        ← * <~ addQuantities(cart, payload, ctx.id)
+      response ← * <~ runUpdates(cart, logActivity)
+    } yield response
+  }
+
+  def addQuantitiesOnCustomersCart(customer: Customer, payload: Seq[UpdateLineItemsPayload])(
+      implicit ec: EC,
+      es: ES,
+      db: DB,
+      ac: AC,
+      ctx: OC): DbResultT[TheResponse[CartResponse]] = {
+
+    val findOrCreate = Carts
+      .findByCustomer(customer)
+      .one
+      .findOrCreateExtended(Carts.create(Cart(customerId = customer.id)))
+
+    val logActivity = (cart: CartResponse, oldQtys: Map[String, Int]) ⇒
+      LogActivity.orderLineItemsUpdated(cart, oldQtys, payload)
+
+    val finder = findOrCreate.map({ case (cart, _) ⇒ cart })
+
+    for {
+      cart     ← * <~ finder
+      _        ← * <~ addQuantities(cart, payload, ctx.id)
+      response ← * <~ runUpdates(cart, logActivity)
+    } yield response
+  }
+
   private def runUpdates(cart: Cart,
                          logAct: (CartResponse, Map[String, Int]) ⇒ DbResultT[Activity])(
       implicit ec: EC,
@@ -100,6 +141,23 @@ object LineItemUpdater {
     DbResultT.sequence(lineItemUpdActions).map(_.flatten.toSeq)
   }
 
+  private def addQuantities(cart: Cart, payload: Seq[UpdateLineItemsPayload], contextId: Int)(
+      implicit ec: EC): DbResultT[Seq[Unit]] = {
+
+    val lineItemUpdActions = foldQuantityPayload(payload).map {
+      case (skuCode, delta) ⇒
+        for {
+          sku ← * <~ Skus
+                 .filterByContext(contextId)
+                 .filter(_.code === skuCode)
+                 .mustFindOneOr(SkuNotFoundForContext(skuCode, contextId))
+          lis ← * <~ (if (delta > 0) increaseLineItems(sku.id, delta, cart.refNum)
+                      else decreaseLineItems(sku.id, -delta, cart.refNum))
+        } yield lis
+    }
+    DbResultT.sequence(lineItemUpdActions).map(_.toSeq)
+  }
+
   private def doUpdateLineItems(skuId: Int, newQuantity: Int, cordRef: String)(
       implicit ec: EC): DbResultT[Seq[CartLineItem]] = {
 
@@ -132,15 +190,15 @@ object LineItemUpdater {
   }
 
   private def increaseLineItems(skuId: Int, delta: Int, cordRef: String)(
-      implicit ec: EC): DbResultT[Option[Int]] = {
+      implicit ec: EC): DbResultT[Unit] = {
 
     val itemsToInsert: List[CartLineItem] =
       List.fill(delta)(CartLineItem(cordRef = cordRef, skuId = skuId))
-    CartLineItems.createAll(itemsToInsert)
+    CartLineItems.createAll(itemsToInsert).ignoreResult
   }
 
   private def decreaseLineItems(skuId: Int, delta: Int, cordRef: String)(
-      implicit ec: EC): DbResultT[Int] = {
+      implicit ec: EC): DbResultT[Unit] = {
 
     val query = CartLineItems.byCordRef(cordRef).filter(_.skuId === skuId)
 
@@ -148,6 +206,6 @@ object LineItemUpdater {
       itemCount ← * <~ query.size.result
       qty = if (itemCount > delta) delta else itemCount
       deletedQty ← * <~ query.filter(_.id in query.take(qty).map(_.id)).delete
-    } yield deletedQty
+    } yield {}
   }
 }
