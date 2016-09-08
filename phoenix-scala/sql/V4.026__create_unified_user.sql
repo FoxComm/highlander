@@ -5,7 +5,8 @@ create table scopes
 (
     id serial primary key,
     source generic_string,
-    parent_id integer references scopes(id) on update restrict on delete restrict
+    parent_id integer references scopes(id) on update restrict on delete restrict,
+    parent_path exts.ltree -- full parent path of this scope to simplify permission frn creation.
 );
 
 create table organizations
@@ -43,22 +44,15 @@ CREATE TABLE resources (
 create table permissions
 (
     id serial primary key not null,
+    scope_id integer not null,
     resource_id integer not null,
     actions text[],
-    scope_id integer not null,
+    frn generic_string not null,   -- frn:<system>:<resource>:<scope_path>
+    created_at generic_timestamp,
+    updated_at generic_timestamp,
+    deleted_at timestamp without time zone null,
     constraint permissions_resources_id_fk foreign key (resource_id) references resources (id),
     constraint permissions_scopes_id_fk foreign key (scope_id) references scopes (id)
-);
-
---We use the permissions above to generate the claims; which are flattened/simplified representations of permissions
-create table claims
-(
-    id serial primary key,
-    --Fox Resource Name
-    --The FRN includes the scope
-    --TODO: Figure out top/bottom cascading rules for nested scopes.
-    frn generic_string not null,
-    actions text[]
 );
 
 --Roles exist at every specific level of scope.
@@ -66,33 +60,20 @@ create table roles
 (
     id serial primary key,
     name varchar(255) not null,
-    scope_id integer references scopes(id) on update restrict on delete restrict
+    scope_id integer references scopes(id) on update restrict on delete restrict,
+    created_at generic_timestamp,
+    updated_at generic_timestamp,
+    deleted_at timestamp without time zone null
 );
 
-create table role_claims
-(
-    id serial primary key,
-    claim_id integer not null references claims(id) on update restrict on delete restrict,
-    role_id integer not null references roles(id) on update restrict on delete restrict
-);
-
---Role Archetypes are the generic permission-set that can be applied to any sub-scope.
---They are used to bootstap roles.
-create table role_archetypes
-(
-    id serial primary key,
-    name varchar(255) not null,
-    scope_id integer references scopes(id) on update restrict on delete restrict
-);
-
-create table role_archetype_permissions
+create table role_permissions
 (
     id serial primary key not null,
-    permission_id integer not null references permissions(id) on update restrict on delete restrict,
-    role_archetype_id integer not null references role_archetypes(id) on update restrict on delete restrict
+    role_id integer not null references roles(id) on update restrict on delete restrict,
+    permission_id integer not null references permissions(id) on update restrict on delete restrict
 );
 
-create unique index role_permissions_id_permission_id_role_id_uindex on role_archetype_permissions (id, permission_id, role_archetype_id);
+create unique index role_permissions_id_permission_id_role_id_uindex on role_permissions (id, permission_id, role_id);
 
 create table accounts
 (
@@ -142,6 +123,8 @@ create table users
     email email,
     is_disabled boolean default false,
     disabled_by integer null,
+    is_blacklisted boolean default false,
+    blacklisted_by integer null,
     name generic_string,
     phone_number phone_number,
     created_at generic_timestamp,
