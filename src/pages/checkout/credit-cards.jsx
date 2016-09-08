@@ -29,8 +29,23 @@ class CreditCards extends Component {
     this.props.fetchCreditCards();
   }
 
+  get creditCards() {
+    const { creditCards, selectedCreditCard, selectCreditCard } = this.props;
+
+    return creditCards.map(creditCard => {
+      return (
+        <CreditCard
+          creditCard={creditCard}
+          selected={!!selectedCreditCard && selectedCreditCard.id === creditCard.id}
+          onSelect={selectCreditCard}
+          key={creditCard.id}
+        />
+      );
+    });
+  }
+
   render() {
-    const { isLoading, creditCards, selectedCreditCard, selectCreditCard, t } = this.props;
+    const { isLoading, creditCards, t } = this.props;
 
     if (isLoading) {
       return <Loader size="m" />;
@@ -42,16 +57,7 @@ class CreditCards extends Component {
 
     return (
       <div>
-        {creditCards.map(creditCard => {
-          return (
-            <CreditCard
-              creditCard={creditCard}
-              selected={!!selectedCreditCard && selectedCreditCard.id === creditCard.id}
-              onSelect={selectCreditCard}
-              key={creditCard.id}
-            />
-          );
-        })}
+        {this.creditCards}
       </div>
     );
   }
