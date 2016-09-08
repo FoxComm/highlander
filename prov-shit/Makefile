@@ -19,6 +19,7 @@ lint:
 	ansible-lint -x ANSIBLE0007,ANSIBLE0004 ansible/*.yml
 
 test: 
+	go get github.com/stretchr/testify
 	$(GO) test -v ./inventory/
 
 bootstrap-build-agents:
@@ -38,7 +39,7 @@ bootstrap-middlewarehouse:
 
 bootstrap-tinystack:
 	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml --private-key=$(PRIVATE_KEY)
-	
+
 bootstrap-vanilla:
 	ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_vanilla.yml
 
