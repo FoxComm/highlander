@@ -27,31 +27,6 @@ imports:
   version: fea3d8822e875ffef3895e68f5c2f172e0dd4300
 - name: github.com/elodina/siesta-producer
   version: a374fc36c515243efb438aed41c536af55d8b19b
-- name: github.com/FoxComm/highlander
-  version: a77c8e4ee27f022f1d7b738e56180d40875564a4
-  subpackages:
-  - middlewarehouse/api/payloads
-  - middlewarehouse/api/responses
-  - middlewarehouse/common
-  - middlewarehouse/common/async
-  - middlewarehouse/common/config
-  - middlewarehouse/common/db/config
-  - middlewarehouse/common/db/tasks
-  - middlewarehouse/common/db/utils
-  - middlewarehouse/common/errors
-  - middlewarehouse/common/failures
-  - middlewarehouse/common/gormfox
-  - middlewarehouse/common/logging
-  - middlewarehouse/common/tests
-  - middlewarehouse/controllers
-  - middlewarehouse/controllers/mocks
-  - middlewarehouse/fixtures
-  - middlewarehouse/models
-  - middlewarehouse/models/activities
-  - middlewarehouse/repositories
-  - middlewarehouse/routes
-  - middlewarehouse/services
-  - middlewarehouse/services/mocks
 - name: github.com/FoxComm/metamorphosis
   version: 13386198c4fd57672dacafc1b5a094c54ff2ca97
   repo: git@github.com:FoxComm/metamorphosis.git
