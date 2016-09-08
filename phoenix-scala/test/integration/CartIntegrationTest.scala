@@ -89,6 +89,52 @@ class CartIntegrationTest
     }
   }
 
+  "PATCH /v1/orders/:refNum/line-items" - {
+    val addPayload = Seq(UpdateLineItemsPayload("SKU-YAX", 2))
+
+    "should successfully add line items" in new OrderShippingMethodFixture
+    with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
+      val response = PATCH(s"v1/orders/${cart.refNum}/line-items", addPayload)
+
+      response.status must === (StatusCodes.OK)
+      val root = response.ignoreFailuresAndGiveMe[CartResponse]
+      val skus = root.lineItems.skus
+      skus must have size 1
+      skus.map(_.sku).toSet must === (Set("SKU-YAX"))
+      skus.map(_.quantity).toSet must === (Set(4))
+    }
+
+    "should successfully remove line items" in new OrderShippingMethodFixture
+    with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
+      val subtractPayload = Seq(UpdateLineItemsPayload("SKU-YAX", -1))
+      val response        = PATCH(s"v1/orders/${cart.refNum}/line-items", subtractPayload)
+
+      response.status must === (StatusCodes.OK)
+      val root = response.ignoreFailuresAndGiveMe[CartResponse]
+      val skus = root.lineItems.skus
+      skus must have size 1
+      skus.map(_.sku).toSet must === (Set("SKU-YAX"))
+      skus.map(_.quantity).toSet must === (Set(1))
+    }
+
+    "removing too many of an item should remove all of that item" in new OrderShippingMethodFixture
+    with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
+      val subtractPayload = Seq(UpdateLineItemsPayload("SKU-YAX", -3))
+      val response        = PATCH(s"v1/orders/${cart.refNum}/line-items", subtractPayload)
+
+      response.status must === (StatusCodes.OK)
+      val root = response.ignoreFailuresAndGiveMe[CartResponse]
+      val skus = root.lineItems.skus
+      skus must have size 0
+    }
+
+    "should respond with 404 if cart is not found" in {
+      val response = POST(s"v1/orders/NOPE/line-items", addPayload)
+      response.status must === (StatusCodes.NotFound)
+      response.error must === (NotFoundFailure404(Cart, "NOPE").description)
+    }
+  }
+
   "POST /v1/orders/:refNum/lock" - {
     "successfully locks a cart" in new Fixture {
       val response = POST(s"v1/orders/${cart.refNum}/lock")
@@ -465,7 +511,8 @@ class CartIntegrationTest
 
     val (lowShippingMethod, inactiveShippingMethod, highShippingMethod) = (for {
       product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head.copy(price = 100))
-      li      ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
+      _       ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
+      _       ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
 
       lowShippingMethod ← * <~ ShippingMethods.create(lowSm)
       inactiveShippingMethod ← * <~ ShippingMethods.create(
