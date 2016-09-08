@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Defines which projects should be rebuilt from descriptions in GitHub PR
-# Format: `PROJECTS=project1 project2`
+# Format: `PROJECTS=(project1 project2)`
 
 set -ue
 
