@@ -10,7 +10,6 @@ PRIVATE_KEY ?= ~/.ssh/id_rsa
 all: build
 
 build:
-	$(GO) get ./...
 	$(GO) build -o bin/inventory inventory/inventory.go
 
 clean:
@@ -31,21 +30,15 @@ bootstrap-consul-alerts:
 bootstrap-db-backup:
 	ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_db_backup.yml
 
-bootstrap-tinystack:
-	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml --private-key=$(PRIVATE_KEY)
-
-bootstrap-tinystack-backend:
-	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml --tags=backend --private-key=$(PRIVATE_KEY)
-
-bootstrap-tinystack-frontend:
-	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml --tags=frontend --private-key=$(PRIVATE_KEY)
-
-bootstrap-tinystack-balancer:
-	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml --tags=balancer --private-key=$(PRIVATE_KEY)
+bootstrap-messaging-plugin:
+	ansible-playbook -v -i bin/envs/staging ansible/boostrap_messaging_plugin.yml
 
 bootstrap-middlewarehouse:
 	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_middlewarehouse.yml --private-key=$(PRIVATE_KEY)
 
+bootstrap-tinystack:
+	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml --private-key=$(PRIVATE_KEY)
+	
 bootstrap-vanilla:
 	ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_vanilla.yml
 
@@ -66,9 +59,6 @@ bootstrap-target-openvpn-key:
 
 bootstrap-target-vpn:
 	ansible-playbook -v -i bin/envs/target_vpn ansible/bootstrap_vanilla_vpn.yml
-
-bootstrap-messaging-plugin:
-	ansible-playbook -v -i bin/envs/staging ansible/boostrap_messaging_plugin.yml
 
 deploy-stage:
 	ansible-playbook -v -i bin/envs/staging ansible/stage.yml
