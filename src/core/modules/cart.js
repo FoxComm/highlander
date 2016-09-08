@@ -8,6 +8,8 @@ export const toggleCart = createAction('TOGGLE_CART');
 export const hideCart = createAction('HIDE_CART');
 export const updateCart = createAction('UPDATE_CART');
 export const selectShippingMethod = createAction('CART_SET_SHIPPING_METHOD');
+export const selectCreditCard = createAction('CART_SET_CREDIT_CARD');
+export const resetCreditCard = createAction('CART_RESET_CREDIT_CARD');
 export const resetCart = createAction('RESET_CART');
 
 export type ProductInCart = {
@@ -169,6 +171,18 @@ const reducer = createReducer({
     return {
       ...state,
       shippingMethod,
+    };
+  },
+  [selectCreditCard]: (state, creditCard) => {
+    return {
+      ...state,
+      creditCard,
+    };
+  },
+  [resetCreditCard]: (state) => {
+    return {
+      ...state,
+      creditCard: null,
     };
   },
   [resetCart]: () => {
