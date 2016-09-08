@@ -10,18 +10,16 @@ defmodule Permissions.PermissionController do
   end
 
   def create(conn, %{"permission" => permission_params}) do
-    #Repo.transaction(PermissionClaimService.insert_permission(permission_params))
-    
-    case Repo.transaction(PermissionClaimService.insert_permission(permission_params))
-      {:ok, %{permission: permission, claim: claim} -> 
+    case Repo.transaction(PermissionClaimService.insert_permission(permission_params)) do
+      {:ok, %{permission: permission, claim: claim}} -> 
         conn
         |> put_status(:created)
         |> put_resp_header("location", permission_path(conn, :show, permission))
         |> render("permission.json", permission: permission)
-      {:error, changeset} ->
+      {:error, failed_operation, failed_value, changes_completed} ->
         conn
         |> put_status(:unprocessable_entity)
-        |> render(Permissions.ChangesetView, "errors.json", changeset: changeset)
+        |> render(Permissions.ChangesetView, "errors.json", changeset: failed_value)
     end
   end
 
