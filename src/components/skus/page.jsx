@@ -26,6 +26,7 @@ import * as ArchiveActions from 'modules/skus/archive';
 import { transitionTo } from 'browserHistory';
 import { isArchived } from 'paragons/common';
 import { SAVE_COMBO, SAVE_COMBO_ITEMS } from 'paragons/common';
+import { isSkuValid } from 'paragons/sku';
 
 // types
 import type { Sku } from 'modules/skus/details';
@@ -90,6 +91,15 @@ class SkuPage extends Component {
   get title(): string {
     const code = this.code;
     return this.isNew ? 'New SKU' : code.toUpperCase();
+  }
+
+  get preventSave(): boolean {
+    const { sku } = this.state;
+    if (sku) {
+      return !isSkuValid(sku);
+    }
+
+    return true;
   }
 
   @autobind
@@ -186,6 +196,7 @@ class SkuPage extends Component {
             onSelect={this.handleSelectSaving}
             isLoading={isUpdating}
             items={SAVE_COMBO_ITEMS}
+            buttonDisabled={this.preventSave}
           />
         </PageTitle>
         <LocalNav>

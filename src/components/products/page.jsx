@@ -10,8 +10,8 @@ import { connect } from 'react-redux';
 import _ from 'lodash';
 
 // actions
-import * as ProductActions from '../../modules/products/details';
-import * as ArchiveActions from '../../modules/products/archive';
+import * as ProductActions from 'modules/products/details';
+import * as ArchiveActions from 'modules/products/archive';
 
 // components
 import { Dropdown } from '../dropdown';
@@ -29,9 +29,7 @@ import styles from './page.css';
 // helpers
 import { isArchived } from 'paragons/common';
 import { transitionTo } from 'browserHistory';
-import {
-  setSkuAttribute,
-} from '../../paragons/product';
+import { isProductValid, setSkuAttribute } from 'paragons/product';
 import { SAVE_COMBO, SAVE_COMBO_ITEMS } from 'paragons/common';
 
 // types
@@ -137,6 +135,15 @@ class ProductPage extends Component {
                   items={SELECT_CONTEXT} />
       );
     }
+  }
+
+  get preventSave(): boolean {
+    const { product } = this.state;
+    if (product) {
+      return !isProductValid(product);
+    }
+
+    return true;
   }
 
   @autobind
@@ -278,6 +285,7 @@ class ProductPage extends Component {
             onSelect={this.handleSelectSaving}
             isLoading={isUpdating}
             items={SAVE_COMBO_ITEMS}
+            buttonDisabled={this.preventSave}
           />
         </PageTitle>
         <SubNav productId={this.props.params.productId} product={product} context={context}/>

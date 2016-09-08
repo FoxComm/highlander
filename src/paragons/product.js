@@ -6,9 +6,10 @@
 import _ from 'lodash';
 import { assoc } from 'sprout-data';
 import { skuEmptyAttributes } from './sku';
+import { isSatisfied } from 'paragons/object';
 
 // helpers
-import { generateSkuCode } from './sku';
+import { generateSkuCode, isSkuValid } from './sku';
 
 // types
 import type { Sku } from 'modules/skus/details';
@@ -44,12 +45,35 @@ export type VariantValue = {
   image: ?string,
 };
 
+export const options = {
+  title: { required: true },
+};
+
+export function isProductValid(product: Product): boolean {
+  // Validate all required product fields.
+  const validProductKeys: boolean = isSatisfied(product, options);
+
+  if (!validProductKeys) {
+    return false;
+  }
+
+  // Validate required SKU fields.
+  const skus = _.get(product, 'skus', []);
+  for (let i = 0; i < skus.length; i++) {
+    const validSku = isSkuValid(skus[i]);
+    if (!validSku) return false;
+  }
+
+  return true;
+}
 
 export function createEmptyProduct(): Product {
   const product = {
     id: null,
     productId: null,
-    attributes: {},
+    attributes: {
+      title: {t: 'string', v: ''},
+    },
     skus: [],
     context: {name: 'default'},
   };
@@ -69,6 +93,10 @@ export function addEmptySku(product: Product): Product {
     feCode: pseudoRandomCode,
     attributes: {
       code: {
+        t: 'string',
+        v: '',
+      },
+      title: {
         t: 'string',
         v: '',
       },

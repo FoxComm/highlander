@@ -6,6 +6,7 @@ import React, { Component, Element, PropTypes } from 'react';
 import { findDOMNode } from 'react-dom';
 import * as validators from 'lib/validators';
 import classNames from 'classnames';
+import { isDefined } from 'lib/lang';
 
 type FormFieldProps = {
   validator?: string|(value: any) => string;
@@ -199,7 +200,7 @@ export default class FormField extends Component {
       if (!requiredMessage) requiredMessage = `${label} is a required field`;
     }
 
-    if (value !== void 0 && (!_.isString(value) || value)) {
+    if (isDefined(value)) {
       if (this.props.maxLength && _.isString(value) && value.length > this.props.maxLength) {
         errors = [...errors, `${label} can not be more than ${this.props.maxLength} characters`];
       }
