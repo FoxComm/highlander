@@ -16,10 +16,10 @@
 ### Setup
 
 - Run `gcloud init`
-- Checkout [phoenix-scala](https://github.com/FoxComm/phoenix-scala), [green-river](https://github.com/FoxComm/green-river), [ashes](https://github.com/FoxComm/ashes), [firebird](https://github.com/FoxComm/firebird), [firebrand](https://github.com/FoxComm/firebrand), [middlewarehouse](https://github.com/FoxComm/middlewarehouse).
+- Checkout [phoenix-scala](https://github.com/FoxComm/phoenix-scala), [green-river](https://github.com/FoxComm/green-river), [ashes](https://github.com/FoxComm/ashes), [firebrand](https://github.com/FoxComm/firebrand), [middlewarehouse](https://github.com/FoxComm/middlewarehouse).
 - Build all projects
-    - Use `sbt assembly` for backend projects (`phoenix-scala`, `green-river`).
-    - Use `make package` for frontend projects (`ashes`, `firebird`, `firebrand`).
+    - Use `sbt assembly` for backend projects (`phoenix-scala` and `green-river`).
+    - Use `make package` for frontend projects (`ashes` and `firebrand`).
     - Use `make build-linux` for `middlewarehouse` (or grab latest build from [Releases](https://github.com/FoxComm/middlewarehouse/releases) page).
     - Use `make build` for current project.
 

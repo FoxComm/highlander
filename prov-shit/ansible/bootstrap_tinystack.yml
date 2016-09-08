@@ -44,8 +44,6 @@
     middlewarehouse_server: middlewarehouse.service.consul:9292
     phoenix_server: phoenix.service.consul:9090
     search_server_http: elasticsearch.service.consul:9200
-    firebird_default_language: en
-    firebird_fixed_language: false
     firebrand_default_language: en
     firebrand_fixed_language: false
   vars_prompt:

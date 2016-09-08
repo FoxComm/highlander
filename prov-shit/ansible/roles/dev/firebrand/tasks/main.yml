@@ -1,9 +1,9 @@
 ---
 
-- name: Remove Firebrand Dir
+- name: Remove Firebrand Directory
   file: path={{firebrand_install_dir}} state=absent
 
-- name: Add Firebrand Dir
+- name: Add Firebrand Directory
   file: path={{firebrand_install_dir}} state=directory
 
 - name: Untar Firebrand code
@@ -13,7 +13,7 @@
     dest: '{{firebrand_install_dir}}/'
 
 - name: Build Firebrand
-  shell: NODE_ENV={{firebrand_env}} DEMO_USER={{demo_user}} DEMO_PASS={{demo_pass}} FIREBIRD_LANGUAGE={{firebrand_default_language}} gulp build
+  shell: NODE_ENV={{firebrand_env}} DEMO_USER={{demo_user}} DEMO_PASS={{demo_pass}} FIREBRAND_LANGUAGE={{firebrand_default_language}} gulp build
   args:
     chdir: "{{firebrand_install_dir}}"
   when: demo_user != ""
@@ -24,11 +24,11 @@
     src: "{{role_path}}/../../base/firebrand/templates/firebrand.service.j2"
     dest: "{{dest_services}}/firebrand.service"
 
-- name: Reload Systemd for Firebird
+- name: Reload Systemd for Firebrand
   sudo: yes
   command: systemctl daemon-reload
 
-- name: Install firebrand run script
+- name: Install Firebrand Run script
   sudo: true
   template: src=../../../base/firebrand/templates/run_firebrand.sh.j2 dest="{{ firebrand_install_dir }}/run_firebrand.sh" mode="u=rwx,g=rwx,o=r"
 

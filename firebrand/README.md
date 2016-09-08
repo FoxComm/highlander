@@ -1,6 +1,6 @@
-# Firebird
+# Firebrand
 
-[![Build status](https://badge.buildkite.com/1238dff6913c220ef0612d9a9f4b0c5198a8dd270d260f8ff2.svg)](https://buildkite.com/foxcommerce/firebird)
+[![Build status](https://badge.buildkite.com/e9143615d9d894b2cfc2d23dbf3bdcd8b217e10e56710564a7.svg)](https://buildkite.com/foxcommerce/firebrand)
 
 Demo storefront implementation of a FoxCommerce-powered store. Isomorphic React app powered by FoxComm's backend API.
 

@@ -1,3 +1,7 @@
+#!/bin/bash
+
+set -ue
+
 # Add Buildkite signed apt repo
 sudo sh -c 'echo deb https://apt.buildkite.com/buildkite-agent stable main > /etc/apt/sources.list.d/buildkite-agent.list'
 sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 32A37959C2FA5C3C99EFBC32A79206696452D198
@@ -25,3 +29,6 @@ sudo cp /etc/sudoers.bk /etc/sudoers
 
 sudo su $US -c "mkdir /var/lib/buildkite-agent/.ssh"
 sudo su $US -c "echo '$PUB_KEY' >> /var/lib/buildkite-agent/.ssh/authorized_keys"
+
+# Change home directory ownership
+sudo chown buildkite-agent /home/buildkite-agent

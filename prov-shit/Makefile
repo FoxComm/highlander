@@ -10,7 +10,6 @@ PRIVATE_KEY ?= ~/.ssh/id_rsa
 all: build
 
 build:
-	$(GO) get ./...
 	$(GO) build -o bin/inventory inventory/inventory.go
 
 clean:
@@ -20,7 +19,11 @@ lint:
 	ansible-lint -x ANSIBLE0007,ANSIBLE0004 ansible/*.yml
 
 test: 
+	go get github.com/stretchr/testify
 	$(GO) test -v ./inventory/
+
+bootstrap-build-agents:
+	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_build_agents.yml
 
 bootstrap-consul-alerts:
 	ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_consul_alerts.yml
@@ -28,20 +31,14 @@ bootstrap-consul-alerts:
 bootstrap-db-backup:
 	ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_db_backup.yml
 
-bootstrap-tinystack:
-	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml --private-key=$(PRIVATE_KEY)
-
-bootstrap-tinystack-backend:
-	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml --tags=backend --private-key=$(PRIVATE_KEY)
-
-bootstrap-tinystack-frontend:
-	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml --tags=frontend --private-key=$(PRIVATE_KEY)
-
-bootstrap-tinystack-balancer:
-	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml --tags=balancer --private-key=$(PRIVATE_KEY)
+bootstrap-messaging-plugin:
+	ansible-playbook -v -i bin/envs/staging ansible/boostrap_messaging_plugin.yml
 
 bootstrap-middlewarehouse:
 	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_middlewarehouse.yml --private-key=$(PRIVATE_KEY)
+
+bootstrap-tinystack:
+	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml --private-key=$(PRIVATE_KEY)
 
 bootstrap-vanilla:
 	ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_vanilla.yml
@@ -63,9 +60,6 @@ bootstrap-target-openvpn-key:
 
 bootstrap-target-vpn:
 	ansible-playbook -v -i bin/envs/target_vpn ansible/bootstrap_vanilla_vpn.yml
-
-bootstrap-messaging-plugin:
-	ansible-playbook -v -i bin/envs/staging ansible/boostrap_messaging_plugin.yml
 
 deploy-stage:
 	ansible-playbook -v -i bin/envs/staging ansible/stage.yml
@@ -94,9 +88,6 @@ deploy-dem1:
 deploy-dem2:
 	ansible-playbook -v -i bin/envs/staging ansible/dem2.yml
 
-deploy-build-agents:
-	ansible-playbook -v -i bin/envs/staging ansible/build_agents.yml --private-key=$(PRIVATE_KEY)
-
 tf-aws-demo:
 	terraform $(TF_CMD) -state=$(TF_ENVS)/aws_demo_env/terraform.tfstate -var-file=$(TF_ENVS)/aws_demo_env/demo.tfvars $(TF_BASE)/aws_demo_env
 
@@ -105,9 +96,6 @@ tf-aws-target:
 
 tf-stage:
 	terraform $(TF_CMD) -state=$(TF_ENVS)/gce_dev/terraform.tfstate -var-file=$(TF_ENVS)/gce_dev/dev.tfvars $(TF_BASE)/gce_dev
-
-tf-prodsmall:
-	terraform $(TF_CMD) -state=$(TF_ENVS)/gce_prodsmall/terraform.tfstate -var-file=$(TF_ENVS)/gce_prodsmall/prodsmall.tfvars $(TF_BASE)/gce_prodsmall
 
 tf-vanilla:
 	terraform $(TF_CMD) -state=$(TF_ENVS)/gce_vanilla/terraform.tfstate -var-file=$(TF_ENVS)/gce_vanilla/vanilla.tfvars $(TF_BASE)/gce_vanilla

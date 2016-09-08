@@ -18,7 +18,7 @@ const INITIAL_STATE:Search = {
 };
 
 const MAX_RESULTS = 1000;
-const context = process.env.FIREBIRD_CONTEXT || 'default';
+const context = process.env.FIREBRAND_CONTEXT || 'default';
 
 /**
  * Generate search api call actions and reducer

@@ -57,11 +57,6 @@ shipments_consumer_bin_src: "{{shipments_consumer_src}}/shipments-consumer"
 # Ashes
 ashes_env: production
 
-# Firebird
-firebird_env: production
-firebird_default_language: en
-firebird_fixed_language: false
-
 # Firebrand variables
 firebrand_env: production
 firebrand_default_language: en
