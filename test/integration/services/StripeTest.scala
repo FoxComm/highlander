@@ -3,32 +3,25 @@ package services
 import java.time.{Instant, ZoneId}
 
 import cats.implicits._
-import com.stripe.{Stripe ⇒ TheStripe}
+import com.stripe.Stripe
 import failures.CreditCardFailures.CardDeclined
 import util._
 import utils.Money.Currency.USD
 import utils.TestStripeSupport._
-import utils.apis.{Apis, WiredStripeApi}
+import utils.apis._
 import utils.seeds.Seeds.Factories
 
 trait RealStripeApis extends IntegrationTestBase {
   // Mutate Stripe state, set real key
-  TheStripe.apiKey = config.getString("stripe.key")
-
-  // services.Stripe requires implicit Apis def
-  // Grab everything but Stripe from MockedApis and replace Stripe with real one
-  private val mockedApis = new MockedApis {}
-  implicit val apis: Apis = Apis(stripe = new WiredStripeApi,
-                                 middlwarehouse = mockedApis.middlewarehouseApiMock,
-                                 amazon = mockedApis.amazonApiMock)
-
-  val stripe = Stripe()
+  Stripe.apiKey = config.getString("stripe.key")
 }
 
 // Test that actually calls Stripe
 // Other integration tests should mock Stripe API and check that some method has been called on a mock
 // !!! Do not mix MockedApis in here
 class StripeTest extends RealStripeApis {
+
+  val stripe = new FoxStripe(new StripeWrapper())
 
   import Tags._
 

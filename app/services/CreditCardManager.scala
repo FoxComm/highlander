@@ -25,7 +25,6 @@ import utils.apis.Apis
 import utils.db._
 
 object CreditCardManager {
-  private def gateway(implicit ec: EC, apis: Apis): Stripe = Stripe()
 
   type Root = CreditCardsResponse.Root
 
@@ -52,10 +51,10 @@ object CreditCardManager {
                        .one
       address = Address.fromPayload(payload.billingAddress, customer.id)
       _ ← * <~ (if (payload.addressIsNew) Addresses.create(address) else DbResultT.unit)
-      stripes ← * <~ Stripe().createCardFromToken(email = customer.email,
-                                                  token = payload.token,
-                                                  stripeCustomerId = customerToken,
-                                                  address = address)
+      stripes ← * <~ apis.stripe.createCardFromToken(email = customer.email,
+                                                     token = payload.token,
+                                                     stripeCustomerId = customerToken,
+                                                     address = address)
       (stripeCustomer, stripeCard) = stripes
       cc ← * <~ CreditCards.create(
               CreditCard.buildFromToken(customerId = customerId,
@@ -109,7 +108,8 @@ object CreditCardManager {
       stripeIdAndAddress ← * <~ getExistingStripeIdAndAddress
       (stripeId, address) = stripeIdAndAddress
       stripeStuff ← * <~ DBIO.from(
-                       gateway.createCardFromSource(customer.email, payload, stripeId, address))
+                       apis.stripe
+                         .createCardFromSource(customer.email, payload, stripeId, address))
       (stripeCustomer, stripeCard) = stripeStuff
       newCard ← * <~ createCard(customer, stripeCustomer, stripeCard, address)
     } yield newCard
@@ -137,7 +137,7 @@ object CreditCardManager {
       region   ← * <~ Regions.findOneById(cc.regionId).safeGet
       update ← * <~ CreditCards.update(cc,
                                        cc.copy(inWallet = false, deletedAt = Some(Instant.now())))
-      _ ← * <~ gateway.deleteCard(cc)
+      _ ← * <~ apis.stripe.deleteCard(cc)
       _ ← * <~ LogActivity.ccDeleted(customer, cc, admin)
     } yield ()
 
@@ -157,7 +157,7 @@ object CreditCardManager {
           expMonth = payload.expMonth.getOrElse(cc.expMonth)
       )
       for {
-        _ ← * <~ DBIO.from(gateway.editCard(updated))
+        _ ← * <~ DBIO.from(apis.stripe.editCard(updated))
         _ ← * <~ (if (!cc.inWallet) DbResultT.failure(CannotUseInactiveCreditCard(cc))
                   else DbResultT.unit)
         _  ← * <~ CreditCards.update(cc, cc.copy(inWallet = false))

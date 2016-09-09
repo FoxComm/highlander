@@ -11,6 +11,7 @@ import services.image.ImageManager
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.SQLActionBuilder
 import util._
+import utils.MockedApis
 import utils.Money.Currency
 import utils.db._
 

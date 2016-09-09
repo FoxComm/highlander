@@ -1,6 +1,6 @@
-package services
+package utils.apis
 
-import scala.collection.JavaConversions.mapAsJavaMap
+import scala.collection.JavaConversions._
 
 import cats.implicits._
 import com.stripe.model.{DeletedExternalAccount, ExternalAccount}
@@ -8,14 +8,26 @@ import failures.CustomerFailures.CustomerMustHaveCredentials
 import models.location.Address
 import models.payment.creditcard.CreditCard
 import payloads.PaymentPayloads.CreateCreditCardFromSourcePayload
+import services.{Result, ResultT}
 import utils.Money._
 import utils.aliases._
 import utils.aliases.stripe._
-import utils.apis._
 
-case class Stripe(implicit apis: Apis, ec: EC) {
+/**
+  * Fox Stripe API implementation
+  * @param stripe Low-level implementation of Stripe API
+  */
+class FoxStripe(stripe: StripeWrapper)(implicit ec: EC) extends FoxStripeApi {
 
-  val api: StripeApi = apis.stripe
+  def createCardFromToken(email: Option[String],
+                          token: String,
+                          stripeCustomerId: Option[String],
+                          address: Address): Result[(StripeCustomer, StripeCard)] = email match {
+    case Some(e) ⇒
+      createCardAndMaybeCustomer(e, Map("source" → token), stripeCustomerId, address)
+    case _ ⇒
+      Result.failure(CustomerMustHaveCredentials)
+  }
 
   @deprecated(message = "Use `createCardFromToken` instead", "Until we are PCI compliant")
   def createCardFromSource(email: Option[String],
@@ -40,16 +52,6 @@ case class Stripe(implicit apis: Apis, ec: EC) {
     }
   }
 
-  def createCardFromToken(email: Option[String],
-                          token: String,
-                          stripeCustomerId: Option[String],
-                          address: Address): Result[(StripeCustomer, StripeCard)] = email match {
-    case Some(e) ⇒
-      createCardAndMaybeCustomer(e, Map("source" → token), stripeCustomerId, address)
-    case _ ⇒
-      Result.failure(CustomerMustHaveCredentials)
-  }
-
   private def createCardAndMaybeCustomer(
       email: String,
       source: Map[String, Object],
@@ -57,8 +59,8 @@ case class Stripe(implicit apis: Apis, ec: EC) {
       address: Address): Result[(StripeCustomer, StripeCard)] = {
     def existingCustomer(id: String): ResultT[(StripeCustomer, StripeCard)] = {
       for {
-        cust ← ResultT(getCustomer(id))
-        card ← ResultT(api.createCard(cust, source))
+        cust ← ResultT(stripe.findCustomer(id))
+        card ← ResultT(stripe.createCard(cust, source))
       } yield (cust, card)
     }
 
@@ -69,7 +71,7 @@ case class Stripe(implicit apis: Apis, ec: EC) {
         ) ++ source
 
       for {
-        cust ← ResultT(api.createCustomer(params))
+        cust ← ResultT(stripe.createCustomer(params))
         card ← ResultT(getCard(cust))
       } yield (cust, card)
     }
@@ -85,11 +87,11 @@ case class Stripe(implicit apis: Apis, ec: EC) {
         "capture"  → (false: java.lang.Boolean)
     )
 
-    api.createCharge(chargeMap)
+    stripe.createCharge(chargeMap)
   }
 
   def captureCharge(chargeId: String, amount: Int): Result[StripeCharge] =
-    api.captureCharge(chargeId, Map[String, Object]("amount" → amount.toString))
+    stripe.captureCharge(chargeId, Map[String, Object]("amount" → amount.toString))
 
   def editCard(cc: CreditCard): Result[ExternalAccount] = {
 
@@ -106,28 +108,25 @@ case class Stripe(implicit apis: Apis, ec: EC) {
           "exp_month"    → cc.expMonth.toString
       )
 
-      api.updateExternalAccount(stripeCard, params)
+      stripe.updateExternalAccount(stripeCard, params)
     }
 
     (for {
-      customer   ← ResultT(getCustomer(cc.gatewayCustomerId))
+      customer   ← ResultT(stripe.findCustomer(cc.gatewayCustomerId))
       stripeCard ← ResultT(getCard(customer))
       updated    ← ResultT(update(stripeCard))
     } yield updated).value
   }
 
+  private def getCard(customer: StripeCustomer): Result[StripeCard] =
+    stripe.findDefaultCard(customer)
+
   def deleteCard(cc: CreditCard): Result[DeletedExternalAccount] = {
     (for {
-      customer   ← ResultT(getCustomer(cc.gatewayCustomerId))
+      customer   ← ResultT(stripe.findCustomer(cc.gatewayCustomerId))
       stripeCard ← ResultT(getCard(customer))
-      updated    ← ResultT(api.deleteExternalAccount(stripeCard))
+      updated    ← ResultT(stripe.deleteExternalAccount(stripeCard))
     } yield updated).value
   }
-
-  private def getCustomer(id: String): Result[StripeCustomer] =
-    api.findCustomer(id)
-
-  private def getCard(customer: StripeCustomer): Result[StripeCard] =
-    api.findDefaultCard(customer)
 
 }

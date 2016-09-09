@@ -13,6 +13,7 @@ import responses.VariantValueResponses.IlluminatedVariantValueResponse
 import responses.VariantValueResponses.IlluminatedVariantValueResponse.Root
 import services.product.ProductManager
 import util._
+import utils.MockedApis
 import utils.Money.Currency
 import utils.db._
 

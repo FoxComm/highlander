@@ -4,6 +4,7 @@ import akka.http.scaladsl.model.{ContentTypes, ErrorInfo, IllegalRequestExceptio
 import akka.http.scaladsl.server.Directives._
 
 import util._
+import utils.MockedApis
 
 class JsonExceptionHandlerIntegrationTest
     extends IntegrationTestBase

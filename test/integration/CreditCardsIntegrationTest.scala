@@ -31,7 +31,7 @@ class CreditCardsIntegrationTest
     with BeforeAndAfterEach {
 
   override def beforeEach(): Unit = {
-    initStripeApiMock(stripeApiMock)
+    initStripeApiMock(stripeWrapperMock)
   }
 
   val theAddress = Factories.address.copy(id = 1, customerId = 1, isDefaultShipping = false)
@@ -77,7 +77,7 @@ class CreditCardsIntegrationTest
       // No Stripe customer yet
       val response1 = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", thePayload)
       response1.status must === (StatusCodes.OK)
-      Mockito.verify(stripeApiMock).createCustomer(customerSourceMap(customer))
+      Mockito.verify(stripeWrapperMock).createCustomer(customerSourceMap(customer))
 
       val creditCards = CreditCards.result.gimme
       creditCards must have size 1
@@ -101,14 +101,14 @@ class CreditCardsIntegrationTest
       creditCards.head must === (expected)
 
       // With existing Stripe customer
-      Mockito.clearInvocations(stripeApiMock)
+      Mockito.clearInvocations(stripeWrapperMock)
 
       val response2 = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", thePayload)
       response2.status must === (StatusCodes.OK)
 
-      Mockito.verify(stripeApiMock).findCustomer(stripeCustomer.getId)
-      Mockito.verify(stripeApiMock).createCard(m.eq(stripeCustomer), m.any())
-      Mockito.verify(stripeApiMock, never()).createCustomer(m.any())
+      Mockito.verify(stripeWrapperMock).findCustomer(stripeCustomer.getId)
+      Mockito.verify(stripeWrapperMock).createCard(m.eq(stripeCustomer), m.any())
+      Mockito.verify(stripeWrapperMock, never()).createCustomer(m.any())
     }
 
     "creates cards for different customers correctly" in {
@@ -123,8 +123,8 @@ class CreditCardsIntegrationTest
         POST(s"v1/customers/${customer2.id}/payment-methods/credit-cards", thePayload)
       response2.status must === (StatusCodes.OK)
 
-      Mockito.verify(stripeApiMock).createCustomer(customerSourceMap(customer1))
-      Mockito.verify(stripeApiMock).createCustomer(customerSourceMap(customer2))
+      Mockito.verify(stripeWrapperMock).createCustomer(customerSourceMap(customer1))
+      Mockito.verify(stripeWrapperMock).createCustomer(customerSourceMap(customer2))
 
       val ccCustomerIds = CreditCards.map(_.customerId).result.gimme
       ccCustomerIds must contain allOf (customer1.id, customer2.id)
@@ -150,7 +150,7 @@ class CreditCardsIntegrationTest
     }
 
     "errors 400 if wrong credit card token" in new Customer_Seed {
-      when(stripeApiMock.createCustomer(m.any()))
+      when(stripeWrapperMock.createCustomer(m.any()))
         .thenReturn(Result.failure[StripeCustomer](GeneralFailure("BAD-TOKEN")))
       val response = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", thePayload)
       response.status must === (StatusCodes.BadRequest)
@@ -180,7 +180,7 @@ class CreditCardsIntegrationTest
       // No Stripe customer yet
       val response1 = POST("v1/my/payment-methods/credit-cards", thePayload)
       response1.status must === (StatusCodes.OK)
-      Mockito.verify(stripeApiMock).createCustomer(customerSourceMap(customer))
+      Mockito.verify(stripeWrapperMock).createCustomer(customerSourceMap(customer))
 
       val creditCards = CreditCards.result.gimme
       creditCards must have size 1
@@ -204,14 +204,14 @@ class CreditCardsIntegrationTest
       creditCards.head must === (expected)
 
       // With existing Stripe customer
-      Mockito.clearInvocations(stripeApiMock)
+      Mockito.clearInvocations(stripeWrapperMock)
 
       val response2 = POST("v1/my/payment-methods/credit-cards", thePayload)
       response2.status must === (StatusCodes.OK)
 
-      Mockito.verify(stripeApiMock).findCustomer(stripeCustomer.getId)
-      Mockito.verify(stripeApiMock).createCard(m.eq(stripeCustomer), m.any())
-      Mockito.verify(stripeApiMock, never()).createCustomer(m.any())
+      Mockito.verify(stripeWrapperMock).findCustomer(stripeCustomer.getId)
+      Mockito.verify(stripeWrapperMock).createCard(m.eq(stripeCustomer), m.any())
+      Mockito.verify(stripeWrapperMock, never()).createCustomer(m.any())
     }
 
     // This test is pending because currently there is no way to auth as another customer midtest
@@ -229,8 +229,8 @@ class CreditCardsIntegrationTest
       val response2 = POST("v1/my/payment-methods/credit-cards", thePayload)
       response2.status must === (StatusCodes.OK)
 
-      Mockito.verify(stripeApiMock).createCustomer(customerSourceMap(customer1))
-      Mockito.verify(stripeApiMock).createCustomer(customerSourceMap(customer2))
+      Mockito.verify(stripeWrapperMock).createCustomer(customerSourceMap(customer1))
+      Mockito.verify(stripeWrapperMock).createCustomer(customerSourceMap(customer2))
 
       val ccCustomerIds = CreditCards.map(_.customerId).result.gimme
       ccCustomerIds must contain allOf (customer1.id, customer2.id)
@@ -250,7 +250,7 @@ class CreditCardsIntegrationTest
     }
 
     "errors 400 if wrong credit card token" in new Customer_Seed {
-      when(stripeApiMock.createCustomer(m.any()))
+      when(stripeWrapperMock.createCustomer(m.any()))
         .thenReturn(Result.failure[StripeCustomer](GeneralFailure("BAD-TOKEN")))
 
       val response = POST("v1/my/payment-methods/credit-cards", thePayload)

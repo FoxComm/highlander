@@ -15,9 +15,7 @@ import models.cord.OrderPayments.scope._
 import models.cord._
 import models.customer._
 import models.location.{Addresses, Regions}
-import models.payment.PaymentMethod
-import models.payment.creditcard.{CreditCard, CreditCards, CreditCardCharge, CreditCardCharges}
-import models.returns._
+import models.payment.creditcard._
 import models.shipping.Shipment.Shipped
 import models.shipping.{Shipment, Shipments}
 import models.traits.Originator
@@ -35,7 +33,7 @@ import services.{CreditCardManager, Result}
 import slick.driver.PostgresDriver.api._
 import util._
 import util.fixtures.BakedFixtures
-import utils.Money.Currency
+import utils.MockedApis
 import utils.db._
 import utils.jdbc._
 import utils.seeds.Seeds.Factories
@@ -592,7 +590,7 @@ class CustomerIntegrationTest
                                         null,
                                         null)
 
-      when(stripeApiMock.updateExternalAccount(any(), any()))
+      when(stripeWrapperMock.updateExternalAccount(any(), any()))
         .thenReturn(Result.failure[ExternalAccount](StripeFailure(exception)))
 
       val payload = EditCreditCard(expYear = Some(2000))

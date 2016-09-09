@@ -10,6 +10,7 @@ import payloads.GenericTreePayloads._
 import responses.GenericTreeResponses.{FullTreeResponse, TreeResponse}
 import slick.driver.PostgresDriver.api._
 import util._
+import utils.MockedApis
 import utils.aliases._
 import utils.db._
 

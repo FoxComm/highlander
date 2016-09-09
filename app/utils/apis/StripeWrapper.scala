@@ -9,51 +9,18 @@ import cats.data.Xor
 import cats.implicits._
 import com.stripe.exception.{CardException, StripeException}
 import com.stripe.model.{DeletedExternalAccount, ExternalAccount, Charge ⇒ StripeCharge, Customer ⇒ StripeCustomer}
-import failures.CreditCardFailures._
 import failures.StripeFailures.StripeFailure
-import failures.{Failure, Failures, GeneralFailure}
+import failures.{Failures, GeneralFailure}
 import services.{Result, ResultT}
 import utils.aliases.stripe._
+import utils.apis.StripeMappings.cardExceptionMap
 
-trait StripeApi {
+/**
+  * Low-level Stripe API wrapper implementation.
+  * All calls should be executed in blocking pool.
+  */
+class StripeWrapper extends StripeApiWrapper {
 
-  def createCustomer(options: Map[String, AnyRef]): Result[StripeCustomer]
-
-  def createCard(customer: StripeCustomer, options: Map[String, AnyRef]): Result[StripeCard]
-
-  def createCharge(options: Map[String, AnyRef]): Result[StripeCharge]
-
-  def captureCharge(chargeId: String, options: Map[String, AnyRef]): Result[StripeCharge]
-
-  def getExtAccount(customer: StripeCustomer, id: String): Result[ExternalAccount]
-
-  def findCustomer(id: String): Result[StripeCustomer]
-
-  def findDefaultCard(customer: StripeCustomer): Result[StripeCard]
-
-  def updateExternalAccount(card: ExternalAccount,
-                            options: Map[String, AnyRef]): Result[ExternalAccount]
-
-  def deleteExternalAccount(card: ExternalAccount): Result[DeletedExternalAccount]
-}
-
-object StripeApi {
-  val cardExceptionMap: Map[String, Failure] = Map(
-      "invalid_number"       → InvalidNumber,
-      "invalid_expiry_month" → MonthExpirationInvalid,
-      "invalid_expiry_year"  → YearExpirationInvalid,
-      "invalid_cvc"          → InvalidCvc,
-      "incorrect_number"     → IncorrectNumber,
-      "expired_card"         → ExpiredCard,
-      "incorrect_cvc"        → IncorrectCvc,
-      "incorrect_zip"        → IncorrectZip,
-      "card_declined"        → CardDeclined,
-      "missing"              → Missing,
-      "processing_error"     → ProcessingError
-  )
-}
-
-class WiredStripeApi extends StripeApi {
   private val blockingIOPool: ExecutionContext =
     ExecutionContext.fromExecutor(Executors.newCachedThreadPool)
 
@@ -63,16 +30,6 @@ class WiredStripeApi extends StripeApi {
   def findDefaultCard(customer: StripeCustomer): Result[StripeCard] =
     inBlockingPool(customer.getSources.retrieve(customer.getDefaultSource))
       .flatMap(accountToCard)(blockingIOPool)
-
-  final def accountToCard(account: Failures Xor ExternalAccount): Result[StripeCard] =
-    account match {
-      case Xor.Left(xs) ⇒
-        Result.failures(xs)
-      case Xor.Right(c: StripeCard) if c.getObject.equals("card") ⇒
-        Result.good(c)
-      case _ ⇒
-        Result.failure(GeneralFailure("Not a stripe card: " ++ account.toString))
-    }
 
   def createCustomer(options: Map[String, AnyRef]): Result[StripeCustomer] =
     inBlockingPool(StripeCustomer.create(mapAsJavaMap(options)))
@@ -108,6 +65,16 @@ class WiredStripeApi extends StripeApi {
 
   // TODO: This needs a life-cycle hook so we can shut it down.
 
+  private def accountToCard(account: Failures Xor ExternalAccount): Result[StripeCard] =
+    account match {
+      case Xor.Left(xs) ⇒
+        Result.failures(xs)
+      case Xor.Right(c: StripeCard) if c.getObject.equals("card") ⇒
+        Result.good(c)
+      case _ ⇒
+        Result.failure(GeneralFailure("Not a stripe card: " ++ account.toString))
+    }
+
   /**
     * Executes code inside an execution context that is optimised for blocking I/O operations and returns a Future.
     * Stripe exceptions are caught and turned into a [[StripeFailure]].
@@ -118,8 +85,8 @@ class WiredStripeApi extends StripeApi {
     implicit val ec: ExecutionContext = blockingIOPool
 
     Future(Xor.right(blocking(action))).recoverWith {
-      case t: CardException if StripeApi.cardExceptionMap.contains(t.getCode) ⇒
-        Result.failure(StripeApi.cardExceptionMap(t.getCode))
+      case t: CardException if cardExceptionMap.contains(t.getCode) ⇒
+        Result.failure(cardExceptionMap(t.getCode))
       case t: StripeException ⇒
         Result.failure(StripeFailure(t))
     }

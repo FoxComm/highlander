@@ -9,10 +9,10 @@ import faker.Lorem
 import models.location.Address
 import org.scalatest.OptionValues
 import services.Result
-import utils.apis.WiredStripeApi
+import utils.apis.StripeWrapper
 import utils.seeds.Seeds.Factories
 
-object TestStripeSupport extends WiredStripeApi with OptionValues {
+object TestStripeSupport extends OptionValues {
 
   // "fox" suffix is to indicate its ours
   def randomStripeishId = Lorem.bothify("?#?#?#?####?#?#???_fox")
@@ -44,7 +44,7 @@ object TestStripeSupport extends WiredStripeApi with OptionValues {
                                 "address_city"  → address.city,
                                 "address_zip"   → address.zip)
 
-    inBlockingPool(Token.create(Map("card" → mapAsJavaMap(card))))
+    new StripeWrapper().inBlockingPool(Token.create(Map("card" → mapAsJavaMap(card))))
   }
 
   // https://stripe.com/docs/testing#cards
