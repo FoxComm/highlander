@@ -25,18 +25,19 @@ defmodule Permissions.PermissionClaimService do
       from permission in Permission,
       join: resource in assoc(permission, :resource),
       join: scope in assoc(permission, :scope),
+      join: system in assoc(resource, :system),
       where: resource.id == ^resource_id,
       where: scope.id == ^scope_id,
       select: %{
         id: permission.id,
         resource_name: resource.name,
+        system_name: system.name,
         actions: permission.actions,
         scope_id: scope.id
       },
       limit: 1
     )
     |> construct_frn
-    IO.inspect(perm_changeset)
     changeset_with_claim = Permission.changeset(perm_changeset, %{"frn" => claim_frn})
 
     Multi.new
@@ -47,12 +48,12 @@ defmodule Permissions.PermissionClaimService do
     fp = List.first(full_perm)
     case fp do 
       fp when is_nil fp -> empty_frn
-      fp ->  "Fox:#{fp.scope_id}:#{fp.resource_name}:#{fp.actions}"
+      fp ->  "frn:#{fp.system_name}:#{fp.resource_name}:#{fp.scope_id}"
     end
   end
 
   defp empty_frn() do
-    "Fox:None"
+    "frn:none"
   end
 
 end
