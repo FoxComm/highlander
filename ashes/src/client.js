@@ -16,6 +16,7 @@ import { trackPageView, initTracker } from './lib/analytics';
 const createBrowserHistory = useNamedRoutes(useRouterHistory(createHistory));
 
 export function start() {
+  console.log("STARTED");
   let history = createBrowserHistory({ routes });
 
   const initialState = {};

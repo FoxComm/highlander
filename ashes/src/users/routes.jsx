@@ -9,6 +9,8 @@ import User from 'components/users/user';
 import UserForm from 'components/users/user-form';
 
 const userRoutes = () => {
+  console.log("HELLO DARLING MY OLD FRIEND");
+  
   return (
     <Route name="user-base" path="users">
       <Route name="users-list-page" component={UsersListPage}>

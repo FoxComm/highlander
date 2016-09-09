@@ -26,6 +26,7 @@ module.exports = function(app) {
   // lets do renderReact property is lazy
   Object.defineProperty(app, 'renderReact', {
     get: function() {
+      console.log('renderReact called');
       return require('../src/render').renderReact;
     }
   });
@@ -33,6 +34,7 @@ module.exports = function(app) {
   const publicKey = loadPublicKey(config);
 
   function getToken(ctx) {
+    console.log('getToken called');
     const token = ctx.cookies.get(config.api.auth.cookieName);
     if (!token) {
       return null;

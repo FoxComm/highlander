@@ -48,6 +48,8 @@ import customerRoutes from './customers/routes';
 import orderRoutes from './orders/routes';
 import userRoutes from './users/routes';
 
+import { getClaims } from 'lib/claims';
+
 // no productions pages, make sure these paths are included in `excludedList` in browserify.js
 if (process.env.NODE_ENV != 'production') {
   var StyleGuide = require('./components/style-guide/style-guide').default;
@@ -59,6 +61,10 @@ if (process.env.NODE_ENV != 'production') {
   var AllNotificationItems = require('components/activity-notifications/all').default;
 }
 
+const claims = getClaims();
+console.log('claims');
+console.log(claims);
+
 const routes = (
   <Route path="/">
     <IndexRedirect to="/orders/"/>
@@ -69,7 +75,7 @@ const routes = (
     </Route>
     <Route component={Site}>
       <IndexRoute name="home" component={Home}/>
-      {orderRoutes()}
+      {orderRoutes(claims)}
       {customerRoutes()}
       <Route name='products-base' path='products'>
         <Route name='products-list-pages' component={ProductsListPage}>
