@@ -1,0 +1,7 @@
+.search-title {
+  margin: 20px 0 0;
+}
+
+.search-title__uppercase {
+  text-transform: uppercase;
+}

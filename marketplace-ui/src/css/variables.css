@@ -1,0 +1,18 @@
+
+@import 'media-queries.css';
+
+:root {
+  --grid-margin: 1.7%;
+}
+
+@media (--small-viewport) {
+  :root {
+    --grid-margin: 10px;
+  }
+}
+
+@media (--x-large-viewport) {
+  :root {
+    --grid-margin: 1.9%;
+  }
+}

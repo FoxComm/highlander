@@ -1,0 +1,110 @@
+@import "media-queries.css";
+@import "colors.css";
+
+.tools {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.login {
+  margin-right: 20px;
+}
+
+.login-link {
+  text-decoration: none;
+  opacity: .7;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.user-info {
+  position: relative;
+}
+
+.username {
+  cursor: pointer;
+  transition: all 300ms;
+
+  &:hover {
+    opacity: .7;
+  }
+}
+
+.menu {
+  position: absolute;
+  top: 30px;
+  right: 0;
+  min-width: 134px;
+  background: var(--whitish);
+  border: 1px solid #484848;
+
+  &:before {
+    content: "";
+    position: absolute;
+    top: -5px;
+    right: 12px;
+    width: 8px;
+    height: 8px;
+    transform: rotate(39deg) skewX(-10deg);
+    background: var(--whitish);
+    border-color: #484848;
+    border-style: solid;
+    border-width: 1px 0 0 1px;
+  }
+}
+
+.menu-link {
+  position: relative;
+  display: inline-block;
+  padding: 10px;
+  width: 100%;
+  white-space: nowrap;
+  line-height: 20px;
+  font-size: 13px;
+  text-decoration: none;
+  color: #484848;
+
+  &:hover {
+    background: var(--white-smokish);
+  }
+}
+
+.cart-quantity {
+  position: relative;
+  top: 3px;
+  left: 2px;
+  font-size: 11px;
+  vertical-align: top;
+  min-width: 13px;
+  display: inline-block;
+  text-align: left;
+}
+
+.cart {
+  margin-right: -8px;
+  white-space: nowrap;
+  fill: var(--blackish);
+  cursor: pointer;
+
+  & :global(.icon) {
+    stroke: none;
+  }
+
+  &:hover {
+    & :global(.icon) {
+      opacity: .7;
+    }
+  }
+}
+
+@media (--small-viewport) {
+  .login-link,
+  .menu {
+    display: none;
+  }
+  .username {
+    cursor: default;
+  }
+}

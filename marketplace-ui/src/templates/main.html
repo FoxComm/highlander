@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+  <head>
+    <title>StoreFront</title>
+    <meta name="viewport" content="width=device-width">
+    <link rel="stylesheet" href="/app.css" />
+    <script type="text/javascript">
+      if (!window.Intl) {
+        var head = document.getElementsByTagName('head')[0];
+        var s = document.createElement('script');
+        s.type = 'text/javascript';
+        s.src = 'https://cdn.polyfill.io/v2/polyfill.min.js?features=Intl.~locale.en';
+        head.appendChild(s);
+      }
+    </script>
+  </head>
+  <body>
+    {{#def.fcSprite}}
+
+    <div id="app">{{= it.html }}</div>
+
+    <!-- its a Redux initial data -->
+    <script charset="UTF-8">
+      window.__data={{= it.state }};
+      window.__i18n={{= it.i18n }};
+      function makeXhr(a,b){return b=new XMLHttpRequest,b.open("GET",a),a=[],b.onreadystatechange=b.then=function(c,d,e,f){if(c&&c.call&&(a=[,c,d]),4==b.readyState&&(e=a[0|b.status/200])){try{f=JSON.parse(b.responseText)}catch(g){f=null}e(f,b)}},b.send(),b}
+    </script>
+    <script type="text/javascript" src="/app.js"></script>
+    <script type="text/javascript">
+      App.renderApp();
+    </script>
+  </body>
+</html>

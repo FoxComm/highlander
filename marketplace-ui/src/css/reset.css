@@ -1,0 +1,51 @@
+
+* {
+  outline: 0;
+  box-sizing: border-box;
+  &:before, &:after { box-sizing: border-box; }
+}
+
+html {
+  font-size: 100%;
+}
+
+table {
+  width: 100%;
+  text-align: left;
+}
+
+body {
+  font-family: Lato, 'Open Sans', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+input, textarea, keygen, select, button {
+  font-family: Lato, 'Open Sans', sans-serif;
+}
+
+hr {
+  border: none;
+  height: 0;
+  background: none;
+}
+
+img {
+  max-width: 100%;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+}
+
+ul {
+  list-style-type: none;
+}
+
+button {
+  border: 0;
+  padding: 0;
+  background: none;
+}

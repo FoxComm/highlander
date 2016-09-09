@@ -1,0 +1,100 @@
+
+@import "colors.css";
+@import "media-queries.css";
+
+.button {
+  font-size: 1rem;
+  line-height: 20px;
+  padding: 14px 10px;
+  border: 1px solid var(--blackish);
+  background-color: var(--blackish);
+  color: var(--whitish);
+  text-align: center;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--whitish);
+    color: var(--blackish);
+  }
+
+  & > span {
+    vertical-align: middle;
+  }
+
+  & > :global(.icon) {
+    vertical-align: middle;
+    margin-right: 0.3em;
+  }
+
+  &:disabled {
+    background: var(--blackish);
+
+    &:hover {
+      color: var(--whitish);
+      cursor: not-allowed;
+    }
+  }
+}
+
+.button-loading {
+  composes: button;
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUAQMAAAC3R49OAAAABlBMVEUAAAAAAAClZ7nPAAAAAnRSTlMAF/VASP8AAABBSURBVHheZckxFYAgFADA8zkwYgMr2MBKNpBoRCHCHxl4YADnsxymy/DoQmyh7aGmUHJwBnfjraxiW+yTNMj9xx9ZVxpfjbpEWgAAAABJRU5ErkJggg==);
+  animation: caramel .5s linear infinite;
+
+  &:hover {
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUAQMAAAC3R49OAAAABlBMVEUAAAAAAAClZ7nPAAAAAnRSTlMAF/VASP8AAABBSURBVHheZckxFYAgFADA8zkwYgMr2MBKNpBoRCHCHxl4YADnsxymy/DoQmyh7aGmUHJwBnfjraxiW+yTNMj9xx9ZVxpfjbpEWgAAAABJRU5ErkJggg==);
+    animation: caramel .5s linear infinite;
+  }
+
+  &:disabled {
+    background: var(--blackish);
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUAQMAAAC3R49OAAAABlBMVEUAAAAAAAClZ7nPAAAAAnRSTlMAF/VASP8AAABBSURBVHheZckxFYAgFADA8zkwYgMr2MBKNpBoRCHCHxl4YADnsxymy/DoQmyh7aGmUHJwBnfjraxiW+yTNMj9xx9ZVxpfjbpEWgAAAABJRU5ErkJggg==);
+    animation: caramel .5s linear infinite;
+
+    &:hover {
+      color: var(--whitish);
+      cursor: not-allowed;
+    }
+  }
+}
+
+.button-primary {
+  padding: 0 10px;
+  height: 60px;
+  font-size: 16px;
+  text-transform: uppercase;
+  border: 2px solid var(--blueish);
+  background-color: var(--blueish);
+  color: #616161;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--whitish);
+  }
+
+  &:disabled {
+    background: var(--blueish);
+
+    &:hover {
+      background: var(--blueish);
+      color: #616161;
+    }
+  }
+}
+
+@media (--small-viewport) {
+  .button {
+    line-height: 16px;
+    padding: 11px 6px;
+  }
+}
+
+@keyframes caramel {
+  from {
+    background-position: 0 0;
+  }
+
+  to {
+    background-position: 20px 0;
+  }
+}

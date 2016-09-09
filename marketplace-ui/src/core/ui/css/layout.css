@@ -1,0 +1,31 @@
+@import "media-queries.css";
+@import "variables.css";
+
+.wrap {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding-left: var(--grid-margin);
+  padding-right: var(--grid-margin);
+}
+
+@media (--x-large-viewport-up) {
+  .wrap {
+    lost-column: 9/11;
+    lost-offset: -1/11;
+  }
+}
+
+@media (--large-viewport) {
+  .inner-wrap {
+    lost-column: 9/11;
+    lost-offset: -1/11;
+  }
+}
+
+@media (--x-large-viewport-up) {
+  .inner-wrap {
+    lost-column: 7/11;
+    lost-offset: -2/11;
+  }
+}

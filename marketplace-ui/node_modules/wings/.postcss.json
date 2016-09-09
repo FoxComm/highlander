@@ -1,0 +1,6 @@
+{
+  "use": ["postcss-cssnext"],
+  "input": "src/ui/css/*.css",
+  "output": "lib/bundle.css",
+  "local-plugins": true
+}

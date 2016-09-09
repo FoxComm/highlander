@@ -1,0 +1,14 @@
+
+.term-value-line {
+  display: flex;
+}
+
+.term {
+  display: inline;
+  flex-grow: 1;
+}
+
+.value {
+  display: inline;
+  text-align: right;
+}

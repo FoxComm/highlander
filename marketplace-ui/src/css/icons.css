@@ -1,0 +1,29 @@
+/*
+ This file only extends base class which defined in evil-icons node package
+*/
+
+:global(.icon) {
+  stroke: currentColor;
+  transition: all 300ms;
+}
+
+:global(.icon--s) {
+  width: 20px;
+  height: 20px;
+}
+
+:global(.icon--fc-payment-visa),
+:global(.icon--fc-payment-master-card),
+:global(.icon--fc-payment-dinners-club),
+:global(.icon--fc-payment-amex),
+:global(.icon--fc-payment-discover),
+:global(.icon--fc-payment-jsb) {
+  width: 44px;
+  height: 30px;
+  stroke: none;
+}
+
+:global(.icon--fc-cvc-visa),
+:global(.icon--fc-cvc-amex) {
+  stroke: none;
+}

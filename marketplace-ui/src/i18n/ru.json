@@ -1,0 +1,482 @@
+{
+  "headers": { },
+  "translations": {
+    "": {
+      "LOG IN": {
+        "msgstr": [
+          "ВОЙТИ"
+        ]
+      },
+      "LOG OUT": {
+        "msgstr": [
+          "ВЫЙТИ"
+        ]
+      },
+      "LOG IN WITH GOOGLE": {
+        "msgstr": [
+          "ВОЙТИ С GOOGLE"
+        ]
+      },
+      "or": {
+        "msgstr": [
+          "или"
+        ]
+      },
+      "EMAIL": {
+        "msgstr": [
+          "EMAIL"
+        ]
+      },
+      "PASSWORD": {
+        "msgstr": [
+          "ПАРОЛЬ"
+        ]
+      },
+      "forgot?": {
+        "msgstr": [
+          "забыли?"
+        ]
+      },
+      "Don’t have an account?": {
+        "msgstr": [
+          "Нет аккаунта?"
+        ]
+      },
+      "Sign Up": {
+        "msgstr": [
+          "Зарегистрироваться"
+        ]
+      },
+      "Passwords must match": {
+        "msgstr": [
+          "Пароли должны совпадать"
+        ]
+      },
+      "Woohoo! Your password was successfully reset.": {
+        "msgstr": [
+          "Ура! Ваш пароль успешно восстановлен."
+        ]
+      },
+      "Your new password must be at least 8 characters long.": {
+        "msgstr": [
+          "Ваш новый пароль должен быть длиной не менее 8 символов"
+        ]
+      },
+      "NEW PASSWORD": {
+        "msgstr": [
+          "НОВЫЙ ПАРОЛЬ"
+        ]
+      },
+      "CONFIRM PASSWORD": {
+        "msgstr": [
+          "ПОДТВЕРЖДЕНИЕ ПАРОЛЯ"
+        ]
+      },
+      "BACK TO LOG IN": {
+        "msgstr": [
+          "НАЗАД К ВХОДУ"
+        ]
+      },
+      "RESET PASSWORD": {
+        "msgstr": [
+          "ВОССТАНОВИТЬ ПАРОЛЬ"
+        ]
+      },
+      "Oops! We don’t have a user with that email. Please check your entry and try again.": {
+        "msgstr": [
+          "Опаньки! У нас нет пользователя с таким email. Проверьте введенный адрес и попробуйте еще раз."
+        ]
+      },
+      "A user with this email does not exist.": {
+        "msgstr": [
+          "Пользователь с таким email не зарегистрирован"
+        ]
+      },
+      "An email with reset instructions was successfully sent to": {
+        "msgstr": [
+          "Письмо с инструкциями по восстановлению пароля было успешно отправлено на адрес"
+        ]
+      },
+      "No worries! We’ll email you instructions on how to reset your password.": {
+        "msgstr": [
+          "Не парьтесь! Мы отправим Вам инструкцию по восстановлению пароля."
+        ]
+      },
+      "SUBMIT": {
+        "msgstr": [
+          "ОК"
+        ]
+      },
+      "FORGOT PASSWORD": {
+        "msgstr": [
+          "ВОССТАНОВЛЕНИЕ ПАРОЛЯ"
+        ]
+      },
+      "SIGN UP": {
+        "msgstr": [
+          "ЗАРЕГИСТРИРОВАТЬСЯ"
+        ]
+      },
+      "SIGN UP WITH GOOGLE": {
+        "msgstr": [
+          "ЗАРЕГИСТРИРОВАТЬСЯ С GOOGLE"
+        ]
+      },
+      "FIRST & LAST NAME": {
+        "msgstr": [
+          "ИМЯ & ФАМИЛИЯ"
+        ]
+      },
+      "CREATE PASSWORD": {
+        "msgstr": [
+          "ПАРОЛЬ"
+        ]
+      },
+      "Already have an account?": {
+        "msgstr": [
+          "Уже есть аккаунт?"
+        ]
+      },
+      "Log in": {
+        "msgstr": [
+          "Войти"
+        ]
+      },
+      "Product not found": {
+        "msgstr": [
+          "Товар не найден"
+        ]
+      },
+      "SHOP": {
+        "msgstr": [
+          "МАГАЗИН"
+        ]
+      },
+      "< BACK": {
+        "msgstr": [
+          "< НАЗАД"
+        ]
+      },
+      "NEXT >": {
+        "msgstr": [
+          "ВПЕРЕД >"
+        ]
+      },
+      "QUANTITY": {
+        "msgstr": [
+          "КОЛИЧЕСТВО"
+        ]
+      },
+      "ADD TO CART": {
+        "msgstr": [
+          "ДОБАВИТЬ В КОРЗИНУ"
+        ]
+      },
+      "Please enter a valid credit card number": {
+        "msgstr": [
+          "Пожалуйста, введите корректный номер карты"
+        ]
+      },
+      "Please enter a valid cvc number": {
+        "msgstr": [
+          "Пожалуйста, введите корректный cvc"
+        ]
+      },
+      "SELECT CREDIT CARD": {
+        "msgstr": [
+          "ВЫБЕРИТЕ КАРТУ"
+        ]
+      },
+      "No credit cards yet": {
+        "msgstr": [
+          "Кредитных карт ещё нет"
+        ]
+      },
+      "NEW CREDIT CARD": {
+        "msgstr": [
+          "НОВАЯ КАРТА"
+        ]
+      },
+      "NAME ON CARD": {
+        "msgstr": [
+          "ИМЯ НА КАРТЕ"
+        ]
+      },
+      "CARD NUMBER": {
+        "msgstr": [
+          "НОМЕР КАРТЫ"
+        ]
+      },
+      "CVC": {
+        "msgstr": [
+          "CVC"
+        ]
+      },
+      "MONTH": {
+        "msgstr": [
+          "МЕСЯЦ"
+        ]
+      },
+      "YEAR": {
+        "msgstr": [
+          "ГОД"
+        ]
+      },
+      "Billing address is same as shipping": {
+        "msgstr": [
+          "Адрес оплаты совпадает с адресом доставки"
+        ]
+      },
+      "PLACE ORDER": {
+        "msgstr": [
+          "ОТПРАВИТЬ ЗАКАЗ"
+        ]
+      },
+      "BILLING": {
+        "msgstr": [
+          "ОПЛАТА"
+        ]
+      },
+      "DELIVERY": {
+        "msgstr": [
+          "ДОСТАВКА"
+        ]
+      },
+      "CONTINUE": {
+        "msgstr": [
+          "ПРОДОЛЖИТЬ"
+        ]
+      },
+      "STREET ADDRESS 1": {
+        "msgstr": [
+          "АДРЕС 1"
+        ]
+      },
+      "STREET ADDRESS 2 (optional)": {
+        "msgstr": [
+          "АДРЕС 2 (необязательно)"
+        ]
+      },
+      "COUNTRY": {
+        "msgstr": [
+          "СТРАНА"
+        ]
+      },
+      "ZIP": {
+        "msgstr": [
+          "ПОЧТОВЫЙ ИНДЕКС"
+        ]
+      },
+      "CITY": {
+        "msgstr": [
+          "ГОРОД"
+        ]
+      },
+      "STATE": {
+        "msgstr": [
+          "ОБЛАСТЬ"
+        ]
+      },
+      "Phone Number": {
+        "msgstr": [
+          "Номер телефона"
+        ]
+      },
+      "PHONE": {
+        "msgstr": [
+          "ТЕЛЕФОН"
+        ]
+      },
+      "EDIT": {
+        "msgstr": [
+          "РЕДАКТИРОВАТЬ"
+        ]
+      },
+      "Please enter a valid gift card and try again.": {
+        "msgstr": [
+          "Введите корректный номер подарочной карты и попробуйте еще раз"
+        ]
+      },
+      "Please enter a valid coupon code and try again.": {
+        "msgstr": [
+          "Введите корректный код купона и попробуйте еще раз"
+        ]
+      },
+      "CODE": {
+        "msgstr": [
+          "КОД"
+        ]
+      },
+      "redeem": {
+        "msgstr": [
+          "использовать"
+        ]
+      },
+      "apply": {
+        "msgstr": [
+          "использовать"
+        ]
+      },
+      "GIFT CARD": {
+        "msgstr": [
+          "ПОДАРОЧНАЯ КАРТА"
+        ]
+      },
+      "PROMO CODE": {
+        "msgstr": [
+          "ПРОМОКОД"
+        ]
+      },
+      "Thanks for your order!": {
+        "msgstr": [
+          "Спасибо за ваш заказ!"
+        ]
+      },
+      "Order Number:": {
+        "msgstr": [
+          "Номер заказа:"
+        ]
+      },
+      "Looks like you'll be getting some cool stuff soon. In the meantime, we're sending you an email with your order information.": {
+        "msgstr": [
+          "Похоже, вы скоро получите что-то классное. Скоро мы пришлем на ваш email информацию по заказу"
+        ]
+      },
+      "Take me home": {
+        "msgstr": [
+          "Вернуться на главную"
+        ]
+      },
+      "ORDER SUMMARY": {
+        "msgstr": [
+          "ИНФОРМАЦИЯ О ЗАКАЗЕ"
+        ]
+      },
+      "ITEM": {
+        "msgstr": [
+          "ТОВАР"
+        ]
+      },
+      "QTY": {
+        "msgstr": [
+          "КОЛ-ВО"
+        ]
+      },
+      "PRICE": {
+        "msgstr": [
+          "ЦЕНА"
+        ]
+      },
+      "SUBTOTAL": {
+        "msgstr": [
+          "СТОИМОСТЬ"
+        ]
+      },
+      "SHIPPING": {
+        "msgstr": [
+          "ДОСТАВКА"
+        ]
+      },
+      "TAX": {
+        "msgstr": [
+          "НАЛОГ"
+        ]
+      },
+      "GRAND TOTAL": {
+        "msgstr": [
+          "ИТОГО"
+        ]
+      },
+      "This field": {
+        "msgstr": [
+          "Это поле"
+        ]
+      },
+      "Can not be more than %0 characters": {
+        "msgstr": [
+          "Не может быть больше чем %0 символов"
+        ]
+      },
+      "%0 is required": {
+        "msgstr": [
+          "%0 нужно заполнить"
+        ]
+      },
+      "Enter valid zip code": {
+        "msgstr": [
+          "Введите корректный почтовый индекс"
+        ]
+      },
+      "%0 must contain only ASCII characters": {
+        "msgstr": [
+          "%0 может содержать только символы ASCII"
+        ]
+      },
+      "Please enter a valid phone number": {
+        "msgstr": [
+          "Введите корректный номер телефона"
+        ]
+      },
+      "HI": {
+        "msgstr": [
+          "ПРИВЕТ"
+        ]
+      },
+      "KEEP SHOPPING": {
+        "msgstr": [
+          "ПРОДОЛЖИТЬ ПОКУПКИ"
+        ]
+      },
+      "CHECKOUT": {
+        "msgstr": [
+          "ОФОРМИТЬ ЗАКАЗ"
+        ]
+      },
+      "ALL": {
+        "msgstr": [
+          "ВСЕ"
+        ]
+      },
+      "EYEGLASSES": {
+        "msgstr": [
+          "ОЧКИ"
+        ]
+      },
+      "SUNGLASSES": {
+        "msgstr": [
+          "СОЛНЕЧНЫЕ"
+        ]
+      },
+      "READERS": {
+        "msgstr": [
+          "ЧИТАТЕЛИ"
+        ]
+      },
+      "Terms of Use": {
+        "msgstr": [
+          "Условия использования"
+        ]
+      },
+      "Privacy Policy": {
+        "msgstr": [
+          "Политика конфиденциальности"
+        ]
+      },
+      "Shipping & Returns": {
+        "msgstr": [
+          "Доставка & Возврат"
+        ]
+      },
+      "Search results for": {
+        "msgstr": [
+          "Результат поиска для"
+        ]
+      },
+      "Search": {
+        "msgstr": [
+          "Поиск"
+        ]
+      }
+    }
+  }
+}

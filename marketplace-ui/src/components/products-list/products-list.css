@@ -1,0 +1,104 @@
+@import "variables";
+@import "media-queries";
+@import "colors";
+
+.catalog {
+
+}
+
+.list {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  padding-left: var(--grid-margin);
+  padding-right: var(--grid-margin);
+  composes: inner-wrap from 'ui/css/layout.css';
+
+  &:first-child {
+    margin-top: 120px;
+  }
+}
+
+.header-wrap {
+  padding-left: var(--grid-margin);
+  padding-right: var(--grid-margin);
+  min-width: 500px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+@media (--x-large-viewport-up) {
+  .header-wrap {
+    lost-offset: -1/11;
+  }
+}
+
+.header {
+  height: 400px;
+  margin-bottom: 40px;
+  display: flex;
+  align-items: center;
+  background-color: #aaf3f8;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: 50%;
+
+  & .title {
+    margin: 1em 0 0;
+    text-transform: capitalize;
+    font-weight: bold;
+    font-size: 47px;
+  }
+
+  & .description {
+    margin: .7em 0 0;
+    font-size: 27px;
+  }
+}
+
+.header-eyeglasses,
+.header-sunglasses {
+  composes: header;
+}
+
+.header-eyeglasses-men,
+.header-eyeglasses-women,
+.header-sunglasses-men,
+.header-sunglasses-women {
+  composes: header;
+  color: var(--whitish);
+}
+
+
+.header {
+  &-eyeglasses {
+    &-men {
+      background-image: url('images/categories/Hero_Eyeglasses_Mens.jpg');
+    }
+    &-women {
+      background-image: url('images/categories/Hero_Eyeglasses_Womens.jpg');
+    }
+  }
+
+  &-sunglasses {
+    &-men {
+      background-image: url('images/categories/Hero_Sunglasses_Mens.jpg');
+    }
+    &-women {
+      background-image: url('images/categories/Hero_Sunglasses_Womens.jpg');
+    }
+  }
+}
+
+.not-found {
+  text-transform: uppercase;
+  margin: 80px 0;
+  text-align: center;
+  width: 100%;
+}
+
+@media (--small-viewport) {
+  .list {
+    justify-content: space-between;
+  }
+}

@@ -1,0 +1,78 @@
+@import "colors.css";
+
+.overlay {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  position: fixed;
+  background: var(--light-grayish);
+  opacity: 0;
+  transition: opacity .1s;
+  transform: translateX(-100%);
+}
+
+.container {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 280px;
+  position: fixed;
+  background: var(--blackish);
+  color: var(--whitish);
+  transform: translateX(-100%);
+  transition: transform .2s;
+}
+
+.sidebar-shown .overlay {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.sidebar-shown .container {
+  transform: translateX(0);
+}
+
+.controls {
+  margin: 20px 10px;
+  color: var(--whitish);
+}
+
+.close-button {
+  color: var(--whitish);
+  text-decoration: none;
+  margin-left: 10px;
+  stroke: var(--whitish);
+
+  & :global(.icon) {
+    stroke-width: 3;
+    cursor: pointer;
+
+    &:hover {
+      opacity: .7;
+    }
+  }
+}
+
+.controls-categories,
+.controls-session {
+  margin-left: 40px;
+}
+
+.controls-session {
+  margin-top: 32px;
+}
+
+.controls-search {
+  margin-top: 16px;
+
+  & :global(.icon__cnt) {
+    fill: var(--lightest-blackish);
+  }
+}
+
+.session-link {
+  color: var(--whitish);
+  text-decoration: none;
+  cursor: pointer;
+}

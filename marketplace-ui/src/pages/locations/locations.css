@@ -1,0 +1,83 @@
+@import 'colors.css';
+@import "variables.css";
+
+.header {
+  padding-top: 150px;
+  height: 400px;
+  background: url('images/locations/Locations_Hero.jpg') 50% 0;
+  background-size: cover;
+}
+
+.title {
+  margin: 0;
+  font-size: 47px;
+  color: white;
+  text-align: center;
+}
+
+.list {
+  padding-left: var(--grid-margin);
+  padding-right: var(--grid-margin);
+}
+
+.list__item {
+  composes: inner-wrap from 'ui/css/layout.css';
+  display: flex;
+  padding: 50px 0;
+
+  &:before {
+    content: "";
+    position: absolute;
+    margin-top: -50px;
+    right: var(--grid-margin);
+    left: var(--grid-margin);
+    border-bottom: 1px solid #E7E7E7;
+  }
+
+  &:first-child:before {
+    content: none;
+  }
+
+  & p {
+    margin: 0;
+    font-size: 17px;
+    line-height: 28px;
+    color: #314664;
+
+    & span {
+      display: block;
+    }
+  }
+}
+
+.image {
+  lost-column: 3/9;
+
+  & img {
+    width: 100%;
+    height: auto;
+  }
+}
+
+.subtitle {
+  margin: 1.5em 0 1em;
+  font-size: 27px;
+  font-weight: bold;
+  color: #314664
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+}
+
+.button {
+  composes: button-primary from "ui/css/buttons.css";
+  width: 100%;
+}
+
+.address,
+.digs,
+.actions {
+  lost-column: 2/9;
+}

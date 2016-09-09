@@ -1,0 +1,225 @@
+
+@import "media-queries.css";
+@import "colors.css";
+
+.checkout {
+  margin-top: 45px;
+  width: 100%;
+}
+
+.checkout-content {
+  display: flex;
+}
+
+.left-forms {
+  lost-offset: -1/11;
+  lost-column: 5/11;
+}
+
+.right-forms {
+  lost-column: 4/11;
+}
+
+.checkout-block {
+  composes: editable-block from "ui/editable-block/editable-block.css";
+  width: 100%;
+  margin-bottom: 20px;
+  padding-bottom: 30px;
+}
+
+.checkout-block-content {
+  margin-top: 25px;
+}
+
+.logo-link {
+  display: block;
+  width: 45px;
+  height: 45px;
+  margin: 0 auto 40px;
+}
+
+.logo {
+  width: 100%;
+  height: 100%;
+}
+
+.union-fields {
+  display: flex;
+
+  & > div {
+    width: 50%;
+  }
+}
+
+.checkout-form {
+  & > .union-fields {
+    margin: 10px 0;
+
+    & > .text-field {
+      margin: 0;
+
+      &:first-child {
+        margin-right: 10px;
+      }
+    }
+  }
+}
+
+.text-field {
+  margin: 10px 0;
+
+  & input:matches([type=text], [type=password], [type=number], [type=tel]) {
+    width: 100%;
+    border-color: var(--whitish);
+
+    &:hover {
+      border-color: #C6BFBF;
+    }
+
+    &:focus {
+      border-color: var(--blackish);
+      background: var(--whitish);
+    }
+  }
+}
+
+.shipping-method {
+  margin: 20px 0;
+  display: flex;
+
+  & > div:first-child {
+    flex-grow: 1;
+  }
+}
+
+.checkout-submit {
+  display: block;
+  margin: 20px auto 0;
+  width: 50%;
+}
+
+.credit-cards-title {
+  display: flex;
+  justify-content: space-between;
+}
+
+.credit-card-add {
+  color: #9E9E9E;
+  text-align: right;
+  cursor: pointer;
+}
+
+.credit-cards-empty {
+  line-height: 53px;
+  margin-bottom: 40px;
+}
+
+.credit-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 20px 0;
+
+  & .payment-icon {
+    margin-right: 0;
+  }
+}
+
+.credit-card-valid {
+  font-size: 14px;
+  color: #666;
+  margin-left: 15px;
+}
+
+.payment-icon {
+  vertical-align: middle;
+  width: 44px;
+  height: 30px;
+  margin-top: -3px;
+  margin-right: 4px;
+}
+
+.payment-input {
+  padding-right: 64px;
+}
+
+.payment-card-info {
+  padding-left: 0.5em;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.payment-last-four {
+  margin-right: 0.7em;
+}
+
+.billing-address {
+  margin-top: 1em;
+}
+
+.gift-card-content {
+  composes: checkout-block-content;
+  display: flex;
+}
+
+.gift-card-code-field {
+  flex-grow: 1;
+}
+
+.gift-card-code {
+  composes: text-input from "ui/css/input.css";
+  width: 100%;
+  height: 55px;
+  border: 1px solid var(--whitish);
+}
+
+.gift-card-submit {
+  composes: button from "ui/css/buttons.css";
+  width: 100px;
+  height: 55px;
+  background: var(--whitish);
+  border: 1px solid var(--blackish);
+  font-size: 14px;
+  color: var(--blackish);
+  line-height: 17px;
+  text-transform: uppercase;
+}
+
+.coupon-content {
+  composes: checkout-block-content;
+  display: flex;
+}
+
+.coupon-code-field {
+  flex-grow: 1;
+}
+
+.coupon-code {
+  composes: text-input from "ui/css/input.css";
+  width: 100%;
+  height: 55px;
+  border: 1px solid var(--whitish);
+}
+
+.coupon-submit {
+  composes: button from "ui/css/buttons.css";
+  width: 100px;
+  height: 55px;
+  background: var(--whitish);
+  border: 1px solid var(--blackish);
+  font-size: 14px;
+  color: var(--blackish);
+  line-height: 17px;
+  text-transform: uppercase;
+}
+
+@media (--medium-viewport) {
+  .checkout {
+    margin-top: 10px;
+  }
+
+  .logo {
+    width: 40px;
+    height: 40px;
+  }
+}
