@@ -36,15 +36,14 @@ defmodule Permissions.PermissionClaimService do
       limit: 1
     )
     |> construct_frn
-    
-    changeset_with_claim = Permission.changeset(perm_changeset, %{"frn" => IO.inspect(claim_frn)})
+    IO.inspect(perm_changeset)
+    changeset_with_claim = Permission.changeset(perm_changeset, %{"frn" => claim_frn})
 
     Multi.new
     |> Multi.insert(:permission, changeset_with_claim)
   end
 
   defp construct_frn(full_perm) do
-    IO.inspect(full_perm)
     fp = List.first(full_perm)
     case fp do 
       fp when is_nil fp -> empty_frn
