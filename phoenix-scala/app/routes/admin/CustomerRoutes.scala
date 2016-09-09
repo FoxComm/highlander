@@ -4,7 +4,6 @@ import akka.http.scaladsl.server.Directives._
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.StoreAdmin
-import models.traits.Originator
 import payloads.AddressPayloads.CreateAddressPayload
 import payloads.CustomerPayloads._
 import payloads.PaymentPayloads._
@@ -64,12 +63,12 @@ object CustomerRoutes {
         pathPrefix("addresses") {
           (get & pathEnd) {
             getOrFailures {
-              AddressManager.findAllByCustomer(Originator(admin), accountId)
+              AddressManager.findAllByCustomer(admin, accountId)
             }
           } ~
           (post & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
             mutateOrFailures {
-              AddressManager.create(Originator(admin), payload, accountId)
+              AddressManager.create(admin, payload, accountId)
             }
           } ~
           (post & path(IntNumber / "default") & pathEnd) { addressId ⇒
@@ -79,12 +78,12 @@ object CustomerRoutes {
           } ~
           (get & path(IntNumber) & pathEnd) { addressId ⇒
             getOrFailures {
-              AddressManager.get(Originator(admin), addressId, accountId)
+              AddressManager.get(admin, addressId, accountId)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { addressId ⇒
             deleteOrFailures {
-              AddressManager.remove(Originator(admin), addressId, accountId)
+              AddressManager.remove(admin, addressId, accountId)
             }
           } ~
           (delete & path("default") & pathEnd) {
@@ -96,7 +95,7 @@ object CustomerRoutes {
             (addressId, payload) ⇒
               activityContext(admin) { implicit ac ⇒
                 mutateOrFailures {
-                  AddressManager.edit(Originator(admin), addressId, accountId, payload)
+                  AddressManager.edit(admin, addressId, accountId, payload)
                 }
               }
           }

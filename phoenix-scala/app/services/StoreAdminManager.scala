@@ -2,7 +2,6 @@ package services
 
 import failures.NotFoundFailure404
 import failures.StoreAdminFailures.AlreadyExistsWithEmail
-import models.traits.Originator
 import models.{StoreAdmin, StoreAdmins}
 import payloads.StoreAdminPayloads._
 import responses.StoreAdminResponse
@@ -18,7 +17,7 @@ object StoreAdminManager {
 
   def create(
       payload: CreateStoreAdminPayload,
-      author: Originator)(implicit ec: EC, db: DB, ac: AC): DbResultT[StoreAdminResponse.Root] =
+      author: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[StoreAdminResponse.Root] =
     for {
       _ ← * <~ StoreAdmins
            .findByEmail(payload.email)
@@ -33,7 +32,7 @@ object StoreAdminManager {
       _     ← * <~ LogActivity.storeAdminCreated(saved, author)
     } yield StoreAdminResponse.build(saved)
 
-  def update(id: Int, payload: UpdateStoreAdminPayload, author: Originator)(
+  def update(id: Int, payload: UpdateStoreAdminPayload, author: User)(
       implicit ec: EC,
       db: DB,
       ac: AC): DbResultT[StoreAdminResponse.Root] =
@@ -47,7 +46,7 @@ object StoreAdminManager {
       _ ← * <~ LogActivity.storeAdminUpdated(saved, author)
     } yield StoreAdminResponse.build(saved)
 
-  def delete(id: Int, author: Originator)(implicit ec: EC, db: DB, ac: AC): DbResultT[Unit] =
+  def delete(id: Int, author: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[Unit] =
     for {
       admin ← * <~ StoreAdmins.mustFindById404(id)
       result ← * <~ StoreAdmins
@@ -55,7 +54,7 @@ object StoreAdminManager {
       _ ← * <~ LogActivity.storeAdminDeleted(admin, author)
     } yield result
 
-  def changeState(id: Int, payload: StateChangeStoreAdminPayload, author: Originator)(
+  def changeState(id: Int, payload: StateChangeStoreAdminPayload, author: User)(
       implicit ec: EC,
       db: DB,
       ac: AC): DbResultT[StoreAdminResponse.Root] =

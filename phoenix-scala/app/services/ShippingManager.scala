@@ -9,7 +9,6 @@ import models.inventory.Sku
 import models.location.Region
 import models.rules.{Condition, QueryStatement}
 import models.shipping.{ShippingMethod, ShippingMethods}
-import models.traits.Originator
 import services.carts.getCartByOriginator
 import slick.driver.PostgresDriver.api._
 import utils.JsonFormatters
@@ -26,7 +25,7 @@ object ShippingManager {
                           shippingRegion: Option[Region] = None,
                           skus: Seq[Sku])
 
-  def getShippingMethodsForCart(originator: Originator)(
+  def getShippingMethodsForCart(originator: User)(
       implicit ec: EC,
       db: DB): DbResultT[Seq[responses.ShippingMethodsResponse.Root]] =
     for {

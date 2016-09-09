@@ -156,7 +156,7 @@ begin
     select id from resources where name='my:cart' into my_cart_id;
     select id from resources where name='my:info' into my_info_id;
 
-    insert into roles(name, scope_id) values('fox admin', root_scope_id) returning id into fox_admin_id; 
+    insert into roles(name, scope_id) values('tenant_admin', root_scope_id) returning id into fox_admin_id; 
 
     perform add_perm(fox_admin_id, root_scope_id, cart_id, ARRAY['c', 'r', 'u', 'd']);
     perform add_perm(fox_admin_id, root_scope_id, order_id, ARRAY['c', 'r', 'u', 'd']);
@@ -167,7 +167,7 @@ begin
     perform add_perm(fox_admin_id, root_scope_id, user_id, ARRAY['c', 'r', 'u', 'd']);
     perform add_perm(fox_admin_id, root_scope_id, org_id, ARRAY['c', 'r', 'u', 'd']);
 
-    insert into roles(name, scope_id) values ('merchant admin', merch_scope_id) returning id into merch_admin_id;
+    insert into roles(name, scope_id) values ('merchant_admin', merch_scope_id) returning id into merch_admin_id;
 
     perform add_perm(merch_admin_id, merch_scope_id, cart_id, ARRAY['c', 'r', 'u', 'd']);
     perform add_perm(merch_admin_id, merch_scope_id, order_id, ARRAY['c', 'r', 'u', 'd']);

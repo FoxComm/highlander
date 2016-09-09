@@ -5,7 +5,6 @@ import failures.NotFoundFailure404
 import models.cord._
 import models.location.Addresses.scope._
 import models.location._
-import models.traits.Originator
 import payloads.AddressPayloads._
 import responses.AddressResponse.buildOneShipping
 import responses.TheResponse
@@ -23,7 +22,7 @@ object CartShippingAddressUpdater {
   def mustFindShipAddressForCart(cart: Cart)(implicit ec: EC): DbResultT[OrderShippingAddress] =
     OrderShippingAddresses.findByOrderRef(cart.refNum).mustFindOneOr(NoShipAddress(cart.refNum))
 
-  def createShippingAddressFromAddressId(originator: Originator,
+  def createShippingAddressFromAddressId(originator: User,
                                          addressId: Int,
                                          refNum: Option[String] = None)(
       implicit ec: EC,
@@ -44,7 +43,7 @@ object CartShippingAddressUpdater {
            .orderShippingAddressAdded(originator, response, buildOneShipping(shipAddress, region))
     } yield TheResponse.validated(response, validated)
 
-  def createShippingAddressFromPayload(originator: Originator,
+  def createShippingAddressFromPayload(originator: User,
                                        payload: CreateAddressPayload,
                                        refNum: Option[String] = None)(
       implicit ec: EC,
@@ -64,7 +63,7 @@ object CartShippingAddressUpdater {
            .orderShippingAddressAdded(originator, response, buildOneShipping(shipAddress, region))
     } yield TheResponse.validated(response, validated)
 
-  def updateShippingAddressFromPayload(originator: Originator,
+  def updateShippingAddressFromPayload(originator: User,
                                        payload: UpdateAddressPayload,
                                        refNum: Option[String] = None)(
       implicit ec: EC,
@@ -84,7 +83,7 @@ object CartShippingAddressUpdater {
                                                        buildOneShipping(shipAddress, region))
     } yield TheResponse.validated(response, validated)
 
-  def removeShippingAddress(originator: Originator, refNum: Option[String] = None)(
+  def removeShippingAddress(originator: User, refNum: Option[String] = None)(
       implicit ec: EC,
       db: DB,
       ac: AC,

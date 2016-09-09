@@ -7,7 +7,6 @@ import models.auth.CustomerToken
 import models.cord.Cord.cordRefNumRegex
 import models.inventory.Sku.skuCodeRegex
 import models.payment.giftcard.GiftCard
-import models.traits.Originator
 import payloads.AddressPayloads._
 import payloads.CustomerPayloads.UpdateCustomerPayload
 import payloads.LineItemPayloads.UpdateLineItemsPayload
@@ -58,12 +57,12 @@ object Customer {
               } ~
               (post & path("coupon" / Segment) & pathEnd) { code ⇒
                 mutateOrFailures {
-                  CartPromotionUpdater.attachCoupon(Originator(customer), None, code)
+                  CartPromotionUpdater.attachCoupon(customer, None, code)
                 }
               } ~
               (delete & path("coupon") & pathEnd) {
                 mutateOrFailures {
-                  CartPromotionUpdater.detachCoupon(Originator(customer))
+                  CartPromotionUpdater.detachCoupon(customer)
                 }
               } ~
               (post & path("checkout") & pathEnd) {
@@ -74,41 +73,41 @@ object Customer {
               pathPrefix("payment-methods" / "credit-cards") {
                 (post & pathEnd & entity(as[CreditCardPayment])) { payload ⇒
                   mutateOrFailures {
-                    CartPaymentUpdater.addCreditCard(Originator(customer), payload.creditCardId)
+                    CartPaymentUpdater.addCreditCard(customer, payload.creditCardId)
                   }
                 } ~
                 (delete & pathEnd) {
                   mutateOrFailures {
-                    CartPaymentUpdater.deleteCreditCard(Originator(customer))
+                    CartPaymentUpdater.deleteCreditCard(customer)
                   }
                 }
               } ~
               pathPrefix("payment-methods" / "gift-cards") {
                 (post & pathEnd & entity(as[GiftCardPayment])) { payload ⇒
                   mutateOrFailures {
-                    CartPaymentUpdater.addGiftCard(Originator(customer), payload)
+                    CartPaymentUpdater.addGiftCard(customer, payload)
                   }
                 } ~
                 (patch & pathEnd & entity(as[GiftCardPayment])) { payload ⇒
                   mutateOrFailures {
-                    CartPaymentUpdater.editGiftCard(Originator(customer), payload)
+                    CartPaymentUpdater.editGiftCard(customer, payload)
                   }
                 } ~
                 (delete & path(GiftCard.giftCardCodeRegex) & pathEnd) { code ⇒
                   mutateOrFailures {
-                    CartPaymentUpdater.deleteGiftCard(Originator(customer), code)
+                    CartPaymentUpdater.deleteGiftCard(customer), code)
                   }
                 }
               } ~
               pathPrefix("payment-methods" / "store-credit") {
                 (post & pathEnd & entity(as[StoreCreditPayment])) { payload ⇒
                   mutateOrFailures {
-                    CartPaymentUpdater.addStoreCredit(Originator(customer), payload)
+                    CartPaymentUpdater.addStoreCredit(customer, payload)
                   }
                 } ~
                 (delete & pathEnd) {
                   mutateOrFailures {
-                    CartPaymentUpdater.deleteStoreCredit(Originator(customer))
+                    CartPaymentUpdater.deleteStoreCredit(customer)
                   }
                 }
               } ~
@@ -116,43 +115,43 @@ object Customer {
                 (post & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
                   mutateOrFailures {
                     CartShippingAddressUpdater
-                      .createShippingAddressFromPayload(Originator(customer), payload)
+                      .createShippingAddressFromPayload(customer, payload)
                   }
                 } ~
                 (patch & path(IntNumber) & pathEnd) { addressId ⇒
                   mutateOrFailures {
                     CartShippingAddressUpdater
-                      .createShippingAddressFromAddressId(Originator(customer), addressId)
+                      .createShippingAddressFromAddressId(customer, addressId)
                   }
                 } ~
                 (patch & pathEnd & entity(as[UpdateAddressPayload])) { payload ⇒
                   mutateOrFailures {
                     CartShippingAddressUpdater
-                      .updateShippingAddressFromPayload(Originator(customer), payload)
+                      .updateShippingAddressFromPayload(customer, payload)
                   }
                 } ~
                 (delete & pathEnd) {
                   deleteOrFailures {
-                    CartShippingAddressUpdater.removeShippingAddress(Originator(customer))
+                    CartShippingAddressUpdater.removeShippingAddress(customer)
                   }
                 }
               } ~
               pathPrefix("shipping-methods") {
                 (get & pathEnd) {
                   getOrFailures {
-                    ShippingManager.getShippingMethodsForCart(Originator(customer))
+                    ShippingManager.getShippingMethodsForCart(customer)
                   }
                 }
               } ~
               pathPrefix("shipping-method") {
                 (patch & pathEnd & entity(as[UpdateShippingMethod])) { payload ⇒
                   mutateOrFailures {
-                    CartShippingMethodUpdater.updateShippingMethod(Originator(customer), payload)
+                    CartShippingMethodUpdater.updateShippingMethod(customer, payload)
                   }
                 } ~
                 (delete & pathEnd) {
                   mutateOrFailures {
-                    CartShippingMethodUpdater.deleteShippingMethod(Originator(customer))
+                    CartShippingMethodUpdater.deleteShippingMethod(customer)
                   }
                 }
               }
@@ -179,7 +178,7 @@ object Customer {
             pathPrefix("addresses") {
               (post & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
                 mutateOrFailures {
-                  AddressManager.create(Originator(customer), payload, customer.id)
+                  AddressManager.create(customer, payload, customer.id)
                 }
               } ~
               (delete & path("default") & pathEnd) {
@@ -191,7 +190,7 @@ object Customer {
             pathPrefix("addresses" / IntNumber) { addressId ⇒
               (get & pathEnd) {
                 getOrFailures {
-                  AddressManager.get(Originator(customer), addressId, customer.id)
+                  AddressManager.get(customer, addressId, customer.id)
                 }
               } ~
               (post & path("default") & pathEnd) {
@@ -201,12 +200,12 @@ object Customer {
               } ~
               (patch & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
                 mutateOrFailures {
-                  AddressManager.edit(Originator(customer), addressId, customer.id, payload)
+                  AddressManager.edit(customer, addressId, customer.id, payload)
                 }
               } ~
               (delete & pathEnd) {
                 deleteOrFailures {
-                  AddressManager.remove(Originator(customer), addressId, customer.id)
+                  AddressManager.remove(customer, addressId, customer.id)
                 }
               }
             } ~

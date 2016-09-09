@@ -14,7 +14,6 @@ import models.payment.giftcard.GiftCard
 import models.payment.storecredit.StoreCredit
 import models.sharedsearch.SharedSearch
 import models.shipping.ShippingMethod
-import models.traits.{AdminOriginator, CustomerOriginator, Originator}
 import models.{Note, StoreAdmin}
 import payloads.GiftCardPayloads.GiftCardUpdateStateByCsr
 import payloads.LineItemPayloads.UpdateLineItemsPayload
@@ -171,14 +170,14 @@ object LogActivity {
     Activities.log(UserPasswordReset(user = UserResponse.build(user)))
 
   /* Customer Addresses */
-  def addressCreated(originator: Originator, customer: User, address: AddressResponse)(
+  def addressCreated(originator: User, customer: User, address: AddressResponse)(
       implicit ec: EC,
       ac: AC): DbResultT[Activity] = {
     Activities.log(
         CustomerAddressCreated(buildCustomer(customer), address, buildOriginator(originator)))
   }
 
-  def addressUpdated(originator: Originator,
+  def addressUpdated(originator: User,
                      customer: User,
                      newAddress: AddressResponse,
                      oldAddress: AddressResponse)(implicit ec: EC, ac: AC): DbResultT[Activity] =
@@ -188,7 +187,7 @@ object LogActivity {
                                oldInfo = oldAddress,
                                admin = buildOriginator(originator)))
 
-  def addressDeleted(originator: Originator, customer: User, address: AddressResponse)(
+  def addressDeleted(originator: User, customer: User, address: AddressResponse)(
       implicit ec: EC,
       ac: AC): DbResultT[Activity] =
     Activities.log(
@@ -371,7 +370,7 @@ object LogActivity {
         ))
 
   /* Cart Payment Methods */
-  def orderPaymentMethodAddedCc(originator: Originator,
+  def orderPaymentMethodAddedCc(originator: User,
                                 cart: CartResponse,
                                 cc: CreditCard,
                                 region: Region)(implicit ec: EC, ac: AC): DbResultT[Activity] =
@@ -380,7 +379,7 @@ object LogActivity {
                                          CreditCardsResponse.build(cc, region),
                                          buildOriginator(originator)))
 
-  def orderPaymentMethodAddedGc(originator: Originator,
+  def orderPaymentMethodAddedGc(originator: User,
                                 cart: CartResponse,
                                 gc: GiftCard,
                                 amount: Int)(implicit ec: EC, ac: AC): DbResultT[Activity] =
@@ -390,7 +389,7 @@ object LogActivity {
                                        amount,
                                        buildOriginator(originator)))
 
-  def orderPaymentMethodUpdatedGc(originator: Originator,
+  def orderPaymentMethodUpdatedGc(originator: User,
                                   cart: CartResponse,
                                   gc: GiftCard,
                                   oldAmount: Option[Int],
@@ -404,18 +403,18 @@ object LogActivity {
     Activities.log(activity)
   }
 
-  def orderPaymentMethodAddedSc(originator: Originator, cart: CartResponse, amount: Int)(
+  def orderPaymentMethodAddedSc(originator: User, cart: CartResponse, amount: Int)(
       implicit ec: EC,
       ac: AC): DbResultT[Activity] =
     Activities.log(CartPaymentMethodAddedStoreCredit(cart, amount, buildOriginator(originator)))
 
   def orderPaymentMethodDeleted(
-      originator: Originator,
+      originator: User,
       cart: CartResponse,
       pmt: PaymentMethod.Type)(implicit ec: EC, ac: AC): DbResultT[Activity] =
     Activities.log(CartPaymentMethodDeleted(cart, pmt, buildOriginator(originator)))
 
-  def orderPaymentMethodDeletedGc(originator: Originator, cart: CartResponse, gc: GiftCard)(
+  def orderPaymentMethodDeletedGc(originator: User, cart: CartResponse, gc: GiftCard)(
       implicit ec: EC,
       ac: AC): DbResultT[Activity] =
     Activities.log(
@@ -425,32 +424,32 @@ object LogActivity {
 
   /* Cart Shipping Addresses */
   def orderShippingAddressAdded(
-      originator: Originator,
+      originator: User,
       cart: CartResponse,
       address: AddressResponse)(implicit ec: EC, ac: AC): DbResultT[Activity] =
     Activities.log(CartShippingAddressAdded(cart, address, buildOriginator(originator)))
 
   def orderShippingAddressUpdated(
-      originator: Originator,
+      originator: User,
       cart: CartResponse,
       address: AddressResponse)(implicit ec: EC, ac: AC): DbResultT[Activity] =
     Activities.log(CartShippingAddressUpdated(cart, address, buildOriginator(originator)))
 
   def orderShippingAddressDeleted(
-      originator: Originator,
+      originator: User,
       cart: CartResponse,
       address: AddressResponse)(implicit ec: EC, ac: AC): DbResultT[Activity] =
     Activities.log(CartShippingAddressRemoved(cart, address, buildOriginator(originator)))
 
   /* Cart Shipping Methods */
   def orderShippingMethodUpdated(
-      originator: Originator,
+      originator: User,
       cart: CartResponse,
       shippingMethod: Option[ShippingMethod])(implicit ec: EC, ac: AC): DbResultT[Activity] =
     Activities.log(CartShippingMethodUpdated(cart, shippingMethod, buildOriginator(originator)))
 
   def orderShippingMethodDeleted(
-      originator: Originator,
+      originator: User,
       cart: CartResponse,
       shippingMethod: ShippingMethod)(implicit ec: EC, ac: AC): DbResultT[Activity] =
     Activities.log(CartShippingMethodRemoved(cart, shippingMethod, buildOriginator(originator)))
@@ -522,22 +521,22 @@ object LogActivity {
     Activities.log(MultipleCouponCodesGenerated(coupon, admin.map(buildAdmin(_))))
 
   /* Store Admin */
-  def storeAdminCreated(entity: StoreAdmin, admin: Originator)(implicit ec: EC,
+  def storeAdminCreated(entity: StoreAdmin, admin: User)(implicit ec: EC,
                                                                ac: AC): DbResultT[Activity] =
     Activities.log(StoreAdminCreated(entity, admin))
 
-  def storeAdminUpdated(entity: StoreAdmin, admin: Originator)(implicit ec: EC,
+  def storeAdminUpdated(entity: StoreAdmin, admin: User)(implicit ec: EC,
                                                                ac: AC): DbResultT[Activity] =
     Activities.log(StoreAdminUpdated(entity, admin))
 
-  def storeAdminDeleted(entity: StoreAdmin, admin: Originator)(implicit ec: EC,
+  def storeAdminDeleted(entity: StoreAdmin, admin: User)(implicit ec: EC,
                                                                ac: AC): DbResultT[Activity] =
     Activities.log(StoreAdminDeleted(entity, admin))
 
   def storeAdminStateChanged(entity: StoreAdmin,
                              oldState: StoreAdmin.State,
                              newState: StoreAdmin.State,
-                             admin: Originator)(implicit ec: EC, ac: AC): DbResultT[Activity] =
+                             admin: User)(implicit ec: EC, ac: AC): DbResultT[Activity] =
     Activities.log(StoreAdminStateChanged(entity, oldState, newState, admin))
 
   /* Mail stuff */
@@ -548,9 +547,14 @@ object LogActivity {
     Activities.log(SendSimpleMail(name = name, subject = subject, email = email, html = html))
 
   /* Helpers */
-  private def buildOriginator(originator: Originator): Option[AdminResponse] = originator match {
+  private def buildOriginator(originator: User): Option[AdminResponse] = 
+    buildAdmin(admin)
+    //MAXDO check claims for admin?
+    /*
+    originator match {
     case AdminOriginator(admin) ⇒ Some(buildAdmin(admin))
     case CustomerOriginator(_) ⇒
       None // We don't need customer, he's already in FullOrder.Root / Customer object
   }
+  */
 }

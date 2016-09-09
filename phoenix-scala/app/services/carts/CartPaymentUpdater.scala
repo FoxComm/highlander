@@ -12,7 +12,7 @@ import models.payment.PaymentMethod
 import models.payment.creditcard._
 import models.payment.giftcard._
 import models.payment.storecredit._
-import models.traits.Originator
+import models.account.User
 import payloads.PaymentPayloads._
 import responses.TheResponse
 import responses.cord.CartResponse
@@ -25,7 +25,7 @@ object CartPaymentUpdater {
 
   type TheFullCart = DbResultT[TheResponse[CartResponse]]
 
-  def addGiftCard(originator: Originator, payload: GiftCardPayment, refNum: Option[String] = None)(
+  def addGiftCard(originator: User, payload: GiftCardPayment, refNum: Option[String] = None)(
       implicit ec: EC,
       db: DB,
       ac: AC,
@@ -45,7 +45,7 @@ object CartPaymentUpdater {
     } yield TheResponse.validated(resp, valid)
 
   def editGiftCard(
-      originator: Originator,
+      originator: User,
       payload: GiftCardPayment,
       refNum: Option[String] = None)(implicit ec: EC, db: DB, ac: AC, ctx: OC): TheFullCart =
     for {
@@ -81,7 +81,7 @@ object CartPaymentUpdater {
     }
 
   def addStoreCredit(
-      originator: Originator,
+      originator: User,
       payload: StoreCreditPayment,
       refNum: Option[String] = None)(implicit ec: EC, db: DB, ac: AC, ctx: OC): TheFullCart = {
     def updateSC(has: Int, want: Int, cart: Cart, storeCredits: List[StoreCredit]) =
@@ -115,7 +115,7 @@ object CartPaymentUpdater {
     } yield TheResponse.validated(response, validation)
   }
 
-  def addCreditCard(originator: Originator, id: Int, refNum: Option[String] = None)(
+  def addCreditCard(originator: User, id: Int, refNum: Option[String] = None)(
       implicit ec: EC,
       db: DB,
       ac: AC,
@@ -135,17 +135,17 @@ object CartPaymentUpdater {
     } yield TheResponse.validated(resp, valid)
 
   def deleteCreditCard(
-      originator: Originator,
+      originator: User,
       refNum: Option[String] = None)(implicit ec: EC, db: DB, ac: AC, ctx: OC): TheFullCart =
     deleteCreditCardOrStoreCredit(originator, refNum, PaymentMethod.CreditCard)
 
   def deleteStoreCredit(
-      originator: Originator,
+      originator: User,
       refNum: Option[String] = None)(implicit ec: EC, db: DB, ac: AC, ctx: OC): TheFullCart =
     deleteCreditCardOrStoreCredit(originator, refNum, PaymentMethod.StoreCredit)
 
   private def deleteCreditCardOrStoreCredit(
-      originator: Originator,
+      originator: User,
       refNum: Option[String],
       pmt: PaymentMethod.Type)(implicit ec: EC, db: DB, ac: AC, ctx: OC): TheFullCart =
     for {
@@ -160,7 +160,7 @@ object CartPaymentUpdater {
       _           ← * <~ LogActivity.orderPaymentMethodDeleted(originator, resp, pmt)
     } yield TheResponse.validated(resp, valid)
 
-  def deleteGiftCard(originator: Originator, code: String, refNum: Option[String] = None)(
+  def deleteGiftCard(originator: User, code: String, refNum: Option[String] = None)(
       implicit ec: EC,
       db: DB,
       ac: AC,

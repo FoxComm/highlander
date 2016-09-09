@@ -5,7 +5,6 @@ import akka.http.scaladsl.server.Directives._
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.StoreAdmin
 import models.auth.AdminToken
-import models.traits.Originator
 import payloads.StoreAdminPayloads._
 import services.StoreAdminManager
 import utils.aliases._
@@ -19,7 +18,7 @@ object StoreAdminRoutes {
       pathPrefix("store-admins") {
         (post & pathEnd & entity(as[CreateStoreAdminPayload])) { payload ⇒
           mutateOrFailures {
-            StoreAdminManager.create(payload, Originator(admin))
+            StoreAdminManager.create(payload, admin)
           }
         } ~
         pathPrefix(IntNumber) { saId ⇒
@@ -30,18 +29,18 @@ object StoreAdminRoutes {
           } ~
           (patch & pathEnd & entity(as[UpdateStoreAdminPayload])) { payload ⇒
             mutateOrFailures {
-              StoreAdminManager.update(saId, payload, Originator(admin))
+              StoreAdminManager.update(saId, payload, admin)
             }
           } ~
           (delete & pathEnd) {
             deleteOrFailures {
-              StoreAdminManager.delete(saId, Originator(admin))
+              StoreAdminManager.delete(saId, admin)
             }
           } ~
           pathPrefix("state") {
             (patch & pathEnd & entity(as[StateChangeStoreAdminPayload])) { payload ⇒
               mutateOrFailures {
-                StoreAdminManager.changeState(saId, payload, Originator(admin))
+                StoreAdminManager.changeState(saId, payload, admin)
               }
             }
           }

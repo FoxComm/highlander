@@ -8,7 +8,6 @@ import models.StoreAdmin
 import models.cord.Cord.cordRefNumRegex
 import models.payment.giftcard.GiftCard
 import models.payment.giftcard.GiftCard.giftCardCodeRegex
-import models.traits.Originator
 import payloads.AddressPayloads._
 import payloads.LineItemPayloads._
 import payloads.OrderPayloads._
@@ -60,12 +59,12 @@ object OrderRoutes {
           } ~
           (post & path("coupon" / Segment) & pathEnd) { code ⇒
             mutateOrFailures {
-              CartPromotionUpdater.attachCoupon(Originator(admin), refNum.some, code)
+              CartPromotionUpdater.attachCoupon(admin, refNum.some, code)
             }
           } ~
           (delete & path("coupon") & pathEnd) {
             mutateOrFailures {
-              CartPromotionUpdater.detachCoupon(Originator(admin), refNum.some)
+              CartPromotionUpdater.detachCoupon(admin, refNum.some)
             }
           } ~
           (post & path("increase-remorse-period") & pathEnd) {
@@ -90,12 +89,12 @@ object OrderRoutes {
           } ~
           (post & path("coupon" / Segment) & pathEnd) { code ⇒
             mutateOrFailures {
-              CartPromotionUpdater.attachCoupon(Originator(admin), Some(refNum), code)
+              CartPromotionUpdater.attachCoupon(admin, Some(refNum), code)
             }
           } ~
           (delete & path("coupon") & pathEnd) {
             deleteOrFailures {
-              CartPromotionUpdater.detachCoupon(Originator(admin), Some(refNum))
+              CartPromotionUpdater.detachCoupon(admin, Some(refNum))
             }
           } ~
           (post & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) {
@@ -107,85 +106,85 @@ object OrderRoutes {
           pathPrefix("payment-methods" / "credit-cards") {
             (post & pathEnd & entity(as[CreditCardPayment])) { payload ⇒
               mutateOrFailures {
-                CartPaymentUpdater.addCreditCard(Originator(admin),
+                CartPaymentUpdater.addCreditCard(admin,
                                                  payload.creditCardId,
                                                  refNum.some)
               }
             } ~
             (delete & pathEnd) {
               mutateOrFailures {
-                CartPaymentUpdater.deleteCreditCard(Originator(admin), refNum.some)
+                CartPaymentUpdater.deleteCreditCard(admin, refNum.some)
               }
             }
           } ~
           pathPrefix("payment-methods" / "gift-cards") {
             (post & pathEnd & entity(as[GiftCardPayment])) { payload ⇒
               mutateOrFailures {
-                CartPaymentUpdater.addGiftCard(Originator(admin), payload, refNum.some)
+                CartPaymentUpdater.addGiftCard(admin, payload, refNum.some)
               }
             } ~
             (patch & pathEnd & entity(as[GiftCardPayment])) { payload ⇒
               mutateOrFailures {
-                CartPaymentUpdater.editGiftCard(Originator(admin), payload, refNum.some)
+                CartPaymentUpdater.editGiftCard(admin, payload, refNum.some)
               }
             } ~
             (delete & path(GiftCard.giftCardCodeRegex) & pathEnd) { code ⇒
               mutateOrFailures {
-                CartPaymentUpdater.deleteGiftCard(Originator(admin), code, refNum.some)
+                CartPaymentUpdater.deleteGiftCard(admin, code, refNum.some)
               }
             }
           } ~
           pathPrefix("payment-methods" / "store-credit") {
             (post & pathEnd & entity(as[StoreCreditPayment])) { payload ⇒
               mutateOrFailures {
-                CartPaymentUpdater.addStoreCredit(Originator(admin), payload, refNum.some)
+                CartPaymentUpdater.addStoreCredit(admin, payload, refNum.some)
               }
             } ~
             (delete & pathEnd) {
               mutateOrFailures {
-                CartPaymentUpdater.deleteStoreCredit(Originator(admin), refNum.some)
+                CartPaymentUpdater.deleteStoreCredit(admin, refNum.some)
               }
             }
           } ~
           pathPrefix("shipping-address") {
             (post & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
               mutateOrFailures {
-                CartShippingAddressUpdater.createShippingAddressFromPayload(Originator(admin),
+                CartShippingAddressUpdater.createShippingAddressFromPayload(admin,
                                                                             payload,
                                                                             Some(refNum))
               }
             } ~
             (patch & path(IntNumber) & pathEnd) { addressId ⇒
               mutateOrFailures {
-                CartShippingAddressUpdater.createShippingAddressFromAddressId(Originator(admin),
+                CartShippingAddressUpdater.createShippingAddressFromAddressId(admin,
                                                                               addressId,
                                                                               Some(refNum))
               }
             } ~
             (patch & pathEnd & entity(as[UpdateAddressPayload])) { payload ⇒
               mutateOrFailures {
-                CartShippingAddressUpdater.updateShippingAddressFromPayload(Originator(admin),
+                CartShippingAddressUpdater.updateShippingAddressFromPayload(admin,
                                                                             payload,
                                                                             Some(refNum))
               }
             } ~
             (delete & pathEnd) {
               mutateOrFailures {
-                CartShippingAddressUpdater.removeShippingAddress(Originator(admin), Some(refNum))
+                CartShippingAddressUpdater.removeShippingAddress(admin, Some(refNum))
               }
             }
           } ~
           pathPrefix("shipping-method") {
             (patch & pathEnd & entity(as[UpdateShippingMethod])) { payload ⇒
               mutateOrFailures {
-                CartShippingMethodUpdater.updateShippingMethod(Originator(admin),
+                CartShippingMethodUpdater.updateShippingMethod(admin,
                                                                payload,
                                                                Some(refNum))
               }
             } ~
             (delete & pathEnd) {
               mutateOrFailures {
-                CartShippingMethodUpdater.deleteShippingMethod(Originator(admin), Some(refNum))
+                CartShippingMethodUpdater.deleteShippingMethod(admin, Some(refNum))
               }
             }
           }
