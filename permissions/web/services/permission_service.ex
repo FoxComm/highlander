@@ -1,6 +1,7 @@
 defmodule Permissions.PermissionClaimService do
   import Ecto
   import Ecto.Query
+  alias Ecto.Changeset
   alias Ecto.Multi
   alias Ecto.Query
   alias Permissions.Permission
@@ -9,17 +10,23 @@ defmodule Permissions.PermissionClaimService do
 
   def insert_permission(params) do
     perm_changeset = Permission.changeset(%Permission{}, params)
-    Multi.new
-    |> Multi.insert(:permission, perm_changeset)
-    |> Multi.run(:claim, fn %{permission: permission} -> create_claim_changeset(permission) end)
+    |> create_claim_changeset
+    #Multi.new
+    #|> Multi.insert(:permission, perm_changeset)
+    #|> Multi.run(:claim, fn %{permission: permission} -> create_claim_changeset(permission) end)
+    
   end
 
-  defp create_claim_changeset(created_permission) do
+  defp create_claim_changeset(perm_changeset) do
+    resource_id = Changeset.get_change(perm_changeset, :resource_id)
+    scope_id = Changeset.get_change(perm_changeset, :scope_id)
+    actions = Changeset.get_change(perm_changeset, :actions)
     claim_frn = Repo.all(
       from permission in Permission,
       join: resource in assoc(permission, :resource),
       join: scope in assoc(permission, :scope),
-      where: permission.id == ^created_permission.id,
+      where: resource.id == ^resource_id,
+      where: scope.id == ^scope_id,
       select: %{
         id: permission.id,
         resource_name: resource.name,
@@ -29,12 +36,24 @@ defmodule Permissions.PermissionClaimService do
       limit: 1
     )
     |> construct_frn
-    claim_changeset = Permission.changeset_from_frn(%Permission{}, %{"frn" => claim_frn})
-    Repo.insert(claim_changeset)
+    
+    changeset_with_claim = Permission.changeset(perm_changeset, %{"frn" => IO.inspect(claim_frn)})
+
+    Multi.new
+    |> Multi.insert(:permission, changeset_with_claim)
   end
 
-  defp construct_frn(full_permission) do
-    fp = List.first(full_permission)
-    "Fox/#{fp.scope_id}/#{fp.resource_name}/#{fp.actions}"
+  defp construct_frn(full_perm) do
+    IO.inspect(full_perm)
+    fp = List.first(full_perm)
+    case fp do 
+      fp when is_nil fp -> empty_frn
+      fp ->  "Fox:#{fp.scope_id}:#{fp.resource_name}:#{fp.actions}"
+    end
   end
+
+  defp empty_frn() do
+    "Fox:None"
+  end
+
 end

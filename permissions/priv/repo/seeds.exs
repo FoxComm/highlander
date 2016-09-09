@@ -67,7 +67,8 @@ permissions =
     Repo.insert! %Permission{
       actions: actions,
       resource_id: resource.id,
-      scope_id: scope.id
+      scope_id: scope.id,
+      frn: "Fox:OMS:Donkey:1.5"
     }
   end
 

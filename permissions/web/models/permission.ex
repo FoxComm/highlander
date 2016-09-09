@@ -13,8 +13,7 @@ defmodule Permissions.Permission do
 
   def changeset(model, params \\ :empty) do
     model
-    |> cast(params, ~w(resource_id scope_id), ~w())
-    |> construct_frn
+    |> cast(params, ~w(resource_id scope_id), ~w(frn actions))
   end
 
   def update_changeset(model, params \\ :empty) do
@@ -22,8 +21,4 @@ defmodule Permissions.Permission do
     |> cast(params, ~w(resource_id scope_id), ~w())
   end
   
-  defp construct_frn(full_permission) do
-    fp = List.first(full_permission)
-    "Fox/#{fp.scope_id}/#{fp.resource_name}/#{fp.actions}"
   end
-end

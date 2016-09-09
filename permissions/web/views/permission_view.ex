@@ -13,7 +13,7 @@ defmodule Permissions.PermissionView do
   def render("permission.json", %{permission: permission}) do
     %{id: permission.id,
       resource_id: permission.resource_id,
-      action_id: permission.action_id,
+      actions: permission.actions,
       scope_id: permission.scope_id
     }
   end
@@ -22,8 +22,7 @@ defmodule Permissions.PermissionView do
     %{id: permission.id,
       resource_id: permission.resource_id,
       resource_name: permission.resource.name,
-      action_id: permission.action_id,
-      action_name: permission.action.name,
+      actions: permission.actions,
       scope_id: permission.scope_id,
       scope_source: permission.scope.source
     }

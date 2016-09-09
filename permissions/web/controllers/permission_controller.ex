@@ -11,7 +11,7 @@ defmodule Permissions.PermissionController do
 
   def create(conn, %{"permission" => permission_params}) do
     case Repo.transaction(PermissionClaimService.insert_permission(permission_params)) do
-      {:ok, %{permission: permission, claim: claim}} -> 
+      {:ok, %{permission: permission}} -> 
         conn
         |> put_status(:created)
         |> put_resp_header("location", permission_path(conn, :show, permission))
