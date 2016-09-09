@@ -83,7 +83,7 @@ object CartPromotionUpdater {
       couponShadow ← * <~ ObjectShadows.mustFindById404(coupon.shadowId)
       couponObject = IlluminatedCoupon.illuminate(ctx, coupon, couponForm, couponShadow)
       _ ← * <~ couponObject.mustBeActive
-      _ ← * <~ couponObject.mustBeApplicable(couponCode, cart.customerId)
+      _ ← * <~ couponObject.mustBeApplicable(couponCode, cart.accountId)
       // Fetch promotion + validate
       promotion ← * <~ Promotions
                    .filterByContextAndFormId(ctx.id, coupon.promotionId)

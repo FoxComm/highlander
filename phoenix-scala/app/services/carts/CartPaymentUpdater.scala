@@ -87,7 +87,7 @@ object CartPaymentUpdater {
     def updateSC(has: Int, want: Int, cart: Cart, storeCredits: List[StoreCredit]) =
       if (has < want) {
         DbResultT.failure(
-            CustomerHasInsufficientStoreCredit(id = cart.customerId, has = has, want = want))
+            CustomerHasInsufficientStoreCredit(id = cart.accountId, has = has, want = want))
       } else {
         def payments = StoreCredit.processFifo(storeCredits, want).map {
           case (sc, amount) ⇒
@@ -105,7 +105,7 @@ object CartPaymentUpdater {
 
     for {
       cart         ← * <~ getCartByOriginator(originator, refNum)
-      storeCredits ← * <~ StoreCredits.findAllActiveByCustomerId(cart.customerId).result
+      storeCredits ← * <~ StoreCredits.findAllActiveByAccountId(cart.accountId).result
       reqAmount = payload.amount
       available = storeCredits.map(_.availableBalance).sum
       -          ← * <~ updateSC(available, reqAmount, cart, storeCredits.toList)
@@ -123,7 +123,7 @@ object CartPaymentUpdater {
     for {
       cart   ← * <~ getCartByOriginator(originator, refNum)
       cc     ← * <~ CreditCards.mustFindById400(id)
-      _      ← * <~ cc.mustBelongToCustomer(cart.customerId)
+      _      ← * <~ cc.mustBelongToAccount(cart.accountId)
       _      ← * <~ cc.mustBeInWallet
       region ← * <~ Regions.findOneById(cc.regionId).safeGet
       _      ← * <~ OrderPayments.filter(_.cordRef === cart.refNum).creditCards.delete

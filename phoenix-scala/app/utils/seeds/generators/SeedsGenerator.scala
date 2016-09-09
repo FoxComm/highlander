@@ -8,6 +8,7 @@ import faker.Faker
 import models.cord._
 import models.coupon._
 import models.customer._
+import models.account._
 import models.inventory._
 import models.location.{Address, Addresses}
 import models.objects.{ObjectContext, ObjectContexts}
@@ -24,10 +25,9 @@ import utils.seeds.Seeds.Factories
 object RankingSeedsGenerator {
   def fakeJson = JObject()
 
-  def generateCustomer: Customer =
-    Customer.build(email = s"${randomString(10)}@email.com",
-                   password = Some(randomString(10)),
-                   name = Some(randomString(10)))
+  def generateCustomer: User =
+    User(email = s"${randomString(10)}@email.com",
+      name = Some(randomString(10)))
 
   def generateOrderPayment[A <: PaymentMethod with FoxModel[A]](
       orderRef: String,
@@ -38,7 +38,7 @@ object RankingSeedsGenerator {
   }
 
   def generateAddress: Address =
-    Address(customerId = 0,
+    Address(accountId = 0,
             regionId = 4177,
             name = randomString(10),
             address1 = randomString(30),
@@ -62,7 +62,7 @@ object RankingSeedsGenerator {
     def makeOrders(c: Customer, context: ObjectContext) = {
       (1 to 5 + Random.nextInt(20)).map { i ⇒
         for {
-          cart  ← * <~ Carts.create(Cart(customerId = c.id))
+          cart  ← * <~ Carts.create(Cart(accountId = c.id))
           order ← * <~ Orders.createFromCart(cart, context.id)
           order ← * <~ Orders.update(order, order.copy(state = Order.FulfillmentStarted))
           order ← * <~ Orders.update(order, order.copy(state = Order.Shipped))
@@ -74,21 +74,20 @@ object RankingSeedsGenerator {
       generateOrderPayment(o.refNum, pm, Random.nextInt(20000) + 100)
     }
 
-    def insertCustomers() =
-      Customers.createAll((1 to customersCount).map { i ⇒
-        val s = randomString(15)
-        Customer.build(name = s.some,
-                       email = s"$s-$i@email.com",
-                       password = s.some,
-                       location = location.some)
+    def insertCustomers(accountIds: Seq[Int]) =
+      Users.createAll(accountIds.map { accountId ⇒
+        User(
+          accountId = accountId,
+          name = s.some,
+          email = s"$s-$i@email.com")
       })
 
     def insertOrders() =
       for {
         context   ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-        customers ← * <~ Customers.filter(_.location === location).result
+        customers ← * <~ Users.result
         newCreditCards ← * <~ customers.map { c ⇒
-                          Factories.creditCard.copy(customerId = c.id,
+                          Factories.creditCard.copy(accountId = c.accountId,
                                                     holderName = c.name.getOrElse(""))
                         }
         _ ← * <~ CreditCards.createAll(newCreditCards)
@@ -97,7 +96,7 @@ object RankingSeedsGenerator {
 
     def insertPayments() = {
       val action = (for {
-        (o, cc) ← Orders.join(CreditCards).on(_.customerId === _.customerId)
+        (o, cc) ← Orders.join(CreditCards).on(_.accountId === _.accountId)
       } yield (o, cc)).result
 
       for {
@@ -109,6 +108,8 @@ object RankingSeedsGenerator {
     }
 
     for {
+      accountIds ← * <~ insertAccounts
+      _ ← * <~ insertCustomers(accountIds)
       _ ← * <~ insertCustomers
       _ ← * <~ insertOrders
       _ ← * <~ insertPayments
@@ -168,16 +169,24 @@ object SeedsGenerator
   def insertRandomizedSeeds(customersCount: Int,
                             appeasementCount: Int)(implicit ec: EC, db: DB, ac: AC) = {
     Faker.locale("en")
-    val location = "Random"
 
     for {
       context     ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       shipMethods ← * <~ getShipmentRules
       skus        ← * <~ Skus.filter(_.contextId === context.id).result
       skuIds = skus.map(_.id)
-      customerIds ← * <~ Customers.createAllReturningIds(
-                       generateCustomers(customersCount, location))
-      customers ← * <~ Customers.filter(_.id.inSet(customerIds)).result
+      generatedCustomers = generateUsers(customerCreated) 
+      accountIds ← * <~ Accounts.create( generatedCustomers.map { _ ⇒ Account() })
+      accountCustomers = accountIds zip generateCustomers
+      customerIds ← * <~ Users.createAllReturningIds(
+        accountCustomers.map { 
+        (accountId, customer) ⇒ customer.copy(accountId = accountId)
+      })
+      customers ← * <~ Users.filter(_.id.inSet(customerIds)).result
+      _         ← * <~ CustomerUsers.createAll(
+        customers.map { c ⇒ 
+          CustomerUser(accountId = c.accountId, userId = c.id)
+        })
       _         ← * <~ Addresses.createAll(generateAddresses(customers))
       _         ← * <~ CreditCards.createAll(generateCreditCards(customers))
       orderedGcs ← * <~ randomSubset(customerIds).map { id ⇒

@@ -2,7 +2,7 @@ package services.giftcards
 
 import cats.implicits._
 import failures.{NotFoundFailure400, OpenTransactionsFailure}
-import models.customer.Customers
+import models.account.Users
 import models.payment.giftcard.GiftCard.Canceled
 import models.payment.giftcard.GiftCardSubtypes.scope._
 import models.payment.giftcard._
@@ -32,7 +32,7 @@ object GiftCardService {
     } yield response
 
   private def buildResponse(giftCard: GiftCard)(implicit ec: EC) =
-    (giftCard.originType, giftCard.customerId) match {
+    (giftCard.originType, giftCard.accountId) match {
       case (GiftCard.CsrAppeasement, _) ⇒
         for {
           origin ← GiftCardManuals.filter(_.id === giftCard.originId).one
@@ -42,8 +42,8 @@ object GiftCardService {
           adminResponse = admin.map(StoreAdminResponse.build)
         } yield GiftCardResponse.build(giftCard, None, adminResponse)
 
-      case (GiftCard.CustomerPurchase, Some(customerId)) ⇒
-        Customers.findOneById(customerId).map { maybeCustomer ⇒
+      case (GiftCard.AccountPurchase, Some(accountId)) ⇒
+        Users.findOneByAccountId(accountId).map { maybeCustomer ⇒
           val customerResponse = maybeCustomer.map(c ⇒ CustomerResponse.build(c))
           GiftCardResponse.build(giftCard, customerResponse, None)
         }

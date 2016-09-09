@@ -6,7 +6,7 @@ import cats.data.{ValidatedNel, Xor}
 import cats.implicits._
 import failures.CreditCardFailures.CannotUseInactiveCreditCard
 import failures._
-import models.customer.Customers
+import models.account.Accounts
 import models.location._
 import models.payment.PaymentMethod
 import models.traits.Addressable
@@ -20,8 +20,8 @@ import utils.db._
 
 case class CreditCard(id: Int = 0,
                       parentId: Option[Int] = None,
-                      customerId: Int,
-                      gatewayCustomerId: String,
+                      accountId: Int,
+                      gatewayAccountId: String,
                       gatewayCardId: String,
                       holderName: String,
                       lastFour: String,
@@ -67,8 +67,8 @@ case class CreditCard(id: Int = 0,
   def mustBeInWallet: Failures Xor CreditCard =
     if (inWallet) Xor.right(this) else Xor.left(CannotUseInactiveCreditCard(this).single)
 
-  def mustBelongToCustomer(ownerId: Int): Failures Xor CreditCard =
-    if (customerId == ownerId) Xor.right(this)
+  def mustBelongToAccount(ownerId: Int): Failures Xor CreditCard =
+    if (accountId == ownerId) Xor.right(this)
     else Xor.left(NotFoundFailure400(CreditCard, id).single)
 
   def copyFromAddress(a: Address): CreditCard =
@@ -81,13 +81,13 @@ case class CreditCard(id: Int = 0,
 }
 
 object CreditCard {
-  def build(customerId: Int,
-            sCust: StripeCustomer,
+  def build(accountId: Int,
+            sCust: StripeAccount,
             card: StripeCard,
             p: CreateCreditCard,
             a: Address): CreditCard = {
-    CreditCard(customerId = customerId,
-               gatewayCustomerId = sCust.getId,
+    CreditCard(accountId = accountId,
+               gatewayAccountId = sCust.getId,
                gatewayCardId = card.getId,
                holderName = p.holderName,
                lastFour = p.lastFour,
@@ -110,8 +110,8 @@ class CreditCards(tag: Tag) extends FoxTable[CreditCard](tag, "credit_cards") {
 
   def id                = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def parentId          = column[Option[Int]]("parent_id")
-  def customerId        = column[Int]("customer_id")
-  def gatewayCustomerId = column[String]("gateway_customer_id")
+  def accountId         = column[Int]("account_id")
+  def gatewayAccountId  = column[String]("gateway_account_id")
   def gatewayCardId     = column[String]("gateway_card_id")
   def holderName        = column[String]("holder_name")
   def lastFour          = column[String]("last_four")
@@ -134,8 +134,8 @@ class CreditCards(tag: Tag) extends FoxTable[CreditCard](tag, "credit_cards") {
   def * =
     (id,
      parentId,
-     customerId,
-     gatewayCustomerId,
+     accountId,
+     gatewayAccountId,
      gatewayCardId,
      holderName,
      lastFour,
@@ -154,7 +154,7 @@ class CreditCards(tag: Tag) extends FoxTable[CreditCard](tag, "credit_cards") {
      zip,
      brand) <> ((CreditCard.apply _).tupled, CreditCard.unapply)
 
-  def customer = foreignKey(Customers.tableName, customerId, Customers)(_.id)
+  def account = foreignKey(Accounts.tableName, accountId, Accounts)(_.id)
   def region   = foreignKey(Regions.tableName, regionId, Regions)(_.id)
 }
 
@@ -164,17 +164,17 @@ object CreditCards
 
   val returningLens: Lens[CreditCard, Int] = lens[CreditCard].id
 
-  def findInWalletByCustomerId(customerId: Int): QuerySeq =
-    filter(_.customerId === customerId).filter(_.inWallet === true)
+  def findInWalletByAccountId(accountId: Int): QuerySeq =
+    filter(_.accountId === accountId).filter(_.inWallet === true)
 
-  def findDefaultByCustomerId(customerId: Int): QuerySeq =
-    findInWalletByCustomerId(customerId).filter(_.isDefault === true)
+  def findDefaultByAccountId(accountId: Int): QuerySeq =
+    findInWalletByAccountId(accountId).filter(_.isDefault === true)
 
-  def findByIdAndCustomerId(id: Int, customerId: Int): QuerySeq =
-    filter(_.customerId === customerId).filter(_.id === id)
+  def findByIdAndAccountId(id: Int, accountId: Int): QuerySeq =
+    filter(_.accountId === accountId).filter(_.id === id)
 
-  def mustFindByIdAndCustomer(id: Int, customerId: Int)(implicit ec: EC): DbResultT[CreditCard] = {
-    filter(cc ⇒ cc.id === id && cc.customerId === customerId).one.toXor.flatMap {
+  def mustFindByIdAndAccount(id: Int, accountId: Int)(implicit ec: EC): DbResultT[CreditCard] = {
+    filter(cc ⇒ cc.id === id && cc.accountId === accountId).one.toXor.flatMap {
       case Some(cc) ⇒ DbResultT.good(cc)
       case None     ⇒ DbResultT.failure(NotFoundFailure404(CreditCard, id))
     }

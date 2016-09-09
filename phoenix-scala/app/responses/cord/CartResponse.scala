@@ -4,7 +4,7 @@ import cats.implicits._
 import models.StoreAdmin
 import models.cord._
 import models.cord.lineitems.CartLineItems
-import models.customer._
+import models.account._
 import models.payment.creditcard._
 import responses.PromotionResponses.IlluminatedPromotionResponse
 import responses._
@@ -40,7 +40,7 @@ object CartResponse {
       lineItemsSku   ← * <~ CartLineItems.byCordRef(cart.refNum).result
       lineItems      ← * <~ CordResponseLineItems.fetchCart(cart.refNum, lineItemAdj)
       promo          ← * <~ CordResponsePromotions.fetch(cart.refNum)
-      customer       ← * <~ Customers.findOneById(cart.customerId)
+      customer       ← * <~ Users.findOneById(cart.accountId)
       shippingMethod ← * <~ CordResponseShipping.shippingMethod(cart.refNum)
       shippingAddress ← * <~ CordResponseShipping
                          .shippingAddress(cart.refNum)

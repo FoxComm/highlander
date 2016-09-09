@@ -25,7 +25,7 @@ object AllOrders {
       extends ResponseItem
 
   def build(order: Order,
-            customer: Option[Customer] = None,
+            customer: Option[User] = None,
             paymentState: Option[CreditCardCharge.State] = None): Root = Root(
       referenceNumber = order.referenceNumber,
       orderState = order.state,

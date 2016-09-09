@@ -8,11 +8,11 @@ import utils.db.ExPostgresDriver.api._
 import java.time.Instant
 
 /**
-  * This keeps track of how many times a particular coupon was used by a customer.
+  * This keeps track of how many times a particular coupon was used by a account.
   */
 final case class CouponCustomerUsage(id: Int = 0,
                                      couponFormId: Int,
-                                     customerId: Int,
+                                     accountId: Int,
                                      count: Int = 0,
                                      updatedAt: Instant = Instant.now,
                                      createdAt: Instant = Instant.now)
@@ -23,13 +23,13 @@ class CouponCustomerUsages(tag: Tag)
 
   def id           = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def couponFormId = column[Int]("coupon_form_id")
-  def customerId   = column[Int]("customer_id")
+  def accountId    = column[Int]("account_id")
   def count        = column[Int]("count")
   def updatedAt    = column[Instant]("updated_at")
   def createdAt    = column[Instant]("created_at")
 
   def * =
-    (id, couponFormId, customerId, count, updatedAt, createdAt) <> ((CouponCustomerUsage.apply _).tupled, CouponCustomerUsage.unapply)
+    (id, couponFormId, accountId, count, updatedAt, createdAt) <> ((CouponCustomerUsage.apply _).tupled, CouponCustomerUsage.unapply)
 }
 
 object CouponCustomerUsages
@@ -41,6 +41,6 @@ object CouponCustomerUsages
   def filterByCoupon(couponFormId: Int): QuerySeq =
     filter(_.couponFormId === couponFormId)
 
-  def filterByCouponAndCustomer(couponFormId: Int, customerId: Int): QuerySeq =
-    filterByCoupon(couponFormId).filter(_.customerId === customerId)
+  def filterByCouponAndAccount(couponFormId: Int, accountId: Int): QuerySeq =
+    filterByCoupon(couponFormId).filter(_.accountId === accountId)
 }

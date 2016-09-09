@@ -4,7 +4,7 @@ import java.time.Instant
 
 import models.StoreAdmins
 import models.cord.Orders
-import models.customer.Customers
+import models.account.Accounts
 import models.inventory.Sku
 import models.objects._
 import models.payment.PaymentMethod
@@ -13,7 +13,7 @@ import models.product.Mvp
 import models.returns._
 import models.shipping.Shipment
 import responses.CustomerResponse.{Root ⇒ Customer}
-import responses.StoreAdminResponse.{Root ⇒ StoreAdmin}
+import responses.UserResponse.{Root ⇒ User}
 import responses.cord.OrderResponse
 import services.returns.ReturnTotaler
 import slick.driver.PostgresDriver.api._
@@ -59,7 +59,7 @@ object ReturnResponse {
                   lineItems: LineItems,
                   payments: Seq[DisplayPayment],
                   customer: Option[Customer] = None,
-                  storeAdmin: Option[StoreAdmin] = None,
+                  storeAdmin: Option[User] = None,
                   messageToCustomer: Option[String] = None,
                   canceledReason: Option[Int] = None,
                   createdAt: Instant,
@@ -75,7 +75,7 @@ object ReturnResponse {
                           lineItems: LineItems,
                           payments: Seq[DisplayPayment],
                           customer: Option[Customer] = None,
-                          storeAdmin: Option[StoreAdmin] = None,
+                          storeAdmin: Option[User] = None,
                           messageToCustomer: Option[String] = None,
                           canceledReason: Option[Int] = None,
                           createdAt: Instant,
@@ -131,7 +131,7 @@ object ReturnResponse {
         build(
             rma = rma,
             customer = customer.map(CustomerResponse.build(_)),
-            storeAdmin = storeAdmin.map(StoreAdminResponse.build),
+            storeAdmin = storeAdmin.map(UserResponse.build),
             payments = payments.map(buildPayment),
             lineItems = buildLineItems(lineItemData, giftCards, shipments),
             totals = Some(buildTotals(subtotal, None, shipments))
@@ -146,7 +146,7 @@ object ReturnResponse {
             rma = rma,
             order = order,
             customer = customer.map(CustomerResponse.build(_)),
-            storeAdmin = storeAdmin.map(StoreAdminResponse.build),
+            storeAdmin = storeAdmin.map(UserResponse.build),
             payments = payments.map(buildPayment),
             lineItems = buildLineItems(lineItemData, giftCards, shipments),
             totals = Some(buildTotals(subtotal, None, shipments))
@@ -156,7 +156,7 @@ object ReturnResponse {
 
   def build(rma: Return,
             customer: Option[Customer] = None,
-            storeAdmin: Option[StoreAdmin] = None,
+            storeAdmin: Option[User] = None,
             lineItems: LineItems = LineItems(),
             payments: Seq[DisplayPayment] = Seq.empty,
             totals: Option[ReturnTotals] = None): Root =
@@ -212,9 +212,9 @@ object ReturnResponse {
       // Order, if necessary
       fullOrder ← * <~ orderQ
       // Either customer or storeAdmin as creator
-      customer ← * <~ Customers.findById(rma.customerId).extract.one
+      user    ← * <~ Users.findByAccountId(rma.accountId)
       storeAdmin ← * <~ rma.storeAdminId
-                    .map(id ⇒ StoreAdmins.findById(id).extract.one)
+                    .map(id ⇒ Users.findByAccountId(id).extract.one)
                     .getOrElse(lift(None))
       // Payment methods
       payments ← * <~ ReturnPayments.filter(_.returnId === rma.id).result
@@ -224,6 +224,6 @@ object ReturnResponse {
       shipments ← * <~ ReturnLineItemShippingCosts.findLineItemsByRma(rma).result
       // Subtotal
       subtotal ← * <~ ReturnTotaler.subTotal(rma)
-    } yield (fullOrder, customer, storeAdmin, payments, lineItems, giftCards, shipments, subtotal)
+    } yield (fullOrder, user, storeAdmin, payments, lineItems, giftCards, shipments, subtotal)
   }
 }

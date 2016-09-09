@@ -12,18 +12,18 @@ trait AddressSeeds {
     for {
       _ ← * <~ Addresses.createAll(
              Seq(
-                 usAddress1.copy(customerId = customers._1),
-                 usAddress2.copy(customerId = customers._1),
-                 usAddress3.copy(customerId = customers._2),
-                 usAddress4.copy(customerId = customers._2),
-                 canadaAddress1.copy(customerId = customers._3),
-                 canadaAddress2.copy(customerId = customers._3),
-                 rowAddress1.copy(customerId = customers._4)
+                 usAddress1.copy(accountId = customers._1),
+                 usAddress2.copy(accountId = customers._1),
+                 usAddress3.copy(accountId = customers._2),
+                 usAddress4.copy(accountId = customers._2),
+                 canadaAddress1.copy(accountId = customers._3),
+                 canadaAddress2.copy(accountId = customers._3),
+                 rowAddress1.copy(accountId = customers._4)
              ))
     } yield {}
 
   def usAddress1 =
-    Address(customerId = 0,
+    Address(accountId = 0,
             regionId = 4177,
             name = "Home",
             address1 = "555 E Lake Union St.",
@@ -36,7 +36,7 @@ trait AddressSeeds {
   def address = usAddress1
 
   def usAddress2 =
-    Address(customerId = 0,
+    Address(accountId = 0,
             regionId = 4165,
             name = "Other",
             address1 = "4749 Grove Avenue",
@@ -46,7 +46,7 @@ trait AddressSeeds {
             phoneNumber = None)
 
   def usAddress3 =
-    Address(customerId = 0,
+    Address(accountId = 0,
             regionId = 4154,
             name = "Temp",
             address1 = "3104 Canterbury Court",
@@ -56,7 +56,7 @@ trait AddressSeeds {
             phoneNumber = "2025550113".some)
 
   def usAddress4 =
-    Address(customerId = 0,
+    Address(accountId = 0,
             regionId = 4162,
             name = "The address",
             address1 = "3345 Orchard Lane",
@@ -67,7 +67,7 @@ trait AddressSeeds {
             isDefaultShipping = true)
 
   def canadaAddress1 =
-    Address(customerId = 0,
+    Address(accountId = 0,
             regionId = 545,
             name = "Address 1",
             address1 = "4177 Crystal Downs",
@@ -78,7 +78,7 @@ trait AddressSeeds {
             isDefaultShipping = true)
 
   def canadaAddress2 =
-    Address(customerId = 0,
+    Address(accountId = 0,
             regionId = 547,
             name = "Address 2",
             address1 = "8321 Harvest Woods",
@@ -88,7 +88,7 @@ trait AddressSeeds {
             phoneNumber = "8671002677".some)
 
   def rowAddress1 =
-    Address(customerId = 0,
+    Address(accountId = 0,
             regionId = 789,
             name = "Dům",
             address1 = "Příční 151",

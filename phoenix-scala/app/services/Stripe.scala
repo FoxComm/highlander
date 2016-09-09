@@ -20,18 +20,18 @@ case class Stripe(implicit apis: Apis, ec: EC) {
 
   val api: StripeApi = apis.stripe
 
-  // Creates a customer in Stripe along with their first CC
+  // Creates a account in Stripe along with their first CC
   def createCard(email: Option[String],
                  card: CreateCreditCard,
-                 stripeCustomerId: Option[String],
+                 stripeAccountId: Option[String],
                  address: Address) = email match {
-    case Some(e) ⇒ createCardInner(e, card, stripeCustomerId, address)
+    case Some(e) ⇒ createCardInner(e, card, stripeAccountId, address)
     case _       ⇒ Result.failure(CustomerMustHaveCredentials)
   }
 
   def createCardInner(email: String,
                       card: CreateCreditCard,
-                      stripeCustomerId: Option[String],
+                      stripeAccountId: Option[String],
                       address: Address): Result[(StripeCustomer, StripeCard)] = {
 
     val source = Map[String, Object](
@@ -70,14 +70,14 @@ case class Stripe(implicit apis: Apis, ec: EC) {
       } yield (cust, card)
     }
 
-    stripeCustomerId.fold(newCustomer)(existingCustomer).value
+    stripeAccountId.fold(newCustomer)(existingCustomer).value
   }
 
-  def authorizeAmount(customerId: String, amount: Int, currency: Currency): Result[StripeCharge] = {
+  def authorizeAmount(accountId: String, amount: Int, currency: Currency): Result[StripeCharge] = {
     val chargeMap: Map[String, Object] = Map(
         "amount"   → amount.toString,
         "currency" → currency.toString,
-        "customer" → customerId,
+        "customer" → accountId,
         "capture"  → (false: java.lang.Boolean)
     )
 
@@ -106,7 +106,7 @@ case class Stripe(implicit apis: Apis, ec: EC) {
     }
 
     (for {
-      customer   ← ResultT(getCustomer(cc.gatewayCustomerId))
+      customer   ← ResultT(getCustomer(cc.gatewayAccountId))
       stripeCard ← ResultT(getCard(customer))
       updated    ← ResultT(update(stripeCard))
     } yield updated).value
@@ -114,7 +114,7 @@ case class Stripe(implicit apis: Apis, ec: EC) {
 
   def deleteCard(cc: CreditCard): Result[DeletedExternalAccount] = {
     (for {
-      customer   ← ResultT(getCustomer(cc.gatewayCustomerId))
+      customer   ← ResultT(getCustomer(cc.gatewayAccountId))
       stripeCard ← ResultT(getCard(customer))
       updated    ← ResultT(api.deleteExternalAccount(stripeCard))
     } yield updated).value

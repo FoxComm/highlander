@@ -36,7 +36,7 @@ object LineItemUpdater {
     runUpdates(finder, logActivity, payload)
   }
 
-  def updateQuantitiesOnCustomersCart(customer: Customer, payload: Seq[UpdateLineItemsPayload])(
+  def updateQuantitiesOnCustomersCart(customer: User, payload: Seq[UpdateLineItemsPayload])(
       implicit ec: EC,
       es: ES,
       db: DB,
@@ -44,9 +44,9 @@ object LineItemUpdater {
       ctx: OC): DbResultT[TheResponse[CartResponse]] = {
 
     val findOrCreate = Carts
-      .findByCustomer(customer)
+      .findByAccountId(customer.accountId)
       .one
-      .findOrCreateExtended(Carts.create(Cart(customerId = customer.id)))
+      .findOrCreateExtended(Carts.create(Cart(accountId = customer.accountId)))
 
     val logActivity = (cart: CartResponse, oldQtys: Map[String, Int]) ⇒
       LogActivity.orderLineItemsUpdated(cart, oldQtys, payload)

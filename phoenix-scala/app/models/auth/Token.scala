@@ -10,8 +10,7 @@ import cats.implicits._
 import cats.data.Xor
 import failures.AuthFailures._
 import failures.{Failures, GeneralFailure}
-import models.StoreAdmin
-import models.customer.Customer
+import models.account.{Account, User}
 import org.jose4j.jws.JsonWebSignature
 import org.jose4j.jwt.JwtClaims
 import org.jose4j.jwa.AlgorithmConstraints
@@ -58,10 +57,11 @@ object Keys {
 
 sealed trait Token extends Product {
   val id: Int
-  val admin: Boolean
   val name: Option[String]
   val email: Option[String]
-  val scopes: Seq[String]
+  val scope: String
+  val roles: Seq[String]
+  val claims: Account.Claims
   val ratchet: Int
   def encode: Failures Xor String = Token.encode(this)
 }
@@ -82,7 +82,8 @@ object Token {
     claims.setClaim("id", token.id)
     claims.setClaim("email", token.email)
     claims.setClaim("ratchet", token.ratchet)
-    claims.setStringListClaim("scopes", token.scopes)
+    claims.setClaim("scope", token.scope)
+    claims.setStringListClaim("roles", token.roles)
 
     token.name.map { name ⇒
       claims.setClaim("name", name)
@@ -94,18 +95,13 @@ object Token {
       email
     }
 
+    token.claims.foreach {
+      case (k, v) ⇒
+        claims.setStringListClaim(k, v)
+    }
+
     claims.setExpirationTimeMinutesInTheFuture(tokenTTL.toFloat)
     claims.setIssuer("FC")
-    token match {
-      case _: AdminToken ⇒ {
-        claims.setAudience("admin")
-        claims.setClaim("admin", true)
-      }
-      case _: CustomerToken ⇒ {
-        claims.setAudience("customer")
-        claims.setClaim("admin", false)
-      }
-    }
 
     claims
   }
@@ -162,39 +158,12 @@ object Token {
   }
 }
 
-case class AdminToken(id: Int,
-                      admin: Boolean = true,
-                      name: Option[String],
-                      email: Option[String],
-                      scopes: Seq[String],
-                      department: Option[String] = None,
-                      ratchet: Int)
-    extends Token
-
-object AdminToken {
-  def fromAdmin(admin: StoreAdmin): AdminToken = {
-    AdminToken(id = admin.id,
-               name = admin.name.some,
-               email = admin.email.some,
-               scopes = Array("admin"),
-               department = admin.department,
-               ratchet = admin.ratchet)
+object Token {
+  def fromUser(user: User, account: Account, claims: Account.Claims, roles: List[String]): CustomerToken = {
+    require(user.accountId == account.id)
+    Token(id = user.id,
+      name = user.name,
+      email = user.email,
+      ratchet = account.ratchet)
   }
-}
-
-case class CustomerToken(id: Int,
-                         admin: Boolean = false,
-                         name: Option[String],
-                         email: Option[String],
-                         scopes: Seq[String],
-                         ratchet: Int)
-    extends Token
-
-object CustomerToken {
-  def fromCustomer(customer: Customer): CustomerToken =
-    CustomerToken(id = customer.id,
-                  name = customer.name,
-                  email = customer.email,
-                  scopes = Array[String](),
-                  ratchet = customer.ratchet)
 }

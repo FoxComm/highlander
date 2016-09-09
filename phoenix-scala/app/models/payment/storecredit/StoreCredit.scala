@@ -25,7 +25,7 @@ import utils.aliases._
 import utils.db._
 
 case class StoreCredit(id: Int = 0,
-                       customerId: Int,
+                       accountId: Int,
                        originId: Int,
                        originType: OriginType = CsrAppeasement,
                        subTypeId: Option[Int] = None,
@@ -105,8 +105,8 @@ object StoreCredit {
     }
   }
 
-  def buildFromGcTransfer(customerId: Int, gc: GiftCard): StoreCredit = {
-    StoreCredit(customerId = customerId,
+  def buildFromGcTransfer(accountId: Int, gc: GiftCard): StoreCredit = {
+    StoreCredit(accountId = accountId,
                 originId = 0,
                 originType = StoreCredit.GiftCardTransfer,
                 currency = gc.currency,
@@ -114,10 +114,10 @@ object StoreCredit {
                 currentBalance = gc.currentBalance)
   }
 
-  def buildAppeasement(customerId: Int,
+  def buildAppeasement(accountId: Int,
                        originId: Int,
                        payload: CreateManualStoreCredit): StoreCredit = {
-    StoreCredit(customerId = customerId,
+    StoreCredit(accountId = accountId,
                 originId = originId,
                 originType = StoreCredit.CsrAppeasement,
                 subTypeId = payload.subTypeId,
@@ -125,11 +125,11 @@ object StoreCredit {
                 originalBalance = payload.amount)
   }
 
-  def buildFromExtension(customerId: Int,
+  def buildFromExtension(accountId: Int,
                          payload: CreateExtensionStoreCredit,
                          originType: StoreCredit.OriginType = StoreCredit.Custom,
                          originId: Int): StoreCredit = {
-    StoreCredit(customerId = customerId,
+    StoreCredit(accountId = accountId,
                 originType = originType,
                 originId = originId,
                 currency = payload.currency,
@@ -137,8 +137,8 @@ object StoreCredit {
                 originalBalance = payload.amount)
   }
 
-  def buildRmaProcess(customerId: Int, originId: Int, currency: Currency): StoreCredit = {
-    StoreCredit(customerId = customerId,
+  def buildRmaProcess(accountId: Int, originId: Int, currency: Currency): StoreCredit = {
+    StoreCredit(accountId = accountId,
                 originId = originId,
                 originType = StoreCredit.RmaProcess,
                 currency = currency,
@@ -174,7 +174,7 @@ class StoreCredits(tag: Tag) extends FoxTable[StoreCredit](tag, "store_credits")
   def originId         = column[Int]("origin_id")
   def originType       = column[StoreCredit.OriginType]("origin_type")
   def subTypeId        = column[Option[Int]]("subtype_id")
-  def customerId       = column[Int]("customer_id")
+  def accountId        = column[Int]("account_id")
   def currency         = column[Currency]("currency")
   def originalBalance  = column[Int]("original_balance")
   def currentBalance   = column[Int]("current_balance")
@@ -186,7 +186,7 @@ class StoreCredits(tag: Tag) extends FoxTable[StoreCredit](tag, "store_credits")
 
   def * =
     (id,
-     customerId,
+     accountId,
      originId,
      originType,
      subTypeId,
@@ -256,16 +256,16 @@ object StoreCredits extends FoxTableQuery[StoreCredit, StoreCredits](new StoreCr
 
   def findActiveById(id: Int): QuerySeq = filter(_.id === id)
 
-  def findAllByCustomerId(customerId: Int): QuerySeq =
-    filter(_.customerId === customerId)
+  def findAllByAccountId(accountId: Int): QuerySeq =
+    filter(_.accountId === accountId)
 
-  def findAllActiveByCustomerId(customerId: Int): QuerySeq =
-    filter(_.customerId === customerId)
+  def findAllActiveByAccountId(accountId: Int): QuerySeq =
+    filter(_.accountId === accountId)
       .filter(_.state === (Active: State))
       .filter(_.availableBalance > 0)
 
-  def findByIdAndCustomerId(id: Int, customerId: Int): DBIO[Option[StoreCredit]] =
-    filter(_.customerId === customerId).filter(_.id === id).one
+  def findByIdAndAccountId(id: Int, accountId: Int): DBIO[Option[StoreCredit]] =
+    filter(_.accountId === accountId).filter(_.id === id).one
 
   private def debit(storeCredit: StoreCredit,
                     orderPaymentId: Option[Int],

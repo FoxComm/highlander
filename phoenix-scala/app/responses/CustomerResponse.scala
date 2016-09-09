@@ -2,7 +2,7 @@ package responses
 
 import java.time.Instant
 
-import models.customer._
+import models.account._
 import models.location.Region
 
 object CustomerResponse {
@@ -24,7 +24,8 @@ object CustomerResponse {
                   lastOrderDays: Option[Long] = None)
       extends ResponseItem
 
-  def build(customer: Customer,
+  def build(customer: User,
+            isGuest: Boolean,
             shippingRegion: Option[Region] = None,
             billingRegion: Option[Region] = None,
             numOrders: Option[Int] = None,
@@ -37,7 +38,7 @@ object CustomerResponse {
          location = customer.location,
          modality = customer.modality,
          createdAt = customer.createdAt,
-         isGuest = customer.isGuest,
+         isGuest = isGuest,
          disabled = customer.isDisabled,
          isBlacklisted = customer.isBlacklisted,
          rank = rank.flatMap(_.rank),

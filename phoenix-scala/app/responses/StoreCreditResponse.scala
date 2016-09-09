@@ -33,7 +33,7 @@ object StoreCreditResponse {
          originType = storeCredit.originType,
          subTypeId = storeCredit.subTypeId,
          currency = storeCredit.currency,
-         customerId = storeCredit.customerId,
+         customerId = storeCredit.accountId,
          originalBalance = storeCredit.originalBalance,
          currentBalance = storeCredit.currentBalance,
          availableBalance = storeCredit.availableBalance,

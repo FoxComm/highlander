@@ -38,28 +38,28 @@ case class IlluminatedCoupon(id: Int,
     }
   }
 
-  def mustBeApplicable(code: CouponCode, customerId: Int)(implicit ec: EC,
+  def mustBeApplicable(code: CouponCode, accountId: Int)(implicit ec: EC,
                                                           db: DB): DbResultT[IlluminatedCoupon] = {
     val usageRules = (attributes \ "usageRules" \ "v").extractOpt[CouponUsageRules]
 
     val validation = usageRules match {
-      case Some(rules) if !rules.isUnlimitedPerCode && !rules.isUnlimitedPerCustomer ⇒
-        CouponUsageService.mustBeUsableByCustomer(id,
+      case Some(rules) if !rules.isUnlimitedPerCode && !rules.isUnlimitedPerAccount ⇒
+        CouponUsageService.mustBeUsableByAccount(id,
                                                   code.id,
                                                   rules.usesPerCode.getOrElse(0),
-                                                  customerId,
-                                                  rules.usesPerCustomer.getOrElse(0),
+                                                  accountId,
+                                                  rules.usesPerAccount.getOrElse(0),
                                                   code.code)
 
-      case Some(rules) if !rules.isUnlimitedPerCode && rules.isUnlimitedPerCustomer ⇒
+      case Some(rules) if !rules.isUnlimitedPerCode && rules.isUnlimitedPerAccount ⇒
         CouponUsageService
           .couponCodeMustBeUsable(id, code.id, rules.usesPerCode.getOrElse(0), code.code)
 
-      case Some(rules) if rules.isUnlimitedPerCode && !rules.isUnlimitedPerCustomer ⇒
+      case Some(rules) if rules.isUnlimitedPerCode && !rules.isUnlimitedPerAccount ⇒
         CouponUsageService
-          .couponMustBeUsable(id, customerId, rules.usesPerCustomer.getOrElse(0), code.code)
+          .couponMustBeUsable(id, accountId, rules.usesPerAccount.getOrElse(0), code.code)
 
-      case Some(rules) if rules.isUnlimitedPerCode && rules.isUnlimitedPerCustomer ⇒
+      case Some(rules) if rules.isUnlimitedPerCode && rules.isUnlimitedPerAccount ⇒
         DbResultT.unit
 
       case _ ⇒

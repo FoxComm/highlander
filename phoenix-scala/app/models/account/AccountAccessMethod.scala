@@ -52,12 +52,11 @@ class AccountAccessMethods(tag: Tag)
 
 object AccountAccessMethods
     extends FoxTableQuery[AccountAccessMethod, AccountAccessMethods](new AccountAccessMethods(_))
-    with ReturningId[AccountAccessMethod, AccountAccessMethods] {
+    with ReturningId[AccountAccessMethod, AccountAccessMethods] 
+    with SearchById[AccountAccessMethod, AccountAccessMethods]{
 
   val returningLens: Lens[AccountAccessMethod, Int] = lens[AccountAccessMethod].id
 
-  def findByName(name: String): DBIO[Option[AccountAccessMethod]] = {
-    filter(_.name === name).one
-  }
-
+  def findOneByIdAndName(id: Int, name: String): DBIO[Option[M]] = 
+    filter(_.id === id).filter(_.name === name).one
 }

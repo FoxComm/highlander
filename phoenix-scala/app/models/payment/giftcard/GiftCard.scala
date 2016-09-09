@@ -26,7 +26,7 @@ import utils.db._
 
 case class GiftCard(id: Int = 0,
                     originId: Int,
-                    originType: OriginType = CustomerPurchase,
+                    originType: OriginType = AccountPurchase,
                     code: String = "",
                     subTypeId: Option[Int] = None,
                     currency: Currency = Currency.USD,
@@ -37,7 +37,7 @@ case class GiftCard(id: Int = 0,
                     canceledAmount: Option[Int] = None,
                     canceledReason: Option[Int] = None,
                     reloadable: Boolean = false,
-                    customerId: Option[Int] = None,
+                    accountId: Option[Int] = None,
                     createdAt: Instant = Instant.now())
     extends PaymentMethod
     with FoxModel[GiftCard]
@@ -107,7 +107,7 @@ object GiftCard {
 
   sealed trait OriginType
   case object CsrAppeasement   extends OriginType
-  case object CustomerPurchase extends OriginType
+  case object AccountPurchase  extends OriginType
   case object FromStoreCredit  extends OriginType
   case object RmaProcess       extends OriginType
 
@@ -124,7 +124,7 @@ object GiftCard {
   def build(balance: Int, originId: Int, currency: Currency): GiftCard = {
     GiftCard(
         originId = originId,
-        originType = GiftCard.CustomerPurchase,
+        originType = GiftCard.AccountPurchase,
         state = GiftCard.Active,
         currency = currency,
         originalBalance = balance,
@@ -161,7 +161,7 @@ object GiftCard {
   def buildLineItem(balance: Int, originId: Int, currency: Currency): GiftCard = {
     GiftCard(
         originId = originId,
-        originType = GiftCard.CustomerPurchase,
+        originType = GiftCard.AccountPurchase,
         state = GiftCard.Cart,
         currency = currency,
         originalBalance = balance,
@@ -209,7 +209,7 @@ class GiftCards(tag: Tag) extends FoxTable[GiftCard](tag, "gift_cards") {
   def canceledAmount   = column[Option[Int]]("canceled_amount")
   def canceledReason   = column[Option[Int]]("canceled_reason")
   def reloadable       = column[Boolean]("reloadable")
-  def customerId       = column[Option[Int]]("customer_id")
+  def accountId        = column[Option[Int]]("account_id")
   def createdAt        = column[Instant]("created_at")
 
   def * =
@@ -226,7 +226,7 @@ class GiftCards(tag: Tag) extends FoxTable[GiftCard](tag, "gift_cards") {
      canceledAmount,
      canceledReason,
      reloadable,
-     customerId,
+     accountId,
      createdAt) <> ((GiftCard.apply _).tupled, GiftCard.unapply)
 }
 

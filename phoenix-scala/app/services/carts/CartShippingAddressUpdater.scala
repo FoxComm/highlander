@@ -35,7 +35,7 @@ object CartShippingAddressUpdater {
       addAndReg ← * <~ mustFindAddressWithRegion(addressId)
       _         ← * <~ OrderShippingAddresses.findByOrderRef(cart.refNum).delete
       (address, _) = addAndReg
-      _           ← * <~ address.mustBelongToCustomer(cart.customerId)
+      _           ← * <~ address.mustBelongToAccount(cart.accountId)
       shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(address, cart.refNum)
       region      ← * <~ Regions.mustFindById404(shipAddress.regionId)
       validated   ← * <~ CartValidator(cart).validate()
@@ -54,7 +54,7 @@ object CartShippingAddressUpdater {
     for {
       cart ← * <~ getCartByOriginator(originator, refNum)
       newAddress ← * <~ Addresses.create(
-                      Address.fromPayload(payload).copy(customerId = cart.customerId))
+                      Address.fromPayload(payload).copy(accountId = cart.accountId))
       _           ← * <~ OrderShippingAddresses.findByOrderRef(cart.refNum).delete
       shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(newAddress, cart.refNum)
       region      ← * <~ Regions.mustFindById404(shipAddress.regionId)

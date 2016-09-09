@@ -10,21 +10,21 @@ import utils.db._
 
 trait StoreCreditSeeds {
 
-  def createStoreCredits(adminId: StoreAdmin#Id,
-                         cust1: Customer#Id,
-                         cust3: Customer#Id): DbResultT[Unit] =
+  def createStoreCredits(adminId: User#AccountId,
+                         cust1: User#AccountId,
+                         cust3: User#AccountId): DbResultT[Unit] =
     for {
       _      ← * <~ StoreCreditSubtypes.createAll(storeCreditSubTypes)
       origin ← * <~ StoreCreditManuals.create(StoreCreditManual(adminId = adminId, reasonId = 1))
       newSc = storeCredit.copy(originId = origin.id)
-      sc1 ← * <~ StoreCredits.create(newSc.copy(customerId = cust1))
-      sc2 ← * <~ StoreCredits.create(newSc.copy(originalBalance = 1000, customerId = cust1))
-      sc3 ← * <~ StoreCredits.create(newSc.copy(originalBalance = 500, customerId = cust1))
-      sc4 ← * <~ StoreCredits.create(newSc.copy(originalBalance = 2000, customerId = cust3))
+      sc1 ← * <~ StoreCredits.create(newSc.copy(accountId = cust1))
+      sc2 ← * <~ StoreCredits.create(newSc.copy(originalBalance = 1000, accountId = cust1))
+      sc3 ← * <~ StoreCredits.create(newSc.copy(originalBalance = 500, accountId = cust1))
+      sc4 ← * <~ StoreCredits.create(newSc.copy(originalBalance = 2000, accountId = cust3))
     } yield {}
 
   def storeCredit =
-    StoreCredit(customerId = 0,
+    StoreCredit(accountId = 0,
                 originId = 0,
                 originType = StoreCredit.CsrAppeasement,
                 originalBalance = 5000,

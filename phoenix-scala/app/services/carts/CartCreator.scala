@@ -23,9 +23,9 @@ object CartCreator {
         case _                     ⇒ ???
       }
 
-    def createCartForCustomer(customerId: Int)(implicit ctx: OC): DbResultT[CartResponse] =
+    def createCartForCustomer(accountId: Int)(implicit ctx: OC): DbResultT[CartResponse] =
       for {
-        customer ← * <~ Customers.mustFindById400(customerId)
+        customer ← * <~ Users.mustFindByAccountId(accountId)
         fullCart ← * <~ CartQueries.findOrCreateCartByCustomerInner(customer, Some(admin))
       } yield fullCart
 
@@ -42,6 +42,6 @@ object CartCreator {
     } yield root
   }
 
-  private def root(cart: Cart, customer: Customer): CartResponse =
+  private def root(cart: Cart, customer: User): CartResponse =
     CartResponse.buildEmpty(cart = cart, customer = customer.some)
 }

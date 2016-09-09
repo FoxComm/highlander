@@ -2,7 +2,7 @@ package services
 
 import cats.implicits._
 import failures.{NotFoundFailure400, NotFoundFailure404, OpenTransactionsFailure}
-import models.customer.{Customer, Customers}
+import models.account.{User, Users}
 import models.payment.storecredit.StoreCredit.Canceled
 import models.payment.storecredit.StoreCreditSubtypes.scope._
 import models.payment.storecredit._
@@ -41,17 +41,17 @@ object StoreCreditService {
     }
   }
 
-  def totalsForCustomer(customerId: Int)(implicit ec: EC,
+  def totalsForCustomer(accountId: Int)(implicit ec: EC,
                                          db: DB): DbResultT[StoreCreditResponse.Totals] =
     for {
-      _      ← * <~ Customers.mustFindById404(customerId)
-      totals ← * <~ fetchTotalsForCustomer(customerId)
+      _      ← * <~ Users.mustFindByAccountId(accountId)
+      totals ← * <~ fetchTotalsForCustomer(accountId)
     } yield totals.getOrElse(Totals(0, 0))
 
-  def fetchTotalsForCustomer(customerId: Int)(implicit ec: EC): DBIO[Option[Totals]] = {
+  def fetchTotalsForCustomer(accountId: Int)(implicit ec: EC): DBIO[Option[Totals]] = {
     StoreCredits
-      .findAllActiveByCustomerId(customerId)
-      .groupBy(_.customerId)
+      .findAllActiveByAccountId(accountId)
+      .groupBy(_.accountId)
       .map { case (_, q) ⇒ (q.map(_.availableBalance).sum, q.map(_.currentBalance).sum) }
       .one
       .map(_.map {
@@ -59,13 +59,13 @@ object StoreCreditService {
       })
   }
 
-  def createManual(admin: StoreAdmin, customerId: Int, payload: CreateManualStoreCredit)(
+  def createManual(admin: StoreAdmin, accountId: Int, payload: CreateManualStoreCredit)(
       implicit ec: EC,
       db: DB,
       ac: AC): DbResultT[Root] = {
     val reason400 = NotFoundFailure400(Reason, payload.reasonId)
     for {
-      customer ← * <~ Customers.mustFindById404(customerId)
+      customer ← * <~ Users.mustFindByAccountId(accountId)
       _        ← * <~ Reasons.findById(payload.reasonId).extract.mustFindOneOr(reason400)
       _        ← * <~ checkSubTypeExists(payload.subTypeId, StoreCredit.CsrAppeasement)
       manual = StoreCreditManual(adminId = admin.id,
@@ -73,7 +73,7 @@ object StoreCreditService {
                                  subReasonId = payload.subReasonId)
       origin ← * <~ StoreCreditManuals.create(manual)
       appeasement = StoreCredit
-        .buildAppeasement(customerId = customer.id, originId = origin.id, payload = payload)
+        .buildAppeasement(accountId = customer.accountId, originId = origin.id, payload = payload)
       storeCredit ← * <~ StoreCredits.create(appeasement)
       _           ← * <~ LogActivity.scCreated(admin, customer, storeCredit)
     } yield build(storeCredit)
@@ -81,16 +81,16 @@ object StoreCreditService {
 
   // API routes
 
-  def createFromExtension(admin: StoreAdmin, customerId: Int, payload: CreateExtensionStoreCredit)(
+  def createFromExtension(admin: StoreAdmin, accountId: Int, payload: CreateExtensionStoreCredit)(
       implicit ec: EC,
       db: DB,
       ac: AC): DbResultT[Root] =
     for {
-      customer ← * <~ Customers.mustFindById404(customerId)
+      customer ← * <~ Users.mustFindByAccountId(accountId)
       _        ← * <~ checkSubTypeExists(payload.subTypeId, StoreCredit.Custom)
       custom = StoreCreditCustom(adminId = admin.id, metadata = payload.metadata)
       origin ← * <~ StoreCreditCustoms.create(custom)
-      customSC = StoreCredit.buildFromExtension(customerId = customer.id,
+      customSC = StoreCredit.buildFromExtension(accountId = customer.accountId,
                                                 payload = payload,
                                                 originType = StoreCredit.Custom,
                                                 originId = origin.id)
@@ -103,11 +103,11 @@ object StoreCreditService {
       storeCredit ← * <~ StoreCredits.mustFindById404(id)
     } yield StoreCreditResponse.build(storeCredit)
 
-  def getByIdAndCustomer(storeCreditId: Int, customer: Customer)(implicit ec: EC,
+  def getByIdAndCustomer(storeCreditId: Int, customer: User)(implicit ec: EC,
                                                                  db: DB): DbResultT[Root] =
     for {
       storeCredit ← * <~ StoreCredits
-                     .findByIdAndCustomerId(storeCreditId, customer.id)
+                     .findByIdAndAccountId(storeCreditId, customer.accountId)
                      .mustFindOr(NotFoundFailure404(StoreCredit, storeCreditId))
     } yield StoreCreditResponse.build(storeCredit)
 

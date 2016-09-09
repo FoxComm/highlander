@@ -35,6 +35,8 @@ object Accounts
     extends FoxTableQuery[Account, Accounts](new Accounts(_))
     with ReturningId[Account, Accounts] {
 
+  type Claims = Map[String, List[String]]
+
   val returningLens: Lens[Account, Int] = lens[Account].id
 
   def findByName(name: String): DBIO[Option[Account]] = {

@@ -25,9 +25,9 @@ case class Return(id: Int = 0,
                   returnType: ReturnType = Standard,
                   state: State = Pending,
                   isLocked: Boolean = false,
-                  customerId: Int,
+                  accountId: Int,
                   storeAdminId: Option[Int] = None,
-                  messageToCustomer: Option[String] = None,
+                  messageToAccount: Option[String] = None,
                   canceledReason: Option[Int] = None,
                   createdAt: Instant = Instant.now,
                   updatedAt: Instant = Instant.now,
@@ -78,14 +78,14 @@ object Return {
   implicit val StateTypeColumnType: JdbcType[State] with BaseTypedType[State] = State.slickColumn
 
   val returnRefNumRegex          = """([a-zA-Z0-9-_.]*)""".r
-  val messageToCustomerMaxLength = 1000
+  val messageToAccountMaxLength = 1000
 
   def build(order: Order, admin: StoreAdmin, rmaType: ReturnType = Return.Standard): Return = {
     Return(
         orderId = order.id,
         orderRef = order.refNum,
         returnType = rmaType,
-        customerId = order.customerId,
+        accountId = order.accountId,
         storeAdminId = Some(admin.id)
     )
   }
@@ -107,9 +107,9 @@ class Returns(tag: Tag) extends FoxTable[Return](tag, "returns") {
   def returnType        = column[ReturnType]("return_type")
   def state             = column[State]("state")
   def isLocked          = column[Boolean]("is_locked")
-  def customerId        = column[Int]("customer_id")
+  def accountId         = column[Int]("account_id")
   def storeAdminId      = column[Option[Int]]("store_admin_id")
-  def messageToCustomer = column[Option[String]]("message_to_customer")
+  def messageToAccount  = column[Option[String]]("message_to_account")
   def canceledReason    = column[Option[Int]]("canceled_reason")
   def createdAt         = column[Instant]("created_at")
   def updatedAt         = column[Instant]("updated_at")
@@ -123,9 +123,9 @@ class Returns(tag: Tag) extends FoxTable[Return](tag, "returns") {
      returnType,
      state,
      isLocked,
-     customerId,
+     accountId,
      storeAdminId,
-     messageToCustomer,
+     messageToAccount,
      canceledReason,
      createdAt,
      updatedAt,
@@ -139,7 +139,7 @@ object Returns
 
   def findByRefNum(refNum: String): QuerySeq = filter(_.referenceNumber === refNum)
 
-  def findByCustomerId(customerId: Int): QuerySeq = filter(_.customerId === customerId)
+  def findByAccountId(accountId: Int): QuerySeq = filter(_.accountId === accountId)
 
   def findByOrderRefNum(refNum: String): QuerySeq = filter(_.orderRef === refNum)
 

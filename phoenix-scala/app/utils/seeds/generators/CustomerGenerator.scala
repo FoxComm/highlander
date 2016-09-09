@@ -1,6 +1,6 @@
 package utils.seeds.generators
 
-import models.customer.Customer
+import models.account.User
 import GeneratorUtils.randomString
 import utils.Passwords.hashPassword
 
@@ -9,19 +9,15 @@ import faker._
 
 trait CustomerGenerator {
 
-  val hashedPassword = hashPassword(randomString(10))
-
-  def generateCustomer(location: String): Customer = {
+  def generateCustomer:  User = {
     val name = Name.name
-    Customer(email = generateEmail(name).some,
-             hashedPassword = hashedPassword.some,
-             name = name.some,
-             location = location.some)
+    User(email = generateEmail(name).some,
+             name = name.some)
   }
 
-  def generateCustomers(total: Int, location: String): Seq[Customer] =
+  def generateCustomers(total: Int): Seq[User] =
     (1 to total) map { c ⇒
-      generateCustomer(location)
+      generateCustomer
     }
 
   private def generateEmail(name: String): String = {

@@ -2,7 +2,7 @@ package services.coupon
 
 import failures.CouponFailures._
 import models.coupon._
-import models.customer.Customer
+import models.account.User
 import models.objects.{ObjectContexts, ObjectForms}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
@@ -10,10 +10,10 @@ import utils.db._
 
 object CouponUsageService {
 
-  private def couponUsageCount(couponFormId: Int, customerId: Int)(implicit ec: EC,
+  private def couponUsageCount(couponFormId: Int, accountId: Int)(implicit ec: EC,
                                                                    db: DB): DBIO[Int] =
     for {
-      coupon ← CouponCustomerUsages.filterByCouponAndCustomer(couponFormId, customerId).one
+      coupon ← CouponCustomerUsages.filterByCouponAndAccount(couponFormId, accountId).one
     } yield coupon.fold(0)(_.count)
 
   private def couponCodeUsageCount(couponFormId: Int, couponCodeId: Int)(implicit ec: EC,
@@ -32,20 +32,20 @@ object CouponUsageService {
                 else DbResultT.unit)
     } yield {}
 
-  def couponMustBeUsable(couponFormId: Int, customerId: Int, usesAvailable: Int, code: String)(
+  def couponMustBeUsable(couponFormId: Int, accountId: Int, usesAvailable: Int, code: String)(
       implicit ec: EC,
       db: DB): DbResultT[Unit] =
     for {
-      count ← * <~ couponUsageCount(couponFormId, customerId)
+      count ← * <~ couponUsageCount(couponFormId, accountId)
       _ ← * <~ (if (count < usesAvailable)
-                  DbResultT.failure(CouponCodeCannotBeUsedByCustomerAnymore(code, customerId))
+                  DbResultT.failure(CouponCodeCannotBeUsedByCustomerAnymore(code, accountId))
                 else DbResultT.unit)
     } yield {}
 
   def mustBeUsableByCustomer(couponFormId: Int,
                              couponCodeId: Int,
                              codeUsesAvailable: Int,
-                             customerId: Int,
+                             accountId: Int,
                              usesAvailableForCustomer: Int,
                              couponCode: String)(implicit ec: EC, db: DB): DbResultT[Unit] =
     for {
@@ -53,11 +53,11 @@ object CouponUsageService {
                                       couponCodeId,
                                       usesAvailableForCustomer,
                                       couponCode)
-      _ ← * <~ couponMustBeUsable(couponFormId, customerId, usesAvailableForCustomer, couponCode)
+      _ ← * <~ couponMustBeUsable(couponFormId, accountId, usesAvailableForCustomer, couponCode)
     } yield {}
 
   def updateUsageCounts(couponCodeId: Option[Int],
-                        customer: Customer)(implicit ec: EC, db: DB, ctx: OC): DbResultT[Unit] = {
+                        customer: User)(implicit ec: EC, db: DB, ctx: OC): DbResultT[Unit] = {
     couponCodeId match {
       case Some(codeId) ⇒
         for {
@@ -83,12 +83,12 @@ object CouponUsageService {
                                                      couponCodeId = couponCode.id,
                                                      count = 0)))
           couponUsageByCustomer ← * <~ CouponCustomerUsages
-                                   .filterByCouponAndCustomer(coupon.formId, customer.id)
+                                   .filterByCouponAndAccount(coupon.formId, customer.accountId)
                                    .one
                                    .findOrCreate(
                                        CouponCustomerUsages.create(
                                            CouponCustomerUsage(couponFormId = coupon.formId,
-                                                               customerId = customer.id,
+                                                               accountId = customer.accountId,
                                                                count = 0)))
           _ ← * <~ CouponUsages.update(couponUsage,
                                        couponUsage.copy(count = couponUsage.count + 1))

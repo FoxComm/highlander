@@ -1,4 +1,4 @@
-package models.customer
+package models.user
 
 import java.time.Instant
 
@@ -7,25 +7,25 @@ import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.ADT
 import utils.db._
-import CustomerPasswordReset.{Initial, State}
+import UserPasswordReset.{Initial, State}
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import utils.generateUuid
 
-case class CustomerPasswordReset(id: Int = 0,
-                                 customerId: Int,
+case class UserPasswordReset(id: Int = 0,
+                                 userId: Int,
                                  email: String,
                                  state: State = Initial,
                                  code: String,
                                  activatedAt: Option[Instant] = None,
                                  createdAt: Instant = Instant.now)
-    extends FoxModel[CustomerPasswordReset] {
+    extends FoxModel[UserPasswordReset] {
 
-  def updateCode(): CustomerPasswordReset = this.copy(code = generateUuid)
+  def updateCode(): UserPasswordReset = this.copy(code = generateUuid)
 
 }
 
-object CustomerPasswordReset {
+object UserPasswordReset {
 
   sealed trait State
 
@@ -40,39 +40,39 @@ object CustomerPasswordReset {
 
   implicit val stateColumnType: JdbcType[State] with BaseTypedType[State] = State.slickColumn
 
-  def optionFromCustomer(customer: Customer): Option[CustomerPasswordReset] = {
-    customer.email.map { email ⇒
-      CustomerPasswordReset(customerId = customer.id, code = generateUuid, email = email)
+  def optionFromUser(user: User): Option[UserPasswordReset] = {
+    user.email.map { email ⇒
+      UserPasswordReset(userId = user.id, code = generateUuid, email = email)
     }
   }
 }
 
-class CustomerPasswordResets(tag: Tag)
-    extends FoxTable[CustomerPasswordReset](tag, "customer_password_resets") {
+class UserPasswordResets(tag: Tag)
+    extends FoxTable[UserPasswordReset](tag, "user_password_resets") {
 
-  import CustomerPasswordReset._
+  import UserPasswordReset._
 
   def id          = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def customerId  = column[Int]("customer_id")
+  def userId  = column[Int]("user_id")
   def email       = column[String]("email")
-  def state       = column[CustomerPasswordReset.State]("state")
+  def state       = column[UserPasswordReset.State]("state")
   def code        = column[String]("code")
   def activatedAt = column[Option[Instant]]("activated_at")
   def createdAt   = column[Instant]("created_at")
 
   def * =
-    (id, customerId, email, state, code, activatedAt, createdAt) <> ((CustomerPasswordReset.apply _).tupled,
-        CustomerPasswordReset.unapply)
+    (id, userId, email, state, code, activatedAt, createdAt) <> ((UserPasswordReset.apply _).tupled,
+        UserPasswordReset.unapply)
 }
 
-object CustomerPasswordResets
-    extends FoxTableQuery[CustomerPasswordReset, CustomerPasswordResets](
-        new CustomerPasswordResets(_))
-    with ReturningId[CustomerPasswordReset, CustomerPasswordResets] {
+object UserPasswordResets
+    extends FoxTableQuery[UserPasswordReset, UserPasswordResets](
+        new UserPasswordResets(_))
+    with ReturningId[UserPasswordReset, UserPasswordResets] {
 
-  val returningLens: Lens[CustomerPasswordReset, Int] = lens[CustomerPasswordReset].id
+  val returningLens: Lens[UserPasswordReset, Int] = lens[UserPasswordReset].id
 
-  def findActiveByCode(code: String): DBIO[Option[CustomerPasswordReset]] =
+  def findActiveByCode(code: String): DBIO[Option[UserPasswordReset]] =
     filter(c ⇒ c.code === code && c.state === (Initial: State)).one
 
   def findActiveByEmail(email: String): QuerySeq =

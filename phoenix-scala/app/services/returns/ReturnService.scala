@@ -56,7 +56,7 @@ object ReturnService {
     for {
       order    ← * <~ Orders.mustFindByRefNum(payload.cordRefNum)
       rma      ← * <~ Returns.create(Return.build(order, admin, payload.returnType))
-      customer ← * <~ Customers.findOneById(order.customerId)
+      customer ← * <~ Users.findOneByAccountId(order.accountId)
       adminResponse    = Some(StoreAdminResponse.build(admin))
       customerResponse = customer.map(CustomerResponse.build(_))
     } yield build(rma, customerResponse, adminResponse)

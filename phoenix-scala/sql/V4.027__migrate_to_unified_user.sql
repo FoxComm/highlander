@@ -1,4 +1,6 @@
-
+--TODO remove customer table
+--TODO remove store_admins table
+--TODO remove customer_password_resets table
 create table customer_users
 (
     id serial primary key,
@@ -23,6 +25,37 @@ create table store_admin_users
     updated_at generic_timestamp,
     deleted_at timestamp without time zone null
 );
+
+create table user_password_resets(
+  id serial primary key,
+  user_id integer not null references users(id) on update restrict on delete restrict,
+  email generic_string,
+  state reset_password_state not null default 'initial',
+  code generic_string not null unique,
+  created_at generic_timestamp,
+  activated_at timestamp without time zone
+);
+
+create unique index user_password_resets__m_idx
+  on user_password_resets (email,user_id,state)
+  where state = 'initial';
+
+create index user_password_resets__user_idx on user_password_resets (email,user_id);
+
+
+-- from customer_id to account_id
+
+alter table save_for_later rename customer_id to account_id;
+alter table carts rename customer_id to account_id;
+alter table orders rename customer_id to account_id;
+alter table coupon_customer_usages rename customer_id to account_id;
+alter table addresses rename customer_id to account_id;
+alter table credit_cards rename customer_id to account_id;
+alter table credit_cards rename gateway_customer_id to gateway_account_id;
+alter table gift_cards rename customer_id to account_id;
+alter table store_credits rename customer_id to account_id;
+alter table returns rename customer_id to account_id;
+alter table returns rename message_to_customer to message_to_account;
 
 -------------------------------------------------------------
 --- below are migrations from old system without roles to new
@@ -260,6 +293,18 @@ begin
     perform assign_org(account_id, 'merchant');
     perform assign_role(account_id, 'customer');
 
+    -- update all customer_id to account_id
+
+    update save_for_later set account_id = account_id where account_id = c.id;
+    update carts set account_id = account_id where account_id = c.id;
+    update orders set account_id = account_id where account_id = c.id;
+    update coupon_customer_usages set account_id = account_id where account_id = c.id;
+    update addresses set account_id = account_id where account_id = c.id;
+    update credit_cards set account_id = account_id where account_id = c.id;
+    update gift_cards set account_id = account_id where account_id = c.id;
+    update store_credits set account_id = account_id where account_id = c.id;
+    update returns set account_id = account_id where account_id = c.id;
+
     return account_id;
 end;
 $$ LANGUAGE plpgsql;
@@ -286,6 +331,8 @@ $$ LANGUAGE plpgsql;
 select bootstrap_new_system(count(*)) from customers;
 select make_new_admin(s) from store_admins as s;
 select make_new_customer(c) from customers as c;
+
+
 
 
 

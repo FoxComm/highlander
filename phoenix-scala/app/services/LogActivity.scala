@@ -114,7 +114,7 @@ object LogActivity {
   }
 
   /* Customers */
-  def customerCreated(customer: CustomerResponse,
+  def customerCreated(customer: UserResponse,
                       admin: Option[StoreAdmin])(implicit ec: EC, ac: AC): DbResultT[Activity] =
     admin match {
       case Some(a) ⇒
@@ -123,17 +123,17 @@ object LogActivity {
         Activities.log(CustomerRegistered(customer))
     }
 
-  def customerActivated(customer: CustomerResponse,
+  def customerActivated(customer: UserResponse,
                         admin: StoreAdmin)(implicit ec: EC, ac: AC): DbResultT[Activity] =
     Activities.log(CustomerActivated(buildAdmin(admin), customer))
 
-  def customerUpdated(customer: Customer, updated: Customer, admin: Option[StoreAdmin])(
+  def customerUpdated(customer: User, updated: Customer, admin: Option[StoreAdmin])(
       implicit ec: EC,
       ac: AC): DbResultT[Activity] =
     Activities.log(
         CustomerUpdated(buildCustomer(customer), buildCustomer(updated), admin.map(buildAdmin)))
 
-  def customerDisabled(disabled: Boolean, customer: Customer, admin: StoreAdmin)(
+  def customerDisabled(disabled: Boolean, customer: User, admin: StoreAdmin)(
       implicit ec: EC,
       ac: AC): DbResultT[Activity] = {
 
@@ -147,7 +147,7 @@ object LogActivity {
     }
   }
 
-  def customerBlacklisted(blacklisted: Boolean, customer: Customer, admin: StoreAdmin)(
+  def customerBlacklisted(blacklisted: Boolean, customer: User, admin: StoreAdmin)(
       implicit ec: EC,
       ac: AC): DbResultT[Activity] = {
 
@@ -161,17 +161,17 @@ object LogActivity {
     }
   }
 
-  def customerRemindPassword(customer: Customer, code: String)(implicit ec: EC,
+  def customerRemindPassword(customer: User, code: String)(implicit ec: EC,
                                                                ac: AC): DbResultT[Activity] = {
     val customerResponse = buildCustomer(customer)
     Activities.log(CustomerRemindPassword(customer = customerResponse, code = code))
   }
 
-  def customerPasswordReset(customer: Customer)(implicit ec: EC, ac: AC): DbResultT[Activity] =
-    Activities.log(CustomerPasswordReset(customer = buildCustomer(customer)))
+  def userPasswordReset(user: User)(implicit ec: EC, ac: AC): DbResultT[Activity] =
+    Activities.log(UserPasswordReset(user = UserResponse.build(user)))
 
   /* Customer Addresses */
-  def addressCreated(originator: Originator, customer: Customer, address: AddressResponse)(
+  def addressCreated(originator: Originator, customer: User, address: AddressResponse)(
       implicit ec: EC,
       ac: AC): DbResultT[Activity] = {
     Activities.log(
@@ -179,7 +179,7 @@ object LogActivity {
   }
 
   def addressUpdated(originator: Originator,
-                     customer: Customer,
+                     customer: User,
                      newAddress: AddressResponse,
                      oldAddress: AddressResponse)(implicit ec: EC, ac: AC): DbResultT[Activity] =
     Activities.log(
@@ -188,19 +188,19 @@ object LogActivity {
                                oldInfo = oldAddress,
                                admin = buildOriginator(originator)))
 
-  def addressDeleted(originator: Originator, customer: Customer, address: AddressResponse)(
+  def addressDeleted(originator: Originator, customer: User, address: AddressResponse)(
       implicit ec: EC,
       ac: AC): DbResultT[Activity] =
     Activities.log(
         CustomerAddressDeleted(buildCustomer(customer), address, buildOriginator(originator)))
 
   /* Customer Credit Cards */
-  def ccCreated(customer: Customer, cc: CreditCard, admin: Option[StoreAdmin])(
+  def ccCreated(customer: User, cc: CreditCard, admin: Option[StoreAdmin])(
       implicit ec: EC,
       ac: AC): DbResultT[Activity] =
     Activities.log(CreditCardAdded(buildCustomer(customer), buildCc(cc), admin.map(buildAdmin)))
 
-  def ccUpdated(customer: Customer,
+  def ccUpdated(customer: User,
                 newCc: CreditCard,
                 oldCc: CreditCard,
                 admin: Option[StoreAdmin])(implicit ec: EC, ac: AC): DbResultT[Activity] =
@@ -210,7 +210,7 @@ object LogActivity {
                           buildCc(oldCc),
                           admin.map(buildAdmin)))
 
-  def ccDeleted(customer: Customer, cc: CreditCard, admin: Option[StoreAdmin])(
+  def ccDeleted(customer: User, cc: CreditCard, admin: Option[StoreAdmin])(
       implicit ec: EC,
       ac: AC): DbResultT[Activity] =
     Activities.log(CreditCardRemoved(buildCustomer(customer), buildCc(cc), admin.map(buildAdmin)))
@@ -234,18 +234,18 @@ object LogActivity {
                                        GiftCardResponse.build(gc),
                                        StoreCreditResponse.build(sc)))
 
-  def gcFundsAuthorized(customer: Customer, cart: Cart, gcCodes: Seq[String], amount: Int)(
+  def gcFundsAuthorized(customer: User, cart: Cart, gcCodes: Seq[String], amount: Int)(
       implicit ec: EC,
       ac: AC): DbResultT[Activity] =
     Activities.log(GiftCardAuthorizedFunds(buildCustomer(customer), cart, gcCodes, amount))
 
-  def gcFundsCaptured(customer: Customer, order: Order, gcCodes: Seq[String], amount: Int)(
+  def gcFundsCaptured(customer: User, order: Order, gcCodes: Seq[String], amount: Int)(
       implicit ec: EC,
       ac: AC): DbResultT[Activity] =
     Activities.log(GiftCardCapturedFunds(buildCustomer(customer), order, gcCodes, amount))
 
   /* Store Credits */
-  def scCreated(admin: StoreAdmin, customer: Customer, sc: StoreCredit)(
+  def scCreated(admin: StoreAdmin, customer: User, sc: StoreCredit)(
       implicit ec: EC,
       ac: AC): DbResultT[Activity] =
     Activities.log(
@@ -267,12 +267,12 @@ object LogActivity {
                                        GiftCardResponse.build(gc),
                                        StoreCreditResponse.build(sc)))
 
-  def scFundsAuthorized(customer: Customer, cart: Cart, scIds: Seq[Int], amount: Int)(
+  def scFundsAuthorized(customer: User, cart: Cart, scIds: Seq[Int], amount: Int)(
       implicit ec: EC,
       ac: AC): DbResultT[Activity] =
     Activities.log(StoreCreditAuthorizedFunds(buildCustomer(customer), cart, scIds, amount))
 
-  def scFundsCaptured(customer: Customer, order: Order, scIds: Seq[Int], amount: Int)(
+  def scFundsCaptured(customer: User, order: Order, scIds: Seq[Int], amount: Int)(
       implicit ec: EC,
       ac: AC): DbResultT[Activity] =
     Activities.log(StoreCreditCapturedFunds(buildCustomer(customer), order, scIds, amount))

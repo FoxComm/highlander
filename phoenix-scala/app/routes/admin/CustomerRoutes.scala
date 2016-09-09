@@ -28,75 +28,75 @@ object CustomerRoutes {
           }
         }
       } ~
-      pathPrefix("customers" / IntNumber) { customerId ⇒
+      pathPrefix("customers" / IntNumber) { accountId ⇒
         (get & pathEnd) {
           getOrFailures {
-            CustomerManager.getById(customerId)
+            CustomerManager.getById(accountId)
           }
         } ~
         (get & path("cart")) {
           determineObjectContext(db, ec) { implicit ctx ⇒
             getOrFailures {
-              CartQueries.findOrCreateCartByCustomerId(customerId, ctx, Some(admin))
+              CartQueries.findOrCreateCartByCustomerId(accountId, ctx, Some(admin))
             }
           }
         } ~
         (patch & pathEnd & entity(as[UpdateCustomerPayload])) { payload ⇒
           mutateOrFailures {
-            CustomerManager.update(customerId, payload, Some(admin))
+            CustomerManager.update(accountId, payload, Some(admin))
           }
         } ~
         (post & path("activate") & pathEnd & entity(as[ActivateCustomerPayload])) { payload ⇒
           mutateOrFailures {
-            CustomerManager.activate(customerId, payload, admin)
+            CustomerManager.activate(accountId, payload, admin)
           }
         } ~
         (post & path("disable") & pathEnd & entity(as[ToggleCustomerDisabled])) { payload ⇒
           mutateOrFailures {
-            CustomerManager.toggleDisabled(customerId, payload.disabled, admin)
+            CustomerManager.toggleDisabled(accountId, payload.disabled, admin)
           }
         } ~
         (post & path("blacklist") & pathEnd & entity(as[ToggleCustomerBlacklisted])) { payload ⇒
           mutateOrFailures {
-            CustomerManager.toggleBlacklisted(customerId, payload.blacklisted, admin)
+            CustomerManager.toggleBlacklisted(accountId, payload.blacklisted, admin)
           }
         } ~
         pathPrefix("addresses") {
           (get & pathEnd) {
             getOrFailures {
-              AddressManager.findAllByCustomer(Originator(admin), customerId)
+              AddressManager.findAllByCustomer(Originator(admin), accountId)
             }
           } ~
           (post & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
             mutateOrFailures {
-              AddressManager.create(Originator(admin), payload, customerId)
+              AddressManager.create(Originator(admin), payload, accountId)
             }
           } ~
           (post & path(IntNumber / "default") & pathEnd) { addressId ⇒
             mutateOrFailures {
-              AddressManager.setDefaultShippingAddress(addressId, customerId)
+              AddressManager.setDefaultShippingAddress(addressId, accountId)
             }
           } ~
           (get & path(IntNumber) & pathEnd) { addressId ⇒
             getOrFailures {
-              AddressManager.get(Originator(admin), addressId, customerId)
+              AddressManager.get(Originator(admin), addressId, accountId)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { addressId ⇒
             deleteOrFailures {
-              AddressManager.remove(Originator(admin), addressId, customerId)
+              AddressManager.remove(Originator(admin), addressId, accountId)
             }
           } ~
           (delete & path("default") & pathEnd) {
             deleteOrFailures {
-              AddressManager.removeDefaultShippingAddress(customerId)
+              AddressManager.removeDefaultShippingAddress(accountId)
             }
           } ~
           (patch & path(IntNumber) & pathEnd & entity(as[CreateAddressPayload])) {
             (addressId, payload) ⇒
               activityContext(admin) { implicit ac ⇒
                 mutateOrFailures {
-                  AddressManager.edit(Originator(admin), addressId, customerId, payload)
+                  AddressManager.edit(Originator(admin), addressId, accountId, payload)
                 }
               }
           }
@@ -104,51 +104,51 @@ object CustomerRoutes {
         pathPrefix("payment-methods" / "credit-cards") {
           (get & pathEnd) {
             complete {
-              CreditCardManager.creditCardsInWalletFor(customerId)
+              CreditCardManager.creditCardsInWalletFor(accountId)
             }
           } ~
           (post & path(IntNumber / "default") & pathEnd & entity(as[ToggleDefaultCreditCard])) {
             (cardId, payload) ⇒
               mutateOrFailures {
-                CreditCardManager.toggleCreditCardDefault(customerId, cardId, payload.isDefault)
+                CreditCardManager.toggleCreditCardDefault(accountId, cardId, payload.isDefault)
               }
           } ~
           (post & pathEnd & entity(as[CreateCreditCard])) { payload ⇒
             mutateOrFailures {
-              CreditCardManager.createCardThroughGateway(customerId, payload, Some(admin))
+              CreditCardManager.createCardThroughGateway(accountId, payload, Some(admin))
             }
           } ~
           (patch & path(IntNumber) & pathEnd & entity(as[EditCreditCard])) { (cardId, payload) ⇒
             mutateOrFailures {
-              CreditCardManager.editCreditCard(customerId, cardId, payload, Some(admin))
+              CreditCardManager.editCreditCard(accountId, cardId, payload, Some(admin))
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { cardId ⇒
             deleteOrFailures {
-              CreditCardManager.deleteCreditCard(customerId, cardId, Some(admin))
+              CreditCardManager.deleteCreditCard(accountId, cardId, Some(admin))
             }
           }
         } ~
         pathPrefix("payment-methods" / "store-credit") {
           (get & path("totals")) {
             getOrFailures {
-              StoreCreditService.totalsForCustomer(customerId)
+              StoreCreditService.totalsForCustomer(accountId)
             }
           } ~
           (post & pathEnd & entity(as[CreateManualStoreCredit])) { payload ⇒
             mutateOrFailures {
-              StoreCreditService.createManual(admin, customerId, payload)
+              StoreCreditService.createManual(admin, accountId, payload)
             }
           } ~
           (post & path("custom") & pathEnd & entity(as[CreateExtensionStoreCredit])) { payload ⇒
             mutateOrFailures {
               // TODO: prohibit access from non-extensions? by user probably?
-              StoreCreditService.createFromExtension(admin, customerId, payload)
+              StoreCreditService.createFromExtension(admin, accountId, payload)
             }
           } ~
           (post & path(IntNumber / "convert") & pathEnd) { storeCreditId ⇒
             mutateOrFailures {
-              CustomerCreditConverter.toGiftCard(storeCreditId, customerId, admin)
+              CustomerCreditConverter.toGiftCard(storeCreditId, accountId, admin)
             }
           }
         }

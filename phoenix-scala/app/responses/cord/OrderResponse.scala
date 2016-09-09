@@ -42,7 +42,7 @@ object OrderResponse {
       lineItemAdj ← * <~ CordResponseLineItemAdjustments.fetch(order.refNum)
       lineItems   ← * <~ CordResponseLineItems.fetch(order.refNum, lineItemAdj)
       promo       ← * <~ CordResponsePromotions.fetch(order.refNum)(db, ec, context)
-      customer    ← * <~ Customers.findOneById(order.customerId)
+      customer    ← * <~ Users.findOneById(order.accountId)
       shippingMethod ← * <~ CordResponseShipping
                         .shippingMethod(order.refNum)
                         .mustFindOr(ShippingMethodNotFoundInOrder(order.refNum))
