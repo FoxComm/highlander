@@ -1,7 +1,9 @@
 import _ from 'lodash';
 import Api from 'lib/api';
+import stripe from 'lib/stripe';
 import { createAction, createReducer } from 'redux-act';
 import { post } from 'lib/search';
+import { getBillingAddress } from 'lib/credit-card-utils';
 import { toQuery } from '../../elastic/common';
 import createAsyncActions from '../async-utils';
 
@@ -10,7 +12,7 @@ import { selectCreditCard } from './details';
 type CreditCard = {
   isDefault: boolean,
   cardNumber: string,
-  holderName: string, 
+  holderName: string,
   cvv: string,
   expMonth: number,
   expYear: number,
@@ -24,7 +26,7 @@ const _createAction = (description, ...args) => {
 const setError = _createAction('ERROR');
 
 export function createAndAddOrderCreditCardPayment(orderRefNum, creditCard, customerId) {
-  return dispatch => {
+  return (dispatch, getState) => {
     const ccPayload = {
       isDefault: creditCard.isDefault,
       cardNumber: creditCard.cardNumber,
@@ -32,14 +34,12 @@ export function createAndAddOrderCreditCardPayment(orderRefNum, creditCard, cust
       cvv: creditCard.cvv,
       expMonth: creditCard.expMonth,
       expYear: creditCard.expYear,
-      addressId: creditCard.addressId,
     };
 
-    return Api.post(`/customers/${customerId}/payment-methods/credit-cards`, ccPayload)
-      .then(
-        res => dispatch(selectCreditCard(orderRefNum, res.id)),
-        err => dispatch(setError(err))
-      );
+    return stripe.addCreditCard(ccPayload, getBillingAddress(getState, customerId, creditCard.addressId), false)
+      .then(creditCard => Api.post(`/customers/${customerId}/payment-methods/credit-cards`, creditCard))
+      .then(res => dispatch(selectCreditCard(orderRefNum, res.id)))
+      .catch(err => dispatch(setError(err)));
   };
 }
 
@@ -54,10 +54,8 @@ export function editCreditCardPayment(orderRefNum, creditCard, customerId) {
 
   return dispatch => {
     return Api.patch(`/customers/${customerId}/payment-methods/credit-cards/${creditCard.id}`, ccPayload)
-      .then(
-        res => dispatch(selectCreditCard(orderRefNum, res.id)),
-        err => dispatch(setError(err))
-      );
+      .then(res => dispatch(selectCreditCard(orderRefNum, res.id)))
+      .catch(err => dispatch(setError(err)));
   };
 }
 
