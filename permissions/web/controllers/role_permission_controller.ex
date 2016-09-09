@@ -3,6 +3,7 @@ defmodule Permissions.RolePermissionController do
   alias Permissions.Repo
   alias Permissions.RolePermission
   alias Permissions.Role
+  alias Permissions.PermissionClaimService
 
   def index(conn, %{"role_id" => role_id}) do 
     role_permissions = 

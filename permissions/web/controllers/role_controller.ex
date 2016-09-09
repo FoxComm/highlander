@@ -5,6 +5,7 @@ defmodule Permissions.RoleController do
 
   def index(conn, _params) do 
     roles = Repo.all(Role)
+    |> Repo.preload(:permissions)
     render(conn, "index.json", roles: roles)
   end
 
@@ -37,7 +38,7 @@ defmodule Permissions.RoleController do
     case Repo.update(changeset) do
       {:ok, role} -> 
         conn
-        |> render("show.json", role: role)
+        |> render("role.json", role: role)
       {:error, changeset} -> 
         conn
         |> put_status(:unprocessable_entity)
