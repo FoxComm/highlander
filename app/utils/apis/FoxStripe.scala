@@ -72,7 +72,7 @@ class FoxStripe(stripe: StripeWrapper)(implicit ec: EC) extends FoxStripeApi {
 
       for {
         cust ← ResultT(stripe.createCustomer(params))
-        card ← ResultT(getCard(cust))
+        card ← ResultT(stripe.getCustomersOnlyCard(cust))
       } yield (cust, card)
     }
 
@@ -112,19 +112,17 @@ class FoxStripe(stripe: StripeWrapper)(implicit ec: EC) extends FoxStripeApi {
     }
 
     (for {
-      customer   ← ResultT(stripe.findCustomer(cc.gatewayCustomerId))
-      stripeCard ← ResultT(getCard(customer))
+      stripeCard ← ResultT(getCard(cc.gatewayCustomerId, cc.gatewayCardId))
       updated    ← ResultT(update(stripeCard))
     } yield updated).value
   }
 
-  private def getCard(customer: StripeCustomer): Result[StripeCard] =
-    stripe.findDefaultCard(customer)
+  private def getCard(gatewayCustomerId: String, gatewayCardId: String): Result[StripeCard] =
+    stripe.findCardByCustomerId(gatewayCustomerId, gatewayCardId)
 
   def deleteCard(cc: CreditCard): Result[DeletedExternalAccount] = {
     (for {
-      customer   ← ResultT(stripe.findCustomer(cc.gatewayCustomerId))
-      stripeCard ← ResultT(getCard(customer))
+      stripeCard ← ResultT(getCard(cc.gatewayCustomerId, cc.gatewayCardId))
       updated    ← ResultT(stripe.deleteExternalAccount(stripeCard))
     } yield updated).value
   }
