@@ -20,7 +20,14 @@ alias Permissions.RoleArchetype
 alias Permissions.Scope
 alias Permissions.Permission
 alias Permissions.AccountRole
+alias Permissions.Organization
 
+organizations = for org_name <- ~w(MasterMerchant Merchant1 Merchant2) do
+  Repo.insert! %Organization{
+    name: org_name,
+    type: "Merchant"
+  }
+end
 
 accounts = for num <- 1..3 do 
   Repo.insert! %Account{
@@ -35,7 +42,7 @@ Repo.insert! %System{
 }
 
 resources = 
-for resource <- ~W(Orders Returns LineItems) do
+for resource <- ~w(Orders Returns LineItems) do
   Repo.insert! %Resource{
     name: resource,
     description: "Access to #{resource}",
