@@ -1,4 +1,4 @@
-package util
+package utils
 
 import java.io.File
 
@@ -13,7 +13,6 @@ import utils.TestStripeSupport.randomStripeishId
 import utils.aliases._
 import utils.aliases.stripe._
 import utils.apis._
-import utils.{ElasticsearchApi, TestStripeSupport}
 
 trait MockedApis extends MockitoSugar {
 
@@ -29,9 +28,10 @@ trait MockedApis extends MockitoSugar {
     stripeCard
   }
 
-  lazy val stripeApiMock: StripeApi = initStripeApiMock(mock[StripeApi])
+  lazy val stripeWrapperMock: StripeWrapper = initStripeApiMock(mock[StripeWrapper])
+  lazy val stripeApiMock: FoxStripe         = new FoxStripe(stripeWrapperMock)
 
-  def initStripeApiMock(mocked: StripeApi): StripeApi = {
+  def initStripeApiMock(mocked: StripeWrapper): StripeWrapper = {
     reset(mocked)
 
     when(mocked.findCustomer(any())).thenReturn(Result.good(stripeCustomer))
@@ -45,6 +45,7 @@ trait MockedApis extends MockitoSugar {
 
     when(mocked.captureCharge(any(), any())).thenReturn(Result.good(new StripeCharge))
     when(mocked.createCharge(any())).thenReturn(Result.good(new StripeCharge))
+
     mocked
   }
 

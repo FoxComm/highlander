@@ -5,6 +5,7 @@ import models.StoreAdmin
 import models.customer.{Customer, Customers}
 import services.Authenticator.AsyncAuthenticator
 import util._
+import utils.MockedApis
 import utils.seeds.Seeds.Factories
 
 class RoutesAdminOnlyIntegrationTest extends IntegrationTestBase with HttpSupport with MockedApis {

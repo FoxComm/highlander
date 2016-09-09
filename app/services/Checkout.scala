@@ -11,7 +11,7 @@ import models.cord._
 import models.cord.lineitems.CartLineItems
 import models.cord.lineitems.CartLineItems.scope._
 import models.coupon._
-import models.customer.{Customer, Customers}
+import models.customer._
 import models.objects._
 import models.payment.creditcard._
 import models.payment.giftcard._
@@ -21,7 +21,7 @@ import responses.cord.OrderResponse
 import services.coupon.CouponUsageService
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
-import utils.apis.{Apis, OrderInventoryHold, SkuInventoryHold}
+import utils.apis._
 import utils.db._
 
 object PaymentHelper {
@@ -220,7 +220,7 @@ case class Checkout(
       } yield (pmt, card)).one.toXor.flatMap {
         case Some((pmt, card)) ⇒
           for {
-            stripeCharge ← * <~ Stripe()
+            stripeCharge ← * <~ apis.stripe
                             .authorizeAmount(card.gatewayCustomerId, authAmount, cart.currency)
             ourCharge = CreditCardCharge.authFromStripe(card, pmt, stripeCharge, cart.currency)
             _       ← * <~ LogActivity.creditCardAuth(cart, ourCharge)

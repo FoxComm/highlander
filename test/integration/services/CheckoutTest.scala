@@ -5,8 +5,6 @@ import failures.GeneralFailure
 import faker.Lorem
 import models.Reasons
 import models.cord._
-import models.cord.lineitems._
-import models.customer.Customers
 import models.inventory.Skus
 import models.objects.ObjectContexts
 import models.payment.giftcard._
@@ -21,7 +19,7 @@ import payloads.LineItemPayloads.UpdateLineItemsPayload
 import slick.driver.PostgresDriver.api._
 import util._
 import util.fixtures.BakedFixtures
-import utils.Money.Currency.USD
+import utils.MockedApis
 import utils.db._
 import utils.seeds.Seeds.Factories
 
