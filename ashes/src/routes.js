@@ -75,6 +75,9 @@ import Plugin from './components/plugins/plugin';
 import Login from './components/auth/login';
 import SetPassword from './components/auth/set-password';
 
+import orderRoutes from './orders/routes';
+import userRoutes from './users/routes';
+
 // no productions pages, make sure these paths are included in `excludedList` in browserify.js
 if (process.env.NODE_ENV != 'production') {
   var StyleGuide = require('./components/style-guide/style-guide').default;
@@ -104,22 +107,7 @@ const routes = (
           <Route name='rma-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
         </Route>
       </Route>
-      <Route name='orders-base' path="orders">
-        <Route name='new-order' path="new" component={NewOrder}/>
-        <Route name='orders-list-pages' component={OrdersListPage}>
-          <IndexRoute name='orders' component={Orders}/>
-          <Route name='orders-activity-trail' path='activity-trail' dimension="order"
-                 component={ActivityTrailPage}/>
-        </Route>
-
-        <Route name='order' path=':order' component={Order}>
-          <IndexRoute name='order-details' component={OrderDetails}/>
-          <Route name='order-shipments' path='shipments' component={Shipments}/>
-          <Route name='order-notes' path='notes' component={Notes}/>
-          <Route name='order-returns' path='returns' component={RmaChildList}/>
-          <Route name='order-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
-        </Route>
-      </Route>
+      {orderRoutes()}
       <Route name='carts-base' path='carts'>
         <Route name='carts-list-pages' component={CartsListPage}>
           <IndexRoute name='carts' component={Carts} />
@@ -265,15 +253,7 @@ const routes = (
           <Route name='test-notifications' path='notifications' component={AllNotificationItems}/>
         </Route>
       }
-      <Route name='users-base' path='users'>
-        <Route name='users-list-page' component={UsersListPage}>
-          <IndexRoute name='users' component={Users}/>
-        </Route>
-        <Route name='user' path=':userId' component={User}>
-          <IndexRoute name='user-form' component={UserForm}/>
-          <Route name='user-activity-trail' path='activity-trail' component={UserForm}/>
-        </Route>
-      </Route>
+      {userRoutes()}
       <Route path="plugins" name="plugins-base">
         <IndexRoute name="plugins" component={PluginsList} />
         <Route name="plugin" path=":name" component={Plugin} />
