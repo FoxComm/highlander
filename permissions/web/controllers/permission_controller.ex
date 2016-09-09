@@ -26,7 +26,7 @@ defmodule Permissions.PermissionController do
   def show(conn, %{"id" => id}) do
     permission = 
       Repo.get!(Permission, id)
-      |> Repo.preload([:resource, :action, :scope])
+      |> Repo.preload([:resource, :scope])
     render(conn, "full_permission.json", permission: permission)
   end
 
