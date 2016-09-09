@@ -24,7 +24,7 @@ import WaitAnimation from '../common/wait-animation';
 import ArchiveActionsSection from '../archive-actions/archive-actions';
 
 // styles
-import styles from './page.css';
+import styles from '../discounts/page.css';
 
 // helpers
 import { isArchived } from 'paragons/common';

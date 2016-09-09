@@ -17,6 +17,7 @@ import ButtonWithMenu from '../common/button-with-menu';
 import LocalNav from '../local-nav/local-nav';
 import WaitAnimation from '../common/wait-animation';
 import ArchiveActionsSection from '../archive-actions/archive-actions';
+import ErrorAlerts from '../alerts/error-alerts';
 
 // actions
 import * as SkuActions from 'modules/skus/details';
@@ -27,6 +28,9 @@ import { transitionTo } from 'browserHistory';
 import { isArchived } from 'paragons/common';
 import { SAVE_COMBO, SAVE_COMBO_ITEMS } from 'paragons/common';
 import { isSkuValid } from 'paragons/sku';
+
+// styles
+import styles from '../discounts/page.css';
 
 // types
 import type { Sku } from 'modules/skus/details';
@@ -39,6 +43,7 @@ type Props = {
     updateSku: (sku: Sku, context?: string) => void,
   },
   sku: ?Sku,
+  err: ?Object,
   isFetching: boolean,
   isUpdating: boolean,
   params: { skuCode: string },
@@ -168,6 +173,18 @@ class SkuPage extends Component {
     transitionTo('skus');
   }
 
+  get error(): ?Element {
+    const { err } = this.props;
+    if (!err) return null;
+
+    const message = _.get(err, ['messages', 0], 'There was an error saving the sku.');
+    return (
+      <div styleName="error" className="fc-col-md-1-1">
+        <ErrorAlerts error={message} />
+      </div>
+    );
+  }
+
   render(): Element {
     const { sku, isFetching, isUpdating, params } = this.props;
 
@@ -207,6 +224,7 @@ class SkuPage extends Component {
           <Link to="sku-activity-trail" params={params}>Activity Trail</Link>
         </LocalNav>
         <div className="fc-grid">
+          {this.error}
           <div className="fc-col-md-1-1 fc-col-no-overflow">
             {children}
           </div>
@@ -221,6 +239,7 @@ class SkuPage extends Component {
 export default connect(
   state => ({
     sku: _.get(state, ['skus', 'details', 'sku']),
+    err: _.get(state, ['skus', 'details', 'err']),
     isFetching: _.get(state, ['skus', 'details', 'isFetching']),
     isUpdating: _.get(state, ['skus', 'details', 'isUpdating']),
   }),
