@@ -36,7 +36,7 @@ defmodule Permissions.PermissionController do
     case Repo.update(changeset) do
       {:ok, permission} -> 
         conn
-        |> render("show.json", permission: permission)
+        |> render("permission.json", permission: permission)
       {:error, changeset} -> 
         conn
         |> put_status(:unprocessable_entity)
