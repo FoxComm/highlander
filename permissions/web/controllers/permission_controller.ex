@@ -44,5 +44,13 @@ defmodule Permissions.PermissionController do
     end
   end 
 
+  def delete(conn, %{"id" => id}) do 
+    permission = Repo.get!(Permission, id)
+    Repo.delete!(permission)
+
+    conn
+    |> put_status(:ok)
+    |> render("deleted.json")
+  end
 end
 

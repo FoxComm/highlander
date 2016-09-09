@@ -14,6 +14,7 @@ defmodule Permissions.PermissionView do
     %{id: permission.id,
       resource_id: permission.resource_id,
       actions: permission.actions,
+      frn: permission.frn,
       scope_id: permission.scope_id
     }
   end
@@ -23,9 +24,14 @@ defmodule Permissions.PermissionView do
       resource_id: permission.resource_id,
       resource_name: permission.resource.name,
       actions: permission.actions,
+      frn: permission.frn,
       scope_id: permission.scope_id,
       scope_source: permission.scope.source
     }
+  end
+
+  def render("deleted.json", _) do
+    %{deleted: "success"}
   end
 
 end
