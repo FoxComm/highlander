@@ -5,6 +5,7 @@ defmodule Permissions.RoleController do
 
   def index(conn, _params) do 
     roles = Repo.all(Role)
+    |> Repo.preload(:permissions)
     render(conn, "index.json", roles: roles)
   end
 
