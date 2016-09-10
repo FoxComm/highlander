@@ -16,8 +16,8 @@ func newShipmentActivity(aType string, shipment *models.Shipment, createdAt time
 	}
 
 	return &defaultSiteActivity{
-		activityType: aType,
-		data:         string(shipBytes),
+		ActivityType: aType,
+		ActivityData: string(shipBytes),
 		createdAt:    createdAt,
 	}, nil
 }
