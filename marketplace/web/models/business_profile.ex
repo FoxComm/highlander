@@ -6,6 +6,5 @@ defmodule Marketplace.BusinessProfile do
     field :target_audience, :string
     field :categories, {:array, :string}
 
-    belongs_to :merchant, Marketplace.Merchant
   end
 end

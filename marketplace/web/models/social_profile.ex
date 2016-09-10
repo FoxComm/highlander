@@ -7,6 +7,5 @@ defmodule Marketplace.SocialProfile do
     field :google_plus_handle, :string
     field :facebook_url, :string
 
-    belongs_to :merchant, Marketplace.Merchant
   end
 end
