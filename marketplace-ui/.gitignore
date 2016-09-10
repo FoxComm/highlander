@@ -1,0 +1,27 @@
+# Logs
+logs
+*.log
+
+# IDEs
+.idea
+.iml
+
+/node_modules
+
+# Users Environment Variables & settings
+.lock-wscript
+/.env
+/.gulprc
+
+.DS_Store
+.#*
+
+# Vim
+*.swp
+*.iml
+
+# package
+firebrand.tar.bz2
+
+# certificates
+public_key.pem
