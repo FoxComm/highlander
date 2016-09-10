@@ -115,6 +115,7 @@ func (service *shipmentService) UpdateShipment(shipment *models.Shipment) (*mode
 		return nil, err
 	}
 
+	var activity activities.ISiteActivity
 	if source.State != shipment.State && shipment.State == models.ShipmentStateShipped {
 		stockItemCounts := make(map[uint]int)
 		for _, lineItem := range source.ShipmentLineItems {
@@ -132,6 +133,20 @@ func (service *shipmentService) UpdateShipment(shipment *models.Shipment) (*mode
 		if err = service.updateSummariesToShipped(stockItemCounts); err != nil {
 			return nil, err
 		}
+
+		activity, err = activities.NewShipmentUpdated(shipment, shipment.UpdatedAt)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		activity, err = activities.NewShipmentUpdated(shipment, shipment.UpdatedAt)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if err := service.activityLogger.Log(activity); err != nil {
+		return nil, err
 	}
 
 	return shipment, nil
