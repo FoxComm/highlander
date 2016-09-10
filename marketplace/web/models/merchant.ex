@@ -3,6 +3,8 @@ defmodule Marketplace.Merchant do
 
   schema "merchants" do
     field :name, :string
+    field :business_name, :string
+    field :email_address, :string
     field :description, :string
     field :state, :string, default: "new"
 
