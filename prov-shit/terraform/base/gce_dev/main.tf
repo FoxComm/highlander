@@ -128,7 +128,7 @@ module "highlander-gatling" {
 }
 
 resource "google_compute_instance" "highlander-gatling-gun"{
-    name = "gatling-gun"
+    name = "highlander-gatling-gun"
     machine_type = "n1-standard-4"
     tags = ["no-ip", "highlander-gatling-gun"]
     zone = "us-central1-a"
