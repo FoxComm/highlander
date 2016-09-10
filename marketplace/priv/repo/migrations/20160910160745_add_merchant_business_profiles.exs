@@ -3,8 +3,8 @@ defmodule Marketplace.Repo.Migrations.AddMerchantBusinessProfiles do
 
   def change do
     create table (:merchant_business_profiles) do
-      add :merchant_id, references(:merchant_application)
-      add :business_profile_id, references(:business_profile)
+      add :merchant_id, references(:merchant_applications)
+      add :business_profile_id, references(:business_profiles)
     end
   end
 end
