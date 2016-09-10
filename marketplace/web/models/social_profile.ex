@@ -7,5 +7,14 @@ defmodule Marketplace.SocialProfile do
     field :google_plus_handle, :string
     field :facebook_url, :string
 
+    timestamps
+  end
+
+  @required_params ~w()
+  @optional_params ~w(twitter_handle instagram_handle google_plus_handle facebook_url)
+
+  def changeset(model, params \\ :empty) do
+    model
+    |> cast(params, @required_params, @optional_params)
   end
 end

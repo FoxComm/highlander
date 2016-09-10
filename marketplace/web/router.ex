@@ -16,7 +16,10 @@ defmodule Marketplace.Router do
   scope "/", Marketplace do
     pipe_through :api # Use the default browser stack
 
-    resources "/merchant_applications", MerchantApplicationController
+    resources "/merchant_applications", MerchantApplicationController do
+      resources "/social_profile", SocialProfileController, only: [:show, :create, :update]
+      resources "/business_profile", BusinessProfileController, only: [:show, :create, :update]
+    end
     post "/merchants/activate_application/:application_id", MerchantController, :activate_application
     resources "/merchants", MerchantController do 
       resources "/addresses", MerchantAddressController
