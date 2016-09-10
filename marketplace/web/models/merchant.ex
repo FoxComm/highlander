@@ -11,6 +11,10 @@ defmodule Marketplace.Merchant do
     timestamps
 
     has_many :merchant_addresses, Marketplace.MerchantAddress
+    has_one :merchant_social_profile, Permissions.MerchantSocialProfile
+    has_one :merchant_business_profile, Permissions.MerchantBusinessProfile
+    has_one :social_profile, through: [:merchant_social_profile, :social_profile]
+    has_one :business_profile, through: [:merchant_business_profile, :business_profile]
   end
 
   @states ~w(new approved suspended cancelled)a
