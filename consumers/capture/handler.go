@@ -12,15 +12,25 @@ import (
 const activityShipmentShipped = "shipment_shipped"
 
 type ShipmentHandler struct {
-	mwhURL string
+	mwhURL     string
+	phoenixURL string
+	phoenixJWT string
 }
 
-func NewShipmentHandler(mwhURL string) (*ShipmentHandler, error) {
+func NewShipmentHandler(mwhURL, phoenixURL, phoenixJWT string) (*ShipmentHandler, error) {
 	if mwhURL == "" {
 		return nil, errors.New("middlewarehouse URL must be set")
 	}
 
-	return &ShipmentHandler{mwhURL}, nil
+	if phoenixURL == "" {
+		return nil, errors.New("Phoenix URL must be set")
+	}
+
+	if phoenixJWT == "" {
+		return nil, errors.New("Phoenix JWT must be set")
+	}
+
+	return &ShipmentHandler{mwhURL, phoenixURL, phoenixJWT}, nil
 }
 
 // Handler accepts an Avro encoded message from Kafka and takes
@@ -37,6 +47,10 @@ func (o ShipmentHandler) Handler(message metamorphosis.AvroMessage) error {
 		return nil
 	}
 
-	log.Printf("Found a newly shipped shipment!")
+	if err := CapturePayment(activity, "http://127.0.0.1:9090", "JWT"); err != nil {
+		log.Printf("Unable to capture payment with error: %s", err.Error())
+		return err
+	}
+
 	return nil
 }
