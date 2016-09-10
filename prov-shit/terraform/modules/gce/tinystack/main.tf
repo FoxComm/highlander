@@ -1,18 +1,18 @@
-variable "datacenter" {} 
-variable "backend_image" {} 
-variable "frontend_image" {} 
-variable "ssh_user" {} 
-variable "ssh_private_key" {} 
-variable "consul_leader" {} 
-variable "consul_server_image" {} 
+variable "datacenter" {}
+variable "backend_image" {}
+variable "frontend_image" {}
+variable "ssh_user" {}
+variable "ssh_private_key" {}
+variable "consul_leader" {}
+variable "consul_server_image" {}
 
-resource "google_compute_instance" "tiny-consul" { 
+resource "google_compute_instance" "tiny-consul" {
     name = "${var.datacenter}-consul-server"
     machine_type = "n1-standard-1"
-    tags = ["no-ip", "${var.datacenter}-consul-server", "${var.datacenter}-consol-server", "${var.datacenter}"]
+    tags = ["no-ip", "${var.datacenter}-consul-server", "${var.datacenter}"]
     zone = "us-central1-a"
 
-    metadata { 
+    metadata {
         consul_dc = "${var.datacenter}"
     }
 
@@ -20,13 +20,13 @@ resource "google_compute_instance" "tiny-consul" {
         image = "${var.consul_server_image}"
         type = "pd-ssd"
         size = "10"
-    }   
+    }
 
     network_interface {
         network = "default"
     }
 
-    connection { 
+    connection {
         type = "ssh"
         user = "${var.ssh_user}"
         private_key="${file(var.ssh_private_key)}"
@@ -41,7 +41,7 @@ resource "google_compute_instance" "tiny-consul" {
 
 }
 
-resource "google_compute_instance" "tiny-frontend" { 
+resource "google_compute_instance" "tiny-frontend" {
     name = "${var.datacenter}-frontend"
     machine_type = "n1-highcpu-8"
     tags = ["no-ip", "http-server", "https-server", "${var.datacenter}-frontend"]
@@ -51,13 +51,13 @@ resource "google_compute_instance" "tiny-frontend" {
         image = "${var.frontend_image}"
         type = "pd-ssd"
         size = "30"
-    }   
+    }
 
     network_interface {
         network = "default"
     }
 
-    connection { 
+    connection {
         type = "ssh"
         user = "${var.ssh_user}"
         private_key="${file(var.ssh_private_key)}"
@@ -71,7 +71,7 @@ resource "google_compute_instance" "tiny-frontend" {
     }
 }
 
-resource "google_compute_instance" "tiny-backend" { 
+resource "google_compute_instance" "tiny-backend" {
     name = "${var.datacenter}-backend"
     machine_type = "n1-highmem-4"
     tags = ["no-ip", "${var.datacenter}-backend"]
@@ -81,13 +81,13 @@ resource "google_compute_instance" "tiny-backend" {
         image = "${var.backend_image}"
         type = "pd-ssd"
         size = "100"
-    }   
+    }
 
     network_interface {
         network = "default"
     }
 
-    connection { 
+    connection {
         type = "ssh"
         user = "${var.ssh_user}"
         private_key="${file(var.ssh_private_key)}"
@@ -100,4 +100,3 @@ resource "google_compute_instance" "tiny-backend" {
         ]
     }
 }
-

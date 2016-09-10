@@ -57,9 +57,9 @@ module "gatling" {
     consul_server_image = "${var.consul_server_image}"
 }
 
-resource "google_compute_instance" "gatling-gun"{
+resource "google_compute_instance" "gatling-gun" {
     name = "gatling-gun"
-    machine_type = "n1-standard-4"
+    machine_type = "n1-standard-2"
     tags = ["no-ip", "gatling-gun"]
     zone = "us-central1-a"
 
@@ -79,22 +79,10 @@ resource "google_compute_instance" "gatling-gun"{
         private_key = "${file(var.ssh_private_key)}"
     }
 
-    provisioner "file" {
-        source = "terraform/scripts/bootstrap.sh"
-        destination = "/tmp/bootstrap.sh"
-    }
-
-    provisioner "file" {
-        source = "terraform/scripts/consul.sh"
-        destination = "/tmp/consul.sh"
-    }
-
     provisioner "remote-exec" {
         inline = [
-          "chmod +x /tmp/bootstrap.sh",
-          "chmod +x /tmp/consul.sh",
-          "/tmp/bootstrap.sh",
-          "/tmp/consul.sh gatling ${module.gatling.consul_address}"
+          "/usr/local/bin/bootstrap.sh",
+          "/usr/local/bin/bootstrap_consul.sh gatling ${module.gatling.consul_address}"
         ]
     }
 }
@@ -127,9 +115,9 @@ module "highlander-gatling" {
     consul_server_image = "${var.consul_server_image}"
 }
 
-resource "google_compute_instance" "highlander-gatling-gun"{
+resource "google_compute_instance" "highlander-gatling-gun" {
     name = "highlander-gatling-gun"
-    machine_type = "n1-standard-4"
+    machine_type = "n1-standard-2"
     tags = ["no-ip", "highlander-gatling-gun"]
     zone = "us-central1-a"
 
@@ -149,22 +137,10 @@ resource "google_compute_instance" "highlander-gatling-gun"{
         private_key = "${file(var.ssh_private_key)}"
     }
 
-    provisioner "file" {
-        source = "terraform/scripts/bootstrap.sh"
-        destination = "/tmp/bootstrap.sh"
-    }
-
-    provisioner "file" {
-        source = "terraform/scripts/consul.sh"
-        destination = "/tmp/consul.sh"
-    }
-
     provisioner "remote-exec" {
         inline = [
-          "chmod +x /tmp/bootstrap.sh",
-          "chmod +x /tmp/consul.sh",
-          "/tmp/bootstrap.sh",
-          "/tmp/consul.sh gatling ${module.gatling.consul_address}"
+          "/usr/local/bin/bootstrap.sh",
+          "/usr/local/bin/bootstrap_consul.sh highlander-gatling ${module.highlander-gatling.consul_address}"
         ]
     }
 }
@@ -172,7 +148,7 @@ resource "google_compute_instance" "highlander-gatling-gun"{
 ##############################################
 # Setup Highlander Staging
 ##############################################
-module "highlander-staging" {
+/*module "highlander-staging" {
     source = "../../modules/gce/tinystack"
     datacenter = "highlander-stage"
     backend_image = "${var.tiny_backend_image}"
@@ -181,4 +157,4 @@ module "highlander-staging" {
     ssh_private_key = "${var.ssh_private_key}"
     consul_leader = "${module.consul_cluster.leader}"
     consul_server_image = "${var.consul_server_image}"
-}
+}*/

@@ -19,9 +19,6 @@ build: glide
 	cd $(BUILDPATH) && go build -o consumers/shipments/shipments-consumer consumers/shipments/*.go
 	cd $(BUILDPATH) && go build -o consumers/stock-items/stock-items-consumer consumers/stock-items/*.go
 
-build-linux:
-	GOOS=linux $(MAKE) build
-
 clean:
 	rm -rf ./vendor
 
