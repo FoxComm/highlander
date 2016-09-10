@@ -2,10 +2,11 @@ package main
 
 import (
 	"log"
-	"os"
-	"strconv"
 
 	"github.com/FoxComm/metamorphosis"
+	"github.com/FoxComm/middlewarehouse/consumers"
+
+	_ "github.com/jpfuentes2/go-env/autoload"
 )
 
 const (
@@ -14,10 +15,12 @@ const (
 )
 
 func main() {
-	zookeeper := os.Getenv("ZOOKEEPER")
-	schemaRegistry := os.Getenv("SCHEMA_REGISTRY")
+	config, err := consumers.MakeConsumerConfig()
+	if err != nil {
+		log.Fatalf("Unable to initialize consumer with error %s", err.Error())
+	}
 
-	consumer, err := metamorphosis.NewConsumer(zookeeper, schemaRegistry)
+	consumer, err := metamorphosis.NewConsumer(config.ZookeeperURL, config.SchemaRepositoryURL)
 	if err != nil {
 		log.Fatalf("Unable to connect to Kafka with error %s", err.Error())
 	}
@@ -25,18 +28,10 @@ func main() {
 	consumer.SetGroupID(groupID)
 	consumer.SetClientID(clientID)
 
-	mwhURL := os.Getenv("MWH_URL")
-	oh, err := NewOrderHandler(mwhURL)
+	oh, err := NewOrderHandler(config.MiddlewarehouseURL)
 	if err != nil {
 		log.Fatalf("Can't create handler for orders with error %s", err.Error())
 	}
 
-	topic := os.Getenv("TOPIC")
-	partition := os.Getenv("PARTITION")
-	partNum, err := strconv.Atoi(partition)
-	if err != nil {
-		log.Fatalf("Unable to get Kafka partition with error %s", err.Error())
-	}
-
-	consumer.RunTopic(topic, partNum, oh.Handler)
+	consumer.RunTopic(config.Topic, config.Partition, oh.Handler)
 }
