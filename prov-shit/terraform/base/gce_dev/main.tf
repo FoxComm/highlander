@@ -88,9 +88,9 @@ resource "google_compute_instance" "gatling-gun" {
 }
 
 ##############################################
-# Setup Stage
+# Setup Staging
 ##############################################
-module "stagem" {
+module "staging" {
     source = "../../modules/gce/tinystack"
     datacenter = "stage"
     backend_image = "${var.tiny_backend_image}"
