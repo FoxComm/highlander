@@ -18,29 +18,17 @@ defmodule Marketplace.MerchantApplication do
   end
 
   @states ~w(new approved rejected abandoned)a
+  @required_fields ~w(name business_name email_address)
+  @optional_fields ~w(description)
 
   def changeset(model, params \\ :empty) do
     model 
-    |> cast(params, ~w(name description state), ~w())
+    |> cast(params, @required_fields, @optional_fields)
   end
 
   def update_changeset(model, params \\ :empty) do
     model 
-    |> cast(params,  ~w(name description state), ~w())
-    |> make_valid_state_change
+    |> cast(params,  @required_fields, @optional_fields)
   end
 
-  def make_valid_state_change(changeset) do
-    IO.inspect(changeset)
-    case Ecto.Changeset.fetch_change(changeset, :state) do
-      :error -> 
-        changeset
-      {:ok, newValue} -> 
-        if String.to_atom(newValue) in @states do 
-          Ecto.Changeset.change(changeset, %{:state => newValue})
-        else 
-          Ecto.Changeset.add_error(changeset, :state, "Not a valid state.")
-        end
-    end
-  end
 end
