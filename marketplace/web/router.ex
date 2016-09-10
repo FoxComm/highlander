@@ -16,6 +16,7 @@ defmodule Marketplace.Router do
   scope "/", Marketplace do
     pipe_through :api # Use the default browser stack
 
+    resources "/merchant_applications", MerchantApplicationController
     resources "/merchants", MerchantController do 
       resources "/addresses", MerchantAddressController
     end
