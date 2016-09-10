@@ -134,7 +134,7 @@ func (service *shipmentService) UpdateShipment(shipment *models.Shipment) (*mode
 			return nil, err
 		}
 
-		activity, err = activities.NewShipmentUpdated(shipment, shipment.UpdatedAt)
+		activity, err = activities.NewShipmentShipped(shipment, shipment.UpdatedAt)
 		if err != nil {
 			return nil, err
 		}
