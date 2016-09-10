@@ -3,7 +3,7 @@ defmodule Marketplace.Repo.Migrations.CreateMerchantApplication do
 
   def change do
     create table(:merchant_applications) do
-      add :reference_number, :string
+      add :reference_number, :binary_id
       add :name, :string
       add :business_name, :string
       add :email_address, :string

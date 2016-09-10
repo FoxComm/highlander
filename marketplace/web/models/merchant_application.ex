@@ -2,7 +2,7 @@ defmodule Marketplace.MerchantApplication do
   use Marketplace.Web, :model
 
   schema "merchant_applications" do
-    field :reference_number, :string
+    field :reference_number, Ecto.UUID, autogenerate: true
     field :name, :string
     field :business_name, :string
     field :email_address, :string
