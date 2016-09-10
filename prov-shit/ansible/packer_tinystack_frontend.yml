@@ -15,11 +15,10 @@
     storefront_server: storefront.service.consul:8080
     isaac_server: isaac.service.consul:9190
     middlewarehouse_server: middlewarehouse.service.consul:9292
-    cert_path: stage
 
   roles:
     - { role: base/ssh_keys }
-    - { role: base/mesos_worker }
+    #- { role: base/mesos_worker }
     - { role: base/rsyslog, sudo: yes }
     - { role: base/balancer, sudo: yes }
     - { role: base/ashes }

@@ -11,7 +11,7 @@
 
   roles:
     - { role: base/ssh_keys }
-    - { role: base/mesos_worker }
+    #- { role: base/mesos_worker }
     - { role: base/confluence }
     - { role: base/kafka }
     - { role: base/schema-registry }
