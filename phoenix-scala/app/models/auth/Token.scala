@@ -64,6 +64,15 @@ sealed trait Token extends Product {
   val claims: Account.Claims
   val ratchet: Int
   def encode: Failures Xor String = Token.encode(this)
+
+  def hasClaim(test: String, actions: List[String]) : Boolean = {
+    val matches = false;
+    claims.foreach(
+      (k, v) ⇒ {
+        matches ||= (test.startsWith(k) && actions.equals(actions.intersect(v)))
+      })
+    matches
+  }
 }
 
 object Token {
@@ -95,13 +104,20 @@ object Token {
       email
     }
 
-    token.claims.foreach {
-      case (k, v) ⇒
-        claims.setStringListClaim(k, v)
-    }
+    claims.setClaim("claims", token.claims)
 
     claims.setExpirationTimeMinutesInTheFuture(tokenTTL.toFloat)
     claims.setIssuer("FC")
+    token match {
+      case _: AdminToken ⇒ {
+        claims.setAudience("admin")
+        claims.setClaim("admin", true)
+      }
+      case _: CustomerToken ⇒ {
+        claims.setAudience("customer")
+        claims.setClaim("admin", false)
+      }
+    }
 
     claims
   }
@@ -132,22 +148,16 @@ object Token {
 
       Try {
         kind match {
-          case Identity.Customer ⇒ builder.setExpectedAudience("customer")
-          case Identity.Admin    ⇒ builder.setExpectedAudience("admin")
+          case Identity.User ⇒     builder.setExpectedAudience("user")
+          case Identity.Service    ⇒ builder.setExpectedAudience("service")
           case _                 ⇒ throw new RuntimeException("unknown kind of identity")
         }
 
         val consumer  = builder.build()
         val jwtClaims = consumer.processToClaims(rawToken)
         val jValue    = parse(jwtClaims.toJson)
-        jValue \ "admin" match {
-          case JBool(isAdmin) ⇒
-            if (isAdmin)
-              Extraction.extract[AdminToken](jValue)
-            else
-              Extraction.extract[CustomerToken](jValue)
-          case _ ⇒ throw new InvalidJwtException(s"missing claim: admin")
-        }
+        Extraction.extract[AccountToken](jValue)
+
       } match {
         case Success(token) ⇒ Xor.right(token)
         case Failure(e) ⇒
@@ -158,12 +168,20 @@ object Token {
   }
 }
 
-object Token {
-  def fromUser(user: User, account: Account, claims: Account.Claims, roles: List[String]): CustomerToken = {
+case class AccountToken(id: Int,
+                         name: Option[String],
+                         email: Option[String],
+                         scope: String,
+                         ratchet: Int,
+                         claims: Account.Claims)
+    extends Token
+
+object AccountToken {
+  def fromUserAccount(user: User, account: Account): CustomerToken = {
     require(user.accountId == account.id)
-    Token(id = user.id,
-      name = user.name,
-      email = user.email,
-      ratchet = account.ratchet)
+    AccountToken(id = user.id,
+                  name = user.name,
+                  email = user.email,
+                  ratchet = account.ratchet)
   }
 }
