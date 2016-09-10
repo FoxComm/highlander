@@ -29,6 +29,68 @@ const cartClaims: Claims = {
   'frn:oms:cart': ['c', 'r', 'u', 'd'],
 };
 
+class Routerr {
+  constructor(jwt) {
+    this.jwt = jwt;
+  }
+
+  route(params, children) {
+    console.log('Hello');
+  }
+}
+
+const getRoutes = (jwt: Object) => {
+  let route = Routerr(jwt);
+
+  const readCart = { 'frn:oms:cart': ['r'] };
+  const readOrder = { 'frn:oms:order': ['r'] };
+  const createOrder = { 'frn:oms:order': ['c', 'r'] };
+
+  const cartFRN = 'frn:oms:cart';
+  const orderFRN = 'frn:oms:order';
+  const activityFRN = 'frn:oms:order-activity';
+  const noteFRN = 'frn:oms:order-note';
+  const shipmentFRN = 'frn:oms:order-shipment';
+
+  const cartRoutes =
+    route.read('carts-base', { path: 'carts', frn: cartFRN }, [
+      route.read('carts-list-pages', { component: CartsListPage }, [
+        route.read('carts', { component: Carts, isIndex: true })
+      ]),
+      route.read('cart', { path: ':cart', component: Cart}, [
+        route.read('cart-details', { component: CartDetails, isIndex: true}),
+        route.read('cart-notes', { path: 'notes', component: Notes}),
+        route.read('cart-activity-trail', { path: 'activity-trail', component: ActivityTrailPage}),
+      ]),
+    ]);
+
+  const orderRoutes =
+    route.read({ name: 'orders-base', path: 'orders', frn: orderFRN }, [
+      route.create({ name: 'new-order', path: 'new', component: NewOrder }),
+      route.read({ name: 'orders-list-pages', component: OrdersListPage }, [
+        route.read({ 'orders', component: Orders, isIndex: true }),
+        route.read({ name: 'orders-activity-trail', path: 'activity-trail', component: ActivityTrailPage, frn: activityFRN }),
+      ]),
+      route.read({ name: 'order', path: ':order', component: Order }, [
+        route.read({ name: 'order-details', component: OrderDetails, isIndex: true }),
+        route.read({ name: 'order-shipments', path: 'shipments', component: Shipments, frn: shipmentFRN }),
+        route.read({
+          name: 'order-shipments',
+          path: 'shipments',
+          component: Shipments,
+          frn: orderShipmentFRN,
+        }),
+        route.read({
+          name: 'order-shipments',
+          path: 'shipments',
+          component: Shipments,
+          frn: orderShipmentFRN,
+        }),
+
+      ])
+    ]);
+}
+
 const orderRoutes = (claims: Claims) => {
 
 
