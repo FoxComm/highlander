@@ -91,7 +91,6 @@
     "lodash.flatmap": "^4.2.0",
     "react": "^15.2.0",
     "react-dom": "^15.2.0",
-    "react-gestures": "^0.1.8",
     "react-input-mask": "github:anru/react-input-mask#fix/initial-value",
     "react-redux": "^4.4.0",
     "react-router": "^2.7.0",
