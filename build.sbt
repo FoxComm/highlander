@@ -98,9 +98,9 @@ lazy val phoenixScala = (project in file(".")).
         "com.amazonaws"              %  "aws-java-sdk"           % "1.11.15",
         // Testing
         "org.conbere"                %  "markov_2.10"            % "0.2.0",
-        "org.scalatest"              %% "scalatest"              % scalaTestV      % test,
-        "org.scalacheck"             %% "scalacheck"             % "1.13.1"        % test,
-        "org.mockito"                %  "mockito-core"           % "2.0.111-beta"  % test)
+        "org.scalatest"              %% "scalatest"              % scalaTestV       % test,
+        "org.scalacheck"             %% "scalacheck"             % "1.13.1"         % test,
+        "org.mockito"                %  "mockito-core"           % "2.1.0-beta.125" % test)
     },
     scalaSource in Compile <<= baseDirectory(_ / "app"),
     scalaSource in Test    <<= baseDirectory(_ / "test" / "unit"),

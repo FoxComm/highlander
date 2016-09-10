@@ -17,6 +17,7 @@ import utils.apis.StripeMappings.cardExceptionMap
 /**
   * Low-level Stripe API wrapper implementation.
   * All calls should be executed in blocking pool.
+  * If you add new methods, be sure to provide default mock in `MockedApis` trait for testing!
   */
 class StripeWrapper extends StripeApiWrapper {
 
