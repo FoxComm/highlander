@@ -18,7 +18,7 @@ clean:
 lint:
 	ansible-lint -x ANSIBLE0007,ANSIBLE0004 ansible/*.yml
 
-test: 
+test:
 	go get github.com/stretchr/testify
 	$(GO) test -v ./inventory/
 
@@ -64,14 +64,14 @@ bootstrap-target-vpn:
 deploy-stage:
 	ansible-playbook -v -i bin/envs/staging ansible/stage.yml
 
-deploy-stage-backend:
-	ansible-playbook -v -i bin/envs/staging ansible/stage.yml --tags=backend
-
-deploy-stage-frontend:
-	ansible-playbook -v -i bin/envs/staging ansible/stage.yml --tags=frontend
+deploy-stage-highlander:
+	ansible-playbook -v -i bin/envs/staging ansible/stage_highlander.yml
 
 deploy-gatling:
 	ansible-playbook -v -i bin/envs/staging ansible/gatling.yml
+
+deploy-gatling-highlander:
+	ansible-playbook -v -i bin/envs/staging ansible/gatling_highlander.yml
 
 run-gatling: deploy-gatling
 	ansible-playbook -v -i bin/envs/staging ansible/run_gatling.yml
@@ -87,9 +87,6 @@ deploy-dem1:
 
 deploy-dem2:
 	ansible-playbook -v -i bin/envs/staging ansible/dem2.yml
-
-tf-aws-demo:
-	terraform $(TF_CMD) -state=$(TF_ENVS)/aws_demo_env/terraform.tfstate -var-file=$(TF_ENVS)/aws_demo_env/demo.tfvars $(TF_BASE)/aws_demo_env
 
 tf-aws-target:
 	terraform $(TF_CMD) -state=$(TF_ENVS)/aws_target/terraform.tfstate -var-file=$(TF_ENVS)/aws_target/target.tfvars $(TF_BASE)/aws_target
