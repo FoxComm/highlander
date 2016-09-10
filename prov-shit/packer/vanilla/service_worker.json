@@ -7,7 +7,7 @@
             "source_image": "{{user `base_mesos`}}",
             "network": "{{user `network`}}",
             "zone": "{{user `zone`}}",
-            "image_name": "service-worker-{{timestamp}}",
+            "image_name": "{{user `image_prefix`}}-service-worker-{{timestamp}}",
             "image_description": "base image used for provisioning",
             "instance_name": "packer-service-worker-{{uuid}}",
             "machine_type": "n1-standard-2",

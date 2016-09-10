@@ -106,4 +106,8 @@ tf-target:
 tf-topdrawer:
 	terraform $(TF_CMD) -state=$(TF_ENVS)/gce_topdrawer/terraform.tfstate -var-file=$(TF_ENVS)/gce_topdrawer/topdrawer.tfvars $(TF_BASE)/gce_topdrawer
 
+tf-perfectgourmet:
+	terraform $(TF_CMD) -state=$(TF_ENVS)/gce_perfectgourmet/terraform.tfstate -var-file=$(TF_ENVS)/gce_perfectgourmet/perfectgourmet.tfvars $(TF_BASE)/gce_perfectgourmet
+
+
 .PHONY: all build lint test

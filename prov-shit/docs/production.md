@@ -53,32 +53,34 @@ Navigation:
 7. Bootstrap OpenVPN service:
 
 	```
-	$ ansible-playbook -v -i vanilla_vpn ansible/bootstrap_vanilla_vpn.yml
+	$ ansible-playbook -v -i bin/envs/vanilla_vpn ansible/bootstrap_vanilla_vpn.yml
 	```
 
 8. Generate OpenVPN credentials (any number you want):
 
 	```
-	$ ansible-playbook -v -i vanilla_vpn ansible/bootstrap_openvpn_key.yml
+	$ ansible-playbook -v -i bin/envs/vanilla_vpn ansible/bootstrap_openvpn_key.yml
 	```
 
 ## Service machines
 
 Do all the steps while connected to created VPN service.
 
-1. Build base images for backend, frontend and consul servers (can be ran in parallel):
+1. Build core base images:
 
 	```
+	$ packer build -var-file=packer/envs/vanilla.json packer/base/base_mesos.json
 	$ packer build -var-file=packer/envs/vanilla.json packer/base/base_jvm.json
 	$ packer build -var-file=packer/envs/vanilla.json packer/base/base_node.json
-	$ packer build -var-file=packer/envs/vanilla.json packer/amigos/amigo_server.json
 	```
 
 2. Save base images names above and replace them in `packer/envs/vanilla.json`.
 
-3. Build specific images (can be ran in parallel):
+3. Build application-specific base images (can be ran in parallel):
 
 	```
+	# Production
+	$ packer build -var-file=packer/envs/vanilla.json packer/amigos/amigo_server.json	
 	$ packer build -var-file=packer/envs/vanilla.json packer/vanilla/db.json
 	$ packer build -var-file=packer/envs/vanilla.json packer/vanilla/es.json
 	$ packer build -var-file=packer/envs/vanilla.json packer/vanilla/es_log.json
@@ -87,6 +89,11 @@ Do all the steps while connected to created VPN service.
 	$ packer build -var-file=packer/envs/vanilla.json packer/vanilla/kafka.json
 	$ packer build -var-file=packer/envs/vanilla.json packer/vanilla/phoenix.json
 	$ packer build -var-file=packer/envs/vanilla.json packer/vanilla/service_worker.json
+
+	# Staging
+	$ packer build -var-file=packer/envs/vanilla.json packer/vanilla/stage_amigo.json
+	$ packer build -var-file=packer/envs/vanilla.json packer/vanilla/stage_backend.json
+	$ packer build -var-file=packer/envs/vanilla.json packer/vanilla/stage_frontend.json	
 	```
 
 4. Save base images names above and replace them in `terraform/envs/gce_vanilla/terraform.tfvars`.
@@ -94,10 +101,17 @@ Do all the steps while connected to created VPN service.
 5. Terraform service machines:
 
 	```
-	$ export TF_BASE=terraform/base
-	$ export TF_ENVS=terraform/envs
-	$ terraform plan -state $TF_BASE/gce_vanilla/terraform.tfstate -var-file $TF_BASE/gce_vanilla/terraform.tfvars $TF_BASE/gce_vanilla
-	$ terraform apply -state $TF_BASE/gce_vanilla/terraform.tfstate -var-file $TF_BASE/gce_vanilla/terraform.tfvars $TF_BASE/gce_vanilla
+	# Plan
+	$ terraform plan \
+		-state=terraform/envs/gce_vanilla/terraform.tfstate \
+		-var-file=terraform/envs/gce_vanilla/vanilla.tfvars \
+		terraform/envs/gce_vanilla
+	
+	# Apply
+	$ terraform apply \
+		-state=terraform/envs/gce_vanilla/terraform.tfstate \
+		-var-file=terraform/envs/gce_vanilla/vanilla.tfvars \
+		terraform/envs/gce_vanilla
 	```
 
 6. Add a new project ID in `projects.json` and

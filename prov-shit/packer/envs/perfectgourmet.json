@@ -1,0 +1,17 @@
+{
+	"image_prefix": "perfectgourmet",
+	"image_title": "Perfect Gourmet",
+	"account_file": "account.json",
+	"variables_file": "perfectgourmet_ansible.json",
+	"stage_variables_file": "perfectgourmet_stage_ansible.json",
+	"key_variables_file": "perfectgourmet_keys.json",
+	"project_id": "foxcommerce-production-shared",
+	"network": "perfectgourmet",
+	"zone": "us-central1-a",
+	"base_ubuntu_image": "ubuntu-1604-xenial-v20160610",
+	"base_image": "base-1472991103",
+	"base_mesos": "base-mesos-1472991688",
+	"base_node_image": "base-node-1472994734",
+	"base_jvm_image": "base-jvm-1472994725",
+	"ssh_username": "ubuntu"
+}

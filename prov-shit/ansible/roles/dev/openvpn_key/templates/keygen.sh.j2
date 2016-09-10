@@ -1,7 +1,10 @@
 #!/bin/bash
 
+set -ue
+
 cd {{easy_rsa_dir}}
 source ./vars
+export KEY_CN=""
 ./build-key --batch {{username}}
 tar -czf {{username}}.tar.gz keys/ca.crt keys/{{username}}.crt keys/{{username}}.key
 cp {{username}}.tar.gz /tmp/{{username}}.tar.gz
