@@ -11,8 +11,8 @@ defmodule Marketplace.MerchantApplication do
 
     timestamps
    
-    has_one :merchant_application_social_profile, Permissions.MerchantApplicationSocialProfile
-    has_one :merchant_application_business_profile, Permissions.MerchantApplicationBusinessProfile
+    has_one :merchant_application_social_profile, Marketplace.MerchantApplicationSocialProfile
+    has_one :merchant_application_business_profile, Marketplace.MerchantApplicationBusinessProfile
     has_one :social_profile, through: [:merchant_application_social_profile, :social_profile]
     has_one :business_profile, through: [:merchant_application_business_profile, :business_profile]
   end

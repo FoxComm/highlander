@@ -17,6 +17,7 @@ defmodule Marketplace.Router do
     pipe_through :api # Use the default browser stack
 
     resources "/merchant_applications", MerchantApplicationController
+    post "/merchants/activate_application/:application_id", MerchantController, :activate_application
     resources "/merchants", MerchantController do 
       resources "/addresses", MerchantAddressController
     end
