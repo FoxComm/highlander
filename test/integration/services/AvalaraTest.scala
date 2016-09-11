@@ -9,7 +9,7 @@ import models.location.Countries
 import org.scalatest.mock.MockitoSugar
 import util._
 import util.fixtures.BakedFixtures
-import utils.apis.Avalara
+import utils.apis._
 import utils.db._
 
 class AvalaraTest
@@ -26,7 +26,7 @@ class AvalaraTest
   implicit val materializer: ActorMaterializer = ActorMaterializer()
 
   val today   = Instant.now().atZone(ZoneId.of("UTC"))
-  val service = new Avalara()
+  val service = AvalaraAdapter("", "", "", "")
 
   "Avalara" - {
     "validate address" - {
