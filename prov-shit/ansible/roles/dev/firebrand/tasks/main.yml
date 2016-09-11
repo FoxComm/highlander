@@ -11,6 +11,7 @@
   unarchive:
     src: '{{firebrand_source_package}}'
     dest: '{{firebrand_install_dir}}/'
+  sudo: true
 
 - name: Build Firebrand
   shell: NODE_ENV={{firebrand_env}} DEMO_USER={{demo_user}} DEMO_PASS={{demo_pass}} FIREBRAND_LANGUAGE={{firebrand_default_language}} gulp build
@@ -35,4 +36,3 @@
 - name: Restart Firebrand
   service: name=firebrand state=restarted
   sudo: true
-
