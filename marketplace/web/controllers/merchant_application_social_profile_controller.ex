@@ -1,9 +1,10 @@
-defmodule Marketplace.SocialProfileController do 
+defmodule Marketplace.MerchantApplicationSocialProfileController do 
   use Marketplace.Web, :controller
   alias Ecto.Multi
   alias Marketplace.Repo
   alias Marketplace.SocialProfile
   alias Marketplace.MerchantApplicationSocialProfile
+  alias Marketplace.SocialProfileView
 
   def create(conn, %{"social_profile" => social_profile_params, "merchant_application_id" => merchant_application_id}) do 
     case Repo.transaction(insert_and_relate(social_profile_params, merchant_application_id)) do 
@@ -11,7 +12,7 @@ defmodule Marketplace.SocialProfileController do
         conn
         |> put_status(:created)
         |> put_resp_header("location", merchant_application_social_profile_path(conn, :show, merchant_application_id, social_profile))
-        |> render("social_profile.json", social_profile: social_profile)
+        |> render(SocialProfileView, "social_profile.json", social_profile: social_profile)
       {:error, failed_operation, failed_value, changes_completed} -> 
         conn
         |> put_status(:unprocessable_entity)
@@ -22,7 +23,7 @@ defmodule Marketplace.SocialProfileController do
   def show(conn, %{"merchant_application_id" => ma_id}) do
     ma_sp = Repo.get_by!(MerchantApplicationSocialProfile, merchant_application_id: ma_id)
     |> Repo.preload(:social_profile)
-    render(conn, "show.json", social_profile: ma_sp.social_profile)
+    render(conn, SocialProfileView, "show.json", social_profile: ma_sp.social_profile)
   end
 
   def update(conn, %{"id" => id, "social_profile" => social_profile_params}) do 
@@ -31,7 +32,7 @@ defmodule Marketplace.SocialProfileController do
     case Repo.update(changeset) do
       {:ok, social_profile} -> 
         conn 
-        |> render("social_profile.json", social_profile: social_profile)
+        |> render(SocialProfileView, "social_profile.json", social_profile: social_profile)
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
