@@ -28,9 +28,12 @@ defmodule Marketplace.Router do
     post "/merchants/activate_application/:application_id", MerchantController, :activate_application
     
     resources "/merchants", MerchantController do 
-      resources "/social_profile", MerchantSocialProfileController, only: [:create, :update], as: :social_profile
+      post "/social_profile", MerchantSocialProfileController, :create, as: :social_profile
       get "/social_profile", MerchantSocialProfileController, :show, as: :social_profile
       patch "/social_profile", MerchantSocialProfileController, :update, as: :social_profile
+      post "/business_profile", MerchantBusinessProfileController, :create, as: :business_profile
+      get "/business_profile", MerchantBusinessProfileController, :show, as: :business_profile
+      patch "/business_profile", MerchantBusinessProfileController, :update, as: :business_profile
       resources "/addresses", MerchantAddressController
     end
 

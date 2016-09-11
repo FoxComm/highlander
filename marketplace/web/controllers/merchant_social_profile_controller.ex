@@ -23,7 +23,9 @@ defmodule Marketplace.MerchantSocialProfileController do
   def show(conn, %{"merchant_id" => m_id}) do
     m_sp = Repo.get_by!(MerchantSocialProfile, merchant_id: m_id)
     |> Repo.preload(:social_profile)
-    render(SocialProfileView, conn, "show.json", social_profile: m_sp.social_profile)
+
+    conn
+    |> render(SocialProfileView, "show.json", social_profile: m_sp.social_profile)
   end
 
   def update(conn, %{"merchant_id" => m_id, "social_profile" => social_profile_params}) do 
