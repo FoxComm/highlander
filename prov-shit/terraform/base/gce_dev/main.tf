@@ -101,7 +101,6 @@ module "staging" {
     consul_server_image = "${var.consul_server_image}"
 }
 
-/*
 ##############################################
 # Setup Highlander Gatling Machines
 ##############################################
@@ -159,5 +158,3 @@ module "highlander-staging" {
     consul_leader = "${module.consul_cluster.leader}"
     consul_server_image = "${var.consul_server_image}"
 }
-
-*/
