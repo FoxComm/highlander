@@ -17,4 +17,9 @@ defmodule Marketplace.SocialProfile do
     model
     |> cast(params, @required_params, @optional_params)
   end
+
+  def update_changeset(model, params \\ :empty) do
+    model
+    |> cast(params, @required_params, @optional_params)
+  end
 end

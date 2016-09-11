@@ -26,9 +26,11 @@ defmodule Marketplace.MerchantApplicationSocialProfileController do
     render(conn, SocialProfileView, "show.json", social_profile: ma_sp.social_profile)
   end
 
-  def update(conn, %{"id" => id, "social_profile" => social_profile_params}) do 
-    social_profile = Repo.get!(SocialProfile, id)
-    changeset = SocialProfile.update_changeset(social_profile, social_profile_params)
+  def update(conn, %{"merchant_application_id" => ma_id, "social_profile" => social_profile_params}) do 
+    ma_sp = Repo.get_by!(MerchantApplicationSocialProfile, merchant_application_id: ma_id)
+    |> Repo.preload(:social_profile)
+
+    changeset = SocialProfile.update_changeset(ma_sp.social_profile, social_profile_params)
     case Repo.update(changeset) do
       {:ok, social_profile} -> 
         conn 
