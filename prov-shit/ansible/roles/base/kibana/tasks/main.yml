@@ -4,6 +4,7 @@
   get_url: >
     url=https://download.elasticsearch.org/kibana/kibana/{{kibana_name}}.zip
     dest=/usr/local/src/{{kibana_name}}.zip
+  sudo: true
 
 - name: Extract and install Kibana
   unarchive: >
@@ -11,6 +12,7 @@
     dest={{kibana_dir}}
     copy=no
     creates={{kibana_dir}}/{{kibana_name}}
+  sudo: true
 
 - name: Copy Kibana service
   template: src=kibana.service.j2 dest={{dest_services}}/kibana.service

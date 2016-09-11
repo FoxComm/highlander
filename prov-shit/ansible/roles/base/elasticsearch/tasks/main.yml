@@ -2,6 +2,7 @@
 
 - name: Get ElasticSearch 2.0
   get_url: url=https://download.elastic.co/elasticsearch/elasticsearch/{{es_zip}} dest={{home}}/{{es_zip}}
+  sudo: true
 
 - name: Unzip ElasticSearch
   unarchive: src={{home}}/{{es_zip}} dest={{usr_local}} copy=no

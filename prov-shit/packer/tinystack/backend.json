@@ -13,7 +13,8 @@
             "machine_type": "n1-standard-2",
             "tags": ["ssh", "no-ip", "{{user `image_prefix`}}", "backend"],
             "use_internal_ip": true,
-            "ssh_username" : "{{user `ssh_username`}}"
+            "ssh_username" : "{{user `ssh_username`}}",
+            "disk_size": 20
         }
     ],
     "provisioners" : [

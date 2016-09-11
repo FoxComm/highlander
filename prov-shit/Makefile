@@ -23,7 +23,7 @@ test:
 	$(GO) test -v ./inventory/
 
 bootstrap-test:
-	ansible-playbook -vvvv -i bin/envs/staging ansible/bootstrap_test.yml --extra-vars=packer/envs/staging_ansible.json --private-key=$(PRIVATE_KEY) 
+	ansible-playbook -vvvv -i bin/envs/temp ansible/bootstrap_test.yml --extra-vars=packer/envs/staging_ansible.json --private-key=$(PRIVATE_KEY) 
 
 bootstrap-build-agents:
 	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_build_agents.yml
