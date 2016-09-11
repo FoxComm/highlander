@@ -6,6 +6,7 @@ import (
 
 	"github.com/FoxComm/metamorphosis"
 	"github.com/FoxComm/middlewarehouse/consumers"
+	"github.com/FoxComm/middlewarehouse/consumers/capture/lib"
 
 	_ "github.com/jpfuentes2/go-env/autoload"
 )
@@ -26,9 +27,14 @@ func main() {
 		log.Fatalf("Unable to initialize consumer with error: PHOENIX_URL not found in env")
 	}
 
-	phoenixJWT := os.Getenv("PHOENIX_JWT")
-	if phoenixJWT == "" {
-		log.Fatalf("Unable to initialize consumer with error: PHOENIX_JWT not found in env")
+	phoenixUser := os.Getenv("PHOENIX_USER")
+	if phoenixUser == "" {
+		log.Fatalf("Unable to initialize consumer with error: PHOENIX_USER not found in env")
+	}
+
+	phoenixPassword := os.Getenv("PHOENIX_PASSWORD")
+	if phoenixPassword == "" {
+		log.Fatalf("Unable to initialize consumer with error: PHOENIX_PASSWORD not found in env")
 	}
 
 	consumer, err := metamorphosis.NewConsumer(config.ZookeeperURL, config.SchemaRepositoryURL)
@@ -39,7 +45,12 @@ func main() {
 	consumer.SetGroupID(groupID)
 	consumer.SetClientID(clientID)
 
-	oh, err := NewShipmentHandler(config.MiddlewarehouseURL, phoenixURL, phoenixJWT)
+	client := lib.NewPhoenixClient(phoenixURL, phoenixUser, phoenixPassword)
+	if err := client.Authenticate(); err != nil {
+		log.Fatalf("Unable to authenticate with Phoenix")
+	}
+
+	oh, err := NewShipmentHandler(config.MiddlewarehouseURL, client)
 	if err != nil {
 		log.Fatalf("Can't create handler for orders with error %s", err.Error())
 	}
