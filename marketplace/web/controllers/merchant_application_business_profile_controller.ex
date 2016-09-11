@@ -8,7 +8,7 @@ defmodule Marketplace.MerchantApplicationBusinessProfileController do
 
   def create(conn, %{"business_profile" => business_profile_params, "merchant_application_id" => merchant_application_id}) do 
     case Repo.transaction(insert_and_relate(business_profile_params, merchant_application_id)) do 
-      {:ok, %{business_profile: business_profile, merchant_application_business_profile: ma_sp}} -> 
+      {:ok, %{business_profile: business_profile, merchant_application_business_profile: ma_bp}} -> 
         conn
         |> put_status(:created)
         |> put_resp_header("location", merchant_application_business_profile_path(conn, :show, merchant_application_id))
@@ -21,16 +21,16 @@ defmodule Marketplace.MerchantApplicationBusinessProfileController do
   end
 
   def show(conn, %{"merchant_application_id" => ma_id}) do
-    ma_sp = Repo.get_by!(MerchantApplicationBusinessProfile, merchant_application_id: ma_id)
+    ma_bp = Repo.get_by!(MerchantApplicationBusinessProfile, merchant_application_id: ma_id)
     |> Repo.preload(:business_profile)
-    render(conn, BusinessProfileView, "show.json", business_profile: ma_sp.business_profile)
+    render(conn, BusinessProfileView, "show.json", business_profile: ma_bp.business_profile)
   end
 
   def update(conn, %{"merchant_application_id" => ma_id, "business_profile" => business_profile_params}) do 
-    ma_sp = Repo.get_by!(MerchantApplicationBusinessProfile, merchant_application_id: ma_id)
+    ma_bp = Repo.get_by!(MerchantApplicationBusinessProfile, merchant_application_id: ma_id)
     |> Repo.preload(:business_profile)
 
-    changeset = BusinessProfile.update_changeset(ma_sp.business_profile, business_profile_params)
+    changeset = BusinessProfile.update_changeset(ma_bp.business_profile, business_profile_params)
     case Repo.update(changeset) do
       {:ok, business_profile} -> 
         conn 
