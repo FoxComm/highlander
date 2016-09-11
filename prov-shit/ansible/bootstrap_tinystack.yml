@@ -8,6 +8,7 @@
     user: '{{ansible_ssh_user}}'
     seeds_cmd: utils.seeds.Seeds seed --seedAdmins --seedStage
     updating_mwh: true
+    middlewarehouse_src: "/Users/ejik/golang/src/github.com/FoxComm/highlander/middlewarehouse"
   vars_prompt:
     - name: "hostname"
       prompt: "Enter a hostname with a backend to provision"
@@ -15,12 +16,12 @@
       private: no
 
   roles:
-    - { role: dev/kafka }
-    - { role: dev/elasticsearch }
-    - { role: dev/phoenix }
-    - { role: dev/db }
-    - { role: dev/isaac }
-    - { role: dev/greenriver }
+    #- { role: dev/kafka }
+    #- { role: dev/elasticsearch }
+    #- { role: dev/phoenix }
+    #- { role: dev/db }
+    #- { role: dev/isaac }
+    #- { role: dev/greenriver }
     - { role: dev/middlewarehouse }
 
   handlers:
