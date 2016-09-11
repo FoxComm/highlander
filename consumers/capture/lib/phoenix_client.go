@@ -15,6 +15,7 @@ type PhoenixClient interface {
 	Authenticate() error
 	CapturePayment(activities.ISiteActivity) error
 	IsAuthenticated() bool
+	UpdateOrder(refNum, shipmentState, orderState string) error
 }
 
 func NewPhoenixClient(baseURL, email, password string) PhoenixClient {
@@ -53,11 +54,19 @@ func (c *phoenixClient) CapturePayment(activity activities.ISiteActivity) error 
 		"JWT": c.jwt,
 	}
 
-	_, err = consumers.Post(url, headers, &capture)
+	rawCaptureResp, err := consumers.Post(url, headers, &capture)
 	if err != nil {
-		log.Printf(err.Error())
 		return err
 	}
+
+	defer rawCaptureResp.Body.Close()
+	captureResp := new(map[string]interface{})
+	if err := json.NewDecoder(rawCaptureResp.Body).Decode(captureResp); err != nil {
+		log.Printf("Unable to read capture response from Phoenix with error: %s", err.Error())
+		return err
+	}
+
+	log.Printf("Successfully captured from Phoenix with response: %v", captureResp)
 
 	return nil
 }
@@ -111,6 +120,43 @@ func (c *phoenixClient) Authenticate() error {
 	}
 
 	c.jwtExpiration = loginResp.Expiration
+
+	return nil
+}
+
+func (c *phoenixClient) UpdateOrder(refNum, shipmentState, orderState string) error {
+	if !c.IsAuthenticated() {
+		if err := c.Authenticate(); err != nil {
+			return fmt.Errorf(
+				"Unable to authenticate with %s - cannot proceed with capture",
+				err.Error(),
+			)
+		}
+	}
+
+	payload, err := NewUpdateOrderPayload(orderState)
+	if err != nil {
+		return err
+	}
+
+	url := fmt.Sprintf("%s/v1/orders/%s", c.baseURL, refNum)
+	headers := map[string]string{
+		"JWT": c.jwt,
+	}
+
+	rawOrderResp, err := consumers.Patch(url, headers, &payload)
+	if err != nil {
+		return err
+	}
+
+	defer rawOrderResp.Body.Close()
+	orderResp := new(map[string]interface{})
+	if err := json.NewDecoder(rawOrderResp.Body).Decode(orderResp); err != nil {
+		log.Printf("Unable to read order response from Phoenix with error: %s", err.Error())
+		return err
+	}
+
+	log.Printf("Successfully updated orders in Phoenix with error: %v", orderResp)
 
 	return nil
 }
