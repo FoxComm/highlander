@@ -16,12 +16,12 @@
       private: no
 
   roles:
-    #- { role: dev/kafka }
-    #- { role: dev/elasticsearch }
-    #- { role: dev/phoenix }
-    #- { role: dev/db }
-    #- { role: dev/isaac }
-    #- { role: dev/greenriver }
+    - { role: dev/kafka }
+    - { role: dev/elasticsearch }
+    - { role: dev/phoenix }
+    - { role: dev/db }
+    - { role: dev/isaac }
+    - { role: dev/greenriver }
     - { role: dev/middlewarehouse }
 
   handlers:
