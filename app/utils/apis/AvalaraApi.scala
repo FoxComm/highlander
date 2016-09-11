@@ -218,6 +218,11 @@ object Avalara {
 
     val severityLevelFormatter = SeverityLevel.jsonFormats
 
+    trait AvalaraResponse {
+      def ResultCode: SeverityLevel
+      def hasError: Boolean = ResultCode == Error
+    }
+
     case class Message(
         Summary: String,
         Details: Option[String],
@@ -277,20 +282,15 @@ object Avalara {
         TaxDate: Option[String],
         TaxLines: Seq[TaxLine],
         TaxAddresses: Seq[TaxAddress],
-        ResultCode: Option[String],
+        ResultCode: SeverityLevel,
         Messages: Seq[Message]
-    )
+    ) extends AvalaraResponse
 
     case class AddressValidation(
         Address: Option[AvalaraAddress],
         ResultCode: SeverityLevel,
         Messages: Seq[Message]
-    )
-
-    case class SimpleErrorMessage(
-        ResultCode: Option[String],
-        Messages: Seq[Message]
-    )
+    ) extends AvalaraResponse
   }
 }
 
@@ -347,14 +347,13 @@ class Avalara(url: String, account: String, license: String, profile: String)(
 
     result.flatMap {
       case response ⇒
-        if (response.Address.isDefined || response.ResultCode == Success) {
+        if (!response.hasError) {
           println("success")
           Result.unit
         } else {
           val message = response.Messages.map(_.Summary).mkString(", ")
           println(s"Error: $message")
-//          Result.failure(AddressValidationFailure(message))
-          Result.unit
+          Result.failure(AddressValidationFailure(message))
         }
     }.recoverWith {
       case err: Throwable ⇒ failureHandler(err)
@@ -406,13 +405,12 @@ class Avalara(url: String, account: String, license: String, profile: String)(
       Result.left(UnableToMatchResponse.single)
     }
 
-    result.flatMap {
-      case res: GetTaxes ⇒ {
-        println(s"Result: $res")
+    result.flatMap { res ⇒
+      if (!res.hasError) {
+        println("no errors")
         Result.unit
-      }
-      case _ ⇒ {
-        println("No result")
+      } else {
+        println("request with error")
         Result.unit
       }
     }.recoverWith {
