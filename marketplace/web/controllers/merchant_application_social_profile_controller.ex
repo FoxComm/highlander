@@ -11,7 +11,7 @@ defmodule Marketplace.MerchantApplicationSocialProfileController do
       {:ok, %{social_profile: social_profile, merchant_application_social_profile: masp}} -> 
         conn
         |> put_status(:created)
-        |> put_resp_header("location", merchant_application_social_profile_path(conn, :show, merchant_application_id, social_profile))
+        |> put_resp_header("location", merchant_application_social_profile_path(conn, :show, merchant_application_id))
         |> render(SocialProfileView, "social_profile.json", social_profile: social_profile)
       {:error, failed_operation, failed_value, changes_completed} -> 
         conn

@@ -12,6 +12,5 @@ defmodule Marketplace.Repo.Migrations.CreateMerchant do
       timestamps
     end
 
-    create unique_index(:merchants, [:name])
   end
 end
