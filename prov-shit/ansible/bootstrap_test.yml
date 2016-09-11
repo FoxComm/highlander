@@ -1,0 +1,26 @@
+---
+
+- name: Provision Packer Tinystack Backend
+  hosts: 10.240.0.33
+  vars:
+    user: ubuntu
+    packing: true
+    middlewarehouse_src: "{{ lookup('env', 'GOPATH') }}/src/github.com/FoxComm/highlander/middlewarehouse"
+
+  roles:
+    #- { role: base/ssh_keys }
+    #- { role: base/mesos_worker }
+    - { role: base/confluence }
+    - { role: base/kafka }
+    - { role: base/schema-registry }
+    - { role: base/elasticsearch }
+    - { role: base/db }
+    - { role: base/phoenix }
+    - { role: base/rsyslog, sudo: yes }
+    #- { role: base/kibana, sudo: yes }
+    - { role: base/isaac }
+    - { role: base/greenriver }
+    - { role: base/middlewarehouse }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml
