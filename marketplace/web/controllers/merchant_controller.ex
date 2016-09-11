@@ -1,8 +1,13 @@
 defmodule Marketplace.MerchantController do 
   use Marketplace.Web, :controller
+  alias Ecto.Multi
   alias Marketplace.Repo
   alias Marketplace.Merchant
   alias Marketplace.MerchantApplication
+  alias Marketplace.MerchantApplicationBusinessProfile
+  alias Marketplace.MerchantApplicationSocialProfile
+  alias Marketplace.MerchantSocialProfile
+  alias Marketplace.MerchantBusinessProfile
 
   def index(conn, _params) do
     merchants = Repo.all(Merchant)
@@ -57,8 +62,16 @@ defmodule Marketplace.MerchantController do
     } 
     merchant_cs = Merchant.changeset(%Merchant{}, merchant)
     
-    case Repo.insert(merchant_cs) do
-      {:ok, inserted_merchant} -> 
+    multi_txn = Multi.new
+    |> Multi.insert(:merchant, merchant_cs)
+    |> Multi.run(:merchant_business_profile, fn %{merchant: merchant} -> 
+      copy_business_profile_from_merchant_application(application_id, merchant) end)  
+    |> Multi.run(:merchant_social_profile, fn %{merchant: merchant} -> 
+      copy_social_profile_from_merchant_application(application_id, merchant) end)
+
+
+    case Repo.transaction(multi_txn) do
+      {:ok, %{merchant: inserted_merchant, merchant_business_profile: m_bp, merchant_social_profile: m_bp}} -> 
         conn 
         |> put_status(:created)
         |> put_resp_header("location", merchant_path(conn, :show, inserted_merchant))
@@ -68,5 +81,34 @@ defmodule Marketplace.MerchantController do
         |> put_status(:unprocessable_entity)
         |> render(Marketplace.ChangesetView, "errors.json", changeset: changeset)
     end
+  end
+
+  defp copy_business_profile_from_merchant_application(ma_id, merchant) do
+    ma_bp = Repo.get_by(MerchantApplicationBusinessProfile, merchant_application_id: ma_id)
+
+    if ma_bp do 
+      m_bp = MerchantBusinessProfile.changeset(%MerchantBusinessProfile{}, %{
+        "merchant_id" => merchant.id,
+        "business_profile_id" => ma_bp.business_profile_id
+      })
+      Repo.insert(m_bp)
+    else 
+      {:ok, %MerchantBusinessProfile{}}
+    end
+  end
+
+  defp copy_social_profile_from_merchant_application(ma_id, merchant) do
+    ma_sp = Repo.get_by(MerchantApplicationSocialProfile, merchant_application_id: ma_id)
+    
+    case ma_sp do
+      nil -> {:ok, %MerchantSocialProfile{}}
+      ma_sp ->
+        m_sp = MerchantSocialProfile.changeset(%MerchantSocialProfile{}, %{
+          "merchant_id" => merchant.id,
+          "social_profile_id" => ma_sp.business_profile_id
+        })
+        Repo.insert(m_sp)
+    end
+
   end
 end
