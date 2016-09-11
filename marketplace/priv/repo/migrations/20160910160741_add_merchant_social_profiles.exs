@@ -6,5 +6,7 @@ defmodule Marketplace.Repo.Migrations.AddMerchantSocialProfiles do
       add :merchant_id, references(:merchants)
       add :social_profile_id, references(:social_profiles)
     end
+
+    create unique_index(:merchant_social_profiles, [:merchant_id])    
   end
 end

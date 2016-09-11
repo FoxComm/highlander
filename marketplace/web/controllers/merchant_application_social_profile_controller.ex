@@ -8,7 +8,7 @@ defmodule Marketplace.MerchantApplicationSocialProfileController do
 
   def create(conn, %{"social_profile" => social_profile_params, "merchant_application_id" => merchant_application_id}) do 
     case Repo.transaction(insert_and_relate(social_profile_params, merchant_application_id)) do 
-      {:ok, %{social_profile: social_profile, merchant_application_social_profile: masp}} -> 
+      {:ok, %{social_profile: social_profile, merchant_application_social_profile: ma_sp}} -> 
         conn
         |> put_status(:created)
         |> put_resp_header("location", merchant_application_social_profile_path(conn, :show, merchant_application_id))

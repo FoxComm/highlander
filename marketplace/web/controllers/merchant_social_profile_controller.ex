@@ -8,10 +8,10 @@ defmodule Marketplace.MerchantSocialProfileController do
 
   def create(conn, %{"social_profile" => social_profile_params, "merchant_id" => merchant_id}) do 
     case Repo.transaction(insert_and_relate(social_profile_params, merchant_id)) do 
-      {:ok, %{social_profile: social_profile, merchant_social_profile: masp}} -> 
+      {:ok, %{social_profile: social_profile, merchant_social_profile: m_sp}} -> 
         conn
         |> put_status(:created)
-        |> put_resp_header("location", merchant_application_social_profile_path(conn, :show, merchant_id, social_profile))
+        |> put_resp_header("location", merchant_social_profile_path(conn, :show, merchant_id))
         |> render(SocialProfileView, "social_profile.json", social_profile: social_profile)
       {:error, failed_operation, failed_value, changes_completed} -> 
         conn
@@ -20,15 +20,17 @@ defmodule Marketplace.MerchantSocialProfileController do
     end
   end
 
-  def show(conn, %{"merchant_id" => ma_id}) do
-    ma_sp = Repo.get_by!(MerchantSocialProfile, merchant_id: ma_id)
+  def show(conn, %{"merchant_id" => m_id}) do
+    m_sp = Repo.get_by!(MerchantSocialProfile, merchant_id: m_id)
     |> Repo.preload(:social_profile)
-    render(SocialProfileView, conn, "show.json", social_profile: ma_sp.social_profile)
+    render(SocialProfileView, conn, "show.json", social_profile: m_sp.social_profile)
   end
 
-  def update(conn, %{"id" => id, "social_profile" => social_profile_params}) do 
-    social_profile = Repo.get!(SocialProfile, id)
-    changeset = SocialProfile.update_changeset(social_profile, social_profile_params)
+  def update(conn, %{"merchant_id" => m_id, "social_profile" => social_profile_params}) do 
+    m_sp = Repo.get_by!(MerchantSocialProfile, merchant_id: m_id)
+    |> Repo.preload(:social_profile)
+    
+    changeset = SocialProfile.update_changeset(m_sp.social_profile, social_profile_params)
     case Repo.update(changeset) do
       {:ok, social_profile} -> 
         conn 
