@@ -4,13 +4,16 @@ defmodule Marketplace.Merchant do
   schema "merchants" do
     field :name, :string
     field :business_name, :string
+    field :phone_number, :string
     field :email_address, :string
     field :description, :string
+    field :site_url, :string
     field :state, :string, default: "new"
 
     timestamps
 
     has_many :merchant_addresses, Marketplace.MerchantAddress
+    has_many :merchant_accounts, Marketplace.MerchantAccount
     has_one :merchant_social_profile, Marketplace.MerchantSocialProfile
     has_one :merchant_business_profile, Marketplace.MerchantBusinessProfile
     has_one :social_profile, through: [:merchant_social_profile, :social_profile]
@@ -18,47 +21,17 @@ defmodule Marketplace.Merchant do
   end
 
   @states ~w(new approved suspended cancelled)a
-
-  use EctoStateMachine,
-    states: @states,
-    events: [
-      [
-        name: :approve,
-        from: [:new, :suspended],
-        to: :approved
-      ], [
-        name: :suspend,
-        from: [:new, :approved],
-        to: :suspended
-      ], [
-        name: :cancel, 
-        from: [:suspended, :approved, :new],
-        to: :cancelled
-      ]
-    ]
+  @required_fields ~w(name description state)
+  @optional_fields ~w(business_name phone_number email_address site_url)
 
   def changeset(model, params \\ :empty) do
     model 
-    |> cast(params, ~w(name description state), ~w())
+    |> cast(params, @required_fields, @optional_fields)
   end
 
   def update_changeset(model, params \\ :empty) do
     model 
-    |> cast(params,  ~w(name description state), ~w())
-    |> make_valid_state_change
+    |> cast(params, @required_fields, @optional_fields)
   end
 
-  def make_valid_state_change(changeset) do
-    IO.inspect(changeset)
-    case Ecto.Changeset.fetch_change(changeset, :state) do
-      :error -> 
-        changeset
-      {:ok, newValue} -> 
-        if String.to_atom(newValue) in @states do 
-          Ecto.Changeset.change(changeset, %{:state => newValue})
-        else 
-          Ecto.Changeset.add_error(changeset, :state, "Not a valid state.")
-        end
-    end
-  end
 end

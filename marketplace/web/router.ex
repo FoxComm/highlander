@@ -35,6 +35,7 @@ defmodule Marketplace.Router do
       get "/business_profile", MerchantBusinessProfileController, :show, as: :business_profile
       patch "/business_profile", MerchantBusinessProfileController, :update, as: :business_profile
       resources "/addresses", MerchantAddressController
+      resources "/accounts", MerchantAccountController, as: :account
     end
 
     get "/", PageController, :index
