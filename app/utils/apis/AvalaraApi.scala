@@ -265,21 +265,20 @@ object Avalara {
     )
 
     case class GetTaxes(
-        DocCode: Option[String] = None,
-        DocDate: Option[Instant] = None,
-        Timestamp: Option[Instant] = None,
-        TotalAmount: Option[Double] = None,
-        TotalDiscount: Option[Double] = None,
-        TotalExemption: Option[Double] = None,
-        TotalTaxable: Option[Double] = None,
-        TotalTax: Option[Double] = None,
-        TotalTaxCalculated: Option[Double] = None,
-        TaxDate: Option[Instant] = None,
-        TaxLines: Option[Seq[TaxLine]] = None,
-        TaxSummary: Option[Seq[TaxLine]] = None,
-        TaxAddresses: Option[Seq[TaxAddress]] = None,
-        ResultCode: Option[String] = None,
-        Messages: Seq[Message] = Seq()
+        DocCode: Option[String],
+        DocDate: Option[String],
+        Timestamp: Option[String],
+        TotalAmount: Option[String],
+        TotalDiscount: Option[String],
+        TotalExemption: Option[String],
+        TotalTaxable: Option[String],
+        TotalTax: Option[String],
+        TotalTaxCalculated: Option[String],
+        TaxDate: Option[String],
+        TaxLines: Seq[TaxLine],
+        TaxAddresses: Seq[TaxAddress],
+        ResultCode: Option[String],
+        Messages: Seq[Message]
     )
 
     case class AddressValidation(
@@ -392,14 +391,14 @@ class Avalara(url: String, account: String, license: String, profile: String)(
         Authorization(BasicHttpCredentials(account, license)))
 
     println("building request")
-    val result: Future[Option[Avalara.Responses.SimpleErrorMessage]] = Source
+    val result: Future[Avalara.Responses.GetTaxes] = Source
       .single(
           HttpRequest(uri = "/1.0/tax/get",
                       method = HttpMethods.POST,
                       headers = headers,
                       entity = HttpEntity(write(payload))))
       .via(connectionFlow)
-      .mapAsync(1)(response ⇒ Unmarshal(response).to[Option[Avalara.Responses.SimpleErrorMessage]])
+      .mapAsync(1)(response ⇒ Unmarshal(response).to[Avalara.Responses.GetTaxes])
       .runWith(Sink.head)
 
     def failureHandler(failure: Throwable) = {
@@ -408,11 +407,11 @@ class Avalara(url: String, account: String, license: String, profile: String)(
     }
 
     result.flatMap {
-      case Some(res) ⇒ {
+      case res: GetTaxes ⇒ {
         println(s"Result: $res")
         Result.unit
       }
-      case None ⇒ {
+      case _ ⇒ {
         println("No result")
         Result.unit
       }
