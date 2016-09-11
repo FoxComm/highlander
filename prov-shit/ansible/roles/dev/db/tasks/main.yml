@@ -70,10 +70,6 @@
 - name: Create log directory
   file: path="{{phoenix_dir}}/log" state=directory owner="{{user}}"  mode="0777"
 
-- name: Copy Phoenix
-  copy: src="{{phoenix_jar_src}}" dest="{{phoenix_jar}}" owner="{{user}}"
-  sudo: true
-
 - name: Setup Update Materialzied Views Sql
   copy: src=update_materialized_views.sql dest={{update_materialized_views_sql}}
   sudo: true
@@ -86,49 +82,41 @@
   copy: src=materialized_views.service dest="{{dest_services}}/materialized_views.service"
   sudo: true
 
-- name: Setup cron files for refresh customers ranking view
-  template: src=refresh_customer_ranks.sh dest="{{usr_local}}/bin/refresh_customer_ranks.sh" mode="u+x,g+x,o+x"
-  sudo: true
-
-- name: Setup cron files for refresh products catalog view
-  template: src=refresh_products_catalog.sh dest="{{usr_local}}/bin/refresh_products_catalog.sh" mode="u+x,g+x,o+x"
-  sudo: true
-
 - name: Setup Flyway Config
   template: src=flyway.conf dest="{{phoenix_dir}}/sql/flyway.conf" mode="u+x,g+x,o+x"
   sudo: true
 
-- name: Clean phoenix DB
+- name: Clean Phoenix Database
   shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} clean
   args:
     chdir: "{{phoenix_dir}}"
 
-- name: Migrate phoenix DB
+- name: Migrate Phoenix Database
   shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
   args:
     chdir: "{{phoenix_dir}}"
 
-- name: Clean middlewarehouse DB
+- name: Clean Middlewarehouse Database
   shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} clean
   args:
     chdir: "{{middlewarehouse_dir}}"
 
-- name: Migrate middlewarehouse DB
+- name: Migrate Middlewarehouse Database
   shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
   args:
     chdir: "{{middlewarehouse_dir}}"
 
-- name: Seed DB
+- name: Seed Phoenix Database
   shell: java -cp {{phoenix_jar}} {{seeds_cmd}}
   sudo: true
   args:
     chdir: "{{phoenix_dir}}"
 
-- name: Setup cron for refresh customers ranking view
+- name: Setup Cron to Refresh Customers Ranking View
   cron: name="refresh customer ranking" minute="*/5" job="{{usr_local}}/bin/refresh_customer_ranks.sh > /dev/null"
   sudo: true
 
-- name: Setup cron for refresh products catalog view
+- name: Setup Cron to Refresh Products Catalog View
   cron: name="refresh customer ranking" minute="*" job="{{usr_local}}/bin/refresh_products_catalog.sh > /dev/null"
   sudo: true
 

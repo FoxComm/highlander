@@ -22,9 +22,6 @@ test:
 	go get github.com/stretchr/testify
 	$(GO) test -v ./inventory/
 
-bootstrap-test:
-	ansible-playbook -vvvv -i bin/envs/temp ansible/bootstrap_test.yml --extra-vars=packer/envs/staging_ansible.json --private-key=$(PRIVATE_KEY) 
-
 bootstrap-build-agents:
 	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_build_agents.yml
 
@@ -40,8 +37,17 @@ bootstrap-messaging-plugin:
 bootstrap-middlewarehouse:
 	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_middlewarehouse.yml --private-key=$(PRIVATE_KEY)
 
-bootstrap-tinystack:
-	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml --private-key=$(PRIVATE_KEY)
+bootstrap-staging:
+	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml
+
+bootstrap-staging-backend:
+	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml --tags=backend
+
+bootstrap-staging-frontend:
+	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml --tags=frontend
+
+bootstrap-zk:
+	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_zookeeper.yml
 
 bootstrap-vanilla:
 	ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_vanilla.yml

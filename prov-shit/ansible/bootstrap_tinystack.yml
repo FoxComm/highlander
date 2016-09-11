@@ -6,28 +6,22 @@
     - backend
   vars:
     user: '{{ansible_ssh_user}}'
-    seeds_cmd: utils.seeds.Seeds seed --seedDemo 1
+    seeds_cmd: utils.seeds.Seeds seed --seedAdmins --seedStage
     updating_mwh: true
   vars_prompt:
     - name: "hostname"
       prompt: "Enter a hostname with a backend to provision"
       default: "vanilla-backend"
       private: no
-    - name: "seed_predefined_admins"
-      prompt: "Seed predefined admins or create only one manually? P - predefined. M - manually"
-      default: "P"
-      private: no
 
   roles:
     - { role: dev/kafka }
     - { role: dev/elasticsearch }
-    - { role: dev/db }
     - { role: dev/phoenix }
+    - { role: dev/db }
     - { role: dev/isaac }
-    - { role: dev/seeder }
     - { role: dev/greenriver }
     - { role: dev/middlewarehouse }
-    - { role: prod/bootstrap_manual_or_predefined_admins }
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml
@@ -53,11 +47,11 @@
       private: no
     - name: "ashes_server_name"
       prompt: "Enter a Ashes server domain name"
-      default: "admin.vanilla.foxcommerce.com"
+      default: "admin.stage.foxcommerce.com"
       private: no
     - name: "storefront_server_name"
       prompt: "Enter a Firebrand server domain name"
-      default: "vanilla.foxcommerce.com"
+      default: "stage.foxcommerce.com"
       private: no
 
   roles:
