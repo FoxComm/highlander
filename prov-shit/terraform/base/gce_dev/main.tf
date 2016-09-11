@@ -101,6 +101,7 @@ module "staging" {
     consul_server_image = "${var.consul_server_image}"
 }
 
+/*
 ##############################################
 # Setup Highlander Gatling Machines
 ##############################################
@@ -148,7 +149,7 @@ resource "google_compute_instance" "highlander-gatling-gun" {
 ##############################################
 # Setup Highlander Staging
 ##############################################
-/*module "highlander-staging" {
+module "highlander-staging" {
     source = "../../modules/gce/tinystack"
     datacenter = "highlander-stage"
     backend_image = "${var.tiny_backend_image}"
@@ -157,4 +158,6 @@ resource "google_compute_instance" "highlander-gatling-gun" {
     ssh_private_key = "${var.ssh_private_key}"
     consul_leader = "${module.consul_cluster.leader}"
     consul_server_image = "${var.consul_server_image}"
-}*/
+}
+
+*/
