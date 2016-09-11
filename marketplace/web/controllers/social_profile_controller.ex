@@ -13,18 +13,16 @@ defmodule Marketplace.SocialProfileController do
         |> put_resp_header("location", merchant_application_social_profile_path(conn, :show, merchant_application_id, social_profile))
         |> render("social_profile.json", social_profile: social_profile)
       {:error, failed_operation, failed_value, changes_completed} -> 
-        IO.inspect(failed_operation)
-        IO.inspect(failed_value)
-        IO.inspect(changes_completed)
         conn
         |> put_status(:unprocessable_entity)
         |> render(Marketplace.ChangesetView, "errors.json", changeset: failed_value)
     end
   end
 
-  def show(conn, %{"id" => id}) do
-    social_profile = Repo.get!(SocialProfile, id)
-    render(conn, "show.json", social_profile: social_profile)
+  def show(conn, %{"merchant_application_id" => ma_id}) do
+    ma_sp = Repo.get_by!(MerchantApplicationSocialProfile, merchant_application_id: ma_id)
+    |> Repo.preload(:social_profile)
+    render(conn, "show.json", social_profile: ma_sp.social_profile)
   end
 
   def update(conn, %{"id" => id, "social_profile" => social_profile_params}) do 
