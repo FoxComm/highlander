@@ -5,35 +5,35 @@
   sudo: true
   when: updating_mwh
 
-- name: Copy stock-items-consumer Binary
+- name: Copy Stock Items Consumer Binary
   copy: src={{stock_items_consumer_bin_src}} dest={{stock_items_consumer_bin}} mode="u+x,g+x,o+x"
   sudo: true
   when: updating_mwh
 
-- name: Copy shipments-consumer Binary
+- name: Copy Shipments Consumer Binary
   copy: src={{shipments_consumer_bin_src}} dest={{shipments_consumer_bin}} mode="u+x,g+x,o+x"
   sudo: true
   when: updating_mwh
 
-- name: Synchronize middlewarehouse Sql
+- name: Synchronize Middlewarehouse SQL
   synchronize: src="{{middlewarehouse_src}}/sql" dest="{{middlewarehouse_dir}}" delete=yes recursive=yes
   sudo: true
   when: updating_mwh
 
-- name: Migrate middlewarehouse DB
+- name: Migrate Middlewarehouse Database
   shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
   args:
     chdir: "{{middlewarehouse_dir}}"
   when: updating_mwh
 
-- name: Restart middlewarehouse
+- name: Restart Middlewarehouse
   service: name=middlewarehouse state=restarted enabled=yes
   sudo: true
 
-- name: Restart stock-items-consumer
+- name: Restart Stock Items Consumer
   service: name=stock-items-consumer state=restarted enabled=yes
   sudo: true
 
-- name: Restart shipments-consumer
+- name: Restart Shipments Consumer
   service: name=shipments-consumer state=restarted enabled=yes
   sudo: true

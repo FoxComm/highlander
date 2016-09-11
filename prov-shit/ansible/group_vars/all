@@ -135,6 +135,9 @@ zipkin_collector: localhost
 # Are we running packer?
 packing: false
 
+# Should we upload Phoenix JAR?
+upload_phoenix_jar: true
+
 # Are we updating MWH manually?
 updating_mwh: false
 

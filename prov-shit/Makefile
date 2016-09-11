@@ -46,8 +46,14 @@ bootstrap-staging-backend:
 bootstrap-staging-frontend:
 	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml --tags=frontend
 
-bootstrap-zk:
-	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_zookeeper.yml
+bootstrap-target:
+	ansible-playbook -v -i bin/envs/target ansible/bootstrap_vanilla.yml
+
+bootstrap-target-openvpn-key:
+	ansible-playbook -v -i bin/envs/target ansible/bootstrap_openvpn_key.yml
+
+bootstrap-target-vpn:
+	ansible-playbook -v -i bin/envs/target_vpn ansible/bootstrap_vanilla_vpn.yml
 
 bootstrap-vanilla:
 	ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_vanilla.yml
@@ -61,14 +67,11 @@ bootstrap-vanilla-openvpn-key:
 bootstrap-vanilla-vpn:
 	ansible-playbook -v -i bin/envs/vanilla_vpn ansible/bootstrap_vanilla_vpn.yml
 
-bootstrap-target:
-	ansible-playbook -v -i bin/envs/target ansible/bootstrap_vanilla.yml
+bootstrap-db:
+	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_db.yml
 
-bootstrap-target-openvpn-key:
-	ansible-playbook -v -i bin/envs/target ansible/bootstrap_openvpn_key.yml
-
-bootstrap-target-vpn:
-	ansible-playbook -v -i bin/envs/target_vpn ansible/bootstrap_vanilla_vpn.yml
+bootstrap-zk:
+	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_zookeeper.yml
 
 deploy-stage:
 	ansible-playbook -v -i bin/envs/staging ansible/stage.yml
@@ -83,6 +86,9 @@ deploy-gatling-highlander:
 	ansible-playbook -v -i bin/envs/staging ansible/gatling_highlander.yml
 
 run-gatling: deploy-gatling
+	ansible-playbook -v -i bin/envs/staging ansible/run_gatling.yml
+
+run-gatling-highlander: deploy-gatling-highlander
 	ansible-playbook -v -i bin/envs/staging ansible/run_gatling.yml
 
 deploy-usertest1:
