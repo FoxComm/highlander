@@ -6,7 +6,7 @@
 set -ue
 
 # Sleep before Github API returns proper description
-sleep 5
+sleep 3
 
 DEFAULT="ashes firebrand fox-notifications green-river integration-tests isaac middlewarehouse phoenix-scala prov-shit"
 BASE_URL="https://api.github.com/repos/FoxComm/highlander"
