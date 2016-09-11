@@ -6,13 +6,17 @@
     - backend
   vars:
     user: '{{ansible_ssh_user}}'
-    seeds_cmd: utils.seeds.Seeds seed --seedAdmins --seedStage
+    seeds_cmd: utils.seeds.Seeds seed --seedDemo 1
     updating_mwh: true
-    middlewarehouse_src: "/Users/ejik/golang/src/github.com/FoxComm/highlander/middlewarehouse"
+    middlewarehouse_src: "{{gopath}}/src/github.com/FoxComm/highlander/middlewarehouse"
   vars_prompt:
     - name: "hostname"
       prompt: "Enter a hostname with a backend to provision"
       default: "vanilla-backend"
+      private: no
+    - name: "gopath"
+      prompt: "Enter your GOPATH value"
+      default: "/Users/ejik/golang"
       private: no
 
   roles:
@@ -48,11 +52,11 @@
       private: no
     - name: "ashes_server_name"
       prompt: "Enter a Ashes server domain name"
-      default: "admin.stage.foxcommerce.com"
+      default: "admin.vanilla.foxcommerce.com"
       private: no
     - name: "storefront_server_name"
       prompt: "Enter a Firebrand server domain name"
-      default: "stage.foxcommerce.com"
+      default: "vanilla.foxcommerce.com"
       private: no
 
   roles:
