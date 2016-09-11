@@ -5,7 +5,9 @@ import models.cord.Orders
 import models.customer.Customers
 import models.returns.Return.Canceled
 import models.returns._
-import models.{Reason, Reasons, StoreAdmin}
+import models.{Reason, Reasons}
+import models.account._
+
 import payloads.ReturnPayloads._
 import responses.ReturnResponse._
 import responses.{CustomerResponse, ReturnResponse, StoreAdminResponse}
@@ -51,7 +53,7 @@ object ReturnService {
     }
   }
 
-  def createByAdmin(admin: StoreAdmin, payload: ReturnCreatePayload)(implicit ec: EC,
+  def createByAdmin(admin: User, payload: ReturnCreatePayload)(implicit ec: EC,
                                                                      db: DB): DbResultT[Root] =
     for {
       order    ← * <~ Orders.mustFindByRefNum(payload.cordRefNum)

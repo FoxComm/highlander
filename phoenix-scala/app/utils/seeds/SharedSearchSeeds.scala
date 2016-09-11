@@ -2,7 +2,7 @@ package utils.seeds
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import models.StoreAdmins
+import models.account._
 import models.sharedsearch.{SharedSearch, SharedSearchAssociation, SharedSearchAssociations, SharedSearches}
 import org.json4s.jackson.JsonMethods._
 import utils.db._
@@ -15,16 +15,16 @@ trait SharedSearchSeeds {
       search        ← * <~ SharedSearches.create(sharedSearch(adminId))
       productSearch ← * <~ SharedSearches.create(archivedProductsSearch(adminId))
       skusSearch    ← * <~ SharedSearches.create(archivedSkusSearch(adminId))
-      storeAdmins   ← * <~ StoreAdmins.sortBy(_.id).result
+      storeAdmins   ← * <~ StoreAdminUsers.sortBy(_.accountId).result
       _ ← * <~ storeAdmins.map { admin ⇒
            SharedSearchAssociations.create(
                new SharedSearchAssociation(sharedSearchId = productSearch.id,
-                                           storeAdminId = admin.id))
+                                           storeAdminId = admin.accountId))
          }
       _ ← * <~ storeAdmins.map { admin ⇒
            SharedSearchAssociations.create(
                new SharedSearchAssociation(sharedSearchId = skusSearch.id,
-                                           storeAdminId = admin.id))
+                                           storeAdminId = admin.accountId))
          }
     } yield search
 

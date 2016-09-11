@@ -3,7 +3,7 @@ package payloads
 import cats.data._
 import cats.implicits._
 import failures.Failure
-import models.StoreAdmin.State
+import models.admin.StoreAdminUser.State
 import utils.Validation
 import utils.Validation._
 

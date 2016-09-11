@@ -6,7 +6,7 @@ import models.account.{User, Users}
 import models.payment.storecredit.StoreCredit.Canceled
 import models.payment.storecredit.StoreCreditSubtypes.scope._
 import models.payment.storecredit._
-import models.{Reason, Reasons, StoreAdmin}
+import models.{Reason, Reasons}
 import payloads.PaymentPayloads._
 import payloads.StoreCreditPayloads._
 import responses.StoreCreditBulkResponse._
@@ -59,7 +59,7 @@ object StoreCreditService {
       })
   }
 
-  def createManual(admin: StoreAdmin, accountId: Int, payload: CreateManualStoreCredit)(
+  def createManual(admin: User, accountId: Int, payload: CreateManualStoreCredit)(
       implicit ec: EC,
       db: DB,
       ac: AC): DbResultT[Root] = {
@@ -68,7 +68,7 @@ object StoreCreditService {
       customer ← * <~ Users.mustFindByAccountId(accountId)
       _        ← * <~ Reasons.findById(payload.reasonId).extract.mustFindOneOr(reason400)
       _        ← * <~ checkSubTypeExists(payload.subTypeId, StoreCredit.CsrAppeasement)
-      manual = StoreCreditManual(adminId = admin.id,
+      manual = StoreCreditManual(adminId = admin.accountId,
                                  reasonId = payload.reasonId,
                                  subReasonId = payload.subReasonId)
       origin ← * <~ StoreCreditManuals.create(manual)
@@ -81,14 +81,14 @@ object StoreCreditService {
 
   // API routes
 
-  def createFromExtension(admin: StoreAdmin, accountId: Int, payload: CreateExtensionStoreCredit)(
+  def createFromExtension(admin: User, accountId: Int, payload: CreateExtensionStoreCredit)(
       implicit ec: EC,
       db: DB,
       ac: AC): DbResultT[Root] =
     for {
       customer ← * <~ Users.mustFindByAccountId(accountId)
       _        ← * <~ checkSubTypeExists(payload.subTypeId, StoreCredit.Custom)
-      custom = StoreCreditCustom(adminId = admin.id, metadata = payload.metadata)
+      custom = StoreCreditCustom(adminId = admin.accountId, metadata = payload.metadata)
       origin ← * <~ StoreCreditCustoms.create(custom)
       customSC = StoreCredit.buildFromExtension(accountId = customer.accountId,
                                                 payload = payload,
@@ -111,7 +111,7 @@ object StoreCreditService {
                      .mustFindOr(NotFoundFailure404(StoreCredit, storeCreditId))
     } yield StoreCreditResponse.build(storeCredit)
 
-  def bulkUpdateStateByCsr(payload: StoreCreditBulkUpdateStateByCsr, admin: StoreAdmin)(
+  def bulkUpdateStateByCsr(payload: StoreCreditBulkUpdateStateByCsr, admin: User)(
       implicit ec: EC,
       db: DB,
       ac: AC): DbResultT[Seq[ItemResult]] =
@@ -123,7 +123,7 @@ object StoreCreditService {
                 }
     } yield response
 
-  def updateStateByCsr(id: Int, payload: StoreCreditUpdateStateByCsr, admin: StoreAdmin)(
+  def updateStateByCsr(id: Int, payload: StoreCreditUpdateStateByCsr, admin: User)(
       implicit ec: EC,
       db: DB,
       ac: AC): DbResultT[Root] =
@@ -137,7 +137,7 @@ object StoreCreditService {
   private def cancelOrUpdate(storeCredit: StoreCredit,
                              newState: StoreCredit.State,
                              reasonId: Option[Int],
-                             admin: StoreAdmin)(implicit ec: EC, db: DB) = newState match {
+                             admin: User)(implicit ec: EC, db: DB) = newState match {
     case Canceled ⇒
       for {
         _ ← * <~ StoreCreditAdjustments

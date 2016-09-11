@@ -3,8 +3,7 @@ package services
 import failures.GiftCardFailures.GiftCardConvertFailure
 import failures.OpenTransactionsFailure
 import failures.StoreCreditFailures.StoreCreditConvertFailure
-import models.StoreAdmin
-import models.account.Users
+import models.account._
 import models.payment.giftcard._
 import models.payment.storecredit._
 import responses.{GiftCardResponse, StoreAdminResponse, StoreCreditResponse}
@@ -14,7 +13,7 @@ import utils.db._
 
 object CustomerCreditConverter {
 
-  def toStoreCredit(giftCardCode: String, accountId: Int, admin: StoreAdmin)(
+  def toStoreCredit(giftCardCode: String, accountId: Int, admin: User)(
       implicit ec: EC,
       db: DB,
       ac: AC): DbResultT[StoreCreditResponse.Root] =
@@ -45,7 +44,7 @@ object CustomerCreditConverter {
       _ ← * <~ LogActivity.gcConvertedToSc(admin, giftCard, storeCredit)
     } yield StoreCreditResponse.build(storeCredit)
 
-  def toGiftCard(storeCreditId: Int, accountId: Int, admin: StoreAdmin)(
+  def toGiftCard(storeCreditId: Int, accountId: Int, admin: User)(
       implicit ec: EC,
       db: DB,
       ac: AC): DbResultT[GiftCardResponse.Root] =

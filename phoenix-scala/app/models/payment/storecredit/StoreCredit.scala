@@ -7,7 +7,7 @@ import cats.data.{ValidatedNel, Xor}
 import cats.implicits._
 import com.pellucid.sealerate
 import failures.{Failure, Failures, GeneralFailure}
-import models.StoreAdmin
+import models.account._
 import models.cord.OrderPayment
 import models.payment.PaymentMethod
 import models.payment.giftcard.GiftCard
@@ -232,22 +232,22 @@ object StoreCredits extends FoxTableQuery[StoreCredit, StoreCredits](new StoreCr
           amount = amount,
           state = Adj.Capture)
 
-  def cancelByCsr(storeCredit: StoreCredit, storeAdmin: StoreAdmin)(
+  def cancelByCsr(storeCredit: StoreCredit, storeAdmin: User)(
       implicit ec: EC): DbResultT[StoreCreditAdjustment] = {
     val adjustment = Adj(storeCreditId = storeCredit.id,
                          orderPaymentId = None,
-                         storeAdminId = storeAdmin.id.some,
+                         storeAdminId = storeAdmin.accountId.some,
                          debit = storeCredit.availableBalance,
                          availableBalance = 0,
                          state = Adj.CancellationCapture)
     Adjs.create(adjustment)
   }
 
-  def redeemToGiftCard(storeCredit: StoreCredit, storeAdmin: StoreAdmin)(
+  def redeemToGiftCard(storeCredit: StoreCredit, storeAdmin: User)(
       implicit ec: EC): DbResultT[StoreCreditAdjustment] = {
     val adjustment = Adj(storeCreditId = storeCredit.id,
                          orderPaymentId = None,
-                         storeAdminId = storeAdmin.id.some,
+                         storeAdminId = storeAdmin.accountId.some,
                          debit = storeCredit.availableBalance,
                          availableBalance = 0,
                          state = Adj.Capture)

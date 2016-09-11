@@ -1,21 +1,22 @@
 package services.activity
 
-import models.StoreAdmin
+import models.account.User
+import models.admin.StoreAdminUser
 
 object StoreAdminsTailored {
 
-  case class StoreAdminCreated(storeAdmin: StoreAdmin, admin: User)
+  case class StoreAdminCreated(storeAdmin: User, admin: User)
       extends ActivityBase[StoreAdminCreated]
 
-  case class StoreAdminUpdated(storeAdmin: StoreAdmin, admin: User)
+  case class StoreAdminUpdated(storeAdmin: User, admin: User)
       extends ActivityBase[StoreAdminUpdated]
 
-  case class StoreAdminDeleted(storeAdmin: StoreAdmin, admin: User)
+  case class StoreAdminDeleted(storeAdmin: User, admin: User)
       extends ActivityBase[StoreAdminDeleted]
 
-  case class StoreAdminStateChanged(storeAdmin: StoreAdmin,
-                                    oldState: StoreAdmin.State,
-                                    newState: StoreAdmin.State,
+  case class StoreAdminStateChanged(storeAdmin: User,
+                                    oldState: StoreAdminUser.State,
+                                    newState: StoreAdminUser.State,
                                     admin: User)
       extends ActivityBase[StoreAdminStateChanged]
 }

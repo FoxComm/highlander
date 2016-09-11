@@ -1,7 +1,8 @@
 package responses
 
 import java.time.Instant
-import models.{Assignment, StoreAdmin}
+import models.Assignment
+import models.account.User
 import responses.StoreAdminResponse.{build ⇒ buildAdmin}
 
 object AssignmentResponse {
@@ -11,7 +12,7 @@ object AssignmentResponse {
                   createdAt: Instant)
       extends ResponseItem
 
-  def build(assignment: Assignment, admin: StoreAdmin): Root =
+  def build(assignment: Assignment, admin: User): Root =
     Root(assignee = buildAdmin(admin),
          assignmentType = assignment.assignmentType,
          createdAt = assignment.createdAt)

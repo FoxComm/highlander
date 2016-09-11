@@ -60,6 +60,6 @@ trait CreditCardGenerator extends AddressGenerator {
                brand = "Visa")
   }
 
-  def generateCreditCards(customers: Seq[Customer]): Seq[CreditCard] =
+  def generateCreditCards(customers: Seq[User]): Seq[CreditCard] =
     customers map generateCreditCard
 }

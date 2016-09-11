@@ -26,7 +26,7 @@ object Customer {
   def routes(implicit ec: EC,
              es: ES,
              db: DB,
-             customerAuth: AsyncAuthenticator[models.customer.Customer],
+             customerAuth: AsyncAuthenticator[User],
              apis: Apis) = {
 
     pathPrefix("my") {
@@ -159,12 +159,12 @@ object Customer {
             pathPrefix("account") {
               (get & pathEnd) {
                 getOrFailures {
-                  CustomerManager.getById(customer.id)
+                  CustomerManager.getById(customer.accountId)
                 }
               } ~
               (patch & pathEnd & entity(as[UpdateCustomerPayload])) { payload ⇒
                 mutateOrFailures {
-                  CustomerManager.update(customer.id, payload)
+                  CustomerManager.update(customer.accountId, payload)
                 }
               }
             } ~
@@ -178,41 +178,41 @@ object Customer {
             pathPrefix("addresses") {
               (post & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
                 mutateOrFailures {
-                  AddressManager.create(customer, payload, customer.id)
+                  AddressManager.create(customer, payload, customer.accountId)
                 }
               } ~
               (delete & path("default") & pathEnd) {
                 deleteOrFailures {
-                  AddressManager.removeDefaultShippingAddress(customer.id)
+                  AddressManager.removeDefaultShippingAddress(customer.accountId)
                 }
               }
             } ~
             pathPrefix("addresses" / IntNumber) { addressId ⇒
               (get & pathEnd) {
                 getOrFailures {
-                  AddressManager.get(customer, addressId, customer.id)
+                  AddressManager.get(customer, addressId, customer.accountId)
                 }
               } ~
               (post & path("default") & pathEnd) {
                 mutateOrFailures {
-                  AddressManager.setDefaultShippingAddress(addressId, customer.id)
+                  AddressManager.setDefaultShippingAddress(addressId, customer.accountId)
                 }
               } ~
               (patch & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
                 mutateOrFailures {
-                  AddressManager.edit(customer, addressId, customer.id, payload)
+                  AddressManager.edit(customer, addressId, customer.accountId, payload)
                 }
               } ~
               (delete & pathEnd) {
                 deleteOrFailures {
-                  AddressManager.remove(customer, addressId, customer.id)
+                  AddressManager.remove(customer, addressId, customer.accountId)
                 }
               }
             } ~
             pathPrefix("payment-methods" / "credit-cards") {
               (get & pathEnd) {
                 complete {
-                  CreditCardManager.creditCardsInWalletFor(customer.id)
+                  CreditCardManager.creditCardsInWalletFor(customer.accountId)
                 }
               } ~
               (get & path(IntNumber) & pathEnd) { creditCardId ⇒
@@ -223,25 +223,25 @@ object Customer {
               (post & path(IntNumber / "default") & pathEnd & entity(as[ToggleDefaultCreditCard])) {
                 (cardId, payload) ⇒
                   mutateOrFailures {
-                    CreditCardManager.toggleCreditCardDefault(customer.id,
+                    CreditCardManager.toggleCreditCardDefault(customer.accountId,
                                                               cardId,
                                                               payload.isDefault)
                   }
               } ~
               (post & pathEnd & entity(as[CreateCreditCard])) { payload ⇒
                 mutateOrFailures {
-                  CreditCardManager.createCardThroughGateway(customer.id, payload)
+                  CreditCardManager.createCardThroughGateway(customer.accountId, payload)
                 }
               } ~
               (patch & path(IntNumber) & pathEnd & entity(as[EditCreditCard])) {
                 (cardId, payload) ⇒
                   mutateOrFailures {
-                    CreditCardManager.editCreditCard(customer.id, cardId, payload)
+                    CreditCardManager.editCreditCard(customer.accountId, cardId, payload)
                   }
               } ~
               (delete & path(IntNumber) & pathEnd) { cardId ⇒
                 deleteOrFailures {
-                  CreditCardManager.deleteCreditCard(customer.id, cardId)
+                  CreditCardManager.deleteCreditCard(customer.accountId, cardId)
                 }
               }
             } ~
@@ -253,7 +253,7 @@ object Customer {
               } ~
               (get & path("totals") & pathEnd) {
                 getOrFailures {
-                  StoreCreditService.totalsForCustomer(customer.id)
+                  StoreCreditService.totalsForCustomer(customer.accountId)
                 }
               }
             } ~
@@ -261,12 +261,12 @@ object Customer {
               determineObjectContext(db, ec) { context ⇒
                 (get & pathEnd) {
                   getOrFailures {
-                    SaveForLaterManager.findAll(customer.id, context.id)
+                    SaveForLaterManager.findAll(customer.accountId, context.id)
                   }
                 } ~
                 (post & path(skuCodeRegex) & pathEnd) { code ⇒
                   mutateOrFailures {
-                    SaveForLaterManager.saveForLater(customer.id, code, context)
+                    SaveForLaterManager.saveForLater(customer.accountId, code, context)
                   }
                 } ~
                 (delete & path(IntNumber) & pathEnd) { id ⇒

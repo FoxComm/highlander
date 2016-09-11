@@ -2,8 +2,7 @@ package utils.seeds
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import models.StoreAdmin
-import models.customer.Customer
+import models.account.User
 import models.payment.storecredit._
 import utils.Money.Currency
 import utils.db._

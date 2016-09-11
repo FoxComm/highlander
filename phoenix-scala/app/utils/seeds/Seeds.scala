@@ -16,7 +16,8 @@ import models.cord.{OrderPayment, OrderShippingAddress}
 import models.objects.ObjectContexts
 import models.payment.creditcard.CreditCardCharge
 import models.product.SimpleContext
-import models.{Reason, Reasons, StoreAdmin, StoreAdmins}
+import models.{Reason, Reasons}
+import models.account._
 import org.postgresql.ds.PGSimpleDataSource
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.DatabaseDef
@@ -144,10 +145,10 @@ object Seeds {
     validateResults("base", result)
   }
 
-  def getFirstAdmin()(implicit db: DB): DbResultT[StoreAdmin] =
-    StoreAdmins.take(1).mustFindOneOr(NotFoundFailure404(StoreAdmin, "first"))
+  def getFirstAdmin()(implicit db: DB): DbResultT[User] =
+    Users.take(1).mustFindOneOr(NotFoundFailure404(User, "first"))
 
-  def mustGetFirstAdmin()(implicit db: DB): StoreAdmin = {
+  def mustGetFirstAdmin()(implicit db: DB): User = {
     val result = Await.result(getFirstAdmin().run(), 1.minute)
     validateResults("get first admin", result)
   }
@@ -157,9 +158,9 @@ object Seeds {
     validateResults("admins", result)
   }
 
-  def createAdminManually(name: String, email: String)(implicit db: DB): StoreAdmin = {
+  def createAdminManually(name: String, email: String)(implicit db: DB): User = {
     Console.err.println("Create Store Admin seeds")
-    val result: Failures Xor StoreAdmin =
+    val result: Failures Xor User =
       Await.result(Factories.createStoreAdminManual(name, email).runTxn(), 1.minute)
     validateResults("admin", result)
   }

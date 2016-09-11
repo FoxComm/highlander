@@ -7,7 +7,8 @@ import akka.stream.scaladsl.{Keep, Sink, Source}
 
 import de.heikoseeberger.akkasse.{EventStreamElement, ServerSentEvent ⇒ SSE}
 import models.activity.{Activities, Activity, Connections, Trail, Trails}
-import models.{NotificationTrailMetadata, StoreAdmin, StoreAdmins}
+import models.{NotificationTrailMetadata}
+import models.account.Users
 import org.json4s.jackson.Serialization.write
 import responses.ActivityResponse
 import slick.driver.PostgresDriver.api._
@@ -18,17 +19,17 @@ import utils.{JsonFormatters, NotificationListener}
 object NotificationFacade {
   implicit val formats = JsonFormatters.phoenixFormats
 
-  def streamByAdminId(adminId: StoreAdmin#Id)(
+  def streamByAdminId(adminId: Int)(
       implicit ec: EC,
       db: DB,
       mat: Mat): Future[Source[EventStreamElement, Any]] = {
-    StoreAdmins.findOneById(adminId).run().map {
+    Users.findOneByAccountId(adminId).run().map {
       case Some(admin) ⇒
         oldNotifications(adminId)
           .merge(newNotifications(adminId))
           .keepAlive(30.seconds, () ⇒ SSE.Heartbeat)
       case None ⇒
-        Source.single(SSE(s"Error! Store admin with id=$adminId not found"))
+        Source.single(SSE(s"Error! User with account id=$adminId not found"))
     }
   }
 

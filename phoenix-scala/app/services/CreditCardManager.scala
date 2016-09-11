@@ -9,7 +9,7 @@ import cats.implicits._
 import failures.CreditCardFailures.CannotUseInactiveCreditCard
 import failures.GiftCardFailures.CreditCardMustHaveAddress
 import failures.{Failures, NotFoundFailure404}
-import models.StoreAdmin
+import models.account.User
 import models.cord.OrderPayments.scope._
 import models.cord._
 import models.customer._
@@ -36,7 +36,7 @@ object CreditCardManager {
 
   def createCardThroughGateway(accountId: Int,
                                payload: CreateCreditCard,
-                               admin: Option[StoreAdmin] = None)(implicit ec: EC,
+                               admin: Option[User] = None)(implicit ec: EC,
                                                                  db: DB,
                                                                  apis: Apis,
                                                                  ac: AC): DbResultT[Root] = {
@@ -88,7 +88,7 @@ object CreditCardManager {
       region ← * <~ Regions.findOneById(cc.regionId).safeGet
     } yield buildResponse(default, region)
 
-  def deleteCreditCard(accountId: Int, id: Int, admin: Option[StoreAdmin] = None)(
+  def deleteCreditCard(accountId: Int, id: Int, admin: Option[User] = None)(
       implicit ec: EC,
       db: DB,
       apis: Apis,
@@ -106,7 +106,7 @@ object CreditCardManager {
   def editCreditCard(accountId: Int,
                      id: Int,
                      payload: EditCreditCard,
-                     admin: Option[StoreAdmin] = None)(implicit ec: EC,
+                     admin: Option[User] = None)(implicit ec: EC,
                                                        db: DB,
                                                        apis: Apis,
                                                        ac: AC): DbResultT[Root] = {

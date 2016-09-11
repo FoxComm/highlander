@@ -4,7 +4,6 @@ import failures.NotFoundFailure404
 import failures.ShippingMethodFailures.ShippingMethodNotApplicableToCart
 import models.cord._
 import models.cord.lineitems.CartLineItems
-import models.customer.Customer
 import models.inventory.Sku
 import models.location.Region
 import models.rules.{Condition, QueryStatement}
@@ -39,7 +38,7 @@ object ShippingManager {
       }
     } yield response
 
-  def getShippingMethodsForCart(refNum: String, customer: Option[Customer] = None)(
+  def getShippingMethodsForCart(refNum: String, customer: Option[User] = None)(
       implicit ec: EC,
       db: DB): DbResultT[Seq[responses.ShippingMethodsResponse.Root]] =
     for {
@@ -53,7 +52,7 @@ object ShippingManager {
       }
     } yield response
 
-  private def findByRefNumAndOptionalCustomer(refNum: String, customer: Option[Customer] = None)(
+  private def findByRefNumAndOptionalCustomer(refNum: String, customer: Option[User] = None)(
       implicit ec: EC,
       db: DB): DbResultT[Cart] = customer match {
     case Some(c) ⇒

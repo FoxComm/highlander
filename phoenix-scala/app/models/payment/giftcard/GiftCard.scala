@@ -8,7 +8,7 @@ import cats.implicits._
 import com.pellucid.sealerate
 import failures.GiftCardFailures._
 import failures.{EmptyCancellationReasonFailure, Failure, Failures, GeneralFailure}
-import models.StoreAdmin
+import models.account._
 import models.cord.OrderPayment
 import models.payment.PaymentMethod
 import models.payment.giftcard.GiftCard._
@@ -256,11 +256,11 @@ object GiftCards
       implicit ec: EC): DbResultT[GiftCardAdjustment] =
     adjust(giftCard, orderPaymentId, debit = debit, credit = credit, state = Adj.Capture)
 
-  def cancelByCsr(giftCard: GiftCard, storeAdmin: StoreAdmin)(
+  def cancelByCsr(giftCard: GiftCard, storeAdmin: User)(
       implicit ec: EC): DbResultT[GiftCardAdjustment] = {
     val adjustment = Adj(giftCardId = giftCard.id,
                          orderPaymentId = None,
-                         storeAdminId = storeAdmin.id.some,
+                         storeAdminId = storeAdmin.accountId.some,
                          debit = giftCard.availableBalance,
                          credit = 0,
                          availableBalance = 0,
@@ -268,11 +268,11 @@ object GiftCards
     Adjs.create(adjustment)
   }
 
-  def redeemToStoreCredit(giftCard: GiftCard, storeAdmin: StoreAdmin)(
+  def redeemToStoreCredit(giftCard: GiftCard, storeAdmin: User)(
       implicit ec: EC): DbResultT[GiftCardAdjustment] = {
     val adjustment = Adj(giftCardId = giftCard.id,
                          orderPaymentId = None,
-                         storeAdminId = storeAdmin.id.some,
+                         storeAdminId = storeAdmin.accountId.some,
                          debit = giftCard.availableBalance,
                          credit = 0,
                          availableBalance = 0,

@@ -265,7 +265,15 @@ begin
         values( user_id, account_id, s.state, s.created_at, s.updated_at, s.deleted_at);
 
     perform assign_org(account_id, 'merchant');
-    perform assign_role(account_id, 'merchant admin');
+    perform assign_role(account_id, 'merchant_admin');
+
+    update assignments set store_admin_id = account_id where store_admin_id = s.id;
+    update notes set store_admin_id = account_id where store_admin_id = s.id;
+    update reasons set store_admin_id = account_id where store_admin_id = s.id;
+    update notification_subscriptions set admin_id = account_id where admin_id = s.id;
+    update returns set store_admin_id = account_id where store_admin_id = s.id;
+    update shared_searches set store_admin_id = account_id where store_admin_id = s.id;
+    update shared_search_associations set store_admin_id = account_id where store_admin_id = s.id;
 
     return account_id;
 end;

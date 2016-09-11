@@ -1,9 +1,8 @@
 package services.carts
 
 import cats.implicits._
-import models.StoreAdmin
+import models.account._
 import models.cord.{Cart, Carts}
-import models.customer.{Customer, Customers}
 import payloads.OrderPayloads.CreateCart
 import responses.cord.CartResponse
 import services._
@@ -13,7 +12,7 @@ import utils.db._
 object CartCreator {
 
   def createCart(
-      admin: StoreAdmin,
+      admin: User,
       payload: CreateCart)(implicit db: DB, ec: EC, ac: AC, ctx: OC): DbResultT[CartResponse] = {
 
     def existingCustomerOrNewGuest: DbResultT[CartResponse] =
@@ -31,9 +30,10 @@ object CartCreator {
 
     def createCartAndGuest(email: String): DbResultT[CartResponse] =
       for {
-        guest ← * <~ Customers.create(Customer.buildGuest(email = email.some))
-        cart  ← * <~ Carts.create(Cart(customerId = guest.id))
-        _     ← * <~ LogActivity.cartCreated(Some(admin), root(cart, guest))
+        account ← * <~ Accounts.create(Account())
+        guest   ← * <~ Users.create(Users(accountId = account.id, email = email.some))
+        cart    ← * <~ Carts.create(Cart(customerId = account.id))
+        _       ← * <~ LogActivity.cartCreated(Some(admin), root(cart, guest))
       } yield root(cart, guest)
 
     for {

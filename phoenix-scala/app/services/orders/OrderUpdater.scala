@@ -1,6 +1,6 @@
 package services.orders
 
-import models.StoreAdmin
+import models.account._
 import models.cord.Orders
 import responses.cord.OrderResponse
 import services.LogActivity
@@ -10,7 +10,7 @@ import utils.time._
 
 object OrderUpdater {
 
-  def increaseRemorsePeriod(refNum: String, admin: StoreAdmin)(implicit ec: EC,
+  def increaseRemorsePeriod(refNum: String, admin: User)(implicit ec: EC,
                                                                db: DB,
                                                                ac: AC): DbResultT[OrderResponse] =
     for {

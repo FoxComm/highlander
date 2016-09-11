@@ -4,7 +4,7 @@ import java.time.Instant
 
 import failures.ImageFailures._
 import failures.{NotFoundFailure400, NotFoundFailure404}
-import models.StoreAdmin
+import models.account._
 import models.image._
 import models.inventory.Sku
 import models.objects.ObjectUtils.InsertResult
@@ -176,7 +176,7 @@ object ImageManager {
     } yield images
 
   def createAlbumForProduct(
-      admin: StoreAdmin,
+      admin: User,
       productId: Int,
       payload: CreateAlbumPayload,
       contextName: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[AlbumRoot] =
@@ -189,7 +189,7 @@ object ImageManager {
     } yield AlbumResponse.build(fullAlbum, images)
 
   def createAlbumForSku(
-      admin: StoreAdmin,
+      admin: User,
       code: String,
       payload: CreateAlbumPayload,
       contextName: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[AlbumRoot] =

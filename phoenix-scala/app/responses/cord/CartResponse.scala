@@ -1,7 +1,7 @@
 package responses.cord
 
 import cats.implicits._
-import models.StoreAdmin
+import models.account.User
 import models.cord._
 import models.cord.lineitems.CartLineItems
 import models.account._
@@ -26,7 +26,7 @@ case class CartResponse(referenceNumber: String,
                         shippingAddress: Option[AddressResponse] = None,
                         paymentMethods: Seq[CordResponsePayments] = Seq.empty,
                         // Cart-specific
-                        lockedBy: Option[StoreAdmin] = None)
+                        lockedBy: Option[User] = None)
     extends ResponseItem
 
 object CartResponse {
@@ -64,7 +64,7 @@ object CartResponse {
           lockedBy = lockedBy
       )
 
-  def buildEmpty(cart: Cart, customer: Option[Customer]): CartResponse =
+  def buildEmpty(cart: Cart, customer: Option[User]): CartResponse =
     CartResponse(
         referenceNumber = cart.refNum,
         lineItems = CordResponseLineItems(),
@@ -73,7 +73,7 @@ object CartResponse {
         paymentState = CreditCardCharge.Cart
     )
 
-  private def currentLock(cart: Cart): DBIO[Option[StoreAdmin]] =
+  private def currentLock(cart: Cart): DBIO[Option[User]] =
     if (cart.isLocked) (for {
       lock  ← CartLockEvents.latestLockByCartRef(cart.refNum)
       admin ← lock.storeAdmin

@@ -8,7 +8,6 @@ import cats.data.ValidatedNel
 import failures._
 import failures.ArchiveFailures._
 import failures.ProductFailures._
-import models.StoreAdmin
 import models.image.{AlbumImageLinks, Albums}
 import models.inventory._
 import models.objects._

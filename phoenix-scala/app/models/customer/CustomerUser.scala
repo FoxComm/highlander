@@ -37,6 +37,7 @@ class CustomerUsers(tag: Tag) extends FoxTable[CustomerUser](tag, "customer_user
   def id        = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def userId    = column[Int]("user_id")
   def accountId = column[Int]("account_id")
+  def isGuest   = column[Boolean]("is_guest")
   def createdAt = column[Instant]("created_at")
   def updatedAt = column[Instant]("updated_at")
   def deletedAt = column[Option[Instant]]("deleted_at")

@@ -12,7 +12,6 @@ import utils.aliases._
 import utils.db._
 
 case class Account(id: Int = 0,
-                   name: Option[String] = None,
                    ratchet: Int = 0,
                    createdAt: Instant = Instant.now,
                    updatedAt: Instant = Instant.now,
@@ -21,14 +20,13 @@ case class Account(id: Int = 0,
 
 class Accounts(tag: Tag) extends FoxTable[Account](tag, "accounts") {
   def id        = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def name      = column[Option[String]]("name")
   def ratchet   = column[Int]("ratchet")
   def createdAt = column[Instant]("created_at")
   def updatedAt = column[Instant]("updated_at")
   def deletedAt = column[Option[Instant]]("deleted_at")
 
   def * =
-    (id, name, ratchet, createdAt, updatedAt, deletedAt) <> ((Account.apply _).tupled, Account.unapply)
+    (id, ratchet, createdAt, updatedAt, deletedAt) <> ((Account.apply _).tupled, Account.unapply)
 }
 
 object Accounts
@@ -38,10 +36,6 @@ object Accounts
   type Claims = Map[String, List[String]]
 
   val returningLens: Lens[Account, Int] = lens[Account].id
-
-  def findByName(name: String): DBIO[Option[Account]] = {
-    filter(_.name === name).one
-  }
 
   def findByIdAndRatchet(id: Int, ratchet: Int): DBIO[Option[Account]] = {
     filter(_.id === id).filter(_.ratchet === ratchet).one

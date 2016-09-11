@@ -15,8 +15,7 @@ import cats.data.Xor
 import failures.AuthFailures._
 import failures.Failures
 import models.auth.{Identity, _}
-import models.customer.{Customer, Customers}
-import models.{StoreAdmin, StoreAdmins}
+import models.account._
 import org.jose4j.jwt.JwtClaims
 import payloads.LoginPayload
 import slick.driver.PostgresDriver.api._
@@ -110,17 +109,17 @@ object Authenticator {
     }
   }
 
-  case class BasicCustomer(implicit ec: EC, db: DB) extends BasicAuth[Customer] {
-    def checkAuth(credentials: Option[HttpCredentials]): Future[AuthenticationResult[Customer]] = {
-      basicAuth[EmailFinder[Customer]]("private customer routes")(credentials,
-                                                                  Customers.findByEmail,
+  case class BasicCustomer(implicit ec: EC, db: DB) extends BasicAuth[User] {
+    def checkAuth(credentials: Option[HttpCredentials]): Future[AuthenticationResult[User]] = {
+      basicAuth[EmailFinder[User]]("private customer routes")(credentials,
+                                                                  Users.findByEmail,
                                                                   _.hashedPassword)
     }
   }
 
-  case class BasicStoreAdmin(implicit ec: EC, db: DB) extends BasicAuth[StoreAdmin] {
-    def checkAuth(credentials: Option[HttpCredentials]): Future[AuthenticationResult[StoreAdmin]] = {
-      basicAuth[EmailFinder[StoreAdmin]]("admin")(credentials,
+  case class BasicStoreAdmin(implicit ec: EC, db: DB) extends BasicAuth[User] {
+    def checkAuth(credentials: Option[HttpCredentials]): Future[AuthenticationResult[User]] = {
+      basicAuth[EmailFinder[User]]("admin")(credentials,
                                                   StoreAdmins.findByEmail,
                                                   _.hashedPassword)
     }
@@ -148,23 +147,28 @@ object Authenticator {
         case Xor.Left(f)       ⇒ AuthenticationResult.failWithChallenge(FailureChallenge(realm, f))
       }
 
-    protected def jwtAuthGuest[F <: TokenToModel[Customer]](
-        realm: String)(implicit ec: EC, db: DB): Future[AuthenticationResult[Customer]] =
-      Customers
-        .create(Customer.buildGuest())
-        .fold(f ⇒ AuthenticationResult.failWithChallenge(FailureChallenge(realm, f)),
-              entity ⇒ AuthenticationResult.success(entity))
-        .run()
+    protected def jwtAuthGuest[F <: TokenToModel[User]](
+        realm: String)(implicit ec: EC, db: DB): Future[AuthenticationResult[User]] =
+      (for {
+        account ← * <~ Account.create(Account())
+        newUser ← * <~ Users.create(CustomerUser.buildGuest())
+        newCustomer ← * <~ CustomerUsers.create(
+          CustomerUser(accountId = account.id, userId = newUser.id, isGuest = true))
+      }
+      .run()).run().map { 
+        case Xor.Right(entity) ⇒ AuthenticationResult.success(entity)
+        case Xor.Left(f)       ⇒ AuthenticationResult.failWithChallenge(FailureChallenge(realm, f))
+      }
   }
 
-  case class JwtCustomer(implicit ec: EC, db: DB) extends JwtAuth[Customer] {
+  case class JwtCustomer(implicit ec: EC, db: DB) extends JwtAuth[User] {
 
     import JwtCustomer._
 
-    def checkAuth(credentials: Option[String]): Future[AuthenticationResult[Customer]] =
+    def checkAuth(credentials: Option[String]): Future[AuthenticationResult[User]] =
       credentials match {
-        case None ⇒ jwtAuthGuest[TokenToModel[Customer]](realmName)
-        case _    ⇒ jwtAuth[TokenToModel[Customer]](realmName)(credentials, customerFromToken)
+        case None ⇒ jwtAuthGuest[TokenToModel[User]](realmName)
+        case _    ⇒ jwtAuth[TokenToModel[User]](realmName)(credentials, customerFromToken)
       }
 
     def validateToken(token: String) = Token.fromString(token, Identity.Customer)
@@ -174,15 +178,15 @@ object Authenticator {
     val realmName = "private customer routes"
   }
 
-  case class JwtStoreAdmin(implicit ec: EC, db: DB) extends JwtAuth[StoreAdmin] {
-    def checkAuth(credentials: Option[String]): Future[AuthenticationResult[StoreAdmin]] = {
-      jwtAuth[TokenToModel[StoreAdmin]]("admin")(credentials, adminFromToken)
+  case class JwtStoreAdmin(implicit ec: EC, db: DB) extends JwtAuth[User] {
+    def checkAuth(credentials: Option[String]): Future[AuthenticationResult[User]] = {
+      jwtAuth[TokenToModel[User]]("admin")(credentials, adminFromToken)
     }
 
     def validateToken(token: String) = Token.fromString(token, Identity.Admin)
   }
 
-  def forAdminFromConfig(implicit ec: EC, db: DB): AsyncAuthenticator[StoreAdmin] = {
+  def forAdminFromConfig(implicit ec: EC, db: DB): AsyncAuthenticator[User] = {
     config.getString("auth.method") match {
       case "basic" ⇒ BasicStoreAdmin()
       case "jwt"   ⇒ JwtStoreAdmin()
@@ -190,7 +194,7 @@ object Authenticator {
     }
   }
 
-  def forCustomerFromConfig(implicit ec: EC, db: DB): AsyncAuthenticator[Customer] = {
+  def forCustomerFromConfig(implicit ec: EC, db: DB): AsyncAuthenticator[User] = {
     config.getString("auth.method") match {
       case "basic" ⇒ BasicCustomer()
       case "jwt"   ⇒ JwtCustomer()
@@ -210,19 +214,19 @@ object Authenticator {
     readCookie().flatMap(_.fold(readHeader(headerName))(v ⇒ provide(Some(v))))
   }
 
-  def requireAdminAuth(auth: AsyncAuthenticator[StoreAdmin]): AuthenticationDirective[StoreAdmin] =
+  def requireAdminAuth(auth: AsyncAuthenticator[User]): AuthenticationDirective[User] =
     (for {
       optCreds ← auth.readCredentials()
       result   ← onSuccess(auth.checkAuth(optCreds))
     } yield (result, optCreds)).tflatMap {
       case (Right(user), _) ⇒ provide(user)
       case (Left(challenge), Some(creds)) ⇒
-        AuthRejections.credentialsRejected[StoreAdmin](challenge)
+        AuthRejections.credentialsRejected[User](challenge)
       case (Left(challenge), _) ⇒
-        AuthRejections.credentialsMissing[StoreAdmin](challenge)
+        AuthRejections.credentialsMissing[User](challenge)
     }
 
-  def requireCustomerAuth(auth: AsyncAuthenticator[Customer]): AuthenticationDirective[Customer] =
+  def requireCustomerAuth(auth: AsyncAuthenticator[User]): AuthenticationDirective[User] =
     (for {
       optCreds ← auth.readCredentials()
       result   ← onSuccess(auth.checkAuth(optCreds))
@@ -237,13 +241,13 @@ object Authenticator {
               header & cookie & provide(user)
             case Xor.Left(failures) ⇒
               val challenge = FailureChallenge(JwtCustomer.realmName, failures)
-              AuthRejections.credentialsRejected[Customer](challenge)
+              AuthRejections.credentialsRejected[User](challenge)
           }
         }
       case (Left(challenge), Some(creds)) ⇒
-        AuthRejections.credentialsRejected[Customer](challenge)
+        AuthRejections.credentialsRejected[User](challenge)
       case (Left(challenge), _) ⇒
-        AuthRejections.credentialsMissing[Customer](challenge)
+        AuthRejections.credentialsMissing[User](challenge)
     }
 
   def authTokenBaseResponse(token: Token,
@@ -285,14 +289,12 @@ object Authenticator {
       } yield checkedToken).run()
 
     val tokenResult = payload.kind match {
-      case Identity.Admin ⇒
-        auth[StoreAdmin, EmailFinder[StoreAdmin], AdminToken](StoreAdmins.findByEmail,
+      case Identity.User ⇒
+        auth[User, EmailFinder[User], AdminToken](Users.findByEmail,
                                                               _.hashedPassword,
-                                                              AdminToken.fromAdmin)
-      case Identity.Customer ⇒
-        auth[Customer, EmailFinder[Customer], CustomerToken](Customers.findByEmail,
-                                                             _.hashedPassword,
-                                                             CustomerToken.fromCustomer)
+                                                              UserToken.fromUser)
+        case Identity.Service ⇒
+          Xor.left(LoginFailed.single) //add support for services
     }
 
     tokenResult.map(_.flatMap { token ⇒
@@ -312,7 +314,7 @@ object Authenticator {
 
   private def checkState[M](model: M): Failures Xor M = {
     model match {
-      case m: StoreAdmin ⇒
+      case m: User ⇒
         if (m.canLogin) Xor.right(model)
         else Xor.left(AuthFailed(reason = "Store admin is Inactive or Archived").single)
       case _ ⇒
@@ -320,16 +322,16 @@ object Authenticator {
     }
   }
 
-  private def adminFromToken(token: Token): Failures Xor DBIO[Option[StoreAdmin]] = {
+  private def adminFromToken(token: Token): Failures Xor DBIO[Option[User]] = {
     token match {
-      case token: AdminToken ⇒ Xor.right(StoreAdmins.findByIdAndRatchet(token.id, token.ratchet))
+      case token: AdminToken ⇒ Xor.right(Users.findByAccountIdAndRatchet(token.id, token.ratchet))
       case _                 ⇒ Xor.left(AuthFailed("invalid token").single)
     }
   }
 
-  private def customerFromToken(token: Token): Failures Xor DBIO[Option[Customer]] = {
+  private def customerFromToken(token: Token): Failures Xor DBIO[Option[User]] = {
     token match {
-      case token: CustomerToken ⇒ Xor.right(Customers.findByIdAndRatchet(token.id, token.ratchet))
+      case token: CustomerToken ⇒ Xor.right(Users.findByAccountIdAndRatchet(token.id, token.ratchet))
       case _                    ⇒ Xor.left(AuthFailed("invalid token").single)
     }
   }

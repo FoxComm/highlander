@@ -3,7 +3,7 @@ package routes.admin
 import akka.http.scaladsl.server.Directives._
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
-import models.StoreAdmin
+import models.account.User
 import payloads.AddressPayloads.CreateAddressPayload
 import payloads.CustomerPayloads._
 import payloads.PaymentPayloads._
@@ -17,7 +17,7 @@ import utils.http.Http._
 
 object CustomerRoutes {
 
-  def routes(implicit ec: EC, db: DB, admin: StoreAdmin, apis: Apis) = {
+  def routes(implicit ec: EC, db: DB, admin: User, apis: Apis) = {
 
     activityContext(admin) { implicit ac ⇒
       pathPrefix("customers") {

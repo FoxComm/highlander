@@ -5,7 +5,7 @@ import java.time.temporal.ChronoUnit.DAYS
 
 import cats.implicits._
 import failures.NotFoundFailure404
-import models.StoreAdmin
+import models.account._
 import models.cord.{OrderShippingAddresses, Orders}
 import models.customer.{CustomerUser, CustomerUsers}
 import models.customer.CustomerUsers.scope._
@@ -23,24 +23,24 @@ object CustomerManager {
 
   def toggleDisabled(accountId: Int,
                      disabled: Boolean,
-                     admin: StoreAdmin)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
+                     admin: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
     for {
       customer ← * <~ Users.mustFindByAccountId(accountId)
       updated ← * <~ Usres.update(
                    customer,
-                   customer.copy(isDisabled = disabled, disabledBy = Some(admin.id)))
+                   customer.copy(isDisabled = disabled, disabledBy = Some(admin.accountId)))
       _ ← * <~ LogActivity.customerDisabled(disabled, customer, admin)
     } yield build(updated)
 
   // TODO: add blacklistedReason later
   def toggleBlacklisted(accountId: Int,
                         blacklisted: Boolean,
-                        admin: StoreAdmin)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
+                        admin: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
     for {
       customer ← * <~ Users.mustFindByAccountId(accountId)
       updated ← * <~ Users.update(
                    customer,
-                   customer.copy(isBlacklisted = blacklisted, blacklistedBy = Some(admin.id)))
+                   customer.copy(isBlacklisted = blacklisted, blacklistedBy = Some(admin.accountId)))
       _ ← * <~ LogActivity.customerBlacklisted(blacklisted, customer, admin)
     } yield build(updated)
 
@@ -87,17 +87,17 @@ object CustomerManager {
   }
 
   def create(payload: CreateCustomerPayload,
-             admin: Option[StoreAdmin] = None)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
+             admin: Option[User] = None)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
     for {
       _ ← * <~ (if (!payload.isGuest.getOrElse(false))
                   Users.createEmailMustBeUnique(payload.email)
                 else DbResultT.unit)
 
-      newAccount ← * <~ Accounts.create(Account(name=payload.name))
+      newAccount ← * <~ Accounts.create(Account())
 
       //creates password access method if a password exists
       _ ← * <~ (payload.password match {
-        case Some(password) ⇒ AccountAccessMethods.create(AccountAccessMethod.build("login", .password))
+        case Some(password) ⇒ AccountAccessMethods.create(AccountAccessMethod.build("login", password))
         case None ⇒ DbResultT[Unit]
       })
         
@@ -115,7 +115,7 @@ object CustomerManager {
       _ ← * <~ LogActivity.customerCreated(response, admin)
     } yield response
 
-  def update(accountId: Int, payload: UpdateCustomerPayload, admin: Option[StoreAdmin] = None)(
+  def update(accountId: Int, payload: UpdateCustomerPayload, admin: Option[User] = None)(
       implicit ec: EC,
       db: DB,
       ac: AC): DbResultT[Root] =
@@ -142,14 +142,14 @@ object CustomerManager {
     }
   }
 
-  def activate(accountId: Int, payload: ActivateCustomerPayload, admin: StoreAdmin)(
+  def activate(accountId: Int, payload: ActivateCustomerPayload, admin: User)(
       implicit ec: EC,
       db: DB,
       ac: AC): DbResultT[Root] =
     for {
       _        ← * <~ payload.validate
       customer ← * <~ Users.mustFindByAccountId(accountId)
-      _        ← * <~ Users.updateEmailMustBeUnique(customer.email, customer.id)
+      _        ← * <~ Users.updateEmailMustBeUnique(customer.email, customer.accountId)
       updated ← * <~  Users.update(customer,
                                       customer.copy(name = payload.name.some, isGuest = false))
       response = build(updated)

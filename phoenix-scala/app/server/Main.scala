@@ -16,8 +16,7 @@ import akka.stream.ActorMaterializer
 import com.stripe.Stripe
 import com.typesafe.config.{Config, ConfigException}
 import com.typesafe.scalalogging.LazyLogging
-import models.StoreAdmin
-import models.customer.Customer
+import models.account.User
 import org.json4s._
 import org.json4s.jackson._
 import services.Authenticator
@@ -82,8 +81,8 @@ class Service(systemOverride: Option[ActorSystem] = None,
   implicit val apis: Apis           = apisOverride.getOrElse(defaultApis: Apis)
   implicit val es: ElasticsearchApi = esOverride.getOrElse(ElasticsearchApi.fromConfig(config))
 
-  val storeAdminAuth: AsyncAuthenticator[StoreAdmin]      = Authenticator.forAdminFromConfig
-  implicit val customerAuth: AsyncAuthenticator[Customer] = Authenticator.forCustomerFromConfig
+  val storeAdminAuth: AsyncAuthenticator[User]      = Authenticator.forAdminFromConfig
+  implicit val customerAuth: AsyncAuthenticator[User] = Authenticator.forCustomerFromConfig
 
   val defaultRoutes = {
     pathPrefix("v1") {

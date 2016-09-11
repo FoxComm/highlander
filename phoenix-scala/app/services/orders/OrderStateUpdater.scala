@@ -1,7 +1,7 @@
 package services.orders
 
 import failures.{NotFoundFailure400, StateTransitionNotAllowed}
-import models.StoreAdmin
+import models.account.account._
 import models.cord.Order._
 import models.cord._
 import models.cord.lineitems._
@@ -18,7 +18,7 @@ import utils.db._
 
 object OrderStateUpdater {
 
-  def updateState(admin: StoreAdmin, refNum: String, newState: Order.State)(
+  def updateState(admin: User, refNum: String, newState: Order.State)(
       implicit ec: EC,
       db: DB,
       ac: AC): DbResultT[OrderResponse] =
@@ -32,7 +32,7 @@ object OrderStateUpdater {
                 else orderStateChanged(admin, response, order.state))
     } yield response
 
-  def updateStates(admin: StoreAdmin,
+  def updateStates(admin: User,
                    refNumbers: Seq[String],
                    newState: Order.State,
                    skipActivity: Boolean = false)(
@@ -47,7 +47,7 @@ object OrderStateUpdater {
     } yield response.copy(errors = batchMetadata.flatten, batch = Some(batchMetadata))
 
   private def updateStatesDbio(
-      admin: StoreAdmin,
+      admin: User,
       refNumbers: Seq[String],
       newState: Order.State,
       skipActivity: Boolean = false)(implicit ec: EC, ac: AC): DbResultT[BatchMetadata] = {
@@ -74,7 +74,7 @@ object OrderStateUpdater {
     }
   }
 
-  private def updateQueriesWrapper(admin: StoreAdmin,
+  private def updateQueriesWrapper(admin: User,
                                    cordRefs: Seq[String],
                                    newState: State,
                                    skipActivity: Boolean = false)(implicit ec: EC, ac: AC) = {
@@ -86,7 +86,7 @@ object OrderStateUpdater {
       updateQueries(admin, cordRefs, newState)
   }
 
-  private def updateQueries(admin: StoreAdmin, cordRefs: Seq[String], newState: State)(
+  private def updateQueries(admin: User, cordRefs: Seq[String], newState: State)(
       implicit ec: EC) =
     newState match {
       case Canceled ⇒

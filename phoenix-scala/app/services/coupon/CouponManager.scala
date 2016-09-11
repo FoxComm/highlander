@@ -6,7 +6,7 @@ import failures.CouponFailures._
 import failures.NotFoundFailure404
 import failures.ObjectFailures._
 import failures.PromotionFailures._
-import models.StoreAdmin
+import models.account.account._
 import models.coupon._
 import models.objects._
 import models.promotion._
@@ -50,7 +50,7 @@ object CouponManager {
       shadow ← * <~ ObjectShadows.mustFindById404(coupon.shadowId)
     } yield CouponResponse.build(coupon, form, shadow))
 
-  def create(payload: CreateCoupon, contextName: String, admin: Option[StoreAdmin])(
+  def create(payload: CreateCoupon, contextName: String, admin: Option[User])(
       implicit ec: EC,
       db: DB,
       ac: AC): DbResultT[CouponResponse.Root] =
@@ -75,7 +75,7 @@ object CouponManager {
       _ ← * <~ LogActivity.couponCreated(response, admin)
     } yield response
 
-  def update(id: Int, payload: UpdateCoupon, contextName: String, admin: StoreAdmin)(
+  def update(id: Int, payload: UpdateCoupon, contextName: String, admin: User)(
       implicit ec: EC,
       db: DB,
       ac: AC): DbResultT[CouponResponse.Root] =
@@ -146,7 +146,7 @@ object CouponManager {
       shadow        ← * <~ ObjectShadows.mustFindById404(archiveResult.shadowId)
     } yield CouponResponse.build(archiveResult, form, shadow)
 
-  def generateCode(id: Int, code: String, admin: StoreAdmin)(implicit ec: EC,
+  def generateCode(id: Int, code: String, admin: User)(implicit ec: EC,
                                                              db: DB,
                                                              ac: AC): DbResultT[String] =
     for {
@@ -157,7 +157,7 @@ object CouponManager {
 
   def generateCodes(id: Int,
                     payload: GenerateCouponCodes,
-                    admin: StoreAdmin)(implicit ec: EC, db: DB, ac: AC): DbResultT[Seq[String]] =
+                    admin: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[Seq[String]] =
     for {
       _         ← * <~ validateCouponCodePayload(payload)
       coupon    ← * <~ Coupons.filter(_.formId === id).mustFindOneOr(CouponNotFound(id))

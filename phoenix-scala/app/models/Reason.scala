@@ -5,6 +5,7 @@ import cats.implicits._
 import com.pellucid.sealerate
 import failures.Failure
 import models.Reason.{General, ReasonType}
+import models.account._
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
@@ -58,7 +59,7 @@ class Reasons(tag: Tag) extends FoxTable[Reason](tag, "reasons") {
   def * =
     (id, reasonType, storeAdminId, body, parentId) <> ((Reason.apply _).tupled, Reason.unapply)
 
-  def author = foreignKey(StoreAdmins.tableName, storeAdminId, StoreAdmins)(_.id)
+  def author = foreignKey(Users.tableName, storeAdminId, Users)(_.accountId)
 }
 
 object Reasons

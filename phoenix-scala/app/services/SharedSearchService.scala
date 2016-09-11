@@ -6,7 +6,7 @@ import failures.NotFoundFailure404
 import failures.SharedSearchFailures._
 import failures.Util.diffToFailures
 import models.sharedsearch._
-import models.{StoreAdmin, StoreAdmins}
+import models.account._
 import payloads.SharedSearchPayloads._
 import responses.{StoreAdminResponse, TheResponse}
 import slick.driver.PostgresDriver.api._
@@ -14,7 +14,7 @@ import utils.aliases._
 import utils.db._
 
 object SharedSearchService {
-  def getAll(admin: StoreAdmin, rawScope: Option[String])(implicit ec: EC,
+  def getAll(admin: User, rawScope: Option[String])(implicit ec: EC,
                                                           db: DB): DbResultT[Seq[SharedSearch]] =
     for {
       scope ← * <~ rawScope.toXor(SharedSearchScopeNotFound.single)
@@ -34,15 +34,15 @@ object SharedSearchService {
       associates ← * <~ SharedSearchAssociations.associatedAdmins(search).result
     } yield associates.map(StoreAdminResponse.build)
 
-  def create(admin: StoreAdmin, payload: SharedSearchPayload)(implicit ec: EC,
+  def create(admin: User, payload: SharedSearchPayload)(implicit ec: EC,
                                                               db: DB): DbResultT[SharedSearch] =
     for {
       search ← * <~ SharedSearches.create(SharedSearch.byAdmin(admin, payload))
       _ ← * <~ SharedSearchAssociations.create(
-             SharedSearchAssociation(sharedSearchId = search.id, storeAdminId = admin.id))
+             SharedSearchAssociation(sharedSearchId = search.id, storeAdminId = admin.accountId))
     } yield search
 
-  def update(admin: StoreAdmin, code: String, payload: SharedSearchPayload)(
+  def update(admin: User, code: String, payload: SharedSearchPayload)(
       implicit ec: EC,
       db: DB): DbResultT[SharedSearch] =
     for {
@@ -51,35 +51,35 @@ object SharedSearchService {
                  .update(search, search.copy(title = payload.title, query = payload.query))
     } yield updated
 
-  def delete(admin: StoreAdmin, code: String)(implicit ec: EC, db: DB): DbResultT[Unit] =
+  def delete(admin: User, code: String)(implicit ec: EC, db: DB): DbResultT[Unit] =
     for {
       search ← * <~ mustFindActiveByCode(code)
       _      ← * <~ SharedSearches.update(search, search.copy(deletedAt = Some(Instant.now)))
     } yield ()
 
-  def associate(admin: StoreAdmin, code: String, requestedAssigneeIds: Seq[Int])(
+  def associate(admin: User, code: String, requestedAssigneeIds: Seq[Int])(
       implicit ec: EC,
       db: DB,
       ac: AC): DbResultT[TheResponse[SharedSearch]] =
     for {
       search     ← * <~ mustFindActiveByCode(code)
-      adminIds   ← * <~ StoreAdmins.filter(_.id.inSetBind(requestedAssigneeIds)).map(_.id).result
+      adminIds   ← * <~ User.filter(_.accountId.inSetBind(requestedAssigneeIds)).map(_.accountId).result
       associates ← * <~ SharedSearchAssociations.associatedAdmins(search).result
       newAssociations = adminIds
         .diff(associates.map(_.id))
         .map(adminId ⇒ SharedSearchAssociation(sharedSearchId = search.id, storeAdminId = adminId))
       _ ← * <~ SharedSearchAssociations.createAll(newAssociations)
-      notFoundAdmins = diffToFailures(requestedAssigneeIds, adminIds, StoreAdmin)
+      notFoundAdmins = diffToFailures(requestedAssigneeIds, adminIds, User)
       assignedAdmins = associates.filter(a ⇒ newAssociations.map(_.storeAdminId).contains(a.id))
       _ ← * <~ LogActivity.associatedWithSearch(admin, search, assignedAdmins)
     } yield TheResponse.build(search, errors = notFoundAdmins)
 
-  def unassociate(admin: StoreAdmin,
+  def unassociate(admin: User,
                   code: String,
                   assigneeId: Int)(implicit ec: EC, db: DB, ac: AC): DbResultT[SharedSearch] =
     for {
       search    ← * <~ mustFindActiveByCode(code)
-      associate ← * <~ StoreAdmins.mustFindById404(assigneeId)
+      associate ← * <~ Users.mustFindByAccountId(assigneeId)
       assignment ← * <~ SharedSearchAssociations
                     .byStoreAdmin(associate)
                     .mustFindOneOr(SharedSearchAssociationNotFound(code, assigneeId))

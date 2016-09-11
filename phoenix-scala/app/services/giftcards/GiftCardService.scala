@@ -2,11 +2,12 @@ package services.giftcards
 
 import cats.implicits._
 import failures.{NotFoundFailure400, OpenTransactionsFailure}
-import models.account.Users
+import models.account._
 import models.payment.giftcard.GiftCard.Canceled
 import models.payment.giftcard.GiftCardSubtypes.scope._
 import models.payment.giftcard._
-import models.{Reasons, StoreAdmin, StoreAdmins}
+import models.{Reasons}
+
 import payloads.GiftCardPayloads._
 import responses.GiftCardBulkResponse._
 import responses.GiftCardResponse._
@@ -37,7 +38,7 @@ object GiftCardService {
         for {
           origin ← GiftCardManuals.filter(_.id === giftCard.originId).one
           admin ← origin
-                   .map(o ⇒ StoreAdmins.findOneById(o.adminId))
+                   .map(o ⇒ Users.findOneByAccountId(o.adminId))
                    .getOrElse(DBIO.successful(None))
           adminResponse = admin.map(StoreAdminResponse.build)
         } yield GiftCardResponse.build(giftCard, None, adminResponse)
@@ -51,7 +52,7 @@ object GiftCardService {
       case _ ⇒ DBIO.successful(GiftCardResponse.build(giftCard, None, None))
     }
 
-  def createByAdmin(admin: StoreAdmin, payload: GiftCardCreateByCsr)(implicit ec: EC,
+  def createByAdmin(admin: User, payload: GiftCardCreateByCsr)(implicit ec: EC,
                                                                      db: DB,
                                                                      ac: AC): DbResultT[Root] =
     for {
@@ -65,13 +66,13 @@ object GiftCardService {
                    .map(Some(_)) // A bit silly but need to rewrap it back
                }
       origin ← * <~ GiftCardManuals.create(
-                  GiftCardManual(adminId = admin.id, reasonId = payload.reasonId))
+                  GiftCardManual(adminId = admin.accountId, reasonId = payload.reasonId))
       giftCard ← * <~ GiftCards.create(GiftCard.buildAppeasement(payload, origin.id))
       adminResp = Some(StoreAdminResponse.build(admin))
       _ ← * <~ LogActivity.gcCreated(admin, giftCard)
     } yield build(gc = giftCard, admin = adminResp)
 
-  def createBulkByAdmin(admin: StoreAdmin, payload: GiftCardBulkCreateByCsr)(
+  def createBulkByAdmin(admin: User, payload: GiftCardBulkCreateByCsr)(
       implicit ec: EC,
       db: DB,
       ac: AC): DbResultT[Seq[ItemResult]] =
@@ -85,7 +86,7 @@ object GiftCardService {
                 }
     } yield response
 
-  def bulkUpdateStateByCsr(payload: GiftCardBulkUpdateStateByCsr, admin: StoreAdmin)(
+  def bulkUpdateStateByCsr(payload: GiftCardBulkUpdateStateByCsr, admin: User)(
       implicit ec: EC,
       db: DB,
       ac: AC): DbResultT[Seq[ItemResult]] =
@@ -99,7 +100,7 @@ object GiftCardService {
                 }
     } yield response
 
-  def updateStateByCsr(code: String, payload: GiftCardUpdateStateByCsr, admin: StoreAdmin)(
+  def updateStateByCsr(code: String, payload: GiftCardUpdateStateByCsr, admin: User)(
       implicit ec: EC,
       db: DB,
       ac: AC): DbResultT[Root] =
@@ -114,7 +115,7 @@ object GiftCardService {
   private def cancelOrUpdate(giftCard: GiftCard,
                              newState: GiftCard.State,
                              reasonId: Option[Int],
-                             admin: StoreAdmin)(implicit ec: EC) = newState match {
+                             admin: User)(implicit ec: EC) = newState match {
     case Canceled ⇒
       for {
         _ ← * <~ GiftCardAdjustments

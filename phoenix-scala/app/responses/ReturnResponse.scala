@@ -2,9 +2,9 @@ package responses
 
 import java.time.Instant
 
-import models.StoreAdmins
+import models.account.Users
 import models.cord.Orders
-import models.account.Accounts
+import models.account._
 import models.inventory.Sku
 import models.objects._
 import models.payment.PaymentMethod
@@ -179,7 +179,7 @@ object ReturnResponse {
                     order: Option[OrderResponse] = None,
                     customer: Option[Customer] = None,
                     lineItems: LineItems = LineItems(),
-                    storeAdmin: Option[StoreAdmin] = None,
+                    storeAdmin: Option[User] = None,
                     payments: Seq[DisplayPayment] = Seq.empty,
                     totals: Option[ReturnTotals] = None): RootExpanded =
     RootExpanded(

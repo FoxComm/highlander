@@ -9,9 +9,8 @@ import akka.http.scaladsl.unmarshalling.{FromRequestUnmarshaller, Unmarshaller}
 
 import cats.data.Xor
 import failures._
-import models.StoreAdmin
+import models.account._
 import models.activity.ActivityContext
-import models.customer.Customer
 import models.objects.{ObjectContext, ObjectContexts}
 import models.product.SimpleContext
 import services.Result
@@ -25,21 +24,12 @@ object CustomDirectives {
 
   val DefaultContextName = SimpleContext.default
 
-  def activityContext(admin: StoreAdmin): Directive1[ActivityContext] = {
+  def activityContext(user: User, token: UserToken): Directive1[ActivityContext] = {
     optionalHeaderValueByName("x-request-id").map {
       case (Some(uuid)) ⇒
-        ActivityContext(userId = admin.id, userType = "admin", transactionId = uuid)
+        ActivityContext(userId = user.accountId, userType = token.userType, transactionId = uuid)
       case (None) ⇒
-        ActivityContext(userId = admin.id, userType = "admin", transactionId = generateUuid)
-    }
-  }
-
-  def activityContext(customer: Customer): Directive1[ActivityContext] = {
-    optionalHeaderValueByName("x-request-id").map {
-      case (Some(uuid)) ⇒
-        ActivityContext(userId = customer.id, userType = "customer", transactionId = uuid)
-      case (None) ⇒
-        ActivityContext(userId = customer.id, userType = "customer", transactionId = generateUuid)
+        ActivityContext(userId = user.accountId, userType = token.userType, transactionId = generateUuid)
     }
   }
 

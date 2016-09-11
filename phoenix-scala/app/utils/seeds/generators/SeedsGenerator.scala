@@ -59,10 +59,10 @@ object RankingSeedsGenerator {
 
     val location = "Arkham"
 
-    def makeOrders(c: Customer, context: ObjectContext) = {
+    def makeOrders(c: User, context: ObjectContext) = {
       (1 to 5 + Random.nextInt(20)).map { i ⇒
         for {
-          cart  ← * <~ Carts.create(Cart(accountId = c.id))
+          cart  ← * <~ Carts.create(Cart(accountId = c.accountId))
           order ← * <~ Orders.createFromCart(cart, context.id)
           order ← * <~ Orders.update(order, order.copy(state = Order.FulfillmentStarted))
           order ← * <~ Orders.update(order, order.copy(state = Order.Shipped))

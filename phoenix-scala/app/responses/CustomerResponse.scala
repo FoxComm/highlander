@@ -31,7 +31,7 @@ object CustomerResponse {
             numOrders: Option[Int] = None,
             rank: Option[CustomerRank] = None,
             lastOrderDays: Option[Long] = None): Root =
-    Root(id = customer.id,
+    Root(id = customer.accountId,
          email = customer.email,
          name = customer.name,
          phoneNumber = customer.phoneNumber,

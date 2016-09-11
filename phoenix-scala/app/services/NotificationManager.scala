@@ -4,7 +4,8 @@ import de.heikoseeberger.akkasse.{ServerSentEvent ⇒ SSE}
 import failures._
 import models.Notification._
 import models.activity._
-import models.{NotificationTrailMetadata, StoreAdmin, StoreAdmins, NotificationSubscription ⇒ Sub, NotificationSubscriptions ⇒ Subs}
+import models.account._
+import models.{NotificationTrailMetadata, NotificationSubscription ⇒ Sub, NotificationSubscriptions ⇒ Subs}
 import org.json4s.Extraction.decompose
 import org.json4s.jackson.Serialization.write
 import org.postgresql.core.{Utils ⇒ PgjdbcUtils}
@@ -49,7 +50,7 @@ object NotificationManager {
   def updateLastSeen(adminId: Int, activityId: Int)(implicit ec: EC,
                                                     db: DB): DbResultT[LastSeenActivityResponse] =
     for {
-      _ ← * <~ StoreAdmins.mustFindById404(adminId)
+      _ ← * <~ Acccounts.mustFindById404(adminId)
       _ ← * <~ Activities.mustFindById404(activityId)
       trail ← * <~ Trails
                .findNotificationByAdminId(adminId)
@@ -63,7 +64,7 @@ object NotificationManager {
       implicit ec: EC): DbResultT[TheResponse[Option[Int]]] =
     for {
       dimension  ← * <~ Dimensions.findOrCreateByName(dimension)
-      realAdmins ← * <~ StoreAdmins.filter(_.id.inSet(adminIds)).map(_.id).result
+      realAdmins ← * <~ Users.filter(_.accountId.inSet(adminIds)).map(_.accountId).result
       requestedSubs = for (adminId ← realAdmins; objectId ← objectIds) yield (adminId, objectId)
       partialFilter = Subs.filter(_.dimensionId === dimension.id).filter(_.reason === reason)
       existingSubs ← * <~ DBIO
@@ -83,7 +84,7 @@ object NotificationManager {
                           dimensionId = dimension.id,
                           reason = reason)
                   })
-      warnings = Failures(adminIds.diff(realAdmins).map(NotFoundFailure404(StoreAdmin, _)): _*)
+      warnings = Failures(adminIds.diff(realAdmins).map(NotFoundFailure404(User, _)): _*)
     } yield TheResponse.build(value = newSubsQty, warnings = warnings)
 
   def unsubscribe(adminIds: Seq[Int],

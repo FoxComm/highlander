@@ -6,7 +6,7 @@ import cats.data.Validated._
 import cats.data._
 import com.pellucid.sealerate
 import failures.Failure
-import models.StoreAdmin
+import models.account._
 import models.cord.Order
 import models.returns.Return._
 import models.traits.Lockable
@@ -80,13 +80,13 @@ object Return {
   val returnRefNumRegex          = """([a-zA-Z0-9-_.]*)""".r
   val messageToAccountMaxLength = 1000
 
-  def build(order: Order, admin: StoreAdmin, rmaType: ReturnType = Return.Standard): Return = {
+  def build(order: Order, admin: User, rmaType: ReturnType = Return.Standard): Return = {
     Return(
         orderId = order.id,
         orderRef = order.refNum,
         returnType = rmaType,
         accountId = order.accountId,
-        storeAdminId = Some(admin.id)
+        storeAdminId = Some(admin.accountId)
     )
   }
 

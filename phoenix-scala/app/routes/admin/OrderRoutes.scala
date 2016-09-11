@@ -4,7 +4,7 @@ import akka.http.scaladsl.server.Directives._
 
 import cats.implicits._
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
-import models.StoreAdmin
+import models.account.User
 import models.cord.Cord.cordRefNumRegex
 import models.payment.giftcard.GiftCard
 import models.payment.giftcard.GiftCard.giftCardCodeRegex
@@ -23,7 +23,7 @@ import utils.http.Http._
 
 object OrderRoutes {
 
-  def routes(implicit ec: EC, es: ES, db: DB, admin: StoreAdmin, apis: Apis) = {
+  def routes(implicit ec: EC, es: ES, db: DB, admin: User, apis: Apis) = {
 
     activityContext(admin) { implicit ac ⇒
       determineObjectContext(db, ec) { implicit ctx ⇒

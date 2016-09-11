@@ -3,36 +3,52 @@ package services.auth
 import cats.implicits._
 import libs.oauth.{GoogleOauthOptions, GoogleProvider, Oauth, UserInfo}
 import models.auth.{AdminToken, CustomerToken, Identity, Token}
-import models.customer.{Customer, Customers}
-import models.{StoreAdmin, StoreAdmins}
+import models.account._
 import utils.FoxConfig._
 import utils.aliases._
 import utils.db._
 
 class GoogleOauthStoreAdmin(options: GoogleOauthOptions)
     extends Oauth(options)
-    with OauthService[StoreAdmin]
+    with OauthService[User]
     with GoogleProvider {
 
-  def createByUserInfo(userInfo: UserInfo)(implicit ec: EC): DbResultT[StoreAdmin] =
-    StoreAdmins.create(StoreAdmin(email = userInfo.email, name = userInfo.name))
+  def createByUserInfo(userInfo: UserInfo)(implicit ec: EC): DbResultT[User] =
+    for { 
+        account ← * <~ Accounts.create(Account())
+        user ← * <~ Users.create(
+          Users(
+            accountId = account.id, 
+            email = userInfo.email, 
+            name = userInfo.name))
+        //MAXDO Assign merchant_admin role
+        // Also verify domain of merchant org here here?
+    } yield user
 
-  def findByEmail(email: String)(implicit ec: EC, db: DB) = StoreAdmins.findByEmail(email)
+  def findByEmail(email: String)(implicit ec: EC, db: DB) = Users.findByEmail(email)
 
-  def createToken(admin: StoreAdmin): Token = AdminToken.fromAdmin(admin)
+  def createToken(admin: User): Token = AccountToken.fromAdmin(admin)
 }
 
 class GoogleOauthCustomer(options: GoogleOauthOptions)
     extends Oauth(options)
-    with OauthService[Customer]
+    with OauthService[User]
     with GoogleProvider {
 
-  def createByUserInfo(userInfo: UserInfo)(implicit ec: EC): DbResultT[Customer] =
-    Customers.create(Customer(email = userInfo.email.some, name = userInfo.name.some))
+  def createByUserInfo(userInfo: UserInfo)(implicit ec: EC): DbResultT[User] =
+    for {
+        account ← * <~ Accounts.create(Account())
+        user ← * <~ Users.create(
+          Users(
+            accountId = account.id, 
+            email = userInfo.email, 
+            name = userInfo.name))
+        //MAXDO Assign customer role
+    } yield user
 
-  def findByEmail(email: String)(implicit ec: EC, db: DB) = Customers.findByEmail(email)
+  def findByEmail(email: String)(implicit ec: EC, db: DB) = Users.findByEmail(email)
 
-  def createToken(customer: Customer): Token = CustomerToken.fromCustomer(customer)
+  def createToken(user: User): Token = AccountToken.fromUser(customer)
 }
 
 object GoogleOauth {

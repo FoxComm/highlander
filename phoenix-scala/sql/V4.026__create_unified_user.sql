@@ -78,7 +78,6 @@ create unique index role_permissions_id_permission_id_role_id_uindex on role_per
 create table accounts
 (
     id serial primary key,
-    name generic_string,
     ratchet integer not null,
     created_at generic_timestamp,
     updated_at generic_timestamp,

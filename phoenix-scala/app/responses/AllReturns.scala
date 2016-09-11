@@ -4,7 +4,7 @@ import java.time.Instant
 
 import scala.concurrent.Future
 
-import models.StoreAdmin
+import models.account.User
 import models.customer.Customer
 import models.returns.Return
 
@@ -28,7 +28,7 @@ object AllReturns {
 
   def build(rma: Return,
             customer: Option[Customer] = None,
-            admin: Option[StoreAdmin] = None): Root =
+            admin: Option[User] = None): Root =
     Root(
         id = rma.id,
         referenceNumber = rma.referenceNumber,

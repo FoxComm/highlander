@@ -4,7 +4,8 @@ import java.time.Instant
 
 import failures.NotFoundFailure404
 import models.Notes.scope._
-import models.{Note, Notes, StoreAdmin}
+import models.{Note, Notes}
+import models.account._
 import payloads.NotePayloads._
 import responses.AdminNotes
 import responses.AdminNotes.Root
@@ -25,7 +26,7 @@ trait NoteManager[K, T <: FoxModel[T]] {
       response ← * <~ forModel(entityQuerySeq(entity.id))
     } yield response
 
-  def create(key: K, author: StoreAdmin, payload: CreateNote)(implicit ec: EC,
+  def create(key: K, author: User, payload: CreateNote)(implicit ec: EC,
                                                               db: DB,
                                                               ac: AC): DbResultT[Root] =
     for {
@@ -33,7 +34,7 @@ trait NoteManager[K, T <: FoxModel[T]] {
       note   ← * <~ createInner(entity, entity.id, noteType(), author, payload)
     } yield AdminNotes.build(note, author)
 
-  def update(key: K, noteId: Int, author: StoreAdmin, payload: UpdateNote)(
+  def update(key: K, noteId: Int, author: User, payload: UpdateNote)(
       implicit ec: EC,
       db: DB,
       ac: AC): DbResultT[Root] =
@@ -42,7 +43,7 @@ trait NoteManager[K, T <: FoxModel[T]] {
       note   ← * <~ updateInner(entity, noteId, author, payload)
     } yield note
 
-  def delete(key: K, noteId: Int, author: StoreAdmin)(implicit ec: EC,
+  def delete(key: K, noteId: Int, author: User)(implicit ec: EC,
                                                       db: DB,
                                                       ac: AC): DbResultT[Unit] =
     for {
@@ -57,7 +58,7 @@ trait NoteManager[K, T <: FoxModel[T]] {
   private def createInner(entity: T,
                           refId: Int,
                           refType: Note.ReferenceType,
-                          author: StoreAdmin,
+                          author: User,
                           payload: CreateNote)(implicit ec: EC, db: DB, ac: AC): DbResultT[Note] =
     for {
       note ← * <~ Notes.create(
@@ -68,7 +69,7 @@ trait NoteManager[K, T <: FoxModel[T]] {
       _ ← * <~ LogActivity.noteCreated(author, entity, note)
     } yield note
 
-  private def updateInner(entity: T, noteId: Int, author: StoreAdmin, payload: UpdateNote)(
+  private def updateInner(entity: T, noteId: Int, author: User, payload: UpdateNote)(
       implicit ec: EC,
       db: DB,
       ac: AC): DbResultT[Root] =
@@ -80,13 +81,13 @@ trait NoteManager[K, T <: FoxModel[T]] {
       _       ← * <~ LogActivity.noteUpdated(author, entity, oldNote, newNote)
     } yield AdminNotes.build(newNote, author)
 
-  private def deleteInner(entity: T, noteId: Int, admin: StoreAdmin)(implicit ec: EC,
+  private def deleteInner(entity: T, noteId: Int, admin: User)(implicit ec: EC,
                                                                      db: DB,
                                                                      ac: AC): DbResultT[Unit] =
     for {
       note ← * <~ Notes.mustFindById404(noteId)
       _ ← * <~ Notes.update(note,
-                            note.copy(deletedAt = Some(Instant.now), deletedBy = Some(admin.id)))
+                            note.copy(deletedAt = Some(Instant.now), deletedBy = Some(admin.accountId)))
       _ ← * <~ LogActivity.noteDeleted(admin, entity, note)
     } yield ()
 

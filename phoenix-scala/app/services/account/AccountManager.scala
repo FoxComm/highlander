@@ -6,7 +6,6 @@ import java.time.temporal.ChronoUnit.DAYS
 import cats.implicits._
 import failures.NotFoundFailure404
 import failures.UserFailures._
-import models.StoreAdmin
 import models.cord.{OrderShippingAddresses, Orders}
 import models.user.Users.scope._
 import models.user.{User, Users}
@@ -129,7 +128,7 @@ object AccountManager {
   }
 
   def create(payload: CreateUserPayload,
-             admin: Option[StoreAdmin] = None)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
+             admin: Option[User] = None)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
     for {
       user ← * <~ User.buildFromPayload(payload).validate
       _ ← * <~ (if (!payload.isGuest.getOrElse(false))
@@ -140,7 +139,7 @@ object AccountManager {
       _ ← * <~ LogActivity.userCreated(response, admin)
     } yield response
 
-  def update(userId: Int, payload: UpdateUserPayload, admin: Option[StoreAdmin] = None)(
+  def update(userId: Int, payload: UpdateUserPayload, admin: Option[User] = None)(
       implicit ec: EC,
       db: DB,
       ac: AC): DbResultT[Root] =
@@ -163,7 +162,7 @@ object AccountManager {
                          phoneNumber = payload.phoneNumber.fold(user.phoneNumber)(Some(_)))
   }
 
-  def activate(userId: Int, payload: ActivateUserPayload, admin: StoreAdmin)(
+  def activate(userId: Int, payload: ActivateUserPayload, admin: User)(
       implicit ec: EC,
       db: DB,
       ac: AC): DbResultT[Root] =

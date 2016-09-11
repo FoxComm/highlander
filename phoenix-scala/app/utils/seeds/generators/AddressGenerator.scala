@@ -3,7 +3,6 @@ package utils.seeds.generators
 import scala.util.Random
 
 import faker._
-import models.customer.Customer
 import models.location.Address;
 
 trait AddressGenerator {

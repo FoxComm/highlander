@@ -1,13 +1,12 @@
 package services
 
 import failures.ProductFailures.SkuNotFoundForContext
-import models.StoreAdmin
+import models.account.User
 import models.activity.Activity
 import models.cord._
 import models.cord.lineitems.OrderLineItems.scope._
 import models.cord.lineitems._
 import CartLineItems.scope._
-import models.customer.Customer
 import models.inventory.Skus
 import models.payment.giftcard._
 import payloads.LineItemPayloads.UpdateLineItemsPayload
@@ -20,7 +19,7 @@ import utils.db._
 
 object LineItemUpdater {
 
-  def updateQuantitiesOnCart(admin: StoreAdmin,
+  def updateQuantitiesOnCart(admin: User,
                              refNum: String,
                              payload: Seq[UpdateLineItemsPayload])(
       implicit ec: EC,

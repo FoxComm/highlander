@@ -3,7 +3,7 @@ package models.sharedsearch
 import java.time.Instant
 
 import com.pellucid.sealerate
-import models.StoreAdmin
+import models.account._
 import models.sharedsearch.SharedSearch._
 import payloads.SharedSearchPayloads.SharedSearchPayload
 import shapeless._
@@ -46,12 +46,12 @@ object SharedSearch {
 
   val sharedSearchRegex = """([a-z0-9]*)""".r
 
-  def byAdmin(admin: StoreAdmin, payload: SharedSearchPayload): SharedSearch =
+  def byAdmin(admin: User, payload: SharedSearchPayload): SharedSearch =
     SharedSearch(
         title = payload.title,
         query = payload.query,
         rawQuery = payload.rawQuery,
-        storeAdminId = admin.id,
+        storeAdminId = admin.accountId,
         scope = payload.scope
     )
 

@@ -3,7 +3,7 @@ package routes.admin
 import akka.http.scaladsl.server.Directives._
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
-import models.StoreAdmin
+import models.account.User
 import models.auth.AdminToken
 import payloads.StoreAdminPayloads._
 import services.StoreAdminManager
@@ -13,7 +13,7 @@ import utils.http.Http._
 
 object StoreAdminRoutes {
 
-  def routes(implicit ec: EC, db: DB, admin: StoreAdmin) = {
+  def routes(implicit ec: EC, db: DB, admin: User) = {
     activityContext(admin) { implicit ac ⇒
       pathPrefix("store-admins") {
         (post & pathEnd & entity(as[CreateStoreAdminPayload])) { payload ⇒

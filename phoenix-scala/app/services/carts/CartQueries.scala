@@ -1,9 +1,8 @@
 package services.carts
 
 import failures.NotFoundFailure404
-import models.StoreAdmin
+import models.account._
 import models.cord._
-import models.account.{User, Users}
 import models.objects.ObjectContext
 import models.payment.creditcard.CreditCardCharge.{Auth ⇒ ccAuth}
 import models.payment.creditcard._
@@ -39,7 +38,7 @@ object CartQueries extends CordQueries {
 
   def findOrCreateCartByAccount(customer: User,
                                  context: ObjectContext,
-                                 admin: Option[StoreAdmin] = None)(
+                                 admin: Option[User] = None)(
       implicit ec: EC,
       db: DB,
       ac: AC,
@@ -48,7 +47,7 @@ object CartQueries extends CordQueries {
 
   def findOrCreateCartByAccountId(accountId: Int,
                                    context: ObjectContext,
-                                   admin: Option[StoreAdmin] = None)(
+                                   admin: Option[User] = None)(
       implicit ec: EC,
       db: DB,
       ac: AC,
@@ -58,7 +57,7 @@ object CartQueries extends CordQueries {
       fullOrder ← * <~ findOrCreateCartByAccountInner(customer, admin)
     } yield fullOrder
 
-  def findOrCreateCartByAccountInner(customer: User, admin: Option[StoreAdmin])(
+  def findOrCreateCartByAccountInner(customer: User, admin: Option[User])(
       implicit db: DB,
       ec: EC,
       ac: AC,
@@ -75,7 +74,7 @@ object CartQueries extends CordQueries {
 
   private def logCartCreation(foundOrCreated: FoundOrCreated,
                               cart: CartResponse,
-                              admin: Option[StoreAdmin])(implicit ec: EC, ac: AC) =
+                              admin: Option[User])(implicit ec: EC, ac: AC) =
     foundOrCreated match {
       case Created ⇒ LogActivity.cartCreated(admin, cart)
       case Found   ⇒ DbResultT.unit
