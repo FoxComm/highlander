@@ -1,15 +1,13 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
-	"net/http"
 
 	"github.com/FoxComm/middlewarehouse/api/payloads"
 	"github.com/FoxComm/middlewarehouse/api/responses"
+	"github.com/FoxComm/middlewarehouse/consumers"
 	"github.com/FoxComm/middlewarehouse/models/activities"
 )
 
@@ -37,35 +35,15 @@ func CapturePayment(act activities.ISiteActivity, phoenixURL string, phoenixJWT 
 		capture.Items = append(capture.Items, cLineItem)
 	}
 
-	b, err := json.Marshal(&capture)
-	if err != nil {
-		log.Printf("Error marshalling")
-		return err
-	}
-
-	log.Printf("Payload: %s", string(b))
-
 	url := fmt.Sprintf("%s/v1/service/capture", phoenixURL)
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(b))
-	if err != nil {
-		log.Printf("Error creating post")
-		return err
+	headers := map[string]string{
+		"JWT": phoenixJWT,
 	}
 
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("JWT", phoenixJWT)
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	_, err := consumers.Post(url, headers, &capture)
 	if err != nil {
-		log.Printf("Error on the request")
+		log.Printf(err.Error())
 		return err
-	}
-
-	if resp.StatusCode < 200 || resp.StatusCode > 299 {
-		msg := fmt.Sprintf("Error in response from capture with status %d", resp.StatusCode)
-		log.Printf(msg)
-		return errors.New(msg)
 	}
 
 	return nil
