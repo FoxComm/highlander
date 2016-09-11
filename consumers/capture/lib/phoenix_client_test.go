@@ -6,8 +6,16 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
+	"github.com/FoxComm/middlewarehouse/fixtures"
+	"github.com/FoxComm/middlewarehouse/models/activities"
 	"github.com/stretchr/testify/suite"
+)
+
+const (
+	username = "admin@admin.com"
+	password = "password"
 )
 
 type PhoenixClientTestSuite struct {
@@ -19,19 +27,56 @@ func TestPhoenixClientSuite(t *testing.T) {
 }
 
 func (suite *PhoenixClientTestSuite) TestAuthenticate() {
-	fp := fakePhoenix{"admin@admin.com", "password", suite}
+	authExpires := time.Now().AddDate(0, 0, 1)
+
+	fp := fakePhoenix{username, password, authExpires, suite}
 	ts := httptest.NewServer(http.HandlerFunc(fp.ServeHTTP))
 	defer ts.Close()
 
-	client := NewPhoenixClient(ts.URL, "admin@admin.com", "password")
+	client := NewPhoenixClient(ts.URL, username, password)
 	err := client.Authenticate()
+	suite.Nil(err)
+	suite.True(client.IsAuthenticated())
+}
+
+func (suite *PhoenixClientTestSuite) TestNotAuthedWithOldExpiration() {
+	authExpires := time.Now().AddDate(0, 0, -1)
+
+	fp := fakePhoenix{username, password, authExpires, suite}
+	ts := httptest.NewServer(http.HandlerFunc(fp.ServeHTTP))
+	defer ts.Close()
+
+	client := NewPhoenixClient(ts.URL, username, password)
+	err := client.Authenticate()
+	suite.Nil(err)
+	suite.False(client.IsAuthenticated())
+}
+
+func (suite *PhoenixClientTestSuite) TestNotAuthedOnInit() {
+	client := NewPhoenixClient("http://test.com", "", "")
+	suite.False(client.IsAuthenticated())
+}
+
+func (suite *PhoenixClientTestSuite) TestCapture() {
+	authExpires := time.Now().AddDate(0, 0, 1)
+
+	fp := fakePhoenix{username, password, authExpires, suite}
+	ts := httptest.NewServer(http.HandlerFunc(fp.ServeHTTP))
+	defer ts.Close()
+
+	shipment := fixtures.GetShipmentShort(1)
+	activity, err := activities.NewShipmentShipped(shipment, time.Now())
+
+	client := NewPhoenixClient(ts.URL, username, password)
+	err = client.CapturePayment(activity)
 	suite.Nil(err)
 }
 
 type fakePhoenix struct {
-	username string
-	password string
-	suite    *PhoenixClientTestSuite
+	username    string
+	password    string
+	authExpires time.Time
+	suite       *PhoenixClientTestSuite
 }
 
 func (fp *fakePhoenix) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -40,10 +85,25 @@ func (fp *fakePhoenix) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch url {
 	case "/v1/public/login":
 		fp.handleLogin(w, r)
+	case "/v1/service/capture":
+		fp.handleCapture(w, r)
 	default:
 		msg := fmt.Sprintf("Invalid route %s", url)
 		fp.suite.Fail(msg)
 	}
+}
+
+func (fp *fakePhoenix) handleCapture(w http.ResponseWriter, r *http.Request) {
+	payload := new(CapturePayload)
+
+	defer r.Body.Close()
+	err := json.NewDecoder(r.Body).Decode(payload)
+	fp.suite.Nil(err)
+
+	msg := map[string]string{"msg": "success"}
+	respBytes, err := json.Marshal(msg)
+	fp.suite.Nil(err)
+	w.Write(respBytes)
 }
 
 func (fp *fakePhoenix) handleLogin(w http.ResponseWriter, r *http.Request) {
@@ -64,7 +124,7 @@ func (fp *fakePhoenix) handleLogin(w http.ResponseWriter, r *http.Request) {
 		Email:      "admin@admin.com",
 		Ratchet:    0,
 		Name:       "Frankly Admin",
-		Expiration: 1473726411,
+		Expiration: fp.authExpires.Unix(),
 		Issuer:     "FC",
 		IsAdmin:    true,
 	}

@@ -1,8 +1,11 @@
 package lib
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
+	"time"
 
 	"github.com/FoxComm/middlewarehouse/consumers"
 	"github.com/FoxComm/middlewarehouse/models/activities"
@@ -11,6 +14,7 @@ import (
 type PhoenixClient interface {
 	Authenticate() error
 	CapturePayment(activities.ISiteActivity) error
+	IsAuthenticated() bool
 }
 
 func NewPhoenixClient(baseURL, email, password string) PhoenixClient {
@@ -22,14 +26,53 @@ func NewPhoenixClient(baseURL, email, password string) PhoenixClient {
 }
 
 type phoenixClient struct {
-	baseURL  string
-	jwt      string
-	email    string
-	password string
+	baseURL       string
+	jwt           string
+	jwtExpiration int64
+	email         string
+	password      string
 }
 
 func (c *phoenixClient) CapturePayment(activity activities.ISiteActivity) error {
+	if !c.IsAuthenticated() {
+		if err := c.Authenticate(); err != nil {
+			return fmt.Errorf(
+				"Unable to authenticate with %s - cannot proceed with capture",
+				err.Error(),
+			)
+		}
+	}
+
+	capture, err := NewCapturePayload(activity)
+	if err != nil {
+		return err
+	}
+
+	url := fmt.Sprintf("%s/v1/service/capture", c.baseURL)
+	headers := map[string]string{
+		"JWT": c.jwt,
+	}
+
+	_, err = consumers.Post(url, headers, &capture)
+	if err != nil {
+		log.Printf(err.Error())
+		return err
+	}
+
 	return nil
+}
+
+func (c *phoenixClient) IsAuthenticated() bool {
+	if c.jwt == "" {
+		return false
+	}
+
+	currentUnix := time.Now().Unix()
+	if currentUnix > c.jwtExpiration {
+		return false
+	}
+
+	return true
 }
 
 func (c *phoenixClient) Authenticate() error {
@@ -44,7 +87,7 @@ func (c *phoenixClient) Authenticate() error {
 
 	resp, err := consumers.Post(url, headers, &payload)
 	if err != nil {
-		return fmt.Errorf("Unable to capture payment: %s", err.Error())
+		return fmt.Errorf("Unable to login: %s", err.Error())
 	}
 
 	jwt, ok := resp.Header["Jwt"]
@@ -60,6 +103,14 @@ func (c *phoenixClient) Authenticate() error {
 	}
 
 	c.jwt = jwt[0]
+
+	defer resp.Body.Close()
+	loginResp := new(LoginResponse)
+	if err := json.NewDecoder(resp.Body).Decode(loginResp); err != nil {
+		return fmt.Errorf("Error reading login response: %s", err.Error())
+	}
+
+	c.jwtExpiration = loginResp.Expiration
 
 	return nil
 }
