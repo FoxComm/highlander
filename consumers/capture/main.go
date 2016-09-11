@@ -47,7 +47,7 @@ func main() {
 
 	client := lib.NewPhoenixClient(phoenixURL, phoenixUser, phoenixPassword)
 	if err := client.Authenticate(); err != nil {
-		log.Fatalf("Unable to authenticate with Phoenix")
+		log.Fatalf("Unable to authenticate with Phoenix with error %s", err.Error())
 	}
 
 	oh, err := NewShipmentHandler(config.MiddlewarehouseURL, client)

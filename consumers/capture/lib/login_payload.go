@@ -1,7 +1,7 @@
 package lib
 
 type LoginPayload struct {
-	Email    string `binding:"required"`
-	Kind     string `binding:"required"`
-	Password string `binding:"required"`
+	Email    string `json:"email" binding:"required"`
+	Kind     string `json:"kind" binding:"required"`
+	Password string `json:"password" binding:"required"`
 }

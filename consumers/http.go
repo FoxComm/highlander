@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -12,6 +13,8 @@ func Post(url string, headers map[string]string, payload interface{}) (*http.Res
 	if err != nil {
 		return nil, fmt.Errorf("Unable to marshal payload: %s", err.Error())
 	}
+
+	log.Printf("Payload contents: %s", string(payloadBytes))
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(payloadBytes))
 	if err != nil {
@@ -30,7 +33,17 @@ func Post(url string, headers map[string]string, payload interface{}) (*http.Res
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
-		return resp, fmt.Errorf("Error in POST response: %s", resp.Status)
+		respBody := new(map[string]interface{})
+		defer resp.Body.Close()
+		if err := json.NewDecoder(resp.Body).Decode(respBody); err != nil {
+			return nil, fmt.Errorf("Error in POST response: %s", resp.Status)
+		}
+
+		return nil, fmt.Errorf(
+			"Error in POST response - status: %s, body %v",
+			resp.Status,
+			respBody,
+		)
 	}
 
 	return resp, nil
