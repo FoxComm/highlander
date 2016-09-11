@@ -5,14 +5,14 @@
   sudo: true
   with_items:
     - zlib1g-dev
-    - autoconf 
+    - autoconf
     - libtool
-    - python-dev 
-    - libcurl4-nss-dev 
-    - libsasl2-dev 
-    - libsasl2-modules 
-    - maven 
-    - libapr1-dev 
+    - python-dev
+    - libcurl4-nss-dev
+    - libsasl2-dev
+    - libsasl2-modules
+    - maven
+    - libapr1-dev
     - libsvn-dev
 
 - name: Setup Mesos Data Dir

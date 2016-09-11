@@ -18,7 +18,7 @@ clean:
 lint:
 	ansible-lint -x ANSIBLE0007,ANSIBLE0004 ansible/*.yml
 
-test: 
+test:
 	go get github.com/stretchr/testify
 	$(GO) test -v ./inventory/
 
@@ -37,8 +37,23 @@ bootstrap-messaging-plugin:
 bootstrap-middlewarehouse:
 	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_middlewarehouse.yml --private-key=$(PRIVATE_KEY)
 
-bootstrap-tinystack:
-	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml --private-key=$(PRIVATE_KEY)
+bootstrap-staging:
+	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml
+
+bootstrap-staging-backend:
+	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml --tags=backend
+
+bootstrap-staging-frontend:
+	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml --tags=frontend
+
+bootstrap-target:
+	ansible-playbook -v -i bin/envs/target ansible/bootstrap_vanilla.yml
+
+bootstrap-target-openvpn-key:
+	ansible-playbook -v -i bin/envs/target ansible/bootstrap_openvpn_key.yml
+
+bootstrap-target-vpn:
+	ansible-playbook -v -i bin/envs/target_vpn ansible/bootstrap_vanilla_vpn.yml
 
 bootstrap-vanilla:
 	ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_vanilla.yml
@@ -52,28 +67,28 @@ bootstrap-vanilla-openvpn-key:
 bootstrap-vanilla-vpn:
 	ansible-playbook -v -i bin/envs/vanilla_vpn ansible/bootstrap_vanilla_vpn.yml
 
-bootstrap-target:
-	ansible-playbook -v -i bin/envs/target ansible/bootstrap_vanilla.yml
+bootstrap-db:
+	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_db.yml
 
-bootstrap-target-openvpn-key:
-	ansible-playbook -v -i bin/envs/target ansible/bootstrap_openvpn_key.yml
-
-bootstrap-target-vpn:
-	ansible-playbook -v -i bin/envs/target_vpn ansible/bootstrap_vanilla_vpn.yml
+bootstrap-zk:
+	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_zookeeper.yml
 
 deploy-stage:
 	ansible-playbook -v -i bin/envs/staging ansible/stage.yml
 
-deploy-stage-backend:
-	ansible-playbook -v -i bin/envs/staging ansible/stage.yml --tags=backend
-
-deploy-stage-frontend:
-	ansible-playbook -v -i bin/envs/staging ansible/stage.yml --tags=frontend
+deploy-stage-highlander:
+	ansible-playbook -v -i bin/envs/staging ansible/stage_highlander.yml
 
 deploy-gatling:
 	ansible-playbook -v -i bin/envs/staging ansible/gatling.yml
 
+deploy-gatling-highlander:
+	ansible-playbook -v -i bin/envs/staging ansible/gatling_highlander.yml
+
 run-gatling: deploy-gatling
+	ansible-playbook -v -i bin/envs/staging ansible/run_gatling.yml
+
+run-gatling-highlander: deploy-gatling-highlander
 	ansible-playbook -v -i bin/envs/staging ansible/run_gatling.yml
 
 deploy-usertest1:
@@ -87,9 +102,6 @@ deploy-dem1:
 
 deploy-dem2:
 	ansible-playbook -v -i bin/envs/staging ansible/dem2.yml
-
-tf-aws-demo:
-	terraform $(TF_CMD) -state=$(TF_ENVS)/aws_demo_env/terraform.tfstate -var-file=$(TF_ENVS)/aws_demo_env/demo.tfvars $(TF_BASE)/aws_demo_env
 
 tf-aws-target:
 	terraform $(TF_CMD) -state=$(TF_ENVS)/aws_target/terraform.tfstate -var-file=$(TF_ENVS)/aws_target/target.tfvars $(TF_BASE)/aws_target

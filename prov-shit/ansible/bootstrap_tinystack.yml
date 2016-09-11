@@ -8,26 +8,25 @@
     user: '{{ansible_ssh_user}}'
     seeds_cmd: utils.seeds.Seeds seed --seedDemo 1
     updating_mwh: true
+    middlewarehouse_src: "{{gopath}}/src/github.com/FoxComm/highlander/middlewarehouse"
   vars_prompt:
     - name: "hostname"
       prompt: "Enter a hostname with a backend to provision"
       default: "vanilla-backend"
       private: no
-    - name: "seed_predefined_admins"
-      prompt: "Seed predefined admins or create only one manually? P - predefined. M - manually"
-      default: "P"
+    - name: "gopath"
+      prompt: "Enter your GOPATH value"
+      default: "/Users/ejik/golang"
       private: no
 
   roles:
     - { role: dev/kafka }
     - { role: dev/elasticsearch }
-    - { role: dev/db }
     - { role: dev/phoenix }
+    - { role: dev/db }
     - { role: dev/isaac }
-    - { role: dev/seeder }
     - { role: dev/greenriver }
     - { role: dev/middlewarehouse }
-    - { role: prod/bootstrap_manual_or_predefined_admins }
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml

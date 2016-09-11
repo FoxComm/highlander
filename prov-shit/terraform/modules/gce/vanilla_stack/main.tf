@@ -201,13 +201,13 @@ resource "google_compute_instance_template" "service_worker_template" {
         scopes = ["storage-ro"]
     }
 
-    lifecycle { 
+    lifecycle {
         create_before_destroy = true
     }
 
     metadata {
         startup-script = "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${var.amigo_leader}"
-    } 
+    }
 }
 
 resource "google_compute_instance_group_manager" "service_worker_group_manager" {
@@ -216,7 +216,7 @@ resource "google_compute_instance_group_manager" "service_worker_group_manager" 
     instance_template = "${google_compute_instance_template.service_worker_template.self_link}"
     target_size = "${var.service_workers}"
     zone = "${var.zone}"
-    
+
 }
 
 resource "google_compute_instance" "greenriver" {
@@ -263,7 +263,7 @@ resource "google_compute_instance_template" "front_template" {
         network = "${var.network}"
     }
 
-    lifecycle { 
+    lifecycle {
         create_before_destroy = true
     }
 
@@ -289,13 +289,13 @@ resource "google_compute_instance_group_manager" "front_group_manager" {
     }
 }
 
-resource "google_compute_instance" "stage-amigo" { 
+resource "google_compute_instance" "stage-amigo" {
     name = "${var.stage_datacenter}-amigo"
     machine_type = "n1-standard-1"
     tags = ["no-ip", "${var.stage_datacenter}-amigo", "${var.stage_datacenter}"]
     zone = "us-central1-a"
 
-    metadata { 
+    metadata {
         consul_dc = "${var.stage_datacenter}"
     }
 
@@ -303,13 +303,13 @@ resource "google_compute_instance" "stage-amigo" {
         image = "${var.stage_amigo_image}"
         type = "pd-ssd"
         size = "20"
-    }   
+    }
 
     network_interface {
         network = "${var.network}"
     }
 
-    connection { 
+    connection {
         type = "ssh"
         user = "${var.ssh_user}"
         private_key="${file(var.ssh_private_key)}"
@@ -323,7 +323,7 @@ resource "google_compute_instance" "stage-amigo" {
 
 }
 
-resource "google_compute_instance" "stage-frontend" { 
+resource "google_compute_instance" "stage-frontend" {
     name = "${var.stage_datacenter}-frontend"
     machine_type = "n1-standard-4"
     tags = ["no-ip", "http-server", "https-server", "${var.stage_datacenter}-frontend", "${var.stage_datacenter}"]
@@ -333,13 +333,13 @@ resource "google_compute_instance" "stage-frontend" {
         image = "${var.stage_frontend_image}"
         type = "pd-ssd"
         size = "30"
-    }   
+    }
 
     network_interface {
         network = "${var.network}"
     }
 
-    connection { 
+    connection {
         type = "ssh"
         user = "${var.ssh_user}"
         private_key="${file(var.ssh_private_key)}"
@@ -352,7 +352,7 @@ resource "google_compute_instance" "stage-frontend" {
     }
 }
 
-resource "google_compute_instance" "stage-backend" { 
+resource "google_compute_instance" "stage-backend" {
     name = "${var.stage_datacenter}-backend"
     machine_type = "n1-highmem-4"
     tags = ["no-ip", "${var.stage_datacenter}-backend", "${var.stage_datacenter}"]
@@ -362,13 +362,13 @@ resource "google_compute_instance" "stage-backend" {
         image = "${var.stage_backend_image}"
         type = "pd-ssd"
         size = "100"
-    }   
+    }
 
     network_interface {
         network = "${var.network}"
     }
 
-    connection { 
+    connection {
         type = "ssh"
         user = "${var.ssh_user}"
         private_key="${file(var.ssh_private_key)}"
@@ -380,4 +380,3 @@ resource "google_compute_instance" "stage-backend" {
         ]
     }
 }
-
