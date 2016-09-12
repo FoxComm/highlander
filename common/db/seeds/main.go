@@ -48,5 +48,48 @@ func createShippingMethods(db *gorm.DB) error {
 		return err
 	}
 
+	log.Printf("Seeding shipping methods...")
+	shippingRepo := repositories.NewShippingMethodRepository(db)
+
+	standardShipping := &models.ShippingMethod{
+		CarrierID: carrierUSPS.ID,
+		Name:      "Standard shipping",
+		Code:      "STANDARD",
+	}
+
+	if _, err = shippingRepo.CreateShippingMethod(standardShipping); err != nil {
+		return err
+	}
+
+	standardShippingFree := &models.ShippingMethod{
+		CarrierID: carrierUSPS.ID,
+		Name:      "Standard shipping",
+		Code:      "STANDARD-FREE",
+	}
+
+	if _, err = shippingRepo.CreateShippingMethod(standardShippingFree); err != nil {
+		return err
+	}
+
+	expressShipping := &models.ShippingMethod{
+		CarrierID: carrierFedEx.ID,
+		Name:      "2-3 day express",
+		Code:      "EXPRESS",
+	}
+
+	if _, err = shippingRepo.CreateShippingMethod(expressShipping); err != nil {
+		return err
+	}
+
+	overnightShipping := &models.ShippingMethod{
+		CarrierID: carrierFedEx.ID,
+		Name:      "Overnight shipping",
+		Code:      "OVERNIGHT",
+	}
+
+	if _, err = shippingRepo.CreateShippingMethod(overnightShipping); err != nil {
+		return err
+	}
+
 	return nil
 }
