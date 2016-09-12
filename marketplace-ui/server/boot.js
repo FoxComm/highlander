@@ -1,15 +1,12 @@
-
-const path = require('path');
-
-process.env.NODE_PATH = `${process.env.NODE_PATH}:${path.resolve('./src/core')}`;
-
 require('babel-register')();
 require('../src/postcss').installHook();
-require('./env_defaults');
+
+process.env.NODE_ENV = process.env.NODE_ENV || 'development';
+process.env.API_URL = process.env.API_URL || 'http://localhost';
 
 const App = require('./app').default;
 
-process.title = 'm-firebird';
+process.title = 'm-merchant';
 
 const app = new App();
 app.start();

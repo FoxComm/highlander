@@ -18,19 +18,17 @@ for (const task of fs.readdirSync('./tasks')) {
   }
 }
 
-gulp.task('build', function(cb) {
-  runSequence('templates', 'browserify', 'css', 'images', cb);
+gulp.task('build', function (cb) {
+  runSequence('templates', 'browserify', 'css', cb);
 });
 
-gulp.task('dev', function(cb) {
+gulp.task('dev', function (cb) {
   opts.devMode = true;
 
   const tasks = _.compact([
     'build',
     'server',
     'watch',
-    'interactivity',
-    opts.enableNotifier ? 'notifier' : null,
   ]);
 
   runSequence.apply(this, tasks.concat(cb));
