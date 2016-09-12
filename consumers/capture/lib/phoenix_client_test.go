@@ -29,7 +29,7 @@ func TestPhoenixClientSuite(t *testing.T) {
 func (suite *PhoenixClientTestSuite) TestAuthenticate() {
 	authExpires := time.Now().AddDate(0, 0, 1)
 
-	fp := fakePhoenix{username, password, authExpires, suite}
+	fp := newFakePhoenix(username, password, authExpires, "", suite)
 	ts := httptest.NewServer(http.HandlerFunc(fp.ServeHTTP))
 	defer ts.Close()
 
@@ -42,7 +42,7 @@ func (suite *PhoenixClientTestSuite) TestAuthenticate() {
 func (suite *PhoenixClientTestSuite) TestNotAuthedWithOldExpiration() {
 	authExpires := time.Now().AddDate(0, 0, -1)
 
-	fp := fakePhoenix{username, password, authExpires, suite}
+	fp := newFakePhoenix(username, password, authExpires, "", suite)
 	ts := httptest.NewServer(http.HandlerFunc(fp.ServeHTTP))
 	defer ts.Close()
 
@@ -60,33 +60,55 @@ func (suite *PhoenixClientTestSuite) TestNotAuthedOnInit() {
 func (suite *PhoenixClientTestSuite) TestCapture() {
 	authExpires := time.Now().AddDate(0, 0, 1)
 
-	fp := fakePhoenix{username, password, authExpires, suite}
+	shipment := fixtures.GetShipmentShort(1)
+	fp := newFakePhoenix(username, password, authExpires, shipment.ReferenceNumber, suite)
 	ts := httptest.NewServer(http.HandlerFunc(fp.ServeHTTP))
 	defer ts.Close()
 
-	shipment := fixtures.GetShipmentShort(1)
 	activity, err := activities.NewShipmentShipped(shipment, time.Now())
 
 	client := NewPhoenixClient(ts.URL, username, password)
 	err = client.CapturePayment(activity)
 	suite.Nil(err)
+
+	suite.True(fp.LoginCalled)
+	suite.True(fp.CaptureCalled)
+	suite.True(fp.UpdateOrderCalled)
 }
 
 type fakePhoenix struct {
 	username    string
 	password    string
 	authExpires time.Time
+	refNum      string
 	suite       *PhoenixClientTestSuite
+
+	LoginCalled       bool
+	CaptureCalled     bool
+	UpdateOrderCalled bool
+}
+
+func newFakePhoenix(
+	username string,
+	password string,
+	authExpires time.Time,
+	refNum string,
+	suite *PhoenixClientTestSuite) *fakePhoenix {
+
+	return &fakePhoenix{username, password, authExpires, refNum, suite, false, false, false}
 }
 
 func (fp *fakePhoenix) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	url := r.URL.Path
+	updateURI := fmt.Sprintf("/v1/orders/%s", fp.refNum)
 
 	switch url {
 	case "/v1/public/login":
 		fp.handleLogin(w, r)
 	case "/v1/service/capture":
 		fp.handleCapture(w, r)
+	case updateURI:
+		fp.handleUpdateOrder(w, r)
 	default:
 		msg := fmt.Sprintf("Invalid route %s", url)
 		fp.suite.Fail(msg)
@@ -94,11 +116,14 @@ func (fp *fakePhoenix) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (fp *fakePhoenix) handleCapture(w http.ResponseWriter, r *http.Request) {
+	fp.CaptureCalled = true
+
 	payload := new(CapturePayload)
 
 	defer r.Body.Close()
 	err := json.NewDecoder(r.Body).Decode(payload)
 	fp.suite.Nil(err)
+	fp.suite.Equal(payload.ReferenceNumber, fp.refNum)
 
 	msg := map[string]string{"msg": "success"}
 	respBytes, err := json.Marshal(msg)
@@ -107,6 +132,8 @@ func (fp *fakePhoenix) handleCapture(w http.ResponseWriter, r *http.Request) {
 }
 
 func (fp *fakePhoenix) handleLogin(w http.ResponseWriter, r *http.Request) {
+	fp.LoginCalled = true
+
 	payload := new(LoginPayload)
 
 	defer r.Body.Close()
@@ -130,6 +157,22 @@ func (fp *fakePhoenix) handleLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	respBytes, err := json.Marshal(resp)
+	fp.suite.Nil(err)
+	w.Write(respBytes)
+}
+
+func (fp *fakePhoenix) handleUpdateOrder(w http.ResponseWriter, r *http.Request) {
+	fp.UpdateOrderCalled = true
+
+	payload := new(UpdateOrderPayload)
+
+	defer r.Body.Close()
+	err := json.NewDecoder(r.Body).Decode(payload)
+	fp.suite.Nil(err)
+	fp.suite.Equal(payload.State, "shipped")
+
+	msg := map[string]string{"msg": "success"}
+	respBytes, err := json.Marshal(msg)
 	fp.suite.Nil(err)
 	w.Write(respBytes)
 }

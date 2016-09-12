@@ -67,6 +67,12 @@ func (c *phoenixClient) CapturePayment(activity activities.ISiteActivity) error 
 	}
 
 	log.Printf("Successfully captured from Phoenix with response: %v", captureResp)
+	log.Printf("Updating order state")
+
+	if err := c.UpdateOrder(capture.ReferenceNumber, "shipped", "shipped"); err != nil {
+		log.Printf("Enable to update order with error %s", err.Error())
+		return err
+	}
 
 	return nil
 }
