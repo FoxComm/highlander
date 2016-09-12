@@ -23,6 +23,7 @@ func GetShipment(
 		Base: gormfox.Base{
 			ID: id,
 		},
+		ReferenceNumber:    "FS10001",
 		ShippingMethodCode: shippingMethodCode,
 		ShippingMethod:     *shippingMethod,
 		OrderRefNum:        orderRefNum,

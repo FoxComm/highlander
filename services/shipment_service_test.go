@@ -46,7 +46,9 @@ func (suite *ShipmentServiceTestSuite) SetupTest() {
 func (suite *ShipmentServiceTestSuite) Test_GetShipmentsByOrderRefNum_ReturnsShipmentModels() {
 	//arrange
 	shipment1 := fixtures.GetShipmentShort(uint(1))
+	shipment1.ReferenceNumber = "FS10004"
 	shipment2 := fixtures.GetShipmentShort(uint(2))
+	shipment1.ReferenceNumber = "FS10005"
 
 	suite.Nil(suite.db.Set("gorm:save_associations", false).Create(&shipment1.Address).Error)
 	suite.Nil(suite.db.Create(&shipment1.ShippingMethod.Carrier).Error)

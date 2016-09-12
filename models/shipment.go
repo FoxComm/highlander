@@ -10,6 +10,7 @@ import (
 
 type Shipment struct {
 	gormfox.Base
+	ReferenceNumber    string
 	ShippingMethodCode string
 	ShippingMethod     ShippingMethod `gorm:"ForeignKey:ShippingMethodCode"`
 	OrderRefNum        string

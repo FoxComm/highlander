@@ -4,6 +4,7 @@ import "github.com/FoxComm/middlewarehouse/models"
 
 type Shipment struct {
 	ID                uint               `json:"id"`
+	ReferenceNumber   string             `json:"referenceNumber"`
 	ShippingMethod    ShippingMethod     `json:"shippingMethod"`
 	OrderRefNum       string             `json:"orderRefNum"`
 	State             string             `json:"state"`
@@ -13,11 +14,13 @@ type Shipment struct {
 	Address           Address            `json:"address"`
 	ShipmentLineItems []ShipmentLineItem `json:"lineItems"`
 	TrackingNumber    *string            `json:"trackingNumber"`
+	ShippingPrice     int                `json:"shippingPrice"`
 }
 
 func NewShipmentFromModel(model *models.Shipment) *Shipment {
 	shipment := &Shipment{
 		ID:                model.ID,
+		ReferenceNumber:   model.ReferenceNumber,
 		ShippingMethod:    *NewShippingMethodFromModel(&model.ShippingMethod),
 		OrderRefNum:       model.OrderRefNum,
 		State:             string(model.State),
@@ -27,6 +30,7 @@ func NewShipmentFromModel(model *models.Shipment) *Shipment {
 		Address:           *NewAddressFromModel(&model.Address),
 		ShipmentLineItems: make([]ShipmentLineItem, 0),
 		TrackingNumber:    NewStringFromSqlNullString(model.TrackingNumber),
+		ShippingPrice:     model.ShippingPrice,
 	}
 
 	for i := range model.ShipmentLineItems {

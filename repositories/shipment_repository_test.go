@@ -61,8 +61,10 @@ func (suite *ShipmentRepositoryTestSuite) TearDownSuite() {
 func (suite *ShipmentRepositoryTestSuite) Test_GetShipmentsByOrderRefNum_Found_ReturnsShipmentModels() {
 	//arrange
 	shipment1 := fixtures.GetShipment(1, "BR10005", suite.shippingMethod.Code, suite.shippingMethod, suite.address.ID, suite.address, nil)
+	shipment1.ReferenceNumber = "FS10002"
 	suite.Nil(suite.db.Create(shipment1).Error)
 	shipment2 := fixtures.GetShipment(2, "BR10005", suite.shippingMethod.Code, suite.shippingMethod, suite.address.ID, suite.address, nil)
+	shipment2.ReferenceNumber = "FS10003"
 	suite.Nil(suite.db.Create(shipment2).Error)
 
 	//act
