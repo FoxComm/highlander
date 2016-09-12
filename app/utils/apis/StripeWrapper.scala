@@ -2,17 +2,16 @@ package utils.apis
 
 import java.util.concurrent.Executors
 
-import scala.collection.JavaConversions.mapAsJavaMap
+import scala.collection.JavaConversions._
 import scala.concurrent.{ExecutionContext, Future, blocking}
 
 import cats.data.Xor
 import cats.implicits._
 import com.stripe.exception.{CardException, StripeException}
-import com.stripe.model.{DeletedExternalAccount, ExternalAccount, Charge ⇒ StripeCharge, Customer ⇒ StripeCustomer}
-import failures.StripeFailures.StripeFailure
+import com.stripe.model.{DeletedExternalAccount, ExternalAccount, Card ⇒ StripeCard, Charge ⇒ StripeCharge, Customer ⇒ StripeCustomer}
+import failures.StripeFailures.{CardNotFoundForNewCustomer, StripeFailure}
 import failures.{Failures, GeneralFailure}
 import services.{Result, ResultT}
-import utils.aliases.stripe._
 import utils.apis.StripeMappings.cardExceptionMap
 
 /**
@@ -27,9 +26,20 @@ class StripeWrapper extends StripeApiWrapper {
   def findCustomer(id: String): Result[StripeCustomer] =
     inBlockingPool(StripeCustomer.retrieve(id))
 
-  def findDefaultCard(customer: StripeCustomer): Result[StripeCard] =
-    inBlockingPool(customer.getSources.retrieve(customer.getDefaultSource))
+  def findCardByCustomerId(gatewayCustomerId: String, gatewayCardId: String): Result[StripeCard] =
+    inBlockingPool(StripeCustomer.retrieve(gatewayCustomerId).getSources.retrieve(gatewayCardId))
       .flatMap(accountToCard)(blockingIOPool)
+
+  def findCardForCustomer(stripeCustomer: StripeCustomer,
+                          gatewayCardId: String): Result[StripeCard] =
+    inBlockingPool(stripeCustomer.getSources.retrieve(gatewayCardId))
+      .flatMap(accountToCard)(blockingIOPool)
+
+  def getCustomersOnlyCard(stripeCustomer: StripeCustomer): Result[StripeCard] = {
+    val maybeCard  = stripeCustomer.getSources.getData.headOption
+    val cardXorNot = maybeCard.toRightXor(CardNotFoundForNewCustomer(stripeCustomer.getId).single)
+    accountToCard(cardXorNot)
+  }
 
   def createCustomer(options: Map[String, AnyRef]): Result[StripeCustomer] =
     inBlockingPool(StripeCustomer.create(mapAsJavaMap(options)))

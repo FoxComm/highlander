@@ -37,7 +37,9 @@ trait MockedApis extends MockitoSugar {
     when(mocked.findCustomer(any())).thenReturn(Result.good(stripeCustomer))
     when(mocked.createCustomer(any())).thenReturn(Result.good(stripeCustomer))
 
-    when(mocked.findDefaultCard(any())).thenReturn(Result.good(stripeCard))
+    when(mocked.findCardForCustomer(any(), any())).thenReturn(Result.good(stripeCard))
+    when(mocked.getCustomersOnlyCard(any())).thenReturn(Result.good(stripeCard))
+    when(mocked.findCardByCustomerId(any(), any())).thenReturn(Result.good(stripeCard))
     when(mocked.createCard(any(), any())).thenReturn(Result.good(stripeCard))
 
     when(mocked.updateExternalAccount(any(), any())).thenReturn(Result.good(new ExternalAccount))

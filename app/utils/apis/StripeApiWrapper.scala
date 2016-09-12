@@ -11,7 +11,7 @@ trait StripeApiWrapper {
 
   def findCustomer(id: String): Result[StripeCustomer]
 
-  def findDefaultCard(customer: StripeCustomer): Result[StripeCard]
+  def findCardByCustomerId(gatewayCustomerId: String, gatewayCardId: String): Result[StripeCard]
 
   def createCustomer(options: Map[String, AnyRef]): Result[StripeCustomer]
 
