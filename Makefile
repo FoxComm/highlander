@@ -18,7 +18,7 @@ $(BUILDDIRS):
 test: $(TESTDIRS)
 	$(MAKE) -C api-js test
 $(TESTDIRS): REPO = $(@:test-%=%)
-$(TESTDIRS): 
+$(TESTDIRS):
 	$(MAKE) -C $(REPO) test
 
 update: $(UPDATEDIRS)

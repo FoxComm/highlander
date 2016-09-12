@@ -46,7 +46,7 @@
 - name: Get Wangle
   git: repo=https://github.com/facebook/wangle.git dest={{wangle_install_dir}} version={{wangle_version}} force=yes
   tags: isaac
- 
+
 - name: Remove `git checkout master` from Proxygen Build Script
   lineinfile: dest={{proxygen_install_dir}}/proxygen/deps.sh state=absent regexp="checkout master"
   tags: isaac
@@ -82,12 +82,22 @@
     - glide
   tags: golang
 
+- name: Remove Ansible 2.x
+  command: pip uninstall -y ansible
+  tags: ansible19
+  sudo: true
+
+- name: Install Ansible 1.9.x
+  command: pip install ansible==1.9.4
+  tags: ansible19
+  sudo: true
+
 - name: Install Package for Ansible Lint
   apt: name=libffi-dev state=latest force=yes
   sudo: true
-  tags: ansible
+  tags: ansible-lint
 
 - name: Install ansible-lint
   pip: name=ansible-lint
   sudo: true
-  tags: ansible
+  tags: ansible-lint
