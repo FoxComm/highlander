@@ -1,6 +1,8 @@
+#!/bin/bash
+
 section() {
-    local hr=printf "$1%.s" $(seq 1 $(tput cols))
-    echo $hr
-    echo $2
-    echo $hr
+    local hr=$(printf '=%.s' $(seq 1 $(tput cols)))
+    printf $hr
+    printf "$1\n"
+    printf $hr
 }
