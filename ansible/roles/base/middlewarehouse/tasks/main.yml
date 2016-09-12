@@ -20,6 +20,10 @@
   copy: src={{shipments_consumer_bin_src}} dest={{shipments_consumer_bin}} mode="u+x,g+x,o+x"
   sudo: true
 
+- name: Copy capture-consumer Binary
+  copy: src={{capture_consumer_bin_src}} dest={{capture_consumer_bin}} mode="u+x,g+x,o+x"
+  sudo: true
+
 - name: Synchronize middlewarehouse Sql
   synchronize: src="{{middlewarehouse_src}}/sql" dest="{{middlewarehouse_dir}}" delete=yes recursive=yes
   sudo: true
@@ -42,6 +46,10 @@
   template: src=shipments-consumer.service dest="{{dest_services}}/shipments-consumer.service"
   sudo: true
 
+- name: Copy capture-consumer Service
+  template: src=capture-consumer.service dest="{{dest_services}}/capture-consumer.service"
+  sudo: true
+
 - name: Reload Systemd for middlewarehouse
   sudo: yes
   command: systemctl daemon-reload
@@ -56,6 +64,10 @@
 
 - name: Restart shipments-consumer
   service: name=shipments-consumer state=restarted enabled=yes
+  sudo: true
+
+- name: Restart capture-consumer
+  service: name=capture-consumer state=restarted enabled=yes
   sudo: true
 
 - name: Copy Consul Service File
