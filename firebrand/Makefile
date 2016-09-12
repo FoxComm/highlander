@@ -1,10 +1,9 @@
 
 setup:
 	npm install
-	npm build
 
 build: setup
-	gulp build
+	test -f .env && export eval `cat .env` || true && ./node_modules/.bin/gulp build
 	touch firebrand.tar.bz2
 	tar --exclude 'firebrand.tar.bz2' -jcf firebrand.tar.bz2 ./
 
