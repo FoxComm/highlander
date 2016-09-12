@@ -196,6 +196,50 @@
 
 + Response 200 (application/json)
 
+        {
+          "id": 1,
+          "context": {
+            "name": "default",
+            "attributes": {
+              "lang": "en",
+              "modality": "desktop"
+            }
+          },
+          "attributes": {
+            "code": {
+              "t": "string",
+              "v": "TEST-SKU"
+            },
+            "salePrice": {
+              "t": "price",
+              "v": {
+                "currency": "USD",
+                "value": 1899
+              }
+            },
+            "retailPrice": {
+              "t": "price",
+              "v": {
+                "currency": "USD",
+                "value": 1599
+              }
+            }
+          },
+          "albums": [
+            {
+              "name": "Desktop",
+              "images": [
+                {
+                  "alt": "Test SKU",
+                  "src": "http:/some.cdn.com/skus/1/test-sku.jpg"
+                }
+              ]
+            }
+          ],
+          "variantValueIds": [1],
+          "archivedAt": "2020-01-01T12:00:00Z"
+        }
+
 ## SKU Album [/v1/skus/{context}/{code}/albums/{id}]
 
 + Parameters
