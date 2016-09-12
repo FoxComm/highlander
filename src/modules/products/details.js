@@ -4,7 +4,6 @@
 
 // libs
 import { createAction, createReducer } from 'redux-act';
-import { push } from 'react-router-redux';
 import Api from 'lib/api';
 import { createEmptyProduct, configureProduct } from 'paragons/product';
 import createAsyncActions from '../async-utils';
@@ -13,16 +12,7 @@ import { dissoc } from 'sprout-data';
 // types
 import type { Product } from 'paragons/product';
 
-export type Error = {
-  status: ?number,
-  statusText: ?string,
-  messages: Array<string>,
-};
-
 export type ProductDetailsState = {
-  err: ?Error,
-  isFetching: boolean,
-  isUpdating: boolean,
   product: ?Product,
 };
 
@@ -89,11 +79,7 @@ function updateProductInState(state: ProductDetailsState, response) {
 }
 
 const initialState: ProductDetailsState = {
-  err: null,
-  isFetching: false,
-  isUpdating: false,
   product: null,
-  response: null,
 };
 
 export function clearSubmitErrors() {
