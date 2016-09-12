@@ -459,9 +459,9 @@ class CartIntegrationTest
             """.stripMargin).extract[QueryStatement]
 
     val lowSm = Factories.shippingMethods.head
-      .copy(adminDisplayName = "Low", conditions = Some(lowConditions))
+      .copy(adminDisplayName = "Low", conditions = Some(lowConditions), code = "HIGH")
     val highSm = Factories.shippingMethods.head
-      .copy(adminDisplayName = "High", conditions = Some(highConditions))
+      .copy(adminDisplayName = "High", conditions = Some(highConditions), code = "LOW")
 
     val (lowShippingMethod, inactiveShippingMethod, highShippingMethod) = (for {
       product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head.copy(price = 100))
@@ -469,7 +469,7 @@ class CartIntegrationTest
 
       lowShippingMethod ← * <~ ShippingMethods.create(lowSm)
       inactiveShippingMethod ← * <~ ShippingMethods.create(
-                                  lowShippingMethod.copy(isActive = false))
+                                  lowShippingMethod.copy(isActive = false, code = "INACTIVE"))
       highShippingMethod ← * <~ ShippingMethods.create(highSm)
 
       _ ← * <~ CartTotaler.saveTotals(cart)

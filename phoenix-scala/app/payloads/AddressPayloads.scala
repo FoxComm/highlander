@@ -1,5 +1,8 @@
 package payloads
 
+import models.traits.Addressable
+import shapeless._
+
 object AddressPayloads {
 
   case class CreateAddressPayload(name: String,
@@ -10,7 +13,11 @@ object AddressPayloads {
                                   zip: String,
                                   isDefault: Boolean = false,
                                   phoneNumber: Option[String] = None)
+      extends Addressable[CreateAddressPayload] {
+    val zipLens: Lens[CreateAddressPayload, String] = lens[CreateAddressPayload].zip
+  }
 
+  // TODO @anna: apply `Addressable` validations to each `Option` here
   case class UpdateAddressPayload(name: Option[String] = None,
                                   regionId: Option[Int] = None,
                                   state: Option[String] = None,
