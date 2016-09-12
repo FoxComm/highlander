@@ -153,7 +153,8 @@ object Avalara {
           Addresses = Seq(buildAddress(address, region, country)),
           Lines = lineItems.zipWithIndex.map(zipped ⇒ buildLine(zipped._1, zipped._2, address.id)),
           DocCode = cart.referenceNumber,
-          Commit = true
+          Commit = true,
+          DocType = SalesInvoice
       )
     }
 
@@ -166,7 +167,8 @@ object Avalara {
           CustomerCode = cart.customerId.toString,
           Addresses = Seq(buildAddress(address, region, country)),
           Lines = lineItems.zipWithIndex.map(zipped ⇒ buildLine(zipped._1, zipped._2, address.id)),
-          DocCode = cart.referenceNumber
+          DocCode = cart.referenceNumber,
+          DocType = SalesOrder
       )
     }
   }
@@ -205,7 +207,8 @@ object Avalara {
         Lines: Seq[Line],
         //Best Practice for tax calculation
         DocCode: String,
-        Commit: Boolean = false
+        Commit: Boolean = false,
+        DocType: DocType
     )
   }
 
@@ -313,7 +316,8 @@ class Avalara(url: String, account: String, license: String, profile: String)(
     am: ActorMaterializer)
     extends AvalaraApi {
 
-  implicit val formats: Formats = org.json4s.DefaultFormats + time.JavaTimeJson4sSerializer.jsonFormat + Money.jsonFormat + Avalara.Responses.SeverityLevel.jsonFormat
+  implicit val formats: Formats = org.json4s.DefaultFormats + time.JavaTimeJson4sSerializer.jsonFormat + Money.jsonFormat +
+      Avalara.Responses.SeverityLevel.jsonFormat + Avalara.DocType.jsonFormat
 
   implicit def responseUnmarshaller[T: Manifest]: FromResponseUnmarshaller[T] = {
     new Unmarshaller[HttpResponse, T] {
