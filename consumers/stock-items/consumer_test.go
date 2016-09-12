@@ -33,7 +33,7 @@ func (suite *ConsumerTestSuite) TestMessageHander() {
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		uri := r.URL.Path
-		suite.Equal("/stock-items", uri)
+		suite.Equal("/v1/public/stock-items", uri)
 
 		var stockItem models.StockItem
 		err := json.NewDecoder(r.Body).Decode(&stockItem)
