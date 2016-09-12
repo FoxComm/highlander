@@ -40,12 +40,12 @@ trait AvalaraApi {
                     lineItems: Seq[FindLineItemResult],
                     address: Address,
                     region: Region,
-                    country: Country)(implicit ec: EC): Result[Unit]
+                    country: Country)(implicit ec: EC): Result[Int]
   def getTaxForOrder(cart: Cart,
                      lineItems: Seq[FindLineItemResult],
                      address: Address,
                      region: Region,
-                     country: Country)(implicit ec: EC): Result[Unit]
+                     country: Country)(implicit ec: EC): Result[Int]
 
 }
 
@@ -280,8 +280,8 @@ object Avalara {
         TotalTax: Option[String],
         TotalTaxCalculated: Option[String],
         TaxDate: Option[String],
-        TaxLines: Seq[TaxLine],
-        TaxAddresses: Seq[TaxAddress],
+//        TaxLines: Seq[TaxLine],
+//        TaxAddresses: Seq[TaxAddress],
         ResultCode: SeverityLevel,
         Messages: Seq[Message]
     ) extends AvalaraResponse
@@ -364,7 +364,7 @@ class Avalara(url: String, account: String, license: String, profile: String)(
                              lineItems: Seq[FindLineItemResult],
                              address: Address,
                              region: Region,
-                             country: Country)(implicit ec: EC): Result[Unit] = {
+                             country: Country)(implicit ec: EC): Result[Int] = {
     println("getting taxes for cart")
     val payload = PayloadBuilder.buildOrder(cart, lineItems, address, region, country)
     println(payload)
@@ -376,14 +376,14 @@ class Avalara(url: String, account: String, license: String, profile: String)(
                               lineItems: Seq[FindLineItemResult],
                               address: Address,
                               region: Region,
-                              country: Country)(implicit ec: EC): Result[Unit] = {
+                              country: Country)(implicit ec: EC): Result[Int] = {
     val payload = PayloadBuilder.buildInvoice(cart, lineItems, address, region, country)
     println(payload)
     println(write(payload))
     getTax(payload)
   }
 
-  private def getTax(payload: Avalara.Requests.GetTaxes)(implicit ec: EC): Result[Unit] = {
+  private def getTax(payload: Avalara.Requests.GetTaxes)(implicit ec: EC): Result[Int] = {
     val connectionFlow: Flow[HttpRequest, HttpResponse, Future[Http.OutgoingConnection]] =
       Http().outgoingConnectionHttps(url)
     val headers: ImmutableSeq[HttpHeader] = ImmutableSeq(
@@ -408,10 +408,11 @@ class Avalara(url: String, account: String, license: String, profile: String)(
     result.flatMap { res ⇒
       if (!res.hasError) {
         println("no errors")
-        Result.unit
+        val taxCalculated = (res.TotalTaxCalculated.getOrElse("0").toDouble * 100).toInt
+        Result.good(taxCalculated)
       } else {
         println("request with error")
-        Result.unit
+        Result.good(0)
       }
     }.recoverWith {
       case err: Throwable ⇒ failureHandler(err)

@@ -13,7 +13,7 @@ object TaxesService {
 
   def fetchTax(cart: Cart,
                address: OrderShippingAddress,
-               region: Region)(implicit ec: EC, db: DB, apis: Apis): DbResultT[Unit] =
+               region: Region)(implicit ec: EC, db: DB, apis: Apis): DbResultT[Int] =
     for {
       _       ← * <~ DbResultT.good("fetch taxes")
       li      ← * <~ CartLineItems.byCordRef(cart.refNum).lineItems.result
