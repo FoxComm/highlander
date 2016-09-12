@@ -64,7 +64,7 @@ object CustomerRoutes {
         pathPrefix("addresses") {
           (get & pathEnd) {
             getOrFailures {
-              AddressManager.findAllByCustomer(Originator(admin), customerId)
+              AddressManager.findAllByCustomer(customerId)
             }
           } ~
           (post & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒

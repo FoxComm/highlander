@@ -177,6 +177,11 @@ object Customer {
               }
             } ~
             pathPrefix("addresses") {
+              (get & pathEnd) {
+                getOrFailures {
+                  AddressManager.findAllByCustomer(customer.id)
+                }
+              } ~
               (post & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
                 mutateOrFailures {
                   AddressManager.create(Originator(customer), payload, customer.id)
