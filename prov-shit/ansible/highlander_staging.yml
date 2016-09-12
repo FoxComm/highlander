@@ -17,7 +17,7 @@
     - { role: dev/greenriver }
     - { role: dev/messaging }
     - { role: dev/middlewarehouse }
-    
+
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml
 

@@ -89,7 +89,7 @@ run-gatling: deploy-gatling
 	ansible-playbook -v -i bin/envs/staging ansible/run_gatling.yml
 
 run-gatling-highlander: deploy-gatling-highlander
-	ansible-playbook -v -i bin/envs/staging ansible/run_gatling.yml
+	ansible-playbook -v -i bin/envs/staging ansible/run_gatling_highlander.yml
 
 tf-aws-target:
 	terraform $(TF_CMD) -state=$(TF_ENVS)/aws_target/terraform.tfstate -var-file=$(TF_ENVS)/aws_target/target.tfvars $(TF_BASE)/aws_target
