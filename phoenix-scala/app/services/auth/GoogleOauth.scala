@@ -32,17 +32,34 @@ class GoogleOauthCustomer(options: GoogleOauthOptions)
     with OauthService[User]
     with GoogleProvider {
 
-  def createByUserInfo(userInfo: UserInfo)(implicit ec: EC): DbResultT[User] =
+  def createByUserInfo(userInfo: UserInfo)(implicit ec: EC): DbResultT[User] = { 
+
+    val roleName = config.getString("user.customer_role")
+    val orgName = config.getString("user.customer_org")
+    val scope = config.getInt("user.customer_scope")
+
     for {
       account ← * <~ Accounts.create(Account())
       user ← * <~ Users.create(
                 Users(accountId = account.id, email = userInfo.email, name = userInfo.name))
-      //MAXDO Assign customer role
+      organization ← * <~ Organizations.findByNameInScope(orgName, scope);
+      role ← * <~ Roles.findByNameInScope(roleName, scope);
+
+      _ ← * <~ AccountOrganizations.create(
+        AccountOrganization(
+          accountId = account.id, 
+          organizationId = organization.id))
+
+      _ ← * <~ AccountRoles.create(
+        AccountRole(
+          accountId = account.id, 
+          roleId = role.id))
     } yield user
+  }
 
   def findByEmail(email: String)(implicit ec: EC, db: DB) = Users.findByEmail(email)
 
-  def createToken(user: User): Token = AccountToken.fromUser(customer)
+  def createToken(user: User): Token = AccountToken.fromUser(user)
 }
 
 object GoogleOauth {

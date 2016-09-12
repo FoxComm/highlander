@@ -4,6 +4,7 @@ import cats.implicits._
 import models.account.User
 import models.cord._
 import models.cord.lineitems.CartLineItems
+import models.customer.{CustomerUsers, CustomerUser}
 import models.account._
 import models.payment.creditcard._
 import responses.PromotionResponses.IlluminatedPromotionResponse
@@ -40,7 +41,8 @@ object CartResponse {
       lineItemsSku   ← * <~ CartLineItems.byCordRef(cart.refNum).result
       lineItems      ← * <~ CordResponseLineItems.fetchCart(cart.refNum, lineItemAdj)
       promo          ← * <~ CordResponsePromotions.fetch(cart.refNum)
-      customer       ← * <~ Users.findOneById(cart.accountId)
+      customer       ← * <~ Users.findOneByAccountId(cart.accountId)
+      customerUser   ← * <~ CustomerUsers.findOneByAccountId(cart.accountId)
       shippingMethod ← * <~ CordResponseShipping.shippingMethod(cart.refNum)
       shippingAddress ← * <~ CordResponseShipping
                          .shippingAddress(cart.refNum)
@@ -56,7 +58,10 @@ object CartResponse {
           promotion = promo.map { case (promotion, _) ⇒ promotion },
           coupon = promo.map { case (_, coupon)       ⇒ coupon },
           totals = CordResponseTotals.build(cart),
-          customer = customer.map(CustomerResponse.build(_)),
+          customer = for {
+            c  ← customer
+            cu ← customerUser
+          } yield CustomerResponse.build(c, cu),
           shippingMethod = shippingMethod,
           shippingAddress = shippingAddress,
           paymentMethods = paymentMethods,
@@ -64,14 +69,20 @@ object CartResponse {
           lockedBy = lockedBy
       )
 
-  def buildEmpty(cart: Cart, customer: Option[User]): CartResponse =
+  def buildEmpty(cart: Cart,
+                 customer: Option[User],
+                 customerUser: Option[CustomerUser]): CartResponse = {
     CartResponse(
         referenceNumber = cart.refNum,
         lineItems = CordResponseLineItems(),
-        customer = customer.map(CustomerResponse.build(_)),
+        customer = for {
+          c  ← customer
+          cu ← customerUser
+        } yield CustomerResponse.build(c, cu),
         totals = CordResponseTotals.empty,
         paymentState = CreditCardCharge.Cart
     )
+  }
 
   private def currentLock(cart: Cart): DBIO[Option[User]] =
     if (cart.isLocked) (for {

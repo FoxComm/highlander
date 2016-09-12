@@ -44,6 +44,56 @@ object CustomerUsers
 
   val returningLens: Lens[CustomerUser, Int] = lens[CustomerUser].id
 
+  object scope {
+    implicit class CustomersQuerySeqConversions(query: QuerySeq) {
+
+      /* Returns Query with additional information like
+       * included shippingRegion and billingRegion and rank for customer
+       * - shippingRegion comes from default address of customer
+       * - billingRegion comes from default creditCard of customer
+       * - rank is calculated as percentile from net revenue
+       */
+      def withRegionsAndRank: Query[(CustomerUsers,
+                                     Rep[Option[Regions]],
+                                     Rep[Option[Regions]],
+                                     Rep[Option[CustomersRanks]]),
+                                    (CustomerUser,
+                                     Option[Region],
+                                     Option[Region],
+                                     Option[CustomerRank]),
+                                    Seq] = {
+
+        val customerWithShipRegion = for {
+          ((c, a), r) ← query
+                         .joinLeft(Addresses)
+                         .on {
+                           case (a, b) ⇒
+                             a.accountId === b.accountId && b.isDefaultShipping === true
+                         }
+                         .joinLeft(Regions)
+                         .on(_._2.map(_.regionId) === _.id)
+        } yield (c, r)
+
+        val CcWithRegions = CreditCards.join(Regions).on {
+          case (c, r) ⇒ c.regionId === r.id && c.isDefault === true && c.inWallet === true
+        }
+
+        val withRegions = for {
+          ((c, shipRegion), billInfo) ← customerWithShipRegion
+                                         .joinLeft(CcWithRegions)
+                                         .on(_._1.accountId === _._1.accountId)
+        } yield (c, shipRegion, billInfo.map(_._2))
+
+        for {
+          ((c, shipRegion, billRegion), rank) ← withRegions
+                                                 .joinLeft(CustomersRanks)
+                                                 //MAXDO Verify this is correct
+                                                 .on(_._1.id === _.id)
+        } yield (c, shipRegion, billRegion, rank)
+      }
+    }
+  }
+
   def findGuests(email: String): DBIO[Option[CustomerUser]] = {
     filter(_.isGuest === true).one
   }

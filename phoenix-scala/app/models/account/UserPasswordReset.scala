@@ -1,4 +1,4 @@
-package models.user
+package models.account
 
 import java.time.Instant
 
@@ -15,7 +15,7 @@ import slick.jdbc.JdbcType
 import utils.generateUuid
 
 case class UserPasswordReset(id: Int = 0,
-                             userId: Int,
+                             accountId: Int,
                              email: String,
                              state: State = Initial,
                              code: String,
@@ -44,7 +44,7 @@ object UserPasswordReset {
 
   def optionFromUser(user: User): Option[UserPasswordReset] = {
     user.email.map { email ⇒
-      UserPasswordReset(userId = user.id, code = generateUuid, email = email)
+      UserPasswordReset(accountId = user.accountId, code = generateUuid, email = email)
     }
   }
 }
@@ -55,7 +55,7 @@ class UserPasswordResets(tag: Tag)
   import UserPasswordReset._
 
   def id          = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def userId      = column[Int]("user_id")
+  def accountId   = column[Int]("account_id")
   def email       = column[String]("email")
   def state       = column[UserPasswordReset.State]("state")
   def code        = column[String]("code")
@@ -63,7 +63,7 @@ class UserPasswordResets(tag: Tag)
   def createdAt   = column[Instant]("created_at")
 
   def * =
-    (id, userId, email, state, code, activatedAt, createdAt) <> ((UserPasswordReset.apply _).tupled,
+    (id, accountId, email, state, code, activatedAt, createdAt) <> ((UserPasswordReset.apply _).tupled,
         UserPasswordReset.unapply)
 }
 

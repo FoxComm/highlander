@@ -4,7 +4,7 @@ import java.time.Instant
 
 import failures.ShippingMethodFailures.ShippingMethodNotFoundInOrder
 import models.cord._
-import models.customer.Customers
+import models.customer.CustomerUsers
 import models.objects._
 import models.payment.creditcard._
 import responses.PromotionResponses.IlluminatedPromotionResponse
@@ -42,7 +42,8 @@ object OrderResponse {
       lineItemAdj ← * <~ CordResponseLineItemAdjustments.fetch(order.refNum)
       lineItems   ← * <~ CordResponseLineItems.fetch(order.refNum, lineItemAdj)
       promo       ← * <~ CordResponsePromotions.fetch(order.refNum)(db, ec, context)
-      customer    ← * <~ Users.findOneById(order.accountId)
+      customer    ← * <~ Users.findOneByAccountId(order.accountId)
+      customerUSer← * <~ CustomerUsers.findOneByAccountId(order.accountId)
       shippingMethod ← * <~ CordResponseShipping
                         .shippingMethod(order.refNum)
                         .mustFindOr(ShippingMethodNotFoundInOrder(order.refNum))
@@ -57,7 +58,12 @@ object OrderResponse {
           promotion = promo.map { case (promotion, _) ⇒ promotion },
           coupon = promo.map { case (_, coupon)       ⇒ coupon },
           totals = CordResponseTotals.build(order),
-          customer = customer.map(CustomerResponse.build(_)),
+
+          customer = for { 
+            c ← customer
+            cu ← customerUser
+          } yield CustomerResponse.build(c, cu),
+
           shippingMethod = shippingMethod,
           shippingAddress = shippingAddress,
           paymentMethods = paymentMethods,

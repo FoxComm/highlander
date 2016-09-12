@@ -15,7 +15,10 @@ create table organizations
     name varchar(255) not null,
     type generic_string,
     parent_id integer default null references organizations(id) on update restrict on delete restrict,
-    scope_id integer references scopes(id) on update restrict on delete restrict
+    scope_id integer references scopes(id) on update restrict on delete restrict,
+    created_at generic_timestamp,
+    updated_at generic_timestamp,
+    deleted_at timestamp without time zone null
 );
 
 create table scope_domains

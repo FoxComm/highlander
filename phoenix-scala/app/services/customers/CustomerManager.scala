@@ -70,16 +70,18 @@ object CustomerManager {
 
   def getById(accountId: Int)(implicit ec: EC, db: DB): DbResultT[Root] = {
     for {
-      customers ← * <~ Users
-                   .filter(_.accountId === accountId)
-                   .withRegionsAndRank
-                   .mustFindOneOr(NotFoundFailure404(User, accountId))
-      (customer, shipRegion, billRegion, rank) = customers
+      customer ← * <~ Users.mustFindByAccountId(accountId)
+      customerUsers ← * <~ CustomerUsers
+                       .filter(_.accountId === accountId)
+                       .withRegionsAndRank
+                       .mustFindOneOr(NotFoundFailure404(User, accountId))
+      (customerUser, shipRegion, billRegion, rank) = customers
       maxOrdersDate ← * <~ Orders.filter(_.accountId === accountId).map(_.placedAt).max.result
       phoneOverride ← * <~ (if (customer.phoneNumber.isEmpty) resolvePhoneNumber(accountId)
                             else DbResultT.good(None))
     } yield
       build(customer.copy(phoneNumber = customer.phoneNumber.orElse(phoneOverride)),
+            customerUser,
             shipRegion,
             billRegion,
             rank = rank,

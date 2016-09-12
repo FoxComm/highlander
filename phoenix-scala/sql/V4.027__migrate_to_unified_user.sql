@@ -56,6 +56,7 @@ alter table gift_cards rename customer_id to account_id;
 alter table store_credits rename customer_id to account_id;
 alter table returns rename customer_id to account_id;
 alter table returns rename message_to_customer to message_to_account;
+alter table user_password_resets rename user_id to account_id;
 
 -------------------------------------------------------------
 --- below are migrations from old system without roles to new
@@ -312,6 +313,7 @@ begin
     update gift_cards set account_id = account_id where account_id = c.id;
     update store_credits set account_id = account_id where account_id = c.id;
     update returns set account_id = account_id where account_id = c.id;
+    update user_password_resets set account_id = account_id where account_id = c.id;
 
     return account_id;
 end;
