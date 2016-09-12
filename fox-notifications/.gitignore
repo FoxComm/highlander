@@ -1,5 +1,4 @@
 target/*
-project.clj
 
 # repl stuff
 .nrepl-history
