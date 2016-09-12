@@ -23,6 +23,7 @@ import models.account.User
 import responses.TheResponse
 import responses.cord.CartResponse
 import services.discount.compilers._
+import services.taxes.TaxesService
 import services.{CartValidator, LogActivity}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
@@ -67,7 +68,8 @@ object CartPromotionUpdater {
       es: ES,
       db: DB,
       ac: AC,
-      ctx: OC): DbResultT[TheResponse[CartResponse]] =
+      ctx: OC,
+      apis: utils.apis.Apis): DbResultT[TheResponse[CartResponse]] =
     for {
       // Fetch base data
       cart ← * <~ getCartByOriginator(originator, refNum)
@@ -96,7 +98,8 @@ object CartPromotionUpdater {
       // Write event to application logs
       _ ← * <~ LogActivity.orderCouponAttached(cart, couponCode)
       // Response
-      cart      ← * <~ CartTotaler.saveTotals(cart)
+      tax       ← * <~ TaxesService.getTaxRate(cart)
+      cart      ← * <~ CartTotaler.saveTotals(cart, tax)
       validated ← * <~ CartValidator(cart).validate()
       response  ← * <~ CartResponse.buildRefreshed(cart)
     } yield TheResponse.validated(response, validated)
@@ -106,7 +109,8 @@ object CartPromotionUpdater {
       es: ES,
       db: DB,
       ac: AC,
-      ctx: OC): DbResultT[TheResponse[CartResponse]] =
+      ctx: OC,
+      apis: utils.apis.Apis): DbResultT[TheResponse[CartResponse]] =
     for {
       // Read
       cart            ← * <~ getCartByOriginator(originator, refNum)
@@ -119,7 +123,8 @@ object CartPromotionUpdater {
       _ ← * <~ OrderLineItemAdjustments
            .filterByOrderRefAndShadows(cart.refNum, deleteShadowIds)
            .delete
-      _         ← * <~ CartTotaler.saveTotals(cart)
+      tax       ← * <~ TaxesService.getTaxRate(cart)
+      _         ← * <~ CartTotaler.saveTotals(cart, tax)
       _         ← * <~ LogActivity.orderCouponDetached(cart)
       validated ← * <~ CartValidator(cart).validate()
       response  ← * <~ CartResponse.buildRefreshed(cart)

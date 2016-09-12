@@ -8,6 +8,7 @@ import models.account.User
 import payloads.UpdateShippingMethod
 import responses.TheResponse
 import responses.cord.CartResponse
+import services.taxes.TaxesService
 import services.{CartValidator, LogActivity, ShippingManager}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
@@ -23,7 +24,8 @@ object CartShippingMethodUpdater {
       es: ES,
       db: DB,
       ac: AC,
-      ctx: OC): DbResultT[TheResponse[CartResponse]] =
+      ctx: OC,
+      apis: utils.apis.Apis): DbResultT[TheResponse[CartResponse]] =
     for {
       cart           ← * <~ getCartByOriginator(originator, refNum)
       oldShipMethod  ← * <~ ShippingMethods.forCordRef(cart.refNum).one
@@ -45,7 +47,8 @@ object CartShippingMethodUpdater {
            .update(orderShipMethod.id.some)
       // update changed totals
       _         ← * <~ CartPromotionUpdater.readjust(cart).recover { case _ ⇒ Unit }
-      order     ← * <~ CartTotaler.saveTotals(cart)
+      tax       ← * <~ TaxesService.getTaxRate(cart)
+      order     ← * <~ CartTotaler.saveTotals(cart, tax)
       validated ← * <~ CartValidator(order).validate()
       response  ← * <~ CartResponse.buildRefreshed(order)
       _         ← * <~ LogActivity.orderShippingMethodUpdated(originator, response, oldShipMethod)
@@ -56,7 +59,8 @@ object CartShippingMethodUpdater {
       es: ES,
       db: DB,
       ac: AC,
-      ctx: OC): DbResultT[TheResponse[CartResponse]] =
+      ctx: OC,
+      apis: utils.apis.Apis): DbResultT[TheResponse[CartResponse]] =
     for {
       cart ← * <~ getCartByOriginator(originator, refNum)
       shipMethod ← * <~ ShippingMethods
@@ -65,7 +69,8 @@ object CartShippingMethodUpdater {
       _ ← * <~ OrderShippingMethods.findByOrderRef(cart.refNum).delete
       // update changed totals
       _     ← * <~ CartPromotionUpdater.readjust(cart).recover { case _ ⇒ Unit }
-      cart  ← * <~ CartTotaler.saveTotals(cart)
+      tax   ← * <~ TaxesService.getTaxRate(cart)
+      cart  ← * <~ CartTotaler.saveTotals(cart, tax)
       valid ← * <~ CartValidator(cart).validate()
       resp  ← * <~ CartResponse.buildRefreshed(cart)
       _     ← * <~ LogActivity.orderShippingMethodDeleted(originator, resp, shipMethod)

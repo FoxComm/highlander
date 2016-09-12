@@ -32,6 +32,7 @@ object CartShippingAddressUpdater {
       db: DB,
       ac: AC,
       ctx: OC,
+      es: ES,
       apis: Apis): DbResultT[TheResponse[CartResponse]] =
     for {
       cart      ← * <~ getCartByOriginator(originator, refNum)
@@ -42,9 +43,10 @@ object CartShippingAddressUpdater {
       shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(address, cart.refNum)
       region      ← * <~ Regions.mustFindById404(shipAddress.regionId)
       _           ← * <~ TaxesService.saveAddressValidationDetails(shipAddress)
-      _           ← * <~ TaxesService.fetchTax(cart, shipAddress, region)
-      validated   ← * <~ CartValidator(cart).validate()
-      response    ← * <~ CartResponse.buildRefreshed(cart)
+      tax         ← * <~ TaxesService.getTaxRate(cart)
+      updatedCart ← * <~ CartTotaler.saveTotals(cart, tax)
+      validated   ← * <~ CartValidator(updatedCart).validate()
+      response    ← * <~ CartResponse.buildRefreshed(updatedCart)
       _ ← * <~ LogActivity
            .orderShippingAddressAdded(originator, response, buildOneShipping(shipAddress, region))
     } yield TheResponse.validated(response, validated)
@@ -56,6 +58,7 @@ object CartShippingAddressUpdater {
       db: DB,
       ac: AC,
       ctx: OC,
+      es: ES,
       apis: Apis): DbResultT[TheResponse[CartResponse]] =
     for {
       cart        ← * <~ getCartByOriginator(originator, refNum)
@@ -64,8 +67,10 @@ object CartShippingAddressUpdater {
       shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(newAddress, cart.refNum)
       region      ← * <~ Regions.mustFindById404(shipAddress.regionId)
       _           ← * <~ TaxesService.saveAddressValidationDetails(shipAddress)
-      validated   ← * <~ CartValidator(cart).validate()
-      response    ← * <~ CartResponse.buildRefreshed(cart)
+      tax         ← * <~ TaxesService.getTaxRate(cart)
+      updatedCart ← * <~ CartTotaler.saveTotals(cart, tax)
+      validated   ← * <~ CartValidator(updatedCart).validate()
+      response    ← * <~ CartResponse.buildRefreshed(updatedCart)
       _ ← * <~ LogActivity
            .orderShippingAddressAdded(originator, response, buildOneShipping(shipAddress, region))
     } yield TheResponse.validated(response, validated)
@@ -77,6 +82,7 @@ object CartShippingAddressUpdater {
       db: DB,
       ac: AC,
       ctx: OC,
+      es: ES,
       apis: Apis): DbResultT[TheResponse[CartResponse]] =
     for {
       cart        ← * <~ getCartByOriginator(originator, refNum)
@@ -85,8 +91,10 @@ object CartShippingAddressUpdater {
       updatedAddress ← * <~ OrderShippingAddresses.update(shipAddress, patch)
       region         ← * <~ Regions.mustFindById404(shipAddress.regionId)
       _              ← * <~ TaxesService.saveAddressValidationDetails(updatedAddress)
-      validated      ← * <~ CartValidator(cart).validate()
-      response       ← * <~ CartResponse.buildRefreshed(cart)
+      tax            ← * <~ TaxesService.getTaxRate(cart)
+      updatedCart    ← * <~ CartTotaler.saveTotals(cart, tax)
+      validated      ← * <~ CartValidator(updatedCart).validate()
+      response       ← * <~ CartResponse.buildRefreshed(updatedCart)
       _ ← * <~ LogActivity.orderShippingAddressUpdated(originator,
                                                        response,
                                                        buildOneShipping(shipAddress, region))

@@ -493,7 +493,7 @@ class CartIntegrationTest
                                     lowShippingMethod.copy(isActive = false, code = "INACTIVE"))
         highShippingMethod ← * <~ ShippingMethods.create(highSm)
 
-        _ ← * <~ CartTotaler.saveTotals(cart)
+        _ ← * <~ CartTotaler.saveTotals(cart, 5)
       } yield (lowShippingMethod, inactiveShippingMethod, highShippingMethod)
     }).gimme
   }

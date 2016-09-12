@@ -75,6 +75,7 @@ trait OrderGenerator extends ShipmentSeeds {
   }
 
   private val yesterday: Instant = time.yesterday.toInstant
+  private val staticTaxRate: Int = 5
 
   def manualHoldOrder(accountId: Int,
                       context: ObjectContext,
@@ -188,7 +189,7 @@ trait OrderGenerator extends ShipmentSeeds {
       addr ← * <~ getDefaultAddress(accountId)
       _ ← * <~ OrderShippingAddresses.create(
              OrderShippingAddress.buildFromAddress(addr).copy(cordRef = cart.refNum))
-      _ ← * <~ CartTotaler.saveTotals(cart, 5)
+      _ ← * <~ CartTotaler.saveTotals(cart, staticTaxRate)
     } yield cart
   }
 
@@ -205,7 +206,7 @@ trait OrderGenerator extends ShipmentSeeds {
       addr ← * <~ getDefaultAddress(accountId)
       _ ← * <~ OrderShippingAddresses.create(
              OrderShippingAddress.buildFromAddress(addr).copy(cordRef = cart.refNum))
-      _ ← * <~ CartTotaler.saveTotals(cart)
+      _ ← * <~ CartTotaler.saveTotals(cart, staticTaxRate)
     } yield cart
 
   def shippedOrderUsingCreditCard(accountId: Int,

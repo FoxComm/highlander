@@ -11,9 +11,18 @@ import utils.db._
 
 object TaxesService {
 
-  def fetchTax(cart: Cart,
-               address: OrderShippingAddress,
-               region: Region)(implicit ec: EC, db: DB, apis: Apis): DbResultT[Int] =
+  def getTaxRate(
+      cart: Cart)(implicit ec: EC, es: ES, db: DB, ctx: OC, apis: Apis): DbResultT[Int] =
+    for {
+      maybeAddress ← * <~ OrderShippingAddresses.findByOrderRefWithRegions(cart.refNum).one
+      result ← * <~ maybeAddress.map { addressTuple ⇒
+                fetchTax(cart, addressTuple._1, addressTuple._2)
+              }.getOrElse(DbResultT.good(0))
+    } yield result
+
+  private def fetchTax(cart: Cart,
+                       address: OrderShippingAddress,
+                       region: Region)(implicit ec: EC, db: DB, apis: Apis): DbResultT[Int] =
     for {
       _       ← * <~ DbResultT.good("fetch taxes")
       li      ← * <~ CartLineItems.byCordRef(cart.refNum).lineItems.result
