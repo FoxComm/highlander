@@ -2,8 +2,8 @@ package responses.cord
 
 import java.time.Instant
 
+import models.account.User
 import models.cord.Order
-import models.customer.Customer
 import models.payment.creditcard.CreditCardCharge
 import responses.ResponseItem
 

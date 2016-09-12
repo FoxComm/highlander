@@ -11,8 +11,8 @@ object UserFailures {
     override def description = "The email address you entered is already in use"
   }
 
-  case object UserWithAccountNotFound(accountId: Int) extends Failure {
-    override def description = s"User with account id $accoundId not found"
+  case class UserWithAccountNotFound(accountId: Int) extends Failure {
+    override def description = s"User with account id $accountId not found"
   }
 
   case class UserIsBlacklisted(accountId: Int) extends Failure {

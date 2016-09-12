@@ -74,8 +74,8 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
     } yield TheResponse.build(response, errors = notFoundAdmins)
 
   def unassign(key: K, assigneeId: Int, originator: User)(implicit ec: EC,
-                                                                db: DB,
-                                                                ac: AC): DbResultT[Seq[Root]] =
+                                                          db: DB,
+                                                          ac: AC): DbResultT[Seq[Root]] =
     for {
       // Validation + unassign
       entity ← * <~ fetchEntity(key)

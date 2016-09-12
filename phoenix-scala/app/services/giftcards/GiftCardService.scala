@@ -53,8 +53,8 @@ object GiftCardService {
     }
 
   def createByAdmin(admin: User, payload: GiftCardCreateByCsr)(implicit ec: EC,
-                                                                     db: DB,
-                                                                     ac: AC): DbResultT[Root] =
+                                                               db: DB,
+                                                               ac: AC): DbResultT[Root] =
     for {
       _ ← * <~ payload.validate
       _ ← * <~ Reasons.mustFindById400(payload.reasonId)
@@ -86,10 +86,9 @@ object GiftCardService {
                 }
     } yield response
 
-  def bulkUpdateStateByCsr(payload: GiftCardBulkUpdateStateByCsr, admin: User)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC): DbResultT[Seq[ItemResult]] =
+  def bulkUpdateStateByCsr(
+      payload: GiftCardBulkUpdateStateByCsr,
+      admin: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[Seq[ItemResult]] =
     for {
       _ ← * <~ payload.validate.toXor
       response ← * <~ payload.codes.map { code ⇒

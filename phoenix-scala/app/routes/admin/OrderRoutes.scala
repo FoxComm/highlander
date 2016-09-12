@@ -106,9 +106,7 @@ object OrderRoutes {
           pathPrefix("payment-methods" / "credit-cards") {
             (post & pathEnd & entity(as[CreditCardPayment])) { payload ⇒
               mutateOrFailures {
-                CartPaymentUpdater.addCreditCard(admin,
-                                                 payload.creditCardId,
-                                                 refNum.some)
+                CartPaymentUpdater.addCreditCard(admin, payload.creditCardId, refNum.some)
               }
             } ~
             (delete & pathEnd) {
@@ -177,9 +175,7 @@ object OrderRoutes {
           pathPrefix("shipping-method") {
             (patch & pathEnd & entity(as[UpdateShippingMethod])) { payload ⇒
               mutateOrFailures {
-                CartShippingMethodUpdater.updateShippingMethod(admin,
-                                                               payload,
-                                                               Some(refNum))
+                CartShippingMethodUpdater.updateShippingMethod(admin, payload, Some(refNum))
               }
             } ~
             (delete & pathEnd) {

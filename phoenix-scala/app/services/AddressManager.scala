@@ -23,24 +23,21 @@ object AddressManager {
       case AdminOriginator(_)    ⇒ Addresses.findAllActiveByAccountIdWithRegions(accountId)
       case CustomerOriginator(_) ⇒ Addresses.findAllByAccountIdWithRegions(accountId)
     }
-    */
-
+      */
     val query = Addresses.findAllActiveByAccountIdWithRegions(accountId)
     for (records ← * <~ query.result) yield AddressResponse.buildMulti(records)
   }
 
-  def get(originator: User, addressId: Int, accountId: Int)(
-      implicit ec: EC,
-      db: DB): DbResultT[AddressResponse] =
+  def get(originator: User, addressId: Int, accountId: Int)(implicit ec: EC,
+                                                            db: DB): DbResultT[AddressResponse] =
     for {
       address  ← * <~ findByOriginator(originator, addressId, accountId)
       response ← * <~ AddressResponse.fromAddress(address)
     } yield response
 
-  def create(originator: User, payload: CreateAddressPayload, accountId: Int)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC): DbResultT[AddressResponse] =
+  def create(originator: User,
+             payload: CreateAddressPayload,
+             accountId: Int)(implicit ec: EC, db: DB, ac: AC): DbResultT[AddressResponse] =
     for {
       customer ← * <~ Users.mustFindByAccountId(accountId)
       address  ← * <~ Addresses.create(Address.fromPayload(payload).copy(accountId = accountId))
@@ -68,8 +65,8 @@ object AddressManager {
     } yield response
 
   def remove(originator: User, addressId: Int, accountId: Int)(implicit ec: EC,
-                                                                      db: DB,
-                                                                      ac: AC): DbResultT[Unit] =
+                                                               db: DB,
+                                                               ac: AC): DbResultT[Unit] =
     for {
       customer ← * <~ Users.mustFindByAccountId(accountId)
       address ← * <~ Addresses
@@ -100,18 +97,14 @@ object AddressManager {
 
   def removeDefaultShippingAddress(accountId: Int)(implicit ec: EC, db: DB): DbResultT[Int] =
     ExceptionWrapper.wrapDbio(
-        Addresses
-          .findShippingDefaultByAccountId(accountId)
-          .map(_.isDefaultShipping)
-          .update(false))
+        Addresses.findShippingDefaultByAccountId(accountId).map(_.isDefaultShipping).update(false))
 
-  private def findByOriginator(originator: User, addressId: Int, accountId: Int)(
-      implicit ec: EC) = 
-      Addresses
-        .findActiveByIdAndCustomer(addressId, accountId)
-        .mustFindOneOr(addressNotFound(addressId))
-        //MAXDO: Look at originator claims to see if they can get all addresses
-        /*
+  private def findByOriginator(originator: User, addressId: Int, accountId: Int)(implicit ec: EC) =
+    Addresses
+      .findActiveByIdAndCustomer(addressId, accountId)
+      .mustFindOneOr(addressNotFound(addressId))
+  //MAXDO: Look at originator claims to see if they can get all addresses
+  /*
         originator match {
     case AdminOriginator(_) ⇒
       Addresses
@@ -122,7 +115,7 @@ object AddressManager {
         .findActiveByIdAndCustomer(addressId, accountId)
         .mustFindOneOr(addressNotFound(addressId))
   }
-  */
+   */
 
   private def addressNotFound(id: Int) = NotFoundFailure404(Address, id)
 }

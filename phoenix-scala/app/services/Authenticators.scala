@@ -112,16 +112,14 @@ object Authenticator {
   case class BasicCustomer(implicit ec: EC, db: DB) extends BasicAuth[User] {
     def checkAuth(credentials: Option[HttpCredentials]): Future[AuthenticationResult[User]] = {
       basicAuth[EmailFinder[User]]("private customer routes")(credentials,
-                                                                  Users.findByEmail,
-                                                                  _.hashedPassword)
+                                                              Users.findByEmail,
+                                                              _.hashedPassword)
     }
   }
 
   case class BasicStoreAdmin(implicit ec: EC, db: DB) extends BasicAuth[User] {
     def checkAuth(credentials: Option[HttpCredentials]): Future[AuthenticationResult[User]] = {
-      basicAuth[EmailFinder[User]]("admin")(credentials,
-                                                  StoreAdmins.findByEmail,
-                                                  _.hashedPassword)
+      basicAuth[EmailFinder[User]]("admin")(credentials, StoreAdmins.findByEmail, _.hashedPassword)
     }
   }
 
@@ -151,11 +149,10 @@ object Authenticator {
         realm: String)(implicit ec: EC, db: DB): Future[AuthenticationResult[User]] =
       (for {
         account ← * <~ Account.create(Account())
-        newUser ← * <~ Users.create(CustomerUser.buildGuest())
-        newCustomer ← * <~ CustomerUsers.create(
-          CustomerUser(accountId = account.id, userId = newUser.id, isGuest = true))
-      }
-      .run()).run().map { 
+        user    ← * <~ Users.create(CustomerUser.buildGuest())
+        cust ← * <~ CustomerUsers.create(
+                  CustomerUser(accountId = account.id, userId = user.id, isGuest = true))
+      } yield user).run().map {
         case Xor.Right(entity) ⇒ AuthenticationResult.success(entity)
         case Xor.Left(f)       ⇒ AuthenticationResult.failWithChallenge(FailureChallenge(realm, f))
       }
@@ -291,10 +288,10 @@ object Authenticator {
     val tokenResult = payload.kind match {
       case Identity.User ⇒
         auth[User, EmailFinder[User], AdminToken](Users.findByEmail,
-                                                              _.hashedPassword,
-                                                              UserToken.fromUser)
-        case Identity.Service ⇒
-          Xor.left(LoginFailed.single) //add support for services
+                                                  _.hashedPassword,
+                                                  UserToken.fromUser)
+      case Identity.Service ⇒
+        Xor.left(LoginFailed.single) //add support for services
     }
 
     tokenResult.map(_.flatMap { token ⇒
@@ -331,8 +328,9 @@ object Authenticator {
 
   private def customerFromToken(token: Token): Failures Xor DBIO[Option[User]] = {
     token match {
-      case token: CustomerToken ⇒ Xor.right(Users.findByAccountIdAndRatchet(token.id, token.ratchet))
-      case _                    ⇒ Xor.left(AuthFailed("invalid token").single)
+      case token: CustomerToken ⇒
+        Xor.right(Users.findByAccountIdAndRatchet(token.id, token.ratchet))
+      case _ ⇒ Xor.left(AuthFailed("invalid token").single)
     }
   }
 }

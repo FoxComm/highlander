@@ -6,7 +6,7 @@ import models.account.User
 
 object AdminNotes {
   case class Root(id: Int, body: String, author: Author, createdAt: Instant) extends ResponseItem
-  case class Author(name: String, email: String)                             extends ResponseItem
+  case class Author(name: Option[String], email: Option[String])             extends ResponseItem
 
   def buildAuthor(author: User): Author =
     Author(name = author.name, email = author.email)

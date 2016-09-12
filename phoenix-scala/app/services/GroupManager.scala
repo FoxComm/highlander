@@ -20,7 +20,7 @@ object GroupManager {
     } yield build(group)
 
   def create(payload: CustomerDynamicGroupPayload, admin: User)(implicit ec: EC,
-                                                                      db: DB): DbResultT[Root] =
+                                                                db: DB): DbResultT[Root] =
     for {
       group ← * <~ CustomerDynamicGroups.create(
                  CustomerDynamicGroup.fromPayloadAndAdmin(payload, admin.accountId))

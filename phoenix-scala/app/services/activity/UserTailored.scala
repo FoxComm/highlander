@@ -6,8 +6,7 @@ object UserTailored {
   case class UserCreated(creator: UserResponse.Root, user: UserResponse.Root)
       extends ActivityBase[UserCreated]
 
-  case class UserRegistered(user: UserResponse.Root)
-      extends ActivityBase[UserRegistered]
+  case class UserRegistered(user: UserResponse.Root) extends ActivityBase[UserRegistered]
 
   case class UserActivated(admin: StoreAdminResponse.Root, user: UserResponse.Root)
       extends ActivityBase[UserActivated]
@@ -15,8 +14,7 @@ object UserTailored {
   case class UserBlacklisted(admin: StoreAdminResponse.Root, user: UserResponse.Root)
       extends ActivityBase[UserBlacklisted]
 
-  case class UserRemovedFromBlacklist(admin: StoreAdminResponse.Root,
-                                          user: UserResponse.Root)
+  case class UserRemovedFromBlacklist(admin: StoreAdminResponse.Root, user: UserResponse.Root)
       extends ActivityBase[UserRemovedFromBlacklist]
 
   case class UserEnabled(admin: StoreAdminResponse.Root, user: UserResponse.Root)
@@ -28,29 +26,28 @@ object UserTailored {
   case class UserRemindPassword(user: UserResponse.Root, code: String)
       extends ActivityBase[UserRemindPassword]
 
-  case class UserPasswordReset(user: UserResponse.Root)
-      extends ActivityBase[UserPasswordReset]
+  case class UserPasswordReset(user: UserResponse.Root) extends ActivityBase[UserPasswordReset]
 
   case class UserUpdated(oldInfo: UserResponse.Root,
-                             newInfo: UserResponse.Root,
-                             admin: Option[StoreAdminResponse.Root] = None)
+                         newInfo: UserResponse.Root,
+                         admin: Option[StoreAdminResponse.Root] = None)
       extends ActivityBase[UserUpdated]
 
   /* User Addresses */
   case class UserAddressCreated(user: UserResponse.Root,
-                                    address: AddressResponse,
-                                    admin: Option[StoreAdminResponse.Root])
+                                address: AddressResponse,
+                                admin: Option[StoreAdminResponse.Root])
       extends ActivityBase[UserAddressCreated]
 
   case class UserAddressUpdated(user: UserResponse.Root,
-                                    oldInfo: AddressResponse,
-                                    newInfo: AddressResponse,
-                                    admin: Option[StoreAdminResponse.Root])
+                                oldInfo: AddressResponse,
+                                newInfo: AddressResponse,
+                                admin: Option[StoreAdminResponse.Root])
       extends ActivityBase[UserAddressUpdated]
 
   case class UserAddressDeleted(user: UserResponse.Root,
-                                    address: AddressResponse,
-                                    admin: Option[StoreAdminResponse.Root])
+                                address: AddressResponse,
+                                admin: Option[StoreAdminResponse.Root])
       extends ActivityBase[UserAddressDeleted]
 
   /* User Credit Cards */

@@ -42,7 +42,7 @@ object StoreCreditService {
   }
 
   def totalsForCustomer(accountId: Int)(implicit ec: EC,
-                                         db: DB): DbResultT[StoreCreditResponse.Totals] =
+                                        db: DB): DbResultT[StoreCreditResponse.Totals] =
     for {
       _      ← * <~ Users.mustFindByAccountId(accountId)
       totals ← * <~ fetchTotalsForCustomer(accountId)
@@ -104,17 +104,16 @@ object StoreCreditService {
     } yield StoreCreditResponse.build(storeCredit)
 
   def getByIdAndCustomer(storeCreditId: Int, customer: User)(implicit ec: EC,
-                                                                 db: DB): DbResultT[Root] =
+                                                             db: DB): DbResultT[Root] =
     for {
       storeCredit ← * <~ StoreCredits
                      .findByIdAndAccountId(storeCreditId, customer.accountId)
                      .mustFindOr(NotFoundFailure404(StoreCredit, storeCreditId))
     } yield StoreCreditResponse.build(storeCredit)
 
-  def bulkUpdateStateByCsr(payload: StoreCreditBulkUpdateStateByCsr, admin: User)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC): DbResultT[Seq[ItemResult]] =
+  def bulkUpdateStateByCsr(
+      payload: StoreCreditBulkUpdateStateByCsr,
+      admin: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[Seq[ItemResult]] =
     for {
       _ ← * <~ payload.validate.toXor
       response ← * <~ payload.ids.map { id ⇒
@@ -123,10 +122,9 @@ object StoreCreditService {
                 }
     } yield response
 
-  def updateStateByCsr(id: Int, payload: StoreCreditUpdateStateByCsr, admin: User)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC): DbResultT[Root] =
+  def updateStateByCsr(id: Int,
+                       payload: StoreCreditUpdateStateByCsr,
+                       admin: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
     for {
       _           ← * <~ payload.validate
       storeCredit ← * <~ StoreCredits.mustFindById404(id)

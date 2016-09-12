@@ -21,9 +21,9 @@ import utils.db._
 
 object CustomerManager {
 
-  def toggleDisabled(accountId: Int,
-                     disabled: Boolean,
-                     admin: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
+  def toggleDisabled(accountId: Int, disabled: Boolean, admin: User)(implicit ec: EC,
+                                                                     db: DB,
+                                                                     ac: AC): DbResultT[Root] =
     for {
       customer ← * <~ Users.mustFindByAccountId(accountId)
       updated ← * <~ Usres.update(
@@ -38,9 +38,9 @@ object CustomerManager {
                         admin: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
     for {
       customer ← * <~ Users.mustFindByAccountId(accountId)
-      updated ← * <~ Users.update(
-                   customer,
-                   customer.copy(isBlacklisted = blacklisted, blacklistedBy = Some(admin.accountId)))
+      updated ← * <~ Users.update(customer,
+                                  customer.copy(isBlacklisted = blacklisted,
+                                                blacklistedBy = Some(admin.accountId)))
       _ ← * <~ LogActivity.customerBlacklisted(blacklisted, customer, admin)
     } yield build(updated)
 
@@ -97,20 +97,17 @@ object CustomerManager {
 
       //creates password access method if a password exists
       _ ← * <~ (payload.password match {
-        case Some(password) ⇒ AccountAccessMethods.create(AccountAccessMethod.build("login", password))
-        case None ⇒ DbResultT[Unit]
-      })
-        
+               case Some(password) ⇒
+                 AccountAccessMethods.create(AccountAccessMethod.build("login", password))
+               case None ⇒ DbResultT[Unit]
+             })
+
       newUser ← * <~ Users.create(
-        User(
-          accountId = newAccount.id,
-          email = payload.email,
-          name = payload.name))
+                   User(accountId = newAccount.id, email = payload.email, name = payload.name))
       custUser ← * <~ = CustomerUsers.create(
-        CustomerUser(
-            accountId = newAccount.id,
-            userId = newUser.id,
-            isGuest = payload.isGuest.getOrElse(false))
+                    CustomerUser(accountId = newAccount.id,
+                                 userId = newUser.id,
+                                 isGuest = payload.isGuest.getOrElse(false)))
       response = build(newUser)
       _ ← * <~ LogActivity.customerCreated(response, admin)
     } yield response
@@ -131,8 +128,8 @@ object CustomerManager {
 
   def updatedUser(customer: User, payload: UpdateCustomerPayload): User = {
     customer.copy(name = payload.name.fold(customer.name)(Some(_)),
-                         email = payload.email.orElse(customer.email),
-                         phoneNumber = payload.phoneNumber.fold(customer.phoneNumber)(Some(_)))
+                  email = payload.email.orElse(customer.email),
+                  phoneNumber = payload.phoneNumber.fold(customer.phoneNumber)(Some(_)))
   }
 
   def updatedCustUser(custUser: CustomerUser, payload: UpdateCustomerPayload): CustomerUser = {
@@ -142,16 +139,15 @@ object CustomerManager {
     }
   }
 
-  def activate(accountId: Int, payload: ActivateCustomerPayload, admin: User)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC): DbResultT[Root] =
+  def activate(accountId: Int,
+               payload: ActivateCustomerPayload,
+               admin: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
     for {
       _        ← * <~ payload.validate
       customer ← * <~ Users.mustFindByAccountId(accountId)
       _        ← * <~ Users.updateEmailMustBeUnique(customer.email, customer.accountId)
-      updated ← * <~  Users.update(customer,
-                                      customer.copy(name = payload.name.some, isGuest = false))
+      updated ← * <~ Users.update(customer,
+                                  customer.copy(name = payload.name.some, isGuest = false))
       response = build(updated)
       _ ← * <~ LogActivity.customerActivated(response, admin)
     } yield response

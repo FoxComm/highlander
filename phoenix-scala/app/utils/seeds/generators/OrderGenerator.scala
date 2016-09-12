@@ -55,10 +55,8 @@ trait OrderGenerator extends ShipmentSeeds {
     }.distinct
   }
 
-  def generateOrders(accountId: Int,
-                     context: ObjectContext,
-                     skuIds: Seq[Int],
-                     giftCard: GiftCard)(implicit db: DB): DbResultT[Unit] = {
+  def generateOrders(accountId: Int, context: ObjectContext, skuIds: Seq[Int], giftCard: GiftCard)(
+      implicit db: DB): DbResultT[Unit] = {
     val cartFunctions  = cartGenerators
     val orderFunctions = orderGenerators
     val cartIdx        = Random.nextInt(cartFunctions.length)
@@ -340,9 +338,7 @@ trait OrderGenerator extends ShipmentSeeds {
   }
 
   private def getCc(accountId: User#AccountId)(implicit db: DB) =
-    CreditCards
-      .findDefaultByAccountId(accountId)
-      .mustFindOneOr(CustomerHasNoCreditCard(accountId))
+    CreditCards.findDefaultByAccountId(accountId).mustFindOneOr(CustomerHasNoCreditCard(accountId))
 
   private def getDefaultAddress(accountId: User#AccountId)(implicit db: DB) =
     Addresses

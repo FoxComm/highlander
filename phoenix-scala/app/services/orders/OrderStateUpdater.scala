@@ -86,8 +86,7 @@ object OrderStateUpdater {
       updateQueries(admin, cordRefs, newState)
   }
 
-  private def updateQueries(admin: User, cordRefs: Seq[String], newState: State)(
-      implicit ec: EC) =
+  private def updateQueries(admin: User, cordRefs: Seq[String], newState: State)(implicit ec: EC) =
     newState match {
       case Canceled ⇒
         cancelOrders(cordRefs)

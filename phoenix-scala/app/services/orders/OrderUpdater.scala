@@ -11,8 +11,8 @@ import utils.time._
 object OrderUpdater {
 
   def increaseRemorsePeriod(refNum: String, admin: User)(implicit ec: EC,
-                                                               db: DB,
-                                                               ac: AC): DbResultT[OrderResponse] =
+                                                         db: DB,
+                                                         ac: AC): DbResultT[OrderResponse] =
     for {
       order     ← * <~ Orders.mustFindByRefNum(refNum)
       isRemorse ← * <~ order.mustBeRemorseHold

@@ -9,24 +9,23 @@ import com.github.tototoshi.csv._
 import models.account._
 import utils.db._
 
-
 trait StoreAdminSeeds {
 
-  def createStoreAdmin(user: User, password: String, state : StoreAdminUser.State) = 
-   for {
-     account ← * <~ Accounts.create(Account())
-     accessMethod ← * <~ AccountAccessMethods.create(
-       AccountAccessMethod.build(account.id, "login", password))
-     newUser ← * <~ Users.create(user.copy(accountId=account.id))
-     _ ← * <~  StoreAdminUsers.create(
-       StoreAdminUser(accountId = account.id, userId = newUser.id, state = state))
-     //MAXDO Assign admin role
-  } yield newUSer
+  def createStoreAdmin(user: User, password: String, state: StoreAdminUser.State) =
+    for {
+      account ← * <~ Accounts.create(Account())
+      accessMethod ← * <~ AccountAccessMethods.create(
+                        AccountAccessMethod.build(account.id, "login", password))
+      newUser ← * <~ Users.create(user.copy(accountId = account.id))
+      _ ← * <~ StoreAdminUsers.create(
+             StoreAdminUser(accountId = account.id, userId = newUser.id, state = state))
+      //MAXDO Assign admin role
+    } yield newUSer
 
   def createStoreAdmins: DbResultT[User#Id] = {
     val reader = CSVReader.open(new File("gatling-classes/data/store_admins.csv"))
     val admins = reader.all.drop(1).collect {
-      case name :: email :: password :: Nil ⇒ { 
+      case name :: email :: password :: Nil ⇒ {
         val user = User(name = name, email = email)
         createStoreAdmin(user, password, StoreAdminUser.Active)
       }

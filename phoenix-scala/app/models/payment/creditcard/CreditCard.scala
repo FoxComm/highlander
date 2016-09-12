@@ -82,7 +82,7 @@ case class CreditCard(id: Int = 0,
 
 object CreditCard {
   def build(accountId: Int,
-            sCust: StripeAccount,
+            sCust: StripeCustomer,
             card: StripeCard,
             p: CreateCreditCard,
             a: Address): CreditCard = {
@@ -108,21 +108,21 @@ object CreditCard {
 
 class CreditCards(tag: Tag) extends FoxTable[CreditCard](tag, "credit_cards") {
 
-  def id                = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def parentId          = column[Option[Int]]("parent_id")
-  def accountId         = column[Int]("account_id")
-  def gatewayAccountId  = column[String]("gateway_account_id")
-  def gatewayCardId     = column[String]("gateway_card_id")
-  def holderName        = column[String]("holder_name")
-  def lastFour          = column[String]("last_four")
-  def expMonth          = column[Int]("exp_month")
-  def expYear           = column[Int]("exp_year")
-  def brand             = column[String]("brand")
-  def isDefault         = column[Boolean]("is_default")
-  def address1Check     = column[Option[String]]("address1_check")
-  def zipCheck          = column[Option[String]]("zip_check")
-  def inWallet          = column[Boolean]("in_wallet")
-  def deletedAt         = column[Option[Instant]]("deleted_at")
+  def id               = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def parentId         = column[Option[Int]]("parent_id")
+  def accountId        = column[Int]("account_id")
+  def gatewayAccountId = column[String]("gateway_account_id")
+  def gatewayCardId    = column[String]("gateway_card_id")
+  def holderName       = column[String]("holder_name")
+  def lastFour         = column[String]("last_four")
+  def expMonth         = column[Int]("exp_month")
+  def expYear          = column[Int]("exp_year")
+  def brand            = column[String]("brand")
+  def isDefault        = column[Boolean]("is_default")
+  def address1Check    = column[Option[String]]("address1_check")
+  def zipCheck         = column[Option[String]]("zip_check")
+  def inWallet         = column[Boolean]("in_wallet")
+  def deletedAt        = column[Option[Instant]]("deleted_at")
 
   def regionId    = column[Int]("region_id")
   def addressName = column[String]("address_name")
@@ -155,7 +155,7 @@ class CreditCards(tag: Tag) extends FoxTable[CreditCard](tag, "credit_cards") {
      brand) <> ((CreditCard.apply _).tupled, CreditCard.unapply)
 
   def account = foreignKey(Accounts.tableName, accountId, Accounts)(_.id)
-  def region   = foreignKey(Regions.tableName, regionId, Regions)(_.id)
+  def region  = foreignKey(Regions.tableName, regionId, Regions)(_.id)
 }
 
 object CreditCards

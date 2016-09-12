@@ -17,13 +17,13 @@ object ReturnLockUpdater {
                .getOrElse(lift(None))
     } yield ReturnLockResponse.build(rma, event, admin)
 
-  def lock(refNum: String, admin: User)(implicit ec: EC,
-                                              db: DB): DbResultT[ReturnResponse.Root] =
+  def lock(refNum: String, admin: User)(implicit ec: EC, db: DB): DbResultT[ReturnResponse.Root] =
     for {
-      rma  ← * <~ Returns.mustFindByRefNum(refNum)
-      _    ← * <~ rma.mustNotBeLocked
-      _    ← * <~ Returns.update(rma, rma.copy(isLocked = true))
-      _    ← * <~ ReturnLockEvents.create(ReturnLockEvent(returnId = rma.id, lockedBy = admin.accountId))
+      rma ← * <~ Returns.mustFindByRefNum(refNum)
+      _   ← * <~ rma.mustNotBeLocked
+      _   ← * <~ Returns.update(rma, rma.copy(isLocked = true))
+      _ ← * <~ ReturnLockEvents.create(
+             ReturnLockEvent(returnId = rma.id, lockedBy = admin.accountId))
       rma  ← * <~ Returns.refresh(rma)
       resp ← * <~ ReturnResponse.fromRma(rma)
     } yield resp

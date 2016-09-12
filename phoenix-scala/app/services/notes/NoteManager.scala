@@ -27,25 +27,22 @@ trait NoteManager[K, T <: FoxModel[T]] {
     } yield response
 
   def create(key: K, author: User, payload: CreateNote)(implicit ec: EC,
-                                                              db: DB,
-                                                              ac: AC): DbResultT[Root] =
+                                                        db: DB,
+                                                        ac: AC): DbResultT[Root] =
     for {
       entity ← * <~ fetchEntity(key)
       note   ← * <~ createInner(entity, entity.id, noteType(), author, payload)
     } yield AdminNotes.build(note, author)
 
-  def update(key: K, noteId: Int, author: User, payload: UpdateNote)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC): DbResultT[Root] =
+  def update(key: K, noteId: Int, author: User, payload: UpdateNote)(implicit ec: EC,
+                                                                     db: DB,
+                                                                     ac: AC): DbResultT[Root] =
     for {
       entity ← * <~ fetchEntity(key)
       note   ← * <~ updateInner(entity, noteId, author, payload)
     } yield note
 
-  def delete(key: K, noteId: Int, author: User)(implicit ec: EC,
-                                                      db: DB,
-                                                      ac: AC): DbResultT[Unit] =
+  def delete(key: K, noteId: Int, author: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[Unit] =
     for {
       entity ← * <~ fetchEntity(key)
       _      ← * <~ deleteInner(entity, noteId, author)
@@ -82,12 +79,13 @@ trait NoteManager[K, T <: FoxModel[T]] {
     } yield AdminNotes.build(newNote, author)
 
   private def deleteInner(entity: T, noteId: Int, admin: User)(implicit ec: EC,
-                                                                     db: DB,
-                                                                     ac: AC): DbResultT[Unit] =
+                                                               db: DB,
+                                                               ac: AC): DbResultT[Unit] =
     for {
       note ← * <~ Notes.mustFindById404(noteId)
-      _ ← * <~ Notes.update(note,
-                            note.copy(deletedAt = Some(Instant.now), deletedBy = Some(admin.accountId)))
+      _ ← * <~ Notes.update(
+             note,
+             note.copy(deletedAt = Some(Instant.now), deletedBy = Some(admin.accountId)))
       _ ← * <~ LogActivity.noteDeleted(admin, entity, note)
     } yield ()
 

@@ -44,10 +44,9 @@ object CustomerCreditConverter {
       _ ← * <~ LogActivity.gcConvertedToSc(admin, giftCard, storeCredit)
     } yield StoreCreditResponse.build(storeCredit)
 
-  def toGiftCard(storeCreditId: Int, accountId: Int, admin: User)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC): DbResultT[GiftCardResponse.Root] =
+  def toGiftCard(storeCreditId: Int,
+                 accountId: Int,
+                 admin: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[GiftCardResponse.Root] =
     for {
 
       credit ← * <~ StoreCredits.mustFindById404(storeCreditId)

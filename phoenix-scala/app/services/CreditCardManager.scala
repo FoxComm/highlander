@@ -34,12 +34,10 @@ object CreditCardManager {
   def buildResponses(records: Seq[(CreditCard, Region)]): Seq[Root] =
     records.map((buildResponse _).tupled)
 
-  def createCardThroughGateway(accountId: Int,
-                               payload: CreateCreditCard,
-                               admin: Option[User] = None)(implicit ec: EC,
-                                                                 db: DB,
-                                                                 apis: Apis,
-                                                                 ac: AC): DbResultT[Root] = {
+  def createCardThroughGateway(
+      accountId: Int,
+      payload: CreateCreditCard,
+      admin: Option[User] = None)(implicit ec: EC, db: DB, apis: Apis, ac: AC): DbResultT[Root] = {
 
     def createCard(customer: User,
                    sCustomer: StripeCustomer,
@@ -56,10 +54,7 @@ object CreditCardManager {
 
     def getExistingStripeIdAndAddress =
       for {
-        stripeId ← * <~ CreditCards
-                    .filter(_.accountId === accountId)
-                    .map(_.gatewayAccountId)
-                    .one
+        stripeId        ← * <~ CreditCards.filter(_.accountId === accountId).map(_.gatewayAccountId).one
         shippingAddress ← * <~ getOptionalShippingAddress(payload.addressId, payload.isShipping)
         address ← * <~ getAddressFromPayload(payload.addressId, payload.address, shippingAddress)
                    .mustFindOr(CreditCardMustHaveAddress)
@@ -88,11 +83,10 @@ object CreditCardManager {
       region ← * <~ Regions.findOneById(cc.regionId).safeGet
     } yield buildResponse(default, region)
 
-  def deleteCreditCard(accountId: Int, id: Int, admin: Option[User] = None)(
-      implicit ec: EC,
-      db: DB,
-      apis: Apis,
-      ac: AC): DbResultT[Unit] =
+  def deleteCreditCard(
+      accountId: Int,
+      id: Int,
+      admin: Option[User] = None)(implicit ec: EC, db: DB, apis: Apis, ac: AC): DbResultT[Unit] =
     for {
       customer ← * <~ Users.mustFindByAccountId(accountId)
       cc       ← * <~ CreditCards.mustFindByIdAndCustomer(id, accountId)
@@ -103,13 +97,11 @@ object CreditCardManager {
       _ ← * <~ LogActivity.ccDeleted(customer, cc, admin)
     } yield ()
 
-  def editCreditCard(accountId: Int,
-                     id: Int,
-                     payload: EditCreditCard,
-                     admin: Option[User] = None)(implicit ec: EC,
-                                                       db: DB,
-                                                       apis: Apis,
-                                                       ac: AC): DbResultT[Root] = {
+  def editCreditCard(accountId: Int, id: Int, payload: EditCreditCard, admin: Option[User] = None)(
+      implicit ec: EC,
+      db: DB,
+      apis: Apis,
+      ac: AC): DbResultT[Root] = {
 
     def update(customer: User, cc: CreditCard) = {
       val updated = cc.copy(
@@ -180,7 +172,7 @@ object CreditCardManager {
     } yield (cc, region)).result.map(buildResponses).run()
 
   def getByIdAndCustomer(creditCardId: Int, customer: User)(implicit ec: EC,
-                                                                db: DB): DbResultT[Root] =
+                                                            db: DB): DbResultT[Root] =
     for {
       cc ← * <~ CreditCards
             .findByIdAndAccountId(creditCardId, customer.accountId)

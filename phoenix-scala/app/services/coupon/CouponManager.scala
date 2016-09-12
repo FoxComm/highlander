@@ -147,8 +147,8 @@ object CouponManager {
     } yield CouponResponse.build(archiveResult, form, shadow)
 
   def generateCode(id: Int, code: String, admin: User)(implicit ec: EC,
-                                                             db: DB,
-                                                             ac: AC): DbResultT[String] =
+                                                       db: DB,
+                                                       ac: AC): DbResultT[String] =
     for {
       coupon     ← * <~ Coupons.filter(_.formId === id).mustFindOneOr(CouponNotFound(id))
       couponCode ← * <~ CouponCodes.create(CouponCode(couponFormId = id, code = code))

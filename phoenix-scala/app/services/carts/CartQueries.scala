@@ -37,31 +37,27 @@ object CartQueries extends CordQueries {
     } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)
 
   def findOrCreateCartByAccount(customer: User,
-                                 context: ObjectContext,
-                                 admin: Option[User] = None)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC,
-      ctx: OC): DbResultT[CartResponse] =
+                                context: ObjectContext,
+                                admin: Option[User] = None)(implicit ec: EC,
+                                                            db: DB,
+                                                            ac: AC,
+                                                            ctx: OC): DbResultT[CartResponse] =
     findOrCreateCartByAccountInner(customer, admin)
 
   def findOrCreateCartByAccountId(accountId: Int,
-                                   context: ObjectContext,
-                                   admin: Option[User] = None)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC,
-      ctx: OC): DbResultT[CartResponse] =
+                                  context: ObjectContext,
+                                  admin: Option[User] = None)(implicit ec: EC,
+                                                              db: DB,
+                                                              ac: AC,
+                                                              ctx: OC): DbResultT[CartResponse] =
     for {
       customer  ← * <~ Users.mustFindByAccountId(accountId)
       fullOrder ← * <~ findOrCreateCartByAccountInner(customer, admin)
     } yield fullOrder
 
-  def findOrCreateCartByAccountInner(customer: User, admin: Option[User])(
-      implicit db: DB,
-      ec: EC,
-      ac: AC,
-      ctx: OC): DbResultT[CartResponse] =
+  def findOrCreateCartByAccountInner(
+      customer: User,
+      admin: Option[User])(implicit db: DB, ec: EC, ac: AC, ctx: OC): DbResultT[CartResponse] =
     for {
       result ← * <~ Carts
                 .findByAccountId(customer.accountId)

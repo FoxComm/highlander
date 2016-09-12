@@ -81,7 +81,7 @@ class Service(systemOverride: Option[ActorSystem] = None,
   implicit val apis: Apis           = apisOverride.getOrElse(defaultApis: Apis)
   implicit val es: ElasticsearchApi = esOverride.getOrElse(ElasticsearchApi.fromConfig(config))
 
-  val storeAdminAuth: AsyncAuthenticator[User]      = Authenticator.forAdminFromConfig
+  val storeAdminAuth: AsyncAuthenticator[User]        = Authenticator.forAdminFromConfig
   implicit val customerAuth: AsyncAuthenticator[User] = Authenticator.forCustomerFromConfig
 
   val defaultRoutes = {

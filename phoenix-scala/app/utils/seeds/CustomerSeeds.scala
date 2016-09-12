@@ -13,17 +13,16 @@ trait CustomerSeeds {
 
   def createCustomers: DbResultT[CustomerIds] =
     for {
-      accountIds ← * <~ Accounts.createAllReturningIds(customers.map { Account())}
+      accountIds ← * <~ Accounts.createAllReturningIds(customers.map(Account()))
       accountCustomers = acountIds zip customer
-      customerIds ← * <~ Users.createAllReturningIds(accountCustomers.map {
-        (accountId, customer) ⇒ customer.copy(accountId = accountId)
-      })
+      customerIds ← * <~ Users.createAllReturningIds(accountCustomers.map { (accountId, customer) ⇒
+                     customer.copy(accountId = accountId)
+                   })
       ids = accountIds zip customerIds
-      _ ← * <~ CustomerUsers.createAllReturningIds(ids.map { 
-        (accountId, userId) ⇒  
-          CustomerUser(accountId = accountId, userId = userId, isGuest = false)
-      })
-      _         ← * <~ Notes.createAll(customerNotes.map(_.copy(referenceId = accountIds.head)))
+      _ ← * <~ CustomerUsers.createAllReturningIds(ids.map { (accountId, userId) ⇒
+           CustomerUser(accountId = accountId, userId = userId, isGuest = false)
+         })
+      _ ← * <~ Notes.createAll(customerNotes.map(_.copy(referenceId = accountIds.head)))
     } yield
       accountIds.toList match {
         case c1 :: c2 :: c3 :: c4 :: Nil ⇒ (c1, c2, c3, c4)
@@ -31,24 +30,21 @@ trait CustomerSeeds {
       }
 
   def usCustomer1 =
-    User.build(email = "yax@yax.com",
-                   phoneNumber = Some("123-444-4388"))
+    User.build(email = "yax@yax.com", phoneNumber = Some("123-444-4388"))
 
   def usCustomer2 =
-    User.build(email = "adil@adil.com",
-                   phoneNumber = Some("123-444-0909"),
-                   isDisabled = true) // FIXME: `disabledBy` is not required for `isDisabled`=true
+    User.build(email = "adil@adil.com", phoneNumber = Some("123-444-0909"), isDisabled = true) // FIXME: `disabledBy` is not required for `isDisabled`=true
 
   def canadaCustomer =
     User.build(email = "iamvery@sorry.com",
-                   name = Some("John Nicholson"),
-                   phoneNumber = Some("858-867-5309"),
-                   isGuest = true)
+               name = Some("John Nicholson"),
+               phoneNumber = Some("858-867-5309"),
+               isGuest = true)
 
   def rowCustomer =
     User.build(email = "fran@absinthelovers.cz",
-                   name = Some("František Materna"),
-                   phoneNumber = Some("883-444-4321"))
+               name = Some("František Materna"),
+               phoneNumber = Some("883-444-4321"))
 
   def customers: Seq[User] = Seq(usCustomer1, usCustomer2, canadaCustomer, rowCustomer)
 

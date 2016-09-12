@@ -92,7 +92,7 @@ object Order {
 class Orders(tag: Tag) extends FoxTable[Order](tag, "orders") {
   def id               = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def referenceNumber  = column[String]("reference_number")
-  def accountId       = column[Int]("account_id")
+  def accountId        = column[Int]("account_id")
   def currency         = column[Currency]("currency")
   def subTotal         = column[Int]("sub_total")
   def shippingTotal    = column[Int]("shipping_total")

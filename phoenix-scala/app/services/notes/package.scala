@@ -46,12 +46,13 @@ package object notes {
     } yield AdminNotes.build(newNote, author)
 
   def deleteNote[T](entity: T, noteId: Int, admin: User)(implicit ec: EC,
-                                                               db: DB,
-                                                               ac: AC): DbResultT[Unit] =
+                                                         db: DB,
+                                                         ac: AC): DbResultT[Unit] =
     for {
       note ← * <~ Notes.mustFindById404(noteId)
-      _ ← * <~ Notes.update(note,
-                            note.copy(deletedAt = Some(Instant.now), deletedBy = Some(admin.accountId)))
+      _ ← * <~ Notes.update(
+             note,
+             note.copy(deletedAt = Some(Instant.now), deletedBy = Some(admin.accountId)))
       _ ← * <~ LogActivity.noteDeleted(admin, entity, note)
     } yield {}
 }

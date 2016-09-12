@@ -87,7 +87,7 @@ object LogActivity {
 
   /* Notes */
   def noteCreated[T](admin: User, entity: T, note: Note)(implicit ec: EC,
-                                                               ac: AC): DbResultT[Activity] =
+                                                         ac: AC): DbResultT[Activity] =
     Activities.log(NoteCreated[T](buildAdmin(admin), entity, note))
 
   def noteUpdated[T](admin: User, entity: T, oldNote: Note, note: Note)(
@@ -96,7 +96,7 @@ object LogActivity {
     Activities.log(NoteUpdated[T](buildAdmin(admin), entity, oldNote, note))
 
   def noteDeleted[T](admin: User, entity: T, note: Note)(implicit ec: EC,
-                                                               ac: AC): DbResultT[Activity] =
+                                                         ac: AC): DbResultT[Activity] =
     Activities.log(NoteDeleted[T](buildAdmin(admin), entity, note))
 
   /* Shared Search Associations */
@@ -113,8 +113,8 @@ object LogActivity {
   }
 
   /* Customers */
-  def customerCreated(customer: UserResponse,
-                      admin: Option[User])(implicit ec: EC, ac: AC): DbResultT[Activity] =
+  def customerCreated(customer: UserResponse, admin: Option[User])(implicit ec: EC,
+                                                                   ac: AC): DbResultT[Activity] =
     admin match {
       case Some(a) ⇒
         Activities.log(CustomerCreated(buildAdmin(a), customer))
@@ -122,8 +122,8 @@ object LogActivity {
         Activities.log(CustomerRegistered(customer))
     }
 
-  def customerActivated(customer: UserResponse,
-                        admin: User)(implicit ec: EC, ac: AC): DbResultT[Activity] =
+  def customerActivated(customer: UserResponse, admin: User)(implicit ec: EC,
+                                                             ac: AC): DbResultT[Activity] =
     Activities.log(CustomerActivated(buildAdmin(admin), customer))
 
   def customerUpdated(customer: User, updated: User, admin: Option[User])(
@@ -161,7 +161,7 @@ object LogActivity {
   }
 
   def customerRemindPassword(customer: User, code: String)(implicit ec: EC,
-                                                               ac: AC): DbResultT[Activity] = {
+                                                           ac: AC): DbResultT[Activity] = {
     val customerResponse = buildCustomer(customer)
     Activities.log(CustomerRemindPassword(customer = customerResponse, code = code))
   }
@@ -194,29 +194,25 @@ object LogActivity {
         CustomerAddressDeleted(buildCustomer(customer), address, buildOriginator(originator)))
 
   /* Customer Credit Cards */
-  def ccCreated(customer: User, cc: CreditCard, admin: Option[User])(
-      implicit ec: EC,
-      ac: AC): DbResultT[Activity] =
+  def ccCreated(customer: User, cc: CreditCard, admin: Option[User])(implicit ec: EC,
+                                                                     ac: AC): DbResultT[Activity] =
     Activities.log(CreditCardAdded(buildCustomer(customer), buildCc(cc), admin.map(buildAdmin)))
 
-  def ccUpdated(customer: User,
-                newCc: CreditCard,
-                oldCc: CreditCard,
-                admin: Option[User])(implicit ec: EC, ac: AC): DbResultT[Activity] =
+  def ccUpdated(customer: User, newCc: CreditCard, oldCc: CreditCard, admin: Option[User])(
+      implicit ec: EC,
+      ac: AC): DbResultT[Activity] =
     Activities.log(
         CreditCardUpdated(buildCustomer(customer),
                           buildCc(newCc),
                           buildCc(oldCc),
                           admin.map(buildAdmin)))
 
-  def ccDeleted(customer: User, cc: CreditCard, admin: Option[User])(
-      implicit ec: EC,
-      ac: AC): DbResultT[Activity] =
+  def ccDeleted(customer: User, cc: CreditCard, admin: Option[User])(implicit ec: EC,
+                                                                     ac: AC): DbResultT[Activity] =
     Activities.log(CreditCardRemoved(buildCustomer(customer), buildCc(cc), admin.map(buildAdmin)))
 
   /* Gift Cards */
-  def gcCreated(admin: User, giftCard: GiftCard)(implicit ec: EC,
-                                                       ac: AC): DbResultT[Activity] =
+  def gcCreated(admin: User, giftCard: GiftCard)(implicit ec: EC, ac: AC): DbResultT[Activity] =
     Activities.log(GiftCardCreated(buildAdmin(admin), GiftCardResponse.build(giftCard)))
 
   def gcUpdated(admin: User, giftCard: GiftCard, payload: GiftCardUpdateStateByCsr)(
@@ -225,9 +221,8 @@ object LogActivity {
     Activities.log(
         GiftCardStateChanged(buildAdmin(admin), GiftCardResponse.build(giftCard), payload))
 
-  def gcConvertedToSc(admin: User, gc: GiftCard, sc: StoreCredit)(
-      implicit ec: EC,
-      ac: AC): DbResultT[Activity] =
+  def gcConvertedToSc(admin: User, gc: GiftCard, sc: StoreCredit)(implicit ec: EC,
+                                                                  ac: AC): DbResultT[Activity] =
     Activities.log(
         GiftCardConvertedToStoreCredit(buildAdmin(admin),
                                        GiftCardResponse.build(gc),
@@ -244,9 +239,8 @@ object LogActivity {
     Activities.log(GiftCardCapturedFunds(buildCustomer(customer), order, gcCodes, amount))
 
   /* Store Credits */
-  def scCreated(admin: User, customer: User, sc: StoreCredit)(
-      implicit ec: EC,
-      ac: AC): DbResultT[Activity] =
+  def scCreated(admin: User, customer: User, sc: StoreCredit)(implicit ec: EC,
+                                                              ac: AC): DbResultT[Activity] =
     Activities.log(
         StoreCreditCreated(buildAdmin(admin),
                            buildCustomer(customer),
@@ -258,9 +252,8 @@ object LogActivity {
     Activities.log(
         StoreCreditStateChanged(buildAdmin(admin), StoreCreditResponse.build(sc), payload))
 
-  def scConvertedToGc(admin: User, gc: GiftCard, sc: StoreCredit)(
-      implicit ec: EC,
-      ac: AC): DbResultT[Activity] =
+  def scConvertedToGc(admin: User, gc: GiftCard, sc: StoreCredit)(implicit ec: EC,
+                                                                  ac: AC): DbResultT[Activity] =
     Activities.log(
         StoreCreditConvertedToGiftCard(buildAdmin(admin),
                                        GiftCardResponse.build(gc),
@@ -278,7 +271,7 @@ object LogActivity {
 
   /* Carts */
   def cartCreated(admin: Option[User], cart: CartResponse)(implicit ec: EC,
-                                                                 ac: AC): DbResultT[Activity] =
+                                                           ac: AC): DbResultT[Activity] =
     Activities.log(CartCreated(admin.map(buildAdmin), cart))
 
   /* Orders */
@@ -379,10 +372,9 @@ object LogActivity {
                                          CreditCardsResponse.build(cc, region),
                                          buildOriginator(originator)))
 
-  def orderPaymentMethodAddedGc(originator: User,
-                                cart: CartResponse,
-                                gc: GiftCard,
-                                amount: Int)(implicit ec: EC, ac: AC): DbResultT[Activity] =
+  def orderPaymentMethodAddedGc(originator: User, cart: CartResponse, gc: GiftCard, amount: Int)(
+      implicit ec: EC,
+      ac: AC): DbResultT[Activity] =
     Activities.log(
         CartPaymentMethodAddedGiftCard(cart,
                                        GiftCardResponse.build(gc),
@@ -408,10 +400,9 @@ object LogActivity {
       ac: AC): DbResultT[Activity] =
     Activities.log(CartPaymentMethodAddedStoreCredit(cart, amount, buildOriginator(originator)))
 
-  def orderPaymentMethodDeleted(
-      originator: User,
-      cart: CartResponse,
-      pmt: PaymentMethod.Type)(implicit ec: EC, ac: AC): DbResultT[Activity] =
+  def orderPaymentMethodDeleted(originator: User, cart: CartResponse, pmt: PaymentMethod.Type)(
+      implicit ec: EC,
+      ac: AC): DbResultT[Activity] =
     Activities.log(CartPaymentMethodDeleted(cart, pmt, buildOriginator(originator)))
 
   def orderPaymentMethodDeletedGc(originator: User, cart: CartResponse, gc: GiftCard)(
@@ -423,22 +414,19 @@ object LogActivity {
                                          buildOriginator(originator)))
 
   /* Cart Shipping Addresses */
-  def orderShippingAddressAdded(
-      originator: User,
-      cart: CartResponse,
-      address: AddressResponse)(implicit ec: EC, ac: AC): DbResultT[Activity] =
+  def orderShippingAddressAdded(originator: User, cart: CartResponse, address: AddressResponse)(
+      implicit ec: EC,
+      ac: AC): DbResultT[Activity] =
     Activities.log(CartShippingAddressAdded(cart, address, buildOriginator(originator)))
 
-  def orderShippingAddressUpdated(
-      originator: User,
-      cart: CartResponse,
-      address: AddressResponse)(implicit ec: EC, ac: AC): DbResultT[Activity] =
+  def orderShippingAddressUpdated(originator: User, cart: CartResponse, address: AddressResponse)(
+      implicit ec: EC,
+      ac: AC): DbResultT[Activity] =
     Activities.log(CartShippingAddressUpdated(cart, address, buildOriginator(originator)))
 
-  def orderShippingAddressDeleted(
-      originator: User,
-      cart: CartResponse,
-      address: AddressResponse)(implicit ec: EC, ac: AC): DbResultT[Activity] =
+  def orderShippingAddressDeleted(originator: User, cart: CartResponse, address: AddressResponse)(
+      implicit ec: EC,
+      ac: AC): DbResultT[Activity] =
     Activities.log(CartShippingAddressRemoved(cart, address, buildOriginator(originator)))
 
   /* Cart Shipping Methods */
@@ -510,27 +498,22 @@ object LogActivity {
                     admin: Option[User])(implicit ec: EC, ac: AC): DbResultT[Activity] =
     Activities.log(CouponUpdated(couponResponse, admin.map(buildAdmin(_))))
 
-  def singleCouponCodeCreated(coupon: Coupon, admin: Option[User])(
-      implicit ec: EC,
-      ac: AC): DbResultT[Activity] =
+  def singleCouponCodeCreated(coupon: Coupon, admin: Option[User])(implicit ec: EC,
+                                                                   ac: AC): DbResultT[Activity] =
     Activities.log(SingleCouponCodeGenerated(coupon, admin.map(buildAdmin(_))))
 
-  def multipleCouponCodeCreated(coupon: Coupon, admin: Option[User])(
-      implicit ec: EC,
-      ac: AC): DbResultT[Activity] =
+  def multipleCouponCodeCreated(coupon: Coupon, admin: Option[User])(implicit ec: EC,
+                                                                     ac: AC): DbResultT[Activity] =
     Activities.log(MultipleCouponCodesGenerated(coupon, admin.map(buildAdmin(_))))
 
   /* Store Admin */
-  def storeAdminCreated(entity: User, admin: User)(implicit ec: EC,
-                                                               ac: AC): DbResultT[Activity] =
+  def storeAdminCreated(entity: User, admin: User)(implicit ec: EC, ac: AC): DbResultT[Activity] =
     Activities.log(StoreAdminCreated(entity, admin))
 
-  def storeAdminUpdated(entity: User, admin: User)(implicit ec: EC,
-                                                               ac: AC): DbResultT[Activity] =
+  def storeAdminUpdated(entity: User, admin: User)(implicit ec: EC, ac: AC): DbResultT[Activity] =
     Activities.log(StoreAdminUpdated(entity, admin))
 
-  def storeAdminDeleted(entity: User, admin: User)(implicit ec: EC,
-                                                               ac: AC): DbResultT[Activity] =
+  def storeAdminDeleted(entity: User, admin: User)(implicit ec: EC, ac: AC): DbResultT[Activity] =
     Activities.log(StoreAdminDeleted(entity, admin))
 
   def storeAdminStateChanged(entity: User,
@@ -547,14 +530,14 @@ object LogActivity {
     Activities.log(SendSimpleMail(name = name, subject = subject, email = email, html = html))
 
   /* Helpers */
-  private def buildOriginator(originator: User): Option[AdminResponse] = 
+  private def buildOriginator(originator: User): Option[AdminResponse] =
     buildAdmin(admin)
-    //MAXDO check claims for admin?
-    /*
+  //MAXDO check claims for admin?
+  /*
     originator match {
     case AdminOriginator(admin) ⇒ Some(buildAdmin(admin))
     case CustomerOriginator(_) ⇒
       None // We don't need customer, he's already in FullOrder.Root / Customer object
   }
-  */
+ */
 }

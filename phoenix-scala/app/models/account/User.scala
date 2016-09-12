@@ -68,15 +68,10 @@ class Users(tag: Tag) extends FoxTable[User](tag, "users") {
      updatedAt,
      deletedAt) <> ((User.apply _).tupled, User.unapply)
 
-  def account    = foreignkey(Accounts.tablename, accountId, Account)(_.id)
+  def account = foreignKey(Accounts.tableName, accountId, Accounts)(_.id)
 }
 
-case class SecurityData(
-  account: Account,
-  user: User,
-  claims: Account.Claims,
-  roles: List[String])
-
+case class SecurityData(account: Account, user: User, claims: Account.Claims, roles: List[String])
 
 object Users extends FoxTableQuery[User, Users](new Users(_)) with ReturningId[User, Users] {
 
@@ -86,14 +81,14 @@ object Users extends FoxTableQuery[User, Users](new Users(_)) with ReturningId[U
     filter(_.email === email)
   }
 
-  def findOneByAccountId(accountId: Int): DBIO[Option[User]] = 
+  def findOneByAccountId(accountId: Int): DBIO[Option[User]] =
     filter(_.accountId === accountId).result.headOption
 
-  def findByAccountId(accountId: Int): QuerySeq = 
+  def findByAccountId(accountId: Int): QuerySeq =
     filter(_.accountId === accountId)
 
-  def mustFindByAccountId(accountId: Int): DbResultT[User] = 
-    filter(_.accountId === accountId).one.mustFindOneOr(UserWithAccountNotFound(accountId))
+  def mustFindByAccountId(accountId: Int)(implicit ec: EC): DbResultT[User] =
+    filter(_.accountId === accountId).mustFindOneOr(UserWithAccountNotFound(accountId))
 
   def createEmailMustBeUnique(email: String)(implicit ec: EC): DbResultT[Unit] =
     findByEmail(email).one.mustNotFindOr(UserEmailNotUnique)
@@ -101,14 +96,4 @@ object Users extends FoxTableQuery[User, Users](new Users(_)) with ReturningId[U
   def updateEmailMustBeUnique(email: String, userId: Int)(implicit ec: EC): DbResultT[Unit] =
     findByEmail(email).filter(_.id === userId).one.mustNotFindOr(UserEmailNotUnique)
 
-  def getSecurityData(userId: Int) =
-    for {
-      user          ← Users if user.id === userId
-      account       ← user.account
-      accountRole   ← AccountRoles if accountRole.accountId === account.id
-      permissions   ← 
-      link          ← ProductSkuLinks if link.rightId === sku.id
-      product       ← Products if product.id === link.rightId
-      productShadow ← ObjectShadows if productShadow.id === product.shadowId
-    } yield (sku, skuForm, skuShadow, productShadow, lineItems)
 }

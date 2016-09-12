@@ -29,7 +29,9 @@ object CustomDirectives {
       case (Some(uuid)) ⇒
         ActivityContext(userId = user.accountId, userType = token.userType, transactionId = uuid)
       case (None) ⇒
-        ActivityContext(userId = user.accountId, userType = token.userType, transactionId = generateUuid)
+        ActivityContext(userId = user.accountId,
+                        userType = token.userType,
+                        transactionId = generateUuid)
     }
   }
 

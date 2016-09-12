@@ -19,10 +19,8 @@ import utils.{JsonFormatters, NotificationListener}
 object NotificationFacade {
   implicit val formats = JsonFormatters.phoenixFormats
 
-  def streamByAdminId(adminId: Int)(
-      implicit ec: EC,
-      db: DB,
-      mat: Mat): Future[Source[EventStreamElement, Any]] = {
+  def streamByAdminId(
+      adminId: Int)(implicit ec: EC, db: DB, mat: Mat): Future[Source[EventStreamElement, Any]] = {
     Users.findOneByAccountId(adminId).run().map {
       case Some(admin) ⇒
         oldNotifications(adminId)

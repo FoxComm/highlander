@@ -14,15 +14,12 @@ class GoogleOauthStoreAdmin(options: GoogleOauthOptions)
     with GoogleProvider {
 
   def createByUserInfo(userInfo: UserInfo)(implicit ec: EC): DbResultT[User] =
-    for { 
-        account ← * <~ Accounts.create(Account())
-        user ← * <~ Users.create(
-          Users(
-            accountId = account.id, 
-            email = userInfo.email, 
-            name = userInfo.name))
-        //MAXDO Assign merchant_admin role
-        // Also verify domain of merchant org here here?
+    for {
+      account ← * <~ Accounts.create(Account())
+      user ← * <~ Users.create(
+                Users(accountId = account.id, email = userInfo.email, name = userInfo.name))
+      //MAXDO Assign merchant_admin role
+      // Also verify domain of merchant org here here?
     } yield user
 
   def findByEmail(email: String)(implicit ec: EC, db: DB) = Users.findByEmail(email)
@@ -37,13 +34,10 @@ class GoogleOauthCustomer(options: GoogleOauthOptions)
 
   def createByUserInfo(userInfo: UserInfo)(implicit ec: EC): DbResultT[User] =
     for {
-        account ← * <~ Accounts.create(Account())
-        user ← * <~ Users.create(
-          Users(
-            accountId = account.id, 
-            email = userInfo.email, 
-            name = userInfo.name))
-        //MAXDO Assign customer role
+      account ← * <~ Accounts.create(Account())
+      user ← * <~ Users.create(
+                Users(accountId = account.id, email = userInfo.email, name = userInfo.name))
+      //MAXDO Assign customer role
     } yield user
 
   def findByEmail(email: String)(implicit ec: EC, db: DB) = Users.findByEmail(email)

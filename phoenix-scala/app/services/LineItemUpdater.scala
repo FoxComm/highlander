@@ -19,9 +19,7 @@ import utils.db._
 
 object LineItemUpdater {
 
-  def updateQuantitiesOnCart(admin: User,
-                             refNum: String,
-                             payload: Seq[UpdateLineItemsPayload])(
+  def updateQuantitiesOnCart(admin: User, refNum: String, payload: Seq[UpdateLineItemsPayload])(
       implicit ec: EC,
       es: ES,
       db: DB,

@@ -11,7 +11,7 @@ import utils.db._
 object CouponUsageService {
 
   private def couponUsageCount(couponFormId: Int, accountId: Int)(implicit ec: EC,
-                                                                   db: DB): DBIO[Int] =
+                                                                  db: DB): DBIO[Int] =
     for {
       coupon ← CouponCustomerUsages.filterByCouponAndAccount(couponFormId, accountId).one
     } yield coupon.fold(0)(_.count)

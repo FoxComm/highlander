@@ -5,7 +5,8 @@ import java.time.Instant
 import scala.concurrent.Future
 
 import models.account.User
-import models.customer.Customer
+import models.admin.StoreAdminUser
+import models.customer.CustomerUser
 import models.returns.Return
 
 object AllReturns {
@@ -27,16 +28,24 @@ object AllReturns {
   ) extends ResponseItem
 
   def build(rma: Return,
-            customer: Option[Customer] = None,
-            admin: Option[User] = None): Root =
+            customer: Option[User] = None,
+            customerUser: Option[CustomerUser] = None,
+            admin: Option[User] = None,
+            storeAdminUser: Option[StoreAdminUser]): Root =
     Root(
         id = rma.id,
         referenceNumber = rma.referenceNumber,
         cordRefNum = rma.orderRef,
         rmaType = rma.returnType,
         state = rma.state,
-        customer = customer.map(CustomerResponse.build(_)),
-        storeAdmin = admin.map(StoreAdminResponse.build),
+        customer = for {
+          c  ← customer
+          cu ← customerUser
+        } yield CustomerResponse.build(c, cu),
+        storeAdmin = for {
+          a  ← admin
+          au ← storeAdminUser
+        } yield StoreAdminResponse.build(a, au),
         createdAt = rma.createdAt,
         updatedAt = rma.updatedAt,
         total = Some(mockTotal)

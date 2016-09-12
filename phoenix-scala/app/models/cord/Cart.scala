@@ -30,7 +30,7 @@ case class Cart(id: Int = 0,
 class Carts(tag: Tag) extends FoxTable[Cart](tag, "carts") {
   def id               = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def referenceNumber  = column[String]("reference_number")
-  def accountId       = column[Int]("account_id")
+  def accountId        = column[Int]("account_id")
   def currency         = column[Currency]("currency")
   def subTotal         = column[Int]("sub_total")
   def shippingTotal    = column[Int]("shipping_total")
@@ -70,7 +70,7 @@ object Carts
     filter(_.referenceNumber === refNum).one
 
   def findByRefNumAndAccountId(refNum: String, accountId: Int): QuerySeq =
-    filter(_.referenceNumber === refNum).filter(_.accountId === account.id)
+    filter(_.referenceNumber === refNum).filter(_.accountId === accountId)
 
   override def mustFindByRefNum(refNum: String, notFoundFailure: String ⇒ Failure = notFound404K)(
       implicit ec: EC,

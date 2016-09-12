@@ -44,10 +44,11 @@ object CartPaymentUpdater {
       _     ← * <~ LogActivity.orderPaymentMethodAddedGc(originator, resp, gc, amount)
     } yield TheResponse.validated(resp, valid)
 
-  def editGiftCard(
-      originator: User,
-      payload: GiftCardPayment,
-      refNum: Option[String] = None)(implicit ec: EC, db: DB, ac: AC, ctx: OC): TheFullCart =
+  def editGiftCard(originator: User, payload: GiftCardPayment, refNum: Option[String] = None)(
+      implicit ec: EC,
+      db: DB,
+      ac: AC,
+      ctx: OC): TheFullCart =
     for {
       cart   ← * <~ getCartByOriginator(originator, refNum)
       result ← * <~ validGiftCardWithAmount(payload)
@@ -80,10 +81,11 @@ object CartPaymentUpdater {
       case _            ⇒ gc.availableBalance
     }
 
-  def addStoreCredit(
-      originator: User,
-      payload: StoreCreditPayment,
-      refNum: Option[String] = None)(implicit ec: EC, db: DB, ac: AC, ctx: OC): TheFullCart = {
+  def addStoreCredit(originator: User, payload: StoreCreditPayment, refNum: Option[String] = None)(
+      implicit ec: EC,
+      db: DB,
+      ac: AC,
+      ctx: OC): TheFullCart = {
     def updateSC(has: Int, want: Int, cart: Cart, storeCredits: List[StoreCredit]) =
       if (has < want) {
         DbResultT.failure(
@@ -115,11 +117,10 @@ object CartPaymentUpdater {
     } yield TheResponse.validated(response, validation)
   }
 
-  def addCreditCard(originator: User, id: Int, refNum: Option[String] = None)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC,
-      ctx: OC): TheFullCart =
+  def addCreditCard(
+      originator: User,
+      id: Int,
+      refNum: Option[String] = None)(implicit ec: EC, db: DB, ac: AC, ctx: OC): TheFullCart =
     for {
       cart   ← * <~ getCartByOriginator(originator, refNum)
       cc     ← * <~ CreditCards.mustFindById400(id)

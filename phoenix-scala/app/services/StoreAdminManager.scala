@@ -15,9 +15,8 @@ object StoreAdminManager {
       admin ← * <~ Users.mustFindByAccountId(id)
     } yield StoreAdminResponse.build(admin)
 
-  def create(
-      payload: CreateStoreAdminPayload,
-      author: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[StoreAdminResponse.Root] =
+  def create(payload: CreateStoreAdminPayload,
+             author: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[StoreAdminResponse.Root] =
     for {
       _ ← * <~ Users
            .findByEmail(payload.email)
@@ -26,45 +25,43 @@ object StoreAdminManager {
       account ← * <~ Accounts.create(Account())
 
       _ ← * <~ (payload.password match {
-        case Some(password) ⇒ AccountAccessMethods.create(AccountAccessMethod.build("login", password))
-        case None ⇒ DbResultT[Unit]
-      })
+               case Some(password) ⇒
+                 AccountAccessMethods.create(AccountAccessMethod.build("login", password))
+               case None ⇒ DbResultT[Unit]
+             })
 
-      admin = User(
-        accountId = account.id,
-        email = payload.email,
-        name = payload.name,
-        phoneNumber = payload.phoneNumber)
+      admin = User(accountId = account.id,
+                   email = payload.email,
+                   name = payload.name,
+                   phoneNumber = payload.phoneNumber)
 
       newAdmin ← * <~ Users.create(admin)
 
       adminUser ← * <~ StoreAdminUsers.create(
-        StoreAdminUser(
-          accountId = account.id,
-          userId = newAdmin.id, 
-          state = StoreAdminUser.Invited))
+                     StoreAdminUser(accountId = account.id,
+                                    userId = newAdmin.id,
+                                    state = StoreAdminUser.Invited))
 
-      _     ← * <~ LogActivity.storeAdminCreated(newAdmin, author)
+      _ ← * <~ LogActivity.storeAdminCreated(newAdmin, author)
     } yield StoreAdminResponse.build(saved)
 
-  def update(id: Int, payload: UpdateStoreAdminPayload, author: User)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC): DbResultT[StoreAdminResponse.Root] =
+  def update(id: Int,
+             payload: UpdateStoreAdminPayload,
+             author: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[StoreAdminResponse.Root] =
     for {
       admin ← * <~ Users.mustFindByAccountId(id)
-      saved ← * <~ Users.update(
-        admin, admin.copy(name = payload.name,
-          phoneNumber = payload.phoneNumber,
-          email = payload.email))
+      saved ← * <~ Users.update(admin,
+                                admin.copy(name = payload.name,
+                                           phoneNumber = payload.phoneNumber,
+                                           email = payload.email))
       _ ← * <~ LogActivity.storeAdminUpdated(saved, author)
     } yield StoreAdminResponse.build(saved)
 
   def delete(accountId: Int, author: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[Unit] =
     for {
-      admin ← * <~ User.mustFindByAccountId(id)
+      admin  ← * <~ User.mustFindByAccountId(id)
       result ← * <~ Users.deleteById(accountId, DbResultT.unit, i ⇒ NotFoundFailure404(User, i))
-      _ ← * <~ LogActivity.storeAdminDeleted(admin, author)
+      _      ← * <~ LogActivity.storeAdminDeleted(admin, author)
     } yield result
 
   def changeState(id: Int, payload: StateChangeStoreAdminPayload, author: User)(

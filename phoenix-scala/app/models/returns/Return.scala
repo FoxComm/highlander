@@ -77,7 +77,7 @@ object Return {
     ReturnType.slickColumn
   implicit val StateTypeColumnType: JdbcType[State] with BaseTypedType[State] = State.slickColumn
 
-  val returnRefNumRegex          = """([a-zA-Z0-9-_.]*)""".r
+  val returnRefNumRegex         = """([a-zA-Z0-9-_.]*)""".r
   val messageToAccountMaxLength = 1000
 
   def build(order: Order, admin: User, rmaType: ReturnType = Return.Standard): Return = {
@@ -100,20 +100,20 @@ object Return {
 }
 
 class Returns(tag: Tag) extends FoxTable[Return](tag, "returns") {
-  def id                = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def referenceNumber   = column[String]("reference_number")
-  def orderId           = column[Int]("order_id")
-  def orderRef          = column[String]("order_ref")
-  def returnType        = column[ReturnType]("return_type")
-  def state             = column[State]("state")
-  def isLocked          = column[Boolean]("is_locked")
-  def accountId         = column[Int]("account_id")
-  def storeAdminId      = column[Option[Int]]("store_admin_id")
-  def messageToAccount  = column[Option[String]]("message_to_account")
-  def canceledReason    = column[Option[Int]]("canceled_reason")
-  def createdAt         = column[Instant]("created_at")
-  def updatedAt         = column[Instant]("updated_at")
-  def deletedAt         = column[Option[Instant]]("deleted_at")
+  def id               = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def referenceNumber  = column[String]("reference_number")
+  def orderId          = column[Int]("order_id")
+  def orderRef         = column[String]("order_ref")
+  def returnType       = column[ReturnType]("return_type")
+  def state            = column[State]("state")
+  def isLocked         = column[Boolean]("is_locked")
+  def accountId        = column[Int]("account_id")
+  def storeAdminId     = column[Option[Int]]("store_admin_id")
+  def messageToAccount = column[Option[String]]("message_to_account")
+  def canceledReason   = column[Option[Int]]("canceled_reason")
+  def createdAt        = column[Instant]("created_at")
+  def updatedAt        = column[Instant]("updated_at")
+  def deletedAt        = column[Option[Instant]]("deleted_at")
 
   def * =
     (id,

@@ -106,10 +106,10 @@ object GiftCard {
   case object FullyRedeemed extends State
 
   sealed trait OriginType
-  case object CsrAppeasement   extends OriginType
-  case object AccountPurchase  extends OriginType
-  case object FromStoreCredit  extends OriginType
-  case object RmaProcess       extends OriginType
+  case object CsrAppeasement  extends OriginType
+  case object AccountPurchase extends OriginType
+  case object FromStoreCredit extends OriginType
+  case object RmaProcess      extends OriginType
 
   object State extends ADT[State] {
     def types = sealerate.values[State]

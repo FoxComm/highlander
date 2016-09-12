@@ -2,6 +2,8 @@ package models.user
 
 import java.time.Instant
 
+import models.account._
+
 import com.pellucid.sealerate
 import shapeless._
 import slick.driver.PostgresDriver.api._
@@ -13,12 +15,12 @@ import slick.jdbc.JdbcType
 import utils.generateUuid
 
 case class UserPasswordReset(id: Int = 0,
-                                 userId: Int,
-                                 email: String,
-                                 state: State = Initial,
-                                 code: String,
-                                 activatedAt: Option[Instant] = None,
-                                 createdAt: Instant = Instant.now)
+                             userId: Int,
+                             email: String,
+                             state: State = Initial,
+                             code: String,
+                             activatedAt: Option[Instant] = None,
+                             createdAt: Instant = Instant.now)
     extends FoxModel[UserPasswordReset] {
 
   def updateCode(): UserPasswordReset = this.copy(code = generateUuid)
@@ -53,7 +55,7 @@ class UserPasswordResets(tag: Tag)
   import UserPasswordReset._
 
   def id          = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def userId  = column[Int]("user_id")
+  def userId      = column[Int]("user_id")
   def email       = column[String]("email")
   def state       = column[UserPasswordReset.State]("state")
   def code        = column[String]("code")
@@ -66,8 +68,7 @@ class UserPasswordResets(tag: Tag)
 }
 
 object UserPasswordResets
-    extends FoxTableQuery[UserPasswordReset, UserPasswordResets](
-        new UserPasswordResets(_))
+    extends FoxTableQuery[UserPasswordReset, UserPasswordResets](new UserPasswordResets(_))
     with ReturningId[UserPasswordReset, UserPasswordResets] {
 
   val returningLens: Lens[UserPasswordReset, Int] = lens[UserPasswordReset].id

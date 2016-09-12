@@ -72,10 +72,10 @@ object Checkout {
     } yield order
 
   def forCustomer(customer: User)(implicit ec: EC,
-                                      db: DB,
-                                      apis: Apis,
-                                      ac: AC,
-                                      ctx: OC): DbResultT[OrderResponse] =
+                                  db: DB,
+                                  apis: Apis,
+                                  ac: AC,
+                                  ctx: OC): DbResultT[OrderResponse] =
     for {
       result ← * <~ Carts
                 .findByAccountId(customer.accountId)
@@ -168,8 +168,7 @@ case class Checkout(
       _ ← * <~ couponObject.mustBeApplicable(couponCode, cart.accountId)
     } yield {}
 
-  private def updateCouponCountersForPromotion(customer: User)(
-      implicit ctx: OC): DbResultT[Unit] =
+  private def updateCouponCountersForPromotion(customer: User)(implicit ctx: OC): DbResultT[Unit] =
     for {
       maybePromo ← * <~ OrderPromotions.filterByCordRef(cart.refNum).one
       _ ← * <~ maybePromo.map { promo ⇒

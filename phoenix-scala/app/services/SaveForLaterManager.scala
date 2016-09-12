@@ -38,7 +38,7 @@ object SaveForLaterManager {
     SaveForLaters.deleteById(id, DbResultT.unit, i ⇒ NotFoundFailure404(SaveForLater, i))
 
   private def findAllDbio(customer: User, contextId: Int)(implicit ec: EC,
-                                                              db: DB): DBIO[SavedForLater] =
+                                                          db: DB): DBIO[SavedForLater] =
     for {
       sfls ← SaveForLaters.filter(_.accountId === customer.accountId).result
       xors ← DBIO.sequence(

@@ -2,7 +2,8 @@ package models
 
 import java.time.Instant
 
-import models.account.CustomerUsers
+import models.customer.CustomerUsers
+import models.account._
 import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.db._
@@ -16,10 +17,10 @@ case class SaveForLater(id: Int = 0,
 object SaveForLater {}
 
 class SaveForLaters(tag: Tag) extends FoxTable[SaveForLater](tag, "save_for_later") {
-  def id         = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def id        = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def accountId = column[Int]("account_id")
-  def skuId      = column[Int]("sku_id")
-  def createdAt  = column[Instant]("created_at")
+  def skuId     = column[Int]("sku_id")
+  def createdAt = column[Instant]("created_at")
 
   def * =
     (id, accountId, skuId, createdAt) <> ((SaveForLater.apply _).tupled, SaveForLater.unapply)

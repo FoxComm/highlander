@@ -18,6 +18,10 @@ case class Account(id: Int = 0,
                    deletedAt: Option[Instant] = None)
     extends FoxModel[Account]
 
+object Account {
+  type Claims = Map[String, List[String]]
+}
+
 class Accounts(tag: Tag) extends FoxTable[Account](tag, "accounts") {
   def id        = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def ratchet   = column[Int]("ratchet")
@@ -32,8 +36,6 @@ class Accounts(tag: Tag) extends FoxTable[Account](tag, "accounts") {
 object Accounts
     extends FoxTableQuery[Account, Accounts](new Accounts(_))
     with ReturningId[Account, Accounts] {
-
-  type Claims = Map[String, List[String]]
 
   val returningLens: Lens[Account, Int] = lens[Account].id
 

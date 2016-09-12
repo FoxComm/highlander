@@ -23,11 +23,7 @@ import utils.http.CustomDirectives._
 import utils.http.Http._
 
 object Customer {
-  def routes(implicit ec: EC,
-             es: ES,
-             db: DB,
-             customerAuth: AsyncAuthenticator[User],
-             apis: Apis) = {
+  def routes(implicit ec: EC, es: ES, db: DB, customerAuth: AsyncAuthenticator[User], apis: Apis) = {
 
     pathPrefix("my") {
       requireCustomerAuth(customerAuth) { customer ⇒
@@ -95,7 +91,7 @@ object Customer {
                 } ~
                 (delete & path(GiftCard.giftCardCodeRegex) & pathEnd) { code ⇒
                   mutateOrFailures {
-                    CartPaymentUpdater.deleteGiftCard(customer), code)
+                    CartPaymentUpdater.deleteGiftCard(customer, code)
                   }
                 }
               } ~
@@ -114,20 +110,18 @@ object Customer {
               pathPrefix("shipping-address") {
                 (post & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
                   mutateOrFailures {
-                    CartShippingAddressUpdater
-                      .createShippingAddressFromPayload(customer, payload)
+                    CartShippingAddressUpdater.createShippingAddressFromPayload(customer, payload)
                   }
                 } ~
                 (patch & path(IntNumber) & pathEnd) { addressId ⇒
                   mutateOrFailures {
-                    CartShippingAddressUpdater
-                      .createShippingAddressFromAddressId(customer, addressId)
+                    CartShippingAddressUpdater.createShippingAddressFromAddressId(customer,
+                                                                                  addressId)
                   }
                 } ~
                 (patch & pathEnd & entity(as[UpdateAddressPayload])) { payload ⇒
                   mutateOrFailures {
-                    CartShippingAddressUpdater
-                      .updateShippingAddressFromPayload(customer, payload)
+                    CartShippingAddressUpdater.updateShippingAddressFromPayload(customer, payload)
                   }
                 } ~
                 (delete & pathEnd) {

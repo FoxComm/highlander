@@ -54,7 +54,7 @@ object ReturnService {
   }
 
   def createByAdmin(admin: User, payload: ReturnCreatePayload)(implicit ec: EC,
-                                                                     db: DB): DbResultT[Root] =
+                                                               db: DB): DbResultT[Root] =
     for {
       order    ← * <~ Orders.mustFindByRefNum(payload.cordRefNum)
       rma      ← * <~ Returns.create(Return.build(order, admin, payload.returnType))

@@ -24,14 +24,6 @@ case class CustomerUser(id: Int = 0,
                         udpatedAt: Instant = Instant.now,
                         deletedAt: Option[Instant] = None)
     extends FoxModel[CustomerUser]
-    with Validation[CustomerUser] {
-
-  import Validation._
-
-  def updatePassword(newPassword: String): CustomerUser = {
-    this.copy(hashedPassword = hashPassword(newPassword).some)
-  }
-}
 
 class CustomerUsers(tag: Tag) extends FoxTable[CustomerUser](tag, "customer_users") {
   def id        = column[Int]("id", O.PrimaryKey, O.AutoInc)
@@ -56,6 +48,13 @@ object CustomerUsers
     filter(_.isGuest === true).one
   }
 
-  def mustFindByAccountId(accountId: Int): DbResultT[User] = 
-    filter(_.accountId === accountId).one.mustFindOneOr(UserWithAccountNotFound(accountId))
+  def findOneByAccountId(accountId: Int): DBIO[Option[CustomerUser]] =
+    filter(_.accountId === accountId).result.headOption
+
+  def findByAccountId(accountId: Int): QuerySeq =
+    filter(_.accountId === accountId)
+
+  def mustFindByAccountId(accountId: Int)(implicit ec: EC): DbResultT[CustomerUser] =
+    filter(_.accountId === accountId).mustFindOneOr(UserWithAccountNotFound(accountId))
+
 }

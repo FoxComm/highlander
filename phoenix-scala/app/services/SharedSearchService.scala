@@ -15,7 +15,7 @@ import utils.db._
 
 object SharedSearchService {
   def getAll(admin: User, rawScope: Option[String])(implicit ec: EC,
-                                                          db: DB): DbResultT[Seq[SharedSearch]] =
+                                                    db: DB): DbResultT[Seq[SharedSearch]] =
     for {
       scope ← * <~ rawScope.toXor(SharedSearchScopeNotFound.single)
       searchScope ← * <~ SharedSearch.Scope
@@ -35,7 +35,7 @@ object SharedSearchService {
     } yield associates.map(StoreAdminResponse.build)
 
   def create(admin: User, payload: SharedSearchPayload)(implicit ec: EC,
-                                                              db: DB): DbResultT[SharedSearch] =
+                                                        db: DB): DbResultT[SharedSearch] =
     for {
       search ← * <~ SharedSearches.create(SharedSearch.byAdmin(admin, payload))
       _ ← * <~ SharedSearchAssociations.create(
@@ -62,8 +62,11 @@ object SharedSearchService {
       db: DB,
       ac: AC): DbResultT[TheResponse[SharedSearch]] =
     for {
-      search     ← * <~ mustFindActiveByCode(code)
-      adminIds   ← * <~ User.filter(_.accountId.inSetBind(requestedAssigneeIds)).map(_.accountId).result
+      search ← * <~ mustFindActiveByCode(code)
+      adminIds ← * <~ User
+                  .filter(_.accountId.inSetBind(requestedAssigneeIds))
+                  .map(_.accountId)
+                  .result
       associates ← * <~ SharedSearchAssociations.associatedAdmins(search).result
       newAssociations = adminIds
         .diff(associates.map(_.id))
@@ -74,9 +77,9 @@ object SharedSearchService {
       _ ← * <~ LogActivity.associatedWithSearch(admin, search, assignedAdmins)
     } yield TheResponse.build(search, errors = notFoundAdmins)
 
-  def unassociate(admin: User,
-                  code: String,
-                  assigneeId: Int)(implicit ec: EC, db: DB, ac: AC): DbResultT[SharedSearch] =
+  def unassociate(admin: User, code: String, assigneeId: Int)(implicit ec: EC,
+                                                              db: DB,
+                                                              ac: AC): DbResultT[SharedSearch] =
     for {
       search    ← * <~ mustFindActiveByCode(code)
       associate ← * <~ Users.mustFindByAccountId(assigneeId)
