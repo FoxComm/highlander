@@ -13,7 +13,7 @@ const (
 )
 
 type IShipmentRepository interface {
-	GetShipmentsByReferenceNumber(referenceNumber string) ([]*models.Shipment, error)
+	GetShipmentsByOrder(orderRefNum string) ([]*models.Shipment, error)
 	GetShipmentByID(id uint) (*models.Shipment, error)
 	CreateShipment(shipment *models.Shipment) (*models.Shipment, error)
 	UpdateShipment(shipment *models.Shipment) (*models.Shipment, error)
@@ -28,7 +28,7 @@ func NewShipmentRepository(db *gorm.DB) IShipmentRepository {
 	return &shipmentRepository{db}
 }
 
-func (repository *shipmentRepository) GetShipmentsByReferenceNumber(referenceNumber string) ([]*models.Shipment, error) {
+func (repository *shipmentRepository) GetShipmentsByOrder(orderRefNum string) ([]*models.Shipment, error) {
 	var shipments []*models.Shipment
 
 	err := repository.db.
@@ -38,7 +38,7 @@ func (repository *shipmentRepository) GetShipmentsByReferenceNumber(referenceNum
 		Preload("Address.Region").
 		Preload("Address.Region.Country").
 		Preload("ShipmentLineItems").
-		Where("reference_number = ?", referenceNumber).
+		Where("order_ref_num = ?", orderRefNum).
 		Find(&shipments).Error
 
 	return shipments, err

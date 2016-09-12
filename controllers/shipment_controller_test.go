@@ -40,9 +40,9 @@ func (suite *shipmentControllerTestSuite) TearDownTest() {
 	suite.shipmentService.Calls = []mock.Call{}
 }
 
-func (suite *shipmentControllerTestSuite) Test_GetShipmentsByReferenceNumbers_NotFound_ReturnsNotFoundError() {
+func (suite *shipmentControllerTestSuite) Test_GetShipmentsByOrder_NotFound_ReturnsNotFoundError() {
 	//arrange
-	suite.shipmentService.On("GetShipmentsByReferenceNumber", "BR1005").Return(nil, gorm.ErrRecordNotFound).Once()
+	suite.shipmentService.On("GetShipmentsByOrder", "BR1005").Return(nil, gorm.ErrRecordNotFound).Once()
 
 	//act
 	errors := responses.Error{}
@@ -55,14 +55,14 @@ func (suite *shipmentControllerTestSuite) Test_GetShipmentsByReferenceNumbers_No
 }
 
 // TODO: Re-enable later
-//func (suite *shipmentControllerTestSuite) Test_GetShipmentsByReferenceNumbers_Found_ReturnsRecords() {
+//func (suite *shipmentControllerTestSuite) Test_GetShipmentsByOrder_Found_ReturnsRecords() {
 ////arrange
 //shipment1 := fixtures.GetShipmentShort(uint(1))
 //shipment2 := fixtures.GetShipmentShort(uint(2))
-//suite.shipmentService.On("GetShipmentsByReferenceNumber", shipment1.ReferenceNumber).Return([]*models.Shipment{
+//suite.shipmentService.On("GetShipmentsByOrder", shipment1.ReferenceNumber).Return([]*models.Shipment{
 //shipment1,
 //}, nil).Once()
-//suite.shipmentService.On("GetShipmentsByReferenceNumber", shipment2.ReferenceNumber).Return([]*models.Shipment{
+//suite.shipmentService.On("GetShipmentsByOrder", shipment2.ReferenceNumber).Return([]*models.Shipment{
 //shipment2,
 //}, nil).Once()
 

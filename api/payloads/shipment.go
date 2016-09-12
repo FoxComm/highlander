@@ -2,7 +2,7 @@ package payloads
 
 type Shipment struct {
 	ShippingMethodCode string             `json:"shippingMethodCode" binding:"required"`
-	ReferenceNumber    string             `json:"referenceNumber" binding:"required"`
+	OrderRefNum        string             `json:"orderRefNum" binding:"required"`
 	State              string             `json:"state" binding:"required"`
 	ShipmentDate       *string            `json:"shipmentDate"`
 	EstimatedArrival   *string            `json:"estimatedArrival"`

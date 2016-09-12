@@ -12,7 +12,7 @@ type Shipment struct {
 	gormfox.Base
 	ShippingMethodCode string
 	ShippingMethod     ShippingMethod `gorm:"ForeignKey:ShippingMethodCode"`
-	ReferenceNumber    string
+	OrderRefNum        string
 	State              ShipmentState
 	ShipmentDate       sql.NullString
 	EstimatedArrival   sql.NullString
@@ -27,7 +27,7 @@ type Shipment struct {
 func NewShipmentFromPayload(payload *payloads.Shipment) *Shipment {
 	shipment := &Shipment{
 		ShippingMethodCode: payload.ShippingMethodCode,
-		ReferenceNumber:    payload.ReferenceNumber,
+		OrderRefNum:        payload.OrderRefNum,
 		State:              ShipmentState(payload.State),
 		ShipmentDate:       utils.MakeSqlNullString(payload.ShipmentDate),
 		EstimatedArrival:   utils.MakeSqlNullString(payload.EstimatedArrival),
@@ -80,7 +80,7 @@ func NewShipmentFromUpdatePayload(payload *payloads.UpdateShipment) *Shipment {
 func NewShipmentFromOrderPayload(payload *payloads.Order) *Shipment {
 	shipment := &Shipment{
 		ShippingMethodCode: payload.ShippingMethod.Code,
-		ReferenceNumber:    payload.ReferenceNumber,
+		OrderRefNum:        payload.ReferenceNumber,
 		State:              ShipmentStatePending,
 		Address:            *NewAddressFromPayload(&payload.ShippingAddress),
 		ShippingPrice:      payload.ShippingMethod.Price,

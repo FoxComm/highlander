@@ -5,7 +5,7 @@ import "github.com/FoxComm/middlewarehouse/models"
 type Shipment struct {
 	ID                uint               `json:"id"`
 	ShippingMethod    ShippingMethod     `json:"shippingMethod"`
-	ReferenceNumber   string             `json:"referenceNumber"`
+	OrderRefNum       string             `json:"orderRefNum"`
 	State             string             `json:"state"`
 	ShipmentDate      *string            `json:"shipmentDate"`
 	EstimatedArrival  *string            `json:"estimatedArrival"`
@@ -19,7 +19,7 @@ func NewShipmentFromModel(model *models.Shipment) *Shipment {
 	shipment := &Shipment{
 		ID:                model.ID,
 		ShippingMethod:    *NewShippingMethodFromModel(&model.ShippingMethod),
-		ReferenceNumber:   model.ReferenceNumber,
+		OrderRefNum:       model.OrderRefNum,
 		State:             string(model.State),
 		ShipmentDate:      NewStringFromSqlNullString(model.ShipmentDate),
 		EstimatedArrival:  NewStringFromSqlNullString(model.EstimatedArrival),
