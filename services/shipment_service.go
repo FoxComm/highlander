@@ -17,7 +17,7 @@ type shipmentService struct {
 }
 
 type IShipmentService interface {
-	GetShipmentsByReferenceNumber(referenceNumber string) ([]*models.Shipment, error)
+	GetShipmentsByOrder(orderRefNum string) ([]*models.Shipment, error)
 	CreateShipment(shipment *models.Shipment) (*models.Shipment, error)
 	UpdateShipment(shipment *models.Shipment) (*models.Shipment, error)
 }
@@ -26,9 +26,9 @@ func NewShipmentService(db *gorm.DB, summaryService ISummaryService, activityLog
 	return &shipmentService{db, summaryService, activityLogger, true}
 }
 
-func (service *shipmentService) GetShipmentsByReferenceNumber(referenceNumber string) ([]*models.Shipment, error) {
+func (service *shipmentService) GetShipmentsByOrder(referenceNumber string) ([]*models.Shipment, error) {
 	repo := repositories.NewShipmentRepository(service.db)
-	return repo.GetShipmentsByReferenceNumber(referenceNumber)
+	return repo.GetShipmentsByOrder(referenceNumber)
 }
 
 func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*models.Shipment, error) {
@@ -37,7 +37,7 @@ func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*mode
 	stockItemCounts := make(map[uint]int)
 	unitRepo := repositories.NewStockItemUnitRepository(txn)
 	for i, lineItem := range shipment.ShipmentLineItems {
-		siu, err := unitRepo.GetUnitForLineItem(shipment.ReferenceNumber, lineItem.SKU)
+		siu, err := unitRepo.GetUnitForLineItem(shipment.OrderRefNum, lineItem.SKU)
 		if err != nil {
 			txn.Rollback()
 			return nil, err
@@ -196,7 +196,7 @@ func (service *shipmentService) handleStatusChange(db *gorm.DB, oldShipment, new
 
 	switch newShipment.State {
 	case models.ShipmentStateCancelled:
-		_, err = unitRepo.UnsetUnitsInOrder(newShipment.ReferenceNumber)
+		_, err = unitRepo.UnsetUnitsInOrder(newShipment.OrderRefNum)
 
 	case models.ShipmentStateShipped:
 		// TODO: Bring capture back when we move to the capture consumer
