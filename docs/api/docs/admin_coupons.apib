@@ -51,12 +51,17 @@ Return illuminated version of coupon.
 	+ context: `default` (required, string) - The context in which the coupon is viewable.
     + id: `1` (required, number) - Coupon Form ID.
 + Response 200 (application/json)
-    + Attributes (CouponShadow)      
+    + Attributes (CouponShadow)
 
 ### Update [PATCH]
 
 + Request (application/json)
     + Attributes (UpdateCouponPayload)
++ Response 200 (application/json)
+    + Attributes (Coupon)
+
+### Archive [DELETE]
+
 + Response 200 (application/json)
     + Attributes (Coupon)
 
@@ -73,7 +78,7 @@ Return illuminated version of coupon.
 + Parameters
     + id: `1` (required, number) - Related coupon ID.
 + Request (application/json)
-    + Attributes (GenerateCodesPayload)    
+    + Attributes (GenerateCodesPayload)
 + Response 200 (application/json)
     + Attributes (array[string])
 
