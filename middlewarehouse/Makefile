@@ -19,8 +19,8 @@ build: glide
 	cd $(BUILDPATH) && go build -o consumers/shipments/shipments-consumer consumers/shipments/*.go
 	cd $(BUILDPATH) && go build -o consumers/stock-items/stock-items-consumer consumers/stock-items/*.go
 	cp $(BUILDPATH)/middlewarehouse ./
-	cp $(BUILDPATH)/consumers/shipments/shipments-consumer ./
-	cp $(BUILDPATH)/consumers/stock-items/stock-items-consumer ./
+	cp $(BUILDPATH)/consumers/shipments/shipments-consumer ./consumers/shipments
+	cp $(BUILDPATH)/consumers/stock-items/stock-items-consumer ./consumers/stock-items
 
 clean:
 	rm -rf ./vendor
