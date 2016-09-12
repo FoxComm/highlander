@@ -16,7 +16,6 @@
     - { role: dev/isaac }
     - { role: dev/middlewarehouse }
     - { role: dev/greenriver }
-    - { role: dev/loyalty }
     - { role: dev/messaging }
 
   handlers:
