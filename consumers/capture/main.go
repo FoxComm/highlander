@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"os"
 
 	"github.com/FoxComm/metamorphosis"
 	"github.com/FoxComm/middlewarehouse/consumers"
@@ -22,19 +21,9 @@ func main() {
 		log.Fatalf("Unable to initialize consumer with error: %s", err.Error())
 	}
 
-	phoenixURL := os.Getenv("PHOENIX_URL")
-	if phoenixURL == "" {
-		log.Fatalf("Unable to initialize consumer with error: PHOENIX_URL not found in env")
-	}
-
-	phoenixUser := os.Getenv("PHOENIX_USER")
-	if phoenixUser == "" {
-		log.Fatalf("Unable to initialize consumer with error: PHOENIX_USER not found in env")
-	}
-
-	phoenixPassword := os.Getenv("PHOENIX_PASSWORD")
-	if phoenixPassword == "" {
-		log.Fatalf("Unable to initialize consumer with error: PHOENIX_PASSWORD not found in env")
+	capConf, err := MakeCaptureConsumerConfig()
+	if err != nil {
+		log.Fatalf("Unable to initialize consumer with error: %s", err.Error())
 	}
 
 	consumer, err := metamorphosis.NewConsumer(config.ZookeeperURL, config.SchemaRepositoryURL)
@@ -45,7 +34,7 @@ func main() {
 	consumer.SetGroupID(groupID)
 	consumer.SetClientID(clientID)
 
-	client := lib.NewPhoenixClient(phoenixURL, phoenixUser, phoenixPassword)
+	client := lib.NewPhoenixClient(capConf.PhoenixURL, capConf.PhoenixUser, capConf.PhoenixPassword)
 	if err := client.Authenticate(); err != nil {
 		log.Fatalf("Unable to authenticate with Phoenix with error %s", err.Error())
 	}
