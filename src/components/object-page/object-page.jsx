@@ -28,7 +28,7 @@ export function connectPage(namespace, actions) {
   const capitalized = _.capitalize(namespace);
   const plural = `${namespace}s`;
   const actionNames = {
-    new: `${plural}New`, // promotionsNew
+    new: `${namespace}New`, // promotionsNew
     fetch: `fetch${capitalized}`, // fetchPromotion
     create: `create${capitalized}`, // createPromotion
     update: `update${capitalized}`, // updatePromotion
@@ -79,13 +79,21 @@ export function connectPage(namespace, actions) {
   };
 }
 
+function getObjectId(object) {
+  return _.get(object, 'form.id', object.id);
+}
+
 export class ObjectPage extends Component {
   state = {
     [this.props.namespace]: this.props.details[this.props.namespace],
   };
 
+  get entityIdName(): string {
+    return `${this.props.namespace}Id`;
+  }
+
   get entityId(): string {
-    return this.props.params[`${this.props.namespace}Id`];
+    return this.props.params[this.entityIdName];
   }
 
   get isNew(): boolean {
@@ -126,19 +134,33 @@ export class ObjectPage extends Component {
     }
   }
 
+  detailsRouteProps(): Object {
+    return {};
+  }
+
+  transitionTo(id, props={}) {
+    transitionTo(`${this.props.namespace}-details`, {
+      ...this.detailsRouteProps(),
+      ...props,
+      [this.entityIdName]: id
+    });
+  }
+
   componentWillReceiveProps(nextProps) {
     const { isFetching, isSaving } = nextProps;
-    const { namespace, plural } = this.props;
+    const { namespace } = this.props;
 
     if (!isFetching && !isSaving && !nextProps.fetchError) {
       const nextEntity = nextProps.details[namespace];
       if (!nextEntity) return;
 
-      if (this.isNew && nextEntity.form.id) {
-        this.props.dispatch(push(`/${plural}/${nextEntity.form.id}`));
+      const nextEntityId = getObjectId(nextEntity);
+
+      if (this.isNew && nextEntityId) {
+        this.transitionTo(nextEntityId);
       }
-      if (!this.isNew && !nextEntity.form.id) {
-        this.props.dispatch(push(`/${plural}/new`));
+      if (!this.isNew && !nextEntityId) {
+        this.transitionTo('new');
       }
       this.setState({
         entity: nextProps.details[namespace]
@@ -181,6 +203,14 @@ export class ObjectPage extends Component {
     return formValid;
   }
 
+  createEntity(entity) {
+    return this.props.actions.createEntity(entity);
+  }
+
+  updateEntity(entity) {
+    return this.props.actions.updateEntity(entity);
+  }
+
   save() {
     let mayBeSaved = false;
 
@@ -190,9 +220,9 @@ export class ObjectPage extends Component {
       if (!this.validateForm()) return;
 
       if (this.isNew) {
-        mayBeSaved = this.props.actions.createEntity(entity);
+        mayBeSaved = this.createEntity(entity);
       } else {
-        mayBeSaved = this.props.actions.updateEntity(entity);
+        mayBeSaved = this.updateEntity(entity);
       }
     }
 
@@ -206,7 +236,7 @@ export class ObjectPage extends Component {
 
   @autobind
   handleSelectSaving(value) {
-    const { actions, dispatch, plural } = this.props;
+    const { actions } = this.props;
     const mayBeSaved = this.save();
     if (!mayBeSaved) return;
 
@@ -216,7 +246,7 @@ export class ObjectPage extends Component {
           actions.newEntity();
           break;
         case SAVE_COMBO.DUPLICATE:
-          dispatch(push(`/${plural}/new`));
+          this.transitionTo('new');
           break;
         case SAVE_COMBO.CLOSE:
           this.transitionToList();
@@ -283,6 +313,19 @@ export class ObjectPage extends Component {
     };
   }
 
+  @autobind
+  sanitizeError(error: string): string {
+    return error;
+  }
+
+  get preventSave(): boolean {
+    return false;
+  }
+
+  renderHead() {
+    return this.cancelButton;
+  }
+
   render(): Element {
     const props = this.props;
     const { entity } = this.state;
@@ -301,7 +344,7 @@ export class ObjectPage extends Component {
     return (
       <div>
         <PageTitle title={this.pageTitle}>
-          {this.cancelButton}
+          {this.renderHead()}
           <ButtonWithMenu
             title="Save"
             menuPosition="right"
@@ -309,11 +352,16 @@ export class ObjectPage extends Component {
             onSelect={this.handleSelectSaving}
             isLoading={props.isSaving}
             items={SAVE_COMBO_ITEMS}
+            buttonDisabled={this.preventSave}
           />
         </PageTitle>
         {this.subNav()}
         <div styleName="object-details">
-          <ErrorAlerts error={this.props.submitError} closeAction={actions.clearSubmitErrors} />
+          <ErrorAlerts
+            error={this.props.submitError}
+            closeAction={actions.clearSubmitErrors}
+            sanitizeError={this.sanitizeError}
+          />
           {children}
         </div>
         {!this.isNew && this.renderArchiveActions()}

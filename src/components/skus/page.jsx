@@ -29,9 +29,6 @@ import { isArchived } from 'paragons/common';
 import { SAVE_COMBO, SAVE_COMBO_ITEMS } from 'paragons/common';
 import { isSkuValid } from 'paragons/sku';
 
-// styles
-import styles from '../discounts/page.css';
-
 // types
 import type { Sku } from 'modules/skus/details';
 
@@ -179,7 +176,7 @@ class SkuPage extends Component {
 
     const message = _.get(err, ['messages', 0], 'There was an error saving the sku.');
     return (
-      <div styleName="error" className="fc-col-md-1-1">
+      <div className="fc-col-md-1-1">
         <ErrorAlerts error={message} />
       </div>
     );

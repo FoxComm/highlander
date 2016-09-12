@@ -3,11 +3,12 @@
  */
 
 // libs
-import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
 import { push } from 'react-router-redux';
 import Api from 'lib/api';
 import { createEmptyProduct, configureProduct } from 'paragons/product';
+import createAsyncActions from '../async-utils';
+import { dissoc } from 'sprout-data';
 
 // types
 import type { Product } from 'paragons/product';
@@ -27,20 +28,18 @@ export type ProductDetailsState = {
 
 const defaultContext = 'default';
 
-const productRequestStart = createAction('PRODUCTS_REQUEST_START');
-const productRequestSuccess = createAction('PRODUCTS_REQUEST_SUCCESS');
-const productRequestFailure = createAction('PRODUCTS_REQUEST_FAILURE');
-
-const productUpdateStart = createAction('PRODUCTS_UPDATE_START');
-const productUpdateSuccess = createAction('PRODUCTS_UPDATE_SUCCESS');
-const productUpdateFailure = createAction('PRODUCTS_UPDATE_FAILURE');
-
 export const productNew = createAction('PRODUCTS_NEW');
-const productSet = createAction('PRODUCTS_SET');
+const clearProduct = createAction('PRODUCT_CLEAR');
 
-const setError = createAction('PRODUCTS_SET_ERROR');
+const _archiveProduct = createAsyncActions(
+  'archiveProduct',
+  (id, context = defaultContext) => {
+    return Api.delete(`/products/${context}/${id}`);
+  }
+);
+export const archiveProduct = _archiveProduct.perform;
 
-function sanitizeError(error: string): string {
+export function sanitizeError(error: string): string {
   if (error.indexOf('sku_code violates check constraint "sku_code_check"') != -1) {
     return 'Product must contain a SKU.';
   }
@@ -48,54 +47,44 @@ function sanitizeError(error: string): string {
   return error;
 }
 
+const _fetchProduct = createAsyncActions(
+  'fetchProduct',
+  (id: string, context: string = defaultContext) => {
+    return Api.get(`/products/${context}/${id}`);
+  }
+);
+
 export function fetchProduct(id: string, context: string = defaultContext): ActionDispatch {
   return dispatch => {
     if (id.toLowerCase() == 'new') {
       dispatch(productNew());
     } else {
-      dispatch(productRequestStart());
-      return Api.get(`/products/${context}/${id}`)
-        .then(
-          (product: Product) => dispatch(productRequestSuccess(product)),
-          (err: Object) => {
-            dispatch(productRequestFailure());
-            dispatch(setError(err));
-          }
-        );
+      return dispatch(_fetchProduct.perform(id, context));
     }
   };
 }
 
-export function createProduct(product: Product, context: string = defaultContext): ActionDispatch {
-  return dispatch => {
-    dispatch(productSet(product));
-    dispatch(productUpdateStart());
-    return Api.post(`/products/${context}`, product)
-      .then(
-        (product: Product) => {
-          dispatch(productUpdateSuccess(product));
-          dispatch(push(`/products/${context}/${product.id}`));
-        },
-        (err: Object) => {
-          dispatch(productUpdateFailure());
-          dispatch(setError(err));
-        }
-      );
-  };
-}
+const _createProduct = createAsyncActions(
+  'createProduct',
+  (product: Product, context: string = defaultContext) => {
+    return Api.post(`/products/${context}`, product);
+  }
+);
 
-export function updateProduct(product: Product, context: string = defaultContext): ActionDispatch {
-  return dispatch => {
-    dispatch(productSet(product));
-    dispatch(productUpdateStart());
-    return Api.patch(`/products/${context}/${product.id}`, product)
-      .then(
-        (product: Product) => dispatch(productUpdateSuccess(product)),
-        (err: Object) => {
-          dispatch(productUpdateFailure());
-          dispatch(setError(err));
-        }
-      );
+const _updateProduct = createAsyncActions(
+  'updateProduct',
+  (product: Product, context: string = defaultContext) => {
+    return Api.patch(`/products/${context}/${product.id}`, product);
+  }
+);
+
+export const createProduct = _createProduct.perform;
+export const updateProduct = _updateProduct.perform;
+
+function updateProductInState(state: ProductDetailsState, response) {
+  return {
+    ...state,
+    product: configureProduct(response)
   };
 }
 
@@ -107,6 +96,23 @@ const initialState: ProductDetailsState = {
   response: null,
 };
 
+export function clearSubmitErrors() {
+  return (dispatch: Function) => {
+    dispatch(_createProduct.clearErrors());
+    dispatch(_updateProduct.clearErrors());
+  };
+}
+
+export const clearFetchErrors = _fetchProduct.clearErrors;
+
+export function reset() {
+  return (dispatch: Function) => {
+    dispatch(clearProduct());
+    dispatch(clearSubmitErrors());
+    dispatch(clearFetchErrors());
+  };
+}
+
 const reducer = createReducer({
   [productNew]: (state: ProductDetailsState) => {
     return {
@@ -114,67 +120,12 @@ const reducer = createReducer({
       product: createEmptyProduct(),
     };
   },
-  [productSet]: (state: ProductDetailsState, product: Product) => {
-    return {
-      ...initialState,
-      product,
-    };
+  [clearProduct]: (state: ProductDetailsState) => {
+    return dissoc(state, 'product');
   },
-  [productRequestStart]: (state: ProductDetailsState) => {
-    return {
-      ...state,
-      err: null,
-      isFetching: true,
-    };
-  },
-  [productRequestSuccess]: (state: ProductDetailsState, response: Product) => {
-    return {
-      ...state,
-      err: null,
-      isFetching: false,
-      product: configureProduct(response),
-    };
-  },
-  [productRequestFailure]: (state: ProductDetailsState) => {
-    return {
-      ...state,
-      isFetching: false,
-    };
-  },
-  [productUpdateStart]: (state: ProductDetailsState) => {
-    return {
-      ...state,
-      isUpdating: true,
-    };
-  },
-  [productUpdateSuccess]: (state: ProductDetailsState, response: Product) => {
-    return {
-      ...state,
-      err: null,
-      isUpdating: false,
-      product: configureProduct(response),
-    };
-  },
-  [productUpdateFailure]: (state: ProductDetailsState) => {
-    return {
-      ...state,
-      isUpdating: false,
-    };
-  },
-  [setError]: (state: ProductDetailsState, err: Object) => {
-    const messages = _.get(err, 'response.body.errors', []);
-
-    const error: Error = {
-      status: _.get(err, 'response.status'),
-      statusText: _.get(err, 'response.statusText', ''),
-      messages: _.map(messages, m => sanitizeError(m)),
-    };
-
-    return {
-      ...state,
-      err: error,
-    };
-  },
+  [_fetchProduct.succeeded]: updateProductInState,
+  [_updateProduct.succeeded]: updateProductInState,
+  [_createProduct.succeeded]: updateProductInState,
 }, initialState);
 
 

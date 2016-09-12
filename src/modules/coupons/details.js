@@ -6,11 +6,11 @@ import { createAction, createReducer } from 'redux-act';
 
 import { createEmptyCoupon, configureCoupon} from '../../paragons/coupons';
 import createAsyncActions from '../async-utils';
-import Api from '../../lib/api';
+import Api from 'lib/api';
 
 /* coupon actions */
 
-export const couponsNew = createAction('COUPONS_NEW');
+export const couponNew = createAction('COUPONS_NEW');
 const clearCoupon = createAction('COUPONS_CLEAR');
 
 const defaultContext = 'default';
@@ -47,7 +47,7 @@ const _archiveCoupon = createAsyncActions(
 export function fetchCoupon(id: string, context: string = defaultContext) {
   return dispatch => {
     if (id.toLowerCase() == 'new') {
-      dispatch(couponsNew());
+      dispatch(couponNew());
     } else {
       return dispatch(_fetchCoupon.perform(id, context))
         .then(
@@ -160,7 +160,7 @@ const initialState = {
 };
 
 const reducer = createReducer({
-  [couponsNew]: state => {
+  [couponNew]: state => {
     return {
       ...state,
       coupon: createEmptyCoupon(),

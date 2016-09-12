@@ -6,7 +6,7 @@ import { createEmptyPromotion, configurePromotion } from 'paragons/promotion';
 import createAsyncActions from '../async-utils';
 import Api from 'lib/api';
 
-export const promotionsNew = createAction('PROMOTIONS_NEW');
+export const promotionNew = createAction('PROMOTIONS_NEW');
 const clearPromotion = createAction('PROMOTION_CLEAR');
 const defaultContext = 'default';
 
@@ -42,7 +42,7 @@ export function clearSubmitErrors() {
 export function fetchPromotion(id: string, context: string = defaultContext) {
   return dispatch => {
     if (id.toLowerCase() == 'new') {
-      dispatch(promotionsNew());
+      dispatch(promotionNew());
     } else {
       return dispatch(_fetchPromotion.perform(id, context));
     }
@@ -81,7 +81,7 @@ const initialState = {
 };
 
 const reducer = createReducer({
-  [promotionsNew]: state => {
+  [promotionNew]: state => {
     return {
       ...state,
       promotion: createEmptyPromotion(),
