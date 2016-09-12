@@ -77,13 +77,13 @@ deploy-stage:
 	ansible-playbook -v -i bin/envs/staging ansible/stage.yml
 
 deploy-stage-highlander:
-	ansible-playbook -v -i bin/envs/staging ansible/stage_highlander.yml
+	ansible-playbook -v -i bin/envs/staging ansible/highlander_staging.yml
 
 deploy-gatling:
 	ansible-playbook -v -i bin/envs/staging ansible/gatling.yml
 
 deploy-gatling-highlander:
-	ansible-playbook -v -i bin/envs/staging ansible/gatling_highlander.yml
+	ansible-playbook -v -i bin/envs/staging ansible/highlander_gatling.yml
 
 run-gatling: deploy-gatling
 	ansible-playbook -v -i bin/envs/staging ansible/run_gatling.yml
