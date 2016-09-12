@@ -10,4 +10,7 @@ object AvalaraFailures {
     override def description: String = s"Address validation failed with message: '$message'"
   }
 
+  case class TaxApplicationFailure(message: String) extends Failure {
+    override def description: String = s"Tax cannot be calculated because of: '$message'"
+  }
 }

@@ -131,7 +131,7 @@ object Avalara {
 
     def buildLine(lineItem: FindLineItemResult, idx: Int, addressId: Int): Requests.Line = {
       val (sku, form, shadow, otherShadow, cartItem) = lineItem
-      val ref                                        = (shadow.attributes \ "salePrice" \ "ref").extract[String] //sku_shadow.attributes->'salePrice'->>'ref'
+      val ref                                        = (shadow.attributes \ "salePrice" \ "ref").extract[String]
       val price                                      = (form.attributes \ ref \ "value").extract[Int] / 100
       Requests.Line(
           DestinationCode = addressId.toString,
@@ -139,8 +139,7 @@ object Avalara {
           LineNo = idx.toString,
           ItemCode = sku.code,
           Qty = BigDecimal(1),
-          Amount = BigDecimal(price),
-          TaxCode = Some("PC040100")
+          Amount = BigDecimal(price)
       )
     }
 
@@ -226,6 +225,8 @@ object Avalara {
     trait AvalaraResponse {
       def ResultCode: SeverityLevel
       def hasError: Boolean = ResultCode == Error
+      def Messages: Seq[Message]
+      def collectMessages = Messages.map(_.Summary).mkString(", ")
     }
 
     case class Message(
@@ -250,9 +251,9 @@ object Avalara {
     )
 
     case class TaxDetail(
-        Rate: Double,
-        Tax: Double,
-        Taxable: Double,
+        Rate: String,
+        Tax: String,
+        Taxable: String,
         Country: String,
         Region: String,
         JurisType: String,
@@ -263,13 +264,13 @@ object Avalara {
     case class TaxLine(
         LineNo: String,
         TaxCode: String,
-        Taxability: Boolean,
-        Taxable: Double,
-        Rate: Double,
-        Tax: Double,
-        Discount: Double,
-        TaxCalculated: Double,
-        Exemption: Double,
+        Taxability: String,
+        Taxable: String,
+        Rate: String,
+        Tax: String,
+        Discount: String,
+        TaxCalculated: String,
+        Exemption: String,
         TaxDetails: Seq[TaxDetail],
         BoundaryLevel: String
     )
@@ -285,8 +286,8 @@ object Avalara {
         TotalTax: Option[String],
         TotalTaxCalculated: Option[String],
         TaxDate: Option[String],
-//        TaxLines: Seq[TaxLine],
-//        TaxAddresses: Seq[TaxAddress],
+        TaxLines: Seq[TaxLine],
+        TaxAddresses: Seq[TaxAddress],
         ResultCode: SeverityLevel,
         Messages: Seq[Message]
     ) extends AvalaraResponse
@@ -346,18 +347,15 @@ class Avalara(url: String, account: String, license: String, profile: String)(
       .runWith(Sink.head)
 
     def failureHandler(failure: Throwable) = {
-      println(s"We are doomed by failre $failure")
       Result.left(UnableToMatchResponse.single)
     }
 
     result.flatMap {
       case response ⇒
         if (!response.hasError) {
-          println("success")
           Result.unit
         } else {
-          val message = response.Messages.map(_.Summary).mkString(", ")
-          println(s"Error: $message")
+          val message = response.collectMessages
           Result.failure(AddressValidationFailure(message))
         }
     }.recoverWith {
@@ -372,7 +370,6 @@ class Avalara(url: String, account: String, license: String, profile: String)(
                              country: Country)(implicit ec: EC): Result[Int] = {
     println("getting taxes for cart")
     val payload = PayloadBuilder.buildOrder(cart, lineItems, address, region, country)
-    println(payload)
     println(write(payload))
     getTax(payload)
   }
@@ -383,7 +380,6 @@ class Avalara(url: String, account: String, license: String, profile: String)(
                               region: Region,
                               country: Country)(implicit ec: EC): Result[Int] = {
     val payload = PayloadBuilder.buildInvoice(cart, lineItems, address, region, country)
-    println(payload)
     println(write(payload))
     getTax(payload)
   }
@@ -416,8 +412,14 @@ class Avalara(url: String, account: String, license: String, profile: String)(
         val taxCalculated = (res.TotalTaxCalculated.getOrElse("0").toDouble * 100).toInt
         Result.good(taxCalculated)
       } else {
-        println("request with error")
-        Result.good(0)
+        val message = res.collectMessages
+        if (res.Messages.exists { m ⇒
+              m.RefersTo.contains("Addresses")
+            }) {
+          Result.failure(AddressValidationFailure(message))
+        } else {
+          Result.failure(TaxApplicationFailure(message))
+        }
       }
     }.recoverWith {
       case err: Throwable ⇒ failureHandler(err)
