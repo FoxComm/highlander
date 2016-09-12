@@ -1,8 +1,5 @@
-setup:
-	boot build
-
 build:
-	boot build
+	lein uberjar
 
 clean:
 	rm -rf ./target

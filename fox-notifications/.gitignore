@@ -1,9 +1,6 @@
 target/*
-
-# we use boot instead of leiningen
-/project.clj
+project.clj
 
 # repl stuff
 .nrepl-history
 .nrepl-port
-

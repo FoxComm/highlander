@@ -4,6 +4,10 @@
   shell: npm install gulp -g
   sudo: true
 
+- name: Install Lein for clojure
+  shell: 'bash -c "cd /usr/local/bin && wget https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein && chmod +x lein"'
+  sudo: true
+
 - name: Install Boot for Clojure
   shell: 'bash -c "cd /usr/local/bin && curl -fsSLo boot https://github.com/boot-clj/boot-bin/releases/download/latest/boot.sh && chmod 755 boot"'
   sudo: true
