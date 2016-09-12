@@ -2,13 +2,12 @@
 import _ from 'lodash';
 import React, { PropTypes, Component } from 'react';
 import ReactDOM from 'react-dom';
-import flatMap from '../../lib/flatMap';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 
 //helpers
-import { addResizeListener, removeResizeListener } from '../../lib/resize';
+import { addResizeListener, removeResizeListener } from 'lib/resize';
 
 //components
 import { Link, IndexLink } from '../link';
@@ -132,7 +131,7 @@ class LocalNav extends Component {
 
   @autobind
   compileLinks({ props }) {
-    return flatMap(React.Children.toArray(props.children), child => {
+    return _.flatMap(React.Children.toArray(props.children), child => {
       if (child.type === Link || child.type === IndexLink) {
         return child;
       }

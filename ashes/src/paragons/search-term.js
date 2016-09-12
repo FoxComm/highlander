@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import flatMap from '../lib/flatMap';
 import SearchOperator from './search-operator';
 import SearchSuggestion from './search-suggestion';
 import { stringToCurrency } from '../lib/format-currency';
@@ -68,7 +67,7 @@ export function getInputMask(searchTerm) {
  */
 export default class SearchTerm {
   static potentialTerms(searchTerms, str) {
-    return flatMap(searchTerms, term => term.applicableTerms(str));
+    return _.flatMap(searchTerms, term => term.applicableTerms(str));
   }
 
   static normalizeSearchTerm(searchTerm) {
@@ -161,7 +160,7 @@ export default class SearchTerm {
     if (this.matchesSearchTerm(search)) {
       terms.push(this);
     } else if (_.startsWith(nSearch, nTerm) && !_.isEmpty(this.children)) {
-      terms = flatMap(this.children, child => child.applicableTerms(search));
+      terms = _.flatMap(this.children, child => child.applicableTerms(search));
     }
 
     return terms;

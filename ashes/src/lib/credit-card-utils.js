@@ -31,3 +31,17 @@ export function formatExpiration(card) {
 export function formatNumber(card) {
   return `xxxx xxxx xxxx ${card.lastFour}`;
 }
+
+export function getBillingAddress(getState, customerId, addressId) {
+  const state = getState();
+
+  const addresses = _.get(state, `customers.addresses[${customerId}].addresses`, []);
+  const billingAddress = _.find(addresses, address => address.id === addressId);
+  const region = _.get(billingAddress, 'region', _.get(billingAddress, 'state', {}));
+
+  billingAddress.regionId = region.id;
+  billingAddress.state = region.name;
+  billingAddress.country = _.get(_.find(state.countries, country => country.id === region.countryId), 'name', '');
+
+  return billingAddress;
+}

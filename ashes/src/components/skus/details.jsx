@@ -10,8 +10,6 @@ import _ from 'lodash';
 import { flow, filter } from 'lodash/fp';
 
 // components
-import { FormField } from '../forms';
-import ContentBox from '../content-box/content-box';
 import ObjectForm from '../object-form/object-form';
 import ObjectScheduler from '../object-scheduler/object-scheduler';
 import WaitAnimation from '../common/wait-animation';

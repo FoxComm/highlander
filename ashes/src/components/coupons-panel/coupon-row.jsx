@@ -16,7 +16,7 @@ function setCellContentsFunctionFactory(onDelete: Function): Function {
         return get(item, ['code'], '');
       default:
         return get(item, ['coupon', 'attributes', field, 'v'], '');
-    ;}
+    }
   };
   return setCellContents;
 }
