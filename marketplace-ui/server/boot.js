@@ -6,7 +6,7 @@ process.env.API_URL = process.env.API_URL || 'http://localhost';
 
 const App = require('./app').default;
 
-process.title = 'm-merchant';
+process.title = 'm-marketplace';
 
 const app = new App();
 app.start();

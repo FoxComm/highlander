@@ -1,8 +1,8 @@
-# Merchant UI
+# Marketplace UI
 
 [![Build status](https://badge.buildkite.com/1238dff6913c220ef0612d9a9f4b0c5198a8dd270d260f8ff2.svg)](https://buildkite.com/foxcommerce/highlander)
 
-Merchant UI implementation of a FoxCommerce-powered store. Isomorphic React app powered by FoxComm's backend API.
+Marketplace UI implementation of a FoxCommerce-powered store. Isomorphic React app powered by FoxComm's backend API.
 
 ## Local Development
 

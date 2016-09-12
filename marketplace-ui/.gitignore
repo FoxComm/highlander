@@ -23,7 +23,7 @@ logs
 *.iml
 
 # package
-merchant.tar.bz2
+marketplace.tar.bz2
 
 # certificates
 public_key.pem

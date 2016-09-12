@@ -1,7 +1,7 @@
 {
-  "name": "merchant",
+  "name": "marketplace",
   "version": "1.0.0",
-  "description": "The demo merchant UI",
+  "description": "The demo marketplace UI",
   "main": "index.js",
   "scripts": {
     "lint": "./node_modules/.bin/eslint --ext .js --ext .jsx .",
