@@ -1,11 +1,11 @@
 [Service]
 Environment="GOENV={{middlewarehouse_env}}"
 WorkingDirectory={{middlewarehouse_consumers_dir}}
-ExecStart={{shipments_consumer_bin}}
+ExecStart={{capture_consumer_bin}}
 Restart=always
 StandardOutput=syslog
 StandardError=syslog
-SyslogIdentifier=shipments-consumer
+SyslogIdentifier=capture-consumer
 TimeoutStartSec=5m
 RestartSec=5
 
@@ -14,6 +14,9 @@ Environment=SCHEMA_REPOSITORY_URL=http://{{schema_server}}
 Environment=MWH_URL=http://{{middlewarehouse_server}}
 Environment=TOPIC=activities
 Environment=PARTITION=1
+Environment=PHOENIX_URL=http://{{phoenix_server}}
+Environment=PHOENIX_USER=admin@admin.com
+Environment=PHOENIX_PASSWORD=password
 
 [Install]
 WantedBy=multi-user.target
