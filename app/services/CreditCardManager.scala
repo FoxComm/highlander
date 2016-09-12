@@ -126,19 +126,17 @@ object CreditCardManager {
       region ← * <~ Regions.findOneById(cc.regionId).safeGet
     } yield buildResponse(default, region)
 
-  def deleteCreditCard(customerId: Int, id: Int, admin: Option[StoreAdmin] = None)(
+  def deleteCreditCard(customerId: Int, ccId: Int, admin: Option[StoreAdmin] = None)(
       implicit ec: EC,
       db: DB,
       apis: Apis,
       ac: AC): DbResultT[Unit] =
     for {
       customer ← * <~ Customers.mustFindById404(customerId)
-      cc       ← * <~ CreditCards.mustFindByIdAndCustomer(id, customerId)
-      region   ← * <~ Regions.findOneById(cc.regionId).safeGet
-      update ← * <~ CreditCards.update(cc,
-                                       cc.copy(inWallet = false, deletedAt = Some(Instant.now())))
-      _ ← * <~ apis.stripe.deleteCard(cc)
-      _ ← * <~ LogActivity.ccDeleted(customer, cc, admin)
+      cc       ← * <~ CreditCards.mustFindByIdAndCustomer(ccId, customerId)
+      _        ← * <~ CreditCards.update(cc, cc.copy(inWallet = false, deletedAt = Some(Instant.now())))
+      _        ← * <~ apis.stripe.deleteCard(cc)
+      _        ← * <~ LogActivity.ccDeleted(customer, cc, admin)
     } yield ()
 
   def editCreditCard(customerId: Int,

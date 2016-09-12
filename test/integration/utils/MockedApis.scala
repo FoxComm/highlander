@@ -5,6 +5,7 @@ import java.io.File
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import com.stripe.model.{DeletedExternalAccount, ExternalAccount}
+import org.mockito.ArgumentMatcher
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
@@ -16,13 +17,15 @@ import utils.apis._
 
 trait MockedApis extends MockitoSugar {
 
-  val stripeCustomer = {
+  val stripeCustomer = newStripeCustomer
+  def newStripeCustomer = {
     val stripeCustomer = new StripeCustomer
     stripeCustomer.setId(s"cus_$randomStripeishId")
     stripeCustomer
   }
 
-  val stripeCard = {
+  val stripeCard = newStripeCard
+  def newStripeCard = {
     val stripeCard = spy(new StripeCard)
     doReturn(s"card_$randomStripeishId", Nil: _*).when(stripeCard).getId
     stripeCard
@@ -31,6 +34,11 @@ trait MockedApis extends MockitoSugar {
   lazy val stripeWrapperMock: StripeWrapper = initStripeApiMock(mock[StripeWrapper])
   lazy val stripeApiMock: FoxStripe         = new FoxStripe(stripeWrapperMock)
 
+  /**
+    * All values are initialized just to get you through anything that might call Stripe without NullPointer
+    * because Mockito called something on an uninitialized mock.
+    * If you add a method to StripeWrapper, it *must* be mocked here for `any()` args.
+    */
   def initStripeApiMock(mocked: StripeWrapper): StripeWrapper = {
     reset(mocked)
 
@@ -49,6 +57,15 @@ trait MockedApis extends MockitoSugar {
     when(mocked.createCharge(any())).thenReturn(Result.good(new StripeCharge))
 
     mocked
+  }
+
+  def cardStripeIdMatches(expectedCardId: String) = new ArgumentMatcher[ExternalAccount]() {
+    override def matches(other: ExternalAccount): Boolean = {
+      val theyMatch = other.getId == expectedCardId
+      if (!theyMatch)
+        System.err.println(s"Expected Stripe card id: $expectedCardId, got ${other.getId}")
+      theyMatch
+    }
   }
 
   lazy val amazonApiMock = {
