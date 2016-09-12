@@ -1,44 +1,44 @@
 ---
 
-- name: Provision Gatling Backend
-  hosts: highlander-gatling-backend
-  tags:
-      - backend
-  vars:
-    user: '{{ansible_ssh_user}}'
-    updating_mwh: true
-
-  roles:
-    - { role: dev/kafka }
-    - { role: dev/elasticsearch }
-    - { role: dev/db }
-    - { role: dev/phoenix }
-    - { role: dev/isaac }
-    - { role: dev/middlewarehouse }
-    - { role: dev/greenriver }
-    - { role: dev/messaging }
-
-  handlers:
-     - include: roles/base/consul_agent/handlers/main.yml
-
-- name: Provision Gatling Ashes
-  hosts: highlander-gatling-frontend
-  tags:
-      - ashes
-  vars:
-    user: '{{ansible_ssh_user}}'
-
-  roles:
-    - { role: base/ssh_keys }
-    - { role: dev/ashes }
-    - { role: dev/firebrand }
-    - { role: dev/balancer, sudo: yes }
-
-  handlers:
-     - include: roles/base/consul_agent/handlers/main.yml
+# - name: Provision Gatling Backend
+#   hosts: highlander-gatling-backend
+#   tags:
+#       - backend
+#   vars:
+#     user: '{{ansible_ssh_user}}'
+#     updating_mwh: true
+#
+#   roles:
+#     - { role: dev/kafka }
+#     - { role: dev/elasticsearch }
+#     - { role: dev/db }
+#     - { role: dev/phoenix }
+#     - { role: dev/isaac }
+#     - { role: dev/middlewarehouse }
+#     - { role: dev/greenriver }
+#     - { role: dev/messaging }
+#
+#   handlers:
+#      - include: roles/base/consul_agent/handlers/main.yml
+#
+# - name: Provision Gatling Ashes
+#   hosts: highlander-gatling-frontend
+#   tags:
+#       - ashes
+#   vars:
+#     user: '{{ansible_ssh_user}}'
+#
+#   roles:
+#     - { role: base/ssh_keys }
+#     - { role: dev/ashes }
+#     - { role: dev/firebrand }
+#     - { role: dev/balancer, sudo: yes }
+#
+#   handlers:
+#      - include: roles/base/consul_agent/handlers/main.yml
 
 - name: Provision Gatling Gun
-  hosts: gatling-gun
+  hosts: highlander-gatling-gun
   tags:
       - gatling
   vars:

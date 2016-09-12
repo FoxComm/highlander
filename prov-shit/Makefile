@@ -23,7 +23,7 @@ test:
 	$(GO) test -v ./inventory/
 
 bootstrap-build-agents:
-	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_build_agents.yml --private-key=$(PRIVATE_KEY)
+	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_build_agents.yml
 
 bootstrap-consul-alerts:
 	ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_consul_alerts.yml
@@ -83,7 +83,7 @@ deploy-gatling:
 	ansible-playbook -v -i bin/envs/staging ansible/gatling.yml
 
 deploy-gatling-highlander:
-	ansible-playbook -v -i bin/envs/staging ansible/highlander_gatling.yml
+	ansible-playbook -v -i bin/envs/staging ansible/highlander_gatling.yml --private-key=$(PRIVATE_KEY)
 
 run-gatling: deploy-gatling
 	ansible-playbook -v -i bin/envs/staging ansible/run_gatling.yml
