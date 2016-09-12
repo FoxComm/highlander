@@ -13,7 +13,7 @@ import (
 func GetShipment(
 	id uint,
 	referenceNumber string,
-	shippingMethodID uint,
+	shippingMethodCode string,
 	shippingMethod *models.ShippingMethod,
 	addressID uint,
 	address *models.Address,
@@ -23,17 +23,17 @@ func GetShipment(
 		Base: gormfox.Base{
 			ID: id,
 		},
-		ShippingMethodID:  shippingMethodID,
-		ShippingMethod:    *shippingMethod,
-		ReferenceNumber:   referenceNumber,
-		State:             models.ShipmentStatePending,
-		ShipmentDate:      sql.NullString{},
-		EstimatedArrival:  sql.NullString{},
-		DeliveredDate:     sql.NullString{},
-		AddressID:         addressID,
-		Address:           *address,
-		ShipmentLineItems: lineItems,
-		TrackingNumber:    sql.NullString{},
+		ShippingMethodCode: shippingMethodCode,
+		ShippingMethod:     *shippingMethod,
+		ReferenceNumber:    referenceNumber,
+		State:              models.ShipmentStatePending,
+		ShipmentDate:       sql.NullString{},
+		EstimatedArrival:   sql.NullString{},
+		DeliveredDate:      sql.NullString{},
+		AddressID:          addressID,
+		Address:            *address,
+		ShipmentLineItems:  lineItems,
+		TrackingNumber:     sql.NullString{},
 	}
 }
 
@@ -43,20 +43,20 @@ func GetShipmentShort(id uint) *models.Shipment {
 	shipmentLineItem1 := GetShipmentLineItem(uint(1), id, uint(1))
 	shipmentLineItem2 := GetShipmentLineItem(uint(2), id, uint(2))
 
-	return GetShipment(id, "BR10005", shippingMethod1.ID, shippingMethod1, address1.ID, address1,
+	return GetShipment(id, "BR10005", shippingMethod1.Code, shippingMethod1, address1.ID, address1,
 		[]models.ShipmentLineItem{*shipmentLineItem1, *shipmentLineItem2})
 }
 
 func ToShipmentPayload(model *models.Shipment) *payloads.Shipment {
 	shipment := &payloads.Shipment{
-		ShippingMethodID: model.ShippingMethodID,
-		ReferenceNumber:  model.ReferenceNumber,
-		State:            string(model.State),
-		ShipmentDate:     responses.NewStringFromSqlNullString(model.ShipmentDate),
-		EstimatedArrival: responses.NewStringFromSqlNullString(model.EstimatedArrival),
-		DeliveredDate:    responses.NewStringFromSqlNullString(model.DeliveredDate),
-		Address:          *ToAddressPayload(&model.Address),
-		TrackingNumber:   responses.NewStringFromSqlNullString(model.TrackingNumber),
+		ShippingMethodCode: model.ShippingMethodCode,
+		ReferenceNumber:    model.ReferenceNumber,
+		State:              string(model.State),
+		ShipmentDate:       responses.NewStringFromSqlNullString(model.ShipmentDate),
+		EstimatedArrival:   responses.NewStringFromSqlNullString(model.EstimatedArrival),
+		DeliveredDate:      responses.NewStringFromSqlNullString(model.DeliveredDate),
+		Address:            *ToAddressPayload(&model.Address),
+		TrackingNumber:     responses.NewStringFromSqlNullString(model.TrackingNumber),
 	}
 
 	for _, lineItem := range model.ShipmentLineItems {
@@ -67,11 +67,11 @@ func ToShipmentPayload(model *models.Shipment) *payloads.Shipment {
 }
 
 func GetShipmentColumns() []string {
-	return []string{"id", "shipping_method_id", "address_id", "reference_number", "state", "shipment_date",
+	return []string{"id", "shipping_method_code", "address_id", "reference_number", "state", "shipment_date",
 		"estimated_arrival", "delivered_date", "tracking_number", "created_at", "updated_at", "deleted_at"}
 }
 
 func GetShipmentRow(shipment *models.Shipment) []driver.Value {
-	return []driver.Value{shipment.ID, shipment.ShippingMethodID, shipment.AddressID, shipment.ReferenceNumber,
+	return []driver.Value{shipment.ID, shipment.ShippingMethodCode, shipment.AddressID, shipment.ReferenceNumber,
 		[]uint8(shipment.State), nil, nil, nil, nil, shipment.CreatedAt, shipment.UpdatedAt, shipment.DeletedAt}
 }

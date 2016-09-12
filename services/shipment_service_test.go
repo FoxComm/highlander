@@ -79,7 +79,7 @@ func (suite *ShipmentServiceTestSuite) Test_CreateShipment_Succeed_ReturnsCreate
 
 	method := fixtures.GetShippingMethod(0, carrier.ID, carrier)
 	suite.Nil(suite.db.Create(method).Error)
-	shipment1.ShippingMethodID = method.ID
+	shipment1.ShippingMethodCode = method.Code
 
 	stockLocation := fixtures.GetStockLocation()
 	suite.Nil(suite.db.Create(stockLocation).Error)
@@ -101,7 +101,7 @@ func (suite *ShipmentServiceTestSuite) Test_CreateShipment_Succeed_ReturnsCreate
 
 	//assert
 	suite.Nil(err)
-	suite.Equal(shipment1.ShippingMethodID, shipment.ShippingMethodID)
+	suite.Equal(shipment1.ShippingMethodCode, shipment.ShippingMethodCode)
 	suite.Equal(shipment1.ReferenceNumber, shipment.ReferenceNumber)
 	suite.Equal(shipment1.State, shipment.State)
 }

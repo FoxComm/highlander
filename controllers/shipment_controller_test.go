@@ -118,7 +118,7 @@ func (suite *shipmentControllerTestSuite) Test_UpdateShipment_Found_ReturnsRecor
 	shipmentLineItem2 := *fixtures.GetShipmentLineItem(uint(2), shipment1.ID, 0)
 
 	suite.shipmentService.
-		On("UpdateShipment", fixtures.GetShipment(shipment1.ID, "", shipment1.ShippingMethodID, &models.ShippingMethod{},
+		On("UpdateShipment", fixtures.GetShipment(shipment1.ID, "", shipment1.ShippingMethodCode, &models.ShippingMethod{},
 			shipment1.AddressID, &shipment1.Address, []models.ShipmentLineItem{shipmentLineItem1, shipmentLineItem2})).
 		Return(shipment1, nil).Once()
 

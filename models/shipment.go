@@ -10,30 +10,30 @@ import (
 
 type Shipment struct {
 	gormfox.Base
-	ShippingMethodID  uint
-	ShippingMethod    ShippingMethod
-	ReferenceNumber   string
-	State             ShipmentState
-	ShipmentDate      sql.NullString
-	EstimatedArrival  sql.NullString
-	DeliveredDate     sql.NullString
-	AddressID         uint
-	Address           Address
-	ShipmentLineItems []ShipmentLineItem
-	TrackingNumber    sql.NullString
+	ShippingMethodCode string
+	ShippingMethod     ShippingMethod `gorm:"ForeignKey:ShippingMethodCode"`
+	ReferenceNumber    string
+	State              ShipmentState
+	ShipmentDate       sql.NullString
+	EstimatedArrival   sql.NullString
+	DeliveredDate      sql.NullString
+	AddressID          uint
+	Address            Address
+	ShipmentLineItems  []ShipmentLineItem
+	TrackingNumber     sql.NullString
 }
 
 func NewShipmentFromPayload(payload *payloads.Shipment) *Shipment {
 	shipment := &Shipment{
-		ShippingMethodID: payload.ShippingMethodID,
-		ReferenceNumber:  payload.ReferenceNumber,
-		State:            ShipmentState(payload.State),
-		ShipmentDate:     utils.MakeSqlNullString(payload.ShipmentDate),
-		EstimatedArrival: utils.MakeSqlNullString(payload.EstimatedArrival),
-		DeliveredDate:    utils.MakeSqlNullString(payload.DeliveredDate),
-		AddressID:        payload.Address.ID,
-		Address:          *NewAddressFromPayload(&payload.Address),
-		TrackingNumber:   utils.MakeSqlNullString(payload.TrackingNumber),
+		ShippingMethodCode: payload.ShippingMethodCode,
+		ReferenceNumber:    payload.ReferenceNumber,
+		State:              ShipmentState(payload.State),
+		ShipmentDate:       utils.MakeSqlNullString(payload.ShipmentDate),
+		EstimatedArrival:   utils.MakeSqlNullString(payload.EstimatedArrival),
+		DeliveredDate:      utils.MakeSqlNullString(payload.DeliveredDate),
+		AddressID:          payload.Address.ID,
+		Address:            *NewAddressFromPayload(&payload.Address),
+		TrackingNumber:     utils.MakeSqlNullString(payload.TrackingNumber),
 	}
 
 	for _, lineItem := range payload.ShipmentLineItems {
@@ -46,8 +46,8 @@ func NewShipmentFromPayload(payload *payloads.Shipment) *Shipment {
 func NewShipmentFromUpdatePayload(payload *payloads.UpdateShipment) *Shipment {
 	shipment := new(Shipment)
 
-	if payload.ShippingMethodID != 0 {
-		shipment.ShippingMethodID = payload.ShippingMethodID
+	if payload.ShippingMethodCode != "" {
+		shipment.ShippingMethodCode = payload.ShippingMethodCode
 	}
 
 	if payload.State != "" {
@@ -73,10 +73,10 @@ func NewShipmentFromUpdatePayload(payload *payloads.UpdateShipment) *Shipment {
 
 func NewShipmentFromOrderPayload(payload *payloads.Order) *Shipment {
 	shipment := &Shipment{
-		ShippingMethodID: payload.ShippingMethod.ID,
-		ReferenceNumber:  payload.ReferenceNumber,
-		State:            ShipmentStatePending,
-		Address:          *NewAddressFromPayload(&payload.ShippingAddress),
+		ShippingMethodCode: payload.ShippingMethod.Code,
+		ReferenceNumber:    payload.ReferenceNumber,
+		State:              ShipmentStatePending,
+		Address:            *NewAddressFromPayload(&payload.ShippingAddress),
 	}
 
 	for _, lineItem := range payload.LineItems.SKUs {
