@@ -26,7 +26,7 @@ import models.cord.{Cart, OrderShippingAddresses}
 import models.cord.lineitems.CartLineItems.FindLineItemResult
 import models.location._
 import services.Result
-import utils.{ADT, Money, time}
+import utils.{ADT, JsonFormatters, Money, time}
 import utils.FoxConfig._
 import utils.aliases.EC
 import utils.apis.Avalara.PayloadBuilder
@@ -117,6 +117,8 @@ object Avalara {
   }
 
   object PayloadBuilder {
+    implicit val formats = JsonFormatters.phoenixFormats
+
     def buildAddress(address: Address, region: Region, country: Country): AvalaraAddress = {
       AvalaraAddress(AddressCode = Some(address.id.toString),
                      Line1 = address.address1,
@@ -128,14 +130,17 @@ object Avalara {
     }
 
     def buildLine(lineItem: FindLineItemResult, idx: Int, addressId: Int): Requests.Line = {
-      val (sku, form, shadow, otherShadow, cartItem) = lineItem;
+      val (sku, form, shadow, otherShadow, cartItem) = lineItem
+      val ref                                        = (shadow.attributes \ "salePrice" \ "ref").extract[String] //sku_shadow.attributes->'salePrice'->>'ref'
+      val price                                      = (form.attributes \ ref \ "value").extract[Int] / 100
       Requests.Line(
           DestinationCode = addressId.toString,
           OriginCode = addressId.toString,
           LineNo = idx.toString,
           ItemCode = sku.code,
           Qty = BigDecimal(1),
-          Amount = BigDecimal(10)
+          Amount = BigDecimal(price),
+          TaxCode = Some("PC040100")
       )
     }
 
