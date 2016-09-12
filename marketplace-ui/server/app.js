@@ -1,8 +1,9 @@
 import KoaApp from 'koa';
 import serve from 'koa-static';
-import renderReact from '../src/server';
-import { makeApiProxy } from './routes/api';
 import onerror from 'koa-onerror';
+
+import renderReact from '../src/server';
+import makeApiProxy from './routes/api';
 
 export default class App extends KoaApp {
 

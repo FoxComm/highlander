@@ -75,31 +75,29 @@ export default function createAsyncActions(namespace, asyncCall, payloadReducer)
   // for example in navigate to product 1, then to 2, then back to 1 and there user will see
   // not last navigated product, but product for which response will be last
 
-  const perform = (...args) => {
-    return (dispatch, getState, api) => {
-      const apiContext = {
-        api,
-        dispatch,
-      };
-      const handleError = err => {
-        const httpStatus = _.get(err, 'response.status');
-        if (httpStatus != 404) {
-          console.error(err && err.stack);
-        }
-        dispatch(failed(err));
-        throw err;
-      };
-
-      dispatch(started(...args));
-      return asyncCall.call(apiContext, ...args)
-        .then(
-          result => {
-            dispatch(succeeded(result));
-            return result;
-          },
-          handleError
-        ).catch(handleError);
+  const perform = (...args) => (dispatch, getState, api) => {
+    const apiContext = {
+      api,
+      dispatch,
     };
+    const handleError = err => {
+      const httpStatus = _.get(err, 'response.status');
+      if (httpStatus != 404) {
+        console.error(err && err.stack);
+      }
+      dispatch(failed(err));
+      throw err;
+    };
+
+    dispatch(started(...args));
+    return asyncCall.call(apiContext, ...args)
+      .then(
+        result => {
+          dispatch(succeeded(result));
+          return result;
+        },
+        handleError
+      ).catch(handleError);
   };
 
   const lazyPerform = (...args) => {

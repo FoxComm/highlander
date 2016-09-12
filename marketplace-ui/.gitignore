@@ -8,6 +8,7 @@ logs
 
 /node_modules
 /public
+/build
 
 # Users Environment Variables & settings
 .lock-wscript

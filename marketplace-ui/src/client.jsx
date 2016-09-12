@@ -8,17 +8,17 @@ import routes from './routes';
 const DEBUG = true;
 
 export function renderApp() {
-  const store = makeStore(browserHistory, window.__data);
+  const store = makeStore(browserHistory, window.initialState);
 
   if (DEBUG) {
     window.store = store;
   }
 
   render((
-      <Provider store={store} key="provider">
-        <Router history={browserHistory} render={applyRouterMiddleware()}>
-          {routes}
-        </Router>
-      </Provider>
+    <Provider store={store} key="provider">
+      <Router history={browserHistory} render={applyRouterMiddleware()}>
+        {routes}
+      </Router>
+    </Provider>
   ), document.getElementById('app'));
 }

@@ -13,7 +13,7 @@ function initLogger(): ?Function {
   return isServer ? null : createLogger({
     duration: true,
     collapsed: true,
-    diff: true
+    diff: true,
   });
 }
 

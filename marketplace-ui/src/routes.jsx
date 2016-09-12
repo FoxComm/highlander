@@ -6,8 +6,7 @@ import Home from './pages/home/home';
 
 const routes = (
   <Route path="/" component={Site}>
-    <IndexRoute component={Home}/>
-
+    <IndexRoute component={Home} />
   </Route>
 );
 

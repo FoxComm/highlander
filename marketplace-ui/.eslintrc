@@ -2,6 +2,7 @@
   "extends": "airbnb",
   "plugins": [
     "flowtype",
+    "babel",
     "no-console-log"
   ],
   "settings": {
@@ -17,15 +18,32 @@
       "error",
       "boolean"
     ],
+    "babel/flow-object-type": [
+      "error",
+      "semicolon"
+    ],
+    "import/prefer-default-export": 0,
     "no-console-log/no-console-log": 1,
     "no-console": 0,
+    "no-void": 0,
+    "global-require": 0,
+    "class-methods-use-this": 0,
     "eqeqeq": 0,
     "strict": 0,
-    "space-before-function-paren": 0,
+    "space-before-function-paren":
+    [
+      "error",
+      "never"
+    ],
     "func-names": 0,
     "comma-dangle": 1,
     "prefer-arrow-callback": 0,
-    "object-curly-spacing": 0,
+    "arrow-parens": 0,
+    "object-curly-spacing": 1,
+    "generator-star-spacing": [
+      "error",
+      {"before": true, "after": false}
+    ],
     "max-len": [
       2, 120, 4,
       {
@@ -34,7 +52,6 @@
         "ignorePattern": "^\\s*var\\s.+=\\s*require\\s*\\("
       }
     ],
-    "arrow-body-style": 0,
     "react/prop-types": 0,
     "react/jsx-no-bind": [
       2,
@@ -46,8 +63,10 @@
     "no-unused-vars": [2, {"varsIgnorePattern": "^styles$"}],
     "consistent-return": 0
   },
-  "globals": {
-    "makeXhr": false
+  "env": {
+    "es6": true,
+    "browser": true,
+    "node": true
   },
   "parser": "babel-eslint"
 }
