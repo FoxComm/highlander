@@ -21,6 +21,7 @@ type Shipment struct {
 	Address            Address
 	ShipmentLineItems  []ShipmentLineItem
 	TrackingNumber     sql.NullString
+	ShippingPrice      int
 }
 
 func NewShipmentFromPayload(payload *payloads.Shipment) *Shipment {
@@ -34,6 +35,7 @@ func NewShipmentFromPayload(payload *payloads.Shipment) *Shipment {
 		AddressID:          payload.Address.ID,
 		Address:            *NewAddressFromPayload(&payload.Address),
 		TrackingNumber:     utils.MakeSqlNullString(payload.TrackingNumber),
+		ShippingPrice:      payload.ShippingPrice,
 	}
 
 	for _, lineItem := range payload.ShipmentLineItems {
@@ -52,6 +54,10 @@ func NewShipmentFromUpdatePayload(payload *payloads.UpdateShipment) *Shipment {
 
 	if payload.State != "" {
 		shipment.State = ShipmentState(payload.State)
+	}
+
+	if payload.ShippingPrice != nil {
+		shipment.ShippingPrice = *(payload.ShippingPrice)
 	}
 
 	shipment.ShipmentDate = utils.MakeSqlNullString(payload.ShipmentDate)
@@ -77,6 +83,7 @@ func NewShipmentFromOrderPayload(payload *payloads.Order) *Shipment {
 		ReferenceNumber:    payload.ReferenceNumber,
 		State:              ShipmentStatePending,
 		Address:            *NewAddressFromPayload(&payload.ShippingAddress),
+		ShippingPrice:      payload.ShippingMethod.Price,
 	}
 
 	for _, lineItem := range payload.LineItems.SKUs {

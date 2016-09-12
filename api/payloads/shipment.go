@@ -10,4 +10,5 @@ type Shipment struct {
 	Address            Address            `json:"address" binding:"required"`
 	ShipmentLineItems  []ShipmentLineItem `json:"lineItems" binding:"required"`
 	TrackingNumber     *string            `json:"trackingNumber"`
+	ShippingPrice      int                `json:"shippingPrice"`
 }

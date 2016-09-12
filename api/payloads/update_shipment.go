@@ -9,4 +9,5 @@ type UpdateShipment struct {
 	Address            *Address           `json:"address"`
 	ShipmentLineItems  []ShipmentLineItem `json:"lineItems"`
 	TrackingNumber     *string            `json:"trackingNumber"`
+	ShippingPrice      *int               `json:"shippingPrice"`
 }
