@@ -16,6 +16,7 @@ build:
 	go build -o consumers/shipments/shipments-consumer consumers/shipments/*.go
 	go build -o consumers/stock-items/stock-items-consumer consumers/stock-items/*.go
 	go build -o consumers/capture/capture-consumer consumers/capture/*.go
+	go build -o seeder common/db/seeds/main.go
 
 build-linux:
 	GOOS=linux $(MAKE) build
@@ -26,7 +27,10 @@ migrate:
 migrate-test:
 	${FLYWAY_TEST} migrate
 
-reset: drop-db drop-user create-user create-db migrate migrate-test
+reset: drop-db drop-user create-user create-db migrate
+
+seed: reset
+	./seeder
 
 reset-test:
 	dropdb --if-exists ${DB_TEST} -U ${DB_USER}
