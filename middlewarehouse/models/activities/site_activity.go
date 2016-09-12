@@ -1,6 +1,11 @@
 package activities
 
-import "time"
+import (
+	"encoding/json"
+	"time"
+
+	"github.com/FoxComm/metamorphosis"
+)
 
 // SiteActivity is as action that occurs within the system that should be
 // written to the activity log.
@@ -10,18 +15,24 @@ type ISiteActivity interface {
 	CreatedAt() string
 }
 
+func NewActivityFromAvro(message metamorphosis.AvroMessage) (ISiteActivity, error) {
+	a := new(defaultSiteActivity)
+	err := json.Unmarshal(message.Bytes(), a)
+	return a, err
+}
+
 type defaultSiteActivity struct {
-	data         string
-	activityType string
+	ActivityData string `json:"data"`
+	ActivityType string `json:"activity_type" binding:"required"`
 	createdAt    time.Time
 }
 
 func (a defaultSiteActivity) Data() string {
-	return a.data
+	return a.ActivityData
 }
 
 func (a defaultSiteActivity) Type() string {
-	return a.activityType
+	return a.ActivityType
 }
 
 func (a defaultSiteActivity) CreatedAt() string {
