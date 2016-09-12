@@ -34,14 +34,24 @@ type phoenixClient struct {
 	password      string
 }
 
+func (c *phoenixClient) ensureAuthentication() error {
+	if c.IsAuthenticated() {
+		return nil
+	}
+
+	if err := c.Authenticate(); err != nil {
+		return fmt.Errorf(
+			"Unable to authenticate with %s - cannot proceed with capture",
+			err.Error(),
+		)
+	}
+
+	return nil
+}
+
 func (c *phoenixClient) CapturePayment(activity activities.ISiteActivity) error {
-	if !c.IsAuthenticated() {
-		if err := c.Authenticate(); err != nil {
-			return fmt.Errorf(
-				"Unable to authenticate with %s - cannot proceed with capture",
-				err.Error(),
-			)
-		}
+	if err := c.ensureAuthentication(); err != nil {
+		return err
 	}
 
 	capture, err := NewCapturePayload(activity)
@@ -131,13 +141,8 @@ func (c *phoenixClient) Authenticate() error {
 }
 
 func (c *phoenixClient) UpdateOrder(refNum, shipmentState, orderState string) error {
-	if !c.IsAuthenticated() {
-		if err := c.Authenticate(); err != nil {
-			return fmt.Errorf(
-				"Unable to authenticate with %s - cannot proceed with capture",
-				err.Error(),
-			)
-		}
+	if err := c.ensureAuthentication(); err != nil {
+		return err
 	}
 
 	payload, err := NewUpdateOrderPayload(orderState)
