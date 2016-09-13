@@ -147,9 +147,11 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
     }
   }
 
-  trait Fixture extends StoreAdmin_Seed with Customer_Seed {
+  trait Fixture extends Customer_Seed {
 
     implicit val au = storeAdminAuthData
+
+    val taxValue = 5
 
     val cart = (for {
       cart ← * <~ Carts.create(Factories.cart.copy(accountId = customer.accountId))
@@ -157,7 +159,7 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
                                        Factories.products.head.copy(title = "Donkey", price = 27))
       _ ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
 
-      cart ← * <~ CartTotaler.saveTotals(cart)
+      cart ← * <~ CartTotaler.saveTotals(cart, taxValue)
     } yield cart).gimme
 
     val californiaId = 4129
@@ -273,6 +275,9 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
         | }
       """.stripMargin).extract[QueryStatement]
 
+    val cheapTaxValue     = 5
+    val expensiveTaxValue = 25
+
     val (shippingMethod, cheapCart, expensiveCart) = (for {
       productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       shippingMethod ← * <~ ShippingMethods.create(
@@ -315,8 +320,8 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
       _ ← * <~ OrderShippingAddresses.copyFromAddress(address = expensiveAddress,
                                                       cordRef = expensiveCart.refNum)
 
-      cheapCart     ← * <~ CartTotaler.saveTotals(cheapCart)
-      expensiveCart ← * <~ CartTotaler.saveTotals(expensiveCart)
+      cheapCart     ← * <~ CartTotaler.saveTotals(cheapCart, cheapTaxValue)
+      expensiveCart ← * <~ CartTotaler.saveTotals(expensiveCart, expensiveTaxValue)
     } yield (shippingMethod, cheapCart, expensiveCart)).gimme
   }
 

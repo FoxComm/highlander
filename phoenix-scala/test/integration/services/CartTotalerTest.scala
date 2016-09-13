@@ -43,20 +43,19 @@ class CartTotalerTest extends IntegrationTestBase with TestObjectContext with Ba
 
     "taxes" - {
       "are hardcoded to 5%" in new SkuLineItemsFixture {
-        val totals = CartTotaler.totals(cart).gimme
-        val taxes  = (skuPrice * 0.05).toInt
+        val totals = CartTotaler.totals(cart, taxValue).gimme
 
         totals.subTotal === skuPrice
         totals.shipping === 0
-        totals.taxes === taxes
+        totals.taxes === taxValue
         totals.adjustments === 0
-        totals.total === (totals.subTotal + taxes)
+        totals.total === (totals.subTotal + taxValue)
       }
     }
 
     "totals" - {
       "all are zero when there are no line items and no adjustments" in new Fixture {
-        val totals = CartTotaler.totals(cart).gimme
+        val totals = CartTotaler.totals(cart, taxValue).gimme
 
         totals.subTotal mustBe 0
         totals.shipping mustBe 0
@@ -69,6 +68,8 @@ class CartTotalerTest extends IntegrationTestBase with TestObjectContext with Ba
 
   trait Fixture extends EmptyCustomerCart_Baked with CustomerAddress_Raw {
     implicit val au = storeAdminAuthData
+
+    val taxValue = 5
   }
 
   trait SkuLineItemsFixture extends Fixture {
