@@ -74,6 +74,14 @@ export default class ProductForm extends Component {
     ];
   }
 
+  get optionsContentBox(): Element {
+    return (
+      <ContentBox title="Options">
+        This product does not have options
+      </ContentBox>
+    );
+  }
+
   get skusContentBox(): Element {
     return (
       <ContentBox title="SKUs">
@@ -146,6 +154,7 @@ export default class ProductForm extends Component {
             attributes={attributes}
             options={options}
             title="General" />
+          {this.optionsContentBox}
           {this.skusContentBox}
           <ObjectForm
             onChange={this.handleProductChange}
