@@ -91,14 +91,13 @@ object CustomerManager {
   }
 
   def create(payload: CreateCustomerPayload,
-             admin: Option[User] = None, context: AccountCreateContext)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
+             admin: Option[User] = None,
+             context: AccountCreateContext)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
     for {
 
-      user ← * <~ AccountManager.createUser(
-        name = payload.name, 
-        email = payload.email.some. 
-        password = payload.password, 
-        context = context)
+      user ← * <~ AccountManager.createUser(name = payload.name,
+                                            email = payload.email.some.password = payload.password,
+                                            context = context)
 
       custUser ← * <~ CustomerUsers.create(
                     CustomerUser(accountId = user.accountId,
@@ -108,22 +107,17 @@ object CustomerManager {
       _ ← * <~ LogActivity.customerCreated(response, admin)
     } yield response
 
-  def createGuest()(implicit ec: EC, db: DB, ac: AC): DbResultT[(User, CustomerUser)] = {
+  def createGuest()(implicit ec: EC, db: DB, ac: AC): DbResultT[(User, CustomerUser)] =
     for {
 
-      user ← * <~ AccountManager.createUser( 
-        name = None,
-        email = None,
-        password = None, 
-        context = context)
+      user ← * <~ AccountManager
+              .createUser(name = None, email = None, password = None, context = context)
 
       custUser ← * <~ CustomerUsers.create(
-        CustomerUser(accountId = user.accountId,
-                                 userId = user.id,
-                                 isGuest = true))
+                    CustomerUser(accountId = user.accountId, userId = user.id, isGuest = true))
       response = build(newUser)
       _ ← * <~ LogActivity.customerCreated(response, admin)
-  } yield (user, custUser)
+    } yield (user, custUser)
 
   def update(accountId: Int, payload: UpdateCustomerPayload, admin: Option[User] = None)(
       implicit ec: EC,

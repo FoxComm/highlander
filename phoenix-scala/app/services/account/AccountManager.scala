@@ -92,14 +92,13 @@ object AccountManager {
     } yield build(user)
   }
 
-  def createUser(
-    name: Option[String], 
-    email: Option[String], 
-    password: Option[String], 
-    context: AccountCreateContext)(implicit ec: EC): DbResultT[User] = {
+  def createUser(name: Option[String],
+                 email: Option[String],
+                 password: Option[String],
+                 context: AccountCreateContext)(implicit ec: EC): DbResultT[User] = {
 
     for {
-      _ ← * <~ email.map( e ⇒ Users.createEmailMustBeUnique(e))
+      _ ← * <~ email.map(e ⇒ Users.createEmailMustBeUnique(e))
 
       scope        ← * <~ Scopes.mustFindById404(context.scopeId)
       organization ← * <~ Organizations.findByNameInScope(context.org, scope.id);
@@ -107,25 +106,26 @@ object AccountManager {
 
       account ← * <~ Accounts.create(Account())
 
-      _ ← * <~ payload.map { p ⇒ 
-          AccountAccessMethods.create(AccountAccessMethod.build(account.id, "login", p))
-      }
+      _ ← * <~ payload.map { p ⇒
+           AccountAccessMethods.create(AccountAccessMethod.build(account.id, "login", p))
+         }
 
-      user ← * <~ Users.create(
-                Users(accountId = account.id, email = email, name = name))
+      user ← * <~ Users.create(Users(accountId = account.id, email = email, name = name))
 
       _ ← * <~ AccountOrganizations.create(
              AccountOrganization(accountId = account.id, organizationId = organization.id))
 
-      _ ← * <~ context.roles.map { r ⇒ addRole(account, r, scope.id) }
+      _ ← * <~ context.roles.map { r ⇒
+           addRole(account, r, scope.id)
+         }
     } yield user
   }
 
   def addRole(account: Account, role: String, scopeId: Int)(implicit ec: EC): DbResultT[Unit] = {
     //MAXDO Add claim check here.
     for {
-      role         ← * <~ Roles.findByNameInScope(context.role, scope.id);
-      _ ← * <~ AccountRoles.create(AccountRole(accountId = account.id, roleId = role.id))
+      role ← * <~ Roles.findByNameInScope(context.role, scope.id);
+      _    ← * <~ AccountRoles.create(AccountRole(accountId = account.id, roleId = role.id))
     } yield Unit
   }
 }
