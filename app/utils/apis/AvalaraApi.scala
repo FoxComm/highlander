@@ -241,41 +241,41 @@ object Avalara {
     )
 
     case class TaxAddress(
-        Address: String,
-        AddressCode: String,
-        City: String,
-        Region: String,
-        Country: String,
-        PostalCode: String,
-        Latitude: String,
-        Longitude: String,
-        TaxRegionId: String,
-        JurisCode: String
+        Address: Option[String],
+        AddressCode: Option[String],
+        City: Option[String],
+        Region: Option[String],
+        Country: Option[String],
+        PostalCode: Option[String],
+        Latitude: Option[String],
+        Longitude: Option[String],
+        TaxRegionId: Option[String],
+        JurisCode: Option[String]
     )
 
     case class TaxDetail(
-        Rate: String,
-        Tax: String,
-        Taxable: String,
-        Country: String,
-        Region: String,
-        JurisType: String,
-        JurisName: String,
-        TaxName: String
+        Rate: Option[String],
+        Tax: Option[String],
+        Taxable: Option[String],
+        Country: Option[String],
+        Region: Option[String],
+        JurisType: Option[String],
+        JurisName: Option[String],
+        TaxName: Option[String]
     )
 
     case class TaxLine(
-        LineNo: String,
-        TaxCode: String,
-        Taxability: String,
-        Taxable: String,
-        Rate: String,
-        Tax: String,
-        Discount: String,
-        TaxCalculated: String,
-        Exemption: String,
+        LineNo: Option[String],
+        TaxCode: Option[String],
+        Taxability: Option[String],
+        Taxable: Option[String],
+        Rate: Option[String],
+        Tax: Option[String],
+        Discount: Option[String],
+        TaxCalculated: Option[String],
+        Exemption: Option[String],
         TaxDetails: Seq[TaxDetail],
-        BoundaryLevel: String
+        BoundaryLevel: Option[String]
     )
 
     case class GetTaxes(
@@ -317,7 +317,8 @@ class Avalara(url: String, account: String, license: String, profile: String)(
     extends AvalaraApi {
 
   implicit val formats: Formats = org.json4s.DefaultFormats + time.JavaTimeJson4sSerializer.jsonFormat + Money.jsonFormat +
-      Avalara.Responses.SeverityLevel.jsonFormat + Avalara.DocType.jsonFormat
+      Avalara.Responses.SeverityLevel.jsonFormat + Avalara.DocType.jsonFormat + Avalara.DetailLevel.jsonFormat +
+      Avalara.AddressType.jsonFormat
 
   implicit def responseUnmarshaller[T: Manifest]: FromResponseUnmarshaller[T] = {
     new Unmarshaller[HttpResponse, T] {
@@ -373,7 +374,7 @@ class Avalara(url: String, account: String, license: String, profile: String)(
                              region: Region,
                              country: Country)(implicit ec: EC): Result[Int] = {
     println("getting taxes for cart")
-    val payload = PayloadBuilder.buildOrder(cart, lineItems, address, region, country)
+    val payload = PayloadBuilder.buildInvoice(cart, lineItems, address, region, country)
     println(write(payload))
     getTax(payload)
   }
@@ -383,7 +384,7 @@ class Avalara(url: String, account: String, license: String, profile: String)(
                               address: Address,
                               region: Region,
                               country: Country)(implicit ec: EC): Result[Int] = {
-    val payload = PayloadBuilder.buildInvoice(cart, lineItems, address, region, country)
+    val payload = PayloadBuilder.buildOrder(cart, lineItems, address, region, country)
     println(write(payload))
     getTax(payload)
   }
