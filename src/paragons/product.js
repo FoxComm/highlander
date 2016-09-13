@@ -76,6 +76,7 @@ export function createEmptyProduct(): Product {
     },
     skus: [],
     context: {name: 'default'},
+    variants: [],
   };
 
   return configureProduct(addEmptySku(product));

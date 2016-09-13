@@ -74,14 +74,6 @@ export default class ProductForm extends Component {
     ];
   }
 
-  get optionsContentBox(): Element {
-    return (
-      <ContentBox title="Options">
-        This product does not have options
-      </ContentBox>
-    );
-  }
-
   get skusContentBox(): Element {
     return (
       <ContentBox title="SKUs">
@@ -92,10 +84,6 @@ export default class ProductForm extends Component {
         />
       </ContentBox>
     );
-  }
-
-  get variantContentBox(): Element {
-    return <VariantList variants={{}} />;
   }
 
   @autobind
@@ -154,8 +142,11 @@ export default class ProductForm extends Component {
             attributes={attributes}
             options={options}
             title="General" />
-          {this.optionsContentBox}
+
+          <VariantList variants={this.props.variants} />
+
           {this.skusContentBox}
+
           <ObjectForm
             onChange={this.handleProductChange}
             fieldsToRender={defaultKeys.seo}
