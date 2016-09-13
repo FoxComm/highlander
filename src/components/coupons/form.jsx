@@ -40,7 +40,7 @@ type CouponFormProps = {
   onUpdateCouponCode: Function,
   fetchPromotions: Function,
   entity: Entity,
-  saveCoupon: Function,
+  createCoupon: Function,
 };
 
 export default class CouponForm extends Component {
@@ -161,7 +161,7 @@ export default class CouponForm extends Component {
             {this.promotionSelector}
           </ContentBox>
           <CouponCodes
-            saveCoupon={this.props.saveCoupon}
+            createCoupon={this.props.createCoupon}
             codeGeneration={this.props.codeGeneration}
             isNew={this.isNew}
           />
