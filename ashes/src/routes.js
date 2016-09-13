@@ -44,9 +44,9 @@ import Plugin from './components/plugins/plugin';
 import Login from './components/auth/login';
 import SetPassword from './components/auth/set-password';
 
-import customerRoutes from './customers/routes';
-import orderRoutes from './orders/routes';
-import userRoutes from './users/routes';
+import customerRoutes from './routes/customers';
+import orderRoutes from './routes/orders';
+import userRoutes from './routes/users';
 
 import { getClaims } from 'lib/claims';
 
@@ -76,7 +76,7 @@ const routes = (
     <Route component={Site}>
       <IndexRoute name="home" component={Home}/>
       {orderRoutes(claims)}
-      {customerRoutes()}
+      {customerRoutes(claims)}
       <Route name='products-base' path='products'>
         <Route name='products-list-pages' component={ProductsListPage}>
           <IndexRoute name='products' component={Products} />
