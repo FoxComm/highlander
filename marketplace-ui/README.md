@@ -50,9 +50,6 @@ For achieve right isomorphism [redux-wait](https://www.npmjs.com/package/redux-w
 It utilizes multiple rendering calls for get all async dependencies for project.
 Read about code organization limitations in redux-wait's README.
 
-For **grids** [lost](https://www.npmjs.com/package/lost) postcss plugin is used. It's really good.
-For different margins which depends on viewport size use `--grid-margin` css variable: `margin: 0 var(--grid-margin)`.
-
 For **static type checking** [flowtype](http://flowtype.org/) is used. You can run check manually by `npm run flow` command.
 
 

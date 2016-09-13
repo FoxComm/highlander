@@ -1,0 +1,46 @@
+.applyForm {
+
+}
+
+input {
+  width: 100%;
+  line-height: 36px;
+  font-weight: 300;
+  font-size: 16px;
+  padding: 0 15px;
+  border: none;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 25px;
+
+  transition: border-color .4s;
+
+  &:focus,
+  &:active {
+    border-color: #7bb2f1;
+  }
+}
+
+button {
+  display: block;
+  width: 300px;
+  margin: 30px auto;
+  font-size: 18px;
+  line-height: 48px;
+  background: #6bb2ef;
+  color: #fff;
+  border-radius: 6px;
+  text-shadow: 0 1px #579;
+
+  &:hover {
+    cursor: pointer;
+    background: #699fdd;
+  }
+}
+
+::-webkit-input-placeholder,
+:-moz-placeholder,
+::-moz-placeholder,
+:-ms-input-placeholder {
+  color: #ccc;
+}
+

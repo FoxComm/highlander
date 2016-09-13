@@ -18,7 +18,7 @@ function initLogger(): ?Function {
 }
 
 export default function makeStore(history, initialState = void 0) {
-  const applyMiddleware = isServer ? serverApplyMiddleware : clientApplyMiddleware;
+  const applyMiddleware = clientApplyMiddleware;
 
   return createStore(
     rootReducer,

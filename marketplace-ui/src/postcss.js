@@ -26,10 +26,6 @@ const plugins = [
     path: ['src/css', 'node_modules'],
   }),
   require('postcss-css-variables'),
-  require('lost')({
-    flexbox: 'flex',
-    gutter: '2.4%',
-  }),
   require('postcss-modules-values'),
   require('postcss-modules-extract-imports'),
   require('postcss-modules-local-by-default'),

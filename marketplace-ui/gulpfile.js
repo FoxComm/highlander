@@ -4,6 +4,7 @@ const _ = require('lodash');
 const fs = require('fs');
 const path = require('path');
 const gulp = require('gulp');
+const del = require('del');
 const runSequence = require('run-sequence');
 const $ = require('gulp-load-plugins')();
 const opts = require('./config/gulp');
@@ -18,8 +19,12 @@ for (const task of fs.readdirSync('./tasks')) {
   }
 }
 
+gulp.task('clean', function () {
+  return del('public');
+});
+
 gulp.task('build', function (cb) {
-  runSequence('templates', 'browserify', 'css', cb);
+  runSequence('clean', ['templates', 'browserify', 'css', 'images', 'favicon'], cb);
 });
 
 gulp.task('dev', function (cb) {

@@ -17,8 +17,9 @@ module.exports = function(gulp) {
 
   function killServer(cb) {
     if (node) {
+      console.log(node.kill);
       node.once('close', () => cb());
-      node.kill();
+      node.kill('SIGKILL');
       node = null;
     } else {
       cb();

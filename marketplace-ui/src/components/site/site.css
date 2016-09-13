@@ -1,4 +1,5 @@
 @import "media-queries.css";
+@import "reset.css";
 @import "variables.css";
 @import "colors.css";
 
@@ -23,12 +24,59 @@ button {
 }
 
 .site {
-  lost-flex-container: row;
-  color: var(--blackish);
+  min-height: 100vh;
+  transform: translateZ(0);
+  color: #fff;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: -1;
+  }
+
+  &::before {
+    background: url("/images/bg-nano.jpg") center center;
+    background-size: cover;
+    filter: blur(10px);
+    transition: filter .5s;
+  }
+
+  &::after {
+    background: #000;
+    opacity: .43;
+  }
 }
 
-button {
-  padding: 0;
-  border: 0;
-  background: none;
+.siteLoaded:before {
+  background-image: url("/images/bg.jpg");
+  //animation: sharpen 1s both;
+  filter: blur(0);
+}
+
+.footer {
+  color: #fff;
+  font-weight: 300;
+
+  & a {
+    color: #fff;
+  }
+}
+
+@keyframes sharpen {
+  from {
+    filter: blur(20px);
+  }
+  to {
+    filter: blur(0);
+  }
 }
