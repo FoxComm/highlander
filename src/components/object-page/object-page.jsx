@@ -18,6 +18,7 @@ import ButtonWithMenu from '../common/button-with-menu';
 import { Button } from '../common/buttons';
 import Error from '../errors/error';
 import ArchiveActionsSection from '../archive-actions/archive-actions';
+import Prompt from '../common/prompt';
 
 // helpers
 import { isArchived } from 'paragons/common';
@@ -132,6 +133,10 @@ export class ObjectPage extends Component {
           if (isArchived(payload)) this.transitionToList();
         });
     }
+  }
+
+  get unsaved(): boolean {
+    return !_.isEqual(this.entity, this.state.entity);
   }
 
   detailsRouteProps(): Object {
@@ -343,6 +348,10 @@ export class ObjectPage extends Component {
 
     return (
       <div>
+        <Prompt
+          message="You have unsaved information, are you sure you want to leave this page?"
+          when={this.unsaved}
+        />
         <PageTitle title={this.pageTitle}>
           {this.renderHead()}
           <ButtonWithMenu
