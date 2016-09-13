@@ -15,6 +15,8 @@ import models.shipping.Shipments
 import payloads.CustomerPayloads._
 import responses.CustomerResponse._
 import services._
+import services.account.AccountManager
+import services.account.AccountCreateContext
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
@@ -89,30 +91,39 @@ object CustomerManager {
   }
 
   def create(payload: CreateCustomerPayload,
-             admin: Option[User] = None)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
+             admin: Option[User] = None, context: AccountCreateContext)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
     for {
-      _ ← * <~ (if (!payload.isGuest.getOrElse(false))
-                  Users.createEmailMustBeUnique(payload.email)
-                else DbResultT.unit)
 
-      newAccount ← * <~ Accounts.create(Account())
+      user ← * <~ AccountManager.createUser(
+        name = payload.name, 
+        email = payload.email.some. 
+        password = payload.password, 
+        context = context)
 
-      //creates password access method if a password exists
-      _ ← * <~ (payload.password match {
-               case Some(password) ⇒
-                 AccountAccessMethods.create(AccountAccessMethod.build("login", password))
-               case None ⇒ DbResultT[Unit]
-             })
-
-      newUser ← * <~ Users.create(
-                   User(accountId = newAccount.id, email = payload.email, name = payload.name))
-      custUser ← * <~ = CustomerUsers.create(
-                    CustomerUser(accountId = newAccount.id,
-                                 userId = newUser.id,
+      custUser ← * <~ CustomerUsers.create(
+                    CustomerUser(accountId = user.accountId,
+                                 userId = user.id,
                                  isGuest = payload.isGuest.getOrElse(false)))
       response = build(newUser)
       _ ← * <~ LogActivity.customerCreated(response, admin)
     } yield response
+
+  def createGuest()(implicit ec: EC, db: DB, ac: AC): DbResultT[(User, CustomerUser)] = {
+    for {
+
+      user ← * <~ AccountManager.createUser( 
+        name = None,
+        email = None,
+        password = None, 
+        context = context)
+
+      custUser ← * <~ CustomerUsers.create(
+        CustomerUser(accountId = user.accountId,
+                                 userId = user.id,
+                                 isGuest = true))
+      response = build(newUser)
+      _ ← * <~ LogActivity.customerCreated(response, admin)
+  } yield (user, custUser)
 
   def update(accountId: Int, payload: UpdateCustomerPayload, admin: Option[User] = None)(
       implicit ec: EC,

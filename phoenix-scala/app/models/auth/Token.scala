@@ -137,16 +137,10 @@ object Token {
         .setVerificationKey(publicKey)
 
       Try {
-        kind match {
-          case Identity.User    ⇒ builder.setExpectedAudience("user")
-          case Identity.Service ⇒ builder.setExpectedAudience("service")
-          case _                ⇒ throw new RuntimeException("unknown kind of identity")
-        }
-
         val consumer  = builder.build()
         val jwtClaims = consumer.processToClaims(rawToken)
         val jValue    = parse(jwtClaims.toJson)
-        Extraction.extract[AccountToken](jValue)
+        Extraction.extract[UserToken](jValue)
 
       } match {
         case Success(token) ⇒ Xor.right(token)
@@ -158,27 +152,27 @@ object Token {
   }
 }
 
-case class AccountToken(id: Int,
-                        name: Option[String],
-                        email: Option[String],
-                        scope: String,
-                        ratchet: Int,
-                        claims: Account.Claims)
+case class UserToken(id: Int,
+                     name: Option[String],
+                     email: Option[String],
+                     scope: String,
+                     ratchet: Int,
+                     claims: Account.Claims)
     extends Token
 
-object AccountToken {
+object UserToken {
   def fromUserAccount(user: User,
                       account: Account,
                       scope: String,
-                      claims: Account.Claims): AccountToken = {
+                      claims: Account.Claims): UserToken = {
 
     require(!scope.isEmpty)
     require(user.accountId == account.id)
-    AccountToken(id = user.accountId,
-                 name = user.name,
-                 email = user.email,
-                 scope = scope,
-                 ratchet = account.ratchet,
-                 claims = claims)
+    UserToken(id = user.accountId,
+              name = user.name,
+              email = user.email,
+              scope = scope,
+              ratchet = account.ratchet,
+              claims = claims)
   }
 }

@@ -9,6 +9,7 @@ import akka.http.scaladsl.unmarshalling.{FromRequestUnmarshaller, Unmarshaller}
 
 import cats.data.Xor
 import failures._
+import models.auth.UserToken
 import models.account._
 import models.activity.ActivityContext
 import models.objects.{ObjectContext, ObjectContexts}

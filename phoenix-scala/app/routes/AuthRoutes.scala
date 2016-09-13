@@ -11,7 +11,7 @@ import services.Authenticator
 import services.auth.GoogleOauth.oauthServiceFromConfig
 import services.auth.OauthDirectives._
 import utils.http.CustomDirectives._
-import services.customers.CustomerManager
+import services.account.AccountManager
 import utils.http.Http._
 import utils.aliases._
 
@@ -32,12 +32,12 @@ object AuthRoutes {
       activityContext() { implicit ac ⇒
         (post & path("send-password-reset") & pathEnd & entity(as[ResetPasswordSend])) { payload ⇒
           mutateOrFailures {
-            CustomerManager.resetPasswordSend(payload.email)
+            AccountManager.resetPasswordSend(payload.email)
           }
         } ~
         (post & path("reset-password") & pathEnd & entity(as[ResetPassword])) { payload ⇒
           mutateOrFailures {
-            CustomerManager.resetPassword(code = payload.code, newPassword = payload.newPassword)
+            AccountManager.resetPassword(code = payload.code, newPassword = payload.newPassword)
           }
         }
       } ~

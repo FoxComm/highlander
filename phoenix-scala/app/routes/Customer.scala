@@ -3,7 +3,7 @@ package routes
 import akka.http.scaladsl.server.Directives._
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
-import models.auth.CustomerToken
+import models.auth.UserToken
 import models.cord.Cord.cordRefNumRegex
 import models.inventory.Sku.skuCodeRegex
 import models.payment.giftcard.GiftCard
@@ -30,7 +30,7 @@ object Customer {
         activityContext(customer) { implicit ac ⇒
           determineObjectContext(db, ec) { implicit ctx ⇒
             path("info") {
-              complete(CustomerToken.fromCustomer(customer))
+              complete(UserToken.fromCustomer(customer))
             } ~
             pathPrefix("products" / IntNumber / "baked") { productId ⇒
               (get & pathEnd) {

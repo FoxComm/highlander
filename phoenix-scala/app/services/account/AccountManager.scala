@@ -1,4 +1,4 @@
-package services.users
+package services.account
 
 import java.time.Instant
 import java.time.temporal.ChronoUnit.DAYS
@@ -18,6 +18,8 @@ import services._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
+
+case class AccountCreateContext(roles: List[String], org: String, scopeId: String)
 
 object AccountManager {
 
@@ -88,5 +90,42 @@ object AccountManager {
     for {
       user ← * <~ Users.mustFindByAccountId(accountId)
     } yield build(user)
+  }
+
+  def createUser(
+    name: Option[String], 
+    email: Option[String], 
+    password: Option[String], 
+    context: AccountCreateContext)(implicit ec: EC): DbResultT[User] = {
+
+    for {
+      _ ← * <~ email.map( e ⇒ Users.createEmailMustBeUnique(e))
+
+      scope        ← * <~ Scopes.mustFindById404(context.scopeId)
+      organization ← * <~ Organizations.findByNameInScope(context.org, scope.id);
+      role         ← * <~ Roles.findByNameInScope(context.role, scope.id);
+
+      account ← * <~ Accounts.create(Account())
+
+      _ ← * <~ payload.map { p ⇒ 
+          AccountAccessMethods.create(AccountAccessMethod.build(account.id, "login", p))
+      }
+
+      user ← * <~ Users.create(
+                Users(accountId = account.id, email = email, name = name))
+
+      _ ← * <~ AccountOrganizations.create(
+             AccountOrganization(accountId = account.id, organizationId = organization.id))
+
+      _ ← * <~ context.roles.map { r ⇒ addRole(account, r, scope.id) }
+    } yield user
+  }
+
+  def addRole(account: Account, role: String, scopeId: Int)(implicit ec: EC): DbResultT[Unit] = {
+    //MAXDO Add claim check here.
+    for {
+      role         ← * <~ Roles.findByNameInScope(context.role, scope.id);
+      _ ← * <~ AccountRoles.create(AccountRole(accountId = account.id, roleId = role.id))
+    } yield Unit
   }
 }
