@@ -4,8 +4,6 @@ import React, { Component, Element } from 'react';
 import { Route, IndexRoute } from 'react-router';
 import _ from 'lodash';
 
-import FoxRoute from '../common/components/route';
-
 import ActivityTrailPage from 'components/activity-trail/activity-trail-page';
 import CartsListPage from 'components/carts/list-page';
 import Carts from 'components/carts/carts';
@@ -34,13 +32,31 @@ class Routerr {
     this.jwt = jwt;
   }
 
-  route(params, children) {
-    console.log('Hello');
+  read(name: string, params: Object, children) {
+    const { isIndex, frn, ...rest } = params;
+    const RouteComponent = isIndex ? IndexRoute : Route;
+    console.log(`Creating read route: ${name}`);
+    return (
+      <RouteComponent name={name} {...rest}>
+        {children}
+      </RouteComponent>
+    );
+  }
+
+  create(name: string, params: Object, children) {
+    const { isIndex, frn, ...rest } = params;
+    const RouteComponent = isIndex ? IndexRoute : Route;
+    console.log(`Creating create route: ${name}`);
+    return (
+      <RouteComponent name={name} {...rest}>
+        {children}
+      </RouteComponent>
+    );
   }
 }
 
 const getRoutes = (jwt: Object) => {
-  let route = Routerr(jwt);
+  let route = new Routerr(jwt);
 
   const readCart = { 'frn:oms:cart': ['r'] };
   const readOrder = { 'frn:oms:order': ['r'] };
@@ -65,64 +81,30 @@ const getRoutes = (jwt: Object) => {
     ]);
 
   const orderRoutes =
-    route.read({ name: 'orders-base', path: 'orders', frn: orderFRN }, [
-      route.create({ name: 'new-order', path: 'new', component: NewOrder }),
-      route.read({ name: 'orders-list-pages', component: OrdersListPage }, [
-        route.read({ 'orders', component: Orders, isIndex: true }),
-        route.read({ name: 'orders-activity-trail', path: 'activity-trail', component: ActivityTrailPage, frn: activityFRN }),
+    route.read('orders-base', { path: 'orders', frn: orderFRN }, [
+      route.create('new-order', { path: 'new', component: NewOrder }),
+      route.read('orders-list-pages', { component: OrdersListPage }, [
+        route.read('orders', { component: Orders, isIndex: true }),
+        route.read('orders-activity-trail', { path: 'activity-trail', component: ActivityTrailPage, frn: activityFRN }),
       ]),
-      route.read({ name: 'order', path: ':order', component: Order }, [
-        route.read({ name: 'order-details', component: OrderDetails, isIndex: true }),
-        route.read({ name: 'order-shipments', path: 'shipments', component: Shipments, frn: shipmentFRN }),
-        route.read({
-          name: 'order-shipments',
-          path: 'shipments',
-          component: Shipments,
-          frn: orderShipmentFRN,
-        }),
-        route.read({
-          name: 'order-shipments',
-          path: 'shipments',
-          component: Shipments,
-          frn: orderShipmentFRN,
-        }),
-
-      ])
+      route.read('order', { path: ':order', component: Order }, [
+        route.read('order-details', { component: OrderDetails, isIndex: true }),
+        route.read('order-shipments', { path: 'shipments', component: Shipments, frn: shipmentFRN }),
+        route.read('order-notes', { path: 'notes', component: Notes, frn: noteFRN }),
+        route.read('order-activity-trail', { path: 'activity-trail', components: ActivityTrailPage, frn: activityFRN }),
+      ]),
     ]);
-}
-
-const orderRoutes = (claims: Claims) => {
-
 
   return (
     <div>
-      <FoxRoute name='carts-base' path='carts'>
-        <FoxRoute name='carts-list-pages' component={CartsListPage}>
-          <IndexRoute name='carts' component={Carts} />
-        </FoxRoute>
-        <FoxRoute name='cart' path=':cart' component={Cart}>
-          <IndexRoute name='cart-details' component={CartDetails}/>
-          <FoxRoute name='cart-notes' path='notes' component={Notes}/>
-          <FoxRoute name='cart-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
-        </FoxRoute>
-      </FoxRoute>
-      <Route name="orders-base" path="orders">
-        <Route name="new-order" path="new" component={NewOrder}/>
-        <Route name="orders-list-pages" component={OrdersListPage}>
-          <IndexRoute name="orders" component={Orders}/>
-          <Route name="orders-activity-trail" path="activity-trail" dimension="order"
-                 component={ActivityTrailPage}/>
-        </Route>
-
-        <Route name="order" path=":order" component={Order}>
-          <IndexRoute name="order-details" component={OrderDetails}/>
-          <Route name="order-shipments" path="shipments" component={Shipments}/>
-          <Route name="order-notes" path="notes" component={Notes}/>
-          <Route name="order-activity-trail" path="activity-trail" component={ActivityTrailPage}/>
-        </Route>
-      </Route>
+      {cartRoutes}
+      {orderRoutes}
     </div>
   );
+}
+
+const orderRoutes = (claims: Claims) => {
+  return getRoutes(claims);
 };
 
 export default orderRoutes;
