@@ -62,6 +62,10 @@ object Avalara {
   case object R extends AddressType //Rural route address
   case object S extends AddressType //Street or residential address, probably, we will mostly use it
 
+  object AddressType extends AvalaraADT[AddressType] {
+    def types = sealerate.values[AddressType]
+  }
+
   sealed trait DetailLevel
   case object Tax        extends DetailLevel
   case object Document   extends DetailLevel
@@ -84,10 +88,6 @@ object Avalara {
 
   object DocType extends AvalaraADT[DocType] {
     def types = sealerate.values[DocType]
-  }
-
-  object AddressType extends AvalaraADT[AddressType] {
-    def types = sealerate.values[AddressType]
   }
 
   case class AvalaraAddress(
@@ -117,9 +117,8 @@ object Avalara {
   }
 
   object PayloadBuilder {
-    implicit val formats = JsonFormatters.phoenixFormats
-
-    def buildAddress(address: Address, region: Region, country: Country): AvalaraAddress = {
+    def buildAddress(address: Address, region: Region, country: Country)(
+        implicit formats: Formats): AvalaraAddress = {
       AvalaraAddress(AddressCode = Some(address.id.toString),
                      Line1 = address.address1,
                      Line2 = address.address2,
@@ -129,7 +128,8 @@ object Avalara {
                      Country = country.alpha2)
     }
 
-    def buildLine(lineItem: FindLineItemResult, idx: Int, addressId: Int): Requests.Line = {
+    def buildLine(lineItem: FindLineItemResult, idx: Int, addressId: Int)(
+        implicit formats: Formats): Requests.Line = {
       val (sku, form, shadow, otherShadow, cartItem) = lineItem
       val ref                                        = (shadow.attributes \ "salePrice" \ "ref").extract[String]
       val price                                      = (form.attributes \ ref \ "value").extract[Int] / 100
@@ -147,7 +147,7 @@ object Avalara {
                      lineItems: Seq[FindLineItemResult],
                      address: Address,
                      region: Region,
-                     country: Country): Requests.GetTaxes = {
+                     country: Country)(implicit formats: Formats): Requests.GetTaxes = {
       Requests.GetTaxes(
           CustomerCode = cart.customerId.toString,
           Addresses = Seq(buildAddress(address, region, country)),
@@ -162,7 +162,7 @@ object Avalara {
                    lineItems: Seq[FindLineItemResult],
                    address: Address,
                    region: Region,
-                   country: Country): Requests.GetTaxes = {
+                   country: Country)(implicit formats: Formats): Requests.GetTaxes = {
       Requests.GetTaxes(
           CustomerCode = cart.customerId.toString,
           Addresses = Seq(buildAddress(address, region, country)),
@@ -222,8 +222,6 @@ object Avalara {
     object SeverityLevel extends AvalaraADT[SeverityLevel] {
       def types = sealerate.values[SeverityLevel]
     }
-
-    val severityLevelFormatter = SeverityLevel.jsonFormats
 
     trait AvalaraResponse {
       def ResultCode: SeverityLevel
@@ -316,9 +314,7 @@ class Avalara(url: String, account: String, license: String, profile: String)(
     am: ActorMaterializer)
     extends AvalaraApi {
 
-  implicit val formats: Formats = org.json4s.DefaultFormats + time.JavaTimeJson4sSerializer.jsonFormat + Money.jsonFormat +
-      Avalara.Responses.SeverityLevel.jsonFormat + Avalara.DocType.jsonFormat + Avalara.DetailLevel.jsonFormat +
-      Avalara.AddressType.jsonFormat
+  implicit val formats: Formats = JsonFormatters.avalaraFormats
 
   implicit def responseUnmarshaller[T: Manifest]: FromResponseUnmarshaller[T] = {
     new Unmarshaller[HttpResponse, T] {
@@ -351,10 +347,6 @@ class Avalara(url: String, account: String, license: String, profile: String)(
       .mapAsync(1)(response ⇒ Unmarshal(response).to[Avalara.Responses.AddressValidation])
       .runWith(Sink.head)
 
-    def failureHandler(failure: Throwable) = {
-      Result.left(UnableToMatchResponse.single)
-    }
-
     result.flatMap {
       case response ⇒
         if (!response.hasError) {
@@ -373,8 +365,7 @@ class Avalara(url: String, account: String, license: String, profile: String)(
                              address: Address,
                              region: Region,
                              country: Country)(implicit ec: EC): Result[Int] = {
-    println("getting taxes for cart")
-    val payload = PayloadBuilder.buildInvoice(cart, lineItems, address, region, country)
+    val payload = PayloadBuilder.buildOrder(cart, lineItems, address, region, country)
     println(write(payload))
     getTax(payload)
   }
@@ -384,7 +375,7 @@ class Avalara(url: String, account: String, license: String, profile: String)(
                               address: Address,
                               region: Region,
                               country: Country)(implicit ec: EC): Result[Int] = {
-    val payload = PayloadBuilder.buildOrder(cart, lineItems, address, region, country)
+    val payload = PayloadBuilder.buildInvoice(cart, lineItems, address, region, country)
     println(write(payload))
     getTax(payload)
   }
@@ -395,7 +386,6 @@ class Avalara(url: String, account: String, license: String, profile: String)(
     val headers: ImmutableSeq[HttpHeader] = ImmutableSeq(
         Authorization(BasicHttpCredentials(account, license)))
 
-    println("building request")
     val result: Future[Avalara.Responses.GetTaxes] = Source
       .single(
           HttpRequest(uri = "/1.0/tax/get",
@@ -405,11 +395,6 @@ class Avalara(url: String, account: String, license: String, profile: String)(
       .via(connectionFlow)
       .mapAsync(1)(response ⇒ Unmarshal(response).to[Avalara.Responses.GetTaxes])
       .runWith(Sink.head)
-
-    def failureHandler(failure: Throwable) = {
-      println(s"We are doomed by failre $failure")
-      Result.left(UnableToMatchResponse.single)
-    }
 
     result.flatMap { res ⇒
       if (!res.hasError) {
@@ -429,5 +414,9 @@ class Avalara(url: String, account: String, license: String, profile: String)(
     }.recoverWith {
       case err: Throwable ⇒ failureHandler(err)
     }
+  }
+
+  private def failureHandler(failure: Throwable) = {
+    Result.left(UnableToMatchResponse.single)
   }
 }
