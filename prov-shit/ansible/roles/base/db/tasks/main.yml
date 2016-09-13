@@ -32,7 +32,6 @@
   unarchive: src="{{home}}/{{avro_name}}.tar.gz" dest="{{home}}/" copy=no
   args:
     creates: "{{avro_dir}}"
-  sudo: true
 
 - name: Make Avro Build Dir
   file: path="{{avro_dir}}/build" state=directory
