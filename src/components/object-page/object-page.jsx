@@ -25,7 +25,7 @@ import { transitionTo } from 'browserHistory';
 import { SAVE_COMBO, SAVE_COMBO_ITEMS } from 'paragons/common';
 
 export function connectPage(namespace, actions) {
-  const capitalized = _.capitalize(namespace);
+  const capitalized = _.upperFirst(namespace);
   const plural = `${namespace}s`;
   const actionNames = {
     new: `${namespace}New`, // promotionsNew
