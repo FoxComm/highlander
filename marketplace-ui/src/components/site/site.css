@@ -69,6 +69,7 @@ button {
 
   & a {
     color: #fff;
+    font-weight: 400;
   }
 }
 

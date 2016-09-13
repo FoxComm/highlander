@@ -1,5 +1,6 @@
 /* @flow */
 
+import cx from 'classnames';
 import React, { Component } from 'react';
 import { Field, reduxForm } from 'redux-form';
 
@@ -11,12 +12,35 @@ type Props = {
   onSubmit: Function;
 }
 
-const renderInput = ({ input, type, placeholder, meta }) => (
-  <div>
-    <input {...input} placeholder={placeholder} type={type} />
-    {meta.touched && meta.error && <span className="error">{meta.error}</span>}
-  </div>
-);
+const renderInput = ({ input, type, placeholder, meta }) => {
+  const hasError = meta.touched && meta.error;
+
+  return (
+    <div className={cx(styles.field, { [styles.fieldError]: hasError })}>
+      <input {...input} placeholder={placeholder} type={type} />
+      {<span className={cx(styles.error, {[styles.errorActive]: hasError})}>{meta.error}</span>}
+    </div>
+  );
+};
+
+const validate = values => {
+  const errors = {};
+  if (!values.businessName) {
+    errors.businessName = 'Required';
+  }
+
+  if (!values.phone) {
+    errors.phone = 'Required';
+  }
+
+  if (!values.email) {
+    errors.email = 'Required';
+  } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) {
+    errors.email = 'Invalid email address';
+  }
+
+  return errors;
+};
 
 const ApplyForm = (props: Props): HTMLElement => {
   const { handleSubmit } = props;
@@ -64,4 +88,4 @@ const ApplyForm = (props: Props): HTMLElement => {
   );
 };
 
-export default reduxForm({ form: 'apply' })(ApplyForm);
+export default reduxForm({ form: 'apply', validate })(ApplyForm);

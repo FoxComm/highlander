@@ -20,6 +20,30 @@ input {
   }
 }
 
+.field {
+  position: relative;
+}
+
+.fieldError {
+  & input {
+    border-bottom-color: #db2727;
+  }
+}
+
+.error {
+  position: absolute;
+  display: block;
+  bottom: 8px;
+  font-size: 12px;
+  margin-left: 15px;
+  color: transparent;
+  transition: color .4s;
+}
+
+.errorActive {
+  color: #db2727;
+}
+
 button {
   display: block;
   width: 300px;
