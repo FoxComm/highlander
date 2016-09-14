@@ -8,7 +8,7 @@ import models.auth.Identity
 import payloads.LoginPayload
 import payloads.UserPayloads._
 import services.Authenticator
-import services.auth.GoogleOauth.oauthServiceFromConfig
+import services.auth.GoogleOauthUser
 import services.auth.OauthDirectives._
 import utils.http.CustomDirectives._
 import services.account.AccountManager
@@ -17,10 +17,9 @@ import utils.aliases._
 
 object AuthRoutes {
 
-  lazy val customerGoogleOauth = oauthServiceFromConfig("customer")
-  lazy val adminGoogleOauth    = oauthServiceFromConfig("admin")
+  def routes(customerGoogleOauth: GoogleOauthUser,
+             adminGoogleOauth: GoogleOauthUser)(implicit ec: EC, db: DB) = {
 
-  def routes(implicit ec: EC, db: DB) = {
     pathPrefix("public") {
       (post & path("login") & entity(as[LoginPayload])) { payload ⇒
         onSuccess(Authenticator.authenticate(payload)) { result ⇒

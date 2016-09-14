@@ -66,7 +66,7 @@ trait OauthService[M] {
     for {
       result ← * <~ findByEmail(userInfo.email).findOrCreateExtended(createByUserInfo(userInfo))
       (user, foundOrCreated) = result
-      account ← * <~ Accounts.mustFindByAccountId(user.accountId)
+      account ← * <~ Accounts.mustFindById404(user.accountId)
     } yield (user, account)
 
   /*
@@ -78,8 +78,8 @@ trait OauthService[M] {
   def oauthCallback(oauthResponse: OauthCallbackResponse)(implicit ec: EC,
                                                           db: DB): DbResultT[Token] =
     for {
-      info       ← fetchUserInfoFromCode(oauthResponse)
-      userAccunt ← findOrCreateUserFromInfo(info)
+      info        ← fetchUserInfoFromCode(oauthResponse)
+      userAccount ← findOrCreateUserFromInfo(info)
       (user, account) = userAccount
       token           = createToken(user, account)
     } yield token
