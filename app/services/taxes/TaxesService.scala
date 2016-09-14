@@ -3,6 +3,7 @@ package services.taxes
 import models.cord._
 import models.cord.lineitems._
 import CartLineItems.scope._
+import failures.NotFoundFailure400
 import models.location._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
@@ -24,7 +25,6 @@ object TaxesService {
                        address: OrderShippingAddress,
                        region: Region)(implicit ec: EC, db: DB, apis: Apis): DbResultT[Int] =
     for {
-      _       ← * <~ DbResultT.good("fetch taxes")
       li      ← * <~ CartLineItems.byCordRef(cart.refNum).lineItems.result
       country ← * <~ Countries.mustFindById400(region.countryId)
       result ← * <~ apis.avalaraApi.getTaxForCart(cart,
@@ -33,6 +33,22 @@ object TaxesService {
                                                   region,
                                                   country)
     } yield result
+
+  def finalizeTaxes(
+      cart: Cart)(implicit ec: EC, es: ES, db: DB, ctx: OC, apis: Apis): DbResultT[Unit] =
+    for {
+      lineItems ← * <~ CartLineItems.byCordRef(cart.refNum).lineItems.result
+      addressTuple ← * <~ OrderShippingAddresses
+                      .findByOrderRefWithRegions(cart.refNum)
+                      .mustFindOneOr(NotFoundFailure400(OrderShippingAddress, cart.refNum))
+      region  ← * <~ Regions.mustFindById404(addressTuple._1.regionId)
+      country ← * <~ Countries.mustFindById404(region.countryId)
+      _ ← * <~ apis.avalaraApi.getTaxForOrder(cart,
+                                              lineItems,
+                                              Address.fromOrderShippingAddress(addressTuple._1),
+                                              addressTuple._2,
+                                              country)
+    } yield DbResultT.unit
 
   def saveAddressValidationDetails(
       address: OrderShippingAddress

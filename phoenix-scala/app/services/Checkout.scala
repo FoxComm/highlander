@@ -21,6 +21,7 @@ import models.payment.storecredit._
 import models.promotion._
 import responses.cord.OrderResponse
 import services.coupon.CouponUsageService
+import services.taxes.TaxesService
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.apis._
@@ -64,6 +65,7 @@ object PaymentHelper {
 object Checkout {
 
   def fromCart(refNum: String)(implicit ec: EC,
+                               es: ES,
                                db: DB,
                                apis: Apis,
                                ac: AC,
@@ -73,11 +75,12 @@ object Checkout {
       order ← * <~ Checkout(cart, CartValidator(cart)).checkout
     } yield order
 
-  def forCustomer(customer: User)(implicit ec: EC,
-                                  db: DB,
-                                  apis: Apis,
-                                  ac: AC,
-                                  ctx: OC): DbResultT[OrderResponse] =
+  def forCustomer(customer: Customer)(implicit ec: EC,
+                                      es: ES,
+                                      db: DB,
+                                      apis: Apis,
+                                      ac: AC,
+                                      ctx: OC): DbResultT[OrderResponse] =
     for {
       result ← * <~ Carts
                 .findByAccountId(customer.accountId)
@@ -95,7 +98,7 @@ class ExternalCalls {
 
 case class Checkout(
     cart: Cart,
-    cartValidator: CartValidation)(implicit ec: EC, db: DB, apis: Apis, ac: AC, ctx: OC) {
+    cartValidator: CartValidation)(implicit ec: EC, es: ES, db: DB, apis: Apis, ac: AC, ctx: OC) {
 
   var externalCalls = new ExternalCalls()
 
@@ -107,12 +110,12 @@ case class Checkout(
       _         ← * <~ activePromos
       _         ← * <~ cartValidator.validate(isCheckout = false, fatalWarnings = true)
       _         ← * <~ holdInMiddleWarehouse
-      _         ← * <~ finalizeTaxes
       _         ← * <~ authPayments(customer)
       _         ← * <~ cartValidator.validate(isCheckout = true, fatalWarnings = true)
       order     ← * <~ Orders.createFromCart(cart)
       _         ← * <~ fraudScore(order)
       _         ← * <~ updateCouponCountersForPromotion(customer)
+      _         ← * <~ TaxesService.finalizeTaxes(cart)
       fullOrder ← * <~ OrderResponse.fromOrder(order)
       _         ← * <~ LogActivity.orderCheckoutCompleted(fullOrder)
     } yield fullOrder
@@ -239,20 +242,5 @@ case class Checkout(
       fakeFraudScore ← * <~ Random.nextInt(10)
       order          ← * <~ Orders.update(order, order.copy(fraudScore = fakeFraudScore))
     } yield order
-
-  private def finalizeTaxes(): DbResultT[Unit] =
-    for {
-      lineItems ← * <~ CartLineItems.byCordRef(cart.refNum).lineItems.result
-      address ← * <~ OrderShippingAddresses
-                 .findByOrderRef(cart.refNum)
-                 .mustFindOneOr(NotFoundFailure400(OrderShippingAddress, cart.refNum))
-      region  ← * <~ Regions.mustFindById404(address.regionId)
-      country ← * <~ Countries.mustFindById404(region.countryId)
-      _ ← * <~ apis.avalaraApi.getTaxForOrder(cart,
-                                              lineItems,
-                                              Address.fromOrderShippingAddress(address),
-                                              region,
-                                              country)
-    } yield DbResultT.unit
 
 }

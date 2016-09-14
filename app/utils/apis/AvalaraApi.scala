@@ -151,7 +151,9 @@ object Avalara {
       Requests.GetTaxes(
           CustomerCode = cart.customerId.toString,
           Addresses = Seq(buildAddress(address, region, country)),
-          Lines = lineItems.zipWithIndex.map(zipped ⇒ buildLine(zipped._1, zipped._2, address.id)),
+          Lines = lineItems
+            .zip(Stream.from(1))
+            .map(zipped ⇒ buildLine(zipped._1, zipped._2, address.id)),
           DocCode = cart.referenceNumber,
           Commit = true,
           DocType = SalesInvoice
@@ -166,7 +168,9 @@ object Avalara {
       Requests.GetTaxes(
           CustomerCode = cart.customerId.toString,
           Addresses = Seq(buildAddress(address, region, country)),
-          Lines = lineItems.zipWithIndex.map(zipped ⇒ buildLine(zipped._1, zipped._2, address.id)),
+          Lines = lineItems
+            .zip(Stream.from(1))
+            .map(zipped ⇒ buildLine(zipped._1, zipped._2, address.id)),
           DocCode = cart.referenceNumber,
           DocType = SalesOrder
       )
