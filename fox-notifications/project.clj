@@ -7,6 +7,7 @@
    [io.confluent/kafka-avro-serializer "2.0.1"]
    [com.fasterxml.jackson.core/jackson-core "2.7.3"]
    [com.fasterxml.jackson.core/jackson-databind "2.7.3"]
+   [clj-http "3.2.0"]
    [aleph "0.4.1-beta7"]
    [compojure "1.5.1"]
    [ring/ring-core "1.5.0"]
@@ -32,4 +33,5 @@
   :source-paths
   ["src" "resources"]
   :jar-name "messaging-no-dependencies.jar"
-  :uberjar-name "messaging.jar")
+  :uberjar-name "messaging.jar"
+  :main messaging.main)
