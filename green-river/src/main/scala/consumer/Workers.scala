@@ -18,7 +18,9 @@ object Workers {
                                  SharedSearchConnector(),
                                  StoreCreditConnector(),
                                  ProductConnector(),
-                                 SkuConnector())
+                                 SkuConnector(),
+                                 PromotionConnector(),
+                                 CouponConnector())
 
     val activityProcessor = new ActivityProcessor(connectionInfo, activityConnectors)
 
