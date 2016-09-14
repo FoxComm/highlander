@@ -48,7 +48,7 @@ object TaxesService {
                                               Address.fromOrderShippingAddress(addressTuple._1),
                                               addressTuple._2,
                                               country)
-    } yield DbResultT.unit
+    } yield {}
 
   def saveAddressValidationDetails(
       address: OrderShippingAddress
@@ -62,6 +62,6 @@ object TaxesService {
       region  ← * <~ Regions.mustFindById400(address.regionId)
       country ← * <~ Countries.mustFindById400(region.countryId)
       _       ← * <~ apis.avalaraApi.validateAddress(address, region, country)
-    } yield DbResultT.unit
+    } yield {}
 
 }
