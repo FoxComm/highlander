@@ -3,6 +3,7 @@ package services
 import failures.CartFailures.CustomerHasNoCart
 import failures.OrderFailures.EmptyRefNumFailure
 import models.cord._
+import models.account.User
 import utils.aliases._
 import utils.db._
 

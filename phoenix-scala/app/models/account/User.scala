@@ -81,6 +81,9 @@ object Users extends FoxTableQuery[User, Users](new Users(_)) with ReturningId[U
     filter(_.email === email)
   }
 
+  def activeUserByEmail(email: Option[String]): QuerySeq =
+    filter(c ⇒ c.email === email && !c.isBlacklisted && !c.isDisabled)
+
   def findOneByAccountId(accountId: Int): DBIO[Option[User]] =
     filter(_.accountId === accountId).result.headOption
 

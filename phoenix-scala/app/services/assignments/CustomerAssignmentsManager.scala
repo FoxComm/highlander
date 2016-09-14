@@ -2,7 +2,7 @@ package services.assignments
 
 import models.{Assignment, NotificationSubscription}
 import models.account._
-import responses.CustomerResponse.{Root, build}
+import responses.UserResponse.{Root, build}
 import slick.driver.PostgresDriver.api._
 import utils.db._
 import utils.aliases._

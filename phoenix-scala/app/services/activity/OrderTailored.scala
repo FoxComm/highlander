@@ -4,23 +4,23 @@ import java.time.Instant
 
 import models.Note
 import models.cord.Order
-import responses.StoreAdminResponse
+import responses.UserResponse
 import responses.cord.OrderResponse
 import utils.Money.Currency
 
 object OrderTailored {
 
-  case class OrderStateChanged(admin: StoreAdminResponse.Root,
+  case class OrderStateChanged(admin: UserResponse.Root,
                                order: OrderResponse,
                                oldState: Order.State)
       extends ActivityBase[OrderStateChanged]
 
-  case class OrderRemorsePeriodIncreased(admin: StoreAdminResponse.Root,
+  case class OrderRemorsePeriodIncreased(admin: UserResponse.Root,
                                          order: OrderResponse,
                                          oldPeriodEnd: Option[Instant])
       extends ActivityBase[OrderRemorsePeriodIncreased]
 
-  case class OrderBulkStateChanged(admin: StoreAdminResponse.Root,
+  case class OrderBulkStateChanged(admin: UserResponse.Root,
                                    cordRefNums: Seq[String],
                                    newState: Order.State)
       extends ActivityBase[OrderBulkStateChanged]
@@ -57,16 +57,13 @@ object OrderTailored {
       extends ActivityBase[CreditCardChargeCompleted]
 
   /* Order Notes */
-  case class OrderNoteCreated(admin: StoreAdminResponse.Root, order: Order, note: Note)
+  case class OrderNoteCreated(admin: UserResponse.Root, order: Order, note: Note)
       extends ActivityBase[OrderNoteCreated]
 
-  case class OrderNoteUpdated(admin: StoreAdminResponse.Root,
-                              order: Order,
-                              oldNote: Note,
-                              note: Note)
+  case class OrderNoteUpdated(admin: UserResponse.Root, order: Order, oldNote: Note, note: Note)
       extends ActivityBase[OrderNoteUpdated]
 
-  case class OrderNoteDeleted(admin: StoreAdminResponse.Root, order: Order, note: Note)
+  case class OrderNoteDeleted(admin: UserResponse.Root, order: Order, note: Note)
       extends ActivityBase[OrderNoteDeleted]
 
 }

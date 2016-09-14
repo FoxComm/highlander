@@ -57,7 +57,9 @@ object ShippingManager {
       implicit ec: EC,
       db: DB): DbResultT[Cart] = customer match {
     case Some(c) ⇒
-      Carts.findByRefNumAndCustomer(refNum, c).mustFindOneOr(NotFoundFailure404(Carts, refNum))
+      Carts
+        .findByRefNumAndAccountId(refNum, c.accountId)
+        .mustFindOneOr(NotFoundFailure404(Carts, refNum))
     case _ ⇒ Carts.mustFindByRefNum(refNum)
   }
 

@@ -2,23 +2,19 @@ package responses
 
 import java.time.Instant
 import models.Assignment
-import models.admin.StoreAdminUser
 import models.account.User
-import responses.StoreAdminResponse.{build ⇒ buildAdmin}
+import responses.UserResponse.{build ⇒ buildUser}
 
 object AssignmentResponse {
 
-  case class Root(assignee: StoreAdminResponse.Root,
+  case class Root(assignee: UserResponse.Root,
                   assignmentType: Assignment.AssignmentType,
                   createdAt: Instant)
       extends ResponseItem
 
-  def build(assignment: Assignment, admin: User, storeAdminUser: StoreAdminUser): Root = {
+  def build(assignment: Assignment, admin: User): Root = {
 
-    require(storeAdminUser.accountId == admin.accountId)
-    require(storeAdminUser.userId == admin.id)
-
-    Root(assignee = buildAdmin(admin, storeAdminUser),
+    Root(assignee = buildUser(admin),
          assignmentType = assignment.assignmentType,
          createdAt = assignment.createdAt)
   }

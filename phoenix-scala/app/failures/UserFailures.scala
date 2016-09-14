@@ -26,4 +26,16 @@ object UserFailures {
   case class ResetPasswordCodeInvalid(code: String) extends Failure {
     override def description = s"Reset password code $code is not valid"
   }
+
+  case class AccessMethodNotFound(name: String) extends Failure {
+    override def description = s"Access method '$name' not found"
+  }
+
+  case class OrganizationNotFound(name: String, scope: String) extends Failure {
+    override def description = s"Organization '$name' not found in scope $scope"
+  }
+
+  case class RoleNotFound(name: String, scope: String) extends Failure {
+    override def description = s"Role '$name' not found in scope $scope"
+  }
 }

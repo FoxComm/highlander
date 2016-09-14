@@ -219,7 +219,7 @@ object Authenticator {
   def authenticate(payload: LoginPayload)(implicit ec: EC, db: DB): Result[Route] = {
 
     val tokenResult = (for {
-      organization ← * <~ Organizations.findByName(payload.org);
+      organization ← * <~ Organizations.findByName(payload.org).mustFindOr(LoginFailed)
       user         ← * <~ Users.findByEmail(payload.email).mustFindOneOr(LoginFailed)
       accessMethod ← * <~ AccountAccessMethods
                       .findOneByAccountIdAndName(user.accountId, "login")
@@ -227,10 +227,10 @@ object Authenticator {
       account ← * <~ Accounts.mustFindById404(user.accountId)
 
       validatedUser ← * <~ validatePassword(user, accessMethod.hashedPassword, payload.password)
-      adminUser     ← * <~ StoreAdminUsers.filter(_.accountId === user.accountId).one
-      _             ← * <~ adminUser.map(au ⇒ checkState(au))
+      adminUsers    ← * <~ StoreAdminUsers.filter(_.accountId === user.accountId).one
+      _             ← * <~ adminUsers.map(aus ⇒ checkState(aus))
 
-      claimsResult ← * <~ AccountManager.getClaims(account.id, organization.scopeId)
+      claimResult ← * <~ AccountManager.getClaims(account.id, organization.scopeId)
       (scope, claims) = claimResult
       checkedToken ← * <~ UserToken.fromUserAccount(validatedUser, account, scope, claims)
     } yield checkedToken).run()

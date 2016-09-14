@@ -50,7 +50,7 @@ object NotificationManager {
   def updateLastSeen(adminId: Int, activityId: Int)(implicit ec: EC,
                                                     db: DB): DbResultT[LastSeenActivityResponse] =
     for {
-      _ ← * <~ Acccounts.mustFindById404(adminId)
+      _ ← * <~ Accounts.mustFindById404(adminId)
       _ ← * <~ Activities.mustFindById404(activityId)
       trail ← * <~ Trails
                .findNotificationByAdminId(adminId)

@@ -173,7 +173,7 @@ object CreditCards
   def findByIdAndAccountId(id: Int, accountId: Int): QuerySeq =
     filter(_.accountId === accountId).filter(_.id === id)
 
-  def mustFindByIdAndAccount(id: Int, accountId: Int)(implicit ec: EC): DbResultT[CreditCard] = {
+  def mustFindByIdAndAccountId(id: Int, accountId: Int)(implicit ec: EC): DbResultT[CreditCard] = {
     filter(cc ⇒ cc.id === id && cc.accountId === accountId).one.toXor.flatMap {
       case Some(cc) ⇒ DbResultT.good(cc)
       case None     ⇒ DbResultT.failure(NotFoundFailure404(CreditCard, id))

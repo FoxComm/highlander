@@ -77,7 +77,7 @@ object CreditCardManager {
       db: DB): DbResultT[Root] =
     for {
       _  ← * <~ CreditCards.findDefaultByAccountId(accountId).map(_.isDefault).update(false)
-      cc ← * <~ CreditCards.mustFindByIdAndCustomer(cardId, accountId)
+      cc ← * <~ CreditCards.mustFindByIdAndAccountId(cardId, accountId)
       default = cc.copy(isDefault = true)
       _      ← * <~ CreditCards.filter(_.id === cardId).map(_.isDefault).update(true)
       region ← * <~ Regions.findOneById(cc.regionId).safeGet
@@ -89,7 +89,7 @@ object CreditCardManager {
       admin: Option[User] = None)(implicit ec: EC, db: DB, apis: Apis, ac: AC): DbResultT[Unit] =
     for {
       customer ← * <~ Users.mustFindByAccountId(accountId)
-      cc       ← * <~ CreditCards.mustFindByIdAndCustomer(id, accountId)
+      cc       ← * <~ CreditCards.mustFindByIdAndAccountId(id, accountId)
       region   ← * <~ Regions.findOneById(cc.regionId).safeGet
       update ← * <~ CreditCards.update(cc,
                                        cc.copy(inWallet = false, deletedAt = Some(Instant.now())))

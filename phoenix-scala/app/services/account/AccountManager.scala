@@ -7,8 +7,7 @@ import cats.implicits._
 import failures.NotFoundFailure404
 import failures.UserFailures._
 import models.cord.{OrderShippingAddresses, Orders}
-import models.account.{User, Users, Account}
-import models.account.{UserPasswordResets, UserPasswordReset}
+import models.account._
 import models.location.Addresses
 import models.shipping.Shipments
 import payloads.UserPayloads._
@@ -73,9 +72,11 @@ object AccountManager {
       remind ← * <~ UserPasswordResets
                 .findActiveByCode(code)
                 .mustFindOr(ResetPasswordCodeInvalid(code))
-      user         ← * <~ Users.mustFindByAccountId(remind.accountId)
-      account      ← * <~ Account.mustFindById404(user.accountId)
-      accessMethod ← * <~ AccountAccessMethods.mustFindByIdAndName(account.id, "login")
+      user    ← * <~ Users.mustFindByAccountId(remind.accountId)
+      account ← * <~ Accounts.mustFindById404(user.accountId)
+      accessMethod ← * <~ AccountAccessMethods
+                      .findOneByAccountIdAndName(account.id, "login")
+                      .mustFindOr(AccessMethodNotFound("login"))
       _ ← * <~ UserPasswordResets.update(remind,
                                          remind.copy(state = UserPasswordReset.PasswordRestored,
                                                      activatedAt = Instant.now.some))
@@ -94,49 +95,57 @@ object AccountManager {
   def createUser(name: Option[String],
                  email: Option[String],
                  password: Option[String],
-                 context: AccountCreateContext)(implicit ec: EC): DbResultT[User] = {
+                 context: AccountCreateContext)(implicit ec: EC, db: DB): DbResultT[User] = {
 
     for {
       _ ← * <~ email.map(e ⇒ Users.createEmailMustBeUnique(e))
 
-      scope        ← * <~ Scopes.mustFindById404(context.scopeId)
-      organization ← * <~ Organizations.findByNameInScope(context.org, scope.id);
-      role         ← * <~ Roles.findByNameInScope(context.role, scope.id);
+      scope ← * <~ Scopes.mustFindById404(context.scopeId)
+      organization ← * <~ Organizations
+                      .findByNameInScope(context.org, scope.id)
+                      .mustFindOr(OrganizationNotFound(context.org, scope.path))
 
       account ← * <~ Accounts.create(Account())
 
-      _ ← * <~ payload.map { p ⇒
+      _ ← * <~ password.map { p ⇒
            AccountAccessMethods.create(AccountAccessMethod.build(account.id, "login", p))
          }
 
-      user ← * <~ Users.create(Users(accountId = account.id, email = email, name = name))
+      user ← * <~ Users.create(User(accountId = account.id, email = email, name = name))
 
       _ ← * <~ AccountOrganizations.create(
              AccountOrganization(accountId = account.id, organizationId = organization.id))
 
       _ ← * <~ context.roles.map { r ⇒
-           addRole(account, r, scope.id)
+           addRole(account, r, scope)
          }
     } yield user
   }
 
-  def addRole(account: Account, role: String, scopeId: Int)(implicit ec: EC): DbResultT[Unit] = {
+  def addRole(account: Account, role: String, scope: Scope)(implicit ec: EC): DbResultT[Unit] = {
     //MAXDO Add claim check here.
     for {
-      role ← * <~ Roles.findByNameInScope(context.role, scope.id);
-      _    ← * <~ AccountRoles.create(AccountRole(accountId = account.id, roleId = role.id))
+      role ← * <~ Roles
+              .findByNameInScope(role, scope.id)
+              .mustFindOr(RoleNotFound(role, scope.path))
+      _ ← * <~ AccountRoles.create(AccountRole(accountId = account.id, roleId = role.id))
     } yield Unit
   }
 
-  def getClaims(accountId: Int, scopeId: Int)(
-      implicit ec: EC): DbResultT[(String, Account.Claims)] =
+  def getClaims(accountId: Int, scopeId: Int)(implicit ec: EC,
+                                              db: DB): DbResultT[(String, Account.Claims)] =
     for {
-      scope        ← * <~ Scope.mustFindById404(scopeId)
-      accountRoles ← * <~ AccountRoles.findByAccountId(accountId);
+      scope        ← * <~ Scopes.mustFindById404(scopeId)
+      accountRoles ← * <~ AccountRoles.findByAccountId(accountId).result
       roleIds = accountRoles.map(_.roleId)
-      roles           ← * <~ Roles.filterByScopeId(roleIds, scopeId)
-      rolePermissions ← * <~ RolePermissions.findByRoles(roles)
+      roles ← * <~ Roles.filterByScopeId(roleIds, scopeId).result
+      scopedRoleIds = roles.map(_.id)
+      rolePermissions ← * <~ RolePermissions.findByRoles(scopedRoleIds).result
       permissionIds = rolePermissions.map(_.permissionId)
-      permissions ← * <~ Permissions.filter(_.id.inSet(permissionIds))
-    } yield (scope.path, permissions.groupBy(_.frn).mapValues(_.actions).mapValues(_.flatten))
+      permissions ← * <~ Permissions.filter(_.id.inSet(permissionIds)).result
+      claims ← * <~ permissions
+                .groupBy(_.frn)
+                .mapValues(_.map(_.actions))
+                .mapValues(_.flatten.toList)
+    } yield (scope.path, claims)
 }

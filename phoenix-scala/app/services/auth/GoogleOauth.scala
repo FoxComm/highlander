@@ -16,9 +16,9 @@ class GoogleOauthUser(options: GoogleOauthOptions)
   def createByUserInfo(userInfo: UserInfo)(implicit ec: EC): DbResultT[User] = {
 
     for {
-      scope        ← * <~ Scopes.mustFindById404(userInfo.scopeId)
-      organization ← * <~ Organizations.findByNameInScope(orgName, scope.id);
-      role         ← * <~ Roles.findByNameInScope(userInfo.roleName, scope.id);
+      scope        ← * <~ Scopes.mustFindById404(options.scopeId)
+      organization ← * <~ Organizations.findByNameInScope(options.orgName, scope.id);
+      role         ← * <~ Roles.findByNameInScope(options.roleName, scope.id);
 
       account ← * <~ Accounts.create(Account())
       user ← * <~ Users.create(
@@ -33,7 +33,8 @@ class GoogleOauthUser(options: GoogleOauthOptions)
 
   def findByEmail(email: String)(implicit ec: EC, db: DB) = Users.findByEmail(email)
 
-  def createToken(user: User, account: Account): Token = UserToken.fromUserAccount(user, account)
+  def createToken(user: User, account: Account, scope: String, claims: Account.Claims): Token =
+    UserToken.fromUserAccount(user, account, scope, claims)
 }
 
 object GoogleOauth {

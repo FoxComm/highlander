@@ -10,7 +10,7 @@ import models.account._
 import payloads.AssignmentPayloads._
 import responses.AssignmentResponse.{Root, build ⇒ buildAssignment}
 import responses.BatchMetadata._
-import responses.StoreAdminResponse.{build ⇒ buildAdmin}
+import responses.UserResponse.{build ⇒ buildUser}
 import responses._
 import services._
 import slick.driver.PostgresDriver.api._
@@ -61,7 +61,7 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
       assignees ← * <~ Assignments.assigneesFor(assignmentType, entity, referenceType).result
       newAssigneeIds = adminIds.diff(assignees.map(_.id))
       _ ← * <~ Assignments.createAll(build(entity, newAssigneeIds))
-      assignedAdmins = admins.filter(a ⇒ newAssigneeIds.contains(a.id)).map(buildAdmin)
+      assignedAdmins = admins.filter(a ⇒ newAssigneeIds.contains(a.id)).map(buildUser)
       // Response builder
       assignments ← * <~ fetchAssignments(entity)
       response       = assignments.map((buildAssignment _).tupled)

@@ -38,7 +38,7 @@ trait OauthService[M] {
 
   def createByUserInfo(info: UserInfo)(implicit ec: EC): DbResultT[M]
   def findByEmail(email: String)(implicit ec: EC, db: DB): DBIO[Option[M]]
-  def createToken(user: M, account: Account): Token
+  def createToken(user: M, account: Account, scope: String, claims: Account.Claims): Token
 
   /*
     1. Exchange code to access token

@@ -8,7 +8,7 @@ import failures.Util.diffToFailures
 import models.sharedsearch._
 import models.account._
 import payloads.SharedSearchPayloads._
-import responses.{StoreAdminResponse, TheResponse}
+import responses.{UserResponse, TheResponse}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
@@ -27,12 +27,11 @@ object SharedSearchService {
   def get(code: String)(implicit ec: EC, db: DB): DbResultT[SharedSearch] =
     mustFindActiveByCode(code)
 
-  def getAssociates(code: String)(implicit ec: EC,
-                                  db: DB): DbResultT[Seq[StoreAdminResponse.Root]] =
+  def getAssociates(code: String)(implicit ec: EC, db: DB): DbResultT[Seq[UserResponse.Root]] =
     for {
       search     ← * <~ mustFindActiveByCode(code)
       associates ← * <~ SharedSearchAssociations.associatedAdmins(search).result
-    } yield associates.map(StoreAdminResponse.build)
+    } yield associates.map(UserResponse.build)
 
   def create(admin: User, payload: SharedSearchPayload)(implicit ec: EC,
                                                         db: DB): DbResultT[SharedSearch] =
@@ -63,7 +62,7 @@ object SharedSearchService {
       ac: AC): DbResultT[TheResponse[SharedSearch]] =
     for {
       search ← * <~ mustFindActiveByCode(code)
-      adminIds ← * <~ User
+      adminIds ← * <~ Users
                   .filter(_.accountId.inSetBind(requestedAssigneeIds))
                   .map(_.accountId)
                   .result
