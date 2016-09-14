@@ -30,7 +30,7 @@ func (suite *ShipmentRepositoryTestSuite) SetupSuite() {
 
 	suite.repository = NewShipmentRepository(suite.db)
 
-	tasks.TruncateTables([]string{
+	tasks.TruncateTables(suite.db, []string{
 		"carriers",
 		"shipping_methods",
 		"addresses",
@@ -49,7 +49,7 @@ func (suite *ShipmentRepositoryTestSuite) SetupSuite() {
 }
 
 func (suite *ShipmentRepositoryTestSuite) SetupTest() {
-	tasks.TruncateTables([]string{
+	tasks.TruncateTables(suite.db, []string{
 		"shipments",
 	})
 }

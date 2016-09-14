@@ -3,17 +3,11 @@ package tasks
 import (
 	"fmt"
 
-	"github.com/FoxComm/highlander/middlewarehouse/common/db/config"
+	"github.com/jinzhu/gorm"
 )
 
-func TruncateTables(tables []string) error {
-	db, err := config.DefaultConnection()
-	if err != nil {
-		return err
-	}
-
+func TruncateTables(db *gorm.DB, tables []string) {
 	for _, t := range tables {
 		db.Exec(fmt.Sprintf("truncate %s RESTART IDENTITY CASCADE", t))
 	}
-	return nil
 }
