@@ -23,8 +23,14 @@ func TestShipmentServiceSuite(t *testing.T) {
 	suite.Run(t, new(ShipmentServiceTestSuite))
 }
 
+func (suite *ShipmentServiceTestSuite) SetupSuite() {
+	suite.db = config.TestConnection()
+
+	suite.service = NewShipmentService(suite.db, &mocks.SummaryServiceStub{}, &mocks.ActivityLoggerMock{})
+}
+
 func (suite *ShipmentServiceTestSuite) SetupTest() {
-	tasks.TruncateTables([]string{
+	tasks.TruncateTables(suite.db, []string{
 		"addresses",
 		"carriers",
 		"shipping_methods",
@@ -34,13 +40,10 @@ func (suite *ShipmentServiceTestSuite) SetupTest() {
 		"stock_item_units",
 		"stock_locations",
 	})
+}
 
-	var err error
-	db, err := config.DefaultConnection()
-	suite.db = db.Debug()
-	suite.Nil(err)
-
-	suite.service = NewShipmentService(suite.db, &mocks.SummaryServiceStub{}, &mocks.ActivityLoggerMock{})
+func (suite *ShipmentServiceTestSuite) TearDownSuite() {
+	suite.db.Close()
 }
 
 func (suite *ShipmentServiceTestSuite) Test_GetShipmentsByReferenceNumber_ReturnsShipmentModels() {

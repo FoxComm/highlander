@@ -27,7 +27,7 @@ func (suite *CarrierRepositoryTestSuite) SetupSuite() {
 }
 
 func (suite *CarrierRepositoryTestSuite) SetupTest() {
-	tasks.TruncateTables([]string{
+	tasks.TruncateTables(suite.db, []string{
 		"carriers",
 	})
 }
