@@ -7,6 +7,7 @@ import cats.data.{Xor, XorT}
 import cats.implicits._
 import failures.GeneralFailure
 import libs.oauth.{Oauth, UserInfo}
+import models.account._
 import models.auth.Token
 import services.Authenticator
 import slick.driver.PostgresDriver.api.DBIO
@@ -37,7 +38,7 @@ trait OauthService[M] {
 
   def createByUserInfo(info: UserInfo)(implicit ec: EC): DbResultT[M]
   def findByEmail(email: String)(implicit ec: EC, db: DB): DBIO[Option[M]]
-  def createToken(user: M): Token
+  def createToken(user: M, account: Account): Token
 
   /*
     1. Exchange code to access token
@@ -60,11 +61,13 @@ trait OauthService[M] {
     } yield info
   }
 
-  def findOrCreateUserFromInfo(userInfo: UserInfo)(implicit ec: EC, db: DB): DbResultT[M] =
+  def findOrCreateUserFromInfo(userInfo: UserInfo)(implicit ec: EC,
+                                                   db: DB): DbResultT[(M, Account)] =
     for {
       result ← * <~ findByEmail(userInfo.email).findOrCreateExtended(createByUserInfo(userInfo))
       (user, foundOrCreated) = result
-    } yield user
+      account ← * <~ Accounts.mustFindByAccountId(user.accountId)
+    } yield (user, account)
 
   /*
     1. Exchange code to access token
@@ -75,9 +78,10 @@ trait OauthService[M] {
   def oauthCallback(oauthResponse: OauthCallbackResponse)(implicit ec: EC,
                                                           db: DB): DbResultT[Token] =
     for {
-      info ← fetchUserInfoFromCode(oauthResponse)
-      user ← findOrCreateUserFromInfo(info)
-      token = createToken(user)
+      info       ← fetchUserInfoFromCode(oauthResponse)
+      userAccunt ← findOrCreateUserFromInfo(info)
+      (user, account) = userAccount
+      token           = createToken(user, account)
     } yield token
 
   def akkaCallback(oauthResponse: OauthCallbackResponse)(implicit ec: EC, db: DB): Route = {

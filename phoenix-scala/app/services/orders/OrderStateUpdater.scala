@@ -1,7 +1,7 @@
 package services.orders
 
 import failures.{NotFoundFailure400, StateTransitionNotAllowed}
-import models.account.account._
+import models.account._
 import models.cord.Order._
 import models.cord._
 import models.cord.lineitems._

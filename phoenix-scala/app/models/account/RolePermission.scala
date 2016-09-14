@@ -32,12 +32,13 @@ object RolePermissions
 
   val returningLens: Lens[RolePermission, Int] = lens[RolePermission].id
 
-  def findByRole(roleId: Int): DBIO[Option[RolePermission]] = {
-    filter(_.roleId === roleId).one
-  }
+  def findByRoleId(roleId: Int): QuerySeq =
+    filter(_.roleId === roleId)
 
-  def findByPermission(permissionId: Int): DBIO[Option[RolePermission]] = {
+  def findByRoles(roleIds: Seq[Int]): QuerySeq =
+    filter(_.roleId.inSet(roleIds))
+
+  def findByPermission(permissionId: Int): DBIO[Option[RolePermission]] =
     filter(_.permissionId === permissionId).one
-  }
 
 }

@@ -6,7 +6,7 @@ import failures.CouponFailures._
 import failures.NotFoundFailure404
 import failures.ObjectFailures._
 import failures.PromotionFailures._
-import models.account.account._
+import models.account._
 import models.coupon._
 import models.objects._
 import models.promotion._

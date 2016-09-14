@@ -4,7 +4,6 @@ import akka.http.scaladsl.server.Directives._
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.account.User
-import models.auth.AdminToken
 import payloads.StoreAdminPayloads._
 import services.StoreAdminManager
 import utils.aliases._
@@ -43,11 +42,6 @@ object StoreAdminRoutes {
                 StoreAdminManager.changeState(saId, payload, admin)
               }
             }
-          }
-        } ~
-        pathPrefix("me") {
-          (get & pathEnd) {
-            complete(AdminToken.fromAdmin(admin))
           }
         }
       }

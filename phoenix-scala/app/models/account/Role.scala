@@ -35,11 +35,12 @@ object Roles extends FoxTableQuery[Role, Roles](new Roles(_)) with ReturningId[R
 
   val returningLens: Lens[Role, Int] = lens[Role].id
 
-  def findByName(name: String): DBIO[Option[Role]] = {
+  def findByName(name: String): DBIO[Option[Role]] =
     filter(_.name === name).one
-  }
 
-  def findByNameInScope(name: String, scopeId: Int): DBIO[Option[Role]] = {
+  def findByNameInScope(name: String, scopeId: Int): DBIO[Option[Role]] =
     filter(_.name === name).filter(_.scopeId === scopeId).one
-  }
+
+  def filterByScopeId(ids: Seq[Int], scopeId: Int): QuerySeq =
+    filter(_.id.inSet(ids)).filter(_.scopeId === scopeId)
 }

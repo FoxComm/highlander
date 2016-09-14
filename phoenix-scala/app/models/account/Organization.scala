@@ -48,4 +48,7 @@ object Organizations
   def findByNameInScope(name: String, scopeId: Int): DBIO[Option[Organization]] = {
     filter(_.name === name).filter(_.scopeId === scopeId).one
   }
+
+  def filterByIdAndScope(id: Int, scopeId: Int): QuerySeq =
+    filter(_.id === id).filter(_.scopeId === scopeId)
 }

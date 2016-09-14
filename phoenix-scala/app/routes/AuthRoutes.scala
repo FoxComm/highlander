@@ -6,7 +6,7 @@ import akka.http.scaladsl.server.Directives._
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.auth.Identity
 import payloads.LoginPayload
-import payloads.CustomerPayloads._
+import payloads.UserPayloads._
 import services.Authenticator
 import services.auth.GoogleOauth.oauthServiceFromConfig
 import services.auth.OauthDirectives._
@@ -17,8 +17,8 @@ import utils.aliases._
 
 object AuthRoutes {
 
-  lazy val customerGoogleOauth = oauthServiceFromConfig(Identity.Customer)
-  lazy val adminGoogleOauth    = oauthServiceFromConfig(Identity.Admin)
+  lazy val customerGoogleOauth = oauthServiceFromConfig("customer")
+  lazy val adminGoogleOauth    = oauthServiceFromConfig("admin")
 
   def routes(implicit ec: EC, db: DB) = {
     pathPrefix("public") {

@@ -107,7 +107,8 @@ object CustomerManager {
       _ ← * <~ LogActivity.customerCreated(response, admin)
     } yield response
 
-  def createGuest()(implicit ec: EC, db: DB, ac: AC): DbResultT[(User, CustomerUser)] =
+  def createGuest(context: AccountCreateContext)(implicit ec: EC,
+                                                 db: DB): DbResultT[(User, CustomerUser)] =
     for {
 
       user ← * <~ AccountManager
@@ -116,7 +117,6 @@ object CustomerManager {
       custUser ← * <~ CustomerUsers.create(
                     CustomerUser(accountId = user.accountId, userId = user.id, isGuest = true))
       response = build(newUser)
-      _ ← * <~ LogActivity.customerCreated(response, admin)
     } yield (user, custUser)
 
   def update(accountId: Int, payload: UpdateCustomerPayload, admin: Option[User] = None)(

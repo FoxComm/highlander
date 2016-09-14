@@ -25,14 +25,12 @@ object CustomDirectives {
 
   val DefaultContextName = SimpleContext.default
 
-  def activityContext(user: User, token: UserToken): Directive1[ActivityContext] = {
+  def activityContext(user: User): Directive1[ActivityContext] = {
     optionalHeaderValueByName("x-request-id").map {
       case (Some(uuid)) ⇒
-        ActivityContext(userId = user.accountId, userType = token.userType, transactionId = uuid)
+        ActivityContext(userId = user.accountId, transactionId = uuid)
       case (None) ⇒
-        ActivityContext(userId = user.accountId,
-                        userType = token.userType,
-                        transactionId = generateUuid)
+        ActivityContext(userId = user.accountId, userType = "user", transactionId = generateUuid)
     }
   }
 

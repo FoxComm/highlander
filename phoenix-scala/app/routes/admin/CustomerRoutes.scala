@@ -6,14 +6,17 @@ import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.account.User
 import payloads.AddressPayloads.CreateAddressPayload
 import payloads.CustomerPayloads._
+import payloads.UserPayloads._
 import payloads.PaymentPayloads._
 import services.carts.CartQueries
+import services.account._
 import services.customers._
 import services.{AddressManager, CreditCardManager, CustomerCreditConverter, StoreCreditService}
 import utils.aliases._
 import utils.apis.Apis
 import utils.http.CustomDirectives._
 import utils.http.Http._
+import utils.FoxConfig._
 
 object CustomerRoutes {
 
@@ -23,7 +26,12 @@ object CustomerRoutes {
       pathPrefix("customers") {
         (post & pathEnd & entity(as[CreateCustomerPayload])) { payload ⇒
           mutateOrFailures {
-            CustomerManager.create(payload, Some(admin))
+            val roleName = config.getString(s"user.customer.role")
+            val orgName  = config.getString(s"user.customer.org")
+            val scopeId  = config.getInt(s"user.customer.scope_id")
+
+            val context = AccountCreateContext(List(roleName), orgName, scopeId)
+            CustomerManager.create(payload, Some(admin), context)
           }
         }
       } ~
@@ -36,7 +44,7 @@ object CustomerRoutes {
         (get & path("cart")) {
           determineObjectContext(db, ec) { implicit ctx ⇒
             getOrFailures {
-              CartQueries.findOrCreateCartByCustomerId(accountId, ctx, Some(admin))
+              CartQueries.findOrCreateCartByAccountId(accountId, ctx, Some(admin))
             }
           }
         } ~
@@ -50,12 +58,12 @@ object CustomerRoutes {
             CustomerManager.activate(accountId, payload, admin)
           }
         } ~
-        (post & path("disable") & pathEnd & entity(as[ToggleCustomerDisabled])) { payload ⇒
+        (post & path("disable") & pathEnd & entity(as[ToggleUserDisabled])) { payload ⇒
           mutateOrFailures {
             CustomerManager.toggleDisabled(accountId, payload.disabled, admin)
           }
         } ~
-        (post & path("blacklist") & pathEnd & entity(as[ToggleCustomerBlacklisted])) { payload ⇒
+        (post & path("blacklist") & pathEnd & entity(as[ToggleUserBlacklisted])) { payload ⇒
           mutateOrFailures {
             CustomerManager.toggleBlacklisted(accountId, payload.blacklisted, admin)
           }

@@ -9,7 +9,7 @@ import cats.implicits._
 import failures.CreditCardFailures.CannotUseInactiveCreditCard
 import failures.GiftCardFailures.CreditCardMustHaveAddress
 import failures.{Failures, NotFoundFailure404}
-import models.account.User
+import models.account._
 import models.cord.OrderPayments.scope._
 import models.cord._
 import models.customer._

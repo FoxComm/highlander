@@ -4,7 +4,7 @@ import java.time.Instant
 
 import cats.implicits._
 import failures.NotFoundFailure404
-import models.customer._
+import models.account._
 import models.location.{Address, Addresses}
 import payloads.AddressPayloads._
 import responses.AddressResponse
@@ -52,7 +52,7 @@ object AddressManager {
     for {
       customer ← * <~ Users.mustFindByAccountId(accountId)
       oldAddress ← * <~ Addresses
-                    .findActiveByIdAndCustomer(addressId, accountId)
+                    .findActiveByIdAndAccount(addressId, accountId)
                     .mustFindOneOr(addressNotFound(addressId))
       address ← * <~ Address
                  .fromPayload(payload)
@@ -70,7 +70,7 @@ object AddressManager {
     for {
       customer ← * <~ Users.mustFindByAccountId(accountId)
       address ← * <~ Addresses
-                 .findActiveByIdAndCustomer(addressId, accountId)
+                 .findActiveByIdAndAccount(addressId, accountId)
                  .mustFindOneOr(addressNotFound(addressId))
       softDelete ← * <~ address.copy(deletedAt = Instant.now.some, isDefaultShipping = false)
       updated    ← * <~ Addresses.update(address, softDelete)
@@ -88,7 +88,7 @@ object AddressManager {
            .map(_.isDefaultShipping)
            .update(false)
       address ← * <~ Addresses
-                 .findActiveByIdAndCustomer(addressId, accountId)
+                 .findActiveByIdAndAccount(addressId, accountId)
                  .mustFindOneOr(addressNotFound(addressId))
       newAddress = address.copy(isDefaultShipping = true)
       _        ← * <~ Addresses.update(address, newAddress)
@@ -101,7 +101,7 @@ object AddressManager {
 
   private def findByOriginator(originator: User, addressId: Int, accountId: Int)(implicit ec: EC) =
     Addresses
-      .findActiveByIdAndCustomer(addressId, accountId)
+      .findActiveByIdAndAccount(addressId, accountId)
       .mustFindOneOr(addressNotFound(addressId))
   //MAXDO: Look at originator claims to see if they can get all addresses
   /*
@@ -112,7 +112,7 @@ object AddressManager {
         .mustFindOneOr(addressNotFound(addressId))
     case CustomerOriginator(_) ⇒
       Addresses
-        .findActiveByIdAndCustomer(addressId, accountId)
+        .findActiveByIdAndAccount(addressId, accountId)
         .mustFindOneOr(addressNotFound(addressId))
   }
    */

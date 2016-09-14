@@ -2,7 +2,7 @@ package services.auth
 
 import cats.implicits._
 import libs.oauth.{GoogleOauthOptions, GoogleProvider, Oauth, UserInfo}
-import models.auth.{UserToken, Identity, Token}
+import models.auth.{UserToken, Token}
 import models.account._
 import utils.FoxConfig._
 import utils.aliases._
@@ -33,32 +33,22 @@ class GoogleOauthUser(options: GoogleOauthOptions)
 
   def findByEmail(email: String)(implicit ec: EC, db: DB) = Users.findByEmail(email)
 
-  def createToken(user: User): Token = UserToken.fromUser(user)
+  def createToken(user: User, account: Account): Token = UserToken.fromUserAccount(user, account)
 }
 
 object GoogleOauth {
 
-  def oauthServiceFromConfig(identity: Identity.IdentityKind) = {
-    val configPrefix = identity.toString.toLowerCase
+  def oauthServiceFromConfig(configPrefix: String) = {
 
     val opts = GoogleOauthOptions(
-        roleName = config.getString(s"oauth.$configPrefix.user_role"),
-        orgName = config.getString(s"oauth.$configPrefix.user_org"),
-        scopeId = config.getInt(s"oauth.$configPrefix.scope_id"),
+        roleName = config.getString(s"user.$configPrefix.role"),
+        orgName = config.getString(s"user.$configPrefix.org"),
+        scopeId = config.getInt(s"user.$configPrefix.scope_id"),
         clientId = config.getString(s"oauth.$configPrefix.google.client_id"),
         clientSecret = config.getString(s"oauth.$configPrefix.google.client_secret"),
         redirectUri = config.getString(s"oauth.$configPrefix.google.redirect_uri"),
         hostedDomain = config.getOptString(s"oauth.$configPrefix.google.hosted_domain"))
 
-    identity match {
-      case Identity.Customer ⇒
-        new GoogleOauthUser(opts)
-      case Identity.Admin ⇒
-        new GoogleOauthUser(opts)
-      case Identity.Service ⇒
-        throw new RuntimeException(s"Service Accounts not implemented yet.")
-      case _ ⇒
-        throw new RuntimeException(s"Identity $configPrefix not supported for google oauth.")
-    }
+    new GoogleOauthUser(opts)
   }
 }

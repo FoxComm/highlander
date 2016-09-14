@@ -2,6 +2,7 @@ package services
 
 import failures.NotFoundFailure404
 import failures.ShippingMethodFailures.ShippingMethodNotApplicableToCart
+import models.account._
 import models.cord._
 import models.cord.lineitems.CartLineItems
 import models.inventory.Sku

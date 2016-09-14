@@ -12,17 +12,18 @@ object UserResponse {
                   phoneNumber: Option[String] = None,
                   createdAt: Instant,
                   disabled: Boolean,
-                  blacklisted: Boolean)
+                  isBlacklisted: Boolean)
       extends ResponseItem
 
-  def build(user: User): Root =
-    Root(id = user.id,
+  def build(user: User): Root = {
+    Root(id = user.accountId,
          email = user.email,
          name = user.name,
          phoneNumber = user.phoneNumber,
          createdAt = user.createdAt,
          disabled = user.isDisabled,
-         blacklisted = user.isBlacklisted)
+         isBlacklisted = user.isBlacklisted)
+  }
 
   case class ResetPasswordSendAnswer(status: String)
 

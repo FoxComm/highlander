@@ -3,6 +3,7 @@ package routes
 import akka.http.scaladsl.server.Directives._
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
+import models.account._
 import models.auth.UserToken
 import models.cord.Cord.cordRefNumRegex
 import models.inventory.Sku.skuCodeRegex
@@ -12,8 +13,9 @@ import payloads.CustomerPayloads.UpdateCustomerPayload
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.PaymentPayloads._
 import payloads.UpdateShippingMethod
-import services.Authenticator.{AsyncAuthenticator, requireCustomerAuth}
+import services.Authenticator.{JwtAuthenticator, requireCustomerAuth}
 import services._
+import services.account._
 import services.carts._
 import services.customers.CustomerManager
 import services.product.ProductManager
@@ -23,15 +25,12 @@ import utils.http.CustomDirectives._
 import utils.http.Http._
 
 object Customer {
-  def routes(implicit ec: EC, es: ES, db: DB, customerAuth: AsyncAuthenticator[User], apis: Apis) = {
+  def routes(implicit ec: EC, es: ES, db: DB, auth: JwtAuthenticator, apis: Apis) = {
 
     pathPrefix("my") {
-      requireCustomerAuth(customerAuth) { customer ⇒
+      requireCustomerAuth(auth) { customer ⇒
         activityContext(customer) { implicit ac ⇒
           determineObjectContext(db, ec) { implicit ctx ⇒
-            path("info") {
-              complete(UserToken.fromCustomer(customer))
-            } ~
             pathPrefix("products" / IntNumber / "baked") { productId ⇒
               (get & pathEnd) {
                 getOrFailures {
@@ -42,7 +41,7 @@ object Customer {
             pathPrefix("cart") {
               (get & pathEnd) {
                 getOrFailures {
-                  CartQueries.findOrCreateCartByCustomer(customer, ctx)
+                  CartQueries.findOrCreateCartByAccount(customer, ctx)
                 }
               } ~
               (post & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) {
@@ -165,7 +164,7 @@ object Customer {
             pathPrefix("orders" / cordRefNumRegex) { refNum ⇒
               (get & pathEnd) {
                 getOrFailures {
-                  CartQueries.findOneByCustomer(refNum, customer)
+                  CartQueries.findOneByAccount(refNum, customer)
                 }
               }
             } ~

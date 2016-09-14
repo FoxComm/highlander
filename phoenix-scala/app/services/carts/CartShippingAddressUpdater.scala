@@ -2,6 +2,7 @@ package services.carts
 
 import failures.CartFailures.NoShipAddress
 import failures.NotFoundFailure404
+import models.account._
 import models.cord._
 import models.location.Addresses.scope._
 import models.location._

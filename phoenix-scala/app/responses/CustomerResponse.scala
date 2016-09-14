@@ -50,9 +50,4 @@ object CustomerResponse {
          shippingRegion = shippingRegion,
          lastOrderDays = lastOrderDays)
   }
-
-  case class ResetPasswordSendAnswer(status: String)
-
-  case class ResetPasswordDoneAnswer(status: String)
-
 }

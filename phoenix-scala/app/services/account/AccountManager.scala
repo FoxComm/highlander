@@ -7,8 +7,7 @@ import cats.implicits._
 import failures.NotFoundFailure404
 import failures.UserFailures._
 import models.cord.{OrderShippingAddresses, Orders}
-import models.account.Users.scope._
-import models.account.{User, Users}
+import models.account.{User, Users, Account}
 import models.account.{UserPasswordResets, UserPasswordReset}
 import models.location.Addresses
 import models.shipping.Shipments
@@ -19,7 +18,7 @@ import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
 
-case class AccountCreateContext(roles: List[String], org: String, scopeId: String)
+case class AccountCreateContext(roles: List[String], org: String, scopeId: Int)
 
 object AccountManager {
 
@@ -128,4 +127,16 @@ object AccountManager {
       _    ← * <~ AccountRoles.create(AccountRole(accountId = account.id, roleId = role.id))
     } yield Unit
   }
+
+  def getClaims(accountId: Int, scopeId: Int)(
+      implicit ec: EC): DbResultT[(String, Account.Claims)] =
+    for {
+      scope        ← * <~ Scope.mustFindById404(scopeId)
+      accountRoles ← * <~ AccountRoles.findByAccountId(accountId);
+      roleIds = accountRoles.map(_.roleId)
+      roles           ← * <~ Roles.filterByScopeId(roleIds, scopeId)
+      rolePermissions ← * <~ RolePermissions.findByRoles(roles)
+      permissionIds = rolePermissions.map(_.permissionId)
+      permissions ← * <~ Permissions.filter(_.id.inSet(permissionIds))
+    } yield (scope.path, permissions.groupBy(_.frn).mapValues(_.actions).mapValues(_.flatten))
 }

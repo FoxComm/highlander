@@ -26,4 +26,7 @@ object AccountRoles
     with ReturningId[AccountRole, AccountRoles] {
 
   val returningLens: Lens[AccountRole, Int] = lens[AccountRole].id
+
+  def findByAccountId(accountId: Int): QuerySeq =
+    filter(_.accountId === accountId)
 }
