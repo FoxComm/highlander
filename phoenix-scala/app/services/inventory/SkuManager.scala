@@ -5,10 +5,13 @@ import java.time.Instant
 import cats.data._
 import failures.ProductFailures._
 import failures.{Failures, GeneralFailure, NotFoundFailure400}
+import models.StoreAdmin
 import models.inventory._
 import models.objects._
 import payloads.SkuPayloads._
+import responses.ObjectResponses.ObjectContextResponse
 import responses.SkuResponses._
+import services.LogActivity
 import services.image.ImageManager
 import services.objects.ObjectManager
 import slick.driver.PostgresDriver.api._
@@ -19,13 +22,15 @@ import utils.db._
 object SkuManager {
   implicit val formats = JsonFormatters.DefaultFormats
 
-  def createSku(contextName: String, payload: SkuPayload)(implicit ec: EC,
+  def createSku(admin: StoreAdmin, contextName: String, payload: SkuPayload)(implicit ec: EC,
                                                           db: DB): DbResultT[SkuResponse.Root] =
     for {
       context ← * <~ ObjectManager.mustFindByName404(contextName)
       sku     ← * <~ createSkuInner(context, payload)
       albums  ← * <~ ImageManager.getAlbumsForSkuInner(sku.model.code, context)
-    } yield SkuResponse.build(IlluminatedSku.illuminate(context, sku), albums)
+      response = SkuResponse.build(IlluminatedSku.illuminate(context, sku), albums)
+      _ ← * <~ LogActivity.fullSkuCreated(Some(admin), response, ObjectContextResponse.build(context))
+    } yield response
 
   def getSku(contextName: String, code: String)(implicit ec: EC,
                                                 db: DB): DbResultT[SkuResponse.Root] =
@@ -38,7 +43,7 @@ object SkuManager {
     } yield
       SkuResponse.build(IlluminatedSku.illuminate(context, FullObject(sku, form, shadow)), albums)
 
-  def updateSku(contextName: String, code: String, payload: SkuPayload)(
+  def updateSku(admin: StoreAdmin, contextName: String, code: String, payload: SkuPayload)(
       implicit ec: EC,
       db: DB): DbResultT[SkuResponse.Root] =
     for {
@@ -46,7 +51,9 @@ object SkuManager {
       sku        ← * <~ SkuManager.mustFindSkuByContextAndCode(context.id, code)
       updatedSku ← * <~ updateSkuInner(sku, payload)
       albums     ← * <~ ImageManager.getAlbumsForSkuInner(updatedSku.model.code, context)
-    } yield SkuResponse.build(IlluminatedSku.illuminate(context, updatedSku), albums)
+      response = SkuResponse.build(IlluminatedSku.illuminate(context, updatedSku), albums)
+      _ ← * <~ LogActivity.fullSkuUpdated(Some(admin), response, ObjectContextResponse.build(context))
+    } yield response
 
   def archiveByContextAndId(contextName: String,
                             code: String)(implicit ec: EC, db: DB): DbResultT[SkuResponse.Root] =

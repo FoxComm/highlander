@@ -33,10 +33,11 @@ import utils.aliases._
 import utils.db._
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
+import services.LogActivity
 
 object ProductManager {
 
-  def createProduct(payload: CreateProductPayload)(implicit ec: EC,
+  def createProduct(admin: StoreAdmin, payload: CreateProductPayload)(implicit ec: EC,
                                                    db: DB,
                                                    oc: OC): DbResultT[ProductResponse.Root] = {
 
@@ -58,11 +59,13 @@ object ProductManager {
       variants       ← * <~ findOrCreateVariantsForProduct(product, variantPayloads)
       variantAndSkus ← * <~ getVariantsWithRelatedSkus(variants)
       (variantSkus, variantResponses) = variantAndSkus
-    } yield
-      ProductResponse.build(IlluminatedProduct.illuminate(oc, product, ins.form, ins.shadow),
+      response = ProductResponse.build(IlluminatedProduct.illuminate(oc, product, ins.form, ins.shadow),
                             Seq.empty,
                             if (hasVariants) variantSkus else productSkus,
                             variantResponses)
+      _ ← * <~ LogActivity.fullProductCreated(Some(admin), response, ObjectContextResponse.build(oc))
+    } yield response
+
   }
 
   def getProduct(
@@ -88,7 +91,7 @@ object ProductManager {
           if (hasVariants) variantSkus else productSkus,
           variantResponses)
 
-  def updateProduct(productId: Int, payload: UpdateProductPayload)(
+  def updateProduct(admin: StoreAdmin, productId: Int, payload: UpdateProductPayload)(
       implicit ec: EC,
       db: DB,
       oc: OC): DbResultT[ProductResponse.Root] = {
@@ -123,12 +126,14 @@ object ProductManager {
 
       variantAndSkus ← * <~ getVariantsWithRelatedSkus(variants)
       (variantSkus, variantResponses) = variantAndSkus
-    } yield
-      ProductResponse.build(
+      response = ProductResponse.build(
           IlluminatedProduct.illuminate(oc, updatedHead, updated.form, updated.shadow),
           albums,
           if (hasVariants) variantSkus else updatedSkus,
           variantResponses)
+      _ ← * <~ LogActivity.fullProductUpdated(Some(admin), response, ObjectContextResponse.build(oc))
+    } yield response
+
   }
 
   def archiveByContextAndId(

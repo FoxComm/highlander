@@ -21,7 +21,7 @@ object SkuRoutes {
         pathPrefix(Segment) { context ⇒
           (post & pathEnd & entity(as[SkuPayload])) { payload ⇒
             mutateOrFailures {
-              SkuManager.createSku(context, payload)
+              SkuManager.createSku(admin, context, payload)
             }
           } ~
           pathPrefix(Segment) { code ⇒
@@ -32,7 +32,7 @@ object SkuRoutes {
             } ~
             (patch & pathEnd & entity(as[SkuPayload])) { payload ⇒
               mutateOrFailures {
-                SkuManager.updateSku(context, code, payload)
+                SkuManager.updateSku(admin, context, code, payload)
               }
             } ~
             (delete & pathEnd) {

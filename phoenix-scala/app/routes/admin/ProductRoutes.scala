@@ -24,7 +24,7 @@ object ProductRoutes {
           adminObjectContext(contextName)(db, ec) { implicit context ⇒
             (post & pathEnd & entity(as[CreateProductPayload])) { payload ⇒
               mutateOrFailures {
-                ProductManager.createProduct(payload)
+                ProductManager.createProduct(admin, payload)
               }
             } ~
             pathPrefix(IntNumber) { productId ⇒
@@ -35,7 +35,7 @@ object ProductRoutes {
               } ~
               (patch & pathEnd & entity(as[UpdateProductPayload])) { payload ⇒
                 mutateOrFailures {
-                  ProductManager.updateProduct(productId, payload)
+                  ProductManager.updateProduct(admin, productId, payload)
                 }
               } ~
               (delete & pathEnd) {
