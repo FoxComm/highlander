@@ -1,7 +1,6 @@
 import compact from 'lodash/compact';
 import { createStore, applyMiddleware as clientApplyMiddleware } from 'redux';
 import { routerMiddleware } from 'react-router-redux';
-import { default as serverApplyMiddleware } from 'redux-isomorphic-render';
 import thunk from 'redux-thunk';
 import createLogger from 'redux-logger';
 

@@ -1,7 +1,7 @@
 /* @flow */
 
 import cx from 'classnames';
-import React, { Component } from 'react';
+import React from 'react';
 import { Field, reduxForm } from 'redux-form';
 
 import type { HTMLElement } from '../../core/types';
@@ -9,8 +9,18 @@ import type { HTMLElement } from '../../core/types';
 import styles from './apply-form.css';
 
 type Props = {
-  onSubmit: Function;
+  handleSubmit: Function; // passed by reduxForm
 }
+
+const LIST_AUDIENCE = [
+  'Men', 'Women', 'Both', 'Kids',
+];
+
+const LIST_CATEGORIES = [
+  'Accessories', 'Action', 'Sports', 'Activewear', 'Apparel', 'Beauty', 'Bridal', 'Eyewear',
+  'Grooming', 'Handbags', 'Home', 'Intimates', 'Jeans', 'Jewelry', 'Kids', 'Shoes',
+  'Sleepwear', 'Swimwear', 'Tech', 'Vintage',
+];
 
 const renderInput = ({ input, type, placeholder, meta }) => {
   const hasError = meta.touched && meta.error;
@@ -18,7 +28,24 @@ const renderInput = ({ input, type, placeholder, meta }) => {
   return (
     <div className={cx(styles.field, { [styles.fieldError]: hasError })}>
       <input {...input} placeholder={placeholder} type={type} />
-      {<span className={cx(styles.error, {[styles.errorActive]: hasError})}>{meta.error}</span>}
+      {<span className={cx(styles.error, { [styles.errorActive]: hasError })}>{meta.error}</span>}
+    </div>
+  );
+};
+
+const renderSelect = ({ input, values, label, meta }) => {
+  const hasError = meta.touched && meta.error;
+
+  return (
+    <div className={cx(styles.field, { [styles.fieldError]: hasError })}>
+      {!input.value && <label htmlFor={input.name}>{label}</label>}
+      <select {...input}>
+        <option disabled />
+        {Object.keys(values).map(value =>
+          <option value={value} key={value}>{values[value]}</option>
+        )}
+      </select>
+      {<span className={cx(styles.error, { [styles.errorActive]: hasError })}>{meta.error}</span>}
     </div>
   );
 };
@@ -39,6 +66,16 @@ const validate = values => {
     errors.email = 'Invalid email address';
   }
 
+  const urlRegex = /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/i;
+
+  if (!!values.twitter && !urlRegex.test(values.twitter)) {
+    errors.twitter = 'Invalid URL';
+  }
+
+  if (!!values.url && !urlRegex.test(values.url)) {
+    errors.url = 'Invalid URL';
+  }
+
   return errors;
 };
 
@@ -51,19 +88,16 @@ const ApplyForm = (props: Props): HTMLElement => {
         name="businessName"
         placeholder="Business Name"
         component={renderInput}
-        type="text"
       />
       <Field
         name="phone"
         placeholder="Phone Number"
         component={renderInput}
-        type="tel"
       />
       <Field
         name="email"
         placeholder="Email Address"
         component={renderInput}
-        type="email"
       />
       <Field
         name="monthlySales"
@@ -75,14 +109,25 @@ const ApplyForm = (props: Props): HTMLElement => {
         name="twitter"
         placeholder="Twitter Handle"
         component={renderInput}
-        type="url"
       />
       <Field
         name="url"
         placeholder="Site URL"
         component={renderInput}
-        type="url"
       />
+      <Field
+        name="audience"
+        label="Audience"
+        component={renderSelect}
+        values={LIST_AUDIENCE}
+      />
+      <Field
+        name="category"
+        label="Category"
+        component={renderSelect}
+        values={LIST_CATEGORIES}
+      />
+
       <button type="submit">Submit</button>
     </form>
   );

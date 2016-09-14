@@ -20,7 +20,7 @@ class Site extends Component {
     const img = new Image();
 
     img.onload = function() {
-      setTimeout(() => node.className += ` ${enhancedClass}`, 2000);
+      node.className += ` ${enhancedClass}`;
     };
 
     img.src = '/images/bg.jpg';

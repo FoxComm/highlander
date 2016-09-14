@@ -1,6 +1,6 @@
 /* @flow */
 
-import React, { Component } from 'react';
+import React from 'react';
 
 import Header from '../../components/header/header';
 import ApplyForm from '../../forms/apply-form/apply-form';
@@ -15,6 +15,6 @@ export default (): HTMLElement => (
       title="Apply to Sell"
       legend="Apply a merchant request to become a member of BlaBla."
     />
-    <ApplyForm onSubmit={data => console.log('submitted', data)} />
+    <ApplyForm onSubmit={data => console.info('submitted', data)} />
   </div>
 );
