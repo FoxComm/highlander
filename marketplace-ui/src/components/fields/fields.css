@@ -1,0 +1,83 @@
+input,
+textarea,
+select {
+  width: 100%;
+  line-height: 36px;
+  font-weight: 300;
+  font-size: 16px;
+  padding: 0 15px;
+  margin-bottom: 25px;
+
+  border: none;
+  border-radius: 0;
+  background-color: transparent;
+  border-bottom: 1px solid #ddd;
+
+  transition: border-color .4s;
+
+  appearance: none;
+
+  &:focus,
+  &:active {
+    border-color: #7bb2f1;
+  }
+}
+
+select {
+  height: 36px;
+
+  background-image: linear-gradient(45deg, transparent 50%, #aaa 50%), linear-gradient(135deg, #aaa 50%, transparent 50%);
+  background-position: calc(100% - 10px) calc(1em + 2px), calc(100% - 5px) calc(1em + 2px);
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+
+  transition: border-color .4s, background-image .4s;
+
+  &:focus {
+    background-image: linear-gradient(45deg, transparent 50%, #7bb2f1 50%), linear-gradient(135deg, #7bb2f1 50%, transparent 50%);
+  }
+}
+
+label {
+  position: absolute;
+  top: 8px;
+  left: 15px;
+  color: #aaa;
+  font-weight: 300;
+}
+
+.field {
+  position: relative;
+}
+
+.fieldError {
+  & input {
+    border-color: #db2727;
+  }
+}
+
+.error {
+  position: absolute;
+  display: block;
+  bottom: 8px;
+  font-size: 12px;
+  margin-left: 15px;
+  color: transparent;
+  transition: color .4s;
+}
+
+.errorActive {
+  color: #db2727;
+}
+
+::-webkit-input-placeholder,
+:-moz-placeholder,
+::-moz-placeholder,
+:-ms-input-placeholder {
+  color: #ccc;
+}
+
+input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px white inset;
+}
+

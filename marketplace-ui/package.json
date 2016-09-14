@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "./node_modules/.bin/eslint --ext .js --ext .jsx .",
     "flow": "./node_modules/.bin/flow check",
-    "dev": "PHOENIX_PUBLIC_KEY=./public_key.pem gulp dev",
+    "dev": "API_URL=http://localhost:4000 gulp dev",
     "test": "./node_modules/.bin/mocha"
   },
   "author": "FoxCommerce",
@@ -57,11 +57,12 @@
     "watchify": "^3.7.0"
   },
   "dependencies": {
+    "autosize": "^3.0.17",
+    "axios": "^0.14.0",
     "babel-register": "^6.9.0",
     "classnames": "^2.2.3",
     "core-decorators": "^0.12.3",
     "history": "^4.0.0",
-    "isomorphic-fetch": "^2.2.1",
     "koa": "^1.1.2",
     "koa-favicon": "^1.2.0",
     "koa-onerror": "^2.0.0",

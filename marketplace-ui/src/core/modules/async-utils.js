@@ -54,7 +54,8 @@ export function reducer(state = {}, action) {
 }
 
 function createAsyncAction(namespace, type, payloadReducer) {
-  const description = `${namespace.toUpperCase()}_${type.toUpperCase()}`;
+  const description = `${_.snakeCase(namespace).toUpperCase()}_${type.toUpperCase()}`;
+
   return createAction(description, payloadReducer, () => ({
     kind: 'async',
     namespace,
@@ -71,15 +72,7 @@ export default function createAsyncActions(namespace, asyncCall, payloadReducer)
 
   /* eslint-disable consistent-return */
 
-  // @TODO! think about cancelling request on client side
-  // for example in navigate to product 1, then to 2, then back to 1 and there user will see
-  // not last navigated product, but product for which response will be last
-
-  const perform = (...args) => (dispatch, getState, api) => {
-    const apiContext = {
-      api,
-      dispatch,
-    };
+  const perform = (...args) => dispatch => {
     const handleError = err => {
       const httpStatus = _.get(err, 'response.status');
       if (httpStatus != 404) {
@@ -90,14 +83,14 @@ export default function createAsyncActions(namespace, asyncCall, payloadReducer)
     };
 
     dispatch(started(...args));
-    return asyncCall.call(apiContext, ...args)
-      .then(
-        result => {
-          dispatch(succeeded(result));
-          return result;
-        },
-        handleError
-      ).catch(handleError);
+
+    return asyncCall(...args)
+      .then(result => {
+        dispatch(succeeded(result));
+
+        return result;
+      })
+      .catch(handleError);
   };
 
   const lazyPerform = (...args) => {
@@ -122,7 +115,6 @@ export default function createAsyncActions(namespace, asyncCall, payloadReducer)
   /* eslint-enable consistent-return */
 
   return {
-    fetch: lazyPerform, // for backward compartibility
     perform: lazyPerform,
     started,
     succeeded,

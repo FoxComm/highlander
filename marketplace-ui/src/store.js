@@ -13,6 +13,7 @@ function initLogger(): ?Function {
     duration: true,
     collapsed: true,
     diff: true,
+    predicate: (getState, action) => action.type.indexOf('redux-form/') !== 0
   });
 }
 

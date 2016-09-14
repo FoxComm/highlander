@@ -1,0 +1,76 @@
+import cx from 'classnames';
+import React from 'react';
+import { Field } from 'redux-form';
+
+import styles from './fields.css';
+
+export type FieldConfig = {
+  name: string;
+  type: string;
+  placeholder: string;
+  values?: Array<string>;
+}
+
+const renderInput = ({ input, type, placeholder, meta }) => {
+  const hasError = meta.touched && meta.error;
+
+  return (
+    <div className={cx(styles.field, { [styles.fieldError]: hasError })}>
+      <input {...input} placeholder={placeholder} type={type} />
+      {<span className={cx(styles.error, { [styles.errorActive]: hasError })}>{meta.error}</span>}
+    </div>
+  );
+};
+
+const renderTextarea = ({ input, placeholder, meta }) => {
+  const hasError = meta.touched && meta.error;
+
+  return (
+    <div className={cx(styles.field, { [styles.fieldError]: hasError })}>
+      <textarea {...input} placeholder={placeholder} rows="1" />
+      {<span className={cx(styles.error, { [styles.errorActive]: hasError })}>{meta.error}</span>}
+    </div>
+  );
+};
+
+const renderSelect = ({ input, values, placeholder, meta }) => {
+  const hasError = meta.touched && meta.error;
+
+  return (
+    <div className={cx(styles.field, { [styles.fieldError]: hasError })}>
+      {!input.value && <label htmlFor={input.name}>{placeholder}</label>}
+      <select {...input}>
+        <option disabled />
+        {Object.keys(values).map(value =>
+          <option value={value} key={value}>{values[value]}</option>
+        )}
+      </select>
+      {<span className={cx(styles.error, { [styles.errorActive]: hasError })}>{meta.error}</span>}
+    </div>
+  );
+};
+
+export default (field: FieldConfig) => {
+  let renderField = renderInput;
+
+  switch (field.type) {
+    case 'select':
+      renderField = renderSelect;
+      break;
+    case 'textarea':
+      renderField = renderTextarea;
+      break;
+    case 'text':
+    case 'number':
+    default:
+      renderField = renderInput;
+  }
+
+  return (
+    <Field
+      {...field}
+      component={renderField}
+      key={field.name}
+    />
+  );
+};
