@@ -1,4 +1,7 @@
 build:
 	lein uberjar
 
-.PHONY: build
+test:
+	true
+
+.PHONY: build test
