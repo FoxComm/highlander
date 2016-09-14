@@ -22,7 +22,7 @@ import org.json4s.jackson.Serialization._
 import org.json4s.ext._
 import com.pellucid.sealerate
 import failures.AvalaraFailures._
-import models.cord.{Cart, OrderShippingAddresses}
+import models.cord._
 import models.cord.lineitems.CartLineItems.FindLineItemResult
 import models.location._
 import services.Result
@@ -46,6 +46,7 @@ trait AvalaraApi {
                      address: Address,
                      region: Region,
                      country: Country)(implicit ec: EC): Result[Int]
+  def cancelTax(order: Order)(implicit ec: EC): Result[Unit]
 
 }
 
@@ -88,6 +89,17 @@ object Avalara {
 
   object DocType extends AvalaraADT[DocType] {
     def types = sealerate.values[DocType]
+  }
+
+  sealed trait CancelCode
+  case object Unspecified         extends CancelCode
+  case object PostFailed          extends CancelCode
+  case object DocDeleted          extends CancelCode
+  case object DocVoided           extends CancelCode
+  case object AdjustmentCancelled extends CancelCode
+
+  object CancelCode extends AvalaraADT[CancelCode] {
+    def types = sealerate.values[CancelCode]
   }
 
   case class AvalaraAddress(
@@ -175,6 +187,10 @@ object Avalara {
           DocType = SalesOrder
       )
     }
+
+    def cancelOrder(cord: Order)(implicit formats: Formats): Requests.CancelTax = {
+      Requests.CancelTax(DocCode = cord.referenceNumber)
+    }
   }
 
   object Requests {
@@ -213,6 +229,12 @@ object Avalara {
         DocCode: String,
         Commit: Boolean = false,
         DocType: DocType
+    )
+
+    case class CancelTax(
+        DocType: DocType = SalesInvoice,
+        CancelCode: CancelCode = DocDeleted,
+        DocCode: String
     )
   }
 
@@ -302,6 +324,13 @@ object Avalara {
         ResultCode: SeverityLevel,
         Messages: Seq[Message]
     ) extends AvalaraResponse
+
+    case class CancelTax(
+        ResultCode: SeverityLevel,
+        TransactionId: Option[String],
+        DocId: Option[String],
+        Messages: Seq[Message]
+    ) extends AvalaraResponse
   }
 }
 
@@ -382,6 +411,36 @@ class Avalara(url: String, account: String, license: String, profile: String)(
     val payload = PayloadBuilder.buildInvoice(cart, lineItems, address, region, country)
     println(write(payload))
     getTax(payload)
+  }
+
+  override def cancelTax(order: Order)(implicit ec: EC): Result[Unit] = {
+    val connectionFlow: Flow[HttpRequest, HttpResponse, Future[Http.OutgoingConnection]] =
+      Http().outgoingConnectionHttps(url)
+    val headers: ImmutableSeq[HttpHeader] = ImmutableSeq(
+        Authorization(BasicHttpCredentials(account, license)))
+
+    val payload = PayloadBuilder.cancelOrder(order)
+
+    val result: Future[Avalara.Responses.CancelTax] = Source
+      .single(
+          HttpRequest(uri = "/1.0/tax/cancel",
+                      method = HttpMethods.POST,
+                      headers = headers,
+                      entity = HttpEntity(write(payload))))
+      .via(connectionFlow)
+      .mapAsync(1)(response ⇒ Unmarshal(response).to[Avalara.Responses.CancelTax])
+      .runWith(Sink.head)
+
+    result.flatMap { res ⇒
+      if (!res.hasError) {
+        Result.unit
+      } else {
+        val message = res.collectMessages
+        Result.failure(TaxCancellationFailure(message))
+      }
+    }.recoverWith {
+      case err: Throwable ⇒ failureHandler(err)
+    }
   }
 
   private def getTax(payload: Avalara.Requests.GetTaxes)(implicit ec: EC): Result[Int] = {

@@ -7,7 +7,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import com.stripe.model.DeletedCard
 import org.mockito.ArgumentMatcher
 import com.stripe.model.{DeletedExternalAccount, ExternalAccount}
-import models.cord.Cart
+import models.cord._
 import models.cord.lineitems.CartLineItems.FindLineItemResult
 import models.location._
 import org.mockito.ArgumentMatchers._
@@ -102,6 +102,7 @@ trait MockedApis extends MockitoSugar {
                               any[Address],
                               any[Region],
                               any[Country])(any[EC])).thenReturn(Result.good(5))
+    when(mocked.cancelTax(any[Order])(any[EC])).thenReturn(Result.unit)
     mocked
   }
 

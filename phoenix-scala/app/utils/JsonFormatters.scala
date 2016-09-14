@@ -45,5 +45,5 @@ object JsonFormatters {
 
   val avalaraFormats = DefaultFormats + Avalara.Responses.SeverityLevel.jsonFormat +
       Avalara.DocType.jsonFormat + Avalara.DetailLevel.jsonFormat +
-      Avalara.AddressType.jsonFormat
+      Avalara.AddressType.jsonFormat + Avalara.CancelCode.jsonFormat
 }
