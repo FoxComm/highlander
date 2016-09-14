@@ -37,9 +37,11 @@ import services.LogActivity
 
 object ProductManager {
 
-  def createProduct(admin: StoreAdmin, payload: CreateProductPayload)(implicit ec: EC,
-                                                   db: DB,
-                                                   oc: OC): DbResultT[ProductResponse.Root] = {
+  def createProduct(admin: StoreAdmin, payload: CreateProductPayload)(
+      implicit ec: EC,
+      db: DB,
+      ac: AC,
+      oc: OC): DbResultT[ProductResponse.Root] = {
 
     val form            = ObjectForm.fromPayload(Product.kind, payload.attributes)
     val shadow          = ObjectShadow.fromPayload(payload.attributes)
@@ -59,11 +61,13 @@ object ProductManager {
       variants       ← * <~ findOrCreateVariantsForProduct(product, variantPayloads)
       variantAndSkus ← * <~ getVariantsWithRelatedSkus(variants)
       (variantSkus, variantResponses) = variantAndSkus
-      response = ProductResponse.build(IlluminatedProduct.illuminate(oc, product, ins.form, ins.shadow),
-                            Seq.empty,
-                            if (hasVariants) variantSkus else productSkus,
-                            variantResponses)
-      _ ← * <~ LogActivity.fullProductCreated(Some(admin), response, ObjectContextResponse.build(oc))
+      response = ProductResponse.build(
+          IlluminatedProduct.illuminate(oc, product, ins.form, ins.shadow),
+          Seq.empty,
+          if (hasVariants) variantSkus else productSkus,
+          variantResponses)
+      _ ← * <~ LogActivity
+           .fullProductCreated(Some(admin), response, ObjectContextResponse.build(oc))
     } yield response
 
   }
@@ -94,6 +98,7 @@ object ProductManager {
   def updateProduct(admin: StoreAdmin, productId: Int, payload: UpdateProductPayload)(
       implicit ec: EC,
       db: DB,
+      ac: AC,
       oc: OC): DbResultT[ProductResponse.Root] = {
 
     val newFormAttrs   = ObjectForm.fromPayload(Product.kind, payload.attributes).attributes
@@ -131,7 +136,8 @@ object ProductManager {
           albums,
           if (hasVariants) variantSkus else updatedSkus,
           variantResponses)
-      _ ← * <~ LogActivity.fullProductUpdated(Some(admin), response, ObjectContextResponse.build(oc))
+      _ ← * <~ LogActivity
+           .fullProductUpdated(Some(admin), response, ObjectContextResponse.build(oc))
     } yield response
 
   }
@@ -213,7 +219,7 @@ object ProductManager {
     for {
       variantValueSkuCodes ← * <~ VariantManager.getVariantValueSkuCodes(variantValueIds)
       variantValueSkuCodesSet = variantValueSkuCodes.values.toSeq.flatten.distinct
-      variantSkus ← * <~ variantValueSkuCodesSet.map(skuCode ⇒ SkuManager.getSku(oc.name, skuCode))
+      variantSkus ← * <~ variantValueSkuCodesSet.map(skuCode ⇒ SkuManager.getSku(skuCode))
       illuminated = variants.map {
         case (fullVariant, values) ⇒
           val variant = IlluminatedVariant.illuminate(oc, fullVariant)

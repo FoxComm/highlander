@@ -18,37 +18,39 @@ object SkuRoutes {
 
     activityContext(admin) { implicit ac ⇒
       pathPrefix("skus") {
-        pathPrefix(Segment) { context ⇒
-          (post & pathEnd & entity(as[SkuPayload])) { payload ⇒
-            mutateOrFailures {
-              SkuManager.createSku(admin, context, payload)
-            }
-          } ~
-          pathPrefix(Segment) { code ⇒
-            (get & pathEnd) {
-              getOrFailures {
-                SkuManager.getSku(context, code)
-              }
-            } ~
-            (patch & pathEnd & entity(as[SkuPayload])) { payload ⇒
+        pathPrefix(Segment) { contextName ⇒
+          adminObjectContext(contextName)(db, ec) { implicit context ⇒
+            (post & pathEnd & entity(as[SkuPayload])) { payload ⇒
               mutateOrFailures {
-                SkuManager.updateSku(admin, context, code, payload)
+                SkuManager.createSku(admin, payload)
               }
             } ~
-            (delete & pathEnd) {
-              mutateOrFailures {
-                SkuManager.archiveByContextAndId(context, code)
-              }
-            } ~
-            pathPrefix("albums") {
+            pathPrefix(Segment) { code ⇒
               (get & pathEnd) {
                 getOrFailures {
-                  ImageManager.getAlbumsForSku(code, context)
+                  SkuManager.getSku(code)
                 }
               } ~
-              (post & pathEnd & entity(as[CreateAlbumPayload])) { payload ⇒
+              (patch & pathEnd & entity(as[SkuPayload])) { payload ⇒
                 mutateOrFailures {
-                  ImageManager.createAlbumForSku(admin, code, payload, context)
+                  SkuManager.updateSku(admin, code, payload)
+                }
+              } ~
+              (delete & pathEnd) {
+                mutateOrFailures {
+                  SkuManager.archiveById(code)
+                }
+              } ~
+              pathPrefix("albums") {
+                (get & pathEnd) {
+                  getOrFailures {
+                    ImageManager.getAlbumsForSku(code)
+                  }
+                } ~
+                (post & pathEnd & entity(as[CreateAlbumPayload])) { payload ⇒
+                  mutateOrFailures {
+                    ImageManager.createAlbumForSku(admin, code, payload)
+                  }
                 }
               }
             }

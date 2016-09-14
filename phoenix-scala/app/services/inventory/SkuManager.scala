@@ -22,45 +22,40 @@ import utils.db._
 object SkuManager {
   implicit val formats = JsonFormatters.DefaultFormats
 
-  def createSku(admin: StoreAdmin, contextName: String, payload: SkuPayload)(implicit ec: EC,
-                                                          db: DB): DbResultT[SkuResponse.Root] =
+  def createSku(
+      admin: StoreAdmin,
+      payload: SkuPayload)(implicit ec: EC, db: DB, ac: AC, oc: OC): DbResultT[SkuResponse.Root] =
     for {
-      context ← * <~ ObjectManager.mustFindByName404(contextName)
-      sku     ← * <~ createSkuInner(context, payload)
-      albums  ← * <~ ImageManager.getAlbumsForSkuInner(sku.model.code, context)
-      response = SkuResponse.build(IlluminatedSku.illuminate(context, sku), albums)
-      _ ← * <~ LogActivity.fullSkuCreated(Some(admin), response, ObjectContextResponse.build(context))
+      sku    ← * <~ createSkuInner(oc, payload)
+      albums ← * <~ ImageManager.getAlbumsForSkuInner(sku.model.code, oc)
+      response = SkuResponse.build(IlluminatedSku.illuminate(oc, sku), albums)
+      _ ← * <~ LogActivity.fullSkuCreated(Some(admin), response, ObjectContextResponse.build(oc))
     } yield response
 
-  def getSku(contextName: String, code: String)(implicit ec: EC,
-                                                db: DB): DbResultT[SkuResponse.Root] =
+  def getSku(code: String)(implicit ec: EC, db: DB, oc: OC): DbResultT[SkuResponse.Root] =
     for {
-      context ← * <~ ObjectManager.mustFindByName404(contextName)
-      sku     ← * <~ SkuManager.mustFindSkuByContextAndCode(context.id, code)
-      form    ← * <~ ObjectForms.mustFindById404(sku.formId)
-      shadow  ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
-      albums  ← * <~ ImageManager.getAlbumsForSkuInner(sku.code, context)
-    } yield
-      SkuResponse.build(IlluminatedSku.illuminate(context, FullObject(sku, form, shadow)), albums)
+      sku    ← * <~ SkuManager.mustFindSkuByContextAndCode(oc.id, code)
+      form   ← * <~ ObjectForms.mustFindById404(sku.formId)
+      shadow ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
+      albums ← * <~ ImageManager.getAlbumsForSkuInner(sku.code, oc)
+    } yield SkuResponse.build(IlluminatedSku.illuminate(oc, FullObject(sku, form, shadow)), albums)
 
-  def updateSku(admin: StoreAdmin, contextName: String, code: String, payload: SkuPayload)(
-      implicit ec: EC,
-      db: DB): DbResultT[SkuResponse.Root] =
+  def updateSku(
+      admin: StoreAdmin,
+      code: String,
+      payload: SkuPayload)(implicit ec: EC, db: DB, ac: AC, oc: OC): DbResultT[SkuResponse.Root] =
     for {
-      context    ← * <~ ObjectManager.mustFindByName404(contextName)
-      sku        ← * <~ SkuManager.mustFindSkuByContextAndCode(context.id, code)
+      sku        ← * <~ SkuManager.mustFindSkuByContextAndCode(oc.id, code)
       updatedSku ← * <~ updateSkuInner(sku, payload)
-      albums     ← * <~ ImageManager.getAlbumsForSkuInner(updatedSku.model.code, context)
-      response = SkuResponse.build(IlluminatedSku.illuminate(context, updatedSku), albums)
-      _ ← * <~ LogActivity.fullSkuUpdated(Some(admin), response, ObjectContextResponse.build(context))
+      albums     ← * <~ ImageManager.getAlbumsForSkuInner(updatedSku.model.code, oc)
+      response = SkuResponse.build(IlluminatedSku.illuminate(oc, updatedSku), albums)
+      _ ← * <~ LogActivity.fullSkuUpdated(Some(admin), response, ObjectContextResponse.build(oc))
     } yield response
 
-  def archiveByContextAndId(contextName: String,
-                            code: String)(implicit ec: EC, db: DB): DbResultT[SkuResponse.Root] =
+  def archiveById(code: String)(implicit ec: EC, db: DB, oc: OC): DbResultT[SkuResponse.Root] =
     for {
-      context ← * <~ ObjectManager.mustFindByName404(contextName)
       fullSku ← * <~ ObjectManager.getFullObject(
-                   SkuManager.mustFindSkuByContextAndCode(context.id, code))
+                   SkuManager.mustFindSkuByContextAndCode(oc.id, code))
       archivedSku ← * <~ Skus.update(fullSku.model,
                                      fullSku.model.copy(archivedAt = Some(Instant.now)))
       albumLinks ← * <~ SkuAlbumLinks.filter(_.leftId === archivedSku.id).result
@@ -69,7 +64,7 @@ object SkuManager {
                                     DbResultT.unit,
                                     id ⇒ NotFoundFailure400(SkuAlbumLinks, id))
          }
-      albums       ← * <~ ImageManager.getAlbumsForSkuInner(archivedSku.code, context)
+      albums       ← * <~ ImageManager.getAlbumsForSkuInner(archivedSku.code, oc)
       productLinks ← * <~ ProductSkuLinks.filter(_.rightId === archivedSku.id).result
       _ ← * <~ productLinks.map { link ⇒
            SkuAlbumLinks.deleteById(link.id,
@@ -79,7 +74,7 @@ object SkuManager {
     } yield
       SkuResponse.build(
           IlluminatedSku.illuminate(
-              context,
+              oc,
               FullObject(model = archivedSku, form = fullSku.form, shadow = fullSku.shadow)),
           albums)
 
