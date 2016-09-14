@@ -39,7 +39,6 @@ object AddressManager {
     for {
       customer ← * <~ Customers.mustFindById404(customerId)
       address  ← * <~ Addresses.create(Address.fromPayload(payload, customerId))
-      _        ← * <~ TaxesService.saveAddressValidationDetails(address)
       response ← * <~ AddressResponse.fromAddress(address)
       _        ← * <~ LogActivity.addressCreated(originator, customer, response)
     } yield response

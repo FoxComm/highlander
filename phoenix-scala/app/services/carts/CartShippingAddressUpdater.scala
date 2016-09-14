@@ -42,7 +42,6 @@ object CartShippingAddressUpdater {
       _           ← * <~ address.mustBelongToAccount(cart.accountId)
       shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(address, cart.refNum)
       region      ← * <~ Regions.mustFindById404(shipAddress.regionId)
-      _           ← * <~ TaxesService.saveAddressValidationDetails(shipAddress)
       tax         ← * <~ TaxesService.getTaxRate(cart)
       updatedCart ← * <~ CartTotaler.saveTotals(cart, tax)
       validated   ← * <~ CartValidator(updatedCart).validate()
@@ -66,7 +65,6 @@ object CartShippingAddressUpdater {
       _           ← * <~ OrderShippingAddresses.findByOrderRef(cart.refNum).delete
       shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(newAddress, cart.refNum)
       region      ← * <~ Regions.mustFindById404(shipAddress.regionId)
-      _           ← * <~ TaxesService.saveAddressValidationDetails(shipAddress)
       tax         ← * <~ TaxesService.getTaxRate(cart)
       updatedCart ← * <~ CartTotaler.saveTotals(cart, tax)
       validated   ← * <~ CartValidator(updatedCart).validate()
@@ -90,7 +88,6 @@ object CartShippingAddressUpdater {
       patch = OrderShippingAddress.fromPatchPayload(shipAddress, payload)
       updatedAddress ← * <~ OrderShippingAddresses.update(shipAddress, patch)
       region         ← * <~ Regions.mustFindById404(shipAddress.regionId)
-      _              ← * <~ TaxesService.saveAddressValidationDetails(updatedAddress)
       tax            ← * <~ TaxesService.getTaxRate(cart)
       updatedCart    ← * <~ CartTotaler.saveTotals(cart, tax)
       validated      ← * <~ CartValidator(updatedCart).validate()
