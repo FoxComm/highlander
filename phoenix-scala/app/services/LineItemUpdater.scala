@@ -161,35 +161,14 @@ object LineItemUpdater {
   }
 
   private def doUpdateLineItems(skuId: Int, newQuantity: Int, cordRef: String)(
-      implicit ec: EC): DbResultT[Seq[CartLineItem]] = {
-
-    val allRelatedLineItems = CartLineItems.byCordRef(cordRef).filter(_.skuId === skuId)
-
-    val counts = allRelatedLineItems.size.result.toXor
-
-    counts.flatMap { (current: Int) ⇒
-      // we're using absolute values from payload, so if newQuantity is greater then create N items
-      if (newQuantity > current) {
-        val itemsToInsert: List[CartLineItem] =
-          List.fill(newQuantity - current)(CartLineItem(cordRef = cordRef, skuId = skuId))
-        CartLineItems.createAll(itemsToInsert).ignoreResult
-      } else if (current - newQuantity > 0) {
-
-        // otherwise delete N items
-        val queries = for {
-          deleteLi ← allRelatedLineItems
-                      .filter(_.id in allRelatedLineItems.take(current - newQuantity).map(_.id))
-                      .delete
-        } yield ()
-
-        DbResultT.fromDbio(queries)
-      } else {
-        DbResultT.unit
-      }
-    }.flatMap { _ ⇒
-      DbResultT.fromDbio(CartLineItems.byCordRef(cordRef).result)
-    }
-  }
+      implicit ec: EC): DbResultT[Seq[CartLineItem]] =
+    for {
+      current ← * <~ CartLineItems.byCordRef(cordRef).filter(_.skuId === skuId).size.result
+      _ ← * <~ (if (newQuantity > current)
+                  increaseLineItems(skuId, newQuantity - current, cordRef)
+                else decreaseLineItems(skuId, current - newQuantity, cordRef))
+      lineItems ← * <~ CartLineItems.byCordRef(cordRef).result
+    } yield lineItems
 
   private def increaseLineItems(skuId: Int, delta: Int, cordRef: String)(
       implicit ec: EC): DbResultT[Unit] = {
