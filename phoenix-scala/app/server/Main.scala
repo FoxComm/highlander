@@ -14,7 +14,7 @@ import akka.http.scaladsl.server._
 import akka.stream.ActorMaterializer
 
 import com.stripe.Stripe
-import com.typesafe.config.{Config, ConfigException}
+import com.typesafe.config.Config
 import com.typesafe.scalalogging.LazyLogging
 import models.StoreAdmin
 import models.customer.Customer
@@ -39,7 +39,7 @@ object Main extends App with LazyLogging {
 
   try {
     service.performSelfCheck()
-    service.loadStripeApiKey()
+    service.setupStripe()
     service.bind()
     service.setupRemorseTimers()
 
@@ -78,7 +78,7 @@ class Service(systemOverride: Option[ActorSystem] = None,
   val logger = Logging(system, getClass)
 
   implicit val db: Database         = dbOverride.getOrElse(Database.forConfig("db", config))
-  lazy val defaultApis: Apis        = Apis(new WiredStripeApi, new AmazonS3, setupMiddlewarehouse())
+  lazy val defaultApis: Apis        = Apis(setupStripe(), new AmazonS3, setupMiddlewarehouse())
   implicit val apis: Apis           = apisOverride.getOrElse(defaultApis: Apis)
   implicit val es: ElasticsearchApi = esOverride.getOrElse(ElasticsearchApi.fromConfig(config))
 
@@ -176,10 +176,11 @@ class Service(systemOverride: Option[ActorSystem] = None,
     logger.info("Self check complete")
   }
 
-  def loadStripeApiKey(): Unit = {
+  def setupStripe(): FoxStripe = {
     logger.info("Loading Stripe API key")
     Stripe.apiKey = config.getString("stripe.key")
     logger.info("Successfully set Stripe key")
+    new FoxStripe(new StripeWrapper())
   }
 
   def setupMiddlewarehouse(): Middlewarehouse = {

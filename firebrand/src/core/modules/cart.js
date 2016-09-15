@@ -8,6 +8,8 @@ export const toggleCart = createAction('TOGGLE_CART');
 export const hideCart = createAction('HIDE_CART');
 export const updateCart = createAction('UPDATE_CART');
 export const selectShippingMethod = createAction('CART_SET_SHIPPING_METHOD');
+export const selectCreditCard = createAction('CART_SET_CREDIT_CARD');
+export const resetCreditCard = createAction('CART_RESET_CREDIT_CARD');
 export const resetCart = createAction('RESET_CART');
 
 export type ProductInCart = {
@@ -39,18 +41,13 @@ type FormData = {
 
 // reduce SKU list
 function collectLineItems(skus) {
-  const uniqueSkus = {};
-  const items = _.transform(skus, (result, lineItem) => {
-    const sku = lineItem.sku;
-    if (_.isNumber(uniqueSkus[sku])) {
-      const qty = result[uniqueSkus[sku]].quantity += 1; // eslint-disable-line no-param-reassign
-      result[uniqueSkus[sku]].totalPrice = lineItem.price * qty; // eslint-disable-line no-param-reassign
-    } else {
-      uniqueSkus[sku] = result.length;
-      result.push({ ...lineItem, quantity: 1 });
-    }
+  return _.map(skus, (s) => {
+    const totalPrice = s.quantity * s.price;
+    return {
+      ...s,
+      totalPrice,
+    };
   });
-  return items;
 }
 
 // get line items from response
@@ -125,9 +122,15 @@ const initialState: FormData = {
   },
 };
 
+function totalSkuQuantity(cart) {
+  return _.reduce(cart.lineItems.skus, (sum, sku) => {
+    return sum + sku.quantity;
+  }, 0);
+}
+
 function updateCartState(state, cart) {
   const data = getLineItems(cart);
-  const quantity = cart.lineItems.skus.length;
+  const quantity = totalSkuQuantity(cart);
 
   return {
     ...state,
@@ -153,7 +156,7 @@ const reducer = createReducer({
   },
   [changeCartActions.succeeded]: (state, { result }) => {
     const data = getLineItems(result);
-    const quantity = result.lineItems.skus.length;
+    const quantity = totalSkuQuantity(result);
     const totals = _.get(result, ['totals'], {});
     return {
       ...state,
@@ -168,6 +171,18 @@ const reducer = createReducer({
     return {
       ...state,
       shippingMethod,
+    };
+  },
+  [selectCreditCard]: (state, creditCard) => {
+    return {
+      ...state,
+      creditCard,
+    };
+  },
+  [resetCreditCard]: (state) => {
+    return {
+      ...state,
+      creditCard: null,
     };
   },
   [resetCart]: () => {

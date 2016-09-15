@@ -10,6 +10,7 @@ import (
 	"net/http"
 
 	"github.com/FoxComm/metamorphosis"
+	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
 )
 
 const (
@@ -34,12 +35,12 @@ func NewOrderHandler(mwhURL string) (*OrderHandler, error) {
 // fulfillment started. If it finds one, it sends to middlewarehouse to create
 // a shipment. Returning an error will cause a panic.
 func (o OrderHandler) Handler(message metamorphosis.AvroMessage) error {
-	activity, err := NewActivityFromAvro(message)
+	activity, err := activities.NewActivityFromAvro(message)
 	if err != nil {
 		return fmt.Errorf("Unable to decode Avro message with error %s", err.Error())
 	}
 
-	if activity.Type != activityOrderStateChanged {
+	if activity.Type() != activityOrderStateChanged {
 		return nil
 	}
 

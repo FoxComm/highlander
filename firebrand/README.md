@@ -29,6 +29,14 @@ Demo storefront implementation of a FoxCommerce-powered store. Isomorphic React 
 
   `npm run dev-local` — backend API at `http://localhost:9090`
 
+1. Set Stripe.js publishable key.
+In order to checkout to work you should set Stripe key by exporting `STRIPE_PUBLISHABLE_KEY` variable, or setting it in your `.env` file if you're using foreman, or run dev command with it:
+
+  `export STRIPE_PUBLISHABLE_KEY=pk_test_r6t0niqmG9OOZhhaSkacUUU1`
+
+  `STRIPE_PUBLISHABLE_KEY=pk_test_r6t0niqmG9OOZhhaSkacUUU1 npm run dev`
+
+
 1. Develop it at http://localhost:4040/
 
 
@@ -37,7 +45,7 @@ You can set the backend API URL as a shell variable `API_URL`.
 For example, to hit staging:
 
 ```
-export API_URL=http://10.240.0.8:9090
+export API_URL=http://10.240.0.8
 ```
 then run
 

@@ -4,7 +4,6 @@ import _ from 'lodash';
 import React, { Component, Element } from 'react';
 import ReactDOM from 'react-dom';
 import classNames from 'classnames';
-import flatMap from 'lib/flatMap';
 import { isElementInViewport } from 'lib/dom-utils';
 import { autobind } from 'core-decorators';
 
@@ -143,7 +142,7 @@ export default class Table extends Component {
 
     const renderRow = props.renderRow || this.defaultRenderRow;
 
-    const rows = flatMap(this.rows, ((row, index) => {
+    const rows = _.flatMap(this.rows, ((row, index) => {
       const isNew = props.detectNewRows &&
         props.predicate &&
         (this.state.newIds.indexOf(String(props.predicate(row))) != -1);

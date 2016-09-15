@@ -58,15 +58,17 @@ func (suite *ShipmentRepositoryTestSuite) TearDownSuite() {
 	suite.db.Close()
 }
 
-func (suite *ShipmentRepositoryTestSuite) Test_GetShipmentsByReferenceNumber_Found_ReturnsShipmentModels() {
+func (suite *ShipmentRepositoryTestSuite) Test_GetShipmentsByOrderRefNum_Found_ReturnsShipmentModels() {
 	//arrange
-	shipment1 := fixtures.GetShipment(1, "BR10005", suite.shippingMethod.ID, suite.shippingMethod, suite.address.ID, suite.address, nil)
+	shipment1 := fixtures.GetShipment(1, "BR10005", suite.shippingMethod.Code, suite.shippingMethod, suite.address.ID, suite.address, nil)
+	shipment1.ReferenceNumber = "FS10002"
 	suite.Nil(suite.db.Create(shipment1).Error)
-	shipment2 := fixtures.GetShipment(2, "BR10005", suite.shippingMethod.ID, suite.shippingMethod, suite.address.ID, suite.address, nil)
+	shipment2 := fixtures.GetShipment(2, "BR10005", suite.shippingMethod.Code, suite.shippingMethod, suite.address.ID, suite.address, nil)
+	shipment2.ReferenceNumber = "FS10003"
 	suite.Nil(suite.db.Create(shipment2).Error)
 
 	//act
-	shipments, err := suite.repository.GetShipmentsByReferenceNumber(shipment1.ReferenceNumber)
+	shipments, err := suite.repository.GetShipmentsByOrder(shipment1.OrderRefNum)
 
 	//assert
 	suite.Nil(err)
@@ -87,7 +89,7 @@ func (suite *ShipmentRepositoryTestSuite) Test_GetShipmentByID_NotFound_ReturnsN
 
 func (suite *ShipmentRepositoryTestSuite) Test_GetShipmentByID_Found_ReturnsShipmentModel() {
 	//arrange
-	shipment1 := fixtures.GetShipment(1, "BR10005", suite.shippingMethod.ID, suite.shippingMethod, suite.address.ID, suite.address, []models.ShipmentLineItem{})
+	shipment1 := fixtures.GetShipment(1, "BR10005", suite.shippingMethod.Code, suite.shippingMethod, suite.address.ID, suite.address, []models.ShipmentLineItem{})
 	suite.Nil(suite.db.Create(shipment1).Error)
 
 	//act
@@ -101,10 +103,10 @@ func (suite *ShipmentRepositoryTestSuite) Test_GetShipmentByID_Found_ReturnsShip
 
 func (suite *ShipmentRepositoryTestSuite) Test_CreateShipment_ReturnsCreatedRecord() {
 	//arrange
-	shipment1 := fixtures.GetShipment(1, "BR10005", suite.shippingMethod.ID, suite.shippingMethod, suite.address.ID, suite.address, []models.ShipmentLineItem{})
+	shipment1 := fixtures.GetShipment(1, "BR10005", suite.shippingMethod.Code, suite.shippingMethod, suite.address.ID, suite.address, []models.ShipmentLineItem{})
 
 	//act
-	shipment, err := suite.repository.CreateShipment(fixtures.GetShipment(0, "BR10005", suite.shippingMethod.ID, suite.shippingMethod, suite.address.ID, suite.address, []models.ShipmentLineItem{}))
+	shipment, err := suite.repository.CreateShipment(fixtures.GetShipment(0, "BR10005", suite.shippingMethod.Code, suite.shippingMethod, suite.address.ID, suite.address, []models.ShipmentLineItem{}))
 
 	//assert
 	suite.Nil(err)
@@ -125,7 +127,7 @@ func (suite *ShipmentRepositoryTestSuite) Test_UpdateShipment_NotFound_ReturnsNo
 
 func (suite *ShipmentRepositoryTestSuite) Test_UpdateShipment_Found_ReturnsUpdatedRecord() {
 	//arrange
-	shipment1 := fixtures.GetShipment(1, "BR10005", suite.shippingMethod.ID, suite.shippingMethod, suite.address.ID, suite.address, []models.ShipmentLineItem{})
+	shipment1 := fixtures.GetShipment(1, "BR10005", suite.shippingMethod.Code, suite.shippingMethod, suite.address.ID, suite.address, []models.ShipmentLineItem{})
 	suite.Nil(suite.db.Create(shipment1).Error)
 	shipment1.State = models.ShipmentStateDelivered
 
@@ -148,7 +150,7 @@ func (suite *ShipmentRepositoryTestSuite) Test_DeleteShipment_NotFound_ReturnsNo
 
 func (suite *ShipmentRepositoryTestSuite) Test_DeleteShipment_Found_ReturnsNoError() {
 	//arrange
-	shipment1 := fixtures.GetShipment(1, "BR10005", suite.shippingMethod.ID, suite.shippingMethod, suite.address.ID, suite.address, []models.ShipmentLineItem{})
+	shipment1 := fixtures.GetShipment(1, "BR10005", suite.shippingMethod.Code, suite.shippingMethod, suite.address.ID, suite.address, []models.ShipmentLineItem{})
 	suite.Nil(suite.db.Create(shipment1).Error)
 
 	//act

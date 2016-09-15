@@ -13,14 +13,14 @@
 + address (required, Address) - Billing address.
 
 ### CreditCardCreatePayload
-+ holderName: `John Smith` (required, string) - Cardholder name.
-+ number: `5555 5555 5555 5555` (required, string) - Credit card number.
-+ cvv: `555` (required, string) - CVV
-+ expMonth: 4 (required, number) - Expiration month.
++ token: `tok_absj22123mjssm` (required, string) - stripe.js credit card token.
++ lastFour: `1234` (required, string) - Last four digits of card number.
 + expYear: 2020 (required, number) - Expiration year.
-+ address (optional, CreateAddressPayload) - Billing address.
-+ addressId (optional, number) - Billing address ID.
-+ isDefault: false (optional, boolean) - Defines whether credit card is default.
++ expMonth: 4 (required, number) - Expiration month.
++ brand: `Visa` (required, string) - Credit card brand.
++ holderName: `John Smith` (required, string) - Cardholder name.
++ billingAddress (required, CreateAddressPayload) - Billing address.
++ addressIsNew: false (required, boolean) - If the billing address was just created.
 
 ### CreditCardUpdatePayload
 + holderName: `John Smith` (optional, string) - Cardholder name.

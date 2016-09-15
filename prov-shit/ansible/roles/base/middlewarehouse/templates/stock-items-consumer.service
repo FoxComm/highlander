@@ -10,9 +10,10 @@ TimeoutStartSec=5m
 RestartSec=5
 
 Environment=ZOOKEEPER_URL={{zookeeper_server}}
-Environment=SCHEMA_REPO_URL=http://{{schema_server}}
+Environment=SCHEMA_REPOSITORY_URL=http://{{schema_server}}
 Environment=MWH_URL=http://{{middlewarehouse_server}}
 Environment=TOPIC=sku_search_view
+Environment=PARTITION=1
 
 [Install]
 WantedBy=multi-user.target

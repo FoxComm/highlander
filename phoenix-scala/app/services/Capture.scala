@@ -1,39 +1,23 @@
 package services
 
-import scala.util.Random
-
 import cats.implicits._
-import failures.CouponFailures.CouponWithCodeCannotBeFound
-import failures.ShippingMethodFailures.ShippingMethodNotFoundInOrder
-import failures.GeneralFailure
 import failures.CaptureFailures
-import failures.PromotionFailures.PromotionNotFoundForContext
-
-import scala.concurrent.Await
-import scala.concurrent.duration._
-
+import failures.ShippingMethodFailures.ShippingMethodNotFoundInOrder
 import models.cord._
 import models.cord.lineitems._
-import models.coupon._
 import models.customer.{Customer, Customers}
-import models.inventory.{Sku, Skus}
-import models.objects._
 import models.payment.creditcard._
 import models.payment.giftcard._
 import models.payment.storecredit._
 import models.product.Mvp
-import models.promotion._
-import models.shipping.{ShippingMethods, ShippingMethod}
-import responses.cord.OrderResponse
-
+import models.shipping.{ShippingMethod, ShippingMethods}
+import payloads.CapturePayloads
+import responses.CaptureResponse
 import slick.driver.PostgresDriver.api._
+import utils.Money.Currency
 import utils.aliases._
 import utils.apis.Apis
 import utils.db._
-import utils.Money.Currency
-
-import payloads.CapturePayloads
-import responses.CaptureResponse
 
 //
 //TODO: Create order state InsufficientFundHold
@@ -184,7 +168,7 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
 
     if (charge.state == CreditCardCharge.Auth) {
       for {
-        stripeCharge ← * <~ Stripe().captureCharge(charge.chargeId, total)
+        stripeCharge ← * <~ apis.stripe.captureCharge(charge.chargeId, total)
         updatedCharge = charge.copy(state = CreditCardCharge.FullCapture)
         _ ← * <~ CreditCardCharges.update(charge, updatedCharge)
         _ ← * <~ LogActivity.creditCardCharge(order, updatedCharge)

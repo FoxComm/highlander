@@ -46,10 +46,12 @@ func (suite *ShipmentServiceTestSuite) TearDownSuite() {
 	suite.db.Close()
 }
 
-func (suite *ShipmentServiceTestSuite) Test_GetShipmentsByReferenceNumber_ReturnsShipmentModels() {
+func (suite *ShipmentServiceTestSuite) Test_GetShipmentsByOrderRefNum_ReturnsShipmentModels() {
 	//arrange
 	shipment1 := fixtures.GetShipmentShort(uint(1))
+	shipment1.ReferenceNumber = "FS10004"
 	shipment2 := fixtures.GetShipmentShort(uint(2))
+	shipment1.ReferenceNumber = "FS10005"
 
 	suite.Nil(suite.db.Set("gorm:save_associations", false).Create(&shipment1.Address).Error)
 	suite.Nil(suite.db.Create(&shipment1.ShippingMethod.Carrier).Error)
@@ -62,7 +64,7 @@ func (suite *ShipmentServiceTestSuite) Test_GetShipmentsByReferenceNumber_Return
 	suite.Nil(suite.db.Set("gorm:save_associations", false).Create(shipment2).Error)
 
 	//act
-	shipments, err := suite.service.GetShipmentsByReferenceNumber(shipment1.ReferenceNumber)
+	shipments, err := suite.service.GetShipmentsByOrder(shipment1.OrderRefNum)
 
 	//assert
 	suite.Nil(err)
@@ -82,7 +84,7 @@ func (suite *ShipmentServiceTestSuite) Test_CreateShipment_Succeed_ReturnsCreate
 
 	method := fixtures.GetShippingMethod(0, carrier.ID, carrier)
 	suite.Nil(suite.db.Create(method).Error)
-	shipment1.ShippingMethodID = method.ID
+	shipment1.ShippingMethodCode = method.Code
 
 	stockLocation := fixtures.GetStockLocation()
 	suite.Nil(suite.db.Create(stockLocation).Error)
@@ -91,10 +93,10 @@ func (suite *ShipmentServiceTestSuite) Test_CreateShipment_Succeed_ReturnsCreate
 	suite.Nil(suite.db.Create(stockItem).Error)
 
 	stockItemUnit1 := fixtures.GetStockItemUnit(stockItem)
-	stockItemUnit1.RefNum = utils.MakeSqlNullString(&shipment1.ReferenceNumber)
+	stockItemUnit1.RefNum = utils.MakeSqlNullString(&shipment1.OrderRefNum)
 	stockItemUnit1.Status = "onHold"
 	stockItemUnit2 := fixtures.GetStockItemUnit(stockItem)
-	stockItemUnit2.RefNum = utils.MakeSqlNullString(&shipment1.ReferenceNumber)
+	stockItemUnit2.RefNum = utils.MakeSqlNullString(&shipment1.OrderRefNum)
 	stockItemUnit2.Status = "onHold"
 	suite.Nil(suite.db.Create(stockItemUnit1).Error)
 	suite.Nil(suite.db.Create(stockItemUnit2).Error)
@@ -104,8 +106,8 @@ func (suite *ShipmentServiceTestSuite) Test_CreateShipment_Succeed_ReturnsCreate
 
 	//assert
 	suite.Nil(err)
-	suite.Equal(shipment1.ShippingMethodID, shipment.ShippingMethodID)
-	suite.Equal(shipment1.ReferenceNumber, shipment.ReferenceNumber)
+	suite.Equal(shipment1.ShippingMethodCode, shipment.ShippingMethodCode)
+	suite.Equal(shipment1.OrderRefNum, shipment.OrderRefNum)
 	suite.Equal(shipment1.State, shipment.State)
 }
 
@@ -129,7 +131,7 @@ func (suite *ShipmentServiceTestSuite) Test_UpdateShipment_Partial_ReturnsUpdate
 	//assert
 	suite.Nil(err)
 	suite.Equal(shipment.ID, updated.ID)
-	suite.Equal(shipment.ReferenceNumber, updated.ReferenceNumber)
+	suite.Equal(shipment.OrderRefNum, updated.OrderRefNum)
 	suite.Equal(models.ShipmentStateShipped, updated.State)
 }
 

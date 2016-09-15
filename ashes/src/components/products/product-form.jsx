@@ -21,6 +21,9 @@ import VariantList from './variant-list';
 import type { Attributes } from 'paragons/object';
 import type { Product } from 'paragons/product';
 
+// paragon
+import { options } from 'paragons/product';
+
 type Props = {
   product: Product,
   onUpdateProduct: (product: Product) => void,
@@ -89,7 +92,28 @@ export default class ProductForm extends Component {
 
   @autobind
   handleProductChange(attributes: Attributes) {
-    const newProduct = assoc(this.props.product, ['attributes'], attributes);
+    // If the product only has one SKU, ensure that a few fields are fields are
+    // kept in sync:
+    // * Title
+    // * Active To
+    // * Active From
+    let skus = this.props.product.skus;
+    if (skus.length == 1) {
+      const title = _.get(this.props.product, 'attributes.title');
+      const activeTo = _.get(this.props.product, 'attributes.activeTo');
+      const activeFrom = _.get(this.props.product, 'attributes.activeFrom');
+      skus = assoc(skus,
+        [0, 'attributes', 'title'], title,
+        [0, 'attributes', 'activeTo'], activeTo,
+        [0, 'attributes', 'activeFrom'], activeFrom,
+      );
+    }
+
+    const newProduct = assoc(
+      this.props.product,
+      ['attributes'], attributes,
+      ['skus'], skus
+    );
     this.props.onUpdateProduct(newProduct);
   }
 
@@ -120,6 +144,7 @@ export default class ProductForm extends Component {
             onChange={this.handleProductChange}
             fieldsToRender={this.generalAttrs}
             attributes={attributes}
+            options={options}
             title="General" />
           {this.skusContentBox}
           <ObjectForm

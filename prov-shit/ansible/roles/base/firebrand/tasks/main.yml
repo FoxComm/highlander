@@ -17,7 +17,7 @@
     dest: '{{firebrand_install_dir}}/'
 
 - name: Build Firebrand
-  shell: NODE_ENV={{firebrand_env}} DEMO_USER={{demo_user}} DEMO_PASS={{demo_pass}} FIREBRAND_LANGUAGE={{firebrand_default_language}} gulp build
+  shell: NODE_ENV={{firebrand_env}} DEMO_USER={{demo_user}} DEMO_PASS={{demo_pass}} FIREBRAND_LANGUAGE={{firebrand_default_language}} STRIPE_PUBLISHABLE_KEY={{ stripe_publishable_key }} gulp build
   args:
     chdir: "{{firebrand_install_dir}}"
   when: demo_user != ""

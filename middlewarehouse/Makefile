@@ -19,6 +19,7 @@ build: glide
 	cd $(BUILD_PATH) && go build -o middlewarehouse main.go
 	cd $(BUILD_PATH) && go build -o consumers/shipments/shipments-consumer consumers/shipments/*.go
 	cd $(BUILD_PATH) && go build -o consumers/stock-items/stock-items-consumer consumers/stock-items/*.go
+	cd $(BUILD_PATH) && go build -o consumers/capture/capture-consumer consumers/capture/*.go
 
 clean:
 	rm -rf ./vendor
@@ -29,7 +30,10 @@ migrate:
 migrate-test:
 	$(FLYWAY_TEST) migrate
 
-reset: drop-db drop-user create-user create-db migrate migrate-test
+reset: drop-db drop-user create-user create-db migrate
+
+seed: reset
+	./seeder
 
 reset-test:
 	dropdb --if-exists $(DB_TEST) -U $(DB_USER)
@@ -49,10 +53,6 @@ drop-user:
 
 create-user:
 	createuser -s $(DB_USER)
-
-test-consumers:
-	GOENV=test cd consumers/shipments && go test -v ./...
-	GOENV=test cd consumers/stock-items && go test -v ./...
 
 test: reset-test
   # -p 1 serves to run tests sequentially, as it is required for non-isolated database tests

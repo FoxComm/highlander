@@ -45,6 +45,7 @@ middlewarehouse_test_db_name: middlewarehouse_test
 middlewarehouse_consumers_dir: "{{middlewarehouse_dir}}/consumers"
 stock_items_consumer_bin: "{{middlewarehouse_consumers_dir}}/stock-items-consumer"
 shipments_consumer_bin: "{{middlewarehouse_consumers_dir}}/shipments-consumer"
+capture_consumer_bin: "{{middlewarehouse_consumers_dir}}/capture-consumer"
 
 middlewarehouse_src: ../../middlewarehouse/
 middlewarehouse_bin_src: "{{middlewarehouse_src}}/middlewarehouse"
@@ -53,6 +54,8 @@ stock_items_consumer_src: "{{middlewarehouse_src}}/consumers/stock-items"
 stock_items_consumer_bin_src: "{{stock_items_consumer_src}}/stock-items-consumer"
 shipments_consumer_src: "{{middlewarehouse_src}}/consumers/shipments"
 shipments_consumer_bin_src: "{{shipments_consumer_src}}/shipments-consumer"
+capture_consumer_src: "{{middlewarehouse_src}}/consumers/capture"
+capture_consumer_bin_src: "{{capture_consumer_src}}/capture-consumer"
 
 # Ashes
 ashes_env: production
@@ -143,6 +146,7 @@ updating_mwh: false
 
 # Test Stripe api key
 stripe_api_key: sk_test_uvaf3GCFsjCsvvKO7FsQhNRm
+stripe_publishable_key: pk_test_r6t0niqmG9OOZhhaSkacUUU1
 
 cert_path: stage
 
