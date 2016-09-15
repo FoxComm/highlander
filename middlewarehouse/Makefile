@@ -4,25 +4,22 @@ FLYWAY_TEST=flyway -configFile=sql/flyway.test.conf -locations=filesystem:sql/
 DB=middlewarehouse_development
 DB_TEST=middlewarehouse_test
 DB_USER=middlewarehouse
-BUILDPATH=$(GOPATH)/src/github.com/FoxComm/highlander/middlewarehouse
+BUILD_ROOT_PATH=$(GOPATH)/src/github.com/FoxComm/highlander
+BUILD_PATH=$(BUILD_ROOT_PATH)/middlewarehouse
 
 prep:
-	rm -rf $(GOPATH)/src/github.com/FoxComm/highlander
-	mkdir -p $(GOPATH)/src/github.com/FoxComm/highlander
-	cp -R . $(BUILDPATH)
+	rm -rf $(BUILD_ROOT_PATH)
+	mkdir -p $(BUILD_ROOT_PATH)
+	ln -s ${CURDIR} $(BUILD_PATH)
 
 glide: prep
-	cd $(BUILDPATH) && glide install
+	cd $(BUILD_PATH) && glide install
 
 build: glide
-	cd $(BUILDPATH) && go build -o middlewarehouse main.go
-	cd $(BUILDPATH) && go build -o consumers/shipments/shipments-consumer consumers/shipments/*.go
-	cd $(BUILDPATH) && go build -o consumers/stock-items/stock-items-consumer consumers/stock-items/*.go
-	cd $(BUILDPATH) && go build -o consumers/capture/capture-consumer consumers/capture/*.go
-	cp $(BUILDPATH)/middlewarehouse ./
-	cp $(BUILDPATH)/consumers/shipments/shipments-consumer ./consumers/shipments
-	cp $(BUILDPATH)/consumers/stock-items/stock-items-consumer ./consumers/stock-items
-	cp $(BUILDPATH)/consumers/capture/capture-consumer ./consumers/capture
+	cd $(BUILD_PATH) && go build -o middlewarehouse main.go
+	cd $(BUILD_PATH) && go build -o consumers/shipments/shipments-consumer consumers/shipments/*.go
+	cd $(BUILD_PATH) && go build -o consumers/stock-items/stock-items-consumer consumers/stock-items/*.go
+	cd $(BUIL_DPATH) && go build -o consumers/capture/capture-consumer consumers/capture/*.go
 
 clean:
 	rm -rf ./vendor
@@ -58,4 +55,5 @@ create-user:
 	createuser -s $(DB_USER)
 
 test: reset-test
-	cd $(BUILDPATH) && GOENV=test go test `glide nv`
+  # -p 1 serves to run tests sequentially, as it is required for non-isolated database tests
+	cd $(BUILD_PATH) && GOENV=test go test -p 1 `glide nv`

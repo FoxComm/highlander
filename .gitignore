@@ -1,5 +1,12 @@
+# IDE artifacts
+.idea/
+.vscode/
+*.iml
+
 # Local Build Artifacts
 .vagrant/
 .vault_pass
 .DS_Store
+
+# Keys
 ashes/public_key.pem

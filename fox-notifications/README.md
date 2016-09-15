@@ -5,7 +5,7 @@ Consume green river events and push notifications
 ## Prerequisites
 
 - JVM
-- [lein](http://leiningen.com) or [boot](http://boot-clj.com)
+- [lein](http://leiningen.org) or [boot](http://boot-clj.com)
 
 ## Configuration
 
