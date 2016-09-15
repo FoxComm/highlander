@@ -9,7 +9,6 @@ import failures.ProductFailures._
 import models.inventory.Skus
 import models.objects._
 import models.product._
-import org.json4s.jackson.JsonMethods._
 import org.json4s.JsonDSL._
 import org.json4s._
 import payloads.ProductPayloads._
