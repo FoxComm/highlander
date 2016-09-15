@@ -5,11 +5,12 @@
   flex-direction: row;
   justify-content: space-between;
 
+  position: relative;
   margin: 30px -120px;
-  background: #eee;
   line-height: 50px;
   font-size: 14px;
   text-transform: uppercase;
+  background: #f9f9f9;
   cursor: pointer;
 
   transition: margin .4s;
@@ -17,8 +18,10 @@
 
 .tab {
   flex: 1;
-  padding: 0 50px;
-  color: #666;
+
+  padding: 10px 20px 4px;
+  color: #999;
+  line-height: 36px;
   text-align: center;
   text-decoration: none;
 
@@ -36,9 +39,5 @@
 @media (--small-viewport) {
   .tabs {
     margin: 0 -40px;
-  }
-
-  .tab {
-    padding: 0 20px;
   }
 }

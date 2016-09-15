@@ -6,10 +6,9 @@ import { connect } from 'react-redux';
 import Header from '../../components/header/header';
 import Form from '../../components/form/form';
 
-import { getAccountInProgress, getAccountFailed } from '../../core/modules';
+import { getMerchantId, getAccountInProgress, getAccountFailed } from '../../core/modules';
 import { submit } from '../../core/modules/merchant-account';
 import { fields } from '../../forms/merchant-account/merchant-account-fields';
-
 
 import type { HTMLElement } from '../../core/types';
 
@@ -19,16 +18,16 @@ type Props = {
   failed: boolean;
 }
 
-const MerchantAccountPage = ({ submit, inProgress, failed }: Props): HTMLElement => (
+const MerchantAccountPage = ({ merchantId, submit, inProgress, failed }: Props): HTMLElement => (
   <div>
     <Header
-      title="Create Account"
+      title="Let’s get you started"
       legend="Create an Account to start earning money with BlaBla."
     />
     <Form
       form="account"
       fields={fields}
-      onSubmit={submit}
+      onSubmit={submit.bind(null, merchantId)}
       inProgress={inProgress}
       failed={failed}
     />
@@ -36,6 +35,7 @@ const MerchantAccountPage = ({ submit, inProgress, failed }: Props): HTMLElement
 );
 
 const mapState = state => ({
+  merchantId: getMerchantId(state),
   inProgress: getAccountInProgress(state),
   failed: getAccountFailed(state),
 });

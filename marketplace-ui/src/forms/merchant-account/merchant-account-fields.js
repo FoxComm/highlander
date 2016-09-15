@@ -2,16 +2,6 @@
 
 import type { FormField } from '../../core/types/fields';
 
-const LIST_AUDIENCE = [
-  'Men', 'Women', 'Both', 'Kids',
-];
-
-const LIST_CATEGORIES = [
-  'Accessories', 'Action', 'Sports', 'Activewear', 'Apparel', 'Beauty', 'Bridal', 'Eyewear',
-  'Grooming', 'Handbags', 'Home', 'Intimates', 'Jeans', 'Jewelry', 'Kids', 'Shoes',
-  'Sleepwear', 'Swimwear', 'Tech', 'Vintage',
-];
-
 export const fields: Array<FormField> = [
   {
     name: 'first_name',

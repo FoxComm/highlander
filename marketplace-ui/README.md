@@ -25,7 +25,7 @@ Marketplace UI implementation of a FoxCommerce-powered store. Isomorphic React a
 
 1. Select your API backend. There are convenience tasks to run the common backend development methods, hitting backend API at either local or remote stage:
 
-  `npm run dev` — backend API at `http://localhost:9090`
+  `npm run dev` — backend API at `http://localhost:4000`
 
 1. Develop it at http://localhost:4042/
 

@@ -3,6 +3,8 @@
 import cx from 'classnames';
 import React from 'react';
 
+import InkBar from '../ink-bar/ink-bar';
+
 import styles from './tabs.css';
 
 import type { HTMLElement } from '../../core/types';
@@ -28,10 +30,16 @@ const renderTab = (onChange: ChangeHandler, tab: Tab) => {
   );
 };
 
-const Tabs = ({ tabs, onChange }: Props): HTMLElement => (
-  <div className={styles.tabs}>
-    {tabs.map(renderTab.bind(null, onChange))}
-  </div>
-);
+const Tabs = ({ tabs, onChange }: Props): HTMLElement => {
+  const inkWidth = 100 / tabs.length;
+  const inkPosition = 100 * tabs.findIndex(tab => tab.active);
+
+  return (
+    <div className={styles.tabs}>
+      {tabs.map(renderTab.bind(null, onChange))}
+      <InkBar width={`${inkWidth}%`} left={`${inkPosition}%`} />
+    </div>
+  );
+};
 
 export default Tabs;

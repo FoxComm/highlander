@@ -9,6 +9,7 @@
   color: #434343;
   min-height: 500px;
   box-shadow: 0 0 50px rgba(0, 0, 0, .2);
+  overflow: hidden;
 
   transition: width .4s, padding .4s;
 }

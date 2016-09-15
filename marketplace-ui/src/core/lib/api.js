@@ -21,7 +21,8 @@ export class Api {
         ...this.defaultHeaders,
         ...(options && options.headers || {}),
       },
-    });
+    })
+      .then(response => response.data);
   }
 
   get(...args) {
