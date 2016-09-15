@@ -4,16 +4,17 @@
 
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
+import { assoc } from 'sprout-data';
 import _ from 'lodash';
 
 // components
 import ConfirmationDialog from 'components/modal/confirmation-dialog';
 import ContentBox from 'components/content-box/content-box';
 import { FormField } from 'components/forms';
-import VariantEntry from './variant-entry';
+import VariantEntry from './option-entry';
 
 // styles
-import styles from './variant-list.css';
+import styles from './option-list.css';
 
 // types
 import type { Variant } from 'paragons/product';
@@ -23,19 +24,21 @@ type Props = {
 };
 
 type State = {
-  newVariant: { [key:string]: Variant },
+  newOption: { [key:string]: Variant },
+  variants: { [key:string]: Variant },
 };
 
-export default class VariantList extends Component<void, Props, State> {
+class OptionList extends Component {
   props: Props;
 
   state: State = {
-    newVariant: null,
+    newOption: null,
+    variants: this.props.variants,
   };
 
   get actions(): Element {
     return (
-      <a styleName="add-icon" onClick={this.handleAddNewVariant}>
+      <a styleName="add-icon" onClick={this.handleAddNewOption}>
         <i className="icon-add" />
       </a>
     );
@@ -49,46 +52,36 @@ export default class VariantList extends Component<void, Props, State> {
     );
   }
 
-  get variantList(): Array<Element> {
-    return [
-      ...this.renderVariants(this.props.variants),
-      // ...this.renderVariants(this.state.newVariants),
-    ];
-  }
-
   @autobind
-  handleAddNewVariant() {
-    // const newVariant: Variant = {
-    //   name: null,
-    //   type: null,
-    //   values: {},
-    // };
-    //
-    // const lastKey = _.findLastKey(this.state.newVariants);
-    // const key = lastKey ? parseInt(lastKey) + 1 : 0;
-
+  handleAddNewOption() {
     this.setState({
-      newVariant: {
-        name: null,
-        type: null,
-        values: {},
+      newOption: {
+        name: '',
+        type: '',
       },
     });
   }
 
   @autobind
-  handleSaveNewVariant(variant: Variant, listKey: string) {
-    console.log(variant);
-  }
+  handleSaveNewOption(variant: Variant, listKey: string) {
+    const { variants, newOption } = this.state;
 
-  @autobind
-  handleCancelNewVariant() {
+    variants.push(newOption);
+
     this.setState({
-      newVariant: null,
+      variants,
+      newOption: null,
     });
   }
 
-  renderVariants(variants: { [key:string]: Variant }): Array<Element> {
+  @autobind
+  handleCancelNewOption() {
+    this.setState({
+      newOption: null,
+    });
+  }
+
+  renderOptions(variants: { [key:string]: Variant }): Array<Element> {
     return _.map(variants, (value, key) => {
       const reactKey = `product-variant-${key}`;
       return (
@@ -96,25 +89,32 @@ export default class VariantList extends Component<void, Props, State> {
           key={reactKey}
           variant={value}
           listKey={key}
-          onSave={this.handleSaveNewVariant}
-          onCancel={this.handleCancelNewVariant} />
+          onCancel={this.handleCancelNewOption} />
       );
     });
   }
 
-  renderNewVariantDialog() {
-    const isVisible = !!this.state.newVariant;
-    const newVariant = (
+  @autobind
+  handleDialogChange(value, field) {
+    const newOption = assoc(this.state.newOption, field, value);
+
+    this.setState({newOption});
+  }
+
+  renderNewOptionDialog() {
+    const isVisible = !!this.state.newOption;
+    const newOption = (
       <div styleName="new-option-dialog">
         <FormField
           className="fc-object-form__field"
           labelClassName="fc-object-form__field-label"
           label="Name"
           key={`object-form-attribute-name`}
-          isRequired
         >
           <input
             type="text"
+            value={this.state.newOption.name}
+            onChange={({target}) => this.handleDialogChange(target.value, 'name')}
           />
         </FormField>
         <FormField
@@ -122,10 +122,11 @@ export default class VariantList extends Component<void, Props, State> {
           labelClassName="fc-object-form__field-label"
           label="Display Type"
           key={`object-form-attribute-type`}
-          isRequired
         >
           <input
             type="text"
+            value={this.state.newOption.type}
+            onChange={({target}) => this.handleDialogChange(target.value, 'type')}
           />
         </FormField>
       </div>
@@ -135,23 +136,26 @@ export default class VariantList extends Component<void, Props, State> {
       <ConfirmationDialog
         isVisible={isVisible}
         header="New option"
-        body={newVariant}
+        body={newOption}
         cancel="Cancel"
         confirm="Add option"
-        cancelAction={this.handleCancelNewVariant}
-        confirmAction={this.props.addOption}
+        cancelAction={this.handleCancelNewOption}
+        confirmAction={this.handleSaveNewOption}
       />
     )
   }
 
   render(): Element {
-    const variants = this.variantList;
+    const variants = this.renderOptions(this.state.variants);
     const content = _.isEmpty(variants) ? this.emptyContent : variants;
+
     return (
-      <ContentBox title="Variants" actionBlock={this.actions}>
+      <ContentBox title="Options" actionBlock={this.actions}>
         {content}
-        {this.renderNewVariantDialog()}
+        {this.state.newOption && this.renderNewOptionDialog()}
       </ContentBox>
     );
   }
 }
+
+export default OptionList;

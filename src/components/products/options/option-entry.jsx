@@ -2,14 +2,20 @@
  * @flow
  */
 
+// libs
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
 
-import ContentBox from '../content-box/content-box';
-import TextInput from '../forms/text-input';
-import VariantValueEntry from './variant-value-entry';
+// components
+import ContentBox from 'components/content-box/content-box';
+import TextInput from 'components/forms/text-input';
+import VariantValueEntry from './option-value-entry';
 
+// styles
+import styles from './option-list.css';
+
+// types
 import type { Variant, VariantValue } from 'paragons/product';
 
 type Props = {
@@ -110,9 +116,9 @@ export default class VariantEntry extends Component<void, Props, State> {
     } else {
       return (
         <div className="fc-variant-entry__title-bar-actions">
-          <a onClick={_.noop}><i className="icon-add" /></a>
-          <a onClick={_.noop}><i className="icon-edit" /></a>
-          <a onClick={_.noop}><i className="icon-trash" /></a>
+          <a onClick={_.noop} styleName="add-icon"><i className="icon-add" /></a>
+          <a onClick={_.noop} styleName="add-icon"><i className="icon-edit" /></a>
+          <a onClick={_.noop} styleName="add-icon"><i className="icon-trash" /></a>
         </div>
       );
     }

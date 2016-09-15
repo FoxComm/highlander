@@ -15,7 +15,7 @@ import ObjectForm from '../object-form/object-form';
 import ObjectScheduler from '../object-scheduler/object-scheduler';
 import SkuList from './sku-list';
 import Tags from '../tags/tags';
-import VariantList from './variant-list';
+import OptionList from './options/option-list';
 
 // types
 import type { Attributes } from 'paragons/object';
@@ -143,7 +143,7 @@ export default class ProductForm extends Component {
             options={options}
             title="General" />
 
-          <VariantList variants={this.props.variants} />
+          <OptionList variants={this.props.product.variants} />
 
           {this.skusContentBox}
 

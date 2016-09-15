@@ -1,13 +1,17 @@
 /**
  * @flow
  */
+
+// libs
 import React, { Component, Element } from 'react';
 import _ from 'lodash';
 
-import TableCell from '../table/cell';
-import TableRow from '../table/row';
-import SwatchDisplay from '../swatch/swatch-display';
+// components
+import TableCell from 'components/table/cell';
+import TableRow from 'components/table/row';
+import SwatchDisplay from 'components/swatch/swatch-display';
 
+// types
 import type { VariantValue } from 'paragons/product';
 
 type Props = {
