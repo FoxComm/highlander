@@ -7,7 +7,7 @@ StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=annabelle
 Environment=ANNABELLE_WEBHOOK_URL={{ slack_hook_url }}
-Environment=ANNABELLE_LABEL={{ label_name }}
+Environment=ANNABELLE_LABEL_NAME={{ label_name }}
 
 [Install]
 WantedBy=multi-user.target
