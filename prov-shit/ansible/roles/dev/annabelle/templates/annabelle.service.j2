@@ -1,13 +1,11 @@
 [Service]
 WorkingDirectory={{annabelle_dir}}
-ExecStart=/usr/bin/java -jar annabelle-1.0-standalone.jar
+ExecStart=/bin/bash ./run_annabelle.sh
 Restart=always
 RestartSec=5
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=annabelle
-Environment=ANNABELLE_WEBHOOK_URL={{ slack_hook_url }}
-Environment=ANNABELLE_LABEL_NAME={{ label_name }}
 
 [Install]
 WantedBy=multi-user.target

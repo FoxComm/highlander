@@ -4,16 +4,16 @@
   hosts: api-docs
   vars:
     user: '{{ansible_ssh_user}}'
-    annabelle_dir: /annabelle 
+    annabelle_dir: /annabelle
   vars_prompt:
     - name: "annabelle_jar"
       prompt: "Enter Annabelle Uberjar location"
       default: "~/FoxComm/annabelle/target/annabelle-1.0-standalone.jar"
-      private: no        
+      private: no
     - name: "label_name"
       prompt: "Enter label name to reach"
       default: "ready for review"
-      private: no    
+      private: no
     - name: "slack_hook_url"
       prompt: "Enter Slack incoming webhook URL"
       default: "https://hooks.slack.com/services/XXX/YYY/ZZZ"
