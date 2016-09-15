@@ -21,7 +21,7 @@ object ProductRoutes {
     activityContext(admin) { implicit ac ⇒
       pathPrefix("products") {
         pathPrefix(Segment) { contextName ⇒
-          adminObjectContext(contextName)(db, ec) { implicit context ⇒
+          adminObjectContext(contextName) { implicit context ⇒
             (post & pathEnd & entity(as[CreateProductPayload])) { payload ⇒
               mutateOrFailures {
                 ProductManager.createProduct(admin, payload)

@@ -19,7 +19,7 @@ object SkuRoutes {
     activityContext(admin) { implicit ac ⇒
       pathPrefix("skus") {
         pathPrefix(Segment) { contextName ⇒
-          adminObjectContext(contextName)(db, ec) { implicit context ⇒
+          adminObjectContext(contextName) { implicit context ⇒
             (post & pathEnd & entity(as[SkuPayload])) { payload ⇒
               mutateOrFailures {
                 SkuManager.createSku(admin, payload)
