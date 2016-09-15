@@ -2,3 +2,4 @@
 .vagrant/
 .vault_pass
 .DS_Store
+ashes/public_key.pem
