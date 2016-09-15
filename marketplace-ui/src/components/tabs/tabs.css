@@ -1,0 +1,44 @@
+@import "media-queries.css";
+
+.tabs {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+  margin: 30px -120px;
+  background: #eee;
+  line-height: 50px;
+  font-size: 14px;
+  text-transform: uppercase;
+  cursor: pointer;
+
+  transition: margin .4s;
+}
+
+.tab {
+  flex: 1;
+  padding: 0 50px;
+  color: #666;
+  text-align: center;
+  text-decoration: none;
+
+  transition: padding .4s, color .2s;
+
+  &:hover {
+    color: #363636;
+  }
+
+  &.active {
+    color: #363636;
+  }
+}
+
+@media (--small-viewport) {
+  .tabs {
+    margin: 0 -40px;
+  }
+
+  .tab {
+    padding: 0 20px;
+  }
+}

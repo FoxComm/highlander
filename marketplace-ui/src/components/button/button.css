@@ -9,11 +9,11 @@
   color: #fff;
   border-radius: 6px;
   text-shadow: 0 1px #579;
+  cursor: pointer;
 
   transition: background .4s, color .4s;
 
   &:not(:disabled):hover {
-    cursor: pointer;
     background: #699fdd;
   }
 
