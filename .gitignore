@@ -7,3 +7,5 @@
 .vagrant/
 .vault_pass
 .DS_Store
+
+.env.local
