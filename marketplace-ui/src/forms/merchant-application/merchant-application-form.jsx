@@ -5,12 +5,12 @@ import autosize from 'autosize';
 import React, { Component } from 'react';
 import { reduxForm } from 'redux-form';
 
-import styles from './apply-form.css';
+import styles from './merchant-application-form.css';
 
 import validate from '../../core/lib/validation';
 import Button from '../../components/button/button';
 import renderField from '../../components/fields/fields';
-import { fields } from './config';
+import { fields } from './merchant-application-config';
 
 import type { HTMLElement } from '../../core/types';
 import type { FormField } from '../../components/fields/fields';
@@ -21,7 +21,7 @@ type Props = {
   failed: boolean;
 }
 
-class ApplyForm extends Component {
+class MerchantApplicationForm extends Component {
   props: Props;
 
   componentDidMount(): void {
@@ -47,4 +47,4 @@ class ApplyForm extends Component {
   }
 }
 
-export default reduxForm({ form: 'apply', validate: validate(fields) })(ApplyForm);
+export default reduxForm({ form: 'apply', validate: validate(fields) })(MerchantApplicationForm);

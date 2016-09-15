@@ -44,6 +44,8 @@ label {
   left: 15px;
   color: #aaa;
   font-weight: 300;
+
+  pointer-events: none;
 }
 
 .field {
@@ -55,6 +57,7 @@ label {
     border-color: #db2727;
   }
 }
+
 
 .error {
   position: absolute;

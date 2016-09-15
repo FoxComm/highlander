@@ -2,7 +2,7 @@ import React from 'react';
 import { Route, IndexRoute, IndexRedirect } from 'react-router';
 
 import Site from './components/site/site';
-import Apply from './pages/apply/apply';
+import MerchantApplicationPage from './pages/merchant-application/merchant-application-page';
 import Main from './pages/container/main';
 
 const routes = (
@@ -10,8 +10,8 @@ const routes = (
     <IndexRedirect to="apply" />
     <Route component={Main}>
 
-      <IndexRoute component={Apply} />
-      <Route path="apply" component={Apply} />
+      <IndexRoute component={MerchantApplicationPage} />
+      <Route path="apply" component={MerchantApplicationPage} />
     </Route>
   </Route>
 );

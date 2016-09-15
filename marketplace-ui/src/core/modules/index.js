@@ -3,7 +3,7 @@ import { routerReducer } from 'react-router-redux';
 import { reducer as formReducer } from 'redux-form';
 
 import { reducer as asyncReducer, getActionInProgress, getActionFailed } from './async-utils';
-import { getApplyFormActionState } from './apply';
+import { getApplyFormActionState } from './merchant-application';
 
 const reducer = combineReducers({
   routing: routerReducer,
