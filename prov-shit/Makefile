@@ -22,6 +22,9 @@ test:
 	go get github.com/stretchr/testify
 	$(GO) test -v ./inventory/
 
+bootstrap-annabelle:
+	ansible-playbook -v -i bin/envs/api_docs ansible/bootstrap_annabelle.yml
+
 bootstrap-build-agents:
 	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_build_agents.yml
 

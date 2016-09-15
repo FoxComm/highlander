@@ -1,0 +1,21 @@
+---
+
+- name: Create Annabelle Directory
+  file: path={{annabelle_dir}} state=directory owner="{{user}}"
+  sudo: true
+
+- name: Copy Annabelle Uberjar
+  copy: src={{annabelle_jar}} dest={{annabelle_dir}} mode="u+x,g+x,o+x"
+  sudo: true
+
+- name: Install Annabelle service entry
+  sudo: true
+  template: src="annabelle.service.j2" dest="{{dest_services}}/annabelle.service"
+
+- name: Reload Systemd for Annabelle
+  sudo: yes
+  command: systemctl daemon-reload
+
+- name: Restart Annabelle
+  service: name=annabelle state=restarted enabled=true
+  sudo: true
