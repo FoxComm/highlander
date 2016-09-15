@@ -10,3 +10,4 @@
 
 # Keys
 ashes/public_key.pem
+.env.local
