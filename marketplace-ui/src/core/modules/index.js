@@ -2,8 +2,8 @@ import { combineReducers } from 'redux';
 import { routerReducer } from 'react-router-redux';
 import { reducer as formReducer } from 'redux-form';
 
-import { reducer as asyncReducer, getActionInProgress, getActionFailed } from './async-utils';
-import { getApplyFormActionState } from './merchant-application';
+import { reducer as asyncReducer, getActionState, getActionInProgress, getActionFailed } from './async-utils';
+import { getApplyFormActionNamespace } from './merchant-application';
 
 const reducer = combineReducers({
   routing: routerReducer,
@@ -13,6 +13,8 @@ const reducer = combineReducers({
 
 export default reducer;
 
+
+
 /** selectors */
-export const getApplyFormActionInProgress = state => getActionInProgress(state.asyncActions)(getApplyFormActionState);
-export const getApplyFormActionFailed = state => getActionFailed(state.asyncActions)(getApplyFormActionState);
+export const getApplyFormActionInProgress = state => getActionInProgress(state.asyncActions, getApplyFormActionNamespace());
+export const getApplyFormActionFailed = state => getActionFailed(state.asyncActions, getApplyFormActionNamespace());

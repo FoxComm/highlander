@@ -1,10 +1,31 @@
+/* @flow weak */
+
 import _ from 'lodash';
 import { assoc } from 'sprout-data';
 import { createAction } from 'redux-act';
 
+export type Error = {
+  status: number;
+  statusText: string;
+  messages: string;
+}
+
+export type AsyncModuleState = {
+  inProgress: boolean;
+  finished: boolean;
+  isReady: boolean;
+  err: ?Error;
+}
+
+export type State = {
+  [x: string]: AsyncModuleState;
+}
+
 const isServer = typeof self == 'undefined';
 
-export function reducer(state = {}, action) {
+const initialState: State = {};
+
+export function reducer(state: State = initialState, action) {
   const kind = _.get(action, 'meta.kind');
   const payload = action.payload;
 
@@ -53,9 +74,11 @@ export function reducer(state = {}, action) {
   return state;
 }
 
-export const getActionState = (state, namespace) => _.get(state, namespace);
-export const getActionInProgress = state => selector => _.get(selector(state), 'inProgress', false);
-export const getActionFailed = state => selector => !!_.get(selector(state), 'err', null);
+type Selector = () => string;
+
+export const getActionState = (state: State) => (selector: Selector) => _.get(state, selector());
+export const getActionInProgress = (state: State, namespace) => _.get(state, `${namespace}.inProgress`, false);
+export const getActionFailed = (state: State, namespace) => !!_.get(state, `${namespace}.err`, null);
 
 function createAsyncAction(namespace, type, payloadReducer) {
   const description = `${_.snakeCase(namespace).toUpperCase()}_${type.toUpperCase()}`;
