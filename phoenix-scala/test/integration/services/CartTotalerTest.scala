@@ -55,7 +55,7 @@ class CartTotalerTest extends IntegrationTestBase with TestObjectContext with Ba
 
     "totals" - {
       "all are zero when there are no line items and no adjustments" in new Fixture {
-        val totals = CartTotaler.totals(cart, taxValue).gimme
+        val totals = CartTotaler.totals(cart, 0).gimme
 
         totals.subTotal mustBe 0
         totals.shipping mustBe 0

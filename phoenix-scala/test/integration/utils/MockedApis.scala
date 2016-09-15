@@ -95,13 +95,15 @@ trait MockedApis extends MockitoSugar {
                              any[Seq[FindLineItemResult]],
                              any[Address],
                              any[Region],
-                             any[Country])(any[EC])).thenReturn(Result.good(5))
+                             any[Country],
+                             any[Int])(any[EC])).thenReturn(Result.good(5))
     when(
         mocked.getTaxForOrder(any[Cart],
                               any[Seq[FindLineItemResult]],
                               any[Address],
                               any[Region],
-                              any[Country])(any[EC])).thenReturn(Result.good(5))
+                              any[Country],
+                              any[Int])(any[EC])).thenReturn(Result.good(5))
     when(mocked.cancelTax(any[Order])(any[EC])).thenReturn(Result.unit)
     mocked
   }

@@ -85,7 +85,7 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
       }
 
       "if the grandTotal == 0" in new LineItemsFixture0 {
-        CartTotaler.saveTotals(cart, taxValue).gimme
+        CartTotaler.saveTotals(cart, 0).gimme
 
         val result = CartValidator(refresh(cart)).validate().gimme
 
