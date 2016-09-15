@@ -22,9 +22,12 @@
       "error",
       "semicolon"
     ],
+    "no-duplicate-imports": 0,
+    "import/no-duplicates": 2,
     "import/prefer-default-export": 0,
     "no-console-log/no-console-log": 1,
     "no-console": 0,
+    "no-shadow": 0,
     "no-void": 0,
     "no-plusplus": 0,
     "global-require": 0,

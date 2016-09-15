@@ -2,14 +2,17 @@ import { combineReducers } from 'redux';
 import { routerReducer } from 'react-router-redux';
 import { reducer as formReducer } from 'redux-form';
 
-import { reducer as asyncReducer } from './async-utils';
-import applyReducer from './apply';
+import { reducer as asyncReducer, getActionInProgress, getActionFailed } from './async-utils';
+import { getApplyFormActionState } from './apply';
 
 const reducer = combineReducers({
   routing: routerReducer,
   asyncActions: asyncReducer,
   form: formReducer,
-  apply: applyReducer,
 });
 
 export default reducer;
+
+/** selectors */
+export const getApplyFormActionInProgress = state => getActionInProgress(state.asyncActions)(getApplyFormActionState);
+export const getApplyFormActionFailed = state => getActionFailed(state.asyncActions)(getApplyFormActionState);

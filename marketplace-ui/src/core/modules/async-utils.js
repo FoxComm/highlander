@@ -53,6 +53,10 @@ export function reducer(state = {}, action) {
   return state;
 }
 
+export const getActionState = (state, namespace) => _.get(state, namespace);
+export const getActionInProgress = state => selector => _.get(selector(state), 'inProgress', false);
+export const getActionFailed = state => selector => !!_.get(selector(state), 'err', null);
+
 function createAsyncAction(namespace, type, payloadReducer) {
   const description = `${_.snakeCase(namespace).toUpperCase()}_${type.toUpperCase()}`;
 

@@ -1,5 +1,3 @@
-/* @flow */
-
 import axios from 'axios';
 
 export class Api {
@@ -11,7 +9,6 @@ export class Api {
     if (!args.baseUrl) throw new Error('You must specify an API URL');
 
     this.baseUrl = args.baseUrl.replace(/\/?$/, '');
-
   }
 
   request(method, url, data, options = {}) {
