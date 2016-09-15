@@ -8,9 +8,9 @@ import utils.seeds.generators.CreditCardGenerator
 
 trait CreditCardSeeds extends CreditCardGenerator {
 
-  val gatewayCustomerId = randomCustomerGatewayId
+  val gatewayAccountId = randomCustomerGatewayId
 
-  def createCreditCards(customers: CustomerSeeds#Customers): DbResultT[Unit] =
+  def createCreditCards(customers: CustomerSeeds#CustomerIds): DbResultT[Unit] =
     for {
       _ ← * <~ CreditCards.createAll(
              Seq(creditCard1.copy(accountId = customers._1),
@@ -22,7 +22,7 @@ trait CreditCardSeeds extends CreditCardGenerator {
 
   def creditCard1 = {
     CreditCard(accountId = 0,
-               gatewayCustomerId = gatewayCustomerId,
+               gatewayAccountId = gatewayAccountId,
                gatewayCardId = "",
                holderName = "Yax",
                lastFour = "4242",
@@ -42,7 +42,7 @@ trait CreditCardSeeds extends CreditCardGenerator {
 
   def creditCard2 = {
     CreditCard(accountId = 0,
-               gatewayCustomerId = gatewayCustomerId,
+               gatewayAccountId = gatewayAccountId,
                gatewayCardId = "",
                holderName = "Yax",
                lastFour = "8752",
@@ -60,7 +60,7 @@ trait CreditCardSeeds extends CreditCardGenerator {
 
   def creditCard3 = {
     CreditCard(accountId = 0,
-               gatewayCustomerId = gatewayCustomerId,
+               gatewayAccountId = gatewayAccountId,
                gatewayCardId = "",
                holderName = "Adil",
                lastFour = "3436",
@@ -78,7 +78,7 @@ trait CreditCardSeeds extends CreditCardGenerator {
 
   def creditCard4 = {
     CreditCard(accountId = 0,
-               gatewayCustomerId = gatewayCustomerId,
+               gatewayAccountId = gatewayAccountId,
                gatewayCardId = "",
                holderName = "John",
                lastFour = "3436",
@@ -96,7 +96,7 @@ trait CreditCardSeeds extends CreditCardGenerator {
 
   def creditCard5 = {
     CreditCard(accountId = 0,
-               gatewayCustomerId = gatewayCustomerId,
+               gatewayAccountId = gatewayAccountId,
                gatewayCardId = "",
                holderName = "František",
                lastFour = "1258",

@@ -8,7 +8,7 @@ import utils.db._
 
 trait AddressSeeds {
 
-  def createAddresses(customers: CustomerSeeds#Customers): DbResultT[Unit] =
+  def createAddresses(customers: CustomerSeeds#CustomerIds): DbResultT[Unit] =
     for {
       _ ← * <~ Addresses.createAll(
              Seq(

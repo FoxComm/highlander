@@ -1,15 +1,15 @@
 package services.activity
 
-import responses.{AddressResponse, CreditCardsResponse, UserResponse}
+import responses.{AddressResponse, CreditCardsResponse, UserResponse, CustomerResponse}
 
 object CustomerTailored {
-  case class CustomerCreated(admin: UserResponse.Root, customer: UserResponse.Root)
+  case class CustomerCreated(admin: UserResponse.Root, customer: CustomerResponse.Root)
       extends ActivityBase[CustomerCreated]
 
-  case class CustomerRegistered(customer: UserResponse.Root)
+  case class CustomerRegistered(customer: CustomerResponse.Root)
       extends ActivityBase[CustomerRegistered]
 
-  case class CustomerActivated(admin: UserResponse.Root, customer: UserResponse.Root)
+  case class CustomerActivated(admin: UserResponse.Root, customer: CustomerResponse.Root)
       extends ActivityBase[CustomerActivated]
 
   case class CustomerBlacklisted(admin: UserResponse.Root, customer: UserResponse.Root)

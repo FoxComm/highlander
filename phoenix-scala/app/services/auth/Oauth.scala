@@ -36,9 +36,11 @@ object OauthDirectives {
 trait OauthService[M] {
   this: Oauth ⇒
 
+  def getScopeId: Int
   def createByUserInfo(info: UserInfo)(implicit ec: EC): DbResultT[M]
   def findByEmail(email: String)(implicit ec: EC, db: DB): DBIO[Option[M]]
-  def createToken(user: M, account: Account, scope: String, claims: Account.Claims): Token
+  def createToken(user: M, account: Account, scopeId: Int): DbResultT[Token]
+  def findAccount(user: M): DbResultT[Account]
 
   /*
     1. Exchange code to access token
@@ -66,7 +68,7 @@ trait OauthService[M] {
     for {
       result ← * <~ findByEmail(userInfo.email).findOrCreateExtended(createByUserInfo(userInfo))
       (user, foundOrCreated) = result
-      account ← * <~ Accounts.mustFindById404(user.accountId)
+      account ← * <~ findAccount(user)
     } yield (user, account)
 
   /*
@@ -78,10 +80,10 @@ trait OauthService[M] {
   def oauthCallback(oauthResponse: OauthCallbackResponse)(implicit ec: EC,
                                                           db: DB): DbResultT[Token] =
     for {
-      info        ← fetchUserInfoFromCode(oauthResponse)
-      userAccount ← findOrCreateUserFromInfo(info)
+      info        ← * <~ fetchUserInfoFromCode(oauthResponse)
+      userAccount ← * <~ findOrCreateUserFromInfo(info)
       (user, account) = userAccount
-      token           = createToken(user, account)
+      token ← * <~ createToken(user, account, getScopeId)
     } yield token
 
   def akkaCallback(oauthResponse: OauthCallbackResponse)(implicit ec: EC, db: DB): Route = {

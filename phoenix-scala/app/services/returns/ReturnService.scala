@@ -2,7 +2,6 @@ package services.returns
 
 import failures.InvalidCancellationReasonFailure
 import models.cord.Orders
-import models.customer.Customers
 import models.returns.Return.Canceled
 import models.returns._
 import models.{Reason, Reasons}
@@ -23,7 +22,7 @@ object ReturnService {
       _   ← * <~ payload.validate
       rma ← * <~ mustFindPendingReturnByRefNum(refNum)
       newMessage = if (payload.message.length > 0) Some(payload.message) else None
-      update   ← * <~ Returns.update(rma, rma.copy(messageToCustomer = newMessage))
+      update   ← * <~ Returns.update(rma, rma.copy(messageToAccount = newMessage))
       updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(updated)
     } yield response
@@ -56,11 +55,13 @@ object ReturnService {
   def createByAdmin(admin: User, payload: ReturnCreatePayload)(implicit ec: EC,
                                                                db: DB): DbResultT[Root] =
     for {
-      order    ← * <~ Orders.mustFindByRefNum(payload.cordRefNum)
-      rma      ← * <~ Returns.create(Return.build(order, admin, payload.returnType))
-      customer ← * <~ Users.findOneByAccountId(order.accountId)
-      adminResponse    = Some(StoreAdminResponse.build(admin))
-      customerResponse = customer.map(CustomerResponse.build(_))
+      order          ← * <~ Orders.mustFindByRefNum(payload.cordRefNum)
+      rma            ← * <~ Returns.create(Return.build(order, admin, payload.returnType))
+      customer       ← * <~ Users.mustFindByAccountId(order.accountId)
+      custUser       ← * <~ CustomerUsers.mustFindByAccountId(order.accountId)
+      storeAdminUser ← * <~ StoreAdminUsers.mustFindByAccountId(admin.accountId)
+      adminResponse    = Some(StoreAdminResponse.build(admin, storeAdminUser))
+      customerResponse = CustomerResponse.build(customer, custUser)
     } yield build(rma, customerResponse, adminResponse)
 
   def getByRefNum(refNum: String)(implicit ec: EC, db: DB): DbResultT[Root] =

@@ -2,6 +2,7 @@ package services.returns
 
 import models.returns._
 import models.account._
+import models.admin.StoreAdminUsers
 import responses.{ReturnLockResponse, ReturnResponse}
 import utils.aliases._
 import utils.db._
@@ -10,12 +11,11 @@ object ReturnLockUpdater {
 
   def getLockState(refNum: String)(implicit ec: EC, db: DB): DbResultT[ReturnLockResponse.Root] =
     for {
-      rma   ← * <~ Returns.mustFindByRefNum(refNum)
-      event ← * <~ ReturnLockEvents.latestLockByRma(rma.id).one
-      admin ← * <~ event
-               .map(e ⇒ Users.findByAccountId(e.lockedBy).extract.one)
-               .getOrElse(lift(None))
-    } yield ReturnLockResponse.build(rma, event, admin)
+      rma            ← * <~ Returns.mustFindByRefNum(refNum)
+      event          ← * <~ ReturnLockEvents.latestLockByRma(rma.id).one
+      admin          ← * <~ event.map(e ⇒ Users.findOneByAccountId(e.lockedBy))
+      storeAdminUser ← * <~ admin.map(a ⇒ StoreAdminUsers.findOneByAccountId(a.accountId))
+    } yield ReturnLockResponse.build(rma, event, admin, storeAdminUser)
 
   def lock(refNum: String, admin: User)(implicit ec: EC, db: DB): DbResultT[ReturnResponse.Root] =
     for {

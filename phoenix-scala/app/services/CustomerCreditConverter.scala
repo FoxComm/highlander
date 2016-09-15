@@ -7,7 +7,7 @@ import models.account._
 import models.admin.StoreAdminUsers
 import models.payment.giftcard._
 import models.payment.storecredit._
-import responses.{GiftCardResponse, StoreAdminResponse, StoreCreditResponse}
+import responses.{GiftCardResponse, UserResponse, StoreCreditResponse}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
@@ -50,8 +50,6 @@ object CustomerCreditConverter {
                  admin: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[GiftCardResponse.Root] =
     for {
 
-      storeAdminUser ← * <~ StoreAdminUsers.mustFindByAccountId(admin.accountId)
-
       credit ← * <~ StoreCredits.mustFindById404(storeCreditId)
       _ ← * <~ (if (!credit.isActive) DbResultT.failure(StoreCreditConvertFailure(credit))
                 else DbResultT.unit)
@@ -78,6 +76,5 @@ object CustomerCreditConverter {
 
       // Activity
       _ ← * <~ LogActivity.scConvertedToGc(admin, giftCard, credit)
-    } yield
-      GiftCardResponse.build(giftCard, None, Some(StoreAdminResponse.build(admin, storeAdminUser)))
+    } yield GiftCardResponse.build(giftCard, None, Some(UserResponse.build(admin)))
 }

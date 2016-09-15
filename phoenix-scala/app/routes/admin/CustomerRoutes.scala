@@ -11,6 +11,7 @@ import payloads.PaymentPayloads._
 import services.carts.CartQueries
 import services.account._
 import services.customers._
+import services.account._
 import services.{AddressManager, CreditCardManager, CustomerCreditConverter, StoreCreditService}
 import utils.aliases._
 import utils.apis.Apis
@@ -60,12 +61,12 @@ object CustomerRoutes {
         } ~
         (post & path("disable") & pathEnd & entity(as[ToggleUserDisabled])) { payload ⇒
           mutateOrFailures {
-            CustomerManager.toggleDisabled(accountId, payload.disabled, admin)
+            AccountManager.toggleDisabled(accountId, payload.disabled, admin)
           }
         } ~
         (post & path("blacklist") & pathEnd & entity(as[ToggleUserBlacklisted])) { payload ⇒
           mutateOrFailures {
-            CustomerManager.toggleBlacklisted(accountId, payload.blacklisted, admin)
+            AccountManager.toggleBlacklisted(accountId, payload.blacklisted, admin)
           }
         } ~
         pathPrefix("addresses") {

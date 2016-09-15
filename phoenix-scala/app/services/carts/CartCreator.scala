@@ -2,6 +2,7 @@ package services.carts
 
 import cats.implicits._
 import models.account._
+import models.customer._
 import models.cord.{Cart, Carts}
 import payloads.OrderPayloads.CreateCart
 import responses.cord.CartResponse
@@ -25,16 +26,17 @@ object CartCreator {
     def createCartForCustomer(accountId: Int)(implicit ctx: OC): DbResultT[CartResponse] =
       for {
         customer ← * <~ Users.mustFindByAccountId(accountId)
-        fullCart ← * <~ CartQueries.findOrCreateCartByCustomerInner(customer, Some(admin))
+        fullCart ← * <~ CartQueries.findOrCreateCartByAccountInner(customer, Some(admin))
       } yield fullCart
 
     def createCartAndGuest(email: String): DbResultT[CartResponse] =
       for {
-        account ← * <~ Accounts.create(Account())
-        guest   ← * <~ Users.create(Users(accountId = account.id, email = email.some))
-        cart    ← * <~ Carts.create(Cart(customerId = account.id))
-        _       ← * <~ LogActivity.cartCreated(Some(admin), root(cart, guest))
-      } yield root(cart, guest)
+        account  ← * <~ Accounts.create(Account())
+        guest    ← * <~ Users.create(User(accountId = account.id, email = email.some))
+        custUser ← * <~ CustomerUsers.mustFindByAccountId(account.id)
+        cart     ← * <~ Carts.create(Cart(accountId = account.id))
+        _        ← * <~ LogActivity.cartCreated(Some(admin), root(cart, guest, custUser))
+      } yield root(cart, guest, custUser)
 
     for {
       _    ← * <~ payload.validate.toXor
@@ -42,6 +44,6 @@ object CartCreator {
     } yield root
   }
 
-  private def root(cart: Cart, customer: User): CartResponse =
-    CartResponse.buildEmpty(cart = cart, customer = customer.some)
+  private def root(cart: Cart, customer: User, custUser: CustomerUser): CartResponse =
+    CartResponse.buildEmpty(cart = cart, customer = customer.some, custUser.some)
 }

@@ -13,7 +13,7 @@ trait CustomerSeeds {
 
   def createCustomers: DbResultT[CustomerIds] =
     for {
-      accountIds ← * <~ Accounts.createAllReturningIds(customers.map(Account()))
+      accountIds ← * <~ Accounts.createAllReturningIds(customers.map(_ ⇒ Account()))
       accountCustomers = acountIds zip customer
       customerIds ← * <~ Users.createAllReturningIds(accountCustomers.map { (accountId, customer) ⇒
                      customer.copy(accountId = accountId)

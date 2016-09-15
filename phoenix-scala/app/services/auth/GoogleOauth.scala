@@ -1,5 +1,6 @@
 package services.auth
 
+import services.account._
 import cats.implicits._
 import libs.oauth.{GoogleOauthOptions, GoogleProvider, Oauth, UserInfo}
 import models.auth.{UserToken, Token}
@@ -13,6 +14,8 @@ class GoogleOauthUser(options: GoogleOauthOptions)(implicit ec: EC, db: DB)
     extends Oauth(options)
     with OauthService[User]
     with GoogleProvider {
+
+  def getScopeId: Int = options.scopeId
 
   def createByUserInfo(userInfo: UserInfo): DbResultT[User] = {
 
@@ -40,8 +43,14 @@ class GoogleOauthUser(options: GoogleOauthOptions)(implicit ec: EC, db: DB)
 
   def findByEmail(email: String) = Users.findByEmail(email)
 
-  def createToken(user: User, account: Account, scope: String, claims: Account.Claims): Token =
-    UserToken.fromUserAccount(user, account, scope, claims)
+  def createToken(user: User, account: Account, scopeId: Int): DbResultT[Token] =
+    for {
+      claimResult ← * <~ AccountManager.getClaims(account.id, scopeId)
+      (scope, claims) = claimResult
+      token ← * <~ UserToken.fromUserAccount(user, account, scope, claims)
+    } yield token
+
+  def findAccount(user: User): DbResultT[Account] = Accounts.mustFindById404(user.accountId)
 }
 
 object GoogleOauth {

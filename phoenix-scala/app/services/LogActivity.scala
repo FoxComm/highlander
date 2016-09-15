@@ -27,6 +27,7 @@ import responses.ProductResponses.ProductResponse
 import responses.SkuResponses.SkuResponse
 import responses.CaptureResponse
 import responses.UserResponse.{Root ⇒ UserResponse, build ⇒ buildUser}
+import responses.CustomerResponse.{Root ⇒ CustomerResponse}
 import responses.cord.{CartResponse, OrderResponse}
 import responses.{AddressResponse, CreditCardsResponse, GiftCardResponse, StoreCreditResponse}
 import services.LineItemUpdater.foldQuantityPayload
@@ -112,6 +113,25 @@ object LogActivity {
       ac: AC): DbResultT[Activity] = {
     Activities.log(UnassociatedFromSearch(buildUser(admin), search, buildUser(associate)))
   }
+
+  /* Customer */
+  def userCreated(user: CustomerResponse, admin: Option[User])(implicit ec: EC,
+                                                               ac: AC): DbResultT[Activity] =
+    admin match {
+      case Some(a) ⇒
+        Activities.log(CustomerCreated(buildUser(a), user))
+      case _ ⇒
+        Activities.log(CustomerRegistered(user))
+    }
+
+  def customerUpdated(user: User, updated: User, admin: Option[User])(
+      implicit ec: EC,
+      ac: AC): DbResultT[Activity] =
+    Activities.log(UserUpdated(buildUser(user), buildUser(updated), admin.map(buildUser)))
+
+  def customerActivated(user: CustomerResponse, admin: User)(implicit ec: EC,
+                                                             ac: AC): DbResultT[Activity] =
+    Activities.log(CustomerActivated(buildUser(admin), user))
 
   /* Users */
   def userCreated(user: UserResponse, admin: Option[User])(implicit ec: EC,

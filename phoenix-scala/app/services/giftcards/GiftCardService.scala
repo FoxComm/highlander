@@ -3,6 +3,7 @@ package services.giftcards
 import cats.implicits._
 import failures.{NotFoundFailure400, OpenTransactionsFailure}
 import models.account._
+import models.customer._
 import models.payment.giftcard.GiftCard.Canceled
 import models.payment.giftcard.GiftCardSubtypes.scope._
 import models.payment.giftcard._
@@ -11,7 +12,7 @@ import models.{Reasons}
 import payloads.GiftCardPayloads._
 import responses.GiftCardBulkResponse._
 import responses.GiftCardResponse._
-import responses.{CustomerResponse, GiftCardResponse, GiftCardSubTypesResponse, StoreAdminResponse}
+import responses.{CustomerResponse, GiftCardResponse, GiftCardSubTypesResponse, UserResponse}
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
@@ -36,20 +37,19 @@ object GiftCardService {
     (giftCard.originType, giftCard.accountId) match {
       case (GiftCard.CsrAppeasement, _) ⇒
         for {
-          origin ← GiftCardManuals.filter(_.id === giftCard.originId).one
-          admin ← origin
-                   .map(o ⇒ Users.findOneByAccountId(o.adminId))
-                   .getOrElse(DBIO.successful(None))
-          adminResponse = admin.map(StoreAdminResponse.build)
-        } yield GiftCardResponse.build(giftCard, None, adminResponse)
+          origin ← * <~ GiftCardManuals
+                    .filter(_.id === giftCard.originId)
+                    .mustFindOneOr(NotFoundFailure400(GiftCardManuals, giftCard.originId))
+          admin ← * <~ Users.mustFindByAccountId(origin.adminId)
+        } yield GiftCardResponse.build(giftCard, None, Some(UserResponse.build(admin)))
 
       case (GiftCard.AccountPurchase, Some(accountId)) ⇒
-        Users.findOneByAccountId(accountId).map { maybeCustomer ⇒
-          val customerResponse = maybeCustomer.map(c ⇒ CustomerResponse.build(c))
-          GiftCardResponse.build(giftCard, customerResponse, None)
-        }
-
-      case _ ⇒ DBIO.successful(GiftCardResponse.build(giftCard, None, None))
+        for {
+          customer ← * <~ Users.mustFindByAccountId(accountId)
+          custUser ← * <~ CustomerUsers.mustFindByAccountId(accountId)
+        } yield
+          GiftCardResponse.build(giftCard, Some(CustomerResponse.build(customer, custUser)), None)
+      case _ ⇒ DbResultT.good(GiftCardResponse.build(giftCard, None, None))
     }
 
   def createByAdmin(admin: User, payload: GiftCardCreateByCsr)(implicit ec: EC,
@@ -68,7 +68,7 @@ object GiftCardService {
       origin ← * <~ GiftCardManuals.create(
                   GiftCardManual(adminId = admin.accountId, reasonId = payload.reasonId))
       giftCard ← * <~ GiftCards.create(GiftCard.buildAppeasement(payload, origin.id))
-      adminResp = Some(StoreAdminResponse.build(admin))
+      adminResp = Some(UserResponse.build(admin))
       _ ← * <~ LogActivity.gcCreated(admin, giftCard)
     } yield build(gc = giftCard, admin = adminResp)
 

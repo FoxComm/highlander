@@ -73,7 +73,7 @@ trait OrderGenerator extends ShipmentSeeds {
 
   private val yesterday: Instant = time.yesterday.toInstant
 
-  def manualHoldOrder(accountId: User#AccountId,
+  def manualHoldOrder(accountId: User#accountId,
                       context: ObjectContext,
                       skuIds: Seq[Int],
                       giftCard: GiftCard)(implicit db: DB): DbResultT[Order] =
@@ -96,7 +96,7 @@ trait OrderGenerator extends ShipmentSeeds {
       _ ← * <~ OrderTotaler.saveTotals(cart, order)
     } yield order
 
-  def manualHoldStoreCreditOrder(accountId: User#AccountId,
+  def manualHoldStoreCreditOrder(accountId: User#accountId,
                                  context: ObjectContext,
                                  skuIds: Seq[Int],
                                  giftCard: GiftCard)(implicit db: DB): DbResultT[Order] =
@@ -122,7 +122,7 @@ trait OrderGenerator extends ShipmentSeeds {
       _ ← * <~ OrderTotaler.saveTotals(cart, order)
     } yield order
 
-  def fraudHoldOrder(accountId: User#AccountId,
+  def fraudHoldOrder(accountId: User#accountId,
                      context: ObjectContext,
                      skuIds: Seq[Int],
                      giftCard: GiftCard)(implicit db: DB): DbResultT[Order] =
@@ -144,7 +144,7 @@ trait OrderGenerator extends ShipmentSeeds {
       _ ← * <~ OrderTotaler.saveTotals(cart, order)
     } yield order
 
-  def remorseHold(accountId: User#AccountId,
+  def remorseHold(accountId: User#accountId,
                   context: ObjectContext,
                   skuIds: Seq[Int],
                   giftCard: GiftCard)(implicit db: DB): DbResultT[Order] =
@@ -172,7 +172,7 @@ trait OrderGenerator extends ShipmentSeeds {
       _ ← * <~ OrderTotaler.saveTotals(cart, order)
     } yield order
 
-  def cartOrderUsingGiftCard(accountId: User#AccountId,
+  def cartOrderUsingGiftCard(accountId: User#accountId,
                              context: ObjectContext,
                              skuIds: Seq[Int],
                              giftCard: GiftCard)(implicit db: DB): DbResultT[Cart] = {
@@ -193,7 +193,7 @@ trait OrderGenerator extends ShipmentSeeds {
     } yield cart
   }
 
-  def cartOrderUsingCreditCard(accountId: User#AccountId,
+  def cartOrderUsingCreditCard(accountId: User#accountId,
                                context: ObjectContext,
                                skuIds: Seq[Int],
                                giftCard: GiftCard)(implicit db: DB): DbResultT[Cart] =
@@ -209,7 +209,7 @@ trait OrderGenerator extends ShipmentSeeds {
       _ ← * <~ CartTotaler.saveTotals(cart)
     } yield cart
 
-  def shippedOrderUsingCreditCard(accountId: User#AccountId,
+  def shippedOrderUsingCreditCard(accountId: User#accountId,
                                   context: ObjectContext,
                                   skuIds: Seq[Int],
                                   giftCard: GiftCard)(implicit db: DB): DbResultT[Order] = {
@@ -237,7 +237,7 @@ trait OrderGenerator extends ShipmentSeeds {
     } yield order
   }
 
-  def shippedOrderUsingGiftCard(accountId: User#AccountId,
+  def shippedOrderUsingGiftCard(accountId: User#accountId,
                                 context: ObjectContext,
                                 skuIds: Seq[Int],
                                 giftCard: GiftCard)(implicit db: DB): DbResultT[Order] = {
@@ -337,10 +337,10 @@ trait OrderGenerator extends ShipmentSeeds {
       } yield {}
   }
 
-  private def getCc(accountId: User#AccountId)(implicit db: DB) =
+  private def getCc(accountId: User#accountId)(implicit db: DB) =
     CreditCards.findDefaultByAccountId(accountId).mustFindOneOr(CustomerHasNoCreditCard(accountId))
 
-  private def getDefaultAddress(accountId: User#AccountId)(implicit db: DB) =
+  private def getDefaultAddress(accountId: User#accountId)(implicit db: DB) =
     Addresses
       .findAllByAccountId(accountId)
       .filter(_.isDefaultShipping)
