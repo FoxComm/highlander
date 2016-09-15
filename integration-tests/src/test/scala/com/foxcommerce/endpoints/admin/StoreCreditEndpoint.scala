@@ -12,7 +12,7 @@ object StoreCreditEndpoint {
   val cancellationReasonId = 1
 
   def create(payload: StoreCreditFixture): HttpRequestBuilder = http("Create Store Credit For Customer")
-    .post("/v1/customers/${customerId}/payment-methods/store-credit")
+    .post("/api/v1/customers/${customerId}/payment-methods/store-credit")
     .body(StringBody("""{"amount": %d, "reasonId": %d}""".format(payload.amount, payload.reasonId)))
     .check(status.is(200))
     .check(jsonPath("$.id").ofType[Long].saveAs("storeCreditId"))
@@ -23,7 +23,7 @@ object StoreCreditEndpoint {
     .check(jsonPath("$.availableBalance").ofType[Long].is(payload.amount))
 
   def cancel(): HttpRequestBuilder = http("Cancel Store Credit")
-    .patch("/v1/store-credits/${storeCreditId}")
+    .patch("/api/v1/store-credits/${storeCreditId}")
     .body(StringBody("""{"state": "canceled", "reasonId": %d}""".format(cancellationReasonId)))
     .check(status.is(200))
     .check(jsonPath("$.state").ofType[String].is("canceled"))
