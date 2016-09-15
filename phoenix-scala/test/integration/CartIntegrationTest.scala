@@ -153,6 +153,20 @@ class CartIntegrationTest
       response.status must === (StatusCodes.NotFound)
       response.error must === (NotFoundFailure404(Cart, "NOPE").description)
     }
+
+    "should add line items if productId and skuId are different" in new OrderShippingMethodFixture
+    with ProductAndSkus_Baked {
+      val addPayload = Seq(UpdateLineItemsPayload("TEST", 1))
+      val response   = POST(s"v1/orders/${cart.refNum}/line-items", addPayload)
+
+      response.status must === (StatusCodes.OK)
+      val root = response.ignoreFailuresAndGiveMe[CartResponse]
+      val skus = root.lineItems.skus
+      skus must have size 2
+      skus.map(_.sku).toSet must === (Set("SKU-YAX", "TEST"))
+      skus.map(_.quantity).toSet must === (Set(1, 2))
+
+    }
   }
 
   "POST /v1/orders/:refNum/lock" - {

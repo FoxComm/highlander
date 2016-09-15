@@ -9,6 +9,7 @@ import failures.ProductFailures._
 import models.inventory.Skus
 import models.objects._
 import models.product._
+import org.json4s.jackson.JsonMethods._
 import org.json4s.JsonDSL._
 import org.json4s._
 import payloads.ProductPayloads._
@@ -231,6 +232,28 @@ class ProductIntegrationTest
 
       val description = response.attributes \ "description" \ "v"
       description.extract[String] must === ("Test product description")
+    }
+
+    "Updates and replaces a SKU on the product" in new Fixture with Product_Raw {
+      val updateSkuPayload = makeSkuPayload("SKU-UPDATE-TEST", skuAttrMap)
+      val newAttrMap       = Map("name" → (("t" → "string") ~ ("v" → "Some new product name")))
+      val payload = UpdateProductPayload(attributes = newAttrMap,
+                                         skus = Some(Seq(updateSkuPayload)),
+                                         variants = Some(Seq.empty))
+
+      val response = doQuery(simpleProduct.formId, payload)
+      response.skus.length must === (1)
+      response.variants.length must === (0)
+
+      val skuResponse = response.skus.head
+      val code        = skuResponse.attributes \ "code" \ "v"
+      code.extract[String] must === ("SKU-UPDATE-TEST")
+
+      val description = response.attributes \ "description" \ "v"
+      description.extract[String] must === ("Test product description")
+
+      val name = response.attributes \ "name" \ "v"
+      name.extract[String] must === ("Some new product name")
     }
 
     "Updates the SKUs on a product if variants are Some(Seq.empty)" in new Fixture {
