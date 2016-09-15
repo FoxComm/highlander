@@ -12,7 +12,7 @@
       private: no
     - name: "label_name"
       prompt: "Enter label name to reach"
-      default: "ready for review"
+      default: "ready to review"
       private: no
     - name: "slack_hook_url"
       prompt: "Enter Slack incoming webhook URL"
