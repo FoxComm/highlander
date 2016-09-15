@@ -5,6 +5,7 @@ import models.cord.lineitems._
 import CartLineItems.scope._
 import failures.NotFoundFailure400
 import models.location._
+import services.carts.CartTotaler
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.apis.Apis
@@ -12,8 +13,7 @@ import utils.db._
 
 object TaxesService {
 
-  def getTaxRate(
-      cart: Cart)(implicit ec: EC, es: ES, db: DB, ctx: OC, apis: Apis): DbResultT[Int] =
+  def getTaxRate(cart: Cart)(implicit ec: EC, db: DB, apis: Apis): DbResultT[Int] =
     for {
       maybeAddress ← * <~ OrderShippingAddresses.findByOrderRefWithRegions(cart.refNum).one
       result ← * <~ maybeAddress.map { addressTuple ⇒
@@ -25,29 +25,32 @@ object TaxesService {
                        address: OrderShippingAddress,
                        region: Region)(implicit ec: EC, db: DB, apis: Apis): DbResultT[Int] =
     for {
-      li      ← * <~ CartLineItems.byCordRef(cart.refNum).lineItems.result
-      country ← * <~ Countries.mustFindById400(region.countryId)
+      li       ← * <~ CartLineItems.byCordRef(cart.refNum).lineItems.result
+      country  ← * <~ Countries.mustFindById400(region.countryId)
+      discount ← * <~ CartTotaler.adjustmentsTotal(cart)
       result ← * <~ apis.avalaraApi.getTaxForCart(cart,
                                                   li,
                                                   Address.fromOrderShippingAddress(address),
                                                   region,
-                                                  country)
+                                                  country,
+                                                  discount)
     } yield result
 
-  def finalizeTaxes(
-      cart: Cart)(implicit ec: EC, es: ES, db: DB, ctx: OC, apis: Apis): DbResultT[Unit] =
+  def finalizeTaxes(cart: Cart)(implicit ec: EC, db: DB, apis: Apis): DbResultT[Unit] =
     for {
       lineItems ← * <~ CartLineItems.byCordRef(cart.refNum).lineItems.result
       addressTuple ← * <~ OrderShippingAddresses
                       .findByOrderRefWithRegions(cart.refNum)
                       .mustFindOneOr(NotFoundFailure400(OrderShippingAddress, cart.refNum))
-      region  ← * <~ Regions.mustFindById404(addressTuple._1.regionId)
-      country ← * <~ Countries.mustFindById404(region.countryId)
+      region   ← * <~ Regions.mustFindById404(addressTuple._1.regionId)
+      country  ← * <~ Countries.mustFindById404(region.countryId)
+      discount ← * <~ CartTotaler.adjustmentsTotal(cart)
       _ ← * <~ apis.avalaraApi.getTaxForOrder(cart,
                                               lineItems,
                                               Address.fromOrderShippingAddress(addressTuple._1),
                                               addressTuple._2,
-                                              country)
+                                              country,
+                                              discount)
     } yield {}
 
   def saveAddressValidationDetails(

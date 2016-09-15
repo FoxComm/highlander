@@ -40,12 +40,14 @@ trait AvalaraApi {
                     lineItems: Seq[FindLineItemResult],
                     address: Address,
                     region: Region,
-                    country: Country)(implicit ec: EC): Result[Int]
+                    country: Country,
+                    discount: Int)(implicit ec: EC): Result[Int]
   def getTaxForOrder(cart: Cart,
                      lineItems: Seq[FindLineItemResult],
                      address: Address,
                      region: Region,
-                     country: Country)(implicit ec: EC): Result[Int]
+                     country: Country,
+                     discount: Int)(implicit ec: EC): Result[Int]
   def cancelTax(order: Order)(implicit ec: EC): Result[Unit]
 
 }
@@ -159,7 +161,8 @@ object Avalara {
                      lineItems: Seq[FindLineItemResult],
                      address: Address,
                      region: Region,
-                     country: Country)(implicit formats: Formats): Requests.GetTaxes = {
+                     country: Country,
+                     discount: Int)(implicit formats: Formats): Requests.GetTaxes = {
       Requests.GetTaxes(
           CustomerCode = cart.customerId.toString,
           Addresses = Seq(buildAddress(address, region, country)),
@@ -168,7 +171,8 @@ object Avalara {
             .map(zipped ⇒ buildLine(zipped._1, zipped._2, address.id)),
           DocCode = cart.referenceNumber,
           Commit = true,
-          DocType = SalesInvoice
+          DocType = SalesInvoice,
+          Discount = discount / 100
       )
     }
 
@@ -176,7 +180,8 @@ object Avalara {
                    lineItems: Seq[FindLineItemResult],
                    address: Address,
                    region: Region,
-                   country: Country)(implicit formats: Formats): Requests.GetTaxes = {
+                   country: Country,
+                   discount: Int)(implicit formats: Formats): Requests.GetTaxes = {
       Requests.GetTaxes(
           CustomerCode = cart.customerId.toString,
           Addresses = Seq(buildAddress(address, region, country)),
@@ -184,7 +189,8 @@ object Avalara {
             .zip(Stream.from(1))
             .map(zipped ⇒ buildLine(zipped._1, zipped._2, address.id)),
           DocCode = cart.referenceNumber,
-          DocType = SalesOrder
+          DocType = SalesOrder,
+          Discount = discount / 100
       )
     }
 
@@ -228,7 +234,8 @@ object Avalara {
         //Best Practice for tax calculation
         DocCode: String,
         Commit: Boolean = false,
-        DocType: DocType
+        DocType: DocType,
+        Discount: BigDecimal = 0
     )
 
     case class CancelTax(
@@ -390,8 +397,9 @@ class Avalara(url: String, account: String, license: String, profile: String)(
                              lineItems: Seq[FindLineItemResult],
                              address: Address,
                              region: Region,
-                             country: Country)(implicit ec: EC): Result[Int] = {
-    val payload = PayloadBuilder.buildOrder(cart, lineItems, address, region, country)
+                             country: Country,
+                             discount: Int)(implicit ec: EC): Result[Int] = {
+    val payload = PayloadBuilder.buildOrder(cart, lineItems, address, region, country, discount)
     println(write(payload))
     getTax(payload)
   }
@@ -400,8 +408,9 @@ class Avalara(url: String, account: String, license: String, profile: String)(
                               lineItems: Seq[FindLineItemResult],
                               address: Address,
                               region: Region,
-                              country: Country)(implicit ec: EC): Result[Int] = {
-    val payload = PayloadBuilder.buildInvoice(cart, lineItems, address, region, country)
+                              country: Country,
+                              discount: Int)(implicit ec: EC): Result[Int] = {
+    val payload = PayloadBuilder.buildInvoice(cart, lineItems, address, region, country, discount)
     println(write(payload))
     getTax(payload)
   }
