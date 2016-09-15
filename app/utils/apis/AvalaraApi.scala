@@ -445,9 +445,7 @@ class Avalara(url: String, account: String, license: String, profile: String)(
         Result.good(taxCalculated)
       } else {
         val message = res.collectMessages
-        if (res.Messages.exists { m ⇒
-              m.RefersTo.contains("Addresses")
-            }) {
+        if (res.Messages.exists(_.RefersTo.getOrElse("").contains("Address"))) {
           Result.failure(AddressValidationFailure(message))
         } else {
           Result.failure(TaxApplicationFailure(message))
