@@ -61,7 +61,7 @@
   synchronize: src="{{phoenix_src}}/gatling-classes" dest="{{phoenix_dir}}" delete=yes recursive=yes
   become: false
 
-- name: Create directory for Gatling results
+- name: Create Directory for Gatling results
   file: path="{{phoenix_dir}}/gatling-results" state=directory owner="{{user}}" mode="0777"
 
 - name: Delete Phoenix Log Directory
@@ -69,6 +69,10 @@
 
 - name: Create Phoenix Log Directory
   file: path="{{phoenix_dir}}/log" state=directory owner="{{user}}"  mode="0777"
+
+- name: Copy JAR
+  copy: src={{phoenix_jar_src}} dest={{phoenix_jar}} mode="u+x,g+x,o+x"
+  sudo: true
 
 - name: Setup Update Materialzied Views SQL
   copy: src=update_materialized_views.sql dest={{update_materialized_views_sql}}
