@@ -7,12 +7,13 @@ import { reduxForm } from 'redux-form';
 
 import styles from './apply-form.css';
 
+import validate from '../../core/lib/validation';
 import Button from '../../components/button/button';
 import renderField from '../../components/fields/fields';
-import { fields, validate } from './config';
+import { fields } from './config';
 
 import type { HTMLElement } from '../../core/types';
-import type { FieldConfig } from '../../components/fields/fields';
+import type { FormField } from '../../components/fields/fields';
 
 type Props = {
   handleSubmit: Function; // passed by reduxForm
@@ -37,7 +38,7 @@ class ApplyForm extends Component {
 
     return (
       <form className={styles.applyForm} onSubmit={handleSubmit}>
-        {fields.map((item: FieldConfig) => renderField(item))}
+        {fields.map((item: FormField) => renderField(item))}
 
         <Button active={inProgress}>Apply</Button>
         {<span className={cx(styles.error, { [styles.errorActive]: failed })}>Error submitting form.</span>}
@@ -46,4 +47,4 @@ class ApplyForm extends Component {
   }
 }
 
-export default reduxForm({ form: 'apply', validate })(ApplyForm);
+export default reduxForm({ form: 'apply', validate: validate(fields) })(ApplyForm);

@@ -4,12 +4,7 @@ import { Field } from 'redux-form';
 
 import styles from './fields.css';
 
-export type FieldConfig = {
-  name: string;
-  type: string;
-  placeholder: string;
-  values?: Array<string>;
-}
+import type { FormField } from '../../core/types/fields';
 
 const renderInput = ({ input, type, placeholder, meta }) => {
   const hasError = meta.touched && meta.error;
@@ -50,7 +45,7 @@ const renderSelect = ({ input, values, placeholder, meta }) => {
   );
 };
 
-export default (field: FieldConfig) => {
+export default (field: FormField) => {
   let renderField = renderInput;
 
   switch (field.type) {
