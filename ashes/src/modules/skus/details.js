@@ -3,9 +3,9 @@
  */
 
 import Api from 'lib/api';
-import { assoc } from 'sprout-data';
+import { assoc, dissoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
-import { push } from 'react-router-redux';
+import createAsyncActions from '../async-utils';
 import _ from 'lodash';
 
 import { addIlluminatedAttribute } from 'paragons/form-shadow-object';
@@ -37,141 +37,101 @@ const requiredFields = {
   unitCost: 'price',
 };
 
-const skuRequestStart = createAction('SKU_REQUEST_START');
-const skuRequestSuccess = createAction('SKU_REQUEST_SUCCESS');
-const skuRequestFailure = createAction('SKU_REQUEST_FAILURE');
-const skuUpdateStart = createAction('SKU_UPDATE_START');
-const skuUpdateSuccess = createAction('SKU_UPDATE_SUCCESS');
-const skuUpdateFailure = createAction('SKU_UPDATE_FAILURE');
-const setError = createAction('SKU_SET_ERROR');
+export const skuNew = createAction('SKU_NEW');
+const skuClear = createAction('SKU_CLEAR');
 
-export const newSku = createAction('SKU_NEW');
+const _archiveSku = createAsyncActions(
+  'archiveSku',
+  (code, context = defaultContext) => {
+    return Api.delete(`/skus/${context}/${code}`);
+  }
+);
 
-export function fetchSku(code: string, context: string = defaultContext): ActionDispatch {
-  return dispatch => {
-    dispatch(skuRequestStart());
-    return Api.get(`/skus/${context}/${code}`)
-      .then(
-        (res: Sku) => dispatch(skuRequestSuccess(res)),
-        (err: HttpError) => {
-          dispatch(skuRequestFailure());
-          dispatch(setError(err));
-        }
-      );
-  };
-}
+export const archiveSku = _archiveSku.perform;
 
-export function createSku(sku: Sku, context: string = defaultContext): ActionDispatch {
-  return dispatch => {
-    dispatch(skuUpdateStart());
-    return Api.post(`/skus/${context}`, sku)
-      .then(
-        (res: Sku) => {
-          const newCode = _.get(res, ['attributes', 'code', 'v']);
-          dispatch(skuUpdateSuccess(res));
-          dispatch(push(`/skus/${newCode}`));
-        },
-        (err: HttpError) => {
-          dispatch(skuUpdateFailure());
-          dispatch(setError(err));
-        }
-      );
-  };
-}
+const _fetchSku = createAsyncActions(
+  'fetchSku',
+  (code: string, context: string = defaultContext) => {
+    return Api.get(`/skus/${context}/${code}`);
+  }
+);
 
-export function updateSku(sku: Sku, context: string = defaultContext): ActionDispatch {
-  return (dispatch, getState) => {
+const _createSku = createAsyncActions(
+  'createSku',
+  (sku: Sku, context: string = defaultContext) => {
+    return Api.post(`/skus/${context}`, sku);
+  }
+);
+
+const _updateSku = createAsyncActions(
+  'updateSku',
+  function(sku: Sku, context: string = defaultContext) {
+    const { dispatch, getState } = this;
     const oldSku = _.get(getState(), ['skus', 'details', 'sku', 'attributes', 'code', 'v']);
     if (oldSku) {
-      dispatch(skuUpdateStart());
       const stockItemsPromise = dispatch(pushStockItemChanges(oldSku));
-      const updatePromise = Api.patch(`/skus/${context}/${oldSku}`, sku)
-        .then(
-          (res: Sku) => {
-            const newCode = _.get(res, ['attributes', 'code', 'v']);
-            dispatch(skuUpdateSuccess(res));
-            dispatch(push(`/skus/${newCode}`));
-          },
-          (err: HttpError) => {
-            dispatch(skuUpdateFailure());
-            dispatch(setError(err));
-          }
-        );
-
-      return Promise.all([updatePromise, stockItemsPromise]);
+      const updatePromise = Api.patch(`/skus/${context}/${oldSku}`, sku);
+      return Promise.all([updatePromise, stockItemsPromise]).then(([updateResponse]) => {
+        return updateResponse;
+      });
     }
+  }
+);
+
+export const fetchSku = _fetchSku.perform;
+export const createSku = _createSku.perform;
+export const updateSku = _updateSku.perform;
+
+export function clearSubmitErrors() {
+  return (dispatch: Function) => {
+    dispatch(_createSku.clearErrors());
+    dispatch(_updateSku.clearErrors());
+  };
+}
+
+export const clearFetchErrors = _fetchSku.clearErrors;
+
+export function reset() {
+  return (dispatch: Function) => {
+    dispatch(skuClear());
+    dispatch(clearSubmitErrors());
+    dispatch(clearFetchErrors());
   };
 }
 
 export type SkuState = {
-  err: ?HttpError,
-  isFetching: boolean,
-  isUpdating: boolean,
   sku: ?Sku,
 }
 
 const initialState: SkuState = {
-  err: null,
-  isFetching: false,
-  isUpdating: false,
   sku: null,
 };
 
+function updateSkuInState(state: SkuState, sku: Sku) {
+  const configuredSku = _.reduce(requiredFields, (res, value, key) => {
+    const attrs = addIlluminatedAttribute(key, value, null, res.attributes);
+    return assoc(sku, 'attributes', attrs);
+  }, sku);
+
+  return {
+    ...state,
+    sku: configuredSku,
+  };
+}
+
 const reducer = createReducer({
-  [newSku]: (state) => {
+  [skuNew]: (state) => {
     return assoc(state,
       'sku', createEmptySku(),
       'err', null
     );
   },
-  [skuRequestStart]: (state: SkuState) => {
-    return assoc(state,
-      'err', null,
-      'isFetching', true
-    );
+  [skuClear]: state => {
+    return dissoc(state, 'sku');
   },
-  [skuRequestSuccess]: (state: SkuState, sku: Sku) => {
-    const configuredSku = _.reduce(requiredFields, (res, value, key) => {
-      const attrs = addIlluminatedAttribute(key, value, null, res.attributes);
-      return assoc(sku, 'attributes', attrs);
-    }, sku);
-
-    return assoc(state,
-      'err', null,
-      'isFetching', false,
-      'sku', configuredSku,
-    );
-  },
-  [skuRequestFailure]: (state: SkuState) => {
-    return assoc(state, 'isFetching', false);
-  },
-  [skuUpdateStart]: (state: SkuState) => {
-    return assoc(state, 'err', null, 'isUpdating', true);
-  },
-  [skuUpdateSuccess]: (state: SkuState, sku: Sku) => {
-    const configuredSku = _.reduce(requiredFields, (res, value, key) => {
-      const attrs = addIlluminatedAttribute(key, value, null, res.attributes);
-      return assoc(sku, 'attributes', attrs);
-    }, sku);
-
-    return assoc(state,
-      'err', null,
-      'isUpdating', false,
-      'sku', configuredSku,
-    );
-  },
-  [skuUpdateFailure]: (state: SkuState) => {
-    return assoc(state, 'isUpdating', false);
-  },
-  [setError]: (state: SkuState, err: Object) => {
-    const error: HttpError = {
-      status: _.get(err, 'response.status'),
-      statusText: _.get(err, 'response.statusText', ''),
-      messages: _.get(err, 'response.body.errors', []),
-    };
-
-    return assoc(state, 'err', error);
-  },
+  [_createSku.succeeded]: updateSkuInState,
+  [_updateSku.succeeded]: updateSkuInState,
+  [_fetchSku.succeeded]: updateSkuInState,
 }, initialState);
 
 export default reducer;
