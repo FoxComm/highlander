@@ -16,7 +16,20 @@ Place order from cart.
 + Response 200 (application/json)
     + Attributes (FullOrder)
 
-### Update SKU Line Items [POST /v1/my/cart/line-items]
+## SKU Line Items [/v1/my/cart/line-items]
+
+### Set SKU Line Items [POST]
+
+Set the number of line items. Upon completion, cart line items will match the quantities in this payload.
+
++ Request (application/json)
+    + Attributes (array[UpdateLineItemsPayload])
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+### Update SKU Line Items [PATCH]
+
+Add to or remove from the number of line items that are currently stored in your cart.
 
 + Request (application/json)
     + Attributes (array[UpdateLineItemsPayload])
@@ -118,4 +131,3 @@ Removes the shipping method from the cart.
 
 + Response 200 (application/json)
     + Attributes (FullOrder)
-

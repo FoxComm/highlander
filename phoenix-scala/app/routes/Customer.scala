@@ -56,6 +56,12 @@ object Customer {
                     LineItemUpdater.updateQuantitiesOnCustomersCart(customer, reqItems)
                   }
               } ~
+              (patch & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) {
+                reqItems ⇒
+                  mutateOrFailures {
+                    LineItemUpdater.addQuantitiesOnCustomersCart(customer, reqItems)
+                  }
+              } ~
               (post & path("coupon" / Segment) & pathEnd) { code ⇒
                 mutateOrFailures {
                   CartPromotionUpdater.attachCoupon(Originator(customer), None, code)
