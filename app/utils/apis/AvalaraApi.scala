@@ -347,6 +347,9 @@ class Avalara(url: String, account: String, license: String, profile: String)(
     am: ActorMaterializer)
     extends AvalaraApi {
 
+  type UM[T] =
+    akka.http.scaladsl.unmarshalling.Unmarshaller[akka.http.scaladsl.model.HttpResponse, T]
+
   implicit val formats: Formats = JsonFormatters.avalaraFormats
 
   implicit def responseUnmarshaller[T: Manifest]: FromResponseUnmarshaller[T] = {
@@ -365,20 +368,10 @@ class Avalara(url: String, account: String, license: String, profile: String)(
 
   override def validateAddress(address: Address, region: Region, country: Country)(
       implicit ec: EC): Result[Unit] = {
-    val connectionFlow: Flow[HttpRequest, HttpResponse, Future[Http.OutgoingConnection]] =
-      Http().outgoingConnectionHttps(url)
-
-    val headers: ImmutableSeq[HttpHeader] = ImmutableSeq(
-        Authorization(BasicHttpCredentials(account, license)))
     val payload = PayloadBuilder.buildAddress(address, region, country)
 
-    val result: Future[Avalara.Responses.AddressValidation] = Source
-      .single(HttpRequest(uri = s"/1.0/address/validate?${payload.toQuery}",
-                          method = HttpMethods.GET,
-                          headers = headers))
-      .via(connectionFlow)
-      .mapAsync(1)(response ⇒ Unmarshal(response).to[Avalara.Responses.AddressValidation])
-      .runWith(Sink.head)
+    val result: Future[Avalara.Responses.AddressValidation] =
+      getData[Avalara.Responses.AddressValidation](s"/1.0/address/validate?${payload.toQuery}")
 
     result.flatMap {
       case response ⇒
@@ -414,22 +407,10 @@ class Avalara(url: String, account: String, license: String, profile: String)(
   }
 
   override def cancelTax(order: Order)(implicit ec: EC): Result[Unit] = {
-    val connectionFlow: Flow[HttpRequest, HttpResponse, Future[Http.OutgoingConnection]] =
-      Http().outgoingConnectionHttps(url)
-    val headers: ImmutableSeq[HttpHeader] = ImmutableSeq(
-        Authorization(BasicHttpCredentials(account, license)))
+    val payload = HttpEntity(write(PayloadBuilder.cancelOrder(order)))
 
-    val payload = PayloadBuilder.cancelOrder(order)
-
-    val result: Future[Avalara.Responses.CancelTax] = Source
-      .single(
-          HttpRequest(uri = "/1.0/tax/cancel",
-                      method = HttpMethods.POST,
-                      headers = headers,
-                      entity = HttpEntity(write(payload))))
-      .via(connectionFlow)
-      .mapAsync(1)(response ⇒ Unmarshal(response).to[Avalara.Responses.CancelTax])
-      .runWith(Sink.head)
+    val result: Future[Avalara.Responses.CancelTax] =
+      postData[Avalara.Responses.CancelTax]("/1.0/tax/cancel", payload)
 
     result.flatMap { res ⇒
       if (!res.hasError) {
@@ -444,24 +425,13 @@ class Avalara(url: String, account: String, license: String, profile: String)(
   }
 
   private def getTax(payload: Avalara.Requests.GetTaxes)(implicit ec: EC): Result[Int] = {
-    val connectionFlow: Flow[HttpRequest, HttpResponse, Future[Http.OutgoingConnection]] =
-      Http().outgoingConnectionHttps(url)
-    val headers: ImmutableSeq[HttpHeader] = ImmutableSeq(
-        Authorization(BasicHttpCredentials(account, license)))
+    val httpEntity = HttpEntity(write(payload))
 
-    val result: Future[Avalara.Responses.GetTaxes] = Source
-      .single(
-          HttpRequest(uri = "/1.0/tax/get",
-                      method = HttpMethods.POST,
-                      headers = headers,
-                      entity = HttpEntity(write(payload))))
-      .via(connectionFlow)
-      .mapAsync(1)(response ⇒ Unmarshal(response).to[Avalara.Responses.GetTaxes])
-      .runWith(Sink.head)
+    val result: Future[Avalara.Responses.GetTaxes] =
+      postData[Avalara.Responses.GetTaxes]("/1.0/tax/get", httpEntity)
 
     result.flatMap { res ⇒
       if (!res.hasError) {
-        println("no errors")
         val taxCalculated = (res.TotalTaxCalculated.getOrElse("0").toDouble * 100).toInt
         Result.good(taxCalculated)
       } else {
@@ -477,6 +447,39 @@ class Avalara(url: String, account: String, license: String, profile: String)(
     }.recoverWith {
       case err: Throwable ⇒ failureHandler(err)
     }
+  }
+
+  private def getData[T](url: String)(implicit ec: EC, um: UM[T]): Future[T] = {
+    val connectionFlow: Flow[HttpRequest, HttpResponse, Future[Http.OutgoingConnection]] =
+      Http().outgoingConnectionHttps(url)
+
+    val headers: ImmutableSeq[HttpHeader] = ImmutableSeq(
+        Authorization(BasicHttpCredentials(account, license)))
+
+    val result: Future[T] = Source
+      .single(HttpRequest(uri = url, method = HttpMethods.GET, headers = headers))
+      .via(connectionFlow)
+      .mapAsync(1)(response ⇒ Unmarshal(response).to[T])
+      .runWith(Sink.head)
+
+    result
+  }
+
+  private def postData[T](url: String, payload: RequestEntity)(implicit ec: EC,
+                                                               um: UM[T]): Future[T] = {
+    val connectionFlow: Flow[HttpRequest, HttpResponse, Future[Http.OutgoingConnection]] =
+      Http().outgoingConnectionHttps(url)
+    val headers: ImmutableSeq[HttpHeader] = ImmutableSeq(
+        Authorization(BasicHttpCredentials(account, license)))
+
+    val result: Future[T] = Source
+      .single(
+          HttpRequest(uri = url, method = HttpMethods.POST, headers = headers, entity = payload))
+      .via(connectionFlow)
+      .mapAsync(1)(response ⇒ Unmarshal(response).to[T])
+      .runWith(Sink.head)
+
+    result
   }
 
   private def failureHandler(failure: Throwable) = {
