@@ -22,14 +22,17 @@ type Props = {
   updateFields: (code: string, toUpdate: Array<Array<any>>) => void,
 };
 
-const tableColumns = [
-  { field: 'sku', text: 'SKU' },
-  { field: 'retailPrice', text: 'Retail Price' },
-  { field: 'salePrice', text: 'Sale Price' },
-];
-
 export default class SkuList extends Component {
   props: Props;
+
+  get tableColumns(): Array<Object> {
+    return [
+      { field: 'sku', text: 'SKU' },
+      { image: 'imageUrl', text: 'Image' },
+      { field: 'retailPrice', text: 'Retail Price' },
+      { field: 'salePrice', text: 'Sale Price' },
+    ];
+  }
 
   get skus(): Array<Sku> {
     if (this.props.fullProduct) {
@@ -74,7 +77,7 @@ export default class SkuList extends Component {
     return (
       <div className="fc-sku-list">
         <MultiSelectTable
-          columns={tableColumns}
+          columns={this.tableColumns}
           dataTable={false}
           data={{ rows: skus }}
           renderRow={renderRow}
