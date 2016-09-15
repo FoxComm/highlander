@@ -58,6 +58,7 @@
       }
     ],
     "react/prop-types": 0,
+    "react/no-find-dom-node": 0,
     "react/jsx-no-bind": [
       2,
       {

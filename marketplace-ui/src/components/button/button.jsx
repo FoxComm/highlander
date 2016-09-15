@@ -9,11 +9,12 @@ import type { HTMLElement } from '../../core/types';
 
 type Props = {
   active: boolean;
+  disabled?: boolean;
   children?: HTMLElement;
 }
 
 export default (props: Props): HTMLElement => {
-  const { active, children } = props;
+  const { active, disabled, children } = props;
 
   const cls = cx(
     styles.button,
@@ -21,6 +22,6 @@ export default (props: Props): HTMLElement => {
   );
 
   return (
-    <button className={cls} type="submit">{children}</button>
+    <button className={cls} type="submit" disabled={disabled}>{children}</button>
   );
 };

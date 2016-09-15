@@ -2,19 +2,23 @@ import { combineReducers } from 'redux';
 import { routerReducer } from 'react-router-redux';
 import { reducer as formReducer } from 'redux-form';
 
-import { reducer as asyncReducer, getActionState, getActionInProgress, getActionFailed } from './async-utils';
-import { getApplyFormActionNamespace } from './merchant-application';
+import { reducer as asyncReducer, getActionInProgress, getActionFailed } from './async-utils';
+import applicationReducer, { getApplicationActionNamespace } from './merchant-application';
+import accountReducer, { getAccountActionNamespace } from './merchant-account';
 
 const reducer = combineReducers({
   routing: routerReducer,
   asyncActions: asyncReducer,
   form: formReducer,
+  application: applicationReducer,
+  account: accountReducer,
 });
 
 export default reducer;
 
-
-
 /** selectors */
-export const getApplyFormActionInProgress = state => getActionInProgress(state.asyncActions, getApplyFormActionNamespace());
-export const getApplyFormActionFailed = state => getActionFailed(state.asyncActions, getApplyFormActionNamespace());
+export const getApplicationInProgress = state => getActionInProgress(state.asyncActions, getApplicationActionNamespace());
+export const getApplicationFailed = state => getActionFailed(state.asyncActions, getApplicationActionNamespace());
+
+export const getAccountInProgress = state => getActionInProgress(state.asyncActions, getAccountActionNamespace());
+export const getAccountFailed = state => getActionFailed(state.asyncActions, getAccountActionNamespace());

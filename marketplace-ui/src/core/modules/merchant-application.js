@@ -35,13 +35,13 @@ const reducer = createReducer({
   }),
 }, initialState);
 
-const getApplyFormActionNamespace = () => ACTION_MERCHANT_APPLICATION_SUBMIT;
+const getApplicationActionNamespace = () => ACTION_MERCHANT_APPLICATION_SUBMIT;
 
 export {
   reducer as default,
   perform as submit,
 
   /* selectors */
-  getApplyFormActionNamespace,
+  getApplicationActionNamespace,
 };
 
