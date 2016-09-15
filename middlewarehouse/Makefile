@@ -57,10 +57,5 @@ drop-user:
 create-user:
 	createuser -s $(DB_USER)
 
-test-consumers:
-	GOENV=test cd consumers/shipments && go test -v ./...
-	GOENV=test cd consumers/stock-items && go test -v ./...
-	GOENV=test cd consumers/capture && go test -v ./...
-
-test: reset-test test-consumers
+test: reset-test
 	cd $(BUILDPATH) && GOENV=test go test `glide nv`
