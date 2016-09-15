@@ -6,8 +6,11 @@ import models.account._
 import models.admin.{StoreAdminUsers, StoreAdminUser}
 import payloads.StoreAdminPayloads._
 import responses.StoreAdminResponse
+import services.account._
 import utils.aliases._
 import utils.db._
+
+import cats.implicits._
 
 object StoreAdminManager {
 
@@ -18,36 +21,23 @@ object StoreAdminManager {
     } yield StoreAdminResponse.build(admin, storeAdminUser)
 
   def create(payload: CreateStoreAdminPayload,
-             author: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[StoreAdminResponse.Root] =
+             author: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[StoreAdminResponse.Root] = {
+
+    val context = AccountCreateContext(payload.roles, payload.org, payload.scopeId)
+
     for {
-      _ ← * <~ Users
-           .findByEmail(payload.email)
-           .one
-           .mustNotFindOr(AlreadyExistsWithEmail(payload.email))
-
-      account ← * <~ Accounts.create(Account())
-
-      _ ← * <~ (payload.password match {
-               case Some(password) ⇒
-                 AccountAccessMethods.create(AccountAccessMethod
-                       .build(accountId = account.id, name = "login", password = password))
-               case None ⇒ DbResultT.unit
-             })
-
-      admin = User(accountId = account.id,
-                   email = Some(payload.email),
-                   name = Some(payload.name),
-                   phoneNumber = payload.phoneNumber)
-
-      newAdmin ← * <~ Users.create(admin)
-
+      admin ← * <~ AccountManager.createUser(name = payload.name.some,
+                                             email = payload.email.some,
+                                             password = payload.password,
+                                             context = context)
       adminUser ← * <~ StoreAdminUsers.create(
-                     StoreAdminUser(accountId = account.id,
-                                    userId = newAdmin.id,
+                     StoreAdminUser(accountId = admin.accountId,
+                                    userId = admin.id,
                                     state = StoreAdminUser.Invited))
 
-      _ ← * <~ LogActivity.storeAdminCreated(newAdmin, author)
-    } yield StoreAdminResponse.build(newAdmin, adminUser)
+      _ ← * <~ LogActivity.storeAdminCreated(admin, author)
+    } yield StoreAdminResponse.build(admin, adminUser)
+  }
 
   def update(accountId: Int,
              payload: UpdateStoreAdminPayload,

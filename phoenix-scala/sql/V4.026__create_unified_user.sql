@@ -106,7 +106,7 @@ create table account_access_methods
     algorithm int not null,  -- 0 is scrypt, the rest are reserved for future.
     created_at generic_timestamp,
     updated_at generic_timestamp,
-    disabled_at generic_timestamp default null
+    deleted_at generic_timestamp default null
 );
 
 --

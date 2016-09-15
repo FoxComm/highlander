@@ -13,7 +13,10 @@ object StoreAdminPayloads {
                                      name: String,
                                      phoneNumber: Option[String] = None,
                                      password: Option[String] = None,
-                                     department: Option[String] = None)
+                                     department: Option[String] = None,
+                                     roles: List[String],
+                                     org: String,
+                                     scopeId: Int)
       extends Validation[CreateStoreAdminPayload] {
 
     def validate: ValidatedNel[Failure, CreateStoreAdminPayload] = {

@@ -15,8 +15,8 @@ import models.shipping.Shipments
 import payloads.CustomerPayloads._
 import responses.CustomerResponse._
 import services._
-import services.account.AccountManager
-import services.account.AccountCreateContext
+import services.account._
+import services.account._
 import failures.CustomerFailures._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._

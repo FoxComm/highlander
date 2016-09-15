@@ -5,26 +5,39 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import cats.implicits._
 import models.account._
 import models.customer._
+import services.account._
+import services.customers._
 import models.{Note, Notes}
+import payloads.CustomerPayloads.CreateCustomerPayload
 import utils.db._
+import utils.aliases._
 
 trait CustomerSeeds {
 
   type CustomerIds = (Account#Id, Account#Id, Account#Id, Account#Id)
 
-  def createCustomers: DbResultT[CustomerIds] =
+  def createCustomer(user: User, isGuest: Boolean, scopeId: Int)(implicit db: DB,
+                                                                 ac: AC): DbResultT[User] = {
+
+    val payload = CreateCustomerPayload(email = user.email.getOrElse(""),
+                                        name = user.name,
+                                        password = None,
+                                        isGuest = Some(isGuest))
+
+    val createContext =
+      AccountCreateContext(roles = List("customer"), org = "merchant", scopeId = scopeId)
+
     for {
-      accountIds ← * <~ Accounts.createAllReturningIds(customers.map(_ ⇒ Account()))
-      accountCustomers = accountIds zip customers
-      customerIds ← * <~ Users.createAllReturningIds(accountCustomers.map {
-                     case (accountId, customers) ⇒
-                       customer.copy(accountId = accountId)
-                   })
-      ids = accountIds zip customerIds
-      _ ← * <~ CustomerUsers.createAllReturningIds(ids.map {
-           case (accountId, userId) ⇒
-             CustomerUser(accountId = accountId, userId = userId, isGuest = accountId == 3)
-         })
+      response ← * <~ CustomerManager.create(payload = payload, context = createContext)
+      user     ← * <~ Users.mustFindByAccountId(response.id)
+    } yield user
+  }
+
+  def createCustomers(scopeId: Int)(implicit db: DB, ac: AC): DbResultT[CustomerIds] =
+    for {
+      users ← * <~ customers.map(c ⇒
+                   createCustomer(user = c, isGuest = c.accountId == 100, scopeId = scopeId))
+      accountIds = users.map(_.accountId)
       _ ← * <~ Notes.createAll(customerNotes.map(_.copy(referenceId = accountIds.head)))
     } yield
       accountIds.toList match {
@@ -42,7 +55,7 @@ trait CustomerSeeds {
          isDisabled = true) // FIXME: `disabledBy` is not required for `isDisabled`=true
 
   def canadaCustomer =
-    User(accountId = 0,
+    User(accountId = 100, //hack to make one guest
          email = "iamvery@sorry.com".some,
          name = "John Nicholson".some,
          phoneNumber = Some("858-867-5309"))

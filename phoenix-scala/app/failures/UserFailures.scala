@@ -31,6 +31,9 @@ object UserFailures {
     override def description = s"Access method '$name' not found"
   }
 
+  case class OrganizationNotFoundByName(name: String) extends Failure {
+    override def description = s"Organization '$name' not found"
+  }
   case class OrganizationNotFound(name: String, scope: String) extends Failure {
     override def description = s"Organization '$name' not found in scope $scope"
   }

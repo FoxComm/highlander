@@ -189,7 +189,7 @@ $$ LANGUAGE plpgsql;
 create or replace function add_perm(rold_id integer, scope_id integer, resource_id integer, actions text[]) returns void as $$
 declare 
     permission_id integer;
-    parent_path ltree;
+    parent_path exts.ltree;
     scope_path generic_string;
     frn_str generic_string;
 begin
@@ -211,7 +211,7 @@ begin
 end;
 $$ LANGUAGE plpgsql;
 
-create or replace function bootstrap_system() returns void as $$
+create or replace function bootstrap_single_merchant_system() returns void as $$
 declare
     oms_id integer;
     mdl_id integer;
@@ -242,7 +242,7 @@ begin
         raise notice 'No admins, not bootstrapping permissions';
         return;
     end if;
-    perform bootstrap_system();
+    perform bootstrap_single_merchant_system();
 end;
 $$ LANGUAGE plpgsql;
 

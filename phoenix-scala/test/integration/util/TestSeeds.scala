@@ -1,7 +1,9 @@
 package util
 
 import models._
+import models.account._
 import models.customer._
+import models.admin._
 import models.payment.giftcard._
 import slick.driver.PostgresDriver.api._
 import util.fixtures.TestFixtureBase
@@ -13,16 +15,18 @@ import utils.seeds.Seeds.Factories
 trait TestSeeds extends TestFixtureBase {
 
   trait StoreAdmin_Seed {
-    def storeAdmin: StoreAdmin = _storeAdmin
-    private val _storeAdmin =
-      StoreAdmins.result.headOption.findOrCreate(StoreAdmins.create(Factories.storeAdmin)).gimme
+    def storeAdmin: User = _storeAdmin
+    private val _storeAdmin = Users.result.headOption
+      .findOrCreate(
+          Factories.createStoreAdmin(Factories.storeAdmin, "password", StoreAdminUser.Active))
+      .gimme
   }
 
   trait Customer_Seed {
-    def customer: Customer = _customer
+    def customer: User = _customer
 
     private val _customer =
-      Customers.result.headOption.findOrCreate(Customers.create(Factories.customer)).gimme
+      Users.result.headOption.findOrCreate(Customers.create(Factories.customer)).gimme
   }
 
   trait GiftCardSubtype_Seed {

@@ -10,6 +10,8 @@ import cats.data.Xor
 import com.pellucid.sealerate
 import com.typesafe.config.Config
 import failures.{Failures, FailuresOps, NotFoundFailure404}
+import failures.UserFailures._
+
 import models.Reason._
 import models.activity.ActivityContext
 import models.cord.{OrderPayment, OrderShippingAddress}
@@ -116,16 +118,16 @@ object Seeds {
           flyWayMigrate(config)
         }
 
-        if (cfg.seedBase) createBaseSeeds()
-        if (cfg.seedAdmins) createAdminsSeeds()
+        if (cfg.seedBase) createBaseSeeds
+        if (cfg.seedAdmins) createAdminsSeeds
         if (cfg.seedRandom > 0)
           createRandomSeeds(cfg.seedRandom, cfg.customersScaleMultiplier)
         if (cfg.seedStage) {
-          val adminId = mustGetFirstAdmin().id
+          val adminId = mustGetFirstAdmin.id
           createStageSeeds(adminId)
         }
         if (cfg.seedDemo > 0) {
-          val adminId = mustGetFirstAdmin().id
+          val adminId = mustGetFirstAdmin.id
           createStageSeeds(adminId)
           createRandomSeeds(cfg.seedDemo, cfg.customersScaleMultiplier)
         }
@@ -138,21 +140,21 @@ object Seeds {
     db.close()
   }
 
-  def createBaseSeeds()(implicit db: DB): Int = {
+  def createBaseSeeds(implicit db: DB): Int = {
     Console.err.println("Inserting Base Seeds")
-    val result: Failures Xor Int = Await.result(createBase().runTxn(), 4.minutes)
+    val result: Failures Xor Int = Await.result(createBase.runTxn(), 4.minutes)
     validateResults("base", result)
   }
 
-  def getFirstAdmin()(implicit db: DB): DbResultT[User] =
+  def getFirstAdmin(implicit db: DB): DbResultT[User] =
     Users.take(1).mustFindOneOr(NotFoundFailure404(User, "first"))
 
-  def mustGetFirstAdmin()(implicit db: DB): User = {
-    val result = Await.result(getFirstAdmin().run(), 1.minute)
+  def mustGetFirstAdmin(implicit db: DB): User = {
+    val result = Await.result(getFirstAdmin.run(), 1.minute)
     validateResults("get first admin", result)
   }
 
-  def createAdminsSeeds()(implicit db: DB): Int = {
+  def createAdminsSeeds(implicit db: DB): Int = {
     val result: Failures Xor Int = Await.result(Factories.createStoreAdmins.runTxn(), 4.minutes)
     validateResults("admins", result)
   }
@@ -193,20 +195,26 @@ object Seeds {
 
   val today = Instant.now().atZone(ZoneId.of("UTC"))
 
-  def createBase()(implicit db: DB): DbResultT[Int] =
+  def createBase(implicit db: DB): DbResultT[Int] =
     for {
       context ← * <~ ObjectContexts.create(SimpleContext.create())
     } yield context.id
 
-  def createAdmins()(implicit db: DB): DbResultT[Int] =
+  def createAdmins(implicit db: DB): DbResultT[Int] =
     Factories.createStoreAdmins
+
+  val MERCHANT = "merchant"
 
   def createStage(adminId: Int)(implicit db: DB, ac: AC): DbResultT[Unit] =
     for {
+      _       ← * <~ createSingleMerchantSystem
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       ruContext ← * <~ ObjectContexts.create(
                      SimpleContext.create(name = SimpleContext.ru, lang = "ru"))
-      customers   ← * <~ Factories.createCustomers
+      organization ← * <~ Organizations
+                      .findByName(MERCHANT)
+                      .mustFindOr(OrganizationNotFoundByName(MERCHANT))
+      customers   ← * <~ Factories.createCustomers(organization.scopeId)
       _           ← * <~ Factories.createAddresses(customers)
       _           ← * <~ Factories.createCreditCards(customers)
       products    ← * <~ Factories.createProducts
@@ -300,6 +308,9 @@ object Seeds {
                  storeAdminId = 0)
       )
   }
+
+  def createSingleMerchantSystem(implicit ec: EC) =
+    sqlu""" select bootstrap_single_merchant_system() """
 
   private def flyWayMigrate(config: Config): Unit = {
     val flyway = newFlyway(jdbcDataSourceFromConfig("db", config))

@@ -38,6 +38,18 @@ case class User(id: Int = 0,
     if (isBlacklisted) Xor.Left(UserIsBlacklisted(id).single)
     else Xor.Right(this)
   }
+
+  override def validate: ValidatedNel[Failure, User] = {
+    if (name.isEmpty) {
+      Validated.Valid(this)
+    } else {
+      (matches(name.getOrElse(""), User.namePattern, "name")).map { case _ ⇒ this }
+    }
+  }
+}
+
+object User {
+  val namePattern = "[^@]+"
 }
 
 class Users(tag: Tag) extends FoxTable[User](tag, "users") {
