@@ -26,10 +26,10 @@ trait GiftCardGenerator {
                                         originId = origin.id))
     } yield gc
 
-  def generateGiftCardPurchase(customerId: Int, context: ObjectContext)(
+  def generateGiftCardPurchase(accountId: Int, context: ObjectContext)(
       implicit db: DB): DbResultT[GiftCard] =
     for {
-      cart  ← * <~ Carts.create(Cart(customerId = customerId))
+      cart  ← * <~ Carts.create(Cart(accountId = accountId))
       order ← * <~ Orders.createFromCart(cart, context.id)
       order ← * <~ Orders.update(order, order.copy(state = Order.ManualHold))
       orig  ← * <~ GiftCardOrders.create(GiftCardOrder(cordRef = order.refNum))

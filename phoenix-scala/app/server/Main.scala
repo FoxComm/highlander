@@ -88,8 +88,8 @@ class Service(systemOverride: Option[ActorSystem] = None,
   val orgName  = config.getString(s"user.customer.org")
   val scopeId  = config.getInt(s"user.customer.scope_id")
 
-  val guestCreateContext = AccountCreateContext(List(roleName), orgName, scopeId)
-  implicit val auth      = Authenticator.forUser(guestCreateContext)
+  val customerCreateContext = AccountCreateContext(List(roleName), orgName, scopeId)
+  implicit val auth         = Authenticator.forUser(customerCreateContext)
 
   val customerGoogleOauth = oauthServiceFromConfig("customer")
   val adminGoogleOauth    = oauthServiceFromConfig("admin")
@@ -97,7 +97,7 @@ class Service(systemOverride: Option[ActorSystem] = None,
   val defaultRoutes = {
     pathPrefix("v1") {
       routes.AuthRoutes.routes(customerGoogleOauth, adminGoogleOauth) ~
-      routes.Public.routes ~
+      routes.Public.routes(customerCreateContext) ~
       routes.Customer.routes ~
       requireAdminAuth(auth) { implicit admin ⇒
         routes.admin.AdminRoutes.routes ~
