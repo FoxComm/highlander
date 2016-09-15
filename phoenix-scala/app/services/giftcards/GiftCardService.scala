@@ -43,7 +43,7 @@ object GiftCardService {
           admin ← * <~ Users.mustFindByAccountId(origin.adminId)
         } yield GiftCardResponse.build(giftCard, None, Some(UserResponse.build(admin)))
 
-      case (GiftCard.AccountPurchase, Some(accountId)) ⇒
+      case (GiftCard.CustomerPurchase, Some(accountId)) ⇒
         for {
           customer ← * <~ Users.mustFindByAccountId(accountId)
           custUser ← * <~ CustomerUsers.mustFindByAccountId(accountId)

@@ -31,7 +31,7 @@ object AllReturns {
             customer: Option[User] = None,
             customerUser: Option[CustomerUser] = None,
             admin: Option[User] = None,
-            storeAdminUser: Option[StoreAdminUser]): Root =
+            storeAdminUser: Option[StoreAdminUser] = None): Root =
     Root(
         id = rma.id,
         referenceNumber = rma.referenceNumber,

@@ -11,7 +11,7 @@ trait CustomerGenerator {
 
   def generateCustomer: User = {
     val name = Name.name
-    User(email = generateEmail(name).some, name = name.some)
+    User(accountId = 0, email = generateEmail(name).some, name = name.some)
   }
 
   def generateCustomers(total: Int): Seq[User] =

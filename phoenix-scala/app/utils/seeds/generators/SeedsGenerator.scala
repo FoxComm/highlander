@@ -26,7 +26,9 @@ object RankingSeedsGenerator {
   def fakeJson = JObject()
 
   def generateCustomer: User =
-    User(email = s"${randomString(10)}@email.com", name = Some(randomString(10)))
+    User(accountId = 0,
+         email = s"${randomString(10)}@email.com".some,
+         name = Some(randomString(10)))
 
   def generateOrderPayment[A <: PaymentMethod with FoxModel[A]](
       orderRef: String,
@@ -73,9 +75,15 @@ object RankingSeedsGenerator {
       generateOrderPayment(o.refNum, pm, Random.nextInt(20000) + 100)
     }
 
+    def insertAccounts =
+      Accounts.createAllReturningIds((1 to customersCount).map { _ ⇒
+        Account()
+      })
+
     def insertCustomers(accountIds: Seq[Int]) =
       Users.createAll(accountIds.map { accountId ⇒
-        User(accountId = accountId, name = s.some, email = s"$s-$i@email.com")
+        val s = randomString(15)
+        User(accountId = accountId, name = s.some, email = s"$s-$accountId@email.com".some)
       })
 
     def insertOrders() =
@@ -106,7 +114,6 @@ object RankingSeedsGenerator {
     for {
       accountIds ← * <~ insertAccounts
       _          ← * <~ insertCustomers(accountIds)
-      _          ← * <~ insertCustomers
       _          ← * <~ insertOrders
       _          ← * <~ insertPayments
     } yield {}
@@ -131,7 +138,7 @@ object SeedsGenerator
     with PromotionGenerator
     with CouponGenerator {
 
-  def generateAddresses(customers: Seq[Customer]): Seq[Address] = {
+  def generateAddresses(customers: Seq[User]): Seq[Address] = {
     customers.flatMap { c ⇒
       generateAddress(customer = c, isDefault = true) +:
       ((0 to Random.nextInt(2)) map { i ⇒
@@ -171,13 +178,14 @@ object SeedsGenerator
       shipMethods ← * <~ getShipmentRules
       skus        ← * <~ Skus.filter(_.contextId === context.id).result
       skuIds             = skus.map(_.id)
-      generatedCustomers = generateUsers(customerCreated)
-      accountIds ← * <~ Accounts.create(generatedCustomers.map { _ ⇒
+      generatedCustomers = generateCustomers(customersCount)
+      accountIds ← * <~ Accounts.createAllReturningIds(generatedCustomers.map { _ ⇒
                     Account()
                   })
-      accountCustomers = accountIds zip generateCustomers
-      customerIds ← * <~ Users.createAllReturningIds(accountCustomers.map { (accountId, customer) ⇒
-                     customer.copy(accountId = accountId)
+      accountCustomers = accountIds zip generatedCustomers
+      customerIds ← * <~ Users.createAllReturningIds(accountCustomers.map {
+                     case (accountId, customer) ⇒
+                       customer.copy(accountId = accountId)
                    })
       customers ← * <~ Users.filter(_.id.inSet(customerIds)).result
       _ ← * <~ CustomerUsers.createAll(customers.map { c ⇒

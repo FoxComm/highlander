@@ -6,6 +6,8 @@ import models.returns.Return.Canceled
 import models.returns._
 import models.{Reason, Reasons}
 import models.account._
+import models.customer.CustomerUsers
+import models.admin.StoreAdminUsers
 
 import payloads.ReturnPayloads._
 import responses.ReturnResponse._
@@ -62,7 +64,7 @@ object ReturnService {
       storeAdminUser ← * <~ StoreAdminUsers.mustFindByAccountId(admin.accountId)
       adminResponse    = Some(StoreAdminResponse.build(admin, storeAdminUser))
       customerResponse = CustomerResponse.build(customer, custUser)
-    } yield build(rma, customerResponse, adminResponse)
+    } yield build(rma, Some(customerResponse), adminResponse)
 
   def getByRefNum(refNum: String)(implicit ec: EC, db: DB): DbResultT[Root] =
     for {

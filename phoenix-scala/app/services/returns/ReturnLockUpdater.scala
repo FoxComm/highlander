@@ -11,10 +11,12 @@ object ReturnLockUpdater {
 
   def getLockState(refNum: String)(implicit ec: EC, db: DB): DbResultT[ReturnLockResponse.Root] =
     for {
-      rma            ← * <~ Returns.mustFindByRefNum(refNum)
-      event          ← * <~ ReturnLockEvents.latestLockByRma(rma.id).one
-      admin          ← * <~ event.map(e ⇒ Users.findOneByAccountId(e.lockedBy))
-      storeAdminUser ← * <~ admin.map(a ⇒ StoreAdminUsers.findOneByAccountId(a.accountId))
+      rma   ← * <~ Returns.mustFindByRefNum(refNum)
+      event ← * <~ ReturnLockEvents.latestLockByRma(rma.id).one
+      admin ← * <~ event.map(e ⇒ Users.findOneByAccountId(e.lockedBy)).getOrElse(lift(None))
+      storeAdminUser ← * <~ admin
+                        .map(a ⇒ StoreAdminUsers.findOneByAccountId(a.accountId))
+                        .getOrElse(lift(None))
     } yield ReturnLockResponse.build(rma, event, admin, storeAdminUser)
 
   def lock(refNum: String, admin: User)(implicit ec: EC, db: DB): DbResultT[ReturnResponse.Root] =

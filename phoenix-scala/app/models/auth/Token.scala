@@ -60,7 +60,6 @@ sealed trait Token extends Product {
   val name: Option[String]
   val email: Option[String]
   val scope: String
-  val roles: Seq[String]
   val claims: Account.Claims
   val ratchet: Int
   def encode: Failures Xor String = Token.encode(this)
@@ -92,7 +91,6 @@ object Token {
     claims.setClaim("email", token.email)
     claims.setClaim("ratchet", token.ratchet)
     claims.setClaim("scope", token.scope)
-    claims.setStringListClaim("roles", token.roles)
 
     token.name.map { name ⇒
       claims.setClaim("name", name)

@@ -37,8 +37,8 @@ trait OauthService[M] {
   this: Oauth ⇒
 
   def getScopeId: Int
-  def createByUserInfo(info: UserInfo)(implicit ec: EC): DbResultT[M]
-  def findByEmail(email: String)(implicit ec: EC, db: DB): DBIO[Option[M]]
+  def createByUserInfo(info: UserInfo): DbResultT[M]
+  def findByEmail(email: String): DBIO[Option[M]]
   def createToken(user: M, account: Account, scopeId: Int): DbResultT[Token]
   def findAccount(user: M): DbResultT[Account]
 

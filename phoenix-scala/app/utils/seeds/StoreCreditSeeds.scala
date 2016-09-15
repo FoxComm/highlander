@@ -9,9 +9,7 @@ import utils.db._
 
 trait StoreCreditSeeds {
 
-  def createStoreCredits(adminId: User#AccountId,
-                         cust1: User#AccountId,
-                         cust3: User#AccountId): DbResultT[Unit] =
+  def createStoreCredits(adminId: Int, cust1: Int, cust3: Int): DbResultT[Unit] =
     for {
       _      ← * <~ StoreCreditSubtypes.createAll(storeCreditSubTypes)
       origin ← * <~ StoreCreditManuals.create(StoreCreditManual(adminId = adminId, reasonId = 1))

@@ -4,6 +4,7 @@ import scala.util.Random
 
 import faker._
 import models.location.Address;
+import models.account._;
 
 trait AddressGenerator {
 

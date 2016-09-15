@@ -7,6 +7,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import cats.implicits._
 import com.github.tototoshi.csv._
 import models.account._
+import models.admin._
 import utils.db._
 
 trait StoreAdminSeeds {
@@ -20,13 +21,13 @@ trait StoreAdminSeeds {
       _ ← * <~ StoreAdminUsers.create(
              StoreAdminUser(accountId = account.id, userId = newUser.id, state = state))
       //MAXDO Assign admin role
-    } yield newUSer
+    } yield newUser
 
   def createStoreAdmins: DbResultT[User#Id] = {
     val reader = CSVReader.open(new File("gatling-classes/data/store_admins.csv"))
     val admins = reader.all.drop(1).collect {
       case name :: email :: password :: Nil ⇒ {
-        val user = User(name = name, email = email)
+        val user = User(accountId = 0, name = name.some, email = email.some)
         createStoreAdmin(user, password, StoreAdminUser.Active)
       }
     }
@@ -43,10 +44,10 @@ trait StoreAdminSeeds {
       case None    ⇒ scala.io.StdIn.readLine(s"Enter password for new admin $username: ")
     }
 
-    val user = User(name = name, email = email)
+    val user = User(accountId = 0, name = username.some, email = email.some)
     createStoreAdmin(user, pw, StoreAdminUser.Active)
   }
 
   def storeAdmin =
-    User(email = "admin@admin.com", name = "Frankly Admin")
+    User(accountId = 0, email = "admin@admin.com".some, name = "Frankly Admin".some)
 }

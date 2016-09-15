@@ -41,7 +41,7 @@ class GoogleOauthUser(options: GoogleOauthOptions)(implicit ec: EC, db: DB)
     } yield user
   }
 
-  def findByEmail(email: String) = Users.findByEmail(email)
+  def findByEmail(email: String) = Users.findByEmail(email).one
 
   def createToken(user: User, account: Account, scopeId: Int): DbResultT[Token] =
     for {

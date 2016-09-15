@@ -73,7 +73,7 @@ trait OrderGenerator extends ShipmentSeeds {
 
   private val yesterday: Instant = time.yesterday.toInstant
 
-  def manualHoldOrder(accountId: User#accountId,
+  def manualHoldOrder(accountId: Int,
                       context: ObjectContext,
                       skuIds: Seq[Int],
                       giftCard: GiftCard)(implicit db: DB): DbResultT[Order] =
@@ -96,7 +96,7 @@ trait OrderGenerator extends ShipmentSeeds {
       _ ← * <~ OrderTotaler.saveTotals(cart, order)
     } yield order
 
-  def manualHoldStoreCreditOrder(accountId: User#accountId,
+  def manualHoldStoreCreditOrder(accountId: Int,
                                  context: ObjectContext,
                                  skuIds: Seq[Int],
                                  giftCard: GiftCard)(implicit db: DB): DbResultT[Order] =
@@ -122,10 +122,8 @@ trait OrderGenerator extends ShipmentSeeds {
       _ ← * <~ OrderTotaler.saveTotals(cart, order)
     } yield order
 
-  def fraudHoldOrder(accountId: User#accountId,
-                     context: ObjectContext,
-                     skuIds: Seq[Int],
-                     giftCard: GiftCard)(implicit db: DB): DbResultT[Order] =
+  def fraudHoldOrder(accountId: Int, context: ObjectContext, skuIds: Seq[Int], giftCard: GiftCard)(
+      implicit db: DB): DbResultT[Order] =
     for {
       cart  ← * <~ Carts.create(Cart(accountId = accountId))
       order ← * <~ Orders.createFromCart(cart, context.id)
@@ -144,10 +142,8 @@ trait OrderGenerator extends ShipmentSeeds {
       _ ← * <~ OrderTotaler.saveTotals(cart, order)
     } yield order
 
-  def remorseHold(accountId: User#accountId,
-                  context: ObjectContext,
-                  skuIds: Seq[Int],
-                  giftCard: GiftCard)(implicit db: DB): DbResultT[Order] =
+  def remorseHold(accountId: Int, context: ObjectContext, skuIds: Seq[Int], giftCard: GiftCard)(
+      implicit db: DB): DbResultT[Order] =
     for {
       randomHour    ← * <~ 1 + Random.nextInt(48)
       randomSeconds ← * <~ randomHour * 3600
@@ -172,7 +168,7 @@ trait OrderGenerator extends ShipmentSeeds {
       _ ← * <~ OrderTotaler.saveTotals(cart, order)
     } yield order
 
-  def cartOrderUsingGiftCard(accountId: User#accountId,
+  def cartOrderUsingGiftCard(accountId: Int,
                              context: ObjectContext,
                              skuIds: Seq[Int],
                              giftCard: GiftCard)(implicit db: DB): DbResultT[Cart] = {
@@ -193,7 +189,7 @@ trait OrderGenerator extends ShipmentSeeds {
     } yield cart
   }
 
-  def cartOrderUsingCreditCard(accountId: User#accountId,
+  def cartOrderUsingCreditCard(accountId: Int,
                                context: ObjectContext,
                                skuIds: Seq[Int],
                                giftCard: GiftCard)(implicit db: DB): DbResultT[Cart] =
@@ -209,7 +205,7 @@ trait OrderGenerator extends ShipmentSeeds {
       _ ← * <~ CartTotaler.saveTotals(cart)
     } yield cart
 
-  def shippedOrderUsingCreditCard(accountId: User#accountId,
+  def shippedOrderUsingCreditCard(accountId: Int,
                                   context: ObjectContext,
                                   skuIds: Seq[Int],
                                   giftCard: GiftCard)(implicit db: DB): DbResultT[Order] = {
@@ -237,7 +233,7 @@ trait OrderGenerator extends ShipmentSeeds {
     } yield order
   }
 
-  def shippedOrderUsingGiftCard(accountId: User#accountId,
+  def shippedOrderUsingGiftCard(accountId: Int,
                                 context: ObjectContext,
                                 skuIds: Seq[Int],
                                 giftCard: GiftCard)(implicit db: DB): DbResultT[Order] = {
@@ -337,10 +333,10 @@ trait OrderGenerator extends ShipmentSeeds {
       } yield {}
   }
 
-  private def getCc(accountId: User#accountId)(implicit db: DB) =
+  private def getCc(accountId: Int)(implicit db: DB) =
     CreditCards.findDefaultByAccountId(accountId).mustFindOneOr(CustomerHasNoCreditCard(accountId))
 
-  private def getDefaultAddress(accountId: User#accountId)(implicit db: DB) =
+  private def getDefaultAddress(accountId: Int)(implicit db: DB) =
     Addresses
       .findAllByAccountId(accountId)
       .filter(_.isDefaultShipping)

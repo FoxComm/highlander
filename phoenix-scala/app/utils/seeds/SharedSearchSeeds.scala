@@ -3,6 +3,7 @@ package utils.seeds
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import models.account._
+import models.admin._
 import models.sharedsearch.{SharedSearch, SharedSearchAssociation, SharedSearchAssociations, SharedSearches}
 import org.json4s.jackson.JsonMethods._
 import utils.db._

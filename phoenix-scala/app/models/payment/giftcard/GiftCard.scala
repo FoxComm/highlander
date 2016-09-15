@@ -26,7 +26,7 @@ import utils.db._
 
 case class GiftCard(id: Int = 0,
                     originId: Int,
-                    originType: OriginType = AccountPurchase,
+                    originType: OriginType = CustomerPurchase,
                     code: String = "",
                     subTypeId: Option[Int] = None,
                     currency: Currency = Currency.USD,
@@ -106,10 +106,10 @@ object GiftCard {
   case object FullyRedeemed extends State
 
   sealed trait OriginType
-  case object CsrAppeasement  extends OriginType
-  case object AccountPurchase extends OriginType
-  case object FromStoreCredit extends OriginType
-  case object RmaProcess      extends OriginType
+  case object CsrAppeasement   extends OriginType
+  case object CustomerPurchase extends OriginType
+  case object FromStoreCredit  extends OriginType
+  case object RmaProcess       extends OriginType
 
   object State extends ADT[State] {
     def types = sealerate.values[State]
@@ -124,7 +124,7 @@ object GiftCard {
   def build(balance: Int, originId: Int, currency: Currency): GiftCard = {
     GiftCard(
         originId = originId,
-        originType = GiftCard.AccountPurchase,
+        originType = GiftCard.CustomerPurchase,
         state = GiftCard.Active,
         currency = currency,
         originalBalance = balance,
@@ -161,7 +161,7 @@ object GiftCard {
   def buildLineItem(balance: Int, originId: Int, currency: Currency): GiftCard = {
     GiftCard(
         originId = originId,
-        originType = GiftCard.AccountPurchase,
+        originType = GiftCard.CustomerPurchase,
         state = GiftCard.Cart,
         currency = currency,
         originalBalance = balance,

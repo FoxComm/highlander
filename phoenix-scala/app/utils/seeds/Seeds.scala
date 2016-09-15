@@ -127,7 +127,6 @@ object Seeds {
         if (cfg.seedDemo > 0) {
           val adminId = mustGetFirstAdmin().id
           createStageSeeds(adminId)
-          createDemoSeeds()
           createRandomSeeds(cfg.seedDemo, cfg.customersScaleMultiplier)
         }
       case CreateAdmin ⇒
@@ -169,11 +168,6 @@ object Seeds {
     Console.err.println("Inserting Stage seeds")
     val result: Failures Xor Unit = Await.result(createStage(adminId).runTxn(), 4.minutes)
     validateResults("stage", result)
-  }
-
-  def createDemoSeeds()(implicit db: DB) {
-    val result = Await.result(DemoSeeds.insertDemoSeeds.runTxn(), 4.minutes)
-    validateResults("demo", result)
   }
 
   def createRandomSeeds(scale: Int, customersScaleMultiplier: Int)(implicit db: DB, ac: AC) {
