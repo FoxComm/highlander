@@ -52,7 +52,7 @@ object SkuManager {
       _ ← * <~ LogActivity.fullSkuUpdated(Some(admin), response, ObjectContextResponse.build(oc))
     } yield response
 
-  def archiveById(code: String)(implicit ec: EC, db: DB, oc: OC): DbResultT[SkuResponse.Root] =
+  def archiveByCode(code: String)(implicit ec: EC, db: DB, oc: OC): DbResultT[SkuResponse.Root] =
     for {
       fullSku ← * <~ ObjectManager.getFullObject(
                    SkuManager.mustFindSkuByContextAndCode(oc.id, code))

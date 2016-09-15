@@ -38,7 +38,7 @@ object SkuRoutes {
               } ~
               (delete & pathEnd) {
                 mutateOrFailures {
-                  SkuManager.archiveById(code)
+                  SkuManager.archiveByCode(code)
                 }
               } ~
               pathPrefix("albums") {
