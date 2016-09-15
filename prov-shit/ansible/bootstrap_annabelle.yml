@@ -11,8 +11,12 @@
       default: "~/FoxComm/annabelle/target/annabelle-1.0-standalone.jar"
       private: no
     - name: "label_name"
-      prompt: "Enter label name to reach"
+      prompt: "Enter label name to trigger on"
       default: "ready to review"
+      private: no
+    - name: "message_header"
+      prompt: "Enter message header"
+      default: "New PR is ready for review"
       private: no
     - name: "slack_hook_url"
       prompt: "Enter Slack incoming webhook URL"
