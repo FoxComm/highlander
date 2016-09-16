@@ -27,7 +27,6 @@ type State = {
     id: string|number,
     option: Option
   },
-  variants: Array<Option>,
 };
 
 class OptionList extends Component {
@@ -35,7 +34,6 @@ class OptionList extends Component {
 
   state: State = {
     editOption: null,
-    variants: this.props.variants,
   };
 
   get actions(): Element {
@@ -59,7 +57,7 @@ class OptionList extends Component {
     let editOption = { id };
 
     if (id !== 'new') {
-      editOption.option = this.state.variants[id]
+      editOption.option = this.props.variants[id]
     } else {
       editOption.option = {
         name: '',
@@ -74,18 +72,16 @@ class OptionList extends Component {
 
   @autobind
   deleteOption(id: string|number) {
-    const { variants } = this.state;
+    const { variants } = this.props;
 
     variants.splice(id, 1);
 
-    this.setState({
-      variants
-    });
+    this.props.updateVariants(variants);
   }
 
   @autobind
   updateOption(option: Option, id: string|number) {
-    const { variants } = this.state;
+    const { variants } = this.props;
 
     if (id === 'new') {
       variants.push(option);
@@ -94,9 +90,8 @@ class OptionList extends Component {
     }
 
     this.setState({
-      variants,
       editOption: null,
-    });
+    }, () => this.props.updateVariants(variants));
   }
 
   @autobind
@@ -123,8 +118,10 @@ class OptionList extends Component {
   }
 
   render(): Element {
-    const variants = this.renderOptions(this.state.variants);
+    const variants = this.renderOptions(this.props.variants);
     const content = _.isEmpty(variants) ? this.emptyContent : variants;
+    console.log(this.props);
+
     const optionDialog = (
       <OptionEditDialog
         option={this.state.editOption}

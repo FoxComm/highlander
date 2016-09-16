@@ -36,7 +36,7 @@ export default class SkuList extends Component {
     skuId: null,
   };
 
-  get tableColumns(): Array<Object> {
+  tableColumns(): Array<Object> {
     const { variants } = this.props;
     const variantColumns = [];
     _.each(variants, (variant, idx) => {
@@ -156,7 +156,7 @@ export default class SkuList extends Component {
     return (
       <div className="fc-sku-list">
         <MultiSelectTable
-          columns={this.tableColumns}
+          columns={this.tableColumns()}
           dataTable={false}
           data={{ rows: skus }}
           renderRow={renderRow}
@@ -168,6 +168,7 @@ export default class SkuList extends Component {
   }
 
   render(): Element {
+    console.log('Sku List', this.props.variants);
     this.availableVariants;
     return _.isEmpty(this.skus)
       ? this.emptyContent

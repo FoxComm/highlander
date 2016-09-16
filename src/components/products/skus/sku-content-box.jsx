@@ -78,6 +78,7 @@ class SkuContentBox extends Component {
   }
 
   render() {
+    console.log('Sku Content Box', this.props.variants)
     return (
       <ContentBox title="SKUs" actionBlock={ this.actions }>
         <SkuList

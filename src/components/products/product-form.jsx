@@ -33,6 +33,7 @@ type Props = {
 
 type State = {
   isAddingProperty: bool,
+  varaints: Array<any>,
 };
 
 const omitKeys = {
@@ -54,6 +55,7 @@ export default class ProductForm extends Component {
 
   state: State = {
     isAddingProperty: false,
+    variants: this.props.product.variants,
   };
 
   get generalAttrs(): Array<string> {
@@ -74,48 +76,9 @@ export default class ProductForm extends Component {
     ];
   }
 
-  get skusContentBox(): Element {
-    const variants = [
-      {
-        "name": "Color",
-        "values": [
-          {
-            "name": "Red",
-            "swatch": "FF0000"
-          },
-          {
-            "name": "Blue",
-            "swatch": "0000FF"
-          }
-        ]
-      },
-      {
-        "name": "Size",
-        "values": [
-          {
-            "name": "S",
-            "swatch": "S"
-          },
-          {
-            "name": "M",
-            "swatch": "M"
-          },
-          {
-            "name": "L",
-            "swatch": "L"
-          }
-        ]
-      }
-    ];
-
-    return (
-      <SkuContentBox
-        fullProduct={this.props.product}
-        updateField={this.props.onSetSkuProperty}
-        updateFields={this.props.onSetSkuProperties}
-        variants={variants}
-      />
-    );
+  @autobind
+  updateVariants(newVariants: Array<any>): void {
+    this.setState({ variants: newVariants })
   }
 
   @autobind
@@ -173,22 +136,33 @@ export default class ProductForm extends Component {
             fieldsToRender={this.generalAttrs}
             attributes={attributes}
             options={options}
-            title="General" />
+            title="General"
+          />
 
-          <OptionList variants={this.props.product.variants} />
+          <OptionList
+            variants={this.state.variants}
+            updateVariants={this.updateVariants}
+          />
 
-          {this.skusContentBox}
+          <SkuContentBox
+            fullProduct={this.props.product}
+            updateField={this.props.onSetSkuProperty}
+            updateFields={this.props.onSetSkuProperties}
+            variants={this.state.variants}
+          />
 
           <ObjectForm
             onChange={this.handleProductChange}
             fieldsToRender={defaultKeys.seo}
             attributes={attributes}
-            title="SEO" />
+            title="SEO"
+          />
         </div>
         <div className="fc-col-md-2-5">
           <Tags
             attributes={attributes}
-            onChange={this.handleProductChange} />
+            onChange={this.handleProductChange}
+          />
           {this.productState}
         </div>
       </div>
