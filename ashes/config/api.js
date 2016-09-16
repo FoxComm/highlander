@@ -15,8 +15,6 @@ module.exports = function(env) {
 
   return {
     host: process.env.API_URL,
-    uri: `${process.env.API_URL}/${version}`,
     auth: auth(),
-    version: version
   };
 };
