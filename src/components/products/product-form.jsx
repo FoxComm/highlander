@@ -75,12 +75,46 @@ export default class ProductForm extends Component {
   }
 
   get skusContentBox(): Element {
+    const variants = [
+      {
+        "name": "Color",
+        "values": [
+          {
+            "name": "Red",
+            "swatch": "FF0000"
+          },
+          {
+            "name": "Blue",
+            "swatch": "0000FF"
+          }
+        ]
+      },
+      {
+        "name": "Size",
+        "values": [
+          {
+            "name": "S",
+            "swatch": "S"
+          },
+          {
+            "name": "M",
+            "swatch": "M"
+          },
+          {
+            "name": "L",
+            "swatch": "L"
+          }
+        ]
+      }
+    ];
+
     return (
       <ContentBox title="SKUs">
         <SkuList
           fullProduct={this.props.product}
           updateField={this.props.onSetSkuProperty}
           updateFields={this.props.onSetSkuProperties}
+          variants={variants}
         />
       </ContentBox>
     );

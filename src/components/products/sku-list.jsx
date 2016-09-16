@@ -21,6 +21,7 @@ type Props = {
   fullProduct: ?Product,
   updateField: UpdateFn,
   updateFields: (code: string, toUpdate: Array<Array<any>>) => void,
+  variants: Array<any>,
 };
 
 type State = {
@@ -36,7 +37,7 @@ export default class SkuList extends Component {
   };
 
   get tableColumns(): Array<Object> {
-    const variants = _.get(this.props, ['fullProduct', 'variants'], []);
+    const { variants } = this.props;
     const variantColumns = _.map(variants, variant => ({ field: variant.name, text: variant.name }));
     return [
       { field: 'image', text: 'Image' },
