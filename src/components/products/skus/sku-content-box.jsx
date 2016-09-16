@@ -78,13 +78,12 @@ class SkuContentBox extends Component {
   }
 
   render() {
-    console.log('Sku Content Box', this.props.variants)
     return (
       <ContentBox title="SKUs" actionBlock={ this.actions }>
         <SkuList
           fullProduct={this.props.fullProduct}
-          updateField={this.props.onSetSkuProperty}
-          updateFields={this.props.onSetSkuProperties}
+          updateField={this.props.updateField}
+          updateFields={this.props.updateFields}
           variants={this.props.variants}
         />
         { this.addSkuDialog }

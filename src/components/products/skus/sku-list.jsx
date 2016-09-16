@@ -168,7 +168,6 @@ export default class SkuList extends Component {
   }
 
   render(): Element {
-    console.log('Sku List', this.props.variants);
     this.availableVariants;
     return _.isEmpty(this.skus)
       ? this.emptyContent
