@@ -349,7 +349,7 @@ export class ObjectPage extends Component {
     return (
       <div>
         <Prompt
-          message="You have unsaved information, are you sure you want to leave this page?"
+          message="You have unsaved changes. Are you sure you want to leave this page?"
           when={this.unsaved}
         />
         <PageTitle title={this.pageTitle}>
