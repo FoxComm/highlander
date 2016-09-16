@@ -8,6 +8,7 @@ import models.customer._
 import models.inventory.Sku
 import models.location._
 import models.payment.giftcard.GiftCard
+import models.product.{Mvp, SimpleSku}
 import models.traits.Originator
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.PaymentPayloads.GiftCardPayment
@@ -105,4 +106,7 @@ trait RawFixtures extends RawPaymentFixtures {
     val order: Order = Orders.createFromCart(cart).gimme
   }
 
+  trait Sku_Raw {
+    val simpleSku: Sku = Mvp.insertSku(ctx.id, SimpleSku("BY-ITSELF", "A lonely item", 9999)).gimme
+  }
 }
