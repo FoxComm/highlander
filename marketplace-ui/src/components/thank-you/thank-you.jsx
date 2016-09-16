@@ -14,7 +14,7 @@ class ThankYou extends Component {
 
   static defaultProps = {
     title: 'Thank You!',
-    message: 'We\'ll call you soon.',
+    message: 'We\'ll get back to you as soon as we can.',
   };
 
   render() {
