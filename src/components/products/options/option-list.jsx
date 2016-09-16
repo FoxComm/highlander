@@ -11,7 +11,8 @@ import _ from 'lodash';
 import ConfirmationDialog from 'components/modal/confirmation-dialog';
 import ContentBox from 'components/content-box/content-box';
 import { FormField } from 'components/forms';
-import VariantEntry from './option-entry';
+import OptionEntry from './option-entry';
+import OptionEditDialog from './option-edit-dialog';
 
 // styles
 import styles from './option-list.css';
@@ -24,7 +25,7 @@ type Props = {
 };
 
 type State = {
-  newOption: { [key:string]: Variant },
+  editOption: bool,
   variants: { [key:string]: Variant },
 };
 
@@ -32,13 +33,13 @@ class OptionList extends Component {
   props: Props;
 
   state: State = {
-    newOption: null,
+    editOption: null,
     variants: this.props.variants,
   };
 
   get actions(): Element {
     return (
-      <a styleName="add-icon" onClick={this.handleAddNewOption}>
+      <a styleName="add-icon" onClick={() => this.editOption('new')}>
         <i className="icon-add" />
       </a>
     );
@@ -53,31 +54,43 @@ class OptionList extends Component {
   }
 
   @autobind
-  handleAddNewOption() {
-    this.setState({
-      newOption: {
+  editOption(id) {
+    let editOption = { id };
+
+    if (id !== 'new') {
+      editOption.option = this.state.variants[id]
+    } else {
+      editOption.option = {
         name: '',
         type: '',
-      },
+      }
+    }
+
+    this.setState({
+      editOption
     });
   }
 
   @autobind
-  handleSaveNewOption(variant: Variant, listKey: string) {
-    const { variants, newOption } = this.state;
+  handleSaveOption(option, id) {
+    const { variants } = this.state;
 
-    variants.push(newOption);
+    if (id === 'new') {
+      variants.push(option);
+    } else {
+      variants[id] = option;
+    }
 
     this.setState({
       variants,
-      newOption: null,
+      editOption: null,
     });
   }
 
   @autobind
-  handleCancelNewOption() {
+  handleCancelEditOption() {
     this.setState({
-      newOption: null,
+      editOption: null,
     });
   }
 
@@ -85,74 +98,31 @@ class OptionList extends Component {
     return _.map(variants, (value, key) => {
       const reactKey = `product-variant-${key}`;
       return (
-        <VariantEntry
+        <OptionEntry
           key={reactKey}
+          id={key}
           variant={value}
-          listKey={key}
-          onCancel={this.handleCancelNewOption} />
+          editOption={this.editOption}
+        />
       );
     });
-  }
-
-  @autobind
-  handleDialogChange(value, field) {
-    const newOption = assoc(this.state.newOption, field, value);
-
-    this.setState({newOption});
-  }
-
-  renderNewOptionDialog() {
-    const isVisible = !!this.state.newOption;
-    const newOption = (
-      <div styleName="new-option-dialog">
-        <FormField
-          className="fc-object-form__field"
-          labelClassName="fc-object-form__field-label"
-          label="Name"
-          key={`object-form-attribute-name`}
-        >
-          <input
-            type="text"
-            value={this.state.newOption.name}
-            onChange={({target}) => this.handleDialogChange(target.value, 'name')}
-          />
-        </FormField>
-        <FormField
-          className="fc-object-form__field"
-          labelClassName="fc-object-form__field-label"
-          label="Display Type"
-          key={`object-form-attribute-type`}
-        >
-          <input
-            type="text"
-            value={this.state.newOption.type}
-            onChange={({target}) => this.handleDialogChange(target.value, 'type')}
-          />
-        </FormField>
-      </div>
-    );
-
-    return (
-      <ConfirmationDialog
-        isVisible={isVisible}
-        header="New option"
-        body={newOption}
-        cancel="Cancel"
-        confirm="Add option"
-        cancelAction={this.handleCancelNewOption}
-        confirmAction={this.handleSaveNewOption}
-      />
-    )
   }
 
   render(): Element {
     const variants = this.renderOptions(this.state.variants);
     const content = _.isEmpty(variants) ? this.emptyContent : variants;
+    const editDialog = (
+      <OptionEditDialog
+        option={this.state.editOption}
+        cancelAction={this.handleCancelEditOption}
+        confirmAction={this.handleSaveOption}
+      />
+    );
 
     return (
       <ContentBox title="Options" actionBlock={this.actions}>
         {content}
-        {this.state.newOption && this.renderNewOptionDialog()}
+        {this.state.editOption !== null && editDialog}
       </ContentBox>
     );
   }
