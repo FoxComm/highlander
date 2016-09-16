@@ -13,9 +13,9 @@ import { flow, filter } from 'lodash/fp';
 import ContentBox from '../content-box/content-box';
 import ObjectForm from '../object-form/object-form';
 import ObjectScheduler from '../object-scheduler/object-scheduler';
-import SkuList from './sku-list';
 import Tags from '../tags/tags';
 import OptionList from './options/option-list';
+import SkuContentBox from './skus/sku-content-box';
 
 // types
 import type { Attributes } from 'paragons/object';
@@ -109,14 +109,12 @@ export default class ProductForm extends Component {
     ];
 
     return (
-      <ContentBox title="SKUs">
-        <SkuList
-          fullProduct={this.props.product}
-          updateField={this.props.onSetSkuProperty}
-          updateFields={this.props.onSetSkuProperties}
-          variants={variants}
-        />
-      </ContentBox>
+      <SkuContentBox
+        fullProduct={this.props.product}
+        updateField={this.props.onSetSkuProperty}
+        updateFields={this.props.onSetSkuProperties}
+        variants={variants}
+      />
     );
   }
 
