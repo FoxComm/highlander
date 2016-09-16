@@ -7,8 +7,11 @@ import models.cord._
 import models.cord.lineitems.OrderLineItems.scope._
 import models.cord.lineitems._
 import CartLineItems.scope._
+import failures.CartFailures.SKUWithNoProductAdded
+import failures.GeneralFailure
 import models.customer.Customer
 import models.inventory.Skus
+import models.objects.ProductSkuLinks
 import models.payment.giftcard._
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import responses.TheResponse
@@ -127,6 +130,9 @@ object LineItemUpdater {
                  .filterByContext(contextId)
                  .filter(_.code === skuCode)
                  .mustFindOneOr(SkuNotFoundForContext(skuCode, contextId))
+          _ ← * <~ ProductSkuLinks
+               .filter(_.rightId === sku.id)
+               .mustFindOneOr(SKUWithNoProductAdded(cart.refNum, skuCode))
           lis ← * <~ doUpdateLineItems(sku.id, qty, cart.refNum)
         } yield lis
     }
@@ -144,6 +150,9 @@ object LineItemUpdater {
                  .filterByContext(ctx.id)
                  .filter(_.code === skuCode)
                  .mustFindOneOr(SkuNotFoundForContext(skuCode, ctx.id))
+          _ ← * <~ ProductSkuLinks
+               .filter(_.rightId === sku.id)
+               .mustFindOneOr(SKUWithNoProductAdded(cart.refNum, skuCode))
           lis ← * <~ (if (delta > 0) increaseLineItems(sku.id, delta, cart.refNum)
                       else decreaseLineItems(sku.id, -delta, cart.refNum))
         } yield lis
