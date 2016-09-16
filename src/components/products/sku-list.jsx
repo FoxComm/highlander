@@ -39,7 +39,7 @@ export default class SkuList extends Component {
     const variants = _.get(this.props, ['fullProduct', 'variants'], []);
     const variantColumns = _.map(variants, variant => ({ field: variant.name, text: variant.name }));
     return [
-      { field: 'imageUrl', text: 'Image' },
+      { field: 'image', text: 'Image' },
       ...variantColumns,
       { field: 'sku', text: 'SKU' },
       { field: 'retailPrice', text: 'Retail Price' },
@@ -140,7 +140,6 @@ export default class SkuList extends Component {
   }
 
   render(): Element {
-    console.log(this.props.fullProduct);
     return _.isEmpty(this.skus)
       ? this.emptyContent
       : this.skuContent(this.skus);

@@ -209,6 +209,22 @@ class EditableSkuRow extends Component {
     return <div>{code}</div>;
   }
 
+  imageCell(sku: Sku): Element {
+    const imageObject = _.get(sku, ['albums', 0, 'images', 0]);
+
+    if (!_.isEmpty(imageObject)) {
+      return (
+        <div styleName="image-cell">
+          <img {...imageObject} styleName="cell-thumbnail" />
+        </div>
+      );
+    }
+
+    return (
+      <span styleName="no-image-text">No image.</span>
+    );
+  }
+
   actionsCell(sku: Sku): Element {
     return <DeleteButton onClick={() => this.props.onDeleteClick(sku.id)}/>;
   }
@@ -223,6 +239,8 @@ class EditableSkuRow extends Component {
         return this.priceCell(sku, field);
       case 'upc':
         return this.upcCell(sku);
+      case 'image':
+        return this.imageCell(sku);
       case 'actions':
         return this.actionsCell(sku);
       default:
