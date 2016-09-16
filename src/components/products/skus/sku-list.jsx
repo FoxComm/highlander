@@ -43,14 +43,19 @@ export default class SkuList extends Component {
       variantColumns.push({ field: `${idx}_variant`, text: variant.name });
     });
 
-    return [
+    let columns = [
       { field: 'image', text: 'Image' },
       ...variantColumns,
       { field: 'sku', text: 'SKU' },
       { field: 'retailPrice', text: 'Retail Price' },
       { field: 'salePrice', text: 'Sale Price' },
-      { field: 'actions', test: '' },
     ];
+
+    if (!_.isEmpty(variants) && this.skus.length > 1) {
+      columns.push({ field: 'actions', test: '' })
+    }
+
+    return columns;
   }
 
   get availableVariants(): Array<Object> {
