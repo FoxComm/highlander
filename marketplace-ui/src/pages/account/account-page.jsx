@@ -8,7 +8,7 @@ import Form from '../../components/form/form';
 
 import { getApplication, getAccountInProgress, getAccountFailed } from '../../core/modules';
 import { submit } from '../../core/modules/merchant-account';
-import { fields } from '../../forms/merchant-account/merchant-account-fields';
+import { fields } from '../../forms/account/account-fields';
 
 import type { HTMLElement } from '../../core/types';
 

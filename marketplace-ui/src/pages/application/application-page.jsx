@@ -9,7 +9,7 @@ import ThankYou from '../../components/thank-you/thank-you';
 
 import { getApplication, getApplicationInProgress, getApplicationFailed } from '../../core/modules';
 import { fetch, submit } from '../../core/modules/merchant-application';
-import { fields } from '../../forms/merchant-application/merchant-application-fields';
+import { fields } from '../../forms/application/application-fields';
 
 import type { HTMLElement } from '../../core/types';
 import type { Application } from '../../core/modules/merchant-application';

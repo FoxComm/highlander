@@ -2,21 +2,21 @@ import React from 'react';
 import { Route, IndexRoute, IndexRedirect } from 'react-router';
 
 import Site from './components/site/site';
-import MerchantApplicationPage from './pages/merchant-application/merchant-application-page';
-import MerchantAccountPage from './pages/merchant-account/merchant-account-page';
-import MerchantInfoPage from './pages/merchant-info/merchant-info-page';
+import ApplicationPage from './pages/application/application-page';
+import AccountPage from './pages/account/account-page';
+import InfoPage from './pages/info/info-page';
 import Main from './pages/container/main';
 
 const routes = (
   <Route path="/" component={Site}>
     <IndexRedirect to="application" />
     <Route component={Main}>
-      <IndexRoute component={MerchantApplicationPage} />
-      <Route path="application" component={MerchantApplicationPage}>
-        <Route path=":ref" component={MerchantApplicationPage} />
+      <IndexRoute component={ApplicationPage} />
+      <Route path="application" component={ApplicationPage}>
+        <Route path=":ref" component={ApplicationPage} />
       </Route>
-      <Route path="account" component={MerchantAccountPage} />
-      <Route path="info" component={MerchantInfoPage} />
+      <Route path="account" component={AccountPage} />
+      <Route path="info" component={InfoPage} />
     </Route>
   </Route>
 );

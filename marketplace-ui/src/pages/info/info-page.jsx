@@ -8,7 +8,7 @@ import Form from '../../components/form/form';
 
 import { getInfoInProgress, getInfoFailed } from '../../core/modules';
 import { submit } from '../../core/modules/merchant-info';
-import { fields } from '../../forms/merchant-info/merchant-info-fields';
+import { fields } from '../../forms/info/info-fields';
 
 import type { HTMLElement } from '../../core/types';
 
