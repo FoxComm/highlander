@@ -39,9 +39,9 @@ export default class SkuList extends Component {
     const variants = _.get(this.props, ['fullProduct', 'variants'], []);
     const variantColumns = _.map(variants, variant => ({ field: variant.name, text: variant.name }));
     return [
-      { field: 'sku', text: 'SKU' },
       { field: 'imageUrl', text: 'Image' },
       ...variantColumns,
+      { field: 'sku', text: 'SKU' },
       { field: 'retailPrice', text: 'Retail Price' },
       { field: 'salePrice', text: 'Sale Price' },
       { field: 'actions', test: '' },
