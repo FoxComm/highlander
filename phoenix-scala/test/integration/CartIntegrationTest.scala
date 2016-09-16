@@ -163,9 +163,8 @@ class CartIntegrationTest
       val root = response.ignoreFailuresAndGiveMe[CartResponse]
       val skus = root.lineItems.skus
       skus must have size 2
-      skus.map(_.sku).toSet must === (Set("SKU-YAX", "TEST"))
-      skus.map(_.quantity).toSet must === (Set(1, 2))
-
+      skus.map(_.sku) must contain theSameElementsAs (Seq("SKU-YAX", "TEST"))
+      skus.map(_.quantity) must contain theSameElementsAs (Seq(1, 2))
     }
   }
 
