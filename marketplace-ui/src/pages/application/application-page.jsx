@@ -35,7 +35,7 @@ class MerchantApplicationPage extends Component {
   }
 
   get thank() {
-    if (!this.props.application.id) {
+    if (!this.props.application.reference_number) {
       return;
     }
 
@@ -43,7 +43,8 @@ class MerchantApplicationPage extends Component {
       <ThankYou
         message={
           <span>
-            Your application has been submitted and will be evaluated soon.<br />
+            Your application has been submitted and will be evaluated soon.<br/>
+            Your application id is: {this.props.application.reference_number}<br/>
             You will hear from us as soon as your account has been approved.
           </span>
         }
