@@ -28,6 +28,11 @@ defmodule Marketplace.MerchantApplicationController do
     merchant_application = Repo.get!(MerchantApplication, id)
     render(conn, "show.json", merchant_application: merchant_application)
   end
+  
+  def show_by_ref(conn, %{"ref_num" => ref_num}) do
+    merchant_application = Repo.get_by(MerchantApplication, reference_number: ref_num)
+    render(conn, "show.json", merchant_application: merchant_application)
+  end
 
   def update(conn, %{"id" => id, "merchant_application" => merchant_application_params}) do 
     merchant_application = Repo.get!(MerchantApplication, id)

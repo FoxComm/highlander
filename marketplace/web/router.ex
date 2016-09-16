@@ -25,6 +25,7 @@ defmodule Marketplace.Router do
       patch "/business_profile", MerchantApplicationBusinessProfileController, :update, as: :business_profile
     end
 
+    get "/merchant_applications/by_ref/:ref_num", MerchantApplicationController, :show_by_ref
     post "/merchants/activate_application/:application_id", MerchantController, :activate_application
     
     resources "/merchants", MerchantController do 

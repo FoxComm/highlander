@@ -26,7 +26,7 @@ const { perform: performSubmit, ...actionsSubmit } = createAsyncActions(ACTION_M
 );
 
 const { perform: performFetch, ...actionsFetch } = createAsyncActions(ACTION_MERCHANT_APPLICATION_FETCH, reference =>
-  api.get(`/merchant_applications/${reference}`)
+  api.get(`/merchant_applications/by_ref/${reference}`)
 );
 
 const initialState: State = {
