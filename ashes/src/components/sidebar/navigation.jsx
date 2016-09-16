@@ -2,6 +2,8 @@
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 
+import { getClaims } from 'lib/claims'; 
+
 import NavigationItem from './navigation-item';
 
 import CatalogEntry from './entities/catalog';
@@ -21,10 +23,13 @@ type Props = {
 };
 
 const Navigation = (props: Props): Element => {
+  const claims = getClaims();
+
   return (
     <nav>
       <ul className="fc-sidebar__navigation-list">
         <CustomersEntry
+          claims={claims}
           routes={props.routes}
           collapsed={props.collapsed}
           status={getMenuItemState(props, 'customers')}
