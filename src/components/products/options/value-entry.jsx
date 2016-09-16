@@ -52,7 +52,7 @@ class ValueEntry extends Component {
         <TableCell>{this.swatchBlock}</TableCell>
         <TableCell>{this.imageBlock}</TableCell>
         <TableCell>
-          <a onClick={() => this.props.editValue(id)} styleName="action-icon"><i className="icon-edit"/></a>
+          <a onClick={() => this.props.editValue(id, value)} styleName="action-icon"><i className="icon-edit"/></a>
           <a onClick={() => this.props.deleteValue(id)} styleName="action-icon"><i className="icon-trash"/></a>
         </TableCell>
       </TableRow>

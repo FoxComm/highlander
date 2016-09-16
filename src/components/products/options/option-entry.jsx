@@ -52,6 +52,7 @@ class OptionEntry extends Component {
             id={key}
             value={value}
             deleteValue={this.deleteValue}
+            editValue={this.editValue}
           />
         );
       });
@@ -95,16 +96,19 @@ class OptionEntry extends Component {
   }
 
   @autobind
-  editValue(id) {
-    this.setState({
-      editValue: {
-        id,
-        value: {
-          name: '',
-          swatch: '',
-        }
+  editValue(id, value) {
+    let editValue = { id };
+
+    if (value) {
+      editValue.value = value;
+    } else {
+      editValue.value = {
+        name: '',
+        swatch: '',
       }
-    })
+    }
+
+    this.setState({editValue})
   };
 
   @autobind
@@ -150,7 +154,8 @@ class OptionEntry extends Component {
       <ContentBox
         title={this.titleBar}
         actionBlock={this.titleBarActions}
-        indentContent={false}>
+        indentContent={false}
+      >
         {this.content}
         {this.state.editValue && valueDialog}
       </ContentBox>
