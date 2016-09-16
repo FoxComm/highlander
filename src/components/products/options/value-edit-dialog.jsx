@@ -21,30 +21,30 @@ type Props = {
 };
 
 type State = {
-  option: { [key:string]: Variant },
+  value: { [key:string]: Variant },
 };
 
-class OptionEditDialog extends Component {
+class ValueEditDialog extends Component {
   props: Props;
 
   state: State = {
-    option: this.props.option.option,
+    value: this.props.value.value,
   };
 
   get title() {
-    return this.props.option.id === 'new' ? 'New option' : 'Edit option';
+    return this.props.value.id === 'new' ? 'New value' : 'Edit value';
   }
 
   @autobind
-  handleChange(value, field) {
-    const option = assoc(this.state.option, field, value);
+  handleChange(newValue, field) {
+    const value = assoc(this.state.value, field, newValue);
 
-    this.setState({option});
+    this.setState({value});
   }
 
   @autobind
-  saveOption() {
-    this.props.confirmAction(this.state.option, this.props.option.id);
+  save() {
+    this.props.confirmAction(this.state.value, this.props.value.id);
   }
 
   renderDialogContent() {
@@ -58,20 +58,20 @@ class OptionEditDialog extends Component {
         >
           <input
             type="text"
-            value={this.state.option.name}
+            value={this.state.value.name}
             onChange={({target}) => this.handleChange(target.value, 'name')}
           />
         </FormField>
         <FormField
           className="fc-object-form__field"
           labelClassName="fc-object-form__field-label"
-          label="Display Type"
-          key={`object-form-attribute-type`}
+          label="Color Swatch"
+          key={`object-form-attribute-swatch`}
         >
           <input
             type="text"
-            value={this.state.option.type}
-            onChange={({target}) => this.handleChange(target.value, 'type')}
+            value={this.state.value.swatch}
+            onChange={({target}) => this.handleChange(target.value, 'swatch')}
           />
         </FormField>
       </div>
@@ -85,12 +85,12 @@ class OptionEditDialog extends Component {
         header={this.title}
         body={this.renderDialogContent()}
         cancel="Cancel"
-        confirm="Save option"
+        confirm="Save value"
         cancelAction={this.props.cancelAction}
-        confirmAction={this.saveOption}
+        confirmAction={this.save}
       />
     )
   }
 }
 
-export default OptionEditDialog;
+export default ValueEditDialog;

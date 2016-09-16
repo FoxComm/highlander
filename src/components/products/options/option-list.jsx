@@ -4,11 +4,9 @@
 
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
-import { assoc } from 'sprout-data';
 import _ from 'lodash';
 
 // components
-import ConfirmationDialog from 'components/modal/confirmation-dialog';
 import ContentBox from 'components/content-box/content-box';
 import { FormField } from 'components/forms';
 import OptionEntry from './option-entry';
@@ -39,7 +37,7 @@ class OptionList extends Component {
 
   get actions(): Element {
     return (
-      <a styleName="add-icon" onClick={() => this.editOption('new')}>
+      <a styleName="action-icon" onClick={() => this.startEditOption('new')}>
         <i className="icon-add" />
       </a>
     );
@@ -54,7 +52,7 @@ class OptionList extends Component {
   }
 
   @autobind
-  editOption(id) {
+  startEditOption(id) {
     let editOption = { id };
 
     if (id !== 'new') {
@@ -83,7 +81,7 @@ class OptionList extends Component {
   }
 
   @autobind
-  handleSaveOption(option, id) {
+  updateOption(option, id) {
     const { variants } = this.state;
 
     if (id === 'new') {
@@ -99,7 +97,7 @@ class OptionList extends Component {
   }
 
   @autobind
-  handleCancelEditOption() {
+  cancelEditOption() {
     this.setState({
       editOption: null,
     });
@@ -112,9 +110,10 @@ class OptionList extends Component {
         <OptionEntry
           key={reactKey}
           id={key}
-          variant={value}
-          editOption={this.editOption}
+          option={value}
+          editOption={this.startEditOption}
           deleteOption={this.deleteOption}
+          confirmAction={this.updateOption}
         />
       );
     });
@@ -123,18 +122,18 @@ class OptionList extends Component {
   render(): Element {
     const variants = this.renderOptions(this.state.variants);
     const content = _.isEmpty(variants) ? this.emptyContent : variants;
-    const editDialog = (
+    const optionDialog = (
       <OptionEditDialog
         option={this.state.editOption}
-        cancelAction={this.handleCancelEditOption}
-        confirmAction={this.handleSaveOption}
+        cancelAction={this.cancelEditOption}
+        confirmAction={this.updateOption}
       />
     );
 
     return (
       <ContentBox title="Options" actionBlock={this.actions}>
         {content}
-        {this.state.editOption !== null && editDialog}
+        {this.state.editOption && optionDialog}
       </ContentBox>
     );
   }
