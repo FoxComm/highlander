@@ -26,9 +26,12 @@ export default class SkuList extends Component {
   props: Props;
 
   get tableColumns(): Array<Object> {
+    const variants = _.get(this.props, ['fullProduct', 'variants'], []);
+    const variantColumns = _.map(variants, variant => ({ field: variant.name, text: variant.name }));
     return [
       { field: 'sku', text: 'SKU' },
-      { image: 'imageUrl', text: 'Image' },
+      { field: 'imageUrl', text: 'Image' },
+      ...variantColumns,
       { field: 'retailPrice', text: 'Retail Price' },
       { field: 'salePrice', text: 'Sale Price' },
     ];
@@ -88,6 +91,7 @@ export default class SkuList extends Component {
   }
 
   render(): Element {
+    console.log(this.props.fullProduct);
     return _.isEmpty(this.skus)
       ? this.emptyContent
       : this.skuContent(this.skus);
