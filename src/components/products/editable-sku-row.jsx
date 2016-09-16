@@ -12,6 +12,7 @@ import { FormField } from '../forms';
 import CurrencyInput from '../forms/currency-input';
 import MultiSelectRow from '../table/multi-select-row';
 import LoadingInputWrapper from '../forms/loading-input-wrapper';
+import { DeleteButton } from 'components/common/buttons';
 
 import { suggestSkus } from 'modules/skus/suggest';
 import type { SuggestOptions } from 'modules/skus/suggest';
@@ -30,6 +31,7 @@ type Props = {
   skuContext: string,
   updateField: (code: string, field: string, value: string) => void,
   updateFields: (code: string, toUpdate: Array<Array<any>>) => void,
+  onDeleteClick: (id: string|number) => void,
   isFetchingSkus: boolean|null,
   suggestSkus: (code: string, context?: SuggestOptions) => Promise,
   suggestedSkus: Array<SearchViewSku>,
@@ -142,8 +144,7 @@ class EditableSkuRow extends Component {
       <li
         styleName="sku-item"
         className="_new"
-        onMouseDown={ this.closeSkusMenu }
-      >
+        onMouseDown={ this.closeSkusMenu }>
         <div>New SKU</div>
         <strong>{this.state.sku.code}</strong>
       </li>
@@ -158,8 +159,7 @@ class EditableSkuRow extends Component {
         <li
           styleName="sku-item"
           onMouseDown={() => { this.handleSelectSku(sku); }}
-          key={`item-${sku.id}`}
-        >
+          key={`item-${sku.id}`}>
           <strong>{sku.skuCode}</strong>
         </li>
       );
@@ -209,6 +209,10 @@ class EditableSkuRow extends Component {
     return <div>{code}</div>;
   }
 
+  actionsCell(sku: Sku): Element {
+    return <DeleteButton onClick={() => this.props.onDeleteClick(sku.id)}/>;
+  }
+
   @autobind
   setCellContents(sku: Sku, field: string): any {
     switch(field) {
@@ -219,6 +223,8 @@ class EditableSkuRow extends Component {
         return this.priceCell(sku, field);
       case 'upc':
         return this.upcCell(sku);
+      case 'actions':
+        return this.actionsCell(sku);
       default:
         return null;
     }
