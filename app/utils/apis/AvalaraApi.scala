@@ -473,7 +473,7 @@ class Avalara(url: String, account: String, license: String, profile: String)(
   }
 
   private def postData[T](resource: String, payload: RequestEntity)(implicit ec: EC,
-                                                               um: UM[T]): Future[T] = {
+                                                                    um: UM[T]): Future[T] = {
     val connectionFlow: Flow[HttpRequest, HttpResponse, Future[Http.OutgoingConnection]] =
       Http().outgoingConnectionHttps(url)
     val headers: ImmutableSeq[HttpHeader] = ImmutableSeq(
@@ -481,7 +481,10 @@ class Avalara(url: String, account: String, license: String, profile: String)(
 
     val result: Future[T] = Source
       .single(
-          HttpRequest(uri = resource, method = HttpMethods.POST, headers = headers, entity = payload))
+          HttpRequest(uri = resource,
+                      method = HttpMethods.POST,
+                      headers = headers,
+                      entity = payload))
       .via(connectionFlow)
       .mapAsync(1)(response ⇒ Unmarshal(response).to[T])
       .runWith(Sink.head)
