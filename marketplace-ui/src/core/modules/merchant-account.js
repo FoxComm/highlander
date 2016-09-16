@@ -27,6 +27,7 @@ const reducer = createReducer({
   }),
 }, initialState);
 
+const getAccountId = (state: State) => state.id;
 const getAccountActionNamespace = () => ACTION_MERCHANT_ACCOUNT_SUBMIT;
 
 export {
@@ -34,6 +35,7 @@ export {
   perform as submit,
 
   /* selectors */
+  getAccountId,
   getAccountActionNamespace,
 };
 

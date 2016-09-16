@@ -1,6 +1,6 @@
 @import "media-queries.css";
 
-.tabs {
+.steps {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -11,12 +11,11 @@
   font-size: 14px;
   text-transform: uppercase;
   background: #f9f9f9;
-  cursor: pointer;
 
   transition: margin .4s;
 }
 
-.tab {
+.step {
   flex: 1;
 
   padding: 10px 20px 4px;
@@ -24,12 +23,9 @@
   line-height: 36px;
   text-align: center;
   text-decoration: none;
+  cursor: default;
 
   transition: padding .4s, color .2s;
-
-  &:hover {
-    color: #363636;
-  }
 
   &.active {
     color: #363636;
@@ -37,7 +33,7 @@
 }
 
 @media (--small-viewport) {
-  .tabs {
+  .step {
     margin: 0 -40px;
   }
 }
