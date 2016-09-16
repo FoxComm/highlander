@@ -31,7 +31,13 @@ defmodule Marketplace.MerchantApplicationController do
   
   def show_by_ref(conn, %{"ref_num" => ref_num}) do
     merchant_application = Repo.get_by(MerchantApplication, reference_number: ref_num)
-    render(conn, "show.json", merchant_application: merchant_application)
+    |> Repo.preload(:merchant)
+
+    if merchant_application.status == "new" do
+      render(conn, "show.json", merchant_application: merchant_application)
+    else 
+      render(conn, "ma_with_merchant.json", merchant_application: merchant_application)      
+    end
   end
 
   def update(conn, %{"id" => id, "merchant_application" => merchant_application_params}) do 

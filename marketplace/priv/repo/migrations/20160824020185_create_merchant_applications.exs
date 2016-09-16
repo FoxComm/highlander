@@ -11,6 +11,7 @@ defmodule Marketplace.Repo.Migrations.CreateMerchantApplication do
       add :description, :string
       add :site_url, :string
       add :state, :string
+      add :merchant_id, references(:merchants)
 
       timestamps
     end

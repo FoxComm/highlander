@@ -12,6 +12,7 @@ defmodule Marketplace.Merchant do
 
     timestamps
 
+    has_one :merchant_application, Marketplace.MerchantApplication
     has_many :merchant_addresses, Marketplace.MerchantAddress
     has_many :merchant_accounts, Marketplace.MerchantAccount
     has_one :merchant_social_profile, Marketplace.MerchantSocialProfile

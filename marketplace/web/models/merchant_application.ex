@@ -15,6 +15,7 @@ defmodule Marketplace.MerchantApplication do
     has_one :merchant_application_business_profile, Marketplace.MerchantApplicationBusinessProfile
     has_one :social_profile, through: [:merchant_application_social_profile, :social_profile]
     has_one :business_profile, through: [:merchant_application_business_profile, :business_profile]
+    belongs_to :merchant, Marketplace.Merchant
   end
 
   @states ~w(new approved rejected abandoned)a
