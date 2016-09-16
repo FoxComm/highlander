@@ -58,6 +58,10 @@ alter table returns rename customer_id to account_id;
 alter table returns rename message_to_customer to message_to_account;
 alter table user_password_resets rename user_id to account_id;
 
+--drop old constraints to customer and store_admin tables
+alter table notes drop constraint notes_store_admin_id_fkey;
+alter table addresses drop constraint addresses_customer_id_fkey;
+
 -------------------------------------------------------------
 --- below are migrations from old system without roles to new
 -------------------------------------------------------------
@@ -137,10 +141,10 @@ begin
     insert into scopes(source, parent_id, parent_path) values ('org', root_scope_id,
         text2ltree(root_scope_id::text)) returning id into merch_scope_id;
 
-    insert into organizations(name, type, parent_id, scope_id) values 
+    insert into organizations(name, kind, parent_id, scope_id) values 
         ('fox', 'tenant', null, root_scope_id) returning id into fox_org_id;
 
-    insert into organizations(name, type, parent_id, scope_id) values 
+    insert into organizations(name, kind, parent_id, scope_id) values 
         ('merchant', 'merchant', fox_org_id, merch_scope_id) returning id into merch_id;
 
     insert into scope_domains(scope_id, domain) values (root_scope_id, 'foxcommerce.com');
@@ -211,7 +215,7 @@ begin
 end;
 $$ LANGUAGE plpgsql;
 
-create or replace function bootstrap_single_merchant_system() returns void as $$
+create or replace function bootstrap_single_merchant_system() returns int as $$
 declare
     oms_id integer;
     mdl_id integer;
@@ -231,6 +235,8 @@ begin
     perform bootstrap_usr(usr_id);
 
     perform bootstrap_organizations();
+
+    return 1;
 end;
 $$ LANGUAGE plpgsql;
 

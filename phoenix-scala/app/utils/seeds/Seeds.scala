@@ -310,7 +310,7 @@ object Seeds {
   }
 
   def createSingleMerchantSystem(implicit ec: EC) =
-    sqlu""" select bootstrap_single_merchant_system() """
+    sql""" select bootstrap_single_merchant_system() """.as[Int]
 
   private def flyWayMigrate(config: Config): Unit = {
     val flyway = newFlyway(jdbcDataSourceFromConfig("db", config))

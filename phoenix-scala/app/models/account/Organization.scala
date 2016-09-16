@@ -21,10 +21,10 @@ case class Organization(id: Int = 0,
                         deletedAt: Option[Instant] = None)
     extends FoxModel[Organization]
 
-class Organizations(tag: Tag) extends FoxTable[Organization](tag, "roles") {
+class Organizations(tag: Tag) extends FoxTable[Organization](tag, "organizations") {
   def id        = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def name      = column[String]("name")
-  def kind      = column[String]("type") //db has type, using kind here because type is a reserved word.
+  def kind      = column[String]("kind")
   def parentId  = column[Int]("parent_id")
   def scopeId   = column[Int]("scope_id")
   def createdAt = column[Instant]("created_at")

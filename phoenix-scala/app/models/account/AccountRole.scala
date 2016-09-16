@@ -13,7 +13,7 @@ import utils.db._
 
 case class AccountRole(id: Int = 0, accountId: Int, roleId: Int) extends FoxModel[AccountRole]
 
-class AccountRoles(tag: Tag) extends FoxTable[AccountRole](tag, "roles") {
+class AccountRoles(tag: Tag) extends FoxTable[AccountRole](tag, "account_roles") {
   def id        = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def accountId = column[Int]("account_id")
   def roleId    = column[Int]("role_id")

@@ -13,7 +13,7 @@ create table organizations
 (
     id serial primary key,
     name varchar(255) not null,
-    type generic_string,
+    kind generic_string,
     parent_id integer default null references organizations(id) on update restrict on delete restrict,
     scope_id integer references scopes(id) on update restrict on delete restrict,
     created_at generic_timestamp,
