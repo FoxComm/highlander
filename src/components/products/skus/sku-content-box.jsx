@@ -7,6 +7,7 @@ import { autobind } from 'core-decorators';
 
 import ContentBox from 'components/content-box/content-box';
 import SkuList from './sku-list';
+import ConfirmationDialog from 'components/modal/confirmation-dialog';
 
 import styles from './sku-content-box.css';
 
@@ -22,8 +23,15 @@ type Props = {
   variants: Array<any>,
 };
 
+type State = {
+  addDialogIsShown: boolean,
+};
+
 class SkuContentBox extends Component {
   props: Props;
+  state: State = {
+    addDialogIsShown: false,
+  };
 
   get actions(): Element {
     return (
@@ -33,9 +41,35 @@ class SkuContentBox extends Component {
     );
   }
 
+  get addSkuDialog(): Element {
+    const body = (
+      <div styleName="add-dialog">
+        <div styleName="dialog-subtitle">Available options:</div>
+        <div styleName="dialog-items">
+        </div>
+      </div>
+    );
+    return (
+      <ConfirmationDialog
+        isVisible={this.state.addDialogIsShown}
+        header="Add SKUs"
+        body={body}
+        cancel="Cancel"
+        confirm="Add"
+        cancelAction={() => this.closeAction()}
+        confirmAction={() => this.closeAction()}
+      />
+    );
+  }
+
   @autobind
   addAction() {
-    console.log("add clicked");
+    this.setState({ addDialogIsShown: true });
+  }
+
+  @autobind
+  closeAction() {
+    this.setState({ addDialogIsShown: false });
   }
 
   render() {
@@ -47,6 +81,7 @@ class SkuContentBox extends Component {
           updateFields={this.props.onSetSkuProperties}
           variants={this.props.variants}
         />
+        { this.addSkuDialog }
       </ContentBox>
     );
   }
