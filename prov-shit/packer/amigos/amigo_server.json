@@ -13,8 +13,8 @@
             "machine_type": "n1-standard-2",
             "tags": ["no-ip", "packer-amigo-server"],
             "use_internal_ip": true,
-            "ssh_username" : "{{user `ssh_username`}}",
-            "disk_size" : 20
+            "ssh_username": "{{user `ssh_username`}}",
+            "disk_size": 20
         }
     ],
     "provisioners" : [

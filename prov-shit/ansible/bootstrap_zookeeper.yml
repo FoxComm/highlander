@@ -1,0 +1,18 @@
+---
+
+- name: Zookeeper Hotfix
+  hosts: '{{hostname}}'
+  vars:
+    user: '{{ansible_ssh_user}}'
+  vars_prompt:
+    - name: "hostname"
+      prompt: "Enter a hostname with a backend to provision"
+      default: "stage-backend"
+      private: no
+
+  roles:
+    - { role: base/zookeeper }
+    - { role: dev/kafka }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml

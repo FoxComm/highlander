@@ -11,7 +11,7 @@ object CustomerActivity {
   def asCustomer(): AddCookieBuilder = addCookie(Cookie(Config.jwtCookie, "${jwtTokenCustomer}"))
 
   def get(): HttpRequestBuilder = http("Get My Account")
-    .get("/v1/my/account")
+    .get("/api/v1/my/account")
     .check(status.is(200))
     .check(jsonPath("$.id").ofType[Long].saveAs("accountId"))
     .check(jsonPath("$.email").ofType[String].is("${email}"))

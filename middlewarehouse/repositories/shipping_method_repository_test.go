@@ -27,7 +27,7 @@ func (suite *ShippingMethodRepositoryTestSuite) SetupSuite() {
 
 	suite.repository = NewShippingMethodRepository(suite.db)
 
-	tasks.TruncateTables([]string{
+	tasks.TruncateTables(suite.db, []string{
 		"carriers",
 	})
 
@@ -36,7 +36,7 @@ func (suite *ShippingMethodRepositoryTestSuite) SetupSuite() {
 }
 
 func (suite *ShippingMethodRepositoryTestSuite) SetupTest() {
-	tasks.TruncateTables([]string{
+	tasks.TruncateTables(suite.db, []string{
 		"shipping_methods",
 	})
 }
@@ -48,8 +48,10 @@ func (suite *ShippingMethodRepositoryTestSuite) TearDownSuite() {
 func (suite *ShippingMethodRepositoryTestSuite) Test_GetShippingMethods_ReturnsShippingMethodModels() {
 	//arrange
 	shippingMethod1 := fixtures.GetShippingMethod(1, suite.carrier1.ID, suite.carrier1)
+	shippingMethod1.Code = "METHOD1"
 	suite.Nil(suite.db.Create(shippingMethod1).Error)
 	shippingMethod2 := fixtures.GetShippingMethod(2, suite.carrier1.ID, suite.carrier1)
+	shippingMethod2.Code = "METHOD2"
 	suite.Nil(suite.db.Create(shippingMethod2).Error)
 
 	//act

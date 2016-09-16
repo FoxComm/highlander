@@ -8,8 +8,7 @@ import _ from 'lodash';
 import ContentBox from '../content-box/content-box';
 import ObjectFormInner from './object-form-inner';
 
-type Attribute = { t: string, v: any };
-type Attributes = { [key:string]: Attribute };
+import type { Attribute, Attributes } from 'paragons/object';
 
 type Props = {
   canAddProperty?: boolean,

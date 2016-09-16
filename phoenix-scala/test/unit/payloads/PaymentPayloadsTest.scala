@@ -16,12 +16,12 @@ class PaymentPayloadsTest extends TestBase {
   val cc    = Factories.creditCard
 
   "CreateCreditCard" - {
-    val valid = CreateCreditCard(holderName = cc.holderName,
-                                 cardNumber = "4242424242424242",
-                                 cvv = "123",
-                                 expYear = cc.expYear,
-                                 expMonth = cc.expMonth,
-                                 addressId = Some(1))
+    val valid = CreateCreditCardFromSourcePayload(holderName = cc.holderName,
+                                                  cardNumber = "4242424242424242",
+                                                  cvv = "123",
+                                                  expYear = cc.expYear,
+                                                  expMonth = cc.expMonth,
+                                                  addressId = Some(1))
 
     "validate" - {
       "fails if neither addressId nor address are provided" in {

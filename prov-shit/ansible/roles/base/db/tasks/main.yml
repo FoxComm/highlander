@@ -26,6 +26,7 @@
 
 - name: Get Avro
   get_url: url={{avro_url}} dest="{{home}}/{{avro_name}}.tar.gz"
+  sudo: true
 
 - name: Unzip Avro
   unarchive: src="{{home}}/{{avro_name}}.tar.gz" dest="{{home}}/" copy=no
@@ -117,4 +118,8 @@
 
 - name: Copy Consul Service File
   template: src=db.json dest="/etc/consul.d/db.json"
+  sudo: true
+
+- name: Copy Bottled Water Consul Health Checks
+  template: src=bottledwater_checks.json dest="/etc/consul.d/bottledwater_checks.json"
   sudo: true

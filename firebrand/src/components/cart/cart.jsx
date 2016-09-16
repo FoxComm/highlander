@@ -26,7 +26,7 @@ class Cart extends Component {
 
   state = {};
 
-  componentWillMount() {
+  componentDidMount() {
     /** prevent loading if no user logged in */
     if (this.props.user) {
       this.props.fetch();

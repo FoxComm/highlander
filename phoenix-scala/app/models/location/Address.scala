@@ -43,15 +43,15 @@ object Address {
   val zipPattern   = "(?i)^[a-z0-9][a-z0-9\\- ]{0,10}[a-z0-9]$"
   val zipPatternUs = "^\\d{5}(?:\\d{4})?$"
 
-  def fromPayload(p: CreateAddressPayload): Address =
-    Address(customerId = 0,
-            regionId = p.regionId,
-            name = p.name,
-            address1 = p.address1,
-            address2 = p.address2,
-            city = p.city,
-            zip = p.zip,
-            phoneNumber = p.phoneNumber)
+  def fromPayload(payload: CreateAddressPayload, customerId: Int): Address =
+    Address(customerId = customerId,
+            regionId = payload.regionId,
+            name = payload.name,
+            address1 = payload.address1,
+            address2 = payload.address2,
+            city = payload.city,
+            zip = payload.zip,
+            phoneNumber = payload.phoneNumber)
 
   def fromOrderShippingAddress(osa: OrderShippingAddress): Address =
     Address(customerId = 0,

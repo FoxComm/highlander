@@ -27,9 +27,6 @@ http {
   ssl_session_cache shared:SSL:20m;
   ssl_session_timeout 180m;
 
-  # Dropping SSLv3, ref: POODLE
-  ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
-
   # enables server-side protection from BEAST attacks
   # http://blog.ivanristic.com/2013/09/is-beast-still-a-threat.html
   ssl_prefer_server_ciphers on;

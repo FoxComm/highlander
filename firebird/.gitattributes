@@ -1,2 +1,0 @@
-# but it doesn't effect default diff-supression, see https://github.com/github/linguist/issues/2206#issuecomment-103383178
-src/node_modules/* linguist-vendored=false

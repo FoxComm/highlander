@@ -19,11 +19,11 @@ Home for our integration (mainly between [Phoenix](https://github.com/FoxComm/ph
 
 To run all simulations:
 
-    $ sbt test
+    $ sbt gatling:test
 
 To run a single simulation:
 
-    $ sbt testOnly com.foxcommerce.StorefrontAccessSimulation
+    $ sbt gatling:testOnly com.foxcommerce.StorefrontAccessSimulation
 
 Configuration options:
 

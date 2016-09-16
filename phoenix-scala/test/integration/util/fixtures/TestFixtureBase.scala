@@ -1,6 +1,7 @@
 package util.fixtures
 
 import util._
+import utils.MockedApis
 import utils.aliases._
 
 trait TestFixtureBase extends GimmeSupport with TestActivityContext.AdminAC with MockedApis {

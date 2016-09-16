@@ -60,14 +60,23 @@ or completely override watchify options via `.watchifyrc` file in project root.
 
 ### Pointing to Phoenix
 
-By default, Ashes looks locally for phoenix at `http://localhost:9090` and for ElasticSearch at `http://localhost:9200`. If you want to change
-which phoenix server or ES Ashes uses, you can set the `PHOENIX_URL` or `ELASTIC_URL` environment variable.
+By default, Ashes looks locally for phoenix and ElasticSearch `http://localhost`. If you want to change
+which phoenix and ES Ashes uses, you can set the `API_URL` environment variable.
 
 ```
-export PHOENIX_URL=http://10.240.0.3:9090
-export ELASTIC_URL=http://10.240.0.3:9200
+export API_URL=http://10.240.0.3
 npm run dev
 ```
+
+### Stripe.js
+
+In order to Stripe.js to work (used for creating credit cards in Stripe) you need to provide publishable key for stripe (https://stripe.com/docs/stripe.js#setting-publishable-key)
+You can set Stripe key by exporting `STRIPE_PUBLISHABLE_KEY` variable, or setting it in your `.env` file if you're using foreman, or run dev command with it:
+
+  `export STRIPE_PUBLISHABLE_KEY=pk_test_r6t0niqmG9OOZhhaSkacUUU1`
+
+  `STRIPE_PUBLISHABLE_KEY=pk_test_r6t0niqmG9OOZhhaSkacUUU1 npm run dev`
+
 
 ### Git Hooks
 

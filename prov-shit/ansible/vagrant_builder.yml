@@ -3,23 +3,13 @@
 - name: Environment that can build All The Things
   hosts: all
   vars:
-    ashes_server_name: admin.local.foxcommerce.com
-    storefront_server_name: local.foxcommerce.com
+      user: vagrant
   roles:
     - { role: base/common }
-    - { role: base/consul }
     - { role: base/ssh_keys }
     - { role: base/scala }
-    - { role: base/confluence }
-    - { role: base/zookeeper }
-    - { role: base/kafka }
-    - { role: base/schema-registry }
-    - { role: base/elasticsearch }
-    - { role: base/db }
-    - { role: base/rsyslog, sudo: yes }
-    - { role: base/kibana, sudo: yes }
     - { role: base/node }
-    - { role: base/balancer, sudo: yes }
+    - { role: test/db }
     - { role: base/builder }
 
   handlers:

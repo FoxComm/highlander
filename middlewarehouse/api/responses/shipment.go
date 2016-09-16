@@ -4,8 +4,9 @@ import "github.com/FoxComm/highlander/middlewarehouse/models"
 
 type Shipment struct {
 	ID                uint               `json:"id"`
-	ShippingMethod    ShippingMethod     `json:"shippingMethod"`
 	ReferenceNumber   string             `json:"referenceNumber"`
+	ShippingMethod    ShippingMethod     `json:"shippingMethod"`
+	OrderRefNum       string             `json:"orderRefNum"`
 	State             string             `json:"state"`
 	ShipmentDate      *string            `json:"shipmentDate"`
 	EstimatedArrival  *string            `json:"estimatedArrival"`
@@ -13,13 +14,15 @@ type Shipment struct {
 	Address           Address            `json:"address"`
 	ShipmentLineItems []ShipmentLineItem `json:"lineItems"`
 	TrackingNumber    *string            `json:"trackingNumber"`
+	ShippingPrice     int                `json:"shippingPrice"`
 }
 
 func NewShipmentFromModel(model *models.Shipment) *Shipment {
 	shipment := &Shipment{
 		ID:                model.ID,
-		ShippingMethod:    *NewShippingMethodFromModel(&model.ShippingMethod),
 		ReferenceNumber:   model.ReferenceNumber,
+		ShippingMethod:    *NewShippingMethodFromModel(&model.ShippingMethod),
+		OrderRefNum:       model.OrderRefNum,
 		State:             string(model.State),
 		ShipmentDate:      NewStringFromSqlNullString(model.ShipmentDate),
 		EstimatedArrival:  NewStringFromSqlNullString(model.EstimatedArrival),
@@ -27,6 +30,7 @@ func NewShipmentFromModel(model *models.Shipment) *Shipment {
 		Address:           *NewAddressFromModel(&model.Address),
 		ShipmentLineItems: make([]ShipmentLineItem, 0),
 		TrackingNumber:    NewStringFromSqlNullString(model.TrackingNumber),
+		ShippingPrice:     model.ShippingPrice,
 	}
 
 	for i := range model.ShipmentLineItems {

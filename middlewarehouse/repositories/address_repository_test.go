@@ -32,7 +32,7 @@ func (suite *AddressRepositoryTestSuite) SetupSuite() {
 }
 
 func (suite *AddressRepositoryTestSuite) SetupTest() {
-	tasks.TruncateTables([]string{
+	tasks.TruncateTables(suite.db, []string{
 		"addresses",
 	})
 }

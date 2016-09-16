@@ -28,7 +28,11 @@ func TestInventoryServiceIntegrationSuite(t *testing.T) {
 }
 
 func (suite *InventoryServiceIntegrationTestSuite) SetupSuite() {
-	suite.db, _ = config.DefaultConnection()
+	suite.db = config.TestConnection()
+
+	tasks.TruncateTables(suite.db, []string{
+		"stock_locations",
+	})
 
 	summaryRepository := repositories.NewSummaryRepository(suite.db)
 	stockItemRepository := repositories.NewStockItemRepository(suite.db)
@@ -45,7 +49,7 @@ func (suite *InventoryServiceIntegrationTestSuite) SetupSuite() {
 }
 
 func (suite *InventoryServiceIntegrationTestSuite) SetupTest() {
-	tasks.TruncateTables([]string{
+	tasks.TruncateTables(suite.db, []string{
 		"stock_items",
 		"stock_item_units",
 		"stock_item_summaries",
@@ -55,8 +59,13 @@ func (suite *InventoryServiceIntegrationTestSuite) SetupTest() {
 	})
 }
 
+func (suite *InventoryServiceIntegrationTestSuite) TearDownSuite() {
+	suite.db.Close()
+}
+
 func (suite *InventoryServiceIntegrationTestSuite) Test_CreateStockItem_SummaryCreation() {
-	suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, suite.sku))
+	_, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, suite.sku))
+	suite.Nil(err)
 
 	summary, err := suite.summaryService.GetSummaryBySKU(suite.sku)
 
@@ -65,8 +74,9 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_CreateStockItem_SummaryC
 }
 
 func (suite *InventoryServiceIntegrationTestSuite) Test_IncrementStockItemUnits_SummaryUpdate() {
-	stockItem, _ := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, suite.sku))
-	suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 5))
+	stockItem, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, suite.sku))
+	suite.Nil(err)
+	suite.Nil(suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 5)))
 
 	summary, err := suite.summaryService.GetSummaryBySKU(suite.sku)
 
@@ -79,8 +89,7 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_DecrementStockItemUnits_
 	stockItem, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, suite.sku))
 	suite.Nil(err)
 
-	err = suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 10))
-	suite.Nil(err)
+	suite.Nil(suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 10)))
 
 	err = suite.service.DecrementStockItemUnits(stockItem.ID, models.Sellable, 7)
 	suite.Nil(err)
@@ -99,14 +108,12 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_ReleaseItems_MultipleSKU
 	stockItem1, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, sku1))
 	suite.Nil(err)
 
-	err = suite.service.IncrementStockItemUnits(stockItem1.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem1, 5))
-	suite.Nil(err)
+	suite.Nil(suite.service.IncrementStockItemUnits(stockItem1.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem1, 5)))
 
 	stockItem2, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, sku2))
 	suite.Nil(err)
 
-	err = suite.service.IncrementStockItemUnits(stockItem2.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem2, 5))
-	suite.Nil(err)
+	suite.Nil(suite.service.IncrementStockItemUnits(stockItem2.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem2, 5)))
 
 	refNum := "BR10001"
 	skus := map[string]int{
@@ -130,13 +137,11 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_ReleaseItems_SubsequentS
 	stockItem, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, suite.sku))
 	suite.Nil(err)
 
-	err = suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 10))
-	suite.Nil(err)
+	suite.Nil(suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 10)))
 
 	skus := map[string]int{suite.sku: 3}
 
-	err = suite.service.HoldItems("BR10001", skus)
-	suite.Nil(err)
+	suite.Nil(suite.service.HoldItems("BR10001", skus))
 
 	summary, err := suite.summaryService.GetSummaryBySKU(suite.sku)
 	suite.Nil(err)
@@ -145,8 +150,7 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_ReleaseItems_SubsequentS
 
 	skus[suite.sku] = 5
 
-	err = suite.service.HoldItems("BR10002", skus)
-	suite.Nil(err)
+	suite.Nil(suite.service.HoldItems("BR10002", skus))
 
 	summary, err = suite.summaryService.GetSummaryBySKU(suite.sku)
 	suite.Nil(err)
@@ -157,13 +161,15 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_ReleaseItems_SubsequentS
 func (suite *InventoryServiceIntegrationTestSuite) Test_ReleaseItems_Summary() {
 	skus := map[string]int{suite.sku: 1}
 	refNum := "BR10001"
-	stockItem, _ := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, suite.sku))
-	suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 1))
-	suite.service.HoldItems(refNum, skus)
+	stockItem, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, suite.sku))
+	suite.Nil(err)
+	suite.Nil(suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 1)))
+	suite.Nil(suite.service.HoldItems(refNum, skus))
 
-	suite.service.ReleaseItems(refNum)
+	suite.Nil(suite.service.ReleaseItems(refNum))
 
-	summary, _ := suite.summaryService.GetSummaryBySKU(suite.sku)
+	summary, err := suite.summaryService.GetSummaryBySKU(suite.sku)
+	suite.Nil(err)
 
 	suite.Equal(0, summary[0].OnHold, "No stock item units should be onHold")
 }
@@ -172,8 +178,7 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_GetAFSByID() {
 	stockItem, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, suite.sku))
 	suite.Nil(err)
 
-	err = suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 10))
-	suite.Nil(err)
+	suite.Nil(suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 10)))
 
 	afs, err := suite.service.GetAFSByID(stockItem.ID, models.Sellable)
 
@@ -184,8 +189,10 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_GetAFSByID() {
 }
 
 func (suite *InventoryServiceIntegrationTestSuite) Test_GetAFSByID_NotFound() {
-	stockItem, _ := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, suite.sku))
-	suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 10))
+	stockItem, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, suite.sku))
+	suite.Nil(err)
+
+	suite.Nil(suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 10)))
 
 	afs, err := suite.service.GetAFSByID(uint(222), models.Sellable)
 
@@ -194,8 +201,10 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_GetAFSByID_NotFound() {
 }
 
 func (suite *InventoryServiceIntegrationTestSuite) Test_GetAFSBySKU() {
-	stockItem, _ := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, suite.sku))
-	suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 10))
+	stockItem, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, suite.sku))
+	suite.Nil(err)
+
+	suite.Nil(suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 10)))
 
 	afs, _ := suite.service.GetAFSBySKU(stockItem.SKU, models.Sellable)
 
@@ -203,8 +212,10 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_GetAFSBySKU() {
 }
 
 func (suite *InventoryServiceIntegrationTestSuite) Test_GetAFSBySKU_NotFound() {
-	stockItem, _ := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, suite.sku))
-	suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 10))
+	stockItem, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, suite.sku))
+	suite.Nil(err)
+
+	suite.Nil(suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 10)))
 
 	afs, err := suite.service.GetAFSBySKU("BLA-BLA-SKU", models.Sellable)
 

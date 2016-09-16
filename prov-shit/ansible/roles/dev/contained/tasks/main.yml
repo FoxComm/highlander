@@ -48,18 +48,6 @@
   template: src=phoenix.json dest=/etc/consul.d/phoenix.json
   sudo: true
 
-- name: Copy Firebird Service
-  template: src=firebird.service dest="{{dest_services}}/firebird.service"
-  sudo: true
-
-- name: Copy Firebird Run Scipt
-  template: src=run_firebird.sh dest=/usr/local/bin/run_firebird.sh
-  sudo: true
-
-- name: Copy Firebird Consul Config
-  template: src=firebird.json dest=/etc/consul.d/firebird.json
-  sudo: true
-
 - name: Copy Firebrand Service
   template: src=firebrand.service dest="{{dest_services}}/firebrand.service"
   sudo: true
@@ -94,10 +82,6 @@
 
 - name: Restart Phoenix
   service: name=phoenix state=restarted enabled=yes
-  sudo: true
-
-- name: Restart Firebird
-  service: name=firebird state=restarted enabled=yes
   sudo: true
 
 - name: Restart Firebrand

@@ -32,11 +32,11 @@ function setDemoAuthToken() {
 }
 
 function setContext() {
-  const language = process.env.FIREBIRD_LANGUAGE || 'en';
-  process.env.FIREBIRD_CONTEXT = process.env.FIREBIRD_CONTEXT || (language == 'en' ? 'default' : language);
+  const language = process.env.FIREBRAND_LANGUAGE || 'en';
+  process.env.FIREBRAND_CONTEXT = process.env.FIREBRAND_CONTEXT || (language == 'en' ? 'default' : language);
 
-  console.info(`Language is: ${process.env.FIREBIRD_LANGUAGE}`);
-  console.info(`Context is: ${process.env.FIREBIRD_CONTEXT}`);
+  console.info(`Language is: ${process.env.FIREBRAND_LANGUAGE}`);
+  console.info(`Context is: ${process.env.FIREBRAND_CONTEXT}`);
 }
 
 module.exports = function(gulp, $, opts) {
@@ -62,9 +62,10 @@ module.exports = function(gulp, $, opts) {
       _: 'purge',
       NODE_ENV: process.env.NODE_ENV || 'development',
       DEMO_AUTH_TOKEN: process.env.DEMO_AUTH_TOKEN,
-      FIREBIRD_LANGUAGE: process.env.FIREBIRD_LANGUAGE,
-      FIREBIRD_CONTEXT: process.env.FIREBIRD_CONTEXT,
+      FIREBRAND_LANGUAGE: process.env.FIREBRAND_LANGUAGE,
+      FIREBRAND_CONTEXT: process.env.FIREBRAND_CONTEXT,
       API_URL: process.env.API_URL,
+      STRIPE_PUBLISHABLE_KEY: process.env.STRIPE_PUBLISHABLE_KEY,
     }));
 
     bundler.plugin(require('css-modulesify'), Object.assign({

@@ -98,6 +98,39 @@
   width: 50%;
 }
 
+.credit-cards-title {
+  display: flex;
+  justify-content: space-between;
+}
+
+.credit-card-add {
+  color: #9E9E9E;
+  text-align: right;
+  cursor: pointer;
+}
+
+.credit-cards-empty {
+  line-height: 53px;
+  margin-bottom: 40px;
+}
+
+.credit-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 20px 0;
+
+  & .payment-icon {
+    margin-right: 0;
+  }
+}
+
+.credit-card-valid {
+  font-size: 14px;
+  color: #666;
+  margin-left: 15px;
+}
+
 .payment-icon {
   vertical-align: middle;
   width: 44px;

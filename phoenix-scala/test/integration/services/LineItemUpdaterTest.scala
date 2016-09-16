@@ -6,6 +6,7 @@ import models.product.{Mvp, SimpleContext, SimpleProductData}
 import payloads.LineItemPayloads.{UpdateLineItemsPayload ⇒ Payload}
 import util._
 import util.fixtures.BakedFixtures
+import utils.MockedApis
 import utils.db._
 import utils.seeds.Seeds.Factories
 

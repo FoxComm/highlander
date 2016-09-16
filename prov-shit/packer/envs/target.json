@@ -1,14 +1,14 @@
 {
-	"image_prefix": "target",
-	"image_title": "Target",
-	"account_file": "foxcomm-vanilla.json",
-	"variables_file": "target_ansible.json",
-	"project_id": "foxcommerce-production-shared",
-	"network": "target",
-	"zone": "us-central1-a",
-	"base_ubuntu_image": "ubuntu-1604-xenial-v20160610",
-	"base_image": "base-1468261815",
-	"base_node_image": "base-node-1468262218",
-	"base_jvm_image": "base-jvm-1468262208",
-	"ssh_username": "ubuntu"
+    "image_prefix": "target",
+    "image_title": "Target",
+    "account_file": "foxcomm-vanilla.json",
+    "variables_file": "target_ansible.json",
+    "project_id": "foxcommerce-production-shared",
+    "network": "target",
+    "zone": "us-central1-a",
+    "base_ubuntu_image": "ubuntu-1604-xenial-v20160610",
+    "base_image": "base-1468261815",
+    "base_node_image": "base-node-1468262218",
+    "base_jvm_image": "base-jvm-1468262208",
+    "ssh_username": "ubuntu"
 }
