@@ -44,9 +44,16 @@ class OptionEntry extends Component {
       );
     } else {
       const optionName = _.get(this.props, 'option', '');
-      const entries = _.map(this.values, (value, name) => {
-        const key = `product-option-${optionName}-${name}`;
-        return <ValueEntry key={key} name={name} value={value} />;
+      const entries = _.map(this.values, (value, key) => {
+
+        return (
+          <ValueEntry
+            key={`product-option-${optionName}-${key}`}
+            id={key}
+            value={value}
+            deleteValue={this.deleteValue}
+          />
+        );
       });
 
       return (
@@ -84,7 +91,7 @@ class OptionEntry extends Component {
   }
 
   get values(): { [key:string]: VariantValue } {
-    return _.get(this.props, 'option.values', {});
+    return _.get(this.props, 'option.values', []);
   }
 
   @autobind
@@ -101,8 +108,18 @@ class OptionEntry extends Component {
   };
 
   @autobind
+  deleteValue(id) {
+    const values = this.values;
+
+    values.splice(id, 1);
+
+    const option = assoc(this.props.option, 'values', values);
+    this.props.confirmAction(option, this.props.id);
+  }
+
+  @autobind
   updateValue(value, id) {
-    const values = _.get(this.props.option, 'values', []);
+    const values = this.values;
 
     if (id === 'new') {
       values.push(value);
@@ -111,7 +128,6 @@ class OptionEntry extends Component {
     }
 
     const option = assoc(this.props.option, 'values', values);
-
     this.props.confirmAction(option, this.props.id);
 
     this.setState({ editValue: null })
