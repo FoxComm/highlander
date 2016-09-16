@@ -66,6 +66,14 @@ alter table store_credits_search_view rename customer_id to account_id;
 alter table notes drop constraint notes_store_admin_id_fkey;
 alter table addresses drop constraint addresses_customer_id_fkey;
 
+alter table gift_cards drop constraint gift_cards_customer_id_fkey;
+alter table returns drop constraint returns_customer_id_fkey;
+alter table save_for_later drop constraint save_for_later_customer_id_fkey;
+alter table coupon_customer_usages drop constraint coupon_customer_usages_customer_id_fkey;
+alter table customer_password_resets drop constraint customer_password_resets_customer_id_fkey;
+alter table credit_cards drop constraint credit_cards_customer_id_fkey;
+
+
 -------------------------------------------------------------
 --- below are migrations from old system without roles to new
 -------------------------------------------------------------
@@ -257,7 +265,7 @@ end;
 $$ LANGUAGE plpgsql;
 
 
-create or replace function make_new_admin(s store_admins) returns int as $$
+create or replace function migrate_admin(s store_admins) returns int as $$
 declare 
     account_id integer;
     user_id integer;
@@ -280,6 +288,7 @@ begin
 
     update assignments set store_admin_id = account_id where store_admin_id = s.id;
     update notes set store_admin_id = account_id where store_admin_id = s.id;
+    update notes set reference_id = account_id where reference_id = s.id;
     update reasons set store_admin_id = account_id where store_admin_id = s.id;
     update notification_subscriptions set admin_id = account_id where admin_id = s.id;
     update returns set store_admin_id = account_id where store_admin_id = s.id;
@@ -290,7 +299,7 @@ begin
 end;
 $$ LANGUAGE plpgsql;
 
-create or replace function make_new_customer(c customers) returns int as $$
+create or replace function migrate_customer(c customers) returns int as $$
 declare 
     account_id integer;
     user_id integer;
@@ -314,6 +323,7 @@ begin
 
     -- update all customer_id to account_id
 
+    update notes set reference_id = account_id where reference_id = s.id;
     update save_for_later set account_id = account_id where account_id = c.id;
     update carts set account_id = account_id where account_id = c.id;
     update orders set account_id = account_id where account_id = c.id;
@@ -350,9 +360,11 @@ $$ LANGUAGE plpgsql;
 
 
 select bootstrap_new_system(count(*)) from customers;
-select make_new_admin(s) from store_admins as s;
-select make_new_customer(c) from customers as c;
+select migrate_admin(s) from store_admins as s;
+select migrate_customer(c) from customers as c;
 
+drop function migrate_admin(store_admins);
+drop function migrate_customer(customers);
 
 ---update table indices
 
@@ -391,7 +403,66 @@ create index store_credits_idx on store_credits (account_id, state);
 drop index save_for_later_customer_sku;
 create unique index save_for_later_customer_sku on save_for_later (account_id, sku_id);
 
---customers search view
+--update functions and triggers and materialized views
+
+alter table export_customers add account_id integer;
+
+drop materialized view notes_customers_view cascade;
+create materialized view notes_customers_view as
+select
+    n.id,
+    -- Customer
+    case when count(c) = 0
+    then
+        null
+    else
+        to_json((
+            c.id,
+            u.account_id,
+            u.name,
+            u.email,
+            u.is_blacklisted,
+            to_char(u.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
+        )::export_customers)
+    end as customer
+from notes as n
+inner join customer_users as c on (n.reference_id = c.account_id AND n.reference_type = 'customer')
+inner join users as u on (u.account_id = n.reference_id)
+group by n.id, c.id, u.account_id, u.name, u.email, u.is_blacklisted, u.created_at;
+
+create materialized view notes_search_view as
+select distinct on (n.id)
+    -- Note
+    n.id as id,
+    n.reference_id as reference_id,
+    n.reference_type as reference_type,
+    n.body as body,
+    n.priority as priority,
+    to_char(n.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as created_at,
+    to_char(n.deleted_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as deleted_at,
+    admins.store_admin as author,
+    -- OneOf optional entity
+    orders.order,
+    customers.customer,
+    gift_cards.gift_card,
+    skus.sku as sku_item,
+    products.product,
+    promotions.promotion,
+    coupons.coupon
+from notes as n
+inner join notes_admins_view as admins on (n.id = admins.id)
+inner join notes_orders_view as orders on (n.id = orders.id)
+inner join notes_customers_view as customers on (n.id = customers.id)
+inner join notes_gift_cards_view as gift_cards on (n.id = gift_cards.id)
+inner join notes_skus_view as skus on (n.id = skus.id)
+inner join notes_products_view as products on (n.id = products.id)
+inner join notes_promotions_view as promotions on (n.id = promotions.id)
+inner join notes_coupons_view as coupons on (n.id = coupons.id)
+order by id;
+
+create unique index notes_search_view_idx on notes_search_view (id);
+
+create unique index notes_customers_view_idx on notes_customers_view (id);
 
 create or replace function update_customers_view_from_customers_insert_fn() returns trigger as $$
     begin
@@ -1082,5 +1153,6 @@ create trigger update_orders_view_from_customers
 
 --drop customers and store admins
 
+drop table customer_password_resets;
 drop table customers;
 drop table store_admins;
