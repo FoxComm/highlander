@@ -456,7 +456,7 @@ class Avalara(url: String, account: String, license: String, profile: String)(
     }
   }
 
-  private def getData[T](url: String)(implicit ec: EC, um: UM[T]): Future[T] = {
+  private def getData[T](resource: String)(implicit ec: EC, um: UM[T]): Future[T] = {
     val connectionFlow: Flow[HttpRequest, HttpResponse, Future[Http.OutgoingConnection]] =
       Http().outgoingConnectionHttps(url)
 
@@ -464,7 +464,7 @@ class Avalara(url: String, account: String, license: String, profile: String)(
         Authorization(BasicHttpCredentials(account, license)))
 
     val result: Future[T] = Source
-      .single(HttpRequest(uri = url, method = HttpMethods.GET, headers = headers))
+      .single(HttpRequest(uri = resource, method = HttpMethods.GET, headers = headers))
       .via(connectionFlow)
       .mapAsync(1)(response ⇒ Unmarshal(response).to[T])
       .runWith(Sink.head)
@@ -472,7 +472,7 @@ class Avalara(url: String, account: String, license: String, profile: String)(
     result
   }
 
-  private def postData[T](url: String, payload: RequestEntity)(implicit ec: EC,
+  private def postData[T](resource: String, payload: RequestEntity)(implicit ec: EC,
                                                                um: UM[T]): Future[T] = {
     val connectionFlow: Flow[HttpRequest, HttpResponse, Future[Http.OutgoingConnection]] =
       Http().outgoingConnectionHttps(url)
@@ -481,7 +481,7 @@ class Avalara(url: String, account: String, license: String, profile: String)(
 
     val result: Future[T] = Source
       .single(
-          HttpRequest(uri = url, method = HttpMethods.POST, headers = headers, entity = payload))
+          HttpRequest(uri = resource, method = HttpMethods.POST, headers = headers, entity = payload))
       .via(connectionFlow)
       .mapAsync(1)(response ⇒ Unmarshal(response).to[T])
       .runWith(Sink.head)
