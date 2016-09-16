@@ -28,15 +28,15 @@ run-staging: setup stop
 	export NODE_ENV=staging; nohup npm run dev 2>&1 &
 
 run-production: setup stop
-	export NODE_ENV=production; nohup gulp server 2>&1 &
+	export NODE_ENV=production; nohup ./node_modules/.bin/gulp server 2>&1 &
 
-build: setup
-	gulp build
+pre-build: setup
+	test -f .env && export eval `cat .env` || true && ./node_modules/.bin/gulp build
 
 build-production:
-	NODE_ENV=production gulp build
+	test -f .env && export eval `cat .env` || true && NODE_ENV=production ./node_modules/.bin/gulp build
 
-package: build
+build: pre-build
 	touch ashes.tar.bz2
 	tar --exclude 'ashes.tar.bz2' --exclude '.git' --exclude '.gitignore' --exclude '.gitattributes' -jcf ashes.tar.bz2 ./
 

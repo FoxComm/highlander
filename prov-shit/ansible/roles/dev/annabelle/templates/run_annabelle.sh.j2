@@ -1,0 +1,7 @@
+#!/bin/bash
+
+export ANNABELLE_WEBHOOK_URL="{{ slack_hook_url }}"
+export ANNABELLE_LABEL_NAME="{{ label_name }}"
+export ANNABELLE_MESSAGE_HEADER="{{ message_header }}"
+
+/usr/bin/java -jar annabelle-1.0-standalone.jar

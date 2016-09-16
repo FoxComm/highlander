@@ -1,12 +1,14 @@
 /* @flow */
 
 import { assoc } from 'sprout-data';
-import { cloneDeep } from 'lodash';
+import _, { cloneDeep } from 'lodash';
+import { isSatisfied } from 'paragons/object';
 
 import type { Sku } from '../modules/skus/details';
 
 export const options = {
-  code: { label: 'SKU' },
+  code: { label: 'SKU', required: true },
+  title: { required: true },
   upc: { label: 'UPC' },
 };
 
@@ -33,6 +35,10 @@ export const skuEmptyAttributes = {
     v: { currency: 'USD', value: 0 },
   },
 };
+
+export function isSkuValid(sku: Sku): boolean {
+  return isSatisfied(sku, options);
+}
 
 export function createEmptySku(): Sku {
   return {

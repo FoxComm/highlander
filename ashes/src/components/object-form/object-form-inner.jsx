@@ -15,8 +15,7 @@ import DatePicker from '../datepicker/datepicker';
 import RichTextEditor from '../rich-text-editor/rich-text-editor';
 import { Dropdown } from '../dropdown';
 
-type Attribute = { t: string, v: any };
-type Attributes = { [key:string]: Attribute };
+import type { Attribute, Attributes } from 'paragons/object';
 
 type Props = {
   canAddProperty?: boolean,

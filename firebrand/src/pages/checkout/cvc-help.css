@@ -1,0 +1,71 @@
+
+@import "colors.css";
+
+.cvc-help {
+  background: var(--greyish);
+  border-radius: 50%;
+  color: var(--whitish);
+  text-align: center;
+  width: 19px;
+  height: 19px;
+  display: inline-block;
+  position: relative;
+  cursor: pointer;
+}
+
+@keyframes show-popup {
+  from {
+    opacity: 0.01;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.popup {
+  cursor: auto;
+  position: absolute;
+  display: block;
+  animation: show-popup 0.3s ease-out;
+  right: -24px;
+  bottom: calc(100% + 24px);
+  background: #fff;
+  color: var(--blackish);
+  font-size: 14px;
+  line-height: 17px;
+  box-shadow: 0 0 13px 0 rgba(0, 0, 0, 0.30);
+  padding: 20px;
+  width: 380px;
+  text-align: left;
+  transition: opacity 0.3s ease-out;
+
+  & > p {
+    margin: 0 0 20px 0;
+    padding: 0;
+  }
+
+  &:before {
+    content: "";
+    position: absolute;
+    display: block;
+    width: 17px;
+    height: 17px;
+    transform: rotate(45deg);
+    background: #fff;
+    right: 25px;
+    bottom: -4px;
+    box-shadow: 6px 6px 13px -5px rgba(0, 0, 0, 0.30);
+  }
+}
+
+.cvc-images {
+  & > :global(.icon) {
+    width: 160px;
+    height: 107px;
+
+    &:first-child {
+      margin-right: 20px;
+    }
+  }
+}

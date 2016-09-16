@@ -19,11 +19,11 @@ package object services {
     def left[A](fs: Failures): Result[A]                 = failures(fs)
     def leftNel[A](fs: NonEmptyList[Failure]): Result[A] = Future.successful(Xor.left(fs))
 
-    def failures(fs: Failures): Result[Nothing] =
-      Future.successful(Xor.left(fs))
+    def failures[A](fs: Failures): Result[A] =
+      Future.successful(Xor.left[Failures, A](fs))
 
-    def failure(failure: Failure): Result[Nothing] =
-      failures(NonEmptyList(failure))
+    def failure[A](failure: Failure): Result[A] =
+      failures[A](NonEmptyList(failure))
   }
 
   type ResultT[A] = XorT[Future, Failures, A]

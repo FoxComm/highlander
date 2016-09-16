@@ -1,7 +1,6 @@
 
 // libs
 import _ from 'lodash';
-import flatMap from '../../lib/flatMap';
 import moment from 'moment';
 import React, { PropTypes } from 'react';
 
@@ -35,7 +34,7 @@ export function injectTimeMarks(activities) {
   let latestMarkDiff = null;
   let latestYear = now.year();
 
-  return flatMap(activities, activity => {
+  return _.flatMap(activities, activity => {
     const activityTime = moment.utc(activity.createdAt).local();
     const daysDiff = now.diff(activityTime, 'days');
 

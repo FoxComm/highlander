@@ -1,11 +1,5 @@
-setup:
-	boot build
-
 build:
-	boot build
-
-clean:
-	rm -rf ./target
+	lein uberjar
 
 test:
 	true

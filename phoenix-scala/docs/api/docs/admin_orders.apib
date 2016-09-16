@@ -64,7 +64,22 @@ Order must be in `remorseHold` state.
 + Response 200 (application/json)
     + Attributes (FullOrder)
 
-### Update SKU Line Items [POST /v1/orders/{refNum}/line-items]
+## SKU Line Items [/v1/orders/{refNum}/line-items]
+
+### Set SKU Line Items [POST]
+
+Set the number of line items. Upon completion, cart line items will match the quantities in this payload.
+
++ Parameters
+    + refNum: `ABC-123` (required, string) - Order referenceNumber.
++ Request (application/json)
+    + Attributes (array[UpdateLineItemsPayload])
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+### Update SKU Line Items [PATCH]
+
+Add to or remove from the number of line items that are currently stored in your cart.
 
 + Parameters
     + refNum: `ABC-123` (required, string) - Order referenceNumber.

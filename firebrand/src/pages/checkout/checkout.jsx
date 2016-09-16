@@ -33,19 +33,19 @@ type CheckoutProps = CheckoutState & {
   hideCart: () => PromiseType;
 }
 
-function isDeliveryDurty(state) {
+function isDeliveryDirty(state) {
   return !!state.cart.shippingMethod;
 }
 
-function isBillingDurty(state) {
+function isBillingDirty(state) {
   return !_.isEmpty(state.checkout.billingData) || !_.isEmpty(state.checkout.billingAddress);
 }
 
 function mapStateToProps(state) {
   return {
     ...state.checkout,
-    isBillingDurty: isBillingDurty(state),
-    isDeliveryDurty: isDeliveryDurty(state),
+    isBillingDirty: isBillingDirty(state),
+    isDeliveryDirty: isDeliveryDirty(state),
   };
 }
 
@@ -59,11 +59,8 @@ class Checkout extends Component {
     error: null,
   };
 
-  componentWillMount() {
-    this.props.fetchCart();
-  }
-
   componentDidMount() {
+    this.props.fetchCart();
     this.props.hideCart();
   }
 
@@ -142,7 +139,7 @@ class Checkout extends Component {
       <div styleName="checkout">
         <div styleName="logo-link">
           <Link to="/">
-            <Icon styleName="logo" name="fc-some_brand_logo" />
+            <Icon styleName="logo" name="fc-some_brand_logo"/>
           </Link>
         </div>
         <div styleName="checkout-content">
@@ -158,7 +155,7 @@ class Checkout extends Component {
             <Delivery
               isEditing={props.editStage == EditStages.DELIVERY}
               editAllowed={props.editStage >= EditStages.DELIVERY}
-              collapsed={!props.isDeliveryDurty && props.editStage < EditStages.DELIVERY}
+              collapsed={!props.isDeliveryDirty && props.editStage < EditStages.DELIVERY}
               editAction={this.setDeliveryStage}
               inProgress={this.state.deliveryInProgress}
               continueAction={this.setBillingState}
@@ -167,7 +164,7 @@ class Checkout extends Component {
             <Billing
               isEditing={props.editStage == EditStages.BILLING}
               editAllowed={props.editStage >= EditStages.BILLING}
-              collapsed={!props.isBillingDurty && props.editStage < EditStages.BILLING}
+              collapsed={!props.isBillingDirty && props.editStage < EditStages.BILLING}
               editAction={this.setBillingState}
               inProgress={this.state.isPerformingCheckout}
               continueAction={this.placeOrder}
@@ -185,4 +182,4 @@ class Checkout extends Component {
   }
 }
 
-export default connect(mapStateToProps, {...actions, fetchCart, hideCart})(Checkout);
+export default connect(mapStateToProps, { ...actions, fetchCart, hideCart })(Checkout);

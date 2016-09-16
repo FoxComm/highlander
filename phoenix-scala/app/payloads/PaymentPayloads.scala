@@ -11,17 +11,43 @@ import utils.aliases._
 
 object PaymentPayloads {
 
-  case class CreateCreditCard(holderName: String,
-                              cardNumber: String,
-                              cvv: String,
-                              expYear: Int,
-                              expMonth: Int,
-                              address: Option[CreateAddressPayload] = None,
-                              addressId: Option[Int] = None,
-                              isDefault: Boolean = false,
-                              isShipping: Boolean = false) {
+  case class CreateCreditCardFromTokenPayload(token: String,
+                                              lastFour: String,
+                                              expYear: Int,
+                                              expMonth: Int,
+                                              brand: String,
+                                              holderName: String,
+                                              billingAddress: CreateAddressPayload,
+                                              addressIsNew: Boolean) {
+    def validate: ValidatedNel[Failure, CreateCreditCardFromTokenPayload] = {
+      import Validation._
 
-    def validate: ValidatedNel[Failure, CreateCreditCard] = {
+      val tokenNotEmpty      = notEmpty(token, "token")
+      val validYear          = withinTwentyYears(expYear, "expiration")
+      val validMonth         = isMonth(expMonth, "expiration")
+      val expDateInFuture    = notExpired(expYear, expMonth, "credit card is expired")
+      val notEmptyBrand      = notEmpty(brand, "brand")
+      val notEmptyHolderName = notEmpty(holderName, "holder name")
+      val fieldsValid = tokenNotEmpty |@| validYear |@| validMonth |@| expDateInFuture |@| notEmptyBrand |@|
+          notEmptyHolderName
+      (fieldsValid |@| billingAddress.validate).map { case _ ⇒ this }
+    }
+
+  }
+
+  @deprecated(message = "Use `CreateCreditCardFromTokenPayload` instead",
+              "Until we are PCI compliant")
+  case class CreateCreditCardFromSourcePayload(holderName: String,
+                                               cardNumber: String,
+                                               cvv: String,
+                                               expYear: Int,
+                                               expMonth: Int,
+                                               address: Option[CreateAddressPayload] = None,
+                                               addressId: Option[Int] = None,
+                                               isDefault: Boolean = false,
+                                               isShipping: Boolean = false) {
+
+    def validate: ValidatedNel[Failure, CreateCreditCardFromSourcePayload] = {
       import Validation._
 
       def someAddress: ValidatedNel[Failure, _] =
@@ -63,7 +89,9 @@ object PaymentPayloads {
 
       (holderName.fold(ok)(notEmpty(_, "holderName")) |@| expYear
             .fold(ok)(withinTwentyYears(_, "expiration")) |@| expMonth.fold(ok)(
-              isMonth(_, "expiration")) |@| expired).map { case _ ⇒ this }
+              isMonth(_, "expiration")) |@| expired).map {
+        case _ ⇒ this
+      }
     }
   }
 

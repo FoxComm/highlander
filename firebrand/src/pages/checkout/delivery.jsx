@@ -1,4 +1,4 @@
-
+import _ from 'lodash';
 import React, { Component } from 'react';
 import styles from './checkout.css';
 import { autobind } from 'core-decorators';
@@ -11,6 +11,7 @@ import Checkbox from 'ui/checkbox';
 import EditableBlock from 'ui/editable-block';
 import { Form } from 'ui/forms';
 import Currency from 'ui/currency';
+import Loader from 'ui/loader';
 import ErrorAlerts from 'wings/lib/ui/alerts/error-alerts';
 
 import type { CheckoutBlockProps } from './types';
@@ -41,6 +42,7 @@ function mapStateToProps(state) {
   return {
     shippingMethods: state.checkout.shippingMethods,
     selectedShippingMethod: state.cart.shippingMethod,
+    isLoading: _.get(state.asyncActions, ['shippingMethods', 'inProgress'], true),
   };
 }
 
@@ -85,7 +87,11 @@ class EditDelivery extends Component {
   }
 
   render() {
-    const { t } = this.props;
+    const { isLoading, t } = this.props;
+
+    if (isLoading) {
+      return <Loader size="m" />;
+    }
 
     return (
       <Form onSubmit={this.handleSubmit}>

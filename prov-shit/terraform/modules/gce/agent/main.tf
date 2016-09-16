@@ -41,5 +41,5 @@ resource "google_compute_instance" "agent" {
           "chmod +x /tmp/provision.sh",
           "/tmp/provision.sh ${var.queue}"
         ]
-    }
+    }  
 }

@@ -1,12 +1,11 @@
-# Fox messaging
-
+# Fox Messaging
 
 Consume green river events and push notifications
 
 ## Prerequisites
 
 - JVM
-- [boot](http://boot-clj.com/)
+- [lein](http://leiningen.org) or [boot](http://boot-clj.com)
 
 ## Configuration
 
@@ -26,24 +25,8 @@ See [environ](https://github.com/weavejester/environ) for more details.
 
 ## Boot commands
 
-- Built uber jar
+- Build uber jar
 
 ```bash
-boot build
+make build
 ```
-
-
-## Tips and tricks
-
-### Faster boot startup:
-
-```bash
-export BOOT_JVM_OPTIONS="-client -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -Xverify:none"
-```
-See more at: https://github.com/boot-clj/boot/wiki/JVM-Options
-
-### Generate `project.clj` for third-party projects
-
-Use `lein-generate` snippet describe below
-https://github.com/boot-clj/boot/wiki/For-Cursive-Users
-

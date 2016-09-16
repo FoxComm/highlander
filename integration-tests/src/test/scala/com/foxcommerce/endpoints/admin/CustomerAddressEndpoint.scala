@@ -9,7 +9,7 @@ import io.gatling.http.request.builder.HttpRequestBuilder
 object CustomerAddressEndpoint {
 
   def create(address: AddressFixture): HttpRequestBuilder = http("Create Customer Address")
-    .post("/v1/customers/${customerId}/addresses")
+    .post("/api/v1/customers/${customerId}/addresses")
     .body(StringBody(Utils.addressPayloadBody(address)))
     .check(status.is(200))
     .check(jsonPath("$.id").ofType[Long].saveAs("customerAddressId"))
@@ -21,7 +21,7 @@ object CustomerAddressEndpoint {
     .check(jsonPath("$.zip").ofType[String].is(address.zip))
 
   def update(address: AddressFixture): HttpRequestBuilder = http("Update Customer Address")
-    .patch("/v1/customers/${customerId}/addresses/${customerAddressId}")
+    .patch("/api/v1/customers/${customerId}/addresses/${customerAddressId}")
     .body(StringBody(Utils.addressPayloadBody(address)))
     .check(status.is(200))
     .check(jsonPath("$.id").ofType[Long].saveAs("customerAddressId"))
