@@ -22,7 +22,7 @@ const MerchantAccountPage = ({ application, submit, inProgress, failed }: Props)
   <div>
     <Header
       title="Let’s get you started"
-      legend="Create an Account to start earning money with BlaBla."
+      legend="Create an Account to start on the GoldFish marketplace!"
     />
     <Form
       form="account"

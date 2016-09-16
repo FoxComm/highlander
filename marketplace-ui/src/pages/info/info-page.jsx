@@ -21,8 +21,8 @@ type Props = {
 const MerchantInfoPage = ({ submit, inProgress, failed }: Props): HTMLElement => (
   <div>
     <Header
-      title="Help us send you money"
-      legend="Provide more info about you business to earn more money with BlaBla."
+      title="We need additional business details."
+      legend="This additional information will help us ensure that we are able to add your business to our system and successfully send you payments."
     />
     <Form
       form="info"

@@ -43,8 +43,8 @@ class MerchantApplicationPage extends Component {
       <ThankYou
         message={
           <span>
-            You application has been accepted.<br />
-            You'll be able to create an account after it would be approved.
+            Your application has been submitted and will be evaluated soon.<br />
+            You will hear from us as soon as your account has been approved.
           </span>
         }
       />
@@ -62,7 +62,7 @@ class MerchantApplicationPage extends Component {
       <div>
         <Header
           title="Apply to Sell"
-          legend="Apply a merchant request to become a member of BlaBla."
+          legend="Apply to be a merchant on the GoldFish marketplace."
         />
         <Form
           form="application"
