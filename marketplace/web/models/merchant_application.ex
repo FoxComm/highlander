@@ -5,8 +5,10 @@ defmodule Marketplace.MerchantApplication do
     field :reference_number, Ecto.UUID, autogenerate: true
     field :name, :string
     field :business_name, :string
+    field :phone_number, :string
     field :email_address, :string
     field :description, :string
+    field :site_url, :string
     field :state, :string, default: "new"
 
     timestamps

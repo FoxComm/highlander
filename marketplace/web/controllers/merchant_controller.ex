@@ -68,6 +68,8 @@ defmodule Marketplace.MerchantController do
       copy_business_profile_from_merchant_application(application_id, merchant) end)  
     |> Multi.run(:merchant_social_profile, fn %{merchant: merchant} -> 
       copy_social_profile_from_merchant_application(application_id, merchant) end)
+    |> Multi.run(:merchant_application, fn %{merchant: merchant} ->
+      update_merchant_application(application_id, merchant) end)
 
 
     case Repo.transaction(multi_txn) do
@@ -111,6 +113,12 @@ defmodule Marketplace.MerchantController do
         })
         Repo.insert(m_sp)
     end
+  end
 
+  defp update_merchant_application(ma_id, merchant) do
+    ma = Repo.get(MerchantApplication, ma_id)
+    ma_cs = Merchant.changeset(ma, %{"state" => "approved", "merchant_id" => merchant.id})
+
+    Repo.update(ma_cs)
   end
 end
