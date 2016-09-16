@@ -52,7 +52,7 @@ export default class SkuList extends Component {
     ];
 
     if (!_.isEmpty(variants) && this.skus.length > 1) {
-      columns.push({ field: 'actions', test: '' })
+      columns.push({ field: 'actions', text: '' });
     }
 
     return columns;
