@@ -19,9 +19,9 @@ import type { Variant, VariantValue } from 'paragons/product';
 
 type Props = {
   id: string,
-  onCancel: (key: string) => void,
-  onSave: (variant: Variant, id: string) => void,
   variant: ?Variant,
+  editOption: Function,
+  deleteOption: Function,
 };
 
 class OptionEntry extends Component {
@@ -71,7 +71,7 @@ class OptionEntry extends Component {
       <div className="fc-variant-entry__title-bar-actions">
         <a onClick={_.noop} styleName="add-icon"><i className="icon-add"/></a>
         <a onClick={() => this.props.editOption(this.props.id)} styleName="add-icon"><i className="icon-edit"/></a>
-        <a onClick={_.noop} styleName="add-icon"><i className="icon-trash"/></a>
+        <a onClick={() => this.props.deleteOption(this.props.id)} styleName="add-icon"><i className="icon-trash"/></a>
       </div>
     );
   }

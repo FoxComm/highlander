@@ -72,6 +72,17 @@ class OptionList extends Component {
   }
 
   @autobind
+  deleteOption(id) {
+    const { variants } = this.state;
+
+    variants.splice(id, 1);
+
+    this.setState({
+      variants
+    });
+  }
+
+  @autobind
   handleSaveOption(option, id) {
     const { variants } = this.state;
 
@@ -103,6 +114,7 @@ class OptionList extends Component {
           id={key}
           variant={value}
           editOption={this.editOption}
+          deleteOption={this.deleteOption}
         />
       );
     });
