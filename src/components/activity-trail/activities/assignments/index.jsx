@@ -5,14 +5,14 @@ import { joinEntities } from '../base/utils';
 import { assignmentTypes } from '../../../../paragons/watcher';
 
 // components
-import OrderTarget from '../base/order-target';
-import OrderLink from '../base/order-link';
+import CordTarget from '../base/cord-target';
+import CordLink from '../base/cord-link';
 import Person from '../base/person';
 import Title from '../base/title';
 
 const bulkEventsToOrders = {
   title: (data, { kind }) => {
-    const orders = data.entityIds.map(ref => <OrderLink key={ref} order={{title: 'Order', referenceNumber: ref}} />);
+    const orders = data.entityIds.map(ref => <CordLink key={ref} cord={{referenceNumber: ref}} />);
     const directionSense = kind == types.BULK_ASSIGNED ? 'to' : 'from';
     let action = '';
 
@@ -35,11 +35,10 @@ const representatives = {
     title: (data, activity) => {
       const persons = data.assignees.map((person, idx) => <Person key={idx} {...person} />);
       const action = data.assignmentType == assignmentTypes.assignee ? 'assigned' : 'added watcher';
-      const order = { title: 'Order', referenceNumber: data.entity.referenceNumber };
 
       return (
         <Title activity={activity}>
-          <strong>{action}</strong> {joinEntities(persons)} to <OrderTarget order={order} />
+          <strong>{action}</strong> {joinEntities(persons)} to <CordTarget cord={data.entity} />
         </Title>
       );
     },
@@ -48,12 +47,11 @@ const representatives = {
   [types.BULK_UNASSIGNED]: bulkEventsToOrders,
   [types.UNASSIGNED]: {
     title: (data, activity) => {
-      const order = { title: 'Order', referenceNumber: data.entity.referenceNumber };
       const action = data.assignmentType == assignmentTypes.assignee ? 'unassigned' : 'removed watcher';
 
       return (
         <Title activity={activity}>
-          <strong>{action}</strong> <Person {...data.assignee} /> from <OrderTarget order={order} />
+          <strong>{action}</strong> <Person {...data.assignee} /> from <CordTarget cord={data.entity} />
         </Title>
       );
     }
