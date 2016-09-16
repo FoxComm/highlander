@@ -112,10 +112,10 @@ case class Checkout(
       _         ← * <~ holdInMiddleWarehouse
       _         ← * <~ authPayments(customer)
       _         ← * <~ cartValidator.validate(isCheckout = true, fatalWarnings = true)
+      _         ← * <~ TaxesService.finalizeTaxes(cart)
       order     ← * <~ Orders.createFromCart(cart)
       _         ← * <~ fraudScore(order)
       _         ← * <~ updateCouponCountersForPromotion(customer)
-      _         ← * <~ TaxesService.finalizeTaxes(cart)
       fullOrder ← * <~ OrderResponse.fromOrder(order)
       _         ← * <~ LogActivity.orderCheckoutCompleted(fullOrder)
     } yield fullOrder
