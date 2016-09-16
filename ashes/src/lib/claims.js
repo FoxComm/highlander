@@ -53,8 +53,8 @@ export function getClaims(): Claims {
     'frn:usr:org': ['c', 'r', 'u', 'd'],
     'frn:usr:my:info': ['c', 'r', 'u', 'd'],
 
-
     'frn:usr:customer': ['r'],
+    'frn:usr:customer-groups': ['r'],
   };
 
   return claims;
@@ -74,17 +74,3 @@ export function isPermitted(expectedClaims: Claims, actualClaims: Claims): boole
     return res && hasAction;
   }, true);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

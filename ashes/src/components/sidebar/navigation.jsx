@@ -35,21 +35,25 @@ const Navigation = (props: Props): Element => {
           status={getMenuItemState(props, 'customers')}
           toggleMenuItem={props.toggleMenuItem} />
         <OrdersEntry
+          claims={claims}
           routes={props.routes}
           collapsed={props.collapsed}
           status={getMenuItemState(props, 'carts')}
           toggleMenuItem={props.toggleMenuItem} />
         <CatalogEntry
+          claims={claims}
           routes={props.routes}
           collapsed={props.collapsed}
           status={getMenuItemState(props, 'products')}
           toggleMenuItem={props.toggleMenuItem} />
         <MarketingEntry
+          claims={claims}
           routes={props.routes}
           collapsed={props.collapsed}
           status={getMenuItemState(props, 'gift-cards')}
           toggleMenuItem={props.toggleMenuItem} />
         <SettingsEntry
+          claims={claims}
           routes={props.routes}
           collapsed={props.collapsed}
           status={getMenuItemState(props, 'users')}
