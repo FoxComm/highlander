@@ -4,6 +4,7 @@ import { routerMiddleware } from 'react-router-redux';
 import thunk from 'redux-thunk';
 import createLogger from 'redux-logger';
 
+import serverApplyMiddleware from './middlewares/wait';
 import rootReducer from './core/modules/index';
 
 const isServer = typeof self == 'undefined';
@@ -18,7 +19,7 @@ function initLogger(): ?Function {
 }
 
 export default function makeStore(history, initialState = void 0) {
-  const applyMiddleware = clientApplyMiddleware;
+  const applyMiddleware = isServer ? serverApplyMiddleware : clientApplyMiddleware;
 
   return createStore(
     rootReducer,

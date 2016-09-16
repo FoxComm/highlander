@@ -16,8 +16,6 @@ export type Step = {
   disabled?: boolean;
 }
 
-type ChangeHandler = (step: string) => void
-
 type Props = {
   steps: Array<Step>;
 }

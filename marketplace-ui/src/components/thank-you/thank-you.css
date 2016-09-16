@@ -1,0 +1,41 @@
+.thankYou {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  margin: 200px 0 100px;
+}
+
+.icon {
+  position: relative;
+  width: 180px;
+  height: 44px;
+  left: 90px;
+  margin-bottom: 20px;
+  background: #6bb2ef;
+
+  transform-origin: 0 100%;
+  transform: rotate(-45deg);
+
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 100%;
+    width: 36px;
+    height: 80px;
+    background: #6bb2ef;
+    box-shadow: inset -3px -32px 32px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.title {
+  font-size: 36px;
+  margin-bottom: 10px;
+}
+
+.message {
+  text-align: center;
+  line-height: 26px;
+  font-size: 18px;
+  font-weight: 300;
+}

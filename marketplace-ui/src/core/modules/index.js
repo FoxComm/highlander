@@ -20,7 +20,7 @@ export default reducer;
 
 /** selectors */
 
-export const getApplicationId = state => application.getApplicationId(state.application);
+export const getApplication = state => application.getApplication(state.application);
 export const getAccountId = state => account.getAccountId(state.account);
 
 export const getApplicationInProgress = state =>

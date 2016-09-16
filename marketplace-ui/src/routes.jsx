@@ -12,7 +12,9 @@ const routes = (
     <IndexRedirect to="application" />
     <Route component={Main}>
       <IndexRoute component={MerchantApplicationPage} />
-      <Route path="application" component={MerchantApplicationPage} />
+      <Route path="application" component={MerchantApplicationPage}>
+        <Route path=":ref" component={MerchantApplicationPage} />
+      </Route>
       <Route path="account" component={MerchantAccountPage} />
       <Route path="info" component={MerchantInfoPage} />
     </Route>

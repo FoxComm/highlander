@@ -100,15 +100,6 @@ export default function createAsyncActions(namespace, asyncCall, payloadReducer)
   /* eslint-disable consistent-return */
 
   const perform = (...args) => dispatch => {
-    const handleError = err => {
-      const httpStatus = _.get(err, 'response.status');
-      if (httpStatus != 404) {
-        console.error(err && err.stack);
-      }
-      dispatch(failed(err));
-      throw err;
-    };
-
     dispatch(started(...args));
 
     return asyncCall(...args)
@@ -117,7 +108,7 @@ export default function createAsyncActions(namespace, asyncCall, payloadReducer)
 
         return result;
       })
-      .catch(handleError);
+      .catch(err => dispatch(failed(err)));
   };
 
   const lazyPerform = (...args) => {

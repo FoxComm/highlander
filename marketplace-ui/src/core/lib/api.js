@@ -22,7 +22,11 @@ export class Api {
         ...(options && options.headers || {}),
       },
     })
-      .then(response => response.data);
+      .then(response => response.data)
+      .catch(err => {
+        const message = `${method.toUpperCase()} ${url} responded with ${err.response.statusText}`;
+        throw new Error(message);
+      });
   }
 
   get(...args) {
@@ -45,6 +49,6 @@ export class Api {
 const isServer: boolean = typeof self === 'undefined';
 
 export default new Api({
-  baseUrl: isServer ? `${process.env.API_URL}/api` : '/api',
+  baseUrl: isServer ? `${process.env.API_URL}` : '/api',
   stripe_key: process.env.STRIPE_PUBLISHABLE_KEY,
 });

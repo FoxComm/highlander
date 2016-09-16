@@ -4,7 +4,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 
-import { getApplicationId, getAccountId } from '../../core/modules';
+import { getApplication, getAccountId } from '../../core/modules';
 
 import Steps from '../../components/steps/steps';
 
@@ -51,7 +51,7 @@ const Main = ({ currentStep, router, children }: Props) => (
 );
 
 const getActiveStep = state => {
-  const applied = !!getApplicationId(state);
+  const applied = !!getApplication(state).id;
   const accountCreated = !!getAccountId(state);
 
   if (!applied) return STEP_APPLICATION;
