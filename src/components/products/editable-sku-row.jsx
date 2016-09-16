@@ -8,11 +8,12 @@ import _ from 'lodash';
 import { connect } from 'react-redux';
 import styles from './editable-sku-row.css';
 
-import { FormField } from '../forms';
-import CurrencyInput from '../forms/currency-input';
-import MultiSelectRow from '../table/multi-select-row';
-import LoadingInputWrapper from '../forms/loading-input-wrapper';
+import { FormField } from 'components/forms';
+import CurrencyInput from 'components/forms/currency-input';
+import MultiSelectRow from 'components/table/multi-select-row';
+import LoadingInputWrapper from 'components/forms/loading-input-wrapper';
 import { DeleteButton } from 'components/common/buttons';
+import Dropdown from 'components/dropdown/dropdown';
 
 import { suggestSkus } from 'modules/skus/suggest';
 import type { SuggestOptions } from 'modules/skus/suggest';
@@ -225,6 +226,29 @@ class EditableSkuRow extends Component {
     );
   }
 
+  variantCell(field: any, sku: Sku): Element {
+    if (field.indexOf('variant') > 0) {
+      const idx = parseInt(field);
+      const variant = _.get(this.props.variants, idx, {});
+      const values = _.get(variant, 'values', []);
+      let valuesToSelect = [];
+      _.each(values, (value, idx) => valuesToSelect.push([idx, value.name]));
+      const selected = _.get(sku, ['variantValueIds', idx]);
+
+      return (
+        <Dropdown
+          name={field}
+          items={valuesToSelect}
+          placeholder={variant.name}
+          value={selected}
+          onChange={({target}) => console.log(field, target.value)}
+        />
+      );
+    }
+
+    return null;
+  }
+
   actionsCell(sku: Sku): Element {
     return <DeleteButton onClick={() => this.props.onDeleteClick(sku.id)}/>;
   }
@@ -244,7 +268,7 @@ class EditableSkuRow extends Component {
       case 'actions':
         return this.actionsCell(sku);
       default:
-        return null;
+        return this.variantCell(field, sku);
     }
   }
 

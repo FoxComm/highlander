@@ -38,7 +38,11 @@ export default class SkuList extends Component {
 
   get tableColumns(): Array<Object> {
     const { variants } = this.props;
-    const variantColumns = _.map(variants, variant => ({ field: variant.name, text: variant.name }));
+    const variantColumns = [];
+    _.each(variants, (variant, idx) => {
+      variantColumns.push({ field: `${idx}_variant`, text: variant.name });
+    });
+
     return [
       { field: 'image', text: 'Image' },
       ...variantColumns,
@@ -47,6 +51,19 @@ export default class SkuList extends Component {
       { field: 'salePrice', text: 'Sale Price' },
       { field: 'actions', test: '' },
     ];
+  }
+
+  get availableVariants(): Array<Object> {
+    const opts = _.map(this.props.variants, variant => variant.values);
+    // magic of Cartesian product http://stackoverflow.com/questions/12303989/cartesian-product-of-multiple-arrays-in-javascript
+    const variants = _.reduce(opts, function(a, b) {
+        return _.flatten(_.map(a, function(x) {
+            return _.map(b, function(y) {
+                return x.concat([y]);
+            });
+        }), true);
+    }, [ [] ]);
+    return variants;
   }
 
   get skus(): Array<Sku> {
@@ -70,6 +87,10 @@ export default class SkuList extends Component {
       return this.props.fullProduct.context.name;
     }
     return 'default';
+  }
+
+  get hasVariants(): boolean {
+    return _.isEmpty(this.props.variants);
   }
 
   @autobind
@@ -118,6 +139,7 @@ export default class SkuList extends Component {
           columns={columns}
           sku={row}
           params={params}
+          variants={this.props.variants}
           updateField={this.props.updateField}
           updateFields={this.props.updateFields}
           onDeleteClick={this.showDeleteConfirmation}
@@ -141,6 +163,7 @@ export default class SkuList extends Component {
   }
 
   render(): Element {
+    this.availableVariants;
     return _.isEmpty(this.skus)
       ? this.emptyContent
       : this.skuContent(this.skus);
