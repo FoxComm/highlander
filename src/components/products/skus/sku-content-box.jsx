@@ -4,6 +4,7 @@
 
 import React, { Component, Element, PropTypes } from 'react';
 import { autobind } from 'core-decorators';
+import _ from 'lodash';
 
 import ContentBox from 'components/content-box/content-box';
 import SkuList from './sku-list';
@@ -34,6 +35,10 @@ class SkuContentBox extends Component {
   };
 
   get actions(): Element {
+    if (_.isEmpty(this.props.variants)) {
+      return null;
+    }
+
     return (
       <a styleName="add-icon" onClick={this.addAction}>
         <i className="icon-add" />
