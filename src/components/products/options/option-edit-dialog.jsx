@@ -14,14 +14,19 @@ import { FormField } from 'components/forms';
 import styles from './option-list.css';
 
 // types
-import type { Variant } from 'paragons/product';
+import type { Option } from 'paragons/product';
 
 type Props = {
-  option: Variant,
+  option: {
+    id: number|string,
+    option: Option,
+  },
+  confirmAction: Function,
+  cancelAction: Function,
 };
 
 type State = {
-  option: { [key:string]: Variant },
+  option: Option,
 };
 
 class OptionEditDialog extends Component {
@@ -31,12 +36,12 @@ class OptionEditDialog extends Component {
     option: this.props.option.option,
   };
 
-  get title() {
+  get title(): string {
     return this.props.option.id === 'new' ? 'New option' : 'Edit option';
   }
 
   @autobind
-  handleChange(value, field) {
+  handleChange(value: string, field: string) {
     const option = assoc(this.state.option, field, value);
 
     this.setState({option});

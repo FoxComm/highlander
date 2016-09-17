@@ -16,15 +16,18 @@ import OptionEditDialog from './option-edit-dialog';
 import styles from './option-list.css';
 
 // types
-import type { Variant } from 'paragons/product';
+import type { Option } from 'paragons/product';
 
 type Props = {
-  variants: { [key:string]: Variant },
+  variants: Array<Option>,
 };
 
 type State = {
-  editOption: bool,
-  variants: { [key:string]: Variant },
+  editOption?: {
+    id: string|number,
+    option: Option
+  },
+  variants: Array<Option>,
 };
 
 class OptionList extends Component {
@@ -52,7 +55,7 @@ class OptionList extends Component {
   }
 
   @autobind
-  startEditOption(id) {
+  startEditOption(id: string|number) {
     let editOption = { id };
 
     if (id !== 'new') {
@@ -70,7 +73,7 @@ class OptionList extends Component {
   }
 
   @autobind
-  deleteOption(id) {
+  deleteOption(id: string|number) {
     const { variants } = this.state;
 
     variants.splice(id, 1);
@@ -81,7 +84,7 @@ class OptionList extends Component {
   }
 
   @autobind
-  updateOption(option, id) {
+  updateOption(option: Option, id: string|number) {
     const { variants } = this.state;
 
     if (id === 'new') {
@@ -103,7 +106,7 @@ class OptionList extends Component {
     });
   }
 
-  renderOptions(variants: { [key:string]: Variant }): Array<Element> {
+  renderOptions(variants: Array<Option>): Array<Element> {
     return _.map(variants, (value, key) => {
       const reactKey = `product-variant-${key}`;
       return (

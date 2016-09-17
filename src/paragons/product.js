@@ -30,17 +30,18 @@ export type Product = {
   productId: ?number,
   attributes: Attributes,
   skus: Array<Sku>,
+  variants: Array<Option>,
   context: Context,
 };
 
-export type Variant = {
+export type Option = {
   name: ?string,
   type: ?string,
-  values: Dictionary<VariantValue>,
+  values: Dictionary<OptionValue>,
 };
 
-export type VariantValue = {
-  id: number,
+export type OptionValue = {
+  name: string,
   swatch: ?string,
   image: ?string,
 };

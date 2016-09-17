@@ -17,24 +17,32 @@ import ValueEditDialog from './value-edit-dialog';
 import styles from './option-list.css';
 
 // types
-import type { Variant, VariantValue } from 'paragons/product';
+import type { Option, OptionValue } from 'paragons/product';
 
 type Props = {
   id: string,
-  option: ?Variant,
+  option: ?Option,
   editOption: Function,
   deleteOption: Function,
   editValues: Function,
+  confirmAction: Function,
+};
+
+type State = {
+  editValue?: {
+    id: string|number,
+    value: OptionValue
+  }
 };
 
 class OptionEntry extends Component {
   props: Props;
 
-  state = {
+  state: State = {
     editValue: null,
   };
 
-  get values(): { [key:string]: VariantValue } {
+  get values(): Array<OptionValue> {
     return _.get(this.props, 'option.values', []);
   }
 
@@ -81,7 +89,7 @@ class OptionEntry extends Component {
   }
 
   @autobind
-  editValue(id, value) {
+  editValue(id: string|number, value: OptionValue) {
     let editValue = { id };
 
     if (value) {
@@ -97,7 +105,7 @@ class OptionEntry extends Component {
   };
 
   @autobind
-  deleteValue(id) {
+  deleteValue(id: string|number) {
     const values = this.values;
 
     values.splice(id, 1);
@@ -107,7 +115,7 @@ class OptionEntry extends Component {
   }
 
   @autobind
-  updateValue(value, id) {
+  updateValue(value: OptionValue, id: string|number) {
     const values = this.values;
 
     if (id === 'new') {

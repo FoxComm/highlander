@@ -15,13 +15,13 @@ import SwatchDisplay from 'components/swatch/swatch-display';
 import styles from './option-list.css';
 
 // types
-import type { VariantValue } from 'paragons/product';
+import type { OptionValue } from 'paragons/product';
 
 type Props = {
   id: string|number,
   editValue: Function,
   deleteValue: Function,
-  value: VariantValue,
+  value: OptionValue,
 };
 
 class ValueEntry extends Component {
