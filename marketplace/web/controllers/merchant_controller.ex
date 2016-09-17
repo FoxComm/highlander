@@ -53,37 +53,49 @@ defmodule Marketplace.MerchantController do
   def activate_application(conn, %{"application_id" => application_id}) do
     ma = Repo.get!(MerchantApplication, application_id)
     |> Repo.preload([:social_profile, :business_profile])
-    merchant = %{
-      name: ma.name,
-      business_name: ma.name, 
-      email_address: ma.email_address,
-      description: ma.description,
-      state: "activated"
-    } 
-    merchant_cs = Merchant.changeset(%Merchant{}, merchant)
-    
-    multi_txn = Multi.new
-    |> Multi.insert(:merchant, merchant_cs)
-    |> Multi.run(:merchant_business_profile, fn %{merchant: merchant} -> 
-      copy_business_profile_from_merchant_application(application_id, merchant) end)  
-    |> Multi.run(:merchant_social_profile, fn %{merchant: merchant} -> 
-      copy_social_profile_from_merchant_application(application_id, merchant) end)
-    |> Multi.run(:merchant_application, fn %{merchant: merchant} ->
-      update_merchant_application(application_id, merchant) end)
 
-
-    case Repo.transaction(multi_txn) do
-      {:ok, %{merchant: inserted_merchant, merchant_business_profile: m_bp, merchant_social_profile: m_sp}} -> 
-        conn 
-        |> put_status(:created)
-        |> put_resp_header("location", merchant_path(conn, :show, inserted_merchant))
-        |> render("merchant.json", merchant: inserted_merchant)
-      {:error, changeset} -> 
+    case ma.state do
+      state when state == "approved" -> 
         conn
         |> put_status(:unprocessable_entity)
-        |> render(Marketplace.ChangesetView, "errors.json", changeset: changeset)
-    end
-  end
+        |> render("already_approved.json", %{errors: "error"})
+      state when state == "new" ->
+        merchant = %{
+          name: ma.name,
+          business_name: ma.name, 
+          email_address: ma.email_address,
+          description: ma.description,
+         state: "activated"
+        } 
+        merchant_cs = Merchant.changeset(%Merchant{}, merchant)
+    
+        multi_txn = Multi.new
+        |> Multi.insert(:merchant, merchant_cs)
+        |> Multi.run(:merchant_business_profile, fn %{merchant: merchant} -> 
+          copy_business_profile_from_merchant_application(application_id, merchant) end)  
+        |> Multi.run(:merchant_social_profile, fn %{merchant: merchant} -> 
+          copy_social_profile_from_merchant_application(application_id, merchant) end)
+        |> Multi.run(:merchant_application, fn %{merchant: merchant} ->
+          update_merchant_application(application_id, merchant) end)
+
+
+        case Repo.transaction(multi_txn) do
+          {:ok, %{merchant: inserted_merchant, merchant_business_profile: m_bp, merchant_social_profile: m_sp}} -> 
+            conn 
+            |> put_status(:created)
+            |> put_resp_header("location", merchant_path(conn, :show, inserted_merchant))
+            |> render("merchant.json", merchant: inserted_merchant)
+          {:error, changeset} -> 
+            conn
+            |> put_status(:unprocessable_entity)
+            |> render(Marketplace.ChangesetView, "errors.json", changeset: changeset)
+        end
+      _ -> 
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render("invalid_state.json", %{errors: "error"})
+      end
+  end 
 
   defp copy_business_profile_from_merchant_application(ma_id, merchant) do
     ma_bp = Repo.get_by(MerchantApplicationBusinessProfile, merchant_application_id: ma_id)
